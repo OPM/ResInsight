@@ -54,7 +54,7 @@ protected:
                                                            RimEclipseInputPropertyCollection* inputPropertyCollection,
                                                            int                                gridIndex,
                                                            int                                timeStepIndex,
-                                                           RimEclipseResultDefinition* eclipseResultDefinition ) const;
+                                                           const QString&                     resultName ) const;
 
     void addOverburden( RiaDefines::CurveProperty curveProperty,
                         const RimStimPlanModel*   stimPlanModel,
@@ -71,6 +71,20 @@ protected:
     static void scaleByNetToGross( const RimStimPlanModel*    stimPlanModel,
                                    const std::vector<double>& netToGross,
                                    std::vector<double>&       values );
+
+    bool extractValuesForProperty( RiaDefines::CurveProperty curveProperty,
+                                   const RimStimPlanModel*   stimPlanModel,
+                                   int                       timeStep,
+                                   std::vector<double>&      values,
+                                   std::vector<double>&      measuredDepthValues,
+                                   std::vector<double>&      tvDepthValues,
+                                   double&                   rkbDiff ) const;
+
+    bool replaceMissingValuesWithDefault( RiaDefines::CurveProperty curveProperty,
+                                          const RimStimPlanModel*   stimPlanModel,
+                                          int                       timeStep,
+                                          const QString&            resultVariable,
+                                          std::vector<double>&      values ) const;
 
     RimStimPlanModelCalculator* m_stimPlanModelCalculator;
 };

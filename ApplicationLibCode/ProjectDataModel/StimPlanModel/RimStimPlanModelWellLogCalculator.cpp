@@ -60,8 +60,6 @@ bool RimStimPlanModelWellLogCalculator::isMatching( RiaDefines::CurveProperty cu
         RiaDefines::CurveProperty::POROSITY_UNSCALED,
         RiaDefines::CurveProperty::PERMEABILITY_X,
         RiaDefines::CurveProperty::PERMEABILITY_Z,
-        RiaDefines::CurveProperty::INITIAL_PRESSURE,
-        RiaDefines::CurveProperty::PRESSURE,
         RiaDefines::CurveProperty::NET_TO_GROSS,
     };
 
@@ -79,57 +77,8 @@ bool RimStimPlanModelWellLogCalculator::calculate( RiaDefines::CurveProperty cur
                                                    std::vector<double>&      tvDepthValues,
                                                    double&                   rkbDiff ) const
 {
-    RimEclipseCase* eclipseCase = stimPlanModel->eclipseCaseForProperty( curveProperty );
-    if ( !eclipseCase )
+    if ( !extractValuesForProperty( curveProperty, stimPlanModel, timeStep, values, measuredDepthValues, tvDepthValues, rkbDiff ) )
     {
-        return false;
-    }
-
-    if ( !stimPlanModel->thicknessDirectionWellPath() )
-    {
-        return false;
-    }
-
-    RigWellPath* wellPathGeometry = stimPlanModel->thicknessDirectionWellPath()->wellPathGeometry();
-    if ( !wellPathGeometry )
-    {
-        RiaLogging::error( "No well path geometry found for well log exctration" );
-        return false;
-    }
-
-    RigEclipseWellLogExtractor eclExtractor( eclipseCase->eclipseCaseData(), wellPathGeometry, "fracture model" );
-
-    measuredDepthValues = eclExtractor.cellIntersectionMDs();
-    tvDepthValues       = eclExtractor.cellIntersectionTVDs();
-    rkbDiff             = eclExtractor.wellPathGeometry()->rkbDiff();
-
-    RimEclipseResultDefinition eclipseResultDefinition;
-    eclipseResultDefinition.setEclipseCase( eclipseCase );
-    eclipseResultDefinition.setResultType( stimPlanModel->eclipseResultCategory( curveProperty ) );
-    eclipseResultDefinition.setPorosityModel( RiaDefines::PorosityModelType::MATRIX_MODEL );
-    eclipseResultDefinition.setResultVariable( stimPlanModel->eclipseResultVariable( curveProperty ) );
-
-    eclipseResultDefinition.loadResult();
-
-    if ( stimPlanModel->eclipseResultCategory( curveProperty ) != RiaDefines::ResultCatType::DYNAMIC_NATIVE ||
-         curveProperty == RiaDefines::CurveProperty::INITIAL_PRESSURE )
-    {
-        timeStep = 0;
-    }
-
-    cvf::ref<RigResultAccessor> resAcc =
-        RigResultAccessorFactory::createFromResultDefinition( eclipseCase->eclipseCaseData(),
-                                                              0,
-                                                              timeStep,
-                                                              &eclipseResultDefinition );
-
-    if ( resAcc.notNull() )
-    {
-        eclExtractor.curveData( resAcc.p(), &values );
-    }
-    else
-    {
-        RiaLogging::error( QString( "No result found for %1" ).arg( eclipseResultDefinition.resultVariable() ) );
         return false;
     }
 
@@ -147,64 +96,19 @@ bool RimStimPlanModelWellLogCalculator::calculate( RiaDefines::CurveProperty cur
 
     if ( hasMissingValues( values ) )
     {
+        QString resultVariable = stimPlanModel->eclipseResultVariable( curveProperty );
+
         if ( stimPlanModel->missingValueStrategy( curveProperty ) == RimStimPlanModel::MissingValueStrategy::DEFAULT_VALUE )
         {
-            // Try to locate a backup accessor (e.g. PORO_1 for PORO)
-            cvf::ref<RigResultAccessor> backupResAcc = findMissingValuesAccessor( eclipseCase->eclipseCaseData(),
-                                                                                  eclipseCase->inputPropertyCollection(),
-                                                                                  0,
-                                                                                  timeStep,
-                                                                                  &eclipseResultDefinition );
-
-            if ( backupResAcc.notNull() )
+            if ( !replaceMissingValuesWithDefault( curveProperty, stimPlanModel, timeStep, resultVariable, values ) )
             {
-                RiaLogging::info( QString( "Reading missing values from input properties for %1." )
-                                      .arg( eclipseResultDefinition.resultVariable() ) );
-                std::vector<double> replacementValues;
-                eclExtractor.curveData( backupResAcc.p(), &replacementValues );
-
-                double overburdenHeight = stimPlanModel->overburdenHeight();
-                if ( overburdenHeight > 0.0 )
-                {
-                    double defaultOverburdenValue = std::numeric_limits<double>::infinity();
-                    if ( stimPlanModel->burdenStrategy( curveProperty ) == RimStimPlanModel::BurdenStrategy::DEFAULT_VALUE )
-                    {
-                        defaultOverburdenValue = stimPlanModel->getDefaultForMissingOverburdenValue( curveProperty );
-                    }
-
-                    replacementValues.insert( replacementValues.begin(), defaultOverburdenValue );
-                    replacementValues.insert( replacementValues.begin(), defaultOverburdenValue );
-                }
-
-                double underburdenHeight = stimPlanModel->underburdenHeight();
-                if ( underburdenHeight > 0.0 )
-                {
-                    double defaultUnderburdenValue = std::numeric_limits<double>::infinity();
-                    if ( stimPlanModel->burdenStrategy( curveProperty ) == RimStimPlanModel::BurdenStrategy::DEFAULT_VALUE )
-                    {
-                        defaultUnderburdenValue = stimPlanModel->getDefaultForMissingUnderburdenValue( curveProperty );
-                    }
-
-                    replacementValues.push_back( defaultUnderburdenValue );
-                    replacementValues.push_back( defaultUnderburdenValue );
-                }
-
-                replaceMissingValues( values, replacementValues );
-            }
-
-            // If the backup accessor is not found, or does not provide all the missing values:
-            // use default value from the fracture model
-            if ( !backupResAcc.notNull() || hasMissingValues( values ) )
-            {
-                double defaultValue = stimPlanModel->getDefaultForMissingValue( curveProperty );
-                replaceMissingValues( values, defaultValue );
+                return false;
             }
         }
         else if ( stimPlanModel->missingValueStrategy( curveProperty ) ==
                   RimStimPlanModel::MissingValueStrategy::LINEAR_INTERPOLATION )
         {
-            RiaLogging::info(
-                QString( "Interpolating missing values for %1" ).arg( eclipseResultDefinition.resultVariable() ) );
+            RiaLogging::info( QString( "Interpolating missing values for %1" ).arg( resultVariable ) );
             RiaInterpolationTools::interpolateMissingValues( measuredDepthValues, values );
         }
         else
@@ -295,9 +199,9 @@ cvf::ref<RigResultAccessor>
                                                                   RimEclipseInputPropertyCollection* inputPropertyCollection,
                                                                   int                                gridIndex,
                                                                   int                                timeStepIndex,
-                                                                  RimEclipseResultDefinition* eclipseResultDefinition ) const
+                                                                  const QString&                     resultName ) const
 {
-    QString resultName = eclipseResultDefinition->resultVariable();
+    RiaDefines::PorosityModelType porosityModelType = RiaDefines::PorosityModelType::MATRIX_MODEL;
 
     for ( RimEclipseInputProperty* inputProperty : inputPropertyCollection->inputProperties() )
     {
@@ -308,13 +212,12 @@ cvf::ref<RigResultAccessor>
                 QString( "Found missing values result for %1: %2" ).arg( resultName ).arg( inputProperty->resultName() ) );
 
             RigEclipseResultAddress resultAddress( RiaDefines::ResultCatType::INPUT_PROPERTY, inputProperty->resultName() );
-            caseData->results( eclipseResultDefinition->porosityModel() )->ensureKnownResultLoaded( resultAddress );
-            cvf::ref<RigResultAccessor> resAcc =
-                RigResultAccessorFactory::createFromResultAddress( caseData,
-                                                                   gridIndex,
-                                                                   eclipseResultDefinition->porosityModel(),
-                                                                   timeStepIndex,
-                                                                   resultAddress );
+            caseData->results( porosityModelType )->ensureKnownResultLoaded( resultAddress );
+            cvf::ref<RigResultAccessor> resAcc = RigResultAccessorFactory::createFromResultAddress( caseData,
+                                                                                                    gridIndex,
+                                                                                                    porosityModelType,
+                                                                                                    timeStepIndex,
+                                                                                                    resultAddress );
 
             return resAcc;
         }
@@ -442,4 +345,151 @@ void RimStimPlanModelWellLogCalculator::scaleByNetToGross( const RimStimPlanMode
             values[i] = ntg * values[i];
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimStimPlanModelWellLogCalculator::extractValuesForProperty( RiaDefines::CurveProperty curveProperty,
+                                                                  const RimStimPlanModel*   stimPlanModel,
+                                                                  int                       timeStep,
+                                                                  std::vector<double>&      values,
+                                                                  std::vector<double>&      measuredDepthValues,
+                                                                  std::vector<double>&      tvDepthValues,
+                                                                  double&                   rkbDiff ) const
+{
+    RimEclipseCase* eclipseCase = stimPlanModel->eclipseCaseForProperty( curveProperty );
+    if ( !eclipseCase )
+    {
+        return false;
+    }
+
+    if ( !stimPlanModel->thicknessDirectionWellPath() )
+    {
+        return false;
+    }
+
+    RigWellPath* wellPathGeometry = stimPlanModel->thicknessDirectionWellPath()->wellPathGeometry();
+    if ( !wellPathGeometry )
+    {
+        RiaLogging::error( "No well path geometry found for well log exctration" );
+        return false;
+    }
+
+    RigEclipseWellLogExtractor eclExtractor( eclipseCase->eclipseCaseData(), wellPathGeometry, "fracture model" );
+
+    measuredDepthValues = eclExtractor.cellIntersectionMDs();
+    tvDepthValues       = eclExtractor.cellIntersectionTVDs();
+    rkbDiff             = eclExtractor.wellPathGeometry()->rkbDiff();
+
+    RimEclipseResultDefinition eclipseResultDefinition;
+    eclipseResultDefinition.setEclipseCase( eclipseCase );
+    eclipseResultDefinition.setResultType( stimPlanModel->eclipseResultCategory( curveProperty ) );
+    eclipseResultDefinition.setPorosityModel( RiaDefines::PorosityModelType::MATRIX_MODEL );
+    eclipseResultDefinition.setResultVariable( stimPlanModel->eclipseResultVariable( curveProperty ) );
+
+    eclipseResultDefinition.loadResult();
+
+    if ( stimPlanModel->eclipseResultCategory( curveProperty ) != RiaDefines::ResultCatType::DYNAMIC_NATIVE ||
+         curveProperty == RiaDefines::CurveProperty::INITIAL_PRESSURE )
+    {
+        timeStep = 0;
+    }
+
+    cvf::ref<RigResultAccessor> resAcc =
+        RigResultAccessorFactory::createFromResultDefinition( eclipseCase->eclipseCaseData(),
+                                                              0,
+                                                              timeStep,
+                                                              &eclipseResultDefinition );
+
+    if ( resAcc.notNull() )
+    {
+        eclExtractor.curveData( resAcc.p(), &values );
+    }
+    else
+    {
+        RiaLogging::error( QString( "No result found for %1" ).arg( eclipseResultDefinition.resultVariable() ) );
+        return false;
+    }
+
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimStimPlanModelWellLogCalculator::replaceMissingValuesWithDefault( RiaDefines::CurveProperty curveProperty,
+                                                                         const RimStimPlanModel*   stimPlanModel,
+                                                                         int                       timeStep,
+                                                                         const QString&            resultVariable,
+                                                                         std::vector<double>&      values ) const
+
+{
+    RimEclipseCase* eclipseCase = stimPlanModel->eclipseCaseForProperty( curveProperty );
+
+    if ( !stimPlanModel->thicknessDirectionWellPath() )
+    {
+        return false;
+    }
+
+    RigWellPath* wellPathGeometry = stimPlanModel->thicknessDirectionWellPath()->wellPathGeometry();
+    if ( !wellPathGeometry )
+    {
+        RiaLogging::error( "No well path geometry found for well log exctration" );
+        return false;
+    }
+
+    // Try to locate a backup accessor (e.g. PORO_1 for PORO)
+    cvf::ref<RigResultAccessor> backupResAcc = findMissingValuesAccessor( eclipseCase->eclipseCaseData(),
+                                                                          eclipseCase->inputPropertyCollection(),
+                                                                          0,
+                                                                          timeStep,
+                                                                          resultVariable );
+
+    if ( backupResAcc.notNull() )
+    {
+        RiaLogging::info( QString( "Reading missing values from input properties for %1." ).arg( resultVariable ) );
+        std::vector<double> replacementValues;
+
+        RigEclipseWellLogExtractor eclExtractor( eclipseCase->eclipseCaseData(), wellPathGeometry, "fracture model" );
+        eclExtractor.curveData( backupResAcc.p(), &replacementValues );
+
+        double overburdenHeight = stimPlanModel->overburdenHeight();
+        if ( overburdenHeight > 0.0 )
+        {
+            double defaultOverburdenValue = std::numeric_limits<double>::infinity();
+            if ( stimPlanModel->burdenStrategy( curveProperty ) == RimStimPlanModel::BurdenStrategy::DEFAULT_VALUE )
+            {
+                defaultOverburdenValue = stimPlanModel->getDefaultForMissingOverburdenValue( curveProperty );
+            }
+
+            replacementValues.insert( replacementValues.begin(), defaultOverburdenValue );
+            replacementValues.insert( replacementValues.begin(), defaultOverburdenValue );
+        }
+
+        double underburdenHeight = stimPlanModel->underburdenHeight();
+        if ( underburdenHeight > 0.0 )
+        {
+            double defaultUnderburdenValue = std::numeric_limits<double>::infinity();
+            if ( stimPlanModel->burdenStrategy( curveProperty ) == RimStimPlanModel::BurdenStrategy::DEFAULT_VALUE )
+            {
+                defaultUnderburdenValue = stimPlanModel->getDefaultForMissingUnderburdenValue( curveProperty );
+            }
+
+            replacementValues.push_back( defaultUnderburdenValue );
+            replacementValues.push_back( defaultUnderburdenValue );
+        }
+
+        replaceMissingValues( values, replacementValues );
+    }
+
+    // If the backup accessor is not found, or does not provide all the missing values:
+    // use default value from the fracture model
+    if ( !backupResAcc.notNull() || hasMissingValues( values ) )
+    {
+        double defaultValue = stimPlanModel->getDefaultForMissingValue( curveProperty );
+        replaceMissingValues( values, defaultValue );
+    }
+
+    return true;
 }
