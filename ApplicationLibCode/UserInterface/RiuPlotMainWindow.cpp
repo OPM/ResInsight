@@ -50,6 +50,7 @@
 #include "RiuTreeViewEventFilter.h"
 #include "RiuWellAllocationPlot.h"
 
+#include "cafCmdExecCommandManager.h"
 #include "cafCmdFeatureManager.h"
 #include "cafPdmObjectHandle.h"
 #include "cafPdmUiPropertyView.h"
@@ -58,7 +59,6 @@
 #include "cafQTreeViewStateSerializer.h"
 #include "cafSelectionManager.h"
 
-#include "cafCmdExecCommandManager.h"
 #include <QCloseEvent>
 #include <QDockWidget>
 #include <QLayout>
