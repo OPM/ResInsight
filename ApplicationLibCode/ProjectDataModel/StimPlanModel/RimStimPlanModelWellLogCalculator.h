@@ -72,13 +72,13 @@ protected:
                                    const std::vector<double>& netToGross,
                                    std::vector<double>&       values );
 
-    bool extractValuesForProperty( RiaDefines::CurveProperty curveProperty,
-                                   const RimStimPlanModel*   stimPlanModel,
-                                   int                       timeStep,
-                                   std::vector<double>&      values,
-                                   std::vector<double>&      measuredDepthValues,
-                                   std::vector<double>&      tvDepthValues,
-                                   double&                   rkbDiff ) const;
+    virtual bool extractValuesForProperty( RiaDefines::CurveProperty curveProperty,
+                                           const RimStimPlanModel*   stimPlanModel,
+                                           int                       timeStep,
+                                           std::vector<double>&      values,
+                                           std::vector<double>&      measuredDepthValues,
+                                           std::vector<double>&      tvDepthValues,
+                                           double&                   rkbDiff ) const;
 
     bool replaceMissingValuesWithDefault( RiaDefines::CurveProperty curveProperty,
                                           const RimStimPlanModel*   stimPlanModel,

@@ -29,6 +29,7 @@
 #include "RimStimPlanModelCalculator.h"
 #include "RimStimPlanModelElasticPropertyCalculator.h"
 #include "RimStimPlanModelLayerCalculator.h"
+#include "RimStimPlanModelPressureCalculator.h"
 #include "RimStimPlanModelPropertyCalculator.h"
 #include "RimStimPlanModelStressCalculator.h"
 #include "RimStimPlanModelWellLogCalculator.h"
@@ -40,6 +41,8 @@ RimStimPlanModelCalculator::RimStimPlanModelCalculator()
 {
     m_resultCalculators.push_back(
         std::unique_ptr<RimStimPlanModelPropertyCalculator>( new RimStimPlanModelWellLogCalculator( this ) ) );
+    m_resultCalculators.push_back(
+        std::unique_ptr<RimStimPlanModelPropertyCalculator>( new RimStimPlanModelPressureCalculator( this ) ) );
     m_resultCalculators.push_back(
         std::unique_ptr<RimStimPlanModelPropertyCalculator>( new RimStimPlanModelElasticPropertyCalculator( this ) ) );
     m_resultCalculators.push_back(
