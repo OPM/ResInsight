@@ -58,6 +58,7 @@
 #include "cafQTreeViewStateSerializer.h"
 #include "cafSelectionManager.h"
 
+#include "cafCmdExecCommandManager.h"
 #include <QCloseEvent>
 #include <QDockWidget>
 #include <QLayout>
@@ -65,6 +66,8 @@
 #include <QMenuBar>
 #include <QToolBar>
 #include <QTreeView>
+#include <QUndoStack>
+#include <QUndoView>
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -86,9 +89,10 @@ RiuPlotMainWindow::RiuPlotMainWindow()
 
     m_dragDropInterface = std::unique_ptr<caf::PdmUiDragDropInterface>( new RiuDragDrop() );
 
-    // Enabling the line below will activate the undo stack
-    // When enableUndoCommandSystem is set false, all commands are executed and deleted immediately
-    // caf::CmdExecCommandManager::instance()->enableUndoCommandSystem(true);
+    m_undoView->setStack( caf::CmdExecCommandManager::instance()->undoStack() );
+    connect( caf::CmdExecCommandManager::instance()->undoStack(),
+             SIGNAL( indexChanged( int ) ),
+             SLOT( slotRefreshUndoRedoActions() ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -305,6 +309,9 @@ void RiuPlotMainWindow::createMenus()
     editMenu->addAction( cmdFeatureMgr->action( "RicSnapshotViewToPdfFeature" ) );
     editMenu->addSeparator();
     editMenu->addAction( cmdFeatureMgr->action( "RicEditPreferencesFeature" ) );
+    editMenu->addSeparator();
+    editMenu->addAction( m_undoAction );
+    editMenu->addAction( m_redoAction );
 
     // View menu
     QMenu* viewMenu = menuBar()->addMenu( "&View" );
@@ -399,6 +406,13 @@ void RiuPlotMainWindow::createToolBars()
 
     m_multiPlotToolBarEditor = new caf::PdmUiToolBarEditor( "Multi Plot", this );
     m_multiPlotToolBarEditor->hide();
+
+    {
+        QToolBar* toolbar = addToolBar( tr( "Edit" ) );
+        toolbar->setObjectName( toolbar->windowTitle() );
+        toolbar->addAction( m_undoAction );
+        toolbar->addAction( m_redoAction );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -472,6 +486,16 @@ void RiuPlotMainWindow::createDockPanels()
         dockWidget->setWidget( m_messagePanel );
         addDockWidget( Qt::BottomDockWidgetArea, dockWidget );
         dockWidget->hide();
+    }
+
+    {
+        QDockWidget* dockWidget = new QDockWidget( "Undo Stack", this );
+        dockWidget->setObjectName( "PlotUndoStackWidget" );
+        dockWidget->setAllowedAreas( Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea );
+
+        dockWidget->setWidget( m_undoView );
+
+        addDockWidget( Qt::RightDockWidgetArea, dockWidget );
     }
 
     setCorner( Qt::BottomLeftCorner, Qt::LeftDockWidgetArea );

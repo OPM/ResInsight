@@ -95,6 +95,7 @@
 #include <QToolButton>
 #include <QTreeView>
 #include <QUndoStack>
+#include <QUndoView>
 
 #include <QDebug>
 
@@ -131,6 +132,12 @@ RiuMainWindow::RiuMainWindow()
     createDockPanels();
 
     m_dragDropInterface = std::unique_ptr<caf::PdmUiDragDropInterface>( new RiuDragDrop() );
+
+    caf::CmdExecCommandManager::instance()->enableUndoCommandSystem( true );
+    m_undoView->setStack( caf::CmdExecCommandManager::instance()->undoStack() );
+    connect( caf::CmdExecCommandManager::instance()->undoStack(),
+             SIGNAL( indexChanged( int ) ),
+             SLOT( slotRefreshUndoRedoActions() ) );
 
     initializeGuiNewProjectLoaded();
 
@@ -203,7 +210,7 @@ void RiuMainWindow::initializeGuiNewProjectLoaded()
     }
 
     slotRefreshFileActions();
-    slotRefreshEditActions();
+    slotRefreshUndoRedoActions();
     slotRefreshViewActions();
     refreshAnimationActions();
     refreshDrawStyleActions();
@@ -501,6 +508,9 @@ void RiuMainWindow::createMenus()
     editMenu->addAction( cmdFeatureMgr->action( "RicShowMemoryCleanupDialogFeature" ) );
     editMenu->addSeparator();
     editMenu->addAction( cmdFeatureMgr->action( "RicEditPreferencesFeature" ) );
+    editMenu->addSeparator();
+    editMenu->addAction( m_undoAction );
+    editMenu->addAction( m_redoAction );
 
     connect( editMenu, SIGNAL( aboutToShow() ), SLOT( slotRefreshEditActions() ) );
 
@@ -572,6 +582,13 @@ void RiuMainWindow::createToolBars()
         toolbar->addAction( cmdFeatureMgr->action( "RicImportGeneralDataFeature" ) );
         toolbar->addAction( cmdFeatureMgr->action( "RicOpenProjectFeature" ) );
         toolbar->addAction( cmdFeatureMgr->action( "RicSaveProjectFeature" ) );
+    }
+
+    {
+        QToolBar* toolbar = addToolBar( tr( "Edit" ) );
+        toolbar->setObjectName( toolbar->windowTitle() );
+        toolbar->addAction( m_undoAction );
+        toolbar->addAction( m_redoAction );
     }
 
     {
@@ -822,6 +839,16 @@ void RiuMainWindow::createDockPanels()
         dockWidget->hide();
     }
 
+    {
+        QDockWidget* dockWidget = new QDockWidget( "Undo Stack", this );
+        dockWidget->setObjectName( "MainUndoStackWidget" );
+        dockWidget->setAllowedAreas( Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea );
+
+        dockWidget->setWidget( m_undoView );
+
+        addDockWidget( Qt::RightDockWidgetArea, dockWidget );
+    }
+
     setCorner( Qt::BottomLeftCorner, Qt::LeftDockWidgetArea );
     setCorner( Qt::BottomRightCorner, Qt::BottomDockWidgetArea );
 
@@ -878,15 +905,6 @@ void RiuMainWindow::slotRefreshFileActions()
     commandIdList << "RicExportCompletionsForVisibleWellPathsFeature";
     commandIdList << "RicExportVisibleWellPathsFeature";
     cmdFeatureMgr->refreshStates( commandIdList );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiuMainWindow::slotRefreshEditActions()
-{
-    //     RiaApplication* app = RiaApplication::instance();
-    //     RISceneManager* proj = app->project();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1472,7 +1490,7 @@ void RiuMainWindow::selectedObjectsChanged()
             refreshDrawStyleActions();
             refreshAnimationActions();
             slotRefreshFileActions();
-            slotRefreshEditActions();
+            slotRefreshUndoRedoActions();
             slotRefreshViewActions();
 
             // The only way to get to this code is by selection change initiated from the project tree view

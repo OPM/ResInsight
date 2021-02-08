@@ -32,6 +32,7 @@ class PdmUiItem;
 
 class QMdiArea;
 class QMdiSubWindow;
+class QUndoView;
 
 //==================================================================================================
 ///
@@ -94,10 +95,19 @@ protected slots:
     void slotDockWidgetToggleViewActionTriggered();
     void slotRefreshHelpActions();
 
+    void slotRedo();
+    void slotUndo();
+    void slotRefreshUndoRedoActions();
+
 protected:
     caf::PdmUiTreeView* m_projectTreeView;
     bool                m_allowActiveViewChangeFromSelection; // To be used in selectedObjectsChanged() to control
                                                // whether to select the corresponding active view or not
+
+    QAction*   m_undoAction;
+    QAction*   m_redoAction;
+    QUndoView* m_undoView;
+
 private:
     QString registryFolderName();
 
