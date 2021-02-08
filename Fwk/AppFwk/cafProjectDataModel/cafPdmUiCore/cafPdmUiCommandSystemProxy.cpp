@@ -90,18 +90,18 @@ void PdmUiCommandSystemProxy::setUiValueToField( PdmUiFieldHandle* uiFieldHandle
         fieldsToUpdate.push_back( editorField );
 
         // For level 1 selection, find all fields with same keyword
-        // Todo: Should traverse the ui ordering and find all fields with same keyword and same ownerobject type.
+        // Todo: Should traverse the ui ordering and find all fields with same keyword and same owner object type.
         //       Until we do, fields embedded into the property panel from a different object will not work with
-        //       multiselection edit For now we only makes sure we have same ownerobject type
+        //       multi selection edit For now we only makes sure we have same owner object type
         {
             std::vector<PdmUiItem*> items;
 
-            int selectionLevel = 1; // = 0;
+            int selectionLevel = 0;
             SelectionManager::instance()->selectedItems( items, selectionLevel );
 
-            for ( size_t i = 0; i < items.size(); i++ )
+            for ( auto& item : items )
             {
-                PdmObjectHandle* objectHandle = dynamic_cast<PdmObjectHandle*>( items[i] );
+                PdmObjectHandle* objectHandle = dynamic_cast<PdmObjectHandle*>( item );
                 if ( objectHandle && typeid( *objectHandle ) == fieldOwnerTypeId )
                 {
                     // An object is selected, find field with same keyword as the current field being edited
@@ -115,7 +115,7 @@ void PdmUiCommandSystemProxy::setUiValueToField( PdmUiFieldHandle* uiFieldHandle
                 {
                     // Todo Remove when dust has settled. Selection manager is not supposed to select single fields
                     // A field is selected, check if keywords are identical
-                    PdmUiFieldHandle* itemFieldHandle = dynamic_cast<PdmUiFieldHandle*>( items[i] );
+                    PdmUiFieldHandle* itemFieldHandle = dynamic_cast<PdmUiFieldHandle*>( item );
                     if ( itemFieldHandle )
                     {
                         PdmFieldHandle* field = itemFieldHandle->fieldHandle();

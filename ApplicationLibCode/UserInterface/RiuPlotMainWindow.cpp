@@ -832,10 +832,9 @@ void RiuPlotMainWindow::selectedObjectsChanged()
     m_projectTreeView->selectedUiItems( uiItems );
 
     caf::PdmObjectHandle* firstSelectedObject = nullptr;
-
-    if ( uiItems.size() == 1 )
+    if ( !uiItems.empty() )
     {
-        firstSelectedObject = dynamic_cast<caf::PdmObjectHandle*>( uiItems[0] );
+        firstSelectedObject = dynamic_cast<caf::PdmObjectHandle*>( uiItems.front() );
     }
 
     m_pdmUiPropertyView->showProperties( firstSelectedObject );
@@ -846,7 +845,7 @@ void RiuPlotMainWindow::selectedObjectsChanged()
 
         if ( !firstSelectedObject )
         {
-            caf::PdmFieldHandle* selectedField = dynamic_cast<caf::PdmFieldHandle*>( uiItems[0] );
+            caf::PdmFieldHandle* selectedField = dynamic_cast<caf::PdmFieldHandle*>( uiItems.front() );
             if ( selectedField ) firstSelectedObject = selectedField->ownerObject();
         }
 
