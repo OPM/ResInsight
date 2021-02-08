@@ -841,12 +841,12 @@ void RiuMainWindow::createDockPanels()
 
     {
         QDockWidget* dockWidget = new QDockWidget( "Undo Stack", this );
-        dockWidget->setObjectName( "MainUndoStackWidget" );
+        dockWidget->setObjectName( RiuDockWidgetTools::undoStackName() );
         dockWidget->setAllowedAreas( Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea );
-
         dockWidget->setWidget( m_undoView );
 
         addDockWidget( Qt::RightDockWidgetArea, dockWidget );
+        dockWidget->hide();
     }
 
     setCorner( Qt::BottomLeftCorner, Qt::LeftDockWidgetArea );
@@ -1407,6 +1407,7 @@ void RiuMainWindow::slotBuildWindowActions()
     appendToggleActionForDockingWidget( m_windowMenu, this, RiuDockWidgetTools::propertyEditorName() );
     appendToggleActionForDockingWidget( m_windowMenu, this, RiuDockWidgetTools::messagesName() );
     appendToggleActionForDockingWidget( m_windowMenu, this, RiuDockWidgetTools::processMonitorName() );
+    appendToggleActionForDockingWidget( m_windowMenu, this, RiuDockWidgetTools::undoStackName() );
 
     m_windowMenu->addSeparator();
 

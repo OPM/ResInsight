@@ -45,10 +45,12 @@ public:
     static QString pvtPlotName();
     static QString messagesName();
     static QString mohrsCirclePlotName();
+    static QString undoStackName();
 
     static QString plotMainWindowProjectTreeName();
     static QString plotMainWindowPropertyEditorName();
     static QString plotMainWindowMessagesName();
+    static QString plotMainWindowUndoStackName();
 
     static QAction* toggleActionForWidget( const QObject* parent, const QString& dockWidgetName );
 

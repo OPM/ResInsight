@@ -490,12 +490,13 @@ void RiuPlotMainWindow::createDockPanels()
 
     {
         QDockWidget* dockWidget = new QDockWidget( "Undo Stack", this );
-        dockWidget->setObjectName( "PlotUndoStackWidget" );
+        dockWidget->setObjectName( RiuDockWidgetTools::plotMainWindowUndoStackName() );
         dockWidget->setAllowedAreas( Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea );
 
         dockWidget->setWidget( m_undoView );
-
         addDockWidget( Qt::RightDockWidgetArea, dockWidget );
+
+        dockWidget->hide();
     }
 
     setCorner( Qt::BottomLeftCorner, Qt::LeftDockWidgetArea );
