@@ -14,6 +14,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RimStimPlanModelPropertyCalculator.h
 ${CMAKE_CURRENT_LIST_DIR}/RimStimPlanModelPropertyCurve.h
 ${CMAKE_CURRENT_LIST_DIR}/RimStimPlanModelStressCalculator.h
 ${CMAKE_CURRENT_LIST_DIR}/RimStimPlanModelWellLogCalculator.h
+${CMAKE_CURRENT_LIST_DIR}/RimStimPlanModelPressureCalculator.h
 ${CMAKE_CURRENT_LIST_DIR}/RimElasticProperties.h
 ${CMAKE_CURRENT_LIST_DIR}/RimElasticPropertyScaling.h
 ${CMAKE_CURRENT_LIST_DIR}/RimElasticPropertyScalingCollection.h
@@ -34,6 +35,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RimStimPlanModelPlotCollection.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimStimPlanModelPlot.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimStimPlanModelStressCalculator.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimStimPlanModelWellLogCalculator.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimStimPlanModelPressureCalculator.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimElasticProperties.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimElasticPropertyScaling.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimElasticPropertyScalingCollection.cpp
