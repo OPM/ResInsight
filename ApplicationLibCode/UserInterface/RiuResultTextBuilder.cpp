@@ -692,6 +692,28 @@ void RiuResultTextBuilder::appendTextFromResultColors( RigEclipseCaseData*      
                     scalarValue = resultAccessor->cellFaceScalar( cellIndex, cvf::StructGridInterface::POS_K );
                     resultInfoText->append( QString( "riMult Z : %1\n" ).arg( scalarValue ) );
                 }
+                return;
+            }
+            else if ( resultColors->resultVariable().compare( RiaResultNames::combinedRiAreaNormTranResultName(),
+                                                              Qt::CaseInsensitive ) == 0 )
+            {
+                cvf::ref<RigResultAccessor> resultAccessor =
+                    RigResultAccessorFactory::createFromResultAddress( eclipseCase,
+                                                                       gridIndex,
+                                                                       porosityModel,
+                                                                       0,
+                                                                       RigEclipseResultAddress(
+                                                                           RiaResultNames::combinedRiAreaNormTranResultName() ) );
+                {
+                    double scalarValue = resultAccessor->cellFaceScalar( cellIndex, cvf::StructGridInterface::POS_I );
+                    resultInfoText->append( QString( "riTransByArea X : %1\n" ).arg( scalarValue ) );
+
+                    scalarValue = resultAccessor->cellFaceScalar( cellIndex, cvf::StructGridInterface::POS_J );
+                    resultInfoText->append( QString( "riTransByArea Y : %1\n" ).arg( scalarValue ) );
+
+                    scalarValue = resultAccessor->cellFaceScalar( cellIndex, cvf::StructGridInterface::POS_K );
+                    resultInfoText->append( QString( "riTransByArea Z : %1\n" ).arg( scalarValue ) );
+                }
 
                 return;
             }

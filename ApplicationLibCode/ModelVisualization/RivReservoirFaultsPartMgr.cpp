@@ -177,6 +177,7 @@ void RivReservoirFaultsPartMgr::appendPartsToModel( cvf::ModelBasicList* model )
                 {
                     QStringList stringsToMatch{ RiaResultNames::combinedRiTranResultName(),
                                                 RiaResultNames::combinedRiMultResultName(),
+                                                RiaResultNames::combinedRiAreaNormTranResultName(),
                                                 RiaResultNames::combinedTransmissibilityResultName(),
                                                 RiaResultNames::combinedMultResultName() };
 

@@ -47,6 +47,10 @@ bool RiaResultNames::isPerCellFaceResult( const QString& resultName )
     {
         return true;
     }
+    else if ( resultName.compare( RiaResultNames::combinedRiAreaNormTranResultName(), Qt::CaseInsensitive ) == 0 )
+    {
+        return true;
+    }
     else if ( resultName.compare( RiaResultNames::combinedWaterFluxResultName(), Qt::CaseInsensitive ) == 0 )
     {
         return true;
@@ -224,6 +228,38 @@ QString RiaResultNames::combinedRiMultResultName()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString RiaResultNames::riAreaNormTranXResultName()
+{
+    return "riTRANXbyArea";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RiaResultNames::riAreaNormTranYResultName()
+{
+    return "riTRANYbyArea";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RiaResultNames::riAreaNormTranZResultName()
+{
+    return "riTRANZbyArea";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RiaResultNames::combinedRiAreaNormTranResultName()
+{
+    return "riTRANXYZbyArea";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString RiaResultNames::riCellVolumeResultName()
 {
     return "riCELLVOLUME";
@@ -344,6 +380,7 @@ std::set<QString> RiaResultNames::nncResultNames()
              combinedWaterFluxResultName(),
              combinedGasFluxResultName(),
              combinedOilFluxResultName(),
+             combinedRiAreaNormTranResultName(),
              combinedRiMultResultName(),
              combinedRiTranResultName() };
 }
