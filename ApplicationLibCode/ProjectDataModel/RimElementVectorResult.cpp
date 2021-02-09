@@ -511,15 +511,13 @@ void RimElementVectorResult::defineUiOrdering( QString uiConfigName, caf::PdmUiO
     visibilityGroup->add( &m_showNncData );
     visibilityGroup->add( &m_threshold );
 
-    caf::PdmUiGroup* vectorColorsGroup = uiOrdering.addNewGroup( "Vector Colors" );
-    vectorColorsGroup->add( &m_vectorColor );
+    caf::PdmUiGroup* apperanceGroup = uiOrdering.addNewGroup( "Appearance" );
+    apperanceGroup->add( &m_vectorColor );
     if ( m_vectorColor == TensorColors::UNIFORM_COLOR )
     {
-        vectorColorsGroup->add( &m_uniformVectorColor );
+        apperanceGroup->add( &m_uniformVectorColor );
     }
-
-    caf::PdmUiGroup* vectorSizeGroup = uiOrdering.addNewGroup( "Vector Size" );
-    vectorSizeGroup->add( &m_sizeScale );
+    apperanceGroup->add( &m_sizeScale );
 
     uiOrdering.skipRemainingFields( true );
 }
