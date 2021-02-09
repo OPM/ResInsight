@@ -230,6 +230,8 @@
         <file>ObjectiveFunctionWeight.svg</file>
         <file>CellFilter_UserDefined.png</file>
         <file>CellFilter_Polygon.png</file>
+        <file>undo.png</file>
+        <file>redo.png</file>
     </qresource>
     <qresource prefix="/Shader">
         <file>fs_CellFace.glsl</file>

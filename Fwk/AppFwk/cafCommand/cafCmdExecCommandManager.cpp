@@ -137,7 +137,7 @@ QUndoStack* CmdExecCommandManager::undoStack()
 //--------------------------------------------------------------------------------------------------
 void CmdExecCommandManager::processExecuteCommand( CmdExecuteCommand* executeCommand )
 {
-    if ( isUndoEnabledForCurrentCommand( executeCommand ) )
+    if ( isUndoEnabledForCommand( executeCommand ) )
     {
         // Transfer ownership of execute command to wrapper object
         UndoRedoWrapper* undoRedoWrapper = new UndoRedoWrapper( executeCommand );
@@ -156,34 +156,33 @@ void CmdExecCommandManager::processExecuteCommand( CmdExecuteCommand* executeCom
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void CmdExecCommandManager::processExecuteCommandsAsMacro( const QString&                   macroName,
-                                                           std::vector<CmdExecuteCommand*>& commands )
+void CmdExecCommandManager::processExecuteCommandsAsMacro( const std::vector<CmdExecuteCommand*>& commands )
 {
-    if ( commands.size() == 0 )
+    if ( !commands.empty() && isUndoEnabledForCommand( commands.front() ) )
     {
-        return;
+        auto firstCommand = commands.front();
+        if ( isUndoEnabledForCommand( firstCommand ) )
+        {
+            QString macroName = firstCommand->name() + " (multiple objects)";
+
+            m_undoStack->beginMacro( macroName );
+            for ( auto command : commands )
+            {
+                UndoRedoWrapper* undoRedoWrapper = new UndoRedoWrapper( command );
+                m_undoStack->push( undoRedoWrapper );
+            }
+            m_undoStack->endMacro();
+
+            return;
+        }
     }
 
-    if ( isUndoEnabledForCurrentCommand( commands[0] ) )
+    for ( caf::CmdExecuteCommand* executeCommand : commands )
     {
-        m_undoStack->beginMacro( macroName );
-        for ( size_t i = 0; i < commands.size(); i++ )
+        if ( executeCommand )
         {
-            UndoRedoWrapper* undoRedoWrapper = new UndoRedoWrapper( commands[i] );
-            m_undoStack->push( undoRedoWrapper );
-        }
-        m_undoStack->endMacro();
-    }
-    else
-    {
-        for ( size_t i = 0; i < commands.size(); i++ )
-        {
-            CmdExecuteCommand* executeCommand = commands[i];
-            if ( executeCommand )
-            {
-                executeCommand->redo();
-                delete executeCommand;
-            }
+            executeCommand->redo();
+            delete executeCommand;
         }
     }
 }
@@ -191,7 +190,7 @@ void CmdExecCommandManager::processExecuteCommandsAsMacro( const QString&       
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool CmdExecCommandManager::isUndoEnabledForCurrentCommand( CmdExecuteCommand* command )
+bool CmdExecCommandManager::isUndoEnabledForCommand( CmdExecuteCommand* command )
 {
     bool useUndo = false;
 

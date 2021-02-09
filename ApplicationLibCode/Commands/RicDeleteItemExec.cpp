@@ -32,7 +32,12 @@
 //--------------------------------------------------------------------------------------------------
 QString RicDeleteItemExec::name()
 {
-    return m_commandData->classKeyword();
+    if ( !m_commandData.m_description().isEmpty() )
+    {
+        return m_commandData.m_description();
+    }
+
+    return m_commandData.classKeyword();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -41,7 +46,7 @@ QString RicDeleteItemExec::name()
 void RicDeleteItemExec::redo()
 {
     caf::PdmFieldHandle* field =
-        caf::PdmReferenceHelper::fieldFromReference( m_commandData->m_rootObject, m_commandData->m_pathToField );
+        caf::PdmReferenceHelper::fieldFromReference( m_commandData.m_rootObject, m_commandData.m_pathToField );
 
     caf::PdmChildArrayFieldHandle* listField = dynamic_cast<caf::PdmChildArrayFieldHandle*>( field );
     if ( listField )
@@ -49,20 +54,20 @@ void RicDeleteItemExec::redo()
         std::vector<caf::PdmObjectHandle*> children;
         listField->childObjects( &children );
 
-        caf::PdmObjectHandle* obj = children[m_commandData->m_indexToObject];
+        caf::PdmObjectHandle* obj = children[m_commandData.m_indexToObject];
         caf::SelectionManager::instance()->removeObjectFromAllSelections( obj );
 
         std::vector<caf::PdmObjectHandle*> referringObjects;
         obj->objectsWithReferringPtrFields( referringObjects );
 
-        if ( m_commandData->m_deletedObjectAsXml().isEmpty() )
+        if ( m_commandData.m_deletedObjectAsXml().isEmpty() )
         {
-            m_commandData->m_deletedObjectAsXml = xmlObj( obj )->writeObjectToXmlString();
+            m_commandData.m_deletedObjectAsXml = xmlObj( obj )->writeObjectToXmlString();
         }
 
         delete obj;
 
-        listField->erase( m_commandData->m_indexToObject );
+        listField->erase( m_commandData.m_indexToObject );
 
         caf::PdmObjectHandle* parentObj = listField->ownerObject();
         parentObj->uiCapability()->updateConnectedEditors();
@@ -76,22 +81,32 @@ void RicDeleteItemExec::redo()
 void RicDeleteItemExec::undo()
 {
     caf::PdmFieldHandle* field =
-        caf::PdmReferenceHelper::fieldFromReference( m_commandData->m_rootObject, m_commandData->m_pathToField );
+        caf::PdmReferenceHelper::fieldFromReference( m_commandData.m_rootObject, m_commandData.m_pathToField );
 
     caf::PdmChildArrayFieldHandle* listField = dynamic_cast<caf::PdmChildArrayFieldHandle*>( field );
     if ( listField )
     {
         caf::PdmObjectHandle* obj =
-            caf::PdmXmlObjectHandle::readUnknownObjectFromXmlString( m_commandData->m_deletedObjectAsXml(),
+            caf::PdmXmlObjectHandle::readUnknownObjectFromXmlString( m_commandData.m_deletedObjectAsXml(),
                                                                      caf::PdmDefaultObjectFactory::instance(),
                                                                      false );
 
-        listField->insertAt( m_commandData->m_indexToObject, obj );
+        listField->insertAt( m_commandData.m_indexToObject, obj );
 
         obj->xmlCapability()->initAfterReadRecursively();
+        obj->xmlCapability()->resolveReferencesRecursively();
 
         listField->uiCapability()->updateConnectedEditors();
         listField->ownerObject()->uiCapability()->updateConnectedEditors();
+
+        caf::PdmObjectHandle* parentObj = listField->ownerObject();
+        if ( parentObj )
+        {
+            std::vector<caf::PdmObjectHandle*> referringObjects;
+
+            // TODO: Here we need a different concept like onChildAdded()
+            parentObj->onChildDeleted( listField, referringObjects );
+        }
 
         if ( m_notificationCenter ) m_notificationCenter->notifyObservers();
     }
@@ -103,13 +118,12 @@ void RicDeleteItemExec::undo()
 RicDeleteItemExec::RicDeleteItemExec( caf::NotificationCenter* notificationCenter )
     : CmdExecuteCommand( notificationCenter )
 {
-    m_commandData = new RicDeleteItemExecData;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicDeleteItemExecData* RicDeleteItemExec::commandData()
+RicDeleteItemExecData& RicDeleteItemExec::commandData()
 {
     return m_commandData;
 }

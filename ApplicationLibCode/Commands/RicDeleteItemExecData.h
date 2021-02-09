@@ -37,7 +37,8 @@ public:
                             "CmdDeleteItemExecData tooltip",
                             "CmdDeleteItemExecData whatsthis" );
 
-        CAF_PDM_InitField( &m_pathToField, "PathToField", QString(), "PathToField", "", "PathToField tooltip", "PathToField whatsthis" );
+        CAF_PDM_InitFieldNoDefault( &m_pathToField, "PathToField", "PathToField", "", "", "" );
+        CAF_PDM_InitFieldNoDefault( &m_description, "Description", "Description", "", "", "" );
         CAF_PDM_InitField( &m_indexToObject,
                            "indexToObject",
                            -1,
@@ -56,6 +57,7 @@ public:
 
     caf::PdmPointer<caf::PdmObjectHandle> m_rootObject;
 
+    caf::PdmField<QString> m_description;
     caf::PdmField<QString> m_pathToField;
     caf::PdmField<int>     m_indexToObject;
     caf::PdmField<QString> m_deletedObjectAsXml;

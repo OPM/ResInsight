@@ -95,6 +95,14 @@ QString RiuDockWidgetTools::mohrsCirclePlotName()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString RiuDockWidgetTools::undoStackName()
+{
+    return "dockUndoStack";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString RiuDockWidgetTools::plotMainWindowProjectTreeName()
 {
     return "plotMainWindow_dockProjectTree";
@@ -114,6 +122,14 @@ QString RiuDockWidgetTools::plotMainWindowPropertyEditorName()
 QString RiuDockWidgetTools::plotMainWindowMessagesName()
 {
     return "plotMainWindow_dockMessages";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RiuDockWidgetTools::plotMainWindowUndoStackName()
+{
+    return "plotMainWindow_dockUndoStack";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -139,6 +155,7 @@ QMap<QString, QVariant> RiuDockWidgetTools::widgetVisibilitiesForEclipse()
     widgetVisibility[RiuDockWidgetTools::relPermPlotName()]    = true;
     widgetVisibility[RiuDockWidgetTools::pvtPlotName()]        = true;
     widgetVisibility[RiuDockWidgetTools::messagesName()]       = true;
+    widgetVisibility[RiuDockWidgetTools::undoStackName()]      = false;
 
     widgetVisibility[RiuDockWidgetTools::mohrsCirclePlotName()] = false;
 
@@ -160,6 +177,7 @@ QMap<QString, QVariant> RiuDockWidgetTools::widgetVisibilitiesForGeoMech()
     widgetVisibility[RiuDockWidgetTools::relPermPlotName()]    = false;
     widgetVisibility[RiuDockWidgetTools::pvtPlotName()]        = false;
     widgetVisibility[RiuDockWidgetTools::messagesName()]       = true;
+    widgetVisibility[RiuDockWidgetTools::undoStackName()]      = false;
 
     widgetVisibility[RiuDockWidgetTools::mohrsCirclePlotName()] = true;
 

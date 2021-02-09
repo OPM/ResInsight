@@ -96,6 +96,7 @@ public:
     bool    useShaders() const;
     bool    show3dInformation() const;
     QString gtestFilter() const;
+    bool    useUndoRedo() const;
 
     const QString& dateFormat() const;
     const QString& timeFormat() const;
@@ -216,6 +217,7 @@ private:
     caf::PdmField<bool>    m_useMultipleThreadsWhenLoadingSummaryData;
     caf::PdmField<bool>    m_showProgressBar;
     caf::PdmField<QString> m_gtestFilter;
+    caf::PdmField<bool>    m_useUndoRedo;
 
     caf::PdmField<caf::AppEnum<RiaDefines::ThemeEnum>> m_guiTheme;
 
