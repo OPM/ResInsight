@@ -145,6 +145,15 @@ bool RiuRelativePermeabilityPlotUpdater::queryDataAndUpdatePlot( const RimEclips
 
     if ( !eclipseResDef ) return false;
 
+    if ( eclipseResDef->porosityModel() == RiaDefines::PorosityModelType::FRACTURE_MODEL )
+    {
+        // Fracture model is currently not supported. If a dual porosity model is present, the PORV values
+        // for the matrix model is used. It will require some changes in the flow diagnostics module to be
+        // able support fracture model plotting.
+
+        return false;
+    }
+
     RimEclipseResultCase* eclipseResultCase = dynamic_cast<RimEclipseResultCase*>( eclipseResDef->eclipseCase() );
     RigEclipseCaseData*   eclipseCaseData   = eclipseResultCase ? eclipseResultCase->eclipseCaseData() : nullptr;
 
