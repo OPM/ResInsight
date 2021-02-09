@@ -71,7 +71,7 @@ public:
 
     // Ptr referenced objects
 
-    void ptrReferencedObjects( std::vector<PdmObjectHandle*>* objectsToFill ) override;
+    void ptrReferencedObjects( std::vector<PdmObjectHandle*>* objectsToFill ) const override;
 
 private:
     PDM_DISABLE_COPY_AND_ASSIGN( PdmPtrField );

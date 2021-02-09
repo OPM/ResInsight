@@ -104,7 +104,7 @@ caf::PdmPtrField<DataType*>& PdmPtrField<DataType*>::operator=( const FieldDataT
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-void PdmPtrField<DataType*>::ptrReferencedObjects( std::vector<PdmObjectHandle*>* objectsToFill )
+void PdmPtrField<DataType*>::ptrReferencedObjects( std::vector<PdmObjectHandle*>* objectsToFill ) const
 {
     if ( m_fieldValue.rawPtr() )
     {

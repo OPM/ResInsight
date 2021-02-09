@@ -18,10 +18,10 @@ class PdmFieldCapability;
 class PdmFieldHandle
 {
 public:
-    PdmFieldHandle() { m_ownerObject = nullptr; }
+    PdmFieldHandle();
     virtual ~PdmFieldHandle();
 
-    QString          keyword() const { return m_keyword; }
+    QString          keyword() const;
     bool             matchesKeyword( const QString& keyword ) const;
     PdmObjectHandle* ownerObject() const;
     QString          ownerClass() const;
@@ -37,8 +37,8 @@ public:
     void         setOwnerClass( const QString& ownerClass );
 
     // Ptr referenced objects
-    bool         hasPtrReferencedObjects();
-    virtual void ptrReferencedObjects( std::vector<PdmObjectHandle*>* ) {}
+    bool         hasPtrReferencedObjects() const;
+    virtual void ptrReferencedObjects( std::vector<PdmObjectHandle*>* ) const {}
 
     // Capabilities
     void addCapability( PdmFieldCapability* capability, bool takeOwnership )
