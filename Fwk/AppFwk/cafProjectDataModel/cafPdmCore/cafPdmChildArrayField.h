@@ -97,7 +97,7 @@ public:
     // Child objects
     std::vector<DataType*> childObjectsByType() const;
 
-    void childObjects( std::vector<PdmObjectHandle*>* objects ) override;
+    void childObjects( std::vector<PdmObjectHandle*>* childObjects ) const override;
     void removeChildObject( PdmObjectHandle* object ) override;
 
 private: // To be disabled

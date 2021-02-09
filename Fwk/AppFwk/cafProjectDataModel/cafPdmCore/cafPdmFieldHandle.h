@@ -32,7 +32,7 @@ public:
 
     // Child objects
     bool         hasChildObjects();
-    virtual void childObjects( std::vector<PdmObjectHandle*>* ) {}
+    virtual void childObjects( std::vector<PdmObjectHandle*>* childObjects ) const {}
     virtual void removeChildObject( PdmObjectHandle* ) {}
     void         setOwnerClass( const QString& ownerClass );
 

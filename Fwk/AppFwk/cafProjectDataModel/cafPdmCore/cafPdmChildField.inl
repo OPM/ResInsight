@@ -9,7 +9,7 @@ namespace caf
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-void caf::PdmChildField<DataType*>::childObjects( std::vector<PdmObjectHandle*>* objects )
+void caf::PdmChildField<DataType*>::childObjects( std::vector<PdmObjectHandle*>* objects ) const
 {
     CAF_ASSERT( objects );
     PdmObjectHandle* obj = m_fieldValue.rawPtr();

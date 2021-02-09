@@ -278,7 +278,7 @@ std::vector<DataType*> caf::PdmChildArrayField<DataType*>::childObjectsByType() 
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-void PdmChildArrayField<DataType*>::childObjects( std::vector<PdmObjectHandle*>* objects )
+void PdmChildArrayField<DataType*>::childObjects( std::vector<PdmObjectHandle*>* objects ) const
 {
     if ( !objects ) return;
     size_t i;
