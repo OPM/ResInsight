@@ -384,6 +384,20 @@ size_t RigCaseCellResultsData::findOrCreateScalarResultIndex( const RigEclipseRe
                                                                       RiaResultNames::riMultZResultName() ) );
         statisticsCalculator = calc;
     }
+    else if ( resultName == RiaResultNames::combinedRiAreaNormTranResultName() )
+    {
+        cvf::ref<RigEclipseMultiPropertyStatCalc> calc = new RigEclipseMultiPropertyStatCalc();
+        calc->addNativeStatisticsCalculator( this,
+                                             RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE,
+                                                                      RiaResultNames::riAreaNormTranXResultName() ) );
+        calc->addNativeStatisticsCalculator( this,
+                                             RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE,
+                                                                      RiaResultNames::riAreaNormTranYResultName() ) );
+        calc->addNativeStatisticsCalculator( this,
+                                             RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE,
+                                                                      RiaResultNames::riAreaNormTranZResultName() ) );
+        statisticsCalculator = calc;
+    }
     else if ( resultName == RiaResultNames::combinedWaterFluxResultName() )
     {
         cvf::ref<RigEclipseMultiPropertyStatCalc> calc = new RigEclipseMultiPropertyStatCalc();
@@ -1034,6 +1048,16 @@ void RigCaseCellResultsData::createPlaceholderResultEntries()
                                    0 );
         }
     }
+    // riTRANSXYZbyArea
+    {
+        if ( hasCompleteTransmissibilityResults() )
+        {
+            addStaticScalarResult( RiaDefines::ResultCatType::STATIC_NATIVE,
+                                   RiaResultNames::combinedRiAreaNormTranResultName(),
+                                   false,
+                                   0 );
+        }
+    }
 
     // Cell Volume
     {
@@ -1241,6 +1265,19 @@ size_t RigCaseCellResultsData::findOrLoadKnownScalarResult( const RigEclipseResu
                   resultName == RiaResultNames::riMultYResultName() || resultName == RiaResultNames::riMultZResultName() )
         {
             computeRiMULTComponent( resultName );
+        }
+        else if ( resultName == RiaResultNames::combinedRiAreaNormTranResultName() )
+        {
+            computeRiTRANSbyAreaComponent( RiaResultNames::riAreaNormTranXResultName() );
+            computeRiTRANSbyAreaComponent( RiaResultNames::riAreaNormTranYResultName() );
+            computeRiTRANSbyAreaComponent( RiaResultNames::riAreaNormTranZResultName() );
+            computeNncCombRiTRANSbyArea();
+        }
+        else if ( resultName == RiaResultNames::riAreaNormTranXResultName() ||
+                  resultName == RiaResultNames::riAreaNormTranYResultName() ||
+                  resultName == RiaResultNames::riAreaNormTranZResultName() )
+        {
+            computeRiTRANSbyAreaComponent( resultName );
         }
         else if ( resultName == RiaResultNames::formationAllanResultName() ||
                   resultName == RiaResultNames::formationBinaryAllanResultName() )
@@ -2510,6 +2547,155 @@ void RigCaseCellResultsData::computeNncCombRiMULT()
         {
             riMultResults[nncConIdx] = riMult( ( *transResults )[nncConIdx], ( *riTransResults )[nncConIdx] );
         }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigCaseCellResultsData::computeRiTRANSbyAreaComponent( const QString& riTransByAreaCompResultName )
+{
+    // Set up which component to compute
+
+    cvf::StructGridInterface::FaceType faceId = cvf::StructGridInterface::NO_FACE;
+    QString                            transCompName;
+
+    if ( riTransByAreaCompResultName == RiaResultNames::riAreaNormTranXResultName() )
+    {
+        transCompName = "TRANX";
+        faceId        = cvf::StructGridInterface::POS_I;
+    }
+    else if ( riTransByAreaCompResultName == RiaResultNames::riAreaNormTranYResultName() )
+    {
+        transCompName = "TRANY";
+        faceId        = cvf::StructGridInterface::POS_J;
+    }
+    else if ( riTransByAreaCompResultName == RiaResultNames::riAreaNormTranZResultName() )
+    {
+        transCompName = "TRANZ";
+        faceId        = cvf::StructGridInterface::POS_K;
+    }
+    else
+    {
+        CVF_ASSERT( false );
+    }
+
+    // Get the needed result indices we depend on
+
+    size_t tranCompScResIdx =
+        findOrLoadKnownScalarResult( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, transCompName ) );
+
+    // Get the result index of the output
+
+    size_t riTranByAreaScResIdx = this->findScalarResultIndexFromAddress(
+        RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, riTransByAreaCompResultName ) );
+    CVF_ASSERT( riTranByAreaScResIdx != cvf::UNDEFINED_SIZE_T );
+
+    // Get the result count, to handle that one of them might be globally defined
+
+    size_t resultValueCount = m_cellScalarResults[tranCompScResIdx][0].size();
+
+    // Get all the actual result values
+
+    const std::vector<double>& transResults         = m_cellScalarResults[tranCompScResIdx][0];
+    std::vector<double>&       riTransByAreaResults = m_cellScalarResults[riTranByAreaScResIdx][0];
+
+    // Set up output container to correct number of results
+
+    riTransByAreaResults.resize( resultValueCount );
+
+    // Prepare how to index the result values:
+
+    bool isUsingResIdx = this->isUsingGlobalActiveIndex(
+        RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, transCompName ) );
+
+    // Set up result index function pointers
+
+    ResultIndexFunction resValIdxFunc = isUsingResIdx ? &reservoirActiveCellIndex : &directReservoirCellIndex;
+
+    const RigActiveCellInfo*       activeCellInfo = this->activeCellInfo();
+    const std::vector<cvf::Vec3d>& nodes          = m_ownerMainGrid->nodes();
+
+    for ( size_t nativeResvCellIndex = 0; nativeResvCellIndex < m_ownerMainGrid->globalCellArray().size();
+          nativeResvCellIndex++ )
+    {
+        // Do nothing if we are only dealing with active cells, and this cell is not active:
+        size_t nativeCellResValIdx = ( *resValIdxFunc )( activeCellInfo, nativeResvCellIndex );
+
+        if ( nativeCellResValIdx == cvf::UNDEFINED_SIZE_T ) continue;
+
+        const RigCell& nativeCell = m_ownerMainGrid->globalCellArray()[nativeResvCellIndex];
+        RigGridBase*   grid       = nativeCell.hostGrid();
+
+        size_t gridLocalNativeCellIndex = nativeCell.gridLocalCellIndex();
+
+        size_t i, j, k, gridLocalNeighborCellIdx;
+
+        grid->ijkFromCellIndex( gridLocalNativeCellIndex, &i, &j, &k );
+
+        if ( grid->cellIJKNeighbor( i, j, k, faceId, &gridLocalNeighborCellIdx ) )
+        {
+            size_t         neighborResvCellIdx = grid->reservoirCellIndex( gridLocalNeighborCellIdx );
+            const RigCell& neighborCell        = m_ownerMainGrid->globalCellArray()[neighborResvCellIdx];
+
+            // Connection geometry
+
+            const RigFault* fault = grid->mainGrid()->findFaultFromCellIndexAndCellFace( nativeResvCellIndex, faceId );
+            bool            isOnFault = fault;
+
+            cvf::Vec3d faceAreaVec;
+
+            if ( isOnFault )
+            {
+                calculateConnectionGeometry( nativeCell, neighborCell, nodes, faceId, &faceAreaVec );
+            }
+            else
+            {
+                faceAreaVec = nativeCell.faceNormalWithAreaLength( faceId );
+            }
+
+            double areaOfOverlap  = faceAreaVec.length();
+            double transCompValue = transResults[nativeCellResValIdx];
+
+            riTransByAreaResults[nativeCellResValIdx] = transCompValue / areaOfOverlap;
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigCaseCellResultsData::computeNncCombRiTRANSbyArea()
+{
+    auto riCombTransByAreaEclResAddr = RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE,
+                                                                RiaResultNames::combinedRiAreaNormTranResultName() );
+    auto combTransEclResAddr         = RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE,
+                                                        RiaResultNames::combinedTransmissibilityResultName() );
+
+    if ( m_ownerMainGrid->nncData()->staticConnectionScalarResult( riCombTransByAreaEclResAddr ) ) return;
+
+    const std::vector<double>* transResults =
+        m_ownerMainGrid->nncData()->staticConnectionScalarResult( combTransEclResAddr );
+
+    if ( !transResults ) return;
+
+    std::vector<double>& riAreaNormTransResults =
+        m_ownerMainGrid->nncData()->makeStaticConnectionScalarResult( RiaDefines::propertyNameRiCombTransByArea() );
+
+    m_ownerMainGrid->nncData()->setEclResultAddress( RiaDefines::propertyNameRiCombTransByArea(),
+                                                     riCombTransByAreaEclResAddr );
+
+    if ( transResults->size() != riAreaNormTransResults.size() ) return;
+
+    const RigConnectionContainer& connections = m_ownerMainGrid->nncData()->connections();
+
+    for ( size_t nncConIdx = 0; nncConIdx < riAreaNormTransResults.size(); ++nncConIdx )
+    {
+        const std::vector<cvf::Vec3f>& realPolygon   = connections[nncConIdx].polygon();
+        cvf::Vec3f                     faceAreaVec   = cvf::GeometryTools::polygonAreaNormal3D( realPolygon );
+        double                         areaOfOverlap = faceAreaVec.length();
+
+        riAreaNormTransResults[nncConIdx] = ( *transResults )[nncConIdx] / areaOfOverlap;
     }
 }
 

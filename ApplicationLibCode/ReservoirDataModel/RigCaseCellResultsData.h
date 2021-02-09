@@ -176,6 +176,8 @@ private:
 
     void computeRiMULTComponent( const QString& riMultCompName );
     void computeNncCombRiMULT();
+    void computeRiTRANSbyAreaComponent( const QString& riTransByAreaCompResultName );
+    void computeNncCombRiTRANSbyArea();
 
     void   computeCompletionTypeForTimeStep( size_t timeStep );
     double darchysValue();

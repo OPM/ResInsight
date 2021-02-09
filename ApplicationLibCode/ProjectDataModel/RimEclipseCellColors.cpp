@@ -97,7 +97,7 @@ void RimEclipseCellColors::fieldChangedByUi( const caf::PdmFieldHandle* changedF
     {
         if ( oldValue != newValue )
         {
-            changeLegendConfig( this->resultVariable() );
+            changeLegendConfig( this->resultVariableUiName() );
         }
 
         if ( newValue != RiaResultNames::undefinedResultName() )
@@ -265,7 +265,7 @@ void RimEclipseCellColors::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeO
 //--------------------------------------------------------------------------------------------------
 void RimEclipseCellColors::updateLegendCategorySettings()
 {
-    changeLegendConfig( this->resultVariable() );
+    changeLegendConfig( this->resultVariableUiName() );
 }
 
 //--------------------------------------------------------------------------------------------------
