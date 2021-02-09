@@ -103,6 +103,7 @@
 #include "RiuViewer.h"
 
 #include "cafAppEnum.h"
+#include "cafCmdExecCommandManager.h"
 #include "cafEffectGenerator.h"
 #include "cafFixedAtlasFont.h"
 #include "cafPdmUiModelChangeDetector.h"
@@ -944,6 +945,12 @@ RiuPlotMainWindow* RiaGuiApplication::getOrCreateMainPlotWindow()
 void RiaGuiApplication::createMainWindow()
 {
     CVF_ASSERT( m_mainWindow == nullptr );
+
+    if ( RiaPreferences::current()->useUndoRedo() )
+    {
+        caf::CmdExecCommandManager::instance()->enableUndoCommandSystem( true );
+    }
+
     m_mainWindow     = new RiuMainWindow;
     QString platform = cvf::System::is64Bit() ? "(64bit)" : "(32bit)";
     m_mainWindow->setWindowTitle( "ResInsight " + platform );
@@ -972,6 +979,11 @@ void RiaGuiApplication::deleteMainWindow()
 void RiaGuiApplication::createMainPlotWindow()
 {
     CVF_ASSERT( m_mainPlotWindow == nullptr );
+
+    if ( RiaPreferences::current()->useUndoRedo() )
+    {
+        caf::CmdExecCommandManager::instance()->enableUndoCommandSystem( true );
+    }
 
     m_mainPlotWindow = new RiuPlotMainWindow;
     m_mainPlotWindow->setWindowTitle( "Plots - ResInsight" );

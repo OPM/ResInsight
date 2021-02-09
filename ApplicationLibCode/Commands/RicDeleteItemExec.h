@@ -19,9 +19,8 @@
 
 #pragma once
 
+#include "RicDeleteItemExecData.h"
 #include "cafCmdExecuteCommand.h"
-
-class RicDeleteItemExecData;
 
 //==================================================================================================
 ///
@@ -31,12 +30,12 @@ class RicDeleteItemExec : public caf::CmdExecuteCommand
 public:
     explicit RicDeleteItemExec( caf::NotificationCenter* notificationCenter );
 
-    RicDeleteItemExecData* commandData();
+    RicDeleteItemExecData& commandData();
 
     QString name() override;
     void    redo() override;
     void    undo() override;
 
 private:
-    RicDeleteItemExecData* m_commandData;
+    RicDeleteItemExecData m_commandData;
 };

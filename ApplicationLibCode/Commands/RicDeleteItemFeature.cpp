@@ -95,13 +95,38 @@ void RicDeleteItemFeature::onActionTriggered( bool isChecked )
 
         RicDeleteItemExec* executeCmd = new RicDeleteItemExec( caf::SelectionManager::instance()->notificationCenter() );
 
-        RicDeleteItemExecData* data = executeCmd->commandData();
-        data->m_rootObject          = caf::PdmReferenceHelper::findRoot( childArrayFieldHandle );
-        data->m_pathToField =
-            caf::PdmReferenceHelper::referenceFromRootToField( data->m_rootObject, childArrayFieldHandle );
-        data->m_indexToObject = indexAfter;
+        RicDeleteItemExecData& data = executeCmd->commandData();
+        data.m_rootObject           = caf::PdmReferenceHelper::findRoot( childArrayFieldHandle );
+        data.m_pathToField = caf::PdmReferenceHelper::referenceFromRootToField( data.m_rootObject, childArrayFieldHandle );
+        data.m_indexToObject = indexAfter;
 
-        caf::CmdExecCommandManager::instance()->processExecuteCommand( executeCmd );
+        {
+            QString desc;
+            if ( currentPdmObject->userDescriptionField() )
+            {
+                desc = currentPdmObject->userDescriptionField()->uiCapability()->uiValue().toString();
+            }
+            else
+            {
+                desc = currentPdmObject->uiName();
+            }
+
+            data.m_description = desc + " (delete)";
+        }
+
+        // When the delete feature is ready for redo/undo, activate by using the line below
+        // Temporarily do not insert these object into undo/redo system as this requires a lot of testing
+        // for reinserting objects.
+        bool useUndoRedo = false;
+        if ( useUndoRedo )
+        {
+            caf::CmdExecCommandManager::instance()->processExecuteCommand( executeCmd );
+        }
+        else
+        {
+            executeCmd->redo();
+            delete executeCmd;
+        }
     }
 }
 

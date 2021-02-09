@@ -337,6 +337,9 @@ RiaPreferences::RiaPreferences( void )
     CAF_PDM_InitField( &m_showProgressBar, "showProgressBar", true, "Show Progress Bar", "", "", "" );
     m_showProgressBar.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 
+    CAF_PDM_InitField( &m_useUndoRedo, "useUndoRedo", false, "Use Undo/Redo", "", "", "" );
+    m_useUndoRedo.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+
     CAF_PDM_InitFieldNoDefault( &m_plotTemplateFolders, "plotTemplateFolders", "Plot Template Folder(s)", "", "", "" );
     m_plotTemplateFolders.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
     CAF_PDM_InitField( &m_searchPlotTemplateFoldersRecursively,
@@ -448,7 +451,7 @@ void RiaPreferences::defineEditorAttribute( const caf::PdmFieldHandle* field,
          field == &m_showLegendBackground || field == &m_showSummaryTimeAsLongString ||
          field == &m_showViewIdInProjectTree || field == &m_useMultipleThreadsWhenLoadingSummaryData ||
          field == &m_enableFaultsByDefault || field == &m_showProgressBar || field == &m_openExportedPdfInViewer ||
-         field == &m_showInfoBox || field == &m_showGridBox )
+         field == &m_showInfoBox || field == &m_showGridBox || field == &m_useUndoRedo )
     {
         caf::PdmUiCheckBoxEditorAttribute* myAttr = dynamic_cast<caf::PdmUiCheckBoxEditorAttribute*>( attribute );
         if ( myAttr )
@@ -622,6 +625,7 @@ void RiaPreferences::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
         uiOrdering.add( &m_showTestToolbar );
         uiOrdering.add( &m_includeFractureDebugInfoFile );
         uiOrdering.add( &m_holoLensExportFolder );
+        uiOrdering.add( &m_useUndoRedo );
     }
 
     uiOrdering.skipRemainingFields( true );
@@ -904,6 +908,14 @@ bool RiaPreferences::show3dInformation() const
 QString RiaPreferences::gtestFilter() const
 {
     return m_gtestFilter();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiaPreferences::useUndoRedo() const
+{
+    return m_useUndoRedo();
 }
 
 //--------------------------------------------------------------------------------------------------

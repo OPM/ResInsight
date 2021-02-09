@@ -115,7 +115,7 @@ void CmdUiCommandSystemImpl::fieldChangedCommand( const std::vector<PdmFieldHand
     }
     else
     {
-        CmdExecCommandManager::instance()->processExecuteCommandsAsMacro( "Multiple Field Change", commands );
+        CmdExecCommandManager::instance()->processExecuteCommandsAsMacro( commands );
     }
 
     if ( uiOwnerObjectHandle && !uiOwnerObjectHandle->useUndoRedoForFieldChanged() )

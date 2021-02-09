@@ -1140,7 +1140,6 @@ bool operator<( const RifEclipseSummaryAddress& first, const RifEclipseSummaryAd
 //--------------------------------------------------------------------------------------------------
 QTextStream& operator<<( QTextStream& str, const RifEclipseSummaryAddress& sobj )
 {
-    CVF_ASSERT( false );
     return str;
 }
 
@@ -1149,6 +1148,5 @@ QTextStream& operator<<( QTextStream& str, const RifEclipseSummaryAddress& sobj 
 //--------------------------------------------------------------------------------------------------
 QTextStream& operator>>( QTextStream& str, RifEclipseSummaryAddress& sobj )
 {
-    CVF_ASSERT( false );
     return str;
 }

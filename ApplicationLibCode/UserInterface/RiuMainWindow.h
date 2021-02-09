@@ -195,7 +195,6 @@ private slots:
     void slotRefreshFileActions();
 
     // Edit slots
-    void slotRefreshEditActions();
     void slotNewObjectPropertyView();
 
     // View slots
@@ -249,8 +248,6 @@ public:
 
 private:
     std::unique_ptr<caf::PdmUiDragDropInterface> m_dragDropInterface;
-
-    QUndoView* m_undoView;
 
     caf::PdmObject*         m_pdmRoot;
     caf::PdmUiPropertyView* m_pdmUiPropertyView;

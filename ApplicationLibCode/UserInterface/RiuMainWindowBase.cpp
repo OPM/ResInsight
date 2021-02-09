@@ -30,10 +30,14 @@
 #include "cafPdmUiTreeView.h"
 
 #include "cafCmdFeatureManager.h"
+
+#include <QAction>
 #include <QDockWidget>
 #include <QMdiArea>
 #include <QMdiSubWindow>
 #include <QSettings>
+#include <QUndoStack>
+#include <QUndoView>
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -46,6 +50,16 @@ RiuMainWindowBase::RiuMainWindowBase()
     , m_blockSubWindowProjectTreeSelection( false )
 {
     setDockNestingEnabled( true );
+
+    m_undoView = new QUndoView( this );
+
+    m_undoAction = new QAction( QIcon( ":/undo.png" ), tr( "Undo" ), this );
+    m_undoAction->setShortcut( QKeySequence::Undo );
+    connect( m_undoAction, SIGNAL( triggered() ), SLOT( slotUndo() ) );
+
+    m_redoAction = new QAction( QIcon( ":/redo.png" ), tr( "Redo" ), this );
+    m_redoAction->setShortcut( QKeySequence::Redo );
+    connect( m_redoAction, SIGNAL( triggered() ), SLOT( slotRedo() ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -409,4 +423,35 @@ void RiuMainWindowBase::initializeSubWindow( QMdiArea*      mdiArea,
 void RiuMainWindowBase::slotRefreshHelpActions()
 {
     caf::CmdFeatureManager::instance()->action( "RicSearchHelpFeature" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMainWindowBase::slotRedo()
+{
+    if ( m_undoView->stack() && m_undoView->stack()->canRedo() )
+    {
+        m_undoView->stack()->redo();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMainWindowBase::slotUndo()
+{
+    if ( m_undoView->stack() && m_undoView->stack()->canUndo() )
+    {
+        m_undoView->stack()->undo();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMainWindowBase::slotRefreshUndoRedoActions()
+{
+    m_redoAction->setDisabled( !m_undoView->stack()->canRedo() );
+    m_undoAction->setDisabled( !m_undoView->stack()->canUndo() );
 }

@@ -212,6 +212,7 @@ void CmdFieldChangeExec::readFieldValueFromValidXmlDocument( QXmlStreamReader& x
         tt = xmlStream.readNext();
     }
     xmlFieldHandle->readFieldData( xmlStream, PdmDefaultObjectFactory::instance() );
+    xmlFieldHandle->resolveReferences();
 }
 
 } // end namespace caf
