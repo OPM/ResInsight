@@ -359,7 +359,7 @@ void RimWellPathCollection::addWellPath( gsl::not_null<RimWellPath*> wellPath, b
 //--------------------------------------------------------------------------------------------------
 std::vector<RimWellPath*> RimWellPathCollection::topLevelWellPaths() const
 {
-    return m_wellPaths.childObjects();
+    return m_wellPaths.childObjectsByType();
 }
 
 //--------------------------------------------------------------------------------------------------

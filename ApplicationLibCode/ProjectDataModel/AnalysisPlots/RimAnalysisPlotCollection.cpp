@@ -121,7 +121,7 @@ void RimAnalysisPlotCollection::updateSummaryNameHasChanged()
 //--------------------------------------------------------------------------------------------------
 std::vector<RimAnalysisPlot*> RimAnalysisPlotCollection::plots() const
 {
-    return m_analysisPlots.childObjects();
+    return m_analysisPlots.childObjectsByType();
 }
 
 //--------------------------------------------------------------------------------------------------

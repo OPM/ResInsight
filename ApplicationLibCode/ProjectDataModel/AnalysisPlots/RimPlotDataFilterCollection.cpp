@@ -67,7 +67,7 @@ void RimPlotDataFilterCollection::removeFilter( RimPlotDataFilterItem* filter )
 //--------------------------------------------------------------------------------------------------
 std::vector<RimPlotDataFilterItem*> RimPlotDataFilterCollection::filters() const
 {
-    return m_filters.childObjects();
+    return m_filters.childObjectsByType();
 }
 
 //--------------------------------------------------------------------------------------------------

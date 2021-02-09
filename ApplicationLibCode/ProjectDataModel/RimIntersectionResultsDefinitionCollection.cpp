@@ -61,7 +61,7 @@ bool RimIntersectionResultsDefinitionCollection::isActive() const
 //--------------------------------------------------------------------------------------------------
 std::vector<RimIntersectionResultDefinition*> RimIntersectionResultsDefinitionCollection::intersectionResultsDefinitions() const
 {
-    return m_intersectionResultsDefs.childObjects();
+    return m_intersectionResultsDefs.childObjectsByType();
 }
 
 //--------------------------------------------------------------------------------------------------

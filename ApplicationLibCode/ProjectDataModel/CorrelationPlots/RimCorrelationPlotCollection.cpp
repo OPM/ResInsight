@@ -200,7 +200,7 @@ void RimCorrelationPlotCollection::removePlot( RimAbstractCorrelationPlot* plot 
 //--------------------------------------------------------------------------------------------------
 std::vector<RimAbstractCorrelationPlot*> RimCorrelationPlotCollection::plots() const
 {
-    return m_correlationPlots.childObjects();
+    return m_correlationPlots.childObjectsByType();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -216,7 +216,7 @@ size_t RimCorrelationPlotCollection::plotCount() const
 //--------------------------------------------------------------------------------------------------
 std::vector<RimCorrelationReportPlot*> RimCorrelationPlotCollection::reports() const
 {
-    return m_correlationReports.childObjects();
+    return m_correlationReports.childObjectsByType();
 }
 
 //--------------------------------------------------------------------------------------------------

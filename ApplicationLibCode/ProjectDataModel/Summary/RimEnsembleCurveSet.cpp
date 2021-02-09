@@ -411,7 +411,7 @@ RifEclipseSummaryAddress RimEnsembleCurveSet::summaryAddress() const
 //--------------------------------------------------------------------------------------------------
 std::vector<RimSummaryCurve*> RimEnsembleCurveSet::curves() const
 {
-    return m_curves.childObjects();
+    return m_curves.childObjectsByType();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -807,7 +807,7 @@ void RimEnsembleCurveSet::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
         RimSummaryCaseCollection* candidateEnsemble = m_yValuesSummaryCaseCollection();
 
         std::vector<RifEclipseSummaryAddress> candidateAddresses;
-        for ( auto address : m_objectiveValuesSummaryAddresses().childObjects() )
+        for ( auto address : m_objectiveValuesSummaryAddresses().childObjectsByType() )
         {
             candidateAddresses.push_back( address->address() );
         }
@@ -1339,7 +1339,7 @@ void RimEnsembleCurveSet::updateObjectiveFunctionLegend()
             if ( m_colorMode() == ColorMode::BY_OBJECTIVE_FUNCTION )
             {
                 std::vector<RifEclipseSummaryAddress> addresses;
-                for ( auto address : m_objectiveValuesSummaryAddresses().childObjects() )
+                for ( auto address : m_objectiveValuesSummaryAddresses().childObjectsByType() )
                 {
                     addresses.push_back( address->address() );
                 }
@@ -1355,7 +1355,7 @@ void RimEnsembleCurveSet::updateObjectiveFunctionLegend()
             else if ( m_colorMode() == ColorMode::BY_CUSTOM_OBJECTIVE_FUNCTION && m_customObjectiveFunction() )
             {
                 std::vector<RifEclipseSummaryAddress> addresses;
-                for ( auto address : m_objectiveValuesSummaryAddresses().childObjects() )
+                for ( auto address : m_objectiveValuesSummaryAddresses().childObjectsByType() )
                 {
                     addresses.push_back( address->address() );
                 }

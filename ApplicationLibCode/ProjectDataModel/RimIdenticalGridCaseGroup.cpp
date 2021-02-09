@@ -248,7 +248,7 @@ void RimIdenticalGridCaseGroup::loadMainCaseAndActiveCellInfo()
 
     RigCaseCellResultsData::copyResultsMetaDataFromMainCase( rigCaseData,
                                                              poroModel,
-                                                             caseCollection->reservoirs.childObjects() );
+                                                             caseCollection->reservoirs.childObjectsByType() );
 
     // "Load" the statistical cases
 

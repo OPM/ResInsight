@@ -109,7 +109,7 @@ std::vector<RimFormationNames*> RimFormationNamesCollection::importFiles( const 
         RiaLogging::errorInMessageBox( nullptr, "Import Formation Names", totalErrorMessage );
     }
 
-    return m_formationNamesList.childObjects();
+    return m_formationNamesList.childObjectsByType();
 }
 
 //--------------------------------------------------------------------------------------------------

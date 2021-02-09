@@ -65,7 +65,7 @@ RimCustomObjectiveFunctionWeight* RimCustomObjectiveFunction::addWeight()
 //--------------------------------------------------------------------------------------------------
 std::vector<RimCustomObjectiveFunctionWeight*> RimCustomObjectiveFunction::weights() const
 {
-    return m_weights.childObjects();
+    return m_weights.childObjectsByType();
 }
 
 //--------------------------------------------------------------------------------------------------

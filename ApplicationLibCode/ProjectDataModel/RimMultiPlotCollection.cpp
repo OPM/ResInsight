@@ -56,7 +56,7 @@ void RimMultiPlotCollection::deleteAllChildObjects()
 //--------------------------------------------------------------------------------------------------
 std::vector<RimMultiPlot*> RimMultiPlotCollection::multiPlots() const
 {
-    return m_multiPlots.childObjects();
+    return m_multiPlots.childObjectsByType();
 }
 
 //--------------------------------------------------------------------------------------------------

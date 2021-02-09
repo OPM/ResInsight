@@ -70,7 +70,7 @@ void RimVfpPlotCollection::insertPlot( RimVfpPlot* vfpPlot, size_t index )
 //--------------------------------------------------------------------------------------------------
 std::vector<RimVfpPlot*> RimVfpPlotCollection::plots() const
 {
-    return m_vfpPlots.childObjects();
+    return m_vfpPlots.childObjectsByType();
 }
 
 //--------------------------------------------------------------------------------------------------

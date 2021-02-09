@@ -507,7 +507,7 @@ RiaQDateTimeTools::TimeFormatComponents
 //--------------------------------------------------------------------------------------------------
 std::vector<RimPlotAxisAnnotation*> RimSummaryTimeAxisProperties::annotations() const
 {
-    return m_annotations.childObjects();
+    return m_annotations.childObjectsByType();
 }
 
 //--------------------------------------------------------------------------------------------------

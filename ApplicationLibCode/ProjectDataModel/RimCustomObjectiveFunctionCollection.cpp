@@ -58,7 +58,7 @@ void RimCustomObjectiveFunctionCollection::onObjectiveFunctionChanged( RimCustom
 //--------------------------------------------------------------------------------------------------
 std::vector<RimCustomObjectiveFunction*> RimCustomObjectiveFunctionCollection::objectiveFunctions() const
 {
-    return m_objectiveFunctions.childObjects();
+    return m_objectiveFunctions.childObjectsByType();
 }
 
 //--------------------------------------------------------------------------------------------------

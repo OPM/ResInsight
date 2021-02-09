@@ -259,7 +259,7 @@ void PdmChildArrayField<DataType*>::removeChildObject( PdmObjectHandle* object )
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-std::vector<DataType*> caf::PdmChildArrayField<DataType*>::childObjects() const
+std::vector<DataType*> caf::PdmChildArrayField<DataType*>::childObjectsByType() const
 {
     std::vector<DataType*> objects;
 

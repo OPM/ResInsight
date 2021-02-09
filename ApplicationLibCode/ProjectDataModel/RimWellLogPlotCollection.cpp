@@ -144,7 +144,7 @@ RigGeoMechWellLogExtractor* RimWellLogPlotCollection::findOrCreateExtractor( Rim
 //--------------------------------------------------------------------------------------------------
 std::vector<RimWellLogPlot*> RimWellLogPlotCollection::wellLogPlots() const
 {
-    return m_wellLogPlots.childObjects();
+    return m_wellLogPlots.childObjectsByType();
 }
 
 //--------------------------------------------------------------------------------------------------

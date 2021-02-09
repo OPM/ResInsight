@@ -295,7 +295,7 @@ TEST( BaseTest, PdmChildArrayField )
     ihd1->m_childArrayField.childObjects( &objects );
     EXPECT_EQ( size_t( 3 ), objects.size() );
 
-    std::vector<DemoPdmObject*> typedObjects = ihd1->m_childArrayField.childObjects();
+    std::vector<DemoPdmObject*> typedObjects = ihd1->m_childArrayField.childObjectsByType();
     EXPECT_EQ( size_t( 3 ), typedObjects.size() );
 
     // set()

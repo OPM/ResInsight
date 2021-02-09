@@ -68,7 +68,7 @@ void RimStimPlanModelPlotCollection::addStimPlanModelPlot( RimStimPlanModelPlot*
 //--------------------------------------------------------------------------------------------------
 std::vector<RimStimPlanModelPlot*> RimStimPlanModelPlotCollection::stimPlanModelPlots() const
 {
-    return m_stimPlanModelPlots.childObjects();
+    return m_stimPlanModelPlots.childObjectsByType();
 }
 
 //--------------------------------------------------------------------------------------------------

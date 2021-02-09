@@ -161,7 +161,7 @@ RimDepthTrackPlot& RimDepthTrackPlot::operator=( RimDepthTrackPlot&& rhs )
     RimPlotWindow::operator=( std::move( rhs ) );
 
     // Move all tracks
-    std::vector<RimPlot*> plots = rhs.m_plots.childObjects();
+    std::vector<RimPlot*> plots = rhs.m_plots.childObjectsByType();
     rhs.m_plots.clear();
     for ( RimPlot* plot : plots )
     {
@@ -246,7 +246,7 @@ RimPlot* RimDepthTrackPlot::plotByIndex( size_t index ) const
 //--------------------------------------------------------------------------------------------------
 std::vector<RimPlot*> RimDepthTrackPlot::plots() const
 {
-    return m_plots.childObjects();
+    return m_plots.childObjectsByType();
 }
 
 //--------------------------------------------------------------------------------------------------

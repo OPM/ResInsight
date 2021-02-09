@@ -104,7 +104,7 @@ void RimColorLegend::appendColorLegendItem( RimColorLegendItem* colorLegendItem 
 //--------------------------------------------------------------------------------------------------
 std::vector<RimColorLegendItem*> RimColorLegend::colorLegendItems() const
 {
-    return m_colorLegendItems.childObjects();
+    return m_colorLegendItems.childObjectsByType();
 }
 
 //--------------------------------------------------------------------------------------------------

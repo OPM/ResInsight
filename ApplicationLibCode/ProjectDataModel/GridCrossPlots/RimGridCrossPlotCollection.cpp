@@ -45,7 +45,7 @@ RimGridCrossPlotCollection::~RimGridCrossPlotCollection()
 //--------------------------------------------------------------------------------------------------
 std::vector<RimGridCrossPlot*> RimGridCrossPlotCollection::plots() const
 {
-    return m_gridCrossPlots.childObjects();
+    return m_gridCrossPlots.childObjectsByType();
 }
 
 //--------------------------------------------------------------------------------------------------

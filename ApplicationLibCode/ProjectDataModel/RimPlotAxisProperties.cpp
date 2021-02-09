@@ -334,7 +334,7 @@ bool RimPlotAxisProperties::isAxisInverted() const
 //--------------------------------------------------------------------------------------------------
 std::vector<RimPlotAxisAnnotation*> RimPlotAxisProperties::annotations() const
 {
-    return m_annotations.childObjects();
+    return m_annotations.childObjectsByType();
 }
 
 //--------------------------------------------------------------------------------------------------

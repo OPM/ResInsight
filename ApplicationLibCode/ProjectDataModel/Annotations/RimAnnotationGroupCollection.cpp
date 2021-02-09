@@ -95,7 +95,7 @@ void RimAnnotationGroupCollection::addAnnotation( caf::PdmObject* annotation )
 //--------------------------------------------------------------------------------------------------
 std::vector<caf::PdmObject*> RimAnnotationGroupCollection::annotations() const
 {
-    return m_annotations.childObjects();
+    return m_annotations.childObjectsByType();
 }
 
 //--------------------------------------------------------------------------------------------------

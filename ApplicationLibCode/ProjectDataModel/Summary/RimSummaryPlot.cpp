@@ -347,7 +347,7 @@ QString RimSummaryPlot::asciiDataForSummaryPlotExport( RiaQDateTimeTools::DateTi
         populateSummaryCurvesData( curves, CURVE_TYPE_OBSERVED, &summaryCurvesObsData );
 
         CurvesData timeHistoryCurvesData;
-        populateTimeHistoryCurvesData( m_gridTimeHistoryCurves.childObjects(), &timeHistoryCurvesData );
+        populateTimeHistoryCurvesData( m_gridTimeHistoryCurves.childObjectsByType(), &timeHistoryCurvesData );
 
         // Export observed data
         appendToExportData( out, { summaryCurvesObsData }, showTimeAsLongString );
@@ -367,7 +367,7 @@ QString RimSummaryPlot::asciiDataForSummaryPlotExport( RiaQDateTimeTools::DateTi
     // Pasted observed data
     {
         CurvesData asciiCurvesData;
-        populateAsciiDataCurvesData( m_asciiDataCurves.childObjects(), &asciiCurvesData );
+        populateAsciiDataCurvesData( m_asciiDataCurves.childObjectsByType(), &asciiCurvesData );
 
         appendToExportData( out, { asciiCurvesData }, showTimeAsLongString );
     }
@@ -1389,7 +1389,7 @@ void RimSummaryPlot::addGridTimeHistoryCurveNoUpdate( RimGridTimeHistoryCurve* c
 //--------------------------------------------------------------------------------------------------
 std::vector<RimGridTimeHistoryCurve*> RimSummaryPlot::gridTimeHistoryCurves() const
 {
-    return m_gridTimeHistoryCurves.childObjects();
+    return m_gridTimeHistoryCurves.childObjectsByType();
 }
 
 //--------------------------------------------------------------------------------------------------

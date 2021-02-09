@@ -262,7 +262,7 @@ RimWellPathTarget* RimWellPathGeometryDef::appendTarget()
 {
     RimWellPathTarget* wellPathTarget = nullptr;
 
-    auto targets = m_wellTargets.childObjects();
+    auto targets = m_wellTargets.childObjectsByType();
     if ( targets.empty() )
     {
         wellPathTarget = new RimWellPathTarget;

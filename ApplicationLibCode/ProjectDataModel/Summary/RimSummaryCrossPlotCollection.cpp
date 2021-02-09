@@ -58,7 +58,7 @@ void RimSummaryCrossPlotCollection::deleteAllPlots()
 //--------------------------------------------------------------------------------------------------
 std::vector<RimSummaryPlot*> RimSummaryCrossPlotCollection::plots() const
 {
-    return m_summaryCrossPlots.childObjects();
+    return m_summaryCrossPlots.childObjectsByType();
 }
 
 //--------------------------------------------------------------------------------------------------

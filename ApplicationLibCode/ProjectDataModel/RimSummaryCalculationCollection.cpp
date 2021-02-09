@@ -114,7 +114,7 @@ void RimSummaryCalculationCollection::deleteCalculation( RimSummaryCalculation* 
 //--------------------------------------------------------------------------------------------------
 std::vector<RimSummaryCalculation*> RimSummaryCalculationCollection::calculations() const
 {
-    return m_calculations.childObjects();
+    return m_calculations.childObjectsByType();
 }
 
 //--------------------------------------------------------------------------------------------------

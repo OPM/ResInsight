@@ -52,7 +52,7 @@ Rim2dIntersectionViewCollection::~Rim2dIntersectionViewCollection()
 //--------------------------------------------------------------------------------------------------
 std::vector<Rim2dIntersectionView*> Rim2dIntersectionViewCollection::views()
 {
-    return m_intersectionViews.childObjects();
+    return m_intersectionViews.childObjectsByType();
 }
 
 //--------------------------------------------------------------------------------------------------

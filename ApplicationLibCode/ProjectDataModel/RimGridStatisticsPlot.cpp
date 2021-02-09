@@ -292,7 +292,7 @@ QList<caf::PdmOptionItemInfo>
         if ( eclipseCase )
         {
             options.push_back( caf::PdmOptionItemInfo( "Disabled", nullptr ) );
-            for ( RimEclipseView* view : eclipseCase->reservoirViews.childObjects() )
+            for ( RimEclipseView* view : eclipseCase->reservoirViews.childObjectsByType() )
             {
                 CVF_ASSERT( view && "Really always should have a valid view pointer in ReservoirViews" );
                 options.push_back( caf::PdmOptionItemInfo( view->name(), view, false, view->uiIconProvider() ) );

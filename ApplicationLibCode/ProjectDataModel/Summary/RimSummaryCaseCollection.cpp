@@ -285,7 +285,7 @@ void RimSummaryCaseCollection::addCase( RimSummaryCase* summaryCase )
 //--------------------------------------------------------------------------------------------------
 std::vector<RimSummaryCase*> RimSummaryCaseCollection::allSummaryCases() const
 {
-    return m_cases.childObjects();
+    return m_cases.childObjectsByType();
 }
 
 //--------------------------------------------------------------------------------------------------

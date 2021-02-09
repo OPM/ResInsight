@@ -143,13 +143,13 @@ std::vector<RimColorLegend*> RimColorLegendCollection::allColorLegends() const
 {
     std::vector<RimColorLegend*> allLegends;
 
-    auto standardLegends = m_standardColorLegends.childObjects();
+    auto standardLegends = m_standardColorLegends.childObjectsByType();
     for ( auto l : standardLegends )
     {
         allLegends.push_back( l );
     }
 
-    auto customLegends = m_customColorLegends.childObjects();
+    auto customLegends = m_customColorLegends.childObjectsByType();
     for ( auto l : customLegends )
     {
         allLegends.push_back( l );

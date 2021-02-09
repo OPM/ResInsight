@@ -75,7 +75,7 @@ void RimWellPathGroup::addChildWellPath( RimWellPath* wellPath )
 //--------------------------------------------------------------------------------------------------
 std::vector<RimWellPath*> RimWellPathGroup::childWellPaths() const
 {
-    return m_childWellPaths.childObjects();
+    return m_childWellPaths.childObjectsByType();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -113,7 +113,7 @@ void RimWellPathGroup::removeChildWellPath( RimWellPath* wellPath )
 //--------------------------------------------------------------------------------------------------
 void RimWellPathGroup::removeAllChildWellPaths()
 {
-    auto childWellPaths = m_childWellPaths.childObjects();
+    auto childWellPaths = m_childWellPaths.childObjectsByType();
     for ( auto wellPath : childWellPaths )
     {
         removeChildWellPath( wellPath );

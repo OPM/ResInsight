@@ -93,7 +93,7 @@ void RimWellPathFractureCollection::setUnitSystemSpecificDefaults()
 //--------------------------------------------------------------------------------------------------
 std::vector<RimWellPathFracture*> RimWellPathFractureCollection::allFractures() const
 {
-    return m_fractures.childObjects();
+    return m_fractures.childObjectsByType();
 }
 
 //--------------------------------------------------------------------------------------------------

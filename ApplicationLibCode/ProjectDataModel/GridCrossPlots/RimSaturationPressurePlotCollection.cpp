@@ -110,7 +110,7 @@ std::vector<RimSaturationPressurePlot*>
 //--------------------------------------------------------------------------------------------------
 std::vector<RimSaturationPressurePlot*> RimSaturationPressurePlotCollection::plots() const
 {
-    return m_saturationPressurePlots.childObjects();
+    return m_saturationPressurePlots.childObjectsByType();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -209,7 +209,7 @@ std::vector<RimFishbonesMultipleSubs*> RimFishbonesCollection::activeFishbonesSu
 //--------------------------------------------------------------------------------------------------
 std::vector<RimFishbonesMultipleSubs*> RimFishbonesCollection::allFishbonesSubs() const
 {
-    return m_fishbonesSubs.childObjects();
+    return m_fishbonesSubs.childObjectsByType();
 }
 
 //--------------------------------------------------------------------------------------------------

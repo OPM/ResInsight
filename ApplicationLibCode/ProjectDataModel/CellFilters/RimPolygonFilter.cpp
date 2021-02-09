@@ -247,7 +247,7 @@ QString RimPolygonFilter::fullName() const
 //--------------------------------------------------------------------------------------------------
 std::vector<RimPolylineTarget*> RimPolygonFilter::activeTargets() const
 {
-    return m_targets.childObjects();
+    return m_targets.childObjectsByType();
 }
 
 //--------------------------------------------------------------------------------------------------

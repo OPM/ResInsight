@@ -88,7 +88,7 @@ void RimObservedDataCollection::removeObservedFmuRftData( RimObservedFmuRftData*
 //--------------------------------------------------------------------------------------------------
 std::vector<RimObservedSummaryData*> RimObservedDataCollection::allObservedSummaryData() const
 {
-    return m_observedDataArray.childObjects();
+    return m_observedDataArray.childObjectsByType();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -96,7 +96,7 @@ std::vector<RimObservedSummaryData*> RimObservedDataCollection::allObservedSumma
 //--------------------------------------------------------------------------------------------------
 std::vector<RimObservedFmuRftData*> RimObservedDataCollection::allObservedFmuRftData() const
 {
-    return m_observedFmuRftArray.childObjects();
+    return m_observedFmuRftArray.childObjectsByType();
 }
 
 //--------------------------------------------------------------------------------------------------

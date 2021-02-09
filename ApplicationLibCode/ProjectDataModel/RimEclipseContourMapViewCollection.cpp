@@ -28,7 +28,7 @@ RimEclipseContourMapViewCollection::~RimEclipseContourMapViewCollection()
 //--------------------------------------------------------------------------------------------------
 std::vector<RimEclipseContourMapView*> RimEclipseContourMapViewCollection::views()
 {
-    return m_contourMapViews.childObjects();
+    return m_contourMapViews.childObjectsByType();
 }
 
 //--------------------------------------------------------------------------------------------------
