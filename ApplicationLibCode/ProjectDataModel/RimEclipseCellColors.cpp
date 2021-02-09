@@ -162,6 +162,7 @@ void RimEclipseCellColors::changeLegendConfig( QString resultVarNameOfNewLegend 
                         if ( resultVarNameOfNewLegend.contains( s, Qt::CaseInsensitive ) )
                         {
                             useLog = true;
+                            break;
                         }
                     }
                 }
