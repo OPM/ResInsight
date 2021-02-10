@@ -18,7 +18,10 @@
 
 #include "RicNewStimPlanModelTemplateFeature.h"
 
+#include "RiaApplication.h"
+
 #include "RimCompletionTemplateCollection.h"
+#include "RimEclipseView.h"
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimStimPlanModelTemplate.h"
@@ -53,6 +56,16 @@ void RicNewStimPlanModelTemplateFeature::onActionTriggered( bool isChecked )
 
     RimStimPlanModelTemplate* stimPlanModelTemplate = new RimStimPlanModelTemplate;
     stimPlanModelTemplate->setName( RicFractureNameGenerator::nameForNewStimPlanModelTemplate() );
+
+    RimEclipseView* activeView = dynamic_cast<RimEclipseView*>( RiaApplication::instance()->activeGridView() );
+    if ( activeView )
+    {
+        RimEclipseCase* eclipseCase = eclipseCase = activeView->eclipseCase();
+        int             timeStep                  = activeView->currentTimeStep();
+        stimPlanModelTemplate->setDynamicEclipseCase( eclipseCase );
+        stimPlanModelTemplate->setTimeStep( timeStep );
+        stimPlanModelTemplate->setStaticEclipseCase( eclipseCase );
+    }
 
     fracModColl->addStimPlanModelTemplate( stimPlanModelTemplate );
     fracModColl->updateConnectedEditors();

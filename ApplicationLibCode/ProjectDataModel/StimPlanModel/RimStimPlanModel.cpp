@@ -137,9 +137,13 @@ RimStimPlanModel::RimStimPlanModel()
     m_editStimPlanModelTemplate.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_eclipseCase, "EclipseCase", "Dynamic Case", "", "", "" );
+    m_eclipseCase.uiCapability()->setUiReadOnly( true );
+
     CAF_PDM_InitScriptableField( &m_timeStep, "TimeStep", 0, "Time Step", "", "", "" );
+    m_timeStep.uiCapability()->setUiReadOnly( true );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_staticEclipseCase, "StaticEclipseCase", "Static Case", "", "", "" );
+    m_staticEclipseCase.uiCapability()->setUiReadOnly( true );
 
     CAF_PDM_InitScriptableField( &m_MD, "MeasuredDepth", 0.0, "Measured Depth", "", "", "" );
     m_MD.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
@@ -1559,9 +1563,11 @@ RimEclipseCase* RimStimPlanModel::eclipseCaseForProperty( RiaDefines::CurvePrope
 //--------------------------------------------------------------------------------------------------
 void RimStimPlanModel::setEclipseCase( RimEclipseCase* eclipseCase )
 {
-    m_eclipseCase       = eclipseCase;
-    m_staticEclipseCase = eclipseCase;
-    updateExtractionDepthBoundaries();
+    if ( m_stimPlanModelTemplate )
+    {
+        m_stimPlanModelTemplate->setDynamicEclipseCase( eclipseCase );
+        m_stimPlanModelTemplate->setStaticEclipseCase( eclipseCase );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1663,6 +1669,17 @@ RimStimPlanModelTemplate* RimStimPlanModel::stimPlanModelTemplate() const
 //--------------------------------------------------------------------------------------------------
 void RimStimPlanModel::stimPlanModelTemplateChanged( const caf::SignalEmitter* emitter )
 {
+    if ( m_stimPlanModelTemplate() )
+    {
+        m_eclipseCase       = m_stimPlanModelTemplate()->dynamicEclipseCase();
+        m_timeStep          = m_stimPlanModelTemplate()->timeStep();
+        m_staticEclipseCase = m_stimPlanModelTemplate()->staticEclipseCase();
+        updateExtractionDepthBoundaries();
+
+        updateThicknessDirection();
+        updateBarrierProperties();
+    }
+
     updateViewsAndPlots();
 }
 
