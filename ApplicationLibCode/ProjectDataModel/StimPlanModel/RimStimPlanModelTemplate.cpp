@@ -60,6 +60,11 @@ RimStimPlanModelTemplate::RimStimPlanModelTemplate()
     CAF_PDM_InitScriptableField( &m_id, "Id", -1, "ID", "", "", "" );
     m_id.uiCapability()->setUiReadOnly( true );
 
+    CAF_PDM_InitScriptableFieldNoDefault( &m_dynamicEclipseCase, "DynamicEclipseCase", "Dynamic Case", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_timeStep, "TimeStep", 0, "Time Step", "", "", "" );
+
+    CAF_PDM_InitScriptableFieldNoDefault( &m_staticEclipseCase, "StaticEclipseCase", "Static Case", "", "", "" );
+
     CAF_PDM_InitScriptableField( &m_defaultPorosity,
                                  "DefaultPorosity",
                                  RiaDefines::defaultPorosity(),
@@ -178,6 +183,16 @@ void RimStimPlanModelTemplate::fieldChangedByUi( const caf::PdmFieldHandle* chan
                                                  const QVariant&            oldValue,
                                                  const QVariant&            newValue )
 {
+    if ( changedField == &m_dynamicEclipseCase )
+    {
+        // Set a valid default time step
+        const int timeStepCount = m_dynamicEclipseCase->timeStepStrings().size();
+        if ( timeStepCount > 0 )
+        {
+            m_timeStep = timeStepCount - 1;
+        }
+    }
+
     changed.send();
 }
 
@@ -213,6 +228,14 @@ QList<caf::PdmOptionItemInfo>
             }
         }
     }
+    else if ( fieldNeedingOptions == &m_dynamicEclipseCase || fieldNeedingOptions == &m_staticEclipseCase )
+    {
+        RimTools::eclipseCaseOptionItems( &options );
+    }
+    else if ( fieldNeedingOptions == &m_timeStep )
+    {
+        RimTools::timeStepsForCase( m_dynamicEclipseCase(), &options );
+    }
 
     return options;
 }
@@ -224,6 +247,9 @@ void RimStimPlanModelTemplate::defineUiOrdering( QString uiConfigName, caf::PdmU
 {
     uiOrdering.add( nameField() );
     uiOrdering.add( &m_id );
+    uiOrdering.add( &m_dynamicEclipseCase );
+    uiOrdering.add( &m_timeStep );
+    uiOrdering.add( &m_staticEclipseCase );
 
     caf::PdmUiOrdering* defaultsGroup = uiOrdering.addNewGroup( "Defaults" );
     defaultsGroup->add( &m_defaultPorosity );
@@ -598,7 +624,7 @@ double RimStimPlanModelTemplate::referenceTemperatureDepth() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RimStimPlanModelTemplate::computeDefaultStressDepth()
+double RimStimPlanModelTemplate::computeDefaultStressDepth() const
 {
     const double stressDepth = 1000.0;
 
@@ -612,23 +638,70 @@ double RimStimPlanModelTemplate::computeDefaultStressDepth()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimEclipseCase* RimStimPlanModelTemplate::getEclipseCase()
+RimEclipseCase* RimStimPlanModelTemplate::getEclipseCase() const
 {
-    // Find an eclipse case
-    RimProject* proj = RimProject::current();
-    if ( proj->eclipseCases().empty() ) return nullptr;
-
-    return proj->eclipseCases()[0];
+    return m_staticEclipseCase();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigEclipseCaseData* RimStimPlanModelTemplate::getEclipseCaseData()
+RigEclipseCaseData* RimStimPlanModelTemplate::getEclipseCaseData() const
 {
     // Find an eclipse case
     RimEclipseCase* eclipseCase = getEclipseCase();
     if ( !eclipseCase ) return nullptr;
 
     return eclipseCase->eclipseCaseData();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimStimPlanModelTemplate::setDynamicEclipseCase( RimEclipseCase* eclipseCase )
+{
+    m_dynamicEclipseCase = eclipseCase;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimStimPlanModelTemplate::setTimeStep( int timeStep )
+{
+    m_timeStep = timeStep;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimStimPlanModelTemplate::setStaticEclipseCase( RimEclipseCase* eclipseCase )
+{
+    m_staticEclipseCase = eclipseCase;
+
+    if ( m_nonNetLayers ) m_nonNetLayers->setEclipseCase( eclipseCase );
+    if ( m_faciesProperties ) m_faciesProperties->setEclipseCase( eclipseCase );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimEclipseCase* RimStimPlanModelTemplate::dynamicEclipseCase() const
+{
+    return m_dynamicEclipseCase;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RimStimPlanModelTemplate::timeStep() const
+{
+    return m_timeStep;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimEclipseCase* RimStimPlanModelTemplate::staticEclipseCase() const
+{
+    return m_staticEclipseCase;
 }
