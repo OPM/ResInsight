@@ -276,31 +276,31 @@ cvf::ref<RigResultAccessor>
 
         cvf::ref<RigCombTransResultAccessor> cellFaceAccessObject = new RigCombTransResultAccessor( grid );
 
-        nativeAddr.setResultName(RiaResultNames::riAreaNormTranXResultName());
+        nativeAddr.setResultName( RiaResultNames::riAreaNormTranXResultName() );
         cvf::ref<RigResultAccessor> xRiAreaNormTransAccessor =
             RigResultAccessorFactory::createNativeFromResultAddress( eclipseCase,
-                                                                        gridIndex,
-                                                                        porosityModel,
-                                                                        timeStepIndex,
-                                                                        nativeAddr );
-        nativeAddr.setResultName(RiaResultNames::riAreaNormTranYResultName());
+                                                                     gridIndex,
+                                                                     porosityModel,
+                                                                     timeStepIndex,
+                                                                     nativeAddr );
+        nativeAddr.setResultName( RiaResultNames::riAreaNormTranYResultName() );
         cvf::ref<RigResultAccessor> yRiAreaNormTransAccessor =
             RigResultAccessorFactory::createNativeFromResultAddress( eclipseCase,
-                                                                        gridIndex,
-                                                                        porosityModel,
-                                                                        timeStepIndex,
-                                                                        nativeAddr );
-        nativeAddr.setResultName(RiaResultNames::riAreaNormTranZResultName());
+                                                                     gridIndex,
+                                                                     porosityModel,
+                                                                     timeStepIndex,
+                                                                     nativeAddr );
+        nativeAddr.setResultName( RiaResultNames::riAreaNormTranZResultName() );
         cvf::ref<RigResultAccessor> zRiAreaNormTransAccessor =
             RigResultAccessorFactory::createNativeFromResultAddress( eclipseCase,
-                                                                        gridIndex,
-                                                                        porosityModel,
-                                                                        timeStepIndex,
-                                                                        nativeAddr );
+                                                                     gridIndex,
+                                                                     porosityModel,
+                                                                     timeStepIndex,
+                                                                     nativeAddr );
 
         cellFaceAccessObject->setTransResultAccessors( xRiAreaNormTransAccessor.p(),
-                                                        yRiAreaNormTransAccessor.p(),
-                                                        zRiAreaNormTransAccessor.p() );
+                                                       yRiAreaNormTransAccessor.p(),
+                                                       zRiAreaNormTransAccessor.p() );
 
         return cellFaceAccessObject;
     }
