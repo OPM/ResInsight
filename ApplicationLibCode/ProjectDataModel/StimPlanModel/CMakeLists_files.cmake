@@ -20,6 +20,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RimElasticPropertyScaling.h
 ${CMAKE_CURRENT_LIST_DIR}/RimElasticPropertyScalingCollection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimFaciesProperties.h
 ${CMAKE_CURRENT_LIST_DIR}/RimNonNetLayers.h
+${CMAKE_CURRENT_LIST_DIR}/RimFaciesInitialPressureConfig.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -41,6 +42,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RimElasticPropertyScaling.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimElasticPropertyScalingCollection.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimFaciesProperties.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimNonNetLayers.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimFaciesInitialPressureConfig.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

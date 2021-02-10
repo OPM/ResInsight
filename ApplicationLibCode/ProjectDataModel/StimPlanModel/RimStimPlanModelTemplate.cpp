@@ -30,9 +30,11 @@
 #include "RimEclipseView.h"
 #include "RimElasticProperties.h"
 #include "RimEllipseFractureTemplate.h"
+#include "RimFaciesInitialPressureConfig.h"
 #include "RimFaciesProperties.h"
 #include "RimNonNetLayers.h"
 #include "RimProject.h"
+#include "RimStimPlanModel.h"
 #include "RimStimPlanModelPlot.h"
 #include "RimTools.h"
 
@@ -41,7 +43,9 @@
 #include "cafPdmObjectScriptingCapability.h"
 #include "cafPdmUiDoubleValueEditor.h"
 #include "cafPdmUiPushButtonEditor.h"
+#include "cafPdmUiTableViewEditor.h"
 #include "cafPdmUiToolButtonEditor.h"
+#include "cafPdmUiTreeSelectionEditor.h"
 
 #include "cvfBoundingBox.h"
 
@@ -152,6 +156,16 @@ RimStimPlanModelTemplate::RimStimPlanModelTemplate()
                                  "",
                                  "",
                                  "" );
+
+    CAF_PDM_InitScriptableFieldNoDefault( &m_faciesInitialPressureConfigs,
+                                          "FaciesInitialPressureConfigs",
+                                          "FaciesInitialPressureConfigs",
+                                          "",
+                                          "",
+                                          "" );
+    m_faciesInitialPressureConfigs.uiCapability()->setUiEditorTypeName( caf::PdmUiTableViewEditor::uiEditorTypeName() );
+    m_faciesInitialPressureConfigs.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
+    m_faciesInitialPressureConfigs.uiCapability()->setUiTreeChildrenHidden( true );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_elasticProperties, "ElasticProperties", "Elastic Properties", "", "", "" );
     m_elasticProperties.uiCapability()->setUiHidden( true );
@@ -280,6 +294,10 @@ void RimStimPlanModelTemplate::defineUiOrdering( QString uiConfigName, caf::PdmU
     underburdenGroup->add( &m_underburdenPorosity );
     underburdenGroup->add( &m_underburdenPermeability );
     underburdenGroup->add( &m_underburdenFluidDensity );
+
+    caf::PdmUiOrdering* faciesInitialPressureGroup = uiOrdering.addNewGroup( "Facies With Initial Pressure" );
+    faciesInitialPressureGroup->add( &m_faciesInitialPressureConfigs );
+    uiOrdering.skipRemainingFields( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -364,6 +382,28 @@ void RimStimPlanModelTemplate::setFaciesProperties( RimFaciesProperties* faciesP
 
     if ( m_faciesProperties )
     {
+        RimColorLegend* faciesColors = m_faciesProperties->colorLegend();
+        if ( faciesColors )
+        {
+            for ( RimColorLegendItem* item : faciesColors->colorLegendItems() )
+            {
+                bool exists = std::find_if( m_faciesInitialPressureConfigs.begin(),
+                                            m_faciesInitialPressureConfigs.end(),
+                                            [item]( const auto& c ) {
+                                                return c->faciesValue() == item->categoryValue();
+                                            } ) != m_faciesInitialPressureConfigs.end();
+                if ( !exists )
+                {
+                    RimFaciesInitialPressureConfig* fipConfig = new RimFaciesInitialPressureConfig;
+                    fipConfig->setFaciesName( item->categoryName() );
+                    fipConfig->setFaciesValue( item->categoryValue() );
+                    m_faciesInitialPressureConfigs.push_back( fipConfig );
+
+                    fipConfig->changed.connect( this, &RimStimPlanModelTemplate::faciesPropertiesChanged );
+                }
+            }
+        }
+
         m_faciesProperties->changed.connect( this, &RimStimPlanModelTemplate::faciesPropertiesChanged );
         RimEclipseCase* eclipseCase = getEclipseCase();
         if ( !eclipseCase ) return;
@@ -413,6 +453,11 @@ void RimStimPlanModelTemplate::initAfterRead()
     if ( m_faciesProperties )
     {
         m_faciesProperties->setEclipseCase( eclipseCase );
+    }
+
+    for ( auto& fipConfig : m_faciesInitialPressureConfigs.childObjects() )
+    {
+        fipConfig->changed.connect( this, &RimStimPlanModelTemplate::faciesPropertiesChanged );
     }
 
     if ( m_nonNetLayers )
@@ -704,4 +749,18 @@ int RimStimPlanModelTemplate::timeStep() const
 RimEclipseCase* RimStimPlanModelTemplate::staticEclipseCase() const
 {
     return m_staticEclipseCase;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::map<int, double> RimStimPlanModelTemplate::faciesWithInitialPressure() const
+{
+    std::map<int, double> valueFractionMap;
+    for ( const RimFaciesInitialPressureConfig* c : m_faciesInitialPressureConfigs.childObjects() )
+    {
+        if ( c->isEnabled() ) valueFractionMap[c->faciesValue()] = c->fraction();
+    }
+
+    return valueFractionMap;
 }
