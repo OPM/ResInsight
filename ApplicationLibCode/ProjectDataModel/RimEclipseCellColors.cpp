@@ -187,6 +187,7 @@ RimRegularLegendConfig* RimEclipseCellColors::createLegendForResult( const QStri
             if ( resultName.contains( s, Qt::CaseInsensitive ) )
             {
                 useLog = true;
+                break;
             }
         }
     }
