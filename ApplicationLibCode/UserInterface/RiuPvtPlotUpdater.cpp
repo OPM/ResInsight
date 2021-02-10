@@ -148,104 +148,104 @@ bool RiuPvtPlotUpdater::queryDataAndUpdatePlot( const RimEclipseResultDefinition
 
     if ( !eclipseResDef ) return false;
 
-    RimEclipseResultCase* eclipseResultCase = dynamic_cast<RimEclipseResultCase*>( eclipseResDef->eclipseCase() );
-    RigEclipseCaseData*   eclipseCaseData   = eclipseResultCase ? eclipseResultCase->eclipseCaseData() : nullptr;
+    RimEclipseResultCase* eclipseResultCase     = dynamic_cast<RimEclipseResultCase*>( eclipseResDef->eclipseCase() );
+    RigEclipseCaseData*   eclipseCaseData       = eclipseResultCase ? eclipseResultCase->eclipseCaseData() : nullptr;
+    RiaDefines::PorosityModelType porosityModel = eclipseResDef->porosityModel();
+
     if ( eclipseResultCase && eclipseCaseData && eclipseResultCase->flowDiagSolverInterface() )
     {
-        size_t activeCellIndex = CellLookupHelper::mapToActiveCellIndex( eclipseCaseData, gridIndex, gridLocalCellIndex );
-        if ( activeCellIndex != cvf::UNDEFINED_SIZE_T )
-        {
-            // cvf::Trace::show("Update PVT plot for active cell index: %d", static_cast<int>(activeCellIndex));
+        // cvf::Trace::show("Update PVT plot for active cell index: %d", static_cast<int>(activeCellIndex));
 
-            std::vector<RigFlowDiagSolverInterface::PvtCurve> fvfCurveArr =
-                eclipseResultCase->flowDiagSolverInterface()->calculatePvtCurves( RigFlowDiagSolverInterface::PVT_CT_FVF,
-                                                                                  activeCellIndex );
-            std::vector<RigFlowDiagSolverInterface::PvtCurve> viscosityCurveArr =
-                eclipseResultCase->flowDiagSolverInterface()->calculatePvtCurves( RigFlowDiagSolverInterface::PVT_CT_VISCOSITY,
-                                                                                  activeCellIndex );
+        // The following calls will read results from file in preparation for the queries below
+        RigCaseCellResultsData* cellResultsData = eclipseCaseData->results( porosityModel );
 
-            // The following calls will read results from file in preparation for the queries below
-            RigCaseCellResultsData* cellResultsData =
-                eclipseCaseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
-            cellResultsData->ensureKnownResultLoaded(
-                RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "RS" ) );
-            cellResultsData->ensureKnownResultLoaded(
-                RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "RV" ) );
-            cellResultsData->ensureKnownResultLoaded(
-                RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "PRESSURE" ) );
-            cellResultsData->ensureKnownResultLoaded(
-                RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "PVTNUM" ) );
+        cellResultsData->ensureKnownResultLoaded(
+            RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "RS" ) );
+        cellResultsData->ensureKnownResultLoaded(
+            RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "RV" ) );
+        cellResultsData->ensureKnownResultLoaded(
+            RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "PRESSURE" ) );
+        cellResultsData->ensureKnownResultLoaded(
+            RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "PVTNUM" ) );
 
-            cvf::ref<RigResultAccessor> rsAccessor =
-                RigResultAccessorFactory::createFromResultAddress( eclipseCaseData,
-                                                                   gridIndex,
-                                                                   RiaDefines::PorosityModelType::MATRIX_MODEL,
-                                                                   timeStepIndex,
-                                                                   RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE,
-                                                                                            "RS" ) );
-            cvf::ref<RigResultAccessor> rvAccessor =
-                RigResultAccessorFactory::createFromResultAddress( eclipseCaseData,
-                                                                   gridIndex,
-                                                                   RiaDefines::PorosityModelType::MATRIX_MODEL,
-                                                                   timeStepIndex,
-                                                                   RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE,
-                                                                                            "RV" ) );
-            cvf::ref<RigResultAccessor> pressureAccessor =
-                RigResultAccessorFactory::createFromResultAddress( eclipseCaseData,
-                                                                   gridIndex,
-                                                                   RiaDefines::PorosityModelType::MATRIX_MODEL,
-                                                                   timeStepIndex,
-                                                                   RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE,
-                                                                                            "PRESSURE" ) );
-            cvf::ref<RigResultAccessor> pvtnumAccessor =
-                RigResultAccessorFactory::createFromResultAddress( eclipseCaseData,
-                                                                   gridIndex,
-                                                                   RiaDefines::PorosityModelType::MATRIX_MODEL,
-                                                                   timeStepIndex,
-                                                                   RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE,
-                                                                                            "PVTNUM" ) );
+        cvf::ref<RigResultAccessor> rsAccessor =
+            RigResultAccessorFactory::createFromResultAddress( eclipseCaseData,
+                                                               gridIndex,
+                                                               porosityModel,
+                                                               timeStepIndex,
+                                                               RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE,
+                                                                                        "RS" ) );
+        cvf::ref<RigResultAccessor> rvAccessor =
+            RigResultAccessorFactory::createFromResultAddress( eclipseCaseData,
+                                                               gridIndex,
+                                                               porosityModel,
+                                                               timeStepIndex,
+                                                               RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE,
+                                                                                        "RV" ) );
+        cvf::ref<RigResultAccessor> pressureAccessor =
+            RigResultAccessorFactory::createFromResultAddress( eclipseCaseData,
+                                                               gridIndex,
+                                                               porosityModel,
+                                                               timeStepIndex,
+                                                               RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE,
+                                                                                        "PRESSURE" ) );
+        cvf::ref<RigResultAccessor> pvtnumAccessor =
+            RigResultAccessorFactory::createFromResultAddress( eclipseCaseData,
+                                                               gridIndex,
+                                                               porosityModel,
+                                                               timeStepIndex,
+                                                               RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE,
+                                                                                        "PVTNUM" ) );
 
-            RiuPvtPlotPanel::CellValues cellValues;
-            cellValues.rs       = rsAccessor.notNull() ? rsAccessor->cellScalar( gridLocalCellIndex ) : HUGE_VAL;
-            cellValues.rv       = rvAccessor.notNull() ? rvAccessor->cellScalar( gridLocalCellIndex ) : HUGE_VAL;
-            cellValues.pressure = pressureAccessor.notNull() ? pressureAccessor->cellScalar( gridLocalCellIndex )
-                                                             : HUGE_VAL;
+        RiuPvtPlotPanel::CellValues cellValues;
+        cellValues.rs       = rsAccessor.notNull() ? rsAccessor->cellScalar( gridLocalCellIndex ) : HUGE_VAL;
+        cellValues.rv       = rvAccessor.notNull() ? rvAccessor->cellScalar( gridLocalCellIndex ) : HUGE_VAL;
+        cellValues.pressure = pressureAccessor.notNull() ? pressureAccessor->cellScalar( gridLocalCellIndex ) : HUGE_VAL;
 
-            const double cellPVTNUM = pvtnumAccessor.notNull() ? pvtnumAccessor->cellScalar( gridLocalCellIndex )
-                                                               : HUGE_VAL;
+        const double cellPvtNumDouble = pvtnumAccessor.notNull() ? pvtnumAccessor->cellScalar( gridLocalCellIndex )
+                                                                 : HUGE_VAL;
 
-            RiuPvtPlotPanel::FvfDynProps fvfDynProps;
-            eclipseResultCase->flowDiagSolverInterface()->calculatePvtDynamicPropertiesFvf( activeCellIndex,
-                                                                                            cellValues.pressure,
-                                                                                            cellValues.rs,
-                                                                                            cellValues.rv,
-                                                                                            &fvfDynProps.bo,
-                                                                                            &fvfDynProps.bg );
+        const int cellPvtNum = ( cellPvtNumDouble != HUGE_VAL ) ? static_cast<int>( cellPvtNumDouble )
+                                                                : std::numeric_limits<int>::max();
 
-            RiuPvtPlotPanel::ViscosityDynProps viscosityDynProps;
-            eclipseResultCase->flowDiagSolverInterface()->calculatePvtDynamicPropertiesViscosity( activeCellIndex,
-                                                                                                  cellValues.pressure,
-                                                                                                  cellValues.rs,
-                                                                                                  cellValues.rv,
-                                                                                                  &viscosityDynProps.mu_o,
-                                                                                                  &viscosityDynProps.mu_g );
+        std::vector<RigFlowDiagSolverInterface::PvtCurve> fvfCurveArr =
+            eclipseResultCase->flowDiagSolverInterface()->calculatePvtCurves( RigFlowDiagSolverInterface::PVT_CT_FVF,
+                                                                              cellPvtNum );
+        std::vector<RigFlowDiagSolverInterface::PvtCurve> viscosityCurveArr =
+            eclipseResultCase->flowDiagSolverInterface()->calculatePvtCurves( RigFlowDiagSolverInterface::PVT_CT_VISCOSITY,
+                                                                              cellPvtNum );
 
-            QString cellRefText = RiuRelativePermeabilityPlotUpdater::constructCellReferenceText( eclipseCaseData,
-                                                                                                  gridIndex,
-                                                                                                  gridLocalCellIndex,
-                                                                                                  "PVTNUM",
-                                                                                                  cellPVTNUM );
+        RiuPvtPlotPanel::FvfDynProps fvfDynProps;
+        eclipseResultCase->flowDiagSolverInterface()->calculatePvtDynamicPropertiesFvf( cellPvtNum,
+                                                                                        cellValues.pressure,
+                                                                                        cellValues.rs,
+                                                                                        cellValues.rv,
+                                                                                        &fvfDynProps.bo,
+                                                                                        &fvfDynProps.bg );
 
-            plotPanel->setPlotData( eclipseCaseData->unitsType(),
-                                    fvfCurveArr,
-                                    viscosityCurveArr,
-                                    fvfDynProps,
-                                    viscosityDynProps,
-                                    cellValues,
-                                    cellRefText );
+        RiuPvtPlotPanel::ViscosityDynProps viscosityDynProps;
+        eclipseResultCase->flowDiagSolverInterface()->calculatePvtDynamicPropertiesViscosity( cellPvtNum,
+                                                                                              cellValues.pressure,
+                                                                                              cellValues.rs,
+                                                                                              cellValues.rv,
+                                                                                              &viscosityDynProps.mu_o,
+                                                                                              &viscosityDynProps.mu_g );
 
-            return true;
-        }
+        QString cellRefText = RiuRelativePermeabilityPlotUpdater::constructCellReferenceText( eclipseCaseData,
+                                                                                              gridIndex,
+                                                                                              gridLocalCellIndex,
+                                                                                              "PVTNUM",
+                                                                                              cellPvtNumDouble );
+
+        plotPanel->setPlotData( eclipseCaseData->unitsType(),
+                                fvfCurveArr,
+                                viscosityCurveArr,
+                                fvfDynProps,
+                                viscosityDynProps,
+                                cellValues,
+                                cellRefText );
+
+        return true;
     }
 
     return false;

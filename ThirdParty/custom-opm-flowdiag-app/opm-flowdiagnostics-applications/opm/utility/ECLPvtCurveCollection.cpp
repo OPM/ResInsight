@@ -29,20 +29,6 @@
 #include <ert/ecl/ecl_kw_magic.h>
 
 namespace {
-    std::vector<int>
-    pvtnumVector(const ::Opm::ECLGraph&        G,
-                 const ::Opm::ECLInitFileData& init)
-    {
-        auto pvtnum = G.rawLinearisedCellData<int>(init, "PVTNUM");
-
-        if (pvtnum.empty()) {
-            // PVTNUM missing in one or more of the grids managed by 'G'.
-            // Put all cells in PVTNUM region 1.
-            pvtnum.assign(G.numCells(), 1);
-        }
-
-        return pvtnum;
-    }
 
     template <class PVTInterp>
     std::vector<Opm::ECLPVT::PVTGraph>
@@ -252,8 +238,7 @@ namespace {
 Opm::ECLPVT::ECLPvtCurveCollection::
 ECLPvtCurveCollection(const ECLGraph&        G,
                       const ECLInitFileData& init)
-    : pvtnum_       (pvtnumVector(G, init))
-    , gas_          (CreateGasPVTInterpolant::fromECLOutput(init))
+    : gas_          (CreateGasPVTInterpolant::fromECLOutput(init))
     , oil_          (CreateOilPVTInterpolant::fromECLOutput(init))
     , usys_native_  (ECLUnits::serialisedUnitConventions(init))
     , usys_internal_(ECLUnits::internalUnitConventions())
@@ -270,22 +255,22 @@ std::vector<Opm::ECLPVT::PVTGraph>
 Opm::ECLPVT::ECLPvtCurveCollection::
 getPvtCurve(const RawCurve      curve,
             const ECLPhaseIndex phase,
-            const int           activeCell) const
+            const int           pvtRegionID) const
 {
-    if (! this->isValidRequest(phase, activeCell)) {
+    if (! this->isValidRequest(phase, pvtRegionID)) {
         // Not a supported phase or cell index out of bounds.  Not a valid
         // request so return empty.
         return {};
     }
 
-    // PVTNUM is traditional one-based region identifier.  Subtract one to
+    // pvtRegionID is traditional one-based region identifier.  Subtract one to
     // form valid index into std::vector<>s.
-    const auto regID = this->pvtnum_[activeCell] - 1;
+    const auto zeroBasedPvtIndex = pvtRegionID - 1;
 
     if (phase == ECLPhaseIndex::Liquid) {
         // Caller requests oil properties.
         return this->convertToOutputUnits(
-            rawPvtCurve(this->oil_.get(), curve, regID), curve, phase);
+            rawPvtCurve(this->oil_.get(), curve, zeroBasedPvtIndex), curve, phase);
     }
 
     // Caller requests gas properties.
@@ -293,18 +278,18 @@ getPvtCurve(const RawCurve      curve,
             "Internal Logic Error Identifying Supported Phases");
 
     return this->convertToOutputUnits(
-        rawPvtCurve(this->gas_.get(), curve, regID), curve, phase);
+        rawPvtCurve(this->gas_.get(), curve, zeroBasedPvtIndex), curve, phase);
 }
 
 std::vector<double>
 Opm::ECLPVT::ECLPvtCurveCollection::
 getDynamicPropertySI(const RawCurve             property,
                      const ECLPhaseIndex        phase,
-                     const int                  activeCell,
+                     const int                  pvtRegionID,
                      const std::vector<double>& phasePress,
                      const std::vector<double>& mixRatio) const
 {
-    if (! this->isValidRequest(phase, activeCell) ||
+    if (! this->isValidRequest(phase, pvtRegionID) ||
         (property == RawCurve::SaturatedState))
     {
         // Not a supported phase, cell index out of bounds, or caller
@@ -313,14 +298,14 @@ getDynamicPropertySI(const RawCurve             property,
         return {};
     }
 
-    // PVTNUM is traditional one-based region identifier.  Subtract one to
+    // pvtRegionID is traditional one-based region identifier.  Subtract one to
     // form valid index into std::vector<>s.
-    const auto regID = this->pvtnum_[activeCell] - 1;
+    const auto zeroBasedPvtIndex = pvtRegionID - 1;
 
     if (phase == ECLPhaseIndex::Liquid) {
         // Caller requests oil properties.
         return oilProperty(this->oil_.get(), property,
-                           regID, phasePress, mixRatio);
+                           zeroBasedPvtIndex, phasePress, mixRatio);
     }
 
     // Caller requests gas properties.
@@ -328,18 +313,18 @@ getDynamicPropertySI(const RawCurve             property,
             "Internal Logic Error Identifying Supported Phases");
 
     return gasProperty(this->gas_.get(), property,
-                       regID, phasePress, mixRatio);
+                       zeroBasedPvtIndex, phasePress, mixRatio);
 }
 
 std::vector<double>
 Opm::ECLPVT::ECLPvtCurveCollection::
 getDynamicPropertyNative(const RawCurve      property,
                          const ECLPhaseIndex phase,
-                         const int           activeCell,
+                         const int           pvtRegionID,
                          std::vector<double> phasePress,
                          std::vector<double> mixRatio) const
 {
-    if (! this->isValidRequest(phase, activeCell) ||
+    if (! this->isValidRequest(phase, pvtRegionID) ||
         (property == RawCurve::SaturatedState))
     {
         // Not a supported phase, cell index out of bounds, or caller
@@ -370,7 +355,7 @@ getDynamicPropertyNative(const RawCurve      property,
     }
 
     // 2) Evaluate requested property in strict SI units.
-    auto prop = this->getDynamicPropertySI(property, phase, activeCell,
+    auto prop = this->getDynamicPropertySI(property, phase, pvtRegionID,
                                            phasePress, mixRatio);
 
     // 3) Convert property values to user's requested system of units.
@@ -412,8 +397,7 @@ getDynamicPropertyNative(const RawCurve      property,
 
 bool
 Opm::ECLPVT::ECLPvtCurveCollection::
-isValidRequest(const ECLPhaseIndex phase,
-               const int           activeCell) const
+isValidRequest(const ECLPhaseIndex phase, const int pvtRegionID) const
 {
     if (! ((phase == ECLPhaseIndex::Liquid) ||
            (phase == ECLPhaseIndex::Vapour)))
@@ -422,9 +406,7 @@ isValidRequest(const ECLPhaseIndex phase,
         return false;
     }
 
-    // Check if cell index is within bounds.
-    return static_cast<decltype(this->pvtnum_.size())>(activeCell)
-        <  this->pvtnum_.size();
+    return pvtRegionID >= 1;
 }
 
 std::vector<Opm::ECLPVT::PVTGraph>
