@@ -82,6 +82,14 @@ public:
     double verticalStressGradient() const;
     double stressDepth() const;
 
+    void setDynamicEclipseCase( RimEclipseCase* eclipseCase );
+    void setTimeStep( int timeStep );
+    void setStaticEclipseCase( RimEclipseCase* eclipseCase );
+
+    RimEclipseCase* dynamicEclipseCase() const;
+    int             timeStep() const;
+    RimEclipseCase* staticEclipseCase() const;
+
     void loadDataAndUpdate();
 
     void                  setElasticProperties( RimElasticProperties* elasticProperties );
@@ -105,16 +113,19 @@ protected:
                                                          caf::PdmUiEditorAttribute* attribute ) override;
 
 private:
-    static RimEclipseCase*     getEclipseCase();
-    static RigEclipseCaseData* getEclipseCaseData();
+    RimEclipseCase*     getEclipseCase() const;
+    RigEclipseCaseData* getEclipseCaseData() const;
 
     void faciesPropertiesChanged( const caf::SignalEmitter* emitter );
     void elasticPropertiesChanged( const caf::SignalEmitter* emitter );
     void nonNetLayersChanged( const caf::SignalEmitter* emitter );
 
-    static double computeDefaultStressDepth();
+    double computeDefaultStressDepth() const;
 
     caf::PdmField<int>                        m_id;
+    caf::PdmPtrField<RimEclipseCase*>         m_dynamicEclipseCase;
+    caf::PdmField<int>                        m_timeStep;
+    caf::PdmPtrField<RimEclipseCase*>         m_staticEclipseCase;
     caf::PdmField<double>                     m_defaultPorosity;
     caf::PdmField<double>                     m_defaultPermeability;
     caf::PdmField<double>                     m_verticalStress;
