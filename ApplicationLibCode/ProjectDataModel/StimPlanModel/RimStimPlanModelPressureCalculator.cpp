@@ -23,6 +23,7 @@
 
 #include "RimStimPlanModel.h"
 #include "RimStimPlanModelCalculator.h"
+#include "RimStimPlanModelTemplate.h"
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -99,14 +100,15 @@ bool RimStimPlanModelPressureCalculator::extractValuesForProperty( RiaDefines::C
     // Get depth from the static eclipse case
     std::vector<double> staticTvDepthValues;
     std::vector<double> staticMeasuredDepthValues;
+    std::vector<double> faciesValues;
 
     {
         std::vector<double> dummyValues;
         double              dummyRkbDiff;
-        if ( !RimStimPlanModelWellLogCalculator::extractValuesForProperty( RiaDefines::CurveProperty::POROSITY_UNSCALED,
+        if ( !RimStimPlanModelWellLogCalculator::extractValuesForProperty( RiaDefines::CurveProperty::FACIES,
                                                                            stimPlanModel,
                                                                            timeStep,
-                                                                           dummyValues,
+                                                                           faciesValues,
                                                                            staticMeasuredDepthValues,
                                                                            staticTvDepthValues,
                                                                            dummyRkbDiff ) )
@@ -134,12 +136,12 @@ bool RimStimPlanModelPressureCalculator::extractValuesForProperty( RiaDefines::C
         double prevEndIndex = 0;
         for ( size_t i = 0; i < staticTvDepthValues.size(); i++ )
         {
-            double tvd = staticTvDepthValues[i];
-            double md  = staticMeasuredDepthValues[i];
+            double tvd   = staticTvDepthValues[i];
+            double md    = staticMeasuredDepthValues[i];
+            double value = std::numeric_limits<double>::infinity();
 
             // Find value before and after this depth in the static data
             auto [startIndex, endIndex] = findIndex( md, measuredDepthValues );
-            double value                = std::numeric_limits<double>::infinity();
 
             if ( startIndex < values.size() && endIndex < values.size() )
             {
@@ -189,6 +191,43 @@ bool RimStimPlanModelPressureCalculator::extractValuesForProperty( RiaDefines::C
         tvDepthValues       = tvds;
         measuredDepthValues = mds;
         values              = results;
+    }
+
+    // Filter out the facies which does not have pressure depletion.
+    std::map<int, double> faciesWithInitialPressure = stimPlanModel->stimPlanModelTemplate()->faciesWithInitialPressure();
+
+    if ( curveProperty == RiaDefines::CurveProperty::PRESSURE && !faciesWithInitialPressure.empty() )
+    {
+        std::vector<double> initialPressureValues;
+        std::vector<double> initialPressureMeasuredDepthValues;
+        std::vector<double> initialPressureTvDepthValues;
+
+        if ( !stimPlanModel->calculator()->extractCurveData( RiaDefines::CurveProperty::INITIAL_PRESSURE,
+                                                             timeStep,
+                                                             initialPressureValues,
+                                                             initialPressureMeasuredDepthValues,
+                                                             initialPressureTvDepthValues,
+                                                             rkbDiff ) )
+        {
+            return false;
+        }
+
+        for ( size_t i = 0; i < faciesValues.size(); i++ )
+        {
+            // Use the values from initial pressure curve
+            int    faciesValue     = static_cast<int>( faciesValues[i] );
+            double currentPressure = values[i];
+            double initialPressure = initialPressureValues[i];
+            auto   faciesConfig    = faciesWithInitialPressure.find( faciesValue );
+            if ( faciesConfig != faciesWithInitialPressure.end() && !std::isinf( currentPressure ) &&
+                 !std::isinf( initialPressure ) )
+            {
+                double fraction = faciesConfig->second;
+                double value    = initialPressure - ( initialPressure - currentPressure ) * ( 1.0 - fraction );
+
+                values[i] = value;
+            }
+        }
     }
 
     return true;
