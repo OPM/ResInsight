@@ -18,52 +18,32 @@
 
 #include "RimStimPlanModelTemplate.h"
 
-#include "RiaColorTables.h"
-#include "RiaCompletionTypeCalculationScheduler.h"
 #include "RiaFractureDefines.h"
-#include "RiaLogging.h"
 #include "RiaStimPlanModelDefines.h"
 
-#include "Riu3DMainWindowTools.h"
-
 #include "RigEclipseCaseData.h"
-#include "RigMainGrid.h"
-#include "RigWellPath.h"
 
-#include "Rim3dView.h"
 #include "RimColorLegend.h"
 #include "RimColorLegendCollection.h"
 #include "RimColorLegendItem.h"
 #include "RimEclipseCase.h"
-#include "RimEclipseCellColors.h"
 #include "RimEclipseView.h"
 #include "RimElasticProperties.h"
 #include "RimEllipseFractureTemplate.h"
 #include "RimFaciesProperties.h"
 #include "RimNonNetLayers.h"
-#include "RimOilField.h"
 #include "RimProject.h"
 #include "RimStimPlanModelPlot.h"
 #include "RimTools.h"
-#include "RimWellPath.h"
-#include "RimWellPathCollection.h"
-#include "RimWellPathGeometryDef.h"
-#include "RimWellPathTarget.h"
 
 #include "cafPdmFieldCvfVec3d.h"
 #include "cafPdmFieldScriptingCapabilityCvfVec3d.h"
 #include "cafPdmObjectScriptingCapability.h"
-#include "cafPdmUiDoubleSliderEditor.h"
 #include "cafPdmUiDoubleValueEditor.h"
 #include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiToolButtonEditor.h"
-#include "cafPdmUiTreeOrdering.h"
 
 #include "cvfBoundingBox.h"
-#include "cvfGeometryTools.h"
-#include "cvfMath.h"
-#include "cvfMatrix4.h"
-#include "cvfPlane.h"
 
 #include <cmath>
 
