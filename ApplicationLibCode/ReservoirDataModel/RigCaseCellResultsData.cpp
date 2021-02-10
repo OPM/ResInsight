@@ -1048,6 +1048,33 @@ void RigCaseCellResultsData::createPlaceholderResultEntries()
                                    0 );
         }
     }
+
+    // riTRANS X,Y,Z byArea
+    {
+        if ( hasResultEntry( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "TRANX" ) ) )
+        {
+            addStaticScalarResult( RiaDefines::ResultCatType::STATIC_NATIVE,
+                                   RiaResultNames::riAreaNormTranXResultName(),
+                                   false,
+                                   0 );
+        }
+
+        if ( hasResultEntry( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "TRANY" ) ) )
+        {
+            addStaticScalarResult( RiaDefines::ResultCatType::STATIC_NATIVE,
+                                   RiaResultNames::riAreaNormTranYResultName(),
+                                   false,
+                                   0 );
+        }
+
+        if ( hasResultEntry( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "TRANZ" ) ) )
+        {
+            addStaticScalarResult( RiaDefines::ResultCatType::STATIC_NATIVE,
+                                   RiaResultNames::riAreaNormTranZResultName(),
+                                   false,
+                                   0 );
+        }
+    }
     // riTRANSXYZbyArea
     {
         if ( hasCompleteTransmissibilityResults() )
@@ -2589,6 +2616,7 @@ void RigCaseCellResultsData::computeRiTRANSbyAreaComponent( const QString& riTra
 
     size_t riTranByAreaScResIdx = this->findScalarResultIndexFromAddress(
         RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, riTransByAreaCompResultName ) );
+
     CVF_ASSERT( riTranByAreaScResIdx != cvf::UNDEFINED_SIZE_T );
 
     // Get the result count, to handle that one of them might be globally defined
