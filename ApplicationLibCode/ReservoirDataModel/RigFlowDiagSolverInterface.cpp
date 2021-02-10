@@ -764,7 +764,7 @@ std::vector<RigFlowDiagSolverInterface::RelPermCurve>
 ///
 //--------------------------------------------------------------------------------------------------
 std::vector<RigFlowDiagSolverInterface::PvtCurve>
-    RigFlowDiagSolverInterface::calculatePvtCurves( PvtCurveType pvtCurveType, size_t activeCellIndex )
+    RigFlowDiagSolverInterface::calculatePvtCurves( PvtCurveType pvtCurveType, int pvtNum )
 {
     std::vector<PvtCurve> retCurveArr;
 
@@ -789,7 +789,7 @@ std::vector<RigFlowDiagSolverInterface::PvtCurve>
                 std::vector<Opm::ECLPVT::PVTGraph> graphArr =
                     m_opmFlowDiagStaticData->m_eclPvtCurveCollection->getPvtCurve( Opm::ECLPVT::RawCurve::FVF,
                                                                                    Opm::ECLPhaseIndex::Liquid,
-                                                                                   static_cast<int>( activeCellIndex ) );
+                                                                                   pvtNum );
                 for ( Opm::ECLPVT::PVTGraph srcGraph : graphArr )
                 {
                     if ( srcGraph.press.size() > 0 )
@@ -805,7 +805,7 @@ std::vector<RigFlowDiagSolverInterface::PvtCurve>
                 std::vector<Opm::ECLPVT::PVTGraph> graphArr =
                     m_opmFlowDiagStaticData->m_eclPvtCurveCollection->getPvtCurve( Opm::ECLPVT::RawCurve::FVF,
                                                                                    Opm::ECLPhaseIndex::Vapour,
-                                                                                   static_cast<int>( activeCellIndex ) );
+                                                                                   pvtNum );
                 for ( Opm::ECLPVT::PVTGraph srcGraph : graphArr )
                 {
                     if ( srcGraph.press.size() > 0 )
@@ -824,7 +824,7 @@ std::vector<RigFlowDiagSolverInterface::PvtCurve>
                 std::vector<Opm::ECLPVT::PVTGraph> graphArr =
                     m_opmFlowDiagStaticData->m_eclPvtCurveCollection->getPvtCurve( Opm::ECLPVT::RawCurve::Viscosity,
                                                                                    Opm::ECLPhaseIndex::Liquid,
-                                                                                   static_cast<int>( activeCellIndex ) );
+                                                                                   pvtNum );
                 for ( Opm::ECLPVT::PVTGraph srcGraph : graphArr )
                 {
                     if ( srcGraph.press.size() > 0 )
@@ -840,7 +840,7 @@ std::vector<RigFlowDiagSolverInterface::PvtCurve>
                 std::vector<Opm::ECLPVT::PVTGraph> graphArr =
                     m_opmFlowDiagStaticData->m_eclPvtCurveCollection->getPvtCurve( Opm::ECLPVT::RawCurve::Viscosity,
                                                                                    Opm::ECLPhaseIndex::Vapour,
-                                                                                   static_cast<int>( activeCellIndex ) );
+                                                                                   pvtNum );
                 for ( Opm::ECLPVT::PVTGraph srcGraph : graphArr )
                 {
                     if ( srcGraph.press.size() > 0 )
@@ -864,7 +864,7 @@ std::vector<RigFlowDiagSolverInterface::PvtCurve>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RigFlowDiagSolverInterface::calculatePvtDynamicPropertiesFvf( size_t  activeCellIndex,
+bool RigFlowDiagSolverInterface::calculatePvtDynamicPropertiesFvf( int     pvtNum,
                                                                    double  pressure,
                                                                    double  rs,
                                                                    double  rv,
@@ -894,8 +894,7 @@ bool RigFlowDiagSolverInterface::calculatePvtDynamicPropertiesFvf( size_t  activ
             std::vector<double> valArr =
                 m_opmFlowDiagStaticData->m_eclPvtCurveCollection->getDynamicPropertyNative( Opm::ECLPVT::RawCurve::FVF,
                                                                                             Opm::ECLPhaseIndex::Liquid,
-                                                                                            static_cast<int>(
-                                                                                                activeCellIndex ),
+                                                                                            pvtNum,
                                                                                             phasePress,
                                                                                             mixRatio );
             if ( valArr.size() > 0 )
@@ -911,8 +910,7 @@ bool RigFlowDiagSolverInterface::calculatePvtDynamicPropertiesFvf( size_t  activ
             std::vector<double> valArr =
                 m_opmFlowDiagStaticData->m_eclPvtCurveCollection->getDynamicPropertyNative( Opm::ECLPVT::RawCurve::FVF,
                                                                                             Opm::ECLPhaseIndex::Vapour,
-                                                                                            static_cast<int>(
-                                                                                                activeCellIndex ),
+                                                                                            pvtNum,
                                                                                             phasePress,
                                                                                             mixRatio );
             if ( valArr.size() > 0 )
@@ -933,7 +931,7 @@ bool RigFlowDiagSolverInterface::calculatePvtDynamicPropertiesFvf( size_t  activ
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RigFlowDiagSolverInterface::calculatePvtDynamicPropertiesViscosity( size_t  activeCellIndex,
+bool RigFlowDiagSolverInterface::calculatePvtDynamicPropertiesViscosity( int     pvtNum,
                                                                          double  pressure,
                                                                          double  rs,
                                                                          double  rv,
@@ -960,12 +958,12 @@ bool RigFlowDiagSolverInterface::calculatePvtDynamicPropertiesViscosity( size_t 
         {
             std::vector<double> phasePress = { pressure };
             std::vector<double> mixRatio   = { rs };
-            std::vector<double> valArr     = m_opmFlowDiagStaticData->m_eclPvtCurveCollection
-                                             ->getDynamicPropertyNative( Opm::ECLPVT::RawCurve::Viscosity,
-                                                                         Opm::ECLPhaseIndex::Liquid,
-                                                                         static_cast<int>( activeCellIndex ),
-                                                                         phasePress,
-                                                                         mixRatio );
+            std::vector<double> valArr =
+                m_opmFlowDiagStaticData->m_eclPvtCurveCollection->getDynamicPropertyNative( Opm::ECLPVT::RawCurve::Viscosity,
+                                                                                            Opm::ECLPhaseIndex::Liquid,
+                                                                                            pvtNum,
+                                                                                            phasePress,
+                                                                                            mixRatio );
             if ( valArr.size() > 0 )
             {
                 *mu_o = valArr[0];
@@ -976,12 +974,12 @@ bool RigFlowDiagSolverInterface::calculatePvtDynamicPropertiesViscosity( size_t 
         {
             std::vector<double> phasePress = { pressure };
             std::vector<double> mixRatio   = { rv };
-            std::vector<double> valArr     = m_opmFlowDiagStaticData->m_eclPvtCurveCollection
-                                             ->getDynamicPropertyNative( Opm::ECLPVT::RawCurve::Viscosity,
-                                                                         Opm::ECLPhaseIndex::Vapour,
-                                                                         static_cast<int>( activeCellIndex ),
-                                                                         phasePress,
-                                                                         mixRatio );
+            std::vector<double> valArr =
+                m_opmFlowDiagStaticData->m_eclPvtCurveCollection->getDynamicPropertyNative( Opm::ECLPVT::RawCurve::Viscosity,
+                                                                                            Opm::ECLPhaseIndex::Vapour,
+                                                                                            pvtNum,
+                                                                                            phasePress,
+                                                                                            mixRatio );
             if ( valArr.size() > 0 )
             {
                 *mu_g = valArr[0];
