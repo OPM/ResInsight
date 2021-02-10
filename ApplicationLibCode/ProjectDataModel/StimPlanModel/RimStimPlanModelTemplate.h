@@ -20,19 +20,24 @@
 
 #include "RiaStimPlanModelDefines.h"
 
+#include "RimFaciesInitialPressureConfig.h"
 #include "RimNamedObject.h"
 
+#include "cafPdmChildArrayField.h"
 #include "cafPdmChildField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmProxyValueField.h"
 #include "cafPdmPtrField.h"
 
+#include <map>
+
 class RimEclipseCase;
 class RimElasticProperties;
 class RigEclipseCaseData;
 class RimFaciesProperties;
 class RimNonNetLayers;
+class RimFaciesInitialPressureConfig;
 
 //==================================================================================================
 ///
@@ -89,6 +94,8 @@ public:
     RimEclipseCase* dynamicEclipseCase() const;
     int             timeStep() const;
     RimEclipseCase* staticEclipseCase() const;
+
+    std::map<int, double> faciesWithInitialPressure() const;
 
     void loadDataAndUpdate();
 
@@ -149,4 +156,6 @@ private:
     caf::PdmChildField<RimElasticProperties*> m_elasticProperties;
     caf::PdmChildField<RimFaciesProperties*>  m_faciesProperties;
     caf::PdmChildField<RimNonNetLayers*>      m_nonNetLayers;
+
+    caf::PdmChildArrayField<RimFaciesInitialPressureConfig*> m_faciesInitialPressureConfigs;
 };
