@@ -640,6 +640,17 @@ void RicSummaryPlotEditorUi::populateCurveCreator( const RimSummaryPlot& sourceS
     m_previewPlot->updatePlotTitle();
     m_previewPlot->updateAxes();
 
+    if ( curveDefs.empty() )
+    {
+        auto sumCases = RimProject::current()->allSummaryCases();
+        if ( !sumCases.empty() )
+        {
+            RifEclipseSummaryAddress  defaultAdr;
+            RiaSummaryCurveDefinition curveDef( sumCases.front(), defaultAdr, false );
+            curveDefs.push_back( curveDef );
+        }
+    }
+
     m_summaryCurveSelectionEditor->summaryAddressSelection()->setSelectedCurveDefinitions( curveDefs );
 
     updateAppearanceEditor();
