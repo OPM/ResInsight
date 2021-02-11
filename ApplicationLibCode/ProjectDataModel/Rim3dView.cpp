@@ -59,6 +59,7 @@
 #include "cvfCamera.h"
 #include "cvfModelBasicList.h"
 #include "cvfPart.h"
+#include "cvfScene.h"
 #include "cvfTransform.h"
 #include "cvfViewport.h"
 
@@ -84,7 +85,8 @@ CAF_PDM_XML_ABSTRACT_SOURCE_INIT( Rim3dView, "View", "GenericView" ); // Do not 
 ///
 //--------------------------------------------------------------------------------------------------
 Rim3dView::Rim3dView( void )
-    : m_isCallingUpdateDisplayModelForCurrentTimestepAndRedraw( false )
+    : updateAnimations( this )
+    , m_isCallingUpdateDisplayModelForCurrentTimestepAndRedraw( false )
 {
     RiaApplication* app         = RiaApplication::instance();
     RiaPreferences* preferences = app->preferences();
@@ -175,6 +177,14 @@ Rim3dView::Rim3dView( void )
     m_measurementPartManager = new RivMeasurementPartMgr( this );
 
     this->setAs3DViewMdiWindow();
+
+    // Every 50ms, send a signal for updating animations.
+    // Any animation is supposed to connect to this signal
+    // in order to having only one central animation driver.
+    m_animationTimer = std::make_unique<QTimer>( new QTimer() );
+    m_animationTimer->setInterval( 50 );
+    QObject::connect( m_animationTimer.get(), &QTimer::timeout, [this]() { updateAnimations.send(); } );
+    m_animationTimer->start();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -371,8 +381,9 @@ void Rim3dView::updateMdiWindowTitle()
 {
     if ( m_viewer )
     {
-        m_viewer->layoutWidget()->setWindowTitle(
-            autoName() + ( isMasterView() ? " (Primary)" : viewController() ? " (Controlled)" : "" ) );
+        m_viewer->layoutWidget()->setWindowTitle( autoName() + ( isMasterView()     ? " (Primary)"
+                                                                 : viewController() ? " (Controlled)"
+                                                                                    : "" ) );
     }
 }
 
@@ -1058,8 +1069,8 @@ void Rim3dView::updateGridBoxData()
     {
         using BBox = cvf::BoundingBox;
 
-        BBox masterDomainBBox = isShowingActiveCellsOnly() ? ownerCase()->activeCellsBoundingBox()
-                                                           : ownerCase()->allCellsBoundingBox();
+        BBox masterDomainBBox   = isShowingActiveCellsOnly() ? ownerCase()->activeCellsBoundingBox()
+                                                             : ownerCase()->allCellsBoundingBox();
         BBox combinedDomainBBox = masterDomainBBox;
 
         if ( Rim3dView* depView = activeComparisonView() )

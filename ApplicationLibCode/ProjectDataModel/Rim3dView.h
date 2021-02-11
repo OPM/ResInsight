@@ -29,6 +29,7 @@
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmPtrField.h"
+#include "cafSignal.h"
 
 #include "cafPdmFieldCvfColor.h"
 #include "cafPdmFieldCvfMat4d.h"
@@ -38,6 +39,7 @@
 #include "cvfObject.h"
 
 #include <QPointer>
+#include <QTimer>
 
 class RimCase;
 class RimLegendConfig;
@@ -88,6 +90,8 @@ public:
     ~Rim3dView( void ) override;
 
     int id() const final;
+
+    caf::Signal<> updateAnimations;
 
     // Public fields:
 
@@ -312,4 +316,7 @@ private:
     cvf::ref<RivAnnotationsPartMgr> m_annotationsPartManager;
     cvf::ref<RivMeasurementPartMgr> m_measurementPartManager;
     cvf::ref<RivCellFilterPartMgr>  m_cellfilterPartManager;
+
+    // Timer for animations
+    std::unique_ptr<QTimer> m_animationTimer;
 };
