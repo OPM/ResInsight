@@ -169,7 +169,7 @@ QLabel {
     color: $textColor;
 }
 
-.QWidget, QFrame, QMainWindow, QDialog, QMenu, QLabel, QCheckBox, QTabBar, QDockWidget, QTextEdit, QPlainTextEdit, QScrollArea, QTextBrowser {
+.QWidget, QFrame, QMainWindow, QDialog, QMenu, QLabel, QCheckBox, QTabBar, QDockWidget, QTextEdit, QPlainTextEdit, QScrollArea, QTextBrowser, QGroupBox {
     background-color: $mainBackgroundColor;
     color: $textColor;
     border-color: $borderColor;
