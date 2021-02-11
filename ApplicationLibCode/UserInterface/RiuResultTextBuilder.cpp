@@ -963,10 +963,6 @@ QString RiuResultTextBuilder::cellResultText( RimEclipseResultDefinition* eclRes
             {
                 double  scalarValue           = resultAccessor->cellFaceScalar( m_cellIndex, m_face );
                 QString resultDescriptionText = eclResDef->resultVariableUiName();
-                if ( eclResDef->eclipseResultAddress().isDivideByCellFaceAreaActive() )
-                {
-                    resultDescriptionText += "/A";
-                }
 
                 QString resultValueText;
                 if ( eclResDef->hasCategoryResult() )

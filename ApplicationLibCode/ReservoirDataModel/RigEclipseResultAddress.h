@@ -83,21 +83,7 @@ public:
     static constexpr int noCaseDiffValue() { return NO_CASE_DIFF; }
 
     // Divide by Cell Face Area
-    void enableDivideByCellFaceArea( bool enable )
-    {
-        if ( enable )
-        {
-            if ( !m_divideByCellFaceArea )
-            {
-                m_resultName += " /A";
-            }
-        }
-        else if ( m_divideByCellFaceArea )
-        {
-            m_resultName = m_resultName.left( m_resultName.size() - 3 );
-        }
-        m_divideByCellFaceArea = enable;
-    }
+    void enableDivideByCellFaceArea( bool enable ) { m_divideByCellFaceArea = enable; }
 
     bool isDivideByCellFaceAreaActive() const { return m_divideByCellFaceArea; }
 
