@@ -15,7 +15,6 @@ ${CMAKE_CURRENT_LIST_DIR}/RiuMainWindow.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuMainWindowBase.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuMdiArea.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuMdiSubWindow.h
-${CMAKE_CURRENT_LIST_DIR}/RiuMultiCaseImportDialog.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuProcessMonitor.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuProjectPropertyView.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuPropertyViewTabWidget.h
@@ -113,7 +112,6 @@ ${CMAKE_CURRENT_LIST_DIR}/RiuMainWindow.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuMainWindowBase.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuMdiArea.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuMdiSubWindow.cpp
-${CMAKE_CURRENT_LIST_DIR}/RiuMultiCaseImportDialog.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuProcessMonitor.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuProjectPropertyView.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuPropertyViewTabWidget.cpp
@@ -229,7 +227,6 @@ ${CMAKE_CURRENT_LIST_DIR}/RiuResultQwtPlot.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuTextDialog.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuViewer.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuProcessMonitor.h
-${CMAKE_CURRENT_LIST_DIR}/RiuMultiCaseImportDialog.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuViewerCommands.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuTreeViewEventFilter.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuWellLogPlot.h
@@ -265,7 +262,6 @@ ${CMAKE_CURRENT_LIST_DIR}/RiuTextContentFrame.h
 )
 
 list(APPEND QT_UI_FILES
-${CMAKE_CURRENT_LIST_DIR}/RiuMultiCaseImportDialog.ui
 )
 
 

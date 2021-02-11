@@ -25,7 +25,6 @@
 #include "RicRecursiveFileSearchDialog.h"
 
 #include "RimEclipseCaseCollection.h"
-#include "RiuMultiCaseImportDialog.h"
 
 #include "cafSelectionManager.h"
 
@@ -52,7 +51,7 @@ void RicCreateGridCaseGroupFromFilesFeature::onActionTriggered( bool isChecked )
 
     RicRecursiveFileSearchDialogResult result =
         RicRecursiveFileSearchDialog::runRecursiveSearchDialog( nullptr,
-                                                                "Create Grid Case Group from Files",
+                                                                "Create Grid Case Group",
                                                                 defaultDir,
                                                                 m_pathFilter,
                                                                 m_fileNameFilter,
@@ -77,5 +76,5 @@ void RicCreateGridCaseGroupFromFilesFeature::onActionTriggered( bool isChecked )
 void RicCreateGridCaseGroupFromFilesFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setIcon( QIcon( ":/CreateGridCaseGroup16x16.png" ) );
-    actionToSetup->setText( "&Create Grid Case Group from Files Recursively" );
+    actionToSetup->setText( "&Create Grid Case Group" );
 }

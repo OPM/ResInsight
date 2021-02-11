@@ -201,7 +201,6 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicImportEclipseCaseFeature";
             menuBuilder << "RicImportEclipseCasesFeature";
             menuBuilder << "RicImportInputEclipseCaseFeature";
-            menuBuilder << "RicCreateGridCaseGroupFeature";
             menuBuilder << "RicCreateGridCaseGroupFromFilesFeature";
             menuBuilder.subMenuEnd();
             menuBuilder << "RicEclipseCaseNewGroupFeature";
