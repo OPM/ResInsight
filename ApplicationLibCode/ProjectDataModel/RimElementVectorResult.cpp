@@ -77,7 +77,7 @@ RimElementVectorResult::RimElementVectorResult()
     m_legendConfig.uiCapability()->setUiHidden( true );
 
     CAF_PDM_InitField( &m_showOil, "ShowOil", true, "Oil", "", "", "" );
-    CAF_PDM_InitField( &m_showGas, "ShowGas", false, "Gas", "", "", "" );
+    CAF_PDM_InitField( &m_showGas, "ShowGas", true, "Gas", "", "", "" );
     CAF_PDM_InitField( &m_showWater, "ShowWater", true, "Water", "", "", "" );
 
     CAF_PDM_InitField( &m_showResult, "ShowResult", false, "", "", "", "" );
