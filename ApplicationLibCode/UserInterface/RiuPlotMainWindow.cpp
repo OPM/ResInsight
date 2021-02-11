@@ -251,7 +251,6 @@ void RiuPlotMainWindow::createMenus()
     importEclipseMenu->addAction( cmdFeatureMgr->action( "RicImportEclipseCaseFeature" ) );
     importEclipseMenu->addAction( cmdFeatureMgr->action( "RicImportEclipseCasesFeature" ) );
     importEclipseMenu->addAction( cmdFeatureMgr->action( "RicImportInputEclipseCaseFeature" ) );
-    importEclipseMenu->addAction( cmdFeatureMgr->action( "RicCreateGridCaseGroupFeature" ) );
     importEclipseMenu->addAction( cmdFeatureMgr->action( "RicCreateGridCaseGroupFromFilesFeature" ) );
 
 #ifdef USE_ODB_API
