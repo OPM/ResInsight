@@ -69,12 +69,16 @@ public:
     cvf::Vec3d faceCenter( cvf::StructGridInterface::FaceType face ) const;
     cvf::Vec3d faceNormalWithAreaLength( cvf::StructGridInterface::FaceType face ) const;
     double     volume() const;
+    void       faceCorners( cvf::StructGridInterface::FaceType face, std::array<cvf::Vec3d, 4>* corners ) const;
 
     int  firstIntersectionPoint( const cvf::Ray& ray, cvf::Vec3d* intersectionPoint ) const;
     bool isLongPyramidCell( double maxHeightFactor = 5, double nodeNearTolerance = 1e-3 ) const;
     bool isCollapsedCell( double nodeNearTolerance = 1e-3 ) const;
 
     cvf::BoundingBox boundingBox() const;
+
+    RigCell             neighborCell( cvf::StructGridInterface::FaceType face ) const;
+    std::vector<size_t> allNeighborMainGridCellIndexes() const;
 
 private:
     std::array<size_t, 8> m_cornerIndices;

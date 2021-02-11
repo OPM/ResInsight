@@ -29,6 +29,7 @@
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmPtrField.h"
+#include "cafSignal.h"
 
 #include "cafPdmFieldCvfColor.h"
 #include "cafPdmFieldCvfMat4d.h"
@@ -38,6 +39,7 @@
 #include "cvfObject.h"
 
 #include <QPointer>
+#include <QTimer>
 
 class RimCase;
 class RimLegendConfig;
@@ -142,13 +144,18 @@ public:
     void   zoomAll() override;
     void   forceShowWindowOn();
 
-    // Animation
+    // Timestep control
     int     currentTimeStep() const;
     void    setCurrentTimeStep( int frameIdx );
     void    setCurrentTimeStepAndUpdate( int frameIdx ) override;
     bool    isTimeStepDependentDataVisibleInThisOrComparisonView() const;
     size_t  timeStepCount();
     QString timeStepName( int frameIdx ) const override;
+
+    // Animation control
+    caf::Signal<> updateAnimations;
+    void          requestAnimationTimer();
+    void          releaseAnimationTimer();
 
     // Updating
     void         scheduleCreateDisplayModelAndRedraw();
@@ -310,4 +317,9 @@ private:
     cvf::ref<RivAnnotationsPartMgr> m_annotationsPartManager;
     cvf::ref<RivMeasurementPartMgr> m_measurementPartManager;
     cvf::ref<RivCellFilterPartMgr>  m_cellfilterPartManager;
+
+    // Timer for animations
+    std::unique_ptr<QTimer> m_animationTimer;
+    const int               m_animationIntervalMillisec;
+    int                     m_animationTimerUsers;
 };
