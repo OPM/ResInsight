@@ -381,9 +381,8 @@ void Rim3dView::updateMdiWindowTitle()
 {
     if ( m_viewer )
     {
-        m_viewer->layoutWidget()->setWindowTitle( autoName() + ( isMasterView()     ? " (Primary)"
-                                                                 : viewController() ? " (Controlled)"
-                                                                                    : "" ) );
+        m_viewer->layoutWidget()->setWindowTitle(
+            autoName() + ( isMasterView() ? " (Primary)" : viewController() ? " (Controlled)" : "" ) );
     }
 }
 
@@ -1069,8 +1068,8 @@ void Rim3dView::updateGridBoxData()
     {
         using BBox = cvf::BoundingBox;
 
-        BBox masterDomainBBox   = isShowingActiveCellsOnly() ? ownerCase()->activeCellsBoundingBox()
-                                                             : ownerCase()->allCellsBoundingBox();
+        BBox masterDomainBBox = isShowingActiveCellsOnly() ? ownerCase()->activeCellsBoundingBox()
+                                                           : ownerCase()->allCellsBoundingBox();
         BBox combinedDomainBBox = masterDomainBBox;
 
         if ( Rim3dView* depView = activeComparisonView() )
