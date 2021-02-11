@@ -337,7 +337,7 @@ RiaPreferences::RiaPreferences( void )
     CAF_PDM_InitField( &m_showProgressBar, "showProgressBar", true, "Show Progress Bar", "", "", "" );
     m_showProgressBar.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 
-    CAF_PDM_InitField( &m_useUndoRedo, "useUndoRedo", false, "Use Undo/Redo", "", "", "" );
+    CAF_PDM_InitField( &m_useUndoRedo, "useUndoRedo", true, "Enable Undo/Redo for Property Editor changes", "", "", "" );
     m_useUndoRedo.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 
     CAF_PDM_InitFieldNoDefault( &m_plotTemplateFolders, "plotTemplateFolders", "Plot Template Folder(s)", "", "", "" );
@@ -518,6 +518,7 @@ void RiaPreferences::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
         otherGroup->add( &ssihubAddress );
         otherGroup->add( &showLasCurveWithoutTvdWarning );
         otherGroup->add( &holoLensDisableCertificateVerification );
+        otherGroup->add( &m_useUndoRedo );
     }
     else if ( uiConfigName == RiaPreferences::tabNameEclipse() )
     {
@@ -625,7 +626,6 @@ void RiaPreferences::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
         uiOrdering.add( &m_showTestToolbar );
         uiOrdering.add( &m_includeFractureDebugInfoFile );
         uiOrdering.add( &m_holoLensExportFolder );
-        uiOrdering.add( &m_useUndoRedo );
     }
 
     uiOrdering.skipRemainingFields( true );
