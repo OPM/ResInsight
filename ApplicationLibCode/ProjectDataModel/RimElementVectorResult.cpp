@@ -47,16 +47,6 @@ void AppEnum<RimElementVectorResult::TensorColors>::setUp()
 }
 
 template <>
-void AppEnum<RimElementVectorResult::ScaleMethod>::setUp()
-{
-    addItem( RimElementVectorResult::ScaleMethod::RESULT, "RESULT", "Result" );
-    addItem( RimElementVectorResult::ScaleMethod::RESULT_LOG, "RESULT_LOG", "Result (logarithmic scaling)" );
-    addItem( RimElementVectorResult::ScaleMethod::CONSTANT, "CONSTANT", "Constant" );
-
-    setDefault( RimElementVectorResult::ScaleMethod::RESULT );
-}
-
-template <>
 void AppEnum<RimElementVectorResult::VectorView>::setUp()
 {
     addItem( RimElementVectorResult::VectorView::CELL_CENTER_TOTAL, "AGGREGATED", "Cell Center Total" );
@@ -113,7 +103,6 @@ RimElementVectorResult::RimElementVectorResult()
     cvf::Color3f defaultUniformColor = cvf::Color3f::BLACK;
     CAF_PDM_InitField( &m_uniformVectorColor, "UniformVectorColor", defaultUniformColor, "Uniform Vector Color", "", "", "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_scaleMethod, "ScaleMethod", "Scale Method", "", "", "" );
     CAF_PDM_InitField( &m_sizeScale, "SizeScale", 1.0f, "Size Scale", "", "", "" );
 }
 
@@ -244,14 +233,6 @@ RimElementVectorResult::TensorColors RimElementVectorResult::vectorColors() cons
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimElementVectorResult::ScaleMethod RimElementVectorResult::scaleMethod() const
-{
-    return m_scaleMethod();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 const cvf::Color3f& RimElementVectorResult::getUniformVectorColor() const
 {
     return m_uniformVectorColor();
@@ -332,6 +313,21 @@ void RimElementVectorResult::mappingRange( double& min, double& max ) const
                 RigCaseCellResultsData* resultsData =
                     eclipseView->eclipseCase()->eclipseCaseData()->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
 
+                {
+                    // Check if native result is available
+                    // TODO: Refactor all derived results into separate result factory
+                    RigEclipseResultAddress nativeResult = resVarAddr;
+                    nativeResult.enableDivideByCellFaceArea( false );
+                    if ( resultsData->hasResultEntry( nativeResult ) )
+                    {
+                        resultsData->createResultEntry( resVarAddr, false );
+                    }
+                    else
+                    {
+                        continue;
+                    }
+                }
+
                 resultsData->ensureKnownResultLoaded( resVarAddr );
                 if ( !resultsData->hasResultEntry( resVarAddr ) ) return;
 
@@ -386,30 +382,34 @@ void RimElementVectorResult::mappingRange( double& min, double& max ) const
 
         for ( size_t flIdx = 0; flIdx < combinedAddresses.size(); flIdx++ )
         {
-            if ( combinedAddresses[flIdx].m_resultCatType == RiaDefines::ResultCatType::DYNAMIC_NATIVE )
+            if ( combinedAddresses[flIdx].resultCatType() == RiaDefines::ResultCatType::DYNAMIC_NATIVE )
             {
-                if ( m_legendConfig->rangeMode() == RimRegularLegendConfig::RangeModeType::AUTOMATIC_ALLTIMESTEPS )
+                if ( nncData->generateScalarValues( combinedAddresses[flIdx] ) )
                 {
-                    const std::vector<std::vector<double>>* nncResultVals =
-                        nncData->dynamicConnectionScalarResult( combinedAddresses[flIdx] );
-                    for ( size_t i = 0; i < nncResultVals->size(); i++ )
+                    if ( m_legendConfig->rangeMode() == RimRegularLegendConfig::RangeModeType::AUTOMATIC_ALLTIMESTEPS )
                     {
-                        for ( size_t j = 0; j < nncResultVals->at( i ).size(); j++ )
+                        const std::vector<std::vector<double>>* nncResultVals =
+                            nncData->dynamicConnectionScalarResult( combinedAddresses[flIdx] );
+                        for ( size_t i = 0; i < nncResultVals->size(); i++ )
                         {
-                            max = std::max<double>( max, nncResultVals->at( i ).at( j ) );
-                            min = std::min<double>( min, nncResultVals->at( i ).at( j ) );
+                            for ( size_t j = 0; j < nncResultVals->at( i ).size(); j++ )
+                            {
+                                max = std::max<double>( max, nncResultVals->at( i ).at( j ) );
+                                min = std::min<double>( min, nncResultVals->at( i ).at( j ) );
+                            }
                         }
                     }
-                }
-                else if ( m_legendConfig->rangeMode() == RimRegularLegendConfig::RangeModeType::AUTOMATIC_CURRENT_TIMESTEP )
-                {
-                    const std::vector<double>* nncResultVals =
-                        nncData->dynamicConnectionScalarResult( combinedAddresses[flIdx],
-                                                                static_cast<size_t>( currentTimeStep ) );
-                    for ( size_t i = 0; i < nncResultVals->size(); i++ )
+                    else if ( m_legendConfig->rangeMode() ==
+                              RimRegularLegendConfig::RangeModeType::AUTOMATIC_CURRENT_TIMESTEP )
                     {
-                        max = std::max<double>( max, nncResultVals->at( i ) );
-                        min = std::min<double>( min, nncResultVals->at( i ) );
+                        const std::vector<double>* nncResultVals =
+                            nncData->dynamicConnectionScalarResult( combinedAddresses[flIdx],
+                                                                    static_cast<size_t>( currentTimeStep ) );
+                        for ( size_t i = 0; i < nncResultVals->size(); i++ )
+                        {
+                            max = std::max<double>( max, nncResultVals->at( i ) );
+                            min = std::min<double>( min, nncResultVals->at( i ) );
+                        }
                     }
                 }
             }
@@ -511,16 +511,13 @@ void RimElementVectorResult::defineUiOrdering( QString uiConfigName, caf::PdmUiO
     visibilityGroup->add( &m_showNncData );
     visibilityGroup->add( &m_threshold );
 
-    caf::PdmUiGroup* vectorColorsGroup = uiOrdering.addNewGroup( "Vector Colors" );
-    vectorColorsGroup->add( &m_vectorColor );
+    caf::PdmUiGroup* apperanceGroup = uiOrdering.addNewGroup( "Appearance" );
+    apperanceGroup->add( &m_vectorColor );
     if ( m_vectorColor == TensorColors::UNIFORM_COLOR )
     {
-        vectorColorsGroup->add( &m_uniformVectorColor );
+        apperanceGroup->add( &m_uniformVectorColor );
     }
-
-    caf::PdmUiGroup* vectorSizeGroup = uiOrdering.addNewGroup( "Vector Size" );
-    vectorSizeGroup->add( &m_sizeScale );
-    vectorSizeGroup->add( &m_scaleMethod );
+    apperanceGroup->add( &m_sizeScale );
 
     uiOrdering.skipRemainingFields( true );
 }
@@ -547,6 +544,12 @@ bool RimElementVectorResult::resultAddressesCombined( std::vector<RigEclipseResu
         addresses.push_back( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE,
                                                       RiaResultNames::combinedWaterFluxResultName() ) );
     }
+
+    for ( auto& adr : addresses )
+    {
+        adr.enableDivideByCellFaceArea( true );
+    }
+
     return addresses.size() > 0;
 }
 
@@ -574,6 +577,11 @@ bool RimElementVectorResult::resultAddressesIJK( std::vector<RigEclipseResultAdd
         addresses.push_back( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "FLRWATI+" ) );
         addresses.push_back( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "FLRWATJ+" ) );
         addresses.push_back( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "FLRWATK+" ) );
+    }
+
+    for ( auto& adr : addresses )
+    {
+        adr.enableDivideByCellFaceArea( true );
     }
 
     return addresses.size() > 0;

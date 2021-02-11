@@ -473,7 +473,7 @@ void RicSummaryPlotFeatureImpl::createSummaryPlotsFromArgumentLine( const QStrin
                                         ->resultInfo( cellResAddr.eclipseResultAddress ) ) )
                             {
                                 RiaLogging::warning( "Could not find a restart result property with name: \"" +
-                                                     cellResAddr.eclipseResultAddress.m_resultName + "\"" );
+                                                     cellResAddr.eclipseResultAddress.resultName() + "\"" );
                                 continue;
                             }
 
@@ -529,7 +529,7 @@ void RicSummaryPlotFeatureImpl::createSummaryPlotsFromArgumentLine( const QStrin
                                         ->resultInfo( cellResAddr.eclipseResultAddress ) ) )
                             {
                                 RiaLogging::warning( "Could not find a restart result property with name: \"" +
-                                                     cellResAddr.eclipseResultAddress.m_resultName + "\"" );
+                                                     cellResAddr.eclipseResultAddress.resultName() + "\"" );
                                 continue;
                             }
                             RimGridTimeHistoryCurve* newCurve = new RimGridTimeHistoryCurve();

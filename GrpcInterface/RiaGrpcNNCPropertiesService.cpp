@@ -165,17 +165,17 @@ const std::vector<double>* getScalarResultByName( const RigNNCData*         nncD
                                                   const QString&            propertyName,
                                                   size_t                    timeStep )
 {
-    if ( resultType == RigNNCData::NNC_STATIC )
+    if ( resultType == RigNNCData::NNCResultType::NNC_STATIC )
     {
         return nncData->staticConnectionScalarResultByName( propertyName );
     }
 
-    if ( resultType == RigNNCData::NNC_DYNAMIC )
+    if ( resultType == RigNNCData::NNCResultType::NNC_DYNAMIC )
     {
         return nncData->dynamicConnectionScalarResultByName( propertyName, timeStep );
     }
 
-    if ( resultType == RigNNCData::NNC_GENERATED )
+    if ( resultType == RigNNCData::NNCResultType::NNC_GENERATED )
     {
         return nncData->generatedConnectionScalarResultByName( propertyName, timeStep );
     }
@@ -243,9 +243,9 @@ grpc::Status RiaGrpcNNCPropertiesService::GetAvailableNNCProperties( grpc::Serve
         RigNNCData* nncData = eclipseCase->eclipseCaseData()->mainGrid()->nncData();
 
         std::vector<RigNNCData::NNCResultType> resultTypes;
-        resultTypes.push_back( RigNNCData::NNC_DYNAMIC );
-        resultTypes.push_back( RigNNCData::NNC_STATIC );
-        resultTypes.push_back( RigNNCData::NNC_GENERATED );
+        resultTypes.push_back( RigNNCData::NNCResultType::NNC_DYNAMIC );
+        resultTypes.push_back( RigNNCData::NNCResultType::NNC_STATIC );
+        resultTypes.push_back( RigNNCData::NNCResultType::NNC_GENERATED );
 
         for ( size_t rtIdx = 0; rtIdx < resultTypes.size(); ++rtIdx )
         {

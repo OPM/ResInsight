@@ -48,7 +48,7 @@ RimEclipseFaultColors::RimEclipseFaultColors()
                                 "" );
     m_customFaultResultColors = new RimEclipseCellColors();
     m_customFaultResultColors.uiCapability()->setUiHidden( true );
-    m_customFaultResultColors->setDiffResultOptionsEnabled( true );
+    m_customFaultResultColors->enableDeltaResults( true );
 }
 
 //--------------------------------------------------------------------------------------------------

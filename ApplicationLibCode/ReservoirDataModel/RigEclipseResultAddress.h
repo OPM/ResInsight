@@ -29,6 +29,7 @@ public:
         : m_resultCatType( RiaDefines::ResultCatType::UNDEFINED )
         , m_timeLapseBaseFrameIdx( NO_TIME_LAPSE )
         , m_differenceCaseId( NO_CASE_DIFF )
+        , m_divideByCellFaceArea( false )
     {
     }
 
@@ -37,18 +38,22 @@ public:
         , m_resultName( resultName )
         , m_timeLapseBaseFrameIdx( NO_TIME_LAPSE )
         , m_differenceCaseId( NO_CASE_DIFF )
+        , m_divideByCellFaceArea( false )
     {
     }
 
     explicit RigEclipseResultAddress( RiaDefines::ResultCatType type,
                                       const QString&            resultName,
                                       int                       timeLapseBaseTimeStep = NO_TIME_LAPSE,
-                                      int                       differenceCaseId      = NO_CASE_DIFF )
+                                      int                       differenceCaseId      = NO_CASE_DIFF,
+                                      bool                      divideByCellFaceArea  = false )
         : m_resultCatType( type )
         , m_resultName( resultName )
         , m_timeLapseBaseFrameIdx( timeLapseBaseTimeStep )
         , m_differenceCaseId( differenceCaseId )
+        , m_divideByCellFaceArea( false )
     {
+        enableDivideByCellFaceArea( divideByCellFaceArea );
     }
 
     bool isValid() const
@@ -63,17 +68,46 @@ public:
         }
     }
 
+    // Delta Time Step
+    bool                 isDeltaTimeStepActive() const { return m_timeLapseBaseFrameIdx > NO_TIME_LAPSE; }
+    void                 setDeltaTimeStepIndex( int timeStepIndex ) { m_timeLapseBaseFrameIdx = timeStepIndex; }
+    int                  deltaTimeStepIndex() const { return m_timeLapseBaseFrameIdx; }
+    bool                 representsAllTimeLapses() const { return m_timeLapseBaseFrameIdx == ALL_TIME_LAPSES; }
     static constexpr int allTimeLapsesValue() { return ALL_TIME_LAPSES; }
     static constexpr int noTimeLapseValue() { return NO_TIME_LAPSE; }
+
+    // Delta Grid Case
+    bool                 isDeltaCaseActive() const { return m_differenceCaseId > NO_CASE_DIFF; }
+    void                 setDeltaCaseId( int caseId ) { m_differenceCaseId = caseId; }
+    int                  deltaCaseId() const { return m_differenceCaseId; }
     static constexpr int noCaseDiffValue() { return NO_CASE_DIFF; }
 
-    bool isTimeLapse() const { return m_timeLapseBaseFrameIdx > NO_TIME_LAPSE; }
-    bool representsAllTimeLapses() const { return m_timeLapseBaseFrameIdx == ALL_TIME_LAPSES; }
+    // Divide by Cell Face Area
+    void enableDivideByCellFaceArea( bool enable )
+    {
+        if ( enable )
+        {
+            if ( !m_divideByCellFaceArea )
+            {
+                m_resultName += " /A";
+            }
+        }
+        else if ( m_divideByCellFaceArea )
+        {
+            m_resultName = m_resultName.left( m_resultName.size() - 3 );
+        }
+        m_divideByCellFaceArea = enable;
+    }
 
-    bool hasDifferenceCase() const { return m_differenceCaseId > NO_CASE_DIFF; }
+    bool isDivideByCellFaceAreaActive() const { return m_divideByCellFaceArea; }
 
     bool operator<( const RigEclipseResultAddress& other ) const
     {
+        if ( m_divideByCellFaceArea != other.m_divideByCellFaceArea )
+        {
+            return ( m_divideByCellFaceArea < other.m_divideByCellFaceArea );
+        }
+
         if ( m_differenceCaseId != other.m_differenceCaseId )
         {
             return ( m_differenceCaseId < other.m_differenceCaseId );
@@ -95,7 +129,8 @@ public:
     bool operator==( const RigEclipseResultAddress& other ) const
     {
         if ( m_resultCatType != other.m_resultCatType || m_resultName != other.m_resultName ||
-             m_timeLapseBaseFrameIdx != other.m_timeLapseBaseFrameIdx || m_differenceCaseId != other.m_differenceCaseId )
+             m_timeLapseBaseFrameIdx != other.m_timeLapseBaseFrameIdx ||
+             m_differenceCaseId != other.m_differenceCaseId || m_divideByCellFaceArea != other.m_divideByCellFaceArea )
         {
             return false;
         }
@@ -103,13 +138,19 @@ public:
         return true;
     }
 
+    const QString& resultName() const { return m_resultName; }
+    void           setResultName( QString name ) { m_resultName = name; }
+
+    RiaDefines::ResultCatType resultCatType() const { return m_resultCatType; }
+    void                      setResultCatType( RiaDefines::ResultCatType catType ) { m_resultCatType = catType; }
+
+private:
+    int                       m_timeLapseBaseFrameIdx;
+    int                       m_differenceCaseId;
+    bool                      m_divideByCellFaceArea;
     RiaDefines::ResultCatType m_resultCatType;
     QString                   m_resultName;
 
-    int m_timeLapseBaseFrameIdx;
-    int m_differenceCaseId;
-
-private:
     static const int ALL_TIME_LAPSES = -2;
     static const int NO_TIME_LAPSE   = -1;
     static const int NO_CASE_DIFF    = -1;

@@ -320,7 +320,7 @@ size_t RigCaseCellResultsData::findOrCreateScalarResultIndex( const RigEclipseRe
     // Create statistics calculator and add statistics cache object
     // Todo: Move to a "factory" method
 
-    QString resultName = resVarAddr.m_resultName;
+    QString resultName = resVarAddr.resultName();
 
     cvf::ref<RigStatisticsCalculator> statisticsCalculator;
 
@@ -483,8 +483,12 @@ QStringList RigCaseCellResultsData::resultNames( RiaDefines::ResultCatType resTy
     std::vector<RigEclipseResultInfo>::const_iterator it;
     for ( it = m_resultInfos.begin(); it != m_resultInfos.end(); ++it )
     {
-        if ( it->resultType() == resType && !it->eclipseResultAddress().isTimeLapse() &&
-             !it->eclipseResultAddress().hasDifferenceCase() )
+        auto resultAddress = it->eclipseResultAddress();
+        if ( resultAddress.isDeltaTimeStepActive() || resultAddress.isDeltaCaseActive() ||
+             resultAddress.isDivideByCellFaceAreaActive() )
+            continue;
+
+        if ( it->resultType() == resType )
         {
             varList.push_back( it->resultName() );
         }
@@ -1045,7 +1049,7 @@ void RigCaseCellResultsData::createPlaceholderResultEntries()
         }
     }
 
-    // riTRANSXYZbyArea and X, Y, Z
+    // riTRANS X,Y,Z byArea
     {
         if ( hasResultEntry( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "TRANX" ) ) )
         {
@@ -1070,7 +1074,9 @@ void RigCaseCellResultsData::createPlaceholderResultEntries()
                                    false,
                                    0 );
         }
-
+    }
+    // riTRANSXYZbyArea
+    {
         if ( hasCompleteTransmissibilityResults() )
         {
             addStaticScalarResult( RiaDefines::ResultCatType::STATIC_NATIVE,
@@ -1184,7 +1190,7 @@ void RigCaseCellResultsData::createResultEntry( const RigEclipseResultAddress& r
 void RigCaseCellResultsData::ensureKnownResultLoadedForTimeStep( const RigEclipseResultAddress& resultAddress,
                                                                  size_t                         timeStepIndex )
 {
-    CAF_ASSERT( resultAddress.m_resultCatType != RiaDefines::ResultCatType::UNDEFINED );
+    CAF_ASSERT( resultAddress.resultCatType() != RiaDefines::ResultCatType::UNDEFINED );
 
     findOrLoadKnownScalarResultForTimeStep( resultAddress, timeStepIndex );
 }
@@ -1198,7 +1204,7 @@ size_t RigCaseCellResultsData::findOrLoadKnownScalarResult( const RigEclipseResu
     {
         return cvf::UNDEFINED_SIZE_T;
     }
-    else if ( resVarAddr.m_resultCatType == RiaDefines::ResultCatType::UNDEFINED )
+    else if ( resVarAddr.resultCatType() == RiaDefines::ResultCatType::UNDEFINED )
     {
         std::vector<RiaDefines::ResultCatType> searchOrder = { RiaDefines::ResultCatType::STATIC_NATIVE,
                                                                RiaDefines::ResultCatType::DYNAMIC_NATIVE,
@@ -1216,12 +1222,26 @@ size_t RigCaseCellResultsData::findOrLoadKnownScalarResult( const RigEclipseResu
 
     if ( scalarResultIndex == cvf::UNDEFINED_SIZE_T ) return cvf::UNDEFINED_SIZE_T;
 
-    RiaDefines::ResultCatType type       = resVarAddr.m_resultCatType;
-    QString                   resultName = resVarAddr.m_resultName;
+    RiaDefines::ResultCatType type       = resVarAddr.resultCatType();
+    QString                   resultName = resVarAddr.resultName();
 
-    if ( resVarAddr.hasDifferenceCase() || resVarAddr.isTimeLapse() )
+    if ( resVarAddr.isDeltaCaseActive() || resVarAddr.isDeltaTimeStepActive() )
     {
         if ( !RigCaseCellResultCalculator::computeDifference( this->m_ownerCaseData, m_porosityModel, resVarAddr ) )
+        {
+            return cvf::UNDEFINED_SIZE_T;
+        }
+
+        return scalarResultIndex;
+    }
+
+    if ( resVarAddr.isDivideByCellFaceAreaActive() )
+    {
+        if ( !RigCaseCellResultCalculator::computeDivideByCellFaceArea( m_ownerMainGrid,
+                                                                        this->m_ownerCaseData,
+                                                                        m_porosityModel,
+                                                                        resVarAddr ) )
+
         {
             return cvf::UNDEFINED_SIZE_T;
         }
@@ -1500,7 +1520,7 @@ size_t RigCaseCellResultsData::findOrLoadKnownScalarResultByResultTypeOrder(
     for ( const auto& resultType : resultTypesOrdered )
     {
         RigEclipseResultAddress resVarAddressWithType = resVarAddr;
-        resVarAddressWithType.m_resultCatType         = resultType;
+        resVarAddressWithType.setResultCatType( resultType );
 
         size_t scalarResultIndex = this->findOrLoadKnownScalarResult( resVarAddressWithType );
 
@@ -1520,8 +1540,8 @@ size_t RigCaseCellResultsData::findOrLoadKnownScalarResultByResultTypeOrder(
 size_t RigCaseCellResultsData::findOrLoadKnownScalarResultForTimeStep( const RigEclipseResultAddress& resVarAddr,
                                                                        size_t                         timeStepIndex )
 {
-    RiaDefines::ResultCatType type       = resVarAddr.m_resultCatType;
-    QString                   resultName = resVarAddr.m_resultName;
+    RiaDefines::ResultCatType type       = resVarAddr.resultCatType();
+    QString                   resultName = resVarAddr.resultName();
 
     // Special handling for SOIL
     if ( type == RiaDefines::ResultCatType::DYNAMIC_NATIVE && resultName.toUpper() == "SOIL" )
@@ -2596,6 +2616,7 @@ void RigCaseCellResultsData::computeRiTRANSbyAreaComponent( const QString& riTra
 
     size_t riTranByAreaScResIdx = this->findScalarResultIndexFromAddress(
         RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, riTransByAreaCompResultName ) );
+
     CVF_ASSERT( riTranByAreaScResIdx != cvf::UNDEFINED_SIZE_T );
 
     // Get the result count, to handle that one of them might be globally defined
@@ -3250,42 +3271,42 @@ size_t RigCaseCellResultsData::findScalarResultIndexFromAddress( const RigEclips
     {
         return cvf::UNDEFINED_SIZE_T;
     }
-    else if ( resVarAddr.m_resultCatType == RiaDefines::ResultCatType::UNDEFINED )
+    else if ( resVarAddr.resultCatType() == RiaDefines::ResultCatType::UNDEFINED )
     {
         RigEclipseResultAddress resVarAddressWithType = resVarAddr;
 
-        resVarAddressWithType.m_resultCatType = RiaDefines::ResultCatType::STATIC_NATIVE;
+        resVarAddressWithType.setResultCatType( RiaDefines::ResultCatType::STATIC_NATIVE );
 
         size_t scalarResultIndex = this->findScalarResultIndexFromAddress( resVarAddressWithType );
 
         if ( scalarResultIndex == cvf::UNDEFINED_SIZE_T )
         {
-            resVarAddressWithType.m_resultCatType = RiaDefines::ResultCatType::DYNAMIC_NATIVE;
-            scalarResultIndex                     = this->findScalarResultIndexFromAddress( resVarAddressWithType );
+            resVarAddressWithType.setResultCatType( RiaDefines::ResultCatType::DYNAMIC_NATIVE );
+            scalarResultIndex = this->findScalarResultIndexFromAddress( resVarAddressWithType );
         }
 
         if ( scalarResultIndex == cvf::UNDEFINED_SIZE_T )
         {
-            resVarAddressWithType.m_resultCatType = RiaDefines::ResultCatType::SOURSIMRL;
-            scalarResultIndex                     = this->findScalarResultIndexFromAddress( resVarAddressWithType );
+            resVarAddressWithType.setResultCatType( RiaDefines::ResultCatType::SOURSIMRL );
+            scalarResultIndex = this->findScalarResultIndexFromAddress( resVarAddressWithType );
         }
 
         if ( scalarResultIndex == cvf::UNDEFINED_SIZE_T )
         {
-            resVarAddressWithType.m_resultCatType = RiaDefines::ResultCatType::GENERATED;
-            scalarResultIndex                     = this->findScalarResultIndexFromAddress( resVarAddressWithType );
+            resVarAddressWithType.setResultCatType( RiaDefines::ResultCatType::GENERATED );
+            scalarResultIndex = this->findScalarResultIndexFromAddress( resVarAddressWithType );
         }
 
         if ( scalarResultIndex == cvf::UNDEFINED_SIZE_T )
         {
-            resVarAddressWithType.m_resultCatType = RiaDefines::ResultCatType::INPUT_PROPERTY;
-            scalarResultIndex                     = this->findScalarResultIndexFromAddress( resVarAddressWithType );
+            resVarAddressWithType.setResultCatType( RiaDefines::ResultCatType::INPUT_PROPERTY );
+            scalarResultIndex = this->findScalarResultIndexFromAddress( resVarAddressWithType );
         }
 
         if ( scalarResultIndex == cvf::UNDEFINED_SIZE_T )
         {
-            resVarAddressWithType.m_resultCatType = RiaDefines::ResultCatType::FORMATION_NAMES;
-            scalarResultIndex                     = this->findScalarResultIndexFromAddress( resVarAddressWithType );
+            resVarAddressWithType.setResultCatType( RiaDefines::ResultCatType::FORMATION_NAMES );
+            scalarResultIndex = this->findScalarResultIndexFromAddress( resVarAddressWithType );
         }
 
         return scalarResultIndex;

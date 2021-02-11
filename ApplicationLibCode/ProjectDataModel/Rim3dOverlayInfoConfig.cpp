@@ -408,7 +408,7 @@ QString Rim3dOverlayInfoConfig::resultInfoText( const RigHistogramData& histData
         if ( isResultsInfoRelevant )
         {
             QString propName      = eclipseView->cellResult()->resultVariableUiShortName();
-            QString diffResString = eclipseView->cellResult()->diffResultUiName();
+            QString diffResString = eclipseView->cellResult()->additionalResultText();
             if ( !contourMap->contourMapProjection()->isColumnResult() )
             {
                 infoText += QString( "<b>Cell Property:</b> %1<br>" ).arg( propName );
@@ -443,7 +443,7 @@ QString Rim3dOverlayInfoConfig::resultInfoText( const RigHistogramData& histData
         if ( isResultsInfoRelevant )
         {
             QString propName      = eclipseView->cellResult()->resultVariableUiShortName();
-            QString diffResString = eclipseView->cellResult()->diffResultUiName();
+            QString diffResString = eclipseView->cellResult()->additionalResultText();
             QString timeRangeText = m_statisticsTimeRange().uiText();
             if ( eclipseView->cellResult()->isFlowDiagOrInjectionFlooding() )
             {

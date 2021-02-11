@@ -97,7 +97,7 @@ void RimEclipseCellColors::fieldChangedByUi( const caf::PdmFieldHandle* changedF
     {
         if ( oldValue != newValue )
         {
-            changeLegendConfig( this->resultVariable() );
+            changeLegendConfig( this->resultVariableUiName() );
         }
 
         if ( newValue != RiaResultNames::undefinedResultName() )
@@ -187,6 +187,7 @@ RimRegularLegendConfig* RimEclipseCellColors::createLegendForResult( const QStri
             if ( resultName.contains( s, Qt::CaseInsensitive ) )
             {
                 useLog = true;
+                break;
             }
         }
     }
@@ -290,7 +291,7 @@ void RimEclipseCellColors::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeO
 //--------------------------------------------------------------------------------------------------
 void RimEclipseCellColors::updateLegendCategorySettings()
 {
-    changeLegendConfig( this->resultVariable() );
+    changeLegendConfig( this->resultVariableUiName() );
 }
 
 //--------------------------------------------------------------------------------------------------
