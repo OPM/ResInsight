@@ -333,8 +333,7 @@ QString RimSummaryPlot::asciiDataForPlotExport() const
 QString RimSummaryPlot::asciiDataForSummaryPlotExport( RiaQDateTimeTools::DateTimePeriod resamplingPeriod,
                                                        bool                              showTimeAsLongString ) const
 {
-    QString                      out;
-    RiaTimeHistoryCurveResampler resampler;
+    QString out;
 
     // Summary and time history (from grid) curves
     {
