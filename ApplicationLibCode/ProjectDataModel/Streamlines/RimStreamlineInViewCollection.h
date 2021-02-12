@@ -32,6 +32,8 @@
 #include <set>
 #include <vector>
 
+#include "StreamlineDataAccess.h"
+
 class RimStreamline;
 class RimEclipseCase;
 class RigTracer;
@@ -95,10 +97,9 @@ protected:
     caf::PdmFieldHandle* objectToggleField() override;
 
 private:
-    void generateTracer( RigCell cell, double direction, QString simWellName );
-    void loadDataIfMissing( RiaDefines::PhaseType phase, int timeIdx );
-
-    void generateStartPositions( RigCell cell, cvf::StructGridInterface::FaceType faceIdx, std::list<cvf::Vec3d>& positions );
+    void findStartCells( int                                       timeIdx,
+                         std::vector<std::pair<QString, RigCell>>& outInjectorCells,
+                         std::vector<std::pair<QString, RigCell>>& outProducerCells );
 
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
@@ -106,30 +107,6 @@ private:
                                 QString                    uiConfigName,
                                 caf::PdmUiEditorAttribute* attribute ) override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
-
-    cvf::ref<RigResultAccessor>
-        getDataAccessor( cvf::StructGridInterface::FaceType faceIdx, RiaDefines::PhaseType phase, int timeIdx );
-
-    bool setupDataAccessors( int timeIdx );
-
-    QString gridResultNameFromPhase( RiaDefines::PhaseType phase, cvf::StructGridInterface::FaceType faceIdx ) const;
-
-    double faceValue( RigCell                            cell,
-                      cvf::StructGridInterface::FaceType faceIdx,
-                      RigGridBase*                       grid,
-                      RiaDefines::PhaseType              phase ) const;
-    double posFaceValue( RigCell cell, cvf::StructGridInterface::FaceType faceIdx, RiaDefines::PhaseType phase ) const;
-    double negFaceValue( RigCell                            cell,
-                         cvf::StructGridInterface::FaceType faceIdx,
-                         RigGridBase*                       grid,
-                         RiaDefines::PhaseType              phase ) const;
-
-    cvf::Vec3d cellDirection( RigCell cell, RigGridBase* grid, RiaDefines::PhaseType& dominantPhase ) const;
-
-    RigCell* findNeighborCell( RigCell cell, RigGridBase* grid, cvf::StructGridInterface::FaceType face ) const;
-    std::vector<size_t> findNeighborCellIndexes( RigCell* cell, RigGridBase* grid ) const;
-
-    cvf::BoundingBox cellBoundingBox( RigCell* cell, RigGridBase* grid ) const;
 
     void outputSummary() const;
 
@@ -157,7 +134,7 @@ private:
 
     std::set<size_t> m_wellCellIds;
 
-    std::map<RiaDefines::PhaseType, std::vector<cvf::ref<RigResultAccessor>>> m_dataAccess;
-
     caf::PdmChildField<RimRegularLegendConfig*> m_legendConfig;
+
+    StreamlineDataAccess* m_dataAccess;
 };

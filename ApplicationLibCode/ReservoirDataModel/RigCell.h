@@ -77,6 +77,9 @@ public:
 
     cvf::BoundingBox boundingBox() const;
 
+    RigCell             neighborCell( cvf::StructGridInterface::FaceType face ) const;
+    std::vector<size_t> allNeighborMainGridCellIndexes() const;
+
 private:
     std::array<size_t, 8> m_cornerIndices;
 

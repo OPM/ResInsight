@@ -434,3 +434,52 @@ cvf::BoundingBox RigCell::boundingBox() const
     }
     return bb;
 }
+
+//--------------------------------------------------------------------------------------------------
+/// Return the neighbor cell of the given face
+//--------------------------------------------------------------------------------------------------
+RigCell RigCell::neighborCell( cvf::StructGridInterface::FaceType face ) const
+{
+    size_t i, j, k;
+
+    m_hostGrid->ijkFromCellIndexUnguarded( mainGridCellIndex(), &i, &j, &k );
+
+    size_t neighborIdx;
+    if ( m_hostGrid->cellIJKNeighbor( i, j, k, face, &neighborIdx ) )
+    {
+        return m_hostGrid->cell( neighborIdx );
+    }
+
+    RigCell retcell;
+    retcell.setInvalid( true );
+    return retcell;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Find and return the main grid cell index of all up to 26 neighbor cells to the given cell
+//--------------------------------------------------------------------------------------------------
+std::vector<size_t> RigCell::allNeighborMainGridCellIndexes() const
+{
+    std::vector<size_t> neighbors;
+
+    size_t ni, nj, nk;
+
+    m_hostGrid->ijkFromCellIndexUnguarded( mainGridCellIndex(), &ni, &nj, &nk );
+
+    for ( size_t i = ni - 1; i <= ni + 1; i++ )
+    {
+        for ( size_t j = nj - 1; j <= nj + 1; j++ )
+        {
+            for ( size_t k = nk - 1; k <= nk + 1; k++ )
+            {
+                if ( m_hostGrid->isCellValid( i, j, k ) )
+                {
+                    size_t cellIndex = m_hostGrid->cellIndexFromIJK( i, j, k );
+                    if ( ( ni == i ) && ( nj == j ) && ( nk == k ) ) continue;
+                    neighbors.push_back( cellIndex );
+                }
+            }
+        }
+    }
+    return neighbors;
+}

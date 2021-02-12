@@ -93,6 +93,8 @@ double RigTracer::totalDistance() const
 //--------------------------------------------------------------------------------------------------
 void RigTracer::reverse()
 {
+    if ( m_points.size() == 0 ) return;
+
     std::reverse( m_points.begin(), m_points.end() );
 
     for ( auto& p : m_points )

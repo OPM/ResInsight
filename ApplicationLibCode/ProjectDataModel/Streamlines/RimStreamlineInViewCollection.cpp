@@ -48,6 +48,9 @@
 #include <math.h>
 #include <qdebug.h>
 
+#include "StreamlineDataAccess.h"
+#include "StreamlineGenerator.h"
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -230,48 +233,6 @@ RimStreamlineInViewCollection::VisualizationMode RimStreamlineInViewCollection::
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimStreamlineInViewCollection::gridResultNameFromPhase( RiaDefines::PhaseType              phase,
-                                                                cvf::StructGridInterface::FaceType faceIdx ) const
-{
-    QString retval = "";
-    switch ( phase )
-    {
-        case RiaDefines::PhaseType::GAS_PHASE:
-            retval += "FLRGAS";
-            break;
-        case RiaDefines::PhaseType::OIL_PHASE:
-            retval += "FLROIL";
-            break;
-        case RiaDefines::PhaseType::WATER_PHASE:
-            retval += "FLRWAT";
-            break;
-        default:
-            CAF_ASSERT( false );
-            break;
-    }
-
-    switch ( faceIdx )
-    {
-        case cvf::StructGridInterface::FaceType::POS_I:
-            retval += "I+";
-            break;
-        case cvf::StructGridInterface::FaceType::POS_J:
-            retval += "J+";
-            break;
-        case cvf::StructGridInterface::FaceType::POS_K:
-            retval += "K+";
-            break;
-        default:
-            CAF_ASSERT( false );
-            break;
-    }
-
-    return retval;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 const std::list<RigTracer>& RimStreamlineInViewCollection::tracers()
 {
     m_activeTracers.clear();
@@ -391,33 +352,14 @@ size_t RimStreamlineInViewCollection::injectionDeltaTime() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Main entry point for generating streamlines/tracers
+///
 //--------------------------------------------------------------------------------------------------
-void RimStreamlineInViewCollection::updateStreamlines()
+void RimStreamlineInViewCollection::findStartCells( int                                       timeIdx,
+                                                    std::vector<std::pair<QString, RigCell>>& outInjectorCells,
+                                                    std::vector<std::pair<QString, RigCell>>& outProducerCells )
 {
-    // reset generated streamlines
-    m_streamlines().clear();
-    m_wellCellIds.clear();
-
-    // get the view
-    RimEclipseView* eclView = nullptr;
-    this->firstAncestorOrThisOfType( eclView );
-    if ( !eclView ) return;
-
-    if ( !m_isActive() )
-    {
-        eclView->loadDataAndUpdate();
-        return;
-    }
-
-    // get current simulation timestep
-    int timeIdx = eclView->currentTimeStep();
-
     // get the simulation wells
     const cvf::Collection<RigSimWellData>& simWellData = eclipseCase()->eclipseCaseData()->wellResults();
-
-    std::vector<std::pair<QString, RigCell>> seedCellsInjector;
-    std::vector<std::pair<QString, RigCell>> seedCellsProducer;
 
     std::vector<const RigGridBase*> grids;
     eclipseCase()->eclipseCaseData()->allGrids( &grids );
@@ -438,11 +380,11 @@ void RimStreamlineInViewCollection::updateStreamlines()
                     RigCell cell = grids[point.m_gridIndex]->cell( point.m_gridCellIndex );
                     if ( frame.m_productionType == RigWellResultFrame::WellProductionType::PRODUCER )
                     {
-                        seedCellsProducer.push_back( std::pair<QString, RigCell>( swdata->m_wellName, cell ) );
+                        outProducerCells.push_back( std::pair<QString, RigCell>( swdata->m_wellName, cell ) );
                     }
                     else if ( frame.m_productionType != RigWellResultFrame::WellProductionType::UNDEFINED_PRODUCTION_TYPE )
                     {
-                        seedCellsInjector.push_back( std::pair<QString, RigCell>( swdata->m_wellName, cell ) );
+                        outInjectorCells.push_back( std::pair<QString, RigCell>( swdata->m_wellName, cell ) );
                     }
                     m_wellCellIds.insert( cell.mainGridCellIndex() );
                 }
@@ -450,39 +392,82 @@ void RimStreamlineInViewCollection::updateStreamlines()
         }
     }
 
-    qDebug() << "Found " << seedCellsProducer.size() << " producing cells";
-    qDebug() << "Found " << seedCellsInjector.size() << " injector cells";
+    qDebug() << "Found " << outProducerCells.size() << " producing cells";
+    qDebug() << "Found " << outInjectorCells.size() << " injector cells";
+}
 
-    // make sure we have the data we need loaded, and set up data accessors to access the data later
-    for ( auto phase : phases() )
-        loadDataIfMissing( phase, timeIdx );
+//--------------------------------------------------------------------------------------------------
+/// Main entry point for generating streamlines/tracers
+//--------------------------------------------------------------------------------------------------
+void RimStreamlineInViewCollection::updateStreamlines()
+{
+    // reset generated streamlines
+    m_streamlines().clear();
+    m_wellCellIds.clear();
 
-    if ( !setupDataAccessors( timeIdx ) ) return;
+    // get the view
+    RimEclipseView* eclView = nullptr;
+    this->firstAncestorOrThisOfType( eclView );
+    if ( !eclView ) return;
 
-    const int reverseDirection = -1.0;
-    const int normalDirection  = 1.0;
-
-    // generate tracers for all injectors
-    for ( auto& cell : seedCellsInjector )
+    if ( m_isActive() )
     {
-        generateTracer( cell.second, normalDirection, cell.first );
-    }
-    // generate tracers for all producers, make sure to invert the direction to backtrack the traces
-    for ( auto& cell : seedCellsProducer )
-    {
-        generateTracer( cell.second, reverseDirection, cell.first );
-    }
+        // get current simulation timestep
+        int timeIdx = eclView->currentTimeStep();
 
-    outputSummary();
+        std::vector<std::pair<QString, RigCell>> seedCellsInjector;
+        std::vector<std::pair<QString, RigCell>> seedCellsProducer;
 
-    m_maxAnimationIndex = 0;
-    for ( auto& s : m_streamlines )
-    {
-        if ( s->tracer().tracerPoints().size() > 0 )
+        findStartCells( timeIdx, seedCellsInjector, seedCellsProducer );
+
+        StreamlineDataAccess dataAccess;
+        dataAccess.setupDataAccess( eclipseCase()->eclipseCaseData()->mainGrid(),
+                                    eclipseCase()->eclipseCaseData(),
+                                    phases(),
+                                    timeIdx );
+
+        StreamlineGenerator generator( m_wellCellIds );
+
+        generator.setLimits( m_flowThreshold, m_maxDays, m_resolution );
+        generator.initGenerator( &dataAccess, phases(), m_density );
+
+        const int reverseDirection = -1.0;
+        const int normalDirection  = 1.0;
+
+        std::list<RimStreamline*> streamlines;
+
+        // generate tracers for all injectors
+        for ( auto& cellinfo : seedCellsInjector )
         {
-            m_maxAnimationIndex = std::max( s->tracer().tracerPoints().size(), m_maxAnimationIndex );
+            generator.generateTracer( cellinfo.second, normalDirection, cellinfo.first, streamlines );
+        }
+        // generate tracers for all producers, make sure to invert the direction to backtrack the traces
+        for ( auto& cellinfo : seedCellsProducer )
+        {
+            generator.generateTracer( cellinfo.second, reverseDirection, cellinfo.first, streamlines );
+        }
+
+        outputSummary();
+
+        m_maxAnimationIndex = 0;
+        for ( auto& sline : streamlines )
+        {
+            if ( sline->tracer().tracerPoints().size() > 0 )
+            {
+                double distance = sline->tracer().totalDistance();
+
+                if ( distance >= m_lengthThreshold )
+                {
+                    m_maxAnimationIndex = std::max( sline->tracer().tracerPoints().size(), m_maxAnimationIndex );
+                    sline->generateStatistics();
+                    m_streamlines.push_back( sline );
+                    sline = nullptr;
+                }
+                if ( sline ) delete sline;
+            }
         }
     }
+
     eclView->loadDataAndUpdate();
 }
 
@@ -503,28 +488,6 @@ void RimStreamlineInViewCollection::outputSummary() const
         debStr += QString::number( s->tracer().size() );
         debStr += " points.";
         qDebug() << debStr;
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// Make sure we have the data we need loaded for the given phase and time step index
-//--------------------------------------------------------------------------------------------------
-void RimStreamlineInViewCollection::loadDataIfMissing( RiaDefines::PhaseType phase, int timeIdx )
-{
-    RigCaseCellResultsData* data = m_eclipseCase->eclipseCaseData()->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
-
-    std::vector<cvf::StructGridInterface::FaceType> faces = {
-        cvf::StructGridInterface::FaceType::POS_I,
-        cvf::StructGridInterface::FaceType::POS_J,
-        cvf::StructGridInterface::FaceType::POS_K,
-    };
-
-    for ( auto cubeFaceIdx : faces )
-    {
-        QString                 resultname = gridResultNameFromPhase( phase, cubeFaceIdx );
-        RigEclipseResultAddress address( RiaDefines::ResultCatType::DYNAMIC_NATIVE, resultname );
-
-        data->ensureKnownResultLoadedForTimeStep( address, timeIdx );
     }
 }
 
@@ -658,418 +621,4 @@ void RimStreamlineInViewCollection::fieldChangedByUi( const caf::PdmFieldHandle*
     }
 
     updateStreamlines();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// Return a data accessor for the given phase and face and time step
-//--------------------------------------------------------------------------------------------------
-cvf::ref<RigResultAccessor> RimStreamlineInViewCollection::getDataAccessor( cvf::StructGridInterface::FaceType faceIdx,
-                                                                            RiaDefines::PhaseType              phase,
-                                                                            int                                timeIdx )
-{
-    QString resultname = gridResultNameFromPhase( phase, faceIdx );
-
-    RiaDefines::PorosityModelType porModel = RiaDefines::PorosityModelType::MATRIX_MODEL;
-    int                           gridIdx  = 0;
-
-    RigEclipseResultAddress address( RiaDefines::ResultCatType::DYNAMIC_NATIVE, resultname );
-
-    return RigResultAccessorFactory::createFromResultAddress( eclipseCase()->eclipseCaseData(),
-                                                              gridIdx,
-                                                              porModel,
-                                                              timeIdx,
-                                                              address );
-}
-
-//--------------------------------------------------------------------------------------------------
-/// Set up data accessors to access the flroil/gas/wat data for all faces
-//--------------------------------------------------------------------------------------------------
-bool RimStreamlineInViewCollection::setupDataAccessors( int timeIdx )
-{
-    m_dataAccess.clear();
-
-    for ( auto phase : phases() )
-    {
-        m_dataAccess[phase] = std::vector<cvf::ref<RigResultAccessor>>();
-
-        // Note: NEG_? accessors are set to POS_? accessors, but will be referring the neighbor cell when used
-        m_dataAccess[phase].push_back( getDataAccessor( cvf::StructGridInterface::FaceType::POS_I, phase, timeIdx ) );
-        m_dataAccess[phase].push_back( getDataAccessor( cvf::StructGridInterface::FaceType::POS_I, phase, timeIdx ) );
-        m_dataAccess[phase].push_back( getDataAccessor( cvf::StructGridInterface::FaceType::POS_J, phase, timeIdx ) );
-        m_dataAccess[phase].push_back( getDataAccessor( cvf::StructGridInterface::FaceType::POS_J, phase, timeIdx ) );
-        m_dataAccess[phase].push_back( getDataAccessor( cvf::StructGridInterface::FaceType::POS_K, phase, timeIdx ) );
-        m_dataAccess[phase].push_back( getDataAccessor( cvf::StructGridInterface::FaceType::POS_K, phase, timeIdx ) );
-    }
-
-    for ( auto& pair : m_dataAccess )
-    {
-        for ( auto& access : pair.second )
-        {
-            if ( access.isNull() ) return false;
-        }
-    }
-
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// Return the neighbor cell of the given cell and face
-//--------------------------------------------------------------------------------------------------
-RigCell* RimStreamlineInViewCollection::findNeighborCell( RigCell                            cell,
-                                                          RigGridBase*                       grid,
-                                                          cvf::StructGridInterface::FaceType face ) const
-{
-    size_t i, j, k;
-
-    grid->ijkFromCellIndexUnguarded( cell.mainGridCellIndex(), &i, &j, &k );
-
-    size_t neighborIdx;
-    if ( grid->cellIJKNeighbor( i, j, k, face, &neighborIdx ) )
-    {
-        return &grid->cell( neighborIdx );
-    }
-
-    return nullptr;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// Find and return the local grid cell index of all up to 26 neighbor cells to the given cell
-//--------------------------------------------------------------------------------------------------
-std::vector<size_t> RimStreamlineInViewCollection::findNeighborCellIndexes( RigCell* cell, RigGridBase* grid ) const
-{
-    std::vector<size_t> neighbors;
-
-    size_t ni, nj, nk;
-
-    grid->ijkFromCellIndexUnguarded( cell->mainGridCellIndex(), &ni, &nj, &nk );
-
-    for ( size_t i = ni - 1; i <= ni + 1; i++ )
-        for ( size_t j = nj - 1; j <= nj + 1; j++ )
-            for ( size_t k = nk - 1; k <= nk + 1; k++ )
-            {
-                if ( grid->isCellValid( i, j, k ) )
-                {
-                    size_t cellIndex = grid->cellIndexFromIJK( i, j, k );
-                    if ( ( ni == i ) && ( nj == j ) && ( nk == k ) ) continue;
-                    neighbors.push_back( cellIndex );
-                }
-            }
-
-    return neighbors;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// Return the face scalar value for the given cell and NEG_? face, by using the neighbor cell
-//--------------------------------------------------------------------------------------------------
-double RimStreamlineInViewCollection::negFaceValue( RigCell                            cell,
-                                                    cvf::StructGridInterface::FaceType faceIdx,
-                                                    RigGridBase*                       grid,
-                                                    RiaDefines::PhaseType              phase ) const
-{
-    double retval = 0.0;
-
-    RigCell* neighborCell = findNeighborCell( cell, grid, faceIdx );
-    if ( neighborCell && !neighborCell->isInvalid() )
-    {
-        std::vector<cvf::ref<RigResultAccessor>> access = m_dataAccess.at( phase );
-        retval      = access[faceIdx]->cellScalar( neighborCell->mainGridCellIndex() );
-        double area = cell.faceNormalWithAreaLength( faceIdx ).length();
-        if ( area != 0.0 )
-            retval /= area;
-        else
-            retval = 0.0;
-
-        if ( isinf( retval ) ) retval = 0.0;
-    }
-
-    return retval;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// Return the face scalar value for the given cell and POS_? face
-//--------------------------------------------------------------------------------------------------
-double RimStreamlineInViewCollection::posFaceValue( RigCell                            cell,
-                                                    cvf::StructGridInterface::FaceType faceIdx,
-                                                    RiaDefines::PhaseType              phase ) const
-{
-    std::vector<cvf::ref<RigResultAccessor>> access = m_dataAccess.at( phase );
-    double                                   retval = access[faceIdx]->cellScalar( cell.mainGridCellIndex() );
-    double                                   length = cell.faceNormalWithAreaLength( faceIdx ).length();
-    if ( length != 0.0 )
-        retval /= length;
-    else
-        retval = 0.0;
-
-    if ( isinf( retval ) ) retval = 0.0;
-
-    return retval;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// Return the face scalar value for the given cell and face
-//--------------------------------------------------------------------------------------------------
-double RimStreamlineInViewCollection::faceValue( RigCell                            cell,
-                                                 cvf::StructGridInterface::FaceType faceIdx,
-                                                 RigGridBase*                       grid,
-                                                 RiaDefines::PhaseType              phase ) const
-{
-    if ( faceIdx % 2 == 0 ) return posFaceValue( cell, faceIdx, phase );
-
-    // NEG_? face values must be read from the neighbor cells
-    return negFaceValue( cell, faceIdx, grid, phase );
-}
-
-//--------------------------------------------------------------------------------------------------
-/// Calculate the average direction inside the cell by adding the scaled face normals of all faces
-//--------------------------------------------------------------------------------------------------
-cvf::Vec3d RimStreamlineInViewCollection::cellDirection( RigCell                cell,
-                                                         RigGridBase*           grid,
-                                                         RiaDefines::PhaseType& dominantPhaseOut ) const
-{
-    cvf::Vec3d direction( 0, 0, 0 );
-
-    std::vector<cvf::StructGridInterface::FaceType> faces = { cvf::StructGridInterface::FaceType::POS_I,
-                                                              cvf::StructGridInterface::FaceType::NEG_I,
-                                                              cvf::StructGridInterface::FaceType::POS_J,
-                                                              cvf::StructGridInterface::FaceType::NEG_J,
-                                                              cvf::StructGridInterface::FaceType::POS_K,
-                                                              cvf::StructGridInterface::FaceType::NEG_K };
-
-    double maxval    = 0.0;
-    dominantPhaseOut = phases().front();
-
-    for ( auto face : faces )
-    {
-        cvf::Vec3d faceNorm = cell.faceNormalWithAreaLength( face );
-        faceNorm.normalize();
-        double faceval = 0.0;
-        for ( auto phase : phases() )
-        {
-            double tmpval = faceValue( cell, face, grid, phase );
-            if ( abs( tmpval ) > maxval )
-            {
-                maxval           = abs( tmpval );
-                dominantPhaseOut = phase;
-            }
-            faceval += tmpval;
-        }
-        faceNorm *= faceval;
-        if ( face % 2 != 0 ) faceNorm *= -1.0;
-
-        direction += faceNorm;
-    }
-    return direction;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// Return the cell bounding box for the given cell
-/// TODO - use the BB feature from RigCell once cell filters have been merged in
-//--------------------------------------------------------------------------------------------------
-cvf::BoundingBox RimStreamlineInViewCollection::cellBoundingBox( RigCell* cell, RigGridBase* grid ) const
-{
-    std::array<cvf::Vec3d, 8> hexCorners;
-    grid->cellCornerVertices( cell->mainGridCellIndex(), hexCorners.data() );
-    cvf::BoundingBox bb;
-    for ( const auto& corner : hexCorners )
-    {
-        bb.add( corner );
-    }
-    return bb;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// Generate multiple start posisions for the given cell face, using the user specified tracer density
-//--------------------------------------------------------------------------------------------------
-void RimStreamlineInViewCollection::generateStartPositions( RigCell                            cell,
-                                                            cvf::StructGridInterface::FaceType faceIdx,
-                                                            std::list<cvf::Vec3d>&             positions )
-{
-    cvf::Vec3d center = cell.faceCenter( faceIdx );
-
-    std::array<cvf::Vec3d, 4> corners;
-    cell.faceCorners( faceIdx, &corners );
-
-    positions.push_back( center );
-
-    // if density is zero, just return face center
-    if ( m_density() == 0 )
-    {
-        return;
-    }
-
-    for ( const auto& pos : corners )
-        positions.push_back( pos );
-
-    // if density is 1, return face center and corners
-    if ( m_density() == 1 )
-    {
-        return;
-    }
-
-    // if density is 2, add some more points in-between
-    for ( size_t cornerIdx = 0; cornerIdx < 4; cornerIdx++ )
-    {
-        cvf::Vec3d xa = corners[cornerIdx] - center;
-        positions.push_back( center + xa / 2.0 );
-        cvf::Vec3d xab  = corners[( cornerIdx + 1 ) % 4] - corners[cornerIdx];
-        cvf::Vec3d ab_2 = corners[cornerIdx] + xab / 2.0;
-        positions.push_back( ab_2 );
-        cvf::Vec3d xab_2 = ab_2 - center;
-        positions.push_back( center + xab_2 / 2.0 );
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// Grow tracers for all faces of the input cell, possibly reversing the direction for producers
-//--------------------------------------------------------------------------------------------------
-void RimStreamlineInViewCollection::generateTracer( RigCell cell, double direction, QString simWellName )
-{
-    RigMainGrid* grid = eclipseCase()->eclipseCaseData()->mainGrid();
-
-    std::vector<cvf::StructGridInterface::FaceType> faces = { cvf::StructGridInterface::FaceType::POS_I,
-                                                              cvf::StructGridInterface::FaceType::NEG_I,
-                                                              cvf::StructGridInterface::FaceType::POS_J,
-                                                              cvf::StructGridInterface::FaceType::NEG_J,
-                                                              cvf::StructGridInterface::FaceType::POS_K,
-                                                              cvf::StructGridInterface::FaceType::NEG_K };
-
-    size_t ni, nj, nk;
-    grid->ijkFromCellIndexUnguarded( cell.mainGridCellIndex(), &ni, &nj, &nk );
-
-    cvf::Vec3d cellCenter = cell.center();
-
-    RiaDefines::PhaseType dominantStartPhase = phases().front();
-
-    // try to generate a tracer for all faces in the selected cell
-    for ( auto faceIdx : faces )
-    {
-        // get the face normal for the current face, scale it with the flow, and check that it is still valid
-        cvf::Vec3d startDirection = cell.faceNormalWithAreaLength( faceIdx );
-        startDirection.normalize();
-        double faceval = 0.0;
-        double maxval  = 0.0;
-
-        for ( auto phase : phases() )
-        {
-            double tmpval = faceValue( cell, faceIdx, grid, phase );
-            if ( abs( tmpval ) > maxval )
-            {
-                dominantStartPhase = phase;
-                maxval             = abs( tmpval );
-            }
-            faceval += tmpval;
-        }
-        startDirection *= faceval;
-        startDirection *= direction;
-        // skip vectors with inf values
-        if ( startDirection.isUndefined() ) continue;
-        // if too little flow, skip making tracer for this face
-        if ( startDirection.length() <= m_flowThreshold ) continue;
-
-        // generate a set of start positions starting in the face
-        std::list<cvf::Vec3d> positions;
-        generateStartPositions( cell, faceIdx, positions );
-
-        // calculate the max number of steps based on user settings for length and resolution
-        const int maxSteps = (int)( m_maxDays / m_resolution );
-
-        // get the neighbour cell for this face, this is where the tracer should start growing
-        RigCell* startCell = findNeighborCell( cell, grid, faceIdx );
-        if ( startCell == nullptr ) continue;
-
-        for ( const cvf::Vec3d& startPosition : positions )
-        {
-            if ( startPosition.isUndefined() ) continue;
-
-            RigCell*   curCell = startCell;
-            cvf::Vec3d curPos  = startPosition;
-            int        curStep = 0;
-
-            std::set<size_t> visitedCellsIdx;
-
-            grid->ijkFromCellIndexUnguarded( curCell->mainGridCellIndex(), &ni, &nj, &nk );
-
-            // create the streamline we should store the tracer points in
-            RimStreamline* streamLine = new RimStreamline( simWellName );
-            streamLine->addTracerPoint( cellCenter, startDirection, dominantStartPhase );
-
-            // get the current cell bounding box and average direction movement vector
-            cvf::BoundingBox      bb            = cellBoundingBox( curCell, grid );
-            RiaDefines::PhaseType dominantPhase = dominantStartPhase;
-            cvf::Vec3d            curDirection  = cellDirection( *curCell, grid, dominantPhase ) * direction;
-
-            while ( curStep < maxSteps )
-            {
-                // keep track of where we have been to avoid loops
-                visitedCellsIdx.insert( curCell->mainGridCellIndex() );
-
-                grid->ijkFromCellIndexUnguarded( curCell->mainGridCellIndex(), &ni, &nj, &nk );
-
-                // is this a well cell, if so, stop growing
-                if ( m_wellCellIds.count( curCell->mainGridCellIndex() ) > 0 ) break;
-
-                // while we stay in the cell, keep moving in the same direction
-                bool stop = false;
-                while ( bb.contains( curPos ) )
-                {
-                    streamLine->addTracerPoint( curPos, curDirection, dominantPhase );
-                    curPos += curDirection * m_resolution;
-                    curStep++;
-                    // TODO - calculate new direction here based on how close we are to the various cell faces
-                    //        To simplify things - keep size of direction the same as the cell direction, just update
-                    //        where we are heading
-                    stop = ( curStep >= maxSteps ) || ( curDirection.length() < m_flowThreshold );
-                    if ( stop ) break;
-                }
-                if ( stop ) break;
-
-                // we have exited the cell we were in, find the next cell (should be one of our neighbours)
-                RigCell             tmpCell;
-                RigCell*            nextCell  = nullptr;
-                std::vector<size_t> neighbors = findNeighborCellIndexes( curCell, grid );
-                for ( auto cellIdx : neighbors )
-                {
-                    tmpCell = grid->cell( cellIdx );
-
-                    bb = cellBoundingBox( &tmpCell, grid );
-                    if ( bb.contains( curPos ) )
-                    {
-                        nextCell = &tmpCell;
-                        break;
-                    }
-                }
-
-                // no neighbour found, stop this tracer
-                if ( nextCell == nullptr ) break;
-
-                // have we been here, if so stop?
-                if ( visitedCellsIdx.count( nextCell->mainGridCellIndex() ) > 0 ) break;
-
-                // update our current cell and direction
-                curCell      = nextCell;
-                curDirection = cellDirection( *curCell, grid, dominantPhase ) * direction;
-
-                // stop if too little flow
-                if ( curDirection.length() < m_flowThreshold ) break;
-            }
-
-            if ( streamLine->tracer().size() > 1 )
-            {
-                // make sure the streamline points with the flow towards the producer
-                if ( direction < 0.0 ) streamLine->reverse();
-
-                double distance = streamLine->tracer().totalDistance();
-
-                if ( distance >= m_lengthThreshold )
-                {
-                    streamLine->generateStatistics();
-                    m_streamlines.push_back( streamLine );
-                    streamLine = nullptr;
-                }
-            }
-            if ( streamLine ) delete streamLine;
-        }
-    }
-
-    return;
 }
