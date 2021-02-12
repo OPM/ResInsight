@@ -851,6 +851,14 @@ void RimSummaryCurve::appendOptionItemsForSummaryAddresses( QList<caf::PdmOption
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimSummaryCurve::setResampling( RiaQDateTimeTools::DateTimePeriodEnum resampling )
+{
+    m_resampling = resampling;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimSummaryCurve::setZIndexFromCurveInfo()
 {
     auto sumAddr = summaryAddressY();

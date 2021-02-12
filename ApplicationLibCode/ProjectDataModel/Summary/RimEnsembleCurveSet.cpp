@@ -127,6 +127,8 @@ RimEnsembleCurveSet::RimEnsembleCurveSet()
     m_yPushButtonSelectSummaryAddress.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
     m_yPushButtonSelectSummaryAddress = false;
 
+    CAF_PDM_InitFieldNoDefault( &m_resampling, "Resampling", "Resampling", "", "", "" );
+
     CAF_PDM_InitField( &m_colorMode, "ColorMode", caf::AppEnum<ColorMode>( ColorMode::SINGLE_COLOR ), "Coloring Mode", "", "", "" );
 
     CAF_PDM_InitField( &m_color, "Color", RiaColorTools::textColor3f(), "Color", "", "", "" );
@@ -649,6 +651,10 @@ void RimEnsembleCurveSet::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
 
         updateTextInPlot = true;
     }
+    else if ( changedField == &m_resampling )
+    {
+        updateAllCurves();
+    }
     else if ( changedField == &m_color )
     {
         updateCurveColors();
@@ -871,6 +877,7 @@ void RimEnsembleCurveSet::defineUiOrdering( QString uiConfigName, caf::PdmUiOrde
         curveDataGroup->add( &m_yValuesSummaryCaseCollection );
         curveDataGroup->add( &m_yValuesSummaryAddressUiField );
         curveDataGroup->add( &m_yPushButtonSelectSummaryAddress, { false, 1, 0 } );
+        curveDataGroup->add( &m_resampling );
         curveDataGroup->add( &m_plotAxis );
     }
 
@@ -1652,6 +1659,7 @@ void RimEnsembleCurveSet::updateEnsembleCurves( const std::vector<RimSummaryCase
                 curve->setSummaryCaseY( sumCase );
                 curve->setSummaryAddressYAndApplyInterpolation( addr->address() );
                 curve->setLeftOrRightAxisY( m_plotAxis() );
+                curve->setResampling( m_resampling() );
 
                 addCurve( curve );
 
@@ -1747,6 +1755,7 @@ void RimEnsembleCurveSet::updateStatisticsCurves( const std::vector<RimSummaryCa
         curve->setParentQwtPlotNoReplot( plot->viewer() );
         m_curves.push_back( curve );
         curve->setColor( m_statistics->color() );
+        curve->setResampling( m_resampling() );
 
         auto symbol = statisticsCurveSymbolFromAddress( address );
         curve->setSymbol( symbol );

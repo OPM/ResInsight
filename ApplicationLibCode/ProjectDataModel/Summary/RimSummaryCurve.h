@@ -64,6 +64,7 @@ public:
     void setSummaryCaseY( RimSummaryCase* sumCase );
     void setSummaryAddressYAndApplyInterpolation( const RifEclipseSummaryAddress& address );
     void setSummaryAddressY( const RifEclipseSummaryAddress& address );
+    void setResampling( RiaQDateTimeTools::DateTimePeriodEnum resampling );
 
     RifEclipseSummaryAddress   errorSummaryAddressY() const;
     std::vector<double>        errorValuesY() const;
