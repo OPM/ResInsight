@@ -23,6 +23,7 @@
 #include "RifSummaryReaderInterface.h"
 
 #include "RiaDefines.h"
+#include "RiaQDateTimeTools.h"
 
 #include "RimEnsembleCurveSetColorManager.h"
 #include "RimObjectiveFunction.h"
@@ -189,10 +190,11 @@ private:
 
     caf::PdmPointer<RimSummaryCurve> m_currentSummaryCurve;
 
-    caf::PdmPtrField<RimSummaryCaseCollection*> m_yValuesSummaryCaseCollection;
-    caf::PdmChildField<RimSummaryAddress*>      m_yValuesSummaryAddress;
-    caf::PdmField<RifEclipseSummaryAddress>     m_yValuesSummaryAddressUiField;
-    caf::PdmField<bool>                         m_yPushButtonSelectSummaryAddress;
+    caf::PdmPtrField<RimSummaryCaseCollection*>          m_yValuesSummaryCaseCollection;
+    caf::PdmChildField<RimSummaryAddress*>               m_yValuesSummaryAddress;
+    caf::PdmField<RifEclipseSummaryAddress>              m_yValuesSummaryAddressUiField;
+    caf::PdmField<bool>                                  m_yPushButtonSelectSummaryAddress;
+    caf::PdmField<RiaQDateTimeTools::DateTimePeriodEnum> m_resampling;
 
     caf::PdmField<ColorModeEnum> m_colorMode;
     caf::PdmField<cvf::Color3f>  m_color;
