@@ -323,7 +323,9 @@ void RigWellLogExtractor::appendIntersectionToArrays( double                    
                                                       const HexIntersectionInfo&  intersection,
                                                       gsl::not_null<QStringList*> errorMessages )
 {
-    QString errorMessage;
+    QString errorMessage; // This error message is currently not displayed anywhere, as the output caused noise in
+                          // several situations https://github.com/OPM/ResInsight/issues/7126
+
     if ( !m_intersectionMeasuredDepths.empty() && measuredDepth < m_intersectionMeasuredDepths.back() )
     {
         const double warningLimit = 0.01;
@@ -352,6 +354,4 @@ void RigWellLogExtractor::appendIntersectionToArrays( double                    
     m_intersections.push_back( intersection.m_intersectionPoint );
     m_intersectedCellsGlobIdx.push_back( intersection.m_hexIndex );
     m_intersectedCellFaces.push_back( intersection.m_face );
-
-    if ( !errorMessage.isEmpty() ) errorMessages->push_back( errorMessage );
 }
