@@ -20,7 +20,6 @@
 
 #include "RiaQDateTimeTools.h"
 #include "RiaSummaryTools.h"
-#include "RiaTimeHistoryCurveResampler.h"
 
 #include "RifSummaryReaderInterface.h"
 #include "RimSummaryCase.h"
@@ -220,27 +219,18 @@ caf::PdmObjectHandle* RimSummaryCase_resampleValues::execute()
             // Error message
         }
 
-        auto timeValues = sumReader->timeSteps( adr );
+        const auto& timeValues = sumReader->timeSteps( adr );
 
         QString                           periodString = m_resamplingPeriod().trimmed();
         RiaQDateTimeTools::DateTimePeriod period = RiaQDateTimeTools::DateTimePeriodEnum::fromText( periodString );
 
         if ( period != RiaQDateTimeTools::DateTimePeriod::NONE )
         {
-            RiaTimeHistoryCurveResampler resampler;
-            resampler.setCurveData( values, timeValues );
+            auto [resampledTimeSteps, resampledValues] =
+                RiaSummaryTools::resampledValuesForPeriod( adr, timeValues, values, period );
 
-            if ( RiaSummaryTools::hasAccumulatedData( adr ) )
-            {
-                resampler.resampleAndComputePeriodEndValues( period );
-            }
-            else
-            {
-                resampler.resampleAndComputeWeightedMeanValues( period );
-            }
-
-            dataObject->m_timeValues   = resampler.resampledTimeSteps();
-            dataObject->m_doubleValues = resampler.resampledValues();
+            dataObject->m_timeValues   = resampledTimeSteps;
+            dataObject->m_doubleValues = resampledValues;
         }
         else
         {

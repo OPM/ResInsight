@@ -19,6 +19,8 @@
 #include "RiaSummaryTools.h"
 
 #include "RiaFilePathTools.h"
+#include "RiaTimeHistoryCurveResampler.h"
+
 #include "RifEclipseSummaryAddress.h"
 
 #include "RimMainPlotCollection.h"
@@ -264,4 +266,28 @@ QString RiaSummaryTools::findSuitableEnsembleName( const QStringList& summaryCas
     }
 
     return "Ensemble";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::pair<std::vector<time_t>, std::vector<double>>
+    RiaSummaryTools::resampledValuesForPeriod( const RifEclipseSummaryAddress&   address,
+                                               const std::vector<time_t>&        timeSteps,
+                                               std::vector<double>&              values,
+                                               RiaQDateTimeTools::DateTimePeriod period )
+{
+    RiaTimeHistoryCurveResampler resampler;
+    resampler.setCurveData( values, timeSteps );
+
+    if ( RiaSummaryTools::hasAccumulatedData( address ) )
+    {
+        resampler.resampleAndComputePeriodEndValues( period );
+    }
+    else
+    {
+        resampler.resampleAndComputeWeightedMeanValues( period );
+    }
+
+    return { resampler.resampledTimeSteps(), resampler.resampledValues() };
 }

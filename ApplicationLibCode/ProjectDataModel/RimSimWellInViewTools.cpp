@@ -20,7 +20,6 @@
 
 #include "RiaLogging.h"
 #include "RiaSummaryTools.h"
-#include "RiaTimeHistoryCurveResampler.h"
 
 #include "RifEclipseSummaryAddress.h"
 #include "RifSummaryReaderInterface.h"
@@ -169,20 +168,8 @@ double RimSimWellInViewTools::extractValueForTimeStep( RifSummaryReaderInterface
         return 0.0;
     }
 
-    RiaTimeHistoryCurveResampler resampler;
-    resampler.setCurveData( values, timeSteps );
-    if ( RiaSummaryTools::hasAccumulatedData( addr ) )
-    {
-        resampler.resampleAndComputePeriodEndValues( RiaQDateTimeTools::DateTimePeriod::DAY );
-    }
-    else
-    {
-        resampler.resampleAndComputeWeightedMeanValues( RiaQDateTimeTools::DateTimePeriod::DAY );
-    }
-
-    // Find the data point which best matches the selected time step
-    std::vector<time_t> resampledTimeSteps = resampler.resampledTimeSteps();
-    std::vector<double> resampledValues    = resampler.resampledValues();
+    auto [resampledTimeSteps, resampledValues] =
+        RiaSummaryTools::resampledValuesForPeriod( addr, timeSteps, values, RiaQDateTimeTools::DateTimePeriod::DAY );
 
     time_t currentTime_t = currentDate.toTime_t();
 

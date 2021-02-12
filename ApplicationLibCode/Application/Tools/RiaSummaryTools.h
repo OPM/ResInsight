@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include "RiaQDateTimeTools.h"
+
 #include <QString>
 
 #include <vector>
@@ -63,4 +65,10 @@ public:
                                                            std::vector<RifEclipseSummaryAddress>& addresses );
 
     static QString findSuitableEnsembleName( const QStringList& summaryCaseFileNames );
+
+    static std::pair<std::vector<time_t>, std::vector<double>>
+        resampledValuesForPeriod( const RifEclipseSummaryAddress&   address,
+                                  const std::vector<time_t>&        timeSteps,
+                                  std::vector<double>&              values,
+                                  RiaQDateTimeTools::DateTimePeriod period );
 };
