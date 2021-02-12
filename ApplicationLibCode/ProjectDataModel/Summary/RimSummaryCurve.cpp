@@ -89,6 +89,8 @@ RimSummaryCurve::RimSummaryCurve()
 
     m_yValuesSummaryAddress = new RimSummaryAddress;
 
+    CAF_PDM_InitFieldNoDefault( &m_resampling, "Resampling", "Resampling", "", "", "" );
+
     // X Values
     CAF_PDM_InitFieldNoDefault( &m_xValuesSummaryCase, "SummaryCaseX", "Case", "", "", "" );
     m_xValuesSummaryCase.uiCapability()->setUiTreeChildrenHidden( true );
@@ -640,7 +642,30 @@ void RimSummaryCurve::onLoadDataAndUpdate( bool updateParentPlot )
                         }
                         else
                         {
-                            this->setSamplesFromTimeTAndYValues( curveTimeStepsY, curveValuesY, isLogCurve );
+                            if ( m_resampling() != RiaQDateTimeTools::DateTimePeriod::NONE )
+                            {
+                                auto [resampledTimeSteps, resampledValues] =
+                                    RiaSummaryTools::resampledValuesForPeriod( m_yValuesSummaryAddress->address(),
+                                                                               curveTimeStepsY,
+                                                                               curveValuesY,
+                                                                               m_resampling() );
+
+                                if ( !resampledValues.empty() && !resampledTimeSteps.empty() )
+                                {
+                                    // When values are resampled, each time step value is reported at the end of each
+                                    // resampling period. Insert a duplicate of the first value at the start of the time
+                                    // series to make curve start at the very first reported time step.
+
+                                    resampledTimeSteps.insert( resampledTimeSteps.begin(), curveTimeStepsY.front() );
+                                    resampledValues.insert( resampledValues.begin(), resampledValues.front() );
+
+                                    this->setSamplesFromTimeTAndYValues( resampledTimeSteps, resampledValues, isLogCurve );
+                                }
+                            }
+                            else
+                            {
+                                this->setSamplesFromTimeTAndYValues( curveTimeStepsY, curveValuesY, isLogCurve );
+                            }
                         }
                     }
                 }
@@ -759,6 +784,7 @@ void RimSummaryCurve::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering
         curveDataGroup->add( &m_yValuesSummaryCase, { true, 3, 1 } );
         curveDataGroup->add( &m_yValuesSummaryAddressUiField, { true, 2, 1 } );
         curveDataGroup->add( &m_yPushButtonSelectSummaryAddress, { false, 1, 0 } );
+        curveDataGroup->add( &m_resampling, { true, 3, 1 } );
         curveDataGroup->add( &m_plotAxis, { true, 3, 1 } );
 
         if ( isCrossPlotCurve() )
@@ -1009,6 +1035,10 @@ void RimSummaryCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
 
         this->calculateCurveInterpolationFromAddress();
 
+        loadAndUpdate = true;
+    }
+    else if ( changedField == &m_resampling )
+    {
         loadAndUpdate = true;
     }
     else if ( &m_showCurve == changedField )
