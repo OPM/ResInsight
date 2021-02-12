@@ -25,7 +25,9 @@
 #include "cafPdmPtrField.h"
 
 #include "RiaDefines.h"
+#include "RiaQDateTimeTools.h"
 #include "RiaSummaryCurveDefinition.h"
+
 #include "RifEclipseSummaryAddressQMetaType.h"
 #include "RimStackablePlotCurve.h"
 
@@ -131,6 +133,8 @@ private:
     caf::PdmChildField<RimSummaryAddress*>  m_yValuesSummaryAddress;
     caf::PdmField<RifEclipseSummaryAddress> m_yValuesSummaryAddressUiField;
     caf::PdmField<bool>                     m_yPushButtonSelectSummaryAddress;
+
+    caf::PdmField<RiaQDateTimeTools::DateTimePeriodEnum> m_resampling;
 
     // X values
     caf::PdmPtrField<RimSummaryCase*>       m_xValuesSummaryCase;
