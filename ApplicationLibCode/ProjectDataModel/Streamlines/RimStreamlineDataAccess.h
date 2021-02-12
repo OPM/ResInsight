@@ -33,11 +33,11 @@ class RigEclipseCaseData;
 
 #include "cvfStructGrid.h"
 
-class StreamlineDataAccess
+class RimStreamlineDataAccess
 {
 public:
-    StreamlineDataAccess();
-    ~StreamlineDataAccess();
+    RimStreamlineDataAccess();
+    ~RimStreamlineDataAccess();
 
     bool setupDataAccess( RigMainGrid* grid, RigEclipseCaseData* data, std::list<RiaDefines::PhaseType> phases, int timeIdx );
 

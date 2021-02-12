@@ -16,8 +16,8 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "StreamlineGeneratorBase.h"
-#include "StreamlineDataAccess.h"
+#include "RimStreamlineGeneratorBase.h"
+#include "RimStreamlineDataAccess.h"
 
 #include "RigCell.h"
 #include "RigMainGrid.h"
@@ -33,7 +33,7 @@ const std::list<cvf::StructGridInterface::FaceType> _internal_faces = { cvf::Str
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-StreamlineGeneratorBase::StreamlineGeneratorBase( std::set<size_t>& wellCells )
+RimStreamlineGeneratorBase::RimStreamlineGeneratorBase( std::set<size_t>& wellCells )
     : m_density( 0 )
     , m_maxDays( 10000 )
     , m_flowThreshold( 0.0 )
@@ -46,20 +46,20 @@ StreamlineGeneratorBase::StreamlineGeneratorBase( std::set<size_t>& wellCells )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-StreamlineGeneratorBase::~StreamlineGeneratorBase()
+RimStreamlineGeneratorBase::~RimStreamlineGeneratorBase()
 {
 }
 
-void StreamlineGeneratorBase::setLimits( double flowThreshold, int maxDays, double resolutionInDays )
+void RimStreamlineGeneratorBase::setLimits( double flowThreshold, int maxDays, double resolutionInDays )
 {
     m_flowThreshold = flowThreshold;
     m_maxDays       = maxDays;
     m_resolution    = resolutionInDays;
 }
 
-void StreamlineGeneratorBase::initGenerator( StreamlineDataAccess*            dataAccess,
-                                             std::list<RiaDefines::PhaseType> phases,
-                                             int                              density )
+void RimStreamlineGeneratorBase::initGenerator( RimStreamlineDataAccess*         dataAccess,
+                                                std::list<RiaDefines::PhaseType> phases,
+                                                int                              density )
 {
     m_dataAccess = dataAccess;
 
@@ -73,9 +73,9 @@ void StreamlineGeneratorBase::initGenerator( StreamlineDataAccess*            da
 //--------------------------------------------------------------------------------------------------
 /// Generate multiple start posisions for the given cell face, using the user specified tracer density
 //--------------------------------------------------------------------------------------------------
-void StreamlineGeneratorBase::generateStartPositions( RigCell                            cell,
-                                                      cvf::StructGridInterface::FaceType faceIdx,
-                                                      std::list<cvf::Vec3d>&             positions )
+void RimStreamlineGeneratorBase::generateStartPositions( RigCell                            cell,
+                                                         cvf::StructGridInterface::FaceType faceIdx,
+                                                         std::list<cvf::Vec3d>&             positions )
 {
     cvf::Vec3d center = cell.faceCenter( faceIdx );
 

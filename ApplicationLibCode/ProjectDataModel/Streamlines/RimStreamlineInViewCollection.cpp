@@ -48,8 +48,8 @@
 #include <math.h>
 #include <qdebug.h>
 
-#include "StreamlineDataAccess.h"
-#include "StreamlineGenerator.h"
+#include "RimStreamlineDataAccess.h"
+#include "RimStreamlineGenerator.h"
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -420,13 +420,13 @@ void RimStreamlineInViewCollection::updateStreamlines()
 
         findStartCells( timeIdx, seedCellsInjector, seedCellsProducer );
 
-        StreamlineDataAccess dataAccess;
+        RimStreamlineDataAccess dataAccess;
         dataAccess.setupDataAccess( eclipseCase()->eclipseCaseData()->mainGrid(),
                                     eclipseCase()->eclipseCaseData(),
                                     phases(),
                                     timeIdx );
 
-        StreamlineGenerator generator( m_wellCellIds );
+        RimStreamlineGenerator generator( m_wellCellIds );
 
         generator.setLimits( m_flowThreshold, m_maxDays, m_resolution );
         generator.initGenerator( &dataAccess, phases(), m_density );

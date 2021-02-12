@@ -2,17 +2,17 @@
 set (SOURCE_GROUP_HEADER_FILES
 ${CMAKE_CURRENT_LIST_DIR}/RimStreamline.h
 ${CMAKE_CURRENT_LIST_DIR}/RimStreamlineInViewCollection.h
-${CMAKE_CURRENT_LIST_DIR}/StreamlineGenerator.h
-${CMAKE_CURRENT_LIST_DIR}/StreamlineGeneratorBase.h
-${CMAKE_CURRENT_LIST_DIR}/StreamlineDataAccess.h
+${CMAKE_CURRENT_LIST_DIR}/RimStreamlineGenerator.h
+${CMAKE_CURRENT_LIST_DIR}/RimStreamlineGeneratorBase.h
+${CMAKE_CURRENT_LIST_DIR}/RimStreamlineDataAccess.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
 ${CMAKE_CURRENT_LIST_DIR}/RimStreamline.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimStreamlineInViewCollection.cpp
-${CMAKE_CURRENT_LIST_DIR}/StreamlineGenerator.cpp
-${CMAKE_CURRENT_LIST_DIR}/StreamlineGeneratorBase.cpp
-${CMAKE_CURRENT_LIST_DIR}/StreamlineDataAccess.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimStreamlineGenerator.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimStreamlineGeneratorBase.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimStreamlineDataAccess.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

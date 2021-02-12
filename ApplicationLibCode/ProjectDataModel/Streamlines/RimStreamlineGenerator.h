@@ -22,18 +22,18 @@
 
 #include "RiaDefines.h"
 
-#include "StreamlineGeneratorBase.h"
+#include "RimStreamlineGeneratorBase.h"
 
 #include <QString>
 
 class RigCell;
 class RimStreamline;
 
-class StreamlineGenerator : public StreamlineGeneratorBase
+class RimStreamlineGenerator : public RimStreamlineGeneratorBase
 {
 public:
-    StreamlineGenerator( std::set<size_t>& wellCells );
-    ~StreamlineGenerator();
+    RimStreamlineGenerator( std::set<size_t>& wellCells );
+    ~RimStreamlineGenerator();
 
     void generateTracer( RigCell cell, double direction, QString simWellName, std::list<RimStreamline*>& outStreamlines ) override;
 

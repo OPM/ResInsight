@@ -32,14 +32,13 @@
 #include <set>
 #include <vector>
 
-#include "StreamlineDataAccess.h"
-
 class RimStreamline;
 class RimEclipseCase;
 class RigTracer;
 class RigCell;
 class RigResultAccessor;
 class RigGridBase;
+class RimStreamlineDataAccess;
 
 class RimRegularLegendConfig;
 
@@ -136,5 +135,5 @@ private:
 
     caf::PdmChildField<RimRegularLegendConfig*> m_legendConfig;
 
-    StreamlineDataAccess* m_dataAccess;
+    RimStreamlineDataAccess* m_dataAccess;
 };

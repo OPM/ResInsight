@@ -16,8 +16,8 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "StreamlineGenerator.h"
-#include "StreamlineDataAccess.h"
+#include "RimStreamlineGenerator.h"
+#include "RimStreamlineDataAccess.h"
 
 #include "RigCell.h"
 #include "RigMainGrid.h"
@@ -26,25 +26,25 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-StreamlineGenerator::StreamlineGenerator( std::set<size_t>& wellCells )
-    : StreamlineGeneratorBase( wellCells )
+RimStreamlineGenerator::RimStreamlineGenerator( std::set<size_t>& wellCells )
+    : RimStreamlineGeneratorBase( wellCells )
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-StreamlineGenerator::~StreamlineGenerator()
+RimStreamlineGenerator::~RimStreamlineGenerator()
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void StreamlineGenerator::generateTracer( RigCell                    cell,
-                                          double                     direction,
-                                          QString                    simWellName,
-                                          std::list<RimStreamline*>& outStreamlines )
+void RimStreamlineGenerator::generateTracer( RigCell                    cell,
+                                             double                     direction,
+                                             QString                    simWellName,
+                                             std::list<RimStreamline*>& outStreamlines )
 {
     // calculate the max number of steps based on user settings for length and resolution
     const int maxSteps = (int)( m_maxDays / m_resolution );

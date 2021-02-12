@@ -30,19 +30,19 @@ class RigMainGrid;
 class RigGridBase;
 class RigResultAccessor;
 class RigEclipseCaseData;
-class StreamlineDataAccess;
+class RimStreamlineDataAccess;
 
 #include "cvfStructGrid.h"
 
-class StreamlineGeneratorBase
+class RimStreamlineGeneratorBase
 {
 public:
-    StreamlineGeneratorBase( std::set<size_t>& wellCells );
-    ~StreamlineGeneratorBase();
+    RimStreamlineGeneratorBase( std::set<size_t>& wellCells );
+    ~RimStreamlineGeneratorBase();
 
     void setLimits( double flowThreshold, int maxDays, double resolutionInDays );
 
-    void initGenerator( StreamlineDataAccess* dataAccess, std::list<RiaDefines::PhaseType> phases, int density );
+    void initGenerator( RimStreamlineDataAccess* dataAccess, std::list<RiaDefines::PhaseType> phases, int density );
 
     virtual void
         generateTracer( RigCell cell, double direction, QString simWellName, std::list<RimStreamline*>& outStreamlines ) = 0;
@@ -59,7 +59,7 @@ protected:
 
     std::set<size_t>& m_wellCells;
 
-    StreamlineDataAccess*            m_dataAccess;
+    RimStreamlineDataAccess*         m_dataAccess;
     std::list<RiaDefines::PhaseType> m_phases;
 
     const std::list<cvf::StructGridInterface::FaceType> m_allFaces = { cvf::StructGridInterface::FaceType::POS_I,
