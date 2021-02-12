@@ -237,3 +237,25 @@ cvf::Vec3d StreamlineDataAccess::cellDirection( RigCell                         
     }
     return direction;
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RigCell StreamlineDataAccess::getNeighborWithPoint( RigCell curCell, cvf::Vec3d point )
+{
+    RigCell tmpCell;
+
+    std::vector<size_t> neighbors = curCell.allNeighborMainGridCellIndexes();
+    for ( auto cellIdx : neighbors )
+    {
+        tmpCell = m_grid->cell( cellIdx );
+
+        if ( tmpCell.boundingBox().contains( point ) )
+        {
+            return tmpCell;
+        }
+    }
+
+    tmpCell.setInvalid( true );
+    return tmpCell;
+}

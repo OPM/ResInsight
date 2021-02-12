@@ -50,6 +50,8 @@ public:
 
     const RigMainGrid* grid() const { return m_grid; }
 
+    RigCell getNeighborWithPoint( RigCell curCell, cvf::Vec3d point );
+
 protected:
     cvf::ref<RigResultAccessor>
             getDataAccessor( cvf::StructGridInterface::FaceType faceIdx, RiaDefines::PhaseType phase, int timeIdx );

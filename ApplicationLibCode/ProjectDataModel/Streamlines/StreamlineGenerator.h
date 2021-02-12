@@ -22,42 +22,20 @@
 
 #include "RiaDefines.h"
 
+#include "StreamlineGeneratorBase.h"
+
 #include <QString>
 
 class RigCell;
 class RimStreamline;
-class RigMainGrid;
-class RigGridBase;
-class RigResultAccessor;
-class RigEclipseCaseData;
-class StreamlineDataAccess;
 
-#include "cvfStructGrid.h"
-
-class StreamlineGenerator
+class StreamlineGenerator : public StreamlineGeneratorBase
 {
 public:
     StreamlineGenerator( std::set<size_t>& wellCells );
     ~StreamlineGenerator();
 
-    void setLimits( double flowThreshold, int maxDays, double resolutionInDays );
-
-    void initGenerator( StreamlineDataAccess* dataAccess, std::list<RiaDefines::PhaseType> phases, int density );
-
-    void generateTracer( RigCell cell, double direction, QString simWellName, std::list<RimStreamline*>& outStreamlines );
+    void generateTracer( RigCell cell, double direction, QString simWellName, std::list<RimStreamline*>& outStreamlines ) override;
 
 protected:
-    void generateStartPositions( RigCell cell, cvf::StructGridInterface::FaceType faceIdx, std::list<cvf::Vec3d>& positions );
-
-    double m_flowThreshold;
-    int    m_maxDays;
-    double m_resolution;
-    int    m_density;
-
-    std::set<size_t> m_visitedCells;
-
-    std::set<size_t>& m_wellCells;
-
-    StreamlineDataAccess*            m_dataAccess;
-    std::list<RiaDefines::PhaseType> m_phases;
 };

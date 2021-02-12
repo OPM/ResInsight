@@ -447,12 +447,10 @@ void RimStreamlineInViewCollection::updateStreamlines()
             generator.generateTracer( cellinfo.second, reverseDirection, cellinfo.first, streamlines );
         }
 
-        outputSummary();
-
         m_maxAnimationIndex = 0;
         for ( auto& sline : streamlines )
         {
-            if ( sline->tracer().tracerPoints().size() > 0 )
+            if ( sline && sline->tracer().tracerPoints().size() > 0 )
             {
                 double distance = sline->tracer().totalDistance();
 
@@ -466,6 +464,8 @@ void RimStreamlineInViewCollection::updateStreamlines()
                 if ( sline ) delete sline;
             }
         }
+
+        outputSummary();
     }
 
     eclView->loadDataAndUpdate();

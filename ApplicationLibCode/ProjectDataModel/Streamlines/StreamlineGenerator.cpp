@@ -23,23 +23,11 @@
 #include "RigMainGrid.h"
 #include "RimStreamline.h"
 
-const std::list<cvf::StructGridInterface::FaceType> _internal_faces = { cvf::StructGridInterface::FaceType::POS_I,
-                                                                        cvf::StructGridInterface::FaceType::NEG_I,
-                                                                        cvf::StructGridInterface::FaceType::POS_J,
-                                                                        cvf::StructGridInterface::FaceType::NEG_J,
-                                                                        cvf::StructGridInterface::FaceType::POS_K,
-                                                                        cvf::StructGridInterface::FaceType::NEG_K };
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 StreamlineGenerator::StreamlineGenerator( std::set<size_t>& wellCells )
-    : m_density( 0 )
-    , m_maxDays( 10000 )
-    , m_flowThreshold( 0.0 )
-    , m_resolution( 10.0 )
-    , m_wellCells( wellCells )
-    , m_dataAccess( nullptr )
+    : StreamlineGeneratorBase( wellCells )
 {
 }
 
@@ -48,24 +36,6 @@ StreamlineGenerator::StreamlineGenerator( std::set<size_t>& wellCells )
 //--------------------------------------------------------------------------------------------------
 StreamlineGenerator::~StreamlineGenerator()
 {
-}
-
-void StreamlineGenerator::setLimits( double flowThreshold, int maxDays, double resolutionInDays )
-{
-    m_flowThreshold = flowThreshold;
-    m_maxDays       = maxDays;
-    m_resolution    = resolutionInDays;
-}
-
-void StreamlineGenerator::initGenerator( StreamlineDataAccess* dataAccess, std::list<RiaDefines::PhaseType> phases, int density )
-{
-    m_dataAccess = dataAccess;
-
-    m_phases.clear();
-    for ( auto phase : phases )
-        m_phases.push_back( phase );
-
-    m_density = density;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -86,7 +56,7 @@ void StreamlineGenerator::generateTracer( RigCell                    cell,
     RiaDefines::PhaseType dominantPhase = m_phases.front();
 
     // try to generate a tracer for all faces in the selected cell
-    for ( auto faceIdx : _internal_faces )
+    for ( auto faceIdx : m_allFaces )
     {
         // get the face normal for the current face, scale it with the flow, and check that it is still valid
         cvf::Vec3d startDirection = m_dataAccess->cellDirection( cell,
@@ -104,12 +74,14 @@ void StreamlineGenerator::generateTracer( RigCell                    cell,
         generateStartPositions( cell, faceIdx, positions );
 
         // get the neighbour cell for this face, this is where the tracer should start growing
-        RigCell curCell = cell.neighborCell( faceIdx );
-        if ( curCell.isInvalid() ) continue;
+        RigCell startCell = cell.neighborCell( faceIdx );
+        if ( startCell.isInvalid() ) continue;
 
         for ( const cvf::Vec3d& startPosition : positions )
         {
             if ( startPosition.isUndefined() ) continue;
+
+            RigCell curCell = startCell;
 
             cvf::Vec3d curPos  = startPosition;
             int        curStep = 0;
@@ -123,7 +95,7 @@ void StreamlineGenerator::generateTracer( RigCell                    cell,
             // get the current cell bounding box and average direction movement vector
             cvf::BoundingBox bb = curCell.boundingBox();
             cvf::Vec3d       curDirection =
-                m_dataAccess->cellDirection( curCell, m_phases, _internal_faces, dominantPhase ) * direction;
+                m_dataAccess->cellDirection( curCell, m_phases, m_allFaces, dominantPhase ) * direction;
 
             while ( curStep < maxSteps )
             {
@@ -149,19 +121,7 @@ void StreamlineGenerator::generateTracer( RigCell                    cell,
                 if ( stop ) break;
 
                 // we have exited the cell we were in, find the next cell (should be one of our neighbours)
-                RigCell             tmpCell;
-                std::vector<size_t> neighbors = curCell.allNeighborMainGridCellIndexes();
-                for ( auto cellIdx : neighbors )
-                {
-                    tmpCell = grid->cell( cellIdx );
-
-                    bb = tmpCell.boundingBox();
-                    if ( bb.contains( curPos ) )
-                    {
-                        curCell = tmpCell;
-                        break;
-                    }
-                }
+                curCell = m_dataAccess->getNeighborWithPoint( curCell, curPos );
 
                 // no neighbour found, stop this tracer
                 if ( curCell.isInvalid() ) break;
@@ -170,7 +130,7 @@ void StreamlineGenerator::generateTracer( RigCell                    cell,
                 if ( visitedCellsIdx.count( curCell.mainGridCellIndex() ) > 0 ) break;
 
                 // update our direction
-                curDirection = m_dataAccess->cellDirection( curCell, m_phases, _internal_faces, dominantPhase ) * direction;
+                curDirection = m_dataAccess->cellDirection( curCell, m_phases, m_allFaces, dominantPhase ) * direction;
             }
 
             // make sure the streamline points with the flow towards the producer
@@ -181,40 +141,4 @@ void StreamlineGenerator::generateTracer( RigCell                    cell,
     }
 
     return;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// Generate multiple start posisions for the given cell face, using the user specified tracer density
-//--------------------------------------------------------------------------------------------------
-void StreamlineGenerator::generateStartPositions( RigCell                            cell,
-                                                  cvf::StructGridInterface::FaceType faceIdx,
-                                                  std::list<cvf::Vec3d>&             positions )
-{
-    cvf::Vec3d center = cell.faceCenter( faceIdx );
-
-    std::array<cvf::Vec3d, 4> corners;
-    cell.faceCorners( faceIdx, &corners );
-
-    positions.push_back( center );
-
-    // if density is zero, just return face center
-    if ( m_density == 0 ) return;
-
-    for ( const auto& pos : corners )
-        positions.push_back( pos );
-
-    // if density is 1, return face center and corners
-    if ( m_density == 1 ) return;
-
-    // if density is 2, add some more points in-between
-    for ( size_t cornerIdx = 0; cornerIdx < 4; cornerIdx++ )
-    {
-        cvf::Vec3d xa = corners[cornerIdx] - center;
-        positions.push_back( center + xa / 2.0 );
-        cvf::Vec3d xab  = corners[( cornerIdx + 1 ) % 4] - corners[cornerIdx];
-        cvf::Vec3d ab_2 = corners[cornerIdx] + xab / 2.0;
-        positions.push_back( ab_2 );
-        cvf::Vec3d xab_2 = ab_2 - center;
-        positions.push_back( center + xab_2 / 2.0 );
-    }
 }
