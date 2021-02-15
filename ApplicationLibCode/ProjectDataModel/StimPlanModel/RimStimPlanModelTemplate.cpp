@@ -33,6 +33,7 @@
 #include "RimFaciesInitialPressureConfig.h"
 #include "RimFaciesProperties.h"
 #include "RimNonNetLayers.h"
+#include "RimPressureTable.h"
 #include "RimProject.h"
 #include "RimStimPlanModel.h"
 #include "RimStimPlanModelPlot.h"
@@ -167,6 +168,11 @@ RimStimPlanModelTemplate::RimStimPlanModelTemplate()
     m_faciesInitialPressureConfigs.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
     m_faciesInitialPressureConfigs.uiCapability()->setUiTreeChildrenHidden( true );
 
+    CAF_PDM_InitScriptableFieldNoDefault( &m_pressureTable, "PressureTable", "Pressure Table", "", "", "" );
+    m_pressureTable.uiCapability()->setUiHidden( true );
+    m_pressureTable.uiCapability()->setUiTreeHidden( true );
+    setPressureTable( new RimPressureTable );
+
     CAF_PDM_InitScriptableFieldNoDefault( &m_elasticProperties, "ElasticProperties", "Elastic Properties", "", "", "" );
     m_elasticProperties.uiCapability()->setUiHidden( true );
     m_elasticProperties.uiCapability()->setUiTreeHidden( true );
@@ -297,6 +303,7 @@ void RimStimPlanModelTemplate::defineUiOrdering( QString uiConfigName, caf::PdmU
 
     caf::PdmUiOrdering* faciesInitialPressureGroup = uiOrdering.addNewGroup( "Facies With Initial Pressure" );
     faciesInitialPressureGroup->add( &m_faciesInitialPressureConfigs );
+
     uiOrdering.skipRemainingFields( true );
 }
 
@@ -445,6 +452,32 @@ RimNonNetLayers* RimStimPlanModelTemplate::nonNetLayers() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimStimPlanModelTemplate::setPressureTable( RimPressureTable* pressureTable )
+{
+    if ( m_pressureTable )
+    {
+        m_pressureTable->changed.disconnect( this );
+    }
+
+    m_pressureTable = pressureTable;
+
+    if ( m_pressureTable )
+    {
+        m_pressureTable->changed.connect( this, &RimStimPlanModelTemplate::pressureTableChanged );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimPressureTable* RimStimPlanModelTemplate::pressureTable() const
+{
+    return m_pressureTable;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimStimPlanModelTemplate::initAfterRead()
 {
     RimEclipseCase* eclipseCase = getEclipseCase();
@@ -486,6 +519,14 @@ void RimStimPlanModelTemplate::elasticPropertiesChanged( const caf::SignalEmitte
 ///
 //--------------------------------------------------------------------------------------------------
 void RimStimPlanModelTemplate::nonNetLayersChanged( const caf::SignalEmitter* emitter )
+{
+    changed.send();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimStimPlanModelTemplate::pressureTableChanged( const caf::SignalEmitter* emitter )
 {
     changed.send();
 }
@@ -763,4 +804,14 @@ std::map<int, double> RimStimPlanModelTemplate::faciesWithInitialPressure() cons
     }
 
     return valueFractionMap;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimStimPlanModelTemplate::usePressureTableForProperty( RiaDefines::CurveProperty curveProperty ) const
+{
+    if ( !m_pressureTable ) return false;
+
+    return m_pressureTable->usePressureTableForProperty( curveProperty );
 }
