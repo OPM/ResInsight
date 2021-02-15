@@ -45,7 +45,6 @@
 #include "cafSelectionManager.h"
 
 #include <cstddef>
-#include <typeinfo>
 
 namespace caf
 {
@@ -80,7 +79,7 @@ void PdmUiCommandSystemProxy::setCommandInterface( PdmUiCommandSystemInterface* 
 //--------------------------------------------------------------------------------------------------
 void PdmUiCommandSystemProxy::setUiValueToField( PdmUiFieldHandle* uiFieldHandle, const QVariant& newUiValue )
 {
-    if ( uiFieldHandle )
+    if ( uiFieldHandle && uiFieldHandle->fieldHandle() )
     {
         // Handle editing multiple objects when several objects are selected
         PdmFieldHandle*       editorField      = uiFieldHandle->fieldHandle();
@@ -89,41 +88,16 @@ void PdmUiCommandSystemProxy::setUiValueToField( PdmUiFieldHandle* uiFieldHandle
         std::vector<PdmFieldHandle*> fieldsToUpdate;
         fieldsToUpdate.push_back( editorField );
 
-        // For level 1 selection, find all fields with same keyword
-        // Todo: Should traverse the ui ordering and find all fields with same keyword and same owner object type.
-        //       Until we do, fields embedded into the property panel from a different object will not work with
-        //       multi selection edit For now we only makes sure we have same owner object type
+        std::vector<PdmFieldHandle*> otherSelectedFields = fieldsFromSelection( fieldOwnerTypeId, editorField->keyword() );
+
+        // If current edited field is part of the selection, update all fields in selection
+        if ( std::find( otherSelectedFields.begin(), otherSelectedFields.end(), editorField ) != otherSelectedFields.end() )
         {
-            std::vector<PdmUiItem*> items;
-
-            int selectionLevel = 0;
-            SelectionManager::instance()->selectedItems( items, selectionLevel );
-
-            for ( auto& item : items )
+            for ( auto otherField : otherSelectedFields )
             {
-                PdmObjectHandle* objectHandle = dynamic_cast<PdmObjectHandle*>( item );
-                if ( objectHandle && typeid( *objectHandle ) == fieldOwnerTypeId )
+                if ( otherField != editorField )
                 {
-                    // An object is selected, find field with same keyword as the current field being edited
-                    PdmFieldHandle* fieldHandle = objectHandle->findField( editorField->keyword() );
-                    if ( fieldHandle && fieldHandle != editorField )
-                    {
-                        fieldsToUpdate.push_back( fieldHandle );
-                    }
-                }
-                else
-                {
-                    // Todo Remove when dust has settled. Selection manager is not supposed to select single fields
-                    // A field is selected, check if keywords are identical
-                    PdmUiFieldHandle* itemFieldHandle = dynamic_cast<PdmUiFieldHandle*>( item );
-                    if ( itemFieldHandle )
-                    {
-                        PdmFieldHandle* field = itemFieldHandle->fieldHandle();
-                        if ( field && field != editorField && field->keyword() == editorField->keyword() )
-                        {
-                            fieldsToUpdate.push_back( field );
-                        }
-                    }
+                    fieldsToUpdate.push_back( otherField );
                 }
             }
         }
@@ -162,6 +136,49 @@ void PdmUiCommandSystemProxy::populateMenuWithDefaultCommands( const QString& ui
     {
         m_commandInterface->populateMenuWithDefaultCommands( uiConfigName, menu );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<PdmFieldHandle*> PdmUiCommandSystemProxy::fieldsFromSelection( const std::type_info& fieldOwnerTypeId,
+                                                                           const QString&        fieldKeyword )
+{
+    std::vector<PdmUiItem*>      items;
+    std::vector<PdmFieldHandle*> additionalFieldsToUpdate;
+
+    int selectionLevel = 0;
+    SelectionManager::instance()->selectedItems( items, selectionLevel );
+
+    for ( auto& item : items )
+    {
+        PdmObjectHandle* objectHandle = dynamic_cast<PdmObjectHandle*>( item );
+        if ( objectHandle && typeid( *objectHandle ) == fieldOwnerTypeId )
+        {
+            // An object is selected, find field with same keyword as the current field being edited
+            PdmFieldHandle* fieldHandle = objectHandle->findField( fieldKeyword );
+            if ( fieldHandle )
+            {
+                additionalFieldsToUpdate.push_back( fieldHandle );
+            }
+        }
+        else
+        {
+            // Todo Remove when dust has settled. Selection manager is not supposed to select single fields
+            // A field is selected, check if keywords are identical
+            PdmUiFieldHandle* itemFieldHandle = dynamic_cast<PdmUiFieldHandle*>( item );
+            if ( itemFieldHandle )
+            {
+                PdmFieldHandle* field = itemFieldHandle->fieldHandle();
+                if ( field && field->keyword() == fieldKeyword )
+                {
+                    additionalFieldsToUpdate.push_back( field );
+                }
+            }
+        }
+    }
+
+    return additionalFieldsToUpdate;
 }
 
 } // end namespace caf

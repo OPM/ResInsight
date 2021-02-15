@@ -36,6 +36,9 @@
 
 #pragma once
 
+#include <typeinfo>
+#include <vector>
+
 class QVariant;
 class QMenu;
 class QString;
@@ -58,6 +61,10 @@ public:
     void setUiValueToField( PdmUiFieldHandle* uiFieldHandle, const QVariant& newUiValue );
     void setCurrentContextMenuTargetWidget( QWidget* targetWidget );
     void populateMenuWithDefaultCommands( const QString& uiConfigName, QMenu* menu );
+
+private:
+    static std::vector<PdmFieldHandle*> fieldsFromSelection( const std::type_info& fieldOwnerTypeId,
+                                                             const QString&        fieldKeyword );
 
 private:
     PdmUiCommandSystemInterface* m_commandInterface;
