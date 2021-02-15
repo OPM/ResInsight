@@ -19,8 +19,15 @@
 
 #include "RiaDefines.h"
 #include "RiaInterpolationTools.h"
+#include "RiaLogging.h"
 #include "RiaStimPlanModelDefines.h"
 
+#include "RigWellPath.h"
+#include "RigWellPathGeometryTools.h"
+
+#include "RimModeledWellPath.h"
+#include "RimPressureTable.h"
+#include "RimPressureTableItem.h"
 #include "RimStimPlanModel.h"
 #include "RimStimPlanModelCalculator.h"
 #include "RimStimPlanModelTemplate.h"
@@ -117,14 +124,25 @@ bool RimStimPlanModelPressureCalculator::extractValuesForProperty( RiaDefines::C
         }
     }
 
-    // Extract the property we care about
-    RimStimPlanModelWellLogCalculator::extractValuesForProperty( curveProperty,
-                                                                 stimPlanModel,
-                                                                 timeStep,
-                                                                 values,
-                                                                 measuredDepthValues,
-                                                                 tvDepthValues,
-                                                                 rkbDiff );
+    if ( stimPlanModel->stimPlanModelTemplate()->usePressureTableForProperty( curveProperty ) )
+    {
+        if ( !extractPressureDataFromTable( curveProperty, stimPlanModel, values, measuredDepthValues, tvDepthValues ) )
+        {
+            RiaLogging::error( "Unable to extract pressure data from table" );
+            return false;
+        }
+    }
+    else
+    {
+        // Extract the property we care about
+        RimStimPlanModelWellLogCalculator::extractValuesForProperty( curveProperty,
+                                                                     stimPlanModel,
+                                                                     timeStep,
+                                                                     values,
+                                                                     measuredDepthValues,
+                                                                     tvDepthValues,
+                                                                     rkbDiff );
+    }
 
     if ( staticTvDepthValues.size() != tvDepthValues.size() )
     {
@@ -229,6 +247,60 @@ bool RimStimPlanModelPressureCalculator::extractValuesForProperty( RiaDefines::C
             }
         }
     }
+
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimStimPlanModelPressureCalculator::extractPressureDataFromTable( RiaDefines::CurveProperty curveProperty,
+                                                                       const RimStimPlanModel*   stimPlanModel,
+                                                                       std::vector<double>&      values,
+                                                                       std::vector<double>&      measuredDepthValues,
+                                                                       std::vector<double>&      tvDepthValues ) const
+{
+    RimStimPlanModelTemplate* stimPlanModelTemplate = stimPlanModel->stimPlanModelTemplate();
+    if ( !stimPlanModelTemplate ) return false;
+
+    RimPressureTable* pressureTable = stimPlanModelTemplate->pressureTable();
+    if ( !pressureTable ) return false;
+
+    std::vector<RimPressureTableItem*> items = pressureTable->items();
+    if ( items.empty() ) return false;
+
+    if ( !stimPlanModel->thicknessDirectionWellPath() )
+    {
+        return false;
+    }
+
+    RigWellPath* wellPathGeometry = stimPlanModel->thicknessDirectionWellPath()->wellPathGeometry();
+    if ( !wellPathGeometry )
+    {
+        RiaLogging::error( "No well path geometry found for pressure data table." );
+        return false;
+    }
+
+    // Convert table data into a "fake" well log extraction
+    for ( RimPressureTableItem* item : items )
+    {
+        if ( curveProperty == RiaDefines::CurveProperty::INITIAL_PRESSURE )
+            values.push_back( item->initialPressure() );
+        else
+        {
+            values.push_back( item->pressure() );
+        }
+
+        tvDepthValues.push_back( item->depth() );
+    }
+
+    // Interpolate MDs from the tvd data from the table and well path geometry
+    const std::vector<double>& mdValuesOfWellPath  = wellPathGeometry->measuredDepths();
+    const std::vector<double>& tvdValuesOfWellPath = wellPathGeometry->trueVerticalDepths();
+
+    measuredDepthValues =
+        RigWellPathGeometryTools::interpolateMdFromTvd( mdValuesOfWellPath, tvdValuesOfWellPath, tvDepthValues );
+    CVF_ASSERT( measuredDepthValues.size() == tvDepthValues.size() );
 
     return true;
 }

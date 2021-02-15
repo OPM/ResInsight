@@ -85,6 +85,8 @@ ${CMAKE_CURRENT_LIST_DIR}/RicThemeColorEditorFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicNewVfpPlotFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicNewCustomObjectiveFunctionFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicNewCustomObjectiveFunctionWeightFeature.h
+${CMAKE_CURRENT_LIST_DIR}/RicNewPressureTableItemFeature.h
+${CMAKE_CURRENT_LIST_DIR}/RicDeletePressureTableItemFeature.h
 )
 
 
@@ -174,6 +176,8 @@ ${CMAKE_CURRENT_LIST_DIR}/RicThemeColorEditorFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicNewVfpPlotFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicNewCustomObjectiveFunctionFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicNewCustomObjectiveFunctionWeightFeature.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicNewPressureTableItemFeature.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicDeletePressureTableItemFeature.cpp
 )
 
 if(Qt5Charts_FOUND)
