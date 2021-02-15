@@ -325,7 +325,7 @@ QwtSpline RigWellPathGeometryTools::createSpline( const std::vector<double>& ori
     // Extend spline from 0.0 (if it does not already exist) to a large value for MD
     // This is to force a specific and known extrapolation.
     // Otherwise we get an undefined and unknown extrapolation.
-    if ( !( splinePoints[0].x() == 0.0 && splinePoints[0].y() == 0.0 ) )
+    if ( !( splinePoints[0].x() == 0.0 ) )
     {
         double x1 = splinePoints[0].x();
         double x2 = splinePoints[1].x();
