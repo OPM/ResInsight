@@ -101,6 +101,7 @@
 #include "RimPlotDataFilterCollection.h"
 #include "RimPlotDataFilterItem.h"
 #include "RimPltPlotCollection.h"
+#include "RimPressureTable.h"
 #include "RimProject.h"
 #include "RimRftPlotCollection.h"
 #include "RimSaturationPressurePlotCollection.h"
@@ -434,6 +435,10 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicNewStimPlanModelFeature";
             menuBuilder << "RicNewStimPlanModelPlotFeature";
             menuBuilder << "RicExportStimPlanModelToFileFeature";
+        }
+        else if ( dynamic_cast<RimPressureTable*>( firstUiItem ) )
+        {
+            menuBuilder << "RicNewPressureTableItemFeature";
         }
         else if ( dynamic_cast<RimStimPlanModelCollection*>( firstUiItem ) )
         {

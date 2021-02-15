@@ -33,6 +33,7 @@
 #include "RimFaciesInitialPressureConfig.h"
 #include "RimFaciesProperties.h"
 #include "RimNonNetLayers.h"
+#include "RimPressureTable.h"
 #include "RimProject.h"
 #include "RimStimPlanModel.h"
 #include "RimStimPlanModelPlot.h"
@@ -167,6 +168,11 @@ RimStimPlanModelTemplate::RimStimPlanModelTemplate()
     m_faciesInitialPressureConfigs.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
     m_faciesInitialPressureConfigs.uiCapability()->setUiTreeChildrenHidden( true );
 
+    CAF_PDM_InitScriptableFieldNoDefault( &m_pressureTable, "PressureTable", "Pressure Table", "", "", "" );
+    // m_pressureTable.uiCapability()->setUiHidden( true );
+    // m_pressureTable.uiCapability()->setUiTreeHidden( true );
+    setPressureTable( new RimPressureTable );
+
     CAF_PDM_InitScriptableFieldNoDefault( &m_elasticProperties, "ElasticProperties", "Elastic Properties", "", "", "" );
     m_elasticProperties.uiCapability()->setUiHidden( true );
     m_elasticProperties.uiCapability()->setUiTreeHidden( true );
@@ -297,6 +303,10 @@ void RimStimPlanModelTemplate::defineUiOrdering( QString uiConfigName, caf::PdmU
 
     caf::PdmUiOrdering* faciesInitialPressureGroup = uiOrdering.addNewGroup( "Facies With Initial Pressure" );
     faciesInitialPressureGroup->add( &m_faciesInitialPressureConfigs );
+
+    caf::PdmUiOrdering* pressureTableGroup = uiOrdering.addNewGroup( "Pressure Table" );
+    pressureTableGroup->add( &m_pressureTable );
+
     uiOrdering.skipRemainingFields( true );
 }
 
@@ -440,6 +450,33 @@ void RimStimPlanModelTemplate::setNonNetLayers( RimNonNetLayers* nonNetLayers )
 RimNonNetLayers* RimStimPlanModelTemplate::nonNetLayers() const
 {
     return m_nonNetLayers;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimStimPlanModelTemplate::setPressureTable( RimPressureTable* pressureTable )
+{
+    if ( m_pressureTable )
+    {
+        m_pressureTable->changed.disconnect( this );
+    }
+
+    m_pressureTable = pressureTable;
+
+    if ( m_pressureTable )
+    {
+        // TODO: make separate handler???
+        m_pressureTable->changed.connect( this, &RimStimPlanModelTemplate::nonNetLayersChanged );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimPressureTable* RimStimPlanModelTemplate::pressureTable() const
+{
+    return m_pressureTable;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -763,4 +800,12 @@ std::map<int, double> RimStimPlanModelTemplate::faciesWithInitialPressure() cons
     }
 
     return valueFractionMap;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimStimPlanModelTemplate::usePressureTableForProperty( RiaDefines::CurveProperty curveProperty ) const
+{
+    return true;
 }

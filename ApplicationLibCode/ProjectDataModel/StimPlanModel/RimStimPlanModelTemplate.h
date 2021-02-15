@@ -38,6 +38,7 @@ class RigEclipseCaseData;
 class RimFaciesProperties;
 class RimNonNetLayers;
 class RimFaciesInitialPressureConfig;
+class RimPressureTable;
 
 //==================================================================================================
 ///
@@ -108,7 +109,12 @@ public:
     void             setNonNetLayers( RimNonNetLayers* nonNetLayers );
     RimNonNetLayers* nonNetLayers() const;
 
+    void              setPressureTable( RimPressureTable* pressureTable );
+    RimPressureTable* pressureTable() const;
+
     void updateReferringPlots();
+
+    bool usePressureTableForProperty( RiaDefines::CurveProperty curveProperty ) const;
 
 protected:
     void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
@@ -158,4 +164,5 @@ private:
     caf::PdmChildField<RimNonNetLayers*>      m_nonNetLayers;
 
     caf::PdmChildArrayField<RimFaciesInitialPressureConfig*> m_faciesInitialPressureConfigs;
+    caf::PdmChildField<RimPressureTable*>                    m_pressureTable;
 };

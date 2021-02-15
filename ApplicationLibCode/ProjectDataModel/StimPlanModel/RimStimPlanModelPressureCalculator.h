@@ -47,4 +47,10 @@ protected:
                                    std::vector<double>&      measuredDepthValues,
                                    std::vector<double>&      tvDepthValues,
                                    double&                   rkbDiff ) const override;
+
+    bool extractPressureDataFromTable( RiaDefines::CurveProperty curveProperty,
+                                       const RimStimPlanModel*   stimPlanModel,
+                                       std::vector<double>&      values,
+                                       std::vector<double>&      measuredDepthValues,
+                                       std::vector<double>&      tvDepthValues ) const;
 };
