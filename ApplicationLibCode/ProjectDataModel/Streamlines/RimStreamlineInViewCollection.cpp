@@ -5,7 +5,7 @@
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
-//  (at your option) any later version.
+//  (at your option) any later versio<n.
 //
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
@@ -612,12 +612,23 @@ void RimStreamlineInViewCollection::fieldChangedByUi( const caf::PdmFieldHandle*
     {
         return;
     }
-
-    if ( changedField == &m_visualizationMode &&
-         qvariant_cast<int>( newValue ) != static_cast<int>( VisualizationMode::VECTORS ) &&
-         qvariant_cast<int>( oldValue ) != static_cast<int>( VisualizationMode::VECTORS ) )
+    else if ( changedField == &m_visualizationMode &&
+              qvariant_cast<int>( newValue ) != static_cast<int>( VisualizationMode::VECTORS ) &&
+              qvariant_cast<int>( oldValue ) != static_cast<int>( VisualizationMode::VECTORS ) )
     {
         return;
+    }
+    else if ( changedField == &m_isActive )
+    {
+        RimEclipseView* eclView = nullptr;
+        this->firstAncestorOrThisOfType( eclView );
+        if ( eclView )
+        {
+            if ( m_isActive() )
+                eclView->requestAnimationTimer();
+            else
+                eclView->releaseAnimationTimer();
+        }
     }
 
     updateStreamlines();

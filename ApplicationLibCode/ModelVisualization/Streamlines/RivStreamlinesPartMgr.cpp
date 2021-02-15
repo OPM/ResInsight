@@ -839,7 +839,7 @@ double RivStreamlinesPartMgr::StreamlineVisualization::getApproximatedTotalLengt
 {
     if ( areTValuesComputed ) return approximatedTotalLength;
     double totalLength = 0.0;
-    for ( auto segment : segments )
+    for ( auto& segment : segments )
     {
         totalLength += segment.getChordLength();
     }

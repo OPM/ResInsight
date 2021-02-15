@@ -87,6 +87,8 @@ CAF_PDM_XML_ABSTRACT_SOURCE_INIT( Rim3dView, "View", "GenericView" ); // Do not 
 Rim3dView::Rim3dView( void )
     : updateAnimations( this )
     , m_isCallingUpdateDisplayModelForCurrentTimestepAndRedraw( false )
+    , m_animationIntervalMillisec( 50 )
+    , m_animationTimerUsers( 0 )
 {
     RiaApplication* app         = RiaApplication::instance();
     RiaPreferences* preferences = app->preferences();
@@ -178,13 +180,12 @@ Rim3dView::Rim3dView( void )
 
     this->setAs3DViewMdiWindow();
 
-    // Every 50ms, send a signal for updating animations.
+    // Every timer tick, send a signal for updating animations.
     // Any animation is supposed to connect to this signal
     // in order to having only one central animation driver.
     m_animationTimer = std::make_unique<QTimer>( new QTimer() );
-    m_animationTimer->setInterval( 50 );
+    m_animationTimer->setInterval( m_animationIntervalMillisec );
     QObject::connect( m_animationTimer.get(), &QTimer::timeout, [this]() { updateAnimations.send(); } );
-    m_animationTimer->start();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -213,6 +214,19 @@ Rim3dView::~Rim3dView( void )
 int Rim3dView::id() const
 {
     return m_id;
+}
+
+void Rim3dView::requestAnimationTimer()
+{
+    m_animationTimerUsers++;
+    if ( m_animationTimerUsers == 1 ) m_animationTimer->start();
+}
+
+void Rim3dView::releaseAnimationTimer()
+{
+    m_animationTimerUsers--;
+    CAF_ASSERT( m_animationTimerUsers >= 0 );
+    if ( m_animationTimerUsers == 0 ) m_animationTimer->stop();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -381,8 +395,9 @@ void Rim3dView::updateMdiWindowTitle()
 {
     if ( m_viewer )
     {
-        m_viewer->layoutWidget()->setWindowTitle(
-            autoName() + ( isMasterView() ? " (Primary)" : viewController() ? " (Controlled)" : "" ) );
+        m_viewer->layoutWidget()->setWindowTitle( autoName() + ( isMasterView()     ? " (Primary)"
+                                                                 : viewController() ? " (Controlled)"
+                                                                                    : "" ) );
     }
 }
 
@@ -1068,8 +1083,8 @@ void Rim3dView::updateGridBoxData()
     {
         using BBox = cvf::BoundingBox;
 
-        BBox masterDomainBBox = isShowingActiveCellsOnly() ? ownerCase()->activeCellsBoundingBox()
-                                                           : ownerCase()->allCellsBoundingBox();
+        BBox masterDomainBBox   = isShowingActiveCellsOnly() ? ownerCase()->activeCellsBoundingBox()
+                                                             : ownerCase()->allCellsBoundingBox();
         BBox combinedDomainBBox = masterDomainBBox;
 
         if ( Rim3dView* depView = activeComparisonView() )

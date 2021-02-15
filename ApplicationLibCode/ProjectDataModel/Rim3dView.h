@@ -91,8 +91,6 @@ public:
 
     int id() const final;
 
-    caf::Signal<> updateAnimations;
-
     // Public fields:
 
     caf::PdmField<double> scaleZ;
@@ -146,13 +144,18 @@ public:
     void   zoomAll() override;
     void   forceShowWindowOn();
 
-    // Animation
+    // Timestep control
     int     currentTimeStep() const;
     void    setCurrentTimeStep( int frameIdx );
     void    setCurrentTimeStepAndUpdate( int frameIdx ) override;
     bool    isTimeStepDependentDataVisibleInThisOrComparisonView() const;
     size_t  timeStepCount();
     QString timeStepName( int frameIdx ) const override;
+
+    // Animation control
+    caf::Signal<> updateAnimations;
+    void          requestAnimationTimer();
+    void          releaseAnimationTimer();
 
     // Updating
     void         scheduleCreateDisplayModelAndRedraw();
@@ -319,4 +322,6 @@ private:
 
     // Timer for animations
     std::unique_ptr<QTimer> m_animationTimer;
+    const int               m_animationIntervalMillisec;
+    int                     m_animationTimerUsers;
 };
