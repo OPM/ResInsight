@@ -49,8 +49,6 @@ void RimStreamlineGenerator::generateTracer( RigCell                    cell,
     // calculate the max number of steps based on user settings for length and resolution
     const int maxSteps = (int)( m_maxDays / m_resolution );
 
-    const RigMainGrid* grid = m_dataAccess->grid();
-
     cvf::Vec3d cellCenter = cell.center();
 
     RiaDefines::PhaseType dominantPhase = m_phases.front();
