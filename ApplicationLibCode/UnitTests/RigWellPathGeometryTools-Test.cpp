@@ -74,6 +74,22 @@ TEST( RigWellPathGeometryTools, LinearPathStartingAtZero )
     }
 }
 
+TEST( RigWellPathGeometryTools, ShortLinearPathStartingAtZero )
+{
+    std::vector<double> mdValues         = { 0, 1000.0 };
+    std::vector<double> tvdValues        = { 2000.0, 4000 };
+    std::vector<double> fullTVDValues    = { 0, 2000.0, 3000, 4000.0 };
+    std::vector<double> expectedMDValues = { 0.0, 0.0, 500, 1000.0 };
+
+    std::vector<double> fullMDValues = RigWellPathGeometryTools::interpolateMdFromTvd( mdValues, tvdValues, fullTVDValues );
+
+    EXPECT_EQ( fullTVDValues.size(), fullMDValues.size() );
+    for ( size_t i = 0; i < fullTVDValues.size(); ++i )
+    {
+        EXPECT_NEAR( expectedMDValues[i], fullMDValues[i], TOLERANCE );
+    }
+}
+
 double quadraticFunction( double x )
 {
     return 0.0015 * std::pow( x, 2 ) - 0.25 * x + 100;
