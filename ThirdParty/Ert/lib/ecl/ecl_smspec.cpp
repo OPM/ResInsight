@@ -930,7 +930,7 @@ static const ecl::smspec_node * ecl_smspec_insert_node(ecl_smspec_type * ecl_sms
 
   /* This indexing must be used when writing. */
   ecl_smspec->index_map.push_back(params_index);
-  ecl_smspec->params_default.resize( params_index+1, std::numeric_limits<float>::quiet_NaN());
+  ecl_smspec->params_default.resize( params_index+1, 0.0f);
   ecl_smspec->params_default[params_index] = smspec_node->get_default();
   ecl_smspec->inv_index_map.insert( std::make_pair(params_index, ecl_smspec->smspec_nodes.size()));
 
@@ -1139,7 +1139,7 @@ static bool ecl_smspec_fread_header(ecl_smspec_type * ecl_smspec, const char * h
 
     {
       for (params_index=0; params_index < ecl_kw_get_size(wells); params_index++) {
-        float default_value          = std::numeric_limits<float>::quiet_NaN();
+        float default_value          = 0.0f;
         int num                      = SMSPEC_NUMS_INVALID;
         char * well                  = (char*)util_alloc_strip_copy((const char*)ecl_kw_iget_ptr(wells    , params_index));
         char * kw                    = (char*)util_alloc_strip_copy((const char*)ecl_kw_iget_ptr(keywords , params_index));
