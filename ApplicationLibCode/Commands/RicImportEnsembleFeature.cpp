@@ -84,17 +84,19 @@ void RicImportEnsembleFeature::onActionTriggered( bool isChecked )
     std::vector<RimSummaryCase*> cases;
     RicImportSummaryCasesFeature::createSummaryCasesFromFiles( fileNames, &cases, true );
 
+    if ( cases.empty() ) return;
+
     RicImportSummaryCasesFeature::addSummaryCases( cases );
     RimSummaryCaseCollection* ensemble =
         RicCreateSummaryCaseCollectionFeature::groupSummaryCases( cases, ensembleName, true );
 
-    for ( auto summaryCase : ensemble->allSummaryCases() )
-    {
-        summaryCase->updateAutoShortName();
-    }
-
     if ( ensemble )
     {
+        for ( auto summaryCase : ensemble->allSummaryCases() )
+        {
+            summaryCase->updateAutoShortName();
+        }
+
         RicNewSummaryEnsembleCurveSetFeature::createPlotForCurveSetsAndUpdate( { ensemble } );
     }
 
