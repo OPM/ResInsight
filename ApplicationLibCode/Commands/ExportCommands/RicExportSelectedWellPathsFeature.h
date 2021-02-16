@@ -45,7 +45,7 @@ class RicExportSelectedWellPathsFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
 
-    static void handleAction( const std::vector<RimWellPath*>& wellPaths );
+    static void exportWellPathsToFile( const std::vector<RimWellPath*>& wellPaths );
     static void exportWellPath( gsl::not_null<const RimWellPath*> wellPath,
                                 double                            mdStepSize,
                                 const QString&                    folder,
