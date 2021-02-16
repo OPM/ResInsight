@@ -401,6 +401,8 @@ void RimStreamlineInViewCollection::findStartCells( int                         
 //--------------------------------------------------------------------------------------------------
 void RimStreamlineInViewCollection::updateStreamlines()
 {
+    bool bNeedRedraw = ( m_streamlines.size() > 0 );
+
     // reset generated streamlines
     m_streamlines().clear();
     m_wellCellIds.clear();
@@ -466,9 +468,10 @@ void RimStreamlineInViewCollection::updateStreamlines()
         }
 
         outputSummary();
+        bNeedRedraw = true;
     }
 
-    eclView->loadDataAndUpdate();
+    if ( bNeedRedraw ) eclView->scheduleCreateDisplayModelAndRedraw();
 }
 
 //--------------------------------------------------------------------------------------------------
