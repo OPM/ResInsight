@@ -87,114 +87,11 @@ void RivStreamlinesPartMgr::appendDynamicGeometryPartsToModel( cvf::ModelBasicLi
 
     RimStreamlineInViewCollection* streamlineCollection = m_rimReservoirView->streamlineCollection();
 
-    /*
-    for ( const RigTracer& tracer : streamlineCollection->tracers() )
-    {
-        StreamlineVisualization visualization;
-
-        for ( size_t i = 0; i < tracer.tracerPoints().size() - 1; i++ )
-        {
-            double            pointDistance = 99999999.0;
-            StreamlineSegment segment( tracer.tracerPoints()[i].position(),
-                                       tracer.tracerPoints()[i + 1].position(),
-                                       tracer.tracerPoints()[i].direction(),
-                                       tracer.tracerPoints()[i + 1].direction(),
-                                       tracer.tracerPoints()[i].absValue(),
-                                       tracer.tracerPoints()[i + 1].absValue() );
-            if ( i > 0 )
-            {
-                cvf::Vec3d directionVector =
-                    ( tracer.tracerPoints()[i].position() - visualization.getSegments().back().startPoint
-        ).getNormalized(); double dotProduct = directionVector.getNormalized().dot(
-        tracer.tracerPoints()[i].direction().getNormalized() ); if ( dotProduct >= 0 )
-                {
-                    pointDistance =
-                        tracer.tracerPoints()[i].position().pointDistance( visualization.getSegments().back().startPoint
-        );
-                }
-                else
-                {
-                    pointDistance = tracer.tracerPoints()[i].position().pointDistance(
-                        visualization.getSegments().front().startPoint );
-                }
-                if ( pointDistance >= streamlineCollection->distanceBetweenTracerPoints() )
-                {
-                    if ( dotProduct >= 0 )
-                    {
-                        ( *std::prev( visualization.getSegments().end() ) ).endPoint =
-        tracer.tracerPoints()[i].position(); visualization.appendSegment( segment );
-                    }
-                    else
-                    {
-                        ( *visualization.getSegments().begin() ).endPoint = tracer.tracerPoints()[i].position();
-                        visualization.prependSegment( segment );
-                    }
-                }
-            }
-            else
-            {
-                visualization.appendSegment( segment );
-            }
-        }
-
-        visualization.computeTValues();
-        m_streamlines.push_back( visualization );
-    }
-
-    // createExampleStreamline( streamlineVisualizations );
-
-    for ( StreamlineVisualization& visualization : m_streamlines )
-    {
-        if ( streamlineCollection->visualizationMode() == RimStreamlineInViewCollection::VisualizationMode::VECTORS )
-        {
-            for ( RivStreamlinesPartMgr::StreamlineSegment segment : visualization.getSegments() )
-            {
-                model->addPart( createVectorPart( *streamlineCollection, segment ).p() );
-            }
-        }
-        else if ( visualization.getApproximatedTotalLength() >= streamlineCollection->tracerLength() )
-        {
-            double currentPos = 0.0;
-            while ( currentPos < 1.0 )
-            {
-                double t1 = currentPos;
-                currentPos += streamlineCollection->tracerLength() / visualization.getApproximatedTotalLength();
-                double t2 = std::min<double>( currentPos, 1.0 );
-                CVF_ASSERT( t1 >= 0.0 && t1 <= 1.0 && t2 >= 0.0 && t2 <= 1.0 );
-                if ( streamlineCollection->visualizationMode() ==
-    RimStreamlineInViewCollection::VisualizationMode::CURVES )
-                {
-                    model->addPart( createCurvePart( *streamlineCollection, visualization, t1, t2 ).p() );
-                }
-                else
-                {
-                    model->addPart( createPointsPart( *streamlineCollection, visualization, t1, t2 ).p() );
-                }
-            }
-        }
-    }
-    */
     for ( const RigTracer& tracer : streamlineCollection->tracers() )
     {
         Streamline streamline;
         for ( size_t i = 0; i < tracer.tracerPoints().size() - 1; i++ )
         {
-            /*
-            if ( i > 0 && tracer.tracerPoints()[i].position().pointDistance(
-                              streamline.getTracerPoint( streamline.countTracerPoints() - 1 ) ) >=
-                              streamlineCollection->distanceBetweenTracerPoints() )
-            {
-                streamline.appendTracerPoint( tracer.tracerPoints()[i].position() );
-                streamline.appendAbsVelocity( tracer.tracerPoints()[i].absValue() );
-                streamline.appendDirection( tracer.tracerPoints()[i].direction() );
-            }
-            else if ( i == 0 )
-            {
-                streamline.appendTracerPoint( tracer.tracerPoints()[i].position() );
-                streamline.appendAbsVelocity( tracer.tracerPoints()[i].absValue() );
-                streamline.appendDirection( tracer.tracerPoints()[i].direction() );
-            }
-            */
             streamline.appendTracerPoint( tracer.tracerPoints()[i].position() );
             streamline.appendAbsVelocity( tracer.tracerPoints()[i].absValue() );
             streamline.appendDirection( tracer.tracerPoints()[i].direction() );
@@ -223,25 +120,6 @@ void RivStreamlinesPartMgr::appendDynamicGeometryPartsToModel( cvf::ModelBasicLi
 //--------------------------------------------------------------------------------------------------
 void RivStreamlinesPartMgr::updateAnimation()
 {
-    /*
-    RimStreamlineInViewCollection* streamlineCollection = m_rimReservoirView->streamlineCollection();
-    if ( streamlineCollection &&
-         streamlineCollection->visualizationMode() == RimStreamlineInViewCollection::VisualizationMode::CURVES )
-    {
-        for ( StreamlineVisualization& streamline : m_streamlines )
-        {
-            double              t     = streamline.currentAnimationGlobalT;
-            cvf::ref<cvf::Part> part1 = streamline.getPartAtGlobalT( streamline.currentAnimationGlobalT );
-            streamline.updateAnimationGlobalT( 50.0 * streamlineCollection->animationSpeed() );
-            cvf::ref<cvf::Part> part2 = streamline.getPartAtGlobalT( streamline.currentAnimationGlobalT );
-            if ( part1.p() != part2.p() || t == 0 )
-            {
-                setAlpha( part1, 0.2 );
-                setAlpha( part2, 1.0 );
-            }
-        }
-    }
-    */
     RimStreamlineInViewCollection* streamlineCollection = m_rimReservoirView->streamlineCollection();
     if ( streamlineCollection &&
          ( streamlineCollection->visualizationMode() == RimStreamlineInViewCollection::VisualizationMode::ANIMATION ||
@@ -312,22 +190,26 @@ cvf::ref<cvf::Part> RivStreamlinesPartMgr::createPart( const RimStreamlineInView
     cvf::ref<cvf::Vec3fArray> vertexArray = new cvf::Vec3fArray( vertices );
     drawable->setVertexArray( vertexArray.p() );
 
-    cvf::ref<cvf::Vec2fArray> lineTexCoords = const_cast<cvf::Vec2fArray*>( drawable->textureCoordArray() );
+    // cvf::ref<cvf::Vec2fArray> lineTexCoords = const_cast<cvf::Vec2fArray*>( drawable->textureCoordArray() );
 
-    if ( lineTexCoords.isNull() )
-    {
-        lineTexCoords = new cvf::Vec2fArray;
-    }
+    // if ( lineTexCoords.isNull() )
+    //{
+    //    lineTexCoords = new cvf::Vec2fArray;
+    //}
 
-    cvf::ref<cvf::Effect> effect;
+    // cvf::ref<cvf::Effect> effect;
 
-    const cvf::ScalarMapper* activeScalarMapper = streamlineCollection.legendConfig()->scalarMapper();
-    createResultColorTextureCoords( lineTexCoords.p(), streamline, activeScalarMapper );
+    // const cvf::ScalarMapper* activeScalarMapper = streamlineCollection.legendConfig()->scalarMapper();
+    // createResultColorTextureCoords( lineTexCoords.p(), streamline, activeScalarMapper );
 
-    caf::ScalarMapperMeshEffectGenerator meshEffGen( activeScalarMapper );
-    effect = meshEffGen.generateCachedEffect();
+    // caf::ScalarMapperMeshEffectGenerator meshEffGen( activeScalarMapper );
+    // effect = meshEffGen.generateCachedEffect();
 
-    drawable->setTextureCoordArray( lineTexCoords.p() );
+    caf::MeshEffectGenerator effgen( cvf::Color3f( 0.0, 0.0, 0.95 ) );
+    effgen.setLineWidth( 2 );
+    cvf::ref<cvf::Effect> effect = effgen.generateCachedEffect();
+
+    // drawable->setTextureCoordArray( lineTexCoords.p() );
 
     cvf::ref<cvf::Part> part = new cvf::Part;
     part->setDrawable( drawable.p() );
@@ -378,58 +260,6 @@ void RivStreamlinesPartMgr::createResultColorTextureCoords( cvf::Vec2fArray*    
             }
         }
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-cvf::ref<cvf::Part> RivStreamlinesPartMgr::createCurvePart( const RimStreamlineInViewCollection& streamlineCollection,
-                                                            StreamlineVisualization& streamlineVisualization,
-                                                            const double             t1,
-                                                            const double             t2 )
-{
-    cvf::ref<caf::DisplayCoordTransform> displayCordXf = m_rimReservoirView->displayCoordTransform();
-
-    std::vector<uint> lineIndices;
-    lineIndices.reserve( 2 );
-
-    std::vector<cvf::Vec3f> vertices;
-    vertices.reserve( 2 );
-
-    cvf::Vec3f anchorPoint =
-        cvf::Vec3f( displayCordXf->transformToDisplayCoord( streamlineVisualization.getPointAt( t1 ) ) );
-    cvf::Vec3f endPoint = cvf::Vec3f( displayCordXf->transformToDisplayCoord( streamlineVisualization.getPointAt( t2 ) ) );
-
-    vertices.push_back( anchorPoint );
-    vertices.push_back( endPoint );
-
-    lineIndices.push_back( 0 );
-    lineIndices.push_back( 1 );
-
-    cvf::ref<cvf::PrimitiveSetIndexedUInt> indexedUIntLine =
-        new cvf::PrimitiveSetIndexedUInt( cvf::PrimitiveType::PT_LINES );
-    cvf::ref<cvf::UIntArray> indexedArrayLine = new cvf::UIntArray( lineIndices );
-
-    cvf::ref<cvf::DrawableGeo> drawable = new cvf::DrawableGeo();
-
-    indexedUIntLine->setIndices( indexedArrayLine.p() );
-    drawable->addPrimitiveSet( indexedUIntLine.p() );
-
-    cvf::ref<cvf::Vec3fArray> vertexArray = new cvf::Vec3fArray( vertices );
-    drawable->setVertexArray( vertexArray.p() );
-
-    cvf::ref<cvf::Effect> effect;
-
-    caf::SurfaceEffectGenerator surfaceGen( cvf::Color4f( 0.2f, 0.2f, 0.2f, 1 ), caf::PO_1 );
-    surfaceGen.enableLighting( false );
-    effect = surfaceGen.generateCachedEffect();
-
-    cvf::ref<cvf::Part> part = new cvf::Part;
-    part->setDrawable( drawable.p() );
-    part->setEffect( effect.p() );
-    part->updateBoundingBox();
-    streamlineVisualization.appendPart( part.p(), t1 );
-    return part;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -516,78 +346,6 @@ cvf::ref<cvf::Part> RivStreamlinesPartMgr::createVectorPart( const RimStreamline
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::ref<cvf::Part> RivStreamlinesPartMgr::createPointsPart( const RimStreamlineInViewCollection& streamlineCollection,
-                                                             StreamlineVisualization& streamlineVisualization,
-                                                             const double             t1,
-                                                             const double             t2 )
-{
-    cvf::ref<caf::DisplayCoordTransform> displayCordXf = m_rimReservoirView->displayCoordTransform();
-
-    std::vector<uint> lineIndices;
-    lineIndices.reserve( 2 );
-
-    std::vector<uint> pointIndices;
-    pointIndices.reserve( 4 );
-
-    std::vector<cvf::Vec3f> vertices;
-    vertices.reserve( 6 );
-
-    cvf::Vec3f anchorPoint =
-        cvf::Vec3f( displayCordXf->transformToDisplayCoord( streamlineVisualization.getPointAt( t1 ) ) );
-    cvf::Vec3f endPoint = cvf::Vec3f( displayCordXf->transformToDisplayCoord( streamlineVisualization.getPointAt( t2 ) ) );
-
-    vertices.push_back( anchorPoint );
-    vertices.push_back( endPoint );
-
-    cvf::Vec3f lineDirection = cvf::Vec3f( streamlineVisualization.getDirectionAt( t1 ) ) ^ anchorPoint;
-
-    vertices.push_back( anchorPoint + lineDirection.getNormalized() * 1.5 );
-    vertices.push_back( anchorPoint - lineDirection.getNormalized() * 1.5 );
-    vertices.push_back( endPoint + lineDirection.getNormalized() * 1.5 );
-    vertices.push_back( endPoint - lineDirection.getNormalized() * 1.5 );
-
-    lineIndices.push_back( 0 );
-    lineIndices.push_back( 1 );
-
-    pointIndices.push_back( 2 );
-    pointIndices.push_back( 3 );
-    pointIndices.push_back( 4 );
-    pointIndices.push_back( 5 );
-
-    cvf::ref<cvf::PrimitiveSetIndexedUInt> indexedUIntLine =
-        new cvf::PrimitiveSetIndexedUInt( cvf::PrimitiveType::PT_LINES );
-    cvf::ref<cvf::UIntArray> indexedArrayLine = new cvf::UIntArray( lineIndices );
-
-    cvf::ref<cvf::PrimitiveSetIndexedUInt> indexedUIntPoints =
-        new cvf::PrimitiveSetIndexedUInt( cvf::PrimitiveType::PT_LINES );
-    cvf::ref<cvf::UIntArray> indexedArrayPoints = new cvf::UIntArray( pointIndices );
-
-    cvf::ref<cvf::DrawableGeo> drawable = new cvf::DrawableGeo();
-
-    indexedUIntLine->setIndices( indexedArrayLine.p() );
-    drawable->addPrimitiveSet( indexedUIntLine.p() );
-
-    indexedUIntPoints->setIndices( indexedArrayPoints.p() );
-    drawable->addPrimitiveSet( indexedUIntPoints.p() );
-
-    cvf::ref<cvf::Vec3fArray> vertexArray = new cvf::Vec3fArray( vertices );
-    drawable->setVertexArray( vertexArray.p() );
-
-    cvf::ref<cvf::Effect> effect;
-
-    caf::SurfaceEffectGenerator surfaceGen( cvf::Color4f( 1, 1, 1, 1 ), caf::PO_1 );
-    surfaceGen.enableLighting( false );
-    effect = surfaceGen.generateCachedEffect();
-
-    cvf::ref<cvf::Part> part = new cvf::Part;
-    part->setDrawable( drawable.p() );
-    part->updateBoundingBox();
-    return part;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 std::array<cvf::Vec3f, 7> RivStreamlinesPartMgr::createArrowVertices( const cvf::Vec3f anchorPoint,
                                                                       const cvf::Vec3f direction ) const
 {
@@ -650,44 +408,6 @@ std::array<uint, 6> RivStreamlinesPartMgr::createArrowHeadIndices( uint startInd
     indices[5] = startIndex + 4;
     return indices;
 }
-
-/*
-//--------------------------------------------------------------------------------------------------
-/// This is just a test function creating a visible streamline.
-//--------------------------------------------------------------------------------------------------
-void RivStreamlinesPartMgr::createExampleStreamline( std::vector<StreamlineVisualization>& streamlineVisualizations
-)
-{
-    cvf::ref<caf::DisplayCoordTransform> displayCordXf = m_rimReservoirView->displayCoordTransform();
-
-    // Take one random cell
-    RimEclipseCase* eclipseCase = m_rimReservoirView->eclipseCase();
-    if ( !eclipseCase ) return;
-    const std::vector<RigCell>& cells  = eclipseCase->mainGrid()->globalCellArray();
-    size_t                      index  = cells.size() / 2;
-    const RigCell               cell   = cells[index];
-    double                      length = eclipseCase->characteristicCellSize();
-
-    StreamlineVisualization streamline;
-
-    cvf::Vec3d startPoint = displayCordXf->transformToDisplayCoord( cell.center() );
-    cvf::Vec3d endPoint   = displayCordXf->transformToDisplayCoord( cell.center() + cvf::Vec3d::X_AXIS * length
-* 10.0 + cvf::Vec3d::Y_AXIS * length * 5.0 ); cvf::Vec3d startDirection = cvf::Vec3d::X_AXIS * length * 5.0;
-cvf::Vec3d endDirection   = ( cvf::Vec3d::X_AXIS + cvf::Vec3d::Y_AXIS ) * length * 10.0; streamline.appendSegment(
-StreamlineSegment( startPoint, endPoint, startDirection, endDirection ) );
-
-    startPoint     = endPoint;
-    endPoint       = startPoint + cvf::Vec3d::X_AXIS * length * 10.0 + cvf::Vec3d::Y_AXIS * length * 8.0;
-    startDirection = endDirection;
-    endDirection   = cvf::Vec3d::Y_AXIS * length * 5.0;
-
-    streamline.appendSegment( StreamlineSegment( startPoint, endPoint, startDirection, endDirection ) );
-
-    streamline.computeTValues();
-
-    streamlineVisualizations.push_back( streamline );
-}
-*/
 
 //--------------------------------------------------------------------------------------------------
 ///
