@@ -36,12 +36,11 @@
 
 #include "cafPdmUiPropertyViewDialog.h"
 #include "cafSelectionManagerTools.h"
+#include "cafUtils.h"
 
 #include <QAction>
 #include <QDir>
 #include <QFileInfo>
-
-#include <cafUtils.h>
 
 #include <memory>
 
@@ -55,9 +54,11 @@ void RicExportSelectedWellPathsFeature::exportWellPath( gsl::not_null<const RimW
                                                         const QString&                    folder,
                                                         bool                              writeProjectInfo )
 {
-    auto fileName = wellPath->name() + ".dev";
-    auto filePtr  = openFileForExport( folder, fileName );
-    auto stream   = createOutputFileStream( *filePtr );
+    auto fileName = caf::Utils::makeValidFileBasename( wellPath->name() );
+    fileName += ".dev";
+
+    auto filePtr = openFileForExport( folder, fileName );
+    auto stream  = createOutputFileStream( *filePtr );
 
     std::vector<double> xValues;
     std::vector<double> yValues;
@@ -69,6 +70,8 @@ void RicExportSelectedWellPathsFeature::exportWellPath( gsl::not_null<const RimW
 
     writeWellPathGeometryToStream( *stream, wellPath->name(), xValues, yValues, tvdValues, mdValues, useMdRkb, writeProjectInfo );
     filePtr->close();
+
+    RiaLogging::info( QString( "Exported well geometry to %1" ).arg( filePtr->fileName() ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -172,7 +175,7 @@ QTextStreamPtr RicExportSelectedWellPathsFeature::createOutputFileStream( QFile&
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicExportSelectedWellPathsFeature::handleAction( const std::vector<RimWellPath*>& wellPaths )
+void RicExportSelectedWellPathsFeature::exportWellPathsToFile( const std::vector<RimWellPath*>& wellPaths )
 {
     if ( !wellPaths.empty() )
     {
@@ -211,7 +214,7 @@ void RicExportSelectedWellPathsFeature::onActionTriggered( bool isChecked )
 {
     std::vector<RimWellPath*> wellPaths = caf::selectedObjectsByTypeStrict<RimWellPath*>();
 
-    handleAction( wellPaths );
+    exportWellPathsToFile( wellPaths );
 }
 
 //--------------------------------------------------------------------------------------------------

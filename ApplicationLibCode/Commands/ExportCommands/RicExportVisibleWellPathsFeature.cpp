@@ -58,7 +58,7 @@ void RicExportVisibleWellPathsFeature::onActionTriggered( bool isChecked )
 {
     std::vector<RimWellPath*> wellPaths = RicExportCompletionsForVisibleWellPathsFeature::visibleWellPaths();
 
-    RicExportSelectedWellPathsFeature::handleAction( wellPaths );
+    RicExportSelectedWellPathsFeature::exportWellPathsToFile( wellPaths );
 }
 
 //--------------------------------------------------------------------------------------------------
