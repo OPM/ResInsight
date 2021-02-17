@@ -41,11 +41,14 @@
 
 #include "cafPdmFieldCvfVec3d.h"
 #include "cafPdmFieldScriptingCapabilityCvfVec3d.h"
+
 #include "cafPdmObjectScriptingCapability.h"
 #include "cafPdmUiDoubleValueEditor.h"
+#include "cafPdmUiItem.h"
 #include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiTableViewEditor.h"
 #include "cafPdmUiToolButtonEditor.h"
+#include "cafPdmUiTreeOrdering.h"
 #include "cafPdmUiTreeSelectionEditor.h"
 
 #include "cvfBoundingBox.h"
@@ -169,12 +172,12 @@ RimStimPlanModelTemplate::RimStimPlanModelTemplate()
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_faciesInitialPressureConfigs,
                                           "FaciesInitialPressureConfigs",
-                                          "FaciesInitialPressureConfigs",
+                                          "Facies Initial Pressure Configs",
                                           "",
                                           "",
                                           "" );
     m_faciesInitialPressureConfigs.uiCapability()->setUiEditorTypeName( caf::PdmUiTableViewEditor::uiEditorTypeName() );
-    m_faciesInitialPressureConfigs.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
+    m_faciesInitialPressureConfigs.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
     m_faciesInitialPressureConfigs.uiCapability()->setUiTreeChildrenHidden( true );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_pressureTable, "PressureTable", "Pressure Table", "", "", "" );
@@ -316,6 +319,20 @@ void RimStimPlanModelTemplate::defineUiOrdering( QString uiConfigName, caf::PdmU
     faciesInitialPressureGroup->add( &m_faciesInitialPressureConfigs );
 
     uiOrdering.skipRemainingFields( true );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimStimPlanModelTemplate::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering,
+                                                     QString                 uiConfigName /*= ""*/ )
+{
+    if ( m_elasticProperties ) uiTreeOrdering.add( m_elasticProperties );
+    if ( m_faciesProperties ) uiTreeOrdering.add( m_faciesProperties );
+    if ( m_pressureTable ) uiTreeOrdering.add( m_pressureTable );
+    if ( m_nonNetLayers ) uiTreeOrdering.add( m_nonNetLayers );
+
+    uiTreeOrdering.skipRemainingChildren( true );
 }
 
 //--------------------------------------------------------------------------------------------------
