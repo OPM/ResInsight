@@ -52,6 +52,8 @@
 
 #include <cmath>
 
+#include <QString>
+
 CAF_PDM_SOURCE_INIT( RimStimPlanModelTemplate, "StimPlanModelTemplate" );
 
 //--------------------------------------------------------------------------------------------------
@@ -411,6 +413,8 @@ void RimStimPlanModelTemplate::setFaciesProperties( RimFaciesProperties* faciesP
                 if ( !exists )
                 {
                     RimFaciesInitialPressureConfig* fipConfig = new RimFaciesInitialPressureConfig;
+                    bool enableInitialPressureConfig = shouldProbablyUseInitialPressure( item->categoryName() );
+                    fipConfig->setEnabled( enableInitialPressureConfig );
                     fipConfig->setFaciesName( item->categoryName() );
                     fipConfig->setFaciesValue( item->categoryValue() );
                     m_faciesInitialPressureConfigs.push_back( fipConfig );
@@ -426,6 +430,12 @@ void RimStimPlanModelTemplate::setFaciesProperties( RimFaciesProperties* faciesP
 
         m_faciesProperties->setEclipseCase( eclipseCase );
     }
+}
+
+bool RimStimPlanModelTemplate::shouldProbablyUseInitialPressure( const QString& faciesName )
+{
+    return faciesName.compare( "Shale", Qt::CaseInsensitive ) == 0 ||
+           faciesName.compare( "Calcite", Qt::CaseInsensitive ) == 0;
 }
 
 //--------------------------------------------------------------------------------------------------
