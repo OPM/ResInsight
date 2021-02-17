@@ -77,8 +77,6 @@ protected:
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
                                                          bool*                      useOptionsOnly ) override;
 
-    RiaSummaryCurveDefinitionAnalyser* getOrCreateSelectedCurveDefAnalyser();
-
     std::set<RifEclipseSummaryAddress> addresses();
     std::set<EnsembleParameter>        ensembleParameters();
     std::set<EnsembleParameter>        variationSortedEnsembleParameters();
@@ -112,7 +110,8 @@ protected:
 
     static time_t timeDiff( time_t lhs, time_t rhs );
 
-    QString selectedVarsText();
+    QString selectedQuantitiesText();
+    QString completeAddressText();
 
     void initAfterRead() final;
 
@@ -140,4 +139,7 @@ protected:
     caf::PdmField<caf::FontTools::RelativeSizeEnum> m_labelFontSize;
     caf::PdmField<caf::FontTools::RelativeSizeEnum> m_axisTitleFontSize;
     caf::PdmField<caf::FontTools::RelativeSizeEnum> m_axisValueFontSize;
+
+private:
+    RiaSummaryCurveDefinitionAnalyser* getOrCreateSelectedCurveDefAnalyser();
 };

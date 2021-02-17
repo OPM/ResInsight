@@ -74,6 +74,6 @@ public:
     std::set<RimSummaryCase*>           m_singleSummaryCases; // All summary cases used
     std::set<RimSummaryCaseCollection*> m_ensembles; // All the ensembles referenced by the summary cases
 
-    std::set<RifEclipseSummaryAddress> m_summaryItems; // Quantity name set to "", stores only the identifiers
+    std::set<RifEclipseSummaryAddress> m_summaryAdresses;
     std::set<std::string>              m_quantityNames; // Quantity names from the addresses
 };
