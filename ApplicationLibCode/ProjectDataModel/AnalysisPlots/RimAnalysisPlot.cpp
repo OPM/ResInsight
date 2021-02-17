@@ -664,7 +664,7 @@ QList<caf::PdmOptionItemInfo> RimAnalysisPlot::calculateValueOptions( const caf:
     {
         options.push_back( caf::PdmOptionItemInfo( SortGroupAppEnum::uiText( NONE ), NONE ) );
         QStringList currentSummaryItems;
-        for ( auto summaryAddr : getOrCreateSelectedCurveDefAnalyser()->m_summaryItems )
+        for ( auto summaryAddr : getOrCreateSelectedCurveDefAnalyser()->m_summaryAdresses )
         {
             currentSummaryItems.push_back( QString::fromStdString( summaryAddr.itemUiText() ) );
         }
@@ -1620,11 +1620,11 @@ void RimAnalysisPlot::updatePlotTitle()
             }
         }
 
-        if ( getOrCreateSelectedCurveDefAnalyser()->m_summaryItems.size() == 1 )
+        if ( getOrCreateSelectedCurveDefAnalyser()->m_summaryAdresses.size() == 1 )
         {
             if ( !autoTitle.isEmpty() ) autoTitle += separator;
             autoTitle +=
-                QString::fromStdString( getOrCreateSelectedCurveDefAnalyser()->m_summaryItems.begin()->itemUiText() );
+                QString::fromStdString( getOrCreateSelectedCurveDefAnalyser()->m_summaryAdresses.begin()->itemUiText() );
         }
 
         for ( std::string quantName : getOrCreateSelectedCurveDefAnalyser()->m_quantityNames )

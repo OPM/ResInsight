@@ -115,7 +115,7 @@ void RimParameterResultCrossPlot::fieldChangedByUi( const caf::PdmFieldHandle* c
 //--------------------------------------------------------------------------------------------------
 void RimParameterResultCrossPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    m_selectedVarsUiField = selectedVarsText();
+    m_selectedVarsUiField = selectedQuantitiesText();
 
     caf::PdmUiGroup* curveDataGroup = uiOrdering.addNewGroup( "Summary Vector" );
     curveDataGroup->add( &m_selectedVarsUiField );
@@ -165,7 +165,7 @@ void RimParameterResultCrossPlot::onLoadDataAndUpdate()
 {
     updateMdiWindowVisibility();
 
-    m_selectedVarsUiField = selectedVarsText();
+    m_selectedVarsUiField = selectedQuantitiesText();
 
     if ( m_plotWidget && m_analyserOfSelectedCurveDefs )
     {
@@ -191,7 +191,7 @@ void RimParameterResultCrossPlot::updateAxes()
 {
     if ( !m_plotWidget ) return;
 
-    m_plotWidget->setAxisTitleText( QwtPlot::yLeft, m_selectedVarsUiField );
+    m_plotWidget->setAxisTitleText( QwtPlot::yLeft, completeAddressText() );
     m_plotWidget->setAxisTitleEnabled( QwtPlot::yLeft, true );
     m_plotWidget->setAxisFontsAndAlignment( QwtPlot::yLeft, axisTitleFontSize(), axisValueFontSize(), false, Qt::AlignCenter );
 
@@ -206,6 +206,9 @@ void RimParameterResultCrossPlot::updateAxes()
     m_plotWidget->setAxisRange( QwtPlot::xBottom, m_xRange.first - xRangeWidth * 0.1, m_xRange.second + xRangeWidth * 0.1 );
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QStringList caseNamesOfValidEnsembleCases( const RimSummaryCaseCollection* ensemble )
 {
     QStringList caseNames;
@@ -325,10 +328,13 @@ void RimParameterResultCrossPlot::updatePlotTitle()
     if ( m_useAutoPlotTitle && !ensembles().empty() )
     {
         auto ensemble = *ensembles().begin();
+
+        QString vectorName = completeAddressText();
+
         m_description = QString( "Cross Plot %1, %2 x %3 at %4" )
                             .arg( ensemble->name() )
                             .arg( m_ensembleParameter )
-                            .arg( m_selectedVarsUiField )
+                            .arg( vectorName )
                             .arg( timeStepString() );
     }
     m_plotWidget->setPlotTitle( m_description );

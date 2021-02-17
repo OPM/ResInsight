@@ -555,7 +555,7 @@ time_t RimAbstractCorrelationPlot::timeDiff( time_t lhs, time_t rhs )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimAbstractCorrelationPlot::selectedVarsText()
+QString RimAbstractCorrelationPlot::selectedQuantitiesText()
 {
     QString vectorNames;
     for ( const std::string& quantityName : getOrCreateSelectedCurveDefAnalyser()->m_quantityNames )
@@ -569,6 +569,25 @@ QString RimAbstractCorrelationPlot::selectedVarsText()
     }
 
     return vectorNames;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimAbstractCorrelationPlot::completeAddressText()
+{
+    QString vectorName;
+    if ( getOrCreateSelectedCurveDefAnalyser()->m_summaryAdresses.size() == 1 )
+    {
+        auto firstItem = getOrCreateSelectedCurveDefAnalyser()->m_summaryAdresses.begin();
+        vectorName     = QString::fromStdString( firstItem->uiText() );
+    }
+    else
+    {
+        vectorName = m_selectedVarsUiField;
+    }
+
+    return vectorName;
 }
 
 //--------------------------------------------------------------------------------------------------

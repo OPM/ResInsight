@@ -181,7 +181,7 @@ void RimCorrelationPlot::onLoadDataAndUpdate()
 {
     updateMdiWindowVisibility();
 
-    m_selectedVarsUiField = selectedVarsText();
+    m_selectedVarsUiField = selectedQuantitiesText();
 
     if ( m_plotWidget && m_analyserOfSelectedCurveDefs )
     {
@@ -267,9 +267,11 @@ void RimCorrelationPlot::updatePlotTitle()
 {
     if ( m_useAutoPlotTitle && !ensembles().empty() )
     {
+        QString vectorName = completeAddressText();
+
         auto ensemble = *ensembles().begin();
         m_description =
-            QString( "Correlations for %2, %3 at %4" ).arg( ensemble->name() ).arg( m_selectedVarsUiField ).arg( timeStepString() );
+            QString( "Correlations for %2, %3 at %4" ).arg( ensemble->name() ).arg( vectorName ).arg( timeStepString() );
     }
     m_plotWidget->setPlotTitle( m_description );
     m_plotWidget->setPlotTitleEnabled( m_showPlotTitle && !isSubPlot() );

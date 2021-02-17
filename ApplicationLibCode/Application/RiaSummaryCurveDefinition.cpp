@@ -227,7 +227,7 @@ void RiaSummaryCurveDefinitionAnalyser::setCurveDefinitions( const std::vector<R
     m_singleSummaryCases.clear();
     m_ensembles.clear();
     m_quantityNames.clear();
-    m_summaryItems.clear();
+    m_summaryAdresses.clear();
 
     for ( const auto& curveDef : curveDefs )
     {
@@ -247,14 +247,13 @@ void RiaSummaryCurveDefinitionAnalyser::setCurveDefinitions( const std::vector<R
             }
             valid = true;
         }
+
         if ( valid )
         {
-            RifEclipseSummaryAddress address = curveDef.summaryAddress();
+            const RifEclipseSummaryAddress& address = curveDef.summaryAddress();
 
             m_quantityNames.insert( address.quantityName() );
-
-            address.setQuantityName( "" );
-            if ( !address.itemUiText().empty() ) m_summaryItems.insert( address );
+            m_summaryAdresses.insert( address );
         }
     }
 }

@@ -315,7 +315,7 @@ void RimCorrelationMatrixPlot::defineUiOrdering( QString uiConfigName, caf::PdmU
     }
 
     caf::PdmUiGroup* curveDataGroup = uiOrdering.addNewGroup( "Summary Vector" );
-    m_selectedVarsUiField           = selectedVarsText();
+    m_selectedVarsUiField           = selectedQuantitiesText();
 
     curveDataGroup->add( &m_selectedVarsUiField );
     curveDataGroup->add( &m_pushButtonSelectSummaryAddress, { false, 1, 0 } );
@@ -371,7 +371,7 @@ void RimCorrelationMatrixPlot::onLoadDataAndUpdate()
 {
     updateMdiWindowVisibility();
 
-    m_selectedVarsUiField = selectedVarsText();
+    m_selectedVarsUiField = selectedQuantitiesText();
 
     if ( m_plotWidget )
     {
