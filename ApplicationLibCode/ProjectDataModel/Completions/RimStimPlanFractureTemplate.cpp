@@ -1175,6 +1175,8 @@ QString RimStimPlanFractureTemplate::generatePropertiesTable() const
         appendTextIfValidValue( body, "Formation Dip", m_stimPlanFractureDefinitionData->formationDip() );
         appendTextIfValidValue( body, "Top MD", m_stimPlanFractureDefinitionData->topPerfMd() );
         appendTextIfValidValue( body, "Bottom MD", m_stimPlanFractureDefinitionData->bottomPerfMd() );
+        appendTextIfValidValue( body, "Top TVD", m_stimPlanFractureDefinitionData->topPerfTvd() );
+        appendTextIfValidValue( body, "Bottom TVD", m_stimPlanFractureDefinitionData->bottomPerfTvd() );
     }
 
     return body;
