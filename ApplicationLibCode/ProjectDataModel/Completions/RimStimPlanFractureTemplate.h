@@ -133,7 +133,8 @@ private:
 
     double conversionFactorForBetaValues() const;
 
-    QString generatePropertiesTable() const;
+    QString     generatePropertiesTable() const;
+    static void appendTextIfValidValue( QString& body, const QString& title, double value );
 
 private:
     caf::PdmField<int>     m_activeTimeStepIndex;

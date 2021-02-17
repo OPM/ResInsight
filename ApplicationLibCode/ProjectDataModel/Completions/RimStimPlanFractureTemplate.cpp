@@ -1170,23 +1170,23 @@ QString RimStimPlanFractureTemplate::generatePropertiesTable() const
 {
     QString body;
 
-    if ( formationDip() != HUGE_VAL )
-    {
-        body += QString( "Formation Dip: %1<br>" ).arg( formationDip() );
-    }
-
     if ( !m_stimPlanFractureDefinitionData.isNull() )
     {
-        if ( m_stimPlanFractureDefinitionData->topPerfMd() != HUGE_VAL )
-        {
-            body += QString( "Top MD: %1<br>" ).arg( m_stimPlanFractureDefinitionData->topPerfMd() );
-        }
-
-        if ( m_stimPlanFractureDefinitionData->bottomPerfMd() != HUGE_VAL )
-        {
-            body += QString( "Bottom MD: %1<br>" ).arg( m_stimPlanFractureDefinitionData->bottomPerfMd() );
-        }
+        appendTextIfValidValue( body, "Formation Dip", m_stimPlanFractureDefinitionData->formationDip() );
+        appendTextIfValidValue( body, "Top MD", m_stimPlanFractureDefinitionData->topPerfMd() );
+        appendTextIfValidValue( body, "Bottom MD", m_stimPlanFractureDefinitionData->bottomPerfMd() );
     }
 
     return body;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimStimPlanFractureTemplate::appendTextIfValidValue( QString& body, const QString& title, double value )
+{
+    if ( value != HUGE_VAL )
+    {
+        body += QString( "%1: %2<br>" ).arg( title ).arg( value );
+    }
 }
