@@ -25,6 +25,10 @@
 
 class RimPressureTableItem;
 
+//==================================================================================================
+///
+///
+//==================================================================================================
 class RimPressureTable : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
@@ -42,6 +46,8 @@ public:
 
     bool usePressureTableForProperty( RiaDefines::CurveProperty curveProperty ) const;
 
+    caf::PdmField<bool>* useForInitialPressureField();
+
 protected:
     void defineCustomContextMenu( const caf::PdmFieldHandle* fieldNeedingMenu, QMenu* menu, QWidget* fieldEditorWidget ) override;
     void defineEditorAttribute( const caf::PdmFieldHandle* field,
@@ -53,7 +59,7 @@ protected:
 
     void onTableChanged( const caf::SignalEmitter* emitter = nullptr );
 
-    void initAfterRead();
+    void initAfterRead() override;
 
 private:
     caf::PdmField<bool>                            m_useForInitialPressure;
