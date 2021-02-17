@@ -257,6 +257,7 @@ void RicAdvancedSnapshotExportFeature::exportViewVariationsToFolder( RimGridView
 
             QString absoluteFileName = caf::Utils::constructFullFileName( folder, fileName, ".png" );
 
+            QApplication::processEvents();
             RicSnapshotViewToFileFeature::saveSnapshotAs( absoluteFileName, rimView );
         }
         else
@@ -293,6 +294,7 @@ void RicAdvancedSnapshotExportFeature::exportViewVariationsToFolder( RimGridView
 
                 QString absoluteFileName = caf::Utils::constructFullFileName( folder, fileName, ".png" );
 
+                QApplication::processEvents();
                 RicSnapshotViewToFileFeature::saveSnapshotAs( absoluteFileName, rimView );
             }
 
