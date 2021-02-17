@@ -18,7 +18,6 @@
 
 #pragma once
 
-#include "RiaSummaryCurveDefinition.h"
 #include "RifEclipseSummaryAddress.h"
 #include "cafPdmChildField.h"
 #include "cafPdmField.h"
@@ -28,6 +27,7 @@
 class RimSummaryCase;
 class RimSummaryAddress;
 class RimSummaryCaseCollection;
+class RiaSummaryCurveDefinition;
 
 class RimAnalysisPlotDataEntry : public caf::PdmObject
 {

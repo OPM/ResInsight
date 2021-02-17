@@ -18,6 +18,8 @@
 
 #include "RimAnalysisPlotCollection.h"
 
+#include "RiaSummaryCurveDefinition.h"
+
 #include "RimAnalysisPlot.h"
 #include "RimPlotDataFilterCollection.h"
 #include "RimProject.h"

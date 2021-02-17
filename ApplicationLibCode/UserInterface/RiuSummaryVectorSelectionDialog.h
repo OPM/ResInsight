@@ -18,16 +18,18 @@
 
 #pragma once
 
-#include "RiaSummaryCurveDefinition.h"
-
 #include <QDialog>
 
 #include <memory>
 
-class QLabel;
-
+class RiaSummaryCurveDefinition;
+class RifEclipseSummaryAddress;
+class RimSummaryCase;
+class RimSummaryCaseCollection;
 class RiuSummaryVectorSelectionUi;
 class RiuSummaryVectorSelectionWidgetCreator;
+
+class QLabel;
 
 //==================================================================================================
 ///

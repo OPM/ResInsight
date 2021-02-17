@@ -18,8 +18,6 @@
 
 #pragma once
 
-#include "RiaSummaryCurveDefinition.h"
-
 #include "RimPlot.h"
 #include "RimPlotDataFilterItem.h"
 #include "RimSummaryCaseCollection.h"
@@ -37,6 +35,7 @@ class RiaSummaryCurveDefinitionAnalyser;
 class RimPlotAxisPropertiesInterface;
 class RimPlotAxisProperties;
 class RimPlotDataFilterCollection;
+class RiaSummaryCurveDefinition;
 
 //==================================================================================================
 ///

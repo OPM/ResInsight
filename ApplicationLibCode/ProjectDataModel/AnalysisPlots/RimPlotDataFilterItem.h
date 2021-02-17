@@ -28,8 +28,6 @@
 
 #include "RimSummaryCaseCollection.h"
 
-#include "RiaSummaryCurveDefinition.h"
-
 #include <QDateTime>
 
 class RiuSummaryQwtPlot;

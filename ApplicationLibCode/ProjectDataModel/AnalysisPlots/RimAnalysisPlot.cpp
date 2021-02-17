@@ -19,6 +19,7 @@
 #include "RimAnalysisPlot.h"
 
 #include "RiaPreferences.h"
+#include "RiaSummaryCurveDefinition.h"
 #include "RiaTextStringTools.h"
 
 #include "RiuGroupedBarChartBuilder.h"
