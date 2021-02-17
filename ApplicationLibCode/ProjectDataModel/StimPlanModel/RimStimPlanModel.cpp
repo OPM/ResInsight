@@ -323,11 +323,14 @@ void RimStimPlanModel::fieldChangedByUi( const caf::PdmFieldHandle* changedField
 
     if ( changedField == &m_eclipseCase )
     {
-        // Set a valid default time step
-        const int timeStepCount = m_eclipseCase->timeStepStrings().size();
-        if ( timeStepCount > 0 )
+        if ( m_eclipseCase )
         {
-            m_timeStep = timeStepCount - 1;
+            // Set a valid default time step
+            const int timeStepCount = m_eclipseCase->timeStepStrings().size();
+            if ( timeStepCount > 0 )
+            {
+                m_timeStep = timeStepCount - 1;
+            }
         }
 
         updateExtractionDepthBoundaries();
@@ -1664,6 +1667,7 @@ void RimStimPlanModel::setStimPlanModelTemplate( RimStimPlanModelTemplate* stimP
     }
 
     m_stimPlanModelTemplate = stimPlanModelTemplate;
+    stimPlanModelTemplateChanged( nullptr );
 
     if ( m_stimPlanModelTemplate )
     {

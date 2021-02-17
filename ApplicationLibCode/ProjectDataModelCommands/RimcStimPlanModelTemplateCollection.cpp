@@ -23,6 +23,7 @@
 #include "FractureCommands/RicFractureNameGenerator.h"
 #include "FractureCommands/RicNewStimPlanModelFeature.h"
 
+#include "RimEclipseCase.h"
 #include "RimStimPlanModelTemplate.h"
 #include "RimStimPlanModelTemplateCollection.h"
 
@@ -41,6 +42,9 @@ RimcStimPlanModelTemplateCollection_newStimPlanModelTemplate::RimcStimPlanModelT
     : caf::PdmObjectMethod( self )
 {
     CAF_PDM_InitObject( "Create StimPlan Model Template", "", "", "Create a new StimPlan Model Template" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_eclipseCase, "EclipseCase", "", "", "", "Eclipse Case" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_timeStep, "TimeStep", "", "", "", "Time Step" );
+
     CAF_PDM_InitScriptableFieldNoDefault( &m_faciesPropertiesFilePath,
                                           "FaciesPropertiesFilePath",
                                           "",
@@ -60,9 +64,17 @@ RimcStimPlanModelTemplateCollection_newStimPlanModelTemplate::RimcStimPlanModelT
 //--------------------------------------------------------------------------------------------------
 caf::PdmObjectHandle* RimcStimPlanModelTemplateCollection_newStimPlanModelTemplate::execute()
 {
+    if ( !m_eclipseCase ) return nullptr;
+
     RimStimPlanModelTemplate*           newStimPlanModelTemplate        = new RimStimPlanModelTemplate;
     RimStimPlanModelTemplateCollection* stimPlanModelTemplateCollection = self<RimStimPlanModelTemplateCollection>();
+
     newStimPlanModelTemplate->setName( RicFractureNameGenerator::nameForNewStimPlanModelTemplate() );
+    newStimPlanModelTemplate->setDynamicEclipseCase( m_eclipseCase );
+    newStimPlanModelTemplate->setTimeStep( m_timeStep );
+    newStimPlanModelTemplate->setInitialPressureEclipseCase( m_eclipseCase );
+    newStimPlanModelTemplate->setStaticEclipseCase( m_eclipseCase );
+
     stimPlanModelTemplateCollection->addStimPlanModelTemplate( newStimPlanModelTemplate );
 
     RicElasticPropertiesImportTools::importElasticPropertiesFromFile( m_elasticPropertiesFilePath,

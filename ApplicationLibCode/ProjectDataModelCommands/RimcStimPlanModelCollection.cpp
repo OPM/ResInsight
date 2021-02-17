@@ -42,8 +42,6 @@ RimcStimPlanModelCollection_newStimPlanModel::RimcStimPlanModelCollection_newSti
     : caf::PdmObjectMethod( self )
 {
     CAF_PDM_InitObject( "Create StimPlan Model", "", "", "Create a new StimPlan Model" );
-    CAF_PDM_InitScriptableFieldNoDefault( &m_eclipseCase, "EclipseCase", "", "", "", "Eclipse Case" );
-    CAF_PDM_InitScriptableFieldNoDefault( &m_timeStep, "TimeStep", "", "", "", "Time Step" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_wellPath, "WellPath", "", "", "", "Well Path" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_md, "MeasuredDepth", "", "", "", "Measured Depth" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_stimPlanModelTemplate, "StimPlanModelTemplate", "", "", "", "StimPlan Model Template" );
@@ -56,13 +54,12 @@ caf::PdmObjectHandle* RimcStimPlanModelCollection_newStimPlanModel::execute()
 {
     RimStimPlanModel*           newStimPlanModel        = nullptr;
     RimStimPlanModelCollection* stimPlanModelCollection = self<RimStimPlanModelCollection>();
-    if ( m_wellPath && m_eclipseCase )
+    if ( m_wellPath )
     {
         RimWellPathCollection* wellPathCollection = nullptr;
         stimPlanModelCollection->firstAncestorOrThisOfTypeAsserted( wellPathCollection );
 
-        newStimPlanModel =
-            RicNewStimPlanModelFeature::addStimPlanModel( m_wellPath, wellPathCollection, m_eclipseCase, m_timeStep );
+        newStimPlanModel = RicNewStimPlanModelFeature::addStimPlanModel( m_wellPath, wellPathCollection );
     }
 
     if ( newStimPlanModel )
