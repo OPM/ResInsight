@@ -68,6 +68,13 @@ RimStimPlanModelTemplate::RimStimPlanModelTemplate()
     CAF_PDM_InitScriptableFieldNoDefault( &m_dynamicEclipseCase, "DynamicEclipseCase", "Dynamic Case", "", "", "" );
     CAF_PDM_InitScriptableField( &m_timeStep, "TimeStep", 0, "Time Step", "", "", "" );
 
+    CAF_PDM_InitScriptableFieldNoDefault( &m_initialPressureEclipseCase,
+                                          "InitialPressureEclipseCase",
+                                          "Initial Pressure Case",
+                                          "",
+                                          "",
+                                          "" );
+
     CAF_PDM_InitScriptableFieldNoDefault( &m_staticEclipseCase, "StaticEclipseCase", "Static Case", "", "", "" );
 
     CAF_PDM_InitScriptableField( &m_defaultPorosity,
@@ -203,7 +210,7 @@ void RimStimPlanModelTemplate::fieldChangedByUi( const caf::PdmFieldHandle* chan
                                                  const QVariant&            oldValue,
                                                  const QVariant&            newValue )
 {
-    if ( changedField == &m_dynamicEclipseCase )
+    if ( changedField == &m_dynamicEclipseCase && m_dynamicEclipseCase )
     {
         // Set a valid default time step
         const int timeStepCount = m_dynamicEclipseCase->timeStepStrings().size();
@@ -248,7 +255,8 @@ QList<caf::PdmOptionItemInfo>
             }
         }
     }
-    else if ( fieldNeedingOptions == &m_dynamicEclipseCase || fieldNeedingOptions == &m_staticEclipseCase )
+    else if ( fieldNeedingOptions == &m_dynamicEclipseCase || fieldNeedingOptions == &m_staticEclipseCase ||
+              fieldNeedingOptions == &m_initialPressureEclipseCase )
     {
         RimTools::eclipseCaseOptionItems( &options );
     }
@@ -269,6 +277,7 @@ void RimStimPlanModelTemplate::defineUiOrdering( QString uiConfigName, caf::PdmU
     uiOrdering.add( &m_id );
     uiOrdering.add( &m_dynamicEclipseCase );
     uiOrdering.add( &m_timeStep );
+    uiOrdering.add( &m_initialPressureEclipseCase );
     uiOrdering.add( &m_staticEclipseCase );
 
     caf::PdmUiOrdering* defaultsGroup = uiOrdering.addNewGroup( "Defaults" );
@@ -790,6 +799,22 @@ int RimStimPlanModelTemplate::timeStep() const
 RimEclipseCase* RimStimPlanModelTemplate::staticEclipseCase() const
 {
     return m_staticEclipseCase;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimStimPlanModelTemplate::setInitialPressureEclipseCase( RimEclipseCase* eclipseCase )
+{
+    m_initialPressureEclipseCase = eclipseCase;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimEclipseCase* RimStimPlanModelTemplate::initialPressureEclipseCase() const
+{
+    return m_initialPressureEclipseCase;
 }
 
 //--------------------------------------------------------------------------------------------------

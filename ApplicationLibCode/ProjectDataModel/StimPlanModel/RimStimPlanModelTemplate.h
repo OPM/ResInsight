@@ -91,10 +91,12 @@ public:
     void setDynamicEclipseCase( RimEclipseCase* eclipseCase );
     void setTimeStep( int timeStep );
     void setStaticEclipseCase( RimEclipseCase* eclipseCase );
+    void setInitialPressureEclipseCase( RimEclipseCase* eclipseCase );
 
     RimEclipseCase* dynamicEclipseCase() const;
     int             timeStep() const;
     RimEclipseCase* staticEclipseCase() const;
+    RimEclipseCase* initialPressureEclipseCase() const;
 
     std::map<int, double> faciesWithInitialPressure() const;
 
@@ -139,6 +141,7 @@ private:
     caf::PdmField<int>                        m_id;
     caf::PdmPtrField<RimEclipseCase*>         m_dynamicEclipseCase;
     caf::PdmField<int>                        m_timeStep;
+    caf::PdmPtrField<RimEclipseCase*>         m_initialPressureEclipseCase;
     caf::PdmPtrField<RimEclipseCase*>         m_staticEclipseCase;
     caf::PdmField<double>                     m_defaultPorosity;
     caf::PdmField<double>                     m_defaultPermeability;

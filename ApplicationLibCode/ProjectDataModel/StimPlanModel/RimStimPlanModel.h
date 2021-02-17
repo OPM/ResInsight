@@ -227,6 +227,7 @@ protected:
     caf::PdmField<double>                       m_MD;
     caf::PdmPtrField<RimEclipseCase*>           m_eclipseCase;
     caf::PdmField<int>                          m_timeStep;
+    caf::PdmPtrField<RimEclipseCase*>           m_initialPressureEclipseCase;
     caf::PdmPtrField<RimEclipseCase*>           m_staticEclipseCase;
     caf::PdmField<caf::AppEnum<ExtractionType>> m_extractionType;
     caf::PdmField<double>                       m_extractionDepthTop;

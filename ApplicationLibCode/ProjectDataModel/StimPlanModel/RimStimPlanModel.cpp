@@ -142,6 +142,14 @@ RimStimPlanModel::RimStimPlanModel()
     CAF_PDM_InitScriptableField( &m_timeStep, "TimeStep", 0, "Time Step", "", "", "" );
     m_timeStep.uiCapability()->setUiReadOnly( true );
 
+    CAF_PDM_InitScriptableFieldNoDefault( &m_initialPressureEclipseCase,
+                                          "InitialPressureEclipseCase",
+                                          "Initial Pressure Case",
+                                          "",
+                                          "",
+                                          "" );
+    m_initialPressureEclipseCase.uiCapability()->setUiReadOnly( true );
+
     CAF_PDM_InitScriptableFieldNoDefault( &m_staticEclipseCase, "StaticEclipseCase", "Static Case", "", "", "" );
     m_staticEclipseCase.uiCapability()->setUiReadOnly( true );
 
@@ -394,7 +402,8 @@ QList<caf::PdmOptionItemInfo> RimStimPlanModel::calculateValueOptions( const caf
             }
         }
     }
-    else if ( fieldNeedingOptions == &m_eclipseCase || fieldNeedingOptions == &m_staticEclipseCase )
+    else if ( fieldNeedingOptions == &m_eclipseCase || fieldNeedingOptions == &m_staticEclipseCase ||
+              fieldNeedingOptions == &m_initialPressureEclipseCase )
     {
         RimTools::eclipseCaseOptionItems( &options );
     }
@@ -903,6 +912,7 @@ void RimStimPlanModel::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderin
 
     uiOrdering.add( &m_eclipseCase );
     uiOrdering.add( &m_timeStep );
+    uiOrdering.add( &m_initialPressureEclipseCase );
     uiOrdering.add( &m_staticEclipseCase );
     uiOrdering.add( &m_MD );
     uiOrdering.add( &m_extractionType );
@@ -1548,7 +1558,11 @@ bool RimStimPlanModel::useStaticEclipseCase( RiaDefines::CurveProperty curveProp
 //--------------------------------------------------------------------------------------------------
 RimEclipseCase* RimStimPlanModel::eclipseCaseForProperty( RiaDefines::CurveProperty curveProperty ) const
 {
-    if ( m_staticEclipseCase && useStaticEclipseCase( curveProperty ) )
+    if ( m_initialPressureEclipseCase && curveProperty == RiaDefines::CurveProperty::INITIAL_PRESSURE )
+    {
+        return m_initialPressureEclipseCase;
+    }
+    else if ( m_staticEclipseCase && useStaticEclipseCase( curveProperty ) )
     {
         return m_staticEclipseCase;
     }
@@ -1566,6 +1580,7 @@ void RimStimPlanModel::setEclipseCase( RimEclipseCase* eclipseCase )
     if ( m_stimPlanModelTemplate )
     {
         m_stimPlanModelTemplate->setDynamicEclipseCase( eclipseCase );
+        m_stimPlanModelTemplate->setInitialPressureEclipseCase( eclipseCase );
         m_stimPlanModelTemplate->setStaticEclipseCase( eclipseCase );
     }
 }
@@ -1671,9 +1686,10 @@ void RimStimPlanModel::stimPlanModelTemplateChanged( const caf::SignalEmitter* e
 {
     if ( m_stimPlanModelTemplate() )
     {
-        m_eclipseCase       = m_stimPlanModelTemplate()->dynamicEclipseCase();
-        m_timeStep          = m_stimPlanModelTemplate()->timeStep();
-        m_staticEclipseCase = m_stimPlanModelTemplate()->staticEclipseCase();
+        m_eclipseCase                = m_stimPlanModelTemplate()->dynamicEclipseCase();
+        m_timeStep                   = m_stimPlanModelTemplate()->timeStep();
+        m_initialPressureEclipseCase = m_stimPlanModelTemplate()->initialPressureEclipseCase();
+        m_staticEclipseCase          = m_stimPlanModelTemplate()->staticEclipseCase();
         updateExtractionDepthBoundaries();
 
         updateThicknessDirection();
