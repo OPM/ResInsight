@@ -108,7 +108,6 @@ bool RimStimPlanModelWellLogCalculator::calculate( RiaDefines::CurveProperty cur
         else if ( stimPlanModel->missingValueStrategy( curveProperty ) ==
                   RimStimPlanModel::MissingValueStrategy::LINEAR_INTERPOLATION )
         {
-            RiaLogging::info( QString( "Interpolating missing values for %1" ).arg( resultVariable ) );
             RiaInterpolationTools::interpolateMissingValues( measuredDepthValues, values );
         }
         else
