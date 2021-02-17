@@ -79,7 +79,7 @@ void RicAdvancedSnapshotExportFeature::onActionTriggered( bool isChecked )
         RiuAdvancedSnapshotExportWidget dlg( nullptr, proj );
 
         Rim3dView* activeView = RiaApplication::instance()->activeReservoirView();
-        if ( activeView && proj->multiSnapshotDefinitions.size() == 0 )
+        if ( activeView && proj->multiSnapshotDefinitions.empty() )
         {
             dlg.addSnapshotItemFromActiveView();
             dlg.addEmptySnapshotItems( 4 );
@@ -193,7 +193,7 @@ void RicAdvancedSnapshotExportFeature::exportViewVariations( Rim3dView*         
                                                              RimAdvancedSnapshotExportDefinition* msd,
                                                              const QString&                       folder )
 {
-    if ( msd->selectedEclipseResults().size() > 0 )
+    if ( !msd->selectedEclipseResults().empty() )
     {
         RimEclipseCase* eclCase = dynamic_cast<RimEclipseCase*>( rimView->ownerCase() );
 
@@ -201,7 +201,7 @@ void RicAdvancedSnapshotExportFeature::exportViewVariations( Rim3dView*         
 
         copyOfView->cellResult()->setResultType( msd->eclipseResultType() );
 
-        for ( QString s : msd->selectedEclipseResults() )
+        for ( const QString& s : msd->selectedEclipseResults() )
         {
             copyOfView->cellResult()->setResultVariable( s );
 
@@ -317,7 +317,8 @@ QString RicAdvancedSnapshotExportFeature::resultName( Rim3dView* rimView )
 
         return caf::Utils::makeValidFileBasename( eclView->cellResult()->resultVariableUiShortName() );
     }
-    else if ( dynamic_cast<RimGeoMechView*>( rimView ) )
+
+    if ( dynamic_cast<RimGeoMechView*>( rimView ) )
     {
         RimGeoMechView* geoMechView = dynamic_cast<RimGeoMechView*>( rimView );
 
