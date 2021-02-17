@@ -283,6 +283,12 @@ void RimStimPlanModelTemplate::defineUiOrdering( QString uiConfigName, caf::PdmU
     uiOrdering.add( &m_dynamicEclipseCase );
     uiOrdering.add( &m_timeStep );
     uiOrdering.add( &m_initialPressureEclipseCase );
+    if ( m_pressureTable )
+    {
+        uiOrdering.add( m_pressureTable->useForInitialPressureField() );
+        m_initialPressureEclipseCase.uiCapability()->setUiReadOnly( m_pressureTable->useForInitialPressureField()->value() );
+    }
+
     uiOrdering.add( &m_staticEclipseCase );
 
     caf::PdmUiOrdering* defaultsGroup = uiOrdering.addNewGroup( "Defaults" );

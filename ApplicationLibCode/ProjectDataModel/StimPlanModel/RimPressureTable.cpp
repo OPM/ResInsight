@@ -34,12 +34,18 @@ RimPressureTable::RimPressureTable()
 {
     CAF_PDM_InitObject( "Pressure Table", "", "", "" );
 
-    CAF_PDM_InitField( &m_useForInitialPressure, "UseForInitialPressure", false, "Use For Initial Pressure", "", "", "" );
-    CAF_PDM_InitField( &m_useForPressure, "UseForPressure", false, "Use For Pressure", "", "", "" );
+    CAF_PDM_InitField( &m_useForInitialPressure,
+                       "UseForInitialPressure",
+                       false,
+                       "Use Pressure Table For Initial Pressure",
+                       "",
+                       "",
+                       "" );
+    CAF_PDM_InitField( &m_useForPressure, "UseForPressure", false, "Use Pressure Table For Pressure", "", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_pressureTableItems, "Items", "Pressure Table Items", "", "", "" );
     m_pressureTableItems.uiCapability()->setUiEditorTypeName( caf::PdmUiTableViewEditor::uiEditorTypeName() );
-    m_pressureTableItems.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
+    m_pressureTableItems.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
     m_pressureTableItems.uiCapability()->setCustomContextMenuEnabled( true );
 }
 
@@ -48,6 +54,14 @@ RimPressureTable::RimPressureTable()
 //--------------------------------------------------------------------------------------------------
 RimPressureTable::~RimPressureTable()
 {
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+caf::PdmField<bool>* RimPressureTable::useForInitialPressureField()
+{
+    return &m_useForInitialPressure;
 }
 
 //--------------------------------------------------------------------------------------------------
