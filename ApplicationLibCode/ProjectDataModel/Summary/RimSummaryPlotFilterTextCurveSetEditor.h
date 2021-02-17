@@ -15,10 +15,9 @@
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
-#include "cafPdmObject.h"
 
-#include "RiaSummaryCurveDefinition.h"
 #include "cafPdmField.h"
+#include "cafPdmObject.h"
 #include "cafPdmPtrArrayField.h"
 
 using SummarySource = caf::PdmObject;

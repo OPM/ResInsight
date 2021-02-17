@@ -26,7 +26,6 @@
 
 #include "RiaDefines.h"
 #include "RiaQDateTimeTools.h"
-#include "RiaSummaryCurveDefinition.h"
 
 #include "RifEclipseSummaryAddressQMetaType.h"
 #include "RimStackablePlotCurve.h"
@@ -40,6 +39,7 @@ class RimSummaryFilter_OBSOLETE;
 class RiuQwtPlotCurve;
 class RimSummaryCurveAutoName;
 class RimSummaryAddress;
+class RiaSummaryCurveDefinition;
 
 //==================================================================================================
 ///

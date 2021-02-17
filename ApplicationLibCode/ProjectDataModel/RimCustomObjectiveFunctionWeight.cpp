@@ -19,6 +19,7 @@
 #include "RimCustomObjectiveFunctionWeight.h"
 
 #include "RiaStdStringTools.h"
+#include "RiaSummaryCurveDefinition.h"
 
 #include "RimCustomObjectiveFunction.h"
 #include "RimEnsembleCurveSet.h"

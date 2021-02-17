@@ -20,7 +20,6 @@
 
 #include "RiaDefines.h"
 #include "RiaQDateTimeTools.h"
-#include "RiaSummaryCurveDefinition.h"
 
 #include "RifEclipseSummaryAddress.h"
 
@@ -54,6 +53,7 @@ class RimSummaryPlotNameHelper;
 class RimPlotTemplateFileItem;
 class RimSummaryPlotFilterTextCurveSetEditor;
 class RimSummaryPlotSourceStepping;
+class RiaSummaryCurveDefinition;
 
 class QwtInterval;
 class QwtPlotCurve;

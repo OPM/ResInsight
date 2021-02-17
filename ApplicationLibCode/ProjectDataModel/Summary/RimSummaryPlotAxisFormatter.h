@@ -24,11 +24,10 @@
 
 #include <qwt_plot.h>
 
-#include "RiaSummaryCurveDefinition.h"
-
 class RimAsciiDataCurve;
 class RimSummaryCurve;
 class RimPlotAxisProperties;
+class RiaSummaryCurveDefinition;
 
 class RiuQwtPlotWidget;
 

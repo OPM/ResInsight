@@ -19,6 +19,7 @@
 #include "RimEnsembleCurveFilter.h"
 
 #include "RiaCurveDataTools.h"
+#include "RiaSummaryCurveDefinition.h"
 
 #include "RimCustomObjectiveFunction.h"
 #include "RimCustomObjectiveFunctionCollection.h"
