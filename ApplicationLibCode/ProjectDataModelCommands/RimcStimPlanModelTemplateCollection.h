@@ -29,6 +29,7 @@
 #include <QString>
 
 class RimStimPlanModelTemplateCollection;
+class RimEclipseCase;
 
 //==================================================================================================
 ///
@@ -45,6 +46,8 @@ public:
     std::unique_ptr<PdmObjectHandle> defaultResult() const override;
 
 private:
-    caf::PdmField<QString> m_elasticPropertiesFilePath;
-    caf::PdmField<QString> m_faciesPropertiesFilePath;
+    caf::PdmPtrField<RimEclipseCase*> m_eclipseCase;
+    caf::PdmField<int>                m_timeStep;
+    caf::PdmField<QString>            m_elasticPropertiesFilePath;
+    caf::PdmField<QString>            m_faciesPropertiesFilePath;
 };

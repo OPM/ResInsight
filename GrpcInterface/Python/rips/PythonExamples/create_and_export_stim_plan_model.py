@@ -17,9 +17,20 @@ print("Elastic properties file path:", elastic_properties_file_path)
 facies_properties_file_path = (Path(home_dir) / "facies_id.roff").as_posix()
 print("Facies properties file path:", facies_properties_file_path)
 
+# Find a case
+cases = resinsight.project.cases()
+case = cases[1]
+
+# Use the last time step
+time_steps = case.time_steps()
+time_step = time_steps[len(time_steps) - 1]
+
+
 # Create stim plan model template
 fmt_collection = project.descendants(rips.StimPlanModelTemplateCollection)[0]
 stim_plan_model_template = fmt_collection.new_stim_plan_model_template(
+    eclipse_case=case,
+    time_step=time_step,
     elastic_properties_file_path=elastic_properties_file_path,
     facies_properties_file_path=facies_properties_file_path,
 )
@@ -63,14 +74,6 @@ well_path = project.well_path_by_name(well_name)
 print("well path:", well_path)
 stim_plan_model_collection = project.descendants(rips.StimPlanModelCollection)[0]
 
-# Find a case
-cases = resinsight.project.cases()
-case = cases[0]
-
-# Use the last time step
-time_steps = case.time_steps()
-time_step = time_steps[len(time_steps) - 1]
-
 
 export_folder = tempfile.gettempdir()
 
@@ -82,8 +85,6 @@ for measured_depth in measured_depths:
 
     # Create stim plan model at a give measured depth
     stim_plan_model = stim_plan_model_collection.new_stim_plan_model(
-        eclipse_case=case,
-        time_step=time_step,
         well_path=well_path,
         measured_depth=measured_depth,
         stim_plan_model_template=stim_plan_model_template,

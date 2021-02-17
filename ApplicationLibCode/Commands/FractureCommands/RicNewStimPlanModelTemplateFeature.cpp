@@ -65,6 +65,7 @@ void RicNewStimPlanModelTemplateFeature::onActionTriggered( bool isChecked )
         stimPlanModelTemplate->setDynamicEclipseCase( eclipseCase );
         stimPlanModelTemplate->setTimeStep( timeStep );
         stimPlanModelTemplate->setStaticEclipseCase( eclipseCase );
+        stimPlanModelTemplate->setInitialPressureEclipseCase( eclipseCase );
     }
 
     fracModColl->addStimPlanModelTemplate( stimPlanModelTemplate );
