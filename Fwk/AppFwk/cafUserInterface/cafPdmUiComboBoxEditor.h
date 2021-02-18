@@ -78,6 +78,8 @@ public:
     QString prevButtonText;
 
     QSize iconSize;
+    QIcon nextIcon;
+    QIcon previousIcon;
 };
 
 //==================================================================================================

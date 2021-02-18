@@ -1127,6 +1127,8 @@ void RimSummaryPlotSourceStepping::defineEditorAttribute( const caf::PdmFieldHan
     if ( myAttr )
     {
         myAttr->showPreviousAndNextButtons = true;
+        myAttr->nextIcon                   = QIcon( ":/ComboBoxDown.svg" );
+        myAttr->previousIcon               = QIcon( ":/ComboBoxUp.svg" );
 
         QString modifierText;
 

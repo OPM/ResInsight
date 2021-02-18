@@ -955,6 +955,8 @@ void RimWellLogCurveCommonDataSource::defineEditorAttribute( const caf::PdmField
         if ( field == &m_case || field == &m_simWellName || field == &m_wellPath || field == &m_timeStep )
         {
             myAttr->showPreviousAndNextButtons = true;
+            myAttr->nextIcon                   = QIcon( ":/ComboBoxDown.svg" );
+            myAttr->previousIcon               = QIcon( ":/ComboBoxUp.svg" );
         }
 
         QString modifierText;
