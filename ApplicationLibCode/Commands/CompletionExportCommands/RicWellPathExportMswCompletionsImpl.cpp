@@ -1864,9 +1864,12 @@ void RicWellPathExportMswCompletionsImpl::writeValveWelsegsSegment( const RicMsw
     CVF_ASSERT( valve );
     if ( !valve->isValid() ) return;
 
+    CVF_ASSERT( !valve->label().isEmpty() );
     formatter.comment( valve->label() );
 
-    auto subSegment = valve->segments().front();
+    auto segments = valve->segments();
+
+    auto subSegment = segments.front();
     subSegment->setSegmentNumber( *segmentNumber );
 
     double startMD = subSegment->startMD();
@@ -2252,15 +2255,21 @@ void RicWellPathExportMswCompletionsImpl::assignBranchNumbersToCompletions( cons
                                                                             gsl::not_null<RicMswSegment*> segment,
                                                                             gsl::not_null<int*>           branchNumber )
 {
+    // Assign perforations first to ensure the same branch number as the segment
     for ( auto completion : segment->completions() )
     {
         if ( completion->completionType() == RigCompletionData::PERFORATION )
         {
             completion->setBranchNumber( *branchNumber );
         }
-        else if ( completion->completionType() != RigCompletionData::FISHBONES_ICD )
+    }
+
+    // Assign other completions with an incremented branch number
+    for ( auto completion : segment->completions() )
+    {
+        if ( completion->completionType() != RigCompletionData::PERFORATION )
         {
-            completion->setBranchNumber( ( *branchNumber )++ );
+            completion->setBranchNumber( ++( *branchNumber ) );
         }
     }
 }
