@@ -232,6 +232,8 @@
         <file>CellFilter_Polygon.png</file>
         <file>undo.png</file>
         <file>redo.png</file>
+        <file>ComboBoxDown.svg</file>
+        <file>ComboBoxUp.svg</file>
     </qresource>
     <qresource prefix="/Shader">
         <file>fs_CellFace.glsl</file>

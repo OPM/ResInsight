@@ -315,24 +315,47 @@ void PdmUiComboBoxEditor::configureAndUpdateUi( const QString& uiConfigName )
             m_layout->insertWidget( 1, m_previousItemButton );
             m_layout->insertWidget( 2, m_nextItemButton );
 
-            if ( m_comboBox->count() == 0 || m_comboBox->currentIndex() <= 0 )
             {
-                QIcon disabledIcon( stepUpIcon().pixmap( 16, 16, QIcon::Disabled ) );
-                m_previousItemButton->setIcon( disabledIcon );
-            }
-            else
-            {
-                m_previousItemButton->setIcon( stepUpIcon() );
+                QIcon toolButtonIcon;
+                if ( !m_attributes.previousIcon.isNull() )
+                {
+                    toolButtonIcon = m_attributes.previousIcon;
+                }
+                else
+                {
+                    toolButtonIcon = stepUpIcon();
+                }
+
+                if ( m_comboBox->count() == 0 || m_comboBox->currentIndex() <= 0 )
+                {
+                    QIcon disabledIcon( toolButtonIcon.pixmap( 16, 16, QIcon::Disabled ) );
+                    m_previousItemButton->setIcon( disabledIcon );
+                }
+                else
+                {
+                    m_previousItemButton->setIcon( toolButtonIcon );
+                }
             }
 
-            if ( m_comboBox->count() == 0 || m_comboBox->currentIndex() >= m_comboBox->count() - 1 )
             {
-                QIcon disabledIcon( stepDownIcon().pixmap( 16, 16, QIcon::Disabled ) );
-                m_nextItemButton->setIcon( disabledIcon );
-            }
-            else
-            {
-                m_nextItemButton->setIcon( stepDownIcon() );
+                QIcon toolButtonIcon;
+                if ( !m_attributes.nextIcon.isNull() )
+                {
+                    toolButtonIcon = m_attributes.nextIcon;
+                }
+                else
+                {
+                    toolButtonIcon = stepUpIcon();
+                }
+                if ( m_comboBox->count() == 0 || m_comboBox->currentIndex() >= m_comboBox->count() - 1 )
+                {
+                    QIcon disabledIcon( toolButtonIcon.pixmap( 16, 16, QIcon::Disabled ) );
+                    m_nextItemButton->setIcon( disabledIcon );
+                }
+                else
+                {
+                    m_nextItemButton->setIcon( toolButtonIcon );
+                }
             }
 
             // Update button texts
