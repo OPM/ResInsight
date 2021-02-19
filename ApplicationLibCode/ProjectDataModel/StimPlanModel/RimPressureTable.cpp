@@ -69,13 +69,14 @@ caf::PdmField<bool>* RimPressureTable::useForInitialPressureField()
 //--------------------------------------------------------------------------------------------------
 std::vector<RimPressureTableItem*> RimPressureTable::items() const
 {
-    std::vector<RimPressureTableItem*> attrs;
+    std::vector<RimPressureTableItem*> pressureTableItems = m_pressureTableItems.childObjects();
 
-    for ( auto attr : m_pressureTableItems )
-    {
-        attrs.push_back( attr.p() );
-    }
-    return attrs;
+    // Sort by depth
+    std::sort( pressureTableItems.begin(), pressureTableItems.end(), []( auto const& a, auto const& b ) {
+        return a->depth() < b->depth();
+    } );
+
+    return pressureTableItems;
 }
 
 //--------------------------------------------------------------------------------------------------
