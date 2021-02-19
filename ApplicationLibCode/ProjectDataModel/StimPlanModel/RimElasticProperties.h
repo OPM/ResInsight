@@ -52,6 +52,7 @@ public:
     void                        setPropertiesForFacies( FaciesKey& key, const RigElasticProperties& properties );
     bool                        hasPropertiesForFacies( FaciesKey& key ) const;
     const RigElasticProperties& propertiesForFacies( FaciesKey& key ) const;
+    void                        clearProperties();
 
     void loadDataAndUpdate();
 
