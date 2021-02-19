@@ -30,7 +30,7 @@ RimStackablePlotCurve::RimStackablePlotCurve()
     CAF_PDM_InitObject( "StackableCurve", ":/WellLogCurve16x16.png", "", "" );
 
     CAF_PDM_InitField( &m_isStacked, "StackCurve", false, "Stack Curve", "", "", "" );
-    CAF_PDM_InitField( &m_isStackedWithPhaseColors, "StackPhaseColors", true, "  with Phase Colors", "", "", "" );
+    CAF_PDM_InitField( &m_isStackedWithPhaseColors, "StackPhaseColors", false, "  with Phase Colors", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------
