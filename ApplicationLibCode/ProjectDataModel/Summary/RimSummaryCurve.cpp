@@ -171,10 +171,10 @@ void RimSummaryCurve::setSummaryCaseY( RimSummaryCase* sumCase )
         m_qwtCurveErrorBars->setSamples( nullptr );
     }
 
-    if ( m_isEnsembleCurve().isPartiallyTrue() )
-    {
-        setIsEnsembleCurve( sumCase->ensemble() );
-    }
+    bool isEnsembleCurve = false;
+    if ( sumCase && sumCase->ensemble() ) isEnsembleCurve = true;
+
+    setIsEnsembleCurve( isEnsembleCurve );
 
     m_yValuesSummaryCase = sumCase;
 }
@@ -427,10 +427,10 @@ void RimSummaryCurve::setSummaryCaseX( RimSummaryCase* sumCase )
 {
     m_xValuesSummaryCase = sumCase;
 
-    if ( m_isEnsembleCurve().isPartiallyTrue() )
-    {
-        setIsEnsembleCurve( sumCase->ensemble() );
-    }
+    bool isEnsembleCurve = false;
+    if ( sumCase && sumCase->ensemble() ) isEnsembleCurve = true;
+
+    setIsEnsembleCurve( isEnsembleCurve );
 }
 
 //--------------------------------------------------------------------------------------------------

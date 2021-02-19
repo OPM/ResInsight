@@ -118,7 +118,9 @@ std::vector<RimSummaryCurve*> RicSummaryPlotFeatureImpl::addDefaultCurvesToPlot(
     QString     curvesTextFilter = RiaApplication::instance()->preferences()->defaultSummaryCurvesTextFilter;
     QStringList curveFilters     = curvesTextFilter.split( ";", QString::SkipEmptyParts );
 
-    return addCurvesFromAddressFiltersToPlot( curveFilters, plot, summaryCase, false );
+    bool addHistoryCurve = false;
+
+    return addCurvesFromAddressFiltersToPlot( curveFilters, plot, summaryCase, addHistoryCurve );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -838,6 +840,13 @@ std::vector<RimSummaryCurve*> RicSummaryPlotFeatureImpl::addCurvesFromAddressFil
             }
         }
         curveAddressesToUse.insert( historyAddressesToUse.begin(), historyAddressesToUse.end() );
+    }
+
+    if ( !curveFilters.isEmpty() && curveAddressesToUse.empty() && !addrs.empty() )
+    {
+        // The curve filter returns no match, use first available address
+
+        curveAddressesToUse.insert( *addrs.begin() );
     }
 
     for ( const auto& addr : curveAddressesToUse )

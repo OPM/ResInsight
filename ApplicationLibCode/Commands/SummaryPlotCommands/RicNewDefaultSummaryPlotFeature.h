@@ -22,15 +22,22 @@
 
 #include "cafCmdFeature.h"
 
+class RimSummaryPlotCollection;
+class RimSummaryCase;
+class RimSummaryPlot;
+
 //==================================================================================================
 ///
 //==================================================================================================
-class RicNewSummaryPlotFeature : public caf::CmdFeature
+class RicNewDefaultSummaryPlotFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
 
+public:
+    static RimSummaryPlot* createFromSummaryCases( RimSummaryPlotCollection*           plotCollection,
+                                                   const std::vector<RimSummaryCase*>& summaryCases );
+
 protected:
-    // Overrides
     bool isCommandEnabled() override;
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;

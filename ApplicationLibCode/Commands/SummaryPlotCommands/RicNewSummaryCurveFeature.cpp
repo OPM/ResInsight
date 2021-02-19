@@ -23,6 +23,8 @@
 
 #include "RiaSummaryTools.h"
 #include "RimMainPlotCollection.h"
+#include "RimObservedDataCollection.h"
+#include "RimObservedSummaryData.h"
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimSummaryCaseMainCollection.h"
@@ -67,15 +69,21 @@ void RicNewSummaryCurveFeature::onActionTriggered( bool isChecked )
         {
             defaultCase = plot->summaryCurves().back()->summaryCaseY();
         }
-        else if ( project->activeOilField()->summaryCaseMainCollection()->summaryCaseCount() > 0 )
-        {
-            defaultCase = project->activeOilField()->summaryCaseMainCollection()->summaryCase( 0 );
-        }
 
         if ( !defaultCase )
         {
             std::vector<RimSummaryCase*> allSummaryCases =
                 project->activeOilField()->summaryCaseMainCollection()->allSummaryCases();
+
+            if ( !allSummaryCases.empty() )
+            {
+                defaultCase = allSummaryCases.front();
+            }
+        }
+
+        if ( !defaultCase )
+        {
+            auto allSummaryCases = project->activeOilField()->observedDataCollection()->allObservedSummaryData();
 
             if ( !allSummaryCases.empty() )
             {
