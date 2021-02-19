@@ -714,7 +714,7 @@ QList<caf::PdmOptionItemInfo>
                 continue;
             }
 
-            if ( resType == RiaDefines::ResultCatType::FLOW_DIAGNOSTICS &&
+            if ( resType == RiaDefines::ResultCatType::FLOW_DIAGNOSTICS && m_eclipseCase &&
                  m_eclipseCase->eclipseCaseData()->hasFractureResults() )
             {
                 // Flow diagnostics is not supported for dual porosity models
