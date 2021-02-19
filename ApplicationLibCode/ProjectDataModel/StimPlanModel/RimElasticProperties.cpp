@@ -111,6 +111,14 @@ const RigElasticProperties& RimElasticProperties::propertiesForFacies( FaciesKey
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimElasticProperties::clearProperties()
+{
+    m_properties.clear();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimElasticProperties::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
                                              const QVariant&            oldValue,
                                              const QVariant&            newValue )

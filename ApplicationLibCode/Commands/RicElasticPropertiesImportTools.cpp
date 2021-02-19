@@ -87,6 +87,11 @@ void RicElasticPropertiesImportTools::importElasticPropertiesFromFile( const QSt
 
     RimElasticProperties* rimElasticProperties = stimPlanModelTemplate->elasticProperties();
     if ( !rimElasticProperties ) rimElasticProperties = new RimElasticProperties;
+
+    // Clear the properties to avoid keeping data which has been deleted
+    // from the file since the last import.
+    rimElasticProperties->clearProperties();
+
     for ( FaciesKey key : faciesKeys )
     {
         std::vector<RifElasticProperties> matchingFacies;
