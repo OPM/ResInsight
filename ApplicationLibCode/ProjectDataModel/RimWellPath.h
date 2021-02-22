@@ -159,7 +159,6 @@ protected:
     void                          fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
                                                          bool*                      useOptionsOnly ) override;
-    void                          initAfterRead() override;
     void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName ) override;
 
@@ -196,8 +195,4 @@ private:
     // Geometry and data
     cvf::ref<RigWellPath>           m_wellPathGeometry;
     cvf::ref<RigWellPathFormations> m_wellPathFormations;
-
-    // Obsolete fields
-
-    caf::PdmChildField<RimWellLogFile*> m_wellLogFile_OBSOLETE;
 };

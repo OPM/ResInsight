@@ -207,7 +207,6 @@ private:
 private:
     caf::PdmField<bool> m_showInvalidCells;
     caf::PdmField<bool> m_showInactiveCells;
-    caf::PdmField<bool> m_showMainGrid_OBSOLETE;
 
     caf::PdmChildField<RimEclipseCellColors*>         m_cellResult;
     caf::PdmChildField<RimCellEdgeColors*>            m_cellEdgeResult;

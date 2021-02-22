@@ -121,9 +121,6 @@ RimWellPath::RimWellPath()
     CAF_PDM_InitFieldNoDefault( &m_wellPathFormationFilePath, "WellPathFormationFilePath", "File Path", "", "", "" );
     m_wellPathFormationFilePath.uiCapability()->setUiReadOnly( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_wellLogFile_OBSOLETE, "WellLogFile", "Well Log File", "", "", "" );
-    RiaFieldhandleTools::disableWriteAndSetFieldHidden( &m_wellLogFile_OBSOLETE );
-
     CAF_PDM_InitFieldNoDefault( &m_wellPathAttributes, "WellPathAttributes", "Casing Design Rubbish", "", "", "" );
     m_wellPathAttributes = new RimWellPathAttributeCollection;
     m_wellPathAttributes->uiCapability()->setUiTreeHidden( true );
@@ -136,11 +133,6 @@ RimWellPath::RimWellPath()
 //--------------------------------------------------------------------------------------------------
 RimWellPath::~RimWellPath()
 {
-    if ( m_wellLogFile_OBSOLETE() )
-    {
-        delete m_wellLogFile_OBSOLETE;
-    }
-
     for ( const auto& file : m_wellLogFiles() )
     {
         delete file;
@@ -457,20 +449,6 @@ QList<caf::PdmOptionItemInfo> RimWellPath::calculateValueOptions( const caf::Pdm
     }
 
     return options;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimWellPath::initAfterRead()
-{
-    RimWellLogFile* wellLogFile = m_wellLogFile_OBSOLETE();
-    m_wellLogFile_OBSOLETE      = nullptr;
-
-    if ( wellLogFile != nullptr )
-    {
-        m_wellLogFiles.push_back( wellLogFile );
-    }
 }
 
 //--------------------------------------------------------------------------------------------------

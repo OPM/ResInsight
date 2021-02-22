@@ -161,7 +161,6 @@ protected:
     caf::PdmChildField<RimWellLogCurveCommonDataSource*> m_commonDataSource;
     bool                                                 m_commonDataSourceEnabled;
 
-    caf::PdmField<bool>                                    m_showPlotWindowTitle_OBSOLETE;
     caf::PdmField<QString>                                 m_plotWindowTitle;
     caf::PdmField<caf::AppEnum<DepthTypeEnum>>             m_depthType;
     caf::PdmField<caf::AppEnum<RiaDefines::DepthUnitType>> m_depthUnit;

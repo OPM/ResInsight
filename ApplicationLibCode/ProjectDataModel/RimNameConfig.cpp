@@ -35,10 +35,8 @@ RimNameConfig::RimNameConfig( const QString& customName )
 {
     CAF_PDM_InitObject( "Curve Name Generator", "", "", "" );
 
-    CAF_PDM_InitField( &m_isUsingAutoName_OBSOLETE, "IsUsingAutoName", true, "Add Automatic Name Tags", "", "", "" );
     CAF_PDM_InitFieldNoDefault( &m_customName, "CustomCurveName", "Custom Name Part", "", "", "" );
     CAF_PDM_InitFieldNoDefault( &m_autoName, "AutoCurveName", "Full Name", "", "", "" );
-    m_isUsingAutoName_OBSOLETE.xmlCapability()->setIOWritable( false );
     m_autoName.registerGetMethod( this, &RimNameConfig::autoName );
     m_autoName.xmlCapability()->disableIO();
     m_autoName.uiCapability()->setUiReadOnly( true );
@@ -145,17 +143,5 @@ void RimNameConfig::updateAllSettings()
     if ( pdmObject )
     {
         pdmObject->updateConnectedEditors();
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimNameConfig::initAfterRead()
-{
-    // Now we just switch them all individually.
-    if ( !m_isUsingAutoName_OBSOLETE() )
-    {
-        doEnableAllAutoNameTags( false );
     }
 }

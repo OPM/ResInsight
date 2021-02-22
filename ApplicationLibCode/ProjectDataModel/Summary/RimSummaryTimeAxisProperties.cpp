@@ -28,7 +28,9 @@
 #include "cafPdmUiDateEditor.h"
 #include "cafPdmUiLineEditor.h"
 #include "cafPdmUiTimeEditor.h"
+
 #include "cvfAssert.h"
+
 #include "qwt_date.h"
 
 namespace caf
@@ -118,12 +120,6 @@ RimSummaryTimeAxisProperties::RimSummaryTimeAxisProperties()
     CAF_PDM_InitFieldNoDefault( &m_annotations, "Annotations", "", "", "", "" );
 
     m_annotations.uiCapability()->setUiHidden( true );
-
-    CAF_PDM_InitFieldNoDefault( &m_visibleDateTimeRangeMax_OBSOLETE, "VisibleRangeMax", "Max", "", "", "" );
-    m_visibleDateTimeRangeMax_OBSOLETE.uiCapability()->setUiEditorTypeName( caf::PdmUiLineEditor::uiEditorTypeName() );
-
-    CAF_PDM_InitFieldNoDefault( &m_visibleDateTimeRangeMin_OBSOLETE, "VisibleRangeMin", "Min", "", "", "" );
-    m_visibleDateTimeRangeMin_OBSOLETE.uiCapability()->setUiEditorTypeName( caf::PdmUiLineEditor::uiEditorTypeName() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -674,25 +670,6 @@ void RimSummaryTimeAxisProperties::fieldChangedByUi( const caf::PdmFieldHandle* 
     }
 
     rimSummaryPlot->updateAxes();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimSummaryTimeAxisProperties::initAfterRead()
-{
-    QDateTime maxDateTime = m_visibleDateTimeRangeMax_OBSOLETE();
-    QDateTime minDateTime = m_visibleDateTimeRangeMin_OBSOLETE();
-    if ( maxDateTime.isValid() )
-    {
-        m_visibleDateRangeMax = maxDateTime.date();
-        m_visibleTimeRangeMax = maxDateTime.time();
-    }
-    if ( minDateTime.isValid() )
-    {
-        m_visibleDateRangeMin = minDateTime.date();
-        m_visibleTimeRangeMin = minDateTime.time();
-    }
 }
 
 //--------------------------------------------------------------------------------------------------

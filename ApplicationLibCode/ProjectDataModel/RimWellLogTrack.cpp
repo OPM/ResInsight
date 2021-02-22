@@ -207,19 +207,12 @@ RimWellLogTrack::RimWellLogTrack()
     CAF_PDM_InitFieldNoDefault( &m_regionAnnotationType, "AnnotationType", "Region Annotations", "", "", "" );
     CAF_PDM_InitFieldNoDefault( &m_regionAnnotationDisplay, "RegionDisplay", "Region Display", "", "", "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_colorShadingPalette_OBSOLETE, "ColorShadingPalette", "Colors", "", "", "" );
-    m_colorShadingPalette_OBSOLETE.xmlCapability()->setIOWritable( false );
-    m_colorShadingPalette_OBSOLETE = RimRegularLegendConfig::ColorRangesType::UNDEFINED;
-    m_colorShadingPalette_OBSOLETE.uiCapability()->setUiHidden( true );
-
     CAF_PDM_InitFieldNoDefault( &m_colorShadingLegend, "ColorShadingLegend", "Colors", "", "", "" );
     m_colorShadingLegend = RimRegularLegendConfig::mapToColorLegend( RimRegularLegendConfig::ColorRangesType::NORMAL );
 
     CAF_PDM_InitField( &m_colorShadingTransparency, "ColorShadingTransparency", 50, "Color Transparency", "", "", "" );
     m_colorShadingTransparency.uiCapability()->setUiEditorTypeName( caf::PdmUiSliderEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitField( &m_showFormations_OBSOLETE, "ShowFormations", false, "Show Lines", "", "", "" );
-    m_showFormations_OBSOLETE.xmlCapability()->setIOWritable( false );
     CAF_PDM_InitField( &m_showRegionLabels, "ShowFormationLabels", true, "Show Labels", "", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_formationSource, "FormationSource", "Source", "", "", "" );
@@ -272,10 +265,6 @@ RimWellLogTrack::RimWellLogTrack()
     m_resultDefinition.uiCapability()->setUiHidden( true );
     m_resultDefinition.uiCapability()->setUiTreeChildrenHidden( true );
     m_resultDefinition = new RimEclipseResultDefinition;
-
-    CAF_PDM_InitField( &m_show_OBSOLETE, "Show", false, "Show Plot", "", "", "" );
-    m_show_OBSOLETE.uiCapability()->setUiHidden( true );
-    m_show_OBSOLETE.xmlCapability()->setIOWritable( false );
 
     m_formationsForCaseWithSimWellOnly = false;
 }
@@ -595,7 +584,7 @@ void RimWellLogTrack::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
     }
     else if ( changedField == &m_regionAnnotationType || changedField == &m_regionAnnotationDisplay ||
               changedField == &m_formationSource || changedField == &m_colorShadingTransparency ||
-              changedField == &m_colorShadingPalette_OBSOLETE || changedField == &m_colorShadingLegend )
+              changedField == &m_colorShadingLegend )
     {
         if ( changedField == &m_formationSource && m_formationSource == WELL_PICK_FILTER )
         {
@@ -1817,13 +1806,6 @@ void RimWellLogTrack::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering
 //--------------------------------------------------------------------------------------------------
 void RimWellLogTrack::initAfterRead()
 {
-    if ( m_showFormations_OBSOLETE() &&
-         m_regionAnnotationType() == RiuPlotAnnotationTool::RegionAnnotationType::NO_ANNOTATIONS )
-    {
-        m_regionAnnotationType    = RiuPlotAnnotationTool::RegionAnnotationType::FORMATION_ANNOTATIONS;
-        m_regionAnnotationDisplay = RiuPlotAnnotationTool::DARK_LINES;
-    }
-
     if ( m_regionAnnotationType() == RiuPlotAnnotationTool::RegionAnnotationType::RESULT_PROPERTY_ANNOTATIONS )
     {
         RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>( m_formationCase.value() );
@@ -1833,16 +1815,6 @@ void RimWellLogTrack::initAfterRead()
     if ( m_xAxisGridVisibility() == RimWellLogPlot::AXIS_GRID_MINOR )
     {
         m_xAxisGridVisibility = RimWellLogPlot::AXIS_GRID_MAJOR_AND_MINOR;
-    }
-
-    if ( m_show_OBSOLETE )
-    {
-        m_showWindow = true;
-    }
-
-    if ( m_colorShadingPalette_OBSOLETE() != RimRegularLegendConfig::ColorRangesType::UNDEFINED )
-    {
-        m_colorShadingLegend = RimRegularLegendConfig::mapToColorLegend( m_colorShadingPalette_OBSOLETE() );
     }
 
     for ( auto curve : m_curves )
@@ -2456,7 +2428,6 @@ void RimWellLogTrack::setFormationFieldsUiReadOnly( bool readOnly /*= true*/ )
     m_formationLevel.uiCapability()->setUiReadOnly( readOnly );
     m_showformationFluids.uiCapability()->setUiReadOnly( readOnly );
     m_colorShadingTransparency.uiCapability()->setUiReadOnly( readOnly );
-    m_colorShadingPalette_OBSOLETE.uiCapability()->setUiReadOnly( readOnly );
     m_colorShadingLegend.uiCapability()->setUiReadOnly( readOnly );
 }
 

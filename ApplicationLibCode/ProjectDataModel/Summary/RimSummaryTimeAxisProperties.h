@@ -114,7 +114,6 @@ protected:
                                                          bool*                      useOptionsOnly ) override;
     caf::PdmFieldHandle*          objectToggleField() override;
     void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
-    void                          initAfterRead() override;
     void                          defineEditorAttribute( const caf::PdmFieldHandle* field,
                                                          QString                    uiConfigName,
                                                          caf::PdmUiEditorAttribute* attribute ) override;
@@ -150,7 +149,4 @@ private:
     caf::PdmField<QString>                             m_timeFormat;
     caf::PdmField<LegendTickmarkCountEnum>             m_majorTickmarkCount;
     caf::PdmChildArrayField<RimPlotAxisAnnotation*>    m_annotations;
-
-    caf::PdmField<QDateTime> m_visibleDateTimeRangeMin_OBSOLETE;
-    caf::PdmField<QDateTime> m_visibleDateTimeRangeMax_OBSOLETE;
 };

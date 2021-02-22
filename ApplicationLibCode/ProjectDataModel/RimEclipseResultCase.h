@@ -85,8 +85,6 @@ private:
 private:
     cvf::ref<RifReaderInterface> createMockModel( QString modelName );
 
-    void initAfterRead() override;
-
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
     cvf::ref<RigFlowDiagSolverInterface> m_flowDagSolverInterface;
@@ -97,9 +95,6 @@ private:
     caf::PdmProxyValueField<caf::AppEnum<RiaDefines::EclipseUnitSystem>> m_unitSystem;
     caf::PdmChildArrayField<RimFlowDiagSolution*>                        m_flowDiagSolutions;
     caf::PdmField<caf::FilePath>                                         m_sourSimFileName;
-
-    // Obsolete field
-    caf::PdmField<QString> caseDirectory;
 
     bool m_gridAndWellDataIsReadFromFile;
     bool m_activeCellInfoIsReadFromFile;

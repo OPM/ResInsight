@@ -135,9 +135,6 @@ private:
     caf::PdmField<int>                               m_compactionRefLayerUiField;
     caf::PdmPointer<RimGeoMechCase>                  m_geomCase;
 
-    // Obsolete Data Fields
-    caf::PdmField<bool> m_isTimeLapseResult_OBSOLETE;
-
     bool m_isChangedByField;
     bool m_addWellPathDerivedResults;
 };

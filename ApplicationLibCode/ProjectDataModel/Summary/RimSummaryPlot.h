@@ -275,11 +275,4 @@ private:
     bool m_isCrossPlot;
 
     std::unique_ptr<RimSummaryPlotNameHelper> m_nameHelperAllCurves;
-
-    // Obsolete fields
-    caf::PdmChildArrayField<RimSummaryCurve*>                m_summaryCurves_OBSOLETE;
-    caf::PdmChildArrayField<RimSummaryCurveFilter_OBSOLETE*> m_curveFilters_OBSOLETE;
-    caf::PdmField<bool>                                      m_isAutoZoom_OBSOLETE;
-
-    caf::PdmField<bool> m_showLegend_OBSOLETE;
 };

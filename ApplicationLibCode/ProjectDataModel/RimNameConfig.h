@@ -61,13 +61,11 @@ protected:
     void         fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     QString      autoName() const;
     virtual void updateAllSettings();
-    void         initAfterRead() override;
 
 private:
     virtual void doEnableAllAutoNameTags( bool enable ) = 0;
 
 private:
-    caf::PdmField<bool>              m_isUsingAutoName_OBSOLETE;
     caf::PdmField<QString>           m_customName;
     caf::PdmProxyValueField<QString> m_autoName;
 };

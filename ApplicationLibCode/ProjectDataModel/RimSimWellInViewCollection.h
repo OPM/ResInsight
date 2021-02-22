@@ -172,7 +172,6 @@ protected:
                                                          bool*                      useOptionsOnly ) override;
 
     caf::PdmFieldHandle* objectToggleField() override;
-    void                 initAfterRead() override;
 
 private:
     void calculateWellGeometryVisibility( size_t frameIndex );
@@ -206,12 +205,4 @@ private:
     caf::PdmField<bool>                                     m_wellDiskShowQuantityLabels;
     caf::PdmField<bool>                                     m_wellDiskshowLabelsBackground;
     caf::PdmField<double>                                   m_wellDiskScaleFactor;
-
-    // Obsolete fields
-    caf::PdmField<WellVisibilityEnum>       obsoleteField_wellPipeVisibility;
-    caf::PdmField<WellCellsRangeFilterEnum> obsoleteField_wellCellsToRangeFilterMode;
-
-    caf::PdmField<bool> obsoleteField_showWellLabel;
-    caf::PdmField<bool> obsoleteField_showWellHead;
-    caf::PdmField<bool> obsoleteField_showWellCellFence;
 };

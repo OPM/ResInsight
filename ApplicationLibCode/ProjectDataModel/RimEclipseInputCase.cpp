@@ -60,10 +60,6 @@ RimEclipseInputCase::RimEclipseInputCase()
     m_additionalFiles.registerGetMethod( this, &RimEclipseInputCase::additionalFiles );
     m_additionalFiles.uiCapability()->setUiReadOnly( true );
     m_additionalFiles.xmlCapability()->setIOWritable( false );
-
-    CAF_PDM_InitFieldNoDefault( &m_additionalFilenames_OBSOLETE, "AdditionalFileNames", "Additional Files", "", "", "" );
-    m_additionalFilenames_OBSOLETE.uiCapability()->setUiReadOnly( true );
-    RiaFieldhandleTools::disableWriteAndSetFieldHidden( &m_additionalFilenames_OBSOLETE );
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -81,10 +81,6 @@ RimEclipseResultCase::RimEclipseResultCase()
     m_flowDiagSolutions.uiCapability()->setUiTreeHidden( true );
     m_flowDiagSolutions.uiCapability()->setUiTreeChildrenHidden( true );
 
-    // Obsolete, unused field
-    CAF_PDM_InitField( &caseDirectory, "CaseFolder", QString(), "Directory", "", "", "" );
-    RiaFieldhandleTools::disableWriteAndSetFieldHidden( &caseDirectory );
-
     m_flipXAxis.xmlCapability()->setIOWritable( true );
     // flipXAxis.uiCapability()->setUiHidden(true);
     m_flipYAxis.xmlCapability()->setIOWritable( true );
@@ -588,23 +584,6 @@ void RimEclipseResultCase::setSourSimFileName( const QString& fileName )
 bool RimEclipseResultCase::hasSourSimFile()
 {
     return !m_sourSimFileName().path().isEmpty();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimEclipseResultCase::initAfterRead()
-{
-    RimEclipseCase::initAfterRead();
-
-    // Convert from old (9.0.2) way of storing the case file
-    if ( gridFileName().isEmpty() )
-    {
-        if ( !this->m_caseName_OBSOLETE().isEmpty() && !caseDirectory().isEmpty() )
-        {
-            setGridFileName( QDir::fromNativeSeparators( caseDirectory() ) + "/" + m_caseName_OBSOLETE() + ".EGRID" );
-        }
-    }
 }
 
 //--------------------------------------------------------------------------------------------------

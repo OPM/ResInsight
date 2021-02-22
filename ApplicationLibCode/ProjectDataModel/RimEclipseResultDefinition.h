@@ -152,7 +152,6 @@ protected:
     void defineEditorAttribute( const caf::PdmFieldHandle* field,
                                 QString                    uiConfigName,
                                 caf::PdmUiEditorAttribute* attribute ) override;
-    void onEditorWidgetsCreated() override;
 
 protected:
     caf::PdmField<caf::AppEnum<RiaDefines::ResultCatType>>     m_resultType;
@@ -191,8 +190,6 @@ protected:
     caf::PdmField<std::vector<QString>> m_selectedSouringTracersUiField;
 
     caf::PdmPointer<RimEclipseCase> m_eclipseCase;
-
-    caf::PdmField<std::vector<QString>> m_selectedTracers_OBSOLETE;
 
 private:
     struct TracerComp
@@ -242,8 +239,6 @@ private:
 
     bool showDerivedResultsFirstInVariableUiField() const;
     bool addPerCellFaceOptionsForVariableUiField() const;
-
-    void ensureProcessingOfObsoleteFields();
 
     QString getInputPropertyFileName( const QString& resultName ) const;
 

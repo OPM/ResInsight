@@ -84,15 +84,4 @@ private:
 
     double m_minimumResultValue;
     double m_maximumResultValue;
-
-public:
-    // Obsolete stuff
-    enum EvaluationRegionType
-    {
-        RANGE_FILTER_REGION,
-        GLOBAL_REGION
-    };
-
-private:
-    caf::PdmField<caf::AppEnum<EvaluationRegionType>> obsoleteField_evaluationRegion;
 };

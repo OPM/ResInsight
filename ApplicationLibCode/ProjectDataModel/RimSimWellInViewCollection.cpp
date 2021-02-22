@@ -55,31 +55,6 @@
 
 namespace caf
 {
-// OBSOLETE enum
-template <>
-void RimSimWellInViewCollection::WellVisibilityEnum::setUp()
-{
-    addItem( RimSimWellInViewCollection::PIPES_FORCE_ALL_OFF, "FORCE_ALL_OFF", "All Off" );
-    addItem( RimSimWellInViewCollection::PIPES_INDIVIDUALLY, "ALL_ON", "Individual" );
-    addItem( RimSimWellInViewCollection::PIPES_OPEN_IN_VISIBLE_CELLS, "OPEN_IN_VISIBLE_CELLS", "Visible cells filtered" );
-    addItem( RimSimWellInViewCollection::PIPES_FORCE_ALL_ON, "FORCE_ALL_ON", "All On" );
-}
-} // namespace caf
-
-namespace caf
-{
-// OBSOLETE enum
-template <>
-void RimSimWellInViewCollection::WellCellsRangeFilterEnum::setUp()
-{
-    addItem( RimSimWellInViewCollection::RANGE_ADD_NONE, "FORCE_ALL_OFF", "All Off" );
-    addItem( RimSimWellInViewCollection::RANGE_ADD_INDIVIDUAL, "ALL_ON", "Individually" );
-    addItem( RimSimWellInViewCollection::RANGE_ADD_ALL, "FORCE_ALL_ON", "All On" );
-}
-} // namespace caf
-
-namespace caf
-{
 template <>
 void RimSimWellInViewCollection::WellFenceEnum::setUp()
 {
@@ -275,31 +250,6 @@ RimSimWellInViewCollection::RimSimWellInViewCollection()
     CAF_PDM_InitField( &m_wellDiskScaleFactor, "WellDiskScaleFactor", 1.0, "Scale Factor", "", "", "" );
     cvf::Color3f defaultWellDiskColor = cvf::Color3::OLIVE;
     CAF_PDM_InitField( &wellDiskColor, "WellDiskColor", defaultWellDiskColor, "Well Disk Color", "", "", "" );
-
-    CAF_PDM_InitField( &obsoleteField_wellPipeVisibility,
-                       "GlobalWellPipeVisibility",
-                       WellVisibilityEnum( PIPES_INDIVIDUALLY ),
-                       "Global well pipe visibility",
-                       "",
-                       "",
-                       "" );
-    RiaFieldhandleTools::disableWriteAndSetFieldHidden( &obsoleteField_wellPipeVisibility );
-
-    CAF_PDM_InitField( &obsoleteField_wellCellsToRangeFilterMode,
-                       "GlobalWellCellVisibility",
-                       WellCellsRangeFilterEnum( RANGE_ADD_INDIVIDUAL ),
-                       "Add cells to range filter",
-                       "",
-                       "",
-                       "" );
-    RiaFieldhandleTools::disableWriteAndSetFieldHidden( &obsoleteField_wellCellsToRangeFilterMode );
-
-    CAF_PDM_InitField( &obsoleteField_showWellHead, "ShowWellHead", true, "Show Well Head", "", "", "" );
-    CAF_PDM_InitField( &obsoleteField_showWellLabel, "ShowWellLabel", true, "Show Well Label", "", "", "" );
-    CAF_PDM_InitField( &obsoleteField_showWellCellFence, "ShowWellFences", false, "Show Well Cell Fence", "", "", "" );
-    RiaFieldhandleTools::disableWriteAndSetFieldHidden( &obsoleteField_showWellHead );
-    RiaFieldhandleTools::disableWriteAndSetFieldHidden( &obsoleteField_showWellLabel );
-    RiaFieldhandleTools::disableWriteAndSetFieldHidden( &obsoleteField_showWellCellFence );
 
     CAF_PDM_InitField( &m_showWellCommunicationLines, "ShowWellCommunicationLines", false, "Communication Lines", "", "", "" );
 
@@ -877,74 +827,6 @@ void RimSimWellInViewCollection::updateStateFromEnabledChildCount( size_t       
 caf::PdmFieldHandle* RimSimWellInViewCollection::objectToggleField()
 {
     return &isActive;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimSimWellInViewCollection::initAfterRead()
-{
-    if ( obsoleteField_wellPipeVisibility() == PIPES_OPEN_IN_VISIBLE_CELLS )
-    {
-        showWellsIntersectingVisibleCells = true;
-    }
-    else if ( obsoleteField_wellPipeVisibility() == PIPES_FORCE_ALL_OFF )
-    {
-        showWellsIntersectingVisibleCells = false;
-
-        for ( RimSimWellInView* w : wells )
-        {
-            w->showWellPipe = false;
-        }
-    }
-    else if ( obsoleteField_wellPipeVisibility() == PIPES_FORCE_ALL_ON )
-    {
-        showWellsIntersectingVisibleCells = false;
-
-        for ( RimSimWellInView* w : wells )
-        {
-            w->showWellPipe = true;
-        }
-    }
-
-    if ( obsoleteField_wellCellsToRangeFilterMode() == RANGE_ADD_NONE )
-    {
-        for ( RimSimWellInView* w : wells )
-        {
-            w->showWellCells = false;
-        }
-    }
-    else if ( obsoleteField_wellCellsToRangeFilterMode() == RANGE_ADD_ALL )
-    {
-        for ( RimSimWellInView* w : wells )
-        {
-            w->showWellCells = true;
-        }
-    }
-
-    if ( !obsoleteField_showWellLabel() )
-    {
-        for ( RimSimWellInView* w : wells )
-        {
-            w->showWellLabel = false;
-        }
-    }
-
-    if ( !obsoleteField_showWellHead() )
-    {
-        for ( RimSimWellInView* w : wells )
-        {
-            w->showWellHead = false;
-        }
-    }
-
-    if ( obsoleteField_showWellCellFence() )
-    {
-        for ( RimSimWellInView* w : wells )
-        {
-            w->showWellCellFence = true;
-        }
-    }
 }
 
 //--------------------------------------------------------------------------------------------------

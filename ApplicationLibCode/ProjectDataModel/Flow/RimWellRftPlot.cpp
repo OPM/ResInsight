@@ -89,10 +89,6 @@ RimWellRftPlot::RimWellRftPlot()
     CAF_PDM_InitField( &m_showEnsembleCurves, "ShowEnsembleCurves", true, "Show Ensemble Curves", "", "", "" );
     CAF_PDM_InitField( &m_showErrorInObservedData, "ShowErrorObserved", true, "Show Observed Data Error", "", "", "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_wellLogPlot_OBSOLETE, "WellLog", "Well Log", "", "", "" );
-    m_wellLogPlot_OBSOLETE.uiCapability()->setUiHidden( true );
-    m_wellLogPlot_OBSOLETE.xmlCapability()->setIOWritable( false );
-
     m_depthType = RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH;
 
     CAF_PDM_InitFieldNoDefault( &m_wellPathNameOrSimWellName, "WellName", "Well Name", "", "", "" );
@@ -1101,14 +1097,6 @@ void RimWellRftPlot::onLoadDataAndUpdate()
 //--------------------------------------------------------------------------------------------------
 void RimWellRftPlot::initAfterRead()
 {
-    if ( m_wellLogPlot_OBSOLETE )
-    {
-        RimWellLogPlot& wellLogPlot = dynamic_cast<RimWellLogPlot&>( *this );
-        wellLogPlot                 = std::move( *m_wellLogPlot_OBSOLETE.value() );
-        delete m_wellLogPlot_OBSOLETE;
-        m_wellLogPlot_OBSOLETE = nullptr;
-    }
-
     RimWellLogPlot::initAfterRead();
 }
 
