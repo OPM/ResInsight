@@ -54,7 +54,6 @@
 #include "cafProgressInfo.h"
 
 #include "cvfDrawableGeo.h"
-#include "cvfMath.h"
 #include "cvfModelBasicList.h"
 #include "cvfPart.h"
 #include "cvfRenderStateBlending.h"

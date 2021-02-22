@@ -19,7 +19,6 @@
 
 #pragma once
 
-#include "cvfMath.h"
 #include "cvfObject.h"
 #include "cvfVector3.h"
 

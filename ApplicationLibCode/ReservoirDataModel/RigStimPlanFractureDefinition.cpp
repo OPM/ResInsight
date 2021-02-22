@@ -28,8 +28,6 @@
 
 #include "RivWellFracturePartMgr.h"
 
-#include "cvfMath.h"
-
 #include <cmath>
 
 //--------------------------------------------------------------------------------------------------

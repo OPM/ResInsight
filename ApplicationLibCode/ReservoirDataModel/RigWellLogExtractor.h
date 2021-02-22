@@ -22,7 +22,6 @@
 #include "RigHexIntersectionTools.h"
 #include "RigWellLogExtractionTools.h"
 
-#include "cvfMath.h"
 #include "cvfObject.h"
 #include "cvfStructGrid.h"
 #include "cvfVector3.h"

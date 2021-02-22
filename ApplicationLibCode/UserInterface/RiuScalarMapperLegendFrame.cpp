@@ -100,7 +100,7 @@ void RiuScalarMapperLegendFrame::layoutInfo( LayoutInfo* layout ) const
         double t = 0.0;
         if ( m_scalarMapper.notNull() )
         {
-            t = cvf::Math::clamp( m_scalarMapper->normalizedValue( m_tickValues[i] ), 0.0, 1.1 );
+            t = std::clamp( m_scalarMapper->normalizedValue( m_tickValues[i] ), 0.0, 1.1 );
         }
 
         if ( i == 0 )

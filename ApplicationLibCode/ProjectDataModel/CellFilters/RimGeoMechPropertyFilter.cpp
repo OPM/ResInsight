@@ -33,7 +33,6 @@
 #include "cafPdmUiDoubleSliderEditor.h"
 
 #include "cvfAssert.h"
-#include "cvfMath.h"
 
 CAF_PDM_SOURCE_INIT( RimGeoMechPropertyFilter, "GeoMechPropertyFilter" );
 

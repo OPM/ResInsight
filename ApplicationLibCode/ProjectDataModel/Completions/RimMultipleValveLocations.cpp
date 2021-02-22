@@ -82,8 +82,8 @@ void RimMultipleValveLocations::perforationIntervalUpdated()
 {
     double existingRangeStart = m_rangeStart();
     double existingRangeEnd   = m_rangeEnd();
-    m_rangeStart              = cvf::Math::clamp( m_rangeStart(), perforationStartMD(), perforationEndMD() );
-    m_rangeEnd                = cvf::Math::clamp( m_rangeEnd(), perforationStartMD(), perforationEndMD() );
+    m_rangeStart              = std::clamp( m_rangeStart(), perforationStartMD(), perforationEndMD() );
+    m_rangeEnd                = std::clamp( m_rangeEnd(), perforationStartMD(), perforationEndMD() );
     if ( existingRangeStart != m_rangeStart() || existingRangeEnd != m_rangeEnd() )
     {
         computeRangesAndLocations();
@@ -318,8 +318,8 @@ void RimMultipleValveLocations::fieldChangedByUi( const caf::PdmFieldHandle* cha
          changedField == &m_rangeValveSpacing )
     {
         recomputeLocations = true;
-        m_rangeStart       = cvf::Math::clamp( m_rangeStart(), perforationStartMD(), perforationEndMD() );
-        m_rangeEnd         = cvf::Math::clamp( m_rangeEnd(), perforationStartMD(), perforationEndMD() );
+        m_rangeStart       = std::clamp( m_rangeStart(), perforationStartMD(), perforationEndMD() );
+        m_rangeEnd         = std::clamp( m_rangeEnd(), perforationStartMD(), perforationEndMD() );
     }
 
     if ( changedField == &m_rangeValveSpacing )
@@ -331,13 +331,13 @@ void RimMultipleValveLocations::fieldChangedByUi( const caf::PdmFieldHandle* cha
         if ( wellPath->unitSystem() == RiaDefines::EclipseUnitSystem::UNITS_FIELD )
         {
             double minimumDistanceFeet = RiaEclipseUnitTools::meterToFeet( minimumDistanceMeter );
-            m_rangeValveSpacing        = cvf::Math::clamp( m_rangeValveSpacing(),
+            m_rangeValveSpacing        = std::clamp( m_rangeValveSpacing(),
                                                     minimumDistanceFeet,
                                                     std::max( m_rangeValveSpacing(), minimumDistanceFeet ) );
         }
         else
         {
-            m_rangeValveSpacing = cvf::Math::clamp( m_rangeValveSpacing(),
+            m_rangeValveSpacing = std::clamp( m_rangeValveSpacing(),
                                                     minimumDistanceMeter,
                                                     std::max( m_rangeValveSpacing(), minimumDistanceMeter ) );
         }

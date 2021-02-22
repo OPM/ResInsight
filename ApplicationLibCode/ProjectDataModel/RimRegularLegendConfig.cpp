@@ -273,7 +273,7 @@ void RimRegularLegendConfig::fieldChangedByUi( const caf::PdmFieldHandle* change
     if ( changedField == &m_numLevels )
     {
         int upperLimit = std::numeric_limits<int>::max();
-        m_numLevels    = cvf::Math::clamp( m_numLevels.v(), 1, upperLimit );
+        m_numLevels    = std::clamp( m_numLevels.v(), 1, upperLimit );
     }
     else if ( changedField == &m_rangeMode || changedField == &m_mappingMode )
     {
@@ -585,7 +585,7 @@ void RimRegularLegendConfig::updateLegend()
     {
         numDecimalDigits -= static_cast<int>( decadesInRange );
     }
-    numDecimalDigits          = cvf::Math::clamp( numDecimalDigits, 0, 20 );
+    numDecimalDigits          = std::clamp( numDecimalDigits, 0, 20 );
     m_significantDigitsInData = numDecimalDigits;
     m_scalarMapperLegend->setTickPrecision( numDecimalDigits );
 
@@ -857,7 +857,7 @@ void RimRegularLegendConfig::configureCategoryMapper()
             {
                 if ( legendItem->categoryValue() == value )
                 {
-                    int zeroBasedIndex = cvf::Math::clamp( value - 1, 0, int( colorArray.size() - 1 ) );
+                    int zeroBasedIndex = std::clamp( value - 1, 0, int( colorArray.size() - 1 ) );
                     colorArray.set( zeroBasedIndex, cvf::Color3ub( legendItem->color() ) );
                 }
             }

@@ -18,8 +18,6 @@
 
 #include "RiuQwtPlotWheelZoomer.h"
 
-#include "cvfMath.h"
-
 #include "qwt_plot.h"
 #include "qwt_scale_div.h"
 #include <QEvent>
@@ -60,8 +58,8 @@ void RiuQwtPlotWheelZoomer::zoomOnAxis( QwtPlot* plot, QwtPlot::Axis axis, doubl
         double maxValue =
             std::max( RIU_LOGARITHMIC_MINIMUM, 10.0 * std::max( axisRange.minValue(), axisRange.maxValue() ) );
 
-        newMin = cvf::Math::clamp( newMin, minValue, maxValue );
-        newMax = cvf::Math::clamp( newMax, minValue, maxValue );
+        newMin = std::clamp( newMin, minValue, maxValue );
+        newMax = std::clamp( newMax, minValue, maxValue );
     }
 
     plot->setAxisScale( axis, newMin, newMax );

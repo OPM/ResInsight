@@ -28,7 +28,6 @@
 #include "cafAppEnum.h"
 #include "cafTensor3.h"
 
-#include "cvfMath.h"
 #include "cvfObject.h"
 #include "cvfStructGrid.h"
 #include "cvfVector3.h"

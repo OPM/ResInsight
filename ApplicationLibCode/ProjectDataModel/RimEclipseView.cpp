@@ -781,7 +781,7 @@ void RimEclipseView::updateVisibleGeometries()
 
         // Set the transparency on all the Wellcell parts before setting the result color
         float opacity =
-            static_cast<float>( 1 - cvf::Math::clamp( this->wellCollection()->wellCellTransparencyLevel(), 0.0, 1.0 ) );
+            static_cast<float>( 1 - std::clamp( this->wellCollection()->wellCellTransparencyLevel(), 0.0, 1.0 ) );
         m_reservoirGridPartManager->updateCellColor( PROPERTY_FILTERED_WELL_CELLS,
                                                      m_currentTimeStep,
                                                      cvf::Color4f( cvf::Color3f( cvf::Color3::WHITE ), opacity ) );
@@ -1138,7 +1138,7 @@ void RimEclipseView::updateStaticCellColors( RivCellSetEnum geometryType )
 cvf::Color4f RimEclipseView::colorFromCellCategory( RivCellSetEnum geometryType ) const
 {
     float opacity =
-        static_cast<float>( 1 - cvf::Math::clamp( this->wellCollection()->wellCellTransparencyLevel(), 0.0, 1.0 ) );
+        static_cast<float>( 1 - std::clamp( this->wellCollection()->wellCellTransparencyLevel(), 0.0, 1.0 ) );
     cvf::Color4f color( cvf::Color3::ORANGE );
 
     switch ( geometryType )

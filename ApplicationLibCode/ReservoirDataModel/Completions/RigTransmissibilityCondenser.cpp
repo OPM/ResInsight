@@ -25,8 +25,6 @@
 
 #include "cvfAssert.h"
 
-#include "cvfMath.h"
-
 #include <Eigen/Core>
 #include <Eigen/LU>
 

@@ -144,14 +144,14 @@ void RimCellRangeFilter::computeAndSetValidValues()
     const cvf::StructGridInterface* grid = selectedGrid();
     if ( grid && grid->cellCountI() > 0 && grid->cellCountJ() > 0 && grid->cellCountK() > 0 )
     {
-        cellCountI  = cvf::Math::clamp( cellCountI.v(), 1, static_cast<int>( grid->cellCountI() ) );
-        startIndexI = cvf::Math::clamp( startIndexI.v(), 1, static_cast<int>( grid->cellCountI() ) );
+        cellCountI  = std::clamp( cellCountI.v(), 1, static_cast<int>( grid->cellCountI() ) );
+        startIndexI = std::clamp( startIndexI.v(), 1, static_cast<int>( grid->cellCountI() ) );
 
-        cellCountJ  = cvf::Math::clamp( cellCountJ.v(), 1, static_cast<int>( grid->cellCountJ() ) );
-        startIndexJ = cvf::Math::clamp( startIndexJ.v(), 1, static_cast<int>( grid->cellCountJ() ) );
+        cellCountJ  = std::clamp( cellCountJ.v(), 1, static_cast<int>( grid->cellCountJ() ) );
+        startIndexJ = std::clamp( startIndexJ.v(), 1, static_cast<int>( grid->cellCountJ() ) );
 
-        cellCountK  = cvf::Math::clamp( cellCountK.v(), 1, static_cast<int>( grid->cellCountK() ) );
-        startIndexK = cvf::Math::clamp( startIndexK.v(), 1, static_cast<int>( grid->cellCountK() ) );
+        cellCountK  = std::clamp( cellCountK.v(), 1, static_cast<int>( grid->cellCountK() ) );
+        startIndexK = std::clamp( startIndexK.v(), 1, static_cast<int>( grid->cellCountK() ) );
     }
     this->updateIconState();
 }
