@@ -284,6 +284,21 @@ double RimFishbonesCollection::startMD() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+double RimFishbonesCollection::endMD() const
+{
+    double endMD = m_startMD;
+    if ( !m_fishbones.empty() )
+    {
+        auto lastFishbone = m_fishbones.childObjects().back();
+        CVF_ASSERT( lastFishbone );
+        endMD = lastFishbone->endMD();
+    }
+    return endMD;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 double RimFishbonesCollection::mainBoreDiameter( RiaDefines::EclipseUnitSystem unitSystem ) const
 {
     RimWellPath* wellPath;

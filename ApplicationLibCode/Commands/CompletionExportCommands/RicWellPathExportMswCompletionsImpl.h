@@ -25,6 +25,8 @@
 
 #include <gsl/gsl>
 
+#include <set>
+
 class RicExportCompletionDataSettingsUi;
 class RifTextDataTableFormatter;
 class RigActiveCellInfo;
@@ -43,6 +45,24 @@ class QFile;
 
 class RicWellPathExportMswCompletionsImpl
 {
+private:
+    class CvfVec3stComparator
+    {
+    public:
+        bool operator()( const cvf::Vec3st& lhs, const cvf::Vec3st& rhs ) const
+        {
+            if ( lhs.z() == rhs.z() )
+            {
+                if ( lhs.y() == rhs.y() )
+                {
+                    return lhs.x() < rhs.x();
+                }
+                return lhs.y() < rhs.y();
+            }
+            return lhs.z() < rhs.z();
+        }
+    };
+
 public:
     static void exportWellSegmentsForAllCompletions( const RicExportCompletionDataSettingsUi& exportSettings,
                                                      const std::vector<RimWellPath*>&         wellPaths );
@@ -148,7 +168,8 @@ private:
                                       gsl::not_null<const RicMswBranch*>                 branch,
                                       bool                                               exportSubGridIntersections,
                                       const std::set<RigCompletionData::CompletionType>& exportCompletionTypes,
-                                      gsl::not_null<bool*>                               headerGenerated );
+                                      gsl::not_null<bool*>                               headerGenerated,
+                                      gsl::not_null<std::set<cvf::Vec3st, CvfVec3stComparator>*> intersectedCells );
     static void generateCompsegHeader( RifTextDataTableFormatter&        formatter,
                                        RicMswExportInfo&                 exportInfo,
                                        RigCompletionData::CompletionType completionType,
@@ -218,9 +239,13 @@ private:
                                                 double                                overlapEnd,
                                                 bool*                                 foundSubGridIntersections );
 
-    static void assignBranchNumbersToCompletions( const RimEclipseCase*         caseToApply,
-                                                  gsl::not_null<RicMswSegment*> segment,
-                                                  gsl::not_null<int*>           branchNumber );
+    static void assignBranchNumbersToPerforations( const RimEclipseCase*         caseToApply,
+                                                   gsl::not_null<RicMswSegment*> segment,
+                                                   gsl::not_null<int*>           branchNumber );
+    static void assignBranchNumbersToOtherCompletions( const RimEclipseCase*         caseToApply,
+                                                       gsl::not_null<RicMswSegment*> segment,
+                                                       gsl::not_null<int*>           branchNumber );
+
     static void assignBranchNumbersToBranch( const RimEclipseCase*        caseToApply,
                                              RicMswExportInfo*            exportInfo,
                                              gsl::not_null<RicMswBranch*> branch,

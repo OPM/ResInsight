@@ -53,6 +53,7 @@ public:
 
     void   recalculateStartMD();
     double startMD() const;
+    double endMD() const;
     double mainBoreSkinFactor() const { return m_skinFactor; }
     double mainBoreDiameter( RiaDefines::EclipseUnitSystem unitSystem ) const;
     void   setUnitSystemSpecificDefaults();

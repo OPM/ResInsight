@@ -494,38 +494,80 @@ void RicWellPathExportMswCompletionsImpl::generateCompsegTables( RifTextDataTabl
      * should take precedence by appearing later in the output. See #3230.
      */
 
-    {
-        bool                                        headerGenerated = false;
-        std::set<RigCompletionData::CompletionType> fishbonesTypes  = { RigCompletionData::FISHBONES_ICD,
-                                                                       RigCompletionData::FISHBONES };
-        generateCompsegTable( formatter, exportInfo, exportInfo.mainBoreBranch(), false, fishbonesTypes, &headerGenerated );
-        if ( exportInfo.hasSubGridIntersections() )
-        {
-            generateCompsegTable( formatter, exportInfo, exportInfo.mainBoreBranch(), true, fishbonesTypes, &headerGenerated );
-        }
-    }
+    bool headerGenerated = false;
+
+    std::set<cvf::Vec3st, CvfVec3stComparator> intersectedCells;
 
     {
-        bool                                        headerGenerated = false;
-        std::set<RigCompletionData::CompletionType> fractureTypes   = { RigCompletionData::FRACTURE };
-        generateCompsegTable( formatter, exportInfo, exportInfo.mainBoreBranch(), false, fractureTypes, &headerGenerated );
-        if ( exportInfo.hasSubGridIntersections() )
-        {
-            generateCompsegTable( formatter, exportInfo, exportInfo.mainBoreBranch(), true, fractureTypes, &headerGenerated );
-        }
-    }
-
-    {
-        bool                                        headerGenerated  = false;
         std::set<RigCompletionData::CompletionType> perforationTypes = { RigCompletionData::PERFORATION,
                                                                          RigCompletionData::PERFORATION_ICD,
                                                                          RigCompletionData::PERFORATION_ICV,
                                                                          RigCompletionData::PERFORATION_AICD };
-        generateCompsegTable( formatter, exportInfo, exportInfo.mainBoreBranch(), false, perforationTypes, &headerGenerated );
+        generateCompsegTable( formatter,
+                              exportInfo,
+                              exportInfo.mainBoreBranch(),
+                              false,
+                              perforationTypes,
+                              &headerGenerated,
+                              &intersectedCells );
         if ( exportInfo.hasSubGridIntersections() )
         {
-            generateCompsegTable( formatter, exportInfo, exportInfo.mainBoreBranch(), true, perforationTypes, &headerGenerated );
+            generateCompsegTable( formatter,
+                                  exportInfo,
+                                  exportInfo.mainBoreBranch(),
+                                  true,
+                                  perforationTypes,
+                                  &headerGenerated,
+                                  &intersectedCells );
         }
+    }
+
+    {
+        std::set<RigCompletionData::CompletionType> fishbonesTypes = { RigCompletionData::FISHBONES_ICD,
+                                                                       RigCompletionData::FISHBONES };
+        generateCompsegTable( formatter,
+                              exportInfo,
+                              exportInfo.mainBoreBranch(),
+                              false,
+                              fishbonesTypes,
+                              &headerGenerated,
+                              &intersectedCells );
+        if ( exportInfo.hasSubGridIntersections() )
+        {
+            generateCompsegTable( formatter,
+                                  exportInfo,
+                                  exportInfo.mainBoreBranch(),
+                                  true,
+                                  fishbonesTypes,
+                                  &headerGenerated,
+                                  &intersectedCells );
+        }
+    }
+
+    {
+        std::set<RigCompletionData::CompletionType> fractureTypes = { RigCompletionData::FRACTURE };
+        generateCompsegTable( formatter,
+                              exportInfo,
+                              exportInfo.mainBoreBranch(),
+                              false,
+                              fractureTypes,
+                              &headerGenerated,
+                              &intersectedCells );
+        if ( exportInfo.hasSubGridIntersections() )
+        {
+            generateCompsegTable( formatter,
+                                  exportInfo,
+                                  exportInfo.mainBoreBranch(),
+                                  true,
+                                  fractureTypes,
+                                  &headerGenerated,
+                                  &intersectedCells );
+        }
+    }
+
+    if ( headerGenerated )
+    {
+        formatter.tableCompleted();
     }
 }
 
@@ -533,12 +575,13 @@ void RicWellPathExportMswCompletionsImpl::generateCompsegTables( RifTextDataTabl
 ///
 //--------------------------------------------------------------------------------------------------
 void RicWellPathExportMswCompletionsImpl::generateCompsegTable(
-    RifTextDataTableFormatter&                         formatter,
-    RicMswExportInfo&                                  exportInfo,
-    gsl::not_null<const RicMswBranch*>                 branch,
-    bool                                               exportSubGridIntersections,
-    const std::set<RigCompletionData::CompletionType>& exportCompletionTypes,
-    gsl::not_null<bool*>                               headerGenerated )
+    RifTextDataTableFormatter&                                 formatter,
+    RicMswExportInfo&                                          exportInfo,
+    gsl::not_null<const RicMswBranch*>                         branch,
+    bool                                                       exportSubGridIntersections,
+    const std::set<RigCompletionData::CompletionType>&         exportCompletionTypes,
+    gsl::not_null<bool*>                                       headerGenerated,
+    gsl::not_null<std::set<cvf::Vec3st, CvfVec3stComparator>*> intersectedCells )
 {
     for ( auto segment : branch->segments() )
     {
@@ -578,19 +621,24 @@ void RicWellPathExportMswCompletionsImpl::generateCompsegTable(
                                 endLength   = endMD;
                             }
 
-                            if ( exportSubGridIntersections )
-                            {
-                                formatter.add( intersection->gridName() );
-                            }
                             cvf::Vec3st ijk = intersection->gridLocalCellIJK();
-                            formatter.addOneBasedCellIndex( ijk.x() ).addOneBasedCellIndex( ijk.y() ).addOneBasedCellIndex(
-                                ijk.z() );
-                            formatter.add( completion->branchNumber() );
+                            if ( !intersectedCells->count( ijk ) )
+                            {
+                                if ( exportSubGridIntersections )
+                                {
+                                    formatter.add( intersection->gridName() );
+                                }
 
-                            formatter.add( startLength );
-                            formatter.add( endLength );
+                                formatter.addOneBasedCellIndex( ijk.x() ).addOneBasedCellIndex( ijk.y() ).addOneBasedCellIndex(
+                                    ijk.z() );
+                                formatter.add( completion->branchNumber() );
 
-                            formatter.rowCompleted();
+                                formatter.add( startLength );
+                                formatter.add( endLength );
+
+                                formatter.rowCompleted();
+                                intersectedCells->insert( ijk );
+                            }
                         }
                     }
                 }
@@ -600,12 +648,13 @@ void RicWellPathExportMswCompletionsImpl::generateCompsegTable(
 
     for ( auto childBranch : branch->branches() )
     {
-        generateCompsegTable( formatter, exportInfo, childBranch, exportSubGridIntersections, exportCompletionTypes, headerGenerated );
-    }
-
-    if ( branch == exportInfo.mainBoreBranch() && *headerGenerated )
-    {
-        formatter.tableCompleted();
+        generateCompsegTable( formatter,
+                              exportInfo,
+                              childBranch,
+                              exportSubGridIntersections,
+                              exportCompletionTypes,
+                              headerGenerated,
+                              intersectedCells );
     }
 }
 
@@ -941,7 +990,11 @@ void RicWellPathExportMswCompletionsImpl::generateFishbonesMswExportInfo(
 
     bool foundSubGridIntersections = false;
 
-    createWellPathSegments( branch, filteredIntersections, {}, wellPath, -1, caseToApply, &foundSubGridIntersections );
+    // Create a dummy perforation interval
+    RimPerforationInterval perfInterval;
+    perfInterval.setStartAndEndMD( wellPath->fishbonesCollection()->startMD(), wellPath->fishbonesCollection()->endMD() );
+
+    createWellPathSegments( branch, filteredIntersections, { &perfInterval }, wellPath, -1, caseToApply, &foundSubGridIntersections );
 
     double maxSegmentLength = enableSegmentSplitting ? mswParameters->maxSegmentLength()
                                                      : std::numeric_limits<double>::infinity();
@@ -1013,7 +1066,7 @@ void RicWellPathExportMswCompletionsImpl::generateFishbonesMswExportInfo(
             auto childBranch = std::make_unique<RicMswBranch>( childWellPath->name(), initialChildMD, initialChildTVD );
             auto childCellIntersections = generateCellSegments( caseToApply, childWellPath, &initialChildMD );
             generateFishbonesMswExportInfo( caseToApply,
-                                            wellPath,
+                                            childWellPath,
                                             initialChildMD,
                                             childCellIntersections,
                                             enableSegmentSplitting,
@@ -2305,11 +2358,10 @@ void RicWellPathExportMswCompletionsImpl::assignPerforationIntersections(
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicWellPathExportMswCompletionsImpl::assignBranchNumbersToCompletions( const RimEclipseCase*         caseToApply,
-                                                                            gsl::not_null<RicMswSegment*> segment,
-                                                                            gsl::not_null<int*>           branchNumber )
+void RicWellPathExportMswCompletionsImpl::assignBranchNumbersToPerforations( const RimEclipseCase*         caseToApply,
+                                                                             gsl::not_null<RicMswSegment*> segment,
+                                                                             gsl::not_null<int*> branchNumber )
 {
-    // Assign perforations first to ensure the same branch number as the segment
     for ( auto completion : segment->completions() )
     {
         if ( completion->completionType() == RigCompletionData::PERFORATION )
@@ -2317,8 +2369,15 @@ void RicWellPathExportMswCompletionsImpl::assignBranchNumbersToCompletions( cons
             completion->setBranchNumber( *branchNumber );
         }
     }
+}
 
-    // Assign other completions with an incremented branch number
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicWellPathExportMswCompletionsImpl::assignBranchNumbersToOtherCompletions( const RimEclipseCase* caseToApply,
+                                                                                 gsl::not_null<RicMswSegment*> segment,
+                                                                                 gsl::not_null<int*> branchNumber )
+{
     for ( auto completion : segment->completions() )
     {
         if ( completion->completionType() != RigCompletionData::PERFORATION )
@@ -2338,9 +2397,16 @@ void RicWellPathExportMswCompletionsImpl::assignBranchNumbersToBranch( const Rim
 {
     branch->setBranchNumber( *branchNumber );
 
+    // Assign perforations first to ensure the same branch number as the segment
     for ( auto segment : branch->segments() )
     {
-        assignBranchNumbersToCompletions( caseToApply, segment, branchNumber );
+        assignBranchNumbersToPerforations( caseToApply, segment, branchNumber );
+    }
+
+    // Assign other completions with an incremented branch number
+    for ( auto segment : branch->segments() )
+    {
+        assignBranchNumbersToOtherCompletions( caseToApply, segment, branchNumber );
     }
 
     ( *branchNumber )++;
