@@ -1137,8 +1137,7 @@ void RimEclipseView::updateStaticCellColors( RivCellSetEnum geometryType )
 //--------------------------------------------------------------------------------------------------
 cvf::Color4f RimEclipseView::colorFromCellCategory( RivCellSetEnum geometryType ) const
 {
-    float opacity =
-        static_cast<float>( 1 - std::clamp( this->wellCollection()->wellCellTransparencyLevel(), 0.0, 1.0 ) );
+    float opacity = static_cast<float>( 1 - std::clamp( this->wellCollection()->wellCellTransparencyLevel(), 0.0, 1.0 ) );
     cvf::Color4f color( cvf::Color3::ORANGE );
 
     switch ( geometryType )
