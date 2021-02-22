@@ -332,14 +332,14 @@ void RimMultipleValveLocations::fieldChangedByUi( const caf::PdmFieldHandle* cha
         {
             double minimumDistanceFeet = RiaEclipseUnitTools::meterToFeet( minimumDistanceMeter );
             m_rangeValveSpacing        = std::clamp( m_rangeValveSpacing(),
-                                                    minimumDistanceFeet,
-                                                    std::max( m_rangeValveSpacing(), minimumDistanceFeet ) );
+                                              minimumDistanceFeet,
+                                              std::max( m_rangeValveSpacing(), minimumDistanceFeet ) );
         }
         else
         {
             m_rangeValveSpacing = std::clamp( m_rangeValveSpacing(),
-                                                    minimumDistanceMeter,
-                                                    std::max( m_rangeValveSpacing(), minimumDistanceMeter ) );
+                                              minimumDistanceMeter,
+                                              std::max( m_rangeValveSpacing(), minimumDistanceMeter ) );
         }
     }
 
