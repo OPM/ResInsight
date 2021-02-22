@@ -343,13 +343,6 @@ foreach(FILE_TO_COPY ${RI_DLL_FILENAMES})
     POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different ${FILE_TO_COPY}
             $<TARGET_FILE_DIR:ResInsight>)
-  if(_unityTargetName)
-    add_custom_command(
-      TARGET ${_unityTargetName}
-      POST_BUILD
-      COMMAND ${CMAKE_COMMAND} -E copy_if_different ${FILE_TO_COPY}
-              $<TARGET_FILE_DIR:ResInsight>)
-  endif()
 endforeach()
 
 # Generate Python code in a target that is part of ALL_BUILD and depends on
@@ -367,6 +360,16 @@ if(RESINSIGHT_ENABLE_GRPC)
                     SOURCES ${GENERATED_CLASSES_FILE})
   source_group("Source Files" ${GENERATED_CLASSES_FILE})
   add_dependencies(RipsGeneratedPythonClasses ResInsight)
+
+
+  # Copy the Python folder to build folder. This will ease debugging of Python scripts
+  add_custom_command(
+  TARGET RipsGeneratedPythonClasses
+  POST_BUILD
+  COMMAND
+    ${CMAKE_COMMAND} -E copy_directory
+    "${CMAKE_SOURCE_DIR}/GrpcInterface/Python"
+    $<TARGET_FILE_DIR:ResInsight>/Python)
 
 endif(RESINSIGHT_ENABLE_GRPC)
 
@@ -525,17 +528,6 @@ if(RESINSIGHT_PRIVATE_INSTALL)
           ${CMAKE_COMMAND} -E copy_directory
           "${CMAKE_CURRENT_BINARY_DIR}/windeployqt/"
           $<TARGET_FILE_DIR:ResInsight>)
-
-      if(_unityTargetName)
-        foreach(qtlib ${QT_LIBRARIES})
-          add_custom_command(
-            TARGET ${_unityTargetName}
-            POST_BUILD
-            COMMAND
-              ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:${qtlib}>
-              $<TARGET_FILE_DIR:${_unityTargetName}>)
-        endforeach(qtlib)
-      endif(_unityTargetName)
 
       # copy deployment directory during installation
       install(DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/windeployqt/"

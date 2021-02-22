@@ -80,13 +80,11 @@ QProcessEnvironment RiaGrpcApplicationInterface::grpcProcessEnvironment() const
         QStringList ripsLocations;
         QString     separator;
 #ifdef WIN32
-        ripsLocations << QCoreApplication::applicationDirPath() + "\\Python"
-                      << QCoreApplication::applicationDirPath() + "\\..\\..\\Python";
+        ripsLocations << QCoreApplication::applicationDirPath() + "\\Python";
         separator = ";";
 
 #else
-        ripsLocations << QCoreApplication::applicationDirPath() + "/Python"
-                      << QCoreApplication::applicationDirPath() + "/../../Python";
+        ripsLocations << QCoreApplication::applicationDirPath() + "/Python";
         separator = ":";
 #endif
         penv.insert( "PYTHONPATH",
