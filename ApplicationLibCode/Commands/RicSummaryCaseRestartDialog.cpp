@@ -498,9 +498,9 @@ void RicSummaryCaseRestartDialog::appendFileInfoToGridLayout( QGridLayout*      
 {
     CVF_ASSERT( gridLayout );
 
-    QDateTime startDate       = QDateTime::fromTime_t( fileInfo.startDate );
+    QDateTime startDate       = QDateTime::fromSecsSinceEpoch( fileInfo.startDate );
     QString   startDateString = startDate.toString( RiaQDateTimeTools::dateFormatString() );
-    QDateTime endDate         = QDateTime::fromTime_t( fileInfo.endDate );
+    QDateTime endDate         = QDateTime::fromSecsSinceEpoch( fileInfo.endDate );
     QString   endDateString   = endDate.toString( RiaQDateTimeTools::dateFormatString() );
     int       rowCount        = gridLayout->rowCount();
 

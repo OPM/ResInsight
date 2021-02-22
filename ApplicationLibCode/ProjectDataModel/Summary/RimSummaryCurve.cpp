@@ -1174,8 +1174,8 @@ void RimSummaryCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
                 QString description;
 
                 {
-                    QDateTime first = QDateTime::fromTime_t( curveTimeStepsX.front() );
-                    QDateTime last  = QDateTime::fromTime_t( curveTimeStepsX.back() );
+                    QDateTime first = QDateTime::fromSecsSinceEpoch( curveTimeStepsX.front() );
+                    QDateTime last  = QDateTime::fromSecsSinceEpoch( curveTimeStepsX.back() );
 
                     std::vector<QDateTime> timeSteps;
                     timeSteps.push_back( first );
@@ -1189,8 +1189,8 @@ void RimSummaryCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
                 }
 
                 {
-                    QDateTime first = QDateTime::fromTime_t( curveTimeStepsY.front() );
-                    QDateTime last  = QDateTime::fromTime_t( curveTimeStepsY.back() );
+                    QDateTime first = QDateTime::fromSecsSinceEpoch( curveTimeStepsY.front() );
+                    QDateTime last  = QDateTime::fromSecsSinceEpoch( curveTimeStepsY.back() );
 
                     std::vector<QDateTime> timeSteps;
                     timeSteps.push_back( first );
