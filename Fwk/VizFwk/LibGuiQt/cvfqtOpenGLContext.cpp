@@ -67,13 +67,11 @@ OpenGLContext::OpenGLContext(cvf::OpenGLContextGroup* contextGroup, QGLContext* 
 {
     m_qtGLContext = backingQGLContext;
 
-#if QT_VERSION >= 0x040700
     CVF_ASSERT(m_qtGLContext);
     QGLFormat glFormat = m_qtGLContext->format();
     m_majorVersion = glFormat.majorVersion();
     m_minorVersion = glFormat.minorVersion();
     m_isCoreOpenGLProfile = (glFormat.profile() == QGLFormat::CoreProfile) ? true : false;
-#endif
 }
 
 

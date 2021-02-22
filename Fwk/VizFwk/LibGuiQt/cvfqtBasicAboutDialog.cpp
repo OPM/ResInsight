@@ -42,15 +42,10 @@
 
 #include <QtCore/QVariant>
 #include <QtCore/QString>
-#if QT_VERSION >= 0x050000
+
 #include <QVBoxLayout>
 #include <QLabel>
 #include <QPushButton>
-#else
-#include <QtGui/QVBoxLayout>
-#include <QtGui/QLabel>
-#include <QtGui/QPushButton>
-#endif
 namespace cvfqt {
 
 
