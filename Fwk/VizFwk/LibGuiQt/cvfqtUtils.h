@@ -41,11 +41,7 @@
 #include "cvfTextureImage.h"
 
 #include <QtCore/QString>
-#if QT_VERSION >= 0x050000
 #include <QImage>
-#else
-#include <QtGui/QImage>
-#endif
 
 namespace cvfqt {
 

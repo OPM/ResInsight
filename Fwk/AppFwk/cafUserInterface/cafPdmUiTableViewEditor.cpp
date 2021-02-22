@@ -235,11 +235,7 @@ void PdmUiTableViewEditor::configureAndUpdateUi( const QString& uiConfigName )
         }
         else if ( editorAttrib.resizePolicy == PdmUiTableViewEditorAttribute::RESIZE_TO_FILL_CONTAINER )
         {
-#if QT_VERSION >= 0x050000
             m_tableView->horizontalHeader()->setSectionResizeMode( QHeaderView::Stretch );
-#else
-            m_tableView->horizontalHeader()->setResizeMode( QHeaderView::Stretch );
-#endif
         }
     }
 

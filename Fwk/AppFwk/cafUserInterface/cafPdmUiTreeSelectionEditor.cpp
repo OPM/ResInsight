@@ -134,85 +134,6 @@ protected:
     }
 };
 
-//--------------------------------------------------------------------------------------------------
-/// Ported parts of placeholder text painting from Qt 4.7
-/// setPlaceholderText() was introduced in Qt 4.7,
-/// and this class is intended to be removed when Qt is upgraded
-//--------------------------------------------------------------------------------------------------
-class PlaceholderLineEdit : public QLineEdit
-{
-public:
-    explicit PlaceholderLineEdit( const QString& placeholderText, QWidget* parent = nullptr )
-        : QLineEdit( parent )
-        , m_placeholderText( placeholderText )
-    {
-    }
-
-private:
-    //--------------------------------------------------------------------------------------------------
-    ///
-    //--------------------------------------------------------------------------------------------------
-    void paintEvent( QPaintEvent* paintEvent ) override
-    {
-        QPainter p( this );
-
-        QRect    r   = rect();
-        QPalette pal = palette();
-
-#if QT_VERSION_MAJOR > 4
-        QStyleOptionFrame panel;
-#else
-        QStyleOptionFrameV2 panel;
-#endif
-        initStyleOption( &panel );
-        style()->drawPrimitive( QStyle::PE_PanelLineEdit, &panel, &p, this );
-        r = style()->subElementRect( QStyle::SE_LineEditContents, &panel, this );
-
-        int left   = 0;
-        int top    = 0;
-        int right  = 0;
-        int bottom = 0;
-        getTextMargins( &left, &top, &right, &bottom );
-
-        r.setX( r.x() + left );
-        r.setY( r.y() + top );
-        r.setRight( r.right() - right );
-        r.setBottom( r.bottom() - bottom );
-        p.setClipRect( r );
-
-        QFontMetrics fm = fontMetrics();
-
-        const int horizontalMargin = 2;
-        const int vscroll          = r.y() + ( r.height() - fm.height() + 1 ) / 2;
-
-        QRect lineRect( r.x() + horizontalMargin, vscroll, r.width() - 2 * horizontalMargin, fm.height() );
-
-        int minLB = qMax( 0, -fm.minLeftBearing() );
-
-        if ( text().isEmpty() )
-        {
-            if ( !hasFocus() && !m_placeholderText.isEmpty() )
-            {
-                QColor col = pal.text().color();
-                col.setAlpha( 128 );
-                QPen oldpen = p.pen();
-                p.setPen( col );
-                lineRect.adjust( minLB, 0, 0, 0 );
-                QString elidedText = fm.elidedText( m_placeholderText, Qt::ElideRight, lineRect.width() );
-                p.drawText( lineRect, Qt::AlignLeft | Qt::TextWordWrap, elidedText );
-                p.setPen( oldpen );
-
-                return;
-            }
-        }
-
-        return QLineEdit::paintEvent( paintEvent );
-    }
-
-private:
-    QString m_placeholderText;
-};
-
 namespace caf
 {
 //--------------------------------------------------------------------------------------------------
@@ -393,10 +314,8 @@ QWidget* PdmUiTreeSelectionEditor::createEditorWidget( QWidget* parent )
 
         connect( m_toggleAllCheckBox, SIGNAL( clicked( bool ) ), this, SLOT( slotToggleAll() ) );
 
-        m_textFilterLineEdit = new PlaceholderLineEdit( "Click to add filter" );
-        // TODO: setPlaceholderText() was introduced in Qt 4.7
-        // Use QLineEdit instead of PlaceholderLineEdit when Qt is upgraded
-        // m_textFilterLineEdit->setPlaceholderText("Click to add filter");
+        m_textFilterLineEdit = new QLineEdit();
+        m_textFilterLineEdit->setPlaceholderText( "Click to add filter" );
 
         headerLayout->addWidget( m_textFilterLineEdit );
 
