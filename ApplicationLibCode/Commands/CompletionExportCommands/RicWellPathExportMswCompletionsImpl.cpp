@@ -389,6 +389,7 @@ void RicWellPathExportMswCompletionsImpl::writeCompletionWelsegsSegmentsForBranc
 
     for ( auto segment : branch->segments() )
     {
+        RicMswValve* valve = nullptr;
         for ( auto& completion : segment->completions() )
         {
             if ( exportCompletionTypes.count( completion->completionType() ) )
@@ -401,8 +402,9 @@ void RicWellPathExportMswCompletionsImpl::writeCompletionWelsegsSegmentsForBranc
 
                 if ( RigCompletionData::isValve( completion->completionType() ) )
                 {
+                    valve = static_cast<RicMswValve*>( completion );
                     writeValveWelsegsSegment( segment,
-                                              static_cast<RicMswValve*>( completion ),
+                                              valve,
                                               formatter,
                                               exportInfo,
                                               maxSegmentLength,
@@ -410,7 +412,9 @@ void RicWellPathExportMswCompletionsImpl::writeCompletionWelsegsSegmentsForBranc
                 }
                 else
                 {
-                    writeCompletionWelsegsSegments( segment, completion, formatter, exportInfo, maxSegmentLength, segmentNumber );
+                    // If we have a valve, the outlet segment is the valve's segment
+                    RicMswSegment* outletSegment = valve && valve->segmentCount() > 0 ? valve->segments().front() : segment;
+                    writeCompletionWelsegsSegments( outletSegment, completion, formatter, exportInfo, maxSegmentLength, segmentNumber );
                 }
             }
         }
@@ -934,7 +938,7 @@ RicMswExportInfo
                 // Add completion for ICD
                 auto icdCompletion = std::make_unique<RicMswFishbonesICD>( QString( "ICD" ), subEndMD, subEndTVD, nullptr );
                 auto icdSegment =
-                    std::make_unique<RicMswSegment>( "ICD segment", subEndMD, subEndMD + 0.1, subEndTVD, subEndTVD );
+                    std::make_unique<RicMswSegment>( "ICD segment", subEndMD, subEndMD + 0.1, subEndTVD, subEndTVD, sub.subIndex );
                 icdCompletion->setFlowCoefficient( subs->icdFlowCoefficient() );
                 double icdOrificeRadius = subs->icdOrificeDiameter( unitSystem ) / 2;
                 icdCompletion->setArea( icdOrificeRadius * icdOrificeRadius * cvf::PI_D * subs->icdCount() );
@@ -1016,7 +1020,7 @@ RicMswExportInfo
     }
     else
     {
-        for ( WellPathCellIntersectionInfo intersection : intersections )
+        for ( const WellPathCellIntersectionInfo& intersection : intersections )
         {
             if ( activeCellInfo->isActive( intersection.globCellIndex ) )
             {
@@ -1935,8 +1939,7 @@ void RicWellPathExportMswCompletionsImpl::writeCompletionWelsegsSegments( gsl::n
 {
     if ( completion->completionType() == RigCompletionData::FISHBONES )
     {
-        formatter.comment( QString( "%1 : Sub index %2 - %3" )
-                               .arg( outletSegment->label() )
+        formatter.comment( QString( "Sub index %1 - %2" )
                                .arg( outletSegment->subIndex() )
                                .arg( completion->label() ) );
     }
@@ -1949,6 +1952,8 @@ void RicWellPathExportMswCompletionsImpl::writeCompletionWelsegsSegments( gsl::n
     CVF_ASSERT( exportInfo.wellPath() );
     auto wellPathGeometry = exportInfo.wellPath()->wellPathGeometry();
     CVF_ASSERT( wellPathGeometry );
+
+    int outletSegmentNumber = outletSegment->segmentNumber();
 
     for ( auto segment : completion->segments() )
     {
@@ -1983,12 +1988,13 @@ void RicWellPathExportMswCompletionsImpl::writeCompletionWelsegsSegments( gsl::n
             formatter.add( subSegmentNumber );
             formatter.add( subSegmentNumber );
             formatter.add( completion->branchNumber() );
-            formatter.add( outletSegment->segmentNumber() );
+            formatter.add( outletSegmentNumber );
             formatter.add( length );
             formatter.add( depth );
             formatter.add( outletSegment->effectiveDiameter() );
             formatter.add( outletSegment->openHoleRoughnessFactor() );
             formatter.rowCompleted();
+            outletSegmentNumber = subSegmentNumber;
         }
     }
 
