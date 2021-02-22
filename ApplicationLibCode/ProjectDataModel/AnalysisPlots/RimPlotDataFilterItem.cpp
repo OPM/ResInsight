@@ -209,8 +209,8 @@ std::pair<time_t, time_t> RimPlotDataFilterItem::timeRangeMinMax() const
 
     if ( m_explicitlySelectedTimeSteps().size() >= 2 )
     {
-        time_t minTime = m_explicitlySelectedTimeSteps().front().toTime_t();
-        time_t maxTime = m_explicitlySelectedTimeSteps().back().toTime_t();
+        time_t minTime = m_explicitlySelectedTimeSteps().front().toSecsSinceEpoch();
+        time_t maxTime = m_explicitlySelectedTimeSteps().back().toSecsSinceEpoch();
 
         return std::make_pair( minTime, maxTime );
     }
@@ -228,7 +228,7 @@ std::vector<time_t> RimPlotDataFilterItem::explicitlySelectedTimeSteps() const
     {
         for ( const QDateTime& dateTime : m_explicitlySelectedTimeSteps() )
         {
-            selectedTimesteps.push_back( dateTime.toTime_t() );
+            selectedTimesteps.push_back( dateTime.toSecsSinceEpoch() );
         }
     }
 

@@ -82,7 +82,7 @@ const std::vector<time_t>& RimAsciiDataCurve::timeSteps() const
 
     for ( const QDateTime& dateTime : m_timeSteps() )
     {
-        timeSteps.push_back( dateTime.toTime_t() );
+        timeSteps.push_back( dateTime.toSecsSinceEpoch() );
     }
 
     return timeSteps;

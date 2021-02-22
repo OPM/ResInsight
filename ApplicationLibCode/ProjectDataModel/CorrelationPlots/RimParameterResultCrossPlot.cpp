@@ -231,7 +231,7 @@ void RimParameterResultCrossPlot::createPoints()
 {
     detachAllCurves();
 
-    time_t selectedTimestep = m_timeStep().toTime_t();
+    time_t selectedTimestep = m_timeStep().toSecsSinceEpoch();
 
     caf::ColorTable colorTable = RiaColorTables::categoryPaletteColors();
 

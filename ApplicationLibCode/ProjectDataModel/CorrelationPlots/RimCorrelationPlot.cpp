@@ -238,7 +238,7 @@ void RimCorrelationPlot::updateAxes()
 //--------------------------------------------------------------------------------------------------
 void RimCorrelationPlot::addDataToChartBuilder( RiuGroupedBarChartBuilder& chartBuilder )
 {
-    time_t selectedTimestep = m_timeStep().toTime_t();
+    time_t selectedTimestep = m_timeStep().toSecsSinceEpoch();
 
     if ( ensembles().empty() ) return;
     if ( addresses().empty() ) return;

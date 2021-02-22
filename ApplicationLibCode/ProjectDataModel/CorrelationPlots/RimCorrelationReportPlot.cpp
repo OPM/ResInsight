@@ -298,7 +298,7 @@ void RimCorrelationReportPlot::onLoadDataAndUpdate()
     updateMdiWindowVisibility();
     if ( m_showWindow )
     {
-        auto timeStep                 = m_correlationMatrixPlot->timeStep().toTime_t();
+        auto timeStep                 = m_correlationMatrixPlot->timeStep().toSecsSinceEpoch();
         bool showOnlyTopNCorrelations = m_correlationMatrixPlot->showTopNCorrelations();
         int  topNFilterCount          = m_correlationMatrixPlot->topNFilterCount();
 

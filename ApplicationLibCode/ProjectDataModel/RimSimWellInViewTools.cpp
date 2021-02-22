@@ -171,7 +171,7 @@ double RimSimWellInViewTools::extractValueForTimeStep( RifSummaryReaderInterface
     auto [resampledTimeSteps, resampledValues] =
         RiaSummaryTools::resampledValuesForPeriod( addr, timeSteps, values, RiaQDateTimeTools::DateTimePeriod::DAY );
 
-    time_t currentTime_t = currentDate.toTime_t();
+    time_t currentTime_t = currentDate.toSecsSinceEpoch();
 
     for ( unsigned int i = 0; i < resampledTimeSteps.size(); i++ )
     {
