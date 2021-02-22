@@ -21,7 +21,6 @@
 #include "RiuGuiTheme.h"
 
 #include "cvfAssert.h"
-#include "cvfMath.h"
 
 #include <algorithm>
 #include <cmath>
@@ -67,9 +66,7 @@ cvf::Color3f RiaColorTools::computeOffsetColor( cvf::Color3f color, float offset
         gridB = color.b() + ( 1.0f - color.b() ) * offsetFactor;
     }
 
-    return cvf::Color3f( cvf::Math::clamp( gridR, 0.0f, 1.0f ),
-                         cvf::Math::clamp( gridG, 0.0f, 1.0f ),
-                         cvf::Math::clamp( gridB, 0.0f, 1.0f ) );
+    return cvf::Color3f( std::clamp( gridR, 0.0f, 1.0f ), std::clamp( gridG, 0.0f, 1.0f ), std::clamp( gridB, 0.0f, 1.0f ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -185,6 +182,21 @@ QColor RiaColorTools::blendQColors( const QColor& color1, const QColor& color2, 
     return QColor( ( color1.red() * weight1 + color2.red() * weight2 ) / weightsum,
                    ( color1.green() * weight1 + color2.green() * weight2 ) / weightsum,
                    ( color1.blue() * weight1 + color2.blue() * weight2 ) / weightsum );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QColor RiaColorTools::modifySaturation( const QColor& color, double factor )
+{
+    auto  colorSaturation( color );
+    qreal h, s, v;
+    color.getHsvF( &h, &s, &v );
+
+    s = std::clamp( s * factor, 0.0, 1.0 );
+
+    colorSaturation.setHsvF( h, s, v );
+    return colorSaturation;
 }
 
 //--------------------------------------------------------------------------------------------------

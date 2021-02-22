@@ -46,16 +46,33 @@ RiaDefines::PhaseType RimStackablePlotCurve::phaseType() const
 //--------------------------------------------------------------------------------------------------
 void RimStackablePlotCurve::assignStackColor( size_t index, size_t count )
 {
-    auto allPhaseColors = RiaColorTables::phaseColors();
-    auto it             = allPhaseColors.find( phaseType() );
-    if ( it != allPhaseColors.end() )
-    {
-        caf::ColorTable interpolatedPhaseColors = it->second.interpolated( count );
+    cvf::Color3f curveColor( cvf::Color3::BROWN );
 
-        auto color = interpolatedPhaseColors.cycledColor3f( index );
-        this->setColor( color );
-        this->setFillColor( color );
+    if ( count == 1 )
+    {
+        curveColor = RiaColorTables::phaseColor( phaseType() );
     }
+    else
+    {
+        auto allPhaseColors = RiaColorTables::phaseColors();
+        auto it             = allPhaseColors.find( phaseType() );
+        if ( it != allPhaseColors.end() )
+        {
+            caf::ColorTable interpolatedPhaseColors = it->second.interpolated( count );
+
+            curveColor = interpolatedPhaseColors.cycledColor3f( index );
+        }
+    }
+
+    m_fillColor = curveColor;
+
+    {
+        auto moreSaturatedColor = RiaColorTools::toQColor( curveColor );
+        moreSaturatedColor      = RiaColorTools::modifySaturation( moreSaturatedColor, 1.2 );
+
+        m_curveColor = RiaColorTools::fromQColorTo3f( moreSaturatedColor );
+    }
+
     this->updateCurveAppearance();
 }
 

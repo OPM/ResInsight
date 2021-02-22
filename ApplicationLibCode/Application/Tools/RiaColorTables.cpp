@@ -19,6 +19,8 @@
 #include "RiaColorTables.h"
 #include "RiaColorTools.h"
 
+#include "RiuGuiTheme.h"
+
 #include "cvfAssert.h"
 
 #include <QColor>
@@ -628,6 +630,40 @@ std::map<RiaDefines::PhaseType, caf::ColorTable> RiaColorTables::phaseColors()
     return { { RiaDefines::PhaseType::WATER_PHASE, caf::ColorTable( waterColors ) },
              { RiaDefines::PhaseType::GAS_PHASE, caf::ColorTable( gasColors ) },
              { RiaDefines::PhaseType::OIL_PHASE, caf::ColorTable( oilColors ) } };
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+cvf::Color3f RiaColorTables::phaseColor( RiaDefines::PhaseType phase )
+{
+    cvf::Color3ub col = cvf::Color3::DARK_GRAY;
+    QColor        themeCol;
+
+    if ( phase == RiaDefines::PhaseType::GAS_PHASE )
+    {
+        themeCol = RiuGuiTheme::getColorByVariableName( "curveColorGas2" );
+        col      = cvf::Color3ub( 212, 0, 0 );
+    }
+    else if ( phase == RiaDefines::PhaseType::OIL_PHASE )
+    {
+        themeCol = RiuGuiTheme::getColorByVariableName( "curveColorOil2" );
+        col      = cvf::Color3ub( 0, 204, 0 );
+    }
+    else if ( phase == RiaDefines::PhaseType::WATER_PHASE )
+    {
+        themeCol = RiuGuiTheme::getColorByVariableName( "curveColorWater2" );
+        col      = cvf::Color3ub( 0, 0, 205 );
+    }
+
+    if ( themeCol.isValid() )
+    {
+        return RiaColorTools::fromQColorTo3f( themeCol );
+    }
+    else
+    {
+        return cvf::Color3f( col );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
