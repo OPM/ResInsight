@@ -497,7 +497,7 @@ std::vector<CorrelationMatrixRowOrColumn<ValueType, KeyType>>
 //--------------------------------------------------------------------------------------------------
 void RimCorrelationMatrixPlot::createMatrix()
 {
-    time_t selectedTimestep = m_timeStep().toTime_t();
+    time_t selectedTimestep = m_timeStep().toSecsSinceEpoch();
 
     m_paramLabels.clear();
     m_resultLabels.clear();

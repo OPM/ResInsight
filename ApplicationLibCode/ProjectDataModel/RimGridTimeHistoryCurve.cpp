@@ -473,7 +473,7 @@ std::vector<time_t> RimGridTimeHistoryCurve::timeStepValues() const
 
             for ( QDateTime dt : timeStepDates )
             {
-                dateTimes.push_back( dt.toTime_t() );
+                dateTimes.push_back( dt.toSecsSinceEpoch() );
             }
         }
     }
@@ -491,7 +491,7 @@ std::vector<time_t> RimGridTimeHistoryCurve::timeStepValues() const
             {
                 for ( QDateTime dt : dates )
                 {
-                    dateTimes.push_back( dt.toTime_t() );
+                    dateTimes.push_back( dt.toSecsSinceEpoch() );
                 }
             }
             else
@@ -537,11 +537,11 @@ std::vector<double> RimGridTimeHistoryCurve::daysSinceSimulationStart() const
             {
                 if ( !dates.empty() )
                 {
-                    time_t startDate               = dates[0].toTime_t();
+                    time_t startDate               = dates[0].toSecsSinceEpoch();
                     double secondsToDaysConversion = ( 24.0 * 60.0 * 60.0 );
                     for ( QDateTime dt : dates )
                     {
-                        double timeDifference = static_cast<double>( dt.toTime_t() - startDate );
+                        double timeDifference = static_cast<double>( dt.toSecsSinceEpoch() - startDate );
                         daysSinceSimulationStart.push_back( timeDifference / secondsToDaysConversion );
                     }
                 }

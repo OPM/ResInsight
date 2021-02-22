@@ -117,7 +117,7 @@ bool RifKeywordVectorUserData::parse( const QString& data, const QString& custom
                     for ( const auto& timeStepValue : m_parser->keywordBasedVectors()[i].values )
                     {
                         QDateTime dateTime = RiaQDateTimeTools::addDays( startDate, timeStepValue );
-                        ts.push_back( dateTime.toTime_t() );
+                        ts.push_back( dateTime.toSecsSinceEpoch() );
                     }
                 }
                 else if ( unitText == "YEAR" || unitText == "YEARS" )
@@ -125,7 +125,7 @@ bool RifKeywordVectorUserData::parse( const QString& data, const QString& custom
                     for ( const auto& timeStepValue : m_parser->keywordBasedVectors()[i].values )
                     {
                         QDateTime dateTime = RiaQDateTimeTools::fromYears( timeStepValue );
-                        ts.push_back( dateTime.toTime_t() );
+                        ts.push_back( dateTime.toSecsSinceEpoch() );
                     }
                 }
             }

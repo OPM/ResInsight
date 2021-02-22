@@ -458,7 +458,7 @@ bool RifCsvUserDataParser::parseColumnBasedData( const AsciiDataParseOptions& pa
                             if ( m_errorText ) m_errorText->append( "CSV import: Failed to parse date time value" );
                             throw 0;
                         }
-                        col.dateTimeValues.push_back( dt.toTime_t() );
+                        col.dateTimeValues.push_back( dt.toSecsSinceEpoch() );
                     }
                 }
                 catch ( ... )
@@ -579,7 +579,7 @@ bool RifCsvUserDataParser::parseLineBasedData()
                 }
 
                 auto& samples = addressesAndData[addr];
-                samples.push_back( std::make_pair( dateTime.toTime_t(), value ) );
+                samples.push_back( std::make_pair( dateTime.toSecsSinceEpoch(), value ) );
             }
 
             // ERROR VALUE
@@ -592,7 +592,7 @@ bool RifCsvUserDataParser::parseLineBasedData()
                 if ( !parseOk ) value = DOUBLE_INF;
 
                 auto& samples = addressesAndData[errAddr];
-                samples.push_back( std::make_pair( dateTime.toTime_t(), value ) );
+                samples.push_back( std::make_pair( dateTime.toSecsSinceEpoch(), value ) );
             }
         }
     }

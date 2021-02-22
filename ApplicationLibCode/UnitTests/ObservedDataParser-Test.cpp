@@ -575,7 +575,7 @@ TEST( RifColumnBasedRsmspecParserTest, TestTableValues )
     auto      timeSteps     = userData.timeSteps( adr );
     EXPECT_EQ( size_t( 18 ), timeSteps.size() );
 
-    EXPECT_EQ( firstTimeStep.toTime_t(), timeSteps[0] );
+    EXPECT_EQ( firstTimeStep.toSecsSinceEpoch(), timeSteps[0] );
 }
 
 //--------------------------------------------------------------------------------------------------

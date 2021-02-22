@@ -321,7 +321,7 @@ void RimAnalysisPlot::maxMinValueFromAddress( const RifEclipseSummaryAddress&   
     {
         for ( const QDateTime& dateTime : timeRangeOrSelection )
         {
-            selectedTimesteps.push_back( dateTime.toTime_t() );
+            selectedTimesteps.push_back( dateTime.toSecsSinceEpoch() );
         }
     }
     else if ( timeStepSourceType == RimPlotDataFilterItem::PLOT_SOURCE_TIMESTEPS )
@@ -367,8 +367,8 @@ void RimAnalysisPlot::maxMinValueFromAddress( const RifEclipseSummaryAddress&   
                 {
                     if ( timeRangeOrSelection.size() >= 2 )
                     {
-                        time_t minTime = timeRangeOrSelection.front().toTime_t();
-                        time_t maxTime = timeRangeOrSelection.back().toTime_t();
+                        time_t minTime = timeRangeOrSelection.front().toSecsSinceEpoch();
+                        time_t maxTime = timeRangeOrSelection.back().toSecsSinceEpoch();
 
                         for ( size_t tIdx = 0; tIdx < timesteps.size(); ++tIdx )
                         {
@@ -430,7 +430,7 @@ std::vector<time_t> RimAnalysisPlot::selectedTimeSteps()
     std::vector<time_t> selectedTimeTTimeSteps;
     for ( const QDateTime& dateTime : m_selectedTimeSteps.v() )
     {
-        selectedTimeTTimeSteps.push_back( dateTime.toTime_t() );
+        selectedTimeTTimeSteps.push_back( dateTime.toSecsSinceEpoch() );
     }
 
     return selectedTimeTTimeSteps;
@@ -1445,7 +1445,7 @@ void RimAnalysisPlot::addDataToChartBuilder( RiuGroupedBarChartBuilder& chartBui
     std::vector<time_t> selectedTimesteps;
     for ( const QDateTime& dateTime : m_selectedTimeSteps.v() )
     {
-        selectedTimesteps.push_back( dateTime.toTime_t() );
+        selectedTimesteps.push_back( dateTime.toSecsSinceEpoch() );
     }
 
     RifSummaryReaderInterface* referenceCaseReader = nullptr;

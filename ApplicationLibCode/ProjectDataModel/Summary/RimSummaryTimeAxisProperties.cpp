@@ -285,7 +285,7 @@ QDateTime RimSummaryTimeAxisProperties::fromDisplayTimeToDate( double displayTim
 //--------------------------------------------------------------------------------------------------
 double RimSummaryTimeAxisProperties::fromDateToDisplayTime( const QDateTime& displayTime )
 {
-    time_t secsSinceEpoc = displayTime.toTime_t();
+    time_t secsSinceEpoc = displayTime.toSecsSinceEpoch();
 
     RimSummaryPlot* rimSummaryPlot = nullptr;
     this->firstAncestorOrThisOfType( rimSummaryPlot );

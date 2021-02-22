@@ -231,7 +231,7 @@ std::vector<time_t> RifColumnBasedUserData::createTimeSteps( const TableData& ta
         for ( const auto& timeStepValue : ci.values )
         {
             QDateTime dateTime = RiaQDateTimeTools::fromYears( timeStepValue );
-            tsVector.push_back( dateTime.toTime_t() );
+            tsVector.push_back( dateTime.toSecsSinceEpoch() );
         }
     }
 
@@ -245,7 +245,7 @@ std::vector<time_t> RifColumnBasedUserData::createTimeSteps( const TableData& ta
         for ( const auto& timeStepValue : ci.values )
         {
             QDateTime dateTime = RiaQDateTimeTools::addDays( simulationStartDate, timeStepValue );
-            tsVector.push_back( dateTime.toTime_t() );
+            tsVector.push_back( dateTime.toSecsSinceEpoch() );
         }
     }
 
@@ -259,7 +259,7 @@ std::vector<time_t> RifColumnBasedUserData::createTimeSteps( const TableData& ta
         for ( const auto& timeStepValue : ci.values )
         {
             QDateTime dateTime = RiaQDateTimeTools::addYears( simulationStartDate, timeStepValue );
-            tsVector.push_back( dateTime.toTime_t() );
+            tsVector.push_back( dateTime.toSecsSinceEpoch() );
         }
     }
 
@@ -273,7 +273,7 @@ std::vector<time_t> RifColumnBasedUserData::createTimeSteps( const TableData& ta
         {
             QDateTime dt = RiaDateStringParser::parseDateString( s );
 
-            tsVector.push_back( dt.toTime_t() );
+            tsVector.push_back( dt.toSecsSinceEpoch() );
         }
     }
 

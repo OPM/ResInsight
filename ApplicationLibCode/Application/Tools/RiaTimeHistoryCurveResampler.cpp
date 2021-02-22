@@ -113,10 +113,10 @@ std::vector<time_t> RiaTimeHistoryCurveResampler::timeStepsFromTimeRange( RiaQDa
     std::vector<time_t> timeSteps;
     while ( QDT::lessThan( currTimeStep, lastOriginalTimeStep ) )
     {
-        timeSteps.push_back( currTimeStep.toTime_t() );
+        timeSteps.push_back( currTimeStep.toSecsSinceEpoch() );
         currTimeStep = QDT::addPeriod( currTimeStep, period );
     }
-    timeSteps.push_back( currTimeStep.toTime_t() );
+    timeSteps.push_back( currTimeStep.toSecsSinceEpoch() );
 
     return timeSteps;
 }
@@ -143,7 +143,7 @@ void RiaTimeHistoryCurveResampler::computeWeightedMeanValues( RiaQDateTimeTools:
     {
         double wMean       = 0.0;
         time_t periodStart = i > 0 ? m_timeSteps[i - 1]
-                                   : QDT::subtractPeriod( QDT::fromTime_t( m_timeSteps[0] ), period ).toTime_t();
+                                   : QDT::subtractPeriod( QDT::fromTime_t( m_timeSteps[0] ), period ).toSecsSinceEpoch();
         time_t periodEnd    = m_timeSteps[i];
         time_t periodLength = periodEnd - periodStart;
 
@@ -258,12 +258,12 @@ void RiaTimeHistoryCurveResampler::computeResampledTimeSteps( RiaQDateTimeTools:
 
     while ( QDT::lessThan( currTimeStep, lastOriginalTimeStep ) )
     {
-        m_timeSteps.push_back( currTimeStep.toTime_t() );
+        m_timeSteps.push_back( currTimeStep.toSecsSinceEpoch() );
         currTimeStep = QDT::addPeriod( currTimeStep, period );
     }
 
     // Add last time step
-    m_timeSteps.push_back( currTimeStep.toTime_t() );
+    m_timeSteps.push_back( currTimeStep.toSecsSinceEpoch() );
 }
 
 //--------------------------------------------------------------------------------------------------
