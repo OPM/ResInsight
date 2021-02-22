@@ -19,6 +19,7 @@
 #include "RicFishbonesTransmissibilityCalculationFeatureImp.h"
 
 #include "RicExportCompletionDataSettingsUi.h"
+#include "RicMswBranch.h"
 #include "RicMswCompletions.h"
 #include "RicMswExportInfo.h"
 #include "RicMswSegment.h"
@@ -208,11 +209,27 @@ void RicFishbonesTransmissibilityCalculationFeatureImp::findFishboneLateralsWell
 
     // Generate data
     const RigEclipseCaseData* caseData = settings.caseToApply()->eclipseCaseData();
-    RicMswExportInfo          exportInfo =
-        RicWellPathExportMswCompletionsImpl::generateFishbonesMswExportInfo( settings.caseToApply(), wellPath, false );
 
-    RiaDefines::EclipseUnitSystem unitSystem = caseData->unitsType();
-    bool                          isMainBore = false;
+    auto                          mswParameters = wellPath->completionSettings()->mswParameters();
+    RiaDefines::EclipseUnitSystem unitSystem    = caseData->unitsType();
+
+    RicMswExportInfo exportInfo( wellPath,
+                                 unitSystem,
+                                 wellPath->fishbonesCollection()->startMD(),
+                                 mswParameters->lengthAndDepth().text(),
+                                 mswParameters->pressureDrop().text() );
+    exportInfo.setLinerDiameter( mswParameters->linerDiameter( unitSystem ) );
+    exportInfo.setRoughnessFactor( mswParameters->roughnessFactor( unitSystem ) );
+
+    RicWellPathExportMswCompletionsImpl::generateFishbonesMswExportInfo( settings.caseToApply(),
+                                                                         wellPath,
+                                                                         0.0,
+                                                                         {},
+                                                                         false,
+                                                                         &exportInfo,
+                                                                         exportInfo.mainBoreBranch() );
+
+    bool isMainBore = false;
 
     for ( auto segment : exportInfo.mainBoreBranch()->segments() )
     {

@@ -201,7 +201,34 @@ void RicWellPathExportMswCompletionsImpl::exportWellSegmentsForFishbones( RimEcl
         return;
     }
 
-    RicMswExportInfo exportInfo = generateFishbonesMswExportInfo( eclipseCase, wellPath, fishbonesSubs, true );
+    double initialMD = 0.0; // Start measured depth location to export MSW data for. Either based on first intersection
+                            // with active grid, or user defined value.
+
+    auto cellIntersections = generateCellSegments( eclipseCase, wellPath, &initialMD );
+
+    auto                          mswParameters = wellPath->completionSettings()->mswParameters();
+    RiaDefines::EclipseUnitSystem unitSystem    = eclipseCase->eclipseCaseData()->unitsType();
+
+    RicMswExportInfo exportInfo( wellPath,
+                                 unitSystem,
+                                 wellPath->fishbonesCollection()->startMD(),
+                                 mswParameters->lengthAndDepth().text(),
+                                 mswParameters->pressureDrop().text() );
+    exportInfo.setLinerDiameter( mswParameters->linerDiameter( unitSystem ) );
+    exportInfo.setRoughnessFactor( mswParameters->roughnessFactor( unitSystem ) );
+
+    generateFishbonesMswExportInfo( eclipseCase,
+                                    wellPath,
+                                    initialMD,
+                                    cellIntersections,
+                                    fishbonesSubs,
+                                    true,
+                                    &exportInfo,
+                                    exportInfo.mainBoreBranch() );
+
+    int branchNumber = 1;
+
+    assignBranchNumbersToBranch( eclipseCase, &exportInfo, exportInfo.mainBoreBranch(), &branchNumber );
 
     QTextStream               stream( exportFile.get() );
     RifTextDataTableFormatter formatter( stream );
@@ -228,34 +255,34 @@ void RicWellPathExportMswCompletionsImpl::exportWellSegmentsForPerforations( Rim
 
     auto cellIntersections = generateCellSegments( eclipseCase, wellPath, &initialMD );
 
-    auto mswParameters = wellPath->completionSettings()->mswParameters();
-    auto exportInfo    = std::make_unique<RicMswExportInfo>( wellPath,
-                                                          unitSystem,
-                                                          initialMD,
-                                                          mswParameters->lengthAndDepth().text(),
-                                                          mswParameters->pressureDrop().text() );
+    auto             mswParameters = wellPath->completionSettings()->mswParameters();
+    RicMswExportInfo exportInfo( wellPath,
+                                 unitSystem,
+                                 initialMD,
+                                 mswParameters->lengthAndDepth().text(),
+                                 mswParameters->pressureDrop().text() );
 
     if ( generatePerforationsMswExportInfo( eclipseCase,
                                             wellPath,
                                             timeStep,
                                             initialMD,
                                             cellIntersections,
-                                            exportInfo.get(),
-                                            exportInfo->mainBoreBranch() ) )
+                                            &exportInfo,
+                                            exportInfo.mainBoreBranch() ) )
     {
         int branchNumber = 1;
 
-        assignBranchNumbersToBranch( eclipseCase, exportInfo.get(), exportInfo->mainBoreBranch(), &branchNumber );
+        assignBranchNumbersToBranch( eclipseCase, &exportInfo, exportInfo.mainBoreBranch(), &branchNumber );
 
         QTextStream               stream( exportFile.get() );
         RifTextDataTableFormatter formatter( stream );
 
         double maxSegmentLength = wellPath->completionSettings()->mswParameters()->maxSegmentLength();
 
-        generateWelsegsTable( formatter, *exportInfo, maxSegmentLength );
-        generateCompsegTables( formatter, *exportInfo );
-        generateWsegvalvTable( formatter, *exportInfo );
-        generateWsegAicdTable( formatter, *exportInfo );
+        generateWelsegsTable( formatter, exportInfo, maxSegmentLength );
+        generateCompsegTables( formatter, exportInfo );
+        generateWsegvalvTable( formatter, exportInfo );
+        generateWsegAicdTable( formatter, exportInfo );
     }
 }
 
@@ -403,12 +430,7 @@ void RicWellPathExportMswCompletionsImpl::writeCompletionWelsegsSegmentsForBranc
                 if ( RigCompletionData::isValve( completion->completionType() ) )
                 {
                     valve = static_cast<RicMswValve*>( completion );
-                    writeValveWelsegsSegment( segment,
-                                              valve,
-                                              formatter,
-                                              exportInfo,
-                                              maxSegmentLength,
-                                              segmentNumber );
+                    writeValveWelsegsSegment( segment, valve, formatter, exportInfo, maxSegmentLength, segmentNumber );
                 }
                 else
                 {
@@ -878,42 +900,56 @@ std::pair<double, double> RicWellPathExportMswCompletionsImpl::calculateOverlapW
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicMswExportInfo RicWellPathExportMswCompletionsImpl::generateFishbonesMswExportInfo( const RimEclipseCase* caseToApply,
-                                                                                      const RimWellPath*    wellPath,
-                                                                                      bool enableSegmentSplitting )
+void RicWellPathExportMswCompletionsImpl::generateFishbonesMswExportInfo(
+    const RimEclipseCase*                            caseToApply,
+    const RimWellPath*                               wellPath,
+    double                                           initialMD,
+    const std::vector<WellPathCellIntersectionInfo>& cellIntersections,
+    bool                                             enableSegmentSplitting,
+    gsl::not_null<RicMswExportInfo*>                 exportInfo,
+    gsl::not_null<RicMswBranch*>                     branch )
 {
     std::vector<RimFishbones*> fishbonesSubs = wellPath->fishbonesCollection()->activeFishbonesSubs();
 
-    return generateFishbonesMswExportInfo( caseToApply, wellPath, fishbonesSubs, enableSegmentSplitting );
+    generateFishbonesMswExportInfo( caseToApply,
+                                    wellPath,
+                                    initialMD,
+                                    cellIntersections,
+                                    fishbonesSubs,
+                                    enableSegmentSplitting,
+                                    exportInfo,
+                                    branch );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicMswExportInfo
-    RicWellPathExportMswCompletionsImpl::generateFishbonesMswExportInfo( const RimEclipseCase*             caseToApply,
-                                                                         const RimWellPath*                wellPath,
-                                                                         const std::vector<RimFishbones*>& fishbonesSubs,
-                                                                         bool enableSegmentSplitting )
+void RicWellPathExportMswCompletionsImpl::generateFishbonesMswExportInfo(
+    const RimEclipseCase*                            caseToApply,
+    const RimWellPath*                               wellPath,
+    double                                           initialMD,
+    const std::vector<WellPathCellIntersectionInfo>& cellIntersections,
+    const std::vector<RimFishbones*>&                fishbonesSubs,
+    bool                                             enableSegmentSplitting,
+    gsl::not_null<RicMswExportInfo*>                 exportInfo,
+    gsl::not_null<RicMswBranch*>                     branch )
 {
-    RiaDefines::EclipseUnitSystem unitSystem = caseToApply->eclipseCaseData()->unitsType();
+    std::vector<WellPathCellIntersectionInfo> filteredIntersections =
+        filterIntersections( cellIntersections, initialMD, wellPath->wellPathGeometry(), caseToApply );
 
     auto mswParameters = wellPath->completionSettings()->mswParameters();
 
-    RicMswExportInfo exportInfo( wellPath,
-                                 unitSystem,
-                                 wellPath->fishbonesCollection()->startMD(),
-                                 mswParameters->lengthAndDepth().text(),
-                                 mswParameters->pressureDrop().text() );
-    exportInfo.setLinerDiameter( mswParameters->linerDiameter( unitSystem ) );
-    exportInfo.setRoughnessFactor( mswParameters->roughnessFactor( unitSystem ) );
+    bool foundSubGridIntersections = false;
 
-    double maxSegmentLength          = enableSegmentSplitting ? mswParameters->maxSegmentLength()
-                                                              : std::numeric_limits<double>::infinity();
-    bool   foundSubGridIntersections = false;
+    createWellPathSegments( branch, filteredIntersections, {}, wellPath, -1, caseToApply, &foundSubGridIntersections );
+
+    double maxSegmentLength = enableSegmentSplitting ? mswParameters->maxSegmentLength()
+                                                     : std::numeric_limits<double>::infinity();
 
     double subStartMD  = wellPath->fishbonesCollection()->startMD();
     double subStartTVD = RicWellPathExportMswCompletionsImpl::tvdFromMeasuredDepth( wellPath, subStartMD );
+
+    auto unitSystem = exportInfo->unitSystem();
 
     for ( RimFishbones* subs : fishbonesSubs )
     {
@@ -958,20 +994,34 @@ RicMswExportInfo
                                                      &foundSubGridIntersections,
                                                      maxSegmentLength );
 
-                exportInfo.mainBoreBranch()->addSegment( std::move( segment ) );
+                exportInfo->mainBoreBranch()->addSegment( std::move( segment ) );
             }
 
             subStartMD  = subEndMD;
             subStartTVD = subEndTVD;
         }
     }
-    exportInfo.setHasSubGridIntersections( foundSubGridIntersections );
-    exportInfo.mainBoreBranch()->sortSegments();
+    exportInfo->setHasSubGridIntersections( exportInfo->hasSubGridIntersections() || foundSubGridIntersections );
+    exportInfo->mainBoreBranch()->sortSegments();
 
-    int branchNumber = 1;
-    assignBranchNumbersToBranch( caseToApply, &exportInfo, exportInfo.mainBoreBranch(), &branchNumber );
-
-    return exportInfo;
+    if ( auto wellPathGroup = dynamic_cast<const RimWellPathGroup*>( wellPath ); wellPathGroup != nullptr )
+    {
+        auto initialChildMD  = wellPathGroup->uniqueEndMD();
+        auto initialChildTVD = -wellPathGroup->wellPathGeometry()->interpolatedPointAlongWellPath( initialMD ).z();
+        for ( auto childWellPath : wellPathGroup->childWellPaths() )
+        {
+            auto childBranch = std::make_unique<RicMswBranch>( childWellPath->name(), initialChildMD, initialChildTVD );
+            auto childCellIntersections = generateCellSegments( caseToApply, childWellPath, &initialChildMD );
+            generateFishbonesMswExportInfo( caseToApply,
+                                            wellPath,
+                                            initialChildMD,
+                                            childCellIntersections,
+                                            enableSegmentSplitting,
+                                            exportInfo,
+                                            childBranch.get() );
+            branch->addChildBranch( std::move( childBranch ) );
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1213,7 +1263,7 @@ bool RicWellPathExportMswCompletionsImpl::generatePerforationsMswExportInfo(
         }
     }
 
-    return exportInfo;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1374,7 +1424,7 @@ void RicWellPathExportMswCompletionsImpl::createWellPathSegments(
     const std::vector<const RimPerforationInterval*>& perforationIntervals,
     const RimWellPath*                                wellPath,
     int                                               timeStep,
-    RimEclipseCase*                                   eclipseCase,
+    const RimEclipseCase*                             eclipseCase,
     bool*                                             foundSubGridIntersections )
 {
     // Intersections along the well path with grid geometry is handled by well log extraction tools.
@@ -1939,9 +1989,7 @@ void RicWellPathExportMswCompletionsImpl::writeCompletionWelsegsSegments( gsl::n
 {
     if ( completion->completionType() == RigCompletionData::FISHBONES )
     {
-        formatter.comment( QString( "Sub index %1 - %2" )
-                               .arg( outletSegment->subIndex() )
-                               .arg( completion->label() ) );
+        formatter.comment( QString( "Sub index %1 - %2" ).arg( outletSegment->subIndex() ).arg( completion->label() ) );
     }
     else if ( completion->completionType() == RigCompletionData::FRACTURE )
     {
@@ -2176,7 +2224,7 @@ std::vector<RigCompletionData> RicWellPathExportMswCompletionsImpl::generatePerf
     gsl::not_null<const RimWellPath*>            wellPath,
     gsl::not_null<const RimPerforationInterval*> perforationInterval,
     int                                          timeStep,
-    gsl::not_null<RimEclipseCase*>               eclipseCase )
+    gsl::not_null<const RimEclipseCase*>         eclipseCase )
 {
     std::vector<RigCompletionData> completionData;
     const RigActiveCellInfo*       activeCellInfo =

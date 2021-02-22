@@ -60,15 +60,23 @@ public:
                                                    const RimWellPath*     wellPath,
                                                    int                    timeStep );
 
-    static RicMswExportInfo generateFishbonesMswExportInfo( const RimEclipseCase* caseToApply,
-                                                            const RimWellPath*    wellPath,
-                                                            bool                  enableSegmentSplitting );
+    static void generateFishbonesMswExportInfo( const RimEclipseCase*                            caseToApply,
+                                                const RimWellPath*                               wellPath,
+                                                double                                           initialMD,
+                                                const std::vector<WellPathCellIntersectionInfo>& cellIntersections,
+                                                bool                                             enableSegmentSplitting,
+                                                gsl::not_null<RicMswExportInfo*>                 exportInfo,
+                                                gsl::not_null<RicMswBranch*>                     branch );
 
 private:
-    static RicMswExportInfo generateFishbonesMswExportInfo( const RimEclipseCase*             caseToApply,
-                                                            const RimWellPath*                wellPath,
-                                                            const std::vector<RimFishbones*>& fishbonesSubs,
-                                                            bool                              enableSegmentSplitting );
+    static void generateFishbonesMswExportInfo( const RimEclipseCase*                            caseToApply,
+                                                const RimWellPath*                               wellPath,
+                                                double                                           initialMD,
+                                                const std::vector<WellPathCellIntersectionInfo>& cellIntersections,
+                                                const std::vector<RimFishbones*>&                fishbonesSubs,
+                                                bool                                             enableSegmentSplitting,
+                                                gsl::not_null<RicMswExportInfo*>                 exportInfo,
+                                                gsl::not_null<RicMswBranch*>                     branch );
 
     static RicMswExportInfo generateFracturesMswExportInfo( RimEclipseCase* caseToApply, const RimWellPath* wellPath );
 
@@ -163,7 +171,7 @@ private:
                                         const std::vector<const RimPerforationInterval*>& perforationIntervals,
                                         const RimWellPath*                                wellPath,
                                         int                                               timeStep,
-                                        RimEclipseCase*                                   eclipseCase,
+                                        const RimEclipseCase*                             eclipseCase,
                                         bool*                                             foundSubGridIntersections );
 
     static void createValveCompletions( gsl::not_null<RicMswBranch*>                      branch,
@@ -201,7 +209,7 @@ private:
         generatePerforationIntersections( gsl::not_null<const RimWellPath*>            wellPath,
                                           gsl::not_null<const RimPerforationInterval*> perforationInterval,
                                           int                                          timeStep,
-                                          gsl::not_null<RimEclipseCase*>               eclipseCase );
+                                          gsl::not_null<const RimEclipseCase*>         eclipseCase );
 
     static void assignPerforationIntersections( const std::vector<RigCompletionData>& completionData,
                                                 gsl::not_null<RicMswCompletion*>      perforationCompletion,
