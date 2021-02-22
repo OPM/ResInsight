@@ -22,15 +22,23 @@
 #include "RiaLogging.h"
 #include "RiaStimPlanModelDefines.h"
 
+#include "RigActiveCellInfo.h"
+#include "RigCaseCellResultsData.h"
+#include "RigEclipseCaseData.h"
+#include "RigGridBase.h"
+#include "RigMainGrid.h"
 #include "RigWellPath.h"
 #include "RigWellPathGeometryTools.h"
 
+#include "RimEclipseCase.h"
 #include "RimModeledWellPath.h"
 #include "RimPressureTable.h"
 #include "RimPressureTableItem.h"
 #include "RimStimPlanModel.h"
 #include "RimStimPlanModelCalculator.h"
 #include "RimStimPlanModelTemplate.h"
+
+#include <limits>
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -211,39 +219,61 @@ bool RimStimPlanModelPressureCalculator::extractValuesForProperty( RiaDefines::C
         values              = results;
     }
 
-    // Filter out the facies which does not have pressure depletion.
-    std::map<int, double> faciesWithInitialPressure = stimPlanModel->stimPlanModelTemplate()->faciesWithInitialPressure();
-
-    if ( curveProperty == RiaDefines::CurveProperty::PRESSURE && !faciesWithInitialPressure.empty() )
+    if ( curveProperty == RiaDefines::CurveProperty::INITIAL_PRESSURE )
     {
-        std::vector<double> initialPressureValues;
-        std::vector<double> initialPressureMeasuredDepthValues;
-        std::vector<double> initialPressureTvDepthValues;
-
-        if ( !stimPlanModel->calculator()->extractCurveData( RiaDefines::CurveProperty::INITIAL_PRESSURE,
-                                                             timeStep,
-                                                             initialPressureValues,
-                                                             initialPressureMeasuredDepthValues,
-                                                             initialPressureTvDepthValues,
-                                                             rkbDiff ) )
+        bool hasMissingValues = std::find( values.begin(), values.end(), std::numeric_limits<double>::infinity() ) !=
+                                values.end();
+        if ( hasMissingValues )
         {
-            return false;
-        }
-
-        for ( size_t i = 0; i < faciesValues.size(); i++ )
-        {
-            // Use the values from initial pressure curve
-            int    faciesValue     = static_cast<int>( faciesValues[i] );
-            double currentPressure = values[i];
-            double initialPressure = initialPressureValues[i];
-            auto   faciesConfig    = faciesWithInitialPressure.find( faciesValue );
-            if ( faciesConfig != faciesWithInitialPressure.end() && !std::isinf( currentPressure ) &&
-                 !std::isinf( initialPressure ) )
+            if ( !interpolateInitialPressureByEquilibrationRegion( stimPlanModel,
+                                                                   timeStep,
+                                                                   measuredDepthValues,
+                                                                   tvDepthValues,
+                                                                   values ) )
             {
-                double fraction = faciesConfig->second;
-                double value    = initialPressure - ( initialPressure - currentPressure ) * ( 1.0 - fraction );
+                RiaLogging::error( "Pressure interpolation by equilibration region failed." );
+            }
+        }
+    }
+    else if ( curveProperty == RiaDefines::CurveProperty::PRESSURE )
+    {
+        // Filter out the facies which does not have pressure depletion.
+        std::map<int, double> faciesWithInitialPressure =
+            stimPlanModel->stimPlanModelTemplate()->faciesWithInitialPressure();
 
-                values[i] = value;
+        if ( !faciesWithInitialPressure.empty() )
+        {
+            std::vector<double> initialPressureValues;
+            std::vector<double> initialPressureMeasuredDepthValues;
+            std::vector<double> initialPressureTvDepthValues;
+
+            if ( !extractValuesForProperty( RiaDefines::CurveProperty::INITIAL_PRESSURE,
+                                            stimPlanModel,
+                                            timeStep,
+                                            initialPressureValues,
+                                            initialPressureMeasuredDepthValues,
+                                            initialPressureTvDepthValues,
+                                            rkbDiff ) )
+            {
+                return false;
+            }
+
+            CAF_ASSERT( faciesValues.size() == initialPressureValues.size() );
+            for ( size_t i = 0; i < faciesValues.size(); i++ )
+            {
+                // Use the values from initial pressure curve
+                int    faciesValue     = static_cast<int>( faciesValues[i] );
+                double currentPressure = values[i];
+                double initialPressure = initialPressureValues[i];
+                auto   faciesConfig    = faciesWithInitialPressure.find( faciesValue );
+                if ( faciesConfig != faciesWithInitialPressure.end() && !std::isinf( currentPressure ) &&
+                     !std::isinf( initialPressure ) )
+                {
+                    double fraction = faciesConfig->second;
+                    double value    = initialPressure - ( initialPressure - currentPressure ) * ( 1.0 - fraction );
+
+                    values[i] = value;
+                }
             }
         }
     }
@@ -301,6 +331,196 @@ bool RimStimPlanModelPressureCalculator::extractPressureDataFromTable( RiaDefine
     measuredDepthValues =
         RigWellPathGeometryTools::interpolateMdFromTvd( mdValuesOfWellPath, tvdValuesOfWellPath, tvDepthValues );
     CVF_ASSERT( measuredDepthValues.size() == tvDepthValues.size() );
+
+    return true;
+}
+
+std::set<int> findUniqueValues( const std::vector<double>& values )
+{
+    std::set<int> res;
+    for ( double v : values )
+    {
+        if ( !std::isinf( v ) )
+        {
+            res.insert( static_cast<int>( v ) );
+        }
+    }
+
+    return res;
+}
+
+typedef std::pair<double, double>           DepthValuePair;
+typedef std::vector<DepthValuePair>         DepthValuePairVector;
+typedef std::map<int, DepthValuePairVector> EqlNumToDepthValuePairMap;
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void sortAndRemoveDuplicates( DepthValuePairVector& depthValuePairs )
+{
+    std::sort( depthValuePairs.begin(), depthValuePairs.end() );
+    depthValuePairs.erase( unique( depthValuePairs.begin(), depthValuePairs.end() ), depthValuePairs.end() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const std::vector<double>& loadResults( RigEclipseCaseData*           caseData,
+                                        RiaDefines::PorosityModelType porosityModel,
+                                        RiaDefines::ResultCatType     resultType,
+                                        const QString&                propertyName )
+{
+    // TODO: is this always enough?
+    auto resultData = caseData->results( porosityModel );
+
+    int                     timeStepIndex = 0;
+    RigEclipseResultAddress resultAddress( resultType, propertyName );
+
+    resultData->ensureKnownResultLoaded( resultAddress );
+    return caseData->results( porosityModel )->cellScalarResults( resultAddress, timeStepIndex );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool buildPressureTablesPerEqlNum( const RimStimPlanModel*    stimPlanModel,
+                                   EqlNumToDepthValuePairMap& valuesPerEqlNum,
+                                   const std::set<int>&       presentEqlNums )
+{
+    RimEclipseCase* eclipseCase = stimPlanModel->eclipseCaseForProperty( RiaDefines::CurveProperty::EQLNUM );
+
+    // TODO: too naive??
+    int                gridIndex = 0;
+    const RigGridBase* grid      = eclipseCase->mainGrid()->gridByIndex( gridIndex );
+
+    RigEclipseCaseData* caseData = eclipseCase->eclipseCaseData();
+
+    RiaDefines::PorosityModelType porosityModel = RiaDefines::PorosityModelType::MATRIX_MODEL;
+    const std::vector<double>&    eqlNumValues =
+        loadResults( caseData, porosityModel, RiaDefines::ResultCatType::STATIC_NATIVE, "EQLNUM" );
+    const std::vector<double>& pressureValues =
+        loadResults( caseData, porosityModel, RiaDefines::ResultCatType::DYNAMIC_NATIVE, "PRESSURE" );
+
+    if ( eqlNumValues.size() != pressureValues.size() )
+    {
+        RiaLogging::error( "Unexpected result size for EQLNUM and PRESSURE found for pressure calculation." );
+        return false;
+    }
+
+    auto   activeCellInfo = caseData->activeCellInfo( porosityModel );
+    size_t cellCount      = activeCellInfo->reservoirActiveCellCount();
+
+    if ( cellCount != pressureValues.size() )
+    {
+        RiaLogging::error( "Unexpected number of active cells in pressure calculation." );
+        return false;
+    }
+
+    for ( size_t cellIndex = 0; cellIndex < cellCount; cellIndex++ )
+    {
+        size_t resultIdx = activeCellInfo->cellResultIndex( cellIndex );
+        int    eqlNum    = static_cast<int>( eqlNumValues[resultIdx] );
+        double pressure  = pressureValues[resultIdx];
+        if ( presentEqlNums.count( eqlNum ) > 0 && !std::isinf( pressure ) )
+        {
+            cvf::Vec3d center = grid->cell( cellIndex ).center();
+            valuesPerEqlNum[eqlNum].push_back( std::make_pair( -center.z(), pressure ) );
+        }
+    }
+
+    // Sort and remove duplicates for each depth/value dataset
+    for ( int eqlNum : presentEqlNums )
+    {
+        sortAndRemoveDuplicates( valuesPerEqlNum[eqlNum] );
+    }
+
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double interpolatePressure( const DepthValuePairVector& depthValuePairs, double depth, int eqlNum )
+{
+    std::vector<double> depths;
+    for ( auto dvp : depthValuePairs )
+    {
+        depths.push_back( dvp.first );
+    }
+
+    // Find value before and after this depth in the static data
+    auto [startIndex, endIndex] = findIndex( depth, depths );
+
+    auto [startDepth, startValue] = depthValuePairs[startIndex];
+    auto [endDepth, endValue]     = depthValuePairs[endIndex];
+
+    // Interpolate a value for the given tvd
+    std::vector<double> xs = { startDepth, depth, endDepth };
+    std::vector<double> ys = { startValue, std::numeric_limits<double>::infinity(), endValue };
+    RiaInterpolationTools::interpolateMissingValues( xs, ys );
+    double value = ys[1];
+
+    RiaLogging::info( QString( "Interpolating initial pressure from %1 depth/value pairs (EQLNUM: %2, TVD: %3)."
+                               " Above: TVD: %4, P: %5. Below: TVD: %6, P: %7. Pressure: %8" )
+                          .arg( depthValuePairs.size() )
+                          .arg( eqlNum )
+                          .arg( depth )
+                          .arg( startDepth )
+                          .arg( startValue )
+                          .arg( endDepth )
+                          .arg( endValue )
+                          .arg( value ) );
+
+    return value;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimStimPlanModelPressureCalculator::interpolateInitialPressureByEquilibrationRegion(
+    const RimStimPlanModel*    stimPlanModel,
+    int                        timeStep,
+    const std::vector<double>& measuredDepthValues,
+    const std::vector<double>& tvDepthValues,
+    std::vector<double>&       values ) const
+{
+    std::vector<double> eqlNumValues;
+    std::vector<double> eqlNumMeasuredDepthsValues;
+    std::vector<double> eqlNumTvDepthValues;
+    double              rkbDiff = -1.0;
+    if ( !stimPlanModel->calculator()->extractCurveData( RiaDefines::CurveProperty::EQLNUM,
+                                                         timeStep,
+                                                         eqlNumValues,
+                                                         eqlNumMeasuredDepthsValues,
+                                                         eqlNumTvDepthValues,
+                                                         rkbDiff ) )
+    {
+        RiaLogging::error( "Failed to extract EQLNUM data in pressure calculation" );
+        return false;
+    }
+
+    std::set<int> presentEqlNums = findUniqueValues( eqlNumValues );
+
+    RiaLogging::info( QString( "Found %1 EQLNUM values." ).arg( presentEqlNums.size() ) );
+
+    EqlNumToDepthValuePairMap valuesPerEqlNum;
+    if ( !buildPressureTablesPerEqlNum( stimPlanModel, valuesPerEqlNum, presentEqlNums ) )
+    {
+        RiaLogging::error( "Failed to build EQLNUM pressure data in pressure calculation" );
+        return false;
+    }
+
+    for ( size_t i = 0; i < values.size(); i++ )
+    {
+        if ( std::isinf( values[i] ) )
+        {
+            int                  eqlNum          = static_cast<int>( eqlNumValues[i] );
+            DepthValuePairVector depthValuePairs = valuesPerEqlNum[eqlNum];
+            double               depth           = tvDepthValues[i];
+            double               value           = interpolatePressure( depthValuePairs, depth, eqlNum );
+            values[i]                            = value;
+        }
+    }
 
     return true;
 }
