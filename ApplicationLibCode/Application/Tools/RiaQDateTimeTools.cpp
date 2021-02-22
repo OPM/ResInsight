@@ -135,7 +135,7 @@ QDateTime RiaQDateTimeTools::fromYears( double years )
 QDateTime RiaQDateTimeTools::fromTime_t( time_t t )
 {
     auto qdt = createUtcDateTime();
-    qdt.setTime_t( t );
+    qdt.setSecsSinceEpoch( t );
     return qdt;
 }
 

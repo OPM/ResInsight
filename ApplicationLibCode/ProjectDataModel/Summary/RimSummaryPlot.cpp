@@ -2494,7 +2494,7 @@ void appendToExportDataForCase( QString& out, const std::vector<time_t>& timeSte
             }
         }
         out += "\n";
-        out += QDateTime::fromTime_t( timeSteps[j] ).toUTC().toString( "yyyy-MM-dd hh:mm:ss " );
+        out += QDateTime::fromSecsSinceEpoch( timeSteps[j] ).toUTC().toString( "yyyy-MM-dd hh:mm:ss " );
 
         for ( size_t k = 0; k < curveData.size(); k++ ) // curves
         {
@@ -2549,7 +2549,7 @@ void appendToExportData( QString& out, const std::vector<CurvesData>& curvesData
 
         for ( auto timeStep : allTimeSteps )
         {
-            QDateTime timseStepUtc = QDateTime::fromTime_t( timeStep ).toUTC();
+            QDateTime timseStepUtc = QDateTime::fromSecsSinceEpoch( timeStep ).toUTC();
             QString   timeText;
 
             if ( showTimeAsLongString )

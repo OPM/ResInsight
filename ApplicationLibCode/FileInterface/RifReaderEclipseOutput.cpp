@@ -1678,7 +1678,7 @@ void RifReaderEclipseOutput::readWellCells( const ecl_grid_type* mainEclGrid, bo
 
                 // Also see RifEclipseOutputFileAccess::timeStepsText for accessing time_t structures
                 time_t stepTime          = well_state_get_sim_time( ert_well_state );
-                wellResFrame.m_timestamp = QDateTime::fromTime_t( stepTime );
+                wellResFrame.m_timestamp = QDateTime::fromSecsSinceEpoch( stepTime );
             }
 
             // Production type

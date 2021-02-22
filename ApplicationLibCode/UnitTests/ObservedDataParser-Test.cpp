@@ -931,7 +931,7 @@ TEST( RifKeywordBasedRsmspecParserTest, TestTimeSteps )
 
     QDateTime firstDate = RiaQDateTimeTools::fromYears( 2014.32 );
 
-    EXPECT_TRUE( firstDate == QDateTime::fromTime_t( timeSteps[0] ) );
+    EXPECT_TRUE( firstDate == QDateTime::fromSecsSinceEpoch( timeSteps[0] ) );
 }
 
 //--------------------------------------------------------------------------------------------------
