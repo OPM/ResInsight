@@ -40,10 +40,10 @@ cvf::Vec2f RivTernaryScalarMapper::mapToTextureCoord( double soil, double sgas, 
     double edgeClampDelta = 0.001;
 
     double soilNormalized = ( soil - m_rangeMinSoil ) * m_soilFactor;
-    soilNormalized        = cvf::Math::clamp( soilNormalized, edgeClampDelta, 1.0 - edgeClampDelta );
+    soilNormalized        = std::clamp( soilNormalized, edgeClampDelta, 1.0 - edgeClampDelta );
 
     double sgasNormalized = ( sgas - m_rangeMinSgas ) * m_sgasFactor;
-    sgasNormalized        = cvf::Math::clamp( sgasNormalized, edgeClampDelta, 1.0 - soilNormalized );
+    sgasNormalized        = std::clamp( sgasNormalized, edgeClampDelta, 1.0 - soilNormalized );
     sgasNormalized /= 2.0;
 
     if ( isTransparent )

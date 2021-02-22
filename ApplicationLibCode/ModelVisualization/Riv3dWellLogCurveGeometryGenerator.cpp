@@ -264,7 +264,7 @@ bool Riv3dWellLogCurveGeometryGenerator::findClosestPointOnCurve( const cvf::Vec
             cvf::Vec3d ab = b - a;
             // Projected point is clamped to one of the end points of the segment.
             double     distanceToProjectedPointAlongAB = ap * ab / ( ab * ab );
-            double     clampedDistance                 = cvf::Math::clamp( distanceToProjectedPointAlongAB, 0.0, 1.0 );
+            double     clampedDistance                 = std::clamp( distanceToProjectedPointAlongAB, 0.0, 1.0 );
             cvf::Vec3d projectionOfGlobalIntersection  = a + clampedDistance * ab;
             double     distance = ( projectionOfGlobalIntersection - globalIntersection ).length();
             if ( distance < closestDistance )
@@ -461,9 +461,9 @@ cvf::Vec3d Riv3dWellLogCurveGeometryGenerator::projectPointOntoTriangle( const c
     {
         *wasInsideTriangle = true;
         // Clamp to ensure it is inside the triangle
-        u              = cvf::Math::clamp( u, 0.0, 1.0 );
-        v              = cvf::Math::clamp( v, 0.0, 1.0 );
-        w              = cvf::Math::clamp( w, 0.0, 1.0 );
+        u              = std::clamp( u, 0.0, 1.0 );
+        v              = std::clamp( v, 0.0, 1.0 );
+        w              = std::clamp( w, 0.0, 1.0 );
         projectedPoint = triangleVertex1 * u + triangleVertex2 * v + triangleVertex3 * w;
     }
     return projectedPoint;

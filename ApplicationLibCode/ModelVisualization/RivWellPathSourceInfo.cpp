@@ -116,7 +116,7 @@ void RivWellPathSourceInfo::normalizedIntersection( size_t            triangleIn
 
     double norm = 0.0;
     cvf::GeometryTools::projectPointOnLine( segmentStart, segmentEnd, globalIntersectionInDomain, &norm );
-    norm = cvf::Math::clamp( norm, 0.0, 1.0 );
+    norm = std::clamp( norm, 0.0, 1.0 );
 
     *firstSegmentIndex             = segIndex;
     *normalizedSegmentIntersection = norm;

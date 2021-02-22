@@ -20,7 +20,6 @@
 
 #include "cafSignal.h"
 
-#include "cvfMath.h"
 #include "cvfObject.h"
 #include "cvfVector3.h"
 

@@ -24,7 +24,6 @@
 #include "RimWellPath.h"
 
 #include "cafPdmUiDoubleSliderEditor.h"
-#include "cvfMath.h"
 
 CAF_PDM_SOURCE_INIT( Rim3dWellLogCurveCollection, "Rim3dWellLogCurveCollection" );
 

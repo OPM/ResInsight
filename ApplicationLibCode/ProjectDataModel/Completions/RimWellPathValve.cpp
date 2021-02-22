@@ -84,7 +84,7 @@ void RimWellPathValve::perforationIntervalUpdated()
         this->firstAncestorOrThisOfType( perfInterval );
         double startMD  = perfInterval->startMD();
         double endMD    = perfInterval->endMD();
-        m_measuredDepth = cvf::Math::clamp( m_measuredDepth(), std::min( startMD, endMD ), std::max( startMD, endMD ) );
+        m_measuredDepth = std::clamp( m_measuredDepth(), std::min( startMD, endMD ), std::max( startMD, endMD ) );
     }
     else if ( componentType() == RiaDefines::WellPathComponentType::ICD ||
               componentType() == RiaDefines::WellPathComponentType::AICD )

@@ -17,8 +17,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 #include "RimWellMeasurementFilter.h"
 
-#include "cvfMath.h"
-
 #include "RimWellMeasurement.h"
 #include "RimWellMeasurementCollection.h"
 #include "RimWellPath.h"

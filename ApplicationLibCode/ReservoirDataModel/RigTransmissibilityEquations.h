@@ -18,7 +18,6 @@
 
 #pragma once
 
-#include "cvfMath.h"
 #include "cvfVector3.h"
 
 class RigTransmissibilityEquations

@@ -18,8 +18,6 @@
 
 #include "RigPerforationTransmissibilityEquations.h"
 
-#include "cvfMath.h"
-
 #include <cmath>
 
 const double RigPerforationTransmissibilityEquations::EPSILON = 1.0e-9;

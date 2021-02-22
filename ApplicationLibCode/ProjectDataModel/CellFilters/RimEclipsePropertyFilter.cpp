@@ -42,7 +42,6 @@
 #include "cafPdmUiDoubleSliderEditor.h"
 
 #include "cvfAssert.h"
-#include "cvfMath.h"
 
 #include <cmath> // Needed for HUGE_VAL on Linux
 

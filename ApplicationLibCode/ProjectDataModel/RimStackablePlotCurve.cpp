@@ -18,6 +18,7 @@
 #include "RimStackablePlotCurve.h"
 
 #include "RiaColorTables.h"
+#include "RiaColorTools.h"
 
 //--------------------------------------------------------------------------------------------------
 ///

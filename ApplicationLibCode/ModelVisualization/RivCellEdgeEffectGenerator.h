@@ -106,7 +106,7 @@ public:
     void setScalarMapper( const cvf::ScalarMapper* cellScalarMapper );
     void setTernaryScalarMapper( const RivTernaryScalarMapper* ternaryScalarMapper );
 
-    void setOpacityLevel( float opacity ) { m_opacityLevel = cvf::Math::clamp( opacity, 0.0f, 1.0f ); }
+    void setOpacityLevel( float opacity ) { m_opacityLevel = std::clamp( opacity, 0.0f, 1.0f ); }
     void setUndefinedColor( cvf::Color3f color ) { m_undefinedColor = color; }
     void setFaceCulling( caf::FaceCulling faceCulling ) { m_cullBackfaces = faceCulling; }
     void setDefaultCellColor( cvf::Color3f color ) { m_defaultCellColor = color; }

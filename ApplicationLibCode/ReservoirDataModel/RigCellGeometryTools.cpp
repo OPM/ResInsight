@@ -26,8 +26,6 @@
 
 #include "clipper/clipper.hpp"
 
-#include "cvfMath.h"
-
 #include <algorithm>
 #include <array>
 #include <vector>
@@ -117,8 +115,8 @@ bool RigCellGeometryTools::estimateHexOverlapWithBoundingBox( const std::array<c
     for ( size_t i = 0; i < 4; ++i )
     {
         const cvf::Vec3d& hexCorner = hexCorners[i];
-        double            x         = cvf::Math::clamp( hexCorner.x(), boundingMin.x(), boundingMax.x() );
-        double            y         = cvf::Math::clamp( hexCorner.y(), boundingMin.y(), boundingMax.y() );
+        double            x         = std::clamp( hexCorner.x(), boundingMin.x(), boundingMax.x() );
+        double            y         = std::clamp( hexCorner.y(), boundingMin.y(), boundingMax.y() );
         cvf::Vec3d        corner;
         cvf::Vec3d        maxZCorner( x, y, boundingMax.z() );
         cvf::Vec3d        minZCorner( x, y, boundingMin.z() );
@@ -129,7 +127,7 @@ bool RigCellGeometryTools::estimateHexOverlapWithBoundingBox( const std::array<c
         }
         else
         {
-            double     z = cvf::Math::clamp( hexCorner.z(), boundingMin.z(), boundingMax.z() );
+            double     z = std::clamp( hexCorner.z(), boundingMin.z(), boundingMax.z() );
             cvf::Vec3d clampedCorner( x, y, z );
             overlapBoundingBox->add( clampedCorner );
             ( *overlapElement )[i] = clampedCorner;
@@ -138,8 +136,8 @@ bool RigCellGeometryTools::estimateHexOverlapWithBoundingBox( const std::array<c
     for ( size_t i = 4; i < 8; ++i )
     {
         const cvf::Vec3d& hexCorner = hexCorners[i];
-        double            x         = cvf::Math::clamp( hexCorner.x(), boundingMin.x(), boundingMax.x() );
-        double            y         = cvf::Math::clamp( hexCorner.y(), boundingMin.y(), boundingMax.y() );
+        double            x         = std::clamp( hexCorner.x(), boundingMin.x(), boundingMax.x() );
+        double            y         = std::clamp( hexCorner.y(), boundingMin.y(), boundingMax.y() );
         cvf::Vec3d        corner;
         cvf::Vec3d        maxZCorner( x, y, boundingMax.z() );
         cvf::Vec3d        minZCorner( x, y, boundingMin.z() );
@@ -150,7 +148,7 @@ bool RigCellGeometryTools::estimateHexOverlapWithBoundingBox( const std::array<c
         }
         else
         {
-            double     z = cvf::Math::clamp( hexCorner.z(), boundingMin.z(), boundingMax.z() );
+            double     z = std::clamp( hexCorner.z(), boundingMin.z(), boundingMax.z() );
             cvf::Vec3d clampedCorner( x, y, z );
             overlapBoundingBox->add( clampedCorner );
             ( *overlapElement )[i] = clampedCorner;
