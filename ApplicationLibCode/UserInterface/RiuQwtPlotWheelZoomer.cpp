@@ -20,8 +20,11 @@
 
 #include "qwt_plot.h"
 #include "qwt_scale_div.h"
+
 #include <QEvent>
 #include <QWheelEvent>
+
+#include <algorithm>
 
 #define RIU_LOGARITHMIC_MINIMUM 1.0e-15
 #define RIU_SCROLLWHEEL_ZOOMFACTOR 1.1

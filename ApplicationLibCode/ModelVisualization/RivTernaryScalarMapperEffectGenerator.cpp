@@ -36,6 +36,8 @@
 #include "cvfTexture2D_FF.h"
 #include "cvfUniform.h"
 
+#include <algorithm>
+
 //==================================================================================================
 //
 // RivTernaryScalarMapperEffectGenerator
@@ -55,6 +57,46 @@ RivTernaryScalarMapperEffectGenerator::RivTernaryScalarMapperEffectGenerator( co
     m_faceCulling      = caf::FC_NONE;
     m_enableDepthWrite = true;
     m_disableLighting  = false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RivTernaryScalarMapperEffectGenerator::setOpacityLevel( float opacity )
+{
+    m_opacityLevel = std::clamp( opacity, 0.0f, 1.0f );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RivTernaryScalarMapperEffectGenerator::setUndefinedColor( cvf::Color3f color )
+{
+    m_undefinedColor = color;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RivTernaryScalarMapperEffectGenerator::setFaceCulling( caf::FaceCulling faceCulling )
+{
+    m_faceCulling = faceCulling;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RivTernaryScalarMapperEffectGenerator::enableDepthWrite( bool enableWrite )
+{
+    m_enableDepthWrite = enableWrite;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RivTernaryScalarMapperEffectGenerator::disableLighting( bool disable )
+{
+    m_disableLighting = disable;
 }
 
 //--------------------------------------------------------------------------------------------------

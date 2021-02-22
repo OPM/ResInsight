@@ -38,11 +38,11 @@ class RivTernaryScalarMapperEffectGenerator : public caf::EffectGenerator
 public:
     RivTernaryScalarMapperEffectGenerator( const RivTernaryScalarMapper* scalarMapper, caf::PolygonOffset polygonOffset );
 
-    void setOpacityLevel( float opacity ) { m_opacityLevel = std::clamp( opacity, 0.0f, 1.0f ); }
-    void setUndefinedColor( cvf::Color3f color ) { m_undefinedColor = color; }
-    void setFaceCulling( caf::FaceCulling faceCulling ) { m_faceCulling = faceCulling; }
-    void enableDepthWrite( bool enableWrite ) { m_enableDepthWrite = enableWrite; }
-    void disableLighting( bool disable ) { m_disableLighting = disable; }
+    void setOpacityLevel( float opacity );
+    void setUndefinedColor( cvf::Color3f color );
+    void setFaceCulling( caf::FaceCulling faceCulling );
+    void enableDepthWrite( bool enableWrite );
+    void disableLighting( bool disable );
 
 public:
     static bool isImagesEqual( const cvf::TextureImage* texImg1, const cvf::TextureImage* texImg2 );
