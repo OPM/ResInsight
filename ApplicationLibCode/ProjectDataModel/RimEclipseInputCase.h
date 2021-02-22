@@ -68,7 +68,4 @@ private:
 private:
     // Fields
     caf::PdmProxyValueField<std::vector<QString>> m_additionalFiles;
-
-    // Obsolete fields
-    caf::PdmField<std::vector<QString>> m_additionalFilenames_OBSOLETE;
 };

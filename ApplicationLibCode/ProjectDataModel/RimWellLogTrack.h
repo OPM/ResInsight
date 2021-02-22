@@ -346,10 +346,6 @@ private:
     caf::PdmField<double>                                              m_overburdenHeight;
     caf::PdmField<double>                                              m_underburdenHeight;
 
-    caf::PdmField<bool>                                   m_showFormations_OBSOLETE;
-    caf::PdmField<bool>                                   m_show_OBSOLETE;
-    caf::PdmField<RimRegularLegendConfig::ColorRangeEnum> m_colorShadingPalette_OBSOLETE;
-
     std::vector<std::unique_ptr<RiuWellPathComponentPlotItem>> m_wellPathAttributePlotObjects;
 
     bool m_formationsForCaseWithSimWellOnly;

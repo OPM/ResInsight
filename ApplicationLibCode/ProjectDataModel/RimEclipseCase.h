@@ -153,11 +153,4 @@ private:
 
     caf::PdmChildField<RimReservoirCellResultsStorage*> m_matrixModelResults;
     caf::PdmChildField<RimReservoirCellResultsStorage*> m_fractureModelResults;
-
-    // Obsolete fields
-protected:
-    caf::PdmField<QString> m_caseName_OBSOLETE;
-
-private:
-    caf::PdmField<std::vector<QString>> m_filesContainingFaults_OBSOLETE;
 };

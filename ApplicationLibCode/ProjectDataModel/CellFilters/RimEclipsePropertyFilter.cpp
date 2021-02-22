@@ -45,17 +45,6 @@
 
 #include <cmath> // Needed for HUGE_VAL on Linux
 
-namespace caf
-{ // Obsolete stuff
-template <>
-void caf::AppEnum<RimEclipsePropertyFilter::EvaluationRegionType>::setUp()
-{
-    addItem( RimEclipsePropertyFilter::RANGE_FILTER_REGION, "RANGE_FILTER_REGION", "Range filter cells" );
-    addItem( RimEclipsePropertyFilter::GLOBAL_REGION, "GLOBAL_REGION", "All cells" );
-    setDefault( RimEclipsePropertyFilter::RANGE_FILTER_REGION );
-}
-} // namespace caf
-
 CAF_PDM_SOURCE_INIT( RimEclipsePropertyFilter, "CellPropertyFilter" );
 
 //--------------------------------------------------------------------------------------------------
@@ -64,9 +53,6 @@ CAF_PDM_SOURCE_INIT( RimEclipsePropertyFilter, "CellPropertyFilter" );
 RimEclipsePropertyFilter::RimEclipsePropertyFilter()
 {
     CAF_PDM_InitObject( "Cell Property Filter", ":/CellFilter_Values.png", "", "" );
-
-    CAF_PDM_InitFieldNoDefault( &obsoleteField_evaluationRegion, "EvaluationRegion", "Evaluation Region", "", "", "" );
-    RiaFieldhandleTools::disableWriteAndSetFieldHidden( &obsoleteField_evaluationRegion );
 
     CAF_PDM_InitFieldNoDefault( &m_resultDefinition, "ResultDefinition", "Result Definition", "", "", "" );
     m_resultDefinition = new RimEclipseResultDefinition();
@@ -148,7 +134,6 @@ void RimEclipsePropertyFilter::fieldChangedByUi( const caf::PdmFieldHandle* chan
     // clang-format off
     if (   &m_lowerBound == changedField 
         || &m_upperBound == changedField
-        || &obsoleteField_evaluationRegion == changedField
         || &m_isActive == changedField
         || &m_filterMode == changedField
         || &m_selectedCategoryValues == changedField

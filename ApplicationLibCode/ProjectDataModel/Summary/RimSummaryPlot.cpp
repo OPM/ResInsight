@@ -198,16 +198,6 @@ RimSummaryPlot::RimSummaryPlot()
     m_textCurveSetEditor.uiCapability()->setUiTreeHidden( true );
     m_textCurveSetEditor = new RimSummaryPlotFilterTextCurveSetEditor;
 
-    // Obsolete fields
-    CAF_PDM_InitField( &m_isAutoZoom_OBSOLETE, "AutoZoom", true, "Auto Zoom", "", "", "" );
-    RiaFieldhandleTools::disableWriteAndSetFieldHidden( &m_isAutoZoom_OBSOLETE );
-    CAF_PDM_InitField( &m_showLegend_OBSOLETE, "ShowLegend", true, "Legend", "", "", "" );
-    m_showLegend_OBSOLETE.xmlCapability()->setIOWritable( false );
-    CAF_PDM_InitFieldNoDefault( &m_curveFilters_OBSOLETE, "SummaryCurveFilters", "", "", "", "" );
-    m_curveFilters_OBSOLETE.uiCapability()->setUiTreeHidden( true );
-    CAF_PDM_InitFieldNoDefault( &m_summaryCurves_OBSOLETE, "SummaryCurves", "", "", "", "" );
-    m_summaryCurves_OBSOLETE.uiCapability()->setUiTreeHidden( true );
-
     m_isCrossPlot = false;
 
     m_nameHelperAllCurves.reset( new RimSummaryPlotNameHelper );
@@ -224,8 +214,6 @@ RimSummaryPlot::~RimSummaryPlot()
 
     cleanupBeforeClose();
 
-    m_summaryCurves_OBSOLETE.deleteAllChildObjects();
-    m_curveFilters_OBSOLETE.deleteAllChildObjects();
     delete m_summaryCurveCollection;
     delete m_ensembleCurveSetCollection;
 }
@@ -1938,52 +1926,12 @@ void RimSummaryPlot::initAfterRead()
 {
     RimViewWindow::initAfterRead();
 
-    // Move summary curves from obsolete storage to the new curve collection
-    std::vector<RimSummaryCurve*> curvesToMove;
-
-    for ( auto& curveFilter : m_curveFilters_OBSOLETE )
-    {
-        const auto& tmpCurves = curveFilter->curves();
-        curvesToMove.insert( curvesToMove.end(), tmpCurves.begin(), tmpCurves.end() );
-        curveFilter->clearCurvesWithoutDelete();
-    }
-    m_curveFilters_OBSOLETE.clear();
-
-    curvesToMove.insert( curvesToMove.end(), m_summaryCurves_OBSOLETE.begin(), m_summaryCurves_OBSOLETE.end() );
-    m_summaryCurves_OBSOLETE.clear();
-
-    for ( const auto& curve : curvesToMove )
-    {
-        m_summaryCurveCollection->addCurve( curve );
-    }
-
-    if ( !m_isAutoZoom_OBSOLETE() )
-    {
-        setAutoScaleXEnabled( false );
-        setAutoScaleYEnabled( false );
-    }
-
     for ( auto curve : summaryCurves() )
     {
         connectCurveSignals( curve );
     }
 
     updateStackedCurveData();
-
-    RimProject* proj = nullptr;
-    this->firstAncestorOrThisOfType( proj );
-    if ( proj )
-    {
-        if ( proj->isProjectFileVersionEqualOrOlderThan( "2017.0.0" ) )
-        {
-            m_useAutoPlotTitle = false;
-        }
-    }
-
-    if ( m_showLegend_OBSOLETE() )
-    {
-        m_showPlotLegends = true;
-    }
 }
 
 //--------------------------------------------------------------------------------------------------

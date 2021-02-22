@@ -55,7 +55,6 @@ RimGridCrossPlot::RimGridCrossPlot()
     CAF_PDM_InitObject( "Grid Cross Plot", ":/SummaryXPlotLight16x16.png", "", "" );
 
     CAF_PDM_InitField( &m_showInfoBox, "ShowInfoBox", true, "Show Info Box", "", "", "" );
-    CAF_PDM_InitField( &m_showLegend_OBSOLETE, "ShowLegend", false, "Show Legend", "", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_nameConfig, "NameConfig", "Name Config", "", "", "" );
     m_nameConfig.uiCapability()->setUiTreeHidden( true );
@@ -503,17 +502,6 @@ void RimGridCrossPlot::onLoadDataAndUpdate()
     updateCurveNamesAndPlotTitle();
     updatePlot();
     updateInfoBox();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimGridCrossPlot::initAfterRead()
-{
-    if ( m_showLegend_OBSOLETE() )
-    {
-        setLegendsVisible( true );
-    }
 }
 
 //--------------------------------------------------------------------------------------------------

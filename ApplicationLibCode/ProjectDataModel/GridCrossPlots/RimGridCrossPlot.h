@@ -111,7 +111,6 @@ public:
 protected:
     void deleteViewWidget() override;
     void onLoadDataAndUpdate() override;
-    void initAfterRead() override;
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
 
@@ -152,7 +151,6 @@ private slots:
 
 private:
     caf::PdmField<bool>                             m_showInfoBox;
-    caf::PdmField<bool>                             m_showLegend_OBSOLETE;
     caf::PdmChildField<RimGridCrossPlotNameConfig*> m_nameConfig;
 
     caf::PdmChildField<RimPlotAxisProperties*> m_yAxisProperties;

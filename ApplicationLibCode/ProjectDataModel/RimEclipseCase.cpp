@@ -117,13 +117,6 @@ RimEclipseCase::RimEclipseCase()
     m_inputPropertyCollection = new RimEclipseInputPropertyCollection;
     m_inputPropertyCollection->parentField()->uiCapability()->setUiHidden( true );
 
-    // Obsolete fields
-    CAF_PDM_InitFieldNoDefault( &m_filesContainingFaults_OBSOLETE, "FilesContainingFaults", "", "", "", "" );
-    RiaFieldhandleTools::disableWriteAndSetFieldHidden( &m_filesContainingFaults_OBSOLETE );
-
-    CAF_PDM_InitField( &m_caseName_OBSOLETE, "CaseName", QString(), "Obsolete", "", "", "" );
-    RiaFieldhandleTools::disableWriteAndSetFieldHidden( &m_caseName_OBSOLETE );
-
     // Init
 
     m_matrixModelResults = new RimReservoirCellResultsStorage;
@@ -284,11 +277,6 @@ void RimEclipseCase::initAfterRead()
     for ( RimEclipseContourMapView* contourMap : m_contourMapCollection->views() )
     {
         contourMap->setEclipseCase( this );
-    }
-
-    if ( caseUserDescription().isEmpty() && !m_caseName_OBSOLETE().isEmpty() )
-    {
-        caseUserDescription = m_caseName_OBSOLETE;
     }
 }
 

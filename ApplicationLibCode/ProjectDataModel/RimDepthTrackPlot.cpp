@@ -90,9 +90,6 @@ RimDepthTrackPlot::RimDepthTrackPlot()
     m_commonDataSource.xmlCapability()->disableIO();
     m_commonDataSource = new RimWellLogCurveCommonDataSource;
 
-    CAF_PDM_InitScriptableField( &m_showPlotWindowTitle_OBSOLETE, "ShowTitleInPlot", false, "Show Title", "", "", "" );
-    m_showPlotWindowTitle_OBSOLETE.xmlCapability()->setIOWritable( false );
-
     CAF_PDM_InitField( &m_plotWindowTitle, "PlotDescription", QString( "" ), "Name", "", "", "" );
     m_plotWindowTitle.xmlCapability()->setIOWritable( false );
 
@@ -905,11 +902,6 @@ void RimDepthTrackPlot::initAfterRead()
     if ( m_depthAxisGridVisibility() == AXIS_GRID_MINOR )
     {
         m_depthAxisGridVisibility = AXIS_GRID_MAJOR_AND_MINOR;
-    }
-
-    if ( m_showPlotWindowTitle_OBSOLETE() )
-    {
-        m_showPlotTitle = true;
     }
 
     if ( !m_plotWindowTitle().isEmpty() )

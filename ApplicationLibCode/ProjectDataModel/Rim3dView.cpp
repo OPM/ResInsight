@@ -102,9 +102,6 @@ Rim3dView::Rim3dView( void )
     CAF_PDM_InitFieldNoDefault( &m_nameConfig, "NameConfig", "", "", "", "" );
     m_nameConfig = new RimViewNameConfig();
 
-    CAF_PDM_InitField( &m_name_OBSOLETE, "UserDescription", QString( "" ), "Name", "", "", "" );
-    m_name_OBSOLETE.xmlCapability()->setIOWritable( false );
-
     CAF_PDM_InitField( &m_cameraPosition, "CameraPosition", cvf::Mat4d::IDENTITY, "", "", "", "" );
     m_cameraPosition.uiCapability()->setUiHidden( true );
 
@@ -324,23 +321,6 @@ void Rim3dView::updateViewWidgetAfterCreation()
     this->createHighlightAndGridBoxDisplayModel();
 
     m_viewer->update();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void Rim3dView::initAfterRead()
-{
-    RimViewWindow::initAfterRead();
-
-    if ( !m_name_OBSOLETE().isEmpty() )
-    {
-        nameConfig()->setCustomName( m_name_OBSOLETE() );
-        nameConfig()->setAddCaseName( false );
-        nameConfig()->setAddAggregationType( false );
-        nameConfig()->setAddProperty( false );
-        nameConfig()->setAddSampleSpacing( false );
-    }
 }
 
 //--------------------------------------------------------------------------------------------------

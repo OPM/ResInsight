@@ -99,10 +99,6 @@ RimWellPltPlot::RimWellPltPlot()
 {
     CAF_PDM_InitObject( "Well Allocation Plot", ":/WellFlowPlot16x16.png", "", "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_wellLogPlot_OBSOLETE, "WellLog", "WellLog", "", "", "" );
-    m_wellLogPlot_OBSOLETE.uiCapability()->setUiHidden( true );
-    m_wellLogPlot_OBSOLETE.xmlCapability()->setIOWritable( false );
-
     CAF_PDM_InitFieldNoDefault( &m_wellPathName, "WellName", "Well Name", "", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_selectedSources, "SourcesInternal", "Sources Internal", "", "", "" );
@@ -1030,14 +1026,6 @@ void RimWellPltPlot::defineEditorAttribute( const caf::PdmFieldHandle* field,
 void RimWellPltPlot::initAfterRead()
 {
     RimViewWindow::initAfterRead();
-
-    if ( m_wellLogPlot_OBSOLETE )
-    {
-        RimWellLogPlot& wellLogPlot = dynamic_cast<RimWellLogPlot&>( *this );
-        wellLogPlot                 = std::move( *m_wellLogPlot_OBSOLETE.value() );
-        delete m_wellLogPlot_OBSOLETE;
-        m_wellLogPlot_OBSOLETE = nullptr;
-    }
 
     RimWellLogPlot::initAfterRead();
 

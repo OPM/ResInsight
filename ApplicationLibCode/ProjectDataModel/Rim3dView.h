@@ -233,7 +233,6 @@ protected:
     virtual QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
                                                                  bool*                      useOptionsOnly ) override;
 
-    void initAfterRead() override;
     void setupBeforeSave() override;
 
     // Overridden ViewWindow methods:
@@ -295,7 +294,6 @@ private:
 
     // Fields
     caf::PdmField<int>                     m_id;
-    caf::PdmField<QString>                 m_name_OBSOLETE;
     caf::PdmChildField<RimViewNameConfig*> m_nameConfig;
     caf::PdmField<bool>                    m_disableLighting;
     caf::PdmField<cvf::Mat4d>              m_cameraPosition;

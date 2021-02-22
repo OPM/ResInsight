@@ -129,11 +129,6 @@ RimGeoMechResultDefinition::RimGeoMechResultDefinition( void )
                        "" );
     m_compactionRefLayerUiField.xmlCapability()->disableIO();
 
-    // OBSOLETE FIELDS
-    CAF_PDM_InitField( &m_isTimeLapseResult_OBSOLETE, "IsTimeLapseResult", true, "TimeLapseResult", "", "", "" );
-    m_isTimeLapseResult_OBSOLETE.xmlCapability()->setIOWritable( false );
-    m_isTimeLapseResult_OBSOLETE.uiCapability()->setUiHidden( true );
-
     m_isChangedByField          = false;
     m_addWellPathDerivedResults = false;
 }
@@ -560,11 +555,6 @@ QString RimGeoMechResultDefinition::composeFieldCompString( const QString& resul
 //--------------------------------------------------------------------------------------------------
 void RimGeoMechResultDefinition::initAfterRead()
 {
-    if ( !m_isTimeLapseResult_OBSOLETE() )
-    {
-        m_timeLapseBaseTimestep = RigFemResultAddress::noTimeLapseValue();
-    }
-
     if ( m_resultComponentName == "STM" || m_resultComponentName == "SEM" ) m_resultComponentName = "SM";
 
     m_resultPositionTypeUiField = m_resultPositionType;

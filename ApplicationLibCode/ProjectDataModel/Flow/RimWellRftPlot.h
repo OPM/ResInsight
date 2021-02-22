@@ -160,6 +160,4 @@ private:
     std::map<RifDataSourceForRftPlt, cvf::Color3f>     m_dataSourceColors;
     std::map<QDateTime, RiuQwtSymbol::PointSymbolEnum> m_timeStepSymbols;
     bool                                               m_isOnLoad;
-
-    caf::PdmChildField<RimWellLogPlot*> m_wellLogPlot_OBSOLETE;
 };

@@ -137,11 +137,6 @@ RimEclipseResultDefinition::RimEclipseResultDefinition( caf::PdmUiItemInfo::Labe
 
     CAF_PDM_InitField( &m_divideByCellFaceArea, "DivideByCellFaceArea", false, "Divide By Area", "", "", "" );
 
-    // One single tracer list has been split into injectors and producers.
-    // The old list is defined as injectors and we'll have to move any producers in old projects.
-    CAF_PDM_InitFieldNoDefault( &m_selectedTracers_OBSOLETE, "SelectedTracers", "Tracers", "", "", "" );
-    m_selectedTracers_OBSOLETE.uiCapability()->setUiHidden( true );
-
     CAF_PDM_InitScriptableFieldNoDefault( &m_selectedInjectorTracers, "SelectedInjectorTracers", "Injector Tracers", "", "", "" );
     m_selectedInjectorTracers.uiCapability()->setUiHidden( true );
 
@@ -1150,8 +1145,6 @@ int RimEclipseResultDefinition::caseDiffIndex() const
 //--------------------------------------------------------------------------------------------------
 void RimEclipseResultDefinition::loadResult()
 {
-    ensureProcessingOfObsoleteFields();
-
     if ( isFlowDiagOrInjectionFlooding() ) return; // Will load automatically on access
 
     if ( m_eclipseCase )
@@ -1645,14 +1638,6 @@ void RimEclipseResultDefinition::defineEditorAttribute( const caf::PdmFieldHandl
             listEditAttr->m_allowHorizontalScrollBar = false;
         }
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimEclipseResultDefinition::onEditorWidgetsCreated()
-{
-    ensureProcessingOfObsoleteFields();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -2699,43 +2684,6 @@ bool RimEclipseResultDefinition::addPerCellFaceOptionsForVariableUiField() const
     }
 
     return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimEclipseResultDefinition::ensureProcessingOfObsoleteFields()
-{
-    if ( m_flowSolution() && !m_selectedTracers_OBSOLETE().empty() )
-    {
-        std::vector<QString> selectedTracers;
-        selectedTracers.swap( m_selectedTracers_OBSOLETE.v() );
-
-        std::set<QString, TracerComp> allInjectorTracers = setOfTracersOfType( true );
-        std::set<QString, TracerComp> allProducerTracers = setOfTracersOfType( false );
-
-        std::vector<QString> selectedInjectorTracers;
-        std::vector<QString> selectedProducerTracers;
-        for ( const QString& tracerName : selectedTracers )
-        {
-            if ( allInjectorTracers.count( tracerName ) )
-            {
-                selectedInjectorTracers.push_back( tracerName );
-            }
-            if ( allProducerTracers.count( tracerName ) )
-            {
-                selectedProducerTracers.push_back( tracerName );
-            }
-        }
-        if ( !selectedInjectorTracers.empty() )
-        {
-            setSelectedInjectorTracers( selectedInjectorTracers );
-        }
-        if ( !selectedProducerTracers.empty() )
-        {
-            setSelectedProducerTracers( selectedProducerTracers );
-        }
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
