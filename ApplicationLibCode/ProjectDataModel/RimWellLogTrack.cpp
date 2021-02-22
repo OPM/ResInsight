@@ -2027,6 +2027,7 @@ void RimWellLogTrack::connectCurveSignals( RimWellLogCurve* curve )
     curve->visibilityChanged.connect( this, &RimWellLogTrack::curveVisibilityChanged );
     curve->appearanceChanged.connect( this, &RimWellLogTrack::curveAppearanceChanged );
     curve->stackingChanged.connect( this, &RimWellLogTrack::curveStackingChanged );
+    curve->stackingColorsChanged.connect( this, &RimWellLogTrack::curveStackingChanged );
 }
 
 //--------------------------------------------------------------------------------------------------

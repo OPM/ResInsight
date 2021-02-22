@@ -16,7 +16,7 @@ $quinaryColor: #0ce5d5; // Quinary color
 $senaryColor: #a54ce5; // Senary color
 $borderColor: #394046; // Main border color
 $curveColorGas: #a91210; // Curve color for gas plot
-$curveColorGas2: #a91210; // Curve color for gas plot
+$curveColorGas2: #c91210; // Curve color for gas plot
 $curveColorOil: #7ba700; // Curve color for oil plot
 $curveColorOil2: #7ba700; // Curve color for oil plot
 $curveColorWater: #3e7aa7; // Curve color for water plot
