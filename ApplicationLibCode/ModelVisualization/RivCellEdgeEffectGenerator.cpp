@@ -30,11 +30,13 @@
 #include "cvfShaderProgramGenerator.h"
 #include "cvfShaderSourceProvider.h"
 #include "cvfTexture.h"
+#include "cvfUniform.h"
 #include "cvfqtUtils.h"
 
-#include "cvfUniform.h"
 #include <QFile>
 #include <QTextStream>
+
+#include <algorithm>
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -65,6 +67,46 @@ void CellEdgeEffectGenerator::setScalarMapper( const cvf::ScalarMapper* cellScal
 void CellEdgeEffectGenerator::setTernaryScalarMapper( const RivTernaryScalarMapper* ternaryScalarMapper )
 {
     m_ternaryCellScalarMapper = ternaryScalarMapper;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void CellEdgeEffectGenerator::setOpacityLevel( float opacity )
+{
+    m_opacityLevel = std::clamp( opacity, 0.0f, 1.0f );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void CellEdgeEffectGenerator::setUndefinedColor( cvf::Color3f color )
+{
+    m_undefinedColor = color;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void CellEdgeEffectGenerator::setFaceCulling( caf::FaceCulling faceCulling )
+{
+    m_cullBackfaces = faceCulling;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void CellEdgeEffectGenerator::setDefaultCellColor( cvf::Color3f color )
+{
+    m_defaultCellColor = color;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void CellEdgeEffectGenerator::disableLighting( bool disable )
+{
+    m_disableLighting = disable;
 }
 
 //--------------------------------------------------------------------------------------------------
