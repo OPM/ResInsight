@@ -57,4 +57,10 @@ protected:
                                        std::vector<double>&      values,
                                        std::vector<double>&      measuredDepthValues,
                                        std::vector<double>&      tvDepthValues ) const;
+
+    bool interpolateInitialPressureByEquilibrationRegion( const RimStimPlanModel*    stimPlanModel,
+                                                          int                        timeStep,
+                                                          const std::vector<double>& measuredDepthValues,
+                                                          const std::vector<double>& tvDepthValues,
+                                                          std::vector<double>&       values ) const;
 };

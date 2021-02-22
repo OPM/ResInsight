@@ -1331,9 +1331,7 @@ double RimStimPlanModel::getDefaultValueForProperty( RiaDefines::CurveProperty c
 //--------------------------------------------------------------------------------------------------
 RimStimPlanModel::MissingValueStrategy RimStimPlanModel::missingValueStrategy( RiaDefines::CurveProperty curveProperty ) const
 {
-    if ( curveProperty == RiaDefines::CurveProperty::INITIAL_PRESSURE )
-        return RimStimPlanModel::MissingValueStrategy::LINEAR_INTERPOLATION;
-    else if ( curveProperty == RiaDefines::CurveProperty::PRESSURE )
+    if ( curveProperty == RiaDefines::CurveProperty::PRESSURE )
         return RimStimPlanModel::MissingValueStrategy::OTHER_CURVE_PROPERTY;
     else
         return RimStimPlanModel::MissingValueStrategy::DEFAULT_VALUE;
