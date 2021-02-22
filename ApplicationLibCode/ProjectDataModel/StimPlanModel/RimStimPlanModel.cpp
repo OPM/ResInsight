@@ -78,6 +78,7 @@
 #include "cvfPlane.h"
 
 #include <cmath>
+#include <limits>
 
 CAF_PDM_SOURCE_INIT( RimStimPlanModel, "StimPlanModel" );
 
@@ -1156,6 +1157,10 @@ double RimStimPlanModel::getDefaultForMissingValue( RiaDefines::CurveProperty cu
     {
         return 1.0;
     }
+    else if ( curveProperty == RiaDefines::CurveProperty::EQLNUM )
+    {
+        return std::numeric_limits<double>::infinity();
+    }
     else
     {
         RiaLogging::error( QString( "Missing default value for %1." )
@@ -1202,7 +1207,7 @@ double RimStimPlanModel::getDefaultForMissingOverburdenValue( RiaDefines::CurveP
     {
         return 1.0;
     }
-    else if ( curveProperty == RiaDefines::CurveProperty::PRESSURE )
+    else if ( curveProperty == RiaDefines::CurveProperty::PRESSURE || curveProperty == RiaDefines::CurveProperty::EQLNUM )
     {
         return std::numeric_limits<double>::infinity();
     }
@@ -1239,7 +1244,7 @@ double RimStimPlanModel::getDefaultForMissingUnderburdenValue( RiaDefines::Curve
     {
         return 1.0;
     }
-    else if ( curveProperty == RiaDefines::CurveProperty::PRESSURE )
+    else if ( curveProperty == RiaDefines::CurveProperty::PRESSURE || curveProperty == RiaDefines::CurveProperty::EQLNUM )
     {
         return std::numeric_limits<double>::infinity();
     }
@@ -1551,6 +1556,7 @@ bool RimStimPlanModel::useStaticEclipseCase( RiaDefines::CurveProperty curveProp
         RiaDefines::CurveProperty::PERMEABILITY_Z,
         RiaDefines::CurveProperty::FACIES,
         RiaDefines::CurveProperty::NET_TO_GROSS,
+        RiaDefines::CurveProperty::EQLNUM,
     };
 
     return std::find( matching.begin(), matching.end(), curveProperty ) != matching.end();
@@ -1814,6 +1820,8 @@ QString RimStimPlanModel::eclipseResultVariable( RiaDefines::CurveProperty curve
     if ( curveProperty == RiaDefines::CurveProperty::PRESSURE ||
          curveProperty == RiaDefines::CurveProperty::INITIAL_PRESSURE )
         return "PRESSURE";
+    else if ( curveProperty == RiaDefines::CurveProperty::EQLNUM )
+        return "EQLNUM";
     else if ( curveProperty == RiaDefines::CurveProperty::PERMEABILITY_X )
         return "PERMX";
     else if ( curveProperty == RiaDefines::CurveProperty::PERMEABILITY_Z )

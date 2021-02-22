@@ -61,6 +61,7 @@ bool RimStimPlanModelWellLogCalculator::isMatching( RiaDefines::CurveProperty cu
         RiaDefines::CurveProperty::PERMEABILITY_X,
         RiaDefines::CurveProperty::PERMEABILITY_Z,
         RiaDefines::CurveProperty::NET_TO_GROSS,
+        RiaDefines::CurveProperty::EQLNUM,
     };
 
     return std::find( matching.begin(), matching.end(), curveProperty ) != matching.end();
@@ -100,7 +101,9 @@ bool RimStimPlanModelWellLogCalculator::calculate( RiaDefines::CurveProperty cur
 
         if ( stimPlanModel->missingValueStrategy( curveProperty ) == RimStimPlanModel::MissingValueStrategy::DEFAULT_VALUE )
         {
-            if ( !replaceMissingValuesWithDefault( curveProperty, stimPlanModel, timeStep, resultVariable, values ) )
+            // Input properties must use first time step
+            int replacementTimeStep = 0;
+            if ( !replaceMissingValuesWithDefault( curveProperty, stimPlanModel, replacementTimeStep, resultVariable, values ) )
             {
                 return false;
             }
