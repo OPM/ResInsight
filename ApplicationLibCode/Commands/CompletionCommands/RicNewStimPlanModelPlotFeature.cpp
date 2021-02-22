@@ -98,6 +98,7 @@ RimStimPlanModelPlot* RicNewStimPlanModelPlotFeature::createPlot( RimStimPlanMod
         plots["Pressure"]     = { RiaDefines::CurveProperty::INITIAL_PRESSURE, RiaDefines::CurveProperty::PRESSURE };
         plots["Permeability"] = { RiaDefines::CurveProperty::PERMEABILITY_X, RiaDefines::CurveProperty::PERMEABILITY_Z };
         plots["Net-To-Gross"] = { RiaDefines::CurveProperty::NET_TO_GROSS };
+        plots["EQLNUM"]       = { RiaDefines::CurveProperty::EQLNUM };
 
         std::set<QString> logarithmicPlots;
         logarithmicPlots.insert( "Permeability" );
@@ -361,7 +362,8 @@ void RicNewStimPlanModelPlotFeature::createParametersTrack( RimStimPlanModelPlot
         QString                   resultVariable     = stimPlanModel->eclipseResultVariable( propertyType );
         RiaDefines::ResultCatType resultCategoryType = stimPlanModel->eclipseResultCategory( propertyType );
         // TODO: maybe improve?
-        bool fixedInitialTimeStep = ( propertyType == RiaDefines::CurveProperty::INITIAL_PRESSURE );
+        bool fixedInitialTimeStep = ( propertyType == RiaDefines::CurveProperty::INITIAL_PRESSURE ||
+                                      resultCategoryType == RiaDefines::ResultCatType::STATIC_NATIVE );
 
         RimStimPlanModelCurve* curve = new RimStimPlanModelCurve;
         curve->setCurveProperty( propertyType );

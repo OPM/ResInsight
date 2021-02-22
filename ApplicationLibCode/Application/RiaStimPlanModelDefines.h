@@ -50,6 +50,7 @@ enum class CurveProperty
     IMMOBILE_FLUID_SATURATION,
     NET_TO_GROSS,
     POROSITY_UNSCALED,
+    EQLNUM,
 };
 
 double defaultPorosity();
