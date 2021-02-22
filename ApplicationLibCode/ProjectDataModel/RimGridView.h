@@ -79,6 +79,7 @@ protected:
     void               selectOverlayInfoConfig() override;
     RimGridCollection* gridCollection() const;
     void               clearReservoirCellVisibilities();
+    void               addRequiredUiTreeObjects( caf::PdmUiTreeOrdering& uiTreeOrdering );
 
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void initAfterRead() override;

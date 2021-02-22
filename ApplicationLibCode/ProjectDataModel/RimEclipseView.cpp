@@ -1876,11 +1876,10 @@ void RimEclipseView::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrderin
     uiTreeOrdering.add( cellEdgeResult() );
     uiTreeOrdering.add( elementVectorResult() );
     uiTreeOrdering.add( faultResultSettings() );
-    uiTreeOrdering.add( &m_intersectionResultDefCollection );
-    uiTreeOrdering.add( &m_surfaceResultDefCollection );
+
+    addRequiredUiTreeObjects( uiTreeOrdering );
 
     uiTreeOrdering.add( wellCollection() );
-    uiTreeOrdering.add( &m_wellMeasurementCollection );
 
     {
         bool showFractureColors = false;

@@ -25,19 +25,24 @@
 #include "RimEclipseResultDefinition.h"
 #include "RimGeoMechResultDefinition.h"
 #include "RimGridCollection.h"
+#include "RimIntersection.h"
 #include "RimIntersectionCollection.h"
 #include "RimIntersectionResultsDefinitionCollection.h"
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimPropertyFilterCollection.h"
 #include "RimSurfaceCollection.h"
+#include "RimSurfaceInView.h"
 #include "RimSurfaceInViewCollection.h"
 #include "RimTextAnnotation.h"
+#include "RimTools.h"
 #include "RimViewController.h"
 #include "RimViewLinker.h"
 #include "RimViewLinkerCollection.h"
 #include "RimViewNameConfig.h"
+#include "RimWellMeasurementCollection.h"
 #include "RimWellMeasurementInViewCollection.h"
+#include "RimWellPathCollection.h"
 
 #include "Riu3DMainWindowTools.h"
 #include "Riu3dSelectionManager.h"
@@ -49,6 +54,8 @@
 #include "cvfModelBasicList.h"
 #include "cvfPart.h"
 #include "cvfScene.h"
+
+#include "cafPdmUiTreeOrdering.h"
 
 #include <set>
 
@@ -506,6 +513,44 @@ RimGridCollection* RimGridView::gridCollection() const
 void RimGridView::clearReservoirCellVisibilities()
 {
     m_currentReservoirCellVisibility = nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGridView::addRequiredUiTreeObjects( caf::PdmUiTreeOrdering& uiTreeOrdering )
+{
+    {
+        std::vector<RimIntersection*> intersections;
+
+        this->descendantsIncludingThisOfType( intersections );
+        if ( !intersections.empty() )
+        {
+            uiTreeOrdering.add( &m_intersectionResultDefCollection );
+        }
+    }
+
+    {
+        std::vector<RimSurfaceInView*> surfaces;
+
+        this->descendantsIncludingThisOfType( surfaces );
+        if ( !surfaces.empty() )
+        {
+            uiTreeOrdering.add( &m_surfaceResultDefCollection );
+        }
+    }
+
+    {
+        RimWellPathCollection* wellPathCollection = RimTools::wellPathCollection();
+        if ( wellPathCollection )
+        {
+            const RimWellMeasurementCollection* measurementCollection = wellPathCollection->measurementCollection();
+            if ( !measurementCollection->measurements().empty() )
+            {
+                uiTreeOrdering.add( &m_wellMeasurementCollection );
+            }
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
