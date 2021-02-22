@@ -22,6 +22,8 @@
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 
+#include <limits>
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -100,7 +102,7 @@ std::vector<RimWellMeasurement*>
 bool RimWellMeasurementFilter::isInsideRange( double value, double lowerBound, double upperBound )
 {
     // Invalid range: everything is inside
-    if ( lowerBound == cvf::UNDEFINED_DOUBLE || cvf::UNDEFINED_DOUBLE == upperBound )
+    if ( lowerBound == std::numeric_limits<double>::infinity() || std::numeric_limits<double>::infinity() == upperBound )
     {
         return true;
     }
