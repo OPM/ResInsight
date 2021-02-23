@@ -361,15 +361,15 @@ if(RESINSIGHT_ENABLE_GRPC)
   source_group("Source Files" ${GENERATED_CLASSES_FILE})
   add_dependencies(RipsGeneratedPythonClasses ResInsight)
 
-
-  # Copy the Python folder to build folder. This will ease debugging of Python scripts
+  # Copy the Python folder to build folder. This will ease debugging of Python
+  # scripts
   add_custom_command(
-  TARGET RipsGeneratedPythonClasses
-  POST_BUILD
-  COMMAND
-    ${CMAKE_COMMAND} -E copy_directory
-    "${CMAKE_SOURCE_DIR}/GrpcInterface/Python"
-    $<TARGET_FILE_DIR:ResInsight>/Python)
+    TARGET RipsGeneratedPythonClasses
+    POST_BUILD
+    COMMAND
+      ${CMAKE_COMMAND} -E copy_directory
+      "${CMAKE_SOURCE_DIR}/GrpcInterface/Python"
+      $<TARGET_FILE_DIR:ResInsight>/Python)
 
 endif(RESINSIGHT_ENABLE_GRPC)
 
