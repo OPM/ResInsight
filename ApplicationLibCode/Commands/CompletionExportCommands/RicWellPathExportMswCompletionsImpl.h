@@ -133,13 +133,13 @@ private:
                                                  double                       maxSegmentLength,
                                                  RicMswSegment*               connectedToSegment = nullptr );
 
-    static void writeWelsegsSegment( RicMswSegment*             segment,
-                                     const RicMswSegment*       previousSegment,
-                                     RifTextDataTableFormatter& formatter,
-                                     RicMswExportInfo&          exportInfo,
-                                     double                     maxSegmentLength,
-                                     int                        branchNumber,
-                                     int*                       segmentNumber );
+    static void writeWelsegsSegment( RicMswSegment*               segment,
+                                     const RicMswSegment*         previousSegment,
+                                     RifTextDataTableFormatter&   formatter,
+                                     RicMswExportInfo&            exportInfo,
+                                     double                       maxSegmentLength,
+                                     gsl::not_null<RicMswBranch*> branch,
+                                     int*                         segmentNumber );
     static void writeValveWelsegsSegment( const RicMswSegment*       outletSegment,
                                           RicMswValve*               valve,
                                           RifTextDataTableFormatter& formatter,
@@ -153,13 +153,6 @@ private:
                                                 double                                 maxSegmentLength,
                                                 int*                                   segmentNumber );
 
-    static void
-                writeCompletionWelsegsSegmentsForBranch( RifTextDataTableFormatter&                         formatter,
-                                                         RicMswExportInfo&                                  exportInfo,
-                                                         gsl::not_null<RicMswBranch*>                       branch,
-                                                         const std::set<RigCompletionData::CompletionType>& exportCompletionTypes,
-                                                         double                                             maxSegmentLength,
-                                                         int*                                               segmentNumber );
     static void writeWelsegsCompletionCommentHeader( RifTextDataTableFormatter&        formatter,
                                                      RigCompletionData::CompletionType completionType );
     static void generateCompsegTables( RifTextDataTableFormatter& formatter, RicMswExportInfo& exportInfo );
@@ -221,6 +214,7 @@ private:
                                                      double                        maxSegmentLength );
 
     static void assignFractureCompletionsToCellSegment( const RimEclipseCase*                 caseToApply,
+                                                        const RimWellPath*                    wellPath,
                                                         const RimWellPathFracture*            fracture,
                                                         const std::vector<RigCompletionData>& completionData,
                                                         gsl::not_null<RicMswSegment*>         segment,

@@ -487,7 +487,12 @@ void RimWellPath::initAfterRead()
             if ( !mswParameters->isDefault() )
             {
                 *( m_completionSettings->mswParameters() ) = *mswParameters;
+                break;
             }
+        }
+        if ( m_completionSettings->wellNameForExport().isEmpty() )
+        {
+            m_completionSettings->setWellNameForExport( name() );
         }
     }
 }

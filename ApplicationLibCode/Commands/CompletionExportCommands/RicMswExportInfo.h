@@ -46,7 +46,6 @@ public:
     void setRoughnessFactor( double roughnessFactor );
     void setHasSubGridIntersections( bool subGridIntersections );
 
-    const RimWellPath*            wellPath() const;
     RiaDefines::EclipseUnitSystem unitSystem() const;
     double                        topWellBoreVolume() const;
     double                        linerDiameter() const;
@@ -60,7 +59,6 @@ public:
     RicMswBranch*       mainBoreBranch();
 
 private:
-    const RimWellPath*            m_wellPath;
     RiaDefines::EclipseUnitSystem m_unitSystem;
     double                        m_topWellBoreVolume;
     double                        m_linerDiameter;

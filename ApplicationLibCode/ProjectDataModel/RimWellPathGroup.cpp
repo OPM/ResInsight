@@ -23,6 +23,7 @@
 #include "RimModeledWellPath.h"
 #include "RimWellPathCompletionSettings.h"
 #include "RimWellPathCompletions.h"
+#include "RimWellPathValve.h"
 
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObjectScriptingCapability.h"
@@ -46,7 +47,20 @@ RimWellPathGroup::RimWellPathGroup()
                                                     "A Group of Well Paths" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_childWellPaths, "ChildWellPaths", "Child Well Paths", "", "", "" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_groupName, "GroupName", "Group Name", "", "", "" );
+
+    CAF_PDM_InitScriptableField( &m_addValveAtConnection,
+                                 "AddValveAtConnection",
+                                 false,
+                                 "Add Outlet Valve for Branches",
+                                 "",
+                                 "Should an outlet valve be added to branches for MSW export?",
+                                 "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_valve, "Valve", "Branch Outlet Valve", "", "", "" );
+    m_valve = new RimWellPathValve;
+
     m_groupName.registerGetMethod( this, &RimWellPathGroup::createGroupName );
+    m_groupName.uiCapability()->setUiReadOnly( true );
+
     setWellPathGeometry( new RigWellPath );
 }
 
@@ -193,6 +207,7 @@ void RimWellPathGroup::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrder
             uiTreeOrdering.add( child );
         }
     }
+
     uiTreeOrdering.skipRemainingChildren( true );
 }
 
@@ -218,6 +233,24 @@ void RimWellPathGroup::initAfterRead()
     {
         wellPath->nameChanged.connect( this, &RimWellPathGroup::onChildNameChanged );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellPathGroup::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
+{
+    uiOrdering.add( &m_groupName );
+    if ( !isTopLevelWellPath() )
+    {
+        auto valveGroup = uiOrdering.addNewGroup( "Valve Settings" );
+        valveGroup->add( &m_addValveAtConnection );
+        if ( m_addValveAtConnection )
+        {
+            m_valve->uiOrdering( "TemplateOnly", *valveGroup );
+        }
+    }
+    uiOrdering.skipRemainingFields( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -291,6 +324,14 @@ QString RimWellPathGroup::createGroupName() const
 
     if ( nameWithoutSpaces.length() > 8 ) fullName = trimmedCommonRoot + trimmedCommonSuffix;
     return fullName;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const RimWellPathValve* RimWellPathGroup::outletValve() const
+{
+    return m_addValveAtConnection() && m_valve() && m_valve->valveTemplate() ? m_valve() : nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

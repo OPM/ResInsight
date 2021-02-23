@@ -1,15 +1,19 @@
 #include "RicMswBranch.h"
+
 #include "RicMswCompletions.h"
 #include "RicMswSegment.h"
+
+#include "RimWellPath.h"
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicMswBranch::RicMswBranch( const QString& label, double initialMD, double initialTVD )
+RicMswBranch::RicMswBranch( const QString& label, const RimWellPath* wellPath, double initialMD, double initialTVD )
     : RicMswItem( label )
     , m_initialMD( initialMD )
     , m_initialTVD( initialTVD )
     , m_branchNumber( -1 )
+    , m_wellPath( wellPath )
 {
 }
 
@@ -38,11 +42,19 @@ void RicMswBranch::insertAfterSegment( const RicMswSegment* insertAfter, std::un
 //--------------------------------------------------------------------------------------------------
 void RicMswBranch::sortSegments()
 {
-    std::sort( m_segments.begin(),
-               m_segments.end(),
-               []( const std::unique_ptr<RicMswSegment>& lhs, const std::unique_ptr<RicMswSegment>& rhs ) {
-                   return *lhs < *rhs;
-               } );
+    std::stable_sort( m_segments.begin(),
+                      m_segments.end(),
+                      []( const std::unique_ptr<RicMswSegment>& lhs, const std::unique_ptr<RicMswSegment>& rhs ) {
+                          return *lhs < *rhs;
+                      } );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const RimWellPath* RicMswBranch::wellPath() const
+{
+    return m_wellPath;
 }
 
 //--------------------------------------------------------------------------------------------------

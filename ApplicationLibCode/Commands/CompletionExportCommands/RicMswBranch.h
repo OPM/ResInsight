@@ -20,8 +20,12 @@
 #include "RicMswItem.h"
 #include "RicMswSegment.h"
 
+#include "cafPdmPointer.h"
+
 #include <memory>
 #include <vector>
+
+class RimWellPath;
 
 class RicMswCompletion;
 class RicMswSegment;
@@ -29,12 +33,13 @@ class RicMswSegment;
 class RicMswBranch : public RicMswItem
 {
 public:
-    RicMswBranch( const QString& label, double initialMD = 0.0, double initialTVD = 0.0 );
+    RicMswBranch( const QString& label, const RimWellPath* wellPath, double initialMD = 0.0, double initialTVD = 0.0 );
     virtual ~RicMswBranch() = default;
 
-    void addSegment( std::unique_ptr<RicMswSegment> segment );
-    void insertAfterSegment( const RicMswSegment* insertAfter, std::unique_ptr<RicMswSegment> segment );
-    void sortSegments();
+    void               addSegment( std::unique_ptr<RicMswSegment> segment );
+    void               insertAfterSegment( const RicMswSegment* insertAfter, std::unique_ptr<RicMswSegment> segment );
+    void               sortSegments();
+    const RimWellPath* wellPath() const;
 
     double startMD() const override;
     double startTVD() const override;
@@ -63,4 +68,6 @@ private:
 
     std::vector<std::unique_ptr<RicMswSegment>> m_segments;
     std::vector<std::unique_ptr<RicMswBranch>>  m_branches;
+
+    const RimWellPath* m_wellPath;
 };

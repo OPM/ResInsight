@@ -36,8 +36,7 @@ RicMswExportInfo::RicMswExportInfo( const RimWellPath*            wellPath,
                                     double                        initialMD,
                                     const QString&                lengthAndDepthText,
                                     const QString&                pressureDropText )
-    : m_wellPath( wellPath )
-    , m_unitSystem( unitSystem )
+    : m_unitSystem( unitSystem )
     , m_topWellBoreVolume( RicMswExportInfo::defaultDoubleValue() )
     , m_linerDiameter( RimMswCompletionParameters::defaultLinerDiameter( unitSystem ) )
     , m_roughnessFactor( RimMswCompletionParameters::defaultRoughnessFactor( unitSystem ) )
@@ -46,6 +45,7 @@ RicMswExportInfo::RicMswExportInfo( const RimWellPath*            wellPath,
     , m_hasSubGridIntersections( false )
     , m_mainBoreBranch(
           std::make_unique<RicMswBranch>( "Main Stem",
+                                          wellPath,
                                           initialMD,
                                           -wellPath->wellPathGeometry()->interpolatedPointAlongWellPath( initialMD ).z() ) )
 {
@@ -73,14 +73,6 @@ void RicMswExportInfo::setRoughnessFactor( double roughnessFactor )
 void RicMswExportInfo::setHasSubGridIntersections( bool subGridIntersections )
 {
     m_hasSubGridIntersections = subGridIntersections;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-const RimWellPath* RicMswExportInfo::wellPath() const
-{
-    return m_wellPath;
 }
 
 //--------------------------------------------------------------------------------------------------

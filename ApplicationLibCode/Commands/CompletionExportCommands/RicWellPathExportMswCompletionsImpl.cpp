@@ -309,7 +309,7 @@ void RicWellPathExportMswCompletionsImpl::generateWelsegsTable( RifTextDataTable
         };
         formatter.header( header );
 
-        formatter.add( exportInfo.wellPath()->completionSettings()->wellNameForExport() );
+        formatter.add( exportInfo.mainBoreBranch()->wellPath()->completionSettings()->wellNameForExport() );
         formatter.add( startTVD );
         formatter.add( startMD );
         formatter.addValueOrDefaultMarker( exportInfo.topWellBoreVolume(), RicMswExportInfo::defaultDoubleValue() );
@@ -333,30 +333,8 @@ void RicWellPathExportMswCompletionsImpl::generateWelsegsTable( RifTextDataTable
     }
 
     int segmentNumber = 2; // There's an implicit segment number 1.
-    writeWelsegsSegmentsRecursively( formatter, exportInfo, exportInfo.mainBoreBranch(), &segmentNumber, maxSegmentLength );
 
-    {
-        writeCompletionWelsegsSegmentsForBranch( formatter,
-                                                 exportInfo,
-                                                 exportInfo.mainBoreBranch(),
-                                                 { RigCompletionData::FISHBONES_ICD, RigCompletionData::FISHBONES },
-                                                 maxSegmentLength,
-                                                 &segmentNumber );
-        writeCompletionWelsegsSegmentsForBranch( formatter,
-                                                 exportInfo,
-                                                 exportInfo.mainBoreBranch(),
-                                                 { RigCompletionData::FRACTURE },
-                                                 maxSegmentLength,
-                                                 &segmentNumber );
-        writeCompletionWelsegsSegmentsForBranch( formatter,
-                                                 exportInfo,
-                                                 exportInfo.mainBoreBranch(),
-                                                 { RigCompletionData::PERFORATION_ICD,
-                                                   RigCompletionData::PERFORATION_ICV,
-                                                   RigCompletionData::PERFORATION_AICD },
-                                                 maxSegmentLength,
-                                                 &segmentNumber );
-    }
+    writeWelsegsSegmentsRecursively( formatter, exportInfo, exportInfo.mainBoreBranch(), &segmentNumber, maxSegmentLength );
 
     formatter.tableCompleted();
 }
@@ -371,85 +349,60 @@ void RicWellPathExportMswCompletionsImpl::writeWelsegsSegmentsRecursively( RifTe
                                                                            double         maxSegmentLength,
                                                                            RicMswSegment* connectedToSegment )
 {
+    auto outletSegment = connectedToSegment;
+
+    RicMswValve* outletValve = nullptr;
+
+    auto branchSegments = branch->segments();
+    auto it             = branchSegments.begin();
+    if ( outletValve = dynamic_cast<RicMswValve*>( branch.get() ); outletValve != nullptr )
     {
-        formatter.comment( QString( "Segments on branch %1" ).arg( branch->label() ) );
-        auto previousSegment = connectedToSegment;
-        for ( auto segment : branch->segments() )
-        {
-            segment->setSegmentNumber( *segmentNumber );
+        writeValveWelsegsSegment( outletSegment, outletValve, formatter, exportInfo, maxSegmentLength, segmentNumber );
 
-            if ( segment->subIndex() != cvf::UNDEFINED_SIZE_T )
-            {
-                QString comment = segment->label() + QString( ", sub %1" ).arg( segment->subIndex() );
-                formatter.comment( comment );
-            }
-
-            writeWelsegsSegment( segment,
-                                 previousSegment,
-                                 formatter,
-                                 exportInfo,
-                                 maxSegmentLength,
-                                 branch->branchNumber(),
-                                 segmentNumber );
-            previousSegment = segment;
-        }
-
-        for ( auto childBranch : branch->branches() )
-        {
-            writeWelsegsSegmentsRecursively( formatter, exportInfo, childBranch, segmentNumber, maxSegmentLength, previousSegment );
-        }
+        auto valveSegments = outletValve->segments();
+        outletSegment      = valveSegments.front();
+        *segmentNumber     = outletSegment->segmentNumber() + 1;
+        ++it; // skip segment below
     }
-}
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RicWellPathExportMswCompletionsImpl::writeCompletionWelsegsSegmentsForBranch(
-    RifTextDataTableFormatter&                         formatter,
-    RicMswExportInfo&                                  exportInfo,
-    gsl::not_null<RicMswBranch*>                       branch,
-    const std::set<RigCompletionData::CompletionType>& exportCompletionTypes,
-    double                                             maxSegmentLength,
-    int*                                               segmentNumber )
-{
-    bool generatedHeader = false;
+    formatter.comment( QString( "Segments on branch %1" ).arg( branch->label() ) );
 
-    for ( auto segment : branch->segments() )
+    for ( ; it != branchSegments.end(); ++it )
     {
-        RicMswValve* valve = nullptr;
+        auto segment = *it;
+        segment->setSegmentNumber( *segmentNumber );
+
+        if ( segment->subIndex() != cvf::UNDEFINED_SIZE_T )
+        {
+            QString comment = segment->label() + QString( ", sub %1" ).arg( segment->subIndex() );
+            formatter.comment( comment );
+        }
+
+        writeWelsegsSegment( segment, outletSegment, formatter, exportInfo, maxSegmentLength, branch, segmentNumber );
+        outletSegment = segment;
+
         for ( auto& completion : segment->completions() )
         {
-            if ( exportCompletionTypes.count( completion->completionType() ) )
+            auto segmentValve = dynamic_cast<RicMswValve*>( completion );
+            if ( segmentValve != nullptr )
             {
-                if ( !generatedHeader )
-                {
-                    writeWelsegsCompletionCommentHeader( formatter, completion->completionType() );
-                    generatedHeader = true;
-                }
-
-                if ( RigCompletionData::isValve( completion->completionType() ) )
-                {
-                    valve = static_cast<RicMswValve*>( completion );
-                    writeValveWelsegsSegment( segment, valve, formatter, exportInfo, maxSegmentLength, segmentNumber );
-                }
-                else
-                {
-                    // If we have a valve, the outlet segment is the valve's segment
-                    RicMswSegment* outletSegment = valve && valve->segmentCount() > 0 ? valve->segments().front() : segment;
-                    writeCompletionWelsegsSegments( outletSegment, completion, formatter, exportInfo, maxSegmentLength, segmentNumber );
-                }
+                writeValveWelsegsSegment( segment, segmentValve, formatter, exportInfo, maxSegmentLength, segmentNumber );
+                outletValve   = segmentValve;
+                outletSegment = segment;
+            }
+            else
+            {
+                // If we have a valve, the outlet segment is the valve's segment
+                RicMswSegment* outletSegment =
+                    outletValve && outletValve->segmentCount() > 0 ? outletValve->segments().front() : segment;
+                writeCompletionWelsegsSegments( outletSegment, completion, formatter, exportInfo, maxSegmentLength, segmentNumber );
             }
         }
     }
 
     for ( auto childBranch : branch->branches() )
     {
-        writeCompletionWelsegsSegmentsForBranch( formatter,
-                                                 exportInfo,
-                                                 childBranch,
-                                                 exportCompletionTypes,
-                                                 maxSegmentLength,
-                                                 segmentNumber );
+        writeWelsegsSegmentsRecursively( formatter, exportInfo, childBranch, segmentNumber, maxSegmentLength, outletSegment );
     }
 }
 
@@ -687,7 +640,7 @@ void RicWellPathExportMswCompletionsImpl::generateCompsegHeader( RifTextDataTabl
     {
         std::vector<RifTextDataTableColumn> header = { RifTextDataTableColumn( "Name" ) };
         formatter.header( header );
-        formatter.add( exportInfo.wellPath()->completionSettings()->wellNameForExport() );
+        formatter.add( exportInfo.mainBoreBranch()->wellPath()->completionSettings()->wellNameForExport() );
         formatter.rowCompleted();
     }
 
@@ -753,7 +706,7 @@ void RicWellPathExportMswCompletionsImpl::generateWsegvalvTable( RifTextDataTabl
                         {
                             formatter.comment( wsegValve->label() );
                         }
-                        formatter.add( exportInfo.wellPath()->completionSettings()->wellNameForExport() );
+                        formatter.add( exportInfo.mainBoreBranch()->wellPath()->completionSettings()->wellNameForExport() );
                         formatter.add( firstSubSegment->segmentNumber() );
                         formatter.add( wsegValve->flowCoefficient() );
                         formatter.add( QString( "%1" ).arg( wsegValve->area(), 8, 'g', 4 ) );
@@ -841,7 +794,8 @@ void RicWellPathExportMswCompletionsImpl::generateWsegAicdTable( RifTextDataTabl
                     {
                         CVF_ASSERT( aicd->segments().size() == 1u );
                         tighterFormatter.comment( aicd->label() );
-                        tighterFormatter.add( exportInfo.wellPath()->completionSettings()->wellNameForExport() ); // #1
+                        tighterFormatter.add(
+                            exportInfo.mainBoreBranch()->wellPath()->completionSettings()->wellNameForExport() ); // #1
                         tighterFormatter.add( aicd->segments().front()->segmentNumber() );
                         tighterFormatter.add( aicd->segments().front()->segmentNumber() );
 
@@ -1000,7 +954,7 @@ void RicWellPathExportMswCompletionsImpl::generateFishbonesMswExportInfo(
                                                      : std::numeric_limits<double>::infinity();
 
     double subStartMD  = wellPath->fishbonesCollection()->startMD();
-    double subStartTVD = RicWellPathExportMswCompletionsImpl::tvdFromMeasuredDepth( wellPath, subStartMD );
+    double subStartTVD = RicWellPathExportMswCompletionsImpl::tvdFromMeasuredDepth( branch->wellPath(), subStartMD );
 
     auto unitSystem = exportInfo->unitSystem();
 
@@ -1009,7 +963,7 @@ void RicWellPathExportMswCompletionsImpl::generateFishbonesMswExportInfo(
         for ( auto& sub : subs->installedLateralIndices() )
         {
             double subEndMD  = subs->measuredDepth( sub.subIndex );
-            double subEndTVD = RicWellPathExportMswCompletionsImpl::tvdFromMeasuredDepth( wellPath, subEndMD );
+            double subEndTVD = RicWellPathExportMswCompletionsImpl::tvdFromMeasuredDepth( branch->wellPath(), subEndMD );
 
             {
                 auto segment = std::make_unique<RicMswSegment>( subs->generatedName(),
@@ -1025,7 +979,8 @@ void RicWellPathExportMswCompletionsImpl::generateFishbonesMswExportInfo(
                 segment->setSourcePdmObject( subs );
 
                 // Add completion for ICD
-                auto icdCompletion = std::make_unique<RicMswFishbonesICD>( QString( "ICD" ), subEndMD, subEndTVD, nullptr );
+                auto icdCompletion =
+                    std::make_unique<RicMswFishbonesICD>( QString( "ICD" ), wellPath, subEndMD, subEndTVD, nullptr );
                 auto icdSegment =
                     std::make_unique<RicMswSegment>( "ICD segment", subEndMD, subEndMD + 0.1, subEndTVD, subEndTVD, sub.subIndex );
                 icdCompletion->setFlowCoefficient( subs->icdFlowCoefficient() );
@@ -1038,10 +993,11 @@ void RicWellPathExportMswCompletionsImpl::generateFishbonesMswExportInfo(
                 for ( size_t lateralIndex : sub.lateralIndices )
                 {
                     QString label = QString( "Lateral %1" ).arg( lateralIndex );
-                    segment->addCompletion( std::make_unique<RicMswFishbones>( label, subEndMD, subEndTVD, lateralIndex ) );
+                    segment->addCompletion(
+                        std::make_unique<RicMswFishbones>( label, wellPath, subEndMD, subEndTVD, lateralIndex ) );
                 }
                 assignFishbonesLateralIntersections( caseToApply,
-                                                     wellPath,
+                                                     branch->wellPath(),
                                                      subs,
                                                      segment.get(),
                                                      &foundSubGridIntersections,
@@ -1060,11 +1016,32 @@ void RicWellPathExportMswCompletionsImpl::generateFishbonesMswExportInfo(
     if ( auto wellPathGroup = dynamic_cast<const RimWellPathGroup*>( wellPath ); wellPathGroup != nullptr )
     {
         auto initialChildMD  = wellPathGroup->uniqueEndMD();
-        auto initialChildTVD = -wellPathGroup->wellPathGeometry()->interpolatedPointAlongWellPath( initialMD ).z();
+        auto initialChildTVD = tvdFromMeasuredDepth( wellPathGroup, initialMD );
         for ( auto childWellPath : wellPathGroup->childWellPaths() )
         {
-            auto childBranch = std::make_unique<RicMswBranch>( childWellPath->name(), initialChildMD, initialChildTVD );
             auto childCellIntersections = generateCellSegments( caseToApply, childWellPath, &initialChildMD );
+            auto childBranch =
+                std::make_unique<RicMswBranch>( childWellPath->name(), childWellPath, initialChildMD, initialChildTVD );
+
+            if ( wellPathGroup->outletValve() )
+            {
+                childBranch       = RicMswValve::createExportValve( QString( "%1 valve for %2" )
+                                                                  .arg( wellPathGroup->outletValve()->componentLabel() )
+                                                                  .arg( childWellPath->name() ),
+                                                              childWellPath,
+                                                              initialChildMD,
+                                                              initialChildTVD,
+                                                              wellPathGroup->outletValve() );
+                auto dummySegment = std::make_unique<
+                    RicMswSegment>( QString( "%1 segment" ).arg( wellPathGroup->outletValve()->componentLabel() ),
+                                    initialChildMD,
+                                    initialChildMD + 0.1,
+                                    initialChildTVD,
+                                    RicWellPathExportMswCompletionsImpl::tvdFromMeasuredDepth( wellPath,
+                                                                                               initialChildMD + 0.1 ) );
+                childBranch->addSegment( std::move( dummySegment ) );
+            }
+
             generateFishbonesMswExportInfo( caseToApply,
                                             childWellPath,
                                             initialChildMD,
@@ -1202,6 +1179,7 @@ RicMswExportInfo
                                                                              nullptr );
 
                 assignFractureCompletionsToCellSegment( caseToApply,
+                                                        wellPath,
                                                         fracture,
                                                         completionData,
                                                         segment.get(),
@@ -1301,8 +1279,29 @@ bool RicWellPathExportMswCompletionsImpl::generatePerforationsMswExportInfo(
         auto initialChildTVD = -wellPathGroup->wellPathGeometry()->interpolatedPointAlongWellPath( initialMD ).z();
         for ( auto childWellPath : wellPathGroup->childWellPaths() )
         {
-            auto childBranch = std::make_unique<RicMswBranch>( childWellPath->name(), initialChildMD, initialChildTVD );
             auto childCellIntersections = generateCellSegments( eclipseCase, childWellPath, &initialChildMD );
+            auto childBranch =
+                std::make_unique<RicMswBranch>( childWellPath->name(), childWellPath, initialChildMD, initialChildTVD );
+
+            if ( wellPathGroup->outletValve() )
+            {
+                childBranch       = RicMswValve::createExportValve( QString( "%1 valve for %2" )
+                                                                  .arg( wellPathGroup->outletValve()->componentLabel() )
+                                                                  .arg( childWellPath->name() ),
+                                                              childWellPath,
+                                                              initialChildMD,
+                                                              initialChildTVD,
+                                                              wellPathGroup->outletValve() );
+                auto dummySegment = std::make_unique<
+                    RicMswSegment>( QString( "%1 segment" ).arg( wellPathGroup->outletValve()->componentLabel() ),
+                                    initialChildMD,
+                                    initialChildMD + 0.1,
+                                    initialChildTVD,
+                                    RicWellPathExportMswCompletionsImpl::tvdFromMeasuredDepth( wellPath,
+                                                                                               initialChildMD + 0.1 ) );
+                childBranch->addSegment( std::move( dummySegment ) );
+            }
+
             if ( generatePerforationsMswExportInfo( eclipseCase,
                                                     childWellPath,
                                                     timeStep,
@@ -1315,7 +1314,6 @@ bool RicWellPathExportMswCompletionsImpl::generatePerforationsMswExportInfo(
             }
         }
     }
-
     return true;
 }
 
@@ -1491,7 +1489,7 @@ void RicWellPathExportMswCompletionsImpl::createWellPathSegments(
 
         if ( segmentLength > segmentLengthThreshold )
         {
-            auto segment = std::make_unique<RicMswSegment>( "Main stem segment",
+            auto segment = std::make_unique<RicMswSegment>( QString( "%1 segment" ).arg( branch->label() ),
                                                             cellIntInfo.startMD,
                                                             cellIntInfo.endMD,
                                                             cellIntInfo.startTVD(),
@@ -1507,7 +1505,7 @@ void RicWellPathExportMswCompletionsImpl::createWellPathSegments(
                     double overlapStartTVD =
                         -wellPath->wellPathGeometry()->interpolatedPointAlongWellPath( overlapStart ).z();
                     auto intervalCompletion =
-                        std::make_unique<RicMswPerforation>( interval->name(), overlapStart, overlapStartTVD );
+                        std::make_unique<RicMswPerforation>( interval->name(), wellPath, overlapStart, overlapStartTVD );
                     std::vector<RigCompletionData> completionData =
                         generatePerforationIntersections( wellPath, interval, timeStep, eclipseCase );
                     assignPerforationIntersections( completionData,
@@ -1570,15 +1568,13 @@ void RicWellPathExportMswCompletionsImpl::createValveCompletions(
                     double                    overlapEnd   = std::min( valveSegment.second, segment->endMD() );
                     double                    overlap      = std::max( 0.0, overlapEnd - overlapStart );
 
-                    // "Dummy" values for the new branch created for the valve.
-                    // Will be added to the main segments start MD,
-                    double exportStartMD = 0.0;
-                    double exportEndMD   = 0.1;
+                    double exportStartMD = valveMD;
+                    double exportEndMD   = valveMD + 0.1;
 
                     double exportStartTVD =
-                        RicWellPathExportMswCompletionsImpl::tvdFromMeasuredDepth( wellPath, valveMD + exportStartMD );
+                        RicWellPathExportMswCompletionsImpl::tvdFromMeasuredDepth( wellPath, exportStartMD );
                     double exportEndTVD =
-                        RicWellPathExportMswCompletionsImpl::tvdFromMeasuredDepth( wellPath, valveMD + exportEndMD );
+                        RicWellPathExportMswCompletionsImpl::tvdFromMeasuredDepth( wellPath, exportEndMD );
 
                     double overlapStartTVD =
                         RicWellPathExportMswCompletionsImpl::tvdFromMeasuredDepth( wellPath, overlapStart );
@@ -1597,8 +1593,11 @@ void RicWellPathExportMswCompletionsImpl::createValveCompletions(
                                                                                exportStartTVD,
                                                                                exportEndTVD );
 
-                            superAICD =
-                                std::make_unique<RicMswPerforationAICD>( valveLabel, exportStartMD, exportStartTVD, valve );
+                            superAICD = std::make_unique<RicMswPerforationAICD>( valveLabel,
+                                                                                 wellPath,
+                                                                                 exportStartMD,
+                                                                                 exportStartTVD,
+                                                                                 valve );
                             superAICD->addSegment( std::move( subSegment ) );
                         }
                         else if ( valve->componentType() == RiaDefines::WellPathComponentType::ICD )
@@ -1611,8 +1610,11 @@ void RicWellPathExportMswCompletionsImpl::createValveCompletions(
                                                                                exportStartTVD,
                                                                                exportEndTVD );
 
-                            superICD =
-                                std::make_unique<RicMswPerforationICD>( valveLabel, exportStartMD, exportStartTVD, valve );
+                            superICD = std::make_unique<RicMswPerforationICD>( valveLabel,
+                                                                               wellPath,
+                                                                               exportStartMD,
+                                                                               exportStartTVD,
+                                                                               valve );
                             superICD->addSegment( std::move( subSegment ) );
                         }
                         else if ( valve->componentType() == RiaDefines::WellPathComponentType::ICV )
@@ -1625,7 +1627,11 @@ void RicWellPathExportMswCompletionsImpl::createValveCompletions(
                                                                                exportStartTVD,
                                                                                exportEndTVD );
 
-                            ICV = std::make_unique<RicMswPerforationICV>( valveLabel, exportStartMD, exportStartTVD, valve );
+                            ICV = std::make_unique<RicMswPerforationICV>( valveLabel,
+                                                                          wellPath,
+                                                                          exportStartMD,
+                                                                          exportStartTVD,
+                                                                          valve );
                             ICV->addSegment( std::move( subSegment ) );
                             ICV->setFlowCoefficient( valve->flowCoefficient() );
                             double orificeRadius = valve->orificeDiameter( unitSystem ) / 2;
@@ -1644,7 +1650,7 @@ void RicWellPathExportMswCompletionsImpl::createValveCompletions(
                                                                            exportStartTVD,
                                                                            exportEndTVD );
                         superICD =
-                            std::make_unique<RicMswPerforationICD>( valveLabel, exportStartMD, exportStartTVD, valve );
+                            std::make_unique<RicMswPerforationICD>( valveLabel, wellPath, exportStartMD, exportStartTVD, valve );
                         superICD->addSegment( std::move( subSegment ) );
                     }
                     else if ( overlap > 0.0 &&
@@ -1658,8 +1664,11 @@ void RicWellPathExportMswCompletionsImpl::createValveCompletions(
                                                                            exportEndMD,
                                                                            exportStartTVD,
                                                                            exportEndTVD );
-                        superAICD =
-                            std::make_unique<RicMswPerforationAICD>( valveLabel, exportStartMD, exportStartTVD, valve );
+                        superAICD       = std::make_unique<RicMswPerforationAICD>( valveLabel,
+                                                                             wellPath,
+                                                                             exportStartMD,
+                                                                             exportStartTVD,
+                                                                             valve );
                         superAICD->addSegment( std::move( subSegment ) );
                     }
 
@@ -1889,13 +1898,13 @@ void RicWellPathExportMswCompletionsImpl::moveIntersectionsToICVs(
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicWellPathExportMswCompletionsImpl::writeWelsegsSegment( RicMswSegment*             segment,
-                                                               const RicMswSegment*       previousSegment,
-                                                               RifTextDataTableFormatter& formatter,
-                                                               RicMswExportInfo&          exportInfo,
-                                                               double                     maxSegmentLength,
-                                                               int                        branchNumber,
-                                                               int*                       segmentNumber )
+void RicWellPathExportMswCompletionsImpl::writeWelsegsSegment( RicMswSegment*               segment,
+                                                               const RicMswSegment*         previousSegment,
+                                                               RifTextDataTableFormatter&   formatter,
+                                                               RicMswExportInfo&            exportInfo,
+                                                               double                       maxSegmentLength,
+                                                               gsl::not_null<RicMswBranch*> branch,
+                                                               int*                         segmentNumber )
 {
     CVF_ASSERT( segment && segmentNumber );
 
@@ -1904,30 +1913,26 @@ void RicWellPathExportMswCompletionsImpl::writeWelsegsSegment( RicMswSegment*   
 
     std::vector<std::pair<double, double>> segments = createSubSegmentMDPairs( startMD, endMD, maxSegmentLength );
 
-    CVF_ASSERT( exportInfo.wellPath() );
-    auto wellPathGeometry = exportInfo.wellPath()->wellPathGeometry();
+    CVF_ASSERT( branch->wellPath() );
+    auto wellPathGeometry = branch->wellPath()->wellPathGeometry();
     CVF_ASSERT( wellPathGeometry );
 
-    double prevOutMD  = exportInfo.mainBoreBranch()->startMD();
-    double prevOutTVD = exportInfo.mainBoreBranch()->startTVD();
+    double prevOutMD  = branch->startMD();
+    double prevOutTVD = branch->startTVD();
     if ( previousSegment )
     {
         prevOutMD  = previousSegment->outputMD();
         prevOutTVD = previousSegment->outputTVD();
     }
+
+    auto outletSegment = previousSegment;
     for ( const auto& [subStartMD, subEndMD] : segments )
     {
-        auto startPoint = wellPathGeometry->interpolatedPointAlongWellPath( subStartMD );
-        auto endPoint   = wellPathGeometry->interpolatedPointAlongWellPath( subEndMD );
-
-        double subStartTVD = -startPoint.z();
-        double subEndTVD   = -endPoint.z();
-
         double depth  = 0;
         double length = 0;
 
         double midPointMD  = 0.5 * ( subStartMD + subEndMD );
-        double midPointTVD = 0.5 * ( subStartTVD + subEndTVD );
+        double midPointTVD = tvdFromMeasuredDepth( branch->wellPath(), midPointMD );
 
         if ( exportInfo.lengthAndDepthText() == QString( "INC" ) )
         {
@@ -1944,9 +1949,9 @@ void RicWellPathExportMswCompletionsImpl::writeWelsegsSegment( RicMswSegment*   
         segment->setSegmentNumber( *segmentNumber );
 
         formatter.add( *segmentNumber ).add( *segmentNumber );
-        formatter.add( branchNumber );
-        if ( previousSegment )
-            formatter.add( previousSegment->segmentNumber() );
+        formatter.add( branch->branchNumber() );
+        if ( outletSegment )
+            formatter.add( outletSegment->segmentNumber() );
         else
             formatter.add( 1 );
         formatter.add( length );
@@ -1955,6 +1960,7 @@ void RicWellPathExportMswCompletionsImpl::writeWelsegsSegment( RicMswSegment*   
         formatter.add( exportInfo.roughnessFactor() );
         formatter.rowCompleted();
         ( *segmentNumber )++;
+        outletSegment = segment;
     }
 }
 
@@ -1972,6 +1978,8 @@ void RicWellPathExportMswCompletionsImpl::writeValveWelsegsSegment( const RicMsw
     if ( !valve->isValid() ) return;
 
     CVF_ASSERT( !valve->label().isEmpty() );
+    CVF_ASSERT( valve->wellPath() );
+
     formatter.comment( valve->label() );
 
     auto segments = valve->segments();
@@ -1982,27 +1990,23 @@ void RicWellPathExportMswCompletionsImpl::writeValveWelsegsSegment( const RicMsw
     double startMD = subSegment->startMD();
     double endMD   = subSegment->endMD();
 
-    if ( valve->completionType() != RigCompletionData::FISHBONES_ICD )
-    {
-        startMD += outletSegment->outputMD();
-        endMD += outletSegment->outputMD();
-    }
+    double midPointMD  = 0.5 * ( startMD + endMD );
+    double midPointTVD = tvdFromMeasuredDepth( valve->wellPath(), midPointMD );
+
+    subSegment->setOutputMD( midPointMD );
+    subSegment->setOutputTVD( midPointTVD );
 
     std::vector<std::pair<double, double>> splitSegments = createSubSegmentMDPairs( startMD, endMD, maxSegmentLength );
 
-    CVF_ASSERT( exportInfo.wellPath() );
-    auto wellPathGeometry = exportInfo.wellPath()->wellPathGeometry();
+    auto wellPathGeometry = valve->wellPath()->wellPathGeometry();
     CVF_ASSERT( wellPathGeometry );
 
     for ( const auto& [subStartMD, subEndMD] : splitSegments )
     {
         int subSegmentNumber = ( *segmentNumber )++;
 
-        auto startPoint = wellPathGeometry->interpolatedPointAlongWellPath( subStartMD );
-        auto endPoint   = wellPathGeometry->interpolatedPointAlongWellPath( subEndMD );
-
-        double subStartTVD = -startPoint.z();
-        double subEndTVD   = -endPoint.z();
+        double subStartTVD = tvdFromMeasuredDepth( valve->wellPath(), subStartMD );
+        double subEndTVD   = tvdFromMeasuredDepth( valve->wellPath(), subEndMD );
 
         double depth  = 0;
         double length = 0;
@@ -2017,6 +2021,7 @@ void RicWellPathExportMswCompletionsImpl::writeValveWelsegsSegment( const RicMsw
             depth  = subEndTVD;
             length = subEndMD;
         }
+
         formatter.add( subSegmentNumber );
         formatter.add( subSegmentNumber );
         formatter.add( valve->branchNumber() );
@@ -2040,6 +2045,8 @@ void RicWellPathExportMswCompletionsImpl::writeCompletionWelsegsSegments( gsl::n
                                                                           double                     maxSegmentLength,
                                                                           int*                       segmentNumber )
 {
+    writeWelsegsCompletionCommentHeader( formatter, completion->completionType() );
+
     if ( completion->completionType() == RigCompletionData::FISHBONES )
     {
         formatter.comment( QString( "Sub index %1 - %2" ).arg( outletSegment->subIndex() ).arg( completion->label() ) );
@@ -2050,9 +2057,7 @@ void RicWellPathExportMswCompletionsImpl::writeCompletionWelsegsSegments( gsl::n
             QString( "%1 connected to segment %2" ).arg( completion->label() ).arg( outletSegment->segmentNumber() ) );
     }
 
-    CVF_ASSERT( exportInfo.wellPath() );
-    auto wellPathGeometry = exportInfo.wellPath()->wellPathGeometry();
-    CVF_ASSERT( wellPathGeometry );
+    CVF_ASSERT( completion->wellPath() );
 
     int outletSegmentNumber = outletSegment->segmentNumber();
 
@@ -2067,11 +2072,8 @@ void RicWellPathExportMswCompletionsImpl::writeCompletionWelsegsSegments( gsl::n
         {
             int subSegmentNumber = ( *segmentNumber )++;
 
-            auto startPoint = wellPathGeometry->interpolatedPointAlongWellPath( subStartMD );
-            auto endPoint   = wellPathGeometry->interpolatedPointAlongWellPath( subEndMD );
-
-            double subStartTVD = -startPoint.z();
-            double subEndTVD   = -endPoint.z();
+            double subStartTVD = tvdFromMeasuredDepth( completion->wellPath(), subStartMD );
+            double subEndTVD   = tvdFromMeasuredDepth( completion->wellPath(), subEndMD );
 
             double depth  = 0;
             double length = 0;
@@ -2098,9 +2100,6 @@ void RicWellPathExportMswCompletionsImpl::writeCompletionWelsegsSegments( gsl::n
             outletSegmentNumber = subSegmentNumber;
         }
     }
-
-    const RicMswSegment* childOutletSegment = nullptr;
-    if ( !completion->segments().empty() ) childOutletSegment = completion->segments().back();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -2235,6 +2234,7 @@ void RicWellPathExportMswCompletionsImpl::assignFishbonesLateralIntersections( c
 ///
 //--------------------------------------------------------------------------------------------------
 void RicWellPathExportMswCompletionsImpl::assignFractureCompletionsToCellSegment( const RimEclipseCase* caseToApply,
+                                                                                  const RimWellPath*    wellPath,
                                                                                   const RimWellPathFracture* fracture,
                                                                                   const std::vector<RigCompletionData>& completionData,
                                                                                   gsl::not_null<RicMswSegment*> segment,
@@ -2245,7 +2245,7 @@ void RicWellPathExportMswCompletionsImpl::assignFractureCompletionsToCellSegment
     double position = fracture->fractureMD();
     double width    = fracture->fractureTemplate()->computeFractureWidth( fracture );
 
-    auto fractureCompletion = std::make_unique<RicMswFracture>( fracture->name(), position, position + width );
+    auto fractureCompletion = std::make_unique<RicMswFracture>( fracture->name(), wellPath, position, position + width );
 
     if ( fracture->fractureTemplate()->orientationType() == RimFractureTemplate::ALONG_WELL_PATH )
     {

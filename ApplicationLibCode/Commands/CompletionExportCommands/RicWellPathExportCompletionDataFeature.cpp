@@ -222,5 +222,10 @@ std::vector<RimWellPath*> RicWellPathExportCompletionDataFeature::selectedWellPa
         }
     }
 
+    wellPaths.erase( std::remove_if( wellPaths.begin(),
+                                     wellPaths.end(),
+                                     []( auto wellPath ) { return !wellPath->isTopLevelWellPath(); } ),
+                     wellPaths.end() );
+
     return wellPaths;
 }
