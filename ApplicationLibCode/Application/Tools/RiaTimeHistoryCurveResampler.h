@@ -33,13 +33,14 @@ class RiaTimeHistoryCurveResampler
 public:
     RiaTimeHistoryCurveResampler();
 
-    void setCurveData( const std::vector<double>& values, const std::vector<time_t>& timeSteps );
+    void setCurveDataDouble( const std::vector<double>& values, const std::vector<time_t>& timeSteps );
+    void setCurveData( const std::vector<float>& values, const std::vector<time_t>& timeSteps );
 
     void resampleAndComputePeriodEndValues( RiaQDateTimeTools::DateTimePeriod period );
     void resampleAndComputeWeightedMeanValues( RiaQDateTimeTools::DateTimePeriod period );
 
     const std::vector<time_t>& resampledTimeSteps() const;
-    const std::vector<double>& resampledValues() const;
+    const std::vector<float>&  resampledValues() const;
 
     static std::vector<time_t>
         timeStepsFromTimeRange( RiaQDateTimeTools::DateTimePeriod period, time_t minTime, time_t maxTime );
@@ -54,8 +55,8 @@ private:
     inline double    interpolatedValue( time_t t, time_t t1, double v1, time_t t2, double v2 );
 
 private:
-    std::pair<std::vector<double>, std::vector<time_t>> m_originalValues;
+    std::pair<std::vector<float>, std::vector<time_t>> m_originalValues;
 
     std::vector<time_t> m_timeSteps;
-    std::vector<double> m_values;
+    std::vector<float>  m_values;
 };

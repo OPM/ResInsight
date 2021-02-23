@@ -142,7 +142,7 @@ double RimObjectiveFunction::value( RimSummaryCase*                       summar
 
                     if ( readerInterface->allResultAddresses().count( vectorSummaryAddressDiff ) )
                     {
-                        std::vector<double> values;
+                        std::vector<float> values;
                         if ( readerInterface->values( vectorSummaryAddressDiff, &values ) )
                         {
                             const std::vector<time_t>& timeSteps = readerInterface->timeSteps( vectorSummaryAddressDiff );
@@ -206,7 +206,7 @@ double RimObjectiveFunction::value( RimSummaryCase*                       summar
 
                     if ( readerInterface->allResultAddresses().count( vectorSummaryAddressDiff ) )
                     {
-                        std::vector<double> values;
+                        std::vector<float> values;
                         if ( readerInterface->values( vectorSummaryAddressDiff, &values ) )
                         {
                             const std::vector<time_t>& timeSteps = readerInterface->timeSteps( vectorSummaryAddressDiff );

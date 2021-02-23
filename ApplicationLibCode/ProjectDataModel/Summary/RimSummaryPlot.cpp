@@ -2399,7 +2399,7 @@ void prepareCaseCurvesForExport( RiaQDateTimeTools::DateTimePeriod period,
 
             for ( auto& curveDataItem : caseCurveData )
             {
-                resampler.setCurveData( curveDataItem.values, caseTimeSteps );
+                resampler.setCurveDataDouble( curveDataItem.values, caseTimeSteps );
 
                 if ( RiaSummaryTools::hasAccumulatedData( curveDataItem.address ) ||
                      algorithm == ResampleAlgorithm::PERIOD_END )
@@ -2411,8 +2411,13 @@ void prepareCaseCurvesForExport( RiaQDateTimeTools::DateTimePeriod period,
                     resampler.resampleAndComputeWeightedMeanValues( period );
                 }
 
-                auto cd                       = curveDataItem;
-                cd.values                     = resampler.resampledValues();
+                auto cd = curveDataItem;
+
+                auto                floatValues = resampler.resampledValues();
+                std::vector<double> doubleValues =
+                    std::vector<double>( std::begin( floatValues ), std::end( floatValues ) );
+
+                cd.values                     = doubleValues;
                 auto& currResultCurveDataList = resultCurvesData->allCurveData[i];
                 currResultCurveDataList.push_back( cd );
             }

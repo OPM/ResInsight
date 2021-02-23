@@ -537,9 +537,9 @@ void RimCorrelationMatrixPlot::createMatrix()
                         RifSummaryReaderInterface* reader      = summaryCase->summaryReader();
                         if ( reader )
                         {
-                            std::vector<double> values;
-                            double              closestValue    = std::numeric_limits<double>::infinity();
-                            time_t              closestTimeStep = 0;
+                            std::vector<float> values;
+                            double             closestValue    = std::numeric_limits<double>::infinity();
+                            time_t             closestTimeStep = 0;
                             if ( reader->values( address, &values ) )
                             {
                                 const std::vector<time_t>& timeSteps = reader->timeSteps( address );

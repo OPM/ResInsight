@@ -69,7 +69,7 @@ bool RifCsvUserData::parse( const QString& fileName, const AsciiDataParseOptions
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RifCsvUserData::values( const RifEclipseSummaryAddress& resultAddress, std::vector<double>* values ) const
+bool RifCsvUserData::values( const RifEclipseSummaryAddress& resultAddress, std::vector<float>* values ) const
 {
     auto search = m_mapFromAddressToResultIndex.find( resultAddress );
     if ( search != m_mapFromAddressToResultIndex.end() )

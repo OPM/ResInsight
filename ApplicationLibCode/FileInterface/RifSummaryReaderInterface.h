@@ -46,7 +46,7 @@ public:
 
     virtual const std::vector<time_t>& timeSteps( const RifEclipseSummaryAddress& resultAddress ) const = 0;
 
-    virtual bool values( const RifEclipseSummaryAddress& resultAddress, std::vector<double>* values ) const = 0;
+    virtual bool values( const RifEclipseSummaryAddress& resultAddress, std::vector<float>* values ) const = 0;
 
     virtual std::string                   unitName( const RifEclipseSummaryAddress& resultAddress ) const = 0;
     virtual RiaDefines::EclipseUnitSystem unitSystem() const                                              = 0;

@@ -281,8 +281,11 @@ bool RimSummaryCalculation::calculate()
 
         RiaSummaryCurveDefinition curveDef( v->summaryCase(), v->summaryAddress()->address(), false );
 
-        std::vector<double> curveValues;
-        RiaSummaryCurveDefinition::resultValues( curveDef, &curveValues );
+        std::vector<float> curveValuesFloat;
+        RiaSummaryCurveDefinition::resultValues( curveDef, &curveValuesFloat );
+
+        std::vector<double> curveValues =
+            std::vector<double>( std::begin( curveValuesFloat ), std::end( curveValuesFloat ) );
 
         std::vector<time_t> curveTimeSteps = RiaSummaryCurveDefinition::timeSteps( curveDef );
 

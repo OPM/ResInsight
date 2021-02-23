@@ -424,14 +424,14 @@ RifEclipseSummaryAddress addressFromErtSmSpecNode( const ecl::smspec_node& ertSu
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RifReaderEclipseSummary::values( const RifEclipseSummaryAddress& resultAddress, std::vector<double>* values ) const
+bool RifReaderEclipseSummary::values( const RifEclipseSummaryAddress& resultAddress, std::vector<float>* values ) const
 {
     assert( m_ecl_sum != nullptr );
 
     values->clear();
     values->reserve( timeStepCount() );
 
-    const std::vector<double>& cachedValues = m_valuesCache->getValues( resultAddress );
+    const std::vector<float>& cachedValues = m_valuesCache->getValues( resultAddress );
     if ( !cachedValues.empty() )
     {
         values->insert( values->begin(), cachedValues.begin(), cachedValues.end() );
@@ -451,8 +451,8 @@ bool RifReaderEclipseSummary::values( const RifEclipseSummaryAddress& resultAddr
             RifEclipseSummaryAddress nativeAdrHistory = resultAddress;
             nativeAdrHistory.setQuantityName( quantityNoHistory );
 
-            std::vector<double> nativeValues;
-            std::vector<double> historyValues;
+            std::vector<float> nativeValues;
+            std::vector<float> historyValues;
 
             if ( !this->values( nativeAdrHistory, &nativeValues ) ) return false;
             if ( !this->values( nativeAdrNoHistory, &historyValues ) ) return false;
@@ -461,7 +461,7 @@ bool RifReaderEclipseSummary::values( const RifEclipseSummaryAddress& resultAddr
 
             for ( size_t i = 0; i < nativeValues.size(); i++ )
             {
-                double diff = nativeValues[i] - historyValues[i];
+                float diff = nativeValues[i] - historyValues[i];
                 values->push_back( diff );
                 m_valuesCache->insertValues( resultAddress, *values );
             }
@@ -641,7 +641,7 @@ RiaDefines::EclipseUnitSystem RifReaderEclipseSummary::unitSystem() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::vector<double> RifReaderEclipseSummary::ValuesCache::EMPTY_VECTOR;
+const std::vector<float> RifReaderEclipseSummary::ValuesCache::EMPTY_VECTOR;
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -661,7 +661,7 @@ RifReaderEclipseSummary::ValuesCache::~ValuesCache()
 ///
 //--------------------------------------------------------------------------------------------------
 void RifReaderEclipseSummary::ValuesCache::insertValues( const RifEclipseSummaryAddress& address,
-                                                         const std::vector<double>&      values )
+                                                         const std::vector<float>&       values )
 {
     m_cachedValues[address] = values;
 }
@@ -669,7 +669,7 @@ void RifReaderEclipseSummary::ValuesCache::insertValues( const RifEclipseSummary
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::vector<double>& RifReaderEclipseSummary::ValuesCache::getValues( const RifEclipseSummaryAddress& address ) const
+const std::vector<float>& RifReaderEclipseSummary::ValuesCache::getValues( const RifEclipseSummaryAddress& address ) const
 {
     if ( m_cachedValues.find( address ) != m_cachedValues.end() )
     {

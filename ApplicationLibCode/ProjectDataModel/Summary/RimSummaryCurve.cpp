@@ -263,11 +263,11 @@ std::string RimSummaryCurve::unitNameX() const
 //--------------------------------------------------------------------------------------------------
 std::vector<double> RimSummaryCurve::valuesY() const
 {
-    std::vector<double> values;
-
     RifSummaryReaderInterface* reader = valuesSummaryReaderY();
 
-    if ( !reader ) return values;
+    if ( !reader ) return {};
+
+    std::vector<float> values;
 
     RifEclipseSummaryAddress addr = m_yValuesSummaryAddress()->address();
     reader->values( addr, &values );
@@ -282,13 +282,15 @@ std::vector<double> RimSummaryCurve::valuesY() const
         double max        = *minMaxPair.second;
         double range      = max - min;
 
-        for ( double& v : values )
+        for ( auto& v : values )
         {
             v = ( v - min ) / range;
         }
     }
 
-    return values;
+    std::vector<double> doubleValues = std::vector<double>( std::begin( values ), std::end( values ) );
+
+    return doubleValues;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -316,19 +318,20 @@ RifEclipseSummaryAddress RimSummaryCurve::errorSummaryAddressY() const
 //--------------------------------------------------------------------------------------------------
 std::vector<double> RimSummaryCurve::errorValuesY() const
 {
-    std::vector<double> values;
-
     RifSummaryReaderInterface* reader = valuesSummaryReaderY();
 
-    if ( !reader ) return values;
+    if ( !reader ) return {};
 
+    std::vector<float>       values;
     RifEclipseSummaryAddress addr = errorSummaryAddressY();
     if ( reader->hasAddress( addr ) )
     {
         reader->values( addr, &values );
     }
 
-    return values;
+    std::vector<double> doubleValues = std::vector<double>( std::begin( values ), std::end( values ) );
+
+    return doubleValues;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -342,8 +345,12 @@ std::vector<double> RimSummaryCurve::valuesX() const
     {
         RifSummaryReaderInterface* reader = m_xValuesSummaryCase()->summaryReader();
 
+        std::vector<float> floatValues;
+
         RifEclipseSummaryAddress addr = m_xValuesSummaryAddress()->address();
-        reader->values( addr, &values );
+        reader->values( addr, &floatValues );
+
+        values = std::vector<double>( std::begin( floatValues ), std::end( floatValues ) );
     }
 
     return values;
@@ -627,14 +634,17 @@ void RimSummaryCurve::onLoadDataAndUpdate( bool updateParentPlot )
                         auto errAddress = reader->errorAddress( summaryAddressY() );
                         if ( errAddress.isValid() )
                         {
-                            std::vector<double> errValues;
+                            std::vector<float> errValues;
                             reader->values( errAddress, &errValues );
 
                             auto timeSteps = RiuQwtPlotCurve::fromTime_t( curveTimeStepsY );
 
                             if ( !errValues.empty() )
                             {
-                                this->setSamplesFromXYErrorValues( timeSteps, curveValuesY, errValues, isLogCurve );
+                                std::vector<double> doubleValues =
+                                    std::vector<double>( std::begin( errValues ), std::end( errValues ) );
+
+                                this->setSamplesFromXYErrorValues( timeSteps, curveValuesY, doubleValues, isLogCurve );
                             }
                             else
                             {
@@ -645,10 +655,13 @@ void RimSummaryCurve::onLoadDataAndUpdate( bool updateParentPlot )
                         {
                             if ( m_resampling() != RiaQDateTimeTools::DateTimePeriod::NONE )
                             {
+                                std::vector<float> floatValues =
+                                    std::vector<float>( std::begin( curveValuesY ), std::end( curveValuesY ) );
+
                                 auto [resampledTimeSteps, resampledValues] =
                                     RiaSummaryTools::resampledValuesForPeriod( m_yValuesSummaryAddress->address(),
                                                                                curveTimeStepsY,
-                                                                               curveValuesY,
+                                                                               floatValues,
                                                                                m_resampling() );
 
                                 if ( !resampledValues.empty() && !resampledTimeSteps.empty() )
@@ -660,7 +673,10 @@ void RimSummaryCurve::onLoadDataAndUpdate( bool updateParentPlot )
                                     resampledTimeSteps.insert( resampledTimeSteps.begin(), curveTimeStepsY.front() );
                                     resampledValues.insert( resampledValues.begin(), resampledValues.front() );
 
-                                    this->setSamplesFromTimeTAndYValues( resampledTimeSteps, resampledValues, isLogCurve );
+                                    std::vector<double> doubleValues =
+                                        std::vector<double>( std::begin( resampledValues ), std::end( resampledValues ) );
+
+                                    this->setSamplesFromTimeTAndYValues( resampledTimeSteps, doubleValues, isLogCurve );
                                 }
                             }
                             else

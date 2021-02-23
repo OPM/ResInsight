@@ -52,12 +52,12 @@ const std::vector<time_t>& RifEnsembleStatisticsReader::timeSteps( const RifEcli
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RifEnsembleStatisticsReader::values( const RifEclipseSummaryAddress& resultAddress, std::vector<double>* values ) const
+bool RifEnsembleStatisticsReader::values( const RifEclipseSummaryAddress& resultAddress, std::vector<float>* values ) const
 {
     if ( !validateAddress( resultAddress ) ) return false;
 
-    const std::vector<double>* sourceData   = nullptr;
-    auto                       quantityName = resultAddress.ensembleStatisticsQuantityName();
+    const std::vector<float>* sourceData   = nullptr;
+    auto                      quantityName = resultAddress.ensembleStatisticsQuantityName();
 
     if ( quantityName == ENSEMBLE_STAT_P10_QUANTITY_NAME )
         sourceData = &m_ensembleStatCase->p10();

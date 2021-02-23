@@ -51,7 +51,17 @@ RiaTimeHistoryCurveResampler::RiaTimeHistoryCurveResampler()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaTimeHistoryCurveResampler::setCurveData( const std::vector<double>& values, const std::vector<time_t>& timeSteps )
+void RiaTimeHistoryCurveResampler::setCurveDataDouble( const std::vector<double>& values,
+                                                       const std::vector<time_t>& timeSteps )
+{
+    auto floatValues = std::vector<float>( std::begin( values ), std::end( values ) );
+    setCurveData( floatValues, timeSteps );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiaTimeHistoryCurveResampler::setCurveData( const std::vector<float>& values, const std::vector<time_t>& timeSteps )
 {
     if ( values.empty() || timeSteps.empty() )
     {
@@ -91,7 +101,7 @@ const std::vector<time_t>& RiaTimeHistoryCurveResampler::resampledTimeSteps() co
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::vector<double>& RiaTimeHistoryCurveResampler::resampledValues() const
+const std::vector<float>& RiaTimeHistoryCurveResampler::resampledValues() const
 {
     return m_values;
 }

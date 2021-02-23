@@ -53,7 +53,7 @@ caf::PdmObjectHandle* RimSummaryCase_summaryVectorValues::execute()
 
     auto adr = RifEclipseSummaryAddress::fromEclipseTextAddress( m_addressString().toStdString() );
 
-    std::vector<double> values;
+    std::vector<float> values;
 
     if ( sumReader )
     {
@@ -64,8 +64,9 @@ caf::PdmObjectHandle* RimSummaryCase_summaryVectorValues::execute()
         }
     }
 
-    auto dataObject            = new RimcDataContainerDouble();
-    dataObject->m_doubleValues = values;
+    auto dataObject = new RimcDataContainerDouble();
+
+    dataObject->m_doubleValues = std::vector<double>( std::begin( values ), std::end( values ) );
 
     return dataObject;
 }
@@ -211,7 +212,7 @@ caf::PdmObjectHandle* RimSummaryCase_resampleValues::execute()
 
     if ( sumReader )
     {
-        std::vector<double> values;
+        std::vector<float> values;
 
         bool isOk = sumReader->values( adr, &values );
         if ( !isOk )
@@ -229,13 +230,13 @@ caf::PdmObjectHandle* RimSummaryCase_resampleValues::execute()
             auto [resampledTimeSteps, resampledValues] =
                 RiaSummaryTools::resampledValuesForPeriod( adr, timeValues, values, period );
 
-            dataObject->m_timeValues   = resampledTimeSteps;
-            dataObject->m_doubleValues = resampledValues;
+            dataObject->m_timeValues = resampledTimeSteps;
+            dataObject->m_doubleValues = std::vector<double>( std::begin( resampledValues ), std::end( resampledValues ) );
         }
         else
         {
             dataObject->m_timeValues   = timeValues;
-            dataObject->m_doubleValues = values;
+            dataObject->m_doubleValues = std::vector<double>( std::begin( values ), std::end( values ) );
         }
     }
 

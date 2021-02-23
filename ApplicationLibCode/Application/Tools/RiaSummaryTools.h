@@ -66,9 +66,9 @@ public:
 
     static QString findSuitableEnsembleName( const QStringList& summaryCaseFileNames );
 
-    static std::pair<std::vector<time_t>, std::vector<double>>
+    static std::pair<std::vector<time_t>, std::vector<float>>
         resampledValuesForPeriod( const RifEclipseSummaryAddress&   address,
                                   const std::vector<time_t>&        timeSteps,
-                                  std::vector<double>&              values,
+                                  std::vector<float>&               values,
                                   RiaQDateTimeTools::DateTimePeriod period );
 };

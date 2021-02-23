@@ -45,7 +45,7 @@ public:
 
     const std::vector<time_t>& timeSteps( const RifEclipseSummaryAddress& resultAddress ) const override;
 
-    bool values( const RifEclipseSummaryAddress& resultAddress, std::vector<double>* values ) const override;
+    bool values( const RifEclipseSummaryAddress& resultAddress, std::vector<float>* values ) const override;
 
     std::string                   unitName( const RifEclipseSummaryAddress& resultAddress ) const override;
     RiaDefines::EclipseUnitSystem unitSystem() const override;

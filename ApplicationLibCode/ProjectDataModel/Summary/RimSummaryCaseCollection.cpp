@@ -570,7 +570,7 @@ std::vector<std::pair<EnsembleParameter, double>>
 
         if ( !summaryCase->caseRealizationParameters() ) continue;
 
-        std::vector<double> values;
+        std::vector<float> values;
 
         double closestValue    = std::numeric_limits<double>::infinity();
         time_t closestTimeStep = 0;

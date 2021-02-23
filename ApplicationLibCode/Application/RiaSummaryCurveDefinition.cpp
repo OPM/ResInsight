@@ -99,8 +99,8 @@ bool RiaSummaryCurveDefinition::isEnsembleCurve() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaSummaryCurveDefinition::resultValues( const RiaSummaryCurveDefinition&    curveDefinition,
-                                              gsl::not_null<std::vector<double>*> values )
+void RiaSummaryCurveDefinition::resultValues( const RiaSummaryCurveDefinition&   curveDefinition,
+                                              gsl::not_null<std::vector<float>*> values )
 {
     if ( !curveDefinition.summaryAddress().isValid() ) return;
     if ( !curveDefinition.summaryCase() ) return;

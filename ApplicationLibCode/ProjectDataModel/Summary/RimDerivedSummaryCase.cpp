@@ -140,11 +140,11 @@ const std::vector<time_t>& RimDerivedSummaryCase::timeSteps( const RifEclipseSum
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::vector<double>& RimDerivedSummaryCase::values( const RifEclipseSummaryAddress& address ) const
+const std::vector<float>& RimDerivedSummaryCase::values( const RifEclipseSummaryAddress& address ) const
 {
     if ( m_dataCache.count( address ) == 0 )
     {
-        static std::vector<double> empty;
+        static std::vector<float> empty;
         return empty;
     }
 
@@ -187,7 +187,7 @@ void RimDerivedSummaryCase::calculate( const RifEclipseSummaryAddress& address )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<std::vector<time_t>, std::vector<double>>
+std::pair<std::vector<time_t>, std::vector<float>>
     RimDerivedSummaryCase::calculateDerivedValues( RifSummaryReaderInterface*      reader1,
                                                    int                             fixedTimeStepCase1,
                                                    RifSummaryReaderInterface*      reader2,
@@ -195,7 +195,7 @@ std::pair<std::vector<time_t>, std::vector<double>>
                                                    DerivedSummaryOperator          m_operator,
                                                    const RifEclipseSummaryAddress& address )
 {
-    using ResultPair = std::pair<std::vector<time_t>, std::vector<double>>;
+    using ResultPair = std::pair<std::vector<time_t>, std::vector<float>>;
 
     if ( !reader1 || !reader2 ) return ResultPair();
 
@@ -206,14 +206,14 @@ std::pair<std::vector<time_t>, std::vector<double>>
 
     if ( reader1->hasAddress( address ) && !reader2->hasAddress( address ) )
     {
-        std::vector<double> summaryValues;
+        std::vector<float> summaryValues;
         reader1->values( address, &summaryValues );
 
         return ResultPair( reader1->timeSteps( address ), summaryValues );
     }
     else if ( !reader1->hasAddress( address ) && reader2->hasAddress( address ) )
     {
-        std::vector<double> summaryValues;
+        std::vector<float> summaryValues;
         reader2->values( address, &summaryValues );
 
         if ( m_operator == DerivedSummaryOperator::DERIVED_OPERATOR_SUB )
@@ -228,8 +228,8 @@ std::pair<std::vector<time_t>, std::vector<double>>
     }
 
     RiaTimeHistoryCurveMerger merger;
-    std::vector<double>       values1;
-    std::vector<double>       values2;
+    std::vector<float>        values1;
+    std::vector<float>        values2;
 
     reader1->values( address, &values1 );
     reader2->values( address, &values2 );
@@ -239,8 +239,8 @@ std::pair<std::vector<time_t>, std::vector<double>>
         return ResultPair();
     }
 
-    merger.addCurveData( reader1->timeSteps( address ), values1 );
-    merger.addCurveData( reader2->timeSteps( address ), values2 );
+    merger.addCurveData( reader1->timeSteps( address ), std::vector<double>( std::begin( values1 ), std::end( values1 ) ) );
+    merger.addCurveData( reader2->timeSteps( address ), std::vector<double>( std::begin( values2 ), std::end( values2 ) ) );
     merger.computeInterpolatedValues();
 
     const std::vector<double>& allValues1 = merger.interpolatedYValuesForAllXValues( 0 );
@@ -248,7 +248,7 @@ std::pair<std::vector<time_t>, std::vector<double>>
 
     size_t sampleCount = merger.allXValues().size();
 
-    std::vector<double> calculatedValues;
+    std::vector<float> calculatedValues;
     calculatedValues.reserve( sampleCount );
 
     int clampedIndexCase1 = std::min( fixedTimeStepCase1, static_cast<int>( values1.size() ) );

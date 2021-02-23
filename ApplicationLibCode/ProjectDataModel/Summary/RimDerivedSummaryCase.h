@@ -65,11 +65,11 @@ public:
 
     bool                       needsCalculation( const RifEclipseSummaryAddress& address ) const;
     const std::vector<time_t>& timeSteps( const RifEclipseSummaryAddress& address ) const;
-    const std::vector<double>& values( const RifEclipseSummaryAddress& address ) const;
+    const std::vector<float>&  values( const RifEclipseSummaryAddress& address ) const;
 
     void calculate( const RifEclipseSummaryAddress& address );
 
-    static std::pair<std::vector<time_t>, std::vector<double>>
+    static std::pair<std::vector<time_t>, std::vector<float>>
         calculateDerivedValues( RifSummaryReaderInterface*      reader1,
                                 int                             fixedTimeStepCase1,
                                 RifSummaryReaderInterface*      reader2,
@@ -113,5 +113,5 @@ private:
     caf::PdmField<bool>                       m_inUse;
     std::unique_ptr<RifDerivedEnsembleReader> m_reader;
 
-    std::map<RifEclipseSummaryAddress, std::pair<std::vector<time_t>, std::vector<double>>> m_dataCache;
+    std::map<RifEclipseSummaryAddress, std::pair<std::vector<time_t>, std::vector<float>>> m_dataCache;
 };

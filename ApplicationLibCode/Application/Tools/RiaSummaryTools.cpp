@@ -271,10 +271,10 @@ QString RiaSummaryTools::findSuitableEnsembleName( const QStringList& summaryCas
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<std::vector<time_t>, std::vector<double>>
+std::pair<std::vector<time_t>, std::vector<float>>
     RiaSummaryTools::resampledValuesForPeriod( const RifEclipseSummaryAddress&   address,
                                                const std::vector<time_t>&        timeSteps,
-                                               std::vector<double>&              values,
+                                               std::vector<float>&               values,
                                                RiaQDateTimeTools::DateTimePeriod period )
 {
     RiaTimeHistoryCurveResampler resampler;

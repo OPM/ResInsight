@@ -112,7 +112,7 @@ bool RifReaderObservedData::open( const QString&                               h
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RifReaderObservedData::values( const RifEclipseSummaryAddress& resultAddress, std::vector<double>* values ) const
+bool RifReaderObservedData::values( const RifEclipseSummaryAddress& resultAddress, std::vector<float>* values ) const
 {
     size_t columnIndex = m_allResultAddresses.size();
 

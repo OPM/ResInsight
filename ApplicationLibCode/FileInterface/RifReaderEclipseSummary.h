@@ -73,7 +73,7 @@ public:
 
     const std::vector<time_t>& timeSteps( const RifEclipseSummaryAddress& resultAddress ) const override;
 
-    bool        values( const RifEclipseSummaryAddress& resultAddress, std::vector<double>* values ) const override;
+    bool        values( const RifEclipseSummaryAddress& resultAddress, std::vector<float>* values ) const override;
     std::string unitName( const RifEclipseSummaryAddress& resultAddress ) const override;
     RiaDefines::EclipseUnitSystem unitSystem() const override;
     QStringList                   warnings() const { return m_warnings; }
@@ -109,17 +109,17 @@ private:
     //==================================================================================================
     class ValuesCache
     {
-        static const std::vector<double> EMPTY_VECTOR;
+        static const std::vector<float> EMPTY_VECTOR;
 
     public:
         ValuesCache();
         ~ValuesCache();
 
-        void insertValues( const RifEclipseSummaryAddress& address, const std::vector<double>& values );
-        const std::vector<double>& getValues( const RifEclipseSummaryAddress& address ) const;
+        void insertValues( const RifEclipseSummaryAddress& address, const std::vector<float>& values );
+        const std::vector<float>& getValues( const RifEclipseSummaryAddress& address ) const;
 
     private:
-        std::map<const RifEclipseSummaryAddress, std::vector<double>> m_cachedValues;
+        std::map<const RifEclipseSummaryAddress, std::vector<float>> m_cachedValues;
     };
 
     std::unique_ptr<ValuesCache> m_valuesCache;

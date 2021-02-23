@@ -72,7 +72,7 @@ bool RifColumnBasedUserData::parse( const QString& data, QString* errorText )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RifColumnBasedUserData::values( const RifEclipseSummaryAddress& resultAddress, std::vector<double>* values ) const
+bool RifColumnBasedUserData::values( const RifEclipseSummaryAddress& resultAddress, std::vector<float>* values ) const
 {
     auto search = m_mapFromAddressToResultIndex.find( resultAddress );
     if ( search != m_mapFromAddressToResultIndex.end() )

@@ -71,7 +71,7 @@ const std::vector<time_t>& RifDerivedEnsembleReader::timeSteps( const RifEclipse
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RifDerivedEnsembleReader::values( const RifEclipseSummaryAddress& resultAddress, std::vector<double>* values ) const
+bool RifDerivedEnsembleReader::values( const RifEclipseSummaryAddress& resultAddress, std::vector<float>* values ) const
 {
     if ( !resultAddress.isValid() ) return false;
 

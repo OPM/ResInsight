@@ -471,7 +471,7 @@ void RicExportFractureCompletionsImpl::getWellPressuresAndInitialProductionTimeS
 
             if ( summaryCase && summaryCase->summaryReader() )
             {
-                std::vector<double> values;
+                std::vector<float> values;
                 if ( summaryCase->summaryReader()->values( wbhpPressureAddress, &values ) )
                 {
                     std::vector<time_t> summaryTimeSteps = summaryCase->summaryReader()->timeSteps( wbhpPressureAddress );

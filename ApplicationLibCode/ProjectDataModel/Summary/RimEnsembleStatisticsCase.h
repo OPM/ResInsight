@@ -35,10 +35,10 @@ public:
     RimEnsembleStatisticsCase( RimEnsembleCurveSet* curveSet );
 
     const std::vector<time_t>& timeSteps() const;
-    const std::vector<double>& p10() const;
-    const std::vector<double>& p50() const;
-    const std::vector<double>& p90() const;
-    const std::vector<double>& mean() const;
+    const std::vector<float>& p10() const;
+    const std::vector<float>& p50() const;
+    const std::vector<float>& p90() const;
+    const std::vector<float>& mean() const;
 
     bool hasP10Data() const { return !m_p10Data.empty(); }
     bool hasP50Data() const { return !m_p50Data.empty(); }
@@ -70,8 +70,8 @@ private:
     RimEnsembleCurveSet*                         m_curveSet;
 
     std::vector<time_t> m_timeSteps;
-    std::vector<double> m_p10Data;
-    std::vector<double> m_p50Data;
-    std::vector<double> m_p90Data;
-    std::vector<double> m_meanData;
+    std::vector<float>  m_p10Data;
+    std::vector<float>  m_p50Data;
+    std::vector<float>  m_p90Data;
+    std::vector<float>  m_meanData;
 };

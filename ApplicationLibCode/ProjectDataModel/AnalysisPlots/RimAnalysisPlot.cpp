@@ -338,7 +338,7 @@ void RimAnalysisPlot::maxMinValueFromAddress( const RifEclipseSummaryAddress&   
 
         if ( reader->hasAddress( address ) )
         {
-            std::vector<double> values;
+            std::vector<float> values;
             reader->values( address, &values );
 
             const std::vector<time_t>& timesteps = reader->timeSteps( address );
@@ -1199,7 +1199,7 @@ void RimAnalysisPlot::applyFilter( const RimPlotDataFilterItem*        filter,
 
                 if ( reader->hasAddress( addrToFilterValue ) )
                 {
-                    std::vector<double> values;
+                    std::vector<float> values;
                     reader->values( addrToFilterValue, &values );
                     const std::vector<time_t>& timesteps = reader->timeSteps( addrToFilterValue );
 
@@ -1471,11 +1471,11 @@ void RimAnalysisPlot::addDataToChartBuilder( RiuGroupedBarChartBuilder& chartBui
 
         std::vector<time_t>        timeStepStorage;
         const std::vector<time_t>* timeStepsPtr = &timeStepStorage;
-        std::vector<double>        values;
+        std::vector<float>         values;
 
         if ( referenceCaseReader )
         {
-            std::pair<std::vector<time_t>, std::vector<double>> timeAndValues =
+            std::pair<std::vector<time_t>, std::vector<float>> timeAndValues =
                 RimDerivedSummaryCase::calculateDerivedValues( reader,
                                                                -1,
                                                                referenceCaseReader,
