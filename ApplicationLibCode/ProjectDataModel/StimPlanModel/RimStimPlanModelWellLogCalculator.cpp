@@ -105,11 +105,7 @@ bool RimStimPlanModelWellLogCalculator::calculate( RiaDefines::CurveProperty cur
 
         if ( strategy == RimStimPlanModel::MissingValueStrategy::DEFAULT_VALUE )
         {
-            QString resultVariable = stimPlanModel->eclipseResultVariable( curveProperty );
-
-            // Input properties must use first time step
-            int replacementTimeStep = 0;
-            if ( !replaceMissingValuesWithDefault( curveProperty, stimPlanModel, replacementTimeStep, resultVariable, values ) )
+            if ( !replaceMissingValuesWithDefault( curveProperty, stimPlanModel, values ) )
             {
                 return false;
             }
@@ -120,24 +116,10 @@ bool RimStimPlanModelWellLogCalculator::calculate( RiaDefines::CurveProperty cur
         }
         else if ( strategy == RimStimPlanModel::MissingValueStrategy::OTHER_CURVE_PROPERTY )
         {
-            // Get the missing data from other curve
-            RiaDefines::CurveProperty replacementProperty =
-                stimPlanModel->getDefaultPropertyForMissingValues( curveProperty );
-
-            std::vector<double> initialValues;
-            std::vector<double> initialMds;
-            std::vector<double> initialTvds;
-            double              initialRkbDiff = -1.0;
-            calculate( replacementProperty, stimPlanModel, timeStep, initialValues, initialMds, initialTvds, initialRkbDiff );
-
-            if ( initialValues.empty() )
+            if ( !replaceMissingValuesWithOtherProperty( curveProperty, stimPlanModel, timeStep, values ) )
             {
-                RiaLogging::error( QString( "Empty replacement data found for fracture model curve." ) );
                 return false;
             }
-
-            CVF_ASSERT( values.size() == initialValues.size() );
-            replaceMissingValues( values, initialValues );
         }
     }
 
@@ -427,8 +409,6 @@ bool RimStimPlanModelWellLogCalculator::extractValuesForProperty( RiaDefines::Cu
 //--------------------------------------------------------------------------------------------------
 bool RimStimPlanModelWellLogCalculator::replaceMissingValuesWithDefault( RiaDefines::CurveProperty curveProperty,
                                                                          const RimStimPlanModel*   stimPlanModel,
-                                                                         int                       timeStep,
-                                                                         const QString&            resultVariable,
                                                                          std::vector<double>&      values ) const
 
 {
@@ -446,11 +426,16 @@ bool RimStimPlanModelWellLogCalculator::replaceMissingValuesWithDefault( RiaDefi
         return false;
     }
 
+    // Input properties must use first time step
+    int replacementTimeStep = 0;
+
+    QString resultVariable = stimPlanModel->eclipseResultVariable( curveProperty );
+
     // Try to locate a backup accessor (e.g. PORO_1 for PORO)
     cvf::ref<RigResultAccessor> backupResAcc = findMissingValuesAccessor( eclipseCase->eclipseCaseData(),
                                                                           eclipseCase->inputPropertyCollection(),
                                                                           0,
-                                                                          timeStep,
+                                                                          replacementTimeStep,
                                                                           resultVariable );
 
     if ( backupResAcc.notNull() )
@@ -498,5 +483,30 @@ bool RimStimPlanModelWellLogCalculator::replaceMissingValuesWithDefault( RiaDefi
         replaceMissingValues( values, defaultValue );
     }
 
+    return true;
+}
+
+bool RimStimPlanModelWellLogCalculator::replaceMissingValuesWithOtherProperty( RiaDefines::CurveProperty curveProperty,
+                                                                               const RimStimPlanModel*   stimPlanModel,
+                                                                               int                       timeStep,
+                                                                               std::vector<double>&      values ) const
+{
+    // Get the missing data from other curve
+    RiaDefines::CurveProperty replacementProperty = stimPlanModel->getDefaultPropertyForMissingValues( curveProperty );
+
+    std::vector<double> initialValues;
+    std::vector<double> initialMds;
+    std::vector<double> initialTvds;
+    double              initialRkbDiff = -1.0;
+    calculate( replacementProperty, stimPlanModel, timeStep, initialValues, initialMds, initialTvds, initialRkbDiff );
+
+    if ( initialValues.empty() )
+    {
+        RiaLogging::error( QString( "Empty replacement data found for fracture model curve." ) );
+        return false;
+    }
+
+    CVF_ASSERT( values.size() == initialValues.size() );
+    replaceMissingValues( values, initialValues );
     return true;
 }
