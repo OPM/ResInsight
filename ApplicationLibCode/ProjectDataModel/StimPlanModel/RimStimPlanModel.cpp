@@ -1330,12 +1330,13 @@ double RimStimPlanModel::getDefaultValueForProperty( RiaDefines::CurveProperty c
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimStimPlanModel::MissingValueStrategy RimStimPlanModel::missingValueStrategy( RiaDefines::CurveProperty curveProperty ) const
+std::deque<RimStimPlanModel::MissingValueStrategy>
+    RimStimPlanModel::missingValueStrategies( RiaDefines::CurveProperty curveProperty ) const
 {
     if ( curveProperty == RiaDefines::CurveProperty::PRESSURE )
-        return RimStimPlanModel::MissingValueStrategy::OTHER_CURVE_PROPERTY;
+        return { RimStimPlanModel::MissingValueStrategy::OTHER_CURVE_PROPERTY };
     else
-        return RimStimPlanModel::MissingValueStrategy::DEFAULT_VALUE;
+        return { RimStimPlanModel::MissingValueStrategy::DEFAULT_VALUE };
 }
 
 //--------------------------------------------------------------------------------------------------
