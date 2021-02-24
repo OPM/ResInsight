@@ -538,61 +538,53 @@ void RicWellPathExportMswCompletionsImpl::generateCompsegTable(
 {
     for ( auto segment : branch->segments() )
     {
-        double startMD = segment->startMD();
-        double endMD   = segment->endMD();
-
         for ( auto completion : segment->completions() )
         {
-            if ( !completion->segments().empty() && exportCompletionTypes.count( completion->completionType() ) )
-            {
-                if ( !*headerGenerated )
-                {
-                    generateCompsegHeader( formatter, exportInfo, completion->completionType(), exportSubGridIntersections );
-                    *headerGenerated = true;
-                }
+            if ( completion->segments().empty() || !exportCompletionTypes.count( completion->completionType() ) )
+                continue;
 
-                for ( auto subSegment : completion->segments() )
+            if ( !*headerGenerated )
+            {
+                generateCompsegHeader( formatter, exportInfo, completion->completionType(), exportSubGridIntersections );
+                *headerGenerated = true;
+            }
+
+            bool isPerforationValve = completion->completionType() == RigCompletionData::PERFORATION_ICD ||
+                                      completion->completionType() == RigCompletionData::PERFORATION_AICD ||
+                                      completion->completionType() == RigCompletionData::PERFORATION_ICV;
+
+            for ( auto subSegment : completion->segments() )
+            {
+                for ( auto intersection : subSegment->intersections() )
                 {
-                    if ( completion->completionType() == RigCompletionData::FISHBONES_ICD )
+                    bool isSubGridIntersection = !intersection->gridName().isEmpty();
+                    if ( isSubGridIntersection != exportSubGridIntersections ) continue;
+
+                    double startLength = subSegment->startMD();
+                    double endLength   = subSegment->endMD();
+                    if ( isPerforationValve )
                     {
-                        startMD = subSegment->startMD();
-                        endMD   = subSegment->endMD();
+                        startLength = segment->startMD();
+                        endLength   = segment->endMD();
                     }
 
-                    for ( auto intersection : subSegment->intersections() )
+                    cvf::Vec3st ijk = intersection->gridLocalCellIJK();
+                    if ( !intersectedCells->count( ijk ) )
                     {
-                        bool isSubGridIntersection = !intersection->gridName().isEmpty();
-                        if ( isSubGridIntersection == exportSubGridIntersections )
+                        if ( exportSubGridIntersections )
                         {
-                            double startLength = subSegment->startMD();
-                            double endLength   = subSegment->endMD();
-                            if ( completion->completionType() == RigCompletionData::PERFORATION_ICD ||
-                                 completion->completionType() == RigCompletionData::PERFORATION_AICD ||
-                                 completion->completionType() == RigCompletionData::PERFORATION_ICV )
-                            {
-                                startLength = startMD;
-                                endLength   = endMD;
-                            }
-
-                            cvf::Vec3st ijk = intersection->gridLocalCellIJK();
-                            if ( !intersectedCells->count( ijk ) )
-                            {
-                                if ( exportSubGridIntersections )
-                                {
-                                    formatter.add( intersection->gridName() );
-                                }
-
-                                formatter.addOneBasedCellIndex( ijk.x() ).addOneBasedCellIndex( ijk.y() ).addOneBasedCellIndex(
-                                    ijk.z() );
-                                formatter.add( completion->branchNumber() );
-
-                                formatter.add( startLength );
-                                formatter.add( endLength );
-
-                                formatter.rowCompleted();
-                                intersectedCells->insert( ijk );
-                            }
+                            formatter.add( intersection->gridName() );
                         }
+
+                        formatter.addOneBasedCellIndex( ijk.x() ).addOneBasedCellIndex( ijk.y() ).addOneBasedCellIndex(
+                            ijk.z() );
+                        formatter.add( completion->branchNumber() );
+
+                        formatter.add( startLength );
+                        formatter.add( endLength );
+
+                        formatter.rowCompleted();
+                        intersectedCells->insert( ijk );
                     }
                 }
             }
