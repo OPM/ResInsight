@@ -43,21 +43,13 @@ class RimMultipleValveLocations;
 ///
 ///
 //==================================================================================================
-struct SubLateralIndex
-{
-    size_t              subIndex;
-    std::vector<size_t> lateralIndices;
-};
-
-//==================================================================================================
-///
-///
-//==================================================================================================
 class RimFishbones : public caf::PdmObject, public Rim3dPropertiesInterface, public RimWellPathComponentInterface
 {
     CAF_PDM_HEADER_INIT;
 
 public:
+    using SubAndLateralIndex = std::pair<size_t, size_t>;
+
     enum LocationType
     {
         FB_SUB_COUNT_END,
@@ -102,7 +94,7 @@ public:
 
     void geometryUpdated();
 
-    const std::vector<SubLateralIndex>&        installedLateralIndices() const { return m_subLateralIndices; };
+    const std::vector<SubAndLateralIndex>&     installedLateralIndices() const { return m_subLateralIndices; };
     std::vector<cvf::Vec3d>                    coordsForLateral( size_t subIndex, size_t lateralIndex ) const;
     std::vector<std::pair<cvf::Vec3d, double>> coordsAndMDForLateral( size_t subIndex, size_t lateralIndex ) const;
     void                                       recomputeLateralLocations();
@@ -173,7 +165,7 @@ private:
     caf::PdmField<uint> m_randomSeed;
 
     std::unique_ptr<RigFisbonesGeometry> m_rigFishbonesGeometry;
-    std::vector<SubLateralIndex>         m_subLateralIndices;
+    std::vector<SubAndLateralIndex>      m_subLateralIndices;
 
     // Moved to RimMultipleValveLocations
     caf::PdmField<caf::AppEnum<LocationType>> m_subsLocationMode_OBSOLETE;

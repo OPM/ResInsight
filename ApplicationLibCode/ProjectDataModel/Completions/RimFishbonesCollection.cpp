@@ -253,9 +253,9 @@ void RimFishbonesCollection::recalculateStartMD()
 
     for ( const RimFishbones* sub : m_fishbones() )
     {
-        for ( auto& index : sub->installedLateralIndices() )
+        for ( const auto& subAndLateralIndex : sub->installedLateralIndices() )
         {
-            minStartMD = std::min( minStartMD, sub->measuredDepth( index.subIndex ) - 13.0 );
+            minStartMD = std::min( minStartMD, sub->measuredDepth( subAndLateralIndex.first ) - 13.0 );
         }
     }
 

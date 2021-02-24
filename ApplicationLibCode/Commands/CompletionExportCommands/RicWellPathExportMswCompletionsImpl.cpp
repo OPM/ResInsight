@@ -952,9 +952,15 @@ void RicWellPathExportMswCompletionsImpl::generateFishbonesMswExportInfo(
 
     for ( RimFishbones* subs : fishbonesSubs )
     {
-        for ( auto& sub : subs->installedLateralIndices() )
+        std::map<size_t, std::vector<size_t>> subAndLateralIndices;
+        for ( const auto& [subIndex, lateralIndex] : subs->installedLateralIndices() )
         {
-            double subEndMD  = subs->measuredDepth( sub.subIndex );
+            subAndLateralIndices[subIndex].push_back( lateralIndex );
+        }
+
+        for ( const auto& sub : subAndLateralIndices )
+        {
+            double subEndMD  = subs->measuredDepth( sub.first );
             double subEndTVD = RicWellPathExportMswCompletionsImpl::tvdFromMeasuredDepth( branch->wellPath(), subEndMD );
 
             {
@@ -963,7 +969,7 @@ void RicWellPathExportMswCompletionsImpl::generateFishbonesMswExportInfo(
                                                                 subEndMD,
                                                                 subStartTVD,
                                                                 subEndTVD,
-                                                                sub.subIndex );
+                                                                sub.first );
                 segment->setEffectiveDiameter( subs->effectiveDiameter( unitSystem ) );
                 segment->setHoleDiameter( subs->holeDiameter( unitSystem ) );
                 segment->setOpenHoleRoughnessFactor( subs->openHoleRoughnessFactor( unitSystem ) );
@@ -974,7 +980,7 @@ void RicWellPathExportMswCompletionsImpl::generateFishbonesMswExportInfo(
                 auto icdCompletion =
                     std::make_unique<RicMswFishbonesICD>( QString( "ICD" ), wellPath, subEndMD, subEndTVD, nullptr );
                 auto icdSegment =
-                    std::make_unique<RicMswSegment>( "ICD segment", subEndMD, subEndMD + 0.1, subEndTVD, subEndTVD, sub.subIndex );
+                    std::make_unique<RicMswSegment>( "ICD segment", subEndMD, subEndMD + 0.1, subEndTVD, subEndTVD, sub.first );
                 icdCompletion->setFlowCoefficient( subs->icdFlowCoefficient() );
                 double icdOrificeRadius = subs->icdOrificeDiameter( unitSystem ) / 2;
                 icdCompletion->setArea( icdOrificeRadius * icdOrificeRadius * cvf::PI_D * subs->icdCount() );
@@ -982,7 +988,7 @@ void RicWellPathExportMswCompletionsImpl::generateFishbonesMswExportInfo(
                 icdCompletion->addSegment( std::move( icdSegment ) );
                 segment->addCompletion( std::move( icdCompletion ) );
 
-                for ( size_t lateralIndex : sub.lateralIndices )
+                for ( auto lateralIndex : sub.second )
                 {
                     QString label = QString( "Lateral %1" ).arg( lateralIndex );
                     segment->addCompletion(

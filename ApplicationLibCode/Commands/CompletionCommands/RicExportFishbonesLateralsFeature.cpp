@@ -71,34 +71,31 @@ void RicExportFishbonesLateralsFeature::onActionTriggered( bool isChecked )
         {
             const QString fishboneName = fishbone->generatedName();
 
-            for ( auto& sub : fishbone->installedLateralIndices() )
+            for ( const auto& [subIndex, lateralIndex] : fishbone->installedLateralIndices() )
             {
-                for ( size_t lateralIndex : sub.lateralIndices )
+                std::vector<std::pair<cvf::Vec3d, double>> coordsAndMD =
+                    fishbone->coordsAndMDForLateral( subIndex, lateralIndex );
+
+                std::vector<cvf::Vec3d> lateralCoords;
+                std::vector<double>     lateralMDs;
+
+                lateralCoords.reserve( coordsAndMD.size() );
+                lateralMDs.reserve( coordsAndMD.size() );
+
+                for ( auto& coordMD : coordsAndMD )
                 {
-                    std::vector<std::pair<cvf::Vec3d, double>> coordsAndMD =
-                        fishbone->coordsAndMDForLateral( sub.subIndex, lateralIndex );
-
-                    std::vector<cvf::Vec3d> lateralCoords;
-                    std::vector<double>     lateralMDs;
-
-                    lateralCoords.reserve( coordsAndMD.size() );
-                    lateralMDs.reserve( coordsAndMD.size() );
-
-                    for ( auto& coordMD : coordsAndMD )
-                    {
-                        lateralCoords.push_back( coordMD.first );
-                        lateralMDs.push_back( coordMD.second );
-                    }
-
-                    RigWellPath geometry( lateralCoords, lateralMDs );
-
-                    // Pad with "0" to get a total of two characters defining the sub index text
-                    QString subIndexText = QString( "%1" ).arg( sub.subIndex, 2, 10, QChar( '0' ) );
-                    QString lateralName =
-                        QString( "%1_%2_Sub%3_Lat%4" ).arg( wellPath->name() ).arg( fishboneName ).arg( subIndexText ).arg( lateralIndex );
-
-                    EXP::writeWellPathGeometryToStream( *stream, geometry, lateralName, mdStepSize, false, 0.0, false );
+                    lateralCoords.push_back( coordMD.first );
+                    lateralMDs.push_back( coordMD.second );
                 }
+
+                RigWellPath geometry( lateralCoords, lateralMDs );
+
+                // Pad with "0" to get a total of two characters defining the sub index text
+                QString subIndexText = QString( "%1" ).arg( subIndex, 2, 10, QChar( '0' ) );
+                QString lateralName =
+                    QString( "%1_%2_Sub%3_Lat%4" ).arg( wellPath->name() ).arg( fishboneName ).arg( subIndexText ).arg( lateralIndex );
+
+                EXP::writeWellPathGeometryToStream( *stream, geometry, lateralName, mdStepSize, false, 0.0, false );
             }
         }
 

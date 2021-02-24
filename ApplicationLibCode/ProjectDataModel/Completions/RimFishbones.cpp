@@ -38,6 +38,7 @@
 
 #include <cmath>
 #include <cstdlib>
+#include <random>
 
 CAF_PDM_SOURCE_INIT( RimFishbones, "FishbonesMultipleSubs" );
 
@@ -652,16 +653,13 @@ cvf::BoundingBox RimFishbones::boundingBoxInDomainCoords() const
 {
     cvf::BoundingBox bb;
 
-    for ( auto& sub : installedLateralIndices() )
+    for ( const auto& [subIndex, lateralIndex] : installedLateralIndices() )
     {
-        for ( size_t lateralIndex : sub.lateralIndices )
-        {
-            std::vector<cvf::Vec3d> coords = coordsForLateral( sub.subIndex, lateralIndex );
+        std::vector<cvf::Vec3d> coords = coordsForLateral( subIndex, lateralIndex );
 
-            for ( auto c : coords )
-            {
-                bb.add( c );
-            }
+        for ( const auto& c : coords )
+        {
+            bb.add( c );
         }
     }
 
@@ -699,33 +697,21 @@ void RimFishbones::computeRotationAngles()
 //--------------------------------------------------------------------------------------------------
 void RimFishbones::computeSubLateralIndices()
 {
-    m_subLateralIndices.clear();
+    std::vector<SubAndLateralIndex> subLateralCandidates;
     for ( size_t subIndex = 0; subIndex < m_valveLocations->valveLocations().size(); ++subIndex )
     {
-        SubLateralIndex subLateralIndex;
-        subLateralIndex.subIndex = subIndex;
-
         for ( int lateralIndex = 0; lateralIndex < m_lateralCountPerSub(); ++lateralIndex )
         {
-            subLateralIndex.lateralIndices.push_back( lateralIndex );
+            subLateralCandidates.push_back( std::make_pair( subIndex, lateralIndex ) );
         }
-        m_subLateralIndices.push_back( subLateralIndex );
     }
+
+    std::mt19937 randomEngine( m_randomSeed() );
+    std::shuffle( subLateralCandidates.begin(), subLateralCandidates.end(), randomEngine );
+
     double numLaterals = static_cast<double>( m_valveLocations->valveLocations().size() * m_lateralCountPerSub );
-    int    numToRemove = static_cast<int>( std::round( ( 1 - m_lateralInstallSuccessFraction ) * numLaterals ) );
-    srand( m_randomSeed() );
-    while ( numToRemove > 0 )
-    {
-        int subIndexToRemove;
-        do
-        {
-            subIndexToRemove = rand() % m_subLateralIndices.size();
-        } while ( m_subLateralIndices[subIndexToRemove].lateralIndices.empty() );
-        int lateralIndexToRemove = rand() % m_subLateralIndices[subIndexToRemove].lateralIndices.size();
-        m_subLateralIndices[subIndexToRemove].lateralIndices.erase(
-            m_subLateralIndices[subIndexToRemove].lateralIndices.begin() + lateralIndexToRemove );
-        --numToRemove;
-    }
+    m_subLateralIndices =
+        std::vector<SubAndLateralIndex>( subLateralCandidates.begin(), subLateralCandidates.begin() + numLaterals );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -733,14 +719,9 @@ void RimFishbones::computeSubLateralIndices()
 //--------------------------------------------------------------------------------------------------
 int RimFishbones::randomValueFromRange( int min, int max )
 {
-    // See http://www.cplusplus.com/reference/cstdlib/rand/
-
-    int range               = abs( max - min );
-    int randomNumberInRange = rand() % range;
-
-    int randomValue = min + randomNumberInRange;
-
-    return randomValue;
+    std::default_random_engine         generator;
+    std::uniform_int_distribution<int> distribution( min, max );
+    return distribution( generator );
 }
 
 //--------------------------------------------------------------------------------------------------
