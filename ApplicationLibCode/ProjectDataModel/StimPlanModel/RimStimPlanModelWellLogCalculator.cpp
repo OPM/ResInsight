@@ -95,12 +95,18 @@ bool RimStimPlanModelWellLogCalculator::calculate( RiaDefines::CurveProperty cur
         addUnderburden( curveProperty, stimPlanModel, tvDepthValues, measuredDepthValues, values );
     }
 
-    if ( hasMissingValues( values ) )
-    {
-        QString resultVariable = stimPlanModel->eclipseResultVariable( curveProperty );
+    std::deque<RimStimPlanModel::MissingValueStrategy> missingValueStratgies =
+        stimPlanModel->missingValueStrategies( curveProperty );
 
-        if ( stimPlanModel->missingValueStrategy( curveProperty ) == RimStimPlanModel::MissingValueStrategy::DEFAULT_VALUE )
+    while ( hasMissingValues( values ) && !missingValueStratgies.empty() )
+    {
+        RimStimPlanModel::MissingValueStrategy strategy = missingValueStratgies.front();
+        missingValueStratgies.pop_front();
+
+        if ( strategy == RimStimPlanModel::MissingValueStrategy::DEFAULT_VALUE )
         {
+            QString resultVariable = stimPlanModel->eclipseResultVariable( curveProperty );
+
             // Input properties must use first time step
             int replacementTimeStep = 0;
             if ( !replaceMissingValuesWithDefault( curveProperty, stimPlanModel, replacementTimeStep, resultVariable, values ) )
@@ -108,12 +114,11 @@ bool RimStimPlanModelWellLogCalculator::calculate( RiaDefines::CurveProperty cur
                 return false;
             }
         }
-        else if ( stimPlanModel->missingValueStrategy( curveProperty ) ==
-                  RimStimPlanModel::MissingValueStrategy::LINEAR_INTERPOLATION )
+        else if ( strategy == RimStimPlanModel::MissingValueStrategy::LINEAR_INTERPOLATION )
         {
             RiaInterpolationTools::interpolateMissingValues( measuredDepthValues, values );
         }
-        else
+        else if ( strategy == RimStimPlanModel::MissingValueStrategy::OTHER_CURVE_PROPERTY )
         {
             // Get the missing data from other curve
             RiaDefines::CurveProperty replacementProperty =

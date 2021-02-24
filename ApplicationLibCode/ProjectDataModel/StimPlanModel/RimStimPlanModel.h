@@ -43,6 +43,8 @@ class RimTextAnnotation;
 class RimStimPlanModelCalculator;
 class RimColorLegend;
 
+#include <deque>
+
 //==================================================================================================
 ///
 ///
@@ -167,10 +169,10 @@ public:
 
     std::shared_ptr<RimStimPlanModelCalculator> calculator() const;
 
-    RimStimPlanModel::MissingValueStrategy missingValueStrategy( RiaDefines::CurveProperty curveProperty ) const;
-    RimStimPlanModel::BurdenStrategy       burdenStrategy( RiaDefines::CurveProperty curveProperty ) const;
-    RiaDefines::ResultCatType              eclipseResultCategory( RiaDefines::CurveProperty curveProperty ) const;
-    QString                                eclipseResultVariable( RiaDefines::CurveProperty curveProperty ) const;
+    std::deque<RimStimPlanModel::MissingValueStrategy> missingValueStrategies( RiaDefines::CurveProperty curveProperty ) const;
+    RimStimPlanModel::BurdenStrategy                   burdenStrategy( RiaDefines::CurveProperty curveProperty ) const;
+    RiaDefines::ResultCatType eclipseResultCategory( RiaDefines::CurveProperty curveProperty ) const;
+    QString                   eclipseResultVariable( RiaDefines::CurveProperty curveProperty ) const;
 
     static double findFaciesValue( const RimColorLegend& colorLegend, const QString& name );
 
