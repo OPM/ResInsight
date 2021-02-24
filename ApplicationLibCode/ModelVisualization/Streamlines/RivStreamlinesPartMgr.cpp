@@ -190,26 +190,26 @@ cvf::ref<cvf::Part> RivStreamlinesPartMgr::createPart( const RimStreamlineInView
     cvf::ref<cvf::Vec3fArray> vertexArray = new cvf::Vec3fArray( vertices );
     drawable->setVertexArray( vertexArray.p() );
 
-    // cvf::ref<cvf::Vec2fArray> lineTexCoords = const_cast<cvf::Vec2fArray*>( drawable->textureCoordArray() );
+    cvf::ref<cvf::Vec2fArray> lineTexCoords = const_cast<cvf::Vec2fArray*>( drawable->textureCoordArray() );
 
-    // if ( lineTexCoords.isNull() )
-    //{
-    //    lineTexCoords = new cvf::Vec2fArray;
-    //}
+    if ( lineTexCoords.isNull() )
+    {
+        lineTexCoords = new cvf::Vec2fArray;
+    }
 
-    // cvf::ref<cvf::Effect> effect;
+    cvf::ref<cvf::Effect> effect;
 
-    // const cvf::ScalarMapper* activeScalarMapper = streamlineCollection.legendConfig()->scalarMapper();
-    // createResultColorTextureCoords( lineTexCoords.p(), streamline, activeScalarMapper );
+    const cvf::ScalarMapper* activeScalarMapper = streamlineCollection.legendConfig()->scalarMapper();
+    createResultColorTextureCoords( lineTexCoords.p(), streamline, activeScalarMapper );
 
-    // caf::ScalarMapperMeshEffectGenerator meshEffGen( activeScalarMapper );
-    // effect = meshEffGen.generateCachedEffect();
+    caf::ScalarMapperMeshEffectGenerator meshEffGen( activeScalarMapper );
+    effect = meshEffGen.generateCachedEffect();
 
-    caf::MeshEffectGenerator effgen( cvf::Color3f( 0.0, 0.0, 0.95 ) );
-    effgen.setLineWidth( 2 );
-    cvf::ref<cvf::Effect> effect = effgen.generateCachedEffect();
+    drawable->setTextureCoordArray( lineTexCoords.p() );
 
-    // drawable->setTextureCoordArray( lineTexCoords.p() );
+    // caf::MeshEffectGenerator effgen( cvf::Color3f( 0.0, 0.0, 0.95 ) );
+    // effgen.setLineWidth( 2 );
+    // cvf::ref<cvf::Effect> effect = effgen.generateCachedEffect();
 
     cvf::ref<cvf::Part> part = new cvf::Part;
     part->setDrawable( drawable.p() );

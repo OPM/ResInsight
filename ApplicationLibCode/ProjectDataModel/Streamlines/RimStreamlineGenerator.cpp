@@ -46,6 +46,9 @@ void RimStreamlineGenerator::generateTracer( RigCell                    cell,
                                              QString                    simWellName,
                                              std::list<RimStreamline*>& outStreamlines )
 {
+    //if ( simWellName != "C-2H" ) return;
+    //if ( cell.mainGridCellIndex() != 67597 ) return;
+
     // calculate the max number of steps based on user settings for length and resolution
     const int maxSteps = (int)( m_maxDays / m_resolution );
 

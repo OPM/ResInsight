@@ -23,12 +23,12 @@
 #include "RigMainGrid.h"
 #include "RimStreamline.h"
 
-const std::list<cvf::StructGridInterface::FaceType> _internal_faces = { cvf::StructGridInterface::FaceType::POS_I,
-                                                                        cvf::StructGridInterface::FaceType::NEG_I,
-                                                                        cvf::StructGridInterface::FaceType::POS_J,
-                                                                        cvf::StructGridInterface::FaceType::NEG_J,
-                                                                        cvf::StructGridInterface::FaceType::POS_K,
-                                                                        cvf::StructGridInterface::FaceType::NEG_K };
+const std::list<cvf::StructGridInterface::FaceType> _internal_faces = {cvf::StructGridInterface::FaceType::POS_I,
+                                                                       cvf::StructGridInterface::FaceType::NEG_I,
+                                                                       cvf::StructGridInterface::FaceType::POS_J,
+                                                                       cvf::StructGridInterface::FaceType::NEG_J,
+                                                                       cvf::StructGridInterface::FaceType::POS_K,
+                                                                       cvf::StructGridInterface::FaceType::NEG_K};
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -55,6 +55,7 @@ void RimStreamlineGeneratorBase::setLimits( double flowThreshold, int maxDays, d
     m_flowThreshold = flowThreshold;
     m_maxDays       = maxDays;
     m_resolution    = resolutionInDays;
+    m_maxPoints     = maxDays / resolutionInDays;
 }
 
 void RimStreamlineGeneratorBase::initGenerator( RimStreamlineDataAccess*         dataAccess,

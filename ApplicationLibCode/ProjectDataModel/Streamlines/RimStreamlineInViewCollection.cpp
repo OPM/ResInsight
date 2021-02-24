@@ -50,6 +50,7 @@
 
 #include "RimStreamlineDataAccess.h"
 #include "RimStreamlineGenerator.h"
+#include "RimStreamlineGenerator2.h"
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -117,14 +118,6 @@ RimStreamlineInViewCollection::RimStreamlineInViewCollection()
     m_isActive.xmlCapability()->setIOReadable( false );
 
     CAF_PDM_InitFieldNoDefault( &m_visualizationMode, "VisualizationMode", "Visualization Mode", "", "", "" );
-
-    CAF_PDM_InitFieldNoDefault( &m_distanceBetweenTracerPoints,
-                                "DistanceBetweenTracerPoints",
-                                "Distance Between Tracer Points",
-                                "",
-                                "",
-                                "" );
-    m_distanceBetweenTracerPoints = 10.0;
 
     CAF_PDM_InitFieldNoDefault( &m_animationSpeed, "AnimationSpeed", "Animation Speed", "", "", "" );
     m_animationSpeed.uiCapability()->setUiEditorTypeName( caf::PdmUiSliderEditor::uiEditorTypeName() );
@@ -241,7 +234,6 @@ const std::list<RigTracer>& RimStreamlineInViewCollection::tracers()
     {
         if ( streamline->tracer().size() > 1 )
         {
-            // TODO - add filter for active simulation wells here
             m_activeTracers.push_back( streamline->tracer() );
         }
     }
@@ -298,17 +290,12 @@ void RimStreamlineInViewCollection::updateLegendRangesTextAndVisibility( RiuView
     }
 }
 
-void RimStreamlineInViewCollection::updateFromCurrentTimeStep()
-{
-    updateStreamlines();
-}
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RimStreamlineInViewCollection::distanceBetweenTracerPoints() const
+void RimStreamlineInViewCollection::updateFromCurrentTimeStep()
 {
-    return m_distanceBetweenTracerPoints();
+    updateStreamlines();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -423,52 +410,56 @@ void RimStreamlineInViewCollection::updateStreamlines()
         findStartCells( timeIdx, seedCellsInjector, seedCellsProducer );
 
         RimStreamlineDataAccess dataAccess;
-        dataAccess.setupDataAccess( eclipseCase()->eclipseCaseData()->mainGrid(),
-                                    eclipseCase()->eclipseCaseData(),
-                                    phases(),
-                                    timeIdx );
 
-        RimStreamlineGenerator generator( m_wellCellIds );
+        bool accessOk = dataAccess.setupDataAccess( eclipseCase()->eclipseCaseData()->mainGrid(),
+                                                    eclipseCase()->eclipseCaseData(),
+                                                    phases(),
+                                                    timeIdx );
 
-        generator.setLimits( m_flowThreshold, m_maxDays, m_resolution );
-        generator.initGenerator( &dataAccess, phases(), m_density );
-
-        const int reverseDirection = -1.0;
-        const int normalDirection  = 1.0;
-
-        std::list<RimStreamline*> streamlines;
-
-        // generate tracers for all injectors
-        for ( auto& cellinfo : seedCellsInjector )
+        if ( accessOk )
         {
-            generator.generateTracer( cellinfo.second, normalDirection, cellinfo.first, streamlines );
-        }
-        // generate tracers for all producers, make sure to invert the direction to backtrack the traces
-        for ( auto& cellinfo : seedCellsProducer )
-        {
-            generator.generateTracer( cellinfo.second, reverseDirection, cellinfo.first, streamlines );
-        }
+            RimStreamlineGenerator2 generator( m_wellCellIds );
 
-        m_maxAnimationIndex = 0;
-        for ( auto& sline : streamlines )
-        {
-            if ( sline && sline->tracer().tracerPoints().size() > 0 )
+            generator.setLimits( m_flowThreshold, m_maxDays, m_resolution );
+            generator.initGenerator( &dataAccess, phases(), m_density );
+
+            const int reverseDirection = -1.0;
+            const int normalDirection  = 1.0;
+
+            std::list<RimStreamline*> streamlines;
+
+            // generate tracers for all injectors
+            for ( auto& cellinfo : seedCellsInjector )
             {
-                double distance = sline->tracer().totalDistance();
-
-                if ( distance >= m_lengthThreshold )
-                {
-                    m_maxAnimationIndex = std::max( sline->tracer().tracerPoints().size(), m_maxAnimationIndex );
-                    sline->generateStatistics();
-                    m_streamlines.push_back( sline );
-                    sline = nullptr;
-                }
-                if ( sline ) delete sline;
+                generator.generateTracer( cellinfo.second, normalDirection, cellinfo.first, streamlines );
             }
-        }
+            // generate tracers for all producers, make sure to invert the direction to backtrack the traces
+            for ( auto& cellinfo : seedCellsProducer )
+            {
+                generator.generateTracer( cellinfo.second, reverseDirection, cellinfo.first, streamlines );
+            }
 
-        outputSummary();
-        bNeedRedraw = true;
+            m_maxAnimationIndex = 0;
+            for ( auto& sline : streamlines )
+            {
+                if ( sline && sline->tracer().tracerPoints().size() > 0 )
+                {
+                    double distance = sline->tracer().totalDistance();
+
+                    if ( distance >= m_lengthThreshold )
+                    {
+                        m_maxAnimationIndex = std::max( sline->tracer().tracerPoints().size(), m_maxAnimationIndex );
+                        sline->generateStatistics();
+                        m_streamlines.push_back( sline );
+                        sline = nullptr;
+                    }
+                    if ( sline ) delete sline;
+                }
+            }
+
+            outputSummary();
+            bNeedRedraw = true;
+        }
     }
 
     if ( bNeedRedraw ) eclView->scheduleCreateDisplayModelAndRedraw();
@@ -511,7 +502,7 @@ void RimStreamlineInViewCollection::defineUiOrdering( QString uiConfigName, caf:
 
     caf::PdmUiGroup* visualizationGroup = uiOrdering.addNewGroup( "Visualization Settings" );
     visualizationGroup->add( &m_visualizationMode );
-    // visualizationGroup->add( &m_distanceBetweenTracerPoints );
+
     if ( m_visualizationMode() == VisualizationMode::ANIMATION )
     {
         visualizationGroup->add( &m_animationSpeed );
@@ -621,10 +612,12 @@ void RimStreamlineInViewCollection::fieldChangedByUi( const caf::PdmFieldHandle*
     {
         return;
     }
-    else if ( changedField == &m_isActive )
+
+    RimEclipseView* eclView = nullptr;
+    this->firstAncestorOrThisOfType( eclView );
+
+    if ( changedField == &m_isActive )
     {
-        RimEclipseView* eclView = nullptr;
-        this->firstAncestorOrThisOfType( eclView );
         if ( eclView )
         {
             if ( m_isActive() )
@@ -634,5 +627,5 @@ void RimStreamlineInViewCollection::fieldChangedByUi( const caf::PdmFieldHandle*
         }
     }
 
-    updateStreamlines();
+    if ( eclView ) eclView->scheduleCreateDisplayModelAndRedraw();
 }

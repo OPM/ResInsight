@@ -202,6 +202,37 @@ double RimStreamlineDataAccess::faceValue( RigCell                            ce
     return negFaceValue( cell, faceIdx, phase );
 }
 
+
+//--------------------------------------------------------------------------------------------------
+/// Return the face scalar value for the given cell and face, by combining flow for all specified phases
+//--------------------------------------------------------------------------------------------------
+double RimStreamlineDataAccess::combinedFaceValue( RigCell                            cell,
+                                                   cvf::StructGridInterface::FaceType faceIdx,
+                                                   std::list<RiaDefines::PhaseType>   phases,
+                                           RiaDefines::PhaseType&              outDominantPhase ) const
+{
+    double retValue = 0.0;
+    outDominantPhase = phases.front();
+
+    double max = 0.0;
+
+    for (auto phase : phases)
+    {
+        double tmp = 0.0;
+        if ( faceIdx % 2 == 0 ) tmp = posFaceValue( cell, faceIdx, phase );
+        else tmp = negFaceValue( cell, faceIdx, phase );
+        if ( abs(tmp) > max )
+        {
+            outDominantPhase = phase;
+            max              = abs( tmp );
+        }
+        retValue += tmp;
+    }
+
+    return retValue;
+}
+
+
 //--------------------------------------------------------------------------------------------------
 /// Calculate the average direction inside the cell by adding the scaled face normals of all faces
 //--------------------------------------------------------------------------------------------------

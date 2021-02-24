@@ -55,6 +55,8 @@ protected:
     double m_resolution;
     int    m_density;
 
+    size_t m_maxPoints;
+
     std::set<size_t> m_visitedCells;
 
     std::set<size_t>& m_wellCells;
@@ -62,10 +64,10 @@ protected:
     RimStreamlineDataAccess*         m_dataAccess;
     std::list<RiaDefines::PhaseType> m_phases;
 
-    const std::list<cvf::StructGridInterface::FaceType> m_allFaces = { cvf::StructGridInterface::FaceType::POS_I,
-                                                                       cvf::StructGridInterface::FaceType::NEG_I,
-                                                                       cvf::StructGridInterface::FaceType::POS_J,
-                                                                       cvf::StructGridInterface::FaceType::NEG_J,
-                                                                       cvf::StructGridInterface::FaceType::POS_K,
-                                                                       cvf::StructGridInterface::FaceType::NEG_K };
+    const std::list<cvf::StructGridInterface::FaceType> m_allFaces = {cvf::StructGridInterface::FaceType::POS_I,
+                                                                      cvf::StructGridInterface::FaceType::NEG_I,
+                                                                      cvf::StructGridInterface::FaceType::POS_J,
+                                                                      cvf::StructGridInterface::FaceType::NEG_J,
+                                                                      cvf::StructGridInterface::FaceType::POS_K,
+                                                                      cvf::StructGridInterface::FaceType::NEG_K};
 };

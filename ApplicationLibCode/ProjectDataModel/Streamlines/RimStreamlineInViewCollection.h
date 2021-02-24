@@ -76,7 +76,6 @@ public:
     std::list<RiaDefines::PhaseType> phases() const;
 
     VisualizationMode visualizationMode() const;
-    double            distanceBetweenTracerPoints() const;
     size_t            animationSpeed() const;
     size_t            animationIndex() const;
     double            scaleFactor() const;
@@ -120,7 +119,6 @@ private:
     caf::PdmChildArrayField<RimStreamline*> m_streamlines;
     caf::PdmField<StreamlinePhaseTypeEnum>  m_phases;
     caf::PdmField<VisualizationModeEnum>    m_visualizationMode;
-    caf::PdmField<double>                   m_distanceBetweenTracerPoints;
     caf::PdmField<size_t>                   m_animationSpeed;
     caf::PdmField<size_t>                   m_animationIndex;
     caf::PdmField<double>                   m_scaleFactor;
