@@ -59,7 +59,7 @@ void RimStreamlineGenerator2::generateTracer( RigCell                    cell,
         double flowrate = m_dataAccess->combinedFaceValue( cell, faceIdx, m_phases, dominantPhase ) * direction;
         if ( flowrate > m_flowThreshold )
         {
-            m_seeds.push_back( std::make_pair( cell.gridLocalCellIndex(), faceIdx ) );
+            m_seeds.push_back( std::make_pair( cellIdx, faceIdx ) );
         }
     }
 

@@ -96,13 +96,13 @@ RimStreamlineInViewCollection::RimStreamlineInViewCollection()
     m_collectionName.uiCapability()->setUiReadOnly( true );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_flowThreshold, "FlowThreshold", "Flow Threshold [m/day]", "", "", "" );
-    m_flowThreshold = 0.000001;
+    m_flowThreshold = 0.0001;
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_lengthThreshold, "LengthThreshold", "Minimum Length [m]", "", "", "" );
-    m_lengthThreshold = 20.0;
+    m_lengthThreshold = 50.0;
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_resolution, "Resolution", "Resolution [days]", "", "", "" );
-    m_resolution = 10.0;
+    m_resolution = 20.0;
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_density, "Density", "Density", "", "", "" );
     m_density.uiCapability()->setUiEditorTypeName( caf::PdmUiSliderEditor::uiEditorTypeName() );
@@ -144,7 +144,7 @@ RimStreamlineInViewCollection::RimStreamlineInViewCollection()
     m_streamlines.uiCapability()->setUiTreeHidden( true );
     m_streamlines.xmlCapability()->disableIO();
 
-    uiCapability()->setUiTreeChildrenHidden( true );
+    // uiCapability()->setUiTreeChildrenHidden( true );
 
     m_eclipseCase = nullptr;
 
@@ -442,13 +442,13 @@ void RimStreamlineInViewCollection::updateStreamlines()
             m_maxAnimationIndex = 0;
             for ( auto& sline : streamlines )
             {
-                if ( sline && sline->tracer().tracerPoints().size() > 0 )
+                if ( sline && sline->size() > 0 )
                 {
                     double distance = sline->tracer().totalDistance();
 
                     if ( distance >= m_lengthThreshold )
                     {
-                        m_maxAnimationIndex = std::max( sline->tracer().tracerPoints().size(), m_maxAnimationIndex );
+                        m_maxAnimationIndex = std::max( sline->size(), m_maxAnimationIndex );
                         sline->generateStatistics();
                         m_streamlines.push_back( sline );
                         sline = nullptr;
@@ -498,7 +498,7 @@ void RimStreamlineInViewCollection::defineUiOrdering( QString uiConfigName, caf:
     dataGroup->add( &m_lengthThreshold );
     dataGroup->add( &m_resolution );
     dataGroup->add( &m_maxDays );
-    dataGroup->add( &m_density );
+    // dataGroup->add( &m_density );
 
     caf::PdmUiGroup* visualizationGroup = uiOrdering.addNewGroup( "Visualization Settings" );
     visualizationGroup->add( &m_visualizationMode );

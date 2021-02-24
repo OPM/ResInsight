@@ -117,7 +117,7 @@ void RimStreamline::generateStatistics()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const size_t RimStreamline::size() const
+size_t RimStreamline::size() const
 {
     return m_tracer.size();
 }

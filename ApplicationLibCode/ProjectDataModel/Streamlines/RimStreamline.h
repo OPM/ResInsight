@@ -42,7 +42,7 @@ public:
 
     const RigTracer& tracer() const;
     const QString    simWellName() const;
-    const size_t     size() const;
+    size_t           size() const;
 
     void addTracerPoint( cvf::Vec3d position, cvf::Vec3d direction, RiaDefines::PhaseType dominantPhase );
     void reverse();
