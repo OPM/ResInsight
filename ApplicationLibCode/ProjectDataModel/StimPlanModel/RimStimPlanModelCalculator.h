@@ -21,6 +21,7 @@
 
 #include "RimStimPlanModelPropertyCalculator.h"
 
+#include <map>
 #include <memory>
 #include <vector>
 
@@ -66,6 +67,8 @@ public:
 
     void calculateTemperature( std::vector<double>& temperatures ) const;
 
+    void clearCache();
+
 protected:
     std::vector<double> findCurveAndComputeLayeredAverage( RiaDefines::CurveProperty curveProperty ) const;
     std::vector<double> findCurveXValuesByProperty( RiaDefines::CurveProperty curveProperty ) const;
@@ -93,4 +96,8 @@ protected:
 private:
     RimStimPlanModel*                                                m_stimPlanModel;
     std::vector<std::unique_ptr<RimStimPlanModelPropertyCalculator>> m_resultCalculators;
+
+    typedef std::pair<RiaDefines::CurveProperty, int>                                         ResultKey;
+    typedef std::tuple<std::vector<double>, std::vector<double>, std::vector<double>, double> ResultData;
+    mutable std::map<ResultKey, ResultData>                                                   m_resultCache;
 };

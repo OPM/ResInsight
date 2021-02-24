@@ -379,6 +379,7 @@ void RimStimPlanModel::fieldChangedByUi( const caf::PdmFieldHandle* changedField
     }
     else
     {
+        m_calculator->clearCache();
         updateViewsAndPlots();
     }
 }
@@ -1692,6 +1693,8 @@ RimStimPlanModelTemplate* RimStimPlanModel::stimPlanModelTemplate() const
 //--------------------------------------------------------------------------------------------------
 void RimStimPlanModel::stimPlanModelTemplateChanged( const caf::SignalEmitter* emitter )
 {
+    m_calculator->clearCache();
+
     if ( m_stimPlanModelTemplate() )
     {
         m_eclipseCase                = m_stimPlanModelTemplate()->dynamicEclipseCase();
