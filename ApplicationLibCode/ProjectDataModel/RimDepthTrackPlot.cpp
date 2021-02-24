@@ -235,7 +235,12 @@ size_t RimDepthTrackPlot::plotIndex( const RimPlot* plot ) const
 //--------------------------------------------------------------------------------------------------
 RimPlot* RimDepthTrackPlot::plotByIndex( size_t index ) const
 {
-    return m_plots[index];
+    if ( index < m_plots.size() )
+    {
+        return m_plots[index];
+    }
+
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

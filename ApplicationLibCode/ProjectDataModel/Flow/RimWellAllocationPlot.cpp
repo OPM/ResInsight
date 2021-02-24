@@ -984,7 +984,6 @@ void RimWellAllocationPlot::updateFormationNamesData() const
     for ( size_t i = 0; i < m_accumulatedWellFlowPlot->plotCount(); ++i )
     {
         RimWellLogTrack* track = dynamic_cast<RimWellLogTrack*>( m_accumulatedWellFlowPlot->plotByIndex( i ) );
-        CAF_ASSERT( track );
         if ( track )
         {
             track->setAndUpdateSimWellFormationNamesData( m_case, m_wellName );

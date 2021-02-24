@@ -192,7 +192,6 @@ void RimWellRftPlot::updateFormationsOnPlot() const
 
         RimCase*         formationNamesCase = nullptr;
         RimWellLogTrack* track              = dynamic_cast<RimWellLogTrack*>( plotByIndex( 0 ) );
-        CAF_ASSERT( track );
         if ( track )
         {
             formationNamesCase = track->formationNamesCase();
@@ -395,8 +394,6 @@ void RimWellRftPlot::updateEditorsFromCurves()
 void RimWellRftPlot::syncCurvesFromUiSelection()
 {
     RimWellLogTrack* plotTrack = dynamic_cast<RimWellLogTrack*>( plotByIndex( 0 ) );
-
-    CAF_ASSERT( plotTrack );
     if ( !plotTrack ) return;
 
     std::set<RiaRftPltCurveDefinition> allCurveDefs    = selectedCurveDefs();
@@ -460,7 +457,6 @@ std::set<RiaRftPltCurveDefinition> RimWellRftPlot::curveDefsFromCurves() const
     std::set<RiaRftPltCurveDefinition> curveDefs;
 
     RimWellLogTrack* const plotTrack = dynamic_cast<RimWellLogTrack*>( plotByIndex( 0 ) );
-    CAF_ASSERT( plotTrack );
     if ( plotTrack )
     {
         for ( RimWellLogCurve* const curve : plotTrack->curves() )
@@ -481,7 +477,6 @@ void RimWellRftPlot::updateCurvesInPlot( const std::set<RiaRftPltCurveDefinition
     const QString simWellName = associatedSimWellName();
 
     RimWellLogTrack* const plotTrack = dynamic_cast<RimWellLogTrack*>( plotByIndex( 0 ) );
-    CAF_ASSERT( plotTrack );
     if ( !plotTrack ) return;
 
     // Delete curves
@@ -966,7 +961,6 @@ void RimWellRftPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
     if ( plotCount() > 0 )
     {
         RimWellLogTrack* const track = dynamic_cast<RimWellLogTrack*>( plotByIndex( 0 ) );
-        CAF_ASSERT( track );
         if ( track )
         {
             track->uiOrderingForRftPltFormations( uiOrdering );
@@ -1056,7 +1050,6 @@ void RimWellRftPlot::onLoadDataAndUpdate()
         if ( plotCount() > 0 )
         {
             RimWellLogTrack* const plotTrack = dynamic_cast<RimWellLogTrack*>( plotByIndex( 0 ) );
-            CAF_ASSERT( plotTrack );
             if ( plotTrack )
             {
                 plotTrack->setAnnotationType( RiuPlotAnnotationTool::RegionAnnotationType::FORMATION_ANNOTATIONS );
@@ -1127,7 +1120,6 @@ void RimWellRftPlot::assignWellPathToExtractionCurves()
     if ( wellPath )
     {
         RimWellLogTrack* const plotTrack = dynamic_cast<RimWellLogTrack*>( plotByIndex( 0 ) );
-        CAF_ASSERT( plotTrack );
         if ( plotTrack )
         {
             for ( RimWellLogCurve* curve : plotTrack->curves() )
