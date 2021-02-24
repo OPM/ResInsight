@@ -36,9 +36,6 @@ class RimStreamline;
 class RimEclipseCase;
 class RigTracer;
 class RigCell;
-class RigResultAccessor;
-class RigGridBase;
-class RimStreamlineDataAccess;
 
 class RimRegularLegendConfig;
 
@@ -114,7 +111,8 @@ private:
     caf::PdmField<double>                   m_flowThreshold;
     caf::PdmField<double>                   m_resolution;
     caf::PdmField<double>                   m_maxDays;
-    caf::PdmField<int>                      m_density;
+    caf::PdmField<bool>                     m_useProducers;
+    caf::PdmField<bool>                     m_useInjectors;
     caf::PdmPointer<RimEclipseCase>         m_eclipseCase;
     caf::PdmChildArrayField<RimStreamline*> m_streamlines;
     caf::PdmField<StreamlinePhaseTypeEnum>  m_phases;
@@ -132,6 +130,4 @@ private:
     std::set<size_t> m_wellCellIds;
 
     caf::PdmChildField<RimRegularLegendConfig*> m_legendConfig;
-
-    RimStreamlineDataAccess* m_dataAccess;
 };

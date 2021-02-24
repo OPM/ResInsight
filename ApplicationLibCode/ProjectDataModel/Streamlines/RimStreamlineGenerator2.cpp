@@ -46,9 +46,6 @@ void RimStreamlineGenerator2::generateTracer( RigCell                    cell,
                                               QString                    simWellName,
                                               std::list<RimStreamline*>& outStreamlines )
 {
-    // if ( simWellName != "C-2H" ) return;
-    // if ( cell.gridLocalCellIndex() != 67597 ) return;
-
     RiaDefines::PhaseType dominantPhase = m_phases.front();
 
     const size_t cellIdx = cell.gridLocalCellIndex();
@@ -95,11 +92,11 @@ void RimStreamlineGenerator2::growStreamline( RimStreamline*                    
 
     // get rate
     RiaDefines::PhaseType dominantPhaseOut;
-    double rate = std::abs( m_dataAccess->combinedFaceValue( cell, faceIdx, m_phases, dominantPhaseOut ) * direction );
+    double rate = std::abs( m_dataAccess->combinedFaceValue( cell, faceIdx, m_phases, dominantPhaseOut ) );
 
     while ( rate >= m_flowThreshold )
     {
-        // grow from cell center to given face center, exiting if we reach the max length
+        // grow from given face center to cell center, exiting if we reach the max length
         if ( !growStreamlineFromTo( streamline, cell.faceCenter( faceIdx ), cell.center(), rate, dominantPhaseOut ) )
             break;
 
@@ -110,8 +107,7 @@ void RimStreamlineGenerator2::growStreamline( RimStreamline*                    
         cvf::StructGridInterface::FaceType neighborFaceIdx = cvf::StructGridInterface::oppositeFace( faceIdx );
 
         // get rate
-        rate = std::abs( m_dataAccess->combinedFaceValue( neighbor, neighborFaceIdx, m_phases, dominantPhaseOut ) *
-                         direction );
+        rate = std::abs( m_dataAccess->combinedFaceValue( neighbor, neighborFaceIdx, m_phases, dominantPhaseOut ) );
 
         // grow from face center to cell center, exiting if we reach the max point limit
         if ( !growStreamlineFromTo( streamline, neighbor.faceCenter( neighborFaceIdx ), neighbor.center(), rate, dominantPhaseOut ) )
@@ -135,16 +131,21 @@ void RimStreamlineGenerator2::growStreamline( RimStreamline*                    
         {
             RiaDefines::PhaseType dummy;
             if ( face == neighborFaceIdx ) continue;
-            double faceRate = m_dataAccess->combinedFaceValue( neighbor, face, m_phases, dummy );
-            rateMap[face]   = faceRate;
-            if ( faceRate > maxRate )
+            double faceRate = m_dataAccess->combinedFaceValue( neighbor, face, m_phases, dummy ) * direction;
+
+            if ( ( ( direction < 0.0 ) && ( faceRate < maxRate ) ) || ( ( direction > 0.0 ) && ( faceRate > maxRate ) ) )
             {
                 exitFace = face;
                 maxRate  = faceRate;
             }
+
+            if ( face % 2 != 0 )
+                rateMap[face] = -1.0 * faceRate * direction;
+            else
+                rateMap[face] = faceRate * direction;
         }
 
-        rate    = maxRate;
+        rate    = std::abs( maxRate );
         faceIdx = exitFace;
         cell    = neighbor;
 
@@ -152,7 +153,7 @@ void RimStreamlineGenerator2::growStreamline( RimStreamline*                    
         for ( auto& kvp : rateMap )
         {
             if ( kvp.first == exitFace ) continue;
-            if ( kvp.second < m_flowThreshold ) continue;
+            if ( std::abs( kvp.second ) < m_flowThreshold ) continue;
             m_seeds.push_back( std::make_pair( neighbor.gridLocalCellIndex(), kvp.first ) );
         }
     }

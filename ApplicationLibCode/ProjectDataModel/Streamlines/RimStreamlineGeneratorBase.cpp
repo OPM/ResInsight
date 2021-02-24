@@ -34,8 +34,7 @@ const std::list<cvf::StructGridInterface::FaceType> _internal_faces = {cvf::Stru
 ///
 //--------------------------------------------------------------------------------------------------
 RimStreamlineGeneratorBase::RimStreamlineGeneratorBase( std::set<size_t>& wellCells )
-    : m_density( 0 )
-    , m_maxDays( 10000 )
+    : m_maxDays( 10000 )
     , m_flowThreshold( 0.0 )
     , m_resolution( 10.0 )
     , m_wellCells( wellCells )
@@ -58,51 +57,11 @@ void RimStreamlineGeneratorBase::setLimits( double flowThreshold, int maxDays, d
     m_maxPoints     = maxDays / resolutionInDays;
 }
 
-void RimStreamlineGeneratorBase::initGenerator( RimStreamlineDataAccess*         dataAccess,
-                                                std::list<RiaDefines::PhaseType> phases,
-                                                int                              density )
+void RimStreamlineGeneratorBase::initGenerator( RimStreamlineDataAccess* dataAccess, std::list<RiaDefines::PhaseType> phases )
 {
     m_dataAccess = dataAccess;
 
     m_phases.clear();
     for ( auto phase : phases )
         m_phases.push_back( phase );
-
-    m_density = density;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// Generate multiple start posisions for the given cell face, using the user specified tracer density
-//--------------------------------------------------------------------------------------------------
-void RimStreamlineGeneratorBase::generateStartPositions( RigCell                            cell,
-                                                         cvf::StructGridInterface::FaceType faceIdx,
-                                                         std::list<cvf::Vec3d>&             positions )
-{
-    cvf::Vec3d center = cell.faceCenter( faceIdx );
-
-    std::array<cvf::Vec3d, 4> corners;
-    cell.faceCorners( faceIdx, &corners );
-
-    positions.push_back( center );
-
-    // if density is zero, just return face center
-    if ( m_density == 0 ) return;
-
-    for ( const auto& pos : corners )
-        positions.push_back( pos );
-
-    // if density is 1, return face center and corners
-    if ( m_density == 1 ) return;
-
-    // if density is 2, add some more points in-between
-    for ( size_t cornerIdx = 0; cornerIdx < 4; cornerIdx++ )
-    {
-        cvf::Vec3d xa = corners[cornerIdx] - center;
-        positions.push_back( center + xa / 2.0 );
-        cvf::Vec3d xab  = corners[( cornerIdx + 1 ) % 4] - corners[cornerIdx];
-        cvf::Vec3d ab_2 = corners[cornerIdx] + xab / 2.0;
-        positions.push_back( ab_2 );
-        cvf::Vec3d xab_2 = ab_2 - center;
-        positions.push_back( center + xab_2 / 2.0 );
-    }
 }

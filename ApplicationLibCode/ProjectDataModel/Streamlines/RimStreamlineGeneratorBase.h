@@ -42,18 +42,15 @@ public:
 
     void setLimits( double flowThreshold, int maxDays, double resolutionInDays );
 
-    void initGenerator( RimStreamlineDataAccess* dataAccess, std::list<RiaDefines::PhaseType> phases, int density );
+    void initGenerator( RimStreamlineDataAccess* dataAccess, std::list<RiaDefines::PhaseType> phases );
 
     virtual void
         generateTracer( RigCell cell, double direction, QString simWellName, std::list<RimStreamline*>& outStreamlines ) = 0;
 
 protected:
-    void generateStartPositions( RigCell cell, cvf::StructGridInterface::FaceType faceIdx, std::list<cvf::Vec3d>& positions );
-
     double m_flowThreshold;
     int    m_maxDays;
     double m_resolution;
-    int    m_density;
 
     size_t m_maxPoints;
 

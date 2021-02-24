@@ -42,6 +42,7 @@
 #include "cafPdmUiDoubleSliderEditor.h"
 #include "cafPdmUiSliderEditor.h"
 #include "cafPdmUiTreeOrdering.h"
+#include "cafProgressInfo.h"
 
 #include "cvfCollection.h"
 
@@ -49,7 +50,6 @@
 #include <qdebug.h>
 
 #include "RimStreamlineDataAccess.h"
-#include "RimStreamlineGenerator.h"
 #include "RimStreamlineGenerator2.h"
 
 //--------------------------------------------------------------------------------------------------
@@ -104,12 +104,14 @@ RimStreamlineInViewCollection::RimStreamlineInViewCollection()
     CAF_PDM_InitScriptableFieldNoDefault( &m_resolution, "Resolution", "Resolution [days]", "", "", "" );
     m_resolution = 20.0;
 
-    CAF_PDM_InitScriptableFieldNoDefault( &m_density, "Density", "Density", "", "", "" );
-    m_density.uiCapability()->setUiEditorTypeName( caf::PdmUiSliderEditor::uiEditorTypeName() );
-    m_density = 2;
-
-    CAF_PDM_InitScriptableFieldNoDefault( &m_maxDays, "MaxDays", "Max Days ", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_maxDays, "MaxDays", "Max Days", "", "", "" );
     m_maxDays = 50000;
+
+    CAF_PDM_InitScriptableFieldNoDefault( &m_useProducers, "UseProducers", "Producer Wells", "", "", "" );
+    m_useProducers = true;
+
+    CAF_PDM_InitScriptableFieldNoDefault( &m_useInjectors, "UseInjectors", "Injector Wells", "", "", "" );
+    m_useInjectors = true;
 
     CAF_PDM_InitScriptableField( &m_phases, "Phase", StreamlinePhaseTypeEnum( StreamlinePhaseType::OIL ), "Phase", "", "", "" );
 
@@ -144,8 +146,6 @@ RimStreamlineInViewCollection::RimStreamlineInViewCollection()
     m_streamlines.uiCapability()->setUiTreeHidden( true );
     m_streamlines.xmlCapability()->disableIO();
 
-    // uiCapability()->setUiTreeChildrenHidden( true );
-
     m_eclipseCase = nullptr;
 
     // we are a topmost folder, do not delete us
@@ -157,7 +157,6 @@ RimStreamlineInViewCollection::RimStreamlineInViewCollection()
 //--------------------------------------------------------------------------------------------------
 RimStreamlineInViewCollection::~RimStreamlineInViewCollection()
 {
-    delete m_legendConfig;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -404,41 +403,58 @@ void RimStreamlineInViewCollection::updateStreamlines()
         // get current simulation timestep
         int timeIdx = eclView->currentTimeStep();
 
+        // get the well cells we should start growing from
         std::vector<std::pair<QString, RigCell>> seedCellsInjector;
         std::vector<std::pair<QString, RigCell>> seedCellsProducer;
-
         findStartCells( timeIdx, seedCellsInjector, seedCellsProducer );
 
+        // set up the data access helper
         RimStreamlineDataAccess dataAccess;
-
-        bool accessOk = dataAccess.setupDataAccess( eclipseCase()->eclipseCaseData()->mainGrid(),
+        bool                    accessOk = dataAccess.setupDataAccess( eclipseCase()->eclipseCaseData()->mainGrid(),
                                                     eclipseCase()->eclipseCaseData(),
                                                     phases(),
                                                     timeIdx );
 
+        // did we find the data we needed?
         if ( accessOk )
         {
+            // setup the streamline generator to use
             RimStreamlineGenerator2 generator( m_wellCellIds );
-
             generator.setLimits( m_flowThreshold, m_maxDays, m_resolution );
-            generator.initGenerator( &dataAccess, phases(), m_density );
+            generator.initGenerator( &dataAccess, phases() );
 
             const int reverseDirection = -1.0;
             const int normalDirection  = 1.0;
 
             std::list<RimStreamline*> streamlines;
 
+            size_t seedsCount = 0;
+            if ( m_useInjectors() ) seedsCount += seedCellsInjector.size();
+            if ( m_useProducers() ) seedsCount += seedCellsProducer.size();
+
+            caf::ProgressInfo streamlineProgress( seedsCount, "Generating Streamlines" );
+
             // generate tracers for all injectors
-            for ( auto& cellinfo : seedCellsInjector )
+            if ( m_useInjectors() )
             {
-                generator.generateTracer( cellinfo.second, normalDirection, cellinfo.first, streamlines );
-            }
-            // generate tracers for all producers, make sure to invert the direction to backtrack the traces
-            for ( auto& cellinfo : seedCellsProducer )
-            {
-                generator.generateTracer( cellinfo.second, reverseDirection, cellinfo.first, streamlines );
+                for ( auto& cellinfo : seedCellsInjector )
+                {
+                    generator.generateTracer( cellinfo.second, normalDirection, cellinfo.first, streamlines );
+                    streamlineProgress.incrementProgress();
+                }
             }
 
+            // generate tracers for all producers, make sure to invert the direction to backtrack the traces
+            if ( m_useProducers() )
+            {
+                for ( auto& cellinfo : seedCellsProducer )
+                {
+                    generator.generateTracer( cellinfo.second, reverseDirection, cellinfo.first, streamlines );
+                    streamlineProgress.incrementProgress();
+                }
+            }
+
+            // get rid of empty and too short streamlines
             m_maxAnimationIndex = 0;
             for ( auto& sline : streamlines )
             {
@@ -457,7 +473,7 @@ void RimStreamlineInViewCollection::updateStreamlines()
                 }
             }
 
-            outputSummary();
+            // outputSummary();
             bNeedRedraw = true;
         }
     }
@@ -498,7 +514,10 @@ void RimStreamlineInViewCollection::defineUiOrdering( QString uiConfigName, caf:
     dataGroup->add( &m_lengthThreshold );
     dataGroup->add( &m_resolution );
     dataGroup->add( &m_maxDays );
-    // dataGroup->add( &m_density );
+
+    caf::PdmUiGroup* wellGroup = uiOrdering.addNewGroup( "Well Selection" );
+    wellGroup->add( &m_useInjectors );
+    wellGroup->add( &m_useProducers );
 
     caf::PdmUiGroup* visualizationGroup = uiOrdering.addNewGroup( "Visualization Settings" );
     visualizationGroup->add( &m_visualizationMode );
@@ -581,15 +600,6 @@ void RimStreamlineInViewCollection::defineEditorAttribute( const caf::PdmFieldHa
         {
             myAttr->m_minimum = 0.1;
             myAttr->m_maximum = 10000.0;
-        }
-    }
-    else if ( field == &m_density )
-    {
-        caf::PdmUiSliderEditorAttribute* myAttr = dynamic_cast<caf::PdmUiSliderEditorAttribute*>( attribute );
-        if ( myAttr )
-        {
-            myAttr->m_minimum = 0;
-            myAttr->m_maximum = 2;
         }
     }
 }
