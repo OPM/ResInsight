@@ -82,9 +82,12 @@ protected:
 
     bool replaceMissingValuesWithDefault( RiaDefines::CurveProperty curveProperty,
                                           const RimStimPlanModel*   stimPlanModel,
-                                          int                       timeStep,
-                                          const QString&            resultVariable,
                                           std::vector<double>&      values ) const;
+
+    bool replaceMissingValuesWithOtherProperty( RiaDefines::CurveProperty curveProperty,
+                                                const RimStimPlanModel*   stimPlanModel,
+                                                int                       timeStep,
+                                                std::vector<double>&      values ) const;
 
     RimStimPlanModelCalculator* m_stimPlanModelCalculator;
 };
