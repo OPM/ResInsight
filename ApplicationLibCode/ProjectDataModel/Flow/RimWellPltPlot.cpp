@@ -233,7 +233,6 @@ void RimWellPltPlot::updateFormationsOnPlot() const
         RimWellPath* wellPath = proj->wellPathByName( m_wellPathName );
 
         RimWellLogTrack* track = dynamic_cast<RimWellLogTrack*>( plotByIndex( 0 ) );
-        CAF_ASSERT( track );
         if ( track )
         {
             RimCase* formationNamesCase = track->formationNamesCase();
@@ -484,8 +483,6 @@ public:
 void RimWellPltPlot::syncCurvesFromUiSelection()
 {
     RimWellLogTrack* plotTrack = dynamic_cast<RimWellLogTrack*>( plotByIndex( 0 ) );
-
-    CAF_ASSERT( plotTrack );
     if ( !plotTrack ) return;
 
     const std::set<RiaRftPltCurveDefinition>& curveDefs = selectedCurveDefs();
@@ -890,7 +887,6 @@ void RimWellPltPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
     if ( changedField == &m_wellPathName )
     {
         RimWellLogTrack* const plotTrack = dynamic_cast<RimWellLogTrack*>( plotByIndex( 0 ) );
-        CAF_ASSERT( plotTrack );
         if ( plotTrack )
         {
             plotTrack->deleteAllCurves();
@@ -934,7 +930,6 @@ void RimWellPltPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
         syncCurvesFromUiSelection();
 
         RimWellLogTrack* const plotTrack = dynamic_cast<RimWellLogTrack*>( plotByIndex( 0 ) );
-        CAF_ASSERT( plotTrack );
         if ( plotTrack )
         {
             plotTrack->setAutoScaleXEnabled( true );
@@ -948,7 +943,6 @@ void RimWellPltPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
         syncCurvesFromUiSelection();
 
         RimWellLogTrack* const plotTrack = dynamic_cast<RimWellLogTrack*>( plotByIndex( 0 ) );
-        CAF_ASSERT( plotTrack );
         if ( plotTrack )
         {
             plotTrack->setAutoScaleXEnabled( true );
@@ -987,7 +981,6 @@ void RimWellPltPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
     if ( plotCount() > 0 )
     {
         RimWellLogTrack* const track = dynamic_cast<RimWellLogTrack*>( plotByIndex( 0 ) );
-        CAF_ASSERT( track );
         if ( track )
         {
             track->uiOrderingForRftPltFormations( uiOrdering );
@@ -1105,7 +1098,6 @@ void RimWellPltPlot::onLoadDataAndUpdate()
         if ( plotCount() > 0 )
         {
             RimWellLogTrack* const plotTrack = dynamic_cast<RimWellLogTrack*>( plotByIndex( 0 ) );
-            CAF_ASSERT( plotTrack );
             if ( plotTrack )
             {
                 plotTrack->setAnnotationType( RiuPlotAnnotationTool::RegionAnnotationType::FORMATION_ANNOTATIONS );
