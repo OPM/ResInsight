@@ -516,9 +516,12 @@ bool RimStimPlanModelPressureCalculator::interpolateInitialPressureByEquilibrati
         {
             int                  eqlNum          = static_cast<int>( eqlNumValues[i] );
             DepthValuePairVector depthValuePairs = valuesPerEqlNum[eqlNum];
-            double               depth           = tvDepthValues[i];
-            double               value           = interpolatePressure( depthValuePairs, depth, eqlNum );
-            values[i]                            = value;
+            if ( !depthValuePairs.empty() )
+            {
+                double depth = tvDepthValues[i];
+                double value = interpolatePressure( depthValuePairs, depth, eqlNum );
+                values[i]    = value;
+            }
         }
     }
 

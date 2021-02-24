@@ -71,7 +71,9 @@ public:
     {
         DEFAULT_VALUE,
         LINEAR_INTERPOLATION,
-        OTHER_CURVE_PROPERTY
+        OTHER_CURVE_PROPERTY,
+        CELLS_ABOVE,
+        CELLS_BELOW
     };
 
     enum class BurdenStrategy

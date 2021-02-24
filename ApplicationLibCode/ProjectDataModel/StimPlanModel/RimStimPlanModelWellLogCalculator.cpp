@@ -22,8 +22,10 @@
 #include "RiaLogging.h"
 #include "RiaStimPlanModelDefines.h"
 
+#include "RigActiveCellInfo.h"
 #include "RigEclipseCaseData.h"
 #include "RigEclipseWellLogExtractor.h"
+#include "RigMainGrid.h"
 #include "RigResultAccessor.h"
 #include "RigResultAccessorFactory.h"
 #include "RigWellLogCurveData.h"
@@ -117,6 +119,24 @@ bool RimStimPlanModelWellLogCalculator::calculate( RiaDefines::CurveProperty cur
         else if ( strategy == RimStimPlanModel::MissingValueStrategy::OTHER_CURVE_PROPERTY )
         {
             if ( !replaceMissingValuesWithOtherProperty( curveProperty, stimPlanModel, timeStep, values ) )
+            {
+                return false;
+            }
+        }
+        else if ( strategy == RimStimPlanModel::MissingValueStrategy::CELLS_ABOVE )
+        {
+            // K-1 is up
+            int kDirection = -1;
+            if ( !replaceMissingValuesWithOtherKLayer( curveProperty, stimPlanModel, timeStep, measuredDepthValues, values, kDirection ) )
+            {
+                return false;
+            }
+        }
+        else if ( strategy == RimStimPlanModel::MissingValueStrategy::CELLS_BELOW )
+        {
+            // K+1 is down
+            int kDirection = 1;
+            if ( !replaceMissingValuesWithOtherKLayer( curveProperty, stimPlanModel, timeStep, measuredDepthValues, values, kDirection ) )
             {
                 return false;
             }
@@ -486,6 +506,9 @@ bool RimStimPlanModelWellLogCalculator::replaceMissingValuesWithDefault( RiaDefi
     return true;
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RimStimPlanModelWellLogCalculator::replaceMissingValuesWithOtherProperty( RiaDefines::CurveProperty curveProperty,
                                                                                const RimStimPlanModel*   stimPlanModel,
                                                                                int                       timeStep,
@@ -508,5 +531,113 @@ bool RimStimPlanModelWellLogCalculator::replaceMissingValuesWithOtherProperty( R
 
     CVF_ASSERT( values.size() == initialValues.size() );
     replaceMissingValues( values, initialValues );
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const std::vector<double>& RimStimPlanModelWellLogCalculator::loadResults( RigEclipseCaseData*           caseData,
+                                                                           RiaDefines::PorosityModelType porosityModel,
+                                                                           RiaDefines::ResultCatType     resultType,
+                                                                           const QString&                propertyName )
+{
+    // TODO: is this always enough?
+    auto resultData = caseData->results( porosityModel );
+
+    int                     timeStepIndex = 0;
+    RigEclipseResultAddress resultAddress( resultType, propertyName );
+
+    resultData->ensureKnownResultLoaded( resultAddress );
+    return caseData->results( porosityModel )->cellScalarResults( resultAddress, timeStepIndex );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimStimPlanModelWellLogCalculator::replaceMissingValuesWithOtherKLayer( RiaDefines::CurveProperty  curveProperty,
+                                                                             const RimStimPlanModel*    stimPlanModel,
+                                                                             int                        timeStep,
+                                                                             const std::vector<double>& measuredDepths,
+                                                                             std::vector<double>&       values,
+                                                                             int moveDirection ) const
+{
+    RimEclipseCase* eclipseCase = stimPlanModel->eclipseCaseForProperty( curveProperty );
+    if ( !eclipseCase ) return false;
+
+    if ( !stimPlanModel->thicknessDirectionWellPath() ) return false;
+
+    RigWellPath* wellPathGeometry = stimPlanModel->thicknessDirectionWellPath()->wellPathGeometry();
+    if ( !wellPathGeometry ) return false;
+
+    const RigMainGrid* mainGrid = eclipseCase->mainGrid();
+
+    RigEclipseCaseData* caseData = eclipseCase->eclipseCaseData();
+
+    RiaDefines::PorosityModelType porosityModel = RiaDefines::PorosityModelType::MATRIX_MODEL;
+
+    RiaDefines::ResultCatType resultType = stimPlanModel->eclipseResultCategory( curveProperty );
+    QString                   resultName = stimPlanModel->eclipseResultVariable( curveProperty );
+
+    const std::vector<double>& cellValues     = loadResults( caseData, porosityModel, resultType, resultName );
+    auto                       activeCellInfo = caseData->activeCellInfo( porosityModel );
+
+    for ( size_t idx = 0; idx < values.size(); idx++ )
+    {
+        if ( std::isinf( values[idx] ) )
+        {
+            double     measuredDepth = measuredDepths[idx];
+            cvf::Vec3d position      = wellPathGeometry->interpolatedPointAlongWellPath( measuredDepth );
+
+            size_t cellIdx = mainGrid->findReservoirCellIndexFromPoint( position );
+
+            if ( cellIdx != cvf::UNDEFINED_SIZE_T )
+            {
+                size_t i;
+                size_t j;
+                size_t k;
+                bool   isValid = mainGrid->ijkFromCellIndex( cellIdx, &i, &j, &k );
+                if ( isValid )
+                {
+                    RiaLogging::info( QString( "Missing value at MD: %1. Cell [%2, %3, %4]" )
+                                          .arg( measuredDepth )
+                                          .arg( i + 1 )
+                                          .arg( j + 1 )
+                                          .arg( k + 1 ) );
+
+                    int       neighborK = k + moveDirection;
+                    const int minK      = 1;
+                    const int maxK      = mainGrid->cellCountK();
+
+                    bool isFound = false;
+                    while ( !isFound && neighborK >= minK && neighborK <= maxK )
+                    {
+                        size_t neighborCellIdx = mainGrid->cellIndexFromIJK( i, j, neighborK );
+                        size_t resultIdx       = activeCellInfo->cellResultIndex( neighborCellIdx );
+
+                        if ( neighborCellIdx != cvf::UNDEFINED_SIZE_T && resultIdx < cellValues.size() )
+                        {
+                            double neighborValue = cellValues[resultIdx];
+
+                            if ( !std::isinf( neighborValue ) )
+                            {
+                                RiaLogging::info( QString( "Found value. [%1, %2, %3]. Idx=%4 Value=%5." )
+                                                      .arg( i + 1 )
+                                                      .arg( j + 1 )
+                                                      .arg( neighborK + 1 )
+                                                      .arg( neighborCellIdx )
+                                                      .arg( neighborValue ) );
+                                isFound     = true;
+                                values[idx] = neighborValue;
+                            }
+                        }
+
+                        neighborK += moveDirection;
+                    }
+                }
+            }
+        }
+    }
+
     return true;
 }
