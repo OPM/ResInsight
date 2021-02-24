@@ -77,16 +77,54 @@ bool RimStimPlanModelCalculator::extractCurveData( RiaDefines::CurveProperty cur
                                                    std::vector<double>&      tvDepthValues,
                                                    double&                   rkbDiff ) const
 {
-    for ( const auto& calculator : m_resultCalculators )
+    ResultKey key  = std::make_pair( curveProperty, timeStep );
+    auto      data = m_resultCache.find( key );
+    if ( data != m_resultCache.end() )
     {
-        if ( calculator->isMatching( curveProperty ) )
+        // Cache hit: reuse previous result
+        auto [cachedValues, cachedMeasuredDepthValues, cachedTvDepthValues, cachedRkbDiff] = data->second;
+
+        values              = cachedValues;
+        measuredDepthValues = cachedMeasuredDepthValues;
+        tvDepthValues       = cachedTvDepthValues;
+        rkbDiff             = cachedRkbDiff;
+        return true;
+    }
+    else
+    {
+        // Cache miss: try to calculate the request data
+        for ( const auto& calculator : m_resultCalculators )
         {
-            return calculator
-                ->calculate( curveProperty, m_stimPlanModel, timeStep, values, measuredDepthValues, tvDepthValues, rkbDiff );
+            if ( calculator->isMatching( curveProperty ) )
+            {
+                bool isOk = calculator->calculate( curveProperty,
+                                                   m_stimPlanModel,
+                                                   timeStep,
+                                                   values,
+                                                   measuredDepthValues,
+                                                   tvDepthValues,
+                                                   rkbDiff );
+
+                if ( isOk )
+                {
+                    // Populate cache when calculation succeeds
+                    m_resultCache[key] = std::make_tuple( values, measuredDepthValues, tvDepthValues, rkbDiff );
+                }
+
+                return isOk;
+            }
         }
     }
 
     return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimStimPlanModelCalculator::clearCache()
+{
+    m_resultCache.clear();
 }
 
 //--------------------------------------------------------------------------------------------------
