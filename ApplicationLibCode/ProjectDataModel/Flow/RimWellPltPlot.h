@@ -121,6 +121,8 @@ private:
 
     caf::PdmField<std::vector<QDateTime>> m_selectedTimeSteps;
 
+    caf::PdmChildField<RimWellLogPlot*> m_wellLogPlot_OBSOLETE;
+
     caf::PdmField<bool>                                 m_useStandardConditionCurves;
     caf::PdmField<bool>                                 m_useReservoirConditionCurves;
     caf::PdmField<std::vector<caf::AppEnum<FlowPhase>>> m_phases;
