@@ -37,6 +37,7 @@
 #include "RimStimPlanModel.h"
 #include "RimStimPlanModelCalculator.h"
 #include "RimStimPlanModelTemplate.h"
+#include "RimStimPlanModelWellLogCalculator.h"
 
 #include <limits>
 
@@ -365,24 +366,6 @@ void sortAndRemoveDuplicates( DepthValuePairVector& depthValuePairs )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::vector<double>& loadResults( RigEclipseCaseData*           caseData,
-                                        RiaDefines::PorosityModelType porosityModel,
-                                        RiaDefines::ResultCatType     resultType,
-                                        const QString&                propertyName )
-{
-    // TODO: is this always enough?
-    auto resultData = caseData->results( porosityModel );
-
-    int                     timeStepIndex = 0;
-    RigEclipseResultAddress resultAddress( resultType, propertyName );
-
-    resultData->ensureKnownResultLoaded( resultAddress );
-    return caseData->results( porosityModel )->cellScalarResults( resultAddress, timeStepIndex );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 bool buildPressureTablesPerEqlNum( const RimStimPlanModel*    stimPlanModel,
                                    EqlNumToDepthValuePairMap& valuesPerEqlNum,
                                    const std::set<int>&       presentEqlNums )
@@ -397,9 +380,15 @@ bool buildPressureTablesPerEqlNum( const RimStimPlanModel*    stimPlanModel,
 
     RiaDefines::PorosityModelType porosityModel = RiaDefines::PorosityModelType::MATRIX_MODEL;
     const std::vector<double>&    eqlNumValues =
-        loadResults( caseData, porosityModel, RiaDefines::ResultCatType::STATIC_NATIVE, "EQLNUM" );
+        RimStimPlanModelWellLogCalculator::loadResults( caseData,
+                                                        porosityModel,
+                                                        RiaDefines::ResultCatType::STATIC_NATIVE,
+                                                        "EQLNUM" );
     const std::vector<double>& pressureValues =
-        loadResults( caseData, porosityModel, RiaDefines::ResultCatType::DYNAMIC_NATIVE, "PRESSURE" );
+        RimStimPlanModelWellLogCalculator::loadResults( caseData,
+                                                        porosityModel,
+                                                        RiaDefines::ResultCatType::DYNAMIC_NATIVE,
+                                                        "PRESSURE" );
 
     if ( eqlNumValues.size() != pressureValues.size() )
     {
