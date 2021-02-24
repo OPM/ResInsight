@@ -265,12 +265,13 @@ void RimWellPathCompletions::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTre
 //--------------------------------------------------------------------------------------------------
 void RimWellPathCompletions::initAfterRead()
 {
-    std::vector<RimWellPath*> wellPathHierarchy;
+    // TODO: do this if the obsoleted fields have non-default values:
+    /* std::vector<RimWellPath*> wellPathHierarchy;
     this->allAncestorsOrThisOfType( wellPathHierarchy );
     RimWellPath* topLevelWellPath = wellPathHierarchy.back();
     auto         settings         = topLevelWellPath->completionSettings();
 
-    applyToSettings( settings );
+    applyToSettings( settings ); */
 }
 
 //--------------------------------------------------------------------------------------------------

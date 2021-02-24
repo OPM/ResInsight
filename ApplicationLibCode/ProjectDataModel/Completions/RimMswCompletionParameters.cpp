@@ -105,18 +105,6 @@ RimMswCompletionParameters::~RimMswCompletionParameters()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimMswCompletionParameters::isDefault() const
-{
-    return m_refMDType() == ReferenceMDEnum() && m_refMD() == m_refMD.defaultValue() &&
-           m_linerDiameter() == m_linerDiameter.defaultValue() &&
-           m_roughnessFactor() == m_roughnessFactor.defaultValue() && m_pressureDrop == PressureDropEnum() &&
-           m_enforceMaxSegmentLength() == m_enforceMaxSegmentLength.defaultValue() &&
-           m_maxSegmentLength() == m_maxSegmentLength.defaultValue();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 RimMswCompletionParameters& RimMswCompletionParameters::operator=( const RimMswCompletionParameters& rhs )
 {
     m_refMDType               = rhs.m_refMDType();

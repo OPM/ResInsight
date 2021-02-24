@@ -111,7 +111,7 @@ RimWellPath::RimWellPath()
     m_completions = new RimWellPathCompletions;
     m_completions.uiCapability()->setUiTreeHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_completionSettings, "CompletionSettings", "CompletionSettings", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_completionSettings, "CompletionSettings", "Completion Settings", "", "", "" );
     m_completionSettings = new RimWellPathCompletionSettings;
 
     CAF_PDM_InitFieldNoDefault( &m_wellLogFiles, "WellLogFiles", "Well Log Files", "", "", "" );
@@ -476,26 +476,6 @@ QList<caf::PdmOptionItemInfo> RimWellPath::calculateValueOptions( const caf::Pdm
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellPath::initAfterRead()
-{
-    if ( isTopLevelWellPath() && m_completionSettings->mswParameters()->isDefault() )
-    {
-        std::vector<const RimMswCompletionParameters*> allExistingMswParameters;
-        descendantsOfType( allExistingMswParameters );
-        for ( auto mswParameters : allExistingMswParameters )
-        {
-            if ( !mswParameters->isDefault() )
-            {
-                *( m_completionSettings->mswParameters() ) = *mswParameters;
-                break;
-            }
-        }
-        if ( m_completionSettings->wellNameForExport().isEmpty() )
-        {
-            m_completionSettings->setWellNameForExport( name() );
-        }
-    }
-}
 QString RimWellPath::name() const
 {
     return m_name();
@@ -503,7 +483,7 @@ QString RimWellPath::name() const
 
 //--------------------------------------------------------------------------------------------------
 ///
-//--------------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------- -----------------------------
 void RimWellPath::setName( const QString& name )
 {
     setNameNoUpdateOfExportName( name );
