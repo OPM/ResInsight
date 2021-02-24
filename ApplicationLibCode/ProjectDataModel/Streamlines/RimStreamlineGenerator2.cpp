@@ -82,6 +82,9 @@ void RimStreamlineGenerator2::generateTracer( RigCell                    cell,
     return;
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimStreamlineGenerator2::growStreamline( RimStreamline*                     streamline,
                                               size_t                             cellIdx,
                                               cvf::StructGridInterface::FaceType faceIdx,
@@ -155,6 +158,9 @@ void RimStreamlineGenerator2::growStreamline( RimStreamline*                    
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RimStreamlineGenerator2::growStreamlineFromTo( RimStreamline*        streamline,
                                                     cvf::Vec3d            startPos,
                                                     cvf::Vec3d            endPos,
