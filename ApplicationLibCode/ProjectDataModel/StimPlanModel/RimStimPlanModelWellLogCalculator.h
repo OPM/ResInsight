@@ -20,6 +20,8 @@
 #include "RimStimPlanModelCalculator.h"
 #include "RimStimPlanModelPropertyCalculator.h"
 
+#include "RiaDefines.h"
+#include "RiaPorosityModel.h"
 #include "RiaStimPlanModelDefines.h"
 
 #include "cvfObject.h"
@@ -45,6 +47,11 @@ public:
                     double&                   rkbDiff ) const override;
 
     bool isMatching( RiaDefines::CurveProperty curveProperty ) const override;
+
+    static const std::vector<double>& loadResults( RigEclipseCaseData*           caseData,
+                                                   RiaDefines::PorosityModelType porosityModel,
+                                                   RiaDefines::ResultCatType     resultType,
+                                                   const QString&                propertyName );
 
 protected:
     static bool hasMissingValues( const std::vector<double>& values );
@@ -88,6 +95,13 @@ protected:
                                                 const RimStimPlanModel*   stimPlanModel,
                                                 int                       timeStep,
                                                 std::vector<double>&      values ) const;
+
+    bool replaceMissingValuesWithOtherKLayer( RiaDefines::CurveProperty  curveProperty,
+                                              const RimStimPlanModel*    stimPlanModel,
+                                              int                        timeStep,
+                                              const std::vector<double>& measuredDepths,
+                                              std::vector<double>&       values,
+                                              int                        kDirection ) const;
 
     RimStimPlanModelCalculator* m_stimPlanModelCalculator;
 };

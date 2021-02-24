@@ -1335,6 +1335,10 @@ std::deque<RimStimPlanModel::MissingValueStrategy>
 {
     if ( curveProperty == RiaDefines::CurveProperty::PRESSURE )
         return { RimStimPlanModel::MissingValueStrategy::OTHER_CURVE_PROPERTY };
+    else if ( curveProperty == RiaDefines::CurveProperty::EQLNUM )
+        return { RimStimPlanModel::MissingValueStrategy::DEFAULT_VALUE,
+                 RimStimPlanModel::MissingValueStrategy::CELLS_ABOVE,
+                 RimStimPlanModel::MissingValueStrategy::CELLS_BELOW };
     else
         return { RimStimPlanModel::MissingValueStrategy::DEFAULT_VALUE };
 }
