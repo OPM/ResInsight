@@ -92,17 +92,16 @@ RimStreamlineInViewCollection::RimStreamlineInViewCollection()
     CAF_PDM_InitFieldNoDefault( &m_legendConfig, "LegendDefinition", "Color Legend", "", "", "" );
     m_legendConfig = new RimRegularLegendConfig();
     m_legendConfig.uiCapability()->setUiHidden( true );
-    m_legendConfig->setMappingMode( RimRegularLegendConfig::MappingType::LINEAR_CONTINUOUS );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_collectionName, "Name", "Name", "", "", "" );
     m_collectionName = "Streamlines";
     m_collectionName.uiCapability()->setUiReadOnly( true );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_flowThreshold, "FlowThreshold", "Flow Threshold [m/day]", "", "", "" );
-    m_flowThreshold = 0.0001;
+    m_flowThreshold = 0.001;
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_lengthThreshold, "LengthThreshold", "Minimum Length [m]", "", "", "" );
-    m_lengthThreshold = 50.0;
+    m_lengthThreshold = 100.0;
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_resolution, "Resolution", "Resolution [days]", "", "", "" );
     m_resolution = 20.0;
