@@ -84,7 +84,7 @@ CAF_PDM_XML_ABSTRACT_SOURCE_INIT( Rim3dView, "View", "GenericView" ); // Do not 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-Rim3dView::Rim3dView( void )
+Rim3dView::Rim3dView()
     : updateAnimations( this )
     , m_isCallingUpdateDisplayModelForCurrentTimestepAndRedraw( false )
     , m_animationIntervalMillisec( 50 )
@@ -188,7 +188,7 @@ Rim3dView::Rim3dView( void )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-Rim3dView::~Rim3dView( void )
+Rim3dView::~Rim3dView()
 {
     if ( RiaApplication::instance()->activeReservoirView() == this )
     {
@@ -213,12 +213,18 @@ int Rim3dView::id() const
     return m_id;
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void Rim3dView::requestAnimationTimer()
 {
     m_animationTimerUsers++;
     if ( m_animationTimerUsers == 1 ) m_animationTimer->start();
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void Rim3dView::releaseAnimationTimer()
 {
     m_animationTimerUsers--;
@@ -1454,10 +1460,9 @@ RimViewNameConfig* Rim3dView::nameConfig() const
 //--------------------------------------------------------------------------------------------------
 QWidget* Rim3dView::viewWidget()
 {
-    if ( m_viewer )
-        return m_viewer->layoutWidget();
-    else
-        return nullptr;
+    if ( m_viewer ) return m_viewer->layoutWidget();
+
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

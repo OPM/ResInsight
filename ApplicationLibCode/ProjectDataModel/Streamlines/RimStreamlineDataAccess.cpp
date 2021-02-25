@@ -25,7 +25,8 @@
 #include "RigMainGrid.h"
 #include "RigResultAccessor.h"
 #include "RigResultAccessorFactory.h"
-#include "RimStreamline.h"
+
+#include "cafAssert.h"
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -231,26 +232,4 @@ double RimStreamlineDataAccess::combinedFaceValue( RigCell                      
     }
 
     return retValue;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RigCell RimStreamlineDataAccess::getNeighborWithPoint( RigCell curCell, cvf::Vec3d point )
-{
-    RigCell tmpCell;
-
-    std::vector<size_t> neighbors = curCell.allNeighborMainGridCellIndexes();
-    for ( auto cellIdx : neighbors )
-    {
-        tmpCell = m_grid->cell( cellIdx );
-
-        if ( tmpCell.boundingBox().contains( point ) )
-        {
-            return tmpCell;
-        }
-    }
-
-    tmpCell.setInvalid( true );
-    return tmpCell;
 }

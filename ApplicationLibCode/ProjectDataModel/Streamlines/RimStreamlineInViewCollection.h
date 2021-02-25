@@ -15,18 +15,15 @@
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
+
 #pragma once
 
 #include "RiaDefines.h"
-#include "cafPdmField.h"
 
 #include "cafPdmChildArrayField.h"
 #include "cafPdmChildField.h"
+#include "cafPdmField.h"
 #include "cafPdmObject.h"
-
-#include "cvfBoundingBox.h"
-#include "cvfObject.h"
-#include "cvfStructGrid.h"
 
 #include <list>
 #include <set>
@@ -34,10 +31,10 @@
 
 class RimStreamline;
 class RimEclipseCase;
+class RimRegularLegendConfig;
+
 class RigTracer;
 class RigCell;
-
-class RimRegularLegendConfig;
 
 class RiuViewer;
 

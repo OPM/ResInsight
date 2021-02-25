@@ -15,17 +15,18 @@
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
-#pragma once
 
-#include <list>
-#include <set>
-#include <utility>
+#pragma once
 
 #include "RiaDefines.h"
 
 #include "RimStreamlineGeneratorBase.h"
 
 #include <QString>
+
+#include <list>
+#include <set>
+#include <utility>
 
 class RigCell;
 class RimStreamline;

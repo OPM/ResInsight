@@ -15,12 +15,15 @@
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
+
 #pragma once
+
+#include "RiaDefines.h"
+
+#include "cvfStructGrid.h"
 
 #include <list>
 #include <set>
-
-#include "RiaDefines.h"
 
 #include <QString>
 
@@ -31,8 +34,6 @@ class RigGridBase;
 class RigResultAccessor;
 class RigEclipseCaseData;
 class RimStreamlineDataAccess;
-
-#include "cvfStructGrid.h"
 
 class RimStreamlineGeneratorBase
 {

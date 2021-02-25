@@ -15,14 +15,17 @@
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
-#pragma once
 
-#include <list>
-#include <set>
+#pragma once
 
 #include "RiaDefines.h"
 
+#include "cvfStructGrid.h"
+
 #include <QString>
+
+#include <list>
+#include <set>
 
 class RigCell;
 class RimStreamline;
@@ -30,8 +33,6 @@ class RigMainGrid;
 class RigGridBase;
 class RigResultAccessor;
 class RigEclipseCaseData;
-
-#include "cvfStructGrid.h"
 
 class RimStreamlineDataAccess
 {
@@ -48,8 +49,6 @@ public:
                               RiaDefines::PhaseType&             dominantPhaseOut ) const;
 
     const RigMainGrid* grid() const { return m_grid; }
-
-    RigCell getNeighborWithPoint( RigCell curCell, cvf::Vec3d point );
 
 protected:
     cvf::ref<RigResultAccessor>

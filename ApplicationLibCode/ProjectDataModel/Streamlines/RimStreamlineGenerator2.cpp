@@ -17,11 +17,12 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RimStreamlineGenerator2.h"
-#include "RimStreamlineDataAccess.h"
 
 #include "RigCell.h"
 #include "RigMainGrid.h"
+
 #include "RimStreamline.h"
+#include "RimStreamlineDataAccess.h"
 
 //--------------------------------------------------------------------------------------------------
 ///

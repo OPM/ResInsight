@@ -17,18 +17,12 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RimStreamlineGeneratorBase.h"
-#include "RimStreamlineDataAccess.h"
 
 #include "RigCell.h"
 #include "RigMainGrid.h"
-#include "RimStreamline.h"
 
-const std::list<cvf::StructGridInterface::FaceType> _internal_faces = { cvf::StructGridInterface::FaceType::POS_I,
-                                                                        cvf::StructGridInterface::FaceType::NEG_I,
-                                                                        cvf::StructGridInterface::FaceType::POS_J,
-                                                                        cvf::StructGridInterface::FaceType::NEG_J,
-                                                                        cvf::StructGridInterface::FaceType::POS_K,
-                                                                        cvf::StructGridInterface::FaceType::NEG_K };
+#include "RimStreamline.h"
+#include "RimStreamlineDataAccess.h"
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -50,6 +44,9 @@ RimStreamlineGeneratorBase::~RimStreamlineGeneratorBase()
 {
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimStreamlineGeneratorBase::setLimits( double flowThreshold, int maxDays, double resolutionInDays )
 {
     m_flowThreshold = flowThreshold;
@@ -58,6 +55,9 @@ void RimStreamlineGeneratorBase::setLimits( double flowThreshold, int maxDays, d
     m_maxPoints     = maxDays / resolutionInDays;
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimStreamlineGeneratorBase::initGenerator( RimStreamlineDataAccess* dataAccess, std::list<RiaDefines::PhaseType> phases )
 {
     m_dataAccess = dataAccess;

@@ -32,6 +32,8 @@
 #include "RimEclipseView.h"
 #include "RimRegularLegendConfig.h"
 #include "RimStreamline.h"
+#include "RimStreamlineDataAccess.h"
+#include "RimStreamlineGenerator2.h"
 
 #include "RiaLogging.h"
 
@@ -46,11 +48,9 @@
 
 #include "cvfCollection.h"
 
-#include <math.h>
-#include <qdebug.h>
+#include <cmath>
 
-#include "RimStreamlineDataAccess.h"
-#include "RimStreamlineGenerator2.h"
+#include <QDebug>
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -645,9 +645,10 @@ void RimStreamlineInViewCollection::fieldChangedByUi( const caf::PdmFieldHandle*
     {
         return;
     }
-    else if ( changedField == &m_visualizationMode &&
-              qvariant_cast<int>( newValue ) != static_cast<int>( VisualizationMode::VECTORS ) &&
-              qvariant_cast<int>( oldValue ) != static_cast<int>( VisualizationMode::VECTORS ) )
+
+    if ( changedField == &m_visualizationMode &&
+         qvariant_cast<int>( newValue ) != static_cast<int>( VisualizationMode::VECTORS ) &&
+         qvariant_cast<int>( oldValue ) != static_cast<int>( VisualizationMode::VECTORS ) )
     {
         return;
     }

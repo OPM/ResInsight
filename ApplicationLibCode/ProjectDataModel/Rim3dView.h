@@ -86,8 +86,8 @@ class Rim3dView : public RimViewWindow, public RiuViewerToViewInterface, public 
     CAF_PDM_HEADER_INIT;
 
 public:
-    Rim3dView( void );
-    ~Rim3dView( void ) override;
+    Rim3dView();
+    ~Rim3dView() override;
 
     int id() const final;
 
@@ -237,8 +237,8 @@ protected:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
-    virtual QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                                 bool*                      useOptionsOnly ) override;
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
+                                                         bool*                      useOptionsOnly ) override;
 
     void setupBeforeSave() override;
 
@@ -266,7 +266,7 @@ private:
     QWidget* viewWidget() override;
 
     // Implementation of RimNameConfigHolderInterface
-    void performAutoNameUpdate() override final;
+    void performAutoNameUpdate() final;
 
     // Implementation of RiuViewerToViewInterface
 
