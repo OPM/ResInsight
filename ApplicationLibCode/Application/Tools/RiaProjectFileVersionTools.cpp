@@ -28,8 +28,8 @@ bool RiaProjectFileVersionTools::isCandidateVersionNewerThanOther( const QString
 {
     int candidateMajorVersion  = 0;
     int candidateMinorVersion  = 0;
-    int candidatePatchNumber   = 0;
-    int candidateDevelopmentId = 0;
+    int candidatePatchNumber   = -1;
+    int candidateDevelopmentId = -1;
 
     RiaProjectFileVersionTools::decodeVersionString( candidateProjectFileVersion,
                                                      &candidateMajorVersion,
@@ -39,8 +39,8 @@ bool RiaProjectFileVersionTools::isCandidateVersionNewerThanOther( const QString
 
     int majorVersion  = 0;
     int minorVersion  = 0;
-    int patchNumber   = 0;
-    int developmentId = 0;
+    int patchNumber   = -1;
+    int developmentId = -1;
 
     RiaProjectFileVersionTools::decodeVersionString( projectFileVersion,
                                                      &majorVersion,
@@ -120,10 +120,16 @@ bool RiaProjectFileVersionTools::isCandidateNewerThanOther( int candidateMajorVe
         return ( candidateMinorVersion > otherMinorVersion );
     }
 
+    // Early exit if a patch number is undefined
+    if ( candidatePatchNumber == -1 || otherPatchNumber == -1 ) return false;
+
     if ( candidatePatchNumber != otherPatchNumber )
     {
         return ( candidatePatchNumber > otherPatchNumber );
     }
+
+    // Early exit if a development number is undefined
+    if ( candidateDevelopmentId == -1 && otherDevelopmentId == -1 ) return false;
 
     if ( candidateDevelopmentId != otherDevelopmentId )
     {

@@ -476,6 +476,33 @@ QList<caf::PdmOptionItemInfo> RimWellPath::calculateValueOptions( const caf::Pdm
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimWellPath::initAfterRead()
+{
+    if ( RimProject::current()->isProjectFileVersionEqualOrOlderThan( "2020.10.1" ) )
+    {
+        if ( isTopLevelWellPath() && m_completionSettings->mswParameters()->isDefault() )
+        {
+            std::vector<const RimMswCompletionParameters*> allExistingMswParameters;
+            descendantsOfType( allExistingMswParameters );
+            for ( auto mswParameters : allExistingMswParameters )
+            {
+                if ( !mswParameters->isDefault() )
+                {
+                    *( m_completionSettings->mswParameters() ) = *mswParameters;
+                    break;
+                }
+            }
+            if ( m_completionSettings->wellNameForExport().isEmpty() )
+            {
+                m_completionSettings->setWellNameForExport( name() );
+            }
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------- -----------------------------
 QString RimWellPath::name() const
 {
     return m_name();

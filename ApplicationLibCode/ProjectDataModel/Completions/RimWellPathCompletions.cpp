@@ -25,6 +25,7 @@
 #include "RimImportedFishboneLateralsCollection.h"
 #include "RimPerforationCollection.h"
 #include "RimPerforationInterval.h"
+#include "RimProject.h"
 #include "RimStimPlanModel.h"
 #include "RimStimPlanModelCollection.h"
 #include "RimWellPath.h"
@@ -265,13 +266,15 @@ void RimWellPathCompletions::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTre
 //--------------------------------------------------------------------------------------------------
 void RimWellPathCompletions::initAfterRead()
 {
-    // TODO: do this if the obsoleted fields have non-default values:
-    /* std::vector<RimWellPath*> wellPathHierarchy;
-    this->allAncestorsOrThisOfType( wellPathHierarchy );
-    RimWellPath* topLevelWellPath = wellPathHierarchy.back();
-    auto         settings         = topLevelWellPath->completionSettings();
+    if ( RimProject::current()->isProjectFileVersionEqualOrOlderThan( "2020.10.1.2" ) )
+    {
+        std::vector<RimWellPath*> wellPathHierarchy;
+        this->allAncestorsOrThisOfType( wellPathHierarchy );
+        RimWellPath* topLevelWellPath = wellPathHierarchy.back();
+        auto         settings         = topLevelWellPath->completionSettings();
 
-    applyToSettings( settings ); */
+        applyToSettings( settings );
+    };
 }
 
 //--------------------------------------------------------------------------------------------------
