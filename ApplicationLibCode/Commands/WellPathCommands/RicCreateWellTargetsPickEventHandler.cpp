@@ -182,7 +182,7 @@ bool RicCreateWellTargetsPickEventHandler::handle3dPickEvent( const Ric3dPickEve
         m_geometryToAddTargetsTo->insertTarget( nullptr, newTarget );
 
         m_geometryToAddTargetsTo->updateConnectedEditors();
-        m_geometryToAddTargetsTo->updateWellPathVisualization(true);
+        m_geometryToAddTargetsTo->updateWellPathVisualization( true );
 
         return true; // Todo: See if we really should eat the event instead
     }
