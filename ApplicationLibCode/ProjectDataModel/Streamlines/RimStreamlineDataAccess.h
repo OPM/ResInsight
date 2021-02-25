@@ -42,11 +42,11 @@ public:
 
     bool setupDataAccess( RigMainGrid* grid, RigEclipseCaseData* data, std::list<RiaDefines::PhaseType> phases, int timeIdx );
 
-    double faceValue( RigCell cell, cvf::StructGridInterface::FaceType faceIdx, RiaDefines::PhaseType phase ) const;
-    double combinedFaceValue( RigCell                            cell,
-                              cvf::StructGridInterface::FaceType faceIdx,
-                              std::list<RiaDefines::PhaseType>   phases,
-                              RiaDefines::PhaseType&             dominantPhaseOut ) const;
+    double faceValueDividedByArea( RigCell cell, cvf::StructGridInterface::FaceType faceIdx, RiaDefines::PhaseType phase ) const;
+    double combinedFaceValueByArea( RigCell                            cell,
+                                    cvf::StructGridInterface::FaceType faceIdx,
+                                    std::list<RiaDefines::PhaseType>   phases,
+                                    RiaDefines::PhaseType&             dominantPhaseOut ) const;
 
     const RigMainGrid* grid() const { return m_grid; }
 
@@ -55,8 +55,12 @@ protected:
             getDataAccessor( cvf::StructGridInterface::FaceType faceIdx, RiaDefines::PhaseType phase, int timeIdx );
     QString gridResultNameFromPhase( RiaDefines::PhaseType phase, cvf::StructGridInterface::FaceType faceIdx ) const;
 
-    double posFaceValue( RigCell cell, cvf::StructGridInterface::FaceType faceIdx, RiaDefines::PhaseType phase ) const;
-    double negFaceValue( RigCell cell, cvf::StructGridInterface::FaceType faceIdx, RiaDefines::PhaseType phase ) const;
+    double posFaceValueDividedByArea( RigCell                            cell,
+                                      cvf::StructGridInterface::FaceType faceIdx,
+                                      RiaDefines::PhaseType              phase ) const;
+    double negFaceValueDividedByArea( RigCell                            cell,
+                                      cvf::StructGridInterface::FaceType faceIdx,
+                                      RiaDefines::PhaseType              phase ) const;
 
 private:
     RigMainGrid*        m_grid;

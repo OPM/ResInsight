@@ -54,8 +54,8 @@ void RimStreamlineGenerator2::generateTracer( RigCell                    cell,
     // try to generate a tracer for all faces in the selected cell with positive flow
     for ( auto faceIdx : m_allFaces )
     {
-        double flowrate = m_dataAccess->combinedFaceValue( cell, faceIdx, m_phases, dominantPhase ) * direction;
-        if ( flowrate > m_flowThreshold )
+        double flowVelocity = m_dataAccess->combinedFaceValueByArea( cell, faceIdx, m_phases, dominantPhase ) * direction;
+        if ( flowVelocity > m_flowThreshold )
         {
             m_seeds.push_back( std::make_pair( cellIdx, faceIdx ) );
         }
@@ -93,12 +93,12 @@ void RimStreamlineGenerator2::growStreamline( RimStreamline*                    
 
     // get rate
     RiaDefines::PhaseType dominantPhaseOut;
-    double rate = std::abs( m_dataAccess->combinedFaceValue( cell, faceIdx, m_phases, dominantPhaseOut ) );
+    double flowVelocity = std::abs( m_dataAccess->combinedFaceValueByArea( cell, faceIdx, m_phases, dominantPhaseOut ) );
 
-    while ( rate >= m_flowThreshold )
+    while ( flowVelocity >= m_flowThreshold )
     {
         // grow from given face center to cell center, exiting if we reach the max length
-        if ( !growStreamlineFromTo( streamline, cell.faceCenter( faceIdx ), cell.center(), rate, dominantPhaseOut ) )
+        if ( !growStreamlineFromTo( streamline, cell.faceCenter( faceIdx ), cell.center(), flowVelocity, dominantPhaseOut ) )
             break;
 
         // move to next cell
@@ -108,10 +108,15 @@ void RimStreamlineGenerator2::growStreamline( RimStreamline*                    
         cvf::StructGridInterface::FaceType neighborFaceIdx = cvf::StructGridInterface::oppositeFace( faceIdx );
 
         // get rate
-        rate = std::abs( m_dataAccess->combinedFaceValue( neighbor, neighborFaceIdx, m_phases, dominantPhaseOut ) );
+        flowVelocity =
+            std::abs( m_dataAccess->combinedFaceValueByArea( neighbor, neighborFaceIdx, m_phases, dominantPhaseOut ) );
 
         // grow from face center to cell center, exiting if we reach the max point limit
-        if ( !growStreamlineFromTo( streamline, neighbor.faceCenter( neighborFaceIdx ), neighbor.center(), rate, dominantPhaseOut ) )
+        if ( !growStreamlineFromTo( streamline,
+                                    neighbor.faceCenter( neighborFaceIdx ),
+                                    neighbor.center(),
+                                    flowVelocity,
+                                    dominantPhaseOut ) )
             break;
 
         // have we been here?
@@ -132,7 +137,7 @@ void RimStreamlineGenerator2::growStreamline( RimStreamline*                    
         {
             RiaDefines::PhaseType dummy;
             if ( face == neighborFaceIdx ) continue;
-            double faceRate = m_dataAccess->combinedFaceValue( neighbor, face, m_phases, dummy ) * direction;
+            double faceRate = m_dataAccess->combinedFaceValueByArea( neighbor, face, m_phases, dummy ) * direction;
 
             if ( ( ( direction < 0.0 ) && ( faceRate < maxRate ) ) || ( ( direction > 0.0 ) && ( faceRate > maxRate ) ) )
             {
@@ -146,9 +151,9 @@ void RimStreamlineGenerator2::growStreamline( RimStreamline*                    
                 rateMap[face] = faceRate * direction;
         }
 
-        rate    = std::abs( maxRate );
-        faceIdx = exitFace;
-        cell    = neighbor;
+        flowVelocity = std::abs( maxRate );
+        faceIdx      = exitFace;
+        cell         = neighbor;
 
         // add seeds for other faces with flow > threshold
         for ( auto& kvp : rateMap )
@@ -166,19 +171,19 @@ void RimStreamlineGenerator2::growStreamline( RimStreamline*                    
 bool RimStreamlineGenerator2::growStreamlineFromTo( RimStreamline*        streamline,
                                                     cvf::Vec3d            startPos,
                                                     cvf::Vec3d            endPos,
-                                                    double                rate,
+                                                    double                flowVelocity,
                                                     RiaDefines::PhaseType dominantPhase )
 {
     double totDistance = endPos.pointDistance( startPos );
 
     if ( totDistance < 0.1 ) return true;
-    if ( rate < m_flowThreshold ) return false;
+    if ( flowVelocity < m_flowThreshold ) return false;
 
     cvf::Vec3d direction = endPos - startPos;
     direction.normalize();
-    direction *= rate;
+    direction *= flowVelocity;
 
-    int nSteps = (int)std::round( ( totDistance / rate ) / m_resolution );
+    int nSteps = (int)std::round( ( totDistance / flowVelocity ) / m_resolution );
 
     cvf::Vec3d curpos = startPos;
 
