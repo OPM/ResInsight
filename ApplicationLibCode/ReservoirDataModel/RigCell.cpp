@@ -74,6 +74,28 @@ cvf::Vec3d RigCell::center() const
     return avg;
 }
 
+//--------------------------------------------------------------------------------------------------
+/// Get the coordinates of the 4 corners of the given face
+//--------------------------------------------------------------------------------------------------
+std::array<cvf::Vec3d, 4> RigCell::faceCorners( cvf::StructGridInterface::FaceType face ) const
+{
+    std::array<cvf::Vec3d, 4> corners;
+    cvf::ubyte                faceVertexIndices[4];
+    cvf::StructGridInterface::cellFaceVertexIndices( face, faceVertexIndices );
+
+    const std::vector<cvf::Vec3d>& nodeCoords = m_hostGrid->mainGrid()->nodes();
+
+    for ( size_t i = 0; i < 4; i++ )
+    {
+        corners[i] = nodeCoords[m_cornerIndices[faceVertexIndices[i]]];
+    }
+
+    return corners;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool isNear( const cvf::Vec3d& p1, const cvf::Vec3d& p2, double tolerance )
 {
     if ( cvf::Math::abs( p1[0] - p2[0] ) < tolerance && cvf::Math::abs( p1[1] - p2[1] ) < tolerance &&
