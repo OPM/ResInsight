@@ -84,12 +84,15 @@ CAF_PDM_SOURCE_INIT( RimStreamlineInViewCollection, "StreamlineInViewCollection"
 ///
 //--------------------------------------------------------------------------------------------------
 RimStreamlineInViewCollection::RimStreamlineInViewCollection()
+    : m_shouldGenerateTracers( false )
+    , m_currentTimestep( -1 )
 {
     CAF_PDM_InitScriptableObject( "Streamlines", ":/Erase.png", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_legendConfig, "LegendDefinition", "Color Legend", "", "", "" );
     m_legendConfig = new RimRegularLegendConfig();
     m_legendConfig.uiCapability()->setUiHidden( true );
+    m_legendConfig->setMappingMode( RimRegularLegendConfig::MappingType::LINEAR_CONTINUOUS );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_collectionName, "Name", "Name", "", "", "" );
     m_collectionName = "Streamlines";
@@ -172,7 +175,8 @@ caf::PdmFieldHandle* RimStreamlineInViewCollection::objectToggleField()
 //--------------------------------------------------------------------------------------------------
 void RimStreamlineInViewCollection::setEclipseCase( RimEclipseCase* reservoir )
 {
-    m_eclipseCase = reservoir;
+    m_shouldGenerateTracers = true;
+    m_eclipseCase           = reservoir;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -181,6 +185,14 @@ void RimStreamlineInViewCollection::setEclipseCase( RimEclipseCase* reservoir )
 RimEclipseCase* RimStreamlineInViewCollection::eclipseCase() const
 {
     return m_eclipseCase;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimStreamlineInViewCollection::isActive() const
+{
+    return m_isActive();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -272,28 +284,37 @@ void RimStreamlineInViewCollection::mappingRange( double& min, double& max ) con
 void RimStreamlineInViewCollection::updateLegendRangesTextAndVisibility( RiuViewer* nativeOrOverrideViewer,
                                                                          bool       isUsingOverrideViewer )
 {
-    if ( m_isActive() )
+    if ( m_isActive() && ( m_streamlines.size() > 0 ) && m_legendConfig->showLegend() )
     {
-        m_legendConfig->setTitle( QString( "Streamlines: \n" ) );
+        QString title = "Streamlines: \n";
+        title += m_phases().uiText() + " flow\n";
+        m_legendConfig->setTitle( title );
+
         double minResultValue;
         double maxResultValue;
         mappingRange( minResultValue, maxResultValue );
         m_legendConfig->setAutomaticRanges( minResultValue, maxResultValue, minResultValue, maxResultValue );
-        m_legendConfig->setMappingMode( RimRegularLegendConfig::MappingType::LINEAR_CONTINUOUS );
 
         double posClosestToZero = HUGE_VAL;
         double negClosestToZero = -HUGE_VAL;
         m_legendConfig->setClosestToZeroValues( posClosestToZero, negClosestToZero, posClosestToZero, negClosestToZero );
+
         nativeOrOverrideViewer->addColorLegendToBottomLeftCorner( m_legendConfig->titledOverlayFrame(),
                                                                   isUsingOverrideViewer );
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-///
+/// Main entry point for triggering a streamline update
 //--------------------------------------------------------------------------------------------------
-void RimStreamlineInViewCollection::updateFromCurrentTimeStep()
+void RimStreamlineInViewCollection::updateFromCurrentTimeStep( int timeStep )
 {
+    if ( timeStep != m_currentTimestep )
+    {
+        m_shouldGenerateTracers = true;
+        m_currentTimestep       = timeStep;
+    }
+
     updateStreamlines();
 }
 
@@ -340,6 +361,15 @@ size_t RimStreamlineInViewCollection::injectionDeltaTime() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimStreamlineInViewCollection::refresh()
+{
+    m_shouldGenerateTracers = true;
+    updateStreamlines();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimStreamlineInViewCollection::findStartCells( int                                       timeIdx,
                                                     std::vector<std::pair<QString, RigCell>>& outInjectorCells,
                                                     std::vector<std::pair<QString, RigCell>>& outProducerCells )
@@ -350,7 +380,7 @@ void RimStreamlineInViewCollection::findStartCells( int                         
     std::vector<const RigGridBase*> grids;
     eclipseCase()->eclipseCaseData()->allGrids( &grids );
 
-    // go through all sim wells and find all open producer and injector cells for the selected phase
+    // go through all sim wells and find all open producer and injector cells for the given timestep
     for ( auto& swdata : simWellData )
     {
         if ( !swdata->hasWellResult( timeIdx ) || !swdata->hasAnyValidCells( timeIdx ) ) continue;
@@ -377,9 +407,6 @@ void RimStreamlineInViewCollection::findStartCells( int                         
             }
         }
     }
-
-    qDebug() << "Found " << outProducerCells.size() << " producing cells";
-    qDebug() << "Found " << outInjectorCells.size() << " injector cells";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -389,17 +416,17 @@ void RimStreamlineInViewCollection::updateStreamlines()
 {
     bool bNeedRedraw = ( m_streamlines.size() > 0 );
 
-    // reset generated streamlines
-    m_streamlines().clear();
-    m_wellCellIds.clear();
-
     // get the view
     RimEclipseView* eclView = nullptr;
     this->firstAncestorOrThisOfType( eclView );
     if ( !eclView ) return;
 
-    if ( m_isActive() )
+    if ( m_shouldGenerateTracers && isActive() )
     {
+        // reset generated streamlines
+        m_streamlines().clear();
+        m_wellCellIds.clear();
+
         // get current simulation timestep
         int timeIdx = eclView->currentTimeStep();
 
@@ -458,7 +485,7 @@ void RimStreamlineInViewCollection::updateStreamlines()
             m_maxAnimationIndex = 0;
             for ( auto& sline : streamlines )
             {
-                if ( sline && sline->size() > 0 )
+                if ( sline && sline->size() > 1 )
                 {
                     double distance = sline->tracer().totalDistance();
 
@@ -473,12 +500,15 @@ void RimStreamlineInViewCollection::updateStreamlines()
                 }
             }
 
-            // outputSummary();
             bNeedRedraw = true;
         }
+        m_shouldGenerateTracers = false;
     }
 
-    if ( bNeedRedraw ) eclView->scheduleCreateDisplayModelAndRedraw();
+    if ( bNeedRedraw )
+    {
+        eclView->scheduleCreateDisplayModelAndRedraw();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -621,6 +651,13 @@ void RimStreamlineInViewCollection::fieldChangedByUi( const caf::PdmFieldHandle*
               qvariant_cast<int>( oldValue ) != static_cast<int>( VisualizationMode::VECTORS ) )
     {
         return;
+    }
+
+    if ( changedField == &m_lengthThreshold || changedField == &m_flowThreshold || changedField == &m_resolution ||
+         changedField == &m_maxDays || changedField == &m_useProducers || changedField == &m_useInjectors ||
+         changedField == &m_phases )
+    {
+        m_shouldGenerateTracers = true;
     }
 
     RimEclipseView* eclView = nullptr;

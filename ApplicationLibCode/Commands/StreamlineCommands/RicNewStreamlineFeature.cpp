@@ -48,7 +48,7 @@ void RicNewStreamlineFeature::onActionTriggered( bool isChecked )
 
     if ( streamColl )
     {
-        streamColl->updateStreamlines();
+        streamColl->refresh();
     }
 }
 

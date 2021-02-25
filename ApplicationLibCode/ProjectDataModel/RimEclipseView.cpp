@@ -712,6 +712,7 @@ void RimEclipseView::onUpdateDisplayModelForCurrentTimeStep()
     // m_surfaceCollection->clearGeometry();
 
     m_propertyFilterCollection()->updateFromCurrentTimeStep();
+    m_streamlineCollection()->updateFromCurrentTimeStep( currentTimeStep() );
 
     updateVisibleGeometries();
 
@@ -720,8 +721,6 @@ void RimEclipseView::onUpdateDisplayModelForCurrentTimeStep()
     updateVisibleCellColors();
 
     wellCollection()->scaleWellDisks();
-
-    m_streamlineCollection()->updateFromCurrentTimeStep();
 
     appendWellsAndFracturesToModel();
     appendElementVectorResultToModel();

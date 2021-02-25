@@ -79,17 +79,20 @@ public:
     size_t            tracerLength() const;
     size_t            injectionDeltaTime() const;
 
-    void updateStreamlines();
+    bool isActive() const;
+
+    void refresh();
 
     const std::list<RigTracer>& tracers();
 
     const RimRegularLegendConfig* legendConfig() const;
     void                          mappingRange( double& min, double& max ) const;
     void updateLegendRangesTextAndVisibility( RiuViewer* nativeOrOverrideViewer, bool isUsingOverrideViewer );
-    void updateFromCurrentTimeStep();
+    void updateFromCurrentTimeStep( int timeStep );
 
 protected:
     caf::PdmFieldHandle* objectToggleField() override;
+    void                 updateStreamlines();
 
 private:
     void findStartCells( int                                       timeIdx,
@@ -124,6 +127,9 @@ private:
     caf::PdmField<size_t>                   m_injectionDeltaTime;
 
     size_t m_maxAnimationIndex;
+
+    bool m_shouldGenerateTracers;
+    int  m_currentTimestep;
 
     std::list<RigTracer> m_activeTracers;
 

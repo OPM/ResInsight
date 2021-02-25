@@ -74,6 +74,10 @@ void RivStreamlinesPartMgr::appendDynamicGeometryPartsToModel( cvf::ModelBasicLi
 {
     m_streamlines.clear();
 
+    RimStreamlineInViewCollection* streamlineCollection = m_rimReservoirView->streamlineCollection();
+
+    if ( !streamlineCollection->isActive() ) return;
+
     CVF_ASSERT( model );
     if ( m_rimReservoirView.isNull() ) return;
 
@@ -84,8 +88,6 @@ void RivStreamlinesPartMgr::appendDynamicGeometryPartsToModel( cvf::ModelBasicLi
     if ( !eclipseCaseData ) return;
 
     cvf::ref<caf::DisplayCoordTransform> displayCordXf = m_rimReservoirView->displayCoordTransform();
-
-    RimStreamlineInViewCollection* streamlineCollection = m_rimReservoirView->streamlineCollection();
 
     for ( const RigTracer& tracer : streamlineCollection->tracers() )
     {
