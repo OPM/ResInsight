@@ -158,29 +158,18 @@ private:
     cvf::ref<cvf::Part> createPart( const RimStreamlineInViewCollection& streamlineCollection,
                                     Streamline&                          streamlineVisualization );
 
-    void                createResultColorTextureCoords( cvf::Vec2fArray*         textureCoords,
-                                                        const Streamline&        streamline,
-                                                        const cvf::ScalarMapper* mapper );
-    cvf::ref<cvf::Part> createCurvePart( const RimStreamlineInViewCollection& streamlineCollection,
-                                         StreamlineVisualization&             streamlineVisualization,
-                                         const double                         t1,
-                                         const double                         t2 );
+    void createResultColorTextureCoords( cvf::Vec2fArray*         textureCoords,
+                                         const Streamline&        streamline,
+                                         const cvf::ScalarMapper* mapper );
 
     cvf::ref<cvf::Part> createVectorPart( const RimStreamlineInViewCollection& streamlineCollection, Streamline& segment );
-
-    cvf::ref<cvf::Part> createPointsPart( const RimStreamlineInViewCollection& streamlineCollection,
-                                          StreamlineVisualization&             streamlineVisualization,
-                                          const double                         t1,
-                                          const double                         t2 );
 
     std::array<cvf::Vec3f, 7> createArrowVertices( const cvf::Vec3f anchorPoint, const cvf::Vec3f direction ) const;
     std::array<uint, 2>       createArrowShaftIndices( uint startIndex ) const;
     std::array<uint, 6>       createArrowHeadIndices( uint startIndex ) const;
-    // void                createExampleStreamline( std::vector<StreamlineVisualization>& streamlineVisualizations );
-    void setAlpha( cvf::ref<cvf::Part> part, float alpha );
+    void                      setAlpha( cvf::ref<cvf::Part> part, float alpha );
 
 private:
-    // std::list<StreamlineVisualization> m_streamlines;
     std::list<Streamline>           m_streamlines;
     caf::PdmPointer<RimEclipseView> m_rimReservoirView;
     uint                            m_count;

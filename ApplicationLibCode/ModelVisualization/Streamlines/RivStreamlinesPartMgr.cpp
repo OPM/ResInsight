@@ -131,22 +131,34 @@ void RivStreamlinesPartMgr::updateAnimation()
         {
             if ( streamline.getPart().notNull() && dynamic_cast<cvf::DrawableGeo*>( streamline.getPart()->drawable() ) )
             {
-                if ( dynamic_cast<cvf::PrimitiveSetIndexedUIntScoped*>(
-                         static_cast<cvf::DrawableGeo*>( streamline.getPart()->drawable() )->primitiveSet( 0 ) ) )
+                auto primitiveSet = dynamic_cast<cvf::PrimitiveSetIndexedUIntScoped*>(
+                    static_cast<cvf::DrawableGeo*>( streamline.getPart()->drawable() )->primitiveSet( 0 ) );
+
+                if ( primitiveSet )
                 {
+                    size_t startIndex = 0;
+                    size_t endIndex   = primitiveSet->indices()->size();
+
                     if ( streamlineCollection->visualizationMode() ==
                          RimStreamlineInViewCollection::VisualizationMode::ANIMATION )
                     {
                         streamline.incrementAnimationIndex( streamlineCollection->animationSpeed() );
+
+                        startIndex = streamline.getAnimationIndex();
+
+                        // Make sure we have an even animation index, as this index is used to define start of a line
+                        // segment
+                        startIndex /= 2;
+                        startIndex *= 2;
+
+                        endIndex = std::min( endIndex, startIndex + streamlineCollection->tracerLength() );
                     }
                     else
                     {
-                        streamline.setAnimationIndex( streamlineCollection->animationIndex() * 2 );
+                        endIndex = std::min( endIndex, streamlineCollection->animationIndex() * 2 );
                     }
-                    // Each part should have exactly one primitive set.
-                    static_cast<cvf::PrimitiveSetIndexedUIntScoped*>(
-                        static_cast<cvf::DrawableGeo*>( streamline.getPart()->drawable() )->primitiveSet( 0 ) )
-                        ->setScope( 0, streamline.getAnimationIndex() );
+
+                    primitiveSet->setScope( startIndex, endIndex - startIndex );
                 }
             }
         }
@@ -743,6 +755,11 @@ size_t RivStreamlinesPartMgr::Streamline::getAnimationIndex() const
 void RivStreamlinesPartMgr::Streamline::incrementAnimationIndex( size_t increment )
 {
     animIndex += increment;
+
+    // Make sure we have an even animation index, as this index is used to define start of a line segment
+    animIndex /= 2;
+    animIndex *= 2;
+
     if ( animIndex >= tracerPoints.size() * 2 - 2 )
     {
         animIndex = 0.0;
