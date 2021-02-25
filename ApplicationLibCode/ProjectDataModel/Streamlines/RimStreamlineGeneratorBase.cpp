@@ -39,6 +39,7 @@ RimStreamlineGeneratorBase::RimStreamlineGeneratorBase( std::set<size_t>& wellCe
     , m_resolution( 10.0 )
     , m_wellCells( wellCells )
     , m_dataAccess( nullptr )
+    , m_maxPoints( 1 )
 {
 }
 
