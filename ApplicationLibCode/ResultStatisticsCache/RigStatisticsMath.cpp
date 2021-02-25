@@ -21,8 +21,8 @@
 #include "cvfMath.h"
 
 #include <algorithm>
-#include <assert.h>
-#include <math.h>
+#include <cassert>
+#include <cmath>
 
 //--------------------------------------------------------------------------------------------------
 /// A function to do basic statistical calculations

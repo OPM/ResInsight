@@ -74,6 +74,28 @@ cvf::Vec3d RigCell::center() const
     return avg;
 }
 
+//--------------------------------------------------------------------------------------------------
+/// Get the coordinates of the 4 corners of the given face
+//--------------------------------------------------------------------------------------------------
+std::array<cvf::Vec3d, 4> RigCell::faceCorners( cvf::StructGridInterface::FaceType face ) const
+{
+    std::array<cvf::Vec3d, 4> corners;
+    cvf::ubyte                faceVertexIndices[4];
+    cvf::StructGridInterface::cellFaceVertexIndices( face, faceVertexIndices );
+
+    const std::vector<cvf::Vec3d>& nodeCoords = m_hostGrid->mainGrid()->nodes();
+
+    for ( size_t i = 0; i < 4; i++ )
+    {
+        corners[i] = nodeCoords[m_cornerIndices[faceVertexIndices[i]]];
+    }
+
+    return corners;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool isNear( const cvf::Vec3d& p1, const cvf::Vec3d& p2, double tolerance )
 {
     if ( cvf::Math::abs( p1[0] - p2[0] ) < tolerance && cvf::Math::abs( p1[1] - p2[1] ) < tolerance &&
@@ -417,4 +439,53 @@ cvf::BoundingBox RigCell::boundingBox() const
         }
     }
     return bb;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Return the neighbor cell of the given face
+//--------------------------------------------------------------------------------------------------
+RigCell RigCell::neighborCell( cvf::StructGridInterface::FaceType face ) const
+{
+    size_t i, j, k;
+
+    m_hostGrid->ijkFromCellIndexUnguarded( mainGridCellIndex(), &i, &j, &k );
+
+    size_t neighborIdx;
+    if ( m_hostGrid->cellIJKNeighbor( i, j, k, face, &neighborIdx ) )
+    {
+        return m_hostGrid->cell( neighborIdx );
+    }
+
+    RigCell retcell;
+    retcell.setInvalid( true );
+    return retcell;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Find and return the main grid cell index of all up to 26 neighbor cells to the given cell
+//--------------------------------------------------------------------------------------------------
+std::vector<size_t> RigCell::allNeighborMainGridCellIndexes() const
+{
+    std::vector<size_t> neighbors;
+
+    size_t ni, nj, nk;
+
+    m_hostGrid->ijkFromCellIndexUnguarded( mainGridCellIndex(), &ni, &nj, &nk );
+
+    for ( size_t i = ni - 1; i <= ni + 1; i++ )
+    {
+        for ( size_t j = nj - 1; j <= nj + 1; j++ )
+        {
+            for ( size_t k = nk - 1; k <= nk + 1; k++ )
+            {
+                if ( m_hostGrid->isCellValid( i, j, k ) )
+                {
+                    size_t cellIndex = m_hostGrid->cellIndexFromIJK( i, j, k );
+                    if ( ( ni == i ) && ( nj == j ) && ( nk == k ) ) continue;
+                    neighbors.push_back( cellIndex );
+                }
+            }
+        }
+    }
+    return neighbors;
 }

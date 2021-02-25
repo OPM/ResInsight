@@ -29,6 +29,7 @@
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmPtrField.h"
+#include "cafSignal.h"
 
 #include "cafPdmFieldCvfColor.h"
 #include "cafPdmFieldCvfMat4d.h"
@@ -38,6 +39,7 @@
 #include "cvfObject.h"
 
 #include <QPointer>
+#include <QTimer>
 
 class RimCase;
 class RimLegendConfig;
@@ -84,8 +86,8 @@ class Rim3dView : public RimViewWindow, public RiuViewerToViewInterface, public 
     CAF_PDM_HEADER_INIT;
 
 public:
-    Rim3dView( void );
-    ~Rim3dView( void ) override;
+    Rim3dView();
+    ~Rim3dView() override;
 
     int id() const final;
 
@@ -142,13 +144,18 @@ public:
     void   zoomAll() override;
     void   forceShowWindowOn();
 
-    // Animation
+    // Timestep control
     int     currentTimeStep() const;
     void    setCurrentTimeStep( int frameIdx );
     void    setCurrentTimeStepAndUpdate( int frameIdx ) override;
     bool    isTimeStepDependentDataVisibleInThisOrComparisonView() const;
     size_t  timeStepCount();
     QString timeStepName( int frameIdx ) const override;
+
+    // Animation control
+    caf::Signal<> updateAnimations;
+    void          requestAnimationTimer();
+    void          releaseAnimationTimer();
 
     // Updating
     void         scheduleCreateDisplayModelAndRedraw();
@@ -230,8 +237,8 @@ protected:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
-    virtual QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                                 bool*                      useOptionsOnly ) override;
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
+                                                         bool*                      useOptionsOnly ) override;
 
     void setupBeforeSave() override;
 
@@ -259,7 +266,7 @@ private:
     QWidget* viewWidget() override;
 
     // Implementation of RimNameConfigHolderInterface
-    void performAutoNameUpdate() override final;
+    void performAutoNameUpdate() final;
 
     // Implementation of RiuViewerToViewInterface
 
@@ -310,4 +317,9 @@ private:
     cvf::ref<RivAnnotationsPartMgr> m_annotationsPartManager;
     cvf::ref<RivMeasurementPartMgr> m_measurementPartManager;
     cvf::ref<RivCellFilterPartMgr>  m_cellfilterPartManager;
+
+    // Timer for animations
+    std::unique_ptr<QTimer> m_animationTimer;
+    const int               m_animationIntervalMillisec;
+    int                     m_animationTimerUsers;
 };

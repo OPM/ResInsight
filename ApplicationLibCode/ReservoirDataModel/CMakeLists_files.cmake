@@ -83,6 +83,8 @@ ${CMAKE_CURRENT_LIST_DIR}/RigGocadData.h
 ${CMAKE_CURRENT_LIST_DIR}/RigElasticProperties.h
 ${CMAKE_CURRENT_LIST_DIR}/RigHistogramData.h
 ${CMAKE_CURRENT_LIST_DIR}/RigVisibleTracerFilter.h
+${CMAKE_CURRENT_LIST_DIR}/RigTracerPoint.h
+${CMAKE_CURRENT_LIST_DIR}/RigTracer.h
 )
 
 
@@ -163,6 +165,8 @@ ${CMAKE_CURRENT_LIST_DIR}/RigGocadData.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RigElasticProperties.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RigHistogramData.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RigVisibleTracerFilter.cpp
+${CMAKE_CURRENT_LIST_DIR}/RigTracerPoint.cpp
+${CMAKE_CURRENT_LIST_DIR}/RigTracer.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

@@ -1,7 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2015-     Statoil ASA
-//  Copyright (C) 2015-     Ceetron Solutions AS
+//  Copyright (C) 2020 - Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -17,85 +16,62 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RigFemNativeVisibleCellsStatCalc.h"
-#include "RigFemPartResultsCollection.h"
-#include "RigFemScalarResultFrames.h"
-
-#include "RigFemPartCollection.h"
-#include "RigGeoMechCaseData.h"
-#include "RigStatisticsMath.h"
-
-#include <cmath>
+#include "RigTracerPoint.h"
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigFemNativeVisibleCellsStatCalc::RigFemNativeVisibleCellsStatCalc( RigGeoMechCaseData*        femCase,
-                                                                    const RigFemResultAddress& resVarAddr,
-                                                                    const cvf::UByteArray*     cellVisibilities )
-    : m_caseData( femCase )
-    , m_resVarAddr( resVarAddr )
-    , m_cellVisibilities( cellVisibilities )
+RigTracerPoint::RigTracerPoint( cvf::Vec3d position, cvf::Vec3d direction, RiaDefines::PhaseType phase )
+    : m_position( position )
+    , m_direction( direction )
+    , m_phaseType( phase )
 {
-    m_resultsData = femCase->femPartResults();
+    m_absValue = m_direction.length();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigFemNativeVisibleCellsStatCalc::minMaxCellScalarValues( size_t timeStepIndex, double& min, double& max )
+RigTracerPoint::~RigTracerPoint()
 {
-    MinMaxAccumulator acc( min, max );
-    traverseElementNodes( acc, timeStepIndex );
-    min = acc.min;
-    max = acc.max;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigFemNativeVisibleCellsStatCalc::posNegClosestToZero( size_t timeStepIndex, double& pos, double& neg )
+const cvf::Vec3d& RigTracerPoint::position() const
 {
-    PosNegAccumulator acc( pos, neg );
-    traverseElementNodes( acc, timeStepIndex );
-    pos = acc.pos;
-    neg = acc.neg;
+    return m_position;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigFemNativeVisibleCellsStatCalc::valueSumAndSampleCount( size_t timeStepIndex, double& valueSum, size_t& sampleCount )
+const cvf::Vec3d& RigTracerPoint::direction() const
 {
-    SumCountAccumulator acc( valueSum, sampleCount );
-    traverseElementNodes( acc, timeStepIndex );
-    valueSum    = acc.valueSum;
-    sampleCount = acc.sampleCount;
+    return m_direction;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigFemNativeVisibleCellsStatCalc::addDataToHistogramCalculator( size_t                  timeStepIndex,
-                                                                     RigHistogramCalculator& histogramCalculator )
+double RigTracerPoint::absValue() const
 {
-    traverseElementNodes( histogramCalculator, timeStepIndex );
+    return m_absValue;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigFemNativeVisibleCellsStatCalc::uniqueValues( size_t timeStepIndex, std::set<int>& values )
+RiaDefines::PhaseType RigTracerPoint::phaseType() const
 {
-    UniqueValueAccumulator acc;
-    traverseElementNodes( acc, timeStepIndex );
-    values = acc.uniqueValues;
+    return m_phaseType;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-size_t RigFemNativeVisibleCellsStatCalc::timeStepCount()
+void RigTracerPoint::reverse()
 {
-    return m_resultsData->frameCount();
+    m_direction *= -1.0;
 }
