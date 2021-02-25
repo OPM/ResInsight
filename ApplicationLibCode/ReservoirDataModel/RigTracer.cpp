@@ -93,12 +93,14 @@ double RigTracer::totalDistance() const
 //--------------------------------------------------------------------------------------------------
 void RigTracer::reverse()
 {
-    if ( m_points.size() == 0 ) return;
+    if ( m_points.empty() ) return;
 
+    // Reverse ordering of all tracer points
     std::reverse( m_points.begin(), m_points.end() );
 
     for ( auto& p : m_points )
     {
+        // Reverse the flow direction in tracer point
         p.reverse();
     }
 }
