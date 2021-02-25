@@ -23,12 +23,12 @@
 #include "RigMainGrid.h"
 #include "RimStreamline.h"
 
-const std::list<cvf::StructGridInterface::FaceType> _internal_faces = {cvf::StructGridInterface::FaceType::POS_I,
-                                                                       cvf::StructGridInterface::FaceType::NEG_I,
-                                                                       cvf::StructGridInterface::FaceType::POS_J,
-                                                                       cvf::StructGridInterface::FaceType::NEG_J,
-                                                                       cvf::StructGridInterface::FaceType::POS_K,
-                                                                       cvf::StructGridInterface::FaceType::NEG_K};
+const std::list<cvf::StructGridInterface::FaceType> _internal_faces = { cvf::StructGridInterface::FaceType::POS_I,
+                                                                        cvf::StructGridInterface::FaceType::NEG_I,
+                                                                        cvf::StructGridInterface::FaceType::POS_J,
+                                                                        cvf::StructGridInterface::FaceType::NEG_J,
+                                                                        cvf::StructGridInterface::FaceType::POS_K,
+                                                                        cvf::StructGridInterface::FaceType::NEG_K };
 
 //--------------------------------------------------------------------------------------------------
 ///
