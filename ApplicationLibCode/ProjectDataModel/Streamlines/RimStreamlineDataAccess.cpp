@@ -164,7 +164,7 @@ double RimStreamlineDataAccess::negFaceValue( RigCell                           
     else
         retval = 0.0;
 
-    if ( isinf( retval ) ) retval = 0.0;
+    if ( std::isinf( retval ) ) retval = 0.0;
 
     return retval;
 }
@@ -184,7 +184,7 @@ double RimStreamlineDataAccess::posFaceValue( RigCell                           
     else
         retval = 0.0;
 
-    if ( isinf( retval ) ) retval = 0.0;
+    if ( std::isinf( retval ) ) retval = 0.0;
 
     return retval;
 }
