@@ -90,6 +90,7 @@ public:
 protected:
     caf::PdmFieldHandle* objectToggleField() override;
     void                 updateStreamlines();
+    void                 initAfterRead() override;
 
 private:
     void findStartCells( int                                       timeIdx,
@@ -105,6 +106,7 @@ private:
 
     void outputSummary() const;
 
+private:
     caf::PdmField<bool>                     m_isActive;
     caf::PdmField<QString>                  m_collectionName;
     caf::PdmField<double>                   m_lengthThreshold;

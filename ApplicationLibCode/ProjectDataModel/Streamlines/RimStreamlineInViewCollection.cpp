@@ -119,7 +119,6 @@ RimStreamlineInViewCollection::RimStreamlineInViewCollection()
 
     CAF_PDM_InitField( &m_isActive, "isActive", false, "Active", "", "", "" );
     m_isActive.uiCapability()->setUiHidden( true );
-    m_isActive.xmlCapability()->setIOReadable( false );
 
     CAF_PDM_InitFieldNoDefault( &m_visualizationMode, "VisualizationMode", "Visualization Mode", "", "", "" );
 
@@ -528,6 +527,17 @@ void RimStreamlineInViewCollection::outputSummary() const
         debStr += " points.";
         qDebug() << debStr;
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimStreamlineInViewCollection::initAfterRead()
+{
+    RimEclipseView* eclView = nullptr;
+    this->firstAncestorOrThisOfType( eclView );
+
+    if ( eclView && m_isActive() ) eclView->requestAnimationTimer();
 }
 
 //--------------------------------------------------------------------------------------------------
