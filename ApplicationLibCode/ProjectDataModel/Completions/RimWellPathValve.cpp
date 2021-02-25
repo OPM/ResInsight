@@ -465,7 +465,7 @@ QList<caf::PdmOptionItemInfo> RimWellPathValve::calculateValueOptions( const caf
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellPathValve::fieldChangedByUi( const  caf::PdmFieldHandle* changedField,
+void RimWellPathValve::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
                                          const QVariant&            oldValue,
                                          const QVariant&            newValue )
 {

@@ -661,7 +661,7 @@ void RimWellPathCollection::groupWellPaths( const std::vector<RimWellPath*>& wel
     if ( automaticGrouping )
     {
         bool detachedGroup = true;
-        while (detachedGroup)
+        while ( detachedGroup )
         {
             detachedGroup = false;
 

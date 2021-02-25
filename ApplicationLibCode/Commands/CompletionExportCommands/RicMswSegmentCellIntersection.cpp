@@ -22,9 +22,9 @@
 ///
 //--------------------------------------------------------------------------------------------------
 RicMswSegmentCellIntersection::RicMswSegmentCellIntersection( const QString&     gridName,
-                                                                    size_t             globalCellIndex,
-                                                                    const cvf::Vec3st& gridLocalCellIJK,
-                                                                    const cvf::Vec3d&  lengthsInCell )
+                                                              size_t             globalCellIndex,
+                                                              const cvf::Vec3st& gridLocalCellIJK,
+                                                              const cvf::Vec3d&  lengthsInCell )
     : m_gridName( gridName )
     , m_globalCellIndex( globalCellIndex )
     , m_gridLocalCellIJK( gridLocalCellIJK )
