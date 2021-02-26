@@ -60,6 +60,13 @@ public:
     };
     using StreamlinePhaseTypeEnum = caf::AppEnum<StreamlinePhaseType>;
 
+    enum class ColorMode
+    {
+        PHASE_COLORS = 0,
+        VELOCITY,
+    };
+    using ColorModeEnum = caf::AppEnum<ColorMode>;
+
 public:
     RimStreamlineInViewCollection();
     ~RimStreamlineInViewCollection() override;
@@ -70,11 +77,11 @@ public:
     std::list<RiaDefines::PhaseType> phases() const;
 
     VisualizationMode visualizationMode() const;
+    ColorMode         colorMode() const;
     size_t            animationSpeed() const;
     size_t            animationIndex() const;
     double            scaleFactor() const;
     size_t            tracerLength() const;
-    size_t            injectionDeltaTime() const;
 
     bool isActive() const;
 
@@ -119,11 +126,13 @@ private:
     caf::PdmChildArrayField<RimStreamline*> m_streamlines;
     caf::PdmField<StreamlinePhaseTypeEnum>  m_phases;
     caf::PdmField<VisualizationModeEnum>    m_visualizationMode;
-    caf::PdmField<size_t>                   m_animationSpeed;
-    caf::PdmField<size_t>                   m_animationIndex;
-    caf::PdmField<double>                   m_scaleFactor;
-    caf::PdmField<size_t>                   m_tracerLength;
-    caf::PdmField<size_t>                   m_injectionDeltaTime;
+    caf::PdmField<ColorModeEnum>            m_colorMode;
+
+    // Animation
+    caf::PdmField<size_t> m_animationSpeed;
+    caf::PdmField<size_t> m_animationIndex;
+    caf::PdmField<double> m_scaleFactor;
+    caf::PdmField<size_t> m_tracerLength;
 
     size_t m_maxAnimationIndex;
 

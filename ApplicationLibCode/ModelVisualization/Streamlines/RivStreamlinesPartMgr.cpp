@@ -97,6 +97,7 @@ void RivStreamlinesPartMgr::appendDynamicGeometryPartsToModel( cvf::ModelBasicLi
             streamline.appendTracerPoint( tracer.tracerPoints()[i].position() );
             streamline.appendAbsVelocity( tracer.tracerPoints()[i].absValue() );
             streamline.appendDirection( tracer.tracerPoints()[i].direction() );
+            streamline.appendPhase( tracer.tracerPoints()[i].phaseType() );
         }
         m_streamlines.push_back( streamline );
     }
@@ -257,6 +258,27 @@ void RivStreamlinesPartMgr::createResultColorTextureCoords( cvf::Vec2fArray*    
     for ( size_t i = 0; i < streamline.countTracerPoints(); i++ )
     {
         cvf::Vec2f texCoord = mapper->mapToTextureCoord( streamline.getAbsVelocity( i ) );
+
+        if ( streamlineCollection->colorMode() == RimStreamlineInViewCollection::ColorMode::PHASE_COLORS )
+        {
+            double phaseValue = 0.0;
+            auto   phase      = streamline.getPhase( i );
+            if ( phase == RiaDefines::PhaseType::GAS_PHASE )
+            {
+                phaseValue = 1.0;
+            }
+            else if ( phase == RiaDefines::PhaseType::OIL_PHASE )
+            {
+                phaseValue = 0.5;
+            }
+            else if ( phase == RiaDefines::PhaseType::WATER_PHASE )
+            {
+                phaseValue = 0.0;
+            }
+
+            texCoord.x() = phaseValue;
+        }
+
         if ( streamlineCollection &&
              streamlineCollection->visualizationMode() == RimStreamlineInViewCollection::VisualizationMode::VECTORS )
         {
@@ -685,11 +707,20 @@ void RivStreamlinesPartMgr::Streamline::appendDirection( cvf::Vec3d direction )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RivStreamlinesPartMgr::Streamline::appendPhase( RiaDefines::PhaseType phase )
+{
+    dominantPhases.push_back( phase );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RivStreamlinesPartMgr::Streamline::clear()
 {
     tracerPoints.clear();
     absVelocities.clear();
     directions.clear();
+    dominantPhases.clear();
     delete part.p();
 }
 
@@ -723,6 +754,14 @@ double RivStreamlinesPartMgr::Streamline::getAbsVelocity( size_t index ) const
 cvf::Vec3d RivStreamlinesPartMgr::Streamline::getDirection( size_t index ) const
 {
     return directions[index];
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiaDefines::PhaseType RivStreamlinesPartMgr::Streamline::getPhase( size_t index ) const
+{
+    return dominantPhases[index];
 }
 
 //--------------------------------------------------------------------------------------------------

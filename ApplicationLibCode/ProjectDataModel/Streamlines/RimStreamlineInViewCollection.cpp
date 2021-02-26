@@ -39,8 +39,6 @@
 
 #include "RiuViewer.h"
 
-#include "cafPdmFieldScriptingCapability.h"
-#include "cafPdmObjectScriptingCapability.h"
 #include "cafPdmUiDoubleSliderEditor.h"
 #include "cafPdmUiSliderEditor.h"
 #include "cafPdmUiTreeOrdering.h"
@@ -73,7 +71,15 @@ void AppEnum<RimStreamlineInViewCollection::StreamlinePhaseType>::setUp()
     addItem( RimStreamlineInViewCollection::StreamlinePhaseType::GAS, "GAS", "Gas" );
     addItem( RimStreamlineInViewCollection::StreamlinePhaseType::WATER, "WATER", "Water" );
     addItem( RimStreamlineInViewCollection::StreamlinePhaseType::COMBINED, "COMBINED", "Combined" );
-    setDefault( RimStreamlineInViewCollection::StreamlinePhaseType::OIL );
+    setDefault( RimStreamlineInViewCollection::StreamlinePhaseType::COMBINED );
+}
+
+template <>
+void AppEnum<RimStreamlineInViewCollection::ColorMode>::setUp()
+{
+    addItem( RimStreamlineInViewCollection::ColorMode::PHASE_COLORS, "PHASE_COLORS", "Dominant Phase" );
+    addItem( RimStreamlineInViewCollection::ColorMode::VELOCITY, "VELOCITY", "Velocity" );
+    setDefault( RimStreamlineInViewCollection::ColorMode::PHASE_COLORS );
 }
 
 } // namespace caf
@@ -87,40 +93,42 @@ RimStreamlineInViewCollection::RimStreamlineInViewCollection()
     : m_shouldGenerateTracers( false )
     , m_currentTimestep( -1 )
 {
-    CAF_PDM_InitScriptableObject( "Streamlines", ":/Erase.png", "", "" );
+    CAF_PDM_InitObject( "Streamlines", ":/Erase.png", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_legendConfig, "LegendDefinition", "Color Legend", "", "", "" );
     m_legendConfig = new RimRegularLegendConfig();
+    m_legendConfig->setMappingMode( RimRegularLegendConfig::MappingType::LOG10_CONTINUOUS );
     m_legendConfig.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitScriptableFieldNoDefault( &m_collectionName, "Name", "Name", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_collectionName, "Name", "Name", "", "", "" );
     m_collectionName = "Streamlines";
     m_collectionName.uiCapability()->setUiReadOnly( true );
 
-    CAF_PDM_InitScriptableFieldNoDefault( &m_flowThreshold, "FlowThreshold", "Flow Threshold [m/day]", "", "", "" );
-    m_flowThreshold = 0.001;
+    CAF_PDM_InitFieldNoDefault( &m_flowThreshold, "FlowThreshold", "Flow Threshold [m/day]", "", "", "" );
+    m_flowThreshold = 0.01;
 
-    CAF_PDM_InitScriptableFieldNoDefault( &m_lengthThreshold, "LengthThreshold", "Minimum Length [m]", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_lengthThreshold, "LengthThreshold", "Minimum Length [m]", "", "", "" );
     m_lengthThreshold = 100.0;
 
-    CAF_PDM_InitScriptableFieldNoDefault( &m_resolution, "Resolution", "Resolution [days]", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_resolution, "Resolution", "Resolution [days]", "", "", "" );
     m_resolution = 20.0;
 
-    CAF_PDM_InitScriptableFieldNoDefault( &m_maxDays, "MaxDays", "Max Days", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_maxDays, "MaxDays", "Max Days", "", "", "" );
     m_maxDays = 50000;
 
-    CAF_PDM_InitScriptableFieldNoDefault( &m_useProducers, "UseProducers", "Producer Wells", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_useProducers, "UseProducers", "Producer Wells", "", "", "" );
     m_useProducers = true;
 
-    CAF_PDM_InitScriptableFieldNoDefault( &m_useInjectors, "UseInjectors", "Injector Wells", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_useInjectors, "UseInjectors", "Injector Wells", "", "", "" );
     m_useInjectors = true;
 
-    CAF_PDM_InitScriptableField( &m_phases, "Phase", StreamlinePhaseTypeEnum( StreamlinePhaseType::OIL ), "Phase", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_phases, "Phase", "Phase", "", "", "" );
 
     CAF_PDM_InitField( &m_isActive, "isActive", false, "Active", "", "", "" );
     m_isActive.uiCapability()->setUiHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_visualizationMode, "VisualizationMode", "Visualization Mode", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_colorMode, "ColorMode", "Colors", "", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_animationSpeed, "AnimationSpeed", "Animation Speed", "", "", "" );
     m_animationSpeed.uiCapability()->setUiEditorTypeName( caf::PdmUiSliderEditor::uiEditorTypeName() );
@@ -139,11 +147,7 @@ RimStreamlineInViewCollection::RimStreamlineInViewCollection()
     m_tracerLength.uiCapability()->setUiEditorTypeName( caf::PdmUiSliderEditor::uiEditorTypeName() );
     m_tracerLength = 100;
 
-    CAF_PDM_InitFieldNoDefault( &m_injectionDeltaTime, "InjectionDeltaTime", "Pause between injections", "", "", "" );
-    m_injectionDeltaTime.uiCapability()->setUiEditorTypeName( caf::PdmUiSliderEditor::uiEditorTypeName() );
-    m_injectionDeltaTime = 500;
-
-    CAF_PDM_InitScriptableFieldNoDefault( &m_streamlines, "Streamlines", "Streamlines", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_streamlines, "Streamlines", "Streamlines", "", "", "" );
     m_streamlines.uiCapability()->setUiTreeHidden( true );
     m_streamlines.xmlCapability()->disableIO();
 
@@ -235,6 +239,14 @@ RimStreamlineInViewCollection::VisualizationMode RimStreamlineInViewCollection::
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RimStreamlineInViewCollection::ColorMode RimStreamlineInViewCollection::colorMode() const
+{
+    return m_colorMode();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 const std::list<RigTracer>& RimStreamlineInViewCollection::tracers()
 {
     m_activeTracers.clear();
@@ -297,8 +309,11 @@ void RimStreamlineInViewCollection::updateLegendRangesTextAndVisibility( RiuView
         double negClosestToZero = -HUGE_VAL;
         m_legendConfig->setClosestToZeroValues( posClosestToZero, negClosestToZero, posClosestToZero, negClosestToZero );
 
-        nativeOrOverrideViewer->addColorLegendToBottomLeftCorner( m_legendConfig->titledOverlayFrame(),
-                                                                  isUsingOverrideViewer );
+        if ( colorMode() == ColorMode::VELOCITY )
+        {
+            nativeOrOverrideViewer->addColorLegendToBottomLeftCorner( m_legendConfig->titledOverlayFrame(),
+                                                                      isUsingOverrideViewer );
+        }
     }
 }
 
@@ -346,14 +361,6 @@ double RimStreamlineInViewCollection::scaleFactor() const
 size_t RimStreamlineInViewCollection::tracerLength() const
 {
     return m_tracerLength();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-size_t RimStreamlineInViewCollection::injectionDeltaTime() const
-{
-    return m_injectionDeltaTime();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -560,12 +567,12 @@ void RimStreamlineInViewCollection::defineUiOrdering( QString uiConfigName, caf:
 
     caf::PdmUiGroup* visualizationGroup = uiOrdering.addNewGroup( "Visualization Settings" );
     visualizationGroup->add( &m_visualizationMode );
+    visualizationGroup->add( &m_colorMode );
 
     if ( m_visualizationMode() == VisualizationMode::ANIMATION )
     {
         visualizationGroup->add( &m_animationSpeed );
         visualizationGroup->add( &m_tracerLength );
-        visualizationGroup->add( &m_injectionDeltaTime );
     }
     if ( m_visualizationMode() == VisualizationMode::MANUAL )
     {
@@ -623,15 +630,6 @@ void RimStreamlineInViewCollection::defineEditorAttribute( const caf::PdmFieldHa
             myAttr->m_maximum = static_cast<int>( 1000 );
         }
     }
-    else if ( field == &m_injectionDeltaTime )
-    {
-        caf::PdmUiSliderEditorAttribute* myAttr = dynamic_cast<caf::PdmUiSliderEditorAttribute*>( attribute );
-        if ( myAttr )
-        {
-            myAttr->m_minimum = 1;
-            myAttr->m_maximum = static_cast<int>( 1000 );
-        }
-    }
     else if ( field == &m_scaleFactor )
     {
         caf::PdmUiDoubleSliderEditorAttribute* myAttr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute );
@@ -650,8 +648,7 @@ void RimStreamlineInViewCollection::fieldChangedByUi( const caf::PdmFieldHandle*
                                                       const QVariant&            oldValue,
                                                       const QVariant&            newValue )
 {
-    if ( changedField == &m_animationSpeed || changedField == &m_animationIndex ||
-         changedField == &m_injectionDeltaTime || changedField == &m_tracerLength )
+    if ( changedField == &m_animationSpeed || changedField == &m_animationIndex || changedField == &m_tracerLength )
     {
         return;
     }
