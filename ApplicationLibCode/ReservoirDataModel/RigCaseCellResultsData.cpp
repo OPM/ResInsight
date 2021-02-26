@@ -1237,13 +1237,16 @@ size_t RigCaseCellResultsData::findOrLoadKnownScalarResult( const RigEclipseResu
 
     if ( resVarAddr.isDivideByCellFaceAreaActive() )
     {
-        if ( !RigCaseCellResultCalculator::computeDivideByCellFaceArea( m_ownerMainGrid,
-                                                                        this->m_ownerCaseData,
-                                                                        m_porosityModel,
-                                                                        resVarAddr ) )
-
+        if ( !isDataPresent( scalarResultIndex ) )
         {
-            return cvf::UNDEFINED_SIZE_T;
+            if ( !RigCaseCellResultCalculator::computeDivideByCellFaceArea( m_ownerMainGrid,
+                                                                            this->m_ownerCaseData,
+                                                                            m_porosityModel,
+                                                                            resVarAddr ) )
+
+            {
+                return cvf::UNDEFINED_SIZE_T;
+            }
         }
 
         return scalarResultIndex;
