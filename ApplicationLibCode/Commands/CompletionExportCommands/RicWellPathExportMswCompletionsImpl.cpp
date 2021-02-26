@@ -377,7 +377,7 @@ void RicWellPathExportMswCompletionsImpl::writeWelsegsSegmentsRecursively( RifTe
         ++it; // skip segment below
     }
 
-    formatter.comment( QString( "Segments on branch %1" ).arg( branch->label() ) );
+    formatter.addOptionalComment( QString( "Segments on branch %1" ).arg( branch->label() ) );
 
     for ( ; it != branchSegments.end(); ++it )
     {
@@ -387,7 +387,7 @@ void RicWellPathExportMswCompletionsImpl::writeWelsegsSegmentsRecursively( RifTe
         if ( segment->subIndex() != cvf::UNDEFINED_SIZE_T )
         {
             QString comment = segment->label() + QString( ", sub %1" ).arg( segment->subIndex() );
-            formatter.comment( comment );
+            formatter.addOptionalComment( comment );
         }
 
         writeWelsegsSegment( segment, outletSegment, formatter, exportInfo, maxSegmentLength, branch, segmentNumber );
@@ -708,7 +708,7 @@ void RicWellPathExportMswCompletionsImpl::generateWsegvalvTable( RifTextDataTabl
                         if ( wsegValve->completionType() == RigCompletionData::PERFORATION_ICD ||
                              wsegValve->completionType() == RigCompletionData::PERFORATION_ICV )
                         {
-                            formatter.comment( wsegValve->label() );
+                            formatter.addOptionalComment( wsegValve->label() );
                         }
                         formatter.add( exportInfo.mainBoreBranch()->wellPath()->completionSettings()->wellNameForExport() );
                         formatter.add( firstSubSegment->segmentNumber() );
@@ -1990,7 +1990,7 @@ void RicWellPathExportMswCompletionsImpl::writeValveWelsegsSegment( const RicMsw
     CVF_ASSERT( !valve->label().isEmpty() );
     CVF_ASSERT( valve->wellPath() );
 
-    formatter.comment( valve->label() );
+    formatter.addOptionalComment( valve->label() );
 
     auto segments = valve->segments();
 
@@ -2059,11 +2059,12 @@ void RicWellPathExportMswCompletionsImpl::writeCompletionWelsegsSegments( gsl::n
 
     if ( completion->completionType() == RigCompletionData::FISHBONES )
     {
-        formatter.comment( QString( "Sub index %1 - %2" ).arg( outletSegment->subIndex() ).arg( completion->label() ) );
+        formatter.addOptionalComment(
+            QString( "Sub index %1 - %2" ).arg( outletSegment->subIndex() ).arg( completion->label() ) );
     }
     else if ( completion->completionType() == RigCompletionData::FRACTURE )
     {
-        formatter.comment(
+        formatter.addOptionalComment(
             QString( "%1 connected to segment %2" ).arg( completion->label() ).arg( outletSegment->segmentNumber() ) );
     }
 
