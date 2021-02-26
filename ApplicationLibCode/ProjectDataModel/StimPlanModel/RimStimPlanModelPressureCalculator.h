@@ -63,4 +63,17 @@ protected:
                                                           const std::vector<double>& measuredDepthValues,
                                                           const std::vector<double>& tvDepthValues,
                                                           std::vector<double>&       values ) const;
+
+    typedef std::pair<double, double>           DepthValuePair;
+    typedef std::vector<DepthValuePair>         DepthValuePairVector;
+    typedef std::map<int, DepthValuePairVector> EqlNumToDepthValuePairMap;
+
+    static void sortAndRemoveDuplicates( DepthValuePairVector& depthValuePairs );
+    static bool buildPressureTablesPerEqlNum( const RimStimPlanModel*    stimPlanModel,
+                                              EqlNumToDepthValuePairMap& valuesPerEqlNum,
+                                              const std::set<int>&       presentEqlNums );
+
+    static std::set<int> findUniqueValues( const std::vector<double>& values );
+
+    static double interpolatePressure( const DepthValuePairVector& depthValuePairs, double depth, int eqlNum );
 };

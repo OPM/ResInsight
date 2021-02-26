@@ -336,7 +336,7 @@ bool RimStimPlanModelPressureCalculator::extractPressureDataFromTable( RiaDefine
     return true;
 }
 
-std::set<int> findUniqueValues( const std::vector<double>& values )
+std::set<int> RimStimPlanModelPressureCalculator::findUniqueValues( const std::vector<double>& values )
 {
     std::set<int> res;
     for ( double v : values )
@@ -350,14 +350,10 @@ std::set<int> findUniqueValues( const std::vector<double>& values )
     return res;
 }
 
-typedef std::pair<double, double>           DepthValuePair;
-typedef std::vector<DepthValuePair>         DepthValuePairVector;
-typedef std::map<int, DepthValuePairVector> EqlNumToDepthValuePairMap;
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void sortAndRemoveDuplicates( DepthValuePairVector& depthValuePairs )
+void RimStimPlanModelPressureCalculator::sortAndRemoveDuplicates( DepthValuePairVector& depthValuePairs )
 {
     std::sort( depthValuePairs.begin(), depthValuePairs.end() );
     depthValuePairs.erase( unique( depthValuePairs.begin(), depthValuePairs.end() ), depthValuePairs.end() );
@@ -366,9 +362,9 @@ void sortAndRemoveDuplicates( DepthValuePairVector& depthValuePairs )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool buildPressureTablesPerEqlNum( const RimStimPlanModel*    stimPlanModel,
-                                   EqlNumToDepthValuePairMap& valuesPerEqlNum,
-                                   const std::set<int>&       presentEqlNums )
+bool RimStimPlanModelPressureCalculator::buildPressureTablesPerEqlNum( const RimStimPlanModel*    stimPlanModel,
+                                                                       EqlNumToDepthValuePairMap& valuesPerEqlNum,
+                                                                       const std::set<int>&       presentEqlNums )
 {
     RimEclipseCase* eclipseCase = stimPlanModel->eclipseCaseForProperty( RiaDefines::CurveProperty::EQLNUM );
 
@@ -429,7 +425,9 @@ bool buildPressureTablesPerEqlNum( const RimStimPlanModel*    stimPlanModel,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double interpolatePressure( const DepthValuePairVector& depthValuePairs, double depth, int eqlNum )
+double RimStimPlanModelPressureCalculator::interpolatePressure( const DepthValuePairVector& depthValuePairs,
+                                                                double                      depth,
+                                                                int                         eqlNum )
 {
     std::vector<double> depths;
     for ( auto dvp : depthValuePairs )
