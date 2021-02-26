@@ -48,12 +48,12 @@ class RigWellPathFormations;
 class RimProject;
 class RimWellLogFile;
 class RimFractureTemplateCollection;
-class RimFishboneWellPathCollection;
 class RimStimPlanModelCollection;
 class RimFishbonesCollection;
 class RimPerforationCollection;
 class RimWellPathAttributeCollection;
 class RimWellPathCompletions;
+class RimWellPathCompletionSettings;
 
 class RimWellPathFractureCollection;
 class Rim3dWellLogCurve;
@@ -76,9 +76,9 @@ public:
     RimWellPath();
     ~RimWellPath() override;
 
-    QString name() const;
-    void    setName( const QString& name );
-    void    setNameNoUpdateOfExportName( const QString& name );
+    virtual QString name() const;
+    void            setName( const QString& name );
+    void            setNameNoUpdateOfExportName( const QString& name );
 
     const QString associatedSimulationWellName() const;
     int           associatedSimulationWellBranch() const;
@@ -118,7 +118,11 @@ public:
     void                         add3dWellLogCurve( Rim3dWellLogCurve* rim3dWellLogCurve );
     Rim3dWellLogCurveCollection* rim3dWellLogCurveCollection() const;
 
-    const RimWellPathCompletions*         completions() const;
+    std::vector<const RimWellPathComponentInterface*> allCompletionsRecursively() const;
+    const RimWellPathCompletions*                     completions() const;
+    const RimWellPathCompletionSettings*              completionSettings() const;
+    RimWellPathCompletionSettings*                    completionSettings();
+
     RimFishbonesCollection*               fishbonesCollection();
     const RimFishbonesCollection*         fishbonesCollection() const;
     RimPerforationCollection*             perforationIntervalCollection();
@@ -150,6 +154,10 @@ public:
     void onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
                          std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
 
+    bool         isTopLevelWellPath() const;
+    RimWellPath* topLevelWellPath() const;
+    void         updateAfterAddingToWellPathGroup();
+
 protected:
     // Override PdmObject
 
@@ -159,8 +167,11 @@ protected:
     void                          fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
                                                          bool*                      useOptionsOnly ) override;
+    void                          initAfterRead() override;
     void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName ) override;
+
+    static void copyCompletionSettings( RimWellPath* from, RimWellPath* to );
 
     // Fields
 protected:
@@ -185,6 +196,7 @@ private:
 
     caf::PdmChildArrayField<RimWellLogFile*>            m_wellLogFiles;
     caf::PdmChildField<Rim3dWellLogCurveCollection*>    m_3dWellLogCurves;
+    caf::PdmChildField<RimWellPathCompletionSettings*>  m_completionSettings;
     caf::PdmChildField<RimWellPathCompletions*>         m_completions;
     caf::PdmChildField<RimWellPathAttributeCollection*> m_wellPathAttributes;
 

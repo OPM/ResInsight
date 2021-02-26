@@ -25,7 +25,7 @@
 
 #include <vector>
 
-class RimFishbonesMultipleSubs;
+class RimFishbones;
 
 //==================================================================================================
 ///
@@ -34,7 +34,7 @@ class RimFishbonesMultipleSubs;
 class RigFisbonesGeometry
 {
 public:
-    explicit RigFisbonesGeometry( RimFishbonesMultipleSubs* fishbonesSub );
+    explicit RigFisbonesGeometry( RimFishbones* fishbonesSub );
 
     std::vector<std::pair<cvf::Vec3d, double>> coordsForLateral( size_t subIndex, size_t lateralIndex ) const;
 
@@ -54,5 +54,5 @@ private:
     static cvf::Vec3d closestMainAxis( const cvf::Vec3d& vec );
 
 private:
-    caf::PdmPointer<RimFishbonesMultipleSubs> m_fishbonesSub;
+    caf::PdmPointer<RimFishbones> m_fishbonesSub;
 };

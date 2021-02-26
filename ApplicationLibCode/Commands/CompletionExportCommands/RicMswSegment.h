@@ -17,16 +17,21 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
-#include "RicMswCompletions.h"
+#include "RicMswItem.h"
+#include "RicMswSegmentCellIntersection.h"
 
-#include <cafPdmPointer.h>
+#include "cafPdmObject.h"
+#include "cafPdmPointer.h"
+#include "cvfMath.h"
 
 #include <memory>
+
+class RicMswCompletion;
 
 //==================================================================================================
 ///
 //==================================================================================================
-class RicMswSegment
+class RicMswSegment : public RicMswItem
 {
 public:
     RicMswSegment( const QString& label,
@@ -37,20 +42,16 @@ public:
                    size_t         subIndex      = cvf::UNDEFINED_SIZE_T,
                    int            segmentNumber = -1 );
 
-    QString label() const;
+    double startMD() const override;
+    double endMD() const override;
 
-    double startMD() const;
-    double endMD() const;
+    double startTVD() const override;
+    double endTVD() const override;
+
     void   setOutputMD( double outputMD );
     double outputMD() const;
-    double length() const;
-
-    double deltaMD() const;
-    double startTVD() const;
-    double endTVD() const;
     void   setOutputTVD( double outputTVD );
     double outputTVD() const;
-    double deltaTVD() const;
 
     double effectiveDiameter() const;
     double holeDiameter() const;
@@ -60,8 +61,8 @@ public:
     size_t subIndex() const;
     int    segmentNumber() const;
 
-    const std::vector<std::shared_ptr<RicMswCompletion>>& completions() const;
-    std::vector<std::shared_ptr<RicMswCompletion>>&       completions();
+    std::vector<const RicMswCompletion*> completions() const;
+    std::vector<RicMswCompletion*>       completions();
 
     void setLabel( const QString& label );
     void setEffectiveDiameter( double effectiveDiameter );
@@ -69,31 +70,38 @@ public:
     void setOpenHoleRoughnessFactor( double roughnessFactor );
     void setSkinFactor( double skinFactor );
     void setSegmentNumber( int segmentNumber );
-    void addCompletion( std::shared_ptr<RicMswCompletion> completion );
-    void removeCompletion( std::shared_ptr<RicMswCompletion> completion );
+
+    void                              addCompletion( std::unique_ptr<RicMswCompletion> completion );
+    std::unique_ptr<RicMswCompletion> removeCompletion( RicMswCompletion* completion );
+
+    void addIntersection( std::shared_ptr<RicMswSegmentCellIntersection> intersection );
+
+    const std::vector<std::shared_ptr<RicMswSegmentCellIntersection>>& intersections() const;
+    std::vector<std::shared_ptr<RicMswSegmentCellIntersection>>&       intersections();
 
     void                  setSourcePdmObject( const caf::PdmObject* object );
     const caf::PdmObject* sourcePdmObject() const;
 
-    bool operator<( const RicMswSegment& rhs ) const;
-
 private:
-    QString m_label;
-    double  m_startMD;
-    double  m_endMD;
-    double  m_startTVD;
-    double  m_endTVD;
+    double m_startMD;
+    double m_endMD;
+    double m_startTVD;
+    double m_endTVD;
+
     double  m_outputMD;
     double  m_outputTVD;
-    double  m_effectiveDiameter;
-    double  m_holeDiameter;
-    double  m_openHoleRoughnessFactor;
-    double  m_skinFactor;
+
+    double m_effectiveDiameter;
+    double m_holeDiameter;
+    double m_openHoleRoughnessFactor;
+    double m_skinFactor;
 
     size_t m_subIndex;
     int    m_segmentNumber;
 
-    std::vector<std::shared_ptr<RicMswCompletion>> m_completions;
+    std::vector<std::unique_ptr<RicMswCompletion>> m_completions;
+
+    std::vector<std::shared_ptr<RicMswSegmentCellIntersection>> m_intersections;
 
     caf::PdmPointer<caf::PdmObject> m_sourcePdmObject;
 };

@@ -406,7 +406,7 @@ std::map<int, std::vector<std::pair<QString, QString>>>
             double currentWellPressure           = 0.0;
             RicExportFractureCompletionsImpl::
                 getWellPressuresAndInitialProductionTimeStepFromSummaryData( caseToApply,
-                                                                             wellPath->completions()->wellNameForExport(),
+                                                                             wellPath->completionSettings()->wellNameForExport(),
                                                                              0,
                                                                              &initialWellProductionTimeStep,
                                                                              &initialWellPressure,

@@ -40,7 +40,7 @@ namespace caf
 class DisplayCoordTransform;
 }
 
-class RimFishbonesMultipleSubs;
+class RimFishbones;
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -48,7 +48,7 @@ class RimFishbonesMultipleSubs;
 class RivFishbonesSubsPartMgr : public cvf::Object
 {
 public:
-    RivFishbonesSubsPartMgr( RimFishbonesMultipleSubs* subs );
+    RivFishbonesSubsPartMgr( RimFishbones* subs );
     ~RivFishbonesSubsPartMgr() override;
 
     void appendGeometryPartsToModel( cvf::ModelBasicList*              model,
@@ -60,6 +60,6 @@ private:
     void buildParts( const caf::DisplayCoordTransform* displayCoordTransform, double characteristicCellSize );
 
 private:
-    caf::PdmPointer<RimFishbonesMultipleSubs> m_rimFishbonesSubs;
-    cvf::Collection<cvf::Part>                m_parts;
+    caf::PdmPointer<RimFishbones> m_rimFishbonesSubs;
+    cvf::Collection<cvf::Part>    m_parts;
 };

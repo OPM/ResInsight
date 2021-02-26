@@ -20,7 +20,7 @@
 
 #include "RigWellPath.h"
 
-#include "RimFishbonesMultipleSubs.h"
+#include "RimFishbones.h"
 #include "RimWellPath.h"
 
 #include "RivObjectSourceInfo.h"
@@ -37,7 +37,7 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RivFishbonesSubsPartMgr::RivFishbonesSubsPartMgr( RimFishbonesMultipleSubs* subs )
+RivFishbonesSubsPartMgr::RivFishbonesSubsPartMgr( RimFishbones* subs )
     : m_rimFishbonesSubs( subs )
 {
 }
@@ -90,20 +90,16 @@ void RivFishbonesSubsPartMgr::buildParts( const caf::DisplayCoordTransform* disp
 
     RivPipeGeometryGenerator geoGenerator;
 
-    for ( auto& sub : m_rimFishbonesSubs->installedLateralIndices() )
+    for ( const auto& [subIndex, lateralIndex] : m_rimFishbonesSubs->installedLateralIndices() )
     {
-        for ( size_t lateralIndex : sub.lateralIndices )
-        {
-            std::vector<cvf::Vec3d> lateralDomainCoords =
-                m_rimFishbonesSubs->coordsForLateral( sub.subIndex, lateralIndex );
+        std::vector<cvf::Vec3d> lateralDomainCoords = m_rimFishbonesSubs->coordsForLateral( subIndex, lateralIndex );
 
-            std::vector<cvf::Vec3d> displayCoords = displayCoordTransform->transformToDisplayCoords( lateralDomainCoords );
+        std::vector<cvf::Vec3d> displayCoords = displayCoordTransform->transformToDisplayCoords( lateralDomainCoords );
 
-            geoGenerator.cylinderWithCenterLineParts( &m_parts,
-                                                      displayCoords,
-                                                      m_rimFishbonesSubs->fishbonesColor(),
-                                                      wellPath->combinedScaleFactor() * characteristicCellSize * 0.5 );
-        }
+        geoGenerator.cylinderWithCenterLineParts( &m_parts,
+                                                  displayCoords,
+                                                  m_rimFishbonesSubs->fishbonesColor(),
+                                                  wellPath->combinedScaleFactor() * characteristicCellSize * 0.5 );
     }
 
     cvf::ref<RivObjectSourceInfo> objectSourceInfo = new RivObjectSourceInfo( m_rimFishbonesSubs );

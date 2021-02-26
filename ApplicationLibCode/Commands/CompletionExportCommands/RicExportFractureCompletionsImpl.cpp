@@ -84,7 +84,7 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdat
     }
 
     return generateCompdatValues( caseToApply,
-                                  wellPath->completions()->wellNameForExport(),
+                                  wellPath->completionSettings()->wellNameForExport(),
                                   wellPath->wellPathGeometry(),
                                   fracturesAlongWellPath,
                                   fractureDataForReport,

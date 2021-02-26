@@ -22,7 +22,7 @@
 
 #include "RiaEclipseUnitTools.h"
 
-#include "RimFishbonesMultipleSubs.h"
+#include "RimFishbones.h"
 #include "RimPerforationInterval.h"
 #include "RimWellPath.h"
 #include "RimWellPathValve.h"
@@ -356,8 +356,8 @@ void RimMultipleValveLocations::fieldChangedByUi( const caf::PdmFieldHandle* cha
     {
         if ( parentCompletion )
         {
-            RimFishbonesMultipleSubs* fishbones = dynamic_cast<RimFishbonesMultipleSubs*>( parentCompletion );
-            RimWellPathValve*         valve     = dynamic_cast<RimWellPathValve*>( parentCompletion );
+            RimFishbones*     fishbones = dynamic_cast<RimFishbones*>( parentCompletion );
+            RimWellPathValve* valve     = dynamic_cast<RimWellPathValve*>( parentCompletion );
             if ( fishbones )
             {
                 fishbones->recomputeLateralLocations();

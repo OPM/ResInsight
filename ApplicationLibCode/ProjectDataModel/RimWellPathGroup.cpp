@@ -19,7 +19,11 @@
 
 #include "RiaTextStringTools.h"
 #include "RigWellPath.h"
-#include "RimModeledWellPathLateral.h"
+
+#include "RimModeledWellPath.h"
+#include "RimWellPathCompletionSettings.h"
+#include "RimWellPathCompletions.h"
+#include "RimWellPathValve.h"
 
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObjectScriptingCapability.h"
@@ -43,8 +47,29 @@ RimWellPathGroup::RimWellPathGroup()
                                                     "A Group of Well Paths" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_childWellPaths, "ChildWellPaths", "Child Well Paths", "", "", "" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_groupName, "GroupName", "Group Name", "", "", "" );
+
+    CAF_PDM_InitScriptableField( &m_addValveAtConnection,
+                                 "AddValveAtConnection",
+                                 false,
+                                 "Add Outlet Valve for Branches",
+                                 "",
+                                 "Should an outlet valve be added to branches for MSW export?",
+                                 "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_valve, "Valve", "Branch Outlet Valve", "", "", "" );
+    m_valve = new RimWellPathValve;
+
     m_groupName.registerGetMethod( this, &RimWellPathGroup::createGroupName );
+    m_groupName.uiCapability()->setUiReadOnly( true );
+
     setWellPathGeometry( new RigWellPath );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimWellPathGroup::name() const
+{
+    return m_groupName();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -52,6 +77,11 @@ RimWellPathGroup::RimWellPathGroup()
 //--------------------------------------------------------------------------------------------------
 void RimWellPathGroup::addChildWellPath( RimWellPath* wellPath )
 {
+    if ( m_childWellPaths.empty() && isTopLevelWellPath() && wellPath->completions()->hasCompletions() )
+    {
+        RimWellPath::copyCompletionSettings( wellPath, this );
+    }
+
     if ( !this->wellPathGeometry()->wellPathPoints().empty() )
     {
         m_childWellPaths.push_back( wellPath );
@@ -65,6 +95,7 @@ void RimWellPathGroup::addChildWellPath( RimWellPath* wellPath )
         setWellPathGeometry( geometryCopy.p() );
         m_childWellPaths.push_back( wellPath );
     }
+
     wellPath->nameChanged.connect( this, &RimWellPathGroup::onChildNameChanged );
 
     updateAllRequiredEditors();
@@ -100,11 +131,19 @@ bool RimWellPathGroup::hasChildWellPath( RimWellPath* wellPath )
 void RimWellPathGroup::removeChildWellPath( RimWellPath* wellPath )
 {
     m_childWellPaths.removeChildObject( wellPath );
+    RimWellPath::copyCompletionSettings( this, wellPath );
+
     if ( auto geometry = wellPath->wellPathGeometry(); geometry )
     {
-        geometry->setUniqueStartIndex( 0u );
+        geometry->setUniqueStartAndEndIndex( 0u, std::numeric_limits<size_t>::max() );
     }
     createWellPathGeometry();
+
+    if ( isTopLevelWellPath() )
+    {
+        completionSettings()->setWellNameForExport( m_groupName() );
+    }
+
     updateAllRequiredEditors();
 }
 
@@ -136,15 +175,22 @@ void RimWellPathGroup::createWellPathGeometry()
     }
     if ( wellPathGeometries().empty() ) return;
 
-    auto commonGeometry = RigWellPath::commonGeometry( wellPathGeometries() );
+    auto   commonGeometry  = RigWellPath::commonGeometry( wellPathGeometries() );
+    size_t childStartIndex = 0u;
+    size_t commonSize      = commonGeometry->wellPathPoints().size();
+    if ( commonSize > 0u ) childStartIndex = commonSize - 1u;
+
+    setWellPathGeometry( commonGeometry.p() );
+    wellPathGeometry()->setUniqueStartAndEndIndex( wellPathGeometry()->uniqueStartIndex(), childStartIndex );
+
     for ( auto wellPath : m_childWellPaths )
     {
-        size_t startIndex = 0u;
-        size_t commonSize = commonGeometry->wellPathPoints().size();
-        if ( commonSize > 0u ) startIndex = commonSize - 1u;
-        wellPath->wellPathGeometry()->setUniqueStartIndex( startIndex );
+        if ( auto lateral = dynamic_cast<RimModeledWellPath*>( wellPath.p() ); lateral )
+        {
+            lateral->createWellPathGeometry();
+        }
+        wellPath->wellPathGeometry()->setUniqueStartAndEndIndex( childStartIndex, std::numeric_limits<size_t>::max() );
     }
-    setWellPathGeometry( commonGeometry.p() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -152,6 +198,8 @@ void RimWellPathGroup::createWellPathGeometry()
 //--------------------------------------------------------------------------------------------------
 void RimWellPathGroup::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName )
 {
+    RimWellPath::defineUiTreeOrdering( uiTreeOrdering, uiConfigName );
+
     for ( auto child : m_childWellPaths() )
     {
         if ( child )
@@ -159,6 +207,7 @@ void RimWellPathGroup::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrder
             uiTreeOrdering.add( child );
         }
     }
+
     uiTreeOrdering.skipRemainingChildren( true );
 }
 
@@ -173,12 +222,49 @@ caf::PdmFieldHandle* RimWellPathGroup::userDescriptionField()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimWellPathGroup::initAfterRead()
+{
+    if ( isTopLevelWellPath() )
+    {
+        completionSettings()->setWellNameForExport( createGroupName() );
+    }
+
+    for ( auto wellPath : m_childWellPaths )
+    {
+        wellPath->nameChanged.connect( this, &RimWellPathGroup::onChildNameChanged );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellPathGroup::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
+{
+    uiOrdering.add( &m_groupName );
+    if ( !isTopLevelWellPath() )
+    {
+        auto valveGroup = uiOrdering.addNewGroup( "Valve Settings" );
+        valveGroup->add( &m_addValveAtConnection );
+        if ( m_addValveAtConnection )
+        {
+            m_valve->uiOrdering( "TemplateOnly", *valveGroup );
+        }
+    }
+    uiOrdering.skipRemainingFields( true );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::vector<const RigWellPath*> RimWellPathGroup::wellPathGeometries() const
 {
     std::vector<const RigWellPath*> allGeometries;
     for ( const auto child : m_childWellPaths() )
     {
-        allGeometries.push_back( child->wellPathGeometry() );
+        if ( child->wellPathGeometry() )
+        {
+            allGeometries.push_back( child->wellPathGeometry() );
+        }
     }
     return allGeometries;
 }
@@ -193,28 +279,59 @@ QString RimWellPathGroup::createGroupName() const
     this->descendantsOfType( descendantWellPaths );
     for ( auto wellPath : descendantWellPaths )
     {
-        if ( !dynamic_cast<RimWellPathGroup*>( wellPath ) && !dynamic_cast<RimModeledWellPathLateral*>( wellPath ) )
+        if ( wellPath )
         {
-            allNames.push_back( wellPath->name() );
+            bool groupOrLateral = dynamic_cast<RimWellPathGroup*>( wellPath ) ||
+                                  dynamic_cast<RimModeledWellPath*>( wellPath );
+            if ( !groupOrLateral )
+            {
+                allNames.push_back( wellPath->name() );
+            }
         }
     }
 
-    QString     commonName        = RiaTextStringTools::commonRoot( allNames );
-    QString     trimmedCommonName = RiaTextStringTools::trimNonAlphaNumericCharacters( commonName );
+    QString commonRoot        = RiaTextStringTools::commonRoot( allNames );
+    QString trimmedCommonRoot = RiaTextStringTools::trimNonAlphaNumericCharacters( commonRoot );
+
+    for ( auto& name : allNames )
+    {
+        name.remove( commonRoot );
+    }
+
+    QString commonSuffix        = RiaTextStringTools::commonSuffix( allNames );
+    QString trimmedCommonSuffix = RiaTextStringTools::trimNonAlphaNumericCharacters( commonSuffix );
+
     QStringList branchNames;
     for ( auto& name : allNames )
     {
-        name.remove( commonName );
+        name.remove( commonSuffix );
         name = RiaTextStringTools::trimNonAlphaNumericCharacters( name );
         name = name.simplified();
-        if ( !name.isEmpty() ) branchNames.push_back( name );
+        if ( !name.isEmpty() )
+        {
+            branchNames.push_back( name );
+        }
     }
-    QString fullName = trimmedCommonName;
+    QString fullName = trimmedCommonRoot;
     if ( !branchNames.isEmpty() )
     {
-        fullName += QString( "(%1)" ).arg( branchNames.join( ", " ) );
+        fullName += QString( "%1" ).arg( branchNames.join( "" ) );
     }
+    fullName += trimmedCommonSuffix;
+
+    QString nameWithoutSpaces = fullName;
+    nameWithoutSpaces.remove( ' ' );
+
+    if ( nameWithoutSpaces.length() > 8 ) fullName = trimmedCommonRoot + trimmedCommonSuffix;
     return fullName;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const RimWellPathValve* RimWellPathGroup::outletValve() const
+{
+    return m_addValveAtConnection() && m_valve() && m_valve->valveTemplate() ? m_valve() : nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -223,6 +340,11 @@ QString RimWellPathGroup::createGroupName() const
 void RimWellPathGroup::onChildNameChanged( const caf::SignalEmitter* emitter )
 {
     updateConnectedEditors();
+
+    if ( isTopLevelWellPath() )
+    {
+        completionSettings()->setWellNameForExport( createGroupName() );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -275,9 +397,9 @@ void RimWellPathGroup::makeMoreLevelsIfNecessary()
     }
     if ( anyNonTrivialBranches )
     {
-        size_t startIndex = 0u;
-        size_t commonSize = wellPathGeometry()->wellPathPoints().size();
-        if ( commonSize > 0u ) startIndex = commonSize - 1u;
+        size_t childStartIndex = 0u;
+        size_t commonSize      = wellPathGeometry()->wellPathPoints().size();
+        if ( commonSize > 0u ) childStartIndex = commonSize - 1u;
 
         for ( const auto& firstDeviationAndWellPaths : branches )
         {
@@ -289,7 +411,8 @@ void RimWellPathGroup::makeMoreLevelsIfNecessary()
                 {
                     m_childWellPaths().removeChildObject( wellPath );
                     newGroup->addChildWellPath( wellPath );
-                    newGroup->wellPathGeometry()->setUniqueStartIndex( startIndex );
+                    newGroup->wellPathGeometry()->setUniqueStartAndEndIndex( childStartIndex,
+                                                                             std::numeric_limits<size_t>::max() );
                 }
                 m_childWellPaths().push_back( newGroup );
             }

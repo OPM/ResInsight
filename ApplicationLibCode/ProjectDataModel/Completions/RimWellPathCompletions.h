@@ -18,16 +18,21 @@
 
 #pragma once
 
+#include "RimWellPathCompletionSettings.h"
+
 #include "cafPdmChildField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 
+#include "gsl/gsl"
+
 class RimFishbonesCollection;
 class RimPerforationCollection;
-class RimWellPathFractureCollection;
-class RimWellPathComponentInterface;
-class RimWellPathValve;
 class RimStimPlanModelCollection;
+class RimWellPathComponentInterface;
+class RimWellPathFracture;
+class RimWellPathFractureCollection;
+class RimWellPathValve;
 
 //==================================================================================================
 ///
@@ -37,38 +42,6 @@ class RimWellPathCompletions : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
 
-    enum WellType
-    {
-        OIL,
-        GAS,
-        WATER,
-        LIQUID
-    };
-    typedef caf::AppEnum<WellType> WellTypeEnum;
-
-    enum GasInflowEquation
-    {
-        STANDARD_EQ,
-        RUSSELL_GOODRICH,
-        DRY_GAS_PSEUDO_PRESSURE,
-        GENERALIZED_PSEUDO_PRESSURE
-    };
-    typedef caf::AppEnum<GasInflowEquation> GasInflowEnum;
-
-    enum AutomaticWellShutIn
-    {
-        ISOLATE_FROM_FORMATION,
-        STOP_ABOVE_FORMATION
-    };
-    typedef caf::AppEnum<AutomaticWellShutIn> AutomaticWellShutInEnum;
-
-    enum HydrostaticDensity
-    {
-        SEGMENTED,
-        AVERAGED
-    };
-    typedef caf::AppEnum<HydrostaticDensity> HydrostaticDensityEnum;
-
 public:
     RimWellPathCompletions();
 
@@ -76,39 +49,22 @@ public:
     RimPerforationCollection*      perforationCollection() const;
     RimWellPathFractureCollection* fractureCollection() const;
     RimStimPlanModelCollection*    stimPlanModelCollection() const;
-    std::vector<RimWellPathValve*> valves() const;
 
     std::vector<const RimWellPathComponentInterface*> allCompletions() const;
+    bool                                              hasCompletions() const;
+    void                                              setUnitSystemSpecificDefaults();
 
-    void    setWellNameForExport( const QString& name );
-    void    updateWellPathNameHasChanged( const QString& newWellPathName, const QString& previousWellPathName );
-    QString wellNameForExport() const;
-    QString wellGroupNameForExport() const;
-    QString referenceDepthForExport() const;
-    QString wellTypeNameForExport() const;
-    bool    hasCompletions() const;
-
-    QString drainageRadiusForExport() const;
-    QString gasInflowEquationForExport() const;
-    QString automaticWellShutInForExport() const;
-    QString allowWellCrossFlowForExport() const;
-    QString wellBoreFluidPVTForExport() const;
-    QString hydrostaticDensityForExport() const;
-    QString fluidInPlaceRegionForExport() const;
-
-    void           setUnitSystemSpecificDefaults();
-    static QRegExp wellNameForExportRegExp();
+    std::vector<RimWellPathValve*>    valves() const;
+    std::vector<RimWellPathFracture*> allFractures() const;
+    std::vector<RimWellPathFracture*> activeFractures() const;
 
 protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName ) override;
-    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
-    void defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                QString                    uiConfigName,
-                                caf::PdmUiEditorAttribute* attribute ) override;
+    void initAfterRead() override;
 
 private:
-    QString formatStringForExport( const QString& text, const QString& defaultText = "" ) const;
+    void applyToSettings( gsl::not_null<RimWellPathCompletionSettings*> settings );
 
 private:
     caf::PdmChildField<RimFishbonesCollection*>        m_fishbonesCollection;
@@ -116,16 +72,20 @@ private:
     caf::PdmChildField<RimWellPathFractureCollection*> m_fractureCollection;
     caf::PdmChildField<RimStimPlanModelCollection*>    m_stimPlanModelCollection;
 
-    caf::PdmField<QString> m_wellNameForExport;
-    caf::PdmField<QString> m_wellGroupName;
+private:
+    /////////////////////
+    // OBSOLETE FIELDS //
+    /////////////////////
+    caf::PdmField<QString> m_wellNameForExport_OBSOLETE;
+    caf::PdmField<QString> m_wellGroupName_OBSOLETE;
 
-    caf::PdmField<QString>                 m_referenceDepth;
-    caf::PdmField<WellTypeEnum>            m_preferredFluidPhase;
-    caf::PdmField<QString>                 m_drainageRadiusForPI;
-    caf::PdmField<GasInflowEnum>           m_gasInflowEquation;
-    caf::PdmField<AutomaticWellShutInEnum> m_automaticWellShutIn;
-    caf::PdmField<bool>                    m_allowWellCrossFlow;
-    caf::PdmField<int>                     m_wellBoreFluidPVTTable;
-    caf::PdmField<HydrostaticDensityEnum>  m_hydrostaticDensity;
-    caf::PdmField<int>                     m_fluidInPlaceRegion;
+    caf::PdmField<QString>                                                m_referenceDepth_OBSOLETE;
+    caf::PdmField<RimWellPathCompletionSettings::WellTypeEnum>            m_preferredFluidPhase_OBSOLETE;
+    caf::PdmField<QString>                                                m_drainageRadiusForPI_OBSOLETE;
+    caf::PdmField<RimWellPathCompletionSettings::GasInflowEnum>           m_gasInflowEquation_OBSOLETE;
+    caf::PdmField<RimWellPathCompletionSettings::AutomaticWellShutInEnum> m_automaticWellShutIn_OBSOLETE;
+    caf::PdmField<bool>                                                   m_allowWellCrossFlow_OBSOLETE;
+    caf::PdmField<int>                                                    m_wellBoreFluidPVTTable_OBSOLETE;
+    caf::PdmField<RimWellPathCompletionSettings::HydrostaticDensityEnum>  m_hydrostaticDensity_OBSOLETE;
+    caf::PdmField<int>                                                    m_fluidInPlaceRegion_OBSOLETE;
 };

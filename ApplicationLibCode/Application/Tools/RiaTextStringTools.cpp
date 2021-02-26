@@ -89,6 +89,37 @@ QString RiaTextStringTools::commonRoot( const QStringList& stringList )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString RiaTextStringTools::commonSuffix( const QStringList& stringList )
+{
+    QString suffix;
+    if ( !stringList.isEmpty() )
+    {
+        suffix = stringList.back();
+        for ( const auto& item : stringList )
+        {
+            if ( suffix.length() > item.length() )
+            {
+                suffix = suffix.right( item.length() );
+            }
+
+            for ( int i = 0; i < suffix.length(); i++ )
+            {
+                int suffixIndex = suffix.length() - i - 1;
+                int itemIndex   = item.length() - i - 1;
+                if ( suffix[suffixIndex] != item[itemIndex] )
+                {
+                    suffix = suffix.right( i );
+                    break;
+                }
+            }
+        }
+    }
+    return suffix;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString RiaTextStringTools::trimNonAlphaNumericCharacters( const QString& s )
 {
     QString            trimmedString = s;

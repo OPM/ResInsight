@@ -25,9 +25,9 @@
 #include "RigWellPath.h"
 
 #include "Rim3dView.h"
-#include "RimFishboneWellPathCollection.h"
+#include "RimFishbones.h"
 #include "RimFishbonesCollection.h"
-#include "RimFishbonesMultipleSubs.h"
+#include "RimImportedFishboneLateralsCollection.h"
 #include "RimProject.h"
 #include "RimWellPathCollection.h"
 #include "RimWellPathCompletions.h"
@@ -55,10 +55,10 @@ void RicNewFishbonesSubsFeature::onActionTriggered( bool isChecked )
     fishbonesCollection->firstAncestorOrThisOfTypeAsserted( wellPath );
     if ( !RicWellPathsUnitSystemSettingsImpl::ensureHasUnitSystem( wellPath ) ) return;
 
-    RimFishbonesMultipleSubs* obj = new RimFishbonesMultipleSubs;
+    RimFishbones* obj = new RimFishbones;
     fishbonesCollection->appendFishbonesSubs( obj );
 
-    double wellPathTipMd = wellPath->endMD();
+    double wellPathTipMd = wellPath->uniqueEndMD();
     if ( wellPathTipMd != HUGE_VAL )
     {
         double startMd = wellPathTipMd - 150 - 100;

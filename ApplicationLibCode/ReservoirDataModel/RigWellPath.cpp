@@ -31,7 +31,8 @@ RigWellPath::RigWellPath()
     : cvf::Object()
     , m_hasDatumElevation( false )
     , m_datumElevation( 0.0 )
-    , m_startIndex( 0u )
+    , m_uniqueStartIndex( 0u )
+    , m_uniqueEndIndex( std::numeric_limits<size_t>::max() )
     , objectBeingDeleted( this )
 {
 }
@@ -45,9 +46,11 @@ RigWellPath::RigWellPath( const RigWellPath& rhs )
     , m_measuredDepths( rhs.m_measuredDepths )
     , m_hasDatumElevation( rhs.m_hasDatumElevation )
     , m_datumElevation( rhs.m_datumElevation )
-    , m_startIndex( rhs.m_startIndex )
+    , m_uniqueStartIndex( rhs.m_uniqueStartIndex )
+    , m_uniqueEndIndex( rhs.m_uniqueEndIndex )
     , objectBeingDeleted( this )
 {
+    CVF_ASSERT( m_wellPathPoints.size() == m_measuredDepths.size() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -59,9 +62,11 @@ RigWellPath::RigWellPath( const std::vector<cvf::Vec3d>& wellPathPoints, const s
     , m_measuredDepths( measuredDepths )
     , m_hasDatumElevation( false )
     , m_datumElevation( 0.0 )
-    , m_startIndex( 0u )
+    , m_uniqueStartIndex( 0u )
+    , m_uniqueEndIndex( std::numeric_limits<size_t>::max() )
     , objectBeingDeleted( this )
 {
+    CVF_ASSERT( m_wellPathPoints.size() == m_measuredDepths.size() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -69,14 +74,19 @@ RigWellPath::RigWellPath( const std::vector<cvf::Vec3d>& wellPathPoints, const s
 //--------------------------------------------------------------------------------------------------
 RigWellPath& RigWellPath::operator=( const RigWellPath& rhs )
 {
-    m_wellPathPoints    = rhs.m_wellPathPoints;
-    m_measuredDepths    = rhs.m_measuredDepths;
+    m_wellPathPoints = rhs.m_wellPathPoints;
+    m_measuredDepths = rhs.m_measuredDepths;
+    CVF_ASSERT( m_wellPathPoints.size() == m_measuredDepths.size() );
     m_hasDatumElevation = rhs.m_hasDatumElevation;
     m_datumElevation    = rhs.m_datumElevation;
-    m_startIndex        = rhs.m_startIndex;
+    m_uniqueStartIndex  = rhs.m_uniqueStartIndex;
+    m_uniqueEndIndex    = rhs.m_uniqueEndIndex;
     return *this;
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RigWellPath::~RigWellPath()
 {
     objectBeingDeleted.send();
@@ -179,7 +189,7 @@ double RigWellPath::rkbDiff() const
     }
 
     // If measured depth is zero, use the z-value of the well path points
-    if ( m_wellPathPoints.size() > 0 && m_measuredDepths.size() > 0 )
+    if ( !m_wellPathPoints.empty() && !m_measuredDepths.empty() )
     {
         double epsilon = 1e-3;
 
@@ -189,7 +199,8 @@ double RigWellPath::rkbDiff() const
 
             return diff;
         }
-        else if ( cvf::Math::abs( m_wellPathPoints[0].z() ) < epsilon )
+
+        if ( cvf::Math::abs( m_wellPathPoints[0].z() ) < epsilon )
         {
             return m_measuredDepths[0]; // Assume a vertical drop before the first md point.
         }
@@ -254,6 +265,9 @@ cvf::Vec3d
     return interpolatedVector;
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 cvf::Vec3d
     RigWellPath::interpolatedPointAlongWellPath( double  measuredDepth,
                                                  double* horizontalLengthAlongWellToStartClipPoint /*= nullptr*/ ) const
@@ -272,7 +286,8 @@ cvf::Vec3d RigWellPath::tangentAlongWellPath( double measuredDepth ) const
     {
         return ( m_wellPathPoints[1] - m_wellPathPoints[0] ).getNormalized();
     }
-    else if ( measuredDepth >= m_measuredDepths.back() )
+
+    if ( measuredDepth >= m_measuredDepths.back() )
     {
         auto N = m_measuredDepths.size();
         return ( m_wellPathPoints[N - 1] - m_wellPathPoints[N - 2] ).getNormalized();
@@ -421,10 +436,9 @@ cvf::ref<RigWellPath> RigWellPath::commonGeometry( const std::vector<const RigWe
 {
     const double eps = 1.0e-3;
 
-    if ( allGeometries.empty() )
-        return nullptr;
-    else if ( allGeometries.size() == 1u )
-        return cvf::ref<RigWellPath>( new RigWellPath( *allGeometries.front() ) );
+    if ( allGeometries.empty() ) return nullptr;
+
+    if ( allGeometries.size() == 1u ) return cvf::ref<RigWellPath>( new RigWellPath( *allGeometries.front() ) );
 
     const RigWellPath* firstGeometry = allGeometries.front();
 
@@ -459,9 +473,12 @@ cvf::ref<RigWellPath> RigWellPath::commonGeometry( const std::vector<const RigWe
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigWellPath::setUniqueStartIndex( size_t uniqueStartIndex )
+void RigWellPath::setUniqueStartAndEndIndex( size_t uniqueStartIndex, size_t uniqueEndIndex )
 {
-    m_startIndex = uniqueStartIndex;
+    if ( m_measuredDepths.empty() ) return;
+
+    m_uniqueStartIndex = std::clamp( uniqueStartIndex, (size_t)0u, m_measuredDepths.size() - 1u );
+    m_uniqueEndIndex   = std::clamp( uniqueEndIndex, m_uniqueStartIndex, m_measuredDepths.size() - 1u );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -469,7 +486,15 @@ void RigWellPath::setUniqueStartIndex( size_t uniqueStartIndex )
 //--------------------------------------------------------------------------------------------------
 size_t RigWellPath::uniqueStartIndex() const
 {
-    return m_startIndex;
+    return m_uniqueStartIndex;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+size_t RigWellPath::uniqueEndIndex() const
+{
+    return std::clamp( m_uniqueEndIndex, m_uniqueStartIndex, m_measuredDepths.size() - 1u );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -477,7 +502,8 @@ size_t RigWellPath::uniqueStartIndex() const
 //--------------------------------------------------------------------------------------------------
 std::vector<cvf::Vec3d> RigWellPath::uniqueWellPathPoints() const
 {
-    return std::vector<cvf::Vec3d>( m_wellPathPoints.begin() + m_startIndex, m_wellPathPoints.end() );
+    return std::vector<cvf::Vec3d>( m_wellPathPoints.begin() + uniqueStartIndex(),
+                                    m_wellPathPoints.begin() + uniqueEndIndex() + 1u );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -485,7 +511,8 @@ std::vector<cvf::Vec3d> RigWellPath::uniqueWellPathPoints() const
 //--------------------------------------------------------------------------------------------------
 std::vector<double> RigWellPath::uniqueMeasuredDepths() const
 {
-    return std::vector<double>( m_measuredDepths.begin() + m_startIndex, m_measuredDepths.end() );
+    return std::vector<double>( m_measuredDepths.begin() + m_uniqueStartIndex,
+                                m_measuredDepths.begin() + uniqueEndIndex() + 1u );
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -20,7 +20,7 @@
 
 #include "cafCmdFeature.h"
 
-class RimFishboneWellPathCollection;
+class RimImportedFishboneLateralsCollection;
 
 //==================================================================================================
 ///
@@ -36,5 +36,5 @@ protected:
     void setupActionLook( QAction* actionToSetup ) override;
 
 private:
-    static RimFishboneWellPathCollection* selectedWellPathCollection();
+    static RimImportedFishboneLateralsCollection* selectedWellPathCollection();
 };

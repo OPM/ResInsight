@@ -27,7 +27,7 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicMswICDAccumulator::RicMswICDAccumulator( std::shared_ptr<RicMswValve> valve, RiaDefines::EclipseUnitSystem unitSystem )
+RicMswICDAccumulator::RicMswICDAccumulator( RicMswValve* valve, RiaDefines::EclipseUnitSystem unitSystem )
     : RicMswValveAccumulator( valve, unitSystem )
     , m_areaSum( 0.0 )
 {
@@ -70,7 +70,7 @@ bool RicMswICDAccumulator::accumulateValveParameters( const RimWellPathValve* we
 //--------------------------------------------------------------------------------------------------
 void RicMswICDAccumulator::applyToSuperValve()
 {
-    std::shared_ptr<RicMswWsegValve> icd = std::dynamic_pointer_cast<RicMswWsegValve>( m_valve );
+    auto icd = dynamic_cast<RicMswWsegValve*>( m_valve );
     CVF_ASSERT( icd );
 
     if ( m_coefficientCalculator.validAggregatedWeight() && m_valid )
@@ -84,7 +84,7 @@ void RicMswICDAccumulator::applyToSuperValve()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicMswAICDAccumulator::RicMswAICDAccumulator( std::shared_ptr<RicMswValve> valve, RiaDefines::EclipseUnitSystem unitSystem )
+RicMswAICDAccumulator::RicMswAICDAccumulator( RicMswValve* valve, RiaDefines::EclipseUnitSystem unitSystem )
     : RicMswValveAccumulator( valve, unitSystem )
     , m_deviceOpen( false )
     , m_accumulatedLength( 0.0 )
@@ -145,8 +145,8 @@ bool RicMswAICDAccumulator::accumulateValveParameters( const RimWellPathValve* w
 //--------------------------------------------------------------------------------------------------
 void RicMswAICDAccumulator::applyToSuperValve()
 {
-    const double                           eps  = 1.0e-8;
-    std::shared_ptr<RicMswPerforationAICD> aicd = std::dynamic_pointer_cast<RicMswPerforationAICD>( m_valve );
+    const double eps  = 1.0e-8;
+    auto         aicd = dynamic_cast<RicMswPerforationAICD*>( m_valve );
 
     if ( aicd && m_valid && m_accumulatedLength > eps )
     {

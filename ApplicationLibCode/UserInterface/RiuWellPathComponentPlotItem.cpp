@@ -21,7 +21,7 @@
 #include "RiaColorTables.h"
 #include "RiaColorTools.h"
 
-#include "RimFishbonesMultipleSubs.h"
+#include "RimFishbones.h"
 #include "RimFracture.h"
 #include "RimFractureTemplate.h"
 #include "RimPerforationInterval.h"
