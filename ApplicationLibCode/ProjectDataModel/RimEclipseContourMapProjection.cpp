@@ -203,15 +203,13 @@ std::vector<double> RimEclipseContourMapProjection::generateResults( int timeSte
                     RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "DZ" ) );
                 if ( m_resultAggregation == RESULTS_OIL_COLUMN || m_resultAggregation == RESULTS_HC_COLUMN )
                 {
-                    resultData->ensureKnownResultLoadedForTimeStep( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE,
-                                                                                             "SOIL" ),
-                                                                    timeStep );
+                    resultData->ensureKnownResultLoaded(
+                        RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "SOIL" ) );
                 }
                 if ( m_resultAggregation == RESULTS_GAS_COLUMN || m_resultAggregation == RESULTS_HC_COLUMN )
                 {
-                    resultData->ensureKnownResultLoadedForTimeStep( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE,
-                                                                                             "SGAS" ),
-                                                                    timeStep );
+                    resultData->ensureKnownResultLoaded(
+                        RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "SGAS" ) );
                 }
                 gridResultValues = calculateColumnResult( m_resultAggregation() );
             }
