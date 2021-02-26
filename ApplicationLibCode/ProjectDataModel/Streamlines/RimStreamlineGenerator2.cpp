@@ -55,7 +55,7 @@ void RimStreamlineGenerator2::generateTracer( RigCell                    cell,
     for ( auto faceIdx : m_allFaces )
     {
         double flowVelocity = m_dataAccess->combinedFaceValueByArea( cell, faceIdx, m_phases, dominantPhase ) * direction;
-        if ( flowVelocity > m_flowThreshold )
+        if ( std::abs( flowVelocity ) > m_flowThreshold )
         {
             m_seeds.push_back( std::make_pair( cellIdx, faceIdx ) );
         }

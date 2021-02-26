@@ -97,8 +97,9 @@ cvf::ref<RigResultAccessor> RimStreamlineDataAccess::getDataAccessor( cvf::Struc
 
     RigEclipseResultAddress address( RiaDefines::ResultCatType::DYNAMIC_NATIVE, resultname );
 
-    // Make sure we have the data we need loaded for the given phase and time step index
-    data->ensureKnownResultLoadedForTimeStep( address, timeIdx );
+    // Make sure we have the data loaded.
+    // NB, will trigger load of data for all time steps
+    data->ensureKnownResultLoaded( address );
 
     return RigResultAccessorFactory::createFromResultAddress( m_data, gridIdx, porModel, timeIdx, address );
 }
