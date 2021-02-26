@@ -190,15 +190,10 @@ protected:
     void                          initAfterRead() override;
 
 private:
-    void          updatePositionFromMeasuredDepth();
-    void          updateThicknessDirection();
-    void          updateDistanceToBarrierAndDip();
-    cvf::Vec3d    calculateTSTDirection() const;
-    bool          findThicknessTargetPoints( cvf::Vec3d& topPosition, cvf::Vec3d& bottomPosition );
-    static double calculateFormationDip( const cvf::Vec3d& direction );
-
-    static QString vecToString( const cvf::Vec3d& vec );
-    void           updateThicknessDirectionWellPathName();
+    void updatePositionFromMeasuredDepth();
+    void updateThicknessDirection();
+    void updateDistanceToBarrierAndDip();
+    void updateThicknessDirectionWellPathName();
 
     RigEclipseCaseData* getEclipseCaseData() const;
 
@@ -206,15 +201,6 @@ private:
     void addBarrierAnnotation( const cvf::Vec3d& startPosition, const cvf::Vec3d& endPosition, const QString& barrierText );
     void                         clearBarrierAnnotation();
     RimAnnotationCollectionBase* annotationCollection();
-
-    static std::vector<WellPathCellIntersectionInfo> generateBarrierIntersections( RigEclipseCaseData* eclipseCaseData,
-                                                                                   const cvf::Vec3d&   position,
-                                                                                   const cvf::Vec3d& directionToBarrier );
-
-    static std::vector<WellPathCellIntersectionInfo>
-        generateBarrierIntersectionsBetweenPoints( RigEclipseCaseData* eclipseCaseData,
-                                                   const cvf::Vec3d&   startPosition,
-                                                   const cvf::Vec3d&   endPosition );
 
     void updateViewsAndPlots();
     void stimPlanModelTemplateChanged( const caf::SignalEmitter* emitter );

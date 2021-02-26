@@ -25,10 +25,10 @@
 #include "RiaStimPlanModelDefines.h"
 
 #include "RigEclipseCaseData.h"
+#include "RigFault.h"
 #include "RigMainGrid.h"
-#include "RigSimulationWellCoordsAndMD.h"
+#include "RigStimPlanModelTools.h"
 #include "RigWellPath.h"
-#include "RigWellPathIntersectionTools.h"
 
 #include "Rim3dView.h"
 #include "RimAnnotationCollection.h"
@@ -43,7 +43,6 @@
 #include "RimFaciesProperties.h"
 #include "RimFaultInView.h"
 #include "RimFaultInViewCollection.h"
-#include "RimFracture.h"
 #include "RimModeledWellPath.h"
 #include "RimNonNetLayers.h"
 #include "RimOilField.h"
@@ -73,7 +72,6 @@
 #include "cafPdmUiTreeOrdering.h"
 
 #include "cvfBoundingBox.h"
-#include "cvfGeometryTools.h"
 #include "cvfMath.h"
 #include "cvfPlane.h"
 
@@ -499,17 +497,10 @@ void RimStimPlanModel::updatePositionFromMeasuredDepth()
 {
     cvf::Vec3d positionAlongWellpath = cvf::Vec3d::ZERO;
 
-    caf::PdmObjectHandle* objHandle = dynamic_cast<caf::PdmObjectHandle*>( this );
-    if ( !objHandle ) return;
-
-    RimWellPath* wellPath = nullptr;
-    objHandle->firstAncestorOrThisOfType( wellPath );
-    if ( !wellPath ) return;
-
-    RigWellPath* wellPathGeometry = wellPath->wellPathGeometry();
-    if ( wellPathGeometry )
+    RimWellPath* wp = wellPath();
+    if ( wp && wp->wellPathGeometry() )
     {
-        positionAlongWellpath = wellPathGeometry->interpolatedPointAlongWellPath( m_MD() );
+        positionAlongWellpath = wp->wellPathGeometry()->interpolatedPointAlongWellPath( m_MD() );
     }
 
     m_anchorPosition = positionAlongWellpath;
@@ -525,7 +516,10 @@ void RimStimPlanModel::updateThicknessDirection()
 
     if ( m_extractionType() == ExtractionType::TRUE_STRATIGRAPHIC_THICKNESS )
     {
-        direction = calculateTSTDirection();
+        direction = RigStimPlanModelTools::calculateTSTDirection( getEclipseCaseData(),
+                                                                  m_anchorPosition(),
+                                                                  m_boundingBoxHorizontal,
+                                                                  m_boundingBoxVertical );
     }
 
     m_thicknessDirection = direction;
@@ -541,7 +535,13 @@ void RimStimPlanModel::updateThicknessDirection()
         cvf::Vec3d topPosition;
         cvf::Vec3d bottomPosition;
 
-        if ( findThicknessTargetPoints( topPosition, bottomPosition ) )
+        if ( RigStimPlanModelTools::findThicknessTargetPoints( getEclipseCaseData(),
+                                                               m_anchorPosition(),
+                                                               m_thicknessDirection(),
+                                                               m_extractionDepthTop(),
+                                                               m_extractionDepthBottom(),
+                                                               topPosition,
+                                                               bottomPosition ) )
         {
             topPosition.z() *= -1.0;
             bottomPosition.z() *= -1.0;
@@ -559,60 +559,6 @@ void RimStimPlanModel::updateThicknessDirection()
         wellGeomDef->updateConnectedEditors();
         wellGeomDef->updateWellPathVisualization( false );
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-cvf::Vec3d RimStimPlanModel::calculateTSTDirection() const
-{
-    cvf::Vec3d defaultDirection = cvf::Vec3d( 0.0, 0.0, -1.0 );
-
-    RigEclipseCaseData* eclipseCaseData = getEclipseCaseData();
-    if ( !eclipseCaseData ) return defaultDirection;
-
-    RigMainGrid* mainGrid = eclipseCaseData->mainGrid();
-    if ( !mainGrid ) return defaultDirection;
-
-    cvf::Vec3d boundingBoxSize( m_boundingBoxHorizontal, m_boundingBoxHorizontal, m_boundingBoxVertical );
-
-    // Find upper face of cells close to the anchor point
-    cvf::BoundingBox    boundingBox( m_anchorPosition() - boundingBoxSize, m_anchorPosition() + boundingBoxSize );
-    std::vector<size_t> closeCells;
-    mainGrid->findIntersectingCells( boundingBox, &closeCells );
-
-    // The stratigraphic thickness is the averge of normals of the top face
-    cvf::Vec3d direction = cvf::Vec3d::ZERO;
-
-    int numContributingCells = 0;
-    for ( size_t globalCellIndex : closeCells )
-    {
-        const RigCell& cell = mainGrid->globalCellArray()[globalCellIndex];
-
-        if ( !cell.isInvalid() )
-        {
-            direction += cell.faceNormalWithAreaLength( cvf::StructGridInterface::NEG_K ).getNormalized();
-            numContributingCells++;
-        }
-    }
-
-    RiaLogging::info( QString( "TST contributing cells: %1/%2" ).arg( numContributingCells ).arg( closeCells.size() ) );
-    if ( numContributingCells == 0 )
-    {
-        // No valid close cells found: just point straight up
-        return defaultDirection;
-    }
-
-    direction = ( direction / static_cast<double>( numContributingCells ) ).getNormalized();
-
-    // A surface has normals in both directions: if the normal points upwards we flip it to
-    // make it point downwards. This necessary when finding the TST start and end points later.
-    if ( direction.z() > 0.0 )
-    {
-        direction *= -1.0;
-    }
-
-    return direction;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -654,12 +600,7 @@ void RimStimPlanModel::updateBarrierProperties()
 //--------------------------------------------------------------------------------------------------
 void RimStimPlanModel::updateDistanceToBarrierAndDip()
 {
-    caf::PdmObjectHandle* objHandle = dynamic_cast<caf::PdmObjectHandle*>( this );
-    if ( !objHandle ) return;
-
-    RimWellPath* wellPath = nullptr;
-    objHandle->firstAncestorOrThisOfType( wellPath );
-    if ( !wellPath ) return;
+    if ( !wellPath() ) return;
 
     RigEclipseCaseData* eclipseCaseData = getEclipseCaseData();
     if ( !eclipseCaseData ) return;
@@ -667,21 +608,21 @@ void RimStimPlanModel::updateDistanceToBarrierAndDip()
     const cvf::Vec3d& position = anchorPosition();
 
     RiaLogging::info( "Computing distance to barrier." );
-    RiaLogging::info( QString( "Anchor position: %1" ).arg( RimStimPlanModel::vecToString( position ) ) );
+    RiaLogging::info( QString( "Anchor position: %1" ).arg( RigStimPlanModelTools::vecToString( position ) ) );
 
-    RigWellPath* wellPathGeometry = wellPath->wellPathGeometry();
+    RigWellPath* wellPathGeometry = wellPath()->wellPathGeometry();
 
     // Find the well path points closest to the anchor position
     cvf::Vec3d p1;
     cvf::Vec3d p2;
     wellPathGeometry->twoClosestPoints( position, &p1, &p2 );
     RiaLogging::info( QString( "Closest points on well path: %1 %2" )
-                          .arg( RimStimPlanModel::vecToString( p1 ) )
-                          .arg( RimStimPlanModel::vecToString( p2 ) ) );
+                          .arg( RigStimPlanModelTools::vecToString( p1 ) )
+                          .arg( RigStimPlanModelTools::vecToString( p2 ) ) );
 
     // Create a well direction based on the two points
     cvf::Vec3d wellDirection = ( p2 - p1 ).getNormalized();
-    RiaLogging::info( QString( "Well direction: %1" ).arg( RimStimPlanModel::vecToString( wellDirection ) ) );
+    RiaLogging::info( QString( "Well direction: %1" ).arg( RigStimPlanModelTools::vecToString( wellDirection ) ) );
 
     cvf::Vec3d fractureDirectionNormal = wellDirection;
     if ( m_fractureOrientation == FractureOrientation::ALONG_WELL_PATH )
@@ -714,47 +655,23 @@ void RimStimPlanModel::updateDistanceToBarrierAndDip()
         RiaLogging::error( "Unable to project thickess vector into fracture plane" );
         return;
     }
-    RiaLogging::info( QString( "Thickness direction: %1" ).arg( RimStimPlanModel::vecToString( thicknessDirection() ) ) );
     RiaLogging::info(
-        QString( "Thickness direction in fracture plane: %1" ).arg( RimStimPlanModel::vecToString( tstInPlane ) ) );
+        QString( "Thickness direction: %1" ).arg( RigStimPlanModelTools::vecToString( thicknessDirection() ) ) );
+    RiaLogging::info(
+        QString( "Thickness direction in fracture plane: %1" ).arg( RigStimPlanModelTools::vecToString( tstInPlane ) ) );
 
     // The direction to the barrier is normal to the TST project into the fracture plane
     cvf::Vec3d directionToBarrier = ( tstInPlane ^ fractureDirectionNormal ).getNormalized();
-    RiaLogging::info( QString( "Direction to barrier: %1" ).arg( RimStimPlanModel::vecToString( directionToBarrier ) ) );
+    RiaLogging::info(
+        QString( "Direction to barrier: %1" ).arg( RigStimPlanModelTools::vecToString( directionToBarrier ) ) );
 
     // Update formation dip. The direction for the barrier search follows the
     // inclination of the formation, and is in effect the formation dip in the
     // fracture plane. -90 to convert from horizontal to vertical.
-    m_formationDip = std::abs( calculateFormationDip( directionToBarrier ) - 90.0 );
+    m_formationDip = std::abs( RigStimPlanModelTools::calculateFormationDip( directionToBarrier ) - 90.0 );
 
-    std::vector<WellPathCellIntersectionInfo> intersections =
-        generateBarrierIntersections( eclipseCaseData, position, directionToBarrier );
-
-    RiaLogging::info( QString( "Intersections: %1" ).arg( intersections.size() ) );
-
-    double shortestDistance = std::numeric_limits<double>::max();
-
-    RigMainGrid*    mainGrid = eclipseCaseData->mainGrid();
-    cvf::Vec3d      barrierPosition;
-    double          barrierDip = 0.0;
-    const RigFault* foundFault = nullptr;
-    for ( const WellPathCellIntersectionInfo& intersection : intersections )
-    {
-        // Find the closest cell face which is a fault
-        double          distance = position.pointDistance( intersection.startPoint );
-        const RigFault* fault    = mainGrid->findFaultFromCellIndexAndCellFace( intersection.globCellIndex,
-                                                                             intersection.intersectedCellFaceIn );
-        if ( fault && distance < shortestDistance )
-        {
-            foundFault       = fault;
-            shortestDistance = distance;
-            barrierPosition  = intersection.startPoint;
-
-            const RigCell& cell       = mainGrid->globalCellArray()[intersection.globCellIndex];
-            cvf::Vec3d     faceNormal = cell.faceNormalWithAreaLength( intersection.intersectedCellFaceIn );
-            barrierDip                = calculateFormationDip( faceNormal );
-        }
-    }
+    auto [foundFault, shortestDistance, barrierPosition, barrierDip] =
+        RigStimPlanModelTools::findClosestFaultBarrier( eclipseCaseData, position, directionToBarrier );
 
     if ( foundFault )
     {
@@ -782,48 +699,6 @@ void RimStimPlanModel::updateDistanceToBarrierAndDip()
         m_distanceToBarrier = 0.0;
         m_barrierFaultName  = "";
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::vector<WellPathCellIntersectionInfo>
-    RimStimPlanModel::generateBarrierIntersections( RigEclipseCaseData* eclipseCaseData,
-                                                    const cvf::Vec3d&   position,
-                                                    const cvf::Vec3d&   directionToBarrier )
-{
-    double                                    randoDistance    = 10000.0;
-    cvf::Vec3d                                forwardPosition  = position + ( directionToBarrier * randoDistance );
-    cvf::Vec3d                                backwardPosition = position + ( directionToBarrier * -randoDistance );
-    std::vector<WellPathCellIntersectionInfo> intersections =
-        generateBarrierIntersectionsBetweenPoints( eclipseCaseData, position, forwardPosition );
-    std::vector<WellPathCellIntersectionInfo> backwardIntersections =
-        generateBarrierIntersectionsBetweenPoints( eclipseCaseData, position, backwardPosition );
-
-    // Merge the intersections for the search for closest
-    intersections.insert( intersections.end(), backwardIntersections.begin(), backwardIntersections.end() );
-    return intersections;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::vector<WellPathCellIntersectionInfo>
-    RimStimPlanModel::generateBarrierIntersectionsBetweenPoints( RigEclipseCaseData* eclipseCaseData,
-                                                                 const cvf::Vec3d&   startPosition,
-                                                                 const cvf::Vec3d&   endPosition )
-{
-    // Create a fake well path from the anchor point to
-    // a point far away in the direction barrier direction
-    std::vector<cvf::Vec3d> pathCoords;
-    pathCoords.push_back( startPosition );
-    pathCoords.push_back( endPosition );
-
-    RigSimulationWellCoordsAndMD helper( pathCoords );
-    return RigWellPathIntersectionTools::findCellIntersectionInfosAlongPath( eclipseCaseData,
-                                                                             "",
-                                                                             helper.wellPathPoints(),
-                                                                             helper.measuredDepths() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -980,12 +855,10 @@ void RimStimPlanModel::defineEditorAttribute( const caf::PdmFieldHandle* field,
 
         if ( myAttr )
         {
-            RimWellPath* wellPath = nullptr;
-            this->firstAncestorOrThisOfType( wellPath );
-            if ( !wellPath ) return;
+            if ( !wellPath() ) return;
 
-            myAttr->m_minimum = wellPath->startMD();
-            myAttr->m_maximum = wellPath->endMD();
+            myAttr->m_minimum = wellPath()->startMD();
+            myAttr->m_maximum = wellPath()->endMD();
         }
     }
 }
@@ -1027,92 +900,6 @@ void RimStimPlanModel::updateThicknessDirectionWellPathName()
 {
     QString wellNameFormat( "%1 for %2" );
     m_thicknessDirectionWellPath()->setName( wellNameFormat.arg( m_extractionType().text() ).arg( name() ) );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RimStimPlanModel::vecToString( const cvf::Vec3d& vec )
-{
-    return QString( "[%1, %2, %3]" ).arg( vec.x() ).arg( vec.y() ).arg( vec.z() );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RimStimPlanModel::findThicknessTargetPoints( cvf::Vec3d& topPosition, cvf::Vec3d& bottomPosition )
-{
-    RigEclipseCaseData* eclipseCaseData = getEclipseCaseData();
-    if ( !eclipseCaseData ) return false;
-
-    const cvf::Vec3d& position  = anchorPosition();
-    const cvf::Vec3d& direction = thicknessDirection();
-
-    RiaLogging::info( QString( "Position:  %1" ).arg( RimStimPlanModel::vecToString( position ) ) );
-    RiaLogging::info( QString( "Direction: %1" ).arg( RimStimPlanModel::vecToString( direction ) ) );
-
-    // Create a "fake" well path which from top to bottom of formation
-    // passing through the point and with the given direction
-
-    const cvf::BoundingBox& allCellsBoundingBox = eclipseCaseData->mainGrid()->boundingBox();
-
-    RiaLogging::info( QString( "All cells bounding box: %1 %2" )
-                          .arg( RimStimPlanModel::vecToString( allCellsBoundingBox.min() ) )
-                          .arg( RimStimPlanModel::vecToString( allCellsBoundingBox.max() ) ) );
-    cvf::BoundingBox geometryBoundingBox( allCellsBoundingBox );
-
-    // Use smaller depth bounding box for extraction if configured
-    if ( m_extractionDepthTop > 0.0 && m_extractionDepthBottom > 0.0 && m_extractionDepthTop < m_extractionDepthBottom )
-    {
-        cvf::Vec3d bbMin( allCellsBoundingBox.min().x(), allCellsBoundingBox.min().y(), -m_extractionDepthBottom );
-        cvf::Vec3d bbMax( allCellsBoundingBox.max().x(), allCellsBoundingBox.max().y(), -m_extractionDepthTop );
-        geometryBoundingBox = cvf::BoundingBox( bbMin, bbMax );
-    }
-
-    if ( !geometryBoundingBox.contains( position ) )
-    {
-        //
-        RiaLogging::error( "Anchor position is outside the grid bounding box. Unable to compute direction." );
-        return false;
-    }
-
-    // Create plane on top and bottom of formation
-    cvf::Plane topPlane;
-    topPlane.setFromPointAndNormal( geometryBoundingBox.max(), cvf::Vec3d::Z_AXIS );
-
-    cvf::Plane bottomPlane;
-    bottomPlane.setFromPointAndNormal( geometryBoundingBox.min(), cvf::Vec3d::Z_AXIS );
-
-    // Find and add point on top plane
-    cvf::Vec3d abovePlane = position + ( direction * -10000.0 );
-    if ( !topPlane.intersect( position, abovePlane, &topPosition ) )
-    {
-        RiaLogging::error( "Unable to compute top position of thickness direction vector." );
-        return false;
-    }
-
-    RiaLogging::info( QString( "Top: %1" ).arg( RimStimPlanModel::vecToString( topPosition ) ) );
-
-    // Find and add point on bottom plane
-    cvf::Vec3d belowPlane = position + ( direction * 10000.0 );
-    if ( !bottomPlane.intersect( position, belowPlane, &bottomPosition ) )
-    {
-        RiaLogging::error( "Unable to compute bottom position of thickness direction vector." );
-        return false;
-    }
-
-    RiaLogging::info( QString( "Bottom: %1" ).arg( RimStimPlanModel::vecToString( bottomPosition ) ) );
-
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-double RimStimPlanModel::calculateFormationDip( const cvf::Vec3d& direction )
-{
-    // Formation dip is inclination of a plane from horizontal.
-    return cvf::Math::toDegrees( cvf::GeometryTools::getAngle( direction, -cvf::Vec3d::Z_AXIS ) );
 }
 
 //--------------------------------------------------------------------------------------------------

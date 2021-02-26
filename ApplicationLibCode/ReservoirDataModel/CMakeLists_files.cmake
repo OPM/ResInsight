@@ -85,6 +85,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RigHistogramData.h
 ${CMAKE_CURRENT_LIST_DIR}/RigVisibleTracerFilter.h
 ${CMAKE_CURRENT_LIST_DIR}/RigTracerPoint.h
 ${CMAKE_CURRENT_LIST_DIR}/RigTracer.h
+${CMAKE_CURRENT_LIST_DIR}/RigStimPlanModelTools.h
 )
 
 
@@ -167,6 +168,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RigHistogramData.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RigVisibleTracerFilter.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RigTracerPoint.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RigTracer.cpp
+${CMAKE_CURRENT_LIST_DIR}/RigStimPlanModelTools.cpp
 )
 
 list(APPEND CODE_HEADER_FILES
