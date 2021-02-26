@@ -605,9 +605,9 @@ bool RimStimPlanModelWellLogCalculator::replaceMissingValuesWithOtherKLayer( Ria
                                           .arg( j + 1 )
                                           .arg( k + 1 ) );
 
-                    int       neighborK = k + moveDirection;
-                    const int minK      = 1;
-                    const int maxK      = mainGrid->cellCountK();
+                    int       neighborK = static_cast<int>( k ) + moveDirection;
+                    const int minK      = static_cast<int>( 1 );
+                    const int maxK      = static_cast<int>( mainGrid->cellCountK() );
 
                     bool isFound = false;
                     while ( !isFound && neighborK >= minK && neighborK <= maxK )
