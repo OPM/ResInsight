@@ -114,7 +114,7 @@ RimStreamlineInViewCollection::RimStreamlineInViewCollection()
     m_resolution = 20.0;
 
     CAF_PDM_InitFieldNoDefault( &m_maxDays, "MaxDays", "Max Days", "", "", "" );
-    m_maxDays = 50000;
+    m_maxDays = 5000;
 
     CAF_PDM_InitFieldNoDefault( &m_useProducers, "UseProducers", "Producer Wells", "", "", "" );
     m_useProducers = true;
