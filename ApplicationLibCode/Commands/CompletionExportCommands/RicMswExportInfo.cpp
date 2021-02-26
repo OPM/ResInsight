@@ -36,15 +36,18 @@ RicMswExportInfo::RicMswExportInfo( const RimWellPath*            wellPath,
                                     double                        initialMD,
                                     const QString&                lengthAndDepthText,
                                     const QString&                pressureDropText )
-    : m_wellPath( wellPath )
-    , m_initialMD( initialMD )
-    , m_unitSystem( unitSystem )
+    : m_unitSystem( unitSystem )
     , m_topWellBoreVolume( RicMswExportInfo::defaultDoubleValue() )
     , m_linerDiameter( RimMswCompletionParameters::defaultLinerDiameter( unitSystem ) )
     , m_roughnessFactor( RimMswCompletionParameters::defaultRoughnessFactor( unitSystem ) )
     , m_lengthAndDepthText( lengthAndDepthText )
     , m_pressureDropText( pressureDropText )
     , m_hasSubGridIntersections( false )
+    , m_mainBoreBranch(
+          std::make_unique<RicMswBranch>( "Main Stem",
+                                          wellPath,
+                                          initialMD,
+                                          -wellPath->wellPathGeometry()->interpolatedPointAlongWellPath( initialMD ).z() ) )
 {
 }
 
@@ -70,48 +73,6 @@ void RicMswExportInfo::setRoughnessFactor( double roughnessFactor )
 void RicMswExportInfo::setHasSubGridIntersections( bool subGridIntersections )
 {
     m_hasSubGridIntersections = subGridIntersections;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RicMswExportInfo::addSegment( std::shared_ptr<RicMswSegment> location )
-{
-    m_segments.push_back( location );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RicMswExportInfo::sortSegments()
-{
-    std::sort( m_segments.begin(),
-               m_segments.end(),
-               []( std::shared_ptr<RicMswSegment> lhs, std::shared_ptr<RicMswSegment> rhs ) { return *lhs < *rhs; } );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-const RimWellPath* RicMswExportInfo::wellPath() const
-{
-    return m_wellPath;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-double RicMswExportInfo::initialMD() const
-{
-    return m_initialMD;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-double RicMswExportInfo::initialTVD() const
-{
-    return -m_wellPath->wellPathGeometry()->interpolatedPointAlongWellPath( m_initialMD ).z();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -181,15 +142,15 @@ double RicMswExportInfo::defaultDoubleValue()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::vector<std::shared_ptr<RicMswSegment>>& RicMswExportInfo::segments() const
+const RicMswBranch* RicMswExportInfo::mainBoreBranch() const
 {
-    return m_segments;
+    return m_mainBoreBranch.get();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<std::shared_ptr<RicMswSegment>>& RicMswExportInfo::segments()
+RicMswBranch* RicMswExportInfo::mainBoreBranch()
 {
-    return m_segments;
+    return m_mainBoreBranch.get();
 }

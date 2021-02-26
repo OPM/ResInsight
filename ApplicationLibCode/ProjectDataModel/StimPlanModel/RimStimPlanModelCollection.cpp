@@ -51,6 +51,14 @@ RimStimPlanModelCollection::~RimStimPlanModelCollection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RimStimPlanModelCollection::hasStimPlanModels() const
+{
+    return !m_stimPlanModels.empty();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimStimPlanModelCollection::addStimPlanModel( RimStimPlanModel* fracture )
 {
     m_stimPlanModels.push_back( fracture );

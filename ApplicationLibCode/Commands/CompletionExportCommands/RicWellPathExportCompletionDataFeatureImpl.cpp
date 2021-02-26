@@ -51,8 +51,8 @@
 #include "RigWellPathIntersectionTools.h"
 
 #include "RimFileWellPath.h"
+#include "RimFishbones.h"
 #include "RimFishbonesCollection.h"
-#include "RimFishbonesMultipleSubs.h"
 #include "RimFractureTemplate.h"
 #include "RimNonDarcyPerforationParameters.h"
 #include "RimPerforationCollection.h"
@@ -298,7 +298,7 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions( const std::v
                 std::vector<RicWellPathFractureReportItem> reportItemsForWell;
                 for ( const auto& fracItem : fractureDataReportItems )
                 {
-                    if ( fracItem.wellPathNameForExport() == wellPath->completions()->wellNameForExport() )
+                    if ( fracItem.wellPathNameForExport() == wellPath->completionSettings()->wellNameForExport() )
                     {
                         reportItemsForWell.push_back( fracItem );
                     }
@@ -353,7 +353,8 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions( const std::v
                             std::vector<RicWellPathFractureReportItem> reportItemsForWell;
                             for ( const auto& fracItem : fractureDataReportItems )
                             {
-                                if ( fracItem.wellPathNameForExport() == wellPath->completions()->wellNameForExport() )
+                                if ( fracItem.wellPathNameForExport() ==
+                                     wellPath->completionSettings()->wellNameForExport() )
                                 {
                                     reportItemsForWell.push_back( fracItem );
                                 }
@@ -688,7 +689,7 @@ void RicWellPathExportCompletionDataFeatureImpl::exportWellPathFractureReport(
             {
                 for ( const auto& reportItem : sortedReportItems )
                 {
-                    if ( reportItem.wellPathNameForExport() == wellPath->completions()->wellNameForExport() )
+                    if ( reportItem.wellPathNameForExport() == wellPath->completionSettings()->wellNameForExport() )
                     {
                         wellPathsSet.insert( wellPath );
                     }
@@ -749,22 +750,22 @@ void RicWellPathExportCompletionDataFeatureImpl::exportWelspecsToFile( RimEclips
     // Export
     for ( const auto wellPath : wellPathSet )
     {
-        auto rimCompletions = wellPath->completions();
-        auto ijIntersection = wellPathUpperGridIntersectionIJ( gridCase, wellPath );
+        auto completionSettings = wellPath->completionSettings();
+        auto ijIntersection     = wellPathUpperGridIntersectionIJ( gridCase, wellPath );
 
-        formatter.add( rimCompletions->wellNameForExport() )
-            .add( rimCompletions->wellGroupNameForExport() )
+        formatter.add( completionSettings->wellNameForExport() )
+            .add( completionSettings->wellGroupNameForExport() )
             .addOneBasedCellIndex( ijIntersection.second.x() )
             .addOneBasedCellIndex( ijIntersection.second.y() )
-            .add( rimCompletions->referenceDepthForExport() )
-            .add( rimCompletions->wellTypeNameForExport() )
-            .add( rimCompletions->drainageRadiusForExport() )
-            .add( rimCompletions->gasInflowEquationForExport() )
-            .add( rimCompletions->automaticWellShutInForExport() )
-            .add( rimCompletions->allowWellCrossFlowForExport() )
-            .add( rimCompletions->wellBoreFluidPVTForExport() )
-            .add( rimCompletions->hydrostaticDensityForExport() )
-            .add( rimCompletions->fluidInPlaceRegionForExport() )
+            .add( completionSettings->referenceDepthForExport() )
+            .add( completionSettings->wellTypeNameForExport() )
+            .add( completionSettings->drainageRadiusForExport() )
+            .add( completionSettings->gasInflowEquationForExport() )
+            .add( completionSettings->automaticWellShutInForExport() )
+            .add( completionSettings->allowWellCrossFlowForExport() )
+            .add( completionSettings->wellBoreFluidPVTForExport() )
+            .add( completionSettings->hydrostaticDensityForExport() )
+            .add( completionSettings->fluidInPlaceRegionForExport() )
             .rowCompleted();
     }
 
@@ -839,22 +840,22 @@ void RicWellPathExportCompletionDataFeatureImpl::exportWelspeclToFile(
 
             std::tie( measuredDepth, ijIntersection, lgrName ) = itemWithLowestMD;
 
-            auto rimCompletions = wellPath->completions();
+            auto completionSettings = wellPath->completionSettings();
 
-            formatter.add( rimCompletions->wellNameForExport() )
-                .add( rimCompletions->wellGroupNameForExport() )
+            formatter.add( completionSettings->wellNameForExport() )
+                .add( completionSettings->wellGroupNameForExport() )
                 .add( lgrName )
                 .addOneBasedCellIndex( ijIntersection.x() )
                 .addOneBasedCellIndex( ijIntersection.y() )
-                .add( rimCompletions->referenceDepthForExport() )
-                .add( rimCompletions->wellTypeNameForExport() )
-                .add( rimCompletions->drainageRadiusForExport() )
-                .add( rimCompletions->gasInflowEquationForExport() )
-                .add( rimCompletions->automaticWellShutInForExport() )
-                .add( rimCompletions->allowWellCrossFlowForExport() )
-                .add( rimCompletions->wellBoreFluidPVTForExport() )
-                .add( rimCompletions->hydrostaticDensityForExport() )
-                .add( rimCompletions->fluidInPlaceRegionForExport() )
+                .add( completionSettings->referenceDepthForExport() )
+                .add( completionSettings->wellTypeNameForExport() )
+                .add( completionSettings->drainageRadiusForExport() )
+                .add( completionSettings->gasInflowEquationForExport() )
+                .add( completionSettings->automaticWellShutInForExport() )
+                .add( completionSettings->allowWellCrossFlowForExport() )
+                .add( completionSettings->wellBoreFluidPVTForExport() )
+                .add( completionSettings->hydrostaticDensityForExport() )
+                .add( completionSettings->fluidInPlaceRegionForExport() )
                 .rowCompleted();
         }
     }
@@ -1190,7 +1191,7 @@ std::vector<RigCompletionData> RicWellPathExportCompletionDataFeatureImpl::gener
                 bool cellIsActive = activeCellInfo->isActive( cell.globCellIndex );
                 if ( !cellIsActive ) continue;
 
-                RigCompletionData completion( wellPath->completions()->wellNameForExport(),
+                RigCompletionData completion( wellPath->completionSettings()->wellNameForExport(),
                                               RigCompletionDataGridCell( cell.globCellIndex,
                                                                          settings.caseToApply->mainGrid() ),
                                               cell.startMD );

@@ -11,7 +11,7 @@ TEST( RimWellPathCompletions, WellNameRegExp )
     std::vector<QString> validNames   = { "RASASD", "gf0sdf", "sd-ASD12", "1-AA_b" };
     std::vector<QString> invalidNames = { ".AdSD", "+gf0sdf", "sd ASD12", "ABCDEFGHIJKL" };
 
-    QRegExp rx = RimWellPathCompletions::wellNameForExportRegExp();
+    QRegExp rx = RimWellPathCompletionSettings::wellNameForExportRegExp();
     EXPECT_TRUE( rx.isValid() );
 
     for ( QString validName : validNames )
@@ -30,7 +30,7 @@ TEST( RimWellPathCompletions, WellNameRegExpValidator )
     std::vector<QString> invalidNames = { ".AdSD", "+gf0sdf", "sd ASD12", "ABCDEFGHIJKL" };
     QString              emptyString  = "";
 
-    QRegExp          rx = RimWellPathCompletions::wellNameForExportRegExp();
+    QRegExp          rx = RimWellPathCompletionSettings::wellNameForExportRegExp();
     QRegExpValidator validator( nullptr );
     validator.setRegExp( rx );
 

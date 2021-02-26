@@ -43,9 +43,9 @@ public:
     bool isEnabled() const;
 
     void setAsPointTargetXYD( const cvf::Vec3d& point );
+    void setAsPointTargetXYZ( const cvf::Vec3d& point);
     void setAsPointXYZAndTangentTarget( const cvf::Vec3d& point, const cvf::Vec3d& tangent );
     void setAsPointXYZAndTangentTarget( const cvf::Vec3d& point, double azimuth, double inclination );
-    void setAsLateralMDConnection( RimWellPath* wellPath, double md );
     void setDerivedTangent( double azimuth, double inclination );
 
     RiaLineArcWellPathCalculator::WellTarget wellTargetData();
@@ -53,8 +53,7 @@ public:
     enum TargetTypeEnum
     {
         POINT_AND_TANGENT,
-        POINT,
-        LATERAL_ANCHOR_POINT_MD
+        POINT
     };
     TargetTypeEnum targetType() const;
     cvf::Vec3d     targetPointXYZ() const;
@@ -82,6 +81,7 @@ private:
     void                                        enableFullUpdate( bool enable );
     bool                                        m_isFullUpdateEnabled;
     caf::PdmField<bool>                         m_isEnabled;
+    caf::PdmField<bool>                         m_isLocked;
     caf::PdmField<caf::AppEnum<TargetTypeEnum>> m_targetType;
     caf::PdmField<cvf::Vec3d>                   m_targetPoint;
     caf::PdmField<double>                       m_azimuth;
@@ -90,6 +90,5 @@ private:
     caf::PdmField<double>                       m_dogleg2;
     caf::PdmField<bool>                         m_hasTangentConstraintUiField;
 
-    caf::PdmField<double>          m_lateralMDConnection;
     caf::PdmPtrField<RimWellPath*> m_parentWellPath;
 };

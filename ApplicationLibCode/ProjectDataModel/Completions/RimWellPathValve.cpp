@@ -452,6 +452,7 @@ QList<caf::PdmOptionItemInfo> RimWellPathValve::calculateValueOptions( const caf
 
     RimProject* project = nullptr;
     this->firstAncestorOrThisOfTypeAsserted( project );
+
     std::vector<RimValveTemplate*> allTemplates = project->allValveTemplates();
     for ( RimValveTemplate* valveTemplate : allTemplates )
     {
@@ -484,8 +485,11 @@ void RimWellPathValve::fieldChangedByUi( const caf::PdmFieldHandle* changedField
     }
 
     RimPerforationInterval* perfInterval;
-    this->firstAncestorOrThisOfTypeAsserted( perfInterval );
-    perfInterval->updateAllReferringTracks();
+    this->firstAncestorOrThisOfType( perfInterval );
+    if ( perfInterval )
+    {
+        perfInterval->updateAllReferringTracks();
+    }
 
     RimProject* proj;
     this->firstAncestorOrThisOfTypeAsserted( proj );
@@ -509,35 +513,37 @@ void RimWellPathValve::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderin
         uiOrdering.add( &m_createValveTemplate, false );
     }
 
-    if ( componentType() == RiaDefines::WellPathComponentType::ICV ||
-         componentType() == RiaDefines::WellPathComponentType::ICD )
+    if ( uiConfigName != "TemplateOnly" )
     {
-        if ( componentType() == RiaDefines::WellPathComponentType::ICV )
+        if ( componentType() == RiaDefines::WellPathComponentType::ICV ||
+             componentType() == RiaDefines::WellPathComponentType::ICD )
         {
-            RimWellPath* wellPath;
-            firstAncestorOrThisOfType( wellPath );
-            if ( wellPath )
+            if ( componentType() == RiaDefines::WellPathComponentType::ICV )
             {
-                if ( wellPath->unitSystem() == RiaDefines::EclipseUnitSystem::UNITS_METRIC )
+                RimWellPath* wellPath;
+                firstAncestorOrThisOfType( wellPath );
+                if ( wellPath )
                 {
-                    m_measuredDepth.uiCapability()->setUiName( "Measured Depth [m]" );
+                    if ( wellPath->unitSystem() == RiaDefines::EclipseUnitSystem::UNITS_METRIC )
+                    {
+                        m_measuredDepth.uiCapability()->setUiName( "Measured Depth [m]" );
+                    }
+                    else if ( wellPath->unitSystem() == RiaDefines::EclipseUnitSystem::UNITS_FIELD )
+                    {
+                        m_measuredDepth.uiCapability()->setUiName( "Measured Depth [ft]" );
+                    }
                 }
-                else if ( wellPath->unitSystem() == RiaDefines::EclipseUnitSystem::UNITS_FIELD )
-                {
-                    m_measuredDepth.uiCapability()->setUiName( "Measured Depth [ft]" );
-                }
+                uiOrdering.add( &m_measuredDepth, { true, 3, 1 } );
             }
-            uiOrdering.add( &m_measuredDepth, { true, 3, 1 } );
+        }
+
+        if ( componentType() == RiaDefines::WellPathComponentType::ICD ||
+             componentType() == RiaDefines::WellPathComponentType::AICD )
+        {
+            caf::PdmUiGroup* group = uiOrdering.addNewGroup( "Multiple Valve Locations" );
+            m_multipleValveLocations->uiOrdering( uiConfigName, *group );
         }
     }
-
-    if ( componentType() == RiaDefines::WellPathComponentType::ICD ||
-         componentType() == RiaDefines::WellPathComponentType::AICD )
-    {
-        caf::PdmUiGroup* group = uiOrdering.addNewGroup( "Multiple Valve Locations" );
-        m_multipleValveLocations->uiOrdering( uiConfigName, *group );
-    }
-
     if ( m_valveTemplate() != nullptr )
     {
         caf::PdmUiGroup* group = uiOrdering.addNewGroup( "Parameters from Template" );

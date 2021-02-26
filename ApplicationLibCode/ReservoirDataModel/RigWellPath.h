@@ -72,8 +72,9 @@ public:
     double identicalTubeLength( const RigWellPath& otherWellPathGeometry ) const;
 
     static cvf::ref<RigWellPath> commonGeometry( const std::vector<const RigWellPath*>& allGeometries );
-    void                         setUniqueStartIndex( size_t uniqueStartIndex );
+    void                         setUniqueStartAndEndIndex( size_t uniqueStartIndex, size_t uniqueEndIndex );
     size_t                       uniqueStartIndex() const;
+    size_t                       uniqueEndIndex() const;
     std::vector<cvf::Vec3d>      uniqueWellPathPoints() const;
     std::vector<double>          uniqueMeasuredDepths() const;
 
@@ -95,5 +96,6 @@ private:
 
     bool   m_hasDatumElevation;
     double m_datumElevation;
-    size_t m_startIndex;
+    size_t m_uniqueStartIndex;
+    size_t m_uniqueEndIndex;
 };

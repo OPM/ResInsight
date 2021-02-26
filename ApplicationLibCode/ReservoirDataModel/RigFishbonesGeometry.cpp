@@ -18,7 +18,7 @@
 
 #include "RigFishbonesGeometry.h"
 
-#include "RimFishbonesMultipleSubs.h"
+#include "RimFishbones.h"
 
 #include "RigWellPath.h"
 #include "RimWellPath.h"
@@ -28,7 +28,7 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigFisbonesGeometry::RigFisbonesGeometry( RimFishbonesMultipleSubs* fishbonesSub )
+RigFisbonesGeometry::RigFisbonesGeometry( RimFishbones* fishbonesSub )
     : m_fishbonesSub( fishbonesSub )
 {
 }
@@ -40,19 +40,12 @@ std::vector<std::pair<cvf::Vec3d, double>> RigFisbonesGeometry::coordsForLateral
 {
     CVF_ASSERT( lateralIndex < m_fishbonesSub->lateralLengths().size() );
 
-    bool found = false;
-    for ( auto& sub : m_fishbonesSub->installedLateralIndices() )
-    {
-        if ( sub.subIndex == subIndex )
-        {
-            auto it = std::find( sub.lateralIndices.begin(), sub.lateralIndices.end(), lateralIndex );
-            if ( it != sub.lateralIndices.end() )
-            {
-                found = true;
-                break;
-            }
-        }
-    }
+    const auto& subAndLateralIndices = m_fishbonesSub->installedLateralIndices();
+
+    bool found = std::find( subAndLateralIndices.begin(),
+                            subAndLateralIndices.end(),
+                            std::make_pair( subIndex, lateralIndex ) ) != subAndLateralIndices.end();
+
     CVF_ASSERT( found );
 
     cvf::Vec3d position;

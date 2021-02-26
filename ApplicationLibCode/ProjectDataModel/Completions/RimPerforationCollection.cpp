@@ -60,10 +60,10 @@ RimPerforationCollection::RimPerforationCollection()
     CAF_PDM_InitFieldNoDefault( &m_perforations, "Perforations", "Perforations", "", "", "" );
     m_perforations.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_mswParameters, "MswParameters", "Multi Segment Well Parameters", "", "", "" );
-    m_mswParameters = new RimMswCompletionParameters;
-    m_mswParameters.uiCapability()->setUiTreeHidden( true );
-    m_mswParameters.uiCapability()->setUiTreeChildrenHidden( true );
+    CAF_PDM_InitFieldNoDefault( &m_mswParameters_OBSOLETE, "MswParameters", "Multi Segment Well Parameters", "", "", "" );
+    m_mswParameters_OBSOLETE = new RimMswCompletionParameters;
+    m_mswParameters_OBSOLETE.uiCapability()->setUiTreeHidden( true );
+    m_mswParameters_OBSOLETE.uiCapability()->setUiTreeChildrenHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_nonDarcyParameters, "NonDarcyParameters", "Non-Darcy Parameters", "", "", "" );
     m_nonDarcyParameters = new RimNonDarcyPerforationParameters();
@@ -82,9 +82,9 @@ RimPerforationCollection::~RimPerforationCollection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const RimMswCompletionParameters* RimPerforationCollection::mswParameters() const
+bool RimPerforationCollection::hasPerforations() const
 {
-    return m_mswParameters;
+    return !m_perforations.empty();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -93,14 +93,6 @@ const RimMswCompletionParameters* RimPerforationCollection::mswParameters() cons
 const RimNonDarcyPerforationParameters* RimPerforationCollection::nonDarcyParameters() const
 {
     return m_nonDarcyParameters;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimPerforationCollection::setUnitSystemSpecificDefaults()
-{
-    m_mswParameters->setUnitSystemSpecificDefaults();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -190,7 +182,7 @@ std::vector<const RimPerforationInterval*> RimPerforationCollection::activePerfo
 void RimPerforationCollection::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     caf::PdmUiGroup* mswGroup = uiOrdering.addNewGroup( "Multi Segment Well Options" );
-    m_mswParameters->uiOrdering( uiConfigName, *mswGroup );
+    m_mswParameters_OBSOLETE->uiOrdering( uiConfigName, *mswGroup );
     m_nonDarcyParameters->uiOrdering( uiConfigName, uiOrdering );
     uiOrdering.skipRemainingFields( true );
 }

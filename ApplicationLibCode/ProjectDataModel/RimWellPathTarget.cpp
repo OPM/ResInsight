@@ -23,7 +23,6 @@
 #include "RigWellPath.h"
 
 #include "RimModeledWellPath.h"
-#include "RimModeledWellPathLateral.h"
 #include "RimWellPath.h"
 #include "RimWellPathGeometryDef.h"
 
@@ -41,7 +40,6 @@ void caf::AppEnum<RimWellPathTarget::TargetTypeEnum>::setUp()
 {
     addItem( RimWellPathTarget::POINT_AND_TANGENT, "POINT_AND_TANGENT", "Point and Tangent" );
     addItem( RimWellPathTarget::POINT, "POINT", "Point" );
-    addItem( RimWellPathTarget::LATERAL_ANCHOR_POINT_MD, "LATERAL_ANCHOR_POINT_MD", "Lateral Anchor Point MD" );
     setDefault( RimWellPathTarget::POINT_AND_TANGENT );
 }
 } // namespace caf
@@ -57,6 +55,8 @@ RimWellPathTarget::RimWellPathTarget()
     , m_isFullUpdateEnabled( true )
 {
     CAF_PDM_InitField( &m_isEnabled, "IsEnabled", true, "", "", "", "" );
+    CAF_PDM_InitField( &m_isLocked, "IsLocked", false, "", "", "", "" );
+    m_isLocked.uiCapability()->setUiHidden( true );
     // m_targetType.uiCapability()->setUiHidden(true);
     CAF_PDM_InitFieldNoDefault( &m_targetPoint, "TargetPoint", "Point", "", "", "" );
     CAF_PDM_InitField( &m_dogleg1, "Dogleg1", 3.0, "DL in", "", "[deg/30m]", "" );
@@ -68,10 +68,8 @@ RimWellPathTarget::RimWellPathTarget()
     CAF_PDM_InitField( &m_azimuth, "Azimuth", 0.0, "Azi(deg)", "", "", "" );
     CAF_PDM_InitField( &m_inclination, "Inclination", 0.0, "Inc(deg)", "", "", "" );
 
-    CAF_PDM_InitField( &m_lateralMDConnection, "LateralMD", 0.0, "Lateral Anchor Point MD", "", "", "" );
     CAF_PDM_InitFieldNoDefault( &m_parentWellPath, "ParentWellPath", "Parent Well Path", "", "", "" );
 
-    m_lateralMDConnection.uiCapability()->setUiHidden( true );
     m_parentWellPath.uiCapability()->setUiHidden( true );
 }
 
@@ -112,6 +110,17 @@ void RimWellPathTarget::setAsPointTargetXYD( const cvf::Vec3d& point )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimWellPathTarget::setAsPointTargetXYZ( const cvf::Vec3d& point )
+{
+    m_targetType  = POINT;
+    m_targetPoint = cvf::Vec3d( point.x(), point.y(), -point.z() );
+    m_azimuth     = 0.0;
+    m_inclination = 0.0;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimWellPathTarget::setAsPointXYZAndTangentTarget( const cvf::Vec3d& point, const cvf::Vec3d& tangent )
 {
     RiaOffshoreSphericalCoords sphericalCoords( tangent );
@@ -127,16 +136,6 @@ void RimWellPathTarget::setAsPointXYZAndTangentTarget( const cvf::Vec3d& point, 
     m_targetPoint = cvf::Vec3d( point.x(), point.y(), -point.z() );
     m_azimuth     = cvf::Math::toDegrees( azimuth );
     m_inclination = cvf::Math::toDegrees( inclination );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimWellPathTarget::setAsLateralMDConnection( RimWellPath* wellPath, double md )
-{
-    m_targetType = LATERAL_ANCHOR_POINT_MD;
-    m_parentWellPath.setValue( wellPath );
-    m_lateralMDConnection = md;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -181,16 +180,9 @@ RimWellPathTarget::TargetTypeEnum RimWellPathTarget::targetType() const
 //--------------------------------------------------------------------------------------------------
 cvf::Vec3d RimWellPathTarget::targetPointXYZ() const
 {
-    if ( m_targetType != LATERAL_ANCHOR_POINT_MD )
-    {
-        cvf::Vec3d xyzPoint( m_targetPoint() );
-        xyzPoint.z() = -xyzPoint.z();
-        return xyzPoint;
-    }
-    else
-    {
-        return m_parentWellPath->wellPathGeometry()->interpolatedPointAlongWellPath( m_lateralMDConnection );
-    }
+    cvf::Vec3d xyzPoint( m_targetPoint() );
+    xyzPoint.z() = -xyzPoint.z();
+    return xyzPoint;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -201,12 +193,6 @@ double RimWellPathTarget::azimuth() const
     if ( m_targetType() == POINT_AND_TANGENT )
     {
         return cvf::Math::toRadians( m_azimuth );
-    }
-    else if ( m_targetType() == LATERAL_ANCHOR_POINT_MD )
-    {
-        auto tangent = m_parentWellPath->wellPathGeometry()->tangentAlongWellPath( m_lateralMDConnection );
-        RiaOffshoreSphericalCoords sphericalCoords( tangent );
-        return cvf::Math::toRadians( sphericalCoords.azi() );
     }
     else
     {
@@ -223,12 +209,6 @@ double RimWellPathTarget::inclination() const
     {
         return cvf::Math::toRadians( m_inclination );
     }
-    else if ( m_targetType() == LATERAL_ANCHOR_POINT_MD )
-    {
-        auto tangent = m_parentWellPath->wellPathGeometry()->tangentAlongWellPath( m_lateralMDConnection );
-        RiaOffshoreSphericalCoords sphericalCoords( tangent );
-        return cvf::Math::toRadians( sphericalCoords.inc() );
-    }
     else
     {
         return std::numeric_limits<double>::infinity();
@@ -240,11 +220,6 @@ double RimWellPathTarget::inclination() const
 //--------------------------------------------------------------------------------------------------
 cvf::Vec3d RimWellPathTarget::tangent() const
 {
-    if ( m_targetType() == LATERAL_ANCHOR_POINT_MD )
-    {
-        return m_parentWellPath->wellPathGeometry()->tangentAlongWellPath( m_lateralMDConnection );
-    }
-
     double aziRad = cvf::Math::toRadians( m_azimuth );
     double incRad = cvf::Math::toRadians( m_inclination );
 
@@ -426,7 +401,7 @@ void RimWellPathTarget::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderi
 {
     m_hasTangentConstraintUiField = ( m_targetType == POINT_AND_TANGENT );
 
-    if ( m_isEnabled() )
+    if ( m_isEnabled() && !m_isLocked() )
     {
         m_hasTangentConstraintUiField.uiCapability()->setUiReadOnly( false );
         m_targetType.uiCapability()->setUiReadOnly( false );
@@ -452,5 +427,10 @@ void RimWellPathTarget::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderi
         m_inclination.uiCapability()->setUiReadOnly( true );
         m_dogleg2.uiCapability()->setUiReadOnly( true );
         m_hasTangentConstraintUiField.uiCapability()->setUiReadOnly( true );
+    }
+
+    if ( m_isLocked )
+    {
+        m_isEnabled.uiCapability()->setUiReadOnly( true );
     }
 }

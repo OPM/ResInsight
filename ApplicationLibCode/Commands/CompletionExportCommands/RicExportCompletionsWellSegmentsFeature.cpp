@@ -30,9 +30,9 @@
 #include "RicWellPathExportMswCompletionsImpl.h"
 
 #include "RimEclipseCase.h"
-#include "RimFishboneWellPathCollection.h"
+#include "RimFishbones.h"
 #include "RimFishbonesCollection.h"
-#include "RimFishbonesMultipleSubs.h"
+#include "RimImportedFishboneLateralsCollection.h"
 #include "RimPerforationCollection.h"
 #include "RimProject.h"
 #include "RimWellPath.h"

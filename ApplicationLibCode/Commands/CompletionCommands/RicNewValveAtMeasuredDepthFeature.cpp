@@ -19,7 +19,7 @@
 
 #include "WellPathCommands/RicWellPathsUnitSystemSettingsImpl.h"
 
-#include "RimFishbonesMultipleSubs.h"
+#include "RimFishbones.h"
 #include "RimPerforationCollection.h"
 #include "RimPerforationInterval.h"
 #include "RimProject.h"

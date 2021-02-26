@@ -171,7 +171,7 @@ double RigEclipseToStimPlanCalculator::areaWeightedMatrixPermeability() const
         }
     }
 
-    return calc.weightedMean();
+    return calc.validAggregatedWeight() ? calc.weightedMean() : 0.0;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -230,7 +230,7 @@ double RigEclipseToStimPlanCalculator::areaWeightedConductivity() const
         calc.addValueAndWeight( singleCellCalc.second.fractureCell().getConductivityValue(), cellArea );
     }
 
-    return calc.weightedMean();
+    return calc.validAggregatedWeight() ? calc.weightedMean() : 0.0;
 }
 
 //--------------------------------------------------------------------------------------------------

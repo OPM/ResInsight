@@ -26,10 +26,10 @@
 //==================================================================================================
 ///
 //==================================================================================================
-class RicMswSubSegmentCellIntersection
+class RicMswSegmentCellIntersection
 {
 public:
-    RicMswSubSegmentCellIntersection( const QString&     gridName, // Pass in empty string for main grid
+    RicMswSegmentCellIntersection( const QString&     gridName, // Pass in empty string for main grid
                                       size_t             globalCellIndex,
                                       const cvf::Vec3st& gridLocalCellIJK,
                                       const cvf::Vec3d&  lengthsInCell );
@@ -43,36 +43,4 @@ private:
     size_t      m_globalCellIndex;
     cvf::Vec3st m_gridLocalCellIJK;
     cvf::Vec3d  m_lengthsInCell;
-};
-
-//==================================================================================================
-///
-//==================================================================================================
-class RicMswSubSegment
-{
-public:
-    RicMswSubSegment( double startMD, double endMD, double startTVD, double endTVD );
-
-    double startMD() const;
-    double endMD() const;
-    double deltaMD() const;
-    double startTVD() const;
-    double endTVD() const;
-    double deltaTVD() const;
-
-    int  segmentNumber() const;
-    void setSegmentNumber( int segmentNumber );
-    void addIntersection( std::shared_ptr<RicMswSubSegmentCellIntersection> intersection );
-
-    const std::vector<std::shared_ptr<RicMswSubSegmentCellIntersection>>& intersections() const;
-    std::vector<std::shared_ptr<RicMswSubSegmentCellIntersection>>&       intersections();
-
-private:
-    double m_startMD;
-    double m_endMD;
-    double m_startTVD;
-    double m_endTVD;
-    int    m_segmentNumber;
-
-    std::vector<std::shared_ptr<RicMswSubSegmentCellIntersection>> m_intersections;
 };

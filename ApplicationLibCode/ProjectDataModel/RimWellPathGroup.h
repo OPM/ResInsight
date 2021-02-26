@@ -19,6 +19,10 @@
 
 #include "RimWellPath.h"
 
+#include "cafPdmChildField.h"
+
+class RimWellPathValve;
+
 #include <QString>
 
 class RimWellPathGroup : public RimWellPath
@@ -28,6 +32,8 @@ class RimWellPathGroup : public RimWellPath
 
 public:
     RimWellPathGroup();
+
+    QString name() const override;
 
     void                      addChildWellPath( RimWellPath* wellPath );
     std::vector<RimWellPath*> childWellPaths() const;
@@ -40,9 +46,14 @@ public:
     void    makeMoreLevelsIfNecessary();
     QString createGroupName() const;
 
+    const RimWellPathValve* outletValve() const;
+
 protected:
-    void                 defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName );
+    void                 defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName ) override;
     caf::PdmFieldHandle* userDescriptionField() override;
+    void                 initAfterRead() override;
+
+    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
 private:
     std::vector<const RigWellPath*> wellPathGeometries() const;
@@ -51,5 +62,7 @@ private:
 
 private:
     caf::PdmChildArrayField<RimWellPath*> m_childWellPaths;
+    caf::PdmField<bool>                   m_addValveAtConnection;
+    caf::PdmChildField<RimWellPathValve*> m_valve;
     caf::PdmProxyValueField<QString>      m_groupName;
 };

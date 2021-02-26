@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2020-     Equinor ASA
+//  Copyright (C) 2021- Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -15,7 +15,29 @@
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
+#pragma once
 
-#include "RimWellPathGeometryDefInterface.h"
+#include <QString>
 
-CAF_PDM_XML_ABSTRACT_SOURCE_INIT( RimWellPathGeometryDefInterface, "WellPathGeometryDefInterface" );
+class RicMswItem
+{
+public:
+    RicMswItem( const QString& label );
+    virtual ~RicMswItem() = default;
+
+    QString label() const;
+    void    setLabel( const QString& label );
+
+    virtual double startMD() const = 0;
+    virtual double endMD() const   = 0;
+    double         deltaMD() const;
+
+    virtual double startTVD() const = 0;
+    virtual double endTVD() const   = 0;
+    double         deltaTVD() const;
+
+    bool operator<( const RicMswItem& rhs ) const;
+
+protected:
+    QString m_label;
+};

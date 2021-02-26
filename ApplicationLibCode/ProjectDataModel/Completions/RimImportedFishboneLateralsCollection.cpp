@@ -17,11 +17,11 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimFishboneWellPathCollection.h"
+#include "RimImportedFishboneLateralsCollection.h"
 
 #include "Rim3dView.h"
-#include "RimFishboneWellPath.h"
 #include "RimFishbonesCollection.h"
+#include "RimImportedFishboneLaterals.h"
 #include "RimProject.h"
 
 #include "RigWellPath.h"
@@ -30,12 +30,14 @@
 
 #include "Riu3DMainWindowTools.h"
 
-CAF_PDM_SOURCE_INIT( RimFishboneWellPathCollection, "WellPathCompletionCollection" );
+// The more general term WellPathCompletionCollection was unfortunately used in this more specific case of fishbones
+// In order to preserve compatibility, the old keyword is kept as an alias, but could be removed in the future.
+CAF_PDM_SOURCE_INIT( RimImportedFishboneLateralsCollection, "FishboneWellPathCollection", "WellPathCompletionCollection" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimFishboneWellPathCollection::RimFishboneWellPathCollection()
+RimImportedFishboneLateralsCollection::RimImportedFishboneLateralsCollection()
 {
     CAF_PDM_InitObject( "WellPathCompletions", ":/FishBoneGroupFromFile16x16.png", "", "" );
 
@@ -55,7 +57,7 @@ RimFishboneWellPathCollection::RimFishboneWellPathCollection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimFishboneWellPathCollection::importCompletionsFromFile( const QStringList& filePaths )
+void RimImportedFishboneLateralsCollection::importCompletionsFromFile( const QStringList& filePaths )
 {
     RifWellPathImporter wellPathImporter;
 
@@ -66,7 +68,7 @@ void RimFishboneWellPathCollection::importCompletionsFromFile( const QStringList
         for ( size_t i = 0; i < wellDataCount; ++i )
         {
             RifWellPathImporter::WellData wellData       = wellPathImporter.readWellData( filePath, i );
-            RimFishboneWellPath*          wellCompletion = new RimFishboneWellPath();
+            RimImportedFishboneLaterals*  wellCompletion = new RimImportedFishboneLaterals();
             wellCompletion->setName( wellData.m_name );
             wellCompletion->setCoordinates( wellData.m_wellPathGeometry->uniqueWellPathPoints() );
             wellCompletion->setMeasuredDepths( wellData.m_wellPathGeometry->uniqueMeasuredDepths() );
@@ -85,9 +87,9 @@ void RimFishboneWellPathCollection::importCompletionsFromFile( const QStringList
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimFishboneWellPathCollection::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                                      const QVariant&            oldValue,
-                                                      const QVariant&            newValue )
+void RimImportedFishboneLateralsCollection::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
+                                                              const QVariant&            oldValue,
+                                                              const QVariant&            newValue )
 {
     RimProject* proj;
     this->firstAncestorOrThisOfTypeAsserted( proj );
@@ -97,11 +99,11 @@ void RimFishboneWellPathCollection::fieldChangedByUi( const caf::PdmFieldHandle*
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<const RimFishboneWellPath*> RimFishboneWellPathCollection::wellPaths() const
+std::vector<const RimImportedFishboneLaterals*> RimImportedFishboneLateralsCollection::wellPaths() const
 {
-    std::vector<const RimFishboneWellPath*> paths;
+    std::vector<const RimImportedFishboneLaterals*> paths;
 
-    for ( const RimFishboneWellPath* path : m_wellPaths )
+    for ( const RimImportedFishboneLaterals* path : m_wellPaths )
     {
         paths.push_back( path );
     }
@@ -112,7 +114,7 @@ std::vector<const RimFishboneWellPath*> RimFishboneWellPathCollection::wellPaths
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimFishboneWellPathCollection::setUnitSystemSpecificDefaults()
+void RimImportedFishboneLateralsCollection::setUnitSystemSpecificDefaults()
 {
     m_pipeProperties->setUnitSystemSpecificDefaults();
 }
@@ -120,7 +122,7 @@ void RimFishboneWellPathCollection::setUnitSystemSpecificDefaults()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimFishboneWellPathCollection::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
+void RimImportedFishboneLateralsCollection::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     caf::PdmUiGroup* wellPropertiesGroup = uiOrdering.addNewGroup( "Well Properties" );
     m_pipeProperties->uiOrdering( uiConfigName, *wellPropertiesGroup );
@@ -129,7 +131,7 @@ void RimFishboneWellPathCollection::defineUiOrdering( QString uiConfigName, caf:
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimFishboneWellPathCollection::appendCompletion( RimFishboneWellPath* completion )
+void RimImportedFishboneLateralsCollection::appendCompletion( RimImportedFishboneLaterals* completion )
 {
     m_wellPaths.push_back( completion );
 

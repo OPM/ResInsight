@@ -17,19 +17,19 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimFishboneWellPath.h"
+#include "RimImportedFishboneLaterals.h"
 
 #include "RimProject.h"
 
 #include "cafPdmUiListEditor.h"
 #include "cafPdmUiTextEditor.h"
 
-CAF_PDM_SOURCE_INIT( RimFishboneWellPath, "WellPathCompletion" );
+CAF_PDM_SOURCE_INIT( RimImportedFishboneLaterals, "WellPathCompletion" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimFishboneWellPath::RimFishboneWellPath()
+RimImportedFishboneLaterals::RimImportedFishboneLaterals()
 {
     CAF_PDM_InitObject( "WellPathCompletion", ":/FishBoneLateralFromFile16x16.png", "", "" );
     CAF_PDM_InitFieldNoDefault( &m_coordinates, "Coordinates", "Coordinates", "", "", "" );
@@ -41,7 +41,7 @@ RimFishboneWellPath::RimFishboneWellPath()
     userDescriptionField()->uiCapability()->setUiHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_displayCoordinates, "DisplayCoordinates", "Coordinates", "", "", "" );
-    m_displayCoordinates.registerGetMethod( this, &RimFishboneWellPath::displayCoordinates );
+    m_displayCoordinates.registerGetMethod( this, &RimImportedFishboneLaterals::displayCoordinates );
     m_displayCoordinates.uiCapability()->setUiReadOnly( true );
     m_displayCoordinates.uiCapability()->setUiEditorTypeName( caf::PdmUiTextEditor::uiEditorTypeName() );
     m_displayCoordinates.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosType::TOP );
@@ -52,14 +52,14 @@ RimFishboneWellPath::RimFishboneWellPath()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimFishboneWellPath::~RimFishboneWellPath()
+RimImportedFishboneLaterals::~RimImportedFishboneLaterals()
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimFishboneWellPath::setCoordinates( std::vector<cvf::Vec3d> coordinates )
+void RimImportedFishboneLaterals::setCoordinates( std::vector<cvf::Vec3d> coordinates )
 {
     m_coordinates = coordinates;
 }
@@ -67,7 +67,7 @@ void RimFishboneWellPath::setCoordinates( std::vector<cvf::Vec3d> coordinates )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimFishboneWellPath::setMeasuredDepths( std::vector<double> measuredDepths )
+void RimImportedFishboneLaterals::setMeasuredDepths( std::vector<double> measuredDepths )
 {
     m_measuredDepths = measuredDepths;
 }
@@ -75,9 +75,9 @@ void RimFishboneWellPath::setMeasuredDepths( std::vector<double> measuredDepths 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimFishboneWellPath::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                            const QVariant&            oldValue,
-                                            const QVariant&            newValue )
+void RimImportedFishboneLaterals::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
+                                                    const QVariant&            oldValue,
+                                                    const QVariant&            newValue )
 {
     RimProject* proj;
     this->firstAncestorOrThisOfType( proj );
@@ -87,7 +87,7 @@ void RimFishboneWellPath::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimFishboneWellPath::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
+void RimImportedFishboneLaterals::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     uiOrdering.add( &m_displayCoordinates );
 }
@@ -95,7 +95,7 @@ void RimFishboneWellPath::defineUiOrdering( QString uiConfigName, caf::PdmUiOrde
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimFishboneWellPath::displayCoordinates() const
+QString RimImportedFishboneLaterals::displayCoordinates() const
 {
     CVF_ASSERT( m_coordinates().size() == m_measuredDepths().size() );
 

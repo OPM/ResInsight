@@ -15,9 +15,9 @@
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
-
 #include "RicMswSegment.h"
 
+#include "RicMswCompletions.h"
 #include "RicMswExportInfo.h"
 
 #include <cafPdmBase.h>
@@ -33,7 +33,7 @@ RicMswSegment::RicMswSegment( const QString& label,
                               double         endTVD,
                               size_t         subIndex,
                               int            segmentNumber /*= -1*/ )
-    : m_label( label )
+    : RicMswItem( label )
     , m_startMD( startMD )
     , m_endMD( endMD )
     , m_startTVD( startTVD )
@@ -47,14 +47,6 @@ RicMswSegment::RicMswSegment( const QString& label,
     , m_subIndex( subIndex )
     , m_segmentNumber( segmentNumber )
 {
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RicMswSegment::label() const
-{
-    return m_label;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -76,38 +68,6 @@ double RicMswSegment::endMD() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicMswSegment::setOutputMD( double outputMD )
-{
-    m_outputMD = outputMD;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-double RicMswSegment::outputMD() const
-{
-    return m_outputMD;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-double RicMswSegment::length() const
-{
-    return m_endMD - m_startMD;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-double RicMswSegment::deltaMD() const
-{
-    return m_endMD - m_startMD;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 double RicMswSegment::startTVD() const
 {
     return m_startTVD;
@@ -124,6 +84,22 @@ double RicMswSegment::endTVD() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RicMswSegment::setOutputMD( double outputMD )
+{
+    m_outputMD = outputMD;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RicMswSegment::outputMD() const
+{
+    return m_outputMD;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RicMswSegment::setOutputTVD( double outputTVD )
 {
     m_outputTVD = outputTVD;
@@ -135,14 +111,6 @@ void RicMswSegment::setOutputTVD( double outputTVD )
 double RicMswSegment::outputTVD() const
 {
     return m_outputTVD;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-double RicMswSegment::deltaTVD() const
-{
-    return m_endTVD - m_startTVD;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -196,17 +164,27 @@ int RicMswSegment::segmentNumber() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::vector<std::shared_ptr<RicMswCompletion>>& RicMswSegment::completions() const
+std::vector<const RicMswCompletion*> RicMswSegment::completions() const
 {
-    return m_completions;
+    std::vector<const RicMswCompletion*> allCompletions;
+    for ( const auto& completion : m_completions )
+    {
+        allCompletions.push_back( completion.get() );
+    }
+    return allCompletions;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<std::shared_ptr<RicMswCompletion>>& RicMswSegment::completions()
+std::vector<RicMswCompletion*> RicMswSegment::completions()
 {
-    return m_completions;
+    std::vector<RicMswCompletion*> allCompletions;
+    for ( auto& completion : m_completions )
+    {
+        allCompletions.push_back( completion.get() );
+    }
+    return allCompletions;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -260,24 +238,51 @@ void RicMswSegment::setSegmentNumber( int segmentNumber )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicMswSegment::addCompletion( std::shared_ptr<RicMswCompletion> completion )
+void RicMswSegment::addCompletion( std::unique_ptr<RicMswCompletion> completion )
 {
-    m_completions.push_back( completion );
+    m_completions.push_back( std::move( completion ) );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicMswSegment::removeCompletion( std::shared_ptr<RicMswCompletion> completion )
+std::unique_ptr<RicMswCompletion> RicMswSegment::removeCompletion( RicMswCompletion* completion )
 {
+    std::unique_ptr<RicMswCompletion> removedCompletion;
     for ( auto it = m_completions.begin(); it != m_completions.end(); ++it )
     {
-        if ( ( *it ) == completion )
+        if ( it->get() == completion )
         {
+            removedCompletion = std::move( *it );
             m_completions.erase( it );
             break;
         }
     }
+    return removedCompletion;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicMswSegment::addIntersection( std::shared_ptr<RicMswSegmentCellIntersection> intersection )
+{
+    m_intersections.push_back( intersection );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const std::vector<std::shared_ptr<RicMswSegmentCellIntersection>>& RicMswSegment::intersections() const
+{
+    return m_intersections;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<std::shared_ptr<RicMswSegmentCellIntersection>>& RicMswSegment::intersections()
+{
+    return m_intersections;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -294,12 +299,4 @@ void RicMswSegment::setSourcePdmObject( const caf::PdmObject* object )
 const caf::PdmObject* RicMswSegment::sourcePdmObject() const
 {
     return m_sourcePdmObject;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RicMswSegment::operator<( const RicMswSegment& rhs ) const
-{
-    return startMD() < rhs.startMD();
 }

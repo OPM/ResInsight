@@ -253,7 +253,7 @@ QString RicWellPathFractureTextReportFeatureImpl::createWellFileLocationText( co
             auto fileWellPath = dynamic_cast<RimFileWellPath*>( wellPath );
             if ( fileWellPath )
             {
-                formatter.add( wellPath->completions()->wellNameForExport() );
+                formatter.add( wellPath->completionSettings()->wellNameForExport() );
                 formatter.add( fileWellPath->filePath() );
                 formatter.rowCompleted();
             }
@@ -564,7 +564,7 @@ QString RicWellPathFractureTextReportFeatureImpl::createFractureInstancesText(
         fracture->firstAncestorOrThisOfType( wellPath );
         if ( wellPath )
         {
-            wellName = wellPath->completions()->wellNameForExport();
+            wellName = wellPath->completionSettings()->wellNameForExport();
         }
 
         formatter.add( wellName );

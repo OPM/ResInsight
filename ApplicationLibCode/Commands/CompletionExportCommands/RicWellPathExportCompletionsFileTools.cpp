@@ -88,7 +88,7 @@ const RimWellPath* RicWellPathExportCompletionsFileTools::findWellPathFromExport
 
     for ( const auto wellPath : allWellPaths )
     {
-        if ( wellPath->completions()->wellNameForExport() == wellNameForExport ) return wellPath;
+        if ( wellPath->completionSettings()->wellNameForExport() == wellNameForExport ) return wellPath;
     }
     return nullptr;
 }

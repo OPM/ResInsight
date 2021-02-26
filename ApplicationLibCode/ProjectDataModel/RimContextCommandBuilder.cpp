@@ -65,9 +65,8 @@
 #include "RimEnsembleCurveSetCollection.h"
 #include "RimExtrudedCurveIntersection.h"
 #include "RimFaultInView.h"
-#include "RimFishboneWellPathCollection.h"
+#include "RimFishbones.h"
 #include "RimFishbonesCollection.h"
-#include "RimFishbonesMultipleSubs.h"
 #include "RimFlowCharacteristicsPlot.h"
 #include "RimFlowDiagSolution.h"
 #include "RimFlowPlotCollection.h"
@@ -88,6 +87,7 @@
 #include "RimGridCrossPlotCollection.h"
 #include "RimGridCrossPlotDataSet.h"
 #include "RimIdenticalGridCaseGroup.h"
+#include "RimImportedFishboneLateralsCollection.h"
 #include "RimIntersectionCollection.h"
 #include "RimIntersectionResultDefinition.h"
 #include "RimIntersectionResultsDefinitionCollection.h"
@@ -391,6 +391,10 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
                 menuBuilder << "RicShowWellPlanFeature";
             }
         }
+        else if ( dynamic_cast<RimImportedFishboneLateralsCollection*>( firstUiItem ) )
+        {
+            appendImportMenu( menuBuilder );
+        }
         else if ( dynamic_cast<RimWellPathCompletions*>( firstUiItem ) )
         {
             menuBuilder.subMenuStart( "Create Completions", QIcon( ":/CompletionsSymbol16x16.png" ) );
@@ -413,9 +417,8 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder.addSeparator();
             appendExportCompletions( menuBuilder );
         }
-        else if ( dynamic_cast<RimFishbonesCollection*>( firstUiItem ) ||
-                  dynamic_cast<RimFishbonesMultipleSubs*>( firstUiItem ) ||
-                  dynamic_cast<RimFishboneWellPathCollection*>( firstUiItem ) )
+        else if ( dynamic_cast<RimFishbonesCollection*>( firstUiItem ) || dynamic_cast<RimFishbones*>( firstUiItem ) ||
+                  dynamic_cast<RimImportedFishboneLateralsCollection*>( firstUiItem ) )
         {
             menuBuilder << "RicNewFishbonesSubsFeature";
             appendExportCompletions( menuBuilder );

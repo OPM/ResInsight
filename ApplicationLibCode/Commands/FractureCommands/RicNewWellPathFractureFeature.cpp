@@ -118,7 +118,7 @@ void RicNewWellPathFractureFeature::onActionTriggered( bool isChecked )
     RimWellPath* wellPath = nullptr;
     fractureColl->firstAncestorOrThisOfTypeAsserted( wellPath );
 
-    double defaultMeasuredDepth = 0.0f;
+    double defaultMeasuredDepth = wellPath->uniqueStartMD();
     RicNewWellPathFractureFeature::addFracture( wellPath, defaultMeasuredDepth );
 }
 

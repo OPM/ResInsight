@@ -22,7 +22,6 @@
 #include "RimWellPathAicdParameters.h"
 
 #include <array>
-#include <memory>
 
 class RimWellPathValve;
 class RicMswValve;
@@ -33,7 +32,7 @@ class RicMswValve;
 class RicMswValveAccumulator
 {
 public:
-    RicMswValveAccumulator( std::shared_ptr<RicMswValve> valve, RiaDefines::EclipseUnitSystem unitSystem )
+    RicMswValveAccumulator( RicMswValve* valve, RiaDefines::EclipseUnitSystem unitSystem )
         : m_valve( valve )
         , m_unitSystem( unitSystem )
         , m_valid( false )
@@ -44,10 +43,10 @@ public:
                                             double                  perforationCompsegsLength ) = 0;
     virtual void applyToSuperValve()                                           = 0;
 
-    std::shared_ptr<RicMswValve> superValve() const { return m_valve; }
+    RicMswValve* superValve() const { return m_valve; }
 
 protected:
-    std::shared_ptr<RicMswValve>  m_valve;
+    RicMswValve*                  m_valve;
     RiaDefines::EclipseUnitSystem m_unitSystem;
     bool                          m_valid;
 };
@@ -58,7 +57,7 @@ protected:
 class RicMswICDAccumulator : public RicMswValveAccumulator
 {
 public:
-    RicMswICDAccumulator( std::shared_ptr<RicMswValve> valve, RiaDefines::EclipseUnitSystem unitSystem );
+    RicMswICDAccumulator( RicMswValve* valve, RiaDefines::EclipseUnitSystem unitSystem );
     bool accumulateValveParameters( const RimWellPathValve* wellPathValve,
                                     double                  overlapLength,
                                     double                  perforationCompsegsLength ) override;
@@ -75,7 +74,7 @@ private:
 class RicMswAICDAccumulator : public RicMswValveAccumulator
 {
 public:
-    RicMswAICDAccumulator( std::shared_ptr<RicMswValve> valve, RiaDefines::EclipseUnitSystem unitSystem );
+    RicMswAICDAccumulator( RicMswValve* valve, RiaDefines::EclipseUnitSystem unitSystem );
     bool   accumulateValveParameters( const RimWellPathValve* wellPathValve,
                                       double                  overlapLength,
                                       double                  perforationCompsegsLength ) override;

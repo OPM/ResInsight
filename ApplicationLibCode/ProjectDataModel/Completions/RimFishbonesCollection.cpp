@@ -24,8 +24,8 @@
 
 #include "RigWellPath.h"
 
-#include "RimFishboneWellPathCollection.h"
-#include "RimFishbonesMultipleSubs.h"
+#include "RimFishbones.h"
+#include "RimImportedFishboneLateralsCollection.h"
 #include "RimProject.h"
 #include "RimWellPath.h"
 
@@ -46,21 +46,22 @@ RimFishbonesCollection::RimFishbonesCollection()
     nameField()->uiCapability()->setUiHidden( true );
     this->setName( "Fishbones" );
 
-    CAF_PDM_InitFieldNoDefault( &m_fishbonesSubs, "FishbonesSubs", "fishbonesSubs", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_fishbones, "FishbonesSubs", "fishbonesSubs", "", "", "" );
 
-    m_fishbonesSubs.uiCapability()->setUiHidden( true );
+    m_fishbones.uiCapability()->setUiHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_wellPathCollection, "WellPathCollection", "Imported Laterals", "", "", "" );
-    m_wellPathCollection = new RimFishboneWellPathCollection;
+    m_wellPathCollection = new RimImportedFishboneLateralsCollection;
     m_wellPathCollection.uiCapability()->setUiHidden( true );
 
     CAF_PDM_InitField( &m_startMD, "StartMD", HUGE_VAL, "Start MD", "", "", "" );
     CAF_PDM_InitField( &m_mainBoreDiameter, "MainBoreDiameter", 0.216, "Main Bore Diameter", "", "", "" );
     CAF_PDM_InitField( &m_skinFactor, "MainBoreSkinFactor", 0., "Main Bore Skin Factor [0..1]", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_mswParameters, "MswParameters", "Multi Segment Well Parameters", "", "", "" );
-    m_mswParameters = new RimMswCompletionParameters( false );
-    m_mswParameters.uiCapability()->setUiTreeHidden( true );
-    m_mswParameters.uiCapability()->setUiTreeChildrenHidden( true );
+    CAF_PDM_InitFieldNoDefault( &m_mswParameters_OBSOLETE, "MswParameters", "Multi Segment Well Parameters", "", "", "" );
+    m_mswParameters_OBSOLETE = new RimMswCompletionParameters( false );
+    m_mswParameters_OBSOLETE.uiCapability()->setUiTreeHidden( true );
+    m_mswParameters_OBSOLETE.uiCapability()->setUiTreeChildrenHidden( true );
+    m_mswParameters_OBSOLETE.xmlCapability()->setIOWritable( false );
     manuallyModifiedStartMD = false;
 
     // Moved to RimMswCompletionParameters and obsoleted
@@ -77,7 +78,7 @@ RimFishbonesCollection::RimFishbonesCollection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimFishboneWellPathCollection* RimFishbonesCollection::wellPathCollection() const
+RimImportedFishboneLateralsCollection* RimFishbonesCollection::wellPathCollection() const
 {
     CVF_ASSERT( m_wellPathCollection );
 
@@ -135,8 +136,6 @@ void RimFishbonesCollection::defineUiOrdering( QString uiConfigName, caf::PdmUiO
     wellGroup->add( &m_startMD );
     wellGroup->add( &m_mainBoreDiameter );
     wellGroup->add( &m_skinFactor );
-    caf::PdmUiGroup* mswGroup = uiOrdering.addNewGroup( "Multi Segment Well Options" );
-    m_mswParameters->uiOrdering( uiConfigName, *mswGroup );
     uiOrdering.skipRemainingFields( true );
 }
 
@@ -147,29 +146,29 @@ void RimFishbonesCollection::initAfterRead()
 {
     if ( m_linerDiameter_OBSOLETE() != m_linerDiameter_OBSOLETE.defaultValue() )
     {
-        m_mswParameters->setLinerDiameter( m_linerDiameter_OBSOLETE() );
+        m_mswParameters_OBSOLETE->setLinerDiameter( m_linerDiameter_OBSOLETE() );
     }
     if ( m_roughnessFactor_OBSOLETE() != m_roughnessFactor_OBSOLETE.defaultValue() )
     {
-        m_mswParameters->setRoughnessFactor( m_roughnessFactor_OBSOLETE() );
+        m_mswParameters_OBSOLETE->setRoughnessFactor( m_roughnessFactor_OBSOLETE() );
     }
     if ( m_pressureDrop_OBSOLETE() != m_pressureDrop_OBSOLETE.defaultValue() )
     {
-        m_mswParameters->setPressureDrop( m_pressureDrop_OBSOLETE() );
+        m_mswParameters_OBSOLETE->setPressureDrop( m_pressureDrop_OBSOLETE() );
     }
     if ( m_lengthAndDepth_OBSOLETE() != m_lengthAndDepth_OBSOLETE.defaultValue() )
     {
-        m_mswParameters->setLengthAndDepth( m_lengthAndDepth_OBSOLETE() );
+        m_mswParameters_OBSOLETE->setLengthAndDepth( m_lengthAndDepth_OBSOLETE() );
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimFishbonesCollection::appendFishbonesSubs( RimFishbonesMultipleSubs* subs )
+void RimFishbonesCollection::appendFishbonesSubs( RimFishbones* subs )
 {
     subs->fishbonesColor = nextFishbonesColor();
-    m_fishbonesSubs.push_back( subs );
+    m_fishbones.push_back( subs );
 
     subs->setUnitSystemSpecificDefaults();
     subs->recomputeLateralLocations();
@@ -178,17 +177,17 @@ void RimFishbonesCollection::appendFishbonesSubs( RimFishbonesMultipleSubs* subs
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const RimMswCompletionParameters* RimFishbonesCollection::mswParameters() const
+bool RimFishbonesCollection::hasFishbones() const
 {
-    return m_mswParameters;
+    return !m_fishbones.empty();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimFishbonesMultipleSubs*> RimFishbonesCollection::activeFishbonesSubs() const
+std::vector<RimFishbones*> RimFishbonesCollection::activeFishbonesSubs() const
 {
-    std::vector<RimFishbonesMultipleSubs*> active;
+    std::vector<RimFishbones*> active;
 
     if ( isChecked() )
     {
@@ -207,9 +206,9 @@ std::vector<RimFishbonesMultipleSubs*> RimFishbonesCollection::activeFishbonesSu
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimFishbonesMultipleSubs*> RimFishbonesCollection::allFishbonesSubs() const
+std::vector<RimFishbones*> RimFishbonesCollection::allFishbonesSubs() const
 {
-    return m_fishbonesSubs.childObjects();
+    return m_fishbones.childObjects();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -231,7 +230,7 @@ cvf::Color3f RimFishbonesCollection::nextFishbonesColor() const
 
     QColor qFishbonesColor;
 
-    int newIndex = static_cast<int>( m_fishbonesSubs.size() );
+    int newIndex = static_cast<int>( m_fishbones.size() );
 
     if ( qWellPathColor.lightnessF() < 0.5 )
     {
@@ -252,15 +251,15 @@ void RimFishbonesCollection::recalculateStartMD()
 {
     double minStartMD = HUGE_VAL;
 
-    for ( const RimFishbonesMultipleSubs* sub : m_fishbonesSubs() )
+    for ( const RimFishbones* sub : m_fishbones() )
     {
-        for ( auto& index : sub->installedLateralIndices() )
+        for ( const auto& subAndLateralIndex : sub->installedLateralIndices() )
         {
-            minStartMD = std::min( minStartMD, sub->measuredDepth( index.subIndex ) - 13.0 );
+            minStartMD = std::min( minStartMD, sub->measuredDepth( subAndLateralIndex.first ) - 13.0 );
         }
     }
 
-    for ( const RimFishboneWellPath* wellPath : m_wellPathCollection->wellPaths() )
+    for ( const RimImportedFishboneLaterals* wellPath : m_wellPathCollection->wellPaths() )
     {
         if ( wellPath->measuredDepths().size() > 0 )
         {
@@ -280,6 +279,21 @@ void RimFishbonesCollection::recalculateStartMD()
 double RimFishbonesCollection::startMD() const
 {
     return m_startMD;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimFishbonesCollection::endMD() const
+{
+    double endMD = m_startMD;
+    if ( !m_fishbones.empty() )
+    {
+        auto lastFishbone = m_fishbones.childObjects().back();
+        CVF_ASSERT( lastFishbone );
+        endMD = lastFishbone->endMD();
+    }
+    return endMD;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -322,5 +336,4 @@ void RimFishbonesCollection::setUnitSystemSpecificDefaults()
 
         m_wellPathCollection->setUnitSystemSpecificDefaults();
     }
-    m_mswParameters->setUnitSystemSpecificDefaults();
 }

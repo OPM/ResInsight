@@ -48,7 +48,7 @@
 
 #include "RiuPlotMainWindow.h"
 
-#include "RimFishbonesMultipleSubs.h"
+#include "RimFishbones.h"
 #include "RimPerforationInterval.h"
 #include "RimWellPathFracture.h"
 
@@ -236,7 +236,7 @@ QString completionName( const caf::PdmObject* object )
 {
     auto perf = dynamic_cast<const RimPerforationInterval*>( object );
     auto frac = dynamic_cast<const RimFracture*>( object );
-    auto fish = dynamic_cast<const RimFishbonesMultipleSubs*>( object );
+    auto fish = dynamic_cast<const RimFishbones*>( object );
 
     QString name;
     if ( perf )

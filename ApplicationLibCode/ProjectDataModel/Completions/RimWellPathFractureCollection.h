@@ -42,10 +42,9 @@ public:
     RimWellPathFractureCollection( void );
     ~RimWellPathFractureCollection( void ) override;
 
-    const RimMswCompletionParameters* mswParameters() const;
-    void                              addFracture( RimWellPathFracture* fracture );
-    void                              deleteFractures();
-    void                              setUnitSystemSpecificDefaults();
+    bool hasFractures() const;
+    void addFracture( RimWellPathFracture* fracture );
+    void deleteFractures();
 
     std::vector<RimWellPathFracture*> allFractures() const;
     std::vector<RimWellPathFracture*> activeFractures() const;
@@ -59,9 +58,10 @@ private:
     void initAfterRead() override;
 
 private:
-    caf::PdmChildArrayField<RimWellPathFracture*>   m_fractures;
-    caf::PdmChildField<RimMswCompletionParameters*> m_mswParameters;
+    caf::PdmChildArrayField<RimWellPathFracture*> m_fractures;
 
     caf::PdmField<int>    m_refMDType_OBSOLETE;
     caf::PdmField<double> m_refMD_OBSOLETE;
+
+    caf::PdmChildField<RimMswCompletionParameters*> m_mswParameters_OBSOLETE;
 };
