@@ -27,6 +27,7 @@
 #include "RigEclipseCaseData.h"
 #include "RigGridBase.h"
 #include "RigMainGrid.h"
+#include "RigStatisticsMath.h"
 #include "RigWellPath.h"
 #include "RigWellPathGeometryTools.h"
 
@@ -362,6 +363,68 @@ void RimStimPlanModelPressureCalculator::sortAndRemoveDuplicates( DepthValuePair
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimStimPlanModelPressureCalculator::binByDepthAndAverage( DepthValuePairVector& depthValuePairs )
+{
+    if ( depthValuePairs.size() < 2 ) return;
+
+    double minDepth = std::floor( depthValuePairs.front().first );
+    double maxDepth = std::ceil( depthValuePairs.back().first );
+
+    RiaLogging::debug( QString( "Binning: min depth=%1 max depth=%2. Vec size=%3." )
+                           .arg( minDepth )
+                           .arg( maxDepth )
+                           .arg( depthValuePairs.size() ) );
+
+    double binSize = 1.0;
+
+    double diff  = maxDepth - minDepth;
+    int    nBins = diff / binSize;
+
+    std::vector<std::vector<double>> histogramBins;
+    histogramBins.resize( nBins );
+    for ( auto [depth, value] : depthValuePairs )
+    {
+        int bin = static_cast<int>( std::floor( ( depth - minDepth ) / binSize ) );
+        histogramBins[bin].push_back( value );
+    }
+
+    DepthValuePairVector newDepthValuePairs;
+    for ( size_t i = 0; i < histogramBins.size(); i++ )
+    {
+        double startDepth = minDepth + i * binSize;
+        double endDepth   = minDepth + ( i + 1 ) * binSize;
+
+        double min;
+        double max;
+        double sum;
+        double range;
+        double mean;
+        double dev;
+        RigStatisticsMath::calculateBasicStatistics( histogramBins[i], &min, &max, &sum, &range, &mean, &dev );
+
+        RiaLogging::debug( QString( "Bin[%1]. TVD: [%2 - %3]. Samples: %4. Pressure: [%5 - %6]. Mean: %7 Dev: %8" )
+                               .arg( i )
+                               .arg( startDepth )
+                               .arg( endDepth )
+                               .arg( histogramBins[i].size() )
+                               .arg( min )
+                               .arg( max )
+                               .arg( mean )
+                               .arg( dev ) );
+
+        if ( !std::isinf( mean ) )
+        {
+            double binCenterDepth = startDepth + binSize / 2.0;
+            newDepthValuePairs.push_back( std::make_pair( binCenterDepth, mean ) );
+        }
+    }
+
+    depthValuePairs = newDepthValuePairs;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RimStimPlanModelPressureCalculator::buildPressureTablesPerEqlNum( const RimStimPlanModel*    stimPlanModel,
                                                                        EqlNumToDepthValuePairMap& valuesPerEqlNum,
                                                                        const std::set<int>&       presentEqlNums )
@@ -419,6 +482,10 @@ bool RimStimPlanModelPressureCalculator::buildPressureTablesPerEqlNum( const Rim
         sortAndRemoveDuplicates( valuesPerEqlNum[eqlNum] );
     }
 
+    for ( int eqlNum : presentEqlNums )
+    {
+        binByDepthAndAverage( valuesPerEqlNum[eqlNum] );
+    }
     return true;
 }
 

@@ -76,4 +76,6 @@ protected:
     static std::set<int> findUniqueValues( const std::vector<double>& values );
 
     static double interpolatePressure( const DepthValuePairVector& depthValuePairs, double depth, int eqlNum );
+
+    static void binByDepthAndAverage( DepthValuePairVector& depthValuePairs );
 };
