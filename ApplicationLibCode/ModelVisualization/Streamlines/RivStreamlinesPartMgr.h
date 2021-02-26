@@ -132,26 +132,31 @@ private:
     {
         Streamline() { animIndex = 0; };
 
-        void                appendTracerPoint( cvf::Vec3d point );
-        void                appendAbsVelocity( double velocity );
-        void                appendDirection( cvf::Vec3d direction );
-        void                clear();
-        cvf::ref<cvf::Part> getPart();
-        cvf::Vec3d          getTracerPoint( size_t index ) const;
-        double              getAbsVelocity( size_t index ) const;
-        cvf::Vec3d          getDirection( size_t index ) const;
-        size_t              countTracerPoints() const;
-        void                setPart( cvf::ref<cvf::Part> part );
-        size_t              getAnimationIndex() const;
-        void                incrementAnimationIndex( size_t increment = 1.0 );
-        void                setAnimationIndex( size_t index );
+        void                  appendTracerPoint( cvf::Vec3d point );
+        void                  appendAbsVelocity( double velocity );
+        void                  appendDirection( cvf::Vec3d direction );
+        void                  appendPhase( RiaDefines::PhaseType phase );
+        void                  clear();
+        cvf::ref<cvf::Part>   getPart();
+        cvf::Vec3d            getTracerPoint( size_t index ) const;
+        double                getAbsVelocity( size_t index ) const;
+        cvf::Vec3d            getDirection( size_t index ) const;
+        RiaDefines::PhaseType getPhase( size_t index ) const;
+
+        size_t countTracerPoints() const;
+        void   setPart( cvf::ref<cvf::Part> part );
+        size_t getAnimationIndex() const;
+        void   incrementAnimationIndex( size_t increment = 1.0 );
+        void   setAnimationIndex( size_t index );
 
     private:
-        std::vector<cvf::Vec3d> tracerPoints;
-        std::vector<double>     absVelocities;
-        std::vector<cvf::Vec3d> directions;
-        cvf::ref<cvf::Part>     part;
-        size_t                  animIndex;
+        std::vector<cvf::Vec3d>            tracerPoints;
+        std::vector<double>                absVelocities;
+        std::vector<cvf::Vec3d>            directions;
+        std::vector<RiaDefines::PhaseType> dominantPhases;
+
+        cvf::ref<cvf::Part> part;
+        size_t              animIndex;
     };
 
 private:
