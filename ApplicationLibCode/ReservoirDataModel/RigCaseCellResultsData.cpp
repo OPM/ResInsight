@@ -1187,17 +1187,6 @@ void RigCaseCellResultsData::createResultEntry( const RigEclipseResultAddress& r
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigCaseCellResultsData::ensureKnownResultLoadedForTimeStep( const RigEclipseResultAddress& resultAddress,
-                                                                 size_t                         timeStepIndex )
-{
-    CAF_ASSERT( resultAddress.resultCatType() != RiaDefines::ResultCatType::UNDEFINED );
-
-    findOrLoadKnownScalarResultForTimeStep( resultAddress, timeStepIndex );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 size_t RigCaseCellResultsData::findOrLoadKnownScalarResult( const RigEclipseResultAddress& resVarAddr )
 {
     if ( !resVarAddr.isValid() )

@@ -127,7 +127,6 @@ public:
     bool    updateResultName( RiaDefines::ResultCatType resultType, const QString& oldName, const QString& newName );
     QString makeResultNameUnique( const QString& resultNameProposal ) const;
 
-    void ensureKnownResultLoadedForTimeStep( const RigEclipseResultAddress& resultAddress, size_t timeStepIndex );
     bool ensureKnownResultLoaded( const RigEclipseResultAddress& resultAddress );
 
     bool findAndLoadResultByName( const QString&                                resultName,
@@ -150,7 +149,11 @@ private:
     size_t findOrLoadKnownScalarResultByResultTypeOrder( const RigEclipseResultAddress&                resVarAddr,
                                                          const std::vector<RiaDefines::ResultCatType>& resultCategorySearchOrder );
 
+    // Add a friend class, as this way of loading data requires careful management of state
+    // All other data access assumes all time steps are loaded at the same time
+    friend class RimEclipseStatisticsCaseEvaluator;
     size_t findOrLoadKnownScalarResultForTimeStep( const RigEclipseResultAddress& resVarAddr, size_t timeStepIndex );
+
     size_t findOrCreateScalarResultIndex( const RigEclipseResultAddress& resVarAddr, bool needsToBeStored );
 
     size_t findScalarResultIndexFromAddress( const RigEclipseResultAddress& resVarAddr ) const;

@@ -190,9 +190,11 @@ void RimEclipseStatisticsCaseEvaluator::evaluateForResults( const QList<ResSpec>
                     RimEclipseCase* sourceCase = m_sourceCases.at( caseIdx );
 
                     // Trigger loading of dataset
+                    // NB! Many other functions are based on loading of all time steps at the same time
+                    // Use this concept carefully
                     sourceCase->results( poroModel )
-                        ->ensureKnownResultLoadedForTimeStep( RigEclipseResultAddress( resultType, resultName ),
-                                                              dataAccessTimeStepIndex );
+                        ->findOrLoadKnownScalarResultForTimeStep( RigEclipseResultAddress( resultType, resultName ),
+                                                                  dataAccessTimeStepIndex );
 
                     cvf::ref<RigResultAccessor> resultAccessor =
                         RigResultAccessorFactory::createFromResultAddress( sourceCase->eclipseCaseData(),
