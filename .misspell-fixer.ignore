@@ -4,3 +4,4 @@
 ^ApplicationExeCode/Resources/NorthView.svg
 ^ApplicationExeCode/Resources/SouthView.svg
 ^ApplicationExeCode/Resources/WestView.svg
+^ApplicationLibCode/ProjectDataModel/RimEclipseStatisticsCaseEvaluator.cpp
