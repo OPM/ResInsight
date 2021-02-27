@@ -21,6 +21,7 @@
 #include <opm/common/utility/TimeService.hpp>
 #include <opm/io/eclipse/EclFile.hpp>
 #include <opm/io/eclipse/EclUtil.hpp>
+#include <opm/io/eclipse/EclOutput.hpp>
 
 #include <algorithm>
 #include <chrono>
@@ -30,8 +31,12 @@
 #include <set>
 #include <stdexcept>
 #include <string>
+//#include <fnmatch.h>
 #include <fstream>
 #include <cmath>
+#include <cstring>
+
+#include <ciso646>
 
 /*
 
@@ -86,10 +91,12 @@ ESmry::ESmry(const std::string &filename, bool loadBaseRunData) :
     inputFileName { filename },
     summaryNodes { }
 {
+    fromSingleRun = !loadBaseRunData;
 
     Opm::filesystem::path rootName = inputFileName.parent_path() / inputFileName.stem();
 
-    // if root name (without any extension) given as first argument in constructor, binary will then be assumed
+    // if only root name (without any extension) given as first argument in constructor
+    // binary will then be assumed
 
     if (inputFileName.extension()=="")
         inputFileName+=".SMSPEC";
@@ -99,6 +106,16 @@ ESmry::ESmry(const std::string &filename, bool loadBaseRunData) :
 
     const bool formatted = inputFileName.extension()==".SMSPEC" ? false : true;
     formattedFiles.push_back(formatted);
+
+    if (formatted)
+        lodFileName = rootName += ".FLODSMRY";
+    else
+        lodFileName = rootName += ".LODSMRY";
+
+    if ((!loadBaseRunData) && (Opm::filesystem::exists(lodFileName)))
+        lodEnabeled = true;
+    else
+        lodEnabeled = false;
 
     Opm::filesystem::path path = Opm::filesystem::current_path();
 
@@ -119,28 +136,44 @@ ESmry::ESmry(const std::string &filename, bool loadBaseRunData) :
         "SUMTHIN",
     } ;
 
+    std::vector<EclFile> smspecList;
+    std::vector<std::string> vectList = {"DIMENS", "RESTART", "KEYWORDS", "NUMS", "UNITS"};
+
     // Read data from the summary into local data members.
     {
-        EclFile smspec(smspec_file.string());
+        smspecList.emplace_back(EclFile(smspec_file.string()));
 
-        smspec.loadData();   // loading all data
+        auto arrays = smspecList.back().getList();
+        std::vector<int> vectIndices;
 
-        const std::vector<int> dimens = smspec.get<int>("DIMENS");
+        for (size_t n = 0; n < arrays.size(); n++)
+            if(std::find(vectList.begin(), vectList.end(), std::get<0>(arrays[n])) != vectList.end())
+               vectIndices.push_back(static_cast<int>(n));
+
+        smspecList.back().loadData(vectIndices);
+
+        const std::vector<int> dimens = smspecList.back().get<int>("DIMENS");
 
         nI = dimens[1]; // This is correct -- dimens[0] is something else!
         nJ = dimens[2];
         nK = dimens[3];
 
-        const std::vector<std::string> restartArray = smspec.get<std::string>("RESTART");
-        const std::vector<std::string> keywords = smspec.get<std::string>("KEYWORDS");
-        const std::vector<std::string> wgnames = smspec.get<std::string>("WGNAMES");
-        const std::vector<int> nums = smspec.get<int>("NUMS");
-        const std::vector<std::string> units = smspec.get<std::string>("UNITS");
+        const std::vector<std::string> restartArray = smspecList.back().get<std::string>("RESTART");
+        const std::vector<std::string> keywords = smspecList.back().get<std::string>("KEYWORDS");
+        std::vector<std::string> wgnames;
+
+        if (smspecList.back().hasKey("WGNAMES"))
+            wgnames = smspecList.back().get<std::string>("WGNAMES");
+        else
+            wgnames = smspecList.back().get<std::string>("NAMES");
+
+        const std::vector<int> nums = smspecList.back().get<int>("NUMS");
+        const std::vector<std::string> units = smspecList.back().get<std::string>("UNITS");
 
         std::vector<std::string> combindKeyList;
         combindKeyList.reserve(dimens[0]);
 
-        this->startdat = make_date(smspec.get<int>("STARTDAT"));
+        this->startdat = make_date(smspecList.back().get<int>("STARTDAT"));
 
         for (unsigned int i=0; i<keywords.size(); i++) {
             const std::string keyString = makeKeyString(keywords[i], wgnames[i], nums[i]);
@@ -152,7 +185,8 @@ ESmry::ESmry(const std::string &filename, bool loadBaseRunData) :
                     SummaryNode::category_from_keyword(keywords[i], segmentExceptions),
                     SummaryNode::Type::Undefined,
                     wgnames[i],
-                    nums[i]
+                    nums[i],
+                    ""
                 });
 
                 keywList.insert(keyString);
@@ -169,7 +203,6 @@ ESmry::ESmry(const std::string &filename, bool loadBaseRunData) :
     // checking if this is a restart run. Supporting nested restarts (restart, from restart, ...)
     // std::set keywList is storing keywords from all runs involved
 
-
     while ((rstRootN.string() != "") && (loadBaseRunData)) {
 
         Opm::filesystem::path rstFile = pathRstFile / rstRootN;
@@ -184,20 +217,34 @@ ESmry::ESmry(const std::string &filename, bool loadBaseRunData) :
             baseRunFmt = true;
         }
 
-        EclFile smspec_rst(rstFile.string());
-        smspec_rst.loadData();
+        smspecList.emplace_back(EclFile(rstFile.string()));
 
-        const std::vector<int> dimens = smspec_rst.get<int>("DIMENS");
-        const std::vector<std::string> restartArray = smspec_rst.get<std::string>("RESTART");
-        const std::vector<std::string> keywords = smspec_rst.get<std::string>("KEYWORDS");
-        const std::vector<std::string> wgnames = smspec_rst.get<std::string>("WGNAMES");
-        const std::vector<int> nums = smspec_rst.get<int>("NUMS");
-        const std::vector<std::string> units = smspec_rst.get<std::string>("UNITS");
+        auto arrays = smspecList.back().getList();
+        std::vector<int> vectIndices;
+
+        for (size_t n = 0; n < arrays.size(); n++)
+            if(std::find(vectList.begin(), vectList.end(), std::get<0>(arrays[n])) != vectList.end())
+               vectIndices.push_back(static_cast<int>(n));
+
+        smspecList.back().loadData(vectIndices);
+
+        const std::vector<int> dimens = smspecList.back().get<int>("DIMENS");
+        const std::vector<std::string> restartArray = smspecList.back().get<std::string>("RESTART");
+        const std::vector<std::string> keywords = smspecList.back().get<std::string>("KEYWORDS");
+        std::vector<std::string> wgnames;
+
+        if (smspecList.back().hasKey("WGNAMES"))
+            wgnames = smspecList.back().get<std::string>("WGNAMES");
+        else
+            wgnames = smspecList.back().get<std::string>("NAMES");
+
+        const std::vector<int> nums = smspecList.back().get<int>("NUMS");
+        const std::vector<std::string> units = smspecList.back().get<std::string>("UNITS");
 
         std::vector<std::string> combindKeyList;
         combindKeyList.reserve(dimens[0]);
 
-        this->startdat = make_date(smspec_rst.get<int>("STARTDAT"));
+        this->startdat = make_date(smspecList.back().get<int>("STARTDAT"));
 
         for (size_t i = 0; i < keywords.size(); i++) {
             const std::string keyString = makeKeyString(keywords[i], wgnames[i], nums[i]);
@@ -208,7 +255,8 @@ ESmry::ESmry(const std::string &filename, bool loadBaseRunData) :
                     SummaryNode::category_from_keyword(keywords[i], segmentExceptions),
                     SummaryNode::Type::Undefined,
                     wgnames[i],
-                    nums[i]
+                    nums[i],
+                    ""
                 });
 
                 keywList.insert(keyString);
@@ -242,10 +290,7 @@ ESmry::ESmry(const std::string &filename, bool loadBaseRunData) :
 
         auto smry = smryArray[specInd];
 
-        EclFile smspec(std::get<0>(smry));
-        smspec.loadData();
-
-        const std::vector<int> dimens = smspec.get<int>("DIMENS");
+        const std::vector<int> dimens = smspecList[specInd].get<int>("DIMENS");
 
         nI = dimens[1];
         nJ = dimens[2];
@@ -253,9 +298,15 @@ ESmry::ESmry(const std::string &filename, bool loadBaseRunData) :
 
         nParamsSpecFile[specInd] = dimens[0];
 
-        const std::vector<std::string> keywords = smspec.get<std::string>("KEYWORDS");
-        const std::vector<std::string> wgnames = smspec.get<std::string>("WGNAMES");
-        const std::vector<int> nums = smspec.get<int>("NUMS");
+        const std::vector<std::string> keywords = smspecList[specInd].get<std::string>("KEYWORDS");
+        std::vector<std::string> wgnames;
+
+        if (smspecList.back().hasKey("WGNAMES"))
+            wgnames = smspecList.back().get<std::string>("WGNAMES");
+        else
+            wgnames = smspecList.back().get<std::string>("NAMES");
+
+        const std::vector<int> nums = smspecList[specInd].get<int>("NUMS");
 
         for (size_t i=0; i < keywords.size(); i++) {
             const std::string keyw = makeKeyString(keywords[i], wgnames[i], nums[i]);
@@ -287,132 +338,286 @@ ESmry::ESmry(const std::string &filename, bool loadBaseRunData) :
         vectorLoaded.push_back(false);
     }
 
-    int dataFileIndex = -1;
+    if (lodEnabeled)
+    {
+        // inspecting formatted or binary lod file. lodsmry possible only if
+        // loadBaseRunData=false
 
-    while (specInd >= 0){
+        inspect_lodsmry();
 
-        int reportStepNumber = fromReportStepNumber;
+    } else {
 
-        if (specInd > 0) {
-            auto rstFrom = smryArray[specInd-1];
-            toReportStepNumber = std::get<1>(rstFrom);
-        } else {
-            toReportStepNumber = std::numeric_limits<int>::max();
-        }
+        // inspecting time step data, unified summary or multiple summary files both formatted or binary.
+        // this also include base run data if loadBaseRunData=true and restart runs exists.
 
-        Opm::filesystem::path smspecFile(std::get<0>(smryArray[specInd]));
-        rootName = smspecFile.parent_path() / smspecFile.stem();
+        int dataFileIndex = -1;
 
-        // check if multiple or unified result files should be used
-        // to import data, no information in smspec file regarding this
-        // if both unified and non-unified files exists, will use most recent based on
-        // time stamp
+        while (specInd >= 0) {
 
-        Opm::filesystem::path unsmryFile = rootName;
+            int reportStepNumber = fromReportStepNumber;
 
-        unsmryFile += formattedFiles[specInd] ? ".FUNSMRY" : ".UNSMRY";
-        const bool use_unified = Opm::filesystem::exists(unsmryFile.string());
-
-        const std::vector<std::string> multFileList = checkForMultipleResultFiles(rootName, formattedFiles[specInd]);
-
-        std::vector<std::string> resultsFileList;
-
-        if ((!use_unified) && (multFileList.size()==0)){
-            throw std::runtime_error("neigther unified or non-unified result files found");
-        } else if ((use_unified) && (multFileList.size()>0)){
-            auto time_multiple = Opm::filesystem::last_write_time(multFileList.back());
-            auto time_unified = Opm::filesystem::last_write_time(unsmryFile);
-
-            if (time_multiple > time_unified){
-                resultsFileList=multFileList;
+            if (specInd > 0) {
+                auto rstFrom = smryArray[specInd-1];
+                toReportStepNumber = std::get<1>(rstFrom);
             } else {
+                toReportStepNumber = std::numeric_limits<int>::max();
+            }
+
+            Opm::filesystem::path smspecFile(std::get<0>(smryArray[specInd]));
+            rootName = smspecFile.parent_path() / smspecFile.stem();
+
+            // check if multiple or unified result files should be used
+            // to import data, no information in smspec file regarding this
+            // if both unified and non-unified files exists, will use most recent based on
+            // time stamp
+
+            Opm::filesystem::path unsmryFile = rootName;
+
+            unsmryFile += formattedFiles[specInd] ? ".FUNSMRY" : ".UNSMRY";
+            const bool use_unified = Opm::filesystem::exists(unsmryFile.string());
+
+            const std::vector<std::string> multFileList = checkForMultipleResultFiles(rootName, formattedFiles[specInd]);
+
+            std::vector<std::string> resultsFileList;
+
+            if ((!use_unified) && (multFileList.size()==0)) {
+                throw std::runtime_error("neigther unified or non-unified result files found");
+            } else if ((use_unified) && (multFileList.size()>0)) {
+                auto time_multiple = Opm::filesystem::last_write_time(multFileList.back());
+                auto time_unified = Opm::filesystem::last_write_time(unsmryFile);
+
+                if (time_multiple > time_unified) {
+                    resultsFileList=multFileList;
+                } else {
+                    resultsFileList.push_back(unsmryFile.string());
+                }
+
+            } else if (use_unified) {
                 resultsFileList.push_back(unsmryFile.string());
+            } else {
+                resultsFileList=multFileList;
             }
 
-        } else if (use_unified){
-            resultsFileList.push_back(unsmryFile.string());
-        } else {
-            resultsFileList=multFileList;
-        }
+            std::vector<ArrSourceEntry> arraySourceList;
 
-        // make array list with reference to source files (unifed or non unified)
-
-        std::vector<ArrSourceEntry> arraySourceList;
-
-        for (std::string fileName : resultsFileList)
-        {
-            std::vector<std::tuple <std::string, uint64_t>> arrayList;
-            arrayList = this->getListOfArrays(fileName, formattedFiles[specInd]);
-
-            for (size_t n = 0; n < arrayList.size(); n++) {
-                ArrSourceEntry  t1 = std::make_tuple(std::get<0>(arrayList[n]), fileName, n, std::get<1>(arrayList[n]));
-                arraySourceList.push_back(t1);
-            }
-        }
-
-        // loop through arrays and for each ministep, store data file, location of params table
-        //
-        //    2 or 3 arrays pr time step.
-        //       If timestep is a report step:  MINISTEP, PARAMS and SEQHDR
-        //       else : MINISTEP and PARAMS
-
-
-        size_t i = std::get<0>(arraySourceList[0]) == "SEQHDR" ? 1 : 0 ;
-
-        while  (i < arraySourceList.size()){
-
-            if (std::get<0>(arraySourceList[i]) != "MINISTEP"){
-                std::string message="Reading summary file, expecting keyword MINISTEP, found '" + std::get<0>(arraySourceList[i]) + "'";
-                throw std::invalid_argument(message);
-            }
-
-            if (std::get<0>(arraySourceList[i+1]) != "PARAMS") {
-                std::string message="Reading summary file, expecting keyword PARAMS, found '" + std::get<0>(arraySourceList[i]) + "'";
-                throw std::invalid_argument(message);
-            }
-
-            i++;
-
-            if (std::find(dataFileList.begin(), dataFileList.end(), std::get<1>(arraySourceList[i])) == dataFileList.end())
+            for (std::string fileName : resultsFileList)
             {
-                dataFileList.push_back(std::get<1>(arraySourceList[i]));
-                dataFileIndex++;
+                std::vector<std::tuple <std::string, uint64_t>> arrayList;
+                arrayList = this->getListOfArrays(fileName, formattedFiles[specInd]);
+
+                for (size_t n = 0; n < arrayList.size(); n++) {
+                    ArrSourceEntry  t1 = std::make_tuple(std::get<0>(arrayList[n]), fileName, n, std::get<1>(arrayList[n]));
+                    arraySourceList.push_back(t1);
+                }
             }
 
-            TimeStepEntry t1 = std::make_tuple(specInd, dataFileIndex, std::get<3>(arraySourceList[i]));
-            timeStepList.push_back(t1);
+            // loop through arrays and for each ministep, store data file, location of params table
+            //
+            //    2 or 3 arrays pr time step.
+            //       If timestep is a report step:  MINISTEP, PARAMS and SEQHDR
+            //       else : MINISTEP and PARAMS
 
-            i++;
 
-            if (i < arraySourceList.size()){
-                if (std::get<0>(arraySourceList[i]) == "SEQHDR") {
-                    i++;
+            size_t i = std::get<0>(arraySourceList[0]) == "SEQHDR" ? 1 : 0 ;
+
+            while  (i < arraySourceList.size()) {
+
+                if (std::get<0>(arraySourceList[i]) != "MINISTEP") {
+                    std::string message="Reading summary file, expecting keyword MINISTEP, found '" + std::get<0>(arraySourceList[i]) + "'";
+                    throw std::invalid_argument(message);
+                }
+
+                if (std::get<0>(arraySourceList[i+1]) != "PARAMS") {
+                    std::string message="Reading summary file, expecting keyword PARAMS, found '" + std::get<0>(arraySourceList[i]) + "'";
+                    throw std::invalid_argument(message);
+                }
+
+                i++;
+
+                if (std::find(dataFileList.begin(), dataFileList.end(), std::get<1>(arraySourceList[i])) == dataFileList.end())
+                {
+                    dataFileList.push_back(std::get<1>(arraySourceList[i]));
+                    dataFileIndex++;
+                }
+
+                TimeStepEntry t1 = std::make_tuple(specInd, dataFileIndex, std::get<3>(arraySourceList[i]));
+                timeStepList.push_back(t1);
+
+                i++;
+
+                if (i < arraySourceList.size()) {
+                    if (std::get<0>(arraySourceList[i]) == "SEQHDR") {
+                        i++;
+                        reportStepNumber++;
+                        seqIndex.push_back(step);
+                    }
+                } else {
                     reportStepNumber++;
                     seqIndex.push_back(step);
                 }
-            } else {
-                reportStepNumber++;
-                seqIndex.push_back(step);
+
+                if (reportStepNumber >= toReportStepNumber) {
+                    i = arraySourceList.size();
+                }
+
+                step++;
             }
 
-            if (reportStepNumber >= toReportStepNumber) {
-                i = arraySourceList.size();
-            }
+            fromReportStepNumber = toReportStepNumber;
 
-            step++;
+            specInd--;
+
+            nTstep = timeStepList.size();
         }
-
-        fromReportStepNumber = toReportStepNumber;
-
-        specInd--;
     }
+}
+
+void ESmry::inspect_lodsmry()
+{
+    std::string arrName;
+    int64_t arr_size;
+    Opm::EclIO::eclArrType arrType;
+    int sizeOfElement;
+
+    std::fstream fileH;
+
+    if (formattedFiles[0]) {
+        fileH.open(lodFileName, std::ios::in);
+        Opm::EclIO::readFormattedHeader(fileH, arrName, arr_size, arrType, sizeOfElement);
+    } else {
+        fileH.open(lodFileName, std::ios::in |  std::ios::binary);
+        Opm::EclIO::readBinaryHeader(fileH, arrName, arr_size, arrType, sizeOfElement);
+    }
+
+    if ((arrName != "KEYCHECK") or (arrType != Opm::EclIO::CHAR))
+        OPM_THROW(std::invalid_argument, "reading keycheck, invalid lod file");
+
+    std::vector<std::string> keycheck;
+
+    if (formattedFiles[0]) {
+        uint64_t size = Opm::EclIO::sizeOnDiskFormatted(arr_size, Opm::EclIO::CHAR, sizeOfChar) + 1;
+        std::string fileStr = read_string_from_disk(fileH, size);
+
+        keycheck = Opm::EclIO::readFormattedCharArray(fileStr, arr_size, 0, sizeOfChar);
+    } else {
+        keycheck = Opm::EclIO::readBinaryCharArray(fileH, arr_size);
+    }
+
+    if ((arr_size / nVect != 3) or (arr_size % nVect != 0))
+        OPM_THROW(std::invalid_argument, "reading keycheck, invalid lod file");
+
+    for (size_t n = 0; n < nVect; n++) {
+        size_t ind = n*3;
+        std::string test_str = keycheck[ind] + keycheck[ind+1] + keycheck[ind+2];
+
+        if (keyword[n].size() > 24) {
+            if (keyword[n].substr(0,24) != test_str) {
+                OPM_THROW(std::invalid_argument, "keycheck not maching keyword array");
+            }
+        } else {
+            if (keyword[n] != test_str) {
+                OPM_THROW(std::invalid_argument, "keycheck not maching keyword array");
+            }
+        }
+    }
+
+    if (formattedFiles[0])
+        Opm::EclIO::readFormattedHeader(fileH, arrName, arr_size, arrType, sizeOfElement);
+    else
+        Opm::EclIO::readBinaryHeader(fileH, arrName, arr_size, arrType, sizeOfElement);
+
+    if ((arrName != "RSTEP   ") or (arrType != Opm::EclIO::LOGI))
+        OPM_THROW(std::invalid_argument, "reading rstep, invalid lod file");
+
+    std::vector<bool> rstep;
+
+    if (formattedFiles[0]) {
+        uint64_t size = Opm::EclIO::sizeOnDiskFormatted(arr_size, Opm::EclIO::LOGI, sizeOfLogi) + 1;
+        std::string fileStr = read_string_from_disk(fileH, size);
+
+        rstep = Opm::EclIO::readFormattedLogiArray(fileStr, arr_size, 0);
+    } else {
+        rstep = readBinaryLogiArray(fileH, arr_size);
+    }
+
+    for (size_t m = 0; m < rstep.size(); m++)
+        if (rstep[m])
+            seqIndex.push_back(m);
+
+    lod_offset = static_cast<uint64_t>(fileH.tellg());
+    nTstep = rstep.size();
+
+    if (formattedFiles[0])
+        lod_arr_size = sizeOnDiskFormatted(nTstep, Opm::EclIO::REAL, sizeOfReal);
+    else
+        lod_arr_size = sizeOnDiskBinary(nTstep, Opm::EclIO::REAL, sizeOfReal);
+
+    fileH.close();
+}
+
+std::string ESmry::read_string_from_disk(std::fstream& fileH, uint64_t size) const
+{
+    char* buffer;
+    buffer = new char [size];
+    fileH.read (buffer, size);
+    std::string fileStr = std::string(buffer, size);
+    delete[] buffer;
+
+    return fileStr;
+}
+
+void ESmry::Load_from_lodsmry(const std::vector<int>& keywIndVect) const
+{
+    std::fstream fileH;
+
+    if (formattedFiles[0])
+        fileH.open(lodFileName, std::ios::in);
+    else
+        fileH.open(lodFileName, std::ios::in |  std::ios::binary);
+
+    for (auto ind : keywIndVect) {
+        std::string arrName;
+        int64_t size;
+        Opm::EclIO::eclArrType arrType;
+        int sizeOfElement;
+
+        uint64_t pos = lod_offset + lod_arr_size*static_cast<uint64_t>(ind);
+
+        if (formattedFiles[0])
+            pos = pos + static_cast<uint64_t>(ind * 31);  // adding size of formatted headers
+        else
+            pos = pos + static_cast<uint64_t>(ind * 24);  // adding size of binary headers
+
+        fileH.seekg (pos, fileH.beg);
+
+        if (formattedFiles[0])
+            readFormattedHeader(fileH, arrName, size, arrType, sizeOfElement);
+        else
+            readBinaryHeader(fileH, arrName, size, arrType, sizeOfElement);
+
+        arrName = Opm::EclIO::trimr(arrName);
+
+        std::string checkName = "V" + std::to_string(ind);
+
+        if (arrName != checkName)
+            OPM_THROW(std::invalid_argument, "lodsmry, wrong header expecting  " + checkName + " found " +  arrName);
+
+        if (formattedFiles[0]) {
+            uint64_t size_buffer = lod_arr_size + 1;
+            std::string fileStr = read_string_from_disk(fileH, size_buffer);
+            vectorData[ind] = Opm::EclIO::readFormattedRealArray(fileStr, nTstep, 0);
+        } else {
+            vectorData[ind] = readBinaryRealArray(fileH, size);
+        }
+    }
+
+    fileH.close();
 }
 
 
 void ESmry::LoadData(const std::vector<std::string>& vectList) const
 {
     size_t nvect = vectList.size();
-    size_t ntstep = timeStepList.size();
 
     std::vector<int> keywIndVect;
     keywIndVect.reserve(nvect);
@@ -426,89 +631,103 @@ void ESmry::LoadData(const std::vector<std::string>& vectList) const
     }
 
     for (auto ind : keywIndVect)
-        vectorData[ind].reserve(ntstep);
+        vectorData[ind].reserve(nTstep);
 
-    std::fstream fileH;
+    if (lodEnabeled)
+    {
+        Load_from_lodsmry(keywIndVect);
 
-    auto specInd = std::get<0>(timeStepList[0]);
-    auto dataFileIndex = std::get<1>(timeStepList[0]);
-    uint64_t stepFilePos = std::get<2>(timeStepList[0]);
+    } else {
 
-    if (formattedFiles[specInd])
-        fileH.open(dataFileList[dataFileIndex], std::ios::in);
-    else
-        fileH.open(dataFileList[dataFileIndex], std::ios::in |  std::ios::binary);
+        std::fstream fileH;
 
-    for (auto ministep : timeStepList) {
-        if (dataFileIndex != std::get<1>(ministep)) {
-            fileH.close();
-            specInd = std::get<0>(ministep);
-            dataFileIndex = std::get<1>(ministep);
+        auto specInd = std::get<0>(timeStepList[0]);
+        auto dataFileIndex = std::get<1>(timeStepList[0]);
+        uint64_t stepFilePos = std::get<2>(timeStepList[0]);
+        uint64_t blockSize_f;
 
-            if (formattedFiles[specInd])
-                fileH.open(dataFileList[dataFileIndex], std::ios::in );
-            else
-                fileH.open(dataFileList[dataFileIndex], std::ios::in |  std::ios::binary);
+        {
+            int nLinesBlock = MaxBlockSizeReal / numColumnsReal;
+            int rest = MaxBlockSizeReal % numColumnsReal;
+
+            if (rest > 0)
+                nLinesBlock++;
+
+            blockSize_f= static_cast<uint64_t>(MaxNumBlockReal * numColumnsReal * columnWidthReal + nLinesBlock);
         }
 
-        stepFilePos = std::get<2>(ministep);;
+        if (formattedFiles[specInd])
+            fileH.open(dataFileList[dataFileIndex], std::ios::in);
+        else
+            fileH.open(dataFileList[dataFileIndex], std::ios::in |  std::ios::binary);
 
-        for (auto ind : keywIndVect) {
-            auto it = arrayPos[specInd].find(ind);
+        for (auto ministep : timeStepList) {
 
-            if (it == arrayPos[specInd].end()) {
-                // undefined vector in current summary file. Typically when loading
-                // base restart run and including base run data. Vectors can be added to restart runs
-                vectorData[ind].push_back(nanf(""));
-            } else {
-                int paramPos = it->second;
+            if (dataFileIndex != std::get<1>(ministep)) {
+                fileH.close();
+                specInd = std::get<0>(ministep);
+                dataFileIndex = std::get<1>(ministep);
 
-                if (formattedFiles[specInd]) {
-                    uint64_t elementPos = 0;
-                    int nBlocks = paramPos /MaxBlockSizeReal;
-                    int sizeOfLastBlock = paramPos %  MaxBlockSizeReal;
+                if (formattedFiles[specInd])
+                    fileH.open(dataFileList[dataFileIndex], std::ios::in );
+                else
+                    fileH.open(dataFileList[dataFileIndex], std::ios::in |  std::ios::binary);
+            }
 
-                    if (nBlocks > 0) {
-                        int nLinesBlock = MaxNumBlockReal / numColumnsReal;
-                        int rest = MaxNumBlockReal % numColumnsReal;
+            stepFilePos = std::get<2>(ministep);;
 
-                        if (rest > 0)
-                            nLinesBlock++;
+            for (auto ind : keywIndVect) {
 
-                        uint64_t blockSize = static_cast<uint64_t>(MaxNumBlockReal * numColumnsReal + nLinesBlock);
-                        elementPos = static_cast<uint64_t>(nBlocks * blockSize);
-                    }
+                auto it = arrayPos[specInd].find(ind);
 
-                    int nLines = sizeOfLastBlock / numColumnsReal;
-                    elementPos = stepFilePos + elementPos + static_cast<uint64_t>(sizeOfLastBlock * columnWidthReal + nLines);
-
-                    fileH.seekg (elementPos, fileH.beg);
-
-                    char* buffer;
-                    size_t size = columnWidthReal;
-                    buffer = new char [size];
-                    fileH.read (buffer, size);
-                    double dtmpv = std::stod(std::string(buffer, size));
-                    vectorData[ind].push_back(static_cast<float>(dtmpv));
-
-                    delete[] buffer;
-
+                if (it == arrayPos[specInd].end()) {
+                    // undefined vector in current summary file. Typically when loading
+                    // base restart run and including base run data. Vectors can be added to restart runs
+                    vectorData[ind].push_back(nanf(""));
                 } else {
+                    int paramPos = it->second;
 
-                    uint64_t nFullBlocks = static_cast<uint64_t>(paramPos/(MaxBlockSizeReal / sizeOfReal));
-                    uint64_t elementPos = ((2 * nFullBlocks) + 1)*static_cast<uint64_t>(sizeOfInte);
-                    elementPos += static_cast<uint64_t>(paramPos)* static_cast<uint64_t>(sizeOfReal) + stepFilePos;
-                    fileH.seekg (elementPos, fileH.beg);
+                    if (formattedFiles[specInd]) {
+                        uint64_t elementPos = 0;
+                        int nBlocks = paramPos / MaxBlockSizeReal;
+                        int sizeOfLastBlock = paramPos %  MaxBlockSizeReal;
 
-                    float value;
-                    fileH.read(reinterpret_cast<char*>(&value), sizeOfReal);
-                    vectorData[ind].push_back(Opm::EclIO::flipEndianFloat(value));
+                        if (nBlocks > 0)
+                            elementPos = static_cast<uint64_t>(nBlocks * blockSize_f);
+
+                        int nLines = sizeOfLastBlock / numColumnsReal;
+                        elementPos = stepFilePos + elementPos + static_cast<uint64_t>(sizeOfLastBlock * columnWidthReal + nLines);
+
+                        fileH.seekg (elementPos, fileH.beg);
+
+                        char* buffer;
+                        size_t size = columnWidthReal;
+                        buffer = new char [size];
+                        fileH.read (buffer, size);
+                        double dtmpv = std::stod(std::string(buffer, size));
+                        vectorData[ind].push_back(static_cast<float>(dtmpv));
+
+                        delete[] buffer;
+
+                    } else {
+
+                        uint64_t nFullBlocks = static_cast<uint64_t>(paramPos/(MaxBlockSizeReal / sizeOfReal));
+                        uint64_t elementPos = ((2 * nFullBlocks) + 1)*static_cast<uint64_t>(sizeOfInte);
+                        elementPos += static_cast<uint64_t>(paramPos)* static_cast<uint64_t>(sizeOfReal) + stepFilePos;
+
+                        fileH.seekg (elementPos, fileH.beg);
+
+                        float value;
+                        fileH.read(reinterpret_cast<char*>(&value), sizeOfReal);
+
+                        vectorData[ind].push_back(Opm::EclIO::flipEndianFloat(value));
+                    }
                 }
             }
         }
-    }
 
-    fileH.close();
+        fileH.close();
+    }
 
     for (auto ind : keywIndVect)
         vectorLoaded[ind] = true;
@@ -537,108 +756,116 @@ std::vector<int> ESmry::makeKeywPosVector(int specInd) const {
 
 void ESmry::LoadData() const
 {
-    std::fstream fileH;
+    if (lodEnabeled) {
 
-    auto specInd = std::get<0>(timeStepList[0]);
-    auto dataFileIndex = std::get<1>(timeStepList[0]);
-    uint64_t stepFilePos = std::get<2>(timeStepList[0]);
+        this ->LoadData(keyword);
 
-    std::vector<int> keywpos = makeKeywPosVector(specInd);
+    } else {
+        std::fstream fileH;
 
-    if (formattedFiles[specInd])
-        fileH.open(dataFileList[dataFileIndex], std::ios::in);
-    else
-        fileH.open(dataFileList[dataFileIndex], std::ios::in |  std::ios::binary);
+        auto specInd = std::get<0>(timeStepList[0]);
+        auto dataFileIndex = std::get<1>(timeStepList[0]);
+        uint64_t stepFilePos = std::get<2>(timeStepList[0]);
 
-    for (auto ministep : timeStepList) {
+        std::vector<int> keywpos = makeKeywPosVector(specInd);
 
-        if (dataFileIndex != std::get<1>(ministep)) {
-            fileH.close();
+        if (formattedFiles[specInd])
+            fileH.open(dataFileList[dataFileIndex], std::ios::in);
+        else
+            fileH.open(dataFileList[dataFileIndex], std::ios::in |  std::ios::binary);
 
-            if (specInd != std::get<0>(ministep)){
-                specInd = std::get<0>(ministep);
-                keywpos = makeKeywPosVector(specInd);
-            }
+        for (auto ministep : timeStepList) {
 
-            dataFileIndex = std::get<1>(ministep);
+            if (dataFileIndex != std::get<1>(ministep)) {
+                fileH.close();
 
-            if (formattedFiles[specInd])
-                fileH.open(dataFileList[dataFileIndex], std::ios::in );
-            else
-                fileH.open(dataFileList[dataFileIndex], std::ios::in |  std::ios::binary);
-        }
-
-        stepFilePos = std::get<2>(ministep);
-        int maxNumberOfElements = MaxBlockSizeReal / sizeOfReal;
-        fileH.seekg (stepFilePos, fileH.beg);
-
-        if (formattedFiles[specInd]) {
-            char* buffer;
-            size_t size = sizeOnDiskFormatted(nParamsSpecFile[specInd], Opm::EclIO::REAL)+1;
-            buffer = new char [size];
-            fileH.read (buffer, size);
-
-            std::string fileStr = std::string(buffer, size);
-            size_t p = 0;
-            int64_t p1= 0;
-
-            for (int i=0; i< nParamsSpecFile[specInd]; i++) {
-                p1 = fileStr.find_first_not_of(' ',p1);
-                int64_t p2 = fileStr.find_first_of(' ', p1);
-
-                if (keywpos[p] > -1) {
-                    double dtmpv = std::stod(fileStr.substr(p1, p2-p1));
-                    vectorData[keywpos[p]].push_back(static_cast<float>(dtmpv));
+                if (specInd != std::get<0>(ministep)) {
+                    specInd = std::get<0>(ministep);
+                    keywpos = makeKeywPosVector(specInd);
                 }
 
-                p1 = fileStr.find_first_not_of(' ',p2);
-                p++;
+                dataFileIndex = std::get<1>(ministep);
+
+                if (formattedFiles[specInd])
+                    fileH.open(dataFileList[dataFileIndex], std::ios::in );
+                else
+                    fileH.open(dataFileList[dataFileIndex], std::ios::in |  std::ios::binary);
             }
 
-            delete[] buffer;
-        } else {
-            int64_t rest = static_cast<int64_t>(nParamsSpecFile[specInd]);
-            size_t p = 0;
+            stepFilePos = std::get<2>(ministep);
+            int maxNumberOfElements = MaxBlockSizeReal / sizeOfReal;
+            fileH.seekg (stepFilePos, fileH.beg);
 
-            while (rest > 0) {
-                int dhead;
-                fileH.read(reinterpret_cast<char*>(&dhead), sizeof(dhead));
-                dhead = Opm::EclIO::flipEndianInt(dhead);
-                int num = dhead / sizeOfInte;
+            if (formattedFiles[specInd]) {
 
-                if ((num > maxNumberOfElements) || (num < 0))
-                    OPM_THROW(std::runtime_error, "??Error reading binary data, inconsistent header data or incorrect number of elements");
+                char* buffer;
+                size_t size = sizeOnDiskFormatted(nParamsSpecFile[specInd], Opm::EclIO::REAL, sizeOfReal) + 1;
+                buffer = new char [size];
+                fileH.read (buffer, size);
 
-                for (int i = 0; i < num; i++) {
-                    float value;
-                    fileH.read(reinterpret_cast<char*>(&value), sizeOfReal);
+                std::string fileStr = std::string(buffer, size);
+                size_t p = 0;
+                int64_t p1= 0;
 
-                    if (keywpos[p] > -1)
-                        vectorData[keywpos[p]].push_back(Opm::EclIO::flipEndianFloat(value));
+                for (int i=0; i< nParamsSpecFile[specInd]; i++) {
+                    p1 = fileStr.find_first_not_of(' ',p1);
+                    int64_t p2 = fileStr.find_first_of(' ', p1);
 
+                    if ((keywpos[p] > -1) && (!vectorLoaded[keywpos[p]])) {
+                        double dtmpv = std::stod(fileStr.substr(p1, p2-p1));
+                        vectorData[keywpos[p]].push_back(static_cast<float>(dtmpv));
+                    }
+
+                    p1 = fileStr.find_first_not_of(' ',p2);
                     p++;
                 }
 
-                rest -= num;
+                delete[] buffer;
 
-                if (( num < maxNumberOfElements && rest != 0) ||
-                        (num == maxNumberOfElements && rest < 0)) {
-                    std::string message = "Error reading binary data, incorrect number of elements";
-                    OPM_THROW(std::runtime_error, message);
+            } else {
+                int64_t rest = static_cast<int64_t>(nParamsSpecFile[specInd]);
+                size_t p = 0;
+
+                while (rest > 0) {
+                    int dhead;
+                    fileH.read(reinterpret_cast<char*>(&dhead), sizeof(dhead));
+                    dhead = Opm::EclIO::flipEndianInt(dhead);
+                    int num = dhead / sizeOfInte;
+
+                    if ((num > maxNumberOfElements) || (num < 0))
+                        OPM_THROW(std::runtime_error, "??Error reading binary data, inconsistent header data or incorrect number of elements");
+
+                    for (int i = 0; i < num; i++) {
+                        float value;
+                        fileH.read(reinterpret_cast<char*>(&value), sizeOfReal);
+
+                        if ((keywpos[p] > -1) && (!vectorLoaded[keywpos[p]]))
+                            vectorData[keywpos[p]].push_back(Opm::EclIO::flipEndianFloat(value));
+
+                        p++;
+                    }
+
+                    rest -= num;
+
+                    if (( num < maxNumberOfElements && rest != 0) ||
+                            (num == maxNumberOfElements && rest < 0)) {
+                        std::string message = "Error reading binary data, incorrect number of elements";
+                        OPM_THROW(std::runtime_error, message);
+                    }
+
+                    int dtail;
+                    fileH.read(reinterpret_cast<char*>(&dtail), sizeof(dtail));
+                    dtail = Opm::EclIO::flipEndianInt(dtail);
+
+                    if (dhead != dtail)
+                        OPM_THROW(std::runtime_error, "Error reading binary data, tail not matching header.");
                 }
-
-                int dtail;
-                fileH.read(reinterpret_cast<char*>(&dtail), sizeof(dtail));
-                dtail = Opm::EclIO::flipEndianInt(dtail);
-
-                if (dhead != dtail)
-                    OPM_THROW(std::runtime_error, "Error reading binary data, tail not matching header.");
             }
         }
-    }
 
-    for (size_t n=0; n < nVect; n++)
-        vectorLoaded[n] = true;
+        for (size_t n=0; n < nVect; n++)
+            vectorLoaded[n] = true;
+    }
 }
 
 
@@ -646,24 +873,80 @@ std::vector<std::tuple <std::string, uint64_t>>
 ESmry::getListOfArrays(std::string filename, bool formatted)
 {
     std::vector<std::tuple <std::string, uint64_t>> resultVect;
-    std::fstream fileH;
+
+    FILE *ptr;
+    char arrName[9];
+    char numstr[13];
+
+    int64_t num;
 
     if (formatted)
-        fileH.open(filename, std::ios::in);
+        ptr = fopen(filename.c_str(),"r");  // r for read, files opened as text files
     else
-        fileH.open(filename, std::ios::in |  std::ios::binary);
+        ptr = fopen(filename.c_str(),"rb");  // r for read, b for binary
 
-    while (!Opm::EclIO::isEOF(&fileH)) {
-        std::string arrName(8,' ');
+    bool endOfFile = false;
+
+    while (!endOfFile)
+    {
         Opm::EclIO::eclArrType arrType;
 
-        int64_t num;
         if (formatted)
-            Opm::EclIO::readFormattedHeader(fileH,arrName,num,arrType);
-        else
-            Opm::EclIO::readBinaryHeader(fileH,arrName,num,arrType);
+        {
+            fseek(ptr, 2, SEEK_CUR);
 
-        uint64_t filePos = fileH.tellg();
+            if (fread(arrName, 8, 1, ptr) != 1 )
+                throw std::runtime_error("fread error when loading summary data");
+
+            arrName[8]='\0';
+
+            fseek(ptr, 1, SEEK_CUR);
+
+            if (fread(numstr, 12, 1, ptr) != 1)
+                throw std::runtime_error("fread error when loading summary data");
+
+            numstr[12]='\0';
+
+            int num_int = std::stoi(numstr);
+            num = static_cast<int64_t>(num_int);
+
+            fseek(ptr, 8, SEEK_CUR);
+
+            if ((strcmp(arrName, "SEQHDR  ") == 0) || (strcmp(arrName, "MINISTEP") == 0))
+                arrType = Opm::EclIO::INTE;
+            else if (strcmp(arrName, "PARAMS  ") == 0)
+                arrType = Opm::EclIO::REAL;
+            else {
+                throw std::invalid_argument("unknown array in summary data file ");
+            }
+
+        } else {
+            int num_int;
+
+            fseek(ptr, 4, SEEK_CUR);
+
+            if (fread(arrName, 8, 1, ptr) != 1)
+                throw std::runtime_error("fread error when loading summary data");
+
+            arrName[8]='\0';
+
+            if (fread(&num_int, 4, 1, ptr) != 1)
+                throw std::runtime_error("fread error when loading summary data");
+
+            num = static_cast<int64_t>(Opm::EclIO::flipEndianInt(num_int));
+
+            fseek(ptr, 8, SEEK_CUR);
+
+            if ((strcmp(arrName, "SEQHDR  ") == 0) || (strcmp(arrName, "MINISTEP") == 0))
+                arrType = Opm::EclIO::INTE;
+            else if (strcmp(arrName, "PARAMS  ") == 0)
+                arrType = Opm::EclIO::REAL;
+            else {
+                throw std::invalid_argument("unknown array in UNSMRY file ");
+            }
+        }
+
+        uint64_t filePos = static_cast<uint64_t>(ftell(ptr));
 
         std::tuple <std::string, uint64_t> t1;
         t1 = std::make_tuple(Opm::EclIO::trimr(arrName), filePos);
@@ -671,19 +954,105 @@ ESmry::getListOfArrays(std::string filename, bool formatted)
 
         if (num > 0) {
             if (formatted) {
-                uint64_t sizeOfNextArray = sizeOnDiskFormatted(num, arrType);
-                fileH.seekg(static_cast<std::streamoff>(sizeOfNextArray), std::ios_base::cur);
-
+                uint64_t sizeOfNextArray = sizeOnDiskFormatted(num, arrType, 4);
+                fseek(ptr, static_cast<long int>(sizeOfNextArray), SEEK_CUR);
             } else {
-                uint64_t sizeOfNextArray = sizeOnDiskBinary(num, arrType);
-                fileH.seekg(static_cast<std::streamoff>(sizeOfNextArray), std::ios_base::cur);
+                uint64_t sizeOfNextArray = sizeOnDiskBinary(num, arrType, 4);
+                fseek(ptr, static_cast<long int>(sizeOfNextArray), SEEK_CUR);
             }
         }
+
+        if (fgetc(ptr) == EOF)
+            endOfFile = true;
+        else
+            fseek(ptr, -1, SEEK_CUR);
     }
 
-    fileH.close();
+    fclose(ptr);
 
     return resultVect;
+}
+
+bool ESmry::make_lodsmry_file()
+{
+    // check that loadBaseRunData is not set, this function only works for single smspec files
+    // function will not replace existing lodsmry files (since this is already loaded by this class)
+    // if lodsmry file exist, this function will return false and do nothing.
+
+    if (!fromSingleRun)
+        OPM_THROW(std::invalid_argument, "creating lodsmry file only possible when loadBaseRunData=false");
+
+    Opm::filesystem::path path = inputFileName.parent_path();
+    Opm::filesystem::path rootName = inputFileName.stem();
+    Opm::filesystem::path smryDataFile;
+
+    if (formattedFiles[0])
+        smryDataFile = path / rootName += ".FLODSMRY";
+    else
+        smryDataFile = path / rootName += ".LODSMRY";
+
+    if (Opm::EclIO::fileExists(smryDataFile.string()))
+    {
+        return false;
+
+    } else {
+
+        std::vector<std::string> keycheck;
+        keycheck.reserve(keyword.size());
+
+        std::string str1;
+        std::string str2;
+        std::string str3;
+
+        for (auto key : keyword){
+
+            str2="";
+            str3="";
+
+            if (key.size() > 24)
+                str1 = key.substr(0,24);
+            else
+                str1 = key;
+
+            if (str1.size() > 8){
+                str2 = str1.substr(8);
+                str1 = str1.substr(0,8);
+            }
+
+            if (str2.size() > 8){
+                str3 = str2.substr(8);
+                str2 = str2.substr(0,8);
+            }
+
+            keycheck.push_back(str1);
+            keycheck.push_back(str2);
+            keycheck.push_back(str3);
+        }
+
+        std::vector<bool> is_rstep;
+        is_rstep.reserve(timeStepList.size());
+
+        for (size_t i = 0; i < timeStepList.size(); i++)
+            if(std::find(seqIndex.begin(), seqIndex.end(), i) != seqIndex.end())
+                is_rstep.push_back(true);
+            else
+                is_rstep.push_back(false);
+
+        this->LoadData();
+
+        {
+            Opm::EclIO::EclOutput outFile(smryDataFile.string(), formattedFiles[0], std::ios::out);
+            outFile.write<std::string>("KEYCHECK", keycheck);
+            outFile.write<bool>("RSTEP", is_rstep);
+
+            for (size_t n = 0; n < vectorData.size(); n++ ) {
+                std::string vect_name="V" + std::to_string(n);
+                outFile.write<float>(vect_name, vectorData[n]);
+            }
+        }
+
+        return true;
+    }
 }
 
 
@@ -890,13 +1259,13 @@ const std::vector<std::string>& ESmry::keywordList() const
 
 std::vector<std::string> ESmry::keywordList(const std::string& pattern) const
 {
-//     std::vector<std::string> list;
-// 
+    std::vector<std::string> list;
+
 //     for (auto key : keyword)
 //         if (fnmatch( pattern.c_str(), key.c_str(), 0 ) == 0 )
 //             list.push_back(key);
 
-    return keyword;
+    return list;
 }
 
 
