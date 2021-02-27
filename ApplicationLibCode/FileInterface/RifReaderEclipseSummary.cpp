@@ -426,10 +426,10 @@ RifEclipseSummaryAddress addressFromErtSmSpecNode( const ecl::smspec_node& ertSu
 //--------------------------------------------------------------------------------------------------
 bool RifReaderEclipseSummary::values( const RifEclipseSummaryAddress& resultAddress, std::vector<double>* values ) const
 {
-    assert( m_ecl_sum != nullptr );
-
     values->clear();
     values->reserve( timeStepCount() );
+
+    assert( m_ecl_sum != nullptr );
 
     const std::vector<double>& cachedValues = m_valuesCache->getValues( resultAddress );
     if ( !cachedValues.empty() )
