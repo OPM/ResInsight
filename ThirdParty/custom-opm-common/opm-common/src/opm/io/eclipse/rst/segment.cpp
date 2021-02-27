@@ -23,6 +23,8 @@
 #include <opm/parser/eclipse/EclipseState/Schedule/MSW/Segment.hpp>
 #include <opm/parser/eclipse/Units/UnitSystem.hpp>
 
+#include "src/opm/parser/eclipse/EclipseState/Schedule/MSW/icd_convert.hpp"
+
 namespace VI = ::Opm::RestartIO::Helpers::VectorItems;
 
 namespace Opm {

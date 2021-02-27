@@ -66,14 +66,16 @@ struct RstWell {
     std::array<int, 2> ij;
     std::pair<int,int> k1k2;
     WellType wtype;
+    int well_status;
     int active_control;
     int vfp_table;
-    int pred_requested_control;
     bool allow_xflow;
+    int preferred_phase;
     int hist_requested_control;
     int msw_index;
     int completion_ordering;
     int pvt_table;
+    int msw_pressure_drop_model;
 
     float orat_target;
     float wrat_target;
@@ -88,12 +90,14 @@ struct RstWell {
     float datum_depth;
     float drainage_radius;
     float efficiency_factor;
+    float alq_value;
 
     double oil_rate;
     double water_rate;
     double gas_rate;
     double liquid_rate;
     double void_rate;
+    double thp;
     double flow_bhp;
     double wct;
     double gor;

@@ -17,6 +17,8 @@
    */
 
 #include <opm/io/eclipse/EGrid.hpp>
+#include <opm/io/eclipse/EInit.hpp>
+#include <opm/io/eclipse/EclUtil.hpp>
 
 #include <opm/common/ErrorMacros.hpp>
 
@@ -28,43 +30,204 @@
 #include <string>
 #include <sstream>
 
+#include <math.h>
+
 namespace Opm { namespace EclIO {
 
-EGrid::EGrid(const std::string &filename) : EclFile(filename)
+using NNCentry = std::tuple<int, int, int, int, int,int, float>;
+
+EGrid::EGrid(const std::string &filename, std::string grid_name) :
+    EclFile(filename), inputFileName { filename }, m_grid_name {grid_name}
 {
-   EclFile file(filename);
+    initFileName = inputFileName.parent_path() / inputFileName.stem();
 
-   auto gridhead = get<int>("GRIDHEAD");
+    if (this->formattedInput())
+        initFileName += ".FINIT";
+    else
+        initFileName += ".INIT";
 
-   nijk[0] = gridhead[1];
-   nijk[1] = gridhead[2];
-   nijk[2] = gridhead[3];
+    std::string lgrname = "global";
 
-   if (file.hasKey("ACTNUM")) {
-       auto actnum = get<int>("ACTNUM");
+    m_nncs_loaded = false;
+    actnum_array_index = -1;
+    nnc1_array_index = -1;
+    nnc2_array_index = -1;
+    m_radial = false;
 
-       nactive = 0;
-       for (unsigned int i = 0; i < actnum.size(); i++) {
-           if (actnum[i] > 0) {
-               act_index.push_back(nactive);
-               glob_index.push_back(i);
-               nactive++;
-           } else {
-               act_index.push_back(-1);
-           }
+    int hostnum_index = -1;
+
+    for (size_t n = 0; n < array_name.size(); n++) {
+
+        if (array_name[n] == "ENDLGR")
+            lgrname = "global";
+
+        if (array_name[n] == "LGR") {
+            auto lgr = this->get<std::string>(n);
+            lgrname = lgr[0];
+            lgr_names.push_back(lgr[0]);
         }
-   } else {
-       int nCells = nijk[0] * nijk[1] * nijk[2];
-       act_index.resize(nCells);
-       glob_index.resize(nCells);
-       std::iota(act_index.begin(), act_index.end(), 0);
-       std::iota(glob_index.begin(), glob_index.end(), 0);
-   }
 
-   coord_array = get<float>("COORD");
-   zcorn_array = get<float>("ZCORN");
+        if (array_name[n] == "NNCHEAD"){
+            auto nnchead = this->get<int>(n);
+
+            if (nnchead[1] == 0)
+               lgrname = "global";
+            else
+               lgrname = lgr_names[nnchead[1] - 1];
+        }
+
+        if (lgrname == grid_name) {
+            if (array_name[n] == "GRIDHEAD") {
+                auto gridhead = get<int>(n);
+                nijk[0] = gridhead[1];
+                nijk[1] = gridhead[2];
+                nijk[2] = gridhead[3];
+
+                if (gridhead.size() > 26)
+                    m_radial = gridhead[26] > 0 ? true: false;
+            }
+
+            if (array_name[n] == "COORD")
+                coord_array_index= n;
+            else if (array_name[n] == "ZCORN")
+                zcorn_array_index= n;
+            else if (array_name[n] == "ACTNUM")
+                actnum_array_index= n;
+            else if (array_name[n] == "NNC1")
+                nnc1_array_index= n;
+            else if (array_name[n] == "NNC2")
+                nnc2_array_index= n;
+            else if (array_name[n] == "HOSTNUM")
+                hostnum_index= n;
+        }
+
+        if ((lgrname == "global") && (array_name[n] == "GRIDHEAD")) {
+            auto gridhead = get<int>(n);
+            host_nijk[0] = gridhead[1];
+            host_nijk[1] = gridhead[2];
+            host_nijk[2] = gridhead[3];
+        }
+
+    }
+
+    if (actnum_array_index != -1) {
+        auto actnum = this->get<int>(actnum_array_index);
+        nactive = 0;
+        for (size_t i = 0; i < actnum.size(); i++) {
+            if (actnum[i] > 0) {
+                act_index.push_back(nactive);
+                glob_index.push_back(i);
+                nactive++;
+            } else {
+               act_index.push_back(-1);
+            }
+        }
+    } else {
+        int nCells = nijk[0] * nijk[1] * nijk[2];
+        act_index.resize(nCells);
+        glob_index.resize(nCells);
+        std::iota(act_index.begin(), act_index.end(), 0);
+        std::iota(glob_index.begin(), glob_index.end(), 0);
+    }
+
+    if (hostnum_index > -1){
+        auto hostnum = getImpl(hostnum_index, INTE, inte_array, "integer");
+        host_cells.reserve(hostnum.size());
+
+        for (auto val : hostnum)
+            host_cells.push_back(val -1);
+    }
 }
 
+std::vector<std::array<int, 3>> EGrid::hostCellsIJK()
+{
+    std::vector<std::array<int, 3>> res_vect;
+    res_vect.reserve(host_cells.size());
+
+    for (auto val : host_cells){
+        std::array<int, 3> tmp;
+        tmp[2] = val / (host_nijk[0] * host_nijk[1]);
+        int rest = val % (host_nijk[0] * host_nijk[1]);
+
+        tmp[1] = rest / host_nijk[0];
+        tmp[0] = rest % host_nijk[0];
+
+        res_vect.push_back(tmp);
+    }
+
+    return res_vect;
+}
+
+std::vector<NNCentry> EGrid::get_nnc_ijk()
+{
+    if (!m_nncs_loaded)
+        load_nnc_data();
+
+    std::vector<NNCentry> res_vect;
+    res_vect.reserve(nnc1_array.size());
+
+    for (size_t n=0; n< nnc1_array.size(); n++){
+        auto ijk1 = ijk_from_global_index(nnc1_array[n] - 1);
+        auto ijk2 = ijk_from_global_index(nnc2_array[n] - 1);
+
+        if (transnnc_array.size() > 0)
+            res_vect.push_back({ijk1[0], ijk1[1], ijk1[2], ijk2[0], ijk2[1], ijk2[2], transnnc_array[n]});
+        else
+            res_vect.push_back({ijk1[0], ijk1[1], ijk1[2], ijk2[0], ijk2[1], ijk2[2], -1.0 });
+    }
+
+    return res_vect;
+}
+
+
+void EGrid::load_grid_data()
+{
+    coord_array = getImpl(coord_array_index, REAL, real_array, "float");
+    zcorn_array = getImpl(zcorn_array_index, REAL, real_array, "float");
+}
+
+void EGrid::load_nnc_data()
+{
+    if ((nnc1_array_index > -1) && (nnc2_array_index > -1)) {
+
+        nnc1_array = getImpl(nnc1_array_index, Opm::EclIO::INTE, inte_array, "inte");
+        nnc2_array = getImpl(nnc2_array_index, Opm::EclIO::INTE, inte_array, "inte");
+
+        if ((Opm::filesystem::exists(initFileName)) && (nnc1_array.size() > 0)){
+            Opm::EclIO::EInit init(initFileName.string());
+
+            auto init_dims = init.grid_dimension(m_grid_name);
+            int init_nactive = init.activeCells(m_grid_name);
+
+            if (init_dims != nijk){
+                std::string message = "Dimensions of Egrid differ from dimensions found in init file. ";
+                std::string grid_str = std::to_string(nijk[0]) + "x" + std::to_string(nijk[1]) + "x" + std::to_string(nijk[2]);
+                std::string init_str = std::to_string(init_dims[0]) + "x" + std::to_string(init_dims[1]) + "x" + std::to_string(init_dims[2]);
+                message = message + "Egrid: " + grid_str + ". INIT file: " + init_str;
+                OPM_THROW(std::invalid_argument, message);
+            }
+
+            if (init_nactive != nactive){
+                std::string message = "Number of active cells are different in Egrid and Init file.";
+                message = message + " Egrid: " + std::to_string(nactive) + ". INIT file: " + std::to_string(init_nactive);
+                OPM_THROW(std::invalid_argument, message);
+            }
+
+            auto trans_data = init.getInitData<float>("TRANNNC", m_grid_name);
+
+            if (trans_data.size() != nnc1_array.size()){
+                std::string message = "inconsistent size of array TRANNNC in init file. ";
+                message = message + " Size of NNC1 and NNC2: " + std::to_string(nnc1_array.size());
+                message = message + " Size of TRANNNC: " + std::to_string(trans_data.size());
+                OPM_THROW(std::invalid_argument, message);
+            }
+
+            transnnc_array = trans_data;
+        }
+
+        m_nncs_loaded = true;
+    }
+}
 
 int EGrid::global_index(int i, int j, int k) const
 {
@@ -129,52 +292,67 @@ std::array<int, 3> EGrid::ijk_from_global_index(int globInd) const
 void EGrid::getCellCorners(const std::array<int, 3>& ijk,
                            std::array<double,8>& X,
                            std::array<double,8>& Y,
-                           std::array<double,8>& Z) const
+                           std::array<double,8>& Z)
 {
+    if (coord_array.empty())
+        load_grid_data();
+
     std::vector<int> zind;
     std::vector<int> pind;
 
-
    // calculate indices for grid pillars in COORD arrray
-   pind.push_back(ijk[1]*(nijk[0]+1)*6 + ijk[0]*6);
-   pind.push_back(pind[0] + 6);
-   pind.push_back(pind[0] + (nijk[0]+1)*6);
-   pind.push_back(pind[2] + 6);
+    pind.push_back(ijk[1]*(nijk[0]+1)*6 + ijk[0]*6);
+    pind.push_back(pind[0] + 6);
+    pind.push_back(pind[0] + (nijk[0]+1)*6);
+    pind.push_back(pind[2] + 6);
 
-   // get depths from zcorn array in ZCORN array
-   zind.push_back(ijk[2]*nijk[0]*nijk[1]*8 + ijk[1]*nijk[0]*4 + ijk[0]*2);
-   zind.push_back(zind[0] + 1);
-   zind.push_back(zind[0] + nijk[0]*2);
-   zind.push_back(zind[2] + 1);
+    // get depths from zcorn array in ZCORN array
+    zind.push_back(ijk[2]*nijk[0]*nijk[1]*8 + ijk[1]*nijk[0]*4 + ijk[0]*2);
+    zind.push_back(zind[0] + 1);
+    zind.push_back(zind[0] + nijk[0]*2);
+    zind.push_back(zind[2] + 1);
 
-   for (int n = 0; n < 4; n++) {
-       zind.push_back(zind[n] + nijk[0]*nijk[1]*4);
-   }
+    for (int n = 0; n < 4; n++)
+        zind.push_back(zind[n] + nijk[0]*nijk[1]*4);
 
-   for (int n = 0; n< 8; n++){
-       Z[n] = zcorn_array[zind[n]];
-   }
+    for (int n = 0; n< 8; n++)
+        Z[n] = zcorn_array[zind[n]];
 
-   for (int  n = 0; n < 4; n++) {
-       double xt = coord_array[pind[n]];
-       double yt = coord_array[pind[n] + 1];
-       double zt = coord_array[pind[n] + 2];
+    for (int  n = 0; n < 4; n++) {
+        double xt;
+        double yt;
+        double xb;
+        double yb;
 
-       double xb = coord_array[pind[n] + 3];
-       double yb = coord_array[pind[n] + 4];
-       double zb = coord_array[pind[n]+5];
+        double zt = coord_array[pind[n] + 2];
+        double zb = coord_array[pind[n] + 5];
 
-       X[n] = xt + (xb-xt) / (zt-zb) * (zt - Z[n]);
-       X[n+4] = xt + (xb-xt) / (zt-zb) * (zt-Z[n+4]);
+        double M_PI = 3.14;
 
-       Y[n] = yt+(yb-yt)/(zt-zb)*(zt-Z[n]);
-       Y[n+4] = yt+(yb-yt)/(zt-zb)*(zt-Z[n+4]);
-   }
+        if (m_radial) {
+            xt = coord_array[pind[n]] * cos(coord_array[pind[n] + 1] / 180.0 * M_PI);
+            yt = coord_array[pind[n]] * sin(coord_array[pind[n] + 1] / 180.0 * M_PI);
+            xb = coord_array[pind[n]+3] * cos(coord_array[pind[n] + 4] / 180.0 * M_PI);
+            yb = coord_array[pind[n]+3] * sin(coord_array[pind[n] + 4] / 180.0 * M_PI);
+        } else {
+            xt = coord_array[pind[n]];
+            yt = coord_array[pind[n] + 1];
+            xb = coord_array[pind[n] + 3];
+            yb = coord_array[pind[n] + 4];
+        }
+
+        X[n] = xt + (xb-xt) / (zt-zb) * (zt - Z[n]);
+        X[n+4] = xt + (xb-xt) / (zt-zb) * (zt-Z[n+4]);
+
+        Y[n] = yt+(yb-yt)/(zt-zb)*(zt-Z[n]);
+        Y[n+4] = yt+(yb-yt)/(zt-zb)*(zt-Z[n+4]);
+    }
 }
 
 
+
 void EGrid::getCellCorners(int globindex, std::array<double,8>& X,
-                           std::array<double,8>& Y, std::array<double,8>& Z) const
+                           std::array<double,8>& Y, std::array<double,8>& Z)
 {
     return getCellCorners(ijk_from_global_index(globindex),X,Y,Z);
 }

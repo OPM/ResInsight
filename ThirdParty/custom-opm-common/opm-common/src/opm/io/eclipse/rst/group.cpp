@@ -32,24 +32,42 @@ namespace RestartIO {
 
 using M  = ::Opm::UnitSystem::measure;
 
+double sgrp_value(float raw_value) {
+    const auto infty = 1.0e+20f;
+    if (std::abs(raw_value) == infty)
+        return 0;
+    else
+        return raw_value;
+}
+
 RstGroup::RstGroup(const ::Opm::UnitSystem& unit_system,
+                   const RstHeader& header,
                    const std::string* zwel,
-                   const int *,
+                   const int * igrp,
                    const float * sgrp,
                    const double * xgrp) :
     name(trim_copy(zwel[0])),
-    oil_rate_limit(                unit_system.to_si(M::liquid_surface_rate,   sgrp[VI::SGroup::OilRateLimit])),
-    water_rate_limit(              unit_system.to_si(M::liquid_surface_rate,   sgrp[VI::SGroup::WatRateLimit])),
-    gas_rate_limit(                unit_system.to_si(M::gas_surface_rate,      sgrp[VI::SGroup::GasRateLimit])),
-    liquid_rate_limit(             unit_system.to_si(M::liquid_surface_rate,   sgrp[VI::SGroup::LiqRateLimit])),
-    water_surface_limit(           unit_system.to_si(M::liquid_surface_rate,   sgrp[VI::SGroup::waterSurfRateLimit])),
-    water_reservoir_limit(         unit_system.to_si(M::liquid_surface_rate,   sgrp[VI::SGroup::waterResRateLimit])),
-    water_reinject_limit(          unit_system.to_si(M::liquid_surface_rate,   sgrp[VI::SGroup::waterReinjectionLimit])),
-    water_voidage_limit(           unit_system.to_si(M::liquid_surface_rate,   sgrp[VI::SGroup::waterVoidageLimit])),
-    gas_surface_limit(             unit_system.to_si(M::gas_surface_rate,      sgrp[VI::SGroup::gasSurfRateLimit])),
-    gas_reservoir_limit(           unit_system.to_si(M::geometric_volume_rate, sgrp[VI::SGroup::gasResRateLimit])),
-    gas_reinject_limit(            unit_system.to_si(M::gas_surface_rate,      sgrp[VI::SGroup::gasReinjectionLimit])),
-    gas_voidage_limit(             unit_system.to_si(M::geometric_volume_rate, sgrp[VI::SGroup::gasVoidageLimit])),
+    parent_group(igrp[header.nwgmax + VI::IGroup::ParentGroup] ),
+    prod_active_cmode(igrp[header.nwgmax + VI::IGroup::ProdActiveCMode]),
+    gconprod_cmode(igrp[header.nwgmax + VI::IGroup::GConProdCMode]),
+    winj_cmode(igrp[header.nwgmax + VI::IGroup::WInjCMode]),
+    ginj_cmode(igrp[header.nwgmax + VI::IGroup::GInjCMode]),
+    guide_rate_def(igrp[header.nwgmax + VI::IGroup::GuideRateDef]),
+    // The values oil_rate_limit -> gas_voidage_limit will be used in UDA
+    // values. The UDA values are responsible for unit conversion and raw values
+    // are internalized here.
+    oil_rate_limit(                sgrp_value(sgrp[VI::SGroup::OilRateLimit])),
+    water_rate_limit(              sgrp_value(sgrp[VI::SGroup::WatRateLimit])),
+    gas_rate_limit(                sgrp_value(sgrp[VI::SGroup::GasRateLimit])),
+    liquid_rate_limit(             sgrp_value(sgrp[VI::SGroup::LiqRateLimit])),
+    water_surface_limit(           sgrp_value(sgrp[VI::SGroup::waterSurfRateLimit])),
+    water_reservoir_limit(         sgrp_value(sgrp[VI::SGroup::waterResRateLimit])),
+    water_reinject_limit(          sgrp_value(sgrp[VI::SGroup::waterReinjectionLimit])),
+    water_voidage_limit(           sgrp_value(sgrp[VI::SGroup::waterVoidageLimit])),
+    gas_surface_limit(             sgrp_value(sgrp[VI::SGroup::gasSurfRateLimit])),
+    gas_reservoir_limit(           sgrp_value(sgrp[VI::SGroup::gasResRateLimit])),
+    gas_reinject_limit(            sgrp_value(sgrp[VI::SGroup::gasReinjectionLimit])),
+    gas_voidage_limit(             sgrp_value(sgrp[VI::SGroup::gasVoidageLimit])),
     oil_production_rate(           unit_system.to_si(M::liquid_surface_rate,   xgrp[VI::XGroup::OilPrRate])),
     water_production_rate(         unit_system.to_si(M::liquid_surface_rate,   xgrp[VI::XGroup::WatPrRate])),
     gas_production_rate(           unit_system.to_si(M::gas_surface_rate,      xgrp[VI::XGroup::GasPrRate])),

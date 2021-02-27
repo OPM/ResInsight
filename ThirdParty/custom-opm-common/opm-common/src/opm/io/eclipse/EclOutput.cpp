@@ -41,6 +41,7 @@ EclOutput::EclOutput(const std::string&            filename,
     : isFormatted{formatted}
 {
     const auto binmode = mode | std::ios_base::binary;
+    ix_standard = false;
 
     this->ofileH.open(filename, this->isFormatted ? mode : binmode);
 }
@@ -50,15 +51,79 @@ template<>
 void EclOutput::write<std::string>(const std::string& name,
                                    const std::vector<std::string>& data)
 {
+    // array type will be assumed CHAR if maximum string length is 8 or less
+    // If maximum string length is > 8, C0nn will be used with element size equal to
+    // maximum string length
+
+    int maximum_length = 8;
+
+    if (data.size() > 0) {
+        auto it = std::max_element(data.begin(), data.end(), []
+                                   (const std::string& str1, const std::string& str2)
+        {
+            return str2.size() > str1.size();
+        });
+
+        maximum_length = it->size();
+    }
+
+
     if (isFormatted)
     {
-        writeFormattedHeader(name, data.size(), CHAR);
-        writeFormattedCharArray(data);
+        if (maximum_length > sizeOfChar){
+            writeFormattedHeader(name, data.size(), C0NN, maximum_length);
+            writeFormattedCharArray(data, maximum_length);
+        } else {
+            writeFormattedHeader(name, data.size(), CHAR, sizeOfChar);
+            writeFormattedCharArray(data, sizeOfChar);
+        }
     }
     else
     {
-        writeBinaryHeader(name, data.size(), CHAR);
-        writeBinaryCharArray(data);
+        if (maximum_length > sizeOfChar){
+            writeBinaryHeader(name, data.size(), C0NN, maximum_length);
+            writeBinaryCharArray(data, maximum_length);
+        } else {
+            writeBinaryHeader(name, data.size(), CHAR, sizeOfChar);
+            writeBinaryCharArray(data, sizeOfChar);
+       }
+    }
+}
+
+void EclOutput::write(const std::string& name, const std::vector<std::string>& data, int element_size)
+{
+    // array type will be assumed C0NN (not CHAR). Also in cases where element size is 8 or less
+
+    if (data.size() > 0) {
+        auto it = std::max_element(data.begin(), data.end(), []
+                                   (const std::string& str1, const std::string& str2)
+        {
+            return str2.size() > str1.size();
+        });
+
+        if (it->size() > static_cast<size_t>(element_size))
+            OPM_THROW(std::runtime_error, "specified element size for type C0NN less than maximum string length in ouput data");
+    }
+
+    if (isFormatted)
+    {
+        if (element_size > sizeOfChar){
+            writeFormattedHeader(name, data.size(), C0NN, element_size);
+            writeFormattedCharArray(data, element_size);
+        } else {
+            writeFormattedHeader(name, data.size(), C0NN, sizeOfChar);
+            writeFormattedCharArray(data, sizeOfChar);
+        }
+    }
+    else
+    {
+        if (element_size > sizeOfChar){
+            writeBinaryHeader(name, data.size(), C0NN, element_size);
+            writeBinaryCharArray(data, element_size);
+        } else {
+            writeBinaryHeader(name, data.size(), C0NN, sizeOfChar);
+            writeBinaryCharArray(data, sizeOfChar);
+        }
     }
 }
 
@@ -68,11 +133,11 @@ void EclOutput::write<PaddedOutputString<8>>
      const std::vector<PaddedOutputString<8>>& data)
 {
     if (this->isFormatted) {
-        writeFormattedHeader(name, data.size(), CHAR);
+        writeFormattedHeader(name, data.size(), CHAR, sizeOfChar);
         writeFormattedCharArray(data);
     }
     else {
-        writeBinaryHeader(name, data.size(), CHAR);
+        writeBinaryHeader(name, data.size(), CHAR, sizeOfChar);
         writeBinaryCharArray(data);
     }
 }
@@ -91,7 +156,7 @@ void EclOutput::flushStream()
     this->ofileH.flush();
 }
 
-void EclOutput::writeBinaryHeader(const std::string&arrName, int64_t size, eclArrType arrType)
+void EclOutput::writeBinaryHeader(const std::string&arrName, int64_t size, eclArrType arrType, int element_size)
 {
     int bhead = flipEndianInt(16);
     std::string name = arrName + std::string(8 - arrName.size(),' ');
@@ -102,13 +167,13 @@ void EclOutput::writeBinaryHeader(const std::string&arrName, int64_t size, eclAr
         int64_t x231 = size / val231;
 
         int flippedx231 = flipEndianInt(static_cast<int>( (-1)*x231 ));
-        
+
         ofileH.write(reinterpret_cast<char*>(&bhead), sizeof(bhead));
         ofileH.write(name.c_str(), 8);
         ofileH.write(reinterpret_cast<char*>(&flippedx231), sizeof(flippedx231));
         ofileH.write("X231", 4);
         ofileH.write(reinterpret_cast<char*>(&bhead), sizeof(bhead));
-        
+
         size = size - (x231 * val231);
     }
 
@@ -118,6 +183,14 @@ void EclOutput::writeBinaryHeader(const std::string&arrName, int64_t size, eclAr
 
     ofileH.write(name.c_str(), 8);
     ofileH.write(reinterpret_cast<char*>(&flippedSize), sizeof(flippedSize));
+
+    std::string c0nn_str;
+
+    if (arrType == C0NN){
+        std::ostringstream ss;
+        ss << "C" << std::setw(3) << std::setfill('0') << element_size;
+        c0nn_str = ss.str();
+    }
 
     switch(arrType) {
     case INTE:
@@ -134,6 +207,9 @@ void EclOutput::writeBinaryHeader(const std::string&arrName, int64_t size, eclAr
         break;
     case CHAR:
         ofileH.write("CHAR", 4);
+        break;
+    case C0NN:
+        ofileH.write(c0nn_str.c_str(), 4);
         break;
     case MESS:
         ofileH.write("MESS", 4);
@@ -178,6 +254,8 @@ void EclOutput::writeBinaryArray(const std::vector<T>& data)
         OPM_THROW(std::runtime_error, "fstream fileH not open for writing");
     }
 
+    int logi_true_val = ix_standard ? true_value_ix : true_value_ecl;
+
     rest = size * static_cast<int64_t>(sizeOfElement);
     while (rest > 0) {
         if (rest > maxBlockSize) {
@@ -203,7 +281,7 @@ void EclOutput::writeBinaryArray(const std::vector<T>& data)
                 value_d = flipEndianDouble(data[n]);
                 ofileH.write(reinterpret_cast<char*>(&value_d), sizeof(value_d));
             } else if (arrType == LOGI) {
-                intVal = data[n] ? true_value : false_value;
+                intVal = data[n] ? logi_true_val : false_value;
                 ofileH.write(reinterpret_cast<char*>(&intVal), sizeOfElement);
             } else {
                 std::cerr << "type not supported in write binaryarray\n";
@@ -225,7 +303,7 @@ template void EclOutput::writeBinaryArray<bool>(const std::vector<bool>& data);
 template void EclOutput::writeBinaryArray<char>(const std::vector<char>& data);
 
 
-void EclOutput::writeBinaryCharArray(const std::vector<std::string>& data)
+void EclOutput::writeBinaryCharArray(const std::vector<std::string>& data, int element_size)
 {
     int num,dhead;
 
@@ -233,6 +311,11 @@ void EclOutput::writeBinaryCharArray(const std::vector<std::string>& data)
     int size = data.size();
 
     auto sizeData = block_size_data_binary(CHAR);
+
+    if (element_size > sizeOfChar){
+        std::get<1>(sizeData)= std::get<1>(sizeData) / std::get<0>(sizeData) * element_size;
+        std::get<0>(sizeData) = element_size;
+    }
 
     int sizeOfElement = std::get<0>(sizeData);
     int maxBlockSize = std::get<1>(sizeData);
@@ -258,7 +341,7 @@ void EclOutput::writeBinaryCharArray(const std::vector<std::string>& data)
         ofileH.write(reinterpret_cast<char*>(&dhead), sizeof(dhead));
 
         for (int i = 0; i < num; i++) {
-            std::string tmpStr = data[n] + std::string(8 - data[n].size(),' ');
+            std::string tmpStr = data[n] + std::string(sizeOfElement - data[n].size(),' ');
             ofileH.write(tmpStr.c_str(), sizeOfElement);
             n++;
         }
@@ -303,11 +386,20 @@ void EclOutput::writeBinaryCharArray(const std::vector<PaddedOutputString<8>>& d
     }
 }
 
-void EclOutput::writeFormattedHeader(const std::string& arrName, int size, eclArrType arrType)
+void EclOutput::writeFormattedHeader(const std::string& arrName, int size, eclArrType arrType, int element_size)
 {
     std::string name = arrName + std::string(8 - arrName.size(),' ');
 
     ofileH << " '" << name << "' " << std::setw(11) << size;
+
+    std::string c0nn_str;
+
+    if (arrType == C0NN){
+        std::ostringstream ss;
+        ss << "C" << std::setw(3) << std::setfill('0') << element_size;
+        c0nn_str = ss.str();
+    }
+
 
     switch (arrType) {
     case INTE:
@@ -325,6 +417,9 @@ void EclOutput::writeFormattedHeader(const std::string& arrName, int size, eclAr
     case CHAR:
         ofileH << " 'CHAR'" <<  std::endl;
         break;
+    case C0NN:
+        ofileH << " '" << c0nn_str << "'" <<  std::endl;
+        break;
     case MESS:
         ofileH << " 'MESS'" <<  std::endl;
         break;
@@ -332,7 +427,7 @@ void EclOutput::writeFormattedHeader(const std::string& arrName, int size, eclAr
 }
 
 
-std::string EclOutput::make_real_string(float value) const
+std::string EclOutput::make_real_string_ecl(float value) const
 {
     char buffer [15];
     std::sprintf (buffer, "%10.7E", value);
@@ -367,11 +462,35 @@ std::string EclOutput::make_real_string(float value) const
     }
 }
 
-
-std::string EclOutput::make_doub_string(double value) const
+std::string EclOutput::make_real_string_ix(float value) const
 {
-    char buffer [21];
-    std::sprintf (buffer, "%19.13E", value);
+    char buffer [15];
+    std::sprintf (buffer, "%10.7E", value);
+
+    if (value == 0.0) {
+        return " 0.0000000E+00";
+    } else {
+        if (std::isnan(value))
+            return "NAN";
+
+        if (std::isinf(value)) {
+            if (value > 0)
+                return "INF";
+            else
+                return "-INF";
+        }
+
+        std::string tmpstr(buffer);
+
+        return tmpstr;
+    }
+}
+
+
+std::string EclOutput::make_doub_string_ecl(double value) const
+{
+    char buffer [21 + 1];
+    std::snprintf (buffer, sizeof buffer, "%19.13E", value);
 
     if (value == 0.0) {
         return "0.00000000000000D+00";
@@ -388,23 +507,48 @@ std::string EclOutput::make_doub_string(double value) const
 
         std::string tmpstr(buffer);
         int exp = value < 0.0 ? std::stoi(tmpstr.substr(17, 4)) : std::stoi(tmpstr.substr(16, 4));
+        const bool use_exp_char = (exp >= -100) && (exp < 99);
 
         if (value < 0.0) {
-            if (std::abs(exp) < 100) {
+            if (use_exp_char) {
                 tmpstr = "-0." + tmpstr.substr(1, 1) + tmpstr.substr(3, 13) + "D";
             } else {
                 tmpstr = "-0." + tmpstr.substr(1, 1) + tmpstr.substr(3, 13);
             }
         } else {
-            if (std::abs(exp) < 100) {
+            if (use_exp_char) {
                 tmpstr = "0." + tmpstr.substr(0, 1) + tmpstr.substr(2, 13) + "D";
             } else {
                 tmpstr = "0." + tmpstr.substr(0, 1) + tmpstr.substr(2, 13);
             }
         }
 
-        std::sprintf(buffer, "%+03i", exp + 1);
+        std::snprintf(buffer, sizeof buffer, "%+03i", exp + 1);
         tmpstr = tmpstr + buffer;
+        return tmpstr;
+    }
+}
+
+std::string EclOutput::make_doub_string_ix(double value) const
+{
+    char buffer [21];
+    std::sprintf (buffer, "%19.13E", value);
+
+    if (value == 0.0) {
+        return " 0.0000000000000E+00";
+    } else {
+        if (std::isnan(value))
+            return "NAN";
+
+        if (std::isinf(value)) {
+            if (value > 0)
+                return "INF";
+            else
+                return "-INF";
+        }
+
+        std::string tmpstr(buffer);
+
         return tmpstr;
     }
 }
@@ -427,6 +571,7 @@ void EclOutput::writeFormattedArray(const std::vector<T>& data)
         arrType = LOGI;
     }
 
+
     auto sizeData = block_size_data_formatted(arrType);
 
     int maxBlockSize = std::get<0>(sizeData);
@@ -441,10 +586,16 @@ void EclOutput::writeFormattedArray(const std::vector<T>& data)
             ofileH << std::setw(columnWidth) << data[i];
             break;
         case REAL:
-            ofileH << std::setw(columnWidth) << make_real_string(data[i]);
+            if (ix_standard)
+                ofileH << std::setw(columnWidth) << make_real_string_ix(data[i]);
+            else
+                ofileH << std::setw(columnWidth) << make_real_string_ecl(data[i]);
             break;
         case DOUB:
-            ofileH << std::setw(columnWidth) << make_doub_string(data[i]);
+            if (ix_standard)
+                ofileH << std::setw(columnWidth) << make_doub_string_ix(data[i]);
+            else
+                ofileH << std::setw(columnWidth) << make_doub_string_ecl(data[i]);
             break;
         case LOGI:
             if (data[i]) {
@@ -479,29 +630,49 @@ template void EclOutput::writeFormattedArray<bool>(const std::vector<bool>& data
 template void EclOutput::writeFormattedArray<char>(const std::vector<char>& data);
 
 
-void EclOutput::writeFormattedCharArray(const std::vector<std::string>& data)
+void EclOutput::writeFormattedCharArray(const std::vector<std::string>& data, int element_size)
 {
     auto sizeData = block_size_data_formatted(CHAR);
+    int maxBlockSize = std::get<0>(sizeData);
 
-    int nColumns = std::get<1>(sizeData);
+    int nColumns;
 
-    int size = data.size();
+    if (element_size < 9)
+    {
+        element_size = 8;
+        nColumns = std::get<1>(sizeData);
+    } else
+        nColumns = 80 / (element_size + 3);
 
-    for (int i = 0; i < size; i++) {
-        std::string str1(8,' ');
-        str1 = data[i] + std::string(8 - data[i].size(),' ');
+    int rest = data.size();
+    int n = 0;
 
-        ofileH << " '" << str1 << "'";
+    while (rest > 0) {
+        int size = rest;
 
-        if ((i+1) % nColumns == 0) {
+        if (size > maxBlockSize)
+            size = maxBlockSize;
+
+        for (int i = 0; i < size; i++) {
+            std::string str1(element_size,' ');
+            str1 = data[n] + std::string(element_size - data[n].size(),' ');
+
+            n++;
+            ofileH << " '" << str1 << "'";
+
+            if ((i+1) % nColumns == 0) {
+                ofileH  << std::endl;
+            }
+        }
+
+        if ((size % nColumns) != 0) {
             ofileH  << std::endl;
         }
-    }
 
-    if ((size % nColumns) != 0) {
-        ofileH  << std::endl;
+        rest = (rest > maxBlockSize) ? rest - maxBlockSize : 0;
     }
 }
+
 
 void EclOutput::writeFormattedCharArray(const std::vector<PaddedOutputString<8>>& data)
 {

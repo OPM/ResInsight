@@ -36,7 +36,7 @@ class EclFile
 {
 public:
     explicit EclFile(const std::string& filename, bool preload = false);
-    bool formattedInput() { return formatted; }
+    bool formattedInput() const { return formatted; }
 
     void loadData();                            // load all data
     void loadData(const std::string& arrName);         // load all arrays with array name equal to arrName
@@ -55,6 +55,8 @@ public:
     using EclEntry = std::tuple<std::string, eclArrType, int64_t>;
     std::vector<EclEntry> getList() const;
 
+    const std::vector<int>& getElementSizeList() const { return array_element_size; }
+
     template <typename T>
     const std::vector<T>& get(int arrIndex);
 
@@ -66,6 +68,7 @@ public:
 
     const std::vector<std::string>& arrayNames() const { return array_name; }
     std::size_t size() const;
+    bool is_ix() const;
 
 protected:
     bool formatted;
@@ -80,6 +83,7 @@ protected:
     std::vector<std::string> array_name;
     std::vector<eclArrType> array_type;
     std::vector<int64_t> array_size;
+    std::vector<int> array_element_size;
 
     std::vector<uint64_t> ifStreamPos;
 
@@ -110,7 +114,10 @@ private:
 
     void loadBinaryArray(std::fstream& fileH, std::size_t arrIndex);
     void loadFormattedArray(const std::string& fileStr, std::size_t arrIndex, int64_t fromPos);
-    
+
+    std::vector<unsigned int> get_bin_logi_raw_values(int arrIndex) const;
+    std::vector<std::string> get_fmt_real_raw_str_values(int arrIndex) const;
+
 };
 
 }} // namespace Opm::EclIO
