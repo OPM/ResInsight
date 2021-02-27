@@ -73,6 +73,7 @@ public:
     void write_rsm(std::ostream&) const;
     void write_rsm_file(std::optional<Opm::filesystem::path> = std::nullopt) const;
 
+    void ijk_from_global_index(int glob, int &i, int &j, int &k) const;
 private:
     Opm::filesystem::path inputFileName;
     int nI, nJ, nK, nSpecFiles;
@@ -92,7 +93,6 @@ private:
 
     std::vector<int> seqIndex;
 
-    void ijk_from_global_index(int glob, int &i, int &j, int &k) const;
 
     std::vector<SummaryNode> summaryNodes;
     std::unordered_map<std::string, std::string> kwunits;
