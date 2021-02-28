@@ -33,6 +33,7 @@
 #include <QString>
 #include <QStringList>
 
+#include "RifOpmCommonSummary.h"
 #include "ert/ecl/ecl_file.h"
 #include "ert/ecl/ecl_kw.h"
 #include "ert/ecl/ecl_kw_magic.h"
@@ -146,6 +147,17 @@ RifReaderEclipseSummary::~RifReaderEclipseSummary()
 //--------------------------------------------------------------------------------------------------
 bool RifReaderEclipseSummary::open( const QString& headerFileName, bool includeRestartFiles )
 {
+    bool useOpmCommonReader = true;
+
+    if ( useOpmCommonReader )
+    {
+        m_opmCommonReader = std::make_unique<RifOpmCommonEclipseSummary>();
+        m_opmCommonReader->open( headerFileName, includeRestartFiles );
+
+        buildMetaData();
+
+        return true;
+    }
     assert( m_ecl_sum == nullptr );
 
     m_ecl_sum = openEclSum( headerFileName, includeRestartFiles );
@@ -429,14 +441,25 @@ bool RifReaderEclipseSummary::values( const RifEclipseSummaryAddress& resultAddr
     values->clear();
     values->reserve( timeStepCount() );
 
-    assert( m_ecl_sum != nullptr );
+    // assert( m_ecl_sum != nullptr );
 
     const std::vector<double>& cachedValues = m_valuesCache->getValues( resultAddress );
     if ( !cachedValues.empty() )
     {
         values->insert( values->begin(), cachedValues.begin(), cachedValues.end() );
+
+        return true;
     }
-    else if ( m_ecl_SmSpec )
+
+    if ( m_opmCommonReader )
+    {
+        m_opmCommonReader->values( resultAddress, values );
+        m_valuesCache->insertValues( resultAddress, *values );
+
+        return true;
+    }
+
+    if ( m_ecl_SmSpec )
     {
         if ( m_differenceAddresses.count( resultAddress ) )
         {
@@ -496,6 +519,11 @@ bool RifReaderEclipseSummary::values( const RifEclipseSummaryAddress& resultAddr
 //--------------------------------------------------------------------------------------------------
 int RifReaderEclipseSummary::timeStepCount() const
 {
+    if ( m_opmCommonReader )
+    {
+        return m_timeSteps.size();
+    }
+
     assert( m_ecl_sum != nullptr );
 
     if ( m_ecl_SmSpec == nullptr ) return 0;
@@ -508,7 +536,7 @@ int RifReaderEclipseSummary::timeStepCount() const
 //--------------------------------------------------------------------------------------------------
 const std::vector<time_t>& RifReaderEclipseSummary::timeSteps( const RifEclipseSummaryAddress& resultAddress ) const
 {
-    assert( m_ecl_sum != nullptr );
+//    assert( m_ecl_sum != nullptr );
 
     return m_timeSteps;
 }
@@ -545,6 +573,15 @@ void RifReaderEclipseSummary::buildMetaData()
             m_allResultAddresses.insert( addr );
             m_resultAddressToErtNodeIdx[addr] = i;
         }
+    }
+
+    if ( m_opmCommonReader )
+    {
+        m_allResultAddresses = m_opmCommonReader->allResultAddresses();
+        m_allErrorAddresses  = m_opmCommonReader->allErrorAddresses();
+
+        m_timeSteps = m_opmCommonReader->timeSteps( RifEclipseSummaryAddress() );
+        return;
     }
 
     bool addDifferenceVectors = true;

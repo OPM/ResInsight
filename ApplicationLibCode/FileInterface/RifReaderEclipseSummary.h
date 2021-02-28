@@ -31,6 +31,8 @@
 #include <string>
 #include <vector>
 
+class RifOpmCommonEclipseSummary;
+
 //==================================================================================================
 //
 //
@@ -103,6 +105,8 @@ private:
     QStringList m_warnings;
 
     std::set<RifEclipseSummaryAddress> m_differenceAddresses;
+
+    std::unique_ptr<RifOpmCommonEclipseSummary> m_opmCommonReader;
 
     //==================================================================================================
     //

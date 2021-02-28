@@ -23,9 +23,29 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RifOpmCommonEclipseSummary::RifOpmCommonEclipseSummary()
+{
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RifOpmCommonEclipseSummary::~RifOpmCommonEclipseSummary()
+{
+    //     if ( m_eSmry )
+    //     {
+    //         delete m_eSmry;
+    //         m_eSmry = nullptr;
+    //     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RifOpmCommonEclipseSummary::open( const QString& headerFileName, bool includeRestartFiles )
 {
-    m_eSmry = new Opm::EclIO::ESmry( headerFileName.toStdString(), includeRestartFiles );
+    m_eSmry = std::make_unique<Opm::EclIO::ESmry>( headerFileName.toStdString(), includeRestartFiles );
+    // m_eSmry = new Opm::EclIO::ESmry( headerFileName.toStdString(), includeRestartFiles );
 
     if ( !m_eSmry ) return false;
 
@@ -110,7 +130,7 @@ void RifOpmCommonEclipseSummary::buildMetaData()
         for ( size_t i = 0; i < nodes.size(); i++ )
         {
             auto summaryNode = nodes[i];
-            auto eclAdr      = createAddressFromSummaryNode( summaryNode, m_eSmry );
+            auto eclAdr      = createAddressFromSummaryNode( summaryNode, m_eSmry.get() );
 
             if ( eclAdr.isValid() )
             {
