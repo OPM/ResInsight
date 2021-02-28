@@ -138,6 +138,10 @@ public:
     QString pythonExecutable() const;
     QString octaveExecutable() const;
 
+    // Summary readers
+    bool useOpmCommonReader() const;
+    bool useLodsmryFiles() const;
+
 public: // Pdm Fields
     caf::PdmField<bool> enableGrpcServer;
     caf::PdmField<int>  defaultGrpcPortNumber;
@@ -242,6 +246,10 @@ private:
 
     // Well Path Import
     caf::PdmField<QString> m_multiLateralWellPattern;
+
+    // Summary data
+    caf::PdmField<bool> m_useOpmCommonReader;
+    caf::PdmField<bool> m_createAndUseLodsmry;
 
     // 3d view
     caf::PdmField<caf::AppEnum<RiaDefines::MeshModeType>>              m_defaultMeshModeType;

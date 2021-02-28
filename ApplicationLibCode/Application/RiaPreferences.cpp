@@ -403,6 +403,12 @@ RiaPreferences::RiaPreferences( void )
     m_multiLateralWellPattern.uiCapability()->setUiEditorTypeName( caf::PdmUiLineEditor::uiEditorTypeName() );
 
     CAF_PDM_InitFieldNoDefault( &m_guiTheme, "guiTheme", "GUI theme", "", "", "" );
+
+    CAF_PDM_InitField( &m_useOpmCommonReader, "useOpmCommonReader", false, "Use opm-common Reader", "", "", "" );
+    m_useOpmCommonReader.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+
+    CAF_PDM_InitField( &m_createAndUseLodsmry, "createAndUseLodsmry", true, "Create and Use LOD Summary Files", "", "", "" );
+    m_createAndUseLodsmry.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -451,7 +457,8 @@ void RiaPreferences::defineEditorAttribute( const caf::PdmFieldHandle* field,
          field == &m_showLegendBackground || field == &m_showSummaryTimeAsLongString ||
          field == &m_showViewIdInProjectTree || field == &m_useMultipleThreadsWhenLoadingSummaryData ||
          field == &m_enableFaultsByDefault || field == &m_showProgressBar || field == &m_openExportedPdfInViewer ||
-         field == &m_showInfoBox || field == &m_showGridBox || field == &m_useUndoRedo )
+         field == &m_showInfoBox || field == &m_showGridBox || field == &m_useUndoRedo ||
+         field == &m_useOpmCommonReader || field == &m_createAndUseLodsmry )
     {
         caf::PdmUiCheckBoxEditorAttribute* myAttr = dynamic_cast<caf::PdmUiCheckBoxEditorAttribute*>( attribute );
         if ( myAttr )
@@ -544,6 +551,12 @@ void RiaPreferences::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
         {
             caf::PdmUiGroup* group = restartBehaviourGroup->addNewGroup( "Origin Ensemble Summary Files" );
             group->add( &summaryEnsembleImportMode );
+        }
+
+        {
+            caf::PdmUiGroup* group = restartBehaviourGroup->addNewGroup( "Opm Common Reader" );
+            group->add( &m_useOpmCommonReader );
+            group->add( &m_createAndUseLodsmry );
         }
     }
     else if ( uiConfigName == RiaPreferences::tabNamePlotting() )
@@ -1169,6 +1182,22 @@ QString RiaPreferences::pythonExecutable() const
 QString RiaPreferences::octaveExecutable() const
 {
     return m_octaveExecutable().trimmed();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiaPreferences::useOpmCommonReader() const
+{
+    return m_useOpmCommonReader();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiaPreferences::useLodsmryFiles() const
+{
+    return m_createAndUseLodsmry();
 }
 
 //--------------------------------------------------------------------------------------------------

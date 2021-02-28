@@ -87,9 +87,10 @@ std::chrono::system_clock::time_point make_date(const std::vector<int>& datetime
 
 namespace Opm { namespace EclIO {
 
-ESmry::ESmry(const std::string &filename, bool loadBaseRunData) :
+ESmry::ESmry(const std::string &filename, bool loadBaseRunData , bool uselodsmry ) :
     inputFileName { filename },
-    summaryNodes { }
+    summaryNodes { },
+    useLodsmryFile(uselodsmry)
 {
     fromSingleRun = !loadBaseRunData;
 
@@ -338,7 +339,7 @@ ESmry::ESmry(const std::string &filename, bool loadBaseRunData) :
         vectorLoaded.push_back(false);
     }
 
-    if (lodEnabeled)
+    if (useLodsmryFile && lodEnabeled)
     {
         // inspecting formatted or binary lod file. lodsmry possible only if
         // loadBaseRunData=false
@@ -633,7 +634,7 @@ void ESmry::LoadData(const std::vector<std::string>& vectList) const
     for (auto ind : keywIndVect)
         vectorData[ind].reserve(nTstep);
 
-    if (lodEnabeled)
+    if (useLodsmryFile && lodEnabeled)
     {
         Load_from_lodsmry(keywIndVect);
 
@@ -756,7 +757,7 @@ std::vector<int> ESmry::makeKeywPosVector(int specInd) const {
 
 void ESmry::LoadData() const
 {
-    if (lodEnabeled) {
+    if (useLodsmryFile && lodEnabeled) {
 
         this ->LoadData(keyword);
 
@@ -1055,6 +1056,14 @@ bool ESmry::make_lodsmry_file()
     }
 }
 
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void ESmry::use_lodsmry_file(bool enable)
+{
+    useLodsmryFile = enable;
+}
 
 std::vector<std::string> ESmry::checkForMultipleResultFiles(const Opm::filesystem::path& rootN, bool formatted) const {
 
