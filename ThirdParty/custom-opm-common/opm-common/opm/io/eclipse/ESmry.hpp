@@ -40,7 +40,7 @@ class ESmry
 public:
 
     // input is smspec (or fsmspec file)
-    explicit ESmry(const std::string& filename, bool loadBaseRunData=false);
+    explicit ESmry(const std::string& filename, bool loadBaseRunData=false, bool uselodsmry=false);
 
     int numberOfVectors() const { return nVect; }
 
@@ -58,6 +58,7 @@ public:
     void LoadData() const;
 
     bool make_lodsmry_file();
+    void use_lodsmry_file(bool enable);
 
     std::chrono::system_clock::time_point startdate() const { return startdat; }
 
@@ -77,6 +78,9 @@ public:
 
     void ijk_from_global_index(int glob, int &i, int &j, int &k) const;
 private:
+
+    bool useLodsmryFile;
+
     Opm::filesystem::path inputFileName, lodFileName;
     int nI, nJ, nK, nSpecFiles;
     bool fromSingleRun, lodEnabeled;

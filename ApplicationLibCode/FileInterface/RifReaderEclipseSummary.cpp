@@ -33,6 +33,8 @@
 #include <QString>
 #include <QStringList>
 
+#include "RiaLogging.h"
+#include "RiaPreferences.h"
 #include "RifOpmCommonSummary.h"
 #include "ert/ecl/ecl_file.h"
 #include "ert/ecl/ecl_kw.h"
@@ -147,17 +149,29 @@ RifReaderEclipseSummary::~RifReaderEclipseSummary()
 //--------------------------------------------------------------------------------------------------
 bool RifReaderEclipseSummary::open( const QString& headerFileName, bool includeRestartFiles )
 {
-    bool useOpmCommonReader = true;
+    bool useOpmCommonReader = RiaPreferences::current()->useOpmCommonReader();
 
     if ( useOpmCommonReader )
     {
+        bool useLodsmryFiles = RiaPreferences::current()->useLodsmryFiles();
+        if ( useLodsmryFiles && includeRestartFiles )
+        {
+            RiaLogging::error(
+                "LODSMRY file loading for summary restart files is not supported. Disable one of the options" );
+
+            return false;
+        }
+
         m_opmCommonReader = std::make_unique<RifOpmCommonEclipseSummary>();
+
+        m_opmCommonReader->useLodsmaryFiles( RiaPreferences::current()->useLodsmryFiles() );
         m_opmCommonReader->open( headerFileName, includeRestartFiles );
 
         buildMetaData();
 
         return true;
     }
+
     assert( m_ecl_sum == nullptr );
 
     m_ecl_sum = openEclSum( headerFileName, includeRestartFiles );
@@ -536,7 +550,7 @@ int RifReaderEclipseSummary::timeStepCount() const
 //--------------------------------------------------------------------------------------------------
 const std::vector<time_t>& RifReaderEclipseSummary::timeSteps( const RifEclipseSummaryAddress& resultAddress ) const
 {
-//    assert( m_ecl_sum != nullptr );
+    //    assert( m_ecl_sum != nullptr );
 
     return m_timeSteps;
 }

@@ -49,6 +49,9 @@ class RifOpmCommonEclipseSummary : public RifSummaryReaderInterface
 public:
     RifOpmCommonEclipseSummary();
     ~RifOpmCommonEclipseSummary();
+
+    void useLodsmaryFiles( bool enable );
+
     bool open( const QString& headerFileName, bool includeRestartFiles );
 
     const std::vector<time_t>& timeSteps( const RifEclipseSummaryAddress& resultAddress ) const override;
@@ -67,4 +70,6 @@ private:
     std::vector<std::string>                   m_eSmryKeywords;
     std::map<RifEclipseSummaryAddress, size_t> m_adrToSummaryNodeIndex;
     std::vector<time_t>                        m_timeSteps;
+
+    bool m_useLodsmryFiles;
 };
