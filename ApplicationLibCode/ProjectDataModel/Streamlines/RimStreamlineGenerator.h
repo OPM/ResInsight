@@ -25,17 +25,18 @@
 #include <QString>
 
 #include <list>
+#include <queue>
 #include <set>
-#include <utility>
 
 class RigCell;
 class RimStreamline;
+class StreamlineSeedPoint;
 
-class RimStreamlineGenerator2 : public RimStreamlineGeneratorBase
+class RimStreamlineGenerator : public RimStreamlineGeneratorBase
 {
 public:
-    RimStreamlineGenerator2( std::set<size_t>& wellCells );
-    ~RimStreamlineGenerator2();
+    RimStreamlineGenerator( std::set<size_t>& wellCells );
+    ~RimStreamlineGenerator();
 
     void generateTracer( RigCell cell, double direction, QString simWellName, std::list<RimStreamline*>& outStreamlines ) override;
 
@@ -51,5 +52,5 @@ protected:
                                double                rate,
                                RiaDefines::PhaseType dominantPhase );
 
-    std::list<std::pair<size_t, cvf::StructGridInterface::FaceType>> m_seeds;
+    std::priority_queue<StreamlineSeedPoint> m_seeds;
 };

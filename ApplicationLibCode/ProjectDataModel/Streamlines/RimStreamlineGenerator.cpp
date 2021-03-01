@@ -16,7 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimStreamlineGenerator2.h"
+#include "RimStreamlineGenerator.h"
 
 #include "RigCell.h"
 #include "RigMainGrid.h"
@@ -25,9 +25,29 @@
 #include "RimStreamlineDataAccess.h"
 
 //--------------------------------------------------------------------------------------------------
+/// Helper class for prioritizing streamline seed points
+//--------------------------------------------------------------------------------------------------
+class StreamlineSeedPoint
+{
+public:
+    StreamlineSeedPoint( double rate, size_t cellIdx, cvf::StructGridInterface::FaceType faceIdx )
+        : m_rate( rate )
+        , m_cellIdx( cellIdx )
+        , m_faceIdx( faceIdx ){};
+    ~StreamlineSeedPoint(){};
+
+    bool operator<( const StreamlineSeedPoint& other ) const { return m_rate < other.m_rate; };
+
+public:
+    double                             m_rate;
+    size_t                             m_cellIdx;
+    cvf::StructGridInterface::FaceType m_faceIdx;
+};
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimStreamlineGenerator2::RimStreamlineGenerator2( std::set<size_t>& wellCells )
+RimStreamlineGenerator::RimStreamlineGenerator( std::set<size_t>& wellCells )
     : RimStreamlineGeneratorBase( wellCells )
 {
 }
@@ -35,17 +55,17 @@ RimStreamlineGenerator2::RimStreamlineGenerator2( std::set<size_t>& wellCells )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimStreamlineGenerator2::~RimStreamlineGenerator2()
+RimStreamlineGenerator::~RimStreamlineGenerator()
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimStreamlineGenerator2::generateTracer( RigCell                    cell,
-                                              double                     direction,
-                                              QString                    simWellName,
-                                              std::list<RimStreamline*>& outStreamlines )
+void RimStreamlineGenerator::generateTracer( RigCell                    cell,
+                                             double                     direction,
+                                             QString                    simWellName,
+                                             std::list<RimStreamline*>& outStreamlines )
 {
     RiaDefines::PhaseType dominantPhase = m_phases.front();
 
@@ -58,14 +78,15 @@ void RimStreamlineGenerator2::generateTracer( RigCell                    cell,
         double rate = m_dataAccess->combinedFaceRate( cell, faceIdx, m_phases, direction, dominantPhase ) * direction;
         if ( rate > m_flowThreshold )
         {
-            m_seeds.push_back( std::make_pair( cellIdx, faceIdx ) );
+            m_seeds.push( StreamlineSeedPoint( rate, cellIdx, faceIdx ) );
         }
     }
 
     while ( m_seeds.size() > 0 )
     {
-        const size_t                             cellIdx = m_seeds.front().first;
-        const cvf::StructGridInterface::FaceType faceIdx = m_seeds.front().second;
+        const size_t                             cellIdx = m_seeds.top().m_cellIdx;
+        const cvf::StructGridInterface::FaceType faceIdx = m_seeds.top().m_faceIdx;
+        m_seeds.pop();
 
         RimStreamline* streamline = new RimStreamline( simWellName );
 
@@ -77,8 +98,6 @@ void RimStreamlineGenerator2::generateTracer( RigCell                    cell,
             outStreamlines.push_back( streamline );
         else
             delete streamline;
-
-        m_seeds.pop_front();
     }
 
     return;
@@ -87,10 +106,10 @@ void RimStreamlineGenerator2::generateTracer( RigCell                    cell,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimStreamlineGenerator2::growStreamline( RimStreamline*                     streamline,
-                                              size_t                             cellIdx,
-                                              cvf::StructGridInterface::FaceType faceIdx,
-                                              double                             direction )
+void RimStreamlineGenerator::growStreamline( RimStreamline*                     streamline,
+                                             size_t                             cellIdx,
+                                             cvf::StructGridInterface::FaceType faceIdx,
+                                             double                             direction )
 {
     // get the cell
     RigCell cell = m_dataAccess->grid()->cell( cellIdx );
@@ -161,7 +180,7 @@ void RimStreamlineGenerator2::growStreamline( RimStreamline*                    
             if ( kvp.first == exitFace ) continue;
 
             if ( kvp.second >= m_flowThreshold )
-                m_seeds.push_back( std::make_pair( cell.gridLocalCellIndex(), kvp.first ) );
+                m_seeds.push( StreamlineSeedPoint( kvp.second, cell.gridLocalCellIndex(), kvp.first ) );
         }
 
         rate = maxRate;
@@ -177,11 +196,11 @@ void RimStreamlineGenerator2::growStreamline( RimStreamline*                    
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimStreamlineGenerator2::growStreamlineFromTo( RimStreamline*        streamline,
-                                                    cvf::Vec3d            startPos,
-                                                    cvf::Vec3d            endPos,
-                                                    double                rate,
-                                                    RiaDefines::PhaseType dominantPhase )
+bool RimStreamlineGenerator::growStreamlineFromTo( RimStreamline*        streamline,
+                                                   cvf::Vec3d            startPos,
+                                                   cvf::Vec3d            endPos,
+                                                   double                rate,
+                                                   RiaDefines::PhaseType dominantPhase )
 {
     double totDistance = endPos.pointDistance( startPos );
 

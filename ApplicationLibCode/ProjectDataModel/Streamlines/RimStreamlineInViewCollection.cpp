@@ -33,7 +33,7 @@
 #include "RimRegularLegendConfig.h"
 #include "RimStreamline.h"
 #include "RimStreamlineDataAccess.h"
-#include "RimStreamlineGenerator2.h"
+#include "RimStreamlineGenerator.h"
 
 #include "RiaLogging.h"
 
@@ -451,7 +451,7 @@ void RimStreamlineInViewCollection::updateStreamlines()
         if ( accessOk )
         {
             // setup the streamline generator to use
-            RimStreamlineGenerator2 generator( m_wellCellIds );
+            RimStreamlineGenerator generator( m_wellCellIds );
             generator.setLimits( m_flowThreshold, m_maxDays, m_resolution, m_lengthThreshold );
             generator.initGenerator( &dataAccess, phases() );
 
@@ -464,7 +464,7 @@ void RimStreamlineInViewCollection::updateStreamlines()
             if ( m_useInjectors() ) seedsCount += seedCellsInjector.size();
             if ( m_useProducers() ) seedsCount += seedCellsProducer.size();
 
-            caf::ProgressInfo streamlineProgress( seedsCount, "Generating Streamlines" );
+            caf::ProgressInfo streamlineProgress( seedsCount, "Generating streamlines, please wait..." );
 
             // generate tracers for all injectors
             if ( m_useInjectors() )

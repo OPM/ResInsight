@@ -4,7 +4,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RimStreamline.h
 ${CMAKE_CURRENT_LIST_DIR}/RimStreamlineInViewCollection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimStreamlineGeneratorBase.h
 ${CMAKE_CURRENT_LIST_DIR}/RimStreamlineDataAccess.h
-${CMAKE_CURRENT_LIST_DIR}/RimStreamlineGenerator2.h
+${CMAKE_CURRENT_LIST_DIR}/RimStreamlineGenerator.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -12,7 +12,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RimStreamline.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimStreamlineInViewCollection.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimStreamlineGeneratorBase.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimStreamlineDataAccess.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimStreamlineGenerator2.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimStreamlineGenerator.cpp
 )
 
 list(APPEND CODE_HEADER_FILES
