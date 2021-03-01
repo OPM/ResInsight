@@ -20,32 +20,19 @@
 
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObjectScriptingCapability.h"
-#include "cafPdmUiLineEditor.h"
-#include "cafPdmUiTextEditor.h"
-
-#include <algorithm>
-#include <cmath>
 
 CAF_PDM_ABSTRACT_SOURCE_INIT( RimStreamline, "Streamline" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimStreamline::RimStreamline( QString simWellName, size_t startCellIdx, cvf::StructGridInterface::FaceType faceIdx )
-    : m_startCellIdx( startCellIdx )
-    , m_faceIdx( faceIdx )
+RimStreamline::RimStreamline( QString simWellName )
 {
     CAF_PDM_InitScriptableObject( "Streamline", ":/Erase.png", "", "" );
 
     CAF_PDM_InitScriptableField( &m_simWellName, "Name", simWellName, "Name", "", "", "" );
     m_simWellName.uiCapability()->setUiReadOnly( true );
     m_simWellName.uiCapability()->setUiHidden( true );
-
-    // CAF_PDM_InitScriptableFieldNoDefault( &m_propertiesTable, "PropertiesTable", "Properties Table", "", "", "" );
-    // m_propertiesTable.uiCapability()->setUiEditorTypeName( caf::PdmUiTextEditor::uiEditorTypeName() );
-    // m_propertiesTable.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
-    // m_propertiesTable.uiCapability()->setUiReadOnly( true );
-    // m_propertiesTable.xmlCapability()->disableIO();
 
     setDeletable( false );
 }
@@ -95,26 +82,6 @@ void RimStreamline::addTracerPoint( cvf::Vec3d position, cvf::Vec3d direction, R
 void RimStreamline::reverse()
 {
     m_tracer.reverse();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimStreamline::generateStatistics()
-{
-    // QString stats;
-
-    // stats += "Totdist: ";
-    // stats += QString::number( m_tracer.totalDistance(), 'f', 2 );
-    // stats += " m \n";
-    // stats += "\n";
-    // stats += "Pts: ";
-    // stats += QString::number( m_tracer.size() );
-    // stats += "\n ";
-    // stats += "Seed: " + QString::number( m_startCellIdx ) + " " + QString::number( m_faceIdx );
-    // stats += "\n";
-
-    // m_propertiesTable = stats;
 }
 
 //--------------------------------------------------------------------------------------------------

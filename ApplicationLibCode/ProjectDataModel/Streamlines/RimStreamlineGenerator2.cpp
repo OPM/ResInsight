@@ -55,9 +55,8 @@ void RimStreamlineGenerator2::generateTracer( RigCell                    cell,
     // backtracking from a producer)
     for ( auto faceIdx : m_allFaces )
     {
-        double flowVelocity =
-            m_dataAccess->combinedFaceRate( cell, faceIdx, m_phases, direction, dominantPhase ) * direction;
-        if ( flowVelocity > m_flowThreshold )
+        double rate = m_dataAccess->combinedFaceRate( cell, faceIdx, m_phases, direction, dominantPhase ) * direction;
+        if ( rate > m_flowThreshold )
         {
             m_seeds.push_back( std::make_pair( cellIdx, faceIdx ) );
         }
@@ -68,13 +67,16 @@ void RimStreamlineGenerator2::generateTracer( RigCell                    cell,
         const size_t                             cellIdx = m_seeds.front().first;
         const cvf::StructGridInterface::FaceType faceIdx = m_seeds.front().second;
 
-        RimStreamline* streamline = new RimStreamline( simWellName, cellIdx, faceIdx );
+        RimStreamline* streamline = new RimStreamline( simWellName );
 
         growStreamline( streamline, cellIdx, faceIdx, direction );
 
         if ( direction < 0.0 ) streamline->reverse();
 
-        outStreamlines.push_back( streamline );
+        if ( streamline->tracer().totalDistance() >= m_minLength )
+            outStreamlines.push_back( streamline );
+        else
+            delete streamline;
 
         m_seeds.pop_front();
     }
@@ -82,7 +84,6 @@ void RimStreamlineGenerator2::generateTracer( RigCell                    cell,
     return;
 }
 
-#pragma optimize( "", off )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -102,7 +103,7 @@ void RimStreamlineGenerator2::growStreamline( RimStreamline*                    
     // if we go backwards from a producer, the rate needs to be flipped
     rate *= direction;
 
-    // (0) grow from start cell center to face center, exiting if we reach the max length
+    // grow from start cell center to face center, exiting if we reach the max length
     if ( !growStreamlineFromTo( streamline, cell.center(), cell.faceCenter( faceIdx ), rate, dominantPhaseOut ) )
         return;
 
@@ -113,12 +114,9 @@ void RimStreamlineGenerator2::growStreamline( RimStreamline*                    
         if ( cell.isInvalid() ) break;
         faceIdx = cvf::StructGridInterface::oppositeFace( faceIdx );
 
-        // get rate for this cell and face
-        rate = std::abs( m_dataAccess->combinedFaceRate( cell, faceIdx, m_phases, direction, dominantPhaseOut ) );
-
-        // (1) grow from given face center to cell center, exiting if we reach the max length
+        // grow from given face center to cell center, exiting if we reach the max length
         if ( !growStreamlineFromTo( streamline, cell.faceCenter( faceIdx ), cell.center(), rate, dominantPhaseOut ) )
-            return;
+            break;
 
         const size_t cellIdx = cell.gridLocalCellIndex();
 
@@ -168,7 +166,7 @@ void RimStreamlineGenerator2::growStreamline( RimStreamline*                    
 
         rate = maxRate;
 
-        // (2) grow from cell center to exit face center, stopping if we reach the max point limit
+        // grow from cell center to exit face center, stopping if we reach the max point limit
         if ( !growStreamlineFromTo( streamline, cell.center(), cell.faceCenter( exitFace ), rate, dominantPhaseOut ) )
             break;
 
@@ -192,7 +190,7 @@ bool RimStreamlineGenerator2::growStreamlineFromTo( RimStreamline*        stream
 
     cvf::Vec3d movementDirection = endPos - startPos;
     movementDirection.normalize();
-    movementDirection *= rate;
+    movementDirection *= rate * m_resolution;
 
     int nSteps = (int)std::round( totDistance / ( rate * m_resolution ) );
 
@@ -209,5 +207,3 @@ bool RimStreamlineGenerator2::growStreamlineFromTo( RimStreamline*        stream
 
     return true;
 }
-
-#pragma optimize( "", on )

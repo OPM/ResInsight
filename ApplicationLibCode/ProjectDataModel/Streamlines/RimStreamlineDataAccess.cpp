@@ -155,6 +155,7 @@ double RimStreamlineDataAccess::negFaceRate( RigCell                            
 {
     double retval = 0.0;
 
+    // NEG_? face values must be read from the neighbor cells
     RigCell neighborCell = cell.neighborCell( faceIdx );
     if ( neighborCell.isInvalid() ) return retval;
 
@@ -202,8 +203,6 @@ double RimStreamlineDataAccess::faceRate( RigCell                            cel
                                           RiaDefines::PhaseType              phase ) const
 {
     if ( faceIdx % 2 == 0 ) return posFaceRate( cell, faceIdx, phase );
-
-    // NEG_? face values must be read from the neighbor cells
     return negFaceRate( cell, faceIdx, phase );
 }
 
@@ -233,7 +232,7 @@ double RimStreamlineDataAccess::combinedFaceRate( RigCell                       
         if ( tmp * direction > max )
         {
             outDominantPhase = phase;
-            max              = tmp;
+            max              = std::abs( tmp );
         }
 
         retValue += tmp;

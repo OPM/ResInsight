@@ -372,8 +372,6 @@ void RimStreamlineInViewCollection::refresh()
     updateStreamlines();
 }
 
-#pragma optimize( "", off )
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -454,7 +452,7 @@ void RimStreamlineInViewCollection::updateStreamlines()
         {
             // setup the streamline generator to use
             RimStreamlineGenerator2 generator( m_wellCellIds );
-            generator.setLimits( m_flowThreshold, m_maxDays, m_resolution );
+            generator.setLimits( m_flowThreshold, m_maxDays, m_resolution, m_lengthThreshold );
             generator.initGenerator( &dataAccess, phases() );
 
             const int reverseDirection = -1.0;
@@ -494,16 +492,9 @@ void RimStreamlineInViewCollection::updateStreamlines()
             {
                 if ( sline && sline->size() > 1 )
                 {
-                    double distance = sline->tracer().totalDistance();
-
-                    if ( distance >= m_lengthThreshold )
-                    {
-                        m_maxAnimationIndex = std::max( sline->size(), m_maxAnimationIndex );
-                        // sline->generateStatistics();
-                        m_streamlines.push_back( sline );
-                        sline = nullptr;
-                    }
-                    if ( sline ) delete sline;
+                    m_maxAnimationIndex = std::max( sline->size(), m_maxAnimationIndex );
+                    m_streamlines.push_back( sline );
+                    sline = nullptr;
                 }
             }
 
@@ -517,8 +508,6 @@ void RimStreamlineInViewCollection::updateStreamlines()
         eclView->scheduleCreateDisplayModelAndRedraw();
     }
 }
-
-#pragma optimize( "", on )
 
 //--------------------------------------------------------------------------------------------------
 // debug output
