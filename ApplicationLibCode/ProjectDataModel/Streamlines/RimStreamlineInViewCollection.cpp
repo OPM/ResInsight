@@ -60,7 +60,6 @@ void AppEnum<RimStreamlineInViewCollection::VisualizationMode>::setUp()
 {
     addItem( RimStreamlineInViewCollection::VisualizationMode::ANIMATION, "ANIMATION", "Animation" );
     addItem( RimStreamlineInViewCollection::VisualizationMode::MANUAL, "MANUAL", "Manual control" );
-    addItem( RimStreamlineInViewCollection::VisualizationMode::VECTORS, "VECTORS", "Vectors" );
     setDefault( RimStreamlineInViewCollection::VisualizationMode::ANIMATION );
 }
 
@@ -126,6 +125,7 @@ RimStreamlineInViewCollection::RimStreamlineInViewCollection()
 
     CAF_PDM_InitField( &m_isActive, "isActive", false, "Active", "", "", "" );
     m_isActive.uiCapability()->setUiHidden( true );
+    m_isActive.xmlCapability()->setIOReadable( false );
 
     CAF_PDM_InitFieldNoDefault( &m_visualizationMode, "VisualizationMode", "Visualization Mode", "", "", "" );
     CAF_PDM_InitFieldNoDefault( &m_colorMode, "ColorMode", "Colors", "", "", "" );
@@ -372,6 +372,8 @@ void RimStreamlineInViewCollection::refresh()
     updateStreamlines();
 }
 
+#pragma optimize( "", off )
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -407,7 +409,7 @@ void RimStreamlineInViewCollection::findStartCells( int                         
                     {
                         outInjectorCells.push_back( std::pair<QString, RigCell>( swdata->m_wellName, cell ) );
                     }
-                    m_wellCellIds.insert( cell.mainGridCellIndex() );
+                    m_wellCellIds.insert( cell.gridLocalCellIndex() );
                 }
             }
         }
@@ -497,7 +499,7 @@ void RimStreamlineInViewCollection::updateStreamlines()
                     if ( distance >= m_lengthThreshold )
                     {
                         m_maxAnimationIndex = std::max( sline->size(), m_maxAnimationIndex );
-                        sline->generateStatistics();
+                        // sline->generateStatistics();
                         m_streamlines.push_back( sline );
                         sline = nullptr;
                     }
@@ -515,6 +517,8 @@ void RimStreamlineInViewCollection::updateStreamlines()
         eclView->scheduleCreateDisplayModelAndRedraw();
     }
 }
+
+#pragma optimize( "", on )
 
 //--------------------------------------------------------------------------------------------------
 // debug output
@@ -574,13 +578,9 @@ void RimStreamlineInViewCollection::defineUiOrdering( QString uiConfigName, caf:
         visualizationGroup->add( &m_animationSpeed );
         visualizationGroup->add( &m_tracerLength );
     }
-    if ( m_visualizationMode() == VisualizationMode::MANUAL )
+    else if ( m_visualizationMode() == VisualizationMode::MANUAL )
     {
         visualizationGroup->add( &m_animationIndex );
-    }
-    if ( m_visualizationMode() == VisualizationMode::VECTORS )
-    {
-        visualizationGroup->add( &m_scaleFactor );
     }
 
     uiOrdering.skipRemainingFields();
@@ -648,14 +648,8 @@ void RimStreamlineInViewCollection::fieldChangedByUi( const caf::PdmFieldHandle*
                                                       const QVariant&            oldValue,
                                                       const QVariant&            newValue )
 {
-    if ( changedField == &m_animationSpeed || changedField == &m_animationIndex || changedField == &m_tracerLength )
-    {
-        return;
-    }
-
-    if ( changedField == &m_visualizationMode &&
-         qvariant_cast<int>( newValue ) != static_cast<int>( VisualizationMode::VECTORS ) &&
-         qvariant_cast<int>( oldValue ) != static_cast<int>( VisualizationMode::VECTORS ) )
+    if ( changedField == &m_animationSpeed || changedField == &m_animationIndex || changedField == &m_tracerLength ||
+         changedField == &m_visualizationMode )
     {
         return;
     }

@@ -48,7 +48,7 @@ protected:
     bool growStreamlineFromTo( RimStreamline*        streamline,
                                cvf::Vec3d            startPos,
                                cvf::Vec3d            endpos,
-                               double                flowVelocity,
+                               double                rate,
                                RiaDefines::PhaseType dominantPhase );
 
     std::list<std::pair<size_t, cvf::StructGridInterface::FaceType>> m_seeds;

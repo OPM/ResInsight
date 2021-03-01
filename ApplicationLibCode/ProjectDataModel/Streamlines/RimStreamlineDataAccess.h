@@ -34,6 +34,11 @@ class RigGridBase;
 class RigResultAccessor;
 class RigEclipseCaseData;
 
+//--------------------------------------------------------------------------------------------------
+/// Specialized data access for streamline generation. Operates using flow rate in meters/day
+/// calculated by dividing the FLR values by the cell face area.
+/// NOTE: Positive rate values are flow out of a cell, negative values are flow into a cell
+//--------------------------------------------------------------------------------------------------
 class RimStreamlineDataAccess
 {
 public:
@@ -42,11 +47,12 @@ public:
 
     bool setupDataAccess( RigMainGrid* grid, RigEclipseCaseData* data, std::list<RiaDefines::PhaseType> phases, int timeIdx );
 
-    double faceValueDividedByArea( RigCell cell, cvf::StructGridInterface::FaceType faceIdx, RiaDefines::PhaseType phase ) const;
-    double combinedFaceValueByArea( RigCell                            cell,
-                                    cvf::StructGridInterface::FaceType faceIdx,
-                                    std::list<RiaDefines::PhaseType>   phases,
-                                    RiaDefines::PhaseType&             dominantPhaseOut ) const;
+    double faceRate( RigCell cell, cvf::StructGridInterface::FaceType faceIdx, RiaDefines::PhaseType phase ) const;
+    double combinedFaceRate( RigCell                            cell,
+                             cvf::StructGridInterface::FaceType faceIdx,
+                             std::list<RiaDefines::PhaseType>   phases,
+                             double                             direction,
+                             RiaDefines::PhaseType&             dominantPhaseOut ) const;
 
     const RigMainGrid* grid() const { return m_grid; }
 
@@ -55,12 +61,8 @@ protected:
             getDataAccessor( cvf::StructGridInterface::FaceType faceIdx, RiaDefines::PhaseType phase, int timeIdx );
     QString gridResultNameFromPhase( RiaDefines::PhaseType phase, cvf::StructGridInterface::FaceType faceIdx ) const;
 
-    double posFaceValueDividedByArea( RigCell                            cell,
-                                      cvf::StructGridInterface::FaceType faceIdx,
-                                      RiaDefines::PhaseType              phase ) const;
-    double negFaceValueDividedByArea( RigCell                            cell,
-                                      cvf::StructGridInterface::FaceType faceIdx,
-                                      RiaDefines::PhaseType              phase ) const;
+    double posFaceRate( RigCell cell, cvf::StructGridInterface::FaceType faceIdx, RiaDefines::PhaseType phase ) const;
+    double negFaceRate( RigCell cell, cvf::StructGridInterface::FaceType faceIdx, RiaDefines::PhaseType phase ) const;
 
 private:
     RigMainGrid*        m_grid;

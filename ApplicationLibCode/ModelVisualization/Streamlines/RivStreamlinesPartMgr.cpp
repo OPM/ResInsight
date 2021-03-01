@@ -96,7 +96,6 @@ void RivStreamlinesPartMgr::appendDynamicGeometryPartsToModel( cvf::ModelBasicLi
         {
             streamline.appendTracerPoint( tracer.tracerPoints()[i].position() );
             streamline.appendAbsVelocity( tracer.tracerPoints()[i].absValue() );
-            streamline.appendDirection( tracer.tracerPoints()[i].direction() );
             streamline.appendPhase( tracer.tracerPoints()[i].phaseType() );
         }
         m_streamlines.push_back( streamline );
@@ -110,10 +109,6 @@ void RivStreamlinesPartMgr::appendDynamicGeometryPartsToModel( cvf::ModelBasicLi
             {
                 model->addPart( createPart( *streamlineCollection, streamline ).p() );
             }
-        }
-        else if ( streamlineCollection->visualizationMode() == RimStreamlineInViewCollection::VisualizationMode::VECTORS )
-        {
-            model->addPart( createVectorPart( *streamlineCollection, streamline ).p() );
         }
     }
 }
@@ -222,10 +217,6 @@ cvf::ref<cvf::Part> RivStreamlinesPartMgr::createPart( const RimStreamlineInView
 
     drawable->setTextureCoordArray( lineTexCoords.p() );
 
-    // caf::MeshEffectGenerator effgen( cvf::Color3f( 0.0, 0.0, 0.95 ) );
-    // effgen.setLineWidth( 2 );
-    // cvf::ref<cvf::Effect> effect = effgen.generateCachedEffect();
-
     cvf::ref<cvf::Part> part = new cvf::Part;
     part->setDrawable( drawable.p() );
     part->setEffect( effect.p() );
@@ -246,13 +237,9 @@ void RivStreamlinesPartMgr::createResultColorTextureCoords( cvf::Vec2fArray*    
     CVF_ASSERT( mapper );
 
     RimStreamlineInViewCollection* streamlineCollection = m_rimReservoirView->streamlineCollection();
+    CVF_ASSERT( streamlineCollection != nullptr );
 
     size_t vertexCount = streamline.countTracerPoints() * 2 - 2;
-    if ( streamlineCollection &&
-         streamlineCollection->visualizationMode() == RimStreamlineInViewCollection::VisualizationMode::VECTORS )
-    {
-        vertexCount = streamline.countTracerPoints() * 7;
-    }
     if ( textureCoords->capacity() != vertexCount ) textureCoords->reserve( vertexCount );
 
     for ( size_t i = 0; i < streamline.countTracerPoints(); i++ )
@@ -279,170 +266,12 @@ void RivStreamlinesPartMgr::createResultColorTextureCoords( cvf::Vec2fArray*    
             texCoord.x() = phaseValue;
         }
 
-        if ( streamlineCollection &&
-             streamlineCollection->visualizationMode() == RimStreamlineInViewCollection::VisualizationMode::VECTORS )
-        {
-            for ( size_t vxIdx = 0; vxIdx < 7; ++vxIdx )
-            {
-                textureCoords->add( texCoord );
-            }
-        }
-        else
+        textureCoords->add( texCoord );
+        if ( i > 0 && i < streamline.countTracerPoints() - 1 )
         {
             textureCoords->add( texCoord );
-            if ( i > 0 && i < streamline.countTracerPoints() - 1 )
-            {
-                textureCoords->add( texCoord );
-            }
         }
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-cvf::ref<cvf::Part> RivStreamlinesPartMgr::createVectorPart( const RimStreamlineInViewCollection& streamlineCollection,
-                                                             Streamline&                          streamline )
-{
-    cvf::ref<caf::DisplayCoordTransform> displayCordXf = m_rimReservoirView->displayCoordTransform();
-
-    std::vector<uint> shaftIndices;
-    shaftIndices.reserve( 2 * streamline.countTracerPoints() );
-
-    std::vector<uint> headIndices;
-    headIndices.reserve( 6 * streamline.countTracerPoints() );
-
-    std::vector<cvf::Vec3f> vertices;
-    vertices.reserve( 7 * streamline.countTracerPoints() );
-
-    for ( size_t i = 0; i < streamline.countTracerPoints(); i++ )
-    {
-        cvf::Vec3f anchorPoint = cvf::Vec3f( displayCordXf->transformToDisplayCoord( streamline.getTracerPoint( i ) ) );
-        cvf::Vec3f direction   = cvf::Vec3f( streamline.getDirection( i ) ) * streamlineCollection.scaleFactor();
-
-        for ( const cvf::Vec3f& vertex : createArrowVertices( anchorPoint, direction ) )
-        {
-            vertices.push_back( vertex );
-        }
-
-        for ( const uint& index : createArrowShaftIndices( 0 ) )
-        {
-            shaftIndices.push_back( index );
-        }
-
-        for ( const uint& index : createArrowHeadIndices( 0 ) )
-        {
-            headIndices.push_back( index );
-        }
-    }
-
-    cvf::ref<cvf::PrimitiveSetIndexedUInt> indexedUIntShaft =
-        new cvf::PrimitiveSetIndexedUInt( cvf::PrimitiveType::PT_LINES );
-    cvf::ref<cvf::UIntArray> indexArrayShaft = new cvf::UIntArray( shaftIndices );
-
-    cvf::ref<cvf::PrimitiveSetIndexedUInt> indexedUIntHead =
-        new cvf::PrimitiveSetIndexedUInt( cvf::PrimitiveType::PT_TRIANGLES );
-    cvf::ref<cvf::UIntArray> indexArrayHead = new cvf::UIntArray( headIndices );
-
-    cvf::ref<cvf::DrawableGeo> drawable = new cvf::DrawableGeo();
-
-    indexedUIntShaft->setIndices( indexArrayShaft.p() );
-    drawable->addPrimitiveSet( indexedUIntShaft.p() );
-
-    indexedUIntHead->setIndices( indexArrayHead.p() );
-    drawable->addPrimitiveSet( indexedUIntHead.p() );
-
-    cvf::ref<cvf::Vec3fArray> vertexArray = new cvf::Vec3fArray( vertices );
-    drawable->setVertexArray( vertexArray.p() );
-
-    cvf::ref<cvf::Vec2fArray> lineTexCoords = const_cast<cvf::Vec2fArray*>( drawable->textureCoordArray() );
-
-    if ( lineTexCoords.isNull() )
-    {
-        lineTexCoords = new cvf::Vec2fArray;
-    }
-
-    cvf::ref<cvf::Effect> effect;
-
-    const cvf::ScalarMapper* activeScalarMapper = streamlineCollection.legendConfig()->scalarMapper();
-    createResultColorTextureCoords( lineTexCoords.p(), streamline, activeScalarMapper );
-
-    caf::ScalarMapperMeshEffectGenerator meshEffGen( activeScalarMapper );
-    effect = meshEffGen.generateCachedEffect();
-
-    drawable->setTextureCoordArray( lineTexCoords.p() );
-
-    cvf::ref<cvf::Part> part = new cvf::Part;
-    part->setDrawable( drawable.p() );
-    part->setEffect( effect.p() );
-    part->updateBoundingBox();
-    return part;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::array<cvf::Vec3f, 7> RivStreamlinesPartMgr::createArrowVertices( const cvf::Vec3f anchorPoint,
-                                                                      const cvf::Vec3f direction ) const
-{
-    std::array<cvf::Vec3f, 7> vertices;
-    cvf::Vec3f                headTop = anchorPoint + direction;
-
-    RimEclipseCase* eclipseCase = m_rimReservoirView->eclipseCase();
-    if ( !eclipseCase ) return vertices;
-
-    float headLength =
-        std::min<float>( eclipseCase->characteristicCellSize() / 3.0f, ( headTop - anchorPoint ).length() / 2.0 );
-
-    // A fixed size is preferred here
-    cvf::Vec3f headBottom = headTop - ( headTop - anchorPoint ).getNormalized() * headLength;
-
-    float arrowWidth = headLength / 2.0f;
-
-    cvf::Vec3f headBottomDirection1 = direction ^ anchorPoint;
-    cvf::Vec3f headBottomDirection2 = headBottomDirection1 ^ direction;
-    cvf::Vec3f arrowBottomSegment1  = headBottomDirection1.getNormalized() * arrowWidth;
-    cvf::Vec3f arrowBottomSegment2  = headBottomDirection2.getNormalized() * arrowWidth;
-
-    vertices[0] = anchorPoint;
-    vertices[1] = headBottom;
-    vertices[2] = headBottom + arrowBottomSegment1;
-    vertices[3] = headBottom - arrowBottomSegment1;
-    vertices[4] = headTop;
-    vertices[5] = headBottom + arrowBottomSegment2;
-    vertices[6] = headBottom - arrowBottomSegment2;
-
-    return vertices;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::array<uint, 2> RivStreamlinesPartMgr::createArrowShaftIndices( uint startIndex ) const
-{
-    std::array<uint, 2> indices;
-
-    indices[0] = startIndex;
-    indices[1] = startIndex + 1;
-
-    return indices;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::array<uint, 6> RivStreamlinesPartMgr::createArrowHeadIndices( uint startIndex ) const
-{
-    std::array<uint, 6> indices;
-
-    indices[0] = startIndex + 2;
-    indices[1] = startIndex + 3;
-    indices[2] = startIndex + 4;
-
-    indices[3] = startIndex + 5;
-    indices[4] = startIndex + 6;
-    indices[5] = startIndex + 4;
-    return indices;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -457,227 +286,6 @@ void RivStreamlinesPartMgr::setAlpha( cvf::ref<cvf::Part> part, float alpha )
         cvf::ref<cvf::Effect> effect = surfaceGen.generateCachedEffect();
         part->setEffect( effect.p() );
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RivStreamlinesPartMgr::StreamlineSegment::computeSegments()
-{
-    a = startPoint;
-    b = startDirection;
-    c = 3.0 * ( endPoint - startPoint ) - 2.0 * startDirection - endDirection;
-    d = 2.0 * ( startPoint - endPoint ) + endDirection + startDirection;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-cvf::Vec3d RivStreamlinesPartMgr::StreamlineSegment::getPointAt( double t ) const
-{
-    return a + b * t + c * t * t + d * t * t * t;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-cvf::Vec3d RivStreamlinesPartMgr::StreamlineSegment::getDirectionAt( double t ) const
-{
-    return b + c * t + d * t * t;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-double RivStreamlinesPartMgr::StreamlineSegment::getVelocityAt( double localT ) const
-{
-    if ( localT == 0 )
-    {
-        return startVelocity;
-    }
-    return startVelocity + ( endVelocity - startVelocity ) / localT;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-double RivStreamlinesPartMgr::StreamlineSegment::getChordLength() const
-{
-    return startPoint.pointDistance( endPoint );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RivStreamlinesPartMgr::StreamlineVisualization::computeTValues()
-{
-    double totalLength   = getApproximatedTotalLength();
-    double currentLength = 0.0;
-    for ( StreamlineSegment& segment : segments )
-    {
-        segment.globalTStart = currentLength / totalLength;
-        currentLength += segment.getChordLength();
-        segment.globalTEnd = currentLength / totalLength;
-    }
-    areTValuesComputed = true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RivStreamlinesPartMgr::StreamlineVisualization::appendSegment( StreamlineSegment segment )
-{
-    segments.push_back( segment );
-    areTValuesComputed = false;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RivStreamlinesPartMgr::StreamlineVisualization::prependSegment( StreamlineSegment segment )
-{
-    segments.push_front( segment );
-    areTValuesComputed = false;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RivStreamlinesPartMgr::StreamlineVisualization::appendPart( cvf::ref<cvf::Part> part, double globalT )
-{
-    parts.push_back( part.p() );
-    partTValues.push_back( globalT );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-size_t RivStreamlinesPartMgr::StreamlineVisualization::segmentsSize() const
-{
-    return segments.size();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::list<RivStreamlinesPartMgr::StreamlineSegment> RivStreamlinesPartMgr::StreamlineVisualization::getSegments()
-{
-    return segments;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RivStreamlinesPartMgr::StreamlineVisualization::clear()
-{
-    segments.clear();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RivStreamlinesPartMgr::StreamlineVisualization::updateAnimationGlobalT( double timeMs )
-{
-    double totalLength = getApproximatedTotalLength(); // m
-    double velocity    = getVelocityAt( currentAnimationGlobalT ); // m/s
-    currentAnimationGlobalT += velocity * timeMs / 1000.0 / totalLength;
-
-    if ( currentAnimationGlobalT > 1.0 )
-    {
-        currentAnimationGlobalT = 0.0;
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-double RivStreamlinesPartMgr::StreamlineVisualization::getApproximatedTotalLength()
-{
-    if ( areTValuesComputed ) return approximatedTotalLength;
-    double totalLength = 0.0;
-    for ( auto& segment : segments )
-    {
-        totalLength += segment.getChordLength();
-    }
-    approximatedTotalLength = totalLength;
-    return approximatedTotalLength;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-cvf::Vec3d RivStreamlinesPartMgr::StreamlineVisualization::getPointAt( double globalT ) const
-{
-    CVF_ASSERT( areTValuesComputed );
-    for ( std::list<StreamlineSegment>::const_iterator it = segments.begin(); it != segments.end(); ++it )
-    {
-        if ( it->globalTStart <= globalT && it->globalTEnd >= globalT )
-        {
-            double localT = ( globalT - it->globalTStart ) / ( it->globalTEnd - it->globalTStart );
-            return it->getPointAt( localT );
-        }
-    }
-    return cvf::Vec3d();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-cvf::Vec3d RivStreamlinesPartMgr::StreamlineVisualization::getDirectionAt( double globalT ) const
-{
-    CVF_ASSERT( areTValuesComputed );
-    for ( std::list<StreamlineSegment>::const_iterator it = segments.begin(); it != segments.end(); ++it )
-    {
-        if ( it->globalTStart <= globalT && it->globalTEnd >= globalT )
-        {
-            double localT = ( globalT - it->globalTStart ) / ( it->globalTEnd - it->globalTStart );
-            return it->getDirectionAt( localT );
-        }
-    }
-    return cvf::Vec3d();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-double RivStreamlinesPartMgr::StreamlineVisualization::getVelocityAt( double globalT ) const
-{
-    CVF_ASSERT( areTValuesComputed );
-    for ( std::list<StreamlineSegment>::const_iterator it = segments.begin(); it != segments.end(); ++it )
-    {
-        if ( it->globalTStart <= globalT && it->globalTEnd >= globalT )
-        {
-            double localT = ( globalT - it->globalTStart ) / ( it->globalTEnd - it->globalTStart );
-            return it->getVelocityAt( localT );
-        }
-    }
-    return 0.0;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-cvf::Collection<cvf::Part> RivStreamlinesPartMgr::StreamlineVisualization::getParts()
-{
-    return parts;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-cvf::ref<cvf::Part> RivStreamlinesPartMgr::StreamlineVisualization::getPartAtGlobalT( double globalT ) const
-{
-    CVF_ASSERT( areTValuesComputed );
-    double t = 0.0;
-    for ( size_t index = 0; index < parts.size(); index++ )
-    {
-        t = partTValues[index];
-        if ( t >= globalT )
-        {
-            return parts[index];
-        }
-    }
-    return cvf::ref<cvf::Part>( nullptr );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -699,14 +307,6 @@ void RivStreamlinesPartMgr::Streamline::appendAbsVelocity( double velocity )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivStreamlinesPartMgr::Streamline::appendDirection( cvf::Vec3d direction )
-{
-    directions.push_back( direction );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RivStreamlinesPartMgr::Streamline::appendPhase( RiaDefines::PhaseType phase )
 {
     dominantPhases.push_back( phase );
@@ -719,7 +319,6 @@ void RivStreamlinesPartMgr::Streamline::clear()
 {
     tracerPoints.clear();
     absVelocities.clear();
-    directions.clear();
     dominantPhases.clear();
     delete part.p();
 }
@@ -746,14 +345,6 @@ cvf::Vec3d RivStreamlinesPartMgr::Streamline::getTracerPoint( size_t index ) con
 double RivStreamlinesPartMgr::Streamline::getAbsVelocity( size_t index ) const
 {
     return absVelocities[index];
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-cvf::Vec3d RivStreamlinesPartMgr::Streamline::getDirection( size_t index ) const
-{
-    return directions[index];
 }
 
 //--------------------------------------------------------------------------------------------------

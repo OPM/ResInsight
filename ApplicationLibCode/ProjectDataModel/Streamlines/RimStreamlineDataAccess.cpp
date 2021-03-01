@@ -149,9 +149,9 @@ QString RimStreamlineDataAccess::gridResultNameFromPhase( RiaDefines::PhaseType 
 //--------------------------------------------------------------------------------------------------
 /// Return the face scalar value for the given cell and NEG_? face, by using the neighbor cell
 //--------------------------------------------------------------------------------------------------
-double RimStreamlineDataAccess::negFaceValueDividedByArea( RigCell                            cell,
-                                                           cvf::StructGridInterface::FaceType faceIdx,
-                                                           RiaDefines::PhaseType              phase ) const
+double RimStreamlineDataAccess::negFaceRate( RigCell                            cell,
+                                             cvf::StructGridInterface::FaceType faceIdx,
+                                             RiaDefines::PhaseType              phase ) const
 {
     double retval = 0.0;
 
@@ -159,24 +159,26 @@ double RimStreamlineDataAccess::negFaceValueDividedByArea( RigCell              
     if ( neighborCell.isInvalid() ) return retval;
 
     std::vector<cvf::ref<RigResultAccessor>> access = m_dataAccess.at( phase );
-    retval                                          = access[faceIdx]->cellScalar( neighborCell.mainGridCellIndex() );
-    double area                                     = cell.faceNormalWithAreaLength( faceIdx ).length();
-    if ( area != 0.0 )
+
+    retval      = access[faceIdx]->cellScalar( neighborCell.mainGridCellIndex() );
+    double area = cell.faceNormalWithAreaLength( faceIdx ).length();
+    if ( area > 1.0e-4 )
         retval /= area;
     else
         retval = 0.0;
 
     if ( std::isinf( retval ) ) retval = 0.0;
 
-    return retval;
+    // change sign to get proper rate value direction (out of one cell is into the next)
+    return -1.0 * retval;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// Return the face scalar value for the given cell and POS_? face
 //--------------------------------------------------------------------------------------------------
-double RimStreamlineDataAccess::posFaceValueDividedByArea( RigCell                            cell,
-                                                           cvf::StructGridInterface::FaceType faceIdx,
-                                                           RiaDefines::PhaseType              phase ) const
+double RimStreamlineDataAccess::posFaceRate( RigCell                            cell,
+                                             cvf::StructGridInterface::FaceType faceIdx,
+                                             RiaDefines::PhaseType              phase ) const
 {
     std::vector<cvf::ref<RigResultAccessor>> access = m_dataAccess.at( phase );
     double                                   retval = access[faceIdx]->cellScalar( cell.mainGridCellIndex() );
@@ -193,24 +195,27 @@ double RimStreamlineDataAccess::posFaceValueDividedByArea( RigCell              
 
 //--------------------------------------------------------------------------------------------------
 /// Return the face scalar value for the given cell and face
+/// Positive values is flow out of the cell, negative values is flow into the cell
 //--------------------------------------------------------------------------------------------------
-double RimStreamlineDataAccess::faceValueDividedByArea( RigCell                            cell,
-                                                        cvf::StructGridInterface::FaceType faceIdx,
-                                                        RiaDefines::PhaseType              phase ) const
+double RimStreamlineDataAccess::faceRate( RigCell                            cell,
+                                          cvf::StructGridInterface::FaceType faceIdx,
+                                          RiaDefines::PhaseType              phase ) const
 {
-    if ( faceIdx % 2 == 0 ) return posFaceValueDividedByArea( cell, faceIdx, phase );
+    if ( faceIdx % 2 == 0 ) return posFaceRate( cell, faceIdx, phase );
 
     // NEG_? face values must be read from the neighbor cells
-    return negFaceValueDividedByArea( cell, faceIdx, phase );
+    return negFaceRate( cell, faceIdx, phase );
 }
 
 //--------------------------------------------------------------------------------------------------
 /// Return the face scalar value for the given cell and face, by combining flow for all specified phases
+/// Positive values is flow out of the cell, negative values is flow into the cell
 //--------------------------------------------------------------------------------------------------
-double RimStreamlineDataAccess::combinedFaceValueByArea( RigCell                            cell,
-                                                         cvf::StructGridInterface::FaceType faceIdx,
-                                                         std::list<RiaDefines::PhaseType>   phases,
-                                                         RiaDefines::PhaseType&             outDominantPhase ) const
+double RimStreamlineDataAccess::combinedFaceRate( RigCell                            cell,
+                                                  cvf::StructGridInterface::FaceType faceIdx,
+                                                  std::list<RiaDefines::PhaseType>   phases,
+                                                  double                             direction,
+                                                  RiaDefines::PhaseType&             outDominantPhase ) const
 {
     double retValue  = 0.0;
     outDominantPhase = phases.front();
@@ -221,14 +226,16 @@ double RimStreamlineDataAccess::combinedFaceValueByArea( RigCell                
     {
         double tmp = 0.0;
         if ( faceIdx % 2 == 0 )
-            tmp = posFaceValueDividedByArea( cell, faceIdx, phase );
+            tmp = posFaceRate( cell, faceIdx, phase );
         else
-            tmp = negFaceValueDividedByArea( cell, faceIdx, phase );
-        if ( abs( tmp ) > max )
+            tmp = negFaceRate( cell, faceIdx, phase );
+
+        if ( tmp * direction > max )
         {
             outDominantPhase = phase;
-            max              = abs( tmp );
+            max              = tmp;
         }
+
         retValue += tmp;
     }
 

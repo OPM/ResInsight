@@ -28,6 +28,7 @@
 #include "cafPdmProxyValueField.h"
 
 #include "cvfObject.h"
+#include "cvfStructGrid.h"
 #include "cvfVector3.h"
 
 #include <vector>
@@ -37,7 +38,7 @@ class RimStreamline : public caf::PdmObject
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimStreamline( QString simwellname );
+    RimStreamline( QString simwellname, size_t startCellIdx, cvf::StructGridInterface::FaceType faceIdx );
     ~RimStreamline() override;
 
     const RigTracer& tracer() const;
@@ -48,6 +49,9 @@ public:
     void reverse();
     void generateStatistics();
 
+    size_t                             m_startCellIdx;
+    cvf::StructGridInterface::FaceType m_faceIdx;
+
 protected:
     caf::PdmFieldHandle* userDescriptionField() override;
 
@@ -55,5 +59,5 @@ private:
     RigTracer              m_tracer;
     caf::PdmField<QString> m_simWellName;
 
-    caf::PdmField<QString> m_propertiesTable;
+    // caf::PdmField<QString> m_propertiesTable;
 };
