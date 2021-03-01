@@ -125,7 +125,6 @@ RimStreamlineInViewCollection::RimStreamlineInViewCollection()
 
     CAF_PDM_InitField( &m_isActive, "isActive", false, "Active", "", "", "" );
     m_isActive.uiCapability()->setUiHidden( true );
-    m_isActive.xmlCapability()->setIOReadable( false );
 
     CAF_PDM_InitFieldNoDefault( &m_visualizationMode, "VisualizationMode", "Visualization Mode", "", "", "" );
     CAF_PDM_InitFieldNoDefault( &m_colorMode, "ColorMode", "Colors", "", "", "" );
