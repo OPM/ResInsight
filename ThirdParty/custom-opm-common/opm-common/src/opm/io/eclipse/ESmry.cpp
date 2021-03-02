@@ -31,7 +31,13 @@
 #include <set>
 #include <stdexcept>
 #include <string>
-//#include <fnmatch.h>
+
+#ifdef _WIN32
+#include "cross-platform/windows/Substitutes.hpp"
+#else
+#include <fnmatch.h>
+#endif
+
 #include <fstream>
 #include <cmath>
 #include <cstring>
@@ -361,7 +367,7 @@ ESmry::ESmry(const std::string &filename, bool loadBaseRunData , bool uselodsmry
                 auto rstFrom = smryArray[specInd-1];
                 toReportStepNumber = std::get<1>(rstFrom);
             } else {
-                toReportStepNumber = std::numeric_limits<int>::max();
+                toReportStepNumber = std::numeric_limits<int>::infinity();
             }
 
             Opm::filesystem::path smspecFile(std::get<0>(smryArray[specInd]));
@@ -1270,9 +1276,9 @@ std::vector<std::string> ESmry::keywordList(const std::string& pattern) const
 {
     std::vector<std::string> list;
 
-//     for (auto key : keyword)
-//         if (fnmatch( pattern.c_str(), key.c_str(), 0 ) == 0 )
-//             list.push_back(key);
+     for (auto key : keyword)
+         if (fnmatch( pattern.c_str(), key.c_str(), 0 ) == 0 )
+             list.push_back(key);
 
     return list;
 }
