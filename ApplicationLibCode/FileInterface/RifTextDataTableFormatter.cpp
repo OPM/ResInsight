@@ -36,6 +36,7 @@ RifTextDataTableFormatter::RifTextDataTableFormatter( QTextStream& out )
     , m_headerPrefix( "-- " )
     , m_maxDataRowWidth( MAX_ECLIPSE_DATA_ROW_WIDTH )
     , m_defaultMarker( "1*" )
+    , m_isOptionalCommentEnabled( true )
 {
 }
 
@@ -51,6 +52,7 @@ RifTextDataTableFormatter::RifTextDataTableFormatter( const RifTextDataTableForm
     , m_headerPrefix( rhs.m_headerPrefix )
     , m_maxDataRowWidth( rhs.m_maxDataRowWidth )
     , m_defaultMarker( rhs.m_defaultMarker )
+    , m_isOptionalCommentEnabled( rhs.isOptionalCommentEnabled() )
 {
 }
 
@@ -178,16 +180,46 @@ QString RifTextDataTableFormatter::defaultMarker() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RifTextDataTableFormatter::setOptionalComment( bool enable )
+{
+    m_isOptionalCommentEnabled = enable;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RifTextDataTableFormatter::isOptionalCommentEnabled() const
+{
+    return m_isOptionalCommentEnabled;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RifTextDataTableFormatter::outputBuffer()
 {
     if ( !m_columns.empty() && !isAllHeadersEmpty( m_columns ) )
     {
-        m_out << m_headerPrefix;
+        size_t maxSubTitleCount = 0;
         for ( size_t i = 0u; i < m_columns.size(); ++i )
         {
-            m_out << formatColumn( m_columns[i].title, i );
+            maxSubTitleCount = std::max( maxSubTitleCount, m_columns[i].titles.size() );
         }
-        m_out << "\n";
+
+        for ( size_t subTitleIndex = 0; subTitleIndex < maxSubTitleCount; subTitleIndex++ )
+        {
+            m_out << m_headerPrefix;
+            for ( size_t i = 0u; i < m_columns.size(); ++i )
+            {
+                QString subTitle;
+                if ( subTitleIndex < m_columns[i].titles.size() )
+                {
+                    subTitle = m_columns[i].titles[subTitleIndex];
+                }
+                m_out << formatColumn( subTitle, i );
+            }
+            m_out << "\n";
+        }
     }
 
     for ( auto line : m_buffer )
@@ -199,6 +231,10 @@ void RifTextDataTableFormatter::outputBuffer()
         else if ( line.lineType == HORIZONTAL_LINE )
         {
             outputHorizontalLine( line );
+        }
+        else if ( line.lineType == KEYWORD )
+        {
+            outputKeyword( line );
         }
         else if ( line.lineType == CONTENTS )
         {
@@ -232,24 +268,38 @@ void RifTextDataTableFormatter::outputBuffer()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RifTextDataTableFormatter::outputComment( const RifTextDataTableLine& comment )
+void RifTextDataTableFormatter::outputKeyword( const RifTextDataTableLine& keyword )
 {
-    m_out << m_commentPrefix << comment.data[0] << "\n";
+    QString text;
+    if ( !keyword.data.empty() ) text = keyword.data.front();
+
+    m_out << text << "\n";
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RifTextDataTableFormatter::outputHorizontalLine( RifTextDataTableLine& comment )
+void RifTextDataTableFormatter::outputComment( const RifTextDataTableLine& comment )
 {
-    if ( comment.lineType == HORIZONTAL_LINE )
+    QString text;
+    if ( !comment.data.empty() ) text = comment.data.front();
+
+    m_out << m_commentPrefix << text << "\n";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RifTextDataTableFormatter::outputHorizontalLine( RifTextDataTableLine& horizontalLine )
+{
+    if ( horizontalLine.lineType == HORIZONTAL_LINE )
     {
         int charCount = tableWidth();
 
         QChar fillChar = ' ';
-        if ( !comment.data.empty() )
+        if ( !horizontalLine.data.empty() )
         {
-            QString firstString = comment.data[0];
+            QString firstString = horizontalLine.data[0];
             if ( !firstString.isEmpty() )
             {
                 fillChar = firstString[0];
@@ -270,7 +320,7 @@ bool RifTextDataTableFormatter::isAllHeadersEmpty( const std::vector<RifTextData
 {
     for ( auto& header : headers )
     {
-        if ( !header.title.isEmpty() ) return false;
+        if ( !header.titles.empty() ) return false;
     }
     return true;
 }
@@ -305,9 +355,18 @@ void RifTextDataTableFormatter::tableCompleted( const QString& appendText, bool 
 //--------------------------------------------------------------------------------------------------
 RifTextDataTableFormatter& RifTextDataTableFormatter::keyword( const QString& keyword )
 {
-    CVF_ASSERT( m_buffer.empty() );
-    CVF_ASSERT( m_columns.empty() );
-    m_out << keyword << "\n";
+    RifTextDataTableLine line;
+    line.data.push_back( keyword );
+    line.lineType = KEYWORD;
+    if ( m_columns.empty() )
+    {
+        outputKeyword( line );
+    }
+    else
+    {
+        m_buffer.push_back( line );
+    }
+
     return *this;
 }
 
@@ -321,7 +380,12 @@ RifTextDataTableFormatter& RifTextDataTableFormatter::header( const std::vector<
 
     for ( size_t colNumber = 0u; colNumber < m_columns.size(); ++colNumber )
     {
-        m_columns[colNumber].width = measure( m_columns[colNumber].title );
+        int maxWidth = 0;
+        for ( const auto& subTitle : m_columns[colNumber].titles )
+        {
+            maxWidth = std::max( maxWidth, measure( subTitle ) );
+        }
+        m_columns[colNumber].width = maxWidth;
     }
     return *this;
 }
@@ -343,6 +407,19 @@ RifTextDataTableFormatter& RifTextDataTableFormatter::comment( const QString& co
     {
         m_buffer.push_back( line );
     }
+    return *this;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RifTextDataTableFormatter& RifTextDataTableFormatter::addOptionalComment( const QString& str )
+{
+    if ( m_isOptionalCommentEnabled )
+    {
+        return comment( str );
+    }
+
     return *this;
 }
 

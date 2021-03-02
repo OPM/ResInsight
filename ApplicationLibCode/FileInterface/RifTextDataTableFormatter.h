@@ -30,7 +30,8 @@ enum RifTextDataTableLineType
 {
     COMMENT,
     CONTENTS,
-    HORIZONTAL_LINE
+    HORIZONTAL_LINE,
+    KEYWORD
 };
 
 //==================================================================================================
@@ -87,17 +88,52 @@ struct RifTextDataTableColumn
                             RifTextDataTableDoubleFormatting doubleFormat = RifTextDataTableDoubleFormatting(),
                             RifTextDataTableAlignment        alignment    = LEFT,
                             int                              width        = -1 )
-        : title( title )
-        , doubleFormat( doubleFormat )
+        : doubleFormat( doubleFormat )
         , alignment( alignment )
         , width( width )
     {
+        titles.push_back( title );
     }
 
-    QString                          title;
+    RifTextDataTableColumn( const QString&                   title,
+                            const QString&                   subTitle,
+                            RifTextDataTableDoubleFormatting doubleFormat = RifTextDataTableDoubleFormatting(),
+                            RifTextDataTableAlignment        alignment    = LEFT,
+                            int                              width        = -1 )
+        : doubleFormat( doubleFormat )
+        , alignment( alignment )
+        , width( width )
+    {
+        titles.push_back( title );
+        titles.push_back( subTitle );
+    }
+
+    RifTextDataTableColumn( const QString&                   title,
+                            const QString&                   subTitle1,
+                            const QString&                   subTitle2,
+                            RifTextDataTableDoubleFormatting doubleFormat = RifTextDataTableDoubleFormatting(),
+                            RifTextDataTableAlignment        alignment    = LEFT,
+                            int                              width        = -1 )
+        : doubleFormat( doubleFormat )
+        , alignment( alignment )
+        , width( width )
+    {
+        titles.push_back( title );
+        titles.push_back( subTitle1 );
+        titles.push_back( subTitle2 );
+    }
+
+    QString title() const
+    {
+        if ( !titles.empty() ) return titles.front();
+
+        return "";
+    }
+
     RifTextDataTableDoubleFormatting doubleFormat;
     RifTextDataTableAlignment        alignment;
     int                              width;
+    std::vector<QString>             titles;
 };
 
 //==================================================================================================
@@ -126,6 +162,9 @@ public:
     void    setDefaultMarker( const QString& defaultMarker );
     QString defaultMarker() const;
 
+    void setOptionalComment( bool enable );
+    bool isOptionalCommentEnabled() const;
+
     RifTextDataTableFormatter& keyword( const QString& keyword );
     RifTextDataTableFormatter& header( std::vector<RifTextDataTableColumn> tableHeader );
     RifTextDataTableFormatter& add( const QString& str );
@@ -135,6 +174,7 @@ public:
     RifTextDataTableFormatter& addOneBasedCellIndex( size_t zeroBasedIndex );
     RifTextDataTableFormatter& addValueOrDefaultMarker( double value, double defaultValue );
     RifTextDataTableFormatter& comment( const QString& str );
+    RifTextDataTableFormatter& addOptionalComment( const QString& str );
     RifTextDataTableFormatter& addHorizontalLine( const QChar& str );
     void                       rowCompleted();
     void                       rowCompleted( const QString& appendText );
@@ -157,8 +197,9 @@ protected:
     QString        formatColumn( const QString str, size_t columnIndex ) const;
 
     void outputBuffer();
+    void outputKeyword( const RifTextDataTableLine& keyword );
     void outputComment( const RifTextDataTableLine& comment );
-    void outputHorizontalLine( RifTextDataTableLine& comment );
+    void outputHorizontalLine( RifTextDataTableLine& horizontalLine );
 
     bool isAllHeadersEmpty( const std::vector<RifTextDataTableColumn>& headers );
 
@@ -174,4 +215,5 @@ private:
     QString                             m_headerPrefix;
     int                                 m_maxDataRowWidth;
     QString                             m_defaultMarker;
+    bool                                m_isOptionalCommentEnabled;
 };

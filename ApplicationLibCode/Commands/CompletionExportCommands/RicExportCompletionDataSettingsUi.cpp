@@ -112,6 +112,16 @@ RicExportCompletionDataSettingsUi::RicExportCompletionDataSettingsUi()
                                 "",
                                 "" );
 
+    CAF_PDM_InitField( &m_exportDataSourceAsComment,
+                       "ExportDataSourceAsComment",
+                       true,
+                       "Export Data Source In Comment",
+                       "",
+                       "",
+                       "" );
+
+    CAF_PDM_InitField( &m_exportWelspec, "ExportWelspec", true, "Export WELSPEC keyword", "", "", "" );
+
     m_displayForSimWell = true;
 
     m_fracturesEnabled    = true;
@@ -154,6 +164,14 @@ void RicExportCompletionDataSettingsUi::setCombinationMode( CombinationMode comb
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RicExportCompletionDataSettingsUi::setExportDataSourceAsComment( bool enable )
+{
+    m_exportDataSourceAsComment = enable;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RicExportCompletionDataSettingsUi::showFractureInUi( bool enable )
 {
     m_fracturesEnabled = enable;
@@ -181,6 +199,22 @@ void RicExportCompletionDataSettingsUi::showFishbonesInUi( bool enable )
 bool RicExportCompletionDataSettingsUi::reportCompletionsTypesIndividually() const
 {
     return m_reportCompletionTypesSeparately() == INDIVIDUALLY;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RicExportCompletionDataSettingsUi::exportDataSourceAsComment() const
+{
+    return m_exportDataSourceAsComment;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RicExportCompletionDataSettingsUi::exportWelspec() const
+{
+    return m_exportWelspec;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -296,6 +330,8 @@ void RicExportCompletionDataSettingsUi::defineUiOrdering( QString uiConfigName, 
         group->add( &caseToApply );
         group->add( &useLateralNTG );
         group->add( &includeMsw );
+        group->add( &m_exportDataSourceAsComment );
+        group->add( &m_exportWelspec );
     }
 
     {
