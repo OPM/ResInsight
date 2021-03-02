@@ -98,6 +98,7 @@ if(RESINSIGHT_ENABLE_UNITY_BUILD)
     opm-common/src/opm/parser/eclipse/EclipseState/Schedule/MSW/SpiralICD.cpp
     opm-common/src/opm/io/eclipse/EclOutput.cpp
     opm-common/src/opm/io/eclipse/ESmry.cpp
+    opm-common/src/opm/io/eclipse/EGrid.cpp
     )
 
     foreach(fileToExclude ${UNITY_EXCLUDE_FILES})
