@@ -53,13 +53,13 @@ void RifOpmCommonEclipseSummary::useLodsmaryFiles( bool enable )
 //--------------------------------------------------------------------------------------------------
 bool RifOpmCommonEclipseSummary::open( const QString& headerFileName, bool includeRestartFiles )
 {
-    m_eSmry = std::make_unique<Opm::EclIO::ESmry>( headerFileName.toStdString(), includeRestartFiles, m_useLodsmryFiles);
+    m_eSmry = std::make_unique<Opm::EclIO::ESmry>( headerFileName.toStdString(), includeRestartFiles, m_useLodsmryFiles );
     // m_eSmry = new Opm::EclIO::ESmry( headerFileName.toStdString(), includeRestartFiles );
 
     if ( m_useLodsmryFiles && !includeRestartFiles )
     {
         // Always try to create the lodsmry file. No-op if already present.
-        //m_eSmry->use_lodsmry_file(true);
+        // m_eSmry->use_lodsmry_file(true);
         m_eSmry->make_lodsmry_file();
     }
 
