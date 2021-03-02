@@ -12,7 +12,7 @@ size_t maxCount       = 500;
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-TEST( RifSummaryDataTest, OpmCommonAllData )
+TEST( DISABLED_RifSummaryDataTest, OpmCommonAllData )
 {
     QString filename = "e:/models/reek_history_match_large/realization-1/iter-0/eclipse/model/R001_REEK-1.SMSPEC";
 
@@ -64,7 +64,7 @@ TEST( RifSummaryDataTest, OpmCommonAllData )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-TEST( RifSummaryDataTest, LibEclAllData )
+TEST( DISABLED_RifSummaryDataTest, LibEclAllData )
 {
     QString filename = "e:/models/reek_history_match_large/realization-1/iter-0/eclipse/model/R001_REEK-1.SMSPEC";
 
