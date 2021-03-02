@@ -16,6 +16,9 @@
    along with OPM.  If not, see <http://www.gnu.org/licenses/>.
    */
 
+#define _USE_MATH_DEFINES
+#include <cmath> // For definition of M_PI
+
 #include <opm/io/eclipse/EGrid.hpp>
 #include <opm/io/eclipse/EInit.hpp>
 #include <opm/io/eclipse/EclUtil.hpp>
@@ -29,8 +32,6 @@
 #include <numeric>
 #include <string>
 #include <sstream>
-
-#include <math.h>
 
 namespace Opm { namespace EclIO {
 
@@ -326,8 +327,6 @@ void EGrid::getCellCorners(const std::array<int, 3>& ijk,
 
         double zt = coord_array[pind[n] + 2];
         double zb = coord_array[pind[n] + 5];
-
-        double M_PI = 3.14;
 
         if (m_radial) {
             xt = coord_array[pind[n]] * cos(coord_array[pind[n] + 1] / 180.0 * M_PI);
