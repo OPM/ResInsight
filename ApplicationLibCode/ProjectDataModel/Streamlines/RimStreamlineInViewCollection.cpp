@@ -33,7 +33,7 @@
 #include "RimRegularLegendConfig.h"
 #include "RimStreamline.h"
 #include "RimStreamlineDataAccess.h"
-#include "RimStreamlineGenerator2.h"
+#include "RimStreamlineGenerator.h"
 
 #include "RiaLogging.h"
 
@@ -60,7 +60,6 @@ void AppEnum<RimStreamlineInViewCollection::VisualizationMode>::setUp()
 {
     addItem( RimStreamlineInViewCollection::VisualizationMode::ANIMATION, "ANIMATION", "Animation" );
     addItem( RimStreamlineInViewCollection::VisualizationMode::MANUAL, "MANUAL", "Manual control" );
-    addItem( RimStreamlineInViewCollection::VisualizationMode::VECTORS, "VECTORS", "Vectors" );
     setDefault( RimStreamlineInViewCollection::VisualizationMode::ANIMATION );
 }
 
@@ -407,7 +406,7 @@ void RimStreamlineInViewCollection::findStartCells( int                         
                     {
                         outInjectorCells.push_back( std::pair<QString, RigCell>( swdata->m_wellName, cell ) );
                     }
-                    m_wellCellIds.insert( cell.mainGridCellIndex() );
+                    m_wellCellIds.insert( cell.gridLocalCellIndex() );
                 }
             }
         }
@@ -451,8 +450,8 @@ void RimStreamlineInViewCollection::updateStreamlines()
         if ( accessOk )
         {
             // setup the streamline generator to use
-            RimStreamlineGenerator2 generator( m_wellCellIds );
-            generator.setLimits( m_flowThreshold, m_maxDays, m_resolution );
+            RimStreamlineGenerator generator( m_wellCellIds );
+            generator.setLimits( m_flowThreshold, m_maxDays, m_resolution, m_lengthThreshold );
             generator.initGenerator( &dataAccess, phases() );
 
             const int reverseDirection = -1.0;
@@ -464,7 +463,7 @@ void RimStreamlineInViewCollection::updateStreamlines()
             if ( m_useInjectors() ) seedsCount += seedCellsInjector.size();
             if ( m_useProducers() ) seedsCount += seedCellsProducer.size();
 
-            caf::ProgressInfo streamlineProgress( seedsCount, "Generating Streamlines" );
+            caf::ProgressInfo streamlineProgress( seedsCount, "Generating streamlines, please wait..." );
 
             // generate tracers for all injectors
             if ( m_useInjectors() )
@@ -492,16 +491,9 @@ void RimStreamlineInViewCollection::updateStreamlines()
             {
                 if ( sline && sline->size() > 1 )
                 {
-                    double distance = sline->tracer().totalDistance();
-
-                    if ( distance >= m_lengthThreshold )
-                    {
-                        m_maxAnimationIndex = std::max( sline->size(), m_maxAnimationIndex );
-                        sline->generateStatistics();
-                        m_streamlines.push_back( sline );
-                        sline = nullptr;
-                    }
-                    if ( sline ) delete sline;
+                    m_maxAnimationIndex = std::max( sline->size(), m_maxAnimationIndex );
+                    m_streamlines.push_back( sline );
+                    sline = nullptr;
                 }
             }
 
@@ -574,13 +566,9 @@ void RimStreamlineInViewCollection::defineUiOrdering( QString uiConfigName, caf:
         visualizationGroup->add( &m_animationSpeed );
         visualizationGroup->add( &m_tracerLength );
     }
-    if ( m_visualizationMode() == VisualizationMode::MANUAL )
+    else if ( m_visualizationMode() == VisualizationMode::MANUAL )
     {
         visualizationGroup->add( &m_animationIndex );
-    }
-    if ( m_visualizationMode() == VisualizationMode::VECTORS )
-    {
-        visualizationGroup->add( &m_scaleFactor );
     }
 
     uiOrdering.skipRemainingFields();
@@ -648,14 +636,8 @@ void RimStreamlineInViewCollection::fieldChangedByUi( const caf::PdmFieldHandle*
                                                       const QVariant&            oldValue,
                                                       const QVariant&            newValue )
 {
-    if ( changedField == &m_animationSpeed || changedField == &m_animationIndex || changedField == &m_tracerLength )
-    {
-        return;
-    }
-
-    if ( changedField == &m_visualizationMode &&
-         qvariant_cast<int>( newValue ) != static_cast<int>( VisualizationMode::VECTORS ) &&
-         qvariant_cast<int>( oldValue ) != static_cast<int>( VisualizationMode::VECTORS ) )
+    if ( changedField == &m_animationSpeed || changedField == &m_animationIndex || changedField == &m_tracerLength ||
+         changedField == &m_visualizationMode )
     {
         return;
     }

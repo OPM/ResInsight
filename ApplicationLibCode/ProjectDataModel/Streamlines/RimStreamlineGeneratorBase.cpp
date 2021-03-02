@@ -34,6 +34,7 @@ RimStreamlineGeneratorBase::RimStreamlineGeneratorBase( std::set<size_t>& wellCe
     , m_wellCells( wellCells )
     , m_dataAccess( nullptr )
     , m_maxPoints( 1 )
+    , m_minLength( 1.0 )
 {
 }
 
@@ -47,12 +48,13 @@ RimStreamlineGeneratorBase::~RimStreamlineGeneratorBase()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimStreamlineGeneratorBase::setLimits( double flowThreshold, int maxDays, double resolutionInDays )
+void RimStreamlineGeneratorBase::setLimits( double flowThreshold, int maxDays, double resolutionInDays, double minimumLength )
 {
     m_flowThreshold = flowThreshold;
     m_maxDays       = maxDays;
     m_resolution    = resolutionInDays;
     m_maxPoints     = maxDays / resolutionInDays;
+    m_minLength     = minimumLength;
 }
 
 //--------------------------------------------------------------------------------------------------

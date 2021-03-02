@@ -24,10 +24,6 @@
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 
-#include "cafPdmFieldCvfColor.h"
-#include "cafPdmProxyValueField.h"
-
-#include "cvfObject.h"
 #include "cvfVector3.h"
 
 #include <vector>
@@ -46,7 +42,6 @@ public:
 
     void addTracerPoint( cvf::Vec3d position, cvf::Vec3d direction, RiaDefines::PhaseType dominantPhase );
     void reverse();
-    void generateStatistics();
 
 protected:
     caf::PdmFieldHandle* userDescriptionField() override;
@@ -54,6 +49,4 @@ protected:
 private:
     RigTracer              m_tracer;
     caf::PdmField<QString> m_simWellName;
-
-    caf::PdmField<QString> m_propertiesTable;
 };

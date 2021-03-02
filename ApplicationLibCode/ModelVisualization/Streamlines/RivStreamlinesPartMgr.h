@@ -51,98 +51,17 @@ public:
     void updateAnimation();
 
 private:
-    struct StreamlineSegment
-    {
-        /*
-        x_ij(t) = a_ij + b_ij * t + c_ij * t^2 + d_ij * t^3
-        */
-
-        StreamlineSegment(){};
-        StreamlineSegment( cvf::Vec3d startPoint,
-                           cvf::Vec3d endPoint,
-                           cvf::Vec3d startDirection,
-                           cvf::Vec3d endDirection,
-                           double     startVelocity,
-                           double     endVelocity )
-            : startPoint( startPoint )
-            , endPoint( endPoint )
-            , startDirection( startDirection )
-            , endDirection( endDirection )
-            , startVelocity( startVelocity )
-            , endVelocity( endVelocity )
-        {
-            computeSegments();
-        };
-
-        void computeSegments();
-
-        cvf::Vec3d getPointAt( double localT ) const;
-        cvf::Vec3d getDirectionAt( double localT ) const;
-        double     getVelocityAt( double localT ) const;
-        double     getChordLength() const;
-
-        cvf::Vec3d startPoint;
-        cvf::Vec3d endPoint;
-        cvf::Vec3d startDirection;
-        cvf::Vec3d endDirection;
-        double     globalTStart;
-        double     globalTEnd;
-        double     startVelocity;
-        double     endVelocity;
-
-    private:
-        cvf::Vec3d a;
-        cvf::Vec3d b;
-        cvf::Vec3d c;
-        cvf::Vec3d d;
-    };
-    struct StreamlineVisualization
-    {
-        StreamlineVisualization()
-        {
-            areTValuesComputed      = false;
-            currentAnimationGlobalT = 0.0;
-        };
-
-        void                                                computeTValues();
-        void                                                appendSegment( StreamlineSegment segment );
-        void                                                prependSegment( StreamlineSegment segment );
-        void                                                appendPart( cvf::ref<cvf::Part> part, double globalT );
-        size_t                                              segmentsSize() const;
-        std::list<RivStreamlinesPartMgr::StreamlineSegment> getSegments();
-        void                                                clear();
-        void                                                updateAnimationGlobalT( double timeMs );
-        double                                              getApproximatedTotalLength();
-
-        cvf::Vec3d                 getPointAt( double globalT ) const;
-        cvf::Vec3d                 getDirectionAt( double globalT ) const;
-        double                     getVelocityAt( double globalT ) const;
-        cvf::Collection<cvf::Part> getParts();
-        cvf::ref<cvf::Part>        getPartAtGlobalT( double globalT ) const;
-
-        double currentAnimationGlobalT;
-
-    private:
-        bool                         areTValuesComputed;
-        double                       approximatedTotalLength;
-        std::list<StreamlineSegment> segments;
-        cvf::Collection<cvf::Part>   parts;
-        std::vector<double>          partTValues;
-    };
-
     struct Streamline
     {
         Streamline() { animIndex = 0; };
 
         void                  appendTracerPoint( cvf::Vec3d point );
         void                  appendAbsVelocity( double velocity );
-        void                  appendDirection( cvf::Vec3d direction );
         void                  appendPhase( RiaDefines::PhaseType phase );
         void                  clear();
         cvf::ref<cvf::Part>   getPart();
         cvf::Vec3d            getTracerPoint( size_t index ) const;
         double                getAbsVelocity( size_t index ) const;
-        cvf::Vec3d            getDirection( size_t index ) const;
         RiaDefines::PhaseType getPhase( size_t index ) const;
 
         size_t countTracerPoints() const;
@@ -154,7 +73,6 @@ private:
     private:
         std::vector<cvf::Vec3d>            tracerPoints;
         std::vector<double>                absVelocities;
-        std::vector<cvf::Vec3d>            directions;
         std::vector<RiaDefines::PhaseType> dominantPhases;
 
         cvf::ref<cvf::Part> part;
@@ -169,12 +87,7 @@ private:
                                          const Streamline&        streamline,
                                          const cvf::ScalarMapper* mapper );
 
-    cvf::ref<cvf::Part> createVectorPart( const RimStreamlineInViewCollection& streamlineCollection, Streamline& segment );
-
-    std::array<cvf::Vec3f, 7> createArrowVertices( const cvf::Vec3f anchorPoint, const cvf::Vec3f direction ) const;
-    std::array<uint, 2>       createArrowShaftIndices( uint startIndex ) const;
-    std::array<uint, 6>       createArrowHeadIndices( uint startIndex ) const;
-    void                      setAlpha( cvf::ref<cvf::Part> part, float alpha );
+    void setAlpha( cvf::ref<cvf::Part> part, float alpha );
 
 private:
     std::list<Streamline>           m_streamlines;

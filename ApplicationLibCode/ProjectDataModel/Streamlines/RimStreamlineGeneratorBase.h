@@ -41,7 +41,7 @@ public:
     RimStreamlineGeneratorBase( std::set<size_t>& wellCells );
     ~RimStreamlineGeneratorBase();
 
-    void setLimits( double flowThreshold, int maxDays, double resolutionInDays );
+    void setLimits( double flowThreshold, int maxDays, double resolutionInDays, double minimumLength );
 
     void initGenerator( RimStreamlineDataAccess* dataAccess, std::list<RiaDefines::PhaseType> phases );
 
@@ -52,6 +52,7 @@ protected:
     double m_flowThreshold;
     int    m_maxDays;
     double m_resolution;
+    double m_minLength;
 
     size_t m_maxPoints;
 

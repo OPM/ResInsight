@@ -46,8 +46,7 @@ public:
     enum class VisualizationMode
     {
         ANIMATION = 0,
-        MANUAL,
-        VECTORS
+        MANUAL
     };
     using VisualizationModeEnum = caf::AppEnum<VisualizationMode>;
 
