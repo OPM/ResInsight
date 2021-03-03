@@ -1188,6 +1188,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         }
 
         menuBuilder << "RicMoveItemsToTopFeature";
+        menuBuilder << "RicSearchHelpFeature";
     }
 
     if ( caf::CmdFeatureManager::instance()->getCommandFeature( "RicToggleWellPathGroupingFeature" )->canFeatureBeExecuted() )
