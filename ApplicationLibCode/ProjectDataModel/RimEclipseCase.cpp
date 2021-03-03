@@ -378,7 +378,12 @@ const RigVirtualPerforationTransmissibilities* RimEclipseCase::computeAndGetVirt
             {
                 std::vector<std::vector<RigCompletionData>> allCompletionData;
 
-                for ( size_t i = 0; i < timeStepDates().size(); i++ )
+                size_t maxIndexCount = 1;
+                if ( !timeStepDates().empty() )
+                {
+                    maxIndexCount = timeStepDates().size();
+                }
+                for ( size_t i = 0; i < maxIndexCount; i++ )
                 {
                     std::vector<RigCompletionData> dynamicCompletionDataOneTimeStep =
                         RicWellPathExportCompletionDataFeatureImpl::computeDynamicCompletionsForWellPath( w, this, i );
