@@ -220,13 +220,13 @@ add_custom_target(octave_plugins ALL DEPENDS
                 add_custom_command(TARGET octave_plugins POST_BUILD
                     COMMAND ${CMAKE_COMMAND} -E copy_if_different
                     "${oct_bin}"
-                    "${CMAKE_CURRENT_BINARY_DIR}/../ApplicationLibCode/$<CONFIGURATION>/${Filename}"
+                    "${CMAKE_CURRENT_BINARY_DIR}/../ApplicationExeCode/$<CONFIGURATION>/${Filename}"
                 )
             else()
                 add_custom_command(TARGET octave_plugins POST_BUILD
                     COMMAND ${CMAKE_COMMAND} -E copy_if_different
                     "${oct_bin}"
-                    "${CMAKE_CURRENT_BINARY_DIR}/../ApplicationLibCode/${Filename}"
+                    "${CMAKE_CURRENT_BINARY_DIR}/../ApplicationExeCode/${Filename}"
                 )
             endif()
         endforeach( oct_bin )
