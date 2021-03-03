@@ -102,20 +102,24 @@ const std::map<size_t, std::vector<RigCompletionData>>&
     RigVirtualPerforationTransmissibilities::multipleCompletionsPerEclipseCell( const RimWellPath* wellPath,
                                                                                 size_t             timeStepIndex ) const
 {
-    static std::map<size_t, std::vector<RigCompletionData>> dummy;
-
     auto item = m_mapFromWellToCompletionData.find( wellPath );
     if ( item != m_mapFromWellToCompletionData.end() )
     {
-        size_t indexToUse = timeStepIndex;
-        if ( item->second.size() == 1 )
+        const std::vector<CompletionDataFrame>& completionData = item->second;
+        size_t                                  tsIndexToUse   = timeStepIndex;
+        if ( completionData.size() == 1 )
         {
-            indexToUse = 0;
+            // Clamp to zero if we only have one time step (static case)
+            tsIndexToUse = 0;
         }
 
-        return item->second[indexToUse].multipleCompletionsPerEclipseCell();
+        if ( tsIndexToUse < completionData.size() )
+        {
+            return completionData[tsIndexToUse].multipleCompletionsPerEclipseCell();
+        }
     }
 
+    static std::map<size_t, std::vector<RigCompletionData>> dummy;
     return dummy;
 }
 
