@@ -43,6 +43,8 @@ public:
     RimVfpPlot();
     ~RimVfpPlot() override;
 
+    void setFileName( const QString& filename );
+
     // RimPlot implementations
     RiuQwtPlotWidget* viewer() override;
     void              setAutoScaleXEnabled( bool enabled ) override;

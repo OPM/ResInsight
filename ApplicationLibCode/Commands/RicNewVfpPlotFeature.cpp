@@ -19,6 +19,7 @@
 #include "RicNewVfpPlotFeature.h"
 
 #include "RiaApplication.h"
+#include "RiaGuiApplication.h"
 
 #include "RimMainPlotCollection.h"
 #include "RimProject.h"
@@ -29,11 +30,14 @@
 #include "RimWellLogTrack.h"
 #include "RimWellPath.h"
 
+#include "RiuFileDialogTools.h"
+#include "RiuPlotMainWindow.h"
 #include "RiuPlotMainWindowTools.h"
 
 #include "cafSelectionManagerTools.h"
 
 #include <QAction>
+#include <QFileInfo>
 
 #include <vector>
 
@@ -55,16 +59,46 @@ void RicNewVfpPlotFeature::onActionTriggered( bool isChecked )
 {
     RimProject* proj = RiaApplication::instance()->project();
 
+    RiaApplication*    app = RiaGuiApplication::instance();
+    RiuPlotMainWindow* mpw = RiaGuiApplication::instance()->mainPlotWindow();
+
+    const QString vfpDataKey = "VFP_DATA";
+    QString       defaultDir = app->lastUsedDialogDirectory( vfpDataKey );
+    QStringList   fileNames  = RiuFileDialogTools::getOpenFileNames( mpw,
+                                                                  "Import VFP Files",
+                                                                  defaultDir,
+                                                                  "VFP Text Files (*.ecl *.vfp);;All Files (*.*)" );
+
+    if ( fileNames.isEmpty() ) return;
+
+    app->setLastUsedDialogDirectory( vfpDataKey, QFileInfo( fileNames.last() ).absolutePath() );
+
     RimVfpPlotCollection* vfpPlotColl = proj->mainPlotCollection()->vfpPlotCollection();
     if ( vfpPlotColl )
     {
-        RimVfpPlot* vfpPlot = new RimVfpPlot();
-        vfpPlotColl->addPlot( vfpPlot );
+        std::vector<RimVfpPlot*> vfpPlots;
+        for ( const auto& fileName : fileNames )
+        {
+            RimVfpPlot* vfpPlot = new RimVfpPlot();
+            vfpPlot->setFileName( fileName );
+            vfpPlotColl->addPlot( vfpPlot );
+
+            vfpPlots.push_back( vfpPlot );
+        }
+
         vfpPlotColl->updateConnectedEditors();
-        vfpPlot->loadDataAndUpdate();
+
+        for ( auto plot : vfpPlots )
+        {
+            plot->loadDataAndUpdate();
+        }
 
         RiuPlotMainWindowTools::showPlotMainWindow();
-        RiuPlotMainWindowTools::selectAsCurrentItem( vfpPlot );
+
+        if ( !vfpPlots.empty() )
+        {
+            RiuPlotMainWindowTools::selectAsCurrentItem( vfpPlots.front() );
+        }
     }
 }
 
@@ -73,7 +107,7 @@ void RicNewVfpPlotFeature::onActionTriggered( bool isChecked )
 //--------------------------------------------------------------------------------------------------
 void RicNewVfpPlotFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setText( "New VFP Plot" );
+    actionToSetup->setText( "New VFP Plots" );
     // TODO: add icon
     // actionToSetup->setIcon( QIcon( ":/VerticalFlowPerformancePlot16x16.png" ) );
 }
