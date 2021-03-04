@@ -44,6 +44,8 @@ public:
     void                               deleteItem( RimPressureTableItem* itemToDelete );
     void                               deleteAllItems();
 
+    const QString& pressureDate() const;
+
 protected:
     void defineCustomContextMenu( const caf::PdmFieldHandle* fieldNeedingMenu, QMenu* menu, QWidget* fieldEditorWidget ) override;
     void defineEditorAttribute( const caf::PdmFieldHandle* field,
@@ -55,8 +57,11 @@ protected:
 
     void onTableChanged( const caf::SignalEmitter* emitter = nullptr );
 
+    void updatePressureDate();
+
     void initAfterRead() override;
 
 private:
     caf::PdmChildArrayField<RimPressureTableItem*> m_pressureTableItems;
+    caf::PdmField<QString>                         m_pressureDate;
 };

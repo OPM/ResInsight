@@ -40,6 +40,8 @@ public:
     double initialPressure() const;
     double pressure() const;
 
+    void setPressureDate( const QString& pressureDate );
+
 private:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
