@@ -327,7 +327,7 @@ void RimStimPlanModelTemplate::defineUiOrdering( QString uiConfigName, caf::PdmU
     underburdenGroup->add( &m_underburdenPermeability );
     underburdenGroup->add( &m_underburdenFluidDensity );
 
-    caf::PdmUiOrdering* faciesInitialPressureGroup = uiOrdering.addNewGroup( "Facies With Initial Pressure" );
+    caf::PdmUiOrdering* faciesInitialPressureGroup = uiOrdering.addNewGroup( "Facies Pressure Settings" );
     faciesInitialPressureGroup->add( &m_faciesInitialPressureConfigs );
 
     uiOrdering.skipRemainingFields( true );
@@ -361,6 +361,17 @@ void RimStimPlanModelTemplate::defineEditorAttribute( const caf::PdmFieldHandle*
         {
             doubleAttr->m_decimals     = 2;
             doubleAttr->m_numberFormat = caf::PdmUiDoubleValueEditorAttribute::NumberFormat::FIXED;
+        }
+    }
+
+    if ( field == &m_faciesInitialPressureConfigs )
+    {
+        auto tvAttribute = dynamic_cast<caf::PdmUiTableViewEditorAttribute*>( attribute );
+        if ( tvAttribute )
+        {
+            tvAttribute->resizePolicy              = caf::PdmUiTableViewEditorAttribute::RESIZE_TO_FILL_CONTAINER;
+            tvAttribute->alwaysEnforceResizePolicy = true;
+            tvAttribute->minimumHeight             = 300;
         }
     }
 }
