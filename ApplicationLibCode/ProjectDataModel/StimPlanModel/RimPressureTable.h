@@ -44,10 +44,6 @@ public:
     void                               deleteItem( RimPressureTableItem* itemToDelete );
     void                               deleteAllItems();
 
-    bool usePressureTableForProperty( RiaDefines::CurveProperty curveProperty ) const;
-
-    caf::PdmField<bool>* useForInitialPressureField();
-
 protected:
     void defineCustomContextMenu( const caf::PdmFieldHandle* fieldNeedingMenu, QMenu* menu, QWidget* fieldEditorWidget ) override;
     void defineEditorAttribute( const caf::PdmFieldHandle* field,
@@ -62,7 +58,5 @@ protected:
     void initAfterRead() override;
 
 private:
-    caf::PdmField<bool>                            m_useForInitialPressure;
-    caf::PdmField<bool>                            m_useForPressure;
     caf::PdmChildArrayField<RimPressureTableItem*> m_pressureTableItems;
 };
