@@ -29,9 +29,9 @@ CAF_PDM_SOURCE_INIT( RimPressureTableItem, "PressureTableItem" );
 RimPressureTableItem::RimPressureTableItem()
     : changed( this )
 {
-    CAF_PDM_InitField( &m_depth, "Depth", 0.0, "Depth", "", "", "" );
-    CAF_PDM_InitField( &m_initialPressure, "InitialPressure", 0.0, "Initial Pressure", "", "", "" );
-    CAF_PDM_InitField( &m_pressure, "Pressure", 0.0, "Pressure", "", "", "" );
+    CAF_PDM_InitField( &m_depth, "Depth", 0.0, "Depth TVDMSL [m]", "", "", "" );
+    CAF_PDM_InitField( &m_initialPressure, "InitialPressure", 0.0, "Initial Pressure [Bar]", "", "", "" );
+    CAF_PDM_InitField( &m_pressure, "Pressure", 0.0, "Pressure [Bar]", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------
