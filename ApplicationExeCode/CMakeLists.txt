@@ -619,26 +619,25 @@ else(RESINSIGHT_PRIVATE_INSTALL)
 endif(RESINSIGHT_PRIVATE_INSTALL)
 
 # OpenSSL
-option(RESINSIGHT_BUNDLE_OPENSSL "Bundle the OpenSSL binary library files"
-        OFF)
+option(RESINSIGHT_BUNDLE_OPENSSL "Bundle the OpenSSL binary library files" OFF)
 mark_as_advanced(FORCE RESINSIGHT_BUNDLE_OPENSSL)
 
 if(RESINSIGHT_BUNDLE_OPENSSL)
-if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+  if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
     find_package(OpenSSL)
 
     if(OPENSSL_FOUND)
-    message("OpenSSL include dir: ${OPENSSL_INCLUDE_DIR}")
-    set(OPENSSL_BIN_DIR ${OPENSSL_INCLUDE_DIR})
-    string(REPLACE "include" "bin" OPENSSL_BIN_DIR ${OPENSSL_BIN_DIR})
-    message("OpenSSL binary dir: ${OPENSSL_BIN_DIR}")
+      message("OpenSSL include dir: ${OPENSSL_INCLUDE_DIR}")
+      set(OPENSSL_BIN_DIR ${OPENSSL_INCLUDE_DIR})
+      string(REPLACE "include" "bin" OPENSSL_BIN_DIR ${OPENSSL_BIN_DIR})
+      message("OpenSSL binary dir: ${OPENSSL_BIN_DIR}")
 
-    install(FILES ${OPENSSL_BIN_DIR}/libcrypto-1_1-x64.dll
-            DESTINATION ${RESINSIGHT_INSTALL_FOLDER})
-    install(FILES ${OPENSSL_BIN_DIR}/libssl-1_1-x64.dll
-            DESTINATION ${RESINSIGHT_INSTALL_FOLDER})
+      install(FILES ${OPENSSL_BIN_DIR}/libcrypto-1_1-x64.dll
+              DESTINATION ${RESINSIGHT_INSTALL_FOLDER})
+      install(FILES ${OPENSSL_BIN_DIR}/libssl-1_1-x64.dll
+              DESTINATION ${RESINSIGHT_INSTALL_FOLDER})
     endif(OPENSSL_FOUND)
-elseif(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+  elseif(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     # Assumes that OpenSSL is installed by ./vcpkg install
     # --overlay-triplets=custom-triplets --triplet x64-linux-dynamic openssl
     set(OPENSSL_BIN_DIR
@@ -653,9 +652,8 @@ elseif(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
             DESTINATION ${RESINSIGHT_INSTALL_FOLDER})
     install(FILES ${OPENSSL_BIN_DIR}/libssl.so.1.1
             DESTINATION ${RESINSIGHT_INSTALL_FOLDER})
-endif()
+  endif()
 endif(RESINSIGHT_BUNDLE_OPENSSL)
-
 
 # ##############################################################################
 # Installation packaging
