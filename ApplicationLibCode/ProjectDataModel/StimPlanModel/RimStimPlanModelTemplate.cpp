@@ -79,6 +79,14 @@ RimStimPlanModelTemplate::RimStimPlanModelTemplate()
                                           "",
                                           "",
                                           "" );
+    CAF_PDM_InitField( &m_useTableForInitialPressure,
+                       "UseForInitialPressure",
+                       false,
+                       "Use Pressure Table For Initial Pressure",
+                       "",
+                       "",
+                       "" );
+    CAF_PDM_InitField( &m_useTableForPressure, "UseForPressure", false, "Use Pressure Table For Pressure", "", "", "" );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_staticEclipseCase, "StaticEclipseCase", "Static Case", "", "", "" );
 
@@ -283,11 +291,9 @@ void RimStimPlanModelTemplate::defineUiOrdering( QString uiConfigName, caf::PdmU
     uiOrdering.add( &m_dynamicEclipseCase );
     uiOrdering.add( &m_timeStep );
     uiOrdering.add( &m_initialPressureEclipseCase );
-    if ( m_pressureTable )
-    {
-        uiOrdering.add( m_pressureTable->useForInitialPressureField() );
-        m_initialPressureEclipseCase.uiCapability()->setUiReadOnly( m_pressureTable->useForInitialPressureField()->value() );
-    }
+    uiOrdering.add( &m_useTableForInitialPressure );
+    uiOrdering.add( &m_useTableForPressure );
+    m_initialPressureEclipseCase.uiCapability()->setUiReadOnly( m_useTableForInitialPressure() );
 
     uiOrdering.add( &m_staticEclipseCase );
 
@@ -871,5 +877,10 @@ bool RimStimPlanModelTemplate::usePressureTableForProperty( RiaDefines::CurvePro
 {
     if ( !m_pressureTable ) return false;
 
-    return m_pressureTable->usePressureTableForProperty( curveProperty );
+    if ( curveProperty == RiaDefines::CurveProperty::INITIAL_PRESSURE )
+        return m_useTableForInitialPressure();
+    else if ( curveProperty == RiaDefines::CurveProperty::PRESSURE )
+        return m_useTableForPressure();
+    else
+        return false;
 }
