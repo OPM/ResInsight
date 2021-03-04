@@ -272,7 +272,7 @@ bool RimStimPlanModelPressureCalculator::extractValuesForProperty( RiaDefines::C
                      !std::isinf( initialPressure ) )
                 {
                     double fraction = faciesConfig->second;
-                    double value    = initialPressure - ( initialPressure - currentPressure ) * ( 1.0 - fraction );
+                    double value    = initialPressure - ( initialPressure - currentPressure ) * fraction;
 
                     values[i] = value;
                 }
