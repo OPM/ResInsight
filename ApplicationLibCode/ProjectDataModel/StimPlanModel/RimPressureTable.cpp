@@ -38,6 +38,8 @@ RimPressureTable::RimPressureTable()
     m_pressureTableItems.uiCapability()->setUiEditorTypeName( caf::PdmUiTableViewEditor::uiEditorTypeName() );
     m_pressureTableItems.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
     m_pressureTableItems.uiCapability()->setCustomContextMenuEnabled( true );
+
+    CAF_PDM_InitFieldNoDefault( &m_pressureDate, "PressureDate", "Pressure Date", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -137,6 +139,7 @@ void RimPressureTable::defineEditorAttribute( const caf::PdmFieldHandle* field,
 void RimPressureTable::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     uiOrdering.add( &m_pressureTableItems );
+    uiOrdering.add( &m_pressureDate );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -154,6 +157,8 @@ void RimPressureTable::fieldChangedByUi( const caf::PdmFieldHandle* changedField
                                          const QVariant&            oldValue,
                                          const QVariant&            newValue )
 {
+    if ( changedField == &m_pressureDate ) updatePressureDate();
+
     onTableChanged();
 }
 
@@ -170,8 +175,27 @@ void RimPressureTable::onTableChanged( const caf::SignalEmitter* emitter )
 //--------------------------------------------------------------------------------------------------
 void RimPressureTable::initAfterRead()
 {
+    updatePressureDate();
+
     for ( auto item : items() )
     {
         item->changed.connect( this, &RimPressureTable::onTableChanged );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPressureTable::updatePressureDate()
+{
+    for ( auto item : items() )
+        item->setPressureDate( m_pressureDate() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const QString& RimPressureTable::pressureDate() const
+{
+    return m_pressureDate();
 }

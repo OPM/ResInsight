@@ -84,3 +84,14 @@ void RimPressureTableItem::fieldChangedByUi( const caf::PdmFieldHandle* changedF
 {
     changed.send();
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPressureTableItem::setPressureDate( const QString& pressureDate )
+{
+    if ( pressureDate.isEmpty() )
+        m_pressure.uiCapability()->setUiName( "Pressure [Bar]" );
+    else
+        m_pressure.uiCapability()->setUiName( QString( "Pressure %1 [Bar]" ).arg( pressureDate ) );
+}

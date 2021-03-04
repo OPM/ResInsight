@@ -47,6 +47,7 @@
 #include "RimNonNetLayers.h"
 #include "RimOilField.h"
 #include "RimPolylineTarget.h"
+#include "RimPressureTable.h"
 #include "RimProject.h"
 #include "RimStimPlanModelCalculator.h"
 #include "RimStimPlanModelPlot.h"
@@ -1698,4 +1699,19 @@ bool RimStimPlanModel::isScaledByNetToGross( RiaDefines::CurveProperty curveProp
                                                         RiaDefines::CurveProperty::IMMOBILE_FLUID_SATURATION };
 
     return std::find( matching.begin(), matching.end(), curveProperty ) != matching.end();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimStimPlanModel::pressureDate() const
+{
+    if ( !m_stimPlanModelTemplate ) return QString();
+
+    if ( m_stimPlanModelTemplate->usePressureTableForProperty( RiaDefines::CurveProperty::PRESSURE ) )
+        return m_stimPlanModelTemplate->pressureTable()->pressureDate();
+    else if ( m_eclipseCase && m_timeStep >= 0 && m_timeStep < m_eclipseCase->timeStepStrings().size() )
+        return m_eclipseCase->timeStepStrings()[m_timeStep];
+    else
+        return QString();
 }

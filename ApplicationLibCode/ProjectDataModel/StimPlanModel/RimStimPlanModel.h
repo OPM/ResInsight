@@ -180,6 +180,8 @@ public:
 
     bool isScaledByNetToGross( RiaDefines::CurveProperty curveProperty ) const;
 
+    QString pressureDate() const;
+
 protected:
     void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
