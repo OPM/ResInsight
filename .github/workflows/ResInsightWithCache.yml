@@ -136,6 +136,13 @@ jobs:
            # Ensure the cache key changes any time the content of the response file changes.
           appendedCacheKey: ${{ hashFiles(env.VCPKGRESPONSEFILE) }}
 
+      - name: Cache dynamic version of OpenSSL (Linux)
+        if: "contains( matrix.config.os, 'ubuntu')"
+        uses: actions/cache@v2
+        with:
+          path: ${{ github.workspace }}/ThirdParty/vcpkg/installed/x64-linux-dynamic
+          key: ${{ matrix.config.os }}-vcpkg-x64-linux-dynamic_v01
+
       - name: Install dynamic version of OpenSSL (Linux)
         if: "contains( matrix.config.os, 'ubuntu')"
         run: |
