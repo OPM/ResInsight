@@ -130,7 +130,15 @@ bool RifStimPlanModelGeologicalFrkExporter::writeToFile( RimStimPlanModel* stimP
     values["zonePoroElas"]   = stimPlanModel->calculator()->calculatePoroElasticConstant();
     values["zoneThermalExp"] = stimPlanModel->calculator()->calculateThermalExpansionCoefficient();
 
-    return writeToFrkFile( filepath, labels, values ) && writeToCsvFile( filepath, labels, values );
+    // Special values for csv export
+    auto [depthStart, depthEnd]    = createDepthRanges( tvd );
+    values["dpthstart"]            = depthStart;
+    values["dpthend"]              = depthEnd;
+    std::vector<QString> csvLabels = { "dpthstart", "dpthend" };
+    for ( const QString& label : labels )
+        csvLabels.push_back( label );
+
+    return writeToFrkFile( filepath, labels, values ) && writeToCsvFile( filepath, csvLabels, values );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -312,4 +320,26 @@ bool RifStimPlanModelGeologicalFrkExporter::hasInvalidData( const std::vector<do
     }
 
     return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::pair<std::vector<double>, std::vector<double>>
+    RifStimPlanModelGeologicalFrkExporter::createDepthRanges( const std::vector<double>& tvd )
+{
+    std::vector<double> startTvd;
+    std::vector<double> endTvd;
+
+    for ( size_t i = 0; i < tvd.size(); i++ )
+    {
+        startTvd.push_back( tvd[i] );
+        // Special handling for last range
+        if ( i == tvd.size() - 1 )
+            endTvd.push_back( startTvd[i] );
+        else
+            endTvd.push_back( tvd[i + 1] );
+    }
+
+    return std::make_pair( startTvd, endTvd );
 }
