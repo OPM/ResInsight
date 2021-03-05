@@ -126,6 +126,17 @@ bool RifStimPlanModelGeologicalFrkExporter::writeToFile( RimStimPlanModel* stimP
     values["zonePoroElas"]   = stimPlanModel->calculator()->calculatePoroElasticConstant();
     values["zoneThermalExp"] = stimPlanModel->calculator()->calculateThermalExpansionCoefficient();
 
+    return writeToFrkFile( filepath, labels, values );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RifStimPlanModelGeologicalFrkExporter::writeToFrkFile( const QString&                                filepath,
+                                                            const std::vector<QString>&                   labels,
+                                                            const std::map<QString, std::vector<double>>& values )
+
+{
     QFile data( filepath );
     if ( !data.open( QFile::WriteOnly | QFile::Truncate ) )
     {
@@ -137,8 +148,11 @@ bool RifStimPlanModelGeologicalFrkExporter::writeToFile( RimStimPlanModel* stimP
 
     for ( QString label : labels )
     {
-        warnOnInvalidData( label, values[label] );
-        appendToStream( stream, label, values[label] );
+        auto vals = values.find( label );
+        if ( vals == values.end() ) return false;
+
+        warnOnInvalidData( label, vals->second );
+        appendToStream( stream, label, vals->second );
     }
 
     appendFooterToStream( stream );

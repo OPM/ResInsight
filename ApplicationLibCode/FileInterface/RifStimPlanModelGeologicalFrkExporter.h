@@ -18,6 +18,7 @@
 
 #pragma once
 
+#include <map>
 #include <vector>
 
 class RimStimPlanModel;
@@ -38,6 +39,10 @@ public:
     static bool writeToFile( RimStimPlanModel* plot, bool useDetailedFluidLoss, const QString& filepath );
 
 private:
+    static bool writeToFrkFile( const QString&                                filepath,
+                                const std::vector<QString>&                   labels,
+                                const std::map<QString, std::vector<double>>& values );
+
     static void appendHeaderToStream( QTextStream& stream );
     static void appendToStream( QTextStream& stream, const QString& label, const std::vector<double>& values );
     static void appendFooterToStream( QTextStream& stream );
