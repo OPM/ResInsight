@@ -37,7 +37,6 @@ CAF_PDM_SOURCE_INIT( RimWellPathGroup, "WellPathGroup" );
 ///
 //--------------------------------------------------------------------------------------------------
 RimWellPathGroup::RimWellPathGroup()
-    : wellPathAddedOrRemoved( this )
 {
     CAF_PDM_InitScriptableObjectWithNameAndComment( "Well Path Group",
                                                     ":/WellPathGroup.svg",
@@ -337,6 +336,9 @@ QString RimWellPathGroup::createGroupName() const
     nameWithoutSpaces.remove( ' ' );
 
     if ( nameWithoutSpaces.length() > 8 ) fullName = trimmedCommonRoot + trimmedCommonSuffix;
+
+    if ( fullName.isEmpty() ) fullName = "Well 1";
+
     return fullName;
 }
 

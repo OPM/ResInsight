@@ -37,6 +37,9 @@
 class RimMultipleValveLocations;
 class RimWellPath;
 
+//==================================================================================================
+///
+//==================================================================================================
 class RimWellPathValve : public RimCheckableNamedObject, public RimWellPathComponentInterface
 {
     CAF_PDM_HEADER_INIT;
