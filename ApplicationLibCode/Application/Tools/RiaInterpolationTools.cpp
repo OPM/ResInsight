@@ -18,7 +18,8 @@
 
 #include "RiaInterpolationTools.h"
 
-#include <cassert>
+#include "cafAssert.h"
+
 #include <cmath>
 #include <cstdlib>
 #include <limits>
@@ -45,7 +46,7 @@ double RiaInterpolationTools::linear( const std::vector<double>& x,
                                       double                     value,
                                       ExtrapolationMode          extrapolationMode )
 {
-    assert( x.size() == y.size() );
+    CAF_ASSERT( x.size() == y.size() );
 
     // Handle cases with only one data point.
     if ( x.size() <= 1 )
@@ -83,7 +84,7 @@ double RiaInterpolationTools::linear( const std::vector<double>& x,
             return extrapolate( x, y, value );
         }
 
-        assert( extrapolationMode == ExtrapolationMode::NONE );
+        CAF_ASSERT( extrapolationMode == ExtrapolationMode::NONE );
         return std::numeric_limits<double>::infinity();
     }
 
@@ -137,7 +138,7 @@ int RiaInterpolationTools::findNextDataPoint( const std::vector<double>& values,
 //--------------------------------------------------------------------------------------------------
 int RiaInterpolationTools::findPreviousDataPoint( const std::vector<double>& values, int index )
 {
-    assert( index >= 0 );
+    CAF_ASSERT( index >= 0 );
 
     for ( int i = index; i >= 0; i-- )
     {
@@ -177,7 +178,7 @@ int RiaInterpolationTools::interpolateRange( int                        start,
                                              const std::vector<double>& x,
                                              std::vector<double>&       y )
 {
-    assert( start <= end );
+    CAF_ASSERT( start <= end );
 
     std::vector<double> xs = { x[firstPoint], x[lastPoint] };
     std::vector<double> ys = { y[firstPoint], y[lastPoint] };
@@ -194,7 +195,7 @@ int RiaInterpolationTools::interpolateRange( int                        start,
 //--------------------------------------------------------------------------------------------------
 void RiaInterpolationTools::interpolateMissingValues( const std::vector<double>& x, std::vector<double>& y )
 {
-    assert( x.size() == y.size() );
+    CAF_ASSERT( x.size() == y.size() );
 
     int index = 0;
 
