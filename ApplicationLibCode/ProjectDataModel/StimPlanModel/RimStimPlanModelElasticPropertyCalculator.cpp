@@ -247,18 +247,21 @@ bool RimStimPlanModelElasticPropertyCalculator::calculate( RiaDefines::CurveProp
             {
                 const RigElasticProperties& rigElasticProperties = elasticProperties->propertiesForFacies( faciesKey );
                 double scale = elasticProperties->getPropertyScaling( formationName, faciesName, curveProperty );
-                double val   = rigElasticProperties.getValueForPorosity( curveProperty, porosity, scale );
-                if ( std::isinf( val ) )
+                auto [val, isExtrapolated] = rigElasticProperties.getValueForPorosity( curveProperty, porosity, scale );
+                if ( isExtrapolated )
                 {
+                    QString propertyName = caf::AppEnum<RiaDefines::CurveProperty>( curveProperty ).uiText();
                     RiaLogging::error(
-                        QString( "Elastic property interpolation failed. Formation='%1', "
-                                 "facies='%2', depth=%3, porosity=%4. Property defined for porosity range: [%5, %6]" )
+                        QString( "Elastic property '%1' outside porosity range [%2, %3] for formation='%4', "
+                                 "facies='%5', depth=%6, porosity=%7. Extrapolated value: %8" )
+                            .arg( propertyName )
+                            .arg( rigElasticProperties.porosityMin() )
+                            .arg( rigElasticProperties.porosityMax() )
                             .arg( formationName )
                             .arg( faciesName )
                             .arg( tvDepthValues[i] )
                             .arg( porosity )
-                            .arg( rigElasticProperties.porosityMin() )
-                            .arg( rigElasticProperties.porosityMax() ) );
+                            .arg( val ) );
                 }
 
                 //
@@ -272,19 +275,23 @@ bool RimStimPlanModelElasticPropertyCalculator::calculate( RiaDefines::CurveProp
                             elasticProperties->propertiesForFacies( ntgFaciesKey );
                         double ntgScale =
                             elasticProperties->getPropertyScaling( formationName, netToGrossFaciesName, curveProperty );
-                        double ntgValue = rigNtgElasticProperties.getValueForPorosity( curveProperty, porosity, ntgScale );
-                        val             = val * netToGross + ( 1.0 - netToGross ) * ntgValue;
-                        if ( std::isinf( val ) )
+                        auto [ntgValue, isExtrapolated] =
+                            rigNtgElasticProperties.getValueForPorosity( curveProperty, porosity, ntgScale );
+                        val = val * netToGross + ( 1.0 - netToGross ) * ntgValue;
+                        if ( std::isinf( val ) || isExtrapolated )
                         {
-                            RiaLogging::error( QString( "Elastic property (NTG) interpolation failed. Formation='%1', "
-                                                        "facies='%2', depth=%3, porosity=%4.  Property defined for "
-                                                        "porosity range: [%5, %6]" )
-                                                   .arg( formationName )
-                                                   .arg( netToGrossFaciesName )
-                                                   .arg( tvDepthValues[i] )
-                                                   .arg( porosity )
-                                                   .arg( rigNtgElasticProperties.porosityMin() )
-                                                   .arg( rigNtgElasticProperties.porosityMax() ) );
+                            QString propertyName = caf::AppEnum<RiaDefines::CurveProperty>( curveProperty ).uiText();
+                            RiaLogging::error(
+                                QString( "Elastic property '%1' outside porosity range [%2, %3] for formation='%4', "
+                                         "facies='%5', depth=%6, porosity=%7 (NTG). Extrapolated value: %8" )
+                                    .arg( propertyName )
+                                    .arg( rigNtgElasticProperties.porosityMin() )
+                                    .arg( rigNtgElasticProperties.porosityMax() )
+                                    .arg( formationName )
+                                    .arg( netToGrossFaciesName )
+                                    .arg( tvDepthValues[i] )
+                                    .arg( porosity )
+                                    .arg( val ) );
                         }
                     }
                 }

@@ -48,7 +48,8 @@ public:
 
     size_t numValues() const;
     double getValue( RiaDefines::CurveProperty property, size_t index, double scale = 1.0 ) const;
-    double getValueForPorosity( RiaDefines::CurveProperty property, double porosity, double scale = 1.0 ) const;
+    std::pair<double, bool>
+        getValueForPorosity( RiaDefines::CurveProperty property, double porosity, double scale = 1.0 ) const;
 
     const std::vector<double>& porosity() const;
     double                     porosityMin() const;
