@@ -290,6 +290,20 @@ QString RimWellPathGroup::createGroupName() const
         }
     }
 
+    // if no imported well path is present, use all modeled well paths
+    if ( allNames.empty() )
+    {
+        std::vector<RimModeledWellPath*> descendantWellPaths;
+        this->descendantsOfType( descendantWellPaths );
+        for ( auto wellPath : descendantWellPaths )
+        {
+            if ( wellPath )
+            {
+                allNames.push_back( wellPath->name() );
+            }
+        }
+    }
+
     QString commonRoot        = RiaTextStringTools::commonRoot( allNames );
     QString trimmedCommonRoot = RiaTextStringTools::trimNonAlphaNumericCharacters( commonRoot );
 
