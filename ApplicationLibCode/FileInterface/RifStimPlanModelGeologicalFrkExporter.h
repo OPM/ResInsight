@@ -42,6 +42,9 @@ private:
     static bool writeToFrkFile( const QString&                                filepath,
                                 const std::vector<QString>&                   labels,
                                 const std::map<QString, std::vector<double>>& values );
+    static bool writeToCsvFile( const QString&                                filepath,
+                                const std::vector<QString>&                   labels,
+                                const std::map<QString, std::vector<double>>& values );
 
     static void appendHeaderToStream( QTextStream& stream );
     static void appendToStream( QTextStream& stream, const QString& label, const std::vector<double>& values );

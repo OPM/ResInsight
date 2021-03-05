@@ -19,11 +19,15 @@
 #include "RifStimPlanModelGeologicalFrkExporter.h"
 
 #include "RiaLogging.h"
+#include "RiaPreferences.h"
+
+#include "RifCsvDataTableFormatter.h"
 
 #include "RimStimPlanModel.h"
 #include "RimStimPlanModelCalculator.h"
 
 #include <QFile>
+#include <QFileInfo>
 #include <QTextStream>
 
 //--------------------------------------------------------------------------------------------------
@@ -126,7 +130,7 @@ bool RifStimPlanModelGeologicalFrkExporter::writeToFile( RimStimPlanModel* stimP
     values["zonePoroElas"]   = stimPlanModel->calculator()->calculatePoroElasticConstant();
     values["zoneThermalExp"] = stimPlanModel->calculator()->calculateThermalExpansionCoefficient();
 
-    return writeToFrkFile( filepath, labels, values );
+    return writeToFrkFile( filepath, labels, values ) && writeToCsvFile( filepath, labels, values );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -156,6 +160,63 @@ bool RifStimPlanModelGeologicalFrkExporter::writeToFrkFile( const QString&      
     }
 
     appendFooterToStream( stream );
+
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RifStimPlanModelGeologicalFrkExporter::writeToCsvFile( const QString&                                filepath,
+                                                            const std::vector<QString>&                   labels,
+                                                            const std::map<QString, std::vector<double>>& values )
+
+{
+    // Create the csv in the same directory as the frk file
+    QFileInfo fi( filepath );
+    QString   csvFilepath = fi.absolutePath() + "/Geological.csv";
+
+    QFile data( csvFilepath );
+    if ( !data.open( QFile::WriteOnly | QFile::Truncate ) )
+    {
+        return false;
+    }
+
+    QTextStream              stream( &data );
+    QString                  fieldSeparator = RiaPreferences::current()->csvTextExportFieldSeparator;
+    RifCsvDataTableFormatter formatter( stream, fieldSeparator );
+
+    // Construct header
+    std::vector<RifTextDataTableColumn> header;
+    for ( auto label : labels )
+    {
+        header.push_back( RifTextDataTableColumn( label, RifTextDataTableDoubleFormat::RIF_FLOAT ) );
+    }
+    formatter.header( header );
+
+    // The length of the vectors are assumed to be equal
+    size_t idx    = 0;
+    bool   isDone = false;
+    while ( !isDone )
+    {
+        // Construct one row
+        for ( auto label : labels )
+        {
+            auto vals = values.find( label );
+            if ( vals == values.end() ) return false;
+
+            if ( idx >= vals->second.size() )
+                isDone = true;
+            else
+            {
+                formatter.add( vals->second[idx] );
+            }
+        }
+        formatter.rowCompleted();
+        idx++;
+    }
+
+    formatter.tableCompleted();
 
     return true;
 }
