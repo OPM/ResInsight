@@ -81,7 +81,46 @@ TEST( RiaInterpolationToolsTest, ValidIntervalValueTooHigh )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-TEST( RiaInterpolationToolsTest, InterpolateMisssingValuesStraightLine )
+TEST( RiaInterpolationToolsTest, ValidIntervalValueTooHighExtrapolationClosest )
+{
+    std::vector<double> x = { 0.0, 1.0 };
+    std::vector<double> y = { 0.0, 2.0 };
+
+    // Outside interval on high side
+    double res = RiaInterpolationTools::linear( x, y, 100.0, RiaInterpolationTools::ExtrapolationMode::CLOSEST );
+    EXPECT_DOUBLE_EQ( 2.0, res );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( RiaInterpolationToolsTest, ValidIntervalValueTooLowExtrapolationClosest )
+{
+    std::vector<double> x = { 0.0, 1.0 };
+    std::vector<double> y = { 0.0, 2.0 };
+
+    // Outside interval on low side
+    double res = RiaInterpolationTools::linear( x, y, -1.0, RiaInterpolationTools::ExtrapolationMode::CLOSEST );
+    EXPECT_DOUBLE_EQ( 0.0, res );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( RiaInterpolationToolsTest, ValidIntervalValueTooLowExtrapolationTrend )
+{
+    std::vector<double> x = { 0.0, 1.0 };
+    std::vector<double> y = { 0.0, 2.0 };
+
+    // Outside interval on low side
+    double res = RiaInterpolationTools::linear( x, y, -1.0, RiaInterpolationTools::ExtrapolationMode::TREND );
+    EXPECT_DOUBLE_EQ( -2.0, res );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( RiaInterpolationToolsTest, InterpolateMissingValuesStraightLine )
 {
     double              inf = std::numeric_limits<double>::infinity();
     std::vector<double> x   = { 0.0, 1.0, 2.0, 3.0, 4.0, 5.0 };
