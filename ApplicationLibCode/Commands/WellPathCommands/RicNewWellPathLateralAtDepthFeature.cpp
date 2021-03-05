@@ -86,7 +86,16 @@ void RicNewWellPathLateralAtDepthFeature::onActionTriggered( bool isChecked )
             newModeledWellPath->geometryDefinition()->setFixedWellPathPoints( pointVector );
             newModeledWellPath->geometryDefinition()->setFixedMeasuredDepths( measuredDepths );
             newModeledWellPath->setName( wellPath->name() + QString( " md=%1" ).arg( wellPathSelItem->m_measuredDepth ) );
+
+            {
+                RimWellPathTarget* newTarget = newModeledWellPath->geometryDefinition()->appendTarget();
+                auto               lastPoint = pointVector.back();
+                auto               tangent   = lastPoint - pointVector[pointVector.size() - 2];
+                newTarget->setAsPointXYZAndTangentTarget( { lastPoint[0], lastPoint[1], lastPoint[2] }, tangent );
+            }
+
             newModeledWellPath->geometryDefinition()->enableTargetPointPicking( true );
+
             newModeledWellPath->createWellPathGeometry();
             if ( wellPathGroup )
             {
@@ -94,7 +103,8 @@ void RicNewWellPathLateralAtDepthFeature::onActionTriggered( bool isChecked )
             }
             else
             {
-                wellPathCollection->addWellPath( newModeledWellPath, false );
+                bool importedWellPath = false;
+                wellPathCollection->addWellPath( newModeledWellPath, importedWellPath );
                 wellPathCollection->groupWellPaths( { wellPath, newModeledWellPath } );
             }
             newModeledWellPath->firstAncestorOrThisOfTypeAsserted( wellPathGroup );
