@@ -127,7 +127,7 @@ jobs:
         uses: lukka/set-shell-env@master
         with:
           VCPKGRESPONSEFILE: ${{ github.workspace }}/${{ matrix.config.vcpkg-response-file }}
-      - name: Run vcpkg
+      - name: Restore from cache and install vcpkg
         uses: lukka/run-vcpkg@v5
         id: runvcpkg
         with:
@@ -135,6 +135,18 @@ jobs:
           vcpkgDirectory: '${{ github.workspace }}/ThirdParty/vcpkg'
            # Ensure the cache key changes any time the content of the response file changes.
           appendedCacheKey: ${{ hashFiles(env.VCPKGRESPONSEFILE) }}
+
+      - name: Cache dynamic version of OpenSSL (Linux)
+        if: "contains( matrix.config.os, 'ubuntu')"
+        uses: actions/cache@v2
+        with:
+          path: ${{ github.workspace }}/ThirdParty/vcpkg/installed/x64-linux-dynamic
+          key: ${{ matrix.config.os }}-vcpkg-x64-linux-dynamic_v01
+
+      - name: Install dynamic version of OpenSSL (Linux)
+        if: "contains( matrix.config.os, 'ubuntu')"
+        run: |
+          $VCPKG_ROOT/vcpkg install --overlay-triplets=${{ github.workspace }}/ThirdParty/vcpkg-custom-triplets --triplet x64-linux-dynamic openssl
 
       - name: Configure
         shell: cmake -P {0}
