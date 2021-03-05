@@ -1091,6 +1091,7 @@ const std::vector<QString>& RifEclipseInputFileTools::invalidPropertyDataKeyword
         keywords.push_back( "SPECGRID" );
         keywords.push_back( "MAPAXES" );
         keywords.push_back( "NOECHO" );
+        keywords.push_back( "ECHO" );
         keywords.push_back( "MAPUNITS" );
         keywords.push_back( "GRIDUNIT" );
 
