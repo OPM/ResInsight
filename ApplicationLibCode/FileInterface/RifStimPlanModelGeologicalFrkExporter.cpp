@@ -19,11 +19,15 @@
 #include "RifStimPlanModelGeologicalFrkExporter.h"
 
 #include "RiaLogging.h"
+#include "RiaPreferences.h"
+
+#include "RifCsvDataTableFormatter.h"
 
 #include "RimStimPlanModel.h"
 #include "RimStimPlanModelCalculator.h"
 
 #include <QFile>
+#include <QFileInfo>
 #include <QTextStream>
 
 //--------------------------------------------------------------------------------------------------
@@ -126,6 +130,25 @@ bool RifStimPlanModelGeologicalFrkExporter::writeToFile( RimStimPlanModel* stimP
     values["zonePoroElas"]   = stimPlanModel->calculator()->calculatePoroElasticConstant();
     values["zoneThermalExp"] = stimPlanModel->calculator()->calculateThermalExpansionCoefficient();
 
+    // Special values for csv export
+    auto [depthStart, depthEnd]    = createDepthRanges( tvd );
+    values["dpthstart"]            = depthStart;
+    values["dpthend"]              = depthEnd;
+    std::vector<QString> csvLabels = { "dpthstart", "dpthend" };
+    for ( const QString& label : labels )
+        csvLabels.push_back( label );
+
+    return writeToFrkFile( filepath, labels, values ) && writeToCsvFile( filepath, csvLabels, values );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RifStimPlanModelGeologicalFrkExporter::writeToFrkFile( const QString&                                filepath,
+                                                            const std::vector<QString>&                   labels,
+                                                            const std::map<QString, std::vector<double>>& values )
+
+{
     QFile data( filepath );
     if ( !data.open( QFile::WriteOnly | QFile::Truncate ) )
     {
@@ -137,11 +160,71 @@ bool RifStimPlanModelGeologicalFrkExporter::writeToFile( RimStimPlanModel* stimP
 
     for ( QString label : labels )
     {
-        warnOnInvalidData( label, values[label] );
-        appendToStream( stream, label, values[label] );
+        auto vals = values.find( label );
+        if ( vals == values.end() ) return false;
+
+        warnOnInvalidData( label, vals->second );
+        appendToStream( stream, label, vals->second );
     }
 
     appendFooterToStream( stream );
+
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RifStimPlanModelGeologicalFrkExporter::writeToCsvFile( const QString&                                filepath,
+                                                            const std::vector<QString>&                   labels,
+                                                            const std::map<QString, std::vector<double>>& values )
+
+{
+    // Create the csv in the same directory as the frk file
+    QFileInfo fi( filepath );
+    QString   csvFilepath = fi.absolutePath() + "/Geological.csv";
+
+    QFile data( csvFilepath );
+    if ( !data.open( QFile::WriteOnly | QFile::Truncate ) )
+    {
+        return false;
+    }
+
+    QTextStream              stream( &data );
+    QString                  fieldSeparator = RiaPreferences::current()->csvTextExportFieldSeparator;
+    RifCsvDataTableFormatter formatter( stream, fieldSeparator );
+
+    // Construct header
+    std::vector<RifTextDataTableColumn> header;
+    for ( auto label : labels )
+    {
+        header.push_back( RifTextDataTableColumn( label, RifTextDataTableDoubleFormat::RIF_FLOAT ) );
+    }
+    formatter.header( header );
+
+    // The length of the vectors are assumed to be equal
+    size_t idx    = 0;
+    bool   isDone = false;
+    while ( !isDone )
+    {
+        // Construct one row
+        for ( auto label : labels )
+        {
+            auto vals = values.find( label );
+            if ( vals == values.end() ) return false;
+
+            if ( idx >= vals->second.size() )
+                isDone = true;
+            else
+            {
+                formatter.add( vals->second[idx] );
+            }
+        }
+        formatter.rowCompleted();
+        idx++;
+    }
+
+    formatter.tableCompleted();
 
     return true;
 }
@@ -237,4 +320,26 @@ bool RifStimPlanModelGeologicalFrkExporter::hasInvalidData( const std::vector<do
     }
 
     return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::pair<std::vector<double>, std::vector<double>>
+    RifStimPlanModelGeologicalFrkExporter::createDepthRanges( const std::vector<double>& tvd )
+{
+    std::vector<double> startTvd;
+    std::vector<double> endTvd;
+
+    for ( size_t i = 0; i < tvd.size(); i++ )
+    {
+        startTvd.push_back( tvd[i] );
+        // Special handling for last range
+        if ( i == tvd.size() - 1 )
+            endTvd.push_back( startTvd[i] );
+        else
+            endTvd.push_back( tvd[i + 1] );
+    }
+
+    return std::make_pair( startTvd, endTvd );
 }
