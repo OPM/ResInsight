@@ -148,7 +148,8 @@ const std::vector<double>& RigElasticProperties::getVector( RiaDefines::CurvePro
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RigElasticProperties::getValueForPorosity( RiaDefines::CurveProperty property, double porosity, double scale ) const
+std::pair<double, bool>
+    RigElasticProperties::getValueForPorosity( RiaDefines::CurveProperty property, double porosity, double scale ) const
 {
     const std::vector<double>& unscaledValues = getVector( property );
     std::vector<double>        scaledValues;
@@ -157,5 +158,8 @@ double RigElasticProperties::getValueForPorosity( RiaDefines::CurveProperty prop
         scaledValues.push_back( unscaled * scale );
     }
 
-    return RiaInterpolationTools::linear( m_porosity, scaledValues, porosity );
+    bool   isExtrapolated = porosity > porosityMax() || porosity < porosityMin();
+    double value =
+        RiaInterpolationTools::linear( m_porosity, scaledValues, porosity, RiaInterpolationTools::ExtrapolationMode::CLOSEST );
+    return std::make_pair( value, isExtrapolated );
 }
