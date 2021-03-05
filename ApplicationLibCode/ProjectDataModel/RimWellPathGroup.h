@@ -25,10 +25,13 @@ class RimWellPathValve;
 
 #include <QString>
 
+//==================================================================================================
+///
+///
+//==================================================================================================
 class RimWellPathGroup : public RimWellPath
 {
     CAF_PDM_HEADER_INIT;
-    caf::Signal<> wellPathAddedOrRemoved;
 
 public:
     RimWellPathGroup();

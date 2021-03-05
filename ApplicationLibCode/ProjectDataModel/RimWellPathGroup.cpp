@@ -37,7 +37,6 @@ CAF_PDM_SOURCE_INIT( RimWellPathGroup, "WellPathGroup" );
 ///
 //--------------------------------------------------------------------------------------------------
 RimWellPathGroup::RimWellPathGroup()
-    : wellPathAddedOrRemoved( this )
 {
     CAF_PDM_InitScriptableObjectWithNameAndComment( "Well Path Group",
                                                     ":/WellPathGroup.svg",
@@ -290,6 +289,20 @@ QString RimWellPathGroup::createGroupName() const
         }
     }
 
+    // if no imported well path is present, use all modeled well paths
+    if ( allNames.empty() )
+    {
+        std::vector<RimModeledWellPath*> descendantWellPaths;
+        this->descendantsOfType( descendantWellPaths );
+        for ( auto wellPath : descendantWellPaths )
+        {
+            if ( wellPath )
+            {
+                allNames.push_back( wellPath->name() );
+            }
+        }
+    }
+
     QString commonRoot        = RiaTextStringTools::commonRoot( allNames );
     QString trimmedCommonRoot = RiaTextStringTools::trimNonAlphaNumericCharacters( commonRoot );
 
@@ -323,6 +336,9 @@ QString RimWellPathGroup::createGroupName() const
     nameWithoutSpaces.remove( ' ' );
 
     if ( nameWithoutSpaces.length() > 8 ) fullName = trimmedCommonRoot + trimmedCommonSuffix;
+
+    if ( fullName.isEmpty() ) fullName = "Well 1";
+
     return fullName;
 }
 

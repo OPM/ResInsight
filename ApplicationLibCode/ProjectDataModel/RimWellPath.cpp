@@ -1029,6 +1029,8 @@ bool RimWellPath::isAssociatedWithSimulationWell() const
 void RimWellPath::onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
                                   std::vector<caf::PdmObjectHandle*>& referringObjects )
 {
+    RimProject::current()->reloadCompletionTypeResultsInAllViews();
+
     updateConnectedEditors();
 }
 
