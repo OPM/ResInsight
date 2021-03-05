@@ -40,7 +40,10 @@ bool almostEqual( double a, double b, double maxRelDiff = std::numeric_limits<do
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RiaInterpolationTools::linear( const std::vector<double>& x, const std::vector<double>& y, double value )
+double RiaInterpolationTools::linear( const std::vector<double>& x,
+                                      const std::vector<double>& y,
+                                      double                     value,
+                                      ExtrapolationMode          extrapolationMode )
 {
     assert( x.size() == y.size() );
 
@@ -70,6 +73,17 @@ double RiaInterpolationTools::linear( const std::vector<double>& x, const std::v
             return y[0];
         else if ( almostEqual( value, x[x.size() - 1] ) )
             return y[x.size() - 1];
+
+        if ( extrapolationMode == ExtrapolationMode::CLOSEST )
+        {
+            return extrapolateClosestValue( x, y, value );
+        }
+        else if ( extrapolationMode == ExtrapolationMode::TREND )
+        {
+            return extrapolate( x, y, value );
+        }
+
+        assert( extrapolationMode == ExtrapolationMode::NONE );
         return std::numeric_limits<double>::infinity();
     }
 
@@ -92,6 +106,17 @@ double RiaInterpolationTools::linear( const std::vector<double>& x, const std::v
 double RiaInterpolationTools::extrapolate( const std::vector<double>& x, const std::vector<double>& y, double value )
 {
     return y[0] + ( value - x[0] ) / ( x[1] - x[0] ) * ( y[1] - y[0] );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RiaInterpolationTools::extrapolateClosestValue( const std::vector<double>& x, const std::vector<double>& y, double value )
+{
+    if ( value <= x[0] )
+        return y[0];
+    else
+        return y[x.size() - 1];
 }
 
 //--------------------------------------------------------------------------------------------------
