@@ -56,6 +56,7 @@ void AppEnum<RiaDefines::CurveProperty>::setUp()
     addItem( RiaDefines::CurveProperty::NET_TO_GROSS, "NET_TO_GROSS", "Net-To-Gross" );
     addItem( RiaDefines::CurveProperty::POROSITY_UNSCALED, "POROSITY_UNSCALED", "Porosity (Unscaled)" );
     addItem( RiaDefines::CurveProperty::EQLNUM, "EQLNUM", "Equilibration Number" );
+    addItem( RiaDefines::CurveProperty::PRESSURE_GRADIENT, "PRESSURE_GRADIENT", "Pressure Gradient" );
 
     setDefault( RiaDefines::CurveProperty::UNDEFINED );
 }

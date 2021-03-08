@@ -93,6 +93,11 @@ protected:
                                            const std::vector<double>&                    inputVector,
                                            std::vector<double>&                          result );
 
+    static double calculateStressAtDepth( double depth,
+                                          double stressDepthRef,
+                                          double verticalStressRef,
+                                          double verticalStressGradientRef );
+
 private:
     RimStimPlanModel*                                                m_stimPlanModel;
     std::vector<std::unique_ptr<RimStimPlanModelPropertyCalculator>> m_resultCalculators;

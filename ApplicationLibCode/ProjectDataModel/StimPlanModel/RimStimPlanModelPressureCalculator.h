@@ -58,11 +58,19 @@ protected:
                                        std::vector<double>&      measuredDepthValues,
                                        std::vector<double>&      tvDepthValues ) const;
 
-    bool interpolateInitialPressureByEquilibrationRegion( const RimStimPlanModel*    stimPlanModel,
+    bool interpolateInitialPressureByEquilibrationRegion( RiaDefines::CurveProperty  curveProperty,
+                                                          const RimStimPlanModel*    stimPlanModel,
                                                           int                        timeStep,
                                                           const std::vector<double>& measuredDepthValues,
                                                           const std::vector<double>& tvDepthValues,
                                                           std::vector<double>&       values ) const;
+    bool interpolatePressureDifferenceByEquilibrationRegion( RiaDefines::CurveProperty  curveProperty,
+                                                             const RimStimPlanModel*    stimPlanModel,
+                                                             int                        timeStep,
+                                                             const std::vector<double>& measuredDepthValues,
+                                                             const std::vector<double>& tvDepthValues,
+                                                             const std::vector<double>& initialPressureValues,
+                                                             std::vector<double>&       values ) const;
 
     typedef std::pair<double, double>           DepthValuePair;
     typedef std::vector<DepthValuePair>         DepthValuePairVector;

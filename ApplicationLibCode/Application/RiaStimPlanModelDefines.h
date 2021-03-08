@@ -51,6 +51,7 @@ enum class CurveProperty
     NET_TO_GROSS,
     POROSITY_UNSCALED,
     EQLNUM,
+    PRESSURE_GRADIENT,
 };
 
 double defaultPorosity();
