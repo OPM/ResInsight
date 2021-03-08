@@ -100,6 +100,17 @@ void RicExportCompletionsWellSegmentsFeature::onActionTriggered( bool isChecked 
 
     if ( propertyDialog.exec() == QDialog::Accepted )
     {
+        {
+            QDir folder( exportSettings.folder );
+            if ( !folder.exists() )
+            {
+                QString txt = QString( "The path '%1' does not exist. Aborting export." ).arg( exportSettings.folder );
+                RiaLogging::errorInMessageBox( Riu3DMainWindowTools::mainWindowWidget(), "Export", txt );
+
+                return;
+            }
+        }
+
         RiaApplication::instance()->setLastUsedDialogDirectory( "COMPLETIONS",
                                                                 QFileInfo( exportSettings.folder ).absolutePath() );
         RicExportCompletionDataSettingsUi completionExportSettings;
