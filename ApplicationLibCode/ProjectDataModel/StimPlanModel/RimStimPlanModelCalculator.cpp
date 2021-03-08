@@ -34,6 +34,8 @@
 #include "RimStimPlanModelStressCalculator.h"
 #include "RimStimPlanModelWellLogCalculator.h"
 
+#include <cmath>
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -377,9 +379,12 @@ bool RimStimPlanModelCalculator::calculateStressWithGradients( std::vector<doubl
     // Poissons ratio
     std::vector<double> poissonsRatioData = extractValues( RiaDefines::CurveProperty::POISSONS_RATIO, timeStep );
 
+    // Pressure difference
+    std::vector<double> pressureDiffData = extractValues( RiaDefines::CurveProperty::PRESSURE_GRADIENT, timeStep );
+
     // Check that we have data from all curves
     if ( biotData.empty() || k0Data.empty() || timeStepPressureData.empty() || initialPressureData.empty() ||
-         poissonsRatioData.empty() )
+         poissonsRatioData.empty() || pressureDiffData.empty() )
     {
         return false;
     }
@@ -387,14 +392,10 @@ bool RimStimPlanModelCalculator::calculateStressWithGradients( std::vector<doubl
     if ( biotData.size() < layerBoundaryIndexes.size() || k0Data.size() < layerBoundaryIndexes.size() ||
          timeStepPressureData.size() < layerBoundaryIndexes.size() ||
          initialPressureData.size() < layerBoundaryIndexes.size() ||
-         poissonsRatioData.size() < layerBoundaryIndexes.size() )
+         poissonsRatioData.size() < layerBoundaryIndexes.size() || pressureDiffData.size() < layerBoundaryIndexes.size() )
     {
         return false;
     }
-
-    std::vector<double> stressForGradients;
-    std::vector<double> pressureForGradients;
-    std::vector<double> depthForGradients;
 
     // Calculate the stress
     for ( size_t i = 0; i < layerBoundaryDepths.size(); i++ )
@@ -427,36 +428,38 @@ bool RimStimPlanModelCalculator::calculateStressWithGradients( std::vector<doubl
 
         initialStress.push_back( RiaEclipseUnitTools::barToPsi( Sh_init ) );
 
-        // Cache some results for the gradients calculation
-        stressForGradients.push_back( Sv );
-        pressureForGradients.push_back( initialPressure );
-        depthForGradients.push_back( depthTopOfZone );
+        // Use the bottom of the last layer to compute gradient for last layer
+        double bottomInitialPressure = findValueAtBottomOfLayer( initialPressureData, layerBoundaryIndexes, i );
 
-        if ( i == layerBoundaryDepths.size() - 1 )
+        double bottomDepthDiff = depthBottomOfZone - stressDepthRef;
+        double bottomSv        = verticalStressRef + verticalStressGradientRef * bottomDepthDiff;
+
+        double lengthOfLayer     = depthBottomOfZone - depthTopOfZone;
+        double diffStressLayer   = bottomSv - Sv;
+        double diffPressureLayer = bottomInitialPressure - initialPressure;
+
+        // The pressure difference result is only defined where there was no pressure data.
+        // Diff pressure is interpolated in the equilibration region.
+        double diffPressureEQLTop    = findValueAtTopOfLayer( pressureDiffData, layerBoundaryIndexes, i );
+        double diffPressureEQLBottom = findValueAtBottomOfLayer( pressureDiffData, layerBoundaryIndexes, i );
+        if ( !std::isinf( diffPressureEQLTop ) )
         {
-            // Use the bottom of the last layer to compute gradient for last layer
-            double bottomInitialPressure = findValueAtBottomOfLayer( initialPressureData, layerBoundaryIndexes, i );
-
-            double bottomDepthDiff = depthBottomOfZone - stressDepthRef;
-            double bottomSv        = verticalStressRef + verticalStressGradientRef * bottomDepthDiff;
-            stressForGradients.push_back( bottomSv );
-            pressureForGradients.push_back( bottomInitialPressure );
-            depthForGradients.push_back( depthBottomOfZone );
+            lengthOfLayer     = 2.0;
+            diffPressureLayer = diffPressureEQLTop;
+            diffStressLayer =
+                calculateStressAtDepth( depthTopOfZone - 1, stressDepthRef, verticalStressRef, verticalStressGradientRef ) -
+                calculateStressAtDepth( depthTopOfZone + 1, stressDepthRef, verticalStressRef, verticalStressGradientRef );
         }
-    }
+        else if ( !std::isinf( diffPressureEQLBottom ) )
+        {
+            lengthOfLayer     = 2.0;
+            diffPressureLayer = diffPressureEQLBottom;
+            diffStressLayer =
+                calculateStressAtDepth( depthBottomOfZone - 1, stressDepthRef, verticalStressRef, verticalStressGradientRef ) -
+                calculateStressAtDepth( depthBottomOfZone + 1, stressDepthRef, verticalStressRef, verticalStressGradientRef );
+        }
 
-    assert( stressForGradients.size() == layerBoundaryDepths.size() + 1 );
-    assert( pressureForGradients.size() == layerBoundaryDepths.size() + 1 );
-    assert( depthForGradients.size() == layerBoundaryDepths.size() + 1 );
-
-    // Second pass to calculate the stress gradients
-    for ( size_t i = 0; i < layerBoundaryDepths.size(); i++ )
-    {
-        double diffStress     = stressForGradients[i + 1] - stressForGradients[i];
-        double diffPressure   = pressureForGradients[i + 1] - pressureForGradients[i];
-        double diffDepth      = depthForGradients[i + 1] - depthForGradients[i];
-        double k0             = findValueAtTopOfLayer( k0Data, layerBoundaryIndexes, i );
-        double stressGradient = ( diffStress * k0 + diffPressure * ( 1.0 - k0 ) ) / diffDepth;
+        double stressGradient = ( diffStressLayer * k0 + diffPressureLayer * ( 1.0 - k0 ) ) / lengthOfLayer;
         stressGradients.push_back( RiaEclipseUnitTools::barPerMeterToPsiPerFeet( stressGradient ) );
     }
 
@@ -620,4 +623,17 @@ std::vector<double> RimStimPlanModelCalculator::calculateThermalExpansionCoeffic
     }
 
     return coefficientFahrenheit;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimStimPlanModelCalculator::calculateStressAtDepth( double depth,
+                                                           double stressDepthRef,
+                                                           double verticalStressRef,
+                                                           double verticalStressGradientRef )
+{
+    double depthDiff = depth - stressDepthRef;
+    double stress    = verticalStressRef + verticalStressGradientRef * depthDiff;
+    return stress;
 }
