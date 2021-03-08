@@ -20,6 +20,7 @@
 #include "RicWellPathExportCompletionDataFeatureImpl.h"
 
 #include "RiaApplication.h"
+#include "RiaLogging.h"
 
 #include "ExportCommands/RicExportLgrFeature.h"
 #include "RicExportFeatureImpl.h"
@@ -43,6 +44,7 @@
 #include "cafSelectionManager.h"
 
 #include <QAction>
+#include <QDir>
 
 CAF_CMD_SOURCE_INIT( RicWellPathExportCompletionDataFeature, "RicWellPathExportCompletionDataFeature" );
 
@@ -147,6 +149,17 @@ void RicWellPathExportCompletionDataFeature::prepareExportSettingsAndExportCompl
 
     if ( propertyDialog.exec() == QDialog::Accepted )
     {
+        {
+            QDir folder( exportSettings->folder );
+            if ( !folder.exists() )
+            {
+                QString txt = QString( "The path '%1' does not exist. Aborting export." ).arg( exportSettings->folder );
+                RiaLogging::errorInMessageBox( Riu3DMainWindowTools::mainWindowWidget(), "Export", txt );
+
+                return;
+            }
+        }
+
         RiaApplication::instance()->setLastUsedDialogDirectory( "COMPLETIONS", exportSettings->folder );
 
         RicWellPathExportCompletionDataFeatureImpl::exportCompletions( wellPaths, simWells, *exportSettings );

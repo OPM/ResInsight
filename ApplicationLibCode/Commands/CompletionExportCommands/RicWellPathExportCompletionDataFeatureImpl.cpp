@@ -31,6 +31,7 @@
 #include "RicExportFeatureImpl.h"
 #include "RicExportFractureCompletionsImpl.h"
 #include "RicFishbonesTransmissibilityCalculationFeatureImp.h"
+#include "RicWellPathExportCompletionsFileTools.h"
 #include "RicWellPathExportMswCompletionsImpl.h"
 #include "RicWellPathFractureReportItem.h"
 #include "RicWellPathFractureTextReportFeatureImpl.h"
@@ -66,6 +67,7 @@
 #include "RimWellPathFractureCollection.h"
 #include "RimWellPathValve.h"
 
+#include "Riu3DMainWindowTools.h"
 #include "RiuMainWindow.h"
 
 #include "cafPdmUiPropertyViewDialog.h"
@@ -75,8 +77,8 @@
 
 #include "cvfPlane.h"
 
-#include "RicWellPathExportCompletionsFileTools.h"
 #include <QDir>
+
 #include <map>
 #include <set>
 
@@ -91,6 +93,17 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions( const std::v
     {
         RiaLogging::error( "Export Completions Data: Cannot export completions data without specified eclipse case" );
         return;
+    }
+
+    {
+        QDir folder( exportSettings.folder );
+        if ( !folder.exists() )
+        {
+            QString txt = QString( "The path '%1' does not exist. Aborting export." ).arg( exportSettings.folder );
+            RiaLogging::errorInMessageBox( Riu3DMainWindowTools::mainWindowWidget(), "Export", txt );
+
+            return;
+        }
     }
 
     exportCarfinForTemporaryLgrs( exportSettings.caseToApply(), exportSettings.folder );
