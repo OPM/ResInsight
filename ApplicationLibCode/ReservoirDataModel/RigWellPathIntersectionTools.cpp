@@ -131,7 +131,9 @@ cvf::Vec3d RigWellPathIntersectionTools::calculateLengthInCell( const std::array
                                           jAxisDirection.z(),
                                           kAxisDirection.z() );
 
-    return vec.getTransformedVector( localCellCoordinateSystem.getInverted() );
+    auto signedVector = vec.getTransformedVector( localCellCoordinateSystem.getInverted() );
+
+    return { std::fabs( signedVector.x() ), std::fabs( signedVector.y() ), std::fabs( signedVector.z() ) };
 }
 
 //--------------------------------------------------------------------------------------------------

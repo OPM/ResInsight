@@ -59,6 +59,8 @@ public:
                                              const cvf::Vec3d&                startPoint,
                                              const cvf::Vec3d&                endPoint );
 
+    // Returns the length along each axis in local cell coordinate system
+    // The returned vector has unsigned component values
     static cvf::Vec3d calculateLengthInCell( const RigMainGrid* grid,
                                              size_t             cellIndex,
                                              const cvf::Vec3d&  startPoint,
