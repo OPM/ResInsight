@@ -21,10 +21,10 @@
 
 #include "RiaDefines.h"
 
+#include "GeoMechCommands/RicGeoMechPropertyFilterNewExec.h"
 #include "MeasurementCommands/RicMeasurementPickEventHandler.h"
 #include "RicContourMapPickEventHandler.h"
 #include "RicEclipsePropertyFilterNewExec.h"
-#include "RicGeoMechPropertyFilterNewExec.h"
 #include "RicPickEventHandler.h"
 #include "RiuCellAndNncPickEventHandler.h"
 #include "WellLogCommands/Ric3dWellLogCurvePickEventHandler.h"
