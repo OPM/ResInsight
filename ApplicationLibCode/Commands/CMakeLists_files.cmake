@@ -6,13 +6,6 @@ ${CMAKE_CURRENT_LIST_DIR}/RicCloseSummaryCaseFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicCloseSummaryCaseInCollectionFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicCloseObservedDataFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicCreateSummaryCaseCollectionFeature.h
-${CMAKE_CURRENT_LIST_DIR}/RicGeoMechCopyCaseFeature.h
-${CMAKE_CURRENT_LIST_DIR}/RicGeoMechPropertyFilterFeatureImpl.h
-${CMAKE_CURRENT_LIST_DIR}/RicGeoMechPropertyFilterInsertFeature.h
-${CMAKE_CURRENT_LIST_DIR}/RicGeoMechPropertyFilterInsertExec.h
-${CMAKE_CURRENT_LIST_DIR}/RicGeoMechPropertyFilterNewFeature.h
-${CMAKE_CURRENT_LIST_DIR}/RicGeoMechPropertyFilterNewInViewFeature.h
-${CMAKE_CURRENT_LIST_DIR}/RicGeoMechPropertyFilterNewExec.h
 ${CMAKE_CURRENT_LIST_DIR}/RicNewViewFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicNewContourMapViewFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicImportFaciesFeature.h
@@ -25,8 +18,6 @@ ${CMAKE_CURRENT_LIST_DIR}/RicImportElementPropertyFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicSelectColorResult.h
 
 ${CMAKE_CURRENT_LIST_DIR}/RicTogglePerspectiveViewFeature.h
-${CMAKE_CURRENT_LIST_DIR}/RicImportGeoMechCaseFeature.h
-${CMAKE_CURRENT_LIST_DIR}/RicImportGeoMechCaseTimeStepFilterFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicImportSummaryCaseFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicImportSummaryCasesFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicImportObservedDataFeature.h
@@ -97,13 +88,6 @@ ${CMAKE_CURRENT_LIST_DIR}/RicCloseSummaryCaseFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicCloseSummaryCaseInCollectionFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicCloseObservedDataFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicCreateSummaryCaseCollectionFeature.cpp
-${CMAKE_CURRENT_LIST_DIR}/RicGeoMechCopyCaseFeature.cpp
-${CMAKE_CURRENT_LIST_DIR}/RicGeoMechPropertyFilterFeatureImpl.cpp
-${CMAKE_CURRENT_LIST_DIR}/RicGeoMechPropertyFilterInsertFeature.cpp
-${CMAKE_CURRENT_LIST_DIR}/RicGeoMechPropertyFilterInsertExec.cpp
-${CMAKE_CURRENT_LIST_DIR}/RicGeoMechPropertyFilterNewFeature.cpp
-${CMAKE_CURRENT_LIST_DIR}/RicGeoMechPropertyFilterNewInViewFeature.cpp
-${CMAKE_CURRENT_LIST_DIR}/RicGeoMechPropertyFilterNewExec.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicNewViewFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicNewContourMapViewFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicImportFaciesFeature.cpp
@@ -116,8 +100,6 @@ ${CMAKE_CURRENT_LIST_DIR}/RicImportElementPropertyFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicSelectColorResult.cpp
 
 ${CMAKE_CURRENT_LIST_DIR}/RicTogglePerspectiveViewFeature.cpp
-${CMAKE_CURRENT_LIST_DIR}/RicImportGeoMechCaseFeature.cpp
-${CMAKE_CURRENT_LIST_DIR}/RicImportGeoMechCaseTimeStepFilterFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicImportSummaryCaseFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicImportSummaryCasesFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicImportObservedDataFeature.cpp
