@@ -33,7 +33,6 @@
 
 class RimEclipseView;
 class RimFaultInView;
-class RimNoCommonAreaNncCollection;
 
 //==================================================================================================
 ///

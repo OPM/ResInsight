@@ -97,6 +97,7 @@ include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/CorrelationPlots
   ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/Annotations
   ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/Completions
+  ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/Faults
   ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/Flow
   ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/GridCrossPlots
   ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/GeoMech
@@ -158,6 +159,7 @@ list(
   ProjectDataModel/CMakeLists_files.cmake
   ProjectDataModel/AnalysisPlots/CMakeLists_files.cmake
   ProjectDataModel/CorrelationPlots/CMakeLists_files.cmake
+  ProjectDataModel/Faults/CMakeLists_files.cmake
   ProjectDataModel/GeoMech/CMakeLists_files.cmake
   ProjectDataModel/GridCrossPlots/CMakeLists_files.cmake
   ProjectDataModel/GridCrossPlots/CellFilters/CMakeLists_files.cmake
