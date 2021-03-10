@@ -31,8 +31,6 @@
 #include "RimEclipseView.h"
 #include "RimFaultInView.h"
 #include "RimIntersectionCollection.h"
-#include "RimNoCommonAreaNNC.h"
-#include "RimNoCommonAreaNncCollection.h"
 
 #include "RiuMainWindow.h"
 
