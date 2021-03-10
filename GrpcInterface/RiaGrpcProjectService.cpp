@@ -4,11 +4,11 @@
 #include "RiaGrpcCallbacks.h"
 #include "RiaSocketTools.h"
 
+#include "GeoMech/RimGeoMechCase.h"
 #include "RimCase.h"
 #include "RimCaseCollection.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCaseCollection.h"
-#include "RimGeoMechCase.h"
 #include "RimGridView.h"
 #include "RimIdenticalGridCaseGroup.h"
 #include "RimOilField.h"
