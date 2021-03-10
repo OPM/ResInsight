@@ -54,11 +54,6 @@ ${CMAKE_CURRENT_LIST_DIR}/RimTernaryLegendConfig.h
 ${CMAKE_CURRENT_LIST_DIR}/RimEclipseFaultColors.h
 ${CMAKE_CURRENT_LIST_DIR}/RimNoCommonAreaNNC.h
 ${CMAKE_CURRENT_LIST_DIR}/RimNoCommonAreaNncCollection.h
-${CMAKE_CURRENT_LIST_DIR}/RimGeoMechModels.h
-${CMAKE_CURRENT_LIST_DIR}/RimGeoMechCase.h
-${CMAKE_CURRENT_LIST_DIR}/RimGeoMechView.h
-${CMAKE_CURRENT_LIST_DIR}/RimGeoMechResultDefinition.h
-${CMAKE_CURRENT_LIST_DIR}/RimGeoMechCellColors.h
 ${CMAKE_CURRENT_LIST_DIR}/RimViewWindow.h
 ${CMAKE_CURRENT_LIST_DIR}/Rim3dView.h
 ${CMAKE_CURRENT_LIST_DIR}/RimGridView.h
@@ -133,9 +128,6 @@ ${CMAKE_CURRENT_LIST_DIR}/RimContourMapProjection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimEclipseContourMapProjection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimEclipseContourMapView.h
 ${CMAKE_CURRENT_LIST_DIR}/RimEclipseContourMapViewCollection.h
-${CMAKE_CURRENT_LIST_DIR}/RimGeoMechContourMapProjection.h
-${CMAKE_CURRENT_LIST_DIR}/RimGeoMechContourMapView.h
-${CMAKE_CURRENT_LIST_DIR}/RimGeoMechContourMapViewCollection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimMudWeightWindowParameters.h
 ${CMAKE_CURRENT_LIST_DIR}/RimViewNameConfig.h
 ${CMAKE_CURRENT_LIST_DIR}/RimReloadCaseTools.h
@@ -221,11 +213,6 @@ ${CMAKE_CURRENT_LIST_DIR}/RimTernaryLegendConfig.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimEclipseFaultColors.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimNoCommonAreaNNC.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimNoCommonAreaNncCollection.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimGeoMechModels.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimGeoMechCase.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimGeoMechView.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimGeoMechResultDefinition.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimGeoMechCellColors.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimMudWeightWindowParameters.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimViewWindow.cpp
 ${CMAKE_CURRENT_LIST_DIR}/Rim3dView.cpp
@@ -301,9 +288,6 @@ ${CMAKE_CURRENT_LIST_DIR}/RimContourMapProjection.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimEclipseContourMapProjection.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimEclipseContourMapView.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimEclipseContourMapViewCollection.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimGeoMechContourMapProjection.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimGeoMechContourMapView.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimGeoMechContourMapViewCollection.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimViewNameConfig.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimReloadCaseTools.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimPlotAxisPropertiesInterface.cpp
