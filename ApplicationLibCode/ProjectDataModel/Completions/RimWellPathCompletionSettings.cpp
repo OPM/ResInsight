@@ -90,11 +90,6 @@ RimWellPathCompletionSettings::RimWellPathCompletionSettings()
     CAF_PDM_InitField( &m_wellBoreFluidPVTTable, "WellBoreFluidPVTTable", 0, "Wellbore Fluid PVT table", "", "", "" );
     CAF_PDM_InitFieldNoDefault( &m_hydrostaticDensity, "HydrostaticDensity", "Hydrostatic Density", "", "", "" );
     CAF_PDM_InitField( &m_fluidInPlaceRegion, "FluidInPlaceRegion", 0, "Fluid In-Place Region", "", "", "" );
-
-    CAF_PDM_InitFieldNoDefault( &m_mswParameters, "MswParameters", "Multi Segment Well Parameters", "", "", "" );
-    m_mswParameters = new RimMswCompletionParameters( false );
-    m_mswParameters.uiCapability()->setUiTreeHidden( true );
-    m_mswParameters.uiCapability()->setUiTreeChildrenHidden( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -253,30 +248,6 @@ QString RimWellPathCompletionSettings::fluidInPlaceRegionForExport() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellPathCompletionSettings::setUnitSystemSpecificDefaults()
-{
-    m_mswParameters->setUnitSystemSpecificDefaults();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-const RimMswCompletionParameters* RimWellPathCompletionSettings::mswParameters() const
-{
-    return m_mswParameters();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RimMswCompletionParameters* RimWellPathCompletionSettings::mswParameters()
-{
-    return m_mswParameters();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 QRegExp RimWellPathCompletionSettings::wellNameForExportRegExp()
 {
     QRegExp rx( "[\\w\\-\\_]{1,8}" );
@@ -301,8 +272,6 @@ void RimWellPathCompletionSettings::defineUiOrdering( QString uiConfigName, caf:
     compExportGroup->add( &m_hydrostaticDensity );
     compExportGroup->add( &m_fluidInPlaceRegion );
 
-    caf::PdmUiGroup* mswGroup = uiOrdering.addNewGroup( "Multi Segment Well Options" );
-    m_mswParameters->uiOrdering( uiConfigName, *mswGroup );
     uiOrdering.skipRemainingFields( true );
 }
 

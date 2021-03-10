@@ -115,8 +115,9 @@ private:
                                                    gsl::not_null<RicMswExportInfo*>                 exportInfo,
                                                    gsl::not_null<RicMswBranch*>                     branch );
 
-    static std::vector<WellPathCellIntersectionInfo> generateCellSegments( const RimEclipseCase*  eclipseCase,
-                                                                           const RimWellPath*     wellPath,
+    static std::vector<WellPathCellIntersectionInfo> generateCellSegments( const RimEclipseCase* eclipseCase,
+                                                                           const RimWellPath*    wellPath,
+                                                                           const RimMswCompletionParameters* mswParameters,
                                                                            gsl::not_null<double*> initialMD );
 
     static std::vector<WellPathCellIntersectionInfo>

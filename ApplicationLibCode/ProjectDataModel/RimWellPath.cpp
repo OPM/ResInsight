@@ -480,22 +480,9 @@ void RimWellPath::initAfterRead()
 {
     if ( RimProject::current()->isProjectFileVersionEqualOrOlderThan( "2020.10.1" ) )
     {
-        if ( isTopLevelWellPath() && m_completionSettings->mswParameters()->isDefault() )
+        if ( m_completionSettings->wellNameForExport().isEmpty() )
         {
-            std::vector<const RimMswCompletionParameters*> allExistingMswParameters;
-            descendantsOfType( allExistingMswParameters );
-            for ( auto mswParameters : allExistingMswParameters )
-            {
-                if ( !mswParameters->isDefault() )
-                {
-                    *( m_completionSettings->mswParameters() ) = *mswParameters;
-                    break;
-                }
-            }
-            if ( m_completionSettings->wellNameForExport().isEmpty() )
-            {
-                m_completionSettings->setWellNameForExport( name() );
-            }
+            m_completionSettings->setWellNameForExport( name() );
         }
     }
 }
@@ -671,12 +658,9 @@ void RimWellPath::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, 
 {
     uiTreeOrdering.add( &m_wellLogFiles );
 
-    if ( isTopLevelWellPath() && !allCompletionsRecursively().empty() )
+    if ( completionSettings() && isTopLevelWellPath() && !allCompletionsRecursively().empty() )
     {
-        if ( completionSettings() )
-        {
-            uiTreeOrdering.add( completionSettings() );
-        }
+        uiTreeOrdering.add( completionSettings() );
     }
 
     if ( m_completions->fishbonesCollection()->hasFishbones() )
@@ -778,7 +762,13 @@ void RimWellPath::setUnitSystem( RiaDefines::EclipseUnitSystem unitSystem )
     m_unitSystem = unitSystem;
 
     m_completions->setUnitSystemSpecificDefaults();
-    m_completionSettings->setUnitSystemSpecificDefaults();
+
+    std::vector<RimMswCompletionParameters*> mswParameters;
+    descendantsOfType( mswParameters );
+    for ( auto mswParams : mswParameters )
+    {
+        mswParams->setUnitSystemSpecificDefaults();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1040,6 +1030,19 @@ void RimWellPath::onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray
 bool RimWellPath::isTopLevelWellPath() const
 {
     return this == topLevelWellPath();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimWellPath::isMultiLateralWellPath() const
+{
+    auto top = topLevelWellPath();
+
+    std::vector<RimWellPath*> wells;
+    top->descendantsIncludingThisOfType( wells );
+
+    return wells.size() > 1;
 }
 
 //--------------------------------------------------------------------------------------------------

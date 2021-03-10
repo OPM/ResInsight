@@ -80,10 +80,6 @@ public:
     QString wellBoreFluidPVTForExport() const;
     QString hydrostaticDensityForExport() const;
     QString fluidInPlaceRegionForExport() const;
-    void    setUnitSystemSpecificDefaults();
-
-    const RimMswCompletionParameters* mswParameters() const;
-    RimMswCompletionParameters*       mswParameters();
 
     static QRegExp wellNameForExportRegExp();
 
@@ -112,6 +108,4 @@ private:
     caf::PdmField<int>                     m_wellBoreFluidPVTTable;
     caf::PdmField<HydrostaticDensityEnum>  m_hydrostaticDensity;
     caf::PdmField<int>                     m_fluidInPlaceRegion;
-
-    caf::PdmChildField<RimMswCompletionParameters*> m_mswParameters;
 };

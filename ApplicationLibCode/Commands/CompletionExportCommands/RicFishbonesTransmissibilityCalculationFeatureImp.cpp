@@ -210,7 +210,7 @@ void RicFishbonesTransmissibilityCalculationFeatureImp::findFishboneLateralsWell
     // Generate data
     const RigEclipseCaseData* caseData = settings.caseToApply()->eclipseCaseData();
 
-    auto                          mswParameters = wellPath->completionSettings()->mswParameters();
+    auto                          mswParameters = wellPath->fishbonesCollection()->mswParameters();
     RiaDefines::EclipseUnitSystem unitSystem    = caseData->unitsType();
 
     RicMswExportInfo exportInfo( wellPath,
