@@ -395,6 +395,11 @@ void RicWellPathExportMswCompletionsImpl::writeWelsegsSegmentsRecursively( RifTe
 
         for ( auto& completion : segment->completions() )
         {
+            // For a well with perforation intervals, the WELSEGS segments are reported twice if if we include the
+            // RicMswPerforation completions. Investigate when this class is intended to be exported to file
+            auto performationMsw = dynamic_cast<RicMswPerforation*>( completion );
+            if ( performationMsw ) continue;
+
             auto segmentValve = dynamic_cast<RicMswValve*>( completion );
             if ( segmentValve != nullptr )
             {
