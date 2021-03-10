@@ -760,6 +760,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicNewDefaultSummaryPlotFeature";
             menuBuilder << "RicNewSummaryCrossPlotFeature";
             menuBuilder.addSeparator();
+            menuBuilder << "RicImportGridModelFromSummaryCaseFeature";
 
             if ( !dynamic_cast<RimObservedSummaryData*>( firstUiItem ) )
             {

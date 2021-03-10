@@ -254,6 +254,19 @@ void RiuSummaryQwtPlot::contextMenuEvent( QContextMenuEvent* event )
                     }
                 }
 
+                {
+                    auto summaryCase = summaryCurve->summaryCaseY();
+                    if ( summaryCase )
+                    {
+                        int      summaryCaseId = summaryCase->caseId();
+                        QVariant summaryCaseIdVariant( summaryCaseId );
+
+                        menuBuilder.addCmdFeatureWithUserData( "RicImportGridModelFromSummaryCurveFeature",
+                                                               "Open Grid Model",
+                                                               summaryCaseIdVariant );
+                    }
+                }
+
                 if ( !curveClicked )
                 {
                     RimSummaryPlot*                   summaryPlot = static_cast<RimSummaryPlot*>( plotDefinition() );

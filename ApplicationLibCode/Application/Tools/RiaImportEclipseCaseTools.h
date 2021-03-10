@@ -43,7 +43,8 @@ public:
 
     static bool addEclipseCases( const QStringList& fileNames, RimIdenticalGridCaseGroup** resultingCaseGroup = nullptr );
 
-private:
     static int openEclipseCaseFromFile( const QString& fileName );
+
+private:
     static int openEclipseCaseShowTimeStepFilterImpl( const QString& fileName, bool showTimeStepFilter );
 };

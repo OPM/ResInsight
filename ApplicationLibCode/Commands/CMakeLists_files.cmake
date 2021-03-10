@@ -78,6 +78,8 @@ ${CMAKE_CURRENT_LIST_DIR}/RicNewCustomObjectiveFunctionFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicNewCustomObjectiveFunctionWeightFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicNewPressureTableItemFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicDeletePressureTableItemFeature.h
+${CMAKE_CURRENT_LIST_DIR}/RicImportGridModelFromSummaryCaseFeature.h
+${CMAKE_CURRENT_LIST_DIR}/RicImportGridModelFromSummaryCurveFeature.h
 )
 
 
@@ -160,6 +162,8 @@ ${CMAKE_CURRENT_LIST_DIR}/RicNewCustomObjectiveFunctionFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicNewCustomObjectiveFunctionWeightFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicNewPressureTableItemFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicDeletePressureTableItemFeature.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicImportGridModelFromSummaryCaseFeature.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicImportGridModelFromSummaryCurveFeature.cpp
 )
 
 if(Qt5Charts_FOUND)
