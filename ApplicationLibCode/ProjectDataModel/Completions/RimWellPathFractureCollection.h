@@ -46,6 +46,7 @@ public:
     void addFracture( RimWellPathFracture* fracture );
     void deleteFractures();
 
+    const RimMswCompletionParameters* mswParameters() const;
     std::vector<RimWellPathFracture*> allFractures() const;
     std::vector<RimWellPathFracture*> activeFractures() const;
 
@@ -63,5 +64,5 @@ private:
     caf::PdmField<int>    m_refMDType_OBSOLETE;
     caf::PdmField<double> m_refMD_OBSOLETE;
 
-    caf::PdmChildField<RimMswCompletionParameters*> m_mswParameters_OBSOLETE;
+    caf::PdmChildField<RimMswCompletionParameters*> m_mswParameters;
 };

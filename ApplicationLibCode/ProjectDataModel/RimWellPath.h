@@ -155,6 +155,7 @@ public:
                          std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
 
     bool         isTopLevelWellPath() const;
+    bool         isMultiLateralWellPath() const;
     RimWellPath* topLevelWellPath() const;
     void         updateAfterAddingToWellPathGroup();
 

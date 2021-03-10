@@ -60,10 +60,10 @@ RimPerforationCollection::RimPerforationCollection()
     CAF_PDM_InitFieldNoDefault( &m_perforations, "Perforations", "Perforations", "", "", "" );
     m_perforations.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_mswParameters_OBSOLETE, "MswParameters", "Multi Segment Well Parameters", "", "", "" );
-    m_mswParameters_OBSOLETE = new RimMswCompletionParameters;
-    m_mswParameters_OBSOLETE.uiCapability()->setUiTreeHidden( true );
-    m_mswParameters_OBSOLETE.uiCapability()->setUiTreeChildrenHidden( true );
+    CAF_PDM_InitFieldNoDefault( &m_mswParameters, "MswParameters", "Multi Segment Well Parameters", "", "", "" );
+    m_mswParameters = new RimMswCompletionParameters;
+    m_mswParameters.uiCapability()->setUiTreeHidden( true );
+    m_mswParameters.uiCapability()->setUiTreeChildrenHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_nonDarcyParameters, "NonDarcyParameters", "Non-Darcy Parameters", "", "", "" );
     m_nonDarcyParameters = new RimNonDarcyPerforationParameters();
@@ -179,10 +179,18 @@ std::vector<const RimPerforationInterval*> RimPerforationCollection::activePerfo
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RimMswCompletionParameters* RimPerforationCollection::mswParameters() const
+{
+    return m_mswParameters();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimPerforationCollection::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     caf::PdmUiGroup* mswGroup = uiOrdering.addNewGroup( "Multi Segment Well Options" );
-    m_mswParameters_OBSOLETE->uiOrdering( uiConfigName, *mswGroup );
+    m_mswParameters->uiOrdering( uiConfigName, *mswGroup );
     m_nonDarcyParameters->uiOrdering( uiConfigName, uiOrdering );
     uiOrdering.skipRemainingFields( true );
 }
