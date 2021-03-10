@@ -56,6 +56,8 @@ public:
     std::vector<const RimPerforationInterval*> perforations() const;
     std::vector<const RimPerforationInterval*> activePerforations() const;
 
+    RimMswCompletionParameters* mswParameters() const;
+
 private:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
@@ -66,5 +68,5 @@ private:
     caf::PdmChildArrayField<RimPerforationInterval*>      m_perforations;
     caf::PdmChildField<RimNonDarcyPerforationParameters*> m_nonDarcyParameters;
 
-    caf::PdmChildField<RimMswCompletionParameters*> m_mswParameters_OBSOLETE;
+    caf::PdmChildField<RimMswCompletionParameters*> m_mswParameters;
 };

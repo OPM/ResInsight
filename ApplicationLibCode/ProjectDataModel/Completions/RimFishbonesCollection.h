@@ -46,6 +46,7 @@ public:
 
     RimImportedFishboneLateralsCollection* wellPathCollection() const;
     void                                   appendFishbonesSubs( RimFishbones* subs );
+    const RimMswCompletionParameters*      mswParameters() const;
 
     bool                       hasFishbones() const;
     std::vector<RimFishbones*> activeFishbonesSubs() const;
@@ -69,6 +70,7 @@ private:
 private:
     caf::PdmChildArrayField<RimFishbones*>                     m_fishbones;
     caf::PdmChildField<RimImportedFishboneLateralsCollection*> m_wellPathCollection;
+    caf::PdmChildField<RimMswCompletionParameters*>            m_mswParameters;
 
     caf::PdmField<double> m_startMD;
     caf::PdmField<double> m_skinFactor;
@@ -80,5 +82,4 @@ private:
 
     caf::PdmField<RimMswCompletionParameters::PressureDropEnum>   m_pressureDrop_OBSOLETE;
     caf::PdmField<RimMswCompletionParameters::LengthAndDepthEnum> m_lengthAndDepth_OBSOLETE;
-    caf::PdmChildField<RimMswCompletionParameters*>               m_mswParameters_OBSOLETE;
 };
