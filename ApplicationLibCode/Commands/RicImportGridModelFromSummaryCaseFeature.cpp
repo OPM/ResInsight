@@ -92,15 +92,26 @@ void RicImportGridModelFromSummaryCaseFeature::setupActionLook( QAction* actionT
 
     RimFileSummaryCase* summaryCase = caf::SelectionManager::instance()->selectedItemOfType<RimFileSummaryCase>();
 
-    auto gridCase = gridModelFromSummaryCase( summaryCase );
+    QString summaryCaseName;
+    if ( summaryCase ) summaryCaseName = summaryCase->caseName();
+
+    QString txt;
+    auto    gridCase = gridModelFromSummaryCase( summaryCase );
     if ( gridCase )
     {
-        actionToSetup->setText( "Open Grid Model View" );
+        txt = "Open Grid Model View";
     }
     else
     {
-        actionToSetup->setText( "Import Grid Model" );
+        txt = "Import Grid Model";
     }
+
+    if ( !summaryCaseName.isEmpty() )
+    {
+        txt += QString( " for '%1'" ).arg( summaryCaseName );
+    }
+
+    actionToSetup->setText( txt );
 }
 
 //--------------------------------------------------------------------------------------------------

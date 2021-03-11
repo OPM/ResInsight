@@ -260,9 +260,10 @@ void RiuSummaryQwtPlot::contextMenuEvent( QContextMenuEvent* event )
                     {
                         int      summaryCaseId = summaryCase->caseId();
                         QVariant summaryCaseIdVariant( summaryCaseId );
+                        auto     modelName = summaryCase->nativeCaseName();
 
                         menuBuilder.addCmdFeatureWithUserData( "RicImportGridModelFromSummaryCurveFeature",
-                                                               "Open Grid Model",
+                                                               QString( "Open Grid Model '%1'" ).arg( modelName ),
                                                                summaryCaseIdVariant );
                     }
                 }
