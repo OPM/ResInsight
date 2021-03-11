@@ -15,6 +15,7 @@
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
+
 #include "RiuSummaryQwtPlot.h"
 
 #include "RiaApplication.h"
@@ -68,6 +69,7 @@
 #include "qwt_scale_div.h"
 #include "qwt_scale_draw.h"
 #include "qwt_scale_engine.h"
+
 #include <QEvent>
 #include <QMenu>
 #include <QMouseEvent>
@@ -354,6 +356,12 @@ void RiuSummaryQwtPlot::contextMenuEvent( QContextMenuEvent* event )
     if ( menu.actions().size() > 0 )
     {
         menu.exec( event->globalPos() );
+
+        // Parts of progress dialog GUI can be present after menu has closed related to
+        // RicImportGridModelFromSummaryCurveFeature. Make sure the plot is updated, and call processEvents() to make
+        // sure all GUI events are processed
+        update();
+        QApplication::processEvents();
     }
 }
 
