@@ -93,6 +93,18 @@ protected:
                                            const std::vector<double>&                    inputVector,
                                            std::vector<double>&                          result );
 
+    double calculateStressGradientForLayer( size_t                                 i,
+                                            std::vector<std::pair<size_t, size_t>> layerBoundaryIndexes,
+                                            double                                 depthTopOfZone,
+                                            double                                 depthBottomOfZone,
+                                            double                                 topSv,
+                                            const std::vector<double>&             initialPressureData,
+                                            const std::vector<double>&             pressureDiffData,
+                                            double                                 stressDepthRef,
+                                            double                                 verticalStressRef,
+                                            double                                 verticalStressGradientRef,
+                                            double                                 k0 ) const;
+
     static double calculateStressDifferenceAtDepth( double depth,
                                                     double offset,
                                                     double stressDepthRef,
