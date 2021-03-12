@@ -403,6 +403,19 @@ RiaPreferences::RiaPreferences( void )
     m_multiLateralWellPattern.uiCapability()->setUiEditorTypeName( caf::PdmUiLineEditor::uiEditorTypeName() );
 
     CAF_PDM_InitFieldNoDefault( &m_guiTheme, "guiTheme", "GUI theme", "", "", "" );
+
+    CAF_PDM_InitFieldNoDefault( &m_geomechFRAPreprocCommand, "geomechFRAPreprocCommand", "Pre-Processing Command", "", "", "" );
+    m_geomechFRAPreprocCommand.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
+
+    CAF_PDM_InitFieldNoDefault( &m_geomechFRAPostprocCommand, "geomechFRAPostprocCommand", "Post-Processing Command", "", "", "" );
+    m_geomechFRAPostprocCommand.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
+
+    CAF_PDM_InitFieldNoDefault( &m_geomechFRAMacrisCommand, "geomechFRAMacrisCommand", "Main Macris Command", "", "", "" );
+    m_geomechFRAMacrisCommand.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
+
+    CAF_PDM_InitFieldNoDefault( &m_geomechFRADefaultXML, "geomechFRADefaultXML", "Default Parameter XML File", "", "", "" );
+    m_geomechFRADefaultXML.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
+    m_geomechFRADefaultXML.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -471,7 +484,10 @@ void RiaPreferences::defineEditorAttribute( const caf::PdmFieldHandle* field,
          field == &defaultPlotFontSize )
     {
         caf::PdmUiComboBoxEditorAttribute* myAttr = dynamic_cast<caf::PdmUiComboBoxEditorAttribute*>( attribute );
-        myAttr->minimumContentsLength             = 2;
+        if ( myAttr )
+        {
+            myAttr->minimumContentsLength = 2;
+        }
     }
     if ( field == &m_multiLateralWellPattern )
     {
@@ -545,6 +561,18 @@ void RiaPreferences::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
             caf::PdmUiGroup* group = restartBehaviourGroup->addNewGroup( "Origin Ensemble Summary Files" );
             group->add( &summaryEnsembleImportMode );
         }
+    }
+    else if ( uiConfigName == RiaPreferences::tabNameGeomech() )
+    {
+        caf::PdmUiGroup* faultRAGroup = uiOrdering.addNewGroup( "Fault Reactivation Assessment" );
+        caf::PdmUiGroup* cmdGroup     = faultRAGroup->addNewGroup( "Commands (without parameters)" );
+
+        cmdGroup->add( &m_geomechFRAPreprocCommand );
+        cmdGroup->add( &m_geomechFRAPostprocCommand );
+        cmdGroup->add( &m_geomechFRAMacrisCommand );
+
+        caf::PdmUiGroup* paramGroup = faultRAGroup->addNewGroup( "Parameters" );
+        paramGroup->add( &m_geomechFRADefaultXML );
     }
     else if ( uiConfigName == RiaPreferences::tabNamePlotting() )
     {
@@ -737,6 +765,14 @@ QString RiaPreferences::tabNameEclipse()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString RiaPreferences::tabNameGeomech()
+{
+    return "GeoMechanical";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString RiaPreferences::tabNamePlotting()
 {
     return "Plotting";
@@ -799,6 +835,7 @@ QStringList RiaPreferences::tabNames()
 
     names << tabNameGeneral();
     names << tabNameEclipse();
+    names << tabNameGeomech();
     names << tabNamePlotting();
     names << tabNameScripting();
     names << tabNameExport();
@@ -1177,4 +1214,36 @@ QString RiaPreferences::octaveExecutable() const
 bool RiaPreferences::enableFaultsByDefault() const
 {
     return m_enableFaultsByDefault;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RiaPreferences::geomechFRAPreprocCommand() const
+{
+    return m_geomechFRAPreprocCommand;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RiaPreferences::geomechFRAPostprocCommand() const
+{
+    return m_geomechFRAPostprocCommand;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RiaPreferences::geomechFRAMacrisCommand() const
+{
+    return m_geomechFRAMacrisCommand;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RiaPreferences::geomechFRADefaultXML() const
+{
+    return m_geomechFRADefaultXML;
 }

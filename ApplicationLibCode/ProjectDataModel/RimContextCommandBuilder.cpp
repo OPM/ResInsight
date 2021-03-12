@@ -285,6 +285,8 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "Separator";
             menuBuilder << "RicGeoMechCopyCaseFeature";
             menuBuilder << "Separator";
+            menuBuilder << "RicNewFaultReactAssessmentFeature";
+            menuBuilder << "Separator";
         }
         else if ( dynamic_cast<RimIdenticalGridCaseGroup*>( firstUiItem ) )
         {
