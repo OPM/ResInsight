@@ -332,6 +332,47 @@ RiaPreferences::RiaPreferences()
 
     CAF_PDM_InitFieldNoDefault( &m_summaryPreferences, "summaryPreferences", "summaryPreferences", "", "", "" );
     m_summaryPreferences = new RiaPreferencesSummary;
+    CAF_PDM_InitFieldNoDefault( &m_geomechFRAPreprocCommand, "geomechFRAPreprocCommand", "Pre-Processing Command", "", "", "" );
+    m_geomechFRAPreprocCommand.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
+
+    CAF_PDM_InitFieldNoDefault( &m_geomechFRAPostprocCommand, "geomechFRAPostprocCommand", "Post-Processing Command", "", "", "" );
+    m_geomechFRAPostprocCommand.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
+
+    CAF_PDM_InitFieldNoDefault( &m_geomechFRAMacrisCommand, "geomechFRAMacrisCommand", "Main Macris Command", "", "", "" );
+    m_geomechFRAMacrisCommand.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
+
+    CAF_PDM_InitFieldNoDefault( &m_geomechFRADefaultXML, "geomechFRADefaultXML", "Default Parameter XML File", "", "", "" );
+    m_geomechFRADefaultXML.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
+    m_geomechFRADefaultXML.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
+
+    CAF_PDM_InitField( &m_createOptimizedSummaryDataFile,
+                       "createOptimizedSummaryDataFile",
+                       true,
+                       "Create Optimized Summary Data Files [BETA]",
+                       "",
+                       "If not present, create optimized file with extension '*.LODSMRY'",
+                       "" );
+    m_createOptimizedSummaryDataFile.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+
+    CAF_PDM_InitField( &m_useOptimizedSummaryDataFile,
+                       "useOptimizedSummaryDataFile",
+                       true,
+                       "Use Optimized Summary Data Files [BETA]",
+                       "",
+                       "If not present, read optimized file with extension '*.LODSMRY'",
+                       "" );
+    m_useOptimizedSummaryDataFile.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+
+    CAF_PDM_InitField( &m_createH5SummaryDataFile,
+                       "createH5SummaryDataFile",
+                       false,
+                       "Create H5 Summary Data Files [BETA]",
+                       "",
+                       "If not present, create summary file with extension '*.H5'",
+                       "" );
+    m_createH5SummaryDataFile.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+
+    CAF_PDM_InitFieldNoDefault( &m_summaryReader, "summaryReaderType", "Summary Data File Reader", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -452,6 +493,18 @@ void RiaPreferences::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
 
             m_summaryPreferences()->uiOrdering( uiConfigName, *group );
         }
+    }
+    else if ( uiConfigName == RiaPreferences::tabNameGeomech() )
+    {
+        caf::PdmUiGroup* faultRAGroup = uiOrdering.addNewGroup( "Fault Reactivation Assessment" );
+        caf::PdmUiGroup* cmdGroup     = faultRAGroup->addNewGroup( "Commands (without parameters)" );
+
+        cmdGroup->add( &m_geomechFRAPreprocCommand );
+        cmdGroup->add( &m_geomechFRAPostprocCommand );
+        cmdGroup->add( &m_geomechFRAMacrisCommand );
+
+        caf::PdmUiGroup* paramGroup = faultRAGroup->addNewGroup( "Parameters" );
+        paramGroup->add( &m_geomechFRADefaultXML );
     }
     else if ( uiConfigName == RiaPreferences::tabNamePlotting() )
     {
@@ -628,6 +681,14 @@ QString RiaPreferences::tabNameEclipseSummary()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString RiaPreferences::tabNameGeomech()
+{
+    return "GeoMechanical";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString RiaPreferences::tabNamePlotting()
 {
     return "Plotting";
@@ -691,6 +752,7 @@ QStringList RiaPreferences::tabNames()
     names << tabNameGeneral();
     names << tabNameEclipseGrid();
     names << tabNameEclipseSummary();
+    names << tabNameGeomech();
     names << tabNamePlotting();
     names << tabNameScripting();
     names << tabNameExport();
@@ -1061,4 +1123,36 @@ RiaPreferencesSummary* RiaPreferences::summaryPreferences() const
 bool RiaPreferences::enableFaultsByDefault() const
 {
     return m_enableFaultsByDefault;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RiaPreferences::geomechFRAPreprocCommand() const
+{
+    return m_geomechFRAPreprocCommand;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RiaPreferences::geomechFRAPostprocCommand() const
+{
+    return m_geomechFRAPostprocCommand;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RiaPreferences::geomechFRAMacrisCommand() const
+{
+    return m_geomechFRAMacrisCommand;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RiaPreferences::geomechFRADefaultXML() const
+{
+    return m_geomechFRADefaultXML;
 }
