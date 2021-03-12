@@ -120,19 +120,15 @@ bool RimStimPlanModelPressureCalculator::extractValuesForProperty( RiaDefines::C
     std::vector<double> staticMeasuredDepthValues;
     std::vector<double> faciesValues;
 
+    if ( !RimStimPlanModelWellLogCalculator::extractValuesForProperty( RiaDefines::CurveProperty::FACIES,
+                                                                       stimPlanModel,
+                                                                       timeStep,
+                                                                       faciesValues,
+                                                                       staticMeasuredDepthValues,
+                                                                       staticTvDepthValues,
+                                                                       rkbDiff ) )
     {
-        std::vector<double> dummyValues;
-        double              dummyRkbDiff;
-        if ( !RimStimPlanModelWellLogCalculator::extractValuesForProperty( RiaDefines::CurveProperty::FACIES,
-                                                                           stimPlanModel,
-                                                                           timeStep,
-                                                                           faciesValues,
-                                                                           staticMeasuredDepthValues,
-                                                                           staticTvDepthValues,
-                                                                           dummyRkbDiff ) )
-        {
-            return false;
-        }
+        return false;
     }
 
     RiaDefines::CurveProperty pressureCurveProperty = curveProperty;
@@ -164,66 +160,8 @@ bool RimStimPlanModelPressureCalculator::extractValuesForProperty( RiaDefines::C
 
     if ( staticTvDepthValues.size() != tvDepthValues.size() )
     {
-        // Populate the original tvds/mds with interpolated values
-        std::vector<double> tvds;
-        std::vector<double> mds;
-        std::vector<double> results;
-
-        double prevEndIndex = 0;
-        for ( size_t i = 0; i < staticTvDepthValues.size(); i++ )
-        {
-            double tvd   = staticTvDepthValues[i];
-            double md    = staticMeasuredDepthValues[i];
-            double value = std::numeric_limits<double>::infinity();
-
-            // Find value before and after this depth in the static data
-            auto [startIndex, endIndex] = findIndex( md, measuredDepthValues );
-
-            if ( startIndex < values.size() && endIndex < values.size() )
-            {
-                double prevValue = values[startIndex];
-                double nextValue = values[endIndex];
-
-                if ( startIndex == endIndex )
-                {
-                    const double delta  = 0.001;
-                    double       prevMd = staticMeasuredDepthValues[i - 1];
-                    double       diffMd = std::fabs( prevMd - md );
-                    if ( startIndex > prevEndIndex && diffMd > delta )
-                    {
-                        // Avoid skipping datapoints in the original data:
-                        // this can happen when multiple point have same measured depth.
-                        // Need to get the "stair step" look of the pressure data after interpolation.
-                        value = values[prevEndIndex];
-                    }
-                    else
-                    {
-                        // Exact match: not need to interpolate
-                        value = prevValue;
-                    }
-                }
-                else if ( !std::isinf( prevValue ) && !std::isinf( nextValue ) )
-                {
-                    // Interpolate a value for the given md
-                    std::vector<double> xs = { measuredDepthValues[startIndex], md, measuredDepthValues[endIndex] };
-                    std::vector<double> ys = { prevValue, std::numeric_limits<double>::infinity(), values[endIndex] };
-                    RiaInterpolationTools::interpolateMissingValues( xs, ys );
-                    value = ys[1];
-                }
-
-                prevEndIndex = endIndex;
-            }
-            else
-            {
-                // The last point is added without interpolation
-                value = values.back();
-            }
-
-            results.push_back( value );
-            tvds.push_back( tvd );
-            mds.push_back( md );
-        }
-
+        auto [tvds, mds, results] =
+            interpolateMissingValues( staticTvDepthValues, staticMeasuredDepthValues, measuredDepthValues, values );
         tvDepthValues       = tvds;
         measuredDepthValues = mds;
         values              = results;
@@ -270,6 +208,75 @@ bool RimStimPlanModelPressureCalculator::extractValuesForProperty( RiaDefines::C
     }
 
     return true;
+}
+
+std::tuple<std::vector<double>, std::vector<double>, std::vector<double>>
+    RimStimPlanModelPressureCalculator::interpolateMissingValues( const std::vector<double>& staticTvDepthValues,
+                                                                  const std::vector<double>& staticMeasuredDepthValues,
+                                                                  const std::vector<double>& measuredDepthValues,
+                                                                  const std::vector<double>& values )
+{
+    // Populate the original tvds/mds with interpolated values
+    std::vector<double> tvds;
+    std::vector<double> mds;
+    std::vector<double> results;
+
+    double prevEndIndex = 0;
+    for ( size_t i = 0; i < staticTvDepthValues.size(); i++ )
+    {
+        double tvd   = staticTvDepthValues[i];
+        double md    = staticMeasuredDepthValues[i];
+        double value = std::numeric_limits<double>::infinity();
+
+        // Find value before and after this depth in the static data
+        auto [startIndex, endIndex] = findIndex( md, measuredDepthValues );
+
+        if ( startIndex < values.size() && endIndex < values.size() )
+        {
+            double prevValue = values[startIndex];
+            double nextValue = values[endIndex];
+
+            if ( startIndex == endIndex )
+            {
+                const double delta  = 0.001;
+                double       prevMd = staticMeasuredDepthValues[i - 1];
+                double       diffMd = std::fabs( prevMd - md );
+                if ( startIndex > prevEndIndex && diffMd > delta )
+                {
+                    // Avoid skipping datapoints in the original data:
+                    // this can happen when multiple point have same measured depth.
+                    // Need to get the "stair step" look of the pressure data after interpolation.
+                    value = values[prevEndIndex];
+                }
+                else
+                {
+                    // Exact match: not need to interpolate
+                    value = prevValue;
+                }
+            }
+            else if ( !std::isinf( prevValue ) && !std::isinf( nextValue ) )
+            {
+                // Interpolate a value for the given md
+                std::vector<double> xs = { measuredDepthValues[startIndex], md, measuredDepthValues[endIndex] };
+                std::vector<double> ys = { prevValue, std::numeric_limits<double>::infinity(), values[endIndex] };
+                RiaInterpolationTools::interpolateMissingValues( xs, ys );
+                value = ys[1];
+            }
+
+            prevEndIndex = endIndex;
+        }
+        else
+        {
+            // The last point is added without interpolation
+            value = values.back();
+        }
+
+        results.push_back( value );
+        tvds.push_back( tvd );
+        mds.push_back( md );
+    }
+
+    return std::make_tuple( tvds, mds, results );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -326,6 +333,9 @@ bool RimStimPlanModelPressureCalculator::extractPressureDataFromTable( RiaDefine
     return true;
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::set<int> RimStimPlanModelPressureCalculator::findUniqueValues( const std::vector<double>& values )
 {
     std::set<int> res;
