@@ -400,8 +400,7 @@ bool RimStimPlanModelCalculator::calculateStressWithGradients( std::vector<doubl
     // Calculate the stress
     for ( size_t i = 0; i < layerBoundaryDepths.size(); i++ )
     {
-        double depthTopOfZone    = layerBoundaryDepths[i].first;
-        double depthBottomOfZone = layerBoundaryDepths[i].second;
+        double depthTopOfZone = layerBoundaryDepths[i].first;
 
         // Data from curves at the top zone depth
         double k0               = findValueAtTopOfLayer( k0Data, layerBoundaryIndexes, i );
@@ -428,48 +427,79 @@ bool RimStimPlanModelCalculator::calculateStressWithGradients( std::vector<doubl
 
         initialStress.push_back( RiaEclipseUnitTools::barToPsi( Sh_init ) );
 
-        // Use the bottom of the last layer to compute gradient for last layer
-        double bottomInitialPressure = findValueAtBottomOfLayer( initialPressureData, layerBoundaryIndexes, i );
-
-        double bottomDepthDiff = depthBottomOfZone - stressDepthRef;
-        double bottomSv        = verticalStressRef + verticalStressGradientRef * bottomDepthDiff;
-
-        double lengthOfLayer     = depthBottomOfZone - depthTopOfZone;
-        double diffStressLayer   = bottomSv - Sv;
-        double diffPressureLayer = bottomInitialPressure - initialPressure;
-
-        // The pressure difference result is only defined where there was no pressure data.
-        // Diff pressure is interpolated in the equilibration region.
-        double diffPressureEQLTop    = findValueAtTopOfLayer( pressureDiffData, layerBoundaryIndexes, i );
-        double diffPressureEQLBottom = findValueAtBottomOfLayer( pressureDiffData, layerBoundaryIndexes, i );
-        if ( !std::isinf( diffPressureEQLTop ) )
-        {
-            double offset     = RimStimPlanModelPressureCalculator::pressureDifferenceInterpolationOffset();
-            lengthOfLayer     = offset * 2.0;
-            diffPressureLayer = diffPressureEQLTop;
-            diffStressLayer   = calculateStressDifferenceAtDepth( depthTopOfZone,
-                                                                offset,
-                                                                stressDepthRef,
-                                                                verticalStressRef,
-                                                                verticalStressGradientRef );
-        }
-        else if ( !std::isinf( diffPressureEQLBottom ) )
-        {
-            double offset     = RimStimPlanModelPressureCalculator::pressureDifferenceInterpolationOffset();
-            lengthOfLayer     = offset * 2.0;
-            diffPressureLayer = diffPressureEQLBottom;
-            diffStressLayer   = calculateStressDifferenceAtDepth( depthBottomOfZone,
-                                                                offset,
-                                                                stressDepthRef,
-                                                                verticalStressRef,
-                                                                verticalStressGradientRef );
-        }
-
-        double stressGradient = ( diffStressLayer * k0 + diffPressureLayer * ( 1.0 - k0 ) ) / lengthOfLayer;
+        // Calculate the stress gradient inside each layer
+        double depthBottomOfZone = layerBoundaryDepths[i].second;
+        double stressGradient    = calculateStressGradientForLayer( i,
+                                                                 layerBoundaryIndexes,
+                                                                 depthTopOfZone,
+                                                                 depthBottomOfZone,
+                                                                 Sv,
+                                                                 initialPressureData,
+                                                                 pressureDiffData,
+                                                                 stressDepthRef,
+                                                                 verticalStressRef,
+                                                                 verticalStressGradientRef,
+                                                                 k0 );
         stressGradients.push_back( RiaEclipseUnitTools::barPerMeterToPsiPerFeet( stressGradient ) );
     }
 
     return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimStimPlanModelCalculator::calculateStressGradientForLayer( size_t                                 i,
+                                                                    std::vector<std::pair<size_t, size_t>> layerBoundaryIndexes,
+                                                                    double                     depthTopOfZone,
+                                                                    double                     depthBottomOfZone,
+                                                                    double                     topSv,
+                                                                    const std::vector<double>& initialPressureData,
+                                                                    const std::vector<double>& pressureDiffData,
+                                                                    double                     stressDepthRef,
+                                                                    double                     verticalStressRef,
+                                                                    double verticalStressGradientRef,
+                                                                    double k0 ) const
+{
+    double bottomInitialPressure = findValueAtBottomOfLayer( initialPressureData, layerBoundaryIndexes, i );
+    double topInitialPressure    = findValueAtBottomOfLayer( initialPressureData, layerBoundaryIndexes, i );
+
+    double bottomDepthDiff = depthBottomOfZone - stressDepthRef;
+    double bottomSv        = verticalStressRef + verticalStressGradientRef * bottomDepthDiff;
+
+    double lengthOfLayer     = depthBottomOfZone - depthTopOfZone;
+    double diffStressLayer   = bottomSv - topSv;
+    double diffPressureLayer = bottomInitialPressure - topInitialPressure;
+
+    // The pressure difference result is only defined where there was no pressure data.
+    // Diff pressure is interpolated in the equilibration region.
+    double diffPressureEQLTop    = findValueAtTopOfLayer( pressureDiffData, layerBoundaryIndexes, i );
+    double diffPressureEQLBottom = findValueAtBottomOfLayer( pressureDiffData, layerBoundaryIndexes, i );
+    if ( !std::isinf( diffPressureEQLTop ) )
+    {
+        double offset     = RimStimPlanModelPressureCalculator::pressureDifferenceInterpolationOffset();
+        lengthOfLayer     = offset * 2.0;
+        diffPressureLayer = diffPressureEQLTop;
+        diffStressLayer   = calculateStressDifferenceAtDepth( depthTopOfZone,
+                                                            offset,
+                                                            stressDepthRef,
+                                                            verticalStressRef,
+                                                            verticalStressGradientRef );
+    }
+    else if ( !std::isinf( diffPressureEQLBottom ) )
+    {
+        double offset     = RimStimPlanModelPressureCalculator::pressureDifferenceInterpolationOffset();
+        lengthOfLayer     = offset * 2.0;
+        diffPressureLayer = diffPressureEQLBottom;
+        diffStressLayer   = calculateStressDifferenceAtDepth( depthBottomOfZone,
+                                                            offset,
+                                                            stressDepthRef,
+                                                            verticalStressRef,
+                                                            verticalStressGradientRef );
+    }
+
+    double stressGradient = ( diffStressLayer * k0 + diffPressureLayer * ( 1.0 - k0 ) ) / lengthOfLayer;
+    return stressGradient;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -481,8 +511,8 @@ double RimStimPlanModelCalculator::calculateStressDifferenceAtDepth( double dept
                                                                      double verticalStressRef,
                                                                      double verticalStressGradientRef )
 {
-    return calculateStressAtDepth( depth - offset, stressDepthRef, verticalStressRef, verticalStressGradientRef ) -
-           calculateStressAtDepth( depth + offset, stressDepthRef, verticalStressRef, verticalStressGradientRef );
+    return calculateStressAtDepth( depth + offset, stressDepthRef, verticalStressRef, verticalStressGradientRef ) -
+           calculateStressAtDepth( depth - offset, stressDepthRef, verticalStressRef, verticalStressGradientRef );
 }
 
 //--------------------------------------------------------------------------------------------------
