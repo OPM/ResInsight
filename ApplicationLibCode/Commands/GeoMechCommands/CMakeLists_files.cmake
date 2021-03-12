@@ -10,6 +10,8 @@ ${CMAKE_CURRENT_LIST_DIR}/RicGeoMechPropertyFilterNewExec.h
 
 ${CMAKE_CURRENT_LIST_DIR}/RicImportGeoMechCaseFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicImportGeoMechCaseTimeStepFilterFeature.h
+
+${CMAKE_CURRENT_LIST_DIR}/RicNewFaultReactAssessmentFeature.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -23,6 +25,8 @@ ${CMAKE_CURRENT_LIST_DIR}/RicGeoMechPropertyFilterNewExec.cpp
 
 ${CMAKE_CURRENT_LIST_DIR}/RicImportGeoMechCaseFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicImportGeoMechCaseTimeStepFilterFeature.cpp
+
+${CMAKE_CURRENT_LIST_DIR}/RicNewFaultReactAssessmentFeature.cpp
 )
 
 list(APPEND COMMAND_CODE_HEADER_FILES

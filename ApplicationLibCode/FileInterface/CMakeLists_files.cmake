@@ -60,6 +60,8 @@ ${CMAKE_CURRENT_LIST_DIR}/RifStimPlanModelDeviationFrkExporter.h
 ${CMAKE_CURRENT_LIST_DIR}/RifStimPlanModelPerfsFrkExporter.h
 ${CMAKE_CURRENT_LIST_DIR}/RifStimPlanModelAsymmetricFrkExporter.h
 ${CMAKE_CURRENT_LIST_DIR}/RifSurfaceExporter.h
+${CMAKE_CURRENT_LIST_DIR}/RifFaultRAXmlReader.h
+${CMAKE_CURRENT_LIST_DIR}/RifFaultRAJsonWriter.h
 ${CMAKE_CURRENT_LIST_DIR}/RifOpmCommonSummary.h
 ${CMAKE_CURRENT_LIST_DIR}/RifEnsembleFractureStatisticsExporter.h
 ${CMAKE_CURRENT_LIST_DIR}/RifSummaryReaderMultipleFiles.h
@@ -128,6 +130,8 @@ ${CMAKE_CURRENT_LIST_DIR}/RifStimPlanModelDeviationFrkExporter.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RifStimPlanModelPerfsFrkExporter.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RifStimPlanModelAsymmetricFrkExporter.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RifSurfaceExporter.cpp
+${CMAKE_CURRENT_LIST_DIR}/RifFaultRAXmlReader.cpp
+${CMAKE_CURRENT_LIST_DIR}/RifFaultRAJsonWriter.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RifOpmCommonSummary.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RifEnsembleFractureStatisticsExporter.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RifSummaryReaderMultipleFiles.cpp
