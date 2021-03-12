@@ -656,14 +656,24 @@ bool RimStimPlanModelPressureCalculator::interpolatePressureDifferenceByEquilibr
             DepthValuePairVector depthValuePairs = valuesPerEqlNum[eqlNum];
             if ( !depthValuePairs.empty() )
             {
-                double depth = tvDepthValues[i];
-                double p1    = interpolatePressure( depthValuePairs, depth - 1, eqlNum );
-                double p2    = interpolatePressure( depthValuePairs, depth + 1, eqlNum );
-                values[i]    = p2 - p1;
+                double offset = pressureDifferenceInterpolationOffset();
+                double depth  = tvDepthValues[i];
+                double p1     = interpolatePressure( depthValuePairs, depth - offset, eqlNum );
+                double p2     = interpolatePressure( depthValuePairs, depth + offset, eqlNum );
+                values[i]     = p2 - p1;
                 RiaLogging::debug( QString( "INTERPOLATING PRESSURE DIFF: %1 %2 = %3" ).arg( p1 ).arg( p2 ).arg( p2 - p1 ) );
             }
         }
     }
 
     return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimStimPlanModelPressureCalculator::pressureDifferenceInterpolationOffset()
+{
+    // Unit: meter
+    return 1.0;
 }

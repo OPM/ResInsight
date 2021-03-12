@@ -43,6 +43,8 @@ public:
 
     bool isMatching( RiaDefines::CurveProperty curveProperty ) const override;
 
+    static double pressureDifferenceInterpolationOffset();
+
 protected:
     bool extractValuesForProperty( RiaDefines::CurveProperty curveProperty,
                                    const RimStimPlanModel*   stimPlanModel,
