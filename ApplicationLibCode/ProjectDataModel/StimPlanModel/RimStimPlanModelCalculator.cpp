@@ -444,19 +444,25 @@ bool RimStimPlanModelCalculator::calculateStressWithGradients( std::vector<doubl
         double diffPressureEQLBottom = findValueAtBottomOfLayer( pressureDiffData, layerBoundaryIndexes, i );
         if ( !std::isinf( diffPressureEQLTop ) )
         {
-            lengthOfLayer     = 2.0;
+            double offset     = RimStimPlanModelPressureCalculator::pressureDifferenceInterpolationOffset();
+            lengthOfLayer     = offset * 2.0;
             diffPressureLayer = diffPressureEQLTop;
-            diffStressLayer =
-                calculateStressAtDepth( depthTopOfZone - 1, stressDepthRef, verticalStressRef, verticalStressGradientRef ) -
-                calculateStressAtDepth( depthTopOfZone + 1, stressDepthRef, verticalStressRef, verticalStressGradientRef );
+            diffStressLayer   = calculateStressDifferenceAtDepth( depthTopOfZone,
+                                                                offset,
+                                                                stressDepthRef,
+                                                                verticalStressRef,
+                                                                verticalStressGradientRef );
         }
         else if ( !std::isinf( diffPressureEQLBottom ) )
         {
-            lengthOfLayer     = 2.0;
+            double offset     = RimStimPlanModelPressureCalculator::pressureDifferenceInterpolationOffset();
+            lengthOfLayer     = offset * 2.0;
             diffPressureLayer = diffPressureEQLBottom;
-            diffStressLayer =
-                calculateStressAtDepth( depthBottomOfZone - 1, stressDepthRef, verticalStressRef, verticalStressGradientRef ) -
-                calculateStressAtDepth( depthBottomOfZone + 1, stressDepthRef, verticalStressRef, verticalStressGradientRef );
+            diffStressLayer   = calculateStressDifferenceAtDepth( depthBottomOfZone,
+                                                                offset,
+                                                                stressDepthRef,
+                                                                verticalStressRef,
+                                                                verticalStressGradientRef );
         }
 
         double stressGradient = ( diffStressLayer * k0 + diffPressureLayer * ( 1.0 - k0 ) ) / lengthOfLayer;
@@ -464,6 +470,19 @@ bool RimStimPlanModelCalculator::calculateStressWithGradients( std::vector<doubl
     }
 
     return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimStimPlanModelCalculator::calculateStressDifferenceAtDepth( double depth,
+                                                                     double offset,
+                                                                     double stressDepthRef,
+                                                                     double verticalStressRef,
+                                                                     double verticalStressGradientRef )
+{
+    return calculateStressAtDepth( depth - offset, stressDepthRef, verticalStressRef, verticalStressGradientRef ) -
+           calculateStressAtDepth( depth + offset, stressDepthRef, verticalStressRef, verticalStressGradientRef );
 }
 
 //--------------------------------------------------------------------------------------------------

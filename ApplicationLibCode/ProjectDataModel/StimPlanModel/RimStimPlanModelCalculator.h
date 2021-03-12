@@ -93,6 +93,12 @@ protected:
                                            const std::vector<double>&                    inputVector,
                                            std::vector<double>&                          result );
 
+    static double calculateStressDifferenceAtDepth( double depth,
+                                                    double offset,
+                                                    double stressDepthRef,
+                                                    double verticalStressRef,
+                                                    double verticalStressGradientRef );
+
     static double calculateStressAtDepth( double depth,
                                           double stressDepthRef,
                                           double verticalStressRef,
