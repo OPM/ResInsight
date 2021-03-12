@@ -263,44 +263,9 @@ bool RimStimPlanModelPressureCalculator::extractValuesForProperty( RiaDefines::C
     }
     else if ( curveProperty == RiaDefines::CurveProperty::PRESSURE )
     {
-        // Filter out the facies which does not have pressure depletion.
-        std::map<int, double> faciesWithInitialPressure =
-            stimPlanModel->stimPlanModelTemplate()->faciesWithInitialPressure();
-
-        if ( !faciesWithInitialPressure.empty() )
+        if ( !handleFaciesWithInitialPressure( stimPlanModel, timeStep, faciesValues, values ) )
         {
-            std::vector<double> initialPressureValues;
-            std::vector<double> initialPressureMeasuredDepthValues;
-            std::vector<double> initialPressureTvDepthValues;
-
-            if ( !extractValuesForProperty( RiaDefines::CurveProperty::INITIAL_PRESSURE,
-                                            stimPlanModel,
-                                            timeStep,
-                                            initialPressureValues,
-                                            initialPressureMeasuredDepthValues,
-                                            initialPressureTvDepthValues,
-                                            rkbDiff ) )
-            {
-                return false;
-            }
-
-            CAF_ASSERT( faciesValues.size() == initialPressureValues.size() );
-            for ( size_t i = 0; i < faciesValues.size(); i++ )
-            {
-                // Use the values from initial pressure curve
-                int    faciesValue     = static_cast<int>( faciesValues[i] );
-                double currentPressure = values[i];
-                double initialPressure = initialPressureValues[i];
-                auto   faciesConfig    = faciesWithInitialPressure.find( faciesValue );
-                if ( faciesConfig != faciesWithInitialPressure.end() && !std::isinf( currentPressure ) &&
-                     !std::isinf( initialPressure ) )
-                {
-                    double fraction = faciesConfig->second;
-                    double value    = initialPressure - ( initialPressure - currentPressure ) * fraction;
-
-                    values[i] = value;
-                }
-            }
+            return false;
         }
     }
 
@@ -676,4 +641,54 @@ double RimStimPlanModelPressureCalculator::pressureDifferenceInterpolationOffset
 {
     // Unit: meter
     return 1.0;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimStimPlanModelPressureCalculator::handleFaciesWithInitialPressure( const RimStimPlanModel*    stimPlanModel,
+                                                                          int                        timeStep,
+                                                                          const std::vector<double>& faciesValues,
+                                                                          std::vector<double>&       values ) const
+{
+    // Filter out the facies which does not have pressure depletion.
+    std::map<int, double> faciesWithInitialPressure = stimPlanModel->stimPlanModelTemplate()->faciesWithInitialPressure();
+
+    if ( !faciesWithInitialPressure.empty() )
+    {
+        std::vector<double> initialPressureValues;
+        std::vector<double> initialPressureMeasuredDepthValues;
+        std::vector<double> initialPressureTvDepthValues;
+        double              rkbDiff;
+        if ( !extractValuesForProperty( RiaDefines::CurveProperty::INITIAL_PRESSURE,
+                                        stimPlanModel,
+                                        timeStep,
+                                        initialPressureValues,
+                                        initialPressureMeasuredDepthValues,
+                                        initialPressureTvDepthValues,
+                                        rkbDiff ) )
+        {
+            return false;
+        }
+
+        CAF_ASSERT( faciesValues.size() == initialPressureValues.size() );
+        for ( size_t i = 0; i < faciesValues.size(); i++ )
+        {
+            // Use the values from initial pressure curve
+            int    faciesValue     = static_cast<int>( faciesValues[i] );
+            double currentPressure = values[i];
+            double initialPressure = initialPressureValues[i];
+            auto   faciesConfig    = faciesWithInitialPressure.find( faciesValue );
+            if ( faciesConfig != faciesWithInitialPressure.end() && !std::isinf( currentPressure ) &&
+                 !std::isinf( initialPressure ) )
+            {
+                double fraction = faciesConfig->second;
+                double value    = initialPressure - ( initialPressure - currentPressure ) * fraction;
+
+                values[i] = value;
+            }
+        }
+    }
+
+    return true;
 }
