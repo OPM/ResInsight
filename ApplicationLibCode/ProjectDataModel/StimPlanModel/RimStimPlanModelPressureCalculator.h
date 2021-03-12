@@ -73,6 +73,10 @@ protected:
                                                              const std::vector<double>& tvDepthValues,
                                                              const std::vector<double>& initialPressureValues,
                                                              std::vector<double>&       values ) const;
+    bool handleFaciesWithInitialPressure( const RimStimPlanModel*    stimPlanModel,
+                                          int                        timeStep,
+                                          const std::vector<double>& faciesValues,
+                                          std::vector<double>&       values ) const;
 
     typedef std::pair<double, double>           DepthValuePair;
     typedef std::vector<DepthValuePair>         DepthValuePairVector;
