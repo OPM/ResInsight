@@ -791,10 +791,13 @@ void RimStimPlanModel::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderin
     uiOrdering.add( &m_stimPlanModelTemplate, { true, 2, 1 } );
     uiOrdering.add( &m_editStimPlanModelTemplate, { false, 1, 0 } );
 
-    uiOrdering.add( &m_eclipseCase );
-    uiOrdering.add( &m_timeStep );
-    uiOrdering.add( &m_initialPressureEclipseCase );
     uiOrdering.add( &m_staticEclipseCase );
+
+    caf::PdmUiOrdering* pressureDataSourceGroup = uiOrdering.addNewGroup( "Pressure Data Source" );
+    pressureDataSourceGroup->add( &m_eclipseCase );
+    pressureDataSourceGroup->add( &m_timeStep );
+    pressureDataSourceGroup->add( &m_initialPressureEclipseCase );
+
     uiOrdering.add( &m_MD );
     uiOrdering.add( &m_extractionType );
     uiOrdering.add( &m_anchorPosition );

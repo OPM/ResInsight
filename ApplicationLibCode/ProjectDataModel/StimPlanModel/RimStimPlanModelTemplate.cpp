@@ -288,14 +288,16 @@ void RimStimPlanModelTemplate::defineUiOrdering( QString uiConfigName, caf::PdmU
 {
     uiOrdering.add( nameField() );
     uiOrdering.add( &m_id );
-    uiOrdering.add( &m_dynamicEclipseCase );
-    uiOrdering.add( &m_timeStep );
-    uiOrdering.add( &m_initialPressureEclipseCase );
-    uiOrdering.add( &m_useTableForInitialPressure );
-    uiOrdering.add( &m_useTableForPressure );
-    m_initialPressureEclipseCase.uiCapability()->setUiReadOnly( m_useTableForInitialPressure() );
 
     uiOrdering.add( &m_staticEclipseCase );
+
+    caf::PdmUiOrdering* pressureDataSourceGroup = uiOrdering.addNewGroup( "Pressure Data Source" );
+    pressureDataSourceGroup->add( &m_dynamicEclipseCase );
+    pressureDataSourceGroup->add( &m_timeStep );
+    pressureDataSourceGroup->add( &m_initialPressureEclipseCase );
+    pressureDataSourceGroup->add( &m_useTableForInitialPressure );
+    pressureDataSourceGroup->add( &m_useTableForPressure );
+    m_initialPressureEclipseCase.uiCapability()->setUiReadOnly( m_useTableForInitialPressure() );
 
     caf::PdmUiOrdering* defaultsGroup = uiOrdering.addNewGroup( "Defaults" );
     defaultsGroup->add( &m_defaultPorosity );
