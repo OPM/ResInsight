@@ -103,9 +103,10 @@ void RicElasticPropertiesImportTools::importElasticPropertiesFromFile( const QSt
         // Group the items with a given facies key
         for ( RifElasticProperties item : rifElasticProperties )
         {
-            if ( item.fieldName == fieldName &&
-                 ( item.formationName == formationName || item.formationName == formationWildCard ) &&
-                 item.faciesName == faciesName )
+            if ( item.fieldName.compare( fieldName, Qt::CaseInsensitive ) == 0 &&
+                 ( item.formationName.compare( formationName, Qt::CaseInsensitive ) == 0 ||
+                   item.formationName == formationWildCard ) &&
+                 item.faciesName.compare( faciesName, Qt::CaseInsensitive ) == 0 )
             {
                 matchingFacies.push_back( item );
             }
