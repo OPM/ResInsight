@@ -32,7 +32,8 @@ ${CMAKE_CURRENT_LIST_DIR}/RimWellPathComponentInterface.h
 ${CMAKE_CURRENT_LIST_DIR}/RimWellPathValve.h
 ${CMAKE_CURRENT_LIST_DIR}/RimMultipleValveLocations.h
 ${CMAKE_CURRENT_LIST_DIR}/RimWellPathAicdParameters.h
-
+${CMAKE_CURRENT_LIST_DIR}/RimFractureGroupStatistics.h
+${CMAKE_CURRENT_LIST_DIR}/RimFractureGroupStatisticsCollection.h
 )
 
 
@@ -68,6 +69,8 @@ ${CMAKE_CURRENT_LIST_DIR}/RimNonDarcyPerforationParameters.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimWellPathValve.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimMultipleValveLocations.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimWellPathAicdParameters.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimFractureGroupStatistics.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimFractureGroupStatisticsCollection.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

@@ -72,6 +72,7 @@
 #include "RimFlowPlotCollection.h"
 #include "RimFormationNames.h"
 #include "RimFormationNamesCollection.h"
+#include "RimFractureGroupStatisticsCollection.h"
 #include "RimFractureTemplate.h"
 #include "RimFractureTemplateCollection.h"
 #include "RimGeoMechCase.h"
@@ -889,6 +890,10 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         else if ( dynamic_cast<RimValveTemplate*>( firstUiItem ) )
         {
             menuBuilder << "RicDeleteValveTemplateFeature";
+        }
+        else if ( dynamic_cast<RimFractureGroupStatisticsCollection*>( firstUiItem ) )
+        {
+            menuBuilder << "RicImportFractureGroupStatisticsFeature";
         }
         else if ( dynamic_cast<RimStimPlanModelTemplate*>( firstUiItem ) )
         {

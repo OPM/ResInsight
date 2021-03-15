@@ -18,6 +18,7 @@
 
 #include "RimCompletionTemplateCollection.h"
 
+#include "RimFractureGroupStatisticsCollection.h"
 #include "RimFractureTemplateCollection.h"
 #include "RimStimPlanModelTemplateCollection.h"
 #include "RimValveTemplateCollection.h"
@@ -44,6 +45,9 @@ RimCompletionTemplateCollection::RimCompletionTemplateCollection()
 
     CAF_PDM_InitFieldNoDefault( &m_valveTemplates, "ValveTemplates", "", "", "", "" );
     m_valveTemplates = new RimValveTemplateCollection;
+
+    CAF_PDM_InitFieldNoDefault( &m_fractureGroupStatisticsCollection, "FractureGroupStatisticsCollection", "", "", "", "" );
+    m_fractureGroupStatisticsCollection = new RimFractureGroupStatisticsCollection;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -122,12 +126,29 @@ const RimStimPlanModelTemplateCollection* RimCompletionTemplateCollection::stimP
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RimFractureGroupStatisticsCollection* RimCompletionTemplateCollection::fractureGroupStatisticsCollection()
+{
+    return m_fractureGroupStatisticsCollection;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const RimFractureGroupStatisticsCollection* RimCompletionTemplateCollection::fractureGroupStatisticsCollection() const
+{
+    return m_fractureGroupStatisticsCollection;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimCompletionTemplateCollection::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering,
                                                             QString                 uiConfigName /*= ""*/ )
 {
     uiTreeOrdering.add( m_fractureTemplates );
     uiTreeOrdering.add( m_stimPlanModelTemplates );
     uiTreeOrdering.add( m_valveTemplates );
+    uiTreeOrdering.add( m_fractureGroupStatisticsCollection );
     uiTreeOrdering.skipRemainingChildren( true );
 }
 
@@ -138,4 +159,5 @@ void RimCompletionTemplateCollection::loadAndUpdateData()
 {
     m_fractureTemplates->loadAndUpdateData();
     m_stimPlanModelTemplates->loadAndUpdateData();
+    m_fractureGroupStatisticsCollection->loadAndUpdateData();
 }
