@@ -81,5 +81,20 @@ private:
     caf::PdmChildField<RimElasticPropertyScalingCollection*> m_scalings;
     caf::PdmField<bool>                                      m_showScaledProperties;
 
-    std::map<FaciesKey, RigElasticProperties> m_properties;
+    struct CaseInsensitiveFaciesKeyCompare
+    {
+        bool operator()( const FaciesKey& f1, const FaciesKey& f2 ) const
+        {
+            int fieldCompare = std::get<0>( f1 ).compare( std::get<0>( f2 ), Qt::CaseInsensitive );
+            if ( fieldCompare != 0 ) return fieldCompare < 0;
+
+            int formationCompare = std::get<1>( f1 ).compare( std::get<1>( f2 ), Qt::CaseInsensitive );
+            if ( formationCompare != 0 ) return formationCompare < 0;
+
+            int faciesCompare = std::get<2>( f1 ).compare( std::get<2>( f2 ), Qt::CaseInsensitive );
+            return faciesCompare < 0;
+        }
+    };
+
+    std::map<FaciesKey, RigElasticProperties, CaseInsensitiveFaciesKeyCompare> m_properties;
 };
