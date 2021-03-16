@@ -5,6 +5,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RimFaultInViewCollection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimFaultRASettings.h
 ${CMAKE_CURRENT_LIST_DIR}/RimFaultRAPreprocSettings.h
 ${CMAKE_CURRENT_LIST_DIR}/RimFaultRAPostprocSettings.h
+${CMAKE_CURRENT_LIST_DIR}/RimFaultRAParameterItem.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -13,6 +14,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RimFaultInViewCollection.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimFaultRASettings.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimFaultRAPreprocSettings.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimFaultRAPostprocSettings.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimFaultRAParameterItem.cpp
 )
 
 list(APPEND CODE_HEADER_FILES
