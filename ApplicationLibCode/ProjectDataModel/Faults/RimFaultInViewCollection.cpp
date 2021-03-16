@@ -29,6 +29,7 @@
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
 #include "RimFaultInView.h"
+#include "RimFaultRASettings.h"
 #include "RimIntersectionCollection.h"
 
 #include "RiuMainWindow.h"
@@ -36,6 +37,7 @@
 #include "cafAppEnum.h"
 #include "cafPdmFieldCvfColor.h"
 #include "cafPdmFieldCvfMat4d.h"
+#include "cafPdmUiTreeOrdering.h"
 
 namespace caf
 {
@@ -89,6 +91,11 @@ RimFaultInViewCollection::RimFaultInViewCollection()
 
     CAF_PDM_InitFieldNoDefault( &faults, "Faults", "Faults", "", "", "" );
     faults.uiCapability()->setUiHidden( true );
+
+    CAF_PDM_InitFieldNoDefault( &m_faultRASettings, "FaultRASettings", "Reactivation Assessment Settings", "", "", "" );
+    m_faultRASettings = new RimFaultRASettings();
+    m_faultRASettings.uiCapability()->setUiHidden( true );
+    m_faultRASettings->useDefaultValuesFromFile( RiaPreferences::current()->geomechFRADefaultXML() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -295,6 +302,14 @@ void RimFaultInViewCollection::defineUiOrdering( QString uiConfigName, caf::PdmU
     adv->add( &m_showFaultsOutsideFilters );
 
     uiOrderingFaults( uiConfigName, uiOrdering );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFaultInViewCollection::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName )
+{
+    uiTreeOrdering.add( &m_faultRASettings );
 }
 
 //--------------------------------------------------------------------------------------------------
