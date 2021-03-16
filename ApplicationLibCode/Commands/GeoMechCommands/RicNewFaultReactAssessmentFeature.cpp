@@ -85,21 +85,6 @@ void RicNewFaultReactAssessmentFeature::onActionTriggered( bool isChecked )
     if ( !RifFaultRAJSonWriter::writeToFile( fraSettings, errorText ) )
     {
     }
-
-    // test - read xml file
-    RifFaultRAXmlReader reader( "D:/Data/FRA/default.xml" );
-
-    if ( reader.parseFile( errorText ) )
-    {
-        for ( auto p : reader.parameters() )
-        {
-            qDebug() << p.first << " = " << p.second;
-        }
-    }
-    else
-    {
-        qDebug() << errorText;
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -108,7 +93,7 @@ void RicNewFaultReactAssessmentFeature::onActionTriggered( bool isChecked )
 void RicNewFaultReactAssessmentFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setIcon( QIcon( ":/fault_react_24x24.png" ) );
-    actionToSetup->setText( "Create Fault Reactivation Assessment" );
+    actionToSetup->setText( "New Fault Reactivation Assessment" );
 }
 
 //--------------------------------------------------------------------------------------------------

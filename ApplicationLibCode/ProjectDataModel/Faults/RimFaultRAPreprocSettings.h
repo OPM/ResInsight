@@ -53,9 +53,9 @@ protected:
     void defineEditorAttribute( const caf::PdmFieldHandle* field,
                                 QString                    uiConfigName,
                                 caf::PdmUiEditorAttribute* attribute ) override;
-    QList<caf::PdmOptionItemInfo>
-        RimFaultRAPreprocSettings::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                          bool*                      useOptionsOnly ) override;
+
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
+                                                         bool*                      useOptionsOnly ) override;
 
     caf::PdmField<int>                      m_startTimestep;
     caf::PdmField<int>                      m_endTimestep;
