@@ -23,6 +23,7 @@
 
 class RimEclipseResultCase;
 class RimGeoMechCase;
+class RimCase;
 
 class RimFaultRAPreprocSettings : public caf::PdmObject
 {
@@ -33,6 +34,7 @@ public:
     ~RimFaultRAPreprocSettings() override;
 
     void setGeoMechCase( RimGeoMechCase* geomechCase );
+    void setEclipseCase( RimEclipseResultCase* eclipseCase );
     void setOutputBaseDirectory( QString baseDir );
 
     int     startTimeStepIndex() const;
@@ -44,6 +46,7 @@ public:
     QString geomechCaseFilename() const;
     QString outputBaseDirectory() const;
     bool    cleanBaseDirectory() const;
+    bool    smoothEclipseData() const;
 
     QString preprocParameterFilename() const;
 
@@ -57,9 +60,12 @@ protected:
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
                                                          bool*                      useOptionsOnly ) override;
 
+    RimCase* startCase() const;
+
     caf::PdmField<int>                      m_startTimestep;
     caf::PdmField<int>                      m_endTimestep;
     caf::PdmPtrField<RimEclipseResultCase*> m_eclipseCase;
+    caf::PdmField<bool>                     m_smoothEclipseData;
     caf::PdmPtrField<RimGeoMechCase*>       m_geomechCase;
     caf::PdmField<QString>                  m_baseDir;
     caf::PdmField<bool>                     m_cleanBaseDir;
