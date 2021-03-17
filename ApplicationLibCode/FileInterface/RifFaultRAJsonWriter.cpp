@@ -16,7 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RifFaultRAJSonWriter.h"
+#include "RifFaultRAJsonWriter.h"
 
 #include "RimFaultRAPostprocSettings.h"
 #include "RimFaultRAPreprocSettings.h"
