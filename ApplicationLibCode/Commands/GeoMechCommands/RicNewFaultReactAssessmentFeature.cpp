@@ -18,6 +18,7 @@
 
 #include "RicNewFaultReactAssessmentFeature.h"
 
+#include "RimEclipseResultCase.h"
 #include "RimFaultRAPreprocSettings.h"
 #include "RimGeoMechCase.h"
 
@@ -52,9 +53,10 @@ bool RicNewFaultReactAssessmentFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicNewFaultReactAssessmentFeature::onActionTriggered( bool isChecked )
 {
-    // get the geomech case we should be working with
-    std::vector<RimGeoMechCase*> cases = caf::selectedObjectsByTypeStrict<RimGeoMechCase*>();
-    if ( cases.empty() ) return;
+    // get the case we should be working with
+    std::vector<RimGeoMechCase*>       geomechCases = caf::selectedObjectsByTypeStrict<RimGeoMechCase*>();
+    std::vector<RimEclipseResultCase*> eclipseCases = caf::selectedObjectsByTypeStrict<RimEclipseResultCase*>();
+    if ( geomechCases.empty() && eclipseCases.empty() ) return;
 
     // step 1 - get base directory for our work, should be a new, empty folder somewhere
     QString defaultDir =
@@ -64,25 +66,26 @@ void RicNewFaultReactAssessmentFeature::onActionTriggered( bool isChecked )
     RiaApplication::instance()->setLastUsedDialogDirectory( "FAULT_REACT_ASSESSMENT", baseDir );
 
     // step 2 - ask the user for the options we need in the preproc step
-    RimFaultRAPreprocSettings fraSettings;
-    fraSettings.setGeoMechCase( cases[0] );
-    fraSettings.setOutputBaseDirectory( baseDir );
+    RimFaultRAPreprocSettings frapSettings;
+    if ( !geomechCases.empty() ) frapSettings.setGeoMechCase( geomechCases[0] );
+    if ( !eclipseCases.empty() ) frapSettings.setEclipseCase( eclipseCases[0] );
+    frapSettings.setOutputBaseDirectory( baseDir );
 
     caf::PdmUiPropertyViewDialog propertyDialog( nullptr,
-                                                 &fraSettings,
+                                                 &frapSettings,
                                                  "Fault Reactivation Assessment Preprocessing",
                                                  "",
                                                  QDialogButtonBox::Ok | QDialogButtonBox::Cancel );
-    propertyDialog.resize( QSize( 300, 320 ) );
+    propertyDialog.resize( QSize( 400, 420 ) );
     if ( propertyDialog.exec() != QDialog::Accepted ) return;
 
     // step 3 - prepare output folder, if needed
-    prepareDirectory( fraSettings.outputBaseDirectory(), fraSettings.cleanBaseDirectory() );
+    prepareDirectory( frapSettings.outputBaseDirectory(), frapSettings.cleanBaseDirectory() );
 
     QString errorText;
 
     // step 4 - write the preprocessing parameter file
-    if ( !RifFaultRAJSonWriter::writeToFile( fraSettings, errorText ) )
+    if ( !RifFaultRAJSonWriter::writeToFile( frapSettings, errorText ) )
     {
     }
 }

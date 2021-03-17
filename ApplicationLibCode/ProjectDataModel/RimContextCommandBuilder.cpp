@@ -56,6 +56,7 @@
 #include "RimEclipseInputProperty.h"
 #include "RimEclipsePropertyFilter.h"
 #include "RimEclipsePropertyFilterCollection.h"
+#include "RimEclipseResultCase.h"
 #include "RimEclipseStatisticsCase.h"
 #include "RimEclipseView.h"
 #include "RimElasticProperties.h"
@@ -269,6 +270,11 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "Separator";
             menuBuilder << "RicCopyReferencesToClipboardFeature";
             menuBuilder << "Separator";
+            if ( dynamic_cast<RimEclipseResultCase*>( firstUiItem ) )
+            {
+                menuBuilder << "RicNewFaultReactAssessmentFeature";
+                menuBuilder << "Separator";
+            }
         }
         else if ( dynamic_cast<RimGridInfoCollection*>( firstUiItem ) )
         {
