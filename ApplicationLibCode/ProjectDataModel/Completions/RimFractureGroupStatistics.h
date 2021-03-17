@@ -20,6 +20,11 @@
 
 #include "RimNamedObject.h"
 
+#include "RigStimPlanFractureDefinition.h"
+
+class RigFractureCell;
+class RigSlice2D;
+
 //==================================================================================================
 ///
 ///
@@ -39,6 +44,40 @@ protected:
                                    QString                    uiConfigName,
                                    caf::PdmUiEditorAttribute* attribute ) override;
     QString generateFilePathsTable();
+
+    void          computeStatistics();
+    static double computeDepthOfWellPathAtFracture( cvf::ref<RigStimPlanFractureDefinition> stimPlanFractureDefinitionData );
+    static bool isCoordinateInsideFractureCell( double x, double y, const RigFractureCell& cell );
+
+    std::vector<cvf::ref<RigStimPlanFractureDefinition>>
+        readFractureDefinitions( const std::vector<caf::FilePath>& filePaths,
+                                 RiaDefines::EclipseUnitSystem     unitSystem ) const;
+
+    std::vector<cvf::cref<RigFractureGrid>>
+        createFractureGrids( const std::vector<cvf::ref<RigStimPlanFractureDefinition>>& stimPlanFractureDefinitions,
+                             RiaDefines::EclipseUnitSystem                               unitSystem );
+
+    static std::set<QString>
+        findAllResultNames( const std::vector<cvf::ref<RigStimPlanFractureDefinition>>& stimPlanFractureDefinitions );
+
+    static std::tuple<double, double, double, double>
+        findExtentsOfGrids( const std::vector<cvf::cref<RigFractureGrid>>& fractureGrids );
+
+    static void sampleAllGrids( const std::vector<cvf::cref<RigFractureGrid>>& fractureGrids,
+                                std::vector<std::vector<double>>&              samples,
+                                double                                         minX,
+                                double                                         maxX,
+                                int                                            numSamplesX,
+                                int                                            numSamplesY,
+                                double                                         sampleDistanceX,
+                                double                                         sampleDistanceY );
+
+    static void generateStatisticsGrids( const std::vector<std::vector<double>>&         samples,
+                                         int                                             numSamplesX,
+                                         int                                             numSamplesY,
+                                         std::map<QString, std::shared_ptr<RigSlice2D>>& statisticsGrids );
+
+    static bool writeStatisticsToCsv( const QString& filePath, const RigSlice2D& samples );
 
     caf::PdmField<std::vector<caf::FilePath>> m_filePaths;
     caf::PdmField<QString>                    m_filePathsTable;
