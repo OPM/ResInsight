@@ -38,7 +38,12 @@ RimFaciesInitialPressureConfig::RimFaciesInitialPressureConfig()
     m_faciesValue.uiCapability()->setUiHidden( true );
 
     // Use unicode for delta letter
+#ifdef Q_OS_WIN
+    QString deltaPressureFractionString = QString::fromStdWString( L"\x0394" ) + " Pressure Fraction";
+#else
     QString deltaPressureFractionString = QString::fromUtf8( "\u0394 Pressure Fraction" );
+#endif
+
     CAF_PDM_InitField( &m_fraction, "Fraction", 1.0, deltaPressureFractionString, "", "", "" );
 }
 
