@@ -61,11 +61,11 @@ protected:
                 closestCurvePoint( pos, &curveInfoText, &xAxisValueString, &depthAxisValueString, &relatedXAxis, &relatedYAxis );
             if ( !closestPoint.isNull() )
             {
-                QString str = QString( "depth = %1, value = %2" ).arg( depthAxisValueString ).arg( xAxisValueString );
+                QString str = QString( "%1\nDepth: %2" ).arg( xAxisValueString ).arg( depthAxisValueString );
 
                 if ( !curveInfoText.isEmpty() )
                 {
-                    str = QString( "%1: " ).arg( curveInfoText ) + str;
+                    str = QString( "%1:\n" ).arg( curveInfoText ) + str;
                 }
 
                 txt.setText( str );
