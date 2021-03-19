@@ -148,6 +148,7 @@ private:
     caf::PdmPtrField<RimEclipseCase*>         m_initialPressureEclipseCase;
     caf::PdmField<bool>                       m_useTableForInitialPressure;
     caf::PdmField<bool>                       m_useTableForPressure;
+    caf::PdmField<bool>                       m_editPressureTable;
     caf::PdmPtrField<RimEclipseCase*>         m_staticEclipseCase;
     caf::PdmField<double>                     m_defaultPorosity;
     caf::PdmField<double>                     m_defaultPermeability;
