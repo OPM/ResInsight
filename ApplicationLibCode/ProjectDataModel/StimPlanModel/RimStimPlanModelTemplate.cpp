@@ -39,6 +39,8 @@
 #include "RimStimPlanModelPlot.h"
 #include "RimTools.h"
 
+#include "Riu3DMainWindowTools.h"
+
 #include "cafPdmFieldCvfVec3d.h"
 #include "cafPdmFieldScriptingCapabilityCvfVec3d.h"
 
@@ -87,6 +89,9 @@ RimStimPlanModelTemplate::RimStimPlanModelTemplate()
                        "",
                        "" );
     CAF_PDM_InitField( &m_useTableForPressure, "UseForPressure", false, "Use Pressure Table For Pressure", "", "", "" );
+    CAF_PDM_InitField( &m_editPressureTable, "EditPressureTable", false, "Edit", "", "", "" );
+    m_editPressureTable.uiCapability()->setUiEditorTypeName( caf::PdmUiToolButtonEditor::uiEditorTypeName() );
+    m_editPressureTable.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_staticEclipseCase, "StaticEclipseCase", "Static Case", "", "", "" );
 
@@ -232,6 +237,15 @@ void RimStimPlanModelTemplate::fieldChangedByUi( const caf::PdmFieldHandle* chan
             m_timeStep = timeStepCount - 1;
         }
     }
+    else if ( changedField == &m_editPressureTable )
+    {
+        m_editPressureTable = false;
+        if ( m_pressureTable() )
+        {
+            Riu3DMainWindowTools::selectAsCurrentItem( m_pressureTable() );
+        }
+        return;
+    }
 
     changed.send();
 }
@@ -295,7 +309,8 @@ void RimStimPlanModelTemplate::defineUiOrdering( QString uiConfigName, caf::PdmU
     pressureDataSourceGroup->add( &m_dynamicEclipseCase );
     pressureDataSourceGroup->add( &m_timeStep );
     pressureDataSourceGroup->add( &m_initialPressureEclipseCase );
-    pressureDataSourceGroup->add( &m_useTableForInitialPressure );
+    pressureDataSourceGroup->add( &m_useTableForInitialPressure, { true, 2, 1 } );
+    pressureDataSourceGroup->add( &m_editPressureTable, { false, 1, 0 } );
     pressureDataSourceGroup->add( &m_useTableForPressure );
     m_initialPressureEclipseCase.uiCapability()->setUiReadOnly( m_useTableForInitialPressure() );
 
