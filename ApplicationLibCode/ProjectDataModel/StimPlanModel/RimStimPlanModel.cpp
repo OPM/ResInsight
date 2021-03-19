@@ -949,14 +949,8 @@ double RimStimPlanModel::getDefaultForMissingValue( RiaDefines::CurveProperty cu
     {
         return 1.0;
     }
-    else if ( curveProperty == RiaDefines::CurveProperty::EQLNUM )
-    {
-        return std::numeric_limits<double>::infinity();
-    }
     else
     {
-        RiaLogging::error( QString( "Missing default value for %1." )
-                               .arg( caf::AppEnum<RiaDefines::CurveProperty>( curveProperty ).uiText() ) );
         return std::numeric_limits<double>::infinity();
     }
 }
@@ -999,14 +993,8 @@ double RimStimPlanModel::getDefaultForMissingOverburdenValue( RiaDefines::CurveP
     {
         return 1.0;
     }
-    else if ( curveProperty == RiaDefines::CurveProperty::PRESSURE || curveProperty == RiaDefines::CurveProperty::EQLNUM )
-    {
-        return std::numeric_limits<double>::infinity();
-    }
     else
     {
-        RiaLogging::error( QString( "Missing default overburden value for %1." )
-                               .arg( caf::AppEnum<RiaDefines::CurveProperty>( curveProperty ).uiText() ) );
         return std::numeric_limits<double>::infinity();
     }
 }
@@ -1036,14 +1024,8 @@ double RimStimPlanModel::getDefaultForMissingUnderburdenValue( RiaDefines::Curve
     {
         return 1.0;
     }
-    else if ( curveProperty == RiaDefines::CurveProperty::PRESSURE || curveProperty == RiaDefines::CurveProperty::EQLNUM )
-    {
-        return std::numeric_limits<double>::infinity();
-    }
     else
     {
-        RiaLogging::error( QString( "Missing default underburden value for %1." )
-                               .arg( caf::AppEnum<RiaDefines::CurveProperty>( curveProperty ).uiText() ) );
         return std::numeric_limits<double>::infinity();
     }
 }
