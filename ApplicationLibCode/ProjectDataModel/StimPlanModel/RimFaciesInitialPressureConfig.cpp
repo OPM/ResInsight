@@ -39,7 +39,7 @@ RimFaciesInitialPressureConfig::RimFaciesInitialPressureConfig()
 
     // Use unicode for delta letter
 #ifdef Q_OS_WIN
-    QString deltaPressureFractionString =  QString::fromStdWString( L"\x0394" ) + " Pressure Fraction";
+    QString deltaPressureFractionString = QString::fromStdWString( L"\x0394" ) + " Pressure Fraction";
 #else
     QString deltaPressureFractionString = QString::fromUtf8( "\u0394 Pressure Fraction" );
 #endif
