@@ -48,5 +48,7 @@ private:
                                                 std::vector<double>&       stress,
                                                 const std::vector<double>& stressGradients );
 
+    static void addDatapointsForBottomOfLayers( std::vector<double>& tvDepthValues, std::vector<double>& values );
+
     RimStimPlanModelCalculator* m_stimPlanModelCalculator;
 };

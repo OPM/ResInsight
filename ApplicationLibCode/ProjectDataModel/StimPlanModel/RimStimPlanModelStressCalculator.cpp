@@ -19,6 +19,7 @@
 
 #include "RiaDefines.h"
 #include "RiaEclipseUnitTools.h"
+#include "RiaInterpolationTools.h"
 #include "RiaLogging.h"
 #include "RiaStimPlanModelDefines.h"
 
@@ -105,10 +106,12 @@ bool RimStimPlanModelStressCalculator::calculate( RiaDefines::CurveProperty curv
     else if ( curveProperty == RiaDefines::CurveProperty::STRESS_GRADIENT )
     {
         values = m_stimPlanModelCalculator->calculateStressGradient();
+        addDatapointsForBottomOfLayers( tvDepthValues, values );
     }
     else if ( curveProperty == RiaDefines::CurveProperty::TEMPERATURE )
     {
         m_stimPlanModelCalculator->calculateTemperature( values );
+        addDatapointsForBottomOfLayers( tvDepthValues, values );
     }
 
     if ( eclipseCase )
@@ -119,15 +122,21 @@ bool RimStimPlanModelStressCalculator::calculate( RiaDefines::CurveProperty curv
 
         // Generate MD data by interpolation
         const std::vector<double>& mdValuesOfWellPath  = wellPathGeometry->measuredDepths();
-        std::vector<double>        tvdValuesOfWellPath = wellPathGeometry->trueVerticalDepths();
+        const std::vector<double>& tvdValuesOfWellPath = wellPathGeometry->trueVerticalDepths();
         if ( mdValuesOfWellPath.empty() )
         {
             RiaLogging::error( "Well path geometry had no MD values." );
             return false;
         }
 
-        measuredDepthValues =
-            RigWellPathGeometryTools::interpolateMdFromTvd( mdValuesOfWellPath, tvdValuesOfWellPath, tvDepthValues );
+        // The thickness direction "fake" well path is always a straight line:
+        // measured depth can be interpolated linearly
+        measuredDepthValues.clear();
+        for ( double tvd : tvDepthValues )
+        {
+            double md = RiaInterpolationTools::linear( tvdValuesOfWellPath, mdValuesOfWellPath, tvd );
+            measuredDepthValues.push_back( md );
+        }
         CVF_ASSERT( measuredDepthValues.size() == tvDepthValues.size() );
     }
 
@@ -164,5 +173,37 @@ void RimStimPlanModelStressCalculator::addDatapointsForBottomOfLayers( std::vect
     }
 
     stress        = valuesWithBottomLayers;
+    tvDepthValues = tvdWithBottomLayers;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimStimPlanModelStressCalculator::addDatapointsForBottomOfLayers( std::vector<double>& tvDepthValues,
+                                                                       std::vector<double>& values )
+
+{
+    std::vector<double> tvdWithBottomLayers;
+    std::vector<double> valuesWithBottomLayers;
+    for ( size_t i = 0; i < values.size(); i++ )
+    {
+        // Add the data point at top of the layer
+        double topLayerDepth = tvDepthValues[i];
+        double value         = values[i];
+        tvdWithBottomLayers.push_back( topLayerDepth );
+        valuesWithBottomLayers.push_back( value );
+
+        // Add extra data points for bottom part of the layer
+        if ( i < values.size() - 1 )
+        {
+            double bottomLayerDepth = tvDepthValues[i + 1];
+            double bottomValue      = value;
+
+            tvdWithBottomLayers.push_back( bottomLayerDepth );
+            valuesWithBottomLayers.push_back( bottomValue );
+        }
+    }
+
+    values        = valuesWithBottomLayers;
     tvDepthValues = tvdWithBottomLayers;
 }
