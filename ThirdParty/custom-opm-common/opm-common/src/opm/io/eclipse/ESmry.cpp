@@ -367,7 +367,7 @@ ESmry::ESmry(const std::string &filename, bool loadBaseRunData , bool uselodsmry
                 auto rstFrom = smryArray[specInd-1];
                 toReportStepNumber = std::get<1>(rstFrom);
             } else {
-                toReportStepNumber = std::numeric_limits<int>::infinity();
+                toReportStepNumber = std::numeric_limits<int>::max();
             }
 
             Opm::filesystem::path smspecFile(std::get<0>(smryArray[specInd]));

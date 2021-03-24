@@ -1,6 +1,7 @@
 #ifdef _WIN32
 
 #include "Substitutes.hpp"
+#include <Shlwapi.h>
 
 int
 fnmatch(const char* pattern, const char* string, int flags)

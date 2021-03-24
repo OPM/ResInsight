@@ -2,10 +2,6 @@
 
 #ifdef _WIN32
 
-#include <Shlwapi.h>
-#define NOMINMAX
-#include <windows.h>
-#undef NOMINMAX
 // IGNORE is used in InputErrorAction.hpp, as an enum value,
 // but is defined as a #def in WinBase.h which is included by Shlwapi.h.
 // It is not required here, so we can undefine it.
