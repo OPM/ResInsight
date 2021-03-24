@@ -36,9 +36,11 @@ RimFaultRAPreprocSettings::RimFaultRAPreprocSettings()
 {
     CAF_PDM_InitObject( "Fault RA Preproc Settings", ":/fault_react_24x24.png", "", "" );
 
-    CAF_PDM_InitField( &m_startTimestep, "StartTimeStep", 0, "Start Time Step", "", "", "" );
+    CAF_PDM_InitField( &m_startTimestepEclipse, "StartTimeStepEclipse", 0, "Start Time Step", "", "", "" );
+    CAF_PDM_InitField( &m_endTimestepEclipse, "EndTimeStepEclipse", 0, "End Time Step", "", "", "" );
 
-    CAF_PDM_InitField( &m_endTimestep, "EndTimeStep", 0, "End Time Step", "", "", "" );
+    CAF_PDM_InitField( &m_startTimestepGeoMech, "StartTimeStepGeoMech", 0, "Start Time Step", "", "", "" );
+    CAF_PDM_InitField( &m_endTimestepGeoMech, "EndTimeStepGeoMech", 0, "End Time Step", "", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_eclipseCase, "EclipseCase", "Eclipse Case", "", "", "" );
     m_eclipseCase.setValue( nullptr );
@@ -83,19 +85,19 @@ void RimFaultRAPreprocSettings::defineEditorAttribute( const caf::PdmFieldHandle
 //--------------------------------------------------------------------------------------------------
 void RimFaultRAPreprocSettings::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    auto eclipseGroup = uiOrdering.addNewGroup( "Eclipse Model" );
-    eclipseGroup->add( &m_eclipseCase );
-    eclipseGroup->add( &m_smoothEclipseData );
-
     if ( m_geomechCase() )
     {
         auto geomechGroup = uiOrdering.addNewGroup( "GeoMechanical Model" );
         geomechGroup->add( &m_geomechCase );
+        geomechGroup->add( &m_startTimestepGeoMech );
+        geomechGroup->add( &m_endTimestepGeoMech );
     }
 
-    auto timeGroup = uiOrdering.addNewGroup( "Time Steps" );
-    timeGroup->add( &m_startTimestep );
-    timeGroup->add( &m_endTimestep );
+    auto eclipseGroup = uiOrdering.addNewGroup( "Eclipse Model" );
+    eclipseGroup->add( &m_eclipseCase );
+    eclipseGroup->add( &m_smoothEclipseData );
+    eclipseGroup->add( &m_startTimestepEclipse );
+    eclipseGroup->add( &m_endTimestepEclipse );
 
     auto outputGroup = uiOrdering.addNewGroup( "Output Settings" );
     outputGroup->add( &m_baseDir );
@@ -116,17 +118,33 @@ QList<caf::PdmOptionItemInfo>
     {
         RimTools::eclipseCaseOptionItems( &options );
     }
-    if ( fieldNeedingOptions == &m_geomechCase )
+    else if ( fieldNeedingOptions == &m_geomechCase )
     {
         RimTools::geoMechCaseOptionItems( &options );
     }
-    else if ( fieldNeedingOptions == &m_startTimestep )
+
+    if ( m_geomechCase() )
     {
-        RimTools::timeStepsForCase( startCase(), &options );
+        if ( fieldNeedingOptions == &m_startTimestepGeoMech )
+        {
+            RimTools::timeStepsForCase( m_geomechCase, &options );
+        }
+        else if ( fieldNeedingOptions == &m_endTimestepGeoMech )
+        {
+            RimTools::timeStepsForCase( m_geomechCase, &options );
+        }
     }
-    else if ( fieldNeedingOptions == &m_endTimestep )
+
+    if ( m_eclipseCase() )
     {
-        RimTools::timeStepsForCase( startCase(), &options );
+        if ( fieldNeedingOptions == &m_startTimestepEclipse )
+        {
+            RimTools::timeStepsForCase( m_eclipseCase, &options );
+        }
+        else if ( fieldNeedingOptions == &m_endTimestepEclipse )
+        {
+            RimTools::timeStepsForCase( m_eclipseCase, &options );
+        }
     }
 
     return options;
@@ -141,20 +159,20 @@ RimCase* RimFaultRAPreprocSettings::startCase() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int RimFaultRAPreprocSettings::startTimeStepIndex() const
+int RimFaultRAPreprocSettings::startTimeStepEclipseIndex() const
 {
-    return m_startTimestep();
+    return m_startTimestepEclipse();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimFaultRAPreprocSettings::startTimeStep() const
+QString RimFaultRAPreprocSettings::startTimeStepEclipse() const
 {
-    if ( startCase() )
+    if ( m_eclipseCase() )
     {
-        if ( ( m_startTimestep >= 0 ) && ( m_startTimestep <= startCase()->timeStepStrings().size() ) )
-            return startCase()->timeStepStrings()[m_startTimestep];
+        if ( ( m_startTimestepEclipse >= 0 ) && ( m_startTimestepEclipse <= m_eclipseCase->timeStepStrings().size() ) )
+            return m_eclipseCase->timeStepStrings()[m_startTimestepEclipse];
     }
     return "";
 }
@@ -162,20 +180,20 @@ QString RimFaultRAPreprocSettings::startTimeStep() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int RimFaultRAPreprocSettings::endTimeStepIndex() const
+int RimFaultRAPreprocSettings::endTimeStepEclipseIndex() const
 {
-    return m_endTimestep();
+    return m_endTimestepEclipse();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimFaultRAPreprocSettings::endTimeStep() const
+QString RimFaultRAPreprocSettings::endTimeStepEclipse() const
 {
-    if ( startCase() )
+    if ( m_eclipseCase() )
     {
-        if ( ( m_endTimestep >= 0 ) && ( m_endTimestep <= startCase()->timeStepStrings().size() ) )
-            return startCase()->timeStepStrings()[m_endTimestep];
+        if ( ( m_endTimestepEclipse >= 0 ) && ( m_endTimestepEclipse <= m_eclipseCase->timeStepStrings().size() ) )
+            return m_eclipseCase->timeStepStrings()[m_endTimestepEclipse];
     }
     return "";
 }
@@ -186,6 +204,48 @@ QString RimFaultRAPreprocSettings::endTimeStep() const
 QString RimFaultRAPreprocSettings::eclipseCaseFilename() const
 {
     if ( m_eclipseCase ) return m_eclipseCase->gridFileName();
+    return "";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RimFaultRAPreprocSettings::startTimeStepGeoMechIndex() const
+{
+    return m_startTimestepGeoMech();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimFaultRAPreprocSettings::startTimeStepGeoMech() const
+{
+    if ( m_geomechCase() )
+    {
+        if ( ( m_startTimestepGeoMech >= 0 ) && ( m_startTimestepGeoMech <= m_geomechCase->timeStepStrings().size() ) )
+            return m_geomechCase->timeStepStrings()[m_startTimestepEclipse];
+    }
+    return "";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RimFaultRAPreprocSettings::endTimeStepGeoMechIndex() const
+{
+    return m_endTimestepEclipse();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimFaultRAPreprocSettings::endTimeStepGeoMech() const
+{
+    if ( m_geomechCase() )
+    {
+        if ( ( m_endTimestepGeoMech >= 0 ) && ( m_endTimestepGeoMech <= m_geomechCase->timeStepStrings().size() ) )
+            return m_geomechCase->timeStepStrings()[m_endTimestepGeoMech];
+    }
     return "";
 }
 

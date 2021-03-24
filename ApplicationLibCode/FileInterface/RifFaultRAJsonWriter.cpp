@@ -40,8 +40,8 @@ bool RifFaultRAJSonWriter::writeToFile( RimFaultRAPreprocSettings& settings, QSt
 
         stream << "{" << endl;
         stream << "\"odb_path\": \"" + settings.geomechCaseFilename() + "\"," << endl;
-        stream << "\"time_start\": \"" + settings.startTimeStep() + "\"," << endl;
-        stream << "\"time_end\": \"" + settings.endTimeStep() + "\"" << endl;
+        stream << "\"time_start\": \"" + settings.startTimeStepGeoMech() + "\"," << endl;
+        stream << "\"time_end\": \"" + settings.endTimeStepGeoMech() + "\"" << endl;
         stream << "}" << endl;
 
         file.close();

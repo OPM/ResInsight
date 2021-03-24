@@ -28,7 +28,6 @@
 #include "RiuFileDialogTools.h"
 
 #include "RifFaultRAJsonWriter.h"
-#include "RifFaultRAXmlReader.h"
 
 #include "cafPdmUiPropertyViewDialog.h"
 #include "cafSelectionManagerTools.h"

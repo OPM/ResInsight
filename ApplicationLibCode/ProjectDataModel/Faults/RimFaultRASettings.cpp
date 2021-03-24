@@ -21,11 +21,12 @@
 
 #include "RiaApplication.h"
 #include "RimEclipseResultCase.h"
+#include "RimGenericParameter.h"
 #include "RimGeoMechCase.h"
 #include "RimProject.h"
 #include "RimTools.h"
 
-#include "RifFaultRAXmlReader.h"
+#include "RifParameterXmlReader.h"
 
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObjectScriptingCapability.h"
@@ -208,8 +209,8 @@ void RimFaultRASettings::setOutputBaseDirectory( QString baseDir )
 //--------------------------------------------------------------------------------------------------
 void RimFaultRASettings::useDefaultValuesFromFile( QString xmlFilename )
 {
-    RifFaultRAXmlReader reader( xmlFilename );
-    QString             errorText;
+    RifParameterXmlReader reader( xmlFilename );
+    QString               errorText;
     if ( !reader.parseFile( errorText ) )
     {
         // todo - log warning?
@@ -218,18 +219,14 @@ void RimFaultRASettings::useDefaultValuesFromFile( QString xmlFilename )
 
     for ( auto p : reader.parameters() )
     {
-        const QString name = p.first;
-        const QString val  = p.second;
+        if ( shouldIgnoreParameter( p->name() ) ) continue;
 
-        if ( shouldIgnoreParameter( name ) ) continue;
-
-        RimFaultRAParameterItem* item = new RimFaultRAParameterItem();
-        item->setValue( name, val );
-
-        if ( isBasicParameter( name ) )
-            m_basicParameters.push_back( item );
+        if ( p->isAdvanced() )
+            m_additionalParameters.push_back( p );
         else
-            m_additionalParameters.push_back( item );
+            m_basicParameters.push_back( p );
+
+        // TODO - fix memleak for ignored parameters, should switch to some sort of refcounting
     }
 }
 
