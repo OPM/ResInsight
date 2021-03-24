@@ -29,11 +29,29 @@
 #include "RifCsvDataTableFormatter.h"
 #include "RifStimPlanXmlReader.h"
 
+#include "cafAppEnum.h"
 #include "cafPdmUiTextEditor.h"
 
 #include <cmath>
 
 #include <QFile>
+
+namespace caf
+{
+template <>
+void caf::AppEnum<RimFractureGroupStatistics::StatisticsType>::setUp()
+{
+    addItem( RimFractureGroupStatistics::StatisticsType::MEAN, "MEAN", "Mean" );
+    addItem( RimFractureGroupStatistics::StatisticsType::MIN, "MIN", "Minimum" );
+    addItem( RimFractureGroupStatistics::StatisticsType::MAX, "MAX", "Maximum" );
+    addItem( RimFractureGroupStatistics::StatisticsType::P10, "P10", "P10" );
+    addItem( RimFractureGroupStatistics::StatisticsType::P50, "P50", "P50" );
+    addItem( RimFractureGroupStatistics::StatisticsType::P90, "P90", "P90" );
+    addItem( RimFractureGroupStatistics::StatisticsType::OCCURRENCE, "OCCURRENCE", "Occurrence" );
+    setDefault( RimFractureGroupStatistics::StatisticsType::MEAN );
+}
+
+} // namespace caf
 
 CAF_PDM_SOURCE_INIT( RimFractureGroupStatistics, "FractureGroupStatistics" );
 
@@ -143,16 +161,16 @@ void RimFractureGroupStatistics::computeStatistics()
     std::vector<std::vector<double>> samples( numSamplesX * numSamplesY );
     sampleAllGrids( fractureGrids, samples, minX, minY, numSamplesX, numSamplesY, sampleDistanceX, sampleDistanceY );
 
-    std::map<QString, std::shared_ptr<RigSlice2D>> statisticsGrids;
+    std::map<RimFractureGroupStatistics::StatisticsType, std::shared_ptr<RigSlice2D>> statisticsGrids;
     generateStatisticsGrids( samples, numSamplesX, numSamplesY, statisticsGrids );
 
-    writeStatisticsToCsv( "/tmp/mean.csv", *statisticsGrids["mean"] );
-    writeStatisticsToCsv( "/tmp/min.csv", *statisticsGrids["min"] );
-    writeStatisticsToCsv( "/tmp/max.csv", *statisticsGrids["max"] );
-    writeStatisticsToCsv( "/tmp/p10.csv", *statisticsGrids["p10"] );
-    writeStatisticsToCsv( "/tmp/p50.csv", *statisticsGrids["p50"] );
-    writeStatisticsToCsv( "/tmp/p90.csv", *statisticsGrids["p90"] );
-    writeStatisticsToCsv( "/tmp/occurrence.csv", *statisticsGrids["occurrence"] );
+    for ( size_t i = 0; i < caf::AppEnum<RimFractureGroupStatistics::StatisticsType>::size(); ++i )
+    {
+        caf::AppEnum<RimFractureGroupStatistics::StatisticsType> t =
+            caf::AppEnum<RimFractureGroupStatistics::StatisticsType>::fromIndex( i );
+        QString text = t.text();
+        writeStatisticsToCsv( "/tmp/" + text + ".csv", *statisticsGrids[t.value()] );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -381,17 +399,19 @@ bool RimFractureGroupStatistics::writeStatisticsToCsv( const QString& filePath, 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimFractureGroupStatistics::generateStatisticsGrids( const std::vector<std::vector<double>>&         samples,
-                                                          int                                             numSamplesX,
-                                                          int                                             numSamplesY,
-                                                          std::map<QString, std::shared_ptr<RigSlice2D>>& statisticsGrids )
+void RimFractureGroupStatistics::generateStatisticsGrids(
+    const std::vector<std::vector<double>>&                                            samples,
+    int                                                                                numSamplesX,
+    int                                                                                numSamplesY,
+    std::map<RimFractureGroupStatistics::StatisticsType, std::shared_ptr<RigSlice2D>>& statisticsGrids )
 {
-    std::vector<QString> names = { "mean", "max", "min", "p10", "p50", "p90", "occurrence" };
-
-    for ( auto name : names )
+    for ( size_t i = 0; i < caf::AppEnum<RimFractureGroupStatistics::StatisticsType>::size(); ++i )
     {
         std::shared_ptr<RigSlice2D> grid = std::make_shared<RigSlice2D>( numSamplesX, numSamplesY );
-        statisticsGrids[name]            = grid;
+
+        caf::AppEnum<RimFractureGroupStatistics::StatisticsType> t =
+            caf::AppEnum<RimFractureGroupStatistics::StatisticsType>::fromIndex( i );
+        statisticsGrids[t.value()] = grid;
     }
 
     for ( int y = 0; y < numSamplesY; y++ )
@@ -407,20 +427,20 @@ void RimFractureGroupStatistics::generateStatisticsGrids( const std::vector<std:
             double dev;
             RigStatisticsMath::calculateBasicStatistics( samples[idx], &min, &max, &sum, &range, &mean, &dev );
 
-            statisticsGrids["mean"]->setValue( x, y, mean );
-            statisticsGrids["min"]->setValue( x, y, min );
-            statisticsGrids["max"]->setValue( x, y, max );
+            statisticsGrids[RimFractureGroupStatistics::StatisticsType::MEAN]->setValue( x, y, mean );
+            statisticsGrids[RimFractureGroupStatistics::StatisticsType::MIN]->setValue( x, y, min );
+            statisticsGrids[RimFractureGroupStatistics::StatisticsType::MAX]->setValue( x, y, max );
 
             double p10;
             double p50;
             double p90;
             RigStatisticsMath::calculateStatisticsCurves( samples[idx], &p10, &p50, &p90, &mean );
 
-            statisticsGrids["p10"]->setValue( x, y, p10 );
-            statisticsGrids["p50"]->setValue( x, y, p50 );
-            statisticsGrids["p90"]->setValue( x, y, p90 );
+            statisticsGrids[RimFractureGroupStatistics::StatisticsType::P10]->setValue( x, y, p10 );
+            statisticsGrids[RimFractureGroupStatistics::StatisticsType::P50]->setValue( x, y, p50 );
+            statisticsGrids[RimFractureGroupStatistics::StatisticsType::P90]->setValue( x, y, p90 );
 
-            statisticsGrids["occurrence"]->setValue( x, y, samples[idx].size() );
+            statisticsGrids[RimFractureGroupStatistics::StatisticsType::OCCURRENCE]->setValue( x, y, samples[idx].size() );
         }
     }
 }
