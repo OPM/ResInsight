@@ -27,6 +27,7 @@
 #include "RigStimPlanFractureDefinition.h"
 
 #include "RifCsvDataTableFormatter.h"
+#include "RifFractureGroupStatisticsExporter.h"
 #include "RifStimPlanXmlReader.h"
 
 #include "cafAppEnum.h"
@@ -144,6 +145,10 @@ void RimFractureGroupStatistics::computeStatistics()
 
     auto [minX, maxX, minY, maxY] = findExtentsOfGrids( fractureGrids );
 
+    // TODO: take from an incoming xml?
+    double timeStep       = 100.0;
+    double referenceDepth = 3000.0;
+
     int numSamplesX = 100;
     int numSamplesY = 150;
 
@@ -158,6 +163,20 @@ void RimFractureGroupStatistics::computeStatistics()
                           .arg( sampleDistanceX )
                           .arg( sampleDistanceY ) );
 
+    std::vector<double> gridXs( numSamplesX );
+    std::vector<double> gridYs( numSamplesY );
+    for ( int y = 0; y < numSamplesY; y++ )
+    {
+        double posY = minY + y * sampleDistanceY;
+        gridYs[y]   = referenceDepth + posY;
+    }
+
+    for ( int x = 0; x < numSamplesX; x++ )
+    {
+        double posX = minX + x * sampleDistanceX;
+        gridXs[x]   = posX;
+    }
+
     std::vector<std::vector<double>> samples( numSamplesX * numSamplesY );
     sampleAllGrids( fractureGrids, samples, minX, minY, numSamplesX, numSamplesY, sampleDistanceX, sampleDistanceY );
 
@@ -168,8 +187,13 @@ void RimFractureGroupStatistics::computeStatistics()
     {
         caf::AppEnum<RimFractureGroupStatistics::StatisticsType> t =
             caf::AppEnum<RimFractureGroupStatistics::StatisticsType>::fromIndex( i );
+        std::shared_ptr<RigSlice2D> statistics = statisticsGrids[t.value()];
+
         QString text = t.text();
-        writeStatisticsToCsv( "/tmp/" + text + ".csv", *statisticsGrids[t.value()] );
+        writeStatisticsToCsv( "/tmp/" + text + ".csv", *statistics );
+
+        QString xmlFilePath = "/tmp/fracture_group/" + text + ".xml";
+        RifFractureGroupStatisticsExporter::writeAsStimPlanXml( *statistics, xmlFilePath, gridXs, gridYs, timeStep );
     }
 }
 
