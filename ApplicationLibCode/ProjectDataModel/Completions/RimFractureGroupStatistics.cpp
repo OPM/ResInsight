@@ -141,9 +141,7 @@ void RimFractureGroupStatistics::computeStatistics()
 
     std::set<QString> availableResults = findAllResultNames( stimPlanFractureDefinitions );
 
-    std::vector<cvf::cref<RigFractureGrid>> fractureGrids = createFractureGrids( stimPlanFractureDefinitions, unitSystem );
-
-    auto [minX, maxX, minY, maxY] = findExtentsOfGrids( fractureGrids );
+    std::map<std::pair<RimFractureGroupStatistics::StatisticsType, QString>, std::shared_ptr<RigSlice2D>> statisticsGridsAll;
 
     // TODO: take from an incoming xml?
     double timeStep       = 100.0;
@@ -152,48 +150,74 @@ void RimFractureGroupStatistics::computeStatistics()
     int numSamplesX = 100;
     int numSamplesY = 150;
 
-    double sampleDistanceX = ( maxX - minX ) / numSamplesX;
-    double sampleDistanceY = ( maxY - minY ) / numSamplesY;
-
-    RiaLogging::info(
-        QString( "Fracture Group Size: X = [%1, %2] Y = [%3, %4]" ).arg( minX ).arg( maxX ).arg( minY ).arg( maxY ) );
-    RiaLogging::info( QString( "Output size: %1x%2. Sampling Distance X = %3 Sampling Distance Y = %4" )
-                          .arg( numSamplesX )
-                          .arg( numSamplesY )
-                          .arg( sampleDistanceX )
-                          .arg( sampleDistanceY ) );
-
     std::vector<double> gridXs( numSamplesX );
     std::vector<double> gridYs( numSamplesY );
-    for ( int y = 0; y < numSamplesY; y++ )
+
+    for ( auto result : availableResults )
     {
-        double posY = minY + y * sampleDistanceY;
-        gridYs[y]   = referenceDepth + posY;
+        RiaLogging::info( QString( "Creating statistics for result: %1" ).arg( result ) );
+
+        std::vector<cvf::cref<RigFractureGrid>> fractureGrids =
+            createFractureGrids( stimPlanFractureDefinitions, unitSystem, result );
+
+        auto [minX, maxX, minY, maxY] = findExtentsOfGrids( fractureGrids );
+
+        double sampleDistanceX = ( maxX - minX ) / numSamplesX;
+        double sampleDistanceY = ( maxY - minY ) / numSamplesY;
+
+        RiaLogging::info(
+            QString( "Fracture Group Size: X = [%1, %2] Y = [%3, %4]" ).arg( minX ).arg( maxX ).arg( minY ).arg( maxY ) );
+        RiaLogging::info( QString( "Output size: %1x%2. Sampling Distance X = %3 Sampling Distance Y = %4" )
+                              .arg( numSamplesX )
+                              .arg( numSamplesY )
+                              .arg( sampleDistanceX )
+                              .arg( sampleDistanceY ) );
+
+        for ( int y = 0; y < numSamplesY; y++ )
+        {
+            double posY = minY + y * sampleDistanceY;
+            gridYs[y]   = referenceDepth + posY;
+        }
+
+        for ( int x = 0; x < numSamplesX; x++ )
+        {
+            double posX = minX + x * sampleDistanceX;
+            gridXs[x]   = posX;
+        }
+
+        std::vector<std::vector<double>> samples( numSamplesX * numSamplesY );
+        sampleAllGrids( fractureGrids, samples, minX, minY, numSamplesX, numSamplesY, sampleDistanceX, sampleDistanceY );
+
+        std::map<RimFractureGroupStatistics::StatisticsType, std::shared_ptr<RigSlice2D>> statisticsGrids;
+        generateStatisticsGrids( samples, numSamplesX, numSamplesY, statisticsGrids );
+
+        for ( auto [statType, slice] : statisticsGrids )
+        {
+            auto key                = std::make_pair( statType, result );
+            statisticsGridsAll[key] = slice;
+        }
     }
-
-    for ( int x = 0; x < numSamplesX; x++ )
-    {
-        double posX = minX + x * sampleDistanceX;
-        gridXs[x]   = posX;
-    }
-
-    std::vector<std::vector<double>> samples( numSamplesX * numSamplesY );
-    sampleAllGrids( fractureGrids, samples, minX, minY, numSamplesX, numSamplesY, sampleDistanceX, sampleDistanceY );
-
-    std::map<RimFractureGroupStatistics::StatisticsType, std::shared_ptr<RigSlice2D>> statisticsGrids;
-    generateStatisticsGrids( samples, numSamplesX, numSamplesY, statisticsGrids );
 
     for ( size_t i = 0; i < caf::AppEnum<RimFractureGroupStatistics::StatisticsType>::size(); ++i )
     {
         caf::AppEnum<RimFractureGroupStatistics::StatisticsType> t =
             caf::AppEnum<RimFractureGroupStatistics::StatisticsType>::fromIndex( i );
-        std::shared_ptr<RigSlice2D> statistics = statisticsGrids[t.value()];
-
         QString text = t.text();
-        writeStatisticsToCsv( "/tmp/" + text + ".csv", *statistics );
+
+        // Get the all the properties for this statistics type
+        std::vector<std::shared_ptr<RigSlice2D>> statisticsSlices;
+        std::vector<QString>                     properties;
+        for ( auto result : availableResults )
+        {
+            properties.push_back( result );
+            std::shared_ptr<RigSlice2D> slice = statisticsGridsAll[std::make_pair( t.value(), result )];
+            statisticsSlices.push_back( slice );
+
+            writeStatisticsToCsv( "/tmp/" + text + "-" + result + ".csv", *slice );
+        }
 
         QString xmlFilePath = "/tmp/fracture_group/" + text + ".xml";
-        RifFractureGroupStatisticsExporter::writeAsStimPlanXml( *statistics, xmlFilePath, gridXs, gridYs, timeStep );
+        RifFractureGroupStatisticsExporter::writeAsStimPlanXml( statisticsSlices, properties, xmlFilePath, gridXs, gridYs, timeStep );
     }
 }
 
@@ -240,7 +264,7 @@ std::set<QString> RimFractureGroupStatistics::findAllResultNames(
     std::set<QString> resultNames;
     for ( auto stimPlanFractureDefinitionData : stimPlanFractureDefinitions )
     {
-        for ( auto resultName : stimPlanFractureDefinitionData->conductivityResultNames() )
+        for ( auto [resultName, unit] : stimPlanFractureDefinitionData->getStimPlanPropertyNamesUnits() )
         {
             resultNames.insert( resultName );
         }
@@ -254,7 +278,8 @@ std::set<QString> RimFractureGroupStatistics::findAllResultNames(
 //--------------------------------------------------------------------------------------------------
 std::vector<cvf::cref<RigFractureGrid>> RimFractureGroupStatistics::createFractureGrids(
     const std::vector<cvf::ref<RigStimPlanFractureDefinition>>& stimPlanFractureDefinitions,
-    RiaDefines::EclipseUnitSystem                               unitSystem )
+    RiaDefines::EclipseUnitSystem                               unitSystem,
+    const QString&                                              resultNameOnFile )
 {
     // Defaults to avoid scaling
     double halfLengthScaleFactor = 1.0;
@@ -263,20 +288,14 @@ std::vector<cvf::cref<RigFractureGrid>> RimFractureGroupStatistics::createFractu
     std::vector<cvf::cref<RigFractureGrid>> fractureGrids;
     for ( auto stimPlanFractureDefinitionData : stimPlanFractureDefinitions )
     {
-        QStringList conductivityResultNames = stimPlanFractureDefinitionData->conductivityResultNames();
-
         double wellPathDepthAtFracture = computeDepthOfWellPathAtFracture( stimPlanFractureDefinitionData );
 
         // Always use last time steps
         std::vector<double> timeSteps           = stimPlanFractureDefinitionData->timeSteps();
         int                 activeTimeStepIndex = timeSteps.size() - 1;
 
-        QString conductivityResultNameOnFile = conductivityResultNames.first();
-
-        RiaLogging::info( QString( "Using result: %1" ).arg( conductivityResultNameOnFile ) );
-
         cvf::cref<RigFractureGrid> fractureGrid =
-            stimPlanFractureDefinitionData->createFractureGrid( conductivityResultNameOnFile,
+            stimPlanFractureDefinitionData->createFractureGrid( resultNameOnFile,
                                                                 activeTimeStepIndex,
                                                                 halfLengthScaleFactor,
                                                                 heightScaleFactor,

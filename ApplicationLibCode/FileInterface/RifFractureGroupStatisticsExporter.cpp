@@ -30,11 +30,12 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RifFractureGroupStatisticsExporter::writeAsStimPlanXml( const RigSlice2D&          statistics,
-                                                             const QString&             filePath,
-                                                             const std::vector<double>& gridXs,
-                                                             const std::vector<double>& gridYs,
-                                                             double                     time )
+bool RifFractureGroupStatisticsExporter::writeAsStimPlanXml( const std::vector<std::shared_ptr<RigSlice2D>>& statistics,
+                                                             const std::vector<QString>&                     properties,
+                                                             const QString&                                  filePath,
+                                                             const std::vector<double>&                      gridXs,
+                                                             const std::vector<double>&                      gridYs,
+                                                             double                                          time )
 {
     QFile data( filePath );
     if ( !data.open( QFile::WriteOnly | QFile::Truncate ) )
@@ -45,7 +46,7 @@ bool RifFractureGroupStatisticsExporter::writeAsStimPlanXml( const RigSlice2D&  
     QTextStream stream( &data );
     appendHeaderToStream( stream );
     appendGridDimensionsToStream( stream, gridXs, gridYs );
-    appendPropertiesToStream( stream, statistics, gridYs, time );
+    appendPropertiesToStream( stream, statistics, properties, gridYs, time );
     appendFooterToStream( stream );
 
     return true;
@@ -62,34 +63,42 @@ void RifFractureGroupStatisticsExporter::appendHeaderToStream( QTextStream& stre
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RifFractureGroupStatisticsExporter::appendPropertiesToStream( QTextStream&               stream,
-                                                                   const RigSlice2D&          statistics,
-                                                                   const std::vector<double>& gridYs,
-                                                                   double                     time )
+void RifFractureGroupStatisticsExporter::appendPropertiesToStream( QTextStream& stream,
+                                                                   const std::vector<std::shared_ptr<RigSlice2D>>& statistics,
+                                                                   const std::vector<QString>& properties,
+                                                                   const std::vector<double>&  gridYs,
+                                                                   double                      time )
 {
-    CAF_ASSERT( statistics.ny() == gridYs.size() );
-
-    // TODO:
-    QString propertyName = "conductivity";
-    QString propertyUnit = "cm";
+    CAF_ASSERT( statistics.size() == properties.size() );
 
     stream << "<properties>" << endl;
-    stream << QString( "<property name=\"%1\" uom=\"%2\">" ).arg( propertyName ).arg( propertyUnit ) << endl;
-    stream << QString( "<time value=\"%1\">" ).arg( time ) << endl;
 
-    for ( size_t i = 0; i < gridYs.size(); i++ )
+    for ( size_t s = 0; s < statistics.size(); s++ )
     {
-        stream << "<depth>" << gridYs[i] << "</depth>" << endl;
-        stream << "<data>[";
-        for ( size_t x = 0; x < statistics.nx(); x++ )
-        {
-            stream << statistics.getValue( x, i ) << " ";
-        }
-        stream << "]</data>" << endl;
-    }
+        QString propertyName = properties[s];
 
-    stream << "</time>" << endl;
-    stream << "</property>" << endl;
+        // TODO:
+        QString propertyUnit = "cm";
+
+        stream << QString( "<property name=\"%1\" uom=\"%2\">" ).arg( propertyName ).arg( propertyUnit ) << endl;
+        stream << QString( "<time value=\"%1\">" ).arg( time ) << endl;
+
+        CAF_ASSERT( statistics[s]->ny() == gridYs.size() );
+
+        for ( size_t i = 0; i < gridYs.size(); i++ )
+        {
+            stream << "<depth>" << gridYs[i] << "</depth>" << endl;
+            stream << "<data>[";
+            for ( size_t x = 0; x < statistics[s]->nx(); x++ )
+            {
+                stream << statistics[s]->getValue( x, i ) << " ";
+            }
+            stream << "]</data>" << endl;
+        }
+
+        stream << "</time>" << endl;
+        stream << "</property>" << endl;
+    }
     stream << "</properties>" << endl;
 }
 
