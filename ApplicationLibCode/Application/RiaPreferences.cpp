@@ -403,6 +403,33 @@ RiaPreferences::RiaPreferences( void )
     m_multiLateralWellPattern.uiCapability()->setUiEditorTypeName( caf::PdmUiLineEditor::uiEditorTypeName() );
 
     CAF_PDM_InitFieldNoDefault( &m_guiTheme, "guiTheme", "GUI theme", "", "", "" );
+
+    CAF_PDM_InitField( &m_useOptimizedSummaryDataFileReader,
+                       "useOptimizedSummaryDataFileReader",
+                       false,
+                       "Use Optimized Summary Data Reader [BETA]",
+                       "",
+                       "",
+                       "" );
+    m_useOptimizedSummaryDataFileReader.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+
+    CAF_PDM_InitField( &m_createOptimizedSummaryDataFile,
+                       "createOptimizedSummaryDataFile",
+                       true,
+                       "Create Optimized Summary Data Files [BETA]",
+                       "",
+                       "If not present, create optimized file with extention '*.LODSMRY'",
+                       "" );
+    m_createOptimizedSummaryDataFile.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+
+    CAF_PDM_InitField( &m_useOptimizedSummaryDataFile,
+                       "useOptimizedSummaryDataFile",
+                       true,
+                       "Use Optimized Summary Data Files [BETA]",
+                       "",
+                       "If not present, read optimized file with extention '*.LODSMRY'",
+                       "" );
+    m_useOptimizedSummaryDataFile.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -444,14 +471,15 @@ void RiaPreferences::defineEditorAttribute( const caf::PdmFieldHandle* field,
 
     if ( field == &octaveShowHeaderInfoWhenExecutingScripts || field == &autocomputeDepthRelatedProperties ||
          field == &loadAndShowSoil || field == &m_useShaders || field == &m_showHud ||
-         field == &m_appendClassNameToUiText || field == &m_appendFieldKeywordToToolTipText ||
-         field == &m_showTestToolbar || field == &m_includeFractureDebugInfoFile ||
-         field == &showLasCurveWithoutTvdWarning || field == &holoLensDisableCertificateVerification ||
-         field == &m_showProjectChangedDialog || field == &m_searchPlotTemplateFoldersRecursively ||
-         field == &m_showLegendBackground || field == &m_showSummaryTimeAsLongString ||
-         field == &m_showViewIdInProjectTree || field == &m_useMultipleThreadsWhenLoadingSummaryData ||
-         field == &m_enableFaultsByDefault || field == &m_showProgressBar || field == &m_openExportedPdfInViewer ||
-         field == &m_showInfoBox || field == &m_showGridBox || field == &m_useUndoRedo )
+         field == &m_appendClassNameToUiText || field == &m_appendFieldKeywordToToolTipText || field == &m_showTestToolbar ||
+         field == &m_includeFractureDebugInfoFile || field == &showLasCurveWithoutTvdWarning ||
+         field == &holoLensDisableCertificateVerification || field == &m_showProjectChangedDialog ||
+         field == &m_searchPlotTemplateFoldersRecursively || field == &m_showLegendBackground ||
+         field == &m_showSummaryTimeAsLongString || field == &m_showViewIdInProjectTree ||
+         field == &m_useMultipleThreadsWhenLoadingSummaryData || field == &m_enableFaultsByDefault ||
+         field == &m_showProgressBar || field == &m_openExportedPdfInViewer || field == &m_showInfoBox ||
+         field == &m_showGridBox || field == &m_useUndoRedo || field == &m_useOptimizedSummaryDataFileReader ||
+         field == &m_createOptimizedSummaryDataFile || field == &m_useOptimizedSummaryDataFile )
     {
         caf::PdmUiCheckBoxEditorAttribute* myAttr = dynamic_cast<caf::PdmUiCheckBoxEditorAttribute*>( attribute );
         if ( myAttr )
@@ -576,6 +604,18 @@ void RiaPreferences::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
         m_pageRightMargin.uiCapability()->setUiName( "Right Margin" + unitLabel );
         m_pageTopMargin.uiCapability()->setUiName( "Top Margin" + unitLabel );
         m_pageBottomMargin.uiCapability()->setUiName( "Bottom Margin" + unitLabel );
+
+        {
+            caf::PdmUiGroup* group = uiOrdering.addNewGroup( "[BETA] Optimized Summary Reader" );
+            group->setCollapsedByDefault( true );
+            group->add( &m_useOptimizedSummaryDataFileReader );
+
+            group->add( &m_createOptimizedSummaryDataFile );
+            group->add( &m_useOptimizedSummaryDataFile );
+
+            m_createOptimizedSummaryDataFile.uiCapability()->setUiReadOnly( !m_useOptimizedSummaryDataFileReader );
+            m_useOptimizedSummaryDataFile.uiCapability()->setUiReadOnly( !m_useOptimizedSummaryDataFileReader );
+        }
     }
 
     else if ( uiConfigName == RiaPreferences::tabNameScripting() )
@@ -1169,6 +1209,30 @@ QString RiaPreferences::pythonExecutable() const
 QString RiaPreferences::octaveExecutable() const
 {
     return m_octaveExecutable().trimmed();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiaPreferences::useOptimizedSummaryDataReader() const
+{
+    return m_useOptimizedSummaryDataFileReader();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiaPreferences::useOptimizedSummaryDataFiles() const
+{
+    return m_useOptimizedSummaryDataFileReader();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiaPreferences::createOptimizedSummaryDataFiles() const
+{
+    return m_createOptimizedSummaryDataFile();
 }
 
 //--------------------------------------------------------------------------------------------------
