@@ -18,6 +18,7 @@
 
 #pragma once
 
+#include <memory>
 #include <vector>
 
 class QString;
@@ -31,20 +32,22 @@ class RigSlice2D;
 class RifFractureGroupStatisticsExporter
 {
 public:
-    static bool writeAsStimPlanXml( const RigSlice2D&          statistics,
-                                    const QString&             filePath,
-                                    const std::vector<double>& gridXs,
-                                    const std::vector<double>& gridYs,
-                                    double                     time );
+    static bool writeAsStimPlanXml( const std::vector<std::shared_ptr<RigSlice2D>>& statistics,
+                                    const std::vector<QString>&                     properties,
+                                    const QString&                                  filePath,
+                                    const std::vector<double>&                      gridXs,
+                                    const std::vector<double>&                      gridYs,
+                                    double                                          time );
 
 private:
     static void appendHeaderToStream( QTextStream& stream );
     static void appendGridDimensionsToStream( QTextStream&               stream,
                                               const std::vector<double>& gridXs,
                                               const std::vector<double>& gridYs );
-    static void appendPropertiesToStream( QTextStream&               stream,
-                                          const RigSlice2D&          statistics,
-                                          const std::vector<double>& gridYs,
-                                          double                     time );
+    static void appendPropertiesToStream( QTextStream&                                    stream,
+                                          const std::vector<std::shared_ptr<RigSlice2D>>& statistics,
+                                          const std::vector<QString>&                     properties,
+                                          const std::vector<double>&                      gridYs,
+                                          double                                          time );
     static void appendFooterToStream( QTextStream& stream );
 };
