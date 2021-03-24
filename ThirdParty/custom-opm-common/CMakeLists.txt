@@ -78,6 +78,8 @@ add_library(${PROJECT_NAME}
     opm-common/src/opm/io/eclipse/EclOutput.cpp
     opm-common/src/opm/io/eclipse/EclUtil.cpp
     opm-common/src/opm/io/eclipse/EGrid.cpp
+    opm-common/src/opm/io/eclipse/ESmry.cpp
+    opm-common/src/opm/io/eclipse/EInit.cpp
 
     # Required for use of static function RstConnection::inverse_peaceman
     opm-common/src/opm/io/eclipse/rst/connection.cpp
@@ -95,6 +97,8 @@ if(RESINSIGHT_ENABLE_UNITY_BUILD)
     opm-common/src/opm/parser/eclipse/EclipseState/Schedule/Well/WListManager.cpp
     opm-common/src/opm/parser/eclipse/EclipseState/Schedule/MSW/SpiralICD.cpp
     opm-common/src/opm/io/eclipse/EclOutput.cpp
+    opm-common/src/opm/io/eclipse/ESmry.cpp
+    opm-common/src/opm/io/eclipse/EGrid.cpp
     )
 
     foreach(fileToExclude ${UNITY_EXCLUDE_FILES})

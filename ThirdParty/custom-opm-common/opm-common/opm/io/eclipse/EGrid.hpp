@@ -20,6 +20,7 @@
 #define OPM_IO_EGRID_HPP
 
 #include <opm/io/eclipse/EclFile.hpp>
+#include <opm/common/utility/FileSystem.hpp>
 
 #include <array>
 #include <iostream>
@@ -34,7 +35,7 @@ namespace Opm { namespace EclIO {
 class EGrid : public EclFile
 {
 public:
-    explicit EGrid(const std::string& filename);
+    explicit EGrid(const std::string& filename, std::string grid_name = "global");
 
     int global_index(int i, int j, int k) const;
     int active_index(int i, int j, int k) const;
@@ -44,20 +45,54 @@ public:
     std::array<int, 3> ijk_from_active_index(int actInd) const;
     std::array<int, 3> ijk_from_global_index(int globInd) const;
 
-    void getCellCorners(int globindex, std::array<double,8>& X, std::array<double,8>& Y, std::array<double,8>& Z) const;
-    void getCellCorners(const std::array<int, 3>& ijk, std::array<double,8>& X, std::array<double,8>& Y, std::array<double,8>& Z) const;
+    void getCellCorners(int globindex, std::array<double,8>& X, std::array<double,8>& Y, std::array<double,8>& Z);
+    void getCellCorners(const std::array<int, 3>& ijk, std::array<double,8>& X, std::array<double,8>& Y, std::array<double,8>& Z);
 
     int activeCells() const { return nactive; }
     int totalNumberOfCells() const { return nijk[0] * nijk[1] * nijk[2]; }
 
+    void load_grid_data();
+    void load_nnc_data();
+    bool is_radial() const { return m_radial; }
+
+    const std::vector<int>& hostCellsGlobalIndex() const { return host_cells; }
+    std::vector<std::array<int, 3>> hostCellsIJK();
+
+    // zero based: i1, j1,k1, i2,j2,k2, transmisibility
+    using NNCentry = std::tuple<int, int, int, int, int, int, float>;
+    std::vector<NNCentry> get_nnc_ijk();
+
+    const std::vector<std::string>& list_of_lgrs() const { return lgr_names; }
+
 private:
+    Opm::filesystem::path inputFileName, initFileName;
+    std::string m_grid_name;
+    bool m_radial;
+
     std::array<int, 3> nijk;
-    int nactive;
+    std::array<int, 3> host_nijk;
+
+    int nactive, m_nncs;
+    mutable bool m_nncs_loaded;
 
     std::vector<int> act_index;
     std::vector<int> glob_index;
+
     std::vector<float> coord_array;
     std::vector<float> zcorn_array;
+
+    std::vector<int> nnc1_array;
+    std::vector<int> nnc2_array;
+    std::vector<float> transnnc_array;
+    std::vector<int> host_cells;
+
+    std::vector<std::string> lgr_names;
+
+    int zcorn_array_index;
+    int coord_array_index;
+    int actnum_array_index;
+    int nnc1_array_index;
+    int nnc2_array_index;
 };
 
 }} // namespace Opm::EclIO

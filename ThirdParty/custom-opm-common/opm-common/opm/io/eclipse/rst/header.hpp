@@ -24,10 +24,12 @@
 #include <cstddef>
 
 namespace Opm {
+class UnitSystem;
+
 namespace RestartIO {
 
 struct RstHeader {
-    RstHeader(const std::vector<int>& intehead, const std::vector<bool>& logihead, const std::vector<double>& doubhead);
+    RstHeader(const UnitSystem& unit_system, const std::vector<int>& intehead, const std::vector<bool>& logihead, const std::vector<double>& doubhead);
 
     int nx;
     int ny;
@@ -82,10 +84,8 @@ struct RstHeader {
     int nilbrz;
     int ntfip ;
     int nmfipr;
-    int nrfreg;
-    int ntfreg;
-    int nplmix;
     int ngroup;
+    int nwgmax;
 
     bool e300_radial;
     bool e100_radial;
@@ -100,6 +100,7 @@ struct RstHeader {
     bool dir_eps;
     bool reversible_eps;
     bool alt_eps;
+    bool group_control_active;
 
     double next_timestep1;
     double next_timestep2;
@@ -110,6 +111,8 @@ struct RstHeader {
     double guide_rate_d;
     double guide_rate_e;
     double guide_rate_f;
+    double guide_rate_delay;
+    double guide_rate_damping;
     double udq_range;
     double udq_undefined;
     double udq_eps;

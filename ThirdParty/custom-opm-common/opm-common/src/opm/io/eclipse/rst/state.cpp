@@ -37,6 +37,16 @@ namespace RestartIO {
 RstState::RstState(const ::Opm::UnitSystem& unit_system_,
                    const std::vector<int>& intehead,
                    const std::vector<bool>& logihead,
+                   const std::vector<double>& doubhead):
+    unit_system(unit_system_),
+    header(unit_system_, intehead, logihead, doubhead)
+{
+    this->load_tuning(intehead, doubhead);
+}
+
+RstState::RstState(const ::Opm::UnitSystem& unit_system_,
+                   const std::vector<int>& intehead,
+                   const std::vector<bool>& logihead,
                    const std::vector<double>& doubhead,
                    const std::vector<std::string>& zgrp,
                    const std::vector<int>& igrp,
@@ -49,11 +59,9 @@ RstState::RstState(const ::Opm::UnitSystem& unit_system_,
                    const std::vector<int>& icon,
                    const std::vector<float>& scon,
                    const std::vector<double>& xcon):
-    unit_system(unit_system_),
-    header(intehead, logihead, doubhead)
+    RstState(unit_system_, intehead, logihead, doubhead)
 {
     this->add_groups(zgrp, igrp, sgrp, xgrp);
-    this->load_tuning(intehead, doubhead);
 
     for (int iw = 0; iw < this->header.num_wells; iw++) {
         std::size_t zwel_offset = iw * this->header.nzwelz;
@@ -99,11 +107,9 @@ RstState::RstState(const ::Opm::UnitSystem& unit_system_,
                    const std::vector<double>& xcon,
                    const std::vector<int>& iseg,
                    const std::vector<double>& rseg) :
-    unit_system(unit_system_),
-    header(intehead, logihead, doubhead)
+    RstState(unit_system_, intehead, logihead, doubhead)
 {
     this->add_groups(zgrp, igrp, sgrp, xgrp);
-    this->load_tuning(intehead, doubhead);
 
     for (int iw = 0; iw < this->header.num_wells; iw++) {
         std::size_t zwel_offset = iw * this->header.nzwelz;
@@ -181,6 +187,7 @@ void RstState::add_groups(const std::vector<std::string>& zgrp,
         std::size_t xgrp_offset = ig * this->header.nxgrpz;
 
         this->groups.emplace_back(this->unit_system,
+                                  this->header,
                                   zgrp.data() + zgrp_offset,
                                   igrp.data() + igrp_offset,
                                   sgrp.data() + sgrp_offset,
@@ -202,43 +209,47 @@ const RstWell& RstState::get_well(const std::string& wname) const {
 
 RstState RstState::load(EclIO::ERst& rst_file, int report_step) {
     rst_file.loadReportStepNumber(report_step);
-    const auto& intehead = rst_file.getRst<int>("INTEHEAD", report_step, 0);
-    const auto& logihead = rst_file.getRst<bool>("LOGIHEAD", report_step, 0);
-    const auto& doubhead = rst_file.getRst<double>("DOUBHEAD", report_step, 0);
-
-    const auto& zgrp = rst_file.getRst<std::string>("ZGRP", report_step, 0);
-    const auto& igrp = rst_file.getRst<int>("IGRP", report_step, 0);
-    const auto& sgrp = rst_file.getRst<float>("SGRP", report_step, 0);
-    const auto& xgrp = rst_file.getRst<double>("XGRP", report_step, 0);
-
-    const auto& zwel = rst_file.getRst<std::string>("ZWEL", report_step, 0);
-    const auto& iwel = rst_file.getRst<int>("IWEL", report_step, 0);
-    const auto& swel = rst_file.getRst<float>("SWEL", report_step, 0);
-    const auto& xwel = rst_file.getRst<double>("XWEL", report_step, 0);
-
-    const auto& icon = rst_file.getRst<int>("ICON", report_step, 0);
-    const auto& scon = rst_file.getRst<float>("SCON", report_step, 0);
-    const auto& xcon = rst_file.getRst<double>("XCON", report_step, 0);
+    const auto& intehead = rst_file.getRestartData<int>("INTEHEAD", report_step, 0);
+    const auto& logihead = rst_file.getRestartData<bool>("LOGIHEAD", report_step, 0);
+    const auto& doubhead = rst_file.getRestartData<double>("DOUBHEAD", report_step, 0);
 
     auto unit_id = intehead[VI::intehead::UNIT];
     ::Opm::UnitSystem unit_system(unit_id);
 
-    if (rst_file.hasKey("ISEG")) {
-        const auto& iseg = rst_file.getRst<int>("ISEG", report_step, 0);
-        const auto& rseg = rst_file.getRst<double>("RSEG", report_step, 0);
+    if (intehead[VI::intehead::NWELLS] != 0) {
+        const auto& zgrp = rst_file.getRestartData<std::string>("ZGRP", report_step, 0);
+        const auto& igrp = rst_file.getRestartData<int>("IGRP", report_step, 0);
+        const auto& sgrp = rst_file.getRestartData<float>("SGRP", report_step, 0);
+        const auto& xgrp = rst_file.getRestartData<double>("XGRP", report_step, 0);
 
-        return RstState(unit_system,
-                        intehead, logihead, doubhead,
-                        zgrp, igrp, sgrp, xgrp,
-                        zwel, iwel, swel, xwel,
-                        icon, scon, xcon,
-                        iseg, rseg);
+        const auto& zwel = rst_file.getRestartData<std::string>("ZWEL", report_step, 0);
+        const auto& iwel = rst_file.getRestartData<int>("IWEL", report_step, 0);
+        const auto& swel = rst_file.getRestartData<float>("SWEL", report_step, 0);
+        const auto& xwel = rst_file.getRestartData<double>("XWEL", report_step, 0);
+
+        const auto& icon = rst_file.getRestartData<int>("ICON", report_step, 0);
+        const auto& scon = rst_file.getRestartData<float>("SCON", report_step, 0);
+        const auto& xcon = rst_file.getRestartData<double>("XCON", report_step, 0);
+
+
+        if (rst_file.hasKey("ISEG")) {
+            const auto& iseg = rst_file.getRestartData<int>("ISEG", report_step, 0);
+            const auto& rseg = rst_file.getRestartData<double>("RSEG", report_step, 0);
+
+            return RstState(unit_system,
+                            intehead, logihead, doubhead,
+                            zgrp, igrp, sgrp, xgrp,
+                            zwel, iwel, swel, xwel,
+                            icon, scon, xcon,
+                            iseg, rseg);
+        } else
+            return RstState(unit_system,
+                            intehead, logihead, doubhead,
+                            zgrp, igrp, sgrp, xgrp,
+                            zwel, iwel, swel, xwel,
+                            icon, scon, xcon);
     } else
-        return RstState(unit_system,
-                        intehead, logihead, doubhead,
-                        zgrp, igrp, sgrp, xgrp,
-                        zwel, iwel, swel, xwel,
-                        icon, scon, xcon);
+        return RstState(unit_system, intehead, logihead, doubhead);
 }
 
 }

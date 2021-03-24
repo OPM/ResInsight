@@ -15,15 +15,15 @@
 
    You should have received a copy of the GNU General Public License
    along with OPM.  If not, see <http://www.gnu.org/licenses/>.
-   */
+*/
+
+#include <opm/io/eclipse/SummaryNode.hpp>
 
 #include <numeric>
 #include <regex>
 #include <string>
 #include <unordered_set>
 #include <vector>
-
-#include <opm/io/eclipse/SummaryNode.hpp>
 
 namespace {
 
@@ -37,6 +37,7 @@ constexpr bool use_number(Opm::EclIO::SummaryNode::Category category) {
         return true;
     case Opm::EclIO::SummaryNode::Category::Field:         [[fallthrough]];
     case Opm::EclIO::SummaryNode::Category::Group:         [[fallthrough]];
+    case Opm::EclIO::SummaryNode::Category::Node:          [[fallthrough]];
     case Opm::EclIO::SummaryNode::Category::Miscellaneous: [[fallthrough]];
     case Opm::EclIO::SummaryNode::Category::Well:
         return false;
@@ -51,6 +52,7 @@ constexpr bool use_name(Opm::EclIO::SummaryNode::Category category) {
     case Opm::EclIO::SummaryNode::Category::Connection:    [[fallthrough]];
     case Opm::EclIO::SummaryNode::Category::Group:         [[fallthrough]];
     case Opm::EclIO::SummaryNode::Category::Segment:       [[fallthrough]];
+    case Opm::EclIO::SummaryNode::Category::Node:          [[fallthrough]];
     case Opm::EclIO::SummaryNode::Category::Well:
         return true;
     case Opm::EclIO::SummaryNode::Category::Aquifer:       [[fallthrough]];
@@ -69,7 +71,23 @@ std::string default_number_renderer(const Opm::EclIO::SummaryNode& node) {
     return std::to_string(node.number);
 }
 
-};
+bool is_node_keyword(const std::string& keyword)
+{
+    static const auto node_kw = std::unordered_set<std::string> {
+        "GPR",
+    };
+
+    return node_kw.find(keyword) != node_kw.end();
+}
+
+Opm::EclIO::SummaryNode::Category
+distinguish_group_from_node(const std::string& keyword)
+{
+    return is_node_keyword(keyword)
+        ? Opm::EclIO::SummaryNode::Category::Node
+        : Opm::EclIO::SummaryNode::Category::Group;
+}
+}
 
 std::string Opm::EclIO::SummaryNode::unique_key(number_renderer render_number) const {
     std::vector<std::string> key_parts { keyword } ;
@@ -120,7 +138,7 @@ bool Opm::EclIO::SummaryNode::is_user_defined() const {
         "SURFWNUM",
     } ;
 
-    static const std::regex user_defined_regex { "[ABCFGRSW]U[A-Z]+" } ;
+    static const std::regex user_defined_regex { "[ABCFGRSW]U[A-Z0-9_]+" } ;
 
     const bool matched     { std::regex_match(keyword, user_defined_regex) } ;
     const bool blacklisted { udq_blacklist.find(keyword) != udq_blacklist.end() } ;
@@ -145,7 +163,7 @@ Opm::EclIO::SummaryNode::Category Opm::EclIO::SummaryNode::category_from_keyword
     case 'B': return Category::Block;
     case 'C': return Category::Connection;
     case 'F': return Category::Field;
-    case 'G': return Category::Group;
+    case 'G': return distinguish_group_from_node(keyword);
     case 'R': return Category::Region;
     case 'S': return Category::Segment;
     case 'W': return Category::Well;
