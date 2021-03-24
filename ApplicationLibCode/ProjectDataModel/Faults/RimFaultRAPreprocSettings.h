@@ -37,10 +37,15 @@ public:
     void setEclipseCase( RimEclipseResultCase* eclipseCase );
     void setOutputBaseDirectory( QString baseDir );
 
-    int     startTimeStepIndex() const;
-    QString startTimeStep() const;
-    int     endTimeStepIndex() const;
-    QString endTimeStep() const;
+    int     startTimeStepGeoMechIndex() const;
+    QString startTimeStepGeoMech() const;
+    int     endTimeStepGeoMechIndex() const;
+    QString endTimeStepGeoMech() const;
+
+    int     startTimeStepEclipseIndex() const;
+    QString startTimeStepEclipse() const;
+    int     endTimeStepEclipseIndex() const;
+    QString endTimeStepEclipse() const;
 
     QString eclipseCaseFilename() const;
     QString geomechCaseFilename() const;
@@ -62,8 +67,10 @@ protected:
 
     RimCase* startCase() const;
 
-    caf::PdmField<int>                      m_startTimestep;
-    caf::PdmField<int>                      m_endTimestep;
+    caf::PdmField<int>                      m_startTimestepEclipse;
+    caf::PdmField<int>                      m_endTimestepEclipse;
+    caf::PdmField<int>                      m_startTimestepGeoMech;
+    caf::PdmField<int>                      m_endTimestepGeoMech;
     caf::PdmPtrField<RimEclipseResultCase*> m_eclipseCase;
     caf::PdmField<bool>                     m_smoothEclipseData;
     caf::PdmPtrField<RimGeoMechCase*>       m_geomechCase;

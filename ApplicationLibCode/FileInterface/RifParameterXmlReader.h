@@ -20,21 +20,23 @@
 
 #include <QString>
 
-#include <map>
+#include <list>
 
 class QXmlStreamReader;
 
-class RifFaultRAXmlReader
+class RimGenericParameter;
+
+class RifParameterXmlReader
 {
 public:
-    RifFaultRAXmlReader( QString filename );
-    ~RifFaultRAXmlReader();
+    RifParameterXmlReader( QString filename );
+    ~RifParameterXmlReader();
 
     bool parseFile( QString& outErrorText );
 
-    std::map<QString, QString>& parameters();
+    std::list<RimGenericParameter*>& parameters();
 
 private:
-    std::map<QString, QString> m_parameterMap;
-    QString                    m_filename;
+    std::list<RimGenericParameter*> m_parameters;
+    QString                         m_filename;
 };
