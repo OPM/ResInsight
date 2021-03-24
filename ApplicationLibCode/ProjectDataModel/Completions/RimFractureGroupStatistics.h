@@ -34,6 +34,17 @@ class RimFractureGroupStatistics : public RimNamedObject
     CAF_PDM_HEADER_INIT;
 
 public:
+    enum class StatisticsType
+    {
+        MEAN,
+        MIN,
+        MAX,
+        P10,
+        P50,
+        P90,
+        OCCURRENCE
+    };
+
     RimFractureGroupStatistics();
     ~RimFractureGroupStatistics() override;
     void addFilePath( const QString& filePath );
@@ -72,10 +83,11 @@ protected:
                                 double                                         sampleDistanceX,
                                 double                                         sampleDistanceY );
 
-    static void generateStatisticsGrids( const std::vector<std::vector<double>>&         samples,
-                                         int                                             numSamplesX,
-                                         int                                             numSamplesY,
-                                         std::map<QString, std::shared_ptr<RigSlice2D>>& statisticsGrids );
+    static void generateStatisticsGrids(
+        const std::vector<std::vector<double>>&                                            samples,
+        int                                                                                numSamplesX,
+        int                                                                                numSamplesY,
+        std::map<RimFractureGroupStatistics::StatisticsType, std::shared_ptr<RigSlice2D>>& statisticsGrids );
 
     static bool writeStatisticsToCsv( const QString& filePath, const RigSlice2D& samples );
 
