@@ -27,7 +27,7 @@
 
 class RimEclipseResultCase;
 class RimGeoMechCase;
-class RimFaultRAParameterItem;
+class RimGenericParameter;
 
 class RimFaultRASettings : public caf::PdmObject
 {
@@ -70,7 +70,7 @@ private:
     caf::PdmPtrField<RimGeoMechCase*>       m_geomechCase;
     caf::PdmField<QString>                  m_baseDir;
 
-    caf::PdmChildArrayField<RimFaultRAParameterItem*> m_basicParameters;
-    caf::PdmChildArrayField<RimFaultRAParameterItem*> m_additionalParameters;
-    caf::PdmChildArrayField<RimFaultRAParameterItem*> m_advancedParameters;
+    caf::PdmChildArrayField<RimGenericParameter*> m_basicParameters;
+    caf::PdmChildArrayField<RimGenericParameter*> m_additionalParameters;
+    caf::PdmChildArrayField<RimGenericParameter*> m_advancedParameters;
 };
