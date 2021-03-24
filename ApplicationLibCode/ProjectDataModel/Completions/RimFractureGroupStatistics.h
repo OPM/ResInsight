@@ -66,7 +66,8 @@ protected:
 
     std::vector<cvf::cref<RigFractureGrid>>
         createFractureGrids( const std::vector<cvf::ref<RigStimPlanFractureDefinition>>& stimPlanFractureDefinitions,
-                             RiaDefines::EclipseUnitSystem                               unitSystem );
+                             RiaDefines::EclipseUnitSystem                               unitSystem,
+                             const QString&                                              resultName );
 
     static std::set<QString>
         findAllResultNames( const std::vector<cvf::ref<RigStimPlanFractureDefinition>>& stimPlanFractureDefinitions );
