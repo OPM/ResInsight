@@ -418,7 +418,7 @@ RiaPreferences::RiaPreferences( void )
                        true,
                        "Create Optimized Summary Data Files [BETA]",
                        "",
-                       "If not present, create optimized file with extention '*.LODSMRY'",
+                       "If not present, create optimized file with extension '*.LODSMRY'",
                        "" );
     m_createOptimizedSummaryDataFile.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 
@@ -427,7 +427,7 @@ RiaPreferences::RiaPreferences( void )
                        true,
                        "Use Optimized Summary Data Files [BETA]",
                        "",
-                       "If not present, read optimized file with extention '*.LODSMRY'",
+                       "If not present, read optimized file with extension '*.LODSMRY'",
                        "" );
     m_useOptimizedSummaryDataFile.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 }

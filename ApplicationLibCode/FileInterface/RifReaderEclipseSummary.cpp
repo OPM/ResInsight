@@ -19,10 +19,13 @@
 #include "RifReaderEclipseSummary.h"
 
 #include "RiaFilePathTools.h"
+#include "RiaLogging.h"
+#include "RiaPreferences.h"
 #include "RiaStdStringTools.h"
 #include "RiaStringEncodingTools.h"
 
 #include "RifEclipseSummaryTools.h"
+#include "RifOpmCommonSummary.h"
 #include "RifReaderEclipseOutput.h"
 
 #include <cassert>
@@ -86,7 +89,7 @@ ecl_sum_type* openEclSum( const QString& inHeaderFileName, bool includeRestartFi
     QString     nativeHeaderFileName = QDir::toNativeSeparators( inHeaderFileName );
     RifEclipseSummaryTools::findSummaryFiles( nativeHeaderFileName, &headerFileName, &dataFileNames );
 
-    if ( headerFileName.isEmpty() || dataFileNames.size() == 0 ) return nullptr;
+    if ( headerFileName.isEmpty() || dataFileNames.isEmpty() ) return nullptr;
 
     assert( !headerFileName.isEmpty() );
     assert( dataFileNames.size() > 0 );
@@ -126,7 +129,7 @@ RifReaderEclipseSummary::RifReaderEclipseSummary()
     , m_ecl_SmSpec( nullptr )
     , m_unitSystem( RiaDefines::EclipseUnitSystem::UNITS_METRIC )
 {
-    m_valuesCache.reset( new ValuesCache() );
+    m_valuesCache = std::make_unique<ValuesCache>();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -146,6 +149,30 @@ RifReaderEclipseSummary::~RifReaderEclipseSummary()
 //--------------------------------------------------------------------------------------------------
 bool RifReaderEclipseSummary::open( const QString& headerFileName, bool includeRestartFiles )
 {
+    bool useOpmCommonReader = RiaPreferences::current()->useOptimizedSummaryDataReader();
+
+    if ( useOpmCommonReader )
+    {
+        bool useLodsmryFiles = RiaPreferences::current()->useOptimizedSummaryDataFiles();
+        if ( useLodsmryFiles && includeRestartFiles )
+        {
+            RiaLogging::error(
+                "LODSMRY file loading for summary restart files is not supported. Disable one of the options" );
+
+            return false;
+        }
+
+        m_opmCommonReader = std::make_unique<RifOpmCommonEclipseSummary>();
+
+        m_opmCommonReader->useLodsmaryFiles( RiaPreferences::current()->useOptimizedSummaryDataFiles() );
+        m_opmCommonReader->createLodsmaryFiles( RiaPreferences::current()->createOptimizedSummaryDataFiles() );
+        m_opmCommonReader->open( headerFileName, includeRestartFiles );
+
+        buildMetaData();
+
+        return true;
+    }
+
     assert( m_ecl_sum == nullptr );
 
     m_ecl_sum = openEclSum( headerFileName, includeRestartFiles );
@@ -241,7 +268,7 @@ RifRestartFileInfo RifReaderEclipseSummary::getFileInfo( const QString& headerFi
     RifRestartFileInfo  fileInfo;
     ecl_sum_type*       ecl_sum   = openEclSum( headerFileName, false );
     std::vector<time_t> timeSteps = getTimeSteps( ecl_sum );
-    if ( timeSteps.size() > 0 )
+    if ( !timeSteps.empty() )
     {
         fileInfo.fileName  = headerFileName;
         fileInfo.startDate = timeSteps.front();
@@ -426,22 +453,33 @@ RifEclipseSummaryAddress addressFromErtSmSpecNode( const ecl::smspec_node& ertSu
 //--------------------------------------------------------------------------------------------------
 bool RifReaderEclipseSummary::values( const RifEclipseSummaryAddress& resultAddress, std::vector<double>* values ) const
 {
-    assert( m_ecl_sum != nullptr );
-
     values->clear();
     values->reserve( timeStepCount() );
+
+    // assert( m_ecl_sum != nullptr );
 
     const std::vector<double>& cachedValues = m_valuesCache->getValues( resultAddress );
     if ( !cachedValues.empty() )
     {
         values->insert( values->begin(), cachedValues.begin(), cachedValues.end() );
+
+        return true;
     }
-    else if ( m_ecl_SmSpec )
+
+    if ( m_opmCommonReader )
+    {
+        m_opmCommonReader->values( resultAddress, values );
+        m_valuesCache->insertValues( resultAddress, *values );
+
+        return true;
+    }
+
+    if ( m_ecl_SmSpec )
     {
         if ( m_differenceAddresses.count( resultAddress ) )
         {
-            std::string quantityName = resultAddress.quantityName();
-            auto historyQuantity     = quantityName.substr( 0, quantityName.size() - differenceIdentifier().size() ) +
+            const std::string& quantityName = resultAddress.quantityName();
+            auto historyQuantity = quantityName.substr( 0, quantityName.size() - differenceIdentifier().size() ) +
                                    historyIdentifier();
 
             RifEclipseSummaryAddress nativeAdrNoHistory = resultAddress;
@@ -494,13 +532,18 @@ bool RifReaderEclipseSummary::values( const RifEclipseSummaryAddress& resultAddr
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int RifReaderEclipseSummary::timeStepCount() const
+size_t RifReaderEclipseSummary::timeStepCount() const
 {
+    if ( m_opmCommonReader )
+    {
+        return m_timeSteps.size();
+    }
+
     assert( m_ecl_sum != nullptr );
 
     if ( m_ecl_SmSpec == nullptr ) return 0;
 
-    return ecl_sum_get_data_length( m_ecl_sum );
+    return static_cast<size_t>( ecl_sum_get_data_length( m_ecl_sum ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -508,7 +551,7 @@ int RifReaderEclipseSummary::timeStepCount() const
 //--------------------------------------------------------------------------------------------------
 const std::vector<time_t>& RifReaderEclipseSummary::timeSteps( const RifEclipseSummaryAddress& resultAddress ) const
 {
-    assert( m_ecl_sum != nullptr );
+    //    assert( m_ecl_sum != nullptr );
 
     return m_timeSteps;
 }
@@ -535,6 +578,15 @@ void RifReaderEclipseSummary::buildMetaData()
     m_allResultAddresses.clear();
     m_resultAddressToErtNodeIdx.clear();
 
+    if ( m_opmCommonReader )
+    {
+        m_allResultAddresses = m_opmCommonReader->allResultAddresses();
+        m_allErrorAddresses  = m_opmCommonReader->allErrorAddresses();
+
+        m_timeSteps = m_opmCommonReader->timeSteps( RifEclipseSummaryAddress() );
+        return;
+    }
+
     if ( m_ecl_SmSpec )
     {
         int varCount = ecl_smspec_num_nodes( m_ecl_SmSpec );
@@ -556,7 +608,7 @@ void RifReaderEclipseSummary::buildMetaData()
             RifEclipseSummaryAddress adrWithoutHistory;
 
             {
-                std::string s = adr.quantityName();
+                const std::string& s = adr.quantityName();
                 if ( !RiaStdStringTools::endsWith( s, historyIdentifier() ) )
                 {
                     RifEclipseSummaryAddress candidate = adr;
