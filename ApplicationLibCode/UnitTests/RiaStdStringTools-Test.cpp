@@ -41,3 +41,19 @@ TEST( RiaStdStringToolsTest, EditDistance )
     EXPECT_EQ( 3, RiaStdStringTools::computeEditDistance( "Saturday", "Sunday" ) );
     EXPECT_EQ( 3, RiaStdStringTools::computeEditDistance( "Sunday", "Saturday" ) );
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( RiaStdStringToolsTest, TrimStrings )
+{
+    // Test replace of tabs with space
+    {
+        std::string text = "test\t\tnext word";
+
+        replace( text.begin(), text.end(), '\t', ' ' );
+
+        std::string expectedText = "test  next word";
+        EXPECT_EQ( text, expectedText );
+    }
+}
