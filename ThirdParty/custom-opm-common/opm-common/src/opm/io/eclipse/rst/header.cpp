@@ -23,13 +23,15 @@
 #include <opm/output/eclipse/VectorItems/logihead.hpp>
 #include <opm/output/eclipse/VectorItems/doubhead.hpp>
 #include <opm/common/utility/TimeService.hpp>
+#include <opm/parser/eclipse/Units/UnitSystem.hpp>
 
 namespace VI = ::Opm::RestartIO::Helpers::VectorItems;
+using M = ::Opm::UnitSystem::measure;
 
 namespace Opm {
 namespace RestartIO {
 
-RstHeader::RstHeader(const std::vector<int>& intehead, const std::vector<bool>& logihead, const std::vector<double>& doubhead) :
+RstHeader::RstHeader(const Opm::UnitSystem& unit_system, const std::vector<int>& intehead, const std::vector<bool>& logihead, const std::vector<double>& doubhead) :
     nx(intehead[VI::intehead::NX]),
     ny(intehead[VI::intehead::NY]),
     nz(intehead[VI::intehead::NZ]),
@@ -84,6 +86,7 @@ RstHeader::RstHeader(const std::vector<int>& intehead, const std::vector<bool>& 
     ntfip(intehead[VI::intehead::NTFIP]),
     nmfipr(intehead[VI::intehead::NMFIPR]),
     ngroup(intehead[VI::intehead::NGRP]),
+    nwgmax(intehead[VI::intehead::NWGMAX]),
     //
     e300_radial(logihead[VI::logihead::E300Radial]),
     e100_radial(logihead[VI::logihead::E100Radial]),
@@ -98,16 +101,19 @@ RstHeader::RstHeader(const std::vector<int>& intehead, const std::vector<bool>& 
     dir_eps(logihead[VI::logihead::DirEPS]),
     reversible_eps(logihead[VI::logihead::RevEPS]),
     alt_eps(logihead[VI::logihead::AltEPS]),
+    group_control_active(intehead[VI::intehead::NGRNPH] == 1),
     //
-    next_timestep1(doubhead[VI::doubhead::TsInit]),
-    next_timestep2(doubhead[VI::doubhead::TsMaxz]),
-    max_timestep(doubhead[VI::doubhead::TsMinz]),
+    next_timestep1(unit_system.to_si(M::time, doubhead[VI::doubhead::TsInit])),
+    next_timestep2(0),
+    max_timestep(unit_system.to_si(M::time, doubhead[VI::doubhead::TsMaxz])),
     guide_rate_a(doubhead[VI::doubhead::GRpar_a]),
     guide_rate_b(doubhead[VI::doubhead::GRpar_b]),
     guide_rate_c(doubhead[VI::doubhead::GRpar_c]),
     guide_rate_d(doubhead[VI::doubhead::GRpar_d]),
     guide_rate_e(doubhead[VI::doubhead::GRpar_e]),
     guide_rate_f(doubhead[VI::doubhead::GRpar_f]),
+    guide_rate_delay(unit_system.to_si(M::time, doubhead[VI::doubhead::GRpar_int])),
+    guide_rate_damping(doubhead[VI::doubhead::GRpar_damp]),
     udq_range(doubhead[VI::doubhead::UdqPar_2]),
     udq_undefined(doubhead[VI::doubhead::UdqPar_3]),
     udq_eps(doubhead[VI::doubhead::UdqPar_4])

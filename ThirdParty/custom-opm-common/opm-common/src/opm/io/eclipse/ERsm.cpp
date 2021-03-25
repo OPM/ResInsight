@@ -22,6 +22,8 @@
 #include <cmath>
 #include <chrono>
 
+#include <fmt/format.h>
+
 #include <opm/io/eclipse/ERsm.hpp>
 #include <opm/io/eclipse/ESmry.hpp>
 #include <opm/common/utility/FileSystem.hpp>
@@ -174,7 +176,8 @@ void ERsm::load_block(std::deque<std::string>& lines, std::size_t& vector_length
                                  SummaryNode::category_from_keyword(kw_list[kw_index]),
                                  SummaryNode::Type::Undefined,
                                  wgnames[kw_index],
-                                 make_num(nums_list[kw_index])};
+                                 make_num(nums_list[kw_index]),
+                                 ""};
         block_data.emplace_back( node, vector_length );
     }
 
@@ -254,21 +257,29 @@ bool cmp(const ESmry& smry, const ERsm& rsm) {
     const auto& summary_dates = smry.dates();
     if (rsm.has_dates()) {
         const auto& rsm_dates = rsm.dates();
-        if (rsm_dates.size() != summary_dates.size())
+        if (rsm_dates.size() != summary_dates.size()) {
+            fmt::print(stderr, "len(summary) = {}    len(rsm) = {}", summary_dates.size(), rsm_dates.size());
             return false;
+        }
 
         for (std::size_t time_index = 0; time_index < rsm_dates.size(); time_index++) {
             const auto smry_ts = TimeStampUTC( std::chrono::system_clock::to_time_t(summary_dates[time_index]) );
             const auto rsm_ts = rsm_dates[time_index];
 
-            if (smry_ts.year() != rsm_ts.year())
+            if (smry_ts.year() != rsm_ts.year()) {
+                fmt::print(stderr, "time_index: {}  summary.year: {}   rsm.year: {}", time_index, smry_ts.year(), rsm_ts.year());
                 return false;
+            }
 
-            if (smry_ts.month() != rsm_ts.month())
+            if (smry_ts.month() != rsm_ts.month()) {
+                fmt::print(stderr, "time_index: {}  summary.month: {}   rsm.month: {}", time_index, smry_ts.month(), rsm_ts.month());
                 return false;
+            }
 
-            if (smry_ts.day() != rsm_ts.day())
+            if (smry_ts.day() != rsm_ts.day()) {
+                fmt::print(stderr, "time_index: {}  summary.day: {}   rsm.day: {}", time_index, smry_ts.day(), rsm_ts.day());
                 return false;
+            }
         }
     } else {
         const auto& rsm_days = rsm.days();
@@ -280,8 +291,10 @@ bool cmp(const ESmry& smry, const ERsm& rsm) {
             using TP      = time_point<system_clock>;
             auto smry_days = duration_cast<TP::duration>(summary_dates[time_index] - summary_dates[0]).count() / 86400.0 ;
 
-            if (!cmp::scalar_equal(smry_days, rsm_days[time_index]))
+            if (!cmp::scalar_equal(smry_days, rsm_days[time_index])) {
+                fmt::print(stderr, "time_index: {}  summary.days: {}   rsm.days: {}", time_index, smry_days, rsm_days[time_index]);
                 return false;
+            }
         }
     }
 
@@ -309,11 +322,14 @@ bool cmp(const ESmry& smry, const ERsm& rsm) {
         const auto& smry_vector = smry.get(node);
         const auto& rsm_vector = rsm.get(key);
         for (std::size_t index = 0; index < smry_vector.size(); index++) {
+            const double eps  = 5e-5;
             const double diff = static_cast<double>(smry_vector[index]) - rsm_vector[index];
             const double sum = std::fabs(static_cast<double>(smry_vector[index])) + std::fabs(rsm_vector[index]);
 
-            if (diff > 1e-5 * sum)
+            if (diff > eps * sum) {
+                fmt::print(stderr, "time_index: {}  key: {}  summary: {}   rsm: {}", index, key, smry_vector[index], rsm_vector[index]);
                 return false;
+            }
         }
     }
 

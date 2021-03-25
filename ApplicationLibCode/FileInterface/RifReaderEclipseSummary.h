@@ -31,6 +31,8 @@
 #include <string>
 #include <vector>
 
+class RifOpmCommonEclipseSummary;
+
 //==================================================================================================
 //
 //
@@ -82,7 +84,7 @@ public:
     static const std::string historyIdentifier() { return "H"; }
 
 private:
-    int                timeStepCount() const;
+    size_t             timeStepCount() const;
     int                indexFromAddress( const RifEclipseSummaryAddress& resultAddress ) const;
     void               buildMetaData();
     RifRestartFileInfo getRestartFile( const QString& headerFileName );
@@ -103,6 +105,8 @@ private:
     QStringList m_warnings;
 
     std::set<RifEclipseSummaryAddress> m_differenceAddresses;
+
+    std::unique_ptr<RifOpmCommonEclipseSummary> m_opmCommonReader;
 
     //==================================================================================================
     //
