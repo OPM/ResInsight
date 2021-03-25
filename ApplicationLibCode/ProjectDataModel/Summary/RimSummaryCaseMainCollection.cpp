@@ -15,13 +15,15 @@
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
+
 #include "RimSummaryCaseMainCollection.h"
 
+#include "RiaLogging.h"
 #include "RiaSummaryTools.h"
-#include "RimSummaryPlotCollection.h"
 
 #include "RifCaseRealizationParametersReader.h"
 #include "RifEclipseSummaryTools.h"
+#include "RifOpmCommonSummary.h"
 #include "RifSummaryCaseRestartSelector.h"
 
 #include "RimCaseDisplayNameTools.h"
@@ -35,8 +37,10 @@
 #include "RimSummaryCaseCollection.h"
 #include "RimSummaryCurve.h"
 #include "RimSummaryPlot.h"
+#include "RimSummaryPlotCollection.h"
 
 #include "cafProgressInfo.h"
+
 #include <QDir>
 
 CAF_PDM_SOURCE_INIT( RimSummaryCaseMainCollection, "SummaryCaseCollection" );
@@ -435,6 +439,8 @@ void RimSummaryCaseMainCollection::loadFileSummaryCaseData( std::vector<RimFileS
 
     caf::ProgressInfo progInfo( fileSummaryCases.size(), "Loading Summary Cases" );
 
+    RifOpmCommonEclipseSummary::resetLodCount();
+
 #pragma omp parallel for schedule( dynamic )
     for ( int cIdx = 0; cIdx < static_cast<int>( fileSummaryCases.size() ); ++cIdx )
     {
@@ -445,6 +451,13 @@ void RimSummaryCaseMainCollection::loadFileSummaryCaseData( std::vector<RimFileS
         }
 
         progInfo.setProgress( cIdx );
+    }
+
+    auto numberOfLodFilesCreated = RifOpmCommonEclipseSummary::numberOfLodFilesCreated();
+    if ( numberOfLodFilesCreated > 0 )
+    {
+        RiaLogging::info( QString( "Optimized Summary Reader : Converted and created %1 '*.LODSMRY' files on disk." )
+                              .arg( numberOfLodFilesCreated ) );
     }
 
     for ( int cIdx = 0; cIdx < static_cast<int>( fileSummaryCases.size() ); ++cIdx )

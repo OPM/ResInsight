@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) Statoil ASA
+//  Copyright (C) 2021- Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -53,6 +53,9 @@ public:
 
     void useLodsmaryFiles( bool enable );
     void createLodsmaryFiles( bool enable );
+    
+    static void resetLodCount();
+    static size_t numberOfLodFilesCreated();
 
     bool open( const QString& headerFileName, bool includeRestartFiles );
 
@@ -64,6 +67,8 @@ public:
 private:
     void buildMetaData();
 
+    static void increaseLodFileCount();
+
     static RifEclipseSummaryAddress createAddressFromSummaryNode( const Opm::EclIO::SummaryNode& summaryNode,
                                                                   Opm::EclIO::ESmry*             summaryFile );
 
@@ -72,6 +77,8 @@ private:
     std::vector<std::string>                   m_eSmryKeywords;
     std::map<RifEclipseSummaryAddress, size_t> m_adrToSummaryNodeIndex;
     std::vector<time_t>                        m_timeSteps;
+
+    static size_t sm_createdLodFileCount;
 
     bool m_useLodsmryFiles;
     bool m_createLodsmryFiles;

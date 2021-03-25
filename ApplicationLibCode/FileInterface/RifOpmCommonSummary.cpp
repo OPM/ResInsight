@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) Statoil ASA
+//  Copyright (C) 2021- Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -19,6 +19,12 @@
 #include "RifOpmCommonSummary.h"
 
 #include "opm/io/eclipse/ESmry.hpp"
+
+#ifdef USE_OPENMP
+#include <omp.h>
+#endif
+
+size_t RifOpmCommonEclipseSummary::sm_createdLodFileCount = 0;
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -55,6 +61,22 @@ void RifOpmCommonEclipseSummary::createLodsmaryFiles( bool enable )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RifOpmCommonEclipseSummary::resetLodCount()
+{
+    sm_createdLodFileCount = 0;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+size_t RifOpmCommonEclipseSummary::numberOfLodFilesCreated()
+{
+    return sm_createdLodFileCount;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RifOpmCommonEclipseSummary::open( const QString& headerFileName, bool includeRestartFiles )
 {
     m_eSmry = std::make_unique<Opm::EclIO::ESmry>( headerFileName.toStdString(), includeRestartFiles, m_useLodsmryFiles );
@@ -62,7 +84,12 @@ bool RifOpmCommonEclipseSummary::open( const QString& headerFileName, bool inclu
     if ( m_createLodsmryFiles && !includeRestartFiles )
     {
         // Create the lodsmry file, no-op if already present.
-        m_eSmry->make_lodsmry_file();
+        bool hasFileBeenCreated = m_eSmry->make_lodsmry_file();
+
+        if ( hasFileBeenCreated )
+        {
+            RifOpmCommonEclipseSummary::increaseLodFileCount();
+        }
     }
 
     if ( !m_eSmry ) return false;
@@ -157,6 +184,16 @@ void RifOpmCommonEclipseSummary::buildMetaData()
             }
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RifOpmCommonEclipseSummary::increaseLodFileCount()
+{
+    // This function can be called from a parallel loop, make it thread safe
+#pragma omp critical
+    sm_createdLodFileCount++;
 }
 
 //--------------------------------------------------------------------------------------------------
