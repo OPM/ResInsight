@@ -289,6 +289,8 @@ std::string stringFromPointer( const char* pointerToChar )
     if ( pointerToChar )
     {
         myString = pointerToChar;
+
+        replace( myString.begin(), myString.end(), '\t', ' ' );
     }
 
     return myString;
