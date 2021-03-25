@@ -212,7 +212,7 @@ QString RicSnapshotViewToFileFeature::generateSaveFileName( const QString& defau
         caf::Utils::constructFullFileName( startPath, defaultFileBaseName, "." + defaultExtension );
 
     QString selectedExtension;
-    if ( supportPDF )
+    if ( supportPDF && defaultExtension.compare( "pdf", Qt::CaseInsensitive ) == 0 )
     {
         selectedExtension = pdfFilter;
     }
