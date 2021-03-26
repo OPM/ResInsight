@@ -18,6 +18,7 @@
 
 #include "RimFractureGroupStatistics.h"
 
+#include "RiaDefines.h"
 #include "RiaLogging.h"
 #include "RiaPreferences.h"
 
@@ -35,6 +36,7 @@
 
 #include <cmath>
 
+#include <QDir>
 #include <QFile>
 
 namespace caf
@@ -139,7 +141,7 @@ void RimFractureGroupStatistics::computeStatistics()
     std::vector<cvf::ref<RigStimPlanFractureDefinition>> stimPlanFractureDefinitions =
         readFractureDefinitions( m_filePaths.v(), unitSystem );
 
-    std::set<QString> availableResults = findAllResultNames( stimPlanFractureDefinitions );
+    std::set<std::pair<QString, QString>> availableResults = findAllResultNames( stimPlanFractureDefinitions );
 
     std::map<std::pair<RimFractureGroupStatistics::StatisticsType, QString>, std::shared_ptr<RigSlice2D>> statisticsGridsAll;
 
@@ -155,10 +157,10 @@ void RimFractureGroupStatistics::computeStatistics()
 
     for ( auto result : availableResults )
     {
-        RiaLogging::info( QString( "Creating statistics for result: %1" ).arg( result ) );
+        RiaLogging::info( QString( "Creating statistics for result: %1" ).arg( result.first ) );
 
         std::vector<cvf::cref<RigFractureGrid>> fractureGrids =
-            createFractureGrids( stimPlanFractureDefinitions, unitSystem, result );
+            createFractureGrids( stimPlanFractureDefinitions, unitSystem, result.first );
 
         auto [minX, maxX, minY, maxY] = findExtentsOfGrids( fractureGrids );
 
@@ -193,11 +195,12 @@ void RimFractureGroupStatistics::computeStatistics()
 
         for ( auto [statType, slice] : statisticsGrids )
         {
-            auto key                = std::make_pair( statType, result );
+            auto key                = std::make_pair( statType, result.first );
             statisticsGridsAll[key] = slice;
         }
     }
 
+    QString tempDir = QDir::tempPath();
     for ( size_t i = 0; i < caf::AppEnum<RimFractureGroupStatistics::StatisticsType>::size(); ++i )
     {
         caf::AppEnum<RimFractureGroupStatistics::StatisticsType> t =
@@ -206,18 +209,24 @@ void RimFractureGroupStatistics::computeStatistics()
 
         // Get the all the properties for this statistics type
         std::vector<std::shared_ptr<RigSlice2D>> statisticsSlices;
-        std::vector<QString>                     properties;
+        std::vector<std::pair<QString, QString>> properties;
         for ( auto result : availableResults )
         {
             properties.push_back( result );
-            std::shared_ptr<RigSlice2D> slice = statisticsGridsAll[std::make_pair( t.value(), result )];
+            std::shared_ptr<RigSlice2D> slice = statisticsGridsAll[std::make_pair( t.value(), result.first )];
             statisticsSlices.push_back( slice );
 
-            writeStatisticsToCsv( "/tmp/" + text + "-" + result + ".csv", *slice );
+            writeStatisticsToCsv( tempDir + "/" + text + "-" + result.first + ".csv", *slice );
         }
 
-        QString xmlFilePath = "/tmp/fracture_group/" + text + ".xml";
-        RifFractureGroupStatisticsExporter::writeAsStimPlanXml( statisticsSlices, properties, xmlFilePath, gridXs, gridYs, timeStep );
+        QString xmlFilePath = tempDir + "/fracture_group/" + text + ".xml";
+        RifFractureGroupStatisticsExporter::writeAsStimPlanXml( statisticsSlices,
+                                                                properties,
+                                                                xmlFilePath,
+                                                                gridXs,
+                                                                gridYs,
+                                                                timeStep,
+                                                                unitSystem );
     }
 }
 
@@ -258,15 +267,15 @@ std::vector<cvf::ref<RigStimPlanFractureDefinition>>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::set<QString> RimFractureGroupStatistics::findAllResultNames(
+std::set<std::pair<QString, QString>> RimFractureGroupStatistics::findAllResultNames(
     const std::vector<cvf::ref<RigStimPlanFractureDefinition>>& stimPlanFractureDefinitions )
 {
-    std::set<QString> resultNames;
+    std::set<std::pair<QString, QString>> resultNames;
     for ( auto stimPlanFractureDefinitionData : stimPlanFractureDefinitions )
     {
-        for ( auto [resultName, unit] : stimPlanFractureDefinitionData->getStimPlanPropertyNamesUnits() )
+        for ( auto propertyNameWithUnit : stimPlanFractureDefinitionData->getStimPlanPropertyNamesUnits() )
         {
-            resultNames.insert( resultName );
+            resultNames.insert( propertyNameWithUnit );
         }
     }
 

@@ -69,7 +69,7 @@ protected:
                              RiaDefines::EclipseUnitSystem                               unitSystem,
                              const QString&                                              resultName );
 
-    static std::set<QString>
+    static std::set<std::pair<QString, QString>>
         findAllResultNames( const std::vector<cvf::ref<RigStimPlanFractureDefinition>>& stimPlanFractureDefinitions );
 
     static std::tuple<double, double, double, double>
