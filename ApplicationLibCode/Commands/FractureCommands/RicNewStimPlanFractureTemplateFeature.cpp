@@ -37,6 +37,7 @@
 
 #include <QAction>
 #include <QFileInfo>
+#include <vector>
 
 CAF_CMD_SOURCE_INIT( RicNewStimPlanFractureTemplateFeature, "RicNewStimPlanFractureTemplateFeature" );
 
@@ -84,7 +85,23 @@ std::vector<RimStimPlanFractureTemplate*> RicNewStimPlanFractureTemplateFeature:
                                                                   defaultDir,
                                                                   "StimPlan XML File (*.xml);;All files(*.*)" );
 
-    if ( fileNames.isEmpty() ) return std::vector<RimStimPlanFractureTemplate*>();
+    auto templates = createNewTemplatesFromFiles( fileNames.toVector().toStdVector() );
+
+    if ( !fileNames.isEmpty() )
+    {
+        app->setLastUsedDialogDirectory( "STIMPLAN_XML_DIR", QFileInfo( fileNames.last() ).absolutePath() );
+    }
+
+    return templates;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimStimPlanFractureTemplate*>
+    RicNewStimPlanFractureTemplateFeature::createNewTemplatesFromFiles( const std::vector<QString>& fileNames )
+{
+    if ( fileNames.empty() ) return std::vector<RimStimPlanFractureTemplate*>();
 
     RimProject* project = RimProject::current();
     CVF_ASSERT( project );
@@ -118,8 +135,6 @@ std::vector<RimStimPlanFractureTemplate*> RicNewStimPlanFractureTemplateFeature:
         fractureDef->setDefaultWellDiameterFromUnit();
         newFractures.push_back( fractureDef );
     }
-
-    app->setLastUsedDialogDirectory( "STIMPLAN_XML_DIR", QFileInfo( fileNames.last() ).absolutePath() );
 
     return newFractures;
 }
