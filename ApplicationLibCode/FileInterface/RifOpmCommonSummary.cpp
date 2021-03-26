@@ -18,6 +18,8 @@
 
 #include "RifOpmCommonSummary.h"
 
+#include "RiaLogging.h"
+
 #include "opm/io/eclipse/ESmry.hpp"
 
 #ifdef USE_OPENMP
@@ -79,7 +81,18 @@ size_t RifOpmCommonEclipseSummary::numberOfLodFilesCreated()
 //--------------------------------------------------------------------------------------------------
 bool RifOpmCommonEclipseSummary::open( const QString& headerFileName, bool includeRestartFiles )
 {
-    m_eSmry = std::make_unique<Opm::EclIO::ESmry>( headerFileName.toStdString(), includeRestartFiles, m_useLodsmryFiles );
+    try
+    {
+        m_eSmry =
+            std::make_unique<Opm::EclIO::ESmry>( headerFileName.toStdString(), includeRestartFiles, m_useLodsmryFiles );
+    }
+    catch ( std::exception& e )
+    {
+        QString txt = QString( "Optimized Summary Reader error : %1" ).arg( e.what() );
+        RiaLogging::error( txt );
+
+        return false;
+    }
 
     if ( m_createLodsmryFiles && !includeRestartFiles )
     {
