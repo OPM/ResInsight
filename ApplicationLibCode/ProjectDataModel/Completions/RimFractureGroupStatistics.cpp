@@ -31,8 +31,11 @@
 #include "RifFractureGroupStatisticsExporter.h"
 #include "RifStimPlanXmlReader.h"
 
+#include "FractureCommands/RicNewStimPlanFractureTemplateFeature.h"
+
 #include "cafAppEnum.h"
 #include "cafPdmUiTextEditor.h"
+#include "cafPdmUiToolButtonEditor.h"
 
 #include <cmath>
 
@@ -72,6 +75,15 @@ RimFractureGroupStatistics::RimFractureGroupStatistics()
     m_filePathsTable.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
     m_filePathsTable.uiCapability()->setUiReadOnly( true );
     m_filePathsTable.xmlCapability()->disableIO();
+
+    CAF_PDM_InitFieldNoDefault( &m_computeStatistics, "ComputeStatistics", "Compute", "", "", "" );
+    m_computeStatistics.uiCapability()->setUiEditorTypeName( caf::PdmUiToolButtonEditor::uiEditorTypeName() );
+    m_computeStatistics.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+
+    CAF_PDM_InitField( &m_numSamplesX, "NumberOfSamplesX", 100, "X", "", "", "" );
+    CAF_PDM_InitField( &m_numSamplesY, "NumberOfSamplesY", 200, "Y", "", "", "" );
+
+    setDeletable( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -125,16 +137,30 @@ void RimFractureGroupStatistics::defineEditorAttribute( const caf::PdmFieldHandl
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimFractureGroupStatistics::loadAndUpdateData()
+void RimFractureGroupStatistics::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
+                                                   const QVariant&            oldValue,
+                                                   const QVariant&            newValue )
 {
-    m_filePathsTable = generateFilePathsTable();
-    computeStatistics();
+    if ( changedField == &m_computeStatistics )
+    {
+        m_computeStatistics            = false;
+        std::vector<QString> filePaths = computeStatistics();
+        RicNewStimPlanFractureTemplateFeature::createNewTemplatesFromFiles( filePaths );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimFractureGroupStatistics::computeStatistics()
+void RimFractureGroupStatistics::loadAndUpdateData()
+{
+    m_filePathsTable = generateFilePathsTable();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<QString> RimFractureGroupStatistics::computeStatistics()
 {
     auto unitSystem = RiaDefines::EclipseUnitSystem::UNITS_METRIC;
 
@@ -149,8 +175,8 @@ void RimFractureGroupStatistics::computeStatistics()
     double timeStep       = 100.0;
     double referenceDepth = 3000.0;
 
-    int numSamplesX = 100;
-    int numSamplesY = 150;
+    int numSamplesX = m_numSamplesX();
+    int numSamplesY = m_numSamplesY();
 
     std::vector<double> gridXs( numSamplesX );
     std::vector<double> gridYs( numSamplesY );
@@ -200,7 +226,17 @@ void RimFractureGroupStatistics::computeStatistics()
         }
     }
 
-    QString tempDir = QDir::tempPath();
+    std::vector<QString> xmlFilePaths;
+
+    // Save images in snapshot catalog relative to project directory
+    RiaApplication* app                 = RiaApplication::instance();
+    QString         outputDirectoryPath = app->createAbsolutePathFromProjectRelativePath( "fracturestats" );
+    QDir            outputDirectory( outputDirectoryPath );
+    if ( !outputDirectory.exists() )
+    {
+        outputDirectory.mkpath( outputDirectoryPath );
+    }
+
     for ( size_t i = 0; i < caf::AppEnum<RimFractureGroupStatistics::StatisticsType>::size(); ++i )
     {
         caf::AppEnum<RimFractureGroupStatistics::StatisticsType> t =
@@ -216,10 +252,13 @@ void RimFractureGroupStatistics::computeStatistics()
             std::shared_ptr<RigSlice2D> slice = statisticsGridsAll[std::make_pair( t.value(), result.first )];
             statisticsSlices.push_back( slice );
 
-            writeStatisticsToCsv( tempDir + "/" + text + "-" + result.first + ".csv", *slice );
+            QString csvFilePath = outputDirectoryPath + "/" + text + "-" + result.first + ".csv";
+            writeStatisticsToCsv( csvFilePath, *slice );
         }
 
-        QString xmlFilePath = tempDir + "/fracture_group/" + text + ".xml";
+        QString xmlFilePath = outputDirectoryPath + "/" + name() + "-" + text + ".xml";
+
+        RiaLogging::info( QString( "Writing fracture group statistics to: %1" ).arg( xmlFilePath ) );
         RifFractureGroupStatisticsExporter::writeAsStimPlanXml( statisticsSlices,
                                                                 properties,
                                                                 xmlFilePath,
@@ -227,7 +266,11 @@ void RimFractureGroupStatistics::computeStatistics()
                                                                 gridYs,
                                                                 timeStep,
                                                                 unitSystem );
+
+        xmlFilePaths.push_back( xmlFilePath );
     }
+
+    return xmlFilePaths;
 }
 
 //--------------------------------------------------------------------------------------------------
