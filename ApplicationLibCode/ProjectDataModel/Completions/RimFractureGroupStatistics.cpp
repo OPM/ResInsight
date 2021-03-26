@@ -204,7 +204,7 @@ std::vector<QString> RimFractureGroupStatistics::computeStatistics()
         for ( int y = 0; y < numSamplesY; y++ )
         {
             double posY = minY + y * sampleDistanceY;
-            gridYs[y]   = referenceDepth + posY;
+            gridYs[y]   = referenceDepth - posY;
         }
 
         for ( int x = 0; x < numSamplesX; x++ )
