@@ -85,7 +85,9 @@ void RifFractureGroupStatisticsExporter::appendPropertiesToStream( QTextStream& 
 
         CAF_ASSERT( statistics[s]->ny() == gridYs.size() );
 
-        for ( size_t i = 0; i < gridYs.size(); i++ )
+        // Need to write these in reverse because the depth tag is ignored in
+        // in the reader (depths from <grid><ys> are used).
+        for ( int i = static_cast<int>( gridYs.size() ) - 1; i >= 0; i-- )
         {
             stream << "<depth>" << gridYs[i] << "</depth>" << endl;
             stream << "<data>[";
