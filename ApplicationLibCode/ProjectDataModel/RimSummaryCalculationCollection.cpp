@@ -88,6 +88,8 @@ RimSummaryCalculation* RimSummaryCalculationCollection::addCalculationCopy( cons
     expression.replace( currVarName, newVarName );
     calcCopy->setExpression( expression );
 
+    RimProject::current()->assignCalculationIdToCalculation( calcCopy );
+
     m_calculations.push_back( calcCopy );
 
     calcCopy->resolveReferencesRecursively();

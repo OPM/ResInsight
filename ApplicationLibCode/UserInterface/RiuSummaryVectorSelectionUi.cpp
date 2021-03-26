@@ -1036,7 +1036,11 @@ std::set<RifEclipseSummaryAddress> RiuSummaryVectorSelectionUi::findPossibleSumm
 
         if ( sumCase )
         {
-            if ( !isObservedData( sumCase ) ) sources.push_back( sumCase );
+            auto calculated = dynamic_cast<RimCalculatedSummaryCase*>( sumCase );
+            if ( !isObservedData( sumCase ) && !calculated )
+            {
+                sources.push_back( sumCase );
+            }
         }
         else if ( ensemble )
         {
