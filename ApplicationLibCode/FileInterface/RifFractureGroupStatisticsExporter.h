@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include "RiaDefines.h"
+
 #include <memory>
 #include <vector>
 
@@ -33,21 +35,25 @@ class RifFractureGroupStatisticsExporter
 {
 public:
     static bool writeAsStimPlanXml( const std::vector<std::shared_ptr<RigSlice2D>>& statistics,
-                                    const std::vector<QString>&                     properties,
+                                    const std::vector<std::pair<QString, QString>>& properties,
                                     const QString&                                  filePath,
                                     const std::vector<double>&                      gridXs,
                                     const std::vector<double>&                      gridYs,
-                                    double                                          time );
+                                    double                                          time,
+                                    RiaDefines::EclipseUnitSystem                   unitSystem );
 
 private:
     static void appendHeaderToStream( QTextStream& stream );
-    static void appendGridDimensionsToStream( QTextStream&               stream,
-                                              const std::vector<double>& gridXs,
-                                              const std::vector<double>& gridYs );
+    static void appendGridDimensionsToStream( QTextStream&                  stream,
+                                              const std::vector<double>&    gridXs,
+                                              const std::vector<double>&    gridYs,
+                                              RiaDefines::EclipseUnitSystem unitSystem );
     static void appendPropertiesToStream( QTextStream&                                    stream,
                                           const std::vector<std::shared_ptr<RigSlice2D>>& statistics,
-                                          const std::vector<QString>&                     properties,
+                                          const std::vector<std::pair<QString, QString>>& properties,
                                           const std::vector<double>&                      gridYs,
                                           double                                          time );
     static void appendFooterToStream( QTextStream& stream );
+
+    static QString getStringForUnitSystem( RiaDefines::EclipseUnitSystem unitSystem );
 };
