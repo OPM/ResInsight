@@ -51,12 +51,14 @@ public:
     void loadAndUpdateData();
 
 protected:
-    void    defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                   QString                    uiConfigName,
-                                   caf::PdmUiEditorAttribute* attribute ) override;
+    void defineEditorAttribute( const caf::PdmFieldHandle* field,
+                                QString                    uiConfigName,
+                                caf::PdmUiEditorAttribute* attribute ) override;
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+
     QString generateFilePathsTable();
 
-    void          computeStatistics();
+    std::vector<QString> computeStatistics();
     static double computeDepthOfWellPathAtFracture( cvf::ref<RigStimPlanFractureDefinition> stimPlanFractureDefinitionData );
     static bool isCoordinateInsideFractureCell( double x, double y, const RigFractureCell& cell );
 
@@ -94,4 +96,7 @@ protected:
 
     caf::PdmField<std::vector<caf::FilePath>> m_filePaths;
     caf::PdmField<QString>                    m_filePathsTable;
+    caf::PdmField<bool>                       m_computeStatistics;
+    caf::PdmField<int>                        m_numSamplesX;
+    caf::PdmField<int>                        m_numSamplesY;
 };
