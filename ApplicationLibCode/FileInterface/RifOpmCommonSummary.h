@@ -53,8 +53,8 @@ public:
 
     void useLodsmaryFiles( bool enable );
     void createLodsmaryFiles( bool enable );
-    
-    static void resetLodCount();
+
+    static void   resetLodCount();
     static size_t numberOfLodFilesCreated();
 
     bool open( const QString& headerFileName, bool includeRestartFiles );
@@ -66,6 +66,7 @@ public:
 
 private:
     void buildMetaData();
+    bool openESmryFile( const QString& headerFileName, bool includeRestartFiles );
 
     static void increaseLodFileCount();
 

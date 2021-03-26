@@ -81,18 +81,7 @@ size_t RifOpmCommonEclipseSummary::numberOfLodFilesCreated()
 //--------------------------------------------------------------------------------------------------
 bool RifOpmCommonEclipseSummary::open( const QString& headerFileName, bool includeRestartFiles )
 {
-    try
-    {
-        m_eSmry =
-            std::make_unique<Opm::EclIO::ESmry>( headerFileName.toStdString(), includeRestartFiles, m_useLodsmryFiles );
-    }
-    catch ( std::exception& e )
-    {
-        QString txt = QString( "Optimized Summary Reader error : %1" ).arg( e.what() );
-        RiaLogging::error( txt );
-
-        return false;
-    }
+    if ( !openESmryFile( headerFileName, includeRestartFiles ) ) return false;
 
     if ( m_createLodsmryFiles && !includeRestartFiles )
     {
@@ -102,6 +91,12 @@ bool RifOpmCommonEclipseSummary::open( const QString& headerFileName, bool inclu
         if ( hasFileBeenCreated )
         {
             RifOpmCommonEclipseSummary::increaseLodFileCount();
+
+            // If a LODSMRY file has been created, all data for all vectors has now been loaded into the summary file
+            // object. Close the file object to make sure allocated data is released, and create a new file object
+            // that will import only the meta data and no curve data. This is a relatively fast operation.
+
+            if ( !openESmryFile( headerFileName, includeRestartFiles ) ) return false;
         }
     }
 
@@ -197,6 +192,27 @@ void RifOpmCommonEclipseSummary::buildMetaData()
             }
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RifOpmCommonEclipseSummary::openESmryFile( const QString& headerFileName, bool includeRestartFiles )
+{
+    try
+    {
+        m_eSmry =
+            std::make_unique<Opm::EclIO::ESmry>( headerFileName.toStdString(), includeRestartFiles, m_useLodsmryFiles );
+    }
+    catch ( std::exception& e )
+    {
+        QString txt = QString( "Optimized Summary Reader error : %1" ).arg( e.what() );
+        RiaLogging::error( txt );
+
+        return false;
+    }
+
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------
