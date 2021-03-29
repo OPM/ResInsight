@@ -1124,6 +1124,17 @@ void RimWellRftPlot::onLegendDefinitionChanged()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RimWellRftPlot::useUndoRedoForFieldChanged()
+{
+    // m_selectedSources use data types that are not compatible with caf
+    // consider rewrite to caf object using ptrfield instead of pdmpointer
+
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimWellRftPlot::assignWellPathToExtractionCurves()
 {
     RimProject*  proj     = RimProject::current();
