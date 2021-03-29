@@ -130,17 +130,7 @@ void RimCorrelationPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrder
         correlationGroup->add( &m_topNFilterCount );
     }
 
-    caf::PdmUiGroup* curveDataGroup = uiOrdering.addNewGroup( "Summary Vector" );
-
-    curveDataGroup->add( &m_selectedVarsUiField );
-    curveDataGroup->add( &m_pushButtonSelectSummaryAddress, { false, 1, 0 } );
-    curveDataGroup->add( &m_timeStepFilter );
-    curveDataGroup->add( &m_timeStep );
-    curveDataGroup->add( &m_useCaseFilter );
-    curveDataGroup->add( &m_curveSetForFiltering );
-    m_curveSetForFiltering.uiCapability()->setUiHidden( !m_useCaseFilter() );
-    curveDataGroup->add( &m_editCaseFilter, { false, 1, 0 } );
-    m_editCaseFilter.uiCapability()->setUiHidden( !m_useCaseFilter() );
+    appendDataSourceFields( uiConfigName, uiOrdering );
 
     caf::PdmUiGroup* plotGroup = uiOrdering.addNewGroup( "Plot Settings" );
     plotGroup->add( &m_showPlotTitle );

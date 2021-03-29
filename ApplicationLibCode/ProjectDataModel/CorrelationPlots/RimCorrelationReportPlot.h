@@ -17,7 +17,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
-#include "RimCorrelationPlot.h"
 #include "RimPlotWindow.h"
 
 #include "cafPdmChildField.h"

@@ -314,16 +314,7 @@ void RimCorrelationMatrixPlot::defineUiOrdering( QString uiConfigName, caf::PdmU
         }
     }
 
-    caf::PdmUiGroup* curveDataGroup = uiOrdering.addNewGroup( "Summary Vector" );
-    m_selectedVarsUiField           = selectedQuantitiesText();
-
-    curveDataGroup->add( &m_selectedVarsUiField );
-    curveDataGroup->add( &m_pushButtonSelectSummaryAddress, { false, 1, 0 } );
-    curveDataGroup->add( &m_timeStepFilter );
-    curveDataGroup->add( &m_timeStep );
-    curveDataGroup->add( &m_useCaseFilter );
-    curveDataGroup->add( &m_curveSetForFiltering );
-    m_curveSetForFiltering.uiCapability()->setUiHidden( !m_useCaseFilter() );
+    appendDataSourceFields( uiConfigName, uiOrdering );
 
     if ( uiConfigName != "report" )
     {

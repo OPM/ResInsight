@@ -124,6 +124,8 @@ protected:
 
     void initAfterRead() final;
 
+    void appendDataSourceFields( QString uiConfigName, caf::PdmUiOrdering& uiOrdering );
+
 private:
     void onCaseRemoved( const SignalEmitter* emitter, RimSummaryCase* summaryCase );
     void connectAllCaseSignals();
