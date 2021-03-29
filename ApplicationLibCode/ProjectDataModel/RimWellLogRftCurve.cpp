@@ -1047,6 +1047,10 @@ bool RimWellLogRftCurve::deriveMeasuredDepthFromObservedData( const std::vector<
 
             reader->values( tvdAddress, &tvdValuesOfObservedData );
             reader->values( mdAddress, &mdValuesOfObservedData );
+
+            // We are not able to estimate MD/TVD relationship for less than two samples
+            if ( tvdValuesOfObservedData.size() < 2 ) return false;
+
             derivedMDValues = RigWellPathGeometryTools::interpolateMdFromTvd( mdValuesOfObservedData,
                                                                               tvdValuesOfObservedData,
                                                                               tvDepthValues );
