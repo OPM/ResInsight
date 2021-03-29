@@ -17,15 +17,12 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
-#include "RifEclipseSummaryAddress.h"
-#include "RifEclipseSummaryAddressQMetaType.h"
-
 #include "RimPlot.h"
-#include "RimSummaryCaseCollection.h"
 #include "RimTimeStepFilter.h"
 
 #include "cafPdmPtrField.h"
 
+#include <QDateTime>
 #include <QString>
 
 #include <ctime>
@@ -35,6 +32,10 @@ class RiaSummaryCurveDefinitionAnalyser;
 class RimAnalysisPlotDataEntry;
 class RimSummaryAddress;
 class RimEnsembleCurveSet;
+class RimSummaryCaseCollection;
+class RimSummaryCase;
+class EnsembleParameter;
+class RifEclipseSummaryAddress;
 
 class RimAbstractCorrelationPlot : public RimPlot
 {
@@ -140,8 +141,6 @@ protected:
 
     bool m_selectMultipleVectors;
 
-    // Fields
-
     caf::PdmField<QString>            m_selectedVarsUiField;
     caf::PdmField<bool>               m_pushButtonSelectSummaryAddress;
     caf::PdmField<TimeStepFilterEnum> m_timeStepFilter;
@@ -150,14 +149,13 @@ protected:
     caf::PdmField<bool>    m_useAutoPlotTitle;
     caf::PdmField<QString> m_description;
 
-    caf::PdmField<bool>                    m_useCaseFilter;
-    caf::PdmPtrField<RimEnsembleCurveSet*> m_curveSetForFiltering;
-    caf::PdmField<bool>                    m_editCaseFilter;
-
     caf::PdmField<caf::FontTools::RelativeSizeEnum> m_labelFontSize;
     caf::PdmField<caf::FontTools::RelativeSizeEnum> m_axisTitleFontSize;
     caf::PdmField<caf::FontTools::RelativeSizeEnum> m_axisValueFontSize;
 
 private:
     caf::PdmChildArrayField<RimAnalysisPlotDataEntry*> m_dataSources;
+    caf::PdmField<bool>                                m_useCaseFilter;
+    caf::PdmPtrField<RimEnsembleCurveSet*>             m_curveSetForFiltering;
+    caf::PdmField<bool>                                m_editCaseFilter;
 };

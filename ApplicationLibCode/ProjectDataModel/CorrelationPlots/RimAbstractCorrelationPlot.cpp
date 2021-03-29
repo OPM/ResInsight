@@ -84,8 +84,8 @@ RimAbstractCorrelationPlot::RimAbstractCorrelationPlot()
 
     m_legendFontSize = caf::FontTools::RelativeSize::XSmall;
 
-    CAF_PDM_InitField( &m_useCaseFilter, "UseCaseFilter", false, "Use Filter", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_curveSetForFiltering, "CurveSetForFiltering", "Filter Definition", "", "", "" );
+    CAF_PDM_InitField( &m_useCaseFilter, "UseCaseFilter", false, "Use Ensemble Filter", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_curveSetForFiltering, "CurveSetForFiltering", "  Ensemble Filter", "", "", "" );
     CAF_PDM_InitField( &m_editCaseFilter, "EditCaseFilter", false, "Edit", "", "", "" );
     m_editCaseFilter.uiCapability()->setUiEditorTypeName( caf::PdmUiToolButtonEditor::uiEditorTypeName() );
     m_editCaseFilter.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
