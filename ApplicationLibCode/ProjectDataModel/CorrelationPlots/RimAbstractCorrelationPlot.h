@@ -55,6 +55,10 @@ public:
 
     // Get summary cases filtered by attached ensemble parameter filter
     std::set<RimSummaryCase*> filterEnsembleCases( RimSummaryCaseCollection* ensemble ) const;
+    bool                      isCaseFilterEnabled() const;
+    void                      enableCaseFilter( bool enable );
+    RimEnsembleCurveSet*      caseFilterDataSource() const;
+    void                      setCaseFilterDataSource( RimEnsembleCurveSet* ensemble );
 
     RiuQwtPlotWidget* viewer() override;
     void              detachAllCurves() override;
@@ -146,6 +150,7 @@ protected:
 
     caf::PdmField<bool>                    m_useCaseFilter;
     caf::PdmPtrField<RimEnsembleCurveSet*> m_curveSetForFiltering;
+    caf::PdmField<bool>                    m_editCaseFilter;
 
     caf::PdmField<caf::FontTools::RelativeSizeEnum> m_labelFontSize;
     caf::PdmField<caf::FontTools::RelativeSizeEnum> m_axisTitleFontSize;

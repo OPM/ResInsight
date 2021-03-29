@@ -139,6 +139,8 @@ void RimCorrelationPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrder
     curveDataGroup->add( &m_useCaseFilter );
     curveDataGroup->add( &m_curveSetForFiltering );
     m_curveSetForFiltering.uiCapability()->setUiHidden( !m_useCaseFilter() );
+    curveDataGroup->add( &m_editCaseFilter, { false, 1, 0 } );
+    m_editCaseFilter.uiCapability()->setUiHidden( !m_useCaseFilter() );
 
     caf::PdmUiGroup* plotGroup = uiOrdering.addNewGroup( "Plot Settings" );
     plotGroup->add( &m_showPlotTitle );

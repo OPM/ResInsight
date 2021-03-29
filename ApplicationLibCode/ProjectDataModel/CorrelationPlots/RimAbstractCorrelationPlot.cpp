@@ -1,3 +1,21 @@
+/////////////////////////////////////////////////////////////////////////////////
+//
+//  Copyright (C) 2020 Equinor ASA
+//
+//  ResInsight is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 3 of the License, or
+//  (at your option) any later version.
+//
+//  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
+//  WARRANTY; without even the implied warranty of MERCHANTABILITY or
+//  FITNESS FOR A PARTICULAR PURPOSE.
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+//  for more details.
+//
+/////////////////////////////////////////////////////////////////////////////////
+
 #include "RimAbstractCorrelationPlot.h"
 
 #include "RiaPreferences.h"
@@ -7,18 +25,22 @@
 #include "RifSummaryReaderInterface.h"
 
 #include "RimAnalysisPlotDataEntry.h"
+#include "RimEnsembleCurveFilter.h"
+#include "RimEnsembleCurveFilterCollection.h"
 #include "RimEnsembleCurveSet.h"
 #include "RimProject.h"
 #include "RimSummaryAddress.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseCollection.h"
 
+#include "RiuPlotMainWindowTools.h"
 #include "RiuQwtPlotWidget.h"
 #include "RiuSummaryVectorSelectionDialog.h"
 
 #include "cafPdmUiComboBoxEditor.h"
 #include "cafPdmUiLineEditor.h"
 #include "cafPdmUiPushButtonEditor.h"
+#include "cafPdmUiToolButtonEditor.h"
 
 CAF_PDM_ABSTRACT_SOURCE_INIT( RimAbstractCorrelationPlot, "AbstractCorrelationPlot" );
 
@@ -64,6 +86,9 @@ RimAbstractCorrelationPlot::RimAbstractCorrelationPlot()
 
     CAF_PDM_InitField( &m_useCaseFilter, "UseCaseFilter", false, "Use Filter", "", "", "" );
     CAF_PDM_InitFieldNoDefault( &m_curveSetForFiltering, "CurveSetForFiltering", "Filter Definition", "", "", "" );
+    CAF_PDM_InitField( &m_editCaseFilter, "EditCaseFilter", false, "Edit", "", "", "" );
+    m_editCaseFilter.uiCapability()->setUiEditorTypeName( caf::PdmUiToolButtonEditor::uiEditorTypeName() );
+    m_editCaseFilter.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -182,6 +207,21 @@ void RimAbstractCorrelationPlot::fieldChangedByUi( const caf::PdmFieldHandle* ch
     else if ( changedField == &m_useCaseFilter )
     {
         this->loadDataAndUpdate();
+    }
+    else if ( changedField == &m_editCaseFilter )
+    {
+        m_editCaseFilter = false;
+        if ( m_curveSetForFiltering != nullptr )
+        {
+            auto filterColl    = m_curveSetForFiltering->filterCollection();
+            auto activeFilters = filterColl->filters();
+            auto firstFilter   = activeFilters.empty() ? nullptr : activeFilters.front();
+
+            if ( firstFilter )
+            {
+                RiuPlotMainWindowTools::selectAsCurrentItem( firstFilter );
+            }
+        }
     }
 }
 
@@ -378,7 +418,7 @@ std::set<RimSummaryCase*> RimAbstractCorrelationPlot::filterEnsembleCases( RimSu
     {
         std::vector<RimSummaryCase*> summaryCasesVector;
 
-        if ( m_useCaseFilter() && m_curveSetForFiltering() )
+        if ( m_useCaseFilter() && m_curveSetForFiltering() && m_curveSetForFiltering->summaryCaseCollection() == ensemble )
         {
             summaryCasesVector = m_curveSetForFiltering->filterEnsembleCases( ensemble->allSummaryCases() );
         }
@@ -391,6 +431,39 @@ std::set<RimSummaryCase*> RimAbstractCorrelationPlot::filterEnsembleCases( RimSu
     }
 
     return setOfCases;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimAbstractCorrelationPlot::isCaseFilterEnabled() const
+{
+    return m_useCaseFilter();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimAbstractCorrelationPlot::enableCaseFilter( bool enable )
+{
+    m_useCaseFilter = enable;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimEnsembleCurveSet* RimAbstractCorrelationPlot::caseFilterDataSource() const
+{
+    return m_curveSetForFiltering();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimAbstractCorrelationPlot::setCaseFilterDataSource( RimEnsembleCurveSet* ensemble )
+{
+    m_curveSetForFiltering = ensemble;
+    connectCurveFilterSignals();
 }
 
 //--------------------------------------------------------------------------------------------------

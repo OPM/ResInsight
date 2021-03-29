@@ -296,38 +296,46 @@ void RimCorrelationReportPlot::deleteViewWidget()
 void RimCorrelationReportPlot::onLoadDataAndUpdate()
 {
     updateMdiWindowVisibility();
+
     if ( m_showWindow )
     {
-        auto timeStep                 = m_correlationMatrixPlot->timeStep().toSecsSinceEpoch();
-        bool showOnlyTopNCorrelations = m_correlationMatrixPlot->showTopNCorrelations();
-        int  topNFilterCount          = m_correlationMatrixPlot->topNFilterCount();
-
-        m_correlationPlot->setTimeStep( timeStep );
-        m_correlationPlot->setShowOnlyTopNCorrelations( showOnlyTopNCorrelations );
-        m_correlationPlot->setTopNFilterCount( topNFilterCount );
-        m_parameterResultCrossPlot->setTimeStep( timeStep );
-
         m_correlationMatrixPlot->setLabelFontSize( m_labelFontSize() );
         m_correlationMatrixPlot->setAxisTitleFontSize( m_axisTitleFontSize() );
         m_correlationMatrixPlot->setAxisValueFontSize( m_axisValueFontSize() );
 
+        auto timeStep                 = m_correlationMatrixPlot->timeStep().toSecsSinceEpoch();
+        bool showOnlyTopNCorrelations = m_correlationMatrixPlot->showTopNCorrelations();
+        int  topNFilterCount          = m_correlationMatrixPlot->topNFilterCount();
+        bool useCaseFilter            = m_correlationMatrixPlot->isCaseFilterEnabled();
+        auto caseFilterDataSource     = m_correlationMatrixPlot->caseFilterDataSource();
+
+        m_correlationPlot->setTimeStep( timeStep );
+        m_correlationPlot->setShowOnlyTopNCorrelations( showOnlyTopNCorrelations );
+        m_correlationPlot->setTopNFilterCount( topNFilterCount );
+        m_correlationPlot->enableCaseFilter( useCaseFilter );
+        m_correlationPlot->setCaseFilterDataSource( caseFilterDataSource );
+
         m_correlationPlot->setLabelFontSize( m_labelFontSize() );
         m_correlationPlot->setAxisTitleFontSize( m_axisTitleFontSize() );
         m_correlationPlot->setAxisValueFontSize( m_axisValueFontSize() );
+        m_correlationPlot->setShowAbsoluteValues( m_correlationMatrixPlot->showAbsoluteValues() );
+        m_correlationPlot->setSortByAbsoluteValues( m_correlationMatrixPlot->sortByAbsoluteValues() );
 
+        m_parameterResultCrossPlot->setTimeStep( timeStep );
+        m_parameterResultCrossPlot->enableCaseFilter( useCaseFilter );
+        m_parameterResultCrossPlot->setCaseFilterDataSource( caseFilterDataSource );
         m_parameterResultCrossPlot->setLabelFontSize( m_labelFontSize() );
         m_parameterResultCrossPlot->setLegendFontSize( m_legendFontSize() );
         m_parameterResultCrossPlot->setAxisTitleFontSize( m_axisTitleFontSize() );
         m_parameterResultCrossPlot->setAxisValueFontSize( m_axisValueFontSize() );
 
-        m_correlationPlot->setShowAbsoluteValues( m_correlationMatrixPlot->showAbsoluteValues() );
-        m_correlationPlot->setSortByAbsoluteValues( m_correlationMatrixPlot->sortByAbsoluteValues() );
-
         m_correlationMatrixPlot->loadDataAndUpdate();
         m_correlationPlot->loadDataAndUpdate();
         m_parameterResultCrossPlot->loadDataAndUpdate();
+
         m_viewer->setPlotTitle( m_plotWindowTitle() );
     }
+
     updateLayout();
 }
 
