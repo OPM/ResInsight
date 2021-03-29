@@ -52,10 +52,14 @@ public:
     void setCurveDefinitions( const std::vector<RiaSummaryCurveDefinition>& curveDefinitions );
     void setTimeStep( std::time_t timeStep );
     std::set<RimSummaryCaseCollection*> ensembles();
-    RiuQwtPlotWidget*                   viewer() override;
-    void                                detachAllCurves() override;
-    QDateTime                           timeStep() const;
-    QString                             timeStepString() const;
+
+    // Get summary cases filtered by attached ensemble parameter filter
+    std::set<RimSummaryCase*> filterEnsembleCases( RimSummaryCaseCollection* ensemble ) const;
+
+    RiuQwtPlotWidget* viewer() override;
+    void              detachAllCurves() override;
+    QDateTime         timeStep() const;
+    QString           timeStepString() const;
 
     int labelFontSize() const;
     int axisTitleFontSize() const;
@@ -148,5 +152,5 @@ protected:
     caf::PdmField<caf::FontTools::RelativeSizeEnum> m_axisValueFontSize;
 
 private:
-    caf::PdmChildArrayField<RimAnalysisPlotDataEntry*> m_analysisPlotDataSelection;
+    caf::PdmChildArrayField<RimAnalysisPlotDataEntry*> m_dataSources;
 };

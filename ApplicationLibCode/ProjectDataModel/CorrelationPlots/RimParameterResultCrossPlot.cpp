@@ -259,26 +259,12 @@ void RimParameterResultCrossPlot::createPoints()
             QStringList caseNames      = caseNamesOfValidEnsembleCases( ensemble );
             QString     commonCaseRoot = RiaTextStringTools::commonRoot( caseNames );
 
-            std::set<RimSummaryCase*> filteredSummaryCases;
-            {
-                std::vector<RimSummaryCase*> summaryCasesVector;
-
-                if ( m_useCaseFilter() && m_curveSetForFiltering() )
-                {
-                    summaryCasesVector = m_curveSetForFiltering->filterEnsembleCases( ensemble->allSummaryCases() );
-                }
-                else
-                {
-                    summaryCasesVector = ensemble->allSummaryCases();
-                }
-
-                filteredSummaryCases.insert( summaryCasesVector.begin(), summaryCasesVector.end() );
-            }
+            std::set<RimSummaryCase*> activeCases = filterEnsembleCases( ensemble );
 
             for ( size_t caseIdx = 0u; caseIdx < ensemble->allSummaryCases().size(); ++caseIdx )
             {
                 auto summaryCase = ensemble->allSummaryCases()[caseIdx];
-                if ( filteredSummaryCases.count( summaryCase ) == 0 ) continue;
+                if ( activeCases.count( summaryCase ) == 0 ) continue;
 
                 RifSummaryReaderInterface* reader = summaryCase->summaryReader();
                 if ( !reader ) continue;

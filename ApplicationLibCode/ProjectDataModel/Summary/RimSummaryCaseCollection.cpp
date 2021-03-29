@@ -541,9 +541,10 @@ time_t timeDiff( time_t lhs, time_t rhs )
 ///
 //--------------------------------------------------------------------------------------------------
 std::vector<std::pair<EnsembleParameter, double>>
-    RimSummaryCaseCollection::parameterCorrelations( const RifEclipseSummaryAddress& address,
-                                                     time_t                          timeStep,
-                                                     const std::vector<QString>&     selectedParameters ) const
+    RimSummaryCaseCollection::parameterCorrelations( const RifEclipseSummaryAddress&  address,
+                                                     time_t                           timeStep,
+                                                     const std::vector<QString>&      selectedParameters,
+                                                     const std::set<RimSummaryCase*>& selectedCases ) const
 {
     auto parameters = variationSortedEnsembleParameters( true );
 
@@ -567,6 +568,8 @@ std::vector<std::pair<EnsembleParameter, double>>
         RimSummaryCase*            summaryCase = m_cases[caseIdx];
         RifSummaryReaderInterface* reader      = summaryCase->summaryReader();
         if ( !reader ) continue;
+
+        if ( !selectedCases.empty() && selectedCases.count( summaryCase ) == 0 ) continue;
 
         if ( !summaryCase->caseRealizationParameters() ) continue;
 

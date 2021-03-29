@@ -136,6 +136,9 @@ void RimCorrelationPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrder
     curveDataGroup->add( &m_pushButtonSelectSummaryAddress, { false, 1, 0 } );
     curveDataGroup->add( &m_timeStepFilter );
     curveDataGroup->add( &m_timeStep );
+    curveDataGroup->add( &m_useCaseFilter );
+    curveDataGroup->add( &m_curveSetForFiltering );
+    m_curveSetForFiltering.uiCapability()->setUiHidden( !m_useCaseFilter() );
 
     caf::PdmUiGroup* plotGroup = uiOrdering.addNewGroup( "Plot Settings" );
     plotGroup->add( &m_showPlotTitle );
@@ -190,7 +193,6 @@ void RimCorrelationPlot::onLoadDataAndUpdate()
 
         RiuGroupedBarChartBuilder chartBuilder;
 
-        // buildTestPlot( chartBuilder );
         addDataToChartBuilder( chartBuilder );
 
         chartBuilder.addBarChartToPlot( m_plotWidget,
@@ -246,8 +248,10 @@ void RimCorrelationPlot::addDataToChartBuilder( RiuGroupedBarChartBuilder& chart
     auto ensemble = *ensembles().begin();
     auto address  = *addresses().begin();
 
+    std::set<RimSummaryCase*> activeCases = filterEnsembleCases( ensemble );
+
     std::vector<std::pair<EnsembleParameter, double>> correlations =
-        ensemble->parameterCorrelations( address, selectedTimestep, m_selectedParametersList() );
+        ensemble->parameterCorrelations( address, selectedTimestep, m_selectedParametersList(), activeCases );
 
     for ( auto parameterCorrPair : correlations )
     {

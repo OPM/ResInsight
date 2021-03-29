@@ -36,9 +36,9 @@ RimAbstractCorrelationPlot::RimAbstractCorrelationPlot()
     m_selectedVarsUiField.uiCapability()->setUiReadOnly( true );
     m_selectedVarsUiField.uiCapability()->setUiEditorTypeName( caf::PdmUiLineEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitFieldNoDefault( &m_analysisPlotDataSelection, "AnalysisPlotData", "", "", "", "" );
-    m_analysisPlotDataSelection.uiCapability()->setUiTreeChildrenHidden( true );
-    m_analysisPlotDataSelection.uiCapability()->setUiTreeHidden( true );
+    CAF_PDM_InitFieldNoDefault( &m_dataSources, "AnalysisPlotData", "", "", "", "" );
+    m_dataSources.uiCapability()->setUiTreeChildrenHidden( true );
+    m_dataSources.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_pushButtonSelectSummaryAddress, "SelectAddress", "", "", "", "" );
     caf::PdmUiPushButtonEditor::configureEditorForField( &m_pushButtonSelectSummaryAddress );
@@ -78,12 +78,12 @@ RimAbstractCorrelationPlot::~RimAbstractCorrelationPlot()
 //--------------------------------------------------------------------------------------------------
 void RimAbstractCorrelationPlot::setCurveDefinitions( const std::vector<RiaSummaryCurveDefinition>& curveDefinitions )
 {
-    m_analysisPlotDataSelection.deleteAllChildObjects();
+    m_dataSources.deleteAllChildObjects();
     for ( auto curveDef : curveDefinitions )
     {
         auto dataEntry = new RimAnalysisPlotDataEntry();
         dataEntry->setFromCurveDefinition( curveDef );
-        m_analysisPlotDataSelection.push_back( dataEntry );
+        m_dataSources.push_back( dataEntry );
     }
     connectAllCaseSignals();
 
@@ -128,12 +128,12 @@ void RimAbstractCorrelationPlot::fieldChangedByUi( const caf::PdmFieldHandle* ch
             if ( !curveSelection.empty() )
             {
                 std::vector<RiaSummaryCurveDefinition> summaryVectorDefinitions = dlg.curveSelection();
-                m_analysisPlotDataSelection.deleteAllChildObjects();
+                m_dataSources.deleteAllChildObjects();
                 for ( const RiaSummaryCurveDefinition& vectorDef : summaryVectorDefinitions )
                 {
                     auto plotEntry = new RimAnalysisPlotDataEntry();
                     plotEntry->setFromCurveDefinition( vectorDef );
-                    m_analysisPlotDataSelection.push_back( plotEntry );
+                    m_dataSources.push_back( plotEntry );
                 }
                 connectAllCaseSignals();
                 this->loadDataAndUpdate();
@@ -270,7 +270,7 @@ QList<caf::PdmOptionItemInfo>
     {
         RimSummaryCaseCollection* ensemble = nullptr;
 
-        for ( auto e : m_analysisPlotDataSelection )
+        for ( auto e : m_dataSources )
         {
             auto ens = e->ensemble();
             if ( ens )
@@ -320,7 +320,7 @@ std::set<time_t> RimAbstractCorrelationPlot::allAvailableTimeSteps()
 std::vector<RiaSummaryCurveDefinition> RimAbstractCorrelationPlot::curveDefinitions() const
 {
     std::vector<RiaSummaryCurveDefinition> curveDefs;
-    for ( auto dataEntry : m_analysisPlotDataSelection )
+    for ( auto dataEntry : m_dataSources )
     {
         curveDefs.push_back( dataEntry->curveDefinition() );
     }
@@ -350,7 +350,7 @@ std::set<RifEclipseSummaryAddress> RimAbstractCorrelationPlot::addresses()
 {
     std::set<RifEclipseSummaryAddress> addresses;
 
-    for ( auto dataEntry : m_analysisPlotDataSelection )
+    for ( auto dataEntry : m_dataSources )
     {
         addresses.insert( dataEntry->summaryAddress() );
     }
@@ -365,6 +365,32 @@ std::set<RimSummaryCaseCollection*> RimAbstractCorrelationPlot::ensembles()
 {
     RiaSummaryCurveDefinitionAnalyser* analyserOfSelectedCurveDefs = getOrCreateSelectedCurveDefAnalyser();
     return analyserOfSelectedCurveDefs->m_ensembles;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::set<RimSummaryCase*> RimAbstractCorrelationPlot::filterEnsembleCases( RimSummaryCaseCollection* ensemble ) const
+{
+    std::set<RimSummaryCase*> setOfCases;
+
+    if ( ensemble )
+    {
+        std::vector<RimSummaryCase*> summaryCasesVector;
+
+        if ( m_useCaseFilter() && m_curveSetForFiltering() )
+        {
+            summaryCasesVector = m_curveSetForFiltering->filterEnsembleCases( ensemble->allSummaryCases() );
+        }
+        else
+        {
+            summaryCasesVector = ensemble->allSummaryCases();
+        }
+
+        setOfCases.insert( summaryCasesVector.begin(), summaryCasesVector.end() );
+    }
+
+    return setOfCases;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -654,7 +680,7 @@ void RimAbstractCorrelationPlot::onCaseRemoved( const SignalEmitter* emitter, Ri
 //--------------------------------------------------------------------------------------------------
 void RimAbstractCorrelationPlot::connectAllCaseSignals()
 {
-    for ( auto dataEntry : m_analysisPlotDataSelection )
+    for ( auto dataEntry : m_dataSources )
     {
         if ( dataEntry->ensemble() )
         {
