@@ -102,6 +102,7 @@ protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void onLoadDataAndUpdate() override;
     void initAfterRead() override;
+    bool useUndoRedoForFieldChanged() override;
 
 private:
     std::map<QString, QStringList> findWellSources();

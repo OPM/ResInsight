@@ -104,14 +104,17 @@ void PdmUiCommandSystemProxy::setUiValueToField( PdmUiFieldHandle* uiFieldHandle
 
         if ( m_commandInterface )
         {
-            m_commandInterface->fieldChangedCommand( fieldsToUpdate, newUiValue );
-        }
-        else
-        {
-            for ( auto fieldHandle : fieldsToUpdate )
+            caf::PdmUiObjectHandle* uiOwnerObjectHandle = uiObj( editorField->ownerObject() );
+            if ( uiOwnerObjectHandle && uiOwnerObjectHandle->useUndoRedoForFieldChanged() )
             {
-                fieldHandle->uiCapability()->setValueFromUiEditor( newUiValue );
+                m_commandInterface->fieldChangedCommand( fieldsToUpdate, newUiValue );
+                return;
             }
+        }
+
+        for ( auto fieldHandle : fieldsToUpdate )
+        {
+            fieldHandle->uiCapability()->setValueFromUiEditor( newUiValue );
         }
     }
 }

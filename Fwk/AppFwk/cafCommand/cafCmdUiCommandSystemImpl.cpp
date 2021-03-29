@@ -102,13 +102,6 @@ void CmdUiCommandSystemImpl::fieldChangedCommand( const std::vector<PdmFieldHand
         }
     }
 
-    caf::PdmUiObjectHandle* uiOwnerObjectHandle = uiObj( fieldsToUpdate[0]->ownerObject() );
-    if ( uiOwnerObjectHandle && !uiOwnerObjectHandle->useUndoRedoForFieldChanged() )
-    {
-        // Temporarily disable undo framework as requested by the PdmUiObjectHandle
-        m_disableUndoForFieldChange = true;
-    }
-
     if ( commands.size() == 1 )
     {
         CmdExecCommandManager::instance()->processExecuteCommand( commands[0] );
@@ -116,12 +109,6 @@ void CmdUiCommandSystemImpl::fieldChangedCommand( const std::vector<PdmFieldHand
     else
     {
         CmdExecCommandManager::instance()->processExecuteCommandsAsMacro( commands );
-    }
-
-    if ( uiOwnerObjectHandle && !uiOwnerObjectHandle->useUndoRedoForFieldChanged() )
-    {
-        // Restore undo feature to normal operation
-        m_disableUndoForFieldChange = false;
     }
 }
 
