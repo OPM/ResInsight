@@ -314,13 +314,7 @@ void RimCorrelationMatrixPlot::defineUiOrdering( QString uiConfigName, caf::PdmU
         }
     }
 
-    caf::PdmUiGroup* curveDataGroup = uiOrdering.addNewGroup( "Summary Vector" );
-    m_selectedVarsUiField           = selectedQuantitiesText();
-
-    curveDataGroup->add( &m_selectedVarsUiField );
-    curveDataGroup->add( &m_pushButtonSelectSummaryAddress, { false, 1, 0 } );
-    curveDataGroup->add( &m_timeStepFilter );
-    curveDataGroup->add( &m_timeStep );
+    appendDataSourceFields( uiConfigName, uiOrdering );
 
     if ( uiConfigName != "report" )
     {
@@ -522,6 +516,8 @@ void RimCorrelationMatrixPlot::createMatrix()
 
             if ( ensemble )
             {
+                std::set<RimSummaryCase*> activeCases = filterEnsembleCases( ensemble );
+
                 std::vector<double> caseValuesAtTimestep;
                 std::vector<double> parameterValues;
 
@@ -533,8 +529,10 @@ void RimCorrelationMatrixPlot::createMatrix()
 
                     for ( size_t caseIdx = 0u; caseIdx < ensemble->allSummaryCases().size(); ++caseIdx )
                     {
-                        auto                       summaryCase = ensemble->allSummaryCases()[caseIdx];
-                        RifSummaryReaderInterface* reader      = summaryCase->summaryReader();
+                        auto summaryCase = ensemble->allSummaryCases()[caseIdx];
+                        if ( activeCases.count( summaryCase ) == 0 ) continue;
+
+                        RifSummaryReaderInterface* reader = summaryCase->summaryReader();
                         if ( reader )
                         {
                             std::vector<double> values;

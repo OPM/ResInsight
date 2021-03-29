@@ -115,13 +115,7 @@ void RimParameterResultCrossPlot::fieldChangedByUi( const caf::PdmFieldHandle* c
 //--------------------------------------------------------------------------------------------------
 void RimParameterResultCrossPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    m_selectedVarsUiField = selectedQuantitiesText();
-
-    caf::PdmUiGroup* curveDataGroup = uiOrdering.addNewGroup( "Summary Vector" );
-    curveDataGroup->add( &m_selectedVarsUiField );
-    curveDataGroup->add( &m_pushButtonSelectSummaryAddress, { false, 1, 0 } );
-    curveDataGroup->add( &m_timeStepFilter );
-    curveDataGroup->add( &m_timeStep );
+    appendDataSourceFields( uiConfigName, uiOrdering );
 
     caf::PdmUiGroup* crossPlotGroup = uiOrdering.addNewGroup( "Cross Plot Parameters" );
     crossPlotGroup->add( &m_ensembleParameter );
@@ -256,9 +250,12 @@ void RimParameterResultCrossPlot::createPoints()
             QStringList caseNames      = caseNamesOfValidEnsembleCases( ensemble );
             QString     commonCaseRoot = RiaTextStringTools::commonRoot( caseNames );
 
+            std::set<RimSummaryCase*> activeCases = filterEnsembleCases( ensemble );
+
             for ( size_t caseIdx = 0u; caseIdx < ensemble->allSummaryCases().size(); ++caseIdx )
             {
                 auto summaryCase = ensemble->allSummaryCases()[caseIdx];
+                if ( activeCases.count( summaryCase ) == 0 ) continue;
 
                 RifSummaryReaderInterface* reader = summaryCase->summaryReader();
                 if ( !reader ) continue;

@@ -1,3 +1,21 @@
+/////////////////////////////////////////////////////////////////////////////////
+//
+//  Copyright (C) 2020 Equinor ASA
+//
+//  ResInsight is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 3 of the License, or
+//  (at your option) any later version.
+//
+//  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
+//  WARRANTY; without even the implied warranty of MERCHANTABILITY or
+//  FITNESS FOR A PARTICULAR PURPOSE.
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+//  for more details.
+//
+/////////////////////////////////////////////////////////////////////////////////
+
 #include "RimAbstractCorrelationPlot.h"
 
 #include "RiaPreferences.h"
@@ -7,18 +25,22 @@
 #include "RifSummaryReaderInterface.h"
 
 #include "RimAnalysisPlotDataEntry.h"
+#include "RimEnsembleCurveFilter.h"
+#include "RimEnsembleCurveFilterCollection.h"
 #include "RimEnsembleCurveSet.h"
 #include "RimProject.h"
 #include "RimSummaryAddress.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseCollection.h"
 
+#include "RiuPlotMainWindowTools.h"
 #include "RiuQwtPlotWidget.h"
 #include "RiuSummaryVectorSelectionDialog.h"
 
 #include "cafPdmUiComboBoxEditor.h"
 #include "cafPdmUiLineEditor.h"
 #include "cafPdmUiPushButtonEditor.h"
+#include "cafPdmUiToolButtonEditor.h"
 
 CAF_PDM_ABSTRACT_SOURCE_INIT( RimAbstractCorrelationPlot, "AbstractCorrelationPlot" );
 
@@ -36,9 +58,9 @@ RimAbstractCorrelationPlot::RimAbstractCorrelationPlot()
     m_selectedVarsUiField.uiCapability()->setUiReadOnly( true );
     m_selectedVarsUiField.uiCapability()->setUiEditorTypeName( caf::PdmUiLineEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitFieldNoDefault( &m_analysisPlotDataSelection, "AnalysisPlotData", "", "", "", "" );
-    m_analysisPlotDataSelection.uiCapability()->setUiTreeChildrenHidden( true );
-    m_analysisPlotDataSelection.uiCapability()->setUiTreeHidden( true );
+    CAF_PDM_InitFieldNoDefault( &m_dataSources, "AnalysisPlotData", "", "", "", "" );
+    m_dataSources.uiCapability()->setUiTreeChildrenHidden( true );
+    m_dataSources.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_pushButtonSelectSummaryAddress, "SelectAddress", "", "", "", "" );
     caf::PdmUiPushButtonEditor::configureEditorForField( &m_pushButtonSelectSummaryAddress );
@@ -61,6 +83,12 @@ RimAbstractCorrelationPlot::RimAbstractCorrelationPlot()
     m_axisValueFontSize = caf::FontTools::RelativeSize::XSmall;
 
     m_legendFontSize = caf::FontTools::RelativeSize::XSmall;
+
+    CAF_PDM_InitField( &m_useCaseFilter, "UseCaseFilter", false, "Use Ensemble Filter", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_curveSetForFiltering, "CurveSetForFiltering", "  Ensemble Filter", "", "", "" );
+    CAF_PDM_InitField( &m_editCaseFilter, "EditCaseFilter", false, "Edit", "", "", "" );
+    m_editCaseFilter.uiCapability()->setUiEditorTypeName( caf::PdmUiToolButtonEditor::uiEditorTypeName() );
+    m_editCaseFilter.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -75,12 +103,12 @@ RimAbstractCorrelationPlot::~RimAbstractCorrelationPlot()
 //--------------------------------------------------------------------------------------------------
 void RimAbstractCorrelationPlot::setCurveDefinitions( const std::vector<RiaSummaryCurveDefinition>& curveDefinitions )
 {
-    m_analysisPlotDataSelection.deleteAllChildObjects();
+    m_dataSources.deleteAllChildObjects();
     for ( auto curveDef : curveDefinitions )
     {
         auto dataEntry = new RimAnalysisPlotDataEntry();
         dataEntry->setFromCurveDefinition( curveDef );
-        m_analysisPlotDataSelection.push_back( dataEntry );
+        m_dataSources.push_back( dataEntry );
     }
     connectAllCaseSignals();
 
@@ -125,12 +153,12 @@ void RimAbstractCorrelationPlot::fieldChangedByUi( const caf::PdmFieldHandle* ch
             if ( !curveSelection.empty() )
             {
                 std::vector<RiaSummaryCurveDefinition> summaryVectorDefinitions = dlg.curveSelection();
-                m_analysisPlotDataSelection.deleteAllChildObjects();
+                m_dataSources.deleteAllChildObjects();
                 for ( const RiaSummaryCurveDefinition& vectorDef : summaryVectorDefinitions )
                 {
                     auto plotEntry = new RimAnalysisPlotDataEntry();
                     plotEntry->setFromCurveDefinition( vectorDef );
-                    m_analysisPlotDataSelection.push_back( plotEntry );
+                    m_dataSources.push_back( plotEntry );
                 }
                 connectAllCaseSignals();
                 this->loadDataAndUpdate();
@@ -169,6 +197,31 @@ void RimAbstractCorrelationPlot::fieldChangedByUi( const caf::PdmFieldHandle* ch
         m_timeStep = allDateTimes[filteredTimeStepIndices.back()];
 
         this->updateConnectedEditors();
+    }
+    else if ( changedField == &m_curveSetForFiltering )
+    {
+        connectCurveFilterSignals();
+
+        this->loadDataAndUpdate();
+    }
+    else if ( changedField == &m_useCaseFilter )
+    {
+        this->loadDataAndUpdate();
+    }
+    else if ( changedField == &m_editCaseFilter )
+    {
+        m_editCaseFilter = false;
+        if ( m_curveSetForFiltering != nullptr )
+        {
+            auto filterColl    = m_curveSetForFiltering->filterCollection();
+            auto activeFilters = filterColl->filters();
+            auto firstFilter   = activeFilters.empty() ? nullptr : activeFilters.front();
+
+            if ( firstFilter )
+            {
+                RiuPlotMainWindowTools::selectAsCurrentItem( firstFilter );
+            }
+        }
     }
 }
 
@@ -253,6 +306,34 @@ QList<caf::PdmOptionItemInfo>
     {
         options = caf::FontTools::relativeSizeValueOptions( RiaPreferences::current()->defaultPlotFontSize() );
     }
+    else if ( fieldNeedingOptions == &m_curveSetForFiltering )
+    {
+        RimSummaryCaseCollection* ensemble = nullptr;
+
+        for ( auto e : m_dataSources )
+        {
+            auto ens = e->ensemble();
+            if ( ens )
+            {
+                ensemble = ens;
+            }
+        }
+
+        options.push_back( caf::PdmOptionItemInfo( "None", nullptr ) );
+
+        if ( ensemble )
+        {
+            std::vector<RimEnsembleCurveSet*> referringObjects;
+            ensemble->objectsWithReferringPtrFieldsOfType( referringObjects );
+
+            for ( auto object : referringObjects )
+            {
+                auto nameFiled = object->name();
+
+                options.push_back( caf::PdmOptionItemInfo( nameFiled, object ) );
+            }
+        }
+    }
     return options;
 }
 
@@ -279,7 +360,7 @@ std::set<time_t> RimAbstractCorrelationPlot::allAvailableTimeSteps()
 std::vector<RiaSummaryCurveDefinition> RimAbstractCorrelationPlot::curveDefinitions() const
 {
     std::vector<RiaSummaryCurveDefinition> curveDefs;
-    for ( auto dataEntry : m_analysisPlotDataSelection )
+    for ( auto dataEntry : m_dataSources )
     {
         curveDefs.push_back( dataEntry->curveDefinition() );
     }
@@ -309,7 +390,7 @@ std::set<RifEclipseSummaryAddress> RimAbstractCorrelationPlot::addresses()
 {
     std::set<RifEclipseSummaryAddress> addresses;
 
-    for ( auto dataEntry : m_analysisPlotDataSelection )
+    for ( auto dataEntry : m_dataSources )
     {
         addresses.insert( dataEntry->summaryAddress() );
     }
@@ -324,6 +405,65 @@ std::set<RimSummaryCaseCollection*> RimAbstractCorrelationPlot::ensembles()
 {
     RiaSummaryCurveDefinitionAnalyser* analyserOfSelectedCurveDefs = getOrCreateSelectedCurveDefAnalyser();
     return analyserOfSelectedCurveDefs->m_ensembles;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::set<RimSummaryCase*> RimAbstractCorrelationPlot::filterEnsembleCases( RimSummaryCaseCollection* ensemble ) const
+{
+    std::set<RimSummaryCase*> setOfCases;
+
+    if ( ensemble )
+    {
+        std::vector<RimSummaryCase*> summaryCasesVector;
+
+        if ( m_useCaseFilter() && m_curveSetForFiltering() && m_curveSetForFiltering->summaryCaseCollection() == ensemble )
+        {
+            summaryCasesVector = m_curveSetForFiltering->filterEnsembleCases( ensemble->allSummaryCases() );
+        }
+        else
+        {
+            summaryCasesVector = ensemble->allSummaryCases();
+        }
+
+        setOfCases.insert( summaryCasesVector.begin(), summaryCasesVector.end() );
+    }
+
+    return setOfCases;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimAbstractCorrelationPlot::isCaseFilterEnabled() const
+{
+    return m_useCaseFilter();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimAbstractCorrelationPlot::enableCaseFilter( bool enable )
+{
+    m_useCaseFilter = enable;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimEnsembleCurveSet* RimAbstractCorrelationPlot::caseFilterDataSource() const
+{
+    return m_curveSetForFiltering();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimAbstractCorrelationPlot::setCaseFilterDataSource( RimEnsembleCurveSet* ensemble )
+{
+    m_curveSetForFiltering = ensemble;
+    connectCurveFilterSignals();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -596,6 +736,27 @@ QString RimAbstractCorrelationPlot::completeAddressText()
 void RimAbstractCorrelationPlot::initAfterRead()
 {
     connectAllCaseSignals();
+    connectCurveFilterSignals();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimAbstractCorrelationPlot::appendDataSourceFields( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
+{
+    caf::PdmUiGroup* curveDataGroup = uiOrdering.addNewGroup( "Summary Vector" );
+
+    m_selectedVarsUiField = selectedQuantitiesText();
+
+    curveDataGroup->add( &m_selectedVarsUiField );
+    curveDataGroup->add( &m_pushButtonSelectSummaryAddress, { false, 1, 0 } );
+    curveDataGroup->add( &m_timeStepFilter );
+    curveDataGroup->add( &m_timeStep );
+    curveDataGroup->add( &m_useCaseFilter );
+    curveDataGroup->add( &m_curveSetForFiltering );
+    m_curveSetForFiltering.uiCapability()->setUiHidden( !m_useCaseFilter() );
+    curveDataGroup->add( &m_editCaseFilter, { false, 1, 0 } );
+    m_editCaseFilter.uiCapability()->setUiHidden( !m_useCaseFilter() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -612,11 +773,30 @@ void RimAbstractCorrelationPlot::onCaseRemoved( const SignalEmitter* emitter, Ri
 //--------------------------------------------------------------------------------------------------
 void RimAbstractCorrelationPlot::connectAllCaseSignals()
 {
-    for ( auto dataEntry : m_analysisPlotDataSelection )
+    for ( auto dataEntry : m_dataSources )
     {
         if ( dataEntry->ensemble() )
         {
             dataEntry->ensemble()->caseRemoved.connect( this, &RimAbstractCorrelationPlot::onCaseRemoved );
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimAbstractCorrelationPlot::connectCurveFilterSignals()
+{
+    if ( m_curveSetForFiltering() )
+    {
+        m_curveSetForFiltering()->filterChanged.connect( this, &RimAbstractCorrelationPlot::onFilterSourceChanged );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimAbstractCorrelationPlot::onFilterSourceChanged( const caf::SignalEmitter* emitter )
+{
+    if ( m_useCaseFilter() ) loadDataAndUpdate();
 }

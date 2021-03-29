@@ -123,9 +123,11 @@ public:
     std::vector<std::pair<EnsembleParameter, double>>
         correlationSortedEnsembleParameters( const RifEclipseSummaryAddress& address, time_t selectedTimeStep ) const;
     std::vector<std::pair<EnsembleParameter, double>>
-        parameterCorrelations( const RifEclipseSummaryAddress& address,
-                               time_t                          selectedTimeStep,
-                               const std::vector<QString>&     selectedParameters = {} ) const;
+        parameterCorrelations( const RifEclipseSummaryAddress&  address,
+                               time_t                           selectedTimeStep,
+                               const std::vector<QString>&      selectedParameters = {},
+                               const std::set<RimSummaryCase*>& selectedCases      = {} ) const;
+
     std::vector<std::pair<EnsembleParameter, double>>
         parameterCorrelationsAllTimeSteps( const RifEclipseSummaryAddress& address,
                                            const std::vector<QString>&     selectedParameters = {} ) const;

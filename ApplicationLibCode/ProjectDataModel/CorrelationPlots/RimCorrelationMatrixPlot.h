@@ -18,7 +18,8 @@
 
 #pragma once
 
-#include "RimCorrelationPlot.h"
+#include "RimAbstractCorrelationPlot.h"
+
 #include "cafAppEnum.h"
 
 #include <QDateTime>

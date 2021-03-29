@@ -17,15 +17,12 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
-#include "RifEclipseSummaryAddress.h"
-#include "RifEclipseSummaryAddressQMetaType.h"
-
 #include "RimPlot.h"
-#include "RimSummaryCaseCollection.h"
 #include "RimTimeStepFilter.h"
 
 #include "cafPdmPtrField.h"
 
+#include <QDateTime>
 #include <QString>
 
 #include <ctime>
@@ -34,6 +31,11 @@ class RiaSummaryCurveDefinition;
 class RiaSummaryCurveDefinitionAnalyser;
 class RimAnalysisPlotDataEntry;
 class RimSummaryAddress;
+class RimEnsembleCurveSet;
+class RimSummaryCaseCollection;
+class RimSummaryCase;
+class EnsembleParameter;
+class RifEclipseSummaryAddress;
 
 class RimAbstractCorrelationPlot : public RimPlot
 {
@@ -51,10 +53,18 @@ public:
     void setCurveDefinitions( const std::vector<RiaSummaryCurveDefinition>& curveDefinitions );
     void setTimeStep( std::time_t timeStep );
     std::set<RimSummaryCaseCollection*> ensembles();
-    RiuQwtPlotWidget*                   viewer() override;
-    void                                detachAllCurves() override;
-    QDateTime                           timeStep() const;
-    QString                             timeStepString() const;
+
+    // Get summary cases filtered by attached ensemble parameter filter
+    std::set<RimSummaryCase*> filterEnsembleCases( RimSummaryCaseCollection* ensemble ) const;
+    bool                      isCaseFilterEnabled() const;
+    void                      enableCaseFilter( bool enable );
+    RimEnsembleCurveSet*      caseFilterDataSource() const;
+    void                      setCaseFilterDataSource( RimEnsembleCurveSet* ensemble );
+
+    RiuQwtPlotWidget* viewer() override;
+    void              detachAllCurves() override;
+    QDateTime         timeStep() const;
+    QString           timeStepString() const;
 
     int labelFontSize() const;
     int axisTitleFontSize() const;
@@ -115,18 +125,21 @@ protected:
 
     void initAfterRead() final;
 
+    void appendDataSourceFields( QString uiConfigName, caf::PdmUiOrdering& uiOrdering );
+
 private:
     void onCaseRemoved( const SignalEmitter* emitter, RimSummaryCase* summaryCase );
     void connectAllCaseSignals();
+    void connectCurveFilterSignals();
+    void onFilterSourceChanged( const caf::SignalEmitter* emitter );
+
+    RiaSummaryCurveDefinitionAnalyser* getOrCreateSelectedCurveDefAnalyser();
 
 protected:
     std::unique_ptr<RiaSummaryCurveDefinitionAnalyser> m_analyserOfSelectedCurveDefs;
     QPointer<RiuQwtPlotWidget>                         m_plotWidget;
 
     bool m_selectMultipleVectors;
-
-    // Fields
-    caf::PdmChildArrayField<RimAnalysisPlotDataEntry*> m_analysisPlotDataSelection;
 
     caf::PdmField<QString>            m_selectedVarsUiField;
     caf::PdmField<bool>               m_pushButtonSelectSummaryAddress;
@@ -141,5 +154,8 @@ protected:
     caf::PdmField<caf::FontTools::RelativeSizeEnum> m_axisValueFontSize;
 
 private:
-    RiaSummaryCurveDefinitionAnalyser* getOrCreateSelectedCurveDefAnalyser();
+    caf::PdmChildArrayField<RimAnalysisPlotDataEntry*> m_dataSources;
+    caf::PdmField<bool>                                m_useCaseFilter;
+    caf::PdmPtrField<RimEnsembleCurveSet*>             m_curveSetForFiltering;
+    caf::PdmField<bool>                                m_editCaseFilter;
 };
