@@ -61,6 +61,9 @@ RimAbstractCorrelationPlot::RimAbstractCorrelationPlot()
     m_axisValueFontSize = caf::FontTools::RelativeSize::XSmall;
 
     m_legendFontSize = caf::FontTools::RelativeSize::XSmall;
+
+    CAF_PDM_InitField( &m_useCaseFilter, "UseCaseFilter", false, "Use Filter", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_curveSetForFiltering, "CurveSetForFiltering", "Filter Definition", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -170,6 +173,16 @@ void RimAbstractCorrelationPlot::fieldChangedByUi( const caf::PdmFieldHandle* ch
 
         this->updateConnectedEditors();
     }
+    else if ( changedField == &m_curveSetForFiltering )
+    {
+        connectCurveFilterSignals();
+
+        this->loadDataAndUpdate();
+    }
+    else if ( changedField == &m_useCaseFilter )
+    {
+        this->loadDataAndUpdate();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -252,6 +265,34 @@ QList<caf::PdmOptionItemInfo>
               fieldNeedingOptions == &m_axisValueFontSize )
     {
         options = caf::FontTools::relativeSizeValueOptions( RiaPreferences::current()->defaultPlotFontSize() );
+    }
+    else if ( fieldNeedingOptions == &m_curveSetForFiltering )
+    {
+        RimSummaryCaseCollection* ensemble = nullptr;
+
+        for ( auto e : m_analysisPlotDataSelection )
+        {
+            auto ens = e->ensemble();
+            if ( ens )
+            {
+                ensemble = ens;
+            }
+        }
+
+        options.push_back( caf::PdmOptionItemInfo( "None", nullptr ) );
+
+        if ( ensemble )
+        {
+            std::vector<RimEnsembleCurveSet*> referringObjects;
+            ensemble->objectsWithReferringPtrFieldsOfType( referringObjects );
+
+            for ( auto object : referringObjects )
+            {
+                auto nameFiled = object->name();
+
+                options.push_back( caf::PdmOptionItemInfo( nameFiled, object ) );
+            }
+        }
     }
     return options;
 }
@@ -596,6 +637,7 @@ QString RimAbstractCorrelationPlot::completeAddressText()
 void RimAbstractCorrelationPlot::initAfterRead()
 {
     connectAllCaseSignals();
+    connectCurveFilterSignals();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -619,4 +661,23 @@ void RimAbstractCorrelationPlot::connectAllCaseSignals()
             dataEntry->ensemble()->caseRemoved.connect( this, &RimAbstractCorrelationPlot::onCaseRemoved );
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimAbstractCorrelationPlot::connectCurveFilterSignals()
+{
+    if ( m_curveSetForFiltering() )
+    {
+        m_curveSetForFiltering()->filterChanged.connect( this, &RimAbstractCorrelationPlot::onFilterSourceChanged );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimAbstractCorrelationPlot::onFilterSourceChanged( const caf::SignalEmitter* emitter )
+{
+    if ( m_useCaseFilter() ) loadDataAndUpdate();
 }

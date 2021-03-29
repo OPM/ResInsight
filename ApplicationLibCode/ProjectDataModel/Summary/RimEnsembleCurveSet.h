@@ -82,6 +82,10 @@ public:
     RimEnsembleCurveSet();
     ~RimEnsembleCurveSet() override;
 
+    caf::Signal<> filterChanged;
+
+    QString name() const;
+
     bool isCurvesVisible();
     void setColor( cvf::Color3f color );
 
@@ -173,7 +177,6 @@ private:
 
     void updateQwtPlotAxis();
 
-    QString name() const;
     QString createAutoName() const;
 
     void updateLegendMappingMode();

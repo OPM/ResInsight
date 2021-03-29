@@ -34,6 +34,7 @@ class RiaSummaryCurveDefinition;
 class RiaSummaryCurveDefinitionAnalyser;
 class RimAnalysisPlotDataEntry;
 class RimSummaryAddress;
+class RimEnsembleCurveSet;
 
 class RimAbstractCorrelationPlot : public RimPlot
 {
@@ -118,6 +119,10 @@ protected:
 private:
     void onCaseRemoved( const SignalEmitter* emitter, RimSummaryCase* summaryCase );
     void connectAllCaseSignals();
+    void connectCurveFilterSignals();
+    void onFilterSourceChanged( const caf::SignalEmitter* emitter );
+
+    RiaSummaryCurveDefinitionAnalyser* getOrCreateSelectedCurveDefAnalyser();
 
 protected:
     std::unique_ptr<RiaSummaryCurveDefinitionAnalyser> m_analyserOfSelectedCurveDefs;
@@ -126,7 +131,6 @@ protected:
     bool m_selectMultipleVectors;
 
     // Fields
-    caf::PdmChildArrayField<RimAnalysisPlotDataEntry*> m_analysisPlotDataSelection;
 
     caf::PdmField<QString>            m_selectedVarsUiField;
     caf::PdmField<bool>               m_pushButtonSelectSummaryAddress;
@@ -136,10 +140,13 @@ protected:
     caf::PdmField<bool>    m_useAutoPlotTitle;
     caf::PdmField<QString> m_description;
 
+    caf::PdmField<bool>                    m_useCaseFilter;
+    caf::PdmPtrField<RimEnsembleCurveSet*> m_curveSetForFiltering;
+
     caf::PdmField<caf::FontTools::RelativeSizeEnum> m_labelFontSize;
     caf::PdmField<caf::FontTools::RelativeSizeEnum> m_axisTitleFontSize;
     caf::PdmField<caf::FontTools::RelativeSizeEnum> m_axisValueFontSize;
 
 private:
-    RiaSummaryCurveDefinitionAnalyser* getOrCreateSelectedCurveDefAnalyser();
+    caf::PdmChildArrayField<RimAnalysisPlotDataEntry*> m_analysisPlotDataSelection;
 };

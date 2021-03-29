@@ -98,6 +98,8 @@ CAF_PDM_SOURCE_INIT( RimEnsembleCurveSet, "RimEnsembleCurveSet" );
 ///
 //--------------------------------------------------------------------------------------------------
 RimEnsembleCurveSet::RimEnsembleCurveSet()
+    : filterChanged( this )
+
 {
     CAF_PDM_InitObject( "Ensemble Curve Set", ":/EnsembleCurveSet16x16.png", "", "" );
 
@@ -577,6 +579,8 @@ void RimEnsembleCurveSet::updateAllCurves()
         updateEnsembleCurves( filteredCases );
         updateStatisticsCurves( m_statistics->basedOnFilteredCases() ? filteredCases : allCases );
     }
+
+    filterChanged.send();
 }
 
 //--------------------------------------------------------------------------------------------------

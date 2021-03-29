@@ -122,6 +122,9 @@ void RimParameterResultCrossPlot::defineUiOrdering( QString uiConfigName, caf::P
     curveDataGroup->add( &m_pushButtonSelectSummaryAddress, { false, 1, 0 } );
     curveDataGroup->add( &m_timeStepFilter );
     curveDataGroup->add( &m_timeStep );
+    curveDataGroup->add( &m_useCaseFilter );
+    curveDataGroup->add( &m_curveSetForFiltering );
+    m_curveSetForFiltering.uiCapability()->setUiHidden( !m_useCaseFilter() );
 
     caf::PdmUiGroup* crossPlotGroup = uiOrdering.addNewGroup( "Cross Plot Parameters" );
     crossPlotGroup->add( &m_ensembleParameter );
@@ -256,9 +259,26 @@ void RimParameterResultCrossPlot::createPoints()
             QStringList caseNames      = caseNamesOfValidEnsembleCases( ensemble );
             QString     commonCaseRoot = RiaTextStringTools::commonRoot( caseNames );
 
+            std::set<RimSummaryCase*> filteredSummaryCases;
+            {
+                std::vector<RimSummaryCase*> summaryCasesVector;
+
+                if ( m_useCaseFilter() && m_curveSetForFiltering() )
+                {
+                    summaryCasesVector = m_curveSetForFiltering->filterEnsembleCases( ensemble->allSummaryCases() );
+                }
+                else
+                {
+                    summaryCasesVector = ensemble->allSummaryCases();
+                }
+
+                filteredSummaryCases.insert( summaryCasesVector.begin(), summaryCasesVector.end() );
+            }
+
             for ( size_t caseIdx = 0u; caseIdx < ensemble->allSummaryCases().size(); ++caseIdx )
             {
                 auto summaryCase = ensemble->allSummaryCases()[caseIdx];
+                if ( filteredSummaryCases.count( summaryCase ) == 0 ) continue;
 
                 RifSummaryReaderInterface* reader = summaryCase->summaryReader();
                 if ( !reader ) continue;
