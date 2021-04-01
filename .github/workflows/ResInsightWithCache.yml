@@ -50,7 +50,7 @@ jobs:
             name: "Mac OS",
             os: macos-latest,
             cc: "clang", cxx: "clang++",
-            vcpkg-response-file: vcpkg_x64-linux.txt,
+            vcpkg-response-file: vcpkg_x64-osx.txt,
             vcpkg-triplet: x64-osx,
             cmake-toolchain: 'ThirdParty/vcpkg/scripts/buildsystems/vcpkg.cmake'
           }
