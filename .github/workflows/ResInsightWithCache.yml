@@ -46,6 +46,14 @@ jobs:
             vcpkg-triplet: x64-linux,
             cmake-toolchain: 'ThirdParty/vcpkg/scripts/buildsystems/vcpkg.cmake'
           }
+        - {
+            name: "Mac OS",
+            os: macos-latest,
+            cc: "clang", cxx: "clang++",
+            vcpkg-response-file: vcpkg_x64-linux.txt,
+            vcpkg-triplet: x64-linux,
+            cmake-toolchain: 'ThirdParty/vcpkg/scripts/buildsystems/vcpkg.cmake'
+          }
     steps:
       - name: Checkout
         uses: actions/checkout@v2
