@@ -51,7 +51,7 @@ jobs:
             os: macos-latest,
             cc: "clang", cxx: "clang++",
             vcpkg-response-file: vcpkg_x64-linux.txt,
-            vcpkg-triplet: x64-linux,
+            vcpkg-triplet: x64-osx,
             cmake-toolchain: 'ThirdParty/vcpkg/scripts/buildsystems/vcpkg.cmake'
           }
     steps:
