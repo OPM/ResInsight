@@ -79,6 +79,8 @@ jobs:
         run: |
           if ("${{ runner.os }}" STREQUAL "Windows")
             set(buildcache_suffix "win-msvc.zip")
+          elseif ("${{ runner.os }}" STREQUAL "macOS")
+            set(buildcache_suffix "macos.zip")
           elseif ("${{ runner.os }}" STREQUAL "Linux")
             set(buildcache_suffix "linux.tar.gz")
           endif()
