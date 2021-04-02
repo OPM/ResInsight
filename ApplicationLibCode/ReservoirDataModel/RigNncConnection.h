@@ -44,7 +44,7 @@ public:
     RigConnection( const RigConnection& rhs );
 
     RigConnection& operator=( const RigConnection& rhs );
-    bool           operator==( const RigConnection& rhs );
+    bool           operator==( const RigConnection& rhs ) const;
     bool           operator<( const RigConnection& other ) const;
     bool           hasCommonArea() const;
 
