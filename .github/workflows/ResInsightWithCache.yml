@@ -29,6 +29,7 @@ jobs:
             vcpkg-response-file: vcpkg_x64-windows.txt,
             vcpkg-triplet: x64-windows,
             cmake-toolchain: 'ThirdParty/vcpkg/scripts/buildsystems/vcpkg.cmake'
+            build-python-module: true
           }
         - {
             name: "Ubuntu 20.04",
@@ -36,7 +37,8 @@ jobs:
             cc: "gcc", cxx: "g++",
             vcpkg-response-file: vcpkg_x64-linux.txt,
             vcpkg-triplet: x64-linux,
-            cmake-toolchain: 'ThirdParty/vcpkg/scripts/buildsystems/vcpkg.cmake'
+            cmake-toolchain: 'ThirdParty/vcpkg/scripts/buildsystems/vcpkg.cmake',
+            build-python-module: true
           }
         - {
             name: "Ubuntu 20.04 clang",
@@ -44,7 +46,8 @@ jobs:
             cc: "clang", cxx: "clang++",
             vcpkg-response-file: vcpkg_x64-linux.txt,
             vcpkg-triplet: x64-linux,
-            cmake-toolchain: 'ThirdParty/vcpkg/scripts/buildsystems/vcpkg.cmake'
+            cmake-toolchain: 'ThirdParty/vcpkg/scripts/buildsystems/vcpkg.cmake',
+            build-python-module: true
           }
         - {
             name: "Mac OS",
@@ -52,7 +55,8 @@ jobs:
             cc: "clang", cxx: "clang++",
             vcpkg-response-file: vcpkg_x64-osx.txt,
             vcpkg-triplet: x64-osx,
-            cmake-toolchain: 'ThirdParty/vcpkg/scripts/buildsystems/vcpkg.cmake'
+            cmake-toolchain: 'ThirdParty/vcpkg/scripts/buildsystems/vcpkg.cmake',
+            build-python-module: false
           }
     steps:
       - name: Checkout
@@ -189,7 +193,7 @@ jobs:
               -D RESINSIGHT_BUNDLE_OPENSSL=true
               -D RESINSIGHT_INCLUDE_APPLICATION_UNIT_TESTS=true
               -D RESINSIGHT_TREAT_WARNINGS_AS_ERRORS=true
-              -D RESINSIGHT_ENABLE_GRPC=true
+              -D RESINSIGHT_ENABLE_GRPC=${{ matrix.config.build-python-module }}
               -D RESINSIGHT_GRPC_PYTHON_EXECUTABLE=${{ steps.python-path.outputs.PYTHON_EXECUTABLE }}
               -D RESINSIGHT_GRPC_DOWNLOAD_PYTHON_MODULE=true
               -D CMAKE_TOOLCHAIN_FILE=${{ matrix.config.cmake-toolchain }}
@@ -231,6 +235,7 @@ jobs:
         run: |
           cmakebuild/ApplicationExeCode/ResInsight --unittest
       - name: Run pytest
+        if: "matrix.config.build-python-module == true"
         env:
           RESINSIGHT_EXECUTABLE: ${{ runner.workspace }}/ResInsight/cmakebuild/ApplicationExeCode/ResInsight
         run: |
