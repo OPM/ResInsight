@@ -29,7 +29,8 @@ jobs:
             vcpkg-response-file: vcpkg_x64-windows.txt,
             vcpkg-triplet: x64-windows,
             cmake-toolchain: 'ThirdParty/vcpkg/scripts/buildsystems/vcpkg.cmake',
-            build-python-module: true
+            build-python-module: true,
+            execute-unit-tests: true
           }
         - {
             name: "Ubuntu 20.04",
@@ -38,7 +39,8 @@ jobs:
             vcpkg-response-file: vcpkg_x64-linux.txt,
             vcpkg-triplet: x64-linux,
             cmake-toolchain: 'ThirdParty/vcpkg/scripts/buildsystems/vcpkg.cmake',
-            build-python-module: true
+            build-python-module: true,
+            execute-unit-tests: true
           }
         - {
             name: "Ubuntu 20.04 clang",
@@ -47,7 +49,8 @@ jobs:
             vcpkg-response-file: vcpkg_x64-linux.txt,
             vcpkg-triplet: x64-linux,
             cmake-toolchain: 'ThirdParty/vcpkg/scripts/buildsystems/vcpkg.cmake',
-            build-python-module: true
+            build-python-module: true,
+            execute-unit-tests: true
           }
         - {
             name: "Mac OS",
@@ -56,7 +59,8 @@ jobs:
             vcpkg-response-file: vcpkg_x64-osx.txt,
             vcpkg-triplet: x64-osx,
             cmake-toolchain: 'ThirdParty/vcpkg/scripts/buildsystems/vcpkg.cmake',
-            build-python-module: false
+            build-python-module: false,
+            execute-unit-tests: false
           }
     steps:
       - name: Checkout
@@ -231,8 +235,8 @@ jobs:
 
       - name: Stats for buildcache
         run: ${{ github.workspace }}/buildcache/bin/buildcache -s
-
       - name: Run Unit Tests
+        if: "matrix.config.execute-unit-tests == true"
         shell: bash
         run: |
           cmakebuild/ApplicationExeCode/ResInsight --unittest
