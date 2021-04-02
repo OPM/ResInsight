@@ -228,7 +228,7 @@ public slots:
 
     int wellSelectionPageId();
 
-#ifndef QT_NO_OPENSSL
+#if !defined(QT_NO_OPENSSL) && !defined(CVF_OSX)
     void sslErrors( QNetworkReply*, const QList<QSslError>& errors );
 #endif
 
