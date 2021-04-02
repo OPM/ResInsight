@@ -76,7 +76,8 @@ RiuWellImportWizard::RiuWellImportWizard( const QString&     webServiceAddress,
              SIGNAL( authenticationRequired( QNetworkReply*, QAuthenticator* ) ),
              this,
              SLOT( slotAuthenticationRequired( QNetworkReply*, QAuthenticator* ) ) );
-#ifndef QT_NO_OPENSSL
+      
+#if !defined(QT_NO_OPENSSL) && !defined(CVF_OSX)
     connect( &m_networkAccessManager,
              SIGNAL( sslErrors( QNetworkReply*, QList<QSslError> ) ),
              this,
@@ -305,7 +306,7 @@ void RiuWellImportWizard::slotAuthenticationRequired( QNetworkReply* networkRepl
     }
 }
 
-#ifndef QT_NO_OPENSSL
+#if !defined(QT_NO_OPENSSL) && !defined(CVF_OSX)
 void RiuWellImportWizard::sslErrors( QNetworkReply*, const QList<QSslError>& errors )
 {
     QString errorString;
@@ -340,7 +341,7 @@ void RiuWellImportWizard::startRequest( QUrl url )
 {
     auto request = QNetworkRequest( url );
 
-#ifndef QT_NO_OPENSSL
+#if !defined(QT_NO_OPENSSL) && !defined(CVF_OSX)
     bool supportsSsl = QSslSocket::supportsSsl();
     if ( supportsSsl )
     {
