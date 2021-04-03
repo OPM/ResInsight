@@ -166,6 +166,10 @@ jobs:
         run: |
           $VCPKG_ROOT/vcpkg install --overlay-triplets=${{ github.workspace }}/ThirdParty/vcpkg-custom-triplets --triplet x64-linux-dynamic openssl
 
+      - name: Fix xcode on Mac
+        if: "contains( matrix.config.os, 'mac')"
+        run: sudo xcode-select --switch /Library/Developer/CommandLineTools
+        
       - name: Configure
         shell: cmake -P {0}
         run: |
