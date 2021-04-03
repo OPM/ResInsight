@@ -1,4 +1,4 @@
-/////////////////////////////////////////////////////////////////////////////////
+	/////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2020 Equinor ASA
 //
@@ -15,7 +15,7 @@
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
-
+		
 #include "RimCorrelationMatrixPlot.h"
 
 #include "RiaColorTools.h"
@@ -26,6 +26,7 @@
 #include "RiuQwtLinearScaleEngine.h"
 #include "RiuQwtPlotTools.h"
 #include "RiuQwtPlotWidget.h"
+#include "RiaSummaryCurveDefinition.h"
 
 #include "RifSummaryReaderInterface.h"
 

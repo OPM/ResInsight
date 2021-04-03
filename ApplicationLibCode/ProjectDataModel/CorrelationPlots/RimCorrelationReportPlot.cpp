@@ -21,6 +21,9 @@
 #include "RiaQDateTimeTools.h"
 #include "RiaSummaryCurveDefinition.h"
 
+#include "RimCorrelationPlot.h"
+#include "RimSummaryCaseCollection.h"
+#include "RimCorrelationPlotCollection.h"
 #include "RimCorrelationMatrixPlot.h"
 #include "RimParameterResultCrossPlot.h"
 #include "RimRegularLegendConfig.h"
