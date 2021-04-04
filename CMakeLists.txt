@@ -502,7 +502,6 @@ list(APPEND APP_FWK_LIBRARIES
 
 set_property(TARGET  
     ${APP_FWK_LIBRARIES}
-    cafHexInterpolator
     PROPERTY FOLDER "AppFwk"
 )
 
