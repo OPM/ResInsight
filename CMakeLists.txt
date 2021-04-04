@@ -564,7 +564,7 @@ if (RESINSIGHT_PRIVATE_INSTALL)
             ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/libecl.2.dylib
             ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/libecl.2.4.dylib
         )
-        install(FILES ${ERT_SHARED_LIB_FILES} DESTINATION ${RESINSIGHT_INSTALL_FOLDER} )
+        install(FILES ${ERT_SHARED_LIB_FILES} DESTINATION ${RESINSIGHT_INSTALL_FOLDER}/ResInsight.app/Contents/MacOS )
     endif()
       
     
