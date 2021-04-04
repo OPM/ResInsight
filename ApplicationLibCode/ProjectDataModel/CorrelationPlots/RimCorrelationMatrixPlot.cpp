@@ -1,4 +1,4 @@
-	/////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2020 Equinor ASA
 //
@@ -15,18 +15,18 @@
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
-		
+
 #include "RimCorrelationMatrixPlot.h"
 
 #include "RiaColorTools.h"
 #include "RiaPreferences.h"
 #include "RiaQDateTimeTools.h"
 #include "RiaStatisticsTools.h"
+#include "RiaSummaryCurveDefinition.h"
 #include "RiuPlotMainWindowTools.h"
 #include "RiuQwtLinearScaleEngine.h"
 #include "RiuQwtPlotTools.h"
 #include "RiuQwtPlotWidget.h"
-#include "RiaSummaryCurveDefinition.h"
 
 #include "RifSummaryReaderInterface.h"
 

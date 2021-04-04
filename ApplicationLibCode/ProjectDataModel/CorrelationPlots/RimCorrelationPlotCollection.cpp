@@ -19,14 +19,13 @@
 #include "RimCorrelationPlotCollection.h"
 
 #include "RiaSummaryCurveDefinition.h"
-#include "RiaSummaryCurveDefinition.h"
 
-#include "RimSummaryCaseCollection.h"
 #include "RimCorrelationMatrixPlot.h"
 #include "RimCorrelationPlot.h"
 #include "RimCorrelationReportPlot.h"
 #include "RimParameterResultCrossPlot.h"
 #include "RimProject.h"
+#include "RimSummaryCaseCollection.h"
 
 CAF_PDM_SOURCE_INIT( RimCorrelationPlotCollection, "CorrelationPlotCollection" );
 
