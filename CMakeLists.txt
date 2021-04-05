@@ -502,7 +502,6 @@ list(APPEND APP_FWK_LIBRARIES
 
 set_property(TARGET  
     ${APP_FWK_LIBRARIES}
-    cafHexInterpolator
     PROPERTY FOLDER "AppFwk"
 )
 
@@ -556,9 +555,18 @@ if (RESINSIGHT_PRIVATE_INSTALL)
             ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/libecl.so.2
             ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/libecl.so.2.4
         )
-      
-      install(FILES ${ERT_SHARED_LIB_FILES} DESTINATION ${RESINSIGHT_INSTALL_FOLDER} )
+        install(FILES ${ERT_SHARED_LIB_FILES} DESTINATION ${RESINSIGHT_INSTALL_FOLDER} )
     endif()
+
+    if (APPLE)
+        set(ERT_SHARED_LIB_FILES
+            ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/libecl.dylib
+            ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/libecl.2.dylib
+            ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/libecl.2.4.dylib
+        )
+        install(FILES ${ERT_SHARED_LIB_FILES} DESTINATION ${RESINSIGHT_INSTALL_FOLDER}/ResInsight.app/Contents/MacOS )
+    endif()
+      
     
 endif (RESINSIGHT_PRIVATE_INSTALL)
 

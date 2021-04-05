@@ -110,7 +110,7 @@ bool RigConnection::hasCommonArea() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RigConnection::operator==( const RigConnection& rhs )
+bool RigConnection::operator==( const RigConnection& rhs ) const
 {
     return m_c1GlobIdx == rhs.m_c1GlobIdx && m_c2GlobIdx == rhs.m_c2GlobIdx;
 }
