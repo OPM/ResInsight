@@ -220,7 +220,7 @@ void RifSummaryCaseRestartSelector::determineFilesToImportByAskingUser( const st
             {
                 RifSummaryCaseFileResultInfo resultFileInfo( file,
                                                              result.summaryImportOption ==
-                                                                 RicSummaryCaseRestartDialog::IMPORT_ALL );
+                                                                 RicSummaryCaseRestartDialog::ImportOptions::IMPORT_ALL );
                 if ( !vectorContains( m_summaryFileInfos, resultFileInfo ) )
                 {
                     m_summaryFileInfos.push_back( resultFileInfo );
@@ -275,15 +275,15 @@ void RifSummaryCaseRestartSelector::determineFilesToImportUsingPrefs( const std:
 
         if ( handleSummaryFile )
         {
-            if ( defaultSummaryImportMode == RicSummaryCaseRestartDialog::IMPORT_ALL )
+            if ( defaultSummaryImportMode == RicSummaryCaseRestartDialog::ImportOptions::IMPORT_ALL )
             {
                 m_summaryFileInfos.push_back( RifSummaryCaseFileResultInfo( initialSummaryFile, true ) );
             }
-            else if ( defaultSummaryImportMode == RicSummaryCaseRestartDialog::NOT_IMPORT )
+            else if ( defaultSummaryImportMode == RicSummaryCaseRestartDialog::ImportOptions::NOT_IMPORT )
             {
                 m_summaryFileInfos.push_back( RifSummaryCaseFileResultInfo( initialSummaryFile, false ) );
             }
-            else if ( defaultSummaryImportMode == RicSummaryCaseRestartDialog::SEPARATE_CASES )
+            else if ( defaultSummaryImportMode == RicSummaryCaseRestartDialog::ImportOptions::SEPARATE_CASES )
             {
                 m_summaryFileInfos.push_back( RifSummaryCaseFileResultInfo( initialSummaryFile, false ) );
                 bool                            hasWarnings = false;
@@ -307,7 +307,7 @@ void RifSummaryCaseRestartSelector::determineFilesToImportUsingPrefs( const std:
             m_gridFiles.push_back( initialGridFile );
 
             RicSummaryCaseRestartDialog::ImportOptions defaultGridImportMode = mapReadOption( prefs->gridImportMode() );
-            if ( defaultGridImportMode == RicSummaryCaseRestartDialog::SEPARATE_CASES )
+            if ( defaultGridImportMode == RicSummaryCaseRestartDialog::ImportOptions::SEPARATE_CASES )
             {
                 RifReaderEclipseSummary         reader;
                 bool                            hasWarnings = false;

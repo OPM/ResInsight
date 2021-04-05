@@ -20,7 +20,6 @@
 
 #include "cafCmdFeature.h"
 
-class RimColorLegend;
 class RimFormationNames;
 class Rim3dView;
 
@@ -34,7 +33,6 @@ class RicImportFormationNamesFeature : public caf::CmdFeature
     static RimFormationNames* importFormationFiles( const QStringList& fileNames );
 
 protected:
-    // Overrides
     bool isCommandEnabled() override;
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
@@ -43,7 +41,4 @@ private:
     static void addCustomColorLegend( QString& name, RimFormationNames* formationNames );
 
     void setFormationCellResultAndLegend( Rim3dView* activeView, QString& legendName );
-
-private:
-    RimColorLegend* m_lastCustomColorLegendCreated;
 };

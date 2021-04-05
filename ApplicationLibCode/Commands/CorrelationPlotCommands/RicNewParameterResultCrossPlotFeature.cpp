@@ -95,14 +95,15 @@ void RicNewParameterResultCrossPlotFeature::onActionTriggered( bool isChecked )
                 correlationPlotColl->createParameterResultCrossPlot( ensemble, ensembleParameter, quantityName, timeStep );
         }
     }
-    else
+
+    if ( !newPlot && correlationPlotColl )
     {
         newPlot = correlationPlotColl->createParameterResultCrossPlot();
     }
 
     newPlot->loadDataAndUpdate();
 
-    correlationPlotColl->updateConnectedEditors();
+    if ( correlationPlotColl ) correlationPlotColl->updateConnectedEditors();
 
     RiuPlotMainWindowTools::setExpanded( newPlot );
     RiuPlotMainWindowTools::selectAsCurrentItem( newPlot );

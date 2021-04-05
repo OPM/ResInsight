@@ -87,13 +87,14 @@ void RicNewAnalysisPlotFeature::onActionTriggered( bool isChecked )
             newPlot = analysisPlotColl->createAnalysisPlot( ensemble, quantityName, timeStep );
         }
     }
-    else
+
+    if ( !newPlot && analysisPlotColl )
     {
         newPlot = analysisPlotColl->createAnalysisPlot();
     }
     newPlot->loadDataAndUpdate();
 
-    analysisPlotColl->updateConnectedEditors();
+    if ( analysisPlotColl ) analysisPlotColl->updateConnectedEditors();
 
     RiuPlotMainWindowTools::setExpanded( newPlot );
     RiuPlotMainWindowTools::selectAsCurrentItem( newPlot );

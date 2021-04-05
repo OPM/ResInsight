@@ -337,18 +337,20 @@ QList<caf::PdmOptionItemInfo>
                 if ( !caf::Utils::isStringMatch( m_tracerFilter, tracerName ) ) continue;
 
                 RimFlowDiagSolution::TracerStatusType tracerStatus = m_flowDiagSolution->tracerStatusOverall( tracerName );
-                if ( tracerStatus == RimFlowDiagSolution::CLOSED ) continue;
+                if ( tracerStatus == RimFlowDiagSolution::TracerStatusType::CLOSED ) continue;
 
                 if ( m_cellFilter() == RigFlowDiagResults::CELLS_FLOODED )
                 {
-                    if ( tracerStatus == RimFlowDiagSolution::INJECTOR || tracerStatus == RimFlowDiagSolution::VARYING )
+                    if ( tracerStatus == RimFlowDiagSolution::TracerStatusType::INJECTOR ||
+                         tracerStatus == RimFlowDiagSolution::TracerStatusType::VARYING )
                     {
                         sortedTracerNames.push_back( std::make_pair( tracerName, tracerName ) );
                     }
                 }
                 else if ( m_cellFilter() == RigFlowDiagResults::CELLS_DRAINED )
                 {
-                    if ( tracerStatus == RimFlowDiagSolution::PRODUCER || tracerStatus == RimFlowDiagSolution::VARYING )
+                    if ( tracerStatus == RimFlowDiagSolution::TracerStatusType::PRODUCER ||
+                         tracerStatus == RimFlowDiagSolution::TracerStatusType::VARYING )
                     {
                         sortedTracerNames.push_back( std::make_pair( tracerName, tracerName ) );
                     }
@@ -358,16 +360,16 @@ QList<caf::PdmOptionItemInfo>
                     QString prefix;
                     switch ( tracerStatus )
                     {
-                        case RimFlowDiagSolution::INJECTOR:
+                        case RimFlowDiagSolution::TracerStatusType::INJECTOR:
                             prefix = "I   : ";
                             break;
-                        case RimFlowDiagSolution::PRODUCER:
+                        case RimFlowDiagSolution::TracerStatusType::PRODUCER:
                             prefix = "P  : ";
                             break;
-                        case RimFlowDiagSolution::VARYING:
+                        case RimFlowDiagSolution::TracerStatusType::VARYING:
                             prefix = "I/P: ";
                             break;
-                        case RimFlowDiagSolution::UNDEFINED:
+                        case RimFlowDiagSolution::TracerStatusType::UNDEFINED:
                             prefix = "U  : ";
                             break;
                     }

@@ -542,12 +542,14 @@ void RimEclipseResultDefinition::setTofAndSelectTracer( const QString& tracerNam
 
         std::vector<QString> tracers;
         tracers.push_back( tracerName );
-        if ( ( tracerStatus == RimFlowDiagSolution::INJECTOR ) || ( tracerStatus == RimFlowDiagSolution::VARYING ) )
+        if ( ( tracerStatus == RimFlowDiagSolution::TracerStatusType::INJECTOR ) ||
+             ( tracerStatus == RimFlowDiagSolution::TracerStatusType::VARYING ) )
         {
             setSelectedInjectorTracers( tracers );
         }
 
-        if ( ( tracerStatus == RimFlowDiagSolution::PRODUCER ) || ( tracerStatus == RimFlowDiagSolution::VARYING ) )
+        if ( ( tracerStatus == RimFlowDiagSolution::TracerStatusType::PRODUCER ) ||
+             ( tracerStatus == RimFlowDiagSolution::TracerStatusType::VARYING ) )
         {
             setSelectedProducerTracers( tracers );
         }
@@ -989,7 +991,7 @@ RigFlowDiagResultAddress RimEclipseResultDefinition::flowDiagResAddress() const
                     {
                         RimFlowDiagSolution::TracerStatusType status =
                             flowSol->tracerStatusInTimeStep( tracerName, timeStep );
-                        if ( status == RimFlowDiagSolution::INJECTOR )
+                        if ( status == RimFlowDiagSolution::TracerStatusType::INJECTOR )
                         {
                             selTracerNames.insert( tracerName.toStdString() );
                         }
@@ -1002,7 +1004,7 @@ RigFlowDiagResultAddress RimEclipseResultDefinition::flowDiagResAddress() const
                     {
                         RimFlowDiagSolution::TracerStatusType status =
                             flowSol->tracerStatusInTimeStep( tracerName, timeStep );
-                        if ( status == RimFlowDiagSolution::PRODUCER )
+                        if ( status == RimFlowDiagSolution::TracerStatusType::PRODUCER )
                         {
                             selTracerNames.insert( tracerName.toStdString() );
                         }
@@ -1381,15 +1383,16 @@ void RimEclipseResultDefinition::setSelectedTracers( const std::vector<QString>&
         for ( const QString& tracerName : selectedTracers )
         {
             RimFlowDiagSolution::TracerStatusType tracerStatus = m_flowSolution()->tracerStatusOverall( tracerName );
-            if ( tracerStatus == RimFlowDiagSolution::INJECTOR )
+            if ( tracerStatus == RimFlowDiagSolution::TracerStatusType::INJECTOR )
             {
                 injectorTracers.push_back( tracerName );
             }
-            else if ( tracerStatus == RimFlowDiagSolution::PRODUCER )
+            else if ( tracerStatus == RimFlowDiagSolution::TracerStatusType::PRODUCER )
             {
                 producerTracers.push_back( tracerName );
             }
-            else if ( tracerStatus == RimFlowDiagSolution::VARYING || tracerStatus == RimFlowDiagSolution::UNDEFINED )
+            else if ( tracerStatus == RimFlowDiagSolution::TracerStatusType::VARYING ||
+                      tracerStatus == RimFlowDiagSolution::TracerStatusType::UNDEFINED )
             {
                 injectorTracers.push_back( tracerName );
                 producerTracers.push_back( tracerName );
@@ -2216,11 +2219,11 @@ QList<caf::PdmOptionItemInfo> RimEclipseResultDefinition::calcOptionsForSelected
         {
             QString                               postfix;
             RimFlowDiagSolution::TracerStatusType status = flowSol->tracerStatusOverall( tracerName );
-            if ( status == RimFlowDiagSolution::VARYING )
+            if ( status == RimFlowDiagSolution::TracerStatusType::VARYING )
             {
                 postfix = " [I/P]";
             }
-            else if ( status == RimFlowDiagSolution::UNDEFINED )
+            else if ( status == RimFlowDiagSolution::TracerStatusType::UNDEFINED )
             {
                 postfix = " [U]";
             }
@@ -2406,9 +2409,10 @@ std::set<QString, RimEclipseResultDefinition::TracerComp> RimEclipseResultDefini
         for ( const QString& tracerName : tracerNames )
         {
             RimFlowDiagSolution::TracerStatusType status = flowSol->tracerStatusOverall( tracerName );
-            bool includeTracer = status == RimFlowDiagSolution::VARYING || status == RimFlowDiagSolution::UNDEFINED;
-            includeTracer |= injector && status == RimFlowDiagSolution::INJECTOR;
-            includeTracer |= !injector && status == RimFlowDiagSolution::PRODUCER;
+            bool includeTracer                           = status == RimFlowDiagSolution::TracerStatusType::VARYING ||
+                                 status == RimFlowDiagSolution::TracerStatusType::UNDEFINED;
+            includeTracer |= injector && status == RimFlowDiagSolution::TracerStatusType::INJECTOR;
+            includeTracer |= !injector && status == RimFlowDiagSolution::TracerStatusType::PRODUCER;
 
             if ( includeTracer )
             {

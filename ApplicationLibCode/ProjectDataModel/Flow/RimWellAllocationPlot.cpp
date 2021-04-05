@@ -441,16 +441,16 @@ std::map<QString, const std::vector<double>*>
 
     if ( m_flowDiagSolution && simWellData->hasWellResult( m_timeStep ) )
     {
-        RimFlowDiagSolution::TracerStatusType requestedTracerType = RimFlowDiagSolution::UNDEFINED;
+        RimFlowDiagSolution::TracerStatusType requestedTracerType = RimFlowDiagSolution::TracerStatusType::UNDEFINED;
 
         const RigWellResultFrame::WellProductionType prodType = simWellData->wellProductionType( m_timeStep );
         if ( prodType == RigWellResultFrame::PRODUCER || prodType == RigWellResultFrame::UNDEFINED_PRODUCTION_TYPE )
         {
-            requestedTracerType = RimFlowDiagSolution::INJECTOR;
+            requestedTracerType = RimFlowDiagSolution::TracerStatusType::INJECTOR;
         }
         else
         {
-            requestedTracerType = RimFlowDiagSolution::PRODUCER;
+            requestedTracerType = RimFlowDiagSolution::TracerStatusType::PRODUCER;
         }
 
         std::vector<QString> tracerNames = m_flowDiagSolution->tracerNames();

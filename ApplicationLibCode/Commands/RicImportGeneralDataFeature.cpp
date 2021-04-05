@@ -233,7 +233,7 @@ bool RicImportGeneralDataFeature::openEclipseCaseFromFileNames( const QStringLis
     RiaImportEclipseCaseTools::FileCaseIdMap newCaseFiles;
     if ( RiaImportEclipseCaseTools::openEclipseCasesFromFile( fileNames, &newCaseFiles ) )
     {
-        for ( const auto newCaseFileAndId : newCaseFiles )
+        for ( const auto& newCaseFileAndId : newCaseFiles )
         {
             RiaApplication::instance()->addToRecentFiles( newCaseFileAndId.first );
         }

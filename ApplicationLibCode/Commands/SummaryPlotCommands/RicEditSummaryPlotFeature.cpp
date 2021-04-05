@@ -52,12 +52,14 @@ void RicEditSummaryPlotFeature::closeDialogAndResetTargetPlot()
 {
     auto dialog = RicEditSummaryPlotFeature::curveCreatorDialog();
 
-    if ( dialog && dialog->isVisible() )
+    if ( dialog )
     {
-        dialog->hide();
+        if ( dialog->isVisible() )
+        {
+            dialog->hide();
+        }
+        dialog->updateFromSummaryPlot( nullptr );
     }
-
-    dialog->updateFromSummaryPlot( nullptr );
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -85,6 +85,7 @@ void RicShowContributingWellsFeatureImpl::modifyViewToShowContributingWells( Rim
     }
 
     CVF_ASSERT( selectedWell );
+    if ( !selectedWell ) return;
 
     RimEclipseResultCase* eclipseResultCase = nullptr;
     selectedWell->firstAncestorOrThisOfTypeAsserted( eclipseResultCase );
@@ -101,7 +102,8 @@ void RicShowContributingWellsFeatureImpl::modifyViewToShowContributingWells( Rim
 
     RimFlowDiagSolution::TracerStatusType tracerStatus =
         flowDiagSolution->tracerStatusInTimeStep( selectedWell->name(), timeStep );
-    if ( !( tracerStatus == RimFlowDiagSolution::INJECTOR || tracerStatus == RimFlowDiagSolution::PRODUCER ) )
+    if ( !( tracerStatus == RimFlowDiagSolution::TracerStatusType::INJECTOR ||
+            tracerStatus == RimFlowDiagSolution::TracerStatusType::PRODUCER ) )
     {
         return;
     }
@@ -113,10 +115,10 @@ void RicShowContributingWellsFeatureImpl::modifyViewToShowContributingWells( Rim
 
     switch ( tracerStatus )
     {
-        case RimFlowDiagSolution::PRODUCER:
+        case RimFlowDiagSolution::TracerStatusType::PRODUCER:
             viewToModify->cellResult()->setFlowDiagTracerSelectionType( RimEclipseResultDefinition::FLOW_TR_INJECTORS );
             break;
-        case RimFlowDiagSolution::INJECTOR:
+        case RimFlowDiagSolution::TracerStatusType::INJECTOR:
             viewToModify->cellResult()->setFlowDiagTracerSelectionType( RimEclipseResultDefinition::FLOW_TR_PRODUCERS );
             break;
 
@@ -184,16 +186,16 @@ std::vector<QString>
 
     if ( flowDiagSolution && simWellData->hasWellResult( timeStep ) )
     {
-        RimFlowDiagSolution::TracerStatusType requestedTracerType = RimFlowDiagSolution::UNDEFINED;
+        RimFlowDiagSolution::TracerStatusType requestedTracerType = RimFlowDiagSolution::TracerStatusType::UNDEFINED;
 
         const RigWellResultFrame::WellProductionType prodType = simWellData->wellProductionType( timeStep );
         if ( prodType == RigWellResultFrame::PRODUCER || prodType == RigWellResultFrame::UNDEFINED_PRODUCTION_TYPE )
         {
-            requestedTracerType = RimFlowDiagSolution::INJECTOR;
+            requestedTracerType = RimFlowDiagSolution::TracerStatusType::INJECTOR;
         }
         else
         {
-            requestedTracerType = RimFlowDiagSolution::PRODUCER;
+            requestedTracerType = RimFlowDiagSolution::TracerStatusType::PRODUCER;
         }
 
         std::vector<QString> tracerNames = flowDiagSolution->tracerNames();

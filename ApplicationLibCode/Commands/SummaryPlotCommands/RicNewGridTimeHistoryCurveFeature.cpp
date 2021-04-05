@@ -191,6 +191,16 @@ QString RicNewGridTimeHistoryCurveFeature::suggestedNewPlotName()
                     case RIG_ELEMENT:
                         posName = "E";
                         break;
+                    case RIG_ELEMENT_NODAL_FACE:
+                        break;
+                    case RIG_FORMATION_NAMES:
+                        break;
+                    case RIG_WELLPATH_DERIVED:
+                        break;
+                    case RIG_DIFFERENTIALS:
+                        break;
+                    default:
+                        break;
                 }
 
                 QString fieldUiName = resultDefinition->resultFieldUiName();

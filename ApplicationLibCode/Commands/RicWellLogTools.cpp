@@ -79,7 +79,7 @@ bool RicWellLogTools::wellHasRftData( const QString& wellName )
 
     for ( RimCase* rimCase : cases )
     {
-        if ( resultCase = dynamic_cast<RimEclipseResultCase*>( rimCase ) )
+        if ( ( resultCase = dynamic_cast<RimEclipseResultCase*>( rimCase ) ) )
         {
             if ( resultCase->rftReader() )
             {
@@ -316,7 +316,7 @@ RimWellLogRftCurve*
 
     for ( RimCase* rimCase : cases )
     {
-        if ( resultCase = dynamic_cast<RimEclipseResultCase*>( rimCase ) )
+        if ( ( resultCase = dynamic_cast<RimEclipseResultCase*>( rimCase ) ) )
         {
             break;
         }

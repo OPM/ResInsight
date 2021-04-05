@@ -190,13 +190,11 @@ void RicNewSummaryEnsembleCurveSetFeature::setupActionLook( QAction* actionToSet
 //--------------------------------------------------------------------------------------------------
 RimSummaryPlot* RicNewSummaryEnsembleCurveSetFeature::selectedSummaryPlot() const
 {
-    RimSummaryPlot* sumPlot = nullptr;
-
     caf::PdmObject* selObj = dynamic_cast<caf::PdmObject*>( caf::SelectionManager::instance()->selectedItem() );
     if ( selObj )
     {
-        sumPlot = RiaSummaryTools::parentSummaryPlot( selObj );
+        return RiaSummaryTools::parentSummaryPlot( selObj );
     }
 
-    return sumPlot;
+    return nullptr;
 }
