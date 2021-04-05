@@ -155,7 +155,7 @@ jobs:
           appendedCacheKey: ${{ hashFiles(env.VCPKGRESPONSEFILE) }}-v01
 
       - name: Cache dynamic version of OpenSSL (Linux)
-        if: "contains( matrix.config.os, 'ubuntu')"
+        if: "contains( matrix.config.os, 'ubuntu_disabled')"
         uses: actions/cache@v2
         with:
           path: ${{ github.workspace }}/ThirdParty/vcpkg/installed/x64-linux-dynamic
