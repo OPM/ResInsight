@@ -28,7 +28,9 @@ jobs:
             environment_script: "C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/VC/Auxiliary/Build/vcvars64.bat",
             vcpkg-response-file: vcpkg_x64-windows.txt,
             vcpkg-triplet: x64-windows,
-            cmake-toolchain: 'ThirdParty/vcpkg/scripts/buildsystems/vcpkg.cmake'
+            cmake-toolchain: 'ThirdParty/vcpkg/scripts/buildsystems/vcpkg.cmake',
+            build-python-module: true,
+            execute-unit-tests: true
           }
         - {
             name: "Ubuntu 20.04",
@@ -36,7 +38,9 @@ jobs:
             cc: "gcc", cxx: "g++",
             vcpkg-response-file: vcpkg_x64-linux.txt,
             vcpkg-triplet: x64-linux,
-            cmake-toolchain: 'ThirdParty/vcpkg/scripts/buildsystems/vcpkg.cmake'
+            cmake-toolchain: 'ThirdParty/vcpkg/scripts/buildsystems/vcpkg.cmake',
+            build-python-module: true,
+            execute-unit-tests: true
           }
         - {
             name: "Ubuntu 20.04 clang",
@@ -44,7 +48,19 @@ jobs:
             cc: "clang", cxx: "clang++",
             vcpkg-response-file: vcpkg_x64-linux.txt,
             vcpkg-triplet: x64-linux,
-            cmake-toolchain: 'ThirdParty/vcpkg/scripts/buildsystems/vcpkg.cmake'
+            cmake-toolchain: 'ThirdParty/vcpkg/scripts/buildsystems/vcpkg.cmake',
+            build-python-module: true,
+            execute-unit-tests: true
+          }
+        - {
+            name: "Mac OS",
+            os: macos-latest,
+            cc: "clang", cxx: "clang++",
+            vcpkg-response-file: vcpkg_x64-osx.txt,
+            vcpkg-triplet: x64-osx,
+            cmake-toolchain: 'ThirdParty/vcpkg/scripts/buildsystems/vcpkg.cmake',
+            build-python-module: false,
+            execute-unit-tests: false
           }
     steps:
       - name: Checkout
@@ -67,6 +83,8 @@ jobs:
         run: |
           if ("${{ runner.os }}" STREQUAL "Windows")
             set(buildcache_suffix "win-msvc.zip")
+          elseif ("${{ runner.os }}" STREQUAL "macOS")
+            set(buildcache_suffix "macos.zip")
           elseif ("${{ runner.os }}" STREQUAL "Linux")
             set(buildcache_suffix "linux.tar.gz")
           endif()
@@ -128,7 +146,7 @@ jobs:
         with:
           VCPKGRESPONSEFILE: ${{ github.workspace }}/${{ matrix.config.vcpkg-response-file }}
       - name: Restore from cache and install vcpkg
-        uses: lukka/run-vcpkg@v5
+        uses: lukka/run-vcpkg@v7
         id: runvcpkg
         with:
           vcpkgArguments: '@${{ github.workspace }}/${{ matrix.config.vcpkg-response-file }}'
@@ -181,7 +199,7 @@ jobs:
               -D RESINSIGHT_BUNDLE_OPENSSL=true
               -D RESINSIGHT_INCLUDE_APPLICATION_UNIT_TESTS=true
               -D RESINSIGHT_TREAT_WARNINGS_AS_ERRORS=true
-              -D RESINSIGHT_ENABLE_GRPC=true
+              -D RESINSIGHT_ENABLE_GRPC=${{ matrix.config.build-python-module }}
               -D RESINSIGHT_GRPC_PYTHON_EXECUTABLE=${{ steps.python-path.outputs.PYTHON_EXECUTABLE }}
               -D RESINSIGHT_GRPC_DOWNLOAD_PYTHON_MODULE=true
               -D CMAKE_TOOLCHAIN_FILE=${{ matrix.config.cmake-toolchain }}
@@ -217,12 +235,13 @@ jobs:
 
       - name: Stats for buildcache
         run: ${{ github.workspace }}/buildcache/bin/buildcache -s
-
       - name: Run Unit Tests
+        if: "matrix.config.execute-unit-tests == true"
         shell: bash
         run: |
           cmakebuild/ApplicationExeCode/ResInsight --unittest
       - name: Run pytest
+        if: "matrix.config.build-python-module == true"
         env:
           RESINSIGHT_EXECUTABLE: ${{ runner.workspace }}/ResInsight/cmakebuild/ApplicationExeCode/ResInsight
         run: |
