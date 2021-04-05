@@ -31,6 +31,8 @@ class RimAnalysisPlotDataEntry;
 class RimCorrelationMatrixPlot;
 class RimParameterResultCrossPlot;
 class RimSummaryCaseCollection;
+class RimCorrelationPlot;
+class RiaSummaryCurveDefinition;	
 
 class RiuMultiPlotPage;
 

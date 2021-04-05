@@ -22,8 +22,11 @@
 #include "RiaSummaryCurveDefinition.h"
 
 #include "RimCorrelationMatrixPlot.h"
+#include "RimCorrelationPlot.h"
+#include "RimCorrelationPlotCollection.h"
 #include "RimParameterResultCrossPlot.h"
 #include "RimRegularLegendConfig.h"
+#include "RimSummaryCaseCollection.h"
 
 #include "RiuMultiPlotPage.h"
 

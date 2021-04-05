@@ -22,6 +22,7 @@
 #include "RiaPreferences.h"
 #include "RiaQDateTimeTools.h"
 #include "RiaStatisticsTools.h"
+#include "RiaSummaryCurveDefinition.h"
 #include "RiuPlotMainWindowTools.h"
 #include "RiuQwtLinearScaleEngine.h"
 #include "RiuQwtPlotTools.h"
