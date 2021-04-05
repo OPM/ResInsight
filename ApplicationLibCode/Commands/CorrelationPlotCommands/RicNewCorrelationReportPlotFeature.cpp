@@ -92,13 +92,14 @@ void RicNewCorrelationReportPlotFeature::onActionTriggered( bool isChecked )
                                                                         timeStep );
         }
     }
-    else
+
+    if ( !newPlot && correlationPlotColl )
     {
         newPlot = correlationPlotColl->createCorrelationReportPlot();
     }
     newPlot->loadDataAndUpdate();
 
-    correlationPlotColl->updateConnectedEditors();
+    if ( correlationPlotColl ) correlationPlotColl->updateConnectedEditors();
 
     RiuPlotMainWindowTools::setExpanded( newPlot );
     RiuPlotMainWindowTools::selectAsCurrentItem( newPlot );

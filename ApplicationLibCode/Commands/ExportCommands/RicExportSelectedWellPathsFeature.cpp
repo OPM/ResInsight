@@ -114,10 +114,11 @@ void RicExportSelectedWellPathsFeature::writeWellPathGeometryToStream( QTextStre
     if ( writeProjectInfo )
     {
         formatter.comment( "Project: " + RimProject::current()->fileName );
-        stream << endl;
+        stream << "\n";
     }
 
-    stream << "WELLNAME: '" << caf::Utils::makeValidFileBasename( exportName ) << "'" << endl;
+    stream << "WELLNAME: '" << caf::Utils::makeValidFileBasename( exportName ) << "'"
+           << "\n";
 
     auto numberFormat = RifTextDataTableDoubleFormatting( RIF_FLOAT, 2 );
     formatter.header( { { "X", numberFormat, RIGHT },
@@ -136,7 +137,8 @@ void RicExportSelectedWellPathsFeature::writeWellPathGeometryToStream( QTextStre
     }
     formatter.tableCompleted( "", false );
 
-    stream << -999 << endl << endl;
+    stream << -999 << "\n"
+           << "\n";
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -60,8 +60,8 @@ void RicNewStimPlanModelTemplateFeature::onActionTriggered( bool isChecked )
     RimEclipseView* activeView = dynamic_cast<RimEclipseView*>( RiaApplication::instance()->activeGridView() );
     if ( activeView )
     {
-        RimEclipseCase* eclipseCase = eclipseCase = activeView->eclipseCase();
-        int             timeStep                  = activeView->currentTimeStep();
+        RimEclipseCase* eclipseCase = activeView->eclipseCase();
+        int             timeStep    = activeView->currentTimeStep();
         stimPlanModelTemplate->setDynamicEclipseCase( eclipseCase );
         stimPlanModelTemplate->setTimeStep( timeStep );
         stimPlanModelTemplate->setStaticEclipseCase( eclipseCase );

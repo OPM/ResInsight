@@ -73,7 +73,7 @@ void RicImportEclipseCasesFeature::onActionTriggered( bool isChecked )
     RiaImportEclipseCaseTools::FileCaseIdMap newCaseFiles;
     RiaImportEclipseCaseTools::openEclipseCasesFromFile( result.files, &newCaseFiles );
 
-    for ( const auto newCaseFileAndId : newCaseFiles )
+    for ( const auto& newCaseFileAndId : newCaseFiles )
     {
         RiaApplication::instance()->addToRecentFiles( newCaseFileAndId.first );
     }

@@ -72,6 +72,8 @@ public:
         bool hasAnyUnlinkableViews = false;
         for ( auto gridView : selectedGridViews )
         {
+            if ( !gridView ) continue;
+
             if ( dynamic_cast<RimEclipseContourMapView*>( gridView ) )
             {
                 hasAnyUnlinkableViews = true;

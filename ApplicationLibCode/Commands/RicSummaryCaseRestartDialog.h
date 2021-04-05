@@ -56,7 +56,7 @@ class RicSummaryCaseRestartDialog : public QDialog
     Q_OBJECT
 
 public:
-    enum ImportOptions
+    enum class ImportOptions
     {
         IMPORT_ALL,
         SEPARATE_CASES,
@@ -136,8 +136,8 @@ public:
     };
     RicSummaryCaseRestartDialogResult( Status _status = SUMMARY_ERROR )
         : status( _status )
-        , summaryImportOption( RicSummaryCaseRestartDialog::IMPORT_ALL )
-        , gridImportOption( RicSummaryCaseRestartDialog::NOT_IMPORT )
+        , summaryImportOption( RicSummaryCaseRestartDialog::ImportOptions::IMPORT_ALL )
+        , gridImportOption( RicSummaryCaseRestartDialog::ImportOptions::NOT_IMPORT )
         , applyToAll( false )
     {
     }

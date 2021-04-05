@@ -33,6 +33,8 @@
 //--------------------------------------------------------------------------------------------------
 QString RicSnapshotFilenameGenerator::generateSnapshotFileName( RimViewWindow* viewWindow )
 {
+    if ( !viewWindow ) return {};
+
     {
         Rim3dView* view = dynamic_cast<Rim3dView*>( viewWindow );
         if ( view != nullptr )

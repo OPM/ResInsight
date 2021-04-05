@@ -90,14 +90,15 @@ void RicNewCorrelationMatrixPlotFeature::onActionTriggered( bool isChecked )
             newPlot = correlationPlotColl->createCorrelationMatrixPlot( ensemble, includedQuantityNames, timeStep );
         }
     }
-    else
+
+    if ( !newPlot && correlationPlotColl )
     {
         newPlot = correlationPlotColl->createCorrelationMatrixPlot();
     }
 
     newPlot->loadDataAndUpdate();
 
-    correlationPlotColl->updateConnectedEditors();
+    if ( correlationPlotColl ) correlationPlotColl->updateConnectedEditors();
 
     RiuPlotMainWindowTools::setExpanded( newPlot );
     RiuPlotMainWindowTools::selectAsCurrentItem( newPlot );

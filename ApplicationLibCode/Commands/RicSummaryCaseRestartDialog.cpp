@@ -219,7 +219,7 @@ RicSummaryCaseRestartDialogResult RicSummaryCaseRestartDialog::openDialog( const
                                                                            QWidget*                           parent )
 {
     RicSummaryCaseRestartDialogResult dialogResult;
-    if ( lastResult && lastResult->applyToAll && lastResult->summaryImportOption != SEPARATE_CASES )
+    if ( lastResult && lastResult->applyToAll && lastResult->summaryImportOption != ImportOptions::SEPARATE_CASES )
     {
         dialogResult = *lastResult;
         dialogResult.summaryFiles.clear();
@@ -279,11 +279,12 @@ RicSummaryCaseRestartDialogResult RicSummaryCaseRestartDialog::openDialog( const
     if ( originFileInfos.empty() && !hasWarnings )
     {
         return RicSummaryCaseRestartDialogResult( RicSummaryCaseRestartDialogResult::SUMMARY_OK,
-                                                  NOT_IMPORT,
-                                                  NOT_IMPORT,
+                                                  ImportOptions::NOT_IMPORT,
+                                                  ImportOptions::NOT_IMPORT,
                                                   QStringList( { initialSummaryFile } ),
                                                   QStringList( { initialGridFile } ),
-                                                  useFirstSummaryCaseAsTemplate || lastResult->applyToAll );
+                                                  useFirstSummaryCaseAsTemplate ||
+                                                      ( lastResult && lastResult->applyToAll ) );
     }
 
     if ( lastResult && lastResult->applyToAll )
@@ -398,15 +399,15 @@ RicSummaryCaseRestartDialogResult RicSummaryCaseRestartDialog::openDialog( const
     if ( dialogResult.status != RicSummaryCaseRestartDialogResult::SUMMARY_OK )
     {
         return RicSummaryCaseRestartDialogResult( dialogResult.status,
-                                                  NOT_IMPORT,
-                                                  NOT_IMPORT,
+                                                  ImportOptions::NOT_IMPORT,
+                                                  ImportOptions::NOT_IMPORT,
                                                   QStringList(),
                                                   QStringList(),
                                                   false );
     }
 
     dialogResult.summaryFiles.push_back( RiaFilePathTools::toInternalSeparator( initialSummaryFile ) );
-    if ( dialogResult.summaryImportOption == SEPARATE_CASES )
+    if ( dialogResult.summaryImportOption == ImportOptions::SEPARATE_CASES )
     {
         for ( const auto& ofi : originFileInfos )
         {
@@ -418,7 +419,7 @@ RicSummaryCaseRestartDialogResult RicSummaryCaseRestartDialog::openDialog( const
     {
         dialogResult.gridFiles.push_back( initialGridFile );
 
-        if ( dialogResult.gridImportOption == SEPARATE_CASES )
+        if ( dialogResult.gridImportOption == ImportOptions::SEPARATE_CASES )
         {
             for ( const auto& ofi : originFileInfos )
             {
@@ -435,8 +436,9 @@ RicSummaryCaseRestartDialogResult RicSummaryCaseRestartDialog::openDialog( const
 //--------------------------------------------------------------------------------------------------
 RicSummaryCaseRestartDialog::ImportOptions RicSummaryCaseRestartDialog::selectedSummaryImportOption() const
 {
-    return m_summaryReadAllBtn->isChecked() ? IMPORT_ALL
-                                            : m_summarySeparateCasesBtn->isChecked() ? SEPARATE_CASES : NOT_IMPORT;
+    return m_summaryReadAllBtn->isChecked()
+               ? ImportOptions::IMPORT_ALL
+               : m_summarySeparateCasesBtn->isChecked() ? ImportOptions::SEPARATE_CASES : ImportOptions::NOT_IMPORT;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -444,7 +446,7 @@ RicSummaryCaseRestartDialog::ImportOptions RicSummaryCaseRestartDialog::selected
 //--------------------------------------------------------------------------------------------------
 RicSummaryCaseRestartDialog::ImportOptions RicSummaryCaseRestartDialog::selectedGridImportOption() const
 {
-    return m_gridSeparateCasesBtn->isChecked() ? SEPARATE_CASES : NOT_IMPORT;
+    return m_gridSeparateCasesBtn->isChecked() ? ImportOptions::SEPARATE_CASES : ImportOptions::NOT_IMPORT;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -462,7 +464,7 @@ void RicSummaryCaseRestartDialog::updateFileListWidget( QGridLayout* gridLayout,
 {
     // Remove current items
     QLayoutItem* item;
-    while ( item = gridLayout->takeAt( 0 ) )
+    while ( ( item = gridLayout->takeAt( 0 ) ) )
     {
         gridLayout->removeItem( item );
         delete item->widget();

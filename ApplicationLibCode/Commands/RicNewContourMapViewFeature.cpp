@@ -147,7 +147,7 @@ void RicNewContourMapViewFeature::onActionTriggered( bool isChecked )
         if ( geoMechCase )
         {
             geoMechCase->updateConnectedEditors();
-            eclipseContourMap->cellFilterCollection()->setCase( geoMechCase );
+            geoMechContourMap->cellFilterCollection()->setCase( geoMechCase );
             caf::SelectionManager::instance()->setSelectedItem( geoMechContourMap );
             geoMechContourMap->createDisplayModelAndRedraw();
             geoMechContourMap->zoomAll();

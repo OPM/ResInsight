@@ -55,7 +55,7 @@ void RicThemeColorEditorFeature::onActionTriggered( bool isChecked )
     RiaDefines::ThemeEnum theme = RiaGuiApplication::instance()->preferences()->guiTheme();
 
     QDialog* dialog = new QDialog( RiuMainWindow::instance() );
-    connect( dialog, &QDialog::close, [this, theme]() { RiuGuiTheme::updateGuiTheme( theme ); } );
+    connect( dialog, &QDialog::close, [theme]() { RiuGuiTheme::updateGuiTheme( theme ); } );
     dialog->setModal( false );
     dialog->setWindowTitle( "Theme Color Editor Dialog" );
 
@@ -89,13 +89,12 @@ void RicThemeColorEditorFeature::onActionTriggered( bool isChecked )
     completer->setCaseSensitivity( Qt::CaseInsensitive );
     completer->setWrapAround( false );
     editor->setCompleter( completer );
-    QssSyntaxHighligter* highlighter = new QssSyntaxHighligter( editor->document() );
 
-    auto generateColorFields = [themeSelector, widget, editor, completer, this]() -> void {
+    auto generateColorFields = [themeSelector, widget, editor]() -> void {
         QLayoutItem* item;
         if ( widget->layout() )
         {
-            while ( ( item = widget->layout()->takeAt( 0 ) ) != NULL )
+            while ( ( item = widget->layout()->takeAt( 0 ) ) != nullptr )
             {
                 delete item->widget();
                 delete item;
@@ -108,7 +107,7 @@ void RicThemeColorEditorFeature::onActionTriggered( bool isChecked )
         RiaDefines::ThemeEnum  theme       = static_cast<RiaDefines::ThemeEnum>( themeSelector->currentData().toInt() );
         QMap<QString, QString> variableValueMap   = RiuGuiTheme::getVariableValueMap( theme );
         QMap<QString, QString> variableGuiTextMap = RiuGuiTheme::getVariableGuiTextMap( theme );
-        for ( const QString variableName : variableValueMap.keys() )
+        for ( const QString& variableName : variableValueMap.keys() )
         {
             innerLayout->addWidget( new QLabel( !variableGuiTextMap[variableName].isEmpty() ? variableGuiTextMap[variableName]
                                                                                             : variableName ),
@@ -118,7 +117,7 @@ void RicThemeColorEditorFeature::onActionTriggered( bool isChecked )
             colorBox->setStyleSheet( QString( "background-color: %0;" ).arg( variableValueMap.value( variableName ) ) );
             connect( colorBox,
                      &QPushButton::clicked,
-                     [this, variableValueMap, variableName, theme, editor, widget, colorBox]() -> void {
+                     [variableValueMap, variableName, theme, editor, widget, colorBox]() -> void {
                          QColor color = QColorDialog::getColor( colorBox->palette().color( QPalette::Button ), widget );
                          if ( color.isValid() )
                          {
@@ -160,7 +159,7 @@ void RicThemeColorEditorFeature::onActionTriggered( bool isChecked )
 
     QPushButton* button = new QPushButton( "Apply style sheet changes" );
     layout->addWidget( button, 6, 1 );
-    connect( button, &QPushButton::clicked, [this, themeSelector, editor, generateColorFields]() {
+    connect( button, &QPushButton::clicked, [themeSelector, editor, generateColorFields]() {
         RiaDefines::ThemeEnum theme = static_cast<RiaDefines::ThemeEnum>( themeSelector->currentData().toInt() );
         RiuGuiTheme::writeStyleSheetToFile( theme, editor->toPlainText() );
         generateColorFields();

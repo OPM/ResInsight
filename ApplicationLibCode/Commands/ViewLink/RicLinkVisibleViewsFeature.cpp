@@ -22,6 +22,7 @@
 #include "RicLinkVisibleViewsFeatureUi.h"
 
 #include "RimEclipseContourMapView.h"
+#include "RimGeoMechContourMapView.h"
 #include "RimGridView.h"
 #include "RimProject.h"
 #include "RimViewController.h"
@@ -32,7 +33,6 @@
 
 #include "cafPdmUiPropertyViewDialog.h"
 
-#include "RimGeoMechContourMapView.h"
 #include <QAction>
 #include <QTreeView>
 
@@ -83,7 +83,6 @@ void RicLinkVisibleViewsFeature::onActionTriggered( bool isChecked )
     findLinkableVisibleViews( linkableViews );
 
     linkViews( linkableViews );
-    return;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -122,6 +121,7 @@ void RicLinkVisibleViewsFeature::findLinkableVisibleViews( std::vector<RimGridVi
 
     for ( auto gridView : visibleGridViews )
     {
+        if ( !gridView ) continue;
         if ( dynamic_cast<RimEclipseContourMapView*>( gridView ) ) continue;
         if ( dynamic_cast<RimGeoMechContourMapView*>( gridView ) ) continue;
         if ( gridView->assosiatedViewLinker() ) continue;
@@ -152,9 +152,8 @@ void RicLinkVisibleViewsFeature::linkViews( std::vector<RimGridView*>& linkableV
         viewLinker->setMasterView( masterView );
     }
 
-    for ( size_t i = 0; i < linkableViews.size(); i++ )
+    for ( RimGridView* rimView : linkableViews )
     {
-        RimGridView* rimView = linkableViews[i];
         if ( rimView == viewLinker->masterView() ) continue;
 
         viewLinker->addDependentView( rimView );

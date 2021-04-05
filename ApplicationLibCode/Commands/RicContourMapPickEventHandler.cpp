@@ -60,6 +60,7 @@ bool RicContourMapPickEventHandler::handle3dPickEvent( const Ric3dPickEvent& eve
 
             RimGridView* view = nullptr;
             contourMap->firstAncestorOrThisOfTypeAsserted( view );
+            if ( !view ) return false;
 
             cvf::Vec2d pickedPoint;
             double     valueAtPoint = 0.0;
@@ -82,7 +83,7 @@ bool RicContourMapPickEventHandler::handle3dPickEvent( const Ric3dPickEvent& eve
                 {
                     geoMechContourView->updatePickPointAndRedraw();
                 }
-                else
+                else if ( eclipseContourView )
                 {
                     eclipseContourView->updatePickPointAndRedraw();
                 }
@@ -90,6 +91,7 @@ bool RicContourMapPickEventHandler::handle3dPickEvent( const Ric3dPickEvent& eve
             }
             contourMap->setPickPoint( cvf::Vec2d::UNDEFINED );
             view->updateDisplayModelForCurrentTimeStepAndRedraw();
+
             return true;
         }
     }

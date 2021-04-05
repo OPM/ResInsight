@@ -45,7 +45,7 @@ public:
     std::map<std::string, std::vector<int>> allInjectorTracerActiveCellIndices( size_t timeStepIndex ) const;
     std::map<std::string, std::vector<int>> allProducerTracerActiveCellIndices( size_t timeStepIndex ) const;
 
-    enum TracerStatusType
+    enum class TracerStatusType
     {
         CLOSED, ///< Tracer has no active cells, and does not contribute
         PRODUCER, ///< Tracer with producing cells

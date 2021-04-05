@@ -46,7 +46,6 @@ bool RicNewPolygonFilter3dviewFeature::isCommandEnabled()
 void RicNewPolygonFilter3dviewFeature::onActionTriggered( bool isChecked )
 {
     // Get the selected Cell Filter Collection
-    RimGridView*             activeView           = RiaApplication::instance()->activeGridView();
     RimGridView*             viewOrComparisonView = RiaApplication::instance()->activeMainOrComparisonGridView();
     RimCellFilterCollection* filtColl             = viewOrComparisonView->cellFilterCollection();
 

@@ -250,15 +250,17 @@ std::vector<QString>
 
     const RimFlowDiagSolution::TracerStatusType targetWellStatus =
         flowDiagSolution.tracerStatusInTimeStep( targetWellname, timeStepIndex );
-    if ( targetWellStatus != RimFlowDiagSolution::INJECTOR && targetWellStatus != RimFlowDiagSolution::PRODUCER )
+    if ( targetWellStatus != RimFlowDiagSolution::TracerStatusType::INJECTOR &&
+         targetWellStatus != RimFlowDiagSolution::TracerStatusType::PRODUCER )
     {
         RiaLogging::warning( "Status of target well is neither INJECTOR nor PRODUCER" );
         return candidateWellNames;
     }
 
-    const RimFlowDiagSolution::TracerStatusType oppositeStatus = ( targetWellStatus == RimFlowDiagSolution::INJECTOR )
-                                                                     ? RimFlowDiagSolution::PRODUCER
-                                                                     : RimFlowDiagSolution::INJECTOR;
+    const RimFlowDiagSolution::TracerStatusType oppositeStatus =
+        ( targetWellStatus == RimFlowDiagSolution::TracerStatusType::INJECTOR )
+            ? RimFlowDiagSolution::TracerStatusType::PRODUCER
+            : RimFlowDiagSolution::TracerStatusType::INJECTOR;
 
     const std::vector<QString> allWellNames = flowDiagSolution.tracerNames();
     for ( const QString& name : allWellNames )

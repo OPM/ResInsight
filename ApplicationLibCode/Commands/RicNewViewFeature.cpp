@@ -101,7 +101,7 @@ Rim3dView* RicNewViewFeature::createReservoirView( RimEclipseCase* eclipseCase, 
     }
 
     // Must be run before buildViewItems, as wells are created in this function
-    insertedView->loadDataAndUpdate();
+    if ( insertedView ) insertedView->loadDataAndUpdate();
 
     if ( eclipseCase )
     {

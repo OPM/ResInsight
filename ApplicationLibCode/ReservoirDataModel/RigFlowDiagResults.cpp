@@ -235,14 +235,26 @@ std::vector<double>* RigFlowDiagResults::calculateAverageTOFResult( const RigFlo
                                                                     size_t                          timeStepIndex )
 {
     std::vector<const std::vector<double>*> injectorTOFs =
-        findResultsForSelectedTracers( resVarAddr, timeStepIndex, RIG_FLD_TOF_RESNAME, RimFlowDiagSolution::INJECTOR );
+        findResultsForSelectedTracers( resVarAddr,
+                                       timeStepIndex,
+                                       RIG_FLD_TOF_RESNAME,
+                                       RimFlowDiagSolution::TracerStatusType::INJECTOR );
     std::vector<const std::vector<double>*> injectorFractions =
-        findResultsForSelectedTracers( resVarAddr, timeStepIndex, RIG_FLD_CELL_FRACTION_RESNAME, RimFlowDiagSolution::INJECTOR );
+        findResultsForSelectedTracers( resVarAddr,
+                                       timeStepIndex,
+                                       RIG_FLD_CELL_FRACTION_RESNAME,
+                                       RimFlowDiagSolution::TracerStatusType::INJECTOR );
 
     std::vector<const std::vector<double>*> producerTOFs =
-        findResultsForSelectedTracers( resVarAddr, timeStepIndex, RIG_FLD_TOF_RESNAME, RimFlowDiagSolution::PRODUCER );
+        findResultsForSelectedTracers( resVarAddr,
+                                       timeStepIndex,
+                                       RIG_FLD_TOF_RESNAME,
+                                       RimFlowDiagSolution::TracerStatusType::PRODUCER );
     std::vector<const std::vector<double>*> producerFractions =
-        findResultsForSelectedTracers( resVarAddr, timeStepIndex, RIG_FLD_CELL_FRACTION_RESNAME, RimFlowDiagSolution::PRODUCER );
+        findResultsForSelectedTracers( resVarAddr,
+                                       timeStepIndex,
+                                       RIG_FLD_CELL_FRACTION_RESNAME,
+                                       RimFlowDiagSolution::TracerStatusType::PRODUCER );
     size_t activeCellCount = this->activeCellInfo( resVarAddr )->reservoirActiveCellCount();
 
     std::vector<double> injectorTotalFractions;
@@ -323,10 +335,11 @@ void RigFlowDiagResults::calculateSumOfFractionAndFractionMultTOF( size_t active
 std::vector<double>* RigFlowDiagResults::calculateSumOfFractionsResult( const RigFlowDiagResultAddress& resVarAddr,
                                                                         size_t                          timeStepIndex )
 {
-    std::vector<const std::vector<double>*> fractions = findResultsForSelectedTracers( resVarAddr,
-                                                                                       timeStepIndex,
-                                                                                       RIG_FLD_CELL_FRACTION_RESNAME,
-                                                                                       RimFlowDiagSolution::UNDEFINED );
+    std::vector<const std::vector<double>*> fractions =
+        findResultsForSelectedTracers( resVarAddr,
+                                       timeStepIndex,
+                                       RIG_FLD_CELL_FRACTION_RESNAME,
+                                       RimFlowDiagSolution::TracerStatusType::UNDEFINED );
 
     RigFlowDiagResultFrames* sumOfFractionsFrames = this->createScalarResult( resVarAddr );
     std::vector<double>&     sumOfFractions       = sumOfFractionsFrames->frameData( timeStepIndex );
@@ -348,7 +361,7 @@ std::vector<double>* RigFlowDiagResults::calculateTracerWithMaxFractionResult( c
         findNamedResultsForSelectedTracers( resVarAddr,
                                             timeStepIndex,
                                             RIG_FLD_CELL_FRACTION_RESNAME,
-                                            RimFlowDiagSolution::UNDEFINED );
+                                            RimFlowDiagSolution::TracerStatusType::UNDEFINED );
 
     std::vector<int> resultTracerIdxToGlobalTracerIdx;
     {
@@ -410,9 +423,15 @@ std::vector<double>* RigFlowDiagResults::calculateCommunicationResult( const Rig
                                                                        size_t                          timeStepIndex )
 {
     std::vector<const std::vector<double>*> injectorFractions =
-        findResultsForSelectedTracers( resVarAddr, timeStepIndex, RIG_FLD_CELL_FRACTION_RESNAME, RimFlowDiagSolution::INJECTOR );
+        findResultsForSelectedTracers( resVarAddr,
+                                       timeStepIndex,
+                                       RIG_FLD_CELL_FRACTION_RESNAME,
+                                       RimFlowDiagSolution::TracerStatusType::INJECTOR );
     std::vector<const std::vector<double>*> producerFractions =
-        findResultsForSelectedTracers( resVarAddr, timeStepIndex, RIG_FLD_CELL_FRACTION_RESNAME, RimFlowDiagSolution::PRODUCER );
+        findResultsForSelectedTracers( resVarAddr,
+                                       timeStepIndex,
+                                       RIG_FLD_CELL_FRACTION_RESNAME,
+                                       RimFlowDiagSolution::TracerStatusType::PRODUCER );
     size_t activeCellCount = this->activeCellInfo( resVarAddr )->reservoirActiveCellCount();
 
     std::vector<double> sumOfInjectorFractions;
@@ -475,8 +494,8 @@ std::vector<const std::vector<double>*>
         RimFlowDiagSolution::TracerStatusType tracerType =
             m_flowDiagSolution->tracerStatusInTimeStep( QString::fromStdString( tracerName ), timeStepIndex );
 
-        if ( tracerType != RimFlowDiagSolution::CLOSED &&
-             ( tracerType == wantedTracerType || wantedTracerType == RimFlowDiagSolution::UNDEFINED ) )
+        if ( tracerType != RimFlowDiagSolution::TracerStatusType::CLOSED &&
+             ( tracerType == wantedTracerType || wantedTracerType == RimFlowDiagSolution::TracerStatusType::UNDEFINED ) )
         {
             selectedTracersResults.push_back(
                 findOrCalculateResult( RigFlowDiagResultAddress( nativeResultName, resVarAddr.phaseSelection, tracerName ),
@@ -503,8 +522,8 @@ std::vector<std::pair<std::string, const std::vector<double>*>>
         RimFlowDiagSolution::TracerStatusType tracerType =
             m_flowDiagSolution->tracerStatusInTimeStep( QString::fromStdString( tracerName ), timeStepIndex );
 
-        if ( tracerType != RimFlowDiagSolution::CLOSED &&
-             ( tracerType == wantedTracerType || wantedTracerType == RimFlowDiagSolution::UNDEFINED ) )
+        if ( tracerType != RimFlowDiagSolution::TracerStatusType::CLOSED &&
+             ( tracerType == wantedTracerType || wantedTracerType == RimFlowDiagSolution::TracerStatusType::UNDEFINED ) )
         {
             selectedTracersResults.push_back(
                 std::make_pair( tracerName,
@@ -777,11 +796,11 @@ RigFlowDiagSolverInterface::FlowCharacteristicsResultFrame
     {
         RimFlowDiagSolution::TracerStatusType status =
             m_flowDiagSolution->tracerStatusInTimeStep( tracerName, timeStepIndex );
-        if ( status == RimFlowDiagSolution::INJECTOR )
+        if ( status == RimFlowDiagSolution::TracerStatusType::INJECTOR )
         {
             injectorNames.insert( tracerName.toStdString() );
         }
-        else if ( status == RimFlowDiagSolution::PRODUCER )
+        else if ( status == RimFlowDiagSolution::TracerStatusType::PRODUCER )
         {
             producerNames.insert( tracerName.toStdString() );
         }
@@ -896,11 +915,11 @@ RigFlowDiagSolverInterface::FlowCharacteristicsResultFrame
     {
         RimFlowDiagSolution::TracerStatusType status =
             m_flowDiagSolution->tracerStatusInTimeStep( tracerName, timeStepIndex );
-        if ( status == RimFlowDiagSolution::INJECTOR )
+        if ( status == RimFlowDiagSolution::TracerStatusType::INJECTOR )
         {
             injectorNames.insert( tracerName.toStdString() );
         }
-        else if ( status == RimFlowDiagSolution::PRODUCER )
+        else if ( status == RimFlowDiagSolution::TracerStatusType::PRODUCER )
         {
             producerNames.insert( tracerName.toStdString() );
         }

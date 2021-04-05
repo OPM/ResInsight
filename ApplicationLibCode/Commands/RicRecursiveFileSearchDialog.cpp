@@ -846,7 +846,7 @@ void sortStringsByLength( QStringList& strings, bool ascending /*= true*/ )
         {
             int s0 = strings[i].size();
             int s1 = strings[i + 1].size();
-            if ( ascending && s0 > s1 || !ascending && s0 < s1 )
+            if ( ( ascending && s0 > s1 ) || ( !ascending && s0 < s1 ) )
             {
                 const QString temp = strings[i];
                 strings[i]         = strings[i + 1];
