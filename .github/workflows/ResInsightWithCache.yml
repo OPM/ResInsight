@@ -141,7 +141,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ${{ github.workspace }}/ThirdParty/vcpkg/installed/x64-linux-dynamic
-          key: ${{ matrix.config.os }}-vcpkg-x64-linux-dynamic_v03
+          key: ${{ matrix.config.os }}-vcpkg-x64-linux-dynamic_v04
 
       - name: Install dynamic version of OpenSSL (Linux)
         if: "contains( matrix.config.os, 'ubuntu')"
