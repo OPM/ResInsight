@@ -3,4 +3,4 @@
 	url = https://github.com/CeetronSolutions/qwt.git
 [submodule "ThirdParty/vcpkg"]
 	path = ThirdParty/vcpkg
-	url = https://github.com/microsoft/vcpkg
+	url = https://github.com/CeetronSolutions/vcpkg
