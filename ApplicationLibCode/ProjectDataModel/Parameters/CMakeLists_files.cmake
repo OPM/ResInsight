@@ -4,6 +4,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RimGenericParameter.h
 ${CMAKE_CURRENT_LIST_DIR}/RimDoubleParameter.h
 ${CMAKE_CURRENT_LIST_DIR}/RimIntegerParameter.h
 ${CMAKE_CURRENT_LIST_DIR}/RimStringParameter.h
+${CMAKE_CURRENT_LIST_DIR}/RimParameterGroup.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -11,6 +12,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RimGenericParameter.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimDoubleParameter.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimIntegerParameter.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimStringParameter.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimParameterGroup.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

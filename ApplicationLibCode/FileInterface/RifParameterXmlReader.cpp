@@ -23,6 +23,8 @@
 #include "RimIntegerParameter.h"
 #include "RimStringParameter.h"
 
+#include "RimParameterGroup.h"
+
 #include <QFile>
 #include <QXmlStreamReader>
 
@@ -58,12 +60,12 @@ bool RifParameterXmlReader::parseFile( QString& outErrorText )
 {
     m_parameters.clear();
 
-    outErrorText = "XML read error: ";
+    outErrorText = "XML read error from file " + m_filename + " : ";
 
     QFile dataFile( m_filename );
     if ( !dataFile.open( QFile::ReadOnly ) )
     {
-        outErrorText += "Could not open file: " + m_filename + "\n";
+        outErrorText += "Could not open file.";
         return false;
     }
 
@@ -72,67 +74,102 @@ bool RifParameterXmlReader::parseFile( QString& outErrorText )
     QString parameter;
     QString unit;
 
+    RimParameterGroup* group = nullptr;
+
+    bool bResult = true;
+
     while ( !xml.atEnd() )
     {
         if ( xml.readNextStartElement() )
         {
-            if ( xml.name() != "parameter" ) continue;
-
-            // check that we have the required attributes
-            std::list<QString> reqattrs = { QString( "name" ), QString( "label" ), QString( "type" ) };
-            for ( auto& reqattr : reqattrs )
+            if ( xml.name() == "group" )
             {
-                if ( !xml.attributes().hasAttribute( reqattr ) )
+                if ( group != nullptr )
                 {
-                    outErrorText = "Missing required attribute \"" + reqattr + "\" for a parameter.";
-                    return false;
+                    m_parameters.push_back( group );
                 }
+
+                group = new RimParameterGroup();
+                if ( xml.attributes().hasAttribute( "label" ) )
+                {
+                    group->setName( xml.attributes().value( "label" ).toString() );
+                }
+                if ( xml.attributes().hasAttribute( "expanded" ) )
+                {
+                    group->setExpanded( xml.attributes().value( "expanded" ).toString().toLower() == "true" );
+                }
+                continue;
             }
 
-            // get a parameter of the required type
-            QString paramtypestr = xml.attributes().value( "type" ).toString().toLower();
-
-            RimGenericParameter* parameter = getParameterFromTypeStr( paramtypestr );
-            if ( parameter == nullptr )
+            if ( xml.name() == "parameter" )
             {
-                outErrorText = "Unsupported parameter type found: " + paramtypestr;
-                return false;
+                if ( group == nullptr ) continue;
+
+                // check that we have the required attributes
+                std::list<QString> reqattrs = { QString( "name" ), QString( "label" ), QString( "type" ) };
+                for ( auto& reqattr : reqattrs )
+                {
+                    if ( !xml.attributes().hasAttribute( reqattr ) )
+                    {
+                        outErrorText = "Missing required attribute \"" + reqattr + "\" for a parameter.";
+                        bResult      = false;
+                        break;
+                    }
+                }
+
+                // get a parameter of the required type
+                QString paramtypestr = xml.attributes().value( "type" ).toString().toLower();
+
+                RimGenericParameter* parameter = getParameterFromTypeStr( paramtypestr );
+                if ( parameter == nullptr )
+                {
+                    outErrorText = "Unsupported parameter type found: " + paramtypestr;
+                    bResult      = false;
+                    break;
+                }
+
+                parameter->setName( xml.attributes().value( "name" ).toString() );
+                parameter->setLabel( xml.attributes().value( "label" ).toString() );
+                parameter->setAdvanced( false );
+
+                if ( xml.attributes().hasAttribute( "advanced" ) )
+                {
+                    if ( xml.attributes().value( "advanced" ).toString().toLower() == "true" )
+                        parameter->setAdvanced( true );
+                }
+
+                if ( xml.attributes().hasAttribute( "description" ) )
+                {
+                    parameter->setDescription( xml.attributes().value( "description" ).toString() );
+                }
+
+                parameter->setValue( xml.readElementText().trimmed() );
+                if ( !parameter->isValid() )
+                {
+                    outErrorText = "Invalid parameter value found for parameter: " + parameter->name();
+                    delete parameter;
+                    bResult = false;
+                    break;
+                }
+
+                group->addParameter( parameter );
             }
-
-            parameter->setName( xml.attributes().value( "name" ).toString() );
-            parameter->setLabel( xml.attributes().value( "label" ).toString() );
-            parameter->setAdvanced( false );
-
-            if ( xml.attributes().hasAttribute( "advanced" ) )
-            {
-                if ( xml.attributes().value( "advanced" ).toString().toLower() == "true" )
-                    parameter->setAdvanced( true );
-            }
-
-            if ( xml.attributes().hasAttribute( "description" ) )
-            {
-                parameter->setDescription( xml.attributes().value( "description" ).toString() );
-            }
-
-            parameter->setValue( xml.readElementText().trimmed() );
-            if ( !parameter->isValid() )
-            {
-                outErrorText = "Invalid parameter value found for parameter: " + parameter->name();
-                delete parameter;
-                return false;
-            }
-
-            m_parameters.push_back( parameter );
         }
+    }
+
+    if ( group != nullptr )
+    {
+        m_parameters.push_back( group );
     }
 
     dataFile.close();
 
-    outErrorText = "";
-    return true;
+    if ( bResult ) outErrorText = "";
+
+    return bResult;
 }
 
-std::list<RimGenericParameter*>& RifParameterXmlReader::parameters()
+std::list<RimParameterGroup*>& RifParameterXmlReader::parameterGroups()
 {
     return m_parameters;
 }

@@ -23,6 +23,7 @@
 #include "RimEclipseResultCase.h"
 #include "RimGenericParameter.h"
 #include "RimGeoMechCase.h"
+#include "RimParameterGroup.h"
 #include "RimProject.h"
 #include "RimTools.h"
 
@@ -38,17 +39,7 @@ CAF_PDM_SOURCE_INIT( RimFaultRASettings, "RimFaultRASettings" );
 ///
 //--------------------------------------------------------------------------------------------------
 RimFaultRASettings::RimFaultRASettings()
-    : m_basicParameterNames( { "e_reservoir",
-                               "e_overburden",
-                               "e_underburden",
-                               "v",
-                               "eclipse_smooth_faults",
-                               "octree_vertical_subdivision",
-                               "octree_local_tree_levels",
-                               "octree_minimum_resolution",
-                               "peak_filter_factor",
-                               "observation_points_resolution" } )
-    , m_ignoreParameterNames( { "fault_id", "eclipse_input_grid" } )
+    : m_ignoreParameterNames( { "fault_id", "eclipse_input_grid" } )
 {
     CAF_PDM_InitObject( "Reactivation Assessment Settings", ":/fault_react_24x24.png", "", "" );
 
@@ -61,20 +52,7 @@ RimFaultRASettings::RimFaultRASettings()
     CAF_PDM_InitFieldNoDefault( &m_baseDir, "BaseDir", "Output Directory", "", "", "" );
     m_baseDir.uiCapability()->setUiReadOnly( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_basicParameters, "BasicParameters", "Basic Calculation Parameters", "", "", "" );
-    m_basicParameters.uiCapability()->setUiEditorTypeName( caf::PdmUiTableViewEditor::uiEditorTypeName() );
-    m_basicParameters.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
-    m_basicParameters.uiCapability()->setCustomContextMenuEnabled( true );
-
-    CAF_PDM_InitFieldNoDefault( &m_additionalParameters, "AdditionalParameters", "Additional Calculation Parameters", "", "", "" );
-    m_additionalParameters.uiCapability()->setUiEditorTypeName( caf::PdmUiTableViewEditor::uiEditorTypeName() );
-    m_additionalParameters.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
-    m_additionalParameters.uiCapability()->setCustomContextMenuEnabled( true );
-
-    CAF_PDM_InitFieldNoDefault( &m_advancedParameters, "AdvancedParameters", "Advanced Parameters", "", "", "" );
-    m_advancedParameters.uiCapability()->setUiEditorTypeName( caf::PdmUiTableViewEditor::uiEditorTypeName() );
-    m_advancedParameters.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
-    m_advancedParameters.uiCapability()->setCustomContextMenuEnabled( true );
+    CAF_PDM_InitFieldNoDefault( &m_parameters, "Parameters", "Parameters", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -100,16 +78,6 @@ void RimFaultRASettings::defineEditorAttribute( const caf::PdmFieldHandle* field
                                                 QString                    uiConfigName,
                                                 caf::PdmUiEditorAttribute* attribute )
 {
-    if ( ( field == &m_basicParameters ) || ( field == &m_additionalParameters ) || ( field == &m_advancedParameters ) )
-    {
-        auto tvAttribute = dynamic_cast<caf::PdmUiTableViewEditorAttribute*>( attribute );
-        if ( tvAttribute )
-        {
-            tvAttribute->resizePolicy              = caf::PdmUiTableViewEditorAttribute::RESIZE_TO_FILL_CONTAINER;
-            tvAttribute->alwaysEnforceResizePolicy = true;
-            tvAttribute->minimumHeight             = 300;
-        }
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -117,17 +85,6 @@ void RimFaultRASettings::defineEditorAttribute( const caf::PdmFieldHandle* field
 //--------------------------------------------------------------------------------------------------
 void RimFaultRASettings::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    auto basicGroup = uiOrdering.addNewGroup( "Basic Parameters" );
-    basicGroup->add( &m_basicParameters );
-
-    auto advGroup = uiOrdering.addNewGroup( "Advanced Parameters" );
-    advGroup->add( &m_advancedParameters );
-
-    auto addGroup = uiOrdering.addNewGroup( "Additional Parameters" );
-    addGroup->add( &m_additionalParameters );
-    addGroup->setCollapsedByDefault( true );
-
-    uiOrdering.skipRemainingFields( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -216,26 +173,6 @@ void RimFaultRASettings::useDefaultValuesFromFile( QString xmlFilename )
         // todo - log warning?
         return;
     }
-
-    for ( auto p : reader.parameters() )
-    {
-        if ( shouldIgnoreParameter( p->name() ) ) continue;
-
-        if ( p->isAdvanced() )
-            m_additionalParameters.push_back( p );
-        else
-            m_basicParameters.push_back( p );
-
-        // TODO - fix memleak for ignored parameters, should switch to some sort of refcounting
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RimFaultRASettings::isBasicParameter( QString name ) const
-{
-    return std::find( m_basicParameterNames.begin(), m_basicParameterNames.end(), name ) != m_basicParameterNames.end();
 }
 
 //--------------------------------------------------------------------------------------------------
