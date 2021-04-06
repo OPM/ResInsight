@@ -63,29 +63,32 @@ jobs:
           sudo apt-get install clang-tidy
           mv compile_commands.json compile_commands_original.json
           python ../scripts/fix_json_database.py compile_commands_original.json >> compile_commands.json
-      - name: clang-tidy on ApplicationCode/Application
+      - name: clang-tidy on ApplicationLibCode/Application
         run: |
           cd build
-          run-clang-tidy -fix files ApplicationCode/Application
-      - name: clang-tidy on ApplicationCode/ProjectDataModel
+          run-clang-tidy -fix files ApplicationLibCode/Application
+      - name: clang-tidy on ApplicationLibCode/ProjectDataModel
         run: |
           cd build
-          run-clang-tidy -fix files ApplicationCode/ProjectDataModel
-      - name: clang-tidy on ApplicationCode/ReservoirDataModel
+          run-clang-tidy -fix files ApplicationLibCode/ProjectDataModel
+      - name: clang-tidy on ApplicationLibCode/ReservoirDataModel
         run: |
           cd build
-          run-clang-tidy -fix files ApplicationCode/ReservoirDataModel
-      - name: clang-tidy on ApplicationCode/Commands
+          run-clang-tidy -fix files ApplicationLibCode/ReservoirDataModel
+      - name: clang-tidy on ApplicationLibCode/Commands
         run: |
           cd build
-          run-clang-tidy -fix files ApplicationCode/Commands
-      - name: clang-tidy on ApplicationCode/GeoMech
+          run-clang-tidy -fix files ApplicationLibCode/Commands
+      - name: clang-tidy on ApplicationLibCode/GeoMech
         run: |
           cd build
-          run-clang-tidy -fix files ApplicationCode/GeoMech
+          run-clang-tidy -fix files ApplicationLibCode/GeoMech
       - name: Remove Qt before creating PR
         run: |
           rm -rf Qt
+          cd ThirdParty/vcpkg
+          git reset --hard HEAD
+          git clean -fxd
       - uses: peter-evans/create-pull-request@v3
         with:
           token: ${{ secrets.GITHUB_TOKEN }}

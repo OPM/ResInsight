@@ -29,8 +29,8 @@
 
 #include "cafAppEnum.h"
 
+#include <climits>
 #include <cmath>
-#include <limits.h>
 
 namespace caf
 {

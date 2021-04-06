@@ -19,7 +19,7 @@
 
 #include "RigFemPartResults.h"
 #include "RigFemResultAddress.h"
-#include <stdlib.h>
+#include <cstdlib>
 
 //--------------------------------------------------------------------------------------------------
 ///
