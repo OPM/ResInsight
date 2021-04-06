@@ -27,7 +27,7 @@
 
 class RimEclipseResultCase;
 class RimGeoMechCase;
-class RimGenericParameter;
+class RimParameterGroup;
 
 class RimFaultRASettings : public caf::PdmObject
 {
@@ -60,17 +60,13 @@ protected:
                                 caf::PdmUiEditorAttribute* attribute ) override;
 
 private:
-    bool isBasicParameter( QString name ) const;
     bool shouldIgnoreParameter( QString name ) const;
 
-    const std::list<QString> m_basicParameterNames;
     const std::list<QString> m_ignoreParameterNames;
 
     caf::PdmPtrField<RimEclipseResultCase*> m_eclipseCase;
     caf::PdmPtrField<RimGeoMechCase*>       m_geomechCase;
     caf::PdmField<QString>                  m_baseDir;
 
-    caf::PdmChildArrayField<RimGenericParameter*> m_basicParameters;
-    caf::PdmChildArrayField<RimGenericParameter*> m_additionalParameters;
-    caf::PdmChildArrayField<RimGenericParameter*> m_advancedParameters;
+    caf::PdmChildArrayField<RimParameterGroup*> m_parameters;
 };

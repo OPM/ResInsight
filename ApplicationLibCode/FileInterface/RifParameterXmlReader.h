@@ -22,9 +22,7 @@
 
 #include <list>
 
-class QXmlStreamReader;
-
-class RimGenericParameter;
+class RimParameterGroup;
 
 class RifParameterXmlReader
 {
@@ -34,9 +32,9 @@ public:
 
     bool parseFile( QString& outErrorText );
 
-    std::list<RimGenericParameter*>& parameters();
+    std::list<RimParameterGroup*>& parameterGroups();
 
 private:
-    std::list<RimGenericParameter*> m_parameters;
-    QString                         m_filename;
+    std::list<RimParameterGroup*> m_parameters;
+    QString                       m_filename;
 };
