@@ -61,6 +61,8 @@ ${CMAKE_CURRENT_LIST_DIR}/RifStimPlanModelPerfsFrkExporter.h
 ${CMAKE_CURRENT_LIST_DIR}/RifStimPlanModelAsymmetricFrkExporter.h
 ${CMAKE_CURRENT_LIST_DIR}/RifSurfaceExporter.h
 ${CMAKE_CURRENT_LIST_DIR}/RifOpmCommonSummary.h
+${CMAKE_CURRENT_LIST_DIR}/RifHDF5SummaryReader.h
+${CMAKE_CURRENT_LIST_DIR}/RifOpmHdf5Summary.h
 
 
 
@@ -128,6 +130,8 @@ ${CMAKE_CURRENT_LIST_DIR}/RifStimPlanModelPerfsFrkExporter.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RifStimPlanModelAsymmetricFrkExporter.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RifSurfaceExporter.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RifOpmCommonSummary.cpp
+${CMAKE_CURRENT_LIST_DIR}/RifHDF5SummaryReader.cpp
+${CMAKE_CURRENT_LIST_DIR}/RifOpmHdf5Summary.cpp
 
 # HDF5 file reader is directly included in ResInsight main CmakeList.txt
 #${CMAKE_CURRENT_LIST_DIR}/RifHdf5Reader.cpp

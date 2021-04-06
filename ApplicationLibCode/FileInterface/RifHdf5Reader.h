@@ -24,6 +24,12 @@
 
 #include "H5Cpp.h"
 
+class RifHdf5ReaderTools
+{
+public:
+    static std::vector<std::string> getSubGroupNames( H5::H5File* file, const std::string& baseGroupName );
+};
+
 //==================================================================================================
 //
 //
