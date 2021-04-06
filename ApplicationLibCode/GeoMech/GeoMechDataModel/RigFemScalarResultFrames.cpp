@@ -19,7 +19,7 @@
 
 #include "RigFemScalarResultFrames.h"
 #include "RigStatisticsDataCache.h"
-#include <stdlib.h>
+#include <cstdlib>
 
 //--------------------------------------------------------------------------------------------------
 ///

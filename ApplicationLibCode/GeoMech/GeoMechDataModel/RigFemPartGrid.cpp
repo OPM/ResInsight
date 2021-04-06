@@ -22,8 +22,8 @@
 #include "RigFemPart.h"
 
 #include <array>
+#include <climits>
 #include <cmath>
-#include <limits.h>
 
 //--------------------------------------------------------------------------------------------------
 ///

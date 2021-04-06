@@ -60,7 +60,7 @@ std::vector<Rim2dIntersectionView*> Rim2dIntersectionViewCollection::views()
 //--------------------------------------------------------------------------------------------------
 void Rim2dIntersectionViewCollection::syncFromExistingIntersections( bool doUpdate )
 {
-    RimCase* parentCase = NULL;
+    RimCase* parentCase = nullptr;
     this->firstAncestorOrThisOfTypeAsserted( parentCase );
 
     std::vector<RimExtrudedCurveIntersection*> allOrderedIntersectionsInCase;
