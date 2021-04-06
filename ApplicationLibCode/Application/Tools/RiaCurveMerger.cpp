@@ -1,7 +1,7 @@
 #include "RiaCurveMerger.h"
 
 #include <algorithm>
-#include <time.h>
+#include <ctime>
 
 //--------------------------------------------------------------------------------------------------
 ///
