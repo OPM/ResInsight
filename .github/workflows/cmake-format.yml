@@ -14,6 +14,7 @@ jobs:
       run: |
         cd ApplicationLibCode
         find -name CMake*.txt | xargs ~/.local/bin/cmake-format -c ${{ github.workspace }}/cmake/cmake-format.py -i
+        find -name CMake*.cmake | xargs ~/.local/bin/cmake-format -c ${{ github.workspace }}/cmake/cmake-format.py -i
         git diff
     - name: Check format - ApplicationExeCode
       run: |
