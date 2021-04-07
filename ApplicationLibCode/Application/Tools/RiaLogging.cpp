@@ -374,6 +374,5 @@ void RiaThreadSafeLogger::debug( const QString& message )
 //--------------------------------------------------------------------------------------------------
 std::vector<QString> RiaThreadSafeLogger::messages() const
 {
-#pragma omp critical( critical_section_logging )
     return m_messages;
 }

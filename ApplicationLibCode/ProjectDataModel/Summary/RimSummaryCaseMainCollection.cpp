@@ -441,16 +441,23 @@ void RimSummaryCaseMainCollection::loadFileSummaryCaseData( std::vector<RimFileS
 
     RifOpmCommonEclipseSummary::resetLodCount();
 
+    RiaThreadSafeLogger threadSafeLogger;
+
 #pragma omp parallel for schedule( dynamic )
     for ( int cIdx = 0; cIdx < static_cast<int>( fileSummaryCases.size() ); ++cIdx )
     {
         RimFileSummaryCase* fileSummaryCase = fileSummaryCases[cIdx];
         if ( fileSummaryCase )
         {
-            fileSummaryCase->createSummaryReaderInterface();
+            fileSummaryCase->createSummaryReaderInterfaceThreadSafe( &threadSafeLogger );
         }
 
         progInfo.setProgress( cIdx );
+    }
+
+    for ( const auto& txt : threadSafeLogger.messages() )
+    {
+        RiaLogging::info( txt );
     }
 
     auto numberOfLodFilesCreated = RifOpmCommonEclipseSummary::numberOfLodFilesCreated();

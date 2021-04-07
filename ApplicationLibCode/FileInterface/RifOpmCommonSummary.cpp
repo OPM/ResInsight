@@ -79,9 +79,11 @@ size_t RifOpmCommonEclipseSummary::numberOfLodFilesCreated()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RifOpmCommonEclipseSummary::open( const QString& headerFileName, bool includeRestartFiles )
+bool RifOpmCommonEclipseSummary::open( const QString&       headerFileName,
+                                       bool                 includeRestartFiles,
+                                       RiaThreadSafeLogger* threadSafeLogger )
 {
-    if ( !openESmryFile( headerFileName, includeRestartFiles ) ) return false;
+    if ( !openESmryFile( headerFileName, includeRestartFiles, threadSafeLogger ) ) return false;
 
     if ( m_createLodsmryFiles && !includeRestartFiles )
     {
@@ -96,7 +98,7 @@ bool RifOpmCommonEclipseSummary::open( const QString& headerFileName, bool inclu
             // object. Close the file object to make sure allocated data is released, and create a new file object
             // that will import only the meta data and no curve data. This is a relatively fast operation.
 
-            if ( !openESmryFile( headerFileName, includeRestartFiles ) ) return false;
+            if ( !openESmryFile( headerFileName, includeRestartFiles, threadSafeLogger ) ) return false;
         }
     }
 
@@ -189,7 +191,9 @@ void RifOpmCommonEclipseSummary::buildMetaData()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RifOpmCommonEclipseSummary::openESmryFile( const QString& headerFileName, bool includeRestartFiles )
+bool RifOpmCommonEclipseSummary::openESmryFile( const QString&       headerFileName,
+                                                bool                 includeRestartFiles,
+                                                RiaThreadSafeLogger* threadSafeLogger )
 {
     try
     {
@@ -199,7 +203,8 @@ bool RifOpmCommonEclipseSummary::openESmryFile( const QString& headerFileName, b
     catch ( std::exception& e )
     {
         QString txt = QString( "Optimized Summary Reader error : %1" ).arg( e.what() );
-        RiaLogging::error( txt );
+
+        if ( threadSafeLogger ) threadSafeLogger->error( txt );
 
         return false;
     }

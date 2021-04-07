@@ -41,6 +41,8 @@ namespace EclIO
 } // namespace EclIO
 } // namespace Opm
 
+class RiaThreadSafeLogger;
+
 class RifOpmCommonSummaryTools
 {
 public:
@@ -67,7 +69,7 @@ public:
     static void   resetLodCount();
     static size_t numberOfLodFilesCreated();
 
-    bool open( const QString& headerFileName, bool includeRestartFiles );
+    bool open( const QString& headerFileName, bool includeRestartFiles, RiaThreadSafeLogger* threadSafeLogger );
 
     const std::vector<time_t>& timeSteps( const RifEclipseSummaryAddress& resultAddress ) const override;
     bool        values( const RifEclipseSummaryAddress& resultAddress, std::vector<double>* values ) const override;
@@ -76,7 +78,7 @@ public:
 
 private:
     void buildMetaData();
-    bool openESmryFile( const QString& headerFileName, bool includeRestartFiles );
+    bool openESmryFile( const QString& headerFileName, bool includeRestartFiles, RiaThreadSafeLogger* threadSafeLogger );
 
     static void increaseLodFileCount();
 

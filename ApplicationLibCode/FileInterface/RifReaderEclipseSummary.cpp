@@ -161,7 +161,7 @@ bool RifReaderEclipseSummary::open( const QString&       headerFileName,
     {
 #ifdef USE_HDF5
         m_hdf5OpmReader = std::make_unique<RifOpmHdf5Summary>();
-        isValid         = m_hdf5OpmReader->open( headerFileName, false );
+        isValid         = m_hdf5OpmReader->open( headerFileName, false, threadSafeLogger );
 #endif
     }
     else if ( RiaPreferences::current()->summaryDataReader() == RiaPreferences::SummaryReaderMode::OPM_COMMON )
@@ -169,8 +169,8 @@ bool RifReaderEclipseSummary::open( const QString&       headerFileName,
         bool useLodsmryFiles = RiaPreferences::current()->useOptimizedSummaryDataFiles();
         if ( useLodsmryFiles && includeRestartFiles )
         {
-            RiaLogging::error(
-                "LODSMRY file loading for summary restart files is not supported. Disable one of the options" );
+            QString txt = "LODSMRY file loading for summary restart files is not supported. Disable one of the options";
+            if ( threadSafeLogger ) threadSafeLogger->error( txt );
 
             return false;
         }
@@ -179,7 +179,7 @@ bool RifReaderEclipseSummary::open( const QString&       headerFileName,
 
         m_opmCommonReader->useLodsmaryFiles( RiaPreferences::current()->useOptimizedSummaryDataFiles() );
         m_opmCommonReader->createLodsmaryFiles( RiaPreferences::current()->createOptimizedSummaryDataFiles() );
-        isValid = m_opmCommonReader->open( headerFileName, includeRestartFiles );
+        isValid = m_opmCommonReader->open( headerFileName, includeRestartFiles, threadSafeLogger );
     }
     else if ( RiaPreferences::current()->summaryDataReader() == RiaPreferences::SummaryReaderMode::LIBECL )
     {

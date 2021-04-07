@@ -85,7 +85,7 @@ TEST( HDFTests, ReadOpmSummaryData )
     QString filePath = H5_TEST_DATA_DIRECTORY + "NORNE_ATW2013_RFTPLT_V2.SMSPEC";
 
     RifOpmHdf5Summary hdf5SummaryReader;
-    hdf5SummaryReader.open( filePath, false );
+    hdf5SummaryReader.open( filePath, false, nullptr );
 
     auto addresses = hdf5SummaryReader.allResultAddresses();
     EXPECT_EQ( size_t( 2770 ), addresses.size() );

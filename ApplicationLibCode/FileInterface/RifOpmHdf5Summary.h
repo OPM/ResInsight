@@ -33,6 +33,7 @@
 #include <vector>
 
 class RifHdf5SummaryReader;
+class RiaThreadSafeLogger;
 
 namespace Opm
 {
@@ -53,7 +54,7 @@ public:
     RifOpmHdf5Summary();
     ~RifOpmHdf5Summary();
 
-    bool open( const QString& headerFileName, bool includeRestartFiles );
+    bool open( const QString& headerFileName, bool includeRestartFiles, RiaThreadSafeLogger* threadSafeLogger );
 
     const std::vector<time_t>& timeSteps( const RifEclipseSummaryAddress& resultAddress ) const override;
     bool        values( const RifEclipseSummaryAddress& resultAddress, std::vector<double>* values ) const override;
@@ -62,7 +63,7 @@ public:
 
 private:
     void buildMetaData();
-    bool openESmryFile( const QString& headerFileName, bool includeRestartFiles );
+    bool openESmryFile( const QString& headerFileName, bool includeRestartFiles, RiaThreadSafeLogger* threadSafeLogger );
 
 private:
     std::unique_ptr<Opm::EclIO::ESmry>         m_eSmry;

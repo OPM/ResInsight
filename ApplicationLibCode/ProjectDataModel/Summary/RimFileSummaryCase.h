@@ -25,6 +25,7 @@
 class RifReaderRftInterface;
 class RifReaderEclipseRft;
 class RifReaderEclipseSummary;
+class RiaThreadSafeLogger;
 
 //==================================================================================================
 //
@@ -43,6 +44,7 @@ public:
     QString caseName() const override;
     void    updateFilePathsFromProjectPath( const QString& newProjectPath, const QString& oldProjectPath ) override;
 
+    void                       createSummaryReaderInterfaceThreadSafe( RiaThreadSafeLogger* threadSafeLogger );
     void                       createSummaryReaderInterface() override;
     void                       createRftReaderInterface() override;
     RifSummaryReaderInterface* summaryReader() override;
@@ -50,9 +52,11 @@ public:
 
     void setIncludeRestartFiles( bool includeRestartFiles );
 
-    static RifReaderEclipseSummary* findRelatedFilesAndCreateReader( const QString& headerFileName,
-                                                                     bool           includeRestartFiles );
-    static RifReaderEclipseRft*     findRftDataAndCreateReader( const QString& headerFileName );
+    static RifReaderEclipseSummary* findRelatedFilesAndCreateReader( const QString&       headerFileName,
+                                                                     bool                 includeRestartFiles,
+                                                                     RiaThreadSafeLogger* threadSafeLogger );
+
+    static RifReaderEclipseRft* findRftDataAndCreateReader( const QString& headerFileName );
 
 private:
     cvf::ref<RifReaderEclipseSummary> m_summaryFileReader;

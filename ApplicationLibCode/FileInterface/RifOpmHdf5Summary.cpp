@@ -18,7 +18,7 @@
 
 #include "RifOpmHdf5Summary.h"
 
-//#include "RiaLogging.h"
+#include "RiaLogging.h"
 
 #include "RifHdf5SummaryReader.h"
 #include "RifOpmCommonSummary.h"
@@ -48,12 +48,13 @@ RifOpmHdf5Summary::~RifOpmHdf5Summary()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RifOpmHdf5Summary::open( const QString& headerFileName, bool includeRestartFiles )
+bool RifOpmHdf5Summary::open( const QString& headerFileName, bool includeRestartFiles, RiaThreadSafeLogger* threadSafeLogger )
 {
-    if ( !openESmryFile( headerFileName, includeRestartFiles ) )
+    if ( !openESmryFile( headerFileName, includeRestartFiles, threadSafeLogger ) )
     {
         QString errorTxt = "Failed to open " + headerFileName;
-        // RiaLogging::error( errorTxt );
+
+        if ( threadSafeLogger ) threadSafeLogger->error( errorTxt );
 
         return false;
     }
@@ -64,7 +65,7 @@ bool RifOpmHdf5Summary::open( const QString& headerFileName, bool includeRestart
     if ( !QFile::exists( hdfFileName ) )
     {
         QString errorTxt = "Failed to open " + headerFileName;
-        // RiaLogging::error( errorTxt );
+        if ( threadSafeLogger ) threadSafeLogger->error( errorTxt );
 
         return false;
     }
@@ -174,7 +175,9 @@ void RifOpmHdf5Summary::buildMetaData()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RifOpmHdf5Summary::openESmryFile( const QString& headerFileName, bool includeRestartFiles )
+bool RifOpmHdf5Summary::openESmryFile( const QString&       headerFileName,
+                                       bool                 includeRestartFiles,
+                                       RiaThreadSafeLogger* threadSafeLogger )
 {
     try
     {
@@ -183,7 +186,8 @@ bool RifOpmHdf5Summary::openESmryFile( const QString& headerFileName, bool inclu
     catch ( std::exception& e )
     {
         QString txt = QString( "Optimized Summary Reader error : %1" ).arg( e.what() );
-        // RiaLogging::error( txt );
+
+        if ( threadSafeLogger ) threadSafeLogger->error( txt );
 
         return false;
     }
