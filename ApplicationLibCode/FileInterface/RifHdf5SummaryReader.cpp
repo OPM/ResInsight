@@ -17,10 +17,15 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RifHdf5SummaryReader.h"
+
 #include "RiaLogging.h"
+#include "RiaQDateTimeTools.h"
+#include "RiaTimeTTools.h"
+#include "RifHdf5Reader.h"
 
 #include "H5Cpp.h"
-#include "RifHdf5Reader.h"
+
+#include <QDateTime>
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -76,7 +81,33 @@ std::vector<std::string> RifHdf5SummaryReader::vectorNames()
 std::vector<time_t> RifHdf5SummaryReader::timeSteps() const
 {
     std::vector<time_t> times;
-    times.push_back( startDate() );
+
+    // TODO: This function uses code taken from ESmry::dates(). There is conversion from time_t to
+    // chrono::system_clock::time_points, and then back to time_t again. Consider using one representation
+
+    double time_unit = 24 * 3600;
+
+    using namespace std::chrono;
+    using TP      = time_point<system_clock>;
+    using DoubSec = duration<double, seconds::period>;
+
+    auto timeDeltasInDays = values( "TIME" );
+
+    std::vector<std::chrono::system_clock::time_point> timePoints;
+
+    TP startDat = std::chrono::system_clock::from_time_t( startDate() );
+
+    timePoints.reserve( timeDeltasInDays.size() );
+    for ( const auto& t : timeDeltasInDays )
+    {
+        timePoints.push_back( startDat + duration_cast<TP::duration>( DoubSec( t * time_unit ) ) );
+    }
+
+    for ( const auto& d : timePoints )
+    {
+        auto timeAsTimeT = std::chrono::system_clock::to_time_t( d );
+        times.push_back( timeAsTimeT );
+    }
 
     return times;
 }
@@ -172,25 +203,31 @@ time_t RifHdf5SummaryReader::startDate() const
 
             QString groupPath = QString( "general" );
 
-            {
-                H5::Group   GridFunction_00002 = m_hdfFile->openGroup( groupPath.toStdString().c_str() );
-                H5::DataSet dataset            = H5::DataSet( GridFunction_00002.openDataSet( "start_date" ) );
+            H5::Group   GridFunction_00002 = m_hdfFile->openGroup( groupPath.toStdString().c_str() );
+            H5::DataSet dataset            = H5::DataSet( GridFunction_00002.openDataSet( "start_date" ) );
 
-                hsize_t       dims[2];
-                H5::DataSpace dataspace = dataset.getSpace();
-                dataspace.getSimpleExtentDims( dims, nullptr );
+            hsize_t       dims[2];
+            H5::DataSpace dataspace = dataset.getSpace();
+            dataspace.getSimpleExtentDims( dims, nullptr );
 
-                std::vector<int> values;
-                values.resize( dims[0] );
-                dataset.read( values.data(), H5::PredType::NATIVE_INT );
+            std::vector<int> values;
+            values.resize( dims[0] );
+            dataset.read( values.data(), H5::PredType::NATIVE_INT );
 
-                time_t myTime;
-                return myTime;
-            }
+            int day   = values[0];
+            int month = values[1];
+            int year  = values[2];
+
+            QDateTime reportDateTime = RiaQDateTimeTools::createUtcDateTime( QDate( year, month, day ) );
+
+            time_t myTime = RiaTimeTTools::fromQDateTime( reportDateTime );
+            return myTime;
         }
         catch ( ... )
         {
         }
+
+        RiaLogging::error( "Not able to read start_date from HDF5 " );
     }
 
     return {};

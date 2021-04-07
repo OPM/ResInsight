@@ -64,9 +64,6 @@ private:
     void buildMetaData();
     bool openESmryFile( const QString& headerFileName, bool includeRestartFiles );
 
-    static RifEclipseSummaryAddress createAddressFromSummaryNode( const Opm::EclIO::SummaryNode& summaryNode,
-                                                                  Opm::EclIO::ESmry*             summaryFile );
-
 private:
     std::unique_ptr<Opm::EclIO::ESmry>         m_eSmry;
     std::vector<std::string>                   m_eSmryKeywords;

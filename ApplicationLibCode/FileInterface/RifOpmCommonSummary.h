@@ -41,6 +41,16 @@ namespace EclIO
 } // namespace EclIO
 } // namespace Opm
 
+class RifOpmCommonSummaryTools
+{
+public:
+    static RifEclipseSummaryAddress createAddressFromSummaryNode( const Opm::EclIO::SummaryNode& summaryNode,
+                                                                  const Opm::EclIO::ESmry*       summaryFile );
+
+    static std::pair<std::set<RifEclipseSummaryAddress>, std::map<RifEclipseSummaryAddress, size_t>>
+        buildMetaData( const Opm::EclIO::ESmry* summaryFile );
+};
+
 //==================================================================================================
 //
 //
@@ -69,9 +79,6 @@ private:
     bool openESmryFile( const QString& headerFileName, bool includeRestartFiles );
 
     static void increaseLodFileCount();
-
-    static RifEclipseSummaryAddress createAddressFromSummaryNode( const Opm::EclIO::SummaryNode& summaryNode,
-                                                                  Opm::EclIO::ESmry*             summaryFile );
 
 private:
     std::unique_ptr<Opm::EclIO::ESmry>         m_eSmry;
