@@ -18,7 +18,7 @@
 
 #include "RifOpmHdf5Summary.h"
 
-#include "RiaLogging.h"
+//#include "RiaLogging.h"
 
 #include "RifHdf5SummaryReader.h"
 #include "RifOpmCommonSummary.h"
@@ -53,7 +53,7 @@ bool RifOpmHdf5Summary::open( const QString& headerFileName, bool includeRestart
     if ( !openESmryFile( headerFileName, includeRestartFiles ) )
     {
         QString errorTxt = "Failed to open " + headerFileName;
-        RiaLogging::error( errorTxt );
+        // RiaLogging::error( errorTxt );
 
         return false;
     }
@@ -64,7 +64,7 @@ bool RifOpmHdf5Summary::open( const QString& headerFileName, bool includeRestart
     if ( !QFile::exists( hdfFileName ) )
     {
         QString errorTxt = "Failed to open " + headerFileName;
-        RiaLogging::error( errorTxt );
+        // RiaLogging::error( errorTxt );
 
         return false;
     }
@@ -183,7 +183,7 @@ bool RifOpmHdf5Summary::openESmryFile( const QString& headerFileName, bool inclu
     catch ( std::exception& e )
     {
         QString txt = QString( "Optimized Summary Reader error : %1" ).arg( e.what() );
-        RiaLogging::error( txt );
+        // RiaLogging::error( txt );
 
         return false;
     }

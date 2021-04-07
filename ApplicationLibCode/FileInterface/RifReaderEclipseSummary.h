@@ -32,6 +32,8 @@
 #include <vector>
 
 class RifOpmCommonEclipseSummary;
+class RifOpmHdf5Summary;
+class RiaThreadSafeLogger;
 
 //==================================================================================================
 //
@@ -68,7 +70,7 @@ public:
     RifReaderEclipseSummary();
     ~RifReaderEclipseSummary() override;
 
-    bool open( const QString& headerFileName, bool includeRestartFiles );
+    bool open( const QString& headerFileName, bool includeRestartFiles, RiaThreadSafeLogger* threadSafeLogger );
 
     std::vector<RifRestartFileInfo> getRestartFiles( const QString& headerFileName, bool* hasWarnings );
     RifRestartFileInfo              getFileInfo( const QString& headerFileName );
@@ -107,6 +109,10 @@ private:
     std::set<RifEclipseSummaryAddress> m_differenceAddresses;
 
     std::unique_ptr<RifOpmCommonEclipseSummary> m_opmCommonReader;
+
+#ifdef USE_HDF5
+    std::unique_ptr<RifOpmHdf5Summary> m_hdf5OpmReader;
+#endif
 
     //==================================================================================================
     //
