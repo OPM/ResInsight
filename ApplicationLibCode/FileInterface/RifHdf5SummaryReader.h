@@ -24,6 +24,8 @@
 #include <string>
 #include <vector>
 
+class QString;
+
 // namespace H5
 // {
 // class H5File;
