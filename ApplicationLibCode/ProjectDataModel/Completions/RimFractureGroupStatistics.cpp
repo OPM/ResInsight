@@ -172,8 +172,14 @@ std::vector<QString> RimFractureGroupStatistics::computeStatistics()
     std::map<std::pair<RimFractureGroupStatistics::StatisticsType, QString>, std::shared_ptr<RigSlice2D>> statisticsGridsAll;
 
     // TODO: take from an incoming xml?
-    double timeStep       = 100.0;
-    double referenceDepth = 3000.0;
+    double timeStep = 1.0;
+
+    double referenceDepth = 0.0;
+    for ( auto definition : stimPlanFractureDefinitions )
+    {
+        referenceDepth += computeDepthOfWellPathAtFracture( definition );
+    }
+    referenceDepth /= stimPlanFractureDefinitions.size();
 
     int numSamplesX = m_numSamplesX();
     int numSamplesY = m_numSamplesY();
