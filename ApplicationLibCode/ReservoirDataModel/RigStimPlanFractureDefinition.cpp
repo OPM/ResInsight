@@ -356,21 +356,26 @@ std::vector<std::vector<double>>
 
     conductivityValues = this->getDataAtTimeIndex( resultName, conductivityUnitTextOnFile, activeTimeStepIndex );
 
-    // Convert to the conductivity unit system used by the fracture template
-    // The conductivity value is used in the computations of transmissibility when exporting COMPDAT, and has unit md-m
-    // or md-ft This unit must match the unit used to represent coordinates of the grid used for export
-
-    for ( auto& yValues : conductivityValues )
+    // Check that the data is in the required unit system.
+    // Convert if not the case.
+    if ( requiredUnitSet != unitSet() )
     {
-        for ( auto& xVal : yValues )
+        // Convert to the conductivity unit system used by the fracture template
+        // The conductivity value is used in the computations of transmissibility when exporting COMPDAT, and has unit
+        // md-m or md-ft This unit must match the unit used to represent coordinates of the grid used for export
+
+        for ( auto& yValues : conductivityValues )
         {
-            if ( requiredUnitSet == RiaDefines::EclipseUnitSystem::UNITS_FIELD )
+            for ( auto& xVal : yValues )
             {
-                xVal = RiaEclipseUnitTools::convertToFeet( xVal, conductivityUnitTextOnFile );
-            }
-            else if ( requiredUnitSet == RiaDefines::EclipseUnitSystem::UNITS_METRIC )
-            {
-                xVal = RiaEclipseUnitTools::convertToMeter( xVal, conductivityUnitTextOnFile );
+                if ( requiredUnitSet == RiaDefines::EclipseUnitSystem::UNITS_FIELD )
+                {
+                    xVal = RiaEclipseUnitTools::convertToFeet( xVal, conductivityUnitTextOnFile );
+                }
+                else if ( requiredUnitSet == RiaDefines::EclipseUnitSystem::UNITS_METRIC )
+                {
+                    xVal = RiaEclipseUnitTools::convertToMeter( xVal, conductivityUnitTextOnFile );
+                }
             }
         }
     }
