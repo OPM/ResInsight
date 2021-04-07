@@ -203,13 +203,13 @@ std::vector<QString> RimFractureGroupStatistics::computeStatistics()
 
         for ( int y = 0; y < numSamplesY; y++ )
         {
-            double posY = minY + y * sampleDistanceY;
+            double posY = minY + y * sampleDistanceY + sampleDistanceY * 0.5;
             gridYs[y]   = referenceDepth - posY;
         }
 
         for ( int x = 0; x < numSamplesX; x++ )
         {
-            double posX = minX + x * sampleDistanceX;
+            double posX = minX + x * sampleDistanceX + sampleDistanceX * 0.5;
             gridXs[x]   = posX;
         }
 
@@ -440,8 +440,8 @@ void RimFractureGroupStatistics::sampleAllGrids( const std::vector<cvf::cref<Rig
     {
         for ( int x = 0; x < numSamplesX; x++ )
         {
-            double posX = minX + x * sampleDistanceX;
-            double posY = minY + y * sampleDistanceY;
+            double posX = minX + x * sampleDistanceX + sampleDistanceX * 0.5;
+            double posY = minY + y * sampleDistanceY + sampleDistanceY * 0.5;
 
             for ( auto fractureGrid : fractureGrids )
             {
