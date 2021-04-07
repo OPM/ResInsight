@@ -20,6 +20,7 @@
 
 #include <memory>
 #include <string>
+#include <vector>
 
 class QString;
 class QWidget;
@@ -106,4 +107,21 @@ class RiaStdOutLogger : public RiuMessageLoggerBase
 {
 public:
     void writeMessageToLogger( const std::string& str ) override;
+};
+
+//==================================================================================================
+//
+//==================================================================================================
+class RiaThreadSafeLogger
+{
+public:
+    void error( const QString& message );
+    void warning( const QString& message );
+    void info( const QString& message );
+    void debug( const QString& message );
+
+    std::vector<QString> messages() const;
+
+private:
+    std::vector<QString> m_messages;
 };
