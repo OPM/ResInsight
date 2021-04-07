@@ -16,8 +16,7 @@ jobs:
 
         cd ApplicationLibCode
         find -name CMake*.txt | xargs ~/.local/bin/cmake-format -c ${{ github.workspace }}/cmake/cmake-format.py -i
-        cd ..
-
+        find -name CMake*.cmake | xargs ~/.local/bin/cmake-format -c ${{ github.workspace }}/cmake/cmake-format.py -i
         cd ApplicationExeCode
         find -name CMake*.txt | xargs ~/.local/bin/cmake-format -c ${{ github.workspace }}/cmake/cmake-format.py -i
         cd ..
