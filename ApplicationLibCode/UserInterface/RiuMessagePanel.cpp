@@ -25,6 +25,7 @@
 #include <QDockWidget>
 #include <QMenu>
 #include <QPlainTextEdit>
+#include <QThread>
 #include <QVBoxLayout>
 
 //==================================================================================================
@@ -214,7 +215,13 @@ void RiuMessagePanelLogger::writeToMessagePanel( RILogLevel messageLevel, const 
     {
         if ( panel )
         {
-            panel->addMessage( messageLevel, message );
+            // Make sure we only output messages for the GUI-thread.
+            // We can loose some messages, but we avoid updating UI from a different thread that will cause asserts and
+            // potential crashes
+            if ( panel->thread() == QThread::currentThread() )
+            {
+                panel->addMessage( messageLevel, message );
+            }
         }
     }
 }
