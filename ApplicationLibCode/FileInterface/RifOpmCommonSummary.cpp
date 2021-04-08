@@ -79,9 +79,11 @@ size_t RifOpmCommonEclipseSummary::numberOfLodFilesCreated()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RifOpmCommonEclipseSummary::open( const QString& headerFileName, bool includeRestartFiles )
+bool RifOpmCommonEclipseSummary::open( const QString&       headerFileName,
+                                       bool                 includeRestartFiles,
+                                       RiaThreadSafeLogger* threadSafeLogger )
 {
-    if ( !openESmryFile( headerFileName, includeRestartFiles ) ) return false;
+    if ( !openESmryFile( headerFileName, includeRestartFiles, threadSafeLogger ) ) return false;
 
     if ( m_createLodsmryFiles && !includeRestartFiles )
     {
@@ -96,7 +98,7 @@ bool RifOpmCommonEclipseSummary::open( const QString& headerFileName, bool inclu
             // object. Close the file object to make sure allocated data is released, and create a new file object
             // that will import only the meta data and no curve data. This is a relatively fast operation.
 
-            if ( !openESmryFile( headerFileName, includeRestartFiles ) ) return false;
+            if ( !openESmryFile( headerFileName, includeRestartFiles, threadSafeLogger ) ) return false;
         }
     }
 
@@ -179,25 +181,19 @@ void RifOpmCommonEclipseSummary::buildMetaData()
             m_timeSteps.push_back( timeAsTimeT );
         }
 
-        auto nodes = m_eSmry->summaryNodeList();
-        for ( size_t i = 0; i < nodes.size(); i++ )
-        {
-            auto summaryNode = nodes[i];
-            auto eclAdr      = createAddressFromSummaryNode( summaryNode, m_eSmry.get() );
+        auto [addresses, addressMap] = RifOpmCommonSummaryTools::buildMetaData( m_eSmry.get() );
 
-            if ( eclAdr.isValid() )
-            {
-                m_allResultAddresses.insert( eclAdr );
-                m_adrToSummaryNodeIndex[eclAdr] = i;
-            }
-        }
+        m_allResultAddresses    = addresses;
+        m_adrToSummaryNodeIndex = addressMap;
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RifOpmCommonEclipseSummary::openESmryFile( const QString& headerFileName, bool includeRestartFiles )
+bool RifOpmCommonEclipseSummary::openESmryFile( const QString&       headerFileName,
+                                                bool                 includeRestartFiles,
+                                                RiaThreadSafeLogger* threadSafeLogger )
 {
     try
     {
@@ -207,7 +203,8 @@ bool RifOpmCommonEclipseSummary::openESmryFile( const QString& headerFileName, b
     catch ( std::exception& e )
     {
         QString txt = QString( "Optimized Summary Reader error : %1" ).arg( e.what() );
-        RiaLogging::error( txt );
+
+        if ( threadSafeLogger ) threadSafeLogger->error( txt );
 
         return false;
     }
@@ -228,47 +225,75 @@ void RifOpmCommonEclipseSummary::increaseLodFileCount()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifEclipseSummaryAddress RifOpmCommonEclipseSummary::createAddressFromSummaryNode( const Opm::EclIO::SummaryNode& node,
-                                                                                   Opm::EclIO::ESmry* summaryFile )
+RifEclipseSummaryAddress RifOpmCommonSummaryTools::createAddressFromSummaryNode( const Opm::EclIO::SummaryNode& summaryNode,
+                                                                                 const Opm::EclIO::ESmry* summaryFile )
 {
     int i = -1;
     int j = -1;
     int k = -1;
 
-    switch ( node.category )
+    switch ( summaryNode.category )
     {
         case Opm::EclIO::SummaryNode::Category::Aquifer:
-            return RifEclipseSummaryAddress::aquiferAddress( node.keyword, node.number );
+            return RifEclipseSummaryAddress::aquiferAddress( summaryNode.keyword, summaryNode.number );
             break;
         case Opm::EclIO::SummaryNode::Category::Well:
-            return RifEclipseSummaryAddress::wellAddress( node.keyword, node.wgname );
+            return RifEclipseSummaryAddress::wellAddress( summaryNode.keyword, summaryNode.wgname );
             break;
         case Opm::EclIO::SummaryNode::Category::Group:
-            return RifEclipseSummaryAddress::wellGroupAddress( node.keyword, node.wgname );
+            return RifEclipseSummaryAddress::wellGroupAddress( summaryNode.keyword, summaryNode.wgname );
             break;
         case Opm::EclIO::SummaryNode::Category::Field:
-            return RifEclipseSummaryAddress::fieldAddress( node.keyword );
+            return RifEclipseSummaryAddress::fieldAddress( summaryNode.keyword );
             break;
         case Opm::EclIO::SummaryNode::Category::Region:
-            return RifEclipseSummaryAddress::regionAddress( node.keyword, node.number );
+            return RifEclipseSummaryAddress::regionAddress( summaryNode.keyword, summaryNode.number );
             break;
         case Opm::EclIO::SummaryNode::Category::Block:
-            summaryFile->ijk_from_global_index( node.number, i, j, k );
-            return RifEclipseSummaryAddress::blockAddress( node.keyword, i, j, k );
+            summaryFile->ijk_from_global_index( summaryNode.number, i, j, k );
+            return RifEclipseSummaryAddress::blockAddress( summaryNode.keyword, i, j, k );
             break;
         case Opm::EclIO::SummaryNode::Category::Connection:
-            summaryFile->ijk_from_global_index( node.number, i, j, k );
-            return RifEclipseSummaryAddress::wellCompletionAddress( node.keyword, node.wgname, i, j, k );
+            summaryFile->ijk_from_global_index( summaryNode.number, i, j, k );
+            return RifEclipseSummaryAddress::wellCompletionAddress( summaryNode.keyword, summaryNode.wgname, i, j, k );
             break;
         case Opm::EclIO::SummaryNode::Category::Segment:
-            return RifEclipseSummaryAddress::wellSegmentAddress( node.keyword, node.wgname, node.number );
+            return RifEclipseSummaryAddress::wellSegmentAddress( summaryNode.keyword, summaryNode.wgname, summaryNode.number );
             break;
         case Opm::EclIO::SummaryNode::Category::Miscellaneous:
-            return RifEclipseSummaryAddress::miscAddress( node.keyword );
+            return RifEclipseSummaryAddress::miscAddress( summaryNode.keyword );
             break;
         default:
             break;
     }
 
     return RifEclipseSummaryAddress();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::pair<std::set<RifEclipseSummaryAddress>, std::map<RifEclipseSummaryAddress, size_t>>
+    RifOpmCommonSummaryTools::buildMetaData( const Opm::EclIO::ESmry* summaryFile )
+{
+    std::set<RifEclipseSummaryAddress>         addresses;
+    std::map<RifEclipseSummaryAddress, size_t> addressToNodeIndexMap;
+
+    if ( summaryFile )
+    {
+        auto nodes = summaryFile->summaryNodeList();
+        for ( size_t i = 0; i < nodes.size(); i++ )
+        {
+            auto summaryNode = nodes[i];
+            auto eclAdr      = createAddressFromSummaryNode( summaryNode, summaryFile );
+
+            if ( eclAdr.isValid() )
+            {
+                addresses.insert( eclAdr );
+                addressToNodeIndexMap[eclAdr] = i;
+            }
+        }
+    }
+
+    return { addresses, addressToNodeIndexMap };
 }

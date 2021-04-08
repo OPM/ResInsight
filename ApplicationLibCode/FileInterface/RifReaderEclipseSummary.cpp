@@ -28,6 +28,10 @@
 #include "RifOpmCommonSummary.h"
 #include "RifReaderEclipseOutput.h"
 
+#ifdef USE_HDF5
+#include "RifOpmHdf5Summary.h"
+#endif
+
 #include <cassert>
 #include <string>
 
@@ -147,17 +151,33 @@ RifReaderEclipseSummary::~RifReaderEclipseSummary()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RifReaderEclipseSummary::open( const QString& headerFileName, bool includeRestartFiles )
+bool RifReaderEclipseSummary::open( const QString&       headerFileName,
+                                    bool                 includeRestartFiles,
+                                    RiaThreadSafeLogger* threadSafeLogger )
 {
-    bool useOpmCommonReader = RiaPreferences::current()->useOptimizedSummaryDataReader();
+    bool isValid = false;
 
-    if ( useOpmCommonReader )
+    // Try to create readers. If HDF5 or Opm readers fails to create, use ecllib reader
+
+    if ( RiaPreferences::current()->summaryDataReader() == RiaPreferences::SummaryReaderMode::HDF5_OPM_COMMON )
+    {
+#ifdef USE_HDF5
+        auto hdfReader = std::make_unique<RifOpmHdf5Summary>();
+
+        isValid = hdfReader->open( headerFileName, false, threadSafeLogger );
+        if ( isValid )
+        {
+            m_hdf5OpmReader = std::move( hdfReader );
+        }
+#endif
+    }
+    else if ( RiaPreferences::current()->summaryDataReader() == RiaPreferences::SummaryReaderMode::OPM_COMMON )
     {
         bool useLodsmryFiles = RiaPreferences::current()->useOptimizedSummaryDataFiles();
         if ( useLodsmryFiles && includeRestartFiles )
         {
-            RiaLogging::error(
-                "LODSMRY file loading for summary restart files is not supported. Disable one of the options" );
+            QString txt = "LODSMRY file loading for summary restart files is not supported. Disable one of the options";
+            if ( threadSafeLogger ) threadSafeLogger->error( txt );
 
             return false;
         }
@@ -166,29 +186,33 @@ bool RifReaderEclipseSummary::open( const QString& headerFileName, bool includeR
 
         m_opmCommonReader->useLodsmaryFiles( RiaPreferences::current()->useOptimizedSummaryDataFiles() );
         m_opmCommonReader->createLodsmaryFiles( RiaPreferences::current()->createOptimizedSummaryDataFiles() );
-        m_opmCommonReader->open( headerFileName, includeRestartFiles );
-
-        buildMetaData();
-
-        return true;
+        isValid = m_opmCommonReader->open( headerFileName, includeRestartFiles, threadSafeLogger );
+        if ( !isValid ) m_opmCommonReader.reset();
     }
 
-    assert( m_ecl_sum == nullptr );
-
-    m_ecl_sum = openEclSum( headerFileName, includeRestartFiles );
-
-    if ( m_ecl_sum )
+    if ( !isValid || RiaPreferences::current()->summaryDataReader() == RiaPreferences::SummaryReaderMode::LIBECL )
     {
-        m_timeSteps.clear();
-        m_ecl_SmSpec = ecl_sum_get_smspec( m_ecl_sum );
-        m_timeSteps  = getTimeSteps( m_ecl_sum );
-        m_unitSystem = readUnitSystem( m_ecl_sum );
-        buildMetaData();
+        assert( m_ecl_sum == nullptr );
 
-        return true;
+        m_ecl_sum = openEclSum( headerFileName, includeRestartFiles );
+
+        if ( m_ecl_sum )
+        {
+            m_timeSteps.clear();
+            m_ecl_SmSpec = ecl_sum_get_smspec( m_ecl_sum );
+            m_timeSteps  = getTimeSteps( m_ecl_sum );
+            m_unitSystem = readUnitSystem( m_ecl_sum );
+
+            isValid = true;
+        }
     }
 
-    return false;
+    if ( isValid )
+    {
+        buildMetaData();
+    }
+
+    return isValid;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -455,10 +479,10 @@ RifEclipseSummaryAddress addressFromErtSmSpecNode( const ecl::smspec_node& ertSu
 //--------------------------------------------------------------------------------------------------
 bool RifReaderEclipseSummary::values( const RifEclipseSummaryAddress& resultAddress, std::vector<double>* values ) const
 {
+    CVF_ASSERT( values );
+
     values->clear();
     values->reserve( timeStepCount() );
-
-    // assert( m_ecl_sum != nullptr );
 
     const std::vector<double>& cachedValues = m_valuesCache->getValues( resultAddress );
     if ( !cachedValues.empty() )
@@ -468,12 +492,21 @@ bool RifReaderEclipseSummary::values( const RifEclipseSummaryAddress& resultAddr
         return true;
     }
 
+    if ( m_hdf5OpmReader )
+    {
+        auto status = m_hdf5OpmReader->values( resultAddress, values );
+
+        if ( status ) m_valuesCache->insertValues( resultAddress, *values );
+
+        return status;
+    }
+
     if ( m_opmCommonReader )
     {
-        m_opmCommonReader->values( resultAddress, values );
-        m_valuesCache->insertValues( resultAddress, *values );
+        auto status = m_opmCommonReader->values( resultAddress, values );
+        if ( status ) m_valuesCache->insertValues( resultAddress, *values );
 
-        return true;
+        return status;
     }
 
     if ( m_ecl_SmSpec )
@@ -536,16 +569,7 @@ bool RifReaderEclipseSummary::values( const RifEclipseSummaryAddress& resultAddr
 //--------------------------------------------------------------------------------------------------
 size_t RifReaderEclipseSummary::timeStepCount() const
 {
-    if ( m_opmCommonReader )
-    {
-        return m_timeSteps.size();
-    }
-
-    assert( m_ecl_sum != nullptr );
-
-    if ( m_ecl_SmSpec == nullptr ) return 0;
-
-    return static_cast<size_t>( ecl_sum_get_data_length( m_ecl_sum ) );
+    return m_timeSteps.size();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -553,8 +577,6 @@ size_t RifReaderEclipseSummary::timeStepCount() const
 //--------------------------------------------------------------------------------------------------
 const std::vector<time_t>& RifReaderEclipseSummary::timeSteps( const RifEclipseSummaryAddress& resultAddress ) const
 {
-    //    assert( m_ecl_sum != nullptr );
-
     return m_timeSteps;
 }
 
@@ -579,6 +601,15 @@ void RifReaderEclipseSummary::buildMetaData()
 {
     m_allResultAddresses.clear();
     m_resultAddressToErtNodeIdx.clear();
+
+    if ( m_hdf5OpmReader )
+    {
+        m_allResultAddresses = m_hdf5OpmReader->allResultAddresses();
+        m_allErrorAddresses  = m_hdf5OpmReader->allErrorAddresses();
+
+        m_timeSteps = m_hdf5OpmReader->timeSteps( RifEclipseSummaryAddress() );
+        return;
+    }
 
     if ( m_opmCommonReader )
     {

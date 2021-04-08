@@ -441,16 +441,27 @@ void RimSummaryCaseMainCollection::loadFileSummaryCaseData( std::vector<RimFileS
 
     RifOpmCommonEclipseSummary::resetLodCount();
 
-#pragma omp parallel for schedule( dynamic )
+    RiaThreadSafeLogger threadSafeLogger;
+
+    // The HDF5 reader requires a special configuration to be thread safe. Disable threading for HDF reader creation.
+    bool canUseMultipleTreads =
+        ( RiaPreferences::current()->summaryDataReader() != RiaPreferences::SummaryReaderMode::HDF5_OPM_COMMON );
+
+#pragma omp parallel for schedule( dynamic ) if ( canUseMultipleTreads )
     for ( int cIdx = 0; cIdx < static_cast<int>( fileSummaryCases.size() ); ++cIdx )
     {
         RimFileSummaryCase* fileSummaryCase = fileSummaryCases[cIdx];
         if ( fileSummaryCase )
         {
-            fileSummaryCase->createSummaryReaderInterface();
+            fileSummaryCase->createSummaryReaderInterfaceThreadSafe( &threadSafeLogger );
         }
 
         progInfo.setProgress( cIdx );
+    }
+
+    for ( const auto& txt : threadSafeLogger.messages() )
+    {
+        RiaLogging::info( txt );
     }
 
     auto numberOfLodFilesCreated = RifOpmCommonEclipseSummary::numberOfLodFilesCreated();

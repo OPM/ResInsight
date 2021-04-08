@@ -41,6 +41,18 @@ namespace EclIO
 } // namespace EclIO
 } // namespace Opm
 
+class RiaThreadSafeLogger;
+
+class RifOpmCommonSummaryTools
+{
+public:
+    static RifEclipseSummaryAddress createAddressFromSummaryNode( const Opm::EclIO::SummaryNode& summaryNode,
+                                                                  const Opm::EclIO::ESmry*       summaryFile );
+
+    static std::pair<std::set<RifEclipseSummaryAddress>, std::map<RifEclipseSummaryAddress, size_t>>
+        buildMetaData( const Opm::EclIO::ESmry* summaryFile );
+};
+
 //==================================================================================================
 //
 //
@@ -57,7 +69,7 @@ public:
     static void   resetLodCount();
     static size_t numberOfLodFilesCreated();
 
-    bool open( const QString& headerFileName, bool includeRestartFiles );
+    bool open( const QString& headerFileName, bool includeRestartFiles, RiaThreadSafeLogger* threadSafeLogger );
 
     const std::vector<time_t>& timeSteps( const RifEclipseSummaryAddress& resultAddress ) const override;
     bool        values( const RifEclipseSummaryAddress& resultAddress, std::vector<double>* values ) const override;
@@ -66,12 +78,9 @@ public:
 
 private:
     void buildMetaData();
-    bool openESmryFile( const QString& headerFileName, bool includeRestartFiles );
+    bool openESmryFile( const QString& headerFileName, bool includeRestartFiles, RiaThreadSafeLogger* threadSafeLogger );
 
     static void increaseLodFileCount();
-
-    static RifEclipseSummaryAddress createAddressFromSummaryNode( const Opm::EclIO::SummaryNode& summaryNode,
-                                                                  Opm::EclIO::ESmry*             summaryFile );
 
 private:
     std::unique_ptr<Opm::EclIO::ESmry>         m_eSmry;

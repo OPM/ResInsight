@@ -356,24 +356,7 @@ std::string RifHdf5Reader::getStringAttribute( H5::H5File file, std::string grou
 //--------------------------------------------------------------------------------------------------
 std::vector<std::string> RifHdf5Reader::getSubGroupNames( H5::H5File file, std::string baseGroupName ) const
 {
-    H5::Group baseGroup = file.openGroup( baseGroupName.c_str() );
-
-    std::vector<std::string> subGroupNames;
-
-    hsize_t groupSize = baseGroup.getNumObjs();
-
-    for ( hsize_t i = 0; i < groupSize; i++ )
-    {
-        std::string nodeName( 1024, '\0' );
-
-        ssize_t slen = baseGroup.getObjnameByIdx( i, &nodeName[0], 1023 );
-
-        nodeName.resize( slen + 1 );
-
-        subGroupNames.push_back( nodeName );
-    }
-
-    return subGroupNames;
+    return RifHdf5ReaderTools::getSubGroupNames( &file, baseGroupName );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -411,4 +394,34 @@ void RifHdf5Reader::getElementResultValues( H5::H5File file, std::string groupNa
 
     ( *resultValues ).resize( dims[0] );
     dataset.read( resultValues->data(), H5::PredType::NATIVE_DOUBLE );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<std::string> RifHdf5ReaderTools::getSubGroupNames( H5::H5File* file, const std::string& baseGroupName )
+{
+    if ( file )
+    {
+        H5::Group baseGroup = file->openGroup( baseGroupName.c_str() );
+
+        std::vector<std::string> subGroupNames;
+
+        hsize_t groupSize = baseGroup.getNumObjs();
+
+        for ( hsize_t i = 0; i < groupSize; i++ )
+        {
+            std::string nodeName( 1024, '\0' );
+
+            ssize_t slen = baseGroup.getObjnameByIdx( i, &nodeName[0], 1023 );
+
+            nodeName.resize( slen + 1 );
+
+            subGroupNames.push_back( nodeName );
+        }
+
+        return subGroupNames;
+    }
+
+    return {};
 }
