@@ -332,3 +332,47 @@ void RiaStdOutLogger::writeMessageToLogger( const std::string& str )
 {
     std::cout << str;
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiaThreadSafeLogger::error( const QString& message )
+{
+#pragma omp critical( critical_section_logging )
+    m_messages.push_back( "ERROR : " + message );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiaThreadSafeLogger::warning( const QString& message )
+{
+#pragma omp critical( critical_section_logging )
+    m_messages.push_back( "WARNING : " + message );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiaThreadSafeLogger::info( const QString& message )
+{
+#pragma omp critical( critical_section_logging )
+    m_messages.push_back( "INFO : " + message );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiaThreadSafeLogger::debug( const QString& message )
+{
+#pragma omp critical( critical_section_logging )
+    m_messages.push_back( "DEBUG : " + message );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<QString> RiaThreadSafeLogger::messages() const
+{
+    return m_messages;
+}
