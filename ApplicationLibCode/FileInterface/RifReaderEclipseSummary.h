@@ -109,10 +109,7 @@ private:
     std::set<RifEclipseSummaryAddress> m_differenceAddresses;
 
     std::unique_ptr<RifOpmCommonEclipseSummary> m_opmCommonReader;
-
-#ifdef USE_HDF5
-    std::unique_ptr<RifOpmHdf5Summary> m_hdf5OpmReader;
-#endif
+    std::unique_ptr<RifSummaryReaderInterface>  m_hdf5OpmReader;
 
     //==================================================================================================
     //

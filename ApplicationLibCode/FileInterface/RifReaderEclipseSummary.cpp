@@ -157,11 +157,18 @@ bool RifReaderEclipseSummary::open( const QString&       headerFileName,
 {
     bool isValid = false;
 
+    // Try to create readers. If HDF5 or Opm readers fails to create, use ecllib reader
+
     if ( RiaPreferences::current()->summaryDataReader() == RiaPreferences::SummaryReaderMode::HDF5_OPM_COMMON )
     {
 #ifdef USE_HDF5
-        m_hdf5OpmReader = std::make_unique<RifOpmHdf5Summary>();
-        isValid         = m_hdf5OpmReader->open( headerFileName, false, threadSafeLogger );
+        auto hdfReader = std::make_unique<RifOpmHdf5Summary>();
+
+        isValid = hdfReader->open( headerFileName, false, threadSafeLogger );
+        if ( isValid )
+        {
+            m_hdf5OpmReader = std::move( hdfReader );
+        }
 #endif
     }
     else if ( RiaPreferences::current()->summaryDataReader() == RiaPreferences::SummaryReaderMode::OPM_COMMON )
@@ -180,8 +187,10 @@ bool RifReaderEclipseSummary::open( const QString&       headerFileName,
         m_opmCommonReader->useLodsmaryFiles( RiaPreferences::current()->useOptimizedSummaryDataFiles() );
         m_opmCommonReader->createLodsmaryFiles( RiaPreferences::current()->createOptimizedSummaryDataFiles() );
         isValid = m_opmCommonReader->open( headerFileName, includeRestartFiles, threadSafeLogger );
+        if ( !isValid ) m_opmCommonReader.reset();
     }
-    else if ( RiaPreferences::current()->summaryDataReader() == RiaPreferences::SummaryReaderMode::LIBECL )
+
+    if ( !isValid || RiaPreferences::current()->summaryDataReader() == RiaPreferences::SummaryReaderMode::LIBECL )
     {
         assert( m_ecl_sum == nullptr );
 

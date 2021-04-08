@@ -64,7 +64,7 @@ bool RifOpmHdf5Summary::open( const QString& headerFileName, bool includeRestart
 
     if ( !QFile::exists( hdfFileName ) )
     {
-        QString errorTxt = "Failed to open " + headerFileName;
+        QString errorTxt = "Failed to open H5 file " + hdfFileName;
         if ( threadSafeLogger ) threadSafeLogger->error( errorTxt );
 
         return false;
