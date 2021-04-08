@@ -193,6 +193,7 @@ ESmry::ESmry(const std::string &filename, bool loadBaseRunData , bool uselodsmry
                     SummaryNode::Type::Undefined,
                     wgnames[i],
                     nums[i],
+                    i,
                     ""
                 });
 
@@ -263,6 +264,7 @@ ESmry::ESmry(const std::string &filename, bool loadBaseRunData , bool uselodsmry
                     SummaryNode::Type::Undefined,
                     wgnames[i],
                     nums[i],
+                    i,
                     ""
                 });
 
