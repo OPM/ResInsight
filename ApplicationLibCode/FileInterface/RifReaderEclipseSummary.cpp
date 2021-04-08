@@ -492,7 +492,6 @@ bool RifReaderEclipseSummary::values( const RifEclipseSummaryAddress& resultAddr
         return true;
     }
 
-#ifdef USE_HDF5
     if ( m_hdf5OpmReader )
     {
         auto status = m_hdf5OpmReader->values( resultAddress, values );
@@ -501,7 +500,6 @@ bool RifReaderEclipseSummary::values( const RifEclipseSummaryAddress& resultAddr
 
         return status;
     }
-#endif
 
     if ( m_opmCommonReader )
     {
@@ -604,7 +602,6 @@ void RifReaderEclipseSummary::buildMetaData()
     m_allResultAddresses.clear();
     m_resultAddressToErtNodeIdx.clear();
 
-#ifdef USE_HDF5
     if ( m_hdf5OpmReader )
     {
         m_allResultAddresses = m_hdf5OpmReader->allResultAddresses();
@@ -613,7 +610,6 @@ void RifReaderEclipseSummary::buildMetaData()
         m_timeSteps = m_hdf5OpmReader->timeSteps( RifEclipseSummaryAddress() );
         return;
     }
-#endif
 
     if ( m_opmCommonReader )
     {
