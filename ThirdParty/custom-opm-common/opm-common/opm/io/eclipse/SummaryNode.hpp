@@ -57,6 +57,7 @@ struct SummaryNode {
     Type        type;
     std::string wgname;
     int         number;
+    size_t      smspecKeywordIndex;
 
     std::optional<std::string> fip_region;
 
