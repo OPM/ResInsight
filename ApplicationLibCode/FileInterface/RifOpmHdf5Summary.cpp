@@ -60,7 +60,7 @@ bool RifOpmHdf5Summary::open( const QString& headerFileName, bool includeRestart
     }
 
     QFileInfo fi( headerFileName );
-    QString   hdfFileName = fi.absolutePath() + "/" + fi.baseName() + ".H5";
+    QString   hdfFileName = fi.absolutePath() + "/" + fi.baseName() + ".h5";
 
     if ( !QFile::exists( hdfFileName ) )
     {
