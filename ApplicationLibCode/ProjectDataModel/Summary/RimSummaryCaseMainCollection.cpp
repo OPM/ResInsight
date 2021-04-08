@@ -443,7 +443,11 @@ void RimSummaryCaseMainCollection::loadFileSummaryCaseData( std::vector<RimFileS
 
     RiaThreadSafeLogger threadSafeLogger;
 
-#pragma omp parallel for schedule( dynamic )
+    // The HDF5 reader requires a special configuration to be thread safe. Disable threading for HDF reader creation.
+    bool canUseMultipleTreads =
+        ( RiaPreferences::current()->summaryDataReader() != RiaPreferences::SummaryReaderMode::HDF5_OPM_COMMON );
+
+#pragma omp parallel for schedule( dynamic ) if ( canUseMultipleTreads )
     for ( int cIdx = 0; cIdx < static_cast<int>( fileSummaryCases.size() ); ++cIdx )
     {
         RimFileSummaryCase* fileSummaryCase = fileSummaryCases[cIdx];
