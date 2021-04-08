@@ -10,6 +10,8 @@
 
 #include <iostream>
 
+#include "opm/io/eclipse/ESmry.hpp"
+
 static const QString H5_TEST_DATA_DIRECTORY = QString( "%1/h5-file/" ).arg( TEST_DATA_DIR );
 
 //--------------------------------------------------------------------------------------------------
@@ -103,7 +105,26 @@ TEST( HDFTests, ReadOpmSummaryData )
         }
     }
 
-    EXPECT_EQ( size_t( 3576 ), totalValueCount );
+    EXPECT_EQ( size_t( 8940 ), totalValueCount );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( DISABLED_HDFTests, ReadOpmSummaryDataListContent )
+{
+    QString filePath = H5_TEST_DATA_DIRECTORY + "NORNE_ATW2013_RFTPLT_V2.SMSPEC";
+
+    Opm::EclIO::ESmry eSmry( filePath.toStdString() );
+
+    auto nodes = eSmry.summaryNodeList();
+
+    for ( size_t i = 0; i < nodes.size(); i++ )
+    {
+        Opm::EclIO::SummaryNode n = nodes[i];
+        std::cout << n.keyword << " number: " << n.number << " msjNumber: " << n.smspecKeywordIndex << " "
+                  << n.unique_key() << "\n";
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

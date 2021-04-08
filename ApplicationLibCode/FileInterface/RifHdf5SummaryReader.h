@@ -46,7 +46,7 @@ public:
     std::vector<std::string> vectorNames();
     std::vector<time_t>      timeSteps() const;
 
-    std::vector<double> values( const std::string& vectorName, int summaryTypeId ) const;
+    std::vector<double> values( const std::string& vectorName, int smspecKeywordIndex ) const;
     std::vector<double> values( const std::string& vectorName ) const;
 
 private:

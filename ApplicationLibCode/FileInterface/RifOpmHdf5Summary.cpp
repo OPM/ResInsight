@@ -97,12 +97,13 @@ bool RifOpmHdf5Summary::values( const RifEclipseSummaryAddress& resultAddress, s
         auto it = m_adrToSummaryNodeIndex.find( resultAddress );
         if ( it != m_adrToSummaryNodeIndex.end() )
         {
-            // Index to node is found using SMSPEC file
             size_t index = it->second;
+            auto   node  = m_eSmry->summaryNodeList()[index];
 
-            const auto& vectorName = resultAddress.quantityName();
+            int         smspecIndex = static_cast<int>( node.smspecKeywordIndex );
+            const auto& vectorName  = resultAddress.quantityName();
 
-            *values = m_hdf5Reader->values( vectorName, static_cast<int>( index ) );
+            *values = m_hdf5Reader->values( vectorName, smspecIndex );
 
             return true;
         }

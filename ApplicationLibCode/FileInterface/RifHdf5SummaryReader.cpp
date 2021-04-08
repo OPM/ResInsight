@@ -130,7 +130,7 @@ std::vector<time_t> RifHdf5SummaryReader::timeSteps() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<double> RifHdf5SummaryReader::values( const std::string& vectorName, int summaryTypeId ) const
+std::vector<double> RifHdf5SummaryReader::values( const std::string& vectorName, int smspecKeywordIndex ) const
 {
     if ( m_hdfFile )
     {
@@ -138,7 +138,7 @@ std::vector<double> RifHdf5SummaryReader::values( const std::string& vectorName,
         {
             H5::Exception::dontPrint(); // Turn off auto-printing of failures to handle the errors appropriately
 
-            std::string idText = std::to_string( summaryTypeId );
+            std::string idText = std::to_string( smspecKeywordIndex );
 
             std::string groupPath = "summary_vectors/" + vectorName + "/" + idText;
 
