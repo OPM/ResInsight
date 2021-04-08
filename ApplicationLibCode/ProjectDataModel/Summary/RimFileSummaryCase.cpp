@@ -88,10 +88,21 @@ void RimFileSummaryCase::updateFilePathsFromProjectPath( const QString& newProje
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimFileSummaryCase::createSummaryReaderInterfaceThreadSafe( RiaThreadSafeLogger* threadSafeLogger )
+{
+    m_summaryFileReader = RimFileSummaryCase::findRelatedFilesAndCreateReader( this->summaryHeaderFilename(),
+                                                                               m_includeRestartFiles,
+                                                                               threadSafeLogger );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimFileSummaryCase::createSummaryReaderInterface()
 {
-    m_summaryFileReader =
-        RimFileSummaryCase::findRelatedFilesAndCreateReader( this->summaryHeaderFilename(), m_includeRestartFiles );
+    m_summaryFileReader = RimFileSummaryCase::findRelatedFilesAndCreateReader( this->summaryHeaderFilename(),
+                                                                               m_includeRestartFiles,
+                                                                               nullptr );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -109,17 +120,16 @@ void RimFileSummaryCase::createRftReaderInterface()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifReaderEclipseSummary* RimFileSummaryCase::findRelatedFilesAndCreateReader( const QString& headerFileName,
-                                                                              bool           includeRestartFiles )
+RifReaderEclipseSummary* RimFileSummaryCase::findRelatedFilesAndCreateReader( const QString&       headerFileName,
+                                                                              bool                 includeRestartFiles,
+                                                                              RiaThreadSafeLogger* threadSafeLogger )
 {
     RifReaderEclipseSummary* summaryFileReader = new RifReaderEclipseSummary;
 
-    if ( !summaryFileReader->open( headerFileName, includeRestartFiles ) )
+    if ( !summaryFileReader->open( headerFileName, includeRestartFiles, threadSafeLogger ) )
     {
-        RiaLogging::warning( QString( "Failed to open summary file %1" ).arg( headerFileName ) );
-
         delete summaryFileReader;
-        summaryFileReader = nullptr;
+        return nullptr;
     }
 
     return summaryFileReader;

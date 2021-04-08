@@ -231,8 +231,15 @@ list(APPEND RI_LIBRARIES RigGeoMechDataModel)
 # HDF5
 #
 if(RESINSIGHT_FOUND_HDF5)
-  list(APPEND CPP_SOURCES FileInterface/RifHdf5Reader.h
-       FileInterface/RifHdf5Reader.cpp)
+  list(
+    APPEND
+    CPP_SOURCES
+    FileInterface/RifHdf5Reader.h
+    FileInterface/RifHdf5Reader.cpp
+    FileInterface/RifHdf5SummaryReader.h
+    FileInterface/RifHdf5SummaryReader.cpp
+    FileInterface/RifOpmHdf5Summary.h
+    FileInterface/RifOpmHdf5Summary.cpp)
 
   add_definitions(-DUSE_HDF5)
 
@@ -247,8 +254,15 @@ if(RESINSIGHT_FOUND_HDF5)
     include_directories(${HDF5_INCLUDE_DIRS})
   endif() # MSVC
 
-  source_group("FileInterface" FILES FileInterface/RifHdf5Reader.h
-                                     FileInterface/RifHdf5Reader.cpp)
+  source_group(
+    "FileInterface"
+    FILES FileInterface/RifHdf5Reader.h
+          FileInterface/RifHdf5Reader.cpp
+          FileInterface/RifHdf5SummaryReader.h
+          FileInterface/RifHdf5SummaryReader.cpp
+          FileInterface/RifOpmHdf5Summary.h
+          FileInterface/RifOpmHdf5Summary.cpp)
+
 endif()
 
 # ##############################################################################

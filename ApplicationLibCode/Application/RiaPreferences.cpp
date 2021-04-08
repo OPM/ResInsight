@@ -81,6 +81,15 @@ void RiaPreferences::PageOrientationEnum::setUp()
     addItem( QPageLayout::Landscape, "LANDSCAPE", "Landscape" );
     setDefault( QPageLayout::Portrait );
 }
+
+template <>
+void RiaPreferences::SummaryReaderModeType::setUp()
+{
+    addItem( RiaPreferences::SummaryReaderMode::LIBECL, "LIBECL", "Default Reader (ecl)" );
+    addItem( RiaPreferences::SummaryReaderMode::HDF5_OPM_COMMON, "HDF5_OPM_COMMON", "[BETA] H5 Reader (HDF5 Eclipse)" );
+    addItem( RiaPreferences::SummaryReaderMode::OPM_COMMON, "OPM_COMMON", "[BETA] Performance Reader (omp-common)" );
+    setDefault( RiaPreferences::SummaryReaderMode::LIBECL );
+}
 } // namespace caf
 
 CAF_PDM_SOURCE_INIT( RiaPreferences, "RiaPreferences" );
@@ -88,7 +97,7 @@ CAF_PDM_SOURCE_INIT( RiaPreferences, "RiaPreferences" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiaPreferences::RiaPreferences( void )
+RiaPreferences::RiaPreferences()
 {
     CAF_PDM_InitField( &m_navigationPolicy,
                        "navigationPolicy",
@@ -404,15 +413,6 @@ RiaPreferences::RiaPreferences( void )
 
     CAF_PDM_InitFieldNoDefault( &m_guiTheme, "guiTheme", "GUI theme", "", "", "" );
 
-    CAF_PDM_InitField( &m_useOptimizedSummaryDataFileReader,
-                       "useOptimizedSummaryDataFileReader",
-                       false,
-                       "Use Optimized Summary Data Reader [BETA]",
-                       "",
-                       "",
-                       "" );
-    m_useOptimizedSummaryDataFileReader.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
-
     CAF_PDM_InitField( &m_createOptimizedSummaryDataFile,
                        "createOptimizedSummaryDataFile",
                        true,
@@ -430,12 +430,14 @@ RiaPreferences::RiaPreferences( void )
                        "If not present, read optimized file with extension '*.LODSMRY'",
                        "" );
     m_useOptimizedSummaryDataFile.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+
+    CAF_PDM_InitFieldNoDefault( &m_summaryReader, "summaryReaderType", "Summary Data File Reader", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiaPreferences::~RiaPreferences( void )
+RiaPreferences::~RiaPreferences()
 {
     delete m_readerSettings;
 }
@@ -471,14 +473,14 @@ void RiaPreferences::defineEditorAttribute( const caf::PdmFieldHandle* field,
 
     if ( field == &octaveShowHeaderInfoWhenExecutingScripts || field == &autocomputeDepthRelatedProperties ||
          field == &loadAndShowSoil || field == &m_useShaders || field == &m_showHud ||
-         field == &m_appendClassNameToUiText || field == &m_appendFieldKeywordToToolTipText || field == &m_showTestToolbar ||
-         field == &m_includeFractureDebugInfoFile || field == &showLasCurveWithoutTvdWarning ||
-         field == &holoLensDisableCertificateVerification || field == &m_showProjectChangedDialog ||
-         field == &m_searchPlotTemplateFoldersRecursively || field == &m_showLegendBackground ||
-         field == &m_showSummaryTimeAsLongString || field == &m_showViewIdInProjectTree ||
-         field == &m_useMultipleThreadsWhenLoadingSummaryData || field == &m_enableFaultsByDefault ||
-         field == &m_showProgressBar || field == &m_openExportedPdfInViewer || field == &m_showInfoBox ||
-         field == &m_showGridBox || field == &m_useUndoRedo || field == &m_useOptimizedSummaryDataFileReader ||
+         field == &m_appendClassNameToUiText || field == &m_appendFieldKeywordToToolTipText ||
+         field == &m_showTestToolbar || field == &m_includeFractureDebugInfoFile ||
+         field == &showLasCurveWithoutTvdWarning || field == &holoLensDisableCertificateVerification ||
+         field == &m_showProjectChangedDialog || field == &m_searchPlotTemplateFoldersRecursively ||
+         field == &m_showLegendBackground || field == &m_showSummaryTimeAsLongString ||
+         field == &m_showViewIdInProjectTree || field == &m_useMultipleThreadsWhenLoadingSummaryData ||
+         field == &m_enableFaultsByDefault || field == &m_showProgressBar || field == &m_openExportedPdfInViewer ||
+         field == &m_showInfoBox || field == &m_showGridBox || field == &m_useUndoRedo ||
          field == &m_createOptimizedSummaryDataFile || field == &m_useOptimizedSummaryDataFile )
     {
         caf::PdmUiCheckBoxEditorAttribute* myAttr = dynamic_cast<caf::PdmUiCheckBoxEditorAttribute*>( attribute );
@@ -608,13 +610,13 @@ void RiaPreferences::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
         {
             caf::PdmUiGroup* group = uiOrdering.addNewGroup( "[BETA] Optimized Summary Reader" );
             group->setCollapsedByDefault( true );
-            group->add( &m_useOptimizedSummaryDataFileReader );
+            group->add( &m_summaryReader );
 
-            group->add( &m_createOptimizedSummaryDataFile );
-            group->add( &m_useOptimizedSummaryDataFile );
-
-            m_createOptimizedSummaryDataFile.uiCapability()->setUiReadOnly( !m_useOptimizedSummaryDataFileReader );
-            m_useOptimizedSummaryDataFile.uiCapability()->setUiReadOnly( !m_useOptimizedSummaryDataFileReader );
+            if ( m_summaryReader == SummaryReaderMode::OPM_COMMON )
+            {
+                group->add( &m_createOptimizedSummaryDataFile );
+                group->add( &m_useOptimizedSummaryDataFile );
+            }
         }
     }
 
@@ -727,7 +729,21 @@ QList<caf::PdmOptionItemInfo> RiaPreferences::calculateValueOptions( const caf::
             options.push_back( caf::PdmOptionItemInfo( uiText, QVariant::fromValue( timeFormat ) ) );
         }
     }
+    else if ( fieldNeedingOptions == &m_summaryReader )
+    {
+        std::vector<SummaryReaderMode> availableModes;
 
+        availableModes.push_back( SummaryReaderMode::LIBECL );
+#ifdef USE_HDF5
+        availableModes.push_back( SummaryReaderMode::HDF5_OPM_COMMON );
+#endif // USE_HDF5
+        availableModes.push_back( SummaryReaderMode::OPM_COMMON );
+
+        for ( auto enumValue : availableModes )
+        {
+            options.push_back( caf::PdmOptionItemInfo( SummaryReaderModeType::uiText( enumValue ), enumValue ) );
+        }
+    }
     return options;
 }
 
@@ -1214,9 +1230,9 @@ QString RiaPreferences::octaveExecutable() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RiaPreferences::useOptimizedSummaryDataReader() const
+RiaPreferences::SummaryReaderMode RiaPreferences::summaryDataReader() const
 {
-    return m_useOptimizedSummaryDataFileReader();
+    return m_summaryReader();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1224,7 +1240,7 @@ bool RiaPreferences::useOptimizedSummaryDataReader() const
 //--------------------------------------------------------------------------------------------------
 bool RiaPreferences::useOptimizedSummaryDataFiles() const
 {
-    return m_useOptimizedSummaryDataFileReader();
+    return m_useOptimizedSummaryDataFile();
 }
 
 //--------------------------------------------------------------------------------------------------

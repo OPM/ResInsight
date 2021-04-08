@@ -2,10 +2,130 @@
 
 #include "gtest/gtest.h"
 
+#include "RiaTestDataDirectory.h"
+#include "RifHdf5SummaryReader.h"
+#include "RifOpmHdf5Summary.h"
+
 #include "H5Cpp.h"
+
 #include <iostream>
 
-#include <H5Exception.h>
+#include "opm/io/eclipse/ESmry.hpp"
+
+static const QString H5_TEST_DATA_DIRECTORY = QString( "%1/h5-file/" ).arg( TEST_DATA_DIR );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( HDFTests, InspectSummaryData )
+{
+    std::string file_path = H5_TEST_DATA_DIRECTORY.toStdString() + "NORNE_ATW2013_RFTPLT_V2.h5";
+
+    try
+    {
+        H5::Exception::dontPrint(); // Turn off auto-printing of failures to handle the errors appropriately
+
+        H5::H5File file( file_path.c_str(), H5F_ACC_RDONLY );
+
+        {
+            H5::Group   GridFunction_00002 = file.openGroup( "summary_vectors/BPR/66" );
+            H5::DataSet dataset            = H5::DataSet( GridFunction_00002.openDataSet( "values" ) );
+
+            hsize_t       dims[2];
+            H5::DataSpace dataspace = dataset.getSpace();
+            dataspace.getSimpleExtentDims( dims, nullptr );
+
+            std::vector<double> values;
+            values.resize( dims[0] );
+            dataset.read( values.data(), H5::PredType::NATIVE_DOUBLE );
+            EXPECT_EQ( size_t( 894 ), values.size() );
+        }
+    }
+
+    catch ( H5::FileIException& error ) // catch failure caused by the H5File operations
+    {
+        std::cout << error.getCDetailMsg();
+    }
+
+    catch ( H5::DataSetIException& error ) // catch failure caused by the DataSet operations
+    {
+        std::cout << error.getCDetailMsg();
+    }
+
+    catch ( H5::DataSpaceIException& error ) // catch failure caused by the DataSpace operations
+    {
+        std::cout << error.getCDetailMsg();
+    }
+
+    catch ( H5::DataTypeIException& error ) // catch failure caused by the DataSpace operations
+    {
+        std::cout << error.getCDetailMsg();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( HDFTests, ReadSummaryData )
+{
+    QString filePath = H5_TEST_DATA_DIRECTORY + "NORNE_ATW2013_RFTPLT_V2.h5";
+
+    RifHdf5SummaryReader hdf5SummaryReader( filePath );
+
+    auto vectorNames = hdf5SummaryReader.vectorNames();
+    EXPECT_EQ( size_t( 211 ), vectorNames.size() );
+
+    auto timeSteps = hdf5SummaryReader.timeSteps();
+    EXPECT_EQ( size_t( 894 ), timeSteps.size() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( HDFTests, ReadOpmSummaryData )
+{
+    QString filePath = H5_TEST_DATA_DIRECTORY + "NORNE_ATW2013_RFTPLT_V2.SMSPEC";
+
+    RifOpmHdf5Summary hdf5SummaryReader;
+    hdf5SummaryReader.open( filePath, false, nullptr );
+
+    auto addresses = hdf5SummaryReader.allResultAddresses();
+    EXPECT_EQ( size_t( 2770 ), addresses.size() );
+
+    int    itemCount       = 0;
+    size_t totalValueCount = 0;
+    for ( const auto& adr : addresses )
+    {
+        if ( itemCount++ < 10 )
+        {
+            std::vector<double> values;
+            hdf5SummaryReader.values( adr, &values );
+
+            totalValueCount += values.size();
+        }
+    }
+
+    EXPECT_EQ( size_t( 8940 ), totalValueCount );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( DISABLED_HDFTests, ReadOpmSummaryDataListContent )
+{
+    QString filePath = H5_TEST_DATA_DIRECTORY + "NORNE_ATW2013_RFTPLT_V2.SMSPEC";
+
+    Opm::EclIO::ESmry eSmry( filePath.toStdString() );
+
+    auto nodes = eSmry.summaryNodeList();
+
+    for ( size_t i = 0; i < nodes.size(); i++ )
+    {
+        Opm::EclIO::SummaryNode n = nodes[i];
+        std::cout << n.keyword << " number: " << n.number << " msjNumber: " << n.smspecKeywordIndex << " "
+                  << n.unique_key() << "\n";
+    }
+}
 
 //--------------------------------------------------------------------------------------------------
 ///

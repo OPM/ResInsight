@@ -23,7 +23,7 @@ TEST( DISABLED_RifSummaryDataTest, OpmCommonAllData )
         {
             auto start = std::chrono::high_resolution_clock::now();
 
-            reader.open( filename, true );
+            reader.open( filename, true, nullptr );
 
             auto                          end  = std::chrono::high_resolution_clock::now();
             std::chrono::duration<double> diff = end - start;
@@ -74,7 +74,7 @@ TEST( DISABLED_RifSummaryDataTest, LibEclAllData )
         {
             auto start = std::chrono::high_resolution_clock::now();
 
-            reader.open( filename, true );
+            reader.open( filename, true, nullptr );
 
             auto                          end  = std::chrono::high_resolution_clock::now();
             std::chrono::duration<double> diff = end - start;

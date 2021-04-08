@@ -70,6 +70,14 @@ public:
     };
     typedef caf::AppEnum<SummaryHistoryCurveStyleMode> SummaryHistoryCurveStyleModeType;
 
+    enum class SummaryReaderMode
+    {
+        LIBECL,
+        OPM_COMMON,
+        HDF5_OPM_COMMON
+    };
+    typedef caf::AppEnum<SummaryReaderMode> SummaryReaderModeType;
+
     typedef caf::AppEnum<QPageSize::PageSizeId>    PageSizeEnum;
     typedef caf::AppEnum<QPageLayout::Orientation> PageOrientationEnum;
 
@@ -139,9 +147,9 @@ public:
     QString octaveExecutable() const;
 
     // Summary readers
-    bool useOptimizedSummaryDataReader() const;
-    bool useOptimizedSummaryDataFiles() const;
-    bool createOptimizedSummaryDataFiles() const;
+    SummaryReaderMode summaryDataReader() const;
+    bool              useOptimizedSummaryDataFiles() const;
+    bool              createOptimizedSummaryDataFiles() const;
 
 public: // Pdm Fields
     caf::PdmField<bool> enableGrpcServer;
@@ -249,9 +257,10 @@ private:
     caf::PdmField<QString> m_multiLateralWellPattern;
 
     // Summary data
-    caf::PdmField<bool> m_useOptimizedSummaryDataFileReader;
     caf::PdmField<bool> m_createOptimizedSummaryDataFile;
     caf::PdmField<bool> m_useOptimizedSummaryDataFile;
+
+    caf::PdmField<SummaryReaderModeType> m_summaryReader;
 
     // 3d view
     caf::PdmField<caf::AppEnum<RiaDefines::MeshModeType>>              m_defaultMeshModeType;
