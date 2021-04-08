@@ -206,15 +206,6 @@ endforeach(referencedfile)
 
 list(APPEND CPP_SOURCES ${CODE_SOURCE_FILES})
 
-# ##############################################################################
-# Sub-directory projects
-# ##############################################################################
-
-add_subdirectory(ResultStatisticsCache)
-add_subdirectory(Commands)
-
-set(RI_LIBRARIES ResultStatisticsCache Commands)
-
 #
 # Odb api
 #
@@ -259,6 +250,17 @@ if(RESINSIGHT_FOUND_HDF5)
                                      FileInterface/RifOpmHdf5Summary.cpp )
 
 endif()
+
+
+# ##############################################################################
+# Sub-directory projects
+# ##############################################################################
+
+add_subdirectory(ResultStatisticsCache)
+add_subdirectory(Commands)
+
+set(RI_LIBRARIES ResultStatisticsCache Commands)
+
 
 # ##############################################################################
 # Qt specifics: Moc, ui, resources
