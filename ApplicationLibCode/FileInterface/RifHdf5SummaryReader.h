@@ -39,6 +39,7 @@ class RifHdf5SummaryReader
 {
 public:
     explicit RifHdf5SummaryReader( const QString& fileName );
+    ~RifHdf5SummaryReader();
 
     bool isValid() const;
 
