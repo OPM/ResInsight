@@ -56,6 +56,9 @@ protected:
                                 caf::PdmUiEditorAttribute* attribute ) override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
+                                                         bool*                      useOptionsOnly ) override;
+
     QString generateFilePathsTable();
 
     std::vector<QString> computeStatistics();
@@ -90,7 +93,8 @@ protected:
         const std::vector<std::vector<double>>&                                               samples,
         int                                                                                   numSamplesX,
         int                                                                                   numSamplesY,
-        std::map<RimEnsembleFractureStatistics::StatisticsType, std::shared_ptr<RigSlice2D>>& statisticsGrids );
+        std::map<RimEnsembleFractureStatistics::StatisticsType, std::shared_ptr<RigSlice2D>>& statisticsGrids,
+        const std::vector<caf::AppEnum<RimEnsembleFractureStatistics::StatisticsType>>&       statisticsTypes );
 
     static bool writeStatisticsToCsv( const QString& filePath, const RigSlice2D& samples );
 
@@ -99,4 +103,6 @@ protected:
     caf::PdmField<bool>                       m_computeStatistics;
     caf::PdmField<int>                        m_numSamplesX;
     caf::PdmField<int>                        m_numSamplesY;
+
+    caf::PdmField<std::vector<caf::AppEnum<RimEnsembleFractureStatistics::StatisticsType>>> m_selectedStatisticsType;
 };
