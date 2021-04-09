@@ -36,6 +36,7 @@
 #include "cafAppEnum.h"
 #include "cafPdmUiTextEditor.h"
 #include "cafPdmUiToolButtonEditor.h"
+#include "cafPdmUiTreeSelectionEditor.h"
 
 #include <cmath>
 
@@ -76,12 +77,19 @@ RimEnsembleFractureStatistics::RimEnsembleFractureStatistics()
     m_filePathsTable.uiCapability()->setUiReadOnly( true );
     m_filePathsTable.xmlCapability()->disableIO();
 
+    CAF_PDM_InitField( &m_numSamplesX, "NumberOfSamplesX", 100, "X", "", "", "" );
+    CAF_PDM_InitField( &m_numSamplesY, "NumberOfSamplesY", 200, "Y", "", "", "" );
+
+    std::vector<caf::AppEnum<RimEnsembleFractureStatistics::StatisticsType>> defaultStatisticsTypes = {
+        caf::AppEnum<RimEnsembleFractureStatistics::StatisticsType>( RimEnsembleFractureStatistics::StatisticsType::MEAN ) };
+
+    CAF_PDM_InitField( &m_selectedStatisticsType, "SelectedStatisticsType", defaultStatisticsTypes, "Statistics Type", "", "", "" );
+    m_selectedStatisticsType.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
+    m_selectedStatisticsType.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
+
     CAF_PDM_InitFieldNoDefault( &m_computeStatistics, "ComputeStatistics", "Compute", "", "", "" );
     m_computeStatistics.uiCapability()->setUiEditorTypeName( caf::PdmUiToolButtonEditor::uiEditorTypeName() );
     m_computeStatistics.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
-
-    CAF_PDM_InitField( &m_numSamplesX, "NumberOfSamplesX", 100, "X", "", "", "" );
-    CAF_PDM_InitField( &m_numSamplesY, "NumberOfSamplesY", 200, "Y", "", "", "" );
 
     setDeletable( true );
 }
@@ -119,6 +127,29 @@ QString RimEnsembleFractureStatistics::generateFilePathsTable()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QList<caf::PdmOptionItemInfo>
+    RimEnsembleFractureStatistics::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
+                                                          bool*                      useOptionsOnly )
+{
+    QList<caf::PdmOptionItemInfo> options;
+    if ( fieldNeedingOptions == &m_selectedStatisticsType )
+    {
+        for ( size_t i = 0; i < caf::AppEnum<RimEnsembleFractureStatistics::StatisticsType>::size(); ++i )
+        {
+            caf::AppEnum<RimEnsembleFractureStatistics::StatisticsType> t =
+                caf::AppEnum<RimEnsembleFractureStatistics::StatisticsType>::fromIndex( i );
+            t.uiText();
+
+            options.push_back( caf::PdmOptionItemInfo( t.uiText(), t.value() ) );
+        }
+    }
+
+    return options;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimEnsembleFractureStatistics::defineEditorAttribute( const caf::PdmFieldHandle* field,
                                                            QString                    uiConfigName,
                                                            caf::PdmUiEditorAttribute* attribute )
@@ -130,6 +161,16 @@ void RimEnsembleFractureStatistics::defineEditorAttribute( const caf::PdmFieldHa
         {
             myAttr->wrapMode = caf::PdmUiTextEditorAttribute::NoWrap;
             myAttr->textMode = caf::PdmUiTextEditorAttribute::HTML;
+        }
+    }
+    else if ( field == &m_selectedStatisticsType )
+    {
+        caf::PdmUiTreeSelectionEditorAttribute* attrib = dynamic_cast<caf::PdmUiTreeSelectionEditorAttribute*>( attribute );
+        if ( attrib )
+        {
+            attrib->showTextFilter        = false;
+            attrib->showToggleAllCheckbox = false;
+            attrib->singleSelectionMode   = false;
         }
     }
 }
@@ -170,6 +211,8 @@ std::vector<QString> RimEnsembleFractureStatistics::computeStatistics()
     std::set<std::pair<QString, QString>> availableResults = findAllResultNames( stimPlanFractureDefinitions );
 
     std::map<std::pair<RimEnsembleFractureStatistics::StatisticsType, QString>, std::shared_ptr<RigSlice2D>> statisticsGridsAll;
+
+    auto selectedStatistics = m_selectedStatisticsType.value();
 
     // TODO: take from an incoming xml?
     double timeStep = 1.0;
@@ -223,7 +266,7 @@ std::vector<QString> RimEnsembleFractureStatistics::computeStatistics()
         sampleAllGrids( fractureGrids, samples, minX, minY, numSamplesX, numSamplesY, sampleDistanceX, sampleDistanceY );
 
         std::map<RimEnsembleFractureStatistics::StatisticsType, std::shared_ptr<RigSlice2D>> statisticsGrids;
-        generateStatisticsGrids( samples, numSamplesX, numSamplesY, statisticsGrids );
+        generateStatisticsGrids( samples, numSamplesX, numSamplesY, statisticsGrids, selectedStatistics );
 
         for ( auto [statType, slice] : statisticsGrids )
         {
@@ -243,10 +286,8 @@ std::vector<QString> RimEnsembleFractureStatistics::computeStatistics()
         outputDirectory.mkpath( outputDirectoryPath );
     }
 
-    for ( size_t i = 0; i < caf::AppEnum<RimEnsembleFractureStatistics::StatisticsType>::size(); ++i )
+    for ( auto t : selectedStatistics )
     {
-        caf::AppEnum<RimEnsembleFractureStatistics::StatisticsType> t =
-            caf::AppEnum<RimEnsembleFractureStatistics::StatisticsType>::fromIndex( i );
         QString text = t.text();
 
         // Get the all the properties for this statistics type
@@ -504,44 +545,77 @@ void RimEnsembleFractureStatistics::generateStatisticsGrids(
     const std::vector<std::vector<double>>&                                               samples,
     int                                                                                   numSamplesX,
     int                                                                                   numSamplesY,
-    std::map<RimEnsembleFractureStatistics::StatisticsType, std::shared_ptr<RigSlice2D>>& statisticsGrids )
+    std::map<RimEnsembleFractureStatistics::StatisticsType, std::shared_ptr<RigSlice2D>>& statisticsGrids,
+    const std::vector<caf::AppEnum<RimEnsembleFractureStatistics::StatisticsType>>&       statisticsTypes )
 {
-    for ( size_t i = 0; i < caf::AppEnum<RimEnsembleFractureStatistics::StatisticsType>::size(); ++i )
+    for ( auto t : statisticsTypes )
     {
         std::shared_ptr<RigSlice2D> grid = std::make_shared<RigSlice2D>( numSamplesX, numSamplesY );
-
-        caf::AppEnum<RimEnsembleFractureStatistics::StatisticsType> t =
-            caf::AppEnum<RimEnsembleFractureStatistics::StatisticsType>::fromIndex( i );
-        statisticsGrids[t.value()] = grid;
+        statisticsGrids[t.value()]       = grid;
     }
+
+    auto isCalculationEnabled = []( StatisticsType t, auto statisticsTypes ) {
+        return std::find( statisticsTypes.begin(), statisticsTypes.end(), t ) != statisticsTypes.end();
+    };
+
+    bool calculateMin        = isCalculationEnabled( StatisticsType::MIN, statisticsTypes );
+    bool calculateMax        = isCalculationEnabled( StatisticsType::MAX, statisticsTypes );
+    bool calculateMean       = isCalculationEnabled( StatisticsType::MEAN, statisticsTypes );
+    bool calculateP10        = isCalculationEnabled( StatisticsType::P10, statisticsTypes );
+    bool calculateP50        = isCalculationEnabled( StatisticsType::P50, statisticsTypes );
+    bool calculateP90        = isCalculationEnabled( StatisticsType::P90, statisticsTypes );
+    bool calculateOccurrence = isCalculationEnabled( StatisticsType::OCCURRENCE, statisticsTypes );
 
     for ( int y = 0; y < numSamplesY; y++ )
     {
         for ( int x = 0; x < numSamplesX; x++ )
         {
             size_t idx = y * numSamplesX + x;
-            double min;
-            double max;
-            double sum;
-            double range;
-            double mean;
-            double dev;
-            RigStatisticsMath::calculateBasicStatistics( samples[idx], &min, &max, &sum, &range, &mean, &dev );
 
-            statisticsGrids[RimEnsembleFractureStatistics::StatisticsType::MEAN]->setValue( x, y, mean );
-            statisticsGrids[RimEnsembleFractureStatistics::StatisticsType::MIN]->setValue( x, y, min );
-            statisticsGrids[RimEnsembleFractureStatistics::StatisticsType::MAX]->setValue( x, y, max );
+            if ( calculateMin || calculateMax || calculateMean )
+            {
+                double min;
+                double max;
+                double sum;
+                double range;
+                double mean;
+                double dev;
+                RigStatisticsMath::calculateBasicStatistics( samples[idx], &min, &max, &sum, &range, &mean, &dev );
 
-            double p10;
-            double p50;
-            double p90;
-            RigStatisticsMath::calculateStatisticsCurves( samples[idx], &p10, &p50, &p90, &mean );
+                if ( calculateMean )
+                    statisticsGrids[RimEnsembleFractureStatistics::StatisticsType::MEAN]->setValue( x, y, mean );
 
-            statisticsGrids[RimEnsembleFractureStatistics::StatisticsType::P10]->setValue( x, y, p10 );
-            statisticsGrids[RimEnsembleFractureStatistics::StatisticsType::P50]->setValue( x, y, p50 );
-            statisticsGrids[RimEnsembleFractureStatistics::StatisticsType::P90]->setValue( x, y, p90 );
+                if ( calculateMin )
+                    statisticsGrids[RimEnsembleFractureStatistics::StatisticsType::MIN]->setValue( x, y, min );
 
-            statisticsGrids[RimEnsembleFractureStatistics::StatisticsType::OCCURRENCE]->setValue( x, y, samples[idx].size() );
+                if ( calculateMax )
+                    statisticsGrids[RimEnsembleFractureStatistics::StatisticsType::MAX]->setValue( x, y, max );
+            }
+
+            if ( calculateP10 || calculateP50 || calculateP90 )
+            {
+                double p10;
+                double p50;
+                double p90;
+                double mean;
+                RigStatisticsMath::calculateStatisticsCurves( samples[idx], &p10, &p50, &p90, &mean );
+
+                if ( calculateP10 )
+                    statisticsGrids[RimEnsembleFractureStatistics::StatisticsType::P10]->setValue( x, y, p10 );
+
+                if ( calculateP50 )
+                    statisticsGrids[RimEnsembleFractureStatistics::StatisticsType::P50]->setValue( x, y, p50 );
+
+                if ( calculateP90 )
+                    statisticsGrids[RimEnsembleFractureStatistics::StatisticsType::P90]->setValue( x, y, p90 );
+            }
+
+            if ( calculateOccurrence )
+            {
+                statisticsGrids[RimEnsembleFractureStatistics::StatisticsType::OCCURRENCE]->setValue( x,
+                                                                                                      y,
+                                                                                                      samples[idx].size() );
+            }
         }
     }
 }
