@@ -25,7 +25,7 @@ class RimOilField;
 class RimValveTemplateCollection;
 class RimFractureTemplateCollection;
 class RimStimPlanModelTemplateCollection;
-class RimFractureGroupStatisticsCollection;
+class RimEnsembleFractureStatisticsCollection;
 
 class RimCompletionTemplateCollection : public caf::PdmObject
 {
@@ -35,15 +35,15 @@ public:
     RimCompletionTemplateCollection();
     ~RimCompletionTemplateCollection() override;
 
-    RimFractureTemplateCollection*              fractureTemplateCollection();
-    const RimFractureTemplateCollection*        fractureTemplateCollection() const;
-    RimStimPlanModelTemplateCollection*         stimPlanModelTemplateCollection();
-    const RimStimPlanModelTemplateCollection*   stimPlanModelTemplateCollection() const;
-    RimValveTemplateCollection*                 valveTemplateCollection();
-    const RimValveTemplateCollection*           valveTemplateCollection() const;
-    RimFractureGroupStatisticsCollection*       fractureGroupStatisticsCollection();
-    const RimFractureGroupStatisticsCollection* fractureGroupStatisticsCollection() const;
-    void                                        setDefaultUnitSystemBasedOnLoadedCases();
+    RimFractureTemplateCollection*                 fractureTemplateCollection();
+    const RimFractureTemplateCollection*           fractureTemplateCollection() const;
+    RimStimPlanModelTemplateCollection*            stimPlanModelTemplateCollection();
+    const RimStimPlanModelTemplateCollection*      stimPlanModelTemplateCollection() const;
+    RimValveTemplateCollection*                    valveTemplateCollection();
+    const RimValveTemplateCollection*              valveTemplateCollection() const;
+    RimEnsembleFractureStatisticsCollection*       fractureGroupStatisticsCollection();
+    const RimEnsembleFractureStatisticsCollection* fractureGroupStatisticsCollection() const;
+    void                                           setDefaultUnitSystemBasedOnLoadedCases();
 
     void loadAndUpdateData();
 
@@ -51,10 +51,10 @@ private:
     friend class RimOilField;
     void setFractureTemplateCollection( RimFractureTemplateCollection* fractureTemplateCollection );
 
-    caf::PdmChildField<RimFractureTemplateCollection*>        m_fractureTemplates;
-    caf::PdmChildField<RimValveTemplateCollection*>           m_valveTemplates;
-    caf::PdmChildField<RimStimPlanModelTemplateCollection*>   m_stimPlanModelTemplates;
-    caf::PdmChildField<RimFractureGroupStatisticsCollection*> m_fractureGroupStatisticsCollection;
+    caf::PdmChildField<RimFractureTemplateCollection*>           m_fractureTemplates;
+    caf::PdmChildField<RimValveTemplateCollection*>              m_valveTemplates;
+    caf::PdmChildField<RimStimPlanModelTemplateCollection*>      m_stimPlanModelTemplates;
+    caf::PdmChildField<RimEnsembleFractureStatisticsCollection*> m_fractureGroupStatisticsCollection;
 
 protected:
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;

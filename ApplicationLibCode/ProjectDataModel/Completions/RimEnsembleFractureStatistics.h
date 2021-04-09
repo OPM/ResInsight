@@ -29,7 +29,7 @@ class RigSlice2D;
 ///
 ///
 //==================================================================================================
-class RimFractureGroupStatistics : public RimNamedObject
+class RimEnsembleFractureStatistics : public RimNamedObject
 {
     CAF_PDM_HEADER_INIT;
 
@@ -45,8 +45,8 @@ public:
         OCCURRENCE
     };
 
-    RimFractureGroupStatistics();
-    ~RimFractureGroupStatistics() override;
+    RimEnsembleFractureStatistics();
+    ~RimEnsembleFractureStatistics() override;
     void addFilePath( const QString& filePath );
     void loadAndUpdateData();
 
@@ -87,10 +87,10 @@ protected:
                                 double                                         sampleDistanceY );
 
     static void generateStatisticsGrids(
-        const std::vector<std::vector<double>>&                                            samples,
-        int                                                                                numSamplesX,
-        int                                                                                numSamplesY,
-        std::map<RimFractureGroupStatistics::StatisticsType, std::shared_ptr<RigSlice2D>>& statisticsGrids );
+        const std::vector<std::vector<double>>&                                               samples,
+        int                                                                                   numSamplesX,
+        int                                                                                   numSamplesY,
+        std::map<RimEnsembleFractureStatistics::StatisticsType, std::shared_ptr<RigSlice2D>>& statisticsGrids );
 
     static bool writeStatisticsToCsv( const QString& filePath, const RigSlice2D& samples );
 

@@ -13,7 +13,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RicDeleteValveTemplateFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicWellPathImportCompletionsFileFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicWellPathImportPerforationIntervalsFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicNewStimPlanModelPlotFeature.h
-${CMAKE_CURRENT_LIST_DIR}/RicImportFractureGroupStatisticsFeature.h
+${CMAKE_CURRENT_LIST_DIR}/RicImportEnsembleFractureStatisticsFeature.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -30,7 +30,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RicDeleteValveTemplateFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicWellPathImportCompletionsFileFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicWellPathImportPerforationIntervalsFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicNewStimPlanModelPlotFeature.cpp
-${CMAKE_CURRENT_LIST_DIR}/RicImportFractureGroupStatisticsFeature.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicImportEnsembleFractureStatisticsFeature.cpp
 )
 
 

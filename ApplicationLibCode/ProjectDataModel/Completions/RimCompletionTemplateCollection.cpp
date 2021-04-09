@@ -18,7 +18,7 @@
 
 #include "RimCompletionTemplateCollection.h"
 
-#include "RimFractureGroupStatisticsCollection.h"
+#include "RimEnsembleFractureStatisticsCollection.h"
 #include "RimFractureTemplateCollection.h"
 #include "RimStimPlanModelTemplateCollection.h"
 #include "RimValveTemplateCollection.h"
@@ -47,7 +47,7 @@ RimCompletionTemplateCollection::RimCompletionTemplateCollection()
     m_valveTemplates = new RimValveTemplateCollection;
 
     CAF_PDM_InitFieldNoDefault( &m_fractureGroupStatisticsCollection, "FractureGroupStatisticsCollection", "", "", "", "" );
-    m_fractureGroupStatisticsCollection = new RimFractureGroupStatisticsCollection;
+    m_fractureGroupStatisticsCollection = new RimEnsembleFractureStatisticsCollection;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -126,7 +126,7 @@ const RimStimPlanModelTemplateCollection* RimCompletionTemplateCollection::stimP
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimFractureGroupStatisticsCollection* RimCompletionTemplateCollection::fractureGroupStatisticsCollection()
+RimEnsembleFractureStatisticsCollection* RimCompletionTemplateCollection::fractureGroupStatisticsCollection()
 {
     return m_fractureGroupStatisticsCollection;
 }
@@ -134,7 +134,7 @@ RimFractureGroupStatisticsCollection* RimCompletionTemplateCollection::fractureG
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const RimFractureGroupStatisticsCollection* RimCompletionTemplateCollection::fractureGroupStatisticsCollection() const
+const RimEnsembleFractureStatisticsCollection* RimCompletionTemplateCollection::fractureGroupStatisticsCollection() const
 {
     return m_fractureGroupStatisticsCollection;
 }

@@ -16,16 +16,16 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimFractureGroupStatisticsCollection.h"
+#include "RimEnsembleFractureStatisticsCollection.h"
 
-#include "RimFractureGroupStatistics.h"
+#include "RimEnsembleFractureStatistics.h"
 
-CAF_PDM_SOURCE_INIT( RimFractureGroupStatisticsCollection, "FractureGroupStatisticsCollection" );
+CAF_PDM_SOURCE_INIT( RimEnsembleFractureStatisticsCollection, "FractureGroupStatisticsCollection" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimFractureGroupStatisticsCollection::RimFractureGroupStatisticsCollection()
+RimEnsembleFractureStatisticsCollection::RimEnsembleFractureStatisticsCollection()
 {
     CAF_PDM_InitObject( "Derived Fracture Completions", ":/FractureTemplates16x16.png", "", "" );
 
@@ -36,7 +36,7 @@ RimFractureGroupStatisticsCollection::RimFractureGroupStatisticsCollection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimFractureGroupStatisticsCollection::addFractureGroupStatistics( RimFractureGroupStatistics* fractureGroupStatistics )
+void RimEnsembleFractureStatisticsCollection::addFractureGroupStatistics( RimEnsembleFractureStatistics* fractureGroupStatistics )
 {
     m_fractureGroupStatistics.push_back( fractureGroupStatistics );
 }
@@ -44,7 +44,7 @@ void RimFractureGroupStatisticsCollection::addFractureGroupStatistics( RimFractu
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimFractureGroupStatisticsCollection::loadAndUpdateData()
+void RimEnsembleFractureStatisticsCollection::loadAndUpdateData()
 {
     for ( auto f : m_fractureGroupStatistics.childObjects() )
     {

@@ -16,7 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RifFractureGroupStatisticsExporter.h"
+#include "RifEnsembleFractureStatisticsExporter.h"
 
 // #include "RiaEclipseUnitTools.h"
 
@@ -31,13 +31,13 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RifFractureGroupStatisticsExporter::writeAsStimPlanXml( const std::vector<std::shared_ptr<RigSlice2D>>& statistics,
-                                                             const std::vector<std::pair<QString, QString>>& properties,
-                                                             const QString&                                  filePath,
-                                                             const std::vector<double>&                      gridXs,
-                                                             const std::vector<double>&                      gridYs,
-                                                             double                                          time,
-                                                             RiaDefines::EclipseUnitSystem unitSystem )
+bool RifEnsembleFractureStatisticsExporter::writeAsStimPlanXml( const std::vector<std::shared_ptr<RigSlice2D>>& statistics,
+                                                                const std::vector<std::pair<QString, QString>>& properties,
+                                                                const QString&                filePath,
+                                                                const std::vector<double>&    gridXs,
+                                                                const std::vector<double>&    gridYs,
+                                                                double                        time,
+                                                                RiaDefines::EclipseUnitSystem unitSystem )
 {
     QFile data( filePath );
     if ( !data.open( QFile::WriteOnly | QFile::Truncate ) )
@@ -57,7 +57,7 @@ bool RifFractureGroupStatisticsExporter::writeAsStimPlanXml( const std::vector<s
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RifFractureGroupStatisticsExporter::appendHeaderToStream( QTextStream& stream )
+void RifEnsembleFractureStatisticsExporter::appendHeaderToStream( QTextStream& stream )
 {
     stream << "<?xml version=\"1.0\" ?>" << endl << "<contours>" << endl;
 }
@@ -65,11 +65,12 @@ void RifFractureGroupStatisticsExporter::appendHeaderToStream( QTextStream& stre
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RifFractureGroupStatisticsExporter::appendPropertiesToStream( QTextStream& stream,
-                                                                   const std::vector<std::shared_ptr<RigSlice2D>>& statistics,
-                                                                   const std::vector<std::pair<QString, QString>>& properties,
-                                                                   const std::vector<double>& gridYs,
-                                                                   double                     time )
+void RifEnsembleFractureStatisticsExporter::appendPropertiesToStream(
+    QTextStream&                                    stream,
+    const std::vector<std::shared_ptr<RigSlice2D>>& statistics,
+    const std::vector<std::pair<QString, QString>>& properties,
+    const std::vector<double>&                      gridYs,
+    double                                          time )
 {
     CAF_ASSERT( statistics.size() == properties.size() );
 
@@ -107,10 +108,10 @@ void RifFractureGroupStatisticsExporter::appendPropertiesToStream( QTextStream& 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RifFractureGroupStatisticsExporter::appendGridDimensionsToStream( QTextStream&                  stream,
-                                                                       const std::vector<double>&    gridXs,
-                                                                       const std::vector<double>&    gridYs,
-                                                                       RiaDefines::EclipseUnitSystem unitSystem )
+void RifEnsembleFractureStatisticsExporter::appendGridDimensionsToStream( QTextStream&                  stream,
+                                                                          const std::vector<double>&    gridXs,
+                                                                          const std::vector<double>&    gridYs,
+                                                                          RiaDefines::EclipseUnitSystem unitSystem )
 {
     QString unitString = getStringForUnitSystem( unitSystem );
     stream << QString( "<grid xCount=\"%1\" yCount=\"%2\" uom=\"%3\">" ).arg( gridXs.size() ).arg( gridYs.size() ).arg( unitString )
@@ -132,7 +133,7 @@ void RifFractureGroupStatisticsExporter::appendGridDimensionsToStream( QTextStre
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RifFractureGroupStatisticsExporter::appendFooterToStream( QTextStream& stream )
+void RifEnsembleFractureStatisticsExporter::appendFooterToStream( QTextStream& stream )
 {
     stream << "</contours>" << endl;
 }
@@ -140,7 +141,7 @@ void RifFractureGroupStatisticsExporter::appendFooterToStream( QTextStream& stre
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RifFractureGroupStatisticsExporter::getStringForUnitSystem( RiaDefines::EclipseUnitSystem unitSystem )
+QString RifEnsembleFractureStatisticsExporter::getStringForUnitSystem( RiaDefines::EclipseUnitSystem unitSystem )
 {
     if ( unitSystem == RiaDefines::EclipseUnitSystem::UNITS_METRIC )
         return "m";
