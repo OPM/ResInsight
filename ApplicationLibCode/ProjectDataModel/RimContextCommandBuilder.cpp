@@ -63,6 +63,7 @@
 #include "RimEnsembleCurveFilterCollection.h"
 #include "RimEnsembleCurveSet.h"
 #include "RimEnsembleCurveSetCollection.h"
+#include "RimEnsembleFractureStatisticsCollection.h"
 #include "RimExtrudedCurveIntersection.h"
 #include "RimFaultInView.h"
 #include "RimFishbones.h"
@@ -72,7 +73,6 @@
 #include "RimFlowPlotCollection.h"
 #include "RimFormationNames.h"
 #include "RimFormationNamesCollection.h"
-#include "RimFractureGroupStatisticsCollection.h"
 #include "RimFractureTemplate.h"
 #include "RimFractureTemplateCollection.h"
 #include "RimGeoMechCase.h"
@@ -891,9 +891,9 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         {
             menuBuilder << "RicDeleteValveTemplateFeature";
         }
-        else if ( dynamic_cast<RimFractureGroupStatisticsCollection*>( firstUiItem ) )
+        else if ( dynamic_cast<RimEnsembleFractureStatisticsCollection*>( firstUiItem ) )
         {
-            menuBuilder << "RicImportFractureGroupStatisticsFeature";
+            menuBuilder << "RicImportEnsembleFractureStatisticsFeature";
         }
         else if ( dynamic_cast<RimStimPlanModelTemplate*>( firstUiItem ) )
         {

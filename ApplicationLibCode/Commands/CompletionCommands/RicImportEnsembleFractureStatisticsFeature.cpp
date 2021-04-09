@@ -16,33 +16,33 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicImportFractureGroupStatisticsFeature.h"
+#include "RicImportEnsembleFractureStatisticsFeature.h"
 
 #include "RiaGuiApplication.h"
 
 #include "RicRecursiveFileSearchDialog.h"
 
 #include "RimCompletionTemplateCollection.h"
-#include "RimFractureGroupStatistics.h"
-#include "RimFractureGroupStatisticsCollection.h"
+#include "RimEnsembleFractureStatistics.h"
+#include "RimEnsembleFractureStatisticsCollection.h"
 #include "RimOilField.h"
 #include "RimProject.h"
 
 #include <QAction>
 #include <QFileInfo>
 
-CAF_CMD_SOURCE_INIT( RicImportFractureGroupStatisticsFeature, "RicImportFractureGroupStatisticsFeature" );
+CAF_CMD_SOURCE_INIT( RicImportEnsembleFractureStatisticsFeature, "RicImportEnsembleFractureStatisticsFeature" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RicImportFractureGroupStatisticsFeature::m_pathFilter     = "*";
-QString RicImportFractureGroupStatisticsFeature::m_fileNameFilter = "*";
+QString RicImportEnsembleFractureStatisticsFeature::m_pathFilter     = "*";
+QString RicImportEnsembleFractureStatisticsFeature::m_fileNameFilter = "*";
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicImportFractureGroupStatisticsFeature::isCommandEnabled()
+bool RicImportEnsembleFractureStatisticsFeature::isCommandEnabled()
 {
     return true;
 }
@@ -50,11 +50,11 @@ bool RicImportFractureGroupStatisticsFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicImportFractureGroupStatisticsFeature::onActionTriggered( bool isChecked )
+void RicImportEnsembleFractureStatisticsFeature::onActionTriggered( bool isChecked )
 {
     RiaGuiApplication* app           = RiaGuiApplication::instance();
     QString            pathCacheName = "INPUT_FILES";
-    QStringList        fileNames     = runRecursiveFileSearchDialog( "Import Summary Cases", pathCacheName );
+    QStringList        fileNames     = runRecursiveFileSearchDialog( "Import StimPlan Fractures", pathCacheName );
 
     RimProject* project = RimProject::current();
     CVF_ASSERT( project );
@@ -65,12 +65,12 @@ void RicImportFractureGroupStatisticsFeature::onActionTriggered( bool isChecked 
     RimCompletionTemplateCollection* completionTemplateCollection = oilfield->completionTemplateCollection();
     if ( !completionTemplateCollection ) return;
 
-    RimFractureGroupStatisticsCollection* fractureGroupStatisticsCollection =
+    RimEnsembleFractureStatisticsCollection* fractureGroupStatisticsCollection =
         completionTemplateCollection->fractureGroupStatisticsCollection();
     if ( !fractureGroupStatisticsCollection ) return;
 
-    auto fractureGroupStatistics = new RimFractureGroupStatistics;
-    fractureGroupStatistics->setName( "Imported Fracture Group Statistics" );
+    auto fractureGroupStatistics = new RimEnsembleFractureStatistics;
+    fractureGroupStatistics->setName( "Ensemble Fracture Statistics" );
 
     for ( auto f : fileNames )
     {
@@ -85,7 +85,7 @@ void RicImportFractureGroupStatisticsFeature::onActionTriggered( bool isChecked 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicImportFractureGroupStatisticsFeature::setupActionLook( QAction* actionToSetup )
+void RicImportEnsembleFractureStatisticsFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "Import StimPlan Fractures Recursively" );
 }
@@ -93,8 +93,8 @@ void RicImportFractureGroupStatisticsFeature::setupActionLook( QAction* actionTo
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QStringList RicImportFractureGroupStatisticsFeature::runRecursiveFileSearchDialog( const QString& dialogTitle,
-                                                                                   const QString& pathCacheName )
+QStringList RicImportEnsembleFractureStatisticsFeature::runRecursiveFileSearchDialog( const QString& dialogTitle,
+                                                                                      const QString& pathCacheName )
 {
     RiaApplication* app        = RiaApplication::instance();
     QString         defaultDir = app->lastUsedDialogDirectory( pathCacheName );

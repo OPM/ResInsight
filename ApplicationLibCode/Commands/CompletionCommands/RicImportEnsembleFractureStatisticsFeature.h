@@ -18,26 +18,29 @@
 
 #pragma once
 
-#include "cafPdmChildArrayField.h"
-#include "cafPdmObject.h"
+#include "cafCmdFeature.h"
 
-class RimFractureGroupStatistics;
+#include <QString>
 
 //==================================================================================================
 ///
-///
 //==================================================================================================
-class RimFractureGroupStatisticsCollection : public caf::PdmObject
+class RicImportEnsembleFractureStatisticsFeature : public caf::CmdFeature
 {
-    CAF_PDM_HEADER_INIT;
+    CAF_CMD_HEADER_INIT;
 
 public:
-    RimFractureGroupStatisticsCollection();
+    RicImportEnsembleFractureStatisticsFeature() {}
 
-    void addFractureGroupStatistics( RimFractureGroupStatistics* fractureGroupStatistics );
+    static QStringList runRecursiveFileSearchDialog( const QString& dialogTitle, const QString& pathCacheName );
 
-    void loadAndUpdateData();
+protected:
+    // Overrides
+    bool isCommandEnabled() override;
+    void onActionTriggered( bool isChecked ) override;
+    void setupActionLook( QAction* actionToSetup ) override;
 
 private:
-    caf::PdmChildArrayField<RimFractureGroupStatistics*> m_fractureGroupStatistics;
+    static QString m_pathFilter;
+    static QString m_fileNameFilter;
 };

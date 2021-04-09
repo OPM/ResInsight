@@ -31,7 +31,7 @@ class RigSlice2D;
 //==================================================================================================
 //
 //==================================================================================================
-class RifFractureGroupStatisticsExporter
+class RifEnsembleFractureStatisticsExporter
 {
 public:
     static bool writeAsStimPlanXml( const std::vector<std::shared_ptr<RigSlice2D>>& statistics,

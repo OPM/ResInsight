@@ -16,7 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimFractureGroupStatistics.h"
+#include "RimEnsembleFractureStatistics.h"
 
 #include "RiaDefines.h"
 #include "RiaLogging.h"
@@ -28,7 +28,7 @@
 #include "RigStimPlanFractureDefinition.h"
 
 #include "RifCsvDataTableFormatter.h"
-#include "RifFractureGroupStatisticsExporter.h"
+#include "RifEnsembleFractureStatisticsExporter.h"
 #include "RifStimPlanXmlReader.h"
 
 #include "FractureCommands/RicNewStimPlanFractureTemplateFeature.h"
@@ -45,28 +45,28 @@
 namespace caf
 {
 template <>
-void caf::AppEnum<RimFractureGroupStatistics::StatisticsType>::setUp()
+void caf::AppEnum<RimEnsembleFractureStatistics::StatisticsType>::setUp()
 {
-    addItem( RimFractureGroupStatistics::StatisticsType::MEAN, "MEAN", "Mean" );
-    addItem( RimFractureGroupStatistics::StatisticsType::MIN, "MIN", "Minimum" );
-    addItem( RimFractureGroupStatistics::StatisticsType::MAX, "MAX", "Maximum" );
-    addItem( RimFractureGroupStatistics::StatisticsType::P10, "P10", "P10" );
-    addItem( RimFractureGroupStatistics::StatisticsType::P50, "P50", "P50" );
-    addItem( RimFractureGroupStatistics::StatisticsType::P90, "P90", "P90" );
-    addItem( RimFractureGroupStatistics::StatisticsType::OCCURRENCE, "OCCURRENCE", "Occurrence" );
-    setDefault( RimFractureGroupStatistics::StatisticsType::MEAN );
+    addItem( RimEnsembleFractureStatistics::StatisticsType::MEAN, "MEAN", "Mean" );
+    addItem( RimEnsembleFractureStatistics::StatisticsType::MIN, "MIN", "Minimum" );
+    addItem( RimEnsembleFractureStatistics::StatisticsType::MAX, "MAX", "Maximum" );
+    addItem( RimEnsembleFractureStatistics::StatisticsType::P10, "P10", "P10" );
+    addItem( RimEnsembleFractureStatistics::StatisticsType::P50, "P50", "P50" );
+    addItem( RimEnsembleFractureStatistics::StatisticsType::P90, "P90", "P90" );
+    addItem( RimEnsembleFractureStatistics::StatisticsType::OCCURRENCE, "OCCURRENCE", "Occurrence" );
+    setDefault( RimEnsembleFractureStatistics::StatisticsType::MEAN );
 }
 
 } // namespace caf
 
-CAF_PDM_SOURCE_INIT( RimFractureGroupStatistics, "FractureGroupStatistics" );
+CAF_PDM_SOURCE_INIT( RimEnsembleFractureStatistics, "EnsembleFractureStatistics" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimFractureGroupStatistics::RimFractureGroupStatistics()
+RimEnsembleFractureStatistics::RimEnsembleFractureStatistics()
 {
-    CAF_PDM_InitObject( "Fracture Group Statistics", ":/FractureTemplate16x16.png", "", "" );
+    CAF_PDM_InitObject( "Ensemble Fracture Statistics", ":/FractureTemplate16x16.png", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_filePaths, "FilePaths", "", "", "", "" );
 
@@ -89,14 +89,14 @@ RimFractureGroupStatistics::RimFractureGroupStatistics()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimFractureGroupStatistics::~RimFractureGroupStatistics()
+RimEnsembleFractureStatistics::~RimEnsembleFractureStatistics()
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimFractureGroupStatistics::addFilePath( const QString& filePath )
+void RimEnsembleFractureStatistics::addFilePath( const QString& filePath )
 {
     m_filePaths.v().push_back( filePath );
     m_filePathsTable = generateFilePathsTable();
@@ -105,7 +105,7 @@ void RimFractureGroupStatistics::addFilePath( const QString& filePath )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimFractureGroupStatistics::generateFilePathsTable()
+QString RimEnsembleFractureStatistics::generateFilePathsTable()
 {
     QString body;
     for ( auto prop : m_filePaths.v() )
@@ -119,9 +119,9 @@ QString RimFractureGroupStatistics::generateFilePathsTable()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimFractureGroupStatistics::defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                                        QString                    uiConfigName,
-                                                        caf::PdmUiEditorAttribute* attribute )
+void RimEnsembleFractureStatistics::defineEditorAttribute( const caf::PdmFieldHandle* field,
+                                                           QString                    uiConfigName,
+                                                           caf::PdmUiEditorAttribute* attribute )
 {
     if ( field == &m_filePathsTable )
     {
@@ -137,9 +137,9 @@ void RimFractureGroupStatistics::defineEditorAttribute( const caf::PdmFieldHandl
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimFractureGroupStatistics::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                                   const QVariant&            oldValue,
-                                                   const QVariant&            newValue )
+void RimEnsembleFractureStatistics::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
+                                                      const QVariant&            oldValue,
+                                                      const QVariant&            newValue )
 {
     if ( changedField == &m_computeStatistics )
     {
@@ -152,7 +152,7 @@ void RimFractureGroupStatistics::fieldChangedByUi( const caf::PdmFieldHandle* ch
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimFractureGroupStatistics::loadAndUpdateData()
+void RimEnsembleFractureStatistics::loadAndUpdateData()
 {
     m_filePathsTable = generateFilePathsTable();
 }
@@ -160,7 +160,7 @@ void RimFractureGroupStatistics::loadAndUpdateData()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<QString> RimFractureGroupStatistics::computeStatistics()
+std::vector<QString> RimEnsembleFractureStatistics::computeStatistics()
 {
     auto unitSystem = RiaDefines::EclipseUnitSystem::UNITS_METRIC;
 
@@ -169,7 +169,7 @@ std::vector<QString> RimFractureGroupStatistics::computeStatistics()
 
     std::set<std::pair<QString, QString>> availableResults = findAllResultNames( stimPlanFractureDefinitions );
 
-    std::map<std::pair<RimFractureGroupStatistics::StatisticsType, QString>, std::shared_ptr<RigSlice2D>> statisticsGridsAll;
+    std::map<std::pair<RimEnsembleFractureStatistics::StatisticsType, QString>, std::shared_ptr<RigSlice2D>> statisticsGridsAll;
 
     // TODO: take from an incoming xml?
     double timeStep = 1.0;
@@ -200,7 +200,7 @@ std::vector<QString> RimFractureGroupStatistics::computeStatistics()
         double sampleDistanceY = ( maxY - minY ) / numSamplesY;
 
         RiaLogging::info(
-            QString( "Fracture Group Size: X = [%1, %2] Y = [%3, %4]" ).arg( minX ).arg( maxX ).arg( minY ).arg( maxY ) );
+            QString( "Ensemble Fracture Size: X = [%1, %2] Y = [%3, %4]" ).arg( minX ).arg( maxX ).arg( minY ).arg( maxY ) );
         RiaLogging::info( QString( "Output size: %1x%2. Sampling Distance X = %3 Sampling Distance Y = %4" )
                               .arg( numSamplesX )
                               .arg( numSamplesY )
@@ -222,7 +222,7 @@ std::vector<QString> RimFractureGroupStatistics::computeStatistics()
         std::vector<std::vector<double>> samples( numSamplesX * numSamplesY );
         sampleAllGrids( fractureGrids, samples, minX, minY, numSamplesX, numSamplesY, sampleDistanceX, sampleDistanceY );
 
-        std::map<RimFractureGroupStatistics::StatisticsType, std::shared_ptr<RigSlice2D>> statisticsGrids;
+        std::map<RimEnsembleFractureStatistics::StatisticsType, std::shared_ptr<RigSlice2D>> statisticsGrids;
         generateStatisticsGrids( samples, numSamplesX, numSamplesY, statisticsGrids );
 
         for ( auto [statType, slice] : statisticsGrids )
@@ -243,10 +243,10 @@ std::vector<QString> RimFractureGroupStatistics::computeStatistics()
         outputDirectory.mkpath( outputDirectoryPath );
     }
 
-    for ( size_t i = 0; i < caf::AppEnum<RimFractureGroupStatistics::StatisticsType>::size(); ++i )
+    for ( size_t i = 0; i < caf::AppEnum<RimEnsembleFractureStatistics::StatisticsType>::size(); ++i )
     {
-        caf::AppEnum<RimFractureGroupStatistics::StatisticsType> t =
-            caf::AppEnum<RimFractureGroupStatistics::StatisticsType>::fromIndex( i );
+        caf::AppEnum<RimEnsembleFractureStatistics::StatisticsType> t =
+            caf::AppEnum<RimEnsembleFractureStatistics::StatisticsType>::fromIndex( i );
         QString text = t.text();
 
         // Get the all the properties for this statistics type
@@ -265,13 +265,13 @@ std::vector<QString> RimFractureGroupStatistics::computeStatistics()
         QString xmlFilePath = outputDirectoryPath + "/" + name() + "-" + text + ".xml";
 
         RiaLogging::info( QString( "Writing fracture group statistics to: %1" ).arg( xmlFilePath ) );
-        RifFractureGroupStatisticsExporter::writeAsStimPlanXml( statisticsSlices,
-                                                                properties,
-                                                                xmlFilePath,
-                                                                gridXs,
-                                                                gridYs,
-                                                                timeStep,
-                                                                unitSystem );
+        RifEnsembleFractureStatisticsExporter::writeAsStimPlanXml( statisticsSlices,
+                                                                   properties,
+                                                                   xmlFilePath,
+                                                                   gridXs,
+                                                                   gridYs,
+                                                                   timeStep,
+                                                                   unitSystem );
 
         xmlFilePaths.push_back( xmlFilePath );
     }
@@ -283,8 +283,8 @@ std::vector<QString> RimFractureGroupStatistics::computeStatistics()
 ///
 //--------------------------------------------------------------------------------------------------
 std::vector<cvf::ref<RigStimPlanFractureDefinition>>
-    RimFractureGroupStatistics::readFractureDefinitions( const std::vector<caf::FilePath>& filePaths,
-                                                         RiaDefines::EclipseUnitSystem     unitSystem ) const
+    RimEnsembleFractureStatistics::readFractureDefinitions( const std::vector<caf::FilePath>& filePaths,
+                                                            RiaDefines::EclipseUnitSystem     unitSystem ) const
 {
     double conductivityScaleFactor = 1.0;
 
@@ -316,7 +316,7 @@ std::vector<cvf::ref<RigStimPlanFractureDefinition>>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::set<std::pair<QString, QString>> RimFractureGroupStatistics::findAllResultNames(
+std::set<std::pair<QString, QString>> RimEnsembleFractureStatistics::findAllResultNames(
     const std::vector<cvf::ref<RigStimPlanFractureDefinition>>& stimPlanFractureDefinitions )
 {
     std::set<std::pair<QString, QString>> resultNames;
@@ -334,7 +334,7 @@ std::set<std::pair<QString, QString>> RimFractureGroupStatistics::findAllResultN
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<cvf::cref<RigFractureGrid>> RimFractureGroupStatistics::createFractureGrids(
+std::vector<cvf::cref<RigFractureGrid>> RimEnsembleFractureStatistics::createFractureGrids(
     const std::vector<cvf::ref<RigStimPlanFractureDefinition>>& stimPlanFractureDefinitions,
     RiaDefines::EclipseUnitSystem                               unitSystem,
     const QString&                                              resultNameOnFile )
@@ -373,7 +373,7 @@ std::vector<cvf::cref<RigFractureGrid>> RimFractureGroupStatistics::createFractu
 ///
 //--------------------------------------------------------------------------------------------------
 std::tuple<double, double, double, double>
-    RimFractureGroupStatistics::findExtentsOfGrids( const std::vector<cvf::cref<RigFractureGrid>>& fractureGrids )
+    RimEnsembleFractureStatistics::findExtentsOfGrids( const std::vector<cvf::cref<RigFractureGrid>>& fractureGrids )
 {
     // Find min and max extent of all the grids
     double minX = std::numeric_limits<double>::max();
@@ -401,7 +401,7 @@ std::tuple<double, double, double, double>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimFractureGroupStatistics::isCoordinateInsideFractureCell( double x, double y, const RigFractureCell& cell )
+bool RimEnsembleFractureStatistics::isCoordinateInsideFractureCell( double x, double y, const RigFractureCell& cell )
 {
     const cvf::Vec3d& minPoint = cell.getPolygon()[0];
     const cvf::Vec3d& maxPoint = cell.getPolygon()[2];
@@ -412,7 +412,7 @@ bool RimFractureGroupStatistics::isCoordinateInsideFractureCell( double x, doubl
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RimFractureGroupStatistics::computeDepthOfWellPathAtFracture(
+double RimEnsembleFractureStatistics::computeDepthOfWellPathAtFracture(
     cvf::ref<RigStimPlanFractureDefinition> stimPlanFractureDefinitionData )
 {
     double firstTvd = stimPlanFractureDefinitionData->topPerfTvd();
@@ -433,14 +433,14 @@ double RimFractureGroupStatistics::computeDepthOfWellPathAtFracture(
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimFractureGroupStatistics::sampleAllGrids( const std::vector<cvf::cref<RigFractureGrid>>& fractureGrids,
-                                                 std::vector<std::vector<double>>&              samples,
-                                                 double                                         minX,
-                                                 double                                         minY,
-                                                 int                                            numSamplesX,
-                                                 int                                            numSamplesY,
-                                                 double                                         sampleDistanceX,
-                                                 double                                         sampleDistanceY )
+void RimEnsembleFractureStatistics::sampleAllGrids( const std::vector<cvf::cref<RigFractureGrid>>& fractureGrids,
+                                                    std::vector<std::vector<double>>&              samples,
+                                                    double                                         minX,
+                                                    double                                         minY,
+                                                    int                                            numSamplesX,
+                                                    int                                            numSamplesY,
+                                                    double                                         sampleDistanceX,
+                                                    double                                         sampleDistanceY )
 {
     for ( int y = 0; y < numSamplesY; y++ )
     {
@@ -468,7 +468,7 @@ void RimFractureGroupStatistics::sampleAllGrids( const std::vector<cvf::cref<Rig
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimFractureGroupStatistics::writeStatisticsToCsv( const QString& filePath, const RigSlice2D& samples )
+bool RimEnsembleFractureStatistics::writeStatisticsToCsv( const QString& filePath, const RigSlice2D& samples )
 {
     QFile data( filePath );
     if ( !data.open( QFile::WriteOnly | QFile::Truncate ) )
@@ -500,18 +500,18 @@ bool RimFractureGroupStatistics::writeStatisticsToCsv( const QString& filePath, 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimFractureGroupStatistics::generateStatisticsGrids(
-    const std::vector<std::vector<double>>&                                            samples,
-    int                                                                                numSamplesX,
-    int                                                                                numSamplesY,
-    std::map<RimFractureGroupStatistics::StatisticsType, std::shared_ptr<RigSlice2D>>& statisticsGrids )
+void RimEnsembleFractureStatistics::generateStatisticsGrids(
+    const std::vector<std::vector<double>>&                                               samples,
+    int                                                                                   numSamplesX,
+    int                                                                                   numSamplesY,
+    std::map<RimEnsembleFractureStatistics::StatisticsType, std::shared_ptr<RigSlice2D>>& statisticsGrids )
 {
-    for ( size_t i = 0; i < caf::AppEnum<RimFractureGroupStatistics::StatisticsType>::size(); ++i )
+    for ( size_t i = 0; i < caf::AppEnum<RimEnsembleFractureStatistics::StatisticsType>::size(); ++i )
     {
         std::shared_ptr<RigSlice2D> grid = std::make_shared<RigSlice2D>( numSamplesX, numSamplesY );
 
-        caf::AppEnum<RimFractureGroupStatistics::StatisticsType> t =
-            caf::AppEnum<RimFractureGroupStatistics::StatisticsType>::fromIndex( i );
+        caf::AppEnum<RimEnsembleFractureStatistics::StatisticsType> t =
+            caf::AppEnum<RimEnsembleFractureStatistics::StatisticsType>::fromIndex( i );
         statisticsGrids[t.value()] = grid;
     }
 
@@ -528,20 +528,20 @@ void RimFractureGroupStatistics::generateStatisticsGrids(
             double dev;
             RigStatisticsMath::calculateBasicStatistics( samples[idx], &min, &max, &sum, &range, &mean, &dev );
 
-            statisticsGrids[RimFractureGroupStatistics::StatisticsType::MEAN]->setValue( x, y, mean );
-            statisticsGrids[RimFractureGroupStatistics::StatisticsType::MIN]->setValue( x, y, min );
-            statisticsGrids[RimFractureGroupStatistics::StatisticsType::MAX]->setValue( x, y, max );
+            statisticsGrids[RimEnsembleFractureStatistics::StatisticsType::MEAN]->setValue( x, y, mean );
+            statisticsGrids[RimEnsembleFractureStatistics::StatisticsType::MIN]->setValue( x, y, min );
+            statisticsGrids[RimEnsembleFractureStatistics::StatisticsType::MAX]->setValue( x, y, max );
 
             double p10;
             double p50;
             double p90;
             RigStatisticsMath::calculateStatisticsCurves( samples[idx], &p10, &p50, &p90, &mean );
 
-            statisticsGrids[RimFractureGroupStatistics::StatisticsType::P10]->setValue( x, y, p10 );
-            statisticsGrids[RimFractureGroupStatistics::StatisticsType::P50]->setValue( x, y, p50 );
-            statisticsGrids[RimFractureGroupStatistics::StatisticsType::P90]->setValue( x, y, p90 );
+            statisticsGrids[RimEnsembleFractureStatistics::StatisticsType::P10]->setValue( x, y, p10 );
+            statisticsGrids[RimEnsembleFractureStatistics::StatisticsType::P50]->setValue( x, y, p50 );
+            statisticsGrids[RimEnsembleFractureStatistics::StatisticsType::P90]->setValue( x, y, p90 );
 
-            statisticsGrids[RimFractureGroupStatistics::StatisticsType::OCCURRENCE]->setValue( x, y, samples[idx].size() );
+            statisticsGrids[RimEnsembleFractureStatistics::StatisticsType::OCCURRENCE]->setValue( x, y, samples[idx].size() );
         }
     }
 }
