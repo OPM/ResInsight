@@ -229,11 +229,19 @@ time_t RifHdf5SummaryReader::startDate() const
             values.resize( dims[0] );
             dataset.read( values.data(), H5::PredType::NATIVE_INT );
 
-            int day   = values[0];
-            int month = values[1];
-            int year  = values[2];
+            int day    = values[0];
+            int month  = values[1];
+            int year   = values[2];
+            int hour   = values[3];
+            int minute = values[4];
+            int second = values[5];
 
-            QDateTime reportDateTime = RiaQDateTimeTools::createUtcDateTime( QDate( year, month, day ) );
+            QDate date( year, month, day );
+            QTime time( hour, minute, second );
+
+            QDateTime dt( date, time );
+
+            QDateTime reportDateTime = RiaQDateTimeTools::createUtcDateTime( dt );
 
             time_t myTime = RiaTimeTTools::fromQDateTime( reportDateTime );
             return myTime;
@@ -241,9 +249,9 @@ time_t RifHdf5SummaryReader::startDate() const
         catch ( ... )
         {
         }
-
-        RiaLogging::error( "Not able to read start_date from HDF5 " );
     }
+
+    RiaLogging::error( "Not able to read start_date from HDF5 " );
 
     return {};
 }
