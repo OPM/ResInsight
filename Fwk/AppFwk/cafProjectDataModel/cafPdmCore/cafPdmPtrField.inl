@@ -31,7 +31,7 @@ caf::PdmPtrField<DataType*>::PdmPtrField( const DataTypePtr& fieldValue )
 {
     m_isResolved = true;
     m_fieldValue = fieldValue;
-    if ( m_fieldValue != NULL ) m_fieldValue->addReferencingPtrField( this );
+    if ( m_fieldValue != nullptr ) m_fieldValue->addReferencingPtrField( this );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -41,7 +41,7 @@ template <typename DataType>
 caf::PdmPtrField<DataType*>::~PdmPtrField()
 {
     if ( !m_fieldValue.isNull() ) m_fieldValue.rawPtr()->removeReferencingPtrField( this );
-    m_fieldValue.setRawPtr( NULL );
+    m_fieldValue.setRawPtr( nullptr );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -54,7 +54,7 @@ void PdmPtrField<DataType*>::setValue( const DataTypePtr& fieldValue )
 
     if ( m_fieldValue ) m_fieldValue->removeReferencingPtrField( this );
     m_fieldValue = fieldValue;
-    if ( m_fieldValue != NULL ) m_fieldValue->addReferencingPtrField( this );
+    if ( m_fieldValue != nullptr ) m_fieldValue->addReferencingPtrField( this );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -80,7 +80,7 @@ caf::PdmPtrField<DataType*>& PdmPtrField<DataType*>::operator=( const DataTypePt
 
     if ( m_fieldValue ) m_fieldValue->removeReferencingPtrField( this );
     m_fieldValue = fieldValue;
-    if ( m_fieldValue != NULL ) m_fieldValue->addReferencingPtrField( this );
+    if ( m_fieldValue != nullptr ) m_fieldValue->addReferencingPtrField( this );
 
     return *this;
 }
@@ -95,7 +95,7 @@ caf::PdmPtrField<DataType*>& PdmPtrField<DataType*>::operator=( const FieldDataT
 
     if ( m_fieldValue ) m_fieldValue->removeReferencingPtrField( this );
     m_fieldValue = fieldValue;
-    if ( m_fieldValue != NULL ) m_fieldValue->addReferencingPtrField( this );
+    if ( m_fieldValue != nullptr ) m_fieldValue->addReferencingPtrField( this );
 
     return *this;
 }

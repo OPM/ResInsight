@@ -79,7 +79,7 @@ public:
     inline S            operator()(int row, int col) const;
 
     bool                invert();
-    const Matrix3       getInverted(bool* pInvertible = NULL) const;
+    const Matrix3       getInverted(bool* pInvertible = nullptr) const;
     S                   determinant() const;
     void                transpose();
 

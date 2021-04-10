@@ -137,7 +137,7 @@ ref<T>::ref(T* object)
     }
     else
     {
-        m_object = NULL;
+        m_object = nullptr;
     }
 }
 
@@ -156,7 +156,7 @@ ref<T>::ref(const ref& other)
     }
     else
     {
-        m_object = NULL;
+        m_object = nullptr;
     }
 }
 
@@ -179,7 +179,7 @@ ref<T>::ref(const ref<T2>& other)
     }
     else
     {
-        m_object = NULL;
+        m_object = nullptr;
     }
 }
 
@@ -195,7 +195,7 @@ ref<T>::~ref()
     if (m_object)
     {
         m_object->release();
-        m_object = NULL;
+        m_object = nullptr;
     }
 }
 
@@ -326,7 +326,7 @@ inline const T* ref<T>::p() const
 template<typename T>
 inline bool ref<T>::isNull() const
 {
-    return m_object == NULL;
+    return m_object == nullptr;
 }
 
 
@@ -336,7 +336,7 @@ inline bool ref<T>::isNull() const
 template<typename T>
 inline bool ref<T>::notNull() const
 {
-    return m_object != NULL;
+    return m_object != nullptr;
 }
 
 
@@ -398,7 +398,7 @@ cref<T>::cref(const T* object)
     }
     else
     {
-        m_object = NULL;
+        m_object = nullptr;
     }
 }
 
@@ -416,7 +416,7 @@ cref<T>::cref(const cref& other)
     }
     else
     {
-        m_object = NULL;
+        m_object = nullptr;
     }
 }
 
@@ -449,7 +449,7 @@ cref<T>::~cref()
     if (m_object)
     {
         m_object->release();
-        m_object = NULL;
+        m_object = nullptr;
     }
 }
 
@@ -529,7 +529,7 @@ inline const T* cref<T>::p() const
 template<typename T>
 inline bool cref<T>::isNull() const
 {
-    return m_object == NULL;
+    return m_object == nullptr;
 }
 
 
@@ -539,7 +539,7 @@ inline bool cref<T>::isNull() const
 template<typename T>
 inline bool cref<T>::notNull() const
 {
-    return m_object != NULL;
+    return m_object != nullptr;
 }
 
 

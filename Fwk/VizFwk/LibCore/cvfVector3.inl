@@ -786,7 +786,7 @@ template<typename S>
 const Vector3<S> Vector3<S>::perpendicularVector(bool* perpendicularOK) const
 {
     Vector3<S> perpendic(0, 0, 0);
-    bool ok = createOrthonormalBasis(0, NULL, &perpendic, NULL);
+    bool ok = createOrthonormalBasis(0, nullptr, &perpendic, nullptr);
     if (perpendicularOK)
     {
         *perpendicularOK = ok;

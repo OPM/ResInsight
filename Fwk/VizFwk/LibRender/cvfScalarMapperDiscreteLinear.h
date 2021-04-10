@@ -55,9 +55,9 @@ public:
 
     // Scalarmapper interface implementation
 
-    virtual Color3ub    mapToColor(double scalarValue) const;
-    virtual double      normalizedValue( double domainValue ) const;
-    virtual double      domainValue( double normalizedPosition ) const;
+    Color3ub    mapToColor(double scalarValue) const override;
+    double      normalizedValue( double domainValue ) const override;
+    double      domainValue( double normalizedPosition ) const override;
 
 private:
     static double       discretizeToLevelBelow(double scalarValue, const std::set<double>& sortedLevels);

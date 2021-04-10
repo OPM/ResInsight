@@ -55,7 +55,7 @@ class HitItemCollection : public Object
 {
 public:
     HitItemCollection();
-    ~HitItemCollection();
+    ~HitItemCollection() override;
 
     void            add(HitItem* item);
     size_t          count() const;

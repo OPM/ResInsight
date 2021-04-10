@@ -73,7 +73,7 @@ public:
 
 public:
     TextDrawer(Font* font);
-    virtual ~TextDrawer();
+    ~TextDrawer() override;
 
     void    addText(const String& text, const Vec2f& pos, const Vec2f& dir = Vec2f::X_AXIS);
     void    addText(const String& text, const Vec3f& pos, const Vec3f& dir = Vec3f::X_AXIS);

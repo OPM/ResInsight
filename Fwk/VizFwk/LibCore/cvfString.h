@@ -107,15 +107,15 @@ public:
     static String       number(float n, char format = 'g', int precision = -1);
     static String       number(double n, char format = 'g', int precision = -1);
 
-    double              toDouble(bool* ok = NULL) const;
+    double              toDouble(bool* ok = nullptr) const;
     double              toDouble(double defaultValue) const;
-    float               toFloat(bool* ok = NULL) const;
+    float               toFloat(bool* ok = nullptr) const;
     float               toFloat(float defaultValue) const;
-    int                 toInt(bool* ok = NULL) const;
+    int                 toInt(bool* ok = nullptr) const;
     int                 toInt(int defaultValue) const;
-    uint                toUInt(bool* ok = NULL) const;
+    uint                toUInt(bool* ok = nullptr) const;
     uint                toUInt(uint defaultValue) const;
-    int64               toInt64(bool* ok = NULL) const;
+    int64               toInt64(bool* ok = nullptr) const;
     int64               toInt64(int64 defaultValue) const;
 
     String              arg(const String& a, int fieldWidth = 0, const wchar_t& fillChar = ' ') const;

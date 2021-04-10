@@ -67,7 +67,7 @@ public:
     void            setMode(Mode faceMode);
     Mode            mode() const;
 
-    virtual void    applyOpenGL(OpenGLContext* oglContext) const;
+    void    applyOpenGL(OpenGLContext* oglContext) const override;
 
 private:
     bool        m_enableCulling;

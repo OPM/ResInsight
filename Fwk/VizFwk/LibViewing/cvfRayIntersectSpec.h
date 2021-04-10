@@ -57,7 +57,7 @@ class RayIntersectSpec : public Object
 public:
     RayIntersectSpec(const Ray* ray, const Rendering* rendering);
     RayIntersectSpec(const Ray* ray, const Camera* camera, const CullSettings* cullSettings, uint enableMask);
-    ~RayIntersectSpec();
+    ~RayIntersectSpec() override;
 
     const Ray*          ray() const;
     const Camera*       camera() const;

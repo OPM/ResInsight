@@ -31,7 +31,7 @@ class RigFemPartResultCalculatorPrincipalStress : public RigFemPartResultCalcula
 {
 public:
     explicit RigFemPartResultCalculatorPrincipalStress( RigFemPartResultsCollection& collection );
-    virtual ~RigFemPartResultCalculatorPrincipalStress();
+    ~RigFemPartResultCalculatorPrincipalStress() override;
     bool                      isMatching( const RigFemResultAddress& resVarAddr ) const override;
     RigFemScalarResultFrames* calculate( int partIndex, const RigFemResultAddress& resVarAddr ) override;
 };

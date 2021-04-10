@@ -60,7 +60,7 @@ class OpenGLContextGroup : public Object
 {
 public:
     OpenGLContextGroup();
-    virtual ~OpenGLContextGroup();
+    ~OpenGLContextGroup() override;
 
     bool                    isContextGroupInitialized() const;
 

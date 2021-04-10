@@ -23,8 +23,8 @@
 extern "C" {
 #endif
 
-#include <stdbool.h>
-#include <time.h>
+
+#include <ctime>
 
 
 #include <ert/ecl/ecl_kw.hpp>

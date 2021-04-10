@@ -55,7 +55,7 @@ class HitItem : public Object
 {
 public:
     HitItem(double distanceAlongRay, const Vec3d& intersectionPoint);
-    ~HitItem();
+    ~HitItem() override;
 
     double              distanceAlongRay() const;
     const Vec3d&        intersectionPoint() const;

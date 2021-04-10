@@ -102,7 +102,7 @@ public:
     inline bool     isUndefined() const;
 
     bool            normalize();
-    const Vector2   getNormalized(bool* normalizationOK = NULL) const;
+    const Vector2   getNormalized(bool* normalizationOK = nullptr) const;
 
     inline S        length() const;
     inline S        lengthSquared() const;

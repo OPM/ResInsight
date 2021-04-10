@@ -21,10 +21,10 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-#include <stdbool.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <limits.h>
+
+#include <climits>
+#include <cstdio>
+#include <cstdlib>
 
 #include <ert/util/buffer.hpp>
 #include <ert/util/type_macros.hpp>

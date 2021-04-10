@@ -22,9 +22,9 @@
 extern "C" {
 #endif
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <stdbool.h>
+#include <cstdio>
+#include <cstdlib>
+
 
 #include <ert/util/util.h>
 #include <ert/util/type_macros.hpp>

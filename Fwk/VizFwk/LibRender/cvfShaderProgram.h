@@ -86,7 +86,7 @@ public:
 
 public:
     ShaderProgram(const String& programName = String());
-    ~ShaderProgram();
+    ~ShaderProgram() override;
 
     void        setProgramName(const String& programName);
     String      programName() const;

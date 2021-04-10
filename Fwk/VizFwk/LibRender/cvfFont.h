@@ -55,7 +55,7 @@ class Font : public Object
 {
 public:
     Font();
-    virtual ~Font();
+    ~Font() override;
 
     virtual const String&   name() const = 0;
     virtual ref<Glyph>      getGlyph(wchar_t character) = 0;

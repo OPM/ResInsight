@@ -58,7 +58,7 @@ class Effect : public Object
 {
 public:
     Effect();
-    ~Effect();
+    ~Effect() override;
 
     void                    setShaderProgram(ShaderProgram* shaderProgram);
     ShaderProgram*          shaderProgram();

@@ -65,7 +65,7 @@ public:
     std::vector<RimRegularLegendConfig*> legendConfigs();
 
 protected:
-    virtual void         initAfterRead() override;
+    void         initAfterRead() override;
     caf::PdmFieldHandle* userDescriptionField() override;
 
 private:

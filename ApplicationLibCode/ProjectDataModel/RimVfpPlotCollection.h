@@ -36,7 +36,7 @@ public:
     ~RimVfpPlotCollection() override;
 
     void                     addPlot( RimVfpPlot* newPlot );
-    std::vector<RimVfpPlot*> plots() const;
+    std::vector<RimVfpPlot*> plots() const override;
     void                     deleteAllChildObjects();
 
     size_t plotCount() const final;

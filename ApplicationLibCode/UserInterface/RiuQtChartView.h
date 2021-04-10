@@ -33,7 +33,7 @@ class RiuQtChartView : public QtCharts::QChartView, public RiuInterfaceToViewWin
 {
 public:
     RiuQtChartView( RimPlotWindow* plotWindow, QWidget* parent = nullptr );
-    virtual ~RiuQtChartView();
+    ~RiuQtChartView() override;
 
     RimViewWindow* ownerViewWindow() const override;
 

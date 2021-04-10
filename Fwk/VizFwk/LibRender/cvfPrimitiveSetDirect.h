@@ -52,15 +52,15 @@ class PrimitiveSetDirect : public PrimitiveSet
 public:
     PrimitiveSetDirect(PrimitiveType primitiveType);
 
-    virtual void    render(OpenGLContext* oglContext) const;
-    virtual void    createUploadBufferObjectsGPU(OpenGLContext* oglContext);
-    virtual void    releaseBufferObjectsGPU();
+    void    render(OpenGLContext* oglContext) const override;
+    void    createUploadBufferObjectsGPU(OpenGLContext* oglContext) override;
+    void    releaseBufferObjectsGPU() override;
 
     void            setStartIndex(size_t startIndex);
     void            setIndexCount(size_t indexCount);
 
-    virtual size_t  indexCount() const;
-    virtual uint    index(size_t i) const;
+    size_t  indexCount() const override;
+    uint    index(size_t i) const override;
 
 private:
     size_t  m_startIndex;   // Starting index in the enabled (vertex attribute) arrays

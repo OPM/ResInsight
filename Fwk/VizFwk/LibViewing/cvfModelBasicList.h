@@ -52,7 +52,7 @@ class Frustum;
 class ModelBasicList : public Model
 {
 public:
-    virtual String          name() const;
+    String          name() const override;
     void                    setName(const String& name);
 
     void                    addPart(Part* part);
@@ -62,14 +62,14 @@ public:
     void                    removeAllParts();
     void                    shrinkPartCount(size_t newPartCount);
 
-    virtual void            findVisibleParts(PartRenderHintCollection* visibleParts, const Camera& camera, const CullSettings& cullSettings, uint enableMask);
-    virtual void            allParts(Collection<Part>* partCollection);
+    void            findVisibleParts(PartRenderHintCollection* visibleParts, const Camera& camera, const CullSettings& cullSettings, uint enableMask) override;
+    void            allParts(Collection<Part>* partCollection) override;
     virtual void            mergeParts(double maxExtent, uint minimumPrimitiveCount);
 
-    virtual void            updateBoundingBoxesRecursive();
-    virtual BoundingBox     boundingBox() const;
+    void            updateBoundingBoxesRecursive() override;
+    BoundingBox     boundingBox() const override;
 
-    virtual bool            rayIntersect(const RayIntersectSpec& rayIntersectSpec, HitItemCollection* hitItemCollection);
+    bool            rayIntersect(const RayIntersectSpec& rayIntersectSpec, HitItemCollection* hitItemCollection) override;
 
     Part*                   findPartByID(int64 id);
     Part*                   findPartByName(String name);

@@ -197,14 +197,14 @@ typedef _W64 int ptrdiff_t;
  * (mem, 2004-01-04)
  */
 
-#include <stddef.h>
+#include <cstddef>
 
 /* SGI MIPSPro doesn't like stdint.h in C++ mode */
 
 #if defined(__sgi) && !defined(__GNUC__)
 #include <inttypes.h>
 #else
-#include <stdint.h>
+#include <cstdint>
 #endif
 
 #define GLEW_APIENTRY_DEFINED

@@ -99,8 +99,8 @@ public:
 
     void                    setArray(const IntArray& values);
 
-    virtual int             valueCount() const;
-    virtual const int*      intPtr() const;
+    int             valueCount() const override;
+    const int*      intPtr() const override;
 
 private:
     IntArray  m_data;
@@ -135,8 +135,8 @@ public:
     void                    setArray(const Vec3fArray& values);
     void                    setArray(const Vec4fArray& values);
 
-    virtual int             valueCount() const;
-    virtual const float*    floatPtr() const;
+    int             valueCount() const override;
+    const float*    floatPtr() const override;
 
 private:
     FloatArray  m_data;
@@ -158,8 +158,8 @@ public:
 
     void                    set(const Mat4f& value);
 
-    virtual int             valueCount() const;
-    virtual const float*    floatPtr() const;
+    int             valueCount() const override;
+    const float*    floatPtr() const override;
 
 private:
     FloatArray  m_data;

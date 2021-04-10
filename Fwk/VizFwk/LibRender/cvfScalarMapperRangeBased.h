@@ -60,10 +60,10 @@ public:
     void                setColors(ColorTable colorTable);
 
     // Implementing some of the Scalarmapper interface
-    virtual Vec2f       mapToTextureCoord(double scalarValue) const;
-    virtual Color3ub    mapToColor(double scalarValue) const;
-    virtual bool        updateTexture(TextureImage* image) const;
-    virtual void        majorTickValues(std::vector<double>* domainValues ) const;
+    Vec2f       mapToTextureCoord(double scalarValue) const override;
+    Color3ub    mapToColor(double scalarValue) const override;
+    bool        updateTexture(TextureImage* image) const override;
+    void        majorTickValues(std::vector<double>* domainValues ) const override;
     
 protected:
     virtual void        rangeUpdated() {}; //< Called when the range is changed. Subclasses can reimplment to recalculate cached values

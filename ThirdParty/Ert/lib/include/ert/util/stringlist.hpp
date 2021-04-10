@@ -19,8 +19,8 @@
 #ifndef ERT_STRINGLIST_H
 #define ERT_STRINGLIST_H
 
-#include <stdbool.h>
-#include <stdio.h>
+
+#include <cstdio>
 
 #include <ert/util/ert_api_config.hpp>
 #include <ert/util/type_macros.hpp>

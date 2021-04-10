@@ -89,7 +89,7 @@ public:
 public:
     Texture(TextureType textureType, InternalFormat internalFormat);
     Texture(TextureImage* image);
-    virtual ~Texture();
+    ~Texture() override;
 
     void            setSize(uint width, uint height);
 

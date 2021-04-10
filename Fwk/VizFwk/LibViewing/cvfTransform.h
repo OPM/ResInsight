@@ -53,7 +53,7 @@ class Transform : public Object
 {
 public:
     Transform();
-    virtual ~Transform();
+    ~Transform() override;
     virtual void        updateWorldTransform(const cvf::Camera* camera); // camera optional, not used in base
 
     void                addChild(Transform* transform);

@@ -51,7 +51,7 @@ class HitDetail : public Object
 {
 public:
     HitDetail();
-    virtual ~HitDetail();
+    ~HitDetail() override;
 };
 
 

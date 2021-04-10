@@ -20,8 +20,8 @@
 #ifndef ERT_ECL_FILE_VIEW_H
 #define ERT_ECL_FILE_VIEW_H
 
-#include <stdlib.h>
-#include <stdbool.h>
+#include <cstdlib>
+
 
 #include <ert/ecl/ecl_kw.hpp>
 #include <ert/ecl/ecl_file_kw.hpp>

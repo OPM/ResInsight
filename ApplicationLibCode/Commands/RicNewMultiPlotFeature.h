@@ -37,7 +37,7 @@ class RicNewMultiPlotFeature : public caf::CmdFeature, public RicfCommandObject
 public:
     RicNewMultiPlotFeature();
 
-    virtual caf::PdmScriptResponse execute() override;
+    caf::PdmScriptResponse execute() override;
 
 protected:
     // Overrides

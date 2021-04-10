@@ -19,12 +19,12 @@
 #ifndef ERT_UTIL_H
 #define ERT_UTIL_H
 
-#include <stdbool.h>
-#include <stdio.h>
-#include <stdint.h>
-#include <stdarg.h>
+
+#include <cstdarg>
+#include <cstdint>
+#include <cstdio>
+#include <ctime>
 #include <sys/types.h>
-#include <time.h>
 
 
 #include <ert/util/ert_api_config.hpp>

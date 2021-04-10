@@ -368,11 +368,11 @@ cvf::Vec3f Tensor3<S>::calculatePrincipals( cvf::Vec3f principalDirections[3] ) 
         T( 2, 1 ) = m_tensor[4];
         T( 2, 2 ) = m_tensor[2];
 
-        principalDirections[0] = cvf::Vec3f( eigenVector3( T, principalsd[idxPMax], NULL ) );
+        principalDirections[0] = cvf::Vec3f( eigenVector3( T, principalsd[idxPMax], nullptr ) );
         principalDirections[0].normalize();
-        principalDirections[1] = cvf::Vec3f( eigenVector3( T, principalsd[idxPMid], NULL ) );
+        principalDirections[1] = cvf::Vec3f( eigenVector3( T, principalsd[idxPMid], nullptr ) );
         principalDirections[1].normalize();
-        principalDirections[2] = cvf::Vec3f( eigenVector3( T, principalsd[idxPMin], NULL ) );
+        principalDirections[2] = cvf::Vec3f( eigenVector3( T, principalsd[idxPMin], nullptr ) );
         principalDirections[2].normalize();
     }
 

@@ -43,7 +43,7 @@ public:
     RigWellPath( const std::vector<cvf::Vec3d>& wellPathPoints, const std::vector<double>& measuredDepths );
     RigWellPath( const RigWellPath& rhs );
     RigWellPath& operator=( const RigWellPath& rhs );
-    ~RigWellPath();
+    ~RigWellPath() override;
 
     const std::vector<cvf::Vec3d>& wellPathPoints() const;
     const std::vector<double>&     measuredDepths() const;

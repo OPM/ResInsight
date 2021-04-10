@@ -54,13 +54,13 @@ public:
 
     // Implementing the Scalarmapper interface
 
-    virtual Color3ub    mapToColor(double scalarValue) const;
-    virtual double      normalizedValue( double domainValue ) const;
-    virtual double      domainValue( double normalizedPosition ) const;
+    Color3ub    mapToColor(double scalarValue) const override;
+    double      normalizedValue( double domainValue ) const override;
+    double      domainValue( double normalizedPosition ) const override;
 
     //
 protected:
-    virtual void rangeUpdated();
+    void rangeUpdated() override;
 
 private:
     double  m_logRange;

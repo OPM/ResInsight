@@ -23,7 +23,7 @@
 extern "C" {
 #endif
 
-#include <time.h>
+#include <ctime>
 
 #include <ert/ecl/ecl_file.hpp>
 #include <ert/ecl/ecl_file_view.hpp>

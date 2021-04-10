@@ -112,7 +112,7 @@ public:
         m_emitter->addEmittedSignal( this );
     }
 
-    virtual ~Signal()
+    ~Signal() override
     {
         for ( auto observerCallbackPair : m_observerCallbacks )
         {

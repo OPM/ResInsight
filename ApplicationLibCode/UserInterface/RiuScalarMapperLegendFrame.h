@@ -41,7 +41,7 @@ public:
 
 public:
     RiuScalarMapperLegendFrame( QWidget* parent, const QString& title, cvf::ScalarMapper* scalarMapper );
-    ~RiuScalarMapperLegendFrame();
+    ~RiuScalarMapperLegendFrame() override;
 
     void setTickPrecision( int precision );
     void setTickFormat( NumberFormat format );

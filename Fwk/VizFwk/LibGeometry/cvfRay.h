@@ -58,7 +58,7 @@ class Ray : public Object
 public:
     Ray();
     Ray(const Ray& other);
-    ~Ray();
+    ~Ray() override;
 
     void            setOrigin(const Vec3d& orig);
     const Vec3d&    origin() const;
@@ -73,10 +73,10 @@ public:
     void            transform(const Mat4d& matrix);
     const Ray       getTransformed(const Mat4d& matrix) const;
 
-    bool            triangleIntersect(const Vec3d& v1, const Vec3d& v2, const Vec3d& v3, Vec3d* intersectionPoint = NULL) const;
-    bool            quadIntersect(const Vec3d& v1, const Vec3d& v2, const Vec3d& v3, const Vec3d& v4, Vec3d* intersectionPoint = NULL) const;
-    bool            boxIntersect(const BoundingBox& box, Vec3d* intersectionPoint = NULL) const;
-    bool            planeIntersect(const Plane& plane, Vec3d* intersectionPoint = NULL) const;
+    bool            triangleIntersect(const Vec3d& v1, const Vec3d& v2, const Vec3d& v3, Vec3d* intersectionPoint = nullptr) const;
+    bool            quadIntersect(const Vec3d& v1, const Vec3d& v2, const Vec3d& v3, const Vec3d& v4, Vec3d* intersectionPoint = nullptr) const;
+    bool            boxIntersect(const BoundingBox& box, Vec3d* intersectionPoint = nullptr) const;
+    bool            planeIntersect(const Plane& plane, Vec3d* intersectionPoint = nullptr) const;
 
     String          debugString() const;
 

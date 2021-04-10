@@ -31,7 +31,7 @@ class RigFemPartResultCalculatorPorosityPermeability : public RigFemPartResultCa
 {
 public:
     explicit RigFemPartResultCalculatorPorosityPermeability( RigFemPartResultsCollection& collection );
-    virtual ~RigFemPartResultCalculatorPorosityPermeability();
+    ~RigFemPartResultCalculatorPorosityPermeability() override;
     bool                      isMatching( const RigFemResultAddress& resVarAddr ) const override;
     RigFemScalarResultFrames* calculate( int partIndex, const RigFemResultAddress& resVarAddr ) override;
 };

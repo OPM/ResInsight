@@ -63,12 +63,12 @@ public:
     DebugTimer(const char* prefix, OperationMode operationMode = NORMAL);
     ~DebugTimer();
 
-    void    restart(const char* msg = NULL);
+    void    restart(const char* msg = nullptr);
 
-    void    reportTime(const char* msg = NULL);
-    void    reportTimeMS(const char* msg = NULL);
-    void    reportLapTime(const char* msg = NULL);
-    void    reportLapTimeMS(const char* msg = NULL);
+    void    reportTime(const char* msg = nullptr);
+    void    reportTimeMS(const char* msg = nullptr);
+    void    reportLapTime(const char* msg = nullptr);
+    void    reportLapTimeMS(const char* msg = nullptr);
 
     void    echoMessage(const char* format, ...);
 

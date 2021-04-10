@@ -54,17 +54,17 @@ class PrimitiveSetIndexedUInt : public PrimitiveSet
 public:
     PrimitiveSetIndexedUInt(PrimitiveType primitiveType);
     PrimitiveSetIndexedUInt(PrimitiveType primitiveType, UIntArray* indices);
-    virtual ~PrimitiveSetIndexedUInt();
+    ~PrimitiveSetIndexedUInt() override;
 
-    virtual void        render(OpenGLContext* oglContext) const;
-    virtual void        createUploadBufferObjectsGPU(OpenGLContext* oglContext);
-    virtual void        releaseBufferObjectsGPU();
+    void        render(OpenGLContext* oglContext) const override;
+    void        createUploadBufferObjectsGPU(OpenGLContext* oglContext) override;
+    void        releaseBufferObjectsGPU() override;
 
     void                setIndices(UIntArray* indices);
     const UIntArray*    indices() const;
 
-    virtual size_t      indexCount() const;
-    virtual uint        index(size_t i) const;
+    size_t      indexCount() const override;
+    uint        index(size_t i) const override;
     uint                minIndex() const;
     uint                maxIndex() const;
 

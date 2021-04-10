@@ -27,5 +27,5 @@ public:
     QssSyntaxHighligter( QTextDocument* parent );
 
 protected:
-    virtual void highlightBlock( const QString& text );
+    void highlightBlock( const QString& text ) override;
 };

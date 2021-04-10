@@ -31,7 +31,7 @@ class RigFemPartResultCalculatorSFI : public RigFemPartResultCalculator
 {
 public:
     explicit RigFemPartResultCalculatorSFI( RigFemPartResultsCollection& collection );
-    virtual ~RigFemPartResultCalculatorSFI();
+    ~RigFemPartResultCalculatorSFI() override;
     bool                      isMatching( const RigFemResultAddress& resVarAddr ) const override;
     RigFemScalarResultFrames* calculate( int partIndex, const RigFemResultAddress& resVarAddr ) override;
 };

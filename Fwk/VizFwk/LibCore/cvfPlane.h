@@ -59,7 +59,7 @@ public:
     Plane();
     Plane(double A, double B, double C, double D);
     Plane(const Plane& other);
-    ~Plane();
+    ~Plane() override;
 
     const Plane&    operator=(const Plane& other);
     bool            operator==(const Plane& other) const;
@@ -89,7 +89,7 @@ public:
     bool            projectVector(const Vec3d& vector, Vec3d* projectedVector) const;
     Vec3d           projectPoint(const Vec3d& point) const;
 
-    bool            intersect(const Plane& other, Vec3d* point, Vec3d* direction = NULL) const;
+    bool            intersect(const Plane& other, Vec3d* point, Vec3d* direction = nullptr) const;
     bool            intersect(const Vec3d& a, const Vec3d& b, Vec3d* intersection) const;
     size_t          clipTriangle(const Vec3d& ta, const Vec3d& tb, const Vec3d& tc, Vec3d clippedPolygon[4]) const;
     

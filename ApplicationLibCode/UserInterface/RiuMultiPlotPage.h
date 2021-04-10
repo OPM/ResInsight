@@ -108,7 +108,7 @@ protected:
 
     std::pair<int, int> rowAndColumnCount( int plotWidgetCount ) const;
 
-    virtual void onSelectionManagerSelectionChanged( const std::set<int>& changedSelectionLevels ) override;
+    void onSelectionManagerSelectionChanged( const std::set<int>& changedSelectionLevels ) override;
 
     virtual bool showYAxis( int row, int column ) const;
 

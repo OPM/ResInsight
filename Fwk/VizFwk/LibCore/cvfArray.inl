@@ -147,7 +147,7 @@ template <typename T>
 void Array<T>::ground()
 {
     m_size = 0;
-    m_data = NULL;
+    m_data = nullptr;
     m_capacity = 0;   
     m_sharedData = false;
 }

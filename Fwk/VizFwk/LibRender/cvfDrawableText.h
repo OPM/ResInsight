@@ -60,7 +60,7 @@ class DrawableText : public Drawable
 {
 public:
     DrawableText();
-    virtual ~DrawableText();
+    ~DrawableText() override;
 
     void                        setFont(Font* font);
     ref<Font>                   font() const;
@@ -76,25 +76,25 @@ public:
     void                        setCheckPosVisible(bool checkpos);
     void                        setUseDepthBuffer(bool useDepthBuffer);
 
-    virtual void                createUploadBufferObjectsGPU(OpenGLContext* /*oglContext*/) {}
-    virtual void                releaseBufferObjectsGPU() {}
+    void                createUploadBufferObjectsGPU(OpenGLContext* /*oglContext*/) override {}
+    void                releaseBufferObjectsGPU() override {}
 
-    virtual void                render(OpenGLContext* oglContext, ShaderProgram* shaderProgram, const MatrixState& matrixState);
+    void                render(OpenGLContext* oglContext, ShaderProgram* shaderProgram, const MatrixState& matrixState) override;
     /*virtual*/ void            renderSoftware(OpenGLContext* oglContext, const MatrixState& matrixState);
 
-    virtual size_t              vertexCount() const;
-    virtual size_t              triangleCount() const;
-    virtual size_t              faceCount() const;
+    size_t              vertexCount() const override;
+    size_t              triangleCount() const override;
+    size_t              faceCount() const override;
 
-    virtual BoundingBox         boundingBox() const;
+    BoundingBox         boundingBox() const override;
     BoundingBox                 textBoundingBox(const String& text, const Vec3f& position, const Vec3f& direction = Vec3f::X_AXIS);
 
-    virtual bool                rayIntersectCreateDetail(const Ray& ray, Vec3d* intersectionPoint, ref<HitDetail>* hitDetail) const;
+    bool                rayIntersectCreateDetail(const Ray& ray, Vec3d* intersectionPoint, ref<HitDetail>* hitDetail) const override;
     bool                        rayIntersect(const Ray& ray, const Camera& camera, Vec3d* intersectionPoint);
 
     // TO BE REMOVED!
-    virtual void                renderFixedFunction(OpenGLContext* oglContext, const MatrixState& matrixState) { renderSoftware(oglContext, matrixState); }
-    virtual void                renderImmediateMode(OpenGLContext* oglContext, const MatrixState& matrixState) { renderSoftware(oglContext, matrixState); }
+    void                renderFixedFunction(OpenGLContext* oglContext, const MatrixState& matrixState) override { renderSoftware(oglContext, matrixState); }
+    void                renderImmediateMode(OpenGLContext* oglContext, const MatrixState& matrixState) override { renderSoftware(oglContext, matrixState); }
 
 private:
     void renderText(OpenGLContext* oglContext, ShaderProgram* shaderProgram, const MatrixState& matrixState);

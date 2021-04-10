@@ -52,11 +52,11 @@ class GeometryBuilderTriangles : public GeometryBuilder
 public:
     GeometryBuilderTriangles();
 
-    virtual uint        addVertices(const Vec3fArray& vertices);
-    virtual uint        vertexCount() const;
-    virtual void        transformVertexRange(uint startIdx, uint endIdx, const Mat4f& mat);
+    uint        addVertices(const Vec3fArray& vertices) override;
+    uint        vertexCount() const override;
+    void        transformVertexRange(uint startIdx, uint endIdx, const Mat4f& mat) override;
 
-    virtual void        addTriangle(uint i0, uint i1, uint i2);
+    void        addTriangle(uint i0, uint i1, uint i2) override;
 
     ref<Vec3fArray>     vertices() const;
     ref<UIntArray>      triangles() const;

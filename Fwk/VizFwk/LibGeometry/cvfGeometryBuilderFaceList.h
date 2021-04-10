@@ -52,12 +52,12 @@ class GeometryBuilderFaceList : public GeometryBuilder
 public:
     GeometryBuilderFaceList();
 
-    virtual uint        addVertices(const Vec3fArray& vertices);
-    virtual uint        vertexCount() const;
-    virtual void        transformVertexRange(uint startIdx, uint endIdx, const Mat4f& mat);
+    uint        addVertices(const Vec3fArray& vertices) override;
+    uint        vertexCount() const override;
+    void        transformVertexRange(uint startIdx, uint endIdx, const Mat4f& mat) override;
 
-    virtual void        addTriangle(uint i0, uint i1, uint i2);
-    virtual void        addQuad(uint i0, uint i1, uint i2, uint i3);
+    void        addTriangle(uint i0, uint i1, uint i2) override;
+    void        addQuad(uint i0, uint i1, uint i2, uint i3) override;
 
     ref<Vec3fArray>     vertices() const;
     ref<UIntArray>      faceList() const;

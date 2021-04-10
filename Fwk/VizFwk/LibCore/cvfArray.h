@@ -60,7 +60,7 @@ public:
     explicit Array(size_t size);
     explicit Array(const ValueArray<T>& other);
     explicit Array(const std::vector<T>& other);
-    ~Array();
+    ~Array() override;
 
     inline const T& operator[](size_t index) const;
     inline T&       operator[](size_t index);
@@ -70,13 +70,13 @@ public:
     void                    assign(const std::vector<T>& data);
     void                    resize(size_t size);
     void                    clear();
-    inline virtual size_t   size() const;
+    inline size_t   size() const override;
 
     inline void             set(size_t index, const T& val);
     inline void             setAll(const T& val);
     inline void             setConsecutive(const T& startVal);
     inline const T&         get(size_t index) const;
-    inline virtual T        val(size_t index) const;
+    inline T        val(size_t index) const override;
 
     inline const T* ptr() const;
     inline T*       ptr();
@@ -103,8 +103,8 @@ public:
     void            setSizeZero();
     inline void     add(const T& val);
 
-    T               min(size_t* index = 0) const;
-    T               max(size_t* index = 0) const;
+    T               min(size_t* index = nullptr) const;
+    T               max(size_t* index = nullptr) const;
 
     void            swap(Array& other);
 

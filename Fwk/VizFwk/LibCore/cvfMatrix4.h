@@ -100,7 +100,7 @@ public:
     void                translatePostMultiply(const Vector3<S>& trans);
 
     bool                invert();
-    const Matrix4       getInverted(bool* pInvertible = NULL) const;
+    const Matrix4       getInverted(bool* pInvertible = nullptr) const;
     S                   determinant() const;
     void                transpose();
     const Matrix4       getTransposed() const;

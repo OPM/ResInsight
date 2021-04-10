@@ -51,7 +51,7 @@ class PdmAbstractFieldScriptingCapability : public PdmFieldCapability
 {
 public:
     PdmAbstractFieldScriptingCapability( caf::PdmFieldHandle* owner, const QString& scriptFieldName, bool giveOwnership );
-    virtual ~PdmAbstractFieldScriptingCapability();
+    ~PdmAbstractFieldScriptingCapability() override;
 
     const QString scriptFieldName() const;
 

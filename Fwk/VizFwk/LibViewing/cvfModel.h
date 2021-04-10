@@ -61,7 +61,7 @@ class Model : public Object
 {
 public:
     Model();
-    virtual ~Model();
+    ~Model() override;
 
     virtual String          name() const = 0;
 

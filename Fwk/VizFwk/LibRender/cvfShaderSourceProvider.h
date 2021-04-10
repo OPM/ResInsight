@@ -64,7 +64,7 @@ private:
     static bool loadFile(const String& fullFileName, CharArray* fileContents);
 
     ShaderSourceProvider();
-    virtual ~ShaderSourceProvider();
+    ~ShaderSourceProvider() override;
 
 private:
     ref<ShaderSourceRepository> m_sourceRepository;   // Reference to the shader source repository

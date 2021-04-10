@@ -67,7 +67,7 @@ public:
 public:
     Part();
     Part(int64 id, String name);
-    virtual ~Part();
+    ~Part() override;
 
     void                setName(const String& name);
     void                setId(int64 id);

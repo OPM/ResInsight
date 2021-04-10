@@ -23,7 +23,7 @@
 extern "C" {
 #endif
 
-#include <stdbool.h>
+
 
 #include <ert/util/util.h>
 

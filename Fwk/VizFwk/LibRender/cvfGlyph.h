@@ -62,7 +62,7 @@ public:
     };
 
     Glyph(wchar_t character);
-    virtual ~Glyph();
+    ~Glyph() override;
 
     wchar_t             character() const;
 

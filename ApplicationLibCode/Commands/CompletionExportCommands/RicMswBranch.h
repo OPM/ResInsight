@@ -34,7 +34,7 @@ class RicMswBranch : public RicMswItem
 {
 public:
     RicMswBranch( const QString& label, const RimWellPath* wellPath, double initialMD = 0.0, double initialTVD = 0.0 );
-    virtual ~RicMswBranch() = default;
+    ~RicMswBranch() override = default;
 
     void               addSegment( std::unique_ptr<RicMswSegment> segment );
     void               insertAfterSegment( const RicMswSegment* insertAfter, std::unique_ptr<RicMswSegment> segment );

@@ -115,7 +115,7 @@ public:
     inline bool     isUndefined() const;
 
     bool            normalize();
-    const Vector3   getNormalized(bool* normalizationOK = NULL) const;
+    const Vector3   getNormalized(bool* normalizationOK = nullptr) const;
 
     inline S        length() const;
     inline S        lengthSquared() const;
@@ -133,7 +133,7 @@ public:
     const Vector3   getTransformedVector(const Matrix3<S>& m) const;
 
     bool            createOrthonormalBasis(int mapToAxis, Vector3<S>* uAxis, Vector3<S>* vAxis, Vector3<S>* wAxis) const;
-    const Vector3   perpendicularVector(bool* perpendicularOK = NULL) const;
+    const Vector3   perpendicularVector(bool* perpendicularOK = nullptr) const;
 
 public:
     static const Vector3 X_AXIS;    ///< X axis vector <1, 0, 0>

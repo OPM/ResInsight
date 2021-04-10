@@ -48,8 +48,8 @@ public:
     typedef DataType FieldDataType;
     PdmProxyValueField()
     {
-        m_valueSetter = NULL;
-        m_valueGetter = NULL;
+        m_valueSetter = nullptr;
+        m_valueGetter = nullptr;
     }
     ~PdmProxyValueField() override
     {
@@ -139,7 +139,7 @@ private:
             m_obj          = obj;
         }
 
-        void setValue( const DataType& value ) { ( m_obj->*m_setterMethod )( value ); }
+        void setValue( const DataType& value ) override { ( m_obj->*m_setterMethod )( value ); }
 
     private:
         SetterMethodType       m_setterMethod;
@@ -165,7 +165,7 @@ private:
             m_obj          = obj;
         }
 
-        DataType getValue() const { return ( m_obj->*m_getterMethod )(); }
+        DataType getValue() const override { return ( m_obj->*m_getterMethod )(); }
 
     private:
         GetterMethodType       m_getterMethod;

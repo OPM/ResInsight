@@ -72,8 +72,8 @@ public:
     };
 
 public:
-    Texture2D_FF(TextureImage* image = NULL);
-    virtual ~Texture2D_FF();
+    Texture2D_FF(TextureImage* image = nullptr);
+    ~Texture2D_FF() override;
 
     void            setImage(TextureImage* image);
     TextureImage*   image();

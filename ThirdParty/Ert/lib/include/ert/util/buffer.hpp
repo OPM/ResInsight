@@ -22,11 +22,11 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-#include <stdlib.h>
-#include <stdio.h>
-#include <stdbool.h>
-#include <string.h>
-#include <time.h>
+#include <cstdio>
+#include <cstdlib>
+
+#include <cstring>
+#include <ctime>
 
 #include <ert/util/ert_api_config.hpp>
 #include <ert/util/type_macros.hpp>

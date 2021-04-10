@@ -78,7 +78,7 @@ public:
     };
 
 public:
-    virtual ~RenderState();
+    ~RenderState() override;
 
     Type            type() const;
     virtual void    applyOpenGL(OpenGLContext* oglContext) const = 0;

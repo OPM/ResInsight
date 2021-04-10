@@ -37,7 +37,7 @@ class RigFemPartResultCalculatorMudWeightWindow : public RigFemPartResultCalcula
 {
 public:
     explicit RigFemPartResultCalculatorMudWeightWindow( RigFemPartResultsCollection& collection );
-    virtual ~RigFemPartResultCalculatorMudWeightWindow();
+    ~RigFemPartResultCalculatorMudWeightWindow() override;
     bool                      isMatching( const RigFemResultAddress& resVarAddr ) const override;
     RigFemScalarResultFrames* calculate( int partIndex, const RigFemResultAddress& resVarAddr ) override;
 

@@ -20,12 +20,12 @@
 #ifndef NIGHTCHARTS_H
 #define NIGHTCHARTS_H
 #define PerConst = 3.6;
+#include <QDebug>
+#include <QLinearGradient>
 #include <QObject>
 #include <QPainter>
 #include <QVector>
-#include <QDebug>
-#include <QLinearGradient>
-#include <math.h>
+#include <cmath>
 
 class pieceNC
 {

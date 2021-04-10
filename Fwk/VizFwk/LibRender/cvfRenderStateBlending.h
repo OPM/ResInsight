@@ -96,7 +96,7 @@ public:
 
     void            configureTransparencyBlending();
 
-    virtual void    applyOpenGL(OpenGLContext* oglContext) const;
+    void    applyOpenGL(OpenGLContext* oglContext) const override;
 
 private:
     cvfGLenum       blendFuncOpenGL(Function func) const;

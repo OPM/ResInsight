@@ -68,20 +68,20 @@ public:
 
 public:
     DrawableGeo();
-    virtual ~DrawableGeo();
+    ~DrawableGeo() override;
 
     ref<DrawableGeo>    shallowCopy() const;
 
-    virtual void        render(OpenGLContext* oglContext, ShaderProgram* shaderProgram, const MatrixState& matrixState);
-    virtual void        renderFixedFunction(OpenGLContext* oglContext, const MatrixState& matrixState);
-    virtual void        renderImmediateMode(OpenGLContext* oglContext, const MatrixState& matrixState);
+    void        render(OpenGLContext* oglContext, ShaderProgram* shaderProgram, const MatrixState& matrixState) override;
+    void        renderFixedFunction(OpenGLContext* oglContext, const MatrixState& matrixState) override;
+    void        renderImmediateMode(OpenGLContext* oglContext, const MatrixState& matrixState) override;
     
-    virtual void        createUploadBufferObjectsGPU(OpenGLContext* oglContext);
-    virtual void        releaseBufferObjectsGPU();
+    void        createUploadBufferObjectsGPU(OpenGLContext* oglContext) override;
+    void        releaseBufferObjectsGPU() override;
 
-    virtual size_t      vertexCount() const;
-    virtual size_t      triangleCount() const;
-    virtual size_t      faceCount() const;
+    size_t      vertexCount() const override;
+    size_t      triangleCount() const override;
+    size_t      faceCount() const override;
 
     void                setRenderMode(RenderMode renderMode);
     RenderMode          renderMode() const;
@@ -118,12 +118,12 @@ public:
 
     void                computeNormals();
 
-    virtual BoundingBox boundingBox() const;
+    BoundingBox boundingBox() const override;
     void                recomputeBoundingBox();
 
     bool                rayIntersect(const Ray& ray, Vec3d* intersectionPoint, uint* faceHit) const;
     bool                rayIntersect(const Ray& ray, Vec3dArray* intersectionPoints, UIntArray* facesHit) const;
-    virtual bool        rayIntersectCreateDetail(const Ray& ray, Vec3d* intersectionPoint, ref<HitDetail>* hitDetail) const;
+    bool        rayIntersectCreateDetail(const Ray& ray, Vec3d* intersectionPoint, ref<HitDetail>* hitDetail) const override;
 
 private:
     ref<VertexBundle>           m_vertexBundle;     // Contains all the per-vertex data, both fixed attributes such as vertices and normals and generic attributes. Bundle always exists.

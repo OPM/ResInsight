@@ -55,7 +55,7 @@ class OpenGLContext : public Object
 {
 public:
     OpenGLContext(OpenGLContextGroup* contextGroup);
-    virtual ~OpenGLContext();
+    ~OpenGLContext() override;
 
     bool                        isContextValid() const;
     virtual bool                initializeContext();

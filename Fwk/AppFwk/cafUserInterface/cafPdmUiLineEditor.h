@@ -131,7 +131,7 @@ protected:
     void     configureAndUpdateUi( const QString& uiConfigName ) override;
     QMargins calculateLabelContentMargins() const override;
 
-    virtual bool eventFilter( QObject* watched, QEvent* event ) override;
+    bool eventFilter( QObject* watched, QEvent* event ) override;
 
 protected slots:
     void slotEditingFinished();

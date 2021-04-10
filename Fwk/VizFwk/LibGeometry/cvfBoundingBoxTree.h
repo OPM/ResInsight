@@ -53,7 +53,7 @@ class BoundingBoxTree : public cvf::Object
 {
 public:
     BoundingBoxTree();
-    ~BoundingBoxTree();
+    ~BoundingBoxTree() override;
     
     void buildTreeFromBoundingBoxes(const std::vector<cvf::BoundingBox>& boundingBoxes,
                                     const std::vector<size_t>* optionalBoundingBoxIds);

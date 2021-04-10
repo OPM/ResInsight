@@ -70,7 +70,7 @@ public:
     void            configurePolygonPositiveOffset();
     void            configureLineNegativeOffset();
 
-    virtual void    applyOpenGL(OpenGLContext* oglContext) const;
+    void    applyOpenGL(OpenGLContext* oglContext) const override;
 
 private:
     float   m_factor;               // Default value is 0.0

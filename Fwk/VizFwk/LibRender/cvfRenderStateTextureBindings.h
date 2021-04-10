@@ -57,7 +57,7 @@ class RenderStateTextureBindings : public RenderState
 public:
     RenderStateTextureBindings();
     RenderStateTextureBindings(Texture* texture, Sampler* sampler, const char* samplerUniformName);
-    ~RenderStateTextureBindings();
+    ~RenderStateTextureBindings() override;
 
     void            addBinding(Texture* texture, Sampler* sampler, const char* samplerUniformName);
     int             bindingCount() const;
@@ -68,7 +68,7 @@ public:
     const Sampler*  sampler(int bindingIdx) const;
     String          samplerUniformName(int bindingIdx) const;
     
-    virtual void    applyOpenGL(OpenGLContext* oglContext) const;
+    void    applyOpenGL(OpenGLContext* oglContext) const override;
     void            setupTextures(OpenGLContext* oglContext);
     void            applySamplerTextureUnitUniforms(OpenGLContext* oglContext, ShaderProgram* shaderProgram) const;
 

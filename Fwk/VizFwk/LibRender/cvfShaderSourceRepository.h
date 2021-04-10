@@ -104,7 +104,7 @@ public:
 
 public:
     ShaderSourceRepository();
-    virtual ~ShaderSourceRepository();
+    ~ShaderSourceRepository() override;
 
     String              shaderSource(ShaderIdent shaderIdent);
     static const char*  shaderIdentString(ShaderIdent shaderIdent);

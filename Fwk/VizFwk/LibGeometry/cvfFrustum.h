@@ -70,7 +70,7 @@ public:
 public:
     Frustum();
     Frustum(const Frustum& other);
-    ~Frustum();
+    ~Frustum() override;
 
     const   Frustum& operator=(const Frustum& other);
     bool    operator==(const Frustum& other) const;

@@ -4,7 +4,7 @@
 #include "cafFilePath.h"
 #include "cafPdmPointer.h"
 
-#include <assert.h>
+#include <cassert>
 #include <type_traits>
 #include <vector>
 

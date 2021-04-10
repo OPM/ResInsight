@@ -24,7 +24,7 @@ class PdmObjectHandle : public SignalObserver, public SignalEmitter
 {
 public:
     PdmObjectHandle();
-    virtual ~PdmObjectHandle();
+    ~PdmObjectHandle() override;
 
     static QString classKeywordStatic(); // For PdmXmlFieldCap to be able to handle fields of PdmObjectHandle directly
     static std::vector<QString> classKeywordAliases();

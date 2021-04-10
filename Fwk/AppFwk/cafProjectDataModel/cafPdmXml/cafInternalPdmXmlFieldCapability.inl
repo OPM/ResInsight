@@ -90,7 +90,7 @@ void caf::PdmFieldXmlCap<caf::PdmPtrField<DataType*>>::readFieldData( QXmlStream
 
     m_isResolved      = false;
     m_referenceString = dataString;
-    m_field->setRawPtr( NULL );
+    m_field->setRawPtr( nullptr );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -205,7 +205,7 @@ bool caf::PdmFieldXmlCap<PdmPtrArrayField<DataType*>>::resolveReferences()
             foundValidObjectFromString = false;
         }
 
-        m_field->m_pointers.push_back( NULL );
+        m_field->m_pointers.push_back( nullptr );
         m_field->m_pointers.back().setRawPtr( objHandle );
     }
 
@@ -242,15 +242,15 @@ void caf::PdmFieldXmlCap<caf::PdmChildField<DataType*>>::readFieldData( QXmlStre
     }
 
     QString          className = xmlStream.name().toString();
-    PdmObjectHandle* obj       = NULL;
+    PdmObjectHandle* obj       = nullptr;
 
     // Create an object if needed
-    if ( m_field->value() == NULL )
+    if ( m_field->value() == nullptr )
     {
         CAF_ASSERT( objectFactory );
         obj = objectFactory->create( className );
 
-        if ( obj == NULL )
+        if ( obj == nullptr )
         {
             std::cout << "Line " << xmlStream.lineNumber()
                       << ": Warning: Unknown object type with class name: " << className.toLatin1().data()
@@ -317,7 +317,7 @@ void caf::PdmFieldXmlCap<caf::PdmChildField<DataType*>>::readFieldData( QXmlStre
 template <typename DataType>
 void caf::PdmFieldXmlCap<caf::PdmChildField<DataType*>>::writeFieldData( QXmlStreamWriter& xmlStream ) const
 {
-    if ( m_field->m_fieldValue.rawPtr() == NULL ) return;
+    if ( m_field->m_fieldValue.rawPtr() == nullptr ) return;
 
     PdmXmlObjectHandle* xmlObject = xmlObj( m_field->m_fieldValue.rawPtr() );
     if ( xmlObject )
@@ -352,7 +352,7 @@ void caf::PdmFieldXmlCap<caf::PdmChildArrayField<DataType*>>::writeFieldData( QX
     typename std::vector<PdmPointer<DataType>>::iterator it;
     for ( it = m_field->m_pointers.begin(); it != m_field->m_pointers.end(); ++it )
     {
-        if ( it->rawPtr() == NULL ) continue;
+        if ( it->rawPtr() == nullptr ) continue;
 
         PdmXmlObjectHandle* xmlObject = xmlObj( it->rawPtr() );
         if ( xmlObject )
@@ -382,7 +382,7 @@ void caf::PdmFieldXmlCap<caf::PdmChildArrayField<DataType*>>::readFieldData( QXm
         CAF_ASSERT( objectFactory );
         PdmObjectHandle* obj = objectFactory->create( className );
 
-        if ( obj == NULL )
+        if ( obj == nullptr )
         {
             // Warning: Unknown className read
             // Skip to corresponding end element

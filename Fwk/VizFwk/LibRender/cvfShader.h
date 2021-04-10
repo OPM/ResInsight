@@ -65,7 +65,7 @@ public:
 public:
     Shader(ShaderType shaderType, const String& shaderName);
     Shader(ShaderType shaderType, const String& shaderName, const String& source);
-    ~Shader();
+    ~Shader() override;
 
     ShaderType      shaderType() const;
     String          shaderName() const;

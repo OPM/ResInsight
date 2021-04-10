@@ -21,7 +21,7 @@
 #define ERT_WELL_STATE_H
 
 
-#include <time.h>
+#include <ctime>
 
 #include <ert/ecl/ecl_file.hpp>
 #include <ert/ecl/ecl_grid.hpp>

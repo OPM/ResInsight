@@ -23,8 +23,8 @@
 extern "C" {
 #endif
 
-#include <stdlib.h>
-#include <stdbool.h>
+#include <cstdlib>
+
 
 /*
   The type of an eclipse keyword is carried by a struct

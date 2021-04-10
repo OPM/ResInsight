@@ -64,7 +64,7 @@ public:
 
 public:
     Camera();
-    ~Camera();
+    ~Camera() override;
 
     void            setViewMatrix(const Mat4d& mat);
     void            setFromLookAt(const Vec3d& eye, const Vec3d& vrp, const Vec3d& up);

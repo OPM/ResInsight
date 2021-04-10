@@ -105,7 +105,7 @@ public:
     inline bool     isZero() const;
 
     bool            normalize();
-    const Vector4   getNormalized(bool* normalizationOK = NULL) const;
+    const Vector4   getNormalized(bool* normalizationOK = nullptr) const;
 
     inline S        length() const;
     inline S        lengthSquared() const;

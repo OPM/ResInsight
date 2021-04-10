@@ -60,7 +60,7 @@ class Scene : public Object
 {
 public:
     Scene();
-    ~Scene();
+    ~Scene() override;
 
     void            findVisibleParts(PartRenderHintCollection* visibleParts, const Camera& camera, const CullSettings& cullSettings, uint enableMask);
     void            allParts(Collection<Part>* partCollection);

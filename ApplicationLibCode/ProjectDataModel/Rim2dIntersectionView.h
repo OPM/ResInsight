@@ -99,7 +99,7 @@ protected:
 
     bool hasResults();
 
-    virtual size_t onTimeStepCountRequested() override;
+    size_t onTimeStepCountRequested() override;
 
 private:
     QString createAutoName() const override;

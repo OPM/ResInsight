@@ -82,7 +82,7 @@ CapabilityType* PdmFieldHandle::capability()
         CapabilityType* capability = dynamic_cast<CapabilityType*>( m_capabilities[i].first );
         if ( capability ) return capability;
     }
-    return NULL;
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -190,7 +190,7 @@ private:
 template <typename FieldType>
 void AddXmlCapabilityToField( FieldType* field )
 {
-    if ( field->template capability<PdmFieldXmlCap<FieldType>>() == NULL )
+    if ( field->template capability<PdmFieldXmlCap<FieldType>>() == nullptr )
     {
         new PdmFieldXmlCap<FieldType>( field, true );
     }

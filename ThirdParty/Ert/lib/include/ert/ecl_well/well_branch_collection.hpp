@@ -25,7 +25,7 @@
 extern "C" {
 #endif
 
-#include <stdbool.h>
+
 
 #include <ert/util/type_macros.hpp>
 

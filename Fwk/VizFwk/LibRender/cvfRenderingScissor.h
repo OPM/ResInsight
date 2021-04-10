@@ -53,7 +53,7 @@ class RenderingScissor : public Object
 {
 public:
     RenderingScissor();
-    ~RenderingScissor(){}
+    ~RenderingScissor() override{}
 
     void        setScissorRectangle(int x, int y, uint width, uint height);
 

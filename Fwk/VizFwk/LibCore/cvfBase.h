@@ -83,7 +83,7 @@
 
 #if defined(CVF_LINUX) || defined(CVF_IOS) || defined(CVF_OSX) || defined(CVF_ANDROID)
 // Used by int64_t on *nix below
-#include <stdint.h>     
+#include <cstdint>     
 #endif
 
 // Brings in size_t and definition of NULL

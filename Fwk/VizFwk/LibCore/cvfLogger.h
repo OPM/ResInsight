@@ -66,7 +66,7 @@ public:
 
 public:
     Logger(const String& loggerName, int logLevel, LogDestination* logDestination);
-    ~Logger();
+    ~Logger() override;
 
     const String&   name() const;
     int             level() const;

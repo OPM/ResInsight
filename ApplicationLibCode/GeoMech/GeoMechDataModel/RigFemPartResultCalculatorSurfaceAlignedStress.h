@@ -31,7 +31,7 @@ class RigFemPartResultCalculatorSurfaceAlignedStress : public RigFemPartResultCa
 {
 public:
     explicit RigFemPartResultCalculatorSurfaceAlignedStress( RigFemPartResultsCollection& collection );
-    virtual ~RigFemPartResultCalculatorSurfaceAlignedStress();
+    ~RigFemPartResultCalculatorSurfaceAlignedStress() override;
     bool                      isMatching( const RigFemResultAddress& resVarAddr ) const override;
     RigFemScalarResultFrames* calculate( int partIndex, const RigFemResultAddress& resVarAddr ) override;
 };

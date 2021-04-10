@@ -80,7 +80,7 @@ public:
 template <typename FieldType>
 void AddUiCapabilityToField( FieldType* field )
 {
-    if ( field->template capability<PdmFieldUiCap<FieldType>>() == NULL )
+    if ( field->template capability<PdmFieldUiCap<FieldType>>() == nullptr )
     {
         new PdmFieldUiCap<FieldType>( field, true );
     }

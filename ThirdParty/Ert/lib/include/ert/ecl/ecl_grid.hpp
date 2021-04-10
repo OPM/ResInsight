@@ -19,7 +19,7 @@
 #ifndef ERT_ECL_GRID_H
 #define ERT_ECL_GRID_H
 
-#include <stdbool.h>
+
 
 #include <ert/util/double_vector.hpp>
 #include <ert/util/int_vector.hpp>

@@ -67,8 +67,8 @@ public:
     bool            isLocalViewerEnabled() const;
     Color3f         ambientIntensity() const;
 
-    virtual void    applyOpenGL(OpenGLContext* oglContext) const;
-    virtual bool    isFixedFunction() const;
+    void    applyOpenGL(OpenGLContext* oglContext) const override;
+    bool    isFixedFunction() const override;
 
 private:
     bool    m_enableLighting;   // Master enable/disable switch for fixed function OpenGL lighting
@@ -154,8 +154,8 @@ public:
     void            enableColorMaterial(bool enableColorMaterial);
     bool            isColorMaterialEnabled() const;
 
-    virtual void    applyOpenGL(OpenGLContext* oglContext) const;
-    virtual bool    isFixedFunction() const;
+    void    applyOpenGL(OpenGLContext* oglContext) const override;
+    bool    isFixedFunction() const override;
 
 private:
     Color3f m_ambient;
@@ -181,7 +181,7 @@ public:
     void            enable(bool enableNormalization);
     bool            isEnabled() const;
 
-    virtual void    applyOpenGL(OpenGLContext* oglContext) const;
+    void    applyOpenGL(OpenGLContext* oglContext) const override;
 
 private:
     bool        m_enable;
@@ -203,8 +203,8 @@ public:
     };
 
 public:
-    RenderStateTextureMapping_FF(Texture2D_FF* texture = NULL);
-    ~RenderStateTextureMapping_FF();
+    RenderStateTextureMapping_FF(Texture2D_FF* texture = nullptr);
+    ~RenderStateTextureMapping_FF() override;
 
     void            setTexture(Texture2D_FF* texture);
     Texture2D_FF*   texture();
@@ -214,8 +214,8 @@ public:
     bool            environmentMapping() const;
 
     void            setupTexture(OpenGLContext* oglContext);
-    virtual void    applyOpenGL(OpenGLContext* oglContext) const;
-    virtual bool    isFixedFunction() const;
+    void    applyOpenGL(OpenGLContext* oglContext) const override;
+    bool    isFixedFunction() const override;
 
 private:
     ref<Texture2D_FF>   m_texture;     
@@ -241,8 +241,8 @@ public:
     const Plane&    plane(size_t index);
     void            removeAllPlanes();
 
-    virtual void    applyOpenGL(OpenGLContext* oglContext) const;
-    virtual bool    isFixedFunction() const;
+    void    applyOpenGL(OpenGLContext* oglContext) const override;
+    bool    isFixedFunction() const override;
 
 private:
     std::vector<Plane>  m_clipPlanes;

@@ -54,12 +54,12 @@ public:
 
     // Implementing the Scalarmapper interface
 
-    virtual double      normalizedValue( double domainValue ) const;
-    virtual double      domainValue( double normalizedPosition ) const;
+    double      normalizedValue( double domainValue ) const override;
+    double      domainValue( double normalizedPosition ) const override;
 
     //
 protected:
-    virtual void rangeUpdated();
+    void rangeUpdated() override;
 
 private:
     double  m_logRange;

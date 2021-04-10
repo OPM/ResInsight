@@ -120,7 +120,7 @@ public:
                        T                   aValue,
                        bool                isReadOnly                         = false,
                        const IconProvider& anIcon                             = IconProvider(),
-                       typename std::enable_if<std::is_enum<T>::value>::type* = 0 )
+                       typename std::enable_if<std::is_enum<T>::value>::type* = nullptr )
         : PdmOptionItemInfo( anOptionUiText, QVariant( static_cast<int>( aValue ) ), isReadOnly, anIcon )
     {
     }

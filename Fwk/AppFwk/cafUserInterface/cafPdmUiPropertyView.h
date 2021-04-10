@@ -53,8 +53,8 @@ class QVerticalScrollArea : public QScrollArea
 public:
     explicit QVerticalScrollArea( QWidget* parent = nullptr );
 
-    virtual QSize sizeHint() const override;
-    virtual QSize minimumSizeHint() const override;
+    QSize sizeHint() const override;
+    QSize minimumSizeHint() const override;
 };
 
 namespace caf

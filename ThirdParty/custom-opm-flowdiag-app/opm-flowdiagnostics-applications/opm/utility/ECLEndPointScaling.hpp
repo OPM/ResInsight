@@ -178,7 +178,7 @@ namespace Opm { namespace SatFunc {
                         std::vector<double> smax);
 
         /// Destructor.
-        ~TwoPointScaling();
+        ~TwoPointScaling() override;
 
         /// Copy constructor.
         ///
@@ -229,7 +229,7 @@ namespace Opm { namespace SatFunc {
         /// \return Sequence of scaled saturation values in order of the
         ///    input sequence.  In particular the \c i-th element of this
         ///    result is the scaled version of \code sp[i].sat \endcode.
-        virtual std::vector<double>
+        std::vector<double>
         eval(const TableEndPoints&   tep,
              const SaturationPoints& sp) const override;
 
@@ -251,12 +251,12 @@ namespace Opm { namespace SatFunc {
         /// \return Sequence of input saturation values in order of the
         ///    input sequence.  In particular the \c i-th element of this
         ///    result is the scaled version of \code sp[i].sat \endcode.
-        virtual std::vector<double>
+        std::vector<double>
         reverse(const TableEndPoints&   tep,
                 const SaturationPoints& sp) const override;
 
         /// Virtual copy constructor.
-        virtual std::unique_ptr<EPSEvalInterface> clone() const override;
+        std::unique_ptr<EPSEvalInterface> clone() const override;
 
     private:
         /// Implementation class.
@@ -288,7 +288,7 @@ namespace Opm { namespace SatFunc {
         explicit PureVerticalScaling(std::vector<double> fmax);
 
         /// Destructor.
-        virtual ~PureVerticalScaling();
+        ~PureVerticalScaling() override;
 
         /// Copy constructor.
         PureVerticalScaling(const PureVerticalScaling& rhs);
@@ -317,13 +317,13 @@ namespace Opm { namespace SatFunc {
         ///    element of this result is the scaled version of \code val[i]
         ///    \endcode.  Multiplies entries in \p val with an appropriate
         ///    location dependent factor.
-        virtual std::vector<double>
+        std::vector<double>
         vertScale(const FunctionValues&      f,
                   const SaturationPoints&    sp,
                   const std::vector<double>& val) const override;
 
         /// Virtual copy constructor.
-        virtual std::unique_ptr<VerticalScalingInterface>
+        std::unique_ptr<VerticalScalingInterface>
         clone() const override;
 
     private:
@@ -356,7 +356,7 @@ namespace Opm { namespace SatFunc {
                           std::vector<double> smax);
 
         /// Destructor.
-        ~ThreePointScaling();
+        ~ThreePointScaling() override;
 
         /// Copy constructor.
         ///
@@ -407,7 +407,7 @@ namespace Opm { namespace SatFunc {
         /// \return Sequence of scaled saturation values in order of the
         ///    input sequence.  In particular the \c i-th element of this
         ///    result is the scaled version of \code sp[i].sat \endcode.
-        virtual std::vector<double>
+        std::vector<double>
         eval(const TableEndPoints&   tep,
              const SaturationPoints& sp) const override;
 
@@ -429,12 +429,12 @@ namespace Opm { namespace SatFunc {
         /// \return Sequence of input saturation values in order of the
         ///    input sequence.  In particular the \c i-th element of this
         ///    result is the scaled version of \code sp[i].sat \endcode.
-        virtual std::vector<double>
+        std::vector<double>
         reverse(const TableEndPoints&   tep,
                 const SaturationPoints& sp) const override;
 
         /// Virtual copy constructor.
-        virtual std::unique_ptr<EPSEvalInterface> clone() const override;
+        std::unique_ptr<EPSEvalInterface> clone() const override;
 
     private:
         /// Implementation class.
@@ -460,7 +460,7 @@ namespace Opm { namespace SatFunc {
                                         std::vector<double> fmax);
 
         /// Destructor.
-        virtual ~CritSatVerticalScaling();
+        ~CritSatVerticalScaling() override;
 
         /// Copy constructor.
         CritSatVerticalScaling(const CritSatVerticalScaling& rhs);
@@ -489,13 +489,13 @@ namespace Opm { namespace SatFunc {
         ///    in order of the input sequence.  In particular the \c i-th
         ///    element of this result is the scaled version of \code val[i]
         ///    \endcode.
-        virtual std::vector<double>
+        std::vector<double>
         vertScale(const FunctionValues&      f,
                   const SaturationPoints&    sp,
                   const std::vector<double>& val) const override;
 
         /// Virtual copy constructor.
-        virtual std::unique_ptr<VerticalScalingInterface>
+        std::unique_ptr<VerticalScalingInterface>
         clone() const override;
 
     private:

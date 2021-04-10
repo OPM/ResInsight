@@ -28,7 +28,7 @@
 #include <utility>
 #include <vector>
 
-#include <stddef.h>
+#include <cstddef>
 
 #include <opm/common/utility/FileSystem.hpp>
 
