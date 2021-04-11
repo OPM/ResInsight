@@ -18,25 +18,33 @@
 
 #include "RifHdf5SummaryExporter.h"
 
-#include <QDateTime>
-
 #include "RifHdf5Exporter.h"
 #include "RifSummaryReaderInterface.h"
 
 #include "opm/io/eclipse/ESmry.hpp"
 
+#include <QDateTime>
+#include <QFile>
+#include <QFileInfo>
+#include <QString>
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RifHdf5SummaryExporter::writeSummaryDataToHdf( const std::string& hdfFileName, Opm::EclIO::ESmry& sourceSummaryData )
+bool RifHdf5SummaryExporter::ensureHdf5FileIsCreated( const std::string& smspecFileName, const std::string& h5FileName )
 {
-    auto timesteps = sourceSummaryData.numberOfTimeSteps();
-    if ( timesteps == 0 ) return false;
+    if ( !QFile::exists( QString::fromStdString( smspecFileName ) ) ) return false;
 
-    RifHdf5Exporter exporter( hdfFileName );
+    // TODO: Use time stamp of file to make sure the smspec file is older than the h5 file
+    if ( !QFile::exists( QString::fromStdString( h5FileName ) ) )
+    {
+        Opm::EclIO::ESmry sourceSummaryData( smspecFileName );
 
-    writeGeneralSection( exporter, sourceSummaryData );
-    writeSummaryVectors( exporter, sourceSummaryData );
+        RifHdf5Exporter exporter( h5FileName );
+
+        writeGeneralSection( exporter, sourceSummaryData );
+        writeSummaryVectors( exporter, sourceSummaryData );
+    }
 
     return true;
 }
@@ -89,6 +97,8 @@ bool RifHdf5SummaryExporter::writeGeneralSection( RifHdf5Exporter& exporter, Opm
 
         exporter.writeDataset( "general", "version", values );
     }
+
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------

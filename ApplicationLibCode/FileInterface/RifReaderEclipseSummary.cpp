@@ -29,6 +29,7 @@
 #include "RifReaderEclipseOutput.h"
 
 #ifdef USE_HDF5
+#include "RifHdf5SummaryExporter.h"
 #include "RifOpmHdf5Summary.h"
 #endif
 
@@ -162,6 +163,15 @@ bool RifReaderEclipseSummary::open( const QString&       headerFileName,
     if ( RiaPreferences::current()->summaryDataReader() == RiaPreferences::SummaryReaderMode::HDF5_OPM_COMMON )
     {
 #ifdef USE_HDF5
+        if ( RiaPreferences::current()->createH5SummaryDataFiles() )
+        {
+            QFileInfo fi( headerFileName );
+            QString   h5FilenameCandidate = fi.absolutePath() + "/" + fi.baseName() + ".h5";
+
+            RifHdf5SummaryExporter::ensureHdf5FileIsCreated( headerFileName.toStdString(),
+                                                             h5FilenameCandidate.toStdString() );
+        }
+
         auto hdfReader = std::make_unique<RifOpmHdf5Summary>();
 
         isValid = hdfReader->open( headerFileName, false, threadSafeLogger );
