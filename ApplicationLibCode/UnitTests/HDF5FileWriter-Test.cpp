@@ -33,7 +33,7 @@ TEST( DISABLED_HDFTests, WriteToHdf5SummaryExporter )
     RifHdf5SummaryExporter exporter;
     std::string            exportFileName = "e:/project/scratch_export/hdf_complete.h5";
 
-    exporter.writeSummaryDataToHdf( exportFileName, esmry );
+    exporter.ensureHdf5FileIsCreated( exportFileName, exportFileName );
 }
 
 //--------------------------------------------------------------------------------------------------

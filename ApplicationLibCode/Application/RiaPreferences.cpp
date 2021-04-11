@@ -431,6 +431,15 @@ RiaPreferences::RiaPreferences()
                        "" );
     m_useOptimizedSummaryDataFile.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 
+    CAF_PDM_InitField( &m_createH5SummaryDataFile,
+                       "createH5SummaryDataFile",
+                       false,
+                       "Create H5 Summary Data Files [BETA]",
+                       "",
+                       "If not present, create summary file with extension '*.H5'",
+                       "" );
+    m_createH5SummaryDataFile.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+
     CAF_PDM_InitFieldNoDefault( &m_summaryReader, "summaryReaderType", "Summary Data File Reader", "", "", "" );
 }
 
@@ -473,15 +482,15 @@ void RiaPreferences::defineEditorAttribute( const caf::PdmFieldHandle* field,
 
     if ( field == &octaveShowHeaderInfoWhenExecutingScripts || field == &autocomputeDepthRelatedProperties ||
          field == &loadAndShowSoil || field == &m_useShaders || field == &m_showHud ||
-         field == &m_appendClassNameToUiText || field == &m_appendFieldKeywordToToolTipText ||
-         field == &m_showTestToolbar || field == &m_includeFractureDebugInfoFile ||
-         field == &showLasCurveWithoutTvdWarning || field == &holoLensDisableCertificateVerification ||
-         field == &m_showProjectChangedDialog || field == &m_searchPlotTemplateFoldersRecursively ||
-         field == &m_showLegendBackground || field == &m_showSummaryTimeAsLongString ||
-         field == &m_showViewIdInProjectTree || field == &m_useMultipleThreadsWhenLoadingSummaryData ||
-         field == &m_enableFaultsByDefault || field == &m_showProgressBar || field == &m_openExportedPdfInViewer ||
-         field == &m_showInfoBox || field == &m_showGridBox || field == &m_useUndoRedo ||
-         field == &m_createOptimizedSummaryDataFile || field == &m_useOptimizedSummaryDataFile )
+         field == &m_appendClassNameToUiText || field == &m_appendFieldKeywordToToolTipText || field == &m_showTestToolbar ||
+         field == &m_includeFractureDebugInfoFile || field == &showLasCurveWithoutTvdWarning ||
+         field == &holoLensDisableCertificateVerification || field == &m_showProjectChangedDialog ||
+         field == &m_searchPlotTemplateFoldersRecursively || field == &m_showLegendBackground ||
+         field == &m_showSummaryTimeAsLongString || field == &m_showViewIdInProjectTree ||
+         field == &m_useMultipleThreadsWhenLoadingSummaryData || field == &m_enableFaultsByDefault ||
+         field == &m_showProgressBar || field == &m_openExportedPdfInViewer || field == &m_showInfoBox ||
+         field == &m_showGridBox || field == &m_useUndoRedo || field == &m_createOptimizedSummaryDataFile ||
+         field == &m_useOptimizedSummaryDataFile || field == &m_createH5SummaryDataFile )
     {
         caf::PdmUiCheckBoxEditorAttribute* myAttr = dynamic_cast<caf::PdmUiCheckBoxEditorAttribute*>( attribute );
         if ( myAttr )
@@ -616,6 +625,10 @@ void RiaPreferences::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
             {
                 group->add( &m_createOptimizedSummaryDataFile );
                 group->add( &m_useOptimizedSummaryDataFile );
+            }
+            else if ( m_summaryReader == SummaryReaderMode::HDF5_OPM_COMMON )
+            {
+                group->add( &m_createH5SummaryDataFile );
             }
         }
     }
@@ -1249,6 +1262,14 @@ bool RiaPreferences::useOptimizedSummaryDataFiles() const
 bool RiaPreferences::createOptimizedSummaryDataFiles() const
 {
     return m_createOptimizedSummaryDataFile();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiaPreferences::createH5SummaryDataFiles() const
+{
+    return m_createH5SummaryDataFile();
 }
 
 //--------------------------------------------------------------------------------------------------

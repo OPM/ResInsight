@@ -150,6 +150,7 @@ public:
     SummaryReaderMode summaryDataReader() const;
     bool              useOptimizedSummaryDataFiles() const;
     bool              createOptimizedSummaryDataFiles() const;
+    bool              createH5SummaryDataFiles() const;
 
 public: // Pdm Fields
     caf::PdmField<bool> enableGrpcServer;
@@ -258,6 +259,7 @@ private:
 
     // Summary data
     caf::PdmField<bool> m_createOptimizedSummaryDataFile;
+    caf::PdmField<bool> m_createH5SummaryDataFile;
     caf::PdmField<bool> m_useOptimizedSummaryDataFile;
 
     caf::PdmField<SummaryReaderModeType> m_summaryReader;
