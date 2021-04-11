@@ -40,7 +40,7 @@ namespace EclIO
 class RifHdf5SummaryExporter
 {
 public:
-    static bool writeSummaryDataToHdf( const std::string& hdfFileName, Opm::EclIO::ESmry& sourceSummaryData );
+    static bool ensureHdf5FileIsCreated( const std::string& smspecFileName, const std::string& h5FileName );
 
 private:
     static bool writeGeneralSection( RifHdf5Exporter& exporter, Opm::EclIO::ESmry& sourceSummaryData );

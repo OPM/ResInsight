@@ -131,29 +131,31 @@ bool RifHdf5Exporter::writeDataset( const std::string& groupName, const std::str
 //--------------------------------------------------------------------------------------------------
 H5::Group RifHdf5Exporter::findOrCreateGroup( H5::Group* parentGroup, const std::string& groupName )
 {
-    H5::Group group;
     if ( parentGroup )
     {
         try
         {
-            group = parentGroup->openGroup( groupName );
+            auto group = parentGroup->openGroup( groupName );
+
+            return group;
         }
         catch ( ... )
         {
-            group = parentGroup->createGroup( groupName );
+            return parentGroup->createGroup( groupName );
         }
     }
     else
     {
         try
         {
-            group = m_hdfFile->openGroup( groupName );
+            auto group = m_hdfFile->openGroup( groupName );
+            return group;
         }
         catch ( ... )
         {
-            group = m_hdfFile->createGroup( groupName );
+            return m_hdfFile->createGroup( groupName );
         }
     }
 
-    return group;
+    return {};
 }

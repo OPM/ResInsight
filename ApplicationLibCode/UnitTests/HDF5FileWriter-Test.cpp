@@ -16,24 +16,21 @@
 #include "opm/io/eclipse/ESmry.hpp"
 #include <numeric>
 
-static const QString H5_TEST_DATA_DIRECTORY = QString( "%1/h5-file/" ).arg( TEST_DATA_DIR );
+static const QString H5_TEST_DATA_DIRECTORY_2 = QString( "%1/h5-file/" ).arg( TEST_DATA_DIR );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 TEST( DISABLED_HDFTests, WriteToHdf5SummaryExporter )
 {
-    QString file_path = H5_TEST_DATA_DIRECTORY + "NORNE_ATW2013_RFTPLT_V2.SMSPEC";
-
-    //     RifReaderEclipseSummary eclReader;
-    //     eclReader.open( file_path, true, nullptr );
+    QString file_path = H5_TEST_DATA_DIRECTORY_2 + "NORNE_ATW2013_RFTPLT_V2.SMSPEC";
 
     Opm::EclIO::ESmry esmry( file_path.toStdString() );
 
     RifHdf5SummaryExporter exporter;
     std::string            exportFileName = "e:/project/scratch_export/hdf_complete.h5";
 
-    exporter.writeSummaryDataToHdf( exportFileName, esmry );
+    exporter.ensureHdf5FileIsCreated( exportFileName, exportFileName );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -41,7 +38,7 @@ TEST( DISABLED_HDFTests, WriteToHdf5SummaryExporter )
 //--------------------------------------------------------------------------------------------------
 TEST( DISABLED_HDFTests, WriteDataToH5 )
 {
-    QString file_path = H5_TEST_DATA_DIRECTORY + "NORNE_ATW2013_RFTPLT_V2.SMPEC";
+    QString file_path = H5_TEST_DATA_DIRECTORY_2 + "NORNE_ATW2013_RFTPLT_V2.SMPEC";
 
     try
     {
@@ -57,13 +54,12 @@ TEST( DISABLED_HDFTests, WriteDataToH5 )
             {
                 std::vector<int> values( 7 );
 
-                int day     = 1;
-                int month   = 2;
-                int year    = 3;
-                int hour    = 4;
-                int minute  = 5;
-                int second  = 6;
-                int unknown = 7;
+                int day    = 1;
+                int month  = 2;
+                int year   = 3;
+                int hour   = 4;
+                int minute = 5;
+                int second = 6;
 
                 values[0] = day;
                 values[1] = month;

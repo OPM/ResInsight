@@ -232,23 +232,19 @@ list(APPEND RI_LIBRARIES RigGeoMechDataModel)
 #
 if(RESINSIGHT_FOUND_HDF5)
 
-    set(HDF5_FILES
-    FileInterface/RifHdf5Reader.h
-    FileInterface/RifHdf5Reader.cpp
-    FileInterface/RifHdf5SummaryReader.h
-    FileInterface/RifHdf5SummaryReader.cpp
-    FileInterface/RifOpmHdf5Summary.h
-    FileInterface/RifOpmHdf5Summary.cpp
-    FileInterface/RifHdf5Exporter.h
-    FileInterface/RifHdf5Exporter.cpp
-    FileInterface/RifHdf5SummaryExporter.h
-    FileInterface/RifHdf5SummaryExporter.cpp
-    )
+  set(HDF5_FILES
+      FileInterface/RifHdf5Reader.h
+      FileInterface/RifHdf5Reader.cpp
+      FileInterface/RifHdf5SummaryReader.h
+      FileInterface/RifHdf5SummaryReader.cpp
+      FileInterface/RifOpmHdf5Summary.h
+      FileInterface/RifOpmHdf5Summary.cpp
+      FileInterface/RifHdf5Exporter.h
+      FileInterface/RifHdf5Exporter.cpp
+      FileInterface/RifHdf5SummaryExporter.h
+      FileInterface/RifHdf5SummaryExporter.cpp)
 
-  list(
-    APPEND
-    CPP_SOURCES
-    ${HDF5_FILES})
+  list(APPEND CPP_SOURCES ${HDF5_FILES})
 
   add_definitions(-DUSE_HDF5)
 
@@ -263,9 +259,7 @@ if(RESINSIGHT_FOUND_HDF5)
     include_directories(${HDF5_INCLUDE_DIRS})
   endif() # MSVC
 
-  source_group(
-    "FileInterface\\HDF5"
-    FILES ${HDF5_FILES})
+  source_group("FileInterface\\HDF5" FILES ${HDF5_FILES})
 
 endif()
 
