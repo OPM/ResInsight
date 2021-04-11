@@ -25,6 +25,7 @@ ${CMAKE_CURRENT_LIST_DIR}/WellPathAsciiFileReader-Test.cpp
 ${CMAKE_CURRENT_LIST_DIR}/opm-flowdiagnostics-Test.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RigTofAccumulatedPhaseFractionsCalculator-Test.cpp
 ${CMAKE_CURRENT_LIST_DIR}/HDF5FileReader-Test.cpp
+${CMAKE_CURRENT_LIST_DIR}/HDF5FileWriter-Test.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RigCellGeometryTools-Test.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RigHexIntersectionTools-Test.cpp
 ${CMAKE_CURRENT_LIST_DIR}/ObservedDataParser-Test.cpp
