@@ -1,5 +1,5 @@
 ---
 Checks:            '-*,modernize-use-override,modernize-use-nullptr,modernize-deprecated-headers'
 WarningsAsErrors:  ''
-HeaderFilterRegex: '.*'
+HeaderFilterRegex: 'ApplicationLibCode/*.*$'
 FormatStyle:       'file'
