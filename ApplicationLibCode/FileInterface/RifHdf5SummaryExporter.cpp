@@ -56,11 +56,13 @@ bool RifHdf5SummaryExporter::writeGeneralSection( RifHdf5Exporter& exporter, Opm
 {
     auto timesteps = sourceSummaryData.dates();
 
+    auto group = exporter.createGroup( nullptr, "general" );
+
     {
         std::vector<int> values( 1 );
         values[0] = -1;
 
-        exporter.writeDataset( "general", "checksum", values );
+        exporter.writeDataset( group, "checksum", values );
     }
 
     {
@@ -87,7 +89,7 @@ bool RifHdf5SummaryExporter::writeGeneralSection( RifHdf5Exporter& exporter, Opm
         timeValues[5] = second;
         timeValues[6] = 0; // Unknown value, could be millisec
 
-        exporter.writeDataset( "general", "start_date", timeValues );
+        exporter.writeDataset( group, "start_date", timeValues );
     }
 
     {
@@ -95,7 +97,7 @@ bool RifHdf5SummaryExporter::writeGeneralSection( RifHdf5Exporter& exporter, Opm
         values[0] = 1;
         values[1] = 7;
 
-        exporter.writeDataset( "general", "version", values );
+        exporter.writeDataset( group, "version", values );
     }
 
     return true;
@@ -106,23 +108,53 @@ bool RifHdf5SummaryExporter::writeGeneralSection( RifHdf5Exporter& exporter, Opm
 //--------------------------------------------------------------------------------------------------
 bool RifHdf5SummaryExporter::writeSummaryVectors( RifHdf5Exporter& exporter, Opm::EclIO::ESmry& sourceSummaryData )
 {
+    using SumNodeVector = std::vector<Opm::EclIO::SummaryNode>;
+
     size_t valueCount = sourceSummaryData.numberOfTimeSteps();
     if ( valueCount == 0 ) return false;
 
     const std::string datasetName( "values" );
 
-    const std::vector<Opm::EclIO::SummaryNode>& summaryNodeList = sourceSummaryData.summaryNodeList();
+    const SumNodeVector& summaryNodeList = sourceSummaryData.summaryNodeList();
 
-    auto summaryVectorsGroup = exporter.findOrCreateGroup( nullptr, "summary_vectors" );
+    auto summaryVectorsGroup = exporter.createGroup( nullptr, "summary_vectors" );
 
-    for ( const auto& summaryNode : summaryNodeList )
+    std::map<std::string, std::vector<size_t>> mapKeywordToSummaryNodeIndex;
+
+    for ( size_t i = 0; i < summaryNodeList.size(); i++ )
     {
-        auto                      smspecKeywordIndex = summaryNode.smspecKeywordIndex;
-        QString                   smspecKeywordText  = QString( "%1" ).arg( smspecKeywordIndex );
-        const auto&               quantity           = summaryNode.keyword;
-        const std::vector<float>& values             = sourceSummaryData.get( summaryNode );
+        const auto        summaryNode = summaryNodeList[i];
+        const std::string keyword     = summaryNode.keyword;
 
-        exporter.exportSummaryVector( summaryVectorsGroup, quantity, smspecKeywordText.toStdString(), datasetName, values );
+        if ( mapKeywordToSummaryNodeIndex.find( keyword ) == mapKeywordToSummaryNodeIndex.end() )
+        {
+            mapKeywordToSummaryNodeIndex[keyword] = std::vector<size_t>();
+        }
+
+        auto it = mapKeywordToSummaryNodeIndex.find( keyword );
+        if ( it != mapKeywordToSummaryNodeIndex.end() )
+        {
+            it->second.push_back( i );
+        }
+    }
+
+    for ( const auto& nodesForKeyword : mapKeywordToSummaryNodeIndex )
+    {
+        std::string keyword = nodesForKeyword.first;
+
+        auto keywordGroup = exporter.createGroup( &summaryVectorsGroup, keyword );
+
+        for ( auto nodeIndex : nodesForKeyword.second )
+        {
+            auto    summaryNode        = summaryNodeList[nodeIndex];
+            auto    smspecKeywordIndex = summaryNode.smspecKeywordIndex;
+            QString smspecKeywordText  = QString( "%1" ).arg( smspecKeywordIndex );
+
+            auto dataValuesGroup             = exporter.createGroup( &keywordGroup, smspecKeywordText.toStdString() );
+            const std::vector<float>& values = sourceSummaryData.get( summaryNode );
+
+            exporter.writeDataset( dataValuesGroup, datasetName, values );
+        }
     }
 
     return true;

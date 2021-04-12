@@ -33,19 +33,10 @@ public:
     explicit RifHdf5Exporter( const std::string& fileName );
     ~RifHdf5Exporter();
 
-    H5::Group findOrCreateGroup( H5::Group* parentGroup, const std::string& groupName );
+    H5::Group createGroup( H5::Group* parentGroup, const std::string& groupName );
 
-    bool exportSummaryVector( H5::Group&                summaryRootGroup,
-                              const std::string&        vectorName,
-                              const std::string&        vectorSubNodeName,
-                              const std::string&        datasetName,
-                              const std::vector<float>& values );
-
-    bool writeDataset( const std::string& groupName, const std::string& datasetName, const std::vector<int>& values );
-
-private:
-    bool writeDataset( const H5::Group& group, const std::string& datasetName, const std::vector<int>& values );
     bool writeDataset( const H5::Group& group, const std::string& datasetName, const std::vector<float>& values );
+    bool writeDataset( const H5::Group& group, const std::string& datasetName, const std::vector<int>& values );
 
 private:
     std::string m_fileName;

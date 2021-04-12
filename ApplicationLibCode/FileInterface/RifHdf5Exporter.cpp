@@ -51,22 +51,6 @@ RifHdf5Exporter::~RifHdf5Exporter()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RifHdf5Exporter::exportSummaryVector( H5::Group&                summaryRootGroup,
-                                           const std::string&        vectorName,
-                                           const std::string&        vectorSubNodeName,
-                                           const std::string&        datasetName,
-                                           const std::vector<float>& values )
-{
-    auto summaryGroup = findOrCreateGroup( &summaryRootGroup, vectorName );
-
-    auto subNodeGroup = summaryGroup.createGroup( vectorSubNodeName );
-
-    return writeDataset( subNodeGroup, datasetName, values );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 bool RifHdf5Exporter::writeDataset( const H5::Group& group, const std::string& datasetName, const std::vector<float>& values )
 {
     try
@@ -115,45 +99,26 @@ bool RifHdf5Exporter::writeDataset( const H5::Group& group, const std::string& d
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RifHdf5Exporter::writeDataset( const std::string& groupName, const std::string& datasetName, const std::vector<int>& values )
-{
-    if ( !m_hdfFile ) return false;
-
-    {
-        auto generalGroup = findOrCreateGroup( nullptr, groupName );
-
-        return writeDataset( generalGroup, datasetName, values );
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-H5::Group RifHdf5Exporter::findOrCreateGroup( H5::Group* parentGroup, const std::string& groupName )
+H5::Group RifHdf5Exporter::createGroup( H5::Group* parentGroup, const std::string& groupName )
 {
     if ( parentGroup )
     {
         try
         {
-            auto group = parentGroup->openGroup( groupName );
-
-            return group;
+            return parentGroup->createGroup( groupName );
         }
         catch ( ... )
         {
-            return parentGroup->createGroup( groupName );
         }
     }
     else
     {
         try
         {
-            auto group = m_hdfFile->openGroup( groupName );
-            return group;
+            return m_hdfFile->createGroup( groupName );
         }
         catch ( ... )
         {
-            return m_hdfFile->createGroup( groupName );
         }
     }
 
