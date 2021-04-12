@@ -21,6 +21,7 @@
 #include "RifHdf5Exporter.h"
 #include "RifSummaryReaderInterface.h"
 
+#include "opm/common/utility/TimeService.hpp"
 #include "opm/io/eclipse/ESmry.hpp"
 
 #include <QDateTime>
@@ -68,17 +69,17 @@ bool RifHdf5SummaryExporter::writeGeneralSection( RifHdf5Exporter& exporter, Opm
     {
         auto startDate = sourceSummaryData.startdate();
 
-        time_t firstTimeStep = std::chrono::system_clock::to_time_t( startDate );
+        // Make sure we convert time identically as the inverse of make_date in ESmry.cpp
+        time_t            firstTimeStep = std::chrono::system_clock::to_time_t( startDate );
+        Opm::TimeStampUTC opmTimeStamp( firstTimeStep );
 
-        QDateTime dt = QDateTime::fromTime_t( firstTimeStep );
+        int day   = opmTimeStamp.day();
+        int month = opmTimeStamp.month();
+        int year  = opmTimeStamp.year();
 
-        int day   = dt.date().day();
-        int month = dt.date().month();
-        int year  = dt.date().year();
-
-        int hour   = dt.time().hour();
-        int minute = dt.time().minute();
-        int second = dt.time().second();
+        int hour   = opmTimeStamp.hour();
+        int minute = opmTimeStamp.minutes();
+        int second = opmTimeStamp.seconds();
 
         std::vector<int> timeValues( 7 );
         timeValues[0] = day;
