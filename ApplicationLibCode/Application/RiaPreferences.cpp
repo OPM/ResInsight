@@ -22,6 +22,7 @@
 #include "RiaPreferences.h"
 
 #include "RiaColorTables.h"
+#include "RiaPreferencesSummary.h"
 #include "RiaValidRegExpValidator.h"
 #include "RifReaderSettings.h"
 #include "RiuGuiTheme.h"
@@ -82,14 +83,6 @@ void RiaPreferences::PageOrientationEnum::setUp()
     setDefault( QPageLayout::Portrait );
 }
 
-template <>
-void RiaPreferences::SummaryReaderModeType::setUp()
-{
-    addItem( RiaPreferences::SummaryReaderMode::LIBECL, "LIBECL", "Default Reader (ecl)" );
-    addItem( RiaPreferences::SummaryReaderMode::HDF5_OPM_COMMON, "HDF5_OPM_COMMON", "[BETA] H5 Reader (HDF5 Eclipse)" );
-    addItem( RiaPreferences::SummaryReaderMode::OPM_COMMON, "OPM_COMMON", "[BETA] Performance Reader (omp-common)" );
-    setDefault( RiaPreferences::SummaryReaderMode::LIBECL );
-}
 } // namespace caf
 
 CAF_PDM_SOURCE_INIT( RiaPreferences, "RiaPreferences" );
@@ -413,34 +406,8 @@ RiaPreferences::RiaPreferences()
 
     CAF_PDM_InitFieldNoDefault( &m_guiTheme, "guiTheme", "GUI theme", "", "", "" );
 
-    CAF_PDM_InitField( &m_createOptimizedSummaryDataFile,
-                       "createOptimizedSummaryDataFile",
-                       true,
-                       "Create Optimized Summary Data Files [BETA]",
-                       "",
-                       "If not present, create optimized file with extension '*.LODSMRY'",
-                       "" );
-    m_createOptimizedSummaryDataFile.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
-
-    CAF_PDM_InitField( &m_useOptimizedSummaryDataFile,
-                       "useOptimizedSummaryDataFile",
-                       true,
-                       "Use Optimized Summary Data Files [BETA]",
-                       "",
-                       "If not present, read optimized file with extension '*.LODSMRY'",
-                       "" );
-    m_useOptimizedSummaryDataFile.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
-
-    CAF_PDM_InitField( &m_createH5SummaryDataFile,
-                       "createH5SummaryDataFile",
-                       false,
-                       "Create H5 Summary Data Files [BETA]",
-                       "",
-                       "If not present, create summary file with extension '*.H5'",
-                       "" );
-    m_createH5SummaryDataFile.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
-
-    CAF_PDM_InitFieldNoDefault( &m_summaryReader, "summaryReaderType", "Summary Data File Reader", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_summaryPreferences, "summaryPreferences", "summaryPreferences", "", "", "" );
+    m_summaryPreferences = new RiaPreferencesSummary;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -482,15 +449,14 @@ void RiaPreferences::defineEditorAttribute( const caf::PdmFieldHandle* field,
 
     if ( field == &octaveShowHeaderInfoWhenExecutingScripts || field == &autocomputeDepthRelatedProperties ||
          field == &loadAndShowSoil || field == &m_useShaders || field == &m_showHud ||
-         field == &m_appendClassNameToUiText || field == &m_appendFieldKeywordToToolTipText || field == &m_showTestToolbar ||
-         field == &m_includeFractureDebugInfoFile || field == &showLasCurveWithoutTvdWarning ||
-         field == &holoLensDisableCertificateVerification || field == &m_showProjectChangedDialog ||
-         field == &m_searchPlotTemplateFoldersRecursively || field == &m_showLegendBackground ||
-         field == &m_showSummaryTimeAsLongString || field == &m_showViewIdInProjectTree ||
-         field == &m_useMultipleThreadsWhenLoadingSummaryData || field == &m_enableFaultsByDefault ||
-         field == &m_showProgressBar || field == &m_openExportedPdfInViewer || field == &m_showInfoBox ||
-         field == &m_showGridBox || field == &m_useUndoRedo || field == &m_createOptimizedSummaryDataFile ||
-         field == &m_useOptimizedSummaryDataFile || field == &m_createH5SummaryDataFile )
+         field == &m_appendClassNameToUiText || field == &m_appendFieldKeywordToToolTipText ||
+         field == &m_showTestToolbar || field == &m_includeFractureDebugInfoFile ||
+         field == &showLasCurveWithoutTvdWarning || field == &holoLensDisableCertificateVerification ||
+         field == &m_showProjectChangedDialog || field == &m_searchPlotTemplateFoldersRecursively ||
+         field == &m_showLegendBackground || field == &m_showSummaryTimeAsLongString ||
+         field == &m_showViewIdInProjectTree || field == &m_useMultipleThreadsWhenLoadingSummaryData ||
+         field == &m_enableFaultsByDefault || field == &m_showProgressBar || field == &m_openExportedPdfInViewer ||
+         field == &m_showInfoBox || field == &m_showGridBox || field == &m_useUndoRedo )
     {
         caf::PdmUiCheckBoxEditorAttribute* myAttr = dynamic_cast<caf::PdmUiCheckBoxEditorAttribute*>( attribute );
         if ( myAttr )
@@ -619,17 +585,19 @@ void RiaPreferences::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
         {
             caf::PdmUiGroup* group = uiOrdering.addNewGroup( "[BETA] Optimized Summary Reader" );
             group->setCollapsedByDefault( true );
-            group->add( &m_summaryReader );
 
-            if ( m_summaryReader == SummaryReaderMode::OPM_COMMON )
-            {
-                group->add( &m_createOptimizedSummaryDataFile );
-                group->add( &m_useOptimizedSummaryDataFile );
-            }
-            else if ( m_summaryReader == SummaryReaderMode::HDF5_OPM_COMMON )
-            {
-                group->add( &m_createH5SummaryDataFile );
-            }
+            m_summaryPreferences()->uiOrdering( uiConfigName, *group );
+            //             group->add( &m_summaryReader );
+            //
+            //             if ( m_summaryReader == SummaryReaderMode::OPM_COMMON )
+            //             {
+            //                 group->add( &m_createOptimizedSummaryDataFile );
+            //                 group->add( &m_useOptimizedSummaryDataFile );
+            //             }
+            //             else if ( m_summaryReader == SummaryReaderMode::HDF5_OPM_COMMON )
+            //             {
+            //                 group->add( &m_createH5SummaryDataFile );
+            //             }
         }
     }
 
@@ -742,21 +710,7 @@ QList<caf::PdmOptionItemInfo> RiaPreferences::calculateValueOptions( const caf::
             options.push_back( caf::PdmOptionItemInfo( uiText, QVariant::fromValue( timeFormat ) ) );
         }
     }
-    else if ( fieldNeedingOptions == &m_summaryReader )
-    {
-        std::vector<SummaryReaderMode> availableModes;
 
-        availableModes.push_back( SummaryReaderMode::LIBECL );
-#ifdef USE_HDF5
-        availableModes.push_back( SummaryReaderMode::HDF5_OPM_COMMON );
-#endif // USE_HDF5
-        availableModes.push_back( SummaryReaderMode::OPM_COMMON );
-
-        for ( auto enumValue : availableModes )
-        {
-            options.push_back( caf::PdmOptionItemInfo( SummaryReaderModeType::uiText( enumValue ), enumValue ) );
-        }
-    }
     return options;
 }
 
@@ -1243,33 +1197,9 @@ QString RiaPreferences::octaveExecutable() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiaPreferences::SummaryReaderMode RiaPreferences::summaryDataReader() const
+RiaPreferencesSummary* RiaPreferences::summaryPreferences() const
 {
-    return m_summaryReader();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RiaPreferences::useOptimizedSummaryDataFiles() const
-{
-    return m_useOptimizedSummaryDataFile();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RiaPreferences::createOptimizedSummaryDataFiles() const
-{
-    return m_createOptimizedSummaryDataFile();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RiaPreferences::createH5SummaryDataFiles() const
-{
-    return m_createH5SummaryDataFile();
+    return m_summaryPreferences();
 }
 
 //--------------------------------------------------------------------------------------------------
