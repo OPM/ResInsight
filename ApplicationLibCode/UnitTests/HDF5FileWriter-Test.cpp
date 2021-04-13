@@ -25,10 +25,12 @@ TEST( DISABLED_HDFTests, WriteToHdf5SummaryExporter )
 {
     QString file_path = H5_TEST_DATA_DIRECTORY_2 + "NORNE_ATW2013_RFTPLT_V2.SMSPEC";
 
-    RifHdf5SummaryExporter exporter;
-    std::string            exportFileName = "e:/project/scratch_export/hdf_complete.h5";
+    std::string exportFileName = "e:/project/scratch_export/hdf_complete.h5";
 
-    exporter.ensureHdf5FileIsCreated( file_path.toStdString(), exportFileName );
+    int threadCount = 1;
+    RifHdf5SummaryExporter::ensureHdf5FileIsCreatedMultithreaded( { file_path.toStdString() },
+                                                                  { exportFileName },
+                                                                  threadCount );
 }
 
 //--------------------------------------------------------------------------------------------------
