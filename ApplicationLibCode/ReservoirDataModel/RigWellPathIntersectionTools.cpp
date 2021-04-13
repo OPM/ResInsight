@@ -159,6 +159,8 @@ std::vector<WellPathCellIntersectionInfo> RigWellPathIntersectionTools::buildCon
 {
     std::vector<WellPathCellIntersectionInfo> intersectionsNoGap;
 
+    if ( originalIntersections.empty() ) return intersectionsNoGap;
+
     for ( size_t i = 0; i < originalIntersections.size() - 1; i++ )
     {
         const WellPathCellIntersectionInfo& current = originalIntersections[i];

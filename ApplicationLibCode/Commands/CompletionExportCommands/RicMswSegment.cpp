@@ -40,7 +40,7 @@ RicMswSegment::RicMswSegment( const QString& label,
     , m_endTVD( endTVD )
     , m_outputMD( 0.0 )
     , m_outputTVD( 0.0 )
-    , m_effectiveDiameter( 0.15 )
+    , m_equivalentDiameter( 0.15 )
     , m_holeDiameter( RicMswExportInfo::defaultDoubleValue() )
     , m_openHoleRoughnessFactor( 5.0e-5 )
     , m_skinFactor( RicMswExportInfo::defaultDoubleValue() )
@@ -116,9 +116,9 @@ double RicMswSegment::outputTVD() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RicMswSegment::effectiveDiameter() const
+double RicMswSegment::equivalentDiameter() const
 {
-    return m_effectiveDiameter;
+    return m_equivalentDiameter;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -198,9 +198,9 @@ void RicMswSegment::setLabel( const QString& label )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicMswSegment::setEffectiveDiameter( double effectiveDiameter )
+void RicMswSegment::setEquivalentDiameter( double effectiveDiameter )
 {
-    m_effectiveDiameter = effectiveDiameter;
+    m_equivalentDiameter = effectiveDiameter;
 }
 
 //--------------------------------------------------------------------------------------------------

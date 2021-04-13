@@ -309,13 +309,7 @@ void RimWellPathCompletionSettings::defineEditorAttribute( const caf::PdmFieldHa
                                                            caf::PdmUiEditorAttribute* attribute )
 {
     caf::PdmUiLineEditorAttribute* lineEditorAttr = dynamic_cast<caf::PdmUiLineEditorAttribute*>( attribute );
-    if ( field == &m_wellNameForExport && lineEditorAttr )
-    {
-        QRegExpValidator* validator = new QRegExpValidator( nullptr );
-        validator->setRegExp( wellNameForExportRegExp() );
-        lineEditorAttr->validator = validator;
-    }
-    else if ( field == &m_drainageRadiusForPI && lineEditorAttr )
+    if ( field == &m_drainageRadiusForPI && lineEditorAttr )
     {
         caf::PdmDoubleStringValidator* validator = new caf::PdmDoubleStringValidator( "1*" );
         lineEditorAttr->validator                = validator;

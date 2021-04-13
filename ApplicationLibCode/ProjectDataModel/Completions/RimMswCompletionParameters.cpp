@@ -49,7 +49,7 @@ void RimMswCompletionParameters::LengthAndDepthEnum::setUp()
 {
     addItem( RimMswCompletionParameters::INC, "INC", "Incremental" );
     addItem( RimMswCompletionParameters::ABS, "ABS", "Absolute" );
-    setDefault( RimMswCompletionParameters::INC );
+    setDefault( RimMswCompletionParameters::ABS );
 }
 } // namespace caf
 

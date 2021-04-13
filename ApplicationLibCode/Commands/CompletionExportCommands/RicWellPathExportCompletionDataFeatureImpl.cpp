@@ -85,7 +85,7 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicWellPathExportCompletionDataFeatureImpl::exportCompletions( const std::vector<RimWellPath*>&      wellPaths,
+void RicWellPathExportCompletionDataFeatureImpl::exportCompletions( const std::vector<RimWellPath*>& topLevelWellPaths,
                                                                     const std::vector<RimSimWellInView*>& simWells,
                                                                     const RicExportCompletionDataSettingsUi& exportSettings )
 {
@@ -111,12 +111,16 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions( const std::v
     if ( exportSettings.compdatExport == RicExportCompletionDataSettingsUi::TRANSMISSIBILITIES ||
          exportSettings.compdatExport == RicExportCompletionDataSettingsUi::WPIMULT_AND_DEFAULT_CONNECTION_FACTORS )
     {
-        std::vector<RimWellPath*> usedWellPaths;
-        for ( RimWellPath* wellPath : wellPaths )
+        std::vector<RimWellPath*> allWellPathLaterals;
+        for ( RimWellPath* wellPath : topLevelWellPaths )
         {
             if ( wellPath->unitSystem() == exportSettings.caseToApply->eclipseCaseData()->unitsType() )
             {
-                usedWellPaths.push_back( wellPath );
+                auto tieInWells = wellPath->wellPathLateralsRecursively();
+                for ( auto w : tieInWells )
+                {
+                    allWellPathLaterals.push_back( w );
+                }
             }
             else
             {
@@ -162,11 +166,11 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions( const std::v
         }
 
         size_t maxProgress =
-            usedWellPaths.size() * 3 + simWells.size() +
+            allWellPathLaterals.size() * 3 + simWells.size() +
             ( exportSettings.fileSplit == RicExportCompletionDataSettingsUi::SPLIT_ON_WELL
-                  ? usedWellPaths.size()
+                  ? allWellPathLaterals.size()
                   : exportSettings.fileSplit == RicExportCompletionDataSettingsUi::SPLIT_ON_WELL_AND_COMPLETION_TYPE
-                        ? usedWellPaths.size() * 3
+                        ? allWellPathLaterals.size() * 3
                         : 1 ) +
             simWells.size();
 
@@ -176,7 +180,7 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions( const std::v
 
         std::vector<RigCompletionData> completions;
 
-        for ( auto wellPath : usedWellPaths )
+        for ( auto wellPath : allWellPathLaterals )
         {
             std::map<size_t, std::vector<RigCompletionData>> completionsPerEclipseCellAllCompletionTypes;
             std::map<size_t, std::vector<RigCompletionData>> completionsPerEclipseCellFishbones;
@@ -297,12 +301,12 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions( const std::v
         }
         else if ( exportSettings.fileSplit == RicExportCompletionDataSettingsUi::SPLIT_ON_WELL )
         {
-            for ( auto wellPath : usedWellPaths )
+            for ( auto wellPath : topLevelWellPaths )
             {
                 std::vector<RigCompletionData> completionsForWell;
                 for ( const auto& completion : completions )
                 {
-                    if ( RicWellPathExportCompletionDataFeatureImpl::isCompletionWellPathEqual( completion, wellPath ) )
+                    if ( wellPath == topLevelWellPath( completion ) )
                     {
                         completionsForWell.push_back( completion );
                     }
@@ -340,15 +344,14 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions( const std::v
 
             for ( const auto& completionType : completionTypes )
             {
-                for ( auto wellPath : usedWellPaths )
+                for ( auto wellPath : topLevelWellPaths )
                 {
                     std::vector<RigCompletionData> completionsForWell;
                     for ( const auto& completion : completions )
                     {
                         if ( completionType == completion.completionType() )
                         {
-                            if ( RicWellPathExportCompletionDataFeatureImpl::isCompletionWellPathEqual( completion,
-                                                                                                        wellPath ) )
+                            if ( wellPath == topLevelWellPath( completion ) )
                             {
                                 completionsForWell.push_back( completion );
                             }
@@ -439,7 +442,7 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions( const std::v
 
     if ( exportSettings.includeMsw )
     {
-        RicWellPathExportMswCompletionsImpl::exportWellSegmentsForAllCompletions( exportSettings, wellPaths );
+        RicWellPathExportMswCompletionsImpl::exportWellSegmentsForAllCompletions( exportSettings, topLevelWellPaths );
     }
 }
 
@@ -1746,18 +1749,20 @@ std::pair<double, cvf::Vec2i> RicWellPathExportCompletionDataFeatureImpl::wellPa
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicWellPathExportCompletionDataFeatureImpl::isCompletionWellPathEqual( const RigCompletionData& completion,
-                                                                            const RimWellPath*       wellPath )
+RimWellPath* RicWellPathExportCompletionDataFeatureImpl::topLevelWellPath( const RigCompletionData& completion )
 {
-    if ( !wellPath ) return false;
-
     RimWellPath* parentWellPath = nullptr;
     if ( completion.sourcePdmObject() )
     {
         completion.sourcePdmObject()->firstAncestorOrThisOfType( parentWellPath );
     }
 
-    return ( parentWellPath == wellPath );
+    if ( parentWellPath )
+    {
+        return parentWellPath->topLevelWellPath();
+    }
+
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

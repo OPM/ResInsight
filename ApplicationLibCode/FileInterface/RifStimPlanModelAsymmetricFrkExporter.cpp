@@ -62,7 +62,7 @@ bool RifStimPlanModelAsymmetricFrkExporter::writeToFile( RimStimPlanModel* stimP
 //--------------------------------------------------------------------------------------------------
 void RifStimPlanModelAsymmetricFrkExporter::appendHeaderToStream( QTextStream& stream )
 {
-    stream << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" << endl << "<asymmetric>" << endl;
+    stream << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" << '\n' << "<asymmetric>" << '\n';
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -75,21 +75,21 @@ void RifStimPlanModelAsymmetricFrkExporter::appendBarrierDataToStream( QTextStre
                                                                        double       barrierDipDeg,
                                                                        int          wellPenetrationLayer )
 {
-    stream << "<BedDipDeg>" << endl
-           << bedDipDeg << endl
-           << "</BedDipDeg>" << endl
-           << "<Barrier>" << endl
-           << static_cast<int>( hasBarrier ) << endl
-           << "</Barrier>" << endl
-           << "<BarrierDipDeg>" << endl
-           << barrierDipDeg << endl
-           << "</BarrierDipDeg>" << endl
-           << "<DistanceToBarrier>" << endl
-           << distanceToBarrier << endl
-           << "</DistanceToBarrier>" << endl
-           << "<WellPenetrationLayer>" << endl
-           << wellPenetrationLayer << endl
-           << "</WellPenetrationLayer>" << endl;
+    stream << "<BedDipDeg>" << '\n'
+           << bedDipDeg << '\n'
+           << "</BedDipDeg>" << '\n'
+           << "<Barrier>" << '\n'
+           << static_cast<int>( hasBarrier ) << '\n'
+           << "</Barrier>" << '\n'
+           << "<BarrierDipDeg>" << '\n'
+           << barrierDipDeg << '\n'
+           << "</BarrierDipDeg>" << '\n'
+           << "<DistanceToBarrier>" << '\n'
+           << distanceToBarrier << '\n'
+           << "</DistanceToBarrier>" << '\n'
+           << "<WellPenetrationLayer>" << '\n'
+           << wellPenetrationLayer << '\n'
+           << "</WellPenetrationLayer>" << '\n';
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -97,5 +97,5 @@ void RifStimPlanModelAsymmetricFrkExporter::appendBarrierDataToStream( QTextStre
 //--------------------------------------------------------------------------------------------------
 void RifStimPlanModelAsymmetricFrkExporter::appendFooterToStream( QTextStream& stream )
 {
-    stream << "</asymmetric>" << endl;
+    stream << "</asymmetric>" << '\n';
 }

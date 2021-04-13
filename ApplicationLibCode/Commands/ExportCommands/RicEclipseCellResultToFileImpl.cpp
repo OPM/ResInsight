@@ -143,7 +143,8 @@ void RicEclipseCellResultToFileImpl::writeDataToTextFile( QFile*                
     textstream << "\n";
     textstream << "-- Exported from ResInsight"
                << "\n";
-    textstream << eclipseKeyword << "\n" << right << qSetFieldWidth( 16 );
+    textstream << eclipseKeyword << "\n" << qSetFieldWidth( 16 );
+    textstream.setFieldAlignment( QTextStream::AlignRight );
 
     caf::ProgressInfo pi( resultData.size(), QString( "Writing data to file %1" ).arg( file->fileName() ) );
     size_t            progressSteps = resultData.size() / 20;

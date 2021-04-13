@@ -98,6 +98,7 @@ public:
     bool reportCompletionsTypesIndividually() const;
     bool exportDataSourceAsComment() const;
     bool exportWelspec() const;
+    bool exportCompletionWelspecAfterMainBore() const;
 
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
@@ -112,6 +113,7 @@ private:
     caf::PdmField<CombinationModeType> m_reportCompletionTypesSeparately;
     caf::PdmField<bool>                m_exportDataSourceAsComment;
     caf::PdmField<bool>                m_exportWelspec;
+    caf::PdmField<bool>                m_completionWelspecAfterMainBore;
 
     bool m_displayForSimWell;
     bool m_fracturesEnabled;

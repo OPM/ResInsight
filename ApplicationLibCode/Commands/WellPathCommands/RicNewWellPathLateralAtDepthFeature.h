@@ -21,6 +21,7 @@
 #include "cafCmdFeature.h"
 
 class RiuWellPathSelectionItem;
+class RimWellPath;
 
 //==================================================================================================
 ///
@@ -37,4 +38,5 @@ protected:
 
 private:
     static RiuWellPathSelectionItem* wellPathSelectionItem();
+    QString                          updateNameOfParentAndFindNameOfSideStep( RimWellPath* parentwWellPath );
 };

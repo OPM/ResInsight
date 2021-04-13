@@ -1,3 +1,21 @@
+/////////////////////////////////////////////////////////////////////////////////
+//
+//  Copyright (C) 2021- Equinor ASA
+//
+//  ResInsight is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 3 of the License, or
+//  (at your option) any later version.
+//
+//  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
+//  WARRANTY; without even the implied warranty of MERCHANTABILITY or
+//  FITNESS FOR A PARTICULAR PURPOSE.
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+//  for more details.
+//
+/////////////////////////////////////////////////////////////////////////////////
+
 #include "RicMswBranch.h"
 
 #include "RicMswCompletions.h"
@@ -137,6 +155,39 @@ std::vector<RicMswSegment*> RicMswBranch::segments()
         allSegments.push_back( segment.get() );
     }
     return allSegments;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RicMswSegment* RicMswBranch::findClosestSegmentByMidpoint( double measuredDepthLocation )
+{
+    if ( measuredDepthLocation < startMD() )
+    {
+        return segmentCount() > 0 ? segments().front() : nullptr;
+    }
+
+    if ( measuredDepthLocation > endMD() )
+    {
+        return segmentCount() > 0 ? segments().back() : nullptr;
+    }
+
+    RicMswSegment* closestSegment   = nullptr;
+    double         smallestDistance = std::numeric_limits<double>::infinity();
+
+    for ( auto seg : segments() )
+    {
+        double midpointMD = 0.5 * ( seg->startMD() + seg->endMD() );
+
+        double candidateDistance = std::abs( midpointMD - measuredDepthLocation );
+        if ( candidateDistance < smallestDistance )
+        {
+            closestSegment   = seg;
+            smallestDistance = candidateDistance;
+        }
+    }
+
+    return closestSegment;
 }
 
 //--------------------------------------------------------------------------------------------------

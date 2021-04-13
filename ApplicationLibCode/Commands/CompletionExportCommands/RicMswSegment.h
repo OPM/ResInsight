@@ -53,7 +53,7 @@ public:
     void   setOutputTVD( double outputTVD );
     double outputTVD() const;
 
-    double effectiveDiameter() const;
+    double equivalentDiameter() const;
     double holeDiameter() const;
     double openHoleRoughnessFactor() const;
     double skinFactor() const;
@@ -65,7 +65,7 @@ public:
     std::vector<RicMswCompletion*>       completions();
 
     void setLabel( const QString& label );
-    void setEffectiveDiameter( double effectiveDiameter );
+    void setEquivalentDiameter( double diameter );
     void setHoleDiameter( double holeDiameter );
     void setOpenHoleRoughnessFactor( double roughnessFactor );
     void setSkinFactor( double skinFactor );
@@ -88,10 +88,10 @@ private:
     double m_startTVD;
     double m_endTVD;
 
-    double  m_outputMD;
-    double  m_outputTVD;
+    double m_outputMD;
+    double m_outputTVD;
 
-    double m_effectiveDiameter;
+    double m_equivalentDiameter;
     double m_holeDiameter;
     double m_openHoleRoughnessFactor;
     double m_skinFactor;

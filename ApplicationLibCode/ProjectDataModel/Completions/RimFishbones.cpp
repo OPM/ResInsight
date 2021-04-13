@@ -24,6 +24,7 @@
 #include "RigFishbonesGeometry.h"
 #include "RigWellPath.h"
 #include "RimFishbonesCollection.h"
+#include "RimFishbonesPipeProperties.h"
 #include "RimMultipleValveLocations.h"
 #include "RimProject.h"
 #include "RimWellPath.h"
@@ -185,7 +186,7 @@ QString RimFishbones::generatedName() const
         dynamic_cast<caf::PdmChildArrayField<RimFishbones*>*>( this->parentField() );
     CVF_ASSERT( container );
 
-    size_t index = container->index( this );
+    size_t index = container->index( this ) + 1;
     return QString( "Fishbone %1" ).arg( index );
 }
 
@@ -278,7 +279,17 @@ double RimFishbones::tubingDiameter( RiaDefines::EclipseUnitSystem unitSystem ) 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RimFishbones::effectiveDiameter( RiaDefines::EclipseUnitSystem unitSystem ) const
+double RimFishbones::holeDiameter( RiaDefines::EclipseUnitSystem unitSystem ) const
+{
+    return m_pipeProperties()->holeDiameter( unitSystem );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Compute the equivalent diameter based on the area between two cylinders
+//
+// http://www.fekete.com/san/webhelp/feketeharmony/harmony_webhelp/content/html_files/reference_material/calculations_and_correlations/annular_diameters.htm
+//--------------------------------------------------------------------------------------------------
+double RimFishbones::equivalentDiameter( RiaDefines::EclipseUnitSystem unitSystem ) const
 {
     double innerRadius = tubingDiameter( unitSystem ) / 2;
     double outerRadius = holeDiameter( unitSystem ) / 2;
@@ -286,10 +297,18 @@ double RimFishbones::effectiveDiameter( RiaDefines::EclipseUnitSystem unitSystem
     double innerArea = cvf::PI_D * innerRadius * innerRadius;
     double outerArea = cvf::PI_D * outerRadius * outerRadius;
 
-    double effectiveArea = outerArea - innerArea;
+    double equivalentArea = outerArea - innerArea;
 
-    double effectiveRadius = cvf::Math::sqrt( effectiveArea / cvf::PI_D );
+    double effectiveRadius = cvf::Math::sqrt( equivalentArea / cvf::PI_D );
     return effectiveRadius * 2;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimFishbones::skinFactor() const
+{
+    return m_pipeProperties()->skinFactor();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -380,6 +399,14 @@ void RimFishbones::geometryUpdated()
     RimProject* proj;
     this->firstAncestorOrThisOfTypeAsserted( proj );
     proj->reloadCompletionTypeResultsInAllViews();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const std::vector<RimFishbones::SubAndLateralIndex>& RimFishbones::installedLateralIndices() const
+{
+    return m_subLateralIndices;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -613,13 +640,13 @@ void RimFishbones::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& u
     }
 
     {
-        caf::PdmUiGroup* wellGroup = uiOrdering.addNewGroup( "Well Properties" );
+        caf::PdmUiGroup* wellGroup = uiOrdering.addNewGroup( "Lateral Properties" );
 
         m_pipeProperties->uiOrdering( uiConfigName, *wellGroup );
     }
 
     {
-        caf::PdmUiGroup* mswGroup = uiOrdering.addNewGroup( "Multi Segment Wells" );
+        caf::PdmUiGroup* mswGroup = uiOrdering.addNewGroup( "Lateral Multi Segment Wells" );
         mswGroup->setCollapsedByDefault( true );
         mswGroup->add( &m_lateralTubingDiameter );
         mswGroup->add( &m_lateralOpenHoleRoghnessFactor );

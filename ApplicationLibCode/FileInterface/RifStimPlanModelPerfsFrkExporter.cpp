@@ -80,7 +80,7 @@ bool RifStimPlanModelPerfsFrkExporter::writeToFile( RimStimPlanModel* stimPlanMo
 //--------------------------------------------------------------------------------------------------
 void RifStimPlanModelPerfsFrkExporter::appendHeaderToStream( QTextStream& stream )
 {
-    stream << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" << endl << "<perfs>" << endl;
+    stream << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" << '\n' << "<perfs>" << endl;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -88,7 +88,7 @@ void RifStimPlanModelPerfsFrkExporter::appendHeaderToStream( QTextStream& stream
 //--------------------------------------------------------------------------------------------------
 void RifStimPlanModelPerfsFrkExporter::appendFractureOrientationToStream( QTextStream& stream, bool isTransverse )
 {
-    stream << "<transverse>" << endl << static_cast<int>( isTransverse ) << endl << "</transverse>" << endl;
+    stream << "<transverse>" << '\n' << static_cast<int>( isTransverse ) << '\n' << "</transverse>" << endl;
 }
 
 //--------------------------------------------------------------------------------------------------

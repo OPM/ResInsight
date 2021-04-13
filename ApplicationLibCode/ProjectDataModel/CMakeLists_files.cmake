@@ -152,6 +152,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RimCustomObjectiveFunctionWeight.h
 ${CMAKE_CURRENT_LIST_DIR}/RimEquilibriumAxisAnnotation.h
 ${CMAKE_CURRENT_LIST_DIR}/RimTimeAxisAnnotation.h
 ${CMAKE_CURRENT_LIST_DIR}/RimPolylinesDataInterface.h
+${CMAKE_CURRENT_LIST_DIR}/RimWellPathTieIn.h
 )
 
 
@@ -304,6 +305,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RimCustomObjectiveFunction.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimCustomObjectiveFunctionWeight.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimEquilibriumAxisAnnotation.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimTimeAxisAnnotation.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimWellPathTieIn.cpp
 )
 
 if(Qt5Charts_FOUND)

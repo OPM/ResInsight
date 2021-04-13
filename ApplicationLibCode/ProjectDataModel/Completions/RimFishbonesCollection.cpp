@@ -25,7 +25,6 @@
 #include "RigWellPath.h"
 
 #include "RimFishbones.h"
-#include "RimImportedFishboneLateralsCollection.h"
 #include "RimProject.h"
 #include "RimWellPath.h"
 
@@ -50,10 +49,6 @@ RimFishbonesCollection::RimFishbonesCollection()
 
     m_fishbones.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_wellPathCollection, "WellPathCollection", "Imported Laterals", "", "", "" );
-    m_wellPathCollection = new RimImportedFishboneLateralsCollection;
-    m_wellPathCollection.uiCapability()->setUiHidden( true );
-
     CAF_PDM_InitField( &m_startMD, "StartMD", HUGE_VAL, "Start MD", "", "", "" );
     CAF_PDM_InitField( &m_mainBoreDiameter, "MainBoreDiameter", 0.216, "Main Bore Diameter", "", "", "" );
     CAF_PDM_InitField( &m_skinFactor, "MainBoreSkinFactor", 0., "Main Bore Skin Factor [0..1]", "", "", "" );
@@ -72,16 +67,6 @@ RimFishbonesCollection::RimFishbonesCollection()
     m_roughnessFactor_OBSOLETE.xmlCapability()->setIOWritable( false );
     m_pressureDrop_OBSOLETE.xmlCapability()->setIOWritable( false );
     m_lengthAndDepth_OBSOLETE.xmlCapability()->setIOWritable( false );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RimImportedFishboneLateralsCollection* RimFishbonesCollection::wellPathCollection() const
-{
-    CVF_ASSERT( m_wellPathCollection );
-
-    return m_wellPathCollection();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -268,14 +253,6 @@ void RimFishbonesCollection::recalculateStartMD()
         }
     }
 
-    for ( const RimImportedFishboneLaterals* wellPath : m_wellPathCollection->wellPaths() )
-    {
-        if ( wellPath->measuredDepths().size() > 0 )
-        {
-            minStartMD = std::min( minStartMD, wellPath->measuredDepths()[0] - 13.0 );
-        }
-    }
-
     if ( !manuallyModifiedStartMD || minStartMD < m_startMD() )
     {
         m_startMD = minStartMD;
@@ -342,7 +319,5 @@ void RimFishbonesCollection::setUnitSystemSpecificDefaults()
         {
             m_mainBoreDiameter = 0.708;
         }
-
-        m_wellPathCollection->setUnitSystemSpecificDefaults();
     }
 }

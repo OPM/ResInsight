@@ -41,8 +41,6 @@ ${CMAKE_CURRENT_LIST_DIR}/RimCompletionCellIntersectionCalc.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimFishbonesCollection.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimFishbones.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimFishbonesPipeProperties.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimImportedFishboneLaterals.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimImportedFishboneLateralsCollection.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimPerforationCollection.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimPerforationInterval.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimWellPathCompletions.cpp

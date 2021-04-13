@@ -562,12 +562,12 @@ void RifEclipseInputFileTools::saveFault( QString                               
     }
 
     QTextStream stream( &exportFile );
-    stream << "FAULTS" << endl;
+    stream << "FAULTS" << '\n';
 
-    stream << "-- Name  I1  I2  J1  J2  K1  K2  Face ( I/J/K )" << endl;
+    stream << "-- Name  I1  I2  J1  J2  K1  K2  Face ( I/J/K )" << '\n';
 
     saveFault( stream, mainGrid, faultFaces, faultName, min, maxIn, refinement );
-    stream << "/" << endl;
+    stream << "/" << '\n';
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -744,9 +744,9 @@ void RifEclipseInputFileTools::saveFaults( QTextStream&       stream,
                                            const cvf::Vec3st& max /*= cvf::Vec3st::UNDEFINED*/,
                                            const cvf::Vec3st& refinement /*= cvf::Vec3st(1, 1, 1)*/ )
 {
-    stream << "FAULTS" << endl;
+    stream << "FAULTS" << '\n';
 
-    stream << "-- Name  I1  I2  J1  J2  K1  K2  Face ( I/J/K )" << endl;
+    stream << "-- Name  I1  I2  J1  J2  K1  K2  Face ( I/J/K )" << '\n';
 
     const cvf::Collection<RigFault>& faults = mainGrid->faults();
     for ( const auto& fault : faults )
@@ -757,7 +757,7 @@ void RifEclipseInputFileTools::saveFaults( QTextStream&       stream,
             saveFault( stream, mainGrid, fault->faultFaces(), fault->name(), min, max, refinement );
         }
     }
-    stream << "/" << endl;
+    stream << "/" << '\n';
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1319,7 +1319,7 @@ void RifEclipseInputFileTools::writeFaultLine( QTextStream&                     
     stream << "'" << faultName << "'"
            << "     " << i << "   " << i << "     " << j << "   " << j << "     " << startK << "   " << endK << "     "
            << faultFaceText( faceType ) << "      / ";
-    stream << endl;
+    stream << '\n';
 }
 
 //--------------------------------------------------------------------------------------------------

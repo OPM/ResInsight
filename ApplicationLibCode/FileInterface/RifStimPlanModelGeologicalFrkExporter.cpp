@@ -234,7 +234,7 @@ bool RifStimPlanModelGeologicalFrkExporter::writeToCsvFile( const QString&      
 //--------------------------------------------------------------------------------------------------
 void RifStimPlanModelGeologicalFrkExporter::appendHeaderToStream( QTextStream& stream )
 {
-    stream << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" << endl << "<geologic>" << endl;
+    stream << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" << '\n' << "<geologic>" << endl;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -260,7 +260,7 @@ void RifStimPlanModelGeologicalFrkExporter::appendToStream( QTextStream&        
         stream << val << endl;
     }
 
-    stream << "</data>" << endl << "</cNamedSet>" << endl;
+    stream << "</data>" << '\n' << "</cNamedSet>" << endl;
 }
 
 //--------------------------------------------------------------------------------------------------

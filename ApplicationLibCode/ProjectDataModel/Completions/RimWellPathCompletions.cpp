@@ -22,7 +22,6 @@
 
 #include "RimFishbones.h"
 #include "RimFishbonesCollection.h"
-#include "RimImportedFishboneLateralsCollection.h"
 #include "RimPerforationCollection.h"
 #include "RimPerforationInterval.h"
 #include "RimProject.h"
@@ -211,9 +210,7 @@ bool RimWellPathCompletions::hasCompletions() const
         return true;
     }
 
-    return !m_fishbonesCollection->allFishbonesSubs().empty() ||
-           !m_fishbonesCollection->wellPathCollection()->wellPaths().empty() ||
-           !m_perforationCollection->perforations().empty();
+    return !m_fishbonesCollection->allFishbonesSubs().empty() || !m_perforationCollection->perforations().empty();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -244,8 +241,7 @@ void RimWellPathCompletions::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTre
         uiTreeOrdering.add( &m_perforationCollection );
     }
 
-    if ( !m_fishbonesCollection->allFishbonesSubs().empty() ||
-         !m_fishbonesCollection->wellPathCollection()->wellPaths().empty() )
+    if ( !m_fishbonesCollection->allFishbonesSubs().empty() )
     {
         uiTreeOrdering.add( &m_fishbonesCollection );
     }
