@@ -30,6 +30,8 @@
 #include "RimWellPath.h" // TODO: Consider adding wellnameforexport to RicMswExportInfo to avoid these includes
 #include "RimWellPathCompletionSettings.h"
 
+#include <cmath>
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
