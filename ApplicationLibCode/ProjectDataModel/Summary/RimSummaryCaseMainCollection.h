@@ -74,7 +74,7 @@ public:
 
 private:
     static void loadSummaryCaseData( std::vector<RimSummaryCase*> summaryCases );
-    static void loadFileSummaryCaseData( std::vector<RimFileSummaryCase*> fileSummaryCases );
+    static void loadFileSummaryCaseData( std::vector<RimFileSummaryCase*> fileSummaryCases, int threadCountForHdf5Export );
     static void reassignSummaryCurves( const RimGridSummaryCase* fromGridCase, RimFileSummaryCase* toFileCase );
     static RimSummaryCaseCollection* defaultAllocator();
 

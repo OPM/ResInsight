@@ -27,6 +27,10 @@
 #include "RifOpmCommonSummary.h"
 #include "RifSummaryCaseRestartSelector.h"
 
+#ifdef USE_HDF5
+#include "RifHdf5SummaryExporter.h"
+#endif
+
 #include "RimCaseDisplayNameTools.h"
 #include "RimDerivedEnsembleCaseCollection.h"
 #include "RimEclipseResultCase.h"
@@ -41,6 +45,10 @@
 #include "RimSummaryPlotCollection.h"
 
 #include "cafProgressInfo.h"
+
+#ifdef USE_OPENMP
+#include <omp.h>
+#endif
 
 #include <QDir>
 
@@ -408,7 +416,21 @@ void RimSummaryCaseMainCollection::loadSummaryCaseData( std::vector<RimSummaryCa
 
     if ( !fileSummaryCases.empty() )
     {
-        loadFileSummaryCaseData( fileSummaryCases );
+        auto prefSummary = RiaPreferences::current()->summaryPreferences();
+
+        int threadCount = 1;
+#ifdef USE_OPENMP
+        if ( prefSummary->summaryDataReader() != RiaPreferencesSummary::SummaryReaderMode::HDF5_OPM_COMMON )
+        {
+            threadCount = prefSummary->createH5SummaryDataThreadCount();
+        }
+        else
+        {
+            threadCount = omp_get_max_threads();
+        }
+#endif
+
+        loadFileSummaryCaseData( fileSummaryCases, threadCount );
     }
 
     caf::ProgressInfo progInfo( otherSummaryCases.size(), "Loading Summary Cases" );
@@ -432,19 +454,46 @@ void RimSummaryCaseMainCollection::loadSummaryCaseData( std::vector<RimSummaryCa
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCaseMainCollection::loadFileSummaryCaseData( std::vector<RimFileSummaryCase*> fileSummaryCases )
+void RimSummaryCaseMainCollection::loadFileSummaryCaseData( std::vector<RimFileSummaryCase*> fileSummaryCases,
+                                                            int                              threadCountForHdf5Export )
 {
     // Use openMP when reading file summary case meta data. Avoid using the virtual interface of base class
     // RimSummaryCase, as it is difficult to make sure all variants of the leaf classes are thread safe.
     // Only open the summary file reader in parallel loop to reduce risk of multi threading issues
+
+    RiaPreferencesSummary* prefSummary = RiaPreferences::current()->summaryPreferences();
+
+#ifdef USE_HDF5
+    {
+        if ( prefSummary->summaryDataReader() == RiaPreferencesSummary::SummaryReaderMode::HDF5_OPM_COMMON &&
+             prefSummary->createH5SummaryDataFiles() )
+        {
+            std::vector<std::string> headerFileNames;
+            std::vector<std::string> h5FileNames;
+
+            for ( const auto fileSummaryCase : fileSummaryCases )
+            {
+                auto headerFileName = fileSummaryCase->summaryHeaderFilename();
+
+                QFileInfo fi( headerFileName );
+                QString   h5FilenameCandidate = fi.absolutePath() + "/" + fi.baseName() + ".h5";
+
+                headerFileNames.push_back( headerFileName.toStdString() );
+                h5FileNames.push_back( h5FilenameCandidate.toStdString() );
+            }
+
+            RifHdf5SummaryExporter::ensureHdf5FileIsCreatedMultithreaded( headerFileNames,
+                                                                          h5FileNames,
+                                                                          threadCountForHdf5Export );
+        }
+    }
+#endif
 
     caf::ProgressInfo progInfo( fileSummaryCases.size(), "Loading Summary Cases" );
 
     RifOpmCommonEclipseSummary::resetLodCount();
 
     RiaThreadSafeLogger threadSafeLogger;
-
-    auto prefSummary = RiaPreferences::current()->summaryPreferences();
 
     // The HDF5 reader requires a special configuration to be thread safe. Disable threading for HDF reader creation.
     bool canUseMultipleTreads =
@@ -474,6 +523,7 @@ void RimSummaryCaseMainCollection::loadFileSummaryCaseData( std::vector<RimFileS
                               .arg( numberOfLodFilesCreated ) );
     }
 
+    // This loop is not thread safe, use serial loop
     for ( int cIdx = 0; cIdx < static_cast<int>( fileSummaryCases.size() ); ++cIdx )
     {
         RimFileSummaryCase* fileSummaryCase = fileSummaryCases[cIdx];

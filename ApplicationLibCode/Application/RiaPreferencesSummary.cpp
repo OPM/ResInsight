@@ -1,25 +1,25 @@
+/////////////////////////////////////////////////////////////////////////////////
+//
+//  Copyright (C) 2021     Equinor ASA
+//
+//  ResInsight is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 3 of the License, or
+//  (at your option) any later version.
+//
+//  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
+//  WARRANTY; without even the implied warranty of MERCHANTABILITY or
+//  FITNESS FOR A PARTICULAR PURPOSE.
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+//  for more details.
+//
+/////////////////////////////////////////////////////////////////////////////////
 
 #include "RiaPreferencesSummary.h"
 #include "cafPdmUiCheckBoxEditor.h"
 
-// #include "RiaColorTables.h"
-// #include "RiaValidRegExpValidator.h"
-// #include "RifReaderSettings.h"
-// #include "RiuGuiTheme.h"
-//
-// #include "cafPdmFieldCvfColor.h"
-// #include "cafPdmSettings.h"
-// #include "cafPdmUiCheckBoxEditor.h"
-// #include "cafPdmUiComboBoxEditor.h"
-// #include "cafPdmUiFieldHandle.h"
-// #include "cafPdmUiFilePathEditor.h"
-// #include "cafPdmUiLineEditor.h"
-//
-// #include <QDate>
-// #include <QDir>
-// #include <QLocale>
-// #include <QRegExp>
-// #include <QStandardPaths>
+#include <algorithm>
 
 namespace caf
 {
@@ -109,6 +109,14 @@ RiaPreferencesSummary::RiaPreferencesSummary()
                        "" );
     m_createH5SummaryDataFile.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 
+    CAF_PDM_InitField( &m_createH5SummaryFileThreadCount,
+                       "createH5SummaryFileThreadCount",
+                       4,
+                       "H5 Summary Data Creation Thread Count [BETA]",
+                       "",
+                       "",
+                       "" );
+
     CAF_PDM_InitFieldNoDefault( &m_summaryReader, "summaryReaderType", "Summary Data File Reader", "", "", "" );
 }
 
@@ -147,6 +155,16 @@ bool RiaPreferencesSummary::createH5SummaryDataFiles() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+int RiaPreferencesSummary::createH5SummaryDataThreadCount() const
+{
+    const int minimumThreadCount = 1;
+
+    return std::max( minimumThreadCount, m_createH5SummaryFileThreadCount() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiaPreferencesSummary::defineEditorAttribute( const caf::PdmFieldHandle* field,
                                                    QString                    uiConfigName,
                                                    caf::PdmUiEditorAttribute* attribute )
@@ -177,6 +195,7 @@ void RiaPreferencesSummary::defineUiOrdering( QString uiConfigName, caf::PdmUiOr
     else if ( m_summaryReader == SummaryReaderMode::HDF5_OPM_COMMON )
     {
         uiOrdering.add( &m_createH5SummaryDataFile );
+        uiOrdering.add( &m_createH5SummaryFileThreadCount );
     }
 
     uiOrdering.skipRemainingFields();

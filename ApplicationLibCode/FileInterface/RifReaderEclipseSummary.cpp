@@ -171,8 +171,10 @@ bool RifReaderEclipseSummary::open( const QString&       headerFileName,
             QFileInfo fi( headerFileName );
             QString   h5FilenameCandidate = fi.absolutePath() + "/" + fi.baseName() + ".h5";
 
+            size_t dummy = 0;
             RifHdf5SummaryExporter::ensureHdf5FileIsCreated( headerFileName.toStdString(),
-                                                             h5FilenameCandidate.toStdString() );
+                                                             h5FilenameCandidate.toStdString(),
+                                                             dummy );
         }
 
         auto hdfReader = std::make_unique<RifOpmHdf5Summary>();

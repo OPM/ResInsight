@@ -34,7 +34,47 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RifHdf5SummaryExporter::ensureHdf5FileIsCreated( const std::string& smspecFileName, const std::string& h5FileName )
+bool RifHdf5SummaryExporter::ensureHdf5FileIsCreatedMultithreaded( const std::vector<std::string>& smspecFileNames,
+                                                                   const std::vector<std::string>& h5FileNames,
+                                                                   int                             threadCount )
+{
+    if ( smspecFileNames.empty() ) return true;
+
+    if ( smspecFileNames.size() != h5FileNames.size() ) return false;
+
+    {
+        QString txt = QString( "Testing if H5 files are present for [ %1 ] summary files ..." )
+                          .arg( static_cast<int>( smspecFileNames.size() ) );
+        RiaLogging::info( txt );
+    }
+
+    size_t hdfFilesCreatedCount = 0;
+
+#pragma omp parallel for schedule( dynamic ) num_threads( threadCount )
+    for ( int cIdx = 0; cIdx < static_cast<int>( smspecFileNames.size() ); ++cIdx )
+    {
+        auto smspecFileName = smspecFileNames[cIdx];
+        auto h5FileName     = h5FileNames[cIdx];
+
+        RifHdf5SummaryExporter::ensureHdf5FileIsCreated( smspecFileName, h5FileName, hdfFilesCreatedCount );
+    }
+
+    {
+        QString txt = QString( "Created [ %1 ] h5 files from a total of [ %2 ] summary files" )
+                          .arg( static_cast<int>( hdfFilesCreatedCount ) )
+                          .arg( static_cast<int>( smspecFileNames.size() ) );
+        RiaLogging::info( txt );
+    }
+
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RifHdf5SummaryExporter::ensureHdf5FileIsCreated( const std::string& smspecFileName,
+                                                      const std::string& h5FileName,
+                                                      size_t&            hdfFilesCreatedCount )
 {
     if ( !QFile::exists( QString::fromStdString( smspecFileName ) ) ) return false;
 
@@ -49,10 +89,15 @@ bool RifHdf5SummaryExporter::ensureHdf5FileIsCreated( const std::string& smspecF
             // performance penalty
             sourceSummaryData.LoadData();
 
-            RifHdf5Exporter exporter( h5FileName );
+#pragma omp critical( critical_section_HDF5_export )
+            {
+                RifHdf5Exporter exporter( h5FileName );
 
-            writeGeneralSection( exporter, sourceSummaryData );
-            writeSummaryVectors( exporter, sourceSummaryData );
+                writeGeneralSection( exporter, sourceSummaryData );
+                writeSummaryVectors( exporter, sourceSummaryData );
+
+                hdfFilesCreatedCount++;
+            }
         }
         catch ( std::exception& e )
         {

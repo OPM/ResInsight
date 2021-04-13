@@ -40,7 +40,13 @@ namespace EclIO
 class RifHdf5SummaryExporter
 {
 public:
-    static bool ensureHdf5FileIsCreated( const std::string& smspecFileName, const std::string& h5FileName );
+    static bool ensureHdf5FileIsCreatedMultithreaded( const std::vector<std::string>& smspecFileNames,
+                                                      const std::vector<std::string>& h5FileNames,
+                                                      int                             threadCount );
+
+    static bool ensureHdf5FileIsCreated( const std::string& smspecFileName,
+                                         const std::string& h5FileName,
+                                         size_t&            hdfFilesCreatedCount );
 
 private:
     static bool writeGeneralSection( RifHdf5Exporter& exporter, Opm::EclIO::ESmry& sourceSummaryData );
