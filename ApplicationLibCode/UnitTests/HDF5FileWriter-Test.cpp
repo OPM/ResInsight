@@ -25,12 +25,10 @@ TEST( DISABLED_HDFTests, WriteToHdf5SummaryExporter )
 {
     QString file_path = H5_TEST_DATA_DIRECTORY_2 + "NORNE_ATW2013_RFTPLT_V2.SMSPEC";
 
-    Opm::EclIO::ESmry esmry( file_path.toStdString() );
-
     RifHdf5SummaryExporter exporter;
     std::string            exportFileName = "e:/project/scratch_export/hdf_complete.h5";
 
-    exporter.ensureHdf5FileIsCreated( exportFileName, exportFileName );
+    exporter.ensureHdf5FileIsCreated( file_path.toStdString(), exportFileName );
 }
 
 //--------------------------------------------------------------------------------------------------

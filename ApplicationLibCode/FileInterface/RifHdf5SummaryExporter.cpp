@@ -41,6 +41,10 @@ bool RifHdf5SummaryExporter::ensureHdf5FileIsCreated( const std::string& smspecF
     {
         Opm::EclIO::ESmry sourceSummaryData( smspecFileName );
 
+        // Read all data summary data before starting export to HDF. Loading one and one summary vector causes huge
+        // performance penalty
+        sourceSummaryData.LoadData();
+
         RifHdf5Exporter exporter( h5FileName );
 
         writeGeneralSection( exporter, sourceSummaryData );
@@ -155,7 +159,11 @@ bool RifHdf5SummaryExporter::writeSummaryVectors( RifHdf5Exporter& exporter, Opm
             const std::vector<float>& values = sourceSummaryData.get( summaryNode );
 
             exporter.writeDataset( dataValuesGroup, datasetName, values );
+
+            dataValuesGroup.close();
         }
+
+        keywordGroup.close();
     }
 
     return true;
