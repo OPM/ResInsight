@@ -56,6 +56,7 @@ public:
     RimEnsembleCurveFilter( const QString& ensembleParameterName );
 
     bool                                  isActive() const;
+    void                                  setActive( bool active );
     double                                minValue() const;
     double                                maxValue() const;
     std::set<QString>                     categories() const;

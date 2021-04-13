@@ -23,6 +23,7 @@
 #include "RiaPreferences.h"
 
 #include "RiaSummaryTools.h"
+#include "RimEnsembleCurveFilter.h"
 #include "RimEnsembleCurveFilterCollection.h"
 #include "RimEnsembleCurveSet.h"
 #include "RimEnsembleCurveSetCollection.h"
@@ -66,7 +67,7 @@ std::vector<RimEnsembleCurveSet*>
     std::vector<RimEnsembleCurveSet*> curveSets;
     for ( const auto& addr : addrs )
     {
-        for ( auto filter : curveFilters )
+        for ( const auto& filter : curveFilters )
         {
             if ( addr.isUiTextMatchingFilterText( filter ) )
             {
@@ -80,7 +81,8 @@ std::vector<RimEnsembleCurveSet*>
 
                 curveSet->setSummaryCaseCollection( ensemble );
                 curveSet->setSummaryAddress( addr );
-                curveSet->filterCollection()->addFilter();
+                auto filter = curveSet->filterCollection()->addFilter();
+                filter->setActive( false );
 
                 plot->ensembleCurveSetCollection()->addCurveSet( curveSet );
                 curveSets.push_back( curveSet );
