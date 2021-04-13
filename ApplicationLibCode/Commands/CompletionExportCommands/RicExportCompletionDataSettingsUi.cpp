@@ -83,7 +83,7 @@ RicExportCompletionDataSettingsUi::RicExportCompletionDataSettingsUi()
 
     CAF_PDM_InitField( &timeStep, "TimeStepIndex", 0, "    Time Step", "", "", "" );
 
-    CAF_PDM_InitField( &includeMsw, "IncludeMSW", true, "Include Multi Segment Well Model", "", "", "" );
+    CAF_PDM_InitField( &includeMsw, "IncludeMSW", true, "Multi Segment Well Model", "", "", "" );
 
     CAF_PDM_InitField( &useLateralNTG, "UseLateralNTG", false, "Use NTG Horizontally", "", "", "" );
 
@@ -112,15 +112,16 @@ RicExportCompletionDataSettingsUi::RicExportCompletionDataSettingsUi()
                                 "",
                                 "" );
 
-    CAF_PDM_InitField( &m_exportDataSourceAsComment,
-                       "ExportDataSourceAsComment",
-                       true,
-                       "Export Data Source In Comment",
+    CAF_PDM_InitField( &m_exportDataSourceAsComment, "ExportDataSourceAsComment", true, "Comment", "", "", "" );
+
+    CAF_PDM_InitField( &m_exportWelspec, "ExportWelspec", true, "WELSPEC keyword", "", "", "" );
+    CAF_PDM_InitField( &m_completionWelspecAfterMainBore,
+                       "CompletionWelspecAfterMainBore",
+                       false,
+                       "WELSEGS per Completion Type",
                        "",
                        "",
                        "" );
-
-    CAF_PDM_InitField( &m_exportWelspec, "ExportWelspec", true, "Export WELSPEC keyword", "", "", "" );
 
     m_displayForSimWell = true;
 
@@ -215,6 +216,14 @@ bool RicExportCompletionDataSettingsUi::exportDataSourceAsComment() const
 bool RicExportCompletionDataSettingsUi::exportWelspec() const
 {
     return m_exportWelspec;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RicExportCompletionDataSettingsUi::exportCompletionWelspecAfterMainBore() const
+{
+    return m_completionWelspecAfterMainBore();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -329,9 +338,10 @@ void RicExportCompletionDataSettingsUi::defineUiOrdering( QString uiConfigName, 
         group->add( &compdatExport );
         group->add( &caseToApply );
         group->add( &useLateralNTG );
-        group->add( &includeMsw );
         group->add( &m_exportDataSourceAsComment );
         group->add( &m_exportWelspec );
+        group->add( &includeMsw );
+        group->add( &m_completionWelspecAfterMainBore );
     }
 
     {

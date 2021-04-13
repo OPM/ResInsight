@@ -99,7 +99,33 @@ void RicWellPathExportCompletionDataFeature::prepareExportSettingsAndExportCompl
         s->descendantsIncludingThisOfType( simWellFractures );
     }
 
-    for ( auto w : wellPaths )
+    std::vector<RimWellPath*> topLevelWells;
+    {
+        std::set<RimWellPath*> myWells;
+
+        for ( auto w : wellPaths )
+        {
+            myWells.insert( w->topLevelWellPath() );
+        }
+
+        topLevelWells.assign( myWells.begin(), myWells.end() );
+    }
+
+    std::vector<RimWellPath*> allLaterals;
+    {
+        std::set<RimWellPath*> laterals;
+
+        for ( auto t : topLevelWells )
+        {
+            auto laterals = t->wellPathLateralsRecursively();
+            for ( auto l : laterals )
+            {
+                allLaterals.push_back( l );
+            }
+        }
+    }
+
+    for ( auto w : allLaterals )
     {
         w->descendantsIncludingThisOfType( wellPathFractures );
         w->descendantsIncludingThisOfType( wellPathFishbones );
@@ -162,7 +188,7 @@ void RicWellPathExportCompletionDataFeature::prepareExportSettingsAndExportCompl
 
         RiaApplication::instance()->setLastUsedDialogDirectory( "COMPLETIONS", exportSettings->folder );
 
-        RicWellPathExportCompletionDataFeatureImpl::exportCompletions( wellPaths, simWells, *exportSettings );
+        RicWellPathExportCompletionDataFeatureImpl::exportCompletions( topLevelWells, simWells, *exportSettings );
     }
 }
 
@@ -219,26 +245,6 @@ std::vector<RimWellPath*> RicWellPathExportCompletionDataFeature::selectedWellPa
 {
     std::vector<RimWellPath*> wellPaths;
     caf::SelectionManager::instance()->objectsByType( &wellPaths );
-
-    std::set<RimWellPath*> uniqueWellPaths( wellPaths.begin(), wellPaths.end() );
-    wellPaths.assign( uniqueWellPaths.begin(), uniqueWellPaths.end() );
-
-    if ( wellPaths.empty() )
-    {
-        RimWellPathCompletions* completions =
-            caf::SelectionManager::instance()->selectedItemAncestorOfType<RimWellPathCompletions>();
-        if ( completions )
-        {
-            RimWellPath* wellPath = nullptr;
-            completions->firstAncestorOrThisOfTypeAsserted( wellPath );
-            wellPaths.push_back( wellPath );
-        }
-    }
-
-    wellPaths.erase( std::remove_if( wellPaths.begin(),
-                                     wellPaths.end(),
-                                     []( auto wellPath ) { return !wellPath->isTopLevelWellPath(); } ),
-                     wellPaths.end() );
 
     return wellPaths;
 }

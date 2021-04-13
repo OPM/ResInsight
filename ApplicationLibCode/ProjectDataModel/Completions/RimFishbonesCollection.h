@@ -30,7 +30,6 @@
 #include "cvfColor3.h"
 
 class RimFishbones;
-class RimImportedFishboneLateralsCollection;
 
 //==================================================================================================
 //
@@ -44,9 +43,8 @@ class RimFishbonesCollection : public RimCheckableNamedObject
 public:
     RimFishbonesCollection();
 
-    RimImportedFishboneLateralsCollection* wellPathCollection() const;
-    void                                   appendFishbonesSubs( RimFishbones* subs );
-    const RimMswCompletionParameters*      mswParameters() const;
+    void                              appendFishbonesSubs( RimFishbones* subs );
+    const RimMswCompletionParameters* mswParameters() const;
 
     bool                       hasFishbones() const;
     std::vector<RimFishbones*> activeFishbonesSubs() const;
@@ -68,9 +66,8 @@ private:
     cvf::Color3f nextFishbonesColor() const;
 
 private:
-    caf::PdmChildArrayField<RimFishbones*>                     m_fishbones;
-    caf::PdmChildField<RimImportedFishboneLateralsCollection*> m_wellPathCollection;
-    caf::PdmChildField<RimMswCompletionParameters*>            m_mswParameters;
+    caf::PdmChildArrayField<RimFishbones*>          m_fishbones;
+    caf::PdmChildField<RimMswCompletionParameters*> m_mswParameters;
 
     caf::PdmField<double> m_startMD;
     caf::PdmField<double> m_skinFactor;

@@ -234,19 +234,43 @@ QString RimTools::relocateFile( const QString&        originalFileName,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimTools::wellPathOptionItems( QList<caf::PdmOptionItemInfo>* options )
+void RimTools::wellPathOptionItemsSubset( const std::vector<RimWellPath*>& wellPathsToExclude,
+                                          QList<caf::PdmOptionItemInfo>*   options )
 {
-    CVF_ASSERT( options );
     if ( !options ) return;
 
     auto wellPathColl = RimTools::wellPathCollection();
     if ( wellPathColl )
     {
-        caf::IconProvider wellIcon( ":/Well.svg" );
-        for ( auto wellPath : wellPathColl->allWellPaths() )
+        std::vector<RimWellPath*> wellPathsToInclude;
+
+        auto all = wellPathColl->allWellPaths();
+        for ( auto w : all )
         {
-            options->push_back( caf::PdmOptionItemInfo( wellPath->name(), wellPath, false, wellIcon ) );
+            bool include = true;
+            for ( auto exclude : wellPathsToExclude )
+            {
+                if ( w == exclude ) include = false;
+            }
+
+            if ( include ) wellPathsToInclude.push_back( w );
         }
+
+        optionItemsForSpecifiedWellPaths( wellPathsToInclude, options );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimTools::wellPathOptionItems( QList<caf::PdmOptionItemInfo>* options )
+{
+    if ( !options ) return;
+
+    auto wellPathColl = RimTools::wellPathCollection();
+    if ( wellPathColl )
+    {
+        optionItemsForSpecifiedWellPaths( wellPathColl->allWellPaths(), options );
     }
 }
 
@@ -255,17 +279,12 @@ void RimTools::wellPathOptionItems( QList<caf::PdmOptionItemInfo>* options )
 //--------------------------------------------------------------------------------------------------
 void RimTools::wellPathWithFormationsOptionItems( QList<caf::PdmOptionItemInfo>* options )
 {
-    CVF_ASSERT( options );
     if ( !options ) return;
 
     std::vector<RimWellPath*> wellPaths;
     RimTools::wellPathWithFormations( &wellPaths );
 
-    caf::IconProvider wellIcon( ":/Well.svg" );
-    for ( auto wellPath : wellPaths )
-    {
-        options->push_back( caf::PdmOptionItemInfo( wellPath->name(), wellPath, false, wellIcon ) );
-    }
+    optionItemsForSpecifiedWellPaths( wellPaths, options );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -291,7 +310,6 @@ void RimTools::wellPathWithFormations( std::vector<RimWellPath*>* wellPaths )
 //--------------------------------------------------------------------------------------------------
 void RimTools::caseOptionItems( QList<caf::PdmOptionItemInfo>* options )
 {
-    CVF_ASSERT( options );
     if ( !options ) return;
 
     RimProject* proj = RimProject::current();
@@ -312,7 +330,6 @@ void RimTools::caseOptionItems( QList<caf::PdmOptionItemInfo>* options )
 //--------------------------------------------------------------------------------------------------
 void RimTools::eclipseCaseOptionItems( QList<caf::PdmOptionItemInfo>* options )
 {
-    CVF_ASSERT( options );
     if ( !options ) return;
 
     RimProject* proj = RimProject::current();
@@ -337,7 +354,6 @@ void RimTools::eclipseCaseOptionItems( QList<caf::PdmOptionItemInfo>* options )
 //--------------------------------------------------------------------------------------------------
 void RimTools::geoMechCaseOptionItems( QList<caf::PdmOptionItemInfo>* options )
 {
-    CVF_ASSERT( options );
     if ( !options ) return;
 
     RimProject* proj = RimProject::current();
@@ -362,7 +378,6 @@ void RimTools::geoMechCaseOptionItems( QList<caf::PdmOptionItemInfo>* options )
 //--------------------------------------------------------------------------------------------------
 void RimTools::colorLegendOptionItems( QList<caf::PdmOptionItemInfo>* options )
 {
-    CVF_ASSERT( options );
     if ( !options ) return;
 
     RimProject*                  project               = RimProject::current();
@@ -405,5 +420,20 @@ void RimTools::timeStepsForCase( RimCase* gridCase, QList<caf::PdmOptionItemInfo
     for ( int i = 0; i < timeStepNames.size(); i++ )
     {
         options->push_back( caf::PdmOptionItemInfo( timeStepNames[i], i ) );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimTools::optionItemsForSpecifiedWellPaths( const std::vector<RimWellPath*>& wellPaths,
+                                                 QList<caf::PdmOptionItemInfo>*   options )
+{
+    if ( !options ) return;
+
+    caf::IconProvider wellIcon( ":/Well.svg" );
+    for ( auto wellPath : wellPaths )
+    {
+        options->push_back( caf::PdmOptionItemInfo( wellPath->name(), wellPath, false, wellIcon ) );
     }
 }

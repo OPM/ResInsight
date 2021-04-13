@@ -65,6 +65,8 @@ public:
 
     std::vector<std::pair<double, double>> valveSegments() const;
 
+    void setComponentTypeFilter( const std::set<RiaDefines::WellPathComponentType>& filter );
+
     // Overrides from RimWellPathCompletionInterface
     bool                              isEnabled() const override;
     RiaDefines::WellPathComponentType componentType() const override;
@@ -92,4 +94,6 @@ private:
     caf::PdmChildField<RimMultipleValveLocations*> m_multipleValveLocations;
     caf::PdmField<bool>                            m_editValveTemplate;
     caf::PdmField<bool>                            m_createValveTemplate;
+
+    std::set<RiaDefines::WellPathComponentType> m_componentTypeFilter;
 };

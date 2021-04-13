@@ -22,7 +22,6 @@
 
 #include "Rim3dPropertiesInterface.h"
 #include "RimCheckableNamedObject.h"
-#include "RimFishbonesPipeProperties.h"
 #include "RimWellPathComponentInterface.h"
 
 #include "cvfColor3.h"
@@ -37,6 +36,7 @@
 #include <memory>
 
 class RigFisbonesGeometry;
+class RimFishbonesPipeProperties;
 class RimMultipleValveLocations;
 
 //==================================================================================================
@@ -79,13 +79,10 @@ public:
     double exitAngle() const;
     double buildAngle() const;
 
-    double tubingDiameter( RiaDefines::EclipseUnitSystem unitSystem ) const;
-    double holeDiameter( RiaDefines::EclipseUnitSystem unitSystem ) const
-    {
-        return m_pipeProperties()->holeDiameter( unitSystem );
-    }
-    double              effectiveDiameter( RiaDefines::EclipseUnitSystem unitSystem ) const;
-    double              skinFactor() const { return m_pipeProperties()->skinFactor(); }
+    double              tubingDiameter( RiaDefines::EclipseUnitSystem unitSystem ) const;
+    double              holeDiameter( RiaDefines::EclipseUnitSystem unitSystem ) const;
+    double              equivalentDiameter( RiaDefines::EclipseUnitSystem unitSystem ) const;
+    double              skinFactor() const;
     double              openHoleRoughnessFactor( RiaDefines::EclipseUnitSystem unitSystem ) const;
     double              icdOrificeDiameter( RiaDefines::EclipseUnitSystem unitSystem ) const;
     double              icdFlowCoefficient() const;
@@ -94,7 +91,7 @@ public:
 
     void geometryUpdated();
 
-    const std::vector<SubAndLateralIndex>&     installedLateralIndices() const { return m_subLateralIndices; };
+    const std::vector<SubAndLateralIndex>&     installedLateralIndices() const;
     std::vector<cvf::Vec3d>                    coordsForLateral( size_t subIndex, size_t lateralIndex ) const;
     std::vector<std::pair<cvf::Vec3d, double>> coordsAndMDForLateral( size_t subIndex, size_t lateralIndex ) const;
     void                                       recomputeLateralLocations();

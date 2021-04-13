@@ -32,7 +32,6 @@
 #include "RimEclipseCase.h"
 #include "RimFishbones.h"
 #include "RimFishbonesCollection.h"
-#include "RimImportedFishboneLateralsCollection.h"
 #include "RimPerforationCollection.h"
 #include "RimProject.h"
 #include "RimWellPath.h"

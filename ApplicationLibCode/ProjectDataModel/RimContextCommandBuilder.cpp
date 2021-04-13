@@ -88,7 +88,6 @@
 #include "RimGridCrossPlotCollection.h"
 #include "RimGridCrossPlotDataSet.h"
 #include "RimIdenticalGridCaseGroup.h"
-#include "RimImportedFishboneLateralsCollection.h"
 #include "RimIntersectionCollection.h"
 #include "RimIntersectionResultDefinition.h"
 #include "RimIntersectionResultsDefinitionCollection.h"
@@ -336,7 +335,6 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicReloadWellPathFormationNamesFeature";
             menuBuilder.addSeparator();
             menuBuilder << "RicWellPathImportPerforationIntervalsFeature";
-            menuBuilder << "RicWellPathImportCompletionsFileFeature";
             menuBuilder << "RicImportWellMeasurementsFeature";
             menuBuilder.subMenuEnd();
             menuBuilder.addSeparator();
@@ -392,10 +390,6 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
                 menuBuilder << "RicShowWellPlanFeature";
             }
         }
-        else if ( dynamic_cast<RimImportedFishboneLateralsCollection*>( firstUiItem ) )
-        {
-            appendImportMenu( menuBuilder );
-        }
         else if ( dynamic_cast<RimWellPathCompletions*>( firstUiItem ) )
         {
             menuBuilder.subMenuStart( "Create Completions", QIcon( ":/CompletionsSymbol16x16.png" ) );
@@ -418,8 +412,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder.addSeparator();
             appendExportCompletions( menuBuilder );
         }
-        else if ( dynamic_cast<RimFishbonesCollection*>( firstUiItem ) || dynamic_cast<RimFishbones*>( firstUiItem ) ||
-                  dynamic_cast<RimImportedFishboneLateralsCollection*>( firstUiItem ) )
+        else if ( dynamic_cast<RimFishbonesCollection*>( firstUiItem ) || dynamic_cast<RimFishbones*>( firstUiItem ) )
         {
             menuBuilder << "RicNewFishbonesSubsFeature";
             appendExportCompletions( menuBuilder );
@@ -1335,8 +1328,6 @@ int RimContextCommandBuilder::appendImportMenu( caf::CmdFeatureMenuBuilder& menu
     candidates << "RicWellPathFormationsImportFileFeature";
     candidates << "RicWellLogsImportFileFeature";
     candidates << "RicReloadWellPathFormationNamesFeature";
-    candidates << "Separator";
-    candidates << "RicWellPathImportCompletionsFileFeature";
 
     return appendSubMenuWithCommands( menuBuilder, candidates, "Import", QIcon(), addSeparatorBeforeMenu );
 }

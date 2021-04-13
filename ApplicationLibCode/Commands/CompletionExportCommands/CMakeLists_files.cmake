@@ -21,6 +21,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RicMswValveAccumulators.h
 ${CMAKE_CURRENT_LIST_DIR}/RicWellPathFractureTextReportFeatureImpl.h
 ${CMAKE_CURRENT_LIST_DIR}/RicWellPathFractureReportItem.h
 ${CMAKE_CURRENT_LIST_DIR}/RicExportCompletionsForTemporaryLgrsFeature.h
+${CMAKE_CURRENT_LIST_DIR}/RicMswTableFormatterTools.h
 )
 
 
@@ -46,6 +47,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RicMswValveAccumulators.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicWellPathFractureTextReportFeatureImpl.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicWellPathFractureReportItem.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicExportCompletionsForTemporaryLgrsFeature.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicMswTableFormatterTools.cpp
 )
 
 list(APPEND COMMAND_CODE_HEADER_FILES

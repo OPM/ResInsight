@@ -48,11 +48,6 @@ private:
                                            const RimWellPath*                                       wellPath,
                                            const RicExportCompletionDataSettingsUi&                 settings );
 
-    static void
-        findFishboneImportedLateralsWellBoreParts( std::map<size_t, std::vector<WellBorePartForTransCalc>>& wellBorePartsInCells,
-                                                   const RimWellPath*                                       wellPath,
-                                                   const RicExportCompletionDataSettingsUi&                 settings );
-
     static void appendMainWellBoreParts( std::map<size_t, std::vector<WellBorePartForTransCalc>>& wellBorePartsInCells,
                                          const RimWellPath*                                       wellPath,
                                          const RicExportCompletionDataSettingsUi&                 settings,

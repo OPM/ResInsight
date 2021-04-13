@@ -10,7 +10,6 @@ ${CMAKE_CURRENT_LIST_DIR}/RicNewValveFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicNewValveTemplateFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicNewValveAtMeasuredDepthFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicDeleteValveTemplateFeature.h
-${CMAKE_CURRENT_LIST_DIR}/RicWellPathImportCompletionsFileFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicWellPathImportPerforationIntervalsFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicNewStimPlanModelPlotFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicImportEnsembleFractureStatisticsFeature.h
@@ -27,7 +26,6 @@ ${CMAKE_CURRENT_LIST_DIR}/RicNewValveFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicNewValveTemplateFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicNewValveAtMeasuredDepthFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicDeleteValveTemplateFeature.cpp
-${CMAKE_CURRENT_LIST_DIR}/RicWellPathImportCompletionsFileFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicWellPathImportPerforationIntervalsFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicNewStimPlanModelPlotFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicImportEnsembleFractureStatisticsFeature.cpp

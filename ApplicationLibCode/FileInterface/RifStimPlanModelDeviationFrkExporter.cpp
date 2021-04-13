@@ -75,7 +75,7 @@ bool RifStimPlanModelDeviationFrkExporter::writeToFile( RimStimPlanModel* stimPl
 //--------------------------------------------------------------------------------------------------
 void RifStimPlanModelDeviationFrkExporter::appendHeaderToStream( QTextStream& stream )
 {
-    stream << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" << endl << "<deviation>" << endl;
+    stream << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" << '\n' << "<deviation>" << '\n';
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -86,23 +86,23 @@ void RifStimPlanModelDeviationFrkExporter::appendToStream( QTextStream&         
                                                            const std::vector<double>& values )
 {
     stream.setRealNumberPrecision( 20 );
-    stream << "<cNamedSet>" << endl
-           << "<name>" << endl
-           << label << endl
-           << "</name>" << endl
-           << "<dimCount>" << endl
-           << 1 << endl
-           << "</dimCount>" << endl
-           << "<sizes>" << endl
-           << values.size() << endl
-           << "</sizes>" << endl
-           << "<data>" << endl;
+    stream << "<cNamedSet>" << '\n'
+           << "<name>" << '\n'
+           << label << '\n'
+           << "</name>" << '\n'
+           << "<dimCount>" << '\n'
+           << 1 << '\n'
+           << "</dimCount>" << '\n'
+           << "<sizes>" << '\n'
+           << values.size() << '\n'
+           << "</sizes>" << '\n'
+           << "<data>" << '\n';
     for ( auto val : values )
     {
-        stream << val << endl;
+        stream << val << '\n';
     }
 
-    stream << "</data>" << endl << "</cNamedSet>" << endl;
+    stream << "</data>" << '\n' << "</cNamedSet>" << '\n';
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -110,7 +110,7 @@ void RifStimPlanModelDeviationFrkExporter::appendToStream( QTextStream&         
 //--------------------------------------------------------------------------------------------------
 void RifStimPlanModelDeviationFrkExporter::appendFooterToStream( QTextStream& stream )
 {
-    stream << "</deviation>" << endl;
+    stream << "</deviation>" << '\n';
 }
 
 //--------------------------------------------------------------------------------------------------

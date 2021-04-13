@@ -15,44 +15,48 @@
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
+
 #pragma once
 
-#include "RimWellPath.h"
-
 #include "cafPdmChildField.h"
+#include "cafPdmField.h"
+#include "cafPdmObject.h"
 #include "cafPdmPtrField.h"
 
-class RimWellPathTarget;
 class RimWellPath;
-class RimWellPathGeometryDef;
+class RimWellPathValve;
 
-class RimModeledWellPath : public RimWellPath
+class RimWellPathTieIn : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimModeledWellPath();
-    ~RimModeledWellPath() override;
+    RimWellPathTieIn();
 
-    void                    createWellPathGeometry();
-    void                    updateWellPathVisualization();
-    void                    scheduleUpdateOfDependentVisualization();
-    RimWellPathGeometryDef* geometryDefinition() const;
-    QString                 wellPlanText();
-    void                    updateTieInLocationFromParentWell();
+    void         connectWellPaths( RimWellPath* parentWell, RimWellPath* childWell, double tieInMeasuredDepth );
+    RimWellPath* parentWell() const;
+    double       tieInMeasuredDepth() const;
+
+    RimWellPath* childWell() const;
+    void         updateChildWellGeometry();
+
+    void updateFirstTargetFromParentWell();
+
+    const RimWellPathValve* outletValve() const;
 
 private:
-    void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName ) override;
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
-    void onGeometryDefinitionChanged( const caf::SignalEmitter* emitter, bool fullUpdate );
 
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
                                                          bool*                      useOptionsOnly ) override;
 
-    void updateGeometry( bool fullUpdate );
-
 private:
-    caf::PdmChildField<RimWellPathGeometryDef*> m_geometryDefinition;
+    caf::PdmPtrField<RimWellPath*> m_parentWell;
+    caf::PdmPtrField<RimWellPath*> m_childWell;
+    caf::PdmField<double>          m_tieInMeasuredDepth;
+
+    caf::PdmField<bool>                   m_addValveAtConnection;
+    caf::PdmChildField<RimWellPathValve*> m_valve;
 };

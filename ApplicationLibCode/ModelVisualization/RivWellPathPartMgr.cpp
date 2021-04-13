@@ -32,8 +32,7 @@
 #include "RimEclipseView.h"
 #include "RimFishbones.h"
 #include "RimFishbonesCollection.h"
-#include "RimImportedFishboneLaterals.h"
-#include "RimImportedFishboneLateralsCollection.h"
+#include "RimModeledWellPath.h"
 #include "RimPerforationCollection.h"
 #include "RimPerforationInterval.h"
 #include "RimRegularLegendConfig.h"
@@ -49,6 +48,8 @@
 #include "RimWellPathCollection.h"
 #include "RimWellPathFracture.h"
 #include "RimWellPathFractureCollection.h"
+#include "RimWellPathGeometryDef.h"
+#include "RimWellPathTarget.h"
 #include "RimWellPathValve.h"
 
 #include "Riv3dWellLogPlanePartMgr.h"
@@ -67,12 +68,18 @@
 
 #include "cafDisplayCoordTransform.h"
 #include "cafEffectGenerator.h"
+
 #include "cvfDrawableGeo.h"
 #include "cvfDrawableText.h"
+#include "cvfDrawableVectors.h"
 #include "cvfFont.h"
+#include "cvfGeometryBuilderTriangles.h"
+#include "cvfGeometryUtils.h"
 #include "cvfModelBasicList.h"
+#include "cvfOpenGLResourceManager.h"
 #include "cvfPart.h"
 #include "cvfScalarMapperContinuousLinear.h"
+#include "cvfShaderProgram.h"
 #include "cvfTransform.h"
 #include "cvfqtUtils.h"
 
@@ -358,40 +365,6 @@ void RivWellPathPartMgr::appendWellMeasurementsToModel( cvf::ModelBasicList*    
                     model->addPart( part.p() );
                 }
             }
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RivWellPathPartMgr::appendImportedFishbonesToModel( cvf::ModelBasicList*              model,
-                                                         const caf::DisplayCoordTransform* displayCoordTransform,
-                                                         double                            characteristicCellSize )
-{
-    if ( !m_rimWellPath || !m_rimWellPath->fishbonesCollection()->wellPathCollection()->isChecked() ) return;
-
-    RivPipeGeometryGenerator                  geoGenerator;
-    std::vector<RimImportedFishboneLaterals*> fishbonesWellPaths;
-    m_rimWellPath->descendantsIncludingThisOfType( fishbonesWellPaths );
-    for ( RimImportedFishboneLaterals* fbWellPath : fishbonesWellPaths )
-    {
-        if ( !fbWellPath->isChecked() ) continue;
-
-        std::vector<cvf::Vec3d> displayCoords =
-            displayCoordTransform->transformToDisplayCoords( fbWellPath->coordinates() );
-
-        cvf::ref<RivObjectSourceInfo> objectSourceInfo = new RivObjectSourceInfo( fbWellPath );
-
-        cvf::Collection<cvf::Part> parts;
-        geoGenerator.cylinderWithCenterLineParts( &parts,
-                                                  displayCoords,
-                                                  m_rimWellPath->wellPathColor(),
-                                                  m_rimWellPath->combinedScaleFactor() * characteristicCellSize * 0.5 );
-        for ( auto part : parts )
-        {
-            part->setSourceInfo( objectSourceInfo.p() );
-            model->addPart( part.p() );
         }
     }
 }
@@ -783,6 +756,73 @@ void RivWellPathPartMgr::buildWellPathParts( const caf::DisplayCoordTransform* d
 
         m_wellLabelPart = part;
     }
+
+    auto modeledWellPath = dynamic_cast<RimModeledWellPath*>( m_rimWellPath.p() );
+    if ( modeledWellPath )
+    {
+        bool showWellTargetSpheres = modeledWellPath->geometryDefinition()->showSpheres();
+
+        if ( showWellTargetSpheres )
+        {
+            auto geoDef = modeledWellPath->geometryDefinition();
+
+            auto   sphereColor        = geoDef->sphereColor();
+            double sphereRadiusFactor = geoDef->sphereRadiusFactor();
+
+            cvf::ref<cvf::Vec3fArray>   vertices = new cvf::Vec3fArray;
+            cvf::ref<cvf::Vec3fArray>   vecRes   = new cvf::Vec3fArray;
+            cvf::ref<cvf::Color3fArray> colors   = new cvf::Color3fArray;
+
+            auto wellTargets = geoDef->activeWellTargets();
+
+            size_t pointCount = wellTargets.size();
+            vertices->reserve( pointCount );
+            vecRes->reserve( pointCount );
+            colors->reserve( pointCount );
+
+            for ( const auto target : wellTargets )
+            {
+                auto domainCoord  = target->targetPointXYZ() + modeledWellPath->geometryDefinition()->anchorPointXyz();
+                auto displayCoord = displayCoordTransform->transformToDisplayCoord( domainCoord );
+                vertices->add( cvf::Vec3f( displayCoord ) );
+                vecRes->add( cvf::Vec3f::X_AXIS );
+                colors->add( sphereColor );
+            }
+
+            cvf::ref<cvf::DrawableVectors> vectorDrawable;
+            if ( RiaGuiApplication::instance()->useShaders() )
+            {
+                vectorDrawable = new cvf::DrawableVectors( "u_transformationMatrix", "u_color" );
+            }
+            else
+            {
+                vectorDrawable = new cvf::DrawableVectors();
+            }
+
+            vectorDrawable->setVectors( vertices.p(), vecRes.p() );
+            vectorDrawable->setColors( colors.p() );
+
+            double cellRadius  = 15.0;
+            auto   eclipseView = dynamic_cast<RimEclipseView*>( m_rimView.p() );
+            if ( eclipseView )
+            {
+                double characteristicCellSize = eclipseView->mainGrid()->characteristicIJCellSize();
+                cellRadius                    = sphereRadiusFactor * characteristicCellSize;
+            }
+
+            cvf::GeometryBuilderTriangles builder;
+            cvf::GeometryUtils::createSphere( cellRadius, 15, 15, &builder );
+            vectorDrawable->setGlyph( builder.trianglesUShort().p(), builder.vertices().p() );
+
+            cvf::ref<cvf::Part> part = new cvf::Part;
+            part->setName( "RivWellPathPartMgr_WellTargetSpheres" );
+            part->setDrawable( vectorDrawable.p() );
+
+            part->setEffect( new cvf::Effect() );
+
+            m_spherePart = part;
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -813,8 +853,12 @@ void RivWellPathPartMgr::appendStaticGeometryPartsToModel( cvf::ModelBasicList* 
         model->addPart( m_wellLabelPart.p() );
     }
 
+    if ( m_spherePart.notNull() )
+    {
+        model->addPart( m_spherePart.p() );
+    }
+
     appendFishboneSubsPartsToModel( model, displayCoordTransform, characteristicCellSize );
-    appendImportedFishbonesToModel( model, displayCoordTransform, characteristicCellSize );
     appendWellPathAttributesToModel( model, displayCoordTransform, characteristicCellSize );
 
     RimGridView* gridView = dynamic_cast<RimGridView*>( m_rimView.p() );
@@ -851,6 +895,11 @@ void RivWellPathPartMgr::appendFlattenedStaticGeometryPartsToModel( cvf::ModelBa
     if ( m_wellLabelPart.notNull() )
     {
         model->addPart( m_wellLabelPart.p() );
+    }
+
+    if ( m_spherePart.notNull() )
+    {
+        model->addPart( m_spherePart.p() );
     }
 }
 
@@ -923,6 +972,7 @@ void RivWellPathPartMgr::clearAllBranchData()
     m_centerLinePart     = nullptr;
     m_centerLineDrawable = nullptr;
     m_wellLabelPart      = nullptr;
+    m_spherePart         = nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

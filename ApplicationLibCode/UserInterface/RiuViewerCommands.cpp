@@ -531,7 +531,6 @@ void RiuViewerCommands::displayContextMenu( QMouseEvent* event )
             menuBuilder << "RicNewWellPathStimPlanModelAtPosFeature";
             menuBuilder.addSeparator();
             menuBuilder << "RicNewWellPathAttributeFeature";
-            menuBuilder << "RicWellPathImportCompletionsFileFeature";
 
             menuBuilder.subMenuEnd();
 

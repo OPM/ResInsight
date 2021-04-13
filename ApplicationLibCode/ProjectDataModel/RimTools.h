@@ -51,6 +51,8 @@ public:
                                  bool*                 foundFile,
                                  std::vector<QString>* searchedPaths );
 
+    static void                   wellPathOptionItemsSubset( const std::vector<RimWellPath*>& wellPathsToExclude,
+                                                             QList<caf::PdmOptionItemInfo>*   options );
     static void                   wellPathOptionItems( QList<caf::PdmOptionItemInfo>* options );
     static void                   wellPathWithFormationsOptionItems( QList<caf::PdmOptionItemInfo>* options );
     static void                   wellPathWithFormations( std::vector<RimWellPath*>* wellPaths );
@@ -61,4 +63,8 @@ public:
     static RimWellPathCollection* wellPathCollection();
 
     static void timeStepsForCase( RimCase* gridCase, QList<caf::PdmOptionItemInfo>* options );
+
+private:
+    static void optionItemsForSpecifiedWellPaths( const std::vector<RimWellPath*>& wellPaths,
+                                                  QList<caf::PdmOptionItemInfo>*   options );
 };

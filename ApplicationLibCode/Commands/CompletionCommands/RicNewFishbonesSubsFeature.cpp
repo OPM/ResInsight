@@ -27,7 +27,6 @@
 #include "Rim3dView.h"
 #include "RimFishbones.h"
 #include "RimFishbonesCollection.h"
-#include "RimImportedFishboneLateralsCollection.h"
 #include "RimProject.h"
 #include "RimWellPathCollection.h"
 #include "RimWellPathCompletions.h"

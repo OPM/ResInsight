@@ -307,6 +307,14 @@ std::vector<std::pair<double, double>> RimWellPathValve::valveSegments() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimWellPathValve::setComponentTypeFilter( const std::set<RiaDefines::WellPathComponentType>& filter )
+{
+    m_componentTypeFilter = filter;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RimWellPathValve::isEnabled() const
 {
     RimPerforationInterval* perforationInterval = nullptr;
@@ -456,6 +464,11 @@ QList<caf::PdmOptionItemInfo> RimWellPathValve::calculateValueOptions( const caf
     std::vector<RimValveTemplate*> allTemplates = project->allValveTemplates();
     for ( RimValveTemplate* valveTemplate : allTemplates )
     {
+        if ( !m_componentTypeFilter.empty() )
+        {
+            if ( m_componentTypeFilter.count( valveTemplate->type() ) == 0 ) continue;
+        }
+
         options.push_back( caf::PdmOptionItemInfo( valveTemplate->name(), valveTemplate ) );
     }
 

@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2018 Equinor ASA
+//  Copyright (C) 2021- Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -15,6 +15,7 @@
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
+
 #pragma once
 
 #include "RicMswBranch.h"
@@ -26,6 +27,7 @@
 #include "cvfMath.h"
 
 #include <QString>
+
 #include <memory>
 
 class RimWellPathValve;
@@ -49,6 +51,9 @@ private:
     size_t m_index;
 };
 
+//==================================================================================================
+///
+//==================================================================================================
 class RicMswFishbones : public RicMswCompletion
 {
 public:
@@ -111,11 +116,11 @@ public:
     bool isValid() const;
     void setIsValid( bool valid );
 
-    static std::unique_ptr<RicMswValve> createExportValve( const QString&          label,
-                                                           const RimWellPath*      wellPath,
-                                                           double                  startMD,
-                                                           double                  startTVD,
-                                                           const RimWellPathValve* wellPathValve );
+    static std::unique_ptr<RicMswValve> createTieInValve( const QString&          label,
+                                                          const RimWellPath*      wellPath,
+                                                          double                  startMD,
+                                                          double                  startTVD,
+                                                          const RimWellPathValve* wellPathValve );
 
 private:
     bool                    m_valid;
@@ -183,6 +188,22 @@ public:
                           double                  startMD,
                           double                  startTVD,
                           const RimWellPathValve* wellPathValve );
+    RigCompletionData::CompletionType completionType() const override;
+};
+
+//==================================================================================================
+// This object is representing the optional tie-in valve used to limit the inflow from a branch
+// into the parent branch
+// ICV valve is the only supported valve for this MSW item
+//==================================================================================================
+class RicMswTieInICV : public RicMswWsegValve
+{
+public:
+    RicMswTieInICV( const QString&          label,
+                    const RimWellPath*      wellPath,
+                    double                  startMD,
+                    double                  startTVD,
+                    const RimWellPathValve* wellPathValve );
     RigCompletionData::CompletionType completionType() const override;
 };
 

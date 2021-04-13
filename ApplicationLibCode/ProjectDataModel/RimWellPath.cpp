@@ -50,6 +50,7 @@
 #include "RimWellPathCompletions.h"
 #include "RimWellPathFracture.h"
 #include "RimWellPathFractureCollection.h"
+#include "RimWellPathTieIn.h"
 
 #include "RiuMainWindow.h"
 
@@ -130,6 +131,8 @@ RimWellPath::RimWellPath()
     CAF_PDM_InitFieldNoDefault( &m_wellPathAttributes, "WellPathAttributes", "Casing Design Rubbish", "", "", "" );
     m_wellPathAttributes = new RimWellPathAttributeCollection;
     m_wellPathAttributes->uiCapability()->setUiTreeHidden( true );
+
+    CAF_PDM_InitFieldNoDefault( &m_wellPathTieIn, "WellPathTieIn", "well Path Tie-In", "", "", "" );
 
     this->setDeletable( true );
 }
@@ -285,7 +288,9 @@ const RimWellPathCompletions* RimWellPath::completions() const
 //--------------------------------------------------------------------------------------------------
 const RimWellPathCompletionSettings* RimWellPath::completionSettings() const
 {
-    return m_completionSettings();
+    if ( isTopLevelWellPath() ) return m_completionSettings();
+
+    return topLevelWellPath()->completionSettings();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -293,7 +298,9 @@ const RimWellPathCompletionSettings* RimWellPath::completionSettings() const
 //--------------------------------------------------------------------------------------------------
 RimWellPathCompletionSettings* RimWellPath::completionSettings()
 {
-    return m_completionSettings();
+    if ( isTopLevelWellPath() ) return m_completionSettings();
+
+    return topLevelWellPath()->completionSettings();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -612,6 +619,11 @@ void RimWellPath::setWellPathGeometry( RigWellPath* wellPathModel )
 //--------------------------------------------------------------------------------------------------
 void RimWellPath::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
+    if ( m_wellPathTieIn() )
+    {
+        m_wellPathTieIn->uiOrdering( uiConfigName, uiOrdering );
+    }
+
     if ( m_simWellName().isEmpty() )
     {
         // Try to set default simulation well name
@@ -961,12 +973,18 @@ std::vector<const RimWellPathComponentInterface*> RimWellPath::allCompletionsRec
 {
     std::vector<const RimWellPathComponentInterface*> allCompletions;
 
-    std::vector<const RimWellPathCompletions*> completionCollections;
-    this->descendantsOfType( completionCollections );
-    for ( auto collection : completionCollections )
+    auto tieInWells = wellPathLateralsRecursively();
+    tieInWells.push_back( const_cast<RimWellPath*>( this ) );
+
+    for ( auto w : tieInWells )
     {
-        std::vector<const RimWellPathComponentInterface*> completions = collection->allCompletions();
-        allCompletions.insert( allCompletions.end(), completions.begin(), completions.end() );
+        std::vector<const RimWellPathCompletions*> completionCollections;
+        w->descendantsOfType( completionCollections );
+        for ( auto collection : completionCollections )
+        {
+            std::vector<const RimWellPathComponentInterface*> completions = collection->allCompletions();
+            allCompletions.insert( allCompletions.end(), completions.begin(), completions.end() );
+        }
     }
 
     return allCompletions;
@@ -1048,12 +1066,27 @@ bool RimWellPath::isMultiLateralWellPath() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimWellPath* RimWellPath::topLevelWellPath() const
+RimWellPath* RimWellPath::topLevelWellPath()
 {
-    std::vector<RimWellPath*> wellPathHierarchy;
-    this->allAncestorsOrThisOfType( wellPathHierarchy );
-    RimWellPath* wellPath = wellPathHierarchy.back();
-    return wellPath;
+    if ( m_wellPathTieIn() && m_wellPathTieIn->parentWell() )
+    {
+        return m_wellPathTieIn()->parentWell()->topLevelWellPath();
+    }
+
+    return this;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const RimWellPath* RimWellPath::topLevelWellPath() const
+{
+    if ( m_wellPathTieIn() && m_wellPathTieIn->parentWell() )
+    {
+        return m_wellPathTieIn()->parentWell()->topLevelWellPath();
+    }
+
+    return this;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1061,4 +1094,47 @@ RimWellPath* RimWellPath::topLevelWellPath() const
 //--------------------------------------------------------------------------------------------------
 void RimWellPath::updateAfterAddingToWellPathGroup()
 {
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimWellPath*> RimWellPath::wellPathLateralsRecursively() const
+{
+    std::vector<RimWellPath*> tieInWells;
+
+    auto wellPathColl = RimTools::wellPathCollection();
+    if ( wellPathColl )
+    {
+        wellPathColl->allWellPaths();
+
+        for ( auto w : wellPathColl->allWellPaths() )
+        {
+            if ( w->topLevelWellPath() == this )
+            {
+                tieInWells.push_back( w );
+            }
+        }
+    }
+
+    return tieInWells;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimWellPathTieIn* RimWellPath::wellPathTieIn() const
+{
+    return m_wellPathTieIn();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellPath::connectWellPaths( RimWellPath* parentWell, double parentTieInMeasuredDepth )
+{
+    if ( !m_wellPathTieIn() ) m_wellPathTieIn = new RimWellPathTieIn;
+
+    m_wellPathTieIn->connectWellPaths( parentWell, this, parentTieInMeasuredDepth );
+    m_wellPathTieIn->updateFirstTargetFromParentWell();
 }

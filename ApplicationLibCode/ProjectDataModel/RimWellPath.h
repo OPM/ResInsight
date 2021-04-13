@@ -54,10 +54,10 @@ class RimPerforationCollection;
 class RimWellPathAttributeCollection;
 class RimWellPathCompletions;
 class RimWellPathCompletionSettings;
-
 class RimWellPathFractureCollection;
 class Rim3dWellLogCurve;
 class Rim3dWellLogCurveCollection;
+class RimWellPathTieIn;
 
 //==================================================================================================
 ///
@@ -154,10 +154,15 @@ public:
     void onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
                          std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
 
-    bool         isTopLevelWellPath() const;
-    bool         isMultiLateralWellPath() const;
-    RimWellPath* topLevelWellPath() const;
-    void         updateAfterAddingToWellPathGroup();
+    bool                      isTopLevelWellPath() const;
+    bool                      isMultiLateralWellPath() const;
+    RimWellPath*              topLevelWellPath();
+    const RimWellPath*        topLevelWellPath() const;
+    void                      updateAfterAddingToWellPathGroup();
+    std::vector<RimWellPath*> wellPathLateralsRecursively() const;
+
+    RimWellPathTieIn* wellPathTieIn() const;
+    void              connectWellPaths( RimWellPath* childWell, double tieInMeasuredDepth );
 
 protected:
     // Override PdmObject
@@ -200,6 +205,8 @@ private:
     caf::PdmChildField<RimWellPathCompletionSettings*>  m_completionSettings;
     caf::PdmChildField<RimWellPathCompletions*>         m_completions;
     caf::PdmChildField<RimWellPathAttributeCollection*> m_wellPathAttributes;
+
+    caf::PdmChildField<RimWellPathTieIn*> m_wellPathTieIn;
 
 private:
     static size_t simulationWellBranchCount( const QString& simWellName );
