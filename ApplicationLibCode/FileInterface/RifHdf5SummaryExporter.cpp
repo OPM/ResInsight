@@ -18,6 +18,8 @@
 
 #include "RifHdf5SummaryExporter.h"
 
+#include "RiaLogging.h"
+
 #include "RifHdf5Exporter.h"
 #include "RifSummaryReaderInterface.h"
 
@@ -39,16 +41,28 @@ bool RifHdf5SummaryExporter::ensureHdf5FileIsCreated( const std::string& smspecF
     // TODO: Use time stamp of file to make sure the smspec file is older than the h5 file
     if ( !QFile::exists( QString::fromStdString( h5FileName ) ) )
     {
-        Opm::EclIO::ESmry sourceSummaryData( smspecFileName );
+        try
+        {
+            Opm::EclIO::ESmry sourceSummaryData( smspecFileName );
 
-        // Read all data summary data before starting export to HDF. Loading one and one summary vector causes huge
-        // performance penalty
-        sourceSummaryData.LoadData();
+            // Read all data summary data before starting export to HDF. Loading one and one summary vector causes huge
+            // performance penalty
+            sourceSummaryData.LoadData();
 
-        RifHdf5Exporter exporter( h5FileName );
+            RifHdf5Exporter exporter( h5FileName );
 
-        writeGeneralSection( exporter, sourceSummaryData );
-        writeSummaryVectors( exporter, sourceSummaryData );
+            writeGeneralSection( exporter, sourceSummaryData );
+            writeSummaryVectors( exporter, sourceSummaryData );
+        }
+        catch ( std::exception& e )
+        {
+            QString txt =
+                QString( "HDF export to file %1 failed : %3" ).arg( QString::fromStdString( smspecFileName ), e.what() );
+
+            RiaLogging::error( txt );
+
+            return false;
+        }
     }
 
     return true;
