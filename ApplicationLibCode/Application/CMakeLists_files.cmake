@@ -7,6 +7,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RiaCompletionTypeCalculationScheduler.h
 ${CMAKE_CURRENT_LIST_DIR}/RiaDefines.h
 ${CMAKE_CURRENT_LIST_DIR}/RiaFractureDefines.h
 ${CMAKE_CURRENT_LIST_DIR}/RiaPreferences.h
+${CMAKE_CURRENT_LIST_DIR}/RiaPreferencesSummary.h
 ${CMAKE_CURRENT_LIST_DIR}/RiaPorosityModel.h
 ${CMAKE_CURRENT_LIST_DIR}/RiaSummaryCurveDefinition.h
 ${CMAKE_CURRENT_LIST_DIR}/RiaCurveSetDefinition.h
@@ -31,6 +32,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RiaCompletionTypeCalculationScheduler.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiaDefines.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiaFractureDefines.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiaPreferences.cpp
+${CMAKE_CURRENT_LIST_DIR}/RiaPreferencesSummary.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiaPorosityModel.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiaSummaryCurveDefinition.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiaCurveSetDefinition.cpp

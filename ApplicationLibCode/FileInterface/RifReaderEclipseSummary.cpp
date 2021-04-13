@@ -21,6 +21,7 @@
 #include "RiaFilePathTools.h"
 #include "RiaLogging.h"
 #include "RiaPreferences.h"
+#include "RiaPreferencesSummary.h"
 #include "RiaStdStringTools.h"
 #include "RiaStringEncodingTools.h"
 
@@ -160,10 +161,12 @@ bool RifReaderEclipseSummary::open( const QString&       headerFileName,
 
     // Try to create readers. If HDF5 or Opm readers fails to create, use ecllib reader
 
-    if ( RiaPreferences::current()->summaryDataReader() == RiaPreferences::SummaryReaderMode::HDF5_OPM_COMMON )
+    RiaPreferencesSummary* prefSummary = RiaPreferences::current()->summaryPreferences();
+
+    if ( prefSummary->summaryDataReader() == RiaPreferencesSummary::SummaryReaderMode::HDF5_OPM_COMMON )
     {
 #ifdef USE_HDF5
-        if ( RiaPreferences::current()->createH5SummaryDataFiles() )
+        if ( prefSummary->createH5SummaryDataFiles() )
         {
             QFileInfo fi( headerFileName );
             QString   h5FilenameCandidate = fi.absolutePath() + "/" + fi.baseName() + ".h5";
@@ -181,9 +184,9 @@ bool RifReaderEclipseSummary::open( const QString&       headerFileName,
         }
 #endif
     }
-    else if ( RiaPreferences::current()->summaryDataReader() == RiaPreferences::SummaryReaderMode::OPM_COMMON )
+    else if ( prefSummary->summaryDataReader() == RiaPreferencesSummary::SummaryReaderMode::OPM_COMMON )
     {
-        bool useLodsmryFiles = RiaPreferences::current()->useOptimizedSummaryDataFiles();
+        bool useLodsmryFiles = prefSummary->useOptimizedSummaryDataFiles();
         if ( useLodsmryFiles && includeRestartFiles )
         {
             QString txt = "LODSMRY file loading for summary restart files is not supported. Disable one of the options";
@@ -194,13 +197,13 @@ bool RifReaderEclipseSummary::open( const QString&       headerFileName,
 
         m_opmCommonReader = std::make_unique<RifOpmCommonEclipseSummary>();
 
-        m_opmCommonReader->useLodsmaryFiles( RiaPreferences::current()->useOptimizedSummaryDataFiles() );
-        m_opmCommonReader->createLodsmaryFiles( RiaPreferences::current()->createOptimizedSummaryDataFiles() );
+        m_opmCommonReader->useLodsmaryFiles( prefSummary->useOptimizedSummaryDataFiles() );
+        m_opmCommonReader->createLodsmaryFiles( prefSummary->createOptimizedSummaryDataFiles() );
         isValid = m_opmCommonReader->open( headerFileName, includeRestartFiles, threadSafeLogger );
         if ( !isValid ) m_opmCommonReader.reset();
     }
 
-    if ( !isValid || RiaPreferences::current()->summaryDataReader() == RiaPreferences::SummaryReaderMode::LIBECL )
+    if ( !isValid || prefSummary->summaryDataReader() == RiaPreferencesSummary::SummaryReaderMode::LIBECL )
     {
         assert( m_ecl_sum == nullptr );
 
