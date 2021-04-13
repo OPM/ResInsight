@@ -76,6 +76,8 @@ bool RifParameterXmlReader::parseFile( QString& outErrorText )
 
     RimParameterGroup* group = nullptr;
 
+    std::list<QString> reqattrs = { QString( "name" ), QString( "label" ), QString( "type" ) };
+
     bool bResult = true;
 
     while ( !xml.atEnd() )
@@ -106,7 +108,6 @@ bool RifParameterXmlReader::parseFile( QString& outErrorText )
                 if ( group == nullptr ) continue;
 
                 // check that we have the required attributes
-                std::list<QString> reqattrs = { QString( "name" ), QString( "label" ), QString( "type" ) };
                 for ( auto& reqattr : reqattrs )
                 {
                     if ( !xml.attributes().hasAttribute( reqattr ) )
