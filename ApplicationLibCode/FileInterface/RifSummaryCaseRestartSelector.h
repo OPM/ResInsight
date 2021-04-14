@@ -18,7 +18,6 @@
 
 #pragma once
 
-#include "RiaPreferences.h"
 #include "RicSummaryCaseRestartDialog.h"
 
 #include <QString>

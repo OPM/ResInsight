@@ -18,8 +18,6 @@
 
 #pragma once
 
-#include "RiaPreferences.h"
-
 #include "cafCmdFeature.h"
 
 #include <QString>

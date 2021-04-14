@@ -18,6 +18,9 @@
 
 #include "RimcProject.h"
 
+#include "RiaApplication.h"
+#include "RiaGuiApplication.h"
+
 #include "RicImportSummaryCasesFeature.h"
 
 #include "RimFileSummaryCase.h"
