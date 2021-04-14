@@ -251,11 +251,8 @@ std::vector<QString> RimEnsembleFractureStatistics::computeStatistics()
     }
     referenceDepth /= stimPlanFractureDefinitions.size();
 
-    int numSamplesX = m_numSamplesX();
-    int numSamplesY = m_numSamplesY();
-
-    std::vector<double> gridXs( numSamplesX );
-    std::vector<double> gridYs( numSamplesY );
+    std::vector<double> gridXs;
+    std::vector<double> gridYs;
 
     for ( auto result : availableResults )
     {
@@ -265,35 +262,45 @@ std::vector<QString> RimEnsembleFractureStatistics::computeStatistics()
             createFractureGrids( stimPlanFractureDefinitions, unitSystem, result.first );
 
         auto [minX, maxX, minY, maxY] = findExtentsOfGrids( fractureGrids );
-
-        double sampleDistanceX = ( maxX - minX ) / numSamplesX;
-        double sampleDistanceY = ( maxY - minY ) / numSamplesY;
-
         RiaLogging::info(
             QString( "Ensemble Fracture Size: X = [%1, %2] Y = [%3, %4]" ).arg( minX ).arg( maxX ).arg( minY ).arg( maxY ) );
-        RiaLogging::info( QString( "Output size: %1x%2. Sampling Distance X = %3 Sampling Distance Y = %4" )
-                              .arg( numSamplesX )
-                              .arg( numSamplesY )
-                              .arg( sampleDistanceX )
-                              .arg( sampleDistanceY ) );
 
-        for ( int y = 0; y < numSamplesY; y++ )
+        if ( m_meshType() == MeshType::UNIFORM )
         {
-            double posY = minY + y * sampleDistanceY + sampleDistanceY * 0.5;
-            gridYs[y]   = referenceDepth - posY;
+            gridXs.clear();
+            gridYs.clear();
+
+            int numSamplesX = m_numSamplesX();
+            int numSamplesY = m_numSamplesY();
+
+            double sampleDistanceX = ( maxX - minX ) / numSamplesX;
+            double sampleDistanceY = ( maxY - minY ) / numSamplesY;
+
+            RiaLogging::info(
+                QString( "Uniform Mesh. Output size: %1x%2. Sampling Distance X = %3 Sampling Distance Y = %4" )
+                    .arg( numSamplesX )
+                    .arg( numSamplesY )
+                    .arg( sampleDistanceX )
+                    .arg( sampleDistanceY ) );
+
+            for ( int y = 0; y < numSamplesY; y++ )
+            {
+                double posY = minY + y * sampleDistanceY + sampleDistanceY * 0.5;
+                gridYs.push_back( posY );
+            }
+
+            for ( int x = 0; x < numSamplesX; x++ )
+            {
+                double posX = minX + x * sampleDistanceX + sampleDistanceX * 0.5;
+                gridXs.push_back( posX );
+            }
         }
 
-        for ( int x = 0; x < numSamplesX; x++ )
-        {
-            double posX = minX + x * sampleDistanceX + sampleDistanceX * 0.5;
-            gridXs[x]   = posX;
-        }
-
-        std::vector<std::vector<double>> samples( numSamplesX * numSamplesY );
-        sampleAllGrids( fractureGrids, samples, minX, minY, numSamplesX, numSamplesY, sampleDistanceX, sampleDistanceY );
+        std::vector<std::vector<double>> samples( gridXs.size() * gridYs.size() );
+        sampleAllGrids( fractureGrids, gridXs, gridYs, samples );
 
         std::map<RimEnsembleFractureStatistics::StatisticsType, std::shared_ptr<RigSlice2D>> statisticsGrids;
-        generateStatisticsGrids( samples, numSamplesX, numSamplesY, statisticsGrids, selectedStatistics );
+        generateStatisticsGrids( samples, gridXs.size(), gridYs.size(), statisticsGrids, selectedStatistics );
 
         for ( auto [statType, slice] : statisticsGrids )
         {
@@ -332,12 +339,17 @@ std::vector<QString> RimEnsembleFractureStatistics::computeStatistics()
 
         QString xmlFilePath = outputDirectoryPath + "/" + name() + "-" + text + ".xml";
 
+        // TODO: add offset for grid ys
+        std::vector<double> gridYsWithOffset;
+        for ( double depth : gridYs )
+            gridYsWithOffset.push_back( referenceDepth - depth );
+
         RiaLogging::info( QString( "Writing fracture group statistics to: %1" ).arg( xmlFilePath ) );
         RifEnsembleFractureStatisticsExporter::writeAsStimPlanXml( statisticsSlices,
                                                                    properties,
                                                                    xmlFilePath,
                                                                    gridXs,
-                                                                   gridYs,
+                                                                   gridYsWithOffset,
                                                                    timeStep,
                                                                    unitSystem );
 
@@ -502,20 +514,16 @@ double RimEnsembleFractureStatistics::computeDepthOfWellPathAtFracture(
 ///
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleFractureStatistics::sampleAllGrids( const std::vector<cvf::cref<RigFractureGrid>>& fractureGrids,
-                                                    std::vector<std::vector<double>>&              samples,
-                                                    double                                         minX,
-                                                    double                                         minY,
-                                                    int                                            numSamplesX,
-                                                    int                                            numSamplesY,
-                                                    double                                         sampleDistanceX,
-                                                    double                                         sampleDistanceY )
+                                                    const std::vector<double>&                     samplesX,
+                                                    const std::vector<double>&                     samplesY,
+                                                    std::vector<std::vector<double>>&              samples )
 {
-    for ( int y = 0; y < numSamplesY; y++ )
+    for ( size_t y = 0; y < samplesY.size(); y++ )
     {
-        for ( int x = 0; x < numSamplesX; x++ )
+        for ( size_t x = 0; x < samplesX.size(); x++ )
         {
-            double posX = minX + x * sampleDistanceX + sampleDistanceX * 0.5;
-            double posY = minY + y * sampleDistanceY + sampleDistanceY * 0.5;
+            double posX = samplesX[x];
+            double posY = samplesY[y];
 
             for ( auto fractureGrid : fractureGrids )
             {
@@ -523,7 +531,7 @@ void RimEnsembleFractureStatistics::sampleAllGrids( const std::vector<cvf::cref<
                 {
                     if ( isCoordinateInsideFractureCell( posX, posY, fractureCell ) )
                     {
-                        int idx = y * numSamplesX + x;
+                        size_t idx = y * samplesX.size() + x;
                         samples[idx].push_back( fractureCell.getConductivityValue() );
                         break;
                     }
@@ -570,8 +578,8 @@ bool RimEnsembleFractureStatistics::writeStatisticsToCsv( const QString& filePat
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleFractureStatistics::generateStatisticsGrids(
     const std::vector<std::vector<double>>&                                               samples,
-    int                                                                                   numSamplesX,
-    int                                                                                   numSamplesY,
+    size_t                                                                                numSamplesX,
+    size_t                                                                                numSamplesY,
     std::map<RimEnsembleFractureStatistics::StatisticsType, std::shared_ptr<RigSlice2D>>& statisticsGrids,
     const std::vector<caf::AppEnum<RimEnsembleFractureStatistics::StatisticsType>>&       statisticsTypes )
 {
@@ -593,9 +601,9 @@ void RimEnsembleFractureStatistics::generateStatisticsGrids(
     bool calculateP90        = isCalculationEnabled( StatisticsType::P90, statisticsTypes );
     bool calculateOccurrence = isCalculationEnabled( StatisticsType::OCCURRENCE, statisticsTypes );
 
-    for ( int y = 0; y < numSamplesY; y++ )
+    for ( size_t y = 0; y < numSamplesY; y++ )
     {
-        for ( int x = 0; x < numSamplesX; x++ )
+        for ( size_t x = 0; x < numSamplesX; x++ )
         {
             size_t idx = y * numSamplesX + x;
 
