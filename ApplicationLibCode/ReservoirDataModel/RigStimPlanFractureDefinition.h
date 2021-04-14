@@ -72,6 +72,9 @@ public:
     double                        minDepth() const;
     double                        maxDepth() const;
 
+    const std::vector<double>& xs() const;
+    const std::vector<double>& ys() const;
+
     double topPerfTvd() const;
     double bottomPerfTvd() const;
     void   setTvdToTopPerf( double topPerfTvd );
