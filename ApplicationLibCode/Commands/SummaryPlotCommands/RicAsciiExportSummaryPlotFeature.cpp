@@ -20,7 +20,7 @@
 
 #include "RiaApplication.h"
 #include "RiaLogging.h"
-#include "RiaPreferences.h"
+#include "RiaPreferencesSummary.h"
 
 #include "RicResampleDialog.h"
 
@@ -61,7 +61,7 @@ void RicAsciiExportSummaryPlotFeature::onActionTriggered( bool isChecked )
     caf::SelectionManager::instance()->objectsByType( &selectedSummaryPlots );
     QString defaultDir = defaultExportDir();
 
-    RiaPreferences* prefs = RiaApplication::instance()->preferences();
+    RiaPreferencesSummary* prefs = RiaPreferencesSummary::current();
 
     // Ask user about resampling
     auto result = RicResampleDialog::openDialog();

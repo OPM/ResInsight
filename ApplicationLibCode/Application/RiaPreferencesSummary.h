@@ -36,10 +36,28 @@ public:
         OPM_COMMON,
         HDF5_OPM_COMMON
     };
-    typedef caf::AppEnum<SummaryReaderMode> SummaryReaderModeType;
+    using SummaryReaderModeType = caf::AppEnum<SummaryReaderMode>;
+
+    enum class SummaryRestartFilesImportMode
+    {
+        IMPORT,
+        NOT_IMPORT,
+        SEPARATE_CASES
+    };
+    using SummaryRestartFilesImportModeType = caf::AppEnum<SummaryRestartFilesImportMode>;
+
+    enum class SummaryHistoryCurveStyleMode
+    {
+        SYMBOLS,
+        LINES,
+        SYMBOLS_AND_LINES
+    };
+    using SummaryHistoryCurveStyleModeType = caf::AppEnum<SummaryHistoryCurveStyleMode>;
 
 public:
     RiaPreferencesSummary();
+
+    static RiaPreferencesSummary* current();
 
     SummaryReaderMode summaryDataReader() const;
     bool              useOptimizedSummaryDataFiles() const;
@@ -48,15 +66,41 @@ public:
     bool createH5SummaryDataFiles() const;
     int  createH5SummaryDataThreadCount() const;
 
+    void appendRestartFileGroup( caf::PdmUiOrdering& uiOrdering ) const;
+    void appendItemsToPlottingGroup( caf::PdmUiOrdering& uiOrdering ) const;
+
+    bool showSummaryTimeAsLongString() const { return m_showSummaryTimeAsLongString; }
+    bool useMultipleThreadsWhenLoadingSummaryData() const { return m_useMultipleThreadsWhenLoadingSummaryData; }
+    bool summaryRestartFilesShowImportDialog() const { return m_summaryRestartFilesShowImportDialog; }
+
+    SummaryRestartFilesImportMode summaryImportMode() const { return m_summaryImportMode(); }
+    SummaryRestartFilesImportMode gridImportMode() const { return m_gridImportMode(); }
+    SummaryRestartFilesImportMode summaryEnsembleImportMode() const { return m_summaryEnsembleImportMode(); }
+    QString                       defaultSummaryCurvesTextFilter() const { return m_defaultSummaryCurvesTextFilter; }
+
+    SummaryHistoryCurveStyleMode defaultSummaryHistoryCurveStyle() const { return m_defaultSummaryHistoryCurveStyle(); }
+
+    void defineEditorAttribute( const caf::PdmFieldHandle* field,
+                                QString                    uiConfigName,
+                                caf::PdmUiEditorAttribute* attribute ) override;
+
 protected:
-    void                          defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                                         QString                    uiConfigName,
-                                                         caf::PdmUiEditorAttribute* attribute ) override;
     void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
                                                          bool*                      useOptionsOnly ) override;
 
 private:
+    caf::PdmField<bool>                              m_summaryRestartFilesShowImportDialog;
+    caf::PdmField<SummaryRestartFilesImportModeType> m_summaryImportMode;
+    caf::PdmField<SummaryRestartFilesImportModeType> m_gridImportMode;
+    caf::PdmField<SummaryRestartFilesImportModeType> m_summaryEnsembleImportMode;
+
+    caf::PdmField<QString>                          m_defaultSummaryCurvesTextFilter;
+    caf::PdmField<SummaryHistoryCurveStyleModeType> m_defaultSummaryHistoryCurveStyle;
+
+    caf::PdmField<bool> m_showSummaryTimeAsLongString;
+    caf::PdmField<bool> m_useMultipleThreadsWhenLoadingSummaryData;
+
     caf::PdmField<bool> m_createOptimizedSummaryDataFile;
     caf::PdmField<bool> m_useOptimizedSummaryDataFile;
 

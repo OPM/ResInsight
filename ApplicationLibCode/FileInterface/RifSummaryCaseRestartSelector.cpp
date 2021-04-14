@@ -21,7 +21,7 @@
 #include "RiaApplication.h"
 #include "RiaFilePathTools.h"
 #include "RiaLogging.h"
-#include "RiaPreferences.h"
+#include "RiaPreferencesSummary.h"
 
 #include "RicSummaryCaseRestartDialog.h"
 
@@ -54,11 +54,11 @@ bool vectorContains( const std::vector<T>& vector, T item )
 //--------------------------------------------------------------------------------------------------
 /// INternal function
 //--------------------------------------------------------------------------------------------------
-RicSummaryCaseRestartDialog::ImportOptions mapReadOption( RiaPreferences::SummaryRestartFilesImportMode mode )
+RicSummaryCaseRestartDialog::ImportOptions mapReadOption( RiaPreferencesSummary::SummaryRestartFilesImportMode mode )
 {
-    return mode == RiaPreferences::SummaryRestartFilesImportMode::NOT_IMPORT
+    return mode == RiaPreferencesSummary::SummaryRestartFilesImportMode::NOT_IMPORT
                ? RicSummaryCaseRestartDialog::ImportOptions::NOT_IMPORT
-               : mode == RiaPreferences::SummaryRestartFilesImportMode::SEPARATE_CASES
+               : mode == RiaPreferencesSummary::SummaryRestartFilesImportMode::SEPARATE_CASES
                      ? RicSummaryCaseRestartDialog::ImportOptions::SEPARATE_CASES
                      : RicSummaryCaseRestartDialog::ImportOptions::IMPORT_ALL;
 }
@@ -68,7 +68,8 @@ RicSummaryCaseRestartDialog::ImportOptions mapReadOption( RiaPreferences::Summar
 //--------------------------------------------------------------------------------------------------
 RifSummaryCaseRestartSelector::RifSummaryCaseRestartSelector()
 {
-    RiaPreferences* prefs = RiaApplication::instance()->preferences();
+    RiaPreferencesSummary* prefs = RiaPreferencesSummary::current();
+
     m_showDialog          = prefs->summaryRestartFilesShowImportDialog();
     m_ensembleOrGroupMode = false;
 
@@ -172,7 +173,7 @@ void RifSummaryCaseRestartSelector::determineFilesToImportByAskingUser( const st
     m_gridFiles.clear();
     m_summaryFileErrors.clear();
 
-    RiaPreferences* prefs = RiaApplication::instance()->preferences();
+    RiaPreferencesSummary* prefs = RiaPreferencesSummary::current();
 
     RicSummaryCaseRestartDialog::ImportOptions defaultSummaryImportMode;
     if ( m_ensembleOrGroupMode )
@@ -253,7 +254,7 @@ void RifSummaryCaseRestartSelector::determineFilesToImportUsingPrefs( const std:
     m_gridFiles.clear();
     m_summaryFileErrors.clear();
 
-    RiaPreferences* prefs = RiaApplication::instance()->preferences();
+    RiaPreferencesSummary* prefs = RiaPreferencesSummary::current();
 
     RicSummaryCaseRestartDialog::ImportOptions defaultSummaryImportMode;
     if ( m_ensembleOrGroupMode )

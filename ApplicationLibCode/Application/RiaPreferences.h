@@ -54,31 +54,15 @@ public:
     using DateFormatComponents = RiaQDateTimeTools::DateFormatComponents;
     using TimeFormatComponents = RiaQDateTimeTools::TimeFormatComponents;
 
-    enum class SummaryRestartFilesImportMode
-    {
-        IMPORT,
-        NOT_IMPORT,
-        SEPARATE_CASES
-    };
-    typedef caf::AppEnum<SummaryRestartFilesImportMode> SummaryRestartFilesImportModeType;
-    typedef RiaFontCache::FontSizeEnum                  FontSizeEnum;
-
-    enum class SummaryHistoryCurveStyleMode
-    {
-        SYMBOLS,
-        LINES,
-        SYMBOLS_AND_LINES
-    };
-    typedef caf::AppEnum<SummaryHistoryCurveStyleMode> SummaryHistoryCurveStyleModeType;
-
-    typedef caf::AppEnum<QPageSize::PageSizeId>    PageSizeEnum;
-    typedef caf::AppEnum<QPageLayout::Orientation> PageOrientationEnum;
+    using FontSizeEnum        = RiaFontCache::FontSizeEnum;
+    using PageSizeEnum        = caf::AppEnum<QPageSize::PageSizeId>;
+    using PageOrientationEnum = caf::AppEnum<QPageLayout::Orientation>;
 
     bool enableFaultsByDefault() const;
 
 public:
-    RiaPreferences( void );
-    ~RiaPreferences( void ) override;
+    RiaPreferences();
+    ~RiaPreferences() override;
 
     static RiaPreferences* current();
 
@@ -109,8 +93,6 @@ public:
     void        appendPlotTemplateFolders( const QString& folder );
     QString     defaultPlotTemplateAbsolutePath() const;
     void        setDefaultPlotTemplatePath( const QString& templatePath );
-    bool        showSummaryTimeAsLongString() const;
-    bool        useMultipleThreadsWhenReadingSummaryData() const;
     bool        showProgressBar() const;
     bool        openExportedPdfInViewer() const;
 
@@ -168,14 +150,6 @@ public:
     caf::PdmField<bool> autocomputeDepthRelatedProperties;
     caf::PdmField<bool> loadAndShowSoil;
 
-    caf::PdmField<bool>                              summaryRestartFilesShowImportDialog;
-    caf::PdmField<SummaryRestartFilesImportModeType> summaryImportMode;
-    caf::PdmField<SummaryRestartFilesImportModeType> gridImportMode;
-    caf::PdmField<SummaryRestartFilesImportModeType> summaryEnsembleImportMode;
-
-    caf::PdmField<QString>                          defaultSummaryCurvesTextFilter;
-    caf::PdmField<SummaryHistoryCurveStyleModeType> defaultSummaryHistoryCurveStyle;
-
     caf::PdmField<bool>    holoLensDisableCertificateVerification;
     caf::PdmField<QString> csvTextExportFieldSeparator;
 
@@ -216,8 +190,7 @@ private:
     caf::PdmField<QString> m_holoLensExportFolder;
     caf::PdmField<QString> m_dateFormat;
     caf::PdmField<QString> m_timeFormat;
-    caf::PdmField<bool>    m_showSummaryTimeAsLongString;
-    caf::PdmField<bool>    m_useMultipleThreadsWhenLoadingSummaryData;
+
     caf::PdmField<bool>    m_showProgressBar;
     caf::PdmField<QString> m_gtestFilter;
     caf::PdmField<bool>    m_useUndoRedo;

@@ -22,7 +22,7 @@
 #include "RiaCurveMerger.h"
 #include "RiaGuiApplication.h"
 #include "RiaLogging.h"
-#include "RiaPreferences.h"
+#include "RiaPreferencesSummary.h"
 #include "RiaResultNames.h"
 #include "RiaStatisticsTools.h"
 #include "RiaSummaryCurveDefinition.h"
@@ -980,23 +980,24 @@ void RimSummaryCurve::setCurveAppearanceFromCaseType()
 
     if ( m_yValuesSummaryAddress && m_yValuesSummaryAddress->address().isHistoryQuantity() )
     {
-        RiaPreferences* prefs = RiaApplication::instance()->preferences();
+        RiaPreferencesSummary* prefs = RiaPreferencesSummary::current();
 
-        if ( prefs->defaultSummaryHistoryCurveStyle() == RiaPreferences::SummaryHistoryCurveStyleMode::SYMBOLS )
+        if ( prefs->defaultSummaryHistoryCurveStyle() == RiaPreferencesSummary::SummaryHistoryCurveStyleMode::SYMBOLS )
         {
             m_symbolEdgeColor = m_curveColor;
 
             setSymbol( RiuQwtSymbol::SYMBOL_XCROSS );
             setLineStyle( RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_NONE );
         }
-        else if ( prefs->defaultSummaryHistoryCurveStyle() == RiaPreferences::SummaryHistoryCurveStyleMode::SYMBOLS_AND_LINES )
+        else if ( prefs->defaultSummaryHistoryCurveStyle() ==
+                  RiaPreferencesSummary::SummaryHistoryCurveStyleMode::SYMBOLS_AND_LINES )
         {
             m_symbolEdgeColor = m_curveColor;
 
             setSymbol( RiuQwtSymbol::SYMBOL_XCROSS );
             setLineStyle( RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_SOLID );
         }
-        else if ( prefs->defaultSummaryHistoryCurveStyle() == RiaPreferences::SummaryHistoryCurveStyleMode::LINES )
+        else if ( prefs->defaultSummaryHistoryCurveStyle() == RiaPreferencesSummary::SummaryHistoryCurveStyleMode::LINES )
         {
             setSymbol( RiuQwtSymbol::SYMBOL_NONE );
             setLineStyle( RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_SOLID );
