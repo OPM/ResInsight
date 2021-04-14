@@ -88,18 +88,14 @@ protected:
         findExtentsOfGrids( const std::vector<cvf::cref<RigFractureGrid>>& fractureGrids );
 
     static void sampleAllGrids( const std::vector<cvf::cref<RigFractureGrid>>& fractureGrids,
-                                std::vector<std::vector<double>>&              samples,
-                                double                                         minX,
-                                double                                         maxX,
-                                int                                            numSamplesX,
-                                int                                            numSamplesY,
-                                double                                         sampleDistanceX,
-                                double                                         sampleDistanceY );
+                                const std::vector<double>&                     samplesX,
+                                const std::vector<double>&                     samplesY,
+                                std::vector<std::vector<double>>&              samples );
 
     static void generateStatisticsGrids(
         const std::vector<std::vector<double>>&                                               samples,
-        int                                                                                   numSamplesX,
-        int                                                                                   numSamplesY,
+        size_t                                                                                numSamplesX,
+        size_t                                                                                numSamplesY,
         std::map<RimEnsembleFractureStatistics::StatisticsType, std::shared_ptr<RigSlice2D>>& statisticsGrids,
         const std::vector<caf::AppEnum<RimEnsembleFractureStatistics::StatisticsType>>&       statisticsTypes );
 
