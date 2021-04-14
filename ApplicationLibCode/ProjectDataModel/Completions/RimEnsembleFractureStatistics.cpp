@@ -58,6 +58,14 @@ void caf::AppEnum<RimEnsembleFractureStatistics::StatisticsType>::setUp()
     setDefault( RimEnsembleFractureStatistics::StatisticsType::MEAN );
 }
 
+template <>
+void caf::AppEnum<RimEnsembleFractureStatistics::MeshType>::setUp()
+{
+    addItem( RimEnsembleFractureStatistics::MeshType::ADAPTIVE, "ADAPTIVE", "Adaptive" );
+    addItem( RimEnsembleFractureStatistics::MeshType::UNIFORM, "UNIFORM", "Uniform" );
+    setDefault( RimEnsembleFractureStatistics::MeshType::ADAPTIVE );
+}
+
 } // namespace caf
 
 CAF_PDM_SOURCE_INIT( RimEnsembleFractureStatistics, "EnsembleFractureStatistics" );
@@ -77,6 +85,7 @@ RimEnsembleFractureStatistics::RimEnsembleFractureStatistics()
     m_filePathsTable.uiCapability()->setUiReadOnly( true );
     m_filePathsTable.xmlCapability()->disableIO();
 
+    CAF_PDM_InitFieldNoDefault( &m_meshType, "MeshType", "Mesh Type", "", "", "" );
     CAF_PDM_InitField( &m_numSamplesX, "NumberOfSamplesX", 100, "X", "", "", "" );
     CAF_PDM_InitField( &m_numSamplesY, "NumberOfSamplesY", 200, "Y", "", "", "" );
 
@@ -87,7 +96,7 @@ RimEnsembleFractureStatistics::RimEnsembleFractureStatistics()
     m_selectedStatisticsType.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
     m_selectedStatisticsType.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
 
-    CAF_PDM_InitFieldNoDefault( &m_computeStatistics, "ComputeStatistics", "Compute", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_computeStatistics, "ComputeStatistics", "Compute Templates", "", "", "" );
     m_computeStatistics.uiCapability()->setUiEditorTypeName( caf::PdmUiToolButtonEditor::uiEditorTypeName() );
     m_computeStatistics.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 
@@ -188,6 +197,24 @@ void RimEnsembleFractureStatistics::fieldChangedByUi( const caf::PdmFieldHandle*
         std::vector<QString> filePaths = computeStatistics();
         RicNewStimPlanFractureTemplateFeature::createNewTemplatesFromFiles( filePaths );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEnsembleFractureStatistics::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
+{
+    uiOrdering.add( nameField() );
+    uiOrdering.add( &m_filePathsTable );
+    uiOrdering.add( &m_meshType );
+    uiOrdering.add( &m_numSamplesX );
+    uiOrdering.add( &m_numSamplesY );
+    bool isUniformMesh = m_meshType() == MeshType::UNIFORM;
+    m_numSamplesX.uiCapability()->setUiHidden( !isUniformMesh );
+    m_numSamplesY.uiCapability()->setUiHidden( !isUniformMesh );
+
+    uiOrdering.add( &m_selectedStatisticsType );
+    uiOrdering.add( &m_computeStatistics );
 }
 
 //--------------------------------------------------------------------------------------------------

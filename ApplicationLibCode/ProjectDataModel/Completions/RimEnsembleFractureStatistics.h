@@ -45,6 +45,12 @@ public:
         OCCURRENCE
     };
 
+    enum class MeshType
+    {
+        ADAPTIVE,
+        UNIFORM,
+    };
+
     RimEnsembleFractureStatistics();
     ~RimEnsembleFractureStatistics() override;
     void addFilePath( const QString& filePath );
@@ -55,6 +61,7 @@ protected:
                                 QString                    uiConfigName,
                                 caf::PdmUiEditorAttribute* attribute ) override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
                                                          bool*                      useOptionsOnly ) override;
@@ -103,6 +110,7 @@ protected:
     caf::PdmField<bool>                       m_computeStatistics;
     caf::PdmField<int>                        m_numSamplesX;
     caf::PdmField<int>                        m_numSamplesY;
+    caf::PdmField<caf::AppEnum<MeshType>>     m_meshType;
 
     caf::PdmField<std::vector<caf::AppEnum<RimEnsembleFractureStatistics::StatisticsType>>> m_selectedStatisticsType;
 };
