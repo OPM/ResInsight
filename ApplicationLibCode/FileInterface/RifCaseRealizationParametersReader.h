@@ -18,8 +18,6 @@
 
 #pragma once
 
-#include "RiaPreferences.h"
-
 #include "RifSummaryCaseRestartSelector.h"
 
 #include "RigCaseRealizationParameters.h"

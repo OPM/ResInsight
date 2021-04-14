@@ -27,6 +27,7 @@
 #include "RigFlowDiagSolverInterface.h"
 
 #include "cvfAssert.h"
+#include "cvfMath.h"
 
 #include "qwt_legend.h"
 #include "qwt_picker_machine.h"

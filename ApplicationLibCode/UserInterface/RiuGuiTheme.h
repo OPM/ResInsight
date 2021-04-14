@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include "RiaPreferences.h"
+#include "RiaDefines.h"
 
 #include <functional>
 

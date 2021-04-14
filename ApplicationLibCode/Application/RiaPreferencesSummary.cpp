@@ -18,6 +18,9 @@
 
 #include "RiaPreferencesSummary.h"
 
+#include "RiaApplication.h"
+#include "RiaPreferences.h"
+
 #include "cafPdmUiCheckBoxEditor.h"
 
 #include <algorithm>
