@@ -17,53 +17,32 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RiaPreferencesSummary.h"
+
 #include "cafPdmUiCheckBoxEditor.h"
 
 #include <algorithm>
 
 namespace caf
 {
-/*
-    template <>
-    void RiaPreferences::SummaryRestartFilesImportModeType::setUp()
-    {
-        addItem(RiaPreferences::SummaryRestartFilesImportMode::IMPORT, "IMPORT", "Unified");
-        addItem(RiaPreferences::SummaryRestartFilesImportMode::SEPARATE_CASES, "SEPARATE_CASES", "Separate Cases");
-        addItem(RiaPreferences::SummaryRestartFilesImportMode::NOT_IMPORT, "NOT_IMPORT", "Skip");
-        setDefault(RiaPreferences::SummaryRestartFilesImportMode::IMPORT);
-    }
+template <>
+void RiaPreferencesSummary::SummaryRestartFilesImportModeType::setUp()
+{
+    addItem( RiaPreferencesSummary::SummaryRestartFilesImportMode::IMPORT, "IMPORT", "Unified" );
+    addItem( RiaPreferencesSummary::SummaryRestartFilesImportMode::SEPARATE_CASES, "SEPARATE_CASES", "Separate Cases" );
+    addItem( RiaPreferencesSummary::SummaryRestartFilesImportMode::NOT_IMPORT, "NOT_IMPORT", "Skip" );
+    setDefault( RiaPreferencesSummary::SummaryRestartFilesImportMode::IMPORT );
+}
 
-    template <>
-    void RiaPreferences::SummaryHistoryCurveStyleModeType::setUp()
-    {
-        addItem(RiaPreferences::SummaryHistoryCurveStyleMode::SYMBOLS, "SYMBOLS", "Symbols");
-        addItem(RiaPreferences::SummaryHistoryCurveStyleMode::LINES, "LINES", "Lines");
-        addItem(RiaPreferences::SummaryHistoryCurveStyleMode::SYMBOLS_AND_LINES, "SYMBOLS_AND_LINES", "Symbols and
-   Lines"); setDefault(RiaPreferences::SummaryHistoryCurveStyleMode::SYMBOLS);
-    }
-
-    template <>
-    void RiaPreferences::PageSizeEnum::setUp()
-    {
-        addItem(QPageSize::A3, "A3", "A3");
-        addItem(QPageSize::A4, "A4", "A4");
-        addItem(QPageSize::A5, "A5", "A5");
-        addItem(QPageSize::A6, "A6", "A6");
-        addItem(QPageSize::Letter, "LETTER", "US Letter");
-        addItem(QPageSize::Legal, "LEGAL", "US Legal");
-        addItem(QPageSize::Ledger, "LEDGER", "US Ledger");
-        addItem(QPageSize::Tabloid, "TABLOID", "US Tabloid");
-        setDefault(QPageSize::A4);
-    }
-
-    template <>
-    void RiaPreferences::PageOrientationEnum::setUp()
-    {
-        addItem(QPageLayout::Portrait, "PORTRAIT", "Portrait");
-        addItem(QPageLayout::Landscape, "LANDSCAPE", "Landscape");
-        setDefault(QPageLayout::Portrait);
-    }
-*/
+template <>
+void RiaPreferencesSummary::SummaryHistoryCurveStyleModeType::setUp()
+{
+    addItem( RiaPreferencesSummary::SummaryHistoryCurveStyleMode::SYMBOLS, "SYMBOLS", "Symbols" );
+    addItem( RiaPreferencesSummary::SummaryHistoryCurveStyleMode::LINES, "LINES", "Lines" );
+    addItem( RiaPreferencesSummary::SummaryHistoryCurveStyleMode::SYMBOLS_AND_LINES,
+             "SYMBOLS_AND_LINES",
+             "Symbols and Lines" );
+    setDefault( RiaPreferencesSummary::SummaryHistoryCurveStyleMode::SYMBOLS );
+}
 
 template <>
 void RiaPreferencesSummary::SummaryReaderModeType::setUp()
@@ -82,6 +61,49 @@ CAF_PDM_SOURCE_INIT( RiaPreferencesSummary, "RiaPreferencesSummary" );
 //--------------------------------------------------------------------------------------------------
 RiaPreferencesSummary::RiaPreferencesSummary()
 {
+    CAF_PDM_InitFieldNoDefault( &m_summaryRestartFilesShowImportDialog,
+                                "summaryRestartFilesShowImportDialog",
+                                "Show Import Dialog",
+                                "",
+                                "",
+                                "" );
+    CAF_PDM_InitField( &m_summaryImportMode,
+                       "summaryImportMode",
+                       SummaryRestartFilesImportModeType( RiaPreferencesSummary::SummaryRestartFilesImportMode::IMPORT ),
+                       "Default Summary Import Option",
+                       "",
+                       "",
+                       "" );
+    CAF_PDM_InitField( &m_gridImportMode,
+                       "gridImportMode",
+                       SummaryRestartFilesImportModeType( RiaPreferencesSummary::SummaryRestartFilesImportMode::NOT_IMPORT ),
+                       "Default Grid Import Option",
+                       "",
+                       "",
+                       "" );
+    CAF_PDM_InitField( &m_summaryEnsembleImportMode,
+                       "summaryEnsembleImportMode",
+                       SummaryRestartFilesImportModeType( RiaPreferencesSummary::SummaryRestartFilesImportMode::IMPORT ),
+                       "Default Ensemble Summary Import Option",
+                       "",
+                       "",
+                       "" );
+
+    CAF_PDM_InitField( &m_defaultSummaryHistoryCurveStyle,
+                       "defaultSummaryHistoryCurveStyle",
+                       SummaryHistoryCurveStyleModeType( RiaPreferencesSummary::SummaryHistoryCurveStyleMode::SYMBOLS ),
+                       "Default Curve Style for History Vectors",
+                       "",
+                       "",
+                       "" );
+    CAF_PDM_InitField( &m_defaultSummaryCurvesTextFilter,
+                       "defaultSummaryCurvesTextFilter",
+                       QString( "FOPT" ),
+                       "Default Summary Curves",
+                       "",
+                       "Semicolon separated list of filters used to create curves in new summary plots",
+                       "" );
+
     CAF_PDM_InitField( &m_createOptimizedSummaryDataFile,
                        "createOptimizedSummaryDataFile",
                        true,
@@ -118,6 +140,32 @@ RiaPreferencesSummary::RiaPreferencesSummary()
                        "" );
 
     CAF_PDM_InitFieldNoDefault( &m_summaryReader, "summaryReaderType", "Summary Data File Reader", "", "", "" );
+
+    CAF_PDM_InitField( &m_showSummaryTimeAsLongString,
+                       "showSummaryTimeAsLongString",
+                       false,
+                       "Show resample time text as long time text (2010-11-21 23:15:00)",
+                       "",
+                       "",
+                       "" );
+    m_showSummaryTimeAsLongString.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+
+    CAF_PDM_InitField( &m_useMultipleThreadsWhenLoadingSummaryData,
+                       "useMultipleThreadsWhenLoadingSummaryData",
+                       false,
+                       "Use multiple threads when loading summary data",
+                       "",
+                       "",
+                       "" );
+    m_useMultipleThreadsWhenLoadingSummaryData.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiaPreferencesSummary* RiaPreferencesSummary::current()
+{
+    return RiaApplication::instance()->preferences()->summaryPreferences();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -165,12 +213,48 @@ int RiaPreferencesSummary::createH5SummaryDataThreadCount() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RiaPreferencesSummary::appendRestartFileGroup( caf::PdmUiOrdering& uiOrdering ) const
+{
+    caf::PdmUiGroup* restartBehaviourGroup = uiOrdering.addNewGroup( "Origin Files" );
+    restartBehaviourGroup->add( &m_summaryRestartFilesShowImportDialog );
+
+    {
+        caf::PdmUiGroup* group = restartBehaviourGroup->addNewGroup( "Origin Summary Files" );
+        group->add( &m_summaryImportMode );
+    }
+
+    {
+        caf::PdmUiGroup* group = restartBehaviourGroup->addNewGroup( "Origin Grid Files" );
+        group->add( &m_gridImportMode );
+    }
+
+    {
+        caf::PdmUiGroup* group = restartBehaviourGroup->addNewGroup( "Origin Ensemble Summary Files" );
+        group->add( &m_summaryEnsembleImportMode );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiaPreferencesSummary::appendItemsToPlottingGroup( caf::PdmUiOrdering& uiOrdering ) const
+{
+    uiOrdering.add( &m_defaultSummaryCurvesTextFilter );
+    uiOrdering.add( &m_defaultSummaryHistoryCurveStyle );
+    uiOrdering.add( &m_showSummaryTimeAsLongString );
+    uiOrdering.add( &m_useMultipleThreadsWhenLoadingSummaryData );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiaPreferencesSummary::defineEditorAttribute( const caf::PdmFieldHandle* field,
                                                    QString                    uiConfigName,
                                                    caf::PdmUiEditorAttribute* attribute )
 {
-    if ( field == &m_createOptimizedSummaryDataFile || field == &m_useOptimizedSummaryDataFile ||
-         field == &m_createH5SummaryDataFile )
+    if ( field == &m_createOptimizedSummaryDataFile || field == &m_showSummaryTimeAsLongString ||
+         field == &m_useMultipleThreadsWhenLoadingSummaryData || field == &m_summaryRestartFilesShowImportDialog ||
+         field == &m_useOptimizedSummaryDataFile || field == &m_createH5SummaryDataFile )
     {
         auto myAttr = dynamic_cast<caf::PdmUiCheckBoxEditorAttribute*>( attribute );
         if ( myAttr )
@@ -225,5 +309,28 @@ QList<caf::PdmOptionItemInfo>
             options.push_back( caf::PdmOptionItemInfo( SummaryReaderModeType::uiText( enumValue ), enumValue ) );
         }
     }
+    else if ( fieldNeedingOptions == &m_gridImportMode )
+    {
+        // Manual option handling in order to one only a subset of the enum values
+        SummaryRestartFilesImportModeType skip( RiaPreferencesSummary::SummaryRestartFilesImportMode::NOT_IMPORT );
+        SummaryRestartFilesImportModeType separate( RiaPreferencesSummary::SummaryRestartFilesImportMode::SEPARATE_CASES );
+
+        options.push_back(
+            caf::PdmOptionItemInfo( skip.uiText(), RiaPreferencesSummary::SummaryRestartFilesImportMode::NOT_IMPORT ) );
+        options.push_back( caf::PdmOptionItemInfo( separate.uiText(),
+                                                   RiaPreferencesSummary::SummaryRestartFilesImportMode::SEPARATE_CASES ) );
+    }
+    else if ( fieldNeedingOptions == &m_summaryEnsembleImportMode )
+    {
+        // Manual option handling in order to one only a subset of the enum values
+        SummaryRestartFilesImportModeType skip( RiaPreferencesSummary::SummaryRestartFilesImportMode::NOT_IMPORT );
+        SummaryRestartFilesImportModeType allowImport( RiaPreferencesSummary::SummaryRestartFilesImportMode::IMPORT );
+
+        options.push_back(
+            caf::PdmOptionItemInfo( skip.uiText(), RiaPreferencesSummary::SummaryRestartFilesImportMode::NOT_IMPORT ) );
+        options.push_back( caf::PdmOptionItemInfo( allowImport.uiText(),
+                                                   RiaPreferencesSummary::SummaryRestartFilesImportMode::IMPORT ) );
+    }
+
     return options;
 }

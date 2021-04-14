@@ -394,7 +394,9 @@ void RimSummaryCaseMainCollection::loadSummaryCaseData( std::vector<RimSummaryCa
     std::vector<RimFileSummaryCase*> fileSummaryCases;
     std::vector<RimSummaryCase*>     otherSummaryCases;
 
-    if ( RiaApplication::instance()->preferences()->useMultipleThreadsWhenReadingSummaryData() )
+    RiaPreferencesSummary* prefs = RiaPreferencesSummary::current();
+
+    if ( prefs->useMultipleThreadsWhenLoadingSummaryData() )
     {
         for ( auto c : summaryCases )
         {
@@ -416,13 +418,11 @@ void RimSummaryCaseMainCollection::loadSummaryCaseData( std::vector<RimSummaryCa
 
     if ( !fileSummaryCases.empty() )
     {
-        auto prefSummary = RiaPreferences::current()->summaryPreferences();
-
         int threadCount = 1;
 #ifdef USE_OPENMP
-        if ( prefSummary->summaryDataReader() != RiaPreferencesSummary::SummaryReaderMode::HDF5_OPM_COMMON )
+        if ( prefs->summaryDataReader() != RiaPreferencesSummary::SummaryReaderMode::HDF5_OPM_COMMON )
         {
-            threadCount = prefSummary->createH5SummaryDataThreadCount();
+            threadCount = prefs->createH5SummaryDataThreadCount();
         }
         else
         {
@@ -461,12 +461,12 @@ void RimSummaryCaseMainCollection::loadFileSummaryCaseData( std::vector<RimFileS
     // RimSummaryCase, as it is difficult to make sure all variants of the leaf classes are thread safe.
     // Only open the summary file reader in parallel loop to reduce risk of multi threading issues
 
-    RiaPreferencesSummary* prefSummary = RiaPreferences::current()->summaryPreferences();
+    RiaPreferencesSummary* prefs = RiaPreferencesSummary::current();
 
 #ifdef USE_HDF5
     {
-        if ( prefSummary->summaryDataReader() == RiaPreferencesSummary::SummaryReaderMode::HDF5_OPM_COMMON &&
-             prefSummary->createH5SummaryDataFiles() )
+        if ( prefs->summaryDataReader() == RiaPreferencesSummary::SummaryReaderMode::HDF5_OPM_COMMON &&
+             prefs->createH5SummaryDataFiles() )
         {
             std::vector<std::string> headerFileNames;
             std::vector<std::string> h5FileNames;
@@ -496,8 +496,7 @@ void RimSummaryCaseMainCollection::loadFileSummaryCaseData( std::vector<RimFileS
     RiaThreadSafeLogger threadSafeLogger;
 
     // The HDF5 reader requires a special configuration to be thread safe. Disable threading for HDF reader creation.
-    bool canUseMultipleTreads =
-        ( prefSummary->summaryDataReader() != RiaPreferencesSummary::SummaryReaderMode::HDF5_OPM_COMMON );
+    bool canUseMultipleTreads = ( prefs->summaryDataReader() != RiaPreferencesSummary::SummaryReaderMode::HDF5_OPM_COMMON );
 
 #pragma omp parallel for schedule( dynamic ) if ( canUseMultipleTreads )
     for ( int cIdx = 0; cIdx < static_cast<int>( fileSummaryCases.size() ); ++cIdx )

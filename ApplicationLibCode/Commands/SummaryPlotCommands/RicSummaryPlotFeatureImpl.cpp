@@ -24,7 +24,7 @@
 #include "RiaEclipseFileNameTools.h"
 #include "RiaImportEclipseCaseTools.h"
 #include "RiaLogging.h"
-#include "RiaPreferences.h"
+#include "RiaPreferencesSummary.h"
 
 #include "RicCreateSummaryCaseCollectionFeature.h"
 #include "RicImportGeneralDataFeature.h"
@@ -68,7 +68,9 @@ RimSummaryCurve* RicSummaryPlotFeatureImpl::addDefaultCurveToPlot( RimSummaryPlo
     {
         RifEclipseSummaryAddress defaultAddressToUse;
 
-        QString     curvesTextFilter = RiaApplication::instance()->preferences()->defaultSummaryCurvesTextFilter;
+        RiaPreferencesSummary* prefs = RiaPreferencesSummary::current();
+
+        QString     curvesTextFilter = prefs->defaultSummaryCurvesTextFilter();
         QStringList curveFilters     = curvesTextFilter.split( ";", QString::SkipEmptyParts );
 
         if ( curveFilters.size() )
@@ -115,7 +117,9 @@ RimSummaryCurve* RicSummaryPlotFeatureImpl::addDefaultCurveToPlot( RimSummaryPlo
 std::vector<RimSummaryCurve*> RicSummaryPlotFeatureImpl::addDefaultCurvesToPlot( RimSummaryPlot* plot,
                                                                                  RimSummaryCase* summaryCase )
 {
-    QString     curvesTextFilter = RiaApplication::instance()->preferences()->defaultSummaryCurvesTextFilter;
+    RiaPreferencesSummary* prefs = RiaPreferencesSummary::current();
+
+    QString     curvesTextFilter = prefs->defaultSummaryCurvesTextFilter();
     QStringList curveFilters     = curvesTextFilter.split( ";", QString::SkipEmptyParts );
 
     bool addHistoryCurve = false;
@@ -150,10 +154,11 @@ caf::PdmObject* RicSummaryPlotFeatureImpl::createDefaultSummaryPlot( RimSummaryC
 {
     RimSummaryPlotCollection* summaryPlotCollection = RimProject::current()->mainPlotCollection->summaryPlotCollection();
 
+    RiaPreferencesSummary* prefs = RiaPreferencesSummary::current();
+
     caf::PdmObject* itemToSelect = nullptr;
 
-    if ( summaryPlotCollection && summaryCase &&
-         !RiaApplication::instance()->preferences()->defaultSummaryCurvesTextFilter().isEmpty() )
+    if ( summaryPlotCollection && summaryCase && !prefs->defaultSummaryCurvesTextFilter().isEmpty() )
     {
         auto plot = summaryPlotCollection->createSummaryPlotWithAutoTitle();
 

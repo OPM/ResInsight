@@ -20,7 +20,7 @@
 
 #include "RiaColorTables.h"
 #include "RiaGuiApplication.h"
-#include "RiaPreferences.h"
+#include "RiaPreferencesSummary.h"
 
 #include "RiaSummaryTools.h"
 #include "RimEnsembleCurveFilter.h"
@@ -59,7 +59,9 @@ std::vector<RimEnsembleCurveSet*>
     RimProject* project = RimProject::current();
     CVF_ASSERT( project );
 
-    QString     curvesTextFilter = RiaApplication::instance()->preferences()->defaultSummaryCurvesTextFilter;
+    RiaPreferencesSummary* prefs = RiaPreferencesSummary::current();
+
+    QString     curvesTextFilter = prefs->defaultSummaryCurvesTextFilter();
     QStringList curveFilters     = curvesTextFilter.split( ";", QString::SkipEmptyParts );
 
     std::set<RifEclipseSummaryAddress> addrs = ensemble->ensembleSummaryAddresses();
@@ -102,7 +104,9 @@ RimSummaryPlot*
     RiaGuiApplication* app  = RiaGuiApplication::instance();
     RimProject*        proj = app->project();
 
-    if ( RiaApplication::instance()->preferences()->defaultSummaryCurvesTextFilter().isEmpty() ) return nullptr;
+    RiaPreferencesSummary* prefs = RiaPreferencesSummary::current();
+
+    if ( prefs->defaultSummaryCurvesTextFilter().isEmpty() ) return nullptr;
 
     RimSummaryPlotCollection* summaryPlotCollection = proj->mainPlotCollection->summaryPlotCollection();
     RimSummaryPlot*           plot                  = summaryPlotCollection->createSummaryPlotWithAutoTitle();
@@ -159,8 +163,10 @@ void RicNewSummaryEnsembleCurveSetFeature::onActionTriggered( bool isChecked )
         CVF_ASSERT( !project->summaryGroups().empty() );
         auto ensemble = project->summaryGroups().back();
 
+        RiaPreferencesSummary* prefs = RiaPreferencesSummary::current();
+
         RimEnsembleCurveSet* firstCurveSet = nullptr;
-        if ( !RiaApplication::instance()->preferences()->defaultSummaryCurvesTextFilter().isEmpty() )
+        if ( !prefs->defaultSummaryCurvesTextFilter().isEmpty() )
         {
             auto curveSets = RicNewSummaryEnsembleCurveSetFeature::addDefaultCurveSets( plot, ensemble );
             if ( !curveSets.empty() ) firstCurveSet = curveSets.front();
