@@ -19,8 +19,11 @@
 #include "RimEnsembleFractureStatistics.h"
 
 #include "RiaDefines.h"
+#include "RiaInterpolationTools.h"
 #include "RiaLogging.h"
 #include "RiaPreferences.h"
+#include "RiaWeightedGeometricMeanCalculator.h"
+#include "RiaWeightedHarmonicMeanCalculator.h"
 
 #include "RigFractureGrid.h"
 #include "RigSlice2D.h"
@@ -63,7 +66,28 @@ void caf::AppEnum<RimEnsembleFractureStatistics::MeshType>::setUp()
 {
     addItem( RimEnsembleFractureStatistics::MeshType::ADAPTIVE, "ADAPTIVE", "Adaptive" );
     addItem( RimEnsembleFractureStatistics::MeshType::UNIFORM, "UNIFORM", "Uniform" );
+    addItem( RimEnsembleFractureStatistics::MeshType::NAIVE, "NAIVE", "Naive" );
     setDefault( RimEnsembleFractureStatistics::MeshType::ADAPTIVE );
+}
+
+template <>
+void caf::AppEnum<RimEnsembleFractureStatistics::MeanType>::setUp()
+{
+    addItem( RimEnsembleFractureStatistics::MeanType::HARMONIC, "HARMONIC", "Harmonic" );
+    addItem( RimEnsembleFractureStatistics::MeanType::ARITHMETIC, "ARITHMETIC", "Artihmetic" );
+    addItem( RimEnsembleFractureStatistics::MeanType::GEOMETRIC, "GEOMETRIC", "Geometric" );
+    addItem( RimEnsembleFractureStatistics::MeanType::MINIMUM, "MINIMUM", "Minimum" );
+    setDefault( RimEnsembleFractureStatistics::MeanType::HARMONIC );
+}
+
+template <>
+void caf::AppEnum<RimEnsembleFractureStatistics::AdaptiveSamplingSizeType>::setUp()
+{
+    addItem( RimEnsembleFractureStatistics::AdaptiveSamplingSizeType::AVERAGE, "AVERAGE", "Average" );
+    addItem( RimEnsembleFractureStatistics::AdaptiveSamplingSizeType::MINIMUM, "MINIMUM", "Minimum" );
+    addItem( RimEnsembleFractureStatistics::AdaptiveSamplingSizeType::MAXIMUM, "MAXIMUM", "Maximum" );
+    addItem( RimEnsembleFractureStatistics::AdaptiveSamplingSizeType::USER_DEFINED, "USER_DEFINED", "User-Defined" );
+    setDefault( RimEnsembleFractureStatistics::AdaptiveSamplingSizeType::AVERAGE );
 }
 
 } // namespace caf
@@ -86,8 +110,15 @@ RimEnsembleFractureStatistics::RimEnsembleFractureStatistics()
     m_filePathsTable.xmlCapability()->disableIO();
 
     CAF_PDM_InitFieldNoDefault( &m_meshType, "MeshType", "Mesh Type", "", "", "" );
+
+    // Uniform sampling
     CAF_PDM_InitField( &m_numSamplesX, "NumberOfSamplesX", 100, "X", "", "", "" );
     CAF_PDM_InitField( &m_numSamplesY, "NumberOfSamplesY", 200, "Y", "", "", "" );
+
+    // Adaptive sampling
+    CAF_PDM_InitFieldNoDefault( &m_adaptiveMeanType, "AdaptiveMeanType", "Mean Type", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_adaptiveSamplingSizeType, "AdaptiveSamplingSizeType", "Sampling Type", "", "", "" );
+    CAF_PDM_InitField( &m_adaptiveNumSamplesY, "AdaptiveNumSamplesY", 30, "Number of Samples Y", "", "", "" );
 
     std::vector<caf::AppEnum<RimEnsembleFractureStatistics::StatisticsType>> defaultStatisticsTypes = {
         caf::AppEnum<RimEnsembleFractureStatistics::StatisticsType>( RimEnsembleFractureStatistics::StatisticsType::MEAN ) };
@@ -213,6 +244,17 @@ void RimEnsembleFractureStatistics::defineUiOrdering( QString uiConfigName, caf:
     m_numSamplesX.uiCapability()->setUiHidden( !isUniformMesh );
     m_numSamplesY.uiCapability()->setUiHidden( !isUniformMesh );
 
+    uiOrdering.add( &m_adaptiveMeanType );
+    uiOrdering.add( &m_adaptiveSamplingSizeType );
+    uiOrdering.add( &m_adaptiveNumSamplesY );
+
+    bool isAdaptiveMesh = m_meshType() == MeshType::ADAPTIVE;
+    m_adaptiveMeanType.uiCapability()->setUiHidden( !isAdaptiveMesh );
+    m_adaptiveSamplingSizeType.uiCapability()->setUiHidden( !isAdaptiveMesh );
+
+    bool adaptiveSamplesUserDefined = m_adaptiveSamplingSizeType() == AdaptiveSamplingSizeType::USER_DEFINED;
+    m_adaptiveNumSamplesY.uiCapability()->setUiHidden( !isAdaptiveMesh || !adaptiveSamplesUserDefined );
+
     uiOrdering.add( &m_selectedStatisticsType );
     uiOrdering.add( &m_computeStatistics );
 }
@@ -253,6 +295,9 @@ std::vector<QString> RimEnsembleFractureStatistics::computeStatistics()
 
     std::vector<double> gridXs;
     std::vector<double> gridYs;
+    auto [minX, maxX, minY, maxY] = findSamplingIntervals( stimPlanFractureDefinitions, gridXs, gridYs );
+    RiaLogging::info(
+        QString( "Ensemble Fracture Size: X = [%1, %2] Y = [%3, %4]" ).arg( minX ).arg( maxX ).arg( minY ).arg( maxY ) );
 
     for ( auto result : availableResults )
     {
@@ -260,41 +305,6 @@ std::vector<QString> RimEnsembleFractureStatistics::computeStatistics()
 
         std::vector<cvf::cref<RigFractureGrid>> fractureGrids =
             createFractureGrids( stimPlanFractureDefinitions, unitSystem, result.first );
-
-        auto [minX, maxX, minY, maxY] = findExtentsOfGrids( fractureGrids );
-        RiaLogging::info(
-            QString( "Ensemble Fracture Size: X = [%1, %2] Y = [%3, %4]" ).arg( minX ).arg( maxX ).arg( minY ).arg( maxY ) );
-
-        if ( m_meshType() == MeshType::UNIFORM )
-        {
-            gridXs.clear();
-            gridYs.clear();
-
-            int numSamplesX = m_numSamplesX();
-            int numSamplesY = m_numSamplesY();
-
-            double sampleDistanceX = ( maxX - minX ) / numSamplesX;
-            double sampleDistanceY = ( maxY - minY ) / numSamplesY;
-
-            RiaLogging::info(
-                QString( "Uniform Mesh. Output size: %1x%2. Sampling Distance X = %3 Sampling Distance Y = %4" )
-                    .arg( numSamplesX )
-                    .arg( numSamplesY )
-                    .arg( sampleDistanceX )
-                    .arg( sampleDistanceY ) );
-
-            for ( int y = 0; y < numSamplesY; y++ )
-            {
-                double posY = minY + y * sampleDistanceY + sampleDistanceY * 0.5;
-                gridYs.push_back( posY );
-            }
-
-            for ( int x = 0; x < numSamplesX; x++ )
-            {
-                double posX = minX + x * sampleDistanceX + sampleDistanceX * 0.5;
-                gridXs.push_back( posX );
-            }
-        }
 
         std::vector<std::vector<double>> samples( gridXs.size() * gridYs.size() );
         sampleAllGrids( fractureGrids, gridXs, gridYs, samples );
@@ -452,30 +462,375 @@ std::vector<cvf::cref<RigFractureGrid>> RimEnsembleFractureStatistics::createFra
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::tuple<double, double, double, double>
-    RimEnsembleFractureStatistics::findExtentsOfGrids( const std::vector<cvf::cref<RigFractureGrid>>& fractureGrids )
+std::tuple<double, double, double, double> RimEnsembleFractureStatistics::findSamplingIntervals(
+    const std::vector<cvf::ref<RigStimPlanFractureDefinition>>& stimPlanFractureDefinitions,
+    std::vector<double>&                                        gridXs,
+    std::vector<double>&                                        gridYs ) const
 {
     // Find min and max extent of all the grids
+    auto [minX, maxX, minY, maxY] = findMaxGridExtents( stimPlanFractureDefinitions );
+
+    if ( m_meshType() == MeshType::UNIFORM )
+    {
+        generateUniformMesh( minX, maxX, minY, maxY, gridXs, gridYs );
+    }
+    else if ( m_meshType() == MeshType::NAIVE )
+    {
+        generateNaiveMesh( minX, maxX, minY, maxY, stimPlanFractureDefinitions, gridXs, gridYs );
+    }
+    else if ( m_meshType() == MeshType::ADAPTIVE )
+    {
+        generateAdaptiveMesh( minX, maxX, minY, maxY, stimPlanFractureDefinitions, gridXs, gridYs );
+    }
+
+    return std::make_tuple( minX, maxX, minY, maxY );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::tuple<double, double, double, double> RimEnsembleFractureStatistics::findMaxGridExtents(
+    const std::vector<cvf::ref<RigStimPlanFractureDefinition>>& stimPlanFractureDefinitions )
+{
     double minX = std::numeric_limits<double>::max();
     double maxX = -std::numeric_limits<double>::max();
     double minY = std::numeric_limits<double>::max();
     double maxY = -std::numeric_limits<double>::max();
 
-    for ( auto fractureGrid : fractureGrids )
+    for ( auto def : stimPlanFractureDefinitions )
     {
-        for ( auto fractureCell : fractureGrid->fractureCells() )
-        {
-            for ( auto polygon : fractureCell.getPolygon() )
-            {
-                minX = std::min( minX, polygon.x() );
-                maxX = std::max( maxX, polygon.x() );
-                minY = std::min( minY, polygon.y() );
-                maxY = std::max( maxY, polygon.y() );
-            }
-        }
+        minX = std::min( minX, def->xs().front() );
+        maxX = std::max( maxX, def->xs().back() );
+
+        double offset = computeDepthOfWellPathAtFracture( def );
+
+        minY = std::min( minY, offset + def->ys().back() );
+        maxY = std::max( maxY, offset + def->ys().front() );
     }
 
     return std::make_tuple( minX, maxX, minY, maxY );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEnsembleFractureStatistics::generateUniformMesh( double               minX,
+                                                         double               maxX,
+                                                         double               minY,
+                                                         double               maxY,
+                                                         std::vector<double>& gridXs,
+                                                         std::vector<double>& gridYs ) const
+{
+    int    numSamplesX     = m_numSamplesX();
+    double sampleDistanceX = linearSampling( minX, maxX, numSamplesX, gridXs );
+
+    int    numSamplesY     = m_numSamplesY();
+    double sampleDistanceY = linearSampling( minY, maxY, numSamplesY, gridYs );
+
+    RiaLogging::info( QString( "Uniform Mesh. Output size: %1x%2. Sampling Distance X = %3 Sampling Distance Y = %4" )
+                          .arg( numSamplesX )
+                          .arg( numSamplesY )
+                          .arg( sampleDistanceX )
+                          .arg( sampleDistanceY ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEnsembleFractureStatistics::generateNaiveMesh(
+    double                                                      minX,
+    double                                                      maxX,
+    double                                                      minY,
+    double                                                      maxY,
+    const std::vector<cvf::ref<RigStimPlanFractureDefinition>>& stimPlanFractureDefinitions,
+    std::vector<double>&                                        gridXs,
+    std::vector<double>&                                        gridYs ) const
+{
+    // Find max number of cells in x direction
+    int maxNx = 0;
+    for ( auto def : stimPlanFractureDefinitions )
+    {
+        maxNx = std::max( maxNx, static_cast<int>( def->xs().size() ) );
+    }
+
+    // Do linear sampling in x drection
+    linearSampling( minX, maxX, maxNx, gridXs );
+
+    std::vector<double> depths;
+    for ( auto def : stimPlanFractureDefinitions )
+    {
+        double offset = computeDepthOfWellPathAtFracture( def );
+        for ( double y : def->ys() )
+        {
+            depths.push_back( offset + y );
+        }
+    }
+
+    std::sort( depths.begin(), depths.end() );
+    gridYs = depths;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEnsembleFractureStatistics::generateAdaptiveMesh(
+    double                                                      minX,
+    double                                                      maxX,
+    double                                                      minY,
+    double                                                      maxY,
+    const std::vector<cvf::ref<RigStimPlanFractureDefinition>>& stimPlanFractureDefinitions,
+    std::vector<double>&                                        gridXs,
+    std::vector<double>&                                        gridYs ) const
+{
+    // Find max number of cells in x direction
+    int maxNx = 0;
+    for ( auto def : stimPlanFractureDefinitions )
+    {
+        maxNx = std::max( maxNx, static_cast<int>( def->xs().size() ) );
+    }
+
+    // Do linear sampling in x drection
+    linearSampling( minX, maxX, maxNx, gridXs );
+
+    std::vector<Layer> layers;
+    generateAllLayers( stimPlanFractureDefinitions, layers );
+
+    const int targetNumLayers = getTargetNumberOfLayers( stimPlanFractureDefinitions );
+
+    // Group the layers into linearly spaced bins
+    double totalDepth = maxY - minY;
+    double binSize    = totalDepth / targetNumLayers;
+
+    RiaLogging::info(
+        QString( "Adaptive mesh. Number of layers: %1. Layer thickness: %2" ).arg( targetNumLayers ).arg( binSize ) );
+
+    int nTotalMatches = 0;
+
+    std::vector<double> baseDepth;
+    baseDepth.push_back( minY );
+
+    std::vector<double> means;
+    double              sumMeans = 0.0;
+
+    // Calculate
+    for ( int layerNo = 0; layerNo < targetNumLayers; layerNo++ )
+    {
+        double binTopDepth    = minY + layerNo * binSize;
+        double binBottomDepth = minY + ( layerNo + 1 ) * binSize;
+
+        baseDepth.push_back( binBottomDepth );
+
+        RiaWeightedHarmonicMeanCalculator  harmonicMeanCalculator;
+        RiaWeightedGeometricMeanCalculator geometricMeanCalculator;
+
+        double sum          = 0.0;
+        double nMatches     = 0;
+        double minThickness = std::numeric_limits<double>::max();
+        for ( Layer layer : layers )
+        {
+            // TODO: top and bottom is mixed up here (again!)
+            if ( layer.centerDepth() > binTopDepth && layer.centerDepth() <= binBottomDepth )
+            {
+                harmonicMeanCalculator.addValueAndWeight( layer.thickness(), 1.0 );
+                geometricMeanCalculator.addValueAndWeight( layer.thickness(), 1.0 );
+
+                minThickness = std::min( minThickness, layer.thickness() );
+
+                sum += layer.thickness();
+                nMatches++;
+                nTotalMatches++;
+            }
+        }
+
+        double arithmeticMean = 0.0;
+        if ( nMatches > 0 ) arithmeticMean = sum / nMatches;
+
+        double harmonicMean  = harmonicMeanCalculator.weightedMean();
+        double geometricMean = geometricMeanCalculator.weightedMean();
+
+        RiaLogging::info( QString( "Binning layer #%1: [%2 - %3] n=%4 means: A=%5 H=%6 G=%7" )
+                              .arg( layerNo )
+                              .arg( binTopDepth )
+                              .arg( binBottomDepth )
+                              .arg( nMatches )
+                              .arg( arithmeticMean )
+                              .arg( harmonicMean )
+                              .arg( geometricMean ) );
+
+        double mean = std::numeric_limits<double>::infinity();
+        if ( m_adaptiveMeanType() == MeanType::HARMONIC )
+        {
+            mean = harmonicMean;
+        }
+        else if ( m_adaptiveMeanType() == MeanType::ARITHMETIC )
+        {
+            mean = arithmeticMean;
+        }
+        else if ( m_adaptiveMeanType() == MeanType::GEOMETRIC )
+        {
+            mean = geometricMean;
+        }
+        else
+        {
+            CAF_ASSERT( m_adaptiveMeanType() == MeanType::MINIMUM );
+            mean = minThickness;
+        }
+
+        means.push_back( mean );
+        sumMeans += mean;
+    }
+
+    RiaLogging::info( QString( "Total matches: %1 (expected: %2)" ).arg( nTotalMatches ).arg( layers.size() ) );
+
+    double totalThickness = totalDepth;
+
+    std::vector<double> scaledMeans;
+    double              sumScaledMean = 0.0;
+
+    for ( double mean : means )
+    {
+        double scaledMean = binSize / mean;
+        scaledMeans.push_back( scaledMean );
+        sumScaledMean += scaledMean;
+    }
+
+    RiaLogging::info( QString( "Total thickness: %1 Sum scaled mean: %2" ).arg( totalThickness ).arg( sumScaledMean ) );
+    std::vector<double> AM;
+    AM.push_back( 0.0 );
+
+    double sumAI = 0.0;
+    for ( int layerNo = 0; layerNo < targetNumLayers; layerNo++ )
+    {
+        double AI = scaledMeans[layerNo] * targetNumLayers / sumScaledMean;
+        sumAI += AI;
+        AM.push_back( sumAI );
+    }
+
+    auto findSmallerIndex = []( double value, const std::vector<double>& vec ) {
+        for ( size_t i = 0; i < vec.size(); i++ )
+        {
+            if ( vec[i] > value ) return i - 1;
+        }
+
+        return vec.size();
+    };
+
+    double prevDepth = baseDepth[0];
+    for ( int layerNo = 0; layerNo < targetNumLayers; layerNo++ )
+    {
+        double ap = layerNo;
+
+        int az = findSmallerIndex( ap, AM );
+        CAF_ASSERT( az >= 0 );
+        CAF_ASSERT( az < static_cast<int>( AM.size() ) );
+        int    azNext = az + 1;
+        double ba     = AM[az];
+        double bb     = AM[azNext];
+        double be     = bb - ba;
+        double bc     = baseDepth[az];
+        double bd     = baseDepth[azNext];
+        double bf     = bd - bc;
+        double offset = ( ap - ba ) * bf / be;
+        double as     = bc + offset;
+        double av     = as - prevDepth;
+        double ay     = as - av / 2.0;
+        RiaLogging::info( QString( "Res[%1] = %2 az=%3 ba=%4 bb=%5 bc=%6 av=%7 as=%8 offset=%9 azNext=%10" )
+                              .arg( layerNo )
+                              .arg( ay )
+                              .arg( az )
+                              .arg( ba )
+                              .arg( bb )
+                              .arg( bc )
+                              .arg( av )
+                              .arg( as )
+                              .arg( offset )
+                              .arg( azNext ) );
+
+        gridYs.push_back( as );
+        prevDepth = as;
+    }
+    gridYs.push_back( maxY );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEnsembleFractureStatistics::generateAllLayers(
+    const std::vector<cvf::ref<RigStimPlanFractureDefinition>>& stimPlanFractureDefinitions,
+    std::vector<Layer>&                                         layers )
+{
+    for ( auto def : stimPlanFractureDefinitions )
+    {
+        double offset   = computeDepthOfWellPathAtFracture( def );
+        bool   isFirst  = true;
+        double topDepth = 0.0;
+        for ( double y : def->ys() )
+        {
+            double depth = offset + y;
+            if ( !isFirst )
+            {
+                double bottomDepth = depth;
+                Layer  layer( topDepth, bottomDepth );
+                layers.push_back( layer );
+            }
+
+            isFirst  = false;
+            topDepth = depth;
+        }
+    }
+
+    std::sort( layers.begin(), layers.end(), []( const Layer& a, const Layer& b ) {
+        return a.centerDepth() > b.centerDepth();
+    } );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RimEnsembleFractureStatistics::getTargetNumberOfLayers(
+    const std::vector<cvf::ref<RigStimPlanFractureDefinition>>& stimPlanFractureDefinitions ) const
+{
+    if ( m_adaptiveSamplingSizeType() == AdaptiveSamplingSizeType::USER_DEFINED ) return m_adaptiveNumSamplesY();
+
+    int maxNy = 0;
+    int minNy = std::numeric_limits<int>::max();
+    int sum   = 0;
+    for ( auto def : stimPlanFractureDefinitions )
+    {
+        int ny = static_cast<int>( def->ys().size() );
+        maxNy  = std::max( maxNy, ny );
+        minNy  = std::min( minNy, ny );
+        sum += ny;
+    }
+
+    if ( m_adaptiveSamplingSizeType() == AdaptiveSamplingSizeType::MAXIMUM )
+        return maxNy;
+    else if ( m_adaptiveSamplingSizeType() == AdaptiveSamplingSizeType::MINIMUM )
+        return minNy;
+    else
+    {
+        CAF_ASSERT( m_adaptiveSamplingSizeType() == AdaptiveSamplingSizeType::AVERAGE );
+        return static_cast<int>( std::ceil( static_cast<double>( sum ) / stimPlanFractureDefinitions.size() ) );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimEnsembleFractureStatistics::linearSampling( double               minValue,
+                                                      double               maxValue,
+                                                      int                  numSamples,
+                                                      std::vector<double>& samples )
+{
+    double sampleDistance = ( maxValue - minValue ) / numSamples;
+
+    for ( int s = 0; s < numSamples; s++ )
+    {
+        double pos = minValue + s * sampleDistance + sampleDistance * 0.5;
+        samples.push_back( pos );
+    }
+
+    return sampleDistance;
 }
 
 //--------------------------------------------------------------------------------------------------

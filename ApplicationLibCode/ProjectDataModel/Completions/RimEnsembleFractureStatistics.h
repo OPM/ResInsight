@@ -25,6 +25,23 @@
 class RigFractureCell;
 class RigSlice2D;
 
+class Layer
+{
+public:
+    Layer( double topDepth, double bottomDepth )
+        : m_topDepth( topDepth )
+        , m_bottomDepth( bottomDepth ){};
+
+    double topDepth() const { return m_topDepth; };
+    double bottomDepth() const { return m_bottomDepth; };
+    double centerDepth() const { return ( m_bottomDepth + m_topDepth ) / 2.0; };
+    double thickness() const { return m_topDepth - m_bottomDepth; };
+
+private:
+    double m_topDepth;
+    double m_bottomDepth;
+};
+
 //==================================================================================================
 ///
 ///
@@ -49,6 +66,23 @@ public:
     {
         ADAPTIVE,
         UNIFORM,
+        NAIVE
+    };
+
+    enum class MeanType
+    {
+        HARMONIC,
+        ARITHMETIC,
+        GEOMETRIC,
+        MINIMUM
+    };
+
+    enum class AdaptiveSamplingSizeType
+    {
+        MINIMUM,
+        MAXIMUM,
+        AVERAGE,
+        USER_DEFINED
     };
 
     RimEnsembleFractureStatistics();
@@ -84,8 +118,41 @@ protected:
     static std::set<std::pair<QString, QString>>
         findAllResultNames( const std::vector<cvf::ref<RigStimPlanFractureDefinition>>& stimPlanFractureDefinitions );
 
+    std::tuple<double, double, double, double>
+        findSamplingIntervals( const std::vector<cvf::ref<RigStimPlanFractureDefinition>>& stimPlanFractureDefinitions,
+                               std::vector<double>&                                        gridXs,
+                               std::vector<double>&                                        gridYs ) const;
+
+    void generateUniformMesh( double               minX,
+                              double               maxX,
+                              double               minY,
+                              double               maxY,
+                              std::vector<double>& gridXs,
+                              std::vector<double>& gridYs ) const;
+
+    void generateNaiveMesh( double                                                      minX,
+                            double                                                      maxX,
+                            double                                                      minY,
+                            double                                                      maxY,
+                            const std::vector<cvf::ref<RigStimPlanFractureDefinition>>& stimPlanFractureDefinitions,
+                            std::vector<double>&                                        gridXs,
+                            std::vector<double>&                                        gridYs ) const;
+
+    void generateAdaptiveMesh( double                                                      minX,
+                               double                                                      maxX,
+                               double                                                      minY,
+                               double                                                      maxY,
+                               const std::vector<cvf::ref<RigStimPlanFractureDefinition>>& stimPlanFractureDefinitions,
+                               std::vector<double>&                                        gridXs,
+                               std::vector<double>&                                        gridYs ) const;
+
+    int getTargetNumberOfLayers( const std::vector<cvf::ref<RigStimPlanFractureDefinition>>& stimPlanFractureDefinitions ) const;
+
     static std::tuple<double, double, double, double>
-        findExtentsOfGrids( const std::vector<cvf::cref<RigFractureGrid>>& fractureGrids );
+        findMaxGridExtents( const std::vector<cvf::ref<RigStimPlanFractureDefinition>>& stimPlanFractureDefinitions );
+
+    static void generateAllLayers( const std::vector<cvf::ref<RigStimPlanFractureDefinition>>& stimPlanFractureDefinitions,
+                                   std::vector<Layer>&                                         layers );
 
     static void sampleAllGrids( const std::vector<cvf::cref<RigFractureGrid>>& fractureGrids,
                                 const std::vector<double>&                     samplesX,
@@ -101,12 +168,18 @@ protected:
 
     static bool writeStatisticsToCsv( const QString& filePath, const RigSlice2D& samples );
 
+    static double linearSampling( double minValue, double maxValue, int numSamples, std::vector<double>& samples );
+
     caf::PdmField<std::vector<caf::FilePath>> m_filePaths;
     caf::PdmField<QString>                    m_filePathsTable;
     caf::PdmField<bool>                       m_computeStatistics;
     caf::PdmField<int>                        m_numSamplesX;
     caf::PdmField<int>                        m_numSamplesY;
     caf::PdmField<caf::AppEnum<MeshType>>     m_meshType;
+
+    caf::PdmField<caf::AppEnum<MeanType>>                 m_adaptiveMeanType;
+    caf::PdmField<caf::AppEnum<AdaptiveSamplingSizeType>> m_adaptiveSamplingSizeType;
+    caf::PdmField<int>                                    m_adaptiveNumSamplesY;
 
     caf::PdmField<std::vector<caf::AppEnum<RimEnsembleFractureStatistics::StatisticsType>>> m_selectedStatisticsType;
 };
