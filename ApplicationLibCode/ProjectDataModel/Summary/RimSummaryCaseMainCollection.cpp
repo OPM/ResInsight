@@ -418,19 +418,7 @@ void RimSummaryCaseMainCollection::loadSummaryCaseData( std::vector<RimSummaryCa
 
     if ( !fileSummaryCases.empty() )
     {
-        int threadCount = 1;
-#ifdef USE_OPENMP
-        if ( prefs->summaryDataReader() != RiaPreferencesSummary::SummaryReaderMode::HDF5_OPM_COMMON )
-        {
-            threadCount = prefs->createH5SummaryDataThreadCount();
-        }
-        else
-        {
-            threadCount = omp_get_max_threads();
-        }
-#endif
-
-        loadFileSummaryCaseData( fileSummaryCases, threadCount );
+        loadFileSummaryCaseData( fileSummaryCases );
     }
 
     caf::ProgressInfo progInfo( otherSummaryCases.size(), "Loading Summary Cases" );
@@ -454,8 +442,7 @@ void RimSummaryCaseMainCollection::loadSummaryCaseData( std::vector<RimSummaryCa
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCaseMainCollection::loadFileSummaryCaseData( std::vector<RimFileSummaryCase*> fileSummaryCases,
-                                                            int                              threadCountForHdf5Export )
+void RimSummaryCaseMainCollection::loadFileSummaryCaseData( std::vector<RimFileSummaryCase*> fileSummaryCases )
 {
     // Use openMP when reading file summary case meta data. Avoid using the virtual interface of base class
     // RimSummaryCase, as it is difficult to make sure all variants of the leaf classes are thread safe.
@@ -468,6 +455,18 @@ void RimSummaryCaseMainCollection::loadFileSummaryCaseData( std::vector<RimFileS
         if ( prefs->summaryDataReader() == RiaPreferencesSummary::SummaryReaderMode::HDF5_OPM_COMMON &&
              prefs->createH5SummaryDataFiles() )
         {
+            int threadCount = 1;
+#ifdef USE_OPENMP
+            if ( prefs->summaryDataReader() != RiaPreferencesSummary::SummaryReaderMode::HDF5_OPM_COMMON )
+            {
+                threadCount = prefs->createH5SummaryDataThreadCount();
+            }
+            else
+            {
+                threadCount = omp_get_max_threads();
+            }
+#endif
+
             std::vector<std::string> headerFileNames;
             std::vector<std::string> h5FileNames;
 
@@ -482,9 +481,7 @@ void RimSummaryCaseMainCollection::loadFileSummaryCaseData( std::vector<RimFileS
                 h5FileNames.push_back( h5FilenameCandidate.toStdString() );
             }
 
-            RifHdf5SummaryExporter::ensureHdf5FileIsCreatedMultithreaded( headerFileNames,
-                                                                          h5FileNames,
-                                                                          threadCountForHdf5Export );
+            RifHdf5SummaryExporter::ensureHdf5FileIsCreatedMultithreaded( headerFileNames, h5FileNames, threadCount );
         }
     }
 #endif
@@ -495,7 +492,7 @@ void RimSummaryCaseMainCollection::loadFileSummaryCaseData( std::vector<RimFileS
 
     RiaThreadSafeLogger threadSafeLogger;
 
-    // The HDF5 reader requires a special configuration to be thread safe. Disable threading for HDF reader creation.
+    // The HDF5 reader requires a special configuration to be thread safe. Disable threading for HDF reader.
     bool canUseMultipleTreads = ( prefs->summaryDataReader() != RiaPreferencesSummary::SummaryReaderMode::HDF5_OPM_COMMON );
 
 #pragma omp parallel for schedule( dynamic ) if ( canUseMultipleTreads )

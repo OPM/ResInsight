@@ -50,7 +50,9 @@ bool RifHdf5SummaryExporter::ensureHdf5FileIsCreatedMultithreaded( const std::ve
 
     size_t hdfFilesCreatedCount = 0;
 
-#pragma omp parallel for schedule( dynamic ) num_threads( threadCount )
+    bool useMultipleThreads = threadCount > 1;
+
+#pragma omp parallel for schedule( dynamic ) if ( useMultipleThreads ) num_threads( threadCount )
     for ( int cIdx = 0; cIdx < static_cast<int>( smspecFileNames.size() ); ++cIdx )
     {
         auto smspecFileName = smspecFileNames[cIdx];
