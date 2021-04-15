@@ -50,10 +50,10 @@ void RiaPreferencesSummary::SummaryHistoryCurveStyleModeType::setUp()
 template <>
 void RiaPreferencesSummary::SummaryReaderModeType::setUp()
 {
-    addItem( RiaPreferencesSummary::SummaryReaderMode::LIBECL, "LIBECL", "Default Reader (ecl)" );
-    addItem( RiaPreferencesSummary::SummaryReaderMode::HDF5_OPM_COMMON, "HDF5_OPM_COMMON", "[BETA] H5 Reader (HDF5 Eclipse)" );
-    addItem( RiaPreferencesSummary::SummaryReaderMode::OPM_COMMON, "OPM_COMMON", "[BETA] Performance Reader (omp-common)" );
-    setDefault( RiaPreferencesSummary::SummaryReaderMode::LIBECL );
+    addItem( RiaPreferencesSummary::SummaryReaderMode::LIBECL, "LIBECL", "libecl (baseline)" );
+    addItem( RiaPreferencesSummary::SummaryReaderMode::HDF5_OPM_COMMON, "HDF5_OPM_COMMON", "h5 Performance (HDF5)" );
+    addItem( RiaPreferencesSummary::SummaryReaderMode::OPM_COMMON, "OPM_COMMON", "[BETA] LODSMRY Performance (opm-common)" );
+    setDefault( RiaPreferencesSummary::SummaryReaderMode::HDF5_OPM_COMMON );
 }
 } // namespace caf
 
@@ -109,35 +109,35 @@ RiaPreferencesSummary::RiaPreferencesSummary()
 
     CAF_PDM_InitField( &m_createOptimizedSummaryDataFile,
                        "createOptimizedSummaryDataFile",
-                       true,
-                       "Create Optimized Summary Data Files [BETA]",
+                       false,
+                       "[BETA] Create LODSMRY Summary Files",
                        "",
-                       "If not present, create optimized file with extension '*.LODSMRY'",
+                       "If not present, create summary file with extension '*.LODSMRY'",
                        "" );
     m_createOptimizedSummaryDataFile.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 
     CAF_PDM_InitField( &m_useOptimizedSummaryDataFile,
                        "useOptimizedSummaryDataFile",
                        true,
-                       "Use Optimized Summary Data Files [BETA]",
+                       "[BETA] Use LODSMRY Summary Files",
                        "",
-                       "If not present, read optimized file with extension '*.LODSMRY'",
+                       "If present, import summary files with extension '*.LODSMRY'",
                        "" );
     m_useOptimizedSummaryDataFile.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 
     CAF_PDM_InitField( &m_createH5SummaryDataFile,
                        "createH5SummaryDataFile",
                        false,
-                       "Create H5 Summary Data Files [BETA]",
+                       "Create h5 Summary Data Files [BETA]",
                        "",
-                       "If not present, create summary file with extension '*.H5'",
+                       "If not present, create summary file with extension '*.h5'",
                        "" );
     m_createH5SummaryDataFile.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 
     CAF_PDM_InitField( &m_createH5SummaryFileThreadCount,
                        "createH5SummaryFileThreadCount",
-                       4,
-                       "H5 Summary Data Creation Thread Count [BETA]",
+                       1,
+                       "h5 Summary Export Thread Count [BETA]",
                        "",
                        "",
                        "" );
@@ -156,7 +156,7 @@ RiaPreferencesSummary::RiaPreferencesSummary()
     CAF_PDM_InitField( &m_useMultipleThreadsWhenLoadingSummaryData,
                        "useMultipleThreadsWhenLoadingSummaryData",
                        false,
-                       "Use multiple threads when loading summary data",
+                       "Use Multiple Threads for Import of Summary Files",
                        "",
                        "",
                        "" );
@@ -251,6 +251,70 @@ void RiaPreferencesSummary::appendItemsToPlottingGroup( caf::PdmUiOrdering& uiOr
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RiaPreferencesSummary::showSummaryTimeAsLongString() const
+{
+    return m_showSummaryTimeAsLongString;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiaPreferencesSummary::useMultipleThreadsWhenLoadingSummaryData() const
+{
+    return m_useMultipleThreadsWhenLoadingSummaryData;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiaPreferencesSummary::summaryRestartFilesShowImportDialog() const
+{
+    return m_summaryRestartFilesShowImportDialog;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiaPreferencesSummary::SummaryRestartFilesImportMode RiaPreferencesSummary::summaryImportMode() const
+{
+    return m_summaryImportMode();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiaPreferencesSummary::SummaryRestartFilesImportMode RiaPreferencesSummary::gridImportMode() const
+{
+    return m_gridImportMode();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiaPreferencesSummary::SummaryRestartFilesImportMode RiaPreferencesSummary::summaryEnsembleImportMode() const
+{
+    return m_summaryEnsembleImportMode();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RiaPreferencesSummary::defaultSummaryCurvesTextFilter() const
+{
+    return m_defaultSummaryCurvesTextFilter;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiaPreferencesSummary::SummaryHistoryCurveStyleMode RiaPreferencesSummary::defaultSummaryHistoryCurveStyle() const
+{
+    return m_defaultSummaryHistoryCurveStyle();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiaPreferencesSummary::defineEditorAttribute( const caf::PdmFieldHandle* field,
                                                    QString                    uiConfigName,
                                                    caf::PdmUiEditorAttribute* attribute )
@@ -301,10 +365,10 @@ QList<caf::PdmOptionItemInfo>
     {
         std::vector<SummaryReaderMode> availableModes;
 
-        availableModes.push_back( SummaryReaderMode::LIBECL );
 #ifdef USE_HDF5
         availableModes.push_back( SummaryReaderMode::HDF5_OPM_COMMON );
 #endif // USE_HDF5
+        availableModes.push_back( SummaryReaderMode::LIBECL );
         availableModes.push_back( SummaryReaderMode::OPM_COMMON );
 
         for ( auto enumValue : availableModes )

@@ -69,16 +69,16 @@ public:
     void appendRestartFileGroup( caf::PdmUiOrdering& uiOrdering ) const;
     void appendItemsToPlottingGroup( caf::PdmUiOrdering& uiOrdering ) const;
 
-    bool showSummaryTimeAsLongString() const { return m_showSummaryTimeAsLongString; }
-    bool useMultipleThreadsWhenLoadingSummaryData() const { return m_useMultipleThreadsWhenLoadingSummaryData; }
-    bool summaryRestartFilesShowImportDialog() const { return m_summaryRestartFilesShowImportDialog; }
+    bool showSummaryTimeAsLongString() const;
+    bool useMultipleThreadsWhenLoadingSummaryData() const;
+    bool summaryRestartFilesShowImportDialog() const;
 
-    SummaryRestartFilesImportMode summaryImportMode() const { return m_summaryImportMode(); }
-    SummaryRestartFilesImportMode gridImportMode() const { return m_gridImportMode(); }
-    SummaryRestartFilesImportMode summaryEnsembleImportMode() const { return m_summaryEnsembleImportMode(); }
-    QString                       defaultSummaryCurvesTextFilter() const { return m_defaultSummaryCurvesTextFilter; }
+    SummaryRestartFilesImportMode summaryImportMode() const;
+    SummaryRestartFilesImportMode gridImportMode() const;
+    SummaryRestartFilesImportMode summaryEnsembleImportMode() const;
+    QString                       defaultSummaryCurvesTextFilter() const;
 
-    SummaryHistoryCurveStyleMode defaultSummaryHistoryCurveStyle() const { return m_defaultSummaryHistoryCurveStyle(); }
+    SummaryHistoryCurveStyleMode defaultSummaryHistoryCurveStyle() const;
 
     void defineEditorAttribute( const caf::PdmFieldHandle* field,
                                 QString                    uiConfigName,
