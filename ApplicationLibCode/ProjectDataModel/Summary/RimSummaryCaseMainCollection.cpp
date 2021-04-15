@@ -18,6 +18,7 @@
 
 #include "RimSummaryCaseMainCollection.h"
 
+#include "RiaEclipseFileNameTools.h"
 #include "RiaLogging.h"
 #include "RiaPreferencesSummary.h"
 #include "RiaSummaryTools.h"
@@ -628,13 +629,25 @@ std::vector<RimSummaryCase*> RimSummaryCaseMainCollection::createSummaryCasesFro
             }
             else
             {
-                RimFileSummaryCase* newSumCase = new RimFileSummaryCase();
+                const QString& smspecFileName = fileInfo.summaryFileName();
 
-                newSumCase->setIncludeRestartFiles( fileInfo.includeRestartFiles() );
-                newSumCase->setSummaryHeaderFileName( fileInfo.summaryFileName() );
-                newSumCase->updateOptionSensitivity();
-                project->assignCaseIdToSummaryCase( newSumCase );
-                sumCases.push_back( newSumCase );
+                bool foundDataFile = RiaEclipseFileNameTools::isSummaryDataFilePresent( smspecFileName );
+                if ( foundDataFile )
+                {
+                    RimFileSummaryCase* newSumCase = new RimFileSummaryCase();
+
+                    newSumCase->setIncludeRestartFiles( fileInfo.includeRestartFiles() );
+                    newSumCase->setSummaryHeaderFileName( fileInfo.summaryFileName() );
+                    newSumCase->updateOptionSensitivity();
+                    project->assignCaseIdToSummaryCase( newSumCase );
+
+                    sumCases.push_back( newSumCase );
+                }
+                else
+                {
+                    QString txt = QString( "No UNSMRY file found for %1" ).arg( smspecFileName );
+                    RiaLogging::warning( txt );
+                }
             }
 
             if ( progress != nullptr ) progress->incrementProgress();

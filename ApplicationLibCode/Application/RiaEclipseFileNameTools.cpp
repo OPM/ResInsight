@@ -109,6 +109,25 @@ bool RiaEclipseFileNameTools::isSummarySpecFile( const QString& fileName )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RiaEclipseFileNameTools::isSummaryDataFilePresent( const QString& smspecFileName )
+{
+    QFileInfo fi( smspecFileName );
+    {
+        QString candidateFileName = fi.absolutePath() + '/' + fi.baseName() + ".UNSMRY";
+        if ( QFile::exists( candidateFileName ) ) return true;
+    }
+
+    {
+        QString candidateFileName = fi.absolutePath() + '/' + fi.baseName() + ".FUNSMRY";
+        if ( QFile::exists( candidateFileName ) ) return true;
+    }
+
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString RiaEclipseFileNameTools::relatedFilePath( EclipseFileType fileType ) const
 {
     const QString extension        = caf::AppEnum<EclipseFileType>::text( fileType );
