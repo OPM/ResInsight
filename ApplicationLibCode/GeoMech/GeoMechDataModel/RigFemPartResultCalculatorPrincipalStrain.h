@@ -31,7 +31,7 @@ class RigFemPartResultCalculatorPrincipalStrain : public RigFemPartResultCalcula
 {
 public:
     explicit RigFemPartResultCalculatorPrincipalStrain( RigFemPartResultsCollection& collection );
-    virtual ~RigFemPartResultCalculatorPrincipalStrain();
+    ~RigFemPartResultCalculatorPrincipalStrain() override;
     bool                      isMatching( const RigFemResultAddress& resVarAddr ) const override;
     RigFemScalarResultFrames* calculate( int partIndex, const RigFemResultAddress& resVarAddr ) override;
 };

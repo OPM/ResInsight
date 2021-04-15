@@ -62,7 +62,7 @@ public:
 
 public:
     RimPlot();
-    virtual ~RimPlot();
+    ~RimPlot() override;
 
     QWidget*     createPlotWidget( QWidget* parent = nullptr );
     RowOrColSpan rowSpan() const;
@@ -110,7 +110,7 @@ protected:
     void updateFonts() override;
 
 private:
-    virtual void              doRenderWindowContent( QPaintDevice* paintDevice ) override;
+    void              doRenderWindowContent( QPaintDevice* paintDevice ) override;
     virtual void              handleKeyPressEvent( QKeyEvent* event ) {}
     virtual void              handleWheelEvent( QWheelEvent* event ) {}
     virtual RiuQwtPlotWidget* doCreatePlotViewWidget( QWidget* parent ) = 0;

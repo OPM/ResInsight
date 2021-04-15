@@ -28,7 +28,7 @@ class RiuAbstractOverlayContentFrame : public QFrame
     Q_OBJECT
 public:
     RiuAbstractOverlayContentFrame( QWidget* parent = nullptr );
-    ~RiuAbstractOverlayContentFrame();
+    ~RiuAbstractOverlayContentFrame() override;
 
     virtual void renderTo( QPainter* painter, const QRect& targetRect ) = 0;
 };

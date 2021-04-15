@@ -26,7 +26,7 @@ class TextEditWithCompletion : public QTextEdit
     Q_OBJECT
 public:
     TextEditWithCompletion( QWidget* parent = nullptr );
-    ~TextEditWithCompletion();
+    ~TextEditWithCompletion() override;
 
     void        setCompleter( QCompleter* completer );
     QCompleter* completer();

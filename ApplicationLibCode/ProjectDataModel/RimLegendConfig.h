@@ -51,7 +51,7 @@ public:
     virtual const caf::TitledOverlayFrame* titledOverlayFrame() const = 0;
     virtual caf::TitledOverlayFrame*       titledOverlayFrame()       = 0;
 
-    virtual int fontSize() const override;
+    int fontSize() const override;
 
     void recreateLegend();
 

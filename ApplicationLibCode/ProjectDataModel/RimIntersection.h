@@ -48,7 +48,7 @@ public:
 protected:
     virtual RimIntersectionResultsDefinitionCollection* findSeparateResultsCollection();
 
-    caf::PdmFieldHandle*          objectToggleField() override final;
+    caf::PdmFieldHandle*          objectToggleField() final;
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
                                                          bool*                      useOptionsOnly ) override;
 

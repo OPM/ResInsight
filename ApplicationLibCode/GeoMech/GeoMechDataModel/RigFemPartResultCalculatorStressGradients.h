@@ -31,7 +31,7 @@ class RigFemPartResultCalculatorStressGradients : public RigFemPartResultCalcula
 {
 public:
     explicit RigFemPartResultCalculatorStressGradients( RigFemPartResultsCollection& collection );
-    virtual ~RigFemPartResultCalculatorStressGradients();
+    ~RigFemPartResultCalculatorStressGradients() override;
     bool                      isMatching( const RigFemResultAddress& resVarAddr ) const override;
     RigFemScalarResultFrames* calculate( int partIndex, const RigFemResultAddress& resVarAddr ) override;
 };

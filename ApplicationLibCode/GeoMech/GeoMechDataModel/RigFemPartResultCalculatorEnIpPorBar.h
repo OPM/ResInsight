@@ -31,7 +31,7 @@ class RigFemPartResultCalculatorEnIpPorBar : public RigFemPartResultCalculator
 {
 public:
     explicit RigFemPartResultCalculatorEnIpPorBar( RigFemPartResultsCollection& collection );
-    virtual ~RigFemPartResultCalculatorEnIpPorBar();
+    ~RigFemPartResultCalculatorEnIpPorBar() override;
     bool                      isMatching( const RigFemResultAddress& resVarAddr ) const override;
     RigFemScalarResultFrames* calculate( int partIndex, const RigFemResultAddress& resVarAddr ) override;
 };

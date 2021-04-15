@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include <stdlib.h>
+#include <cstdlib>
 
 #include "RigFemResultPosEnum.h"
 #include "RigFemTypes.h"

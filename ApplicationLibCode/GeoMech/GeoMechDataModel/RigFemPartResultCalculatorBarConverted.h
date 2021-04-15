@@ -35,7 +35,7 @@ public:
     RigFemPartResultCalculatorBarConverted( RigFemPartResultsCollection& collection,
                                             const std::string&           fieldName,
                                             const std::string&           fieldNameToConvert );
-    virtual ~RigFemPartResultCalculatorBarConverted();
+    ~RigFemPartResultCalculatorBarConverted() override;
     bool                      isMatching( const RigFemResultAddress& resVarAddr ) const override;
     RigFemScalarResultFrames* calculate( int partIndex, const RigFemResultAddress& resVarAddr ) override;
 

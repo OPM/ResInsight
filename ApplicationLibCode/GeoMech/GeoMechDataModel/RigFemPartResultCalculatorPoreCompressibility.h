@@ -31,7 +31,7 @@ class RigFemPartResultCalculatorPoreCompressibility : public RigFemPartResultCal
 {
 public:
     explicit RigFemPartResultCalculatorPoreCompressibility( RigFemPartResultsCollection& collection );
-    virtual ~RigFemPartResultCalculatorPoreCompressibility();
+    ~RigFemPartResultCalculatorPoreCompressibility() override;
     bool                      isMatching( const RigFemResultAddress& resVarAddr ) const override;
     RigFemScalarResultFrames* calculate( int partIndex, const RigFemResultAddress& resVarAddr ) override;
 };

@@ -31,7 +31,7 @@ class RigFemPartResultCalculatorShearSlipIndicator : public RigFemPartResultCalc
 {
 public:
     explicit RigFemPartResultCalculatorShearSlipIndicator( RigFemPartResultsCollection& collection );
-    virtual ~RigFemPartResultCalculatorShearSlipIndicator();
+    ~RigFemPartResultCalculatorShearSlipIndicator() override;
     bool                      isMatching( const RigFemResultAddress& resVarAddr ) const override;
     RigFemScalarResultFrames* calculate( int partIndex, const RigFemResultAddress& resVarAddr ) override;
 };

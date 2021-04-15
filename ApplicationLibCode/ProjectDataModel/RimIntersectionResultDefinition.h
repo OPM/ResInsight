@@ -61,18 +61,18 @@ public:
     void update2dIntersectionViews();
 
 protected:
-    virtual caf::PdmFieldHandle* userDescriptionField() override;
-    virtual caf::PdmFieldHandle* objectToggleField() override;
+    caf::PdmFieldHandle* userDescriptionField() override;
+    caf::PdmFieldHandle* objectToggleField() override;
 
-    virtual void fieldChangedByUi( const caf::PdmFieldHandle* changedField,
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField,
                                    const QVariant&            oldValue,
                                    const QVariant&            newValue ) override;
 
-    virtual QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
                                                                  bool*                      useOptionsOnly ) override;
-    virtual void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
-    virtual void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
-    virtual void initAfterRead() override;
+    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
+    void initAfterRead() override;
 
 private:
     void assignCaseIfMissing() const;

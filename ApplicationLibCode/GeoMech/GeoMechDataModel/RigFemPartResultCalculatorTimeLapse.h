@@ -31,7 +31,7 @@ class RigFemPartResultCalculatorTimeLapse : public RigFemPartResultCalculator
 {
 public:
     explicit RigFemPartResultCalculatorTimeLapse( RigFemPartResultsCollection& collection );
-    virtual ~RigFemPartResultCalculatorTimeLapse();
+    ~RigFemPartResultCalculatorTimeLapse() override;
     bool                      isMatching( const RigFemResultAddress& resVarAddr ) const override;
     RigFemScalarResultFrames* calculate( int partIndex, const RigFemResultAddress& resVarAddr ) override;
 

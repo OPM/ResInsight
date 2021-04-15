@@ -31,7 +31,7 @@ class RigFemPartResultCalculatorNodalGradients : public RigFemPartResultCalculat
 {
 public:
     explicit RigFemPartResultCalculatorNodalGradients( RigFemPartResultsCollection& collection );
-    virtual ~RigFemPartResultCalculatorNodalGradients();
+    ~RigFemPartResultCalculatorNodalGradients() override;
     bool                      isMatching( const RigFemResultAddress& resVarAddr ) const override;
     RigFemScalarResultFrames* calculate( int partIndex, const RigFemResultAddress& resVarAddr ) override;
 };
