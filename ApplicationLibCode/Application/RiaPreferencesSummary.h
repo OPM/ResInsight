@@ -64,6 +64,7 @@ public:
     bool              createOptimizedSummaryDataFiles() const;
 
     bool createH5SummaryDataFiles() const;
+    bool checkH5SummaryDataTimeStamp() const;
     int  createH5SummaryDataThreadCount() const;
 
     void appendRestartFileGroup( caf::PdmUiOrdering& uiOrdering ) const;
@@ -105,6 +106,7 @@ private:
     caf::PdmField<bool> m_useOptimizedSummaryDataFile;
 
     caf::PdmField<bool> m_createH5SummaryDataFile;
+    caf::PdmField<bool> m_checkH5FileTimeStamp;
     caf::PdmField<int>  m_createH5SummaryFileThreadCount;
 
     caf::PdmField<SummaryReaderModeType> m_summaryReader;

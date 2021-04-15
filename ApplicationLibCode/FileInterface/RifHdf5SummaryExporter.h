@@ -51,4 +51,6 @@ public:
 private:
     static bool writeGeneralSection( RifHdf5Exporter& exporter, Opm::EclIO::ESmry& sourceSummaryData );
     static bool writeSummaryVectors( RifHdf5Exporter& exporter, Opm::EclIO::ESmry& sourceSummaryData );
+
+    static bool isFirstOlderThanSecond( const std::string& firstFileName, const std::string& secondFileName );
 };

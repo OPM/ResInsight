@@ -19,6 +19,7 @@
 #include "RifHdf5SummaryExporter.h"
 
 #include "RiaLogging.h"
+#include "RiaPreferencesSummary.h"
 
 #include "RifHdf5Exporter.h"
 #include "RifSummaryReaderInterface.h"
@@ -80,8 +81,22 @@ bool RifHdf5SummaryExporter::ensureHdf5FileIsCreated( const std::string& smspecF
 {
     if ( !QFile::exists( QString::fromStdString( smspecFileName ) ) ) return false;
 
-    // TODO: Use time stamp of file to make sure the smspec file is older than the h5 file
+    bool exportIsRequired = false;
     if ( !QFile::exists( QString::fromStdString( h5FileName ) ) )
+    {
+        exportIsRequired = true;
+    }
+
+    RiaPreferencesSummary* prefs = RiaPreferencesSummary::current();
+    if ( prefs->checkH5SummaryDataTimeStamp() )
+    {
+        if ( RifHdf5SummaryExporter::isFirstOlderThanSecond( h5FileName, smspecFileName ) )
+        {
+            exportIsRequired = true;
+        }
+    }
+
+    if ( exportIsRequired )
     {
         try
         {
@@ -228,4 +243,15 @@ bool RifHdf5SummaryExporter::writeSummaryVectors( RifHdf5Exporter& exporter, Opm
     }
 
     return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RifHdf5SummaryExporter::isFirstOlderThanSecond( const std::string& firstFileName, const std::string& secondFileName )
+{
+    auto timeA = std::filesystem::last_write_time( firstFileName );
+    auto timeB = std::filesystem::last_write_time( secondFileName );
+
+    return ( timeA < timeB );
 }

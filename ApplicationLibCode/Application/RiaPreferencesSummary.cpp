@@ -134,6 +134,15 @@ RiaPreferencesSummary::RiaPreferencesSummary()
                        "" );
     m_createH5SummaryDataFile.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 
+    CAF_PDM_InitField( &m_checkH5FileTimeStamp,
+                       "checkH5FileTimeStamp",
+                       false,
+                       "Recreate 'h5' File Based on Time Stamp [BETA]",
+                       "",
+                       "Compare time stamp of SMSPEC and h5 files",
+                       "" );
+    m_checkH5FileTimeStamp.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+
     CAF_PDM_InitField( &m_createH5SummaryFileThreadCount,
                        "createH5SummaryFileThreadCount",
                        1,
@@ -201,6 +210,14 @@ bool RiaPreferencesSummary::createOptimizedSummaryDataFiles() const
 bool RiaPreferencesSummary::createH5SummaryDataFiles() const
 {
     return m_createH5SummaryDataFile();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiaPreferencesSummary::checkH5SummaryDataTimeStamp() const
+{
+    return m_checkH5FileTimeStamp;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -321,7 +338,7 @@ void RiaPreferencesSummary::defineEditorAttribute( const caf::PdmFieldHandle* fi
 {
     if ( field == &m_createOptimizedSummaryDataFile || field == &m_showSummaryTimeAsLongString ||
          field == &m_useMultipleThreadsWhenLoadingSummaryData || field == &m_summaryRestartFilesShowImportDialog ||
-         field == &m_useOptimizedSummaryDataFile || field == &m_createH5SummaryDataFile )
+         field == &m_useOptimizedSummaryDataFile || field == &m_createH5SummaryDataFile || field == &m_checkH5FileTimeStamp )
     {
         auto myAttr = dynamic_cast<caf::PdmUiCheckBoxEditorAttribute*>( attribute );
         if ( myAttr )
@@ -340,12 +357,13 @@ void RiaPreferencesSummary::defineUiOrdering( QString uiConfigName, caf::PdmUiOr
 
     if ( m_summaryReader == SummaryReaderMode::OPM_COMMON )
     {
-        uiOrdering.add( &m_createOptimizedSummaryDataFile );
         uiOrdering.add( &m_useOptimizedSummaryDataFile );
+        uiOrdering.add( &m_createOptimizedSummaryDataFile );
     }
     else if ( m_summaryReader == SummaryReaderMode::HDF5_OPM_COMMON )
     {
         uiOrdering.add( &m_createH5SummaryDataFile );
+        uiOrdering.add( &m_checkH5FileTimeStamp );
         uiOrdering.add( &m_createH5SummaryFileThreadCount );
     }
 
