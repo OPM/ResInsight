@@ -37,7 +37,7 @@ class RigFemPartResultCalculatorGamma : public RigFemPartResultCalculator
 {
 public:
     explicit RigFemPartResultCalculatorGamma( RigFemPartResultsCollection& collection );
-    virtual ~RigFemPartResultCalculatorGamma();
+    ~RigFemPartResultCalculatorGamma() override;
     bool                      isMatching( const RigFemResultAddress& resVarAddr ) const override;
     RigFemScalarResultFrames* calculate( int partIndex, const RigFemResultAddress& resVarAddr ) override;
 

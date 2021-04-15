@@ -63,7 +63,7 @@ public:
 
 public:
     RifReaderFmuRft( const QString& filePath );
-    ~RifReaderFmuRft() = default;
+    ~RifReaderFmuRft() override = default;
 
     static QStringList findSubDirectoriesWithFmuRftData( const QString& filePath );
     static bool        directoryContainsFmuRftData( const QString& filePath );

@@ -52,7 +52,7 @@ class RiuGridCrossQwtPlot : public RiuQwtPlotWidget
 
 public:
     RiuGridCrossQwtPlot( RimGridCrossPlot* crossPlot, QWidget* parent = nullptr );
-    ~RiuGridCrossQwtPlot();
+    ~RiuGridCrossQwtPlot() override;
 
     RiuGridCrossQwtPlot( const RiuGridCrossQwtPlot& ) = delete;
 

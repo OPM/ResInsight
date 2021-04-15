@@ -31,7 +31,7 @@ class RigFemPartResultCalculatorStressAnisotropy : public RigFemPartResultCalcul
 {
 public:
     explicit RigFemPartResultCalculatorStressAnisotropy( RigFemPartResultsCollection& collection );
-    virtual ~RigFemPartResultCalculatorStressAnisotropy();
+    ~RigFemPartResultCalculatorStressAnisotropy() override;
     bool                      isMatching( const RigFemResultAddress& resVarAddr ) const override;
     RigFemScalarResultFrames* calculate( int partIndex, const RigFemResultAddress& resVarAddr ) override;
     RigFemScalarResultFrames* calculateTimeLapse( int partIndex, const RigFemResultAddress& resVarAddr );

@@ -31,7 +31,7 @@ class RigFemPartResultCalculatorNormalST : public RigFemPartResultCalculator
 {
 public:
     explicit RigFemPartResultCalculatorNormalST( RigFemPartResultsCollection& collection );
-    virtual ~RigFemPartResultCalculatorNormalST();
+    ~RigFemPartResultCalculatorNormalST() override;
     bool                      isMatching( const RigFemResultAddress& resVarAddr ) const override;
     RigFemScalarResultFrames* calculate( int partIndex, const RigFemResultAddress& resVarAddr ) override;
 };

@@ -79,7 +79,7 @@ public:
     void setToDefaultSizeSlice( SinglePlaneState plane, const cvf::Vec3d& position );
 
 protected:
-    caf::PdmFieldHandle* userDescriptionField() override final;
+    caf::PdmFieldHandle* userDescriptionField() final;
 
     void defineEditorAttribute( const caf::PdmFieldHandle* field,
                                 QString                    uiConfigName,

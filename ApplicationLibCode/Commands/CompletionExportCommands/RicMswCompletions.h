@@ -109,7 +109,7 @@ public:
                  double                  startTVD,
                  const RimWellPathValve* wellPathValve );
 
-    virtual ~RicMswValve() {}
+    ~RicMswValve() override {}
 
     const RimWellPathValve* wellPathValve() const;
 

@@ -59,7 +59,7 @@ class RimGridCrossPlot : public RimPlot, public RimNameConfigHolderInterface
 
 public:
     RimGridCrossPlot();
-    ~RimGridCrossPlot();
+    ~RimGridCrossPlot() override;
 
     QString description() const override;
 

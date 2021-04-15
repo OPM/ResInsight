@@ -47,7 +47,7 @@ private slots:
 
 private:
     RiaPlotWindowRedrawScheduler()  = default;
-    ~RiaPlotWindowRedrawScheduler() = default;
+    ~RiaPlotWindowRedrawScheduler() override = default;
 
     void startTimer( int msecs );
 

@@ -31,7 +31,7 @@ class RigFemPartResultCalculatorShearSE : public RigFemPartResultCalculator
 {
 public:
     explicit RigFemPartResultCalculatorShearSE( RigFemPartResultsCollection& collection );
-    virtual ~RigFemPartResultCalculatorShearSE();
+    ~RigFemPartResultCalculatorShearSE() override;
     bool                      isMatching( const RigFemResultAddress& resVarAddr ) const override;
     RigFemScalarResultFrames* calculate( int partIndex, const RigFemResultAddress& resVarAddr ) override;
 };

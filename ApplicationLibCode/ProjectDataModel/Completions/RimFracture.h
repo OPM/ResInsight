@@ -143,7 +143,7 @@ protected:
     void                          defineEditorAttribute( const caf::PdmFieldHandle* field,
                                                          QString                    uiConfigName,
                                                          caf::PdmUiEditorAttribute* attribute ) override;
-    void                          initAfterRead();
+    void                          initAfterRead() override;
 
 private:
     cvf::Vec3d fracturePositionForUi() const;

@@ -61,7 +61,7 @@ class RifOpmCommonEclipseSummary : public RifSummaryReaderInterface
 {
 public:
     RifOpmCommonEclipseSummary();
-    ~RifOpmCommonEclipseSummary();
+    ~RifOpmCommonEclipseSummary() override;
 
     void useLodsmaryFiles( bool enable );
     void createLodsmaryFiles( bool enable );

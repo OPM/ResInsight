@@ -31,7 +31,7 @@ class RigFemPartResultCalculatorEV : public RigFemPartResultCalculator
 {
 public:
     explicit RigFemPartResultCalculatorEV( RigFemPartResultsCollection& collection );
-    virtual ~RigFemPartResultCalculatorEV();
+    ~RigFemPartResultCalculatorEV() override;
     bool                      isMatching( const RigFemResultAddress& resVarAddr ) const override;
     RigFemScalarResultFrames* calculate( int partIndex, const RigFemResultAddress& resVarAddr ) override;
 };

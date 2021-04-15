@@ -768,7 +768,7 @@ namespace farmhashte {
 
 uint64_t Hash64(const char *s, size_t len) {
   FARMHASH_DIE_IF_MISCONFIGURED;
-  return s == NULL ? 0 : len;
+  return s == nullptr ? 0 : len;
 }
 
 uint64_t Hash64WithSeed(const char *s, size_t len, uint64_t seed) {
@@ -1000,7 +1000,7 @@ namespace farmhashnt {
 
 uint32_t Hash32(const char *s, size_t len) {
   FARMHASH_DIE_IF_MISCONFIGURED;
-  return s == NULL ? 0 : len;
+  return s == nullptr ? 0 : len;
 }
 
 uint32_t Hash32WithSeed(const char *s, size_t len, uint32_t seed) {
@@ -1139,7 +1139,7 @@ namespace farmhashsu {
 
 uint32_t Hash32(const char *s, size_t len) {
   FARMHASH_DIE_IF_MISCONFIGURED;
-  return s == NULL ? 0 : len;
+  return s == nullptr ? 0 : len;
 }
 
 uint32_t Hash32WithSeed(const char *s, size_t len, uint32_t seed) {
@@ -1359,7 +1359,7 @@ namespace farmhashsa {
 
 uint32_t Hash32(const char *s, size_t len) {
   FARMHASH_DIE_IF_MISCONFIGURED;
-  return s == NULL ? 0 : len;
+  return s == nullptr ? 0 : len;
 }
 
 uint32_t Hash32WithSeed(const char *s, size_t len, uint32_t seed) {

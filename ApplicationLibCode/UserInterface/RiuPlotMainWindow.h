@@ -57,7 +57,7 @@ class RiuPlotMainWindow : public RiuMainWindowBase
 
 public:
     RiuPlotMainWindow();
-    ~RiuPlotMainWindow();
+    ~RiuPlotMainWindow() override;
 
     QString mainWindowName() override;
 

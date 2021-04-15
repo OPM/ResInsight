@@ -37,7 +37,7 @@ class RiuCategoryLegendFrame : public RiuAbstractLegendFrame
 
 public:
     RiuCategoryLegendFrame( QWidget* parent, const QString& title, caf::CategoryMapper* categoryMapper );
-    ~RiuCategoryLegendFrame();
+    ~RiuCategoryLegendFrame() override;
 
 private:
     void    layoutInfo( LayoutInfo* layout ) const override;

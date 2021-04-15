@@ -31,7 +31,7 @@ class RigFemPartResultCalculatorSurfaceAngles : public RigFemPartResultCalculato
 {
 public:
     explicit RigFemPartResultCalculatorSurfaceAngles( RigFemPartResultsCollection& collection );
-    virtual ~RigFemPartResultCalculatorSurfaceAngles();
+    ~RigFemPartResultCalculatorSurfaceAngles() override;
     bool                      isMatching( const RigFemResultAddress& resVarAddr ) const override;
     RigFemScalarResultFrames* calculate( int partIndex, const RigFemResultAddress& resVarAddr ) override;
 };

@@ -95,7 +95,7 @@ public:
 
 public:
     RimGridCrossPlotDataSet();
-    ~RimGridCrossPlotDataSet();
+    ~RimGridCrossPlotDataSet() override;
 
     void    setCellFilterView( RimGridView* cellFilterView );
     void    loadDataAndUpdate( bool updateParentPlot );
