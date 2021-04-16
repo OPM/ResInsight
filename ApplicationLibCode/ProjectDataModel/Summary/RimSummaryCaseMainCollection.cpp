@@ -514,9 +514,8 @@ void RimSummaryCaseMainCollection::loadFileSummaryCaseData( std::vector<RimFileS
     }
 
     // This loop is not thread safe, use serial loop
-    for ( int cIdx = 0; cIdx < static_cast<int>( fileSummaryCases.size() ); ++cIdx )
+    for ( RimFileSummaryCase* fileSummaryCase : fileSummaryCases )
     {
-        RimFileSummaryCase* fileSummaryCase = fileSummaryCases[cIdx];
         if ( fileSummaryCase )
         {
             fileSummaryCase->createRftReaderInterface();
