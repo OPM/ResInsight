@@ -19,6 +19,7 @@
 #include "RifHdf5SummaryExporter.h"
 
 #include "RiaLogging.h"
+#include "RiaPreferencesSummary.h"
 
 #include "RifHdf5Exporter.h"
 #include "RifSummaryReaderInterface.h"
@@ -50,11 +51,13 @@ bool RifHdf5SummaryExporter::ensureHdf5FileIsCreatedMultithreaded( const std::ve
 
     size_t hdfFilesCreatedCount = 0;
 
-#pragma omp parallel for schedule( dynamic ) num_threads( threadCount )
+    bool useMultipleThreads = threadCount > 1;
+
+#pragma omp parallel for schedule( dynamic ) if ( useMultipleThreads ) num_threads( threadCount )
     for ( int cIdx = 0; cIdx < static_cast<int>( smspecFileNames.size() ); ++cIdx )
     {
-        auto smspecFileName = smspecFileNames[cIdx];
-        auto h5FileName     = h5FileNames[cIdx];
+        const auto& smspecFileName = smspecFileNames[cIdx];
+        const auto& h5FileName     = h5FileNames[cIdx];
 
         RifHdf5SummaryExporter::ensureHdf5FileIsCreated( smspecFileName, h5FileName, hdfFilesCreatedCount );
     }
@@ -76,10 +79,32 @@ bool RifHdf5SummaryExporter::ensureHdf5FileIsCreated( const std::string& smspecF
                                                       const std::string& h5FileName,
                                                       size_t&            hdfFilesCreatedCount )
 {
-    if ( !QFile::exists( QString::fromStdString( smspecFileName ) ) ) return false;
+    if ( !std::filesystem::exists( smspecFileName ) ) return false;
 
-    // TODO: Use time stamp of file to make sure the smspec file is older than the h5 file
-    if ( !QFile::exists( QString::fromStdString( h5FileName ) ) )
+    {
+        // Check if we have write permission in the folder
+        QFileInfo info( QString::fromStdString( smspecFileName ) );
+
+        if ( !info.isWritable() ) return true;
+    }
+
+    bool exportIsRequired = false;
+
+    {
+        bool h5FileExists = std::filesystem::exists( h5FileName );
+        if ( !h5FileExists ) exportIsRequired = true;
+
+        RiaPreferencesSummary* prefs = RiaPreferencesSummary::current();
+        if ( prefs->checkH5SummaryDataTimeStamp() && h5FileExists )
+        {
+            if ( RifHdf5SummaryExporter::isFirstOlderThanSecond( h5FileName, smspecFileName ) )
+            {
+                exportIsRequired = true;
+            }
+        }
+    }
+
+    if ( exportIsRequired )
     {
         try
         {
@@ -91,6 +116,8 @@ bool RifHdf5SummaryExporter::ensureHdf5FileIsCreated( const std::string& smspecF
 
 #pragma omp critical( critical_section_HDF5_export )
             {
+                // HDF5 file access is not thread-safe, always make sure we use the HDF5 library from a single thread
+
                 RifHdf5Exporter exporter( h5FileName );
 
                 writeGeneralSection( exporter, sourceSummaryData );
@@ -210,9 +237,9 @@ bool RifHdf5SummaryExporter::writeSummaryVectors( RifHdf5Exporter& exporter, Opm
 
         for ( auto nodeIndex : nodesForKeyword.second )
         {
-            auto    summaryNode        = summaryNodeList[nodeIndex];
-            auto    smspecKeywordIndex = summaryNode.smspecKeywordIndex;
-            QString smspecKeywordText  = QString( "%1" ).arg( smspecKeywordIndex );
+            const auto&    summaryNode        = summaryNodeList[nodeIndex];
+            auto           smspecKeywordIndex = summaryNode.smspecKeywordIndex;
+            const QString& smspecKeywordText  = QString( "%1" ).arg( smspecKeywordIndex );
 
             auto dataValuesGroup             = exporter.createGroup( &keywordGroup, smspecKeywordText.toStdString() );
             const std::vector<float>& values = sourceSummaryData.get( summaryNode );
@@ -226,4 +253,17 @@ bool RifHdf5SummaryExporter::writeSummaryVectors( RifHdf5Exporter& exporter, Opm
     }
 
     return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RifHdf5SummaryExporter::isFirstOlderThanSecond( const std::string& firstFileName, const std::string& secondFileName )
+{
+    if ( !std::filesystem::exists( firstFileName ) || !std::filesystem::exists( secondFileName ) ) return false;
+
+    auto timeA = std::filesystem::last_write_time( firstFileName );
+    auto timeB = std::filesystem::last_write_time( secondFileName );
+
+    return ( timeA < timeB );
 }

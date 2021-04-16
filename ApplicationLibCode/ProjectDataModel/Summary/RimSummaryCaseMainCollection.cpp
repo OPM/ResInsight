@@ -18,6 +18,7 @@
 
 #include "RimSummaryCaseMainCollection.h"
 
+#include "RiaEclipseFileNameTools.h"
 #include "RiaLogging.h"
 #include "RiaPreferencesSummary.h"
 #include "RiaSummaryTools.h"
@@ -418,19 +419,7 @@ void RimSummaryCaseMainCollection::loadSummaryCaseData( std::vector<RimSummaryCa
 
     if ( !fileSummaryCases.empty() )
     {
-        int threadCount = 1;
-#ifdef USE_OPENMP
-        if ( prefs->summaryDataReader() != RiaPreferencesSummary::SummaryReaderMode::HDF5_OPM_COMMON )
-        {
-            threadCount = prefs->createH5SummaryDataThreadCount();
-        }
-        else
-        {
-            threadCount = omp_get_max_threads();
-        }
-#endif
-
-        loadFileSummaryCaseData( fileSummaryCases, threadCount );
+        loadFileSummaryCaseData( fileSummaryCases );
     }
 
     caf::ProgressInfo progInfo( otherSummaryCases.size(), "Loading Summary Cases" );
@@ -454,20 +443,20 @@ void RimSummaryCaseMainCollection::loadSummaryCaseData( std::vector<RimSummaryCa
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCaseMainCollection::loadFileSummaryCaseData( std::vector<RimFileSummaryCase*> fileSummaryCases,
-                                                            int                              threadCountForHdf5Export )
+void RimSummaryCaseMainCollection::loadFileSummaryCaseData( std::vector<RimFileSummaryCase*> fileSummaryCases )
 {
-    // Use openMP when reading file summary case meta data. Avoid using the virtual interface of base class
-    // RimSummaryCase, as it is difficult to make sure all variants of the leaf classes are thread safe.
-    // Only open the summary file reader in parallel loop to reduce risk of multi threading issues
-
     RiaPreferencesSummary* prefs = RiaPreferencesSummary::current();
 
+    // If h5 mode, check all summary files and create or recreate h5 files if required
 #ifdef USE_HDF5
     {
         if ( prefs->summaryDataReader() == RiaPreferencesSummary::SummaryReaderMode::HDF5_OPM_COMMON &&
              prefs->createH5SummaryDataFiles() )
         {
+            int threadCount = 1;
+#ifdef USE_OPENMP
+            threadCount = prefs->createH5SummaryDataThreadCount();
+#endif
             std::vector<std::string> headerFileNames;
             std::vector<std::string> h5FileNames;
 
@@ -482,12 +471,14 @@ void RimSummaryCaseMainCollection::loadFileSummaryCaseData( std::vector<RimFileS
                 h5FileNames.push_back( h5FilenameCandidate.toStdString() );
             }
 
-            RifHdf5SummaryExporter::ensureHdf5FileIsCreatedMultithreaded( headerFileNames,
-                                                                          h5FileNames,
-                                                                          threadCountForHdf5Export );
+            RifHdf5SummaryExporter::ensureHdf5FileIsCreatedMultithreaded( headerFileNames, h5FileNames, threadCount );
         }
     }
 #endif
+
+    // Use openMP when reading file summary case meta data. Avoid using the virtual interface of base class
+    // RimSummaryCase, as it is difficult to make sure all variants of the leaf classes are thread safe.
+    // Only open the summary file reader in parallel loop to reduce risk of multi threading issues
 
     caf::ProgressInfo progInfo( fileSummaryCases.size(), "Loading Summary Cases" );
 
@@ -495,7 +486,7 @@ void RimSummaryCaseMainCollection::loadFileSummaryCaseData( std::vector<RimFileS
 
     RiaThreadSafeLogger threadSafeLogger;
 
-    // The HDF5 reader requires a special configuration to be thread safe. Disable threading for HDF reader creation.
+    // The HDF5 reader requires a special configuration to be thread safe. Disable threading for HDF reader.
     bool canUseMultipleTreads = ( prefs->summaryDataReader() != RiaPreferencesSummary::SummaryReaderMode::HDF5_OPM_COMMON );
 
 #pragma omp parallel for schedule( dynamic ) if ( canUseMultipleTreads )
@@ -523,9 +514,8 @@ void RimSummaryCaseMainCollection::loadFileSummaryCaseData( std::vector<RimFileS
     }
 
     // This loop is not thread safe, use serial loop
-    for ( int cIdx = 0; cIdx < static_cast<int>( fileSummaryCases.size() ); ++cIdx )
+    for ( RimFileSummaryCase* fileSummaryCase : fileSummaryCases )
     {
-        RimFileSummaryCase* fileSummaryCase = fileSummaryCases[cIdx];
         if ( fileSummaryCase )
         {
             fileSummaryCase->createRftReaderInterface();
@@ -631,13 +621,25 @@ std::vector<RimSummaryCase*> RimSummaryCaseMainCollection::createSummaryCasesFro
             }
             else
             {
-                RimFileSummaryCase* newSumCase = new RimFileSummaryCase();
+                const QString& smspecFileName = fileInfo.summaryFileName();
 
-                newSumCase->setIncludeRestartFiles( fileInfo.includeRestartFiles() );
-                newSumCase->setSummaryHeaderFileName( fileInfo.summaryFileName() );
-                newSumCase->updateOptionSensitivity();
-                project->assignCaseIdToSummaryCase( newSumCase );
-                sumCases.push_back( newSumCase );
+                bool foundDataFile = RiaEclipseFileNameTools::isSummaryDataFilePresent( smspecFileName );
+                if ( foundDataFile )
+                {
+                    RimFileSummaryCase* newSumCase = new RimFileSummaryCase();
+
+                    newSumCase->setIncludeRestartFiles( fileInfo.includeRestartFiles() );
+                    newSumCase->setSummaryHeaderFileName( fileInfo.summaryFileName() );
+                    newSumCase->updateOptionSensitivity();
+                    project->assignCaseIdToSummaryCase( newSumCase );
+
+                    sumCases.push_back( newSumCase );
+                }
+                else
+                {
+                    QString txt = QString( "No UNSMRY file found for %1" ).arg( smspecFileName );
+                    RiaLogging::warning( txt );
+                }
             }
 
             if ( progress != nullptr ) progress->incrementProgress();

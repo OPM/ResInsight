@@ -105,14 +105,4 @@ def test_summary_no_unsmry(rips_instance, initialize_test):
         shutil.copy2(casePath, temp_path)
 
         summary_case = rips_instance.project.import_summary_case(temp_path)
-
-        values = summary_case.summary_vector_values()
-        assert len(values.values) == 1
-
-        time_steps = summary_case.available_time_steps()
-        assert len(time_steps.values) == 1
-
-        addresses = summary_case.available_addresses()
-        assert len(addresses.values) == 1
-
-        summary_case.resample_values()
+        assert summary_case is None

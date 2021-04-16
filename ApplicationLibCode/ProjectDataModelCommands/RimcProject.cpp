@@ -105,6 +105,14 @@ std::unique_ptr<caf::PdmObjectHandle> RimProject_importSummaryCase::defaultResul
     return std::unique_ptr<caf::PdmObjectHandle>( new RimFileSummaryCase );
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimProject_importSummaryCase::isNullptrValidResult() const
+{
+    return true;
+}
+
 CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimProject, RimProject_summaryCase, "summaryCase" );
 
 //--------------------------------------------------------------------------------------------------

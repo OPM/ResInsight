@@ -235,51 +235,6 @@ RiaPreferences::RiaPreferences()
     CAF_PDM_InitField( &loadAndShowSoil, "loadAndShowSoil", true, "Load and Show SOIL", "", "", "" );
     loadAndShowSoil.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 
-    /*
-        CAF_PDM_InitFieldNoDefault( &summaryRestartFilesShowImportDialog,
-                                    "summaryRestartFilesShowImportDialog",
-                                    "Show Import Dialog",
-                                    "",
-                                    "",
-                                    "" );
-        CAF_PDM_InitField( &summaryImportMode,
-                           "summaryImportMode",
-                           SummaryRestartFilesImportModeType( RiaPreferences::SummaryRestartFilesImportMode::IMPORT ),
-                           "Default Summary Import Option",
-                           "",
-                           "",
-                           "" );
-        CAF_PDM_InitField( &gridImportMode,
-                           "gridImportMode",
-                           SummaryRestartFilesImportModeType( RiaPreferences::SummaryRestartFilesImportMode::NOT_IMPORT
-       ), "Default Grid Import Option",
-                           "",
-                           "",
-                           "" );
-        CAF_PDM_InitField( &summaryEnsembleImportMode,
-                           "summaryEnsembleImportMode",
-                           SummaryRestartFilesImportModeType( RiaPreferences::SummaryRestartFilesImportMode::IMPORT ),
-                           "Default Ensemble Summary Import Option",
-                           "",
-                           "",
-                           "" );
-
-        CAF_PDM_InitField( &defaultSummaryHistoryCurveStyle,
-                           "defaultSummaryHistoryCurveStyle",
-                           SummaryHistoryCurveStyleModeType( RiaPreferences::SummaryHistoryCurveStyleMode::SYMBOLS ),
-                           "Default Curve Style for History Vectors",
-                           "",
-                           "",
-                           "" );
-        CAF_PDM_InitField( &defaultSummaryCurvesTextFilter,
-                           "defaultSummaryCurvesTextFilter",
-                           QString( "FOPT" ),
-                           "Default Summary Curves",
-                           "",
-                           "Semicolon separated list of filters used to create curves in new summary plots",
-                           "" );
-    */
-
     CAF_PDM_InitFieldNoDefault( &m_holoLensExportFolder, "holoLensExportFolder", "HoloLens Export Folder", "", "", "" );
     m_holoLensExportFolder.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
     m_holoLensExportFolder.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
@@ -338,27 +293,6 @@ RiaPreferences::RiaPreferences()
     m_searchPlotTemplateFoldersRecursively.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 
     CAF_PDM_InitFieldNoDefault( &m_defaultPlotTemplate, "defaultPlotTemplate", "Default Plot Template", "", "", "" );
-    // m_plotTemplateFolders.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
-
-    /*
-        CAF_PDM_InitField( &m_showSummaryTimeAsLongString,
-                           "showSummaryTimeAsLongString",
-                           false,
-                           "Show resample time text as long time text (2010-11-21 23:15:00)",
-                           "",
-                           "",
-                           "" );
-        m_showSummaryTimeAsLongString.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
-
-        CAF_PDM_InitField( &m_useMultipleThreadsWhenLoadingSummaryData,
-                           "useMultipleThreadsWhenLoadingSummaryData",
-                           false,
-                           "Use multiple threads when loading summary data",
-                           "",
-                           "",
-                           "" );
-        m_useMultipleThreadsWhenLoadingSummaryData.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
-    */
 
     CAF_PDM_InitFieldNoDefault( &m_pageSize, "pageSize", "Page Size", "", "", "" );
     CAF_PDM_InitFieldNoDefault( &m_pageOrientation, "pageOrientation", "Page Orientation", "", "", "" );
@@ -520,26 +454,6 @@ void RiaPreferences::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
         m_readerSettings->uiOrdering( uiConfigName, *newCaseBehaviourGroup );
 
         m_summaryPreferences->appendRestartFileGroup( uiOrdering );
-
-        /*
-                caf::PdmUiGroup* restartBehaviourGroup = uiOrdering.addNewGroup( "Origin Files" );
-                restartBehaviourGroup->add( &summaryRestartFilesShowImportDialog );
-
-                {
-                    caf::PdmUiGroup* group = restartBehaviourGroup->addNewGroup( "Origin Summary Files" );
-                    group->add( &summaryImportMode );
-                }
-
-                {
-                    caf::PdmUiGroup* group = restartBehaviourGroup->addNewGroup( "Origin Grid Files" );
-                    group->add( &gridImportMode );
-                }
-
-                {
-                    caf::PdmUiGroup* group = restartBehaviourGroup->addNewGroup( "Origin Ensemble Summary Files" );
-                    group->add( &summaryEnsembleImportMode );
-                }
-        */
     }
     else if ( uiConfigName == RiaPreferences::tabNamePlotting() )
     {
@@ -547,12 +461,6 @@ void RiaPreferences::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
         uiOrdering.add( &m_timeFormat );
 
         summaryPreferences()->appendItemsToPlottingGroup( uiOrdering );
-        /*
-                uiOrdering.add( &defaultSummaryCurvesTextFilter );
-                uiOrdering.add( &defaultSummaryHistoryCurveStyle );
-                uiOrdering.add( &m_showSummaryTimeAsLongString );
-                uiOrdering.add( &m_useMultipleThreadsWhenLoadingSummaryData );
-        */
 
         caf::PdmUiGroup* group = uiOrdering.addNewGroup( "Plot Templates" );
         group->add( &m_plotTemplateFolders );
@@ -577,21 +485,9 @@ void RiaPreferences::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
         m_pageBottomMargin.uiCapability()->setUiName( "Bottom Margin" + unitLabel );
 
         {
-            caf::PdmUiGroup* group = uiOrdering.addNewGroup( "[BETA] Optimized Summary Reader" );
-            group->setCollapsedByDefault( true );
+            caf::PdmUiGroup* group = uiOrdering.addNewGroup( "Summary Data Import" );
 
             m_summaryPreferences()->uiOrdering( uiConfigName, *group );
-            //             group->add( &m_summaryReader );
-            //
-            //             if ( m_summaryReader == SummaryReaderMode::OPM_COMMON )
-            //             {
-            //                 group->add( &m_createOptimizedSummaryDataFile );
-            //                 group->add( &m_useOptimizedSummaryDataFile );
-            //             }
-            //             else if ( m_summaryReader == SummaryReaderMode::HDF5_OPM_COMMON )
-            //             {
-            //                 group->add( &m_createH5SummaryDataFile );
-            //             }
         }
     }
 
@@ -657,30 +553,6 @@ QList<caf::PdmOptionItemInfo> RiaPreferences::calculateValueOptions( const caf::
     QList<caf::PdmOptionItemInfo> options;
     *useOptionsOnly = true;
 
-    /*
-        if ( fieldNeedingOptions == &gridImportMode )
-        {
-            // Manual option handling in order to one only a subset of the enum values
-            SummaryRestartFilesImportModeType skip( RiaPreferences::SummaryRestartFilesImportMode::NOT_IMPORT );
-            SummaryRestartFilesImportModeType separate( RiaPreferences::SummaryRestartFilesImportMode::SEPARATE_CASES );
-
-            options.push_back(
-                caf::PdmOptionItemInfo( skip.uiText(), RiaPreferences::SummaryRestartFilesImportMode::NOT_IMPORT ) );
-            options.push_back( caf::PdmOptionItemInfo( separate.uiText(),
-                                                       RiaPreferences::SummaryRestartFilesImportMode::SEPARATE_CASES ) );
-        }
-        else if ( fieldNeedingOptions == &summaryEnsembleImportMode )
-        {
-            // Manual option handling in order to one only a subset of the enum values
-            SummaryRestartFilesImportModeType skip( RiaPreferences::SummaryRestartFilesImportMode::NOT_IMPORT );
-            SummaryRestartFilesImportModeType allowImport( RiaPreferences::SummaryRestartFilesImportMode::IMPORT );
-
-            options.push_back(
-                caf::PdmOptionItemInfo( skip.uiText(), RiaPreferences::SummaryRestartFilesImportMode::NOT_IMPORT ) );
-            options.push_back(
-                caf::PdmOptionItemInfo( allowImport.uiText(), RiaPreferences::SummaryRestartFilesImportMode::IMPORT ) );
-        }
-    */
     if ( fieldNeedingOptions == &m_dateFormat )
     {
         for ( auto dateFormat : RiaQDateTimeTools::supportedDateFormats() )
@@ -1021,22 +893,6 @@ void RiaPreferences::setDefaultPlotTemplatePath( const QString& templatePath )
 {
     m_defaultPlotTemplate = templatePath;
 }
-
-// -------------------------------------------------------------------------------------------------- /
-//     --------------------------------------------------------------------------------------------------bool
-//                                                                                                     RiaPreferences::showSummaryTimeAsLongString()
-//                                                                                                     const
-// {
-//     return m_showSummaryTimeAsLongString;
-// }
-//
-// -------------------------------------------------------------------------------------------------- /
-//     --------------------------------------------------------------------------------------------------bool
-//                                                                                                     RiaPreferences::useMultipleThreadsWhenReadingSummaryData()
-//                                                                                                         const
-// {
-//     return m_useMultipleThreadsWhenLoadingSummaryData;
-// }
 
 //--------------------------------------------------------------------------------------------------
 ///

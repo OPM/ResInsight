@@ -52,6 +52,7 @@ public:
     static bool isProjectFile( const QString& fileName );
     static bool isGridFile( const QString& fileName );
     static bool isSummarySpecFile( const QString& fileName );
+    static bool isSummaryDataFilePresent( const QString& smspecFileName );
 
 private:
     QString relatedFilePath( EclipseFileType fileType ) const;

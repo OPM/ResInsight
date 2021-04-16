@@ -18,8 +18,6 @@
 
 #pragma once
 
-#include "H5Cpp.h"
-
 #include <string>
 #include <vector>
 
@@ -35,8 +33,6 @@ public:
     explicit RifHdf5SummaryReader( const QString& fileName );
     ~RifHdf5SummaryReader();
 
-    bool isValid() const;
-
     std::vector<std::string> vectorNames();
     std::vector<time_t>      timeSteps() const;
 
@@ -47,5 +43,5 @@ private:
     time_t startDate() const;
 
 private:
-    H5::H5File* m_hdfFile;
+    std::string m_fileName;
 };

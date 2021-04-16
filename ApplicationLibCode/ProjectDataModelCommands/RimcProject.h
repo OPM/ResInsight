@@ -39,6 +39,7 @@ public:
     caf::PdmObjectHandle*            execute() override;
     bool                             resultIsPersistent() const override;
     std::unique_ptr<PdmObjectHandle> defaultResult() const override;
+    bool                             isNullptrValidResult() const override;
 
 private:
     caf::PdmField<QString> m_fileName;
