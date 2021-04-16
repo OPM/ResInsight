@@ -41,8 +41,7 @@ struct RstGroup {
     std::string name;
 
     int parent_group;
-    int prod_active_cmode;
-    int gconprod_cmode;
+    int prod_cmode;
     int winj_cmode;
     int ginj_cmode;
     int guide_rate_def;

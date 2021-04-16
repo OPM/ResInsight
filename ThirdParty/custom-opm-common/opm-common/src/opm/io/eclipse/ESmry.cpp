@@ -22,6 +22,7 @@
 #include <opm/io/eclipse/EclFile.hpp>
 #include <opm/io/eclipse/EclUtil.hpp>
 #include <opm/io/eclipse/EclOutput.hpp>
+#include <opm/common/utility/TimeService.hpp>
 
 #include <algorithm>
 #include <chrono>
@@ -67,7 +68,7 @@
 
 namespace {
 
-std::chrono::system_clock::time_point make_date(const std::vector<int>& datetime) {
+Opm::time_point make_date(const std::vector<int>& datetime) {
     auto day = datetime[0];
     auto month = datetime[1];
     auto year = datetime[2];
@@ -84,7 +85,7 @@ std::chrono::system_clock::time_point make_date(const std::vector<int>& datetime
 
 
     const auto ts = Opm::TimeStampUTC{ Opm::TimeStampUTC::YMD{ year, month, day}}.hour(hour).minutes(minute).seconds(second);
-    return std::chrono::system_clock::from_time_t( Opm::asTimeT(ts) );
+    return Opm::TimeService::from_time_t( Opm::asTimeT(ts) );
 }
 
 
@@ -1084,8 +1085,11 @@ std::vector<std::string> ESmry::checkForMultipleResultFiles(const Opm::filesyste
     {
         const std::string file = itr->path().filename().string();
 
-        if ((file.find(fileFilter) != std::string::npos) && (file.find("SMSPEC") == std::string::npos)) {
-            fileList.push_back(pathRootN + "/" + file);
+        if (file.find(fileFilter) != std::string::npos) {
+            std::string num_string = itr->path().extension().string().substr(2);
+
+            if (Opm::EclIO::is_number(num_string))
+                fileList.push_back(pathRootN + "/" + file);
         }
     }
 
@@ -1278,9 +1282,9 @@ std::vector<std::string> ESmry::keywordList(const std::string& pattern) const
 {
     std::vector<std::string> list;
 
-     for (auto key : keyword)
-         if (fnmatch( pattern.c_str(), key.c_str(), 0 ) == 0 )
-             list.push_back(key);
+    for (auto key : keyword)
+        if (fnmatch( pattern.c_str(), key.c_str(), 0 ) == 0 )
+            list.push_back(key);
 
     return list;
 }
@@ -1291,24 +1295,18 @@ const std::vector<SummaryNode>& ESmry::summaryNodeList() const {
     return summaryNodes;
 }
 
-std::vector<std::chrono::system_clock::time_point> ESmry::dates() const {
+std::vector<Opm::time_point> ESmry::dates() const {
     double time_unit = 24 * 3600;
-    std::vector<std::chrono::system_clock::time_point> d;
-
-    using namespace std::chrono;
-    using TP      = time_point<system_clock>;
-    using DoubSec = duration<double, seconds::period>;
+    std::vector<Opm::time_point> d;
 
     for (const auto& t : this->get("TIME"))
-        d.push_back( this->startdat + duration_cast<TP::duration>(DoubSec(t * time_unit)));
+        d.push_back( this->startdat + std::chrono::duration_cast<std::chrono::seconds>( std::chrono::duration<double, std::chrono::seconds::period>( t * time_unit)));
 
     return d;
 }
 
-std::vector<std::chrono::system_clock::time_point> ESmry::dates_at_rstep() const {
+std::vector<time_point> ESmry::dates_at_rstep() const {
     const auto& full_vector = this->dates();
     return this->rstep_vector(full_vector);
 }
-
-
 }} // namespace Opm::ecl

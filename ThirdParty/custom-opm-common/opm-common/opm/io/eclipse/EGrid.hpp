@@ -72,7 +72,7 @@ private:
     std::array<int, 3> nijk;
     std::array<int, 3> host_nijk;
 
-    int nactive, m_nncs;
+    int nactive;
     mutable bool m_nncs_loaded;
 
     std::vector<int> act_index;
