@@ -79,20 +79,28 @@ bool RifHdf5SummaryExporter::ensureHdf5FileIsCreated( const std::string& smspecF
                                                       const std::string& h5FileName,
                                                       size_t&            hdfFilesCreatedCount )
 {
-    if ( !QFile::exists( QString::fromStdString( smspecFileName ) ) ) return false;
+    if ( !std::filesystem::exists( smspecFileName ) ) return false;
 
-    bool exportIsRequired = false;
-    if ( !QFile::exists( QString::fromStdString( h5FileName ) ) )
     {
-        exportIsRequired = true;
+        // Check if we have write permission in the folder
+        QFileInfo info( QString::fromStdString( smspecFileName ) );
+
+        if ( !info.isWritable() ) return true;
     }
 
-    RiaPreferencesSummary* prefs = RiaPreferencesSummary::current();
-    if ( prefs->checkH5SummaryDataTimeStamp() )
+    bool exportIsRequired = false;
+
     {
-        if ( RifHdf5SummaryExporter::isFirstOlderThanSecond( h5FileName, smspecFileName ) )
+        bool h5FileExists = std::filesystem::exists( h5FileName );
+        if ( !h5FileExists ) exportIsRequired = true;
+
+        RiaPreferencesSummary* prefs = RiaPreferencesSummary::current();
+        if ( prefs->checkH5SummaryDataTimeStamp() && h5FileExists )
         {
-            exportIsRequired = true;
+            if ( RifHdf5SummaryExporter::isFirstOlderThanSecond( h5FileName, smspecFileName ) )
+            {
+                exportIsRequired = true;
+            }
         }
     }
 
@@ -252,6 +260,8 @@ bool RifHdf5SummaryExporter::writeSummaryVectors( RifHdf5Exporter& exporter, Opm
 //--------------------------------------------------------------------------------------------------
 bool RifHdf5SummaryExporter::isFirstOlderThanSecond( const std::string& firstFileName, const std::string& secondFileName )
 {
+    if ( !std::filesystem::exists( firstFileName ) || !std::filesystem::exists( secondFileName ) ) return false;
+
     auto timeA = std::filesystem::last_write_time( firstFileName );
     auto timeB = std::filesystem::last_write_time( secondFileName );
 
