@@ -24,6 +24,7 @@
 #include "RifHdf5Exporter.h"
 #include "RifSummaryReaderInterface.h"
 
+#include "opm/common/utility/FileSystem.hpp"
 #include "opm/common/utility/TimeService.hpp"
 #include "opm/io/eclipse/ESmry.hpp"
 
@@ -31,8 +32,6 @@
 #include <QFile>
 #include <QFileInfo>
 #include <QString>
-
-#include <filesystem>
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -81,7 +80,7 @@ bool RifHdf5SummaryExporter::ensureHdf5FileIsCreated( const std::string& smspecF
                                                       const std::string& h5FileName,
                                                       size_t&            hdfFilesCreatedCount )
 {
-    if ( !std::filesystem::exists( smspecFileName ) ) return false;
+    if ( !Opm::filesystem::exists( smspecFileName ) ) return false;
 
     {
         // Check if we have write permission in the folder
@@ -93,7 +92,7 @@ bool RifHdf5SummaryExporter::ensureHdf5FileIsCreated( const std::string& smspecF
     bool exportIsRequired = false;
 
     {
-        bool h5FileExists = std::filesystem::exists( h5FileName );
+        bool h5FileExists = Opm::filesystem::exists( h5FileName );
         if ( !h5FileExists ) exportIsRequired = true;
 
         RiaPreferencesSummary* prefs = RiaPreferencesSummary::current();
@@ -262,10 +261,12 @@ bool RifHdf5SummaryExporter::writeSummaryVectors( RifHdf5Exporter& exporter, Opm
 //--------------------------------------------------------------------------------------------------
 bool RifHdf5SummaryExporter::isFirstOlderThanSecond( const std::string& firstFileName, const std::string& secondFileName )
 {
-    if ( !std::filesystem::exists( firstFileName ) || !std::filesystem::exists( secondFileName ) ) return false;
+    // Use Opm namespace to make sure the code compiles on older compilers
 
-    auto timeA = std::filesystem::last_write_time( firstFileName );
-    auto timeB = std::filesystem::last_write_time( secondFileName );
+    if ( !Opm::filesystem::exists( firstFileName ) || !Opm::filesystem::exists( secondFileName ) ) return false;
+
+    auto timeA = Opm::filesystem::last_write_time( firstFileName );
+    auto timeB = Opm::filesystem::last_write_time( secondFileName );
 
     return ( timeA < timeB );
 }
