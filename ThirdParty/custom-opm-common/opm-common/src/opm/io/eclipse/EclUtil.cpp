@@ -71,6 +71,17 @@ bool Opm::EclIO::fileExists(const std::string& filename){
     return fileH.good();
 }
 
+
+bool Opm::EclIO::is_number(const std::string& numstr)
+{
+    for (char const &c : numstr)
+        if (std::isdigit(c) == 0)
+            return false;
+
+    return true;
+}
+
+
 bool Opm::EclIO::isFormatted(const std::string& filename)
 {
     const auto p = filename.find_last_of(".");

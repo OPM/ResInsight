@@ -35,6 +35,7 @@ namespace Opm { namespace EclIO {
     bool isEOF(std::fstream* fileH);
     bool fileExists(const std::string& filename);
     bool isFormatted(const std::string& filename);
+    bool is_number(const std::string& numstr);
 
     std::tuple<int, int> block_size_data_binary(eclArrType arrType);
     std::tuple<int, int, int> block_size_data_formatted(eclArrType arrType);

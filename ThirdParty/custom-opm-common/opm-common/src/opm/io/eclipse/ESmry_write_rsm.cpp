@@ -52,15 +52,15 @@ namespace {
 
     const std::vector<std::string> month_names = {"JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"};
 
-    std::string format_date(const std::chrono::system_clock::time_point& tp) {
-        auto ts = Opm::TimeStampUTC( std::chrono::system_clock::to_time_t(tp) );
+    std::string format_date(const Opm::time_point& tp) {
+        auto ts = Opm::TimeStampUTC( Opm::TimeService::to_time_t(tp) );
         char buffer[12];
         std::snprintf(buffer, 12, "%2d-%3s-%4d", ts.day(), month_names[ts.month() - 1].c_str(), ts.year());
         return std::string(buffer, 11);
     }
 
     const std::string block_header_line(const std::string& run_name) {
-        std::string date_string = format_date( std::chrono::system_clock::from_time_t( std::time(nullptr)));
+        std::string date_string = format_date( Opm::TimeService::from_time_t( std::time(nullptr)));
         return "SUMMARY OF RUN " + run_name + " at: " + date_string + "  OPM FLOW " + PROJECT_VERSION_NAME;
     }
 

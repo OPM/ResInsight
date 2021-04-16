@@ -24,12 +24,6 @@
 #include <vector>
 #include <type_traits>
 #include <cmath>
-
-// Make sure Windows macro definitions are
-// undefined here, to be able to use std::min/max.
-#undef max
-#undef min
-
 #include <algorithm>
 
 namespace Opm {

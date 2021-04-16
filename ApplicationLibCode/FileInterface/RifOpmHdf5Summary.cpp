@@ -155,8 +155,7 @@ void RifOpmHdf5Summary::buildMetaData()
         else
         {
             // Fallback to using opm-reader for time step data
-            std::vector<std::chrono::system_clock::time_point> timePoints;
-            timePoints = m_eSmry->dates();
+            auto timePoints = m_eSmry->dates();
 
             for ( const auto& d : timePoints )
             {

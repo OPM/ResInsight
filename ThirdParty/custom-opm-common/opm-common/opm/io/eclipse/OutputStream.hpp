@@ -21,6 +21,7 @@
 #define OPM_IO_OUTPUTSTREAM_HPP_INCLUDED
 
 #include <opm/io/eclipse/PaddedOutputString.hpp>
+#include <opm/common/utility/TimeService.hpp>
 
 #include <array>
 #include <chrono>
@@ -362,7 +363,7 @@ namespace Opm { namespace EclIO { namespace OutputStream {
     class SummarySpecification
     {
     public:
-        using StartTime = std::chrono::system_clock::time_point;
+        using StartTime = time_point;
 
         enum class UnitConvention
         {

@@ -23,34 +23,83 @@
 #include <ctime>
 #include <utility>
 
+namespace Opm {
+namespace TimeService {
+
 namespace {
-    std::time_t advance(const std::time_t tp, const double sec)
-    {
-        using namespace std::chrono;
+    const std::unordered_map<std::string, int> month_indices = {
+        {"JAN", 1},
+        {"FEB", 2},
+        {"MAR", 3},
+        {"APR", 4},
+        {"MAI", 5},
+        {"MAY", 5},
+        {"JUN", 6},
+        {"JUL", 7},
+        {"JLY", 7},
+        {"AUG", 8},
+        {"SEP", 9},
+        {"OCT", 10},
+        {"OKT", 10},
+        {"NOV", 11},
+        {"DEC", 12},
+        {"DES", 12}};
+}
 
-        using TP      = time_point<system_clock>;
-        using DoubSec = duration<double, seconds::period>;
 
-        const auto t = system_clock::from_time_t(tp) +
-            duration_cast<TP::duration>(DoubSec(sec));
+const time_t system_clock_epoch = std::chrono::system_clock::to_time_t({});
 
-        return system_clock::to_time_t(t);
-    }
+time_point from_time_t(std::time_t t) {
+    auto diff = std::difftime(t, system_clock_epoch);
+    return time_point(std::chrono::seconds(static_cast<std::chrono::seconds::rep>(diff)));
+}
 
-    std::time_t makeUTCTime(std::tm timePoint)
-    {
-        const auto ltime =  std::mktime(&timePoint);
-        auto       tmval = *std::gmtime(&ltime); // Mutable.
+std::time_t to_time_t(const time_point& tp) {
+    return std::chrono::duration_cast<std::chrono::seconds>(tp.time_since_epoch()).count() + system_clock_epoch;
+}
 
-        // offset =  ltime - tmval
-        //        == #seconds by which 'ltime' is AHEAD of tmval.
-        const auto offset =
-            std::difftime(ltime, std::mktime(&tmval));
 
-        // Advance 'ltime' by 'offset' so that std::gmtime(return value) will
-        // have the same broken-down elements as 'tp'.
-        return advance(ltime, offset);
-    }
+time_point now() {
+    time_point epoch;
+    auto default_now = std::chrono::system_clock::now();
+    return epoch + std::chrono::duration_cast<Opm::time_point::duration>(default_now.time_since_epoch());
+}
+
+std::time_t advance(const std::time_t tp, const double sec)
+{
+    const auto t = Opm::TimeService::from_time_t(tp) + std::chrono::duration_cast<Opm::time_point::duration>(std::chrono::duration<double>(sec));
+    return Opm::TimeService::to_time_t(t);
+}
+
+std::time_t makeUTCTime(std::tm timePoint)
+{
+    const auto ltime =  std::mktime(&timePoint);
+    auto       tmval = *std::gmtime(&ltime); // Mutable.
+
+    // offset =  ltime - tmval
+    //        == #seconds by which 'ltime' is AHEAD of tmval.
+    const auto offset =
+        std::difftime(ltime, std::mktime(&tmval));
+
+    // Advance 'ltime' by 'offset' so that std::gmtime(return value) will
+    // have the same broken-down elements as 'tp'.
+    return advance(ltime, offset);
+}
+
+const std::unordered_map<std::string , int>& eclipseMonthIndices() {
+    return month_indices;
+}
+
+bool valid_month(const std::string& month_name) {
+    return (month_indices.count(month_name) != 0);
+}
+
+
+}
+}
+
+namespace {
+
 
 
     std::tm makeTm(const Opm::TimeStampUTC& tp) {
@@ -144,7 +193,7 @@ Opm::TimeStampUTC& Opm::TimeStampUTC::microseconds(const int us)
 
 std::time_t Opm::asTimeT(const TimeStampUTC& tp)
 {
-    return makeUTCTime(makeTm(tp));
+    return Opm::TimeService::makeUTCTime(makeTm(tp));
 }
 
 std::time_t Opm::asLocalTimeT(const TimeStampUTC& tp)
@@ -154,7 +203,7 @@ std::time_t Opm::asLocalTimeT(const TimeStampUTC& tp)
 }
 
 Opm::TimeStampUTC Opm::operator+(const Opm::TimeStampUTC& lhs, std::chrono::duration<double> delta) {
-    return Opm::TimeStampUTC( advance(Opm::asTimeT(lhs) , delta.count()) );
+    return Opm::TimeStampUTC( Opm::TimeService::advance(Opm::asTimeT(lhs) , delta.count()) );
 }
 
 

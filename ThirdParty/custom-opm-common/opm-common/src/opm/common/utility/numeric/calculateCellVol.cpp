@@ -18,7 +18,10 @@
 
 #include <algorithm>
 #include <cassert>
+
+#define _USE_MATH_DEFINES
 #include <cmath>
+
 #include <opm/common/utility/numeric/calculateCellVol.hpp>
 #include <opm/common/ErrorMacros.hpp>
 
@@ -131,4 +134,11 @@ double calculateCellVol(const std::array<double,8>& X, const std::array<double,8
 }
 
 
-
+/* 
+    Cell volume calculation for a cell from a cylindrical grid, given by the
+    inner and outer radius of the cell, and its spans in the angle and Z.
+*/
+double calculateCylindricalCellVol(const double r_inner, const double r_outer, const double delta_theta, const double delta_z)
+{
+    return M_PI * std::abs((std::pow(r_outer,2) - std::pow(r_inner,2)) * delta_theta * delta_z) / 360.0;
+}

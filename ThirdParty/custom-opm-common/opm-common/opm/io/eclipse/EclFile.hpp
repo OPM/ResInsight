@@ -35,7 +35,12 @@ namespace Opm { namespace EclIO {
 class EclFile
 {
 public:
+    struct Formatted {
+        bool value;
+    };
+
     explicit EclFile(const std::string& filename, bool preload = false);
+    EclFile(const std::string& filename, Formatted fmt, bool preload = false);
     bool formattedInput() const { return formatted; }
 
     void loadData();                            // load all data
@@ -114,6 +119,7 @@ private:
 
     void loadBinaryArray(std::fstream& fileH, std::size_t arrIndex);
     void loadFormattedArray(const std::string& fileStr, std::size_t arrIndex, int64_t fromPos);
+    void load(bool preload);
 
     std::vector<unsigned int> get_bin_logi_raw_values(int arrIndex) const;
     std::vector<std::string> get_fmt_real_raw_str_values(int arrIndex) const;

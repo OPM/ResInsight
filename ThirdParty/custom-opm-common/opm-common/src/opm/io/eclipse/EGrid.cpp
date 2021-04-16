@@ -16,9 +16,6 @@
    along with OPM.  If not, see <http://www.gnu.org/licenses/>.
    */
 
-#define _USE_MATH_DEFINES
-#include <cmath> // For definition of M_PI
-
 #include <opm/io/eclipse/EGrid.hpp>
 #include <opm/io/eclipse/EInit.hpp>
 #include <opm/io/eclipse/EclUtil.hpp>
@@ -32,6 +29,9 @@
 #include <numeric>
 #include <string>
 #include <sstream>
+
+#define _USE_MATH_DEFINES
+#include <math.h>
 
 namespace Opm { namespace EclIO {
 
