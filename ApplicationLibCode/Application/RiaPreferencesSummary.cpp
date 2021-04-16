@@ -262,7 +262,6 @@ void RiaPreferencesSummary::appendItemsToPlottingGroup( caf::PdmUiOrdering& uiOr
     uiOrdering.add( &m_defaultSummaryCurvesTextFilter );
     uiOrdering.add( &m_defaultSummaryHistoryCurveStyle );
     uiOrdering.add( &m_showSummaryTimeAsLongString );
-    uiOrdering.add( &m_useMultipleThreadsWhenLoadingSummaryData );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -370,6 +369,8 @@ void RiaPreferencesSummary::defineUiOrdering( QString uiConfigName, caf::PdmUiOr
             uiOrdering.add( &m_createH5SummaryFileThreadCount );
         }
     }
+
+    uiOrdering.add( &m_useMultipleThreadsWhenLoadingSummaryData );
 
     uiOrdering.skipRemainingFields();
 }
