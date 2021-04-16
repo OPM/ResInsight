@@ -445,12 +445,9 @@ void RimSummaryCaseMainCollection::loadSummaryCaseData( std::vector<RimSummaryCa
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCaseMainCollection::loadFileSummaryCaseData( std::vector<RimFileSummaryCase*> fileSummaryCases )
 {
-    // Use openMP when reading file summary case meta data. Avoid using the virtual interface of base class
-    // RimSummaryCase, as it is difficult to make sure all variants of the leaf classes are thread safe.
-    // Only open the summary file reader in parallel loop to reduce risk of multi threading issues
-
     RiaPreferencesSummary* prefs = RiaPreferencesSummary::current();
 
+    // If h5 mode, check all summary files and create or recreate h5 files if required
 #ifdef USE_HDF5
     {
         if ( prefs->summaryDataReader() == RiaPreferencesSummary::SummaryReaderMode::HDF5_OPM_COMMON &&
@@ -458,16 +455,8 @@ void RimSummaryCaseMainCollection::loadFileSummaryCaseData( std::vector<RimFileS
         {
             int threadCount = 1;
 #ifdef USE_OPENMP
-            if ( prefs->summaryDataReader() != RiaPreferencesSummary::SummaryReaderMode::HDF5_OPM_COMMON )
-            {
-                threadCount = prefs->createH5SummaryDataThreadCount();
-            }
-            else
-            {
-                threadCount = omp_get_max_threads();
-            }
+            threadCount = prefs->createH5SummaryDataThreadCount();
 #endif
-
             std::vector<std::string> headerFileNames;
             std::vector<std::string> h5FileNames;
 
@@ -486,6 +475,10 @@ void RimSummaryCaseMainCollection::loadFileSummaryCaseData( std::vector<RimFileS
         }
     }
 #endif
+
+    // Use openMP when reading file summary case meta data. Avoid using the virtual interface of base class
+    // RimSummaryCase, as it is difficult to make sure all variants of the leaf classes are thread safe.
+    // Only open the summary file reader in parallel loop to reduce risk of multi threading issues
 
     caf::ProgressInfo progInfo( fileSummaryCases.size(), "Loading Summary Cases" );
 

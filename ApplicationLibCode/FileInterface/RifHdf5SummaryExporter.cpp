@@ -56,8 +56,8 @@ bool RifHdf5SummaryExporter::ensureHdf5FileIsCreatedMultithreaded( const std::ve
 #pragma omp parallel for schedule( dynamic ) if ( useMultipleThreads ) num_threads( threadCount )
     for ( int cIdx = 0; cIdx < static_cast<int>( smspecFileNames.size() ); ++cIdx )
     {
-        auto smspecFileName = smspecFileNames[cIdx];
-        auto h5FileName     = h5FileNames[cIdx];
+        const auto& smspecFileName = smspecFileNames[cIdx];
+        const auto& h5FileName     = h5FileNames[cIdx];
 
         RifHdf5SummaryExporter::ensureHdf5FileIsCreated( smspecFileName, h5FileName, hdfFilesCreatedCount );
     }
@@ -108,6 +108,8 @@ bool RifHdf5SummaryExporter::ensureHdf5FileIsCreated( const std::string& smspecF
 
 #pragma omp critical( critical_section_HDF5_export )
             {
+                // HDF5 file access is not thread-safe, always make sure we use the HDF5 library from a single thread
+
                 RifHdf5Exporter exporter( h5FileName );
 
                 writeGeneralSection( exporter, sourceSummaryData );
@@ -227,9 +229,9 @@ bool RifHdf5SummaryExporter::writeSummaryVectors( RifHdf5Exporter& exporter, Opm
 
         for ( auto nodeIndex : nodesForKeyword.second )
         {
-            auto    summaryNode        = summaryNodeList[nodeIndex];
-            auto    smspecKeywordIndex = summaryNode.smspecKeywordIndex;
-            QString smspecKeywordText  = QString( "%1" ).arg( smspecKeywordIndex );
+            const auto&    summaryNode        = summaryNodeList[nodeIndex];
+            auto           smspecKeywordIndex = summaryNode.smspecKeywordIndex;
+            const QString& smspecKeywordText  = QString( "%1" ).arg( smspecKeywordIndex );
 
             auto dataValuesGroup             = exporter.createGroup( &keywordGroup, smspecKeywordText.toStdString() );
             const std::vector<float>& values = sourceSummaryData.get( summaryNode );

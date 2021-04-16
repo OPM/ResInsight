@@ -50,9 +50,9 @@ void RiaPreferencesSummary::SummaryHistoryCurveStyleModeType::setUp()
 template <>
 void RiaPreferencesSummary::SummaryReaderModeType::setUp()
 {
-    addItem( RiaPreferencesSummary::SummaryReaderMode::LIBECL, "LIBECL", "libecl (baseline)" );
-    addItem( RiaPreferencesSummary::SummaryReaderMode::HDF5_OPM_COMMON, "HDF5_OPM_COMMON", "h5 Performance (HDF5)" );
-    addItem( RiaPreferencesSummary::SummaryReaderMode::OPM_COMMON, "OPM_COMMON", "[BETA] LODSMRY Performance (opm-common)" );
+    addItem( RiaPreferencesSummary::SummaryReaderMode::LIBECL, "LIBECL", "UNSMRY (libecl)" );
+    addItem( RiaPreferencesSummary::SummaryReaderMode::HDF5_OPM_COMMON, "HDF5_OPM_COMMON", "h5 (HDF5)" );
+    addItem( RiaPreferencesSummary::SummaryReaderMode::OPM_COMMON, "OPM_COMMON", "LODSMRY (opm-common)" );
     setDefault( RiaPreferencesSummary::SummaryReaderMode::HDF5_OPM_COMMON );
 }
 } // namespace caf
@@ -110,7 +110,7 @@ RiaPreferencesSummary::RiaPreferencesSummary()
     CAF_PDM_InitField( &m_createOptimizedSummaryDataFile,
                        "createOptimizedSummaryDataFile",
                        false,
-                       "[BETA] Create LODSMRY Summary Files",
+                       "Create LODSMRY Summary Files",
                        "",
                        "If not present, create summary file with extension '*.LODSMRY'",
                        "" );
@@ -119,7 +119,7 @@ RiaPreferencesSummary::RiaPreferencesSummary()
     CAF_PDM_InitField( &m_useOptimizedSummaryDataFile,
                        "useOptimizedSummaryDataFile",
                        true,
-                       "[BETA] Use LODSMRY Summary Files",
+                       "Use LODSMRY Summary Files",
                        "",
                        "If present, import summary files with extension '*.LODSMRY'",
                        "" );
@@ -128,7 +128,7 @@ RiaPreferencesSummary::RiaPreferencesSummary()
     CAF_PDM_InitField( &m_createH5SummaryDataFile,
                        "createH5SummaryDataFile",
                        false,
-                       "Create h5 Summary Data Files [BETA]",
+                       "Create h5 Summary Files",
                        "",
                        "If not present, create summary file with extension '*.h5'",
                        "" );
@@ -137,21 +137,21 @@ RiaPreferencesSummary::RiaPreferencesSummary()
     CAF_PDM_InitField( &m_checkH5FileTimeStamp,
                        "checkH5FileTimeStamp",
                        false,
-                       "Recreate 'h5' File Based on Time Stamp [BETA]",
+                       "Check File Timestamp",
                        "",
-                       "Compare time stamp of SMSPEC and h5 files",
+                       "Compare timestamp of h5 and SMSPEC, and recreate h5 when required",
                        "" );
     m_checkH5FileTimeStamp.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 
     CAF_PDM_InitField( &m_createH5SummaryFileThreadCount,
                        "createH5SummaryFileThreadCount",
                        1,
-                       "h5 Summary Export Thread Count [BETA]",
+                       "h5 Summary Export Thread Count",
                        "",
                        "",
                        "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_summaryReader, "summaryReaderType", "Summary Data File Reader", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_summaryReader, "summaryReaderType", "File Format", "", "", "" );
 
     CAF_PDM_InitField( &m_showSummaryTimeAsLongString,
                        "showSummaryTimeAsLongString",
@@ -364,7 +364,11 @@ void RiaPreferencesSummary::defineUiOrdering( QString uiConfigName, caf::PdmUiOr
     {
         uiOrdering.add( &m_createH5SummaryDataFile );
         uiOrdering.add( &m_checkH5FileTimeStamp );
-        uiOrdering.add( &m_createH5SummaryFileThreadCount );
+
+        if ( RiaApplication::instance()->enableDevelopmentFeatures() )
+        {
+            uiOrdering.add( &m_createH5SummaryFileThreadCount );
+        }
     }
 
     uiOrdering.skipRemainingFields();
