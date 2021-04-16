@@ -18,7 +18,6 @@
 
 #include "RifHdf5SummaryReader.h"
 
-#include "RiaLogging.h"
 #include "RiaQDateTimeTools.h"
 #include "RiaTimeTTools.h"
 #include "RifHdf5Reader.h"
@@ -33,17 +32,7 @@
 //--------------------------------------------------------------------------------------------------
 RifHdf5SummaryReader::RifHdf5SummaryReader( const QString& fileName )
 {
-    try
-    {
-        m_hdfFile = new H5::H5File( fileName.toStdString().c_str(), H5F_ACC_RDONLY );
-    }
-    catch ( ... )
-    {
-        RiaLogging::error( "Failed to open HDF file " + fileName );
-
-        delete m_hdfFile;
-        m_hdfFile = nullptr;
-    }
+    m_fileName = fileName.toStdString();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -51,21 +40,6 @@ RifHdf5SummaryReader::RifHdf5SummaryReader( const QString& fileName )
 //--------------------------------------------------------------------------------------------------
 RifHdf5SummaryReader::~RifHdf5SummaryReader()
 {
-    if ( m_hdfFile )
-    {
-        m_hdfFile->close();
-
-        delete m_hdfFile;
-        m_hdfFile = nullptr;
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RifHdf5SummaryReader::isValid() const
-{
-    return ( m_hdfFile != nullptr );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -73,11 +47,13 @@ bool RifHdf5SummaryReader::isValid() const
 //--------------------------------------------------------------------------------------------------
 std::vector<std::string> RifHdf5SummaryReader::vectorNames()
 {
-    if ( m_hdfFile )
+    try
     {
+        auto h5File = H5::H5File( m_fileName.c_str(), H5F_ACC_RDONLY );
+
         std::vector<std::string> names;
 
-        auto groupNames = RifHdf5ReaderTools::getSubGroupNames( m_hdfFile, "summary_vectors" );
+        auto groupNames = RifHdf5ReaderTools::getSubGroupNames( &h5File, "summary_vectors" );
         names.reserve( groupNames.size() );
         for ( const auto& name : groupNames )
         {
@@ -85,6 +61,9 @@ std::vector<std::string> RifHdf5SummaryReader::vectorNames()
         }
 
         return names;
+    }
+    catch ( ... )
+    {
     }
 
     return {};
@@ -95,36 +74,47 @@ std::vector<std::string> RifHdf5SummaryReader::vectorNames()
 //--------------------------------------------------------------------------------------------------
 std::vector<time_t> RifHdf5SummaryReader::timeSteps() const
 {
-    std::vector<time_t> times;
-
-    // TODO: This function uses code taken from ESmry::dates(). There is conversion from time_t to
-    // chrono::system_clock::time_points, and then back to time_t again. Consider using one representation
-
-    double time_unit = 24 * 3600;
-
-    using namespace std::chrono;
-    using TP      = time_point<system_clock>;
-    using DoubSec = duration<double, seconds::period>;
-
-    auto timeDeltasInDays = values( "TIME" );
-
-    std::vector<std::chrono::system_clock::time_point> timePoints;
-
-    TP startDat = std::chrono::system_clock::from_time_t( startDate() );
-
-    timePoints.reserve( timeDeltasInDays.size() );
-    for ( const auto& t : timeDeltasInDays )
+    try
     {
-        timePoints.push_back( startDat + duration_cast<TP::duration>( DoubSec( t * time_unit ) ) );
+        auto h5File = H5::H5File( m_fileName.c_str(), H5F_ACC_RDONLY );
+
+        std::vector<time_t> times;
+
+        // TODO: This function uses code taken from ESmry::dates(). There is conversion from time_t to
+        // chrono::system_clock::time_points, and then back to time_t again. Consider using one representation
+
+        double time_unit = 24 * 3600;
+
+        using namespace std::chrono;
+        using TP      = time_point<system_clock>;
+        using DoubSec = duration<double, seconds::period>;
+
+        auto timeDeltasInDays = values( "TIME" );
+
+        std::vector<std::chrono::system_clock::time_point> timePoints;
+
+        TP startDat = std::chrono::system_clock::from_time_t( startDate() );
+
+        timePoints.reserve( timeDeltasInDays.size() );
+        for ( const auto& t : timeDeltasInDays )
+        {
+            timePoints.push_back( startDat + duration_cast<TP::duration>( DoubSec( t * time_unit ) ) );
+        }
+
+        for ( const auto& d : timePoints )
+        {
+            auto timeAsTimeT = std::chrono::system_clock::to_time_t( d );
+            times.push_back( timeAsTimeT );
+        }
+
+        return times;
     }
 
-    for ( const auto& d : timePoints )
+    catch ( ... )
     {
-        auto timeAsTimeT = std::chrono::system_clock::to_time_t( d );
-        times.push_back( timeAsTimeT );
     }
 
-    return times;
+    return {};
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -132,34 +122,32 @@ std::vector<time_t> RifHdf5SummaryReader::timeSteps() const
 //--------------------------------------------------------------------------------------------------
 std::vector<double> RifHdf5SummaryReader::values( const std::string& vectorName, int smspecKeywordIndex ) const
 {
-    if ( m_hdfFile )
+    try
     {
-        try
+        auto h5File = H5::H5File( m_fileName.c_str(), H5F_ACC_RDONLY );
+        H5::Exception::dontPrint(); // Turn off auto-printing of failures to handle the errors appropriately
+
+        std::string idText = std::to_string( smspecKeywordIndex );
+
+        std::string groupPath = "summary_vectors/" + vectorName + "/" + idText;
+
         {
-            H5::Exception::dontPrint(); // Turn off auto-printing of failures to handle the errors appropriately
+            H5::Group   generalGroup = h5File.openGroup( groupPath.c_str() );
+            H5::DataSet dataset      = H5::DataSet( generalGroup.openDataSet( "values" ) );
 
-            std::string idText = std::to_string( smspecKeywordIndex );
+            hsize_t       dims[2];
+            H5::DataSpace dataspace = dataset.getSpace();
+            dataspace.getSimpleExtentDims( dims, nullptr );
 
-            std::string groupPath = "summary_vectors/" + vectorName + "/" + idText;
+            std::vector<double> values;
+            values.resize( dims[0] );
+            dataset.read( values.data(), H5::PredType::NATIVE_DOUBLE );
 
-            {
-                H5::Group   generalGroup = m_hdfFile->openGroup( groupPath.c_str() );
-                H5::DataSet dataset      = H5::DataSet( generalGroup.openDataSet( "values" ) );
-
-                hsize_t       dims[2];
-                H5::DataSpace dataspace = dataset.getSpace();
-                dataspace.getSimpleExtentDims( dims, nullptr );
-
-                std::vector<double> values;
-                values.resize( dims[0] );
-                dataset.read( values.data(), H5::PredType::NATIVE_DOUBLE );
-
-                return values;
-            }
+            return values;
         }
-        catch ( ... )
-        {
-        }
+    }
+    catch ( ... )
+    {
     }
 
     return {};
@@ -170,36 +158,35 @@ std::vector<double> RifHdf5SummaryReader::values( const std::string& vectorName,
 //--------------------------------------------------------------------------------------------------
 std::vector<double> RifHdf5SummaryReader::values( const std::string& vectorName ) const
 {
-    if ( m_hdfFile )
+    try
     {
-        try
+        auto h5File = H5::H5File( m_fileName.c_str(), H5F_ACC_RDONLY );
+
+        H5::Exception::dontPrint(); // Turn off auto-printing of failures to handle the errors appropriately
+
+        std::string groupPath = "summary_vectors/" + vectorName;
+
+        auto groupNames = RifHdf5ReaderTools::getSubGroupNames( &h5File, groupPath );
+        if ( !groupNames.empty() )
         {
-            H5::Exception::dontPrint(); // Turn off auto-printing of failures to handle the errors appropriately
+            groupPath = groupPath + "/" + groupNames[0];
 
-            std::string groupPath = "summary_vectors/" + vectorName;
+            H5::Group   generalGroup = h5File.openGroup( groupPath.c_str() );
+            H5::DataSet dataset      = H5::DataSet( generalGroup.openDataSet( "values" ) );
 
-            auto groupNames = RifHdf5ReaderTools::getSubGroupNames( m_hdfFile, groupPath );
-            if ( !groupNames.empty() )
-            {
-                groupPath = groupPath + "/" + groupNames[0];
+            hsize_t       dims[2];
+            H5::DataSpace dataspace = dataset.getSpace();
+            dataspace.getSimpleExtentDims( dims, nullptr );
 
-                H5::Group   generalGroup = m_hdfFile->openGroup( groupPath.c_str() );
-                H5::DataSet dataset      = H5::DataSet( generalGroup.openDataSet( "values" ) );
+            std::vector<double> values;
+            values.resize( dims[0] );
+            dataset.read( values.data(), H5::PredType::NATIVE_DOUBLE );
 
-                hsize_t       dims[2];
-                H5::DataSpace dataspace = dataset.getSpace();
-                dataspace.getSimpleExtentDims( dims, nullptr );
-
-                std::vector<double> values;
-                values.resize( dims[0] );
-                dataset.read( values.data(), H5::PredType::NATIVE_DOUBLE );
-
-                return values;
-            }
+            return values;
         }
-        catch ( ... )
-        {
-        }
+    }
+    catch ( ... )
+    {
     }
 
     return {};
@@ -210,48 +197,44 @@ std::vector<double> RifHdf5SummaryReader::values( const std::string& vectorName 
 //--------------------------------------------------------------------------------------------------
 time_t RifHdf5SummaryReader::startDate() const
 {
-    if ( m_hdfFile )
+    try
     {
-        try
-        {
-            H5::Exception::dontPrint(); // Turn off auto-printing of failures to handle the errors appropriately
+        auto h5File = H5::H5File( m_fileName.c_str(), H5F_ACC_RDONLY );
 
-            QString groupPath = QString( "general" );
+        H5::Exception::dontPrint(); // Turn off auto-printing of failures to handle the errors appropriately
 
-            H5::Group   GridFunction_00002 = m_hdfFile->openGroup( groupPath.toStdString().c_str() );
-            H5::DataSet dataset            = H5::DataSet( GridFunction_00002.openDataSet( "start_date" ) );
+        QString groupPath = QString( "general" );
 
-            hsize_t       dims[2];
-            H5::DataSpace dataspace = dataset.getSpace();
-            dataspace.getSimpleExtentDims( dims, nullptr );
+        H5::Group   GridFunction_00002 = h5File.openGroup( groupPath.toStdString().c_str() );
+        H5::DataSet dataset            = H5::DataSet( GridFunction_00002.openDataSet( "start_date" ) );
 
-            std::vector<int> values;
-            values.resize( dims[0] );
-            dataset.read( values.data(), H5::PredType::NATIVE_INT );
+        hsize_t       dims[2];
+        H5::DataSpace dataspace = dataset.getSpace();
+        dataspace.getSimpleExtentDims( dims, nullptr );
 
-            int day    = values[0];
-            int month  = values[1];
-            int year   = values[2];
-            int hour   = values[3];
-            int minute = values[4];
-            int second = values[5];
+        std::vector<int> values;
+        values.resize( dims[0] );
+        dataset.read( values.data(), H5::PredType::NATIVE_INT );
 
-            QDate date( year, month, day );
-            QTime time( hour, minute, second );
+        int day    = values[0];
+        int month  = values[1];
+        int year   = values[2];
+        int hour   = values[3];
+        int minute = values[4];
+        int second = values[5];
 
-            QDateTime dt( date, time );
+        QDate date( year, month, day );
+        QTime time( hour, minute, second );
 
-            QDateTime reportDateTime = RiaQDateTimeTools::createUtcDateTime( dt );
+        QDateTime dt( date, time );
 
-            time_t myTime = RiaTimeTTools::fromQDateTime( reportDateTime );
-            return myTime;
-        }
-        catch ( ... )
-        {
-        }
+        QDateTime reportDateTime = RiaQDateTimeTools::createUtcDateTime( dt );
+
+        time_t myTime = RiaTimeTTools::fromQDateTime( reportDateTime );
+        return myTime;
     }
-
-    RiaLogging::error( "Not able to read start_date from HDF5 " );
-
+    catch ( ... )
+    {
+    }
     return {};
 }
