@@ -75,6 +75,10 @@ struct SummaryNode {
     std::optional<std::string> display_name() const;
     std::optional<std::string> display_number() const;
     std::optional<std::string> display_number(number_renderer) const;
+
+    bool isRegionToRegion() const;
+    std::pair<int, int> regionToRegionNumbers() const;
+
 };
 
 }} // namespace Opm::EclIO

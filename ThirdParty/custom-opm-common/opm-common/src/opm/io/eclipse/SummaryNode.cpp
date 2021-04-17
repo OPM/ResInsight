@@ -183,6 +183,27 @@ std::optional<std::string> Opm::EclIO::SummaryNode::display_number() const {
     return display_number(default_number_renderer);
 }
 
+bool Opm::EclIO::SummaryNode::isRegionToRegion() const
+{
+    if ((category == SummaryNode::Category::Region) &&
+        (keyword.size() > 2 && keyword[2] == 'F')) return true;
+
+    return false;
+}
+
+std::pair<int, int> Opm::EclIO::SummaryNode::regionToRegionNumbers() const
+{
+    if (category != SummaryNode::Category::Region) return { -1, -1 };
+
+    if (keyword.size() > 2 && keyword[2] == 'F') {
+        const auto r1 = number % (1 << 15);
+        const auto r2 = (number / (1 << 15)) - 10;
+        return { r1, r2 };
+    }
+
+    return { -1, -1 };
+}
+
 std::optional<std::string> Opm::EclIO::SummaryNode::display_number(number_renderer render_number) const {
     if (use_number(category)) {
         return render_number(*this);
