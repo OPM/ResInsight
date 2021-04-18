@@ -247,8 +247,16 @@ RifEclipseSummaryAddress RifOpmCommonSummaryTools::createAddressFromSummaryNode(
             return RifEclipseSummaryAddress::fieldAddress( summaryNode.keyword );
             break;
         case Opm::EclIO::SummaryNode::Category::Region:
+        {
+            if ( summaryNode.isRegionToRegion() )
+            {
+                auto [r1, r2] = summaryNode.regionToRegionNumbers();
+                return RifEclipseSummaryAddress::regionToRegionAddress( summaryNode.keyword, r1, r2 );
+            }
+
             return RifEclipseSummaryAddress::regionAddress( summaryNode.keyword, summaryNode.number );
-            break;
+        }
+        break;
         case Opm::EclIO::SummaryNode::Category::Block:
             summaryFile->ijk_from_global_index( summaryNode.number, i, j, k );
             return RifEclipseSummaryAddress::blockAddress( summaryNode.keyword, i, j, k );
