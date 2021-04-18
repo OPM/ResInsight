@@ -63,7 +63,7 @@ namespace Opm {
         const Location& location( ) const { return this->loc; }
 
         operator Opm::EclIO::SummaryNode() const {
-            return { keyword_, category_, type_, name_, number_, std::numeric_limits<size_t>::max() };
+            return { keyword_, category_, type_, name_, number_, "", -1, -1, -1, std::numeric_limits<size_t>::max() };
         }
 
         template<class Serializer>

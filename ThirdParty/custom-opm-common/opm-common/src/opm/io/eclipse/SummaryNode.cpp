@@ -164,11 +164,24 @@ Opm::EclIO::SummaryNode::Category Opm::EclIO::SummaryNode::category_from_keyword
     case 'C': return Category::Connection;
     case 'F': return Category::Field;
     case 'G': return distinguish_group_from_node(keyword);
+    case 'N': return Category::Network;
     case 'R': return Category::Region;
     case 'S': return Category::Segment;
     case 'W': return Category::Well;
-    default:  return Category::Miscellaneous;
+    default: break;
     }
+
+    if (keyword.length() > 1)
+    {
+        // Then check LGR categories
+        std::string firstTwoLetters = keyword.substr(0, 2);
+
+        if (firstTwoLetters == "LB") return Category::Block_Lgr;
+        if (firstTwoLetters == "LC") return Category::Connection_Lgr;
+        if (firstTwoLetters == "LW") return Category::Well_Lgr;
+    }
+
+    return Category::Miscellaneous;
 }
 
 std::optional<std::string> Opm::EclIO::SummaryNode::display_name() const {

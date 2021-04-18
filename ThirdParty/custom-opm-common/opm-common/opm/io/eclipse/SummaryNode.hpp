@@ -39,6 +39,10 @@ struct SummaryNode {
         Aquifer,
         Node,
         Miscellaneous,
+        Network,
+        Well_Lgr,
+        Block_Lgr,
+        Connection_Lgr
     };
 
     enum class Type {
@@ -57,6 +61,11 @@ struct SummaryNode {
     Type        type;
     std::string wgname;
     int         number;
+    std::string lgrname;
+    int         lgri;
+    int         lgrj;
+    int         lgrk;
+
     size_t      smspecKeywordIndex;
 
     std::optional<std::string> fip_region;
