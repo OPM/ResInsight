@@ -37,6 +37,7 @@
 #include "cvfBoundingBox.h"
 #include "cvfMath.h"
 
+#include <chrono>
 #include <cmath>
 #include <cstdlib>
 #include <random>
@@ -746,7 +747,8 @@ void RimFishbones::computeSubLateralIndices()
 //--------------------------------------------------------------------------------------------------
 int RimFishbones::randomValueFromRange( int min, int max )
 {
-    std::default_random_engine         generator;
+    unsigned                           seed = std::chrono::system_clock::now().time_since_epoch().count();
+    std::minstd_rand0                  generator( seed );
     std::uniform_int_distribution<int> distribution( min, max );
     return distribution( generator );
 }
