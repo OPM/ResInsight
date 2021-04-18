@@ -312,10 +312,15 @@ void RigWellLogExtractor::populateReturnArrays( std::map<RigMDCellIdxEnterLeaveK
             }
         }
     }
-    errorMessages.removeDuplicates();
-    for ( auto message : errorMessages )
+
+    bool reportErrorMessages = false;
+    if ( reportErrorMessages )
     {
-        RiaLogging::warning( message );
+        errorMessages.removeDuplicates();
+        for ( auto message : errorMessages )
+        {
+            RiaLogging::warning( message );
+        }
     }
 }
 
