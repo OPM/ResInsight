@@ -174,27 +174,18 @@ QString RicNewWellPathLateralAtDepthFeature::updateNameOfParentAndFindNameOfSide
     }
 
     {
-        QString commonRoot        = RiaTextStringTools::commonRoot( allNames );
-        QString trimmedCommonRoot = RiaTextStringTools::trimNonAlphaNumericCharacters( commonRoot );
-
-        // Remove side step prefix
-        trimmedCommonRoot.replace( " Y", "" );
+        QString commonRoot = RiaTextStringTools::commonRoot( allNames );
 
         int maxYValue = 0;
         for ( auto n : allNames )
         {
-            auto suffix = n.replace( trimmedCommonRoot, "" );
+            auto suffix = n.replace( commonRoot, "" );
 
             int candidate = suffix.toInt();
             maxYValue     = std::max( maxYValue, candidate );
         }
 
-        if ( !trimmedCommonRoot.isEmpty() && trimmedCommonRoot.endsWith( "Y" ) )
-        {
-            trimmedCommonRoot = trimmedCommonRoot.left( trimmedCommonRoot.size() - 1 ).trimmed();
-        }
-
-        nameOfNewWell = QString( "%1 Y%2" ).arg( trimmedCommonRoot ).arg( maxYValue + 1 );
+        nameOfNewWell = QString( "%1%2" ).arg( commonRoot ).arg( maxYValue + 1 );
     }
 
     return nameOfNewWell;
