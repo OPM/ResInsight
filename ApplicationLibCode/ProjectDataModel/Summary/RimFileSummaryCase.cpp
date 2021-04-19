@@ -100,9 +100,16 @@ void RimFileSummaryCase::createSummaryReaderInterfaceThreadSafe( RiaThreadSafeLo
 //--------------------------------------------------------------------------------------------------
 void RimFileSummaryCase::createSummaryReaderInterface()
 {
+    RiaThreadSafeLogger threadSafeLogger;
     m_summaryFileReader = RimFileSummaryCase::findRelatedFilesAndCreateReader( this->summaryHeaderFilename(),
                                                                                m_includeRestartFiles,
-                                                                               nullptr );
+                                                                               &threadSafeLogger );
+
+    auto messages = threadSafeLogger.messages();
+    for ( const auto& m : messages )
+    {
+        RiaLogging::info( m );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

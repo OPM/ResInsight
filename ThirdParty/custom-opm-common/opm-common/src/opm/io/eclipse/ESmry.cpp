@@ -109,16 +109,31 @@ ESmry::ESmry(const std::string &filename, bool loadBaseRunData , bool uselodsmry
     if (inputFileName.extension()=="")
         inputFileName+=".SMSPEC";
 
-    if ((inputFileName.extension()!=".SMSPEC") && (inputFileName.extension()!=".FSMSPEC"))
+    if (!isEqualCaseInsensitive(inputFileName.extension().string(), ".SMSPEC") && 
+        !isEqualCaseInsensitive(inputFileName.extension().string(), ".FSMSPEC"))
         throw std::invalid_argument("Input file should have extension .SMSPEC or .FSMSPEC");
 
-    const bool formatted = inputFileName.extension()==".SMSPEC" ? false : true;
+    {
+        auto candidatePath = findFileCaseInsensitive(inputFileName.parent_path(), inputFileName.filename().string());
+        if (!Opm::filesystem::exists(candidatePath))
+            throw std::invalid_argument("Not able to find summary SMSPEC file");
+
+        inputFileName = candidatePath;
+    }
+
+    const bool formatted = isEqualCaseInsensitive(inputFileName.extension().string(), ".SMSPEC") ? false : true;
     formattedFiles.push_back(formatted);
 
     if (formatted)
         lodFileName = rootName += ".FLODSMRY";
     else
         lodFileName = rootName += ".LODSMRY";
+
+    {
+        auto candidatePath = findFileCaseInsensitive(lodFileName.parent_path(), lodFileName.filename().string());
+        if (Opm::filesystem::exists(candidatePath)) lodFileName = candidatePath;
+    }
+
 
     if ((!loadBaseRunData) && (Opm::filesystem::exists(lodFileName)))
         lodEnabeled = true;
@@ -131,6 +146,14 @@ ESmry::ESmry(const std::string &filename, bool loadBaseRunData , bool uselodsmry
 
     Opm::filesystem::path smspec_file = path / rootName;
     smspec_file += inputFileName.extension();
+
+    {
+        auto candidatePath = findFileCaseInsensitive(smspec_file.parent_path(), smspec_file.filename().string());
+        if (!Opm::filesystem::exists(candidatePath))
+            throw std::invalid_argument("Not able to find summary SMSPEC file");
+
+        smspec_file = candidatePath;
+    }
 
     Opm::filesystem::path rstRootN;
     Opm::filesystem::path pathRstFile = path;
@@ -217,12 +240,29 @@ ESmry::ESmry(const std::string &filename, bool loadBaseRunData , bool uselodsmry
         Opm::filesystem::path rstFile = pathRstFile / rstRootN;
         rstFile += ".SMSPEC";
 
+        {
+            auto candidatePath = findFileCaseInsensitive(rstFile.parent_path(), rstFile.filename().string());
+            if (!Opm::filesystem::exists(candidatePath))
+                throw std::invalid_argument("Not able to find summary restart file");
+
+            rstFile = candidatePath;
+        }
+
         bool baseRunFmt = false;
 
         // if unformatted file not exists, check for formatted file
         if (!Opm::filesystem::exists(rstFile)){
             rstFile = pathRstFile / rstRootN;
             rstFile += ".FSMSPEC";
+
+            {
+                auto candidatePath = findFileCaseInsensitive(rstFile.parent_path(), rstFile.filename().string());
+                if (!Opm::filesystem::exists(candidatePath))
+                    throw std::invalid_argument("Not able to find summary restart file");
+
+                rstFile = candidatePath;
+            }
+
             baseRunFmt = true;
         }
 
@@ -384,6 +424,14 @@ ESmry::ESmry(const std::string &filename, bool loadBaseRunData , bool uselodsmry
             Opm::filesystem::path unsmryFile = rootName;
 
             unsmryFile += formattedFiles[specInd] ? ".FUNSMRY" : ".UNSMRY";
+            {
+                auto candidatePath = findFileCaseInsensitive(unsmryFile.parent_path(), unsmryFile.filename().string());
+                if (!Opm::filesystem::exists(candidatePath))
+                    throw std::invalid_argument("Not able to find summary SMSPEC file");
+
+                unsmryFile = candidatePath;
+            }
+
             const bool use_unified = Opm::filesystem::exists(unsmryFile.string());
 
             const std::vector<std::string> multFileList = checkForMultipleResultFiles(rootName, formattedFiles[specInd]);

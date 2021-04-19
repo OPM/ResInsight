@@ -197,17 +197,16 @@ bool RifReaderEclipseSummary::open( const QString&       headerFileName,
         bool useLodsmryFiles = prefSummary->useOptimizedSummaryDataFiles();
         if ( useLodsmryFiles && includeRestartFiles )
         {
-            QString txt = "LODSMRY file loading for summary restart files is not supported. Disable one of the options";
-            if ( threadSafeLogger ) threadSafeLogger->error( txt );
-
-            return false;
+            QString txt =
+                "LODSMRY file loading for summary restart files is not supported. Restart history might be incomplete.";
+            if ( threadSafeLogger ) threadSafeLogger->warning( txt );
         }
 
         m_opmCommonReader = std::make_unique<RifOpmCommonEclipseSummary>();
 
         m_opmCommonReader->useLodsmaryFiles( prefSummary->useOptimizedSummaryDataFiles() );
         m_opmCommonReader->createLodsmaryFiles( prefSummary->createOptimizedSummaryDataFiles() );
-        isValid = m_opmCommonReader->open( headerFileName, includeRestartFiles, threadSafeLogger );
+        isValid = m_opmCommonReader->open( headerFileName, false, threadSafeLogger );
         if ( !isValid ) m_opmCommonReader.reset();
     }
 
