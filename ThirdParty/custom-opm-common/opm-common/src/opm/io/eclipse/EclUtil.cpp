@@ -83,6 +83,28 @@ bool Opm::EclIO::is_number(const std::string& numstr)
 }
 
 
+bool Opm::EclIO::isEqualCaseInsensitive(const std::string& string1, const std::string& string2)
+{
+    std::string string1LowerCase(string1);
+    std::string string2LowerCase(string2);
+    
+    std::transform(string1.begin(), string1.end(), string1LowerCase.begin(), ::tolower);
+    std::transform(string2.begin(), string2.end(), string2LowerCase.begin(), ::tolower);
+
+    return string1LowerCase == string2LowerCase;
+}
+
+std::filesystem::path Opm::EclIO::findFileCaseInsensitive(const std::filesystem::path& folder, const std::string& filename)
+{
+    for (auto& p : std::filesystem::directory_iterator(folder)) {
+        std::string candidate = p.path().filename().string();
+
+        if (isEqualCaseInsensitive(filename, candidate)) return p.path();
+    }
+
+    return { };
+}
+
 bool Opm::EclIO::isFormatted(const std::string& filename)
 {
     const auto p = filename.find_last_of(".");
