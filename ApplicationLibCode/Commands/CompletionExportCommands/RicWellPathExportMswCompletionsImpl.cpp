@@ -509,7 +509,7 @@ void RicWellPathExportMswCompletionsImpl::generateFishbonesMswExportInfo(
 
                 icdCompletion->addSegment( std::move( icdSegment ) );
 
-                RicMswSegment* segmentOnParentBranch = branch->findClosestSegmentByMidpoint( subEndMD );
+                RicMswSegment* segmentOnParentBranch = branch->findClosestSegmentWithLowerMD( subEndMD );
                 if ( segmentOnParentBranch )
                 {
                     segmentOnParentBranch->addCompletion( std::move( icdCompletion ) );

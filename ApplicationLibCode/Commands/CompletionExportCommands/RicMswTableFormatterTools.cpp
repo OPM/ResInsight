@@ -160,7 +160,7 @@ void RicMswTableFormatterTools::writeWelsegsSegmentsRecursively( RifTextDataTabl
     {
         RicMswSegment* outletSegmentForChildBranch = outletSegment;
 
-        RicMswSegment* tieInSegmentOnParentBranch = branch->findClosestSegmentByMidpoint( childBranch->startMD() );
+        RicMswSegment* tieInSegmentOnParentBranch = branch->findClosestSegmentWithLowerMD( childBranch->startMD() );
         if ( tieInSegmentOnParentBranch ) outletSegmentForChildBranch = tieInSegmentOnParentBranch;
 
         writeWelsegsSegmentsRecursively( formatter,

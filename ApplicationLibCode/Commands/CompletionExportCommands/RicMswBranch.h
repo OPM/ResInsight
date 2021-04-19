@@ -53,7 +53,8 @@ public:
     std::vector<const RicMswSegment*> segments() const;
     std::vector<RicMswSegment*>       segments();
 
-    RicMswSegment* findClosestSegmentByMidpoint( double measuredDepth );
+    RicMswSegment* findClosestSegmentByMidpoint_obsolete( double measuredDepthLocation );
+    RicMswSegment* findClosestSegmentWithLowerMD( double measuredDepthLocation );
 
     size_t segmentCount() const;
 

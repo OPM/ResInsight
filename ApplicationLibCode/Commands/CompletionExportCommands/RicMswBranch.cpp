@@ -158,9 +158,9 @@ std::vector<RicMswSegment*> RicMswBranch::segments()
 }
 
 //--------------------------------------------------------------------------------------------------
-///
+/// TODO: Marked as obsolete, delete if lowerMD variant works as expected
 //--------------------------------------------------------------------------------------------------
-RicMswSegment* RicMswBranch::findClosestSegmentByMidpoint( double measuredDepthLocation )
+RicMswSegment* RicMswBranch::findClosestSegmentByMidpoint_obsolete( double measuredDepthLocation )
 {
     if ( measuredDepthLocation < startMD() )
     {
@@ -177,10 +177,45 @@ RicMswSegment* RicMswBranch::findClosestSegmentByMidpoint( double measuredDepthL
 
     for ( auto seg : segments() )
     {
+        // WELSEGS is reported as the midpoint of the segment
         double midpointMD = 0.5 * ( seg->startMD() + seg->endMD() );
 
         double candidateDistance = std::abs( midpointMD - measuredDepthLocation );
         if ( candidateDistance < smallestDistance )
+        {
+            closestSegment   = seg;
+            smallestDistance = candidateDistance;
+        }
+    }
+
+    return closestSegment;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RicMswSegment* RicMswBranch::findClosestSegmentWithLowerMD( double measuredDepthLocation )
+{
+    if ( measuredDepthLocation < startMD() )
+    {
+        return segmentCount() > 0 ? segments().front() : nullptr;
+    }
+
+    if ( measuredDepthLocation > endMD() )
+    {
+        return segmentCount() > 0 ? segments().back() : nullptr;
+    }
+
+    RicMswSegment* closestSegment   = nullptr;
+    double         smallestDistance = std::numeric_limits<double>::infinity();
+
+    for ( auto seg : segments() )
+    {
+        // WELSEGS is reported as the midpoint of the segment
+        double midpointMD = 0.5 * ( seg->startMD() + seg->endMD() );
+
+        double candidateDistance = measuredDepthLocation - midpointMD;
+        if ( candidateDistance > 0.0 && candidateDistance < smallestDistance )
         {
             closestSegment   = seg;
             smallestDistance = candidateDistance;
