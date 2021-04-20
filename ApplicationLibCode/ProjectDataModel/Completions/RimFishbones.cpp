@@ -710,11 +710,14 @@ bool RimFishbones::isEnabled() const
 //--------------------------------------------------------------------------------------------------
 void RimFishbones::computeRotationAngles()
 {
-    std::vector<double> vals;
+    unsigned                           seed = std::chrono::system_clock::now().time_since_epoch().count();
+    std::minstd_rand0                  generator( seed );
+    std::uniform_int_distribution<int> distribution( 0, 360 );
 
+    std::vector<double> vals;
     for ( size_t i = 0; i < m_valveLocations->valveLocations().size(); i++ )
     {
-        vals.push_back( RimFishbones::randomValueFromRange( 0, 360 ) );
+        vals.push_back( distribution( generator ) );
     }
 
     m_installationRotationAngles = vals;
@@ -740,17 +743,6 @@ void RimFishbones::computeSubLateralIndices()
     double numLaterals = static_cast<double>( m_valveLocations->valveLocations().size() * m_lateralCountPerSub );
     m_subLateralIndices =
         std::vector<SubAndLateralIndex>( subLateralCandidates.begin(), subLateralCandidates.begin() + numLaterals );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-int RimFishbones::randomValueFromRange( int min, int max )
-{
-    unsigned                           seed = std::chrono::system_clock::now().time_since_epoch().count();
-    std::minstd_rand0                  generator( seed );
-    std::uniform_int_distribution<int> distribution( min, max );
-    return distribution( generator );
 }
 
 //--------------------------------------------------------------------------------------------------
