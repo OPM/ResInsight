@@ -94,9 +94,9 @@ bool Opm::EclIO::isEqualCaseInsensitive(const std::string& string1, const std::s
     return string1LowerCase == string2LowerCase;
 }
 
-std::filesystem::path Opm::EclIO::findFileCaseInsensitive(const std::filesystem::path& folder, const std::string& filename)
+Opm::filesystem::path Opm::EclIO::findFileCaseInsensitive(const Opm::filesystem::path& folder, const std::string& filename)
 {
-    for (auto& p : std::filesystem::directory_iterator(folder)) {
+    for (auto& p : Opm::filesystem::directory_iterator(folder)) {
         std::string candidate = p.path().filename().string();
 
         if (isEqualCaseInsensitive(filename, candidate)) return p.path();
