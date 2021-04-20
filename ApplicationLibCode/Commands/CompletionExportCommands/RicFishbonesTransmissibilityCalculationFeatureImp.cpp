@@ -202,7 +202,8 @@ void RicFishbonesTransmissibilityCalculationFeatureImp::findFishboneLateralsWell
     const RimWellPath*                                       wellPath,
     const RicExportCompletionDataSettingsUi&                 settings )
 {
-    if ( !wellPath || !wellPath->wellPathGeometry() ) return;
+    if ( !wellPath || !wellPath->wellPathGeometry() || wellPath->wellPathGeometry()->measuredDepths().size() < 2 )
+        return;
 
     // Generate data
     const RigEclipseCaseData* caseData = settings.caseToApply()->eclipseCaseData();
