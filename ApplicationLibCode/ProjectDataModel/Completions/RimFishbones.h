@@ -126,9 +126,8 @@ private:
     void computeRotationAngles();
     void computeSubLateralIndices();
 
-    static int randomValueFromRange( int min, int max );
-    void       initialiseObsoleteFields();
-    void       initValveLocationFromLegacyData();
+    void initialiseObsoleteFields();
+    void initValveLocationFromLegacyData();
 
 private:
     caf::PdmField<bool>              m_isActive;
