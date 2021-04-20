@@ -19,7 +19,6 @@
 #pragma once
 
 #include "RimCheckableNamedObject.h"
-#include "RimMswCompletionParameters.h"
 
 #include "RiaDefines.h"
 
@@ -43,8 +42,7 @@ class RimFishbonesCollection : public RimCheckableNamedObject
 public:
     RimFishbonesCollection();
 
-    void                              appendFishbonesSubs( RimFishbones* subs );
-    const RimMswCompletionParameters* mswParameters() const;
+    void appendFishbonesSubs( RimFishbones* subs );
 
     bool                       hasFishbones() const;
     std::vector<RimFishbones*> activeFishbonesSubs() const;
@@ -60,23 +58,15 @@ public:
 protected:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
-    void initAfterRead() override;
 
 private:
     cvf::Color3f nextFishbonesColor() const;
 
 private:
-    caf::PdmChildArrayField<RimFishbones*>          m_fishbones;
-    caf::PdmChildField<RimMswCompletionParameters*> m_mswParameters;
+    caf::PdmChildArrayField<RimFishbones*> m_fishbones;
 
     caf::PdmField<double> m_startMD;
     caf::PdmField<double> m_skinFactor;
     caf::PdmField<double> m_mainBoreDiameter;
     bool                  manuallyModifiedStartMD;
-
-    caf::PdmField<double> m_linerDiameter_OBSOLETE;
-    caf::PdmField<double> m_roughnessFactor_OBSOLETE;
-
-    caf::PdmField<RimMswCompletionParameters::PressureDropEnum>   m_pressureDrop_OBSOLETE;
-    caf::PdmField<RimMswCompletionParameters::LengthAndDepthEnum> m_lengthAndDepth_OBSOLETE;
 };

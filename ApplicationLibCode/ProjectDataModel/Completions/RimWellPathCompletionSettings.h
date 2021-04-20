@@ -83,6 +83,8 @@ public:
 
     static QRegExp wellNameForExportRegExp();
 
+    RimMswCompletionParameters* mswCompletionParameters() const;
+
 protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
@@ -108,4 +110,6 @@ private:
     caf::PdmField<int>                     m_wellBoreFluidPVTTable;
     caf::PdmField<HydrostaticDensityEnum>  m_hydrostaticDensity;
     caf::PdmField<int>                     m_fluidInPlaceRegion;
+
+    caf::PdmChildField<RimMswCompletionParameters*> m_mswParameters;
 };

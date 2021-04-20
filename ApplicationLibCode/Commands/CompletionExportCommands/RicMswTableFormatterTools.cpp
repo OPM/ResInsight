@@ -27,6 +27,7 @@
 
 #include "RigWellPath.h"
 
+#include "RimMswCompletionParameters.h"
 #include "RimWellPath.h" // TODO: Consider adding wellnameforexport to RicMswExportInfo to avoid these includes
 #include "RimWellPathCompletionSettings.h"
 
@@ -724,6 +725,9 @@ void RicMswTableFormatterTools::writeWelsegsSegment( RicMswSegment*             
         prevOutTVD = previousSegment->outputTVD();
     }
 
+    const auto linerDiameter = branch->wellPath()->mswCompletionParameters()->linerDiameter( exportInfo.unitSystem() );
+    const auto roughnessFactor = branch->wellPath()->mswCompletionParameters()->roughnessFactor( exportInfo.unitSystem() );
+
     auto outletSegment = previousSegment;
     for ( const auto& [subStartMD, subEndMD] : segments )
     {
@@ -755,8 +759,8 @@ void RicMswTableFormatterTools::writeWelsegsSegment( RicMswSegment*             
             formatter.add( 1 );
         formatter.add( length );
         formatter.add( depth );
-        formatter.add( exportInfo.linerDiameter() );
-        formatter.add( exportInfo.roughnessFactor() );
+        formatter.add( linerDiameter );
+        formatter.add( roughnessFactor );
         formatter.rowCompleted();
         ( *segmentNumber )++;
         outletSegment = segment;
@@ -800,6 +804,9 @@ void RicMswTableFormatterTools::writeValveWelsegsSegment( const RicMswSegment*  
     auto wellPathGeometry = valve->wellPath()->wellPathGeometry();
     CVF_ASSERT( wellPathGeometry );
 
+    const auto linerDiameter   = valve->wellPath()->mswCompletionParameters()->linerDiameter( exportInfo.unitSystem() );
+    const auto roughnessFactor = valve->wellPath()->mswCompletionParameters()->roughnessFactor( exportInfo.unitSystem() );
+
     for ( const auto& [subStartMD, subEndMD] : splitSegments )
     {
         int subSegmentNumber = ( *segmentNumber )++;
@@ -828,8 +835,9 @@ void RicMswTableFormatterTools::writeValveWelsegsSegment( const RicMswSegment*  
 
         formatter.add( length );
         formatter.add( depth );
-        formatter.add( exportInfo.linerDiameter() );
-        formatter.add( exportInfo.roughnessFactor() );
+
+        formatter.add( linerDiameter );
+        formatter.add( roughnessFactor );
         formatter.rowCompleted();
     }
 }

@@ -19,7 +19,6 @@
 #pragma once
 
 #include "RimCheckableNamedObject.h"
-#include "RimMswCompletionParameters.h"
 
 #include "cafPdmChildArrayField.h"
 #include "cafPdmChildField.h"
@@ -46,7 +45,6 @@ public:
     void addFracture( RimWellPathFracture* fracture );
     void deleteFractures();
 
-    const RimMswCompletionParameters* mswParameters() const;
     std::vector<RimWellPathFracture*> allFractures() const;
     std::vector<RimWellPathFracture*> activeFractures() const;
 
@@ -54,15 +52,8 @@ public:
                          std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
 
 private:
-    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
-    void initAfterRead() override;
 
 private:
     caf::PdmChildArrayField<RimWellPathFracture*> m_fractures;
-
-    caf::PdmField<int>    m_refMDType_OBSOLETE;
-    caf::PdmField<double> m_refMD_OBSOLETE;
-
-    caf::PdmChildField<RimMswCompletionParameters*> m_mswParameters;
 };

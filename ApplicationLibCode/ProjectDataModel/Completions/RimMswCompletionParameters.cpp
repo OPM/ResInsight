@@ -15,6 +15,7 @@
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
+
 #include "RimMswCompletionParameters.h"
 
 #include "RiaEclipseUnitTools.h"
@@ -30,26 +31,28 @@ namespace caf
 template <>
 void RimMswCompletionParameters::ReferenceMDEnum::setUp()
 {
-    addItem( RimMswCompletionParameters::AUTO_REFERENCE_MD, "GridIntersectionRefMD", "Grid Entry Point" );
-    addItem( RimMswCompletionParameters::MANUAL_REFERENCE_MD, "ManualRefMD", "User Defined" );
-    setDefault( RimMswCompletionParameters::AUTO_REFERENCE_MD );
+    addItem( RimMswCompletionParameters::ReferenceMDType::AUTO_REFERENCE_MD, "GridIntersectionRefMD", "Grid Entry Point" );
+    addItem( RimMswCompletionParameters::ReferenceMDType::MANUAL_REFERENCE_MD, "ManualRefMD", "User Defined" );
+    setDefault( RimMswCompletionParameters::ReferenceMDType::AUTO_REFERENCE_MD );
 }
 
 template <>
 void RimMswCompletionParameters::PressureDropEnum::setUp()
 {
-    addItem( RimMswCompletionParameters::HYDROSTATIC, "H--", "Hydrostatic" );
-    addItem( RimMswCompletionParameters::HYDROSTATIC_FRICTION, "HF-", "Hydrostatic + Friction" );
-    addItem( RimMswCompletionParameters::HYDROSTATIC_FRICTION_ACCELERATION, "HFA", "Hydrostatic + Friction + Acceleration" );
-    setDefault( RimMswCompletionParameters::HYDROSTATIC_FRICTION );
+    addItem( RimMswCompletionParameters::PressureDropType::HYDROSTATIC, "H--", "Hydrostatic" );
+    addItem( RimMswCompletionParameters::PressureDropType::HYDROSTATIC_FRICTION, "HF-", "Hydrostatic + Friction" );
+    addItem( RimMswCompletionParameters::PressureDropType::HYDROSTATIC_FRICTION_ACCELERATION,
+             "HFA",
+             "Hydrostatic + Friction + Acceleration" );
+    setDefault( RimMswCompletionParameters::PressureDropType::HYDROSTATIC_FRICTION );
 }
 
 template <>
 void RimMswCompletionParameters::LengthAndDepthEnum::setUp()
 {
-    addItem( RimMswCompletionParameters::INC, "INC", "Incremental" );
-    addItem( RimMswCompletionParameters::ABS, "ABS", "Absolute" );
-    setDefault( RimMswCompletionParameters::ABS );
+    addItem( RimMswCompletionParameters::LengthAndDepthType::INC, "INC", "Incremental" );
+    addItem( RimMswCompletionParameters::LengthAndDepthType::ABS, "ABS", "Absolute" );
+    setDefault( RimMswCompletionParameters::LengthAndDepthType::ABS );
 }
 } // namespace caf
 
@@ -58,20 +61,14 @@ CAF_PDM_SOURCE_INIT( RimMswCompletionParameters, "RimMswCompletionParameters" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimMswCompletionParameters::RimMswCompletionParameters( bool enableReferenceDepth /* = true */ )
-    : m_enableReferenceDepth( enableReferenceDepth )
+RimMswCompletionParameters::RimMswCompletionParameters()
 {
     CAF_PDM_InitObject( "MSW Completion Parameters", ":/CompletionsSymbol16x16.png", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_refMDType, "RefMDType", "Reference MD", "", "", "" );
     CAF_PDM_InitField( &m_refMD, "RefMD", 0.0, "", "", "", "" );
 
-    if ( !m_enableReferenceDepth )
-    {
-        m_refMDType.xmlCapability()->disableIO();
-        m_refMD.xmlCapability()->disableIO();
-    }
-
+    CAF_PDM_InitField( &m_customValuesForLateral, "CustomValuesForLateral", false, "Custom Values for Lateral", "", "", "" );
     CAF_PDM_InitField( &m_linerDiameter,
                        "LinerDiameter",
                        std::numeric_limits<double>::infinity(),
@@ -142,7 +139,7 @@ RimMswCompletionParameters::ReferenceMDType RimMswCompletionParameters::referenc
 //--------------------------------------------------------------------------------------------------
 double RimMswCompletionParameters::manualReferenceMD() const
 {
-    if ( m_refMDType == AUTO_REFERENCE_MD )
+    if ( m_refMDType == ReferenceMDType::AUTO_REFERENCE_MD )
     {
         return std::numeric_limits<double>::infinity();
     }
@@ -156,17 +153,24 @@ double RimMswCompletionParameters::linerDiameter( RiaDefines::EclipseUnitSystem 
 {
     RimWellPath* wellPath;
     firstAncestorOrThisOfTypeAsserted( wellPath );
+
+    double diameter = m_linerDiameter();
+    if ( !wellPath->isTopLevelWellPath() && !m_customValuesForLateral )
+    {
+        diameter = wellPath->topLevelWellPath()->mswCompletionParameters()->m_linerDiameter();
+    }
+
     if ( wellPath->unitSystem() == RiaDefines::EclipseUnitSystem::UNITS_FIELD &&
          unitSystem == RiaDefines::EclipseUnitSystem::UNITS_METRIC )
     {
-        return RiaEclipseUnitTools::feetToMeter( m_linerDiameter() );
+        return RiaEclipseUnitTools::feetToMeter( diameter );
     }
     else if ( wellPath->unitSystem() == RiaDefines::EclipseUnitSystem::UNITS_METRIC &&
               unitSystem == RiaDefines::EclipseUnitSystem::UNITS_FIELD )
     {
-        return RiaEclipseUnitTools::meterToFeet( m_linerDiameter() );
+        return RiaEclipseUnitTools::meterToFeet( diameter );
     }
-    return m_linerDiameter();
+    return diameter;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -191,17 +195,25 @@ double RimMswCompletionParameters::roughnessFactor( RiaDefines::EclipseUnitSyste
 {
     RimWellPath* wellPath;
     firstAncestorOrThisOfTypeAsserted( wellPath );
+
+    double rFactor = m_roughnessFactor();
+    if ( !wellPath->isTopLevelWellPath() && !m_customValuesForLateral )
+    {
+        rFactor = wellPath->topLevelWellPath()->mswCompletionParameters()->m_roughnessFactor();
+    }
+
     if ( wellPath->unitSystem() == RiaDefines::EclipseUnitSystem::UNITS_FIELD &&
          unitSystem == RiaDefines::EclipseUnitSystem::UNITS_METRIC )
     {
-        return RiaEclipseUnitTools::feetToMeter( m_roughnessFactor() );
+        return RiaEclipseUnitTools::feetToMeter( rFactor );
     }
     else if ( wellPath->unitSystem() == RiaDefines::EclipseUnitSystem::UNITS_METRIC &&
               unitSystem == RiaDefines::EclipseUnitSystem::UNITS_FIELD )
     {
-        return RiaEclipseUnitTools::meterToFeet( m_roughnessFactor() );
+        return RiaEclipseUnitTools::meterToFeet( rFactor );
     }
-    return m_roughnessFactor();
+
+    return rFactor;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -300,7 +312,7 @@ void RimMswCompletionParameters::fieldChangedByUi( const caf::PdmFieldHandle* ch
 {
     if ( changedField == &m_refMDType )
     {
-        m_refMD.uiCapability()->setUiHidden( m_refMDType == AUTO_REFERENCE_MD );
+        m_refMD.uiCapability()->setUiHidden( m_refMDType == ReferenceMDType::AUTO_REFERENCE_MD );
         this->updateAllRequiredEditors();
     }
 
@@ -316,37 +328,45 @@ void RimMswCompletionParameters::fieldChangedByUi( const caf::PdmFieldHandle* ch
 //--------------------------------------------------------------------------------------------------
 void RimMswCompletionParameters::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
+    RimWellPath* wellPath;
+    firstAncestorOrThisOfType( wellPath );
+    if ( wellPath )
     {
-        RimWellPath* wellPath;
-        firstAncestorOrThisOfType( wellPath );
-        if ( wellPath )
+        if ( wellPath->unitSystem() == RiaDefines::EclipseUnitSystem::UNITS_METRIC )
         {
-            if ( wellPath->unitSystem() == RiaDefines::EclipseUnitSystem::UNITS_METRIC )
-            {
-                m_linerDiameter.uiCapability()->setUiName( "Liner Inner Diameter [m]" );
-                m_roughnessFactor.uiCapability()->setUiName( "Roughness Factor [m]" );
-            }
-            else if ( wellPath->unitSystem() == RiaDefines::EclipseUnitSystem::UNITS_FIELD )
-            {
-                m_linerDiameter.uiCapability()->setUiName( "Liner Inner Diameter [ft]" );
-                m_roughnessFactor.uiCapability()->setUiName( "Roughness Factor [ft]" );
-            }
+            m_linerDiameter.uiCapability()->setUiName( "Liner Inner Diameter [m]" );
+            m_roughnessFactor.uiCapability()->setUiName( "Roughness Factor [m]" );
+        }
+        else if ( wellPath->unitSystem() == RiaDefines::EclipseUnitSystem::UNITS_FIELD )
+        {
+            m_linerDiameter.uiCapability()->setUiName( "Liner Inner Diameter [ft]" );
+            m_roughnessFactor.uiCapability()->setUiName( "Roughness Factor [ft]" );
+        }
+
+        if ( wellPath->isTopLevelWellPath() )
+        {
+            uiOrdering.add( &m_refMDType );
+            uiOrdering.add( &m_refMD );
+            m_refMD.uiCapability()->setUiHidden( m_refMDType == ReferenceMDType::AUTO_REFERENCE_MD );
+
+            uiOrdering.add( &m_linerDiameter );
+            uiOrdering.add( &m_roughnessFactor );
+            uiOrdering.add( &m_pressureDrop );
+            uiOrdering.add( &m_lengthAndDepth );
+            uiOrdering.add( &m_enforceMaxSegmentLength );
+            uiOrdering.add( &m_maxSegmentLength );
+        }
+        else
+        {
+            uiOrdering.add( &m_customValuesForLateral );
+
+            uiOrdering.add( &m_linerDiameter );
+            uiOrdering.add( &m_roughnessFactor );
+
+            m_linerDiameter.uiCapability()->setUiReadOnly( !m_customValuesForLateral() );
+            m_linerDiameter.uiCapability()->setUiReadOnly( !m_customValuesForLateral() );
         }
     }
-
-    if ( m_enableReferenceDepth )
-    {
-        uiOrdering.add( &m_refMDType );
-        uiOrdering.add( &m_refMD );
-        m_refMD.uiCapability()->setUiHidden( m_refMDType == AUTO_REFERENCE_MD );
-    }
-
-    uiOrdering.add( &m_linerDiameter );
-    uiOrdering.add( &m_roughnessFactor );
-    uiOrdering.add( &m_pressureDrop );
-    uiOrdering.add( &m_lengthAndDepth );
-    uiOrdering.add( &m_enforceMaxSegmentLength );
-    uiOrdering.add( &m_maxSegmentLength );
 
     uiOrdering.skipRemainingFields( true );
 }
@@ -375,4 +395,22 @@ void RimMswCompletionParameters::setUnitSystemSpecificDefaults()
         m_linerDiameter   = defaultLinerDiameter( wellPath->unitSystem() );
         m_roughnessFactor = defaultRoughnessFactor( wellPath->unitSystem() );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimMswCompletionParameters::updateFromTopLevelWell( const RimMswCompletionParameters* topLevelWellParameters )
+{
+    m_refMDType               = topLevelWellParameters->m_refMDType();
+    m_refMD                   = topLevelWellParameters->m_refMD();
+    m_pressureDrop            = topLevelWellParameters->m_pressureDrop();
+    m_enforceMaxSegmentLength = topLevelWellParameters->m_enforceMaxSegmentLength();
+    m_maxSegmentLength        = topLevelWellParameters->m_maxSegmentLength();
+
+    // The following parameters can be defined per lateral
+    /*
+        m_linerDiameter           = rhs.m_linerDiameter();
+        m_roughnessFactor         = rhs.m_roughnessFactor();
+    */
 }

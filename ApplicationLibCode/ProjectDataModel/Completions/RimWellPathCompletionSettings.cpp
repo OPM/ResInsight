@@ -20,6 +20,7 @@
 #include "RiaStdStringTools.h"
 #include "RimMswCompletionParameters.h"
 
+#include "RimWellPath.h"
 #include "cafPdmDoubleStringValidator.h"
 #include "cafPdmUiLineEditor.h"
 #include "cafPdmUiOrdering.h"
@@ -90,6 +91,11 @@ RimWellPathCompletionSettings::RimWellPathCompletionSettings()
     CAF_PDM_InitField( &m_wellBoreFluidPVTTable, "WellBoreFluidPVTTable", 0, "Wellbore Fluid PVT table", "", "", "" );
     CAF_PDM_InitFieldNoDefault( &m_hydrostaticDensity, "HydrostaticDensity", "Hydrostatic Density", "", "", "" );
     CAF_PDM_InitField( &m_fluidInPlaceRegion, "FluidInPlaceRegion", 0, "Fluid In-Place Region", "", "", "" );
+
+    CAF_PDM_InitFieldNoDefault( &m_mswParameters, "MswParameters", "Multi Segment Well Parameters", "", "", "" );
+    m_mswParameters = new RimMswCompletionParameters;
+    m_mswParameters.uiCapability()->setUiTreeHidden( true );
+    m_mswParameters.uiCapability()->setUiTreeChildrenHidden( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -257,20 +263,37 @@ QRegExp RimWellPathCompletionSettings::wellNameForExportRegExp()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RimMswCompletionParameters* RimWellPathCompletionSettings::mswCompletionParameters() const
+{
+    return m_mswParameters();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimWellPathCompletionSettings::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    caf::PdmUiGroup* compExportGroup = uiOrdering.addNewGroup( "Completion Export Parameters" );
-    compExportGroup->add( &m_wellNameForExport );
-    compExportGroup->add( &m_wellGroupName );
-    compExportGroup->add( &m_referenceDepth );
-    compExportGroup->add( &m_preferredFluidPhase );
-    compExportGroup->add( &m_drainageRadiusForPI );
-    compExportGroup->add( &m_gasInflowEquation );
-    compExportGroup->add( &m_automaticWellShutIn );
-    compExportGroup->add( &m_allowWellCrossFlow );
-    compExportGroup->add( &m_wellBoreFluidPVTTable );
-    compExportGroup->add( &m_hydrostaticDensity );
-    compExportGroup->add( &m_fluidInPlaceRegion );
+    RimWellPath* wellPath = nullptr;
+    this->firstAncestorOrThisOfTypeAsserted( wellPath );
+
+    if ( wellPath->isTopLevelWellPath() )
+    {
+        caf::PdmUiGroup* compExportGroup = uiOrdering.addNewGroup( "Completion Export Parameters" );
+        compExportGroup->add( &m_wellNameForExport );
+        compExportGroup->add( &m_wellGroupName );
+        compExportGroup->add( &m_referenceDepth );
+        compExportGroup->add( &m_preferredFluidPhase );
+        compExportGroup->add( &m_drainageRadiusForPI );
+        compExportGroup->add( &m_gasInflowEquation );
+        compExportGroup->add( &m_automaticWellShutIn );
+        compExportGroup->add( &m_allowWellCrossFlow );
+        compExportGroup->add( &m_wellBoreFluidPVTTable );
+        compExportGroup->add( &m_hydrostaticDensity );
+        compExportGroup->add( &m_fluidInPlaceRegion );
+    }
+
+    caf::PdmUiGroup* mswGroup = uiOrdering.addNewGroup( "Multi Segment Well Options" );
+    m_mswParameters->uiOrdering( uiConfigName, *mswGroup );
 
     uiOrdering.skipRemainingFields( true );
 }
@@ -282,6 +305,8 @@ void RimWellPathCompletionSettings::fieldChangedByUi( const caf::PdmFieldHandle*
                                                       const QVariant&            oldValue,
                                                       const QVariant&            newValue )
 {
+    m_mswParameters->fieldChangedByUi( changedField, oldValue, newValue );
+
     if ( changedField == &m_referenceDepth )
     {
         if ( !RiaStdStringTools::isNumber( m_referenceDepth.v().toStdString(), '.' ) )

@@ -43,6 +43,7 @@
 #include "RimFishbonesCollection.h"
 #include "RimFractureTemplate.h"
 #include "RimModeledWellPath.h"
+#include "RimMswCompletionParameters.h"
 #include "RimPerforationCollection.h"
 #include "RimPerforationInterval.h"
 #include "RimProject.h"
@@ -188,7 +189,7 @@ void RicWellPathExportMswCompletionsImpl::exportWellSegmentsForPerforations( Rim
 {
     RiaDefines::EclipseUnitSystem unitSystem = eclipseCase->eclipseCaseData()->unitsType();
 
-    auto mswParameters = wellPath->perforationIntervalCollection()->mswParameters();
+    auto mswParameters = wellPath->mswCompletionParameters();
 
     if ( !mswParameters ) return;
 
@@ -202,9 +203,6 @@ void RicWellPathExportMswCompletionsImpl::exportWellSegmentsForPerforations( Rim
                                  initialMD,
                                  mswParameters->lengthAndDepth().text(),
                                  mswParameters->pressureDrop().text() );
-
-    exportInfo.setLinerDiameter( mswParameters->linerDiameter( unitSystem ) );
-    exportInfo.setRoughnessFactor( mswParameters->roughnessFactor( unitSystem ) );
 
     if ( generatePerforationsMswExportInfo( eclipseCase,
                                             wellPath,
@@ -251,7 +249,7 @@ void RicWellPathExportMswCompletionsImpl::exportWellSegmentsForFractures( RimEcl
         return;
     }
 
-    auto mswParameters = wellPath->fractureCollection()->mswParameters();
+    auto mswParameters = wellPath->mswCompletionParameters();
 
     if ( !mswParameters ) return;
 
@@ -265,9 +263,6 @@ void RicWellPathExportMswCompletionsImpl::exportWellSegmentsForFractures( RimEcl
                                  initialMD,
                                  mswParameters->lengthAndDepth().text(),
                                  mswParameters->pressureDrop().text() );
-
-    exportInfo.setLinerDiameter( mswParameters->linerDiameter( unitSystem ) );
-    exportInfo.setRoughnessFactor( mswParameters->roughnessFactor( unitSystem ) );
 
     generateFracturesMswExportInfo( eclipseCase,
                                     wellPath,
@@ -283,7 +278,7 @@ void RicWellPathExportMswCompletionsImpl::exportWellSegmentsForFractures( RimEcl
     RifTextDataTableFormatter formatter( stream );
     formatter.setOptionalComment( exportDataSourceAsComment );
 
-    double maxSegmentLength = wellPath->fractureCollection()->mswParameters()->maxSegmentLength();
+    double maxSegmentLength = wellPath->mswCompletionParameters()->maxSegmentLength();
 
     RicMswTableFormatterTools::generateWelsegsTable( formatter, exportInfo, maxSegmentLength, completionSegmentsAfterMainBore );
     RicMswTableFormatterTools::generateCompsegTables( formatter, exportInfo );
@@ -309,7 +304,7 @@ void RicWellPathExportMswCompletionsImpl::exportWellSegmentsForFishbones( RimEcl
     double initialMD = 0.0; // Start measured depth location to export MSW data for. Either based on first intersection
                             // with active grid, or user defined value.
 
-    auto mswParameters     = wellPath->fishbonesCollection()->mswParameters();
+    auto mswParameters     = wellPath->mswCompletionParameters();
     auto cellIntersections = generateCellSegments( eclipseCase, wellPath, mswParameters, &initialMD );
 
     RiaDefines::EclipseUnitSystem unitSystem = eclipseCase->eclipseCaseData()->unitsType();
@@ -319,8 +314,6 @@ void RicWellPathExportMswCompletionsImpl::exportWellSegmentsForFishbones( RimEcl
                                  wellPath->fishbonesCollection()->startMD(),
                                  mswParameters->lengthAndDepth().text(),
                                  mswParameters->pressureDrop().text() );
-    exportInfo.setLinerDiameter( mswParameters->linerDiameter( unitSystem ) );
-    exportInfo.setRoughnessFactor( mswParameters->roughnessFactor( unitSystem ) );
 
     generateFishbonesMswExportInfo( eclipseCase,
                                     wellPath,
@@ -339,7 +332,7 @@ void RicWellPathExportMswCompletionsImpl::exportWellSegmentsForFishbones( RimEcl
     RifTextDataTableFormatter formatter( stream );
     formatter.setOptionalComment( exportDataSourceAsComment );
 
-    double maxSegmentLength = wellPath->fishbonesCollection()->mswParameters()->maxSegmentLength();
+    double maxSegmentLength = wellPath->mswCompletionParameters()->maxSegmentLength();
 
     RicMswTableFormatterTools::generateWelsegsTable( formatter, exportInfo, maxSegmentLength, completionSegmentsAfterMainBore );
     RicMswTableFormatterTools::generateCompsegTables( formatter, exportInfo );
@@ -387,7 +380,7 @@ void RicWellPathExportMswCompletionsImpl::generateFishbonesMswExportInfo(
     std::vector<WellPathCellIntersectionInfo> filteredIntersections =
         filterIntersections( cellIntersections, initialMD, wellPath->wellPathGeometry(), eclipseCase );
 
-    auto mswParameters = wellPath->fishbonesCollection()->mswParameters();
+    auto mswParameters = wellPath->mswCompletionParameters();
 
     bool foundSubGridIntersections = false;
 
@@ -527,7 +520,7 @@ void RicWellPathExportMswCompletionsImpl::generateFishbonesMswExportInfo(
     for ( auto childWellPath : connectedWellPaths )
     {
         auto childMswBranch = createChildMswBranch( childWellPath );
-        auto mswParameters  = childWellPath->perforationIntervalCollection()->mswParameters();
+        auto mswParameters  = childWellPath->mswCompletionParameters();
 
         double startOfChildMD       = 0.0; // this is currently not used, as the tie-in MD is used
         auto childCellIntersections = generateCellSegments( eclipseCase, childWellPath, mswParameters, &startOfChildMD );
@@ -556,7 +549,7 @@ void RicWellPathExportMswCompletionsImpl::generateFishbonesMswExportInfoForWell(
     double initialMD = 0.0; // Start measured depth location to export MSW data for. Either based on first intersection
                             // with active grid, or user defined value.
 
-    auto mswParameters     = wellPath->fishbonesCollection()->mswParameters();
+    auto mswParameters     = wellPath->mswCompletionParameters();
     auto cellIntersections = generateCellSegments( eclipseCase, wellPath, mswParameters, &initialMD );
 
     RiaDefines::EclipseUnitSystem unitSystem = eclipseCase->eclipseCaseData()->unitsType();
@@ -576,7 +569,7 @@ bool RicWellPathExportMswCompletionsImpl::generateFracturesMswExportInfo(
     gsl::not_null<RicMswExportInfo*>                 exportInfo,
     gsl::not_null<RicMswBranch*>                     branch )
 {
-    auto mswParameters = wellPath->fractureCollection()->mswParameters();
+    auto mswParameters = wellPath->mswCompletionParameters();
     auto fractures     = wellPath->fractureCollection()->activeFractures();
 
     std::vector<WellPathCellIntersectionInfo> filteredIntersections =
@@ -650,7 +643,7 @@ bool RicWellPathExportMswCompletionsImpl::generateFracturesMswExportInfo(
     for ( auto childWellPath : connectedWellPaths )
     {
         auto childMswBranch = createChildMswBranch( childWellPath );
-        auto mswParameters  = childWellPath->perforationIntervalCollection()->mswParameters();
+        auto mswParameters  = childWellPath->mswCompletionParameters();
 
         double startOfChildMD       = 0.0; // this is currently not used, as the tie-in MD is used
         auto childCellIntersections = generateCellSegments( eclipseCase, childWellPath, mswParameters, &startOfChildMD );
@@ -747,7 +740,7 @@ bool RicWellPathExportMswCompletionsImpl::generatePerforationsMswExportInfo(
     for ( auto childWellPath : connectedWellPaths )
     {
         auto childMswBranch = createChildMswBranch( childWellPath );
-        auto mswParameters  = childWellPath->perforationIntervalCollection()->mswParameters();
+        auto mswParameters  = childWellPath->mswCompletionParameters();
 
         double startOfChildMD       = 0.0; // this is currently not used, as the tie-in MD is used
         auto childCellIntersections = generateCellSegments( eclipseCase, childWellPath, mswParameters, &startOfChildMD );
@@ -799,7 +792,7 @@ std::vector<WellPathCellIntersectionInfo>
     std::vector<WellPathCellIntersectionInfo> continuousIntersections =
         RigWellPathIntersectionTools::buildContinuousIntersections( allIntersections, mainGrid );
 
-    if ( mswParameters->referenceMDType() == RimMswCompletionParameters::MANUAL_REFERENCE_MD )
+    if ( mswParameters->referenceMDType() == RimMswCompletionParameters::ReferenceMDType::MANUAL_REFERENCE_MD )
     {
         *initialMD = mswParameters->manualReferenceMD();
     }

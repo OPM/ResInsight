@@ -42,14 +42,10 @@ public:
                       const QString&                lengthAndDepthText,
                       const QString&                pressureDropText );
 
-    void setLinerDiameter( double linerDiameter );
-    void setRoughnessFactor( double roughnessFactor );
     void setHasSubGridIntersections( bool subGridIntersections );
 
     RiaDefines::EclipseUnitSystem unitSystem() const;
     double                        topWellBoreVolume() const;
-    double                        linerDiameter() const;
-    double                        roughnessFactor() const;
     QString                       lengthAndDepthText() const;
     QString                       pressureDropText() const;
     bool                          hasSubGridIntersections() const;
@@ -61,8 +57,6 @@ public:
 private:
     RiaDefines::EclipseUnitSystem m_unitSystem;
     double                        m_topWellBoreVolume;
-    double                        m_linerDiameter;
-    double                        m_roughnessFactor;
     QString                       m_lengthAndDepthText;
     QString                       m_pressureDropText;
     bool                          m_hasSubGridIntersections;

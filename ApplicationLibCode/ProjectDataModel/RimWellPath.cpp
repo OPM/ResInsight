@@ -37,6 +37,7 @@
 #include "RimFishbones.h"
 #include "RimFishbonesCollection.h"
 #include "RimMainPlotCollection.h"
+#include "RimMswCompletionParameters.h"
 #include "RimPerforationCollection.h"
 #include "RimProject.h"
 #include "RimStimPlanModelCollection.h"
@@ -284,7 +285,7 @@ const RimWellPathCompletions* RimWellPath::completions() const
 }
 
 //--------------------------------------------------------------------------------------------------
-///
+/// Returns top-level completion settings
 //--------------------------------------------------------------------------------------------------
 const RimWellPathCompletionSettings* RimWellPath::completionSettings() const
 {
@@ -294,13 +295,47 @@ const RimWellPathCompletionSettings* RimWellPath::completionSettings() const
 }
 
 //--------------------------------------------------------------------------------------------------
-///
+/// Returns top-level completion settings
 //--------------------------------------------------------------------------------------------------
 RimWellPathCompletionSettings* RimWellPath::completionSettings()
 {
     if ( isTopLevelWellPath() ) return m_completionSettings();
 
     return topLevelWellPath()->completionSettings();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimMswCompletionParameters* RimWellPath::mswCompletionParameters()
+{
+    auto params = m_completionSettings->mswCompletionParameters();
+    if ( !isTopLevelWellPath() )
+    {
+        auto topMsw = topLevelWellPath()->mswCompletionParameters();
+
+        // Propagate most settings from top level well into lateral parameters
+        params->updateFromTopLevelWell( topMsw );
+    }
+
+    return params;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const RimMswCompletionParameters* RimWellPath::mswCompletionParameters() const
+{
+    auto params = m_completionSettings->mswCompletionParameters();
+    if ( !isTopLevelWellPath() )
+    {
+        auto topMsw = topLevelWellPath()->mswCompletionParameters();
+
+        // Propagate most settings from top level well into lateral parameters
+        params->updateFromTopLevelWell( topMsw );
+    }
+
+    return params;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -670,9 +705,9 @@ void RimWellPath::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, 
 {
     uiTreeOrdering.add( &m_wellLogFiles );
 
-    if ( completionSettings() && isTopLevelWellPath() && !allCompletionsRecursively().empty() )
+    if ( m_completionSettings() && !allCompletionsRecursively().empty() )
     {
-        uiTreeOrdering.add( completionSettings() );
+        uiTreeOrdering.add( m_completionSettings() );
     }
 
     if ( m_completions->fishbonesCollection()->hasFishbones() )
