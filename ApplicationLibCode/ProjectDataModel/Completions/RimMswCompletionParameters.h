@@ -28,30 +28,30 @@ class RimMswCompletionParameters : public caf::PdmObject
     CAF_PDM_HEADER_INIT;
 
 public:
-    enum ReferenceMDType
+    enum class ReferenceMDType
     {
         AUTO_REFERENCE_MD = 0,
         MANUAL_REFERENCE_MD
     };
 
-    enum PressureDropType
+    enum class PressureDropType
     {
         HYDROSTATIC,
         HYDROSTATIC_FRICTION,
         HYDROSTATIC_FRICTION_ACCELERATION
     };
 
-    enum LengthAndDepthType
+    enum class LengthAndDepthType
     {
         ABS,
         INC
     };
 
-    typedef caf::AppEnum<ReferenceMDType>    ReferenceMDEnum;
-    typedef caf::AppEnum<PressureDropType>   PressureDropEnum;
-    typedef caf::AppEnum<LengthAndDepthType> LengthAndDepthEnum;
+    using ReferenceMDEnum    = caf::AppEnum<ReferenceMDType>;
+    using PressureDropEnum   = caf::AppEnum<PressureDropType>;
+    using LengthAndDepthEnum = caf::AppEnum<LengthAndDepthType>;
 
-    RimMswCompletionParameters( bool enableReferenceDepth = true );
+    RimMswCompletionParameters();
     ~RimMswCompletionParameters() override;
 
     bool                        isDefault() const;
@@ -76,8 +76,11 @@ public:
 
     void setUnitSystemSpecificDefaults();
 
-protected:
+    void updateFromTopLevelWell( const RimMswCompletionParameters* topLevelWellParameters );
+
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+
+protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void initAfterRead() override;
 
@@ -85,6 +88,7 @@ private:
     caf::PdmField<ReferenceMDEnum> m_refMDType;
     caf::PdmField<double>          m_refMD;
 
+    caf::PdmField<bool>   m_customValuesForLateral;
     caf::PdmField<double> m_linerDiameter;
     caf::PdmField<double> m_roughnessFactor;
 
@@ -93,6 +97,4 @@ private:
 
     caf::PdmField<bool>   m_enforceMaxSegmentLength;
     caf::PdmField<double> m_maxSegmentLength;
-
-    bool m_enableReferenceDepth;
 };

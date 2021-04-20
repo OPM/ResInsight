@@ -36,6 +36,7 @@
 
 #include "RimFishbones.h"
 #include "RimFishbonesCollection.h"
+#include "RimMswCompletionParameters.h"
 #include "RimWellPath.h"
 #include "RimWellPathCompletions.h"
 
@@ -208,7 +209,7 @@ void RicFishbonesTransmissibilityCalculationFeatureImp::findFishboneLateralsWell
     // Generate data
     const RigEclipseCaseData* caseData = settings.caseToApply()->eclipseCaseData();
 
-    auto                          mswParameters = wellPath->fishbonesCollection()->mswParameters();
+    auto                          mswParameters = wellPath->mswCompletionParameters();
     RiaDefines::EclipseUnitSystem unitSystem    = caseData->unitsType();
 
     RicMswExportInfo exportInfo( wellPath,
@@ -216,8 +217,6 @@ void RicFishbonesTransmissibilityCalculationFeatureImp::findFishboneLateralsWell
                                  wellPath->fishbonesCollection()->startMD(),
                                  mswParameters->lengthAndDepth().text(),
                                  mswParameters->pressureDrop().text() );
-    exportInfo.setLinerDiameter( mswParameters->linerDiameter( unitSystem ) );
-    exportInfo.setRoughnessFactor( mswParameters->roughnessFactor( unitSystem ) );
 
     RicWellPathExportMswCompletionsImpl::generateFishbonesMswExportInfoForWell( settings.caseToApply(),
                                                                                 wellPath,

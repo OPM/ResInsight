@@ -39,8 +39,6 @@ RicMswExportInfo::RicMswExportInfo( const RimWellPath*            wellPath,
                                     const QString&                pressureDropText )
     : m_unitSystem( unitSystem )
     , m_topWellBoreVolume( RicMswExportInfo::defaultDoubleValue() )
-    , m_linerDiameter( RimMswCompletionParameters::defaultLinerDiameter( unitSystem ) )
-    , m_roughnessFactor( RimMswCompletionParameters::defaultRoughnessFactor( unitSystem ) )
     , m_lengthAndDepthText( lengthAndDepthText )
     , m_pressureDropText( pressureDropText )
     , m_hasSubGridIntersections( false )
@@ -50,22 +48,6 @@ RicMswExportInfo::RicMswExportInfo( const RimWellPath*            wellPath,
                                           initialMD,
                                           -wellPath->wellPathGeometry()->interpolatedPointAlongWellPath( initialMD ).z() ) )
 {
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RicMswExportInfo::setLinerDiameter( double linerDiameter )
-{
-    m_linerDiameter = linerDiameter;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RicMswExportInfo::setRoughnessFactor( double roughnessFactor )
-{
-    m_roughnessFactor = roughnessFactor;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -90,22 +72,6 @@ RiaDefines::EclipseUnitSystem RicMswExportInfo::unitSystem() const
 double RicMswExportInfo::topWellBoreVolume() const
 {
     return m_topWellBoreVolume;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-double RicMswExportInfo::linerDiameter() const
-{
-    return m_linerDiameter;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-double RicMswExportInfo::roughnessFactor() const
-{
-    return m_roughnessFactor;
 }
 
 //--------------------------------------------------------------------------------------------------

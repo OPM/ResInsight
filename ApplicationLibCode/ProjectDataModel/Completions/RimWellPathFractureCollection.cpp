@@ -38,14 +38,6 @@ RimWellPathFractureCollection::RimWellPathFractureCollection( void )
     setName( "Fractures" );
     nameField()->uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_mswParameters, "MswParameters", "Multi Segment Well Parameters", "", "", "" );
-    m_mswParameters = new RimMswCompletionParameters;
-    m_mswParameters.uiCapability()->setUiTreeHidden( true );
-    m_mswParameters.uiCapability()->setUiTreeChildrenHidden( true );
-
-    CAF_PDM_InitField( &m_refMDType_OBSOLETE, "RefMDType", std::numeric_limits<int>::max(), "Reference MD", "", "", "" );
-    CAF_PDM_InitField( &m_refMD_OBSOLETE, "RefMD", std::numeric_limits<double>::infinity(), "", "", "", "" );
-
     setDeletable( true );
 }
 
@@ -83,14 +75,6 @@ void RimWellPathFractureCollection::deleteFractures()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const RimMswCompletionParameters* RimWellPathFractureCollection::mswParameters() const
-{
-    return m_mswParameters();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 std::vector<RimWellPathFracture*> RimWellPathFractureCollection::allFractures() const
 {
     return m_fractures.childObjects();
@@ -120,17 +104,6 @@ std::vector<RimWellPathFracture*> RimWellPathFractureCollection::activeFractures
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellPathFractureCollection::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
-{
-    caf::PdmUiGroup* mswGroup = uiOrdering.addNewGroup( "Multi Segment Well Options" );
-    m_mswParameters->uiOrdering( uiConfigName, *mswGroup );
-
-    uiOrdering.skipRemainingFields( true );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimWellPathFractureCollection::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
                                                       const QVariant&            oldValue,
                                                       const QVariant&            newValue )
@@ -142,22 +115,6 @@ void RimWellPathFractureCollection::fieldChangedByUi( const caf::PdmFieldHandle*
     else
     {
         RimProject::current()->scheduleCreateDisplayModelAndRedrawAllViews();
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimWellPathFractureCollection::initAfterRead()
-{
-    if ( m_refMDType_OBSOLETE() != std::numeric_limits<int>::max() )
-    {
-        m_mswParameters->setReferenceMDType( (RimMswCompletionParameters::ReferenceMDType)m_refMDType_OBSOLETE() );
-    }
-
-    if ( m_refMD_OBSOLETE() != std::numeric_limits<double>::infinity() )
-    {
-        m_mswParameters->setManualReferenceMD( m_refMD_OBSOLETE() );
     }
 }
 

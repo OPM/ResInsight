@@ -58,6 +58,7 @@ class RimWellPathFractureCollection;
 class Rim3dWellLogCurve;
 class Rim3dWellLogCurveCollection;
 class RimWellPathTieIn;
+class RimMswCompletionParameters;
 
 //==================================================================================================
 ///
@@ -122,6 +123,8 @@ public:
     const RimWellPathCompletions*                     completions() const;
     const RimWellPathCompletionSettings*              completionSettings() const;
     RimWellPathCompletionSettings*                    completionSettings();
+    RimMswCompletionParameters*                       mswCompletionParameters();
+    const RimMswCompletionParameters*                 mswCompletionParameters() const;
 
     RimFishbonesCollection*               fishbonesCollection();
     const RimFishbonesCollection*         fishbonesCollection() const;

@@ -23,7 +23,6 @@
 
 #include "Rim3dView.h"
 #include "RimEclipseCase.h"
-#include "RimMswCompletionParameters.h"
 #include "RimNonDarcyPerforationParameters.h"
 #include "RimPerforationInterval.h"
 #include "RimProject.h"
@@ -33,17 +32,6 @@
 #include "RifWellPathImporter.h"
 
 #include "Riu3DMainWindowTools.h"
-
-namespace caf
-{
-template <>
-void RimPerforationCollection::ReferenceMDEnum::setUp()
-{
-    addItem( RimPerforationCollection::AUTO_REFERENCE_MD, "GridIntersectionRefMD", "Grid Entry Point" );
-    addItem( RimPerforationCollection::MANUAL_REFERENCE_MD, "ManualRefMD", "User Defined" );
-    setDefault( RimPerforationCollection::AUTO_REFERENCE_MD );
-}
-} // namespace caf
 
 CAF_PDM_SOURCE_INIT( RimPerforationCollection, "PerforationCollection" );
 
@@ -59,11 +47,6 @@ RimPerforationCollection::RimPerforationCollection()
 
     CAF_PDM_InitFieldNoDefault( &m_perforations, "Perforations", "Perforations", "", "", "" );
     m_perforations.uiCapability()->setUiHidden( true );
-
-    CAF_PDM_InitFieldNoDefault( &m_mswParameters, "MswParameters", "Multi Segment Well Parameters", "", "", "" );
-    m_mswParameters = new RimMswCompletionParameters;
-    m_mswParameters.uiCapability()->setUiTreeHidden( true );
-    m_mswParameters.uiCapability()->setUiTreeChildrenHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_nonDarcyParameters, "NonDarcyParameters", "Non-Darcy Parameters", "", "", "" );
     m_nonDarcyParameters = new RimNonDarcyPerforationParameters();
@@ -179,18 +162,8 @@ std::vector<const RimPerforationInterval*> RimPerforationCollection::activePerfo
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimMswCompletionParameters* RimPerforationCollection::mswParameters() const
-{
-    return m_mswParameters();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimPerforationCollection::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    caf::PdmUiGroup* mswGroup = uiOrdering.addNewGroup( "Multi Segment Well Options" );
-    m_mswParameters->uiOrdering( uiConfigName, *mswGroup );
     m_nonDarcyParameters->uiOrdering( uiConfigName, uiOrdering );
     uiOrdering.skipRemainingFields( true );
 }
