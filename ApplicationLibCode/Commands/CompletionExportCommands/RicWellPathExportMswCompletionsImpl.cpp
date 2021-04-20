@@ -575,68 +575,43 @@ bool RicWellPathExportMswCompletionsImpl::generateFracturesMswExportInfo(
     std::vector<WellPathCellIntersectionInfo> filteredIntersections =
         filterIntersections( cellIntersections, initialMD, wellPath->wellPathGeometry(), eclipseCase );
 
+    // Create a dummy perforation interval
+    RimPerforationInterval perfInterval;
+
     bool foundSubGridIntersections = false;
+    createWellPathSegments( branch, filteredIntersections, { &perfInterval }, wellPath, -1, eclipseCase, &foundSubGridIntersections );
 
-    // Main bore
-    const RigMainGrid* grid = eclipseCase->eclipseCaseData()->mainGrid();
-
-    for ( const auto& cellIntInfo : filteredIntersections )
+    // Check if fractures are to be assigned to current main bore segment
+    for ( RimWellPathFracture* fracture : fractures )
     {
-        if ( cellIntInfo.globCellIndex >= grid->globalCellArray().size() )
+        double fractureStartMD = fracture->fractureMD();
+        if ( fracture->fractureTemplate()->orientationType() == RimFractureTemplate::ALONG_WELL_PATH )
         {
-            continue;
+            double perforationLength = fracture->fractureTemplate()->perforationLength();
+            fractureStartMD -= 0.5 * perforationLength;
         }
 
-        size_t             localGridIdx = 0u;
-        const RigGridBase* localGrid =
-            grid->gridAndGridLocalIdxFromGlobalCellIdx( cellIntInfo.globCellIndex, &localGridIdx );
-        QString gridName;
-        if ( localGrid != grid )
+        auto segment = branch->findClosestSegmentWithLowerMD( fractureStartMD );
+        if ( segment )
         {
-            gridName                  = QString::fromStdString( localGrid->gridName() );
-            foundSubGridIntersections = true;
+            std::vector<RigCompletionData> completionData =
+                RicExportFractureCompletionsImpl::generateCompdatValues( eclipseCase,
+                                                                         wellPath->completionSettings()->wellNameForExport(),
+                                                                         wellPath->wellPathGeometry(),
+                                                                         { fracture },
+                                                                         nullptr,
+                                                                         nullptr );
+
+            assignFractureCompletionsToCellSegment( eclipseCase,
+                                                    wellPath,
+                                                    fracture,
+                                                    completionData,
+                                                    segment,
+                                                    &foundSubGridIntersections );
         }
-
-        size_t i = 0u, j = 0u, k = 0u;
-        localGrid->ijkFromCellIndex( localGridIdx, &i, &j, &k );
-        auto segment = std::make_unique<RicMswSegment>( "Main stem segment",
-                                                        cellIntInfo.startMD,
-                                                        cellIntInfo.endMD,
-                                                        cellIntInfo.startTVD(),
-                                                        cellIntInfo.endTVD() );
-
-        // Check if fractures are to be assigned to current main bore segment
-        for ( RimWellPathFracture* fracture : fractures )
-        {
-            double fractureStartMD = fracture->fractureMD();
-            if ( fracture->fractureTemplate()->orientationType() == RimFractureTemplate::ALONG_WELL_PATH )
-            {
-                double perforationLength = fracture->fractureTemplate()->perforationLength();
-                fractureStartMD -= 0.5 * perforationLength;
-            }
-
-            if ( cvf::Math::valueInRange( fractureStartMD, cellIntInfo.startMD, cellIntInfo.endMD ) )
-            {
-                std::vector<RigCompletionData> completionData =
-                    RicExportFractureCompletionsImpl::generateCompdatValues( eclipseCase,
-                                                                             wellPath->completionSettings()->wellNameForExport(),
-                                                                             wellPath->wellPathGeometry(),
-                                                                             { fracture },
-                                                                             nullptr,
-                                                                             nullptr );
-
-                assignFractureCompletionsToCellSegment( eclipseCase,
-                                                        wellPath,
-                                                        fracture,
-                                                        completionData,
-                                                        segment.get(),
-                                                        &foundSubGridIntersections );
-            }
-        }
-
-        branch->addSegment( std::move( segment ) );
     }
-    exportInfo->setHasSubGridIntersections( foundSubGridIntersections );
+
+    exportInfo->setHasSubGridIntersections( exportInfo->hasSubGridIntersections() || foundSubGridIntersections );
     branch->sortSegments();
 
     std::vector<RimModeledWellPath*> connectedWellPaths = wellPathsWithTieIn( wellPath );
@@ -662,6 +637,7 @@ bool RicWellPathExportMswCompletionsImpl::generateFracturesMswExportInfo(
 
     return true;
 }
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -1499,6 +1475,12 @@ void RicWellPathExportMswCompletionsImpl::assignFractureCompletionsToCellSegment
     for ( const RigCompletionData& compIntersection : completionData )
     {
         const RigCompletionDataGridCell& cell = compIntersection.completionDataGridCell();
+
+        if ( !cell.isMainGridCell() )
+        {
+            *foundSubGridIntersections = true;
+        }
+
         cvf::Vec3st localIJK( cell.localCellIndexI(), cell.localCellIndexJ(), cell.localCellIndexK() );
 
         auto intersection = std::make_shared<RicMswSegmentCellIntersection>( cell.lgrName(),
