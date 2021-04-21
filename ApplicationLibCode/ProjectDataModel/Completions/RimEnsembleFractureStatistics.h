@@ -151,6 +151,13 @@ protected:
     static std::tuple<double, double, double, double>
         findMaxGridExtents( const std::vector<cvf::ref<RigStimPlanFractureDefinition>>& stimPlanFractureDefinitions );
 
+    void computeMeanThicknessPerLayer( const std::vector<Layer>& layers,
+                                       int                       targetNumLayers,
+                                       double                    minY,
+                                       double                    binSize,
+                                       std::vector<double>&      means,
+                                       std::vector<double>&      baseDepth ) const;
+
     static void generateAllLayers( const std::vector<cvf::ref<RigStimPlanFractureDefinition>>& stimPlanFractureDefinitions,
                                    std::vector<Layer>&                                         layers );
 

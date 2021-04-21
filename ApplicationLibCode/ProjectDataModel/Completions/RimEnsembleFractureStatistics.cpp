@@ -601,18 +601,76 @@ void RimEnsembleFractureStatistics::generateAdaptiveMesh(
     double totalDepth = maxY - minY;
     double binSize    = totalDepth / targetNumLayers;
 
-    RiaLogging::info(
-        QString( "Adaptive mesh. Number of layers: %1. Layer thickness: %2" ).arg( targetNumLayers ).arg( binSize ) );
-
-    int nTotalMatches = 0;
+    RiaLogging::info( QString( "Adaptive mesh. Total depth: %1. Number of layers: %2. Layer thickness: %3" )
+                          .arg( totalDepth )
+                          .arg( targetNumLayers )
+                          .arg( binSize ) );
 
     std::vector<double> baseDepth;
+    std::vector<double> means;
+    computeMeanThicknessPerLayer( layers, targetNumLayers, minY, binSize, means, baseDepth );
+
+    // Scale mean by bin size
+    std::vector<double> scaledMeans;
+    double              sumScaledMean = 0.0;
+    for ( double mean : means )
+    {
+        double scaledMean = 0.0;
+        if ( mean != 0.0 ) scaledMean = binSize / mean;
+        scaledMeans.push_back( scaledMean );
+        sumScaledMean += scaledMean;
+    }
+
+    // Determine the relative thickness given a fixed number of layers
+    std::vector<double> relativeThickness;
+    relativeThickness.push_back( 0.0 );
+    double sumRelativeThickness = 0.0;
+    for ( int layerNo = 0; layerNo < targetNumLayers; layerNo++ )
+    {
+        double thickness = scaledMeans[layerNo] * targetNumLayers / sumScaledMean;
+        sumRelativeThickness += thickness;
+        relativeThickness.push_back( sumRelativeThickness );
+    }
+
+    // Find the index of the last item where value is smaller
+    auto findSmallerIndex = []( double value, const std::vector<double>& vec ) {
+        for ( size_t i = 0; i < vec.size(); i++ )
+            if ( vec[i] > value ) return i - 1;
+        return vec.size();
+    };
+
+    // Linear interpolation for each layer
+    for ( int layerNo = 0; layerNo < targetNumLayers; layerNo++ )
+    {
+        int binLayerNo = findSmallerIndex( static_cast<double>( layerNo ), relativeThickness );
+        CAF_ASSERT( binLayerNo >= 0 );
+        CAF_ASSERT( binLayerNo < static_cast<int>( relativeThickness.size() ) );
+        double x1         = relativeThickness[binLayerNo];
+        double x2         = relativeThickness[binLayerNo + 1];
+        double deltaLayer = x2 - x1;
+        double y1         = baseDepth[binLayerNo];
+        double y2         = baseDepth[binLayerNo + 1];
+        double deltaDepth = y2 - y1;
+        double offset     = ( static_cast<double>( layerNo ) - x1 ) * deltaDepth / deltaLayer;
+        double baseDepth  = y1 + offset;
+        gridYs.push_back( baseDepth );
+    }
+    gridYs.push_back( maxY );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEnsembleFractureStatistics::computeMeanThicknessPerLayer( const std::vector<Layer>& layers,
+                                                                  int                       targetNumLayers,
+                                                                  double                    minY,
+                                                                  double                    binSize,
+                                                                  std::vector<double>&      means,
+                                                                  std::vector<double>&      baseDepth ) const
+{
     baseDepth.push_back( minY );
 
-    std::vector<double> means;
-    double              sumMeans = 0.0;
-
-    // Calculate
+    // Bin the layers into fixed size bins and compute the layer thickess mean per bin
     for ( int layerNo = 0; layerNo < targetNumLayers; layerNo++ )
     {
         double binTopDepth    = minY + layerNo * binSize;
@@ -628,7 +686,7 @@ void RimEnsembleFractureStatistics::generateAdaptiveMesh(
         double minThickness = std::numeric_limits<double>::max();
         for ( Layer layer : layers )
         {
-            // TODO: top and bottom is mixed up here (again!)
+            // Layer y direction is negative up
             if ( layer.centerDepth() > binTopDepth && layer.centerDepth() <= binBottomDepth )
             {
                 harmonicMeanCalculator.addValueAndWeight( layer.thickness(), 1.0 );
@@ -638,7 +696,6 @@ void RimEnsembleFractureStatistics::generateAdaptiveMesh(
 
                 sum += layer.thickness();
                 nMatches++;
-                nTotalMatches++;
             }
         }
 
@@ -677,80 +734,7 @@ void RimEnsembleFractureStatistics::generateAdaptiveMesh(
         }
 
         means.push_back( mean );
-        sumMeans += mean;
     }
-
-    RiaLogging::info( QString( "Total matches: %1 (expected: %2)" ).arg( nTotalMatches ).arg( layers.size() ) );
-
-    double totalThickness = totalDepth;
-
-    std::vector<double> scaledMeans;
-    double              sumScaledMean = 0.0;
-
-    for ( double mean : means )
-    {
-        double scaledMean = 0.0;
-        if ( mean != 0.0 ) scaledMean = binSize / mean;
-        scaledMeans.push_back( scaledMean );
-        sumScaledMean += scaledMean;
-    }
-
-    RiaLogging::info( QString( "Total thickness: %1 Sum scaled mean: %2" ).arg( totalThickness ).arg( sumScaledMean ) );
-    std::vector<double> AM;
-    AM.push_back( 0.0 );
-
-    double sumAI = 0.0;
-    for ( int layerNo = 0; layerNo < targetNumLayers; layerNo++ )
-    {
-        double AI = scaledMeans[layerNo] * targetNumLayers / sumScaledMean;
-        sumAI += AI;
-        AM.push_back( sumAI );
-    }
-
-    auto findSmallerIndex = []( double value, const std::vector<double>& vec ) {
-        for ( size_t i = 0; i < vec.size(); i++ )
-        {
-            if ( vec[i] > value ) return i - 1;
-        }
-
-        return vec.size();
-    };
-
-    double prevDepth = baseDepth[0];
-    for ( int layerNo = 0; layerNo < targetNumLayers; layerNo++ )
-    {
-        double ap = layerNo;
-
-        int az = findSmallerIndex( ap, AM );
-        CAF_ASSERT( az >= 0 );
-        CAF_ASSERT( az < static_cast<int>( AM.size() ) );
-        int    azNext = az + 1;
-        double ba     = AM[az];
-        double bb     = AM[azNext];
-        double be     = bb - ba;
-        double bc     = baseDepth[az];
-        double bd     = baseDepth[azNext];
-        double bf     = bd - bc;
-        double offset = ( ap - ba ) * bf / be;
-        double as     = bc + offset;
-        double av     = as - prevDepth;
-        double ay     = as - av / 2.0;
-        RiaLogging::info( QString( "Res[%1] = %2 az=%3 ba=%4 bb=%5 bc=%6 av=%7 as=%8 offset=%9 azNext=%10" )
-                              .arg( layerNo )
-                              .arg( ay )
-                              .arg( az )
-                              .arg( ba )
-                              .arg( bb )
-                              .arg( bc )
-                              .arg( av )
-                              .arg( as )
-                              .arg( offset )
-                              .arg( azNext ) );
-
-        gridYs.push_back( as );
-        prevDepth = as;
-    }
-    gridYs.push_back( maxY );
 }
 
 //--------------------------------------------------------------------------------------------------
