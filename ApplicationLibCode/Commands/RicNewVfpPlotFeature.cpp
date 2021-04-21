@@ -108,6 +108,5 @@ void RicNewVfpPlotFeature::onActionTriggered( bool isChecked )
 void RicNewVfpPlotFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "New VFP Plots" );
-    // TODO: add icon
-    // actionToSetup->setIcon( QIcon( ":/VerticalFlowPerformancePlot16x16.png" ) );
+    actionToSetup->setIcon( QIcon( ":/VfpPlot.svg" ) );
 }
