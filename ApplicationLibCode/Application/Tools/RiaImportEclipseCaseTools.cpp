@@ -243,8 +243,8 @@ bool RiaImportEclipseCaseTools::openEclipseCaseShowTimeStepFilter( const QString
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RiaImportEclipseCaseTools::openEclipseInputCaseFromFileNames( const QStringList& fileNames,
-                                                                   QString*           fileContainingGrid /*=nullptr*/ )
+int RiaImportEclipseCaseTools::openEclipseInputCaseFromFileNames( const QStringList& fileNames,
+                                                                  QString*           fileContainingGrid /*=nullptr*/ )
 {
     RimEclipseInputCase* rimInputReservoir = new RimEclipseInputCase();
 
@@ -257,7 +257,7 @@ bool RiaImportEclipseCaseTools::openEclipseInputCaseFromFileNames( const QString
     if ( !gridImportSuccess )
     {
         RiaLogging::error( "Failed to import grid" );
-        return false;
+        return -1;
     }
 
     RimEclipseCaseCollection* analysisModels = project->activeOilField() ? project->activeOilField()->analysisModels()
@@ -286,7 +286,7 @@ bool RiaImportEclipseCaseTools::openEclipseInputCaseFromFileNames( const QString
         *fileContainingGrid = rimInputReservoir->gridFileName();
     }
 
-    return true;
+    return rimInputReservoir->caseId();
 }
 
 //--------------------------------------------------------------------------------------------------

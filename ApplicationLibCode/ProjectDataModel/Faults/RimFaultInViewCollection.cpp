@@ -27,6 +27,7 @@
 #include "RigMainGrid.h"
 
 #include "RimEclipseCase.h"
+#include "RimEclipseInputCase.h"
 #include "RimEclipseView.h"
 #include "RimFaultInView.h"
 #include "RimFaultRASettings.h"
@@ -91,6 +92,10 @@ RimFaultInViewCollection::RimFaultInViewCollection()
 
     CAF_PDM_InitFieldNoDefault( &faults, "Faults", "Faults", "", "", "" );
     faults.uiCapability()->setUiHidden( true );
+
+    CAF_PDM_InitField( &m_enableFaultRA, "EnableFaultRA", false, "Enable Fault RA", "", "", "" );
+    m_enableFaultRA.uiCapability()->setUiHidden( true );
+    m_enableFaultRA.uiCapability()->setUiReadOnly( true );
 
     CAF_PDM_InitFieldNoDefault( &m_faultRASettings, "FaultRASettings", "Reactivation Assessment Settings", "", "", "" );
     m_faultRASettings = new RimFaultRASettings();
@@ -224,9 +229,9 @@ void RimFaultInViewCollection::syncronizeFaults()
         }
     }
 
-    // Find faults with
-
     std::vector<caf::PdmPointer<RimFaultInView>> newFaults;
+
+    int fraFaultMatches = 0;
 
     // Find corresponding fault from data model, or create a new
     for ( size_t fIdx = 0; fIdx < rigFaults.size(); ++fIdx )
@@ -244,12 +249,18 @@ void RimFaultInViewCollection::syncronizeFaults()
             {
                 rimFault->showFault = false; // Turn fault against inactive cells off by default
             }
+            else if ( faultName.startsWith( RiaResultNames::faultReactAssessmentPrefix() ) )
+            {
+                fraFaultMatches++;
+            }
         }
 
         rimFault->setFaultGeometry( rigFaults[fIdx].p() );
 
         newFaults.push_back( rimFault );
     }
+
+    m_enableFaultRA = fraFaultMatches > newFaults.size() / 2;
 
     this->faults().clear();
     this->faults().insert( 0, newFaults );
@@ -309,7 +320,12 @@ void RimFaultInViewCollection::defineUiOrdering( QString uiConfigName, caf::PdmU
 //--------------------------------------------------------------------------------------------------
 void RimFaultInViewCollection::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName )
 {
-    uiTreeOrdering.add( &m_faultRASettings );
+    RimEclipseInputCase* inputCase = nullptr;
+    this->firstAncestorOrThisOfType( inputCase );
+    if ( ( inputCase != nullptr ) && m_enableFaultRA() )
+    {
+        uiTreeOrdering.add( &m_faultRASettings );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

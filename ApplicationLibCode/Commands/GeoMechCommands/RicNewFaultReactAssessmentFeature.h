@@ -20,6 +20,8 @@
 
 #include "cafCmdFeature.h"
 
+class RimFaultRAPreprocSettings;
+
 //==================================================================================================
 ///
 //==================================================================================================
@@ -35,4 +37,6 @@ protected:
 
 private:
     void prepareDirectory( QString dirname, bool deleteExistingContent ) const;
+    bool showSettingsGUI( RimFaultRAPreprocSettings& settings );
+    bool runPreProc( RimFaultRAPreprocSettings& settings );
 };

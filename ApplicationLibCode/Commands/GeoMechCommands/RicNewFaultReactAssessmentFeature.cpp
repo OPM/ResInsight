@@ -18,24 +18,32 @@
 
 #include "RicNewFaultReactAssessmentFeature.h"
 
+#include "RiaApplication.h"
+#include "RiaEclipseFileNameTools.h"
+#include "RiaImportEclipseCaseTools.h"
+#include "RiaPreferences.h"
+
+#include "RifFaultRAJsonWriter.h"
+
+#include "RimEclipseInputCase.h"
 #include "RimEclipseResultCase.h"
 #include "RimFaultRAPreprocSettings.h"
 #include "RimGeoMechCase.h"
-
-#include "RiaApplication.h"
+#include "RimProcess.h"
+#include "RimProject.h"
 
 #include "Riu3DMainWindowTools.h"
 #include "RiuFileDialogTools.h"
 
-#include "RifFaultRAJsonWriter.h"
-
 #include "cafPdmUiPropertyViewDialog.h"
+#include "cafProgressInfo.h"
 #include "cafSelectionManagerTools.h"
 #include "cafUtils.h"
 
 #include <QAction>
 #include <QDebug>
 #include <QDir>
+#include <QMessageBox>
 
 CAF_CMD_SOURCE_INIT( RicNewFaultReactAssessmentFeature, "RicNewFaultReactAssessmentFeature" );
 
@@ -52,40 +60,43 @@ bool RicNewFaultReactAssessmentFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicNewFaultReactAssessmentFeature::onActionTriggered( bool isChecked )
 {
-    // get the case we should be working with
-    std::vector<RimGeoMechCase*>       geomechCases = caf::selectedObjectsByTypeStrict<RimGeoMechCase*>();
-    std::vector<RimEclipseResultCase*> eclipseCases = caf::selectedObjectsByTypeStrict<RimEclipseResultCase*>();
-    if ( geomechCases.empty() && eclipseCases.empty() ) return;
-
-    // step 1 - get base directory for our work, should be a new, empty folder somewhere
-    QString defaultDir =
-        RiaApplication::instance()->lastUsedDialogDirectoryWithFallbackToProjectFolder( "FAULT_REACT_ASSESSMENT" );
-    QString baseDir = RiuFileDialogTools::getExistingDirectory( nullptr, tr( "Select Base Directory" ), defaultDir );
-    if ( baseDir.isNull() ) return;
-    RiaApplication::instance()->setLastUsedDialogDirectory( "FAULT_REACT_ASSESSMENT", baseDir );
-
-    // step 2 - ask the user for the options we need in the preproc step
     RimFaultRAPreprocSettings frapSettings;
-    if ( !geomechCases.empty() ) frapSettings.setGeoMechCase( geomechCases[0] );
-    if ( !eclipseCases.empty() ) frapSettings.setEclipseCase( eclipseCases[0] );
-    frapSettings.setOutputBaseDirectory( baseDir );
 
-    caf::PdmUiPropertyViewDialog propertyDialog( nullptr,
-                                                 &frapSettings,
-                                                 "Fault Reactivation Assessment Preprocessing",
-                                                 "",
-                                                 QDialogButtonBox::Ok | QDialogButtonBox::Cancel );
-    propertyDialog.resize( QSize( 400, 420 ) );
-    if ( propertyDialog.exec() != QDialog::Accepted ) return;
+    // make sure the user has set up geomech/FRA things in preferences
+    if ( !frapSettings.validatePreferences() )
+    {
+        QMessageBox::critical( nullptr,
+                               "Fault Reactivation Assessment",
+                               "Please go to ResInsight preferences and set/check the GeoMechanical settings!" );
+        return;
+    }
 
-    // step 3 - prepare output folder, if needed
+    // ask user for preprocessing settings
+    if ( !showSettingsGUI( frapSettings ) ) return;
+
+    // make sure our work dir is there
     prepareDirectory( frapSettings.outputBaseDirectory(), frapSettings.cleanBaseDirectory() );
 
-    QString errorText;
+    // run the preproc steps needed
+    runPreProc( frapSettings );
 
-    // step 4 - write the preprocessing parameter file
-    if ( !RifFaultRAJSonWriter::writeToFile( frapSettings, errorText ) )
+    QStringList gridList;
+    gridList << frapSettings.outputEclipseFilename();
+
+    // load the new grid
+    int caseId = RiaImportEclipseCaseTools::openEclipseInputCaseFromFileNames( gridList );
+    if ( caseId < 0 )
     {
+        QMessageBox::critical( nullptr, "Fault Reactivation Assessment", "Unable to load generated Eclipse grid." );
+        return;
+    }
+
+    RimProject*          project = RiaApplication::instance()->project();
+    RimEclipseInputCase* fraCase = dynamic_cast<RimEclipseInputCase*>( project->eclipseCaseFromCaseId( caseId ) );
+    if ( fraCase == nullptr )
+    {
+        QMessageBox::critical( nullptr, "Fault Reactivation Assessment", "Unable to find generated Eclipse grid." );
+        return;
     }
 }
 
@@ -123,4 +134,80 @@ void RicNewFaultReactAssessmentFeature::prepareDirectory( QString dirname, bool 
         }
         dir.mkpath( "." );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RicNewFaultReactAssessmentFeature::showSettingsGUI( RimFaultRAPreprocSettings& settings )
+{
+    // get the case we should be working with
+    std::vector<RimGeoMechCase*>       geomechCases = caf::selectedObjectsByTypeStrict<RimGeoMechCase*>();
+    std::vector<RimEclipseResultCase*> eclipseCases = caf::selectedObjectsByTypeStrict<RimEclipseResultCase*>();
+    if ( geomechCases.empty() && eclipseCases.empty() ) return false;
+
+    // get base directory for our work, should be a new, empty folder somewhere
+    QString defaultDir =
+        RiaApplication::instance()->lastUsedDialogDirectoryWithFallbackToProjectFolder( "FAULT_REACT_ASSESSMENT" );
+    QString baseDir = RiuFileDialogTools::getExistingDirectory( nullptr, tr( "Select Base Directory" ), defaultDir );
+    if ( baseDir.isNull() ) return false;
+    RiaApplication::instance()->setLastUsedDialogDirectory( "FAULT_REACT_ASSESSMENT", baseDir );
+
+    // ask the user for the options we need in the preproc step
+    if ( !geomechCases.empty() ) settings.setGeoMechCase( geomechCases[0] );
+    if ( !eclipseCases.empty() ) settings.setEclipseCase( eclipseCases[0] );
+    settings.setOutputBaseDirectory( baseDir );
+
+    caf::PdmUiPropertyViewDialog propertyDialog( nullptr,
+                                                 &settings,
+                                                 "Fault Reactivation Assessment Preprocessing",
+                                                 "",
+                                                 QDialogButtonBox::Ok | QDialogButtonBox::Cancel );
+    propertyDialog.resize( QSize( 400, 420 ) );
+
+    return ( propertyDialog.exec() == QDialog::Accepted );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RicNewFaultReactAssessmentFeature::runPreProc( RimFaultRAPreprocSettings& settings )
+{
+    caf::ProgressInfo runProgress( 2, "Running preprocessing, please wait..." );
+
+    // is geomech enabled? If so, run preproc script to generate rpt files
+    if ( settings.geoMechSelected() )
+    {
+        QString errorText;
+        if ( !RifFaultRAJSonWriter::writeToFile( settings, errorText ) )
+        {
+            QMessageBox::warning( nullptr, "Fault Reactivation Assessment Preprocessing", errorText );
+            return false;
+        }
+
+        // run the python preprocessing script
+        QString     command    = RiaPreferences::current()->geomechFRAPreprocCommand();
+        QStringList parameters = settings.preprocParameterList();
+
+        RimProcess process;
+        process.setCommand( command );
+        process.setParameters( parameters );
+        process.execute();
+    }
+
+    runProgress.incrementProgress();
+    runProgress.setProgressDescription( "Running Macris preparations, please wait..." );
+
+    // run the java macris program in prepare mode
+    QString     command    = RiaPreferences::current()->geomechFRAMacrisCommand();
+    QStringList parameters = settings.macrisPrepareParameterList();
+
+    RimProcess process;
+    process.setCommand( command );
+    process.setParameters( parameters );
+    process.execute();
+
+    runProgress.incrementProgress();
+
+    return true;
 }

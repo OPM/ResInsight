@@ -1074,6 +1074,21 @@ RimEclipseCase* RimProject::eclipseCaseFromGridFileName( const QString& gridFile
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RimEclipseCase* RimProject::eclipseCaseFromCaseId( const int caseId ) const
+{
+    for ( RimEclipseCase* eclCase : eclipseCases() )
+    {
+        if ( eclCase->caseId() == caseId )
+        {
+            return eclCase;
+        }
+    }
+    return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::vector<QString> RimProject::simulationWellNames() const
 {
     std::set<QString> wellNames;

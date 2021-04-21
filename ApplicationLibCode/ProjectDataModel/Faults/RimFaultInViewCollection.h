@@ -92,4 +92,5 @@ private:
     caf::PdmField<bool> m_showFaultsOutsideFilters;
 
     caf::PdmChildField<RimFaultRASettings*> m_faultRASettings;
+    caf::PdmField<bool>                     m_enableFaultRA;
 };

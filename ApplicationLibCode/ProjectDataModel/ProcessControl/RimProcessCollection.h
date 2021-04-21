@@ -23,6 +23,7 @@
 #include "cafPdmObject.h"
 
 class RimProcess;
+class RimProcessThread;
 
 class RimProcessCollection : public caf::PdmObject
 {
@@ -31,6 +32,9 @@ class RimProcessCollection : public caf::PdmObject
 public:
     RimProcessCollection();
     ~RimProcessCollection() override;
+
+    void run();
+    void stop();
 
     void addProcess( RimProcess* process );
 
@@ -41,4 +45,11 @@ public:
 
 private:
     caf::PdmChildArrayField<RimProcess*> m_processes;
+    caf::PdmField<int>                   m_maxParallellProcesses;
+
+    int  m_nextProcessID;
+    int  m_nThreadsRunning;
+    bool m_bRunEnabled;
+
+    std::list<RimProcessThread*> m_threads;
 };

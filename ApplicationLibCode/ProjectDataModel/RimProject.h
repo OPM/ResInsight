@@ -166,6 +166,7 @@ public:
 
     std::vector<RimEclipseCase*> eclipseCases() const;
     RimEclipseCase*              eclipseCaseFromGridFileName( const QString& gridFileName ) const;
+    RimEclipseCase*              eclipseCaseFromCaseId( const int caseId ) const;
 
     std::vector<QString> simulationWellNames() const;
 
