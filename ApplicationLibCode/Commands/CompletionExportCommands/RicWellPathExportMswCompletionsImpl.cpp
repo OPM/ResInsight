@@ -311,7 +311,7 @@ void RicWellPathExportMswCompletionsImpl::exportWellSegmentsForFishbones( RimEcl
 
     RicMswExportInfo exportInfo( wellPath,
                                  unitSystem,
-                                 wellPath->fishbonesCollection()->startMD(),
+                                 initialMD,
                                  mswParameters->lengthAndDepth().text(),
                                  mswParameters->pressureDrop().text() );
 
