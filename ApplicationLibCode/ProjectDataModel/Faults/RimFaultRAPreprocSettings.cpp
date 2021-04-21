@@ -19,6 +19,7 @@
 #include "RimFaultRAPreprocSettings.h"
 
 #include "RiaApplication.h"
+#include "RiaPreferences.h"
 #include "RimEclipseResultCase.h"
 #include "RimGeoMechCase.h"
 #include "RimProject.h"
@@ -26,6 +27,10 @@
 
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObjectScriptingCapability.h"
+
+#include <QDir>
+#include <QFile>
+#include <QFileInfo>
 
 CAF_PDM_SOURCE_INIT( RimFaultRAPreprocSettings, "RimFaultRAPreprocSettings" );
 
@@ -312,4 +317,94 @@ void RimFaultRAPreprocSettings::setEclipseCase( RimEclipseResultCase* eclipseCas
 void RimFaultRAPreprocSettings::setOutputBaseDirectory( QString baseDir )
 {
     m_baseDir = baseDir;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimFaultRAPreprocSettings::outputEclipseFilename() const
+{
+    QString retval = outputEclipseDirectory();
+    retval += QDir::separator();
+
+    QFileInfo fi( eclipseCaseFilename() );
+    retval += fi.baseName() + "_RI.GRDECL";
+
+    return retval;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimFaultRAPreprocSettings::outputEclipseDirectory() const
+{
+    QString retval = m_baseDir;
+    retval += QDir::separator();
+    retval += "Eclipse";
+
+    return retval;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QStringList RimFaultRAPreprocSettings::preprocParameterList() const
+{
+    QStringList retlist;
+    retlist << preprocParameterFilename();
+    return retlist;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QStringList RimFaultRAPreprocSettings::macrisPrepareParameterList() const
+{
+    QStringList retlist;
+
+    retlist << "prepare";
+
+    retlist << outputEclipseDirectory();
+
+    if ( m_smoothEclipseData )
+    {
+        retlist << "-ps";
+    }
+    else
+    {
+        retlist << "-p";
+    }
+
+    retlist << m_eclipseCase()->gridFileName();
+
+    return retlist;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimFaultRAPreprocSettings::geoMechSelected() const
+{
+    return m_geomechCase.value() != nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimFaultRAPreprocSettings::validatePreferences() const
+{
+    QStringList files;
+    files << RiaPreferences::current()->geomechFRAPreprocCommand();
+    files << RiaPreferences::current()->geomechFRAPostprocCommand();
+    files << RiaPreferences::current()->geomechFRAMacrisCommand();
+    files << RiaPreferences::current()->geomechFRADefaultXML();
+
+    for ( int i = 0; i < files.size(); i++ )
+    {
+        if ( files[i].isEmpty() ) return false;
+        QFile file( files[i] );
+        if ( !file.exists() ) return false;
+    }
+
+    return true;
 }

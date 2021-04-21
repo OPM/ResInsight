@@ -53,7 +53,15 @@ public:
     bool    cleanBaseDirectory() const;
     bool    smoothEclipseData() const;
 
+    bool geoMechSelected() const;
+    bool validatePreferences() const;
+
     QString preprocParameterFilename() const;
+    QString outputEclipseFilename() const;
+    QString outputEclipseDirectory() const;
+
+    QStringList preprocParameterList() const;
+    QStringList macrisPrepareParameterList() const;
 
 protected:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;

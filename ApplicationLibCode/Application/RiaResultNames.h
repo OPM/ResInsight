@@ -60,6 +60,8 @@ QString riCellVolumeResultName();
 QString riOilVolumeResultName();
 QString mobilePoreVolumeName();
 
+QString faultReactAssessmentPrefix();
+
 QString completionTypeResultName();
 
 // Well path derived results

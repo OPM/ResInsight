@@ -248,7 +248,7 @@ bool RicImportGeneralDataFeature::openEclipseCaseFromFileNames( const QStringLis
 bool RicImportGeneralDataFeature::openInputEclipseCaseFromFileNames( const QStringList& fileNames )
 {
     QString fileContainingGrid;
-    if ( RiaImportEclipseCaseTools::openEclipseInputCaseFromFileNames( fileNames, &fileContainingGrid ) )
+    if ( RiaImportEclipseCaseTools::openEclipseInputCaseFromFileNames( fileNames, &fileContainingGrid ) >= 0 )
     {
         RiaApplication::instance()->addToRecentFiles( fileContainingGrid );
         return true;

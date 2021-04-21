@@ -38,7 +38,7 @@ public:
                                           bool               noDialog       = false );
     static bool openEclipseCaseShowTimeStepFilter( const QString& fileName );
 
-    static bool openEclipseInputCaseFromFileNames( const QStringList& fileNames, QString* fileContainingGrid = nullptr );
+    static int openEclipseInputCaseFromFileNames( const QStringList& fileNames, QString* fileContainingGrid = nullptr );
     static bool openMockModel( const QString& name );
 
     static bool addEclipseCases( const QStringList& fileNames, RimIdenticalGridCaseGroup** resultingCaseGroup = nullptr );

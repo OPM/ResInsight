@@ -173,6 +173,12 @@ void RimFaultRASettings::useDefaultValuesFromFile( QString xmlFilename )
         // todo - log warning?
         return;
     }
+
+    m_parameters.clear();
+    for ( auto group : reader.parameterGroups() )
+    {
+        m_parameters.push_back( group );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
