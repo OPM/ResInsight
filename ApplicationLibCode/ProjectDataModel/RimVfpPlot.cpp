@@ -88,7 +88,7 @@ CAF_PDM_SOURCE_INIT( RimVfpPlot, "VfpPlot" );
 RimVfpPlot::RimVfpPlot()
 {
     // TODO: add icon
-    CAF_PDM_InitObject( "VFP Plot", "", "", "" );
+    CAF_PDM_InitObject( "VFP Plot", ":/VfpPlot.svg", "", "" );
 
     CAF_PDM_InitField( &m_plotTitle, "PlotTitle", QString( "VFP Plot" ), "Plot Title", "", "", "" );
     m_plotTitle.uiCapability()->setUiHidden( true );

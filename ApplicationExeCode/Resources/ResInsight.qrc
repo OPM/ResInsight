@@ -37,7 +37,7 @@
         <file>CorrelationPlots16x16.png</file>
         <file>CorrelationReportPlot16x16.png</file>
         <file>CorrelationTornadoPlot16x16.png</file>
-        <file>CreateGridCaseGroup16x16.png</file>
+        <file>CreateGridCaseGroup16x16.png</file> 
         <file>CrossSection16x16.png</file>
         <file>CrossSections16x16.png</file>
         <file>CumulativePhaseDist16x16.png</file>
@@ -69,6 +69,7 @@
         <file>GeoMechCases48x48.png</file>
         <file>GridCaseGroup16x16.png</file>
         <file>GridModels.png</file>
+        <file>HelpCircle.svg</file>
         <file>Histogram16x16.png</file>
         <file>Histograms16x16.png</file>
         <file>HoloLensConnect24x24.png</file>
@@ -155,6 +156,8 @@
         <file>ToggleOnOthersOff16x16.png</file>
         <file>UnLinkView.svg</file>
         <file>UpView.svg</file>
+        <file>VfpPlot.svg</file>
+        <file>VfpPlotCollection.svg</file>
         <file>Well.svg</file>
         <file>WellAllocLegend16x16.png</file>
         <file>WellAllocPie16x16.png</file>
