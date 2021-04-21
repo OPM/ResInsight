@@ -164,6 +164,7 @@ void RicHelpAboutFeature::onActionTriggered( bool isChecked )
 void RicHelpAboutFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "&About" );
+    actionToSetup->setIcon( QIcon( ":/HelpCircle.svg" ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -192,6 +193,7 @@ void RicHelpCommandLineFeature::onActionTriggered( bool isChecked )
 void RicHelpCommandLineFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "&Command Line Help" );
+    actionToSetup->setIcon( QIcon( ":/HelpCircle.svg" ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -220,6 +222,7 @@ void RicHelpSummaryCommandLineFeature::onActionTriggered( bool isChecked )
 void RicHelpSummaryCommandLineFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "&Summary Command Line Help" );
+    actionToSetup->setIcon( QIcon( ":/HelpCircle.svg" ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -252,7 +255,7 @@ void RicHelpOpenUsersGuideFeature::onActionTriggered( bool isChecked )
 void RicHelpOpenUsersGuideFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "&Users Guide" );
-
+    actionToSetup->setIcon( QIcon( ":/HelpCircle.svg" ) );
     // applyShortcutWithHintToAction( actionToSetup, QKeySequence::HelpContents );
 }
 
@@ -301,6 +304,7 @@ void RicSearchHelpFeature::setupActionLook( QAction* actionToSetup )
     {
         actionToSetup->setText( "Search Help" );
     }
+    actionToSetup->setIcon( QIcon( ":/HelpCircle.svg" ) );
 
     applyShortcutWithHintToAction( actionToSetup, QKeySequence::HelpContents );
 }
