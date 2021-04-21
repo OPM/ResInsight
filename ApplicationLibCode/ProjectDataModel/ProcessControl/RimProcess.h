@@ -32,6 +32,20 @@ public:
     RimProcess();
     ~RimProcess() override;
 
+    void setDescription( QString desc );
+    void setCommand( QString cmdStr );
+    void addParameter( QString paramStr );
+    void setParameters( QStringList parameterList );
+    void setID( int id );
+
+    QString commandLine() const;
+
+    QString     command() const;
+    QStringList parameters() const;
+    int         ID() const;
+
+    QString execute();
+
 protected:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
@@ -39,7 +53,14 @@ protected:
                                 QString                    uiConfigName,
                                 caf::PdmUiEditorAttribute* attribute ) override;
 
+    caf::PdmFieldHandle* userDescriptionField() override;
+
 private:
+    bool    needsCommandInterpreter() const;
+    QString handleSpaces( QString argument ) const;
+
     caf::PdmField<QString> m_command;
-    caf::PdmField<QString> m_arguments;
+    QStringList            m_arguments;
+    caf::PdmField<QString> m_description;
+    caf::PdmField<int>     m_id;
 };
