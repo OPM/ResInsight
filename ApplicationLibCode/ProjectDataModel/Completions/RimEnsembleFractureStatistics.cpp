@@ -689,7 +689,8 @@ void RimEnsembleFractureStatistics::generateAdaptiveMesh(
 
     for ( double mean : means )
     {
-        double scaledMean = binSize / mean;
+        double scaledMean = 0.0;
+        if ( mean != 0.0 ) scaledMean = binSize / mean;
         scaledMeans.push_back( scaledMean );
         sumScaledMean += scaledMean;
     }
@@ -886,8 +887,10 @@ void RimEnsembleFractureStatistics::sampleAllGrids( const std::vector<cvf::cref<
                 {
                     if ( isCoordinateInsideFractureCell( posX, posY, fractureCell ) )
                     {
-                        size_t idx = y * samplesX.size() + x;
-                        samples[idx].push_back( fractureCell.getConductivityValue() );
+                        size_t idx   = y * samplesX.size() + x;
+                        double value = fractureCell.getConductivityValue();
+                        if ( std::isinf( value ) ) value = 0.0;
+                        samples[idx].push_back( value );
                         break;
                     }
                 }
@@ -956,6 +959,12 @@ void RimEnsembleFractureStatistics::generateStatisticsGrids(
     bool calculateP90        = isCalculationEnabled( StatisticsType::P90, statisticsTypes );
     bool calculateOccurrence = isCalculationEnabled( StatisticsType::OCCURRENCE, statisticsTypes );
 
+    auto setValueNoInf = []( std::shared_ptr<RigSlice2D>& grid, size_t x, size_t y, double value ) {
+        // Guard against inf (happens in the regions not covered by any mesh)
+        if ( std::isinf( value ) ) value = 0.0;
+        grid->setValue( x, y, value );
+    };
+
     for ( size_t y = 0; y < numSamplesY; y++ )
     {
         for ( size_t x = 0; x < numSamplesX; x++ )
@@ -973,13 +982,13 @@ void RimEnsembleFractureStatistics::generateStatisticsGrids(
                 RigStatisticsMath::calculateBasicStatistics( samples[idx], &min, &max, &sum, &range, &mean, &dev );
 
                 if ( calculateMean )
-                    statisticsGrids[RimEnsembleFractureStatistics::StatisticsType::MEAN]->setValue( x, y, mean );
+                    setValueNoInf( statisticsGrids[RimEnsembleFractureStatistics::StatisticsType::MEAN], x, y, mean );
 
                 if ( calculateMin )
-                    statisticsGrids[RimEnsembleFractureStatistics::StatisticsType::MIN]->setValue( x, y, min );
+                    setValueNoInf( statisticsGrids[RimEnsembleFractureStatistics::StatisticsType::MIN], x, y, min );
 
                 if ( calculateMax )
-                    statisticsGrids[RimEnsembleFractureStatistics::StatisticsType::MAX]->setValue( x, y, max );
+                    setValueNoInf( statisticsGrids[RimEnsembleFractureStatistics::StatisticsType::MAX], x, y, max );
             }
 
             if ( calculateP10 || calculateP50 || calculateP90 )
@@ -991,13 +1000,13 @@ void RimEnsembleFractureStatistics::generateStatisticsGrids(
                 RigStatisticsMath::calculateStatisticsCurves( samples[idx], &p10, &p50, &p90, &mean );
 
                 if ( calculateP10 )
-                    statisticsGrids[RimEnsembleFractureStatistics::StatisticsType::P10]->setValue( x, y, p10 );
+                    setValueNoInf( statisticsGrids[RimEnsembleFractureStatistics::StatisticsType::P10], x, y, p10 );
 
                 if ( calculateP50 )
-                    statisticsGrids[RimEnsembleFractureStatistics::StatisticsType::P50]->setValue( x, y, p50 );
+                    setValueNoInf( statisticsGrids[RimEnsembleFractureStatistics::StatisticsType::P50], x, y, p50 );
 
                 if ( calculateP90 )
-                    statisticsGrids[RimEnsembleFractureStatistics::StatisticsType::P90]->setValue( x, y, p90 );
+                    setValueNoInf( statisticsGrids[RimEnsembleFractureStatistics::StatisticsType::P90], x, y, p90 );
             }
 
             if ( calculateOccurrence )
