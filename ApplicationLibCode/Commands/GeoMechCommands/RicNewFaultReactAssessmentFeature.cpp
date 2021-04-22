@@ -27,7 +27,10 @@
 
 #include "RimEclipseInputCase.h"
 #include "RimEclipseResultCase.h"
+#include "RimEclipseView.h"
+#include "RimFaultInViewCollection.h"
 #include "RimFaultRAPreprocSettings.h"
+#include "RimFaultRASettings.h"
 #include "RimGeoMechCase.h"
 #include "RimProcess.h"
 #include "RimProject.h"
@@ -97,6 +100,19 @@ void RicNewFaultReactAssessmentFeature::onActionTriggered( bool isChecked )
     {
         QMessageBox::critical( nullptr, "Fault Reactivation Assessment", "Unable to find generated Eclipse grid." );
         return;
+    }
+
+    RimEclipseView* view = getView( fraCase );
+    if ( view == nullptr )
+    {
+        QMessageBox::critical( nullptr, "Fault Reactivation Assessment", "Unable to find view for generated Eclipse grid." );
+        return;
+    }
+
+    if ( view->faultCollection() )
+    {
+        view->faultCollection()->enableFaultRA( true );
+        view->faultCollection()->faultRASettings()->initFromSettings( &frapSettings, fraCase );
     }
 }
 
@@ -210,4 +226,15 @@ bool RicNewFaultReactAssessmentFeature::runPreProc( RimFaultRAPreprocSettings& s
     runProgress.incrementProgress();
 
     return true;
+}
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimEclipseView* RicNewFaultReactAssessmentFeature::getView( RimEclipseInputCase* eCase )
+{
+    std::vector<RimEclipseView*> views;
+    eCase->descendantsOfType( views );
+    if ( views.size() > 0 ) return views[0];
+
+    return nullptr;
 }

@@ -27,6 +27,7 @@
 
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObjectScriptingCapability.h"
+#include "cafPdmUiComboBoxEditor.h"
 
 #include <QDir>
 #include <QFile>
@@ -42,10 +43,14 @@ RimFaultRAPreprocSettings::RimFaultRAPreprocSettings()
     CAF_PDM_InitObject( "Fault RA Preproc Settings", ":/fault_react_24x24.png", "", "" );
 
     CAF_PDM_InitField( &m_startTimestepEclipse, "StartTimeStepEclipse", 0, "Start Time Step", "", "", "" );
+    m_startTimestepEclipse.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
     CAF_PDM_InitField( &m_endTimestepEclipse, "EndTimeStepEclipse", 0, "End Time Step", "", "", "" );
+    m_endTimestepEclipse.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
 
     CAF_PDM_InitField( &m_startTimestepGeoMech, "StartTimeStepGeoMech", 0, "Start Time Step", "", "", "" );
+    m_startTimestepGeoMech.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
     CAF_PDM_InitField( &m_endTimestepGeoMech, "EndTimeStepGeoMech", 0, "End Time Step", "", "", "" );
+    m_endTimestepGeoMech.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
 
     CAF_PDM_InitFieldNoDefault( &m_eclipseCase, "EclipseCase", "Eclipse Case", "", "", "" );
     m_eclipseCase.setValue( nullptr );
@@ -306,6 +311,14 @@ void RimFaultRAPreprocSettings::setGeoMechCase( RimGeoMechCase* geomechCase )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RimGeoMechCase* RimFaultRAPreprocSettings::geoMechCase() const
+{
+    return m_geomechCase();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimFaultRAPreprocSettings::setEclipseCase( RimEclipseResultCase* eclipseCase )
 {
     m_eclipseCase = eclipseCase;
@@ -397,7 +410,8 @@ bool RimFaultRAPreprocSettings::validatePreferences() const
     files << RiaPreferences::current()->geomechFRAPreprocCommand();
     files << RiaPreferences::current()->geomechFRAPostprocCommand();
     files << RiaPreferences::current()->geomechFRAMacrisCommand();
-    files << RiaPreferences::current()->geomechFRADefaultXML();
+    files << RiaPreferences::current()->geomechFRADefaultBasicXML();
+    files << RiaPreferences::current()->geomechFRADefaultAdvXML();
 
     for ( int i = 0; i < files.size(); i++ )
     {

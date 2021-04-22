@@ -344,9 +344,23 @@ RiaPreferences::RiaPreferences()
     m_geomechFRAMacrisCommand.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
     m_geomechFRAMacrisCommand.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
 
-    CAF_PDM_InitFieldNoDefault( &m_geomechFRADefaultXML, "geomechFRADefaultXML", "Default Parameter XML File", "", "", "" );
-    m_geomechFRADefaultXML.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
-    m_geomechFRADefaultXML.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
+    CAF_PDM_InitFieldNoDefault( &m_geomechFRADefaultBasicXML,
+                                "geomechFRADefaultXML",
+                                "Basic Processing Parameter XML File",
+                                "",
+                                "",
+                                "" );
+    m_geomechFRADefaultBasicXML.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
+    m_geomechFRADefaultBasicXML.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
+
+    CAF_PDM_InitFieldNoDefault( &m_geomechFRADefaultAdvXML,
+                                "geomechFRADefaultAdvXML",
+                                "Advanced Processing Parameter XML File",
+                                "",
+                                "",
+                                "" );
+    m_geomechFRADefaultAdvXML.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
+    m_geomechFRADefaultAdvXML.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
 
     CAF_PDM_InitField( &m_createOptimizedSummaryDataFile,
                        "createOptimizedSummaryDataFile",
@@ -507,7 +521,8 @@ void RiaPreferences::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
         cmdGroup->add( &m_geomechFRAMacrisCommand );
 
         caf::PdmUiGroup* paramGroup = faultRAGroup->addNewGroup( "Parameters" );
-        paramGroup->add( &m_geomechFRADefaultXML );
+        paramGroup->add( &m_geomechFRADefaultBasicXML );
+        paramGroup->add( &m_geomechFRADefaultAdvXML );
     }
     else if ( uiConfigName == RiaPreferences::tabNamePlotting() )
     {
@@ -1155,7 +1170,15 @@ QString RiaPreferences::geomechFRAMacrisCommand() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiaPreferences::geomechFRADefaultXML() const
+QString RiaPreferences::geomechFRADefaultBasicXML() const
 {
-    return m_geomechFRADefaultXML;
+    return m_geomechFRADefaultBasicXML;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RiaPreferences::geomechFRADefaultAdvXML() const
+{
+    return m_geomechFRADefaultAdvXML;
 }

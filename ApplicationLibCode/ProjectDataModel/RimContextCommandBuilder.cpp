@@ -1123,6 +1123,10 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         else if ( dynamic_cast<RimFaultInView*>( firstUiItem ) )
         {
             menuBuilder << "RicExportFaultsFeature";
+            menuBuilder.subMenuStart( "Reactivation Assessment" );
+            menuBuilder << "RicRunBasicFaultReactAssessmentFeature";
+            menuBuilder << "RicRunAdvFaultReactAssessmentFeature";
+            menuBuilder.subMenuEnd();
         }
         else if ( dynamic_cast<RimSimWellInView*>( firstUiItem ) )
         {
