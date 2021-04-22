@@ -100,7 +100,6 @@ RimFaultInViewCollection::RimFaultInViewCollection()
     CAF_PDM_InitFieldNoDefault( &m_faultRASettings, "FaultRASettings", "Reactivation Assessment Settings", "", "", "" );
     m_faultRASettings = new RimFaultRASettings();
     m_faultRASettings.uiCapability()->setUiHidden( true );
-    m_faultRASettings->useDefaultValuesFromFile( RiaPreferences::current()->geomechFRADefaultXML() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -231,8 +230,6 @@ void RimFaultInViewCollection::syncronizeFaults()
 
     std::vector<caf::PdmPointer<RimFaultInView>> newFaults;
 
-    int fraFaultMatches = 0;
-
     // Find corresponding fault from data model, or create a new
     for ( size_t fIdx = 0; fIdx < rigFaults.size(); ++fIdx )
     {
@@ -249,18 +246,12 @@ void RimFaultInViewCollection::syncronizeFaults()
             {
                 rimFault->showFault = false; // Turn fault against inactive cells off by default
             }
-            else if ( faultName.startsWith( RiaResultNames::faultReactAssessmentPrefix() ) )
-            {
-                fraFaultMatches++;
-            }
         }
 
         rimFault->setFaultGeometry( rigFaults[fIdx].p() );
 
         newFaults.push_back( rimFault );
     }
-
-    m_enableFaultRA = fraFaultMatches > newFaults.size() / 2;
 
     this->faults().clear();
     this->faults().insert( 0, newFaults );
@@ -355,4 +346,28 @@ bool RimFaultInViewCollection::isShowingFaultsAndFaultsOutsideFilters() const
 void RimFaultInViewCollection::setShowFaultsOutsideFilter( bool show )
 {
     m_showFaultsOutsideFilters = show;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimFaultRASettings* RimFaultInViewCollection::faultRASettings() const
+{
+    return m_faultRASettings();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimFaultInViewCollection::faultRAEnabled() const
+{
+    return m_enableFaultRA();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFaultInViewCollection::enableFaultRA( bool enable )
+{
+    m_enableFaultRA = enable;
 }

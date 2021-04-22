@@ -33,9 +33,13 @@ public:
     RimFaultRAPreprocSettings();
     ~RimFaultRAPreprocSettings() override;
 
-    void setGeoMechCase( RimGeoMechCase* geomechCase );
+    void            setGeoMechCase( RimGeoMechCase* geomechCase );
+    RimGeoMechCase* geoMechCase() const;
+
     void setEclipseCase( RimEclipseResultCase* eclipseCase );
-    void setOutputBaseDirectory( QString baseDir );
+
+    void    setOutputBaseDirectory( QString baseDir );
+    QString outputBaseDirectory() const;
 
     int     startTimeStepGeoMechIndex() const;
     QString startTimeStepGeoMech() const;
@@ -49,7 +53,6 @@ public:
 
     QString eclipseCaseFilename() const;
     QString geomechCaseFilename() const;
-    QString outputBaseDirectory() const;
     bool    cleanBaseDirectory() const;
     bool    smoothEclipseData() const;
 
