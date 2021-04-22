@@ -106,14 +106,23 @@ ecl_sum_type* openEclSum( const QString& inHeaderFileName, bool includeRestartFi
         stringlist_append_copy( dataFiles, RiaStringEncodingTools::toNativeEncoded( dataFileNames[i] ).data() );
     }
 
-    bool          lazyLoad                     = true;
-    std::string   itemSeparatorInVariableNames = ":";
-    ecl_sum_type* ecl_sum = ecl_sum_fread_alloc( RiaStringEncodingTools::toNativeEncoded( headerFileName ).data(),
-                                                 dataFiles,
-                                                 itemSeparatorInVariableNames.data(),
-                                                 includeRestartFiles,
-                                                 lazyLoad,
-                                                 ECL_FILE_CLOSE_STREAM );
+    bool        lazyLoad                     = true;
+    std::string itemSeparatorInVariableNames = ":";
+
+    ecl_sum_type* ecl_sum = nullptr;
+    try
+    {
+        ecl_sum = ecl_sum_fread_alloc( RiaStringEncodingTools::toNativeEncoded( headerFileName ).data(),
+                                       dataFiles,
+                                       itemSeparatorInVariableNames.data(),
+                                       includeRestartFiles,
+                                       lazyLoad,
+                                       ECL_FILE_CLOSE_STREAM );
+    }
+    catch ( ... )
+    {
+        ecl_sum = nullptr;
+    }
 
     stringlist_free( dataFiles );
 
