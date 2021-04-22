@@ -217,8 +217,6 @@ ESmry::ESmry(const std::string &filename, bool loadBaseRunData , bool uselodsmry
         this->startdat = make_date(smspecList.back().get<int>("STARTDAT"));
 
         for (unsigned int i=0; i<keywords.size(); i++) {
-            const std::string keyString = makeKeyString(keywords[i], wgnames[i], nums[i]);
-            combindKeyList.push_back(keyString);
 
             std::string lgrName;
             int lgri = -1;
@@ -229,6 +227,9 @@ ESmry::ESmry(const std::string &filename, bool loadBaseRunData , bool uselodsmry
             if (i < numlx.size()) lgri = numlx[i];
             if (i < numly.size()) lgrj = numly[i];
             if (i < numlz.size()) lgrk = numlz[i];
+
+            const std::string keyString = makeKeyString(keywords[i], wgnames[i], nums[i], lgrName, lgri, lgrj, lgrk);
+            combindKeyList.push_back(keyString);
 
             if (keyString.length() > 0) {
                 summaryNodes.push_back({
@@ -330,9 +331,7 @@ ESmry::ESmry(const std::string &filename, bool loadBaseRunData , bool uselodsmry
         this->startdat = make_date(smspecList.back().get<int>("STARTDAT"));
 
         for (size_t i = 0; i < keywords.size(); i++) {
-            const std::string keyString = makeKeyString(keywords[i], wgnames[i], nums[i]);
-            combindKeyList.push_back(keyString);
-
+            
             std::string lgrName;
             int lgri = -1;
             int lgrj = -1;
@@ -342,6 +341,9 @@ ESmry::ESmry(const std::string &filename, bool loadBaseRunData , bool uselodsmry
             if (i < numlx.size()) lgri = numlx[i];
             if (i < numly.size()) lgrj = numly[i];
             if (i < numlz.size()) lgrk = numlz[i];
+
+            const std::string keyString = makeKeyString(keywords[i], wgnames[i], nums[i], lgrName, lgri, lgrj, lgrk);
+            combindKeyList.push_back(keyString);
 
             if (keyString.length() > 0) {
                 summaryNodes.push_back({
@@ -407,8 +409,29 @@ ESmry::ESmry(const std::string &filename, bool loadBaseRunData , bool uselodsmry
 
         const std::vector<int> nums = smspecList[specInd].get<int>("NUMS");
 
+        std::vector<std::string> lgrs;
+        std::vector<int> numlx;
+        std::vector<int> numly;
+        std::vector<int> numlz;
+
+        if (smspecList[specInd].hasKey("LGRS")) lgrs = smspecList[specInd].get<std::string>("LGRS");
+        if (smspecList[specInd].hasKey("NUMLX")) numlx = smspecList[specInd].get<int>("NUMLX");
+        if (smspecList[specInd].hasKey("NUMLY")) numly = smspecList[specInd].get<int>("NUMLY");
+        if (smspecList[specInd].hasKey("NUMLZ")) numlz = smspecList[specInd].get<int>("NUMLZ");
+
+
         for (size_t i=0; i < keywords.size(); i++) {
-            const std::string keyw = makeKeyString(keywords[i], wgnames[i], nums[i]);
+            std::string lgrName;
+            int lgri = -1;
+            int lgrj = -1;
+            int lgrk = -1;
+
+            if (i < lgrs.size()) lgrName = lgrs[i];
+            if (i < numlx.size()) lgri = numlx[i];
+            if (i < numly.size()) lgrj = numly[i];
+            if (i < numlz.size()) lgrk = numlz[i];
+
+            const std::string keyw = makeKeyString(keywords[i], wgnames[i], nums[i], lgrName, lgri, lgrj, lgrk);
 
             if (keywList.find(keyw) != keywList.end())
                 arrayPos[specInd][keyIndex[keyw]]=i;
@@ -1237,7 +1260,7 @@ void ESmry::ijk_from_global_index(int glob,int &i,int &j,int &k) const
 }
 
 
-std::string ESmry::makeKeyString(const std::string& keywordArg, const std::string& wgname, int num) const
+std::string ESmry::makeKeyString(const std::string& keywordArg, const std::string& wgname, int num, const std::string& lgr, int lgri, int lgrj, int lgrk) const
 {
     std::string keyStr;
     const std::vector<std::string> segmExcep= {"STEPTYPE", "SEPARATE", "SUMTHIN"};
@@ -1289,6 +1312,27 @@ std::string ESmry::makeKeyString(const std::string& keywordArg, const std::strin
         }
     } else {
         keyStr = keywordArg;
+    }
+
+    if (keywordArg.size() > 1) {
+        std::string firstTwoLetters = keywordArg.substr(0, 2);
+
+        if (firstTwoLetters == "LW")
+        {
+            if (wgname != ":+:+:+:+") {
+                keyStr = SummaryNode::create_key_lgr_well(keywordArg, wgname, lgr);
+            }
+        }
+        if (firstTwoLetters == "LC")
+        {
+            if (wgname != ":+:+:+:+") {
+                keyStr = SummaryNode::create_key_lgr_completion(keywordArg, wgname, lgr, lgri, lgrj, lgrk);
+            }
+        }
+        if (firstTwoLetters == "LB")
+        {
+            keyStr = SummaryNode::create_key_lgr_block(keywordArg, lgr, lgri, lgrj, lgrk);
+        }
     }
 
     return keyStr;

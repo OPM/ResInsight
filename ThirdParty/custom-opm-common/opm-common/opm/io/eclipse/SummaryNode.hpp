@@ -88,6 +88,10 @@ struct SummaryNode {
     bool isRegionToRegion() const;
     std::pair<int, int> regionToRegionNumbers() const;
 
+    static std::string create_key_lgr_well(const std::string& keyword, const std::string& wgname, const std::string& lgrname);
+    static std::string create_key_lgr_completion(const std::string& keyword, const std::string& wgname, const std::string& lgrname, int i, int j, int k);
+    static std::string create_key_lgr_block(const std::string& keyword, const std::string& lgrname, int i, int j, int k);
+
 };
 
 }} // namespace Opm::EclIO

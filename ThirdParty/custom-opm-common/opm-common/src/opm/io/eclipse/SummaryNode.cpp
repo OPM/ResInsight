@@ -90,8 +90,18 @@ distinguish_group_from_node(const std::string& keyword)
 }
 
 std::string Opm::EclIO::SummaryNode::unique_key(number_renderer render_number) const {
-    std::vector<std::string> key_parts { keyword } ;
+    
+    if (category == Category::Well_Lgr) {
+        return create_key_lgr_well(keyword, wgname, lgrname);
+    }
+    else if (category == Category::Connection_Lgr) {
+        return create_key_lgr_completion(keyword, wgname, lgrname, lgri, lgrj, lgrk);
+    }
+    else if (category == Category::Block_Lgr) {
+        return create_key_lgr_block(keyword, lgrname, lgri, lgrj, lgrk);
+    }
 
+    std::vector<std::string> key_parts { keyword } ;
     if (auto opt = display_name())
         key_parts.emplace_back(opt.value());
 
@@ -196,16 +206,14 @@ std::optional<std::string> Opm::EclIO::SummaryNode::display_number() const {
     return display_number(default_number_renderer);
 }
 
-bool Opm::EclIO::SummaryNode::isRegionToRegion() const
-{
+bool Opm::EclIO::SummaryNode::isRegionToRegion() const {
     if ((category == SummaryNode::Category::Region) &&
         (keyword.size() > 2 && keyword[2] == 'F')) return true;
 
     return false;
 }
 
-std::pair<int, int> Opm::EclIO::SummaryNode::regionToRegionNumbers() const
-{
+std::pair<int, int> Opm::EclIO::SummaryNode::regionToRegionNumbers() const {
     if (category != SummaryNode::Category::Region) return { -1, -1 };
 
     if (keyword.size() > 2 && keyword[2] == 'F') {
@@ -215,6 +223,21 @@ std::pair<int, int> Opm::EclIO::SummaryNode::regionToRegionNumbers() const
     }
 
     return { -1, -1 };
+}
+
+std::string Opm::EclIO::SummaryNode::create_key_lgr_well(const std::string& keyword, 
+                                                         const std::string& wgname, const std::string& lgrname) {
+    return keyword + ":" + wgname + ":" + lgrname;
+}
+
+std::string Opm::EclIO::SummaryNode::create_key_lgr_completion(const std::string& keyword, const std::string& wgname,
+                                                               const std::string& lgrname, int i, int j, int k) {
+    return keyword + ":" + wgname + ":" + lgrname + ":" + std::to_string(i) + "," + std::to_string(j) + "," + std::to_string(k);
+}
+
+std::string Opm::EclIO::SummaryNode::create_key_lgr_block(const std::string& keyword, const std::string& lgrname, 
+                                                          int i, int j, int k) {
+    return keyword + ":" + lgrname + ":" + std::to_string(i) + "," + std::to_string(j) + "," + std::to_string(k);
 }
 
 std::optional<std::string> Opm::EclIO::SummaryNode::display_number(number_renderer render_number) const {
