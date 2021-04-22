@@ -18,9 +18,11 @@
 
 #include "RimFaultRASettings.h"
 #include "RimFaultRAParameterItem.h"
+#include "RimFaultRAPreprocSettings.h"
 
 #include "RiaApplication.h"
-#include "RimEclipseResultCase.h"
+#include "RiaPreferences.h"
+#include "RimEclipseInputCase.h"
 #include "RimGenericParameter.h"
 #include "RimGeoMechCase.h"
 #include "RimParameterGroup.h"
@@ -39,7 +41,6 @@ CAF_PDM_SOURCE_INIT( RimFaultRASettings, "RimFaultRASettings" );
 ///
 //--------------------------------------------------------------------------------------------------
 RimFaultRASettings::RimFaultRASettings()
-    : m_ignoreParameterNames( { "fault_id", "eclipse_input_grid" } )
 {
     CAF_PDM_InitObject( "Reactivation Assessment Settings", ":/fault_react_24x24.png", "", "" );
 
@@ -52,7 +53,8 @@ RimFaultRASettings::RimFaultRASettings()
     CAF_PDM_InitFieldNoDefault( &m_baseDir, "BaseDir", "Output Directory", "", "", "" );
     m_baseDir.uiCapability()->setUiReadOnly( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_parameters, "Parameters", "Parameters", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_basicparameters, "BasicParameters", "Basic Processing Parameters", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_advancedparameters, "AdvancedParameters", "Advanced Processing Parameters", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -99,7 +101,7 @@ QString RimFaultRASettings::eclipseCaseFilename() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimEclipseResultCase* RimFaultRASettings::eclipseCase() const
+RimEclipseInputCase* RimFaultRASettings::eclipseCase() const
 {
     return m_eclipseCase;
 }
@@ -164,27 +166,29 @@ void RimFaultRASettings::setOutputBaseDirectory( QString baseDir )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimFaultRASettings::useDefaultValuesFromFile( QString xmlFilename )
+void RimFaultRASettings::initFromSettings( RimFaultRAPreprocSettings* preprocSettings, RimEclipseInputCase* eclipseCase )
 {
-    RifParameterXmlReader reader( xmlFilename );
-    QString               errorText;
-    if ( !reader.parseFile( errorText ) )
+    m_geomechCase = preprocSettings->geoMechCase();
+    m_eclipseCase = eclipseCase;
+    m_baseDir     = preprocSettings->outputBaseDirectory();
+
+    QString errorText;
+
+    RifParameterXmlReader basicreader( RiaPreferences::current()->geomechFRADefaultBasicXML() );
+    if ( !basicreader.parseFile( errorText ) ) return;
+
+    RifParameterXmlReader advreader( RiaPreferences::current()->geomechFRADefaultAdvXML() );
+    if ( !advreader.parseFile( errorText ) ) return;
+
+    m_basicparameters.clear();
+    for ( auto group : basicreader.parameterGroups() )
     {
-        // todo - log warning?
-        return;
+        m_basicparameters.push_back( group );
     }
 
-    m_parameters.clear();
-    for ( auto group : reader.parameterGroups() )
+    m_advancedparameters.clear();
+    for ( auto group : advreader.parameterGroups() )
     {
-        m_parameters.push_back( group );
+        m_advancedparameters.push_back( group );
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RimFaultRASettings::shouldIgnoreParameter( QString name ) const
-{
-    return std::find( m_ignoreParameterNames.begin(), m_ignoreParameterNames.end(), name ) != m_ignoreParameterNames.end();
 }

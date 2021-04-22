@@ -20,14 +20,10 @@
 
 #include "cafCmdFeature.h"
 
-class RimFaultRAPreprocSettings;
-class RimEclipseView;
-class RimEclipseInputCase;
-
 //==================================================================================================
 ///
 //==================================================================================================
-class RicNewFaultReactAssessmentFeature : public caf::CmdFeature
+class RicRunAdvFaultReactAssessmentFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
 
@@ -36,11 +32,4 @@ protected:
     bool isCommandEnabled() override;
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
-
-private:
-    void prepareDirectory( QString dirname, bool deleteExistingContent ) const;
-    bool showSettingsGUI( RimFaultRAPreprocSettings& settings );
-    bool runPreProc( RimFaultRAPreprocSettings& settings );
-
-    RimEclipseView* getView( RimEclipseInputCase* eCase );
 };

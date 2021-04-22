@@ -25,9 +25,10 @@
 #include <list>
 #include <string>
 
-class RimEclipseResultCase;
+class RimEclipseInputCase;
 class RimGeoMechCase;
 class RimParameterGroup;
+class RimFaultRAPreprocSettings;
 
 class RimFaultRASettings : public caf::PdmObject
 {
@@ -37,14 +38,14 @@ public:
     RimFaultRASettings();
     ~RimFaultRASettings() override;
 
-    void useDefaultValuesFromFile( QString xmlFilename );
+    void initFromSettings( RimFaultRAPreprocSettings* preprocsettings, RimEclipseInputCase* eclipseCase );
 
     void            setGeoMechCase( RimGeoMechCase* geomechCase );
     RimGeoMechCase* geomechCase() const;
     QString         geomechCaseFilename() const;
 
-    RimEclipseResultCase* eclipseCase() const;
-    QString               eclipseCaseFilename() const;
+    RimEclipseInputCase* eclipseCase() const;
+    QString              eclipseCaseFilename() const;
 
     void    setOutputBaseDirectory( QString baseDir );
     QString outputBaseDirectory() const;
@@ -60,13 +61,10 @@ protected:
                                 caf::PdmUiEditorAttribute* attribute ) override;
 
 private:
-    bool shouldIgnoreParameter( QString name ) const;
+    caf::PdmPtrField<RimEclipseInputCase*> m_eclipseCase;
+    caf::PdmPtrField<RimGeoMechCase*>      m_geomechCase;
+    caf::PdmField<QString>                 m_baseDir;
 
-    const std::list<QString> m_ignoreParameterNames;
-
-    caf::PdmPtrField<RimEclipseResultCase*> m_eclipseCase;
-    caf::PdmPtrField<RimGeoMechCase*>       m_geomechCase;
-    caf::PdmField<QString>                  m_baseDir;
-
-    caf::PdmChildArrayField<RimParameterGroup*> m_parameters;
+    caf::PdmChildArrayField<RimParameterGroup*> m_basicparameters;
+    caf::PdmChildArrayField<RimParameterGroup*> m_advancedparameters;
 };

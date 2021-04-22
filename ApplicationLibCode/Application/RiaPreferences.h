@@ -125,7 +125,8 @@ public:
     QString geomechFRAPreprocCommand() const;
     QString geomechFRAPostprocCommand() const;
     QString geomechFRAMacrisCommand() const;
-    QString geomechFRADefaultXML() const;
+    QString geomechFRADefaultBasicXML() const;
+    QString geomechFRADefaultAdvXML() const;
 
     // Summary readers
     SummaryReaderMode summaryDataReader() const;
@@ -235,7 +236,8 @@ private:
     caf::PdmField<QString> m_geomechFRAPreprocCommand;
     caf::PdmField<QString> m_geomechFRAPostprocCommand;
     caf::PdmField<QString> m_geomechFRAMacrisCommand;
-    caf::PdmField<QString> m_geomechFRADefaultXML;
+    caf::PdmField<QString> m_geomechFRADefaultBasicXML;
+    caf::PdmField<QString> m_geomechFRADefaultAdvXML;
 
     // Summary data
     caf::PdmChildField<RiaPreferencesSummary*> m_summaryPreferences;

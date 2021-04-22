@@ -62,6 +62,10 @@ public:
     bool isShowingFaultsAndFaultsOutsideFilters() const;
     void setShowFaultsOutsideFilter( bool show );
 
+    RimFaultRASettings* faultRASettings() const;
+    bool                faultRAEnabled() const;
+    void                enableFaultRA( bool enable );
+
     caf::PdmField<bool> showFaultFaces;
     caf::PdmField<bool> showOppositeFaultFaces;
 
