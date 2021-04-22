@@ -276,16 +276,25 @@ RifEclipseSummaryAddress RifOpmCommonSummaryTools::createAddressFromSummaryNode(
         case Opm::EclIO::SummaryNode::Category::Node:
             break;
         case Opm::EclIO::SummaryNode::Category::Network:
-            return RifEclipseSummaryAddress::networkAddress(summaryNode.keyword);
+            return RifEclipseSummaryAddress::networkAddress( summaryNode.keyword );
             break;
         case Opm::EclIO::SummaryNode::Category::Well_Lgr:
-            return RifEclipseSummaryAddress::wellLgrAddress(summaryNode.keyword, summaryNode.lgrname, summaryNode.wgname );
+            return RifEclipseSummaryAddress::wellLgrAddress( summaryNode.keyword, summaryNode.lgrname, summaryNode.wgname );
             break;
         case Opm::EclIO::SummaryNode::Category::Block_Lgr:
-            return RifEclipseSummaryAddress::blockLgrAddress(summaryNode.keyword, summaryNode.lgrname, summaryNode.lgri, summaryNode.lgrj, summaryNode.lgrk);
+            return RifEclipseSummaryAddress::blockLgrAddress( summaryNode.keyword,
+                                                              summaryNode.lgrname,
+                                                              summaryNode.lgri,
+                                                              summaryNode.lgrj,
+                                                              summaryNode.lgrk );
             break;
         case Opm::EclIO::SummaryNode::Category::Connection_Lgr:
-            return RifEclipseSummaryAddress::wellCompletionLgrAddress(summaryNode.keyword, summaryNode.lgrname, summaryNode.wgname, summaryNode.lgri, summaryNode.lgrj, summaryNode.lgrk);
+            return RifEclipseSummaryAddress::wellCompletionLgrAddress( summaryNode.keyword,
+                                                                       summaryNode.lgrname,
+                                                                       summaryNode.wgname,
+                                                                       summaryNode.lgri,
+                                                                       summaryNode.lgrj,
+                                                                       summaryNode.lgrk );
             break;
     }
 
