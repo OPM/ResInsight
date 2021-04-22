@@ -39,6 +39,10 @@ struct SummaryNode {
         Aquifer,
         Node,
         Miscellaneous,
+        Network,
+        Well_Lgr,
+        Block_Lgr,
+        Connection_Lgr
     };
 
     enum class Type {
@@ -57,6 +61,11 @@ struct SummaryNode {
     Type        type;
     std::string wgname;
     int         number;
+    std::string lgrname;
+    int         lgri;
+    int         lgrj;
+    int         lgrk;
+
     size_t      smspecKeywordIndex;
 
     std::optional<std::string> fip_region;
@@ -78,6 +87,10 @@ struct SummaryNode {
 
     bool isRegionToRegion() const;
     std::pair<int, int> regionToRegionNumbers() const;
+
+    static std::string create_key_lgr_well(const std::string& keyword, const std::string& wgname, const std::string& lgrname);
+    static std::string create_key_lgr_completion(const std::string& keyword, const std::string& wgname, const std::string& lgrname, int i, int j, int k);
+    static std::string create_key_lgr_block(const std::string& keyword, const std::string& lgrname, int i, int j, int k);
 
 };
 
