@@ -323,7 +323,7 @@ std::vector<QString> RimEnsembleFractureStatistics::computeStatistics()
         sampleAllGrids( fractureGrids, gridXs, gridYs, samples );
 
         std::map<RimEnsembleFractureStatistics::StatisticsType, std::shared_ptr<RigSlice2D>> statisticsGrids;
-        generateStatisticsGrids( samples, gridXs.size(), gridYs.size(), statisticsGrids, selectedStatistics );
+        generateStatisticsGrids( samples, gridXs.size(), gridYs.size(), fractureGrids.size(), statisticsGrids, selectedStatistics );
 
         for ( auto [statType, slice] : statisticsGrids )
         {
@@ -899,8 +899,7 @@ void RimEnsembleFractureStatistics::sampleAllGrids( const std::vector<cvf::cref<
                     {
                         size_t idx   = y * samplesX.size() + x;
                         double value = fractureCell.getConductivityValue();
-                        if ( std::isinf( value ) ) value = 0.0;
-                        samples[idx].push_back( value );
+                        if ( !std::isinf( value ) ) samples[idx].push_back( value );
                         break;
                     }
                 }
@@ -948,6 +947,7 @@ void RimEnsembleFractureStatistics::generateStatisticsGrids(
     const std::vector<std::vector<double>>&                                               samples,
     size_t                                                                                numSamplesX,
     size_t                                                                                numSamplesY,
+    size_t                                                                                numGrids,
     std::map<RimEnsembleFractureStatistics::StatisticsType, std::shared_ptr<RigSlice2D>>& statisticsGrids,
     const std::vector<caf::AppEnum<RimEnsembleFractureStatistics::StatisticsType>>&       statisticsTypes )
 {
@@ -991,8 +991,12 @@ void RimEnsembleFractureStatistics::generateStatisticsGrids(
                 double dev;
                 RigStatisticsMath::calculateBasicStatistics( samples[idx], &min, &max, &sum, &range, &mean, &dev );
 
-                if ( calculateMean )
+                // Only include cells which have values in half of more of the grids
+                bool hasEnoughDataPoints = samples[idx].size() >= static_cast<size_t>( std::floor( numGrids / 2.0 ) );
+                if ( calculateMean && hasEnoughDataPoints )
+                {
                     setValueNoInf( statisticsGrids[RimEnsembleFractureStatistics::StatisticsType::MEAN], x, y, mean );
+                }
 
                 if ( calculateMin )
                     setValueNoInf( statisticsGrids[RimEnsembleFractureStatistics::StatisticsType::MIN], x, y, min );
