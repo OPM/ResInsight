@@ -71,6 +71,14 @@ void caf::AppEnum<RimEnsembleFractureStatistics::MeshType>::setUp()
 }
 
 template <>
+void caf::AppEnum<RimEnsembleFractureStatistics::MeshAlignmentType>::setUp()
+{
+    addItem( RimEnsembleFractureStatistics::MeshAlignmentType::PERFORATION_DEPTH, "PERFORATION_DEPTH", "Perforation Depth" );
+    addItem( RimEnsembleFractureStatistics::MeshAlignmentType::MESH_DEPTH, "MESH_DEPTH", "Mesh Depth" );
+    setDefault( RimEnsembleFractureStatistics::MeshAlignmentType::PERFORATION_DEPTH );
+}
+
+template <>
 void caf::AppEnum<RimEnsembleFractureStatistics::MeanType>::setUp()
 {
     addItem( RimEnsembleFractureStatistics::MeanType::HARMONIC, "HARMONIC", "Harmonic" );
@@ -109,6 +117,7 @@ RimEnsembleFractureStatistics::RimEnsembleFractureStatistics()
     m_filePathsTable.uiCapability()->setUiReadOnly( true );
     m_filePathsTable.xmlCapability()->disableIO();
 
+    CAF_PDM_InitFieldNoDefault( &m_meshAlignmentType, "MeshAlignmentType", "Mesh Alignment", "", "", "" );
     CAF_PDM_InitFieldNoDefault( &m_meshType, "MeshType", "Mesh Type", "", "", "" );
 
     // Uniform sampling
@@ -237,6 +246,7 @@ void RimEnsembleFractureStatistics::defineUiOrdering( QString uiConfigName, caf:
 {
     uiOrdering.add( nameField() );
     uiOrdering.add( &m_filePathsTable );
+    uiOrdering.add( &m_meshAlignmentType );
     uiOrdering.add( &m_meshType );
     uiOrdering.add( &m_numSamplesX );
     uiOrdering.add( &m_numSamplesY );
@@ -287,11 +297,14 @@ std::vector<QString> RimEnsembleFractureStatistics::computeStatistics()
     double timeStep = 1.0;
 
     double referenceDepth = 0.0;
-    for ( auto definition : stimPlanFractureDefinitions )
+    if ( m_meshAlignmentType() == MeshAlignmentType::PERFORATION_DEPTH )
     {
-        referenceDepth += computeDepthOfWellPathAtFracture( definition );
+        for ( auto definition : stimPlanFractureDefinitions )
+        {
+            referenceDepth += computeDepthOfWellPathAtFracture( definition );
+        }
+        referenceDepth /= stimPlanFractureDefinitions.size();
     }
-    referenceDepth /= stimPlanFractureDefinitions.size();
 
     std::vector<double> gridXs;
     std::vector<double> gridYs;
@@ -304,7 +317,7 @@ std::vector<QString> RimEnsembleFractureStatistics::computeStatistics()
         RiaLogging::info( QString( "Creating statistics for result: %1" ).arg( result.first ) );
 
         std::vector<cvf::cref<RigFractureGrid>> fractureGrids =
-            createFractureGrids( stimPlanFractureDefinitions, unitSystem, result.first );
+            createFractureGrids( stimPlanFractureDefinitions, unitSystem, result.first, m_meshAlignmentType() );
 
         std::vector<std::vector<double>> samples( gridXs.size() * gridYs.size() );
         sampleAllGrids( fractureGrids, gridXs, gridYs, samples );
@@ -427,7 +440,8 @@ std::set<std::pair<QString, QString>> RimEnsembleFractureStatistics::findAllResu
 std::vector<cvf::cref<RigFractureGrid>> RimEnsembleFractureStatistics::createFractureGrids(
     const std::vector<cvf::ref<RigStimPlanFractureDefinition>>& stimPlanFractureDefinitions,
     RiaDefines::EclipseUnitSystem                               unitSystem,
-    const QString&                                              resultNameOnFile )
+    const QString&                                              resultNameOnFile,
+    MeshAlignmentType                                           meshAlignmentType )
 {
     // Defaults to avoid scaling
     double halfLengthScaleFactor = 1.0;
@@ -436,7 +450,9 @@ std::vector<cvf::cref<RigFractureGrid>> RimEnsembleFractureStatistics::createFra
     std::vector<cvf::cref<RigFractureGrid>> fractureGrids;
     for ( auto stimPlanFractureDefinitionData : stimPlanFractureDefinitions )
     {
-        double wellPathDepthAtFracture = computeDepthOfWellPathAtFracture( stimPlanFractureDefinitionData );
+        double wellPathDepthAtFracture = 0.0;
+        if ( meshAlignmentType == MeshAlignmentType::PERFORATION_DEPTH )
+            wellPathDepthAtFracture = computeDepthOfWellPathAtFracture( stimPlanFractureDefinitionData );
 
         // Always use last time steps
         std::vector<double> timeSteps           = stimPlanFractureDefinitionData->timeSteps();
@@ -468,7 +484,7 @@ std::tuple<double, double, double, double> RimEnsembleFractureStatistics::findSa
     std::vector<double>&                                        gridYs ) const
 {
     // Find min and max extent of all the grids
-    auto [minX, maxX, minY, maxY] = findMaxGridExtents( stimPlanFractureDefinitions );
+    auto [minX, maxX, minY, maxY] = findMaxGridExtents( stimPlanFractureDefinitions, m_meshAlignmentType() );
 
     if ( m_meshType() == MeshType::UNIFORM )
     {
@@ -490,7 +506,8 @@ std::tuple<double, double, double, double> RimEnsembleFractureStatistics::findSa
 ///
 //--------------------------------------------------------------------------------------------------
 std::tuple<double, double, double, double> RimEnsembleFractureStatistics::findMaxGridExtents(
-    const std::vector<cvf::ref<RigStimPlanFractureDefinition>>& stimPlanFractureDefinitions )
+    const std::vector<cvf::ref<RigStimPlanFractureDefinition>>& stimPlanFractureDefinitions,
+    MeshAlignmentType                                           meshAlignmentType )
 {
     double minX = std::numeric_limits<double>::max();
     double maxX = -std::numeric_limits<double>::max();
@@ -502,7 +519,9 @@ std::tuple<double, double, double, double> RimEnsembleFractureStatistics::findMa
         minX = std::min( minX, def->xs().front() );
         maxX = std::max( maxX, def->xs().back() );
 
-        double offset = computeDepthOfWellPathAtFracture( def );
+        double offset = 0.0;
+        if ( meshAlignmentType == MeshAlignmentType::PERFORATION_DEPTH )
+            offset = computeDepthOfWellPathAtFracture( def );
 
         minY = std::min( minY, offset + def->ys().back() );
         maxY = std::max( maxY, offset + def->ys().front() );
@@ -559,7 +578,10 @@ void RimEnsembleFractureStatistics::generateNaiveMesh(
     std::vector<double> depths;
     for ( auto def : stimPlanFractureDefinitions )
     {
-        double offset = computeDepthOfWellPathAtFracture( def );
+        double offset = 0.0;
+        if ( m_meshAlignmentType() == MeshAlignmentType::PERFORATION_DEPTH )
+            offset = computeDepthOfWellPathAtFracture( def );
+
         for ( double y : def->ys() )
         {
             depths.push_back( offset + y );
@@ -593,7 +615,7 @@ void RimEnsembleFractureStatistics::generateAdaptiveMesh(
     linearSampling( minX, maxX, maxNx, gridXs );
 
     std::vector<Layer> layers;
-    generateAllLayers( stimPlanFractureDefinitions, layers );
+    generateAllLayers( stimPlanFractureDefinitions, layers, m_meshAlignmentType() );
 
     const int targetNumLayers = getTargetNumberOfLayers( stimPlanFractureDefinitions );
 
@@ -742,11 +764,15 @@ void RimEnsembleFractureStatistics::computeMeanThicknessPerLayer( const std::vec
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleFractureStatistics::generateAllLayers(
     const std::vector<cvf::ref<RigStimPlanFractureDefinition>>& stimPlanFractureDefinitions,
-    std::vector<Layer>&                                         layers )
+    std::vector<Layer>&                                         layers,
+    MeshAlignmentType                                           meshAlignmentType )
 {
     for ( auto def : stimPlanFractureDefinitions )
     {
-        double offset   = computeDepthOfWellPathAtFracture( def );
+        double offset = 0.0;
+        if ( meshAlignmentType == MeshAlignmentType::PERFORATION_DEPTH )
+            offset = computeDepthOfWellPathAtFracture( def );
+
         bool   isFirst  = true;
         double topDepth = 0.0;
         for ( double y : def->ys() )
