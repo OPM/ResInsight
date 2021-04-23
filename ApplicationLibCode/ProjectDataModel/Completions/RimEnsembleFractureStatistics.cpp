@@ -81,13 +81,13 @@ void caf::AppEnum<RimEnsembleFractureStatistics::MeanType>::setUp()
 }
 
 template <>
-void caf::AppEnum<RimEnsembleFractureStatistics::AdaptiveSamplingSizeType>::setUp()
+void caf::AppEnum<RimEnsembleFractureStatistics::AdaptiveNumLayersType>::setUp()
 {
-    addItem( RimEnsembleFractureStatistics::AdaptiveSamplingSizeType::AVERAGE, "AVERAGE", "Average" );
-    addItem( RimEnsembleFractureStatistics::AdaptiveSamplingSizeType::MINIMUM, "MINIMUM", "Minimum" );
-    addItem( RimEnsembleFractureStatistics::AdaptiveSamplingSizeType::MAXIMUM, "MAXIMUM", "Maximum" );
-    addItem( RimEnsembleFractureStatistics::AdaptiveSamplingSizeType::USER_DEFINED, "USER_DEFINED", "User-Defined" );
-    setDefault( RimEnsembleFractureStatistics::AdaptiveSamplingSizeType::AVERAGE );
+    addItem( RimEnsembleFractureStatistics::AdaptiveNumLayersType::AVERAGE, "AVERAGE", "Average" );
+    addItem( RimEnsembleFractureStatistics::AdaptiveNumLayersType::MINIMUM, "MINIMUM", "Minimum" );
+    addItem( RimEnsembleFractureStatistics::AdaptiveNumLayersType::MAXIMUM, "MAXIMUM", "Maximum" );
+    addItem( RimEnsembleFractureStatistics::AdaptiveNumLayersType::USER_DEFINED, "USER_DEFINED", "User-Defined" );
+    setDefault( RimEnsembleFractureStatistics::AdaptiveNumLayersType::AVERAGE );
 }
 
 } // namespace caf
@@ -117,8 +117,8 @@ RimEnsembleFractureStatistics::RimEnsembleFractureStatistics()
 
     // Adaptive sampling
     CAF_PDM_InitFieldNoDefault( &m_adaptiveMeanType, "AdaptiveMeanType", "Mean Type", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_adaptiveSamplingSizeType, "AdaptiveSamplingSizeType", "Sampling Type", "", "", "" );
-    CAF_PDM_InitField( &m_adaptiveNumSamplesY, "AdaptiveNumSamplesY", 30, "Number of Samples Y", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_adaptiveNumLayersType, "AdaptiveNumLayersType", "Number of Layers", "", "", "" );
+    CAF_PDM_InitField( &m_adaptiveNumLayers, "AdaptiveNumLayers", 30, "Number of Layers Y", "", "", "" );
 
     std::vector<caf::AppEnum<RimEnsembleFractureStatistics::StatisticsType>> defaultStatisticsTypes = {
         caf::AppEnum<RimEnsembleFractureStatistics::StatisticsType>( RimEnsembleFractureStatistics::StatisticsType::MEAN ) };
@@ -245,15 +245,15 @@ void RimEnsembleFractureStatistics::defineUiOrdering( QString uiConfigName, caf:
     m_numSamplesY.uiCapability()->setUiHidden( !isUniformMesh );
 
     uiOrdering.add( &m_adaptiveMeanType );
-    uiOrdering.add( &m_adaptiveSamplingSizeType );
-    uiOrdering.add( &m_adaptiveNumSamplesY );
+    uiOrdering.add( &m_adaptiveNumLayersType );
+    uiOrdering.add( &m_adaptiveNumLayers );
 
     bool isAdaptiveMesh = m_meshType() == MeshType::ADAPTIVE;
     m_adaptiveMeanType.uiCapability()->setUiHidden( !isAdaptiveMesh );
-    m_adaptiveSamplingSizeType.uiCapability()->setUiHidden( !isAdaptiveMesh );
+    m_adaptiveNumLayersType.uiCapability()->setUiHidden( !isAdaptiveMesh );
 
-    bool adaptiveSamplesUserDefined = m_adaptiveSamplingSizeType() == AdaptiveSamplingSizeType::USER_DEFINED;
-    m_adaptiveNumSamplesY.uiCapability()->setUiHidden( !isAdaptiveMesh || !adaptiveSamplesUserDefined );
+    bool adaptiveSamplesUserDefined = m_adaptiveNumLayersType() == AdaptiveNumLayersType::USER_DEFINED;
+    m_adaptiveNumLayers.uiCapability()->setUiHidden( !isAdaptiveMesh || !adaptiveSamplesUserDefined );
 
     uiOrdering.add( &m_selectedStatisticsType );
     uiOrdering.add( &m_computeStatistics );
@@ -775,7 +775,7 @@ void RimEnsembleFractureStatistics::generateAllLayers(
 int RimEnsembleFractureStatistics::getTargetNumberOfLayers(
     const std::vector<cvf::ref<RigStimPlanFractureDefinition>>& stimPlanFractureDefinitions ) const
 {
-    if ( m_adaptiveSamplingSizeType() == AdaptiveSamplingSizeType::USER_DEFINED ) return m_adaptiveNumSamplesY();
+    if ( m_adaptiveNumLayersType() == AdaptiveNumLayersType::USER_DEFINED ) return m_adaptiveNumLayers();
 
     int maxNy = 0;
     int minNy = std::numeric_limits<int>::max();
@@ -788,13 +788,13 @@ int RimEnsembleFractureStatistics::getTargetNumberOfLayers(
         sum += ny;
     }
 
-    if ( m_adaptiveSamplingSizeType() == AdaptiveSamplingSizeType::MAXIMUM )
+    if ( m_adaptiveNumLayersType() == AdaptiveNumLayersType::MAXIMUM )
         return maxNy;
-    else if ( m_adaptiveSamplingSizeType() == AdaptiveSamplingSizeType::MINIMUM )
+    else if ( m_adaptiveNumLayersType() == AdaptiveNumLayersType::MINIMUM )
         return minNy;
     else
     {
-        CAF_ASSERT( m_adaptiveSamplingSizeType() == AdaptiveSamplingSizeType::AVERAGE );
+        CAF_ASSERT( m_adaptiveNumLayersType() == AdaptiveNumLayersType::AVERAGE );
         return static_cast<int>( std::ceil( static_cast<double>( sum ) / stimPlanFractureDefinitions.size() ) );
     }
 }
