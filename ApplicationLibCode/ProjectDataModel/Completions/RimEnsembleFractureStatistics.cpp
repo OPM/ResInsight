@@ -323,7 +323,7 @@ std::vector<QString> RimEnsembleFractureStatistics::computeStatistics()
         sampleAllGrids( fractureGrids, gridXs, gridYs, samples );
 
         std::map<RimEnsembleFractureStatistics::StatisticsType, std::shared_ptr<RigSlice2D>> statisticsGrids;
-        generateStatisticsGrids( samples, gridXs.size(), gridYs.size(), statisticsGrids, selectedStatistics );
+        generateStatisticsGrids( samples, gridXs.size(), gridYs.size(), fractureGrids.size(), statisticsGrids, selectedStatistics );
 
         for ( auto [statType, slice] : statisticsGrids )
         {
@@ -899,8 +899,7 @@ void RimEnsembleFractureStatistics::sampleAllGrids( const std::vector<cvf::cref<
                     {
                         size_t idx   = y * samplesX.size() + x;
                         double value = fractureCell.getConductivityValue();
-                        if ( std::isinf( value ) ) value = 0.0;
-                        samples[idx].push_back( value );
+                        if ( !std::isinf( value ) ) samples[idx].push_back( value );
                         break;
                     }
                 }
@@ -948,6 +947,7 @@ void RimEnsembleFractureStatistics::generateStatisticsGrids(
     const std::vector<std::vector<double>>&                                               samples,
     size_t                                                                                numSamplesX,
     size_t                                                                                numSamplesY,
+    size_t                                                                                numGrids,
     std::map<RimEnsembleFractureStatistics::StatisticsType, std::shared_ptr<RigSlice2D>>& statisticsGrids,
     const std::vector<caf::AppEnum<RimEnsembleFractureStatistics::StatisticsType>>&       statisticsTypes )
 {
@@ -974,6 +974,8 @@ void RimEnsembleFractureStatistics::generateStatisticsGrids(
         if ( std::isinf( value ) ) value = 0.0;
         grid->setValue( x, y, value );
     };
+
+    RigSlice2D occurrenceGrid( numSamplesX, numSamplesY );
 
     for ( size_t y = 0; y < numSamplesY; y++ )
     {
@@ -1025,6 +1027,45 @@ void RimEnsembleFractureStatistics::generateStatisticsGrids(
                                                                                                       y,
                                                                                                       samples[idx].size() );
             }
+
+            // Internal occurrence grid for the area correction is always calculated
+            occurrenceGrid.setValue( x, y, samples[idx].size() );
         }
     }
+
+    auto clearCells =
+        []( std::shared_ptr<RigSlice2D>& grid, const RigSlice2D& occurrenceGrid, size_t numGrids, double limitFraction ) {
+            for ( size_t y = 0; y < occurrenceGrid.ny(); y++ )
+            {
+                for ( size_t x = 0; x < occurrenceGrid.nx(); x++ )
+                {
+                    double fraction = occurrenceGrid.getValue( x, y ) / numGrids;
+                    if ( fraction < limitFraction )
+                    {
+                        grid->setValue( x, y, 0.0 );
+                    }
+                }
+            }
+        };
+
+    // Post-process the resulting grids improve area representation
+    // 1: Mean only include cells which have values in half of more of the grids
+    if ( calculateMean )
+        clearCells( statisticsGrids[RimEnsembleFractureStatistics::StatisticsType::MEAN], occurrenceGrid, numGrids, 0.5 );
+
+    // 2: Minimum only include cells present in every grid
+    if ( calculateMin )
+        clearCells( statisticsGrids[RimEnsembleFractureStatistics::StatisticsType::MIN], occurrenceGrid, numGrids, 1.0 );
+
+    // 3: P10 only include cells with have values in 10% or more of the grids
+    if ( calculateP10 )
+        clearCells( statisticsGrids[RimEnsembleFractureStatistics::StatisticsType::P10], occurrenceGrid, numGrids, 0.1 );
+
+    // 4: P50 only include cells which have values in half of more of the grids
+    if ( calculateP50 )
+        clearCells( statisticsGrids[RimEnsembleFractureStatistics::StatisticsType::P50], occurrenceGrid, numGrids, 0.5 );
+
+    // 5: P90 only include cells with have values in 90% or more of the grids
+    if ( calculateP90 )
+        clearCells( statisticsGrids[RimEnsembleFractureStatistics::StatisticsType::P90], occurrenceGrid, numGrids, 0.9 );
 }
