@@ -77,7 +77,7 @@ public:
         MINIMUM
     };
 
-    enum class AdaptiveSamplingSizeType
+    enum class AdaptiveNumLayersType
     {
         MINIMUM,
         MAXIMUM,
@@ -184,9 +184,9 @@ protected:
     caf::PdmField<int>                        m_numSamplesY;
     caf::PdmField<caf::AppEnum<MeshType>>     m_meshType;
 
-    caf::PdmField<caf::AppEnum<MeanType>>                 m_adaptiveMeanType;
-    caf::PdmField<caf::AppEnum<AdaptiveSamplingSizeType>> m_adaptiveSamplingSizeType;
-    caf::PdmField<int>                                    m_adaptiveNumSamplesY;
+    caf::PdmField<caf::AppEnum<MeanType>>              m_adaptiveMeanType;
+    caf::PdmField<caf::AppEnum<AdaptiveNumLayersType>> m_adaptiveNumLayersType;
+    caf::PdmField<int>                                 m_adaptiveNumLayers;
 
     caf::PdmField<std::vector<caf::AppEnum<RimEnsembleFractureStatistics::StatisticsType>>> m_selectedStatisticsType;
 };
