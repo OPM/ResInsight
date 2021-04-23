@@ -30,7 +30,7 @@ class RicNewFishbonesSubsFeature : public caf::CmdFeature
     CAF_CMD_HEADER_INIT;
 
 public:
-    static void askUserToSetUsefulScaling( RimFishbonesCollection* fishboneCollection );
+    static void adjustWellPathScaling( RimFishbonesCollection* fishboneCollection );
 
 protected:
     void onActionTriggered( bool isChecked ) override;

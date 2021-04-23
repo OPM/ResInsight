@@ -53,7 +53,7 @@ void RicNewFishbonesSubsAtMeasuredDepthFeature::onActionTriggered( bool isChecke
 
     obj->setMeasuredDepthAndCount( wellPathSelItem->m_measuredDepth, 12.5, 13 );
 
-    RicNewFishbonesSubsFeature::askUserToSetUsefulScaling( wellPath->fishbonesCollection() );
+    RicNewFishbonesSubsFeature::adjustWellPathScaling( wellPath->fishbonesCollection() );
 
     wellPath->updateConnectedEditors();
     Riu3DMainWindowTools::selectAsCurrentItem( obj );
