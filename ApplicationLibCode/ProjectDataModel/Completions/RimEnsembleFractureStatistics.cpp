@@ -73,7 +73,9 @@ void caf::AppEnum<RimEnsembleFractureStatistics::MeshType>::setUp()
 template <>
 void caf::AppEnum<RimEnsembleFractureStatistics::MeshAlignmentType>::setUp()
 {
-    addItem( RimEnsembleFractureStatistics::MeshAlignmentType::PERFORATION_MESH_INTERSECTION_DEPTH, "PERFORATION_MESH_INTERSECTION_DEPTH", "Perforation Mesh Intersection Depth" );
+    addItem( RimEnsembleFractureStatistics::MeshAlignmentType::PERFORATION_MESH_INTERSECTION_DEPTH,
+             "PERFORATION_MESH_INTERSECTION_DEPTH",
+             "Perforation Mesh Intersection Depth" );
     addItem( RimEnsembleFractureStatistics::MeshAlignmentType::MESH_DEPTH, "MESH_DEPTH", "Mesh Depth" );
     setDefault( RimEnsembleFractureStatistics::MeshAlignmentType::PERFORATION_MESH_INTERSECTION_DEPTH );
 }
@@ -119,7 +121,6 @@ RimEnsembleFractureStatistics::RimEnsembleFractureStatistics()
 
     CAF_PDM_InitFieldNoDefault( &m_meshAlignmentType, "MeshAlignmentType", "Mesh Alignment", "", "", "" );
     CAF_PDM_InitFieldNoDefault( &m_meshType, "MeshType", "Mesh Type", "", "", "" );
-
 
     // Uniform sampling
     CAF_PDM_InitField( &m_numSamplesX, "NumberOfSamplesX", 100, "X", "", "", "" );
