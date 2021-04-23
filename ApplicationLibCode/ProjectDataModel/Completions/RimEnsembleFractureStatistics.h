@@ -62,6 +62,12 @@ public:
         OCCURRENCE
     };
 
+    enum class MeshAlignmentType
+    {
+        PERFORATION_DEPTH,
+        MESH_DEPTH
+    };
+
     enum class MeshType
     {
         ADAPTIVE,
@@ -113,7 +119,8 @@ protected:
     std::vector<cvf::cref<RigFractureGrid>>
         createFractureGrids( const std::vector<cvf::ref<RigStimPlanFractureDefinition>>& stimPlanFractureDefinitions,
                              RiaDefines::EclipseUnitSystem                               unitSystem,
-                             const QString&                                              resultName );
+                             const QString&                                              resultName,
+                             MeshAlignmentType                                           meshAlignmentType );
 
     static std::set<std::pair<QString, QString>>
         findAllResultNames( const std::vector<cvf::ref<RigStimPlanFractureDefinition>>& stimPlanFractureDefinitions );
@@ -149,7 +156,8 @@ protected:
     int getTargetNumberOfLayers( const std::vector<cvf::ref<RigStimPlanFractureDefinition>>& stimPlanFractureDefinitions ) const;
 
     static std::tuple<double, double, double, double>
-        findMaxGridExtents( const std::vector<cvf::ref<RigStimPlanFractureDefinition>>& stimPlanFractureDefinitions );
+        findMaxGridExtents( const std::vector<cvf::ref<RigStimPlanFractureDefinition>>& stimPlanFractureDefinitions,
+                            MeshAlignmentType                                           meshAlignmentType );
 
     void computeMeanThicknessPerLayer( const std::vector<Layer>& layers,
                                        int                       targetNumLayers,
@@ -159,7 +167,8 @@ protected:
                                        std::vector<double>&      baseDepth ) const;
 
     static void generateAllLayers( const std::vector<cvf::ref<RigStimPlanFractureDefinition>>& stimPlanFractureDefinitions,
-                                   std::vector<Layer>&                                         layers );
+                                   std::vector<Layer>&                                         layers,
+                                   MeshAlignmentType                                           meshAlignmentType );
 
     static void sampleAllGrids( const std::vector<cvf::cref<RigFractureGrid>>& fractureGrids,
                                 const std::vector<double>&                     samplesX,
@@ -177,12 +186,13 @@ protected:
 
     static double linearSampling( double minValue, double maxValue, int numSamples, std::vector<double>& samples );
 
-    caf::PdmField<std::vector<caf::FilePath>> m_filePaths;
-    caf::PdmField<QString>                    m_filePathsTable;
-    caf::PdmField<bool>                       m_computeStatistics;
-    caf::PdmField<int>                        m_numSamplesX;
-    caf::PdmField<int>                        m_numSamplesY;
-    caf::PdmField<caf::AppEnum<MeshType>>     m_meshType;
+    caf::PdmField<std::vector<caf::FilePath>>      m_filePaths;
+    caf::PdmField<QString>                         m_filePathsTable;
+    caf::PdmField<bool>                            m_computeStatistics;
+    caf::PdmField<int>                             m_numSamplesX;
+    caf::PdmField<int>                             m_numSamplesY;
+    caf::PdmField<caf::AppEnum<MeshType>>          m_meshType;
+    caf::PdmField<caf::AppEnum<MeshAlignmentType>> m_meshAlignmentType;
 
     caf::PdmField<caf::AppEnum<MeanType>>              m_adaptiveMeanType;
     caf::PdmField<caf::AppEnum<AdaptiveNumLayersType>> m_adaptiveNumLayersType;
