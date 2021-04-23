@@ -62,6 +62,12 @@ public:
         OCCURRENCE
     };
 
+    enum class MeshAlignmentType
+    {
+        PERFORATION_MESH_INTERSECTION_DEPTH,
+        MESH_DEPTH
+    };
+
     enum class MeshType
     {
         ADAPTIVE,
@@ -183,6 +189,7 @@ protected:
     caf::PdmField<int>                        m_numSamplesX;
     caf::PdmField<int>                        m_numSamplesY;
     caf::PdmField<caf::AppEnum<MeshType>>     m_meshType;
+    caf::PdmField<caf::AppEnum<MeshAlignmentType>> m_meshAlignmentType;
 
     caf::PdmField<caf::AppEnum<MeanType>>              m_adaptiveMeanType;
     caf::PdmField<caf::AppEnum<AdaptiveNumLayersType>> m_adaptiveNumLayersType;

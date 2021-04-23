@@ -71,6 +71,14 @@ void caf::AppEnum<RimEnsembleFractureStatistics::MeshType>::setUp()
 }
 
 template <>
+void caf::AppEnum<RimEnsembleFractureStatistics::MeshAlignmentType>::setUp()
+{
+    addItem( RimEnsembleFractureStatistics::MeshAlignmentType::PERFORATION_MESH_INTERSECTION_DEPTH, "PERFORATION_MESH_INTERSECTION_DEPTH", "Perforation Mesh Intersection Depth" );
+    addItem( RimEnsembleFractureStatistics::MeshAlignmentType::MESH_DEPTH, "MESH_DEPTH", "Mesh Depth" );
+    setDefault( RimEnsembleFractureStatistics::MeshAlignmentType::PERFORATION_MESH_INTERSECTION_DEPTH );
+}
+
+template <>
 void caf::AppEnum<RimEnsembleFractureStatistics::MeanType>::setUp()
 {
     addItem( RimEnsembleFractureStatistics::MeanType::HARMONIC, "HARMONIC", "Harmonic" );
@@ -109,7 +117,9 @@ RimEnsembleFractureStatistics::RimEnsembleFractureStatistics()
     m_filePathsTable.uiCapability()->setUiReadOnly( true );
     m_filePathsTable.xmlCapability()->disableIO();
 
+    CAF_PDM_InitFieldNoDefault( &m_meshAlignmentType, "MeshAlignmentType", "Mesh Alignment", "", "", "" );
     CAF_PDM_InitFieldNoDefault( &m_meshType, "MeshType", "Mesh Type", "", "", "" );
+
 
     // Uniform sampling
     CAF_PDM_InitField( &m_numSamplesX, "NumberOfSamplesX", 100, "X", "", "", "" );
@@ -237,6 +247,7 @@ void RimEnsembleFractureStatistics::defineUiOrdering( QString uiConfigName, caf:
 {
     uiOrdering.add( nameField() );
     uiOrdering.add( &m_filePathsTable );
+    uiOrdering.add( &m_meshAlignmentType );
     uiOrdering.add( &m_meshType );
     uiOrdering.add( &m_numSamplesX );
     uiOrdering.add( &m_numSamplesY );
