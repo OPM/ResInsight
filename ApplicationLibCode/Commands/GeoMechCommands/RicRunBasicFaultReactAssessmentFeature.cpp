@@ -57,15 +57,7 @@ CAF_CMD_SOURCE_INIT( RicRunBasicFaultReactAssessmentFeature, "RicRunBasicFaultRe
 //--------------------------------------------------------------------------------------------------
 bool RicRunBasicFaultReactAssessmentFeature::isCommandEnabled()
 {
-    RimFaultInViewCollection* faultColl = nullptr;
-
-    RimFaultInView* selObj = dynamic_cast<RimFaultInView*>( caf::SelectionManager::instance()->selectedItem() );
-    if ( selObj )
-    {
-        if ( !selObj->name().startsWith( RiaResultNames::faultReactAssessmentPrefix() ) ) return false;
-        selObj->firstAncestorOrThisOfType( faultColl );
-    }
-
+    RimFaultInViewCollection* faultColl = faultCollection();
     if ( faultColl )
     {
         return ( faultColl->faultRAEnabled() );
@@ -88,4 +80,21 @@ void RicRunBasicFaultReactAssessmentFeature::setupActionLook( QAction* actionToS
 {
     actionToSetup->setIcon( QIcon( ":/fault_react_24x24.png" ) );
     actionToSetup->setText( "Run Basic Processing" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimFaultInViewCollection* RicRunBasicFaultReactAssessmentFeature::faultCollection()
+{
+    RimFaultInViewCollection* faultColl = nullptr;
+
+    RimFaultInView* selObj = dynamic_cast<RimFaultInView*>( caf::SelectionManager::instance()->selectedItem() );
+    if ( selObj )
+    {
+        if ( !selObj->name().startsWith( RiaResultNames::faultReactAssessmentPrefix() ) ) return false;
+        selObj->firstAncestorOrThisOfType( faultColl );
+    }
+
+    return faultColl;
 }

@@ -32,12 +32,15 @@ CAF_PDM_ABSTRACT_SOURCE_INIT( RimGenericParameter, "GenericParameter" );
 //--------------------------------------------------------------------------------------------------
 RimGenericParameter::RimGenericParameter()
 {
+    CAF_PDM_InitObject( "Parameter", ":/Bullet.png", "", "" );
+
     CAF_PDM_InitField( &m_name, "Name", QString(), "Name", "", "", "" );
     m_name.uiCapability()->setUiReadOnly( true );
     m_name.uiCapability()->setUiHidden( true );
 
     CAF_PDM_InitField( &m_label, "Label", QString(), "Name", "", "", "" );
     m_label.uiCapability()->setUiReadOnly( true );
+    m_label.uiCapability()->setUiContentTextColor( Qt::black );
 
     CAF_PDM_InitField( &m_description, "Description", QString(), "Description", "", "", "" );
     m_description.uiCapability()->setUiReadOnly( true );

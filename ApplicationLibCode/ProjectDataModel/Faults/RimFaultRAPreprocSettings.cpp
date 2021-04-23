@@ -327,6 +327,14 @@ void RimFaultRAPreprocSettings::setEclipseCase( RimEclipseResultCase* eclipseCas
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RimEclipseCase* RimFaultRAPreprocSettings::eclipseCase() const
+{
+    return m_eclipseCase();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimFaultRAPreprocSettings::setOutputBaseDirectory( QString baseDir )
 {
     m_baseDir = baseDir;

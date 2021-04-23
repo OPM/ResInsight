@@ -26,6 +26,7 @@
 #include <string>
 
 class RimEclipseInputCase;
+class RimEclipseCase;
 class RimGeoMechCase;
 class RimParameterGroup;
 class RimFaultRAPreprocSettings;
@@ -44,7 +45,8 @@ public:
     RimGeoMechCase* geomechCase() const;
     QString         geomechCaseFilename() const;
 
-    RimEclipseInputCase* eclipseCase() const;
+    RimEclipseInputCase* eclipseFRAGeneratedCase() const;
+    RimEclipseCase*      eclipseCase() const;
     QString              eclipseCaseFilename() const;
 
     void    setOutputBaseDirectory( QString baseDir );
@@ -61,7 +63,8 @@ protected:
                                 caf::PdmUiEditorAttribute* attribute ) override;
 
 private:
-    caf::PdmPtrField<RimEclipseInputCase*> m_eclipseCase;
+    caf::PdmPtrField<RimEclipseInputCase*> m_eclipseFRAGeneratedCase;
+    caf::PdmPtrField<RimEclipseCase*>      m_eclipseCase;
     caf::PdmPtrField<RimGeoMechCase*>      m_geomechCase;
     caf::PdmField<QString>                 m_baseDir;
 
