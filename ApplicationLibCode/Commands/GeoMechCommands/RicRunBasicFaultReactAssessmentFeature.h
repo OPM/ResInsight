@@ -20,6 +20,8 @@
 
 #include "cafCmdFeature.h"
 
+class RimFaultInViewCollection;
+
 //==================================================================================================
 ///
 //==================================================================================================
@@ -32,4 +34,7 @@ protected:
     bool isCommandEnabled() override;
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
+
+private:
+    RimFaultInViewCollection* faultCollection();
 };

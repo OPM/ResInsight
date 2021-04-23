@@ -22,6 +22,7 @@
 
 #include "RiaApplication.h"
 #include "RiaPreferences.h"
+#include "RimEclipseCase.h"
 #include "RimEclipseInputCase.h"
 #include "RimGenericParameter.h"
 #include "RimGeoMechCase.h"
@@ -50,11 +51,19 @@ RimFaultRASettings::RimFaultRASettings()
     CAF_PDM_InitFieldNoDefault( &m_geomechCase, "GeomechCase", "GeoMech Case", "", "", "" );
     m_geomechCase.uiCapability()->setUiReadOnly( true );
 
+    CAF_PDM_InitFieldNoDefault( &m_eclipseFRAGeneratedCase, "EclipseFRACase", "Eclipse FRA Case", "", "", "" );
+    m_eclipseFRAGeneratedCase.uiCapability()->setUiReadOnly( true );
+
     CAF_PDM_InitFieldNoDefault( &m_baseDir, "BaseDir", "Output Directory", "", "", "" );
     m_baseDir.uiCapability()->setUiReadOnly( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_basicparameters, "BasicParameters", "Basic Processing Parameters", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_advancedparameters, "AdvancedParameters", "Advanced Processing Parameters", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_basicparameters, "BasicParameters", "Basic Processing Parameters", ":/Bullet.png", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_advancedparameters,
+                                "AdvancedParameters",
+                                "Advanced Processing Parameters",
+                                ":/Bullet.png",
+                                "",
+                                "" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -101,9 +110,17 @@ QString RimFaultRASettings::eclipseCaseFilename() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimEclipseInputCase* RimFaultRASettings::eclipseCase() const
+RimEclipseCase* RimFaultRASettings::eclipseCase() const
 {
     return m_eclipseCase;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimEclipseInputCase* RimFaultRASettings::eclipseFRAGeneratedCase() const
+{
+    return m_eclipseFRAGeneratedCase;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -168,17 +185,15 @@ void RimFaultRASettings::setOutputBaseDirectory( QString baseDir )
 //--------------------------------------------------------------------------------------------------
 void RimFaultRASettings::initFromSettings( RimFaultRAPreprocSettings* preprocSettings, RimEclipseInputCase* eclipseCase )
 {
-    m_geomechCase = preprocSettings->geoMechCase();
-    m_eclipseCase = eclipseCase;
-    m_baseDir     = preprocSettings->outputBaseDirectory();
+    m_geomechCase             = preprocSettings->geoMechCase();
+    m_eclipseCase             = preprocSettings->eclipseCase();
+    m_eclipseFRAGeneratedCase = eclipseCase;
+    m_baseDir                 = preprocSettings->outputBaseDirectory();
 
     QString errorText;
 
     RifParameterXmlReader basicreader( RiaPreferences::current()->geomechFRADefaultBasicXML() );
     if ( !basicreader.parseFile( errorText ) ) return;
-
-    RifParameterXmlReader advreader( RiaPreferences::current()->geomechFRADefaultAdvXML() );
-    if ( !advreader.parseFile( errorText ) ) return;
 
     m_basicparameters.clear();
     for ( auto group : basicreader.parameterGroups() )
@@ -186,9 +201,15 @@ void RimFaultRASettings::initFromSettings( RimFaultRAPreprocSettings* preprocSet
         m_basicparameters.push_back( group );
     }
 
-    m_advancedparameters.clear();
-    for ( auto group : advreader.parameterGroups() )
+    if ( geomechCase() != nullptr )
     {
-        m_advancedparameters.push_back( group );
+        RifParameterXmlReader advreader( RiaPreferences::current()->geomechFRADefaultAdvXML() );
+        if ( !advreader.parseFile( errorText ) ) return;
+
+        m_advancedparameters.clear();
+        for ( auto group : advreader.parameterGroups() )
+        {
+            m_advancedparameters.push_back( group );
+        }
     }
 }
