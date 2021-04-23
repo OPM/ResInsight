@@ -22,6 +22,7 @@
 #include "cafPdmPtrField.h"
 
 class RimEclipseResultCase;
+class RimEclipseCase;
 class RimGeoMechCase;
 class RimCase;
 
@@ -36,7 +37,8 @@ public:
     void            setGeoMechCase( RimGeoMechCase* geomechCase );
     RimGeoMechCase* geoMechCase() const;
 
-    void setEclipseCase( RimEclipseResultCase* eclipseCase );
+    void            setEclipseCase( RimEclipseResultCase* eclipseCase );
+    RimEclipseCase* eclipseCase() const;
 
     void    setOutputBaseDirectory( QString baseDir );
     QString outputBaseDirectory() const;

@@ -33,10 +33,14 @@ CAF_PDM_SOURCE_INIT( RimParameterGroup, "ParameterGroup" );
 //--------------------------------------------------------------------------------------------------
 RimParameterGroup::RimParameterGroup()
 {
+    CAF_PDM_InitObject( "Parameter Group", ":/Bullet.png", "", "" );
+    uiCapability()->setUiTreeChildrenHidden( true );
+
     CAF_PDM_InitFieldNoDefault( &m_parameters, "Parameters", "Parameters", "", "", "" );
     m_parameters.uiCapability()->setUiEditorTypeName( caf::PdmUiTableViewEditor::uiEditorTypeName() );
     m_parameters.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
     m_parameters.uiCapability()->setCustomContextMenuEnabled( true );
+    m_parameters.uiCapability()->setUiTreeChildrenHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_name, "Name", "Name", "", "", "" );
     m_name.uiCapability()->setUiHidden( true );
@@ -52,6 +56,14 @@ RimParameterGroup::RimParameterGroup()
 //--------------------------------------------------------------------------------------------------
 RimParameterGroup::~RimParameterGroup()
 {
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+caf::PdmFieldHandle* RimParameterGroup::userDescriptionField()
+{
+    return &m_name;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -108,7 +120,6 @@ void RimParameterGroup::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderi
 {
     auto group = uiOrdering.addNewGroup( name() );
     group->add( &m_parameters );
-    group->setCollapsedByDefault( isExpanded() );
 
     uiOrdering.skipRemainingFields( true );
 }
