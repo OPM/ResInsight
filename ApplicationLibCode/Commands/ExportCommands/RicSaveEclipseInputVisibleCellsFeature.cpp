@@ -56,7 +56,7 @@ void RicSaveEclipseInputVisibleCellsFeature::openDialogAndExecuteCommand( RimEcl
     RicSaveEclipseInputVisibleCellsUi exportSettings;
     caf::PdmUiPropertyViewDialog      propertyDialog( Riu3DMainWindowTools::mainWindowWidget(),
                                                  &exportSettings,
-                                                 "Export FLUXNUM/MULTNUM",
+                                                 "Export FLUXNUM/MULTNUM/ACTNUM",
                                                  "" );
     RicExportFeatureImpl::configureForExport( propertyDialog.dialogButtonBox() );
 
@@ -130,7 +130,7 @@ void RicSaveEclipseInputVisibleCellsFeature::onActionTriggered( bool isChecked )
 //--------------------------------------------------------------------------------------------------
 void RicSaveEclipseInputVisibleCellsFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setText( "Export Visible Cells as FLUXNUM/MULTNUM" );
+    actionToSetup->setText( "Export Visible Cells as FLUXNUM/MULTNUM/ACTNUM" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -176,7 +176,7 @@ void RicSaveEclipseInputActiveVisibleCellsFeature::onActionTriggered( bool isChe
 //--------------------------------------------------------------------------------------------------
 void RicSaveEclipseInputActiveVisibleCellsFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setText( "Export Visible Cells as FLUXNUM/MULTNUM" );
+    actionToSetup->setText( "Export Visible Cells as FLUXNUM/MULTNUM/ACTNUM" );
 }
 
 //--------------------------------------------------------------------------------------------------

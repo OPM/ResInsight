@@ -35,12 +35,13 @@ public:
     {
         FLUXNUM,
         MULTNUM,
+        ACTNUM,
     };
 
-    typedef caf::AppEnum<ExportKeyword> ExportKeywordEnum;
+    using ExportKeywordEnum = caf::AppEnum<ExportKeyword>;
 
 public:
-    RicSaveEclipseInputVisibleCellsUi( void );
+    RicSaveEclipseInputVisibleCellsUi();
     ~RicSaveEclipseInputVisibleCellsUi() override;
 
     caf::PdmField<QString>           exportFilename;

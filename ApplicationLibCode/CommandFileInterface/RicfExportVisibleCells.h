@@ -39,7 +39,8 @@ class RicfExportVisibleCells : public RicfCommandObject
     enum class ExportKeyword
     {
         FLUXNUM,
-        MULTNUM
+        MULTNUM,
+        ACTNUM
     };
 
 public:
