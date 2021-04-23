@@ -21,6 +21,7 @@
 #include "WellPathCommands/RicWellPathsUnitSystemSettingsImpl.h"
 
 #include "RiaApplication.h"
+#include "RiaLogging.h"
 
 #include "RigWellPath.h"
 
@@ -66,7 +67,7 @@ void RicNewFishbonesSubsFeature::onActionTriggered( bool isChecked )
         obj->setMeasuredDepthAndCount( startMd, 12.5, 13 );
     }
 
-    RicNewFishbonesSubsFeature::askUserToSetUsefulScaling( fishbonesCollection );
+    RicNewFishbonesSubsFeature::adjustWellPathScaling( fishbonesCollection );
 
     RimWellPathCollection* wellPathCollection = nullptr;
     fishbonesCollection->firstAncestorOrThisOfType( wellPathCollection );
@@ -145,56 +146,15 @@ bool RicNewFishbonesSubsFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicNewFishbonesSubsFeature::askUserToSetUsefulScaling( RimFishbonesCollection* fishboneCollection )
+void RicNewFishbonesSubsFeature::adjustWellPathScaling( RimFishbonesCollection* fishboneCollection )
 {
-    // Always reset well path collection scale factor
     CVF_ASSERT( fishboneCollection );
     RimWellPathCollection* wellPathColl = nullptr;
     fishboneCollection->firstAncestorOrThisOfTypeAsserted( wellPathColl );
-    wellPathColl->wellPathRadiusScaleFactor = 0.01;
 
-    Rim3dView* activeView = RiaApplication::instance()->activeReservoirView();
-    if ( !activeView ) return;
-
-    RiaApplication* app        = RiaApplication::instance();
-    QString         sessionKey = "AutoAdjustSettingsForFishbones";
-
-    bool     autoAdjustSettings = false;
-    QVariant v                  = app->cacheDataObject( sessionKey );
-    if ( !v.isValid() )
+    if ( wellPathColl->wellPathRadiusScaleFactor > 0.05 )
     {
-        double currentScaleFactor = activeView->scaleZ();
-        if ( fabs( currentScaleFactor - 1.0 ) < 0.1 ) return;
-
-        QMessageBox msgBox;
-        msgBox.setIcon( QMessageBox::Question );
-
-        QString questionText;
-        questionText = QString( "When displaying Fishbones structures, the view scaling should be set to 1.\n\nDo you "
-                                "want ResInsight to automatically set view scaling to 1?" );
-
-        msgBox.setText( questionText );
-        msgBox.setStandardButtons( QMessageBox::Yes | QMessageBox::No );
-
-        int ret = msgBox.exec();
-        if ( ret == QMessageBox::Yes )
-        {
-            autoAdjustSettings = true;
-        }
-
-        app->setCacheDataObject( sessionKey, autoAdjustSettings );
-    }
-    else
-    {
-        autoAdjustSettings = v.toBool();
-    }
-
-    if ( autoAdjustSettings )
-    {
-        activeView->setScaleZAndUpdate( 1.0 );
-        activeView->scheduleCreateDisplayModelAndRedraw();
-        activeView->updateZScaleLabel();
-
-        RiuMainWindow::instance()->updateScaleValue();
+        wellPathColl->wellPathRadiusScaleFactor = 0.01;
+        RiaLogging::info( "Radius scale of well paths is reduced to ensure the fish bone laterals are visible." );
     }
 }
