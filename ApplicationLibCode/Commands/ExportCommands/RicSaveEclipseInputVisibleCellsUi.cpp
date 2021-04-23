@@ -32,6 +32,7 @@ void RicSaveEclipseInputVisibleCellsUi::ExportKeywordEnum::setUp()
 {
     addItem( RicSaveEclipseInputVisibleCellsUi::FLUXNUM, "FLUXNUM", "FLUXNUM" );
     addItem( RicSaveEclipseInputVisibleCellsUi::MULTNUM, "MULTNUM", "MULTNUM" );
+    addItem( RicSaveEclipseInputVisibleCellsUi::ACTNUM, "ACTNUM", "ACTNUM" );
     setDefault( RicSaveEclipseInputVisibleCellsUi::FLUXNUM );
 }
 } // namespace caf
@@ -41,10 +42,10 @@ CAF_PDM_SOURCE_INIT( RicSaveEclipseInputVisibleCellsUi, "RicSaveEclipseInputVisi
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicSaveEclipseInputVisibleCellsUi::RicSaveEclipseInputVisibleCellsUi( void )
+RicSaveEclipseInputVisibleCellsUi::RicSaveEclipseInputVisibleCellsUi()
     : exportFilenameManuallyChanged( false )
 {
-    CAF_PDM_InitObject( "Export Visible Cells FLUXNUM/MULTNUM", "", "", "" );
+    CAF_PDM_InitObject( "Export Visible Cells FLUXNUM/MULTNUM/ACTNUM", "", "", "" );
 
     CAF_PDM_InitField( &exportFilename, "ExportFilename", QString(), "Export Filename", "", "", "" );
     exportFilename.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );

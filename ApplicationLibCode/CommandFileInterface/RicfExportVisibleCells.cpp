@@ -52,6 +52,7 @@ void AppEnum<RicfExportVisibleCells::ExportKeyword>::setUp()
 {
     addItem( RicfExportVisibleCells::ExportKeyword::FLUXNUM, "FLUXNUM", "FLUXNUM" );
     addItem( RicfExportVisibleCells::ExportKeyword::MULTNUM, "MULTNUM", "MULTNUM" );
+    addItem( RicfExportVisibleCells::ExportKeyword::ACTNUM, "ACTNUM", "ACTNUM" );
 
     setDefault( RicfExportVisibleCells::ExportKeyword::FLUXNUM );
 }
@@ -141,6 +142,8 @@ void RicfExportVisibleCells::buildExportSettings( const QString&                
         exportSettings->exportKeyword = RicSaveEclipseInputVisibleCellsUi::FLUXNUM;
     else if ( m_exportKeyword == ExportKeyword::MULTNUM )
         exportSettings->exportKeyword = RicSaveEclipseInputVisibleCellsUi::MULTNUM;
+    else if ( m_exportKeyword == ExportKeyword::ACTNUM )
+        exportSettings->exportKeyword = RicSaveEclipseInputVisibleCellsUi::ACTNUM;
 
     exportSettings->visibleActiveCellsValue = m_visibleActiveCellsValue;
     exportSettings->hiddenActiveCellsValue  = m_hiddenActiveCellsValue;
