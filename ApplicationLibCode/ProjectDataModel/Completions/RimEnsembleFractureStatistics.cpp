@@ -899,8 +899,7 @@ void RimEnsembleFractureStatistics::sampleAllGrids( const std::vector<cvf::cref<
                     {
                         size_t idx   = y * samplesX.size() + x;
                         double value = fractureCell.getConductivityValue();
-                        if ( !std::isinf( value ) )
-                            samples[idx].push_back( value );
+                        if ( !std::isinf( value ) ) samples[idx].push_back( value );
                         break;
                     }
                 }
