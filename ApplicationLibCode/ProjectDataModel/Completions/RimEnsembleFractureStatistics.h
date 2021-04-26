@@ -187,8 +187,12 @@ protected:
 
     static double linearSampling( double minValue, double maxValue, int numSamples, std::vector<double>& samples );
 
+    static QString generateFormationDipStatisticsString(
+        const std::vector<cvf::ref<RigStimPlanFractureDefinition>> stimPlanFractureDefinitions );
+
     caf::PdmField<std::vector<caf::FilePath>>      m_filePaths;
     caf::PdmField<QString>                         m_filePathsTable;
+    caf::PdmField<QString>                         m_formationDipStatistics;
     caf::PdmField<bool>                            m_computeStatistics;
     caf::PdmField<int>                             m_numSamplesX;
     caf::PdmField<int>                             m_numSamplesY;
