@@ -99,7 +99,8 @@ std::vector<RimStimPlanFractureTemplate*> RicNewStimPlanFractureTemplateFeature:
 ///
 //--------------------------------------------------------------------------------------------------
 std::vector<RimStimPlanFractureTemplate*>
-    RicNewStimPlanFractureTemplateFeature::createNewTemplatesFromFiles( const std::vector<QString>& fileNames )
+    RicNewStimPlanFractureTemplateFeature::createNewTemplatesFromFiles( const std::vector<QString>& fileNames,
+                                                                        bool reuseExistingTemplatesWithMatchingNames )
 {
     if ( fileNames.empty() ) return std::vector<RimStimPlanFractureTemplate*>();
 
@@ -112,13 +113,18 @@ std::vector<RimStimPlanFractureTemplate*>
     RimFractureTemplateCollection* fracDefColl = oilfield->fractureDefinitionCollection();
     if ( !fracDefColl ) return std::vector<RimStimPlanFractureTemplate*>();
 
+    auto findTemplateByName = []( RimFractureTemplateCollection* coll,
+                                  const QString&                 name ) -> RimStimPlanFractureTemplate* {
+        for ( auto t : coll->fractureTemplates() )
+            if ( t->name() == name ) return dynamic_cast<RimStimPlanFractureTemplate*>( t );
+
+        return nullptr;
+    };
+
     std::vector<RimStimPlanFractureTemplate*> newFractures;
     for ( auto fileName : fileNames )
     {
         if ( fileName.isEmpty() ) continue;
-
-        RimStimPlanFractureTemplate* fractureDef = new RimStimPlanFractureTemplate();
-        fracDefColl->addFractureTemplate( fractureDef );
 
         QFileInfo stimplanfileFileInfo( fileName );
         QString   name = stimplanfileFileInfo.baseName();
@@ -127,7 +133,15 @@ std::vector<RimStimPlanFractureTemplate*>
             name = "StimPlan Fracture Template";
         }
 
-        fractureDef->setName( name );
+        RimStimPlanFractureTemplate* fractureDef = nullptr;
+        if ( reuseExistingTemplatesWithMatchingNames ) fractureDef = findTemplateByName( fracDefColl, name );
+
+        if ( fractureDef == nullptr )
+        {
+            fractureDef = new RimStimPlanFractureTemplate();
+            fracDefColl->addFractureTemplate( fractureDef );
+            fractureDef->setName( name );
+        }
 
         fractureDef->setFileName( fileName );
         fractureDef->loadDataAndUpdate();
