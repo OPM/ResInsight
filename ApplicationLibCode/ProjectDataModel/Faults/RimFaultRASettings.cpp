@@ -401,7 +401,7 @@ void RimFaultRASettings::setGeomechTimeStepIndexes( int start, int stop )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::list<RimGenericParameter*> RimFaultRASettings::basicParameters( int faultID ) const
+std::list<RimGenericParameter*> RimFaultRASettings::basicParameters( int faultID )
 {
     m_basicParametersRI->setParameterValue( "eclipse_input_grid", eclipseCaseFilename() );
     m_basicParametersRI->setParameterValue( "faultid", faultID );
@@ -425,7 +425,7 @@ std::list<RimGenericParameter*> RimFaultRASettings::basicParameters( int faultID
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::list<RimGenericParameter*> RimFaultRASettings::advancedParameters( int faultID ) const
+std::list<RimGenericParameter*> RimFaultRASettings::advancedParameters( int faultID )
 {
     m_advancedParametersRI->setParameterValue( "eclipse_loadstep_start", startTimeStepEclipse() );
     m_advancedParametersRI->setParameterValue( "eclipse_loadstep_end", m_endTimestepEclipse() );
