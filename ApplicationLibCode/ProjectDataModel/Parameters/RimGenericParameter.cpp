@@ -18,6 +18,8 @@
 
 #include "RimGenericParameter.h"
 
+#include "RiuGuiTheme.h"
+
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObjectScriptingCapability.h"
 #include "cafPdmUiCheckBoxEditor.h"
@@ -40,7 +42,7 @@ RimGenericParameter::RimGenericParameter()
 
     CAF_PDM_InitField( &m_label, "Label", QString(), "Name", "", "", "" );
     m_label.uiCapability()->setUiReadOnly( true );
-    m_label.uiCapability()->setUiContentTextColor( Qt::black );
+    m_label.uiCapability()->setUiContentTextColor( RiuGuiTheme::getColorByVariableName( "textColor" ) );
 
     CAF_PDM_InitField( &m_description, "Description", QString(), "Description", "", "", "" );
     m_description.uiCapability()->setUiReadOnly( true );
