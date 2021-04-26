@@ -37,6 +37,7 @@ public:
     RimDoubleParameter();
     ~RimDoubleParameter() override;
 
+    void     setValue( double value );
     void     setValue( QString value ) override;
     QVariant variantValue() const override;
     QString  stringValue() const override;

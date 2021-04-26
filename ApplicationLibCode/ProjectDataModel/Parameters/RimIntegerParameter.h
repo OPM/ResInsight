@@ -37,6 +37,7 @@ public:
     RimIntegerParameter();
     ~RimIntegerParameter() override;
 
+    void     setValue( int value );
     void     setValue( QString value ) override;
     QVariant variantValue() const override;
     QString  stringValue() const override;

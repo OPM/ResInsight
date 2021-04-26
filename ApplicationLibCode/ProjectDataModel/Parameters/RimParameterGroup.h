@@ -23,6 +23,7 @@
 #include "cafPdmObject.h"
 
 #include <QString>
+#include <vector>
 
 class RimGenericParameter;
 
@@ -39,13 +40,23 @@ public:
     ~RimParameterGroup() override;
 
     void addParameter( RimGenericParameter* p );
+    void addParameter( QString name, int value );
+    void addParameter( QString name, QString value );
+    void addParameter( QString name, double value );
+
     void appendParametersToList( std::list<RimGenericParameter*>& parameterList );
 
     void setName( QString name );
     void setExpanded( bool expand );
 
+    void setParameterValue( QString name, int value );
+    void setParameterValue( QString name, QString value );
+    void setParameterValue( QString name, double value );
+
     bool    isExpanded() const;
     QString name() const;
+
+    std::vector<RimGenericParameter*> parameters() const;
 
 private:
     void                 fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;

@@ -112,7 +112,7 @@ void RicNewFaultReactAssessmentFeature::onActionTriggered( bool isChecked )
     if ( view->faultCollection() )
     {
         view->faultCollection()->enableFaultRA( true );
-        view->faultCollection()->faultRASettings()->initFromSettings( &frapSettings, fraCase );
+        view->faultCollection()->faultRASettings()->initFromPreprocSettings( &frapSettings, fraCase );
     }
 }
 
@@ -201,6 +201,8 @@ bool RicNewFaultReactAssessmentFeature::runPreProc( RimFaultRAPreprocSettings& s
             return false;
         }
 
+        runProgress.setProgressDescription( "Preproc script." );
+
         // run the python preprocessing script
         QString     command    = RiaPreferences::current()->geomechFRAPreprocCommand();
         QStringList parameters = settings.preprocParameterList();
@@ -212,7 +214,7 @@ bool RicNewFaultReactAssessmentFeature::runPreProc( RimFaultRAPreprocSettings& s
     }
 
     runProgress.incrementProgress();
-    runProgress.setProgressDescription( "Running Macris preparations, please wait..." );
+    runProgress.setProgressDescription( "Macris prepare command." );
 
     // run the java macris program in prepare mode
     QString     command    = RiaPreferences::current()->geomechFRAMacrisCommand();
