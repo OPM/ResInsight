@@ -30,6 +30,10 @@
 #include "RigStatisticsMath.h"
 #include "RigStimPlanFractureDefinition.h"
 
+#include "RimFractureTemplateCollection.h"
+#include "RimProject.h"
+#include "RimStimPlanFractureTemplate.h"
+
 #include "RifCsvDataTableFormatter.h"
 #include "RifEnsembleFractureStatisticsExporter.h"
 #include "RifStimPlanXmlReader.h"
@@ -250,7 +254,19 @@ void RimEnsembleFractureStatistics::fieldChangedByUi( const caf::PdmFieldHandle*
     {
         m_computeStatistics            = false;
         std::vector<QString> filePaths = computeStatistics();
-        RicNewStimPlanFractureTemplateFeature::createNewTemplatesFromFiles( filePaths );
+
+        // Create (or reuse matching) templates for the statistics
+        auto updatedTemplates = RicNewStimPlanFractureTemplateFeature::createNewTemplatesFromFiles( filePaths, true );
+
+        // Update views
+        if ( !updatedTemplates.empty() )
+        {
+            RimFractureTemplateCollection* templateCollection = nullptr;
+            updatedTemplates.front()->firstAncestorOrThisOfTypeAsserted( templateCollection );
+            templateCollection->updateConnectedEditors();
+
+            RimProject::current()->scheduleCreateDisplayModelAndRedrawAllViews();
+        }
     }
 }
 
