@@ -117,6 +117,12 @@ RimEnsembleFractureStatistics::RimEnsembleFractureStatistics()
     m_filePathsTable.uiCapability()->setUiReadOnly( true );
     m_filePathsTable.xmlCapability()->disableIO();
 
+    CAF_PDM_InitFieldNoDefault( &m_formationDipStatistics, "FormationDipStatistics", "Formation Dip Statistics", "", "", "" );
+    m_formationDipStatistics.uiCapability()->setUiEditorTypeName( caf::PdmUiTextEditor::uiEditorTypeName() );
+    m_formationDipStatistics.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+    m_formationDipStatistics.uiCapability()->setUiReadOnly( true );
+    m_formationDipStatistics.xmlCapability()->disableIO();
+
     CAF_PDM_InitFieldNoDefault( &m_meshAlignmentType, "MeshAlignmentType", "Mesh Alignment", "", "", "" );
     CAF_PDM_InitFieldNoDefault( &m_meshType, "MeshType", "Mesh Type", "", "", "" );
 
@@ -222,6 +228,15 @@ void RimEnsembleFractureStatistics::defineEditorAttribute( const caf::PdmFieldHa
             attrib->singleSelectionMode   = false;
         }
     }
+    else if ( field == &m_formationDipStatistics )
+    {
+        auto myAttr = dynamic_cast<caf::PdmUiTextEditorAttribute*>( attribute );
+        if ( myAttr )
+        {
+            myAttr->wrapMode = caf::PdmUiTextEditorAttribute::NoWrap;
+            myAttr->textMode = caf::PdmUiTextEditorAttribute::HTML;
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -246,6 +261,7 @@ void RimEnsembleFractureStatistics::defineUiOrdering( QString uiConfigName, caf:
 {
     uiOrdering.add( nameField() );
     uiOrdering.add( &m_filePathsTable );
+    uiOrdering.add( &m_formationDipStatistics );
     uiOrdering.add( &m_meshAlignmentType );
     uiOrdering.add( &m_meshType );
     uiOrdering.add( &m_numSamplesX );
@@ -275,6 +291,13 @@ void RimEnsembleFractureStatistics::defineUiOrdering( QString uiConfigName, caf:
 void RimEnsembleFractureStatistics::loadAndUpdateData()
 {
     m_filePathsTable = generateFilePathsTable();
+
+    auto unitSystem = RiaDefines::EclipseUnitSystem::UNITS_METRIC;
+
+    std::vector<cvf::ref<RigStimPlanFractureDefinition>> stimPlanFractureDefinitions =
+        readFractureDefinitions( m_filePaths.v(), unitSystem );
+
+    m_formationDipStatistics = generateFormationDipStatisticsString( stimPlanFractureDefinitions );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1068,4 +1091,43 @@ void RimEnsembleFractureStatistics::generateStatisticsGrids(
     // 5: P90 only include cells with have values in 90% or more of the grids
     if ( calculateP90 )
         clearCells( statisticsGrids[RimEnsembleFractureStatistics::StatisticsType::P90], occurrenceGrid, numGrids, 0.9 );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimEnsembleFractureStatistics::generateFormationDipStatisticsString(
+    const std::vector<cvf::ref<RigStimPlanFractureDefinition>> stimPlanFractureDefinitions )
+{
+    std::vector<double> formationDips;
+    for ( auto def : stimPlanFractureDefinitions )
+    {
+        formationDips.push_back( def->formationDip() );
+    }
+
+    double min;
+    double max;
+    double sum;
+    double range;
+    double mean;
+    double dev;
+    RigStatisticsMath::calculateBasicStatistics( formationDips, &min, &max, &sum, &range, &mean, &dev );
+
+    double p10;
+    double p50;
+    double p90;
+    RigStatisticsMath::calculateStatisticsCurves( formationDips, &p10, &p50, &p90, &mean );
+
+    auto appendTextIfValidValue = []( QString& body, const QString& title, double value ) {
+        if ( !std::isinf( value ) ) body += QString( "%1: %2<br>" ).arg( title ).arg( value );
+    };
+
+    QString text = "Formation Dip:<br>";
+    appendTextIfValidValue( text, "Mean", mean );
+    appendTextIfValidValue( text, "Minimum", min );
+    appendTextIfValidValue( text, "Maximum", max );
+    appendTextIfValidValue( text, "P10", p10 );
+    appendTextIfValidValue( text, "P50", p50 );
+    appendTextIfValidValue( text, "P90", p90 );
+    return text;
 }
