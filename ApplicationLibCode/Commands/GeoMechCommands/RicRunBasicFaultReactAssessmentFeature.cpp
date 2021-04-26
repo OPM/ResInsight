@@ -71,6 +71,11 @@ bool RicRunBasicFaultReactAssessmentFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicRunBasicFaultReactAssessmentFeature::onActionTriggered( bool isChecked )
 {
+    RimFaultInViewCollection* coll = faultCollection();
+    if ( coll == nullptr ) return;
+
+    RimFaultRASettings* fraSettings = coll->faultRASettings();
+    if ( fraSettings == nullptr ) return;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -92,7 +97,7 @@ RimFaultInViewCollection* RicRunBasicFaultReactAssessmentFeature::faultCollectio
     RimFaultInView* selObj = dynamic_cast<RimFaultInView*>( caf::SelectionManager::instance()->selectedItem() );
     if ( selObj )
     {
-        if ( !selObj->name().startsWith( RiaResultNames::faultReactAssessmentPrefix() ) ) return false;
+        if ( !selObj->name().startsWith( RiaResultNames::faultReactAssessmentPrefix() ) ) return nullptr;
         selObj->firstAncestorOrThisOfType( faultColl );
     }
 

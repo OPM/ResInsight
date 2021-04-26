@@ -30,6 +30,7 @@ class RimEclipseCase;
 class RimGeoMechCase;
 class RimParameterGroup;
 class RimFaultRAPreprocSettings;
+class RimGenericParameter;
 
 class RimFaultRASettings : public caf::PdmObject
 {
@@ -39,7 +40,7 @@ public:
     RimFaultRASettings();
     ~RimFaultRASettings() override;
 
-    void initFromSettings( RimFaultRAPreprocSettings* preprocsettings, RimEclipseInputCase* eclipseCase );
+    void initFromPreprocSettings( RimFaultRAPreprocSettings* preprocsettings, RimEclipseInputCase* eclipseCase );
 
     void            setGeoMechCase( RimGeoMechCase* geomechCase );
     RimGeoMechCase* geomechCase() const;
@@ -55,12 +56,39 @@ public:
     QString basicCalcParameterFilename() const;
     QString advancedCalcParameterFilename() const;
 
+    int     startTimeStepGeoMechIndex() const;
+    QString startTimeStepGeoMech() const;
+    int     endTimeStepGeoMechIndex() const;
+    QString endTimeStepGeoMech() const;
+
+    void setEclipseTimeStepIndexes( int start, int stop );
+    void setGeomechTimeStepIndexes( int start, int stop );
+
+    int     startTimeStepEclipseIndex() const;
+    QString startTimeStepEclipse() const;
+    QString loadStepStart() const;
+    int     endTimeStepEclipseIndex() const;
+    QString endTimeStepEclipse() const;
+    QString loadStepEnd() const;
+
+    std::list<RimGenericParameter*> basicParameters( int faultID ) const;
+    std::list<RimGenericParameter*> advancedParameters( int faultID ) const;
+
+    QString elasticPropertiesFilename() const;
+    QString stressStartFilename() const;
+    QString stressEndFilename() const;
+
 protected:
-    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
-    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
-    void defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                QString                    uiConfigName,
-                                caf::PdmUiEditorAttribute* attribute ) override;
+    void                          fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+    void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    void                          defineEditorAttribute( const caf::PdmFieldHandle* field,
+                                                         QString                    uiConfigName,
+                                                         caf::PdmUiEditorAttribute* attribute ) override;
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
+                                                         bool*                      useOptionsOnly ) override;
+
+private:
+    void setupResInsightParameters();
 
 private:
     caf::PdmPtrField<RimEclipseInputCase*> m_eclipseFRAGeneratedCase;
@@ -68,6 +96,13 @@ private:
     caf::PdmPtrField<RimGeoMechCase*>      m_geomechCase;
     caf::PdmField<QString>                 m_baseDir;
 
-    caf::PdmChildArrayField<RimParameterGroup*> m_basicparameters;
-    caf::PdmChildArrayField<RimParameterGroup*> m_advancedparameters;
+    caf::PdmField<int> m_startTimestepEclipse;
+    caf::PdmField<int> m_endTimestepEclipse;
+    caf::PdmField<int> m_startTimestepGeoMech;
+    caf::PdmField<int> m_endTimestepGeoMech;
+
+    caf::PdmChildArrayField<RimParameterGroup*> m_basicParameters;
+    caf::PdmChildArrayField<RimParameterGroup*> m_advancedParameters;
+    caf::PdmPtrField<RimParameterGroup*>        m_basicParametersRI;
+    caf::PdmPtrField<RimParameterGroup*>        m_advancedParametersRI;
 };

@@ -22,7 +22,10 @@
 #include "cafPdmObjectScriptingCapability.h"
 #include "cafPdmUiTableViewEditor.h"
 
+#include "RimDoubleParameter.h"
 #include "RimGenericParameter.h"
+#include "RimIntegerParameter.h"
+#include "RimStringParameter.h"
 
 #include <cmath>
 
@@ -72,6 +75,45 @@ caf::PdmFieldHandle* RimParameterGroup::userDescriptionField()
 void RimParameterGroup::addParameter( RimGenericParameter* parameter )
 {
     m_parameters.push_back( parameter );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimParameterGroup::addParameter( QString name, int value )
+{
+    RimIntegerParameter* p = new RimIntegerParameter();
+    p->setName( name );
+    p->setLabel( name );
+    p->setValue( value );
+
+    m_parameters.push_back( p );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimParameterGroup::addParameter( QString name, QString value )
+{
+    RimStringParameter* p = new RimStringParameter();
+    p->setName( name );
+    p->setLabel( name );
+    p->setValue( value );
+
+    m_parameters.push_back( p );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimParameterGroup::addParameter( QString name, double value )
+{
+    RimDoubleParameter* p = new RimDoubleParameter();
+    p->setName( name );
+    p->setLabel( name );
+    p->setValue( value );
+
+    m_parameters.push_back( p );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -154,4 +196,43 @@ bool RimParameterGroup::isExpanded() const
 QString RimParameterGroup::name() const
 {
     return m_name;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimGenericParameter*> RimParameterGroup::parameters() const
+{
+    return m_parameters.childObjects();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimParameterGroup::setParameterValue( QString name, int value )
+{
+    setParameterValue( name, QString::number( value ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimParameterGroup::setParameterValue( QString name, double value )
+{
+    setParameterValue( name, QString::number( value ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimParameterGroup::setParameterValue( QString name, QString value )
+{
+    for ( auto& p : m_parameters.childObjects() )
+    {
+        if ( p->name() == name )
+        {
+            p->setValue( value );
+            break;
+        }
+    }
 }
