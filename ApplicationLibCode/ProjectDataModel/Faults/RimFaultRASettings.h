@@ -71,8 +71,8 @@ public:
     QString endTimeStepEclipse() const;
     QString loadStepEnd() const;
 
-    std::list<RimGenericParameter*> basicParameters( int faultID ) const;
-    std::list<RimGenericParameter*> advancedParameters( int faultID ) const;
+    std::list<RimGenericParameter*> basicParameters( int faultID );
+    std::list<RimGenericParameter*> advancedParameters( int faultID );
 
     QString elasticPropertiesFilename() const;
     QString stressStartFilename() const;

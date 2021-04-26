@@ -35,12 +35,14 @@ RifFaultRAXmlWriter::~RifFaultRAXmlWriter()
 
 bool RifFaultRAXmlWriter::writeCalculateFile( QString filename, int faultID, QString& outErrorText )
 {
-    return writeParametersToXML( filename, m_settings->basicParameters( faultID ), outErrorText );
+    std::list<RimGenericParameter*> paramlist = m_settings->basicParameters( faultID );
+    return writeParametersToXML( filename, paramlist, outErrorText );
 }
 
 bool RifFaultRAXmlWriter::writeCalibrateFile( QString filename, int faultID, QString& outErrorText )
 {
-    return writeParametersToXML( filename, m_settings->advancedParameters( faultID ), outErrorText );
+    std::list<RimGenericParameter*> paramlist = m_settings->advancedParameters( faultID );
+    return writeParametersToXML( filename, paramlist, outErrorText );
 }
 
 bool RifFaultRAXmlWriter::writeParametersToXML( QString filename, std::list<RimGenericParameter*>& params, QString& outErrorText )
