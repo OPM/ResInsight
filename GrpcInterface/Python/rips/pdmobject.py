@@ -120,11 +120,11 @@ class PdmObjectBase:
                         self.__set_grpc_value(camel_kw, value)
 
     def pb2_object(self):
-        """ Private method"""
+        """Private method"""
         return self._pb2_object
 
     def channel(self):
-        """ Private method"""
+        """Private method"""
         return self._channel
 
     def address(self):
