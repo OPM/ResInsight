@@ -74,9 +74,7 @@ RifReaderEclipseSummary::~RifReaderEclipseSummary()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RifReaderEclipseSummary::open( const QString&       headerFileName,
-                                    bool                 includeRestartFiles,
-                                    RiaThreadSafeLogger* threadSafeLogger )
+bool RifReaderEclipseSummary::open( const QString& headerFileName, RiaThreadSafeLogger* threadSafeLogger )
 {
     bool isValid = false;
 
@@ -116,12 +114,6 @@ bool RifReaderEclipseSummary::open( const QString&       headerFileName,
     else if ( prefSummary->summaryDataReader() == RiaPreferencesSummary::SummaryReaderMode::OPM_COMMON )
     {
         bool useLodsmryFiles = prefSummary->useOptimizedSummaryDataFiles();
-        if ( useLodsmryFiles && includeRestartFiles )
-        {
-            QString txt =
-                "LODSMRY file loading for summary restart files is not supported. Restart history might be incomplete.";
-            if ( threadSafeLogger ) threadSafeLogger->warning( txt );
-        }
 
         m_opmCommonReader = std::make_unique<RifOpmCommonEclipseSummary>();
 
@@ -135,7 +127,8 @@ bool RifReaderEclipseSummary::open( const QString&       headerFileName,
     {
         assert( m_ecl_sum == nullptr );
 
-        m_ecl_sum = RifEclipseSummaryTools::openEclSum( headerFileName, includeRestartFiles );
+        bool includeRestartFiles = false;
+        m_ecl_sum                = RifEclipseSummaryTools::openEclSum( headerFileName, false );
 
         if ( m_ecl_sum )
         {

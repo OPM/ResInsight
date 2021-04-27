@@ -24,6 +24,7 @@
 #include "RifEclipseSummaryTools.h"
 #include "RifReaderEclipseRft.h"
 #include "RifReaderEclipseSummary.h"
+#include "RifSummaryReaderMultipleFiles.h"
 
 #include "RimTools.h"
 
@@ -131,9 +132,37 @@ RifSummaryReaderInterface* RimFileSummaryCase::findRelatedFilesAndCreateReader( 
                                                                                 bool           includeRestartFiles,
                                                                                 RiaThreadSafeLogger* threadSafeLogger )
 {
+    if ( includeRestartFiles )
+    {
+        std::vector<QString>            warnings;
+        std::vector<RifRestartFileInfo> restartFileInfos =
+            RifEclipseSummaryTools::getRestartFiles( headerFileName, warnings );
+
+        if ( !restartFileInfos.empty() )
+        {
+            std::vector<std::string> smspecFilesNewFirst;
+            smspecFilesNewFirst.push_back( headerFileName.toStdString() );
+            for ( const auto& s : restartFileInfos )
+            {
+                smspecFilesNewFirst.push_back( s.fileName.toStdString() );
+            }
+
+            auto summaryReader = new RifSummaryReaderMultipleFiles( smspecFilesNewFirst );
+            if ( !summaryReader->createReadersAndImportMetaData() )
+            {
+                delete summaryReader;
+                return nullptr;
+            }
+
+            return summaryReader;
+        }
+    }
+
     RifReaderEclipseSummary* summaryFileReader = new RifReaderEclipseSummary;
 
-    if ( !summaryFileReader->open( headerFileName, includeRestartFiles, threadSafeLogger ) )
+    // All restart data is taken care of by RifSummaryReaderMultipleFiles, never read restart data from native file
+    // readers
+    if ( !summaryFileReader->open( headerFileName, threadSafeLogger ) )
     {
         delete summaryFileReader;
         return nullptr;

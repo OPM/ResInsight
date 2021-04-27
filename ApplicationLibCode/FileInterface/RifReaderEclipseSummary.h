@@ -48,7 +48,7 @@ public:
     RifReaderEclipseSummary();
     ~RifReaderEclipseSummary() override;
 
-    bool open( const QString& headerFileName, bool includeRestartFiles, RiaThreadSafeLogger* threadSafeLogger );
+    bool open( const QString& headerFileName, RiaThreadSafeLogger* threadSafeLogger );
 
     const std::vector<time_t>& timeSteps( const RifEclipseSummaryAddress& resultAddress ) const override;
 
