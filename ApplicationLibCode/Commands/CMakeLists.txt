@@ -63,6 +63,36 @@ target_include_directories(
          ${CMAKE_SOURCE_DIR}/ThirdParty/custom-opm-common/generated-opm-common
          ${CMAKE_SOURCE_DIR}/ThirdParty/custom-opm-common/opm-common)
 
+if(MSVC)
+  # The following warnings are supposed to be used in ResInsight, but
+  # temporarily disabled to avoid too much noise warning C4245: 'return':
+  # conversion from 'int' to 'size_t', signed/unsigned mismatch warning C4005:
+  # Macro redefinition for math constants (M_PI, M_SQRT2 etc)
+
+  # If possible, the following command is supposed to be the final target
+  # set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "/W3 /wd4190
+  # /wd4100 /wd4127")
+
+  set(BUILD_FLAGS_FOR_MSVC "/wd4190 /wd4100 /wd4127 /wd4245 /wd4005")
+
+  if(Qt5Core_VERSION_STRING GREATER_EQUAL 5.10)
+    # Disable warning for deprecated functions in newer versions of Qt
+    # https://docs.microsoft.com/en-us/cpp/error-messages/compiler-warnings/compiler-warning-level-3-c4996?view=msvc-160
+    set(BUILD_FLAGS_FOR_MSVC "${BUILD_FLAGS_FOR_MSVC} /wd4996")
+  endif()
+
+  if(CMAKE_CXX_COMPILER_VERSION LESS_EQUAL 19.14)
+    # The following warning is generated over 800 times from a qwt header only
+    # using VS2015 Disabling temporarily warning C4505 'function' : unreferenced
+    # local function has been removed
+    set(BUILD_FLAGS_FOR_MSVC "${BUILD_FLAGS_FOR_MSVC} /wd4505")
+  endif()
+
+  set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS
+                                                   ${BUILD_FLAGS_FOR_MSVC})
+
+endif()
+
 set(LINK_LIBRARIES
     LibCore
     cafCommand
