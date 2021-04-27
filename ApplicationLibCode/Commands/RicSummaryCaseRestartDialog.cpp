@@ -235,7 +235,7 @@ RicSummaryCaseRestartDialogResult RicSummaryCaseRestartDialog::openDialog( const
     RifRestartFileInfo currentFileInfo;
     if ( !initialSummaryFile.isEmpty() )
     {
-        currentFileInfo = dialog.getFileInfo( initialSummaryFile );
+        currentFileInfo = RifEclipseSummaryTools::getFileInfo( initialSummaryFile );
 
         if ( !currentFileInfo.valid() )
         {
@@ -270,12 +270,12 @@ RicSummaryCaseRestartDialogResult RicSummaryCaseRestartDialog::openDialog( const
                                                       ( lastResult && lastResult->applyToAll ) );
     }
 
-    RifReaderEclipseSummary         reader;
-    bool                            hasWarnings     = false;
-    std::vector<RifRestartFileInfo> originFileInfos = reader.getRestartFiles( initialSummaryFile, &hasWarnings );
+    std::vector<QString>            warnings;
+    std::vector<RifRestartFileInfo> originFileInfos =
+        RifEclipseSummaryTools::getRestartFiles( initialSummaryFile, warnings );
 
     // If no restart files are found and no warnings, do not show dialog
-    if ( originFileInfos.empty() && !hasWarnings )
+    if ( originFileInfos.empty() && warnings.empty() )
     {
         return RicSummaryCaseRestartDialogResult( RicSummaryCaseRestartDialogResult::SUMMARY_OK,
                                                   ImportOptions::NOT_IMPORT,
@@ -292,11 +292,8 @@ RicSummaryCaseRestartDialogResult RicSummaryCaseRestartDialog::openDialog( const
         dialogResult.summaryFiles.clear();
         dialogResult.gridFiles.clear();
 
-        if ( hasWarnings )
-        {
-            for ( const QString& warning : reader.warnings() )
-                RiaLogging::error( warning );
-        }
+        for ( const QString& warning : warnings )
+            RiaLogging::error( warning );
     }
     else
     {
@@ -369,7 +366,7 @@ RicSummaryCaseRestartDialogResult RicSummaryCaseRestartDialog::openDialog( const
         dialog.updateFileListWidget( dialog.m_gridFilesLayout, GRID_FILES_LIST_INDEX );
 
         // Display warnings if any
-        dialog.displayWarningsIfAny( reader.warnings() );
+        dialog.displayWarningsIfAny( warnings );
 
         // Set properties and show dialog
         dialog.setWindowTitle( "Origin Files" );
@@ -544,18 +541,9 @@ void RicSummaryCaseRestartDialog::appendTextToGridLayout( QGridLayout* gridLayou
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifRestartFileInfo RicSummaryCaseRestartDialog::getFileInfo( const QString& summaryHeaderFile )
+void RicSummaryCaseRestartDialog::displayWarningsIfAny( const std::vector<QString>& warnings )
 {
-    RifReaderEclipseSummary reader;
-    return reader.getFileInfo( summaryHeaderFile );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RicSummaryCaseRestartDialog::displayWarningsIfAny( const QStringList& warnings )
-{
-    m_warnings->setVisible( !warnings.isEmpty() );
+    m_warnings->setVisible( !warnings.empty() );
     for ( const auto& warning : warnings )
     {
         QListWidgetItem* item = new QListWidgetItem( warning, m_warnings );

@@ -20,7 +20,10 @@
 
 #include "RiaDefines.h"
 
+#include "RifEclipseSummaryAddress.h"
 #include "RifSummaryReaderInterface.h"
+
+#include "ert/ecl/ecl_sum.hpp"
 
 #include <QString>
 #include <QStringList>
@@ -31,21 +34,17 @@
 #include <string>
 #include <vector>
 
-class RifOpmCommonEclipseSummary;
-class RifOpmHdf5Summary;
-class RifEclEclipseSummary;
 class RiaThreadSafeLogger;
-class RifEclipseSummaryAddress;
 
 //==================================================================================================
 //
 //
 //==================================================================================================
-class RifReaderEclipseSummary : public RifSummaryReaderInterface
+class RifEclEclipseSummary : public RifSummaryReaderInterface
 {
 public:
-    RifReaderEclipseSummary();
-    ~RifReaderEclipseSummary() override;
+    RifEclEclipseSummary();
+    ~RifEclEclipseSummary() override;
 
     bool open( const QString& headerFileName, RiaThreadSafeLogger* threadSafeLogger );
 
@@ -55,36 +54,16 @@ public:
     std::string unitName( const RifEclipseSummaryAddress& resultAddress ) const override;
     RiaDefines::EclipseUnitSystem unitSystem() const override;
 
-    static std::string       differenceIdentifier() { return "_DIFF"; }
-    static const std::string historyIdentifier() { return "H"; }
-
 private:
+    int  indexFromAddress( const RifEclipseSummaryAddress& resultAddress ) const;
     void buildMetaData();
 
-    RifSummaryReaderInterface* currentSummaryReader() const;
-
 private:
-    std::unique_ptr<RifSummaryReaderInterface> m_summaryReader;
-    std::set<RifEclipseSummaryAddress>         m_differenceAddresses;
+    ecl_sum_type*          m_ecl_sum;
+    const ecl_smspec_type* m_ecl_SmSpec;
+    std::vector<time_t>    m_timeSteps;
 
-private:
-    //==================================================================================================
-    //
-    //==================================================================================================
-    class ValuesCache
-    {
-        static const std::vector<double> EMPTY_VECTOR;
+    RiaDefines::EclipseUnitSystem m_unitSystem;
 
-    public:
-        ValuesCache();
-        ~ValuesCache();
-
-        void insertValues( const RifEclipseSummaryAddress& address, const std::vector<double>& values );
-        const std::vector<double>& getValues( const RifEclipseSummaryAddress& address ) const;
-
-    private:
-        std::map<const RifEclipseSummaryAddress, std::vector<double>> m_cachedValues;
-    };
-
-    std::unique_ptr<ValuesCache> m_valuesCache;
+    std::map<RifEclipseSummaryAddress, int> m_resultAddressToErtNodeIdx;
 };

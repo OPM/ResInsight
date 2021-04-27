@@ -24,6 +24,7 @@
 #include "RifEclipseSummaryTools.h"
 #include "RifReaderEclipseRft.h"
 #include "RifReaderEclipseSummary.h"
+#include "RifSummaryReaderMultipleFiles.h"
 
 #include "RimTools.h"
 
@@ -131,9 +132,40 @@ RifSummaryReaderInterface* RimFileSummaryCase::findRelatedFilesAndCreateReader( 
                                                                                 bool           includeRestartFiles,
                                                                                 RiaThreadSafeLogger* threadSafeLogger )
 {
+    if ( includeRestartFiles )
+    {
+        std::vector<QString>            warnings;
+        std::vector<RifRestartFileInfo> restartFileInfos =
+            RifEclipseSummaryTools::getRestartFiles( headerFileName, warnings );
+
+        if ( !restartFileInfos.empty() )
+        {
+            std::vector<std::string> summaryFileNames;
+            summaryFileNames.push_back( headerFileName.toStdString() );
+            for ( const auto& s : restartFileInfos )
+            {
+                summaryFileNames.push_back( s.fileName.toStdString() );
+            }
+
+            // The ordering in intended to be start of history first, so we reverse the ordering
+            std::reverse( summaryFileNames.begin(), summaryFileNames.end() );
+
+            auto summaryReader = new RifSummaryReaderMultipleFiles( summaryFileNames );
+            if ( !summaryReader->createReadersAndImportMetaData( threadSafeLogger ) )
+            {
+                delete summaryReader;
+                return nullptr;
+            }
+
+            return summaryReader;
+        }
+    }
+
     RifReaderEclipseSummary* summaryFileReader = new RifReaderEclipseSummary;
 
-    if ( !summaryFileReader->open( headerFileName, includeRestartFiles, threadSafeLogger ) )
+    // All restart data is taken care of by RifSummaryReaderMultipleFiles, never read restart data from native file
+    // readers
+    if ( !summaryFileReader->open( headerFileName, threadSafeLogger ) )
     {
         delete summaryFileReader;
         return nullptr;
