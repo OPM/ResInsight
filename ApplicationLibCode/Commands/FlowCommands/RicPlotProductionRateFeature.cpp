@@ -22,7 +22,7 @@
 #include "RiaPreferences.h"
 
 #include "RifEclipseSummaryAddress.h"
-#include "RifReaderEclipseSummary.h"
+#include "RifSummaryReaderInterface.h"
 
 #include "RigSimWellData.h"
 

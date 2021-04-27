@@ -30,7 +30,6 @@
 #include "SummaryPlotCommands/RicSummaryPlotEditorUi.h"
 
 #include "RifEnsembleStatisticsReader.h"
-#include "RifReaderEclipseSummary.h"
 
 #include "RigStatisticsMath.h"
 

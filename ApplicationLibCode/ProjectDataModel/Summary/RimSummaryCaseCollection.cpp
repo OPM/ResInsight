@@ -34,7 +34,6 @@
 #include "RimSummaryCase.h"
 
 #include "RifReaderEclipseRft.h"
-#include "RifReaderEclipseSummary.h"
 #include "RifReaderEnsembleStatisticsRft.h"
 #include "RifSummaryReaderInterface.h"
 

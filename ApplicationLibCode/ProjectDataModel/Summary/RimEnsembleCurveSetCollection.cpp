@@ -20,8 +20,6 @@
 
 #include "RiaStdStringTools.h"
 
-#include "RifReaderEclipseSummary.h"
-
 #include "RimEnsembleCurveSet.h"
 #include "RimProject.h"
 #include "RimSummaryCase.h"
