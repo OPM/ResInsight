@@ -26,7 +26,6 @@
 #include "RicSummaryCaseRestartDialog.h"
 
 #include "RifEclipseSummaryTools.h"
-#include "RifReaderEclipseSummary.h"
 
 #include "cafProgressInfo.h"
 

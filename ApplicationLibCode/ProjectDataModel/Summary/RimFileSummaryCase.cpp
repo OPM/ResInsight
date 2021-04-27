@@ -127,9 +127,9 @@ void RimFileSummaryCase::createRftReaderInterface()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifReaderEclipseSummary* RimFileSummaryCase::findRelatedFilesAndCreateReader( const QString&       headerFileName,
-                                                                              bool                 includeRestartFiles,
-                                                                              RiaThreadSafeLogger* threadSafeLogger )
+RifSummaryReaderInterface* RimFileSummaryCase::findRelatedFilesAndCreateReader( const QString& headerFileName,
+                                                                                bool           includeRestartFiles,
+                                                                                RiaThreadSafeLogger* threadSafeLogger )
 {
     RifReaderEclipseSummary* summaryFileReader = new RifReaderEclipseSummary;
 

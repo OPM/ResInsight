@@ -22,8 +22,6 @@
 
 #include "SummaryPlotCommands/RicEditSummaryPlotFeature.h"
 
-#include "RifReaderEclipseSummary.h"
-
 #include "RimProject.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCrossPlot.h"

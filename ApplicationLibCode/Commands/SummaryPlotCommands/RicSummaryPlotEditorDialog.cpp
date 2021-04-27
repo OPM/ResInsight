@@ -23,8 +23,6 @@
 #include "RicSummaryPlotEditorUi.h"
 #include "RicSummaryPlotEditorWidgetCreator.h"
 
-#include "RifReaderEclipseSummary.h"
-
 #include "RiuPlotMainWindow.h"
 #include "RiuTools.h"
 

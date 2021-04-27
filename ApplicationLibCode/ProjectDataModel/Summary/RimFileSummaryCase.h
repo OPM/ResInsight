@@ -52,14 +52,14 @@ public:
 
     void setIncludeRestartFiles( bool includeRestartFiles );
 
-    static RifReaderEclipseSummary* findRelatedFilesAndCreateReader( const QString&       headerFileName,
-                                                                     bool                 includeRestartFiles,
-                                                                     RiaThreadSafeLogger* threadSafeLogger );
+    static RifSummaryReaderInterface* findRelatedFilesAndCreateReader( const QString&       headerFileName,
+                                                                       bool                 includeRestartFiles,
+                                                                       RiaThreadSafeLogger* threadSafeLogger );
 
     static RifReaderEclipseRft* findRftDataAndCreateReader( const QString& headerFileName );
 
 private:
-    cvf::ref<RifReaderEclipseSummary> m_summaryFileReader;
-    cvf::ref<RifReaderEclipseRft>     m_summaryEclipseRftReader;
-    caf::PdmField<bool>               m_includeRestartFiles;
+    cvf::ref<RifSummaryReaderInterface> m_summaryFileReader;
+    cvf::ref<RifReaderEclipseRft>       m_summaryEclipseRftReader;
+    caf::PdmField<bool>                 m_includeRestartFiles;
 };

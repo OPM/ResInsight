@@ -27,7 +27,6 @@
 #include "RiaQDateTimeTools.h"
 
 #include "RifEclipseSummaryTools.h"
-#include "RifReaderEclipseSummary.h"
 
 #include "Rim3dOverlayInfoConfig.h"
 #include "RimEclipseView.h"
