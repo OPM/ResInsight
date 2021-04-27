@@ -28,8 +28,6 @@
 #include "RiaSummaryCurveDefinition.h"
 #include "RiaSummaryTools.h"
 
-#include "RifReaderEclipseSummary.h"
-
 #include "RimEclipseResultCase.h"
 #include "RimEnsembleCurveSet.h"
 #include "RimEnsembleCurveSetCollection.h"

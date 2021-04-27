@@ -25,7 +25,7 @@
 #include "cvfObject.h"
 
 class RimEclipseCase;
-class RifReaderEclipseSummary;
+class RifSummaryReaderInterface;
 class RimFileSummaryCase;
 
 //==================================================================================================
@@ -64,6 +64,6 @@ private:
     mutable caf::PdmField<QString>    m_cachedCaseName;
     caf::PdmProxyValueField<QString>  m_eclipseGridFileName;
 
-    cvf::ref<RifReaderEclipseSummary> m_summaryFileReader;
-    caf::PdmField<bool>               m_includeRestartFiles;
+    cvf::ref<RifSummaryReaderInterface> m_summaryFileReader;
+    caf::PdmField<bool>                 m_includeRestartFiles;
 };

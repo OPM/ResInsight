@@ -19,7 +19,8 @@
 #include "RimGridSummaryCase.h"
 
 #include "RicfCommandObject.h"
-#include "RifReaderEclipseSummary.h"
+
+#include "RifSummaryReaderInterface.h"
 
 #include "RimEclipseCase.h"
 #include "RimFileSummaryCase.h"

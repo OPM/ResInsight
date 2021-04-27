@@ -21,7 +21,7 @@
 #include "RiaFilePathTools.h"
 #include "RiaStringEncodingTools.h"
 #include "RiaSummaryCurveAnalyzer.h"
-#include "RifReaderEclipseSummary.h"
+#include "RifSummaryReaderInterface.h"
 
 #include "cafAppEnum.h"
 
