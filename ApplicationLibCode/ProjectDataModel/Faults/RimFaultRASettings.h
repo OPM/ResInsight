@@ -77,6 +77,16 @@ public:
     QString elasticPropertiesFilename() const;
     QString stressStartFilename() const;
     QString stressEndFilename() const;
+    QString basicMacrisDatabase() const;
+    QString advancedMacrisDatabase() const;
+
+    QString basicParameterXMLFilename( int faultID ) const;
+    QString advancedParameterXMLFilename( int faultID ) const;
+    QString postprocParameterFilename( int faultID ) const;
+
+    QStringList basicMacrisParameters( int faultID ) const;
+    QStringList advancedMacrisParameters( int faultID ) const;
+    QStringList postprocParameters( int faultID ) const;
 
 protected:
     void                          fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;

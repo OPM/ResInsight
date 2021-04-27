@@ -56,15 +56,15 @@ bool RifFaultRAXmlWriter::writeParametersToXML( QString filename, std::list<RimG
     {
         QTextStream stream( &file );
 
-        stream << "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>";
-        stream << "<project type_id=\"0\">";
+        stream << "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>" << endl;
+        stream << "<project type_id=\"0\">" << endl;
 
         for ( auto& p : params )
         {
             QString tmpStr = QString( "<%1>%2</%1>" ).arg( p->name(), p->stringValue() );
-            stream << tmpStr;
+            stream << tmpStr << endl;
         }
-        stream << "</project>";
+        stream << "</project>" << endl;
 
         bResult = true;
     }
