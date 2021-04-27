@@ -407,12 +407,14 @@ std::list<RimGenericParameter*> RimFaultRASettings::basicParameters( int faultID
     m_basicParametersRI->setParameterValue( "faultid", faultID );
 
     std::list<RimGenericParameter*> retlist;
+
+    for ( auto& p : m_basicParametersRI->parameters() )
+    {
+        retlist.push_back( p );
+    }
+
     for ( auto& group : m_basicParameters.childObjects() )
     {
-        for ( auto& p : m_basicParametersRI->parameters() )
-        {
-            retlist.push_back( p );
-        }
         for ( auto& p : group->parameters() )
         {
             retlist.push_back( p );
@@ -435,12 +437,14 @@ std::list<RimGenericParameter*> RimFaultRASettings::advancedParameters( int faul
     m_advancedParametersRI->setParameterValue( "abaqus_stress_end", stressEndFilename() );
 
     std::list<RimGenericParameter*> retlist;
+
+    for ( auto& p : m_advancedParametersRI->parameters() )
+    {
+        retlist.push_back( p );
+    }
+
     for ( auto& group : m_advancedParameters.childObjects() )
     {
-        for ( auto& p : m_advancedParametersRI->parameters() )
-        {
-            retlist.push_back( p );
-        }
         for ( auto& p : group->parameters() )
         {
             retlist.push_back( p );
@@ -497,6 +501,22 @@ QString RimFaultRASettings::stressEndFilename() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString RimFaultRASettings::basicMacrisDatabase() const
+{
+    return m_baseDir + "/MacrisCalcResult.sqlite3";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimFaultRASettings::advancedMacrisDatabase() const
+{
+    return m_baseDir + "/MacrisCalcCalibration.sqlite3";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString RimFaultRASettings::loadStepStart() const
 {
     QString retval = QString( "PRESSURE_%1" ).arg( startTimeStepEclipseIndex(), 2, 10, QChar( '0' ) );
@@ -510,4 +530,78 @@ QString RimFaultRASettings::loadStepEnd() const
 {
     QString retval = QString( "PRESSURE_%1" ).arg( endTimeStepEclipseIndex(), 2, 10, QChar( '0' ) );
     return retval;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimFaultRASettings::basicParameterXMLFilename( int faultID ) const
+{
+    QString retval = m_baseDir;
+    retval += QString( "/tmp/calculate_%1.xml" ).arg( faultID, 3, 10, QChar( '0' ) );
+    return retval;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimFaultRASettings::advancedParameterXMLFilename( int faultID ) const
+{
+    QString retval = m_baseDir;
+    retval += QString( "/tmp/calibrate_%1.xml" ).arg( faultID, 3, 10, QChar( '0' ) );
+    return retval;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimFaultRASettings::postprocParameterFilename( int faultID ) const
+{
+    QString retval = m_baseDir;
+    retval += QString( "/tmp/postproc_%1.json" ).arg( faultID, 3, 10, QChar( '0' ) );
+    return retval;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QStringList RimFaultRASettings::basicMacrisParameters( int faultID ) const
+{
+    QStringList retlist;
+
+    retlist << "calculate";
+    retlist << basicCalcParameterFilename();
+    retlist << m_baseDir();
+    retlist << "-i";
+    retlist << loadStepStart();
+    retlist << loadStepEnd();
+
+    return retlist;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QStringList RimFaultRASettings::advancedMacrisParameters( int faultID ) const
+{
+    QStringList retlist;
+
+    retlist << "calibrate";
+    retlist << basicCalcParameterFilename();
+    retlist << advancedCalcParameterFilename();
+    retlist << m_baseDir();
+
+    return retlist;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QStringList RimFaultRASettings::postprocParameters( int faultID ) const
+{
+    QStringList retlist;
+
+    retlist << postprocParameterFilename( faultID );
+
+    return retlist;
 }

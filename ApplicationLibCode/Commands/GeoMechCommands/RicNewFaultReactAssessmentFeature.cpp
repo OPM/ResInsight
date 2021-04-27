@@ -132,24 +132,23 @@ void RicNewFaultReactAssessmentFeature::prepareDirectory( QString dirname, bool 
 {
     QDir dir( dirname );
 
-    if ( !dir.exists() )
-    {
-        dir.mkpath( "." );
-    }
-    else if ( deleteExistingContent )
+    if ( deleteExistingContent && dir.exists() )
     {
         dir.setFilter( QDir::Files | QDir::Dirs | QDir::NoSymLinks );
 
         for ( auto& entry : dir.entryInfoList() )
         {
-            qDebug() << entry.fileName();
             if ( entry.isDir() && entry.fileName() != "." && entry.fileName() != ".." )
                 entry.dir().removeRecursively();
             else if ( entry.isFile() )
                 QFile::remove( entry.absoluteFilePath() );
         }
-        dir.mkpath( "." );
     }
+
+    dir.mkpath( "." );
+    dir.mkpath( "Eclipse" );
+    dir.mkpath( "Abaqus" );
+    dir.mkpath( "tmp" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -195,7 +194,7 @@ bool RicNewFaultReactAssessmentFeature::runPreProc( RimFaultRAPreprocSettings& s
     if ( settings.geoMechSelected() )
     {
         QString errorText;
-        if ( !RifFaultRAJSonWriter::writeToFile( settings, errorText ) )
+        if ( !RifFaultRAJSonWriter::writeToPreprocFile( settings, errorText ) )
         {
             QMessageBox::warning( nullptr, "Fault Reactivation Assessment Preprocessing", errorText );
             return false;

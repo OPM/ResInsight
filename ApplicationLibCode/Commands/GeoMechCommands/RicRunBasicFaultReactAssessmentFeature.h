@@ -37,4 +37,5 @@ protected:
 
 private:
     RimFaultInViewCollection* faultCollection();
+    int                       selectedFaultID();
 };
