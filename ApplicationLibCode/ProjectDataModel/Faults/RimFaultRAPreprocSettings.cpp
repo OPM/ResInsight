@@ -273,7 +273,7 @@ QString RimFaultRAPreprocSettings::geomechCaseFilename() const
 //--------------------------------------------------------------------------------------------------
 QString RimFaultRAPreprocSettings::preprocParameterFilename() const
 {
-    return m_baseDir + "/pre_processing.json";
+    return m_baseDir + "/tmp/pre_processing.json";
 }
 
 //--------------------------------------------------------------------------------------------------

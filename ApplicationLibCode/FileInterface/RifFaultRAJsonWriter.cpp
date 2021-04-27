@@ -18,8 +18,8 @@
 
 #include "RifFaultRAJsonWriter.h"
 
-#include "RimFaultRAPostprocSettings.h"
 #include "RimFaultRAPreprocSettings.h"
+#include "RimFaultRASettings.h"
 
 #include <QFile>
 #include <QTextStream>
@@ -27,7 +27,7 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RifFaultRAJSonWriter::writeToFile( RimFaultRAPreprocSettings& settings, QString& outErrorText )
+bool RifFaultRAJSonWriter::writeToPreprocFile( RimFaultRAPreprocSettings& settings, QString& outErrorText )
 {
     QString filename = settings.preprocParameterFilename();
 
@@ -59,9 +59,9 @@ bool RifFaultRAJSonWriter::writeToFile( RimFaultRAPreprocSettings& settings, QSt
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RifFaultRAJSonWriter::writeToFile( RimFaultRAPostprocSettings& settings, QString& outErrorText )
+bool RifFaultRAJSonWriter::writeToPostprocFile( int faultID, RimFaultRASettings* settings, QString& outErrorText )
 {
-    QString filename = settings.postprocParameterFilename();
+    QString filename = settings->postprocParameterFilename( faultID );
 
     outErrorText = "Unable to write to file \"" + filename + "\" - ";
 
@@ -72,17 +72,18 @@ bool RifFaultRAJSonWriter::writeToFile( RimFaultRAPostprocSettings& settings, QS
 
         stream << "{" << endl;
 
-        if ( QFile::exists( settings.macrisCalcCalibPath() ) )
-            stream << "\"MacrisCalcCalibration_path\": \"" + settings.macrisCalcCalibPath() + "\"," << endl;
+        if ( settings->geomechCase() != nullptr )
+        {
+            if ( QFile::exists( settings->advancedMacrisDatabase() ) )
+                stream << "\"MacrisCalcCalibration_path\": \"" + settings->advancedMacrisDatabase() + "\"," << endl;
+        }
 
-        if ( QFile::exists( settings.macrisCalcPath() ) )
-            stream << "\"MacrisCalc_path\": \"" + settings.macrisCalcPath() + "\"," << endl;
+        stream << "\"MacrisCalc_path\": \"" + settings->basicMacrisDatabase() + "\"," << endl;
 
-        stream << "\"base_directory_path\": \"" + settings.databaseDirectory() + "\"," << endl;
+        stream << "\"base_directory_path\": \"" + settings->outputBaseDirectory() + "\"," << endl;
 
         QStringList timesteps;
-        for ( int step : settings.stepsToLoad() )
-            timesteps.push_back( QString::number( step ) );
+        timesteps.push_back( QString::number( settings->endTimeStepEclipseIndex() ) );
 
         stream << "\"tsurf_loadsteps\": [ " + timesteps.join( ',' ) + " ]" << endl;
         stream << "}" << endl;
