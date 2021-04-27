@@ -19,8 +19,11 @@
 #pragma once
 
 #include "RiaDefines.h"
+
 #include "RifEclipseSummaryAddress.h"
 #include "RifSummaryReaderInterface.h"
+
+#include "ert/ecl/ecl_sum.hpp"
 
 #include <QString>
 #include <QStringList>
@@ -39,31 +42,6 @@ class RiaThreadSafeLogger;
 //
 //
 //==================================================================================================
-class RifRestartFileInfo
-{
-public:
-    RifRestartFileInfo()
-        : startDate( 0 )
-        , endDate( 0 )
-    {
-    }
-    RifRestartFileInfo( const QString& _fileName, time_t _startDate, time_t _endDate )
-        : fileName( _fileName )
-        , startDate( _startDate )
-        , endDate( _endDate )
-    {
-    }
-    bool valid() { return !fileName.isEmpty(); }
-
-    QString fileName;
-    time_t  startDate;
-    time_t  endDate;
-};
-
-//==================================================================================================
-//
-//
-//==================================================================================================
 class RifReaderEclipseSummary : public RifSummaryReaderInterface
 {
 public:
@@ -71,9 +49,6 @@ public:
     ~RifReaderEclipseSummary() override;
 
     bool open( const QString& headerFileName, bool includeRestartFiles, RiaThreadSafeLogger* threadSafeLogger );
-
-    static std::vector<RifRestartFileInfo> getRestartFiles( const QString& headerFileName, std::vector<QString>& warnings );
-    static RifRestartFileInfo              getFileInfo( const QString& headerFileName );
 
     const std::vector<time_t>& timeSteps( const RifEclipseSummaryAddress& resultAddress ) const override;
 
@@ -89,13 +64,7 @@ private:
     int    indexFromAddress( const RifEclipseSummaryAddress& resultAddress ) const;
     void   buildMetaData();
 
-    static RifRestartFileInfo getRestartFile( const QString& headerFileName );
-
 private:
-    // Taken from ecl_sum.h
-    typedef struct ecl_sum_struct    ecl_sum_type;
-    typedef struct ecl_smspec_struct ecl_smspec_type;
-
     ecl_sum_type*          m_ecl_sum;
     const ecl_smspec_type* m_ecl_SmSpec;
     std::vector<time_t>    m_timeSteps;

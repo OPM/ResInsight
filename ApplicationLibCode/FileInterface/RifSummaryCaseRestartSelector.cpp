@@ -289,7 +289,7 @@ void RifSummaryCaseRestartSelector::determineFilesToImportUsingPrefs( const std:
 
                 std::vector<QString>            warnings;
                 std::vector<RifRestartFileInfo> restartFileInfos =
-                    RifReaderEclipseSummary::getRestartFiles( initialSummaryFile, warnings );
+                    RifEclipseSummaryTools::getRestartFiles( initialSummaryFile, warnings );
                 for ( const auto& rfi : restartFileInfos )
                 {
                     RifSummaryCaseFileResultInfo resultFileInfo( RiaFilePathTools::toInternalSeparator( rfi.fileName ),
@@ -312,7 +312,7 @@ void RifSummaryCaseRestartSelector::determineFilesToImportUsingPrefs( const std:
                 std::vector<QString> warnings;
 
                 std::vector<RifRestartFileInfo> restartFileInfos =
-                    RifReaderEclipseSummary::getRestartFiles( initialSummaryFile, warnings );
+                    RifEclipseSummaryTools::getRestartFiles( initialSummaryFile, warnings );
                 for ( const auto& rfi : restartFileInfos )
                 {
                     QString gridFileName = RifEclipseSummaryTools::findGridCaseFileFromSummaryHeaderFile( rfi.fileName );

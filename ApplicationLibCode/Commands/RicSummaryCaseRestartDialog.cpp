@@ -235,7 +235,7 @@ RicSummaryCaseRestartDialogResult RicSummaryCaseRestartDialog::openDialog( const
     RifRestartFileInfo currentFileInfo;
     if ( !initialSummaryFile.isEmpty() )
     {
-        currentFileInfo = dialog.getFileInfo( initialSummaryFile );
+        currentFileInfo = RifEclipseSummaryTools::getFileInfo( initialSummaryFile );
 
         if ( !currentFileInfo.valid() )
         {
@@ -270,9 +270,9 @@ RicSummaryCaseRestartDialogResult RicSummaryCaseRestartDialog::openDialog( const
                                                       ( lastResult && lastResult->applyToAll ) );
     }
 
-    RifReaderEclipseSummary         reader;
     std::vector<QString>            warnings;
-    std::vector<RifRestartFileInfo> originFileInfos = reader.getRestartFiles( initialSummaryFile, warnings );
+    std::vector<RifRestartFileInfo> originFileInfos =
+        RifEclipseSummaryTools::getRestartFiles( initialSummaryFile, warnings );
 
     // If no restart files are found and no warnings, do not show dialog
     if ( originFileInfos.empty() && warnings.empty() )
@@ -536,15 +536,6 @@ void RicSummaryCaseRestartDialog::appendTextToGridLayout( QGridLayout* gridLayou
 
     textLabel->setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Preferred );
     gridLayout->addWidget( textLabel, rowCount, 0, 1, 2 );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RifRestartFileInfo RicSummaryCaseRestartDialog::getFileInfo( const QString& summaryHeaderFile )
-{
-    RifReaderEclipseSummary reader;
-    return reader.getFileInfo( summaryHeaderFile );
 }
 
 //--------------------------------------------------------------------------------------------------

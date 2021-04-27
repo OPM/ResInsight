@@ -20,7 +20,7 @@
 
 #include "Rim3dOverlayInfoConfig.h"
 
-#include "RifReaderEclipseSummary.h"
+#include "RifEclipseSummaryTools.h"
 
 #include "cafPdmPointer.h"
 
@@ -81,14 +81,13 @@ public:
     bool          okToAllSelected() const;
 
 private:
-    void               updateFileListWidget( QGridLayout* gridLayout, int listIndex );
-    void               appendFileInfoToGridLayout( QGridLayout*              gridLayout,
-                                                   const RifRestartFileInfo& fileInfo,
-                                                   const QString&            fullPathFileName );
-    void               appendTextToGridLayout( QGridLayout* gridLayout, const QString& text );
-    RifRestartFileInfo getFileInfo( const QString& summaryHeaderFile );
-    void               displayWarningsIfAny( const std::vector<QString>& warnings );
-    QString            fullFileName( const QString& shortOrFullFileName );
+    void    updateFileListWidget( QGridLayout* gridLayout, int listIndex );
+    void    appendFileInfoToGridLayout( QGridLayout*              gridLayout,
+                                        const RifRestartFileInfo& fileInfo,
+                                        const QString&            fullPathFileName );
+    void    appendTextToGridLayout( QGridLayout* gridLayout, const QString& text );
+    void    displayWarningsIfAny( const std::vector<QString>& warnings );
+    QString fullFileName( const QString& shortOrFullFileName );
 
 private slots:
     void slotShowFullPathToggled( int state );
