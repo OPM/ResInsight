@@ -43,7 +43,7 @@ TEST( DISABLED_HDFTests, WriteDataToH5 )
     try
     {
         RifReaderEclipseSummary summaryReader;
-        summaryReader.open( file_path, true, nullptr );
+        summaryReader.open( file_path, nullptr );
 
         {
             std::string exportFileName = "e:/project/scratch_export/hdf-test.h5";

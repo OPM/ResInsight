@@ -286,10 +286,10 @@ void RifSummaryCaseRestartSelector::determineFilesToImportUsingPrefs( const std:
             else if ( defaultSummaryImportMode == RicSummaryCaseRestartDialog::ImportOptions::SEPARATE_CASES )
             {
                 m_summaryFileInfos.push_back( RifSummaryCaseFileResultInfo( initialSummaryFile, false ) );
-                bool                            hasWarnings = false;
-                RifReaderEclipseSummary         reader;
+
+                std::vector<QString>            warnings;
                 std::vector<RifRestartFileInfo> restartFileInfos =
-                    reader.getRestartFiles( initialSummaryFile, &hasWarnings );
+                    RifEclipseSummaryTools::getRestartFiles( initialSummaryFile, warnings );
                 for ( const auto& rfi : restartFileInfos )
                 {
                     RifSummaryCaseFileResultInfo resultFileInfo( RiaFilePathTools::toInternalSeparator( rfi.fileName ),
@@ -309,10 +309,10 @@ void RifSummaryCaseRestartSelector::determineFilesToImportUsingPrefs( const std:
             RicSummaryCaseRestartDialog::ImportOptions defaultGridImportMode = mapReadOption( prefs->gridImportMode() );
             if ( defaultGridImportMode == RicSummaryCaseRestartDialog::ImportOptions::SEPARATE_CASES )
             {
-                RifReaderEclipseSummary         reader;
-                bool                            hasWarnings = false;
+                std::vector<QString> warnings;
+
                 std::vector<RifRestartFileInfo> restartFileInfos =
-                    reader.getRestartFiles( initialSummaryFile, &hasWarnings );
+                    RifEclipseSummaryTools::getRestartFiles( initialSummaryFile, warnings );
                 for ( const auto& rfi : restartFileInfos )
                 {
                     QString gridFileName = RifEclipseSummaryTools::findGridCaseFileFromSummaryHeaderFile( rfi.fileName );
@@ -322,11 +322,8 @@ void RifSummaryCaseRestartSelector::determineFilesToImportUsingPrefs( const std:
                     }
                 }
 
-                if ( hasWarnings )
-                {
-                    for ( const QString& warning : reader.warnings() )
-                        RiaLogging::error( warning );
-                }
+                for ( const QString& warning : warnings )
+                    RiaLogging::error( warning );
             }
         }
 
