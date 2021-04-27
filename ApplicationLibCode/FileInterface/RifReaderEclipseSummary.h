@@ -72,24 +72,24 @@ public:
 
     bool open( const QString& headerFileName, bool includeRestartFiles, RiaThreadSafeLogger* threadSafeLogger );
 
-    std::vector<RifRestartFileInfo> getRestartFiles( const QString& headerFileName, bool* hasWarnings );
-    RifRestartFileInfo              getFileInfo( const QString& headerFileName );
+    static std::vector<RifRestartFileInfo> getRestartFiles( const QString& headerFileName, std::vector<QString>& warnings );
+    static RifRestartFileInfo              getFileInfo( const QString& headerFileName );
 
     const std::vector<time_t>& timeSteps( const RifEclipseSummaryAddress& resultAddress ) const override;
 
     bool        values( const RifEclipseSummaryAddress& resultAddress, std::vector<double>* values ) const override;
     std::string unitName( const RifEclipseSummaryAddress& resultAddress ) const override;
     RiaDefines::EclipseUnitSystem unitSystem() const override;
-    QStringList                   warnings() const { return m_warnings; }
 
     static std::string       differenceIdentifier() { return "_DIFF"; }
     static const std::string historyIdentifier() { return "H"; }
 
 private:
-    size_t             timeStepCount() const;
-    int                indexFromAddress( const RifEclipseSummaryAddress& resultAddress ) const;
-    void               buildMetaData();
-    RifRestartFileInfo getRestartFile( const QString& headerFileName );
+    size_t timeStepCount() const;
+    int    indexFromAddress( const RifEclipseSummaryAddress& resultAddress ) const;
+    void   buildMetaData();
+
+    static RifRestartFileInfo getRestartFile( const QString& headerFileName );
 
 private:
     // Taken from ecl_sum.h
@@ -103,8 +103,6 @@ private:
     RiaDefines::EclipseUnitSystem m_unitSystem;
 
     std::map<RifEclipseSummaryAddress, int> m_resultAddressToErtNodeIdx;
-
-    QStringList m_warnings;
 
     std::set<RifEclipseSummaryAddress> m_differenceAddresses;
 

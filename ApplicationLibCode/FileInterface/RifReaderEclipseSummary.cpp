@@ -247,13 +247,10 @@ bool RifReaderEclipseSummary::open( const QString&       headerFileName,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RifRestartFileInfo> RifReaderEclipseSummary::getRestartFiles( const QString& headerFileName, bool* hasWarnings )
+std::vector<RifRestartFileInfo> RifReaderEclipseSummary::getRestartFiles( const QString&        headerFileName,
+                                                                          std::vector<QString>& warnings )
 {
-    CVF_ASSERT( hasWarnings );
-
     std::vector<RifRestartFileInfo> restartFiles;
-    m_warnings.clear();
-    *hasWarnings = false;
 
     std::set<QString> restartFilesOpened;
 
@@ -281,12 +278,11 @@ std::vector<RifRestartFileInfo> RifReaderEclipseSummary::getRestartFiles( const 
                 if ( formattedHeaderFileInfo.lastModified() < nonformattedHeaderFileInfo.lastModified() &&
                      formattedHeaderFileInfo.exists() && !formattedDateFileInfo.exists() )
                 {
-                    m_warnings.push_back(
+                    warnings.push_back(
                         QString( "RifReaderEclipseSummary: Formatted summary header file without an\n" ) +
                         QString( "associated data file detected.\n" ) +
                         QString( "This may cause a failure reading summary origin data.\n" ) +
                         QString( "To avoid this problem, please delete or rename the.FSMSPEC file." ) );
-                    *hasWarnings = true;
                     break;
                 }
             }
@@ -296,14 +292,12 @@ std::vector<RifRestartFileInfo> RifReaderEclipseSummary::getRestartFiles( const 
             // Fix to stop potential infinite loop
             if ( currFile.fileName == prevFile )
             {
-                m_warnings.push_back( "RifReaderEclipseSummary: Restart file reference loop detected" );
-                *hasWarnings = true;
+                warnings.push_back( "RifReaderEclipseSummary: Restart file reference loop detected" );
                 break;
             }
             else if ( restartFilesOpened.count( currFile.fileName ) != 0u )
             {
-                m_warnings.push_back( "RifReaderEclipseSummary: Same restart file being opened multiple times" );
-                *hasWarnings = true;
+                warnings.push_back( "RifReaderEclipseSummary: Same restart file being opened multiple times" );
             }
             restartFilesOpened.insert( currFile.fileName );
         }

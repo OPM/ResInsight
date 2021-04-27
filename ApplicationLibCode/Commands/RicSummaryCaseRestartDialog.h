@@ -87,7 +87,7 @@ private:
                                                    const QString&            fullPathFileName );
     void               appendTextToGridLayout( QGridLayout* gridLayout, const QString& text );
     RifRestartFileInfo getFileInfo( const QString& summaryHeaderFile );
-    void               displayWarningsIfAny( const QStringList& warnings );
+    void               displayWarningsIfAny( const std::vector<QString>& warnings );
     QString            fullFileName( const QString& shortOrFullFileName );
 
 private slots:
