@@ -164,7 +164,7 @@ RiaPreferencesSummary::RiaPreferencesSummary()
 
     CAF_PDM_InitField( &m_useMultipleThreadsWhenLoadingSummaryData,
                        "useMultipleThreadsWhenLoadingSummaryData",
-                       false,
+                       true,
                        "Use Multiple Threads for Import of Summary Files",
                        "",
                        "",
