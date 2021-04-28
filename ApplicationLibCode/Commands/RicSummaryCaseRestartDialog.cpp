@@ -214,6 +214,7 @@ RicSummaryCaseRestartDialogResult RicSummaryCaseRestartDialog::openDialog( const
                                                                            bool           useFirstSummaryCaseAsTemplate,
                                                                            ImportOptions  defaultSummaryImportOption,
                                                                            ImportOptions  defaultGridImportOption,
+                                                                           bool           hideSplitCases,
                                                                            RicSummaryCaseRestartDialogResult* lastResult,
                                                                            QWidget*                           parent )
 {
@@ -322,6 +323,15 @@ RicSummaryCaseRestartDialogResult RicSummaryCaseRestartDialog::openDialog( const
         for ( const auto& ofi : originFileInfos )
         {
             originSummaryFileInfos.push_back( ofi );
+        }
+
+        if ( hideSplitCases )
+        {
+            dialog.m_summarySeparateCasesBtn->hide();
+        }
+        else
+        {
+            dialog.m_summarySeparateCasesBtn->show();
         }
 
         // Set default import options
