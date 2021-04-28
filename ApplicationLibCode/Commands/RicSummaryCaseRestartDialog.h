@@ -73,8 +73,9 @@ public:
                                                          bool           useFirstSummaryCaseAsTemplate,
                                                          ImportOptions  defaultSummaryImportOption,
                                                          ImportOptions  defaultGridImportOption,
-                                                         RicSummaryCaseRestartDialogResult* lastResult = nullptr,
-                                                         QWidget*                           parent     = nullptr );
+                                                         bool           hideSplitCases,
+                                                         RicSummaryCaseRestartDialogResult* lastResult,
+                                                         QWidget*                           parent );
 
     ImportOptions selectedSummaryImportOption() const;
     ImportOptions selectedGridImportOption() const;

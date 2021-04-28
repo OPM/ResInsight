@@ -197,7 +197,9 @@ void RifSummaryCaseRestartSelector::determineFilesToImportByAskingUser( const st
                                                      m_ensembleOrGroupMode,
                                                      defaultSummaryImportMode,
                                                      defaultGridImportMode,
-                                                     &lastResult );
+                                                     m_ensembleOrGroupMode,
+                                                     &lastResult,
+                                                     nullptr );
 
         if ( result.status == RicSummaryCaseRestartDialogResult::SUMMARY_CANCELLED )
         {
