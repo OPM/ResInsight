@@ -79,7 +79,7 @@ bool RifReaderEclipseSummary::open( const QString& headerFileName, RiaThreadSafe
 
             if ( createdH5FileCount > 0 )
             {
-                QString txt = QString( "Created %1 from file %2" ).arg( headerFileName ).arg( h5FilenameCandidate );
+                QString txt = QString( "Created %1 " ).arg( h5FilenameCandidate );
                 if ( threadSafeLogger ) threadSafeLogger->info( txt );
             }
         }
