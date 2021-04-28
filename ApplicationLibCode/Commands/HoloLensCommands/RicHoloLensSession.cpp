@@ -70,7 +70,7 @@ RicHoloLensSession* RicHoloLensSession::createSession( const QString&           
 
     newSession->m_restClient = new RicHoloLensRestClient( serverUrl, sessionName, newSession );
 
-    if ( RiaApplication::instance()->preferences()->holoLensDisableCertificateVerification() )
+    if ( RiaPreferences::current()->holoLensDisableCertificateVerification() )
     {
         RiaLogging::warning( "HoloLens: Disabling certificate verification for HTTPS connections" );
         newSession->m_restClient->dbgDisableCertificateVerification();
@@ -80,7 +80,7 @@ RicHoloLensSession* RicHoloLensSession::createSession( const QString&           
 
     newSession->m_sessionObserver = sessionObserver;
 
-    const QString dbgExportFolder = RiaApplication::instance()->preferences()->holoLensExportFolder();
+    const QString dbgExportFolder = RiaPreferences::current()->holoLensExportFolder();
     if ( !dbgExportFolder.isEmpty() )
     {
         newSession->m_dbgFileExportDestinationFolder = dbgExportFolder;
@@ -99,7 +99,7 @@ RicHoloLensSession* RicHoloLensSession::createDummyFileBackedSession()
 
     newSession->m_isSessionValid = true;
 
-    newSession->m_dbgFileExportDestinationFolder = RiaApplication::instance()->preferences()->holoLensExportFolder();
+    newSession->m_dbgFileExportDestinationFolder = RiaPreferences::current()->holoLensExportFolder();
 
     return newSession;
 }

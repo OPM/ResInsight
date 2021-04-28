@@ -15,9 +15,9 @@
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
+
 #include "RiuTextContentFrame.h"
 
-#include "RiaApplication.h"
 #include "RiaFontCache.h"
 #include "RiaPreferences.h"
 
@@ -93,8 +93,7 @@ QSize RiuTextContentFrame::minimumSizeHint() const
 void RiuTextContentFrame::renderTo( QPainter* painter, const QRect& targetRect )
 {
     QFont font = this->font();
-    font.setPixelSize(
-        caf::FontTools::pointSizeToPixelSize( RiaApplication::instance()->preferences()->defaultPlotFontSize() ) );
+    font.setPixelSize( caf::FontTools::pointSizeToPixelSize( RiaPreferences::current()->defaultPlotFontSize() ) );
     this->setFont( font );
 
     QColor textColor = RiuGuiTheme::getColorByVariableName( "textColor" );

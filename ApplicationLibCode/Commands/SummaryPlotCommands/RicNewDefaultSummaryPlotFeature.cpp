@@ -18,7 +18,6 @@
 
 #include "RicNewDefaultSummaryPlotFeature.h"
 
-#include "RiaPreferences.h"
 #include "RiaSummaryTools.h"
 
 #include "RicEditSummaryPlotFeature.h"

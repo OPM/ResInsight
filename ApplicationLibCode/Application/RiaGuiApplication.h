@@ -66,6 +66,11 @@ class RiuPlotMainWindow;
 class RiuRecentFileActionProvider;
 class RiaArgumentParser;
 
+namespace RiaDefines
+{
+enum class RINavigationPolicy : short;
+}
+
 namespace caf
 {
 class FontHolderInterface;
@@ -79,15 +84,6 @@ class FontHolderInterface;
 class RiaGuiApplication : public QApplication, public RiaApplication
 {
     Q_OBJECT
-
-public:
-    enum class RINavigationPolicy
-    {
-        NAVIGATION_POLICY_CEETRON,
-        NAVIGATION_POLICY_CAD,
-        NAVIGATION_POLICY_GEOQUEST,
-        NAVIGATION_POLICY_RMS
-    };
 
 public:
     static bool               isRunning();
@@ -106,7 +102,7 @@ public:
                                 const QString&       snapshotFolderName );
     bool useShaders() const;
 
-    RINavigationPolicy navigationPolicy() const;
+    RiaDefines::RINavigationPolicy navigationPolicy() const;
 
     RiuMainWindow* getOrCreateAndShowMainWindow();
     RiuMainWindow* mainWindow();

@@ -20,7 +20,6 @@
 
 #include "RimSimWellInViewCollection.h"
 
-#include "RiaApplication.h"
 #include "RiaFieldHandleTools.h"
 #include "RiaPreferences.h"
 
@@ -181,7 +180,7 @@ RimSimWellInViewCollection::RimSimWellInViewCollection()
     CAF_PDM_InitField( &spheresScaleFactor, "CellCenterSphereScale", 0.2, "Sphere Radius Scale", "", "", "" );
 
     // Color
-    cvf::Color3f defWellLabelColor = RiaApplication::instance()->preferences()->defaultWellLabelColor();
+    cvf::Color3f defWellLabelColor = RiaPreferences::current()->defaultWellLabelColor();
     CAF_PDM_InitField( &wellLabelColor, "WellLabelColor", defWellLabelColor, "Label Color", "", "", "" );
 
     CAF_PDM_InitField( &showConnectionStatusColors, "ShowConnectionStatusColors", true, "Color Pipe Connections", "", "", "" );

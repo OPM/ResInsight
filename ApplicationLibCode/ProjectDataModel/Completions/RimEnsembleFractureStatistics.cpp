@@ -18,6 +18,7 @@
 
 #include "RimEnsembleFractureStatistics.h"
 
+#include "RiaApplication.h"
 #include "RiaDefines.h"
 #include "RiaInterpolationTools.h"
 #include "RiaLogging.h"

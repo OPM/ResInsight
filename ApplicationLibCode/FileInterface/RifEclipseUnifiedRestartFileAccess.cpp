@@ -20,7 +20,6 @@
 
 #include "RifEclipseUnifiedRestartFileAccess.h"
 
-#include "RiaApplication.h"
 #include "RiaLogging.h"
 #include "RiaPreferences.h"
 
@@ -148,7 +147,7 @@ bool RifEclipseUnifiedRestartFileAccess::openFile()
 //--------------------------------------------------------------------------------------------------
 bool RifEclipseUnifiedRestartFileAccess::useResultIndexFile() const
 {
-    RiaPreferences*          prefs          = RiaApplication::instance()->preferences();
+    RiaPreferences*          prefs          = RiaPreferences::current();
     const RifReaderSettings* readerSettings = prefs->readerSettings();
 
     return readerSettings->useResultIndexFile();

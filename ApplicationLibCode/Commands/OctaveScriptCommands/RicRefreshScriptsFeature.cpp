@@ -18,7 +18,6 @@
 
 #include "RicRefreshScriptsFeature.h"
 
-#include "RiaApplication.h"
 #include "RiaPreferences.h"
 
 #include "RimProject.h"
@@ -59,7 +58,7 @@ void RicRefreshScriptsFeature::setupActionLook( QAction* actionToSetup )
 void RicRefreshScriptsFeature::refreshScriptFolders()
 {
     RimProject*     proj  = RimProject::current();
-    RiaPreferences* prefs = RiaApplication::instance()->preferences();
+    RiaPreferences* prefs = RiaPreferences::current();
 
     proj->setScriptDirectories( prefs->scriptDirectories() );
     proj->scriptCollection()->updateConnectedEditors();

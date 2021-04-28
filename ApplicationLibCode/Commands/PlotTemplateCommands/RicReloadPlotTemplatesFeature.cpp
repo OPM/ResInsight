@@ -18,7 +18,6 @@
 
 #include "RicReloadPlotTemplatesFeature.h"
 
-#include "RiaApplication.h"
 #include "RiaPreferences.h"
 
 #include "PlotTemplates/RimPlotTemplateFolderItem.h"
@@ -34,7 +33,7 @@ CAF_CMD_SOURCE_INIT( RicReloadPlotTemplatesFeature, "RicReloadPlotTemplatesFeatu
 void RicReloadPlotTemplatesFeature::rebuildFromDisc()
 {
     RimProject*     proj  = RimProject::current();
-    RiaPreferences* prefs = RiaApplication::instance()->preferences();
+    RiaPreferences* prefs = RiaPreferences::current();
 
     proj->setPlotTemplateFolders( prefs->plotTemplateFolders() );
     proj->rootPlotTemlateItem()->updateConnectedEditors();

@@ -20,7 +20,6 @@
 
 #include "RimEclipseCase.h"
 
-#include "RiaApplication.h"
 #include "RiaColorTables.h"
 #include "RiaFieldHandleTools.h"
 #include "RiaPreferences.h"
@@ -186,7 +185,7 @@ void RimEclipseCase::ensureDeckIsParsedForEquilData()
     {
         QString includeFileAbsolutePathPrefix;
         {
-            RiaPreferences* prefs = RiaApplication::instance()->preferences();
+            RiaPreferences* prefs = RiaPreferences::current();
             if ( prefs->readerSettings() )
             {
                 includeFileAbsolutePathPrefix = prefs->readerSettings()->includeFileAbsolutePathPrefix();
@@ -293,7 +292,7 @@ RimEclipseView* RimEclipseCase::createAndAddReservoirView()
     {
         rimEclipseView->cellResult()->setResultType( RiaDefines::ResultCatType::DYNAMIC_NATIVE );
 
-        auto prefs = RiaApplication::instance()->preferences();
+        auto prefs = RiaPreferences::current();
         if ( prefs->loadAndShowSoil )
         {
             rimEclipseView->cellResult()->setResultVariable( "SOIL" );
@@ -695,7 +694,7 @@ void RimEclipseCase::ensureFaultDataIsComputed()
     RigEclipseCaseData* rigEclipseCase = eclipseCaseData();
     if ( rigEclipseCase )
     {
-        bool computeFaults = RiaApplication::instance()->preferences()->readerSettings()->importFaults();
+        bool computeFaults = RiaPreferences::current()->readerSettings()->importFaults();
         if ( computeFaults )
         {
             RigActiveCellInfo* actCellInfo = rigEclipseCase->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );

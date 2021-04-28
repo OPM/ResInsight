@@ -18,7 +18,7 @@
 
 #include "RicCreatePlotFromTemplateByShortcutFeature.h"
 
-#include "RiaApplication.h"
+#include "RiaGuiApplication.h"
 #include "RiaPreferences.h"
 
 #include "RicSummaryPlotTemplateTools.h"
@@ -51,7 +51,7 @@ bool RicCreatePlotFromTemplateByShortcutFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicCreatePlotFromTemplateByShortcutFeature::onActionTriggered( bool isChecked )
 {
-    QString fileName = RiaApplication::instance()->preferences()->defaultPlotTemplateAbsolutePath();
+    QString fileName = RiaPreferences::current()->defaultPlotTemplateAbsolutePath();
 
     if ( !QFile::exists( fileName ) )
     {

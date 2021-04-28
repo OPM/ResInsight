@@ -27,7 +27,6 @@
 #include "RiaApplication.h"
 #include "RiaGuiApplication.h"
 #include "RiaLogging.h"
-#include "RiaPreferences.h"
 
 #include "RifEclipseSummaryTools.h"
 #include "RifSummaryCaseRestartSelector.h"

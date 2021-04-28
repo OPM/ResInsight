@@ -20,6 +20,7 @@
 
 #include "RimEclipseInputCase.h"
 
+#include "RiaDefines.h"
 #include "RiaFieldHandleTools.h"
 #include "RiaLogging.h"
 #include "RiaPreferences.h"
@@ -36,7 +37,6 @@
 #include "RigEclipseCaseData.h"
 #include "RigMainGrid.h"
 
-#include "RiaDefines.h"
 #include "RimEclipseInputProperty.h"
 #include "RimEclipseInputPropertyCollection.h"
 #include "RimReservoirCellResultsStorage.h"
@@ -107,7 +107,7 @@ bool RimEclipseInputCase::openDataFileSet( const QStringList& fileNames )
         this->setReservoirData( new RigEclipseCaseData( this ) );
     }
 
-    bool importFaults = RiaApplication::instance()->preferences()->readerSettings()->importFaults();
+    bool importFaults = RiaPreferences::current()->readerSettings()->importFaults();
 
     std::vector<QString> allErrorMessages;
 
@@ -221,8 +221,7 @@ bool RimEclipseInputCase::openEclipseGridFile()
         computeCachedData();
     }
 
-    RiaApplication* app = RiaApplication::instance();
-    if ( app->preferences()->autocomputeDepthRelatedProperties )
+    if ( RiaPreferences::current()->autocomputeDepthRelatedProperties )
     {
         results( RiaDefines::PorosityModelType::MATRIX_MODEL )->computeDepthRelatedResults();
         results( RiaDefines::PorosityModelType::FRACTURE_MODEL )->computeDepthRelatedResults();

@@ -18,6 +18,7 @@
 
 #include "RicOpenLastUsedFileFeature.h"
 
+#include "RiaGuiApplication.h"
 #include "RiaPreferences.h"
 
 #include "RiuMainWindow.h"
@@ -43,7 +44,7 @@ void RicOpenLastUsedFileFeature::onActionTriggered( bool isChecked )
 
     if ( !app->askUserToSaveModifiedProject() ) return;
 
-    QString fileName = app->preferences()->lastUsedProjectFileName;
+    QString fileName = RiaPreferences::current()->lastUsedProjectFileName;
 
     if ( app->loadProject( fileName ) )
     {

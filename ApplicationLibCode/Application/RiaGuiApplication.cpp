@@ -139,19 +139,6 @@
 #include "gtest/gtest.h"
 #endif // USE_UNIT_TESTS
 
-namespace caf
-{
-template <>
-void AppEnum<RiaGuiApplication::RINavigationPolicy>::setUp()
-{
-    addItem( RiaGuiApplication::RINavigationPolicy::NAVIGATION_POLICY_CEETRON, "NAVIGATION_POLICY_CEETRON", "Ceetron" );
-    addItem( RiaGuiApplication::RINavigationPolicy::NAVIGATION_POLICY_CAD, "NAVIGATION_POLICY_CAD", "CAD" );
-    addItem( RiaGuiApplication::RINavigationPolicy::NAVIGATION_POLICY_GEOQUEST, "NAVIGATION_POLICY_GEOQUEST", "GEOQUEST" );
-    addItem( RiaGuiApplication::RINavigationPolicy::NAVIGATION_POLICY_RMS, "NAVIGATION_POLICY_RMS", "RMS" );
-    setDefault( RiaGuiApplication::RINavigationPolicy::NAVIGATION_POLICY_RMS );
-}
-} // namespace caf
-
 //==================================================================================================
 ///
 /// \class RiaGuiApplication
@@ -404,7 +391,7 @@ bool RiaGuiApplication::useShaders() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiaGuiApplication::RINavigationPolicy RiaGuiApplication::navigationPolicy() const
+RiaDefines::RINavigationPolicy RiaGuiApplication::navigationPolicy() const
 {
     return m_preferences->navigationPolicy();
 }

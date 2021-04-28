@@ -53,7 +53,7 @@ void RicAddScriptPathFeature::onActionTriggered( bool isChecked )
         RiuFileDialogTools::getExistingDirectory( Riu3DMainWindowTools::mainWindowWidget(), "Select script folder" );
     if ( !selectedFolder.isEmpty() )
     {
-        QString filePathString = RiaApplication::instance()->preferences()->scriptDirectories();
+        QString filePathString = RiaPreferences::current()->scriptDirectories();
 
         QChar separator( ';' );
         if ( !filePathString.isEmpty() && !filePathString.endsWith( separator, Qt::CaseInsensitive ) )
@@ -63,7 +63,7 @@ void RicAddScriptPathFeature::onActionTriggered( bool isChecked )
 
         filePathString += selectedFolder;
 
-        RiaApplication::instance()->preferences()->scriptDirectories = filePathString;
+        RiaPreferences::current()->scriptDirectories = filePathString;
         RiaApplication::instance()->applyPreferences();
 
         RicRefreshScriptsFeature::refreshScriptFolders();

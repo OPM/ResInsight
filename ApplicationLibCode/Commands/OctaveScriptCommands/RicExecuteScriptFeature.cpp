@@ -96,7 +96,7 @@ void RicExecuteScriptFeature::executeScript( RimCalcScript* calcScript )
             QProcessEnvironment penv      = app->pythonProcessEnvironment();
 
             RiuProcessMonitor* processMonitor = RiuMainWindow::instance()->processMonitor();
-            if ( RiaApplication::instance()->preferences()->showPythonDebugInfo() && processMonitor )
+            if ( RiaPreferences::current()->showPythonDebugInfo() && processMonitor )
             {
                 QStringList debugInfo;
                 debugInfo << "----- Launching Python interpreter -----";

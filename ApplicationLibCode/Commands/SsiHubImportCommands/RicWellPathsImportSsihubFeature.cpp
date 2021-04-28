@@ -20,6 +20,7 @@
 #include "RicWellPathsImportSsihubFeature.h"
 
 #include "RiaApplication.h"
+#include "RiaGuiApplication.h"
 #include "RiaPreferences.h"
 
 #include "RimFileWellPath.h"

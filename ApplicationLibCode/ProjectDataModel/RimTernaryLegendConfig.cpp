@@ -19,8 +19,8 @@
 
 #include "RimTernaryLegendConfig.h"
 
+#include "RiaApplication.h"
 #include "RiaColorTables.h"
-#include "RiaGuiApplication.h"
 #include "RiaPreferences.h"
 
 #include "RimEclipseView.h"
@@ -207,9 +207,7 @@ void RimTernaryLegendConfig::updateLegend()
     {
         m_legend->setRangeText( soilRange, sgasRange, swatRange );
 
-        RiaApplication* app         = RiaApplication::instance();
-        RiaPreferences* preferences = app->preferences();
-        m_legend->enableBackground( preferences->showLegendBackground() );
+        m_legend->enableBackground( RiaPreferences::current()->showLegendBackground() );
     }
 }
 

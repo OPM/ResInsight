@@ -18,7 +18,6 @@
 
 #include "RimPlotTemplateFolderItem.h"
 
-#include "RiaApplication.h"
 #include "RiaPreferences.h"
 
 #include "RimPlotTemplateFileItem.h"
@@ -242,5 +241,5 @@ void RimPlotTemplateFolderItem::createSubFolderItemsFromFolderPaths( const QStri
 //--------------------------------------------------------------------------------------------------
 bool RimPlotTemplateFolderItem::searchSubFoldersRecursively() const
 {
-    return RiaApplication::instance()->preferences()->searchPlotTemplateFoldersRecursively();
+    return RiaPreferences::current()->searchPlotTemplateFoldersRecursively();
 }

@@ -18,7 +18,6 @@
 
 #include "RicSummaryPlotTemplateTools.h"
 
-#include "RiaApplication.h"
 #include "RiaGuiApplication.h"
 #include "RiaLogging.h"
 #include "RiaPreferences.h"
@@ -334,8 +333,8 @@ QString RicSummaryPlotTemplateTools::selectPlotTemplatePath()
     {
         QString fileName = ui.selectedPlotTemplates().front()->absoluteFilePath();
 
-        RiaApplication::instance()->preferences()->setDefaultPlotTemplatePath( fileName );
-        RiaApplication::instance()->preferences()->writePreferencesToApplicationStore();
+        RiaPreferences::current()->setDefaultPlotTemplatePath( fileName );
+        RiaPreferences::current()->writePreferencesToApplicationStore();
 
         return fileName;
     }

@@ -21,7 +21,6 @@
 
 #include "RivGeoMechPartMgr.h"
 
-#include "RiaApplication.h"
 #include "RiaPreferences.h"
 
 #include "RifGeoMechReaderInterface.h"
@@ -157,7 +156,7 @@ void RivFemPartPartMgr::generatePartGeometry( RivFemPartGeometryGenerator& geoBu
             part->setTransform( m_scaleTransform.p() );
             part->updateBoundingBox();
 
-            RiaPreferences* prefs = RiaApplication::instance()->preferences();
+            RiaPreferences* prefs = RiaPreferences::current();
 
             cvf::ref<cvf::Effect>    eff;
             caf::MeshEffectGenerator effGen( prefs->defaultGridLineColors() );
@@ -217,7 +216,7 @@ void RivFemPartPartMgr::updateCellColor( cvf::Color4f color )
     m_defaultColor = color.toColor3f();
 
     // Update mesh colors as well, in case of change
-    RiaPreferences* prefs = RiaApplication::instance()->preferences();
+    RiaPreferences* prefs = RiaPreferences::current();
 
     cvf::ref<cvf::Effect> eff;
     if ( m_surfaceFaces.notNull() )

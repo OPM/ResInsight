@@ -18,7 +18,6 @@
 
 #include "RicWellPathExportCompletionDataFeatureImpl.h"
 
-#include "RiaApplication.h"
 #include "RiaEclipseUnitTools.h"
 #include "RiaFilePathTools.h"
 #include "RiaFractureDefines.h"
@@ -138,7 +137,7 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions( const std::v
         std::unique_ptr<QTextStream> fractureTransmissibilityExportInformationStream = nullptr;
         QFile                        fractureTransmissibilityExportInformationFile;
 
-        RiaPreferences* prefs = RiaApplication::instance()->preferences();
+        RiaPreferences* prefs = RiaPreferences::current();
         if ( prefs->includeFractureDebugInfoFile() )
         {
             QDir outputDir = QDir( exportSettings.folder );

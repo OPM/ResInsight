@@ -21,9 +21,11 @@
 
 #include "RiaPreferences.h"
 
+#include "RiaApplication.h"
 #include "RiaColorTables.h"
 #include "RiaPreferencesSummary.h"
 #include "RiaValidRegExpValidator.h"
+
 #include "RifReaderSettings.h"
 #include "RiuGuiTheme.h"
 
@@ -76,8 +78,7 @@ RiaPreferences::RiaPreferences()
 {
     CAF_PDM_InitField( &m_navigationPolicy,
                        "navigationPolicy",
-                       caf::AppEnum<RiaGuiApplication::RINavigationPolicy>(
-                           RiaGuiApplication::RINavigationPolicy::NAVIGATION_POLICY_RMS ),
+                       caf::AppEnum<RiaDefines::RINavigationPolicy>( RiaDefines::RINavigationPolicy::NAVIGATION_POLICY_RMS ),
                        "Navigation Mode",
                        "",
                        "",
@@ -445,15 +446,23 @@ void RiaPreferences::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
         otherGroup->add( &holoLensDisableCertificateVerification );
         otherGroup->add( &m_useUndoRedo );
     }
-    else if ( uiConfigName == RiaPreferences::tabNameEclipse() )
+    else if ( uiConfigName == RiaPreferences::tabNameEclipseGrid() )
     {
         caf::PdmUiGroup* newCaseBehaviourGroup = uiOrdering.addNewGroup( "Behavior When Loading Data" );
         newCaseBehaviourGroup->add( &autocomputeDepthRelatedProperties );
         newCaseBehaviourGroup->add( &loadAndShowSoil );
 
         m_readerSettings->uiOrdering( uiConfigName, *newCaseBehaviourGroup );
-
+    }
+    else if ( uiConfigName == RiaPreferences::tabNameEclipseSummary() )
+    {
         m_summaryPreferences->appendRestartFileGroup( uiOrdering );
+
+        {
+            caf::PdmUiGroup* group = uiOrdering.addNewGroup( "Summary Data Import" );
+
+            m_summaryPreferences()->uiOrdering( uiConfigName, *group );
+        }
     }
     else if ( uiConfigName == RiaPreferences::tabNamePlotting() )
     {
@@ -483,12 +492,6 @@ void RiaPreferences::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
         m_pageRightMargin.uiCapability()->setUiName( "Right Margin" + unitLabel );
         m_pageTopMargin.uiCapability()->setUiName( "Top Margin" + unitLabel );
         m_pageBottomMargin.uiCapability()->setUiName( "Bottom Margin" + unitLabel );
-
-        {
-            caf::PdmUiGroup* group = uiOrdering.addNewGroup( "Summary Data Import" );
-
-            m_summaryPreferences()->uiOrdering( uiConfigName, *group );
-        }
     }
 
     else if ( uiConfigName == RiaPreferences::tabNameScripting() )
@@ -620,9 +623,17 @@ QString RiaPreferences::tabNameGeneral()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiaPreferences::tabNameEclipse()
+QString RiaPreferences::tabNameEclipseGrid()
 {
-    return "Eclipse";
+    return "Eclipse Grid";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RiaPreferences::tabNameEclipseSummary()
+{
+    return "Eclipse Summary";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -689,7 +700,8 @@ QStringList RiaPreferences::tabNames()
     QStringList names;
 
     names << tabNameGeneral();
-    names << tabNameEclipse();
+    names << tabNameEclipseGrid();
+    names << tabNameEclipseSummary();
     names << tabNamePlotting();
     names << tabNameScripting();
     names << tabNameExport();
@@ -993,7 +1005,7 @@ RiaDefines::MeshModeType RiaPreferences::defaultMeshModeType() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiaGuiApplication::RINavigationPolicy RiaPreferences::navigationPolicy() const
+RiaDefines::RINavigationPolicy RiaPreferences::navigationPolicy() const
 {
     return m_navigationPolicy();
 }

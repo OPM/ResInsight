@@ -20,7 +20,6 @@
 
 #include "RivGridPartMgr.h"
 
-#include "RiaApplication.h"
 #include "RiaPreferences.h"
 #include "RiaRegressionTestRunner.h"
 
@@ -175,7 +174,7 @@ void RivGridPartMgr::generatePartGeometry( cvf::StructGridGeometryGenerator& geo
             part->setTransform( m_scaleTransform.p() );
             part->updateBoundingBox();
 
-            RiaPreferences* prefs = RiaApplication::instance()->preferences();
+            RiaPreferences* prefs = RiaPreferences::current();
 
             cvf::ref<cvf::Effect>    eff;
             caf::MeshEffectGenerator effGen( prefs->defaultGridLineColors() );
@@ -227,7 +226,7 @@ void RivGridPartMgr::updateCellColor( cvf::Color4f color )
     // Update mesh colors as well, in case of change
     if ( m_surfaceGridLines.notNull() )
     {
-        RiaPreferences*          prefs = RiaApplication::instance()->preferences();
+        RiaPreferences*          prefs = RiaPreferences::current();
         caf::MeshEffectGenerator effGen( prefs->defaultGridLineColors() );
         cvf::ref<cvf::Effect>    eff = effGen.generateCachedEffect();
         m_surfaceGridLines->setEffect( eff.p() );

@@ -195,14 +195,14 @@ std::vector<VdeExportPart> RicHoloLensExportImpl::partsForExport( const RimGridV
                 VdeExportPart exportPart( visiblePart.p() );
                 exportPart.setSourceObjectType( VdeExportPart::OBJ_TYPE_GRID );
 
-                cvf::Color3f lineColor = RiaApplication::instance()->preferences()->defaultGridLineColors();
+                cvf::Color3f lineColor = RiaPreferences::current()->defaultGridLineColors();
 
                 auto linesSourceInfo = dynamic_cast<const RivMeshLinesSourceInfo*>( visiblePart->sourceInfo() );
                 if ( linesSourceInfo )
                 {
                     if ( dynamic_cast<RimFaultInView*>( linesSourceInfo->object() ) )
                     {
-                        lineColor = RiaApplication::instance()->preferences()->defaultFaultGridLineColors();
+                        lineColor = RiaPreferences::current()->defaultFaultGridLineColors();
                     }
                 }
 

@@ -134,6 +134,16 @@ void caf::AppEnum<RiaDefines::ThemeEnum>::setUp()
     setDefault( RiaDefines::ThemeEnum::DEFAULT );
 }
 
+template <>
+void AppEnum<RiaDefines::RINavigationPolicy>::setUp()
+{
+    addItem( RiaDefines::RINavigationPolicy::NAVIGATION_POLICY_CEETRON, "NAVIGATION_POLICY_CEETRON", "Ceetron" );
+    addItem( RiaDefines::RINavigationPolicy::NAVIGATION_POLICY_CAD, "NAVIGATION_POLICY_CAD", "CAD" );
+    addItem( RiaDefines::RINavigationPolicy::NAVIGATION_POLICY_GEOQUEST, "NAVIGATION_POLICY_GEOQUEST", "GEOQUEST" );
+    addItem( RiaDefines::RINavigationPolicy::NAVIGATION_POLICY_RMS, "NAVIGATION_POLICY_RMS", "RMS" );
+    setDefault( RiaDefines::RINavigationPolicy::NAVIGATION_POLICY_RMS );
+}
+
 } // namespace caf
 
 //--------------------------------------------------------------------------------------------------

@@ -20,8 +20,8 @@
 
 #include "RimRegularLegendConfig.h"
 
+#include "RiaApplication.h"
 #include "RiaColorTables.h"
-#include "RiaGuiApplication.h"
 #include "RiaPreferences.h"
 
 #include "RimCellEdgeColors.h"
@@ -589,8 +589,7 @@ void RimRegularLegendConfig::updateLegend()
     m_significantDigitsInData = numDecimalDigits;
     m_scalarMapperLegend->setTickPrecision( numDecimalDigits );
 
-    RiaApplication* app         = RiaApplication::instance();
-    RiaPreferences* preferences = app->preferences();
+    RiaPreferences* preferences = RiaPreferences::current();
     m_scalarMapperLegend->enableBackground( preferences->showLegendBackground() );
     m_categoryLegend->enableBackground( preferences->showLegendBackground() );
 
