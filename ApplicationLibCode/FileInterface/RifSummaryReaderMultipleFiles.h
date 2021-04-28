@@ -45,8 +45,13 @@ public:
     RiaDefines::EclipseUnitSystem unitSystem() const override;
 
 private:
+    size_t timeStepCount( RifSummaryReaderInterface* reader ) const;
+    void   calculateOverlappingTimeSteps();
+
+private:
     std::vector<std::string>                                m_fileNames;
     std::vector<std::unique_ptr<RifSummaryReaderInterface>> m_summaryReaders;
 
-    std::vector<time_t> m_aggregatedTimeSteps;
+    std::map<RifSummaryReaderInterface*, size_t> m_valueCountForReader;
+    std::vector<time_t>                          m_aggregatedTimeSteps;
 };

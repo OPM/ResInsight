@@ -352,6 +352,7 @@ void RiaPreferencesSummary::defineEditorAttribute( const caf::PdmFieldHandle* fi
 //--------------------------------------------------------------------------------------------------
 void RiaPreferencesSummary::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
+    uiOrdering.add( &m_useMultipleThreadsWhenLoadingSummaryCases );
     uiOrdering.add( &m_summaryReader );
 
     if ( m_summaryReader == SummaryReaderMode::OPM_COMMON )
@@ -369,8 +370,6 @@ void RiaPreferencesSummary::defineUiOrdering( QString uiConfigName, caf::PdmUiOr
             uiOrdering.add( &m_createH5SummaryFileThreadCount );
         }
     }
-
-    uiOrdering.add( &m_useMultipleThreadsWhenLoadingSummaryCases );
 
     uiOrdering.skipRemainingFields();
 }
