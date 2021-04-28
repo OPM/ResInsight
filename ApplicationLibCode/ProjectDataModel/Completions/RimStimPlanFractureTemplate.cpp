@@ -653,10 +653,19 @@ WellFractureIntersectionData
 //--------------------------------------------------------------------------------------------------
 std::pair<QString, QString> RimStimPlanFractureTemplate::widthParameterNameAndUnit() const
 {
-    if ( m_stimPlanFractureDefinitionData.notNull() )
+    return widthParameterNameAndUnit( m_stimPlanFractureDefinitionData );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::pair<QString, QString> RimStimPlanFractureTemplate::widthParameterNameAndUnit(
+    cvf::ref<RigStimPlanFractureDefinition> stimPlanFractureDefinitionData )
+{
+    if ( stimPlanFractureDefinitionData.notNull() )
     {
         std::vector<std::pair<QString, QString>> propertyNamesUnitsOnFile =
-            m_stimPlanFractureDefinitionData->getStimPlanPropertyNamesUnits();
+            stimPlanFractureDefinitionData->getStimPlanPropertyNamesUnits();
 
         for ( const auto& nameUnit : propertyNamesUnitsOnFile )
         {

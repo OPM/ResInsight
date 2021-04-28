@@ -101,6 +101,8 @@ public:
 
     double formationDip() const;
 
+    static std::pair<QString, QString> widthParameterNameAndUnit( cvf::ref<RigStimPlanFractureDefinition> def );
+
 protected:
     void initAfterRead() override;
 

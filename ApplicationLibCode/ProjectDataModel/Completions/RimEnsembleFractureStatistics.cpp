@@ -425,6 +425,14 @@ std::vector<QString> RimEnsembleFractureStatistics::computeStatistics()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::vector<cvf::ref<RigStimPlanFractureDefinition>> RimEnsembleFractureStatistics::readFractureDefinitions() const
+{
+    return readFractureDefinitions( m_filePaths, RiaDefines::EclipseUnitSystem::UNITS_METRIC );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::vector<cvf::ref<RigStimPlanFractureDefinition>>
     RimEnsembleFractureStatistics::readFractureDefinitions( const std::vector<caf::FilePath>& filePaths,
                                                             RiaDefines::EclipseUnitSystem     unitSystem ) const

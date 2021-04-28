@@ -91,6 +91,8 @@
 #include "RimWellPathCollection.h"
 
 #ifdef USE_QTCHARTS
+#include "RimEnsembleFractureStatisticsPlot.h"
+#include "RimEnsembleFractureStatisticsPlotCollection.h"
 #include "RimGridStatisticsPlot.h"
 #include "RimGridStatisticsPlotCollection.h"
 #endif
@@ -1465,9 +1467,15 @@ void RimProject::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, Q
                 itemCollection->add( mainPlotCollection->vfpPlotCollection() );
             }
 #ifdef USE_QTCHARTS
-            if ( mainPlotCollection->gridStatisticsPlotCollection() )
+            if ( mainPlotCollection->gridStatisticsPlotCollection() ||
+                 mainPlotCollection->ensembleFractureStatisticsPlotCollection() )
             {
-                itemCollection->add( mainPlotCollection->gridStatisticsPlotCollection() );
+                auto statisticsItemCollection = itemCollection->add( "Statistics Plots", ":/Folder.png" );
+                if ( mainPlotCollection->gridStatisticsPlotCollection() )
+                    statisticsItemCollection->add( mainPlotCollection->gridStatisticsPlotCollection() );
+
+                if ( mainPlotCollection->ensembleFractureStatisticsPlotCollection() )
+                    statisticsItemCollection->add( mainPlotCollection->ensembleFractureStatisticsPlotCollection() );
             }
 #endif
         }
