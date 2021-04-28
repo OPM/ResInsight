@@ -168,8 +168,10 @@ ${CMAKE_CURRENT_LIST_DIR}/RicImportGridModelFromSummaryCurveFeature.cpp
 
 if(Qt5Charts_FOUND)
    list(APPEND SOURCE_GROUP_HEADER_FILES
+        ${CMAKE_CURRENT_LIST_DIR}/RicCreateEnsembleFractureStatisticsPlotFeature.h
         ${CMAKE_CURRENT_LIST_DIR}/RicCreateGridStatisticsPlotFeature.h)
    list(APPEND SOURCE_GROUP_SOURCE_FILES
+        ${CMAKE_CURRENT_LIST_DIR}/RicCreateEnsembleFractureStatisticsPlotFeature.cpp
         ${CMAKE_CURRENT_LIST_DIR}/RicCreateGridStatisticsPlotFeature.cpp)
 endif()
 

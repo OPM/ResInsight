@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2017 -     Statoil ASA
+//  Copyright (C) 2021- Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -18,34 +18,17 @@
 
 #pragma once
 
-#include "cvfVector3.h"
-
-#include <vector>
+#include "cafCmdFeature.h"
 
 //==================================================================================================
 ///
-///
 //==================================================================================================
-class RigFractureCell
+class RicCreateEnsembleFractureStatisticsPlotFeature : public caf::CmdFeature
 {
-public:
-    RigFractureCell( std::vector<cvf::Vec3d> polygon, size_t i, size_t j );
+    CAF_CMD_HEADER_INIT;
 
-    const std::vector<cvf::Vec3d>& getPolygon() const;
-    double                         getConductivityValue() const;
-    size_t                         getI() const;
-    size_t                         getJ() const;
-
-    bool hasNonZeroConductivity() const;
-    void setConductivityValue( double cond );
-
-    double cellSizeX() const;
-    double cellSizeZ() const;
-    double area() const;
-
-private:
-    std::vector<cvf::Vec3d> m_polygon;
-    double                  m_conductivityValue;
-    size_t                  m_i;
-    size_t                  m_j;
+protected:
+    bool isCommandEnabled() override;
+    void onActionTriggered( bool isChecked ) override;
+    void setupActionLook( QAction* actionToSetup ) override;
 };

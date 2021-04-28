@@ -96,6 +96,14 @@ public:
     void addFilePath( const QString& filePath );
     void loadAndUpdateData();
 
+    std::vector<cvf::ref<RigStimPlanFractureDefinition>> readFractureDefinitions() const;
+
+    static std::vector<cvf::cref<RigFractureGrid>>
+        createFractureGrids( const std::vector<cvf::ref<RigStimPlanFractureDefinition>>& stimPlanFractureDefinitions,
+                             RiaDefines::EclipseUnitSystem                               unitSystem,
+                             const QString&                                              resultName,
+                             MeshAlignmentType                                           meshAlignmentType );
+
 protected:
     void defineEditorAttribute( const caf::PdmFieldHandle* field,
                                 QString                    uiConfigName,
@@ -115,12 +123,6 @@ protected:
     std::vector<cvf::ref<RigStimPlanFractureDefinition>>
         readFractureDefinitions( const std::vector<caf::FilePath>& filePaths,
                                  RiaDefines::EclipseUnitSystem     unitSystem ) const;
-
-    std::vector<cvf::cref<RigFractureGrid>>
-        createFractureGrids( const std::vector<cvf::ref<RigStimPlanFractureDefinition>>& stimPlanFractureDefinitions,
-                             RiaDefines::EclipseUnitSystem                               unitSystem,
-                             const QString&                                              resultName,
-                             MeshAlignmentType                                           meshAlignmentType );
 
     static std::set<std::pair<QString, QString>>
         findAllResultNames( const std::vector<cvf::ref<RigStimPlanFractureDefinition>>& stimPlanFractureDefinitions );

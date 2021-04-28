@@ -44,6 +44,8 @@
 #include "RimWellRftPlot.h"
 
 #ifdef USE_QTCHARTS
+#include "RimEnsembleFractureStatisticsPlot.h"
+#include "RimEnsembleFractureStatisticsPlotCollection.h"
 #include "RimGridStatisticsPlot.h"
 #include "RimGridStatisticsPlotCollection.h"
 #endif
@@ -109,6 +111,14 @@ RimMainPlotCollection::RimMainPlotCollection()
 #ifdef USE_QTCHARTS
     CAF_PDM_InitFieldNoDefault( &m_gridStatisticsPlotCollection, "GridStatisticsPlotCollection", "", "", "", "" );
     m_gridStatisticsPlotCollection.uiCapability()->setUiHidden( true );
+
+    CAF_PDM_InitFieldNoDefault( &m_ensembleFractureStatisticsPlotCollection,
+                                "EnsembleFractureStatisticsPlotCollection",
+                                "",
+                                "",
+                                "",
+                                "" );
+    m_ensembleFractureStatisticsPlotCollection.uiCapability()->setUiHidden( true );
 #endif
 
     m_wellLogPlotCollection            = new RimWellLogPlotCollection();
@@ -125,7 +135,8 @@ RimMainPlotCollection::RimMainPlotCollection()
     m_stimPlanModelPlotCollection      = new RimStimPlanModelPlotCollection;
     m_vfpPlotCollection                = new RimVfpPlotCollection();
 #ifdef USE_QTCHARTS
-    m_gridStatisticsPlotCollection = new RimGridStatisticsPlotCollection;
+    m_gridStatisticsPlotCollection             = new RimGridStatisticsPlotCollection;
+    m_ensembleFractureStatisticsPlotCollection = new RimEnsembleFractureStatisticsPlotCollection;
 #endif
 }
 
@@ -265,6 +276,14 @@ RimGridStatisticsPlotCollection* RimMainPlotCollection::gridStatisticsPlotCollec
 {
     return m_gridStatisticsPlotCollection();
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimEnsembleFractureStatisticsPlotCollection* RimMainPlotCollection::ensembleFractureStatisticsPlotCollection()
+{
+    return m_ensembleFractureStatisticsPlotCollection();
+}
 #endif
 
 //--------------------------------------------------------------------------------------------------
@@ -287,6 +306,7 @@ void RimMainPlotCollection::deleteAllContainedObjects()
     m_stimPlanModelPlotCollection()->deleteAllPlots();
 #ifdef USE_QTCHARTS
     m_gridStatisticsPlotCollection()->deleteAllPlots();
+    m_ensembleFractureStatisticsPlotCollection()->deleteAllPlots();
 #endif
 }
 
@@ -362,6 +382,15 @@ void RimMainPlotCollection::updatePlotsWithFormations()
         for ( RimGridStatisticsPlot* gridStatisticsPlot : m_gridStatisticsPlotCollection->gridStatisticsPlots() )
         {
             gridStatisticsPlot->loadDataAndUpdate();
+        }
+    }
+
+    if ( m_ensembleFractureStatisticsPlotCollection )
+    {
+        for ( RimEnsembleFractureStatisticsPlot* ensembleFractureStatisticsPlot :
+              m_ensembleFractureStatisticsPlotCollection->ensembleFractureStatisticsPlots() )
+        {
+            ensembleFractureStatisticsPlot->loadDataAndUpdate();
         }
     }
 #endif

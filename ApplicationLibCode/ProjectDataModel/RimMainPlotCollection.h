@@ -45,6 +45,7 @@ class RimVfpPlotCollection;
 
 #ifdef USE_QTCHARTS
 class RimGridStatisticsPlotCollection;
+class RimEnsembleFractureStatisticsPlotCollection;
 #endif
 
 //==================================================================================================
@@ -74,7 +75,8 @@ public:
     RimVfpPlotCollection*                vfpPlotCollection();
 
 #ifdef USE_QTCHARTS
-    RimGridStatisticsPlotCollection* gridStatisticsPlotCollection();
+    RimGridStatisticsPlotCollection*             gridStatisticsPlotCollection();
+    RimEnsembleFractureStatisticsPlotCollection* ensembleFractureStatisticsPlotCollection();
 #endif
 
     void deleteAllContainedObjects();
@@ -105,7 +107,8 @@ private:
     caf::PdmChildField<RimStimPlanModelPlotCollection*>      m_stimPlanModelPlotCollection;
     caf::PdmChildField<RimVfpPlotCollection*>                m_vfpPlotCollection;
 #ifdef USE_QTCHARTS
-    caf::PdmChildField<RimGridStatisticsPlotCollection*> m_gridStatisticsPlotCollection;
+    caf::PdmChildField<RimGridStatisticsPlotCollection*>             m_gridStatisticsPlotCollection;
+    caf::PdmChildField<RimEnsembleFractureStatisticsPlotCollection*> m_ensembleFractureStatisticsPlotCollection;
 #endif
 
     caf::PdmField<bool> m_show;

@@ -152,6 +152,7 @@
 #include "RimWellPltPlot.h"
 
 #ifdef USE_QTCHARTS
+#include "RimEnsembleFractureStatisticsPlotCollection.h"
 #include "RimGridStatisticsPlotCollection.h"
 #endif
 
@@ -613,6 +614,10 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         else if ( dynamic_cast<RimGridStatisticsPlotCollection*>( firstUiItem ) )
         {
             menuBuilder << "RicCreateGridStatisticsPlotFeature";
+        }
+        else if ( dynamic_cast<RimEnsembleFractureStatisticsPlotCollection*>( firstUiItem ) )
+        {
+            menuBuilder << "RicCreateEnsembleFractureStatisticsPlotFeature";
         }
 #endif
         else if ( dynamic_cast<RimGridCrossPlot*>( firstUiItem ) )
