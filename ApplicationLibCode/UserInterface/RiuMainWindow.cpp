@@ -683,8 +683,7 @@ void RiuMainWindow::createToolBars()
         toolbar->addAction( polyMeasureAction );
     }
 
-    RiaApplication* app = RiaApplication::instance();
-    if ( app->preferences()->showTestToolbar() )
+    if ( RiaPreferences::current()->showTestToolbar() )
     {
         QToolBar* toolbar = addToolBar( tr( "Test" ) );
         toolbar->setObjectName( toolbar->windowTitle() );
@@ -715,8 +714,7 @@ void RiuMainWindow::createDockPanels()
         m_projectTreeView = new caf::PdmUiTreeView( this );
         m_projectTreeView->enableSelectionManagerUpdating( true );
 
-        RiaApplication* app = RiaApplication::instance();
-        m_projectTreeView->enableAppendOfClassNameToUiItemText( app->preferences()->appendClassNameToUiText() );
+        m_projectTreeView->enableAppendOfClassNameToUiItemText( RiaPreferences::current()->appendClassNameToUiText() );
 
         dockWidget->setWidget( m_projectTreeView );
 

@@ -474,7 +474,7 @@ QSize RiuMultiPlotPage::sizeHint() const
 {
     if ( m_previewMode )
     {
-        QPageLayout pageLayout = RiaApplication::instance()->preferences()->defaultPageLayout();
+        QPageLayout pageLayout = RiaPreferences::current()->defaultPageLayout();
         if ( m_plotDefinition )
         {
             pageLayout = m_plotDefinition->pageLayout();

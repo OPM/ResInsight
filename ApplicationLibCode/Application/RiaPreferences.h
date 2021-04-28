@@ -23,7 +23,6 @@
 
 #include "RiaDefines.h"
 #include "RiaFontCache.h"
-#include "RiaGuiApplication.h"
 #include "RiaQDateTimeTools.h"
 
 #include "cafAppEnum.h"
@@ -110,12 +109,12 @@ public:
     static QString defaultMultiLateralWellNamePattern();
 
     // 3D view
-    RiaDefines::MeshModeType              defaultMeshModeType() const;
-    RiaGuiApplication::RINavigationPolicy navigationPolicy() const;
-    int                                   defaultScaleFactorZ() const;
-    bool                                  showLegendBackground() const;
-    bool                                  showInfoBox() const;
-    bool                                  showGridBox() const;
+    RiaDefines::MeshModeType       defaultMeshModeType() const;
+    RiaDefines::RINavigationPolicy navigationPolicy() const;
+    int                            defaultScaleFactorZ() const;
+    bool                           showLegendBackground() const;
+    bool                           showInfoBox() const;
+    bool                           showGridBox() const;
 
     // Script paths
     QString pythonExecutable() const;
@@ -165,7 +164,8 @@ protected:
 
 private:
     static QString tabNameGeneral();
-    static QString tabNameEclipse();
+    static QString tabNameEclipseGrid();
+    static QString tabNameEclipseSummary();
     static QString tabNamePlotting();
     static QString tabNameScripting();
     static QString tabNameExport();
@@ -223,13 +223,13 @@ private:
     caf::PdmChildField<RiaPreferencesSummary*> m_summaryPreferences;
 
     // 3d view
-    caf::PdmField<caf::AppEnum<RiaDefines::MeshModeType>>              m_defaultMeshModeType;
-    caf::PdmField<caf::AppEnum<RiaGuiApplication::RINavigationPolicy>> m_navigationPolicy;
-    caf::PdmField<int>                                                 m_defaultScaleFactorZ;
-    caf::PdmField<bool>                                                m_showLegendBackground;
-    caf::PdmField<bool>                                                m_enableFaultsByDefault;
-    caf::PdmField<bool>                                                m_showInfoBox;
-    caf::PdmField<bool>                                                m_showGridBox;
+    caf::PdmField<caf::AppEnum<RiaDefines::MeshModeType>>       m_defaultMeshModeType;
+    caf::PdmField<caf::AppEnum<RiaDefines::RINavigationPolicy>> m_navigationPolicy;
+    caf::PdmField<int>                                          m_defaultScaleFactorZ;
+    caf::PdmField<bool>                                         m_showLegendBackground;
+    caf::PdmField<bool>                                         m_enableFaultsByDefault;
+    caf::PdmField<bool>                                         m_showInfoBox;
+    caf::PdmField<bool>                                         m_showGridBox;
 
     QStringList m_tabNames;
 };

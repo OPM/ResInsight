@@ -100,7 +100,7 @@ private:
     caf::PdmField<SummaryHistoryCurveStyleModeType> m_defaultSummaryHistoryCurveStyle;
 
     caf::PdmField<bool> m_showSummaryTimeAsLongString;
-    caf::PdmField<bool> m_useMultipleThreadsWhenLoadingSummaryData;
+    caf::PdmField<bool> m_useMultipleThreadsWhenLoadingSummaryCases;
 
     caf::PdmField<bool> m_createOptimizedSummaryDataFile;
     caf::PdmField<bool> m_useOptimizedSummaryDataFile;

@@ -23,6 +23,7 @@
 #include "RiaBoundingBoxTools.h"
 #include "RiaColorTools.h"
 #include "RiaFontCache.h"
+#include "RiaGuiApplication.h"
 #include "RiaPreferences.h"
 
 #include "Rim3dView.h"
@@ -186,7 +187,7 @@ void RivMeasurementPartMgr::buildPolyLineParts( const cvf::Camera*              
 
         RiaGuiApplication* app = RiaGuiApplication::instance();
 
-        auto    backgroundColor = app->preferences()->defaultViewerBackgroundColor;
+        auto    backgroundColor = RiaPreferences::current()->defaultViewerBackgroundColor;
         auto    fontColor       = RiuGuiTheme::getColorByVariableName( "textColor" );
         QString text            = m_measurement->label();
         auto    labelPosition   = pointsInDisplay.back();

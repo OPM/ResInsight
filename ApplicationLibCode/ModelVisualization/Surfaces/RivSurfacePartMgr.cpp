@@ -18,7 +18,6 @@
 
 #include "RivSurfacePartMgr.h"
 
-#include "RiaApplication.h"
 #include "RiaPreferences.h"
 
 #include "ProjectDataModel/RimCase.h"
@@ -206,7 +205,7 @@ void RivSurfacePartMgr::updateNativeSurfaceColors()
 
     // Update mesh colors as well, in case of change
 
-    RiaPreferences* prefs = RiaApplication::instance()->preferences();
+    RiaPreferences* prefs = RiaPreferences::current();
 
     if ( m_intersectionGridLines.notNull() )
     {

@@ -23,6 +23,7 @@
 #include "RiaApplication.h"
 #include "RiaBaseDefs.h"
 #include "RiaColorTools.h"
+#include "RiaGuiApplication.h"
 #include "RiaPreferences.h"
 #include "RiaRegressionTestRunner.h"
 
@@ -716,7 +717,6 @@ void RiuViewer::addColorLegendToBottomLeftCorner( caf::TitledOverlayFrame* added
     if ( !addedLegend || m_visibleLegends.contains( addedLegend ) ) return;
 
     RiaGuiApplication* app              = RiaGuiApplication::instance();
-    RiaPreferences*    preferences      = app->preferences();
     cvf::Rendering*    overlayRendering = overlayItemsRendering();
     CVF_ASSERT( overlayRendering );
 
@@ -728,7 +728,7 @@ void RiuViewer::addColorLegendToBottomLeftCorner( caf::TitledOverlayFrame* added
 
     updateLegendTextAndTickMarkColor( addedLegend );
 
-    addedLegend->enableBackground( preferences->showLegendBackground() );
+    addedLegend->enableBackground( RiaPreferences::current()->showLegendBackground() );
     addedLegend->setBackgroundColor( backgroundColor );
     addedLegend->setBackgroundFrameColor( frameColor );
     addedLegend->setFont( app->sceneFont( m_fontPointSize ) );
@@ -946,19 +946,19 @@ void RiuViewer::updateNavigationPolicy()
 {
     switch ( RiaGuiApplication::instance()->navigationPolicy() )
     {
-        case RiaGuiApplication::RINavigationPolicy::NAVIGATION_POLICY_CAD:
+        case RiaDefines::RINavigationPolicy::NAVIGATION_POLICY_CAD:
             setNavigationPolicy( new RiuCadNavigation );
             break;
 
-        case RiaGuiApplication::RINavigationPolicy::NAVIGATION_POLICY_CEETRON:
+        case RiaDefines::RINavigationPolicy::NAVIGATION_POLICY_CEETRON:
             setNavigationPolicy( new caf::CeetronPlusNavigation );
             break;
 
-        case RiaGuiApplication::RINavigationPolicy::NAVIGATION_POLICY_GEOQUEST:
+        case RiaDefines::RINavigationPolicy::NAVIGATION_POLICY_GEOQUEST:
             setNavigationPolicy( new RiuGeoQuestNavigation );
             break;
 
-        case RiaGuiApplication::RINavigationPolicy::NAVIGATION_POLICY_RMS:
+        case RiaDefines::RINavigationPolicy::NAVIGATION_POLICY_RMS:
             setNavigationPolicy( new RiuRmsNavigation );
             break;
 

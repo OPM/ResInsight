@@ -19,7 +19,6 @@
 
 #include "RimWellLogFileCurve.h"
 
-#include "RiaApplication.h"
 #include "RiaLogging.h"
 #include "RiaPreferences.h"
 
@@ -147,7 +146,7 @@ void RimWellLogFileCurve::onLoadDataAndUpdate( bool updateParentPlot )
                                  .arg( depthTitle );
                 }
 
-                bool showWarning = !RiaApplication::instance()->preferences()->showLasCurveWithoutTvdWarning();
+                bool showWarning = !RiaPreferences::current()->showLasCurveWithoutTvdWarning();
                 if ( !errMsg.isEmpty() && showWarning )
                 {
                     QString tmp = QString( "The LAS curve can not be displayed.\n%1\n" ).arg( errMsg );

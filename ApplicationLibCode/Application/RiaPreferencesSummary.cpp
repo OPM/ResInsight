@@ -162,14 +162,14 @@ RiaPreferencesSummary::RiaPreferencesSummary()
                        "" );
     m_showSummaryTimeAsLongString.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 
-    CAF_PDM_InitField( &m_useMultipleThreadsWhenLoadingSummaryData,
-                       "useMultipleThreadsWhenLoadingSummaryData",
+    CAF_PDM_InitField( &m_useMultipleThreadsWhenLoadingSummaryCases,
+                       "useMultipleThreadsWhenLoadingSummaryCases",
                        true,
                        "Use Multiple Threads for Import of Summary Files",
                        "",
                        "",
                        "" );
-    m_useMultipleThreadsWhenLoadingSummaryData.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+    m_useMultipleThreadsWhenLoadingSummaryCases.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -277,7 +277,7 @@ bool RiaPreferencesSummary::showSummaryTimeAsLongString() const
 //--------------------------------------------------------------------------------------------------
 bool RiaPreferencesSummary::useMultipleThreadsWhenLoadingSummaryData() const
 {
-    return m_useMultipleThreadsWhenLoadingSummaryData;
+    return m_useMultipleThreadsWhenLoadingSummaryCases;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -336,7 +336,7 @@ void RiaPreferencesSummary::defineEditorAttribute( const caf::PdmFieldHandle* fi
                                                    caf::PdmUiEditorAttribute* attribute )
 {
     if ( field == &m_createOptimizedSummaryDataFile || field == &m_showSummaryTimeAsLongString ||
-         field == &m_useMultipleThreadsWhenLoadingSummaryData || field == &m_summaryRestartFilesShowImportDialog ||
+         field == &m_useMultipleThreadsWhenLoadingSummaryCases || field == &m_summaryRestartFilesShowImportDialog ||
          field == &m_useOptimizedSummaryDataFile || field == &m_createH5SummaryDataFile || field == &m_checkH5FileTimeStamp )
     {
         auto myAttr = dynamic_cast<caf::PdmUiCheckBoxEditorAttribute*>( attribute );
@@ -370,7 +370,7 @@ void RiaPreferencesSummary::defineUiOrdering( QString uiConfigName, caf::PdmUiOr
         }
     }
 
-    uiOrdering.add( &m_useMultipleThreadsWhenLoadingSummaryData );
+    uiOrdering.add( &m_useMultipleThreadsWhenLoadingSummaryCases );
 
     uiOrdering.skipRemainingFields();
 }

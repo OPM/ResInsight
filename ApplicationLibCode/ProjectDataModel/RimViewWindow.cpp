@@ -18,7 +18,6 @@
 
 #include "RimViewWindow.h"
 
-#include "RiaApplication.h"
 #include "RiaColorTables.h"
 #include "RiaColorTools.h"
 #include "RiaFieldHandleTools.h"
@@ -334,7 +333,7 @@ void RimViewWindow::initAfterRead()
 void RimViewWindow::defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
 {
     caf::PdmUiTreeViewItemAttribute* treeItemAttribute = dynamic_cast<caf::PdmUiTreeViewItemAttribute*>( attribute );
-    if ( treeItemAttribute && RiaApplication::instance()->preferences()->showViewIdInProjectTree() && id() >= 0 )
+    if ( treeItemAttribute && RiaPreferences::current()->showViewIdInProjectTree() && id() >= 0 )
     {
         treeItemAttribute->tags.clear();
         auto tag                   = caf::PdmUiTreeViewItemAttribute::Tag::create();

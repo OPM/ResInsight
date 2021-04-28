@@ -109,11 +109,11 @@ RimSummaryTimeAxisProperties::RimSummaryTimeAxisProperties()
 
     CAF_PDM_InitFieldNoDefault( &m_dateFormat, "DateFormat", "Date Label Format", "", "", "" );
     m_dateFormat.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
-    m_dateFormat = RiaApplication::instance()->preferences()->dateFormat();
+    m_dateFormat = RiaPreferences::current()->dateFormat();
 
     CAF_PDM_InitFieldNoDefault( &m_timeFormat, "TimeFormat", "Time Label Format", "", "", "" );
     m_timeFormat.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
-    m_timeFormat = RiaApplication::instance()->preferences()->timeFormat();
+    m_timeFormat = RiaPreferences::current()->timeFormat();
 
     CAF_PDM_InitFieldNoDefault( &m_majorTickmarkCount, "MajorTickmarkCount", "Major Tickmark Count", "", "", "" );
 

@@ -498,7 +498,7 @@ void RivFaultPartMgr::updatePartEffect()
     updateNNCColors( 0, nullptr );
 
     // Update mesh colors as well, in case of change
-    RiaPreferences* prefs = RiaApplication::instance()->preferences();
+    RiaPreferences* prefs = RiaPreferences::current();
 
     cvf::ref<cvf::Effect>    eff;
     caf::MeshEffectGenerator faultEffGen( prefs->defaultFaultGridLineColors() );

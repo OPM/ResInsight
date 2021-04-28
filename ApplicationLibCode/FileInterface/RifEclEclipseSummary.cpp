@@ -20,8 +20,6 @@
 
 #include "RiaFilePathTools.h"
 #include "RiaLogging.h"
-#include "RiaPreferences.h"
-#include "RiaPreferencesSummary.h"
 #include "RiaStdStringTools.h"
 #include "RiaStringEncodingTools.h"
 

@@ -15,9 +15,9 @@
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
+
 #include "RimPlotWindow.h"
 
-#include "RiaApplication.h"
 #include "RiaPlotWindowRedrawScheduler.h"
 #include "RiaPreferences.h"
 
@@ -227,7 +227,7 @@ void RimPlotWindow::renderWindowContent( QPaintDevice* paintDevice )
 //--------------------------------------------------------------------------------------------------
 QPageLayout RimPlotWindow::pageLayout() const
 {
-    QPageLayout defaultPageLayout = RiaApplication::instance()->preferences()->defaultPageLayout();
+    QPageLayout defaultPageLayout = RiaPreferences::current()->defaultPageLayout();
     QPageLayout customPageLayout;
     if ( hasCustomPageLayout( &customPageLayout ) )
     {

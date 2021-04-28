@@ -19,7 +19,6 @@
 #include "RicPlotProductionRateFeature.h"
 
 #include "RiaGuiApplication.h"
-#include "RiaPreferences.h"
 
 #include "RifEclipseSummaryAddress.h"
 #include "RifSummaryReaderInterface.h"

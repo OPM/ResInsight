@@ -175,4 +175,12 @@ enum class ThemeEnum
     UNDEFINED
 };
 
+enum class RINavigationPolicy : short
+{
+    NAVIGATION_POLICY_CEETRON,
+    NAVIGATION_POLICY_CAD,
+    NAVIGATION_POLICY_GEOQUEST,
+    NAVIGATION_POLICY_RMS
+};
+
 }; // namespace RiaDefines

@@ -21,7 +21,6 @@
 #include "RiaBaseDefs.h"
 #include "RiaImportEclipseCaseTools.h"
 #include "RiaLogging.h"
-#include "RiaPreferences.h"
 #include "RiaProjectModifier.h"
 #include "RiaRegressionTestRunner.h"
 

@@ -19,6 +19,7 @@
 
 #include "Rim3dView.h"
 
+#include "RiaApplication.h"
 #include "RiaFieldHandleTools.h"
 #include "RiaGuiApplication.h"
 #include "RiaOptionItemFactory.h"
@@ -63,7 +64,6 @@
 #include "cvfTransform.h"
 #include "cvfViewport.h"
 
-#include "cvfScene.h"
 #include <climits>
 
 namespace caf
@@ -90,8 +90,7 @@ Rim3dView::Rim3dView()
     , m_animationIntervalMillisec( 50 )
     , m_animationTimerUsers( 0 )
 {
-    RiaApplication* app         = RiaApplication::instance();
-    RiaPreferences* preferences = app->preferences();
+    RiaPreferences* preferences = RiaPreferences::current();
     CVF_ASSERT( preferences );
 
     CAF_PDM_InitObject( "3d View", "", "", "" );

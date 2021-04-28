@@ -19,7 +19,6 @@
 
 #include "RimFaultInViewCollection.h"
 
-#include "RiaApplication.h"
 #include "RiaColorTables.h"
 #include "RiaDefines.h"
 #include "RiaPreferences.h"
@@ -76,7 +75,7 @@ RimFaultInViewCollection::RimFaultInViewCollection()
                        "" );
 
     CAF_PDM_InitField( &showFaultLabel, "ShowFaultLabel", false, "Show Labels", "", "", "" );
-    cvf::Color3f defWellLabelColor = RiaApplication::instance()->preferences()->defaultWellLabelColor();
+    cvf::Color3f defWellLabelColor = RiaPreferences::current()->defaultWellLabelColor();
     CAF_PDM_InitField( &faultLabelColor, "FaultLabelColor", defWellLabelColor, "Label Color", "", "", "" );
 
     CAF_PDM_InitField( &showNNCs, "ShowNNCs", true, "Show NNCs", "", "", "" );

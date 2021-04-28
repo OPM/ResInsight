@@ -306,8 +306,7 @@ RimGeoMechView* RimGeoMechCase::createCopyAndAddView( const RimGeoMechView* sour
 
 RimGeoMechCase* RimGeoMechCase::createCopy( const QString& newInputFileName )
 {
-    RiaApplication* app     = RiaApplication::instance();
-    RimProject*     project = app->project();
+    RimProject* project = RimProject::current();
 
     RimGeoMechCase* copycase = dynamic_cast<RimGeoMechCase*>(
         this->xmlCapability()->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );

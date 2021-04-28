@@ -224,8 +224,7 @@ bool RimEclipseResultCase::importGridAndResultMetaData( bool showTimeStepFilter 
         outReader->setHdf5FileName( m_sourSimFileName().path() );
     }
 
-    RiaApplication* app = RiaApplication::instance();
-    if ( app->preferences()->autocomputeDepthRelatedProperties )
+    if ( RiaPreferences::current()->autocomputeDepthRelatedProperties )
     {
         results( RiaDefines::PorosityModelType::MATRIX_MODEL )->computeDepthRelatedResults();
         results( RiaDefines::PorosityModelType::FRACTURE_MODEL )->computeDepthRelatedResults();

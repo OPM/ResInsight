@@ -18,7 +18,6 @@
 
 #include "RimAnnotationTextAppearance.h"
 
-#include "RiaApplication.h"
 #include "RiaPreferences.h"
 
 #include "RimAnnotationCollection.h"
@@ -33,7 +32,7 @@ RimAnnotationTextAppearance::RimAnnotationTextAppearance()
 {
     CAF_PDM_InitObject( "TextAnnotation", ":/WellCollection.png", "", "" );
 
-    auto prefs                  = RiaApplication::instance()->preferences();
+    auto prefs                  = RiaPreferences::current();
     auto defaultBackgroundColor = prefs->defaultViewerBackgroundColor();
 
     CAF_PDM_InitFieldNoDefault( &m_fontSize, "FontSize", "Font Size", "", "", "" );

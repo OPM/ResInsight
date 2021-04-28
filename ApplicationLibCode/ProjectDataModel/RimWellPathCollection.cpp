@@ -20,7 +20,6 @@
 
 #include "RimWellPathCollection.h"
 
-#include "RiaApplication.h"
 #include "RiaColorTables.h"
 #include "RiaGuiApplication.h"
 #include "RiaLogging.h"
@@ -89,7 +88,7 @@ RimWellPathCollection::RimWellPathCollection()
 
     CAF_PDM_InitField( &showWellPathLabel, "ShowWellPathLabel", true, "Show Well Path Labels", "", "", "" );
 
-    cvf::Color3f defWellLabelColor = RiaApplication::instance()->preferences()->defaultWellLabelColor();
+    cvf::Color3f defWellLabelColor = RiaPreferences::current()->defaultWellLabelColor();
     CAF_PDM_InitField( &wellPathLabelColor, "WellPathLabelColor", defWellLabelColor, "Well label color", "", "", "" );
 
     CAF_PDM_InitField( &wellPathVisibility,

@@ -18,7 +18,6 @@
 
 #include "RicSnapshotViewToPdfFeature.h"
 
-#include "RiaApplication.h"
 #include "RiaGuiApplication.h"
 #include "RiaLogging.h"
 #include "RiaPreferences.h"
@@ -72,7 +71,7 @@ void RicSnapshotViewToPdfFeature::onActionTriggered( bool isChecked )
             {
                 RicSnapshotViewToFileFeature::savePlotPdfReportAs( fileName, plotWindow );
 
-                if ( RiaApplication::instance()->preferences()->openExportedPdfInViewer() )
+                if ( RiaPreferences::current()->openExportedPdfInViewer() )
                 {
                     QDesktopServices::openUrl( fileName );
                 }

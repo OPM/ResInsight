@@ -124,7 +124,7 @@ void RivExtrudedCurveIntersectionPartMgr::applySingleColorEffect()
     }
 
     // Update mesh colors as well, in case of change
-    RiaPreferences* prefs = RiaApplication::instance()->preferences();
+    RiaPreferences* prefs = RiaPreferences::current();
 
     if ( m_intersectionGridLines.notNull() )
     {
@@ -340,7 +340,7 @@ void RivExtrudedCurveIntersectionPartMgr::createFaultLabelParts( const std::vect
         }
     }
 
-    cvf::Color3f faultLabelColor = RiaApplication::instance()->preferences()->defaultWellLabelColor();
+    cvf::Color3f faultLabelColor = RiaPreferences::current()->defaultWellLabelColor();
     if ( faultInViewColl ) faultLabelColor = faultInViewColl->faultLabelColor();
 
     cvf::Font* font = RiaGuiApplication::instance()->defaultSceneFont();
@@ -415,7 +415,7 @@ void RivExtrudedCurveIntersectionPartMgr::createFaultLabelParts( const std::vect
 
         part->updateBoundingBox();
 
-        caf::MeshEffectGenerator gen( RiaApplication::instance()->preferences()->defaultFaultGridLineColors() );
+        caf::MeshEffectGenerator gen( RiaPreferences::current()->defaultFaultGridLineColors() );
         cvf::ref<cvf::Effect>    eff = gen.generateCachedEffect();
 
         part->setEffect( eff.p() );

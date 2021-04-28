@@ -44,7 +44,6 @@
 #include "Riu3DMainWindowTools.h"
 #include "RiuGuiTheme.h"
 
-#include "RiaApplication.h"
 #include "RiaColorTools.h"
 #include "RiaLogging.h"
 #include "RiaPreferences.h"
@@ -406,7 +405,7 @@ void RicNewContourMapViewFeature::assignDefaultResultAndLegend( RimEclipseContou
     {
         contourMap->cellResult()->setResultType( RiaDefines::ResultCatType::DYNAMIC_NATIVE );
 
-        if ( RiaApplication::instance()->preferences()->loadAndShowSoil )
+        if ( RiaPreferences::current()->loadAndShowSoil )
         {
             contourMap->cellResult()->setResultVariable( "SOIL" );
         }

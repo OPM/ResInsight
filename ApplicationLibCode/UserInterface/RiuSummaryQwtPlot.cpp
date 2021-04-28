@@ -370,8 +370,8 @@ void RiuSummaryQwtPlot::contextMenuEvent( QContextMenuEvent* event )
 //--------------------------------------------------------------------------------------------------
 void RiuSummaryQwtPlot::setDefaults()
 {
-    QString dateFormat = RiaApplication::instance()->preferences()->dateFormat();
-    QString timeFormat = RiaApplication::instance()->preferences()->timeFormat();
+    QString dateFormat = RiaPreferences::current()->dateFormat();
+    QString timeFormat = RiaPreferences::current()->timeFormat();
 
     useDateBasedTimeAxis( dateFormat, timeFormat );
 }

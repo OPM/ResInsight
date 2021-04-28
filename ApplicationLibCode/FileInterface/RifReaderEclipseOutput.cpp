@@ -20,7 +20,6 @@
 
 #include "RifReaderEclipseOutput.h"
 
-#include "RiaApplication.h"
 #include "RiaCellDividingTools.h"
 #include "RiaEclipseUnitTools.h"
 #include "RiaLogging.h"
@@ -498,7 +497,7 @@ bool RifReaderEclipseOutput::open( const QString& fileName, RigEclipseCaseData* 
 
     {
         auto task = progress.task( "Handling well information", 10 );
-        if ( !RiaApplication::instance()->preferences()->readerSettings()->skipWellData() )
+        if ( !RiaPreferences::current()->readerSettings()->skipWellData() )
         {
             readWellCells( mainEclGrid, isImportOfCompleteMswDataEnabled() );
         }
