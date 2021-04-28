@@ -37,6 +37,7 @@
 #include <QString>
 #include <QStringList>
 
+#include <cassert>
 #include <iostream>
 
 //--------------------------------------------------------------------------------------------------
