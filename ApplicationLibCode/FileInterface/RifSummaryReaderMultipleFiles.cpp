@@ -49,6 +49,21 @@ bool RifSummaryReaderMultipleFiles::values( const RifEclipseSummaryAddress& resu
     {
         std::vector<double> readerValues;
         reader->values( resultAddress, &readerValues );
+
+        if ( readerValues.empty() )
+        {
+            // When a well is introduced, no data is present before the time step the well is introduced
+            // Add values of zero for this interval
+            //
+            // This issue was reported for libecl, but it is not relevant now as the low level file readers only handle
+            // a single file.
+            // https://github.com/OPM/ResInsight/issues/7065
+
+            std::vector<double> zeros( reader->timeSteps( {} ).size(), 0.0 );
+
+            readerValues = zeros;
+        }
+
         values->insert( values->end(), readerValues.begin(), readerValues.end() );
     }
 
