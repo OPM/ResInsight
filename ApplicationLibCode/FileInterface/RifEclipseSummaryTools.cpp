@@ -364,9 +364,6 @@ ecl_sum_type* RifEclipseSummaryTools::openEclSum( const QString& inHeaderFileNam
 
     if ( headerFileName.isEmpty() || dataFileNames.isEmpty() ) return nullptr;
 
-    assert( !headerFileName.isEmpty() );
-    assert( dataFileNames.size() > 0 );
-
     stringlist_type* dataFiles = stringlist_alloc_new();
     for ( int i = 0; i < dataFileNames.size(); i++ )
     {
