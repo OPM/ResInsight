@@ -19,17 +19,14 @@
 #pragma once
 
 #include "RiaDefines.h"
-#include "RimPlotWindow.h"
 
-#include "RiuQtChartView.h"
+#include "RimStatisticsPlot.h"
 
 #include "cafPdmChildField.h"
 #include "cafPdmField.h"
 #include "cafPdmFieldHandle.h"
 #include "cafPdmObject.h"
 #include "cafPdmPtrField.h"
-
-#include <QPointer>
 
 class RimCase;
 class RimPlot;
@@ -40,7 +37,7 @@ class RimEclipseResultDefinition;
 ///
 ///
 //==================================================================================================
-class RimGridStatisticsPlot : public RimPlotWindow
+class RimGridStatisticsPlot : public RimStatisticsPlot
 {
     CAF_PDM_HEADER_INIT;
 
@@ -48,48 +45,25 @@ public:
     RimGridStatisticsPlot();
     ~RimGridStatisticsPlot() override;
 
-    QWidget* viewWidget() override;
-    QWidget* createPlotWidget( QWidget* mainWindowParent = nullptr );
-    QString  description() const override;
-
-    void zoomAll() override;
-
     void cellFilterViewUpdated();
 
 protected:
-    QImage snapshotWindowContent() override;
-
-    QWidget* createViewWidget( QWidget* mainWindowParent ) override;
-    void     deleteViewWidget() override;
-
     // Overridden PDM methods
     void                          fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
                                                          bool*                      useOptionsOnly ) override;
 
-    void                 initAfterRead() override;
-    void                 onLoadDataAndUpdate() override;
-    void                 updatePlots();
-    caf::PdmFieldHandle* userDescriptionField() override;
+    void initAfterRead() override;
 
-    void    performAutoNameUpdate();
-    QString createAutoName() const;
+    QString createAutoName() const override;
     QString timeStepString() const;
 
-    void setDefaults();
-
-private:
-    void cleanupBeforeClose();
-    void onPlotAdditionOrRemoval();
-    void doRenderWindowContent( QPaintDevice* paintDevice ) override;
-    void doUpdateLayout() override;
+    void             setDefaults();
+    bool             hasStatisticsData() const override;
+    RigHistogramData createStatisticsData() const override;
 
 protected:
-    QPointer<RiuQtChartView> m_viewer;
-
-    caf::PdmField<QString> m_plotWindowTitle;
-
     caf::PdmPtrField<RimCase*>                      m_case;
     caf::PdmField<int>                              m_timeStep;
     caf::PdmPtrField<RimGridView*>                  m_cellFilterView;

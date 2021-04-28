@@ -33,24 +33,15 @@
 #include "RimProject.h"
 #include "RimTools.h"
 
-#include "RiuPlotMainWindow.h"
-
 #include "RigHistogramData.h"
 
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObjectScriptingCapability.h"
 #include "cafPdmUiComboBoxEditor.h"
+
 #include "cvfAssert.h"
 
-#include <QtCharts/QBarSeries>
-#include <QtCharts/QBarSet>
-#include <QtCharts/QCategoryAxis>
-#include <QtCharts/QLineSeries>
-#include <QtCharts/QValueAxis>
-
 #include <cmath>
-
-using namespace QtCharts;
 
 CAF_PDM_SOURCE_INIT( RimGridStatisticsPlot, "GridStatisticsPlot" );
 
@@ -60,9 +51,6 @@ CAF_PDM_SOURCE_INIT( RimGridStatisticsPlot, "GridStatisticsPlot" );
 RimGridStatisticsPlot::RimGridStatisticsPlot()
 {
     CAF_PDM_InitObject( "Grid Statistics Plot", "", "", "A Plot of Grid Statistics" );
-
-    CAF_PDM_InitField( &m_plotWindowTitle, "PlotDescription", QString( "" ), "Name", "", "", "" );
-    m_plotWindowTitle.xmlCapability()->setIOWritable( false );
 
     CAF_PDM_InitFieldNoDefault( &m_case, "Case", "Case", "", "", "" );
     m_case.uiCapability()->setUiTreeChildrenHidden( true );
@@ -89,8 +77,6 @@ RimGridStatisticsPlot::RimGridStatisticsPlot()
 //--------------------------------------------------------------------------------------------------
 RimGridStatisticsPlot::~RimGridStatisticsPlot()
 {
-    removeMdiWindowFromMdiArea();
-    cleanupBeforeClose();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -110,110 +96,6 @@ void RimGridStatisticsPlot::setDefaults()
             m_property->setResultType( RiaDefines::ResultCatType::STATIC_NATIVE );
             m_property->setResultVariable( "PORO" );
         }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QWidget* RimGridStatisticsPlot::viewWidget()
-{
-    return m_viewer;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QWidget* RimGridStatisticsPlot::createPlotWidget( QWidget* mainWindowParent /*= nullptr */ )
-{
-    return createViewWidget( mainWindowParent );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RimGridStatisticsPlot::description() const
-{
-    return m_plotWindowTitle;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimGridStatisticsPlot::zoomAll()
-{
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QImage RimGridStatisticsPlot::snapshotWindowContent()
-{
-    QImage image;
-
-    if ( m_viewer )
-    {
-        QPixmap pix = m_viewer->grab();
-        image       = pix.toImage();
-    }
-
-    return image;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QWidget* RimGridStatisticsPlot::createViewWidget( QWidget* mainWindowParent )
-{
-    m_viewer = new RiuQtChartView( this, mainWindowParent );
-    return m_viewer;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimGridStatisticsPlot::deleteViewWidget()
-{
-    cleanupBeforeClose();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimGridStatisticsPlot::onPlotAdditionOrRemoval()
-{
-    updateAllRequiredEditors();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimGridStatisticsPlot::doRenderWindowContent( QPaintDevice* paintDevice )
-{
-    if ( m_viewer )
-    {
-        QPainter painter( paintDevice );
-        m_viewer->render( &painter );
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimGridStatisticsPlot::doUpdateLayout()
-{
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimGridStatisticsPlot::cleanupBeforeClose()
-{
-    if ( m_viewer )
-    {
-        m_viewer->setParent( nullptr );
-        delete m_viewer;
-        m_viewer = nullptr;
     }
 }
 
@@ -329,133 +211,48 @@ void RimGridStatisticsPlot::cellFilterViewUpdated()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridStatisticsPlot::onLoadDataAndUpdate()
+bool RimGridStatisticsPlot::hasStatisticsData() const
 {
-    updateMdiWindowVisibility();
-    performAutoNameUpdate();
-    updatePlots();
-    updateLayout();
+    return ( m_viewer && m_case() && m_property() );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridStatisticsPlot::updatePlots()
+RigHistogramData RimGridStatisticsPlot::createStatisticsData() const
 {
-    if ( m_viewer && m_case() && m_property() )
+    std::unique_ptr<RimHistogramCalculator> histogramCalculator;
+    histogramCalculator.reset( new RimHistogramCalculator );
+
+    RigHistogramData histogramData;
+
+    RimHistogramCalculator::StatisticsCellRangeType cellRange = RimHistogramCalculator::StatisticsCellRangeType::ALL_CELLS;
+
+    RimHistogramCalculator::StatisticsTimeRangeType timeRange =
+        RimHistogramCalculator::StatisticsTimeRangeType::ALL_TIMESTEPS;
+    int timeStep = 0;
+    if ( m_timeStep() != -1 && !m_property()->hasStaticResult() )
     {
-        std::unique_ptr<RimHistogramCalculator> histogramCalculator;
-        histogramCalculator.reset( new RimHistogramCalculator );
-
-        RigHistogramData histogramData;
-
-        RimHistogramCalculator::StatisticsCellRangeType cellRange =
-            RimHistogramCalculator::StatisticsCellRangeType::ALL_CELLS;
-
-        RimHistogramCalculator::StatisticsTimeRangeType timeRange =
-            RimHistogramCalculator::StatisticsTimeRangeType::ALL_TIMESTEPS;
-        int timeStep = 0;
-        if ( m_timeStep() != -1 && !m_property()->hasStaticResult() )
-        {
-            timeStep  = m_timeStep();
-            timeRange = RimHistogramCalculator::StatisticsTimeRangeType::CURRENT_TIMESTEP;
-        }
-
-        if ( m_cellFilterView.value() )
-        {
-            // Filter by visible cells of the view
-            cellRange                   = RimHistogramCalculator::StatisticsCellRangeType::VISIBLE_CELLS;
-            RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>( m_cellFilterView.value() );
-            histogramData =
-                histogramCalculator->histogramData( eclipseView, m_property.value(), cellRange, timeRange, timeStep );
-        }
-        else
-        {
-            RimEclipseView* eclipseView = nullptr;
-            histogramData =
-                histogramCalculator->histogramData( eclipseView, m_property.value(), cellRange, timeRange, timeStep );
-        }
-
-        if ( histogramData.isHistogramVectorValid() )
-        {
-            QBarSet* set0     = new QBarSet( m_plotWindowTitle );
-            double   minValue = std::numeric_limits<double>::max();
-            double   maxValue = -std::numeric_limits<double>::max();
-            for ( double value : *histogramData.histogram )
-            {
-                *set0 << value;
-                minValue = std::min( minValue, value );
-                maxValue = std::max( maxValue, value );
-            }
-
-            QBarSeries* series = new QBarSeries();
-            series->append( set0 );
-
-            QChart* chart = new QChart();
-            chart->addSeries( series );
-            chart->setTitle( uiName() );
-
-            // Axis
-            double xAxisSize      = histogramData.max - histogramData.min;
-            double xAxisExtension = xAxisSize * 0.02;
-
-            QValueAxis* axisX = new QValueAxis();
-            axisX->setRange( histogramData.min - xAxisExtension, histogramData.max + xAxisExtension );
-            chart->addAxis( axisX, Qt::AlignBottom );
-
-            QValueAxis* axisY = new QValueAxis();
-            axisY->setRange( minValue, maxValue );
-            chart->addAxis( axisY, Qt::AlignLeft );
-
-            QLineSeries* p10series = new QLineSeries();
-            chart->addSeries( p10series );
-            p10series->setName( "P10" );
-            p10series->append( histogramData.p10, minValue );
-            p10series->append( histogramData.p10, maxValue );
-            p10series->attachAxis( axisX );
-            p10series->attachAxis( axisY );
-
-            QLineSeries* p90series = new QLineSeries();
-            chart->addSeries( p90series );
-            p90series->setName( "P90" );
-            p90series->append( histogramData.p90, minValue );
-            p90series->append( histogramData.p90, maxValue );
-            p90series->attachAxis( axisX );
-            p90series->attachAxis( axisY );
-
-            QLineSeries* meanSeries = new QLineSeries();
-            chart->addSeries( meanSeries );
-            meanSeries->setName( "Mean" );
-            meanSeries->append( histogramData.mean, minValue );
-            meanSeries->append( histogramData.mean, maxValue );
-            meanSeries->attachAxis( axisX );
-            meanSeries->attachAxis( axisY );
-
-            // Set font sizes
-            QFont titleFont = chart->titleFont();
-            titleFont.setPixelSize( titleFontSize() );
-            chart->setTitleFont( titleFont );
-
-            QLegend* legend = chart->legend();
-            if ( legend )
-            {
-                QFont legendFont = legend->font();
-                legendFont.setPixelSize( legendFontSize() );
-                legend->setFont( legendFont );
-                legend->setVisible( legendsVisible() );
-            }
-
-            m_viewer->setChart( chart );
-        }
+        timeStep  = m_timeStep();
+        timeRange = RimHistogramCalculator::StatisticsTimeRangeType::CURRENT_TIMESTEP;
     }
-}
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-caf::PdmFieldHandle* RimGridStatisticsPlot::userDescriptionField()
-{
-    return &m_plotWindowTitle;
+    if ( m_cellFilterView.value() )
+    {
+        // Filter by visible cells of the view
+        cellRange                   = RimHistogramCalculator::StatisticsCellRangeType::VISIBLE_CELLS;
+        RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>( m_cellFilterView.value() );
+        histogramData =
+            histogramCalculator->histogramData( eclipseView, m_property.value(), cellRange, timeRange, timeStep );
+    }
+    else
+    {
+        RimEclipseView* eclipseView = nullptr;
+        histogramData =
+            histogramCalculator->histogramData( eclipseView, m_property.value(), cellRange, timeRange, timeStep );
+    }
+
+    return histogramData;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -479,16 +276,6 @@ QString RimGridStatisticsPlot::createAutoName() const
     }
 
     return nameTags.join( ", " );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimGridStatisticsPlot::performAutoNameUpdate()
-{
-    QString name      = createAutoName();
-    m_plotWindowTitle = name;
-    setUiName( name );
 }
 
 //--------------------------------------------------------------------------------------------------
