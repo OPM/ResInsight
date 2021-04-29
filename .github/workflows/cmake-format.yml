@@ -12,7 +12,7 @@ jobs:
     - uses: actions/checkout@v2
     - name: Check format - ApplicationLibCode
       run: |
-        ~/.local/bin/cmake-format -c ${{ github.workspace }}/cmake/cmake-format.py -i .\CMakeLists.txt
+        ~/.local/bin/cmake-format -c ${{ github.workspace }}/cmake/cmake-format.py -i CMakeLists.txt
 
         cd ApplicationLibCode
         find -name CMake*.txt | xargs ~/.local/bin/cmake-format -c ${{ github.workspace }}/cmake/cmake-format.py -i
