@@ -31,10 +31,10 @@ RifReaderSettings::RifReaderSettings()
     CAF_PDM_InitObject( "RifReaderSettings", "", "", "" );
 
     CAF_PDM_InitField( &importFaults, "importFaults", true, "Import Faults", "", "", "" );
-    importFaults.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &importFaults );
 
     CAF_PDM_InitField( &importNNCs, "importSimulationNNCs", true, "Import NNCs", "", "", "" );
-    importNNCs.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &importNNCs );
 
     CAF_PDM_InitField( &includeInactiveCellsInFaultGeometry,
                        "includeInactiveCellsInFaultGeometry",
@@ -43,10 +43,10 @@ RifReaderSettings::RifReaderSettings()
                        "",
                        "",
                        "" );
-    includeInactiveCellsInFaultGeometry.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &includeInactiveCellsInFaultGeometry );
 
     CAF_PDM_InitField( &importAdvancedMswData, "importAdvancedMswData", false, "Import Advanced MSW Data", "", "", "" );
-    importAdvancedMswData.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &importAdvancedMswData );
 
     CAF_PDM_InitField( &useResultIndexFile,
                        "useResultIndexFile",
@@ -59,10 +59,10 @@ RifReaderSettings::RifReaderSettings()
                        "significantly.",
                        "" );
 
-    useResultIndexFile.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &useResultIndexFile );
 
     CAF_PDM_InitField( &skipWellData, "skipWellData", false, "Skip Import of Simulation Well Data", "", "", "" );
-    skipWellData.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &skipWellData );
 
     CAF_PDM_InitField( &includeFileAbsolutePathPrefix,
                        "includeFileAbsolutePathPrefix",
@@ -72,24 +72,6 @@ RifReaderSettings::RifReaderSettings()
                        "Path used to prefix absolute UNIX paths in include statements on Windows, used when searching "
                        "for FAULTS and EQUIL",
                        "" );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RifReaderSettings::defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                               QString                    uiConfigName,
-                                               caf::PdmUiEditorAttribute* attribute )
-{
-    if ( field == &importFaults || field == &importAdvancedMswData || field == &importNNCs ||
-         field == &useResultIndexFile || field == &skipWellData || field == &includeInactiveCellsInFaultGeometry )
-    {
-        caf::PdmUiCheckBoxEditorAttribute* myAttr = dynamic_cast<caf::PdmUiCheckBoxEditorAttribute*>( attribute );
-        if ( myAttr )
-        {
-            myAttr->m_useNativeCheckBoxLabel = true;
-        }
-    }
 }
 
 //--------------------------------------------------------------------------------------------------

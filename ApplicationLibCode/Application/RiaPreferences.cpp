@@ -124,7 +124,7 @@ RiaPreferences::RiaPreferences()
                        "",
                        "",
                        "" );
-    octaveShowHeaderInfoWhenExecutingScripts.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &octaveShowHeaderInfoWhenExecutingScripts );
 
     CAF_PDM_InitField( &m_pythonExecutable, "pythonExecutable", QString( "python" ), "Python Executable Location", "", "", "" );
     m_pythonExecutable.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
@@ -179,14 +179,15 @@ RiaPreferences::RiaPreferences()
                        "",
                        "",
                        "" );
-    showLasCurveWithoutTvdWarning.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &showLasCurveWithoutTvdWarning );
 
     CAF_PDM_InitField( &m_useShaders, "useShaders", true, "Use Shaders", "", "", "" );
-    m_useShaders.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_useShaders );
     CAF_PDM_InitField( &m_showHud, "showHud", false, "Show 3D Information", "", "", "" );
-    m_showHud.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_showHud );
     CAF_PDM_InitField( &m_appendClassNameToUiText, "appendClassNameToUiText", false, "Show Class Names", "", "", "" );
-    m_appendClassNameToUiText.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_appendClassNameToUiText );
+
     CAF_PDM_InitField( &m_appendFieldKeywordToToolTipText,
                        "appendFieldKeywordToToolTipText",
                        false,
@@ -194,12 +195,14 @@ RiaPreferences::RiaPreferences()
                        "",
                        "",
                        "" );
-    m_appendFieldKeywordToToolTipText.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_appendFieldKeywordToToolTipText );
+
     CAF_PDM_InitField( &m_showViewIdInProjectTree, "showViewIdInTree", false, "Show View Id in Project Tree", "", "", "" );
-    m_showViewIdInProjectTree.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_showViewIdInProjectTree );
 
     CAF_PDM_InitField( &m_showTestToolbar, "showTestToolbar", false, "Enable Test Toolbar", "", "", "" );
-    m_showTestToolbar.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_showTestToolbar );
+
     CAF_PDM_InitField( &m_includeFractureDebugInfoFile,
                        "includeFractureDebugInfoFile",
                        false,
@@ -207,19 +210,19 @@ RiaPreferences::RiaPreferences()
                        "",
                        "",
                        "" );
-    m_includeFractureDebugInfoFile.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_includeFractureDebugInfoFile );
 
     CAF_PDM_InitField( &m_showLegendBackground, "showLegendBackground", true, "Show Box around Legends", "", "", "" );
-    m_showLegendBackground.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_showLegendBackground );
 
     CAF_PDM_InitField( &m_enableFaultsByDefault, "enableFaultsByDefault", true, "Enable Faults By Default", "", "", "" );
-    m_enableFaultsByDefault.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_enableFaultsByDefault );
 
     CAF_PDM_InitField( &m_showInfoBox, "showInfoBox", true, "Show Info Box in New Projects", "", "", "" );
-    m_showInfoBox.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_showInfoBox );
 
     CAF_PDM_InitField( &m_showGridBox, "showGridBox", true, "Show Grid Box in New Projects", "", "", "" );
-    m_showGridBox.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_showGridBox );
 
     CAF_PDM_InitFieldNoDefault( &lastUsedProjectFileName, "lastUsedProjectFileName", "Last Used Project File", "", "", "" );
     lastUsedProjectFileName.uiCapability()->setUiHidden( true );
@@ -231,10 +234,10 @@ RiaPreferences::RiaPreferences()
                        "",
                        "DEPTH, DX, DY, DZ, TOP, BOTTOM",
                        "" );
-    autocomputeDepthRelatedProperties.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &autocomputeDepthRelatedProperties );
 
     CAF_PDM_InitField( &loadAndShowSoil, "loadAndShowSoil", true, "Load and Show SOIL", "", "", "" );
-    loadAndShowSoil.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &loadAndShowSoil );
 
     CAF_PDM_InitFieldNoDefault( &m_holoLensExportFolder, "holoLensExportFolder", "HoloLens Export Folder", "", "", "" );
     m_holoLensExportFolder.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
@@ -247,7 +250,7 @@ RiaPreferences::RiaPreferences()
                        "",
                        "",
                        "" );
-    holoLensDisableCertificateVerification.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &holoLensDisableCertificateVerification );
 
     CAF_PDM_InitField( &csvTextExportFieldSeparator,
                        "csvTextExportFieldSeparator",
@@ -264,7 +267,7 @@ RiaPreferences::RiaPreferences()
                        "",
                        "",
                        "" );
-    m_showProjectChangedDialog.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_showProjectChangedDialog );
 
     CAF_PDM_InitFieldNoDefault( &m_readerSettings, "readerSettings", "Reader Settings", "", "", "" );
     m_readerSettings = new RifReaderSettings;
@@ -277,10 +280,10 @@ RiaPreferences::RiaPreferences()
     m_timeFormat = RiaQDateTimeTools::supportedTimeFormats().front();
 
     CAF_PDM_InitField( &m_showProgressBar, "showProgressBar", true, "Show Progress Bar", "", "", "" );
-    m_showProgressBar.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_showProgressBar );
 
     CAF_PDM_InitField( &m_useUndoRedo, "useUndoRedo", true, "Enable Undo/Redo for Property Editor changes", "", "", "" );
-    m_useUndoRedo.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_useUndoRedo );
 
     CAF_PDM_InitFieldNoDefault( &m_plotTemplateFolders, "plotTemplateFolders", "Plot Template Folder(s)", "", "", "" );
     m_plotTemplateFolders.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
@@ -291,7 +294,7 @@ RiaPreferences::RiaPreferences()
                        "",
                        "",
                        "" );
-    m_searchPlotTemplateFoldersRecursively.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_searchPlotTemplateFoldersRecursively );
 
     CAF_PDM_InitFieldNoDefault( &m_defaultPlotTemplate, "defaultPlotTemplate", "Default Plot Template", "", "", "" );
 
@@ -303,7 +306,7 @@ RiaPreferences::RiaPreferences()
     CAF_PDM_InitField( &m_pageBottomMargin, "pageBottomMargin", defaultMarginSize( m_pageSize() ), "Bottom Margin", "", "", "" );
 
     CAF_PDM_InitField( &m_openExportedPdfInViewer, "openExportedPdfInViewer", false, "Open Exported PDF in Viewer", "", "", "" );
-    m_openExportedPdfInViewer.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_openExportedPdfInViewer );
 
     CAF_PDM_InitField( &m_gtestFilter, "gtestFilter", QString(), "Unit Test Filter (gtest)", "", "", "" );
 
@@ -355,7 +358,6 @@ void RiaPreferences::defineEditorAttribute( const caf::PdmFieldHandle* field,
                                             caf::PdmUiEditorAttribute* attribute )
 {
     m_readerSettings->defineEditorAttribute( field, uiConfigName, attribute );
-    m_summaryPreferences->defineEditorAttribute( field, uiConfigName, attribute );
 
     {
         caf::PdmUiFilePathEditorAttribute* myAttr = dynamic_cast<caf::PdmUiFilePathEditorAttribute*>( attribute );
@@ -369,23 +371,7 @@ void RiaPreferences::defineEditorAttribute( const caf::PdmFieldHandle* field,
         }
     }
 
-    if ( field == &octaveShowHeaderInfoWhenExecutingScripts || field == &autocomputeDepthRelatedProperties ||
-         field == &loadAndShowSoil || field == &m_useShaders || field == &m_showHud ||
-         field == &m_appendClassNameToUiText || field == &m_appendFieldKeywordToToolTipText ||
-         field == &m_showTestToolbar || field == &m_includeFractureDebugInfoFile ||
-         field == &showLasCurveWithoutTvdWarning || field == &holoLensDisableCertificateVerification ||
-         field == &m_showProjectChangedDialog || field == &m_searchPlotTemplateFoldersRecursively ||
-         field == &m_showLegendBackground || field == &m_showViewIdInProjectTree || field == &m_enableFaultsByDefault ||
-         field == &m_showProgressBar || field == &m_openExportedPdfInViewer || field == &m_showInfoBox ||
-         field == &m_showGridBox || field == &m_useUndoRedo )
-    {
-        caf::PdmUiCheckBoxEditorAttribute* myAttr = dynamic_cast<caf::PdmUiCheckBoxEditorAttribute*>( attribute );
-        if ( myAttr )
-        {
-            myAttr->m_useNativeCheckBoxLabel = true;
-        }
-    }
-    else if ( field == &m_holoLensExportFolder )
+    if ( field == &m_holoLensExportFolder )
     {
         caf::PdmUiFilePathEditorAttribute* myAttr = dynamic_cast<caf::PdmUiFilePathEditorAttribute*>( attribute );
         if ( myAttr )
@@ -397,7 +383,10 @@ void RiaPreferences::defineEditorAttribute( const caf::PdmFieldHandle* field,
          field == &defaultPlotFontSize )
     {
         caf::PdmUiComboBoxEditorAttribute* myAttr = dynamic_cast<caf::PdmUiComboBoxEditorAttribute*>( attribute );
-        myAttr->minimumContentsLength             = 2;
+        if ( myAttr )
+        {
+            myAttr->minimumContentsLength = 2;
+        }
     }
     if ( field == &m_multiLateralWellPattern )
     {
