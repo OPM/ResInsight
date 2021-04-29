@@ -35,6 +35,7 @@
 //##################################################################################################
 
 #pragma once
+
 #include "cafPdmUiFieldEditorHandle.h"
 
 #include <QCheckBox>
@@ -45,9 +46,8 @@
 namespace caf
 {
 //==================================================================================================
-/// The default editor for several PdmFields.
+///
 //==================================================================================================
-
 class PdmUiCheckBoxEditorAttribute : public PdmUiEditorAttribute
 {
 public:
@@ -57,6 +57,14 @@ public:
     bool m_useNativeCheckBoxLabel;
 };
 
+//==================================================================================================
+//
+// Checkbox editor used to display default Qt checkbox
+// On Windows, the default behavior is like this
+//
+//  "some text as label" [x]
+//
+//==================================================================================================
 class PdmUiCheckBoxEditor : public PdmUiFieldEditorHandle
 {
     Q_OBJECT
@@ -74,9 +82,34 @@ protected:
 protected slots:
     void slotClicked( bool checked );
 
+    virtual PdmUiCheckBoxEditorAttribute defaultAttributes() const;
+
 private:
     QPointer<QCheckBox>       m_checkBox;
     QPointer<QShortenedLabel> m_label;
+};
+
+//==================================================================================================
+//
+// Check box editor used to display native checkbox
+// On Windows, the default behavior to show the checkbox to the left of the label text
+//
+//  [x] "some text as label"
+//
+//==================================================================================================
+class PdmUiNativeCheckBoxEditor : public PdmUiCheckBoxEditor
+{
+    Q_OBJECT
+    CAF_PDM_UI_FIELD_EDITOR_HEADER_INIT;
+
+public:
+    PdmUiNativeCheckBoxEditor()           = default;
+    ~PdmUiNativeCheckBoxEditor() override = default;
+
+    static void configureFieldForEditor( caf::PdmFieldHandle* fieldHandle );
+
+protected:
+    PdmUiCheckBoxEditorAttribute defaultAttributes() const override;
 };
 
 } // end namespace caf
