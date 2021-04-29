@@ -70,6 +70,9 @@ RiaPreferencesSummary::RiaPreferencesSummary()
                                 "",
                                 "",
                                 "" );
+
+    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_summaryRestartFilesShowImportDialog );
+
     CAF_PDM_InitField( &m_summaryImportMode,
                        "summaryImportMode",
                        SummaryRestartFilesImportModeType( RiaPreferencesSummary::SummaryRestartFilesImportMode::IMPORT ),
@@ -114,7 +117,7 @@ RiaPreferencesSummary::RiaPreferencesSummary()
                        "",
                        "If not present, create summary file with extension '*.LODSMRY'",
                        "" );
-    m_createOptimizedSummaryDataFile.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_createOptimizedSummaryDataFile );
 
     CAF_PDM_InitField( &m_useOptimizedSummaryDataFile,
                        "useOptimizedSummaryDataFile",
@@ -123,7 +126,7 @@ RiaPreferencesSummary::RiaPreferencesSummary()
                        "",
                        "If present, import summary files with extension '*.LODSMRY'",
                        "" );
-    m_useOptimizedSummaryDataFile.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_useOptimizedSummaryDataFile );
 
     CAF_PDM_InitField( &m_createH5SummaryDataFile,
                        "createH5SummaryDataFile",
@@ -132,7 +135,7 @@ RiaPreferencesSummary::RiaPreferencesSummary()
                        "",
                        "If not present, create summary file with extension '*.h5'",
                        "" );
-    m_createH5SummaryDataFile.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_createH5SummaryDataFile );
 
     CAF_PDM_InitField( &m_checkH5FileTimeStamp,
                        "checkH5FileTimeStamp",
@@ -141,7 +144,7 @@ RiaPreferencesSummary::RiaPreferencesSummary()
                        "",
                        "Compare timestamp of h5 and SMSPEC, and recreate h5 when required",
                        "" );
-    m_checkH5FileTimeStamp.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_checkH5FileTimeStamp );
 
     CAF_PDM_InitField( &m_createH5SummaryFileThreadCount,
                        "createH5SummaryFileThreadCount",
@@ -160,7 +163,7 @@ RiaPreferencesSummary::RiaPreferencesSummary()
                        "",
                        "",
                        "" );
-    m_showSummaryTimeAsLongString.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_showSummaryTimeAsLongString );
 
     CAF_PDM_InitField( &m_useMultipleThreadsWhenLoadingSummaryCases,
                        "useMultipleThreadsWhenLoadingSummaryCases",
@@ -169,7 +172,7 @@ RiaPreferencesSummary::RiaPreferencesSummary()
                        "",
                        "",
                        "" );
-    m_useMultipleThreadsWhenLoadingSummaryCases.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_useMultipleThreadsWhenLoadingSummaryCases );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -326,25 +329,6 @@ QString RiaPreferencesSummary::defaultSummaryCurvesTextFilter() const
 RiaPreferencesSummary::SummaryHistoryCurveStyleMode RiaPreferencesSummary::defaultSummaryHistoryCurveStyle() const
 {
     return m_defaultSummaryHistoryCurveStyle();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiaPreferencesSummary::defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                                   QString                    uiConfigName,
-                                                   caf::PdmUiEditorAttribute* attribute )
-{
-    if ( field == &m_createOptimizedSummaryDataFile || field == &m_showSummaryTimeAsLongString ||
-         field == &m_useMultipleThreadsWhenLoadingSummaryCases || field == &m_summaryRestartFilesShowImportDialog ||
-         field == &m_useOptimizedSummaryDataFile || field == &m_createH5SummaryDataFile || field == &m_checkH5FileTimeStamp )
-    {
-        auto myAttr = dynamic_cast<caf::PdmUiCheckBoxEditorAttribute*>( attribute );
-        if ( myAttr )
-        {
-            myAttr->m_useNativeCheckBoxLabel = true;
-        }
-    }
 }
 
 //--------------------------------------------------------------------------------------------------

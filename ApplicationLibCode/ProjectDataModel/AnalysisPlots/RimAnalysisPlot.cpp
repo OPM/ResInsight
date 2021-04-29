@@ -118,7 +118,7 @@ RimAnalysisPlot::RimAnalysisPlot()
     CAF_PDM_InitFieldNoDefault( &m_referenceCase, "ReferenceCase", "Reference Case", "", "", "" );
 
     CAF_PDM_InitField( &m_useAutoPlotTitle, "IsUsingAutoName", true, "Auto", "", "", "" );
-    m_useAutoPlotTitle.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_useAutoPlotTitle );
 
     CAF_PDM_InitField( &m_description, "PlotDescription", QString( "Analysis Plot" ), "Title", "", "", "" );
     m_description.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
@@ -138,7 +138,7 @@ RimAnalysisPlot::RimAnalysisPlot()
     m_showPlotLegends    = false;
 
     CAF_PDM_InitField( &m_useTopBarsFilter, "UseTopBarsFilter", false, "Show Only Top", "", "", "" );
-    m_useTopBarsFilter.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_useTopBarsFilter );
 
     CAF_PDM_InitField( &m_maxBarCount, "MaxBarCount", 20, "Bar Count", "", "", "" );
     m_maxBarCount.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
@@ -146,7 +146,7 @@ RimAnalysisPlot::RimAnalysisPlot()
     // Bar text
 
     CAF_PDM_InitField( &m_useBarText, "UseBarText", true, "Activate Bar Labels", "", "", "" );
-    m_useBarText.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_useBarText );
 
     CAF_PDM_InitField( &m_useCaseInBarText, "UseCaseInBarText", true, "Case Name", "", "", "" );
     CAF_PDM_InitField( &m_useEnsembleInBarText, "UseEnsembleInBarText", false, "Ensemble", "", "", "" );
@@ -555,23 +555,6 @@ void RimAnalysisPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering
     m_useTimeStepInBarText.uiCapability()->setUiReadOnly( !m_useBarText );
 
     uiOrdering.skipRemainingFields( true );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimAnalysisPlot::defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                             QString                    uiConfigName,
-                                             caf::PdmUiEditorAttribute* attribute )
-{
-    if ( field == &m_useTopBarsFilter || field == &m_useBarText || field == &m_showPlotTitle || field == &m_useAutoPlotTitle )
-    {
-        auto attrib = dynamic_cast<caf::PdmUiCheckBoxEditorAttribute*>( attribute );
-        if ( attrib )
-        {
-            attrib->m_useNativeCheckBoxLabel = true;
-        }
-    }
 }
 
 //--------------------------------------------------------------------------------------------------

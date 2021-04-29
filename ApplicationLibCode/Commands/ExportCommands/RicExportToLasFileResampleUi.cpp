@@ -67,12 +67,12 @@ RicExportToLasFileResampleUi::RicExportToLasFileResampleUi( void )
     CAF_PDM_InitFieldNoDefault( &curveUnitConversion, "CurveUnitConversion", "Curve Units", "", "", "" );
 
     CAF_PDM_InitField( &activateResample, "ActivateResample", false, "Resample Curve Data", "", "", "" );
-    activateResample.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &activateResample );
 
     CAF_PDM_InitField( &resampleInterval, "ResampleInterval", 1.0, "Resample Interval [m]", "", "", "" );
 
     CAF_PDM_InitField( &exportTvdrkb, "ExportTvdrkb", false, "Export TVDRKB", "", "", "" );
-    exportTvdrkb.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &exportTvdrkb );
 
     CAF_PDM_InitFieldNoDefault( &m_tvdrkbOffsets, "tvdrkbOffsets", "", "", "", "" );
 
@@ -154,15 +154,6 @@ void RicExportToLasFileResampleUi::defineEditorAttribute( const caf::PdmFieldHan
         if ( myAttr )
         {
             myAttr->m_selectDirectory = true;
-        }
-    }
-
-    if ( field == &exportTvdrkb || field == &activateResample )
-    {
-        caf::PdmUiCheckBoxEditorAttribute* myAttr = dynamic_cast<caf::PdmUiCheckBoxEditorAttribute*>( attribute );
-        if ( myAttr )
-        {
-            myAttr->m_useNativeCheckBoxLabel = true;
         }
     }
 }
