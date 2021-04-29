@@ -58,8 +58,8 @@ void PdmUiCheckBoxEditor::configureAndUpdateUi( const QString& uiConfigName )
     CAF_ASSERT( !m_checkBox.isNull() );
     CAF_ASSERT( !m_label.isNull() );
 
-    PdmUiCheckBoxEditorAttribute attributes;
-    caf::PdmUiObjectHandle*      uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
+    PdmUiCheckBoxEditorAttribute attributes = defaultAttributes();
+    caf::PdmUiObjectHandle*      uiObject   = uiObj( uiField()->fieldHandle()->ownerObject() );
     if ( uiObject )
     {
         uiObject->editorAttribute( uiField()->fieldHandle(), uiConfigName, &attributes );
@@ -110,6 +110,52 @@ void PdmUiCheckBoxEditor::slotClicked( bool checked )
     QVariant v;
     v = checked;
     this->setValueToField( v );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+PdmUiCheckBoxEditorAttribute PdmUiCheckBoxEditor::defaultAttributes() const
+{
+    return {};
+}
+
+//==================================================================================================
+//
+//
+// PdmUiNativeCheckBoxEditor
+//
+//
+//==================================================================================================
+
+CAF_PDM_UI_FIELD_EDITOR_SOURCE_INIT( PdmUiNativeCheckBoxEditor );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void PdmUiNativeCheckBoxEditor::configureFieldForEditor( caf::PdmFieldHandle* fieldHandle )
+{
+    if ( !fieldHandle ) return;
+
+    if ( auto uiCap = fieldHandle->uiCapability() )
+    {
+        uiCap->setUiEditorTypeName( caf::PdmUiNativeCheckBoxEditor::uiEditorTypeName() );
+
+        // Hide the editor label, as the label is managed by the native checkbox
+        uiCap->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+PdmUiCheckBoxEditorAttribute PdmUiNativeCheckBoxEditor::defaultAttributes() const
+{
+    PdmUiCheckBoxEditorAttribute attributes;
+
+    attributes.m_useNativeCheckBoxLabel = true;
+
+    return attributes;
 }
 
 } // end namespace caf
