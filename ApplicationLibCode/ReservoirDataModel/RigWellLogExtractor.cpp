@@ -338,11 +338,11 @@ void RigWellLogExtractor::appendIntersectionToArrays( double                    
         if ( diff > warningLimit )
         {
             errorMessage +=
-                QString( "Well Log Extraction : %1 does not have a monotonously increasing measured depth." )
+                QString( "Well Log Extraction : %1 does not have a monotonically increasing measured depth." )
                     .arg( QString::fromStdString( m_wellCaseErrorMsgName ) );
         }
 
-        // Allow alterations of up to 0.1 percent as long as we keep the measured depth monotonously increasing.
+        // Allow alterations of up to 0.1 percent as long as we keep the measured depth monotonically increasing.
         const double tolerance = std::max( 1.0, measuredDepth ) * 1.0e-3;
         if ( RigWellLogExtractionTools::isEqualDepth( measuredDepth, m_intersectionMeasuredDepths.back(), tolerance ) )
         {
