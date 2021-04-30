@@ -287,7 +287,9 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions( const std::v
         progress.setProgressDescription( "Write Export Files" );
         if ( exportSettings.fileSplit == RicExportCompletionDataSettingsUi::UNIFIED_FILE )
         {
-            QString fileName = QString( "UnifiedCompletions_%1" ).arg( eclipseCaseName );
+            QString fileName = exportSettings.customFileName();
+            if ( fileName.isEmpty() ) fileName = QString( "UnifiedCompletions_%1" ).arg( eclipseCaseName );
+
             sortAndExportCompletionsToFile( exportSettings.caseToApply,
                                             exportSettings.folder,
                                             fileName,

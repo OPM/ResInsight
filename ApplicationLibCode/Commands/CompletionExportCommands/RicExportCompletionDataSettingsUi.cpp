@@ -123,6 +123,9 @@ RicExportCompletionDataSettingsUi::RicExportCompletionDataSettingsUi()
                        "",
                        "" );
 
+    CAF_PDM_InitField( &m_useCustomFileName, "UseCustomFileName", false, "Use Custom Filename", "", "", "" );
+    CAF_PDM_InitField( &m_customFileName, "CustomFileName", {}, "Custom Filename", "", "", "" );
+
     m_displayForSimWell = true;
 
     m_fracturesEnabled    = true;
@@ -224,6 +227,16 @@ bool RicExportCompletionDataSettingsUi::exportWelspec() const
 bool RicExportCompletionDataSettingsUi::exportCompletionWelspecAfterMainBore() const
 {
     return m_completionWelspecAfterMainBore();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RicExportCompletionDataSettingsUi::customFileName() const
+{
+    if ( m_useCustomFileName ) return m_customFileName();
+
+    return {};
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -349,6 +362,14 @@ void RicExportCompletionDataSettingsUi::defineUiOrdering( QString uiConfigName, 
         group->add( &fileSplit );
         group->add( &m_reportCompletionTypesSeparately );
         group->add( &folder );
+
+        if ( fileSplit() == UNIFIED_FILE )
+        {
+            group->add( &m_useCustomFileName );
+
+            group->add( &m_customFileName );
+            m_customFileName.uiCapability()->setUiReadOnly( !m_useCustomFileName );
+        }
     }
 
     {

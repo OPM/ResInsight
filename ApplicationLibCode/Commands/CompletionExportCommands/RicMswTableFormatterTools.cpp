@@ -220,7 +220,9 @@ void RicMswTableFormatterTools::writeWelsegsCompletionCommentHeader( RifTextData
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicMswTableFormatterTools::generateCompsegTables( RifTextDataTableFormatter& formatter, RicMswExportInfo& exportInfo )
+void RicMswTableFormatterTools::generateCompsegTables( RifTextDataTableFormatter& formatter,
+                                                       RicMswExportInfo&          exportInfo,
+                                                       bool                       exportLgrData )
 {
     /*
      * TODO: Creating the regular perforation COMPSEGS table should come in here, before the others
@@ -229,94 +231,43 @@ void RicMswTableFormatterTools::generateCompsegTables( RifTextDataTableFormatter
 
     std::set<size_t> intersectedCells;
 
-    {
-        std::set<RigCompletionData::CompletionType> perforationTypes = { RigCompletionData::PERFORATION,
-                                                                         RigCompletionData::PERFORATION_ICD,
-                                                                         RigCompletionData::PERFORATION_ICV,
-                                                                         RigCompletionData::PERFORATION_AICD };
+    std::set<RigCompletionData::CompletionType> perforationTypes = { RigCompletionData::PERFORATION,
+                                                                     RigCompletionData::PERFORATION_ICD,
+                                                                     RigCompletionData::PERFORATION_ICV,
+                                                                     RigCompletionData::PERFORATION_AICD };
 
-        {
-            bool headerGenerated = false;
-            generateCompsegTable( formatter,
-                                  exportInfo,
-                                  exportInfo.mainBoreBranch(),
-                                  false,
-                                  perforationTypes,
-                                  &headerGenerated,
-                                  &intersectedCells );
+    std::set<RigCompletionData::CompletionType> fishbonesTypes = { RigCompletionData::FISHBONES_ICD,
+                                                                   RigCompletionData::FISHBONES };
 
-            if ( headerGenerated ) formatter.tableCompleted();
-        }
-
-        if ( exportInfo.hasSubGridIntersections() )
-        {
-            bool headerGenerated = false;
-            generateCompsegTable( formatter,
-                                  exportInfo,
-                                  exportInfo.mainBoreBranch(),
-                                  true,
-                                  perforationTypes,
-                                  &headerGenerated,
-                                  &intersectedCells );
-            if ( headerGenerated ) formatter.tableCompleted();
-        }
-    }
+    std::set<RigCompletionData::CompletionType> fractureTypes = { RigCompletionData::FRACTURE };
 
     {
-        std::set<RigCompletionData::CompletionType> fishbonesTypes = { RigCompletionData::FISHBONES_ICD,
-                                                                       RigCompletionData::FISHBONES };
-        {
-            bool headerGenerated = false;
-            generateCompsegTable( formatter,
-                                  exportInfo,
-                                  exportInfo.mainBoreBranch(),
-                                  false,
-                                  fishbonesTypes,
-                                  &headerGenerated,
-                                  &intersectedCells );
-            if ( headerGenerated ) formatter.tableCompleted();
-        }
-        if ( exportInfo.hasSubGridIntersections() )
-        {
-            bool headerGenerated = false;
-            generateCompsegTable( formatter,
-                                  exportInfo,
-                                  exportInfo.mainBoreBranch(),
-                                  true,
-                                  fishbonesTypes,
-                                  &headerGenerated,
-                                  &intersectedCells );
-            if ( headerGenerated ) formatter.tableCompleted();
-        }
-    }
+        bool headerGenerated = false;
+        generateCompsegTable( formatter,
+                              exportInfo,
+                              exportInfo.mainBoreBranch(),
+                              exportLgrData,
+                              perforationTypes,
+                              &headerGenerated,
+                              &intersectedCells );
 
-    {
-        std::set<RigCompletionData::CompletionType> fractureTypes = { RigCompletionData::FRACTURE };
+        generateCompsegTable( formatter,
+                              exportInfo,
+                              exportInfo.mainBoreBranch(),
+                              exportLgrData,
+                              fishbonesTypes,
+                              &headerGenerated,
+                              &intersectedCells );
 
-        {
-            bool headerGenerated = false;
-            generateCompsegTable( formatter,
-                                  exportInfo,
-                                  exportInfo.mainBoreBranch(),
-                                  false,
-                                  fractureTypes,
-                                  &headerGenerated,
-                                  &intersectedCells );
-            if ( headerGenerated ) formatter.tableCompleted();
-        }
+        generateCompsegTable( formatter,
+                              exportInfo,
+                              exportInfo.mainBoreBranch(),
+                              exportLgrData,
+                              fractureTypes,
+                              &headerGenerated,
+                              &intersectedCells );
 
-        if ( exportInfo.hasSubGridIntersections() )
-        {
-            bool headerGenerated = false;
-            generateCompsegTable( formatter,
-                                  exportInfo,
-                                  exportInfo.mainBoreBranch(),
-                                  true,
-                                  fractureTypes,
-                                  &headerGenerated,
-                                  &intersectedCells );
-            if ( headerGenerated ) formatter.tableCompleted();
-        }
+        if ( headerGenerated ) formatter.tableCompleted();
     }
 }
 

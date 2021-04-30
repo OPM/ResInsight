@@ -66,17 +66,27 @@ void RicWellPathExportMswCompletionsImpl::exportWellSegmentsForAllCompletions(
     const std::vector<RimWellPath*>&         wellPaths )
 {
     std::shared_ptr<QFile> unifiedExportFile;
+    std::shared_ptr<QFile> unifiedLgrExportFile;
     if ( exportSettings.fileSplit() == RicExportCompletionDataSettingsUi::UNIFIED_FILE )
     {
-        QString unifiedFileName =
-            QString( "UnifiedCompletions_MSW_%1" ).arg( exportSettings.caseToApply->caseUserDescription() );
-        unifiedExportFile =
-            RicWellPathExportCompletionsFileTools::openFileForExport( exportSettings.folder, unifiedFileName );
+        QString fileName;
+
+        if ( !exportSettings.customFileName().isEmpty() )
+            fileName = exportSettings.customFileName() + "_MSW";
+        else
+            fileName = QString( "UnifiedCompletions_MSW_%1" ).arg( exportSettings.caseToApply->caseUserDescription() );
+
+        unifiedExportFile = RicWellPathExportCompletionsFileTools::openFileForExport( exportSettings.folder, fileName );
+
+        QString lgrFileName = fileName + "_LGR";
+        unifiedLgrExportFile =
+            RicWellPathExportCompletionsFileTools::openFileForExport( exportSettings.folder, lgrFileName );
     }
 
     for ( const auto& wellPath : wellPaths )
     {
         std::shared_ptr<QFile> unifiedWellPathFile;
+        std::shared_ptr<QFile> unifiedLgrWellPathFile;
 
         auto allCompletions = wellPath->allCompletionsRecursively();
 
@@ -98,17 +108,27 @@ void RicWellPathExportMswCompletionsImpl::exportWellSegmentsForAllCompletions(
                                        .arg( wellPath->name(), exportSettings.caseToApply->caseUserDescription() );
             unifiedWellPathFile =
                 RicWellPathExportCompletionsFileTools::openFileForExport( exportSettings.folder, wellFileName );
+            unifiedLgrWellPathFile =
+                RicWellPathExportCompletionsFileTools::openFileForExport( exportSettings.folder, wellFileName + "_LGR" );
         }
 
         {
             // Always use perforation functions to export well segments along well path.
             // If no perforations are present, skip Perforation from file name
 
-            std::shared_ptr<QFile> perforationsExportFile;
+            std::shared_ptr<QFile> exportFile;
+            std::shared_ptr<QFile> lgrExportFile;
+
             if ( unifiedExportFile )
-                perforationsExportFile = unifiedExportFile;
+            {
+                exportFile    = unifiedExportFile;
+                lgrExportFile = unifiedLgrExportFile;
+            }
             else if ( unifiedWellPathFile )
-                perforationsExportFile = unifiedWellPathFile;
+            {
+                exportFile    = unifiedWellPathFile;
+                lgrExportFile = unifiedLgrWellPathFile;
+            }
             else
             {
                 bool anyPerforationsPresent =
@@ -122,11 +142,13 @@ void RicWellPathExportMswCompletionsImpl::exportWellSegmentsForAllCompletions(
                 QString fileName =
                     QString( "%1_%2MSW_%3" )
                         .arg( wellPath->name(), perforationText, exportSettings.caseToApply->caseUserDescription() );
-                perforationsExportFile =
-                    RicWellPathExportCompletionsFileTools::openFileForExport( exportSettings.folder, fileName );
+                exportFile = RicWellPathExportCompletionsFileTools::openFileForExport( exportSettings.folder, fileName );
+                lgrExportFile =
+                    RicWellPathExportCompletionsFileTools::openFileForExport( exportSettings.folder, fileName + "_LGR" );
             }
             exportWellSegmentsForPerforations( exportSettings.caseToApply,
-                                               perforationsExportFile,
+                                               exportFile,
+                                               lgrExportFile,
                                                wellPath,
                                                exportSettings.timeStep,
                                                exportSettings.exportDataSourceAsComment(),
@@ -135,20 +157,30 @@ void RicWellPathExportMswCompletionsImpl::exportWellSegmentsForAllCompletions(
 
         if ( exportFractures )
         {
-            std::shared_ptr<QFile> fractureExportFile;
+            std::shared_ptr<QFile> exportFile;
+            std::shared_ptr<QFile> lgrExportFile;
+
             if ( unifiedExportFile )
-                fractureExportFile = unifiedExportFile;
+            {
+                exportFile    = unifiedExportFile;
+                lgrExportFile = unifiedLgrExportFile;
+            }
             else if ( unifiedWellPathFile )
-                fractureExportFile = unifiedWellPathFile;
+            {
+                exportFile    = unifiedWellPathFile;
+                lgrExportFile = unifiedLgrWellPathFile;
+            }
             else
             {
                 QString fileName =
                     QString( "%1_Fracture_MSW_%2" ).arg( wellPath->name(), exportSettings.caseToApply->caseUserDescription() );
-                fractureExportFile =
-                    RicWellPathExportCompletionsFileTools::openFileForExport( exportSettings.folder, fileName );
+                exportFile = RicWellPathExportCompletionsFileTools::openFileForExport( exportSettings.folder, fileName );
+                lgrExportFile =
+                    RicWellPathExportCompletionsFileTools::openFileForExport( exportSettings.folder, fileName + "_LGR" );
             }
             exportWellSegmentsForFractures( exportSettings.caseToApply,
-                                            fractureExportFile,
+                                            exportFile,
+                                            lgrExportFile,
                                             wellPath,
                                             exportSettings.exportDataSourceAsComment(),
                                             exportSettings.exportCompletionWelspecAfterMainBore() );
@@ -156,20 +188,30 @@ void RicWellPathExportMswCompletionsImpl::exportWellSegmentsForAllCompletions(
 
         if ( exportFishbones )
         {
-            std::shared_ptr<QFile> fishbonesExportFile;
+            std::shared_ptr<QFile> exportFile;
+            std::shared_ptr<QFile> lgrExportFile;
+
             if ( unifiedExportFile )
-                fishbonesExportFile = unifiedExportFile;
+            {
+                exportFile    = unifiedExportFile;
+                lgrExportFile = unifiedLgrExportFile;
+            }
             else if ( unifiedWellPathFile )
-                fishbonesExportFile = unifiedWellPathFile;
+            {
+                exportFile    = unifiedWellPathFile;
+                lgrExportFile = unifiedLgrWellPathFile;
+            }
             else
             {
                 QString fileName =
                     QString( "%1_Fishbones_MSW_%2" ).arg( wellPath->name(), exportSettings.caseToApply->caseUserDescription() );
-                fishbonesExportFile =
-                    RicWellPathExportCompletionsFileTools::openFileForExport( exportSettings.folder, fileName );
+                exportFile = RicWellPathExportCompletionsFileTools::openFileForExport( exportSettings.folder, fileName );
+                lgrExportFile =
+                    RicWellPathExportCompletionsFileTools::openFileForExport( exportSettings.folder, fileName + "_LGR" );
             }
             exportWellSegmentsForFishbones( exportSettings.caseToApply,
-                                            fishbonesExportFile,
+                                            exportFile,
+                                            lgrExportFile,
                                             wellPath,
                                             exportSettings.exportDataSourceAsComment(),
                                             exportSettings.exportCompletionWelspecAfterMainBore() );
@@ -182,6 +224,7 @@ void RicWellPathExportMswCompletionsImpl::exportWellSegmentsForAllCompletions(
 //--------------------------------------------------------------------------------------------------
 void RicWellPathExportMswCompletionsImpl::exportWellSegmentsForPerforations( RimEclipseCase*        eclipseCase,
                                                                              std::shared_ptr<QFile> exportFile,
+                                                                             std::shared_ptr<QFile> lgrExportFile,
                                                                              const RimWellPath*     wellPath,
                                                                              int                    timeStep,
                                                                              bool exportDataSourceAsComment,
@@ -193,8 +236,8 @@ void RicWellPathExportMswCompletionsImpl::exportWellSegmentsForPerforations( Rim
 
     if ( !mswParameters ) return;
 
-    double initialMD = 0.0; // Start measured depth location to export MSW data for. Either based on first intersection
-                            // with active grid, or user defined value.
+    double initialMD = 0.0; // Start measured depth location to export MSW data for. Either based on first
+                            // intersection with active grid, or user defined value.
 
     auto cellIntersections = generateCellSegments( eclipseCase, wellPath, mswParameters, &initialMD );
 
@@ -216,18 +259,36 @@ void RicWellPathExportMswCompletionsImpl::exportWellSegmentsForPerforations( Rim
 
         assignBranchNumbersToBranch( eclipseCase, &exportInfo, exportInfo.mainBoreBranch(), &branchNumber );
 
-        QTextStream               stream( exportFile.get() );
-        RifTextDataTableFormatter formatter( stream );
+        {
+            QTextStream               stream( exportFile.get() );
+            RifTextDataTableFormatter formatter( stream );
 
-        double maxSegmentLength = mswParameters->maxSegmentLength();
+            double maxSegmentLength = mswParameters->maxSegmentLength();
 
-        RicMswTableFormatterTools::generateWelsegsTable( formatter,
-                                                         exportInfo,
-                                                         maxSegmentLength,
-                                                         completionSegmentsAfterMainBore );
-        RicMswTableFormatterTools::generateCompsegTables( formatter, exportInfo );
-        RicMswTableFormatterTools::generateWsegvalvTable( formatter, exportInfo );
-        RicMswTableFormatterTools::generateWsegAicdTable( formatter, exportInfo );
+            RicMswTableFormatterTools::generateWelsegsTable( formatter,
+                                                             exportInfo,
+                                                             maxSegmentLength,
+                                                             completionSegmentsAfterMainBore );
+            bool exportLgrData = false;
+            RicMswTableFormatterTools::generateCompsegTables( formatter, exportInfo, exportLgrData );
+            RicMswTableFormatterTools::generateWsegvalvTable( formatter, exportInfo );
+            RicMswTableFormatterTools::generateWsegAicdTable( formatter, exportInfo );
+        }
+
+        if ( exportInfo.hasSubGridIntersections() )
+        {
+            QTextStream               stream( lgrExportFile.get() );
+            RifTextDataTableFormatter formatter( stream );
+
+            double maxSegmentLength = mswParameters->maxSegmentLength();
+
+            RicMswTableFormatterTools::generateWelsegsTable( formatter,
+                                                             exportInfo,
+                                                             maxSegmentLength,
+                                                             completionSegmentsAfterMainBore );
+            bool exportLgrData = true;
+            RicMswTableFormatterTools::generateCompsegTables( formatter, exportInfo, exportLgrData );
+        }
     }
 }
 
@@ -236,6 +297,7 @@ void RicWellPathExportMswCompletionsImpl::exportWellSegmentsForPerforations( Rim
 //--------------------------------------------------------------------------------------------------
 void RicWellPathExportMswCompletionsImpl::exportWellSegmentsForFractures( RimEclipseCase*        eclipseCase,
                                                                           std::shared_ptr<QFile> exportFile,
+                                                                          std::shared_ptr<QFile> lgrExportFile,
                                                                           const RimWellPath*     wellPath,
                                                                           bool exportDataSourceAsComment,
                                                                           bool completionSegmentsAfterMainBore )
@@ -253,8 +315,8 @@ void RicWellPathExportMswCompletionsImpl::exportWellSegmentsForFractures( RimEcl
 
     if ( !mswParameters ) return;
 
-    double initialMD = 0.0; // Start measured depth location to export MSW data for. Either based on first intersection
-                            // with active grid, or user defined value.
+    double initialMD = 0.0; // Start measured depth location to export MSW data for. Either based on first
+                            // intersection with active grid, or user defined value.
 
     auto cellIntersections = generateCellSegments( eclipseCase, wellPath, mswParameters, &initialMD );
 
@@ -274,14 +336,40 @@ void RicWellPathExportMswCompletionsImpl::exportWellSegmentsForFractures( RimEcl
     int branchNumber = 1;
     assignBranchNumbersToBranch( eclipseCase, &exportInfo, exportInfo.mainBoreBranch(), &branchNumber );
 
-    QTextStream               stream( exportFile.get() );
-    RifTextDataTableFormatter formatter( stream );
-    formatter.setOptionalComment( exportDataSourceAsComment );
+    auto doExport = []( RifTextDataTableFormatter& formatter,
+                        bool                       exportDataSourceAsComment,
+                        RicMswExportInfo&          exportInfo,
+                        const RimWellPath*         wellPath,
+                        bool                       completionSegmentsAfterMainBore,
+                        bool                       exportLgrData ) {
+        formatter.setOptionalComment( exportDataSourceAsComment );
 
-    double maxSegmentLength = wellPath->mswCompletionParameters()->maxSegmentLength();
+        double maxSegmentLength = wellPath->mswCompletionParameters()->maxSegmentLength();
 
-    RicMswTableFormatterTools::generateWelsegsTable( formatter, exportInfo, maxSegmentLength, completionSegmentsAfterMainBore );
-    RicMswTableFormatterTools::generateCompsegTables( formatter, exportInfo );
+        RicMswTableFormatterTools::generateWelsegsTable( formatter,
+                                                         exportInfo,
+                                                         maxSegmentLength,
+                                                         completionSegmentsAfterMainBore );
+
+        RicMswTableFormatterTools::generateCompsegTables( formatter, exportInfo, exportLgrData );
+    };
+
+    {
+        QTextStream               stream( exportFile.get() );
+        RifTextDataTableFormatter formatter( stream );
+        bool                      exportLgrData = false;
+
+        doExport( formatter, exportDataSourceAsComment, exportInfo, wellPath, completionSegmentsAfterMainBore, exportLgrData );
+    }
+
+    if ( exportInfo.hasSubGridIntersections() )
+    {
+        QTextStream               stream( lgrExportFile.get() );
+        RifTextDataTableFormatter formatter( stream );
+
+        bool exportLgrData = true;
+        doExport( formatter, exportDataSourceAsComment, exportInfo, wellPath, completionSegmentsAfterMainBore, exportLgrData );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -289,6 +377,7 @@ void RicWellPathExportMswCompletionsImpl::exportWellSegmentsForFractures( RimEcl
 //--------------------------------------------------------------------------------------------------
 void RicWellPathExportMswCompletionsImpl::exportWellSegmentsForFishbones( RimEclipseCase*        eclipseCase,
                                                                           std::shared_ptr<QFile> exportFile,
+                                                                          std::shared_ptr<QFile> lgrExportFile,
                                                                           const RimWellPath*     wellPath,
                                                                           bool exportDataSourceAsComment,
                                                                           bool completionSegmentsAfterMainBore )
@@ -301,8 +390,8 @@ void RicWellPathExportMswCompletionsImpl::exportWellSegmentsForFishbones( RimEcl
         return;
     }
 
-    double initialMD = 0.0; // Start measured depth location to export MSW data for. Either based on first intersection
-                            // with active grid, or user defined value.
+    double initialMD = 0.0; // Start measured depth location to export MSW data for. Either based on first
+                            // intersection with active grid, or user defined value.
 
     auto mswParameters     = wellPath->mswCompletionParameters();
     auto cellIntersections = generateCellSegments( eclipseCase, wellPath, mswParameters, &initialMD );
@@ -328,15 +417,39 @@ void RicWellPathExportMswCompletionsImpl::exportWellSegmentsForFishbones( RimEcl
 
     assignBranchNumbersToBranch( eclipseCase, &exportInfo, exportInfo.mainBoreBranch(), &branchNumber );
 
-    QTextStream               stream( exportFile.get() );
-    RifTextDataTableFormatter formatter( stream );
-    formatter.setOptionalComment( exportDataSourceAsComment );
+    {
+        QTextStream               stream( exportFile.get() );
+        RifTextDataTableFormatter formatter( stream );
+        formatter.setOptionalComment( exportDataSourceAsComment );
 
-    double maxSegmentLength = wellPath->mswCompletionParameters()->maxSegmentLength();
+        double maxSegmentLength = wellPath->mswCompletionParameters()->maxSegmentLength();
 
-    RicMswTableFormatterTools::generateWelsegsTable( formatter, exportInfo, maxSegmentLength, completionSegmentsAfterMainBore );
-    RicMswTableFormatterTools::generateCompsegTables( formatter, exportInfo );
-    RicMswTableFormatterTools::generateWsegvalvTable( formatter, exportInfo );
+        RicMswTableFormatterTools::generateWelsegsTable( formatter,
+                                                         exportInfo,
+                                                         maxSegmentLength,
+                                                         completionSegmentsAfterMainBore );
+        bool exportLgrData = false;
+        RicMswTableFormatterTools::generateCompsegTables( formatter, exportInfo, exportLgrData );
+
+        RicMswTableFormatterTools::generateWsegvalvTable( formatter, exportInfo );
+    }
+
+    if ( exportInfo.hasSubGridIntersections() )
+    {
+        QTextStream               stream( lgrExportFile.get() );
+        RifTextDataTableFormatter formatter( stream );
+        formatter.setOptionalComment( exportDataSourceAsComment );
+
+        double maxSegmentLength = wellPath->mswCompletionParameters()->maxSegmentLength();
+
+        RicMswTableFormatterTools::generateWelsegsTable( formatter,
+                                                         exportInfo,
+                                                         maxSegmentLength,
+                                                         completionSegmentsAfterMainBore );
+
+        bool exportLgr = true;
+        RicMswTableFormatterTools::generateCompsegTables( formatter, exportInfo, exportLgr );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -546,8 +659,8 @@ void RicWellPathExportMswCompletionsImpl::generateFishbonesMswExportInfoForWell(
                                                                                  gsl::not_null<RicMswExportInfo*> exportInfo,
                                                                                  gsl::not_null<RicMswBranch*> branch )
 {
-    double initialMD = 0.0; // Start measured depth location to export MSW data for. Either based on first intersection
-                            // with active grid, or user defined value.
+    double initialMD = 0.0; // Start measured depth location to export MSW data for. Either based on first
+                            // intersection with active grid, or user defined value.
 
     auto mswParameters     = wellPath->mswCompletionParameters();
     auto cellIntersections = generateCellSegments( eclipseCase, wellPath, mswParameters, &initialMD );
