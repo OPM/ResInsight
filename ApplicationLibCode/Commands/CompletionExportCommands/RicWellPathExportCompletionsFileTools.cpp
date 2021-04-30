@@ -50,7 +50,8 @@ std::shared_ptr<QFile> RicWellPathExportCompletionsFileTools::openFileForExport(
 ///
 //--------------------------------------------------------------------------------------------------
 std::shared_ptr<QFile> RicWellPathExportCompletionsFileTools::openFileForExport( const QString& folderName,
-                                                                                 const QString& fileName )
+                                                                                 const QString& fileName,
+                                                                                 const QString& suffix )
 {
     QString validFileName = caf::Utils::makeValidFileBasename( fileName );
 
@@ -68,7 +69,8 @@ std::shared_ptr<QFile> RicWellPathExportCompletionsFileTools::openFileForExport(
         }
     }
 
-    QString                filePath = exportFolder.filePath( validFileName );
+    QString filePath = exportFolder.filePath( validFileName );
+    if ( !suffix.isEmpty() ) filePath += "." + suffix;
     std::shared_ptr<QFile> exportFile( new QFile( filePath ) );
     if ( !exportFile->open( QIODevice::WriteOnly | QIODevice::Text ) )
     {
@@ -77,6 +79,15 @@ std::shared_ptr<QFile> RicWellPathExportCompletionsFileTools::openFileForExport(
         throw OpenFileException( errorMessage );
     }
     return exportFile;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::shared_ptr<QFile> RicWellPathExportCompletionsFileTools::openFileForExport( const QString& folderName,
+                                                                                 const QString& fileName )
+{
+    return openFileForExport( folderName, fileName, "" );
 }
 
 //--------------------------------------------------------------------------------------------------

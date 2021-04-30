@@ -55,6 +55,7 @@
 #include "RimWellPathValve.h"
 
 #include <QFile>
+#include <QFileInfo>
 
 #include <algorithm>
 
@@ -69,18 +70,30 @@ void RicWellPathExportMswCompletionsImpl::exportWellSegmentsForAllCompletions(
     std::shared_ptr<QFile> unifiedLgrExportFile;
     if ( exportSettings.fileSplit() == RicExportCompletionDataSettingsUi::UNIFIED_FILE )
     {
-        QString fileName;
+        {
+            QString   fileName;
+            QFileInfo fi( exportSettings.customFileName() );
+            if ( !exportSettings.customFileName().isEmpty() )
+                fileName = fi.baseName() + "_MSW";
+            else
+                fileName = QString( "UnifiedCompletions_MSW_%1" ).arg( exportSettings.caseToApply->caseUserDescription() );
 
-        if ( !exportSettings.customFileName().isEmpty() )
-            fileName = exportSettings.customFileName() + "_MSW";
-        else
-            fileName = QString( "UnifiedCompletions_MSW_%1" ).arg( exportSettings.caseToApply->caseUserDescription() );
+            unifiedExportFile =
+                RicWellPathExportCompletionsFileTools::openFileForExport( exportSettings.folder, fileName, fi.suffix() );
+        }
 
-        unifiedExportFile = RicWellPathExportCompletionsFileTools::openFileForExport( exportSettings.folder, fileName );
+        {
+            QString   lgrFileName;
+            QFileInfo fi( exportSettings.customFileName() );
+            if ( !exportSettings.customFileName().isEmpty() )
+                lgrFileName = fi.baseName() + "_LGR_MSW";
+            else
+                lgrFileName =
+                    QString( "UnifiedCompletions_LGR_MSW_%1" ).arg( exportSettings.caseToApply->caseUserDescription() );
 
-        QString lgrFileName = fileName + "_LGR";
-        unifiedLgrExportFile =
-            RicWellPathExportCompletionsFileTools::openFileForExport( exportSettings.folder, lgrFileName );
+            unifiedLgrExportFile =
+                RicWellPathExportCompletionsFileTools::openFileForExport( exportSettings.folder, lgrFileName, fi.suffix() );
+        }
     }
 
     for ( const auto& wellPath : wellPaths )
