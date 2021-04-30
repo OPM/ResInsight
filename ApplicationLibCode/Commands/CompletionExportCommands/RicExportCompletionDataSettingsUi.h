@@ -100,6 +100,8 @@ public:
     bool exportWelspec() const;
     bool exportCompletionWelspecAfterMainBore() const;
 
+    QString customFileName() const;
+
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
 protected:
@@ -111,9 +113,12 @@ protected:
 
 private:
     caf::PdmField<CombinationModeType> m_reportCompletionTypesSeparately;
-    caf::PdmField<bool>                m_exportDataSourceAsComment;
-    caf::PdmField<bool>                m_exportWelspec;
-    caf::PdmField<bool>                m_completionWelspecAfterMainBore;
+
+    caf::PdmField<bool>    m_exportDataSourceAsComment;
+    caf::PdmField<bool>    m_exportWelspec;
+    caf::PdmField<bool>    m_completionWelspecAfterMainBore;
+    caf::PdmField<bool>    m_useCustomFileName;
+    caf::PdmField<QString> m_customFileName;
 
     bool m_displayForSimWell;
     bool m_fracturesEnabled;
