@@ -916,8 +916,9 @@ void RicWellPathExportCompletionDataFeatureImpl::sortAndExportCompletionsToFile(
     {
         try
         {
+            QFileInfo              fi( fileName );
             std::shared_ptr<QFile> exportFile =
-                RicWellPathExportCompletionsFileTools::openFileForExport( folderName, fileName );
+                RicWellPathExportCompletionsFileTools::openFileForExport( folderName, fi.baseName(), fi.suffix() );
 
             std::map<QString, std::vector<RigCompletionData>> completionsForGrid;
             completionsForGrid.insert( std::pair<QString, std::vector<RigCompletionData>>( "", completionsForMainGrid ) );
@@ -938,9 +939,11 @@ void RicWellPathExportCompletionDataFeatureImpl::sortAndExportCompletionsToFile(
     {
         try
         {
-            QString                lgrFileName = fileName + "_LGR";
+            QFileInfo fi( fileName );
+
+            QString                lgrFileName = fi.baseName() + "_LGR";
             std::shared_ptr<QFile> exportFile =
-                RicWellPathExportCompletionsFileTools::openFileForExport( folderName, lgrFileName );
+                RicWellPathExportCompletionsFileTools::openFileForExport( folderName, lgrFileName, fi.suffix() );
 
             exportWellPathFractureReport( eclipseCase, exportFile, wellPathFractureReportItems );
             if ( exportWelspec )
