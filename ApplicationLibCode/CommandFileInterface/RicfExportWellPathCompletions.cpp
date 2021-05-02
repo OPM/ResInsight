@@ -69,6 +69,7 @@ RicfExportWellPathCompletions::RicfExportWellPathCompletions()
                                  "",
                                  "" );
 
+    CAF_PDM_InitScriptableField( &m_includeMsw, "includeMsw", true, "Export Multi Segment Well Model", "", "", "" );
     CAF_PDM_InitScriptableField( &m_useLateralNTG, "useNtgHorizontally", false, "Use NTG Horizontally", "", "", "" );
     CAF_PDM_InitScriptableField( &m_includePerforations, "includePerforations", true, "Include Perforations", "", "", "" );
     CAF_PDM_InitScriptableField( &m_includeFishbones, "includeFishbones", true, "Include Fishbones", "", "", "" );
@@ -110,6 +111,16 @@ RicfExportWellPathCompletions::RicfExportWellPathCompletions()
                                  "",
                                  "",
                                  "" );
+
+    CAF_PDM_InitScriptableField( &m_exportWelspec, "exportWelspec", true, "Export WELSPEC keyword", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_completionWelspecAfterMainBore,
+                                 "completionWelspecAfterMainBore",
+                                 false,
+                                 "WELSEGS per Completion Type",
+                                 "",
+                                 "",
+                                 "" );
+    CAF_PDM_InitScriptableField( &m_customFileName, "customFileName", QString(), "Custom Filename", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -139,6 +150,7 @@ caf::PdmScriptResponse RicfExportWellPathCompletions::execute()
     exportSettings.transScalingWBHPSource = m_transScalingInitialWBHP;
     exportSettings.transScalingWBHP       = m_transScalingWBHP;
 
+    exportSettings.includeMsw                  = m_includeMsw;
     exportSettings.useLateralNTG               = m_useLateralNTG;
     exportSettings.includePerforations         = m_includePerforations;
     exportSettings.includeFishbones            = m_includeFishbones;
@@ -146,6 +158,10 @@ caf::PdmScriptResponse RicfExportWellPathCompletions::execute()
     exportSettings.includeFractures            = m_includeFractures;
 
     exportSettings.setCombinationMode( m_combinationMode() );
+
+    exportSettings.setExportWelspec( m_exportWelspec );
+    exportSettings.setExportCompletionWelspecAfterMainBore( m_completionWelspecAfterMainBore );
+    exportSettings.setCustomFileName( m_customFileName );
 
     {
         auto eclipseCase = TOOLS::caseFromId( m_caseId() );

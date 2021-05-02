@@ -53,9 +53,17 @@ private:
     caf::PdmField<RicExportCompletionDataSettingsUi::TransScalingWBHPSource> m_transScalingInitialWBHP;
     caf::PdmField<double>                                                    m_transScalingWBHP;
 
+    caf::PdmField<bool> m_includeMsw;
     caf::PdmField<bool> m_useLateralNTG;
     caf::PdmField<bool> m_includePerforations;
     caf::PdmField<bool> m_includeFishbones;
     caf::PdmField<bool> m_includeFractures;
     caf::PdmField<bool> m_excludeMainBoreForFishbones;
+
+    // This is handeled by RicfCommandFileExecutor::exportDataSouceAsComment()
+    // caf::PdmField<bool>    m_exportDataSourceAsComment;
+
+    caf::PdmField<bool>    m_exportWelspec;
+    caf::PdmField<bool>    m_completionWelspecAfterMainBore;
+    caf::PdmField<QString> m_customFileName;
 };
