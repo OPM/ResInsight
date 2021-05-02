@@ -89,17 +89,23 @@ public:
     void showForWellPath();
 
     void setCombinationMode( CombinationMode combinationMode );
-    void setExportDataSourceAsComment( bool enable );
 
     void showFractureInUi( bool enable );
     void showPerforationsInUi( bool enable );
     void showFishbonesInUi( bool enable );
 
     bool reportCompletionsTypesIndividually() const;
+
+    void setExportDataSourceAsComment( bool enable );
     bool exportDataSourceAsComment() const;
+
+    void setExportWelspec( bool enable );
     bool exportWelspec() const;
+
+    void setExportCompletionWelspecAfterMainBore( bool enable );
     bool exportCompletionWelspecAfterMainBore() const;
 
+    void    setCustomFileName( const QString& fileName );
     QString customFileName() const;
 
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;

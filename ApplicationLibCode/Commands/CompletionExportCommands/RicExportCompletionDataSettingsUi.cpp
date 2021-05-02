@@ -216,6 +216,14 @@ bool RicExportCompletionDataSettingsUi::exportDataSourceAsComment() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RicExportCompletionDataSettingsUi::setExportWelspec( bool enable )
+{
+    m_exportWelspec = enable;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RicExportCompletionDataSettingsUi::exportWelspec() const
 {
     return m_exportWelspec;
@@ -224,9 +232,26 @@ bool RicExportCompletionDataSettingsUi::exportWelspec() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RicExportCompletionDataSettingsUi::setExportCompletionWelspecAfterMainBore( bool enable )
+{
+    m_completionWelspecAfterMainBore = enable;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RicExportCompletionDataSettingsUi::exportCompletionWelspecAfterMainBore() const
 {
     return m_completionWelspecAfterMainBore();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicExportCompletionDataSettingsUi::setCustomFileName( const QString& fileName )
+{
+    m_useCustomFileName = !fileName.isEmpty();
+    m_customFileName    = fileName;
 }
 
 //--------------------------------------------------------------------------------------------------
