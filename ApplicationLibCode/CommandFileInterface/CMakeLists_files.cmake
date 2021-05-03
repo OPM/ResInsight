@@ -38,7 +38,6 @@ ${CMAKE_CURRENT_LIST_DIR}/RicfNewWellBoreStabilityPlotFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicfImportWellLogFiles.h
 ${CMAKE_CURRENT_LIST_DIR}/RicfImportFormationNames.h
 ${CMAKE_CURRENT_LIST_DIR}/RicfExportWellLogPlotData.h
-${CMAKE_CURRENT_LIST_DIR}/RicfEnableDataSourceAsComment.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -80,7 +79,6 @@ ${CMAKE_CURRENT_LIST_DIR}/RicfCreateWellBoreStabilityPlotFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicfImportWellLogFiles.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicfImportFormationNames.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicfExportWellLogPlotData.cpp
-${CMAKE_CURRENT_LIST_DIR}/RicfEnableDataSourceAsComment.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

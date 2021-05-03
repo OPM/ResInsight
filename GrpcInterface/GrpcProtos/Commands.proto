@@ -116,6 +116,9 @@ message ExportWellPathCompRequest
 	bool includeFishbones                  = 7;
 	bool excludeMainBoreForFishbones       = 8;
 	CompdatCombinationMode combinationMode = 9;
+	string customFileName                  = 10;
+	bool exportComments                    = 11;
+	bool exportWelspec                     = 12;
 }
 
 message ExportSimWellPathFracRequest

@@ -60,10 +60,7 @@ private:
     caf::PdmField<bool> m_includeFractures;
     caf::PdmField<bool> m_excludeMainBoreForFishbones;
 
-    // This is handeled by RicfCommandFileExecutor::exportDataSouceAsComment()
-    // caf::PdmField<bool>    m_exportDataSourceAsComment;
-
+    caf::PdmField<bool>    m_exportDataSourceAsComments;
     caf::PdmField<bool>    m_exportWelspec;
-    caf::PdmField<bool>    m_completionWelspecAfterMainBore;
     caf::PdmField<QString> m_customFileName;
 };

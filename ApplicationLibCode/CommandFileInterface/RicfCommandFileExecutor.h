@@ -57,9 +57,6 @@ public:
     void    setLastProjectPath( const QString& path );
     QString getLastProjectPath() const;
 
-    void setExportDataSouceAsComment( bool enable );
-    bool exportDataSouceAsComment() const;
-
     static RicfCommandFileExecutor* instance();
 
     static std::vector<RicfCommandObject*>
