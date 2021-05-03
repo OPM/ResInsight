@@ -38,69 +38,44 @@
 #include "RicfCommandObject.h"
 
 #include "Rim2dIntersectionViewCollection.h"
-#include "RimAnalysisPlot.h"
-#include "RimAnalysisPlotCollection.h"
 #include "RimAnnotationCollection.h"
 #include "RimAnnotationInViewCollection.h"
 #include "RimAnnotationTextAppearance.h"
 #include "RimCellFilterCollection.h"
 #include "RimCommandObject.h"
 #include "RimCompletionTemplateCollection.h"
-#include "RimCorrelationPlot.h"
-#include "RimCorrelationPlotCollection.h"
-#include "RimCorrelationReportPlot.h"
 #include "RimEclipseCaseCollection.h"
 #include "RimEclipseView.h"
-#include "RimFlowPlotCollection.h"
 #include "RimFormationNamesCollection.h"
 #include "RimFractureTemplateCollection.h"
 #include "RimGeoMechCase.h"
 #include "RimGeoMechCellColors.h"
 #include "RimGeoMechModels.h"
 #include "RimGeoMechView.h"
-#include "RimGridCrossPlot.h"
-#include "RimGridCrossPlotCollection.h"
 #include "RimIdenticalGridCaseGroup.h"
 #include "RimMainPlotCollection.h"
-#include "RimMultiPlot.h"
-#include "RimMultiPlotCollection.h"
 #include "RimObservedDataCollection.h"
 #include "RimObservedFmuRftData.h"
 #include "RimObservedSummaryData.h"
 #include "RimOilField.h"
 #include "RimPlotWindow.h"
-#include "RimPltPlotCollection.h"
 #include "RimProject.h"
-#include "RimRftPlotCollection.h"
-#include "RimSaturationPressurePlot.h"
-#include "RimSaturationPressurePlotCollection.h"
 #include "RimSimWellInViewCollection.h"
 #include "RimStimPlanColors.h"
 #include "RimStimPlanModel.h"
 #include "RimStimPlanModelCollection.h"
-#include "RimStimPlanModelPlot.h"
-#include "RimStimPlanModelPlotCollection.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseCollection.h"
 #include "RimSummaryCaseMainCollection.h"
-#include "RimSummaryCrossPlotCollection.h"
-#include "RimSummaryPlot.h"
-#include "RimSummaryPlotCollection.h"
 #include "RimSurfaceCollection.h"
 #include "RimTextAnnotation.h"
 #include "RimTextAnnotationInView.h"
-#include "RimVfpPlot.h"
-#include "RimVfpPlotCollection.h"
 #include "RimViewLinker.h"
 #include "RimViewLinkerCollection.h"
 #include "RimWellLogFile.h"
-#include "RimWellLogPlot.h"
-#include "RimWellLogPlotCollection.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 #include "RimWellPathFracture.h"
-#include "RimWellPltPlot.h"
-#include "RimWellRftPlot.h"
 
 #include "Riu3DMainWindowTools.h"
 #include "RiuGuiTheme.h"
@@ -1509,213 +1484,9 @@ int RiaApplication::launchUnitTestsWithConsole()
 //--------------------------------------------------------------------------------------------------
 void RiaApplication::loadAndUpdatePlotData()
 {
-    RimWellLogPlotCollection*            wlpColl  = nullptr;
-    RimSummaryPlotCollection*            spColl   = nullptr;
-    RimSummaryCrossPlotCollection*       scpColl  = nullptr;
-    RimFlowPlotCollection*               flowColl = nullptr;
-    RimRftPlotCollection*                rftColl  = nullptr;
-    RimPltPlotCollection*                pltColl  = nullptr;
-    RimGridCrossPlotCollection*          gcpColl  = nullptr;
-    RimSaturationPressurePlotCollection* sppColl  = nullptr;
-    RimAnalysisPlotCollection*           alsColl  = nullptr;
-    RimCorrelationPlotCollection*        corrColl = nullptr;
-    RimMultiPlotCollection*              gpwColl  = nullptr;
-    RimStimPlanModelPlotCollection*      frmColl  = nullptr;
-    RimVfpPlotCollection*                vfpColl  = nullptr;
-
     if ( m_project->mainPlotCollection() )
     {
-        if ( m_project->mainPlotCollection()->wellLogPlotCollection() )
-        {
-            wlpColl = m_project->mainPlotCollection()->wellLogPlotCollection();
-        }
-        if ( m_project->mainPlotCollection()->summaryPlotCollection() )
-        {
-            spColl = m_project->mainPlotCollection()->summaryPlotCollection();
-        }
-        if ( m_project->mainPlotCollection()->summaryCrossPlotCollection() )
-        {
-            scpColl = m_project->mainPlotCollection()->summaryCrossPlotCollection();
-        }
-        if ( m_project->mainPlotCollection()->flowPlotCollection() )
-        {
-            flowColl = m_project->mainPlotCollection()->flowPlotCollection();
-        }
-        if ( m_project->mainPlotCollection()->rftPlotCollection() )
-        {
-            rftColl = m_project->mainPlotCollection()->rftPlotCollection();
-        }
-        if ( m_project->mainPlotCollection()->pltPlotCollection() )
-        {
-            pltColl = m_project->mainPlotCollection()->pltPlotCollection();
-        }
-        if ( m_project->mainPlotCollection()->gridCrossPlotCollection() )
-        {
-            gcpColl = m_project->mainPlotCollection()->gridCrossPlotCollection();
-        }
-        if ( m_project->mainPlotCollection()->saturationPressurePlotCollection() )
-        {
-            sppColl = m_project->mainPlotCollection()->saturationPressurePlotCollection();
-        }
-        if ( m_project->mainPlotCollection()->analysisPlotCollection() )
-        {
-            alsColl = m_project->mainPlotCollection()->analysisPlotCollection();
-        }
-        if ( m_project->mainPlotCollection->correlationPlotCollection() )
-        {
-            corrColl = m_project->mainPlotCollection()->correlationPlotCollection();
-        }
-        if ( m_project->mainPlotCollection()->multiPlotCollection() )
-        {
-            gpwColl = m_project->mainPlotCollection()->multiPlotCollection();
-        }
-        if ( m_project->mainPlotCollection()->stimPlanModelPlotCollection() )
-        {
-            frmColl = m_project->mainPlotCollection()->stimPlanModelPlotCollection();
-        }
-        if ( m_project->mainPlotCollection()->vfpPlotCollection() )
-        {
-            vfpColl = m_project->mainPlotCollection()->vfpPlotCollection();
-        }
-    }
-
-    size_t plotCount = 0;
-    plotCount += wlpColl ? wlpColl->wellLogPlots().size() : 0;
-    plotCount += spColl ? spColl->plots().size() : 0;
-    plotCount += scpColl ? scpColl->plots().size() : 0;
-    plotCount += flowColl ? flowColl->plotCount() : 0;
-    plotCount += rftColl ? rftColl->rftPlots().size() : 0;
-    plotCount += pltColl ? pltColl->pltPlots().size() : 0;
-    plotCount += gcpColl ? gcpColl->plotCount() : 0;
-    plotCount += sppColl ? sppColl->plotCount() : 0;
-    plotCount += alsColl ? alsColl->plotCount() : 0;
-    plotCount += corrColl ? corrColl->plotCount() + corrColl->reports().size() : 0;
-    plotCount += gpwColl ? gpwColl->multiPlots().size() : 0;
-    plotCount += frmColl ? frmColl->stimPlanModelPlots().size() : 0;
-    plotCount += vfpColl ? vfpColl->plotCount() : 0;
-
-    if ( plotCount > 0 )
-    {
-        caf::ProgressInfo plotProgress( plotCount, "Loading Plot Data" );
-        if ( wlpColl )
-        {
-            for ( auto wellLogPlot : wlpColl->wellLogPlots() )
-            {
-                wellLogPlot->loadDataAndUpdate();
-                plotProgress.incrementProgress();
-            }
-        }
-
-        if ( spColl )
-        {
-            for ( auto plot : spColl->plots() )
-            {
-                plot->loadDataAndUpdate();
-                plotProgress.incrementProgress();
-            }
-        }
-
-        if ( scpColl )
-        {
-            for ( auto plot : scpColl->plots() )
-            {
-                plot->loadDataAndUpdate();
-                plotProgress.incrementProgress();
-            }
-        }
-
-        if ( flowColl )
-        {
-            plotProgress.setNextProgressIncrement( flowColl->plotCount() );
-            flowColl->loadDataAndUpdate();
-            plotProgress.incrementProgress();
-        }
-
-        if ( rftColl )
-        {
-            for ( const auto& rftPlot : rftColl->rftPlots() )
-            {
-                rftPlot->loadDataAndUpdate();
-                plotProgress.incrementProgress();
-            }
-        }
-
-        if ( pltColl )
-        {
-            for ( const auto& pltPlot : pltColl->pltPlots() )
-            {
-                pltPlot->loadDataAndUpdate();
-                plotProgress.incrementProgress();
-            }
-        }
-
-        if ( gcpColl )
-        {
-            for ( const auto& gcpPlot : gcpColl->plots() )
-            {
-                gcpPlot->loadDataAndUpdate();
-                plotProgress.incrementProgress();
-            }
-        }
-
-        if ( sppColl )
-        {
-            for ( const auto& sppPlot : sppColl->plots() )
-            {
-                sppPlot->loadDataAndUpdate();
-                plotProgress.incrementProgress();
-            }
-        }
-
-        if ( alsColl )
-        {
-            for ( const auto& alsPlot : alsColl->plots() )
-            {
-                alsPlot->loadDataAndUpdate();
-                plotProgress.incrementProgress();
-            }
-        }
-
-        if ( corrColl )
-        {
-            for ( const auto& corrPlot : corrColl->plots() )
-            {
-                corrPlot->loadDataAndUpdate();
-                plotProgress.incrementProgress();
-            }
-            for ( const auto& reports : corrColl->reports() )
-            {
-                reports->loadDataAndUpdate();
-                plotProgress.incrementProgress();
-            }
-        }
-
-        if ( gpwColl )
-        {
-            for ( const auto& multiPlot : gpwColl->multiPlots() )
-            {
-                multiPlot->loadDataAndUpdate();
-                plotProgress.incrementProgress();
-            }
-        }
-
-        if ( frmColl )
-        {
-            for ( const auto& stimPlanModelPlot : frmColl->stimPlanModelPlots() )
-            {
-                stimPlanModelPlot->loadDataAndUpdate();
-                plotProgress.incrementProgress();
-            }
-        }
-
-        if ( vfpColl )
-        {
-            for ( const auto& vfpPlot : vfpColl->plots() )
-            {
-                vfpPlot->loadDataAndUpdate();
-                plotProgress.incrementProgress();
-            }
-        }
+        m_project->mainPlotCollection()->loadDataAndUpdateAllPlots();
     }
 }
 
