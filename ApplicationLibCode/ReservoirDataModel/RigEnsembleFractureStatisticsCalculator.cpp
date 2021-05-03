@@ -19,6 +19,7 @@
 #include "RigEnsembleFractureStatisticsCalculator.h"
 
 #include "RiaDefines.h"
+#include "RiaEclipseUnitTools.h"
 #include "RiaWeightedMeanCalculator.h"
 
 #include "RigFractureCell.h"
@@ -219,7 +220,7 @@ double RigEnsembleFractureStatisticsCalculator::calculateKfWf( cvf::cref<RigFrac
 //--------------------------------------------------------------------------------------------------
 std::vector<double> RigEnsembleFractureStatisticsCalculator::calculateAreaWeightedStatistics(
     const std::vector<cvf::ref<RigStimPlanFractureDefinition>>& defs,
-    double( func )( cvf::cref<RigFractureGrid>, cvf::cref<RigFractureGrid> ) )
+    double( func )( cvf::cref<RigFractureGrid>, cvf::cref<RigFractureGrid>, RiaDefines::EclipseUnitSystem, const QString& ) )
 {
     std::vector<double> samples;
     if ( defs.empty() ) return samples;
@@ -233,7 +234,7 @@ std::vector<double> RigEnsembleFractureStatisticsCalculator::calculateAreaWeight
                                                             conductivityResultName,
                                                             RimEnsembleFractureStatistics::MeshAlignmentType::PERFORATION_DEPTH );
 
-    QString widthResultName = RimStimPlanFractureTemplate::widthParameterNameAndUnit( defs[0] ).first;
+    auto [widthResultName, widthResultUnit] = RimStimPlanFractureTemplate::widthParameterNameAndUnit( defs[0] );
     std::vector<cvf::cref<RigFractureGrid>> widthGrids =
         RimEnsembleFractureStatistics::createFractureGrids( defs,
                                                             RiaDefines::EclipseUnitSystem::UNITS_METRIC,
@@ -244,7 +245,7 @@ std::vector<double> RigEnsembleFractureStatisticsCalculator::calculateAreaWeight
 
     for ( size_t i = 0; i < grids.size(); i++ )
     {
-        double result = func( grids[i], widthGrids[i] );
+        double result = func( grids[i], widthGrids[i], RiaDefines::EclipseUnitSystem::UNITS_METRIC, widthResultUnit );
         samples.push_back( result );
     }
 
@@ -255,7 +256,9 @@ std::vector<double> RigEnsembleFractureStatisticsCalculator::calculateAreaWeight
 ///
 //--------------------------------------------------------------------------------------------------
 double RigEnsembleFractureStatisticsCalculator::calculateAreaWeightedWidth( cvf::cref<RigFractureGrid> conductivityGrid,
-                                                                            cvf::cref<RigFractureGrid> widthGrid )
+                                                                            cvf::cref<RigFractureGrid> widthGrid,
+                                                                            RiaDefines::EclipseUnitSystem widthUnitSystem,
+                                                                            const QString&                widthUnit )
 {
     RiaWeightedMeanCalculator<double>   calc;
     const std::vector<RigFractureCell>& conductivityCells = conductivityGrid->fractureCells();
@@ -269,8 +272,8 @@ double RigEnsembleFractureStatisticsCalculator::calculateAreaWeightedWidth( cvf:
         {
             double cellArea = conductivityCells[i].area();
             // TODO: conductivity is misleading here
-            double widthValue = widthCells[i].getConductivityValue();
-            calc.addValueAndWeight( widthValue, cellArea );
+            double width = convertUnit( widthCells[i].getConductivityValue(), widthUnitSystem, widthUnit );
+            calc.addValueAndWeight( width, cellArea );
         }
     }
 
@@ -281,7 +284,9 @@ double RigEnsembleFractureStatisticsCalculator::calculateAreaWeightedWidth( cvf:
 ///
 //--------------------------------------------------------------------------------------------------
 double RigEnsembleFractureStatisticsCalculator::calculateAreaWeightedPermeability( cvf::cref<RigFractureGrid> conductivityGrid,
-                                                                                   cvf::cref<RigFractureGrid> widthGrid )
+                                                                                   cvf::cref<RigFractureGrid> widthGrid,
+                                                                                   RiaDefines::EclipseUnitSystem widthUnitSystem,
+                                                                                   const QString& widthUnit )
 {
     RiaWeightedMeanCalculator<double>   calc;
     const std::vector<RigFractureCell>& conductivityCells = conductivityGrid->fractureCells();
@@ -295,7 +300,7 @@ double RigEnsembleFractureStatisticsCalculator::calculateAreaWeightedPermeabilit
         {
             double cellArea = conductivityCells[i].area();
             // TODO: conductivity is misleading here
-            double width        = widthCells[i].getConductivityValue();
+            double width        = convertUnit( widthCells[i].getConductivityValue(), widthUnitSystem, widthUnit );
             double permeability = RigTransmissibilityEquations::permeability( conductivity, width );
             calc.addValueAndWeight( permeability, cellArea );
         }
@@ -320,4 +325,22 @@ double RigEnsembleFractureStatisticsCalculator::calculateXf( cvf::cref<RigFractu
     }
 
     return 0.0;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RigEnsembleFractureStatisticsCalculator::convertUnit( double                        value,
+                                                             RiaDefines::EclipseUnitSystem unitSystem,
+                                                             const QString&                unitName )
+{
+    if ( unitSystem == RiaDefines::EclipseUnitSystem::UNITS_METRIC )
+    {
+        return RiaEclipseUnitTools::convertToMeter( value, unitName );
+    }
+    else if ( unitSystem == RiaDefines::EclipseUnitSystem::UNITS_FIELD )
+    {
+        return RiaEclipseUnitTools::convertToFeet( value, unitName );
+    }
+    return value;
 }

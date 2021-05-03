@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include "RiaDefines.h"
+
 #include "RigHistogramData.h"
 
 #include "cvfObject.h"
@@ -54,15 +56,24 @@ private:
 
     static std::vector<double>
         calculateAreaWeightedStatistics( const std::vector<cvf::ref<RigStimPlanFractureDefinition>>& defs,
-                                         double( func )( cvf::cref<RigFractureGrid>, cvf::cref<RigFractureGrid> ) );
+                                         double( func )( cvf::cref<RigFractureGrid>,
+                                                         cvf::cref<RigFractureGrid>,
+                                                         RiaDefines::EclipseUnitSystem,
+                                                         const QString& ) );
 
     static double calculateHeight( cvf::cref<RigFractureGrid> fractureGrid );
     static double calculateArea( cvf::cref<RigFractureGrid> fractureGrid );
     static double calculateXf( cvf::cref<RigFractureGrid> fractureGrid );
     static double calculateKfWf( cvf::cref<RigFractureGrid> fractureGrid );
 
-    static double calculateAreaWeightedWidth( cvf::cref<RigFractureGrid> conductivityGrid,
-                                              cvf::cref<RigFractureGrid> widthGrid );
-    static double calculateAreaWeightedPermeability( cvf::cref<RigFractureGrid> conductivityGrid,
-                                                     cvf::cref<RigFractureGrid> widthGrid );
+    static double calculateAreaWeightedWidth( cvf::cref<RigFractureGrid>    conductivityGrid,
+                                              cvf::cref<RigFractureGrid>    widthGrid,
+                                              RiaDefines::EclipseUnitSystem widthUnitSystem,
+                                              const QString&                widthUnit );
+    static double calculateAreaWeightedPermeability( cvf::cref<RigFractureGrid>    conductivityGrid,
+                                                     cvf::cref<RigFractureGrid>    widthGrid,
+                                                     RiaDefines::EclipseUnitSystem widthUnitSystem,
+                                                     const QString&                widthUnit );
+
+    static double convertUnit( double value, RiaDefines::EclipseUnitSystem unitSystem, const QString& unitName );
 };
