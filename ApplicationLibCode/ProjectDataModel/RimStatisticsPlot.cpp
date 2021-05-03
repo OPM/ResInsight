@@ -233,21 +233,27 @@ void RimStatisticsPlot::updatePlots()
     axisY->setRange( minValue, maxValue );
     chart->addAxis( axisY, Qt::AlignLeft );
 
-    QLineSeries* p10series = new QLineSeries();
-    chart->addSeries( p10series );
-    p10series->setName( "P10" );
-    p10series->append( histogramData.p10, minValue );
-    p10series->append( histogramData.p10, maxValue );
-    p10series->attachAxis( axisX );
-    p10series->attachAxis( axisY );
+    if ( !std::isinf( histogramData.p10 ) )
+    {
+        QLineSeries* p10series = new QLineSeries();
+        chart->addSeries( p10series );
+        p10series->setName( "P10" );
+        p10series->append( histogramData.p10, minValue );
+        p10series->append( histogramData.p10, maxValue );
+        p10series->attachAxis( axisX );
+        p10series->attachAxis( axisY );
+    }
 
-    QLineSeries* p90series = new QLineSeries();
-    chart->addSeries( p90series );
-    p90series->setName( "P90" );
-    p90series->append( histogramData.p90, minValue );
-    p90series->append( histogramData.p90, maxValue );
-    p90series->attachAxis( axisX );
-    p90series->attachAxis( axisY );
+    if ( !std::isinf( histogramData.p10 ) )
+    {
+        QLineSeries* p90series = new QLineSeries();
+        chart->addSeries( p90series );
+        p90series->setName( "P90" );
+        p90series->append( histogramData.p90, minValue );
+        p90series->append( histogramData.p90, maxValue );
+        p90series->attachAxis( axisX );
+        p90series->attachAxis( axisY );
+    }
 
     QLineSeries* meanSeries = new QLineSeries();
     chart->addSeries( meanSeries );
