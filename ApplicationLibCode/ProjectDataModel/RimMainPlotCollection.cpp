@@ -21,6 +21,7 @@
 
 #include "RimAnalysisPlotCollection.h"
 #include "RimCorrelationPlotCollection.h"
+#include "RimCorrelationReportPlot.h"
 #include "RimFlowCharacteristicsPlot.h"
 #include "RimFlowPlotCollection.h"
 #include "RimGridCrossPlot.h"
@@ -30,6 +31,7 @@
 #include "RimPltPlotCollection.h"
 #include "RimProject.h"
 #include "RimRftPlotCollection.h"
+#include "RimSaturationPressurePlot.h"
 #include "RimSaturationPressurePlotCollection.h"
 #include "RimStimPlanModelPlot.h"
 #include "RimStimPlanModelPlotCollection.h"
@@ -52,6 +54,8 @@
 
 #include "RiuMainWindow.h"
 #include "RiuProjectPropertyView.h"
+
+#include "cafProgressInfo.h"
 
 CAF_PDM_SOURCE_INIT( RimMainPlotCollection, "MainPlotCollection" );
 
@@ -447,5 +451,217 @@ void RimMainPlotCollection::ensureCalculationIdsAreAssigned()
     for ( RimSummaryAddress* adr : allAddresses )
     {
         adr->ensureIdIsAssigned();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimMainPlotCollection::loadDataAndUpdateAllPlots()
+{
+    RimWellLogPlotCollection*            wlpColl  = nullptr;
+    RimSummaryPlotCollection*            spColl   = nullptr;
+    RimSummaryCrossPlotCollection*       scpColl  = nullptr;
+    RimFlowPlotCollection*               flowColl = nullptr;
+    RimRftPlotCollection*                rftColl  = nullptr;
+    RimPltPlotCollection*                pltColl  = nullptr;
+    RimGridCrossPlotCollection*          gcpColl  = nullptr;
+    RimSaturationPressurePlotCollection* sppColl  = nullptr;
+    RimAnalysisPlotCollection*           alsColl  = nullptr;
+    RimCorrelationPlotCollection*        corrColl = nullptr;
+    RimMultiPlotCollection*              gpwColl  = nullptr;
+    RimStimPlanModelPlotCollection*      frmColl  = nullptr;
+    RimVfpPlotCollection*                vfpColl  = nullptr;
+
+    if ( wellLogPlotCollection() )
+    {
+        wlpColl = wellLogPlotCollection();
+    }
+    if ( summaryPlotCollection() )
+    {
+        spColl = summaryPlotCollection();
+    }
+    if ( summaryCrossPlotCollection() )
+    {
+        scpColl = summaryCrossPlotCollection();
+    }
+    if ( flowPlotCollection() )
+    {
+        flowColl = flowPlotCollection();
+    }
+    if ( rftPlotCollection() )
+    {
+        rftColl = rftPlotCollection();
+    }
+    if ( pltPlotCollection() )
+    {
+        pltColl = pltPlotCollection();
+    }
+    if ( gridCrossPlotCollection() )
+    {
+        gcpColl = gridCrossPlotCollection();
+    }
+    if ( saturationPressurePlotCollection() )
+    {
+        sppColl = saturationPressurePlotCollection();
+    }
+    if ( analysisPlotCollection() )
+    {
+        alsColl = analysisPlotCollection();
+    }
+    if ( correlationPlotCollection() )
+    {
+        corrColl = correlationPlotCollection();
+    }
+    if ( multiPlotCollection() )
+    {
+        gpwColl = multiPlotCollection();
+    }
+    if ( stimPlanModelPlotCollection() )
+    {
+        frmColl = stimPlanModelPlotCollection();
+    }
+    if ( vfpPlotCollection() )
+    {
+        vfpColl = vfpPlotCollection();
+    }
+
+    size_t plotCount = 0;
+    plotCount += wlpColl ? wlpColl->wellLogPlots().size() : 0;
+    plotCount += spColl ? spColl->plots().size() : 0;
+    plotCount += scpColl ? scpColl->plots().size() : 0;
+    plotCount += flowColl ? flowColl->plotCount() : 0;
+    plotCount += rftColl ? rftColl->rftPlots().size() : 0;
+    plotCount += pltColl ? pltColl->pltPlots().size() : 0;
+    plotCount += gcpColl ? gcpColl->plotCount() : 0;
+    plotCount += sppColl ? sppColl->plotCount() : 0;
+    plotCount += alsColl ? alsColl->plotCount() : 0;
+    plotCount += corrColl ? corrColl->plotCount() + corrColl->reports().size() : 0;
+    plotCount += gpwColl ? gpwColl->multiPlots().size() : 0;
+    plotCount += frmColl ? frmColl->stimPlanModelPlots().size() : 0;
+    plotCount += vfpColl ? vfpColl->plotCount() : 0;
+
+    if ( plotCount > 0 )
+    {
+        caf::ProgressInfo plotProgress( plotCount, "Loading Plot Data" );
+        if ( wlpColl )
+        {
+            for ( auto wellLogPlot : wlpColl->wellLogPlots() )
+            {
+                wellLogPlot->loadDataAndUpdate();
+                plotProgress.incrementProgress();
+            }
+        }
+
+        if ( spColl )
+        {
+            for ( auto plot : spColl->plots() )
+            {
+                plot->loadDataAndUpdate();
+                plotProgress.incrementProgress();
+            }
+        }
+
+        if ( scpColl )
+        {
+            for ( auto plot : scpColl->plots() )
+            {
+                plot->loadDataAndUpdate();
+                plotProgress.incrementProgress();
+            }
+        }
+
+        if ( flowColl )
+        {
+            plotProgress.setNextProgressIncrement( flowColl->plotCount() );
+            flowColl->loadDataAndUpdate();
+            plotProgress.incrementProgress();
+        }
+
+        if ( rftColl )
+        {
+            for ( const auto& rftPlot : rftColl->rftPlots() )
+            {
+                rftPlot->loadDataAndUpdate();
+                plotProgress.incrementProgress();
+            }
+        }
+
+        if ( pltColl )
+        {
+            for ( const auto& pltPlot : pltColl->pltPlots() )
+            {
+                pltPlot->loadDataAndUpdate();
+                plotProgress.incrementProgress();
+            }
+        }
+
+        if ( gcpColl )
+        {
+            for ( const auto& gcpPlot : gcpColl->plots() )
+            {
+                gcpPlot->loadDataAndUpdate();
+                plotProgress.incrementProgress();
+            }
+        }
+
+        if ( sppColl )
+        {
+            for ( const auto& sppPlot : sppColl->plots() )
+            {
+                sppPlot->loadDataAndUpdate();
+                plotProgress.incrementProgress();
+            }
+        }
+
+        if ( alsColl )
+        {
+            for ( const auto& alsPlot : alsColl->plots() )
+            {
+                alsPlot->loadDataAndUpdate();
+                plotProgress.incrementProgress();
+            }
+        }
+
+        if ( corrColl )
+        {
+            for ( const auto& corrPlot : corrColl->plots() )
+            {
+                corrPlot->loadDataAndUpdate();
+                plotProgress.incrementProgress();
+            }
+            for ( const auto& reports : corrColl->reports() )
+            {
+                reports->loadDataAndUpdate();
+                plotProgress.incrementProgress();
+            }
+        }
+
+        if ( gpwColl )
+        {
+            for ( const auto& multiPlot : gpwColl->multiPlots() )
+            {
+                multiPlot->loadDataAndUpdate();
+                plotProgress.incrementProgress();
+            }
+        }
+
+        if ( frmColl )
+        {
+            for ( const auto& stimPlanModelPlot : frmColl->stimPlanModelPlots() )
+            {
+                stimPlanModelPlot->loadDataAndUpdate();
+                plotProgress.incrementProgress();
+            }
+        }
+
+        if ( vfpColl )
+        {
+            for ( const auto& vfpPlot : vfpColl->plots() )
+            {
+                vfpPlot->loadDataAndUpdate();
+                plotProgress.incrementProgress();
+            }
+        }
     }
 }
