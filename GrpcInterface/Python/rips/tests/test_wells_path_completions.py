@@ -14,9 +14,14 @@ def test_10k(rips_instance, initialize_test):
     project = rips_instance.project.open(path=project_path)
 
     export_folder = tempfile.gettempdir()
-    #export_folder = "e:/temp/msj"
+    # export_folder = "e:/temp/msj"
 
     rips_instance.set_export_folder(export_type="COMPLETIONS", path=export_folder)
 
     case = project.cases()[0]
-    case.export_well_path_completions(time_step=1, well_path_names=["Well-1"], file_split="UNIFIED_FILE", custom_file_name="msj.jadda")
+    case.export_well_path_completions(
+        time_step=1,
+        well_path_names=["Well-1"],
+        file_split="UNIFIED_FILE",
+        custom_file_name="msj.jadda",
+    )

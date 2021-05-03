@@ -437,7 +437,7 @@ def export_well_path_completions(
             combinationMode=combination_mode,
             exportWelspec=export_welspec,
             exportComments=export_comments,
-            customFileName=custom_file_name
+            customFileName=custom_file_name,
         )
     )
 
