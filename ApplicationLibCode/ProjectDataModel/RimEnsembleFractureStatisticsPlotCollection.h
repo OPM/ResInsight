@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include "RimAbstractPlotCollection.h"
+
 #include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
@@ -28,7 +30,8 @@ class RimEnsembleFractureStatisticsPlot;
 ///
 ///
 //==================================================================================================
-class RimEnsembleFractureStatisticsPlotCollection : public caf::PdmObject
+class RimEnsembleFractureStatisticsPlotCollection : public caf::PdmObject, public RimPlotCollection
+
 {
     CAF_PDM_HEADER_INIT;
 
@@ -39,9 +42,10 @@ public:
 
     std::vector<RimEnsembleFractureStatisticsPlot*> ensembleFractureStatisticsPlots() const;
 
-    void reloadAllPlots();
+    size_t plotCount() const override;
+    void   loadDataAndUpdateAllPlots() override;
 
-    void deleteAllPlots();
+    void deleteAllPlots() override;
 
 private:
     caf::PdmChildArrayField<RimEnsembleFractureStatisticsPlot*> m_ensembleFractureStatisticsPlots;
