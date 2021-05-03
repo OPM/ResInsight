@@ -121,18 +121,13 @@ public:
     QString octaveExecutable() const;
 
     RiaPreferencesSummary* summaryPreferences() const;
+
     // geomech settings
     QString geomechFRAPreprocCommand() const;
     QString geomechFRAPostprocCommand() const;
     QString geomechFRAMacrisCommand() const;
     QString geomechFRADefaultBasicXML() const;
     QString geomechFRADefaultAdvXML() const;
-
-    // Summary readers
-    SummaryReaderMode summaryDataReader() const;
-    bool              useOptimizedSummaryDataFiles() const;
-    bool              createOptimizedSummaryDataFiles() const;
-    bool              createH5SummaryDataFiles() const;
 
 public:
     caf::PdmField<bool> enableGrpcServer;
