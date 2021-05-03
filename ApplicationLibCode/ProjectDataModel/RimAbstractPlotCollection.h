@@ -26,6 +26,7 @@ class RimAbstractPlotCollection
 public:
     virtual ~RimAbstractPlotCollection() = default;
 
+    virtual void   loadDataAndUpdateAllPlots()    = 0;
     virtual size_t plotCount() const              = 0;
     virtual void   deleteAllPlots()               = 0;
     virtual void   removeRimPlot( RimPlot* plot ) = 0;
@@ -63,6 +64,14 @@ public:
         if ( typedPlot )
         {
             removePlot( typedPlot );
+        }
+    }
+
+    void loadDataAndUpdateAllPlots() override
+    {
+        for ( auto plot : plots() )
+        {
+            plot->loadDataAndUpdate();
         }
     }
 };
