@@ -332,6 +332,7 @@ RiaPreferences::RiaPreferences()
 
     CAF_PDM_InitFieldNoDefault( &m_summaryPreferences, "summaryPreferences", "summaryPreferences", "", "", "" );
     m_summaryPreferences = new RiaPreferencesSummary;
+
     CAF_PDM_InitFieldNoDefault( &m_geomechFRAPreprocCommand, "geomechFRAPreprocCommand", "Pre-Processing Command", "", "", "" );
     m_geomechFRAPreprocCommand.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
     m_geomechFRAPreprocCommand.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
@@ -361,35 +362,6 @@ RiaPreferences::RiaPreferences()
                                 "" );
     m_geomechFRADefaultAdvXML.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
     m_geomechFRADefaultAdvXML.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
-
-    CAF_PDM_InitField( &m_createOptimizedSummaryDataFile,
-                       "createOptimizedSummaryDataFile",
-                       true,
-                       "Create Optimized Summary Data Files [BETA]",
-                       "",
-                       "If not present, create optimized file with extension '*.LODSMRY'",
-                       "" );
-    m_createOptimizedSummaryDataFile.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
-
-    CAF_PDM_InitField( &m_useOptimizedSummaryDataFile,
-                       "useOptimizedSummaryDataFile",
-                       true,
-                       "Use Optimized Summary Data Files [BETA]",
-                       "",
-                       "If not present, read optimized file with extension '*.LODSMRY'",
-                       "" );
-    m_useOptimizedSummaryDataFile.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
-
-    CAF_PDM_InitField( &m_createH5SummaryDataFile,
-                       "createH5SummaryDataFile",
-                       false,
-                       "Create H5 Summary Data Files [BETA]",
-                       "",
-                       "If not present, create summary file with extension '*.H5'",
-                       "" );
-    m_createH5SummaryDataFile.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
-
-    CAF_PDM_InitFieldNoDefault( &m_summaryReader, "summaryReaderType", "Summary Data File Reader", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------
