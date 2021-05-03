@@ -376,6 +376,9 @@ def export_well_path_completions(
     include_fishbones=True,
     fishbones_exclude_main_bore=True,
     combination_mode="INDIVIDUALLY",
+    export_welspec=True,
+    export_comments=True,
+    custom_file_name="",
 ):
     """
     Export well path completions for the current case to file
@@ -392,6 +395,9 @@ def export_well_path_completions(
         include_fishbones           | Export fishbones?                                | bool
         fishbones_exclude_main_bore | Exclude main bore when exporting fishbones?      | bool
         combination_mode            | Settings for multiple completions in same cell   | String Enum
+        export_welspec              | Export WELSPEC keyword                           | bool
+        export_comments             | Export completion data source as comment         | bool
+        custom_file_name            | Custom filename when file_split is "UNIFIED_FILE"| String
 
     **Enum file_split**::
 
@@ -429,6 +435,9 @@ def export_well_path_completions(
             includeFishbones=include_fishbones,
             excludeMainBoreForFishbones=fishbones_exclude_main_bore,
             combinationMode=combination_mode,
+            exportWelspec=export_welspec,
+            exportComments=export_comments,
+            customFileName=custom_file_name
         )
     )
 

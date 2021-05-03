@@ -112,14 +112,14 @@ RicfExportWellPathCompletions::RicfExportWellPathCompletions()
                                  "",
                                  "" );
 
-    CAF_PDM_InitScriptableField( &m_exportWelspec, "exportWelspec", true, "Export WELSPEC keyword", "", "", "" );
-    CAF_PDM_InitScriptableField( &m_completionWelspecAfterMainBore,
-                                 "completionWelspecAfterMainBore",
-                                 false,
-                                 "WELSEGS per Completion Type",
+    CAF_PDM_InitScriptableField( &m_exportDataSourceAsComments,
+                                 "exportComments",
+                                 true,
+                                 "Export Data Source as Comments",
                                  "",
                                  "",
                                  "" );
+    CAF_PDM_InitScriptableField( &m_exportWelspec, "exportWelspec", true, "Export WELSPEC keyword", "", "", "" );
     CAF_PDM_InitScriptableField( &m_customFileName, "customFileName", QString(), "Custom Filename", "", "", "" );
 }
 
@@ -143,7 +143,6 @@ caf::PdmScriptResponse RicfExportWellPathCompletions::execute()
 
     exportSettings.fileSplit     = m_fileSplit;
     exportSettings.compdatExport = m_compdatExport;
-    exportSettings.setExportDataSourceAsComment( RicfCommandFileExecutor::instance()->exportDataSouceAsComment() );
 
     exportSettings.performTransScaling    = m_performTransScaling;
     exportSettings.transScalingTimeStep   = m_transScalingTimeStep;
@@ -159,8 +158,8 @@ caf::PdmScriptResponse RicfExportWellPathCompletions::execute()
 
     exportSettings.setCombinationMode( m_combinationMode() );
 
+    exportSettings.setExportDataSourceAsComment( m_exportDataSourceAsComments );
     exportSettings.setExportWelspec( m_exportWelspec );
-    exportSettings.setExportCompletionWelspecAfterMainBore( m_completionWelspecAfterMainBore );
     exportSettings.setCustomFileName( m_customFileName );
 
     {

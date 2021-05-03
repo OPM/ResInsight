@@ -153,22 +153,6 @@ QString RicfCommandFileExecutor::getLastProjectPath() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicfCommandFileExecutor::setExportDataSouceAsComment( bool enable )
-{
-    m_exportDataSourceAsComment = enable;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RicfCommandFileExecutor::exportDataSouceAsComment() const
-{
-    return m_exportDataSourceAsComment;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 RicfCommandFileExecutor* RicfCommandFileExecutor::instance()
 {
     static RicfCommandFileExecutor* commandFileExecutorInstance = new RicfCommandFileExecutor();

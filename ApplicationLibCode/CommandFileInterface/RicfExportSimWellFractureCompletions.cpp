@@ -85,7 +85,7 @@ caf::PdmScriptResponse RicfExportSimWellFractureCompletions::execute()
     exportSettings.timeStep      = m_timeStep;
     exportSettings.fileSplit     = m_fileSplit;
     exportSettings.compdatExport = m_compdatExport;
-    exportSettings.setExportDataSourceAsComment( RicfCommandFileExecutor::instance()->exportDataSouceAsComment() );
+    exportSettings.setExportDataSourceAsComment( true );
 
     {
         auto eclipseCase = TOOLS::caseFromId( m_caseId() );

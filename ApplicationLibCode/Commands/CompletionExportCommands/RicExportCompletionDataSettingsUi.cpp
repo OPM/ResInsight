@@ -112,12 +112,12 @@ RicExportCompletionDataSettingsUi::RicExportCompletionDataSettingsUi()
                                 "",
                                 "" );
 
-    CAF_PDM_InitField( &m_exportDataSourceAsComment, "ExportDataSourceAsComment", true, "Comment", "", "", "" );
+    CAF_PDM_InitField( &m_exportDataSourceAsComment, "ExportDataSourceAsComment", true, "Comments", "", "", "" );
 
     CAF_PDM_InitField( &m_exportWelspec, "ExportWelspec", true, "WELSPEC keyword", "", "", "" );
     CAF_PDM_InitField( &m_completionWelspecAfterMainBore,
                        "CompletionWelspecAfterMainBore",
-                       false,
+                       true,
                        "WELSEGS per Completion Type",
                        "",
                        "",
