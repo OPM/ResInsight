@@ -207,7 +207,7 @@ void RimStatisticsPlot::updatePlots()
     QBarSet* set0     = new QBarSet( m_plotWindowTitle );
     double   minValue = std::numeric_limits<double>::max();
     double   maxValue = -std::numeric_limits<double>::max();
-    for ( double value : *histogramData.histogram )
+    for ( double value : histogramData.histogram )
     {
         *set0 << value;
         minValue = std::min( minValue, value );

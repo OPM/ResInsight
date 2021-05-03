@@ -29,14 +29,14 @@ class RigHistogramData
 public:
     RigHistogramData();
 
-    double                     min;
-    double                     max;
-    double                     p10;
-    double                     p90;
-    double                     mean;
-    double                     sum;
-    double                     weightedMean;
-    const std::vector<size_t>* histogram;
+    double              min;
+    double              max;
+    double              p10;
+    double              p90;
+    double              mean;
+    double              sum;
+    double              weightedMean;
+    std::vector<size_t> histogram;
 
     bool isMinMaxValid() const;
     bool isHistogramVectorValid() const;

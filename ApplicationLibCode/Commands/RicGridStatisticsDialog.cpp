@@ -178,10 +178,10 @@ void RicGridStatisticsDialog::setHistogramData( RimGridView* view )
         {
             QVector<QwtIntervalSample> histSamples;
             QVector<QPointF>           aggrSamples;
-            double xStep     = ( histogramData.max - histogramData.min ) / ( *histogramData.histogram ).size();
+            double xStep     = ( histogramData.max - histogramData.min ) / histogramData.histogram.size();
             double xCurr     = histogramData.min;
             double aggrValue = 0.0;
-            for ( size_t value : *histogramData.histogram )
+            for ( size_t value : histogramData.histogram )
             {
                 double xNext = xCurr + xStep;
                 histSamples.push_back( QwtIntervalSample( value, xCurr, xNext ) );

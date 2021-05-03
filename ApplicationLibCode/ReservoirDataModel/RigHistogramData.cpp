@@ -31,7 +31,6 @@ RigHistogramData::RigHistogramData()
     , mean( std::numeric_limits<double>::infinity() )
     , weightedMean( std::numeric_limits<double>::infinity() )
     , sum( 0.0 )
-    , histogram( nullptr )
 {
 }
 
@@ -56,5 +55,5 @@ bool RigHistogramData::isValid( double parameter ) const
 //--------------------------------------------------------------------------------------------------
 bool RigHistogramData::isHistogramVectorValid() const
 {
-    return histogram && histogram->size() > 0 && isMinMaxValid();
+    return histogram.size() > 0 && isMinMaxValid();
 }

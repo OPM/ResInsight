@@ -106,9 +106,8 @@ RigHistogramData RigEnsembleFractureStatisticsCalculator::createStatisticsData( 
     double mean;
     RigStatisticsMath::calculateStatisticsCurves( samples, &histogramData.p10, &p50, &histogramData.p90, &mean );
 
-    // TODO: this leaks memory: api assume the the histogram is owned by someone else (which is kind-of-strange)
-    std::vector<size_t>*   histogram = new std::vector<size_t>();
-    RigHistogramCalculator histogramCalculator( histogramData.min, histogramData.max, 20, histogram );
+    std::vector<size_t>    histogram;
+    RigHistogramCalculator histogramCalculator( histogramData.min, histogramData.max, 20, &histogram );
     for ( auto s : samples )
         histogramCalculator.addValue( s );
 
