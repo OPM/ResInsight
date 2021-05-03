@@ -862,7 +862,7 @@ void Rim3dOverlayInfoConfig::updateEclipse3DInfo( RimEclipseView* eclipseView )
         if ( isResultsInfoRelevant && histData.isHistogramVectorValid() )
         {
             eclipseView->viewer()->showHistogram( true );
-            eclipseView->viewer()->setHistogram( histData.min, histData.max, *histData.histogram );
+            eclipseView->viewer()->setHistogram( histData.min, histData.max, histData.histogram );
             eclipseView->viewer()->setHistogramPercentiles( histData.p10, histData.p90, histData.mean );
         }
     }
@@ -911,7 +911,7 @@ void Rim3dOverlayInfoConfig::updateGeoMech3DInfo( RimGeoMechView* geoMechView )
         if ( isResultsInfoRelevant && histData.isHistogramVectorValid() )
         {
             geoMechView->viewer()->showHistogram( true );
-            geoMechView->viewer()->setHistogram( histData.min, histData.max, *histData.histogram );
+            geoMechView->viewer()->setHistogram( histData.min, histData.max, histData.histogram );
             geoMechView->viewer()->setHistogramPercentiles( histData.p10, histData.p90, histData.mean );
         }
     }

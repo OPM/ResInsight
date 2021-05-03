@@ -187,7 +187,7 @@ RigHistogramData RimHistogramCalculator::histogramData( RimEclipseView*         
                 fldResults->sumScalarValue( resAddr, timeStep, &histData.sum );
                 fldResults->mobileVolumeWeightedMean( resAddr, timeStep, &histData.weightedMean );
 
-                histData.histogram = &( fldResults->scalarValuesHistogram( resAddr, timeStep ) );
+                histData.histogram = fldResults->scalarValuesHistogram( resAddr, timeStep );
             }
             else if ( cellRange == StatisticsCellRangeType::VISIBLE_CELLS )
             {
@@ -201,7 +201,7 @@ RigHistogramData RimHistogramCalculator::histogramData( RimEclipseView*         
                 m_visibleCellStatistics->sumCellScalarValues( timeStep, histData.sum );
                 m_visibleCellStatistics->mobileVolumeWeightedMean( timeStep, histData.weightedMean );
 
-                histData.histogram = &( m_visibleCellStatistics->cellScalarValuesHistogram( timeStep ) );
+                histData.histogram = m_visibleCellStatistics->cellScalarValuesHistogram( timeStep );
             }
         }
     }
@@ -216,7 +216,7 @@ RigHistogramData RimHistogramCalculator::histogramData( RimEclipseView*         
             cellResults->meanCellScalarValues( eclResAddr, histData.mean );
             cellResults->sumCellScalarValues( eclResAddr, histData.sum );
             cellResults->mobileVolumeWeightedMean( eclResAddr, histData.weightedMean );
-            histData.histogram = &( cellResults->cellScalarValuesHistogram( eclResAddr ) );
+            histData.histogram = cellResults->cellScalarValuesHistogram( eclResAddr );
         }
         else if ( timeRange == StatisticsTimeRangeType::CURRENT_TIMESTEP )
         {
@@ -225,7 +225,7 @@ RigHistogramData RimHistogramCalculator::histogramData( RimEclipseView*         
             cellResults->meanCellScalarValues( eclResAddr, timeStep, histData.mean );
             cellResults->sumCellScalarValues( eclResAddr, timeStep, histData.sum );
             cellResults->mobileVolumeWeightedMean( eclResAddr, timeStep, histData.weightedMean );
-            histData.histogram = &( cellResults->cellScalarValuesHistogram( eclResAddr, timeStep ) );
+            histData.histogram = cellResults->cellScalarValuesHistogram( eclResAddr, timeStep );
         }
     }
     else if ( cellRange == StatisticsCellRangeType::VISIBLE_CELLS )
@@ -241,7 +241,7 @@ RigHistogramData RimHistogramCalculator::histogramData( RimEclipseView*         
             m_visibleCellStatistics->sumCellScalarValues( histData.sum );
             m_visibleCellStatistics->mobileVolumeWeightedMean( histData.weightedMean );
 
-            histData.histogram = &( m_visibleCellStatistics->cellScalarValuesHistogram() );
+            histData.histogram = m_visibleCellStatistics->cellScalarValuesHistogram();
         }
         else if ( timeRange == StatisticsTimeRangeType::CURRENT_TIMESTEP )
         {
@@ -251,7 +251,7 @@ RigHistogramData RimHistogramCalculator::histogramData( RimEclipseView*         
             m_visibleCellStatistics->sumCellScalarValues( timeStep, histData.sum );
             m_visibleCellStatistics->mobileVolumeWeightedMean( timeStep, histData.weightedMean );
 
-            histData.histogram = &( m_visibleCellStatistics->cellScalarValuesHistogram( timeStep ) );
+            histData.histogram = m_visibleCellStatistics->cellScalarValuesHistogram( timeStep );
         }
     }
     return histData;
@@ -285,7 +285,7 @@ RigHistogramData RimHistogramCalculator::histogramData( RimGeoMechView*         
                     caseData->femPartResults()->p10p90ScalarValues( resAddress, &histData.p10, &histData.p90 );
                     caseData->femPartResults()->sumScalarValue( resAddress, &histData.sum );
 
-                    histData.histogram = &( caseData->femPartResults()->scalarValuesHistogram( resAddress ) );
+                    histData.histogram = caseData->femPartResults()->scalarValuesHistogram( resAddress );
                 }
                 else if ( timeRange == StatisticsTimeRangeType::CURRENT_TIMESTEP )
                 {
@@ -295,7 +295,7 @@ RigHistogramData RimHistogramCalculator::histogramData( RimGeoMechView*         
                     caseData->femPartResults()->p10p90ScalarValues( resAddress, timeStepIdx, &histData.p10, &histData.p90 );
                     caseData->femPartResults()->sumScalarValue( resAddress, timeStepIdx, &histData.sum );
 
-                    histData.histogram = &( caseData->femPartResults()->scalarValuesHistogram( resAddress, timeStepIdx ) );
+                    histData.histogram = caseData->femPartResults()->scalarValuesHistogram( resAddress, timeStepIdx );
                 }
             }
             else if ( cellRange == StatisticsCellRangeType::VISIBLE_CELLS )
@@ -310,7 +310,7 @@ RigHistogramData RimHistogramCalculator::histogramData( RimGeoMechView*         
                     m_visibleCellStatistics->p10p90CellScalarValues( histData.p10, histData.p90 );
                     m_visibleCellStatistics->sumCellScalarValues( histData.sum );
 
-                    histData.histogram = &( m_visibleCellStatistics->cellScalarValuesHistogram() );
+                    histData.histogram = m_visibleCellStatistics->cellScalarValuesHistogram();
                 }
                 else if ( timeRange == StatisticsTimeRangeType::CURRENT_TIMESTEP )
                 {
@@ -320,7 +320,7 @@ RigHistogramData RimHistogramCalculator::histogramData( RimGeoMechView*         
                     m_visibleCellStatistics->p10p90CellScalarValues( timeStepIdx, histData.p10, histData.p90 );
                     m_visibleCellStatistics->sumCellScalarValues( timeStepIdx, histData.sum );
 
-                    histData.histogram = &( m_visibleCellStatistics->cellScalarValuesHistogram( timeStepIdx ) );
+                    histData.histogram = m_visibleCellStatistics->cellScalarValuesHistogram( timeStepIdx );
                 }
             }
         }
