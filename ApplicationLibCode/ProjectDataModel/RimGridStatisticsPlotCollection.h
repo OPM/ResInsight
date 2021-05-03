@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include "RimAbstractPlotCollection.h"
+
 #include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
@@ -28,7 +30,7 @@ class RimGridStatisticsPlot;
 ///
 ///
 //==================================================================================================
-class RimGridStatisticsPlotCollection : public caf::PdmObject
+class RimGridStatisticsPlotCollection : public caf::PdmObject, public RimPlotCollection
 {
     CAF_PDM_HEADER_INIT;
 
@@ -39,9 +41,11 @@ public:
 
     std::vector<RimGridStatisticsPlot*> gridStatisticsPlots() const;
 
-    void reloadAllPlots();
+    void loadDataAndUpdateAllPlots() override;
 
-    void deleteAllPlots();
+    void deleteAllPlots() override;
+
+    size_t plotCount() const override;
 
 private:
     caf::PdmChildArrayField<RimGridStatisticsPlot*> m_gridStatisticsPlots;

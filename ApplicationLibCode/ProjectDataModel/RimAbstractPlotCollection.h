@@ -21,15 +21,20 @@
 
 #include "cafPdmObject.h"
 
-class RimAbstractPlotCollection
+class RimPlotCollection
 {
 public:
-    virtual ~RimAbstractPlotCollection() = default;
+    virtual ~RimPlotCollection()               = default;
+    virtual void   loadDataAndUpdateAllPlots() = 0;
+    virtual size_t plotCount() const           = 0;
+    virtual void   deleteAllPlots()            = 0;
+};
 
-    virtual void   loadDataAndUpdateAllPlots()    = 0;
-    virtual size_t plotCount() const              = 0;
-    virtual void   deleteAllPlots()               = 0;
-    virtual void   removeRimPlot( RimPlot* plot ) = 0;
+class RimAbstractPlotCollection : public RimPlotCollection
+{
+public:
+    virtual ~RimAbstractPlotCollection()        = default;
+    virtual void removeRimPlot( RimPlot* plot ) = 0;
 };
 
 //==================================================================================================

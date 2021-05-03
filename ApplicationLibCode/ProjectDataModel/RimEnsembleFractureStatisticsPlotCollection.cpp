@@ -39,12 +39,20 @@ RimEnsembleFractureStatisticsPlotCollection::RimEnsembleFractureStatisticsPlotCo
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEnsembleFractureStatisticsPlotCollection::reloadAllPlots()
+void RimEnsembleFractureStatisticsPlotCollection::loadDataAndUpdateAllPlots()
 {
     for ( const auto& w : m_ensembleFractureStatisticsPlots() )
     {
         w->loadDataAndUpdate();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+size_t RimEnsembleFractureStatisticsPlotCollection::plotCount() const
+{
+    return m_ensembleFractureStatisticsPlots.size();
 }
 
 //--------------------------------------------------------------------------------------------------

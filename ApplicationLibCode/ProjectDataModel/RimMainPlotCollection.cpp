@@ -470,11 +470,15 @@ void RimMainPlotCollection::loadDataAndUpdateAllPlots()
     RimMultiPlotCollection*              gpwColl  = nullptr;
     RimStimPlanModelPlotCollection*      frmColl  = nullptr;
 
-    std::vector<RimAbstractPlotCollection*> plotCollections;
+    std::vector<RimPlotCollection*> plotCollections;
     plotCollections.push_back( summaryCrossPlotCollection() );
     plotCollections.push_back( gridCrossPlotCollection() );
     plotCollections.push_back( analysisPlotCollection() );
     plotCollections.push_back( vfpPlotCollection() );
+#ifdef USE_QTCHARTS
+    plotCollections.push_back( gridStatisticsPlotCollection() );
+    plotCollections.push_back( ensembleFractureStatisticsPlotCollection() );
+#endif
 
     if ( wellLogPlotCollection() )
     {

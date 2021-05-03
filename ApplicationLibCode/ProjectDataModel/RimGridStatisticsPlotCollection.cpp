@@ -39,12 +39,20 @@ RimGridStatisticsPlotCollection::RimGridStatisticsPlotCollection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridStatisticsPlotCollection::reloadAllPlots()
+void RimGridStatisticsPlotCollection::loadDataAndUpdateAllPlots()
 {
     for ( const auto& w : m_gridStatisticsPlots() )
     {
         w->loadDataAndUpdate();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+size_t RimGridStatisticsPlotCollection::plotCount() const
+{
+    return m_gridStatisticsPlots.size();
 }
 
 //--------------------------------------------------------------------------------------------------
