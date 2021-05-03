@@ -106,7 +106,7 @@ void RimGridStatisticsPlot::fieldChangedByUi( const caf::PdmFieldHandle* changed
                                               const QVariant&            oldValue,
                                               const QVariant&            newValue )
 {
-    RimPlotWindow::fieldChangedByUi( changedField, oldValue, newValue );
+    RimStatisticsPlot::fieldChangedByUi( changedField, oldValue, newValue );
 
     if ( changedField == &m_case )
     {
@@ -141,7 +141,7 @@ void RimGridStatisticsPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOr
     }
 
     caf::PdmUiGroup* plotLayoutGroup = uiOrdering.addNewGroup( "Plot Layout" );
-    RimPlotWindow::uiOrderingForPlotLayout( uiConfigName, *plotLayoutGroup );
+    RimStatisticsPlot::uiOrderingForPlotLayout( uiConfigName, *plotLayoutGroup );
 
     uiOrdering.skipRemainingFields( true );
 }
@@ -152,7 +152,7 @@ void RimGridStatisticsPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOr
 QList<caf::PdmOptionItemInfo>
     RimGridStatisticsPlot::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly )
 {
-    QList<caf::PdmOptionItemInfo> options = RimPlotWindow::calculateValueOptions( fieldNeedingOptions, useOptionsOnly );
+    QList<caf::PdmOptionItemInfo> options = RimStatisticsPlot::calculateValueOptions( fieldNeedingOptions, useOptionsOnly );
 
     if ( fieldNeedingOptions == &m_case )
     {
@@ -191,7 +191,7 @@ QList<caf::PdmOptionItemInfo>
 //--------------------------------------------------------------------------------------------------
 void RimGridStatisticsPlot::initAfterRead()
 {
-    RimPlotWindow::initAfterRead();
+    RimStatisticsPlot::initAfterRead();
 
     RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>( m_case() );
     if ( eclipseCase )
