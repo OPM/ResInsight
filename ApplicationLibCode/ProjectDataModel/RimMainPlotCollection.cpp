@@ -19,6 +19,7 @@
 
 #include "RimMainPlotCollection.h"
 
+#include "RimAbstractPlotCollection.h"
 #include "RimAnalysisPlotCollection.h"
 #include "RimCorrelationPlotCollection.h"
 #include "RimCorrelationReportPlot.h"
@@ -461,17 +462,19 @@ void RimMainPlotCollection::loadDataAndUpdateAllPlots()
 {
     RimWellLogPlotCollection*            wlpColl  = nullptr;
     RimSummaryPlotCollection*            spColl   = nullptr;
-    RimSummaryCrossPlotCollection*       scpColl  = nullptr;
     RimFlowPlotCollection*               flowColl = nullptr;
     RimRftPlotCollection*                rftColl  = nullptr;
     RimPltPlotCollection*                pltColl  = nullptr;
-    RimGridCrossPlotCollection*          gcpColl  = nullptr;
     RimSaturationPressurePlotCollection* sppColl  = nullptr;
-    RimAnalysisPlotCollection*           alsColl  = nullptr;
     RimCorrelationPlotCollection*        corrColl = nullptr;
     RimMultiPlotCollection*              gpwColl  = nullptr;
     RimStimPlanModelPlotCollection*      frmColl  = nullptr;
-    RimVfpPlotCollection*                vfpColl  = nullptr;
+
+    std::vector<RimAbstractPlotCollection*> plotCollections;
+    plotCollections.push_back( summaryCrossPlotCollection() );
+    plotCollections.push_back( gridCrossPlotCollection() );
+    plotCollections.push_back( analysisPlotCollection() );
+    plotCollections.push_back( vfpPlotCollection() );
 
     if ( wellLogPlotCollection() )
     {
@@ -480,10 +483,6 @@ void RimMainPlotCollection::loadDataAndUpdateAllPlots()
     if ( summaryPlotCollection() )
     {
         spColl = summaryPlotCollection();
-    }
-    if ( summaryCrossPlotCollection() )
-    {
-        scpColl = summaryCrossPlotCollection();
     }
     if ( flowPlotCollection() )
     {
@@ -497,17 +496,9 @@ void RimMainPlotCollection::loadDataAndUpdateAllPlots()
     {
         pltColl = pltPlotCollection();
     }
-    if ( gridCrossPlotCollection() )
-    {
-        gcpColl = gridCrossPlotCollection();
-    }
     if ( saturationPressurePlotCollection() )
     {
         sppColl = saturationPressurePlotCollection();
-    }
-    if ( analysisPlotCollection() )
-    {
-        alsColl = analysisPlotCollection();
     }
     if ( correlationPlotCollection() )
     {
@@ -521,29 +512,34 @@ void RimMainPlotCollection::loadDataAndUpdateAllPlots()
     {
         frmColl = stimPlanModelPlotCollection();
     }
-    if ( vfpPlotCollection() )
-    {
-        vfpColl = vfpPlotCollection();
-    }
 
     size_t plotCount = 0;
     plotCount += wlpColl ? wlpColl->wellLogPlots().size() : 0;
     plotCount += spColl ? spColl->plots().size() : 0;
-    plotCount += scpColl ? scpColl->plots().size() : 0;
     plotCount += flowColl ? flowColl->plotCount() : 0;
     plotCount += rftColl ? rftColl->rftPlots().size() : 0;
     plotCount += pltColl ? pltColl->pltPlots().size() : 0;
-    plotCount += gcpColl ? gcpColl->plotCount() : 0;
     plotCount += sppColl ? sppColl->plotCount() : 0;
-    plotCount += alsColl ? alsColl->plotCount() : 0;
     plotCount += corrColl ? corrColl->plotCount() + corrColl->reports().size() : 0;
     plotCount += gpwColl ? gpwColl->multiPlots().size() : 0;
     plotCount += frmColl ? frmColl->stimPlanModelPlots().size() : 0;
-    plotCount += vfpColl ? vfpColl->plotCount() : 0;
+
+    for ( auto coll : plotCollections )
+        if ( coll ) plotCount += coll->plotCount();
 
     if ( plotCount > 0 )
     {
         caf::ProgressInfo plotProgress( plotCount, "Loading Plot Data" );
+        for ( auto coll : plotCollections )
+        {
+            if ( coll )
+            {
+                plotProgress.setNextProgressIncrement( coll->plotCount() );
+                coll->loadDataAndUpdateAllPlots();
+                plotProgress.incrementProgress();
+            }
+        }
+
         if ( wlpColl )
         {
             for ( auto wellLogPlot : wlpColl->wellLogPlots() )
@@ -556,15 +552,6 @@ void RimMainPlotCollection::loadDataAndUpdateAllPlots()
         if ( spColl )
         {
             for ( auto plot : spColl->plots() )
-            {
-                plot->loadDataAndUpdate();
-                plotProgress.incrementProgress();
-            }
-        }
-
-        if ( scpColl )
-        {
-            for ( auto plot : scpColl->plots() )
             {
                 plot->loadDataAndUpdate();
                 plotProgress.incrementProgress();
@@ -596,29 +583,11 @@ void RimMainPlotCollection::loadDataAndUpdateAllPlots()
             }
         }
 
-        if ( gcpColl )
-        {
-            for ( const auto& gcpPlot : gcpColl->plots() )
-            {
-                gcpPlot->loadDataAndUpdate();
-                plotProgress.incrementProgress();
-            }
-        }
-
         if ( sppColl )
         {
             for ( const auto& sppPlot : sppColl->plots() )
             {
                 sppPlot->loadDataAndUpdate();
-                plotProgress.incrementProgress();
-            }
-        }
-
-        if ( alsColl )
-        {
-            for ( const auto& alsPlot : alsColl->plots() )
-            {
-                alsPlot->loadDataAndUpdate();
                 plotProgress.incrementProgress();
             }
         }
@@ -651,15 +620,6 @@ void RimMainPlotCollection::loadDataAndUpdateAllPlots()
             for ( const auto& stimPlanModelPlot : frmColl->stimPlanModelPlots() )
             {
                 stimPlanModelPlot->loadDataAndUpdate();
-                plotProgress.incrementProgress();
-            }
-        }
-
-        if ( vfpColl )
-        {
-            for ( const auto& vfpPlot : vfpColl->plots() )
-            {
-                vfpPlot->loadDataAndUpdate();
                 plotProgress.incrementProgress();
             }
         }
