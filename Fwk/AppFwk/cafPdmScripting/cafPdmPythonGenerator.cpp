@@ -151,10 +151,10 @@ QString PdmPythonGenerator::generate( PdmObjectFactory* factory ) const
                             {
                                 if ( proxyField->hasGetter() )
                                 {
-                                    QString fullComment =
-                                        QString( "        \"\"\"%1\n        Returns:\n             %2\n        \"\"\"" )
-                                            .arg( comment )
-                                            .arg( dataType );
+                                    QString fullComment = QString( "        \"\"\"%1\n\n        Returns:\n             "
+                                                                   "%2\n        \"\"\"" )
+                                                              .arg( comment )
+                                                              .arg( dataType );
 
                                     QString fieldCode = QString( "    def %1(self):\n%2\n        return "
                                                                  "self._call_get_method(\"%3\")\n" )
@@ -165,7 +165,7 @@ QString PdmPythonGenerator::generate( PdmObjectFactory* factory ) const
                                 }
                                 if ( proxyField->hasSetter() )
                                 {
-                                    QString fullComment = QString( "        \"\"\"Set %1\n        Arguments:\n"
+                                    QString fullComment = QString( "        \"\"\"Set %1\n\n        Arguments:\n"
                                                                    "            values (%2): data\n        \"\"\"" )
                                                               .arg( comment )
                                                               .arg( dataType );
@@ -208,7 +208,7 @@ QString PdmPythonGenerator::generate( PdmObjectFactory* factory ) const
                                                           : scriptDataType;
 
                             QString fullComment =
-                                QString( "        \"\"\"%1\n        Returns:\n             %2\n        \"\"\"" )
+                                QString( "        \"\"\"%1\n\n        Returns:\n             %2\n        \"\"\"" )
                                     .arg( comment )
                                     .arg( commentDataType );
 
@@ -271,7 +271,7 @@ QString PdmPythonGenerator::generate( PdmObjectFactory* factory ) const
                     argumentComments.push_back(
                         QString( "%1 (%2): %3" ).arg( argumentName ).arg( dataType ).arg( field->uiCapability()->uiWhatsThis() ) );
                 }
-                QString fullComment = QString( "        \"\"\"\n        %1\n        Arguments:\n            "
+                QString fullComment = QString( "        \"\"\"\n        %1\n\n        Arguments:\n            "
                                                "%2\n        Returns:\n            %3\n        \"\"\"" )
                                           .arg( methodComment )
                                           .arg( argumentComments.join( "\n            " ) )

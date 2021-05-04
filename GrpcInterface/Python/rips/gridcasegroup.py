@@ -55,6 +55,7 @@ def views(self):
 @add_method(GridCaseGroup)
 def view(self, view_id):
     """Get a particular view belonging to a case group by providing view id
+
     Arguments:
         id(int): view id
 
