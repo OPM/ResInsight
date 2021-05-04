@@ -60,6 +60,8 @@ public:
     void updateLegendCategorySettings() override;
     void uiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" );
 
+    void useDiscreteLogLevels( bool enable );
+
 protected:
     // Overridden methods
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
@@ -74,13 +76,16 @@ protected:
 private:
     void changeLegendConfig( QString resultVarNameOfNewLegend );
     void onLegendConfigChanged( const caf::SignalEmitter* emitter, RimLegendConfigChangeType changeType );
-    static RimRegularLegendConfig* createLegendForResult( const QString& resultName, bool isCategoryResult );
+    static RimRegularLegendConfig*
+        createLegendForResult( const QString& resultName, bool useDiscreteLevels, bool isCategoryResult );
 
     caf::PdmChildArrayField<RimRegularLegendConfig*> m_legendConfigData;
     caf::PdmPtrField<RimRegularLegendConfig*>        m_legendConfigPtrField;
     caf::PdmChildField<RimTernaryLegendConfig*>      m_ternaryLegendConfig;
 
     caf::PdmPointer<RimEclipseView> m_reservoirView;
+
+    bool m_useDiscreteLogLevels;
 
     // Obsolete
     caf::PdmChildField<RimRegularLegendConfig*> obsoleteField_legendConfig;

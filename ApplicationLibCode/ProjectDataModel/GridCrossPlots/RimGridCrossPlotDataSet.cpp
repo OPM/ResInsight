@@ -110,6 +110,7 @@ RimGridCrossPlotDataSet::RimGridCrossPlotDataSet()
 
     CAF_PDM_InitFieldNoDefault( &m_groupingProperty, "GroupingProperty", "Data Grouping Property", "", "", "" );
     m_groupingProperty = new RimEclipseCellColors;
+    m_groupingProperty->useDiscreteLogLevels( true );
     m_groupingProperty.uiCapability()->setUiHidden( true );
     CVF_ASSERT( m_groupingProperty->legendConfig() );
     m_groupingProperty->legendConfig()->setMappingMode( RimRegularLegendConfig::MappingType::CATEGORY_INTEGER );

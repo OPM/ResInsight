@@ -68,6 +68,8 @@ RimEclipseCellColors::RimEclipseCellColors()
 
     // Make sure we have a created legend for the default/undefined result variable
     changeLegendConfig( this->resultVariable() );
+
+    m_useDiscreteLogLevels = false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -150,7 +152,9 @@ void RimEclipseCellColors::changeLegendConfig( QString resultVarNameOfNewLegend 
 
             if ( !found )
             {
-                auto newLegend = createLegendForResult( resultVarNameOfNewLegend, this->hasCategoryResult() );
+                auto newLegend = createLegendForResult( resultVarNameOfNewLegend,
+                                                        this->m_useDiscreteLogLevels,
+                                                        this->hasCategoryResult() );
 
                 m_legendConfigData.push_back( newLegend );
 
@@ -176,7 +180,9 @@ void RimEclipseCellColors::onLegendConfigChanged( const caf::SignalEmitter* emit
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimRegularLegendConfig* RimEclipseCellColors::createLegendForResult( const QString& resultName, bool isCategoryResult )
+RimRegularLegendConfig* RimEclipseCellColors::createLegendForResult( const QString& resultName,
+                                                                     bool           useDiscreteLogLevels,
+                                                                     bool           isCategoryResult )
 {
     bool useLog = false;
     {
@@ -207,7 +213,11 @@ RimRegularLegendConfig* RimEclipseCellColors::createLegendForResult( const QStri
 
     if ( useLog )
     {
-        newLegend->setMappingMode( RimRegularLegendConfig::MappingType::LOG10_DISCRETE );
+        if ( useDiscreteLogLevels )
+            newLegend->setMappingMode( RimRegularLegendConfig::MappingType::LOG10_DISCRETE );
+        else
+            newLegend->setMappingMode( RimRegularLegendConfig::MappingType::LOG10_CONTINUOUS );
+
         newLegend->setTickNumberFormat( RimRegularLegendConfig::NumberFormatType::AUTO );
         newLegend->setRangeMode( RimLegendConfig::RangeModeType::USER_DEFINED );
         newLegend->resetUserDefinedValues();
@@ -300,6 +310,14 @@ void RimEclipseCellColors::updateLegendCategorySettings()
 void RimEclipseCellColors::uiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/ )
 {
     defineUiTreeOrdering( uiTreeOrdering, uiConfigName );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCellColors::useDiscreteLogLevels( bool enable )
+{
+    m_useDiscreteLogLevels = true;
 }
 
 //--------------------------------------------------------------------------------------------------
