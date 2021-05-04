@@ -385,15 +385,17 @@ QStringList RimFaultRAPreprocSettings::macrisPrepareParameterList() const
 
     retlist << "prepare";
 
+    retlist << "-o";
+
     retlist << outputEclipseDirectory();
 
     if ( m_smoothEclipseData )
     {
-        retlist << "-ps";
+        retlist << "-ds";
     }
     else
     {
-        retlist << "-p";
+        retlist << "-d";
     }
 
     retlist << m_eclipseCase()->gridFileName();
