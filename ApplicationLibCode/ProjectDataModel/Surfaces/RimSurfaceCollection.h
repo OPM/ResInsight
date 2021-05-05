@@ -44,10 +44,12 @@ public:
     void                  addSubCollection( RimSurfaceCollection* collection );
     RimSurfaceCollection* getSubCollection( const QString name );
 
+    bool containsFileSurface( QString filename );
     bool containsSurface();
 
     void reloadSurfaces( std::vector<RimSurface*> surfaces );
     void removeSurface( RimSurface* surface );
+    void removeMissingFileSurfaces();
 
     void loadData();
 

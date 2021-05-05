@@ -25,6 +25,7 @@
 #include "RiaResultNames.h"
 
 #include "RifFaultRAJsonWriter.h"
+#include "RifFaultRAXmlWriter.h"
 
 #include "RimEclipseInputCase.h"
 #include "RimEclipseResultCase.h"
@@ -55,30 +56,68 @@ CAF_CMD_SOURCE_INIT( RicRunAdvFaultReactAssessmentFeature, "RicRunAdvFaultReactA
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicRunAdvFaultReactAssessmentFeature::isCommandEnabled()
-{
-    RimFaultInViewCollection* faultColl = nullptr;
-
-    RimFaultInView* selObj = dynamic_cast<RimFaultInView*>( caf::SelectionManager::instance()->selectedItem() );
-    if ( selObj )
-    {
-        if ( !selObj->name().startsWith( RiaResultNames::faultReactAssessmentPrefix() ) ) return false;
-        selObj->firstAncestorOrThisOfType( faultColl );
-    }
-
-    if ( faultColl )
-    {
-        return ( faultColl->faultRAEnabled() && faultColl->faultRASettings()->geomechCase() != nullptr );
-    }
-
-    return false;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RicRunAdvFaultReactAssessmentFeature::onActionTriggered( bool isChecked )
 {
+    RimFaultInViewCollection* coll = faultCollection();
+    if ( coll == nullptr ) return;
+
+    RimFaultRASettings* fraSettings = coll->faultRASettings();
+    if ( fraSettings == nullptr ) return;
+
+    int               faultID = selectedFaultID();
+    caf::ProgressInfo runProgress( 3, "Running Advanced Fault RA processing, please wait..." );
+
+    {
+        runProgress.setProgressDescription( "Macris calculate command." );
+        QString paramfilename = fraSettings->basicParameterXMLFilename( faultID );
+
+        RifFaultRAXmlWriter xmlwriter( fraSettings );
+        QString             outErrorText;
+        if ( !xmlwriter.writeCalculateFile( paramfilename, faultID, outErrorText ) )
+        {
+            QMessageBox::warning( nullptr,
+                                  "Fault Reactivation Assessment Processing",
+                                  "Unable to write parameter file! " + outErrorText );
+            return;
+        }
+
+        QString paramfilename2 = fraSettings->advancedParameterXMLFilename( faultID );
+        if ( !xmlwriter.writeCalibrateFile( paramfilename2, faultID, outErrorText ) )
+        {
+            QMessageBox::warning( nullptr,
+                                  "Fault Reactivation Assessment Processing",
+                                  "Unable to write calibrate parameter file! " + outErrorText );
+            return;
+        }
+
+        addParameterFileForCleanUp( paramfilename );
+        addParameterFileForCleanUp( paramfilename2 );
+
+        // run the java macris program in calibrate mode
+        QString     command    = RiaPreferences::current()->geomechFRAMacrisCommand();
+        QStringList parameters = fraSettings->advancedMacrisParameters( faultID );
+
+        RimProcess process;
+        process.setCommand( command );
+        process.setParameters( parameters );
+        process.execute();
+
+        runProgress.incrementProgress();
+    }
+
+    runProgress.setProgressDescription( "Generating surface results." );
+
+    runPostProcessing( faultID, fraSettings );
+
+    runProgress.incrementProgress();
+
+    runProgress.setProgressDescription( "Importing surface results." );
+
+    // reload output surfaces
+    reloadSurfaces( fraSettings );
+
+    // delete parameter files
+    cleanUpParameterFiles();
 }
 
 //--------------------------------------------------------------------------------------------------

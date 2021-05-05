@@ -88,6 +88,8 @@ public:
     QStringList advancedMacrisParameters( int faultID ) const;
     QStringList postprocParameters( int faultID ) const;
 
+    QString tsurfOutputDirectory() const;
+
 protected:
     void                          fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
