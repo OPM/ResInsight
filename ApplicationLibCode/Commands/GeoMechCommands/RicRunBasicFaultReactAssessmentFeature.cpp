@@ -79,7 +79,7 @@ void RicRunBasicFaultReactAssessmentFeature::onActionTriggered( bool isChecked )
     if ( fraSettings == nullptr ) return;
 
     int               faultID = selectedFaultID();
-    caf::ProgressInfo runProgress( 2, "Running Basic Fault RA processing, please wait..." );
+    caf::ProgressInfo runProgress( 3, "Running Basic Fault RA processing, please wait..." );
 
     {
         runProgress.setProgressDescription( "Macris calculate command." );
@@ -95,7 +95,9 @@ void RicRunBasicFaultReactAssessmentFeature::onActionTriggered( bool isChecked )
             return;
         }
 
-        // run the java macris program in prepare mode
+        addParameterFileForCleanUp( paramfilename );
+
+        // run the java macris program in calculate mode
         QString     command    = RiaPreferences::current()->geomechFRAMacrisCommand();
         QStringList parameters = fraSettings->basicMacrisParameters( faultID );
 
@@ -106,32 +108,20 @@ void RicRunBasicFaultReactAssessmentFeature::onActionTriggered( bool isChecked )
 
         runProgress.incrementProgress();
     }
-    {
-        runProgress.setProgressDescription( "Generating surface results." );
 
-        QString outErrorText;
-        if ( !RifFaultRAJSonWriter::writeToPostprocFile( faultID, fraSettings, outErrorText ) )
-        {
-            QMessageBox::warning( nullptr,
-                                  "Fault Reactivation Assessment Processing",
-                                  "Unable to write postproc parameter file! " + outErrorText );
-            return;
-        }
+    runProgress.setProgressDescription( "Generating surface results." );
 
-        QString     command    = RiaPreferences::current()->geomechFRAPostprocCommand();
-        QStringList parameters = fraSettings->postprocParameters( faultID );
+    runPostProcessing( faultID, fraSettings );
 
-        RimProcess process;
-        process.setCommand( command );
-        process.setParameters( parameters );
-        process.execute();
+    runProgress.incrementProgress();
 
-        runProgress.incrementProgress();
-    }
-    {
-        runProgress.setProgressDescription( "Importing surface results." );
-    }
-    // todo - delete parameter files!
+    runProgress.setProgressDescription( "Importing surface results." );
+
+    // reload output surfaces
+    reloadSurfaces( fraSettings );
+
+    // delete parameter files
+    cleanUpParameterFiles();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -141,45 +131,4 @@ void RicRunBasicFaultReactAssessmentFeature::setupActionLook( QAction* actionToS
 {
     actionToSetup->setIcon( QIcon( ":/fault_react_24x24.png" ) );
     actionToSetup->setText( "Run Basic Processing" );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RimFaultInViewCollection* RicRunBasicFaultReactAssessmentFeature::faultCollection()
-{
-    RimFaultInViewCollection* faultColl = nullptr;
-
-    RimFaultInView* selObj = dynamic_cast<RimFaultInView*>( caf::SelectionManager::instance()->selectedItem() );
-    if ( selObj )
-    {
-        if ( !selObj->name().startsWith( RiaResultNames::faultReactAssessmentPrefix() ) ) return nullptr;
-        selObj->firstAncestorOrThisOfType( faultColl );
-    }
-
-    return faultColl;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-int RicRunBasicFaultReactAssessmentFeature::selectedFaultID()
-{
-    int             retval = -1;
-    RimFaultInView* selObj = dynamic_cast<RimFaultInView*>( caf::SelectionManager::instance()->selectedItem() );
-    if ( selObj )
-    {
-        QString lookFor = RiaResultNames::faultReactAssessmentPrefix();
-        QString name    = selObj->name();
-        if ( !name.startsWith( lookFor ) ) return retval;
-
-        name = name.mid( lookFor.length() );
-        if ( name.size() == 0 ) return retval;
-
-        bool bOK;
-        retval = name.toInt( &bOK );
-        if ( !bOK ) retval = -1;
-    }
-
-    return retval;
 }

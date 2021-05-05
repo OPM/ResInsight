@@ -33,6 +33,8 @@
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObjectScriptingCapability.h"
 
+#include "QFile"
+
 CAF_PDM_SOURCE_INIT( RimSurfaceCollection, "SurfaceCollection" );
 
 //--------------------------------------------------------------------------------------------------
@@ -354,6 +356,34 @@ void RimSurfaceCollection::removeSurface( RimSurface* surface )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimSurfaceCollection::removeMissingFileSurfaces()
+{
+    // get the existing surfaces
+    std::list<RimFileSurface*> missingSurfaces;
+
+    // check if a filesurface references a file no longer present
+    for ( auto& surface : surfaces() )
+    {
+        RimFileSurface* fileSurface = dynamic_cast<RimFileSurface*>( surface );
+        if ( fileSurface == nullptr ) continue;
+
+        QString filename = fileSurface->surfaceFilePath();
+        if ( !QFile::exists( filename ) )
+        {
+            missingSurfaces.push_back( fileSurface );
+        }
+    }
+
+    // remove all surfaces with a missing input file
+    for ( auto& surface : missingSurfaces )
+    {
+        removeSurface( surface );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RimSurface* RimSurfaceCollection::addSurfacesAtIndex( int position, std::vector<RimSurface*> surfaces )
 {
     // adjust index for number of folders we have
@@ -445,4 +475,19 @@ bool RimSurfaceCollection::containsSurface()
         containsSurface |= coll->containsSurface();
     }
     return containsSurface;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimSurfaceCollection::containsFileSurface( QString filename )
+{
+    for ( auto& surface : surfaces() )
+    {
+        RimFileSurface* fileSurface = dynamic_cast<RimFileSurface*>( surface );
+        if ( fileSurface == nullptr ) continue;
+        if ( fileSurface->surfaceFilePath() == filename ) return true;
+    }
+
+    return false;
 }

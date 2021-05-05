@@ -605,3 +605,11 @@ QStringList RimFaultRASettings::postprocParameters( int faultID ) const
 
     return retlist;
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimFaultRASettings::tsurfOutputDirectory() const
+{
+    return m_baseDir + "/tsurf";
+}

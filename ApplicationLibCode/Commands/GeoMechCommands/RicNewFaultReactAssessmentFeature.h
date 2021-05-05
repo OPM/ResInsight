@@ -42,5 +42,10 @@ private:
     bool showSettingsGUI( RimFaultRAPreprocSettings& settings );
     bool runPreProc( RimFaultRAPreprocSettings& settings );
 
+    void addParameterFileForCleanUp( QString filename );
+    void cleanUpParameterFiles();
+
     RimEclipseView* getView( RimEclipseInputCase* eCase );
+
+    std::list<QString> m_parameterFilesToCleanUp;
 };
