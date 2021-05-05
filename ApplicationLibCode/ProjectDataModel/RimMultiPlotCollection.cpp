@@ -46,7 +46,7 @@ RimMultiPlotCollection::~RimMultiPlotCollection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimMultiPlotCollection::deleteAllChildObjects()
+void RimMultiPlotCollection::deleteAllPlots()
 {
     m_multiPlots.deleteAllChildObjects();
 }
@@ -77,4 +77,21 @@ RimMultiPlot* RimMultiPlotCollection::createMultiPlot()
 void RimMultiPlotCollection::addMultiPlot( RimMultiPlot* plot )
 {
     m_multiPlots().push_back( plot );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimMultiPlotCollection::loadDataAndUpdateAllPlots()
+{
+    for ( const auto& p : m_multiPlots.childObjects() )
+        p->loadDataAndUpdate();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+size_t RimMultiPlotCollection::plotCount() const
+{
+    return m_multiPlots.size();
 }

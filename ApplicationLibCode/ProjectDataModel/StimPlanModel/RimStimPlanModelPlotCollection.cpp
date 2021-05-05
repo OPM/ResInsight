@@ -47,12 +47,20 @@ RimStimPlanModelPlotCollection::~RimStimPlanModelPlotCollection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimStimPlanModelPlotCollection::reloadAllPlots()
+void RimStimPlanModelPlotCollection::loadDataAndUpdateAllPlots()
 {
     for ( const auto& w : m_stimPlanModelPlots() )
     {
         w->loadDataAndUpdate();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+size_t RimStimPlanModelPlotCollection::plotCount() const
+{
+    return m_stimPlanModelPlots.size();
 }
 
 //--------------------------------------------------------------------------------------------------

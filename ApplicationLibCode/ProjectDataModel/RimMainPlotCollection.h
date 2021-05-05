@@ -42,6 +42,7 @@ class RimFlowPlotCollection;
 class RimSaturationPressurePlotCollection;
 class RimStimPlanModelPlotCollection;
 class RimVfpPlotCollection;
+class RimPlotCollection;
 
 #ifdef USE_QTCHARTS
 class RimGridStatisticsPlotCollection;
@@ -60,23 +61,23 @@ public:
     RimMainPlotCollection();
     ~RimMainPlotCollection() override;
 
-    RimWellLogPlotCollection*            wellLogPlotCollection();
-    RimRftPlotCollection*                rftPlotCollection();
-    RimPltPlotCollection*                pltPlotCollection();
-    RimSummaryPlotCollection*            summaryPlotCollection();
-    RimSummaryCrossPlotCollection*       summaryCrossPlotCollection();
-    RimAnalysisPlotCollection*           analysisPlotCollection();
-    RimCorrelationPlotCollection*        correlationPlotCollection();
-    RimFlowPlotCollection*               flowPlotCollection();
-    RimGridCrossPlotCollection*          gridCrossPlotCollection();
-    RimSaturationPressurePlotCollection* saturationPressurePlotCollection();
-    RimMultiPlotCollection*              multiPlotCollection();
-    RimStimPlanModelPlotCollection*      stimPlanModelPlotCollection();
-    RimVfpPlotCollection*                vfpPlotCollection();
+    RimWellLogPlotCollection*            wellLogPlotCollection() const;
+    RimRftPlotCollection*                rftPlotCollection() const;
+    RimPltPlotCollection*                pltPlotCollection() const;
+    RimSummaryPlotCollection*            summaryPlotCollection() const;
+    RimSummaryCrossPlotCollection*       summaryCrossPlotCollection() const;
+    RimAnalysisPlotCollection*           analysisPlotCollection() const;
+    RimCorrelationPlotCollection*        correlationPlotCollection() const;
+    RimFlowPlotCollection*               flowPlotCollection() const;
+    RimGridCrossPlotCollection*          gridCrossPlotCollection() const;
+    RimSaturationPressurePlotCollection* saturationPressurePlotCollection() const;
+    RimMultiPlotCollection*              multiPlotCollection() const;
+    RimStimPlanModelPlotCollection*      stimPlanModelPlotCollection() const;
+    RimVfpPlotCollection*                vfpPlotCollection() const;
 
 #ifdef USE_QTCHARTS
-    RimGridStatisticsPlotCollection*             gridStatisticsPlotCollection();
-    RimEnsembleFractureStatisticsPlotCollection* ensembleFractureStatisticsPlotCollection();
+    RimGridStatisticsPlotCollection*             gridStatisticsPlotCollection() const;
+    RimEnsembleFractureStatisticsPlotCollection* ensembleFractureStatisticsPlotCollection() const;
 #endif
 
     void deleteAllContainedObjects();
@@ -92,6 +93,12 @@ private:
     // Overridden PDM methods
     caf::PdmFieldHandle* objectToggleField() override;
     void                 fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+
+    void loadDataAndUpdatePlotCollectionsWithProgressInfo( const std::vector<RimPlotCollection*>& );
+    void loadDataAndUpdatePlotCollections( const std::vector<RimPlotCollection*>& );
+    std::vector<RimPlotCollection*> plotCollectionsWithFormations() const;
+    std::vector<RimPlotCollection*> plotCollectionsWithCompletions() const;
+    std::vector<RimPlotCollection*> allPlotCollections() const;
 
 private:
     caf::PdmChildField<RimWellLogPlotCollection*>            m_wellLogPlotCollection;

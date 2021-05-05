@@ -172,7 +172,7 @@ caf::PdmFieldHandle* RimMainPlotCollection::objectToggleField()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimWellLogPlotCollection* RimMainPlotCollection::wellLogPlotCollection()
+RimWellLogPlotCollection* RimMainPlotCollection::wellLogPlotCollection() const
 {
     return m_wellLogPlotCollection();
 }
@@ -180,7 +180,7 @@ RimWellLogPlotCollection* RimMainPlotCollection::wellLogPlotCollection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimRftPlotCollection* RimMainPlotCollection::rftPlotCollection()
+RimRftPlotCollection* RimMainPlotCollection::rftPlotCollection() const
 {
     return m_rftPlotCollection();
 }
@@ -188,7 +188,7 @@ RimRftPlotCollection* RimMainPlotCollection::rftPlotCollection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimPltPlotCollection* RimMainPlotCollection::pltPlotCollection()
+RimPltPlotCollection* RimMainPlotCollection::pltPlotCollection() const
 {
     return m_pltPlotCollection();
 }
@@ -196,7 +196,7 @@ RimPltPlotCollection* RimMainPlotCollection::pltPlotCollection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSummaryPlotCollection* RimMainPlotCollection::summaryPlotCollection()
+RimSummaryPlotCollection* RimMainPlotCollection::summaryPlotCollection() const
 {
     return m_summaryPlotCollection();
 }
@@ -204,7 +204,7 @@ RimSummaryPlotCollection* RimMainPlotCollection::summaryPlotCollection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSummaryCrossPlotCollection* RimMainPlotCollection::summaryCrossPlotCollection()
+RimSummaryCrossPlotCollection* RimMainPlotCollection::summaryCrossPlotCollection() const
 {
     return m_summaryCrossPlotCollection();
 }
@@ -212,7 +212,7 @@ RimSummaryCrossPlotCollection* RimMainPlotCollection::summaryCrossPlotCollection
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimFlowPlotCollection* RimMainPlotCollection::flowPlotCollection()
+RimFlowPlotCollection* RimMainPlotCollection::flowPlotCollection() const
 {
     return m_flowPlotCollection();
 }
@@ -220,7 +220,7 @@ RimFlowPlotCollection* RimMainPlotCollection::flowPlotCollection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimGridCrossPlotCollection* RimMainPlotCollection::gridCrossPlotCollection()
+RimGridCrossPlotCollection* RimMainPlotCollection::gridCrossPlotCollection() const
 {
     return m_gridCrossPlotCollection();
 }
@@ -228,7 +228,7 @@ RimGridCrossPlotCollection* RimMainPlotCollection::gridCrossPlotCollection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSaturationPressurePlotCollection* RimMainPlotCollection::saturationPressurePlotCollection()
+RimSaturationPressurePlotCollection* RimMainPlotCollection::saturationPressurePlotCollection() const
 {
     return m_saturationPressurePlotCollection();
 }
@@ -236,7 +236,7 @@ RimSaturationPressurePlotCollection* RimMainPlotCollection::saturationPressurePl
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimMultiPlotCollection* RimMainPlotCollection::multiPlotCollection()
+RimMultiPlotCollection* RimMainPlotCollection::multiPlotCollection() const
 {
     return m_multiPlotCollection();
 }
@@ -244,7 +244,7 @@ RimMultiPlotCollection* RimMainPlotCollection::multiPlotCollection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimVfpPlotCollection* RimMainPlotCollection::vfpPlotCollection()
+RimVfpPlotCollection* RimMainPlotCollection::vfpPlotCollection() const
 {
     return m_vfpPlotCollection();
 }
@@ -252,7 +252,7 @@ RimVfpPlotCollection* RimMainPlotCollection::vfpPlotCollection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimAnalysisPlotCollection* RimMainPlotCollection::analysisPlotCollection()
+RimAnalysisPlotCollection* RimMainPlotCollection::analysisPlotCollection() const
 {
     return m_analysisPlotCollection();
 }
@@ -260,7 +260,7 @@ RimAnalysisPlotCollection* RimMainPlotCollection::analysisPlotCollection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimCorrelationPlotCollection* RimMainPlotCollection::correlationPlotCollection()
+RimCorrelationPlotCollection* RimMainPlotCollection::correlationPlotCollection() const
 {
     return m_correlationPlotCollection();
 }
@@ -268,7 +268,7 @@ RimCorrelationPlotCollection* RimMainPlotCollection::correlationPlotCollection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimStimPlanModelPlotCollection* RimMainPlotCollection::stimPlanModelPlotCollection()
+RimStimPlanModelPlotCollection* RimMainPlotCollection::stimPlanModelPlotCollection() const
 {
     return m_stimPlanModelPlotCollection();
 }
@@ -277,7 +277,7 @@ RimStimPlanModelPlotCollection* RimMainPlotCollection::stimPlanModelPlotCollecti
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimGridStatisticsPlotCollection* RimMainPlotCollection::gridStatisticsPlotCollection()
+RimGridStatisticsPlotCollection* RimMainPlotCollection::gridStatisticsPlotCollection() const
 {
     return m_gridStatisticsPlotCollection();
 }
@@ -285,7 +285,7 @@ RimGridStatisticsPlotCollection* RimMainPlotCollection::gridStatisticsPlotCollec
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimEnsembleFractureStatisticsPlotCollection* RimMainPlotCollection::ensembleFractureStatisticsPlotCollection()
+RimEnsembleFractureStatisticsPlotCollection* RimMainPlotCollection::ensembleFractureStatisticsPlotCollection() const
 {
     return m_ensembleFractureStatisticsPlotCollection();
 }
@@ -296,23 +296,9 @@ RimEnsembleFractureStatisticsPlotCollection* RimMainPlotCollection::ensembleFrac
 //--------------------------------------------------------------------------------------------------
 void RimMainPlotCollection::deleteAllContainedObjects()
 {
-    m_wellLogPlotCollection()->deleteAllPlots();
-    m_rftPlotCollection()->deleteAllPlots();
-    m_pltPlotCollection()->deleteAllPlots();
-    m_summaryPlotCollection()->deleteAllPlots();
-    m_summaryCrossPlotCollection()->deleteAllPlots();
-    m_gridCrossPlotCollection->deleteAllPlots();
-    m_flowPlotCollection()->closeDefaultPlotWindowAndDeletePlots();
-    m_saturationPressurePlotCollection()->deleteAllChildObjects();
-    m_multiPlotCollection()->deleteAllChildObjects();
-    m_vfpPlotCollection()->deleteAllChildObjects();
-    m_analysisPlotCollection()->deleteAllPlots();
-    m_correlationPlotCollection()->deleteAllPlots();
-    m_stimPlanModelPlotCollection()->deleteAllPlots();
-#ifdef USE_QTCHARTS
-    m_gridStatisticsPlotCollection()->deleteAllPlots();
-    m_ensembleFractureStatisticsPlotCollection()->deleteAllPlots();
-#endif
+    std::vector<RimPlotCollection*> plotCollections = allPlotCollections();
+    for ( auto p : plotCollections )
+        p->deleteAllPlots();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -328,77 +314,8 @@ void RimMainPlotCollection::updateCurrentTimeStepInPlots()
 //--------------------------------------------------------------------------------------------------
 void RimMainPlotCollection::updatePlotsWithFormations()
 {
-    if ( m_wellLogPlotCollection )
-    {
-        for ( RimWellLogPlot* wellLogPlot : m_wellLogPlotCollection->wellLogPlots() )
-        {
-            wellLogPlot->loadDataAndUpdate();
-        }
-    }
-
-    if ( m_pltPlotCollection )
-    {
-        for ( RimWellPltPlot* pltPlot : m_pltPlotCollection->pltPlots() )
-        {
-            pltPlot->loadDataAndUpdate();
-        }
-    }
-
-    if ( m_rftPlotCollection )
-    {
-        for ( RimWellRftPlot* rftPlot : m_rftPlotCollection->rftPlots() )
-        {
-            rftPlot->loadDataAndUpdate();
-        }
-    }
-
-    if ( m_flowPlotCollection )
-    {
-        m_flowPlotCollection->loadDataAndUpdate();
-    }
-
-    if ( m_gridCrossPlotCollection )
-    {
-        for ( RimGridCrossPlot* crossPlot : m_gridCrossPlotCollection->plots() )
-        {
-            crossPlot->loadDataAndUpdate();
-        }
-    }
-
-    if ( m_multiPlotCollection )
-    {
-        for ( RimMultiPlot* plotWindow : m_multiPlotCollection->multiPlots() )
-        {
-            plotWindow->loadDataAndUpdate();
-        }
-    }
-
-    if ( m_stimPlanModelPlotCollection )
-    {
-        for ( RimStimPlanModelPlot* stimPlanModelPlot : m_stimPlanModelPlotCollection->stimPlanModelPlots() )
-        {
-            stimPlanModelPlot->loadDataAndUpdate();
-        }
-    }
-
-#ifdef USE_QTCHARTS
-    if ( m_gridStatisticsPlotCollection )
-    {
-        for ( RimGridStatisticsPlot* gridStatisticsPlot : m_gridStatisticsPlotCollection->gridStatisticsPlots() )
-        {
-            gridStatisticsPlot->loadDataAndUpdate();
-        }
-    }
-
-    if ( m_ensembleFractureStatisticsPlotCollection )
-    {
-        for ( RimEnsembleFractureStatisticsPlot* ensembleFractureStatisticsPlot :
-              m_ensembleFractureStatisticsPlotCollection->ensembleFractureStatisticsPlots() )
-        {
-            ensembleFractureStatisticsPlot->loadDataAndUpdate();
-        }
-    }
-#endif
+    std::vector<RimPlotCollection*> plotCollections = plotCollectionsWithFormations();
+    loadDataAndUpdatePlotCollections( plotCollections );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -406,21 +323,8 @@ void RimMainPlotCollection::updatePlotsWithFormations()
 //--------------------------------------------------------------------------------------------------
 void RimMainPlotCollection::updatePlotsWithCompletions()
 {
-    if ( m_wellLogPlotCollection )
-    {
-        for ( RimWellLogPlot* wellLogPlot : m_wellLogPlotCollection->wellLogPlots() )
-        {
-            wellLogPlot->loadDataAndUpdate();
-        }
-    }
-
-    if ( m_multiPlotCollection )
-    {
-        for ( RimMultiPlot* plotWindow : m_multiPlotCollection->multiPlots() )
-        {
-            plotWindow->loadDataAndUpdate();
-        }
-    }
+    std::vector<RimPlotCollection*> plotCollections = plotCollectionsWithCompletions();
+    loadDataAndUpdatePlotCollections( plotCollections );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -460,74 +364,16 @@ void RimMainPlotCollection::ensureCalculationIdsAreAssigned()
 //--------------------------------------------------------------------------------------------------
 void RimMainPlotCollection::loadDataAndUpdateAllPlots()
 {
-    RimWellLogPlotCollection*            wlpColl  = nullptr;
-    RimSummaryPlotCollection*            spColl   = nullptr;
-    RimFlowPlotCollection*               flowColl = nullptr;
-    RimRftPlotCollection*                rftColl  = nullptr;
-    RimPltPlotCollection*                pltColl  = nullptr;
-    RimSaturationPressurePlotCollection* sppColl  = nullptr;
-    RimCorrelationPlotCollection*        corrColl = nullptr;
-    RimMultiPlotCollection*              gpwColl  = nullptr;
-    RimStimPlanModelPlotCollection*      frmColl  = nullptr;
+    std::vector<RimPlotCollection*> plotCollections = allPlotCollections();
+    loadDataAndUpdatePlotCollectionsWithProgressInfo( plotCollections );
+}
 
-    std::vector<RimPlotCollection*> plotCollections;
-    plotCollections.push_back( summaryCrossPlotCollection() );
-    plotCollections.push_back( gridCrossPlotCollection() );
-    plotCollections.push_back( analysisPlotCollection() );
-    plotCollections.push_back( vfpPlotCollection() );
-#ifdef USE_QTCHARTS
-    plotCollections.push_back( gridStatisticsPlotCollection() );
-    plotCollections.push_back( ensembleFractureStatisticsPlotCollection() );
-#endif
-
-    if ( wellLogPlotCollection() )
-    {
-        wlpColl = wellLogPlotCollection();
-    }
-    if ( summaryPlotCollection() )
-    {
-        spColl = summaryPlotCollection();
-    }
-    if ( flowPlotCollection() )
-    {
-        flowColl = flowPlotCollection();
-    }
-    if ( rftPlotCollection() )
-    {
-        rftColl = rftPlotCollection();
-    }
-    if ( pltPlotCollection() )
-    {
-        pltColl = pltPlotCollection();
-    }
-    if ( saturationPressurePlotCollection() )
-    {
-        sppColl = saturationPressurePlotCollection();
-    }
-    if ( correlationPlotCollection() )
-    {
-        corrColl = correlationPlotCollection();
-    }
-    if ( multiPlotCollection() )
-    {
-        gpwColl = multiPlotCollection();
-    }
-    if ( stimPlanModelPlotCollection() )
-    {
-        frmColl = stimPlanModelPlotCollection();
-    }
-
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimMainPlotCollection::loadDataAndUpdatePlotCollectionsWithProgressInfo( const std::vector<RimPlotCollection*>& plotCollections )
+{
     size_t plotCount = 0;
-    plotCount += wlpColl ? wlpColl->wellLogPlots().size() : 0;
-    plotCount += spColl ? spColl->plots().size() : 0;
-    plotCount += flowColl ? flowColl->plotCount() : 0;
-    plotCount += rftColl ? rftColl->rftPlots().size() : 0;
-    plotCount += pltColl ? pltColl->pltPlots().size() : 0;
-    plotCount += sppColl ? sppColl->plotCount() : 0;
-    plotCount += corrColl ? corrColl->plotCount() + corrColl->reports().size() : 0;
-    plotCount += gpwColl ? gpwColl->multiPlots().size() : 0;
-    plotCount += frmColl ? frmColl->stimPlanModelPlots().size() : 0;
-
     for ( auto coll : plotCollections )
         if ( coll ) plotCount += coll->plotCount();
 
@@ -543,89 +389,77 @@ void RimMainPlotCollection::loadDataAndUpdateAllPlots()
                 plotProgress.incrementProgress();
             }
         }
-
-        if ( wlpColl )
-        {
-            for ( auto wellLogPlot : wlpColl->wellLogPlots() )
-            {
-                wellLogPlot->loadDataAndUpdate();
-                plotProgress.incrementProgress();
-            }
-        }
-
-        if ( spColl )
-        {
-            for ( auto plot : spColl->plots() )
-            {
-                plot->loadDataAndUpdate();
-                plotProgress.incrementProgress();
-            }
-        }
-
-        if ( flowColl )
-        {
-            plotProgress.setNextProgressIncrement( flowColl->plotCount() );
-            flowColl->loadDataAndUpdate();
-            plotProgress.incrementProgress();
-        }
-
-        if ( rftColl )
-        {
-            for ( const auto& rftPlot : rftColl->rftPlots() )
-            {
-                rftPlot->loadDataAndUpdate();
-                plotProgress.incrementProgress();
-            }
-        }
-
-        if ( pltColl )
-        {
-            for ( const auto& pltPlot : pltColl->pltPlots() )
-            {
-                pltPlot->loadDataAndUpdate();
-                plotProgress.incrementProgress();
-            }
-        }
-
-        if ( sppColl )
-        {
-            for ( const auto& sppPlot : sppColl->plots() )
-            {
-                sppPlot->loadDataAndUpdate();
-                plotProgress.incrementProgress();
-            }
-        }
-
-        if ( corrColl )
-        {
-            for ( const auto& corrPlot : corrColl->plots() )
-            {
-                corrPlot->loadDataAndUpdate();
-                plotProgress.incrementProgress();
-            }
-            for ( const auto& reports : corrColl->reports() )
-            {
-                reports->loadDataAndUpdate();
-                plotProgress.incrementProgress();
-            }
-        }
-
-        if ( gpwColl )
-        {
-            for ( const auto& multiPlot : gpwColl->multiPlots() )
-            {
-                multiPlot->loadDataAndUpdate();
-                plotProgress.incrementProgress();
-            }
-        }
-
-        if ( frmColl )
-        {
-            for ( const auto& stimPlanModelPlot : frmColl->stimPlanModelPlots() )
-            {
-                stimPlanModelPlot->loadDataAndUpdate();
-                plotProgress.incrementProgress();
-            }
-        }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimMainPlotCollection::loadDataAndUpdatePlotCollections( const std::vector<RimPlotCollection*>& plotCollections )
+{
+    for ( auto coll : plotCollections )
+    {
+        if ( coll ) coll->loadDataAndUpdateAllPlots();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimPlotCollection*> RimMainPlotCollection::allPlotCollections() const
+{
+    std::vector<RimPlotCollection*> plotCollections;
+    plotCollections.push_back( wellLogPlotCollection() );
+    plotCollections.push_back( summaryPlotCollection() );
+    plotCollections.push_back( summaryCrossPlotCollection() );
+    plotCollections.push_back( gridCrossPlotCollection() );
+    plotCollections.push_back( analysisPlotCollection() );
+    plotCollections.push_back( vfpPlotCollection() );
+    plotCollections.push_back( flowPlotCollection() );
+    plotCollections.push_back( pltPlotCollection() );
+    plotCollections.push_back( rftPlotCollection() );
+    plotCollections.push_back( stimPlanModelPlotCollection() );
+    plotCollections.push_back( correlationPlotCollection() );
+    plotCollections.push_back( saturationPressurePlotCollection() );
+    plotCollections.push_back( multiPlotCollection() );
+
+#ifdef USE_QTCHARTS
+    plotCollections.push_back( gridStatisticsPlotCollection() );
+    plotCollections.push_back( ensembleFractureStatisticsPlotCollection() );
+#endif
+
+    return plotCollections;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimPlotCollection*> RimMainPlotCollection::plotCollectionsWithFormations() const
+{
+    std::vector<RimPlotCollection*> plotCollections;
+    plotCollections.push_back( wellLogPlotCollection() );
+    plotCollections.push_back( pltPlotCollection() );
+    plotCollections.push_back( rftPlotCollection() );
+    plotCollections.push_back( flowPlotCollection() );
+    plotCollections.push_back( gridCrossPlotCollection() );
+    plotCollections.push_back( multiPlotCollection() );
+    plotCollections.push_back( stimPlanModelPlotCollection() );
+
+#ifdef USE_QTCHARTS
+    plotCollections.push_back( gridStatisticsPlotCollection() );
+    plotCollections.push_back( ensembleFractureStatisticsPlotCollection() );
+#endif
+
+    return plotCollections;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimPlotCollection*> RimMainPlotCollection::plotCollectionsWithCompletions() const
+{
+    std::vector<RimPlotCollection*> plotCollections;
+    plotCollections.push_back( wellLogPlotCollection() );
+    plotCollections.push_back( multiPlotCollection() );
+    return plotCollections;
 }

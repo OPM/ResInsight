@@ -17,17 +17,19 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
+#include "RimAbstractPlotCollection.h"
+
 #include "cafPdmChildArrayField.h"
 #include "cafPdmObject.h"
 
-class RimSaturationPressurePlot;
 class RimEclipseResultCase;
+class RimSaturationPressurePlot;
 
 //==================================================================================================
 ///
 ///
 //==================================================================================================
-class RimSaturationPressurePlotCollection : public caf::PdmObject
+class RimSaturationPressurePlotCollection : public caf::PdmObject, public RimPlotCollection
 {
     CAF_PDM_HEADER_INIT;
 
@@ -39,8 +41,9 @@ public:
                                                                            int                   timeStep );
 
     std::vector<RimSaturationPressurePlot*> plots() const;
-    size_t                                  plotCount() const;
-    void                                    deleteAllChildObjects();
+    size_t                                  plotCount() const override;
+    void                                    deleteAllPlots() override;
+    void                                    loadDataAndUpdateAllPlots() override;
 
 private:
     caf::PdmChildArrayField<RimSaturationPressurePlot*> m_saturationPressurePlots;

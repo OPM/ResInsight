@@ -17,6 +17,8 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
+#include "RimAbstractPlotCollection.h"
+
 #include "cafPdmChildArrayField.h"
 #include "cafPdmObject.h"
 
@@ -26,7 +28,7 @@ class RimMultiPlot;
 ///
 ///
 //==================================================================================================
-class RimMultiPlotCollection : public caf::PdmObject
+class RimMultiPlotCollection : public caf::PdmObject, public RimPlotCollection
 {
     CAF_PDM_HEADER_INIT;
 
@@ -34,7 +36,9 @@ public:
     RimMultiPlotCollection();
     ~RimMultiPlotCollection() override;
 
-    void deleteAllChildObjects();
+    void   deleteAllPlots() override;
+    void   loadDataAndUpdateAllPlots() override;
+    size_t plotCount() const override;
 
     std::vector<RimMultiPlot*> multiPlots() const;
     RimMultiPlot*              createMultiPlot();

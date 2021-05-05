@@ -126,7 +126,7 @@ void RicCreateTemporaryLgrFeature::updateViews( RimEclipseCase* eclipseCase )
     RimProject::current()->mainPlotCollection()->deleteAllCachedData();
     computeCachedData( eclipseCase );
 
-    RimProject::current()->mainPlotCollection()->wellLogPlotCollection()->reloadAllPlots();
+    RimProject::current()->mainPlotCollection()->wellLogPlotCollection()->loadDataAndUpdateAllPlots();
 
     if ( guiApp ) eclipseCase->createDisplayModelAndUpdateAllViews();
 }

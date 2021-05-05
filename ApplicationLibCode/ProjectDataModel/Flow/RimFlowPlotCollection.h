@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include "RimAbstractPlotCollection.h"
+
 #include "cafPdmChildArrayField.h"
 #include "cafPdmChildField.h"
 #include "cafPdmObject.h"
@@ -31,7 +33,7 @@ class RimWellDistributionPlotCollection;
 ///
 ///
 //==================================================================================================
-class RimFlowPlotCollection : public caf::PdmObject
+class RimFlowPlotCollection : public caf::PdmObject, public RimPlotCollection
 {
     CAF_PDM_HEADER_INIT;
 
@@ -39,9 +41,9 @@ public:
     RimFlowPlotCollection();
     ~RimFlowPlotCollection() override;
 
-    void   closeDefaultPlotWindowAndDeletePlots();
-    void   loadDataAndUpdate();
-    size_t plotCount() const;
+    void   deleteAllPlots() override;
+    void   loadDataAndUpdateAllPlots() override;
+    size_t plotCount() const override;
 
     void                               addWellAllocPlotToStoredPlots( RimWellAllocationPlot* plot );
     void                               addFlowCharacteristicsPlotToStoredPlots( RimFlowCharacteristicsPlot* plot );
