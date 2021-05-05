@@ -114,6 +114,8 @@ void RicNewFaultReactAssessmentFeature::onActionTriggered( bool isChecked )
         view->faultCollection()->enableFaultRA( true );
         view->faultCollection()->faultRASettings()->initFromPreprocSettings( &frapSettings, fraCase );
     }
+
+    cleanUpParameterFiles();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -149,6 +151,7 @@ void RicNewFaultReactAssessmentFeature::prepareDirectory( QString dirname, bool 
     dir.mkpath( "Eclipse" );
     dir.mkpath( "Abaqus" );
     dir.mkpath( "tmp" );
+    dir.mkpath( "tsurf" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -210,6 +213,8 @@ bool RicNewFaultReactAssessmentFeature::runPreProc( RimFaultRAPreprocSettings& s
         process.setCommand( command );
         process.setParameters( parameters );
         process.execute();
+
+        addParameterFileForCleanUp( settings.preprocParameterFilename() );
     }
 
     runProgress.incrementProgress();
@@ -238,4 +243,26 @@ RimEclipseView* RicNewFaultReactAssessmentFeature::getView( RimEclipseInputCase*
     if ( views.size() > 0 ) return views[0];
 
     return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicNewFaultReactAssessmentFeature::addParameterFileForCleanUp( QString filename )
+{
+    m_parameterFilesToCleanUp.push_back( filename );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicNewFaultReactAssessmentFeature::cleanUpParameterFiles()
+{
+#ifndef DEBUG
+    for ( auto& filename : m_parameterFilesToCleanUp )
+    {
+        if ( QFile::exists( filename ) ) QFile::remove( filename );
+    }
+#endif
+    m_parameterFilesToCleanUp.clear();
 }

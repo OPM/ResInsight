@@ -360,8 +360,7 @@ QString RimFaultRAPreprocSettings::outputEclipseFilename() const
 QString RimFaultRAPreprocSettings::outputEclipseDirectory() const
 {
     QString retval = m_baseDir;
-    retval += QDir::separator();
-    retval += "Eclipse";
+    retval += "/Eclipse";
 
     return retval;
 }

@@ -18,18 +18,17 @@
 
 #pragma once
 
-#include "cafCmdFeature.h"
+#include "RicRunFaultReactAssessmentFeature.h"
 
 //==================================================================================================
 ///
 //==================================================================================================
-class RicRunAdvFaultReactAssessmentFeature : public caf::CmdFeature
+class RicRunAdvFaultReactAssessmentFeature : public RicRunFaultReactAssessmentFeature
 {
     CAF_CMD_HEADER_INIT;
 
 protected:
     // Overrides
-    bool isCommandEnabled() override;
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
 };
