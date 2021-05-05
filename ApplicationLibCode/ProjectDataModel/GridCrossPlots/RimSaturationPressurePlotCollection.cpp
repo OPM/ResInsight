@@ -124,7 +124,16 @@ size_t RimSaturationPressurePlotCollection::plotCount() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSaturationPressurePlotCollection::deleteAllChildObjects()
+void RimSaturationPressurePlotCollection::deleteAllPlots()
 {
     m_saturationPressurePlots.deleteAllChildObjects();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSaturationPressurePlotCollection::loadDataAndUpdateAllPlots()
+{
+    for ( const auto& p : m_saturationPressurePlots )
+        p->loadDataAndUpdate();
 }

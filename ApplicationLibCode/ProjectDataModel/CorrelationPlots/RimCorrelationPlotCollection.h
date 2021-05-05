@@ -73,6 +73,7 @@ public:
     void                                     insertPlot( RimAbstractCorrelationPlot* plot, size_t index ) final;
     void                                     removePlot( RimAbstractCorrelationPlot* correlationPlot ) final;
     void                                     deleteAllPlots() final;
+    void                                     loadDataAndUpdateAllPlots() override;
 
     std::vector<RimCorrelationReportPlot*> reports() const;
 

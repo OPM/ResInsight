@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include "RimAbstractPlotCollection.h"
+
 #include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
@@ -28,7 +30,7 @@ class RimStimPlanModelPlot;
 ///
 ///
 //==================================================================================================
-class RimStimPlanModelPlotCollection : public caf::PdmObject
+class RimStimPlanModelPlotCollection : public caf::PdmObject, public RimPlotCollection
 {
     CAF_PDM_HEADER_INIT;
 
@@ -42,7 +44,9 @@ public:
 
     void reloadAllPlots();
 
-    void deleteAllPlots();
+    void   deleteAllPlots() override;
+    void   loadDataAndUpdateAllPlots() override;
+    size_t plotCount() const override;
 
 private:
     caf::PdmChildArrayField<RimStimPlanModelPlot*> m_stimPlanModelPlots;

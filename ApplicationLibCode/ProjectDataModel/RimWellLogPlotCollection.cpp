@@ -166,7 +166,7 @@ void RimWellLogPlotCollection::deleteAllPlots()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellLogPlotCollection::reloadAllPlots()
+void RimWellLogPlotCollection::loadDataAndUpdateAllPlots()
 {
     for ( const auto& w : m_wellLogPlots() )
     {
@@ -233,6 +233,9 @@ void RimWellLogPlotCollection::removeExtractors( const RigGeoMechCaseData* caseD
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimWellLogPlotCollection::onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
                                                std::vector<caf::PdmObjectHandle*>& referringObjects )
 {
@@ -248,4 +251,12 @@ void RimWellLogPlotCollection::onChildDeleted( caf::PdmChildArrayFieldHandle*   
 
     RiuPlotMainWindow* mainPlotWindow = RiaGuiApplication::instance()->mainPlotWindow();
     mainPlotWindow->updateWellLogPlotToolBar();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+size_t RimWellLogPlotCollection::plotCount() const
+{
+    return m_wellLogPlots.size();
 }

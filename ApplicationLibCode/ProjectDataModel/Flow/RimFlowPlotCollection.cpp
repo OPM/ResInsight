@@ -69,7 +69,7 @@ RimFlowPlotCollection::~RimFlowPlotCollection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimFlowPlotCollection::closeDefaultPlotWindowAndDeletePlots()
+void RimFlowPlotCollection::deleteAllPlots()
 {
     if ( m_defaultWellAllocPlot )
     {
@@ -88,7 +88,7 @@ void RimFlowPlotCollection::closeDefaultPlotWindowAndDeletePlots()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimFlowPlotCollection::loadDataAndUpdate()
+void RimFlowPlotCollection::loadDataAndUpdateAllPlots()
 {
     caf::ProgressInfo plotProgress( m_storedWellAllocPlots.size() + m_storedFlowCharacteristicsPlots.size() + 3, "" );
 

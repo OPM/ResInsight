@@ -177,7 +177,7 @@ void RimReloadCaseTools::updateAllPlots()
         RimFlowPlotCollection* flowPlotCollection = project->mainPlotCollection()->flowPlotCollection();
         if ( flowPlotCollection )
         {
-            flowPlotCollection->loadDataAndUpdate();
+            flowPlotCollection->loadDataAndUpdateAllPlots();
         }
 
         RimMultiPlotCollection* multiPlotCollection = project->mainPlotCollection()->multiPlotCollection();

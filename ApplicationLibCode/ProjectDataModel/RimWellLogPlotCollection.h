@@ -19,6 +19,8 @@
 
 #pragma once
 
+#include "RimAbstractPlotCollection.h"
+
 #include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
@@ -40,7 +42,7 @@ class RimEclipseCase;
 ///
 ///
 //==================================================================================================
-class RimWellLogPlotCollection : public caf::PdmObject
+class RimWellLogPlotCollection : public caf::PdmObject, public RimPlotCollection
 {
     CAF_PDM_HEADER_INIT;
 
@@ -58,9 +60,9 @@ public:
 
     std::vector<RimWellLogPlot*> wellLogPlots() const;
     void                         addWellLogPlot( gsl::not_null<RimWellLogPlot*> wellLogPlot );
-    void                         deleteAllPlots();
-
-    void reloadAllPlots();
+    void                         deleteAllPlots() override;
+    void                         loadDataAndUpdateAllPlots() override;
+    size_t                       plotCount() const override;
 
     void deleteAllExtractors();
     void removeExtractors( const RigWellPath* wellPathGeometry );

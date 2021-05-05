@@ -19,6 +19,8 @@
 
 #pragma once
 
+#include "RimAbstractPlotCollection.h"
+
 #include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
@@ -42,7 +44,7 @@ class RimWellRftPlot;
 ///
 ///
 //==================================================================================================
-class RimRftPlotCollection : public caf::PdmObject
+class RimRftPlotCollection : public caf::PdmObject, public RimPlotCollection
 {
     CAF_PDM_HEADER_INIT;
 
@@ -68,7 +70,9 @@ public:
     const std::vector<RimWellRftPlot*> rftPlots() const;
     void                               addPlot( gsl::not_null<RimWellRftPlot*> newPlot );
     void                               removePlot( gsl::not_null<RimWellRftPlot*> plot );
-    void                               deleteAllPlots();
+    void                               deleteAllPlots() override;
+    void                               loadDataAndUpdateAllPlots() override;
+    size_t                             plotCount() const override;
 
 private:
     caf::PdmChildArrayField<RimWellRftPlot*>    m_rftPlots;

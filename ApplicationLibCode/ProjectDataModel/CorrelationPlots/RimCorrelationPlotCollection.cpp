@@ -387,3 +387,15 @@ void RimCorrelationPlotCollection::applyEnsembleFieldAndTimeStepToReport( RimCor
         plot->crossPlot()->setEnsembleParameter( crossPlotEnsembleParameterName );
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimCorrelationPlotCollection::loadDataAndUpdateAllPlots()
+{
+    for ( const auto& corrPlot : m_correlationPlots )
+        corrPlot->loadDataAndUpdate();
+
+    for ( const auto& reports : m_correlationReports )
+        reports->loadDataAndUpdate();
+}
