@@ -32,7 +32,6 @@ RicImportGroupedWellPaths::RicImportGroupedWellPaths()
 //--------------------------------------------------------------------------------------------------
 void RicImportGroupedWellPaths::onActionTriggered( bool isChecked )
 {
-    // Open dialog box to select well path files
     RiaApplication* app                = RiaApplication::instance();
     QString         lastUsedGridFolder = app->lastUsedDialogDirectory( "BINARY_GRID" );
     QString         defaultDir         = app->lastUsedDialogDirectoryWithFallback( "WELLPATH_DIR", lastUsedGridFolder );
@@ -44,7 +43,7 @@ void RicImportGroupedWellPaths::onActionTriggered( bool isChecked )
                                                                           defaultDir,
                                                                           nameList );
 
-    if ( wellPathFilePaths.size() >= 1 )
+    if ( !wellPathFilePaths.empty() )
     {
         m_importGrouped                 = true;
         m_wellPathFiles.v()             = std::vector<QString>( wellPathFilePaths.begin(), wellPathFilePaths.end() );

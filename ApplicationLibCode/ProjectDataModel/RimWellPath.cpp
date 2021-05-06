@@ -1105,6 +1105,8 @@ RimWellPath* RimWellPath::topLevelWellPath()
 {
     if ( m_wellPathTieIn() && m_wellPathTieIn->parentWell() )
     {
+        if ( m_wellPathTieIn->parentWell() == this ) return this;
+
         return m_wellPathTieIn()->parentWell()->topLevelWellPath();
     }
 
@@ -1168,8 +1170,13 @@ RimWellPathTieIn* RimWellPath::wellPathTieIn() const
 //--------------------------------------------------------------------------------------------------
 void RimWellPath::connectWellPaths( RimWellPath* parentWell, double parentTieInMeasuredDepth )
 {
-    if ( !m_wellPathTieIn() ) m_wellPathTieIn = new RimWellPathTieIn;
+    CVF_ASSERT( parentWell != this );
 
-    m_wellPathTieIn->connectWellPaths( parentWell, this, parentTieInMeasuredDepth );
-    m_wellPathTieIn->updateFirstTargetFromParentWell();
+    if ( parentWell != this )
+    {
+        if ( !m_wellPathTieIn() ) m_wellPathTieIn = new RimWellPathTieIn;
+
+        m_wellPathTieIn->connectWellPaths( parentWell, this, parentTieInMeasuredDepth );
+        m_wellPathTieIn->updateFirstTargetFromParentWell();
+    }
 }
