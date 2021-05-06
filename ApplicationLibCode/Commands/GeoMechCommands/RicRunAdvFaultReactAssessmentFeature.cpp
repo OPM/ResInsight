@@ -67,43 +67,41 @@ void RicRunAdvFaultReactAssessmentFeature::onActionTriggered( bool isChecked )
     int               faultID = selectedFaultID();
     caf::ProgressInfo runProgress( 3, "Running Advanced Fault RA processing, please wait..." );
 
+    runProgress.setProgressDescription( "Macris calculate command." );
+    QString paramfilename = fraSettings->basicParameterXMLFilename( faultID );
+
+    RifFaultRAXmlWriter xmlwriter( fraSettings );
+    QString             outErrorText;
+    if ( !xmlwriter.writeCalculateFile( paramfilename, faultID, outErrorText ) )
     {
-        runProgress.setProgressDescription( "Macris calculate command." );
-        QString paramfilename = fraSettings->basicParameterXMLFilename( faultID );
-
-        RifFaultRAXmlWriter xmlwriter( fraSettings );
-        QString             outErrorText;
-        if ( !xmlwriter.writeCalculateFile( paramfilename, faultID, outErrorText ) )
-        {
-            QMessageBox::warning( nullptr,
-                                  "Fault Reactivation Assessment Processing",
-                                  "Unable to write parameter file! " + outErrorText );
-            return;
-        }
-
-        QString paramfilename2 = fraSettings->advancedParameterXMLFilename( faultID );
-        if ( !xmlwriter.writeCalibrateFile( paramfilename2, faultID, outErrorText ) )
-        {
-            QMessageBox::warning( nullptr,
-                                  "Fault Reactivation Assessment Processing",
-                                  "Unable to write calibrate parameter file! " + outErrorText );
-            return;
-        }
-
-        addParameterFileForCleanUp( paramfilename );
-        addParameterFileForCleanUp( paramfilename2 );
-
-        // run the java macris program in calibrate mode
-        QString     command    = RiaPreferences::current()->geomechFRAMacrisCommand();
-        QStringList parameters = fraSettings->advancedMacrisParameters( faultID );
-
-        RimProcess process;
-        process.setCommand( command );
-        process.setParameters( parameters );
-        process.execute();
-
-        runProgress.incrementProgress();
+        QMessageBox::warning( nullptr,
+                              "Fault Reactivation Assessment Processing",
+                              "Unable to write parameter file! " + outErrorText );
+        return;
     }
+
+    QString paramfilename2 = fraSettings->advancedParameterXMLFilename( faultID );
+    if ( !xmlwriter.writeCalibrateFile( paramfilename2, faultID, outErrorText ) )
+    {
+        QMessageBox::warning( nullptr,
+                              "Fault Reactivation Assessment Processing",
+                              "Unable to write calibrate parameter file! " + outErrorText );
+        return;
+    }
+
+    addParameterFileForCleanUp( paramfilename );
+    addParameterFileForCleanUp( paramfilename2 );
+
+    // run the java macris program in calibrate mode
+    QString     command    = RiaPreferences::current()->geomechFRAMacrisCommand();
+    QStringList parameters = fraSettings->advancedMacrisParameters( faultID );
+
+    RimProcess process;
+    process.setCommand( command );
+    process.setParameters( parameters );
+    process.execute();
+
+    runProgress.incrementProgress();
 
     runProgress.setProgressDescription( "Generating surface results." );
 
