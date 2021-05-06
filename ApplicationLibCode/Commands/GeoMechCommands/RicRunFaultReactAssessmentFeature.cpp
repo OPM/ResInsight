@@ -192,6 +192,7 @@ RimSurfaceCollection* RicRunFaultReactAssessmentFeature::surfaceCollection()
             }
         }
 
+        // No FaultRA collection found, make one
         RimSurfaceCollection* fraCollection = new RimSurfaceCollection();
         fraCollection->setCollectionName( "FaultRA" );
         surfColl->addSubCollection( fraCollection );
