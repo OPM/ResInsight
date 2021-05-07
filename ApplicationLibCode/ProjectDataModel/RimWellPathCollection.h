@@ -102,6 +102,7 @@ public:
     void deleteAllWellPaths();
     void groupWellPaths( const std::vector<RimWellPath*>& wellPaths, bool automaticGrouping = false );
     void ungroupWellPaths( const std::vector<RimWellPath*>& wellPaths );
+    void rebuildWellPathNodes();
 
     RimWellPath* mostRecentlyUpdatedWellPath();
 
@@ -150,7 +151,6 @@ private:
     caf::AppEnum<RiaDefines::EclipseUnitSystem> findUnitSystemForWellPath( const RimWellPath* wellPath );
 
     void             updateTieInObjects();
-    void             rebuildWellPathNodes();
     RimWellPathNode* addWellToWellNode( RimWellPathNode* parent, RimWellPath* wellPath );
 
     std::vector<RimWellPath*> wellPathsWithNoParent() const;
@@ -168,5 +168,5 @@ private:
     caf::PdmChildField<RimWellMeasurementCollection*> m_wellMeasurements;
     caf::PdmChildArrayField<RimWellPath*>             m_wellPaths;
 
-    caf::PdmChildArrayField<RimWellPathNode*> m_rootWellPathNodes;
+    caf::PdmChildArrayField<RimWellPathNode*> m_wellPathNodes;
 };

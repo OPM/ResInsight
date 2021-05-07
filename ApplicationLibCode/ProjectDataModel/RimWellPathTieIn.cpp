@@ -20,6 +20,7 @@
 
 #include "RigWellPath.h"
 
+#include "RimFileWellPath.h"
 #include "RimModeledWellPath.h"
 #include "RimTools.h"
 #include "RimWellPathCollection.h"
@@ -155,6 +156,9 @@ void RimWellPathTieIn::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderin
     tieInGroup->add( &m_tieInMeasuredDepth );
     tieInGroup->add( &m_addValveAtConnection );
 
+    bool isFileWellPath = dynamic_cast<RimFileWellPath*>( m_childWell() );
+    m_tieInMeasuredDepth.uiCapability()->setUiReadOnly( isFileWellPath );
+
     // Display only ICV valves
     m_valve->setComponentTypeFilter( { RiaDefines::WellPathComponentType::ICV } );
 
@@ -176,6 +180,8 @@ void RimWellPathTieIn::fieldChangedByUi( const caf::PdmFieldHandle* changedField
     if ( changedField == &m_parentWell )
     {
         updateFirstTargetFromParentWell();
+
+        RimTools::wellPathCollection()->rebuildWellPathNodes();
     }
 
     updateChildWellGeometry();

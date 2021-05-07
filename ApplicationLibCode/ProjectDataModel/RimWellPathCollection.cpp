@@ -116,7 +116,7 @@ RimWellPathCollection::RimWellPathCollection()
     m_wellMeasurements = new RimWellMeasurementCollection;
     m_wellMeasurements.uiCapability()->setUiTreeHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_rootWellPathNodes, "RootWellPathNodes", "Root Well Paths Nodes", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_wellPathNodes, "WellPathNodes", "Well Path Nodes", "", "", "" );
 
     m_wellPathImporter           = std::make_unique<RifWellPathImporter>();
     m_wellPathFormationsImporter = std::make_unique<RifWellPathFormationsImporter>();
@@ -272,6 +272,8 @@ void RimWellPathCollection::loadDataAndUpdate()
         group->completionSettings()->setWellNameForExport( group->createGroupName() );
     }
 
+    rebuildWellPathNodes();
+
     this->sortWellsByName();
 }
 
@@ -359,6 +361,9 @@ void RimWellPathCollection::addWellPath( gsl::not_null<RimWellPath*> wellPath, b
     {
         m_wellPaths.push_back( wellPath );
     }
+
+    rebuildWellPathNodes();
+
     m_mostRecentlyUpdatedWellPath = wellPath;
 }
 
@@ -418,7 +423,8 @@ void RimWellPathCollection::readAndAddWellPaths( std::vector<RimFileWellPath*>& 
 
         progress.incrementProgress();
     }
-    groupWellPaths( allWellPaths(), importGrouped );
+
+    // groupWellPaths( allWellPaths(), importGrouped );
 
     wellPathArray.clear(); // This should not be used again. We may have deleted items
 
@@ -556,18 +562,9 @@ void RimWellPathCollection::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTree
         uiTreeOrdering.add( &m_wellMeasurements );
     }
 
-    if ( !m_wellPaths.empty() )
+    for ( const auto& wellPathNode : m_wellPathNodes() )
     {
-        auto name             = "Flat well path list";
-        auto parentUiTreeNode = uiTreeOrdering.add( name, uiConfigName );
-        // parentUiTreeNode->add( &m_wellPaths );
-    }
-
-    {
-        for ( auto wellPathNode : m_rootWellPathNodes() )
-        {
-            RimWellPathCollection::buildUiTreeOrdering( wellPathNode, &uiTreeOrdering, uiConfigName );
-        }
+        RimWellPathCollection::buildUiTreeOrdering( wellPathNode, &uiTreeOrdering, uiConfigName );
     }
 
     uiTreeOrdering.skipRemainingChildren( true );
@@ -853,8 +850,6 @@ bool lessWellPath( const caf::PdmPointer<RimWellPath>& w1, const caf::PdmPointer
 //--------------------------------------------------------------------------------------------------
 void RimWellPathCollection::sortWellsByName()
 {
-    rebuildWellPathNodes();
-
     std::sort( m_wellPaths.begin(), m_wellPaths.end(), lessWellPath );
 }
 
@@ -1028,7 +1023,7 @@ void RimWellPathCollection::updateTieInObjects()
 //--------------------------------------------------------------------------------------------------
 void RimWellPathCollection::rebuildWellPathNodes()
 {
-    m_rootWellPathNodes.deleteAllChildObjects();
+    m_wellPathNodes.deleteAllChildObjects();
 
     for ( auto wellPath : wellPathsWithNoParent() )
     {
@@ -1036,7 +1031,7 @@ void RimWellPathCollection::rebuildWellPathNodes()
 
         if ( auto node = addWellToWellNode( nullptr, wellPath ) )
         {
-            m_rootWellPathNodes.push_back( node );
+            m_wellPathNodes.push_back( node );
         }
     }
 }
@@ -1116,13 +1111,15 @@ void RimWellPathCollection::buildUiTreeOrdering( RimWellPathNode*        wellPat
 
     if ( auto obj = wellPathNode->referencedObject() )
     {
-        // Create the standard uiTreeOrdering with no relationship to parent
-        auto uiTreeNode = obj->uiCapability()->uiTreeOrdering( uiConfigName );
+        // Create the standard uiTreeOrdering with no relationship to parent using the helper function in
+        // PdmUiObjectHandle. This will ensure that any child objects will be created correctly including any recursive
+        // children. If a PdmUiTreeOrdering is created directly based on the PdmObject, andy child objects must be added
+        // manually.
 
-        // Connect the uiTreeNode to parent
+        auto uiTreeNode = obj->uiCapability()->uiTreeOrdering( uiConfigName );
         parentUiTreeNode->appendChild( uiTreeNode );
 
-        // Build additional child nodes
+        // Build additional child nodes recursively
         for ( auto childNode : wellPathNode->childNodes() )
         {
             buildUiTreeOrdering( childNode, uiTreeNode, uiConfigName );
@@ -1130,6 +1127,7 @@ void RimWellPathCollection::buildUiTreeOrdering( RimWellPathNode*        wellPat
     }
     else
     {
+        // If no referenced object is attached, fallback to the node. Not sure if this is the best solution
         parentUiTreeNode->add( wellPathNode );
     }
 }
