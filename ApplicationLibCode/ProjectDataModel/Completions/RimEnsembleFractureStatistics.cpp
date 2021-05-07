@@ -276,20 +276,19 @@ void RimEnsembleFractureStatistics::fieldChangedByUi( const caf::PdmFieldHandle*
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleFractureStatistics::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    uiOrdering.add( nameField() );
-    uiOrdering.add( &m_filePathsTable );
-    uiOrdering.add( &m_formationDipStatistics );
-    uiOrdering.add( &m_meshAlignmentType );
-    uiOrdering.add( &m_meshType );
-    uiOrdering.add( &m_numSamplesX );
-    uiOrdering.add( &m_numSamplesY );
+    caf::PdmUiOrdering* settingsGroup = uiOrdering.addNewGroup( "Settings" );
+    settingsGroup->add( nameField() );
+    settingsGroup->add( &m_meshAlignmentType );
+    settingsGroup->add( &m_meshType );
+    settingsGroup->add( &m_numSamplesX );
+    settingsGroup->add( &m_numSamplesY );
     bool isUniformMesh = m_meshType() == MeshType::UNIFORM;
     m_numSamplesX.uiCapability()->setUiHidden( !isUniformMesh );
     m_numSamplesY.uiCapability()->setUiHidden( !isUniformMesh );
 
-    uiOrdering.add( &m_adaptiveMeanType );
-    uiOrdering.add( &m_adaptiveNumLayersType );
-    uiOrdering.add( &m_adaptiveNumLayers );
+    settingsGroup->add( &m_adaptiveMeanType );
+    settingsGroup->add( &m_adaptiveNumLayersType );
+    settingsGroup->add( &m_adaptiveNumLayers );
 
     bool isAdaptiveMesh = m_meshType() == MeshType::ADAPTIVE;
     m_adaptiveMeanType.uiCapability()->setUiHidden( !isAdaptiveMesh );
@@ -298,8 +297,13 @@ void RimEnsembleFractureStatistics::defineUiOrdering( QString uiConfigName, caf:
     bool adaptiveSamplesUserDefined = m_adaptiveNumLayersType() == AdaptiveNumLayersType::USER_DEFINED;
     m_adaptiveNumLayers.uiCapability()->setUiHidden( !isAdaptiveMesh || !adaptiveSamplesUserDefined );
 
-    uiOrdering.add( &m_selectedStatisticsType );
-    uiOrdering.add( &m_computeStatistics );
+    settingsGroup->add( &m_selectedStatisticsType );
+    settingsGroup->add( &m_computeStatistics );
+
+    caf::PdmUiOrdering* statisticsGroup = uiOrdering.addNewGroup( "Statistics" );
+    statisticsGroup->add( &m_formationDipStatistics );
+
+    uiOrdering.add( &m_filePathsTable );
 }
 
 //--------------------------------------------------------------------------------------------------
