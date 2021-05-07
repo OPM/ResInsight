@@ -49,6 +49,8 @@
 #include "RimWellPath.h"
 #include "RimWellPathCompletionSettings.h"
 #include "RimWellPathGroup.h"
+#include "RimWellPathNode.h"
+#include "RimWellPathTieIn.h"
 
 #include "Riu3DMainWindowTools.h"
 
@@ -113,6 +115,8 @@ RimWellPathCollection::RimWellPathCollection()
     CAF_PDM_InitFieldNoDefault( &m_wellMeasurements, "WellMeasurements", "Measurements", "", "", "" );
     m_wellMeasurements = new RimWellMeasurementCollection;
     m_wellMeasurements.uiCapability()->setUiTreeHidden( true );
+
+    CAF_PDM_InitFieldNoDefault( &m_rootWellPathNodes, "RootWellPathNodes", "Root Well Paths Nodes", "", "", "" );
 
     m_wellPathImporter           = std::make_unique<RifWellPathImporter>();
     m_wellPathFormationsImporter = std::make_unique<RifWellPathFormationsImporter>();
@@ -414,9 +418,12 @@ void RimWellPathCollection::readAndAddWellPaths( std::vector<RimFileWellPath*>& 
 
         progress.incrementProgress();
     }
-    groupWellPaths( allWellPaths(), true );
+    groupWellPaths( allWellPaths(), importGrouped );
 
     wellPathArray.clear(); // This should not be used again. We may have deleted items
+
+    updateTieInObjects();
+
     this->sortWellsByName();
 }
 
@@ -551,7 +558,16 @@ void RimWellPathCollection::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTree
 
     if ( !m_wellPaths.empty() )
     {
-        uiTreeOrdering.add( &m_wellPaths );
+        auto name             = "Flat well path list";
+        auto parentUiTreeNode = uiTreeOrdering.add( name, uiConfigName );
+        // parentUiTreeNode->add( &m_wellPaths );
+    }
+
+    {
+        for ( auto wellPathNode : m_rootWellPathNodes() )
+        {
+            RimWellPathCollection::buildUiTreeOrdering( wellPathNode, &uiTreeOrdering, uiConfigName );
+        }
     }
 
     uiTreeOrdering.skipRemainingChildren( true );
@@ -720,6 +736,7 @@ void RimWellPathCollection::groupWellPaths( const std::vector<RimWellPath*>& wel
             m_wellPaths.push_back( wellPath );
         }
     }
+
     this->sortWellsByName();
     this->updateAllRequiredEditors();
 }
@@ -836,6 +853,8 @@ bool lessWellPath( const caf::PdmPointer<RimWellPath>& w1, const caf::PdmPointer
 //--------------------------------------------------------------------------------------------------
 void RimWellPathCollection::sortWellsByName()
 {
+    rebuildWellPathNodes();
+
     std::sort( m_wellPaths.begin(), m_wellPaths.end(), lessWellPath );
 }
 
@@ -880,39 +899,41 @@ RimWellPathGroup* RimWellPathCollection::findOrCreateWellPathGroup( gsl::not_nul
         }
     }
 
-    // See if we have a well path group
-    RimWellPathGroup* mostSimilarWellPathGroup   = nullptr;
-    double            longestIdenticalTubeLength = 0.0;
-    for ( auto [existingWellPath, identicalTubeLength] : wellPathsWithCommonGeometry )
     {
-        auto wellPathGroup = dynamic_cast<RimWellPathGroup*>( existingWellPath );
-        if ( wellPathGroup && identicalTubeLength > longestIdenticalTubeLength )
+        // See if we have a well path group
+        RimWellPathGroup* mostSimilarWellPathGroup   = nullptr;
+        double            longestIdenticalTubeLength = 0.0;
+        for ( auto [existingWellPath, identicalTubeLength] : wellPathsWithCommonGeometry )
         {
-            mostSimilarWellPathGroup   = wellPathGroup;
-            longestIdenticalTubeLength = identicalTubeLength;
-        }
-    }
-
-    if ( mostSimilarWellPathGroup )
-    {
-        detachWellPath( wellPath );
-        mostSimilarWellPathGroup->addChildWellPath( wellPath.get() );
-    }
-    else if ( wellPathsWithCommonGeometry.size() > 1u )
-    {
-        RimWellPathGroup* group = new RimWellPathGroup;
-        m_wellPaths.push_back( group );
-
-        for ( auto wellPathAndTubeLength : wellPathsWithCommonGeometry )
-        {
-            auto existingWellPath = wellPathAndTubeLength.first;
-            detachWellPath( existingWellPath );
-            group->addChildWellPath( existingWellPath );
+            auto wellPathGroup = dynamic_cast<RimWellPathGroup*>( existingWellPath );
+            if ( wellPathGroup && identicalTubeLength > longestIdenticalTubeLength )
+            {
+                mostSimilarWellPathGroup   = wellPathGroup;
+                longestIdenticalTubeLength = identicalTubeLength;
+            }
         }
 
-        mostSimilarWellPathGroup = group;
+        if ( mostSimilarWellPathGroup )
+        {
+            detachWellPath( wellPath );
+            mostSimilarWellPathGroup->addChildWellPath( wellPath.get() );
+        }
+        else if ( wellPathsWithCommonGeometry.size() > 1u )
+        {
+            RimWellPathGroup* group = new RimWellPathGroup;
+            m_wellPaths.push_back( group );
+
+            for ( auto wellPathAndTubeLength : wellPathsWithCommonGeometry )
+            {
+                auto existingWellPath = wellPathAndTubeLength.first;
+                detachWellPath( existingWellPath );
+                group->addChildWellPath( existingWellPath );
+            }
+
+            mostSimilarWellPathGroup = group;
+        }
+        return mostSimilarWellPathGroup;
     }
-    return mostSimilarWellPathGroup;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -940,6 +961,177 @@ caf::AppEnum<RiaDefines::EclipseUnitSystem> RimWellPathCollection::findUnitSyste
         return eclipseCaseData->unitsType();
     }
     return RiaDefines::EclipseUnitSystem::UNITS_UNKNOWN;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellPathCollection::updateTieInObjects()
+{
+    for ( auto wellPath : allWellPaths() )
+    {
+        auto wellPathGroup = dynamic_cast<RimWellPathGroup*>( wellPath );
+        if ( wellPathGroup ) continue;
+
+        auto wellPathGeometry = wellPath->wellPathGeometry();
+        if ( wellPathGeometry )
+        {
+            const double                   eps = 1.0e-2;
+            std::map<RimWellPath*, double> wellPathsWithCommonGeometry;
+
+            for ( auto existingWellPath : allWellPaths() )
+            {
+                auto wellPathGroup = dynamic_cast<RimWellPathGroup*>( existingWellPath );
+                if ( wellPathGroup ) continue;
+                if ( existingWellPath == wellPath ) continue;
+
+                if ( wellPath->name() < existingWellPath->name() ) continue;
+
+                double identicalTubeLength = existingWellPath->wellPathGeometry()->identicalTubeLength( *wellPathGeometry );
+                if ( identicalTubeLength > eps )
+                {
+                    wellPathsWithCommonGeometry[existingWellPath] = identicalTubeLength;
+                }
+            }
+
+            RimWellPath* mostSimilarWellPath        = nullptr;
+            double       longestIdenticalTubeLength = 0.0;
+            for ( auto [existingWellPath, identicalTubeLength] : wellPathsWithCommonGeometry )
+            {
+                auto wellPathGroup = dynamic_cast<RimWellPathGroup*>( existingWellPath );
+                if ( wellPathGroup ) continue;
+
+                if ( existingWellPath && ( existingWellPath != wellPath ) && identicalTubeLength > longestIdenticalTubeLength )
+                {
+                    mostSimilarWellPath        = existingWellPath;
+                    longestIdenticalTubeLength = identicalTubeLength;
+                }
+            }
+
+            if ( mostSimilarWellPath )
+            {
+                if ( wellPath->name() > mostSimilarWellPath->name() )
+                {
+                    wellPath->connectWellPaths( mostSimilarWellPath, longestIdenticalTubeLength );
+                }
+                else
+                {
+                    mostSimilarWellPath->connectWellPaths( wellPath, longestIdenticalTubeLength );
+                }
+            }
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Based on tie-in relationship, build a tree of well path nodes
+//--------------------------------------------------------------------------------------------------
+void RimWellPathCollection::rebuildWellPathNodes()
+{
+    m_rootWellPathNodes.deleteAllChildObjects();
+
+    for ( auto wellPath : wellPathsWithNoParent() )
+    {
+        if ( !wellPath ) continue;
+
+        if ( auto node = addWellToWellNode( nullptr, wellPath ) )
+        {
+            m_rootWellPathNodes.push_back( node );
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimWellPathNode* RimWellPathCollection::addWellToWellNode( RimWellPathNode* parent, RimWellPath* wellPath )
+{
+    if ( wellPath == nullptr ) return nullptr;
+
+    std::vector<RimWellPath*> wellPaths = connectedWellPathLaterals( wellPath );
+
+    auto node = new RimWellPathNode;
+    node->setReferencedObject( wellPath );
+    if ( parent ) parent->addChild( node );
+
+    for ( auto w : wellPaths )
+    {
+        addWellToWellNode( node, w );
+    }
+
+    return node;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimWellPath*> RimWellPathCollection::wellPathsWithNoParent() const
+{
+    std::vector<RimWellPath*> wellPaths;
+
+    for ( const auto& w : m_wellPaths )
+    {
+        if ( !w ) continue;
+
+        if ( w->isTopLevelWellPath() )
+        {
+            wellPaths.push_back( w );
+        }
+    }
+
+    return wellPaths;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimWellPath*> RimWellPathCollection::connectedWellPathLaterals( const RimWellPath* parentWellPath ) const
+{
+    if ( !parentWellPath ) return {};
+
+    std::vector<RimWellPath*> wellPaths;
+
+    for ( const auto& w : m_wellPaths )
+    {
+        if ( !w ) continue;
+
+        if ( w->wellPathTieIn() && ( w->wellPathTieIn()->parentWell() == parentWellPath ) )
+        {
+            wellPaths.push_back( w );
+        }
+    }
+
+    return wellPaths;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellPathCollection::buildUiTreeOrdering( RimWellPathNode*        wellPathNode,
+                                                 caf::PdmUiTreeOrdering* parentUiTreeNode,
+                                                 const QString&          uiConfigName )
+{
+    CAF_ASSERT( wellPathNode );
+    CAF_ASSERT( parentUiTreeNode );
+
+    if ( auto obj = wellPathNode->referencedObject() )
+    {
+        // Create the standard uiTreeOrdering with no relationship to parent
+        auto uiTreeNode = obj->uiCapability()->uiTreeOrdering( uiConfigName );
+
+        // Connect the uiTreeNode to parent
+        parentUiTreeNode->appendChild( uiTreeNode );
+
+        // Build additional child nodes
+        for ( auto childNode : wellPathNode->childNodes() )
+        {
+            buildUiTreeOrdering( childNode, uiTreeNode, uiConfigName );
+        }
+    }
+    else
+    {
+        parentUiTreeNode->add( wellPathNode );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

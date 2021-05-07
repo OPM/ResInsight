@@ -48,6 +48,7 @@ class RimWellPath;
 class RimWellPathGroup;
 class RifWellPathFormationsImporter;
 class RimWellMeasurementCollection;
+class RimWellPathNode;
 class QString;
 
 namespace cvf
@@ -148,10 +149,24 @@ private:
 
     caf::AppEnum<RiaDefines::EclipseUnitSystem> findUnitSystemForWellPath( const RimWellPath* wellPath );
 
+    void             updateTieInObjects();
+    void             rebuildWellPathNodes();
+    RimWellPathNode* addWellToWellNode( RimWellPathNode* parent, RimWellPath* wellPath );
+
+    std::vector<RimWellPath*> wellPathsWithNoParent() const;
+    std::vector<RimWellPath*> connectedWellPathLaterals( const RimWellPath* parentWellPath ) const;
+
+    static void buildUiTreeOrdering( RimWellPathNode*        wellPathNode,
+                                     caf::PdmUiTreeOrdering* parentUiTreeNode,
+                                     const QString&          uiConfigName );
+
+private:
     std::unique_ptr<RifWellPathImporter>           m_wellPathImporter;
     std::unique_ptr<RifWellPathFormationsImporter> m_wellPathFormationsImporter;
 
     caf::PdmPointer<RimWellPath>                      m_mostRecentlyUpdatedWellPath;
     caf::PdmChildField<RimWellMeasurementCollection*> m_wellMeasurements;
     caf::PdmChildArrayField<RimWellPath*>             m_wellPaths;
+
+    caf::PdmChildArrayField<RimWellPathNode*> m_rootWellPathNodes;
 };
