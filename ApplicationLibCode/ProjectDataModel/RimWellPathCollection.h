@@ -102,6 +102,8 @@ public:
     void deleteAllWellPaths();
     void groupWellPaths( const std::vector<RimWellPath*>& wellPaths, bool automaticGrouping = false );
     void ungroupWellPaths( const std::vector<RimWellPath*>& wellPaths );
+
+    void groupWellPathsMsj( const std::vector<RimWellPath*>& wellPaths );
     void rebuildWellPathNodes();
 
     RimWellPath* mostRecentlyUpdatedWellPath();
@@ -153,8 +155,11 @@ private:
     void             updateTieInObjects();
     RimWellPathNode* addWellToWellNode( RimWellPathNode* parent, RimWellPath* wellPath );
 
-    std::vector<RimWellPath*> wellPathsWithNoParent() const;
+    std::vector<RimWellPath*> wellPathsWithNoParent( const std::vector<RimWellPath*>& sourceWellPaths ) const;
     std::vector<RimWellPath*> connectedWellPathLaterals( const RimWellPath* parentWellPath ) const;
+
+    std::map<QString, std::vector<RimWellPath*>>
+        wellPathsForWellNameStem( const std::vector<RimWellPath*>& sourceWellPaths ) const;
 
     static void buildUiTreeOrdering( RimWellPathNode*        wellPathNode,
                                      caf::PdmUiTreeOrdering* parentUiTreeNode,
