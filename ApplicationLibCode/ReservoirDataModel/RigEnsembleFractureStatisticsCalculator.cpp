@@ -46,8 +46,8 @@ void caf::AppEnum<RigEnsembleFractureStatisticsCalculator::PropertyType>::setUp(
     addItem( RigEnsembleFractureStatisticsCalculator::PropertyType::HEIGHT, "HEIGHT", "Height" );
     addItem( RigEnsembleFractureStatisticsCalculator::PropertyType::AREA, "AREA", "Area" );
     addItem( RigEnsembleFractureStatisticsCalculator::PropertyType::WIDTH, "WIDTH", "Width" );
-    addItem( RigEnsembleFractureStatisticsCalculator::PropertyType::XF, "XF", "Xf" );
-    addItem( RigEnsembleFractureStatisticsCalculator::PropertyType::KFWF, "KFWF", "KfWf" );
+    addItem( RigEnsembleFractureStatisticsCalculator::PropertyType::XF, "XF", "Halflength (Xf)" );
+    addItem( RigEnsembleFractureStatisticsCalculator::PropertyType::KFWF, "KFWF", "Conductivity (KfWf)" );
     addItem( RigEnsembleFractureStatisticsCalculator::PropertyType::PERMEABILITY, "PERMEABILITY", "Permeability" );
     setDefault( RigEnsembleFractureStatisticsCalculator::PropertyType::HEIGHT );
 }
