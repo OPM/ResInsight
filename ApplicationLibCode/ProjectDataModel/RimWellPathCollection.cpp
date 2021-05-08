@@ -766,24 +766,42 @@ caf::AppEnum<RiaDefines::EclipseUnitSystem> RimWellPathCollection::findUnitSyste
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Based on tie-in relationship, build a tree of well path nodes
+///
 //--------------------------------------------------------------------------------------------------
 void RimWellPathCollection::rebuildWellPathNodes()
 {
     m_wellPathNodes.deleteAllChildObjects();
 
     std::map<QString, std::vector<RimWellPath*>> rootWells = wellPathsForWellNameStem( m_wellPaths.childObjects() );
-    for ( auto [name, wellPathCommonName] : rootWells )
+    for ( auto [groupName, wellPathGroup] : rootWells )
     {
-        auto rootNode = new RimWellPathNode;
-        rootNode->setUiName( name );
-        m_wellPathNodes.push_back( rootNode );
-
-        for ( auto wellPath : wellPathsWithNoParent( wellPathCommonName ) )
+        if ( groupName == unGroupedText() )
         {
-            if ( !wellPath ) continue;
+            // For single wells, create well paths directly in the well collection folder
 
-            addWellToWellNode( rootNode, wellPath );
+            for ( auto wellPath : wellPathGroup )
+            {
+                if ( !wellPath ) continue;
+
+                auto node = addWellToWellNode( nullptr, wellPath );
+                m_wellPathNodes.push_back( node );
+            }
+        }
+        else
+        {
+            // Create a group node with group name and put related wells into this group
+
+            auto rootNode = new RimWellPathNode;
+            rootNode->setUiName( groupName );
+            rootNode->setUiIconFromResourceString( ":/WellPathGroup.svg" );
+            m_wellPathNodes.push_back( rootNode );
+
+            for ( auto wellPath : wellPathsWithNoParent( wellPathGroup ) )
+            {
+                if ( !wellPath ) continue;
+
+                addWellToWellNode( rootNode, wellPath );
+            }
         }
     }
 }
@@ -877,7 +895,7 @@ std::map<QString, std::vector<RimWellPath*>>
         }
         else
         {
-            rootWells["Other"].push_back( wellPath );
+            rootWells[RimWellPathCollection::unGroupedText()].push_back( wellPath );
         }
     }
 
@@ -913,8 +931,22 @@ void RimWellPathCollection::buildUiTreeOrdering( RimWellPathNode*        wellPat
     else
     {
         // If no referenced object is attached, fallback to the node. Not sure if this is the best solution
-        parentUiTreeNode->add( wellPathNode );
+        auto uiTreeNode = parentUiTreeNode->add( wellPathNode );
+
+        // Build additional child nodes recursively
+        for ( auto childNode : wellPathNode->childNodes() )
+        {
+            buildUiTreeOrdering( childNode, uiTreeNode, uiConfigName );
+        }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimWellPathCollection::unGroupedText()
+{
+    return "UnGrouped";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -939,6 +971,8 @@ const RimWellMeasurementCollection* RimWellPathCollection::measurementCollection
 void RimWellPathCollection::onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
                                             std::vector<caf::PdmObjectHandle*>& referringObjects )
 {
+    rebuildWellPathNodes();
+
     scheduleRedrawAffectedViews();
     uiCapability()->updateConnectedEditors();
 }

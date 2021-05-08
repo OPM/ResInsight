@@ -154,6 +154,8 @@ private:
                                      caf::PdmUiTreeOrdering* parentUiTreeNode,
                                      const QString&          uiConfigName );
 
+    static QString unGroupedText();
+
 private:
     std::unique_ptr<RifWellPathImporter>           m_wellPathImporter;
     std::unique_ptr<RifWellPathFormationsImporter> m_wellPathFormationsImporter;

@@ -30,6 +30,7 @@ RimWellPathNode::RimWellPathNode()
     CAF_PDM_InitObject( "WellPath", ":/Folder.svg", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_referencedObject, "ReferencedObject", "Referenced Object", "", "", "" );
+    m_referencedObject.uiCapability()->setUiHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_childNodes, "ChildNodes", "ChildNodes", "", "", "" );
     m_childNodes.uiCapability()->setUiTreeHidden( true );
