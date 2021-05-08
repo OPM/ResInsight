@@ -45,7 +45,6 @@ class RimEclipseView;
 class RimProject;
 class RimWellLogFile;
 class RimWellPath;
-class RimWellPathGroup;
 class RifWellPathFormationsImporter;
 class RimWellMeasurementCollection;
 class RimWellPathNode;
@@ -100,10 +99,8 @@ public:
     void                      removeWellPath( gsl::not_null<RimWellPath*> wellPath );
 
     void deleteAllWellPaths();
-    void groupWellPaths( const std::vector<RimWellPath*>& wellPaths, bool automaticGrouping = false );
-    void ungroupWellPaths( const std::vector<RimWellPath*>& wellPaths );
 
-    void groupWellPathsMsj( const std::vector<RimWellPath*>& wellPaths );
+    void groupWellPaths( const std::vector<RimWellPath*>& wellPaths );
     void rebuildWellPathNodes();
 
     RimWellPath* mostRecentlyUpdatedWellPath();
@@ -134,9 +131,6 @@ public:
 protected:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
-    std::vector<RimWellPath*> detachWellPaths( const std::vector<RimWellPath*> wellPathsToDetach );
-    bool                      detachWellPath( gsl::not_null<RimWellPath*> wellPath );
-
 private:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName ) override;
@@ -146,13 +140,8 @@ private:
     void readAndAddWellPaths( std::vector<RimFileWellPath*>& wellPathArray, bool importGrouped );
     void sortWellsByName();
 
-    std::vector<RimWellPathGroup*> topLevelGroups() const;
-    RimWellPathGroup*              findOrCreateWellPathGroup( gsl::not_null<RimWellPath*>      wellPath,
-                                                              const std::vector<RimWellPath*>& wellPathsToGroupWith );
-
     caf::AppEnum<RiaDefines::EclipseUnitSystem> findUnitSystemForWellPath( const RimWellPath* wellPath );
 
-    void             updateTieInObjects();
     RimWellPathNode* addWellToWellNode( RimWellPathNode* parent, RimWellPath* wellPath );
 
     std::vector<RimWellPath*> wellPathsWithNoParent( const std::vector<RimWellPath*>& sourceWellPaths ) const;
