@@ -113,7 +113,8 @@ void RimWellPathTieIn::updateFirstTargetFromParentWell()
     if ( !parentWellPath ) return;
 
     auto modeledWellPath = dynamic_cast<RimModeledWellPath*>( m_childWell() );
-    if ( modeledWellPath && modeledWellPath->geometryDefinition() )
+    if ( modeledWellPath && modeledWellPath->geometryDefinition() && parentWellPath->wellPathGeometry() &&
+         parentWellPath->wellPathGeometry()->measuredDepths().size() > 2 )
     {
         auto [pointVector, measuredDepths] =
             parentWellPath->wellPathGeometry()
