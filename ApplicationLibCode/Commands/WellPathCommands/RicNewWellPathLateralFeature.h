@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2020-     Equinor ASA
+//  Copyright (C) 2018-     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -20,24 +20,15 @@
 
 #include "cafCmdFeature.h"
 
-class RiuWellPathSelectionItem;
-class RimWellPath;
-
 //==================================================================================================
 ///
 //==================================================================================================
-class RicNewWellPathLateralAtDepthFeature : public caf::CmdFeature
+class RicNewWellPathLateralFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
 
-public:
+protected:
     bool isCommandEnabled() override;
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
-
-    static RimWellPath* createLateralAtMeasuredDepth( RimWellPath* parentWellPath, double parentWellMD );
-
-private:
-    static RiuWellPathSelectionItem* wellPathSelectionItem();
-    static QString                   updateNameOfParentAndFindNameOfSideStep( RimWellPath* parentwWellPath );
 };
