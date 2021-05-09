@@ -358,7 +358,9 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         else if ( dynamic_cast<RimWellPath*>( firstUiItem ) )
         {
             menuBuilder << "RicNewEditableWellPathFeature";
+            menuBuilder << "RicNewWellPathLateralFeature";
             menuBuilder << "RicNewWellPathIntersectionFeature";
+
             appendCreateCompletions( menuBuilder );
             menuBuilder.addSeparator();
             appendImportMenu( menuBuilder );
