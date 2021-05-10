@@ -110,6 +110,8 @@ RimWellPathCollection::RimWellPathCollection()
 
     CAF_PDM_InitFieldNoDefault( &m_wellPaths, "WellPaths", "Well Paths", "", "", "" );
     m_wellPaths.uiCapability()->setUiHidden( true );
+    m_wellPaths.uiCapability()->setUiTreeHidden( true );
+    m_wellPaths.uiCapability()->setUiTreeChildrenHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_wellMeasurements, "WellMeasurements", "Measurements", "", "", "" );
     m_wellMeasurements = new RimWellMeasurementCollection;
