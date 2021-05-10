@@ -76,11 +76,13 @@ void PdmUiTreeOrdering::add( PdmFieldHandle* field, QString uiConfigName )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiTreeOrdering::add( PdmObjectHandle* object )
+PdmUiTreeOrdering* PdmUiTreeOrdering::add( PdmObjectHandle* object )
 {
     CAF_ASSERT( object );
 
-    new PdmUiTreeOrdering( this, object );
+    auto node = new PdmUiTreeOrdering( this, object );
+
+    return node;
 }
 
 //--------------------------------------------------------------------------------------------------
