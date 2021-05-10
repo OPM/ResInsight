@@ -784,6 +784,7 @@ void RimWellPathCollection::rebuildWellPathNodes()
             for ( auto wellPath : wellPathGroup )
             {
                 if ( !wellPath ) continue;
+                if ( !wellPath->isTopLevelWellPath() ) continue;
 
                 auto node = addWellToWellNode( nullptr, wellPath );
                 m_wellPathNodes.push_back( node );
