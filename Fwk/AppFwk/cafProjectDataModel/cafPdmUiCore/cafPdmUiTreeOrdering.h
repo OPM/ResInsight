@@ -69,8 +69,9 @@ public:
     PdmUiTreeOrdering& operator=( const PdmUiTreeOrdering& ) = delete;
 
     void               add( PdmFieldHandle* field, QString uiConfigName = "" );
-    void               add( PdmObjectHandle* object );
+    PdmUiTreeOrdering* add( PdmObjectHandle* object );
     PdmUiTreeOrdering* add( const QString& title, const QString& iconResourceName );
+    void               appendChild( PdmUiTreeOrdering* child );
 
     /// If the rest of the fields containing children is supposed to be omitted, set skipRemainingFields to true.
     void skipRemainingChildren( bool doSkip = true ) { m_forgetRemainingFields = doSkip; }
@@ -105,7 +106,6 @@ private:
     bool ignoreSubTree() const { return m_isToIgnoreSubTree; }
     bool containsField( const PdmFieldHandle* field );
     bool containsObject( const PdmObjectHandle* object );
-    void appendChild( PdmUiTreeOrdering* child );
 
     friend class PdmUiTreeViewQModel;
     PdmUiEditorHandle* editor();
