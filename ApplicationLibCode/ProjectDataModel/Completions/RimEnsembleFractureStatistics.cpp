@@ -26,12 +26,15 @@
 #include "RiaWeightedGeometricMeanCalculator.h"
 #include "RiaWeightedHarmonicMeanCalculator.h"
 
+#include "RigEnsembleFractureStatisticsCalculator.h"
 #include "RigFractureGrid.h"
+#include "RigHistogramData.h"
 #include "RigSlice2D.h"
 #include "RigStatisticsMath.h"
 #include "RigStimPlanFractureDefinition.h"
 
 #include "RimFractureTemplateCollection.h"
+#include "RimHistogramCalculator.h"
 #include "RimProject.h"
 #include "RimStimPlanFractureTemplate.h"
 
@@ -122,11 +125,11 @@ RimEnsembleFractureStatistics::RimEnsembleFractureStatistics()
     m_filePathsTable.uiCapability()->setUiReadOnly( true );
     m_filePathsTable.xmlCapability()->disableIO();
 
-    CAF_PDM_InitFieldNoDefault( &m_formationDipStatistics, "FormationDipStatistics", "Formation Dip Statistics", "", "", "" );
-    m_formationDipStatistics.uiCapability()->setUiEditorTypeName( caf::PdmUiTextEditor::uiEditorTypeName() );
-    m_formationDipStatistics.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
-    m_formationDipStatistics.uiCapability()->setUiReadOnly( true );
-    m_formationDipStatistics.xmlCapability()->disableIO();
+    CAF_PDM_InitFieldNoDefault( &m_statisticsTable, "StatisticsTable", "Statistics Table", "", "", "" );
+    m_statisticsTable.uiCapability()->setUiEditorTypeName( caf::PdmUiTextEditor::uiEditorTypeName() );
+    m_statisticsTable.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+    m_statisticsTable.uiCapability()->setUiReadOnly( true );
+    m_statisticsTable.xmlCapability()->disableIO();
 
     CAF_PDM_InitFieldNoDefault( &m_meshAlignmentType, "MeshAlignmentType", "Mesh Alignment", "", "", "" );
     CAF_PDM_InitFieldNoDefault( &m_meshType, "MeshType", "Mesh Type", "", "", "" );
@@ -167,7 +170,7 @@ RimEnsembleFractureStatistics::~RimEnsembleFractureStatistics()
 void RimEnsembleFractureStatistics::addFilePath( const QString& filePath )
 {
     m_filePaths.v().push_back( filePath );
-    m_filePathsTable = generateFilePathsTable();
+    loadAndUpdateData();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -233,7 +236,7 @@ void RimEnsembleFractureStatistics::defineEditorAttribute( const caf::PdmFieldHa
             attrib->singleSelectionMode   = false;
         }
     }
-    else if ( field == &m_formationDipStatistics )
+    else if ( field == &m_statisticsTable )
     {
         auto myAttr = dynamic_cast<caf::PdmUiTextEditorAttribute*>( attribute );
         if ( myAttr )
@@ -301,7 +304,7 @@ void RimEnsembleFractureStatistics::defineUiOrdering( QString uiConfigName, caf:
     settingsGroup->add( &m_computeStatistics );
 
     caf::PdmUiOrdering* statisticsGroup = uiOrdering.addNewGroup( "Statistics" );
-    statisticsGroup->add( &m_formationDipStatistics );
+    statisticsGroup->add( &m_statisticsTable );
 
     uiOrdering.add( &m_filePathsTable );
 }
@@ -318,7 +321,7 @@ void RimEnsembleFractureStatistics::loadAndUpdateData()
     std::vector<cvf::ref<RigStimPlanFractureDefinition>> stimPlanFractureDefinitions =
         readFractureDefinitions( m_filePaths.v(), unitSystem );
 
-    m_formationDipStatistics = generateFormationDipStatisticsString( stimPlanFractureDefinitions );
+    m_statisticsTable = generateStatisticsTable( stimPlanFractureDefinitions );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1125,38 +1128,60 @@ void RimEnsembleFractureStatistics::generateStatisticsGrids(
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimEnsembleFractureStatistics::generateFormationDipStatisticsString(
-    const std::vector<cvf::ref<RigStimPlanFractureDefinition>> stimPlanFractureDefinitions )
+QString RimEnsembleFractureStatistics::generateStatisticsTable(
+    const std::vector<cvf::ref<RigStimPlanFractureDefinition>>& stimPlanFractureDefinitions ) const
 {
-    std::vector<double> formationDips;
-    for ( auto def : stimPlanFractureDefinitions )
-    {
-        formationDips.push_back( def->formationDip() );
-    }
-
-    double min;
-    double max;
-    double sum;
-    double range;
-    double mean;
-    double dev;
-    RigStatisticsMath::calculateBasicStatistics( formationDips, &min, &max, &sum, &range, &mean, &dev );
-
-    double p10;
-    double p50;
-    double p90;
-    RigStatisticsMath::calculateStatisticsCurves( formationDips, &p10, &p50, &p90, &mean );
-
-    auto appendTextIfValidValue = []( QString& body, const QString& title, double value ) {
-        if ( !std::isinf( value ) ) body += QString( "%1: %2<br>" ).arg( title ).arg( value );
+    std::vector<RigEnsembleFractureStatisticsCalculator::PropertyType> propertyTypes = {
+        RigEnsembleFractureStatisticsCalculator::PropertyType::HEIGHT,
+        RigEnsembleFractureStatisticsCalculator::PropertyType::AREA,
+        RigEnsembleFractureStatisticsCalculator::PropertyType::WIDTH,
+        RigEnsembleFractureStatisticsCalculator::PropertyType::XF,
+        RigEnsembleFractureStatisticsCalculator::PropertyType::KFWF,
+        RigEnsembleFractureStatisticsCalculator::PropertyType::PERMEABILITY,
+        RigEnsembleFractureStatisticsCalculator::PropertyType::FORMATION_DIP,
     };
 
-    QString text = "Formation Dip:<br>";
-    appendTextIfValidValue( text, "Mean", mean );
-    appendTextIfValidValue( text, "Minimum", min );
-    appendTextIfValidValue( text, "Maximum", max );
-    appendTextIfValidValue( text, "P10", p10 );
-    appendTextIfValidValue( text, "P50", p50 );
-    appendTextIfValidValue( text, "P90", p90 );
+    QString text;
+    text += "<table border=1><thead><tr bgcolor=lightblue>";
+    std::vector<QString> statisticsTypes = { "Name", "Mean", "Minimum", "Maximum", "P10", "P90" };
+    for ( auto statType : statisticsTypes )
+    {
+        text += QString( "<th>%1</th>" ).arg( statType );
+    }
+
+    text += "</thead>";
+    text += "<tbody>";
+
+    auto emptyTextOnInf = []( double value ) {
+        if ( std::isinf( value ) )
+            return QString( "" );
+        else
+            return QString::number( value );
+    };
+
+    for ( auto propertyType : propertyTypes )
+    {
+        QString name = caf::AppEnum<RigEnsembleFractureStatisticsCalculator::PropertyType>::uiText( propertyType );
+        RigHistogramData histogramData =
+            RigEnsembleFractureStatisticsCalculator::createStatisticsData( this, propertyType );
+
+        text += QString( "<tr>"
+                         "<td>%1</td>"
+                         "<td align=right>%2</td>"
+                         "<td align=right>%3</td>"
+                         "<td align=right>%4</td>"
+                         "<td align=right>%5</td>"
+                         "<td align=right>%6</td>"
+                         "</tr>" )
+                    .arg( name )
+                    .arg( emptyTextOnInf( histogramData.mean ) )
+                    .arg( emptyTextOnInf( histogramData.min ) )
+                    .arg( emptyTextOnInf( histogramData.max ) )
+                    .arg( emptyTextOnInf( histogramData.p10 ) )
+                    .arg( emptyTextOnInf( histogramData.p90 ) );
+    }
+
+    text += "</tbody>";
+    text += "</table>";
     return text;
 }

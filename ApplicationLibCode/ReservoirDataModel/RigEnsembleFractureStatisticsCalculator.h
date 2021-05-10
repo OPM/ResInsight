@@ -45,10 +45,11 @@ public:
         WIDTH,
         XF,
         KFWF,
-        PERMEABILITY
+        PERMEABILITY,
+        FORMATION_DIP
     };
 
-    static RigHistogramData createStatisticsData( RimEnsembleFractureStatistics* esf, PropertyType propertyType );
+    static RigHistogramData createStatisticsData( const RimEnsembleFractureStatistics* esf, PropertyType propertyType );
 
 private:
     static std::vector<double> calculateGridStatistics( const std::vector<cvf::ref<RigStimPlanFractureDefinition>>& defs,
@@ -60,6 +61,8 @@ private:
                                                          cvf::cref<RigFractureGrid>,
                                                          RiaDefines::EclipseUnitSystem,
                                                          const QString& ) );
+
+    static std::vector<double> calculateFormationDip( const std::vector<cvf::ref<RigStimPlanFractureDefinition>>& defs );
 
     static double calculateHeight( cvf::cref<RigFractureGrid> fractureGrid );
     static double calculateArea( cvf::cref<RigFractureGrid> fractureGrid );
