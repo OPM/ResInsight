@@ -57,6 +57,7 @@
 
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmUiTreeOrdering.h"
+#include "cafPdmUiTreeViewEditor.h"
 #include "cafUtils.h"
 
 #include <QDateTime>
@@ -134,6 +135,8 @@ RimWellPath::RimWellPath()
     m_wellPathAttributes->uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_wellPathTieIn, "WellPathTieIn", "well Path Tie-In", "", "", "" );
+    m_wellPathTieIn = new RimWellPathTieIn;
+    m_wellPathTieIn->connectWellPaths( nullptr, this, 0.0 );
 
     this->setDeletable( true );
 }
@@ -760,6 +763,21 @@ void RimWellPath::copyCompletionSettings( RimWellPath* from, RimWellPath* to )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimWellPath::defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
+{
+    auto myAttr = dynamic_cast<caf::PdmUiTreeViewEditorAttribute*>( attribute );
+    if ( myAttr )
+    {
+        // The nodes for well paths are created by the well path collection object. When a well path object is asked to
+        // be updated in the project tree, always rebuild the tree from the well path collection object.
+
+        myAttr->objectForUpdateOfUiTree = RimTools::wellPathCollection();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 size_t RimWellPath::simulationWellBranchCount( const QString& simWellName )
 {
     bool detectBranches = true;
@@ -774,20 +792,6 @@ size_t RimWellPath::simulationWellBranchCount( const QString& simWellName )
 //--------------------------------------------------------------------------------------------------
 void RimWellPath::updateFilePathsFromProjectPath( const QString& newProjectPath, const QString& oldProjectPath )
 {
-    //{
-    //    bool                 foundFile = false;
-    //    std::vector<QString> searchedPaths;
-    //
-    //    QString fileNameCandidate = RimTools::relocateFile( m_wellPathFormationFilePath,
-    //                                                        newProjectPath,
-    //                                                        oldProjectPath,
-    //                                                        &foundFile,
-    //                                                        &searchedPaths );
-    //    if ( foundFile )
-    //    {
-    //        m_wellPathFormationFilePath = fileNameCandidate;
-    //    }
-    //}
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1105,6 +1109,8 @@ RimWellPath* RimWellPath::topLevelWellPath()
 {
     if ( m_wellPathTieIn() && m_wellPathTieIn->parentWell() )
     {
+        if ( m_wellPathTieIn->parentWell() == this ) return this;
+
         return m_wellPathTieIn()->parentWell()->topLevelWellPath();
     }
 
@@ -1168,8 +1174,13 @@ RimWellPathTieIn* RimWellPath::wellPathTieIn() const
 //--------------------------------------------------------------------------------------------------
 void RimWellPath::connectWellPaths( RimWellPath* parentWell, double parentTieInMeasuredDepth )
 {
-    if ( !m_wellPathTieIn() ) m_wellPathTieIn = new RimWellPathTieIn;
+    CVF_ASSERT( parentWell != this );
 
-    m_wellPathTieIn->connectWellPaths( parentWell, this, parentTieInMeasuredDepth );
-    m_wellPathTieIn->updateFirstTargetFromParentWell();
+    if ( parentWell != this )
+    {
+        if ( !m_wellPathTieIn() ) m_wellPathTieIn = new RimWellPathTieIn;
+
+        m_wellPathTieIn->connectWellPaths( parentWell, this, parentTieInMeasuredDepth );
+        m_wellPathTieIn->updateFirstTargetFromParentWell();
+    }
 }

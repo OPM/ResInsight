@@ -64,7 +64,10 @@ caf::PdmScriptResponse RicAutomaticWellPathGrouping::execute()
 
         if ( oilField )
         {
-            oilField->wellPathCollection->groupWellPaths( wellPaths, true );
+            // oilField->wellPathCollection->groupWellPaths( wellPaths, true );
+
+            oilField->wellPathCollection->rebuildWellPathNodes();
+
             return caf::PdmScriptResponse();
         }
     }

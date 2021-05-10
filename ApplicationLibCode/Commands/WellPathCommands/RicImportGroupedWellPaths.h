@@ -33,7 +33,6 @@ public:
     RicImportGroupedWellPaths();
 
 protected:
-    // Overrides
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
 };

@@ -20,6 +20,7 @@
 
 #include "RigWellPath.h"
 
+#include "RimFileWellPath.h"
 #include "RimModeledWellPath.h"
 #include "RimTools.h"
 #include "RimWellPathCollection.h"
@@ -40,9 +41,9 @@ RimWellPathTieIn::RimWellPathTieIn()
 {
     CAF_PDM_InitObject( "Well Path Tie In", ":/NotDefined.png", "", "Well Path Tie In description" );
 
-    CAF_PDM_InitFieldNoDefault( &m_parentWell, "ParentWellPath", "ParentWellPath", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_parentWell, "ParentWellPath", "Parent Well Path", "", "", "" );
     CAF_PDM_InitFieldNoDefault( &m_childWell, "ChildWellPath", "ChildWellPath", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_tieInMeasuredDepth, "TieInMeasuredDepth", "TieInMeasuredDepth", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_tieInMeasuredDepth, "TieInMeasuredDepth", "Tie In Measured Depth", "", "", "" );
     m_tieInMeasuredDepth.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
 
     CAF_PDM_InitScriptableField( &m_addValveAtConnection,
@@ -153,15 +154,21 @@ void RimWellPathTieIn::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderin
 {
     auto tieInGroup = uiOrdering.addNewGroup( "Tie In Settings" );
     tieInGroup->add( &m_parentWell );
-    tieInGroup->add( &m_tieInMeasuredDepth );
-    tieInGroup->add( &m_addValveAtConnection );
-
-    // Display only ICV valves
-    m_valve->setComponentTypeFilter( { RiaDefines::WellPathComponentType::ICV } );
-
-    if ( m_addValveAtConnection )
+    if ( m_parentWell() != nullptr )
     {
-        m_valve->uiOrdering( "TemplateOnly", *tieInGroup );
+        tieInGroup->add( &m_tieInMeasuredDepth );
+        tieInGroup->add( &m_addValveAtConnection );
+
+        bool isFileWellPath = dynamic_cast<RimFileWellPath*>( m_childWell() );
+        m_tieInMeasuredDepth.uiCapability()->setUiReadOnly( isFileWellPath );
+
+        // Display only ICV valves
+        m_valve->setComponentTypeFilter( { RiaDefines::WellPathComponentType::ICV } );
+
+        if ( m_addValveAtConnection )
+        {
+            m_valve->uiOrdering( "TemplateOnly", *tieInGroup );
+        }
     }
 
     uiOrdering.skipRemainingFields();
@@ -177,6 +184,8 @@ void RimWellPathTieIn::fieldChangedByUi( const caf::PdmFieldHandle* changedField
     if ( changedField == &m_parentWell )
     {
         updateFirstTargetFromParentWell();
+
+        RimTools::wellPathCollection()->rebuildWellPathNodes();
     }
 
     updateChildWellGeometry();
