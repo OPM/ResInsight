@@ -57,6 +57,7 @@
 
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmUiTreeOrdering.h"
+#include "cafPdmUiTreeViewEditor.h"
 #include "cafUtils.h"
 
 #include <QDateTime>
@@ -760,6 +761,21 @@ void RimWellPath::copyCompletionSettings( RimWellPath* from, RimWellPath* to )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimWellPath::defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
+{
+    auto myAttr = dynamic_cast<caf::PdmUiTreeViewEditorAttribute*>( attribute );
+    if ( myAttr )
+    {
+        // The nodes for well paths are created by the well path collection object. When a well path object is asked to
+        // be updated in the project tree, always rebuild the tree from the well path collection object.
+
+        myAttr->objectForUpdateOfUiTree = RimTools::wellPathCollection();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 size_t RimWellPath::simulationWellBranchCount( const QString& simWellName )
 {
     bool detectBranches = true;
@@ -774,20 +790,6 @@ size_t RimWellPath::simulationWellBranchCount( const QString& simWellName )
 //--------------------------------------------------------------------------------------------------
 void RimWellPath::updateFilePathsFromProjectPath( const QString& newProjectPath, const QString& oldProjectPath )
 {
-    //{
-    //    bool                 foundFile = false;
-    //    std::vector<QString> searchedPaths;
-    //
-    //    QString fileNameCandidate = RimTools::relocateFile( m_wellPathFormationFilePath,
-    //                                                        newProjectPath,
-    //                                                        oldProjectPath,
-    //                                                        &foundFile,
-    //                                                        &searchedPaths );
-    //    if ( foundFile )
-    //    {
-    //        m_wellPathFormationFilePath = fileNameCandidate;
-    //    }
-    //}
 }
 
 //--------------------------------------------------------------------------------------------------

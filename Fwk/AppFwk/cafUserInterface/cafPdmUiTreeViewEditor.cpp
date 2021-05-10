@@ -274,8 +274,22 @@ void PdmUiTreeViewEditor::updateMySubTree( PdmUiItem* uiItem )
 {
     if ( m_treeViewModel )
     {
-        m_treeViewModel->updateSubTree( uiItem );
-        QModelIndex index = m_treeViewModel->findModelIndex( uiItem );
+        PdmUiItem* itemToUpdate = uiItem;
+
+        PdmUiObjectHandle* uiObjectHandle = dynamic_cast<PdmUiObjectHandle*>( uiItem );
+        if ( uiObjectHandle )
+        {
+            PdmUiTreeViewEditorAttribute editorAttributes;
+            QString                      uiConfigName;
+            uiObjectHandle->objectEditorAttribute( uiConfigName, &editorAttributes );
+            if ( editorAttributes.objectForUpdateOfUiTree )
+            {
+                itemToUpdate = editorAttributes.objectForUpdateOfUiTree->uiCapability();
+            }
+        }
+
+        m_treeViewModel->updateSubTree( itemToUpdate );
+        QModelIndex index = m_treeViewModel->findModelIndex( itemToUpdate );
         updateItemDelegateForSubTree( index );
     }
 }
