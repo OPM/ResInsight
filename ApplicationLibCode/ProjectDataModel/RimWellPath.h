@@ -179,6 +179,7 @@ protected:
     void                          initAfterRead() override;
     void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName ) override;
+    void defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
 
     static void copyCompletionSettings( RimWellPath* from, RimWellPath* to );
 

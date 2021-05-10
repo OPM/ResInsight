@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "CommandFileInterface/Core/RicfCommandObject.h"
+#include "RicfCommandObject.h"
 
 #include "cafCmdFeature.h"
 #include "cafPdmField.h"
@@ -47,7 +47,6 @@ protected:
                        importWellPaths( const QStringList& wellPathFilePaths, bool importGrouped, QStringList* errorMessages );
     static QStringList wellPathNameFilters();
 
-    // Overrides
     bool isCommandEnabled() override;
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;

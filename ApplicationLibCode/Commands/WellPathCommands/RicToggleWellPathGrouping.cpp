@@ -65,12 +65,12 @@ caf::PdmScriptResponse RicToggleWellPathGrouping::execute()
         {
             if ( m_groupWellPaths() )
             {
-                oilField->wellPathCollection->groupWellPaths( wellPaths );
+                // oilField->wellPathCollection->groupWellPaths( wellPaths );
                 return caf::PdmScriptResponse();
             }
             else
             {
-                oilField->wellPathCollection->ungroupWellPaths( wellPaths );
+                // oilField->wellPathCollection->ungroupWellPaths( wellPaths );
                 return caf::PdmScriptResponse();
             }
         }

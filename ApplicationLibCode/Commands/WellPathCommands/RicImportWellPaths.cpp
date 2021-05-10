@@ -69,6 +69,9 @@ RicImportWellPaths::RicImportWellPaths()
     CAF_PDM_InitScriptableField( &m_importGrouped, "importGrouped", false, "", "", "", "" );
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 caf::PdmScriptResponse RicImportWellPaths::execute()
 {
     QStringList errorMessages, warningMessages;
@@ -91,7 +94,7 @@ caf::PdmScriptResponse RicImportWellPaths::execute()
             QStringList nameFilters;
             nameFilters << RicImportWellPaths::wellPathNameFilters();
             QStringList relativePaths = wellPathDir.entryList( nameFilters, QDir::Files | QDir::NoDotAndDotDot );
-            for ( QString relativePath : relativePaths )
+            for ( const QString& relativePath : relativePaths )
             {
                 wellPathFiles.push_back( wellPathDir.absoluteFilePath( relativePath ) );
             }
@@ -102,7 +105,7 @@ caf::PdmScriptResponse RicImportWellPaths::execute()
         }
     }
 
-    for ( QString wellPathFile : m_wellPathFiles() )
+    for ( const QString& wellPathFile : m_wellPathFiles() )
     {
         if ( QFileInfo::exists( wellPathFile ) )
         {
@@ -138,12 +141,12 @@ caf::PdmScriptResponse RicImportWellPaths::execute()
         warningMessages << "No well paths found";
     }
 
-    for ( QString warningMessage : warningMessages )
+    for ( const QString& warningMessage : warningMessages )
     {
         response.updateStatus( caf::PdmScriptResponse::COMMAND_WARNING, warningMessage );
     }
 
-    for ( QString errorMessage : errorMessages )
+    for ( const QString& errorMessage : errorMessages )
     {
         response.updateStatus( caf::PdmScriptResponse::COMMAND_ERROR, errorMessage );
     }
@@ -172,7 +175,7 @@ std::vector<RimWellPath*> RicImportWellPaths::importWellPaths( const QStringList
         project->scheduleCreateDisplayModelAndRedrawAllViews();
         RimOilField* oilField = project->activeOilField();
 
-        if ( oilField && oilField->wellPathCollection->topLevelWellPaths().size() > 0 )
+        if ( oilField && !oilField->wellPathCollection->topLevelWellPaths().empty() )
         {
             RimWellPath* wellPath = oilField->wellPathCollection->mostRecentlyUpdatedWellPath();
             if ( wellPath )
@@ -223,7 +226,7 @@ void RicImportWellPaths::onActionTriggered( bool isChecked )
                                                                           defaultDir,
                                                                           nameList );
 
-    if ( wellPathFilePaths.size() >= 1 )
+    if ( !wellPathFilePaths.empty() )
     {
         m_wellPathFiles.v()             = std::vector<QString>( wellPathFilePaths.begin(), wellPathFilePaths.end() );
         caf::PdmScriptResponse response = execute();

@@ -494,6 +494,8 @@ size_t RigWellPath::uniqueStartIndex() const
 //--------------------------------------------------------------------------------------------------
 size_t RigWellPath::uniqueEndIndex() const
 {
+    if ( m_measuredDepths.empty() ) return 0;
+
     return std::clamp( m_uniqueEndIndex, m_uniqueStartIndex, m_measuredDepths.size() - 1u );
 }
 
@@ -502,6 +504,8 @@ size_t RigWellPath::uniqueEndIndex() const
 //--------------------------------------------------------------------------------------------------
 std::vector<cvf::Vec3d> RigWellPath::uniqueWellPathPoints() const
 {
+    if ( m_wellPathPoints.empty() ) return {};
+
     return std::vector<cvf::Vec3d>( m_wellPathPoints.begin() + uniqueStartIndex(),
                                     m_wellPathPoints.begin() + uniqueEndIndex() + 1u );
 }
@@ -511,6 +515,8 @@ std::vector<cvf::Vec3d> RigWellPath::uniqueWellPathPoints() const
 //--------------------------------------------------------------------------------------------------
 std::vector<double> RigWellPath::uniqueMeasuredDepths() const
 {
+    if ( m_measuredDepths.empty() ) return {};
+
     return std::vector<double>( m_measuredDepths.begin() + m_uniqueStartIndex,
                                 m_measuredDepths.begin() + uniqueEndIndex() + 1u );
 }
@@ -521,9 +527,10 @@ std::vector<double> RigWellPath::uniqueMeasuredDepths() const
 std::pair<std::vector<cvf::Vec3d>, std::vector<double>>
     RigWellPath::clippedPointSubset( double startMD, double endMD, double* horizontalLengthAlongWellToStartClipPoint ) const
 {
+    if ( m_measuredDepths.empty() ) return {};
+    if ( startMD > endMD ) return {};
+
     std::pair<std::vector<cvf::Vec3d>, std::vector<double>> pointsAndMDs;
-    if ( m_measuredDepths.empty() ) return pointsAndMDs;
-    if ( startMD > endMD ) return pointsAndMDs;
 
     pointsAndMDs.first.push_back( interpolatedPointAlongWellPath( startMD, horizontalLengthAlongWellToStartClipPoint ) );
     pointsAndMDs.second.push_back( startMD );
