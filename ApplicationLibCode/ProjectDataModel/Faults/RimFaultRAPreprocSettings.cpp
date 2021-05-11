@@ -78,6 +78,10 @@ void RimFaultRAPreprocSettings::fieldChangedByUi( const caf::PdmFieldHandle* cha
                                                   const QVariant&            oldValue,
                                                   const QVariant&            newValue )
 {
+    if ( ( changedField == &m_eclipseCase ) && ( m_startTimestepEclipse == m_endTimestepEclipse ) )
+    {
+        m_endTimestepEclipse = m_eclipseCase()->timeStepStrings().size() - 1;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -305,6 +309,7 @@ bool RimFaultRAPreprocSettings::smoothEclipseData() const
 void RimFaultRAPreprocSettings::setGeoMechCase( RimGeoMechCase* geomechCase )
 {
     m_geomechCase = geomechCase;
+    if ( geomechCase ) m_endTimestepGeoMech = geomechCase->timeStepStrings().size() - 1;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -321,6 +326,7 @@ RimGeoMechCase* RimFaultRAPreprocSettings::geoMechCase() const
 void RimFaultRAPreprocSettings::setEclipseCase( RimEclipseResultCase* eclipseCase )
 {
     m_eclipseCase = eclipseCase;
+    if ( eclipseCase ) m_endTimestepEclipse = eclipseCase->timeStepStrings().size() - 1;
 }
 
 //--------------------------------------------------------------------------------------------------
