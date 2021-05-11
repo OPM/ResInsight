@@ -56,6 +56,21 @@ CAF_CMD_SOURCE_INIT( RicRunAdvFaultReactAssessmentFeature, "RicRunAdvFaultReactA
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RicRunAdvFaultReactAssessmentFeature::isCommandEnabled()
+{
+    RimFaultInViewCollection* faultColl = faultCollection();
+
+    if ( faultColl )
+    {
+        return ( faultColl->faultRAEnabled() && faultColl->faultRASettings()->geomechCase() != nullptr );
+    }
+
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RicRunAdvFaultReactAssessmentFeature::onActionTriggered( bool isChecked )
 {
     RimFaultInViewCollection* coll = faultCollection();

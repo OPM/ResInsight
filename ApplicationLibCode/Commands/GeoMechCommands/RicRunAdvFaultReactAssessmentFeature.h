@@ -28,7 +28,7 @@ class RicRunAdvFaultReactAssessmentFeature : public RicRunFaultReactAssessmentFe
     CAF_CMD_HEADER_INIT;
 
 protected:
-    // Overrides
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
+    bool isCommandEnabled() override;
 };
