@@ -508,7 +508,7 @@ std::vector<cvf::cref<RigFractureGrid>> RimEnsembleFractureStatistics::createFra
 
         // Always use last time steps
         std::vector<double> timeSteps           = stimPlanFractureDefinitionData->timeSteps();
-        int                 activeTimeStepIndex = timeSteps.size() - 1;
+        int                 activeTimeStepIndex = static_cast<int>( timeSteps.size() - 1 );
 
         cvf::cref<RigFractureGrid> fractureGrid =
             stimPlanFractureDefinitionData->createFractureGrid( resultNameOnFile,
@@ -716,7 +716,7 @@ void RimEnsembleFractureStatistics::generateAdaptiveMesh(
     // Linear interpolation for each layer
     for ( int layerNo = 0; layerNo < targetNumLayers; layerNo++ )
     {
-        int binLayerNo = findSmallerIndex( static_cast<double>( layerNo ), relativeThickness );
+        int binLayerNo = static_cast<int>( findSmallerIndex( static_cast<double>( layerNo ), relativeThickness ) );
         CAF_ASSERT( binLayerNo >= 0 );
         CAF_ASSERT( binLayerNo < static_cast<int>( relativeThickness.size() ) );
         double x1         = relativeThickness[binLayerNo];
