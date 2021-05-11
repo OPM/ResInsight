@@ -42,6 +42,7 @@ bool RifFaultRAJSonWriter::writeToPreprocFile( RimFaultRAPreprocSettings& settin
         stream << "\"odb_path\": \"" + settings.geomechCaseFilename() + "\"," << endl;
         stream << "\"time_start\": \"" + settings.startTimeStepGeoMech() + "\"," << endl;
         stream << "\"time_end\": \"" + settings.endTimeStepGeoMech() + "\"" << endl;
+        stream << "\"out_path\": \"" + settings.outputAbaqusDirectory() + "\"" << endl;
         stream << "}" << endl;
 
         file.close();

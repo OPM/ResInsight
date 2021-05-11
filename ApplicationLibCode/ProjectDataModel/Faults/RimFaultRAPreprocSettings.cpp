@@ -368,6 +368,17 @@ QString RimFaultRAPreprocSettings::outputEclipseDirectory() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString RimFaultRAPreprocSettings::outputAbaqusDirectory() const
+{
+    QString retval = m_baseDir;
+    retval += "/Abaqus";
+
+    return retval;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QStringList RimFaultRAPreprocSettings::preprocParameterList() const
 {
     QStringList retlist;
