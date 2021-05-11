@@ -598,6 +598,9 @@ void RimWellPathCollection::groupWellPaths( const std::vector<RimWellPath*>& wel
 
         for ( auto wellPath : wellPathCommonName )
         {
+            // Assign the group names as well name for export
+            wellPath->completionSettings()->setWellNameForExport( groupName );
+
             auto wellPathGeometry = wellPath->wellPathGeometry();
             if ( wellPathGeometry )
             {
