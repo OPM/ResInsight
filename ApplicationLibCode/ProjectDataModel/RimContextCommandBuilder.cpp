@@ -329,7 +329,6 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder.addSeparator();
             menuBuilder.subMenuStart( "Import" );
             menuBuilder << "RicWellPathsImportFileFeature";
-            menuBuilder << "RicImportGroupedWellPathsFeature";
             menuBuilder << "RicWellPathsImportSsihubFeature";
             menuBuilder << "RicWellPathFormationsImportFileFeature";
             menuBuilder << "RicWellLogsImportFileFeature";
@@ -456,7 +455,6 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         else if ( dynamic_cast<RimWellLogFile*>( firstUiItem ) )
         {
             menuBuilder << "RicWellPathsImportFileFeature";
-            menuBuilder << "RicImportGroupedWellPathsFeature";
             menuBuilder << "RicWellLogsImportFileFeature";
 
             menuBuilder << "Separator";
@@ -1197,18 +1195,6 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         menuBuilder << "RicSearchHelpFeature";
     }
 
-    if ( caf::CmdFeatureManager::instance()->getCommandFeature( "RicToggleWellPathGroupingFeature" )->canFeatureBeExecuted() )
-    {
-        menuBuilder << "Separator";
-        menuBuilder << "RicToggleWellPathGroupingFeature";
-    }
-
-    if ( caf::CmdFeatureManager::instance()->getCommandFeature( "RicAutomaticWellPathGroupingFeature" )->canFeatureBeExecuted() )
-    {
-        menuBuilder << "Separator";
-        menuBuilder << "RicAutomaticWellPathGroupingFeature";
-    }
-
     if ( caf::CmdFeatureManager::instance()->getCommandFeature( "RicDeleteItemFeature" )->canFeatureBeExecuted() )
     {
         menuBuilder << "Separator";
@@ -1331,7 +1317,6 @@ int RimContextCommandBuilder::appendImportMenu( caf::CmdFeatureMenuBuilder& menu
 {
     QStringList candidates;
     candidates << "RicWellPathsImportFileFeature";
-    candidates << "RicImportGroupedWellPathsFeature";
     candidates << "RicWellPathFormationsImportFileFeature";
     candidates << "RicWellLogsImportFileFeature";
     candidates << "RicReloadWellPathFormationNamesFeature";
