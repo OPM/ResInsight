@@ -272,11 +272,11 @@ void RicWellPathExportMswCompletionsImpl::exportWellSegmentsForPerforations( Rim
 
         assignBranchNumbersToBranch( eclipseCase, &exportInfo, exportInfo.mainBoreBranch(), &branchNumber );
 
+        double maxSegmentLength = mswParameters->maxSegmentLength();
+
         {
             QTextStream               stream( exportFile.get() );
             RifTextDataTableFormatter formatter( stream );
-
-            double maxSegmentLength = mswParameters->maxSegmentLength();
 
             RicMswTableFormatterTools::generateWelsegsTable( formatter,
                                                              exportInfo,
@@ -293,14 +293,14 @@ void RicWellPathExportMswCompletionsImpl::exportWellSegmentsForPerforations( Rim
             QTextStream               stream( lgrExportFile.get() );
             RifTextDataTableFormatter formatter( stream );
 
-            double maxSegmentLength = mswParameters->maxSegmentLength();
-
             RicMswTableFormatterTools::generateWelsegsTable( formatter,
                                                              exportInfo,
                                                              maxSegmentLength,
                                                              completionSegmentsAfterMainBore );
             bool exportLgrData = true;
             RicMswTableFormatterTools::generateCompsegTables( formatter, exportInfo, exportLgrData );
+            RicMswTableFormatterTools::generateWsegvalvTable( formatter, exportInfo );
+            RicMswTableFormatterTools::generateWsegAicdTable( formatter, exportInfo );
         }
     }
 }
@@ -430,12 +430,12 @@ void RicWellPathExportMswCompletionsImpl::exportWellSegmentsForFishbones( RimEcl
 
     assignBranchNumbersToBranch( eclipseCase, &exportInfo, exportInfo.mainBoreBranch(), &branchNumber );
 
+    double maxSegmentLength = wellPath->mswCompletionParameters()->maxSegmentLength();
+
     {
         QTextStream               stream( exportFile.get() );
         RifTextDataTableFormatter formatter( stream );
         formatter.setOptionalComment( exportDataSourceAsComment );
-
-        double maxSegmentLength = wellPath->mswCompletionParameters()->maxSegmentLength();
 
         RicMswTableFormatterTools::generateWelsegsTable( formatter,
                                                          exportInfo,
@@ -443,7 +443,6 @@ void RicWellPathExportMswCompletionsImpl::exportWellSegmentsForFishbones( RimEcl
                                                          completionSegmentsAfterMainBore );
         bool exportLgrData = false;
         RicMswTableFormatterTools::generateCompsegTables( formatter, exportInfo, exportLgrData );
-
         RicMswTableFormatterTools::generateWsegvalvTable( formatter, exportInfo );
     }
 
@@ -453,8 +452,6 @@ void RicWellPathExportMswCompletionsImpl::exportWellSegmentsForFishbones( RimEcl
         RifTextDataTableFormatter formatter( stream );
         formatter.setOptionalComment( exportDataSourceAsComment );
 
-        double maxSegmentLength = wellPath->mswCompletionParameters()->maxSegmentLength();
-
         RicMswTableFormatterTools::generateWelsegsTable( formatter,
                                                          exportInfo,
                                                          maxSegmentLength,
@@ -462,6 +459,7 @@ void RicWellPathExportMswCompletionsImpl::exportWellSegmentsForFishbones( RimEcl
 
         bool exportLgr = true;
         RicMswTableFormatterTools::generateCompsegTables( formatter, exportInfo, exportLgr );
+        RicMswTableFormatterTools::generateWsegvalvTable( formatter, exportInfo );
     }
 }
 
