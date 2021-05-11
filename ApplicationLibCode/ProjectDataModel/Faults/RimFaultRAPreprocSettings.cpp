@@ -30,7 +30,6 @@
 #include "cafPdmUiComboBoxEditor.h"
 
 #include <QDir>
-#include <QFile>
 #include <QFileInfo>
 
 CAF_PDM_SOURCE_INIT( RimFaultRAPreprocSettings, "RimFaultRAPreprocSettings" );
@@ -419,26 +418,4 @@ QStringList RimFaultRAPreprocSettings::macrisPrepareParameterList() const
 bool RimFaultRAPreprocSettings::geoMechSelected() const
 {
     return m_geomechCase.value() != nullptr;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RimFaultRAPreprocSettings::validatePreferences() const
-{
-    QStringList files;
-    files << RiaPreferences::current()->geomechFRAPreprocCommand();
-    files << RiaPreferences::current()->geomechFRAPostprocCommand();
-    files << RiaPreferences::current()->geomechFRAMacrisCommand();
-    files << RiaPreferences::current()->geomechFRADefaultBasicXML();
-    files << RiaPreferences::current()->geomechFRADefaultAdvXML();
-
-    for ( int i = 0; i < files.size(); i++ )
-    {
-        if ( files[i].isEmpty() ) return false;
-        QFile file( files[i] );
-        if ( !file.exists() ) return false;
-    }
-
-    return true;
 }

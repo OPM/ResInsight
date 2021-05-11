@@ -21,7 +21,7 @@
 #include "RimFaultRAPreprocSettings.h"
 
 #include "RiaApplication.h"
-#include "RiaPreferences.h"
+#include "RiaPreferencesGeoMech.h"
 #include "RimDoubleParameter.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseInputCase.h"
@@ -274,7 +274,7 @@ void RimFaultRASettings::initFromPreprocSettings( RimFaultRAPreprocSettings* pre
 
     QString errorText;
 
-    RifParameterXmlReader basicreader( RiaPreferences::current()->geomechFRADefaultBasicXML() );
+    RifParameterXmlReader basicreader( RiaPreferencesGeoMech::current()->geomechFRADefaultBasicXML() );
     if ( !basicreader.parseFile( errorText ) ) return;
 
     m_basicParameters.clear();
@@ -285,7 +285,7 @@ void RimFaultRASettings::initFromPreprocSettings( RimFaultRAPreprocSettings* pre
 
     if ( geomechCase() != nullptr )
     {
-        RifParameterXmlReader advreader( RiaPreferences::current()->geomechFRADefaultAdvXML() );
+        RifParameterXmlReader advreader( RiaPreferencesGeoMech::current()->geomechFRADefaultAdvXML() );
         if ( !advreader.parseFile( errorText ) ) return;
 
         m_advancedParameters.clear();

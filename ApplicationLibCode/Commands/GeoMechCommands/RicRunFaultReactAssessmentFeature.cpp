@@ -21,7 +21,7 @@
 #include "RiaApplication.h"
 #include "RiaEclipseFileNameTools.h"
 #include "RiaImportEclipseCaseTools.h"
-#include "RiaPreferences.h"
+#include "RiaPreferencesGeoMech.h"
 #include "RiaResultNames.h"
 
 #include "RifFaultRAJsonWriter.h"
@@ -139,7 +139,7 @@ bool RicRunFaultReactAssessmentFeature::runPostProcessing( int faultID, RimFault
         return false;
     }
 
-    QString     command    = RiaPreferences::current()->geomechFRAPostprocCommand();
+    QString     command    = RiaPreferencesGeoMech::current()->geomechFRAPostprocCommand();
     QStringList parameters = settings->postprocParameters( faultID );
 
     RimProcess process;
