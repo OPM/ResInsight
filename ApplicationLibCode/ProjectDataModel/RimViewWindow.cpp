@@ -30,7 +30,6 @@
 #include "RimProject.h"
 
 #include "cafPdmUiTreeViewEditor.h"
-#include "cvfAssert.h"
 
 #include <QDebug>
 #include <QWidget>
@@ -203,8 +202,6 @@ bool RimViewWindow::isMdiWindow() const
 //--------------------------------------------------------------------------------------------------
 void RimViewWindow::setMdiWindowGeometry( const RimMdiWindowGeometry& windowGeometry )
 {
-    CVF_ASSERT( m_windowController() );
-
     if ( m_windowController() ) m_windowController()->setMdiWindowGeometry( windowGeometry );
 }
 
@@ -213,8 +210,6 @@ void RimViewWindow::setMdiWindowGeometry( const RimMdiWindowGeometry& windowGeom
 //--------------------------------------------------------------------------------------------------
 RimMdiWindowGeometry RimViewWindow::mdiWindowGeometry()
 {
-    CVF_ASSERT( m_windowController() );
-
     if ( m_windowController() )
         return m_windowController()->mdiWindowGeometry();
     else
