@@ -67,7 +67,7 @@ void RicRunAdvFaultReactAssessmentFeature::onActionTriggered( bool isChecked )
     int               faultID = selectedFaultID();
     caf::ProgressInfo runProgress( 3, "Running Advanced Fault RA processing, please wait..." );
 
-    runProgress.setProgressDescription( "Macris calculate command." );
+    runProgress.setProgressDescription( "Macris calibrate command." );
     QString paramfilename = fraSettings->basicParameterXMLFilename( faultID );
 
     RifFaultRAXmlWriter xmlwriter( fraSettings );
