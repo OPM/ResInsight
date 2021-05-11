@@ -20,6 +20,7 @@
 
 #include "RicNewWellPathLateralAtDepthFeature.h"
 
+#include "RigWellPath.h"
 #include "RimWellPath.h"
 
 #include "cafSelectionManager.h"
@@ -47,6 +48,14 @@ void RicNewWellPathLateralFeature::onActionTriggered( bool isChecked )
     if ( !parentWellPath ) return;
 
     double measuredDepth = 0.0;
+
+    if ( parentWellPath->wellPathGeometry() && parentWellPath->wellPathGeometry()->measuredDepths().size() > 2 )
+    {
+        // Create new well close to the total depth of parent well
+        double mdCandidate = parentWellPath->wellPathGeometry()->measuredDepths().back() - 100.0;
+        measuredDepth      = std::max( 0.0, mdCandidate );
+    }
+
     RicNewWellPathLateralAtDepthFeature::createLateralAtMeasuredDepth( parentWellPath, measuredDepth );
 }
 
