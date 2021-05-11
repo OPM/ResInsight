@@ -59,7 +59,6 @@ public:
     bool    smoothEclipseData() const;
 
     bool geoMechSelected() const;
-    bool validatePreferences() const;
 
     QString preprocParameterFilename() const;
     QString outputEclipseFilename() const;
