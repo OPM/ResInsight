@@ -21,19 +21,27 @@
 
 #include "cafPdmObject.h"
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 class RimPlotCollection
 {
 public:
-    virtual ~RimPlotCollection()               = default;
+    virtual ~RimPlotCollection() = default;
+
     virtual void   loadDataAndUpdateAllPlots() = 0;
     virtual size_t plotCount() const           = 0;
     virtual void   deleteAllPlots()            = 0;
 };
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 class RimAbstractPlotCollection : public RimPlotCollection
 {
 public:
-    virtual ~RimAbstractPlotCollection()        = default;
+    ~RimAbstractPlotCollection() override = default;
+
     virtual void removeRimPlot( RimPlot* plot ) = 0;
 };
 
