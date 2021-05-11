@@ -213,20 +213,10 @@ void RicRunFaultReactAssessmentFeature::reloadSurfaces( RimFaultRASettings* sett
     // get rid of any files removed by the processing
     surfColl->removeMissingFileSurfaces();
 
-    std::list<QString> existingFiles;
-
-    // get all the surface files we already have loaded
-    for ( auto& surface : surfColl->surfaces() )
-    {
-        RimFileSurface* fileSurface = dynamic_cast<RimFileSurface*>( surface );
-        if ( fileSurface == nullptr ) continue;
-        existingFiles.push_back( fileSurface->surfaceFilePath() );
-    }
-
     // ask the collection to reload the existing files
     surfColl->reloadSurfaces( surfColl->surfaces() );
 
-    // get all the files in the folder
+    // get all the files in the folder, skip the ones we alreday have
     QStringList newFiles;
 
     QDirIterator tsurfIt( settings->tsurfOutputDirectory(), { "*.ts" }, QDir::Files );
@@ -238,5 +228,6 @@ void RicRunFaultReactAssessmentFeature::reloadSurfaces( RimFaultRASettings* sett
     }
 
     // import the new surfaces
-    surfColl->importSurfacesFromFiles( newFiles );
+    bool showLegendInView = false;
+    surfColl->importSurfacesFromFiles( newFiles, showLegendInView );
 }
