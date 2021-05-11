@@ -822,8 +822,10 @@ void RicMswTableFormatterTools::writeCompletionWelsegsSegments( gsl::not_null<co
 
     for ( auto segment : completion->segments() )
     {
-        double startMD = segment->startMD();
-        double endMD   = segment->endMD();
+        double startMD  = segment->startMD();
+        double endMD    = segment->endMD();
+        double startTVD = segment->startTVD();
+        double endTVD   = segment->endTVD();
 
         std::vector<std::pair<double, double>> splitSegments = createSubSegmentMDPairs( startMD, endMD, maxSegmentLength );
 
@@ -831,8 +833,24 @@ void RicMswTableFormatterTools::writeCompletionWelsegsSegments( gsl::not_null<co
         {
             int subSegmentNumber = ( *segmentNumber )++;
 
+            // TODO: Verify this calculation for fractures
             double subStartTVD = tvdFromMeasuredDepth( completion->wellPath(), subStartMD );
             double subEndTVD   = tvdFromMeasuredDepth( completion->wellPath(), subEndMD );
+
+            if ( completion->completionType() == RigCompletionData::FISHBONES )
+            {
+                // Not possible to do interpolation based on well path geometry here
+                // Use linear interpolation based on start/end TVD for segment
+                {
+                    auto normalizedWeight = ( subStartMD - startMD ) / ( endMD - startMD );
+                    subStartTVD           = startTVD * ( 1.0 - normalizedWeight ) + endTVD * normalizedWeight;
+                }
+                {
+                    auto normalizedWeight = ( subEndMD - startMD ) / ( endMD - startMD );
+
+                    subEndTVD = startTVD * ( 1.0 - normalizedWeight ) + endTVD * normalizedWeight;
+                }
+            }
 
             double depth  = 0;
             double length = 0;
