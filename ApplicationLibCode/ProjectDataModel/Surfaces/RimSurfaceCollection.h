@@ -36,7 +36,7 @@ public:
     void addSurface( RimSurface* surface );
     void setAsTopmostFolder();
 
-    RimSurface* importSurfacesFromFiles( const QStringList& fileNames );
+    RimSurface* importSurfacesFromFiles( const QStringList& fileNames, bool showLegend = true );
     RimSurface* addGridCaseSurface( RimCase* sourceCase );
     RimSurface* copySurfaces( std::vector<RimSurface*> surfaces );
     RimSurface* addSurfacesAtIndex( int index, std::vector<RimSurface*> surfaces );
@@ -54,7 +54,7 @@ public:
     void loadData();
 
     void updateViews();
-    void updateViews( const std::vector<RimSurface*>& surfsToReload );
+    void updateViews( const std::vector<RimSurface*>& surfsToReload, bool showLegend = true );
 
     void onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
                          std::vector<caf::PdmObjectHandle*>& referringObjects ) override;

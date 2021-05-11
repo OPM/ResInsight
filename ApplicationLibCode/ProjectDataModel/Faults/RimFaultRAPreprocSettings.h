@@ -65,6 +65,8 @@ public:
     QString outputEclipseFilename() const;
     QString outputEclipseDirectory() const;
 
+    QString outputAbaqusDirectory() const;
+
     QStringList preprocParameterList() const;
     QStringList macrisPrepareParameterList() const;
 

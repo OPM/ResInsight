@@ -154,6 +154,7 @@ public:
     const cvf::ScalarMapper* scalarMapper() const { return m_currentScalarMapper.p(); }
 
     bool showLegend() const;
+    void setShowLegend( bool show );
 
     const caf::TitledOverlayFrame* titledOverlayFrame() const override;
     caf::TitledOverlayFrame*       titledOverlayFrame() override;

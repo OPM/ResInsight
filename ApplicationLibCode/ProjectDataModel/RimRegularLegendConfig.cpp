@@ -1016,6 +1016,14 @@ bool RimRegularLegendConfig::showLegend() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimRegularLegendConfig::setShowLegend( bool show )
+{
+    m_showLegend = show;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 caf::TitledOverlayFrame* RimRegularLegendConfig::titledOverlayFrame()
 {
     if ( m_currentScalarMapper == m_categoryMapper )
