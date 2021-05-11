@@ -21,7 +21,7 @@
 #include "RiaApplication.h"
 #include "RiaEclipseFileNameTools.h"
 #include "RiaImportEclipseCaseTools.h"
-#include "RiaPreferences.h"
+#include "RiaPreferencesGeoMech.h"
 #include "RiaResultNames.h"
 
 #include "RifFaultRAJsonWriter.h"
@@ -93,7 +93,7 @@ void RicRunAdvFaultReactAssessmentFeature::onActionTriggered( bool isChecked )
     addParameterFileForCleanUp( paramfilename2 );
 
     // run the java macris program in calibrate mode
-    QString     command    = RiaPreferences::current()->geomechFRAMacrisCommand();
+    QString     command    = RiaPreferencesGeoMech::current()->geomechFRAMacrisCommand();
     QStringList parameters = fraSettings->advancedMacrisParameters( faultID );
 
     RimProcess process;

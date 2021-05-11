@@ -23,6 +23,7 @@
 
 #include "RiaApplication.h"
 #include "RiaColorTables.h"
+#include "RiaPreferencesGeoMech.h"
 #include "RiaPreferencesSummary.h"
 #include "RiaValidRegExpValidator.h"
 
@@ -333,35 +334,8 @@ RiaPreferences::RiaPreferences()
     CAF_PDM_InitFieldNoDefault( &m_summaryPreferences, "summaryPreferences", "summaryPreferences", "", "", "" );
     m_summaryPreferences = new RiaPreferencesSummary;
 
-    CAF_PDM_InitFieldNoDefault( &m_geomechFRAPreprocCommand, "geomechFRAPreprocCommand", "Pre-Processing Command", "", "", "" );
-    m_geomechFRAPreprocCommand.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
-    m_geomechFRAPreprocCommand.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
-
-    CAF_PDM_InitFieldNoDefault( &m_geomechFRAPostprocCommand, "geomechFRAPostprocCommand", "Post-Processing Command", "", "", "" );
-    m_geomechFRAPostprocCommand.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
-    m_geomechFRAPostprocCommand.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
-
-    CAF_PDM_InitFieldNoDefault( &m_geomechFRAMacrisCommand, "geomechFRAMacrisCommand", "Main Macris Command", "", "", "" );
-    m_geomechFRAMacrisCommand.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
-    m_geomechFRAMacrisCommand.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
-
-    CAF_PDM_InitFieldNoDefault( &m_geomechFRADefaultBasicXML,
-                                "geomechFRADefaultXML",
-                                "Basic Processing Parameter XML File",
-                                "",
-                                "",
-                                "" );
-    m_geomechFRADefaultBasicXML.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
-    m_geomechFRADefaultBasicXML.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
-
-    CAF_PDM_InitFieldNoDefault( &m_geomechFRADefaultAdvXML,
-                                "geomechFRADefaultAdvXML",
-                                "Advanced Processing Parameter XML File",
-                                "",
-                                "",
-                                "" );
-    m_geomechFRADefaultAdvXML.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
-    m_geomechFRADefaultAdvXML.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
+    CAF_PDM_InitFieldNoDefault( &m_geoMechPreferences, "geoMechPreferences", "geoMechPreferences", "", "", "" );
+    m_geoMechPreferences = new RiaPreferencesGeoMech;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -485,16 +459,7 @@ void RiaPreferences::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
     }
     else if ( uiConfigName == RiaPreferences::tabNameGeomech() )
     {
-        caf::PdmUiGroup* faultRAGroup = uiOrdering.addNewGroup( "Fault Reactivation Assessment" );
-        caf::PdmUiGroup* cmdGroup     = faultRAGroup->addNewGroup( "Commands (without parameters)" );
-
-        cmdGroup->add( &m_geomechFRAPreprocCommand );
-        cmdGroup->add( &m_geomechFRAPostprocCommand );
-        cmdGroup->add( &m_geomechFRAMacrisCommand );
-
-        caf::PdmUiGroup* paramGroup = faultRAGroup->addNewGroup( "Parameters" );
-        paramGroup->add( &m_geomechFRADefaultBasicXML );
-        paramGroup->add( &m_geomechFRADefaultAdvXML );
+        m_geoMechPreferences()->appendItems( uiOrdering );
     }
     else if ( uiConfigName == RiaPreferences::tabNamePlotting() )
     {
@@ -1110,47 +1075,15 @@ RiaPreferencesSummary* RiaPreferences::summaryPreferences() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RiaPreferencesGeoMech* RiaPreferences::geoMechPreferences() const
+{
+    return m_geoMechPreferences();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RiaPreferences::enableFaultsByDefault() const
 {
     return m_enableFaultsByDefault;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RiaPreferences::geomechFRAPreprocCommand() const
-{
-    return m_geomechFRAPreprocCommand;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RiaPreferences::geomechFRAPostprocCommand() const
-{
-    return m_geomechFRAPostprocCommand;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RiaPreferences::geomechFRAMacrisCommand() const
-{
-    return m_geomechFRAMacrisCommand;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RiaPreferences::geomechFRADefaultBasicXML() const
-{
-    return m_geomechFRADefaultBasicXML;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RiaPreferences::geomechFRADefaultAdvXML() const
-{
-    return m_geomechFRADefaultAdvXML;
 }

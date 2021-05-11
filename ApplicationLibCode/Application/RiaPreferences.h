@@ -41,6 +41,7 @@
 
 class RifReaderSettings;
 class RiaPreferencesSummary;
+class RiaPreferencesGeoMech;
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -120,14 +121,8 @@ public:
     QString pythonExecutable() const;
     QString octaveExecutable() const;
 
+    RiaPreferencesGeoMech* geoMechPreferences() const;
     RiaPreferencesSummary* summaryPreferences() const;
-
-    // geomech settings
-    QString geomechFRAPreprocCommand() const;
-    QString geomechFRAPostprocCommand() const;
-    QString geomechFRAMacrisCommand() const;
-    QString geomechFRADefaultBasicXML() const;
-    QString geomechFRADefaultAdvXML() const;
 
 public:
     caf::PdmField<bool> enableGrpcServer;
@@ -227,12 +222,8 @@ private:
     // Well Path Import
     caf::PdmField<QString> m_multiLateralWellPattern;
 
-    // geomech things
-    caf::PdmField<QString> m_geomechFRAPreprocCommand;
-    caf::PdmField<QString> m_geomechFRAPostprocCommand;
-    caf::PdmField<QString> m_geomechFRAMacrisCommand;
-    caf::PdmField<QString> m_geomechFRADefaultBasicXML;
-    caf::PdmField<QString> m_geomechFRADefaultAdvXML;
+    // GeoMech things
+    caf::PdmChildField<RiaPreferencesGeoMech*> m_geoMechPreferences;
 
     // Summary data
     caf::PdmChildField<RiaPreferencesSummary*> m_summaryPreferences;

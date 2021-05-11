@@ -21,7 +21,7 @@
 #include "RiaApplication.h"
 #include "RiaEclipseFileNameTools.h"
 #include "RiaImportEclipseCaseTools.h"
-#include "RiaPreferences.h"
+#include "RiaPreferencesGeoMech.h"
 
 #include "RifFaultRAJsonWriter.h"
 
@@ -66,7 +66,7 @@ void RicNewFaultReactAssessmentFeature::onActionTriggered( bool isChecked )
     RimFaultRAPreprocSettings frapSettings;
 
     // make sure the user has set up geomech/FRA things in preferences
-    if ( !frapSettings.validatePreferences() )
+    if ( !RiaPreferencesGeoMech::current()->validateFRASettings() )
     {
         QMessageBox::critical( nullptr,
                                "Fault Reactivation Assessment",
@@ -206,7 +206,7 @@ bool RicNewFaultReactAssessmentFeature::runPreProc( RimFaultRAPreprocSettings& s
         runProgress.setProgressDescription( "Preproc script." );
 
         // run the python preprocessing script
-        QString     command    = RiaPreferences::current()->geomechFRAPreprocCommand();
+        QString     command    = RiaPreferencesGeoMech::current()->geomechFRAPreprocCommand();
         QStringList parameters = settings.preprocParameterList();
 
         RimProcess process;
@@ -221,7 +221,7 @@ bool RicNewFaultReactAssessmentFeature::runPreProc( RimFaultRAPreprocSettings& s
     runProgress.setProgressDescription( "Macris prepare command." );
 
     // run the java macris program in prepare mode
-    QString     command    = RiaPreferences::current()->geomechFRAMacrisCommand();
+    QString     command    = RiaPreferencesGeoMech::current()->geomechFRAMacrisCommand();
     QStringList parameters = settings.macrisPrepareParameterList();
 
     RimProcess process;
