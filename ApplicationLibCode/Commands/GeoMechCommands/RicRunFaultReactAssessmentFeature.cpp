@@ -65,31 +65,12 @@ RicRunFaultReactAssessmentFeature::RicRunFaultReactAssessmentFeature()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicRunFaultReactAssessmentFeature::isCommandEnabled()
-{
-    RimFaultInViewCollection* faultColl = nullptr;
-
-    RimFaultInView* selObj = dynamic_cast<RimFaultInView*>( caf::SelectionManager::instance()->selectedItem() );
-    if ( selObj )
-    {
-        if ( !selObj->name().startsWith( RiaResultNames::faultReactAssessmentPrefix() ) ) return false;
-        selObj->firstAncestorOrThisOfType( faultColl );
-    }
-
-    if ( faultColl )
-    {
-        return ( faultColl->faultRAEnabled() && faultColl->faultRASettings()->geomechCase() != nullptr );
-    }
-
-    return false;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 RimFaultInViewCollection* RicRunFaultReactAssessmentFeature::faultCollection()
 {
-    RimFaultInViewCollection* faultColl = nullptr;
+    RimFaultInViewCollection* faultColl =
+        dynamic_cast<RimFaultInViewCollection*>( caf::SelectionManager::instance()->selectedItem() );
+
+    if ( faultColl ) return faultColl;
 
     RimFaultInView* selObj = dynamic_cast<RimFaultInView*>( caf::SelectionManager::instance()->selectedItem() );
     if ( selObj )

@@ -45,10 +45,6 @@ protected:
     void addParameterFileForCleanUp( QString filename );
     void cleanUpParameterFiles();
 
-protected:
-    // Overrides
-    bool isCommandEnabled() override;
-
 private:
     std::list<QString> m_parameterFilesToCleanUp;
 };
