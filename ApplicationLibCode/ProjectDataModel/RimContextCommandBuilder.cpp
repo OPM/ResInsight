@@ -67,6 +67,7 @@
 #include "RimEnsembleFractureStatisticsCollection.h"
 #include "RimExtrudedCurveIntersection.h"
 #include "RimFaultInView.h"
+#include "RimFaultInViewCollection.h"
 #include "RimFishbones.h"
 #include "RimFishbonesCollection.h"
 #include "RimFlowCharacteristicsPlot.h"
@@ -1123,6 +1124,13 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         else if ( dynamic_cast<RimFaultInView*>( firstUiItem ) )
         {
             menuBuilder << "RicExportFaultsFeature";
+            menuBuilder.subMenuStart( "Reactivation Assessment" );
+            menuBuilder << "RicRunBasicFaultReactAssessmentFeature";
+            menuBuilder << "RicRunAdvFaultReactAssessmentFeature";
+            menuBuilder.subMenuEnd();
+        }
+        else if ( dynamic_cast<RimFaultInViewCollection*>( firstUiItem ) )
+        {
             menuBuilder.subMenuStart( "Reactivation Assessment" );
             menuBuilder << "RicRunBasicFaultReactAssessmentFeature";
             menuBuilder << "RicRunAdvFaultReactAssessmentFeature";
