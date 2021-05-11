@@ -1,14 +1,10 @@
 
 set (SOURCE_GROUP_HEADER_FILES
 ${CMAKE_CURRENT_LIST_DIR}/RimProcess.h
-${CMAKE_CURRENT_LIST_DIR}/RimProcessWorker.h
-${CMAKE_CURRENT_LIST_DIR}/RimProcessCollection.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
 ${CMAKE_CURRENT_LIST_DIR}/RimProcess.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimProcessWorker.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimProcessCollection.cpp
 )
 
 list(APPEND CODE_HEADER_FILES
