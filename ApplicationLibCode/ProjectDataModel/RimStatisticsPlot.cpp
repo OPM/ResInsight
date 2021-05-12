@@ -30,8 +30,11 @@
 #include "RigHistogramData.h"
 
 #include "cafPdmFieldScriptingCapability.h"
+#include "cafPdmObject.h"
 #include "cafPdmObjectScriptingCapability.h"
 #include "cafPdmUiComboBoxEditor.h"
+#include "cafPdmUiLineEditor.h"
+
 #include "cvfAssert.h"
 
 #include <QtCharts/QBarSeries>
@@ -51,9 +54,11 @@ CAF_PDM_ABSTRACT_SOURCE_INIT( RimStatisticsPlot, "StatisticsPlot" );
 //--------------------------------------------------------------------------------------------------
 RimStatisticsPlot::RimStatisticsPlot()
 {
-    //    CAF_PDM_InitObject( "Grid Statistics Plot", "", "", "A Plot of Grid Statistics" );
     CAF_PDM_InitField( &m_plotWindowTitle, "PlotDescription", QString( "" ), "Name", "", "", "" );
     m_plotWindowTitle.xmlCapability()->setIOWritable( false );
+
+    CAF_PDM_InitField( &m_numHistogramBins, "NumHistogramBins", 50, "Number of Bins", "", "", "" );
+    m_numHistogramBins.uiCapability()->setUiEditorTypeName( caf::PdmUiLineEditor::uiEditorTypeName() );
 
     m_plotLegendsHorizontal.uiCapability()->setUiHidden( true );
 
@@ -176,10 +181,26 @@ void RimStatisticsPlot::cleanupBeforeClose()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimStatisticsPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
+void RimStatisticsPlot::defineEditorAttribute( const caf::PdmFieldHandle* field,
+                                               QString                    uiConfigName,
+                                               caf::PdmUiEditorAttribute* attribute )
 {
-    caf::PdmUiGroup* plotLayoutGroup = uiOrdering.addNewGroup( "Plot Layout" );
-    RimPlotWindow::uiOrderingForPlotLayout( uiConfigName, *plotLayoutGroup );
+    caf::PdmUiLineEditorAttribute* lineEditorAttr = dynamic_cast<caf::PdmUiLineEditorAttribute*>( attribute );
+    if ( field == &m_numHistogramBins && lineEditorAttr != nullptr )
+    {
+        // Limit histogram bins to something resonable
+        QIntValidator* validator  = new QIntValidator( 20, 1000, nullptr );
+        lineEditorAttr->validator = validator;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimStatisticsPlot::uiOrderingForHistogram( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
+{
+    caf::PdmUiGroup* histogramGroup = uiOrdering.addNewGroup( "Histogram" );
+    histogramGroup->add( &m_numHistogramBins );
 }
 
 //--------------------------------------------------------------------------------------------------

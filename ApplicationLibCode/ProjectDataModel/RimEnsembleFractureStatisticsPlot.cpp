@@ -96,6 +96,8 @@ void RimEnsembleFractureStatisticsPlot::defineUiOrdering( QString uiConfigName, 
     uiOrdering.add( &m_ensembleFractureStatistics );
     uiOrdering.add( &m_property );
 
+    RimStatisticsPlot::uiOrderingForHistogram( uiConfigName, uiOrdering );
+
     caf::PdmUiGroup* plotLayoutGroup = uiOrdering.addNewGroup( "Plot Layout" );
     RimStatisticsPlot::uiOrderingForPlotLayout( uiConfigName, *plotLayoutGroup );
 
@@ -138,7 +140,9 @@ bool RimEnsembleFractureStatisticsPlot::hasStatisticsData() const
 RigHistogramData RimEnsembleFractureStatisticsPlot::createStatisticsData() const
 {
     RigHistogramData histogramData =
-        RigEnsembleFractureStatisticsCalculator::createStatisticsData( m_ensembleFractureStatistics(), m_property() );
+        RigEnsembleFractureStatisticsCalculator::createStatisticsData( m_ensembleFractureStatistics(),
+                                                                       m_property(),
+                                                                       m_numHistogramBins() );
 
     return histogramData;
 }
