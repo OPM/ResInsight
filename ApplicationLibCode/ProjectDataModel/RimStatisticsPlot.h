@@ -27,6 +27,9 @@
 #include "RiuQtChartView.h"
 
 #include "cafPdmField.h"
+#include "cafPdmFieldCvfColor.h"
+
+#include "cvfColor3.h"
 
 #include <QPointer>
 
@@ -79,6 +82,7 @@ private:
 protected:
     QPointer<RiuQtChartView> m_viewer;
 
-    caf::PdmField<QString> m_plotWindowTitle;
-    caf::PdmField<int>     m_numHistogramBins;
+    caf::PdmField<QString>      m_plotWindowTitle;
+    caf::PdmField<int>          m_numHistogramBins;
+    caf::PdmField<cvf::Color3f> m_histogramBarColor;
 };
