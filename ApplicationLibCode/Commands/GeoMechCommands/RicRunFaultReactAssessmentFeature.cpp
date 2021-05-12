@@ -126,9 +126,17 @@ bool RicRunFaultReactAssessmentFeature::runPostProcessing( int faultID, RimFault
     RimProcess process;
     process.setCommand( command );
     process.setParameters( parameters );
-    process.execute();
 
     addParameterFileForCleanUp( settings->postprocParameterFilename( faultID ) );
+
+    if ( !process.execute() )
+    {
+        QMessageBox::critical( nullptr,
+                               "Fault Reactivation Assessment Processing",
+                               "Failed to run post processing command. Check log window for additional "
+                               "information." );
+        return false;
+    }
 
     return true;
 }
