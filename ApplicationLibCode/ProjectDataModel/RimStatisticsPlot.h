@@ -67,7 +67,7 @@ protected:
                                 QString                    uiConfigName,
                                 caf::PdmUiEditorAttribute* attribute ) override;
 
-    void uiOrderingForHistogram( QString uiConfigName, caf::PdmUiOrdering& uiOrdering );
+    void uiOrderingForHistogram( QString uiConfigName, caf::PdmUiOrdering& uiOrdering, bool showHistogramBins );
 
     void                 onLoadDataAndUpdate() override;
     void                 updatePlots();

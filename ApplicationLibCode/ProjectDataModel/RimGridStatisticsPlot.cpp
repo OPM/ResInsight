@@ -140,6 +140,9 @@ void RimGridStatisticsPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOr
         m_property->uiOrdering( uiConfigName, *propertyGroup );
     }
 
+    bool showNumHistogramBins = false;
+    RimStatisticsPlot::uiOrderingForHistogram( uiConfigName, uiOrdering, showNumHistogramBins );
+
     caf::PdmUiGroup* plotLayoutGroup = uiOrdering.addNewGroup( "Plot Layout" );
     RimStatisticsPlot::uiOrderingForPlotLayout( uiConfigName, *plotLayoutGroup );
 
