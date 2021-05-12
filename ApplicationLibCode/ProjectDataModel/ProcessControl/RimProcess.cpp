@@ -18,29 +18,34 @@
 
 #include "RimProcess.h"
 
+#include "RiaLogging.h"
+#include "RimProcessMonitor.h"
+
 #include "cafPdmFieldCapability.h"
 
 #include <QProcess>
 
 CAF_PDM_SOURCE_INIT( RimProcess, "RimProcess" );
 
+int RimProcess::m_nextProcessId = 1;
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RimProcess::RimProcess()
 {
+    int defId = m_nextProcessId++;
+    m_monitor = new RimProcessMonitor( defId );
+
     CAF_PDM_InitObject( "ResInsight Process", ":/Erase.png", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_command, "Command", "Command", "", "", "" );
     m_command.uiCapability()->setUiReadOnly( true );
 
-    // CAF_PDM_InitFieldNoDefault( &m_arguments, "Arguments", "Arguments", "", "", "" );
-    // m_arguments.uiCapability()->setUiReadOnly( true );
-
     CAF_PDM_InitFieldNoDefault( &m_description, "Description", "Description", "", "", "" );
     m_description.uiCapability()->setUiReadOnly( true );
 
-    CAF_PDM_InitField( &m_id, "ID", -1, "ID", "", "", "" );
+    CAF_PDM_InitField( &m_id, "ID", defId, "ID", "", "", "" );
     m_id.uiCapability()->setUiReadOnly( true );
 }
 
@@ -49,34 +54,12 @@ RimProcess::RimProcess()
 //--------------------------------------------------------------------------------------------------
 RimProcess::~RimProcess()
 {
+    delete m_monitor;
 }
 
 caf::PdmFieldHandle* RimProcess::userDescriptionField()
 {
     return &m_description;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimProcess::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
-{
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimProcess::defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                        QString                    uiConfigName,
-                                        caf::PdmUiEditorAttribute* attribute )
-{
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimProcess::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
-{
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -142,25 +125,40 @@ int RimProcess::ID() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimProcess::setID( int id )
+bool RimProcess::execute()
 {
-    m_id = id;
-}
+    QProcess* proc = new QProcess();
+    QString   cmd  = commandLine();
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RimProcess::execute()
-{
-    QProcess* myProcess = new QProcess();
-    QString   cmd       = commandLine();
-    myProcess->start( cmd );
-    if ( myProcess->waitForStarted( -1 ) )
+    RiaLogging::info( QString( "Start process %1: %2" ).arg( m_id ).arg( cmd ) );
+
+    QObject::connect( proc,
+                      SIGNAL( finished( int, QProcess::ExitStatus ) ),
+                      m_monitor,
+                      SLOT( finished( int, QProcess::ExitStatus ) ) );
+    QObject::connect( proc, SIGNAL( readyReadStandardOutput() ), m_monitor, SLOT( readyReadStandardOutput() ) );
+    QObject::connect( proc, SIGNAL( readyReadStandardError() ), m_monitor, SLOT( readyReadStandardError() ) );
+    QObject::connect( proc, SIGNAL( started() ), m_monitor, SLOT( started() ) );
+
+    bool retval = false;
+
+    proc->start( cmd );
+    if ( proc->waitForStarted( -1 ) )
     {
-        myProcess->waitForFinished( -1 );
-        return QString( "Done!" );
+        while ( !proc->waitForFinished( 500 ) )
+        {
+            QApplication::processEvents( QEventLoop::ExcludeUserInputEvents );
+        }
+        retval = ( proc->exitCode() == 0 );
     }
-    return QString( "Failed to start!" );
+    else
+    {
+        RiaLogging::error( QString( "Failed to start process %1." ).arg( m_id ) );
+    }
+
+    proc->deleteLater();
+
+    return retval;
 }
 
 //--------------------------------------------------------------------------------------------------
