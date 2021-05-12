@@ -225,10 +225,10 @@ void RimStatisticsPlot::defineEditorAttribute( const caf::PdmFieldHandle* field,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimStatisticsPlot::uiOrderingForHistogram( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
+void RimStatisticsPlot::uiOrderingForHistogram( QString uiConfigName, caf::PdmUiOrdering& uiOrdering, bool showHistogramBins )
 {
     caf::PdmUiGroup* histogramGroup = uiOrdering.addNewGroup( "Histogram" );
-    histogramGroup->add( &m_numHistogramBins );
+    if ( showHistogramBins ) histogramGroup->add( &m_numHistogramBins );
     histogramGroup->add( &m_histogramBarColor );
     histogramGroup->add( &m_histogramBarWidth );
     histogramGroup->add( &m_histogramFrequencyType );
