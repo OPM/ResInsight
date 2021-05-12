@@ -50,6 +50,17 @@
 
 using namespace QtCharts;
 
+namespace caf
+{
+template <>
+void caf::AppEnum<RimStatisticsPlot::HistogramFrequencyType>::setUp()
+{
+    addItem( RimStatisticsPlot::HistogramFrequencyType::ABSOLUTE, "ABSOLUTE", "Absolute" );
+    addItem( RimStatisticsPlot::HistogramFrequencyType::RELATIVE, "RELATIVE", "Relative" );
+    setDefault( RimStatisticsPlot::HistogramFrequencyType::ABSOLUTE );
+}
+} // namespace caf
+
 CAF_PDM_ABSTRACT_SOURCE_INIT( RimStatisticsPlot, "StatisticsPlot" );
 
 //--------------------------------------------------------------------------------------------------
@@ -67,6 +78,8 @@ RimStatisticsPlot::RimStatisticsPlot()
 
     CAF_PDM_InitField( &m_histogramBarWidth, "HistogramBarWidth", 1.0, "Bar Width", "", "", "" );
     m_histogramBarWidth.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
+
+    CAF_PDM_InitFieldNoDefault( &m_histogramFrequencyType, "HistogramFrequencyType", "Frequency", "", "", "" );
 
     m_plotLegendsHorizontal.uiCapability()->setUiHidden( true );
 
@@ -218,6 +231,7 @@ void RimStatisticsPlot::uiOrderingForHistogram( QString uiConfigName, caf::PdmUi
     histogramGroup->add( &m_numHistogramBins );
     histogramGroup->add( &m_histogramBarColor );
     histogramGroup->add( &m_histogramBarWidth );
+    histogramGroup->add( &m_histogramFrequencyType );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -245,8 +259,14 @@ void RimStatisticsPlot::updatePlots()
     QBarSet* set0     = new QBarSet( m_plotWindowTitle );
     double   minValue = std::numeric_limits<double>::max();
     double   maxValue = -std::numeric_limits<double>::max();
+
+    double sumElements = 0.0;
+    for ( double value : histogramData.histogram )
+        sumElements += value;
+
     for ( double value : histogramData.histogram )
     {
+        if ( m_histogramFrequencyType() == HistogramFrequencyType::RELATIVE ) value /= sumElements;
         *set0 << value;
         minValue = std::min( minValue, value );
         maxValue = std::max( maxValue, value );
