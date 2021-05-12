@@ -537,8 +537,10 @@ void RicWellPathExportMswCompletionsImpl::generateFishbonesMswExportInfo(
 
             for ( size_t intersectionIndex = 0; intersectionIndex < filteredIntersections.size(); intersectionIndex++ )
             {
-                auto cellIntersection = filteredIntersections[intersectionIndex];
-                if ( fishboneSectionStart <= cellIntersection.startMD && cellIntersection.startMD < fishboneSectionEnd )
+                const auto& cellIntersection = filteredIntersections[intersectionIndex];
+                if ( ( fishboneSectionEnd >= cellIntersection.startMD ) &&
+                     ( fishboneSectionStart <= cellIntersection.endMD ) )
+
                 {
                     double intersectionMidpoint = 0.5 * ( cellIntersection.startMD + cellIntersection.endMD );
                     size_t closestSubIndex      = 0;
