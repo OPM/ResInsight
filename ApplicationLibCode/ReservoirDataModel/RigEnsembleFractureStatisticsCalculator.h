@@ -48,7 +48,8 @@ public:
         PERMEABILITY
     };
 
-    static RigHistogramData createStatisticsData( RimEnsembleFractureStatistics* esf, PropertyType propertyType );
+    static RigHistogramData
+        createStatisticsData( RimEnsembleFractureStatistics* esf, PropertyType propertyType, int numBins );
 
 private:
     static std::vector<double> calculateGridStatistics( const std::vector<cvf::ref<RigStimPlanFractureDefinition>>& defs,
