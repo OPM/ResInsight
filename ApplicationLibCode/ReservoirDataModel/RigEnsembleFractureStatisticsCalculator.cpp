@@ -58,7 +58,8 @@ void caf::AppEnum<RigEnsembleFractureStatisticsCalculator::PropertyType>::setUp(
 ///
 //--------------------------------------------------------------------------------------------------
 RigHistogramData RigEnsembleFractureStatisticsCalculator::createStatisticsData( const RimEnsembleFractureStatistics* esf,
-                                                                                PropertyType propertyType )
+                                                                                PropertyType propertyType,
+                                                                                int          numBins )
 {
     std::vector<cvf::ref<RigStimPlanFractureDefinition>> defs = esf->readFractureDefinitions();
 
@@ -113,7 +114,7 @@ RigHistogramData RigEnsembleFractureStatisticsCalculator::createStatisticsData( 
     RigStatisticsMath::calculateStatisticsCurves( samples, &histogramData.p10, &p50, &histogramData.p90, &mean );
 
     std::vector<size_t>    histogram;
-    RigHistogramCalculator histogramCalculator( histogramData.min, histogramData.max, 20, &histogram );
+    RigHistogramCalculator histogramCalculator( histogramData.min, histogramData.max, numBins, &histogram );
     for ( auto s : samples )
         histogramCalculator.addValue( s );
 

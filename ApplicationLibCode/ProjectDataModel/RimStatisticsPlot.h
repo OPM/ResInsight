@@ -54,8 +54,11 @@ protected:
     QWidget* createViewWidget( QWidget* mainWindowParent ) override;
     void     deleteViewWidget() override;
 
-    // Overridden PDM methods
-    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    void defineEditorAttribute( const caf::PdmFieldHandle* field,
+                                QString                    uiConfigName,
+                                caf::PdmUiEditorAttribute* attribute ) override;
+
+    void uiOrderingForHistogram( QString uiConfigName, caf::PdmUiOrdering& uiOrdering );
 
     void                 onLoadDataAndUpdate() override;
     void                 updatePlots();
@@ -77,4 +80,5 @@ protected:
     QPointer<RiuQtChartView> m_viewer;
 
     caf::PdmField<QString> m_plotWindowTitle;
+    caf::PdmField<int>     m_numHistogramBins;
 };
