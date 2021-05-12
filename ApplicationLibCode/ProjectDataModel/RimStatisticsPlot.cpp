@@ -34,8 +34,10 @@
 #include "cafPdmObject.h"
 #include "cafPdmObjectScriptingCapability.h"
 #include "cafPdmUiComboBoxEditor.h"
+#include "cafPdmUiDoubleSliderEditor.h"
 #include "cafPdmUiLineEditor.h"
 
+#include "cafPdmUiSliderEditor.h"
 #include "cvfAssert.h"
 
 #include <QtCharts/QBarSeries>
@@ -62,6 +64,9 @@ RimStatisticsPlot::RimStatisticsPlot()
     m_numHistogramBins.uiCapability()->setUiEditorTypeName( caf::PdmUiLineEditor::uiEditorTypeName() );
 
     CAF_PDM_InitField( &m_histogramBarColor, "HistogramBarColor", cvf::Color3f( cvf::Color3f::SKY_BLUE ), "Bar Color", "", "", "" );
+
+    CAF_PDM_InitField( &m_histogramBarWidth, "HistogramBarWidth", 1.0, "Bar Width", "", "", "" );
+    m_histogramBarWidth.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
 
     m_plotLegendsHorizontal.uiCapability()->setUiHidden( true );
 
@@ -195,6 +200,13 @@ void RimStatisticsPlot::defineEditorAttribute( const caf::PdmFieldHandle* field,
         QIntValidator* validator  = new QIntValidator( 20, 1000, nullptr );
         lineEditorAttr->validator = validator;
     }
+
+    caf::PdmUiDoubleSliderEditorAttribute* sliderAttr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute );
+    if ( field == &m_histogramBarWidth && sliderAttr != nullptr )
+    {
+        sliderAttr->m_minimum = 0.0;
+        sliderAttr->m_maximum = 1.0;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -205,6 +217,7 @@ void RimStatisticsPlot::uiOrderingForHistogram( QString uiConfigName, caf::PdmUi
     caf::PdmUiGroup* histogramGroup = uiOrdering.addNewGroup( "Histogram" );
     histogramGroup->add( &m_numHistogramBins );
     histogramGroup->add( &m_histogramBarColor );
+    histogramGroup->add( &m_histogramBarWidth );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -241,6 +254,7 @@ void RimStatisticsPlot::updatePlots()
     set0->setColor( RiaColorTools::toQColor( m_histogramBarColor ) );
 
     QBarSeries* series = new QBarSeries();
+    series->setBarWidth( m_histogramBarWidth() );
     series->append( set0 );
 
     QChart* chart = new QChart();
