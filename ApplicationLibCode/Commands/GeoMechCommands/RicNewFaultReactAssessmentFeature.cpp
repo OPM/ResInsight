@@ -81,7 +81,7 @@ void RicNewFaultReactAssessmentFeature::onActionTriggered( bool isChecked )
     prepareDirectory( frapSettings.outputBaseDirectory(), frapSettings.cleanBaseDirectory() );
 
     // run the preproc steps needed
-    runPreProc( frapSettings );
+    if ( !runPreProc( frapSettings ) ) return;
 
     QStringList gridList;
     gridList << frapSettings.outputEclipseFilename();
@@ -167,7 +167,7 @@ bool RicNewFaultReactAssessmentFeature::showSettingsGUI( RimFaultRAPreprocSettin
     // get base directory for our work, should be a new, empty folder somewhere
     QString defaultDir =
         RiaApplication::instance()->lastUsedDialogDirectoryWithFallbackToProjectFolder( "FAULT_REACT_ASSESSMENT" );
-    QString baseDir = RiuFileDialogTools::getExistingDirectory( nullptr, tr( "Select Base Directory" ), defaultDir );
+    QString baseDir = RiuFileDialogTools::getExistingDirectory( nullptr, tr( "Select Working Directory" ), defaultDir );
     if ( baseDir.isNull() ) return false;
     RiaApplication::instance()->setLastUsedDialogDirectory( "FAULT_REACT_ASSESSMENT", baseDir );
 
@@ -183,7 +183,17 @@ bool RicNewFaultReactAssessmentFeature::showSettingsGUI( RimFaultRAPreprocSettin
                                                  QDialogButtonBox::Ok | QDialogButtonBox::Cancel );
     propertyDialog.resize( QSize( 400, 420 ) );
 
-    return ( propertyDialog.exec() == QDialog::Accepted );
+    // make sure we always have an eclipse case selected
+    while ( true )
+    {
+        int retCode = propertyDialog.exec();
+
+        if ( retCode != QDialog::Accepted ) break;
+
+        if ( settings.eclipseCase() != nullptr ) return true;
+    }
+
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -209,12 +219,18 @@ bool RicNewFaultReactAssessmentFeature::runPreProc( RimFaultRAPreprocSettings& s
         QString     command    = RiaPreferencesGeoMech::current()->geomechFRAPreprocCommand();
         QStringList parameters = settings.preprocParameterList();
 
+        addParameterFileForCleanUp( settings.preprocParameterFilename() );
+
         RimProcess process;
         process.setCommand( command );
         process.setParameters( parameters );
-        process.execute();
-
-        addParameterFileForCleanUp( settings.preprocParameterFilename() );
+        if ( !process.execute() )
+        {
+            QMessageBox::critical( nullptr,
+                                   "Fault Reactivation Assessment Preprocessing",
+                                   "Failed to run preprocessing script. Check log window for additional information." );
+            return false;
+        }
     }
 
     runProgress.incrementProgress();
@@ -227,7 +243,13 @@ bool RicNewFaultReactAssessmentFeature::runPreProc( RimFaultRAPreprocSettings& s
     RimProcess process;
     process.setCommand( command );
     process.setParameters( parameters );
-    process.execute();
+    if ( !process.execute() )
+    {
+        QMessageBox::critical( nullptr,
+                               "Fault Reactivation Assessment Preprocessing",
+                               "Failed to run Macrix prepare command. Check log window for additional information." );
+        return false;
+    }
 
     runProgress.incrementProgress();
 

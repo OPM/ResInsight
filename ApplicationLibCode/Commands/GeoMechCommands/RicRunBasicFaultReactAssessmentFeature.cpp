@@ -104,22 +104,30 @@ void RicRunBasicFaultReactAssessmentFeature::onActionTriggered( bool isChecked )
         RimProcess process;
         process.setCommand( command );
         process.setParameters( parameters );
-        process.execute();
+        if ( !process.execute() )
+        {
+            QMessageBox::critical( nullptr,
+                                   "Basic Fault Reactivation Assessment Processing",
+                                   "Failed to run Macris calculate command. Check log window for additional "
+                                   "information." );
+            cleanUpParameterFiles();
+            return;
+        }
 
         runProgress.incrementProgress();
     }
 
     runProgress.setProgressDescription( "Generating surface results." );
 
-    runPostProcessing( faultID, fraSettings );
+    if ( runPostProcessing( faultID, fraSettings ) )
+    {
+        runProgress.incrementProgress();
 
-    runProgress.incrementProgress();
+        runProgress.setProgressDescription( "Importing surface results." );
 
-    runProgress.setProgressDescription( "Importing surface results." );
-
-    // reload output surfaces
-    reloadSurfaces( fraSettings );
-
+        // reload output surfaces
+        reloadSurfaces( fraSettings );
+    }
     // delete parameter files
     cleanUpParameterFiles();
 }

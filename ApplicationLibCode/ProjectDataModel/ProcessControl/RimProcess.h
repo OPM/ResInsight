@@ -24,6 +24,8 @@
 #include <QString>
 #include <QStringList>
 
+class RimProcessMonitor;
+
 class RimProcess : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
@@ -36,7 +38,6 @@ public:
     void setCommand( QString cmdStr );
     void addParameter( QString paramStr );
     void setParameters( QStringList parameterList );
-    void setID( int id );
 
     QString commandLine() const;
 
@@ -44,15 +45,9 @@ public:
     QStringList parameters() const;
     int         ID() const;
 
-    QString execute();
+    bool execute();
 
 protected:
-    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
-    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
-    void defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                QString                    uiConfigName,
-                                caf::PdmUiEditorAttribute* attribute ) override;
-
     caf::PdmFieldHandle* userDescriptionField() override;
 
 private:
@@ -63,4 +58,7 @@ private:
     QStringList            m_arguments;
     caf::PdmField<QString> m_description;
     caf::PdmField<int>     m_id;
+
+    static int         m_nextProcessId;
+    RimProcessMonitor* m_monitor;
 };
