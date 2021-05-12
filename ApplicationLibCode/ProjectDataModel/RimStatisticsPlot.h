@@ -42,6 +42,12 @@ class RimStatisticsPlot : public RimPlotWindow
     CAF_PDM_HEADER_INIT;
 
 public:
+    enum class HistogramFrequencyType
+    {
+        ABSOLUTE,
+        RELATIVE
+    };
+
     RimStatisticsPlot();
     ~RimStatisticsPlot() override;
 
@@ -82,8 +88,9 @@ private:
 protected:
     QPointer<RiuQtChartView> m_viewer;
 
-    caf::PdmField<QString>      m_plotWindowTitle;
-    caf::PdmField<int>          m_numHistogramBins;
-    caf::PdmField<cvf::Color3f> m_histogramBarColor;
-    caf::PdmField<double>       m_histogramBarWidth;
+    caf::PdmField<QString>                              m_plotWindowTitle;
+    caf::PdmField<int>                                  m_numHistogramBins;
+    caf::PdmField<cvf::Color3f>                         m_histogramBarColor;
+    caf::PdmField<double>                               m_histogramBarWidth;
+    caf::PdmField<caf::AppEnum<HistogramFrequencyType>> m_histogramFrequencyType;
 };
