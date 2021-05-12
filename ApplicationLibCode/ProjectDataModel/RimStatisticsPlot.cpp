@@ -18,6 +18,7 @@
 
 #include "RimStatisticsPlot.h"
 
+#include "RiaColorTools.h"
 #include "RiaGuiApplication.h"
 #include "RiaPreferences.h"
 
@@ -59,6 +60,8 @@ RimStatisticsPlot::RimStatisticsPlot()
 
     CAF_PDM_InitField( &m_numHistogramBins, "NumHistogramBins", 50, "Number of Bins", "", "", "" );
     m_numHistogramBins.uiCapability()->setUiEditorTypeName( caf::PdmUiLineEditor::uiEditorTypeName() );
+
+    CAF_PDM_InitField( &m_histogramBarColor, "HistogramBarColor", cvf::Color3f( cvf::Color3f::SKY_BLUE ), "Bar Color", "", "", "" );
 
     m_plotLegendsHorizontal.uiCapability()->setUiHidden( true );
 
@@ -201,6 +204,7 @@ void RimStatisticsPlot::uiOrderingForHistogram( QString uiConfigName, caf::PdmUi
 {
     caf::PdmUiGroup* histogramGroup = uiOrdering.addNewGroup( "Histogram" );
     histogramGroup->add( &m_numHistogramBins );
+    histogramGroup->add( &m_histogramBarColor );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -234,6 +238,7 @@ void RimStatisticsPlot::updatePlots()
         minValue = std::min( minValue, value );
         maxValue = std::max( maxValue, value );
     }
+    set0->setColor( RiaColorTools::toQColor( m_histogramBarColor ) );
 
     QBarSeries* series = new QBarSeries();
     series->append( set0 );
