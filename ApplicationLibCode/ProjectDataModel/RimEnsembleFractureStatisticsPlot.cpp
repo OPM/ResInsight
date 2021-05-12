@@ -96,7 +96,8 @@ void RimEnsembleFractureStatisticsPlot::defineUiOrdering( QString uiConfigName, 
     uiOrdering.add( &m_ensembleFractureStatistics );
     uiOrdering.add( &m_property );
 
-    RimStatisticsPlot::uiOrderingForHistogram( uiConfigName, uiOrdering );
+    bool showNumHistogramBins = true;
+    RimStatisticsPlot::uiOrderingForHistogram( uiConfigName, uiOrdering, showNumHistogramBins );
 
     caf::PdmUiGroup* plotLayoutGroup = uiOrdering.addNewGroup( "Plot Layout" );
     RimStatisticsPlot::uiOrderingForPlotLayout( uiConfigName, *plotLayoutGroup );
