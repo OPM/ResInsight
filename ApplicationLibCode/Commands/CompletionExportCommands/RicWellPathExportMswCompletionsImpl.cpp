@@ -530,7 +530,8 @@ void RicWellPathExportMswCompletionsImpl::generateFishbonesMswExportInfo(
         }
 
         // Find cell intersections closest to each sub location
-        std::map<size_t, std::vector<size_t>> subAndCellIntersectionIndices;
+        std::map<size_t, std::vector<size_t>> closestSubForCellIntersections;
+        std::map<size_t, size_t>              cellIntersectionContainingSubIndex;
         {
             auto fishboneSectionStart = subs->startMD();
             auto fishboneSectionEnd   = subs->endMD();
@@ -549,6 +550,11 @@ void RicWellPathExportMswCompletionsImpl::generateFishbonesMswExportInfo(
                     {
                         double subMD = subs->measuredDepth( sub.first );
 
+                        if ( ( cellIntersection.startMD <= subMD ) && ( subMD <= cellIntersection.endMD ) )
+                        {
+                            cellIntersectionContainingSubIndex[sub.first] = intersectionIndex;
+                        }
+
                         auto distanceCandicate = std::abs( subMD - intersectionMidpoint );
                         if ( distanceCandicate < closestDistance )
                         {
@@ -557,7 +563,7 @@ void RicWellPathExportMswCompletionsImpl::generateFishbonesMswExportInfo(
                         }
                     }
 
-                    subAndCellIntersectionIndices[closestSubIndex].push_back( intersectionIndex );
+                    closestSubForCellIntersections[closestSubIndex].push_back( intersectionIndex );
                 }
             }
         }
@@ -597,7 +603,15 @@ void RicWellPathExportMswCompletionsImpl::generateFishbonesMswExportInfo(
                 {
                     const RigMainGrid* mainGrid = eclipseCase->mainGrid();
 
-                    for ( auto intersectionIndex : subAndCellIntersectionIndices[sub.first] )
+                    std::set<size_t> indices;
+                    for ( auto intersectionIndex : closestSubForCellIntersections[sub.first] )
+                    {
+                        indices.insert( intersectionIndex );
+                    }
+
+                    indices.insert( cellIntersectionContainingSubIndex[sub.first] );
+
+                    for ( auto intersectionIndex : indices )
                     {
                         auto intersection = filteredIntersections[intersectionIndex];
                         if ( intersection.globCellIndex >= mainGrid->globalCellArray().size() ) continue;
