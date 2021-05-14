@@ -76,12 +76,3 @@ QString RimDoubleParameter::stringValue() const
 {
     return QString::number( m_value() );
 }
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimDoubleParameter::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                           const QVariant&            oldValue,
-                                           const QVariant&            newValue )
-{
-}

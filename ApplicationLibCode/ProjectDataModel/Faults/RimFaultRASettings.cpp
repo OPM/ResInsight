@@ -17,7 +17,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RimFaultRASettings.h"
-#include "RimFaultRAParameterItem.h"
 #include "RimFaultRAPreprocSettings.h"
 
 #include "RiaApplication.h"
@@ -91,24 +90,6 @@ RimFaultRASettings::RimFaultRASettings()
 ///
 //--------------------------------------------------------------------------------------------------
 RimFaultRASettings::~RimFaultRASettings()
-{
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimFaultRASettings::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                           const QVariant&            oldValue,
-                                           const QVariant&            newValue )
-{
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimFaultRASettings::defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                                QString                    uiConfigName,
-                                                caf::PdmUiEditorAttribute* attribute )
 {
 }
 
@@ -364,7 +345,7 @@ QString RimFaultRASettings::startTimeStepGeoMech() const
 //--------------------------------------------------------------------------------------------------
 int RimFaultRASettings::endTimeStepGeoMechIndex() const
 {
-    return m_endTimestepEclipse();
+    return m_endTimestepGeoMech();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -460,10 +441,12 @@ std::list<RimGenericParameter*> RimFaultRASettings::advancedParameters( int faul
 void RimFaultRASettings::setupResInsightParameters()
 {
     m_basicParametersRI = new RimParameterGroup();
+    m_basicParametersRI->setName( "ResInsight Basic" );
     m_basicParametersRI->addParameter( "eclipse_input_grid", "" );
     m_basicParametersRI->addParameter( "faultid", -1 );
 
     m_advancedParametersRI = new RimParameterGroup();
+    m_advancedParametersRI->setName( "ResInsight Advanced" );
     m_advancedParametersRI->addParameter( "abaqus_elastic_properties", "" );
     m_advancedParametersRI->addParameter( "abaqus_stress_start", "" );
     m_advancedParametersRI->addParameter( "abaqus_stress_end", "" );

@@ -99,15 +99,6 @@ void RimGenericParameter::setAdvanced( bool isAdvanced )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGenericParameter::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                            const QVariant&            oldValue,
-                                            const QVariant&            newValue )
-{
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 bool RimGenericParameter::isAdvanced() const
 {
     return m_advanced();

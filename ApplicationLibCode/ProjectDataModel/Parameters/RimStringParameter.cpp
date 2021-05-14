@@ -66,12 +66,3 @@ QString RimStringParameter::stringValue() const
 {
     return m_value();
 }
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimStringParameter::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                           const QVariant&            oldValue,
-                                           const QVariant&            newValue )
-{
-}

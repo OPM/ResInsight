@@ -246,7 +246,7 @@ QString RimFaultRAPreprocSettings::startTimeStepGeoMech() const
 //--------------------------------------------------------------------------------------------------
 int RimFaultRAPreprocSettings::endTimeStepGeoMechIndex() const
 {
-    return m_endTimestepEclipse();
+    return m_endTimestepGeoMech();
 }
 
 //--------------------------------------------------------------------------------------------------

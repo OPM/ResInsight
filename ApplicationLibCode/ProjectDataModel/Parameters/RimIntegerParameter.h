@@ -43,8 +43,5 @@ public:
     QString  stringValue() const override;
 
 private:
-    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
-
-private:
     caf::PdmField<int> m_value;
 };

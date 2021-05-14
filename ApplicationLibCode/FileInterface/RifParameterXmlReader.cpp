@@ -112,8 +112,8 @@ bool RifParameterXmlReader::parseFile( QString& outErrorText )
                 {
                     if ( !xml.attributes().hasAttribute( reqattr ) )
                     {
-                        outErrorText = "Missing required attribute \"" + reqattr + "\" for a parameter.";
-                        bResult      = false;
+                        outErrorText += "Missing required attribute \"" + reqattr + "\" for a parameter.";
+                        bResult = false;
                         break;
                     }
                 }
@@ -124,8 +124,8 @@ bool RifParameterXmlReader::parseFile( QString& outErrorText )
                 RimGenericParameter* parameter = getParameterFromTypeStr( paramtypestr );
                 if ( parameter == nullptr )
                 {
-                    outErrorText = "Unsupported parameter type found: " + paramtypestr;
-                    bResult      = false;
+                    outErrorText += "Unsupported parameter type found: " + paramtypestr;
+                    bResult = false;
                     break;
                 }
 
@@ -147,7 +147,7 @@ bool RifParameterXmlReader::parseFile( QString& outErrorText )
                 parameter->setValue( xml.readElementText().trimmed() );
                 if ( !parameter->isValid() )
                 {
-                    outErrorText = "Invalid parameter value found for parameter: " + parameter->name();
+                    outErrorText += "Invalid parameter value found for parameter: " + parameter->name();
                     delete parameter;
                     bResult = false;
                     break;

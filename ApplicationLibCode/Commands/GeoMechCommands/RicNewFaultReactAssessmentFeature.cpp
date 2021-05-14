@@ -186,10 +186,7 @@ bool RicNewFaultReactAssessmentFeature::showSettingsGUI( RimFaultRAPreprocSettin
     // make sure we always have an eclipse case selected
     while ( true )
     {
-        int retCode = propertyDialog.exec();
-
-        if ( retCode != QDialog::Accepted ) break;
-
+        if ( propertyDialog.exec() != QDialog::Accepted ) break;
         if ( settings.eclipseCase() != nullptr ) return true;
     }
 

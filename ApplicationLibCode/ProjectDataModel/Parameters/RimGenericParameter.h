@@ -51,7 +51,6 @@ public:
     bool    isValid() const;
 
 protected:
-    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void setValid( bool valid );
 
 private:
