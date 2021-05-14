@@ -55,9 +55,9 @@ namespace caf
 template <>
 void caf::AppEnum<RimStatisticsPlot::HistogramFrequencyType>::setUp()
 {
-    addItem( RimStatisticsPlot::HistogramFrequencyType::ABSOLUTE, "ABSOLUTE", "Absolute" );
-    addItem( RimStatisticsPlot::HistogramFrequencyType::RELATIVE, "RELATIVE", "Relative" );
-    setDefault( RimStatisticsPlot::HistogramFrequencyType::ABSOLUTE );
+    addItem( RimStatisticsPlot::HistogramFrequencyType::ABSOLUTE_FREQUENCY, "ABSOLUTE_FREQUENCY", "Absolute" );
+    addItem( RimStatisticsPlot::HistogramFrequencyType::RELATIVE_FREQUENCY, "RELATIVE_FREQUENCY", "Relative" );
+    setDefault( RimStatisticsPlot::HistogramFrequencyType::ABSOLUTE_FREQUENCY );
 }
 } // namespace caf
 
@@ -266,7 +266,7 @@ void RimStatisticsPlot::updatePlots()
 
     for ( double value : histogramData.histogram )
     {
-        if ( m_histogramFrequencyType() == HistogramFrequencyType::RELATIVE ) value /= sumElements;
+        if ( m_histogramFrequencyType() == HistogramFrequencyType::RELATIVE_FREQUENCY ) value /= sumElements;
         *set0 << value;
         minValue = std::min( minValue, value );
         maxValue = std::max( maxValue, value );

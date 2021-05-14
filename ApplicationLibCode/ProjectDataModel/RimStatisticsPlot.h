@@ -26,6 +26,7 @@
 
 #include "RiuQtChartView.h"
 
+#include "cafAppEnum.h"
 #include "cafPdmField.h"
 #include "cafPdmFieldCvfColor.h"
 
@@ -44,8 +45,8 @@ class RimStatisticsPlot : public RimPlotWindow
 public:
     enum class HistogramFrequencyType
     {
-        ABSOLUTE,
-        RELATIVE
+        ABSOLUTE_FREQUENCY,
+        RELATIVE_FREQUENCY
     };
 
     RimStatisticsPlot();
