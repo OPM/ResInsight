@@ -518,9 +518,9 @@ void RicWellPathExportMswCompletionsImpl::updateDataForMultipleItemsInSameGridCe
             auto segments = branch->allSegmentsRecursively();
             for ( auto s : segments )
             {
-                for ( auto compl : s->completions() )
+                for ( auto completion : s->completions() )
                 {
-                    if ( auto icd = dynamic_cast<RicMswFishbonesICD*>( compl ) )
+                    if ( auto icd = dynamic_cast<RicMswFishbonesICD*>( completion ) )
                     {
                         for ( auto icdSegment : icd->segments() )
                         {
