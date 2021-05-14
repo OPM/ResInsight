@@ -426,6 +426,8 @@ void RicWellPathExportMswCompletionsImpl::exportWellSegmentsForFishbones( RimEcl
                                     &exportInfo,
                                     exportInfo.mainBoreBranch() );
 
+    computeEffectiveDiameter( exportInfo.mainBoreBranch() );
+
     int branchNumber = 1;
 
     assignBranchNumbersToBranch( eclipseCase, &exportInfo, exportInfo.mainBoreBranch(), &branchNumber );
@@ -460,6 +462,47 @@ void RicWellPathExportMswCompletionsImpl::exportWellSegmentsForFishbones( RimEcl
         bool exportLgr = true;
         RicMswTableFormatterTools::generateCompsegTables( formatter, exportInfo, exportLgr );
         RicMswTableFormatterTools::generateWsegvalvTable( formatter, exportInfo );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicWellPathExportMswCompletionsImpl::computeEffectiveDiameter( gsl::not_null<RicMswBranch*> branch )
+{
+    std::map<size_t, std::set<RicMswSegment*>> segmentsInCell;
+    {
+        auto segments = branch->allSegmentsRecursively();
+        for ( auto s : segments )
+        {
+            auto cellsIntersected = s->globalCellsIntersected();
+            if ( !cellsIntersected.empty() )
+            {
+                for ( auto index : cellsIntersected )
+                {
+                    segmentsInCell[index].insert( s );
+                }
+            }
+        }
+    }
+
+    for ( auto [index, segmentsInSameCell] : segmentsInCell )
+    {
+        double effectiveDiameter = 0.0;
+        // Compute effective diameter based on square root of the sum of diameter squared
+        // Deff = sqrt(d1^2 + d2^2 + ..)
+
+        for ( auto seg : segmentsInSameCell )
+        {
+            effectiveDiameter += ( seg->equivalentDiameter() * seg->equivalentDiameter() );
+        }
+
+        effectiveDiameter = sqrt( effectiveDiameter );
+
+        for ( auto seg : segmentsInSameCell )
+        {
+            seg->setEffectiveDiameter( effectiveDiameter );
+        }
     }
 }
 
@@ -546,20 +589,20 @@ void RicWellPathExportMswCompletionsImpl::generateFishbonesMswExportInfo(
                     double intersectionMidpoint = 0.5 * ( cellIntersection.startMD + cellIntersection.endMD );
                     size_t closestSubIndex      = 0;
                     double closestDistance      = std::numeric_limits<double>::infinity();
-                    for ( const auto& sub : subAndLateralIndices )
+                    for ( const auto& [subIndex, lateralIndices] : subAndLateralIndices )
                     {
-                        double subMD = subs->measuredDepth( sub.first );
+                        double subMD = subs->measuredDepth( subIndex );
 
                         if ( ( cellIntersection.startMD <= subMD ) && ( subMD <= cellIntersection.endMD ) )
                         {
-                            cellIntersectionContainingSubIndex[sub.first] = intersectionIndex;
+                            cellIntersectionContainingSubIndex[subIndex] = intersectionIndex;
                         }
 
                         auto distanceCandicate = std::abs( subMD - intersectionMidpoint );
                         if ( distanceCandicate < closestDistance )
                         {
                             closestDistance = distanceCandicate;
-                            closestSubIndex = sub.first;
+                            closestSubIndex = subIndex;
                         }
                     }
 
@@ -568,17 +611,17 @@ void RicWellPathExportMswCompletionsImpl::generateFishbonesMswExportInfo(
             }
         }
 
-        for ( const auto& sub : subAndLateralIndices )
+        for ( const auto& [subIndex, lateralIndices] : subAndLateralIndices )
         {
-            double subEndMD  = subs->measuredDepth( sub.first );
+            double subEndMD  = subs->measuredDepth( subIndex );
             double subEndTVD = RicMswTableFormatterTools::tvdFromMeasuredDepth( branch->wellPath(), subEndMD );
 
             {
                 // Add completion for ICD
                 auto icdSegment =
-                    std::make_unique<RicMswSegment>( "ICD segment", subEndMD, subEndMD + 0.1, subEndTVD, subEndTVD, sub.first );
+                    std::make_unique<RicMswSegment>( "ICD segment", subEndMD, subEndMD + 0.1, subEndTVD, subEndTVD, subIndex );
 
-                for ( auto lateralIndex : sub.second )
+                for ( auto lateralIndex : lateralIndices )
                 {
                     QString label = QString( "Lateral %1" ).arg( lateralIndex + 1 );
                     icdSegment->addCompletion(
@@ -604,12 +647,12 @@ void RicWellPathExportMswCompletionsImpl::generateFishbonesMswExportInfo(
                     const RigMainGrid* mainGrid = eclipseCase->mainGrid();
 
                     std::set<size_t> indices;
-                    for ( auto intersectionIndex : closestSubForCellIntersections[sub.first] )
+                    for ( auto intersectionIndex : closestSubForCellIntersections[subIndex] )
                     {
                         indices.insert( intersectionIndex );
                     }
 
-                    indices.insert( cellIntersectionContainingSubIndex[sub.first] );
+                    indices.insert( cellIntersectionContainingSubIndex[subIndex] );
 
                     for ( auto intersectionIndex : indices )
                     {
@@ -1573,6 +1616,7 @@ void RicWellPathExportMswCompletionsImpl::assignFishbonesLateralIntersections( c
             subSegment->setOpenHoleRoughnessFactor( fishbonesSubs->openHoleRoughnessFactor( unitSystem ) );
             subSegment->setSkinFactor( fishbonesSubs->skinFactor() );
             subSegment->setSourcePdmObject( fishbonesSubs );
+            subSegment->setIntersectedGlobalCells( { cellIntInfo.globCellIndex } );
 
             auto intersection = std::make_shared<RicMswSegmentCellIntersection>( gridName,
                                                                                  cellIntInfo.globCellIndex,

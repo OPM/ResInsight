@@ -46,6 +46,7 @@ RicMswSegment::RicMswSegment( const QString& label,
     , m_skinFactor( RicMswExportInfo::defaultDoubleValue() )
     , m_subIndex( subIndex )
     , m_segmentNumber( segmentNumber )
+    , m_effectiveDiameter( 0.0 )
 {
 }
 
@@ -238,6 +239,22 @@ void RicMswSegment::setSegmentNumber( int segmentNumber )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+double RicMswSegment::effectiveDiameter() const
+{
+    return m_effectiveDiameter;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicMswSegment::setEffectiveDiameter( double effectiveDiameter )
+{
+    m_effectiveDiameter = effectiveDiameter;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RicMswSegment::addCompletion( std::unique_ptr<RicMswCompletion> completion )
 {
     m_completions.push_back( std::move( completion ) );
@@ -283,6 +300,22 @@ const std::vector<std::shared_ptr<RicMswSegmentCellIntersection>>& RicMswSegment
 std::vector<std::shared_ptr<RicMswSegmentCellIntersection>>& RicMswSegment::intersections()
 {
     return m_intersections;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::set<size_t> RicMswSegment::globalCellsIntersected() const
+{
+    return m_intersectedGlobalCells;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicMswSegment::setIntersectedGlobalCells( const std::set<size_t>& intersectedCells )
+{
+    m_intersectedGlobalCells = intersectedCells;
 }
 
 //--------------------------------------------------------------------------------------------------
