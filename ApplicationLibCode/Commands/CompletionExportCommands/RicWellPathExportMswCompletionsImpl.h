@@ -62,7 +62,7 @@ public:
                                                 bool                   exportDataSourceAsComment,
                                                 bool                   completionSegmentsAfterMainBore );
 
-    static void computeEffectiveDiameter( gsl::not_null<RicMswBranch*> branch );
+    static void updateDataForMultipleItemsInSameGridCell( gsl::not_null<RicMswBranch*> branch );
 
     static void exportWellSegmentsForPerforations( RimEclipseCase*        eclipseCase,
                                                    std::shared_ptr<QFile> exportFile,
