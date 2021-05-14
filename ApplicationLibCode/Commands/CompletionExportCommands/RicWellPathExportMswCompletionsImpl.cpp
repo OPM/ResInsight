@@ -426,7 +426,7 @@ void RicWellPathExportMswCompletionsImpl::exportWellSegmentsForFishbones( RimEcl
                                     &exportInfo,
                                     exportInfo.mainBoreBranch() );
 
-    computeEffectiveDiameter( exportInfo.mainBoreBranch() );
+    updateDataForMultipleItemsInSameGridCell( exportInfo.mainBoreBranch() );
 
     int branchNumber = 1;
 
@@ -468,40 +468,86 @@ void RicWellPathExportMswCompletionsImpl::exportWellSegmentsForFishbones( RimEcl
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicWellPathExportMswCompletionsImpl::computeEffectiveDiameter( gsl::not_null<RicMswBranch*> branch )
+void RicWellPathExportMswCompletionsImpl::updateDataForMultipleItemsInSameGridCell( gsl::not_null<RicMswBranch*> branch )
 {
-    std::map<size_t, std::set<RicMswSegment*>> segmentsInCell;
     {
-        auto segments = branch->allSegmentsRecursively();
-        for ( auto s : segments )
+        // Update effective diameter
+
+        std::map<size_t, std::set<RicMswSegment*>> segmentsInCell;
         {
-            auto cellsIntersected = s->globalCellsIntersected();
-            if ( !cellsIntersected.empty() )
+            auto segments = branch->allSegmentsRecursively();
+            for ( auto s : segments )
             {
-                for ( auto index : cellsIntersected )
+                auto cellsIntersected = s->globalCellsIntersected();
+                if ( !cellsIntersected.empty() )
                 {
-                    segmentsInCell[index].insert( s );
+                    for ( auto index : cellsIntersected )
+                    {
+                        segmentsInCell[index].insert( s );
+                    }
                 }
+            }
+        }
+
+        for ( auto [index, segmentsInSameCell] : segmentsInCell )
+        {
+            // Compute effective diameter based on square root of the sum of diameter squared
+            // Deff = sqrt(d1^2 + d2^2 + ..)
+            double effectiveDiameter = 0.0;
+
+            for ( auto seg : segmentsInSameCell )
+            {
+                effectiveDiameter += ( seg->equivalentDiameter() * seg->equivalentDiameter() );
+            }
+
+            effectiveDiameter = sqrt( effectiveDiameter );
+
+            for ( auto seg : segmentsInSameCell )
+            {
+                seg->setEffectiveDiameter( effectiveDiameter );
             }
         }
     }
 
-    for ( auto [index, segmentsInSameCell] : segmentsInCell )
     {
-        double effectiveDiameter = 0.0;
-        // Compute effective diameter based on square root of the sum of diameter squared
-        // Deff = sqrt(d1^2 + d2^2 + ..)
+        // Update IDC area
 
-        for ( auto seg : segmentsInSameCell )
+        std::map<size_t, std::set<RicMswFishbonesICD*>> icdsInCell;
+
         {
-            effectiveDiameter += ( seg->equivalentDiameter() * seg->equivalentDiameter() );
+            auto segments = branch->allSegmentsRecursively();
+            for ( auto s : segments )
+            {
+                for ( auto compl : s->completions() )
+                {
+                    if ( auto icd = dynamic_cast<RicMswFishbonesICD*>( compl ) )
+                    {
+                        for ( auto icdSegment : icd->segments() )
+                        {
+                            for ( auto gridIntersection : icdSegment->intersections() )
+                            {
+                                icdsInCell[gridIntersection->globalCellIndex()].insert( icd );
+                            }
+                        }
+                    }
+                }
+            }
         }
 
-        effectiveDiameter = sqrt( effectiveDiameter );
-
-        for ( auto seg : segmentsInSameCell )
+        for ( auto [Index, icdsInSameCell] : icdsInCell )
         {
-            seg->setEffectiveDiameter( effectiveDiameter );
+            // Compute area sum for all ICDs in same grid cell
+            double areaSum = 0.0;
+
+            for ( auto icd : icdsInSameCell )
+            {
+                areaSum += icd->area();
+            }
+
+            for ( auto icd : icdsInSameCell )
+            {
+                icd->setArea( areaSum );
+            }
         }
     }
 }
