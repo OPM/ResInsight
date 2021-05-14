@@ -865,13 +865,17 @@ void RicMswTableFormatterTools::writeCompletionWelsegsSegments( gsl::not_null<co
                 depth  = subEndTVD;
                 length = subEndMD;
             }
+
+            double diameter = segment->equivalentDiameter();
+            if ( segment->effectiveDiameter() > 0.0 ) diameter = segment->effectiveDiameter();
+
             formatter.add( subSegmentNumber );
             formatter.add( subSegmentNumber );
             formatter.add( completion->branchNumber() );
             formatter.add( outletSegmentNumber );
             formatter.add( length );
             formatter.add( depth );
-            formatter.add( segment->equivalentDiameter() );
+            formatter.add( diameter );
             formatter.add( segment->openHoleRoughnessFactor() );
             formatter.rowCompleted();
             outletSegmentNumber = subSegmentNumber;
