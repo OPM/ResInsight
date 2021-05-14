@@ -271,11 +271,13 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "Separator";
             menuBuilder << "RicCopyReferencesToClipboardFeature";
             menuBuilder << "Separator";
+#ifdef USE_ODB_API
             if ( dynamic_cast<RimEclipseResultCase*>( firstUiItem ) )
             {
                 menuBuilder << "RicNewFaultReactAssessmentFeature";
                 menuBuilder << "Separator";
             }
+#endif
         }
         else if ( dynamic_cast<RimGridInfoCollection*>( firstUiItem ) )
         {
@@ -1124,6 +1126,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         else if ( dynamic_cast<RimFaultInView*>( firstUiItem ) )
         {
             menuBuilder << "RicExportFaultsFeature";
+#ifdef USE_ODB_API
             menuBuilder.subMenuStart( "Reactivation Assessment" );
             menuBuilder << "RicRunBasicFaultReactAssessmentFeature";
             menuBuilder << "RicRunAdvFaultReactAssessmentFeature";
@@ -1135,6 +1138,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicRunBasicFaultReactAssessmentFeature";
             menuBuilder << "RicRunAdvFaultReactAssessmentFeature";
             menuBuilder.subMenuEnd();
+#endif
         }
         else if ( dynamic_cast<RimSimWellInView*>( firstUiItem ) )
         {

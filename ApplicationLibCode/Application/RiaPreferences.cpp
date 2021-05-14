@@ -457,10 +457,12 @@ void RiaPreferences::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
             m_summaryPreferences()->uiOrdering( uiConfigName, *group );
         }
     }
+#ifdef USE_ODB_API
     else if ( uiConfigName == RiaPreferences::tabNameGeomech() )
     {
         m_geoMechPreferences()->appendItems( uiOrdering );
     }
+#endif
     else if ( uiConfigName == RiaPreferences::tabNamePlotting() )
     {
         uiOrdering.add( &m_dateFormat );
@@ -707,7 +709,9 @@ QStringList RiaPreferences::tabNames()
     names << tabNameGeneral();
     names << tabNameEclipseGrid();
     names << tabNameEclipseSummary();
+#ifdef USE_ODB_API
     names << tabNameGeomech();
+#endif
     names << tabNamePlotting();
     names << tabNameScripting();
     names << tabNameExport();
