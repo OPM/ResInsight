@@ -63,6 +63,8 @@
 #include "RiuQwtPlotCurve.h"
 #include "RiuQwtPlotWidget.h"
 
+#include "cafPdmFieldScriptingCapability.h"
+#include "cafPdmObjectScriptingCapability.h"
 #include "cafPdmUiTreeOrdering.h"
 #include "cafUtils.h"
 
@@ -91,7 +93,7 @@ void AppEnum<RimWellLogExtractionCurve::TrajectoryType>::setUp()
 //--------------------------------------------------------------------------------------------------
 RimWellLogExtractionCurve::RimWellLogExtractionCurve()
 {
-    CAF_PDM_InitObject( "Well Log Curve", RimWellLogCurve::wellLogCurveIconName(), "", "" );
+    CAF_PDM_InitScriptableObject( "Well Log Curve", RimWellLogCurve::wellLogCurveIconName(), "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_trajectoryType, "TrajectoryType", "Trajectory Type", "", "", "" );
 
@@ -1069,6 +1071,14 @@ void RimWellLogExtractionCurve::setEclipseResultVariable( const QString& resVarn
 QString RimWellLogExtractionCurve::eclipseResultVariable() const
 {
     return m_eclipseResultDefinition->resultVariable();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogExtractionCurve::setEclipseResultCategory( RiaDefines::ResultCatType catType )
+{
+    m_eclipseResultDefinition->setResultType( catType );
 }
 
 //--------------------------------------------------------------------------------------------------

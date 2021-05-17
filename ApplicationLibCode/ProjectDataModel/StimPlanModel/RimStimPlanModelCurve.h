@@ -41,8 +41,6 @@ public:
 
     void setStimPlanModel( RimStimPlanModel* stimPlanModel );
 
-    void setEclipseResultCategory( RiaDefines::ResultCatType catType );
-
     void                      setCurveProperty( RiaDefines::CurveProperty ) override;
     RiaDefines::CurveProperty curveProperty() const override;
 
