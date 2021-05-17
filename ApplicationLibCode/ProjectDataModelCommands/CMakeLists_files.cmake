@@ -13,6 +13,9 @@ ${CMAKE_CURRENT_LIST_DIR}/RimcSurfaceCollection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimcDataContainerDouble.h
 ${CMAKE_CURRENT_LIST_DIR}/RimcDataContainerString.h
 ${CMAKE_CURRENT_LIST_DIR}/RimcDataContainerTime.h
+${CMAKE_CURRENT_LIST_DIR}/RimcWellLogPlotCollection.h
+${CMAKE_CURRENT_LIST_DIR}/RimcWellLogPlot.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimcWellLogTrack.cpp
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -29,6 +32,9 @@ ${CMAKE_CURRENT_LIST_DIR}/RimcSurfaceCollection.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimcDataContainerDouble.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimcDataContainerString.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimcDataContainerTime.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimcWellLogPlotCollection.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimcWellLogPlot.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimcWellLogTrack.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

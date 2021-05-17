@@ -83,8 +83,11 @@
 #include "RiuWellPathComponentPlotItem.h"
 
 #include "cafPdmFieldReorderCapability.h"
+#include "cafPdmFieldScriptingCapability.h"
+#include "cafPdmObjectScriptingCapability.h"
 #include "cafPdmUiSliderEditor.h"
 #include "cafSelectionManager.h"
+
 #include "cvfAssert.h"
 
 #include <QWheelEvent>
@@ -169,7 +172,7 @@ RimWellLogTrack::RimWellLogTrack()
     , m_availableDepthRangeMax( RI_LOGPLOTTRACK_MAXX_DEFAULT )
 
 {
-    CAF_PDM_InitObject( "Track", ":/WellLogTrack16x16.png", "", "" );
+    CAF_PDM_InitScriptableObject( "Track", ":/WellLogTrack16x16.png", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_description, "TrackDescription", "Name", "", "", "" );
 

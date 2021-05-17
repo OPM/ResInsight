@@ -79,6 +79,7 @@ public:
 
     void    setEclipseResultVariable( const QString& resVarname );
     QString eclipseResultVariable() const;
+    void    setEclipseResultCategory( RiaDefines::ResultCatType catType );
 
     void setGeoMechResultAddress( const RigFemResultAddress& resAddr );
 

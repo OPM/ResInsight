@@ -79,14 +79,6 @@ void RimStimPlanModelCurve::setStimPlanModel( RimStimPlanModel* stimPlanModel )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimStimPlanModelCurve::setEclipseResultCategory( RiaDefines::ResultCatType catType )
-{
-    m_eclipseResultDefinition->setResultType( catType );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimStimPlanModelCurve::setCurveProperty( RiaDefines::CurveProperty curveProperty )
 {
     m_curveProperty = curveProperty;
