@@ -101,12 +101,14 @@ include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/Flow
   ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/GridCrossPlots
   ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/GeoMech
+  ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/Parameters
   ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/Measurement
   ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/StimPlanModel
   ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/Summary
   ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/Surfaces
   ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/Streamlines
   ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/CellFilters
+  ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/ProcessControl
   ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModelCommands
   ${CMAKE_CURRENT_SOURCE_DIR}/ResultStatisticsCache
   ${CMAKE_CURRENT_SOURCE_DIR}/ReservoirDataModel
@@ -168,11 +170,13 @@ list(
   ProjectDataModel/Annotations/CMakeLists_files.cmake
   ProjectDataModel/Completions/CMakeLists_files.cmake
   ProjectDataModel/Measurement/CMakeLists_files.cmake
+  ProjectDataModel/Parameters/CMakeLists_files.cmake
   ProjectDataModel/PlotTemplates/CMakeLists_files.cmake
   ProjectDataModel/StimPlanModel/CMakeLists_files.cmake
   ProjectDataModel/Streamlines/CMakeLists_files.cmake
   ProjectDataModel/Surfaces/CMakeLists_files.cmake
   ProjectDataModel/CellFilters/CMakeLists_files.cmake
+  ProjectDataModel/ProcessControl/CMakeLists_files.cmake
   ProjectDataModelCommands/CMakeLists_files.cmake
   GeoMech/GeoMechVisualization/CMakeLists_files.cmake
   ModelVisualization/CMakeLists_files.cmake

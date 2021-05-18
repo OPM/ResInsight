@@ -27,8 +27,10 @@
 #include "RigMainGrid.h"
 
 #include "RimEclipseCase.h"
+#include "RimEclipseInputCase.h"
 #include "RimEclipseView.h"
 #include "RimFaultInView.h"
+#include "RimFaultRASettings.h"
 #include "RimIntersectionCollection.h"
 
 #include "RiuMainWindow.h"
@@ -36,6 +38,7 @@
 #include "cafAppEnum.h"
 #include "cafPdmFieldCvfColor.h"
 #include "cafPdmFieldCvfMat4d.h"
+#include "cafPdmUiTreeOrdering.h"
 
 namespace caf
 {
@@ -89,6 +92,14 @@ RimFaultInViewCollection::RimFaultInViewCollection()
 
     CAF_PDM_InitFieldNoDefault( &faults, "Faults", "Faults", "", "", "" );
     faults.uiCapability()->setUiHidden( true );
+
+    CAF_PDM_InitField( &m_enableFaultRA, "EnableFaultRA", false, "Enable Fault RA", "", "", "" );
+    m_enableFaultRA.uiCapability()->setUiHidden( true );
+    m_enableFaultRA.uiCapability()->setUiReadOnly( true );
+
+    CAF_PDM_InitFieldNoDefault( &m_faultRASettings, "FaultRASettings", "Reactivation Assessment Settings", "", "", "" );
+    m_faultRASettings = new RimFaultRASettings();
+    m_faultRASettings.uiCapability()->setUiHidden( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -217,8 +228,6 @@ void RimFaultInViewCollection::syncronizeFaults()
         }
     }
 
-    // Find faults with
-
     std::vector<caf::PdmPointer<RimFaultInView>> newFaults;
 
     // Find corresponding fault from data model, or create a new
@@ -300,6 +309,19 @@ void RimFaultInViewCollection::defineUiOrdering( QString uiConfigName, caf::PdmU
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimFaultInViewCollection::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName )
+{
+    RimEclipseInputCase* inputCase = nullptr;
+    this->firstAncestorOrThisOfType( inputCase );
+    if ( ( inputCase != nullptr ) && m_enableFaultRA() )
+    {
+        uiTreeOrdering.add( &m_faultRASettings );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RimEclipseView* RimFaultInViewCollection::parentView() const
 {
     RimEclipseView* view = nullptr;
@@ -324,4 +346,28 @@ bool RimFaultInViewCollection::isShowingFaultsAndFaultsOutsideFilters() const
 void RimFaultInViewCollection::setShowFaultsOutsideFilter( bool show )
 {
     m_showFaultsOutsideFilters = show;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimFaultRASettings* RimFaultInViewCollection::faultRASettings() const
+{
+    return m_faultRASettings();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimFaultInViewCollection::faultRAEnabled() const
+{
+    return m_enableFaultRA();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFaultInViewCollection::enableFaultRA( bool enable )
+{
+    m_enableFaultRA = enable;
 }

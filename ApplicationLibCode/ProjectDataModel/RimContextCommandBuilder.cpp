@@ -56,6 +56,7 @@
 #include "RimEclipseInputProperty.h"
 #include "RimEclipsePropertyFilter.h"
 #include "RimEclipsePropertyFilterCollection.h"
+#include "RimEclipseResultCase.h"
 #include "RimEclipseStatisticsCase.h"
 #include "RimEclipseView.h"
 #include "RimElasticProperties.h"
@@ -66,6 +67,7 @@
 #include "RimEnsembleFractureStatisticsCollection.h"
 #include "RimExtrudedCurveIntersection.h"
 #include "RimFaultInView.h"
+#include "RimFaultInViewCollection.h"
 #include "RimFishbones.h"
 #include "RimFishbonesCollection.h"
 #include "RimFlowCharacteristicsPlot.h"
@@ -269,6 +271,13 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "Separator";
             menuBuilder << "RicCopyReferencesToClipboardFeature";
             menuBuilder << "Separator";
+#ifdef USE_ODB_API
+            if ( dynamic_cast<RimEclipseResultCase*>( firstUiItem ) )
+            {
+                menuBuilder << "RicNewFaultReactAssessmentFeature";
+                menuBuilder << "Separator";
+            }
+#endif
         }
         else if ( dynamic_cast<RimGridInfoCollection*>( firstUiItem ) )
         {
@@ -285,6 +294,8 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicImportElementPropertyFeature";
             menuBuilder << "Separator";
             menuBuilder << "RicGeoMechCopyCaseFeature";
+            menuBuilder << "Separator";
+            menuBuilder << "RicNewFaultReactAssessmentFeature";
             menuBuilder << "Separator";
         }
         else if ( dynamic_cast<RimIdenticalGridCaseGroup*>( firstUiItem ) )
@@ -1115,6 +1126,19 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         else if ( dynamic_cast<RimFaultInView*>( firstUiItem ) )
         {
             menuBuilder << "RicExportFaultsFeature";
+#ifdef USE_ODB_API
+            menuBuilder.subMenuStart( "Reactivation Assessment" );
+            menuBuilder << "RicRunBasicFaultReactAssessmentFeature";
+            menuBuilder << "RicRunAdvFaultReactAssessmentFeature";
+            menuBuilder.subMenuEnd();
+        }
+        else if ( dynamic_cast<RimFaultInViewCollection*>( firstUiItem ) )
+        {
+            menuBuilder.subMenuStart( "Reactivation Assessment" );
+            menuBuilder << "RicRunBasicFaultReactAssessmentFeature";
+            menuBuilder << "RicRunAdvFaultReactAssessmentFeature";
+            menuBuilder.subMenuEnd();
+#endif
         }
         else if ( dynamic_cast<RimSimWellInView*>( firstUiItem ) )
         {

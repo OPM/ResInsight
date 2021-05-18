@@ -23,6 +23,7 @@
 
 #include "RiaApplication.h"
 #include "RiaColorTables.h"
+#include "RiaPreferencesGeoMech.h"
 #include "RiaPreferencesSummary.h"
 #include "RiaValidRegExpValidator.h"
 
@@ -332,6 +333,9 @@ RiaPreferences::RiaPreferences()
 
     CAF_PDM_InitFieldNoDefault( &m_summaryPreferences, "summaryPreferences", "summaryPreferences", "", "", "" );
     m_summaryPreferences = new RiaPreferencesSummary;
+
+    CAF_PDM_InitFieldNoDefault( &m_geoMechPreferences, "geoMechPreferences", "geoMechPreferences", "", "", "" );
+    m_geoMechPreferences = new RiaPreferencesGeoMech;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -453,6 +457,12 @@ void RiaPreferences::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
             m_summaryPreferences()->uiOrdering( uiConfigName, *group );
         }
     }
+#ifdef USE_ODB_API
+    else if ( uiConfigName == RiaPreferences::tabNameGeomech() )
+    {
+        m_geoMechPreferences()->appendItems( uiOrdering );
+    }
+#endif
     else if ( uiConfigName == RiaPreferences::tabNamePlotting() )
     {
         uiOrdering.add( &m_dateFormat );
@@ -628,6 +638,14 @@ QString RiaPreferences::tabNameEclipseSummary()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString RiaPreferences::tabNameGeomech()
+{
+    return "GeoMechanical";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString RiaPreferences::tabNamePlotting()
 {
     return "Plotting";
@@ -691,6 +709,9 @@ QStringList RiaPreferences::tabNames()
     names << tabNameGeneral();
     names << tabNameEclipseGrid();
     names << tabNameEclipseSummary();
+#ifdef USE_ODB_API
+    names << tabNameGeomech();
+#endif
     names << tabNamePlotting();
     names << tabNameScripting();
     names << tabNameExport();
@@ -1053,6 +1074,14 @@ QString RiaPreferences::octaveExecutable() const
 RiaPreferencesSummary* RiaPreferences::summaryPreferences() const
 {
     return m_summaryPreferences();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiaPreferencesGeoMech* RiaPreferences::geoMechPreferences() const
+{
+    return m_geoMechPreferences();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -25,13 +25,17 @@
 #include "RimGridCaseSurface.h"
 #include "RimGridView.h"
 #include "RimProject.h"
+#include "RimRegularLegendConfig.h"
 #include "RimSurface.h"
 #include "RimSurfaceInView.h"
+#include "RimSurfaceResultDefinition.h"
 
 #include "cafPdmFieldReorderCapability.h"
 
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObjectScriptingCapability.h"
+
+#include "QFile"
 
 CAF_PDM_SOURCE_INIT( RimSurfaceCollection, "SurfaceCollection" );
 
@@ -107,7 +111,7 @@ void RimSurfaceCollection::addSurface( RimSurface* surface )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSurface* RimSurfaceCollection::importSurfacesFromFiles( const QStringList& fileNames )
+RimSurface* RimSurfaceCollection::importSurfacesFromFiles( const QStringList& fileNames, bool showLegend /* = true */ )
 {
     size_t  newSurfCount      = 0;
     size_t  existingSurfCount = m_surfaces().size();
@@ -144,7 +148,7 @@ RimSurface* RimSurfaceCollection::importSurfacesFromFiles( const QStringList& fi
 
     this->updateConnectedEditors();
 
-    updateViews( surfacesToLoad );
+    updateViews( surfacesToLoad, showLegend );
 
     if ( newSurfCount > 0 && !m_surfaces.empty() )
     {
@@ -265,7 +269,7 @@ void RimSurfaceCollection::loadData()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSurfaceCollection::updateViews( const std::vector<RimSurface*>& surfsToReload )
+void RimSurfaceCollection::updateViews( const std::vector<RimSurface*>& surfsToReload, bool showLegend /* = true */ )
 {
     RimProject* proj = RimProject::current();
 
@@ -289,6 +293,7 @@ void RimSurfaceCollection::updateViews( const std::vector<RimSurface*>& surfsToR
         for ( auto surfInView : surfsInView )
         {
             surfInView->clearGeometry();
+            surfInView->surfaceResultDefinition()->legendConfig()->setShowLegend( showLegend );
 
             RimGridView* gridView;
             surfInView->firstAncestorOrThisOfType( gridView );
@@ -349,6 +354,34 @@ void RimSurfaceCollection::orderChanged( const caf::SignalEmitter* emitter )
 void RimSurfaceCollection::removeSurface( RimSurface* surface )
 {
     m_surfaces.removeChildObject( surface );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSurfaceCollection::removeMissingFileSurfaces()
+{
+    // get the existing surfaces
+    std::list<RimFileSurface*> missingSurfaces;
+
+    // check if a filesurface references a file no longer present
+    for ( auto& surface : surfaces() )
+    {
+        RimFileSurface* fileSurface = dynamic_cast<RimFileSurface*>( surface );
+        if ( fileSurface == nullptr ) continue;
+
+        QString filename = fileSurface->surfaceFilePath();
+        if ( !QFile::exists( filename ) )
+        {
+            missingSurfaces.push_back( fileSurface );
+        }
+    }
+
+    // remove all surfaces with a missing input file
+    for ( auto& surface : missingSurfaces )
+    {
+        removeSurface( surface );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -445,4 +478,19 @@ bool RimSurfaceCollection::containsSurface()
         containsSurface |= coll->containsSurface();
     }
     return containsSurface;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimSurfaceCollection::containsFileSurface( QString filename )
+{
+    for ( auto& surface : surfaces() )
+    {
+        RimFileSurface* fileSurface = dynamic_cast<RimFileSurface*>( surface );
+        if ( fileSurface == nullptr ) continue;
+        if ( fileSurface->surfaceFilePath() == filename ) return true;
+    }
+
+    return false;
 }

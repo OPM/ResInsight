@@ -33,6 +33,7 @@
 
 class RimEclipseView;
 class RimFaultInView;
+class RimFaultRASettings;
 
 //==================================================================================================
 ///
@@ -61,6 +62,10 @@ public:
     bool isShowingFaultsAndFaultsOutsideFilters() const;
     void setShowFaultsOutsideFilter( bool show );
 
+    RimFaultRASettings* faultRASettings() const;
+    bool                faultRAEnabled() const;
+    void                enableFaultRA( bool enable );
+
     caf::PdmField<bool> showFaultFaces;
     caf::PdmField<bool> showOppositeFaultFaces;
 
@@ -81,9 +86,15 @@ public:
 private:
     void                 fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     caf::PdmFieldHandle* objectToggleField() override;
-    void                 defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
-    RimEclipseView*      parentView() const;
+
+    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
+
+    RimEclipseView* parentView() const;
 
 private:
     caf::PdmField<bool> m_showFaultsOutsideFilters;
+
+    caf::PdmChildField<RimFaultRASettings*> m_faultRASettings;
+    caf::PdmField<bool>                     m_enableFaultRA;
 };

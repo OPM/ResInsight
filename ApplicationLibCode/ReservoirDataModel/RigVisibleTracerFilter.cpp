@@ -21,7 +21,6 @@
 #include "RigFlowDiagResults.h"
 #include "RigFlowDiagVisibleCellsStatCalc.h"
 
-//#include "RimEclipseResultCase.h"
 #include "RimEclipseView.h"
 
 #include "cvfArray.h"

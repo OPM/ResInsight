@@ -41,6 +41,7 @@
 
 class RifReaderSettings;
 class RiaPreferencesSummary;
+class RiaPreferencesGeoMech;
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -120,6 +121,7 @@ public:
     QString pythonExecutable() const;
     QString octaveExecutable() const;
 
+    RiaPreferencesGeoMech* geoMechPreferences() const;
     RiaPreferencesSummary* summaryPreferences() const;
 
 public:
@@ -166,6 +168,7 @@ private:
     static QString tabNameGeneral();
     static QString tabNameEclipseGrid();
     static QString tabNameEclipseSummary();
+    static QString tabNameGeomech();
     static QString tabNamePlotting();
     static QString tabNameScripting();
     static QString tabNameExport();
@@ -218,6 +221,9 @@ private:
 
     // Well Path Import
     caf::PdmField<QString> m_multiLateralWellPattern;
+
+    // GeoMech things
+    caf::PdmChildField<RiaPreferencesGeoMech*> m_geoMechPreferences;
 
     // Summary data
     caf::PdmChildField<RiaPreferencesSummary*> m_summaryPreferences;
