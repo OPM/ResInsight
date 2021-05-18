@@ -1926,7 +1926,8 @@ std::vector<RimModeledWellPath*> RicWellPathExportMswCompletionsImpl::wellPathsW
         for ( auto w : wellPaths )
         {
             auto modelWellPath = dynamic_cast<RimModeledWellPath*>( w );
-            if ( modelWellPath && modelWellPath->wellPathTieIn() && modelWellPath->wellPathTieIn()->parentWell() == wellPath )
+            if ( modelWellPath && modelWellPath->isEnabled() && modelWellPath->wellPathTieIn() &&
+                 modelWellPath->wellPathTieIn()->parentWell() == wellPath )
             {
                 connectedWellPaths.push_back( modelWellPath );
             }
