@@ -488,6 +488,9 @@ RigCompletionData RicWellPathExportCompletionDataFeatureImpl::combineEclipseCell
 {
     CVF_ASSERT( !completions.empty() );
 
+    // For detailed description of how the combined completion data is computed, see
+    // https://github.com/OPM/ResInsight/issues/7049
+
     const RigCompletionData& firstCompletion = completions[0];
 
     const QString&                    wellName       = firstCompletion.wellName();
@@ -498,37 +501,33 @@ RigCompletionData RicWellPathExportCompletionDataFeatureImpl::combineEclipseCell
     resultCompletion.setSecondOrderingValue( firstCompletion.secondOrderingValue() );
     resultCompletion.setSourcePdmObject( firstCompletion.sourcePdmObject() );
 
-    // completion type, skin factor, well bore diameter and cell direction are taken from (first) main bore,
-    // if no main bore they are taken from first completion
-    double        skinfactor       = firstCompletion.skinFactor();
-    double        wellBoreDiameter = firstCompletion.diameter();
-    CellDirection cellDirection    = firstCompletion.direction();
+    CellDirection cellDirection                = firstCompletion.direction();
+    double        largestTransmissibilityValue = firstCompletion.transmissibility();
+
+    RiaWeightedMeanCalculator<double> diameterCalculator;
+    RiaWeightedMeanCalculator<double> skinFactorCalculator;
 
     for ( const RigCompletionData& completion : completions )
     {
-        // Use data from the completion with largest diameter
-        // This is more robust than checking for main bore flag
-        // See also https://github.com/OPM/ResInsight/issues/2765
-        if ( completion.diameter() > wellBoreDiameter )
+        double transmissibility = completion.transmissibility();
+
+        diameterCalculator.addValueAndWeight( completion.diameter(), transmissibility );
+        skinFactorCalculator.addValueAndWeight( completion.skinFactor(), transmissibility );
+
+        if ( transmissibility > largestTransmissibilityValue )
         {
-            skinfactor       = completion.skinFactor();
-            wellBoreDiameter = completion.diameter();
-            cellDirection    = completion.direction();
+            largestTransmissibilityValue = transmissibility;
+            cellDirection                = completion.direction();
         }
     }
+
+    double combinedDiameter   = diameterCalculator.weightedMean();
+    double combinedSkinFactor = skinFactorCalculator.weightedMean();
 
     double combinedTrans   = 0.0;
     double combinedKh      = 0.0;
     double combinedDFactor = 0.0;
 
-    if ( completions.size() == 1 )
-    {
-        resultCompletion.m_metadata = completions[0].m_metadata;
-        combinedTrans               = completions[0].transmissibility();
-        combinedKh                  = completions[0].kh();
-        combinedDFactor             = completions[0].dFactor();
-    }
-    else
     {
         RiaWeightedMeanCalculator<double> dFactorCalculator;
 
@@ -573,8 +572,8 @@ RigCompletionData RicWellPathExportCompletionDataFeatureImpl::combineEclipseCell
         resultCompletion.setCombinedValuesExplicitTrans( combinedTrans,
                                                          combinedKh,
                                                          combinedDFactor,
-                                                         skinfactor,
-                                                         wellBoreDiameter,
+                                                         combinedSkinFactor,
+                                                         combinedDiameter,
                                                          cellDirection,
                                                          completionType );
     }
@@ -583,8 +582,8 @@ RigCompletionData RicWellPathExportCompletionDataFeatureImpl::combineEclipseCell
         // calculate trans for main bore - but as Eclipse will do it!
         double transmissibilityEclipseCalculation =
             RicWellPathExportCompletionDataFeatureImpl::calculateTransmissibilityAsEclipseDoes( settings.caseToApply(),
-                                                                                                skinfactor,
-                                                                                                wellBoreDiameter / 2,
+                                                                                                combinedSkinFactor,
+                                                                                                combinedDiameter / 2,
                                                                                                 cellIndexIJK.globalCellIndex(),
                                                                                                 cellDirection );
 
@@ -592,8 +591,8 @@ RigCompletionData RicWellPathExportCompletionDataFeatureImpl::combineEclipseCell
         resultCompletion.setCombinedValuesImplicitTransWPImult( wpimult,
                                                                 combinedKh,
                                                                 combinedDFactor,
-                                                                skinfactor,
-                                                                wellBoreDiameter,
+                                                                combinedSkinFactor,
+                                                                combinedDiameter,
                                                                 cellDirection,
                                                                 completionType );
     }
