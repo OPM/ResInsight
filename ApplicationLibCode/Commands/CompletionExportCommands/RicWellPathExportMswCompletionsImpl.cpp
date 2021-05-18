@@ -426,6 +426,8 @@ void RicWellPathExportMswCompletionsImpl::exportWellSegmentsForFishbones( RimEcl
                                     &exportInfo,
                                     exportInfo.mainBoreBranch() );
 
+    updateDataForMultipleItemsInSameGridCell( exportInfo.mainBoreBranch() );
+
     int branchNumber = 1;
 
     assignBranchNumbersToBranch( eclipseCase, &exportInfo, exportInfo.mainBoreBranch(), &branchNumber );
@@ -460,6 +462,93 @@ void RicWellPathExportMswCompletionsImpl::exportWellSegmentsForFishbones( RimEcl
         bool exportLgr = true;
         RicMswTableFormatterTools::generateCompsegTables( formatter, exportInfo, exportLgr );
         RicMswTableFormatterTools::generateWsegvalvTable( formatter, exportInfo );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicWellPathExportMswCompletionsImpl::updateDataForMultipleItemsInSameGridCell( gsl::not_null<RicMswBranch*> branch )
+{
+    {
+        // Update effective diameter
+
+        std::map<size_t, std::set<RicMswSegment*>> segmentsInCell;
+        {
+            auto segments = branch->allSegmentsRecursively();
+            for ( auto s : segments )
+            {
+                auto cellsIntersected = s->globalCellsIntersected();
+                if ( !cellsIntersected.empty() )
+                {
+                    for ( auto index : cellsIntersected )
+                    {
+                        segmentsInCell[index].insert( s );
+                    }
+                }
+            }
+        }
+
+        for ( auto [index, segmentsInSameCell] : segmentsInCell )
+        {
+            // Compute effective diameter based on square root of the sum of diameter squared
+            // Deff = sqrt(d1^2 + d2^2 + ..)
+            double effectiveDiameter = 0.0;
+
+            for ( auto seg : segmentsInSameCell )
+            {
+                effectiveDiameter += ( seg->equivalentDiameter() * seg->equivalentDiameter() );
+            }
+
+            effectiveDiameter = sqrt( effectiveDiameter );
+
+            for ( auto seg : segmentsInSameCell )
+            {
+                seg->setEffectiveDiameter( effectiveDiameter );
+            }
+        }
+    }
+
+    {
+        // Update IDC area
+
+        std::map<size_t, std::set<RicMswFishbonesICD*>> icdsInCell;
+
+        {
+            auto segments = branch->allSegmentsRecursively();
+            for ( auto s : segments )
+            {
+                for ( auto completion : s->completions() )
+                {
+                    if ( auto icd = dynamic_cast<RicMswFishbonesICD*>( completion ) )
+                    {
+                        for ( auto icdSegment : icd->segments() )
+                        {
+                            for ( auto gridIntersection : icdSegment->intersections() )
+                            {
+                                icdsInCell[gridIntersection->globalCellIndex()].insert( icd );
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        for ( auto [Index, icdsInSameCell] : icdsInCell )
+        {
+            // Compute area sum for all ICDs in same grid cell
+            double areaSum = 0.0;
+
+            for ( auto icd : icdsInSameCell )
+            {
+                areaSum += icd->area();
+            }
+
+            for ( auto icd : icdsInSameCell )
+            {
+                icd->setArea( areaSum );
+            }
+        }
     }
 }
 
@@ -530,47 +619,55 @@ void RicWellPathExportMswCompletionsImpl::generateFishbonesMswExportInfo(
         }
 
         // Find cell intersections closest to each sub location
-        std::map<size_t, std::vector<size_t>> subAndCellIntersectionIndices;
+        std::map<size_t, std::vector<size_t>> closestSubForCellIntersections;
+        std::map<size_t, size_t>              cellIntersectionContainingSubIndex;
         {
             auto fishboneSectionStart = subs->startMD();
             auto fishboneSectionEnd   = subs->endMD();
 
             for ( size_t intersectionIndex = 0; intersectionIndex < filteredIntersections.size(); intersectionIndex++ )
             {
-                auto cellIntersection = filteredIntersections[intersectionIndex];
-                if ( fishboneSectionStart <= cellIntersection.startMD && cellIntersection.startMD < fishboneSectionEnd )
+                const auto& cellIntersection = filteredIntersections[intersectionIndex];
+                if ( ( fishboneSectionEnd >= cellIntersection.startMD ) &&
+                     ( fishboneSectionStart <= cellIntersection.endMD ) )
+
                 {
                     double intersectionMidpoint = 0.5 * ( cellIntersection.startMD + cellIntersection.endMD );
                     size_t closestSubIndex      = 0;
                     double closestDistance      = std::numeric_limits<double>::infinity();
-                    for ( const auto& sub : subAndLateralIndices )
+                    for ( const auto& [subIndex, lateralIndices] : subAndLateralIndices )
                     {
-                        double subMD = subs->measuredDepth( sub.first );
+                        double subMD = subs->measuredDepth( subIndex );
+
+                        if ( ( cellIntersection.startMD <= subMD ) && ( subMD <= cellIntersection.endMD ) )
+                        {
+                            cellIntersectionContainingSubIndex[subIndex] = intersectionIndex;
+                        }
 
                         auto distanceCandicate = std::abs( subMD - intersectionMidpoint );
                         if ( distanceCandicate < closestDistance )
                         {
                             closestDistance = distanceCandicate;
-                            closestSubIndex = sub.first;
+                            closestSubIndex = subIndex;
                         }
                     }
 
-                    subAndCellIntersectionIndices[closestSubIndex].push_back( intersectionIndex );
+                    closestSubForCellIntersections[closestSubIndex].push_back( intersectionIndex );
                 }
             }
         }
 
-        for ( const auto& sub : subAndLateralIndices )
+        for ( const auto& [subIndex, lateralIndices] : subAndLateralIndices )
         {
-            double subEndMD  = subs->measuredDepth( sub.first );
+            double subEndMD  = subs->measuredDepth( subIndex );
             double subEndTVD = RicMswTableFormatterTools::tvdFromMeasuredDepth( branch->wellPath(), subEndMD );
 
             {
                 // Add completion for ICD
                 auto icdSegment =
-                    std::make_unique<RicMswSegment>( "ICD segment", subEndMD, subEndMD + 0.1, subEndTVD, subEndTVD, sub.first );
+                    std::make_unique<RicMswSegment>( "ICD segment", subEndMD, subEndMD + 0.1, subEndTVD, subEndTVD, subIndex );
 
-                for ( auto lateralIndex : sub.second )
+                for ( auto lateralIndex : lateralIndices )
                 {
                     QString label = QString( "Lateral %1" ).arg( lateralIndex + 1 );
                     icdSegment->addCompletion(
@@ -595,7 +692,15 @@ void RicWellPathExportMswCompletionsImpl::generateFishbonesMswExportInfo(
                 {
                     const RigMainGrid* mainGrid = eclipseCase->mainGrid();
 
-                    for ( auto intersectionIndex : subAndCellIntersectionIndices[sub.first] )
+                    std::set<size_t> indices;
+                    for ( auto intersectionIndex : closestSubForCellIntersections[subIndex] )
+                    {
+                        indices.insert( intersectionIndex );
+                    }
+
+                    indices.insert( cellIntersectionContainingSubIndex[subIndex] );
+
+                    for ( auto intersectionIndex : indices )
                     {
                         auto intersection = filteredIntersections[intersectionIndex];
                         if ( intersection.globCellIndex >= mainGrid->globalCellArray().size() ) continue;
@@ -1557,6 +1662,7 @@ void RicWellPathExportMswCompletionsImpl::assignFishbonesLateralIntersections( c
             subSegment->setOpenHoleRoughnessFactor( fishbonesSubs->openHoleRoughnessFactor( unitSystem ) );
             subSegment->setSkinFactor( fishbonesSubs->skinFactor() );
             subSegment->setSourcePdmObject( fishbonesSubs );
+            subSegment->setIntersectedGlobalCells( { cellIntInfo.globCellIndex } );
 
             auto intersection = std::make_shared<RicMswSegmentCellIntersection>( gridName,
                                                                                  cellIntInfo.globCellIndex,

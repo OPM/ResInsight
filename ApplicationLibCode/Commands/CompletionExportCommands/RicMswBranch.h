@@ -63,6 +63,8 @@ public:
 
     void addChildBranch( std::unique_ptr<RicMswBranch> branch );
 
+    std::vector<RicMswSegment*> allSegmentsRecursively();
+
 private:
     double m_initialMD;
     double m_initialTVD;

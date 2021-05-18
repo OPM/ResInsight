@@ -308,7 +308,6 @@ void RimStimPlanFractureTemplate::loadDataAndUpdate()
     }
     else
     {
-        setUnitSystem( RiaDefines::EclipseUnitSystem::UNITS_UNKNOWN );
         m_readError = true;
     }
 
@@ -818,7 +817,13 @@ void RimStimPlanFractureTemplate::convertToUnitSystem( RiaDefines::EclipseUnitSy
     m_readError = false;
     loadDataAndUpdate();
 
-    if ( m_stimPlanFractureDefinitionData.isNull() ) return;
+    if ( m_stimPlanFractureDefinitionData.isNull() )
+    {
+        m_readError = true;
+        // Force needed unit system when file reading fails to be able to open the project.
+        setUnitSystem( neededUnit );
+        return;
+    }
 
     if ( neededUnit == RiaDefines::EclipseUnitSystem::UNITS_FIELD )
     {

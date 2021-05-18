@@ -71,6 +71,9 @@ public:
     void setSkinFactor( double skinFactor );
     void setSegmentNumber( int segmentNumber );
 
+    double effectiveDiameter() const;
+    void   setEffectiveDiameter( double effectiveDiameter );
+
     void                              addCompletion( std::unique_ptr<RicMswCompletion> completion );
     std::unique_ptr<RicMswCompletion> removeCompletion( RicMswCompletion* completion );
 
@@ -78,6 +81,9 @@ public:
 
     const std::vector<std::shared_ptr<RicMswSegmentCellIntersection>>& intersections() const;
     std::vector<std::shared_ptr<RicMswSegmentCellIntersection>>&       intersections();
+
+    std::set<size_t> globalCellsIntersected() const;
+    void             setIntersectedGlobalCells( const std::set<size_t>& intersectedCells );
 
     void                  setSourcePdmObject( const caf::PdmObject* object );
     const caf::PdmObject* sourcePdmObject() const;
@@ -95,13 +101,18 @@ private:
     double m_holeDiameter;
     double m_openHoleRoughnessFactor;
     double m_skinFactor;
+    double m_effectiveDiameter; // Used to represent the effective diameter if we have multiple laterals in same cell
 
     size_t m_subIndex;
     int    m_segmentNumber;
 
     std::vector<std::unique_ptr<RicMswCompletion>> m_completions;
 
+    // Connection to grid cells when we have a completion in this cell
     std::vector<std::shared_ptr<RicMswSegmentCellIntersection>> m_intersections;
+
+    // All global cells intersected by this segment
+    std::set<std::size_t> m_intersectedGlobalCells;
 
     caf::PdmPointer<caf::PdmObject> m_sourcePdmObject;
 };

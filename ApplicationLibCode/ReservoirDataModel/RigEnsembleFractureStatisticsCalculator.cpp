@@ -49,6 +49,7 @@ void caf::AppEnum<RigEnsembleFractureStatisticsCalculator::PropertyType>::setUp(
     addItem( RigEnsembleFractureStatisticsCalculator::PropertyType::XF, "XF", "Halflength (Xf)" );
     addItem( RigEnsembleFractureStatisticsCalculator::PropertyType::KFWF, "KFWF", "Conductivity (KfWf)" );
     addItem( RigEnsembleFractureStatisticsCalculator::PropertyType::PERMEABILITY, "PERMEABILITY", "Permeability" );
+    addItem( RigEnsembleFractureStatisticsCalculator::PropertyType::FORMATION_DIP, "FORMATION_DIP", "Formation Dip" );
     setDefault( RigEnsembleFractureStatisticsCalculator::PropertyType::HEIGHT );
 }
 }; // namespace caf
@@ -56,7 +57,7 @@ void caf::AppEnum<RigEnsembleFractureStatisticsCalculator::PropertyType>::setUp(
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigHistogramData RigEnsembleFractureStatisticsCalculator::createStatisticsData( RimEnsembleFractureStatistics* esf,
+RigHistogramData RigEnsembleFractureStatisticsCalculator::createStatisticsData( const RimEnsembleFractureStatistics* esf,
                                                                                 PropertyType propertyType,
                                                                                 int          numBins )
 {
@@ -89,6 +90,10 @@ RigHistogramData RigEnsembleFractureStatisticsCalculator::createStatisticsData( 
     else if ( propertyType == PropertyType::KFWF )
     {
         samples = calculateGridStatistics( defs, &RigEnsembleFractureStatisticsCalculator::calculateKfWf );
+    }
+    else if ( propertyType == PropertyType::FORMATION_DIP )
+    {
+        samples = calculateFormationDip( defs );
     }
 
     RigHistogramData histogramData;
@@ -326,6 +331,21 @@ double RigEnsembleFractureStatisticsCalculator::calculateXf( cvf::cref<RigFractu
     }
 
     return 0.0;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<double> RigEnsembleFractureStatisticsCalculator::calculateFormationDip(
+    const std::vector<cvf::ref<RigStimPlanFractureDefinition>>& defs )
+{
+    std::vector<double> formationDips;
+    for ( auto def : defs )
+    {
+        formationDips.push_back( def->formationDip() );
+    }
+
+    return formationDips;
 }
 
 //--------------------------------------------------------------------------------------------------

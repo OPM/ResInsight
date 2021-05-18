@@ -266,3 +266,35 @@ void RicMswBranch::addChildBranch( std::unique_ptr<RicMswBranch> branch )
 {
     m_branches.push_back( std::move( branch ) );
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RicMswSegment*> RicMswBranch::allSegmentsRecursively()
+{
+    std::vector<RicMswSegment*> allSegments;
+
+    {
+        std::vector<RicMswSegment*> branchSegments = segments();
+        allSegments.insert( allSegments.begin(), branchSegments.begin(), branchSegments.end() );
+
+        for ( auto seg : branchSegments )
+        {
+            for ( auto completion : seg->completions() )
+            {
+                std::vector<RicMswSegment*> completionSegments = completion->allSegmentsRecursively();
+
+                allSegments.insert( allSegments.begin(), completionSegments.begin(), completionSegments.end() );
+            }
+        }
+
+        for ( auto subBranch : branches() )
+        {
+            auto subBranchSegments = subBranch->allSegmentsRecursively();
+
+            allSegments.insert( allSegments.begin(), subBranchSegments.begin(), subBranchSegments.end() );
+        }
+
+        return allSegments;
+    }
+}
