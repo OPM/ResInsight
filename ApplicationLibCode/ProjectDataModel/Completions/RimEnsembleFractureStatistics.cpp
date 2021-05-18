@@ -1161,9 +1161,10 @@ QString RimEnsembleFractureStatistics::generateStatisticsTable(
 
     for ( auto propertyType : propertyTypes )
     {
-        QString name = caf::AppEnum<RigEnsembleFractureStatisticsCalculator::PropertyType>::uiText( propertyType );
+        QString name    = caf::AppEnum<RigEnsembleFractureStatisticsCalculator::PropertyType>::uiText( propertyType );
+        int     numBins = 50;
         RigHistogramData histogramData =
-            RigEnsembleFractureStatisticsCalculator::createStatisticsData( this, propertyType );
+            RigEnsembleFractureStatisticsCalculator::createStatisticsData( this, propertyType, numBins );
 
         text += QString( "<tr>"
                          "<td>%1</td>"
