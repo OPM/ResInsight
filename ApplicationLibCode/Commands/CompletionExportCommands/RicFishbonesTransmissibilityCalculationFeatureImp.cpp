@@ -111,8 +111,8 @@ std::vector<RigCompletionData>
 
         // Find main bore and number of laterals
 
-        size_t        numberOfLaterals  = 0;
-        CellDirection mainBoreDirection = DIR_I;
+        size_t numberOfLaterals  = 0;
+        auto   mainBoreDirection = RigCompletionData::CellDirection::DIR_I;
         for ( const auto& wellBorePart : wellBoreParts )
         {
             if ( !wellBorePart.isMainBore )
@@ -175,7 +175,7 @@ std::vector<RigCompletionData>
                 kh               = transmissibilityAndPermeability.kh();
             }
 
-            CellDirection direction =
+            auto direction =
                 RicWellPathExportCompletionDataFeatureImpl::calculateCellMainDirection( settings.caseToApply,
                                                                                         globalCellIndex,
                                                                                         wellBorePart.lengthsInCell );

@@ -107,8 +107,6 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions( const std::v
 
     exportCarfinForTemporaryLgrs( exportSettings.caseToApply(), exportSettings.folder );
 
-    if ( exportSettings.compdatExport == RicExportCompletionDataSettingsUi::TRANSMISSIBILITIES ||
-         exportSettings.compdatExport == RicExportCompletionDataSettingsUi::WPIMULT_AND_DEFAULT_CONNECTION_FACTORS )
     {
         std::vector<RicWellPathFractureReportItem> fractureDataReportItems;
         std::unique_ptr<QTextStream>               fractureTransmissibilityExportInformationStream = nullptr;
@@ -323,9 +321,9 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions( const std::v
         else if ( exportSettings.fileSplit == RicExportCompletionDataSettingsUi::SPLIT_ON_WELL_AND_COMPLETION_TYPE )
         {
             std::vector<RigCompletionData::CompletionType> completionTypes;
-            completionTypes.push_back( RigCompletionData::FISHBONES );
-            completionTypes.push_back( RigCompletionData::FRACTURE );
-            completionTypes.push_back( RigCompletionData::PERFORATION );
+            completionTypes.push_back( RigCompletionData::CompletionType::FISHBONES );
+            completionTypes.push_back( RigCompletionData::CompletionType::FRACTURE );
+            completionTypes.push_back( RigCompletionData::CompletionType::PERFORATION );
 
             for ( const auto& completionType : completionTypes )
             {
@@ -346,7 +344,7 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions( const std::v
                     if ( completionsForWell.empty() ) continue;
 
                     std::vector<RicWellPathFractureReportItem> reportItemsForWell;
-                    if ( completionType == RigCompletionData::FRACTURE )
+                    if ( completionType == RigCompletionData::CompletionType::FRACTURE )
                     {
                         for ( const auto& fracItem : fractureDataReportItems )
                         {
@@ -359,9 +357,12 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions( const std::v
 
                     {
                         QString completionTypeText;
-                        if ( completionType == RigCompletionData::FISHBONES ) completionTypeText = "Fishbones";
-                        if ( completionType == RigCompletionData::FRACTURE ) completionTypeText = "Fracture";
-                        if ( completionType == RigCompletionData::PERFORATION ) completionTypeText = "Perforation";
+                        if ( completionType == RigCompletionData::CompletionType::FISHBONES )
+                            completionTypeText = "Fishbones";
+                        if ( completionType == RigCompletionData::CompletionType::FRACTURE )
+                            completionTypeText = "Fracture";
+                        if ( completionType == RigCompletionData::CompletionType::PERFORATION )
+                            completionTypeText = "Perforation";
 
                         QString fileName =
                             QString( "%1_%2_%3" ).arg( wellPath->name() ).arg( completionTypeText ).arg( eclipseCaseName );
@@ -501,8 +502,8 @@ RigCompletionData RicWellPathExportCompletionDataFeatureImpl::combineEclipseCell
     resultCompletion.setSecondOrderingValue( firstCompletion.secondOrderingValue() );
     resultCompletion.setSourcePdmObject( firstCompletion.sourcePdmObject() );
 
-    CellDirection cellDirection                = firstCompletion.direction();
-    double        largestTransmissibilityValue = firstCompletion.transmissibility();
+    RigCompletionData::CellDirection cellDirection                = firstCompletion.direction();
+    double                           largestTransmissibilityValue = firstCompletion.transmissibility();
 
     RiaWeightedMeanCalculator<double> diameterCalculator;
     RiaWeightedMeanCalculator<double> skinFactorCalculator;
@@ -1024,7 +1025,7 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompdatTableUsingFormatte
         formatter.keyword( "COMPDATL" );
     }
 
-    RigCompletionData::CompletionType currentCompletionType = RigCompletionData::CT_UNDEFINED;
+    RigCompletionData::CompletionType currentCompletionType = RigCompletionData::CompletionType::CT_UNDEFINED;
 
     for ( const RigCompletionData& data : completionData )
     {
@@ -1033,9 +1034,9 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompdatTableUsingFormatte
             // The completions are sorted by completion type, write out a heading when completion type changes
 
             QString txt;
-            if ( data.completionType() == RigCompletionData::FISHBONES ) txt = "Fishbones";
-            if ( data.completionType() == RigCompletionData::FRACTURE ) txt = "Fracture";
-            if ( data.completionType() == RigCompletionData::PERFORATION ) txt = "Perforation";
+            if ( data.completionType() == RigCompletionData::CompletionType::FISHBONES ) txt = "Fishbones";
+            if ( data.completionType() == RigCompletionData::CompletionType::FRACTURE ) txt = "Fracture";
+            if ( data.completionType() == RigCompletionData::CompletionType::PERFORATION ) txt = "Perforation";
 
             formatter.addOptionalComment( "---- Completions for completion type " + txt + " ----" );
 
@@ -1064,18 +1065,8 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompdatTableUsingFormatte
             .addOneBasedCellIndex( data.completionDataGridCell().localCellIndexJ() )
             .addOneBasedCellIndex( data.completionDataGridCell().localCellIndexK() )
             .addOneBasedCellIndex( data.completionDataGridCell().localCellIndexK() );
-        switch ( data.connectionState() )
-        {
-            case OPEN:
-                formatter.add( "OPEN" );
-                break;
-            case SHUT:
-                formatter.add( "SHUT" );
-                break;
-            case AUTO:
-                formatter.add( "AUTO" );
-                break;
-        }
+
+        formatter.add( "OPEN" );
 
         formatter.addValueOrDefaultMarker( data.saturation(), RigCompletionData::defaultValue() );
         formatter.addValueOrDefaultMarker( data.transmissibility(), RigCompletionData::defaultValue() );
@@ -1089,13 +1080,13 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompdatTableUsingFormatte
 
         switch ( data.direction() )
         {
-            case DIR_I:
+            case RigCompletionData::CellDirection::DIR_I:
                 formatter.add( "'X'" );
                 break;
-            case DIR_J:
+            case RigCompletionData::CellDirection::DIR_J:
                 formatter.add( "'Y'" );
                 break;
-            case DIR_K:
+            case RigCompletionData::CellDirection::DIR_K:
             default:
                 formatter.add( "'Z'" );
                 break;
@@ -1213,9 +1204,8 @@ std::vector<RigCompletionData> RicWellPathExportCompletionDataFeatureImpl::gener
                                                                          settings.caseToApply->mainGrid() ),
                                               cell.startMD );
 
-                CellDirection direction = calculateCellMainDirection( settings.caseToApply,
-                                                                      cell.globCellIndex,
-                                                                      cell.intersectionLengthsInCellCS );
+                RigCompletionData::CellDirection direction =
+                    calculateCellMainDirection( settings.caseToApply, cell.globCellIndex, cell.intersectionLengthsInCellCS );
 
                 const RimNonDarcyPerforationParameters* nonDarcyParameters =
                     wellPath->perforationIntervalCollection()->nonDarcyParameters();
@@ -1299,9 +1289,10 @@ void RicWellPathExportCompletionDataFeatureImpl::appendCompletionData(
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-CellDirection RicWellPathExportCompletionDataFeatureImpl::calculateCellMainDirection( RimEclipseCase*   eclipseCase,
-                                                                                      size_t            globalCellIndex,
-                                                                                      const cvf::Vec3d& lengthsInCell )
+RigCompletionData::CellDirection
+    RicWellPathExportCompletionDataFeatureImpl::calculateCellMainDirection( RimEclipseCase*   eclipseCase,
+                                                                            size_t            globalCellIndex,
+                                                                            const cvf::Vec3d& lengthsInCell )
 {
     RigEclipseCaseData* eclipseCaseData = eclipseCase->eclipseCaseData();
 
@@ -1336,31 +1327,31 @@ CellDirection RicWellPathExportCompletionDataFeatureImpl::calculateCellMainDirec
 
     if ( xLengthFraction > yLengthFraction && xLengthFraction > zLengthFraction )
     {
-        return CellDirection::DIR_I;
+        return RigCompletionData::CellDirection::DIR_I;
     }
     else if ( yLengthFraction > xLengthFraction && yLengthFraction > zLengthFraction )
     {
-        return CellDirection::DIR_J;
+        return RigCompletionData::CellDirection::DIR_J;
     }
     else
     {
-        return CellDirection::DIR_K;
+        return RigCompletionData::CellDirection::DIR_K;
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-TransmissibilityData
-    RicWellPathExportCompletionDataFeatureImpl::calculateTransmissibilityData( RimEclipseCase*    eclipseCase,
-                                                                               const RimWellPath* wellPath,
-                                                                               const cvf::Vec3d&  internalCellLengths,
-                                                                               double             skinFactor,
-                                                                               double             wellRadius,
-                                                                               size_t             globalCellIndex,
-                                                                               bool               useLateralNTG,
-                                                                               size_t             volumeScaleConstant,
-                                                                               CellDirection directionForVolumeScaling )
+TransmissibilityData RicWellPathExportCompletionDataFeatureImpl::calculateTransmissibilityData(
+    RimEclipseCase*                  eclipseCase,
+    const RimWellPath*               wellPath,
+    const cvf::Vec3d&                internalCellLengths,
+    double                           skinFactor,
+    double                           wellRadius,
+    size_t                           globalCellIndex,
+    bool                             useLateralNTG,
+    size_t                           volumeScaleConstant,
+    RigCompletionData::CellDirection directionForVolumeScaling )
 {
     RigEclipseCaseData* eclipseCaseData = eclipseCase->eclipseCaseData();
 
@@ -1457,9 +1448,9 @@ TransmissibilityData
 
     if ( volumeScaleConstant != 1 )
     {
-        if ( directionForVolumeScaling == CellDirection::DIR_I ) dx = dx / volumeScaleConstant;
-        if ( directionForVolumeScaling == CellDirection::DIR_J ) dy = dy / volumeScaleConstant;
-        if ( directionForVolumeScaling == CellDirection::DIR_K ) dz = dz / volumeScaleConstant;
+        if ( directionForVolumeScaling == RigCompletionData::CellDirection::DIR_I ) dx = dx / volumeScaleConstant;
+        if ( directionForVolumeScaling == RigCompletionData::CellDirection::DIR_J ) dy = dy / volumeScaleConstant;
+        if ( directionForVolumeScaling == RigCompletionData::CellDirection::DIR_K ) dz = dz / volumeScaleConstant;
     }
 
     const double transx = RigTransmissibilityEquations::wellBoreTransmissibilityComponent( internalCellLengths.x() * latNtg,
@@ -1553,7 +1544,7 @@ double RicWellPathExportCompletionDataFeatureImpl::calculateTransmissibilityAsEc
                                                                                            double          skinFactor,
                                                                                            double          wellRadius,
                                                                                            size_t globalCellIndex,
-                                                                                           CellDirection direction )
+                                                                                           RigCompletionData::CellDirection direction )
 {
     RigEclipseCaseData* eclipseCaseData = eclipseCase->eclipseCaseData();
 
@@ -1631,7 +1622,7 @@ double RicWellPathExportCompletionDataFeatureImpl::calculateTransmissibilityAsEc
     double                        darcy = RiaEclipseUnitTools::darcysConstant( units );
 
     double trans = cvf::UNDEFINED_DOUBLE;
-    if ( direction == CellDirection::DIR_I )
+    if ( direction == RigCompletionData::CellDirection::DIR_I )
     {
         trans = RigTransmissibilityEquations::wellBoreTransmissibilityComponent( dx,
                                                                                  permy,
@@ -1642,7 +1633,7 @@ double RicWellPathExportCompletionDataFeatureImpl::calculateTransmissibilityAsEc
                                                                                  skinFactor,
                                                                                  darcy );
     }
-    else if ( direction == CellDirection::DIR_J )
+    else if ( direction == RigCompletionData::CellDirection::DIR_J )
     {
         trans = RigTransmissibilityEquations::wellBoreTransmissibilityComponent( dy,
                                                                                  permx,
@@ -1653,7 +1644,7 @@ double RicWellPathExportCompletionDataFeatureImpl::calculateTransmissibilityAsEc
                                                                                  skinFactor,
                                                                                  darcy );
     }
-    else if ( direction == CellDirection::DIR_K )
+    else if ( direction == RigCompletionData::CellDirection::DIR_K )
     {
         trans = RigTransmissibilityEquations::wellBoreTransmissibilityComponent( dz * ntg,
                                                                                  permy,

@@ -965,9 +965,9 @@ const RigGridBase* RicExportLgrFeature::hostGrid( const RigMainGrid* mainGrid, s
 //--------------------------------------------------------------------------------------------------
 LgrNameFactory::LgrNameFactory()
 {
-    m_counters = { { RigCompletionData::FRACTURE, { "FRAC", 1 } },
-                   { RigCompletionData::FISHBONES, { "FB", 1 } },
-                   { RigCompletionData::PERFORATION, { "PERF", 1 } } };
+    m_counters = { { RigCompletionData::CompletionType::FRACTURE, { "FRAC", 1 } },
+                   { RigCompletionData::CompletionType::FISHBONES, { "FB", 1 } },
+                   { RigCompletionData::CompletionType::PERFORATION, { "PERF", 1 } } };
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -977,9 +977,9 @@ QString LgrNameFactory::newName( RigCompletionData::CompletionType completionTyp
 {
     switch ( completionType )
     {
-        case RigCompletionData::FRACTURE:
-        case RigCompletionData::FISHBONES:
-        case RigCompletionData::PERFORATION:
+        case RigCompletionData::CompletionType::FRACTURE:
+        case RigCompletionData::CompletionType::FISHBONES:
+        case RigCompletionData::CompletionType::PERFORATION:
         {
             auto&   counter = m_counters[completionType];
             QString name    = counter.first + "_" + QString::number( counter.second );

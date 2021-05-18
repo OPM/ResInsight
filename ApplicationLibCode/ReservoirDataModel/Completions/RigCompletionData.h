@@ -30,27 +30,6 @@
 //==================================================================================================
 ///
 //==================================================================================================
-enum WellConnectionState
-{
-    OPEN,
-    SHUT,
-    AUTO,
-};
-
-//==================================================================================================
-///
-//==================================================================================================
-enum CellDirection
-{
-    DIR_I,
-    DIR_J,
-    DIR_K,
-    DIR_UNDEF,
-};
-
-//==================================================================================================
-///
-//==================================================================================================
 struct RigCompletionMetaData
 {
     RigCompletionMetaData( const QString& name, const QString& comment )
@@ -69,7 +48,7 @@ struct RigCompletionMetaData
 class RigCompletionData
 {
 public:
-    enum CompletionType
+    enum class CompletionType
     {
         FISHBONES,
         FRACTURE,
@@ -79,6 +58,14 @@ public:
         PERFORATION_AICD,
         PERFORATION_ICV,
         CT_UNDEFINED
+    };
+
+    enum class CellDirection
+    {
+        DIR_I,
+        DIR_J,
+        DIR_K,
+        DIR_UNDEF,
     };
 
     RigCompletionData( const QString& wellName, const RigCompletionDataGridCell& cellIndex, double orderingValue );
@@ -139,7 +126,6 @@ public:
     const std::vector<RigCompletionMetaData>& metadata() const;
     const QString&                            wellName() const;
     const RigCompletionDataGridCell&          completionDataGridCell() const;
-    WellConnectionState                       connectionState() const;
     double                                    saturation() const;
     double                                    transmissibility() const;
     double                                    diameter() const; // TODO: should be ft or m
@@ -163,7 +149,6 @@ public:
 private:
     QString                   m_wellName;
     RigCompletionDataGridCell m_cellIndex;
-    WellConnectionState       m_connectionState;
     double                    m_saturation; // TODO: remove, always use default in Eclipse?
     double                    m_transmissibility;
     double                    m_diameter;

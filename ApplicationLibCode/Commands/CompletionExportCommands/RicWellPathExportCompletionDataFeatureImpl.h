@@ -98,19 +98,19 @@ private:
 class RicWellPathExportCompletionDataFeatureImpl
 {
 public:
-    static CellDirection
+    static RigCompletionData::CellDirection
         calculateCellMainDirection( RimEclipseCase* eclipseCase, size_t globalCellIndex, const cvf::Vec3d& lengthsInCell );
 
-    static TransmissibilityData
-        calculateTransmissibilityData( RimEclipseCase*    eclipseCase,
-                                       const RimWellPath* wellPath,
-                                       const cvf::Vec3d&  internalCellLengths,
-                                       double             skinFactor,
-                                       double             wellRadius,
-                                       size_t             globalCellIndex,
-                                       bool               useLateralNTG,
-                                       size_t             volumeScaleConstant       = 1,
-                                       CellDirection      directionForVolumeScaling = CellDirection::DIR_I );
+    static TransmissibilityData calculateTransmissibilityData(
+        RimEclipseCase*                  eclipseCase,
+        const RimWellPath*               wellPath,
+        const cvf::Vec3d&                internalCellLengths,
+        double                           skinFactor,
+        double                           wellRadius,
+        size_t                           globalCellIndex,
+        bool                             useLateralNTG,
+        size_t                           volumeScaleConstant       = 1,
+        RigCompletionData::CellDirection directionForVolumeScaling = RigCompletionData::CellDirection::DIR_I );
 
     static double calculateDFactor( RimEclipseCase*                         eclipseCase,
                                     double                                  effectiveH,
@@ -134,11 +134,11 @@ public:
                                            const RicExportCompletionDataSettingsUi&          settings );
 
 private:
-    static double calculateTransmissibilityAsEclipseDoes( RimEclipseCase* eclipseCase,
-                                                          double          skinFactor,
-                                                          double          wellRadius,
-                                                          size_t          globalCellIndex,
-                                                          CellDirection   direction );
+    static double calculateTransmissibilityAsEclipseDoes( RimEclipseCase*                  eclipseCase,
+                                                          double                           skinFactor,
+                                                          double                           wellRadius,
+                                                          size_t                           globalCellIndex,
+                                                          RigCompletionData::CellDirection direction );
 
     static RigCompletionData combineEclipseCellCompletions( const std::vector<RigCompletionData>&    completions,
                                                             const RicExportCompletionDataSettingsUi& settings );

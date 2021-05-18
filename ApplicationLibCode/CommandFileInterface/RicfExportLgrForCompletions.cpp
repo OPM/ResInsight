@@ -111,9 +111,9 @@ caf::PdmScriptResponse RicfExportLgrForCompletions::execute()
                                      m_timeStep,
                                      lgrCellCounts,
                                      m_splitType(),
-                                     { RigCompletionData::PERFORATION,
-                                       RigCompletionData::FRACTURE,
-                                       RigCompletionData::FISHBONES },
+                                     { RigCompletionData::CompletionType::PERFORATION,
+                                       RigCompletionData::CompletionType::FRACTURE,
+                                       RigCompletionData::CompletionType::FISHBONES },
                                      &wellsIntersectingOtherLgrs );
 
     caf::PdmScriptResponse response;

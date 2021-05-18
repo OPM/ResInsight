@@ -42,13 +42,13 @@ std::vector<RiaDefines::WellPathComponentType> fromCompletionData( const std::ve
     {
         switch ( d.completionType() )
         {
-            case RigCompletionData::FRACTURE:
+            case RigCompletionData::CompletionType::FRACTURE:
                 appCompletionTypes.push_back( RiaDefines::WellPathComponentType::FRACTURE );
                 break;
-            case RigCompletionData::PERFORATION:
+            case RigCompletionData::CompletionType::PERFORATION:
                 appCompletionTypes.push_back( RiaDefines::WellPathComponentType::PERFORATION_INTERVAL );
                 break;
-            case RigCompletionData::FISHBONES:
+            case RigCompletionData::CompletionType::FISHBONES:
                 appCompletionTypes.push_back( RiaDefines::WellPathComponentType::FISHBONES );
                 break;
             default:

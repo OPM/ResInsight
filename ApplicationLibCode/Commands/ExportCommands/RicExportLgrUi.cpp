@@ -139,9 +139,9 @@ int RicExportLgrUi::timeStep() const
 std::set<RigCompletionData::CompletionType> RicExportLgrUi::completionTypes() const
 {
     std::set<RigCompletionData::CompletionType> cts;
-    if ( m_includePerforations() ) cts.insert( RigCompletionData::PERFORATION );
-    if ( m_includeFractures() ) cts.insert( RigCompletionData::FRACTURE );
-    if ( m_includeFishbones() ) cts.insert( RigCompletionData::FISHBONES );
+    if ( m_includePerforations() ) cts.insert( RigCompletionData::CompletionType::PERFORATION );
+    if ( m_includeFractures() ) cts.insert( RigCompletionData::CompletionType::FRACTURE );
+    if ( m_includeFishbones() ) cts.insert( RigCompletionData::CompletionType::FISHBONES );
     return cts;
 }
 
