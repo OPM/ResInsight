@@ -29,6 +29,7 @@
 #include "RigTracerPoint.h"
 
 #include "RimEclipseCase.h"
+#include "RimEclipseInputCase.h"
 #include "RimEclipseView.h"
 #include "RimRegularLegendConfig.h"
 #include "RimStreamline.h"
@@ -194,6 +195,16 @@ RimEclipseCase* RimStreamlineInViewCollection::eclipseCase() const
 bool RimStreamlineInViewCollection::isActive() const
 {
     return m_isActive();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimStreamlineInViewCollection::shouldBeAvailable() const
+{
+    if ( ( eclipseCase() == nullptr ) || ( eclipseCase()->eclipseCaseData() == nullptr ) ) return false;
+
+    return ( dynamic_cast<RimEclipseInputCase*>( eclipseCase() ) == nullptr );
 }
 
 //--------------------------------------------------------------------------------------------------

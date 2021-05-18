@@ -1935,7 +1935,9 @@ void RimEclipseView::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrderin
     uiTreeOrdering.add( cellEdgeResult() );
     uiTreeOrdering.add( elementVectorResult() );
     uiTreeOrdering.add( faultResultSettings() );
-    uiTreeOrdering.add( &m_streamlineCollection );
+
+    if ( m_streamlineCollection->shouldBeAvailable() ) uiTreeOrdering.add( &m_streamlineCollection );
+
     addRequiredUiTreeObjects( uiTreeOrdering );
 
     uiTreeOrdering.add( wellCollection() );

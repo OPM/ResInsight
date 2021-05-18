@@ -82,6 +82,8 @@ public:
     double            scaleFactor() const;
     size_t            tracerLength() const;
 
+    bool shouldBeAvailable() const;
+
     bool isActive() const;
 
     void refresh();
