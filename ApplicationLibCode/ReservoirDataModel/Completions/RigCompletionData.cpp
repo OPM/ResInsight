@@ -38,12 +38,11 @@ RigCompletionData::RigCompletionData( const QString& wellName, const RigCompleti
     , m_kh( std::numeric_limits<double>::infinity() )
     , m_skinFactor( std::numeric_limits<double>::infinity() )
     , m_dFactor( std::numeric_limits<double>::infinity() )
-    , m_direction( DIR_UNDEF )
-    , m_connectionState( OPEN )
+    , m_direction( CellDirection::DIR_UNDEF )
     , m_count( 1 )
     , m_wpimult( std::numeric_limits<double>::infinity() )
     , m_isMainBore( false )
-    , m_completionType( CT_UNDEFINED )
+    , m_completionType( CompletionType::CT_UNDEFINED )
     , m_firstOrderingValue( orderingValue )
     , m_secondOrderingValue( std::numeric_limits<double>::infinity() )
 {
@@ -109,7 +108,8 @@ RigCompletionData& RigCompletionData::operator=( const RigCompletionData& other 
 //--------------------------------------------------------------------------------------------------
 bool RigCompletionData::isPerforationValve( CompletionType type )
 {
-    return type == PERFORATION_AICD || type == PERFORATION_ICD || type == PERFORATION_ICV;
+    return type == CompletionType::PERFORATION_AICD || type == CompletionType::PERFORATION_ICD ||
+           type == CompletionType::PERFORATION_ICV;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -117,7 +117,7 @@ bool RigCompletionData::isPerforationValve( CompletionType type )
 //--------------------------------------------------------------------------------------------------
 bool RigCompletionData::isValve( CompletionType type )
 {
-    return isPerforationValve( type ) || type == FISHBONES_ICD;
+    return isPerforationValve( type ) || type == CompletionType::FISHBONES_ICD;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -125,7 +125,8 @@ bool RigCompletionData::isValve( CompletionType type )
 //--------------------------------------------------------------------------------------------------
 bool RigCompletionData::isWsegValveTypes( CompletionType type )
 {
-    return type == FISHBONES_ICD || type == PERFORATION_ICD || type == PERFORATION_ICV;
+    return type == CompletionType::FISHBONES_ICD || type == CompletionType::PERFORATION_ICD ||
+           type == CompletionType::PERFORATION_ICV;
 }
 
 //==================================================================================================
@@ -133,7 +134,7 @@ bool RigCompletionData::isWsegValveTypes( CompletionType type )
 //==================================================================================================
 void RigCompletionData::setFromFracture( double transmissibility, double skinFactor, double diameter )
 {
-    m_completionType   = FRACTURE;
+    m_completionType   = CompletionType::FRACTURE;
     m_transmissibility = transmissibility;
     m_skinFactor       = skinFactor;
     m_diameter         = diameter;
@@ -173,7 +174,7 @@ void RigCompletionData::setTransAndWPImultBackgroundDataFromFishbone( double    
                                                                       CellDirection direction,
                                                                       bool          isMainBore )
 {
-    m_completionType   = FISHBONES;
+    m_completionType   = CompletionType::FISHBONES;
     m_transmissibility = transmissibility;
     m_skinFactor       = skinFactor;
     m_diameter         = diameter;
@@ -192,7 +193,7 @@ void RigCompletionData::setTransAndWPImultBackgroundDataFromPerforation( double 
                                                                          double        kh,
                                                                          CellDirection direction )
 {
-    m_completionType   = PERFORATION;
+    m_completionType   = CompletionType::PERFORATION;
     m_transmissibility = transmissibility;
     m_skinFactor       = skinFactor;
     m_diameter         = diameter;
@@ -320,14 +321,6 @@ const RigCompletionDataGridCell& RigCompletionData::completionDataGridCell() con
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-WellConnectionState RigCompletionData::connectionState() const
-{
-    return m_connectionState;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 double RigCompletionData::saturation() const
 {
     return m_saturation;
@@ -376,7 +369,7 @@ double RigCompletionData::dFactor() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-CellDirection RigCompletionData::direction() const
+RigCompletionData::CellDirection RigCompletionData::direction() const
 {
     return m_direction;
 }
@@ -453,7 +446,6 @@ void RigCompletionData::copy( RigCompletionData& target, const RigCompletionData
     target.m_metadata            = from.m_metadata;
     target.m_wellName            = from.m_wellName;
     target.m_cellIndex           = from.m_cellIndex;
-    target.m_connectionState     = from.m_connectionState;
     target.m_saturation          = from.m_saturation;
     target.m_transmissibility    = from.m_transmissibility;
     target.m_diameter            = from.m_diameter;

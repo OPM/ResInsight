@@ -114,17 +114,6 @@ void RivWellConnectionFactorPartMgr::appendDynamicGeometryPartsToModel( cvf::Mod
     std::vector<CompletionVizData> completionVizDataItems;
     for ( const auto& completionsForCell : completionsForWellPath )
     {
-        if ( !m_virtualPerforationResult->showConnectionFactorsOnClosedConnections() )
-        {
-            for ( const auto& completion : completionsForCell.second )
-            {
-                if ( completion.connectionState() == SHUT )
-                {
-                    continue;
-                }
-            }
-        }
-
         bool showConnectionFactorOnWellPath = true;
         {
             for ( const auto& completion : completionsForCell.second )

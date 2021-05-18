@@ -1491,7 +1491,7 @@ void RicWellPathExportMswCompletionsImpl::moveIntersectionsToICVs(
         std::vector<RicMswCompletion*> perforations;
         for ( auto completion : segment->completions() )
         {
-            if ( completion->completionType() == RigCompletionData::PERFORATION )
+            if ( completion->completionType() == RigCompletionData::CompletionType::PERFORATION )
             {
                 perforations.push_back( completion );
             }
@@ -1557,7 +1557,7 @@ void RicWellPathExportMswCompletionsImpl::moveIntersectionsToSuperICDsOrAICDs( g
             }
             else
             {
-                CVF_ASSERT( completion->completionType() == RigCompletionData::PERFORATION );
+                CVF_ASSERT( completion->completionType() == RigCompletionData::CompletionType::PERFORATION );
                 perforations.push_back( completion );
             }
         }
@@ -1600,7 +1600,7 @@ void RicWellPathExportMswCompletionsImpl::assignFishbonesLateralIntersections( c
 
     for ( auto completion : segment->completions() )
     {
-        if ( completion->completionType() != RigCompletionData::FISHBONES )
+        if ( completion->completionType() != RigCompletionData::CompletionType::FISHBONES )
         {
             continue;
         }
@@ -1817,7 +1817,7 @@ void RicWellPathExportMswCompletionsImpl::assignBranchNumbersToPerforations( con
 {
     for ( auto completion : segment->completions() )
     {
-        if ( completion->completionType() == RigCompletionData::PERFORATION )
+        if ( completion->completionType() == RigCompletionData::CompletionType::PERFORATION )
         {
             completion->setBranchNumber( *branchNumber );
         }
@@ -1833,7 +1833,7 @@ void RicWellPathExportMswCompletionsImpl::assignBranchNumbersToOtherCompletions(
 {
     for ( auto completion : segment->completions() )
     {
-        if ( completion->completionType() != RigCompletionData::PERFORATION )
+        if ( completion->completionType() != RigCompletionData::CompletionType::PERFORATION )
         {
             completion->setBranchNumber( ++( *branchNumber ) );
 

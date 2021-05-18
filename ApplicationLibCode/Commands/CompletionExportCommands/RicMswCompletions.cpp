@@ -61,7 +61,7 @@ RicMswFracture::RicMswFracture( const QString&     label,
 //--------------------------------------------------------------------------------------------------
 RigCompletionData::CompletionType RicMswFracture::completionType() const
 {
-    return RigCompletionData::FRACTURE;
+    return RigCompletionData::CompletionType::FRACTURE;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -81,7 +81,7 @@ RicMswPerforation::RicMswPerforation( const QString&     label,
 //--------------------------------------------------------------------------------------------------
 RigCompletionData::CompletionType RicMswPerforation::completionType() const
 {
-    return RigCompletionData::PERFORATION;
+    return RigCompletionData::CompletionType::PERFORATION;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -207,7 +207,7 @@ RicMswFishbonesICD::RicMswFishbonesICD( const QString&          label,
 //--------------------------------------------------------------------------------------------------
 RigCompletionData::CompletionType RicMswFishbonesICD::completionType() const
 {
-    return RigCompletionData::FISHBONES_ICD;
+    return RigCompletionData::CompletionType::FISHBONES_ICD;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -227,7 +227,7 @@ RicMswPerforationICD::RicMswPerforationICD( const QString&          label,
 //--------------------------------------------------------------------------------------------------
 RigCompletionData::CompletionType RicMswPerforationICD::completionType() const
 {
-    return RigCompletionData::PERFORATION_ICD;
+    return RigCompletionData::CompletionType::PERFORATION_ICD;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -252,7 +252,7 @@ RicMswPerforationICV::RicMswPerforationICV( const QString&          label,
 //--------------------------------------------------------------------------------------------------
 RigCompletionData::CompletionType RicMswPerforationICV::completionType() const
 {
-    return RigCompletionData::PERFORATION_ICV;
+    return RigCompletionData::CompletionType::PERFORATION_ICV;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -276,7 +276,7 @@ RicMswPerforationAICD::RicMswPerforationAICD( const QString&          label,
 //--------------------------------------------------------------------------------------------------
 RigCompletionData::CompletionType RicMswPerforationAICD::completionType() const
 {
-    return RigCompletionData::PERFORATION_AICD;
+    return RigCompletionData::CompletionType::PERFORATION_AICD;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -365,5 +365,5 @@ RicMswTieInICV::RicMswTieInICV( const QString&          label,
 //--------------------------------------------------------------------------------------------------
 RigCompletionData::CompletionType RicMswTieInICV::completionType() const
 {
-    return RigCompletionData::PERFORATION_ICV;
+    return RigCompletionData::CompletionType::PERFORATION_ICV;
 }

@@ -184,27 +184,27 @@ void RicMswTableFormatterTools::writeWelsegsCompletionCommentHeader( RifTextData
 
     switch ( completionType )
     {
-        case RigCompletionData::FISHBONES:
+        case RigCompletionData::CompletionType::FISHBONES:
             break;
-        case RigCompletionData::FRACTURE:
+        case RigCompletionData::CompletionType::FRACTURE:
             optionalCommentText = "Fracture Segments";
             break;
-        case RigCompletionData::PERFORATION:
+        case RigCompletionData::CompletionType::PERFORATION:
             optionalCommentText = "Perforation Segments";
             break;
-        case RigCompletionData::FISHBONES_ICD:
+        case RigCompletionData::CompletionType::FISHBONES_ICD:
             optionalCommentText = "Fishbones Segments - ICD";
             break;
-        case RigCompletionData::PERFORATION_ICD:
+        case RigCompletionData::CompletionType::PERFORATION_ICD:
             optionalCommentText = "Perforation Segments - ICD";
             break;
-        case RigCompletionData::PERFORATION_AICD:
+        case RigCompletionData::CompletionType::PERFORATION_AICD:
             optionalCommentText = "Perforation Segments - AICD";
             break;
-        case RigCompletionData::PERFORATION_ICV:
+        case RigCompletionData::CompletionType::PERFORATION_ICV:
             optionalCommentText = "Perforation Segments - ICV";
             break;
-        case RigCompletionData::CT_UNDEFINED:
+        case RigCompletionData::CompletionType::CT_UNDEFINED:
             optionalCommentText = "Main Stem";
             break;
         default:
@@ -231,15 +231,15 @@ void RicMswTableFormatterTools::generateCompsegTables( RifTextDataTableFormatter
 
     std::set<size_t> intersectedCells;
 
-    std::set<RigCompletionData::CompletionType> perforationTypes = { RigCompletionData::PERFORATION,
-                                                                     RigCompletionData::PERFORATION_ICD,
-                                                                     RigCompletionData::PERFORATION_ICV,
-                                                                     RigCompletionData::PERFORATION_AICD };
+    std::set<RigCompletionData::CompletionType> perforationTypes = { RigCompletionData::CompletionType::PERFORATION,
+                                                                     RigCompletionData::CompletionType::PERFORATION_ICD,
+                                                                     RigCompletionData::CompletionType::PERFORATION_ICV,
+                                                                     RigCompletionData::CompletionType::PERFORATION_AICD };
 
-    std::set<RigCompletionData::CompletionType> fishbonesTypes = { RigCompletionData::FISHBONES_ICD,
-                                                                   RigCompletionData::FISHBONES };
+    std::set<RigCompletionData::CompletionType> fishbonesTypes = { RigCompletionData::CompletionType::FISHBONES_ICD,
+                                                                   RigCompletionData::CompletionType::FISHBONES };
 
-    std::set<RigCompletionData::CompletionType> fractureTypes = { RigCompletionData::FRACTURE };
+    std::set<RigCompletionData::CompletionType> fractureTypes = { RigCompletionData::CompletionType::FRACTURE };
 
     {
         bool headerGenerated = false;
@@ -296,9 +296,10 @@ void RicMswTableFormatterTools::generateCompsegTable( RifTextDataTableFormatter&
 
             if ( completion )
             {
-                bool isPerforationValve = completion->completionType() == RigCompletionData::PERFORATION_ICD ||
-                                          completion->completionType() == RigCompletionData::PERFORATION_AICD ||
-                                          completion->completionType() == RigCompletionData::PERFORATION_ICV;
+                bool isPerforationValve =
+                    completion->completionType() == RigCompletionData::CompletionType::PERFORATION_ICD ||
+                    completion->completionType() == RigCompletionData::CompletionType::PERFORATION_AICD ||
+                    completion->completionType() == RigCompletionData::CompletionType::PERFORATION_ICV;
 
                 if ( isPerforationValve )
                 {
@@ -384,11 +385,11 @@ void RicMswTableFormatterTools::generateCompsegHeader( RifTextDataTableFormatter
         formatter.keyword( "COMPSEGS" );
     }
 
-    if ( completionType == RigCompletionData::FISHBONES_ICD )
+    if ( completionType == RigCompletionData::CompletionType::FISHBONES_ICD )
     {
         formatter.comment( "Fishbones" );
     }
-    else if ( completionType == RigCompletionData::FRACTURE )
+    else if ( completionType == RigCompletionData::CompletionType::FRACTURE )
     {
         formatter.comment( "Fractures" );
     }
@@ -459,7 +460,7 @@ void RicMswTableFormatterTools::generateWsegvalvTableRecursively( RifTextDataTab
             }
 
             auto firstSubSegment = tieInValve->segments().front();
-            CAF_ASSERT( tieInValve->completionType() == RigCompletionData::PERFORATION_ICV );
+            CAF_ASSERT( tieInValve->completionType() == RigCompletionData::CompletionType::PERFORATION_ICV );
             {
                 formatter.addOptionalComment( tieInValve->label() );
             }
@@ -495,8 +496,8 @@ void RicMswTableFormatterTools::generateWsegvalvTableRecursively( RifTextDataTab
                     // Unclear why this line was included. Remove when MSW export has ben verified correctly
                     // if ( !firstSubSegment->intersections().empty() )
                     {
-                        if ( wsegValve->completionType() == RigCompletionData::PERFORATION_ICD ||
-                             wsegValve->completionType() == RigCompletionData::PERFORATION_ICV )
+                        if ( wsegValve->completionType() == RigCompletionData::CompletionType::PERFORATION_ICD ||
+                             wsegValve->completionType() == RigCompletionData::CompletionType::PERFORATION_ICV )
                         {
                             formatter.addOptionalComment( wsegValve->label() );
                         }
@@ -532,7 +533,7 @@ void RicMswTableFormatterTools::generateWsegAicdTable( RifTextDataTableFormatter
     {
         for ( auto completion : segment->completions() )
         {
-            if ( completion->completionType() == RigCompletionData::PERFORATION_AICD )
+            if ( completion->completionType() == RigCompletionData::CompletionType::PERFORATION_AICD )
             {
                 auto aicd = static_cast<RicMswPerforationAICD*>( completion );
                 if ( aicd->isValid() )
@@ -805,12 +806,12 @@ void RicMswTableFormatterTools::writeCompletionWelsegsSegments( gsl::not_null<co
 {
     writeWelsegsCompletionCommentHeader( formatter, completion->completionType() );
 
-    if ( completion->completionType() == RigCompletionData::FISHBONES )
+    if ( completion->completionType() == RigCompletionData::CompletionType::FISHBONES )
     {
         formatter.addOptionalComment(
             QString( "Sub index %1 - %2" ).arg( outletSegment->subIndex() + 1 ).arg( completion->label() ) );
     }
-    else if ( completion->completionType() == RigCompletionData::FRACTURE )
+    else if ( completion->completionType() == RigCompletionData::CompletionType::FRACTURE )
     {
         formatter.addOptionalComment(
             QString( "%1 connected to segment %2" ).arg( completion->label() ).arg( outletSegment->segmentNumber() ) );
@@ -837,7 +838,7 @@ void RicMswTableFormatterTools::writeCompletionWelsegsSegments( gsl::not_null<co
             double subStartTVD = tvdFromMeasuredDepth( completion->wellPath(), subStartMD );
             double subEndTVD   = tvdFromMeasuredDepth( completion->wellPath(), subEndMD );
 
-            if ( completion->completionType() == RigCompletionData::FISHBONES )
+            if ( completion->completionType() == RigCompletionData::CompletionType::FISHBONES )
             {
                 // Not possible to do interpolation based on well path geometry here
                 // Use linear interpolation based on start/end TVD for segment

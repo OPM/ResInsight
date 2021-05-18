@@ -89,7 +89,7 @@ class CompletionInfo
 {
 public:
     CompletionInfo()
-        : type( RigCompletionData::CT_UNDEFINED )
+        : type( RigCompletionData::CompletionType::CT_UNDEFINED )
         , name( "" )
         , wellPathName( "" )
     {
@@ -112,14 +112,15 @@ public:
 
     bool isValid() const
     {
-        return type != RigCompletionData::CT_UNDEFINED && !name.isEmpty() && !wellPathName.isEmpty();
+        return type != RigCompletionData::CompletionType::CT_UNDEFINED && !name.isEmpty() && !wellPathName.isEmpty();
     }
 
     int priority() const
     {
-        return type == RigCompletionData::FRACTURE
-                   ? 1
-                   : type == RigCompletionData::FISHBONES ? 2 : type == RigCompletionData::PERFORATION ? 3 : 4;
+        return type == RigCompletionData::CompletionType::FRACTURE      ? 1
+               : type == RigCompletionData::CompletionType::FISHBONES   ? 2
+               : type == RigCompletionData::CompletionType::PERFORATION ? 3
+                                                                        : 4;
     }
 
     // Sort by priority, then name, then number
