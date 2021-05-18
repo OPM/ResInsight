@@ -35,6 +35,7 @@ class RimWellPath;
 namespace RicMswTableFormatterTools
 {
 class WsegvalveData;
+class AicdWsegvalveData;
 
 class CvfVec3stComparator
 {
@@ -121,6 +122,9 @@ void generateWsegvalvTableRecursively( gsl::not_null<RicMswBranch*>             
                                        std::map<size_t, std::vector<WsegvalveData>>& wsegvalveData );
 
 void generateWsegAicdTable( RifTextDataTableFormatter& formatter, RicMswExportInfo& exportInfo );
+void generateWsegAicdTableRecursively( RicMswExportInfo&                                 exportInfo,
+                                       gsl::not_null<const RicMswBranch*>                branch,
+                                       std::map<size_t, std::vector<AicdWsegvalveData>>& aicdValveData );
 
 std::vector<std::pair<double, double>> createSubSegmentMDPairs( double startMD, double endMD, double maxSegmentLength );
 
