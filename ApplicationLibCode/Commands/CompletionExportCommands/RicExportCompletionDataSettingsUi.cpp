@@ -32,26 +32,26 @@ namespace caf
     template<>
     void RicExportCompletionDataSettingsUi::ExportSplitType::setUp()
     {
-        addItem(RicExportCompletionDataSettingsUi::UNIFIED_FILE,                      "UNIFIED_FILE",                      "Unified File");
-        addItem(RicExportCompletionDataSettingsUi::SPLIT_ON_WELL,                     "SPLIT_ON_WELL",                     "Split on Well");
-        addItem(RicExportCompletionDataSettingsUi::SPLIT_ON_WELL_AND_COMPLETION_TYPE, "SPLIT_ON_WELL_AND_COMPLETION_TYPE", "Split on Well and Completion Type");
-        setDefault(RicExportCompletionDataSettingsUi::SPLIT_ON_WELL_AND_COMPLETION_TYPE);
+        addItem(RicExportCompletionDataSettingsUi::ExportSplit::UNIFIED_FILE,                      "UNIFIED_FILE",                      "Unified File");
+        addItem(RicExportCompletionDataSettingsUi::ExportSplit::SPLIT_ON_WELL,                     "SPLIT_ON_WELL",                     "Split on Well");
+        addItem(RicExportCompletionDataSettingsUi::ExportSplit::SPLIT_ON_WELL_AND_COMPLETION_TYPE, "SPLIT_ON_WELL_AND_COMPLETION_TYPE", "Split on Well and Completion Type");
+        setDefault(RicExportCompletionDataSettingsUi::ExportSplit::SPLIT_ON_WELL_AND_COMPLETION_TYPE);
     }
 
     template<>
     void RicExportCompletionDataSettingsUi::CompdatExportType::setUp()
     {
-        addItem(RicExportCompletionDataSettingsUi::TRANSMISSIBILITIES, "TRANSMISSIBILITIES", "Calculated Transmissibilities");
-        addItem(RicExportCompletionDataSettingsUi::WPIMULT_AND_DEFAULT_CONNECTION_FACTORS, "WPIMULT_AND_DEFAULT_CONNECTION_FACTORS", "Default Connection Factors and WPIMULT (Fractures Not Supported)");
-        setDefault(RicExportCompletionDataSettingsUi::TRANSMISSIBILITIES);
+        addItem(RicExportCompletionDataSettingsUi::CompdatExport::TRANSMISSIBILITIES, "TRANSMISSIBILITIES", "Calculated Transmissibilities");
+        addItem(RicExportCompletionDataSettingsUi::CompdatExport::WPIMULT_AND_DEFAULT_CONNECTION_FACTORS, "WPIMULT_AND_DEFAULT_CONNECTION_FACTORS", "Default Connection Factors and WPIMULT (Fractures Not Supported)");
+        setDefault(RicExportCompletionDataSettingsUi::CompdatExport::TRANSMISSIBILITIES);
     }
 
     template<>
     void RicExportCompletionDataSettingsUi::CombinationModeType::setUp()
     {
-        addItem(RicExportCompletionDataSettingsUi::INDIVIDUALLY,    "INDIVIDUALLY", "Individually");
-        addItem(RicExportCompletionDataSettingsUi::COMBINED,        "COMBINED",     "Combined");
-        setDefault(RicExportCompletionDataSettingsUi::INDIVIDUALLY);
+        addItem(RicExportCompletionDataSettingsUi::CombinationMode::INDIVIDUALLY,    "INDIVIDUALLY", "Individually");
+        addItem(RicExportCompletionDataSettingsUi::CombinationMode::COMBINED,        "COMBINED",     "Combined");
+        setDefault(RicExportCompletionDataSettingsUi::CombinationMode::INDIVIDUALLY);
     }
 
     template<>
@@ -199,7 +199,7 @@ void RicExportCompletionDataSettingsUi::showFishbonesInUi( bool enable )
 //--------------------------------------------------------------------------------------------------
 bool RicExportCompletionDataSettingsUi::reportCompletionsTypesIndividually() const
 {
-    return m_reportCompletionTypesSeparately() == INDIVIDUALLY;
+    return m_reportCompletionTypesSeparately() == CombinationMode::INDIVIDUALLY;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -270,11 +270,11 @@ void RicExportCompletionDataSettingsUi::fieldChangedByUi( const caf::PdmFieldHan
 {
     if ( changedField == &compdatExport )
     {
-        if ( compdatExport == WPIMULT_AND_DEFAULT_CONNECTION_FACTORS )
+        if ( compdatExport == CompdatExport::WPIMULT_AND_DEFAULT_CONNECTION_FACTORS )
         {
             includeFractures = false;
         }
-        else if ( compdatExport == TRANSMISSIBILITIES || includeMsw )
+        else if ( compdatExport == CompdatExport::TRANSMISSIBILITIES || includeMsw )
         {
             includeFractures = true;
         }
@@ -385,7 +385,7 @@ void RicExportCompletionDataSettingsUi::defineUiOrdering( QString uiConfigName, 
         group->add( &m_reportCompletionTypesSeparately );
         group->add( &folder );
 
-        if ( fileSplit() == UNIFIED_FILE )
+        if ( fileSplit() == ExportSplit::UNIFIED_FILE )
         {
             group->add( &m_useCustomFileName );
 
@@ -453,8 +453,8 @@ void RicExportCompletionDataSettingsUi::defineUiOrdering( QString uiConfigName, 
             }
 
             // Set visibility
-            includeFractures.uiCapability()->setUiHidden( compdatExport == WPIMULT_AND_DEFAULT_CONNECTION_FACTORS &&
-                                                          !includeMsw );
+            includeFractures.uiCapability()->setUiHidden(
+                compdatExport == CompdatExport::WPIMULT_AND_DEFAULT_CONNECTION_FACTORS && !includeMsw );
         }
 
         if ( !m_displayForSimWell )

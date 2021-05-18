@@ -269,7 +269,7 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions( const std::v
 
         const QString eclipseCaseName = exportSettings.caseToApply->caseUserDescription();
 
-        if ( exportSettings.fileSplit == RicExportCompletionDataSettingsUi::UNIFIED_FILE )
+        if ( exportSettings.fileSplit == RicExportCompletionDataSettingsUi::ExportSplit::UNIFIED_FILE )
         {
             QString fileName = exportSettings.customFileName();
             if ( fileName.isEmpty() ) fileName = QString( "UnifiedCompletions_%1" ).arg( eclipseCaseName );
@@ -283,7 +283,7 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions( const std::v
                                             exportSettings.exportDataSourceAsComment(),
                                             exportSettings.exportWelspec() );
         }
-        else if ( exportSettings.fileSplit == RicExportCompletionDataSettingsUi::SPLIT_ON_WELL )
+        else if ( exportSettings.fileSplit == RicExportCompletionDataSettingsUi::ExportSplit::SPLIT_ON_WELL )
         {
             for ( auto wellPath : topLevelWellPaths )
             {
@@ -318,7 +318,8 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions( const std::v
                                                 exportSettings.exportWelspec() );
             }
         }
-        else if ( exportSettings.fileSplit == RicExportCompletionDataSettingsUi::SPLIT_ON_WELL_AND_COMPLETION_TYPE )
+        else if ( exportSettings.fileSplit ==
+                  RicExportCompletionDataSettingsUi::ExportSplit::SPLIT_ON_WELL_AND_COMPLETION_TYPE )
         {
             std::vector<RigCompletionData::CompletionType> completionTypes;
             completionTypes.push_back( RigCompletionData::CompletionType::FISHBONES );
@@ -380,8 +381,8 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions( const std::v
         }
 
         // Export sim wells
-        if ( exportSettings.fileSplit == RicExportCompletionDataSettingsUi::SPLIT_ON_WELL ||
-             exportSettings.fileSplit == RicExportCompletionDataSettingsUi::SPLIT_ON_WELL_AND_COMPLETION_TYPE )
+        if ( exportSettings.fileSplit == RicExportCompletionDataSettingsUi::ExportSplit::SPLIT_ON_WELL ||
+             exportSettings.fileSplit == RicExportCompletionDataSettingsUi::ExportSplit::SPLIT_ON_WELL_AND_COMPLETION_TYPE )
         {
             for ( auto simWell : simWells )
             {
@@ -568,7 +569,7 @@ RigCompletionData RicWellPathExportCompletionDataFeatureImpl::combineEclipseCell
         combinedDFactor = dFactorCalculator.weightedMean() / completions.size();
     }
 
-    if ( settings.compdatExport == RicExportCompletionDataSettingsUi::TRANSMISSIBILITIES )
+    if ( settings.compdatExport == RicExportCompletionDataSettingsUi::CompdatExport::TRANSMISSIBILITIES )
     {
         resultCompletion.setCombinedValuesExplicitTrans( combinedTrans,
                                                          combinedKh,
@@ -578,7 +579,8 @@ RigCompletionData RicWellPathExportCompletionDataFeatureImpl::combineEclipseCell
                                                          cellDirection,
                                                          completionType );
     }
-    else if ( settings.compdatExport == RicExportCompletionDataSettingsUi::WPIMULT_AND_DEFAULT_CONNECTION_FACTORS )
+    else if ( settings.compdatExport ==
+              RicExportCompletionDataSettingsUi::CompdatExport::WPIMULT_AND_DEFAULT_CONNECTION_FACTORS )
     {
         // calculate trans for main bore - but as Eclipse will do it!
         double transmissibilityEclipseCalculation =
@@ -954,7 +956,7 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompdatAndWpimultTables(
         QString gridName = gridCompletions.first;
         exportCompdatTableUsingFormatter( formatter, gridName, completions );
 
-        if ( exportType == RicExportCompletionDataSettingsUi::WPIMULT_AND_DEFAULT_CONNECTION_FACTORS )
+        if ( exportType == RicExportCompletionDataSettingsUi::CompdatExport::WPIMULT_AND_DEFAULT_CONNECTION_FACTORS )
         {
             exportWpimultTableUsingFormatter( formatter, gridName, completions );
         }
