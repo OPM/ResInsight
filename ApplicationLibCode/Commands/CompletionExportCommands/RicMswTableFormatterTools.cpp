@@ -36,6 +36,28 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+class RicMswTableFormatterTools::WsegvalveData
+{
+public:
+    explicit WsegvalveData( const QString& wellName, const QString& comment, int segmentNumber, double cv, double ac )
+        : m_wellName( wellName )
+        , m_comment( comment )
+        , m_segmentNumber( segmentNumber )
+        , m_cv( cv )
+        , m_ac( ac )
+    {
+    }
+
+    QString m_wellName;
+    QString m_comment;
+    int     m_segmentNumber;
+    double  m_cv;
+    double  m_ac;
+};
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RicMswTableFormatterTools::generateWelsegsTable( RifTextDataTableFormatter& formatter,
                                                       RicMswExportInfo&          exportInfo,
                                                       double                     maxSegmentLength,
@@ -429,13 +451,35 @@ void RicMswTableFormatterTools::generateWsegvalvTable( RifTextDataTableFormatter
 {
     bool foundValve = false;
 
-    generateWsegvalvTableRecursively( formatter,
-                                      exportInfo.mainBoreBranch(),
-                                      foundValve,
-                                      exportInfo.mainBoreBranch()->wellPath()->completionSettings()->wellNameForExport() );
+    std::map<size_t, std::vector<WsegvalveData>> wsegvalveData;
 
-    if ( foundValve )
+    generateWsegvalvTableRecursively( exportInfo.mainBoreBranch(),
+                                      exportInfo.mainBoreBranch()->wellPath()->completionSettings()->wellNameForExport(),
+                                      wsegvalveData );
+
+    if ( !wsegvalveData.empty() )
     {
+        writeWsegvalHeader( formatter );
+
+        for ( auto [globalCellIndex, dataForSameGridCell] : wsegvalveData )
+        {
+            if ( dataForSameGridCell.empty() ) continue;
+
+            double combinedFlowArea = 0.0;
+            for ( const auto& cellData : dataForSameGridCell )
+            {
+                combinedFlowArea += cellData.m_ac;
+            }
+
+            auto firstDataObject = dataForSameGridCell.front();
+
+            formatter.add( firstDataObject.m_wellName );
+            formatter.add( firstDataObject.m_segmentNumber );
+            formatter.add( firstDataObject.m_cv );
+            formatter.add( QString( "%1" ).arg( combinedFlowArea, 8, 'g', 4 ) );
+            formatter.rowCompleted();
+        }
+
         formatter.tableCompleted();
     }
 }
@@ -443,32 +487,30 @@ void RicMswTableFormatterTools::generateWsegvalvTable( RifTextDataTableFormatter
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicMswTableFormatterTools::generateWsegvalvTableRecursively( RifTextDataTableFormatter&   formatter,
-                                                                  gsl::not_null<RicMswBranch*> branch,
-                                                                  bool&                        isHeaderWritten,
-                                                                  const QString&               wellNameForExport )
+void RicMswTableFormatterTools::generateWsegvalvTableRecursively( gsl::not_null<RicMswBranch*> branch,
+                                                                  const QString&               wellNameForExport,
+                                                                  std::map<size_t, std::vector<WsegvalveData>>& wsegvalveData )
 {
     {
         auto tieInValve = dynamic_cast<RicMswTieInICV*>( branch.get() );
         if ( tieInValve && !tieInValve->segments().empty() )
         {
-            if ( !isHeaderWritten )
-            {
-                writeWsegvalHeader( formatter );
-
-                isHeaderWritten = true;
-            }
-
             auto firstSubSegment = tieInValve->segments().front();
             CAF_ASSERT( tieInValve->completionType() == RigCompletionData::CompletionType::PERFORATION_ICV );
+
+            size_t cellIndex = std::numeric_limits<size_t>::max();
+            if ( !firstSubSegment->intersections().empty() )
             {
-                formatter.addOptionalComment( tieInValve->label() );
+                cellIndex = firstSubSegment->intersections().front()->globalCellIndex();
             }
-            formatter.add( wellNameForExport );
-            formatter.add( firstSubSegment->segmentNumber() );
-            formatter.add( tieInValve->flowCoefficient() );
-            formatter.add( QString( "%1" ).arg( tieInValve->area(), 8, 'g', 4 ) );
-            formatter.rowCompleted();
+
+            auto flowCoefficient = tieInValve->flowCoefficient();
+
+            wsegvalveData[cellIndex].push_back( WsegvalveData( wellNameForExport,
+                                                               tieInValve->label(),
+                                                               firstSubSegment->segmentNumber(),
+                                                               flowCoefficient,
+                                                               tieInValve->area() ) );
         }
     }
 
@@ -478,13 +520,6 @@ void RicMswTableFormatterTools::generateWsegvalvTableRecursively( RifTextDataTab
         {
             if ( RigCompletionData::isWsegValveTypes( completion->completionType() ) )
             {
-                if ( !isHeaderWritten )
-                {
-                    writeWsegvalHeader( formatter );
-
-                    isHeaderWritten = true;
-                }
-
                 auto wsegValve = static_cast<RicMswWsegValve*>( completion );
                 if ( !wsegValve->segments().empty() )
                 {
@@ -496,16 +531,24 @@ void RicMswTableFormatterTools::generateWsegvalvTableRecursively( RifTextDataTab
                     // Unclear why this line was included. Remove when MSW export has ben verified correctly
                     // if ( !firstSubSegment->intersections().empty() )
                     {
+                        QString comment;
                         if ( wsegValve->completionType() == RigCompletionData::CompletionType::PERFORATION_ICD ||
                              wsegValve->completionType() == RigCompletionData::CompletionType::PERFORATION_ICV )
                         {
-                            formatter.addOptionalComment( wsegValve->label() );
+                            comment = wsegValve->label();
                         }
-                        formatter.add( wellNameForExport );
-                        formatter.add( firstSubSegment->segmentNumber() );
-                        formatter.add( wsegValve->flowCoefficient() );
-                        formatter.add( QString( "%1" ).arg( wsegValve->area(), 8, 'g', 4 ) );
-                        formatter.rowCompleted();
+
+                        size_t cellIndex = std::numeric_limits<size_t>::max();
+                        if ( !firstSubSegment->intersections().empty() )
+                        {
+                            cellIndex = firstSubSegment->intersections().front()->globalCellIndex();
+                        }
+
+                        wsegvalveData[cellIndex].push_back( WsegvalveData( wellNameForExport,
+                                                                           comment,
+                                                                           firstSubSegment->segmentNumber(),
+                                                                           wsegValve->flowCoefficient(),
+                                                                           wsegValve->area() ) );
                     }
                 }
             }
@@ -514,7 +557,7 @@ void RicMswTableFormatterTools::generateWsegvalvTableRecursively( RifTextDataTab
 
     for ( auto childBranch : branch->branches() )
     {
-        generateWsegvalvTableRecursively( formatter, childBranch, isHeaderWritten, wellNameForExport );
+        generateWsegvalvTableRecursively( childBranch, wellNameForExport, wsegvalveData );
     }
 }
 
