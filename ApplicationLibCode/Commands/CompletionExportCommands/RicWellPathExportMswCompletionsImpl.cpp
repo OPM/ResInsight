@@ -68,7 +68,7 @@ void RicWellPathExportMswCompletionsImpl::exportWellSegmentsForAllCompletions(
 {
     std::shared_ptr<QFile> unifiedExportFile;
     std::shared_ptr<QFile> unifiedLgrExportFile;
-    if ( exportSettings.fileSplit() == RicExportCompletionDataSettingsUi::UNIFIED_FILE )
+    if ( exportSettings.fileSplit() == RicExportCompletionDataSettingsUi::ExportSplit::UNIFIED_FILE )
     {
         {
             QString   fileName;
@@ -115,7 +115,8 @@ void RicWellPathExportMswCompletionsImpl::exportWellSegmentsForAllCompletions(
                                           completion->componentType() == RiaDefines::WellPathComponentType::FISHBONES;
                                } );
 
-        if ( exportSettings.fileSplit() == RicExportCompletionDataSettingsUi::SPLIT_ON_WELL && !unifiedWellPathFile )
+        if ( exportSettings.fileSplit() == RicExportCompletionDataSettingsUi::ExportSplit::SPLIT_ON_WELL &&
+             !unifiedWellPathFile )
         {
             QString wellFileName = QString( "%1_UnifiedCompletions_MSW_%2" )
                                        .arg( wellPath->name(), exportSettings.caseToApply->caseUserDescription() );

@@ -34,7 +34,7 @@ class RicExportCompletionDataSettingsUi : public RicCaseAndFileExportSettingsUi
 
 public:
     // Exported in .proto file. Do not change without changing .proto
-    enum ExportSplit
+    enum class ExportSplit
     {
         UNIFIED_FILE,
         SPLIT_ON_WELL,
@@ -43,7 +43,7 @@ public:
     typedef caf::AppEnum<ExportSplit> ExportSplitType;
 
     // Exported in .proto file. Do not change without changing .proto
-    enum CompdatExport
+    enum class CompdatExport
     {
         TRANSMISSIBILITIES,
         WPIMULT_AND_DEFAULT_CONNECTION_FACTORS,
@@ -51,7 +51,7 @@ public:
     typedef caf::AppEnum<CompdatExport> CompdatExportType;
 
     // Exported in .proto file. Do not change without changing .proto
-    enum CombinationMode
+    enum class CombinationMode
     {
         INDIVIDUALLY,
         COMBINED,
