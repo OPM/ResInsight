@@ -110,32 +110,9 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions( const std::v
     if ( exportSettings.compdatExport == RicExportCompletionDataSettingsUi::TRANSMISSIBILITIES ||
          exportSettings.compdatExport == RicExportCompletionDataSettingsUi::WPIMULT_AND_DEFAULT_CONNECTION_FACTORS )
     {
-        std::vector<RimWellPath*> allWellPathLaterals;
-        for ( RimWellPath* wellPath : topLevelWellPaths )
-        {
-            if ( wellPath->unitSystem() == exportSettings.caseToApply->eclipseCaseData()->unitsType() )
-            {
-                auto tieInWells = wellPath->wellPathLateralsRecursively();
-                for ( auto w : tieInWells )
-                {
-                    allWellPathLaterals.push_back( w );
-                }
-            }
-            else
-            {
-                int     caseId = exportSettings.caseToApply->caseId();
-                QString format =
-                    QString( "Unit systems for well path \"%1\" must match unit system of chosen eclipse case \"%2\"" );
-                QString errMsg = format.arg( wellPath->name() ).arg( caseId );
-                RiaLogging::error( errMsg );
-            }
-        }
-
         std::vector<RicWellPathFractureReportItem> fractureDataReportItems;
-
-        // FractureTransmissibilityExportInformation
-        std::unique_ptr<QTextStream> fractureTransmissibilityExportInformationStream = nullptr;
-        QFile                        fractureTransmissibilityExportInformationFile;
+        std::unique_ptr<QTextStream>               fractureTransmissibilityExportInformationStream = nullptr;
+        QFile                                      fractureTransmissibilityExportInformationFile;
 
         RiaPreferences* prefs = RiaPreferences::current();
         if ( prefs->includeFractureDebugInfoFile() )
@@ -164,98 +141,110 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions( const std::v
             }
         }
 
-        size_t maxProgress =
-            allWellPathLaterals.size() * 3 + simWells.size() +
-            ( exportSettings.fileSplit == RicExportCompletionDataSettingsUi::SPLIT_ON_WELL
-                  ? allWellPathLaterals.size()
-                  : exportSettings.fileSplit == RicExportCompletionDataSettingsUi::SPLIT_ON_WELL_AND_COMPLETION_TYPE
-                        ? allWellPathLaterals.size() * 3
-                        : 1 ) +
-            simWells.size();
-
-        caf::ProgressInfo progress( maxProgress, "Export Completions" );
-
-        progress.setProgressDescription( "Read Completion Data" );
-
         std::vector<RigCompletionData> completions;
 
-        for ( auto wellPath : allWellPathLaterals )
         {
-            std::map<size_t, std::vector<RigCompletionData>> completionsPerEclipseCellAllCompletionTypes;
-            std::map<size_t, std::vector<RigCompletionData>> completionsPerEclipseCellFishbones;
-            std::map<size_t, std::vector<RigCompletionData>> completionsPerEclipseCellFracture;
-            std::map<size_t, std::vector<RigCompletionData>> completionsPerEclipseCellPerforations;
+            caf::ProgressInfo progress( topLevelWellPaths.size(), "Extracting Completion Data For Well Paths" );
 
-            // Generate completion data
-
-            if ( exportSettings.includePerforations )
+            for ( RimWellPath* wellPath : topLevelWellPaths )
             {
-                std::vector<RigCompletionData> perforationCompletionData =
-                    generatePerforationsCompdatValues( wellPath,
-                                                       wellPath->perforationIntervalCollection()->perforations(),
-                                                       exportSettings );
-
-                appendCompletionData( &completionsPerEclipseCellAllCompletionTypes, perforationCompletionData );
-                appendCompletionData( &completionsPerEclipseCellPerforations, perforationCompletionData );
-            }
-            progress.incrementProgress();
-
-            if ( exportSettings.includeFishbones )
-            {
-                std::vector<RigCompletionData> fishbonesCompletionData = RicFishbonesTransmissibilityCalculationFeatureImp::
-                    generateFishboneCompdatValuesUsingAdjustedCellVolume( wellPath, exportSettings );
-
-                appendCompletionData( &completionsPerEclipseCellAllCompletionTypes, fishbonesCompletionData );
-                appendCompletionData( &completionsPerEclipseCellFishbones, fishbonesCompletionData );
-            }
-            progress.incrementProgress();
-
-            if ( exportSettings.includeFractures() )
-            {
-                // If no report is wanted, set reportItems = nullptr
-                std::vector<RicWellPathFractureReportItem>* reportItems = &fractureDataReportItems;
-
-                std::vector<RigCompletionData> fractureCompletionData = RicExportFractureCompletionsImpl::
-                    generateCompdatValuesForWellPath( wellPath,
-                                                      exportSettings.caseToApply(),
-                                                      reportItems,
-                                                      fractureTransmissibilityExportInformationStream.get(),
-                                                      RicExportFractureCompletionsImpl::
-                                                          PressureDepletionParameters( exportSettings.performTransScaling(),
-                                                                                       exportSettings.transScalingTimeStep(),
-                                                                                       exportSettings.transScalingWBHPSource(),
-                                                                                       exportSettings.transScalingWBHP() ) );
-
-                appendCompletionData( &completionsPerEclipseCellAllCompletionTypes, fractureCompletionData );
-                appendCompletionData( &completionsPerEclipseCellFracture, fractureCompletionData );
-            }
-
-            if ( exportSettings.reportCompletionsTypesIndividually() )
-            {
-                for ( auto& data : completionsPerEclipseCellFracture )
+                std::vector<RimWellPath*> allWellPathLaterals;
+                if ( wellPath->unitSystem() == exportSettings.caseToApply->eclipseCaseData()->unitsType() )
                 {
-                    completions.push_back( combineEclipseCellCompletions( data.second, exportSettings ) );
+                    auto tieInWells = wellPath->wellPathLateralsRecursively();
+                    for ( auto w : tieInWells )
+                    {
+                        allWellPathLaterals.push_back( w );
+                    }
+                }
+                else
+                {
+                    int     caseId = exportSettings.caseToApply->caseId();
+                    QString format = QString(
+                        "Unit systems for well path \"%1\" must match unit system of chosen eclipse case \"%2\"" );
+                    QString errMsg = format.arg( wellPath->name() ).arg( caseId );
+                    RiaLogging::error( errMsg );
                 }
 
-                for ( auto& data : completionsPerEclipseCellFishbones )
+                std::map<size_t, std::vector<RigCompletionData>> completionsPerEclipseCellAllCompletionTypes;
+                std::map<size_t, std::vector<RigCompletionData>> completionsPerEclipseCellFishbones;
+                std::map<size_t, std::vector<RigCompletionData>> completionsPerEclipseCellFracture;
+                std::map<size_t, std::vector<RigCompletionData>> completionsPerEclipseCellPerforations;
+
+                for ( auto wellPath : allWellPathLaterals )
                 {
-                    completions.push_back( combineEclipseCellCompletions( data.second, exportSettings ) );
+                    // Generate completion data
+
+                    if ( exportSettings.includePerforations )
+                    {
+                        std::vector<RigCompletionData> perforationCompletionData =
+                            generatePerforationsCompdatValues( wellPath,
+                                                               wellPath->perforationIntervalCollection()->perforations(),
+                                                               exportSettings );
+
+                        appendCompletionData( &completionsPerEclipseCellAllCompletionTypes, perforationCompletionData );
+                        appendCompletionData( &completionsPerEclipseCellPerforations, perforationCompletionData );
+                    }
+
+                    if ( exportSettings.includeFishbones )
+                    {
+                        std::vector<RigCompletionData> fishbonesCompletionData =
+                            RicFishbonesTransmissibilityCalculationFeatureImp::
+                                generateFishboneCompdatValuesUsingAdjustedCellVolume( wellPath, exportSettings );
+
+                        appendCompletionData( &completionsPerEclipseCellAllCompletionTypes, fishbonesCompletionData );
+                        appendCompletionData( &completionsPerEclipseCellFishbones, fishbonesCompletionData );
+                    }
+
+                    if ( exportSettings.includeFractures() )
+                    {
+                        // If no report is wanted, set reportItems = nullptr
+                        std::vector<RicWellPathFractureReportItem>* reportItems = &fractureDataReportItems;
+
+                        std::vector<RigCompletionData> fractureCompletionData = RicExportFractureCompletionsImpl::
+                            generateCompdatValuesForWellPath( wellPath,
+                                                              exportSettings.caseToApply(),
+                                                              reportItems,
+                                                              fractureTransmissibilityExportInformationStream.get(),
+                                                              RicExportFractureCompletionsImpl::
+                                                                  PressureDepletionParameters( exportSettings.performTransScaling(),
+                                                                                               exportSettings.transScalingTimeStep(),
+                                                                                               exportSettings.transScalingWBHPSource(),
+                                                                                               exportSettings
+                                                                                                   .transScalingWBHP() ) );
+
+                        appendCompletionData( &completionsPerEclipseCellAllCompletionTypes, fractureCompletionData );
+                        appendCompletionData( &completionsPerEclipseCellFracture, fractureCompletionData );
+                    }
                 }
 
-                for ( auto& data : completionsPerEclipseCellPerforations )
+                if ( exportSettings.reportCompletionsTypesIndividually() )
                 {
-                    completions.push_back( combineEclipseCellCompletions( data.second, exportSettings ) );
-                }
-            }
-            else
-            {
-                for ( auto& data : completionsPerEclipseCellAllCompletionTypes )
-                {
-                    completions.push_back( combineEclipseCellCompletions( data.second, exportSettings ) );
-                }
-            }
+                    for ( auto& data : completionsPerEclipseCellFracture )
+                    {
+                        completions.push_back( combineEclipseCellCompletions( data.second, exportSettings ) );
+                    }
 
-            progress.incrementProgress();
+                    for ( auto& data : completionsPerEclipseCellFishbones )
+                    {
+                        completions.push_back( combineEclipseCellCompletions( data.second, exportSettings ) );
+                    }
+
+                    for ( auto& data : completionsPerEclipseCellPerforations )
+                    {
+                        completions.push_back( combineEclipseCellCompletions( data.second, exportSettings ) );
+                    }
+                }
+                else
+                {
+                    for ( auto& data : completionsPerEclipseCellAllCompletionTypes )
+                    {
+                        completions.push_back( combineEclipseCellCompletions( data.second, exportSettings ) );
+                    }
+                }
+
+                progress.incrementProgress();
+            }
         }
 
         for ( auto simWell : simWells )
@@ -278,13 +267,10 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions( const std::v
             {
                 completions.push_back( combineEclipseCellCompletions( data.second, exportSettings ) );
             }
-
-            progress.incrementProgress();
         }
 
         const QString eclipseCaseName = exportSettings.caseToApply->caseUserDescription();
 
-        progress.setProgressDescription( "Write Export Files" );
         if ( exportSettings.fileSplit == RicExportCompletionDataSettingsUi::UNIFIED_FILE )
         {
             QString fileName = exportSettings.customFileName();
@@ -298,7 +284,6 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions( const std::v
                                             exportSettings.compdatExport,
                                             exportSettings.exportDataSourceAsComment(),
                                             exportSettings.exportWelspec() );
-            progress.incrementProgress();
         }
         else if ( exportSettings.fileSplit == RicExportCompletionDataSettingsUi::SPLIT_ON_WELL )
         {
@@ -333,7 +318,6 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions( const std::v
                                                 exportSettings.compdatExport,
                                                 exportSettings.exportDataSourceAsComment(),
                                                 exportSettings.exportWelspec() );
-                progress.incrementProgress();
             }
         }
         else if ( exportSettings.fileSplit == RicExportCompletionDataSettingsUi::SPLIT_ON_WELL_AND_COMPLETION_TYPE )
@@ -361,6 +345,18 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions( const std::v
 
                     if ( completionsForWell.empty() ) continue;
 
+                    std::vector<RicWellPathFractureReportItem> reportItemsForWell;
+                    if ( completionType == RigCompletionData::FRACTURE )
+                    {
+                        for ( const auto& fracItem : fractureDataReportItems )
+                        {
+                            if ( fracItem.wellPathNameForExport() == wellPath->completionSettings()->wellNameForExport() )
+                            {
+                                reportItemsForWell.push_back( fracItem );
+                            }
+                        }
+                    }
+
                     {
                         QString completionTypeText;
                         if ( completionType == RigCompletionData::FISHBONES ) completionTypeText = "Fishbones";
@@ -369,42 +365,15 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions( const std::v
 
                         QString fileName =
                             QString( "%1_%2_%3" ).arg( wellPath->name() ).arg( completionTypeText ).arg( eclipseCaseName );
-                        if ( completionType == RigCompletionData::FRACTURE )
-                        {
-                            std::vector<RicWellPathFractureReportItem> reportItemsForWell;
-                            for ( const auto& fracItem : fractureDataReportItems )
-                            {
-                                if ( fracItem.wellPathNameForExport() ==
-                                     wellPath->completionSettings()->wellNameForExport() )
-                                {
-                                    reportItemsForWell.push_back( fracItem );
-                                }
-                            }
-
-                            sortAndExportCompletionsToFile( exportSettings.caseToApply,
-                                                            exportSettings.folder,
-                                                            fileName,
-                                                            completionsForWell,
-                                                            reportItemsForWell,
-                                                            exportSettings.compdatExport,
-                                                            exportSettings.exportDataSourceAsComment(),
-                                                            exportSettings.exportWelspec() );
-                        }
-                        else
-                        {
-                            std::vector<RicWellPathFractureReportItem> emptyReportItemVector;
-                            sortAndExportCompletionsToFile( exportSettings.caseToApply,
-                                                            exportSettings.folder,
-                                                            fileName,
-                                                            completionsForWell,
-                                                            emptyReportItemVector,
-                                                            exportSettings.compdatExport,
-                                                            exportSettings.exportDataSourceAsComment(),
-                                                            exportSettings.exportWelspec() );
-                        }
+                        sortAndExportCompletionsToFile( exportSettings.caseToApply,
+                                                        exportSettings.folder,
+                                                        fileName,
+                                                        completionsForWell,
+                                                        reportItemsForWell,
+                                                        exportSettings.compdatExport,
+                                                        exportSettings.exportDataSourceAsComment(),
+                                                        exportSettings.exportWelspec() );
                     }
-
-                    progress.incrementProgress();
                 }
             }
         }
@@ -435,8 +404,6 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions( const std::v
                                                 exportSettings.compdatExport,
                                                 exportSettings.exportDataSourceAsComment(),
                                                 exportSettings.exportWelspec() );
-
-                progress.incrementProgress();
             }
         }
     }
