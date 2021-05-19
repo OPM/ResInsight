@@ -85,6 +85,7 @@
 #include "RivSimWellConnectionSourceInfo.h"
 #include "RivSimWellPipeSourceInfo.h"
 #include "RivSourceInfo.h"
+#include "RivSurfacePartMgr.h"
 #include "RivTernarySaturationOverlayItem.h"
 #include "RivWellConnectionSourceInfo.h"
 #include "RivWellFracturePartMgr.h"
@@ -794,6 +795,24 @@ void RiuViewerCommands::handlePickAction( int winPosX, int winPosY, Qt::Keyboard
                 if ( surf )
                 {
                     RiuMainWindow::instance()->selectAsCurrentItem( surf, true );
+                    cvf::ref<caf::DisplayCoordTransform> transForm = mainOrComparisonView->displayCoordTransform();
+                    cvf::Vec3d domainCoord = transForm->transformToDomainCoord( globalIntersectionPoint );
+
+                    // Set surface resultInfo text
+                    QString resultInfoText = "Surface: " + surf->name() + "\n\n";
+
+                    RivSurfacePartMgr* partMgr = surf->surfacePartMgr();
+                    resultInfoText += partMgr->resultInfoText( mainOrComparisonView, firstPartTriangleIndex, domainCoord );
+
+                    // Set intersection point result text
+                    QString intersectionPointText = QString( "Intersection point : Global [E: %1, N: %2, Depth: %3]" )
+                                                        .arg( domainCoord.x(), 5, 'f', 2 )
+                                                        .arg( domainCoord.y(), 5, 'f', 2 )
+                                                        .arg( -domainCoord.z(), 5, 'f', 2 );
+                    resultInfoText.append( intersectionPointText );
+
+                    // Display result info text
+                    RiuMainWindow::instance()->setResultInfo( resultInfoText );
                 }
             }
             else if ( const RivReservoirSurfaceIntersectionSourceInfo* surfIntersectSourceInfo =

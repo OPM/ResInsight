@@ -229,6 +229,43 @@ void RivSurfacePartMgr::updateNativeSurfaceColors()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString RivSurfacePartMgr::resultInfoText( Rim3dView* view, uint hitPart, cvf::Vec3d hitPoint )
+{
+    QString retval;
+
+    if ( m_surfaceInView->surfaceResultDefinition()->isChecked() )
+    {
+        auto& values = m_usedSurfaceData->propertyValues( m_surfaceInView->surfaceResultDefinition()->propertyName() );
+        auto& ind    = m_usedSurfaceData->triangleIndices();
+        auto& vert   = m_usedSurfaceData->vertices();
+
+        size_t indIndex = ( size_t )( hitPart * 3 );
+
+        // find closest triangle corner point to hit point and show that value
+        if ( ind.size() > ( indIndex + 2 ) )
+        {
+            uint vertIndex1 = ind[indIndex];
+            uint vertIndex2 = ind[indIndex + 1];
+            uint vertIndex3 = ind[indIndex + 2];
+
+            double dist1 = vert[vertIndex1].pointDistance( hitPoint );
+            double dist2 = vert[vertIndex2].pointDistance( hitPoint );
+            double dist3 = vert[vertIndex3].pointDistance( hitPoint );
+
+            double resultValue = values[vertIndex1];
+            if ( dist2 < dist1 ) resultValue = values[vertIndex2];
+            if ( ( dist3 < dist1 ) && ( dist3 < dist2 ) ) resultValue = values[vertIndex3];
+
+            retval +=
+                QString( "%1 : %2\n\n" ).arg( m_surfaceInView->surfaceResultDefinition()->propertyName() ).arg( resultValue );
+        }
+    }
+    return retval;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RivSurfacePartMgr::generatePartGeometry()
 {
     if ( m_intersectionGenerator.isNull() ) return;
