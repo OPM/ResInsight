@@ -436,6 +436,11 @@ bool RimStimPlanModelCalculator::calculateStressWithGradients( std::vector<doubl
         double Sv_diff               = 0.0;
         double deltaHorizontalStress = poissonsRatio / ( 1.0 - poissonsRatio ) * ( Sv_diff - biot * pressureDiff ) +
                                        ( biot * pressureDiff );
+        if ( std::isnan( deltaHorizontalStress ) || std::isinf( deltaHorizontalStress ) )
+        {
+            RiaLogging::warning( "Invalid horizontal stress delta calculated. Setting to zero." );
+            deltaHorizontalStress = 0.0;
+        }
 
         double depletionStress = Sh_init + deltaHorizontalStress;
         stress.push_back( RiaEclipseUnitTools::barToPsi( depletionStress ) );
