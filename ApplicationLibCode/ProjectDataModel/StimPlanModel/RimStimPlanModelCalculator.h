@@ -116,6 +116,11 @@ protected:
                                           double verticalStressRef,
                                           double verticalStressGradientRef );
 
+    static bool isValidInputData( const std::vector<double>&                    values,
+                                  const QString&                                propertyName,
+                                  const std::vector<std::pair<size_t, size_t>>& layerBoundaryIndexes,
+                                  const std::vector<std::pair<double, double>>& layerBoundaryDepths );
+
 private:
     RimStimPlanModel*                                                m_stimPlanModel;
     std::vector<std::unique_ptr<RimStimPlanModelPropertyCalculator>> m_resultCalculators;
