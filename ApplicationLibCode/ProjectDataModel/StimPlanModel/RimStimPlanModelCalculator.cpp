@@ -364,37 +364,48 @@ bool RimStimPlanModelCalculator::calculateStressWithGradients( std::vector<doubl
 
     int timeStep = m_stimPlanModel->timeStep();
 
-    // Biot coefficient
-    std::vector<double> biotData = extractValues( RiaDefines::CurveProperty::BIOT_COEFFICIENT, timeStep );
-
-    // K0
-    std::vector<double> k0Data = extractValues( RiaDefines::CurveProperty::K0, timeStep );
-
-    // Pressure at the give time step
-    std::vector<double> timeStepPressureData = extractValues( RiaDefines::CurveProperty::PRESSURE, timeStep );
-
-    // Initial pressure
-    std::vector<double> initialPressureData = extractValues( RiaDefines::CurveProperty::INITIAL_PRESSURE, timeStep );
-
-    // Poissons ratio
-    std::vector<double> poissonsRatioData = extractValues( RiaDefines::CurveProperty::POISSONS_RATIO, timeStep );
-
-    // Pressure difference
-    std::vector<double> pressureDiffData = extractValues( RiaDefines::CurveProperty::PRESSURE_GRADIENT, timeStep );
-
-    // Check that we have data from all curves
-    if ( biotData.empty() || k0Data.empty() || timeStepPressureData.empty() || initialPressureData.empty() ||
-         poissonsRatioData.empty() || pressureDiffData.empty() )
+    std::vector<RiaDefines::CurveProperty> inputProperties = { RiaDefines::CurveProperty::BIOT_COEFFICIENT,
+                                                               RiaDefines::CurveProperty::K0,
+                                                               RiaDefines::CurveProperty::PRESSURE,
+                                                               RiaDefines::CurveProperty::INITIAL_PRESSURE,
+                                                               RiaDefines::CurveProperty::POISSONS_RATIO,
+                                                               RiaDefines::CurveProperty::PRESSURE_GRADIENT };
+    std::map<RiaDefines::CurveProperty, std::vector<double>> inputData;
+    for ( auto inputProperty : inputProperties )
     {
-        return false;
-    }
+        QString             propertyName = caf::AppEnum<RiaDefines::CurveProperty>::uiText( inputProperty );
+        std::vector<double> values       = extractValues( inputProperty, timeStep );
+        // Check that we have data for the curve
+        if ( values.empty() )
+        {
+            RiaLogging::error(
+                QString( "Unexpected empty input data for %1 in stress calculation for StimPlan Model: %2" )
+                    .arg( propertyName )
+                    .arg( m_stimPlanModel->name() ) );
+            return false;
+        }
 
-    if ( biotData.size() < layerBoundaryIndexes.size() || k0Data.size() < layerBoundaryIndexes.size() ||
-         timeStepPressureData.size() < layerBoundaryIndexes.size() ||
-         initialPressureData.size() < layerBoundaryIndexes.size() ||
-         poissonsRatioData.size() < layerBoundaryIndexes.size() || pressureDiffData.size() < layerBoundaryIndexes.size() )
-    {
-        return false;
+        // Check that there is enough data
+        if ( values.size() < layerBoundaryIndexes.size() )
+        {
+            RiaLogging::error(
+                QString( "Unexpected input data size for %1 in stress calculation for StimPlan Model: %2" )
+                    .arg( propertyName )
+                    .arg( m_stimPlanModel->name() ) );
+            return false;
+        }
+
+        // Pressure gradient is allowed to have infs.
+        if ( inputProperty != RiaDefines::CurveProperty::PRESSURE_GRADIENT &&
+             !isValidInputData( values, propertyName, layerBoundaryIndexes, layerBoundaryDepths ) )
+        {
+            RiaLogging::error( QString( "Unexpected bad data for %1 in stress calculation for StimPlan Model: %2." )
+                                   .arg( propertyName )
+                                   .arg( m_stimPlanModel->name() ) );
+            return false;
+        }
+
+        inputData[inputProperty] = values;
     }
 
     // Calculate the stress
@@ -403,11 +414,15 @@ bool RimStimPlanModelCalculator::calculateStressWithGradients( std::vector<doubl
         double depthTopOfZone = layerBoundaryDepths[i].first;
 
         // Data from curves at the top zone depth
-        double k0               = findValueAtTopOfLayer( k0Data, layerBoundaryIndexes, i );
-        double biot             = findValueAtTopOfLayer( biotData, layerBoundaryIndexes, i );
-        double poissonsRatio    = findValueAtTopOfLayer( poissonsRatioData, layerBoundaryIndexes, i );
-        double initialPressure  = findValueAtTopOfLayer( initialPressureData, layerBoundaryIndexes, i );
-        double timeStepPressure = findValueAtTopOfLayer( timeStepPressureData, layerBoundaryIndexes, i );
+        double k0 = findValueAtTopOfLayer( inputData[RiaDefines::CurveProperty::K0], layerBoundaryIndexes, i );
+        double biot =
+            findValueAtTopOfLayer( inputData[RiaDefines::CurveProperty::BIOT_COEFFICIENT], layerBoundaryIndexes, i );
+        double poissonsRatio =
+            findValueAtTopOfLayer( inputData[RiaDefines::CurveProperty::POISSONS_RATIO], layerBoundaryIndexes, i );
+        double initialPressure =
+            findValueAtTopOfLayer( inputData[RiaDefines::CurveProperty::INITIAL_PRESSURE], layerBoundaryIndexes, i );
+        double timeStepPressure =
+            findValueAtTopOfLayer( inputData[RiaDefines::CurveProperty::PRESSURE], layerBoundaryIndexes, i );
 
         // Vertical stress
         // Use difference between reference depth and depth of top of zone
@@ -434,8 +449,8 @@ bool RimStimPlanModelCalculator::calculateStressWithGradients( std::vector<doubl
                                                                  depthTopOfZone,
                                                                  depthBottomOfZone,
                                                                  Sv,
-                                                                 initialPressureData,
-                                                                 pressureDiffData,
+                                                                 inputData[RiaDefines::CurveProperty::INITIAL_PRESSURE],
+                                                                 inputData[RiaDefines::CurveProperty::PRESSURE_GRADIENT],
                                                                  stressDepthRef,
                                                                  verticalStressRef,
                                                                  verticalStressGradientRef,
@@ -685,4 +700,32 @@ double RimStimPlanModelCalculator::calculateStressAtDepth( double depth,
     double depthDiff = depth - stressDepthRef;
     double stress    = verticalStressRef + verticalStressGradientRef * depthDiff;
     return stress;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimStimPlanModelCalculator::isValidInputData( const std::vector<double>&                    values,
+                                                   const QString&                                propertyName,
+                                                   const std::vector<std::pair<size_t, size_t>>& layerBoundaryIndexes,
+                                                   const std::vector<std::pair<double, double>>& layerBoundaryDepths
+
+)
+{
+    for ( size_t i = 0; i < layerBoundaryIndexes.size(); i++ )
+    {
+        double value = findValueAtTopOfLayer( values, layerBoundaryIndexes, i );
+        if ( std::isinf( value ) || std::isnan( value ) )
+        {
+            double depthTopOfZone = layerBoundaryDepths[i].first;
+            RiaLogging::error( QString( "Found invalid value for property %1 top of zone %2, depth %3: %4." )
+                                   .arg( propertyName )
+                                   .arg( i )
+                                   .arg( depthTopOfZone )
+                                   .arg( value ) );
+            return false;
+        }
+    }
+
+    return true;
 }
