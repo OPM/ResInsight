@@ -235,9 +235,10 @@ QString RivSurfacePartMgr::resultInfoText( Rim3dView* view, uint hitPart, cvf::V
 
     if ( m_surfaceInView->surfaceResultDefinition()->isChecked() )
     {
-        auto& values = m_usedSurfaceData->propertyValues( m_surfaceInView->surfaceResultDefinition()->propertyName() );
-        auto& ind    = m_usedSurfaceData->triangleIndices();
-        auto& vert   = m_usedSurfaceData->vertices();
+        const auto& values =
+            m_usedSurfaceData->propertyValues( m_surfaceInView->surfaceResultDefinition()->propertyName() );
+        const auto& ind  = m_usedSurfaceData->triangleIndices();
+        const auto& vert = m_usedSurfaceData->vertices();
 
         size_t indIndex = ( size_t )( hitPart * 3 );
 
