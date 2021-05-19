@@ -210,6 +210,8 @@ cvf::ref<RigResultAccessor>
                                                                   int                                timeStepIndex,
                                                                   const QString&                     resultName ) const
 {
+    if ( resultName.isEmpty() ) return nullptr;
+
     RiaDefines::PorosityModelType porosityModelType = RiaDefines::PorosityModelType::MATRIX_MODEL;
 
     for ( RimEclipseInputProperty* inputProperty : inputPropertyCollection->inputProperties() )
@@ -578,6 +580,11 @@ bool RimStimPlanModelWellLogCalculator::replaceMissingValuesWithOtherKLayer( Ria
 
     RiaDefines::ResultCatType resultType = stimPlanModel->eclipseResultCategory( curveProperty );
     QString                   resultName = stimPlanModel->eclipseResultVariable( curveProperty );
+    if ( resultName.isEmpty() )
+    {
+        RiaLogging::error( QString( "Invalid result for k layer replacement: %1" ).arg( stimPlanModel->name() ) );
+        return false;
+    }
 
     const std::vector<double>& cellValues     = loadResults( caseData, porosityModel, resultType, resultName );
     auto                       activeCellInfo = caseData->activeCellInfo( porosityModel );
