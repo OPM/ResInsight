@@ -164,14 +164,24 @@ bool RimProcess::execute()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimProcess::needsCommandInterpreter() const
+QString RimProcess::optionalCommandInterpreter() const
 {
-#ifdef WIN32
-    if ( m_command.value().isNull() ) return false;
-    return m_command.value().endsWith( ".cmd", Qt::CaseInsensitive ) ||
-           m_command.value().endsWith( ".bat", Qt::CaseInsensitive );
-#endif
-    return false;
+    if ( m_command.value().isNull() ) return "";
+
+    if ( m_command.value().endsWith( ".cmd", Qt::CaseInsensitive ) ||
+         m_command.value().endsWith( ".bat", Qt::CaseInsensitive ) )
+    {
+        return "cmd.exe /c ";
+    }
+    if ( m_command.value().endsWith( ".sh", Qt::CaseInsensitive ) )
+    {
+        return "bash ";
+    }
+    if ( m_command.value().endsWith( ".csh", Qt::CaseInsensitive ) )
+    {
+        return "csh ";
+    }
+    return "";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -181,10 +191,7 @@ QString RimProcess::commandLine() const
 {
     QString cmdline;
 
-    if ( needsCommandInterpreter() )
-    {
-        cmdline += "cmd.exe /c ";
-    }
+    cmdline += optionalCommandInterpreter();
 
     cmdline += handleSpaces( m_command );
 
