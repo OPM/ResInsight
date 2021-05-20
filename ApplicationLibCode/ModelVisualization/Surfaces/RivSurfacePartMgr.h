@@ -33,6 +33,7 @@ class DrawableGeo;
 class RimSurfaceInView;
 class RigSurface;
 class RigResultAccessor;
+class Rim3dView;
 
 class RivSurfaceIntersectionGeometryGenerator;
 
@@ -46,6 +47,8 @@ public:
     void appendIntersectionGeometryPartsToModel( cvf::ModelBasicList* model, cvf::Transform* scaleTransform );
 
     void appendNativeGeometryPartsToModel( cvf::ModelBasicList* model, cvf::Transform* scaleTransform );
+
+    QString resultInfoText( Rim3dView* view, uint hitPart, cvf::Vec3d hitPoint );
 
 private:
     void generatePartGeometry();
