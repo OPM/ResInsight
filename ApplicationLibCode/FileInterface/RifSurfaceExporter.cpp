@@ -35,7 +35,7 @@ bool RifSurfaceExporter::writeGocadTSurfFile( const QString&                 fil
 
     QTextStream out( &exportFile );
 
-    QString headerForExport = headerForExport = "surface";
+    QString headerForExport = "surface";
     if ( !headerText.isEmpty() ) headerForExport = headerText;
 
     out << "GOCAD TSurf 1 \n";
