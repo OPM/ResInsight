@@ -51,7 +51,7 @@ protected:
     caf::PdmFieldHandle* userDescriptionField() override;
 
 private:
-    bool    needsCommandInterpreter() const;
+    QString optionalCommandInterpreter() const;
     QString handleSpaces( QString argument ) const;
 
     caf::PdmField<QString> m_command;
