@@ -53,9 +53,6 @@ public:
     void    setOutputBaseDirectory( QString baseDir );
     QString outputBaseDirectory() const;
 
-    QString basicCalcParameterFilename() const;
-    QString advancedCalcParameterFilename() const;
-
     int     startTimeStepGeoMechIndex() const;
     QString startTimeStepGeoMech() const;
     int     endTimeStepGeoMechIndex() const;
