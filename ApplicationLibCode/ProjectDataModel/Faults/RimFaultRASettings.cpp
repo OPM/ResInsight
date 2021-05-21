@@ -201,22 +201,6 @@ RimGeoMechCase* RimFaultRASettings::geomechCase() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimFaultRASettings::basicCalcParameterFilename() const
-{
-    return m_baseDir + "/calc_parameters.xml";
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RimFaultRASettings::advancedCalcParameterFilename() const
-{
-    return m_baseDir + "/calib_parameters.xml";
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 QString RimFaultRASettings::outputBaseDirectory() const
 {
     return m_baseDir();
@@ -553,7 +537,7 @@ QStringList RimFaultRASettings::basicMacrisParameters( int faultID ) const
     QStringList retlist;
 
     retlist << "calculate";
-    retlist << basicCalcParameterFilename();
+    retlist << basicParameterXMLFilename( faultID );
     retlist << m_baseDir();
     retlist << "-i";
     retlist << loadStepStart();
@@ -570,8 +554,8 @@ QStringList RimFaultRASettings::advancedMacrisParameters( int faultID ) const
     QStringList retlist;
 
     retlist << "calibrate";
-    retlist << basicCalcParameterFilename();
-    retlist << advancedCalcParameterFilename();
+    retlist << basicParameterXMLFilename( faultID );
+    retlist << advancedParameterXMLFilename( faultID );
     retlist << m_baseDir();
 
     return retlist;

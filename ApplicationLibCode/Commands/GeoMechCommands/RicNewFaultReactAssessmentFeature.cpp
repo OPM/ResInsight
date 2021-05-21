@@ -278,10 +278,10 @@ void RicNewFaultReactAssessmentFeature::addParameterFileForCleanUp( QString file
 void RicNewFaultReactAssessmentFeature::cleanUpParameterFiles()
 {
 #ifndef DEBUG
-    for ( auto& filename : m_parameterFilesToCleanUp )
-    {
-        if ( QFile::exists( filename ) ) QFile::remove( filename );
-    }
+    // for ( auto& filename : m_parameterFilesToCleanUp )
+    //{
+    //    if ( QFile::exists( filename ) ) QFile::remove( filename );
+    //}
 #endif
     m_parameterFilesToCleanUp.clear();
 }
