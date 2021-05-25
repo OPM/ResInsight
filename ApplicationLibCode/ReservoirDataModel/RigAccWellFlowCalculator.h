@@ -95,6 +95,7 @@ private:
     bool isConnectionFlowConsistent( const RigWellResultPoint& wellCell ) const;
     bool isFlowRateConsistent( double flowRate ) const;
 
+    void calculateFlowData();
     void calculateAccumulatedFlowPrConnection( size_t branchIdx, size_t startConnectionNumberFromTop );
     void calculateFlowPrPseudoLength( size_t branchIdx, double startPseudoLengthFromTop );
 
