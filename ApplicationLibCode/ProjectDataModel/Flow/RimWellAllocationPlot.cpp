@@ -310,6 +310,7 @@ void RimWellAllocationPlot::updateFromWell()
                                                                  ? wfCalculator->trueVerticalDepth( brIdx )
                                                                  : std::vector<double>();
 
+        if ( !depthValues.empty() )
         {
             std::vector<QString> tracerNames = wfCalculator->tracerNames();
             for ( const QString& tracerName : tracerNames )
