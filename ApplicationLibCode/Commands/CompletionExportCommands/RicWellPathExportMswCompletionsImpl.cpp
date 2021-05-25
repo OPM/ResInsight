@@ -746,7 +746,7 @@ void RicWellPathExportMswCompletionsImpl::generateFishbonesMswExportInfo(
     exportInfo->setHasSubGridIntersections( exportInfo->hasSubGridIntersections() || foundSubGridIntersections );
     // branch->sortSegments();
 
-    std::vector<RimModeledWellPath*> connectedWellPaths = wellPathsWithTieIn( wellPath );
+    auto connectedWellPaths = wellPathsWithTieIn( wellPath );
     for ( auto childWellPath : connectedWellPaths )
     {
         auto childMswBranch = createChildMswBranch( childWellPath );
@@ -844,7 +844,7 @@ bool RicWellPathExportMswCompletionsImpl::generateFracturesMswExportInfo(
     exportInfo->setHasSubGridIntersections( exportInfo->hasSubGridIntersections() || foundSubGridIntersections );
     branch->sortSegments();
 
-    std::vector<RimModeledWellPath*> connectedWellPaths = wellPathsWithTieIn( wellPath );
+    auto connectedWellPaths = wellPathsWithTieIn( wellPath );
     for ( auto childWellPath : connectedWellPaths )
     {
         auto childMswBranch = createChildMswBranch( childWellPath );
@@ -941,7 +941,7 @@ bool RicWellPathExportMswCompletionsImpl::generatePerforationsMswExportInfo(
     exportInfo->setHasSubGridIntersections( exportInfo->hasSubGridIntersections() || foundSubGridIntersections );
     branch->sortSegments();
 
-    std::vector<RimModeledWellPath*> connectedWellPaths = wellPathsWithTieIn( wellPath );
+    auto connectedWellPaths = wellPathsWithTieIn( wellPath );
 
     for ( auto childWellPath : connectedWellPaths )
     {
@@ -1879,8 +1879,7 @@ void RicWellPathExportMswCompletionsImpl::assignBranchNumbersToBranch( const Rim
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::unique_ptr<RicMswBranch>
-    RicWellPathExportMswCompletionsImpl::createChildMswBranch( const RimModeledWellPath* childWellPath )
+std::unique_ptr<RicMswBranch> RicWellPathExportMswCompletionsImpl::createChildMswBranch( const RimWellPath* childWellPath )
 {
     auto initialChildMD  = childWellPath->wellPathTieIn()->tieInMeasuredDepth();
     auto initialChildTVD = -childWellPath->wellPathGeometry()->interpolatedPointAlongWellPath( initialChildMD ).z();
@@ -1919,18 +1918,16 @@ std::unique_ptr<RicMswBranch>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimModeledWellPath*> RicWellPathExportMswCompletionsImpl::wellPathsWithTieIn( const RimWellPath* wellPath )
+std::vector<RimWellPath*> RicWellPathExportMswCompletionsImpl::wellPathsWithTieIn( const RimWellPath* wellPath )
 {
-    std::vector<RimModeledWellPath*> connectedWellPaths;
+    std::vector<RimWellPath*> connectedWellPaths;
     {
         auto wellPaths = RimProject::current()->allWellPaths();
-        for ( auto w : wellPaths )
+        for ( auto well : wellPaths )
         {
-            auto modelWellPath = dynamic_cast<RimModeledWellPath*>( w );
-            if ( modelWellPath && modelWellPath->isEnabled() && modelWellPath->wellPathTieIn() &&
-                 modelWellPath->wellPathTieIn()->parentWell() == wellPath )
+            if ( well && well->isEnabled() && well->wellPathTieIn() && well->wellPathTieIn()->parentWell() == wellPath )
             {
-                connectedWellPaths.push_back( modelWellPath );
+                connectedWellPaths.push_back( well );
             }
         }
     }
