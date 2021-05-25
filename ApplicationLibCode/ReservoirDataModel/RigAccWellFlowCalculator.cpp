@@ -74,8 +74,7 @@ RigAccWellFlowCalculator::RigAccWellFlowCalculator(
     m_tracerNames.push_back( RIG_RESERVOIR_TRACER_NAME );
 
     initializePipeBranchesMeasuredDepths();
-    calculateAccumulatedFlowPrConnection( 0, 0 );
-    calculateFlowPrPseudoLength( 0, 0.0 );
+    calculateFlowData();
     sortTracers();
     groupSmallContributions();
 }
@@ -109,8 +108,7 @@ RigAccWellFlowCalculator::RigAccWellFlowCalculator( const std::vector<std::vecto
     }
 
     initializePipeBranchesMeasuredDepths();
-    calculateAccumulatedFlowPrConnection( 0, 0 );
-    calculateFlowPrPseudoLength( 0, 0.0 );
+    calculateFlowData();
 
     if ( !m_useTotalWellPhaseRateOnly ) sortTracers();
 }
@@ -147,8 +145,7 @@ RigAccWellFlowCalculator::RigAccWellFlowCalculator( const std::vector<cvf::Vec3d
     }
 
     initializePipeBranchesMeasuredDepths();
-    calculateAccumulatedFlowPrConnection( 0, 0 );
-    calculateFlowPrPseudoLength( 0, 0.0 );
+    calculateFlowData();
 
     if ( !m_useTotalWellPhaseRateOnly ) sortTracers();
 }
@@ -371,6 +368,30 @@ bool RigAccWellFlowCalculator::isFlowRateConsistent( double flowRate ) const
     if ( !m_tracerCellFractionValues ) return true; // No flow diagnostics.
 
     return ( flowRate >= 0.0 && m_isProducer ) || ( flowRate <= 0.0 && !m_isProducer );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigAccWellFlowCalculator::calculateFlowData()
+{
+    for ( size_t branchIndex = 0; branchIndex < m_connectionFlowPrBranch.size(); branchIndex++ )
+    {
+        const auto branch = m_connectionFlowPrBranch[branchIndex];
+        if ( branch.depthValuesFromTop.empty() )
+        {
+            calculateAccumulatedFlowPrConnection( branchIndex, 0 );
+        }
+    }
+
+    for ( size_t branchIndex = 0; branchIndex < m_pseudoLengthFlowPrBranch.size(); branchIndex++ )
+    {
+        const auto branch = m_pseudoLengthFlowPrBranch[branchIndex];
+        if ( branch.depthValuesFromTop.empty() )
+        {
+            calculateFlowPrPseudoLength( branchIndex, 0.0 );
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
