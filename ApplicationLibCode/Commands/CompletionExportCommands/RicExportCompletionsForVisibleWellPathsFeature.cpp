@@ -152,13 +152,5 @@ std::vector<RimWellPath*> RicExportCompletionsForVisibleWellPathsFeature::visibl
         }
     }
 
-    std::set<RimWellPath*> uniqueWellPaths( wellPaths.begin(), wellPaths.end() );
-    wellPaths.assign( uniqueWellPaths.begin(), uniqueWellPaths.end() );
-
-    wellPaths.erase( std::remove_if( wellPaths.begin(),
-                                     wellPaths.end(),
-                                     []( auto wellPath ) { return !wellPath->isTopLevelWellPath(); } ),
-                     wellPaths.end() );
-
     return wellPaths;
 }
