@@ -160,7 +160,7 @@ RimWellPath* RicWellLogTools::selectedWellPathWithLogFile()
 RimWellPath* RicWellLogTools::findWellPathWithLogFileFromSelection()
 {
     RimWellPath* wellPath = caf::SelectionManager::instance()->selectedItemAncestorOfType<RimWellPath>();
-    if ( wellPath->wellLogFiles().size() > 0 )
+    if ( wellPath && wellPath->wellLogFiles().size() > 0 )
     {
         return wellPath;
     }
