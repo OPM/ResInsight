@@ -1885,7 +1885,7 @@ void RifReaderEclipseOutput::readWellCells( const ecl_grid_type* mainEclGrid, bo
                                 wellResultBranch.m_branchResultPoints.push_back(
                                     createWellResultPoint( grids[gridNr],
                                                            ert_connection,
-                                                           branchId,
+                                                           well_segment_get_branch_id( outletSegment ),
                                                            well_segment_get_id( outletSegment ),
                                                            wellName ) );
 
