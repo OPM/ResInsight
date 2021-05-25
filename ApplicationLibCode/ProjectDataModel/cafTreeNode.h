@@ -46,6 +46,11 @@ public:
 
     virtual caf::PdmObject* referencedObject() const;
 
+    std::vector<caf::PdmObject*> allReferencedObjects() const;
+
+private:
+    static void allReferencedObjectsRecursively( const cafTreeNode* node, std::vector<caf::PdmObject*>& objects );
+
 protected:
     caf::PdmChildArrayField<cafTreeNode*> m_childNodes;
 };

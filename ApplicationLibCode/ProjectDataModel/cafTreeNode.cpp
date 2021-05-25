@@ -58,6 +58,36 @@ caf::PdmObject* cafTreeNode::referencedObject() const
 
 //--------------------------------------------------------------------------------------------------
 ///
+//--------------------------------------------------------------------------------------------------
+std::vector<caf::PdmObject*> cafTreeNode::allReferencedObjects() const
+{
+    std::vector<caf::PdmObject*> objects;
+
+    allReferencedObjectsRecursively( this, objects );
+
+    return objects;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void cafTreeNode::allReferencedObjectsRecursively( const cafTreeNode* node, std::vector<caf::PdmObject*>& objects )
+{
+    if ( auto obj = node->referencedObject() )
+    {
+        objects.push_back( obj );
+
+        return;
+    }
+
+    for ( auto c : node->childNodes() )
+    {
+        allReferencedObjectsRecursively( c, objects );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
 ///
 ///
 ///
