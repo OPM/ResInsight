@@ -2351,6 +2351,8 @@ void RimWellLogTrack::updateStackedCurveData()
         for ( auto curve : stackedCurvesInGroup )
         {
             auto depths = curve->curveData()->depths( depthType );
+            if ( depths.empty() ) continue;
+
             if ( allDepthValues.empty() )
             {
                 auto minmaxit = std::minmax_element( depths.begin(), depths.end() );
