@@ -193,7 +193,7 @@ private:
                                              gsl::not_null<RicMswBranch*> branch,
                                              gsl::not_null<int*>          branchNumber );
 
-    static std::unique_ptr<RicMswBranch> createChildMswBranch( const RimModeledWellPath* childWellPath );
+    static std::unique_ptr<RicMswBranch> createChildMswBranch( const RimWellPath* childWellPath );
 
-    static std::vector<RimModeledWellPath*> wellPathsWithTieIn( const RimWellPath* wellPath );
+    static std::vector<RimWellPath*> wellPathsWithTieIn( const RimWellPath* wellPath );
 };
