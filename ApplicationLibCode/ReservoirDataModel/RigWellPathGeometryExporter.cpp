@@ -41,7 +41,11 @@ void RigWellPathGeometryExporter::exportWellPathGeometry( gsl::not_null<const Ri
     useMdRkb         = false;
     double rkbOffset = 0.0;
     {
-        const RimModeledWellPath* modeledWellPath = dynamic_cast<const RimModeledWellPath*>( wellPath.get() );
+        // Always use top level modeled well path for definitions MD at first coordinate
+
+        const RimModeledWellPath* modeledWellPath =
+            dynamic_cast<const RimModeledWellPath*>( wellPath.get()->topLevelWellPath() );
+
         if ( modeledWellPath )
         {
             useMdRkb = true;
