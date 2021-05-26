@@ -63,6 +63,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RicSummaryCaseRestartDialog.h
 ${CMAKE_CURRENT_LIST_DIR}/RicImportEnsembleFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicImportSummaryGroupFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicConvertGroupToEnsembleFeature.h
+${CMAKE_CURRENT_LIST_DIR}/RicImportEnsembleWellLogsFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicResampleDialog.h
 ${CMAKE_CURRENT_LIST_DIR}/RicCreateTemporaryLgrFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicDeleteTemporaryLgrsFeature.h
@@ -147,6 +148,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RicSummaryCaseRestartDialog.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicImportEnsembleFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicImportSummaryGroupFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicConvertGroupToEnsembleFeature.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicImportEnsembleWellLogsFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicResampleDialog.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicCreateTemporaryLgrFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicDeleteTemporaryLgrsFeature.cpp
