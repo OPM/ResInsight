@@ -192,4 +192,6 @@ enum class WellProductionType : short
     UNDEFINED_PRODUCTION_TYPE
 };
 
+bool isInjector( WellProductionType wellProductionType );
+
 }; // namespace RiaDefines

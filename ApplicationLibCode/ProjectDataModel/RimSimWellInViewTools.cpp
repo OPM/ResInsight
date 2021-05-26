@@ -103,9 +103,7 @@ bool RimSimWellInViewTools::isInjector( RimSimWellInView* well )
         {
             const RigWellResultFrame* wrf = wRes->wellResultFrame( currentTimeStep );
 
-            if ( wrf->m_productionType == RiaDefines::WellProductionType::OIL_INJECTOR ||
-                 wrf->m_productionType == RiaDefines::WellProductionType::GAS_INJECTOR ||
-                 wrf->m_productionType == RiaDefines::WellProductionType::WATER_INJECTOR )
+            if ( RiaDefines::isInjector( wrf->m_productionType ) )
             {
                 return true;
             }

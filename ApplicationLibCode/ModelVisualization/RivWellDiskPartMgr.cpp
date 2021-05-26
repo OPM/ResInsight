@@ -316,9 +316,7 @@ void RivWellDiskPartMgr::buildWellDiskParts( size_t frameIndex, const caf::Displ
         }
 
         // Add visual indicator for well type injector
-        if ( productionType == RiaDefines::WellProductionType::OIL_INJECTOR ||
-             productionType == RiaDefines::WellProductionType::GAS_INJECTOR ||
-             productionType == RiaDefines::WellProductionType::WATER_INJECTOR )
+        if ( RiaDefines::isInjector( productionType ) )
         {
             cvf::GeometryBuilderFaceList builder;
             cvf::Vec3f                   pos( 0.0, 0.0, 0.0 );
