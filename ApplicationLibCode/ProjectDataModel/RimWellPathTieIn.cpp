@@ -28,6 +28,8 @@
 #include "RimWellPathTarget.h"
 #include "RimWellPathValve.h"
 
+#include "RiuMainWindow.h"
+
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObjectScriptingCapability.h"
 #include "cafPdmUiDoubleValueEditor.h"
@@ -193,6 +195,12 @@ void RimWellPathTieIn::fieldChangedByUi( const caf::PdmFieldHandle* changedField
     // Update all well paths to make sure the visibility of completion settings is updated
     // Completions settings is only visible for top-level wells, not for tie-in wells
     RimTools::wellPathCollection()->updateAllRequiredEditors();
+
+    if ( changedField == &m_parentWell && m_childWell )
+    {
+        RiuMainWindow::instance()->setExpanded( m_childWell );
+        RiuMainWindow::instance()->selectAsCurrentItem( m_childWell );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
