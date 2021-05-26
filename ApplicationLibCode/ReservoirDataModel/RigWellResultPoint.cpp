@@ -138,3 +138,15 @@ double RigWellResultPoint::connectionFactor() const
 {
     return m_connectionFactor;
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigWellResultPoint::clearAllFlow()
+{
+    m_connectionFactor = 0.0;
+    m_flowRate         = 0.0;
+    m_oilRate          = 0.0;
+    m_gasRate          = 0.0;
+    m_waterRate        = 0.0;
+}
