@@ -43,6 +43,7 @@ public:
     QString geomechFRAMacrisCommand() const;
     QString geomechFRADefaultBasicXML() const;
     QString geomechFRADefaultAdvXML() const;
+    bool    keepTemporaryFiles() const;
 
 protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
@@ -53,4 +54,5 @@ private:
     caf::PdmField<QString> m_geomechFRAMacrisCommand;
     caf::PdmField<QString> m_geomechFRADefaultBasicXML;
     caf::PdmField<QString> m_geomechFRADefaultAdvXML;
+    caf::PdmField<bool>    m_keepTemporaryFiles;
 };

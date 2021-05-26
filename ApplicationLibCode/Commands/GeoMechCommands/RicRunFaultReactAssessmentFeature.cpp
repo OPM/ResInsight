@@ -154,12 +154,13 @@ void RicRunFaultReactAssessmentFeature::addParameterFileForCleanUp( QString file
 //--------------------------------------------------------------------------------------------------
 void RicRunFaultReactAssessmentFeature::cleanUpParameterFiles()
 {
-#ifndef DEBUG
-    // for ( auto& filename : m_parameterFilesToCleanUp )
-    //{
-    //    if ( QFile::exists( filename ) ) QFile::remove( filename );
-    //}
-#endif
+    if ( !RiaPreferencesGeoMech::current()->keepTemporaryFiles() )
+    {
+        for ( auto& filename : m_parameterFilesToCleanUp )
+        {
+            if ( QFile::exists( filename ) ) QFile::remove( filename );
+        }
+    }
     m_parameterFilesToCleanUp.clear();
 }
 

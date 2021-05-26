@@ -28,6 +28,7 @@
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObjectScriptingCapability.h"
 #include "cafPdmUiComboBoxEditor.h"
+#include "cafPdmUiFilePathEditor.h"
 
 #include <QDir>
 #include <QFileInfo>
@@ -62,6 +63,10 @@ RimFaultRAPreprocSettings::RimFaultRAPreprocSettings()
 
     CAF_PDM_InitField( &m_cleanBaseDir, "CleanBaseDir", false, "Clean Output Directory", "", "", "" );
     CAF_PDM_InitField( &m_smoothEclipseData, "SmoothEclipseData", true, "Smooth Eclipse Data", "", "", "" );
+
+    CAF_PDM_InitField( &m_elasticTableFilename, "ElasticTableFilename", QString( "" ), "Elastic Table", "", "", "" );
+    m_elasticTableFilename.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
+    m_elasticTableFilename.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -104,6 +109,9 @@ void RimFaultRAPreprocSettings::defineUiOrdering( QString uiConfigName, caf::Pdm
         geomechGroup->add( &m_geomechCase );
         geomechGroup->add( &m_startTimestepGeoMech );
         geomechGroup->add( &m_endTimestepGeoMech );
+
+        auto tableGroup = uiOrdering.addNewGroup( "Elastic Table" );
+        tableGroup->add( &m_elasticTableFilename );
     }
 
     auto eclipseGroup = uiOrdering.addNewGroup( "Eclipse Model" );
@@ -274,6 +282,14 @@ QString RimFaultRAPreprocSettings::geomechCaseFilename() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString RimFaultRAPreprocSettings::elasticTableFilename() const
+{
+    return m_elasticTableFilename();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString RimFaultRAPreprocSettings::preprocParameterFilename() const
 {
     return m_baseDir + "/tmp/pre_processing.json";
@@ -293,6 +309,14 @@ QString RimFaultRAPreprocSettings::outputBaseDirectory() const
 bool RimFaultRAPreprocSettings::cleanBaseDirectory() const
 {
     return m_cleanBaseDir();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFaultRAPreprocSettings::setCleanBaseDirectory( bool clean )
+{
+    m_cleanBaseDir = clean;
 }
 
 //--------------------------------------------------------------------------------------------------

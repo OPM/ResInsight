@@ -101,6 +101,7 @@ private:
     caf::PdmPtrField<RimEclipseCase*>      m_eclipseCase;
     caf::PdmPtrField<RimGeoMechCase*>      m_geomechCase;
     caf::PdmField<QString>                 m_baseDir;
+    caf::PdmField<QString>                 m_elasticTableFilename;
 
     caf::PdmField<int> m_startTimestepEclipse;
     caf::PdmField<int> m_endTimestepEclipse;
