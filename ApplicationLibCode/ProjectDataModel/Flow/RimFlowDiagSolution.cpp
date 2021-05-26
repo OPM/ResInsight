@@ -244,9 +244,7 @@ RimFlowDiagSolution::TracerStatusType RimFlowDiagSolution::tracerStatusOverall( 
             tracerStatus = TracerStatusType::CLOSED;
             for ( const RigWellResultFrame& wellResFrame : simWellData[wIdx]->m_wellCellsTimeSteps )
             {
-                if ( wellResFrame.m_productionType == RiaDefines::WellProductionType::GAS_INJECTOR ||
-                     wellResFrame.m_productionType == RiaDefines::WellProductionType::OIL_INJECTOR ||
-                     wellResFrame.m_productionType == RiaDefines::WellProductionType::WATER_INJECTOR )
+                if ( RiaDefines::isInjector( wellResFrame.m_productionType ) )
                 {
                     if ( tracerStatus == TracerStatusType::PRODUCER )
                         tracerStatus = TracerStatusType::VARYING;
@@ -300,9 +298,7 @@ RimFlowDiagSolution::TracerStatusType RimFlowDiagSolution::tracerStatusInTimeSte
 
             const RigWellResultFrame* wellResFrame = simWellData[wIdx]->wellResultFrame( timeStepIndex );
 
-            if ( wellResFrame->m_productionType == RiaDefines::WellProductionType::GAS_INJECTOR ||
-                 wellResFrame->m_productionType == RiaDefines::WellProductionType::OIL_INJECTOR ||
-                 wellResFrame->m_productionType == RiaDefines::WellProductionType::WATER_INJECTOR )
+            if ( RiaDefines::isInjector( wellResFrame->m_productionType ) )
             {
                 if ( hasCrossFlowEnding( tracerName ) ) return TracerStatusType::PRODUCER;
 
