@@ -23,6 +23,7 @@
 #include "RimAnnotationCollection.h"
 #include "RimCompletionTemplateCollection.h"
 #include "RimEclipseCaseCollection.h"
+#include "RimEnsembleWellLogsCollection.h"
 #include "RimFormationNamesCollection.h"
 #include "RimFractureTemplateCollection.h"
 #include "RimGeoMechModels.h"
@@ -51,6 +52,7 @@ RimOilField::RimOilField( void )
     CAF_PDM_InitFieldNoDefault( &observedDataCollection, "ObservedDataCollection", "Observed Data", ":/Cases16x16.png", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &annotationCollection, "AnnotationCollection", "Annotations", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &ensembleWellLogsCollection, "EnsembleWellLogsCollection", "Ensemble Well Logs", "", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_fractureTemplateCollection_OBSOLETE,
                                 "FractureDefinitionCollection",
@@ -74,6 +76,7 @@ RimOilField::RimOilField( void )
     observedDataCollection       = new RimObservedDataCollection();
     formationNamesCollection     = new RimFormationNamesCollection();
     annotationCollection         = new RimAnnotationCollection();
+    ensembleWellLogsCollection   = new RimEnsembleWellLogsCollection();
 
     m_fractureTemplateCollection_OBSOLETE = new RimFractureTemplateCollection;
     m_fractureTemplateCollection_OBSOLETE.xmlCapability()->setIOWritable( false );

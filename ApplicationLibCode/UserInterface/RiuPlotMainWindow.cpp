@@ -278,6 +278,7 @@ void RiuPlotMainWindow::createMenus()
     importWellMenu->addAction( cmdFeatureMgr->action( "RicWellPathsImportSsihubFeature" ) );
     importWellMenu->addAction( cmdFeatureMgr->action( "RicWellLogsImportFileFeature" ) );
     importWellMenu->addAction( cmdFeatureMgr->action( "RicWellPathFormationsImportFileFeature" ) );
+    importWellMenu->addAction( cmdFeatureMgr->action( "RicImportEnsembleWellLogsFeature" ) );
 
     importMenu->addSeparator();
     importMenu->addAction( cmdFeatureMgr->action( "RicImportObservedDataInMenuFeature" ) );
