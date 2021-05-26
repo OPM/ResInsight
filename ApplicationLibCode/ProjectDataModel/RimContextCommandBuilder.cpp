@@ -169,6 +169,7 @@
 #include "cafPdmUiItem.h"
 #include "cafSelectionManager.h"
 #include "cafSelectionManagerTools.h"
+#include "cafTreeNode.h"
 #include "cvfAssert.h"
 
 #include <QDir>
@@ -184,9 +185,6 @@
 //--------------------------------------------------------------------------------------------------
 caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
 {
-    // QStringList commandIds;
-    caf::CmdFeatureMenuBuilder menuBuilder;
-
     std::vector<caf::PdmUiItem*> uiItems;
     caf::SelectionManager::instance()->selectedItems( uiItems );
 
@@ -197,6 +195,10 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             firstUiItem = uiItems[0];
         }
     }
+
+    if ( dynamic_cast<cafTreeNode*>( firstUiItem ) ) return {};
+
+    caf::CmdFeatureMenuBuilder menuBuilder;
 
     if ( uiItems.size() == 1 )
     {

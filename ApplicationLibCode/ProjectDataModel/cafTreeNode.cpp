@@ -76,8 +76,6 @@ void cafTreeNode::allReferencedObjectsRecursively( const cafTreeNode* node, std:
     if ( auto obj = node->referencedObject() )
     {
         objects.push_back( obj );
-
-        return;
     }
 
     for ( auto c : node->childNodes() )
