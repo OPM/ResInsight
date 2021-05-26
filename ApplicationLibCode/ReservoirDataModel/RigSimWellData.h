@@ -41,9 +41,9 @@ public:
     bool hasWellResult( size_t resultTimeStepIndex ) const;
     bool hasAnyValidCells( size_t resultTimeStepIndex ) const;
 
-    const RigWellResultFrame&              wellResultFrame( size_t resultTimeStepIndex ) const;
-    bool                                   isOpen( size_t resultTimeStepIndex ) const;
-    RigWellResultFrame::WellProductionType wellProductionType( size_t resultTimeStepIndex ) const;
+    const RigWellResultFrame&      wellResultFrame( size_t resultTimeStepIndex ) const;
+    bool                           isOpen( size_t resultTimeStepIndex ) const;
+    RiaDefines::WellProductionType wellProductionType( size_t resultTimeStepIndex ) const;
 
     const RigWellResultFrame& staticWellCells() const;
 

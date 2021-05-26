@@ -18,12 +18,11 @@
 
 #pragma once
 
-#include "RigWellResultPoint.h"
-
 #include "cafPdmPointer.h"
 
 #include "cvfObject.h"
 #include "cvfString.h"
+#include "cvfVector3.h"
 
 namespace cvf
 {
@@ -39,9 +38,15 @@ namespace caf
 class DisplayCoordTransform;
 }
 
+namespace RiaDefines
+{
+enum class WellProductionType : short;
+}
+
 class Rim3dView;
 class RimSimWellInView;
 class RimSimWellInViewCollection;
+class RigWellResultFrame;
 
 class RivWellDiskPartMgr : public cvf::Object
 {
@@ -65,7 +70,7 @@ private:
     Rim3dView*                  viewWithSettings();
     RimSimWellInViewCollection* simWellInViewCollection();
 
-    static cvf::Color4f getWellInjectionColor( RigWellResultFrame::WellProductionType productionType );
+    static cvf::Color4f getWellInjectionColor( RiaDefines::WellProductionType productionType );
     static QString      formatNumber( double num );
     static double       baseScaleFactor();
 

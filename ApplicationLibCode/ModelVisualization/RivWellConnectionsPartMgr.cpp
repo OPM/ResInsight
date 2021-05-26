@@ -64,11 +64,11 @@ void RivWellConnectionsPartMgr::appendDynamicGeometryPartsToModel( cvf::ModelBas
     if ( !m_rimWell->simWellData()->hasWellResult( frameIndex ) ) return;
     if ( !m_rimWell->simWellData()->wellResultFrame( frameIndex ).m_isOpen ) return;
     if ( m_rimWell->simWellData()->wellResultFrame( frameIndex ).m_productionType ==
-         RigWellResultFrame::UNDEFINED_PRODUCTION_TYPE )
+         RiaDefines::WellProductionType::UNDEFINED_PRODUCTION_TYPE )
         return;
 
-    bool isProducer =
-        ( m_rimWell->simWellData()->wellResultFrame( frameIndex ).m_productionType == RigWellResultFrame::PRODUCER );
+    bool   isProducer = ( m_rimWell->simWellData()->wellResultFrame( frameIndex ).m_productionType ==
+                        RiaDefines::WellProductionType::PRODUCER );
     double pipeRadius = m_rimWell->pipeRadius();
 
     cvf::Vec3d                           wellHeadTop;
@@ -133,11 +133,11 @@ void RivWellConnectionsPartMgr::appendDynamicGeometryPartsToModel( cvf::ModelBas
         if ( !otherWell->simWellData()->hasWellResult( frameIndex ) ) continue;
         if ( !otherWell->simWellData()->wellResultFrame( frameIndex ).m_isOpen ) continue;
         if ( otherWell->simWellData()->wellResultFrame( frameIndex ).m_productionType ==
-             RigWellResultFrame::UNDEFINED_PRODUCTION_TYPE )
+             RiaDefines::WellProductionType::UNDEFINED_PRODUCTION_TYPE )
             continue;
 
-        bool isOtherProducer =
-            ( otherWell->simWellData()->wellResultFrame( frameIndex ).m_productionType == RigWellResultFrame::PRODUCER );
+        bool isOtherProducer = ( otherWell->simWellData()->wellResultFrame( frameIndex ).m_productionType ==
+                                 RiaDefines::WellProductionType::PRODUCER );
 
         {
             std::string otherWellName   = otherWell->name().toStdString();

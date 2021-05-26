@@ -260,9 +260,9 @@ void RimWellAllocationPlot::updateFromWell()
 
     if ( tracerFractionCellValues.size() )
     {
-        bool isProducer =
-            ( simWellData->wellProductionType( m_timeStep ) == RigWellResultFrame::PRODUCER ||
-              simWellData->wellProductionType( m_timeStep ) == RigWellResultFrame::UNDEFINED_PRODUCTION_TYPE );
+        bool isProducer = ( simWellData->wellProductionType( m_timeStep ) == RiaDefines::WellProductionType::PRODUCER ||
+                            simWellData->wellProductionType( m_timeStep ) ==
+                                RiaDefines::WellProductionType::UNDEFINED_PRODUCTION_TYPE );
         RigEclCellIndexCalculator cellIdxCalc( m_case->eclipseCaseData()->mainGrid(),
                                                m_case->eclipseCaseData()->activeCellInfo(
                                                    RiaDefines::PorosityModelType::MATRIX_MODEL ) );
@@ -444,8 +444,9 @@ std::map<QString, const std::vector<double>*>
     {
         RimFlowDiagSolution::TracerStatusType requestedTracerType = RimFlowDiagSolution::TracerStatusType::UNDEFINED;
 
-        const RigWellResultFrame::WellProductionType prodType = simWellData->wellProductionType( m_timeStep );
-        if ( prodType == RigWellResultFrame::PRODUCER || prodType == RigWellResultFrame::UNDEFINED_PRODUCTION_TYPE )
+        const RiaDefines::WellProductionType prodType = simWellData->wellProductionType( m_timeStep );
+        if ( prodType == RiaDefines::WellProductionType::PRODUCER ||
+             prodType == RiaDefines::WellProductionType::UNDEFINED_PRODUCTION_TYPE )
         {
             requestedTracerType = RimFlowDiagSolution::TracerStatusType::INJECTOR;
         }
@@ -593,23 +594,23 @@ QString RimWellAllocationPlot::wellStatusTextForTimeStep( const QString&        
             {
                 const RigWellResultFrame& wellResultFrame = simWellData->wellResultFrame( timeStep );
 
-                RigWellResultFrame::WellProductionType prodType = wellResultFrame.m_productionType;
+                RiaDefines::WellProductionType prodType = wellResultFrame.m_productionType;
 
                 switch ( prodType )
                 {
-                    case RigWellResultFrame::PRODUCER:
+                    case RiaDefines::WellProductionType::PRODUCER:
                         statusText = "Producer";
                         break;
-                    case RigWellResultFrame::OIL_INJECTOR:
+                    case RiaDefines::WellProductionType::OIL_INJECTOR:
                         statusText = "Oil Injector";
                         break;
-                    case RigWellResultFrame::GAS_INJECTOR:
+                    case RiaDefines::WellProductionType::GAS_INJECTOR:
                         statusText = "Gas Injector";
                         break;
-                    case RigWellResultFrame::WATER_INJECTOR:
+                    case RiaDefines::WellProductionType::WATER_INJECTOR:
                         statusText = "Water Injector";
                         break;
-                    case RigWellResultFrame::UNDEFINED_PRODUCTION_TYPE:
+                    case RiaDefines::WellProductionType::UNDEFINED_PRODUCTION_TYPE:
                         break;
                     default:
                         break;

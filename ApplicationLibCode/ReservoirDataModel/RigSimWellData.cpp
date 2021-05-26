@@ -311,7 +311,7 @@ bool RigSimWellData::isMultiSegmentWell() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigWellResultFrame::WellProductionType RigSimWellData::wellProductionType( size_t resultTimeStepIndex ) const
+RiaDefines::WellProductionType RigSimWellData::wellProductionType( size_t resultTimeStepIndex ) const
 {
     if ( hasWellResult( resultTimeStepIndex ) )
     {
@@ -320,7 +320,7 @@ RigWellResultFrame::WellProductionType RigSimWellData::wellProductionType( size_
     }
     else
     {
-        return RigWellResultFrame::UNDEFINED_PRODUCTION_TYPE;
+        return RiaDefines::WellProductionType::UNDEFINED_PRODUCTION_TYPE;
     }
 }
 

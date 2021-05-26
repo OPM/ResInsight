@@ -315,8 +315,9 @@ void RivWellDiskPartMgr::buildWellDiskParts( size_t frameIndex, const caf::Displ
         }
 
         // Add visual indicator for well type injector
-        if ( productionType == RigWellResultFrame::OIL_INJECTOR || productionType == RigWellResultFrame::GAS_INJECTOR ||
-             productionType == RigWellResultFrame::WATER_INJECTOR )
+        if ( productionType == RiaDefines::WellProductionType::OIL_INJECTOR ||
+             productionType == RiaDefines::WellProductionType::GAS_INJECTOR ||
+             productionType == RiaDefines::WellProductionType::WATER_INJECTOR )
         {
             cvf::GeometryBuilderFaceList builder;
             cvf::Vec3f                   pos( 0.0, 0.0, 0.0 );
@@ -514,17 +515,17 @@ RimSimWellInViewCollection* RivWellDiskPartMgr::simWellInViewCollection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::Color4f RivWellDiskPartMgr::getWellInjectionColor( RigWellResultFrame::WellProductionType productionType )
+cvf::Color4f RivWellDiskPartMgr::getWellInjectionColor( RiaDefines::WellProductionType productionType )
 {
-    if ( productionType == RigWellResultFrame::OIL_INJECTOR )
+    if ( productionType == RiaDefines::WellProductionType::OIL_INJECTOR )
     {
         return cvf::Color4f( cvf::Color3::ORANGE );
     }
-    else if ( productionType == RigWellResultFrame::GAS_INJECTOR )
+    else if ( productionType == RiaDefines::WellProductionType::GAS_INJECTOR )
     {
         return cvf::Color4f( cvf::Color3::RED );
     }
-    else if ( productionType == RigWellResultFrame::WATER_INJECTOR )
+    else if ( productionType == RiaDefines::WellProductionType::WATER_INJECTOR )
     {
         return cvf::Color4f( cvf::Color3::BLUE );
     }

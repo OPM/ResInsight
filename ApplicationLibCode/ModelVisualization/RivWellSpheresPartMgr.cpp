@@ -209,16 +209,16 @@ cvf::Color3f RivWellSpheresPartMgr::wellCellColor( const RigWellResultFrame& wel
         {
             switch ( wellResultFrame.m_productionType )
             {
-                case RigWellResultFrame::PRODUCER:
+                case RiaDefines::WellProductionType::PRODUCER:
                     cellColor = cvf::Color3f::GREEN;
                     break;
-                case RigWellResultFrame::OIL_INJECTOR:
+                case RiaDefines::WellProductionType::OIL_INJECTOR:
                     cellColor = cvf::Color3f::RED;
                     break;
-                case RigWellResultFrame::GAS_INJECTOR:
+                case RiaDefines::WellProductionType::GAS_INJECTOR:
                     cellColor = cvf::Color3f::RED;
                     break;
-                case RigWellResultFrame::WATER_INJECTOR:
+                case RiaDefines::WellProductionType::WATER_INJECTOR:
                     cellColor = cvf::Color3f::BLUE;
                     break;
             }

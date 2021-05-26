@@ -188,8 +188,9 @@ std::vector<QString>
     {
         RimFlowDiagSolution::TracerStatusType requestedTracerType = RimFlowDiagSolution::TracerStatusType::UNDEFINED;
 
-        const RigWellResultFrame::WellProductionType prodType = simWellData->wellProductionType( timeStep );
-        if ( prodType == RigWellResultFrame::PRODUCER || prodType == RigWellResultFrame::UNDEFINED_PRODUCTION_TYPE )
+        const RiaDefines::WellProductionType prodType = simWellData->wellProductionType( timeStep );
+        if ( prodType == RiaDefines::WellProductionType::PRODUCER ||
+             prodType == RiaDefines::WellProductionType::UNDEFINED_PRODUCTION_TYPE )
         {
             requestedTracerType = RimFlowDiagSolution::TracerStatusType::INJECTOR;
         }

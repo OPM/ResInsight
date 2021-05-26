@@ -435,19 +435,19 @@ void RivSimWellPipesPartMgr::updatePipeResultColor( size_t frameIndex )
                     {
                         switch ( wResFrame.m_productionType )
                         {
-                            case RigWellResultFrame::PRODUCER:
+                            case RiaDefines::WellProductionType::PRODUCER:
                                 cellState = producerState;
                                 break;
-                            case RigWellResultFrame::OIL_INJECTOR:
+                            case RiaDefines::WellProductionType::OIL_INJECTOR:
                                 cellState = hcInjectorState;
                                 break;
-                            case RigWellResultFrame::GAS_INJECTOR:
+                            case RiaDefines::WellProductionType::GAS_INJECTOR:
                                 cellState = hcInjectorState;
                                 break;
-                            case RigWellResultFrame::WATER_INJECTOR:
+                            case RiaDefines::WellProductionType::WATER_INJECTOR:
                                 cellState = waterInjectorState;
                                 break;
-                            case RigWellResultFrame::UNDEFINED_PRODUCTION_TYPE:
+                            case RiaDefines::WellProductionType::UNDEFINED_PRODUCTION_TYPE:
                                 cellState = defaultState;
                                 break;
                         }
