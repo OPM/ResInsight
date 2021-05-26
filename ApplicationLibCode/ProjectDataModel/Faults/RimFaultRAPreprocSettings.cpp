@@ -61,7 +61,7 @@ RimFaultRAPreprocSettings::RimFaultRAPreprocSettings()
     m_baseDir.uiCapability()->setUiReadOnly( true );
 
     CAF_PDM_InitField( &m_cleanBaseDir, "CleanBaseDir", false, "Clean Output Directory", "", "", "" );
-    CAF_PDM_InitField( &m_smoothEclipseData, "SmoothEclipseData", false, "Smooth Eclipse Data", "", "", "" );
+    CAF_PDM_InitField( &m_smoothEclipseData, "SmoothEclipseData", true, "Smooth Eclipse Data", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------

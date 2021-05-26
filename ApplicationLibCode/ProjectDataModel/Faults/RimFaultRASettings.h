@@ -45,6 +45,7 @@ public:
     void            setGeoMechCase( RimGeoMechCase* geomechCase );
     RimGeoMechCase* geomechCase() const;
     QString         geomechCaseFilename() const;
+    QString         geomechCaseName() const;
 
     RimEclipseInputCase* eclipseFRAGeneratedCase() const;
     RimEclipseCase*      eclipseCase() const;

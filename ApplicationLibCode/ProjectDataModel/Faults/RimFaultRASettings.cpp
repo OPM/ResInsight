@@ -40,6 +40,8 @@
 #include "cafPdmUiComboBoxEditor.h"
 #include "cafPdmUiTableViewEditor.h"
 
+#include <QFileInfo>
+
 CAF_PDM_SOURCE_INIT( RimFaultRASettings, "RimFaultRASettings" );
 
 //--------------------------------------------------------------------------------------------------
@@ -193,6 +195,15 @@ QString RimFaultRASettings::geomechCaseFilename() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString RimFaultRASettings::geomechCaseName() const
+{
+    QFileInfo fi( geomechCaseFilename() );
+    return fi.baseName();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RimGeoMechCase* RimFaultRASettings::geomechCase() const
 {
     return m_geomechCase;
@@ -319,7 +330,7 @@ QString RimFaultRASettings::startTimeStepGeoMech() const
     if ( m_geomechCase() )
     {
         if ( ( m_startTimestepGeoMech >= 0 ) && ( m_startTimestepGeoMech <= m_geomechCase->timeStepStrings().size() ) )
-            return m_geomechCase->timeStepStrings()[m_startTimestepEclipse];
+            return m_geomechCase->timeStepStrings()[m_startTimestepGeoMech];
     }
     return "";
 }
@@ -394,8 +405,8 @@ std::list<RimGenericParameter*> RimFaultRASettings::basicParameters( int faultID
 //--------------------------------------------------------------------------------------------------
 std::list<RimGenericParameter*> RimFaultRASettings::advancedParameters( int faultID )
 {
-    m_advancedParametersRI->setParameterValue( "eclipse_loadstep_start", startTimeStepEclipse() );
-    m_advancedParametersRI->setParameterValue( "eclipse_loadstep_end", m_endTimestepEclipse() );
+    m_advancedParametersRI->setParameterValue( "eclipse_loadstep_start", loadStepStart() );
+    m_advancedParametersRI->setParameterValue( "eclipse_loadstep_end", loadStepEnd() );
     m_advancedParametersRI->setParameterValue( "faultid_calibration", faultID );
     m_advancedParametersRI->setParameterValue( "abaqus_elastic_properties", elasticPropertiesFilename() );
     m_advancedParametersRI->setParameterValue( "abaqus_stress_start", stressStartFilename() );
@@ -452,7 +463,7 @@ QString RimFaultRASettings::elasticPropertiesFilename() const
 //--------------------------------------------------------------------------------------------------
 QString RimFaultRASettings::stressStartFilename() const
 {
-    QString filename = QString( "/%1/%2_%3_stress.rpt" ).arg( "Abaqus", geomechCase()->uiName(), startTimeStepGeoMech() );
+    QString filename = QString( "/%1/%2_%3_stress.rpt" ).arg( "Abaqus", geomechCaseName(), startTimeStepGeoMech() );
     return m_baseDir + filename;
 }
 
@@ -461,7 +472,7 @@ QString RimFaultRASettings::stressStartFilename() const
 //--------------------------------------------------------------------------------------------------
 QString RimFaultRASettings::stressEndFilename() const
 {
-    QString filename = QString( "/%1/%2_%3_stress.rpt" ).arg( "Abaqus", geomechCase()->uiName(), endTimeStepGeoMech() );
+    QString filename = QString( "/%1/%2_%3_stress.rpt" ).arg( "Abaqus", geomechCaseName(), endTimeStepGeoMech() );
     return m_baseDir + filename;
 }
 
