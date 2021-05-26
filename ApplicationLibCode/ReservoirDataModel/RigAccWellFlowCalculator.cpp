@@ -23,6 +23,7 @@
 #include "RigMainGrid.h"
 #include "RigSimWellData.h"
 #include "RigSimulationWellCoordsAndMD.h"
+#include "RigWellResultPoint.h"
 
 //==================================================================================================
 ///

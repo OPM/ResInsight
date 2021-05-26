@@ -25,6 +25,7 @@
 
 #include "RigEclipseCaseData.h"
 #include "RigSimWellData.h"
+#include "RigWellResultPoint.h"
 
 #include "RimEclipseCase.h"
 #include "RimEclipseContourMapView.h"

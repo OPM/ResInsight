@@ -27,6 +27,7 @@
 #include "RigSimWellData.h"
 #include "RigSimulationWellCenterLineCalculator.h"
 #include "RigSimulationWellCoordsAndMD.h"
+#include "RigWellResultPoint.h"
 
 #include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
@@ -592,9 +593,9 @@ QString RimWellAllocationPlot::wellStatusTextForTimeStep( const QString&        
         {
             if ( simWellData->hasWellResult( timeStep ) )
             {
-                const RigWellResultFrame& wellResultFrame = simWellData->wellResultFrame( timeStep );
+                const RigWellResultFrame* wellResultFrame = simWellData->wellResultFrame( timeStep );
 
-                RiaDefines::WellProductionType prodType = wellResultFrame.m_productionType;
+                RiaDefines::WellProductionType prodType = wellResultFrame->m_productionType;
 
                 switch ( prodType )
                 {

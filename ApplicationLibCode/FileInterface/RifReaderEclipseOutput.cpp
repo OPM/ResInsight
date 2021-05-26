@@ -43,6 +43,7 @@
 #include "RigEquil.h"
 #include "RigMainGrid.h"
 #include "RigSimWellData.h"
+#include "RigWellResultPoint.h"
 
 #include "cafProgressInfo.h"
 

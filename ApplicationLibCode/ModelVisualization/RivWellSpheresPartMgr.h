@@ -54,7 +54,7 @@ public:
     void appendDynamicGeometryPartsToModel( cvf::ModelBasicList* model, size_t frameIndex );
 
 private:
-    cvf::Color3f wellCellColor( const RigWellResultFrame& wellResultFrame, const RigWellResultPoint& wellResultPoint );
+    cvf::Color3f wellCellColor( const RigWellResultFrame* wellResultFrame, const RigWellResultPoint& wellResultPoint );
     cvf::ref<cvf::Part> createPart( std::vector<std::pair<cvf::Vec3f, cvf::Color3f>>& centerColorPairs, bool isWellOpen );
 
 private:

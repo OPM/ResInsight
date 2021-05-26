@@ -123,7 +123,7 @@ private:
     bool intersectsDynamicWellCellsFilteredCells( size_t frameIndex ) const;
     bool intersectsStaticWellCellsFilteredCells() const;
 
-    bool intersectsWellCellsFilteredCells( const RigWellResultFrame& wrsf, size_t frameIndex ) const;
+    bool intersectsWellCellsFilteredCells( const RigWellResultFrame* wrsf, size_t frameIndex ) const;
 
 private:
     cvf::ref<RigSimWellData> m_simWellData;

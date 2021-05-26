@@ -22,6 +22,7 @@
 
 #include "RigMainGrid.h"
 #include "RigSimWellData.h"
+#include "RigWellResultPoint.h"
 
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
@@ -79,11 +80,11 @@ void RivWellSpheresPartMgr::appendDynamicGeometryPartsToModel( cvf::ModelBasicLi
 
     if ( !rigWellResult->hasWellResult( frameIndex ) ) return;
 
-    const RigWellResultFrame& wellResultFrame = rigWellResult->wellResultFrame( frameIndex );
+    const RigWellResultFrame* wellResultFrame = rigWellResult->wellResultFrame( frameIndex );
 
     std::vector<std::pair<cvf::Vec3f, cvf::Color3f>> centerColorPairs;
 
-    for ( const RigWellResultBranch& wellResultBranch : wellResultFrame.m_wellResultBranches )
+    for ( const RigWellResultBranch& wellResultBranch : wellResultFrame->m_wellResultBranches )
     {
         for ( const RigWellResultPoint& wellResultPoint : wellResultBranch.m_branchResultPoints )
         {
@@ -108,7 +109,7 @@ void RivWellSpheresPartMgr::appendDynamicGeometryPartsToModel( cvf::ModelBasicLi
         }
     }
 
-    cvf::ref<cvf::Part> part = createPart( centerColorPairs, wellResultFrame.m_isOpen );
+    cvf::ref<cvf::Part> part = createPart( centerColorPairs, wellResultFrame->m_isOpen );
 
     model->addPart( part.p() );
 }
@@ -190,7 +191,7 @@ cvf::ref<cvf::Part> RivWellSpheresPartMgr::createPart( std::vector<std::pair<cvf
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::Color3f RivWellSpheresPartMgr::wellCellColor( const RigWellResultFrame& wellResultFrame,
+cvf::Color3f RivWellSpheresPartMgr::wellCellColor( const RigWellResultFrame* wellResultFrame,
                                                    const RigWellResultPoint& wellResultPoint )
 {
     // Colours should be synchronized with RivWellPipesPartMgr::updatePipeResultColor
@@ -207,7 +208,7 @@ cvf::Color3f RivWellSpheresPartMgr::wellCellColor( const RigWellResultFrame& wel
     {
         if ( wellResultPoint.m_isOpen )
         {
-            switch ( wellResultFrame.m_productionType )
+            switch ( wellResultFrame->m_productionType )
             {
                 case RiaDefines::WellProductionType::PRODUCER:
                     cellColor = cvf::Color3f::GREEN;

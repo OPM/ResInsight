@@ -21,6 +21,7 @@
 #include "RigCell.h"
 #include "RigMainGrid.h"
 #include "RigSimWellData.h"
+#include "RigWellResultPoint.h"
 
 #include "RimEclipseView.h"
 #include "RimEllipseFractureTemplate.h"

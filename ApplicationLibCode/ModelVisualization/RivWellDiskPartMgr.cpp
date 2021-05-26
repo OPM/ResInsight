@@ -24,6 +24,7 @@
 #include "RigActiveCellInfo.h"
 #include "RigCell.h"
 #include "RigSimWellData.h"
+#include "RigWellResultPoint.h"
 
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
@@ -98,7 +99,7 @@ void RivWellDiskPartMgr::buildWellDiskParts( size_t frameIndex, const caf::Displ
 
     if ( !well->simWellData()->hasWellResult( frameIndex ) ) return;
 
-    auto productionType = well->simWellData()->wellResultFrame( frameIndex ).m_productionType;
+    auto productionType = well->simWellData()->wellResultFrame( frameIndex )->m_productionType;
 
     double       pipeRadius = m_rimWell->pipeRadius();
     unsigned int numSectors = 100;

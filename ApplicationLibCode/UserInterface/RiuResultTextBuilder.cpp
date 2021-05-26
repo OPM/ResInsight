@@ -26,6 +26,7 @@
 #include "RigResultAccessor.h"
 #include "RigResultAccessorFactory.h"
 #include "RigSimWellData.h"
+#include "RigWellResultPoint.h"
 
 #include "Rim2dIntersectionView.h"
 #include "RimCellEdgeColors.h"
@@ -1019,9 +1020,9 @@ QString RiuResultTextBuilder::wellResultText()
                 continue;
             }
 
-            const RigWellResultFrame& wellResultFrame = singleWellResultData->wellResultFrame( m_timeStepIndex );
+            const RigWellResultFrame* wellResultFrame = singleWellResultData->wellResultFrame( m_timeStepIndex );
             const RigWellResultPoint* wellResultCell =
-                wellResultFrame.findResultCellWellHeadIncluded( m_gridIndex, m_cellIndex );
+                wellResultFrame->findResultCellWellHeadIncluded( m_gridIndex, m_cellIndex );
             if ( wellResultCell )
             {
                 text += QString( "-- Well-cell connection info --\n Well Name: %1\n Branch Id: %2\n Segment Id: %3\n" )

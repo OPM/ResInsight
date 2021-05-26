@@ -23,6 +23,8 @@
 #include "RigCellFaceGeometryTools.h"
 #include "RigEclipseCaseData.h"
 #include "RigMainGrid.h"
+#include "RigSimWellData.h"
+#include "RigWellResultPoint.h"
 
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
@@ -95,11 +97,11 @@ void RigSimulationWellCenterLineCalculator::calculateWellPipeCenterlineFromWellF
 
     if ( timeStepIndex < 0 )
     {
-        wellFramePtr = &wellResults->staticWellCells();
+        wellFramePtr = wellResults->staticWellCells();
     }
     else
     {
-        wellFramePtr = &( wellResults->wellResultFrame( timeStepIndex ) );
+        wellFramePtr = wellResults->wellResultFrame( timeStepIndex );
     }
 
     bool isMultiSegmentWell = wellResults->isMultiSegmentWell();

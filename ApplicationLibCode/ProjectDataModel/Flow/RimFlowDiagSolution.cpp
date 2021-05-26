@@ -24,6 +24,7 @@
 #include "RigFlowDiagResults.h"
 #include "RigMainGrid.h"
 #include "RigSimWellData.h"
+#include "RigWellResultPoint.h"
 
 #include "RimEclipseResultCase.h"
 #include "RimEclipseView.h"
@@ -177,11 +178,11 @@ std::map<std::string, std::vector<int>> RimFlowDiagSolution::allTracerActiveCell
         for ( size_t wIdx = 0; wIdx < simWellData.size(); ++wIdx )
         {
             if ( !simWellData[wIdx]->hasWellResult( timeStepIndex ) ) continue;
-            const RigWellResultFrame& wellResFrame = simWellData[wIdx]->wellResultFrame( timeStepIndex );
+            const RigWellResultFrame* wellResFrame = simWellData[wIdx]->wellResultFrame( timeStepIndex );
 
             bool isInjectorWell =
-                ( wellResFrame.m_productionType != RiaDefines::WellProductionType::PRODUCER &&
-                  wellResFrame.m_productionType != RiaDefines::WellProductionType::UNDEFINED_PRODUCTION_TYPE );
+                ( wellResFrame->m_productionType != RiaDefines::WellProductionType::PRODUCER &&
+                  wellResFrame->m_productionType != RiaDefines::WellProductionType::UNDEFINED_PRODUCTION_TYPE );
 
             std::string wellName   = simWellData[wIdx]->m_wellName.toStdString();
             std::string wellNameXf = addCrossFlowEnding( simWellData[wIdx]->m_wellName ).toStdString();
@@ -189,7 +190,7 @@ std::map<std::string, std::vector<int>> RimFlowDiagSolution::allTracerActiveCell
             std::vector<int>& tracerCells          = tracersWithCells[wellName];
             std::vector<int>& tracerCellsCrossFlow = tracersWithCells[wellNameXf];
 
-            for ( const RigWellResultBranch& wBr : wellResFrame.m_wellResultBranches )
+            for ( const RigWellResultBranch& wBr : wellResFrame->m_wellResultBranches )
             {
                 for ( const RigWellResultPoint& wrp : wBr.m_branchResultPoints )
                 {
@@ -297,18 +298,18 @@ RimFlowDiagSolution::TracerStatusType RimFlowDiagSolution::tracerStatusInTimeSte
             if ( simWellData[wIdx]->m_wellName != wellName ) continue;
             if ( !simWellData[wIdx]->hasWellResult( timeStepIndex ) ) return TracerStatusType::CLOSED;
 
-            const RigWellResultFrame& wellResFrame = simWellData[wIdx]->wellResultFrame( timeStepIndex );
+            const RigWellResultFrame* wellResFrame = simWellData[wIdx]->wellResultFrame( timeStepIndex );
 
-            if ( wellResFrame.m_productionType == RiaDefines::WellProductionType::GAS_INJECTOR ||
-                 wellResFrame.m_productionType == RiaDefines::WellProductionType::OIL_INJECTOR ||
-                 wellResFrame.m_productionType == RiaDefines::WellProductionType::WATER_INJECTOR )
+            if ( wellResFrame->m_productionType == RiaDefines::WellProductionType::GAS_INJECTOR ||
+                 wellResFrame->m_productionType == RiaDefines::WellProductionType::OIL_INJECTOR ||
+                 wellResFrame->m_productionType == RiaDefines::WellProductionType::WATER_INJECTOR )
             {
                 if ( hasCrossFlowEnding( tracerName ) ) return TracerStatusType::PRODUCER;
 
                 return TracerStatusType::INJECTOR;
             }
-            else if ( wellResFrame.m_productionType == RiaDefines::WellProductionType::PRODUCER ||
-                      wellResFrame.m_productionType == RiaDefines::WellProductionType::UNDEFINED_PRODUCTION_TYPE )
+            else if ( wellResFrame->m_productionType == RiaDefines::WellProductionType::PRODUCER ||
+                      wellResFrame->m_productionType == RiaDefines::WellProductionType::UNDEFINED_PRODUCTION_TYPE )
             {
                 if ( hasCrossFlowEnding( tracerName ) ) return TracerStatusType::INJECTOR;
 

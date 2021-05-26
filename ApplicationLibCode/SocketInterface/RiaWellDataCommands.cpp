@@ -25,6 +25,7 @@
 #include "RigEclipseCaseData.h"
 #include "RigGridBase.h"
 #include "RigSimWellData.h"
+#include "RigWellResultPoint.h"
 
 #include "RimEclipseCase.h"
 
@@ -174,7 +175,7 @@ public:
             qint32  wellStatus = 0;
             if ( currentWellResult->hasWellResult( tsIdx ) )
             {
-                switch ( currentWellResult->wellResultFrame( tsIdx ).m_productionType )
+                switch ( currentWellResult->wellResultFrame( tsIdx )->m_productionType )
                 {
                     case RiaDefines::WellProductionType::PRODUCER:
                         wellType = "Producer";
@@ -190,7 +191,7 @@ public:
                         break;
                 }
 
-                wellStatus = currentWellResult->wellResultFrame( tsIdx ).m_isOpen ? 1 : 0;
+                wellStatus = currentWellResult->wellResultFrame( tsIdx )->m_isOpen ? 1 : 0;
             }
 
             wellTypes.push_back( wellType );
@@ -281,14 +282,14 @@ public:
         std::vector<qint32> segmentIds;
 
         // Fetch results
-        const RigWellResultFrame& wellResFrame = currentWellResult->wellResultFrame( timeStepIdx );
+        const RigWellResultFrame* wellResFrame = currentWellResult->wellResultFrame( timeStepIdx );
         std::vector<RigGridBase*> grids;
         rimCase->eclipseCaseData()->allGrids( &grids );
 
-        for ( size_t bIdx = 0; bIdx < wellResFrame.m_wellResultBranches.size(); ++bIdx )
+        for ( size_t bIdx = 0; bIdx < wellResFrame->m_wellResultBranches.size(); ++bIdx )
         {
             const std::vector<RigWellResultPoint>& branchResPoints =
-                wellResFrame.m_wellResultBranches[bIdx].m_branchResultPoints;
+                wellResFrame->m_wellResultBranches[bIdx].m_branchResultPoints;
             for ( size_t rpIdx = 0; rpIdx < branchResPoints.size(); ++rpIdx )
             {
                 const RigWellResultPoint& resPoint = branchResPoints[rpIdx];

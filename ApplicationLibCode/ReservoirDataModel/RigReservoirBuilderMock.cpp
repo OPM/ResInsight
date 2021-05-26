@@ -27,6 +27,7 @@
 #include "RigSimWellData.h"
 
 /* rand example: guess the number */
+#include "RigWellResultPoint.h"
 #include <cstdio>
 #include <cstdlib>
 #include <ctime>

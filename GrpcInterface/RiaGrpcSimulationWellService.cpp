@@ -22,6 +22,7 @@
 #include "RigEclipseCaseData.h"
 #include "RigGridBase.h"
 #include "RigSimWellData.h"
+#include "RigWellResultPoint.h"
 
 #include "RimCase.h"
 #include "RimEclipseCase.h"
@@ -57,23 +58,23 @@ grpc::Status RiaGrpcSimulationWellService::GetSimulationWellStatus( grpc::Server
     bool    wellStatus = false;
     if ( currentWellResult->hasWellResult( tsIdx ) )
     {
-        switch ( currentWellResult->wellResultFrame( tsIdx ).m_productionType )
+        switch ( currentWellResult->wellResultFrame( tsIdx )->m_productionType )
         {
-            case RigWellResultFrame::PRODUCER:
+            case RiaDefines::WellProductionType::PRODUCER:
                 wellType = "Producer";
                 break;
-            case RigWellResultFrame::OIL_INJECTOR:
+            case RiaDefines::WellProductionType::OIL_INJECTOR:
                 wellType = "OilInjector";
                 break;
-            case RigWellResultFrame::WATER_INJECTOR:
+            case RiaDefines::WellProductionType::WATER_INJECTOR:
                 wellType = "WaterInjector";
                 break;
-            case RigWellResultFrame::GAS_INJECTOR:
+            case RiaDefines::WellProductionType::GAS_INJECTOR:
                 wellType = "GasInjector";
                 break;
         }
 
-        wellStatus = currentWellResult->wellResultFrame( tsIdx ).m_isOpen;
+        wellStatus = currentWellResult->wellResultFrame( tsIdx )->m_isOpen;
     }
 
     reply->set_well_type( wellType.toStdString() );
@@ -106,14 +107,14 @@ grpc::Status RiaGrpcSimulationWellService::GetSimulationWellCells( grpc::ServerC
     if ( currentWellResult->hasWellResult( tsIdx ) )
     {
         // Fetch results
-        const RigWellResultFrame& wellResFrame = currentWellResult->wellResultFrame( tsIdx );
+        const RigWellResultFrame* wellResFrame = currentWellResult->wellResultFrame( tsIdx );
         std::vector<RigGridBase*> grids;
         eclipseCase->eclipseCaseData()->allGrids( &grids );
 
-        for ( size_t bIdx = 0; bIdx < wellResFrame.m_wellResultBranches.size(); ++bIdx )
+        for ( size_t bIdx = 0; bIdx < wellResFrame->m_wellResultBranches.size(); ++bIdx )
         {
             const std::vector<RigWellResultPoint>& branchResPoints =
-                wellResFrame.m_wellResultBranches[bIdx].m_branchResultPoints;
+                wellResFrame->m_wellResultBranches[bIdx].m_branchResultPoints;
             for ( size_t rpIdx = 0; rpIdx < branchResPoints.size(); ++rpIdx )
             {
                 const RigWellResultPoint& resPoint = branchResPoints[rpIdx];

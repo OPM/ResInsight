@@ -33,6 +33,7 @@
 #include "RigSimulationWellCoordsAndMD.h"
 #include "RigVirtualPerforationTransmissibilities.h"
 #include "RigWellPath.h"
+#include "RigWellResultPoint.h"
 
 #include <QDebug>
 

@@ -27,6 +27,7 @@
 #include "RigVirtualPerforationTransmissibilities.h"
 #include "RigWellLogExtractor.h"
 #include "RigWellPath.h"
+#include "RigWellResultPoint.h"
 
 #include "Rim3dView.h"
 #include "RimEclipseView.h"
@@ -269,7 +270,7 @@ void RivSimWellPipesPartMgr::buildWellPipeParts( const caf::DisplayCoordTransfor
 
             if ( simWellData && simWellData->hasWellResult( frameIndex ) )
             {
-                const RigWellResultFrame& wResFrame = simWellData->wellResultFrame( frameIndex );
+                const RigWellResultFrame* wResFrame = simWellData->wellResultFrame( frameIndex );
 
                 std::vector<CompletionVizData> completionVizDataItems;
 
@@ -290,7 +291,7 @@ void RivSimWellPipesPartMgr::buildWellPipeParts( const caf::DisplayCoordTransfor
                         {
                             size_t                    globalCellIndex = intersectionInfo.globCellIndex;
                             const RigWellResultPoint* wResCell =
-                                wResFrame.findResultCellWellHeadIncluded( 0, globalCellIndex );
+                                wResFrame->findResultCellWellHeadIncluded( 0, globalCellIndex );
 
                             if ( !wResCell || !wResCell->isValid() )
                             {
@@ -373,7 +374,7 @@ void RivSimWellPipesPartMgr::updatePipeResultColor( size_t frameIndex )
     const double hcInjectorState    = 3.5;
     const double closedState        = 4.5;
 
-    const RigWellResultFrame& wResFrame = simWellData->wellResultFrame( frameIndex );
+    const RigWellResultFrame* wResFrame = simWellData->wellResultFrame( frameIndex );
 
     // Setup a scalar mapper
     cvf::ref<cvf::ScalarMapperDiscreteLinear> scalarMapper = new cvf::ScalarMapperDiscreteLinear;
@@ -423,8 +424,8 @@ void RivSimWellPipesPartMgr::updatePipeResultColor( size_t frameIndex )
 
                 if ( cellIds[wcIdx].isCell() )
                 {
-                    wResCell = wResFrame.findResultCellWellHeadExcluded( cellIds[wcIdx].m_gridIndex,
-                                                                         cellIds[wcIdx].m_gridCellIndex );
+                    wResCell = wResFrame->findResultCellWellHeadExcluded( cellIds[wcIdx].m_gridIndex,
+                                                                          cellIds[wcIdx].m_gridCellIndex );
                 }
 
                 if ( wResCell )
@@ -433,7 +434,7 @@ void RivSimWellPipesPartMgr::updatePipeResultColor( size_t frameIndex )
 
                     if ( wResCell->m_isOpen )
                     {
-                        switch ( wResFrame.m_productionType )
+                        switch ( wResFrame->m_productionType )
                         {
                             case RiaDefines::WellProductionType::PRODUCER:
                                 cellState = producerState;
@@ -478,7 +479,7 @@ void RivSimWellPipesPartMgr::updatePipeResultColor( size_t frameIndex )
             wellBranch.m_surfaceDrawable->setTextureCoordArray( surfTexCoords.p() );
             wellBranch.m_largeSurfaceDrawable->setTextureCoordArray( surfTexCoords.p() );
 
-            if ( wResFrame.m_isOpen )
+            if ( wResFrame->m_isOpen )
             {
                 // Use slightly larger geometry for open wells to avoid z-fighting when two wells are located at the
                 // same position

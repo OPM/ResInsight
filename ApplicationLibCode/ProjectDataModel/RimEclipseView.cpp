@@ -38,6 +38,7 @@
 #include "RigResultAccessorFactory.h"
 #include "RigSimWellData.h"
 #include "RigVirtualPerforationTransmissibilities.h"
+#include "RigWellResultPoint.h"
 
 #include "Rim2dIntersectionView.h"
 #include "Rim3dOverlayInfoConfig.h"
