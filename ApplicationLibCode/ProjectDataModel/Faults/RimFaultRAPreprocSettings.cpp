@@ -236,7 +236,7 @@ QString RimFaultRAPreprocSettings::startTimeStepGeoMech() const
     if ( m_geomechCase() )
     {
         if ( ( m_startTimestepGeoMech >= 0 ) && ( m_startTimestepGeoMech <= m_geomechCase->timeStepStrings().size() ) )
-            return m_geomechCase->timeStepStrings()[m_startTimestepEclipse];
+            return m_geomechCase->timeStepStrings()[m_startTimestepGeoMech];
     }
     return "";
 }
