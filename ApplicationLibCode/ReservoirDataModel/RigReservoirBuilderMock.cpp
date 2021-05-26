@@ -400,7 +400,7 @@ void RigReservoirBuilderMock::addWellData( RigEclipseCaseData* eclipseCase, RigG
         {
             RigWellResultFrame& wellCells = wellCellsTimeHistory->m_wellCellsTimeSteps[timeIdx];
 
-            wellCells.m_productionType = RigWellResultFrame::PRODUCER;
+            wellCells.m_productionType = RiaDefines::WellProductionType::PRODUCER;
             wellCells.m_isOpen         = true;
 
             wellCells.m_wellHead.m_gridIndex     = 0;

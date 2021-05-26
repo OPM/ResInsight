@@ -176,16 +176,16 @@ public:
             {
                 switch ( currentWellResult->wellResultFrame( tsIdx ).m_productionType )
                 {
-                    case RigWellResultFrame::PRODUCER:
+                    case RiaDefines::WellProductionType::PRODUCER:
                         wellType = "Producer";
                         break;
-                    case RigWellResultFrame::OIL_INJECTOR:
+                    case RiaDefines::WellProductionType::OIL_INJECTOR:
                         wellType = "OilInjector";
                         break;
-                    case RigWellResultFrame::WATER_INJECTOR:
+                    case RiaDefines::WellProductionType::WATER_INJECTOR:
                         wellType = "WaterInjector";
                         break;
-                    case RigWellResultFrame::GAS_INJECTOR:
+                    case RiaDefines::WellProductionType::GAS_INJECTOR:
                         wellType = "GasInjector";
                         break;
                 }

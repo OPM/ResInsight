@@ -409,11 +409,11 @@ void RimStreamlineInViewCollection::findStartCells( int                         
                 if ( point.isValid() && point.m_isOpen )
                 {
                     RigCell cell = grids[point.m_gridIndex]->cell( point.m_gridCellIndex );
-                    if ( frame.m_productionType == RigWellResultFrame::WellProductionType::PRODUCER )
+                    if ( frame.m_productionType == RiaDefines::WellProductionType::PRODUCER )
                     {
                         outProducerCells.push_back( std::pair<QString, RigCell>( swdata->m_wellName, cell ) );
                     }
-                    else if ( frame.m_productionType != RigWellResultFrame::WellProductionType::UNDEFINED_PRODUCTION_TYPE )
+                    else if ( frame.m_productionType != RiaDefines::WellProductionType::UNDEFINED_PRODUCTION_TYPE )
                     {
                         outInjectorCells.push_back( std::pair<QString, RigCell>( swdata->m_wellName, cell ) );
                     }

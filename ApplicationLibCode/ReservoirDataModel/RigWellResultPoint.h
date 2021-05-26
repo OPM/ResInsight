@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include "RiaDefines.h"
+
 #include "cvfVector3.h"
 
 #include <QDateTime>
@@ -84,18 +86,8 @@ struct RigWellResultBranch
 class RigWellResultFrame
 {
 public:
-    enum WellProductionType
-    {
-        PRODUCER,
-        OIL_INJECTOR,
-        GAS_INJECTOR,
-        WATER_INJECTOR,
-        UNDEFINED_PRODUCTION_TYPE
-    };
-
-public:
     RigWellResultFrame()
-        : m_productionType( UNDEFINED_PRODUCTION_TYPE )
+        : m_productionType( RiaDefines::WellProductionType::UNDEFINED_PRODUCTION_TYPE )
         , m_isOpen( false )
     {
     }
@@ -103,11 +95,11 @@ public:
     const RigWellResultPoint* findResultCellWellHeadIncluded( size_t gridIndex, size_t gridCellIndex ) const;
     const RigWellResultPoint* findResultCellWellHeadExcluded( size_t gridIndex, size_t gridCellIndex ) const;
 
-    RigWellResultPoint wellHeadOrStartCell() const;
-    WellProductionType m_productionType;
-    bool               m_isOpen;
-    RigWellResultPoint m_wellHead;
-    QDateTime          m_timestamp;
+    RigWellResultPoint             wellHeadOrStartCell() const;
+    RiaDefines::WellProductionType m_productionType;
+    bool                           m_isOpen;
+    RigWellResultPoint             m_wellHead;
+    QDateTime                      m_timestamp;
 
     std::vector<RigWellResultBranch> m_wellResultBranches;
 };

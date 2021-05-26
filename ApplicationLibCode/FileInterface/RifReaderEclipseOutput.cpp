@@ -1684,23 +1684,23 @@ void RifReaderEclipseOutput::readWellCells( const ecl_grid_type* mainEclGrid, bo
             well_type_enum ert_well_type = well_state_get_type( ert_well_state );
             if ( ert_well_type == ECL_WELL_PRODUCER )
             {
-                wellResFrame.m_productionType = RigWellResultFrame::PRODUCER;
+                wellResFrame.m_productionType = RiaDefines::WellProductionType::PRODUCER;
             }
             else if ( ert_well_type == ECL_WELL_WATER_INJECTOR )
             {
-                wellResFrame.m_productionType = RigWellResultFrame::WATER_INJECTOR;
+                wellResFrame.m_productionType = RiaDefines::WellProductionType::WATER_INJECTOR;
             }
             else if ( ert_well_type == ECL_WELL_GAS_INJECTOR )
             {
-                wellResFrame.m_productionType = RigWellResultFrame::GAS_INJECTOR;
+                wellResFrame.m_productionType = RiaDefines::WellProductionType::GAS_INJECTOR;
             }
             else if ( ert_well_type == ECL_WELL_OIL_INJECTOR )
             {
-                wellResFrame.m_productionType = RigWellResultFrame::OIL_INJECTOR;
+                wellResFrame.m_productionType = RiaDefines::WellProductionType::OIL_INJECTOR;
             }
             else
             {
-                wellResFrame.m_productionType = RigWellResultFrame::UNDEFINED_PRODUCTION_TYPE;
+                wellResFrame.m_productionType = RiaDefines::WellProductionType::UNDEFINED_PRODUCTION_TYPE;
             }
 
             wellResFrame.m_isOpen = well_state_is_open( ert_well_state );

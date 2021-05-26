@@ -183,4 +183,13 @@ enum class RINavigationPolicy : short
     NAVIGATION_POLICY_RMS
 };
 
+enum class WellProductionType : short
+{
+    PRODUCER,
+    OIL_INJECTOR,
+    GAS_INJECTOR,
+    WATER_INJECTOR,
+    UNDEFINED_PRODUCTION_TYPE
+};
+
 }; // namespace RiaDefines
