@@ -42,6 +42,7 @@ struct RigWellResultPoint
     double gasRate() const;
     double waterRate() const;
     double connectionFactor() const;
+    void   clearAllFlow();
 
     size_t m_gridIndex;
     size_t m_gridCellIndex; //< Index to cell which is included in the well

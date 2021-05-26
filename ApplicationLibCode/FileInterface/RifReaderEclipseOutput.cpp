@@ -1882,12 +1882,17 @@ void RifReaderEclipseOutput::readWellCells( const ecl_grid_type* mainEclGrid, bo
                                 // Select the deepest connection
                                 well_conn_type* ert_connection =
                                     well_conn_collection_iget( connections, connectionCount - 1 );
-                                wellResultBranch.m_branchResultPoints.push_back(
-                                    createWellResultPoint( grids[gridNr],
-                                                           ert_connection,
-                                                           well_segment_get_branch_id( outletSegment ),
-                                                           well_segment_get_id( outletSegment ),
-                                                           wellName ) );
+
+                                auto resultPoint = createWellResultPoint( grids[gridNr],
+                                                                          ert_connection,
+                                                                          well_segment_get_branch_id( outletSegment ),
+                                                                          well_segment_get_id( outletSegment ),
+                                                                          wellName );
+                                // This result point is only supposed to be used to indicate connection to a parent well
+                                // Clear all flow in this result point
+                                resultPoint.clearAllFlow();
+
+                                wellResultBranch.m_branchResultPoints.push_back( resultPoint );
 
                                 outletSegmentHasConnections = true;
                                 break; // Stop looping over grids
