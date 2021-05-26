@@ -28,6 +28,7 @@
 #include "RigMainGrid.h"
 #include "RigSimWellData.h"
 #include "RigSimulationWellCenterLineCalculator.h"
+#include "RigWellResultPoint.h"
 
 #include "Rim2dIntersectionView.h"
 #include "RimCellFilterCollection.h"
@@ -231,12 +232,12 @@ void RimSimWellInView::wellHeadTopBottomPosition( int frameIndex, cvf::Vec3d* to
     {
         if ( !this->simWellData()->hasAnyValidCells( frameIndex ) ) return;
 
-        wellResultFramePtr = &( this->simWellData()->wellResultFrame( frameIndex ) );
+        wellResultFramePtr = this->simWellData()->wellResultFrame( frameIndex );
         whCellPtr          = &( rigReservoir->cellFromWellResultCell( wellResultFramePtr->wellHeadOrStartCell() ) );
     }
     else
     {
-        wellResultFramePtr = &( this->simWellData()->staticWellCells() );
+        wellResultFramePtr = this->simWellData()->staticWellCells();
         whCellPtr          = &( rigReservoir->cellFromWellResultCell( wellResultFramePtr->wellHeadOrStartCell() ) );
     }
 
@@ -321,7 +322,7 @@ bool RimSimWellInView::intersectsDynamicWellCellsFilteredCells( size_t frameInde
 
     if ( !simWellData()->hasWellResult( frameIndex ) ) return false;
 
-    const RigWellResultFrame& wrsf = this->simWellData()->wellResultFrame( frameIndex );
+    const RigWellResultFrame* wrsf = this->simWellData()->wellResultFrame( frameIndex );
 
     return intersectsWellCellsFilteredCells( wrsf, frameIndex );
 }
@@ -329,7 +330,7 @@ bool RimSimWellInView::intersectsDynamicWellCellsFilteredCells( size_t frameInde
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimSimWellInView::intersectsWellCellsFilteredCells( const RigWellResultFrame& wrsf, size_t frameIndex ) const
+bool RimSimWellInView::intersectsWellCellsFilteredCells( const RigWellResultFrame* wrsf, size_t frameIndex ) const
 {
     RimEclipseView* reservoirView = nullptr;
     this->firstAncestorOrThisOfType( reservoirView );
@@ -350,8 +351,8 @@ bool RimSimWellInView::intersectsWellCellsFilteredCells( const RigWellResultFram
 
         // First check the wellhead:
 
-        size_t gridIndex     = wrsf.m_wellHead.m_gridIndex;
-        size_t gridCellIndex = wrsf.m_wellHead.m_gridCellIndex;
+        size_t gridIndex     = wrsf->m_wellHead.m_gridIndex;
+        size_t gridCellIndex = wrsf->m_wellHead.m_gridCellIndex;
 
         if ( gridIndex != cvf::UNDEFINED_SIZE_T && gridCellIndex != cvf::UNDEFINED_SIZE_T )
         {
@@ -364,7 +365,7 @@ bool RimSimWellInView::intersectsWellCellsFilteredCells( const RigWellResultFram
 
         // Then check the rest of the well, with all the branches
 
-        const std::vector<RigWellResultBranch>& wellResSegments = wrsf.m_wellResultBranches;
+        const std::vector<RigWellResultBranch>& wellResSegments = wrsf->m_wellResultBranches;
         for ( const RigWellResultBranch& branchSegment : wellResSegments )
         {
             const std::vector<RigWellResultPoint>& wsResCells = branchSegment.m_branchResultPoints;
@@ -408,7 +409,7 @@ bool RimSimWellInView::intersectsStaticWellCellsFilteredCells() const
     if ( this->simWellData() == nullptr ) return false;
 
     // NOTE: Read out static well cells, union of well cells across all time steps
-    const RigWellResultFrame& wrsf = this->simWellData()->staticWellCells();
+    const RigWellResultFrame* wrsf = this->simWellData()->staticWellCells();
 
     // NOTE: Use first time step for visibility evaluation
     size_t frameIndex = 0;

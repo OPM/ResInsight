@@ -19,14 +19,16 @@
 
 #pragma once
 
-#include "RigSimWellData.h"
-
 #include "cvfVector3.h"
 
 #include <vector>
 
 class RigEclipseCaseData;
 class RimSimWellInView;
+class RigSimWellData;
+struct RigWellResultPoint;
+struct RigWellResultBranch;
+class RigWellResultFrame;
 
 //--------------------------------------------------------------------------------------------------
 ///

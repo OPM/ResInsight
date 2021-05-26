@@ -17,6 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RimStreamlineInViewCollection.h"
+
 #include "RigCaseCellResultsData.h"
 #include "RigCell.h"
 #include "RigEclipseCaseData.h"
@@ -27,6 +28,7 @@
 #include "RigResultAccessorFactory.h"
 #include "RigSimWellData.h"
 #include "RigTracerPoint.h"
+#include "RigWellResultPoint.h"
 
 #include "RimEclipseCase.h"
 #include "RimEclipseInputCase.h"
@@ -400,20 +402,20 @@ void RimStreamlineInViewCollection::findStartCells( int                         
     {
         if ( !swdata->hasWellResult( timeIdx ) || !swdata->hasAnyValidCells( timeIdx ) ) continue;
 
-        RigWellResultFrame frame = swdata->wellResultFrame( timeIdx );
+        auto frame = swdata->wellResultFrame( timeIdx );
 
-        for ( auto& branch : frame.m_wellResultBranches )
+        for ( auto& branch : frame->m_wellResultBranches )
         {
             for ( const auto& point : branch.m_branchResultPoints )
             {
                 if ( point.isValid() && point.m_isOpen )
                 {
                     RigCell cell = grids[point.m_gridIndex]->cell( point.m_gridCellIndex );
-                    if ( frame.m_productionType == RiaDefines::WellProductionType::PRODUCER )
+                    if ( frame->m_productionType == RiaDefines::WellProductionType::PRODUCER )
                     {
                         outProducerCells.push_back( std::pair<QString, RigCell>( swdata->m_wellName, cell ) );
                     }
-                    else if ( frame.m_productionType != RiaDefines::WellProductionType::UNDEFINED_PRODUCTION_TYPE )
+                    else if ( frame->m_productionType != RiaDefines::WellProductionType::UNDEFINED_PRODUCTION_TYPE )
                     {
                         outInjectorCells.push_back( std::pair<QString, RigCell>( swdata->m_wellName, cell ) );
                     }

@@ -43,6 +43,7 @@ class RivPipeGeometryGenerator;
 class Rim3dView;
 class RimSimWellInView;
 class RivWellConnectionFactorGeometryGenerator;
+struct RigWellResultPoint;
 
 class RivSimWellPipesPartMgr : public cvf::Object
 {

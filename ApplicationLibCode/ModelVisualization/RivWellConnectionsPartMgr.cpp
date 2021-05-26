@@ -28,6 +28,7 @@
 #include "RigFlowDiagResults.h"
 #include "RigMainGrid.h"
 #include "RigSimWellData.h"
+#include "RigWellResultPoint.h"
 
 #include "cafDisplayCoordTransform.h"
 #include "cafEffectGenerator.h"
@@ -62,12 +63,12 @@ void RivWellConnectionsPartMgr::appendDynamicGeometryPartsToModel( cvf::ModelBas
     if ( !m_rimReservoirView->eclipseCase() ) return;
     if ( !m_rimWell->showWell() ) return;
     if ( !m_rimWell->simWellData()->hasWellResult( frameIndex ) ) return;
-    if ( !m_rimWell->simWellData()->wellResultFrame( frameIndex ).m_isOpen ) return;
-    if ( m_rimWell->simWellData()->wellResultFrame( frameIndex ).m_productionType ==
+    if ( !m_rimWell->simWellData()->wellResultFrame( frameIndex )->m_isOpen ) return;
+    if ( m_rimWell->simWellData()->wellResultFrame( frameIndex )->m_productionType ==
          RiaDefines::WellProductionType::UNDEFINED_PRODUCTION_TYPE )
         return;
 
-    bool   isProducer = ( m_rimWell->simWellData()->wellResultFrame( frameIndex ).m_productionType ==
+    bool   isProducer = ( m_rimWell->simWellData()->wellResultFrame( frameIndex )->m_productionType ==
                         RiaDefines::WellProductionType::PRODUCER );
     double pipeRadius = m_rimWell->pipeRadius();
 
@@ -131,12 +132,12 @@ void RivWellConnectionsPartMgr::appendDynamicGeometryPartsToModel( cvf::ModelBas
     {
         if ( otherWell == m_rimWell ) continue;
         if ( !otherWell->simWellData()->hasWellResult( frameIndex ) ) continue;
-        if ( !otherWell->simWellData()->wellResultFrame( frameIndex ).m_isOpen ) continue;
-        if ( otherWell->simWellData()->wellResultFrame( frameIndex ).m_productionType ==
+        if ( !otherWell->simWellData()->wellResultFrame( frameIndex )->m_isOpen ) continue;
+        if ( otherWell->simWellData()->wellResultFrame( frameIndex )->m_productionType ==
              RiaDefines::WellProductionType::UNDEFINED_PRODUCTION_TYPE )
             continue;
 
-        bool isOtherProducer = ( otherWell->simWellData()->wellResultFrame( frameIndex ).m_productionType ==
+        bool isOtherProducer = ( otherWell->simWellData()->wellResultFrame( frameIndex )->m_productionType ==
                                  RiaDefines::WellProductionType::PRODUCER );
 
         {

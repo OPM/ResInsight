@@ -27,6 +27,7 @@
 #include "RigEclipseCaseData.h"
 #include "RigMainGrid.h"
 #include "RigSimWellData.h"
+#include "RigWellResultPoint.h"
 
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
@@ -107,12 +108,12 @@ void RivWellHeadPartMgr::buildWellHeadParts( size_t                            f
 
     if ( !well->simWellData()->hasWellResult( frameIndex ) ) return;
 
-    const RigWellResultFrame& wellResultFrame = well->simWellData()->wellResultFrame( frameIndex );
+    const RigWellResultFrame* wellResultFrame = well->simWellData()->wellResultFrame( frameIndex );
 
     double pipeRadius              = m_rimWell->pipeRadius();
     int    pipeCrossSectionVxCount = m_rimWell->pipeCrossSectionVertexCount();
 
-    if ( wellResultFrame.m_isOpen )
+    if ( wellResultFrame->m_isOpen )
     {
         // Use slightly larger well head arrow when well is open
         pipeRadius *= 1.1;
@@ -181,7 +182,7 @@ void RivWellHeadPartMgr::buildWellHeadParts( size_t                            f
     double arrowLength =
         characteristicCellSize * simWellInViewCollection()->wellHeadScaleFactor() * m_rimWell->wellHeadScaleFactor();
 
-    if ( wellResultFrame.m_isOpen )
+    if ( wellResultFrame->m_isOpen )
     {
         // Use slightly larger well head arrow when well is open
         arrowLength = 1.1 * arrowLength;
@@ -191,13 +192,13 @@ void RivWellHeadPartMgr::buildWellHeadParts( size_t                            f
     textPosition.z() += 1.2 * arrowLength;
 
     cvf::Mat4f matr;
-    if ( wellResultFrame.m_productionType != RiaDefines::WellProductionType::PRODUCER )
+    if ( wellResultFrame->m_productionType != RiaDefines::WellProductionType::PRODUCER )
     {
         matr = cvf::Mat4f::fromRotation( cvf::Vec3f( 1.0f, 0.0f, 0.0f ), cvf::Math::toRadians( 180.0f ) );
     }
 
     double ijScaleFactor = arrowLength / 6;
-    if ( wellResultFrame.m_isOpen )
+    if ( wellResultFrame->m_isOpen )
     {
         ijScaleFactor *= 1.1;
     }
@@ -205,7 +206,7 @@ void RivWellHeadPartMgr::buildWellHeadParts( size_t                            f
     matr( 1, 1 ) *= ijScaleFactor;
     matr( 2, 2 ) *= arrowLength;
 
-    if ( wellResultFrame.m_productionType != RiaDefines::WellProductionType::PRODUCER )
+    if ( wellResultFrame->m_productionType != RiaDefines::WellProductionType::PRODUCER )
     {
         arrowPosition.z() += arrowLength;
     }
@@ -251,21 +252,21 @@ void RivWellHeadPartMgr::buildWellHeadParts( size_t                            f
 
         if ( wellColl && wellColl->showConnectionStatusColors() )
         {
-            if ( wellResultFrame.m_isOpen )
+            if ( wellResultFrame->m_isOpen )
             {
-                if ( wellResultFrame.m_productionType == RiaDefines::WellProductionType::PRODUCER )
+                if ( wellResultFrame->m_productionType == RiaDefines::WellProductionType::PRODUCER )
                 {
                     headColor = cvf::Color4f( cvf::Color3::GREEN );
                 }
-                else if ( wellResultFrame.m_productionType == RiaDefines::WellProductionType::OIL_INJECTOR )
+                else if ( wellResultFrame->m_productionType == RiaDefines::WellProductionType::OIL_INJECTOR )
                 {
                     headColor = cvf::Color4f( cvf::Color3::ORANGE );
                 }
-                else if ( wellResultFrame.m_productionType == RiaDefines::WellProductionType::GAS_INJECTOR )
+                else if ( wellResultFrame->m_productionType == RiaDefines::WellProductionType::GAS_INJECTOR )
                 {
                     headColor = cvf::Color4f( cvf::Color3::RED );
                 }
-                else if ( wellResultFrame.m_productionType == RiaDefines::WellProductionType::WATER_INJECTOR )
+                else if ( wellResultFrame->m_productionType == RiaDefines::WellProductionType::WATER_INJECTOR )
                 {
                     headColor = cvf::Color4f( cvf::Color3::BLUE );
                 }

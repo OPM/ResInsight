@@ -18,14 +18,19 @@
 
 #pragma once
 
-#include "RigWellResultPoint.h"
-
 #include "cvfObject.h"
-#include "cvfVector3.h"
 
 #include <QDateTime>
 
+#include <memory>
 #include <vector>
+
+namespace RiaDefines
+{
+enum class WellProductionType : short;
+}
+
+class RigWellResultFrame;
 
 //==================================================================================================
 ///
@@ -41,11 +46,11 @@ public:
     bool hasWellResult( size_t resultTimeStepIndex ) const;
     bool hasAnyValidCells( size_t resultTimeStepIndex ) const;
 
-    const RigWellResultFrame&      wellResultFrame( size_t resultTimeStepIndex ) const;
+    const RigWellResultFrame*      wellResultFrame( size_t resultTimeStepIndex ) const;
     bool                           isOpen( size_t resultTimeStepIndex ) const;
     RiaDefines::WellProductionType wellProductionType( size_t resultTimeStepIndex ) const;
 
-    const RigWellResultFrame& staticWellCells() const;
+    const RigWellResultFrame* staticWellCells() const;
 
     void computeMappingFromResultTimeIndicesToWellTimeIndices( const std::vector<QDateTime>& resultTimes );
 
@@ -56,7 +61,7 @@ public: // Todo: Clean up this regarding public members and constness etc.
     std::vector<RigWellResultFrame> m_wellCellsTimeSteps;
 
 private:
-    mutable RigWellResultFrame m_staticWellCells;
+    std::unique_ptr<RigWellResultFrame> m_staticWellCells;
 
     void computeStaticWellCellPath() const;
 
