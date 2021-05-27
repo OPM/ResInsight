@@ -79,11 +79,13 @@ bool RifFaultRAJSonWriter::writeToPostprocFile( int faultID, RimFaultRASettings*
                 stream << "\"MacrisCalcCalibration_path\": \"" + settings->advancedMacrisDatabase() + "\"," << endl;
         }
 
-        stream << "\"MacrisCalc_path\": \"" + settings->basicMacrisDatabase() + "\"," << endl;
+        if ( QFile::exists( settings->basicMacrisDatabase() ) )
+            stream << "\"MacrisCalc_path\": \"" + settings->basicMacrisDatabase() + "\"," << endl;
 
         stream << "\"base_directory_path\": \"" + settings->outputBaseDirectory() + "\"," << endl;
 
         QStringList timesteps;
+        timesteps.push_back( QString::number( settings->startTimeStepEclipseIndex() ) );
         timesteps.push_back( QString::number( settings->endTimeStepEclipseIndex() ) );
 
         stream << "\"tsurf_loadsteps\": [ " + timesteps.join( ',' ) + " ]" << endl;

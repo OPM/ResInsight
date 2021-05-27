@@ -77,6 +77,21 @@ void RicNewFaultReactAssessmentFeature::onActionTriggered( bool isChecked )
     // ask user for preprocessing settings
     if ( !showSettingsGUI( frapSettings ) ) return;
 
+    if ( frapSettings.cleanBaseDirectory() )
+    {
+        auto reply = QMessageBox::question( nullptr,
+                                            QString( "Clean output directory" ),
+                                            QString( "Are you sure you want to delete all files and subfolders in the "
+                                                     "selected output directory?\n%1 " )
+                                                .arg( frapSettings.outputBaseDirectory() ),
+                                            QMessageBox::Yes | QMessageBox::No,
+                                            QMessageBox::No );
+        if ( reply == QMessageBox::No )
+        {
+            frapSettings.setCleanBaseDirectory( false );
+        }
+    }
+
     // make sure our work dir is there
     prepareDirectory( frapSettings.outputBaseDirectory(), frapSettings.cleanBaseDirectory() );
 
@@ -181,7 +196,10 @@ bool RicNewFaultReactAssessmentFeature::showSettingsGUI( RimFaultRAPreprocSettin
                                                  "Fault Reactivation Assessment Preprocessing",
                                                  "",
                                                  QDialogButtonBox::Ok | QDialogButtonBox::Cancel );
-    propertyDialog.resize( QSize( 400, 420 ) );
+    if ( settings.geoMechSelected() )
+        propertyDialog.resize( QSize( 520, 520 ) );
+    else
+        propertyDialog.resize( QSize( 520, 420 ) );
 
     // make sure we always have an eclipse case selected
     while ( true )
@@ -277,11 +295,12 @@ void RicNewFaultReactAssessmentFeature::addParameterFileForCleanUp( QString file
 //--------------------------------------------------------------------------------------------------
 void RicNewFaultReactAssessmentFeature::cleanUpParameterFiles()
 {
-#ifndef DEBUG
-    // for ( auto& filename : m_parameterFilesToCleanUp )
-    //{
-    //    if ( QFile::exists( filename ) ) QFile::remove( filename );
-    //}
-#endif
+    if ( !RiaPreferencesGeoMech::current()->keepTemporaryFiles() )
+    {
+        for ( auto& filename : m_parameterFilesToCleanUp )
+        {
+            if ( QFile::exists( filename ) ) QFile::remove( filename );
+        }
+    }
     m_parameterFilesToCleanUp.clear();
 }

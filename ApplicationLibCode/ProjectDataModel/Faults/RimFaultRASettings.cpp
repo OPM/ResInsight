@@ -38,6 +38,7 @@
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObjectScriptingCapability.h"
 #include "cafPdmUiComboBoxEditor.h"
+#include "cafPdmUiFilePathEditor.h"
 #include "cafPdmUiTableViewEditor.h"
 
 #include <QFileInfo>
@@ -63,6 +64,10 @@ RimFaultRASettings::RimFaultRASettings()
     CAF_PDM_InitFieldNoDefault( &m_baseDir, "BaseDir", "Working Directory", "", "", "" );
     m_baseDir.uiCapability()->setUiReadOnly( true );
 
+    CAF_PDM_InitField( &m_elasticTableFilename, "ElasticTableFilename", QString( "" ), "Elastic Table", "", "", "" );
+    m_elasticTableFilename.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
+    m_elasticTableFilename.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
+
     CAF_PDM_InitField( &m_startTimestepEclipse, "StartTimeStepEclipse", 0, "Start Time Step", "", "", "" );
     m_startTimestepEclipse.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
     CAF_PDM_InitField( &m_endTimestepEclipse, "EndTimeStepEclipse", 0, "End Time Step", "", "", "" );
@@ -85,6 +90,7 @@ RimFaultRASettings::RimFaultRASettings()
 
     CAF_PDM_InitFieldNoDefault( &m_basicParametersRI, "BasicParametersRI", "Basic ResInsight Parameters", "", "", "" );
     CAF_PDM_InitFieldNoDefault( &m_advancedParametersRI, "AdvancedParametersRI", "Advanced ResInsight Parameters", "", "", "" );
+
     setupResInsightParameters();
 }
 
@@ -154,6 +160,9 @@ void RimFaultRASettings::defineUiOrdering( QString uiConfigName, caf::PdmUiOrder
         auto geomechGroup = uiOrdering.addNewGroup( "GeoMech Time Steps" );
         geomechGroup->add( &m_startTimestepGeoMech );
         geomechGroup->add( &m_endTimestepGeoMech );
+
+        auto tableGroup = uiOrdering.addNewGroup( "Additional Settings" );
+        tableGroup->add( &m_elasticTableFilename );
     }
     uiOrdering.skipRemainingFields( true );
 }
@@ -247,6 +256,7 @@ void RimFaultRASettings::initFromPreprocSettings( RimFaultRAPreprocSettings* pre
     m_endTimestepEclipse      = preprocSettings->endTimeStepEclipseIndex();
     m_startTimestepGeoMech    = preprocSettings->startTimeStepGeoMechIndex();
     m_endTimestepGeoMech      = preprocSettings->endTimeStepGeoMechIndex();
+    m_elasticTableFilename    = preprocSettings->elasticTableFilename();
 
     QString errorText;
 
@@ -455,7 +465,7 @@ void RimFaultRASettings::setupResInsightParameters()
 //--------------------------------------------------------------------------------------------------
 QString RimFaultRASettings::elasticPropertiesFilename() const
 {
-    return m_baseDir + "/Abaqus/ELASTIC_TABLE_res.inp";
+    return m_elasticTableFilename;
 }
 
 //--------------------------------------------------------------------------------------------------

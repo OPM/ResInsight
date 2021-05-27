@@ -55,8 +55,11 @@ public:
 
     QString eclipseCaseFilename() const;
     QString geomechCaseFilename() const;
-    bool    cleanBaseDirectory() const;
     bool    smoothEclipseData() const;
+    QString elasticTableFilename() const;
+
+    bool cleanBaseDirectory() const;
+    void setCleanBaseDirectory( bool clean );
 
     bool geoMechSelected() const;
 
@@ -90,4 +93,5 @@ protected:
     caf::PdmPtrField<RimGeoMechCase*>       m_geomechCase;
     caf::PdmField<QString>                  m_baseDir;
     caf::PdmField<bool>                     m_cleanBaseDir;
+    caf::PdmField<QString>                  m_elasticTableFilename;
 };

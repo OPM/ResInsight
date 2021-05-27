@@ -21,6 +21,7 @@
 #include "RiaApplication.h"
 #include "RiaPreferences.h"
 
+#include "cafPdmUiCheckBoxEditor.h"
 #include "cafPdmUiFilePathEditor.h"
 
 #include <QFile>
@@ -62,6 +63,15 @@ RiaPreferencesGeoMech::RiaPreferencesGeoMech()
                                 "" );
     m_geomechFRADefaultAdvXML.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
     m_geomechFRADefaultAdvXML.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
+
+    CAF_PDM_InitField( &m_keepTemporaryFiles,
+                       "keepTemporaryFile",
+                       false,
+                       "Keep temporary parameter files (for debugging)",
+                       "",
+                       "",
+                       "" );
+    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_keepTemporaryFiles );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -87,6 +97,9 @@ void RiaPreferencesGeoMech::appendItems( caf::PdmUiOrdering& uiOrdering ) const
     caf::PdmUiGroup* paramGroup = faultRAGroup->addNewGroup( "Parameters" );
     paramGroup->add( &m_geomechFRADefaultBasicXML );
     paramGroup->add( &m_geomechFRADefaultAdvXML );
+
+    caf::PdmUiGroup* settingsGroup = faultRAGroup->addNewGroup( "Settings" );
+    settingsGroup->add( &m_keepTemporaryFiles );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -134,6 +147,14 @@ QString RiaPreferencesGeoMech::geomechFRADefaultBasicXML() const
 QString RiaPreferencesGeoMech::geomechFRADefaultAdvXML() const
 {
     return m_geomechFRADefaultAdvXML;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiaPreferencesGeoMech::keepTemporaryFiles() const
+{
+    return m_keepTemporaryFiles;
 }
 
 //--------------------------------------------------------------------------------------------------

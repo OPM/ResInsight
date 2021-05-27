@@ -154,12 +154,13 @@ void RicRunFaultReactAssessmentFeature::addParameterFileForCleanUp( QString file
 //--------------------------------------------------------------------------------------------------
 void RicRunFaultReactAssessmentFeature::cleanUpParameterFiles()
 {
-#ifndef DEBUG
-    // for ( auto& filename : m_parameterFilesToCleanUp )
-    //{
-    //    if ( QFile::exists( filename ) ) QFile::remove( filename );
-    //}
-#endif
+    if ( !RiaPreferencesGeoMech::current()->keepTemporaryFiles() )
+    {
+        for ( auto& filename : m_parameterFilesToCleanUp )
+        {
+            if ( QFile::exists( filename ) ) QFile::remove( filename );
+        }
+    }
     m_parameterFilesToCleanUp.clear();
 }
 
@@ -202,8 +203,10 @@ void RicRunFaultReactAssessmentFeature::reloadSurfaces( RimFaultRASettings* sett
     // get rid of any files removed by the processing
     surfColl->removeMissingFileSurfaces();
 
+    bool showLegendInView = false;
+
     // ask the collection to reload the existing files
-    surfColl->reloadSurfaces( surfColl->surfaces() );
+    surfColl->reloadSurfaces( surfColl->surfaces(), showLegendInView );
 
     // get all the files in the folder, skip the ones we alreday have
     QStringList newFiles;
@@ -217,6 +220,5 @@ void RicRunFaultReactAssessmentFeature::reloadSurfaces( RimFaultRASettings* sett
     }
 
     // import the new surfaces
-    bool showLegendInView = false;
     surfColl->importSurfacesFromFiles( newFiles, showLegendInView );
 }
