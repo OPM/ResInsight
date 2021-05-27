@@ -206,23 +206,34 @@ RicMswSegment* RicMswBranch::findClosestSegmentWithLowerMD( double measuredDepth
         return segmentCount() > 0 ? segments().back() : nullptr;
     }
 
-    RicMswSegment* closestSegment   = nullptr;
-    double         smallestDistance = std::numeric_limits<double>::infinity();
-
-    for ( auto seg : segments() )
+    if ( segmentCount() > 0 )
     {
-        // WELSEGS is reported as the midpoint of the segment
-        double midpointMD = 0.5 * ( seg->startMD() + seg->endMD() );
+        RicMswSegment* closestSegment   = nullptr;
+        double         smallestDistance = std::numeric_limits<double>::infinity();
 
-        double candidateDistance = measuredDepthLocation - midpointMD;
-        if ( candidateDistance > 0.0 && candidateDistance < smallestDistance )
+        for ( auto seg : segments() )
         {
-            closestSegment   = seg;
-            smallestDistance = candidateDistance;
+            // WELSEGS is reported as the midpoint of the segment
+            double midpointMD = 0.5 * ( seg->startMD() + seg->endMD() );
+
+            // Use a signed difference to find the closest segment below the measured depth location
+            double candidateDistance = measuredDepthLocation - midpointMD;
+
+            if ( closestSegment == nullptr )
+            {
+                closestSegment   = seg;
+                smallestDistance = std::fabs( candidateDistance );
+            }
+            else if ( candidateDistance > 0.0 && candidateDistance < smallestDistance )
+            {
+                closestSegment   = seg;
+                smallestDistance = std::fabs( candidateDistance );
+            }
         }
+        return closestSegment;
     }
 
-    return closestSegment;
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
