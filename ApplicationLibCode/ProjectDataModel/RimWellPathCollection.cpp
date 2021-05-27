@@ -767,10 +767,11 @@ caf::AppEnum<RiaDefines::EclipseUnitSystem> RimWellPathCollection::findUnitSyste
         wellPathBoundingBox.add( wellPathPoint );
     }
 
-    if ( caseBoundingBox.intersects( wellPathBoundingBox ) )
+    if ( wellPathBoundingBox.isValid() && caseBoundingBox.isValid() && caseBoundingBox.intersects( wellPathBoundingBox ) )
     {
         return eclipseCaseData->unitsType();
     }
+
     return RiaDefines::EclipseUnitSystem::UNITS_UNKNOWN;
 }
 
