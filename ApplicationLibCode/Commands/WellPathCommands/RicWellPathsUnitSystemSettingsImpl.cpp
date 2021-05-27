@@ -19,7 +19,7 @@
 #include "RicWellPathsUnitSystemSettingsImpl.h"
 
 #include "RicWellPathsUnitSystemSettingsUi.h"
-
+#include "RimWellPath.h"
 #include "Riu3DMainWindowTools.h"
 
 #include "cafPdmUiPropertyViewDialog.h"

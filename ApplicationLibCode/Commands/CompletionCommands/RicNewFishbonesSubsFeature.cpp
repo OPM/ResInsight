@@ -29,6 +29,7 @@
 #include "RimFishbones.h"
 #include "RimFishbonesCollection.h"
 #include "RimProject.h"
+#include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 #include "RimWellPathCompletions.h"
 

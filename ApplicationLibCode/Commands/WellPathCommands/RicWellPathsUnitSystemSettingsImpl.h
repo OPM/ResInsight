@@ -19,7 +19,8 @@
 #pragma once
 
 #include "RiaDefines.h"
-#include "RimWellPath.h"
+
+class RimWellPath;
 
 //==================================================================================================
 ///

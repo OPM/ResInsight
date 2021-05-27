@@ -36,6 +36,7 @@
 #include "RimWellLogCurve.h"
 #include "RimWellLogCurveCommonDataSource.h"
 #include "RimWellLogTrack.h"
+#include "RimWellPath.h"
 
 #include "RiuMultiPlotPage.h"
 #include "RiuPlotMainWindow.h"

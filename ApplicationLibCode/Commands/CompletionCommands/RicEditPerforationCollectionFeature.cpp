@@ -23,6 +23,7 @@
 #include "RiuEditPerforationCollectionWidget.h"
 
 #include "RimPerforationCollection.h"
+#include "RimWellPath.h"
 
 #include "cafSelectionManager.h"
 
