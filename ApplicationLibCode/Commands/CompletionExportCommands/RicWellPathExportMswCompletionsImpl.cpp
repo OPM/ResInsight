@@ -465,13 +465,15 @@ void RicWellPathExportMswCompletionsImpl::exportWellSegmentsForFishbones( RimEcl
 //--------------------------------------------------------------------------------------------------
 void RicWellPathExportMswCompletionsImpl::updateDataForMultipleItemsInSameGridCell( gsl::not_null<RicMswBranch*> branch )
 {
+    auto allSegments = branch->allSegmentsRecursively();
+
     {
         // Update effective diameter
+        // https://github.com/OPM/ResInsight/issues/7686
 
         std::map<size_t, std::set<RicMswSegment*>> segmentsInCell;
         {
-            auto segments = branch->allSegmentsRecursively();
-            for ( auto s : segments )
+            for ( auto s : allSegments )
             {
                 auto cellsIntersected = s->globalCellsIntersected();
                 if ( !cellsIntersected.empty() )
@@ -502,6 +504,31 @@ void RicWellPathExportMswCompletionsImpl::updateDataForMultipleItemsInSameGridCe
                 seg->setEffectiveDiameter( effectiveDiameter );
             }
         }
+
+        {
+            // Reduce the diameter for segments in the same cell as main bore
+            // https://github.com/OPM/ResInsight/issues/7731
+
+            for ( auto s : allSegments )
+            {
+                for ( auto completion : s->completions() )
+                {
+                    if ( completion->completionType() == RigCompletionData::CompletionType::FISHBONES )
+                    {
+                        auto segments = completion->segments();
+                        if ( segments.size() > 1 )
+                        {
+                            auto firstSegment  = segments[0];
+                            auto secondSegment = segments[1];
+
+                            double diameter = secondSegment->effectiveDiameter();
+
+                            firstSegment->setEffectiveDiameter( diameter );
+                        }
+                    }
+                }
+            }
+        }
     }
 
     {
@@ -510,8 +537,7 @@ void RicWellPathExportMswCompletionsImpl::updateDataForMultipleItemsInSameGridCe
         std::map<size_t, std::set<RicMswFishbonesICD*>> icdsInCell;
 
         {
-            auto segments = branch->allSegmentsRecursively();
-            for ( auto s : segments )
+            for ( auto s : allSegments )
             {
                 for ( auto completion : s->completions() )
                 {
