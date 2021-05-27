@@ -175,7 +175,7 @@ std::vector<RimWellPath*> RicImportWellPaths::importWellPaths( const QStringList
         project->scheduleCreateDisplayModelAndRedrawAllViews();
         RimOilField* oilField = project->activeOilField();
 
-        if ( oilField && !oilField->wellPathCollection->topLevelWellPaths().empty() )
+        if ( oilField && !oilField->wellPathCollection->allWellPaths().empty() )
         {
             RimWellPath* wellPath = oilField->wellPathCollection->mostRecentlyUpdatedWellPath();
             if ( wellPath )

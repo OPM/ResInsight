@@ -270,7 +270,7 @@ std::vector<RimWellPath*>
     scheduleRedrawAffectedViews();
     updateAllRequiredEditors();
 
-    return topLevelWellPaths();
+    return allWellPaths();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -288,19 +288,9 @@ void RimWellPathCollection::addWellPath( gsl::not_null<RimWellPath*> wellPath, b
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimWellPath*> RimWellPathCollection::topLevelWellPaths() const
-{
-    return m_wellPaths.childObjects();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 std::vector<RimWellPath*> RimWellPathCollection::allWellPaths() const
 {
-    std::vector<RimWellPath*> wellPaths;
-    descendantsOfType( wellPaths );
-    return wellPaths;
+    return m_wellPaths.childObjects();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -144,23 +144,19 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions( const std::v
         {
             caf::ProgressInfo progress( topLevelWellPaths.size(), "Extracting Completion Data For Well Paths" );
 
-            for ( RimWellPath* wellPath : topLevelWellPaths )
+            for ( RimWellPath* topLevelWellPath : topLevelWellPaths )
             {
                 std::vector<RimWellPath*> allWellPathLaterals;
-                if ( wellPath->unitSystem() == exportSettings.caseToApply->eclipseCaseData()->unitsType() )
+                if ( topLevelWellPath->unitSystem() == exportSettings.caseToApply->eclipseCaseData()->unitsType() )
                 {
-                    auto tieInWells = wellPath->wellPathLateralsRecursively();
-                    for ( auto w : tieInWells )
-                    {
-                        allWellPathLaterals.push_back( w );
-                    }
+                    allWellPathLaterals = topLevelWellPath->wellPathLateralsRecursively();
                 }
                 else
                 {
                     int     caseId = exportSettings.caseToApply->caseId();
                     QString format = QString(
                         "Unit systems for well path \"%1\" must match unit system of chosen eclipse case \"%2\"" );
-                    QString errMsg = format.arg( wellPath->name() ).arg( caseId );
+                    QString errMsg = format.arg( topLevelWellPath->name() ).arg( caseId );
                     RiaLogging::error( errMsg );
                 }
 
