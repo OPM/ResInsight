@@ -161,8 +161,7 @@ public:
     bool                      isMultiLateralWellPath() const;
     RimWellPath*              topLevelWellPath();
     const RimWellPath*        topLevelWellPath() const;
-    void                      updateAfterAddingToWellPathGroup();
-    std::vector<RimWellPath*> wellPathLateralsRecursively() const;
+    std::vector<RimWellPath*> allWellPathLaterals() const;
 
     RimWellPathTieIn* wellPathTieIn() const;
     void              connectWellPaths( RimWellPath* childWell, double tieInMeasuredDepth );
@@ -214,6 +213,7 @@ private:
 
 private:
     static size_t simulationWellBranchCount( const QString& simWellName );
+    void          wellPathLateralsRecursively( std::vector<RimWellPath*>& wellPathLaterals ) const;
 
 private:
     // Geometry and data

@@ -113,16 +113,18 @@ void RicWellPathExportCompletionDataFeature::prepareExportSettingsAndExportCompl
 
     std::vector<RimWellPath*> allLaterals;
     {
-        std::set<RimWellPath*> laterals;
+        std::set<RimWellPath*> lateralSet;
 
         for ( auto t : topLevelWells )
         {
-            auto laterals = t->wellPathLateralsRecursively();
+            auto laterals = t->allWellPathLaterals();
             for ( auto l : laterals )
             {
-                allLaterals.push_back( l );
+                lateralSet.insert( l );
             }
         }
+
+        allLaterals.assign( lateralSet.begin(), lateralSet.end() );
     }
 
     for ( auto w : allLaterals )
