@@ -20,8 +20,6 @@
 
 #pragma once
 
-#include "RimWellPath.h"
-
 #include <QList>
 #include <QString>
 
@@ -36,6 +34,7 @@ class PdmOptionItemInfo;
 
 class RimWellPathCollection;
 class RimCase;
+class RimWellPath;
 
 //--------------------------------------------------------------------------------------------------
 ///

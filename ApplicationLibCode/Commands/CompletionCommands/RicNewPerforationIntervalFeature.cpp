@@ -25,6 +25,7 @@
 
 #include "RimPerforationCollection.h"
 #include "RimPerforationInterval.h"
+#include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 #include "RimWellPathCompletions.h"
 
