@@ -47,7 +47,7 @@ public:
     bool containsFileSurface( QString filename );
     bool containsSurface();
 
-    void reloadSurfaces( std::vector<RimSurface*> surfaces );
+    void reloadSurfaces( std::vector<RimSurface*> surfaces, bool showLegend = true );
     void removeSurface( RimSurface* surface );
     void removeMissingFileSurfaces();
 

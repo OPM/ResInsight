@@ -163,7 +163,7 @@ RimSurface* RimSurfaceCollection::importSurfacesFromFiles( const QStringList& fi
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSurfaceCollection::reloadSurfaces( std::vector<RimSurface*> surfaces )
+void RimSurfaceCollection::reloadSurfaces( std::vector<RimSurface*> surfaces, bool showLegend /*=true*/ )
 {
     // ask the surfaces given to reload its data
     for ( RimSurface* surface : surfaces )
@@ -173,7 +173,7 @@ void RimSurfaceCollection::reloadSurfaces( std::vector<RimSurface*> surfaces )
 
     this->updateConnectedEditors();
 
-    updateViews( surfaces );
+    updateViews( surfaces, showLegend );
 }
 
 //--------------------------------------------------------------------------------------------------
