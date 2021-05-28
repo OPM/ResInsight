@@ -31,6 +31,7 @@
 #include "RimEclipseView.h"
 #include "RimFaultInView.h"
 #include "RimFaultInViewCollection.h"
+#include "RimFaultRAPostprocSettings.h"
 #include "RimFaultRAPreprocSettings.h"
 #include "RimFaultRASettings.h"
 #include "RimFileSurface.h"
@@ -111,8 +112,11 @@ int RicRunFaultReactAssessmentFeature::selectedFaultID()
 //--------------------------------------------------------------------------------------------------
 bool RicRunFaultReactAssessmentFeature::runPostProcessing( int faultID, RimFaultRASettings* settings )
 {
+    RimFaultRAPostprocSettings postproc_settings;
+    postproc_settings.initFromSettings( settings );
+
     QString outErrorText;
-    if ( !RifFaultRAJSonWriter::writeToPostprocFile( faultID, settings, outErrorText ) )
+    if ( !RifFaultRAJSonWriter::writeToPostprocFile( faultID, &postproc_settings, outErrorText ) )
     {
         QMessageBox::warning( nullptr,
                               "Fault Reactivation Assessment Processing",
@@ -121,13 +125,13 @@ bool RicRunFaultReactAssessmentFeature::runPostProcessing( int faultID, RimFault
     }
 
     QString     command    = RiaPreferencesGeoMech::current()->geomechFRAPostprocCommand();
-    QStringList parameters = settings->postprocParameters( faultID );
+    QStringList parameters = postproc_settings.postprocCommandParameters( faultID );
 
     RimProcess process;
     process.setCommand( command );
     process.setParameters( parameters );
 
-    addParameterFileForCleanUp( settings->postprocParameterFilename( faultID ) );
+    addParameterFileForCleanUp( postproc_settings.postprocParameterFilename( faultID ) );
 
     if ( !process.execute() )
     {

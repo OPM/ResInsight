@@ -21,13 +21,13 @@
 #include <QString>
 
 class RimFaultRAPreprocSettings;
-class RimFaultRASettings;
+class RimFaultRAPostprocSettings;
 
 class RifFaultRAJSonWriter
 {
 public:
     static bool writeToPreprocFile( RimFaultRAPreprocSettings& settings, QString& outErrorText );
-    static bool writeToPostprocFile( int faultID, RimFaultRASettings* settings, QString& outErrorText );
+    static bool writeToPostprocFile( int faultID, RimFaultRAPostprocSettings* settings, QString& outErrorText );
 
 private:
     RifFaultRAJSonWriter(){};

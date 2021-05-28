@@ -80,13 +80,13 @@ public:
 
     QString basicParameterXMLFilename( int faultID ) const;
     QString advancedParameterXMLFilename( int faultID ) const;
-    QString postprocParameterFilename( int faultID ) const;
 
     QStringList basicMacrisParameters( int faultID ) const;
     QStringList advancedMacrisParameters( int faultID ) const;
-    QStringList postprocParameters( int faultID ) const;
 
     QString tsurfOutputDirectory() const;
+
+    RimGenericParameter* getInputParameter( QString name ) const;
 
 protected:
     void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;

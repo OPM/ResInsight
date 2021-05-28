@@ -58,6 +58,8 @@ public:
 
     std::vector<RimGenericParameter*> parameters() const;
 
+    RimGenericParameter* parameter( QString name ) const;
+
 private:
     void                 defineEditorAttribute( const caf::PdmFieldHandle* field,
                                                 QString                    uiConfigName,

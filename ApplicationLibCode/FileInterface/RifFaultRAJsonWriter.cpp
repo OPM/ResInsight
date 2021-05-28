@@ -18,8 +18,10 @@
 
 #include "RifFaultRAJsonWriter.h"
 
+#include "RimFaultRAPostprocSettings.h"
 #include "RimFaultRAPreprocSettings.h"
-#include "RimFaultRASettings.h"
+#include "RimGenericParameter.h"
+#include "RimParameterGroup.h"
 
 #include <QFile>
 #include <QTextStream>
@@ -60,7 +62,7 @@ bool RifFaultRAJSonWriter::writeToPreprocFile( RimFaultRAPreprocSettings& settin
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RifFaultRAJSonWriter::writeToPostprocFile( int faultID, RimFaultRASettings* settings, QString& outErrorText )
+bool RifFaultRAJSonWriter::writeToPostprocFile( int faultID, RimFaultRAPostprocSettings* settings, QString& outErrorText )
 {
     QString filename = settings->postprocParameterFilename( faultID );
 
@@ -73,7 +75,7 @@ bool RifFaultRAJSonWriter::writeToPostprocFile( int faultID, RimFaultRASettings*
 
         stream << "{" << endl;
 
-        if ( settings->geomechCase() != nullptr )
+        if ( settings->geomechEnabled() )
         {
             if ( QFile::exists( settings->advancedMacrisDatabase() ) )
                 stream << "\"MacrisCalcCalibration_path\": \"" + settings->advancedMacrisDatabase() + "\"," << endl;
@@ -84,11 +86,12 @@ bool RifFaultRAJSonWriter::writeToPostprocFile( int faultID, RimFaultRASettings*
 
         stream << "\"base_directory_path\": \"" + settings->outputBaseDirectory() + "\"," << endl;
 
-        QStringList timesteps;
-        timesteps.push_back( QString::number( settings->startTimeStepEclipseIndex() ) );
-        timesteps.push_back( QString::number( settings->endTimeStepEclipseIndex() ) );
+        for ( auto p : settings->parameters()->parameters() )
+        {
+            stream << "\"" + p->name() + "\" : \"" + p->stringValue() + "\"," << endl;
+        }
 
-        stream << "\"tsurf_loadsteps\": [ " + timesteps.join( ',' ) + " ]" << endl;
+        stream << "\"tsurf_loadsteps\": [ " + settings->stepsToLoad().join( ',' ) + " ]" << endl;
         stream << "}" << endl;
 
         file.close();

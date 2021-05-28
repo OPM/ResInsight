@@ -218,12 +218,22 @@ void RimParameterGroup::setParameterValue( QString name, double value )
 //--------------------------------------------------------------------------------------------------
 void RimParameterGroup::setParameterValue( QString name, QString value )
 {
+    RimGenericParameter* p = parameter( name );
+    if ( p != nullptr ) p->setValue( value );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimGenericParameter* RimParameterGroup::parameter( QString name ) const
+{
     for ( auto& p : m_parameters.childObjects() )
     {
         if ( p->name() == name )
         {
-            p->setValue( value );
-            break;
+            return p;
         }
     }
+
+    return nullptr;
 }
