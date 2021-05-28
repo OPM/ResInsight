@@ -19,6 +19,7 @@
 #pragma once
 
 #include "RiaDefines.h"
+#include "RiaNumberFormat.h"
 
 #include "RigHistogramData.h"
 
@@ -89,9 +90,11 @@ private:
 protected:
     QPointer<RiuQtChartView> m_viewer;
 
-    caf::PdmField<QString>                              m_plotWindowTitle;
-    caf::PdmField<int>                                  m_numHistogramBins;
-    caf::PdmField<cvf::Color3f>                         m_histogramBarColor;
-    caf::PdmField<double>                               m_histogramGapWidth;
-    caf::PdmField<caf::AppEnum<HistogramFrequencyType>> m_histogramFrequencyType;
+    caf::PdmField<QString>                                         m_plotWindowTitle;
+    caf::PdmField<int>                                             m_numHistogramBins;
+    caf::PdmField<cvf::Color3f>                                    m_histogramBarColor;
+    caf::PdmField<double>                                          m_histogramGapWidth;
+    caf::PdmField<caf::AppEnum<HistogramFrequencyType>>            m_histogramFrequencyType;
+    caf::PdmField<int>                                             m_precision;
+    caf::PdmField<caf::AppEnum<RiaNumberFormat::NumberFormatType>> m_tickNumberFormat;
 };

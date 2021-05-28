@@ -51,3 +51,19 @@ QString RiaNumberFormat::valueToText( double value, RiaNumberFormat::NumberForma
 
     return valueString;
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RiaNumberFormat::sprintfFormat( RiaNumberFormat::NumberFormatType numberFormat, int precision )
+{
+    switch ( numberFormat )
+    {
+        case RiaNumberFormat::NumberFormatType::FIXED:
+            return QString( "%.%1f" ).arg( precision );
+        case RiaNumberFormat::NumberFormatType::SCIENTIFIC:
+            return QString( "%.%1e" ).arg( precision );
+        default:
+            return QString( "%.%1g" ).arg( precision );
+    }
+}
