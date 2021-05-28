@@ -260,6 +260,12 @@ void RimStatisticsPlot::updatePlots()
     double   minValue = std::numeric_limits<double>::max();
     double   maxValue = -std::numeric_limits<double>::max();
 
+    // Make border same color as bar when user wants max bar width
+    if ( m_histogramGapWidth() == 0.0 )
+    {
+        set0->setBorderColor( RiaColorTools::toQColor( m_histogramBarColor ) );
+    }
+
     double sumElements = 0.0;
     for ( double value : histogramData.histogram )
         sumElements += value;
