@@ -1111,7 +1111,8 @@ std::deque<RimStimPlanModel::MissingValueStrategy>
     else if ( curveProperty == RiaDefines::CurveProperty::EQLNUM )
         return { RimStimPlanModel::MissingValueStrategy::DEFAULT_VALUE,
                  RimStimPlanModel::MissingValueStrategy::CELLS_ABOVE,
-                 RimStimPlanModel::MissingValueStrategy::CELLS_BELOW };
+                 RimStimPlanModel::MissingValueStrategy::CELLS_BELOW,
+                 RimStimPlanModel::MissingValueStrategy::LINEAR_INTERPOLATION };
     else
         return { RimStimPlanModel::MissingValueStrategy::DEFAULT_VALUE };
 }
