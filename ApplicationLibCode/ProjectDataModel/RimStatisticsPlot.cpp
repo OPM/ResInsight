@@ -81,6 +81,21 @@ RimStatisticsPlot::RimStatisticsPlot()
 
     CAF_PDM_InitFieldNoDefault( &m_histogramFrequencyType, "HistogramFrequencyType", "Frequency", "", "", "" );
 
+    CAF_PDM_InitField( &m_precision,
+                       "Precision",
+                       4,
+                       "Significant Digits",
+                       "",
+                       "The number of significant digits displayed in the legend numbers",
+                       "" );
+    CAF_PDM_InitField( &m_tickNumberFormat,
+                       "TickNumberFormat",
+                       caf::AppEnum<RiaNumberFormat::NumberFormatType>( RiaNumberFormat::NumberFormatType::FIXED ),
+                       "Number format",
+                       "",
+                       "",
+                       "" );
+
     m_plotLegendsHorizontal.uiCapability()->setUiHidden( true );
 
     setDeletable( true );
@@ -232,6 +247,8 @@ void RimStatisticsPlot::uiOrderingForHistogram( QString uiConfigName, caf::PdmUi
     histogramGroup->add( &m_histogramBarColor );
     histogramGroup->add( &m_histogramGapWidth );
     histogramGroup->add( &m_histogramFrequencyType );
+    histogramGroup->add( &m_precision );
+    histogramGroup->add( &m_tickNumberFormat );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -293,10 +310,12 @@ void RimStatisticsPlot::updatePlots()
 
     QValueAxis* axisX = new QValueAxis();
     axisX->setRange( histogramData.min - xAxisExtension, histogramData.max + xAxisExtension );
+    axisX->setLabelFormat( RiaNumberFormat::sprintfFormat( m_tickNumberFormat(), m_precision ) );
     chart->addAxis( axisX, Qt::AlignBottom );
 
     QValueAxis* axisY = new QValueAxis();
     axisY->setRange( minValue, maxValue );
+    axisY->setLabelFormat( RiaNumberFormat::sprintfFormat( m_tickNumberFormat(), m_precision ) );
     chart->addAxis( axisY, Qt::AlignLeft );
 
     if ( !std::isinf( histogramData.p10 ) )

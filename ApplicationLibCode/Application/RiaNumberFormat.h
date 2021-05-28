@@ -34,4 +34,5 @@ public:
     };
 
     static QString valueToText( double value, RiaNumberFormat::NumberFormatType numberFormat, int precision );
+    static QString sprintfFormat( RiaNumberFormat::NumberFormatType numberFormat, int precision );
 };
