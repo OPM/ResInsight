@@ -818,6 +818,14 @@ void RicMswTableFormatterTools::writeWelsegsSegment( RicMswSegment*             
         double midPointMD  = 0.5 * ( subStartMD + subEndMD );
         double midPointTVD = tvdFromMeasuredDepth( branch->wellPath(), midPointMD );
 
+        if ( midPointMD < prevOutMD )
+        {
+            // The first segment of parent branch may sometimes have a MD that is larger than the first segment on the
+            // lateral. If this is the case, use the startMD of the branch instead
+            prevOutMD  = branch->startMD();
+            prevOutTVD = branch->startTVD();
+        }
+
         if ( exportInfo.lengthAndDepthText() == QString( "INC" ) )
         {
             depth  = midPointTVD - prevOutTVD;
@@ -844,7 +852,10 @@ void RicMswTableFormatterTools::writeWelsegsSegment( RicMswSegment*             
         formatter.add( roughnessFactor );
         formatter.rowCompleted();
         ( *segmentNumber )++;
+
         outletSegment = segment;
+        prevOutMD     = outletSegment->outputMD();
+        prevOutTVD    = outletSegment->outputTVD();
     }
 }
 
