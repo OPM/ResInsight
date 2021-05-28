@@ -20,6 +20,8 @@
 
 #pragma once
 
+#include "RiaNumberFormat.h"
+
 #include "RimLegendConfig.h"
 #include "RimLegendConfigChangeType.h"
 
@@ -108,12 +110,6 @@ public:
         LOG10_DISCRETE,
         CATEGORY_INTEGER
     };
-    enum class NumberFormatType
-    {
-        AUTO,
-        SCIENTIFIC,
-        FIXED
-    };
     typedef caf::AppEnum<MappingType> MappingEnum;
 
     enum class CategoryColorModeType
@@ -129,7 +125,7 @@ public:
     RimColorLegend* colorLegend() const;
     void            setMappingMode( MappingType mappingType );
     MappingType     mappingMode() { return m_mappingMode(); }
-    void            setTickNumberFormat( NumberFormatType numberFormat );
+    void            setTickNumberFormat( RiaNumberFormat::NumberFormatType numberFormat );
     void            resetUserDefinedValues();
 
     void disableAllTimeStepsRange( bool doDisable );
@@ -171,8 +167,7 @@ public:
 
     void updateFonts() override;
 
-    QString        valueToText( double value ) const;
-    static QString valueToText( double value, NumberFormatType numberFormat, int precision );
+    QString valueToText( double value ) const;
 
 private:
     void                 fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
@@ -225,17 +220,17 @@ private:
     cvf::Color3ubArray       m_categoryColors;
 
     // Fields
-    caf::PdmField<bool>                                m_showLegend;
-    caf::PdmField<int>                                 m_numLevels;
-    caf::PdmField<int>                                 m_precision;
-    caf::PdmField<caf::AppEnum<NumberFormatType>>      m_tickNumberFormat;
-    caf::PdmField<RangeModeEnum>                       m_rangeMode;
-    caf::PdmField<double>                              m_userDefinedMaxValue;
-    caf::PdmField<double>                              m_userDefinedMinValue;
-    caf::PdmField<caf::AppEnum<ColorRangesType>>       m_colorRangeMode_OBSOLETE;
-    caf::PdmField<caf::AppEnum<MappingType>>           m_mappingMode;
-    caf::PdmField<caf::AppEnum<CategoryColorModeType>> m_categoryColorMode;
-    caf::PdmField<bool>                                m_resetUserDefinedValuesButton;
+    caf::PdmField<bool>                                            m_showLegend;
+    caf::PdmField<int>                                             m_numLevels;
+    caf::PdmField<int>                                             m_precision;
+    caf::PdmField<caf::AppEnum<RiaNumberFormat::NumberFormatType>> m_tickNumberFormat;
+    caf::PdmField<RangeModeEnum>                                   m_rangeMode;
+    caf::PdmField<double>                                          m_userDefinedMaxValue;
+    caf::PdmField<double>                                          m_userDefinedMinValue;
+    caf::PdmField<caf::AppEnum<ColorRangesType>>                   m_colorRangeMode_OBSOLETE;
+    caf::PdmField<caf::AppEnum<MappingType>>                       m_mappingMode;
+    caf::PdmField<caf::AppEnum<CategoryColorModeType>>             m_categoryColorMode;
+    caf::PdmField<bool>                                            m_resetUserDefinedValuesButton;
 
     caf::PdmPtrField<RimColorLegend*> m_colorLegend;
     caf::PdmField<bool>               m_selectColorLegendButton;
