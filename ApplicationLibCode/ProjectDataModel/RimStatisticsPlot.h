@@ -92,6 +92,6 @@ protected:
     caf::PdmField<QString>                              m_plotWindowTitle;
     caf::PdmField<int>                                  m_numHistogramBins;
     caf::PdmField<cvf::Color3f>                         m_histogramBarColor;
-    caf::PdmField<double>                               m_histogramBarWidth;
+    caf::PdmField<double>                               m_histogramGapWidth;
     caf::PdmField<caf::AppEnum<HistogramFrequencyType>> m_histogramFrequencyType;
 };
