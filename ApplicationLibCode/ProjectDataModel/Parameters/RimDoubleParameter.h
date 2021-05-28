@@ -42,6 +42,8 @@ public:
     QVariant variantValue() const override;
     QString  stringValue() const override;
 
+    double value() const;
+
 private:
     caf::PdmField<double> m_value;
 };

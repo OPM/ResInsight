@@ -76,3 +76,11 @@ QString RimDoubleParameter::stringValue() const
 {
     return QString::number( m_value() );
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimDoubleParameter::value() const
+{
+    return m_value();
+}

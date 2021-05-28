@@ -17,27 +17,45 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
+#include "cafPdmField.h"
+#include "cafPdmObject.h"
+#include "cafPdmPtrField.h"
+
 #include <list>
 
 #include <QString>
+#include <QStringList>
 
-class RimFaultRAPostprocSettings
+class RimFaultRASettings;
+class RimParameterGroup;
+
+class RimFaultRAPostprocSettings : public caf::PdmObject
 {
 public:
     RimFaultRAPostprocSettings();
-    ~RimFaultRAPostprocSettings();
+    ~RimFaultRAPostprocSettings() override;
 
-    void setBaseDirectory( QString baseDir );
-    void setStepsToLoad( std::list<int> steps );
+    void initFromSettings( RimFaultRASettings* settings );
 
-    std::list<int>& stepsToLoad();
+    QStringList stepsToLoad();
 
-    QString postprocParameterFilename() const;
-    QString databaseDirectory() const;
-    QString macrisCalcCalibPath() const;
-    QString macrisCalcPath() const;
+    QString postprocParameterFilename( int faultID ) const;
+    QString outputBaseDirectory() const;
+    QString basicMacrisDatabase() const;
+    QString advancedMacrisDatabase() const;
+
+    bool geomechEnabled() const;
+
+    RimParameterGroup* parameters() const;
+
+    QStringList postprocCommandParameters( int faultID ) const;
 
 protected:
-    QString        m_baseDir;
-    std::list<int> m_steps;
+    caf::PdmField<QString>               m_baseDir;
+    caf::PdmField<int>                   m_startTimestepEclipse;
+    caf::PdmField<int>                   m_endTimestepEclipse;
+    caf::PdmField<bool>                  m_geomechEnabled;
+    caf::PdmField<QString>               m_basicMacrisDatabase;
+    caf::PdmField<QString>               m_advancedMacrisDatabase;
+    caf::PdmPtrField<RimParameterGroup*> m_postprocParameters;
 };

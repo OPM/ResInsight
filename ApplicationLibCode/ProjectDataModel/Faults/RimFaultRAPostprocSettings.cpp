@@ -18,11 +18,27 @@
 
 #include "RimFaultRAPostprocSettings.h"
 
+#include "RimDoubleParameter.h"
+#include "RimFaultRASettings.h"
+#include "RimParameterGroup.h"
+
+#include <cmath>
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RimFaultRAPostprocSettings::RimFaultRAPostprocSettings()
 {
+    CAF_PDM_InitObject( "Reactivation Assessment Postproc Settings", ":/fault_react_24x24.png", "", "" );
+
+    CAF_PDM_InitField( &m_baseDir, "BaseDir", QString( "" ), "Working Directory", "", "", "" );
+    CAF_PDM_InitField( &m_startTimestepEclipse, "StartTimeStepEclipse", 0, "Start Time Step", "", "", "" );
+    CAF_PDM_InitField( &m_endTimestepEclipse, "EndTimeStepEclipse", 0, "End Time Step", "", "", "" );
+    CAF_PDM_InitField( &m_geomechEnabled, "GeomechEnabled", false, "GeoMechanical Input Available", "", "", "" );
+    CAF_PDM_InitField( &m_basicMacrisDatabase, "BasicMacrisDatabase", QString( "" ), "Basic Macris Database", "", "", "" );
+    CAF_PDM_InitField( &m_advancedMacrisDatabase, "AdvancedMacrisDatabase", QString( "" ), "Advanced Macris Database", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_postprocParameters, "PostprocParameters", "Post-Processing Parameters", "", "", "" );
+    m_postprocParameters = new RimParameterGroup();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -35,40 +51,76 @@ RimFaultRAPostprocSettings::~RimFaultRAPostprocSettings()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimFaultRAPostprocSettings::setBaseDirectory( QString baseDir )
+void RimFaultRAPostprocSettings::initFromSettings( RimFaultRASettings* settings )
 {
-    m_baseDir = baseDir + "/base_dir";
+    m_geomechEnabled = settings->geomechCase() != nullptr;
+
+    m_baseDir              = settings->outputBaseDirectory();
+    m_startTimestepEclipse = settings->startTimeStepEclipseIndex();
+    m_endTimestepEclipse   = settings->endTimeStepEclipseIndex();
+
+    m_basicMacrisDatabase    = settings->basicMacrisDatabase();
+    m_advancedMacrisDatabase = settings->advancedMacrisDatabase();
+
+    RimDoubleParameter* friction_angle =
+        dynamic_cast<RimDoubleParameter*>( settings->getInputParameter( "friction_angle" ) );
+    if ( friction_angle != nullptr )
+    {
+        m_postprocParameters->addParameter( "friction_coef", std::atan( friction_angle->value() ) );
+    }
+
+    RimDoubleParameter* rho_rock = dynamic_cast<RimDoubleParameter*>( settings->getInputParameter( "rho_rock" ) );
+    if ( rho_rock != nullptr )
+    {
+        m_postprocParameters->addParameter( "rockdensity", rho_rock->value() );
+    }
+
+    RimDoubleParameter* k0_effective =
+        dynamic_cast<RimDoubleParameter*>( settings->getInputParameter( "k0_effective" ) );
+    if ( k0_effective != nullptr )
+    {
+        m_postprocParameters->addParameter( "k0", k0_effective->value() );
+    }
+
+    RimDoubleParameter* sh_ratio = dynamic_cast<RimDoubleParameter*>( settings->getInputParameter( "sh_ratio" ) );
+    if ( sh_ratio != nullptr )
+    {
+        m_postprocParameters->addParameter( "sh_ratio", sh_ratio->value() );
+    }
+
+    RimDoubleParameter* s_azimuth = dynamic_cast<RimDoubleParameter*>( settings->getInputParameter( "s_azimuth" ) );
+    if ( s_azimuth != nullptr )
+    {
+        m_postprocParameters->addParameter( "sh_azim", s_azimuth->value() );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimFaultRAPostprocSettings::setStepsToLoad( std::list<int> steps )
+QStringList RimFaultRAPostprocSettings::stepsToLoad()
 {
-    m_steps.clear();
-    m_steps.insert( m_steps.begin(), steps.begin(), steps.end() );
+    QStringList timesteps;
+    timesteps.push_back( QString::number( m_startTimestepEclipse() ) );
+    timesteps.push_back( QString::number( m_endTimestepEclipse() ) );
+
+    return timesteps;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::list<int>& RimFaultRAPostprocSettings::stepsToLoad()
+QString RimFaultRAPostprocSettings::postprocParameterFilename( int faultID ) const
 {
-    return m_steps;
+    QString retval = m_baseDir;
+    retval += QString( "/tmp/postproc_%1.json" ).arg( faultID, 3, 10, QChar( '0' ) );
+    return retval;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimFaultRAPostprocSettings::postprocParameterFilename() const
-{
-    return m_baseDir + "/post_processing.json";
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RimFaultRAPostprocSettings::databaseDirectory() const
+QString RimFaultRAPostprocSettings::outputBaseDirectory() const
 {
     return m_baseDir;
 }
@@ -76,15 +128,43 @@ QString RimFaultRAPostprocSettings::databaseDirectory() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimFaultRAPostprocSettings::macrisCalcCalibPath() const
+QString RimFaultRAPostprocSettings::advancedMacrisDatabase() const
 {
-    return m_baseDir + "/MacrisCalcCalibration.sqlite3";
+    return m_advancedMacrisDatabase;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimFaultRAPostprocSettings::macrisCalcPath() const
+QString RimFaultRAPostprocSettings::basicMacrisDatabase() const
 {
-    return m_baseDir + "/MacrisCalcResult.sqlite3";
+    return m_basicMacrisDatabase;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimParameterGroup* RimFaultRAPostprocSettings::parameters() const
+{
+    return m_postprocParameters;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimFaultRAPostprocSettings::geomechEnabled() const
+{
+    return m_geomechEnabled;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QStringList RimFaultRAPostprocSettings::postprocCommandParameters( int faultID ) const
+{
+    QStringList retlist;
+
+    retlist << postprocParameterFilename( faultID );
+
+    return retlist;
 }

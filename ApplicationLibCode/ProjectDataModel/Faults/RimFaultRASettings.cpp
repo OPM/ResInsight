@@ -543,16 +543,6 @@ QString RimFaultRASettings::advancedParameterXMLFilename( int faultID ) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimFaultRASettings::postprocParameterFilename( int faultID ) const
-{
-    QString retval = m_baseDir;
-    retval += QString( "/tmp/postproc_%1.json" ).arg( faultID, 3, 10, QChar( '0' ) );
-    return retval;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 QStringList RimFaultRASettings::basicMacrisParameters( int faultID ) const
 {
     QStringList retlist;
@@ -585,19 +575,29 @@ QStringList RimFaultRASettings::advancedMacrisParameters( int faultID ) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QStringList RimFaultRASettings::postprocParameters( int faultID ) const
+QString RimFaultRASettings::tsurfOutputDirectory() const
 {
-    QStringList retlist;
-
-    retlist << postprocParameterFilename( faultID );
-
-    return retlist;
+    return m_baseDir + "/tsurf";
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimFaultRASettings::tsurfOutputDirectory() const
+RimGenericParameter* RimFaultRASettings::getInputParameter( QString name ) const
 {
-    return m_baseDir + "/tsurf";
+    RimGenericParameter* retval = nullptr;
+
+    for ( auto group : m_basicParameters.childObjects() )
+    {
+        retval = group->parameter( name );
+        if ( retval != nullptr ) return retval;
+    }
+
+    for ( auto group : m_advancedParameters.childObjects() )
+    {
+        retval = group->parameter( name );
+        if ( retval != nullptr ) return retval;
+    }
+
+    return retval;
 }
