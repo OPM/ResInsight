@@ -250,10 +250,8 @@ void RicWellPathExportMswCompletionsImpl::exportWellSegmentsForPerforations( Rim
 
     if ( !mswParameters ) return;
 
-    double initialMD = 0.0; // Start measured depth location to export MSW data for. Either based on first
-                            // intersection with active grid, or user defined value.
-
-    auto cellIntersections = generateCellSegments( eclipseCase, wellPath, mswParameters, &initialMD );
+    auto   cellIntersections = generateCellSegments( eclipseCase, wellPath );
+    double initialMD         = computeIntitialMeasuredDepth( eclipseCase, wellPath, mswParameters, cellIntersections );
 
     RicMswExportInfo exportInfo( wellPath,
                                  unitSystem,
@@ -329,10 +327,8 @@ void RicWellPathExportMswCompletionsImpl::exportWellSegmentsForFractures( RimEcl
 
     if ( !mswParameters ) return;
 
-    double initialMD = 0.0; // Start measured depth location to export MSW data for. Either based on first
-                            // intersection with active grid, or user defined value.
-
-    auto cellIntersections = generateCellSegments( eclipseCase, wellPath, mswParameters, &initialMD );
+    auto   cellIntersections = generateCellSegments( eclipseCase, wellPath );
+    double initialMD         = computeIntitialMeasuredDepth( eclipseCase, wellPath, mswParameters, cellIntersections );
 
     RicMswExportInfo exportInfo( wellPath,
                                  unitSystem,
@@ -404,11 +400,9 @@ void RicWellPathExportMswCompletionsImpl::exportWellSegmentsForFishbones( RimEcl
         return;
     }
 
-    double initialMD = 0.0; // Start measured depth location to export MSW data for. Either based on first
-                            // intersection with active grid, or user defined value.
-
-    auto mswParameters     = wellPath->mswCompletionParameters();
-    auto cellIntersections = generateCellSegments( eclipseCase, wellPath, mswParameters, &initialMD );
+    auto   mswParameters     = wellPath->mswCompletionParameters();
+    auto   cellIntersections = generateCellSegments( eclipseCase, wellPath );
+    double initialMD         = computeIntitialMeasuredDepth( eclipseCase, wellPath, mswParameters, cellIntersections );
 
     RiaDefines::EclipseUnitSystem unitSystem = eclipseCase->eclipseCaseData()->unitsType();
 
@@ -471,13 +465,15 @@ void RicWellPathExportMswCompletionsImpl::exportWellSegmentsForFishbones( RimEcl
 //--------------------------------------------------------------------------------------------------
 void RicWellPathExportMswCompletionsImpl::updateDataForMultipleItemsInSameGridCell( gsl::not_null<RicMswBranch*> branch )
 {
+    auto allSegments = branch->allSegmentsRecursively();
+
     {
         // Update effective diameter
+        // https://github.com/OPM/ResInsight/issues/7686
 
         std::map<size_t, std::set<RicMswSegment*>> segmentsInCell;
         {
-            auto segments = branch->allSegmentsRecursively();
-            for ( auto s : segments )
+            for ( auto s : allSegments )
             {
                 auto cellsIntersected = s->globalCellsIntersected();
                 if ( !cellsIntersected.empty() )
@@ -508,6 +504,31 @@ void RicWellPathExportMswCompletionsImpl::updateDataForMultipleItemsInSameGridCe
                 seg->setEffectiveDiameter( effectiveDiameter );
             }
         }
+
+        {
+            // Reduce the diameter for segments in the same cell as main bore
+            // https://github.com/OPM/ResInsight/issues/7731
+
+            for ( auto s : allSegments )
+            {
+                for ( auto completion : s->completions() )
+                {
+                    if ( completion->completionType() == RigCompletionData::CompletionType::FISHBONES )
+                    {
+                        auto segments = completion->segments();
+                        if ( segments.size() > 1 )
+                        {
+                            auto firstSegment  = segments[0];
+                            auto secondSegment = segments[1];
+
+                            double diameter = secondSegment->effectiveDiameter();
+
+                            firstSegment->setEffectiveDiameter( diameter );
+                        }
+                    }
+                }
+            }
+        }
     }
 
     {
@@ -516,8 +537,7 @@ void RicWellPathExportMswCompletionsImpl::updateDataForMultipleItemsInSameGridCe
         std::map<size_t, std::set<RicMswFishbonesICD*>> icdsInCell;
 
         {
-            auto segments = branch->allSegmentsRecursively();
-            for ( auto s : segments )
+            for ( auto s : allSegments )
             {
                 for ( auto completion : s->completions() )
                 {
@@ -749,16 +769,12 @@ void RicWellPathExportMswCompletionsImpl::generateFishbonesMswExportInfo(
     auto connectedWellPaths = wellPathsWithTieIn( wellPath );
     for ( auto childWellPath : connectedWellPaths )
     {
-        auto childMswBranch = createChildMswBranch( childWellPath );
-        auto mswParameters  = childWellPath->mswCompletionParameters();
-
-        double startOfChildMD       = 0.0; // this is currently not used, as the tie-in MD is used
-        auto childCellIntersections = generateCellSegments( eclipseCase, childWellPath, mswParameters, &startOfChildMD );
-        auto initialChildMD         = childWellPath->wellPathTieIn()->tieInMeasuredDepth();
+        auto childMswBranch         = createChildMswBranch( childWellPath );
+        auto childCellIntersections = generateCellSegments( eclipseCase, childWellPath );
 
         generateFishbonesMswExportInfo( eclipseCase,
                                         childWellPath,
-                                        initialChildMD,
+                                        initialMD,
                                         childCellIntersections,
                                         enableSegmentSplitting,
                                         exportInfo,
@@ -776,11 +792,9 @@ void RicWellPathExportMswCompletionsImpl::generateFishbonesMswExportInfoForWell(
                                                                                  gsl::not_null<RicMswExportInfo*> exportInfo,
                                                                                  gsl::not_null<RicMswBranch*> branch )
 {
-    double initialMD = 0.0; // Start measured depth location to export MSW data for. Either based on first
-                            // intersection with active grid, or user defined value.
-
-    auto mswParameters     = wellPath->mswCompletionParameters();
-    auto cellIntersections = generateCellSegments( eclipseCase, wellPath, mswParameters, &initialMD );
+    auto   mswParameters     = wellPath->mswCompletionParameters();
+    auto   cellIntersections = generateCellSegments( eclipseCase, wellPath );
+    double initialMD         = computeIntitialMeasuredDepth( eclipseCase, wellPath, mswParameters, cellIntersections );
 
     RiaDefines::EclipseUnitSystem unitSystem = eclipseCase->eclipseCaseData()->unitsType();
 
@@ -847,16 +861,12 @@ bool RicWellPathExportMswCompletionsImpl::generateFracturesMswExportInfo(
     auto connectedWellPaths = wellPathsWithTieIn( wellPath );
     for ( auto childWellPath : connectedWellPaths )
     {
-        auto childMswBranch = createChildMswBranch( childWellPath );
-        auto mswParameters  = childWellPath->mswCompletionParameters();
-
-        double startOfChildMD       = 0.0; // this is currently not used, as the tie-in MD is used
-        auto childCellIntersections = generateCellSegments( eclipseCase, childWellPath, mswParameters, &startOfChildMD );
-        auto initialChildMD         = childWellPath->wellPathTieIn()->tieInMeasuredDepth();
+        auto childMswBranch         = createChildMswBranch( childWellPath );
+        auto childCellIntersections = generateCellSegments( eclipseCase, childWellPath );
 
         if ( generateFracturesMswExportInfo( eclipseCase,
                                              childWellPath,
-                                             initialChildMD,
+                                             initialMD,
                                              childCellIntersections,
                                              exportInfo,
                                              childMswBranch.get() ) )
@@ -945,17 +955,13 @@ bool RicWellPathExportMswCompletionsImpl::generatePerforationsMswExportInfo(
 
     for ( auto childWellPath : connectedWellPaths )
     {
-        auto childMswBranch = createChildMswBranch( childWellPath );
-        auto mswParameters  = childWellPath->mswCompletionParameters();
-
-        double startOfChildMD       = 0.0; // this is currently not used, as the tie-in MD is used
-        auto childCellIntersections = generateCellSegments( eclipseCase, childWellPath, mswParameters, &startOfChildMD );
-        auto initialChildMD         = childWellPath->wellPathTieIn()->tieInMeasuredDepth();
+        auto childMswBranch         = createChildMswBranch( childWellPath );
+        auto childCellIntersections = generateCellSegments( eclipseCase, childWellPath );
 
         if ( generatePerforationsMswExportInfo( eclipseCase,
                                                 childWellPath,
                                                 timeStep,
-                                                initialChildMD,
+                                                initialMD,
                                                 childCellIntersections,
                                                 exportInfo,
                                                 childMswBranch.get() ) )
@@ -971,10 +977,8 @@ bool RicWellPathExportMswCompletionsImpl::generatePerforationsMswExportInfo(
 ///
 //--------------------------------------------------------------------------------------------------
 std::vector<WellPathCellIntersectionInfo>
-    RicWellPathExportMswCompletionsImpl::generateCellSegments( const RimEclipseCase*             eclipseCase,
-                                                               const RimWellPath*                wellPath,
-                                                               const RimMswCompletionParameters* mswParameters,
-                                                               gsl::not_null<double*>            initialMD )
+    RicWellPathExportMswCompletionsImpl::generateCellSegments( const RimEclipseCase* eclipseCase,
+                                                               const RimWellPath*    wellPath )
 {
     const RigActiveCellInfo* activeCellInfo =
         eclipseCase->eclipseCaseData()->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
@@ -998,17 +1002,35 @@ std::vector<WellPathCellIntersectionInfo>
     std::vector<WellPathCellIntersectionInfo> continuousIntersections =
         RigWellPathIntersectionTools::buildContinuousIntersections( allIntersections, mainGrid );
 
+    return continuousIntersections;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RicWellPathExportMswCompletionsImpl::computeIntitialMeasuredDepth(
+    const RimEclipseCase*                            eclipseCase,
+    const RimWellPath*                               wellPath,
+    const RimMswCompletionParameters*                mswParameters,
+    const std::vector<WellPathCellIntersectionInfo>& allIntersections )
+{
+    if ( allIntersections.empty() ) return 0.0;
+
+    const RigActiveCellInfo* activeCellInfo =
+        eclipseCase->eclipseCaseData()->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
+
+    double candidateMeasuredDepth = 0.0;
     if ( mswParameters->referenceMDType() == RimMswCompletionParameters::ReferenceMDType::MANUAL_REFERENCE_MD )
     {
-        *initialMD = mswParameters->manualReferenceMD();
+        candidateMeasuredDepth = mswParameters->manualReferenceMD();
     }
     else
     {
-        for ( const WellPathCellIntersectionInfo& intersection : continuousIntersections )
+        for ( const WellPathCellIntersectionInfo& intersection : allIntersections )
         {
             if ( activeCellInfo->isActive( intersection.globCellIndex ) )
             {
-                *initialMD = intersection.startMD;
+                candidateMeasuredDepth = intersection.startMD;
                 break;
             }
         }
@@ -1028,10 +1050,10 @@ std::vector<WellPathCellIntersectionInfo>
 
         // Initial MD is the lowest MD based on grid intersection and start of fracture completions
         // https://github.com/OPM/ResInsight/issues/6071
-        *initialMD = std::min( *initialMD, startOfFirstCompletion );
+        candidateMeasuredDepth = std::min( candidateMeasuredDepth, startOfFirstCompletion );
     }
 
-    return continuousIntersections;
+    return candidateMeasuredDepth;
 }
 
 //--------------------------------------------------------------------------------------------------

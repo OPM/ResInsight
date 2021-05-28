@@ -78,7 +78,7 @@ void RicWellPathFormationsImportFileFeature::onActionTriggered( bool isChecked )
 
         if ( !oilField ) return;
 
-        if ( oilField->wellPathCollection->topLevelWellPaths().size() > 0 )
+        if ( oilField->wellPathCollection->allWellPaths().size() > 0 )
         {
             RimWellPath* wellPath = oilField->wellPathCollection->mostRecentlyUpdatedWellPath();
             if ( wellPath )

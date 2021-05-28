@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include "RimWellPath.h"
+#include "RiaDefines.h"
 
 #include "cafPdmField.h"
 #include "cafPdmObject.h"

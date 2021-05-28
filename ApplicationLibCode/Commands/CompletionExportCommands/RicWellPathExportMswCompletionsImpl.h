@@ -111,9 +111,12 @@ private:
                                                    gsl::not_null<RicMswBranch*>                     branch );
 
     static std::vector<WellPathCellIntersectionInfo> generateCellSegments( const RimEclipseCase* eclipseCase,
-                                                                           const RimWellPath*    wellPath,
-                                                                           const RimMswCompletionParameters* mswParameters,
-                                                                           gsl::not_null<double*> initialMD );
+                                                                           const RimWellPath*    wellPath );
+
+    static double computeIntitialMeasuredDepth( const RimEclipseCase*                            eclipseCase,
+                                                const RimWellPath*                               wellPath,
+                                                const RimMswCompletionParameters*                mswParameters,
+                                                const std::vector<WellPathCellIntersectionInfo>& allIntersections );
 
     static std::vector<WellPathCellIntersectionInfo>
         filterIntersections( const std::vector<WellPathCellIntersectionInfo>& intersections,

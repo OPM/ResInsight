@@ -92,7 +92,6 @@ bool RifFaultRAJSonWriter::writeToPostprocFile( int faultID, RimFaultRAPostprocS
         }
 
         stream << "\"tsurf_loadsteps\": [ " + settings->stepsToLoad().join( ',' ) + " ]" << endl;
-
         stream << "}" << endl;
 
         file.close();

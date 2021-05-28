@@ -41,6 +41,7 @@
 #include "RimStimPlanColors.h"
 #include "RimStimPlanLegendConfig.h"
 #include "RimTools.h"
+#include "RimWellPath.h"
 
 #include "RivWellFracturePartMgr.h"
 

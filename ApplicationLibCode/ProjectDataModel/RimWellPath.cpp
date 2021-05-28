@@ -1012,18 +1012,11 @@ std::vector<const RimWellPathComponentInterface*> RimWellPath::allCompletionsRec
 {
     std::vector<const RimWellPathComponentInterface*> allCompletions;
 
-    auto tieInWells = wellPathLateralsRecursively();
-    tieInWells.push_back( const_cast<RimWellPath*>( this ) );
-
-    for ( auto w : tieInWells )
+    auto laterals = allWellPathLaterals();
+    for ( auto w : laterals )
     {
-        std::vector<const RimWellPathCompletions*> completionCollections;
-        w->descendantsOfType( completionCollections );
-        for ( auto collection : completionCollections )
-        {
-            std::vector<const RimWellPathComponentInterface*> completions = collection->allCompletions();
-            allCompletions.insert( allCompletions.end(), completions.begin(), completions.end() );
-        }
+        auto completions = w->completions()->allCompletions();
+        allCompletions.insert( allCompletions.end(), completions.begin(), completions.end() );
     }
 
     return allCompletions;
@@ -1124,6 +1117,8 @@ const RimWellPath* RimWellPath::topLevelWellPath() const
 {
     if ( m_wellPathTieIn() && m_wellPathTieIn->parentWell() )
     {
+        if ( m_wellPathTieIn->parentWell() == this ) return this;
+
         return m_wellPathTieIn()->parentWell()->topLevelWellPath();
     }
 
@@ -1133,32 +1128,38 @@ const RimWellPath* RimWellPath::topLevelWellPath() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellPath::updateAfterAddingToWellPathGroup()
+void RimWellPath::wellPathLateralsRecursively( std::vector<RimWellPath*>& wellPathLaterals ) const
 {
+    wellPathLaterals.push_back( const_cast<RimWellPath*>( this ) );
+
+    std::vector<caf::PdmObjectHandle*> referringObjects;
+    this->objectsWithReferringPtrFields( referringObjects );
+    for ( auto obj : referringObjects )
+    {
+        if ( auto tieIn = dynamic_cast<RimWellPathTieIn*>( obj ) )
+        {
+            auto tieInWellPath = tieIn->childWell();
+            if ( tieInWellPath )
+            {
+                if ( std::find( wellPathLaterals.begin(), wellPathLaterals.end(), tieInWellPath ) == wellPathLaterals.end() )
+                {
+                    tieInWellPath->wellPathLateralsRecursively( wellPathLaterals );
+                }
+            }
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimWellPath*> RimWellPath::wellPathLateralsRecursively() const
+std::vector<RimWellPath*> RimWellPath::allWellPathLaterals() const
 {
-    std::vector<RimWellPath*> tieInWells;
+    std::vector<RimWellPath*> laterals;
 
-    auto wellPathColl = RimTools::wellPathCollection();
-    if ( wellPathColl )
-    {
-        wellPathColl->allWellPaths();
+    this->wellPathLateralsRecursively( laterals );
 
-        for ( auto w : wellPathColl->allWellPaths() )
-        {
-            if ( w->topLevelWellPath() == this )
-            {
-                tieInWells.push_back( w );
-            }
-        }
-    }
-
-    return tieInWells;
+    return laterals;
 }
 
 //--------------------------------------------------------------------------------------------------

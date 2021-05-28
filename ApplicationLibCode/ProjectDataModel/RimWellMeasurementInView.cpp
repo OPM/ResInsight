@@ -27,6 +27,7 @@
 #include "RimWellMeasurement.h"
 #include "RimWellMeasurementCollection.h"
 #include "RimWellMeasurementFilter.h"
+#include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 
 #include "RiuViewer.h"

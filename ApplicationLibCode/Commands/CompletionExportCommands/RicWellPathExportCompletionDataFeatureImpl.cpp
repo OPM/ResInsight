@@ -84,7 +84,7 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicWellPathExportCompletionDataFeatureImpl::exportCompletions( const std::vector<RimWellPath*>& topLevelWellPaths,
+void RicWellPathExportCompletionDataFeatureImpl::exportCompletions( const std::vector<RimWellPath*>&      wellPaths,
                                                                     const std::vector<RimSimWellInView*>& simWells,
                                                                     const RicExportCompletionDataSettingsUi& exportSettings )
 {
@@ -142,18 +142,14 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions( const std::v
         std::vector<RigCompletionData> completions;
 
         {
-            caf::ProgressInfo progress( topLevelWellPaths.size(), "Extracting Completion Data For Well Paths" );
+            caf::ProgressInfo progress( wellPaths.size(), "Extracting Completion Data For Well Paths" );
 
-            for ( RimWellPath* wellPath : topLevelWellPaths )
+            for ( RimWellPath* wellPath : wellPaths )
             {
                 std::vector<RimWellPath*> allWellPathLaterals;
                 if ( wellPath->unitSystem() == exportSettings.caseToApply->eclipseCaseData()->unitsType() )
                 {
-                    auto tieInWells = wellPath->wellPathLateralsRecursively();
-                    for ( auto w : tieInWells )
-                    {
-                        allWellPathLaterals.push_back( w );
-                    }
+                    allWellPathLaterals = wellPath->allWellPathLaterals();
                 }
                 else
                 {
@@ -169,15 +165,15 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions( const std::v
                 std::map<size_t, std::vector<RigCompletionData>> completionsPerEclipseCellFracture;
                 std::map<size_t, std::vector<RigCompletionData>> completionsPerEclipseCellPerforations;
 
-                for ( auto wellPath : allWellPathLaterals )
+                for ( auto wellPathLateral : allWellPathLaterals )
                 {
                     // Generate completion data
 
                     if ( exportSettings.includePerforations )
                     {
                         std::vector<RigCompletionData> perforationCompletionData =
-                            generatePerforationsCompdatValues( wellPath,
-                                                               wellPath->perforationIntervalCollection()->perforations(),
+                            generatePerforationsCompdatValues( wellPathLateral,
+                                                               wellPathLateral->perforationIntervalCollection()->perforations(),
                                                                exportSettings );
 
                         appendCompletionData( &completionsPerEclipseCellAllCompletionTypes, perforationCompletionData );
@@ -188,7 +184,7 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions( const std::v
                     {
                         std::vector<RigCompletionData> fishbonesCompletionData =
                             RicFishbonesTransmissibilityCalculationFeatureImp::
-                                generateFishboneCompdatValuesUsingAdjustedCellVolume( wellPath, exportSettings );
+                                generateFishboneCompdatValuesUsingAdjustedCellVolume( wellPathLateral, exportSettings );
 
                         appendCompletionData( &completionsPerEclipseCellAllCompletionTypes, fishbonesCompletionData );
                         appendCompletionData( &completionsPerEclipseCellFishbones, fishbonesCompletionData );
@@ -200,7 +196,7 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions( const std::v
                         std::vector<RicWellPathFractureReportItem>* reportItems = &fractureDataReportItems;
 
                         std::vector<RigCompletionData> fractureCompletionData = RicExportFractureCompletionsImpl::
-                            generateCompdatValuesForWellPath( wellPath,
+                            generateCompdatValuesForWellPath( wellPathLateral,
                                                               exportSettings.caseToApply(),
                                                               reportItems,
                                                               fractureTransmissibilityExportInformationStream.get(),
@@ -285,7 +281,7 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions( const std::v
         }
         else if ( exportSettings.fileSplit == RicExportCompletionDataSettingsUi::ExportSplit::SPLIT_ON_WELL )
         {
-            for ( auto wellPath : topLevelWellPaths )
+            for ( auto wellPath : wellPaths )
             {
                 std::vector<RigCompletionData> completionsForWell;
                 for ( const auto& completion : completions )
@@ -328,7 +324,7 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions( const std::v
 
             for ( const auto& completionType : completionTypes )
             {
-                for ( auto wellPath : topLevelWellPaths )
+                for ( auto wellPath : wellPaths )
                 {
                     std::vector<RigCompletionData> completionsForWell;
                     for ( const auto& completion : completions )
@@ -412,7 +408,7 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions( const std::v
 
     if ( exportSettings.includeMsw )
     {
-        RicWellPathExportMswCompletionsImpl::exportWellSegmentsForAllCompletions( exportSettings, topLevelWellPaths );
+        RicWellPathExportMswCompletionsImpl::exportWellSegmentsForAllCompletions( exportSettings, wellPaths );
     }
 }
 
