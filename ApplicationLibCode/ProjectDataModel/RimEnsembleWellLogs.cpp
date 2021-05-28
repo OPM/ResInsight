@@ -51,3 +51,19 @@ void RimEnsembleWellLogs::addWellLogFile( RimWellLogFile* summaryCase )
 {
     m_wellLogFiles.push_back( summaryCase );
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimWellLogFile*> RimEnsembleWellLogs::wellLogFiles() const
+{
+    return m_wellLogFiles().childObjects();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimEnsembleWellLogs::hasEnsembleParameters() const
+{
+    return false;
+}

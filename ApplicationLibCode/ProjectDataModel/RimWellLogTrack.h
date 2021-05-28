@@ -57,6 +57,7 @@ class RigFemResultAddress;
 class RigWellLogExtractor;
 class RimEclipseResultDefinition;
 class RimColorLegend;
+class RimEnsembleWellLogCurveSet;
 
 class QwtPlotCurve;
 
@@ -345,6 +346,7 @@ private:
     caf::PdmChildField<RimEclipseResultDefinition*>                    m_resultDefinition;
     caf::PdmField<double>                                              m_overburdenHeight;
     caf::PdmField<double>                                              m_underburdenHeight;
+    caf::PdmChildField<RimEnsembleWellLogCurveSet*>                    m_ensembleWellLogCurveSet;
 
     std::vector<std::unique_ptr<RiuWellPathComponentPlotItem>> m_wellPathAttributePlotObjects;
 
