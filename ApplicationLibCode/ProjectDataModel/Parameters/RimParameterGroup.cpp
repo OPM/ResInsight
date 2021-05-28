@@ -219,7 +219,7 @@ void RimParameterGroup::setParameterValue( QString name, double value )
 void RimParameterGroup::setParameterValue( QString name, QString value )
 {
     RimGenericParameter* p = parameter( name );
-    if (p != nullptr) p->setValue( value );
+    if ( p != nullptr ) p->setValue( value );
 }
 
 //--------------------------------------------------------------------------------------------------
