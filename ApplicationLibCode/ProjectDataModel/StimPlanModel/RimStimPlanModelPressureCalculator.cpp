@@ -209,6 +209,9 @@ bool RimStimPlanModelPressureCalculator::extractValuesForProperty( RiaDefines::C
     return true;
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::tuple<std::vector<double>, std::vector<double>, std::vector<double>>
     RimStimPlanModelPressureCalculator::interpolateMissingValues( const std::vector<double>& targetTvds,
                                                                   const std::vector<double>& targetMds,

@@ -127,7 +127,13 @@ bool RimStimPlanModelWellLogCalculator::calculate( RiaDefines::CurveProperty cur
         {
             // K-1 is up
             int kDirection = -1;
-            if ( !replaceMissingValuesWithOtherKLayer( curveProperty, stimPlanModel, timeStep, measuredDepthValues, values, kDirection ) )
+            if ( !replaceMissingValuesWithOtherKLayer( curveProperty,
+                                                       stimPlanModel,
+                                                       timeStep,
+                                                       measuredDepthValues,
+                                                       tvDepthValues,
+                                                       values,
+                                                       kDirection ) )
             {
                 return false;
             }
@@ -136,7 +142,13 @@ bool RimStimPlanModelWellLogCalculator::calculate( RiaDefines::CurveProperty cur
         {
             // K+1 is down
             int kDirection = 1;
-            if ( !replaceMissingValuesWithOtherKLayer( curveProperty, stimPlanModel, timeStep, measuredDepthValues, values, kDirection ) )
+            if ( !replaceMissingValuesWithOtherKLayer( curveProperty,
+                                                       stimPlanModel,
+                                                       timeStep,
+                                                       measuredDepthValues,
+                                                       tvDepthValues,
+                                                       values,
+                                                       kDirection ) )
             {
                 return false;
             }
@@ -561,6 +573,7 @@ bool RimStimPlanModelWellLogCalculator::replaceMissingValuesWithOtherKLayer( Ria
                                                                              const RimStimPlanModel*    stimPlanModel,
                                                                              int                        timeStep,
                                                                              const std::vector<double>& measuredDepths,
+                                                                             const std::vector<double>& tvDepthValues,
                                                                              std::vector<double>&       values,
                                                                              int moveDirection ) const
 {
@@ -594,6 +607,7 @@ bool RimStimPlanModelWellLogCalculator::replaceMissingValuesWithOtherKLayer( Ria
         if ( std::isinf( values[idx] ) )
         {
             double     measuredDepth = measuredDepths[idx];
+            double     tvd           = tvDepthValues[idx];
             cvf::Vec3d position      = wellPathGeometry->interpolatedPointAlongWellPath( measuredDepth );
 
             size_t cellIdx = mainGrid->findReservoirCellIndexFromPoint( position );
@@ -606,11 +620,13 @@ bool RimStimPlanModelWellLogCalculator::replaceMissingValuesWithOtherKLayer( Ria
                 bool   isValid = mainGrid->ijkFromCellIndex( cellIdx, &i, &j, &k );
                 if ( isValid )
                 {
-                    RiaLogging::info( QString( "Missing value at MD: %1. Cell [%2, %3, %4]" )
-                                          .arg( measuredDepth )
-                                          .arg( i + 1 )
-                                          .arg( j + 1 )
-                                          .arg( k + 1 ) );
+                    RiaLogging::debug(
+                        QString( "K-Layer replacement: Replace missing value at MD: %1 TVD: %2. Cell [%3, %4, %5]" )
+                            .arg( measuredDepth )
+                            .arg( tvd )
+                            .arg( i + 1 )
+                            .arg( j + 1 )
+                            .arg( k + 1 ) );
 
                     int       neighborK = static_cast<int>( k ) + moveDirection;
                     const int minK      = static_cast<int>( 1 );
@@ -642,6 +658,15 @@ bool RimStimPlanModelWellLogCalculator::replaceMissingValuesWithOtherKLayer( Ria
                         neighborK += moveDirection;
                     }
                 }
+            }
+            else
+            {
+                RiaLogging::debug( QString( "K-Layer Replacement: Invalid cell idx: MD=%1 TVD=%2 Pos: [%3 %4 %5]" )
+                                       .arg( measuredDepth )
+                                       .arg( tvd )
+                                       .arg( position.x() )
+                                       .arg( position.y() )
+                                       .arg( position.z() ) );
             }
         }
     }

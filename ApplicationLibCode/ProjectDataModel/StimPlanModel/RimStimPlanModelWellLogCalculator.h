@@ -100,6 +100,7 @@ protected:
                                               const RimStimPlanModel*    stimPlanModel,
                                               int                        timeStep,
                                               const std::vector<double>& measuredDepths,
+                                              const std::vector<double>& tvDepthValues,
                                               std::vector<double>&       values,
                                               int                        kDirection ) const;
 
