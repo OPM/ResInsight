@@ -49,6 +49,7 @@
 #include "RimColorLegendItem.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseResultDefinition.h"
+#include "RimEnsembleWellLogCurveSet.h"
 #include "RimFishbones.h"
 #include "RimFishbonesCollection.h"
 #include "RimGeoMechCase.h"
@@ -268,6 +269,14 @@ RimWellLogTrack::RimWellLogTrack()
     m_resultDefinition.uiCapability()->setUiHidden( true );
     m_resultDefinition.uiCapability()->setUiTreeChildrenHidden( true );
     m_resultDefinition = new RimEclipseResultDefinition;
+
+    CAF_PDM_InitFieldNoDefault( &m_ensembleWellLogCurveSet,
+                                "EnsembleWellLogCurveSet",
+                                "Ensemble Well Logs Curve Set",
+                                "",
+                                "",
+                                "" );
+    m_ensembleWellLogCurveSet = new RimEnsembleWellLogCurveSet;
 
     m_formationsForCaseWithSimWellOnly = false;
 }
@@ -1034,6 +1043,9 @@ QList<caf::PdmOptionItemInfo> RimWellLogTrack::calculateValueOptions( const caf:
     {
         RimTools::colorLegendOptionItems( &options );
     }
+    else if ( fieldNeedingOptions == &m_ensembleWellLogCurveSet )
+    {
+    }
 
     return options;
 }
@@ -1798,6 +1810,8 @@ void RimWellLogTrack::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering
     componentGroup->add( &m_showWellPathComponentLabels );
 
     componentGroup->add( &m_wellPathComponentSource );
+
+    uiOrdering.add( &m_ensembleWellLogCurveSet );
 
     uiOrderingForXAxisSettings( uiOrdering );
 

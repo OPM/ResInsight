@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2021-     Equinor ASA
+//  Copyright (C) 2021- Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -18,31 +18,49 @@
 
 #pragma once
 
-#include "RimNamedObject.h"
+#include <vector>
 
-#include "cafPdmChildArrayField.h"
+class QString;
 
 class RimWellLogFile;
 
 //==================================================================================================
 ///
 //==================================================================================================
-class RimEnsembleWellLogs : public RimNamedObject
+class RimEnsembleWellLogStatistics
 {
-    CAF_PDM_HEADER_INIT;
-
 public:
-    RimEnsembleWellLogs();
-    void removeWellLogFile( RimWellLogFile* wellLogFile );
-    void addWellLogFile( RimWellLogFile* wellLogFile );
+    enum class StatisticsType
+    {
+        P10,
+        P50,
+        P90,
+        MEAN
+    };
 
-    std::vector<RimWellLogFile*> wellLogFiles() const;
+    RimEnsembleWellLogStatistics();
 
-    bool hasEnsembleParameters() const;
+    const std::vector<double>& measuredDepths() const;
+    const std::vector<double>& tvDepths() const;
+    const std::vector<double>& p10() const;
+    const std::vector<double>& p50() const;
+    const std::vector<double>& p90() const;
+    const std::vector<double>& mean() const;
 
-protected:
-    void updateReferringCurveSets();
+    bool hasP10Data() const;
+    bool hasP50Data() const;
+    bool hasP90Data() const;
+    bool hasMeanData() const;
+
+    void calculate( const std::vector<RimWellLogFile*>& sumCases, const QString& wellLogChannelName );
 
 private:
-    caf::PdmChildArrayField<RimWellLogFile*> m_wellLogFiles;
+    void clearData();
+
+    std::vector<double> m_measuredDepths;
+    std::vector<double> m_tvDepths;
+    std::vector<double> m_p10Data;
+    std::vector<double> m_p50Data;
+    std::vector<double> m_p90Data;
+    std::vector<double> m_meanData;
 };

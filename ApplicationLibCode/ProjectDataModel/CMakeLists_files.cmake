@@ -155,6 +155,9 @@ ${CMAKE_CURRENT_LIST_DIR}/RimPolylinesDataInterface.h
 ${CMAKE_CURRENT_LIST_DIR}/RimEnsembleWellLogs.h
 ${CMAKE_CURRENT_LIST_DIR}/RimEnsembleWellLogsCollection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimEnsembleCurveSetInterface.h
+${CMAKE_CURRENT_LIST_DIR}/RimEnsembleWellLogCurveSet.h
+${CMAKE_CURRENT_LIST_DIR}/RimEnsembleWellLogStatistics.h
+${CMAKE_CURRENT_LIST_DIR}/RimEnsembleWellLogStatisticsCurve.h
 ${CMAKE_CURRENT_LIST_DIR}/RimWellPathTieIn.h
 ${CMAKE_CURRENT_LIST_DIR}/cafTreeNode.h
 )
@@ -311,6 +314,9 @@ ${CMAKE_CURRENT_LIST_DIR}/RimEquilibriumAxisAnnotation.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimTimeAxisAnnotation.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimEnsembleWellLogs.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimEnsembleWellLogsCollection.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimEnsembleWellLogCurveSet.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimEnsembleWellLogStatistics.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimEnsembleWellLogStatisticsCurve.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimWellPathTieIn.cpp
 ${CMAKE_CURRENT_LIST_DIR}/cafTreeNode.cpp
 )
