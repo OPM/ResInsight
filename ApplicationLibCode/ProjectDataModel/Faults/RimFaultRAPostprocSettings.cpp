@@ -22,6 +22,7 @@
 #include "RimFaultRASettings.h"
 #include "RimParameterGroup.h"
 
+#define _USE_MATH_DEFINES
 #include <cmath>
 
 //--------------------------------------------------------------------------------------------------
@@ -66,7 +67,7 @@ void RimFaultRAPostprocSettings::initFromSettings( RimFaultRASettings* settings 
         dynamic_cast<RimDoubleParameter*>( settings->getInputParameter( "friction_angle" ) );
     if ( friction_angle != nullptr )
     {
-        m_postprocParameters->addParameter( "friction_coef", std::atan( friction_angle->value() ) );
+        m_postprocParameters->addParameter( "friction_coef", std::atan( friction_angle->value() / 180.0 * M_PI ) );
     }
 
     RimDoubleParameter* rho_rock = dynamic_cast<RimDoubleParameter*>( settings->getInputParameter( "rho_rock" ) );
@@ -101,9 +102,11 @@ void RimFaultRAPostprocSettings::initFromSettings( RimFaultRASettings* settings 
 QStringList RimFaultRAPostprocSettings::stepsToLoad()
 {
     QStringList timesteps;
-    timesteps.push_back( QString::number( m_startTimestepEclipse() ) );
-    timesteps.push_back( QString::number( m_endTimestepEclipse() ) );
 
+    for ( int i = m_startTimestepEclipse(); i <= m_endTimestepEclipse(); i++ )
+    {
+        timesteps.push_back( QString::number( i ) );
+    }
     return timesteps;
 }
 
