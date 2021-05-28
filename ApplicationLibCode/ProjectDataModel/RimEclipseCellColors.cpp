@@ -218,7 +218,7 @@ RimRegularLegendConfig* RimEclipseCellColors::createLegendForResult( const QStri
         else
             newLegend->setMappingMode( RimRegularLegendConfig::MappingType::LOG10_CONTINUOUS );
 
-        newLegend->setTickNumberFormat( RimRegularLegendConfig::NumberFormatType::AUTO );
+        newLegend->setTickNumberFormat( RiaNumberFormat::NumberFormatType::AUTO );
         newLegend->setRangeMode( RimLegendConfig::RangeModeType::USER_DEFINED );
         newLegend->resetUserDefinedValues();
     }

@@ -22,6 +22,7 @@
 
 #include "RiaApplication.h"
 #include "RiaColorTables.h"
+#include "RiaNumberFormat.h"
 #include "RiaPreferences.h"
 
 #include "RimCellEdgeColors.h"
@@ -117,15 +118,6 @@ void RimRegularLegendConfig::MappingEnum::setUp()
 }
 
 template <>
-void AppEnum<RimRegularLegendConfig::NumberFormatType>::setUp()
-{
-    addItem( RimRegularLegendConfig::NumberFormatType::AUTO, "AUTO", "Automatic" );
-    addItem( RimRegularLegendConfig::NumberFormatType::FIXED, "FIXED", "Fixed, decimal" );
-    addItem( RimRegularLegendConfig::NumberFormatType::SCIENTIFIC, "SCIENTIFIC", "Scientific notation" );
-    setDefault( RimRegularLegendConfig::NumberFormatType::FIXED );
-}
-
-template <>
 void AppEnum<RimRegularLegendConfig::CategoryColorModeType>::setUp()
 {
     addItem( RimRegularLegendConfig::CategoryColorModeType::INTERPOLATE, "INTERPOLATE", "Interpolate" );
@@ -167,7 +159,7 @@ RimRegularLegendConfig::RimRegularLegendConfig()
     m_significantDigitsInData = m_precision;
     CAF_PDM_InitField( &m_tickNumberFormat,
                        "TickNumberFormat",
-                       caf::AppEnum<RimRegularLegendConfig::NumberFormatType>( NumberFormatType::FIXED ),
+                       caf::AppEnum<RiaNumberFormat::NumberFormatType>( RiaNumberFormat::NumberFormatType::FIXED ),
                        "Number format",
                        "",
                        "",
@@ -576,12 +568,12 @@ void RimRegularLegendConfig::updateLegend()
     decadesInRange = cvf::Math::ceil( decadesInRange );
 
     // Using Fixed format
-    NumberFormatType nft = m_tickNumberFormat();
+    RiaNumberFormat::NumberFormatType nft = m_tickNumberFormat();
     m_scalarMapperLegend->setTickFormat( (caf::OverlayScalarMapperLegend::NumberFormat)nft );
 
     // Set the fixed number of digits after the decimal point to the number needed to show all the significant digits.
     int numDecimalDigits = m_precision();
-    if ( nft != NumberFormatType::SCIENTIFIC )
+    if ( nft != RiaNumberFormat::NumberFormatType::SCIENTIFIC )
     {
         numDecimalDigits -= static_cast<int>( decadesInRange );
     }
@@ -617,7 +609,7 @@ void RimRegularLegendConfig::updateLegend()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimRegularLegendConfig::setTickNumberFormat( NumberFormatType numberFormat )
+void RimRegularLegendConfig::setTickNumberFormat( RiaNumberFormat::NumberFormatType numberFormat )
 {
     m_tickNumberFormat = numberFormat;
 }
@@ -1201,32 +1193,9 @@ void RimRegularLegendConfig::updateFonts()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimRegularLegendConfig::valueToText( double value, NumberFormatType numberFormat, int precision )
-{
-    QString valueString;
-
-    switch ( numberFormat )
-    {
-        case RimRegularLegendConfig::NumberFormatType::FIXED:
-            valueString = QString::number( value, 'f', precision );
-            break;
-        case RimRegularLegendConfig::NumberFormatType::SCIENTIFIC:
-            valueString = QString::number( value, 'e', precision );
-            break;
-        default:
-            valueString = QString::number( value );
-            break;
-    }
-
-    return valueString;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 QString RimRegularLegendConfig::valueToText( double value ) const
 {
-    return RimRegularLegendConfig::valueToText( value, m_tickNumberFormat(), m_significantDigitsInData );
+    return RiaNumberFormat::valueToText( value, m_tickNumberFormat(), m_significantDigitsInData );
 }
 
 //--------------------------------------------------------------------------------------------------

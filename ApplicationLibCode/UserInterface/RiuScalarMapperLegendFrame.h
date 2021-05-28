@@ -17,6 +17,8 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
+#include "RiaNumberFormat.h"
+
 #include "RimRegularLegendConfig.h"
 #include "RiuAbstractLegendFrame.h"
 
@@ -37,7 +39,7 @@ class RiuScalarMapperLegendFrame : public RiuAbstractLegendFrame
     Q_OBJECT
 
 public:
-    using NumberFormat = RimRegularLegendConfig::NumberFormatType;
+    using NumberFormat = RiaNumberFormat::NumberFormatType;
 
 public:
     RiuScalarMapperLegendFrame( QWidget* parent, const QString& title, cvf::ScalarMapper* scalarMapper );
