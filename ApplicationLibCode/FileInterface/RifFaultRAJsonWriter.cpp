@@ -88,7 +88,7 @@ bool RifFaultRAJSonWriter::writeToPostprocFile( int faultID, RimFaultRAPostprocS
 
         for ( auto p : settings->parameters()->parameters() )
         {
-            stream << "\"" + p->name() + "\" : \"" + p->stringValue() + "\"," << endl;
+            stream << "\"" + p->name() + "\" : " + p->stringValue() + "," << endl;
         }
 
         stream << "\"tsurf_loadsteps\": [ " + settings->stepsToLoad().join( ',' ) + " ]" << endl;
