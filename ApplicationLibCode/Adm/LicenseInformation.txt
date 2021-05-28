@@ -471,3 +471,18 @@ CRAVA is a software package for seismic inversion and conditioning of
 
   Adapted from work by Paul D. Bourke named "conrec"
   http://paulbourke.net/papers/conrec/.
+
+===============================================================================
+ Notice for icons
+===============================================================================
+
+  Application icons are Copyright (C) Microsoft distributed
+  under the Creative Commons Corporation ("Creative Commons") 4.0 license
+
+  https://creativecommons.org/licenses/by/4.0/legalcode
+  https://github.com/microsoft/vscode-icons/blob/main/LICENSE
+
+  The complete license text is available in microsoft-vscode-icons-license.txt
+
+  Modifications and other icons are Copyright (C) Equinor ASA
+
