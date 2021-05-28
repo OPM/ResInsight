@@ -76,8 +76,8 @@ RimStatisticsPlot::RimStatisticsPlot()
 
     CAF_PDM_InitField( &m_histogramBarColor, "HistogramBarColor", cvf::Color3f( cvf::Color3f::SKY_BLUE ), "Bar Color", "", "", "" );
 
-    CAF_PDM_InitField( &m_histogramBarWidth, "HistogramBarWidth", 1.0, "Bar Width", "", "", "" );
-    m_histogramBarWidth.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
+    CAF_PDM_InitField( &m_histogramGapWidth, "HistogramGapWidth", 0.0, "Gap Width [%]", "", "", "" );
+    m_histogramGapWidth.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
 
     CAF_PDM_InitFieldNoDefault( &m_histogramFrequencyType, "HistogramFrequencyType", "Frequency", "", "", "" );
 
@@ -215,10 +215,10 @@ void RimStatisticsPlot::defineEditorAttribute( const caf::PdmFieldHandle* field,
     }
 
     caf::PdmUiDoubleSliderEditorAttribute* sliderAttr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute );
-    if ( field == &m_histogramBarWidth && sliderAttr != nullptr )
+    if ( field == &m_histogramGapWidth && sliderAttr != nullptr )
     {
         sliderAttr->m_minimum = 0.0;
-        sliderAttr->m_maximum = 1.0;
+        sliderAttr->m_maximum = 100.0;
     }
 }
 
@@ -230,7 +230,7 @@ void RimStatisticsPlot::uiOrderingForHistogram( QString uiConfigName, caf::PdmUi
     caf::PdmUiGroup* histogramGroup = uiOrdering.addNewGroup( "Histogram" );
     if ( showHistogramBins ) histogramGroup->add( &m_numHistogramBins );
     histogramGroup->add( &m_histogramBarColor );
-    histogramGroup->add( &m_histogramBarWidth );
+    histogramGroup->add( &m_histogramGapWidth );
     histogramGroup->add( &m_histogramFrequencyType );
 }
 
@@ -274,7 +274,7 @@ void RimStatisticsPlot::updatePlots()
     set0->setColor( RiaColorTools::toQColor( m_histogramBarColor ) );
 
     QBarSeries* series = new QBarSeries();
-    series->setBarWidth( m_histogramBarWidth() );
+    series->setBarWidth( ( 100.0 - m_histogramGapWidth() ) / 100.0 );
     series->append( set0 );
 
     QChart* chart = new QChart();
