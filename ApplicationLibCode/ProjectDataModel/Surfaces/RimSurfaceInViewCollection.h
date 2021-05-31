@@ -37,6 +37,7 @@ class RimSurface;
 class RimSurfaceCollection;
 class RimRegularLegendConfig;
 class RiuViewer;
+class RivIntersectionGeometryGeneratorIF;
 
 class RimSurfaceInViewCollection : public RimCheckableNamedObject
 {
@@ -64,8 +65,10 @@ public:
 
     std::vector<RimRegularLegendConfig*> legendConfigs();
 
+    std::vector<const RivIntersectionGeometryGeneratorIF*> intersectionGeometryGenerators() const;
+
 protected:
-    void         initAfterRead() override;
+    void                 initAfterRead() override;
     caf::PdmFieldHandle* userDescriptionField() override;
 
 private:

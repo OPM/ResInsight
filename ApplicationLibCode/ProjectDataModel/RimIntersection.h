@@ -27,6 +27,7 @@
 class RimIntersectionResultDefinition;
 class RivIntersectionHexGridInterface;
 class RimIntersectionResultsDefinitionCollection;
+class RivIntersectionGeometryGeneratorIF;
 
 class RimIntersection : public caf::PdmObject
 {
@@ -44,6 +45,8 @@ public:
 
     RimIntersectionResultDefinition*          activeSeparateResultDefinition();
     cvf::ref<RivIntersectionHexGridInterface> createHexGridInterface();
+
+    virtual const RivIntersectionGeometryGeneratorIF* intersectionGeometryGenerator() const = 0;
 
 protected:
     virtual RimIntersectionResultsDefinitionCollection* findSeparateResultsCollection();

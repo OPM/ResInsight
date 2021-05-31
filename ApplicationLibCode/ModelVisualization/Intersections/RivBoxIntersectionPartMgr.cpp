@@ -215,3 +215,13 @@ void RivBoxIntersectionPartMgr::appendMeshLinePartsToModel( cvf::ModelBasicList*
         model->addPart( m_intersectionBoxGridLines.p() );
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const RivIntersectionGeometryGeneratorIF* RivBoxIntersectionPartMgr::intersectionGeometryGenerator() const
+{
+    if ( m_intersectionBoxGenerator.notNull() ) return m_intersectionBoxGenerator.p();
+
+    return nullptr;
+}

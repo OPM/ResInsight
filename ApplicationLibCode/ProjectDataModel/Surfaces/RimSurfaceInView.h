@@ -51,8 +51,9 @@ public:
     bool                        isNativeSurfaceResultsActive() const;
     RimSurfaceResultDefinition* surfaceResultDefinition();
 
-    void               clearGeometry();
-    RivSurfacePartMgr* surfacePartMgr();
+    void                                      clearGeometry();
+    RivSurfacePartMgr*                        surfacePartMgr();
+    const RivIntersectionGeometryGeneratorIF* intersectionGeometryGenerator() const override;
 
     void loadDataAndUpdate();
 
@@ -66,7 +67,7 @@ private:
 
     caf::PdmFieldHandle* userDescriptionField() override;
     void                 fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
-    void         defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    void                 defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
     caf::PdmProxyValueField<QString> m_name;
     caf::PdmPtrField<RimSurface*>    m_surface;

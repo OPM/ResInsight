@@ -78,6 +78,16 @@ CAF_PDM_SOURCE_INIT( RimExtrudedCurveIntersection, "CrossSection" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+const RivIntersectionGeometryGeneratorIF* RimExtrudedCurveIntersection::intersectionGeometryGenerator() const
+{
+    if ( m_crossSectionPartMgr.notNull() ) return m_crossSectionPartMgr->intersectionGeometryGenerator();
+
+    return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RimExtrudedCurveIntersection::RimExtrudedCurveIntersection()
 {
     CAF_PDM_InitObject( "Intersection", ":/CrossSection16x16.png", "", "" );

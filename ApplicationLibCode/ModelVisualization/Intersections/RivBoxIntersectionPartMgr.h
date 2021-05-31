@@ -60,6 +60,8 @@ public:
     void appendNativeIntersectionFacesToModel( cvf::ModelBasicList* model, cvf::Transform* scaleTransform );
     void appendMeshLinePartsToModel( cvf::ModelBasicList* model, cvf::Transform* scaleTransform );
 
+    const RivIntersectionGeometryGeneratorIF* intersectionGeometryGenerator() const;
+
 private:
     void updatePartEffect();
     void generatePartGeometry();
