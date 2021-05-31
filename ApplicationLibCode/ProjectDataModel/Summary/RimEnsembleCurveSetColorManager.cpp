@@ -95,8 +95,8 @@ RimRegularLegendConfig::ColorRangesType RimEnsembleCurveSetColorManager::cycledE
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEnsembleCurveSetColorManager::initializeLegendConfig( RimRegularLegendConfig*  legendConfig,
-                                                              const EnsembleParameter& ensembleParam )
+void RimEnsembleCurveSetColorManager::initializeLegendConfig( RimRegularLegendConfig*     legendConfig,
+                                                              const RigEnsembleParameter& ensembleParam )
 {
     if ( ensembleParam.isText() )
     {
@@ -170,7 +170,7 @@ void RimEnsembleCurveSetColorManager::initializeLegendConfig( RimRegularLegendCo
 //--------------------------------------------------------------------------------------------------
 cvf::Color3f RimEnsembleCurveSetColorManager::caseColor( const RimRegularLegendConfig* legendConfig,
                                                          const RimSummaryCase*         summaryCase,
-                                                         const EnsembleParameter&      ensembleParam )
+                                                         const RigEnsembleParameter&   ensembleParam )
 {
     if ( ensembleParam.isText() )
     {

@@ -26,7 +26,7 @@
 #include "RifEclipseSummaryAddress.h"
 #include "RifEclipseSummaryAddressQMetaType.h"
 
-#include "RimSummaryCaseCollection.h"
+#include "RigEnsembleParameter.h"
 
 #include <QDateTime>
 
@@ -116,7 +116,7 @@ private:
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
                                                          bool*                      useOptionsOnly ) override;
 
-    EnsembleParameter selectedEnsembleParameter() const;
+    RigEnsembleParameter selectedEnsembleParameter() const;
 
     caf::PdmField<bool> m_isActive;
 

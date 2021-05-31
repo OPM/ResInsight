@@ -549,7 +549,7 @@ void RimEnsembleCurveSet::setEnsembleParameter( const QString& parameterName )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-EnsembleParameter::Type RimEnsembleCurveSet::currentEnsembleParameterType() const
+RigEnsembleParameter::Type RimEnsembleCurveSet::currentEnsembleParameterType() const
 {
     if ( m_colorMode() == ColorMode::BY_ENSEMBLE_PARAM )
     {
@@ -562,7 +562,7 @@ EnsembleParameter::Type RimEnsembleCurveSet::currentEnsembleParameterType() cons
             return eParam.type;
         }
     }
-    return EnsembleParameter::TYPE_NONE;
+    return RigEnsembleParameter::TYPE_NONE;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1838,7 +1838,7 @@ void RimEnsembleCurveSet::updateAllTextInPlot()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<EnsembleParameter> RimEnsembleCurveSet::variationSortedEnsembleParameters() const
+std::vector<RigEnsembleParameter> RimEnsembleCurveSet::variationSortedEnsembleParameters() const
 {
     RimSummaryCaseCollection* ensemble = m_yValuesSummaryCaseCollection;
     if ( ensemble )
@@ -1847,14 +1847,14 @@ std::vector<EnsembleParameter> RimEnsembleCurveSet::variationSortedEnsembleParam
     }
     else
     {
-        return std::vector<EnsembleParameter>();
+        return std::vector<RigEnsembleParameter>();
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<std::pair<EnsembleParameter, double>> RimEnsembleCurveSet::correlationSortedEnsembleParameters() const
+std::vector<std::pair<RigEnsembleParameter, double>> RimEnsembleCurveSet::correlationSortedEnsembleParameters() const
 {
     RimSummaryCaseCollection* ensemble = m_yValuesSummaryCaseCollection;
     if ( ensemble )
@@ -1863,7 +1863,7 @@ std::vector<std::pair<EnsembleParameter, double>> RimEnsembleCurveSet::correlati
     }
     else
     {
-        return std::vector<std::pair<EnsembleParameter, double>>();
+        return std::vector<std::pair<RigEnsembleParameter, double>>();
     }
 }
 
@@ -2014,12 +2014,12 @@ void RimEnsembleCurveSet::updateLegendMappingMode()
 {
     switch ( currentEnsembleParameterType() )
     {
-        case EnsembleParameter::TYPE_TEXT:
+        case RigEnsembleParameter::TYPE_TEXT:
             if ( m_legendConfig->mappingMode() != RimRegularLegendConfig::MappingType::CATEGORY_INTEGER )
                 m_legendConfig->setMappingMode( RimRegularLegendConfig::MappingType::CATEGORY_INTEGER );
             break;
 
-        case EnsembleParameter::TYPE_NUMERIC:
+        case RigEnsembleParameter::TYPE_NUMERIC:
             if ( m_legendConfig->mappingMode() == RimRegularLegendConfig::MappingType::CATEGORY_INTEGER )
                 m_legendConfig->setMappingMode( RimRegularLegendConfig::MappingType::LINEAR_CONTINUOUS );
             break;

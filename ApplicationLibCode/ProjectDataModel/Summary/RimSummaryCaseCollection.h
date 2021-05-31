@@ -23,6 +23,8 @@
 #include "RifEclipseSummaryAddress.h"
 #include "RifReaderEnsembleStatisticsRft.h"
 
+#include "RigEnsembleParameter.h"
+
 #include "RimObjectiveFunction.h"
 
 #include "cafPdmChildArrayField.h"
@@ -38,53 +40,6 @@
 class RifReaderRftInterface;
 class RifReaderEnsembleStatisticsRft;
 class RimSummaryCase;
-
-//==================================================================================================
-///
-//==================================================================================================
-class EnsembleParameter
-{
-public:
-    enum Type
-    {
-        TYPE_NONE,
-        TYPE_NUMERIC,
-        TYPE_TEXT
-    };
-    enum Bins
-    {
-        NO_VARIATION  = -1,
-        LOW_VARIATION = 0,
-        MEDIUM_VARIATION,
-        HIGH_VARIATION,
-        NR_OF_VARIATION_BINS
-    };
-    QString               uiName() const;
-    QString               name;
-    Type                  type;
-    std::vector<QVariant> values;
-    double                minValue;
-    double                maxValue;
-    int                   variationBin;
-
-    EnsembleParameter()
-        : type( TYPE_NONE )
-        , minValue( std::numeric_limits<double>::infinity() )
-        , maxValue( -std::numeric_limits<double>::infinity() )
-        , variationBin( static_cast<int>( MEDIUM_VARIATION ) )
-    {
-    }
-
-    bool   isValid() const { return !name.isEmpty() && type != TYPE_NONE; }
-    bool   isNumeric() const { return type == TYPE_NUMERIC; }
-    bool   isText() const { return type == TYPE_TEXT; }
-    double normalizedStdDeviation() const;
-
-    bool operator<( const EnsembleParameter& other ) const;
-
-private:
-    double stdDeviation() const;
-};
 
 //==================================================================================================
 ///
@@ -117,26 +72,26 @@ public:
     int                                        ensembleId() const;
     bool                                       hasEnsembleParameters() const;
 
-    std::vector<EnsembleParameter> variationSortedEnsembleParameters( bool excludeNoVariation = false ) const;
-    std::vector<std::pair<EnsembleParameter, double>>
+    std::vector<RigEnsembleParameter> variationSortedEnsembleParameters( bool excludeNoVariation = false ) const;
+    std::vector<std::pair<RigEnsembleParameter, double>>
         correlationSortedEnsembleParameters( const RifEclipseSummaryAddress& address ) const;
-    std::vector<std::pair<EnsembleParameter, double>>
+    std::vector<std::pair<RigEnsembleParameter, double>>
         correlationSortedEnsembleParameters( const RifEclipseSummaryAddress& address, time_t selectedTimeStep ) const;
-    std::vector<std::pair<EnsembleParameter, double>>
+    std::vector<std::pair<RigEnsembleParameter, double>>
         parameterCorrelations( const RifEclipseSummaryAddress&  address,
                                time_t                           selectedTimeStep,
                                const std::vector<QString>&      selectedParameters = {},
                                const std::set<RimSummaryCase*>& selectedCases      = {} ) const;
 
-    std::vector<std::pair<EnsembleParameter, double>>
+    std::vector<std::pair<RigEnsembleParameter, double>>
         parameterCorrelationsAllTimeSteps( const RifEclipseSummaryAddress& address,
                                            const std::vector<QString>&     selectedParameters = {} ) const;
 
-    std::vector<EnsembleParameter> alphabeticEnsembleParameters() const;
+    std::vector<RigEnsembleParameter> alphabeticEnsembleParameters() const;
 
-    EnsembleParameter ensembleParameter( const QString& paramName ) const;
-    void              calculateEnsembleParametersIntersectionHash();
-    void              clearEnsembleParametersHashes();
+    RigEnsembleParameter ensembleParameter( const QString& paramName ) const;
+    void                 calculateEnsembleParametersIntersectionHash();
+    void                 clearEnsembleParametersHashes();
 
     void loadDataAndUpdate();
 
@@ -146,8 +101,8 @@ public:
     RiaDefines::EclipseUnitSystem unitSystem() const;
 
 private:
-    EnsembleParameter createEnsembleParameter( const QString& paramName ) const;
-    static void       sortByBinnedVariation( std::vector<EnsembleParameter>& parameterVector );
+    RigEnsembleParameter createEnsembleParameter( const QString& paramName ) const;
+    static void          sortByBinnedVariation( std::vector<RigEnsembleParameter>& parameterVector );
     friend class RimSummaryCaseCollection_TESTER;
 
     caf::PdmFieldHandle* userDescriptionField() override;
@@ -177,5 +132,5 @@ private:
 
     size_t m_commonAddressCount; // if different address count among cases, set to 0
 
-    mutable std::vector<EnsembleParameter> m_cachedSortedEnsembleParameters;
+    mutable std::vector<RigEnsembleParameter> m_cachedSortedEnsembleParameters;
 };

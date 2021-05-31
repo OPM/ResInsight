@@ -30,7 +30,7 @@
 #include "cafPdmProxyValueField.h"
 #include "cafPdmPtrField.h"
 
-class EnsembleParameter;
+class RigEnsembleParameter;
 class RimEnsembleCurveSet;
 class RimSummaryCase;
 class RimSummaryAddress;
@@ -80,8 +80,8 @@ public:
 
     std::vector<RimSummaryCase*> applyFilter( const std::vector<RimSummaryCase*>& allSumCases );
 
-    void              loadDataAndUpdate();
-    EnsembleParameter selectedEnsembleParameter() const;
+    void                 loadDataAndUpdate();
+    RigEnsembleParameter selectedEnsembleParameter() const;
 
     RimEnsembleCurveSet* parentCurveSet() const;
 

@@ -250,9 +250,9 @@ std::set<RifEclipseSummaryAddress> RimAnalysisPlot::unfilteredAddresses()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::set<EnsembleParameter> RimAnalysisPlot::ensembleParameters()
+std::set<RigEnsembleParameter> RimAnalysisPlot::ensembleParameters()
 {
-    std::set<EnsembleParameter> ensembleParms;
+    std::set<RigEnsembleParameter> ensembleParms;
 
     RiaSummaryCurveDefinitionAnalyser* analyserOfSelectedCurveDefs = getOrCreateSelectedCurveDefAnalyser();
 
@@ -268,7 +268,7 @@ std::set<EnsembleParameter> RimAnalysisPlot::ensembleParameters()
 
     for ( RimSummaryCaseCollection* ensemble : ensembles )
     {
-        std::vector<EnsembleParameter> parameters = ensemble->variationSortedEnsembleParameters();
+        std::vector<RigEnsembleParameter> parameters = ensemble->variationSortedEnsembleParameters();
         ensembleParms.insert( parameters.begin(), parameters.end() );
     }
 
@@ -278,15 +278,15 @@ std::set<EnsembleParameter> RimAnalysisPlot::ensembleParameters()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-EnsembleParameter RimAnalysisPlot::ensembleParameter( const QString& ensembleParameterName )
+RigEnsembleParameter RimAnalysisPlot::ensembleParameter( const QString& ensembleParameterName )
 {
-    std::set<EnsembleParameter> ensembleParms = ensembleParameters();
-    for ( const EnsembleParameter& eParam : ensembleParms )
+    std::set<RigEnsembleParameter> ensembleParms = ensembleParameters();
+    for ( const RigEnsembleParameter& eParam : ensembleParms )
     {
         if ( eParam.name == ensembleParameterName ) return eParam;
     }
 
-    return EnsembleParameter();
+    return RigEnsembleParameter();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1095,7 +1095,7 @@ void RimAnalysisPlot::applyFilter( const RimPlotDataFilterItem*        filter,
         {
             sumItemsToKeep = ( *filteredSummaryItems ); // Not filtering items
 
-            EnsembleParameter eParam = this->ensembleParameter( filter->ensembleParameterName() );
+            RigEnsembleParameter eParam = this->ensembleParameter( filter->ensembleParameterName() );
 
             for ( auto sumCase : ( *filteredSumCases ) )
             {
