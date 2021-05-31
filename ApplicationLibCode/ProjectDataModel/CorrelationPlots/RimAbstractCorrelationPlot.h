@@ -34,7 +34,7 @@ class RimSummaryAddress;
 class RimEnsembleCurveSet;
 class RimSummaryCaseCollection;
 class RimSummaryCase;
-class EnsembleParameter;
+class RigEnsembleParameter;
 class RifEclipseSummaryAddress;
 
 class RimAbstractCorrelationPlot : public RimPlot
@@ -88,9 +88,9 @@ protected:
                                                          bool*                      useOptionsOnly ) override;
 
     std::set<RifEclipseSummaryAddress> addresses();
-    std::set<EnsembleParameter>        ensembleParameters();
-    std::set<EnsembleParameter>        variationSortedEnsembleParameters();
-    EnsembleParameter                  ensembleParameter( const QString& ensembleParameterName );
+    std::set<RigEnsembleParameter>     ensembleParameters();
+    std::set<RigEnsembleParameter>     variationSortedEnsembleParameters();
+    RigEnsembleParameter               ensembleParameter( const QString& ensembleParameterName );
 
     // RimViewWindow overrides
     QWidget* viewWidget() override;

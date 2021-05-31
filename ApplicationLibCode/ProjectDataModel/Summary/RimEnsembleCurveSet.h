@@ -32,6 +32,8 @@
 #include "RimSummaryCaseCollection.h"
 #include "RimTimeStepFilter.h"
 
+#include "RigEnsembleParameter.h"
+
 #include "cafAppEnum.h"
 #include "cafPdmChildArrayField.h"
 #include "cafPdmChildField.h"
@@ -114,10 +116,10 @@ public:
 
     RimEnsembleCurveFilterCollection* filterCollection() const;
 
-    ColorMode               colorMode() const;
-    void                    setColorMode( ColorMode mode );
-    void                    setEnsembleParameter( const QString& parameterName );
-    EnsembleParameter::Type currentEnsembleParameterType() const;
+    ColorMode                  colorMode() const;
+    void                       setColorMode( ColorMode mode );
+    void                       setEnsembleParameter( const QString& parameterName );
+    RigEnsembleParameter::Type currentEnsembleParameterType() const;
 
     RimRegularLegendConfig* legendConfig();
 
@@ -132,10 +134,10 @@ public:
     RimEnsembleCurveSet* clone() const;
     void                 showCurves( bool show );
 
-    void                           updateAllTextInPlot();
-    std::vector<EnsembleParameter> variationSortedEnsembleParameters() const;
+    void                              updateAllTextInPlot();
+    std::vector<RigEnsembleParameter> variationSortedEnsembleParameters() const;
 
-    std::vector<std::pair<EnsembleParameter, double>> correlationSortedEnsembleParameters() const;
+    std::vector<std::pair<RigEnsembleParameter, double>> correlationSortedEnsembleParameters() const;
 
     std::vector<RimSummaryCase*> filterEnsembleCases( const std::vector<RimSummaryCase*>& sumCases );
     void                         disableStatisticCurves();

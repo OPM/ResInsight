@@ -49,64 +49,7 @@ CAF_PDM_SOURCE_INIT( RimSummaryCaseCollection, "SummaryCaseSubCollection" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double EnsembleParameter::stdDeviation() const
-{
-    double N = static_cast<double>( values.size() );
-    if ( N > 1 && isNumeric() )
-    {
-        double sumValues        = 0.0;
-        double sumValuesSquared = 0.0;
-        for ( const QVariant& variant : values )
-        {
-            double value = variant.toDouble();
-            sumValues += value;
-            sumValuesSquared += value * value;
-        }
-
-        return std::sqrt( ( N * sumValuesSquared - sumValues * sumValues ) / ( N * ( N - 1.0 ) ) );
-    }
-    return 0.0;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// Standard deviation normalized by max absolute value of min/max values.
-/// Produces values between 0.0 and sqrt(2.0).
-//--------------------------------------------------------------------------------------------------
-double EnsembleParameter::normalizedStdDeviation() const
-{
-    const double eps = 1.0e-4;
-
-    double maxAbs = std::max( std::fabs( maxValue ), std::fabs( minValue ) );
-    if ( maxAbs < eps )
-    {
-        return 0.0;
-    }
-
-    double normalisedStdDev = stdDeviation() / maxAbs;
-    if ( normalisedStdDev < eps )
-    {
-        return 0.0;
-    }
-    return normalisedStdDev;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool EnsembleParameter::operator<( const EnsembleParameter& other ) const
-{
-    if ( this->variationBin != other.variationBin )
-    {
-        return this->variationBin > other.variationBin; // Larger first
-    }
-
-    return this->name < other.name;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimSummaryCaseCollection::sortByBinnedVariation( std::vector<EnsembleParameter>& parameterVector )
+void RimSummaryCaseCollection::sortByBinnedVariation( std::vector<RigEnsembleParameter>& parameterVector )
 {
     double minStdDev = std::numeric_limits<double>::infinity();
     double maxStdDev = 0.0;
@@ -124,16 +67,16 @@ void RimSummaryCaseCollection::sortByBinnedVariation( std::vector<EnsembleParame
         return;
     }
 
-    double delta = ( maxStdDev - minStdDev ) / EnsembleParameter::NR_OF_VARIATION_BINS;
+    double delta = ( maxStdDev - minStdDev ) / RigEnsembleParameter::NR_OF_VARIATION_BINS;
 
     std::vector<double> bins;
     bins.push_back( 0.0 );
-    for ( int i = 0; i < EnsembleParameter::NR_OF_VARIATION_BINS - 1; ++i )
+    for ( int i = 0; i < RigEnsembleParameter::NR_OF_VARIATION_BINS - 1; ++i )
     {
         bins.push_back( minStdDev + ( i + 1 ) * delta );
     }
 
-    for ( EnsembleParameter& nameParamPair : parameterVector )
+    for ( RigEnsembleParameter& nameParamPair : parameterVector )
     {
         int binNumber = -1;
         for ( double bin : bins )
@@ -150,38 +93,9 @@ void RimSummaryCaseCollection::sortByBinnedVariation( std::vector<EnsembleParame
     // index
     std::stable_sort( parameterVector.begin(),
                       parameterVector.end(),
-                      [&bins]( const EnsembleParameter& lhs, const EnsembleParameter& rhs ) {
+                      [&bins]( const RigEnsembleParameter& lhs, const RigEnsembleParameter& rhs ) {
                           return lhs.variationBin > rhs.variationBin;
                       } );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString EnsembleParameter::uiName() const
-{
-    QString stem = name;
-    QString variationString;
-    if ( isNumeric() )
-    {
-        switch ( variationBin )
-        {
-            case NO_VARIATION:
-                variationString = QString( " (No variation)" );
-                break;
-            case LOW_VARIATION:
-                variationString = QString( " (Low variation)" );
-                break;
-            case MEDIUM_VARIATION:
-                variationString = QString( " (Medium variation)" );
-                break;
-            case HIGH_VARIATION:
-                variationString = QString( " (High variation)" );
-                break;
-        }
-    }
-
-    return QString( "%1%2" ).arg( stem ).arg( variationString );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -448,7 +362,7 @@ RifReaderRftInterface* RimSummaryCaseCollection::rftStatisticsReader()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<EnsembleParameter> RimSummaryCaseCollection::variationSortedEnsembleParameters( bool excludeNoVariation ) const
+std::vector<RigEnsembleParameter> RimSummaryCaseCollection::variationSortedEnsembleParameters( bool excludeNoVariation ) const
 {
     if ( m_cachedSortedEnsembleParameters.empty() )
     {
@@ -480,8 +394,8 @@ std::vector<EnsembleParameter> RimSummaryCaseCollection::variationSortedEnsemble
     }
     else
     {
-        const double                   epsilon = 1e-9;
-        std::vector<EnsembleParameter> parametersWithVariation;
+        const double                      epsilon = 1e-9;
+        std::vector<RigEnsembleParameter> parametersWithVariation;
         for ( const auto& p : m_cachedSortedEnsembleParameters )
         {
             if ( std::abs( p.normalizedStdDeviation() ) > epsilon )
@@ -496,13 +410,13 @@ std::vector<EnsembleParameter> RimSummaryCaseCollection::variationSortedEnsemble
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<std::pair<EnsembleParameter, double>>
+std::vector<std::pair<RigEnsembleParameter, double>>
     RimSummaryCaseCollection::correlationSortedEnsembleParameters( const RifEclipseSummaryAddress& address ) const
 {
     auto parameters = parameterCorrelationsAllTimeSteps( address );
     std::sort( parameters.begin(),
                parameters.end(),
-               []( const std::pair<EnsembleParameter, double>& lhs, const std::pair<EnsembleParameter, double>& rhs ) {
+               []( const std::pair<RigEnsembleParameter, double>& lhs, const std::pair<RigEnsembleParameter, double>& rhs ) {
                    return std::abs( lhs.second ) > std::abs( rhs.second );
                } );
     return parameters;
@@ -511,14 +425,14 @@ std::vector<std::pair<EnsembleParameter, double>>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<std::pair<EnsembleParameter, double>>
+std::vector<std::pair<RigEnsembleParameter, double>>
     RimSummaryCaseCollection::correlationSortedEnsembleParameters( const RifEclipseSummaryAddress& address,
                                                                    time_t selectedTimeStep ) const
 {
     auto parameters = parameterCorrelations( address, selectedTimeStep );
     std::sort( parameters.begin(),
                parameters.end(),
-               []( const std::pair<EnsembleParameter, double>& lhs, const std::pair<EnsembleParameter, double>& rhs ) {
+               []( const std::pair<RigEnsembleParameter, double>& lhs, const std::pair<RigEnsembleParameter, double>& rhs ) {
                    return std::abs( lhs.second ) > std::abs( rhs.second );
                } );
     return parameters;
@@ -536,7 +450,7 @@ time_t timeDiff( time_t lhs, time_t rhs )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<std::pair<EnsembleParameter, double>>
+std::vector<std::pair<RigEnsembleParameter, double>>
     RimSummaryCaseCollection::parameterCorrelations( const RifEclipseSummaryAddress&  address,
                                                      time_t                           timeStep,
                                                      const std::vector<QString>&      selectedParameters,
@@ -548,7 +462,7 @@ std::vector<std::pair<EnsembleParameter, double>>
     {
         parameters.erase( std::remove_if( parameters.begin(),
                                           parameters.end(),
-                                          [&selectedParameters]( const EnsembleParameter& parameter ) {
+                                          [&selectedParameters]( const RigEnsembleParameter& parameter ) {
                                               return std::find( selectedParameters.begin(),
                                                                 selectedParameters.end(),
                                                                 parameter.name ) == selectedParameters.end();
@@ -556,8 +470,8 @@ std::vector<std::pair<EnsembleParameter, double>>
                           parameters.end() );
     }
 
-    std::vector<double>                              caseValuesAtTimestep;
-    std::map<EnsembleParameter, std::vector<double>> parameterValues;
+    std::vector<double>                                 caseValuesAtTimestep;
+    std::map<RigEnsembleParameter, std::vector<double>> parameterValues;
 
     for ( size_t caseIdx = 0u; caseIdx < m_cases.size(); ++caseIdx )
     {
@@ -600,7 +514,7 @@ std::vector<std::pair<EnsembleParameter, double>>
         }
     }
 
-    std::vector<std::pair<EnsembleParameter, double>> correlationResults;
+    std::vector<std::pair<RigEnsembleParameter, double>> correlationResults;
     for ( auto parameterValuesPair : parameterValues )
     {
         double correlation = 0.0;
@@ -614,7 +528,7 @@ std::vector<std::pair<EnsembleParameter, double>>
 //--------------------------------------------------------------------------------------------------
 /// Returns a vector of the parameters and the average absolute values of correlations per time step
 //--------------------------------------------------------------------------------------------------
-std::vector<std::pair<EnsembleParameter, double>>
+std::vector<std::pair<RigEnsembleParameter, double>>
     RimSummaryCaseCollection::parameterCorrelationsAllTimeSteps( const RifEclipseSummaryAddress& address,
                                                                  const std::vector<QString>& selectedParameters ) const
 {
@@ -625,11 +539,11 @@ std::vector<std::pair<EnsembleParameter, double>>
     std::vector<time_t> timeStepsVector( timeSteps.begin(), timeSteps.end() );
     size_t              stride = std::max( (size_t)1, timeStepsVector.size() / maxTimeStepCount );
 
-    std::vector<std::vector<std::pair<EnsembleParameter, double>>> correlationsForChosenTimeSteps;
+    std::vector<std::vector<std::pair<RigEnsembleParameter, double>>> correlationsForChosenTimeSteps;
 
     for ( size_t i = stride; i < timeStepsVector.size(); i += stride )
     {
-        std::vector<std::pair<EnsembleParameter, double>> correlationsForTimeStep =
+        std::vector<std::pair<RigEnsembleParameter, double>> correlationsForTimeStep =
             parameterCorrelations( address, timeStepsVector[i], selectedParameters );
         correlationsForChosenTimeSteps.push_back( correlationsForTimeStep );
     }
@@ -652,7 +566,7 @@ std::vector<std::pair<EnsembleParameter, double>>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<EnsembleParameter> RimSummaryCaseCollection::alphabeticEnsembleParameters() const
+std::vector<RigEnsembleParameter> RimSummaryCaseCollection::alphabeticEnsembleParameters() const
 {
     std::set<QString> paramSet;
     for ( RimSummaryCase* rimCase : this->allSummaryCases() )
@@ -667,7 +581,7 @@ std::vector<EnsembleParameter> RimSummaryCaseCollection::alphabeticEnsembleParam
         }
     }
 
-    std::vector<EnsembleParameter> sortedEnsembleParameters;
+    std::vector<RigEnsembleParameter> sortedEnsembleParameters;
     sortedEnsembleParameters.reserve( paramSet.size() );
     for ( const QString& parameterName : paramSet )
     {
@@ -679,23 +593,23 @@ std::vector<EnsembleParameter> RimSummaryCaseCollection::alphabeticEnsembleParam
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-EnsembleParameter RimSummaryCaseCollection::ensembleParameter( const QString& paramName ) const
+RigEnsembleParameter RimSummaryCaseCollection::ensembleParameter( const QString& paramName ) const
 {
-    if ( !isEnsemble() || paramName.isEmpty() ) return EnsembleParameter();
+    if ( !isEnsemble() || paramName.isEmpty() ) return RigEnsembleParameter();
 
-    const std::vector<EnsembleParameter>& ensembleParams = variationSortedEnsembleParameters();
+    const std::vector<RigEnsembleParameter>& ensembleParams = variationSortedEnsembleParameters();
 
-    for ( const EnsembleParameter& ensParam : ensembleParams )
+    for ( const RigEnsembleParameter& ensParam : ensembleParams )
     {
         if ( ensParam.name == paramName ) return ensParam;
     }
 
-    return EnsembleParameter();
+    return RigEnsembleParameter();
 }
 
-EnsembleParameter RimSummaryCaseCollection::createEnsembleParameter( const QString& paramName ) const
+RigEnsembleParameter RimSummaryCaseCollection::createEnsembleParameter( const QString& paramName ) const
 {
-    EnsembleParameter eParam;
+    RigEnsembleParameter eParam;
     eParam.name = paramName;
 
     size_t numericValuesCount = 0;
@@ -734,11 +648,11 @@ EnsembleParameter RimSummaryCaseCollection::createEnsembleParameter( const QStri
 
     if ( numericValuesCount && !textValuesCount )
     {
-        eParam.type = EnsembleParameter::TYPE_NUMERIC;
+        eParam.type = RigEnsembleParameter::TYPE_NUMERIC;
     }
     else if ( textValuesCount && !numericValuesCount )
     {
-        eParam.type = EnsembleParameter::TYPE_TEXT;
+        eParam.type = RigEnsembleParameter::TYPE_TEXT;
     }
     if ( numericValuesCount && textValuesCount )
     {
@@ -753,7 +667,7 @@ EnsembleParameter RimSummaryCaseCollection::createEnsembleParameter( const QStri
                     val.setValue( std::numeric_limits<double>::infinity() );
                 }
             }
-            eParam.type = EnsembleParameter::TYPE_NUMERIC;
+            eParam.type = RigEnsembleParameter::TYPE_NUMERIC;
         }
         else
         {
@@ -765,7 +679,7 @@ EnsembleParameter RimSummaryCaseCollection::createEnsembleParameter( const QStri
                     val.setValue( QString::number( val.value<double>() ) );
                 }
             }
-            eParam.type     = EnsembleParameter::TYPE_TEXT;
+            eParam.type     = RigEnsembleParameter::TYPE_TEXT;
             eParam.minValue = std::numeric_limits<double>::infinity();
             eParam.maxValue = -std::numeric_limits<double>::infinity();
         }

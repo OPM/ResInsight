@@ -279,7 +279,7 @@ QList<caf::PdmOptionItemInfo>
     {
         auto curveSet = parentCurveSet();
         auto ensemble = curveSet ? curveSet->summaryCaseCollection() : nullptr;
-        auto eParam   = ensemble ? ensemble->ensembleParameter( m_ensembleParameterName ) : EnsembleParameter();
+        auto eParam   = ensemble ? ensemble->ensembleParameter( m_ensembleParameterName ) : RigEnsembleParameter();
 
         if ( eParam.isText() )
         {
@@ -734,9 +734,9 @@ void RimEnsembleCurveFilter::updateMaxMinAndDefaultValues( bool forceDefault )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-EnsembleParameter RimEnsembleCurveFilter::selectedEnsembleParameter() const
+RigEnsembleParameter RimEnsembleCurveFilter::selectedEnsembleParameter() const
 {
     auto curveSet = parentCurveSet();
     auto ensemble = curveSet ? curveSet->summaryCaseCollection() : nullptr;
-    return ensemble ? ensemble->ensembleParameter( m_ensembleParameterName ) : EnsembleParameter();
+    return ensemble ? ensemble->ensembleParameter( m_ensembleParameterName ) : RigEnsembleParameter();
 }

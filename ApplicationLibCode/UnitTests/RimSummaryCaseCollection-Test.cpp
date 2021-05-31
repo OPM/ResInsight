@@ -1,5 +1,6 @@
 #include "gtest/gtest.h"
 
+#include "RigEnsembleParameter.h"
 #include "RimSummaryCaseCollection.h"
 
 #include <random>
@@ -12,7 +13,7 @@ public:
     static void test1();
 };
 
-TEST( RimSummaryCaseCollection, EnsembleParameter )
+TEST( RimSummaryCaseCollection, RigEnsembleParameter )
 {
     RimSummaryCaseCollection_TESTER::test1();
 }
@@ -26,11 +27,11 @@ void RimSummaryCaseCollection_TESTER::test1()
     std::uniform_int_distribution<size_t>  countDistribution( 1u, 1000u );
     size_t                                 N = 1000;
 
-    std::vector<EnsembleParameter> parameters;
+    std::vector<RigEnsembleParameter> parameters;
     for ( size_t i = 0; i < N; ++i )
     {
-        EnsembleParameter param;
-        param.type = EnsembleParameter::TYPE_NUMERIC;
+        RigEnsembleParameter param;
+        param.type = RigEnsembleParameter::TYPE_NUMERIC;
 
         size_t valueCount = countDistribution( gen );
 
@@ -77,18 +78,18 @@ void RimSummaryCaseCollection_TESTER::test1()
     size_t currentSize = parameters.size();
     EXPECT_EQ( previousSize, currentSize );
 
-    int currentVariation = (int)EnsembleParameter::HIGH_VARIATION;
-    for ( const EnsembleParameter& nameParamPair : parameters )
+    int currentVariation = (int)RigEnsembleParameter::HIGH_VARIATION;
+    for ( const RigEnsembleParameter& nameParamPair : parameters )
     {
         if ( nameParamPair.normalizedStdDeviation() == 0.0 )
         {
-            EXPECT_EQ( nameParamPair.variationBin, (int)EnsembleParameter::NO_VARIATION );
+            EXPECT_EQ( nameParamPair.variationBin, (int)RigEnsembleParameter::NO_VARIATION );
         }
         else
         {
-            EXPECT_GE( nameParamPair.variationBin, (int)EnsembleParameter::LOW_VARIATION );
+            EXPECT_GE( nameParamPair.variationBin, (int)RigEnsembleParameter::LOW_VARIATION );
         }
-        EXPECT_LE( nameParamPair.variationBin, (int)EnsembleParameter::HIGH_VARIATION );
+        EXPECT_LE( nameParamPair.variationBin, (int)RigEnsembleParameter::HIGH_VARIATION );
         EXPECT_LE( nameParamPair.variationBin, currentVariation );
         currentVariation = nameParamPair.variationBin;
     }

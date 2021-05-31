@@ -88,6 +88,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RigTracerPoint.h
 ${CMAKE_CURRENT_LIST_DIR}/RigTracer.h
 ${CMAKE_CURRENT_LIST_DIR}/RigStimPlanModelTools.h
 ${CMAKE_CURRENT_LIST_DIR}/RigSlice2D.h
+${CMAKE_CURRENT_LIST_DIR}/RigEnsembleParameter.h
 )
 
 
@@ -173,6 +174,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RigTracerPoint.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RigTracer.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RigStimPlanModelTools.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RigSlice2D.cpp
+${CMAKE_CURRENT_LIST_DIR}/RigEnsembleParameter.cpp
 )
 
 list(APPEND CODE_HEADER_FILES
