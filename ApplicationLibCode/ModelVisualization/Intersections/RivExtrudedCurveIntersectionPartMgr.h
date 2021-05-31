@@ -55,6 +55,7 @@ class RivExtrudedCurveIntersectionGeometryGenerator;
 class RivIntersectionHexGridInterface;
 class RivIntersectionVertexWeights;
 class RivPipeGeometryGenerator;
+class RivIntersectionGeometryGeneratorIF;
 
 //==================================================================================================
 ///
@@ -78,6 +79,8 @@ public:
     const RimExtrudedCurveIntersection* intersection() const;
 
     cvf::Mat4d unflattenTransformMatrix( const cvf::Vec3d& intersectionPointFlat ) const;
+
+    const RivIntersectionGeometryGeneratorIF* intersectionGeometryGenerator() const;
 
 public:
 private:

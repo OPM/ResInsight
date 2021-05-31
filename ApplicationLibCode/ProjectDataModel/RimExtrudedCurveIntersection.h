@@ -87,9 +87,10 @@ public:
     std::vector<std::vector<cvf::Vec3d>> polyLines( cvf::Vec3d* flattenedPolylineStartPoint = nullptr ) const;
     void                                 appendPointToPolyLine( const cvf::Vec3d& point );
 
-    Rim2dIntersectionView*               correspondingIntersectionView();
-    RivExtrudedCurveIntersectionPartMgr* intersectionPartMgr();
-    void                                 rebuildGeometry();
+    Rim2dIntersectionView*                    correspondingIntersectionView();
+    RivExtrudedCurveIntersectionPartMgr*      intersectionPartMgr();
+    void                                      rebuildGeometry();
+    const RivIntersectionGeometryGeneratorIF* intersectionGeometryGenerator() const override;
 
     std::vector<cvf::Vec3d> polyLinesForExtrusionDirection() const;
     void                    appendPointToExtrusionDirection( const cvf::Vec3d& point );

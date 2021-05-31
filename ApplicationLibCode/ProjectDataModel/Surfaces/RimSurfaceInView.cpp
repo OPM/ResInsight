@@ -144,6 +144,16 @@ RivSurfacePartMgr* RimSurfaceInView::surfacePartMgr()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+const RivIntersectionGeometryGeneratorIF* RimSurfaceInView::intersectionGeometryGenerator() const
+{
+    if ( m_surfacePartMgr.notNull() ) return m_surfacePartMgr->intersectionGeometryGenerator();
+
+    return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimSurfaceInView::loadDataAndUpdate()
 {
     if ( surface() )

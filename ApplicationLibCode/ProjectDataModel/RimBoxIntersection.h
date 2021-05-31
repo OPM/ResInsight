@@ -78,6 +78,8 @@ public:
     void setToDefaultSizeBox();
     void setToDefaultSizeSlice( SinglePlaneState plane, const cvf::Vec3d& position );
 
+    const RivIntersectionGeometryGeneratorIF* intersectionGeometryGenerator() const override;
+
 protected:
     caf::PdmFieldHandle* userDescriptionField() final;
 

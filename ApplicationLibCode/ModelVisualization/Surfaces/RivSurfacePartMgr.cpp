@@ -267,6 +267,16 @@ QString RivSurfacePartMgr::resultInfoText( Rim3dView* view, uint hitPart, cvf::V
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+const RivIntersectionGeometryGeneratorIF* RivSurfacePartMgr::intersectionGeometryGenerator() const
+{
+    if ( m_intersectionGenerator.notNull() ) return m_intersectionGenerator.p();
+
+    return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RivSurfacePartMgr::generatePartGeometry()
 {
     if ( m_intersectionGenerator.isNull() ) return;

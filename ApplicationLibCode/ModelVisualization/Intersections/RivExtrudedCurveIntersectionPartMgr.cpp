@@ -712,3 +712,13 @@ cvf::Mat4d RivExtrudedCurveIntersectionPartMgr::unflattenTransformMatrix( const 
 {
     return m_intersectionGenerator->unflattenTransformMatrix( intersectionPointFlat );
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const RivIntersectionGeometryGeneratorIF* RivExtrudedCurveIntersectionPartMgr::intersectionGeometryGenerator() const
+{
+    if ( m_intersectionGenerator.notNull() ) return m_intersectionGenerator.p();
+
+    return NULL;
+}
