@@ -35,7 +35,7 @@
 #include "RigFlowDiagResultAddress.h"
 #include "RigFlowDiagResults.h"
 #include "RigFormationNames.h"
-#include "RigVisibleTracerFilter.h"
+#include "RigVisibleCategoriesCalculator.h"
 
 #include "Rim3dView.h"
 #include "Rim3dWellLogCurve.h"
@@ -150,10 +150,10 @@ RimEclipseResultDefinition::RimEclipseResultDefinition( caf::PdmUiItemInfo::Labe
     CAF_PDM_InitScriptableFieldNoDefault( &m_phaseSelection, "PhaseSelection", "Phases", "", "", "" );
     m_phaseSelection.uiCapability()->setUiLabelPosition( m_labelPosition );
 
-    CAF_PDM_InitScriptableField( &m_showOnlyVisibleTracersInLegend,
-                                 "ShowOnlyVisibleTracersInLegend",
+    CAF_PDM_InitScriptableField( &m_showOnlyVisibleCategoriesInLegend,
+                                 "ShowOnlyVisibleCategoriesInLegend",
                                  true,
-                                 "Show Only Visible Tracers In Legend",
+                                 "Show Only Visible Categories In Legend",
                                  "",
                                  "",
                                  "" );
@@ -423,6 +423,11 @@ void RimEclipseResultDefinition::fieldChangedByUi( const caf::PdmFieldHandle* ch
             m_resultVariable        = RIG_FLD_TOF_RESNAME;
             m_resultVariableUiField = RIG_FLD_TOF_RESNAME;
         }
+        loadDataAndUpdate();
+    }
+
+    if ( &m_showOnlyVisibleCategoriesInLegend == changedField )
+    {
         loadDataAndUpdate();
     }
 
@@ -1577,12 +1582,25 @@ void RimEclipseResultDefinition::defineUiOrdering( QString uiConfigName, caf::Pd
         m_resultVariableUiField.uiCapability()->setUiName( resultPropertyLabel );
     }
 
-    caf::PdmUiGroup* legendGroup = uiOrdering.addNewGroup( "Legend" );
-    legendGroup->add( &m_showOnlyVisibleTracersInLegend );
+    {
+        caf::PdmUiGroup* legendGroup = uiOrdering.addNewGroup( "Legend" );
+        legendGroup->add( &m_showOnlyVisibleCategoriesInLegend );
 
-    bool showOnlyVisibleTracesOption = ( m_resultTypeUiField() == RiaDefines::ResultCatType::FLOW_DIAGNOSTICS &&
-                                         m_resultVariableUiField() == RIG_FLD_MAX_FRACTION_TRACER_RESNAME );
-    legendGroup->setUiHidden( !showOnlyVisibleTracesOption );
+        bool showOnlyVisibleCategoriesOption = false;
+
+        RimEclipseView* eclView = nullptr;
+        this->firstAncestorOrThisOfType( eclView );
+
+        if ( eclView->cellResult() == this && this->hasCategoryResult() ) showOnlyVisibleCategoriesOption = true;
+
+        if ( m_resultTypeUiField() == RiaDefines::ResultCatType::FLOW_DIAGNOSTICS &&
+             m_resultVariableUiField() == RIG_FLD_MAX_FRACTION_TRACER_RESNAME )
+        {
+            showOnlyVisibleCategoriesOption = true;
+        }
+
+        legendGroup->setUiHidden( !showOnlyVisibleCategoriesOption );
+    }
 
     if ( isDeltaCasePossible() || isDeltaTimeStepPossible() )
     {
@@ -1924,14 +1942,13 @@ void RimEclipseResultDefinition::updateRangesForExplicitLegends( RimRegularLegen
 
                     std::vector<std::tuple<QString, int, cvf::Color3ub>> categoryVector;
 
-                    if ( m_showOnlyVisibleTracersInLegend )
+                    if ( m_showOnlyVisibleCategoriesInLegend )
                     {
-                        std::set<int> visibleTracers;
-                        RigVisibleTracerFilter::filterByVisibility( *eclView,
-                                                                    *flowResultsData,
-                                                                    resAddr,
-                                                                    currentTimeStep,
-                                                                    visibleTracers );
+                        std::set<int> visibleTracers =
+                            RigVisibleCategoriesCalculator::visibleFlowDiagCategories( *eclView,
+                                                                                       *flowResultsData,
+                                                                                       resAddr,
+                                                                                       currentTimeStep );
                         for ( auto tupIt : categories )
                         {
                             int tracerIndex = std::get<1>( tupIt );
@@ -1998,12 +2015,7 @@ void RimEclipseResultDefinition::updateRangesForExplicitLegends( RimRegularLegen
 
             if ( this->hasCategoryResult() )
             {
-                if ( this->resultType() == RiaDefines::ResultCatType::FORMATION_NAMES )
-                {
-                    std::vector<QString> fnVector = eclipseCaseData->formationNames();
-                    legendConfigToUpdate->setNamedCategories( fnVector );
-                }
-                else if ( this->resultType() == RiaDefines::ResultCatType::ALLAN_DIAGRAMS )
+                if ( this->resultType() == RiaDefines::ResultCatType::ALLAN_DIAGRAMS )
                 {
                     if ( this->resultVariable() == RiaResultNames::formationAllanResultName() )
                     {
@@ -2030,11 +2042,20 @@ void RimEclipseResultDefinition::updateRangesForExplicitLegends( RimRegularLegen
                             categories.emplace_back( std::make_tuple( fnVector[frmNameIdx], frmNameIdx, formationColor ) );
                         }
 
-                        for ( auto it : formationCombToCategory )
+                        std::set<size_t> visibleAllanCategories;
                         {
-                            int frmIdx1   = it.first.first;
-                            int frmIdx2   = it.first.second;
-                            int combIndex = it.second;
+                            RimEclipseView* eclView = nullptr;
+                            this->firstAncestorOrThisOfType( eclView );
+
+                            visibleAllanCategories = RigVisibleCategoriesCalculator::visibleAllanCategories( eclView );
+                        }
+
+                        for ( auto [formationPair, categoryIndex] : formationCombToCategory )
+                        {
+                            int frmIdx1 = formationPair.first;
+                            int frmIdx2 = formationPair.second;
+
+                            if ( visibleAllanCategories.count( categoryIndex ) == 0 ) continue;
 
                             int fnVectorSize = static_cast<int>( fnVector.size() );
                             if ( frmIdx1 >= fnVectorSize || frmIdx2 >= fnVectorSize ) continue;
@@ -2049,7 +2070,8 @@ void RimEclipseResultDefinition::updateRangesForExplicitLegends( RimRegularLegen
                                 cvf::Color3ub( cvf::Color3f( 0.5f * ( formationColor1.r() + formationColor2.r() ),
                                                              0.5f * ( formationColor1.g() + formationColor2.g() ),
                                                              0.5f * ( formationColor1.b() + formationColor2.b() ) ) );
-                            categories.emplace_back( std::make_tuple( frmName1 + "-" + frmName2, combIndex, blendColor ) );
+                            categories.emplace_back(
+                                std::make_tuple( frmName1 + "-" + frmName2, categoryIndex, blendColor ) );
                         }
 
                         legendConfigToUpdate->setCategoryItems( categories );
@@ -2096,8 +2118,53 @@ void RimEclipseResultDefinition::updateRangesForExplicitLegends( RimRegularLegen
                 }
                 else
                 {
-                    legendConfigToUpdate->setIntegerCategories(
-                        cellResultsData->uniqueCellScalarValues( this->eclipseResultAddress() ) );
+                    auto uniqueValues = cellResultsData->uniqueCellScalarValues( this->eclipseResultAddress() );
+
+                    cvf::Color3ubArray legendBaseColors = legendConfigToUpdate->colorLegend()->colorArray();
+
+                    cvf::ref<caf::CategoryMapper> categoryMapper = new caf::CategoryMapper;
+                    categoryMapper->setCategories( uniqueValues );
+                    categoryMapper->setInterpolateColors( legendBaseColors );
+
+                    std::vector<int> visibleCategoryValues = uniqueValues;
+
+                    if ( m_showOnlyVisibleCategoriesInLegend )
+                    {
+                        RimEclipseView* eclView = nullptr;
+                        this->firstAncestorOrThisOfType( eclView );
+
+                        // Check if current result is cell result, and update the visible set of values
+                        // TODO: Can be extended to the separate geometry results (separate fault result, separate
+                        // intersection results), but this requires some refactoring
+                        if ( eclView->cellResult() == this )
+                        {
+                            std::set<int> visibleCategorySet = RigVisibleCategoriesCalculator::visibleCategories( eclView );
+
+                            visibleCategoryValues.clear();
+                            visibleCategoryValues.insert( visibleCategoryValues.begin(),
+                                                          visibleCategorySet.begin(),
+                                                          visibleCategorySet.end() );
+                        }
+                    }
+                    std::vector<std::tuple<QString, int, cvf::Color3ub>> categoryVector;
+
+                    std::vector<QString> fnVector = eclipseCaseData->formationNames();
+
+                    for ( auto value : visibleCategoryValues )
+                    {
+                        cvf::Color3ub categoryColor = categoryMapper->mapToColor( value );
+
+                        QString valueTxt;
+                        if ( this->resultType() == RiaDefines::ResultCatType::FORMATION_NAMES )
+                        {
+                            valueTxt = fnVector[value];
+                        }
+                        else
+                            valueTxt = QString( "%1" ).arg( value );
+
+                        categoryVector.push_back( std::make_tuple( valueTxt, value, categoryColor ) );
+                    }
+                    legendConfigToUpdate->setCategoryItems( categoryVector );
                 }
             }
         }

@@ -28,12 +28,18 @@ class RigFlowDiagResultAddress;
 //==================================================================================================
 ///
 //==================================================================================================
-class RigVisibleTracerFilter
+class RigVisibleCategoriesCalculator
 {
 public:
-    static void filterByVisibility( RimEclipseView&                 eclView,
-                                    RigFlowDiagResults&             flowDiagResults,
-                                    const RigFlowDiagResultAddress& resVarAddr,
-                                    size_t                          timeStepIndex,
-                                    std::set<int>&                  visibleTracers );
+    static std::set<int> visibleFlowDiagCategories( RimEclipseView&                 eclView,
+                                                    RigFlowDiagResults&             flowDiagResults,
+                                                    const RigFlowDiagResultAddress& resVarAddr,
+                                                    size_t                          timeStepIndex );
+
+    static std::set<size_t> visibleAllanCategories( RimEclipseView* eclView );
+    static std::set<int>    visibleCategories( RimEclipseView* eclView );
+
+private:
+    static std::set<size_t> visibleNncConnectionIndices( RimEclipseView* eclView );
+    static std::set<size_t> visibleFaultAndIntersectionCells( RimEclipseView* eclView );
 };
