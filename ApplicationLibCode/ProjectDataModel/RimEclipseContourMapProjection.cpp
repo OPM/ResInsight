@@ -60,6 +60,7 @@ CAF_PDM_SOURCE_INIT( RimEclipseContourMapProjection, "RimEclipseContourMapProjec
 RimEclipseContourMapProjection::RimEclipseContourMapProjection()
     : RimContourMapProjection()
     , m_kLayers( 0u )
+    , m_useActiveCellInfo( true )
 {
     CAF_PDM_InitObject( "RimEclipseContourMapProjection", ":/2DMapProjection16x16.png", "", "" );
 
@@ -185,30 +186,35 @@ std::vector<double> RimEclipseContourMapProjection::generateResults( int timeSte
 
     std::vector<double> aggregatedResults = std::vector<double>( nCells, std::numeric_limits<double>::infinity() );
 
-    RimEclipseCellColors* cellColors  = view()->cellResult();
-    RimEclipseCase*       eclipseCase = this->eclipseCase();
+    RimEclipseCellColors* cellColors     = view()->cellResult();
+    auto                  gridCellResult = view()->currentGridCellResults();
     {
+        {
+            auto resultAdr = cellColors->eclipseResultAddress();
+            if ( resultAdr.isValid() && gridCellResult->hasResultEntry( resultAdr ) )
+                m_useActiveCellInfo = gridCellResult->isUsingGlobalActiveIndex( resultAdr );
+        }
+
         if ( !cellColors->isTernarySaturationSelected() )
         {
-            RigCaseCellResultsData* resultData = eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
-            std::vector<double>     gridResultValues;
+            std::vector<double> gridResultValues;
             if ( isColumnResult() )
             {
                 m_currentResultName = "";
-                resultData->ensureKnownResultLoaded(
+                gridCellResult->ensureKnownResultLoaded(
                     RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "PORO" ) );
-                resultData->ensureKnownResultLoaded(
+                gridCellResult->ensureKnownResultLoaded(
                     RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "NTG" ) );
-                resultData->ensureKnownResultLoaded(
+                gridCellResult->ensureKnownResultLoaded(
                     RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "DZ" ) );
                 if ( m_resultAggregation == RESULTS_OIL_COLUMN || m_resultAggregation == RESULTS_HC_COLUMN )
                 {
-                    resultData->ensureKnownResultLoaded(
+                    gridCellResult->ensureKnownResultLoaded(
                         RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "SOIL" ) );
                 }
                 if ( m_resultAggregation == RESULTS_GAS_COLUMN || m_resultAggregation == RESULTS_HC_COLUMN )
                 {
-                    resultData->ensureKnownResultLoaded(
+                    gridCellResult->ensureKnownResultLoaded(
                         RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "SGAS" ) );
                 }
                 gridResultValues = calculateColumnResult( m_resultAggregation() );
@@ -220,9 +226,9 @@ std::vector<double> RimEclipseContourMapProjection::generateResults( int timeSte
                                                  cellColors->resultVariable(),
                                                  cellColors->timeLapseBaseTimeStep(),
                                                  cellColors->caseDiffIndex() );
-                if ( resAddr.isValid() && resultData->hasResultEntry( resAddr ) )
+                if ( resAddr.isValid() && gridCellResult->hasResultEntry( resAddr ) )
                 {
-                    gridResultValues = resultData->cellScalarResults( resAddr, timeStep );
+                    gridResultValues = gridCellResult->cellScalarResults( resAddr, timeStep );
                 }
             }
 
@@ -496,7 +502,9 @@ double RimEclipseContourMapProjection::getParameterWeightForCell( size_t        
 //--------------------------------------------------------------------------------------------------
 size_t RimEclipseContourMapProjection::gridResultIndex( size_t globalCellIdx ) const
 {
-    return m_activeCellInfo->cellResultIndex( globalCellIdx );
+    if ( m_useActiveCellInfo ) return m_activeCellInfo->cellResultIndex( globalCellIdx );
+
+    return globalCellIdx;
 }
 
 //--------------------------------------------------------------------------------------------------

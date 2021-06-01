@@ -101,6 +101,7 @@ protected:
     cvf::ref<RigMainGrid>       m_mainGrid;
     cvf::ref<RigActiveCellInfo> m_activeCellInfo;
     size_t                      m_kLayers;
+    bool                        m_useActiveCellInfo;
 
     QString m_currentResultName;
 };
