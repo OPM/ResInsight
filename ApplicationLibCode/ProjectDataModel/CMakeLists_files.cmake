@@ -154,6 +154,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RimTimeAxisAnnotation.h
 ${CMAKE_CURRENT_LIST_DIR}/RimPolylinesDataInterface.h
 ${CMAKE_CURRENT_LIST_DIR}/RimEnsembleWellLogs.h
 ${CMAKE_CURRENT_LIST_DIR}/RimEnsembleWellLogsCollection.h
+${CMAKE_CURRENT_LIST_DIR}/RimEnsembleCurveSetInterface.h
 ${CMAKE_CURRENT_LIST_DIR}/RimWellPathTieIn.h
 ${CMAKE_CURRENT_LIST_DIR}/cafTreeNode.h
 )

@@ -26,6 +26,7 @@
 #include "RiaQDateTimeTools.h"
 
 #include "RimEnsembleCurveSetColorManager.h"
+#include "RimEnsembleCurveSetInterface.h"
 #include "RimObjectiveFunction.h"
 #include "RimRegularLegendConfig.h"
 #include "RimSummaryCase.h"
@@ -72,7 +73,7 @@ class QDate;
 //==================================================================================================
 ///
 //==================================================================================================
-class RimEnsembleCurveSet : public caf::PdmObject
+class RimEnsembleCurveSet : public caf::PdmObject, public RimEnsembleCurveSetInterface
 {
     CAF_PDM_HEADER_INIT;
 
@@ -126,10 +127,8 @@ public:
     void                      updateEnsembleLegendItem();
     RiuDraggableOverlayFrame* legendFrame() const;
 
-    void                updateAllCurves();
     void                setTimeSteps( const std::vector<size_t>& timeStepIndices );
     std::vector<time_t> selectedTimeSteps() const;
-    void                updateStatisticsCurves();
 
     RimEnsembleCurveSet* clone() const;
     void                 showCurves( bool show );
@@ -143,10 +142,13 @@ public:
     void                         disableStatisticCurves();
     bool                         isFiltered() const;
 
-    bool hasP10Data() const;
-    bool hasP50Data() const;
-    bool hasP90Data() const;
-    bool hasMeanData() const;
+    void updateEditors() override;
+    void updateAllCurves() override;
+    void updateStatisticsCurves() override;
+    bool hasP10Data() const override;
+    bool hasP50Data() const override;
+    bool hasP90Data() const override;
+    bool hasMeanData() const override;
 
     void appendColorGroup( caf::PdmUiOrdering& uiOrdering );
 
