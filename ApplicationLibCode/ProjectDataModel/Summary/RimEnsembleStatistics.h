@@ -18,15 +18,11 @@
 
 #pragma once
 
-#include "RimEnsembleCurveSet.h"
-#include "RimSummaryCase.h"
-
 #include "cafPdmField.h"
+#include "cafPdmFieldCvfColor.h"
 #include "cafPdmObject.h"
 
-class RifEclipseSummaryAddress;
-class RimSummaryCaseCollection;
-class RimEnsembleStatisticsCase;
+class RimEnsembleCurveSetInterface;
 
 //==================================================================================================
 ///
@@ -36,7 +32,7 @@ class RimEnsembleStatistics : public caf::PdmObject
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimEnsembleStatistics();
+    RimEnsembleStatistics( RimEnsembleCurveSetInterface* parentCurveSet = nullptr );
 
     bool         isActive() const;
     bool         hideEnsembleCurves() const { return m_hideEnsembleCurves; }
@@ -59,7 +55,7 @@ public:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
 private:
-    RimEnsembleCurveSet* parentCurveSet() const;
+    RimEnsembleCurveSetInterface* m_parentCurveSet;
 
     caf::PdmField<bool> m_active;
     caf::PdmField<bool> m_hideEnsembleCurves;

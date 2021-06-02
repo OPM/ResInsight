@@ -207,7 +207,7 @@ RimEnsembleCurveSet::RimEnsembleCurveSet()
     m_objectiveFunction->changed.connect( this, &RimEnsembleCurveSet::onObjectiveFunctionChanged );
 
     CAF_PDM_InitFieldNoDefault( &m_statistics, "Statistics", "Statistics", "", "", "" );
-    m_statistics = new RimEnsembleStatistics();
+    m_statistics = new RimEnsembleStatistics( this );
     m_statistics.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitField( &m_userDefinedName, "UserDefinedName", QString( "Ensemble Curve Set" ), "Curve Set Name", "", "", "" );
@@ -585,6 +585,14 @@ void RimEnsembleCurveSet::updateAllCurves()
     }
 
     filterChanged.send();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEnsembleCurveSet::updateEditors()
+{
+    updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------
