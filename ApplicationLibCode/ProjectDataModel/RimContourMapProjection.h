@@ -142,6 +142,7 @@ protected:
                                                           const cvf::Vec3d& lowestPoint ) const                    = 0;
     virtual double getParameterWeightForCell( size_t globalCellIdx, const std::vector<double>& parameterWeights ) const = 0;
 
+    // Use this function to get the result index into grid cell results. The index will differ if we have active cells
     virtual size_t gridResultIndex( size_t globalCellIdx ) const;
 
     double calculateValueInMapCell( uint i, uint j, const std::vector<double>& gridCellValues ) const;

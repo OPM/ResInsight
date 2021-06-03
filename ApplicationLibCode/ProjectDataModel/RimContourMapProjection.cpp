@@ -460,10 +460,9 @@ double RimContourMapProjection::calculateValueInMapCell( uint i, uint j, const s
         {
             case RESULTS_TOP_VALUE:
             {
-                for ( auto cellIdxAndWeight : matchingCells )
+                for ( auto [cellIdx, weight] : matchingCells )
                 {
-                    size_t cellIdx   = cellIdxAndWeight.first;
-                    double cellValue = gridCellValues[cellIdx];
+                    double cellValue = gridCellValues[gridResultIndex( cellIdx )];
                     if ( std::abs( cellValue ) != std::numeric_limits<double>::infinity() )
                     {
                         return cellValue;
@@ -476,7 +475,7 @@ double RimContourMapProjection::calculateValueInMapCell( uint i, uint j, const s
                 RiaWeightedMeanCalculator<double> calculator;
                 for ( auto [cellIdx, weight] : matchingCells )
                 {
-                    double cellValue = gridCellValues[cellIdx];
+                    double cellValue = gridCellValues[gridResultIndex( cellIdx )];
                     if ( std::abs( cellValue ) != std::numeric_limits<double>::infinity() )
                     {
                         calculator.addValueAndWeight( cellValue, weight );
@@ -493,7 +492,7 @@ double RimContourMapProjection::calculateValueInMapCell( uint i, uint j, const s
                 RiaWeightedGeometricMeanCalculator calculator;
                 for ( auto [cellIdx, weight] : matchingCells )
                 {
-                    double cellValue = gridCellValues[cellIdx];
+                    double cellValue = gridCellValues[gridResultIndex( cellIdx )];
                     if ( std::abs( cellValue ) != std::numeric_limits<double>::infinity() )
                     {
                         if ( cellValue < 1.0e-8 )
@@ -512,17 +511,16 @@ double RimContourMapProjection::calculateValueInMapCell( uint i, uint j, const s
             case RESULTS_HARM_VALUE:
             {
                 RiaWeightedHarmonicMeanCalculator calculator;
-                for ( auto cellIdxAndWeight : matchingCells )
+                for ( auto [cellIdx, weight] : matchingCells )
                 {
-                    size_t cellIdx   = cellIdxAndWeight.first;
-                    double cellValue = gridCellValues[cellIdx];
+                    double cellValue = gridCellValues[gridResultIndex( cellIdx )];
                     if ( std::fabs( cellValue ) < 1.0e-8 )
                     {
                         return 0.0;
                     }
                     if ( std::abs( cellValue ) != std::numeric_limits<double>::infinity() )
                     {
-                        calculator.addValueAndWeight( cellValue, cellIdxAndWeight.second );
+                        calculator.addValueAndWeight( cellValue, weight );
                     }
                 }
                 if ( calculator.validAggregatedWeight() )
@@ -534,10 +532,9 @@ double RimContourMapProjection::calculateValueInMapCell( uint i, uint j, const s
             case RESULTS_MAX_VALUE:
             {
                 double maxValue = -std::numeric_limits<double>::infinity();
-                for ( auto cellIdxAndWeight : matchingCells )
+                for ( auto [cellIdx, weight] : matchingCells )
                 {
-                    size_t cellIdx   = cellIdxAndWeight.first;
-                    double cellValue = gridCellValues[cellIdx];
+                    double cellValue = gridCellValues[gridResultIndex( cellIdx )];
                     if ( std::abs( cellValue ) != std::numeric_limits<double>::infinity() )
                     {
                         maxValue = std::max( maxValue, cellValue );
@@ -552,10 +549,9 @@ double RimContourMapProjection::calculateValueInMapCell( uint i, uint j, const s
             case RESULTS_MIN_VALUE:
             {
                 double minValue = std::numeric_limits<double>::infinity();
-                for ( auto cellIdxAndWeight : matchingCells )
+                for ( auto [cellIdx, weight] : matchingCells )
                 {
-                    size_t cellIdx   = cellIdxAndWeight.first;
-                    double cellValue = gridCellValues[cellIdx];
+                    double cellValue = gridCellValues[gridResultIndex( cellIdx )];
                     minValue         = std::min( minValue, cellValue );
                 }
                 return minValue;
@@ -567,13 +563,12 @@ double RimContourMapProjection::calculateValueInMapCell( uint i, uint j, const s
             case RESULTS_HC_COLUMN:
             {
                 double sum = 0.0;
-                for ( auto cellIdxAndWeight : matchingCells )
+                for ( auto [cellIdx, weight] : matchingCells )
                 {
-                    size_t cellIdx   = cellIdxAndWeight.first;
-                    double cellValue = gridCellValues[cellIdx];
+                    double cellValue = gridCellValues[gridResultIndex( cellIdx )];
                     if ( std::abs( cellValue ) != std::numeric_limits<double>::infinity() )
                     {
-                        sum += cellValue * cellIdxAndWeight.second;
+                        sum += cellValue * weight;
                     }
                 }
                 return sum;
@@ -1364,11 +1359,11 @@ std::vector<RimContourMapProjection::CellIndexAndResult>
             double overlapVolume = calculateOverlapVolume( globalCellIdx, bbox2dElement );
             if ( overlapVolume > 0.0 )
             {
-                size_t resultIndex = gridResultIndex( globalCellIdx );
-                double weight      = overlapVolume * getParameterWeightForCell( resultIndex, weightingResultValues );
+                double weight = overlapVolume *
+                                getParameterWeightForCell( gridResultIndex( globalCellIdx ), weightingResultValues );
                 if ( weight > 0.0 )
                 {
-                    matchingVisibleCellsAndWeight.push_back( std::make_pair( resultIndex, weight ) );
+                    matchingVisibleCellsAndWeight.push_back( std::make_pair( globalCellIdx, weight ) );
                 }
             }
         }
@@ -1420,7 +1415,7 @@ std::vector<RimContourMapProjection::CellIndexAndResult>
             double lengthInCell = calculateRayLengthInCell( globalCellIdx, highestPoint, lowestPoint );
             if ( lengthInCell > 0.0 )
             {
-                cellsAndWeightsThisLayer.push_back( std::make_pair( gridResultIndex( globalCellIdx ), lengthInCell ) );
+                cellsAndWeightsThisLayer.push_back( std::make_pair( globalCellIdx, lengthInCell ) );
                 weightSumThisKLayer += lengthInCell;
             }
         }
