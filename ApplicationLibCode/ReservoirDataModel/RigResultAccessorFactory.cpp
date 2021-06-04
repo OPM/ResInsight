@@ -100,6 +100,13 @@ cvf::ref<RigResultAccessor> RigResultAccessorFactory::createFromResultAddress( c
     {
         adjustedTimeStepIndex = 0;
     }
+    else if ( resVarAddr.resultCatType() == RiaDefines::ResultCatType::INPUT_PROPERTY )
+    {
+        if ( eclipseCase->results( porosityModel )->timeStepCount( resVarAddr ) == 1 )
+        {
+            adjustedTimeStepIndex = 0;
+        }
+    }
 
     cvf::ref<RigResultAccessor> derivedCandidate =
         createCombinedResultAccessor( eclipseCase, gridIndex, porosityModel, adjustedTimeStepIndex, resVarAddr );
