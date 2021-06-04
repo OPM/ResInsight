@@ -240,6 +240,7 @@ jobs:
         shell: bash
         run: |
           cmakebuild/ApplicationExeCode/ResInsight --unittest
+
       - name: Run pytest
         if: "matrix.config.build-python-module == true"
         env:
@@ -247,8 +248,10 @@ jobs:
         run: |
           cd GrpcInterface/Python/rips
           ${{ steps.python-path.outputs.PYTHON_EXECUTABLE }} -m pytest --console
+
       - name: Upload artifact
         uses: actions/upload-artifact@v2
+        if: "matrix.config.name != Ubuntu Latest clang"
         with:
           name: ResInsight-${{ matrix.config.name }}
           path: ${{ runner.workspace }}/ResInsight/cmakebuild/install
