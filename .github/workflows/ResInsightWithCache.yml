@@ -251,7 +251,7 @@ jobs:
 
       - name: Upload artifact
         uses: actions/upload-artifact@v2
-        if: "matrix.config.name != Ubuntu Latest clang"
+        if: "matrix.config.name != 'Ubuntu Latest clang'"
         with:
           name: ResInsight-${{ matrix.config.name }}
           path: ${{ runner.workspace }}/ResInsight/cmakebuild/install
