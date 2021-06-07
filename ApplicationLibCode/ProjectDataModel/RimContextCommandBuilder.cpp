@@ -411,9 +411,9 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicNewPerforationIntervalFeature";
             menuBuilder << "RicNewFishbonesSubsFeature";
             menuBuilder << "RicNewWellPathFractureFeature";
-            menuBuilder << "RicNewStimPlanModelFeature";
             menuBuilder.subMenuEnd();
             menuBuilder << "RicCreateTemporaryLgrFeature";
+            menuBuilder << "RicNewStimPlanModelFeature";
             menuBuilder.addSeparator();
             appendExportCompletions( menuBuilder );
         }
@@ -1361,12 +1361,12 @@ int RimContextCommandBuilder::appendCreateCompletions( caf::CmdFeatureMenuBuilde
     candidates << "RicNewValveFeature";
     candidates << "RicNewFishbonesSubsFeature";
     candidates << "RicNewWellPathFractureFeature";
-    candidates << "RicNewStimPlanModelFeature";
     candidates << "Separator";
     candidates << "RicCreateMultipleFracturesFeature";
     candidates << "RicNewWellPathAttributeFeature";
     candidates << "Separator";
     candidates << "RicCreateTemporaryLgrFeature";
+    candidates << "RicNewStimPlanModelFeature";
 
     return appendSubMenuWithCommands( menuBuilder,
                                       candidates,
