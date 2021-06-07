@@ -138,8 +138,8 @@ public:
     void              calculateEnsembleParametersIntersectionHash();
     void              clearEnsembleParametersHashes();
 
-    std::vector<std::shared_ptr<RimObjectiveFunction>> objectiveFunctions() const;
-    std::shared_ptr<RimObjectiveFunction> objectiveFunction( RimObjectiveFunction::FunctionType functionType );
+    std::vector<RimObjectiveFunction*> objectiveFunctions() const;
+    RimObjectiveFunction*              objectiveFunction( RimObjectiveFunction::FunctionType functionType );
 
     void loadDataAndUpdate();
 
@@ -182,5 +182,5 @@ private:
 
     mutable std::vector<EnsembleParameter> m_cachedSortedEnsembleParameters;
 
-    std::vector<std::shared_ptr<RimObjectiveFunction>> m_objectiveFunctions;
+    caf::PdmChildArrayField<RimObjectiveFunction*> m_objectiveFunctions;
 };

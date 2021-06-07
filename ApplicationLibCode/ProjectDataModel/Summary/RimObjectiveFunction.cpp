@@ -44,6 +44,31 @@ void caf::AppEnum<RimObjectiveFunction::FunctionType>::setUp()
 
 } // namespace caf
 
+CAF_PDM_SOURCE_INIT( RimObjectiveFunction, "RimObjectiveFunction" );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimObjectiveFunction::RimObjectiveFunction()
+{
+    CAF_PDM_InitObject( "Objective Function", "", "", "" );
+
+    CAF_PDM_InitFieldNoDefault( &m_functionType, "FunctionType", "Function Type", "", "", "" );
+
+    m_summaryCaseCollection = nullptr;
+    m_startTimeStep         = 0;
+    m_endTimeStep           = INT_MAX;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimObjectiveFunction::setDefaultValues( const RimSummaryCaseCollection* summaryCaseCollection, FunctionType type )
+{
+    m_summaryCaseCollection = summaryCaseCollection;
+    m_functionType          = type;
+}
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -65,7 +90,7 @@ QString RimObjectiveFunction::uiName() const
 //--------------------------------------------------------------------------------------------------
 RimObjectiveFunction::FunctionType RimObjectiveFunction::functionType()
 {
-    return m_functionType;
+    return m_functionType();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -83,17 +108,6 @@ void RimObjectiveFunction::setTimeStepRange( time_t startTimeStep, time_t endTim
 void RimObjectiveFunction::setTimeStepList( std::vector<time_t> timeSteps )
 {
     m_timeSteps = timeSteps;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RimObjectiveFunction::RimObjectiveFunction( const RimSummaryCaseCollection* summaryCaseCollection, FunctionType type )
-{
-    m_summaryCaseCollection = summaryCaseCollection;
-    m_functionType          = type;
-    m_startTimeStep         = 0;
-    m_endTimeStep           = INT_MAX;
 }
 
 //--------------------------------------------------------------------------------------------------

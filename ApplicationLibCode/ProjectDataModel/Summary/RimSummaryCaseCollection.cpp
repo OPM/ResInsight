@@ -214,8 +214,18 @@ RimSummaryCaseCollection::RimSummaryCaseCollection()
 
     m_commonAddressCount = 0;
 
-    m_objectiveFunctions.push_back( std::make_shared<RimObjectiveFunction>( this, RimObjectiveFunction::FunctionType::F1 ) );
-    m_objectiveFunctions.push_back( std::make_shared<RimObjectiveFunction>( this, RimObjectiveFunction::FunctionType::F2 ) );
+    CAF_PDM_InitFieldNoDefault( &m_objectiveFunctions, "ObjectiveFunctions", "Objective Functions", "", "", "" );
+
+    {
+        auto objFunc1 = new RimObjectiveFunction();
+        objFunc1->setDefaultValues( this, RimObjectiveFunction::FunctionType::F1 );
+        m_objectiveFunctions.push_back( objFunc1 );
+    }
+    {
+        auto objFunc1 = new RimObjectiveFunction();
+        objFunc1->setDefaultValues( this, RimObjectiveFunction::FunctionType::F2 );
+        m_objectiveFunctions.push_back( objFunc1 );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -868,25 +878,24 @@ void RimSummaryCaseCollection::clearEnsembleParametersHashes()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<std::shared_ptr<RimObjectiveFunction>> RimSummaryCaseCollection::objectiveFunctions() const
+std::vector<RimObjectiveFunction*> RimSummaryCaseCollection::objectiveFunctions() const
 {
-    return m_objectiveFunctions;
+    return m_objectiveFunctions.childObjects();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::shared_ptr<RimObjectiveFunction>
-    RimSummaryCaseCollection::objectiveFunction( RimObjectiveFunction::FunctionType functionType )
+RimObjectiveFunction* RimSummaryCaseCollection::objectiveFunction( RimObjectiveFunction::FunctionType functionType )
 {
-    for ( auto objectiveFunc : m_objectiveFunctions )
+    for ( auto objectiveFunc : m_objectiveFunctions.childObjects() )
     {
         if ( objectiveFunc->functionType() == functionType )
         {
             return objectiveFunc;
         }
     }
-    return m_objectiveFunctions.front();
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

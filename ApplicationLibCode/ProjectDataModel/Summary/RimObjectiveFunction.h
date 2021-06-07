@@ -18,6 +18,10 @@
 
 #pragma once
 
+#include "cafAppEnum.h"
+#include "cafPdmField.h"
+#include "cafPdmObject.h"
+
 #include <QString>
 #include <QVariant>
 
@@ -30,8 +34,10 @@ class RifEclipseSummaryAddress;
 //==================================================================================================
 ///
 //==================================================================================================
-class RimObjectiveFunction
+class RimObjectiveFunction : public caf::PdmObject
 {
+    CAF_PDM_HEADER_INIT;
+
 public:
     enum class FunctionType
     {
@@ -45,7 +51,8 @@ public:
     void setTimeStepRange( time_t startTime, time_t endTime );
     void setTimeStepList( std::vector<time_t> timeSteps );
 
-    RimObjectiveFunction( const RimSummaryCaseCollection* summaryCaseCollection, FunctionType type );
+    RimObjectiveFunction();
+    void setDefaultValues( const RimSummaryCaseCollection* summaryCaseCollection, FunctionType type );
 
     double value( size_t                                caseIndex,
                   std::vector<RifEclipseSummaryAddress> vectorSummaryAddresses,
@@ -73,5 +80,6 @@ private:
     time_t              m_startTimeStep;
     time_t              m_endTimeStep;
     std::vector<time_t> m_timeSteps;
-    FunctionType        m_functionType;
+
+    caf::PdmField<caf::AppEnum<RimObjectiveFunction::FunctionType>> m_functionType;
 };
