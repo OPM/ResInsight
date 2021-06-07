@@ -1174,6 +1174,9 @@ std::vector<RigCompletionData> RicWellPathExportCompletionDataFeatureImpl::gener
     if ( !wellPathGeometry ) return completionData;
     auto timeSteps = settings.caseToApply->timeStepDates();
 
+    const RimNonDarcyPerforationParameters* nonDarcyParameters =
+        wellPath->perforationIntervalCollection()->nonDarcyParameters();
+
     if ( wellPath->perforationIntervalCollection()->isChecked() )
     {
         for ( const RimPerforationInterval* interval : intervals )
@@ -1205,9 +1208,6 @@ std::vector<RigCompletionData> RicWellPathExportCompletionDataFeatureImpl::gener
                 RigCompletionData::CellDirection direction =
                     calculateCellMainDirection( settings.caseToApply, cell.globCellIndex, cell.intersectionLengthsInCellCS );
 
-                const RimNonDarcyPerforationParameters* nonDarcyParameters =
-                    wellPath->perforationIntervalCollection()->nonDarcyParameters();
-
                 double transmissibility = 0.0;
                 double kh               = RigCompletionData::defaultValue();
                 double dFactor          = RigCompletionData::defaultValue();
@@ -1224,11 +1224,7 @@ std::vector<RigCompletionData> RicWellPathExportCompletionDataFeatureImpl::gener
                     transmissibility = transmissibilityData.connectionFactor();
                     kh               = transmissibilityData.kh();
 
-                    if ( nonDarcyParameters->nonDarcyFlowType() == RimNonDarcyPerforationParameters::NON_DARCY_USER_DEFINED )
-                    {
-                        dFactor = nonDarcyParameters->userDefinedDFactor();
-                    }
-                    else if ( nonDarcyParameters->nonDarcyFlowType() == RimNonDarcyPerforationParameters::NON_DARCY_COMPUTED )
+                    if ( nonDarcyParameters->nonDarcyFlowType() == RimNonDarcyPerforationParameters::NON_DARCY_COMPUTED )
                     {
                         const double effectiveH = transmissibilityData.effectiveH();
 
@@ -1255,6 +1251,27 @@ std::vector<RigCompletionData> RicWellPathExportCompletionDataFeatureImpl::gener
                 completion.setSourcePdmObject( interval );
                 completionData.push_back( completion );
             }
+        }
+    }
+
+    if ( nonDarcyParameters->nonDarcyFlowType() == RimNonDarcyPerforationParameters::NON_DARCY_USER_DEFINED )
+    {
+        // Compute D-factor for completion as
+        // D_cell = D_well * Sum_Tran_cells / Tran_cell
+        //
+        // See https://github.com/OPM/ResInsight/issues/7450
+
+        double accumulatedTransmissibility = 0.0;
+        for ( const auto& completion : completionData )
+        {
+            accumulatedTransmissibility += completion.transmissibility();
+        }
+
+        double userDefinedDFactor = nonDarcyParameters->userDefinedDFactor();
+        for ( auto& completion : completionData )
+        {
+            double dFactorForCompletion = userDefinedDFactor * accumulatedTransmissibility / completion.transmissibility();
+            completion.setDFactor( dFactorForCompletion );
         }
     }
 
