@@ -35,8 +35,8 @@ class RimObjectiveFunction
 public:
     enum class FunctionType
     {
-        M1 = 0,
-        M2
+        F1 = 0,
+        F2
     };
 
     QString                            uiName() const;

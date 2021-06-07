@@ -37,9 +37,9 @@ namespace caf
 template <>
 void caf::AppEnum<RimObjectiveFunction::FunctionType>::setUp()
 {
-    addItem( RimObjectiveFunction::FunctionType::M1, "M1", "M1" );
-    addItem( RimObjectiveFunction::FunctionType::M2, "M2", "M2" );
-    setDefault( RimObjectiveFunction::FunctionType::M1 );
+    addItem( RimObjectiveFunction::FunctionType::F1, "F1", "Time Range (F1)" );
+    addItem( RimObjectiveFunction::FunctionType::F2, "F2", "Selected Time Steps (F2)" );
+    setDefault( RimObjectiveFunction::FunctionType::F1 );
 }
 
 } // namespace caf
@@ -49,11 +49,11 @@ void caf::AppEnum<RimObjectiveFunction::FunctionType>::setUp()
 //--------------------------------------------------------------------------------------------------
 QString RimObjectiveFunction::uiName() const
 {
-    if ( m_functionType == FunctionType::M1 )
+    if ( m_functionType == FunctionType::F1 )
     {
         return QString( "M1" );
     }
-    else if ( m_functionType == FunctionType::M2 )
+    else if ( m_functionType == FunctionType::F2 )
     {
         return QString( "M2" );
     }
@@ -122,7 +122,7 @@ double RimObjectiveFunction::value( RimSummaryCase*                       summar
     RifSummaryReaderInterface* readerInterface = summaryCase->summaryReader();
     if ( readerInterface )
     {
-        if ( m_functionType == FunctionType::M1 )
+        if ( m_functionType == FunctionType::F1 )
         {
             double sumValues        = 0.0;
             double sumValuesSquared = 0.0;
@@ -188,7 +188,7 @@ double RimObjectiveFunction::value( RimSummaryCase*                       summar
                 }
             }
         }
-        else if ( m_functionType == FunctionType::M2 )
+        else if ( m_functionType == FunctionType::F2 )
         {
             double value = 0;
             for ( auto vectorSummaryAddress : vectorSummaryAddresses )
@@ -358,7 +358,7 @@ bool RimObjectiveFunction::isValid( std::vector<RifEclipseSummaryAddress> vector
 QString RimObjectiveFunction::formulaString( std::vector<RifEclipseSummaryAddress> vectorSummaryAddresses )
 {
     QString formula;
-    if ( m_functionType == FunctionType::M1 )
+    if ( m_functionType == FunctionType::F1 )
     {
         formula += "(" + QString::fromWCharArray( L"\u03A3" ) + "(|";
         QStringList addresses;
@@ -369,7 +369,7 @@ QString RimObjectiveFunction::formulaString( std::vector<RifEclipseSummaryAddres
         formula += addresses.join( "| + |" );
         formula += "|))/(stdv)";
     }
-    else if ( m_functionType == FunctionType::M2 )
+    else if ( m_functionType == FunctionType::F2 )
     {
         formula += QString::fromWCharArray( L"\u03A3" ) + "(|";
         QStringList addresses;
