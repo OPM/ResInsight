@@ -1474,7 +1474,10 @@ void RimProject::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, Q
 
             if ( mainPlotCollection->stimPlanModelPlotCollection() )
             {
-                itemCollection->add( mainPlotCollection->stimPlanModelPlotCollection() );
+                if ( RiaApplication::enableDevelopmentFeatures() )
+                {
+                    itemCollection->add( mainPlotCollection->stimPlanModelPlotCollection() );
+                }
             }
 
             if ( mainPlotCollection->vfpPlotCollection() )
@@ -1490,7 +1493,12 @@ void RimProject::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, Q
                     statisticsItemCollection->add( mainPlotCollection->gridStatisticsPlotCollection() );
 
                 if ( mainPlotCollection->ensembleFractureStatisticsPlotCollection() )
-                    statisticsItemCollection->add( mainPlotCollection->ensembleFractureStatisticsPlotCollection() );
+                {
+                    if ( RiaApplication::enableDevelopmentFeatures() )
+                    {
+                        statisticsItemCollection->add( mainPlotCollection->ensembleFractureStatisticsPlotCollection() );
+                    }
+                }
             }
 #endif
         }
