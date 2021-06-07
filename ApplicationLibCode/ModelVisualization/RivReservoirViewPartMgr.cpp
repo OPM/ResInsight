@@ -639,12 +639,11 @@ void RivReservoirViewPartMgr::computeNativeVisibility( cvf::UByteArray*         
     for ( int cellIndex = 0; cellIndex < static_cast<int>( grid->cellCount() ); cellIndex++ )
     {
         const RigCell& cell               = grid->cell( cellIndex );
-        size_t         reservoirCellIndex = cell.mainGridCellIndex();
+        size_t         reservoirCellIndex = grid->reservoirCellIndex( cellIndex );
+        bool           isCellActive       = activeCellInfo->isActive( reservoirCellIndex );
 
-        if ( !invalidCellsIsVisible && cell.isInvalid() ||
-             !inactiveCellsIsVisible && !activeCellInfo->isActive( reservoirCellIndex ) ||
-             !activeCellsIsVisible && activeCellInfo->isActive( reservoirCellIndex ) ||
-             ( *cellIsInWellStatuses )[cellIndex] )
+        if ( !invalidCellsIsVisible && cell.isInvalid() || !inactiveCellsIsVisible && !isCellActive ||
+             !activeCellsIsVisible && isCellActive || ( *cellIsInWellStatuses )[cellIndex] )
         {
             ( *cellVisibility )[cellIndex] = false;
         }
@@ -693,8 +692,8 @@ void RivReservoirViewPartMgr::computeOverriddenCellVisibility( cvf::UByteArray* 
 
         for ( int mcIdx = 0; mcIdx < cellCount; ++mcIdx )
         {
-            ( *cellVisibility )[lcIdx] |= ( *totCellVisibility )[cellIndicesInMasterCase[mcIdx]]; // If any is visible,
-                                                                                                  // show
+            ( *cellVisibility )[lcIdx] |= ( *totCellVisibility )[cellIndicesInMasterCase[mcIdx]]; // If any is
+                                                                                                  // visible, show
         }
 
 #else
@@ -772,8 +771,8 @@ void RivReservoirViewPartMgr::computeFilterVisibility( RivCellSetEnum           
 
             if ( geometryType == RANGE_FILTERED_WELL_CELLS )
             {
-                geometryType = RANGE_FILTERED; // Use the range filtering in the parent grid, not the well cells in the
-                                               // parent grid
+                geometryType = RANGE_FILTERED; // Use the range filtering in the parent grid, not the well cells in
+                                               // the parent grid
             }
 
             RivReservoirPartMgr* reservoirGridPartMgr = &m_geometries[geometryType];
