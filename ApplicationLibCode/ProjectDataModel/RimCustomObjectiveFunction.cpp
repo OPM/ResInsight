@@ -88,23 +88,27 @@ std::vector<double> RimCustomObjectiveFunction::values() const
 {
     if ( m_weights.empty() ) return {};
 
-    std::vector<double>       values;
     RimSummaryCaseCollection* caseCollection = parentCurveSet()->summaryCaseCollection();
+    if ( !caseCollection || caseCollection->allSummaryCases().empty() ) return {};
 
-    values.resize( m_weights.size() );
-    for ( size_t i = 0; i < m_weights.size(); i++ )
+    std::vector<double> values;
+
+    values.resize( caseCollection->allSummaryCases().size() );
+    for ( size_t sumIdx = 0; sumIdx < caseCollection->allSummaryCases().size(); sumIdx++ )
     {
-        auto   weight          = m_weights[i];
+        auto   sumCase         = caseCollection->allSummaryCases()[sumIdx];
         double aggregatedValue = 0.0;
-        for ( auto sumCase : caseCollection->allSummaryCases() )
+
+        for ( size_t i = 0; i < m_weights.size(); i++ )
         {
+            auto   weight = m_weights[i];
             double objValue =
                 objectiveFunction( weight->objectiveFunction() )
                     ->value( sumCase, weight->summaryAddresses(), parentCurveSet()->objectiveFunctionTimeConfig() );
 
             aggregatedValue += objValue * weight->weightValue();
         }
-        values[i] = aggregatedValue;
+        values[sumIdx] = aggregatedValue;
     }
 
     return values;

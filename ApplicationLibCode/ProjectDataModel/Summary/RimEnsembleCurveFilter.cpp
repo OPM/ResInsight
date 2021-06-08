@@ -206,7 +206,7 @@ QString RimEnsembleCurveFilter::description() const
         }
         descriptor =
             QString( "%1::%2%3%4" )
-                .arg( caf::AppEnum<RimObjectiveFunction::FunctionType>( m_objectiveFunction()->functionType() ).uiText() )
+                .arg( m_objectiveFunction()->shortName() )
                 .arg( addressVector.size() > 1 ? "(" : "" )
                 .arg( QString::fromStdString( RifEclipseSummaryAddress::generateStringFromAddresses( addressVector, "+" ) ) )
                 .arg( addressVector.size() > 1 ? ")" : "" );

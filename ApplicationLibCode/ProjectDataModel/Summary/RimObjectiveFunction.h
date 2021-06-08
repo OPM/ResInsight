@@ -56,7 +56,7 @@ public:
         F2
     };
 
-    QString                            uiName() const;
+    QString                            shortName() const;
     RimObjectiveFunction::FunctionType functionType();
 
     RimObjectiveFunction();

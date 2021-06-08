@@ -203,6 +203,7 @@ RimEnsembleCurveSet::RimEnsembleCurveSet()
     CAF_PDM_InitFieldNoDefault( &m_objectiveFunction, "ObjectiveFunction", "Objective Function", "", "", "" );
     m_objectiveFunction = new RimObjectiveFunction();
     m_objectiveFunction.uiCapability()->setUiHidden( true );
+    m_objectiveFunction->changed.connect( this, &RimEnsembleCurveSet::onObjectiveFunctionChanged );
 
     CAF_PDM_InitFieldNoDefault( &m_statistics, "Statistics", "Statistics", "", "", "" );
     m_statistics = new RimEnsembleStatistics();
@@ -944,6 +945,7 @@ void RimEnsembleCurveSet::onObjectiveFunctionChanged( const caf::SignalEmitter* 
     updateCurveColors();
     updateFilterLegend();
     updateObjectiveFunctionLegend();
+    updateTimeAnnotations();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1383,7 +1385,7 @@ void RimEnsembleCurveSet::updateObjectiveFunctionLegend()
 
                 title       = "Objective Function";
                 description = QString( "%0 = %1" )
-                                  .arg( m_objectiveFunction()->uiName() )
+                                  .arg( m_objectiveFunction()->shortName() )
                                   .arg( m_objectiveFunction()->formulaString( addresses ) );
             }
             else if ( m_colorMode() == ColorMode::BY_CUSTOM_OBJECTIVE_FUNCTION && m_customObjectiveFunction() )

@@ -81,17 +81,9 @@ void RimObjectiveFunction::setFunctionType( FunctionType functionType )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimObjectiveFunction::uiName() const
+QString RimObjectiveFunction::shortName() const
 {
-    if ( m_functionType == FunctionType::F1 )
-    {
-        return QString( "M1" );
-    }
-    else if ( m_functionType == FunctionType::F2 )
-    {
-        return QString( "M2" );
-    }
-    return QString();
+    return caf::AppEnum<FunctionType>::text( m_functionType() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -298,7 +290,7 @@ QString RimObjectiveFunction::formulaString( std::vector<RifEclipseSummaryAddres
 //--------------------------------------------------------------------------------------------------
 bool RimObjectiveFunction::operator<( const RimObjectiveFunction& other ) const
 {
-    return this->uiName() < other.uiName();
+    return this->shortName() < other.shortName();
 }
 
 //--------------------------------------------------------------------------------------------------
