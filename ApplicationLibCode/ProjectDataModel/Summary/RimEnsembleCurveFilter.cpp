@@ -630,6 +630,14 @@ void RimEnsembleCurveFilter::onFilterChanged( const caf::SignalEmitter* emitter 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimEnsembleCurveFilter::updateMaxMinAndDefaultValuesFromParent()
+{
+    updateMaxMinAndDefaultValues( true );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RimEnsembleCurveFilterCollection* RimEnsembleCurveFilter::parentCurveFilterCollection() const
 {
     RimEnsembleCurveFilterCollection* coll;

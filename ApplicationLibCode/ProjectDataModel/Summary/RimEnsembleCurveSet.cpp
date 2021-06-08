@@ -744,6 +744,7 @@ void RimEnsembleCurveSet::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
         updateCurveColors();
         updateTimeAnnotations();
         updateObjectiveFunctionLegend();
+        updateMaxMinAndDefaultValues();
     }
     else if ( changedField == &m_minTimeStep || changedField == &m_maxTimeStep )
     {
@@ -917,6 +918,11 @@ void RimEnsembleCurveSet::updateMaxMinAndDefaultValues()
 {
     m_minDateRange = QDateTime::fromSecsSinceEpoch( m_minTimeStep ).date();
     m_maxDateRange = QDateTime::fromSecsSinceEpoch( m_maxTimeStep ).date();
+
+    for ( auto filter : m_curveFilters->filters() )
+    {
+        filter->updateMaxMinAndDefaultValuesFromParent();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

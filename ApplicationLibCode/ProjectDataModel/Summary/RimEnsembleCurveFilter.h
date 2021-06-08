@@ -85,7 +85,8 @@ public:
 
     RimEnsembleCurveSet* parentCurveSet() const;
 
-    void onFilterChanged(const caf::SignalEmitter* emitter);
+    void onFilterChanged( const caf::SignalEmitter* emitter );
+    void updateMaxMinAndDefaultValuesFromParent();
 
 protected:
     caf::PdmFieldHandle* objectToggleField() override;
