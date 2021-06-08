@@ -133,21 +133,12 @@ void RimEnsembleCurveSetColorManager::initializeLegendConfig( RimRegularLegendCo
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEnsembleCurveSetColorManager::initializeLegendConfig( RimRegularLegendConfig*               legendConfig,
-                                                              RimObjectiveFunction*                 objectiveFunction,
-                                                              std::vector<RifEclipseSummaryAddress> vectorSummaryAddresses )
+void RimEnsembleCurveSetColorManager::initializeLegendConfig( RimRegularLegendConfig*             legendConfig,
+                                                              RimObjectiveFunction*               objectiveFunction,
+                                                              const std::vector<RimSummaryCase*>& summaryCases,
+                                                              const std::vector<RifEclipseSummaryAddress>& vectorSummaryAddresses )
 {
-    double minValue = std::numeric_limits<double>::infinity();
-    double maxValue = -std::numeric_limits<double>::infinity();
-
-    for ( auto value : objectiveFunction->values( vectorSummaryAddresses ) )
-    {
-        if ( value != std::numeric_limits<double>::infinity() )
-        {
-            if ( value < minValue ) minValue = value;
-            if ( value > maxValue ) maxValue = value;
-        }
-    }
+    auto [minValue, maxValue] = objectiveFunction->minMaxValues( summaryCases, vectorSummaryAddresses );
 
     legendConfig->setAutomaticRanges( minValue, maxValue, minValue, maxValue );
 }

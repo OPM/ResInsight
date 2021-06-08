@@ -55,21 +55,22 @@ public:
     void setDefaultValues( const RimSummaryCaseCollection* summaryCaseCollection );
     void setFunctionType( RimObjectiveFunction::FunctionType functionType );
 
-    double value( size_t                                caseIndex,
-                  std::vector<RifEclipseSummaryAddress> vectorSummaryAddresses,
-                  bool*                                 hasWarning = nullptr ) const;
+    //     double value( size_t                                caseIndex,
+    //                   std::vector<RifEclipseSummaryAddress> vectorSummaryAddresses,
+    //                   bool*                                 hasWarning = nullptr ) const;
 
     double value( RimSummaryCase*                       summaryCase,
                   std::vector<RifEclipseSummaryAddress> vectorSummaryAddresses,
                   bool*                                 hasWarning = nullptr ) const;
 
-    std::pair<double, double> minMaxValues( std::vector<RifEclipseSummaryAddress> vectorSummaryAddresses ) const;
+    std::pair<double, double> minMaxValues( const std::vector<RimSummaryCase*>&          summaryCases,
+                                            const std::vector<RifEclipseSummaryAddress>& vectorSummaryAddresses ) const;
 
     std::pair<time_t, time_t> range() const;
 
-    std::vector<double> values( std::vector<RifEclipseSummaryAddress> vectorSummaryAddresses ) const;
+    // std::vector<double> values( std::vector<RifEclipseSummaryAddress> vectorSummaryAddresses ) const;
 
-    bool isValid( std::vector<RifEclipseSummaryAddress> vectorSummaryAddresses ) const;
+    // bool isValid( std::vector<RifEclipseSummaryAddress> vectorSummaryAddresses ) const;
 
     QString formulaString( std::vector<RifEclipseSummaryAddress> vectorSummaryAddresses );
 
@@ -79,8 +80,6 @@ protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
 private:
-    const RimSummaryCaseCollection* m_summaryCaseCollection;
-
     time_t              m_startTimeStep;
     time_t              m_endTimeStep;
     std::vector<time_t> m_timeSteps;

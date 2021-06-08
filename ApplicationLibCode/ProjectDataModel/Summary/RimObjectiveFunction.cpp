@@ -67,9 +67,8 @@ RimObjectiveFunction::RimObjectiveFunction()
 
     CAF_PDM_InitField( &m_useSquaredError, "UseSquaredError", true, "Use Squared Error Estimate", "", "", "" );
 
-    m_summaryCaseCollection = nullptr;
-    m_startTimeStep         = 0;
-    m_endTimeStep           = INT_MAX;
+    m_startTimeStep = 0;
+    m_endTimeStep   = INT_MAX;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -77,7 +76,7 @@ RimObjectiveFunction::RimObjectiveFunction()
 //--------------------------------------------------------------------------------------------------
 void RimObjectiveFunction::setDefaultValues( const RimSummaryCaseCollection* summaryCaseCollection )
 {
-    m_summaryCaseCollection = summaryCaseCollection;
+    // m_summaryCaseCollection = summaryCaseCollection;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -132,18 +131,18 @@ void RimObjectiveFunction::setTimeStepList( std::vector<time_t> timeSteps )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RimObjectiveFunction::value( size_t                                caseIndex,
-                                    std::vector<RifEclipseSummaryAddress> vectorSummaryAddresses,
-                                    bool*                                 hasWarning ) const
-{
-    auto summaryCases = m_summaryCaseCollection->allSummaryCases();
-
-    if ( caseIndex < summaryCases.size() )
-    {
-        return value( summaryCases[caseIndex], vectorSummaryAddresses, hasWarning );
-    }
-    return 0.0;
-}
+// double RimObjectiveFunction::value( size_t                                caseIndex,
+//                                     std::vector<RifEclipseSummaryAddress> vectorSummaryAddresses,
+//                                     bool*                                 hasWarning ) const
+// {
+//     auto summaryCases = m_summaryCaseCollection->allSummaryCases();
+//
+//     if ( caseIndex < summaryCases.size() )
+//     {
+//         return value( summaryCases[caseIndex], vectorSummaryAddresses, hasWarning );
+//     }
+//     return 0.0;
+// }
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -317,17 +316,21 @@ double RimObjectiveFunction::value( RimSummaryCase*                       summar
 ///
 //--------------------------------------------------------------------------------------------------
 std::pair<double, double>
-    RimObjectiveFunction::minMaxValues( std::vector<RifEclipseSummaryAddress> vectorSummaryAddresses ) const
+    RimObjectiveFunction::minMaxValues( const std::vector<RimSummaryCase*>&          summaryCases,
+                                        const std::vector<RifEclipseSummaryAddress>& vectorSummaryAddresses ) const
 {
     double minValue = std::numeric_limits<double>::infinity();
     double maxValue = -std::numeric_limits<double>::infinity();
 
-    for ( auto value : values( vectorSummaryAddresses ) )
+    for ( auto sumCase : summaryCases )
     {
-        if ( value != std::numeric_limits<double>::infinity() )
+        auto objValue = value( sumCase, vectorSummaryAddresses );
         {
-            if ( value < minValue ) minValue = value;
-            if ( value > maxValue ) maxValue = value;
+            if ( objValue != std::numeric_limits<double>::infinity() )
+            {
+                if ( objValue < minValue ) minValue = objValue;
+                if ( objValue > maxValue ) maxValue = objValue;
+            }
         }
     }
     return std::make_pair( minValue, maxValue );
@@ -344,28 +347,29 @@ std::pair<time_t, time_t> RimObjectiveFunction::range() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<double> RimObjectiveFunction::values( std::vector<RifEclipseSummaryAddress> vectorSummaryAddresses ) const
-{
-    std::vector<double> values;
-    auto                summaryCases = m_summaryCaseCollection->allSummaryCases();
-
-    bool hasWarning = false;
-
-    for ( size_t index = 0; index < summaryCases.size(); index++ )
-    {
-        values.push_back( value( index, vectorSummaryAddresses, &hasWarning ) );
-        if ( hasWarning )
-        {
-            return std::vector<double>();
-        }
-    }
-
-    return values;
-}
+// std::vector<double> RimObjectiveFunction::values( std::vector<RifEclipseSummaryAddress> vectorSummaryAddresses ) const
+// {
+//     std::vector<double> values;
+//     auto                summaryCases = m_summaryCaseCollection->allSummaryCases();
+//
+//     bool hasWarning = false;
+//
+//     for ( size_t index = 0; index < summaryCases.size(); index++ )
+//     {
+//         values.push_back( value( index, vectorSummaryAddresses, &hasWarning ) );
+//         if ( hasWarning )
+//         {
+//             return std::vector<double>();
+//         }
+//     }
+//
+//     return values;
+// }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+/*
 bool RimObjectiveFunction::isValid( std::vector<RifEclipseSummaryAddress> vectorSummaryAddresses ) const
 {
     bool hasWarning = false;
@@ -384,6 +388,7 @@ bool RimObjectiveFunction::isValid( std::vector<RifEclipseSummaryAddress> vector
     }
     return true;
 }
+*/
 
 //--------------------------------------------------------------------------------------------------
 ///

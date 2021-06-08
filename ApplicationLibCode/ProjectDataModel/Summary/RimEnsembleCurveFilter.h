@@ -98,12 +98,11 @@ private:
     caf::PdmField<caf::AppEnum<FilterMode>> m_filterMode;
     caf::PdmField<QString>                  m_ensembleParameterName;
 
-    caf::PdmChildArrayField<RimSummaryAddress*>                     m_objectiveValuesSummaryAddresses;
-    caf::PdmField<QString>                                          m_objectiveValuesSummaryAddressesUiField;
-    caf::PdmField<bool>                                             m_objectiveValuesSelectSummaryAddressPushButton;
-    caf::PdmField<caf::AppEnum<RimObjectiveFunction::FunctionType>> m_objectiveFunctionOld;
-    caf::PdmChildField<RimObjectiveFunction*>                       m_objectiveFunction;
-    caf::PdmPtrField<RimCustomObjectiveFunction*>                   m_customObjectiveFunction;
+    caf::PdmChildArrayField<RimSummaryAddress*>   m_objectiveValuesSummaryAddresses;
+    caf::PdmField<QString>                        m_objectiveValuesSummaryAddressesUiField;
+    caf::PdmField<bool>                           m_objectiveValuesSelectSummaryAddressPushButton;
+    caf::PdmChildField<RimObjectiveFunction*>     m_objectiveFunction;
+    caf::PdmPtrField<RimCustomObjectiveFunction*> m_customObjectiveFunction;
 
     caf::PdmField<double>               m_minValue;
     caf::PdmField<double>               m_maxValue;

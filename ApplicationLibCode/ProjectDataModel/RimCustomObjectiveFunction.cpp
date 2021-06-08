@@ -86,30 +86,26 @@ std::vector<RimCustomObjectiveFunctionWeight*> RimCustomObjectiveFunction::weigh
 //--------------------------------------------------------------------------------------------------
 std::vector<double> RimCustomObjectiveFunction::values() const
 {
+    if ( m_weights.empty() ) return {};
+
     std::vector<double>       values;
     RimSummaryCaseCollection* caseCollection = parentCurveSet()->summaryCaseCollection();
-    for ( auto weight : m_weights )
+
+    values.resize( m_weights.size() );
+    for ( size_t i = 0; i < m_weights.size(); i++ )
     {
-        std::vector<double> functionValues =
-            objectiveFunction( weight->objectiveFunction() )->values( weight->summaryAddresses() );
-        if ( values.size() == 0 )
+        auto   weight          = m_weights[i];
+        double aggregatedValue = 0.0;
+        for ( auto sumCase : caseCollection->allSummaryCases() )
         {
-            for ( size_t i = 0; i < functionValues.size(); i++ )
-            {
-                values.push_back( weight->weightValue() * functionValues[i] );
-            }
+            double objValue =
+                objectiveFunction( weight->objectiveFunction() )->value( sumCase, weight->summaryAddresses() );
+
+            aggregatedValue += objValue * weight->weightValue();
         }
-        else
-        {
-            for ( size_t i = 0; i < functionValues.size(); i++ )
-            {
-                if ( values.size() > i + 1 )
-                {
-                    values[i] += weight->weightValue() * functionValues[i];
-                }
-            }
-        }
+        values[i] = aggregatedValue;
     }
+
     return values;
 }
 

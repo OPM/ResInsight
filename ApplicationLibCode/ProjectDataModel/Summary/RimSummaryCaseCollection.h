@@ -181,5 +181,5 @@ private:
 
     mutable std::vector<EnsembleParameter> m_cachedSortedEnsembleParameters;
 
-    caf::PdmChildArrayField<RimObjectiveFunction*> m_objectiveFunctions;
+    // caf::PdmChildArrayField<RimObjectiveFunction*> m_objectiveFunctions;
 };

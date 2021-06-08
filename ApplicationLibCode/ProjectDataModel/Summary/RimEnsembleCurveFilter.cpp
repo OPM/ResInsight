@@ -97,12 +97,9 @@ RimEnsembleCurveFilter::RimEnsembleCurveFilter()
     m_objectiveValuesSelectSummaryAddressPushButton.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
     m_objectiveValuesSelectSummaryAddressPushButton = false;
 
-    CAF_PDM_InitFieldNoDefault( &m_objectiveFunctionOld, "ObjectiveFunction", "Objective Function", "", "", "" );
-    m_objectiveFunctionOld.uiCapability()->setUiEditorTypeName( caf::PdmUiListEditor::uiEditorTypeName() );
-
     CAF_PDM_InitFieldNoDefault( &m_objectiveFunction, "ObjectiveFunction", "Objective Function", "", "", "" );
-    m_objectiveFunction->uiCapability()->setUiHidden( true );
     m_objectiveFunction = new RimObjectiveFunction();
+    m_objectiveFunction.uiCapability()->setUiHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_customObjectiveFunction, "CustomObjectiveFunction", "Custom Objective Function", "", "", "" );
     m_customObjectiveFunction.uiCapability()->setUiEditorTypeName( caf::PdmUiListEditor::uiEditorTypeName() );
@@ -662,12 +659,13 @@ void RimEnsembleCurveFilter::updateMaxMinAndDefaultValues( bool forceDefault )
         {
             addresses.push_back( address->address() );
         }
-        if ( objectiveFunction->isValid( addresses ) )
         {
-            std::pair<double, double> minMaxValues = objectiveFunction->minMaxValues( addresses );
+            auto summaryCases = parentCurveSet()->summaryCaseCollection()->allSummaryCases();
 
-            m_lowerLimit = minMaxValues.first;
-            m_upperLimit = minMaxValues.second;
+            auto [minObjValue, maxObjValue] = objectiveFunction->minMaxValues( summaryCases, addresses );
+
+            m_lowerLimit = minObjValue;
+            m_upperLimit = maxObjValue;
 
             if ( forceDefault || !( m_minValue >= m_lowerLimit && m_minValue <= m_upperLimit ) )
                 m_minValue = m_lowerLimit;
