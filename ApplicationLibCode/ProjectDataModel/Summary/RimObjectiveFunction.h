@@ -31,12 +31,23 @@ class RimSummaryCase;
 class RimSummaryCaseCollection;
 class RifEclipseSummaryAddress;
 
+class ObjectiveFunctionTimeConfig
+{
+public:
+    time_t              m_startTimeStep;
+    time_t              m_endTimeStep;
+    std::vector<time_t> m_timeSteps;
+};
+
 //==================================================================================================
 ///
 //==================================================================================================
 class RimObjectiveFunction : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
+
+public:
+    caf::Signal<> filterChanged;
 
 public:
     enum class FunctionType
@@ -48,8 +59,10 @@ public:
     QString                            uiName() const;
     RimObjectiveFunction::FunctionType functionType();
 
-    void setTimeStepRange( time_t startTime, time_t endTime );
-    void setTimeStepList( std::vector<time_t> timeSteps );
+    /*
+        void setTimeStepRange( time_t startTime, time_t endTime );
+        void setTimeStepList( std::vector<time_t> timeSteps );
+    */
 
     RimObjectiveFunction();
     void setDefaultValues( const RimSummaryCaseCollection* summaryCaseCollection );
@@ -59,14 +72,16 @@ public:
     //                   std::vector<RifEclipseSummaryAddress> vectorSummaryAddresses,
     //                   bool*                                 hasWarning = nullptr ) const;
 
-    double value( RimSummaryCase*                       summaryCase,
-                  std::vector<RifEclipseSummaryAddress> vectorSummaryAddresses,
-                  bool*                                 hasWarning = nullptr ) const;
+    double value( RimSummaryCase*                              summaryCase,
+                  const std::vector<RifEclipseSummaryAddress>& vectorSummaryAddresses,
+                  const ObjectiveFunctionTimeConfig&           timeConfig,
+                  bool*                                        hasWarning = nullptr ) const;
 
     std::pair<double, double> minMaxValues( const std::vector<RimSummaryCase*>&          summaryCases,
-                                            const std::vector<RifEclipseSummaryAddress>& vectorSummaryAddresses ) const;
+                                            const std::vector<RifEclipseSummaryAddress>& vectorSummaryAddresses,
+                                            const ObjectiveFunctionTimeConfig&           timeConfig ) const;
 
-    std::pair<time_t, time_t> range() const;
+    //    std::pair<time_t, time_t> range() const;
 
     // std::vector<double> values( std::vector<RifEclipseSummaryAddress> vectorSummaryAddresses ) const;
 
@@ -78,11 +93,14 @@ public:
 
 protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
 private:
-    time_t              m_startTimeStep;
-    time_t              m_endTimeStep;
-    std::vector<time_t> m_timeSteps;
+    /*
+        time_t              m_startTimeStep;
+        time_t              m_endTimeStep;
+        std::vector<time_t> m_timeSteps;
+    */
 
     caf::PdmField<caf::AppEnum<RimObjectiveFunction::FunctionType>> m_functionType;
     caf::PdmField<bool>                                             m_divideByNumberOfObservations;

@@ -604,7 +604,7 @@ void RimEnsembleCurveSet::setTimeSteps( const std::vector<size_t>& timeStepIndic
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<time_t> RimEnsembleCurveSet::selectedTimeSteps()
+std::vector<time_t> RimEnsembleCurveSet::selectedTimeSteps() const
 {
     std::vector<time_t> selectedTimeTTimeSteps;
     for ( const QDateTime& dateTime : m_selectedTimeSteps.v() )
@@ -685,7 +685,7 @@ void RimEnsembleCurveSet::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
         updateAddressesUiField();
 
         std::vector<size_t> indices;
-        indices.push_back( m_objectiveFunction()->range().first );
+        indices.push_back( 0 );
         setTimeSteps( indices );
 
         updateMaxMinAndDefaultValues();
@@ -741,7 +741,6 @@ void RimEnsembleCurveSet::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
     }
     else if ( changedField == &m_selectedTimeSteps )
     {
-        m_objectiveFunction()->setTimeStepList( selectedTimeSteps() );
         updateCurveColors();
         updateTimeAnnotations();
         updateObjectiveFunctionLegend();
@@ -854,7 +853,7 @@ void RimEnsembleCurveSet::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
             if ( m_customObjectiveFunction()->weightContainsFunctionType( RimObjectiveFunction::FunctionType::F2 ) )
             {
                 std::vector<size_t> indices;
-                indices.push_back( m_objectiveFunction()->range().first );
+                indices.push_back( 0 );
                 setTimeSteps( indices );
             }
 
@@ -918,8 +917,6 @@ void RimEnsembleCurveSet::updateMaxMinAndDefaultValues()
 {
     m_minDateRange = QDateTime::fromSecsSinceEpoch( m_minTimeStep ).date();
     m_maxDateRange = QDateTime::fromSecsSinceEpoch( m_maxTimeStep ).date();
-
-    m_objectiveFunction()->setTimeStepRange( m_minTimeStep(), m_maxTimeStep() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1404,6 +1401,14 @@ void RimEnsembleCurveSet::updateObjectiveFunctionLegend()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+ObjectiveFunctionTimeConfig RimEnsembleCurveSet::objectiveFunctionTimeConfig() const
+{
+    return { m_minTimeStep(), m_maxTimeStep(), selectedTimeSteps() };
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimEnsembleCurveSet::updateCurveColors()
 {
     if ( m_colorMode == ColorMode::BY_ENSEMBLE_PARAM )
@@ -1493,7 +1498,8 @@ void RimEnsembleCurveSet::updateCurveColors()
                 RimEnsembleCurveSetColorManager::initializeLegendConfig( m_legendConfig,
                                                                          objectiveFunction,
                                                                          group->allSummaryCases(),
-                                                                         summaryAddresses );
+                                                                         summaryAddresses,
+                                                                         objectiveFunctionTimeConfig() );
                 for ( auto& curve : m_curves )
                 {
                     if ( curve->summaryAddressY().category() == RifEclipseSummaryAddress::SUMMARY_ENSEMBLE_STATISTICS )
@@ -1502,7 +1508,8 @@ void RimEnsembleCurveSet::updateCurveColors()
                     cvf::Color3f    curveColor = RimEnsembleCurveSetColorManager::caseColor( m_legendConfig,
                                                                                           rimCase,
                                                                                           objectiveFunction,
-                                                                                          summaryAddresses );
+                                                                                          summaryAddresses,
+                                                                                          objectiveFunctionTimeConfig() );
                     curve->setColor( curveColor );
                     curve->updateCurveAppearance();
                 }

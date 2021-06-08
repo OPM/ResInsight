@@ -50,6 +50,8 @@ CAF_PDM_SOURCE_INIT( RimObjectiveFunction, "RimObjectiveFunction" );
 ///
 //--------------------------------------------------------------------------------------------------
 RimObjectiveFunction::RimObjectiveFunction()
+    : filterChanged( this )
+
 {
     CAF_PDM_InitObject( "Objective Function", "", "", "" );
 
@@ -67,8 +69,10 @@ RimObjectiveFunction::RimObjectiveFunction()
 
     CAF_PDM_InitField( &m_useSquaredError, "UseSquaredError", true, "Use Squared Error Estimate", "", "", "" );
 
-    m_startTimeStep = 0;
-    m_endTimeStep   = INT_MAX;
+    /*
+        m_startTimeStep = 0;
+        m_endTimeStep   = INT_MAX;
+    */
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -114,6 +118,7 @@ RimObjectiveFunction::FunctionType RimObjectiveFunction::functionType()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+/*
 void RimObjectiveFunction::setTimeStepRange( time_t startTimeStep, time_t endTimeStep )
 {
     m_startTimeStep = startTimeStep;
@@ -127,6 +132,7 @@ void RimObjectiveFunction::setTimeStepList( std::vector<time_t> timeSteps )
 {
     m_timeSteps = timeSteps;
 }
+*/
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -147,9 +153,10 @@ void RimObjectiveFunction::setTimeStepList( std::vector<time_t> timeSteps )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RimObjectiveFunction::value( RimSummaryCase*                       summaryCase,
-                                    std::vector<RifEclipseSummaryAddress> vectorSummaryAddresses,
-                                    bool*                                 hasWarning ) const
+double RimObjectiveFunction::value( RimSummaryCase*                              summaryCase,
+                                    const std::vector<RifEclipseSummaryAddress>& vectorSummaryAddresses,
+                                    const ObjectiveFunctionTimeConfig&           timeConfig,
+                                    bool*                                        hasWarning ) const
 {
     RifSummaryReaderInterface* readerInterface = summaryCase->summaryReader();
     if ( readerInterface )
@@ -186,7 +193,7 @@ double RimObjectiveFunction::value( RimSummaryCase*                       summar
                             {
                                 for ( time_t t : timeSteps )
                                 {
-                                    if ( t >= m_startTimeStep && t <= m_endTimeStep )
+                                    if ( t >= timeConfig.m_startTimeStep && t <= timeConfig.m_endTimeStep )
                                     {
                                         const double& value = values[index];
                                         sumValues += std::abs( value );
@@ -243,47 +250,13 @@ double RimObjectiveFunction::value( RimSummaryCase*                       summar
                         {
                             const std::vector<time_t>& timeSteps = readerInterface->timeSteps( vectorSummaryAddressDiff );
 
-                            size_t index = 0;
-
-                            std::vector<time_t> xValues( 2, 0 );
-                            std::vector<double> yValues( 2, 0.0 );
-                            for ( time_t t : timeSteps )
+                            for ( time_t timeStep : timeConfig.m_timeSteps )
                             {
-                                if ( t >= m_startTimeStep && t <= m_endTimeStep )
+                                double interpValue =
+                                    std::abs( RiaCurveMerger<time_t>::interpolatedYValue( timeStep, timeSteps, values ) );
+                                if ( interpValue != HUGE_VAL )
                                 {
-                                    if ( xValues.front() == 0 )
-                                    {
-                                        xValues[0] = t;
-                                        yValues[0] = values[index];
-                                    }
-                                    else if ( xValues.back() == 0 )
-                                    {
-                                        xValues[1] = t;
-                                        yValues[1] = values[index];
-                                    }
-                                    else
-                                    {
-                                        xValues[0] = xValues[1];
-                                        xValues[1] = t;
-                                        yValues[0] = yValues[1];
-                                        yValues[1] = values[index];
-                                    }
-                                    if ( xValues.back() != 0 )
-                                    {
-                                        for ( time_t timeStep : m_timeSteps )
-                                        {
-                                            if ( xValues[0] <= timeStep && xValues[1] >= timeStep )
-                                            {
-                                                double interpValue = std::abs(
-                                                    RiaCurveMerger<time_t>::interpolatedYValue( timeStep, xValues, yValues ) );
-                                                if ( interpValue != HUGE_VAL )
-                                                {
-                                                    value += interpValue;
-                                                }
-                                            }
-                                        }
-                                    }
-                                    index++;
+                                    value += interpValue;
                                 }
                             }
                         }
@@ -317,14 +290,15 @@ double RimObjectiveFunction::value( RimSummaryCase*                       summar
 //--------------------------------------------------------------------------------------------------
 std::pair<double, double>
     RimObjectiveFunction::minMaxValues( const std::vector<RimSummaryCase*>&          summaryCases,
-                                        const std::vector<RifEclipseSummaryAddress>& vectorSummaryAddresses ) const
+                                        const std::vector<RifEclipseSummaryAddress>& vectorSummaryAddresses,
+                                        const ObjectiveFunctionTimeConfig&           timeConfig ) const
 {
     double minValue = std::numeric_limits<double>::infinity();
     double maxValue = -std::numeric_limits<double>::infinity();
 
     for ( auto sumCase : summaryCases )
     {
-        auto objValue = value( sumCase, vectorSummaryAddresses );
+        auto objValue = value( sumCase, vectorSummaryAddresses, timeConfig );
         {
             if ( objValue != std::numeric_limits<double>::infinity() )
             {
@@ -339,10 +313,12 @@ std::pair<double, double>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+/*
 std::pair<time_t, time_t> RimObjectiveFunction::range() const
 {
     return std::make_pair( m_startTimeStep, m_endTimeStep );
 }
+*/
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -434,8 +410,18 @@ bool RimObjectiveFunction::operator<( const RimObjectiveFunction& other ) const
 //--------------------------------------------------------------------------------------------------
 void RimObjectiveFunction::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
+    uiOrdering.add( &m_functionType );
     uiOrdering.add( &m_divideByNumberOfObservations );
     uiOrdering.add( &m_errorEstimatePercentage );
     uiOrdering.add( &m_useSquaredError );
-    uiOrdering.skipRemainingFields();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimObjectiveFunction::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
+                                             const QVariant&            oldValue,
+                                             const QVariant&            newValue )
+{
+    filterChanged.send();
 }

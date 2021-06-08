@@ -100,6 +100,9 @@ RimEnsembleCurveFilter::RimEnsembleCurveFilter()
     CAF_PDM_InitFieldNoDefault( &m_objectiveFunction, "ObjectiveFunction", "Objective Function", "", "", "" );
     m_objectiveFunction = new RimObjectiveFunction();
     m_objectiveFunction.uiCapability()->setUiHidden( true );
+    m_objectiveFunction.uiCapability()->setUiTreeHidden( true );
+    m_objectiveFunction.uiCapability()->setUiTreeChildrenHidden( true );
+    m_objectiveFunction->filterChanged.connect( this, &RimEnsembleCurveFilter::onFilterChanged );
 
     CAF_PDM_InitFieldNoDefault( &m_customObjectiveFunction, "CustomObjectiveFunction", "Custom Objective Function", "", "", "" );
     m_customObjectiveFunction.uiCapability()->setUiEditorTypeName( caf::PdmUiListEditor::uiEditorTypeName() );
@@ -456,6 +459,11 @@ void RimEnsembleCurveFilter::defineUiOrdering( QString uiConfigName, caf::PdmUiO
     {
         uiOrdering.add( &m_objectiveValuesSummaryAddressesUiField );
         uiOrdering.add( &m_objectiveValuesSelectSummaryAddressPushButton, { false, 1, 0 } );
+        {
+            auto equationGroup = uiOrdering.addNewGroup( "Equation" );
+            m_objectiveFunction->uiOrdering( "", *equationGroup );
+        }
+
         uiOrdering.add( &m_objectiveFunction );
     }
     else if ( m_filterMode() == FilterMode::BY_CUSTOM_OBJECTIVE_FUNCTION )
@@ -552,7 +560,8 @@ std::vector<RimSummaryCase*> RimEnsembleCurveFilter::applyFilter( const std::vec
                 addresses.push_back( address->address() );
             }
 
-            double value = m_objectiveFunction->value( sumCase, addresses, &hasWarning );
+            double value =
+                m_objectiveFunction->value( sumCase, addresses, curveSet->objectiveFunctionTimeConfig(), &hasWarning );
             if ( hasWarning ) continue;
 
             if ( value < m_minValue() || value > m_maxValue )
@@ -613,6 +622,14 @@ RimEnsembleCurveSet* RimEnsembleCurveFilter::parentCurveSet() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimEnsembleCurveFilter::onFilterChanged( const caf::SignalEmitter* emitter )
+{
+    updateMaxMinAndDefaultValues( true );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RimEnsembleCurveFilterCollection* RimEnsembleCurveFilter::parentCurveFilterCollection() const
 {
     RimEnsembleCurveFilterCollection* coll;
@@ -662,7 +679,8 @@ void RimEnsembleCurveFilter::updateMaxMinAndDefaultValues( bool forceDefault )
         {
             auto summaryCases = parentCurveSet()->summaryCaseCollection()->allSummaryCases();
 
-            auto [minObjValue, maxObjValue] = objectiveFunction->minMaxValues( summaryCases, addresses );
+            auto [minObjValue, maxObjValue] =
+                objectiveFunction->minMaxValues( summaryCases, addresses, parentCurveSet()->objectiveFunctionTimeConfig() );
 
             m_lowerLimit = minObjValue;
             m_upperLimit = maxObjValue;

@@ -136,9 +136,10 @@ void RimEnsembleCurveSetColorManager::initializeLegendConfig( RimRegularLegendCo
 void RimEnsembleCurveSetColorManager::initializeLegendConfig( RimRegularLegendConfig*             legendConfig,
                                                               RimObjectiveFunction*               objectiveFunction,
                                                               const std::vector<RimSummaryCase*>& summaryCases,
-                                                              const std::vector<RifEclipseSummaryAddress>& vectorSummaryAddresses )
+                                                              const std::vector<RifEclipseSummaryAddress>& vectorSummaryAddresses,
+                                                              const ObjectiveFunctionTimeConfig&           timeConfig )
 {
-    auto [minValue, maxValue] = objectiveFunction->minMaxValues( summaryCases, vectorSummaryAddresses );
+    auto [minValue, maxValue] = objectiveFunction->minMaxValues( summaryCases, vectorSummaryAddresses, timeConfig );
 
     legendConfig->setAutomaticRanges( minValue, maxValue, minValue, maxValue );
 }
@@ -202,9 +203,10 @@ cvf::Color3f RimEnsembleCurveSetColorManager::caseColor( const RimRegularLegendC
 cvf::Color3f RimEnsembleCurveSetColorManager::caseColor( const RimRegularLegendConfig*         legendConfig,
                                                          RimSummaryCase*                       summaryCase,
                                                          RimObjectiveFunction*                 objectiveFunction,
-                                                         std::vector<RifEclipseSummaryAddress> vectorSummaryAddresses )
+                                                         std::vector<RifEclipseSummaryAddress> vectorSummaryAddresses,
+                                                         const ObjectiveFunctionTimeConfig&    timeConfig )
 {
-    double value = objectiveFunction->value( summaryCase, vectorSummaryAddresses );
+    double value = objectiveFunction->value( summaryCase, vectorSummaryAddresses, timeConfig );
     if ( value != std::numeric_limits<double>::infinity() )
     {
         return cvf::Color3f( legendConfig->scalarMapper()->mapToColor( value ) );

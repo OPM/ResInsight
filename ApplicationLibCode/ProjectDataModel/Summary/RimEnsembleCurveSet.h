@@ -125,7 +125,7 @@ public:
 
     void                updateAllCurves();
     void                setTimeSteps( const std::vector<size_t>& timeStepIndices );
-    std::vector<time_t> selectedTimeSteps();
+    std::vector<time_t> selectedTimeSteps() const;
     void                updateStatisticsCurves();
 
     RimEnsembleCurveSet* clone() const;
@@ -152,6 +152,8 @@ public:
 
     void updateFilterLegend();
     void updateObjectiveFunctionLegend();
+
+    ObjectiveFunctionTimeConfig objectiveFunctionTimeConfig() const;
 
 private:
     void updateEnsembleCurves( const std::vector<RimSummaryCase*>& sumCases );
