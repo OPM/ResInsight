@@ -84,7 +84,7 @@ std::vector<RimCustomObjectiveFunctionWeight*> RimCustomObjectiveFunction::weigh
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<double> RimCustomObjectiveFunction::values() const
+std::vector<double> RimCustomObjectiveFunction::functionValueForAllCases() const
 {
     if ( m_weights.empty() ) return {};
 
@@ -93,22 +93,10 @@ std::vector<double> RimCustomObjectiveFunction::values() const
 
     std::vector<double> values;
 
-    values.resize( caseCollection->allSummaryCases().size() );
-    for ( size_t sumIdx = 0; sumIdx < caseCollection->allSummaryCases().size(); sumIdx++ )
+    for ( auto sumCase : caseCollection->allSummaryCases() )
     {
-        auto   sumCase         = caseCollection->allSummaryCases()[sumIdx];
-        double aggregatedValue = 0.0;
-
-        for ( size_t i = 0; i < m_weights.size(); i++ )
-        {
-            auto   weight = m_weights[i];
-            double objValue =
-                objectiveFunction( weight->objectiveFunction() )
-                    ->value( sumCase, weight->summaryAddresses(), parentCurveSet()->objectiveFunctionTimeConfig() );
-
-            aggregatedValue += objValue * weight->weightValue();
-        }
-        values[sumIdx] = aggregatedValue;
+        auto functionValue = value( sumCase );
+        values.push_back( functionValue );
     }
 
     return values;
@@ -119,8 +107,14 @@ std::vector<double> RimCustomObjectiveFunction::values() const
 //--------------------------------------------------------------------------------------------------
 double RimCustomObjectiveFunction::value( RimSummaryCase* summaryCase ) const
 {
-    double                    value          = 0.0;
     RimSummaryCaseCollection* caseCollection = parentCurveSet()->summaryCaseCollection();
+
+    if ( m_functionValueForAllCases.count( summaryCase ) > 0 )
+    {
+        return m_functionValueForAllCases[summaryCase];
+    }
+
+    double value = 0.0;
     for ( auto weight : m_weights )
     {
         double functionValue =
@@ -129,6 +123,9 @@ double RimCustomObjectiveFunction::value( RimSummaryCase* summaryCase ) const
 
         value += weight->weightValue() * functionValue;
     }
+
+    m_functionValueForAllCases[summaryCase] = value;
+
     return value;
 }
 
@@ -140,7 +137,7 @@ std::pair<double, double> RimCustomObjectiveFunction::minMaxValues() const
     double minValue = std::numeric_limits<double>::infinity();
     double maxValue = -std::numeric_limits<double>::infinity();
 
-    for ( auto value : values() )
+    for ( auto value : functionValueForAllCases() )
     {
         if ( value != std::numeric_limits<double>::infinity() )
         {
@@ -211,6 +208,7 @@ bool RimCustomObjectiveFunction::isValid() const
 //--------------------------------------------------------------------------------------------------
 void RimCustomObjectiveFunction::onWeightChanged()
 {
+    m_functionValueForAllCases.clear();
     parentCollection()->onObjectiveFunctionChanged( this );
 }
 
@@ -242,6 +240,14 @@ QString RimCustomObjectiveFunction::formulaString( std::vector<RifEclipseSummary
     }
     formula += weightFormulae.join( " + " );
     return formula;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimCustomObjectiveFunction::clearCache()
+{
+    m_functionValueForAllCases.clear();
 }
 
 //--------------------------------------------------------------------------------------------------

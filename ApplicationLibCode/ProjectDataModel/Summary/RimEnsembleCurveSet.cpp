@@ -652,8 +652,6 @@ void RimEnsembleCurveSet::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
     }
     else if ( changedField == &m_yValuesSummaryCaseCollection )
     {
-        // Empty address cache
-        // m_allAddressesCache.clear();
         updateAllCurves();
 
         updateTextInPlot = true;
@@ -673,15 +671,6 @@ void RimEnsembleCurveSet::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
         updateLegendMappingMode();
         updateCurveColors();
     }
-    /*
-        else if ( changedField == &m_objectiveFunctionType )
-        {
-            updateLegendMappingMode();
-            updateCurveColors();
-            updateTimeAnnotations();
-            updateObjectiveFunctionLegend();
-        }
-    */
     else if ( changedField == &m_objectiveValuesSummaryAddressesUiField )
     {
         updateAddressesUiField();
@@ -703,8 +692,6 @@ void RimEnsembleCurveSet::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
     else if ( changedField == &m_colorMode )
     {
         m_ensembleParameter.uiCapability()->setUiHidden( m_colorMode() != ColorMode::BY_ENSEMBLE_PARAM );
-
-        // m_objectiveFunctionType.uiCapability()->setUiHidden( m_colorMode() != ColorMode::BY_OBJECTIVE_FUNCTION );
 
         if ( m_colorMode() == ColorMode::BY_ENSEMBLE_PARAM )
         {
@@ -924,6 +911,11 @@ void RimEnsembleCurveSet::updateMaxMinAndDefaultValues()
     for ( auto filter : m_curveFilters->filters() )
     {
         filter->updateMaxMinAndDefaultValuesFromParent();
+    }
+
+    for ( auto objFunc : m_customObjectiveFunctions->objectiveFunctions() )
+    {
+        objFunc->clearCache();
     }
 }
 

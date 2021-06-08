@@ -153,7 +153,7 @@ void RimEnsembleCurveSetColorManager::initializeLegendConfig( RimRegularLegendCo
     double minValue = std::numeric_limits<double>::infinity();
     double maxValue = -std::numeric_limits<double>::infinity();
 
-    for ( auto value : customObjectiveFunction->values() )
+    for ( auto value : customObjectiveFunction->functionValueForAllCases() )
     {
         if ( value != std::numeric_limits<double>::infinity() )
         {

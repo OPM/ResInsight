@@ -45,7 +45,7 @@ public:
 
     RimCustomObjectiveFunctionWeight*              addWeight();
     std::vector<RimCustomObjectiveFunctionWeight*> weights() const;
-    std::vector<double>                            values() const;
+    std::vector<double>                            functionValueForAllCases() const;
     double                                         value( RimSummaryCase* summaryCase ) const;
     std::pair<double, double>                      minMaxValues() const;
     bool    weightContainsFunctionType( RimObjectiveFunction::FunctionType functionType ) const;
@@ -55,6 +55,8 @@ public:
     void    onWeightChanged();
     void    invalidate();
     QString formulaString( std::vector<RifEclipseSummaryAddress> vectorSummaryAddresses ) const;
+
+    void clearCache();
 
 private:
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /* = "" */ ) override;
@@ -74,6 +76,8 @@ private:
     caf::PdmField<QString>                                     m_customFunctionTitle;
     caf::PdmChildArrayField<RimCustomObjectiveFunctionWeight*> m_weights;
     caf::PdmChildArrayField<RimObjectiveFunction*>             m_objectiveFunctions;
+
+    mutable std::map<RimSummaryCase*, double> m_functionValueForAllCases;
 
     bool m_isValid;
 };
