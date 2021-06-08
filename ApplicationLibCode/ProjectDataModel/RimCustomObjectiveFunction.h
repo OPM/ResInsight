@@ -22,6 +22,7 @@
 #include "RimObjectiveFunction.h"
 
 #include "cafPdmChildArrayField.h"
+#include "cafPdmChildField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmProxyValueField.h"
@@ -64,11 +65,15 @@ private:
     RimEnsembleCurveSet*                  parentCurveSet() const;
     RimCustomObjectiveFunctionCollection* parentCollection() const;
 
+    RimObjectiveFunction* objectiveFunction( RimObjectiveFunction::FunctionType functionType ) const;
+
     caf::PdmFieldHandle* userDescriptionField() override;
 
 private:
     caf::PdmProxyValueField<QString>                           m_functionTitle;
     caf::PdmField<QString>                                     m_customFunctionTitle;
     caf::PdmChildArrayField<RimCustomObjectiveFunctionWeight*> m_weights;
-    bool                                                       m_isValid;
+    caf::PdmChildArrayField<RimObjectiveFunction*>             m_objectiveFunctions;
+
+    bool m_isValid;
 };

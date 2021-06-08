@@ -55,6 +55,18 @@ RimObjectiveFunction::RimObjectiveFunction()
 
     CAF_PDM_InitFieldNoDefault( &m_functionType, "FunctionType", "Function Type", "", "", "" );
 
+    CAF_PDM_InitField( &m_divideByNumberOfObservations,
+                       "DivideByNumberOfObservations",
+                       true,
+                       "Divide by Number of Observations",
+                       "",
+                       "",
+                       "" );
+
+    CAF_PDM_InitField( &m_errorEstimatePercentage, "ErrorEstimatePercentage", 100.0, "Error Estimate [0..100 %]", "", "", "" );
+
+    CAF_PDM_InitField( &m_useSquaredError, "UseSquaredError", true, "Use Squared Error Estimate", "", "", "" );
+
     m_summaryCaseCollection = nullptr;
     m_startTimeStep         = 0;
     m_endTimeStep           = INT_MAX;
@@ -63,10 +75,17 @@ RimObjectiveFunction::RimObjectiveFunction()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimObjectiveFunction::setDefaultValues( const RimSummaryCaseCollection* summaryCaseCollection, FunctionType type )
+void RimObjectiveFunction::setDefaultValues( const RimSummaryCaseCollection* summaryCaseCollection )
 {
     m_summaryCaseCollection = summaryCaseCollection;
-    m_functionType          = type;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimObjectiveFunction::setFunctionType( FunctionType functionType )
+{
+    m_functionType = functionType;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -403,4 +422,15 @@ QString RimObjectiveFunction::formulaString( std::vector<RifEclipseSummaryAddres
 bool RimObjectiveFunction::operator<( const RimObjectiveFunction& other ) const
 {
     return this->uiName() < other.uiName();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimObjectiveFunction::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
+{
+    uiOrdering.add( &m_divideByNumberOfObservations );
+    uiOrdering.add( &m_errorEstimatePercentage );
+    uiOrdering.add( &m_useSquaredError );
+    uiOrdering.skipRemainingFields();
 }

@@ -45,6 +45,19 @@ RimCustomObjectiveFunction::RimCustomObjectiveFunction()
 
     CAF_PDM_InitFieldNoDefault( &m_weights, "Weights", "", "", "", "" );
 
+    CAF_PDM_InitFieldNoDefault( &m_objectiveFunctions, "ObjectiveFunctions", "Objective Functions", "", "", "" );
+
+    {
+        auto objFunc1 = new RimObjectiveFunction();
+        objFunc1->setFunctionType( RimObjectiveFunction::FunctionType::F1 );
+        m_objectiveFunctions.push_back( objFunc1 );
+    }
+    {
+        auto objFunc1 = new RimObjectiveFunction();
+        objFunc1->setFunctionType( RimObjectiveFunction::FunctionType::F2 );
+        m_objectiveFunctions.push_back( objFunc1 );
+    }
+
     m_isValid = true;
 
     setDeletable( true );
@@ -78,7 +91,7 @@ std::vector<double> RimCustomObjectiveFunction::values() const
     for ( auto weight : m_weights )
     {
         std::vector<double> functionValues =
-            caseCollection->objectiveFunction( weight->objectiveFunction() )->values( weight->summaryAddresses() );
+            objectiveFunction( weight->objectiveFunction() )->values( weight->summaryAddresses() );
         if ( values.size() == 0 )
         {
             for ( size_t i = 0; i < functionValues.size(); i++ )
@@ -110,7 +123,7 @@ double RimCustomObjectiveFunction::value( RimSummaryCase* summaryCase ) const
     for ( auto weight : m_weights )
     {
         double functionValue =
-            caseCollection->objectiveFunction( weight->objectiveFunction() )->value( summaryCase, weight->summaryAddresses() );
+            objectiveFunction( weight->objectiveFunction() )->value( summaryCase, weight->summaryAddresses() );
 
         value += weight->weightValue() * functionValue;
     }
@@ -220,12 +233,10 @@ QString RimCustomObjectiveFunction::formulaString( std::vector<RifEclipseSummary
     QStringList weightFormulae;
     for ( auto weight : weights() )
     {
-        weightFormulae << QString( "%0 * %1" )
-                              .arg( weight->weightValue() )
-                              .arg( parentCurveSet()
-                                        ->summaryCaseCollection()
-                                        ->objectiveFunction( weight->objectiveFunction() )
-                                        ->formulaString( vectorSummaryAddresses ) );
+        weightFormulae
+            << QString( "%0 * %1" )
+                   .arg( weight->weightValue() )
+                   .arg( objectiveFunction( weight->objectiveFunction() )->formulaString( vectorSummaryAddresses ) );
     }
     formula += weightFormulae.join( " + " );
     return formula;
@@ -287,4 +298,19 @@ RimCustomObjectiveFunctionCollection* RimCustomObjectiveFunction::parentCollecti
     RimCustomObjectiveFunctionCollection* collection;
     firstAncestorOrThisOfType( collection );
     return collection;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimObjectiveFunction* RimCustomObjectiveFunction::objectiveFunction( RimObjectiveFunction::FunctionType functionType ) const
+{
+    for ( auto objectiveFunc : m_objectiveFunctions.childObjects() )
+    {
+        if ( objectiveFunc->functionType() == functionType )
+        {
+            return objectiveFunc;
+        }
+    }
+    return nullptr;
 }

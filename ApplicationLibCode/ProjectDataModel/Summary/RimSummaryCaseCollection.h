@@ -138,8 +138,7 @@ public:
     void              calculateEnsembleParametersIntersectionHash();
     void              clearEnsembleParametersHashes();
 
-    std::vector<RimObjectiveFunction*> objectiveFunctions() const;
-    RimObjectiveFunction*              objectiveFunction( RimObjectiveFunction::FunctionType functionType );
+    // RimObjectiveFunction* objectiveFunction( RimObjectiveFunction::FunctionType functionType );
 
     void loadDataAndUpdate();
 

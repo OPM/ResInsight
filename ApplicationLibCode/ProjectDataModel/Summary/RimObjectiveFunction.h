@@ -52,7 +52,8 @@ public:
     void setTimeStepList( std::vector<time_t> timeSteps );
 
     RimObjectiveFunction();
-    void setDefaultValues( const RimSummaryCaseCollection* summaryCaseCollection, FunctionType type );
+    void setDefaultValues( const RimSummaryCaseCollection* summaryCaseCollection );
+    void setFunctionType( RimObjectiveFunction::FunctionType functionType );
 
     double value( size_t                                caseIndex,
                   std::vector<RifEclipseSummaryAddress> vectorSummaryAddresses,
@@ -74,6 +75,9 @@ public:
 
     bool operator<( const RimObjectiveFunction& other ) const;
 
+protected:
+    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+
 private:
     const RimSummaryCaseCollection* m_summaryCaseCollection;
 
@@ -82,4 +86,7 @@ private:
     std::vector<time_t> m_timeSteps;
 
     caf::PdmField<caf::AppEnum<RimObjectiveFunction::FunctionType>> m_functionType;
+    caf::PdmField<bool>                                             m_divideByNumberOfObservations;
+    caf::PdmField<double>                                           m_errorEstimatePercentage;
+    caf::PdmField<bool>                                             m_useSquaredError;
 };

@@ -214,18 +214,20 @@ RimSummaryCaseCollection::RimSummaryCaseCollection()
 
     m_commonAddressCount = 0;
 
-    CAF_PDM_InitFieldNoDefault( &m_objectiveFunctions, "ObjectiveFunctions", "Objective Functions", "", "", "" );
+    /*
+        CAF_PDM_InitFieldNoDefault( &m_objectiveFunctions, "ObjectiveFunctions", "Objective Functions", "", "", "" );
 
-    {
-        auto objFunc1 = new RimObjectiveFunction();
-        objFunc1->setDefaultValues( this, RimObjectiveFunction::FunctionType::F1 );
-        m_objectiveFunctions.push_back( objFunc1 );
-    }
-    {
-        auto objFunc1 = new RimObjectiveFunction();
-        objFunc1->setDefaultValues( this, RimObjectiveFunction::FunctionType::F2 );
-        m_objectiveFunctions.push_back( objFunc1 );
-    }
+        {
+            auto objFunc1 = new RimObjectiveFunction();
+            objFunc1->setDefaultValues( this, RimObjectiveFunction::FunctionType::F1 );
+            m_objectiveFunctions.push_back( objFunc1 );
+        }
+        {
+            auto objFunc1 = new RimObjectiveFunction();
+            objFunc1->setDefaultValues( this, RimObjectiveFunction::FunctionType::F2 );
+            m_objectiveFunctions.push_back( objFunc1 );
+        }
+    */
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -878,25 +880,25 @@ void RimSummaryCaseCollection::clearEnsembleParametersHashes()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimObjectiveFunction*> RimSummaryCaseCollection::objectiveFunctions() const
-{
-    return m_objectiveFunctions.childObjects();
-}
+// std::vector<RimObjectiveFunction*> RimSummaryCaseCollection::objectiveFunctions() const
+// {
+//     return m_objectiveFunctions.childObjects();
+// }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimObjectiveFunction* RimSummaryCaseCollection::objectiveFunction( RimObjectiveFunction::FunctionType functionType )
-{
-    for ( auto objectiveFunc : m_objectiveFunctions.childObjects() )
-    {
-        if ( objectiveFunc->functionType() == functionType )
-        {
-            return objectiveFunc;
-        }
-    }
-    return nullptr;
-}
+// RimObjectiveFunction* RimSummaryCaseCollection::objectiveFunction( RimObjectiveFunction::FunctionType functionType )
+// {
+//     for ( auto objectiveFunc : m_objectiveFunctions.childObjects() )
+//     {
+//         if ( objectiveFunc->functionType() == functionType )
+//         {
+//             return objectiveFunc;
+//         }
+//     }
+//     return nullptr;
+// }
 
 //--------------------------------------------------------------------------------------------------
 ///

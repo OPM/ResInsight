@@ -97,8 +97,12 @@ RimEnsembleCurveFilter::RimEnsembleCurveFilter()
     m_objectiveValuesSelectSummaryAddressPushButton.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
     m_objectiveValuesSelectSummaryAddressPushButton = false;
 
+    CAF_PDM_InitFieldNoDefault( &m_objectiveFunctionOld, "ObjectiveFunction", "Objective Function", "", "", "" );
+    m_objectiveFunctionOld.uiCapability()->setUiEditorTypeName( caf::PdmUiListEditor::uiEditorTypeName() );
+
     CAF_PDM_InitFieldNoDefault( &m_objectiveFunction, "ObjectiveFunction", "Objective Function", "", "", "" );
-    m_objectiveFunction.uiCapability()->setUiEditorTypeName( caf::PdmUiListEditor::uiEditorTypeName() );
+    m_objectiveFunction->uiCapability()->setUiHidden( true );
+    m_objectiveFunction = new RimObjectiveFunction();
 
     CAF_PDM_InitFieldNoDefault( &m_customObjectiveFunction, "CustomObjectiveFunction", "Custom Objective Function", "", "", "" );
     m_customObjectiveFunction.uiCapability()->setUiEditorTypeName( caf::PdmUiListEditor::uiEditorTypeName() );
@@ -202,7 +206,7 @@ QString RimEnsembleCurveFilter::description() const
         }
         descriptor =
             QString( "%1::%2%3%4" )
-                .arg( caf::AppEnum<RimObjectiveFunction::FunctionType>( m_objectiveFunction() ).uiText() )
+                .arg( caf::AppEnum<RimObjectiveFunction::FunctionType>( m_objectiveFunction()->functionType() ).uiText() )
                 .arg( addressVector.size() > 1 ? "(" : "" )
                 .arg( QString::fromStdString( RifEclipseSummaryAddress::generateStringFromAddresses( addressVector, "+" ) ) )
                 .arg( addressVector.size() > 1 ? ")" : "" );
@@ -543,8 +547,7 @@ std::vector<RimSummaryCase*> RimEnsembleCurveFilter::applyFilter( const std::vec
         }
         else if ( m_filterMode() == FilterMode::BY_OBJECTIVE_FUNCTION )
         {
-            auto objectiveFunction = ensemble->objectiveFunction( m_objectiveFunction() );
-            bool hasWarning        = false;
+            bool hasWarning = false;
 
             std::vector<RifEclipseSummaryAddress> addresses;
             for ( auto address : m_objectiveValuesSummaryAddresses() )
@@ -552,7 +555,7 @@ std::vector<RimSummaryCase*> RimEnsembleCurveFilter::applyFilter( const std::vec
                 addresses.push_back( address->address() );
             }
 
-            double value = objectiveFunction->value( sumCase, addresses, &hasWarning );
+            double value = m_objectiveFunction->value( sumCase, addresses, &hasWarning );
             if ( hasWarning ) continue;
 
             if ( value < m_minValue() || value > m_maxValue )
@@ -653,7 +656,7 @@ void RimEnsembleCurveFilter::updateMaxMinAndDefaultValues( bool forceDefault )
     }
     else if ( m_filterMode() == FilterMode::BY_OBJECTIVE_FUNCTION )
     {
-        auto objectiveFunction = parentCurveSet()->summaryCaseCollection()->objectiveFunction( m_objectiveFunction() );
+        auto                                  objectiveFunction = m_objectiveFunction();
         std::vector<RifEclipseSummaryAddress> addresses;
         for ( auto address : m_objectiveValuesSummaryAddresses() )
         {

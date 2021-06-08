@@ -206,7 +206,7 @@ private:
     caf::PdmChildArrayField<RimSummaryAddress*>                     m_objectiveValuesSummaryAddresses;
     caf::PdmField<QString>                                          m_objectiveValuesSummaryAddressesUiField;
     caf::PdmField<bool>                                             m_objectiveValuesSelectSummaryAddressPushButton;
-    caf::PdmField<caf::AppEnum<RimObjectiveFunction::FunctionType>> m_objectiveFunction;
+    caf::PdmField<caf::AppEnum<RimObjectiveFunction::FunctionType>> m_objectiveFunctionType;
     caf::PdmPtrField<RimCustomObjectiveFunction*>                   m_customObjectiveFunction;
     caf::PdmField<time_t>                                           m_minTimeStep;
     caf::PdmField<time_t>                                           m_maxTimeStep;
@@ -217,11 +217,13 @@ private:
 
     caf::PdmField<caf::AppEnum<RiaDefines::PlotAxis>> m_plotAxis;
 
-    caf::PdmChildField<RimRegularLegendConfig*>               m_legendConfig;
-    caf::PdmChildField<RimEnsembleCurveFilterCollection*>     m_curveFilters;
-    caf::PdmChildField<RimEnsembleStatistics*>                m_statistics;
+    caf::PdmChildField<RimRegularLegendConfig*>           m_legendConfig;
+    caf::PdmChildField<RimEnsembleCurveFilterCollection*> m_curveFilters;
+    caf::PdmChildField<RimEnsembleStatistics*>            m_statistics;
+
     caf::PdmChildField<RimCustomObjectiveFunctionCollection*> m_customObjectiveFunctions;
     caf::PdmField<bool>                                       m_showObjectiveFunctionFormula;
+    caf::PdmChildField<RimObjectiveFunction*>                 m_objectiveFunction;
 
     caf::PdmField<bool>                          m_isUsingAutoName;
     caf::PdmField<QString>                       m_userDefinedName;

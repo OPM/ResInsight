@@ -24,6 +24,7 @@
 #include "RimObjectiveFunction.h"
 
 #include "cafPdmChildArrayField.h"
+#include "cafPdmChildField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmProxyValueField.h"
@@ -92,18 +93,21 @@ private:
     void                              updateMaxMinAndDefaultValues( bool forceDefault );
 
 private:
-    caf::PdmProxyValueField<QString>                                m_filterTitle;
-    caf::PdmField<bool>                                             m_active;
-    caf::PdmField<caf::AppEnum<FilterMode>>                         m_filterMode;
-    caf::PdmField<QString>                                          m_ensembleParameterName;
+    caf::PdmProxyValueField<QString>        m_filterTitle;
+    caf::PdmField<bool>                     m_active;
+    caf::PdmField<caf::AppEnum<FilterMode>> m_filterMode;
+    caf::PdmField<QString>                  m_ensembleParameterName;
+
     caf::PdmChildArrayField<RimSummaryAddress*>                     m_objectiveValuesSummaryAddresses;
     caf::PdmField<QString>                                          m_objectiveValuesSummaryAddressesUiField;
     caf::PdmField<bool>                                             m_objectiveValuesSelectSummaryAddressPushButton;
-    caf::PdmField<caf::AppEnum<RimObjectiveFunction::FunctionType>> m_objectiveFunction;
+    caf::PdmField<caf::AppEnum<RimObjectiveFunction::FunctionType>> m_objectiveFunctionOld;
+    caf::PdmChildField<RimObjectiveFunction*>                       m_objectiveFunction;
     caf::PdmPtrField<RimCustomObjectiveFunction*>                   m_customObjectiveFunction;
-    caf::PdmField<double>                                           m_minValue;
-    caf::PdmField<double>                                           m_maxValue;
-    caf::PdmField<std::vector<QString>>                             m_categories;
+
+    caf::PdmField<double>               m_minValue;
+    caf::PdmField<double>               m_maxValue;
+    caf::PdmField<std::vector<QString>> m_categories;
 
     double m_lowerLimit;
     double m_upperLimit;

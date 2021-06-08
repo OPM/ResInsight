@@ -155,8 +155,8 @@ RimEnsembleCurveSet::RimEnsembleCurveSet()
     m_objectiveValuesSelectSummaryAddressPushButton.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
     m_objectiveValuesSelectSummaryAddressPushButton = false;
 
-    CAF_PDM_InitFieldNoDefault( &m_objectiveFunction, "ObjectiveFunction", "Objective Function", "", "", "" );
-    m_objectiveFunction.uiCapability()->setUiEditorTypeName( caf::PdmUiListEditor::uiEditorTypeName() );
+    CAF_PDM_InitFieldNoDefault( &m_objectiveFunctionType, "ObjectiveFunction", "Objective Function", "", "", "" );
+    m_objectiveFunctionType.uiCapability()->setUiEditorTypeName( caf::PdmUiListEditor::uiEditorTypeName() );
 
     CAF_PDM_InitFieldNoDefault( &m_customObjectiveFunction, "CustomObjectiveFunction", "Objective Function", "", "", "" );
     m_customObjectiveFunction.uiCapability()->setUiEditorTypeName( caf::PdmUiListEditor::uiEditorTypeName() );
@@ -201,6 +201,10 @@ RimEnsembleCurveSet::RimEnsembleCurveSet()
                                 "" );
     m_customObjectiveFunctions = new RimCustomObjectiveFunctionCollection();
     m_customObjectiveFunctions->objectiveFunctionChanged.connect( this, &RimEnsembleCurveSet::onObjectiveFunctionChanged );
+
+    CAF_PDM_InitFieldNoDefault( &m_objectiveFunction, "ObjectiveFunction", "Objective Function", "", "", "" );
+    m_objectiveFunction->uiCapability()->setUiHidden( true );
+    m_objectiveFunction = new RimObjectiveFunction();
 
     CAF_PDM_InitFieldNoDefault( &m_statistics, "Statistics", "Statistics", "", "", "" );
     m_statistics = new RimEnsembleStatistics();
@@ -499,6 +503,7 @@ void RimEnsembleCurveSet::onLegendDefinitionChanged()
 void RimEnsembleCurveSet::setSummaryCaseCollection( RimSummaryCaseCollection* sumCaseCollection )
 {
     m_yValuesSummaryCaseCollection = sumCaseCollection;
+    m_objectiveFunction->setDefaultValues( sumCaseCollection );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -669,7 +674,7 @@ void RimEnsembleCurveSet::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
         updateLegendMappingMode();
         updateCurveColors();
     }
-    else if ( changedField == &m_objectiveFunction )
+    else if ( changedField == &m_objectiveFunctionType )
     {
         updateLegendMappingMode();
         updateCurveColors();
@@ -681,7 +686,7 @@ void RimEnsembleCurveSet::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
         updateAddressesUiField();
 
         std::vector<size_t> indices;
-        indices.push_back( summaryCaseCollection()->objectiveFunction( m_objectiveFunction() )->range().first );
+        indices.push_back( m_objectiveFunction()->range().first );
         setTimeSteps( indices );
 
         updateMaxMinAndDefaultValues();
@@ -697,7 +702,7 @@ void RimEnsembleCurveSet::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
     else if ( changedField == &m_colorMode )
     {
         m_ensembleParameter.uiCapability()->setUiHidden( m_colorMode() != ColorMode::BY_ENSEMBLE_PARAM );
-        m_objectiveFunction.uiCapability()->setUiHidden( m_colorMode() != ColorMode::BY_OBJECTIVE_FUNCTION );
+        m_objectiveFunctionType.uiCapability()->setUiHidden( m_colorMode() != ColorMode::BY_OBJECTIVE_FUNCTION );
 
         if ( m_colorMode() == ColorMode::BY_ENSEMBLE_PARAM )
         {
@@ -736,7 +741,7 @@ void RimEnsembleCurveSet::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
     }
     else if ( changedField == &m_selectedTimeSteps )
     {
-        summaryCaseCollection()->objectiveFunction( m_objectiveFunction() )->setTimeStepList( selectedTimeSteps() );
+        m_objectiveFunction()->setTimeStepList( selectedTimeSteps() );
         updateCurveColors();
         updateTimeAnnotations();
         updateObjectiveFunctionLegend();
@@ -849,8 +854,7 @@ void RimEnsembleCurveSet::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
             if ( m_customObjectiveFunction()->weightContainsFunctionType( RimObjectiveFunction::FunctionType::F2 ) )
             {
                 std::vector<size_t> indices;
-                indices.push_back(
-                    summaryCaseCollection()->objectiveFunction( RimObjectiveFunction::FunctionType::F2 )->range().first );
+                indices.push_back( m_objectiveFunction()->range().first );
                 setTimeSteps( indices );
             }
 
@@ -915,7 +919,7 @@ void RimEnsembleCurveSet::updateMaxMinAndDefaultValues()
     m_minDateRange = QDateTime::fromSecsSinceEpoch( m_minTimeStep ).date();
     m_maxDateRange = QDateTime::fromSecsSinceEpoch( m_maxTimeStep ).date();
 
-    summaryCaseCollection()->objectiveFunction( m_objectiveFunction() )->setTimeStepRange( m_minTimeStep(), m_maxTimeStep() );
+    m_objectiveFunction()->setTimeStepRange( m_minTimeStep(), m_maxTimeStep() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -950,32 +954,41 @@ void RimEnsembleCurveSet::appendColorGroup( caf::PdmUiOrdering& uiOrdering )
     {
         if ( m_colorMode == ColorMode::BY_OBJECTIVE_FUNCTION )
         {
-            m_objectiveFunction.uiCapability()->setUiReadOnly( !m_yValuesSummaryCaseCollection() );
             colorsGroup->add( &m_objectiveValuesSummaryAddressesUiField );
             colorsGroup->add( &m_objectiveValuesSelectSummaryAddressPushButton, { false, 1, 0 } );
-            colorsGroup->add( &m_objectiveFunction );
+
+            {
+                auto equationGroup = colorsGroup->addNewGroup( "Equation" );
+                m_objectiveFunction->uiOrdering( "", *equationGroup );
+                equationGroup->add( &m_showObjectiveFunctionFormula );
+            }
         }
         else
         {
             colorsGroup->add( &m_customObjectiveFunction );
+            colorsGroup->add( &m_showObjectiveFunctionFormula );
         }
-        colorsGroup->add( &m_showObjectiveFunctionFormula );
-        if ( ( m_colorMode == ColorMode::BY_OBJECTIVE_FUNCTION &&
-               m_objectiveFunction() == RimObjectiveFunction::FunctionType::F1 ) ||
-             ( m_colorMode == ColorMode::BY_CUSTOM_OBJECTIVE_FUNCTION && m_customObjectiveFunction() &&
-               m_customObjectiveFunction()->weightContainsFunctionType( RimObjectiveFunction::FunctionType::F1 ) ) )
+
         {
-            colorsGroup->add( &m_minDateRange );
-            colorsGroup->add( &m_minTimeStep );
-            colorsGroup->add( &m_maxDateRange );
-            colorsGroup->add( &m_maxTimeStep );
-        }
-        if ( m_objectiveFunction() == RimObjectiveFunction::FunctionType::F2 ||
-             ( m_customObjectiveFunction() &&
-               m_customObjectiveFunction()->weightContainsFunctionType( RimObjectiveFunction::FunctionType::F2 ) ) )
-        {
-            colorsGroup->add( &m_timeStepFilter );
-            colorsGroup->add( &m_selectedTimeSteps );
+            auto timeSelectionGroup = colorsGroup->addNewGroup( "Time Selection" );
+
+            if ( ( m_colorMode == ColorMode::BY_OBJECTIVE_FUNCTION &&
+                   m_objectiveFunctionType() == RimObjectiveFunction::FunctionType::F1 ) ||
+                 ( m_colorMode == ColorMode::BY_CUSTOM_OBJECTIVE_FUNCTION && m_customObjectiveFunction() &&
+                   m_customObjectiveFunction()->weightContainsFunctionType( RimObjectiveFunction::FunctionType::F1 ) ) )
+            {
+                timeSelectionGroup->add( &m_minDateRange );
+                timeSelectionGroup->add( &m_minTimeStep );
+                timeSelectionGroup->add( &m_maxDateRange );
+                timeSelectionGroup->add( &m_maxTimeStep );
+            }
+            if ( m_objectiveFunctionType() == RimObjectiveFunction::FunctionType::F2 ||
+                 ( m_customObjectiveFunction() &&
+                   m_customObjectiveFunction()->weightContainsFunctionType( RimObjectiveFunction::FunctionType::F2 ) ) )
+            {
+                timeSelectionGroup->add( &m_timeStepFilter );
+                timeSelectionGroup->add( &m_selectedTimeSteps );
+            }
         }
     }
 }
@@ -1354,13 +1367,10 @@ void RimEnsembleCurveSet::updateObjectiveFunctionLegend()
                     addresses.push_back( address->address() );
                 }
 
-                title = "Objective Function";
-                description =
-                    QString( "%0 = %1" )
-                        .arg( m_yValuesSummaryCaseCollection()->objectiveFunction( m_objectiveFunction() )->uiName() )
-                        .arg( m_yValuesSummaryCaseCollection()
-                                  ->objectiveFunction( m_objectiveFunction() )
-                                  ->formulaString( addresses ) );
+                title       = "Objective Function";
+                description = QString( "%0 = %1" )
+                                  .arg( m_objectiveFunction()->uiName() )
+                                  .arg( m_objectiveFunction()->formulaString( addresses ) );
             }
             else if ( m_colorMode() == ColorMode::BY_CUSTOM_OBJECTIVE_FUNCTION && m_customObjectiveFunction() )
             {
@@ -1465,14 +1475,14 @@ void RimEnsembleCurveSet::updateCurveColors()
             }
 
             legendTitle += "\n";
-            legendTitle += caf::AppEnum<RimObjectiveFunction::FunctionType>( m_objectiveFunction() ).uiText();
+            legendTitle += caf::AppEnum<RimObjectiveFunction::FunctionType>( m_objectiveFunctionType() ).uiText();
 
             m_legendConfig->setTitle( legendTitle );
         }
 
         if ( group && !group->allSummaryCases().empty() )
         {
-            auto                                  objectiveFunction = group->objectiveFunction( m_objectiveFunction() );
+            auto                                  objectiveFunction = m_objectiveFunction();
             std::vector<RifEclipseSummaryAddress> summaryAddresses;
             for ( auto address : m_objectiveValuesSummaryAddresses() )
             {
@@ -1589,7 +1599,7 @@ void RimEnsembleCurveSet::updateTimeAnnotations()
     plot->removeAllTimeAnnotations();
 
     if ( ( m_colorMode() == ColorMode::BY_OBJECTIVE_FUNCTION &&
-           m_objectiveFunction() == RimObjectiveFunction::FunctionType::F1 ) ||
+           m_objectiveFunctionType() == RimObjectiveFunction::FunctionType::F1 ) ||
          ( m_colorMode() == ColorMode::BY_CUSTOM_OBJECTIVE_FUNCTION && m_customObjectiveFunction() &&
            m_customObjectiveFunction()->weightContainsFunctionType( RimObjectiveFunction::FunctionType::F1 ) ) )
     {
@@ -1597,7 +1607,7 @@ void RimEnsembleCurveSet::updateTimeAnnotations()
     }
 
     if ( ( m_colorMode() == ColorMode::BY_OBJECTIVE_FUNCTION &&
-           m_objectiveFunction() == RimObjectiveFunction::FunctionType::F2 ) ||
+           m_objectiveFunctionType() == RimObjectiveFunction::FunctionType::F2 ) ||
          ( m_colorMode() == ColorMode::BY_CUSTOM_OBJECTIVE_FUNCTION && m_customObjectiveFunction() &&
            m_customObjectiveFunction()->weightContainsFunctionType( RimObjectiveFunction::FunctionType::F2 ) ) )
     {
