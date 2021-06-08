@@ -57,7 +57,7 @@ public:
     };
 
     QString                            shortName() const;
-    RimObjectiveFunction::FunctionType functionType();
+    RimObjectiveFunction::FunctionType functionType() const;
 
     RimObjectiveFunction();
     void setFunctionType( RimObjectiveFunction::FunctionType functionType );
@@ -75,9 +75,21 @@ public:
 
     bool operator<( const RimObjectiveFunction& other ) const;
 
+    void hideFunctionSelection();
+
 protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+
+private:
+    double errorEstimate() const;
+
+    std::vector<size_t> timeStepIndicesForEvaluation( const std::vector<time_t>&         allTimeSteps,
+                                                      const ObjectiveFunctionTimeConfig& timeConfig ) const;
+
+    double computeFunctionValue( const std::vector<double>& summaryDiffValues,
+                                 const std::vector<double>& summaryHistoryValues,
+                                 const std::vector<size_t>& evaluationIndices ) const;
 
 private:
     caf::PdmField<caf::AppEnum<RimObjectiveFunction::FunctionType>> m_functionType;
