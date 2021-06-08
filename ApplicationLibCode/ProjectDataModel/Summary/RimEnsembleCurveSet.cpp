@@ -197,7 +197,8 @@ RimEnsembleCurveSet::RimEnsembleCurveSet()
                                 "",
                                 "" );
     m_customObjectiveFunctions = new RimCustomObjectiveFunctionCollection();
-    m_customObjectiveFunctions->objectiveFunctionChanged.connect( this, &RimEnsembleCurveSet::onObjectiveFunctionChanged );
+    m_customObjectiveFunctions->objectiveFunctionChanged.connect( this,
+                                                                  &RimEnsembleCurveSet::onCustomObjectiveFunctionChanged );
 
     CAF_PDM_InitFieldNoDefault( &m_objectiveFunction, "ObjectiveFunction", "Objective Function", "", "", "" );
     m_objectiveFunction = new RimObjectiveFunction();
@@ -310,6 +311,7 @@ void RimEnsembleCurveSet::loadDataAndUpdate( bool updateParentPlot )
     updateAllCurves();
     updateFilterLegend();
     updateObjectiveFunctionLegend();
+    updateTimeAnnotations();
 
     if ( updateParentPlot )
     {
@@ -500,7 +502,6 @@ void RimEnsembleCurveSet::onLegendDefinitionChanged()
 void RimEnsembleCurveSet::setSummaryCaseCollection( RimSummaryCaseCollection* sumCaseCollection )
 {
     m_yValuesSummaryCaseCollection = sumCaseCollection;
-    m_objectiveFunction->setDefaultValues( sumCaseCollection );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -923,6 +924,16 @@ void RimEnsembleCurveSet::updateMaxMinAndDefaultValues()
     {
         filter->updateMaxMinAndDefaultValuesFromParent();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEnsembleCurveSet::onCustomObjectiveFunctionChanged( const caf::SignalEmitter* emitter )
+{
+    updateCurveColors();
+    updateFilterLegend();
+    updateObjectiveFunctionLegend();
 }
 
 //--------------------------------------------------------------------------------------------------

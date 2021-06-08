@@ -50,7 +50,7 @@ CAF_PDM_SOURCE_INIT( RimObjectiveFunction, "RimObjectiveFunction" );
 ///
 //--------------------------------------------------------------------------------------------------
 RimObjectiveFunction::RimObjectiveFunction()
-    : filterChanged( this )
+    : changed( this )
 
 {
     CAF_PDM_InitObject( "Objective Function", "", "", "" );
@@ -68,19 +68,6 @@ RimObjectiveFunction::RimObjectiveFunction()
     CAF_PDM_InitField( &m_errorEstimatePercentage, "ErrorEstimatePercentage", 100.0, "Error Estimate [0..100 %]", "", "", "" );
 
     CAF_PDM_InitField( &m_useSquaredError, "UseSquaredError", true, "Use Squared Error Estimate", "", "", "" );
-
-    /*
-        m_startTimeStep = 0;
-        m_endTimeStep   = INT_MAX;
-    */
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimObjectiveFunction::setDefaultValues( const RimSummaryCaseCollection* summaryCaseCollection )
-{
-    // m_summaryCaseCollection = summaryCaseCollection;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -114,41 +101,6 @@ RimObjectiveFunction::FunctionType RimObjectiveFunction::functionType()
 {
     return m_functionType();
 }
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-/*
-void RimObjectiveFunction::setTimeStepRange( time_t startTimeStep, time_t endTimeStep )
-{
-    m_startTimeStep = startTimeStep;
-    m_endTimeStep   = endTimeStep;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimObjectiveFunction::setTimeStepList( std::vector<time_t> timeSteps )
-{
-    m_timeSteps = timeSteps;
-}
-*/
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-// double RimObjectiveFunction::value( size_t                                caseIndex,
-//                                     std::vector<RifEclipseSummaryAddress> vectorSummaryAddresses,
-//                                     bool*                                 hasWarning ) const
-// {
-//     auto summaryCases = m_summaryCaseCollection->allSummaryCases();
-//
-//     if ( caseIndex < summaryCases.size() )
-//     {
-//         return value( summaryCases[caseIndex], vectorSummaryAddresses, hasWarning );
-//     }
-//     return 0.0;
-// }
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -313,62 +265,6 @@ std::pair<double, double>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-/*
-std::pair<time_t, time_t> RimObjectiveFunction::range() const
-{
-    return std::make_pair( m_startTimeStep, m_endTimeStep );
-}
-*/
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-// std::vector<double> RimObjectiveFunction::values( std::vector<RifEclipseSummaryAddress> vectorSummaryAddresses ) const
-// {
-//     std::vector<double> values;
-//     auto                summaryCases = m_summaryCaseCollection->allSummaryCases();
-//
-//     bool hasWarning = false;
-//
-//     for ( size_t index = 0; index < summaryCases.size(); index++ )
-//     {
-//         values.push_back( value( index, vectorSummaryAddresses, &hasWarning ) );
-//         if ( hasWarning )
-//         {
-//             return std::vector<double>();
-//         }
-//     }
-//
-//     return values;
-// }
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-/*
-bool RimObjectiveFunction::isValid( std::vector<RifEclipseSummaryAddress> vectorSummaryAddresses ) const
-{
-    bool hasWarning = false;
-    if ( m_summaryCaseCollection && m_summaryCaseCollection->allSummaryCases().size() > 0 &&
-         m_summaryCaseCollection->allSummaryCases().front() )
-    {
-        value( m_summaryCaseCollection->allSummaryCases().front(), vectorSummaryAddresses, &hasWarning );
-        if ( hasWarning )
-        {
-            return false;
-        }
-    }
-    else
-    {
-        return false;
-    }
-    return true;
-}
-*/
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 QString RimObjectiveFunction::formulaString( std::vector<RifEclipseSummaryAddress> vectorSummaryAddresses )
 {
     QString formula;
@@ -423,5 +319,5 @@ void RimObjectiveFunction::fieldChangedByUi( const caf::PdmFieldHandle* changedF
                                              const QVariant&            oldValue,
                                              const QVariant&            newValue )
 {
-    filterChanged.send();
+    changed.send();
 }

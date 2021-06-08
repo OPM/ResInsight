@@ -188,6 +188,7 @@ private:
     void updateAddressesUiField();
 
     void onObjectiveFunctionChanged( const caf::SignalEmitter* emitter );
+    void onCustomObjectiveFunctionChanged( const caf::SignalEmitter* emitter );
 
 private:
     caf::PdmField<bool>                       m_showCurves;

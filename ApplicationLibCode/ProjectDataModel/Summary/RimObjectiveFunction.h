@@ -47,7 +47,7 @@ class RimObjectiveFunction : public caf::PdmObject
     CAF_PDM_HEADER_INIT;
 
 public:
-    caf::Signal<> filterChanged;
+    caf::Signal<> changed;
 
 public:
     enum class FunctionType
@@ -59,18 +59,8 @@ public:
     QString                            uiName() const;
     RimObjectiveFunction::FunctionType functionType();
 
-    /*
-        void setTimeStepRange( time_t startTime, time_t endTime );
-        void setTimeStepList( std::vector<time_t> timeSteps );
-    */
-
     RimObjectiveFunction();
-    void setDefaultValues( const RimSummaryCaseCollection* summaryCaseCollection );
     void setFunctionType( RimObjectiveFunction::FunctionType functionType );
-
-    //     double value( size_t                                caseIndex,
-    //                   std::vector<RifEclipseSummaryAddress> vectorSummaryAddresses,
-    //                   bool*                                 hasWarning = nullptr ) const;
 
     double value( RimSummaryCase*                              summaryCase,
                   const std::vector<RifEclipseSummaryAddress>& vectorSummaryAddresses,
@@ -81,12 +71,6 @@ public:
                                             const std::vector<RifEclipseSummaryAddress>& vectorSummaryAddresses,
                                             const ObjectiveFunctionTimeConfig&           timeConfig ) const;
 
-    //    std::pair<time_t, time_t> range() const;
-
-    // std::vector<double> values( std::vector<RifEclipseSummaryAddress> vectorSummaryAddresses ) const;
-
-    // bool isValid( std::vector<RifEclipseSummaryAddress> vectorSummaryAddresses ) const;
-
     QString formulaString( std::vector<RifEclipseSummaryAddress> vectorSummaryAddresses );
 
     bool operator<( const RimObjectiveFunction& other ) const;
@@ -96,14 +80,9 @@ protected:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
 private:
-    /*
-        time_t              m_startTimeStep;
-        time_t              m_endTimeStep;
-        std::vector<time_t> m_timeSteps;
-    */
-
     caf::PdmField<caf::AppEnum<RimObjectiveFunction::FunctionType>> m_functionType;
-    caf::PdmField<bool>                                             m_divideByNumberOfObservations;
-    caf::PdmField<double>                                           m_errorEstimatePercentage;
-    caf::PdmField<bool>                                             m_useSquaredError;
+
+    caf::PdmField<bool>   m_divideByNumberOfObservations;
+    caf::PdmField<double> m_errorEstimatePercentage;
+    caf::PdmField<bool>   m_useSquaredError;
 };

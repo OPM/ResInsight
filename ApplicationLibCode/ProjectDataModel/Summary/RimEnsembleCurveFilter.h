@@ -85,7 +85,7 @@ public:
 
     RimEnsembleCurveSet* parentCurveSet() const;
 
-    void onFilterChanged( const caf::SignalEmitter* emitter );
+    void onObjectionFunctionChanged( const caf::SignalEmitter* emitter );
     void updateMaxMinAndDefaultValuesFromParent();
 
 protected:

@@ -102,7 +102,7 @@ RimEnsembleCurveFilter::RimEnsembleCurveFilter()
     m_objectiveFunction.uiCapability()->setUiHidden( true );
     m_objectiveFunction.uiCapability()->setUiTreeHidden( true );
     m_objectiveFunction.uiCapability()->setUiTreeChildrenHidden( true );
-    m_objectiveFunction->filterChanged.connect( this, &RimEnsembleCurveFilter::onFilterChanged );
+    m_objectiveFunction->changed.connect( this, &RimEnsembleCurveFilter::onObjectionFunctionChanged );
 
     CAF_PDM_InitFieldNoDefault( &m_customObjectiveFunction, "CustomObjectiveFunction", "Custom Objective Function", "", "", "" );
     m_customObjectiveFunction.uiCapability()->setUiEditorTypeName( caf::PdmUiListEditor::uiEditorTypeName() );
@@ -622,9 +622,12 @@ RimEnsembleCurveSet* RimEnsembleCurveFilter::parentCurveSet() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEnsembleCurveFilter::onFilterChanged( const caf::SignalEmitter* emitter )
+void RimEnsembleCurveFilter::onObjectionFunctionChanged( const caf::SignalEmitter* emitter )
 {
     updateMaxMinAndDefaultValues( true );
+
+    parentCurveSet()->updateAllCurves();
+    parentCurveSet()->updateFilterLegend();
 }
 
 //--------------------------------------------------------------------------------------------------
