@@ -328,8 +328,6 @@ void RimExtrudedCurveIntersection::defineUiOrdering( QString uiConfigName, caf::
 
     this->defineSeparateDataSourceUi( uiConfigName, uiOrdering );
 
-    updateWellExtentDefaultValue();
-
     uiOrdering.skipRemainingFields( true );
 }
 
@@ -623,24 +621,6 @@ void RimExtrudedCurveIntersection::addExtents( std::vector<cvf::Vec3d>& polyLine
         cvf::Vec3d newStart = polyLine.front() + startDirection * m_extentLength();
 
         polyLine.insert( polyLine.begin(), newStart );
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimExtrudedCurveIntersection::updateWellExtentDefaultValue()
-{
-    RimCase* ownerCase = nullptr;
-    firstAncestorOrThisOfType( ownerCase );
-
-    if ( ownerCase )
-    {
-        cvf::BoundingBox caseBB = ownerCase->activeCellsBoundingBox();
-        if ( m_extentLength == m_extentLength.defaultValue() && caseBB.radius() < 1000 )
-        {
-            m_extentLength = caseBB.radius() * 0.1;
-        }
     }
 }
 
