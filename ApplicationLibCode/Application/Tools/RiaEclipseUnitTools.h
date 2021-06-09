@@ -44,8 +44,6 @@ public:
 
     static double darcysConstant( RiaDefines::EclipseUnitSystem unitSystem );
 
-    static RiaDefines::DepthUnitType depthUnit( RiaDefines::EclipseUnitSystem unit );
-
     static double convertSurfaceGasFlowRateToOilEquivalents( RiaDefines::EclipseUnitSystem, double eclGasFlowRate );
 
     static QString unitStringPressure( RiaDefines::EclipseUnitSystem unitSystem );

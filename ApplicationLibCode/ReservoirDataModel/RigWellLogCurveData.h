@@ -41,6 +41,8 @@ public:
     RigWellLogCurveData();
     ~RigWellLogCurveData() override;
 
+    void setDepthUnit( RiaDefines::DepthUnitType depthUnit );
+
     void setValuesAndDepths( const std::vector<double>& xValues,
                              const std::vector<double>& depths,
                              RiaDefines::DepthTypeEnum  depthType,

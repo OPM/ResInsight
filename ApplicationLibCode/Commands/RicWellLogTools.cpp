@@ -19,6 +19,8 @@
 #include "RicWellLogTools.h"
 
 #include "RiaGuiApplication.h"
+
+#include "RigEclipseCaseData.h"
 #include "RigWellLogCurveData.h"
 
 #include "Rim3dView.h"
@@ -181,7 +183,16 @@ ExtractionCurveType* RicWellLogTools::addExtractionCurve( RimWellLogTrack*      
                                                           bool                    showPlotWindow )
 {
     CVF_ASSERT( plotTrack );
+
+    RiaDefines::DepthUnitType defaultDepthUnit = RiaDefines::DepthUnitType::UNIT_METER;
+
+    if ( auto eclipseCase = dynamic_cast<RimEclipseCase*>( caseToApply ) )
+    {
+        defaultDepthUnit = RiaDefines::fromEclipseUnit( eclipseCase->eclipseCaseData()->unitsType() );
+    }
+
     ExtractionCurveType* curve = new ExtractionCurveType();
+    curve->setDepthUnit( defaultDepthUnit );
 
     cvf::Color3f curveColor = RicWellLogPlotCurveFeatureImpl::curveColorFromTable( plotTrack->curveCount() );
     curve->setColor( curveColor );

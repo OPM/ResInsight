@@ -47,31 +47,6 @@ double RiaEclipseUnitTools::darcysConstant( RiaDefines::EclipseUnitSystem unitSy
 }
 
 //--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RiaDefines::DepthUnitType RiaEclipseUnitTools::depthUnit( RiaDefines::EclipseUnitSystem unit )
-{
-    switch ( unit )
-    {
-        case RiaDefines::EclipseUnitSystem::UNITS_METRIC:
-            return RiaDefines::DepthUnitType::UNIT_METER;
-            break;
-        case RiaDefines::EclipseUnitSystem::UNITS_FIELD:
-            return RiaDefines::DepthUnitType::UNIT_FEET;
-            break;
-        case RiaDefines::EclipseUnitSystem::UNITS_LAB:
-            return RiaDefines::DepthUnitType::UNIT_NONE;
-            break;
-        case RiaDefines::EclipseUnitSystem::UNITS_UNKNOWN:
-            return RiaDefines::DepthUnitType::UNIT_NONE;
-            break;
-        default:
-            return RiaDefines::DepthUnitType::UNIT_NONE;
-            break;
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
 /// Convert Gas to oil equivalents
 /// If field unit, the Gas is in Mega ft^3 while the others are in [stb] (barrel)
 //--------------------------------------------------------------------------------------------------

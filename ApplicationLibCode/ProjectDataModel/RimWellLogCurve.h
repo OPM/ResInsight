@@ -40,6 +40,8 @@ public:
     RimWellLogCurve();
     ~RimWellLogCurve() override;
 
+    void setDepthUnit( RiaDefines::DepthUnitType depthUnit );
+
     bool xValueRangeInData( double* minimumValue, double* maximumValue ) const;
     bool yValueRangeInData( double* minimumValue, double* maximumValue ) const;
 
