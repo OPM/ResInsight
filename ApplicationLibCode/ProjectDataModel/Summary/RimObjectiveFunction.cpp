@@ -340,7 +340,7 @@ double RimObjectiveFunction::computeFunctionValue( const std::vector<double>& su
 
     double sumValues        = 0.0;
     double sumValuesSquared = 0.0;
-    size_t valueCount       = 0;
+    size_t valueCount       = evaluationIndices.size();
 
     double averageHistoryValue = 0.0;
     if ( !summaryHistoryValues.empty() )
@@ -352,8 +352,6 @@ double RimObjectiveFunction::computeFunctionValue( const std::vector<double>& su
 
         averageHistoryValue /= summaryHistoryValues.size();
     }
-
-    valueCount = summaryDiffValues.size();
 
     //
     //         1       ( |ti - tHi|  ) n
