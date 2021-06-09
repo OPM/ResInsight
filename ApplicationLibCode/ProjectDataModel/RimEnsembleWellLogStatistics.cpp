@@ -19,7 +19,10 @@
 #include "RimEnsembleWellLogStatistics.h"
 
 #include "RiaCurveMerger.h"
+#include "RiaDefines.h"
+#include "RiaLogging.h"
 #include "RiaWeightedMeanCalculator.h"
+#include "RiaWellLogUnitTools.h"
 
 #include "RigStatisticsMath.h"
 #include "RigWellLogFile.h"
@@ -44,6 +47,8 @@ void caf::AppEnum<RimEnsembleWellLogStatistics::StatisticsType>::setUp()
 
 RimEnsembleWellLogStatistics::RimEnsembleWellLogStatistics()
 {
+    m_depthUnit            = RiaDefines::DepthUnitType::UNIT_NONE;
+    m_logChannelUnitString = RiaWellLogUnitTools<double>::noUnitString();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -61,9 +66,24 @@ void RimEnsembleWellLogStatistics::calculate( const std::vector<RimWellLogFile*>
         QString errorMessage;
         if ( wellLogFile->readFile( &errorMessage ) )
         {
-            RigWellLogFile*     fileData = wellLogFile->wellLogFileData();
-            std::vector<double> depths   = fileData->depthValues();
-            std::vector<double> values   = fileData->values( wellLogChannelName );
+            RigWellLogFile*           fileData        = wellLogFile->wellLogFileData();
+            RiaDefines::DepthUnitType depthUnitInFile = fileData->depthUnit();
+            if ( m_depthUnit != RiaDefines::DepthUnitType::UNIT_NONE && m_depthUnit != depthUnitInFile )
+            {
+                RiaLogging::error( QString( "Unexpected depth unit in file %1." ).arg( wellLogFile->fileName() ) );
+            }
+            m_depthUnit = depthUnitInFile;
+
+            QString logChannelUnitString = fileData->wellLogChannelUnitString( wellLogChannelName );
+            if ( m_logChannelUnitString != RiaWellLogUnitTools<double>::noUnitString() &&
+                 m_logChannelUnitString != logChannelUnitString )
+            {
+                RiaLogging::error( QString( "Unexpected unit in file %1." ).arg( wellLogFile->fileName() ) );
+            }
+            m_logChannelUnitString = logChannelUnitString;
+
+            std::vector<double> depths = fileData->depthValues();
+            std::vector<double> values = fileData->values( wellLogChannelName );
             if ( !depths.empty() && !values.empty() )
             {
                 dataSetSizeCalc.addValueAndWeight( depths.size(), 1.0 );
@@ -194,4 +214,20 @@ void RimEnsembleWellLogStatistics::clearData()
     m_p50Data.clear();
     m_p90Data.clear();
     m_meanData.clear();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiaDefines::DepthUnitType RimEnsembleWellLogStatistics::depthUnitType() const
+{
+    return m_depthUnit;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimEnsembleWellLogStatistics::logChannelUnitString() const
+{
+    return m_logChannelUnitString;
 }
