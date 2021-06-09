@@ -140,7 +140,7 @@ void RimWellLogFileCurve::onLoadDataAndUpdate( bool updateParentPlot )
                 if ( wellLogPlot && !this->curveData()->availableDepthTypes().count( wellLogPlot->depthType() ) )
                 {
                     QString depthTitle = wellLogPlot->depthAxisTitle();
-                    errMsg             = QString( "Display of %1 for LAS curves is not possible without %1 "
+                    errMsg             = QString( "Display of %1 for LAS curves is not possible without %2 "
                                       "values in the LAS-file or a well path to derive them from." )
                                  .arg( depthTitle )
                                  .arg( depthTitle );
