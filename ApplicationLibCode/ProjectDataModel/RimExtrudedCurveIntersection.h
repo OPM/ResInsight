@@ -139,7 +139,6 @@ private:
     RimSimWellInViewCollection* simulationWellCollection() const;
     void                        updateAzimuthLine();
     void                        updateSimulationWellCenterline() const;
-    void                        updateWellExtentDefaultValue();
     void                        addExtents( std::vector<cvf::Vec3d>& polyLine ) const;
     void                        updateName();
     static double               azimuthInRadians( cvf::Vec3d vec );
