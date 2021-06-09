@@ -158,7 +158,7 @@ RimEnsembleCurveSet::RimEnsembleCurveSet()
     CAF_PDM_InitFieldNoDefault( &m_customObjectiveFunction, "CustomObjectiveFunction", "Objective Function", "", "", "" );
     m_customObjectiveFunction.uiCapability()->setUiEditorTypeName( caf::PdmUiListEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitField( &m_showObjectiveFunctionFormula, "ShowObjectiveFunctionFormula", true, "Show Formula in Plot", "", "", "" );
+    CAF_PDM_InitField( &m_showObjectiveFunctionFormula, "ShowObjectiveFunctionFormula", true, "Show Text Box in Plot", "", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_minDateRange, "MinDateRange", "From", "", "", "" );
     m_minDateRange.uiCapability()->setUiEditorTypeName( caf::PdmUiDateEditor::uiEditorTypeName() );
@@ -806,7 +806,7 @@ void RimEnsembleCurveSet::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
     else if ( changedField == &m_objectiveValuesSelectSummaryAddressPushButton )
     {
         RiuSummaryVectorSelectionDialog dlg( nullptr );
-        dlg.enableMultiSelect( true );
+        RimEnsembleCurveSet::configureDialogForObjectiveFunctions( &dlg );
         RimSummaryCaseCollection* candidateEnsemble = m_yValuesSummaryCaseCollection();
 
         std::vector<RifEclipseSummaryAddress> candidateAddresses;
@@ -815,7 +815,6 @@ void RimEnsembleCurveSet::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
             candidateAddresses.push_back( address->address() );
         }
 
-        dlg.hideSummaryCases();
         dlg.setEnsembleAndAddresses( candidateEnsemble, candidateAddresses );
 
         if ( dlg.exec() == QDialog::Accepted )
@@ -927,6 +926,20 @@ void RimEnsembleCurveSet::onCustomObjectiveFunctionChanged( const caf::SignalEmi
     updateCurveColors();
     updateFilterLegend();
     updateObjectiveFunctionLegend();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEnsembleCurveSet::configureDialogForObjectiveFunctions( RiuSummaryVectorSelectionDialog* dialog )
+{
+    if ( !dialog ) return;
+
+    dialog->enableMultiSelect( true );
+    dialog->hideDifferenceVectors();
+    dialog->hideHistoryVectors();
+    dialog->hideVectorsWithNoHistory();
+    dialog->hideSummaryCases();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1376,7 +1389,7 @@ void RimEnsembleCurveSet::updateObjectiveFunctionLegend()
                 }
 
                 title       = "Objective Function";
-                description = QString( "%0 = %1" )
+                description = QString( "%0::%1" )
                                   .arg( m_objectiveFunction()->shortName() )
                                   .arg( m_objectiveFunction()->formulaString( addresses ) );
             }

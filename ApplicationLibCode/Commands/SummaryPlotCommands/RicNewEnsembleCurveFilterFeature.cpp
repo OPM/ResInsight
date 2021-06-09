@@ -26,6 +26,7 @@
 
 #include "cafSelectionManagerTools.h"
 
+#include "RicNewCustomObjectiveFunctionWeightFeature.h"
 #include <QAction>
 
 CAF_CMD_SOURCE_INIT( RicNewEnsembleCurveFilterFeature, "RicNewEnsembleCurveFilterFeature" );
@@ -67,7 +68,12 @@ void RicNewEnsembleCurveFilterFeature::onActionTriggered( bool isChecked )
         else
         {
             std::vector<RifEclipseSummaryAddress> addresses;
-            addresses.push_back( newFilter->parentCurveSet()->summaryAddress() );
+
+            auto candidateAdr = newFilter->parentCurveSet()->summaryAddress();
+            auto nativeQuantityName =
+                RicNewCustomObjectiveFunctionWeightFeature::nativeQuantityName( candidateAdr.quantityName() );
+            candidateAdr.setQuantityName( nativeQuantityName );
+            addresses.push_back( candidateAdr );
             newFilter->setSummaryAddresses( addresses );
         }
         newFilter->loadDataAndUpdate();

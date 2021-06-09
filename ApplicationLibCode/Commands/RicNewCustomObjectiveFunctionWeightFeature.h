@@ -20,6 +20,9 @@
 
 #include "cafCmdFeature.h"
 
+class RimCustomObjectiveFunction;
+class RimCustomObjectiveFunctionWeight;
+
 //==================================================================================================
 ///
 //==================================================================================================
@@ -27,9 +30,15 @@ class RicNewCustomObjectiveFunctionWeightFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
 
+public:
+    static RimCustomObjectiveFunctionWeight* addWeight( RimCustomObjectiveFunction* customObjectiveFunction );
+
+    // Returns a string without string endings 'H' and '_DIFF'
+    static std::string nativeQuantityName( const std::string& quantityName );
+
 protected:
     // Overrides
     bool isCommandEnabled() override;
-    void onActionTriggered(bool isChecked) override;
-    void setupActionLook(QAction* actionToSetup) override;
+    void onActionTriggered( bool isChecked ) override;
+    void setupActionLook( QAction* actionToSetup ) override;
 };

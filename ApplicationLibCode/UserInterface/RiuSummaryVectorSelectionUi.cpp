@@ -45,6 +45,7 @@
 
 #include <QDebug>
 
+#include "RifReaderEclipseSummary.h"
 #include <algorithm>
 
 CAF_PDM_SOURCE_INIT( RiuSummaryVectorSelectionUi, "RicSummaryAddressSelection" );
@@ -383,6 +384,10 @@ RiuSummaryVectorSelectionUi::RiuSummaryVectorSelectionUi()
     m_hideEnsembles      = false;
     m_hideSummaryCases   = false;
 
+    m_hideDifferenceVectors     = false;
+    m_hideHistoryVectors        = false;
+    m_hideVectorsWithoutHistory = false;
+
     m_prevCurveCount    = 0;
     m_prevCurveSetCount = 0;
 }
@@ -564,6 +569,30 @@ void RiuSummaryVectorSelectionUi::hideSummaryCases( bool hide )
 void RiuSummaryVectorSelectionUi::enableIndividualEnsembleCaseSelection( bool enable )
 {
     m_showIndividualEnsembleCases = enable;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuSummaryVectorSelectionUi::hideDifferenceVectors( bool hide )
+{
+    m_hideDifferenceVectors = hide;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuSummaryVectorSelectionUi::hideHistoryVectors( bool hide )
+{
+    m_hideHistoryVectors = hide;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuSummaryVectorSelectionUi::hideVectorsWithoutHistory( bool hide )
+{
+    m_hideVectorsWithoutHistory = hide;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1128,6 +1157,40 @@ std::set<RifEclipseSummaryAddress>
             }
         }
     }
+
+    if ( m_hideHistoryVectors || m_hideDifferenceVectors )
+    {
+        std::set<RifEclipseSummaryAddress> filteredAddresses;
+
+        for ( const auto& adr : addrUnion )
+        {
+            if ( m_hideHistoryVectors && adr.isHistoryQuantity() ) continue;
+
+            if ( m_hideDifferenceVectors )
+            {
+                const auto diffText = RifReaderEclipseSummary::differenceIdentifier();
+                if ( RiaStdStringTools::endsWith( adr.quantityName(), diffText ) ) continue;
+            }
+
+            if ( m_hideVectorsWithoutHistory )
+            {
+                auto candidateName = adr.quantityName() + RifReaderEclipseSummary::historyIdentifier();
+
+                bool found = false;
+                for ( const auto& ad : addrUnion )
+                {
+                    if ( ad.quantityName() == candidateName ) found = true;
+                }
+
+                if ( !found ) continue;
+            }
+
+            filteredAddresses.insert( adr );
+        }
+
+        addrUnion.swap( filteredAddresses );
+    }
+
     return addrUnion;
 }
 

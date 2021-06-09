@@ -18,6 +18,8 @@
 
 #include "RicNewCustomObjectiveFunctionFeature.h"
 
+#include "RicNewCustomObjectiveFunctionWeightFeature.h"
+
 #include "RimCustomObjectiveFunction.h"
 #include "RimCustomObjectiveFunctionCollection.h"
 #include "RimCustomObjectiveFunctionWeight.h"
@@ -53,8 +55,7 @@ void RicNewCustomObjectiveFunctionFeature::onActionTriggered( bool isChecked )
     if ( coll.size() == 1 )
     {
         RimCustomObjectiveFunction*       newFunc   = coll[0]->addObjectiveFunction();
-        RimCustomObjectiveFunctionWeight* newWeight = newFunc->addWeight();
-        newWeight->setSummaryAddress( newWeight->parentCurveSet()->summaryAddress() );
+        RimCustomObjectiveFunctionWeight* newWeight = RicNewCustomObjectiveFunctionWeightFeature::addWeight( newFunc );
         coll[0]->updateConnectedEditors();
         RiuPlotMainWindowTools::selectAsCurrentItem( newFunc );
         RiuPlotMainWindowTools::setExpanded( coll.front() );

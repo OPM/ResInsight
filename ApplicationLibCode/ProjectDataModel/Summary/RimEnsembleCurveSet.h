@@ -59,6 +59,7 @@ class RimObjectiveFunction;
 class RiuDraggableOverlayFrame;
 class RiaSummaryCurveDefinitionAnalyser;
 class RiaSummaryCurveDefinition;
+class RiuSummaryVectorSelectionDialog;
 
 class QwtPlot;
 class QwtPlotCurve;
@@ -154,6 +155,7 @@ public:
     void updateObjectiveFunctionLegend();
 
     ObjectiveFunctionTimeConfig objectiveFunctionTimeConfig() const;
+    static void                 configureDialogForObjectiveFunctions( RiuSummaryVectorSelectionDialog* dialog );
 
 private:
     void updateEnsembleCurves( const std::vector<RimSummaryCase*>& sumCases );

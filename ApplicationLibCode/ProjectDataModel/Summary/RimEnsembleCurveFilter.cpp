@@ -35,6 +35,7 @@
 #include "cafPdmUiListEditor.h"
 #include "cafPdmUiPushButtonEditor.h"
 
+#include "RicNewCustomObjectiveFunctionWeightFeature.h"
 #include <algorithm>
 
 namespace caf
@@ -363,7 +364,13 @@ void RimEnsembleCurveFilter::fieldChangedByUi( const caf::PdmFieldHandle* change
         if ( m_objectiveValuesSummaryAddresses.size() == 0 )
         {
             RimSummaryAddress* summaryAddress = new RimSummaryAddress();
-            summaryAddress->setAddress( parentCurveSet()->summaryAddress() );
+
+            RifEclipseSummaryAddress candidateAdr = parentCurveSet()->summaryAddress();
+
+            auto nativeQuantityName =
+                RicNewCustomObjectiveFunctionWeightFeature::nativeQuantityName( candidateAdr.quantityName() );
+            candidateAdr.setQuantityName( nativeQuantityName );
+            summaryAddress->setAddress( candidateAdr );
             m_objectiveValuesSummaryAddresses.push_back( summaryAddress );
             updateAddressesUiField();
         }
@@ -381,7 +388,7 @@ void RimEnsembleCurveFilter::fieldChangedByUi( const caf::PdmFieldHandle* change
     else if ( changedField == &m_objectiveValuesSelectSummaryAddressPushButton )
     {
         RiuSummaryVectorSelectionDialog dlg( nullptr );
-        dlg.enableMultiSelect( true );
+        RimEnsembleCurveSet::configureDialogForObjectiveFunctions( &dlg );
         RimSummaryCaseCollection* candidateEnsemble = parentCurveSet()->summaryCaseCollection();
 
         std::vector<RifEclipseSummaryAddress> candidateAddresses;
@@ -390,7 +397,6 @@ void RimEnsembleCurveFilter::fieldChangedByUi( const caf::PdmFieldHandle* change
             candidateAddresses.push_back( address->address() );
         }
 
-        dlg.hideSummaryCases();
         dlg.setEnsembleAndAddresses( candidateEnsemble, candidateAddresses );
 
         if ( dlg.exec() == QDialog::Accepted )
@@ -398,10 +404,11 @@ void RimEnsembleCurveFilter::fieldChangedByUi( const caf::PdmFieldHandle* change
             auto curveSelection = dlg.curveSelection();
             if ( !curveSelection.empty() )
             {
+                m_objectiveValuesSummaryAddresses.clear();
                 for ( auto address : curveSelection )
                 {
                     RimSummaryAddress* summaryAddress = new RimSummaryAddress();
-                    summaryAddress->setAddress( parentCurveSet()->summaryAddress() );
+                    summaryAddress->setAddress( address.summaryAddress() );
                     m_objectiveValuesSummaryAddresses.push_back( summaryAddress );
                 }
                 this->loadDataAndUpdate();
