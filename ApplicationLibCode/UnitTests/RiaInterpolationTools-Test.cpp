@@ -166,3 +166,27 @@ TEST( RiaInterpolationToolsTest, InterpolateMissingValuesStraightLineExtrapolate
     EXPECT_DOUBLE_EQ( y[4], 4.0 );
     EXPECT_DOUBLE_EQ( y[5], 5.0 );
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( RiaInterpolationToolsTest, InterpolateMissingValuesSmallDiffs )
+{
+    double              inf = std::numeric_limits<double>::infinity();
+    std::vector<double> x   = { 898.02149910694368,
+                              898.68522777852661,
+                              898.68522777852661,
+                              971.44605537010159,
+                              971.44605537010887,
+                              1074.7396805237731,
+                              1074.7396805237802 };
+    std::vector<double> y   = { inf, inf, inf, inf, inf, 590.65394902812329, 590.75823974609375 };
+
+    RiaInterpolationTools::interpolateMissingValues( x, y );
+    EXPECT_DOUBLE_EQ( y[0], 590.65394902812329 );
+    EXPECT_DOUBLE_EQ( y[1], 590.65394902812329 );
+    EXPECT_DOUBLE_EQ( y[2], 590.65394902812329 );
+    EXPECT_DOUBLE_EQ( y[3], 590.65394902812329 );
+    EXPECT_DOUBLE_EQ( y[4], 590.65394902812329 );
+    EXPECT_DOUBLE_EQ( y[5], 590.65394902812329 );
+}

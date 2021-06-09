@@ -162,7 +162,11 @@ int RiaInterpolationTools::extrapolateRange( int                        start,
     std::vector<double> ys = { y[firstPoint], y[lastPoint] };
     for ( int index = start; index < end; index++ )
     {
-        y[index] = extrapolate( xs, ys, x[index] );
+        // Avoid excessive extrapolation when points are very close
+        if ( almostEqual( xs[0], xs[1] ) || almostEqual( ys[0], ys[1] ) )
+            y[index] = ys[0];
+        else
+            y[index] = extrapolate( xs, ys, x[index] );
     }
 
     return end;
