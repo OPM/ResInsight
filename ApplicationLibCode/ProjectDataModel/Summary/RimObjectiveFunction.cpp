@@ -57,10 +57,18 @@ RimObjectiveFunction::RimObjectiveFunction()
 
     CAF_PDM_InitFieldNoDefault( &m_functionType, "FunctionType", "Function Type", "", "", "" );
 
-    CAF_PDM_InitField( &m_divideByNumberOfObservations,
-                       "DivideByNumberOfObservations",
+    CAF_PDM_InitField( &m_normalizeByNumberOfObservations,
+                       "NormalizeByNumberOfObservations",
                        true,
-                       "Nomalize by Number of Observations",
+                       "Normalize by Number of Observations",
+                       "",
+                       "",
+                       "" );
+
+    CAF_PDM_InitField( &m_normalizeByNumberOfVectors,
+                       "NormalizeByNumberOfVectors",
+                       true,
+                       "Normalize by Number of Vectors",
                        "",
                        "",
                        "" );
@@ -162,6 +170,11 @@ double RimObjectiveFunction::value( RimSummaryCase*                             
                 }
             }
 
+            if ( m_normalizeByNumberOfVectors && vectorSummaryAddresses.size() > 0 )
+            {
+                aggregatedObjectiveFunctionValue /= vectorSummaryAddresses.size();
+            }
+
             return aggregatedObjectiveFunctionValue;
         }
     }
@@ -206,43 +219,6 @@ QString RimObjectiveFunction::formulaString( std::vector<RifEclipseSummaryAddres
         formula += text + "\n";
     }
 
-    /*
-        if ( m_functionType == FunctionType::F1 )
-        {
-            if ( m_divideByNumberOfObservations ) formula += "1/N * ";
-
-            formula += "(" + QString::fromWCharArray( L"\u03A3" ) + "(|";
-            QStringList addresses;
-            for ( RifEclipseSummaryAddress address : vectorSummaryAddresses )
-            {
-                QString text = QString::fromStdString( address.uiText() +
-       RifReaderEclipseSummary::differenceIdentifier() ); addresses << text;
-            }
-            formula += addresses.join( "| + |" );
-
-            QString nominatorText;
-            if ( !vectorSummaryAddresses.empty() )
-            {
-                QString text = QString::fromStdString( vectorSummaryAddresses.front().uiText() +
-                                                       RifReaderEclipseSummary::historyIdentifier() );
-
-                nominatorText = QString::fromWCharArray( L"\u03B5" ) + " * " + text;
-            }
-
-            formula += QString( "|))/(%1)" ).arg( nominatorText );
-        }
-        else if ( m_functionType == FunctionType::F2 )
-        {
-            formula += QString::fromWCharArray( L"\u03A3" ) + "(|";
-            QStringList addresses;
-            for ( RifEclipseSummaryAddress address : vectorSummaryAddresses )
-            {
-                addresses << QString::fromStdString( address.uiText() );
-            }
-            formula += addresses.join( "| + |" );
-            formula += "|)";
-        }
-    */
     return formula;
 }
 
@@ -268,7 +244,8 @@ void RimObjectiveFunction::hideFunctionSelection()
 void RimObjectiveFunction::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     uiOrdering.add( &m_functionType );
-    uiOrdering.add( &m_divideByNumberOfObservations );
+    uiOrdering.add( &m_normalizeByNumberOfObservations );
+    uiOrdering.add( &m_normalizeByNumberOfVectors );
     uiOrdering.add( &m_errorEstimatePercentage );
     uiOrdering.add( &m_useSquaredError );
 }
@@ -280,6 +257,9 @@ void RimObjectiveFunction::fieldChangedByUi( const caf::PdmFieldHandle* changedF
                                              const QVariant&            oldValue,
                                              const QVariant&            newValue )
 {
+    double estimate           = m_errorEstimatePercentage;
+    m_errorEstimatePercentage = std::clamp( estimate, 0.0, 100.0 );
+
     changed.send();
 }
 
@@ -401,7 +381,7 @@ double RimObjectiveFunction::computeFunctionValue( const std::vector<double>& su
         else
             functionValue = sumValues;
 
-        if ( m_divideByNumberOfObservations ) functionValue /= valueCount;
+        if ( m_normalizeByNumberOfObservations ) functionValue /= valueCount;
 
         return functionValue;
     }

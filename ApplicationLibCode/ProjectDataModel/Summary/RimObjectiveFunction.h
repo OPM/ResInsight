@@ -94,7 +94,8 @@ private:
 private:
     caf::PdmField<caf::AppEnum<RimObjectiveFunction::FunctionType>> m_functionType;
 
-    caf::PdmField<bool>   m_divideByNumberOfObservations;
+    caf::PdmField<bool>   m_normalizeByNumberOfObservations;
     caf::PdmField<double> m_errorEstimatePercentage;
     caf::PdmField<bool>   m_useSquaredError;
+    caf::PdmField<bool>   m_normalizeByNumberOfVectors;
 };
