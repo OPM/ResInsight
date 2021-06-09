@@ -167,19 +167,8 @@ void RimWellPltPlot::setPlotXAxisTitles( RimWellLogTrack* plotTrack )
         {
             if ( source.wellLogFile()->wellLogFileData() )
             {
-                // Todo: Handle different units in the relevant las channels
-                switch ( source.wellLogFile()->wellLogFileData()->depthUnit() )
-                {
-                    case RiaDefines::DepthUnitType::UNIT_METER:
-                        presentUnitSystems.insert( RiaDefines::EclipseUnitSystem::UNITS_METRIC );
-                        break;
-                    case RiaDefines::DepthUnitType::UNIT_FEET:
-                        presentUnitSystems.insert( RiaDefines::EclipseUnitSystem::UNITS_FIELD );
-                        break;
-                    case RiaDefines::DepthUnitType::UNIT_NONE:
-                        presentUnitSystems.insert( RiaDefines::EclipseUnitSystem::UNITS_UNKNOWN );
-                        break;
-                }
+                auto eclipseUnit = RiaDefines::fromDepthUnit( source.wellLogFile()->wellLogFileData()->depthUnit() );
+                presentUnitSystems.insert( eclipseUnit );
             }
         }
     }
@@ -654,14 +643,7 @@ void RimWellPltPlot::syncCurvesFromUiSelection()
 
                     std::vector<double> depthValues = wellLogFileData->depthValues();
 
-                    RiaDefines::EclipseUnitSystem unitSystem = RiaDefines::EclipseUnitSystem::UNITS_UNKNOWN;
-                    {
-                        RiaDefines::DepthUnitType depthUnit = wellLogFileData->depthUnit();
-                        if ( depthUnit == RiaDefines::DepthUnitType::UNIT_FEET )
-                            unitSystem = RiaDefines::EclipseUnitSystem::UNITS_FIELD;
-                        if ( depthUnit == RiaDefines::DepthUnitType::UNIT_METER )
-                            unitSystem = RiaDefines::EclipseUnitSystem::UNITS_METRIC;
-                    }
+                    RiaDefines::EclipseUnitSystem unitSystem = RiaDefines::fromDepthUnit( wellLogFileData->depthUnit() );
 
                     for ( const ChannelValNameIdxTuple& channelInfo : sortedChannels )
                     {

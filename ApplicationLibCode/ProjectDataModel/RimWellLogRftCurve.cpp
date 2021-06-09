@@ -456,7 +456,7 @@ void RimWellLogRftCurve::onLoadDataAndUpdate( bool updateParentPlot )
                                      measuredDepthVector,
                                      tvDepthVector,
                                      rkbDiff,
-                                     RiaEclipseUnitTools::depthUnit( unitSystem ),
+                                     RiaDefines::fromEclipseUnit( unitSystem ),
                                      false );
 
         RiaDefines::DepthUnitType displayUnit = RiaDefines::DepthUnitType::UNIT_METER;

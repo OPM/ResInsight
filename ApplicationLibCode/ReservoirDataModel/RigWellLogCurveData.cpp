@@ -48,6 +48,14 @@ RigWellLogCurveData::~RigWellLogCurveData()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RigWellLogCurveData::setDepthUnit( RiaDefines::DepthUnitType depthUnit )
+{
+    m_depthUnit = depthUnit;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RigWellLogCurveData::setValuesAndDepths( const std::vector<double>& xValues,
                                               const std::vector<double>& depths,
                                               RiaDefines::DepthTypeEnum  depthType,

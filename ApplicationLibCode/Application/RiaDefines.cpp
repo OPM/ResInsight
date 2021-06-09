@@ -197,6 +197,52 @@ QString RiaDefines::mockModelBasicInputCase()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RiaDefines::DepthUnitType RiaDefines::fromEclipseUnit( EclipseUnitSystem eclipseUnit )
+{
+    switch ( eclipseUnit )
+    {
+        case RiaDefines::EclipseUnitSystem::UNITS_METRIC:
+            return DepthUnitType::UNIT_METER;
+            break;
+        case RiaDefines::EclipseUnitSystem::UNITS_FIELD:
+            return DepthUnitType::UNIT_FEET;
+            break;
+        case RiaDefines::EclipseUnitSystem::UNITS_LAB:
+            break;
+        case RiaDefines::EclipseUnitSystem::UNITS_UNKNOWN:
+            break;
+        default:
+            break;
+    }
+
+    return DepthUnitType::UNIT_NONE;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiaDefines::EclipseUnitSystem RiaDefines::fromDepthUnit( DepthUnitType depthUnit )
+{
+    switch ( depthUnit )
+    {
+        case RiaDefines::DepthUnitType::UNIT_METER:
+            return RiaDefines::EclipseUnitSystem::UNITS_METRIC;
+            break;
+        case RiaDefines::DepthUnitType::UNIT_FEET:
+            return RiaDefines::EclipseUnitSystem::UNITS_FIELD;
+            break;
+        case RiaDefines::DepthUnitType::UNIT_NONE:
+            break;
+        default:
+            break;
+    }
+
+    return RiaDefines::EclipseUnitSystem::UNITS_UNKNOWN;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 double RiaDefines::minimumDefaultValuePlot()
 {
     return -10.0;

@@ -67,6 +67,14 @@ RimWellLogCurve::~RimWellLogCurve()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimWellLogCurve::setDepthUnit( RiaDefines::DepthUnitType depthUnit )
+{
+    m_curveData->setDepthUnit( depthUnit );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RimWellLogCurve::xValueRangeInData( double* minimumValue, double* maximumValue ) const
 {
     CAF_ASSERT( minimumValue && maximumValue );

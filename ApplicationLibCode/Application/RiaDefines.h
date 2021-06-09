@@ -94,6 +94,9 @@ enum class DepthUnitType
     UNIT_NONE
 };
 
+DepthUnitType     fromEclipseUnit( EclipseUnitSystem eclipseUnit );
+EclipseUnitSystem fromDepthUnit( DepthUnitType depthUnit );
+
 // Depth types used for well log plots
 enum class DepthTypeEnum
 {
