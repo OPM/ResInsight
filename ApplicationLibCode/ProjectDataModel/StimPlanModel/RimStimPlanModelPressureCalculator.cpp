@@ -72,7 +72,18 @@ size_t findFirstIndex( double depth, const std::vector<double>& depths )
     if ( !depths.empty() )
     {
         for ( size_t i = 0; i < depths.size(); i++ )
-            if ( depths[i] > depth ) return i - 1;
+            if ( depths[i] > depth )
+            {
+                if ( i > 0 )
+                {
+                    return i - 1;
+                }
+                else
+                {
+                    // Not found
+                    return depths.size();
+                }
+            }
     }
 
     // Not found
@@ -168,9 +179,11 @@ bool RimStimPlanModelPressureCalculator::extractValuesForProperty( RiaDefines::C
 
     if ( curveProperty == RiaDefines::CurveProperty::INITIAL_PRESSURE )
     {
-        bool hasMissingValues = std::find( values.begin(), values.end(), std::numeric_limits<double>::infinity() ) !=
-                                values.end();
-        if ( hasMissingValues )
+        auto hasMissingValues = []( const std::vector<double>& vec ) {
+            return std::find( vec.begin(), vec.end(), std::numeric_limits<double>::infinity() ) != vec.end();
+        };
+
+        if ( hasMissingValues( values ) )
         {
             if ( !interpolateInitialPressureByEquilibrationRegion( curveProperty,
                                                                    stimPlanModel,
@@ -181,6 +194,10 @@ bool RimStimPlanModelPressureCalculator::extractValuesForProperty( RiaDefines::C
             {
                 RiaLogging::error( "Pressure interpolation by equilibration region failed." );
             }
+
+            // Fill in regions where it was not possible top interpolate with equilibration regions.
+            if ( hasMissingValues( values ) )
+                RiaInterpolationTools::interpolateMissingValues( measuredDepthValues, values );
         }
     }
     else if ( curveProperty == RiaDefines::CurveProperty::PRESSURE_GRADIENT )
@@ -506,6 +523,11 @@ double RimStimPlanModelPressureCalculator::interpolatePressure( const DepthValue
 
     // Find value before and after this depth in the static data
     auto [startIndex, endIndex] = findIndex( depth, depths );
+    if ( startIndex >= depths.size() || endIndex >= depths.size() )
+    {
+        // Not found.
+        return std::numeric_limits<double>::infinity();
+    }
 
     auto [startDepth, startValue] = depthValuePairs[startIndex];
     auto [endDepth, endValue]     = depthValuePairs[endIndex];
@@ -567,11 +589,16 @@ bool RimStimPlanModelPressureCalculator::interpolateInitialPressureByEquilibrati
         return false;
     }
 
+    // EQLNUM data has values for over/underburden, but the pressure values does not.
+    CAF_ASSERT( eqlNumValues.size() == ( values.size() + 4 ) );
+
+    size_t overburdenOffset = 2;
     for ( size_t i = 0; i < values.size(); i++ )
     {
-        if ( std::isinf( values[i] ) )
+        double eqlNumValue = eqlNumValues[i + overburdenOffset];
+        if ( std::isinf( values[i] ) && !std::isinf( eqlNumValue ) && !std::isnan( eqlNumValue ) )
         {
-            int                  eqlNum          = static_cast<int>( eqlNumValues[i] );
+            int                  eqlNum          = static_cast<int>( eqlNumValue );
             DepthValuePairVector depthValuePairs = valuesPerEqlNum[eqlNum];
             if ( !depthValuePairs.empty() )
             {
@@ -626,11 +653,16 @@ bool RimStimPlanModelPressureCalculator::interpolatePressureDifferenceByEquilibr
     values.clear();
     values.resize( initialPressureValues.size(), std::numeric_limits<double>::infinity() );
 
+    // EQLNUM data has values for over/underburden, but the pressure values does not.
+    CAF_ASSERT( eqlNumValues.size() == ( values.size() + 4 ) );
+
+    size_t overburdenOffset = 2;
     for ( size_t i = 0; i < values.size(); i++ )
     {
-        if ( std::isinf( initialPressureValues[i] ) )
+        double eqlNumValue = eqlNumValues[i + overburdenOffset];
+        if ( std::isinf( initialPressureValues[i] ) && !std::isinf( eqlNumValue ) && !std::isnan( eqlNumValue ) )
         {
-            int                  eqlNum          = static_cast<int>( eqlNumValues[i] );
+            int                  eqlNum          = static_cast<int>( eqlNumValue );
             DepthValuePairVector depthValuePairs = valuesPerEqlNum[eqlNum];
             if ( !depthValuePairs.empty() )
             {
@@ -638,7 +670,14 @@ bool RimStimPlanModelPressureCalculator::interpolatePressureDifferenceByEquilibr
                 double depth  = tvDepthValues[i];
                 double p1     = interpolatePressure( depthValuePairs, depth - offset, eqlNum );
                 double p2     = interpolatePressure( depthValuePairs, depth + offset, eqlNum );
-                values[i]     = p2 - p1;
+                if ( std::isinf( p1 ) || std::isinf( p2 ) )
+                {
+                    values[i] = std::numeric_limits<double>::infinity();
+                }
+                else
+                {
+                    values[i] = p2 - p1;
+                }
                 RiaLogging::debug( QString( "INTERPOLATING PRESSURE DIFF: %1 %2 = %3" ).arg( p1 ).arg( p2 ).arg( p2 - p1 ) );
             }
         }
@@ -685,6 +724,7 @@ bool RimStimPlanModelPressureCalculator::handleFaciesWithInitialPressure( const 
         }
 
         CAF_ASSERT( faciesValues.size() == initialPressureValues.size() );
+        CAF_ASSERT( faciesValues.size() == values.size() );
         for ( size_t i = 0; i < faciesValues.size(); i++ )
         {
             // Use the values from initial pressure curve
