@@ -20,71 +20,15 @@
 
 #include "RimCustomObjectiveFunction.h"
 #include "RimCustomObjectiveFunctionWeight.h"
-#include "RimEnsembleCurveSet.h"
+#include "RimObjectiveFunctionTools.h"
 
 #include "RiuPlotMainWindowTools.h"
 
 #include "cafSelectionManagerTools.h"
 
-#include "RiaStdStringTools.h"
-#include "RifReaderEclipseSummary.h"
 #include <QAction>
 
 CAF_CMD_SOURCE_INIT( RicNewCustomObjectiveFunctionWeightFeature, "RicNewCustomObjectiveFunctionWeightFeature" );
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RimCustomObjectiveFunctionWeight*
-    RicNewCustomObjectiveFunctionWeightFeature::addWeight( RimCustomObjectiveFunction* customObjectiveFunction )
-{
-    if ( !customObjectiveFunction ) return nullptr;
-
-    RimCustomObjectiveFunctionWeight* newWeight = customObjectiveFunction->addWeight();
-
-    RifEclipseSummaryAddress candidateAdr;
-    if ( customObjectiveFunction->weights().size() > 1 )
-    {
-        candidateAdr = customObjectiveFunction->weights().front()->summaryAddresses().front();
-    }
-    else
-    {
-        candidateAdr = newWeight->parentCurveSet()->summaryAddress();
-    }
-
-    auto nativeQuantityName = RicNewCustomObjectiveFunctionWeightFeature::nativeQuantityName( candidateAdr.quantityName() );
-
-    candidateAdr.setQuantityName( nativeQuantityName );
-    newWeight->setSummaryAddress( candidateAdr );
-
-    return newWeight;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::string RicNewCustomObjectiveFunctionWeightFeature::nativeQuantityName( const std::string& quantityName )
-{
-    std::string nativeName = quantityName;
-
-    {
-        auto stringToRemove = RifReaderEclipseSummary::differenceIdentifier();
-        if ( RiaStdStringTools::endsWith( nativeName, stringToRemove ) )
-        {
-            nativeName = nativeName.substr( 0, nativeName.size() - stringToRemove.size() );
-        }
-    }
-
-    {
-        auto stringToRemove = RifReaderEclipseSummary::historyIdentifier();
-        if ( RiaStdStringTools::endsWith( nativeName, stringToRemove ) )
-        {
-            nativeName = nativeName.substr( 0, nativeName.size() - stringToRemove.size() );
-        }
-    }
-
-    return nativeName;
-}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -109,7 +53,7 @@ void RicNewCustomObjectiveFunctionWeightFeature::onActionTriggered( bool isCheck
     {
         auto firstObjectiveFunction = func.front();
 
-        auto newWeight = addWeight( firstObjectiveFunction );
+        auto newWeight = RimObjectiveFunctionTools::addWeight( firstObjectiveFunction );
 
         firstObjectiveFunction->updateConnectedEditors();
         RiuPlotMainWindowTools::selectAsCurrentItem( newWeight );

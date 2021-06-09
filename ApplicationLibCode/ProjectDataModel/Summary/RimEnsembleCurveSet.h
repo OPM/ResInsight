@@ -155,7 +155,6 @@ public:
     void updateObjectiveFunctionLegend();
 
     ObjectiveFunctionTimeConfig objectiveFunctionTimeConfig() const;
-    static void                 configureDialogForObjectiveFunctions( RiuSummaryVectorSelectionDialog* dialog );
 
 private:
     void updateEnsembleCurves( const std::vector<RimSummaryCase*>& sumCases );

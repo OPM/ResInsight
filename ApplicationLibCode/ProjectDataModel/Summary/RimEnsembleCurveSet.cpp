@@ -43,6 +43,7 @@
 #include "RimEnsembleStatistics.h"
 #include "RimEnsembleStatisticsCase.h"
 #include "RimObjectiveFunction.h"
+#include "RimObjectiveFunctionTools.h"
 #include "RimProject.h"
 #include "RimRegularLegendConfig.h"
 #include "RimSummaryAddress.h"
@@ -806,7 +807,7 @@ void RimEnsembleCurveSet::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
     else if ( changedField == &m_objectiveValuesSelectSummaryAddressPushButton )
     {
         RiuSummaryVectorSelectionDialog dlg( nullptr );
-        RimEnsembleCurveSet::configureDialogForObjectiveFunctions( &dlg );
+        RimObjectiveFunctionTools::configureDialogForObjectiveFunctions( &dlg );
         RimSummaryCaseCollection* candidateEnsemble = m_yValuesSummaryCaseCollection();
 
         std::vector<RifEclipseSummaryAddress> candidateAddresses;
@@ -926,20 +927,6 @@ void RimEnsembleCurveSet::onCustomObjectiveFunctionChanged( const caf::SignalEmi
     updateCurveColors();
     updateFilterLegend();
     updateObjectiveFunctionLegend();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimEnsembleCurveSet::configureDialogForObjectiveFunctions( RiuSummaryVectorSelectionDialog* dialog )
-{
-    if ( !dialog ) return;
-
-    dialog->enableMultiSelect( true );
-    dialog->hideDifferenceVectors();
-    dialog->hideHistoryVectors();
-    dialog->hideVectorsWithNoHistory();
-    dialog->hideSummaryCases();
 }
 
 //--------------------------------------------------------------------------------------------------

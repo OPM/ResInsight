@@ -25,6 +25,7 @@
 #include "RimCustomObjectiveFunctionCollection.h"
 #include "RimEnsembleCurveFilterCollection.h"
 #include "RimEnsembleCurveSet.h"
+#include "RimObjectiveFunctionTools.h"
 #include "RimSummaryAddress.h"
 #include "RimSummaryCase.h"
 
@@ -35,7 +36,6 @@
 #include "cafPdmUiListEditor.h"
 #include "cafPdmUiPushButtonEditor.h"
 
-#include "RicNewCustomObjectiveFunctionWeightFeature.h"
 #include <algorithm>
 
 namespace caf
@@ -367,8 +367,7 @@ void RimEnsembleCurveFilter::fieldChangedByUi( const caf::PdmFieldHandle* change
 
             RifEclipseSummaryAddress candidateAdr = parentCurveSet()->summaryAddress();
 
-            auto nativeQuantityName =
-                RicNewCustomObjectiveFunctionWeightFeature::nativeQuantityName( candidateAdr.quantityName() );
+            auto nativeQuantityName = RimObjectiveFunctionTools::nativeQuantityName( candidateAdr.quantityName() );
             candidateAdr.setQuantityName( nativeQuantityName );
             summaryAddress->setAddress( candidateAdr );
             m_objectiveValuesSummaryAddresses.push_back( summaryAddress );
@@ -388,7 +387,7 @@ void RimEnsembleCurveFilter::fieldChangedByUi( const caf::PdmFieldHandle* change
     else if ( changedField == &m_objectiveValuesSelectSummaryAddressPushButton )
     {
         RiuSummaryVectorSelectionDialog dlg( nullptr );
-        RimEnsembleCurveSet::configureDialogForObjectiveFunctions( &dlg );
+        RimObjectiveFunctionTools::configureDialogForObjectiveFunctions( &dlg );
         RimSummaryCaseCollection* candidateEnsemble = parentCurveSet()->summaryCaseCollection();
 
         std::vector<RifEclipseSummaryAddress> candidateAddresses;

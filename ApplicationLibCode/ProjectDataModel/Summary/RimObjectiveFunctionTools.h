@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2020 Equinor ASA
+//  Copyright (C) 2021 Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -18,17 +18,19 @@
 
 #pragma once
 
-#include "cafCmdFeature.h"
+#include <string>
 
-//==================================================================================================
-///
-//==================================================================================================
-class RicNewCustomObjectiveFunctionWeightFeature : public caf::CmdFeature
+class RimCustomObjectiveFunctionWeight;
+class RimCustomObjectiveFunction;
+class RiuSummaryVectorSelectionDialog;
+
+namespace RimObjectiveFunctionTools
 {
-    CAF_CMD_HEADER_INIT;
+RimCustomObjectiveFunctionWeight* addWeight( RimCustomObjectiveFunction* customObjectiveFunction );
 
-protected:
-    bool isCommandEnabled() override;
-    void onActionTriggered( bool isChecked ) override;
-    void setupActionLook( QAction* actionToSetup ) override;
-};
+// Returns a string without string endings 'H' and '_DIFF'
+std::string nativeQuantityName( const std::string& quantityName );
+
+void configureDialogForObjectiveFunctions( RiuSummaryVectorSelectionDialog* dialog );
+
+}; // namespace RimObjectiveFunctionTools
