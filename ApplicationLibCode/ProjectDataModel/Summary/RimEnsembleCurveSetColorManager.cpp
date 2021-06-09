@@ -133,21 +133,13 @@ void RimEnsembleCurveSetColorManager::initializeLegendConfig( RimRegularLegendCo
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEnsembleCurveSetColorManager::initializeLegendConfig( RimRegularLegendConfig*               legendConfig,
-                                                              std::shared_ptr<RimObjectiveFunction> objectiveFunction,
-                                                              std::vector<RifEclipseSummaryAddress> vectorSummaryAddresses )
+void RimEnsembleCurveSetColorManager::initializeLegendConfig( RimRegularLegendConfig*             legendConfig,
+                                                              RimObjectiveFunction*               objectiveFunction,
+                                                              const std::vector<RimSummaryCase*>& summaryCases,
+                                                              const std::vector<RifEclipseSummaryAddress>& vectorSummaryAddresses,
+                                                              const ObjectiveFunctionTimeConfig&           timeConfig )
 {
-    double minValue = std::numeric_limits<double>::infinity();
-    double maxValue = -std::numeric_limits<double>::infinity();
-
-    for ( auto value : objectiveFunction->values( vectorSummaryAddresses ) )
-    {
-        if ( value != std::numeric_limits<double>::infinity() )
-        {
-            if ( value < minValue ) minValue = value;
-            if ( value > maxValue ) maxValue = value;
-        }
-    }
+    auto [minValue, maxValue] = objectiveFunction->minMaxValues( summaryCases, vectorSummaryAddresses, timeConfig );
 
     legendConfig->setAutomaticRanges( minValue, maxValue, minValue, maxValue );
 }
@@ -161,7 +153,7 @@ void RimEnsembleCurveSetColorManager::initializeLegendConfig( RimRegularLegendCo
     double minValue = std::numeric_limits<double>::infinity();
     double maxValue = -std::numeric_limits<double>::infinity();
 
-    for ( auto value : customObjectiveFunction->values() )
+    for ( auto value : customObjectiveFunction->functionValueForAllCases() )
     {
         if ( value != std::numeric_limits<double>::infinity() )
         {
@@ -210,10 +202,11 @@ cvf::Color3f RimEnsembleCurveSetColorManager::caseColor( const RimRegularLegendC
 //--------------------------------------------------------------------------------------------------
 cvf::Color3f RimEnsembleCurveSetColorManager::caseColor( const RimRegularLegendConfig*         legendConfig,
                                                          RimSummaryCase*                       summaryCase,
-                                                         std::shared_ptr<RimObjectiveFunction> objectiveFunction,
-                                                         std::vector<RifEclipseSummaryAddress> vectorSummaryAddresses )
+                                                         RimObjectiveFunction*                 objectiveFunction,
+                                                         std::vector<RifEclipseSummaryAddress> vectorSummaryAddresses,
+                                                         const ObjectiveFunctionTimeConfig&    timeConfig )
 {
-    double value = objectiveFunction->value( summaryCase, vectorSummaryAddresses );
+    double value = objectiveFunction->value( summaryCase, vectorSummaryAddresses, timeConfig );
     if ( value != std::numeric_limits<double>::infinity() )
     {
         return cvf::Color3f( legendConfig->scalarMapper()->mapToColor( value ) );

@@ -25,6 +25,7 @@
 #include "RimCustomObjectiveFunctionCollection.h"
 #include "RimEnsembleCurveFilterCollection.h"
 #include "RimEnsembleCurveSet.h"
+#include "RimObjectiveFunctionTools.h"
 #include "RimSummaryAddress.h"
 #include "RimSummaryCase.h"
 
@@ -98,7 +99,11 @@ RimEnsembleCurveFilter::RimEnsembleCurveFilter()
     m_objectiveValuesSelectSummaryAddressPushButton = false;
 
     CAF_PDM_InitFieldNoDefault( &m_objectiveFunction, "ObjectiveFunction", "Objective Function", "", "", "" );
-    m_objectiveFunction.uiCapability()->setUiEditorTypeName( caf::PdmUiListEditor::uiEditorTypeName() );
+    m_objectiveFunction = new RimObjectiveFunction();
+    m_objectiveFunction.uiCapability()->setUiHidden( true );
+    m_objectiveFunction.uiCapability()->setUiTreeHidden( true );
+    m_objectiveFunction.uiCapability()->setUiTreeChildrenHidden( true );
+    m_objectiveFunction->changed.connect( this, &RimEnsembleCurveFilter::onObjectionFunctionChanged );
 
     CAF_PDM_InitFieldNoDefault( &m_customObjectiveFunction, "CustomObjectiveFunction", "Custom Objective Function", "", "", "" );
     m_customObjectiveFunction.uiCapability()->setUiEditorTypeName( caf::PdmUiListEditor::uiEditorTypeName() );
@@ -202,7 +207,7 @@ QString RimEnsembleCurveFilter::description() const
         }
         descriptor =
             QString( "%1::%2%3%4" )
-                .arg( caf::AppEnum<RimObjectiveFunction::FunctionType>( m_objectiveFunction() ).uiText() )
+                .arg( m_objectiveFunction()->shortName() )
                 .arg( addressVector.size() > 1 ? "(" : "" )
                 .arg( QString::fromStdString( RifEclipseSummaryAddress::generateStringFromAddresses( addressVector, "+" ) ) )
                 .arg( addressVector.size() > 1 ? ")" : "" );
@@ -359,7 +364,12 @@ void RimEnsembleCurveFilter::fieldChangedByUi( const caf::PdmFieldHandle* change
         if ( m_objectiveValuesSummaryAddresses.size() == 0 )
         {
             RimSummaryAddress* summaryAddress = new RimSummaryAddress();
-            summaryAddress->setAddress( parentCurveSet()->summaryAddress() );
+
+            RifEclipseSummaryAddress candidateAdr = parentCurveSet()->summaryAddress();
+
+            auto nativeQuantityName = RimObjectiveFunctionTools::nativeQuantityName( candidateAdr.quantityName() );
+            candidateAdr.setQuantityName( nativeQuantityName );
+            summaryAddress->setAddress( candidateAdr );
             m_objectiveValuesSummaryAddresses.push_back( summaryAddress );
             updateAddressesUiField();
         }
@@ -377,7 +387,7 @@ void RimEnsembleCurveFilter::fieldChangedByUi( const caf::PdmFieldHandle* change
     else if ( changedField == &m_objectiveValuesSelectSummaryAddressPushButton )
     {
         RiuSummaryVectorSelectionDialog dlg( nullptr );
-        dlg.enableMultiSelect( true );
+        RimObjectiveFunctionTools::configureDialogForObjectiveFunctions( &dlg );
         RimSummaryCaseCollection* candidateEnsemble = parentCurveSet()->summaryCaseCollection();
 
         std::vector<RifEclipseSummaryAddress> candidateAddresses;
@@ -386,7 +396,6 @@ void RimEnsembleCurveFilter::fieldChangedByUi( const caf::PdmFieldHandle* change
             candidateAddresses.push_back( address->address() );
         }
 
-        dlg.hideSummaryCases();
         dlg.setEnsembleAndAddresses( candidateEnsemble, candidateAddresses );
 
         if ( dlg.exec() == QDialog::Accepted )
@@ -394,10 +403,11 @@ void RimEnsembleCurveFilter::fieldChangedByUi( const caf::PdmFieldHandle* change
             auto curveSelection = dlg.curveSelection();
             if ( !curveSelection.empty() )
             {
+                m_objectiveValuesSummaryAddresses.clear();
                 for ( auto address : curveSelection )
                 {
                     RimSummaryAddress* summaryAddress = new RimSummaryAddress();
-                    summaryAddress->setAddress( parentCurveSet()->summaryAddress() );
+                    summaryAddress->setAddress( address.summaryAddress() );
                     m_objectiveValuesSummaryAddresses.push_back( summaryAddress );
                 }
                 this->loadDataAndUpdate();
@@ -455,6 +465,11 @@ void RimEnsembleCurveFilter::defineUiOrdering( QString uiConfigName, caf::PdmUiO
     {
         uiOrdering.add( &m_objectiveValuesSummaryAddressesUiField );
         uiOrdering.add( &m_objectiveValuesSelectSummaryAddressPushButton, { false, 1, 0 } );
+        {
+            auto equationGroup = uiOrdering.addNewGroup( "Equation" );
+            m_objectiveFunction->uiOrdering( "", *equationGroup );
+        }
+
         uiOrdering.add( &m_objectiveFunction );
     }
     else if ( m_filterMode() == FilterMode::BY_CUSTOM_OBJECTIVE_FUNCTION )
@@ -543,8 +558,7 @@ std::vector<RimSummaryCase*> RimEnsembleCurveFilter::applyFilter( const std::vec
         }
         else if ( m_filterMode() == FilterMode::BY_OBJECTIVE_FUNCTION )
         {
-            auto objectiveFunction = ensemble->objectiveFunction( m_objectiveFunction() );
-            bool hasWarning        = false;
+            bool hasWarning = false;
 
             std::vector<RifEclipseSummaryAddress> addresses;
             for ( auto address : m_objectiveValuesSummaryAddresses() )
@@ -552,7 +566,8 @@ std::vector<RimSummaryCase*> RimEnsembleCurveFilter::applyFilter( const std::vec
                 addresses.push_back( address->address() );
             }
 
-            double value = objectiveFunction->value( sumCase, addresses, &hasWarning );
+            double value =
+                m_objectiveFunction->value( sumCase, addresses, curveSet->objectiveFunctionTimeConfig(), &hasWarning );
             if ( hasWarning ) continue;
 
             if ( value < m_minValue() || value > m_maxValue )
@@ -613,6 +628,25 @@ RimEnsembleCurveSet* RimEnsembleCurveFilter::parentCurveSet() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimEnsembleCurveFilter::onObjectionFunctionChanged( const caf::SignalEmitter* emitter )
+{
+    updateMaxMinAndDefaultValues( true );
+
+    parentCurveSet()->updateAllCurves();
+    parentCurveSet()->updateFilterLegend();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEnsembleCurveFilter::updateMaxMinAndDefaultValuesFromParent()
+{
+    updateMaxMinAndDefaultValues( true );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RimEnsembleCurveFilterCollection* RimEnsembleCurveFilter::parentCurveFilterCollection() const
 {
     RimEnsembleCurveFilterCollection* coll;
@@ -653,18 +687,20 @@ void RimEnsembleCurveFilter::updateMaxMinAndDefaultValues( bool forceDefault )
     }
     else if ( m_filterMode() == FilterMode::BY_OBJECTIVE_FUNCTION )
     {
-        auto objectiveFunction = parentCurveSet()->summaryCaseCollection()->objectiveFunction( m_objectiveFunction() );
+        auto                                  objectiveFunction = m_objectiveFunction();
         std::vector<RifEclipseSummaryAddress> addresses;
         for ( auto address : m_objectiveValuesSummaryAddresses() )
         {
             addresses.push_back( address->address() );
         }
-        if ( objectiveFunction->isValid( addresses ) )
         {
-            std::pair<double, double> minMaxValues = objectiveFunction->minMaxValues( addresses );
+            auto summaryCases = parentCurveSet()->summaryCaseCollection()->allSummaryCases();
 
-            m_lowerLimit = minMaxValues.first;
-            m_upperLimit = minMaxValues.second;
+            auto [minObjValue, maxObjValue] =
+                objectiveFunction->minMaxValues( summaryCases, addresses, parentCurveSet()->objectiveFunctionTimeConfig() );
+
+            m_lowerLimit = minObjValue;
+            m_upperLimit = maxObjValue;
 
             if ( forceDefault || !( m_minValue >= m_lowerLimit && m_minValue <= m_upperLimit ) )
                 m_minValue = m_lowerLimit;

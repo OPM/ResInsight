@@ -18,6 +18,10 @@
 
 #pragma once
 
+#include "cafAppEnum.h"
+#include "cafPdmField.h"
+#include "cafPdmObject.h"
+
 #include <QString>
 #include <QVariant>
 
@@ -27,51 +31,71 @@ class RimSummaryCase;
 class RimSummaryCaseCollection;
 class RifEclipseSummaryAddress;
 
+class ObjectiveFunctionTimeConfig
+{
+public:
+    time_t              m_startTimeStep;
+    time_t              m_endTimeStep;
+    std::vector<time_t> m_timeSteps;
+};
+
 //==================================================================================================
 ///
 //==================================================================================================
-class RimObjectiveFunction
+class RimObjectiveFunction : public caf::PdmObject
 {
+    CAF_PDM_HEADER_INIT;
+
+public:
+    caf::Signal<> changed;
+
 public:
     enum class FunctionType
     {
-        M1 = 0,
-        M2
+        F1 = 0,
+        F2
     };
 
-    QString                            uiName() const;
-    RimObjectiveFunction::FunctionType functionType();
+    QString                            shortName() const;
+    RimObjectiveFunction::FunctionType functionType() const;
 
-    void setTimeStepRange( time_t startTime, time_t endTime );
-    void setTimeStepList( std::vector<time_t> timeSteps );
+    RimObjectiveFunction();
+    void setFunctionType( RimObjectiveFunction::FunctionType functionType );
 
-    RimObjectiveFunction( const RimSummaryCaseCollection* summaryCaseCollection, FunctionType type );
+    double value( RimSummaryCase*                              summaryCase,
+                  const std::vector<RifEclipseSummaryAddress>& vectorSummaryAddresses,
+                  const ObjectiveFunctionTimeConfig&           timeConfig,
+                  bool*                                        hasWarning = nullptr ) const;
 
-    double value( size_t                                caseIndex,
-                  std::vector<RifEclipseSummaryAddress> vectorSummaryAddresses,
-                  bool*                                 hasWarning = nullptr ) const;
-
-    double value( RimSummaryCase*                       summaryCase,
-                  std::vector<RifEclipseSummaryAddress> vectorSummaryAddresses,
-                  bool*                                 hasWarning = nullptr ) const;
-
-    std::pair<double, double> minMaxValues( std::vector<RifEclipseSummaryAddress> vectorSummaryAddresses ) const;
-
-    std::pair<time_t, time_t> range() const;
-
-    std::vector<double> values( std::vector<RifEclipseSummaryAddress> vectorSummaryAddresses ) const;
-
-    bool isValid( std::vector<RifEclipseSummaryAddress> vectorSummaryAddresses ) const;
+    std::pair<double, double> minMaxValues( const std::vector<RimSummaryCase*>&          summaryCases,
+                                            const std::vector<RifEclipseSummaryAddress>& vectorSummaryAddresses,
+                                            const ObjectiveFunctionTimeConfig&           timeConfig ) const;
 
     QString formulaString( std::vector<RifEclipseSummaryAddress> vectorSummaryAddresses );
 
     bool operator<( const RimObjectiveFunction& other ) const;
 
-private:
-    const RimSummaryCaseCollection* m_summaryCaseCollection;
+    void hideFunctionSelection();
 
-    time_t              m_startTimeStep;
-    time_t              m_endTimeStep;
-    std::vector<time_t> m_timeSteps;
-    FunctionType        m_functionType;
+protected:
+    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+
+private:
+    double errorEstimate() const;
+
+    std::vector<size_t> timeStepIndicesForEvaluation( const std::vector<time_t>&         allTimeSteps,
+                                                      const ObjectiveFunctionTimeConfig& timeConfig ) const;
+
+    double computeFunctionValue( const std::vector<double>& summaryDiffValues,
+                                 const std::vector<double>& summaryHistoryValues,
+                                 const std::vector<size_t>& evaluationIndices ) const;
+
+private:
+    caf::PdmField<caf::AppEnum<RimObjectiveFunction::FunctionType>> m_functionType;
+
+    caf::PdmField<bool>   m_normalizeByNumberOfObservations;
+    caf::PdmField<double> m_errorEstimatePercentage;
+    caf::PdmField<bool>   m_useSquaredError;
+    caf::PdmField<bool>   m_normalizeByNumberOfVectors;
 };

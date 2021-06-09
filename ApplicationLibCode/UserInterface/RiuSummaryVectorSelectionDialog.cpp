@@ -189,6 +189,30 @@ void RiuSummaryVectorSelectionDialog::enableIndividualEnsembleCaseSelection( boo
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RiuSummaryVectorSelectionDialog::hideHistoryVectors()
+{
+    summaryAddressSelection()->hideHistoryVectors( true );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuSummaryVectorSelectionDialog::hideDifferenceVectors()
+{
+    summaryAddressSelection()->hideDifferenceVectors( true );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuSummaryVectorSelectionDialog::hideVectorsWithNoHistory()
+{
+    summaryAddressSelection()->hideVectorsWithoutHistory( true );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RiuSummaryVectorSelectionUi* RiuSummaryVectorSelectionDialog::summaryAddressSelection() const
 {
     return m_addrSelWidget->summaryAddressSelection();

@@ -59,6 +59,7 @@ class RimObjectiveFunction;
 class RiuDraggableOverlayFrame;
 class RiaSummaryCurveDefinitionAnalyser;
 class RiaSummaryCurveDefinition;
+class RiuSummaryVectorSelectionDialog;
 
 class QwtPlot;
 class QwtPlotCurve;
@@ -125,7 +126,7 @@ public:
 
     void                updateAllCurves();
     void                setTimeSteps( const std::vector<size_t>& timeStepIndices );
-    std::vector<time_t> selectedTimeSteps();
+    std::vector<time_t> selectedTimeSteps() const;
     void                updateStatisticsCurves();
 
     RimEnsembleCurveSet* clone() const;
@@ -152,6 +153,8 @@ public:
 
     void updateFilterLegend();
     void updateObjectiveFunctionLegend();
+
+    ObjectiveFunctionTimeConfig objectiveFunctionTimeConfig() const;
 
 private:
     void updateEnsembleCurves( const std::vector<RimSummaryCase*>& sumCases );
@@ -186,6 +189,7 @@ private:
     void updateAddressesUiField();
 
     void onObjectiveFunctionChanged( const caf::SignalEmitter* emitter );
+    void onCustomObjectiveFunctionChanged( const caf::SignalEmitter* emitter );
 
 private:
     caf::PdmField<bool>                       m_showCurves;
@@ -203,25 +207,26 @@ private:
     caf::PdmField<cvf::Color3f>  m_color;
     caf::PdmField<QString>       m_ensembleParameter;
 
-    caf::PdmChildArrayField<RimSummaryAddress*>                     m_objectiveValuesSummaryAddresses;
-    caf::PdmField<QString>                                          m_objectiveValuesSummaryAddressesUiField;
-    caf::PdmField<bool>                                             m_objectiveValuesSelectSummaryAddressPushButton;
-    caf::PdmField<caf::AppEnum<RimObjectiveFunction::FunctionType>> m_objectiveFunction;
-    caf::PdmPtrField<RimCustomObjectiveFunction*>                   m_customObjectiveFunction;
-    caf::PdmField<time_t>                                           m_minTimeStep;
-    caf::PdmField<time_t>                                           m_maxTimeStep;
-    caf::PdmField<QDate>                                            m_minDateRange;
-    caf::PdmField<QDate>                                            m_maxDateRange;
-    caf::PdmField<TimeStepFilterEnum>                               m_timeStepFilter;
-    caf::PdmField<std::vector<QDateTime>>                           m_selectedTimeSteps;
+    caf::PdmChildArrayField<RimSummaryAddress*>   m_objectiveValuesSummaryAddresses;
+    caf::PdmField<QString>                        m_objectiveValuesSummaryAddressesUiField;
+    caf::PdmField<bool>                           m_objectiveValuesSelectSummaryAddressPushButton;
+    caf::PdmPtrField<RimCustomObjectiveFunction*> m_customObjectiveFunction;
+    caf::PdmField<time_t>                         m_minTimeStep;
+    caf::PdmField<time_t>                         m_maxTimeStep;
+    caf::PdmField<QDate>                          m_minDateRange;
+    caf::PdmField<QDate>                          m_maxDateRange;
+    caf::PdmField<TimeStepFilterEnum>             m_timeStepFilter;
+    caf::PdmField<std::vector<QDateTime>>         m_selectedTimeSteps;
 
     caf::PdmField<caf::AppEnum<RiaDefines::PlotAxis>> m_plotAxis;
 
-    caf::PdmChildField<RimRegularLegendConfig*>               m_legendConfig;
-    caf::PdmChildField<RimEnsembleCurveFilterCollection*>     m_curveFilters;
-    caf::PdmChildField<RimEnsembleStatistics*>                m_statistics;
+    caf::PdmChildField<RimRegularLegendConfig*>           m_legendConfig;
+    caf::PdmChildField<RimEnsembleCurveFilterCollection*> m_curveFilters;
+    caf::PdmChildField<RimEnsembleStatistics*>            m_statistics;
+
     caf::PdmChildField<RimCustomObjectiveFunctionCollection*> m_customObjectiveFunctions;
     caf::PdmField<bool>                                       m_showObjectiveFunctionFormula;
+    caf::PdmChildField<RimObjectiveFunction*>                 m_objectiveFunction;
 
     caf::PdmField<bool>                          m_isUsingAutoName;
     caf::PdmField<QString>                       m_userDefinedName;

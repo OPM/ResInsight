@@ -37,244 +37,145 @@ namespace caf
 template <>
 void caf::AppEnum<RimObjectiveFunction::FunctionType>::setUp()
 {
-    addItem( RimObjectiveFunction::FunctionType::M1, "M1", "M1" );
-    addItem( RimObjectiveFunction::FunctionType::M2, "M2", "M2" );
-    setDefault( RimObjectiveFunction::FunctionType::M1 );
+    addItem( RimObjectiveFunction::FunctionType::F1, "F1", "Time Range (F1)" );
+    addItem( RimObjectiveFunction::FunctionType::F2, "F2", "Selected Time Steps (F2)" );
+    setDefault( RimObjectiveFunction::FunctionType::F1 );
 }
 
 } // namespace caf
 
+CAF_PDM_SOURCE_INIT( RimObjectiveFunction, "RimObjectiveFunction" );
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimObjectiveFunction::uiName() const
+RimObjectiveFunction::RimObjectiveFunction()
+    : changed( this )
+
 {
-    if ( m_functionType == FunctionType::M1 )
-    {
-        return QString( "M1" );
-    }
-    else if ( m_functionType == FunctionType::M2 )
-    {
-        return QString( "M2" );
-    }
-    return QString();
+    CAF_PDM_InitObject( "Objective Function", "", "", "" );
+
+    CAF_PDM_InitFieldNoDefault( &m_functionType, "FunctionType", "Function Type", "", "", "" );
+
+    CAF_PDM_InitField( &m_normalizeByNumberOfObservations,
+                       "NormalizeByNumberOfObservations",
+                       true,
+                       "Normalize by Number of Observations",
+                       "",
+                       "",
+                       "" );
+
+    CAF_PDM_InitField( &m_normalizeByNumberOfVectors,
+                       "NormalizeByNumberOfVectors",
+                       true,
+                       "Normalize by Number of Vectors",
+                       "",
+                       "",
+                       "" );
+
+    CAF_PDM_InitField( &m_errorEstimatePercentage, "ErrorEstimatePercentage", 100.0, "Error Estimate [0..100 %]", "", "", "" );
+
+    CAF_PDM_InitField( &m_useSquaredError, "UseSquaredError", true, "Use Squared Error Term", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimObjectiveFunction::FunctionType RimObjectiveFunction::functionType()
+void RimObjectiveFunction::setFunctionType( FunctionType functionType )
 {
-    return m_functionType;
+    m_functionType = functionType;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimObjectiveFunction::setTimeStepRange( time_t startTimeStep, time_t endTimeStep )
+QString RimObjectiveFunction::shortName() const
 {
-    m_startTimeStep = startTimeStep;
-    m_endTimeStep   = endTimeStep;
+    return caf::AppEnum<FunctionType>::text( m_functionType() );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimObjectiveFunction::setTimeStepList( std::vector<time_t> timeSteps )
+RimObjectiveFunction::FunctionType RimObjectiveFunction::functionType() const
 {
-    m_timeSteps = timeSteps;
+    return m_functionType();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimObjectiveFunction::RimObjectiveFunction( const RimSummaryCaseCollection* summaryCaseCollection, FunctionType type )
-{
-    m_summaryCaseCollection = summaryCaseCollection;
-    m_functionType          = type;
-    m_startTimeStep         = 0;
-    m_endTimeStep           = INT_MAX;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-double RimObjectiveFunction::value( size_t                                caseIndex,
-                                    std::vector<RifEclipseSummaryAddress> vectorSummaryAddresses,
-                                    bool*                                 hasWarning ) const
-{
-    auto summaryCases = m_summaryCaseCollection->allSummaryCases();
-
-    if ( caseIndex < summaryCases.size() )
-    {
-        return value( summaryCases[caseIndex], vectorSummaryAddresses, hasWarning );
-    }
-    return 0.0;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-double RimObjectiveFunction::value( RimSummaryCase*                       summaryCase,
-                                    std::vector<RifEclipseSummaryAddress> vectorSummaryAddresses,
-                                    bool*                                 hasWarning ) const
+double RimObjectiveFunction::value( RimSummaryCase*                              summaryCase,
+                                    const std::vector<RifEclipseSummaryAddress>& vectorSummaryAddresses,
+                                    const ObjectiveFunctionTimeConfig&           timeConfig,
+                                    bool*                                        hasWarning ) const
 {
     RifSummaryReaderInterface* readerInterface = summaryCase->summaryReader();
     if ( readerInterface )
     {
-        if ( m_functionType == FunctionType::M1 )
+        double aggregatedObjectiveFunctionValue = 0.0;
+
+        for ( auto vectorSummaryAddress : vectorSummaryAddresses )
         {
-            double sumValues        = 0.0;
-            double sumValuesSquared = 0.0;
-            double N                = 0.0;
-            for ( auto vectorSummaryAddress : vectorSummaryAddresses )
+            std::string s = vectorSummaryAddress.quantityName() + RifReaderEclipseSummary::differenceIdentifier();
+            if ( !vectorSummaryAddress.quantityName().empty() )
             {
-                std::string s = vectorSummaryAddress.quantityName() + RifReaderEclipseSummary::differenceIdentifier();
-                if ( !vectorSummaryAddress.quantityName().empty() )
+                if ( vectorSummaryAddress.quantityName().find( RifReaderEclipseSummary::differenceIdentifier() ) !=
+                     std::string::npos )
                 {
-                    if ( vectorSummaryAddress.quantityName().find( RifReaderEclipseSummary::differenceIdentifier() ) !=
-                         std::string::npos )
-                    {
-                        s = vectorSummaryAddress.quantityName();
-                    }
-                    RifEclipseSummaryAddress vectorSummaryAddressDiff = vectorSummaryAddress;
-                    vectorSummaryAddressDiff.setQuantityName( s );
+                    s = vectorSummaryAddress.quantityName();
+                }
+                RifEclipseSummaryAddress vectorSummaryAddressDiff = vectorSummaryAddress;
+                vectorSummaryAddressDiff.setQuantityName( s );
 
-                    if ( readerInterface->allResultAddresses().count( vectorSummaryAddressDiff ) )
+                RifEclipseSummaryAddress vectorSummaryAddressHistory = vectorSummaryAddress;
+                vectorSummaryAddressDiff.setQuantityName( vectorSummaryAddress.quantityName() +
+                                                          RifReaderEclipseSummary::differenceIdentifier() );
+
+                if ( readerInterface->allResultAddresses().count( vectorSummaryAddressDiff ) )
+                {
+                    const std::vector<time_t>& allTimeSteps    = readerInterface->timeSteps( vectorSummaryAddressDiff );
+                    std::vector<size_t> timeStepsForEvaluation = timeStepIndicesForEvaluation( allTimeSteps, timeConfig );
+
+                    std::vector<double> summaryDiffValues;
+                    std::vector<double> summaryHistoryValues;
+
+                    if ( readerInterface->values( vectorSummaryAddressDiff, &summaryDiffValues ) &&
+                         readerInterface->values( vectorSummaryAddressHistory, &summaryHistoryValues ) )
                     {
-                        std::vector<double> values;
-                        if ( readerInterface->values( vectorSummaryAddressDiff, &values ) )
+                        const double functionValue =
+                            computeFunctionValue( summaryDiffValues, summaryHistoryValues, timeStepsForEvaluation );
+
+                        if ( functionValue != std::numeric_limits<double>::infinity() )
                         {
-                            const std::vector<time_t>& timeSteps = readerInterface->timeSteps( vectorSummaryAddressDiff );
-
-                            size_t index = 0;
-
-                            N += static_cast<double>( values.size() );
-                            if ( values.size() > 1 )
-                            {
-                                for ( time_t t : timeSteps )
-                                {
-                                    if ( t >= m_startTimeStep && t <= m_endTimeStep )
-                                    {
-                                        const double& value = values[index];
-                                        sumValues += std::abs( value );
-                                        sumValuesSquared += value * value;
-                                    }
-                                    index++;
-                                }
-                            }
-                        }
-                    }
-                    else
-                    {
-                        RiaLogging::info( "The selected summary address does not have a related difference address." );
-                        if ( hasWarning )
-                        {
-                            *hasWarning = true;
+                            aggregatedObjectiveFunctionValue += functionValue;
                         }
                     }
                 }
                 else
                 {
-                    RiaLogging::info( "Invalid summary address." );
-                    if ( hasWarning )
-                    {
-                        *hasWarning = true;
-                    }
-                }
-                if ( sumValues != 0 )
-                {
-                    return sumValues / std::sqrt( ( N * sumValuesSquared - sumValues * sumValues ) / ( N * ( N - 1.0 ) ) );
-                }
-            }
-        }
-        else if ( m_functionType == FunctionType::M2 )
-        {
-            double value = 0;
-            for ( auto vectorSummaryAddress : vectorSummaryAddresses )
-            {
-                std::string s = vectorSummaryAddress.quantityName() + RifReaderEclipseSummary::differenceIdentifier();
-                if ( !vectorSummaryAddress.quantityName().empty() )
-                {
-                    if ( vectorSummaryAddress.quantityName().find( RifReaderEclipseSummary::differenceIdentifier() ) !=
-                         std::string::npos )
-                    {
-                        s = vectorSummaryAddress.quantityName();
-                    }
-                    RifEclipseSummaryAddress vectorSummaryAddressDiff = vectorSummaryAddress;
-                    vectorSummaryAddressDiff.setQuantityName( s );
-
-                    if ( readerInterface->allResultAddresses().count( vectorSummaryAddressDiff ) )
-                    {
-                        std::vector<double> values;
-                        if ( readerInterface->values( vectorSummaryAddressDiff, &values ) )
-                        {
-                            const std::vector<time_t>& timeSteps = readerInterface->timeSteps( vectorSummaryAddressDiff );
-
-                            size_t index = 0;
-
-                            std::vector<time_t> xValues( 2, 0 );
-                            std::vector<double> yValues( 2, 0.0 );
-                            for ( time_t t : timeSteps )
-                            {
-                                if ( t >= m_startTimeStep && t <= m_endTimeStep )
-                                {
-                                    if ( xValues.front() == 0 )
-                                    {
-                                        xValues[0] = t;
-                                        yValues[0] = values[index];
-                                    }
-                                    else if ( xValues.back() == 0 )
-                                    {
-                                        xValues[1] = t;
-                                        yValues[1] = values[index];
-                                    }
-                                    else
-                                    {
-                                        xValues[0] = xValues[1];
-                                        xValues[1] = t;
-                                        yValues[0] = yValues[1];
-                                        yValues[1] = values[index];
-                                    }
-                                    if ( xValues.back() != 0 )
-                                    {
-                                        for ( time_t timeStep : m_timeSteps )
-                                        {
-                                            if ( xValues[0] <= timeStep && xValues[1] >= timeStep )
-                                            {
-                                                double interpValue = std::abs(
-                                                    RiaCurveMerger<time_t>::interpolatedYValue( timeStep, xValues, yValues ) );
-                                                if ( interpValue != HUGE_VAL )
-                                                {
-                                                    value += interpValue;
-                                                }
-                                            }
-                                        }
-                                    }
-                                    index++;
-                                }
-                            }
-                        }
-                    }
-                    else
-                    {
-                        RiaLogging::info( "The selected summary address does not have a related difference address." );
-                        if ( hasWarning )
-                        {
-                            *hasWarning = true;
-                        }
-                    }
-                }
-                else
-                {
-                    RiaLogging::info( "Invalid summary address." );
+                    RiaLogging::info( "The selected summary address does not have a related difference address." );
                     if ( hasWarning )
                     {
                         *hasWarning = true;
                     }
                 }
             }
-            return value;
+            else
+            {
+                RiaLogging::info( "Invalid summary address." );
+                if ( hasWarning )
+                {
+                    *hasWarning = true;
+                }
+            }
+
+            if ( m_normalizeByNumberOfVectors && vectorSummaryAddresses.size() > 0 )
+            {
+                aggregatedObjectiveFunctionValue /= vectorSummaryAddresses.size();
+            }
+
+            return aggregatedObjectiveFunctionValue;
         }
     }
     return 0.0;
@@ -284,17 +185,22 @@ double RimObjectiveFunction::value( RimSummaryCase*                       summar
 ///
 //--------------------------------------------------------------------------------------------------
 std::pair<double, double>
-    RimObjectiveFunction::minMaxValues( std::vector<RifEclipseSummaryAddress> vectorSummaryAddresses ) const
+    RimObjectiveFunction::minMaxValues( const std::vector<RimSummaryCase*>&          summaryCases,
+                                        const std::vector<RifEclipseSummaryAddress>& vectorSummaryAddresses,
+                                        const ObjectiveFunctionTimeConfig&           timeConfig ) const
 {
     double minValue = std::numeric_limits<double>::infinity();
     double maxValue = -std::numeric_limits<double>::infinity();
 
-    for ( auto value : values( vectorSummaryAddresses ) )
+    for ( auto sumCase : summaryCases )
     {
-        if ( value != std::numeric_limits<double>::infinity() )
+        auto objValue = value( sumCase, vectorSummaryAddresses, timeConfig );
         {
-            if ( value < minValue ) minValue = value;
-            if ( value > maxValue ) maxValue = value;
+            if ( objValue != std::numeric_limits<double>::infinity() )
+            {
+                if ( objValue < minValue ) minValue = objValue;
+                if ( objValue > maxValue ) maxValue = objValue;
+            }
         }
     }
     return std::make_pair( minValue, maxValue );
@@ -303,83 +209,16 @@ std::pair<double, double>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<time_t, time_t> RimObjectiveFunction::range() const
-{
-    return std::make_pair( m_startTimeStep, m_endTimeStep );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::vector<double> RimObjectiveFunction::values( std::vector<RifEclipseSummaryAddress> vectorSummaryAddresses ) const
-{
-    std::vector<double> values;
-    auto                summaryCases = m_summaryCaseCollection->allSummaryCases();
-
-    bool hasWarning = false;
-
-    for ( size_t index = 0; index < summaryCases.size(); index++ )
-    {
-        values.push_back( value( index, vectorSummaryAddresses, &hasWarning ) );
-        if ( hasWarning )
-        {
-            return std::vector<double>();
-        }
-    }
-
-    return values;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RimObjectiveFunction::isValid( std::vector<RifEclipseSummaryAddress> vectorSummaryAddresses ) const
-{
-    bool hasWarning = false;
-    if ( m_summaryCaseCollection && m_summaryCaseCollection->allSummaryCases().size() > 0 &&
-         m_summaryCaseCollection->allSummaryCases().front() )
-    {
-        value( m_summaryCaseCollection->allSummaryCases().front(), vectorSummaryAddresses, &hasWarning );
-        if ( hasWarning )
-        {
-            return false;
-        }
-    }
-    else
-    {
-        return false;
-    }
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 QString RimObjectiveFunction::formulaString( std::vector<RifEclipseSummaryAddress> vectorSummaryAddresses )
 {
     QString formula;
-    if ( m_functionType == FunctionType::M1 )
+
+    for ( RifEclipseSummaryAddress address : vectorSummaryAddresses )
     {
-        formula += "(" + QString::fromWCharArray( L"\u03A3" ) + "(|";
-        QStringList addresses;
-        for ( RifEclipseSummaryAddress address : vectorSummaryAddresses )
-        {
-            addresses << QString::fromStdString( address.uiText() );
-        }
-        formula += addresses.join( "| + |" );
-        formula += "|))/(stdv)";
+        QString text = QString::fromStdString( address.uiText() );
+        formula += text + "\n";
     }
-    else if ( m_functionType == FunctionType::M2 )
-    {
-        formula += QString::fromWCharArray( L"\u03A3" ) + "(|";
-        QStringList addresses;
-        for ( RifEclipseSummaryAddress address : vectorSummaryAddresses )
-        {
-            addresses << QString::fromStdString( address.uiText() );
-        }
-        formula += addresses.join( "| + |" );
-        formula += "|)";
-    }
+
     return formula;
 }
 
@@ -388,5 +227,164 @@ QString RimObjectiveFunction::formulaString( std::vector<RifEclipseSummaryAddres
 //--------------------------------------------------------------------------------------------------
 bool RimObjectiveFunction::operator<( const RimObjectiveFunction& other ) const
 {
-    return this->uiName() < other.uiName();
+    return this->shortName() < other.shortName();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimObjectiveFunction::hideFunctionSelection()
+{
+    m_functionType.uiCapability()->setUiHidden( true );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimObjectiveFunction::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
+{
+    uiOrdering.add( &m_functionType );
+    uiOrdering.add( &m_normalizeByNumberOfObservations );
+    uiOrdering.add( &m_normalizeByNumberOfVectors );
+    uiOrdering.add( &m_errorEstimatePercentage );
+    uiOrdering.add( &m_useSquaredError );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimObjectiveFunction::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
+                                             const QVariant&            oldValue,
+                                             const QVariant&            newValue )
+{
+    double estimate           = m_errorEstimatePercentage;
+    m_errorEstimatePercentage = std::clamp( estimate, 0.0, 100.0 );
+
+    changed.send();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimObjectiveFunction::errorEstimate() const
+{
+    return std::clamp( ( m_errorEstimatePercentage / 100.0 ), 0.0, 1.0 );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<size_t> RimObjectiveFunction::timeStepIndicesForEvaluation( const std::vector<time_t>&         allTimeSteps,
+                                                                        const ObjectiveFunctionTimeConfig& timeConfig ) const
+{
+    std::vector<size_t> timeStepIndices;
+    if ( functionType() == FunctionType::F1 )
+    {
+        for ( size_t i = 0; i < allTimeSteps.size(); i++ )
+        {
+            const auto& t = allTimeSteps[i];
+            if ( t >= timeConfig.m_startTimeStep && t <= timeConfig.m_endTimeStep )
+            {
+                timeStepIndices.push_back( i );
+            }
+        }
+    }
+    else if ( functionType() == FunctionType::F2 )
+    {
+        for ( const auto& t : timeConfig.m_timeSteps )
+        {
+            for ( size_t i = 0; i < allTimeSteps.size(); i++ )
+            {
+                const auto& candidateTime = allTimeSteps[i];
+                if ( t == candidateTime )
+                {
+                    timeStepIndices.push_back( i );
+                }
+            }
+        }
+    }
+
+    return timeStepIndices;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimObjectiveFunction::computeFunctionValue( const std::vector<double>& summaryDiffValues,
+                                                   const std::vector<double>& summaryHistoryValues,
+                                                   const std::vector<size_t>& evaluationIndices ) const
+{
+    if ( summaryHistoryValues.size() != summaryDiffValues.size() ) return std::numeric_limits<double>::infinity();
+
+    const double epsilonErrorEstimate = errorEstimate();
+
+    double sumValues        = 0.0;
+    double sumValuesSquared = 0.0;
+    size_t valueCount       = evaluationIndices.size();
+
+    double averageHistoryValue = 0.0;
+    if ( !summaryHistoryValues.empty() )
+    {
+        for ( auto val : summaryHistoryValues )
+        {
+            averageHistoryValue += val;
+        }
+
+        averageHistoryValue /= summaryHistoryValues.size();
+    }
+
+    //
+    //         1       ( |ti - tHi|  ) n
+    // value = - * SUM ( ----------  )
+    //         N       (  eps * tHi  )
+    //
+    // N   : observation count
+    // ti  : simulated value at time step i
+    // Hti : observed (history) value at time step i
+    // eps : error estimate (0..1)
+    // n   : 2 - squared error term
+    //
+    // https://github.com/OPM/ResInsight/issues/7761
+    //
+    //
+    //
+
+    const double epsilon = 1e-67;
+
+    for ( size_t timeStepIndex : evaluationIndices )
+    {
+        const double diffValue = std::abs( summaryDiffValues[timeStepIndex] );
+
+        double historyValue = summaryHistoryValues[timeStepIndex];
+        double nominator    = std::abs( epsilonErrorEstimate * historyValue );
+        if ( nominator < epsilon )
+        {
+            if ( averageHistoryValue > epsilon )
+                nominator = averageHistoryValue;
+            else if ( diffValue > epsilon )
+                nominator = diffValue;
+            else
+                nominator = 1.0;
+        }
+
+        const double normalizedDiff = diffValue / nominator;
+
+        sumValues += std::abs( normalizedDiff );
+        sumValuesSquared += normalizedDiff * normalizedDiff;
+    }
+
+    if ( valueCount > 0 )
+    {
+        double functionValue = 0.0;
+        if ( m_useSquaredError )
+            functionValue = sumValuesSquared;
+        else
+            functionValue = sumValues;
+
+        if ( m_normalizeByNumberOfObservations ) functionValue /= valueCount;
+
+        return functionValue;
+    }
+
+    return std::numeric_limits<double>::infinity();
 }

@@ -22,6 +22,7 @@
 #include "RimObjectiveFunction.h"
 
 #include "cafPdmChildArrayField.h"
+#include "cafPdmChildField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmProxyValueField.h"
@@ -44,7 +45,7 @@ public:
 
     RimCustomObjectiveFunctionWeight*              addWeight();
     std::vector<RimCustomObjectiveFunctionWeight*> weights() const;
-    std::vector<double>                            values() const;
+    std::vector<double>                            functionValueForAllCases() const;
     double                                         value( RimSummaryCase* summaryCase ) const;
     std::pair<double, double>                      minMaxValues() const;
     bool    weightContainsFunctionType( RimObjectiveFunction::FunctionType functionType ) const;
@@ -55,20 +56,31 @@ public:
     void    invalidate();
     QString formulaString( std::vector<RifEclipseSummaryAddress> vectorSummaryAddresses ) const;
 
+    void clearCache();
+
 private:
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /* = "" */ ) override;
     void defineEditorAttribute( const caf::PdmFieldHandle* field,
                                 QString                    uiConfigName,
                                 caf::PdmUiEditorAttribute* attribute ) override;
+    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
     RimEnsembleCurveSet*                  parentCurveSet() const;
     RimCustomObjectiveFunctionCollection* parentCollection() const;
 
+    RimObjectiveFunction* objectiveFunction( RimObjectiveFunction::FunctionType functionType ) const;
+
     caf::PdmFieldHandle* userDescriptionField() override;
+
+    void onObjectiveFunctionChanged( const caf::SignalEmitter* emitter );
 
 private:
     caf::PdmProxyValueField<QString>                           m_functionTitle;
     caf::PdmField<QString>                                     m_customFunctionTitle;
     caf::PdmChildArrayField<RimCustomObjectiveFunctionWeight*> m_weights;
-    bool                                                       m_isValid;
+    caf::PdmChildArrayField<RimObjectiveFunction*>             m_objectiveFunctions;
+
+    mutable std::map<RimSummaryCase*, double> m_functionValueForAllCases;
+
+    bool m_isValid;
 };

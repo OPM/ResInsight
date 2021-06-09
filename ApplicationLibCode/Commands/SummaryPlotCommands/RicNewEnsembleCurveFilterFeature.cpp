@@ -21,6 +21,7 @@
 #include "RimEnsembleCurveFilter.h"
 #include "RimEnsembleCurveFilterCollection.h"
 #include "RimEnsembleCurveSet.h"
+#include "RimObjectiveFunctionTools.h"
 
 #include "RiuPlotMainWindowTools.h"
 
@@ -67,7 +68,11 @@ void RicNewEnsembleCurveFilterFeature::onActionTriggered( bool isChecked )
         else
         {
             std::vector<RifEclipseSummaryAddress> addresses;
-            addresses.push_back( newFilter->parentCurveSet()->summaryAddress() );
+
+            auto candidateAdr       = newFilter->parentCurveSet()->summaryAddress();
+            auto nativeQuantityName = RimObjectiveFunctionTools::nativeQuantityName( candidateAdr.quantityName() );
+            candidateAdr.setQuantityName( nativeQuantityName );
+            addresses.push_back( candidateAdr );
             newFilter->setSummaryAddresses( addresses );
         }
         newFilter->loadDataAndUpdate();
