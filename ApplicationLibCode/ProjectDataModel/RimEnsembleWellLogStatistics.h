@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include "RiaDefines.h"
+
 #include <vector>
 
 class QString;
@@ -46,6 +48,8 @@ public:
     const std::vector<double>& p50() const;
     const std::vector<double>& p90() const;
     const std::vector<double>& mean() const;
+    QString                    logChannelUnitString() const;
+    RiaDefines::DepthUnitType  depthUnitType() const;
 
     bool hasP10Data() const;
     bool hasP50Data() const;
@@ -57,10 +61,12 @@ public:
 private:
     void clearData();
 
-    std::vector<double> m_measuredDepths;
-    std::vector<double> m_tvDepths;
-    std::vector<double> m_p10Data;
-    std::vector<double> m_p50Data;
-    std::vector<double> m_p90Data;
-    std::vector<double> m_meanData;
+    QString                   m_logChannelUnitString;
+    RiaDefines::DepthUnitType m_depthUnit;
+    std::vector<double>       m_measuredDepths;
+    std::vector<double>       m_tvDepths;
+    std::vector<double>       m_p10Data;
+    std::vector<double>       m_p50Data;
+    std::vector<double>       m_p90Data;
+    std::vector<double>       m_meanData;
 };

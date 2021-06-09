@@ -109,16 +109,15 @@ void RimEnsembleWellLogStatisticsCurve::performDataExtraction( bool* isUsingPseu
     std::vector<double> tvDepthValues;
     double              rkbDiff = 0.0;
 
-    // TODO: get if from the file???
-    RiaDefines::DepthUnitType depthUnit = RiaDefines::DepthUnitType::UNIT_FEET; // METER;
-    QString                   xUnits    = RiaWellLogUnitTools<double>::noUnitString();
-
     *isUsingPseudoLength = false;
 
     if ( m_ensembleWellLogCurveSet )
     {
         const RimEnsembleWellLogStatistics* ensembleWellLogStatistics =
             m_ensembleWellLogCurveSet->ensembleWellLogStatistics();
+
+        RiaDefines::DepthUnitType depthUnit = ensembleWellLogStatistics->depthUnitType();
+        QString                   xUnits    = ensembleWellLogStatistics->logChannelUnitString();
 
         if ( m_statisticsType == RimEnsembleWellLogStatistics::StatisticsType::MEAN )
         {
@@ -141,27 +140,17 @@ void RimEnsembleWellLogStatisticsCurve::performDataExtraction( bool* isUsingPseu
             measuredDepthValues = ensembleWellLogStatistics->measuredDepths();
         }
 
-        // RiaDefines::EclipseUnitSystem eclipseUnitsType = eclipseCase->eclipseCaseData()->unitsType();
-        // if ( eclipseUnitsType == RiaDefines::EclipseUnitSystem::UNITS_FIELD )
-        // {
-        //     // See https://github.com/OPM/ResInsight/issues/538
-
-        //     depthUnit = RiaDefines::DepthUnitType::UNIT_FEET;
-        // }
-    }
-
-    bool performDataSmoothing = false;
-    if ( !values.empty() && !measuredDepthValues.empty() && measuredDepthValues.size() == values.size() )
-    {
-        this->setValuesAndDepths( values,
-                                  measuredDepthValues,
-                                  RiaDefines::DepthTypeEnum::MEASURED_DEPTH,
-                                  rkbDiff,
-                                  depthUnit,
-                                  !performDataSmoothing,
-                                  xUnits );
-        // this->setValuesWithMdAndTVD( values, measuredDepthValues, tvDepthValues, rkbDiff, depthUnit,
-        // !performDataSmoothing, xUnits );
+        bool performDataSmoothing = false;
+        if ( !values.empty() && !measuredDepthValues.empty() && measuredDepthValues.size() == values.size() )
+        {
+            this->setValuesAndDepths( values,
+                                      measuredDepthValues,
+                                      RiaDefines::DepthTypeEnum::MEASURED_DEPTH,
+                                      rkbDiff,
+                                      depthUnit,
+                                      !performDataSmoothing,
+                                      xUnits );
+        }
     }
 }
 
