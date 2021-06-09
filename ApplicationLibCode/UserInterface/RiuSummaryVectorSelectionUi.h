@@ -63,6 +63,10 @@ public:
     void hideSummaryCases( bool hide );
     void enableIndividualEnsembleCaseSelection( bool enable );
 
+    void hideDifferenceVectors( bool hide );
+    void hideHistoryVectors( bool hide );
+    void hideVectorsWithoutHistory( bool hide );
+
     void setFieldChangedHandler( const std::function<void()>& handlerFunc );
 
     void setDefaultSelection( const std::vector<SummarySource*>& defaultCases );
@@ -128,6 +132,10 @@ private:
     bool m_hideEnsembles;
     bool m_hideSummaryCases;
     bool m_showIndividualEnsembleCases;
+
+    bool m_hideHistoryVectors;
+    bool m_hideVectorsWithoutHistory;
+    bool m_hideDifferenceVectors;
 
     std::function<void()> m_toggleChangedHandler;
 

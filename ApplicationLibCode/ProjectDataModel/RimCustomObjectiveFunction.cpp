@@ -45,6 +45,21 @@ RimCustomObjectiveFunction::RimCustomObjectiveFunction()
 
     CAF_PDM_InitFieldNoDefault( &m_weights, "Weights", "", "", "", "" );
 
+    CAF_PDM_InitFieldNoDefault( &m_objectiveFunctions, "ObjectiveFunctions", "Objective Functions", "", "", "" );
+
+    {
+        auto objFunc1 = new RimObjectiveFunction();
+        objFunc1->setFunctionType( RimObjectiveFunction::FunctionType::F1 );
+        m_objectiveFunctions.push_back( objFunc1 );
+        objFunc1->changed.connect( this, &RimCustomObjectiveFunction::onObjectiveFunctionChanged );
+    }
+    {
+        auto objFunc1 = new RimObjectiveFunction();
+        objFunc1->setFunctionType( RimObjectiveFunction::FunctionType::F2 );
+        m_objectiveFunctions.push_back( objFunc1 );
+        objFunc1->changed.connect( this, &RimCustomObjectiveFunction::onObjectiveFunctionChanged );
+    }
+
     m_isValid = true;
 
     setDeletable( true );
@@ -71,32 +86,21 @@ std::vector<RimCustomObjectiveFunctionWeight*> RimCustomObjectiveFunction::weigh
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<double> RimCustomObjectiveFunction::values() const
+std::vector<double> RimCustomObjectiveFunction::functionValueForAllCases() const
 {
-    std::vector<double>       values;
+    if ( m_weights.empty() ) return {};
+
     RimSummaryCaseCollection* caseCollection = parentCurveSet()->summaryCaseCollection();
-    for ( auto weight : m_weights )
+    if ( !caseCollection || caseCollection->allSummaryCases().empty() ) return {};
+
+    std::vector<double> values;
+
+    for ( auto sumCase : caseCollection->allSummaryCases() )
     {
-        std::vector<double> functionValues =
-            caseCollection->objectiveFunction( weight->objectiveFunction() )->values( weight->summaryAddresses() );
-        if ( values.size() == 0 )
-        {
-            for ( size_t i = 0; i < functionValues.size(); i++ )
-            {
-                values.push_back( weight->weightValue() * functionValues[i] );
-            }
-        }
-        else
-        {
-            for ( size_t i = 0; i < functionValues.size(); i++ )
-            {
-                if ( values.size() > i + 1 )
-                {
-                    values[i] += weight->weightValue() * functionValues[i];
-                }
-            }
-        }
+        auto functionValue = value( sumCase );
+        values.push_back( functionValue );
     }
+
     return values;
 }
 
@@ -105,15 +109,23 @@ std::vector<double> RimCustomObjectiveFunction::values() const
 //--------------------------------------------------------------------------------------------------
 double RimCustomObjectiveFunction::value( RimSummaryCase* summaryCase ) const
 {
-    double                    value          = 0.0;
-    RimSummaryCaseCollection* caseCollection = parentCurveSet()->summaryCaseCollection();
+    if ( m_functionValueForAllCases.count( summaryCase ) > 0 )
+    {
+        return m_functionValueForAllCases[summaryCase];
+    }
+
+    double value = 0.0;
     for ( auto weight : m_weights )
     {
         double functionValue =
-            caseCollection->objectiveFunction( weight->objectiveFunction() )->value( summaryCase, weight->summaryAddresses() );
+            objectiveFunction( weight->objectiveFunction() )
+                ->value( summaryCase, weight->summaryAddresses(), parentCurveSet()->objectiveFunctionTimeConfig() );
 
         value += weight->weightValue() * functionValue;
     }
+
+    m_functionValueForAllCases[summaryCase] = value;
+
     return value;
 }
 
@@ -125,7 +137,7 @@ std::pair<double, double> RimCustomObjectiveFunction::minMaxValues() const
     double minValue = std::numeric_limits<double>::infinity();
     double maxValue = -std::numeric_limits<double>::infinity();
 
-    for ( auto value : values() )
+    for ( auto value : functionValueForAllCases() )
     {
         if ( value != std::numeric_limits<double>::infinity() )
         {
@@ -196,6 +208,7 @@ bool RimCustomObjectiveFunction::isValid() const
 //--------------------------------------------------------------------------------------------------
 void RimCustomObjectiveFunction::onWeightChanged()
 {
+    m_functionValueForAllCases.clear();
     parentCollection()->onObjectiveFunctionChanged( this );
 }
 
@@ -220,12 +233,10 @@ QString RimCustomObjectiveFunction::formulaString( std::vector<RifEclipseSummary
     QStringList weightFormulae;
     for ( auto weight : weights() )
     {
-        weightFormulae << QString( "%0 * %1" )
-                              .arg( weight->weightValue() )
-                              .arg( parentCurveSet()
-                                        ->summaryCaseCollection()
-                                        ->objectiveFunction( weight->objectiveFunction() )
-                                        ->formulaString( vectorSummaryAddresses ) );
+        weightFormulae
+            << QString( "%0 * %1" )
+                   .arg( weight->weightValue() )
+                   .arg( objectiveFunction( weight->objectiveFunction() )->formulaString( vectorSummaryAddresses ) );
     }
     formula += weightFormulae.join( " + " );
     return formula;
@@ -234,9 +245,25 @@ QString RimCustomObjectiveFunction::formulaString( std::vector<RifEclipseSummary
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimCustomObjectiveFunction::clearCache()
+{
+    m_functionValueForAllCases.clear();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 caf::PdmFieldHandle* RimCustomObjectiveFunction::userDescriptionField()
 {
     return &m_functionTitle;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimCustomObjectiveFunction::onObjectiveFunctionChanged( const caf::SignalEmitter* emitter )
+{
+    onWeightChanged();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -272,6 +299,35 @@ void RimCustomObjectiveFunction::defineEditorAttribute( const caf::PdmFieldHandl
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimCustomObjectiveFunction::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
+{
+    uiOrdering.add( &m_customFunctionTitle );
+
+    {
+        auto objFunc1 = objectiveFunction( RimObjectiveFunction::FunctionType::F1 );
+        if ( objFunc1 )
+        {
+            auto equationGroup = uiOrdering.addNewGroup( "Equation for Time Range" );
+
+            objFunc1->hideFunctionSelection();
+            objFunc1->uiOrdering( "", *equationGroup );
+        }
+    }
+
+    {
+        auto objFunc2 = objectiveFunction( RimObjectiveFunction::FunctionType::F2 );
+        {
+            auto equationGroup = uiOrdering.addNewGroup( "Equation for Selected Time Range" );
+
+            objFunc2->hideFunctionSelection();
+            objFunc2->uiOrdering( "", *equationGroup );
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RimEnsembleCurveSet* RimCustomObjectiveFunction::parentCurveSet() const
 {
     RimEnsembleCurveSet* curveSet;
@@ -287,4 +343,19 @@ RimCustomObjectiveFunctionCollection* RimCustomObjectiveFunction::parentCollecti
     RimCustomObjectiveFunctionCollection* collection;
     firstAncestorOrThisOfType( collection );
     return collection;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimObjectiveFunction* RimCustomObjectiveFunction::objectiveFunction( RimObjectiveFunction::FunctionType functionType ) const
+{
+    for ( auto objectiveFunc : m_objectiveFunctions.childObjects() )
+    {
+        if ( objectiveFunc->functionType() == functionType )
+        {
+            return objectiveFunc;
+        }
+    }
+    return nullptr;
 }

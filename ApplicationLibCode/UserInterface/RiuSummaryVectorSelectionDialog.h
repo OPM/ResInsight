@@ -52,6 +52,10 @@ public:
     void enableMultiSelect( bool enable );
     void enableIndividualEnsembleCaseSelection( bool enable );
 
+    void hideHistoryVectors();
+    void hideDifferenceVectors();
+    void hideVectorsWithNoHistory();
+
 private:
     RiuSummaryVectorSelectionUi* summaryAddressSelection() const;
     void                         updateLabel();

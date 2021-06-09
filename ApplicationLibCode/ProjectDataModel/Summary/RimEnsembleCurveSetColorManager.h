@@ -59,9 +59,11 @@ public:
     }
 
     static void initializeLegendConfig( RimRegularLegendConfig* legendConfig, const EnsembleParameter& parameter );
-    static void initializeLegendConfig( RimRegularLegendConfig*               legendConfig,
-                                        std::shared_ptr<RimObjectiveFunction> objectiveFunction,
-                                        std::vector<RifEclipseSummaryAddress> vectorSummaryAddresses );
+    static void initializeLegendConfig( RimRegularLegendConfig*                      legendConfig,
+                                        RimObjectiveFunction*                        objectiveFunction,
+                                        const std::vector<RimSummaryCase*>&          summaryCases,
+                                        const std::vector<RifEclipseSummaryAddress>& vectorSummaryAddresses,
+                                        const ObjectiveFunctionTimeConfig&           timeConfig );
 
     static void initializeLegendConfig( RimRegularLegendConfig*                     legendConfig,
                                         caf::PdmPointer<RimCustomObjectiveFunction> customObjectiveFunction );
@@ -72,8 +74,9 @@ public:
 
     static cvf::Color3f caseColor( const RimRegularLegendConfig*         legendConfig,
                                    RimSummaryCase*                       summaryCase,
-                                   std::shared_ptr<RimObjectiveFunction> objectiveFunction,
-                                   std::vector<RifEclipseSummaryAddress> vectorSummaryAddresses );
+                                   RimObjectiveFunction*                 objectiveFunction,
+                                   std::vector<RifEclipseSummaryAddress> vectorSummaryAddresses,
+                                   const ObjectiveFunctionTimeConfig&    timeConfig );
 
     static cvf::Color3f caseColor( const RimRegularLegendConfig*               legendConfig,
                                    RimSummaryCase*                             summaryCase,

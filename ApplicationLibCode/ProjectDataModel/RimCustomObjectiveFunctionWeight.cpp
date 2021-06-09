@@ -23,6 +23,7 @@
 
 #include "RimCustomObjectiveFunction.h"
 #include "RimEnsembleCurveSet.h"
+#include "RimObjectiveFunctionTools.h"
 #include "RimSummaryAddress.h"
 
 #include "RiuSummaryVectorSelectionDialog.h"
@@ -83,7 +84,7 @@ QString RimCustomObjectiveFunctionWeight::title() const
     }
     return QString( "%0 * %1::%2%3%4" )
         .arg( m_weightValue, 0, 'f', 2 )
-        .arg( caf::AppEnum<RimObjectiveFunction::FunctionType>( m_objectiveFunction() ).uiText() )
+        .arg( caf::AppEnum<RimObjectiveFunction::FunctionType>( m_objectiveFunction() ).text() )
         .arg( addressVector.size() > 1 ? "(" : "" )
         .arg( QString::fromStdString( RifEclipseSummaryAddress::generateStringFromAddresses( addressVector, " + " ) ) )
         .arg( addressVector.size() > 1 ? ")" : "" );
@@ -156,7 +157,7 @@ void RimCustomObjectiveFunctionWeight::fieldChangedByUi( const caf::PdmFieldHand
     else if ( changedField == &m_objectiveValuesSelectSummaryAddressPushButton )
     {
         RiuSummaryVectorSelectionDialog dlg( nullptr );
-        dlg.enableMultiSelect( true );
+        RimObjectiveFunctionTools::configureDialogForObjectiveFunctions( &dlg );
         RimSummaryCaseCollection* candidateEnsemble = parentCurveSet()->summaryCaseCollection();
 
         std::vector<RifEclipseSummaryAddress> candidateAddresses;
@@ -165,7 +166,6 @@ void RimCustomObjectiveFunctionWeight::fieldChangedByUi( const caf::PdmFieldHand
             candidateAddresses.push_back( address->address() );
         }
 
-        dlg.hideSummaryCases();
         dlg.setEnsembleAndAddresses( candidateEnsemble, candidateAddresses );
 
         if ( dlg.exec() == QDialog::Accepted )

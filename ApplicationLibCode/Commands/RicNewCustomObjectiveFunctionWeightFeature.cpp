@@ -20,7 +20,7 @@
 
 #include "RimCustomObjectiveFunction.h"
 #include "RimCustomObjectiveFunctionWeight.h"
-#include "RimEnsembleCurveSet.h"
+#include "RimObjectiveFunctionTools.h"
 
 #include "RiuPlotMainWindowTools.h"
 
@@ -51,16 +51,11 @@ void RicNewCustomObjectiveFunctionWeightFeature::onActionTriggered( bool isCheck
 
     if ( func.size() == 1 )
     {
-        RimCustomObjectiveFunctionWeight* newWeight = func[0]->addWeight();
-        if ( func[0]->weights().size() > 1 )
-        {
-            newWeight->setSummaryAddress( func[0]->weights()[0]->summaryAddresses().front() );
-        }
-        else
-        {
-            newWeight->setSummaryAddress( newWeight->parentCurveSet()->summaryAddress() );
-        }
-        func[0]->updateConnectedEditors();
+        auto firstObjectiveFunction = func.front();
+
+        auto newWeight = RimObjectiveFunctionTools::addWeight( firstObjectiveFunction );
+
+        firstObjectiveFunction->updateConnectedEditors();
         RiuPlotMainWindowTools::selectAsCurrentItem( newWeight );
         RiuPlotMainWindowTools::setExpanded( func.front() );
     }
