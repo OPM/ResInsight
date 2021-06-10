@@ -709,11 +709,11 @@ QStringList RiaPreferences::tabNames()
     names << tabNameGeneral();
     names << tabNameEclipseGrid();
     names << tabNameEclipseSummary();
+    names << tabNamePlotting();
+    names << tabNameScripting();
 #ifdef USE_ODB_API
     names << tabNameGeomech();
 #endif
-    names << tabNamePlotting();
-    names << tabNameScripting();
     names << tabNameExport();
     names << tabNameImport();
 
