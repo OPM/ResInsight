@@ -457,12 +457,6 @@ void RiaPreferences::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
             m_summaryPreferences()->uiOrdering( uiConfigName, *group );
         }
     }
-#ifdef USE_ODB_API
-    else if ( uiConfigName == RiaPreferences::tabNameGeomech() )
-    {
-        m_geoMechPreferences()->appendItems( uiOrdering );
-    }
-#endif
     else if ( uiConfigName == RiaPreferences::tabNamePlotting() )
     {
         uiOrdering.add( &m_dateFormat );
@@ -510,6 +504,12 @@ void RiaPreferences::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
         scriptGroup->add( &scriptDirectories );
         scriptGroup->add( &scriptEditorExecutable );
     }
+#ifdef USE_ODB_API
+    else if ( uiConfigName == RiaPreferences::tabNameGeomech() )
+    {
+        m_geoMechPreferences()->appendItems( uiOrdering );
+    }
+#endif
     else if ( uiConfigName == RiaPreferences::tabNameExport() )
     {
         uiOrdering.add( &csvTextExportFieldSeparator );

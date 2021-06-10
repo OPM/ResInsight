@@ -133,7 +133,10 @@ RiuMainWindow::RiuMainWindow()
 
     m_dragDropInterface = std::unique_ptr<caf::PdmUiDragDropInterface>( new RiuDragDrop() );
 
-    m_undoView->setStack( caf::CmdExecCommandManager::instance()->undoStack() );
+    if ( m_undoView )
+    {
+        m_undoView->setStack( caf::CmdExecCommandManager::instance()->undoStack() );
+    }
     connect( caf::CmdExecCommandManager::instance()->undoStack(),
              SIGNAL( indexChanged( int ) ),
              SLOT( slotRefreshUndoRedoActions() ) );
@@ -836,7 +839,7 @@ void RiuMainWindow::createDockPanels()
         dockWidget->hide();
     }
 
-    if ( RiaPreferences::current()->useUndoRedo() )
+    if ( m_undoView && RiaPreferences::current()->useUndoRedo() )
     {
         QDockWidget* dockWidget = new QDockWidget( "Undo Stack", this );
         dockWidget->setObjectName( RiuDockWidgetTools::undoStackName() );
