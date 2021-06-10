@@ -90,7 +90,7 @@ RimStatisticsPlot::RimStatisticsPlot()
                        "" );
     CAF_PDM_InitField( &m_tickNumberFormat,
                        "TickNumberFormat",
-                       caf::AppEnum<RiaNumberFormat::NumberFormatType>( RiaNumberFormat::NumberFormatType::FIXED ),
+                       caf::AppEnum<RiaNumberFormat::NumberFormatType>( RiaNumberFormat::NumberFormatType::AUTO ),
                        "Number format",
                        "",
                        "",
