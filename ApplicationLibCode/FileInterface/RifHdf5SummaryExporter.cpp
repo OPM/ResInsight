@@ -44,12 +44,6 @@ bool RifHdf5SummaryExporter::ensureHdf5FileIsCreatedMultithreaded( const std::ve
 
     if ( smspecFileNames.size() != h5FileNames.size() ) return false;
 
-    {
-        QString txt = QString( "Testing if H5 files are present for [ %1 ] summary files ..." )
-                          .arg( static_cast<int>( smspecFileNames.size() ) );
-        RiaLogging::info( txt );
-    }
-
     size_t hdfFilesCreatedCount = 0;
 
     bool useMultipleThreads = threadCount > 1;
@@ -63,6 +57,7 @@ bool RifHdf5SummaryExporter::ensureHdf5FileIsCreatedMultithreaded( const std::ve
         RifHdf5SummaryExporter::ensureHdf5FileIsCreated( smspecFileName, h5FileName, hdfFilesCreatedCount );
     }
 
+    if ( hdfFilesCreatedCount > 0 )
     {
         QString txt = QString( "Created [ %1 ] h5 files from a total of [ %2 ] summary files" )
                           .arg( static_cast<int>( hdfFilesCreatedCount ) )
