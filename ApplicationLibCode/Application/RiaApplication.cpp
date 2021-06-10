@@ -645,6 +645,7 @@ bool RiaApplication::loadProject( const QString&      projectFileName,
         auto sumMainCollection = oilField->summaryCaseMainCollection();
         if ( !sumMainCollection ) continue;
 
+        sumMainCollection->updateAutoShortName();
         for ( auto sumCaseGroup : sumMainCollection->summaryCaseCollections() )
         {
             sumCaseGroup->loadDataAndUpdate();
