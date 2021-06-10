@@ -723,3 +723,19 @@ void RimSummaryCaseMainCollection::updateFilePathsFromProjectPath( const QString
         summaryCase->updateFilePathsFromProjectPath( newProjectPath, oldProjectPath );
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCaseMainCollection::updateAutoShortName()
+{
+    // This update is required if the file path for the summary case is updated. To be able to produce plots
+    // automatically, the short name must be generated on load
+    //
+    // https://github.com/OPM/ResInsight/issues/7438
+
+    for ( auto s : allSummaryCases() )
+    {
+        s->updateAutoShortName();
+    }
+}

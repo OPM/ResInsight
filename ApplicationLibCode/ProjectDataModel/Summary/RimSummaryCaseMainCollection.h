@@ -72,6 +72,8 @@ public:
 
     void updateFilePathsFromProjectPath( const QString& newProjectPath, const QString& oldProjectPath );
 
+    void updateAutoShortName();
+
 private:
     static void loadSummaryCaseData( std::vector<RimSummaryCase*> summaryCases );
     static void loadFileSummaryCaseData( std::vector<RimFileSummaryCase*> fileSummaryCases );
