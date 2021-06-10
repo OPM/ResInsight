@@ -129,8 +129,8 @@ double RimObjectiveFunction::value( RimSummaryCase*                             
                 vectorSummaryAddressDiff.setQuantityName( s );
 
                 RifEclipseSummaryAddress vectorSummaryAddressHistory = vectorSummaryAddress;
-                vectorSummaryAddressDiff.setQuantityName( vectorSummaryAddress.quantityName() +
-                                                          RifReaderEclipseSummary::differenceIdentifier() );
+                vectorSummaryAddressHistory.setQuantityName( vectorSummaryAddress.quantityName() +
+                                                             RifReaderEclipseSummary::historyIdentifier() );
 
                 if ( readerInterface->allResultAddresses().count( vectorSummaryAddressDiff ) )
                 {
