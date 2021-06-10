@@ -2122,6 +2122,12 @@ void RimEclipseResultDefinition::updateRangesForExplicitLegends( RimRegularLegen
                 else
                 {
                     auto uniqueValues = cellResultsData->uniqueCellScalarValues( this->eclipseResultAddress() );
+                    if ( this->eclipseResultAddress().resultCatType() == RiaDefines::ResultCatType::FORMATION_NAMES )
+                    {
+                        std::vector<QString> fnVector = eclipseCaseData->formationNames();
+                        uniqueValues.resize( fnVector.size() );
+                        std::iota( uniqueValues.begin(), uniqueValues.end(), 0 );
+                    }
 
                     cvf::Color3ubArray legendBaseColors = legendConfigToUpdate->colorLegend()->colorArray();
 
@@ -2154,8 +2160,6 @@ void RimEclipseResultDefinition::updateRangesForExplicitLegends( RimRegularLegen
                     }
                     std::vector<std::tuple<QString, int, cvf::Color3ub>> categoryVector;
 
-                    std::vector<QString> fnVector = eclipseCaseData->formationNames();
-
                     for ( auto value : visibleCategoryValues )
                     {
                         cvf::Color3ub categoryColor = categoryMapper->mapToColor( value );
@@ -2163,7 +2167,12 @@ void RimEclipseResultDefinition::updateRangesForExplicitLegends( RimRegularLegen
                         QString valueTxt;
                         if ( this->resultType() == RiaDefines::ResultCatType::FORMATION_NAMES )
                         {
-                            valueTxt = fnVector[value];
+                            std::vector<QString> fnVector = eclipseCaseData->formationNames();
+
+                            if ( value < static_cast<int>( fnVector.size() ) )
+                            {
+                                valueTxt = fnVector[value];
+                            }
                         }
                         else
                             valueTxt = QString( "%1" ).arg( value );
