@@ -80,9 +80,22 @@ bool RimStimPlanModelWellLogCalculator::calculate( RiaDefines::CurveProperty cur
                                                    std::vector<double>&      tvDepthValues,
                                                    double&                   rkbDiff ) const
 {
+    std::deque<RimStimPlanModel::MissingValueStrategy> missingValueStratgies =
+        stimPlanModel->missingValueStrategies( curveProperty );
+
     if ( !extractValuesForProperty( curveProperty, stimPlanModel, timeStep, values, measuredDepthValues, tvDepthValues, rkbDiff ) )
     {
-        return false;
+        if ( std::find( missingValueStratgies.begin(),
+                        missingValueStratgies.end(),
+                        RimStimPlanModel::MissingValueStrategy::DEFAULT_VALUE ) != missingValueStratgies.end() )
+        {
+            RiaLogging::warning( QString( "Extraction failed. Trying fallback" ) );
+            if ( !replaceMissingValuesWithDefault( curveProperty, stimPlanModel, values, measuredDepthValues, tvDepthValues, rkbDiff ) )
+            {
+                RiaLogging::error( "Fallback failed too." );
+                return false;
+            }
+        }
     }
 
     double overburdenHeight = stimPlanModel->overburdenHeight();
@@ -97,9 +110,6 @@ bool RimStimPlanModelWellLogCalculator::calculate( RiaDefines::CurveProperty cur
         addUnderburden( curveProperty, stimPlanModel, tvDepthValues, measuredDepthValues, values );
     }
 
-    std::deque<RimStimPlanModel::MissingValueStrategy> missingValueStratgies =
-        stimPlanModel->missingValueStrategies( curveProperty );
-
     while ( hasMissingValues( values ) && !missingValueStratgies.empty() )
     {
         RimStimPlanModel::MissingValueStrategy strategy = missingValueStratgies.front();
@@ -107,7 +117,7 @@ bool RimStimPlanModelWellLogCalculator::calculate( RiaDefines::CurveProperty cur
 
         if ( strategy == RimStimPlanModel::MissingValueStrategy::DEFAULT_VALUE )
         {
-            if ( !replaceMissingValuesWithDefault( curveProperty, stimPlanModel, values ) )
+            if ( !replaceMissingValuesWithDefault( curveProperty, stimPlanModel, values, measuredDepthValues, tvDepthValues, rkbDiff ) )
             {
                 return false;
             }
@@ -443,8 +453,10 @@ bool RimStimPlanModelWellLogCalculator::extractValuesForProperty( RiaDefines::Cu
 //--------------------------------------------------------------------------------------------------
 bool RimStimPlanModelWellLogCalculator::replaceMissingValuesWithDefault( RiaDefines::CurveProperty curveProperty,
                                                                          const RimStimPlanModel*   stimPlanModel,
-                                                                         std::vector<double>&      values ) const
-
+                                                                         std::vector<double>&      values,
+                                                                         std::vector<double>&      measuredDepthValues,
+                                                                         std::vector<double>&      tvDepthValues,
+                                                                         double&                   rkbDiff ) const
 {
     RimEclipseCase* eclipseCase = stimPlanModel->eclipseCaseForProperty( curveProperty );
 
@@ -480,33 +492,43 @@ bool RimStimPlanModelWellLogCalculator::replaceMissingValuesWithDefault( RiaDefi
         RigEclipseWellLogExtractor eclExtractor( eclipseCase->eclipseCaseData(), wellPathGeometry, "fracture model" );
         eclExtractor.curveData( backupResAcc.p(), &replacementValues );
 
-        double overburdenHeight = stimPlanModel->overburdenHeight();
-        if ( overburdenHeight > 0.0 )
+        if ( values.empty() )
         {
-            double defaultOverburdenValue = std::numeric_limits<double>::infinity();
-            if ( stimPlanModel->burdenStrategy( curveProperty ) == RimStimPlanModel::BurdenStrategy::DEFAULT_VALUE )
+            values              = replacementValues;
+            measuredDepthValues = eclExtractor.cellIntersectionMDs();
+            tvDepthValues       = eclExtractor.cellIntersectionTVDs();
+            rkbDiff             = eclExtractor.wellPathGeometry()->rkbDiff();
+        }
+        else
+        {
+            double overburdenHeight = stimPlanModel->overburdenHeight();
+            if ( overburdenHeight > 0.0 )
             {
-                defaultOverburdenValue = stimPlanModel->getDefaultForMissingOverburdenValue( curveProperty );
+                double defaultOverburdenValue = std::numeric_limits<double>::infinity();
+                if ( stimPlanModel->burdenStrategy( curveProperty ) == RimStimPlanModel::BurdenStrategy::DEFAULT_VALUE )
+                {
+                    defaultOverburdenValue = stimPlanModel->getDefaultForMissingOverburdenValue( curveProperty );
+                }
+
+                replacementValues.insert( replacementValues.begin(), defaultOverburdenValue );
+                replacementValues.insert( replacementValues.begin(), defaultOverburdenValue );
             }
 
-            replacementValues.insert( replacementValues.begin(), defaultOverburdenValue );
-            replacementValues.insert( replacementValues.begin(), defaultOverburdenValue );
-        }
-
-        double underburdenHeight = stimPlanModel->underburdenHeight();
-        if ( underburdenHeight > 0.0 )
-        {
-            double defaultUnderburdenValue = std::numeric_limits<double>::infinity();
-            if ( stimPlanModel->burdenStrategy( curveProperty ) == RimStimPlanModel::BurdenStrategy::DEFAULT_VALUE )
+            double underburdenHeight = stimPlanModel->underburdenHeight();
+            if ( underburdenHeight > 0.0 )
             {
-                defaultUnderburdenValue = stimPlanModel->getDefaultForMissingUnderburdenValue( curveProperty );
+                double defaultUnderburdenValue = std::numeric_limits<double>::infinity();
+                if ( stimPlanModel->burdenStrategy( curveProperty ) == RimStimPlanModel::BurdenStrategy::DEFAULT_VALUE )
+                {
+                    defaultUnderburdenValue = stimPlanModel->getDefaultForMissingUnderburdenValue( curveProperty );
+                }
+
+                replacementValues.push_back( defaultUnderburdenValue );
+                replacementValues.push_back( defaultUnderburdenValue );
             }
 
-            replacementValues.push_back( defaultUnderburdenValue );
-            replacementValues.push_back( defaultUnderburdenValue );
+            replaceMissingValues( values, replacementValues );
         }
-
-        replaceMissingValues( values, replacementValues );
     }
 
     // If the backup accessor is not found, or does not provide all the missing values:

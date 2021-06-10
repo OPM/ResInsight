@@ -89,7 +89,10 @@ protected:
 
     bool replaceMissingValuesWithDefault( RiaDefines::CurveProperty curveProperty,
                                           const RimStimPlanModel*   stimPlanModel,
-                                          std::vector<double>&      values ) const;
+                                          std::vector<double>&      values,
+                                          std::vector<double>&      measuredDepthValues,
+                                          std::vector<double>&      tvDepthValues,
+                                          double&                   rkbDiff ) const;
 
     bool replaceMissingValuesWithOtherProperty( RiaDefines::CurveProperty curveProperty,
                                                 const RimStimPlanModel*   stimPlanModel,
