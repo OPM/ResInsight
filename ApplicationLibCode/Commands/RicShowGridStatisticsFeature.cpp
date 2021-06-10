@@ -61,6 +61,6 @@ void RicShowGridStatisticsFeature::onActionTriggered( bool isChecked )
 //--------------------------------------------------------------------------------------------------
 void RicShowGridStatisticsFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setText( "Grid Statistics" );
+    actionToSetup->setText( "Grid Statistics (legacy)" );
     actionToSetup->setIcon( QIcon( ":/statistics.png" ) ); // Todo: Change icon
 }

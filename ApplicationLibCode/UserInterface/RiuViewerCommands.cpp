@@ -618,6 +618,7 @@ void RiuViewerCommands::displayContextMenu( QMouseEvent* event )
         menuBuilder.addSeparator();
         menuBuilder << "RicExportEclipseInputGridFeature";
         menuBuilder << "RicSaveEclipseInputActiveVisibleCellsFeature";
+        menuBuilder << "RicCreateGridStatisticsPlotFeature";
         menuBuilder << "RicShowGridStatisticsFeature";
         menuBuilder << "RicSelectColorResult";
     }

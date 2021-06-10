@@ -50,7 +50,7 @@ CAF_PDM_SOURCE_INIT( RimGridStatisticsPlot, "GridStatisticsPlot" );
 //--------------------------------------------------------------------------------------------------
 RimGridStatisticsPlot::RimGridStatisticsPlot()
 {
-    CAF_PDM_InitObject( "Grid Statistics Plot", "", "", "A Plot of Grid Statistics" );
+    CAF_PDM_InitObject( "Grid Statistics Plot", ":/statistics.png", "", "A Plot of Grid Statistics" );
 
     CAF_PDM_InitFieldNoDefault( &m_case, "Case", "Case", "", "", "" );
     m_case.uiCapability()->setUiTreeChildrenHidden( true );
