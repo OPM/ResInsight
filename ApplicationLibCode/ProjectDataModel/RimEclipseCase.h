@@ -142,8 +142,7 @@ protected:
     caf::PdmChildField<RimEclipseInputPropertyCollection*> m_inputPropertyCollection;
 
 private:
-    caf::PdmField<std::vector<caf::FilePath>> m_filesContainingFaults;
-    caf::PdmField<bool>                       m_releaseResultMemory;
+    caf::PdmField<bool> m_releaseResultMemory;
 
     caf::PdmChildField<RimEclipseContourMapViewCollection*> m_contourMapCollection;
 
@@ -153,4 +152,8 @@ private:
 
     caf::PdmChildField<RimReservoirCellResultsStorage*> m_matrixModelResults;
     caf::PdmChildField<RimReservoirCellResultsStorage*> m_fractureModelResults;
+
+    // To be removed as the caching of file names causes issues when using the project file as template
+    // https://github.com/OPM/ResInsight/issues/7308
+    caf::PdmField<std::vector<caf::FilePath>> m_filesContainingFaults_OBSOLETE;
 };
