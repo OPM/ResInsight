@@ -930,6 +930,14 @@ void RimEnsembleCurveSet::updateMaxMinAndDefaultValues()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+const RimEnsembleCurveFilterCollection* RimEnsembleCurveSet::curveFilters() const
+{
+    return m_curveFilters;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimEnsembleCurveSet::onCustomObjectiveFunctionChanged( const caf::SignalEmitter* emitter )
 {
     updateCurveColors();

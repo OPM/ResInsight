@@ -155,6 +155,8 @@ public:
     static void appendOptionItemsForSummaryAddresses( QList<caf::PdmOptionItemInfo>* options,
                                                       RimSummaryCaseCollection*      summaryCaseGroup );
 
+    const RimEnsembleCurveFilterCollection* curveFilters() const;
+
     void updateFilterLegend();
     void updateObjectiveFunctionLegend();
 

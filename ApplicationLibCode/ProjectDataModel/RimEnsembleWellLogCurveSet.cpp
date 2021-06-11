@@ -28,7 +28,9 @@
 #include "RiaSummaryCurveDefinition.h"
 #include "RiaTimeTTools.h"
 
+#include "RimEnsembleCurveSet.h"
 #include "RimEnsembleWellLogStatisticsCurve.h"
+#include "RimMainPlotCollection.h"
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimRegularLegendConfig.h"
@@ -105,6 +107,8 @@ RimEnsembleWellLogCurveSet::RimEnsembleWellLogCurveSet()
     m_ensembleWellLogs.uiCapability()->setUiTreeChildrenHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_wellLogChannelName, "WellLogChannelName", "Well Log Channel Name", "", "", "" );
+
+    CAF_PDM_InitFieldNoDefault( &m_ensembleCurveSet, "FilterEnsembleCurveSet", "Filter by Ensemble Curve Set", "", "", "" );
 
     CAF_PDM_InitField( &m_colorMode, "ColorMode", caf::AppEnum<ColorMode>( ColorMode::SINGLE_COLOR ), "Coloring Mode", "", "", "" );
 
@@ -439,7 +443,7 @@ void RimEnsembleWellLogCurveSet::updateAllCurves()
 
         m_isCurveSetFiltered = filteredCases.size() < allWellLogFiles.size();
 
-        updateEnsembleCurves( allWellLogFiles );
+        updateEnsembleCurves( filteredCases );
         updateStatisticsCurves( m_statistics->basedOnFilteredCases() ? filteredCases : allWellLogFiles );
     }
 
@@ -483,6 +487,13 @@ void RimEnsembleWellLogCurveSet::fieldChangedByUi( const caf::PdmFieldHandle* ch
     {
         updateAllCurves();
 
+        updateTextInPlot = true;
+    }
+    else if ( changedField == &m_ensembleCurveSet )
+    {
+        updateAllCurves();
+
+        loadDataAndUpdate( true );
         updateTextInPlot = true;
     }
     else if ( changedField == &m_wellLogChannelName )
@@ -545,6 +556,7 @@ void RimEnsembleWellLogCurveSet::defineUiOrdering( QString uiConfigName, caf::Pd
 {
     uiOrdering.add( &m_ensembleWellLogs );
     uiOrdering.add( &m_wellLogChannelName );
+    uiOrdering.add( &m_ensembleCurveSet );
 
     appendColorGroup( uiOrdering );
 
@@ -687,6 +699,18 @@ QList<caf::PdmOptionItemInfo>
             options.push_back( caf::PdmOptionItemInfo( "None", "None" ) );
         }
     }
+    else if ( fieldNeedingOptions == &m_ensembleCurveSet )
+    {
+        options.push_back( caf::PdmOptionItemInfo( "None", nullptr ) );
+
+        RimMainPlotCollection*            mainPlotColl = RimProject::current()->mainPlotCollection();
+        std::vector<RimEnsembleCurveSet*> ensembleCurveSets;
+        mainPlotColl->descendantsOfType( ensembleCurveSets );
+        for ( auto ensembleCurveSet : ensembleCurveSets )
+        {
+            options.push_back( caf::PdmOptionItemInfo( ensembleCurveSet->name(), ensembleCurveSet ) );
+        }
+    }
     else if ( fieldNeedingOptions == &m_colorMode )
     {
         auto singleColorOption = ColorModeEnum( ColorMode::SINGLE_COLOR );
@@ -720,29 +744,30 @@ QList<caf::PdmOptionItemInfo>
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleWellLogCurveSet::updateFilterLegend()
 {
-    RimWellLogPlot* plot;
-    firstAncestorOrThisOfType( plot );
-    // if ( plot && plot->viewer() )
-    // {
-    //     if ( m_curveFilters()->isActive() && m_curveFilters()->countActiveFilters() > 0 )
-    //     {
-    //         if ( !m_filterOverlayFrame )
-    //         {
-    //             m_filterOverlayFrame =
-    //                 new RiuDraggableOverlayFrame( plot->viewer()->canvas(), plot->viewer()->overlayMargins() );
-    //         }
-    //         m_filterOverlayFrame->setContentFrame( m_curveFilters()->makeFilterDescriptionFrame() );
-    //         plot->viewer()->addOverlayFrame( m_filterOverlayFrame );
-    //     }
-    //     else
-    //     {
-    //         if ( m_filterOverlayFrame )
-    //         {
-    //             plot->viewer()->removeOverlayFrame( m_filterOverlayFrame );
-    //         }
-    //     }
-    //     plot->viewer()->scheduleReplot();
-    // }
+    RimWellLogTrack* plotTrack;
+    firstAncestorOrThisOfType( plotTrack );
+
+    if ( plotTrack && plotTrack->viewer() )
+    {
+        if ( m_ensembleCurveSet != nullptr && m_ensembleCurveSet->isFiltered() )
+        {
+            if ( !m_filterOverlayFrame )
+            {
+                m_filterOverlayFrame =
+                    new RiuDraggableOverlayFrame( plotTrack->viewer()->canvas(), plotTrack->viewer()->overlayMargins() );
+            }
+            m_filterOverlayFrame->setContentFrame( m_ensembleCurveSet->curveFilters()->makeFilterDescriptionFrame() );
+            plotTrack->viewer()->addOverlayFrame( m_filterOverlayFrame );
+        }
+        else
+        {
+            if ( m_filterOverlayFrame )
+            {
+                plotTrack->viewer()->removeOverlayFrame( m_filterOverlayFrame );
+            }
+        }
+        plotTrack->viewer()->scheduleReplot();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -831,17 +856,6 @@ void RimEnsembleWellLogCurveSet::updateCurveColors()
         plotTrack->viewer()->scheduleReplot();
     }
 }
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-// void RimEnsembleWellLogCurveSet::updateQwtPlotAxis()
-// {
-//     // for ( RimWellLogCurve* curve : curves() )
-//     // {
-//     //     curve->updateQwtPlotAxis();
-//     // }
-// }
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -1068,14 +1082,64 @@ std::vector<std::pair<RigEnsembleParameter, double>> RimEnsembleWellLogCurveSet:
 std::vector<RimWellLogFile*>
     RimEnsembleWellLogCurveSet::filterEnsembleCases( const std::vector<RimWellLogFile*>& wellLogFiles )
 {
-    auto filteredCases = wellLogFiles;
+    std::vector<RimWellLogFile*> filteredCases;
 
-    // TODO: implement filtering..
-    // for ( auto& filter : m_curveFilters->filters() )
-    // {
-    //     filteredCases = filter->applyFilter( filteredCases );
-    // }
-    return wellLogFiles;
+    if ( m_ensembleCurveSet != nullptr && m_statistics->basedOnFilteredCases() )
+    { // && m_ensembleCurveSet->isFiltered() )
+        RiaLogging::debug( QString( "FILTERING ENSEMBLE CASES" ) );
+
+        // Get the summary cases from the related ensemble summary curve set.
+        RimSummaryCaseCollection* summaryCaseCollection = m_ensembleCurveSet->summaryCaseCollection();
+
+        //
+        std::vector<RimSummaryCase*> sumCases =
+            m_ensembleCurveSet->filterEnsembleCases( summaryCaseCollection->allSummaryCases() );
+        for ( auto sumCase : sumCases )
+        {
+            for ( auto wellLogFile : wellLogFiles )
+            {
+                if ( isSameRealization( sumCase, wellLogFile ) )
+                {
+                    filteredCases.push_back( wellLogFile );
+                }
+            }
+        }
+    }
+    else
+    {
+        RiaLogging::debug( QString( "NOT FILTERING ENSEMBLE CASES" ) );
+
+        filteredCases = wellLogFiles;
+    }
+
+    return filteredCases;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimEnsembleWellLogCurveSet::isSameRealization( RimSummaryCase* summaryCase, RimWellLogFile* wellLogFile ) const
+{
+    QString wellLogFileName = wellLogFile->fileName();
+
+    //
+    if ( summaryCase->hasCaseRealizationParameters() )
+    {
+        // TODO: make less naive..
+        int     realizationNumber   = summaryCase->caseRealizationParameters()->realizationNumber();
+        QString summaryCaseFileName = summaryCase->summaryHeaderFilename();
+
+        if ( wellLogFileName.contains( QString( "realization-%1" ).arg( realizationNumber ) ) )
+        {
+            RiaLogging::debug(
+                QString( "Matching summary case %1 with well log file %2" ).arg( summaryCaseFileName ).arg( wellLogFileName ) );
+
+            return true;
+        }
+    }
+
+    RiaLogging::debug( QString( "No matching summary case found for well log file: %1." ).arg( wellLogFileName ) );
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------
