@@ -2141,7 +2141,7 @@ void RimEclipseResultDefinition::updateRangesForExplicitLegends( RimRegularLegen
                     {
                         RimEclipseView* eclView = nullptr;
                         this->firstAncestorOrThisOfType( eclView );
-                        if ( eclView )
+                        if ( eclView && eclView->showWindow() )
                         {
                             // Check if current result is cell result, and update the visible set of values
                             // TODO: Can be extended to the separate geometry results (separate fault result, separate
