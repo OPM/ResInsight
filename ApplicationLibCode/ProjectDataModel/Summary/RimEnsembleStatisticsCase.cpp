@@ -228,10 +228,9 @@ std::vector<RimSummaryCase*> RimEnsembleStatisticsCase::validSummaryCases( const
                                                                            const RifEclipseSummaryAddress& inputAddress,
                                                                            bool includeIncompleteCurves )
 {
-    std::vector<RimSummaryCase*>                             validCases;
-    std::vector<std::tuple<RimSummaryCase*, time_t, time_t>> times;
+    std::vector<RimSummaryCase*>                    validCases;
+    std::vector<std::pair<RimSummaryCase*, time_t>> times;
 
-    time_t minTimeStep = std::numeric_limits<time_t>::max();
     time_t maxTimeStep = 0;
 
     for ( auto& sumCase : allSumCases )
@@ -242,31 +241,27 @@ std::vector<RimSummaryCase*> RimEnsembleStatisticsCase::validSummaryCases( const
             const std::vector<time_t>& timeSteps = reader->timeSteps( inputAddress );
             if ( !timeSteps.empty() )
             {
-                time_t firstTimeStep = timeSteps.front();
-                time_t lastTimeStep  = timeSteps.back();
+                time_t lastTimeStep = timeSteps.back();
 
-                if ( firstTimeStep < minTimeStep ) minTimeStep = firstTimeStep;
                 if ( lastTimeStep > maxTimeStep ) maxTimeStep = lastTimeStep;
-                times.push_back( std::make_tuple( sumCase, firstTimeStep, lastTimeStep ) );
+                times.push_back( std::make_pair( sumCase, lastTimeStep ) );
             }
         }
     }
 
-    for ( auto& item : times )
+    for ( const auto [sumCase, lastTimeStep] : times )
     {
-        RimSummaryCase* sumCase       = std::get<0>( item );
-        time_t          firstTimeStep = std::get<1>( item );
-        time_t          lastTimeStep  = std::get<2>( item );
-
-        if ( firstTimeStep == minTimeStep )
+        // Previous versions tested on identical first time step, this test is now removed. For large simulations with
+        // numerical issues the first time step can be slightly different
+        //
+        // https://github.com/OPM/ResInsight/issues/7774
+        //
+        if ( !includeIncompleteCurves && lastTimeStep != maxTimeStep )
         {
-            if ( !includeIncompleteCurves && lastTimeStep != maxTimeStep )
-            {
-                continue;
-            }
-
-            validCases.push_back( sumCase );
+            continue;
         }
+
+        validCases.push_back( sumCase );
     }
     return validCases;
 }
