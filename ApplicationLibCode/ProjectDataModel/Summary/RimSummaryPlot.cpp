@@ -104,14 +104,69 @@ public:
     }
     void clear()
     {
-        resamplePeriod = RiaQDateTimeTools::DateTimePeriod::NONE;
-        caseNames.clear();
+        caseIds.clear();
         timeSteps.clear();
         allCurveData.clear();
     }
 
+    void addCurveData( const QString&             caseName,
+                       const QString&             ensembleName,
+                       const std::vector<time_t>& curvetimeSteps,
+                       const CurveData&           curveData )
+    {
+        QString caseId            = createCaseId( caseName, ensembleName );
+        size_t  existingCaseIndex = findCaseIndexForCaseId( caseId, curvetimeSteps.size() );
+
+        if ( existingCaseIndex == cvf::UNDEFINED_SIZE_T )
+        {
+            caseIds.push_back( caseId );
+            timeSteps.push_back( curvetimeSteps );
+            allCurveData.push_back( { curveData } );
+        }
+        else
+        {
+            CVF_ASSERT( timeSteps[existingCaseIndex].size() == curveData.values.size() );
+
+            allCurveData[existingCaseIndex].push_back( curveData );
+        }
+    }
+
+    void addCurveDataNoSearch( const QString&                caseName,
+                               const QString&                ensembleName,
+                               const std::vector<time_t>&    curvetimeSteps,
+                               const std::vector<CurveData>& curveDataVector )
+    {
+        QString caseId = createCaseId( caseName, ensembleName );
+
+        caseIds.push_back( caseId );
+        timeSteps.push_back( curvetimeSteps );
+        allCurveData.push_back( curveDataVector );
+    }
+
+private:
+    size_t findCaseIndexForCaseId( const QString& caseId, size_t timeStepCount )
+    {
+        size_t casePosInList = cvf::UNDEFINED_SIZE_T;
+
+        for ( size_t i = 0; i < caseIds.size(); i++ )
+        {
+            if ( caseId == caseIds[i] && timeSteps[i].size() == timeStepCount ) casePosInList = i;
+        }
+
+        return casePosInList;
+    }
+
+    QString createCaseId( const QString& caseName, const QString& ensembleName )
+    {
+        QString caseId = caseName;
+        if ( !ensembleName.isEmpty() ) caseId += QString( " (%1)" ).arg( ensembleName );
+
+        return caseId;
+    }
+
+public:
     RiaQDateTimeTools::DateTimePeriod   resamplePeriod;
-    std::vector<QString>                caseNames;
+    std::vector<QString>                caseIds;
     std::vector<std::vector<time_t>>    timeSteps;
     std::vector<std::vector<CurveData>> allCurveData;
 };
@@ -2241,33 +2296,16 @@ void populateTimeHistoryCurvesData( std::vector<RimGridTimeHistoryCurve*> curves
 {
     CVF_ASSERT( curvesData );
 
-    curvesData->caseNames.clear();
-    curvesData->timeSteps.clear();
-    curvesData->allCurveData.clear();
+    curvesData->clear();
 
     for ( RimGridTimeHistoryCurve* curve : curves )
     {
         if ( !curve->isCurveVisible() ) continue;
         QString curveCaseName = curve->caseName();
 
-        size_t casePosInList = cvf::UNDEFINED_SIZE_T;
-        for ( size_t i = 0; i < curvesData->caseNames.size(); i++ )
-        {
-            if ( curveCaseName == curvesData->caseNames[i] ) casePosInList = i;
-        }
-
         CurveData curveData = { curve->curveExportDescription(), RifEclipseSummaryAddress(), curve->yValues() };
 
-        if ( casePosInList == cvf::UNDEFINED_SIZE_T )
-        {
-            curvesData->caseNames.push_back( curveCaseName );
-            curvesData->timeSteps.push_back( curve->timeStepValues() );
-            curvesData->allCurveData.push_back( std::vector<CurveData>( { curveData } ) );
-        }
-        else
-        {
-            curvesData->allCurveData[casePosInList].push_back( curveData );
-        }
+        curvesData->addCurveData( curveCaseName, "", curve->timeStepValues(), curveData );
     }
 }
 
@@ -2278,28 +2316,15 @@ void populateAsciiDataCurvesData( std::vector<RimAsciiDataCurve*> curves, Curves
 {
     CVF_ASSERT( curvesData );
 
-    curvesData->caseNames.clear();
-    curvesData->timeSteps.clear();
-    curvesData->allCurveData.clear();
+    curvesData->clear();
 
     for ( RimAsciiDataCurve* curve : curves )
     {
         if ( !curve->isCurveVisible() ) continue;
 
-        size_t casePosInList = cvf::UNDEFINED_SIZE_T;
-
         CurveData curveData = { curve->curveExportDescription(), RifEclipseSummaryAddress(), curve->yValues() };
 
-        if ( casePosInList == cvf::UNDEFINED_SIZE_T )
-        {
-            curvesData->caseNames.push_back( "" );
-            curvesData->timeSteps.push_back( curve->timeSteps() );
-            curvesData->allCurveData.push_back( std::vector<CurveData>( { curveData } ) );
-        }
-        else
-        {
-            curvesData->allCurveData[casePosInList].push_back( curveData );
-        }
+        curvesData->addCurveDataNoSearch( "", "", curve->timeSteps(), { curveData } );
     }
 }
 
@@ -2310,9 +2335,7 @@ void populateSummaryCurvesData( std::vector<RimSummaryCurve*> curves, SummaryCur
 {
     CVF_ASSERT( curvesData );
 
-    curvesData->caseNames.clear();
-    curvesData->timeSteps.clear();
-    curvesData->allCurveData.clear();
+    curvesData->clear();
 
     for ( RimSummaryCurve* curve : curves )
     {
@@ -2324,11 +2347,10 @@ void populateSummaryCurvesData( std::vector<RimSummaryCurve*> curves, SummaryCur
         if ( !curve->summaryCaseY() ) continue;
 
         QString curveCaseName = curve->summaryCaseY()->displayCaseName();
-
-        size_t casePosInList = cvf::UNDEFINED_SIZE_T;
-        for ( size_t i = 0; i < curvesData->caseNames.size(); i++ )
+        QString ensembleName;
+        if ( curve->curveDefinitionY().ensemble() )
         {
-            if ( curveCaseName == curvesData->caseNames[i] ) casePosInList = i;
+            ensembleName = curve->curveDefinitionY().ensemble()->name();
         }
 
         CurveData curveData = { curve->curveExportDescription(), curve->summaryAddressY(), curve->valuesY() };
@@ -2345,26 +2367,19 @@ void populateSummaryCurvesData( std::vector<RimSummaryCurve*> curves, SummaryCur
             errorCurveData.values  = errorValues;
         }
 
-        if ( casePosInList == cvf::UNDEFINED_SIZE_T ||
-             curve->summaryAddressY().category() == RifEclipseSummaryAddress::SUMMARY_CALCULATED )
+        auto curveDataList = std::vector<CurveData>( { curveData } );
+        if ( hasErrorData ) curveDataList.push_back( errorCurveData );
+        if ( curve->summaryAddressY().category() == RifEclipseSummaryAddress::SUMMARY_CALCULATED )
         {
-            // Create a section with separate time axis data if
-            // 1. Case is not referenced before, or
-            // 2. We have calculated data, and it we cannot assume identical time axis
-
-            auto curveDataList = std::vector<CurveData>( { curveData } );
-            if ( hasErrorData ) curveDataList.push_back( errorCurveData );
-
-            curvesData->caseNames.push_back( curveCaseName );
-            curvesData->timeSteps.push_back( curve->timeStepsY() );
-            curvesData->allCurveData.push_back( curveDataList );
+            // We have calculated data, and it we cannot assume identical time axis
+            curvesData->addCurveDataNoSearch( curveCaseName, ensembleName, curve->timeStepsY(), curveDataList );
         }
         else
         {
-            // Append curve data to previously created curvesdata object
-
-            curvesData->allCurveData[casePosInList].push_back( curveData );
-            if ( hasErrorData ) curvesData->allCurveData[casePosInList].push_back( errorCurveData );
+            for ( auto cd : curveDataList )
+            {
+                curvesData->addCurveData( curveCaseName, ensembleName, curve->timeStepsY(), cd );
+            }
         }
     }
 }
@@ -2386,16 +2401,14 @@ void prepareCaseCurvesForExport( RiaQDateTimeTools::DateTimePeriod period,
         // Prepare result data
         resultCurvesData->resamplePeriod = period;
 
-        for ( size_t i = 0; i < inputCurvesData.caseNames.size(); i++ )
+        for ( size_t i = 0; i < inputCurvesData.caseIds.size(); i++ )
         {
             // Shortcuts to input data
-            auto& caseName      = inputCurvesData.caseNames[i];
+            auto& caseId        = inputCurvesData.caseIds[i];
             auto& caseTimeSteps = inputCurvesData.timeSteps[i];
             auto& caseCurveData = inputCurvesData.allCurveData[i];
 
             // Prepare result data
-            resultCurvesData->caseNames.push_back( caseName );
-            resultCurvesData->allCurveData.push_back( std::vector<CurveData>() );
 
             for ( auto& curveDataItem : caseCurveData )
             {
@@ -2411,13 +2424,11 @@ void prepareCaseCurvesForExport( RiaQDateTimeTools::DateTimePeriod period,
                     resampler.resampleAndComputeWeightedMeanValues( period );
                 }
 
-                auto cd                       = curveDataItem;
-                cd.values                     = resampler.resampledValues();
-                auto& currResultCurveDataList = resultCurvesData->allCurveData[i];
-                currResultCurveDataList.push_back( cd );
-            }
+                auto cd   = curveDataItem;
+                cd.values = resampler.resampledValues();
 
-            resultCurvesData->timeSteps.push_back( resampler.resampledTimeSteps() );
+                resultCurvesData->addCurveData( caseId, "", resampler.resampledTimeSteps(), cd );
+            }
         }
     }
     else
@@ -2482,7 +2493,7 @@ void appendToExportData( QString& out, const std::vector<CurvesData>& curvesData
 
         out += "\n\n";
         out += "Date and time";
-        for ( size_t i = 0; i < data.caseNames.size(); i++ )
+        for ( size_t i = 0; i < data.caseIds.size(); i++ )
         {
             for ( size_t j = 0; j < data.allCurveData[i].size(); j++ )
             {
@@ -2491,7 +2502,7 @@ void appendToExportData( QString& out, const std::vector<CurvesData>& curvesData
         }
         out += "\n";
 
-        std::vector<size_t> currIndexes( data.caseNames.size() );
+        std::vector<size_t> currIndexes( data.caseIds.size() );
         for ( auto& i : currIndexes )
             i = 0;
 
@@ -2555,7 +2566,7 @@ void appendToExportData( QString& out, const std::vector<CurvesData>& curvesData
             }
             out += timeText;
 
-            for ( size_t i = 0; i < data.caseNames.size(); i++ ) // cases
+            for ( size_t i = 0; i < data.caseIds.size(); i++ ) // cases
             {
                 // Check is time step exists in curr case
                 size_t& currIndex   = currIndexes[i];
@@ -2583,12 +2594,12 @@ void appendToExportData( QString& out, const std::vector<CurvesData>& curvesData
     }
     else
     {
-        for ( size_t i = 0; i < data.caseNames.size(); i++ )
+        for ( size_t i = 0; i < data.caseIds.size(); i++ )
         {
             out += "\n\n";
-            if ( !data.caseNames[i].isEmpty() )
+            if ( !data.caseIds[i].isEmpty() )
             {
-                out += "Case: " + data.caseNames[i];
+                out += "Case: " + data.caseIds[i];
                 out += "\n";
             }
 
@@ -2611,13 +2622,13 @@ CurvesData concatCurvesData( const std::vector<CurvesData>& curvesData )
 
     for ( auto curvesDataItem : curvesData )
     {
-        if ( curvesDataItem.caseNames.empty() ) continue;
+        if ( curvesDataItem.caseIds.empty() ) continue;
 
         CVF_ASSERT( curvesDataItem.resamplePeriod == period );
 
-        resultCurvesData.caseNames.insert( resultCurvesData.caseNames.end(),
-                                           curvesDataItem.caseNames.begin(),
-                                           curvesDataItem.caseNames.end() );
+        resultCurvesData.caseIds.insert( resultCurvesData.caseIds.end(),
+                                         curvesDataItem.caseIds.begin(),
+                                         curvesDataItem.caseIds.end() );
         resultCurvesData.timeSteps.insert( resultCurvesData.timeSteps.end(),
                                            curvesDataItem.timeSteps.begin(),
                                            curvesDataItem.timeSteps.end() );
