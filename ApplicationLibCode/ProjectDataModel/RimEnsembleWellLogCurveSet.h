@@ -155,6 +155,8 @@ private:
     void updateMaxMinAndDefaultValues();
     void updateCurveColors();
 
+    bool isSameRealization( RimSummaryCase* summaryCase, RimWellLogFile* wellLogFile ) const;
+
 private:
     caf::PdmField<bool> m_showCurves;
 
@@ -175,6 +177,7 @@ private:
 
     caf::PdmPtrField<RimEnsembleWellLogs*> m_ensembleWellLogs;
     caf::PdmField<QString>                 m_wellLogChannelName;
+    caf::PdmPtrField<RimEnsembleCurveSet*> m_ensembleCurveSet;
 
     QwtPlotCurve*                      m_qwtPlotCurveForLegendText;
     QPointer<RiuDraggableOverlayFrame> m_legendOverlayFrame;
