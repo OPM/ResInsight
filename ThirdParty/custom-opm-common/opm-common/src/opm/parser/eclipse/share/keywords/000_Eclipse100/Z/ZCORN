@@ -1,0 +1,10 @@
+{
+  "name": "ZCORN",
+  "sections": [
+    "GRID"
+  ],
+  "data": {
+    "value_type": "DOUBLE",
+    "dimension": "Length"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "name": "PERMJFUN",
+  "sections": [
+    "GRID"
+  ],
+  "data": {
+    "value_type": "DOUBLE",
+    "dimension": "Permeability"
+  }
+}

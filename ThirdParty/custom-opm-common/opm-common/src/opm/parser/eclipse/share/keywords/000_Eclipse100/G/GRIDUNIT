@@ -1,0 +1,18 @@
+{
+  "name": "GRIDUNIT",
+  "sections": [
+    "GRID"
+  ],
+  "size": 1,
+  "items": [
+    {
+      "name": "LengthUnit",
+      "value_type": "STRING",
+      "default": "METRES"
+    },
+    {
+      "name": "MAP",
+      "value_type": "STRING"
+    }
+  ]
+}

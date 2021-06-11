@@ -1,0 +1,582 @@
+-- Synthetic test deck based on Norne. This data set is meant to be a simple,
+-- well-documented deck for the behaviour of SUMMARY specified output. Data
+-- is mostly entered to *traceable* and does not necessarily make sense from
+-- a simulation point of view.
+
+START
+10 MAI 2007 /
+RUNSPEC
+
+TITLE
+SUMMARYTESTS
+
+-- A simple 10x10x10 cube. Simple to reason about, large enough for all tests
+DIMENS
+ 10 10 10 /
+
+REGDIMS
+  3 /
+
+OIL
+GAS
+WATER
+
+WELLDIMS
+-- Item 1: NWMAX  (Maximum number of wells in model)
+-- Item 2: NCWMAX (Maximum number of connections per well)
+-- Item 3: NGMAX  (Maximum number of groups in model--excluding FIELD)
+-- Item 4: NWGMAX (Maximum number of wells or child groups per group)
+-- NWMAX  NCWMAX  NGMAX  NWGMAX
+   4      2       3      2
+/
+
+GRID
+
+DX
+1000*1 /
+DY
+1000*1 /
+DZ
+1000*1 /
+TOPS
+100*1 /
+
+ACTNUM
+  1000*1/
+  
+PORO
+500*0.1 500*0.2/
+
+REGIONS
+
+FIPNUM
+   400*1
+   200*2
+   400*3 /
+   
+
+SUMMARY
+DATE
+PERFORMA
+--
+-- Field Data
+-- Production Rates
+FVPR
+FWPR
+FWPRH
+FOPR
+FOPRH
+FGPR
+FGPRH
+FLPR
+FLPRH
+FGSR
+FGCR
+FNPR -- solvent
+--FTPRSEA
+-- Injection Rates
+FVIR
+FWIR
+FWIRH
+FGIR
+FNIR -- solvent
+FGIRH
+-- Production Cummulatives
+FVPT
+FWPT
+FOPT
+FLPT
+FLPTH
+FGPT
+FNPT
+FOPTH
+FGPTH
+FWPTH
+FGST
+FGCT
+-- Injection Cummulatives
+FVIT
+FWIT
+FWITH
+FGIT
+FNIT
+FGITH
+-- In place
+FWIP
+FOIP
+FGIP
+-- Ratios
+FWCT
+FWCTH
+FGOR
+FGORH
+
+-- From model2
+FMWPR
+FMWIN
+FOE
+
+-- Pressures
+FPR
+FPRP
+
+BPR
+  1  1  1 /
+  1  1  2 /
+  1  1  3 /
+  1  1  4 /
+  1  1  5 /
+  1  1  6 /
+  1  1  7 /
+  1  1  8 /
+  1  1  9 /
+  1  1  10 /    
+  2  1  10 /  -- This cell is not ACTIVE
+/
+
+BSGAS
+  1  1  1 /
+/
+
+
+BSWAT
+  1  1  1 /
+/
+
+
+--  Region data
+RPR
+/
+ROPT
+/
+RGPT
+/
+RWPT
+/
+RGFT
+/
+RWFT
+/
+ROIP
+/
+ROP
+/
+ROPR
+/
+RGPR
+/
+RWPR
+/
+RGIR
+/
+RGIT
+/
+RWIR
+/
+RWIT
+/
+RWPT
+/
+ROIPL
+/
+ROIPG
+/
+RGIP
+/
+RGIPL
+/
+RGIPG
+/
+RWIP
+/
+RPPO
+/
+
+--  Group data --
+GPR
+/
+GLPR
+/
+GOPT
+/
+GGPT
+/
+GWPT
+/
+GNPT
+/
+GOPR
+/
+GGPR
+/
+GWPR
+/
+GWPRH
+/
+GGIR
+/
+GNPR
+/
+
+GNIR
+/
+GGIRH
+/
+GGIT
+/
+GNIT
+/
+GGITH
+/
+GWCT
+/
+GWCTH
+/
+GGOR
+/
+GGORH
+/
+GWIR
+/
+GWIT
+/
+GWIRH
+/
+GWITH
+/
+GOPRH
+/
+GGPRH
+/
+GLPRH
+/
+GWPTH
+/
+GOPTH
+/
+GGPTH
+/
+GLPTH
+/
+GPRG
+/
+GPRW
+/
+GOPTF
+/
+GOPTS
+/
+GOPTH
+/
+GOPRF
+/
+GOPRS
+/
+GOPRH
+/
+GGPTF
+/
+GGPTS
+/
+GGPTH
+/
+GGPTF
+/
+GGPTS
+/
+GGPTH
+/
+GGLR
+/
+GGLIR
+/
+GGLRH
+/
+GVPR
+/
+GVPT
+/
+GMCTP
+/
+GOPP
+/
+GVIR
+/
+GVIT
+/
+GVPRT
+/
+GMWPR
+/
+GMWIN
+/
+-- Well Data
+-- Production Rates
+WWPR
+/
+WWPRH
+/
+WOPR
+/
+WOPRH
+/
+WGPR
+/
+WNPR
+/
+WGPRH
+/
+WLPR
+/
+WLPRH
+/
+
+WLPT
+/
+
+WLPTH
+/
+
+-- Injection Rates
+WWIR
+ W_3
+/
+WWIT
+ W_3
+/
+WWIRH
+  W_3
+/
+WWITH
+  W_3
+/
+
+WGIT
+  W_3
+/
+WGIR
+  W_3
+/
+WGIRH
+  W_3
+/
+WGITH
+  W_3
+/
+WNIR
+ W_3
+/
+WNIT
+ W_3
+/
+
+-- Production Cummulatives
+WWPT
+/
+WWPTH
+/
+WOPT
+/
+WOPTH
+/
+WGPT
+/
+WGPTH
+/
+WNPT
+/
+
+-- Tracers
+--WTPRSEA
+--/
+--WTPTSEA
+--/
+-- Injection Cummulatives
+WWIT
+  W_3
+/
+-- Ratios
+WWCT
+/
+WWCTH
+/
+WGOR
+/
+WGORH
+/
+WGLR
+/
+WGLRH
+/
+
+
+-- Performance
+WBHP
+/
+WBHPH
+/
+WTHP
+/
+WTHPH
+/
+WPI
+/
+WBP
+/
+WBP4
+/
+
+-- from model2
+WOPTF
+/
+WOPTS
+/
+WOPTH
+/
+WOPRS
+/
+WOPRF
+/
+WGPTF
+/
+WGPTS
+/
+WGPRF
+/
+WTPRS
+/
+WGLIR
+/
+WVPR
+/
+WVPT
+/
+WOPP
+/
+WVIR
+/
+WVIT
+/
+WMCTL
+/
+
+-- Water injection per connection
+CWIR
+  * /
+/
+
+-- Gas injection on 3 1 1 (45)
+CGIR
+'W_3' 3 1 1 /
+/
+
+CWIT
+'W_3' /
+/
+
+CGIT
+* /
+/
+
+-- Production per connection
+-- Using all the different ways of specifying connections here
+-- as an informal test that we still get the data we want
+CWPR
+ 'W_1' 1 1 1 /
+/
+
+COPR
+ 'W_1' /
+ 'W_2' /
+ 'W_3' /
+/
+
+CGPR
+ '*' /
+/
+
+CNFR
+ '*' /
+/
+
+CNPT
+ '*' /
+/
+
+CNIT
+ '*' /
+/
+
+CWPT
+ 'W_1' 1 1 1 /
+/
+
+COPT
+ 'W_1' /
+/
+
+CGPT
+ 'W_1' /
+ 'W_2' /
+ 'W_3' /
+/
+
+---- Connection production rates
+----CGFR
+----'E-4AH' /
+----/
+----CWFR
+----'E-2H' /
+----/
+
+SCHEDULE
+
+-- Three wells, two producers (so that we can form a group) and one injector
+WELSPECS
+     'W_1'        'G_1'   1    1  3.33       'OIL'  7* /
+     'W_2'        'G_1'   2    1  3.33       'OIL'  7* /
+     'W_3'        'G_2'   3    1  3.92       'WATER'  7* /
+/
+
+-- Completion data.
+COMPDAT
+-- 'Well' I J K1 K2
+-- Passing 0 to I/J means they'll get the well head I/J
+    W_1 0 0 1 1 /   -- Active index: 0
+    W_2 0 0 1 1 /   -- Active index: 1
+    W_2 0 0 2 2 /   -- Active index: 101
+    W_3 0 0 1 1 /   -- Active index: 2
+/
+
+WCONHIST
+-- history rates are set so that W_1 produces 1, W_2 produces 2 etc.
+-- index.offset.
+-- organised as oil-water-gas
+    W_1 SHUT ORAT 10.1 10 10.2 /
+    W_2 SHUT ORAT 20.1 20 20.2 /
+/
+
+WCONINJH
+-- Injection historical rates (water only, as we only support pure injectors)
+    W_3 WATER STOP 30.0 /
+/
+
+TSTEP
+-- register time steps (in days). This allows us to write *two* report steps (1
+-- and 2. Without this, totals/accumulations would fail (segfault) when looking
+-- up historical rates and volumes. These volumes however don't change, i.e.
+-- every time step has the same set of values
+10 10 /
+
+-- Register a fourth well with completions later. This ensure we handle when
+-- wells are registered or activated later in a simulation
+WELSPECS
+     'W_4'        'G_3'   1    1  3.33       'OIL'  7* /
+/
+
+COMPDAT
+    W_4 1 1 3 3 /
+/
+
+TSTEP
+10 10 /

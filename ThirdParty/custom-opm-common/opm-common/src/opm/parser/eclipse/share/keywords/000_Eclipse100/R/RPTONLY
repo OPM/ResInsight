@@ -1,0 +1,7 @@
+{
+  "name": "RPTONLY",
+  "sections": [
+    "SUMMARY",
+    "SCHEDULE"
+  ]
+}

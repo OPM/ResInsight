@@ -67,7 +67,7 @@ public:
     };
 
 private:
-    std::auto_ptr<class MutexImpl>    m_pimpl;
+    std::unique_ptr<class MutexImpl> m_pimpl;
 
     CVF_DISABLE_COPY_AND_ASSIGN(Mutex);
 };

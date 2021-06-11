@@ -1,0 +1,16 @@
+{
+  "name": "WELPI",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "items": [
+    {
+      "name": "WELL_NAME",
+      "value_type": "STRING"
+    },
+    {
+      "name": "STEADY_STATE_PRODUCTIVITY_OR_INJECTIVITY_INDEX_VALUE",
+      "value_type": "DOUBLE"
+    }
+  ]
+}

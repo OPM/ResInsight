@@ -334,9 +334,7 @@ void caf::RotationSensitivityCalculator::init( QMouseEvent* eventAtRotationStart
     m_lastPosX = eventAtRotationStart->x();
     m_lastPosY = eventAtRotationStart->y();
 
-#if QT_VERSION >= 0x050000
     m_lastTime = eventAtRotationStart->timestamp();
-#endif
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -350,7 +348,6 @@ double caf::RotationSensitivityCalculator::calculateSensitivity( QMouseEvent* ev
     {
         if ( m_fixedSensitivity == std::numeric_limits<double>::infinity() )
         {
-#if QT_VERSION >= 0x050000
             auto          presentTime   = eventWhenRotating->timestamp();
             unsigned long timeSinceLast = presentTime - m_lastTime;
             if ( timeSinceLast == 0 ) timeSinceLast = 1; // one millisecond
@@ -373,11 +370,6 @@ double caf::RotationSensitivityCalculator::calculateSensitivity( QMouseEvent* ev
             m_lastPosY                = eventWhenRotating->y();
             m_lastTime                = eventWhenRotating->timestamp();
             m_lastMouseVelocityLenght = 0.8 * mouseVelocityLength + 0.2 * m_lastMouseVelocityLenght;
-
-// openDebugWindow();
-// std::cout  << sensitivity << " Speed: Raw: " << mouseVelocityLength << " Smooth: " << mouseVelocityLengthCorr << "
-// \tDelta " << deltaX << ", " << deltaY << " "<< timeSinceLast  << std::endl;
-#endif
         }
         else
         {

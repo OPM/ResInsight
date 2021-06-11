@@ -1,0 +1,71 @@
+{
+  "name": "GECONT",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "records_set": [
+    [
+      {
+        "name": "GROUP",
+        "value_type": "STRING"
+      },
+      {
+        "name": "PROCEDURE",
+        "value_type": "STRING",
+        "default": "NONE"
+      },
+      {
+        "name": "END_RUN",
+        "value_type": "STRING",
+        "default": "NO"
+      },
+      {
+        "name": "MAX_OPEN_WELLS",
+        "value_type": "INT",
+        "default": 0
+      }
+    ],
+    [
+      {
+        "name": "TRACER",
+        "value_type": "STRING"
+      },
+      {
+        "name": "MAX_TOTAL_TRACER_RATE",
+        "value_type": "DOUBLE",
+        "dimension": "1",
+        "default": 1e+200
+      },
+      {
+        "name": "MAX_TOTAL_TRACER_CONC",
+        "value_type": "DOUBLE",
+        "dimension": "1",
+        "default": 1e+200
+      },
+      {
+        "name": "MAX_FREE_TRACER_RATE",
+        "value_type": "DOUBLE",
+        "dimension": "1",
+        "default": 1e+200
+      },
+      {
+        "name": "MAX_FREE_TRACER_CONC",
+        "value_type": "DOUBLE",
+        "dimension": "1",
+        "default": 1e+200
+      },
+      {
+        "name": "MAX_SOL_TRACER_RATE",
+        "value_type": "DOUBLE",
+        "dimension": "1",
+        "default": 1e+200
+      },
+      {
+        "name": "MAX_SOL_TRACER_CONC",
+        "value_type": "DOUBLE",
+        "dimension": "1",
+        "default": 1e+200
+      }
+    ]
+  ]
+}

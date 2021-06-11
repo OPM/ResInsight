@@ -1,0 +1,19 @@
+{
+  "name": "PEDIMS",
+  "sections": [
+    "RUNSPEC"
+  ],
+  "size": 1,
+  "items": [
+    {
+      "name": "NUM_REGIONS",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "MAX_PRESSURE_POINTS",
+      "value_type": "INT",
+      "default": 0
+    }
+  ]
+}

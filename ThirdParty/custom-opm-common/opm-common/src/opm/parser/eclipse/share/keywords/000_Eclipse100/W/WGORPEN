@@ -1,0 +1,25 @@
+{
+  "name": "WGORPEN",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "items": [
+    {
+      "name": "WELL_NAME",
+      "value_type": "STRING"
+    },
+    {
+      "name": "BASE_GOR",
+      "value_type": "DOUBLE"
+    },
+    {
+      "name": "MAX_OIL_RATE",
+      "value_type": "DOUBLE",
+      "dimension": "LiquidSurfaceVolume/Time"
+    },
+    {
+      "name": "AVG_GOR0",
+      "value_type": "DOUBLE"
+    }
+  ]
+}

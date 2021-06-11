@@ -1,0 +1,25 @@
+{
+  "name": "TUNINGDP",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "size": 1,
+  "items": [
+    {
+      "name": "TRGLCV",
+      "value_type": "DOUBLE"
+    },
+    {
+      "name": "XXXLCV",
+      "value_type": "DOUBLE"
+    },
+    {
+      "name": "TRGDDP",
+      "value_type": "DOUBLE"
+    },
+    {
+      "name": "TRGDDS",
+      "value_type": "DOUBLE"
+    }
+  ]
+}

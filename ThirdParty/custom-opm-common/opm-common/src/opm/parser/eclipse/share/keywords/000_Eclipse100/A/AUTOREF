@@ -1,0 +1,28 @@
+{
+  "name": "AUTOREF",
+  "sections": [
+    "RUNSPEC"
+  ],
+  "items": [
+    {
+      "name": "NX",
+      "value_type": "INT",
+      "default": 1
+    },
+    {
+      "name": "NY",
+      "value_type": "INT",
+      "default": 1
+    },
+    {
+      "name": "NZ",
+      "value_type": "INT",
+      "default": 1
+    },
+    {
+      "name": "OPTION_TRANS_MULT",
+      "value_type": "DOUBLE",
+      "default": 0
+    }
+  ]
+}

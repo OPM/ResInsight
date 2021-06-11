@@ -1,0 +1,39 @@
+{
+  "name": "HMWELCON",
+  "sections": [
+    "SOLUTION"
+  ],
+  "items": [
+    {
+      "name": "WELL",
+      "value_type": "STRING"
+    },
+    {
+      "name": "GRID",
+      "value_type": "STRING",
+      "default": "FIELD"
+    },
+    {
+      "name": "I",
+      "value_type": "INT"
+    },
+    {
+      "name": "J",
+      "value_type": "INT"
+    },
+    {
+      "name": "K",
+      "value_type": "INT"
+    },
+    {
+      "name": "REQ_TRANS_FACTOR_GRAD",
+      "value_type": "STRING",
+      "default": "NO"
+    },
+    {
+      "name": "REQ_SKIN_FACTOR_GRAD",
+      "value_type": "STRING",
+      "default": "NO"
+    }
+  ]
+}

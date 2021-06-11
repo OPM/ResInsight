@@ -597,6 +597,13 @@ ECL::getPVolVector(const ecl_grid_type*          G,
     if (init.haveKeywordData(kw, gridID)) {
         pvol = init.keywordData<double>(kw, gridID);
 
+        if (pvol.size() == nglob * 2)
+        {
+            // For dual perm/poro models, the result count is 2x the number of cells, as results are present for
+            // both matrix and fracture. Use only the matrix results (first half of the result values)
+            pvol.resize(nglob);
+        }
+
         assert ((pvol.size() == nglob) &&
                 "Pore-volume must be provided for all global cells");
 

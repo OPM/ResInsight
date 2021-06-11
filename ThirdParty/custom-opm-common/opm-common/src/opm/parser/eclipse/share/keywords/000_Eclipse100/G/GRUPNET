@@ -1,0 +1,42 @@
+{
+  "name": "GRUPNET",
+  "sections": [
+    "SPECIAL",
+    "SCHEDULE"
+  ],
+  "items": [
+    {
+      "name": "NAME",
+      "value_type": "STRING"
+    },
+    {
+      "name": "TERMINAL_PRESSURE",
+      "value_type": "DOUBLE"
+    },
+    {
+      "name": "VFP_TABLE",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "ALQ",
+      "value_type": "DOUBLE",
+      "default": 0
+    },
+    {
+      "name": "SUB_SEA_MANIFOLD",
+      "value_type": "STRING",
+      "default": "NO"
+    },
+    {
+      "name": "LIFT_GAS_FLOW_THROUGH",
+      "value_type": "STRING",
+      "default": "NO"
+    },
+    {
+      "name": "ALQ_SURFACE_EQV",
+      "value_type": "STRING",
+      "default": "NONE"
+    }
+  ]
+}

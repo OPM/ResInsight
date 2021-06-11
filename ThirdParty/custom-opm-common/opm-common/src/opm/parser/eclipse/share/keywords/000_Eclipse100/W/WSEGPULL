@@ -1,0 +1,41 @@
+{
+  "name": "WSEGPULL",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "items": [
+    {
+      "name": "WELL",
+      "value_type": "STRING"
+    },
+    {
+      "name": "SEGMENT1",
+      "value_type": "INT"
+    },
+    {
+      "name": "SEGMENT2",
+      "value_type": "INT"
+    },
+    {
+      "name": "P",
+      "value_type": "DOUBLE"
+    },
+    {
+      "name": "DP",
+      "value_type": "DOUBLE",
+      "dimension": "Pressure"
+    },
+    {
+      "name": "OIL_RATE_LIMIT",
+      "value_type": "DOUBLE",
+      "dimension": "Volume/Time",
+      "default": 0
+    },
+    {
+      "name": "GRADIENT_FACTOR",
+      "value_type": "DOUBLE",
+      "dimension": "Pressure*Time/Volume",
+      "default": 0
+    }
+  ]
+}

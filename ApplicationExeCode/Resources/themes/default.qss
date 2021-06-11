@@ -1,0 +1,98 @@
+$mainBackgroundColor: #ffffff; // Main background color
+$backgroundColor1: #efefef; // Background color layer 1
+$backgroundColor2: #d6d6d6; // Background color layer 2
+$backgroundColor3: #848484; // Background color layer 3
+$backgroundColor4: #89939d; // Background color layer 4
+$backgroundColor5: #adbac6; // Background color layer 5
+$textColor: #141719; // Main text color
+$primaryColor: #018fa3; // Primary color (buttons etc)
+$secondaryColor: #e82257; // Secondary color
+$tertiaryColor: #ffc50d; // Tertiary color
+$quaternaryColor: #36b27e; // Quaternary color
+$quinaryColor: #0ce5d5; // Quinary color
+$senaryColor: #a54ce5; // Senary color
+$borderColor: #394046; // Main border color
+$curveColorGas: #c80000; // Curve color for gas plot
+$curveColorGas2: #c91210; // Curve color for gas plot
+$curveColorOil: #00c800; // Curve color for oil plot
+$curveColorOil2: #7ba700; // Curve color for oil plot
+$curveColorWater: #0000c8; // Curve color for water plot
+$curveColorWater2: #3e7aa7; // Curve color for water plot
+$markerColor: #141719; // Marker color
+$lineMarkerColor: #eeeeee; // Color of line marker
+$plotGridColor: #394046; // Plot grid color
+$auxiliaryCurveColor: #000000; // Auxiliary curve color
+$externalInputColor: #fff2a7; // Background color for external input fields
+
+QwtPlot {
+    background-color: QPalette::Base;
+}
+
+QwtPlot > QWidget {
+    background-color: QPalette::Base;
+}
+
+QwtPlot["*"]::grid["*"] {
+    color: $backgroundColor2;
+}
+
+QwtPlot["PvtPlot"]::curve["Auxiliary"] {
+    line-color: #ffffff;
+}
+
+QwtPlot["PvtPlot"]::curve["Oil"] {
+    line-color: $curveColorOil;
+    symbol-color:  $curveColorOil;
+}
+
+QwtPlot["PvtPlot"]::curve["Gas"] {
+    line-color: $curveColorGas;
+    symbol-color:  $curveColorGas;
+}
+
+QwtPlot["RelPermPlot"]::curve["KRW"] {
+    line-color: $curveColorWater;
+    symbol-color:  $curveColorWater;
+}
+
+QwtPlot["RelPermPlot"]::curve["KROW"] {
+    line-color: $curveColorWater;
+    symbol-color:  $curveColorWater;
+}
+
+QwtPlot["RelPermPlot"]::curve["PCOW"] {
+    line-color: $tertiaryColor;
+    symbol-color:  $tertiaryColor;
+}
+
+QwtPlot["RelPermPlot"]::curve["KRG"] {
+    line-color: $curveColorGas;
+    symbol-color:  $curveColorGas;
+}
+
+QwtPlot["RelPermPlot"]::curve["KROG"] {
+    line-color: $curveColorGas;
+    symbol-color:  $curveColorGas;
+}
+
+QwtPlot["RelPermPlot"]::curve["PCOG"] {
+    line-color: $senaryColor;
+    symbol-color:  $senaryColor;
+}
+
+QwtPlot["PvtPlot"]::lineMarker["*"] {
+    color: $textColor;
+}
+
+QwtPlot["PvtPlot"]::pointMarker["*"] {
+    color: $textColor;
+}
+
+QListView[state="ExternalInput"] {
+    background-color: $externalInputColor;
+    border: 2px solid $borderColor;
+}
+
+RiuAbstractOverlayContentFrame, RiuDraggableOverlayFrame {
+    background-color: rgba(255,255,255,0.4);
+}

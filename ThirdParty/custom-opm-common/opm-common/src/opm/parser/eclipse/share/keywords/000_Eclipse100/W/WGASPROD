@@ -1,0 +1,20 @@
+{
+  "name": "WGASPROD",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "items": [
+    {
+      "name": "WELL_NAME",
+      "value_type": "STRING"
+    },
+    {
+      "name": "INCREMENTAL_GAS_PRODUCTION_RATE",
+      "value_type": "DOUBLE"
+    },
+    {
+      "name": "MAX_INCREMENTS",
+      "value_type": "INT"
+    }
+  ]
+}

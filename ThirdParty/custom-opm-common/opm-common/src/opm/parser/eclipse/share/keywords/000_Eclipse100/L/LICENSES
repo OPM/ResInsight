@@ -1,0 +1,12 @@
+{
+  "name": "LICENSE",
+  "sections": [
+    "RUNSPEC"
+  ],
+  "items": [
+    {
+      "name": "FEATURE",
+      "value_type": "STRING"
+    }
+  ]
+}

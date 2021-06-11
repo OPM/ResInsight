@@ -1,0 +1,30 @@
+{
+  "name": "AQANNC",
+  "sections": [
+    "SOLUTION"
+  ],
+  "items": [
+    {
+      "name": "AQUIFER_NUMBER",
+      "value_type": "INT"
+    },
+    {
+      "name": "IX",
+      "value_type": "INT"
+    },
+    {
+      "name": "IY",
+      "value_type": "INT"
+    },
+    {
+      "name": "IZ",
+      "value_type": "INT"
+    },
+    {
+      "name": "AREA",
+      "value_type": "DOUBLE",
+      "dimension": "Length*Length",
+      "default": 0
+    }
+  ]
+}

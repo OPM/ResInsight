@@ -1,0 +1,24 @@
+{
+  "name": "WSEGDFMD",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "size": 1,
+  "items": [
+    {
+      "name": "DRIFT_MODEL",
+      "value_type": "STRING",
+      "default": "ORIGINAL"
+    },
+    {
+      "name": "INCLINATION_FACTOR",
+      "value_type": "STRING",
+      "default": "H-K"
+    },
+    {
+      "name": "GAS_EFFECT",
+      "value_type": "STRING",
+      "default": "NO"
+    }
+  ]
+}

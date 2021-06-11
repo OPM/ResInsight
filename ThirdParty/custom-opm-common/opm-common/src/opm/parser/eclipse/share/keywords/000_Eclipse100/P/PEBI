@@ -1,0 +1,19 @@
+{
+  "name": "PEBI",
+  "sections": [
+    "GRID"
+  ],
+  "size": 1,
+  "items": [
+    {
+      "name": "NEG_TRANSMISSIBILITIES",
+      "value_type": "STRING",
+      "default": "No"
+    },
+    {
+      "name": "AVOID_GRID_CALC",
+      "value_type": "STRING",
+      "default": "No"
+    }
+  ]
+}

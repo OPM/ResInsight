@@ -1,0 +1,38 @@
+{
+  "name": "GNETPUMP",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "items": [
+    {
+      "name": "GROUP",
+      "value_type": "STRING"
+    },
+    {
+      "name": "PROD_RATE_SWITCH",
+      "value_type": "DOUBLE",
+      "default": 0
+    },
+    {
+      "name": "PHASE_TYPE",
+      "value_type": "STRING",
+      "default": "OIL"
+    },
+    {
+      "name": "NEW_VFT_TABLE_NUM",
+      "value_type": "INT",
+      "default": 4
+    },
+    {
+      "name": "NEW_ARTIFICIAL_LIFT_QNTY",
+      "value_type": "DOUBLE",
+      "default": 0
+    },
+    {
+      "name": "NEW_GAS_CONUMPTION_RATE",
+      "value_type": "DOUBLE",
+      "dimension": "GasSurfaceVolume/Time",
+      "default": 0
+    }
+  ]
+}

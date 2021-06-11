@@ -1,0 +1,14 @@
+{
+  "name": "VE",
+  "sections": [
+    "RUNSPEC"
+  ],
+  "size": 1,
+  "items": [
+    {
+      "name": "MODEL_TYPE",
+      "value_type": "STRING",
+      "default": "NOCOMP"
+    }
+  ]
+}

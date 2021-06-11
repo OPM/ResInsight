@@ -1,0 +1,31 @@
+{
+  "name": "WATDENT",
+  "sections": [
+    "PROPS"
+  ],
+  "size": {
+    "keyword": "TABDIMS",
+    "item": "NTPVT"
+  },
+  "comment": "FIELD units which is the same the 3e-4/K for METRIC but four orders of magnitude off!)",
+  "items": [
+    {
+      "name": "REFERENCE_TEMPERATURE",
+      "value_type": "DOUBLE",
+      "dimension": "AbsoluteTemperature",
+      "default": 293.15
+    },
+    {
+      "name": "EXPANSION_COEFF_LINEAR",
+      "value_type": "DOUBLE",
+      "dimension": "1/AbsoluteTemperature",
+      "default": 0.0003
+    },
+    {
+      "name": "EXPANSION_COEFF_QUADRATIC",
+      "value_type": "DOUBLE",
+      "dimension": "1/AbsoluteTemperature*AbsoluteTemperature",
+      "default": 3e-06
+    }
+  ]
+}

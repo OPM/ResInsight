@@ -1,0 +1,9 @@
+{
+  "name": "SSWL",
+  "sections": [
+    "PROPS"
+  ],
+  "data": {
+    "value_type": "DOUBLE"
+  }
+}

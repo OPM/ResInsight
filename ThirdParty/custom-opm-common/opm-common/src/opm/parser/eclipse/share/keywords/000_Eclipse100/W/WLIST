@@ -1,0 +1,21 @@
+{
+  "name": "WLIST",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "items": [
+    {
+      "name": "NAME",
+      "value_type": "STRING"
+    },
+    {
+      "name": "ACTION",
+      "value_type": "STRING"
+    },
+    {
+      "name": "WELLS",
+      "value_type": "STRING",
+      "size_type": "ALL"
+    }
+  ]
+}

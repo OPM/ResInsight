@@ -1,0 +1,22 @@
+{
+  "name": "IMPCVD",
+  "sections": [
+    "PROPS"
+  ],
+  "size": {
+    "keyword": "ENDSCALE",
+    "item": "NTENDP"
+  },
+  "items": [
+    {
+      "name": "DATA",
+      "value_type": "DOUBLE",
+      "size_type": "ALL",
+      "dimension": [
+        "Length",
+        "Pressure",
+        "Pressure"
+      ]
+    }
+  ]
+}

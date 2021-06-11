@@ -1,0 +1,28 @@
+{
+  "name": "GIALL",
+  "sections": [
+    "PROPS"
+  ],
+  "size": {
+    "keyword": "TABDIMS",
+    "item": "NTPVT"
+  },
+  "items": [
+    {
+      "name": "PRESSURE",
+      "value_type": "DOUBLE",
+      "dimension": "Pressure"
+    },
+    {
+      "name": "TABLE",
+      "value_type": "DOUBLE",
+      "size_type": "ALL",
+      "dimension": [
+        "1",
+        "1",
+        "1",
+        "1"
+      ]
+    }
+  ]
+}

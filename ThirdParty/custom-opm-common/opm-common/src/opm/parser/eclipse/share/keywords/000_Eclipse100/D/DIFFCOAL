@@ -1,0 +1,28 @@
+{
+  "name": "DIFFCOAL",
+  "sections": [
+    "PROPS"
+  ],
+  "size": {
+    "keyword": "REGDIMS",
+    "item": "NTCREG"
+  },
+  "items": [
+    {
+      "name": "GAS_DIFF_COEFF",
+      "value_type": "DOUBLE",
+      "dimension": "Length*Length/Time"
+    },
+    {
+      "name": "RE_ADSORB_FRACTION",
+      "value_type": "DOUBLE",
+      "dimension": "1",
+      "default": 1
+    },
+    {
+      "name": "SOL_DIFF_COEFF",
+      "value_type": "DOUBLE",
+      "dimension": "Length*Length/Time"
+    }
+  ]
+}

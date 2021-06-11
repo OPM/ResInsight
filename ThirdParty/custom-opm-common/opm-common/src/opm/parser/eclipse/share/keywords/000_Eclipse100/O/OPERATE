@@ -1,0 +1,58 @@
+{
+  "name": "OPERATE",
+  "sections": [
+    "GRID",
+    "EDIT",
+    "PROPS",
+    "REGIONS",
+    "SOLUTION"
+  ],
+  "items": [
+    {
+      "name": "TARGET_ARRAY",
+      "value_type": "STRING"
+    },
+    {
+      "name": "I1",
+      "value_type": "INT"
+    },
+    {
+      "name": "I2",
+      "value_type": "INT"
+    },
+    {
+      "name": "J1",
+      "value_type": "INT"
+    },
+    {
+      "name": "J2",
+      "value_type": "INT"
+    },
+    {
+      "name": "K1",
+      "value_type": "INT"
+    },
+    {
+      "name": "K2",
+      "value_type": "INT"
+    },
+    {
+      "name": "OPERATION",
+      "value_type": "STRING"
+    },
+    {
+      "name": "ARRAY",
+      "value_type": "STRING"
+    },
+    {
+      "name": "PARAM1",
+      "value_type": "DOUBLE",
+      "default": 0
+    },
+    {
+      "name": "PARAM2",
+      "value_type": "DOUBLE",
+      "default": 0
+    }
+  ]
+}

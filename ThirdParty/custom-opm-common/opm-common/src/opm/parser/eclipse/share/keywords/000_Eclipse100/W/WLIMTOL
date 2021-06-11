@@ -1,0 +1,13 @@
+{
+  "name": "WLIMTOL",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "size": 1,
+  "items": [
+    {
+      "name": "TOLERANCE_FRACTION",
+      "value_type": "DOUBLE"
+    }
+  ]
+}

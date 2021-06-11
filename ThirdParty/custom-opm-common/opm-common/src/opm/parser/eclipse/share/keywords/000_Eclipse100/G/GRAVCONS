@@ -1,0 +1,13 @@
+{
+  "name": "GRAVCONS",
+  "sections": [
+    "PROPS"
+  ],
+  "items": [
+    {
+      "name": "MNENONIC",
+      "value_type": "DOUBLE",
+      "dimension": "Length*Length*Pressure/Mass"
+    }
+  ]
+}

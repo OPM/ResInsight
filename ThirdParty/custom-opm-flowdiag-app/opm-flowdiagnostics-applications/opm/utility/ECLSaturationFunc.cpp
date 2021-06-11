@@ -598,6 +598,10 @@ Gas::Details::tableData(const std::vector<int>&    tabdims,
 
     // Subtract one to account for offset being one-based index.
     const auto start = tabdims[ TABDIMS_IBSGFN_OFFSET_ITEM ] - 1;
+    if (start < 0) {
+        throw std::invalid_argument(
+            "Invalid table offset for TABDIMS_IBSGFN_OFFSET_ITEM");
+    }
 
     t.data.assign(&tab[start], &tab[start] + nTabElems);
 
@@ -649,6 +653,10 @@ Oil::Details::tableData(const std::vector<int>&    tabdims,
 
     // Subtract one to account for offset being one-based index.
     const auto start = tabdims[ TABDIMS_IBSOFN_OFFSET_ITEM ] - 1;
+    if (start < 0) {
+        throw std::invalid_argument(
+            "Invalid table offset for TABDIMS_IBSOFN_OFFSET_ITEM");
+    }
 
     t.data.assign(&tab[start], &tab[start] + nTabElems);
 
@@ -689,6 +697,10 @@ Water::Details::tableData(const std::vector<int>&    tabdims,
 
     // Subtract one to account for offset being one-based index.
     const auto start = tabdims[ TABDIMS_IBSWFN_OFFSET_ITEM ] - 1;
+    if (start < 0) {
+        throw std::invalid_argument(
+            "Invalid table offset for TABDIMS_IBSWFN_OFFSET_ITEM");
+    }
 
     t.data.assign(&tab[start], &tab[start] + nTabElems);
 

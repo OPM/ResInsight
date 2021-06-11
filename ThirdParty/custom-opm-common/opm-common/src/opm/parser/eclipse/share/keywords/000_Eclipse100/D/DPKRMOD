@@ -1,0 +1,29 @@
+{
+  "name": "DPKRMOD",
+  "sections": [
+    "PROPS"
+  ],
+  "size": {
+    "keyword": "TABDIMS",
+    "item": "NTSFUN"
+  },
+  "items": [
+    {
+      "name": "MOD_OIL_WAT_PERM",
+      "value_type": "DOUBLE",
+      "dimension": "1",
+      "default": 0
+    },
+    {
+      "name": "MOD_OIL_GAS_PERM",
+      "value_type": "DOUBLE",
+      "dimension": "1",
+      "default": 0
+    },
+    {
+      "name": "SCALE_PERM_FRACTURE",
+      "value_type": "STRING",
+      "default": "YES"
+    }
+  ]
+}

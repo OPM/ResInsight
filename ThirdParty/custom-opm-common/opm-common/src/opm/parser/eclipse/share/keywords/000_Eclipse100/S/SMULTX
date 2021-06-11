@@ -1,0 +1,9 @@
+{
+  "name": "SMULTX",
+  "sections": [
+    "GRID"
+  ],
+  "data": {
+    "value_type": "DOUBLE"
+  }
+}

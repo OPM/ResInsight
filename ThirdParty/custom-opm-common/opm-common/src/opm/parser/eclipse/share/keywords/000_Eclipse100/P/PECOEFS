@@ -1,0 +1,65 @@
+{
+  "name": "PECOEFS",
+  "sections": [
+    "PROPS"
+  ],
+  "items": [
+    {
+      "name": "WAT_SALINITY",
+      "value_type": "DOUBLE",
+      "dimension": "1"
+    },
+    {
+      "name": "TEMP",
+      "value_type": "DOUBLE",
+      "dimension": "Temperature"
+    },
+    {
+      "name": "MINERAL_DENSITY",
+      "value_type": "DOUBLE",
+      "dimension": "Density"
+    },
+    {
+      "name": "PHI_EFF_0",
+      "value_type": "DOUBLE",
+      "dimension": "Pressure"
+    },
+    {
+      "name": "PHI_EFF_1",
+      "value_type": "DOUBLE",
+      "dimension": "Pressure"
+    },
+    {
+      "name": "C_0",
+      "value_type": "DOUBLE",
+      "dimension": "1"
+    },
+    {
+      "name": "C_K",
+      "value_type": "DOUBLE",
+      "dimension": "1"
+    },
+    {
+      "name": "SHEAR_MOD",
+      "value_type": "DOUBLE",
+      "dimension": "Pressure"
+    },
+    {
+      "name": "ALPHA",
+      "value_type": "DOUBLE",
+      "dimension": "1",
+      "default": 1
+    },
+    {
+      "name": "E",
+      "value_type": "DOUBLE",
+      "dimension": "1",
+      "default": 1
+    },
+    {
+      "name": "METHOD",
+      "value_type": "INT",
+      "default": 0
+    }
+  ]
+}

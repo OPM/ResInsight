@@ -1,0 +1,22 @@
+{
+  "name": "PVDG",
+  "sections": [
+    "PROPS"
+  ],
+  "size": {
+    "keyword": "TABDIMS",
+    "item": "NTPVT"
+  },
+  "items": [
+    {
+      "name": "DATA",
+      "size_type": "ALL",
+      "value_type": "DOUBLE",
+      "dimension": [
+        "Pressure",
+        "OilDissolutionFactor",
+        "Viscosity"
+      ]
+    }
+  ]
+}

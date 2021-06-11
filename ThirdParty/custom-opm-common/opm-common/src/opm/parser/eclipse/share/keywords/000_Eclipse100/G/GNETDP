@@ -1,0 +1,51 @@
+{
+  "name": "GNETDP",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "items": [
+    {
+      "name": "FIXED_PRESSURE_GROUP",
+      "value_type": "STRING"
+    },
+    {
+      "name": "PHASE_TYPE",
+      "value_type": "STRING",
+      "default": "GA"
+    },
+    {
+      "name": "MIN_RATE_TRIGGER",
+      "value_type": "DOUBLE",
+      "default": 0
+    },
+    {
+      "name": "MAX_RATE_TRIGGER",
+      "value_type": "DOUBLE",
+      "default": 1e+20
+    },
+    {
+      "name": "PRESSURE_INCR_SUBTRACT",
+      "value_type": "DOUBLE",
+      "dimension": "Pressure",
+      "default": 0
+    },
+    {
+      "name": "PRESSURE_INCR_ADD",
+      "value_type": "DOUBLE",
+      "dimension": "Pressure",
+      "default": 0
+    },
+    {
+      "name": "MIN_ALLOW_PRESSURE",
+      "value_type": "DOUBLE",
+      "dimension": "Pressure",
+      "default": 0
+    },
+    {
+      "name": "MAX_ALLOW_PRESSURE",
+      "value_type": "DOUBLE",
+      "dimension": "Pressure",
+      "default": 1e+20
+    }
+  ]
+}

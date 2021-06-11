@@ -1,0 +1,13 @@
+{
+  "name": "RPTSMRY",
+  "sections": [
+    "SUMMARY"
+  ],
+  "size": 1,
+  "items": [
+    {
+      "name": "WRITE",
+      "value_type": "INT"
+    }
+  ]
+}

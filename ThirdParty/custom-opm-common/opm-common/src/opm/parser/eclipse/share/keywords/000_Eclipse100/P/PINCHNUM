@@ -1,0 +1,9 @@
+{
+  "name": "PINCHNUM",
+  "sections": [
+    "GRID"
+  ],
+  "data": {
+    "value_type": "INT"
+  }
+}

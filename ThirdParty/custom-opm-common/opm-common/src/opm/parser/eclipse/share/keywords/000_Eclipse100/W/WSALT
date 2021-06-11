@@ -1,0 +1,17 @@
+{
+  "name": "WSALT",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "comment": "UDA & size_type:ALL is not supported i.e Multi-Component Brine Model not supported",
+  "items": [
+    {
+      "name": "WELL",
+      "value_type": "STRING"
+    },
+    {
+      "name": "CONCENTRATION",
+      "value_type": "UDA"
+    }
+  ]
+}

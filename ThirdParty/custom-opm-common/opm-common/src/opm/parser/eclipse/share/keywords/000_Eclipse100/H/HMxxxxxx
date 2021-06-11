@@ -1,0 +1,35 @@
+{
+  "name": "HMxxxxxx",
+  "sections": [
+    "REGIONS"
+  ],
+  "deck_name": [
+    "HMTRANX",
+    "HMTRANY",
+    "HMTRANZ",
+    "HMTRNXY",
+    "HMPORVM",
+    "HMSIGMA",
+    "HMPERMX",
+    "HMPERMY",
+    "HMPRMXY",
+    "HMPERMZ",
+    "HMSWCR",
+    "HMSGCR",
+    "HMSOWCR",
+    "HMSOGCR",
+    "HMSWL",
+    "HMKRW",
+    "HMKRO",
+    "HMKRG",
+    "HMKRWR",
+    "HMKRGR",
+    "HMKRORW",
+    "HMKRORG",
+    "HMPCW",
+    "HMPCG"
+  ],
+  "data": {
+    "value_type": "INT"
+  }
+}

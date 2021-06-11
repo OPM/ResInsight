@@ -1,0 +1,10 @@
+{
+  "name": "MLANG",
+  "sections": [
+    "PROPS"
+  ],
+  "data": {
+    "value_type": "DOUBLE",
+    "dimension": "GasSurfaceVolume/Length*Length*Length"
+  }
+}

@@ -1,0 +1,50 @@
+{
+  "name": "WBHGLR",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "items": [
+    {
+      "name": "WELL",
+      "value_type": "STRING"
+    },
+    {
+      "name": "MAX_GLR_CUTBACK",
+      "value_type": "DOUBLE",
+      "default": 1e+20,
+      "dimension": "1"
+    },
+    {
+      "name": "MIN_GLR_CUTBACK_REVERSE",
+      "value_type": "DOUBLE",
+      "dimension": "1",
+      "default": 1e+20
+    },
+    {
+      "name": "RATE_CUTBACK_FACTOR",
+      "value_type": "DOUBLE",
+      "default": 1
+    },
+    {
+      "name": "PHASE",
+      "value_type": "STRING",
+      "default": "RESV"
+    },
+    {
+      "name": "MAX_GLR_ELIMIT",
+      "value_type": "DOUBLE",
+      "default": 1e+20,
+      "dimension": "1"
+    },
+    {
+      "name": "WORKOVER_ACTION",
+      "value_type": "STRING",
+      "default": "NONE"
+    },
+    {
+      "name": "WORKOVER_REMOVE_CUTBACKS",
+      "value_type": "STRING",
+      "default": "NO"
+    }
+  ]
+}

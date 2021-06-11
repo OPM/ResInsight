@@ -1,0 +1,106 @@
+{
+  "name": "GRDREACH",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "records": [
+    [
+      {
+        "name": "RIVER",
+        "value_type": "STRING"
+      }
+    ],
+    [
+      {
+        "name": "I",
+        "value_type": "INT"
+      },
+      {
+        "name": "J",
+        "value_type": "INT"
+      },
+      {
+        "name": "K",
+        "value_type": "INT"
+      },
+      {
+        "name": "BRANCH_NAME",
+        "value_type": "STRING"
+      },
+      {
+        "name": "DISTANCE_TO_START",
+        "value_type": "DOUBLE",
+        "dimension": "Length"
+      },
+      {
+        "name": "DISTANCE_TO_END",
+        "value_type": "DOUBLE",
+        "dimension": "Length"
+      },
+      {
+        "name": "RCH_CONNECT_TO",
+        "value_type": "INT"
+      },
+      {
+        "name": "PENETRATION_DIRECTION",
+        "value_type": "STRING"
+      },
+      {
+        "name": "GRID_BLOCK_COORD",
+        "value_type": "INT"
+      },
+      {
+        "name": "CONTACT_AREA",
+        "value_type": "DOUBLE",
+        "dimension": "Length*Length"
+      },
+      {
+        "name": "TABLE_NUM",
+        "value_type": "INT"
+      },
+      {
+        "name": "PRODUCTIVITY_INDEX",
+        "value_type": "DOUBLE",
+        "dimension": "Length/Time*Pressure",
+        "default": 0
+      },
+      {
+        "name": "LENGTH_DEAD_GRID_BLOCK",
+        "value_type": "DOUBLE",
+        "dimension": "Length"
+      },
+      {
+        "name": "OPTION_CONNECT_REACH",
+        "value_type": "INT",
+        "default": 0
+      },
+      {
+        "name": "ADJUSTMENT_REACH",
+        "value_type": "INT",
+        "default": 0
+      },
+      {
+        "name": "REMOVE_CAP_PRESSURE",
+        "value_type": "STRING",
+        "default": "NO"
+      },
+      {
+        "name": "INFILTR_EQ",
+        "value_type": "INT",
+        "default": 0
+      },
+      {
+        "name": "HYDRAULIC_CONDUCTIVITY",
+        "value_type": "DOUBLE",
+        "dimension": "Length/Time",
+        "default": 0
+      },
+      {
+        "name": "RIVER_BED_THICKNESS",
+        "value_type": "DOUBLE",
+        "dimension": "Length",
+        "default": 0
+      }
+    ]
+  ]
+}

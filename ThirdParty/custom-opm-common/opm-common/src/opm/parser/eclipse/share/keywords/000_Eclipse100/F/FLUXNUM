@@ -1,0 +1,9 @@
+{
+  "name": "FLUXNUM",
+  "sections": [
+    "GRID"
+  ],
+  "data": {
+    "value_type": "INT"
+  }
+}

@@ -1,0 +1,60 @@
+{
+  "name": "PSTEADY",
+  "sections": [
+    "RUNSPEC"
+  ],
+  "size": 1,
+  "items": [
+    {
+      "name": "DAY",
+      "value_type": "INT"
+    },
+    {
+      "name": "MONTH",
+      "value_type": "STRING"
+    },
+    {
+      "name": "YEAR",
+      "value_type": "INT"
+    },
+    {
+      "name": "DIFF",
+      "value_type": "DOUBLE"
+    },
+    {
+      "name": "PRESSURE_TOL",
+      "value_type": "DOUBLE"
+    },
+    {
+      "name": "OIL_TOL",
+      "value_type": "DOUBLE"
+    },
+    {
+      "name": "WATER_TOL",
+      "value_type": "DOUBLE"
+    },
+    {
+      "name": "GAS_TOL",
+      "value_type": "DOUBLE"
+    },
+    {
+      "name": "BRINE_TOL",
+      "value_type": "DOUBLE"
+    },
+    {
+      "name": "MAX_TIME",
+      "value_type": "DOUBLE",
+      "dimension": "Time"
+    },
+    {
+      "name": "MIN_TIME",
+      "value_type": "DOUBLE",
+      "dimension": "Time"
+    },
+    {
+      "name": "PIM_AQUIFERS",
+      "value_type": "STRING",
+      "default": "NO"
+    }
+  ]
+}

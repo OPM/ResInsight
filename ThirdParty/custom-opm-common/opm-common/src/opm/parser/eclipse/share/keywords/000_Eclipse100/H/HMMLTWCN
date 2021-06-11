@@ -1,0 +1,41 @@
+{
+  "name": "HMMLTWCN",
+  "sections": [
+    "SOLUTION"
+  ],
+  "items": [
+    {
+      "name": "WELL",
+      "value_type": "STRING"
+    },
+    {
+      "name": "GRID",
+      "value_type": "STRING",
+      "default": "FIELD"
+    },
+    {
+      "name": "I",
+      "value_type": "INT"
+    },
+    {
+      "name": "J",
+      "value_type": "INT"
+    },
+    {
+      "name": "K",
+      "value_type": "INT"
+    },
+    {
+      "name": "CTF",
+      "value_type": "DOUBLE",
+      "dimension": "1",
+      "default": 1
+    },
+    {
+      "name": "SKIN",
+      "value_type": "DOUBLE",
+      "dimension": "1",
+      "default": 1
+    }
+  ]
+}

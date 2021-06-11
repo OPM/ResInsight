@@ -118,7 +118,7 @@ list (APPEND MKOCTFILE_INCLUDE_DIRS ${OCTAVE_QT_QTNETWORK_INCLUDE_DIR})
 
 
 # Add socket interface source code folder
-list (APPEND MKOCTFILE_INCLUDE_DIRS ${ResInsight_SOURCE_DIR}/ApplicationCode/SocketInterface)
+list (APPEND MKOCTFILE_INCLUDE_DIRS ${ResInsight_SOURCE_DIR}/ApplicationLibCode/SocketInterface)
 
 list (REMOVE_DUPLICATES MKOCTFILE_INCLUDE_DIRS)
 foreach (item ${MKOCTFILE_INCLUDE_DIRS})
@@ -166,7 +166,7 @@ if (OCTAVE_MKOCTFILE)
                 COMMAND ${OCTAVE_MKOCTFILE}
                     ${QT_INCLUDES}
                     ${QT_FRAMEWORKS}
-                    -I${ResInsight_SOURCE_DIR}/ApplicationCode/SocketInterface
+                    -I${ResInsight_SOURCE_DIR}/ApplicationLibCode/SocketInterface
                     ${RPATH_COMMAND}
                     -L${QT_LIBRARY_DIR} -Wl,-framework,QtCore -Wl,-framework,QtNetwork
                     -o "${octFileName}"
@@ -220,13 +220,13 @@ add_custom_target(octave_plugins ALL DEPENDS
                 add_custom_command(TARGET octave_plugins POST_BUILD
                     COMMAND ${CMAKE_COMMAND} -E copy_if_different
                     "${oct_bin}"
-                    "${CMAKE_CURRENT_BINARY_DIR}/../ApplicationCode/$<CONFIGURATION>/${Filename}"
+                    "${CMAKE_CURRENT_BINARY_DIR}/../ApplicationExeCode/$<CONFIGURATION>/${Filename}"
                 )
             else()
                 add_custom_command(TARGET octave_plugins POST_BUILD
                     COMMAND ${CMAKE_COMMAND} -E copy_if_different
                     "${oct_bin}"
-                    "${CMAKE_CURRENT_BINARY_DIR}/../ApplicationCode/${Filename}"
+                    "${CMAKE_CURRENT_BINARY_DIR}/../ApplicationExeCode/${Filename}"
                 )
             endif()
         endforeach( oct_bin )

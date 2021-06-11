@@ -1,0 +1,38 @@
+{
+  "name": "WSEGEXSS",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "items": [
+    {
+      "name": "WELL",
+      "value_type": "STRING"
+    },
+    {
+      "name": "SEGMENT",
+      "value_type": "INT"
+    },
+    {
+      "name": "TYPE",
+      "value_type": "STRING",
+      "default": "NONE"
+    },
+    {
+      "name": "GAS_IMPORT_RATE",
+      "value_type": "DOUBLE",
+      "dimension": "GasSurfaceVolume/Time"
+    },
+    {
+      "name": "R",
+      "value_type": "DOUBLE",
+      "default": 0,
+      "dimension": "LiquidSurfaceVolume/Time*Pressure"
+    },
+    {
+      "name": "PEXT",
+      "value_type": "DOUBLE",
+      "default": 0,
+      "dimension": "Pressure"
+    }
+  ]
+}

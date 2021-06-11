@@ -1,0 +1,21 @@
+{
+  "name": "TZONE",
+  "sections": [
+    "PROPS"
+  ],
+  "size": 1,
+  "items": [
+    {
+      "name": "OIL_SWITCH",
+      "value_type": "STRING"
+    },
+    {
+      "name": "WATER_SWITCH",
+      "value_type": "STRING"
+    },
+    {
+      "name": "GAS_SWITCH",
+      "value_type": "STRING"
+    }
+  ]
+}

@@ -364,6 +364,10 @@ fromECLOutput(const ECLInitFileData& init)
 
         // Subtract one to account for 1-based indices.
         const auto start = tabdims[ TABDIMS_IBPVTW_OFFSET_ITEM ] - 1;
+        if (start < 0) {
+            throw std::invalid_argument(
+                "Invalid table offset for TABDIMS_IBPVTW_OFFSET_ITEM");
+        }
 
         raw.data.assign(&tab[start], &tab[start] + nTabElem);
     }

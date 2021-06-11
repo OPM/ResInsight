@@ -1,0 +1,37 @@
+{
+  "name": "WELOPEN",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "items": [
+    {
+      "name": "WELL",
+      "value_type": "STRING"
+    },
+    {
+      "name": "STATUS",
+      "value_type": "STRING",
+      "default": "OPEN"
+    },
+    {
+      "name": "I",
+      "value_type": "INT"
+    },
+    {
+      "name": "J",
+      "value_type": "INT"
+    },
+    {
+      "name": "K",
+      "value_type": "INT"
+    },
+    {
+      "name": "C1",
+      "value_type": "INT"
+    },
+    {
+      "name": "C2",
+      "value_type": "INT"
+    }
+  ]
+}

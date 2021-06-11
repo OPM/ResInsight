@@ -1,0 +1,22 @@
+{
+  "name": "SCDATAB",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "size": {
+    "keyword": "SCDPDIMS",
+    "item": "NTSCDA"
+  },
+  "items": [
+    {
+      "name": "SCALE_DATA",
+      "size_type": "ALL",
+      "value_type": "DOUBLE",
+      "default": 0,
+      "dimension": [
+        "1",
+        "1"
+      ]
+    }
+  ]
+}

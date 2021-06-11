@@ -1,0 +1,73 @@
+/////////////////////////////////////////////////////////////////////////////////
+//
+//  Copyright (C) 2017 Statoil ASA
+//
+//  ResInsight is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 3 of the License, or
+//  (at your option) any later version.
+//
+//  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
+//  WARRANTY; without even the implied warranty of MERCHANTABILITY or
+//  FITNESS FOR A PARTICULAR PURPOSE.
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+//  for more details.
+//
+/////////////////////////////////////////////////////////////////////////////////
+
+#pragma once
+
+#include "cvfBoundingBox.h"
+#include "cvfVector3.h"
+
+#include <QString>
+
+#include <array>
+
+class RigWellPath;
+class RigMainGrid;
+class RigEclipseCaseData;
+struct HexIntersectionInfo;
+struct WellPathCellIntersectionInfo;
+
+namespace cvf
+{
+class StructGridInterface;
+};
+
+//==================================================================================================
+///
+//==================================================================================================
+class RigWellPathIntersectionTools
+{
+public:
+    static std::vector<WellPathCellIntersectionInfo>
+        findCellIntersectionInfosAlongPath( const RigEclipseCaseData*      caseData,
+                                            const QString&                 wellPathName,
+                                            const std::vector<cvf::Vec3d>& pathCoords,
+                                            const std::vector<double>&     pathMds );
+
+    static std::set<size_t> findIntersectedGlobalCellIndicesForWellPath( const RigEclipseCaseData* caseData,
+                                                                         const RigWellPath*        wellPath );
+
+    static std::set<size_t> findIntersectedGlobalCellIndices( const RigEclipseCaseData*      caseData,
+                                                              const std::vector<cvf::Vec3d>& coords,
+                                                              const std::vector<double>&     measuredDepths = {} );
+
+    static cvf::Vec3d calculateLengthInCell( const std::array<cvf::Vec3d, 8>& hexCorners,
+                                             const cvf::Vec3d&                startPoint,
+                                             const cvf::Vec3d&                endPoint );
+
+    // Returns the length along each axis in local cell coordinate system
+    // The returned vector has unsigned component values
+    static cvf::Vec3d calculateLengthInCell( const RigMainGrid* grid,
+                                             size_t             cellIndex,
+                                             const cvf::Vec3d&  startPoint,
+                                             const cvf::Vec3d&  endPoint );
+
+    // Insert dummy intersections used to represent gap in grid
+    static std::vector<WellPathCellIntersectionInfo>
+        buildContinuousIntersections( const std::vector<WellPathCellIntersectionInfo>& originalIntersections,
+                                      const cvf::StructGridInterface*                  grid );
+};

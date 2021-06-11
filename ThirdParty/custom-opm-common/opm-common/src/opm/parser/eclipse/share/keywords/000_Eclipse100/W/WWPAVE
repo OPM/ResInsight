@@ -1,0 +1,32 @@
+{
+  "name": "WWPAVE",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "items": [
+    {
+      "name": "WELL",
+      "value_type": "STRING"
+    },
+    {
+      "name": "F1",
+      "value_type": "DOUBLE",
+      "default": 0.5
+    },
+    {
+      "name": "F2",
+      "value_type": "DOUBLE",
+      "default": 0.5
+    },
+    {
+      "name": "DEPTH_CORRECTION",
+      "value_type": "STRING",
+      "default": "WELL"
+    },
+    {
+      "name": "WELL_CONNECTION",
+      "value_type": "STRING",
+      "default": "OPEN"
+    }
+  ]
+}

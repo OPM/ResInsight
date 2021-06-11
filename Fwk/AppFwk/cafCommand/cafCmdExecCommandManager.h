@@ -68,7 +68,7 @@ public:
     // If undo is not possible (undo system not enabled, or pdm object has disabled undo),
     // the PdmExecuteCommand is executed and deleted
     void processExecuteCommand( CmdExecuteCommand* executeCommand );
-    void processExecuteCommandsAsMacro( const QString& macroName, std::vector<CmdExecuteCommand*>& commands );
+    void processExecuteCommandsAsMacro( const std::vector<CmdExecuteCommand*>& commands );
 
 private:
     CmdExecCommandManager();
@@ -80,7 +80,7 @@ private:
     void activateCommandSystem();
     void deactivateCommandSystem();
 
-    bool isUndoEnabledForCurrentCommand( CmdExecuteCommand* command );
+    bool isUndoEnabledForCommand( CmdExecuteCommand* command );
 
     friend class CmdExecCommandSystemActivator;
     friend class CmdExecCommandSystemDeactivator;

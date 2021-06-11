@@ -1,0 +1,27 @@
+{
+  "name": "WFRICSGL",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "items": [
+    {
+      "name": "WELL",
+      "value_type": "STRING"
+    },
+    {
+      "name": "TUBINGD",
+      "value_type": "DOUBLE",
+      "dimension": "Length"
+    },
+    {
+      "name": "ROUGHNESS",
+      "value_type": "DOUBLE",
+      "dimension": "Length"
+    },
+    {
+      "name": "FLOW_SCALING",
+      "value_type": "DOUBLE",
+      "default": 1
+    }
+  ]
+}

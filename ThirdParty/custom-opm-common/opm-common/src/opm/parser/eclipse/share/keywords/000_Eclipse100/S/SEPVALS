@@ -1,0 +1,22 @@
+{
+  "name": "SEPVALS",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "items": [
+    {
+      "name": "SEPARATOR",
+      "value_type": "STRING"
+    },
+    {
+      "name": "BO",
+      "value_type": "DOUBLE",
+      "dimension": "1"
+    },
+    {
+      "name": "RS",
+      "value_type": "DOUBLE",
+      "dimension": "1"
+    }
+  ]
+}

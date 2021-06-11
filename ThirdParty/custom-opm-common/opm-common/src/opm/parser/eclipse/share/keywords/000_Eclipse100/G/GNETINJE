@@ -1,0 +1,26 @@
+{
+  "name": "GNETINJE",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "items": [
+    {
+      "name": "GROUP",
+      "value_type": "STRING"
+    },
+    {
+      "name": "PHASE",
+      "value_type": "STRING"
+    },
+    {
+      "name": "PRESSURE",
+      "value_type": "DOUBLE",
+      "dimension": "Pressure"
+    },
+    {
+      "name": "VFP_TABLE",
+      "value_type": "INT",
+      "default": 0
+    }
+  ]
+}

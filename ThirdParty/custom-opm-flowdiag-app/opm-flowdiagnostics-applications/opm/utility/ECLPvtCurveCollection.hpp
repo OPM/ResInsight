@@ -81,11 +81,11 @@ namespace Opm { namespace ECLPVT {
         /// \param[in] phase Phase for which to compute extract graph
         ///    representation of PVT property function.
         ///
-        /// \param[in] activeCell Index of particular active cell in model.
+        /// \param[in] pvtRegionID Value of pvtRegionID (1-based region value)
         ///
         /// \return Collection of 2D graphs for PVT property curve
         ///    identified by requests represented by \p curve, \p phase and
-        ///    \p activeCell.  One curve (vector element) for each tabulated
+        ///    \p pvtRegionID.  One curve (vector element) for each tabulated
         ///    node of the primary look-up key.  Single curve (i.e., a
         ///    single element vector) in the case of dry gas (no vaporised
         ///    oil) or dead oil (no dissolved gas).  Return values provided
@@ -96,17 +96,17 @@ namespace Opm { namespace ECLPVT {
         ///    (i.e., keyword 'PVCDO' in the input deck).
         ///
         /// Example: Retrieve collection of gas viscosity curves pertaining
-        ///    to model's active cell 31415.
+        ///    to PVT region 1.
         ///
         ///    \code
         ///       const auto curves =
         ///           pvtCC.getPvtCurve(ECLPVT::RawCurve::Viscosity,
-        ///                             ECLPhaseIndex::Vapour, 31415);
+        ///                             ECLPhaseIndex::Vapour, 1);
         ///    \endcode
         std::vector<PVTGraph>
         getPvtCurve(const RawCurve      curve,
                     const ECLPhaseIndex phase,
-                    const int           activeCell) const;
+                    const int           pvtRegionID) const;
 
         /// Compute a single dynamic property in a single active cell for a
         /// collection of cell states.
@@ -124,7 +124,7 @@ namespace Opm { namespace ECLPVT {
         ///    ECLPhaseIndex::Liquid \endcode.  All other values return an
         ///    empty result.
         ///
-        /// \param[in] activeCell Index of particular active cell in model.
+        /// \param[in] pvtRegionID Value of pvtRegionID (1-based region value)
         ///
         /// \param[in] phasePress Sequence of phase pressure values
         ///    pertaining to \p activeCell.  Could, for instance, be the
@@ -139,8 +139,8 @@ namespace Opm { namespace ECLPVT {
         ///    typically appropriate only for dry gas or dead oil cases.
         ///
         /// \return Sequence of dynamic property values corresponding to the
-        ///    requested property name of the identified phase in the
-        ///    particular active cell.  Empty for invalid requests, number
+        ///    requested property name of the identified phase for the
+        ///    current PVT region.  Empty for invalid requests, number
         ///    of elements equal to \code phasePress.size() \endcode
         ///    otherwise.  Return values are in strict SI units of
         ///    measure--i.e., rm^3/sm^3 for the formation volume factors and
@@ -148,7 +148,7 @@ namespace Opm { namespace ECLPVT {
         std::vector<double>
         getDynamicPropertySI(const RawCurve             property,
                              const ECLPhaseIndex        phase,
-                             const int                  activeCell,
+                             const int                  pvtRegionID,
                              const std::vector<double>& phasePress,
                              const std::vector<double>& mixRatio
                                  = std::vector<double>()) const;
@@ -172,7 +172,7 @@ namespace Opm { namespace ECLPVT {
         ///    ECLPhaseIndex::Liquid \endcode.  All other values return an
         ///    empty result.
         ///
-        /// \param[in] activeCell Index of particular active cell in model.
+        /// \param[in] pvtRegionID Value of pvtRegionID (1-based region value)
         ///
         /// \param[in] phasePress Sequence of phase pressure values
         ///    pertaining to \p activeCell.  Could, for instance, be the
@@ -207,15 +207,12 @@ namespace Opm { namespace ECLPVT {
         std::vector<double>
         getDynamicPropertyNative(const RawCurve      property,
                                  const ECLPhaseIndex phase,
-                                 const int           activeCell,
+                                 const int           pvtRegionID,
                                  std::vector<double> phasePress, // Mutable copy
                                  std::vector<double> mixRatio    // Mutable copy
                                  = std::vector<double>()) const;
 
     private:
-        /// Forward map: Cell -> PVT Region ID
-        std::vector<int> pvtnum_;
-
         /// Gas PVT property evaluator.
         std::shared_ptr<Gas> gas_; // shared => default special member funcs.
 
@@ -239,12 +236,12 @@ namespace Opm { namespace ECLPVT {
         ///
         /// \param[in] phase Phase for which to compute a property.
         ///
-        /// \param[in] activeCell Index of particular active cell in model.
+        /// \param[in] pvtRegionID Value of pvtRegionID (1-based region value)
         ///
         /// \return True if \p phase is supported and \p activeCell is
         ///    within range of the currently defined model.  False otherwise.
         bool isValidRequest(const ECLPhaseIndex phase,
-                            const int           activeCell) const;
+                            const int           pvtRegionID) const;
 
         /// Convert a sequence of 2D graphs to user-defined system of units.
         ///

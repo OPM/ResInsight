@@ -1,0 +1,21 @@
+{
+  "name": "CREF",
+  "sections": [
+    "PROPS"
+  ],
+  "size": {
+    "keyword": "TABDIMS",
+    "item": "NUM_STATE_EQ"
+  },
+  "comment": "to set defaults for items of unspecified size.",
+  "items": [
+    {
+      "name": "COMPRESSIBILITY",
+      "value_type": "DOUBLE",
+      "size_type": "ALL",
+      "dimension": [
+        "1/Pressure"
+      ]
+    }
+  ]
+}

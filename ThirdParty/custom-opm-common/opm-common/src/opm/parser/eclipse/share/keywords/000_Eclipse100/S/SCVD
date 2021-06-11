@@ -1,0 +1,21 @@
+{
+  "name": "SCVD",
+  "sections": [
+    "SOLUTION"
+  ],
+  "size": {
+    "keyword": "EQLDIMS",
+    "item": "NTEQUL"
+  },
+  "items": [
+    {
+      "name": "DATA",
+      "size_type": "ALL",
+      "value_type": "DOUBLE",
+      "dimension": [
+        "Length",
+        "1"
+      ]
+    }
+  ]
+}

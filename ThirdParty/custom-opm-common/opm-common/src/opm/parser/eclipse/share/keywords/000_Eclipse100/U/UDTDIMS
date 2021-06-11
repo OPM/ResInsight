@@ -1,0 +1,29 @@
+{
+  "name": "UDTDIMS",
+  "sections": [
+    "RUNSPEC"
+  ],
+  "size": 1,
+  "items": [
+    {
+      "name": "MAX_TABLES",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "MAX_ROWS",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "MAX_INTERPOLATION_POINTS",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "MAX_DIMENSIONS",
+      "value_type": "INT",
+      "default": 0
+    }
+  ]
+}

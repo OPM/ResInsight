@@ -1,0 +1,14 @@
+{
+  "name": "CRITPERM",
+  "sections": [
+    "GRID"
+  ],
+  "size": 1,
+  "items": [
+    {
+      "name": "VALUE",
+      "value_type": "DOUBLE",
+      "dimension": "Permeability"
+    }
+  ]
+}

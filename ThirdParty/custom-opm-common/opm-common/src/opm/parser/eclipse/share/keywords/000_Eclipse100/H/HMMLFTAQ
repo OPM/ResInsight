@@ -1,0 +1,30 @@
+{
+  "name": "HMMLFTAQ",
+  "sections": [
+    "SOLUTION"
+  ],
+  "items": [
+    {
+      "name": "AQUIFER_ID",
+      "value_type": "INT"
+    },
+    {
+      "name": "AQUIFER_WAT_VOL_MULT",
+      "value_type": "DOUBLE",
+      "dimension": "1",
+      "default": 1
+    },
+    {
+      "name": "AQUIFER_PROD_INDEX_MULT",
+      "value_type": "DOUBLE",
+      "dimension": "1",
+      "default": 1
+    },
+    {
+      "name": "AQUIFER_DEPTH_MULT",
+      "value_type": "DOUBLE",
+      "dimension": "1",
+      "default": 1
+    }
+  ]
+}

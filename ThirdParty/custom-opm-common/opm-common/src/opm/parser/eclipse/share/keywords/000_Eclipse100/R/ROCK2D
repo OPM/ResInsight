@@ -1,0 +1,23 @@
+{
+  "name": "ROCK2D",
+  "sections": [
+    "PROPS"
+  ],
+  "num_tables": {
+    "keyword": "ROCKCOMP",
+    "item": "NTROCC"
+  },
+  "items": [
+    {
+      "name": "PRESSURE",
+      "value_type": "DOUBLE",
+      "dimension": "Pressure"
+    },
+    {
+      "name": "PVMULT",
+      "value_type": "DOUBLE",
+      "size_type": "ALL",
+      "dimension": "1"
+    }
+  ]
+}

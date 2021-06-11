@@ -1,0 +1,23 @@
+{
+  "name": "SCDETAB",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "size": {
+    "keyword": "SCDPDIMS",
+    "item": "NTSCDE"
+  },
+  "comment": "Unclear from the documentation whether the keyword should be slash terminated or not. Here it is assumed not",
+  "items": [
+    {
+      "name": "SCALE_DATA",
+      "size_type": "ALL",
+      "value_type": "DOUBLE",
+      "default": 0,
+      "dimension": [
+        "1",
+        "1"
+      ]
+    }
+  ]
+}

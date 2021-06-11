@@ -1,0 +1,29 @@
+{
+  "name": "GCALECON",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "items": [
+    {
+      "name": "GROUP",
+      "value_type": "STRING"
+    },
+    {
+      "name": "MIN_ENERGY_PROD_RATE",
+      "value_type": "DOUBLE",
+      "dimension": "Energy/Time",
+      "default": 0
+    },
+    {
+      "name": "MIN_CALORIFIC_VAL",
+      "value_type": "DOUBLE",
+      "dimension": "Energy/GasSurfaceVolume",
+      "default": 0
+    },
+    {
+      "name": "FLAG_END_RUN",
+      "value_type": "STRING",
+      "default": "NO"
+    }
+  ]
+}

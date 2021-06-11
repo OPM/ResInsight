@@ -1,0 +1,32 @@
+{
+  "name": "GSATINJE",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "items": [
+    {
+      "name": "GROUP",
+      "value_type": "STRING"
+    },
+    {
+      "name": "PHASE",
+      "value_type": "STRING"
+    },
+    {
+      "name": "SURF_INJ_RATE",
+      "value_type": "DOUBLE",
+      "default": 0
+    },
+    {
+      "name": "RES_INJ_RATE",
+      "value_type": "DOUBLE",
+      "default": 0
+    },
+    {
+      "name": "MEAN_CALORIFIC",
+      "value_type": "DOUBLE",
+      "dimension": "Energy/GasSurfaceVolume",
+      "default": 0
+    }
+  ]
+}

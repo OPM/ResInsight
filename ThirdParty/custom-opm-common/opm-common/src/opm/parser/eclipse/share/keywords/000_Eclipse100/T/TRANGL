@@ -1,0 +1,37 @@
+{
+  "name": "TRANGL",
+  "sections": [
+    "GRID"
+  ],
+  "items": [
+    {
+      "name": "IL",
+      "value_type": "INT"
+    },
+    {
+      "name": "JL",
+      "value_type": "INT"
+    },
+    {
+      "name": "KL",
+      "value_type": "INT"
+    },
+    {
+      "name": "IG",
+      "value_type": "INT"
+    },
+    {
+      "name": "JG",
+      "value_type": "INT"
+    },
+    {
+      "name": "KG",
+      "value_type": "INT"
+    },
+    {
+      "name": "TRAN",
+      "value_type": "DOUBLE",
+      "dimension": "Transmissibility"
+    }
+  ]
+}

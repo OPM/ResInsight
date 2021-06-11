@@ -1,0 +1,17 @@
+{
+  "name": "TEMPNODE",
+  "sections": [
+    "PROPS"
+  ],
+  "size": {
+    "keyword": "TABDIMS",
+    "item": "NPPVT"
+  },
+  "items": [
+    {
+      "name": "TABLE_DATA",
+      "value_type": "DOUBLE",
+      "dimension": "Temperature"
+    }
+  ]
+}

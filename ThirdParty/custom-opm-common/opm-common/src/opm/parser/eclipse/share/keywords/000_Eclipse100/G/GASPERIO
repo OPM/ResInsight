@@ -1,0 +1,55 @@
+{
+  "name": "GASPERIO",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "size": 1,
+  "items": [
+    {
+      "name": "NUM_PERIODS",
+      "value_type": "INT"
+    },
+    {
+      "name": "NUM_MONTHS",
+      "value_type": "INT",
+      "default": 12
+    },
+    {
+      "name": "INITIAL_DCQ",
+      "value_type": "DOUBLE"
+    },
+    {
+      "name": "SWING_REQ",
+      "value_type": "STRING",
+      "default": "PER"
+    },
+    {
+      "name": "LIMIT_TIMESTEPS",
+      "value_type": "STRING",
+      "default": "YES"
+    },
+    {
+      "name": "LIMIT_DCQ_RED_FACTOR",
+      "value_type": "DOUBLE",
+      "dimension": "1",
+      "default": 0
+    },
+    {
+      "name": "ANTICIPATED_DCQ_RED_FACTOR",
+      "value_type": "DOUBLE",
+      "dimension": "1",
+      "default": 1
+    },
+    {
+      "name": "MAX_ITERATIONS",
+      "value_type": "INT",
+      "default": 3
+    },
+    {
+      "name": "DCQ_CONV_TOLERANCE",
+      "value_type": "DOUBLE",
+      "dimension": "1",
+      "default": 0.1
+    }
+  ]
+}

@@ -63,13 +63,25 @@ caf::PdmChildField<DataType*>::PdmChildField( const DataTypePtr& fieldValue )
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
+caf::PdmChildField<DataType*>::PdmChildField( DataTypeUniquePtr fieldValue )
+{
+    if ( m_fieldValue ) m_fieldValue->removeAsParentField( this );
+    m_fieldValue = fieldValue.release();
+    if ( m_fieldValue != nullptr ) m_fieldValue->setAsParentField( this );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+template <typename DataType>
 caf::PdmChildField<DataType*>::~PdmChildField()
 {
     delete m_fieldValue.rawPtr();
 }
 
 //--------------------------------------------------------------------------------------------------
-///
+/// Assign a regular raw pointer. This method should be considered private.
+/// External use should be considered deprecated.
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
 caf::PdmChildField<DataType*>& PdmChildField<DataType*>::operator=( const DataTypePtr& fieldValue )
@@ -83,7 +95,18 @@ caf::PdmChildField<DataType*>& PdmChildField<DataType*>::operator=( const DataTy
 }
 
 //--------------------------------------------------------------------------------------------------
-///
+/// Assign a unique pointer and take ownership.
+/// This should be preferred over the method taking a raw pointer
+//--------------------------------------------------------------------------------------------------
+template <typename DataType>
+caf::PdmChildField<DataType*>& PdmChildField<DataType*>::operator=( DataTypeUniquePtr fieldValue )
+{
+    return this->operator=( fieldValue.release() );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Assign a regular raw pointer. This method should be considered private.
+/// External use should be considered deprecated.
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
 void caf::PdmChildField<DataType*>::setValue( const DataTypePtr& fieldValue )
@@ -91,6 +114,16 @@ void caf::PdmChildField<DataType*>::setValue( const DataTypePtr& fieldValue )
     if ( m_fieldValue ) m_fieldValue->removeAsParentField( this );
     m_fieldValue = fieldValue;
     if ( m_fieldValue != nullptr ) m_fieldValue->setAsParentField( this );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Assign a unique pointer and take ownership.
+/// This should be preferred over the method taking a raw pointer
+//--------------------------------------------------------------------------------------------------
+template <typename DataType>
+void caf::PdmChildField<DataType*>::setValue( DataTypeUniquePtr fieldValue )
+{
+    return this->setValue( fieldValue.release() );
 }
 
 } // End of namespace caf

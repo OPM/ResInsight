@@ -1,0 +1,9 @@
+{
+  "name": "SURFWNUM",
+  "sections": [
+    "REGIONS"
+  ],
+  "data": {
+    "value_type": "INT"
+  }
+}

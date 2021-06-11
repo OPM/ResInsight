@@ -2,6 +2,7 @@ name: ResInsight Build With Cache
 
 on:
   push:
+  pull_request:
   schedule:
     # Every day at 1am to make sure we have a build cache for the current date
     # build cache is 
@@ -9,8 +10,9 @@ on:
 env:
   NINJA_VERSION: 1.9.0
   BUILD_TYPE: Release
-  BUILDCACHE_VERSION: 0.18.0
+  BUILDCACHE_VERSION: 0.24.4
   BUILDCACHE_DIR: ${{ github.workspace }}/buildcache_dir
+  BUILDCACHE_ACCURACY: SLOPPY
 
 jobs:
   ResInsight-x64-buildcache:
@@ -26,37 +28,51 @@ jobs:
             environment_script: "C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/VC/Auxiliary/Build/vcvars64.bat",
             vcpkg-response-file: vcpkg_x64-windows.txt,
             vcpkg-triplet: x64-windows,
-            cmake-toolchain: 'vcpkg/scripts/buildsystems/vcpkg.cmake'
+            cmake-toolchain: 'ThirdParty/vcpkg/scripts/buildsystems/vcpkg.cmake',
+            build-python-module: true,
+            execute-unit-tests: true
           }
         - {
-            name: "Ubuntu Latest GCC",
+            name: "Ubuntu Latest gcc",
             os: ubuntu-latest,
             cc: "gcc", cxx: "g++",
             vcpkg-response-file: vcpkg_x64-linux.txt,
             vcpkg-triplet: x64-linux,
-            cmake-toolchain: 'vcpkg/scripts/buildsystems/vcpkg.cmake'
+            cmake-toolchain: 'ThirdParty/vcpkg/scripts/buildsystems/vcpkg.cmake',
+            build-python-module: true,
+            execute-unit-tests: true
           }
         - {
-            name: "Ubuntu 20.04",
-            os: ubuntu-20.04,
-            cc: "gcc", cxx: "g++",
-            vcpkg-response-file: vcpkg_x64-linux.txt,
-            vcpkg-triplet: x64-linux,
-            cmake-toolchain: 'vcpkg/scripts/buildsystems/vcpkg.cmake'
-          }
-        - {
-            name: "Ubuntu 20.04 clang",
-            os: ubuntu-20.04,
+            name: "Ubuntu Latest clang",
+            os: ubuntu-latest,
             cc: "clang", cxx: "clang++",
             vcpkg-response-file: vcpkg_x64-linux.txt,
             vcpkg-triplet: x64-linux,
-            cmake-toolchain: 'vcpkg/scripts/buildsystems/vcpkg.cmake'
+            cmake-toolchain: 'ThirdParty/vcpkg/scripts/buildsystems/vcpkg.cmake',
+            build-python-module: true,
+            execute-unit-tests: true
+          }
+        - {
+            name: "Mac OS",
+            os: macos-latest,
+            cc: "clang", cxx: "clang++",
+            vcpkg-response-file: vcpkg_x64-osx.txt,
+            vcpkg-triplet: x64-osx,
+            cmake-toolchain: 'ThirdParty/vcpkg/scripts/buildsystems/vcpkg.cmake',
+            build-python-module: false,
+            execute-unit-tests: false
           }
     steps:
       - name: Checkout
         uses: actions/checkout@v2
         with:
           submodules: true
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.8'
+      - name: Display Python version
+        run: python -c "import sys; print(sys.version)"
       - name: Download Ninja
         uses: seanmiddleditch/gha-setup-ninja@master
         with:
@@ -67,8 +83,10 @@ jobs:
         run: |
           if ("${{ runner.os }}" STREQUAL "Windows")
             set(buildcache_suffix "win-msvc.zip")
+          elseif ("${{ runner.os }}" STREQUAL "macOS")
+            set(buildcache_suffix "macos.zip")
           elseif ("${{ runner.os }}" STREQUAL "Linux")
-            set(buildcache_suffix "linux.zip")
+            set(buildcache_suffix "linux.tar.gz")
           endif()
 
           set(buildcache_version $ENV{BUILDCACHE_VERSION})
@@ -78,7 +96,7 @@ jobs:
 
           if (NOT "${{ runner.os }}" STREQUAL "Windows")
             execute_process(
-              COMMAND chmod +x bin/buildcache
+              COMMAND chmod +x buildcache/bin/buildcache
             )
           endif()
           
@@ -93,47 +111,61 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ${{ env.BUILDCACHE_DIR }}
-          key: ${{ matrix.config.name }}-cache-v02-${{ steps.cache_timestamp_string.outputs.timestamp }}
+          key: ${{ matrix.config.os }}-${{ matrix.config.cc }}-cache-v02-${{ steps.cache_timestamp_string.outputs.timestamp }}
       - name: Create Folder for buildcache
         run: New-Item ${{ env.BUILDCACHE_DIR }} -ItemType "directory" -Force 
         shell: pwsh
       - name: Add buildcache to system path
-        run: echo "${{github.workspace}}/bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8
+        run: echo "${{github.workspace}}/buildcache/bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8
         shell: pwsh
-
+        
       - name: Cache Qt        
         id: cache-qt
         uses: actions/cache@v2
         with:
           path: ${{ github.workspace }}/Qt/
-          key: ${{ matrix.config.os }}-QtCache-v02
+          key: ${{ matrix.config.os }}-QtCache-v03
       - name: Install Qt
         uses: jurplel/install-qt-action@v2
         with:
           version: 5.9.9
-          modules: qtscript 
+          modules: qtscript qtcharts
           dir: '${{ github.workspace }}/Qt/'
           cached: ${{ steps.cache-qt.outputs.cache-hit }}
-      - name: Install Python dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install grpcio-tools
-          pip install pytest
       - name: Install Linux dependencies
         if: "contains( matrix.config.os, 'ubuntu')"
         run: sudo apt-get install libxkbcommon-x11-0 libgl1-mesa-dev mesa-common-dev libglfw3-dev libglu1-mesa-dev libhdf5-dev
-      - name: Cache vcpkg artifacts
-        uses: actions/cache@v2
+      - name: Get Python executable path
+        id: python-path
+        run: echo "::set-output name=PYTHON_EXECUTABLE::$(python -c 'import sys; import pathlib; print (pathlib.PurePath(sys.executable).as_posix())')"
+      - name: Print Python path
+        run: echo ${{ steps.python-path.outputs.PYTHON_EXECUTABLE }}
+
+      - name: Set vcpkg's response file path used as part of cache's key.
+        uses: lukka/set-shell-env@master
         with:
-          path: ${{ github.workspace }}/vcpkg/
-          # Ensure the cache is invalidated any time vcpkg version changes, or a different set of packages is being used.
-          key: ${{ hashFiles( format('{0}/{1}', github.workspace, matrix.config.vcpkg-response-file )) }}-${{ hashFiles('.git/modules/vcpkg/HEAD') }}-${{ runner.os }}-v02
-      - name: Run vcpkg
-        uses: lukka/run-vcpkg@v4
+          VCPKGRESPONSEFILE: ${{ github.workspace }}/${{ matrix.config.vcpkg-response-file }}
+      - name: Restore from cache and install vcpkg
+        uses: lukka/run-vcpkg@v7
         id: runvcpkg
         with:
           vcpkgArguments: '@${{ github.workspace }}/${{ matrix.config.vcpkg-response-file }}'
-          vcpkgDirectory: '${{ github.workspace }}/vcpkg'
+          vcpkgDirectory: '${{ github.workspace }}/ThirdParty/vcpkg'
+           # Ensure the cache key changes any time the content of the response file changes.
+          appendedCacheKey: ${{ hashFiles(env.VCPKGRESPONSEFILE) }}-v01
+
+      - name: Cache dynamic version of OpenSSL (Linux)
+        if: "contains( matrix.config.os, 'ubuntu_disabled')"
+        uses: actions/cache@v2
+        with:
+          path: ${{ github.workspace }}/ThirdParty/vcpkg/installed/x64-linux-dynamic
+          key: ${{ matrix.config.os }}-vcpkg-x64-linux-dynamic_v05
+
+      - name: Install dynamic version of OpenSSL (Linux)
+        if: "contains( matrix.config.os, 'ubuntu')"
+        run: |
+          $VCPKG_ROOT/vcpkg install --overlay-triplets=${{ github.workspace }}/ThirdParty/vcpkg-custom-triplets --triplet x64-linux-dynamic openssl
+
       - name: Configure
         shell: cmake -P {0}
         run: |
@@ -156,19 +188,20 @@ jobs:
             set(path_separator ";")
           endif()
           set(ENV{PATH} "$ENV{GITHUB_WORKSPACE}${path_separator}$ENV{PATH}")
+          
           execute_process(
             COMMAND cmake
               -S .
               -B cmakebuild
               -D CMAKE_BUILD_TYPE=$ENV{BUILD_TYPE}
               -D CMAKE_INSTALL_PREFIX=cmakebuild/install
-              -D GSL_ENABLE=true
               -D RESINSIGHT_ENABLE_UNITY_BUILD=true
+              -D RESINSIGHT_BUNDLE_OPENSSL=true
               -D RESINSIGHT_INCLUDE_APPLICATION_UNIT_TESTS=true
               -D RESINSIGHT_TREAT_WARNINGS_AS_ERRORS=true
-              -D RESINSIGHT_ENABLE_GRPC=true
-              -D RESINSIGHT_GRPC_PYTHON_EXECUTABLE=python
-              -D VCPKG_TARGET_TRIPLET=${{ matrix.config.vcpkg-triplet }}
+              -D RESINSIGHT_ENABLE_GRPC=${{ matrix.config.build-python-module }}
+              -D RESINSIGHT_GRPC_PYTHON_EXECUTABLE=${{ steps.python-path.outputs.PYTHON_EXECUTABLE }}
+              -D RESINSIGHT_GRPC_DOWNLOAD_PYTHON_MODULE=true
               -D CMAKE_TOOLCHAIN_FILE=${{ matrix.config.cmake-toolchain }}
               -G Ninja
             RESULT_VARIABLE result
@@ -201,27 +234,24 @@ jobs:
           endif()
 
       - name: Stats for buildcache
-        run: ${{ github.workspace }}/bin/buildcache -s
+        run: ${{ github.workspace }}/buildcache/bin/buildcache -s
+      - name: Run Unit Tests
+        if: "matrix.config.execute-unit-tests == true"
+        shell: bash
+        run: |
+          cmakebuild/ApplicationExeCode/ResInsight --unittest
 
-      - name: (Windows) Run Unit Tests
-        if: contains( matrix.config.os, 'windows')  
-        shell: bash
-        run: |
-          cmakebuild/ApplicationCode/ResInsight --unittest
-      - name: (Linux) Run Unit Tests
-        if: "!contains( matrix.config.os, 'windows')"
-        shell: bash
-        run: |
-          cmakebuild/ApplicationCode/ResInsight --unittest
       - name: Run pytest
-        if: contains( matrix.config.os, 'windows')  
+        if: "matrix.config.build-python-module == true"
         env:
-          RESINSIGHT_EXECUTABLE: ${{ runner.workspace }}/ResInsight/cmakebuild/ApplicationCode/ResInsight.exe
+          RESINSIGHT_EXECUTABLE: ${{ runner.workspace }}/ResInsight/cmakebuild/ApplicationExeCode/ResInsight
         run: |
-          cd ApplicationCode/GrpcInterface/Python/rips
-          pytest --console
+          cd GrpcInterface/Python/rips
+          ${{ steps.python-path.outputs.PYTHON_EXECUTABLE }} -m pytest --console
+
       - name: Upload artifact
         uses: actions/upload-artifact@v2
+        if: "matrix.config.name != 'Ubuntu Latest clang'"
         with:
           name: ResInsight-${{ matrix.config.name }}
           path: ${{ runner.workspace }}/ResInsight/cmakebuild/install

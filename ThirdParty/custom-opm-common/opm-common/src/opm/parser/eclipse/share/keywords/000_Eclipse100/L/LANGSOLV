@@ -1,0 +1,21 @@
+{
+  "name": "LANGSOLV",
+  "sections": [
+    "PROPS"
+  ],
+  "size": {
+    "keyword": "REGDIMS",
+    "item": "NTCREG"
+  },
+  "items": [
+    {
+      "name": "DATA",
+      "value_type": "DOUBLE",
+      "size_type": "ALL",
+      "dimension": [
+        "Pressure",
+        "GasSurfaceVolume/Length*Length*Length"
+      ]
+    }
+  ]
+}

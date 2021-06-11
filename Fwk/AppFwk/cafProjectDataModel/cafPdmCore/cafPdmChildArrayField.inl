@@ -27,7 +27,8 @@ DataType* PdmChildArrayField<DataType*>::operator[]( size_t index ) const
 }
 
 //--------------------------------------------------------------------------------------------------
-///
+/// Assign a regular raw pointer. This method should be considered private.
+/// External use should be considered deprecated.
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
 void PdmChildArrayField<DataType*>::push_back( DataType* pointer )
@@ -35,7 +36,17 @@ void PdmChildArrayField<DataType*>::push_back( DataType* pointer )
     CAF_ASSERT( isInitializedByInitFieldMacro() );
 
     m_pointers.push_back( pointer );
-    if ( pointer ) pointer->setAsParentField( this );
+    if ( m_pointers.back() ) m_pointers.back()->setAsParentField( this );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Assign a unique pointer and take ownership.
+/// This should be preferred over the method taking a raw pointer
+//--------------------------------------------------------------------------------------------------
+template <typename DataType>
+void PdmChildArrayField<DataType*>::push_back( DataTypeUniquePtr pointer )
+{
+    this->push_back( pointer.release() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -49,7 +60,17 @@ void PdmChildArrayField<DataType*>::set( size_t index, DataType* pointer )
 
     if ( m_pointers[index] ) m_pointers[index]->removeAsParentField( this );
     m_pointers[index] = pointer;
-    if ( m_pointers[index] ) pointer->setAsParentField( this );
+    if ( m_pointers[index] ) m_pointers[index]->setAsParentField( this );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Set the value at position index to pointer, overwriting any pointer already present at that
+/// position without deleting the object pointed to.
+//--------------------------------------------------------------------------------------------------
+template <typename DataType>
+void PdmChildArrayField<DataType*>::set( size_t index, DataTypeUniquePtr pointer )
+{
+    this->set( index, pointer.release() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -63,7 +84,17 @@ void PdmChildArrayField<DataType*>::insert( size_t index, DataType* pointer )
 
     m_pointers.insert( m_pointers.begin() + index, pointer );
 
-    if ( pointer ) pointer->setAsParentField( this );
+    if ( m_pointers[index] ) m_pointers[index]->setAsParentField( this );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Insert pointer at position index, pushing the value previously at that position and all
+/// the preceding values backwards
+//--------------------------------------------------------------------------------------------------
+template <typename DataType>
+void PdmChildArrayField<DataType*>::insert( size_t index, DataTypeUniquePtr pointer )
+{
+    this->insert( index, pointer.release() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -283,6 +314,15 @@ void PdmChildArrayField<DataType*>::insertAt( int indexAfter, PdmObjectHandle* o
 
     it->setRawPtr( obj );
     obj->setAsParentField( this );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+template <typename DataType>
+void PdmChildArrayField<DataType*>::insertAt( int indexAfter, std::unique_ptr<PdmObjectHandle> obj )
+{
+    this->insertAt( indexAfter, obj.release() );
 }
 
 //--------------------------------------------------------------------------------------------------

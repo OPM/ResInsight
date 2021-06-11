@@ -1,0 +1,10 @@
+{
+  "name": "HWSOWCR",
+  "sections": [
+    "PROPS"
+  ],
+  "data": {
+    "value_type": "DOUBLE",
+    "dimension": "1"
+  }
+}

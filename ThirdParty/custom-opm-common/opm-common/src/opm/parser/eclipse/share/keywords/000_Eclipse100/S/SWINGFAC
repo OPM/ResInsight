@@ -1,0 +1,105 @@
+{
+  "name": "SWINGFAC",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "size": 1,
+  "items": [
+    {
+      "name": "SWING_FACTOR1",
+      "value_type": "DOUBLE"
+    },
+    {
+      "name": "SWING_FACTOR2",
+      "value_type": "DOUBLE"
+    },
+    {
+      "name": "SWING_FACTOR3",
+      "value_type": "DOUBLE"
+    },
+    {
+      "name": "SWING_FACTOR4",
+      "value_type": "DOUBLE"
+    },
+    {
+      "name": "SWING_FACTOR5",
+      "value_type": "DOUBLE"
+    },
+    {
+      "name": "SWING_FACTOR6",
+      "value_type": "DOUBLE"
+    },
+    {
+      "name": "SWING_FACTOR7",
+      "value_type": "DOUBLE"
+    },
+    {
+      "name": "SWING_FACTOR8",
+      "value_type": "DOUBLE"
+    },
+    {
+      "name": "SWING_FACTOR9",
+      "value_type": "DOUBLE"
+    },
+    {
+      "name": "SWING_FACTOR10",
+      "value_type": "DOUBLE"
+    },
+    {
+      "name": "SWING_FACTOR11",
+      "value_type": "DOUBLE"
+    },
+    {
+      "name": "SWING_FACTOR12",
+      "value_type": "DOUBLE"
+    },
+    {
+      "name": "PROFILE_FACTOR1",
+      "value_type": "DOUBLE"
+    },
+    {
+      "name": "PROFILE_FACTOR2",
+      "value_type": "DOUBLE"
+    },
+    {
+      "name": "PROFILE_FACTOR3",
+      "value_type": "DOUBLE"
+    },
+    {
+      "name": "PROFILE_FACTOR4",
+      "value_type": "DOUBLE"
+    },
+    {
+      "name": "PROFILE_FACTOR5",
+      "value_type": "DOUBLE"
+    },
+    {
+      "name": "PROFILE_FACTOR6",
+      "value_type": "DOUBLE"
+    },
+    {
+      "name": "PROFILE_FACTOR7",
+      "value_type": "DOUBLE"
+    },
+    {
+      "name": "PROFILE_FACTOR8",
+      "value_type": "DOUBLE"
+    },
+    {
+      "name": "PROFILE_FACTOR9",
+      "value_type": "DOUBLE"
+    },
+    {
+      "name": "PROFILE_FACTOR10",
+      "value_type": "DOUBLE"
+    },
+    {
+      "name": "PROFILE_FACTOR11",
+      "value_type": "DOUBLE"
+    },
+    {
+      "name": "PROFILE_FACTOR12",
+      "value_type": "DOUBLE"
+    }
+  ]
+}

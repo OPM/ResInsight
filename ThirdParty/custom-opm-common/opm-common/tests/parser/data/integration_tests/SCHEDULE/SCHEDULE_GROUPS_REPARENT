@@ -1,0 +1,36 @@
+START          -- Time 0
+10 MAI 2007 /
+
+RUNSPEC
+
+DIMENS
+  10 10 3  /
+
+GRID
+
+PERMX
+  300*0.25 /
+
+COPY
+  PERMX PERMY /
+  PERMX PERMZ /
+/
+
+
+SCHEDULE
+
+GRUPTREE
+ 'GROUP_BIRGER' 'GROUP_BJARNE' / -- BJARNE under FIELD, BIRGER under BJARNE
+ 'GROUP_NILS' 'GROUP_NEW' /  -- NILS under NEW, NEW should be under FIELD
+/
+
+TSTEP        -- Time 1
+ 10 / 
+
+GRUPTREE
+ 'GROUP_BIRGER' 'GROUP_NEW' /  -- Move BIRGER to NEW, i.e. NEW should now have NILS AND BIRGER, and BJARNE is childless
+/
+
+
+
+

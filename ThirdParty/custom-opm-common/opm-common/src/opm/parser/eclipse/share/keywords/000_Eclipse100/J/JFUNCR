@@ -1,0 +1,42 @@
+{
+  "name": "JFUNCR",
+  "sections": [
+    "GRID"
+  ],
+  "size": {
+    "keyword": "TABDIMS",
+    "item": "NTSFUN"
+  },
+  "items": [
+    {
+      "name": "J_FUNCTION",
+      "value_type": "STRING",
+      "default": "BOTH"
+    },
+    {
+      "name": "OIL_WAT_SURF_TENSTION",
+      "value_type": "DOUBLE"
+    },
+    {
+      "name": "OIL_GAS_SURF_TENSTION",
+      "value_type": "DOUBLE"
+    },
+    {
+      "name": "POROSITY_POWER",
+      "value_type": "DOUBLE",
+      "dimension": "1",
+      "default": 0.5
+    },
+    {
+      "name": "PERMEABILITY_POWER",
+      "value_type": "DOUBLE",
+      "dimension": "1",
+      "default": 0.5
+    },
+    {
+      "name": "PERM_DIRECTION",
+      "value_type": "STRING",
+      "default": "XY"
+    }
+  ]
+}

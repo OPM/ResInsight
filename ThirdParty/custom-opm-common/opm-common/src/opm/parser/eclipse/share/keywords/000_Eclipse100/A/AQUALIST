@@ -1,0 +1,17 @@
+{
+  "name": "AQUALIST",
+  "sections": [
+    "SOLUTION"
+  ],
+  "items": [
+    {
+      "name": "AQUIFER_LIST",
+      "value_type": "STRING"
+    },
+    {
+      "name": "LIST",
+      "value_type": "INT",
+      "size_type": "ALL"
+    }
+  ]
+}

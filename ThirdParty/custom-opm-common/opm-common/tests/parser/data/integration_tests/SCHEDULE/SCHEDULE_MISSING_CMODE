@@ -1,0 +1,31 @@
+START         
+  10 MAI 2007   /
+
+RUNSPEC
+
+DIMENS
+  10 10 3  /
+
+GRID
+
+PERMX
+  300*0.25 /
+
+COPY
+  PERMX PERMY /
+  PERMX PERMZ /
+/
+
+
+SCHEDULE
+
+WELSPECS 
+     'D-4H'        'OP'   30   37  3.33       'OIL'  7* /   
+/
+
+
+WCONPROD 
+     'D-4H'      'SHUT' 15* /
+/
+
+

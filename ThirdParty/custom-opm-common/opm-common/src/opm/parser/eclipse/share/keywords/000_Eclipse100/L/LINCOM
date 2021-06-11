@@ -1,0 +1,24 @@
+{
+  "name": "LINCOM",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "size": 1,
+  "items": [
+    {
+      "name": "ALPHA",
+      "value_type": "UDA",
+      "default": 0
+    },
+    {
+      "name": "BETA",
+      "value_type": "UDA",
+      "default": 0
+    },
+    {
+      "name": "GAMMA",
+      "value_type": "UDA",
+      "default": 0
+    }
+  ]
+}

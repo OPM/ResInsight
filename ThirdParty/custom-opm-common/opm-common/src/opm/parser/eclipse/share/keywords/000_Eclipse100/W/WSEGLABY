@@ -1,0 +1,79 @@
+{
+  "name": "WSEGLABY",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "items": [
+    {
+      "name": "WELL",
+      "value_type": "STRING"
+    },
+    {
+      "name": "SEGMENT1",
+      "value_type": "INT"
+    },
+    {
+      "name": "SEGMENT2",
+      "value_type": "INT"
+    },
+    {
+      "name": "NCONFIG",
+      "value_type": "INT"
+    },
+    {
+      "name": "CHANNELS",
+      "value_type": "INT",
+      "default": 2
+    },
+    {
+      "name": "A",
+      "value_type": "DOUBLE",
+      "default": 6e-05,
+      "dimension": "Length*Length"
+    },
+    {
+      "name": "L1",
+      "value_type": "DOUBLE",
+      "default": 0.1863,
+      "dimension": "Length"
+    },
+    {
+      "name": "L2",
+      "value_type": "DOUBLE",
+      "default": 0.2832,
+      "dimension": "Length"
+    },
+    {
+      "name": "D",
+      "value_type": "DOUBLE",
+      "default": 0.006316,
+      "dimension": "Length"
+    },
+    {
+      "name": "R",
+      "value_type": "DOUBLE",
+      "default": 1e-05,
+      "dimension": "Length"
+    },
+    {
+      "name": "GAMMA_INLET",
+      "value_type": "DOUBLE",
+      "default": 0.35
+    },
+    {
+      "name": "GAMMA_OUTLET",
+      "value_type": "DOUBLE",
+      "default": 0.5
+    },
+    {
+      "name": "GAMMA_LAB",
+      "value_type": "DOUBLE",
+      "default": 0.5
+    },
+    {
+      "name": "STATUS",
+      "value_type": "STRING",
+      "default": "OPEN"
+    }
+  ]
+}

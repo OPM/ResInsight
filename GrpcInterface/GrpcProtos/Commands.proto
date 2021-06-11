@@ -1,0 +1,450 @@
+syntax = "proto3";
+
+import "Case.proto";
+import "Definitions.proto";
+import "PdmObject.proto";
+
+package rips;
+
+/*
+ * The Commands service handles generic ResInsight RicfCommandObject-commands
+ * The CommandParams is used to deduce command name from the chosen oneof-message
+ * .. and the parameters are in the oneof-message itself.
+ * Note that we several times duplicate nearly the same message. This is because
+ * it is not recommended to reuse existing messages for different purposes.
+ */
+service Commands
+{
+	rpc Execute(CommandParams) returns(CommandReply) {}
+}
+
+message FilePathRequest
+{
+	string path = 1;
+}
+
+message ReplaceCaseRequest
+{
+	string newGridFile = 1;
+	int32  caseId      = 2;
+}
+
+message ReplaceCaseRequests
+{
+	repeated ReplaceCaseRequest casePairs = 1;
+}
+
+message ReplaceSourceCasesRequest
+{
+	string gridListFile = 1;
+	int32 caseGroupId   = 2;
+}
+
+message ExportMultiCaseRequest
+{
+	string gridListFile = 1;
+}
+
+enum PlotOutputFormat
+{
+	PNG = 0;
+	PDF = 1;
+}
+
+enum SnapshotType
+{
+	VIEWS = 0;
+	PLOTS = 1;
+	ALL   = 2;
+}
+
+message ExportSnapshotsRequest
+{
+	SnapshotType type                 = 1;
+	string                     prefix = 2;
+	int32                      caseId = 3;
+	int32                      viewId = 4;
+	string               exportFolder = 5;
+	PlotOutputFormat plotOutputFormat = 6;
+}
+
+message ExportPropertyRequest
+{
+	int32 caseId          = 1;
+	int32 timeStep        = 2;
+	string property       = 3;
+	string eclipseKeyword = 4;
+	double undefinedValue = 5;
+	string exportFile     = 6;
+}
+
+message ExportPropertyInViewsRequest
+{
+	int32            caseId = 1;
+	repeated int32  viewIds = 2;
+	double   undefinedValue = 3;
+}
+
+enum CompdatExportSplit
+{
+	UNIFIED_FILE                      = 0;
+	SPLIT_ON_WELL                     = 1;
+	SPLIT_ON_WELL_AND_COMPLETION_TYPE = 2;
+}
+
+enum CompdatExportType
+{
+	TRANSMISSIBILITIES                     = 0;
+	WPIMULT_AND_DEFAULT_CONNECTION_FACTORS = 1;
+	NO_COMPLETIONS                         = 2;
+}
+
+enum CompdatCombinationMode
+{
+	INDIVIDUALLY = 0;
+	COMBINED     = 1;
+}
+
+message ExportWellPathCompRequest 
+{
+	int32 caseId                           = 1;
+	int32 timeStep                         = 2;
+	repeated string wellPathNames          = 3;
+	CompdatExportSplit fileSplit           = 4;
+	CompdatExportType compdatExport        = 5;
+	bool includePerforations               = 6;
+	bool includeFishbones                  = 7;
+	bool excludeMainBoreForFishbones       = 8;
+	CompdatCombinationMode combinationMode = 9;
+	string customFileName                  = 10;
+	bool exportComments                    = 11;
+	bool exportWelspec                     = 12;
+}
+
+message ExportSimWellPathFracRequest
+{
+	int32 caseId                        = 1;
+	int32 viewId                        = 2;
+	int32 timeStep                      = 3;
+	repeated string simulationWellNames = 4;
+	CompdatExportSplit fileSplit        = 5;
+	CompdatExportType  compdatExport    = 6;
+}
+
+message ExportMswRequest
+{
+	int32 caseId    = 1;
+	string wellPath = 2;
+}
+
+message ExportWellPathRequest
+{
+	repeated string wellPathNames = 1;
+	double             mdStepSize = 2;
+}
+
+message ExportVisibleCellsRequest
+{
+	int32 caseId                  = 1;
+	int32 viewId                  = 2;
+	string exportKeyword          = 3;
+	int32 visibleActiveCellsValue = 4;
+	int32 hiddenActiveCellsValue  = 5;
+	int32 inactiveCellsValue      = 6;
+}
+
+enum ExportFolderType {
+	COMPLETIONS = 0;
+	SNAPSHOTS   = 1;
+	PROPERTIES  = 2;
+	STATISTICS  = 3;
+	WELLPATHS   = 4;
+	CELLS       = 5;
+	LGRS        = 6;
+}
+
+message SetExportFolderRequest
+{
+	ExportFolderType type = 1;
+	string path           = 2;
+	bool createFolder     = 3;
+}
+
+message RunOctaveScriptRequest
+{
+	string path            = 1;
+	repeated int32 caseIds = 2;
+}
+
+message SetWindowSizeParams
+{
+	int32 height = 1;
+	int32 width  = 2;
+}
+
+message ComputeCaseGroupStatRequest
+{
+	repeated int32 caseIds = 1;
+	int32      caseGroupId = 2;
+}
+
+message SetTimeStepParams
+{
+	int32 caseId   = 1;
+	int32 viewId   = 2;
+	int32 timeStep = 3;
+}
+
+message ScaleFractureTemplateRequest
+{
+	int32  id          = 1;
+	double halfLength  = 2;
+	double height      = 3;
+}
+
+message SetFracContainmentRequest
+{
+	int32 id        = 1;
+	int32 topLayer  = 2;
+	int32 baseLayer = 3;
+}
+
+enum MultipleFracAction
+{
+	NONE              = 0;
+	APPEND_FRACTURES  = 1;
+	REPLACE_FRACTURES = 2;
+}
+
+message CreateMultipleFracRequest
+{
+	int32 caseId                  = 1;
+	int32 templateId              = 2;
+	repeated string wellPathNames = 3;
+	double minDistFromWellTd      = 4;
+	int32 maxFracturesPerWell     = 5;
+	int32 topLayer                = 6;
+	int32 baseLayer               = 7;
+	int32 spacing                 = 8;
+	MultipleFracAction action     = 9;
+}
+
+enum LgrSplitType
+{
+	LGR_PER_CELL       = 0;
+    LGR_PER_COMPLETION = 1;
+    LGR_PER_WELL       = 2;
+}
+
+message CreateLgrForCompRequest
+{
+	int32 caseId                  = 1;
+	int32 timeStep                = 2;
+	repeated string wellPathNames = 3;
+	int32 refinementI             = 4;
+	int32 refinementJ             = 5;
+	int32 refinementK             = 6;
+	LgrSplitType splitType        = 7;
+}
+
+message CreateSatPressPlotRequest
+{
+	repeated int32 caseIds = 1;
+}
+
+message CreateGridCaseGroupRequest
+{
+	repeated string casePaths = 1;
+}
+
+message CreateStatisticsCaseRequest
+{
+	int32 caseGroupId = 1;
+}
+
+message ExportFlowInfoRequest
+{
+	int32 caseId                = 1;
+	repeated int32 timeSteps    = 2;
+	repeated string injectors   = 3;
+	repeated string producers   = 4;
+	string fileName             = 5;
+	double minimumCommunication = 6;
+	double aquiferCellThreshold = 7;
+}
+
+message CreateViewRequest
+{
+	int32 caseId = 1;
+}
+
+message CloneViewRequest
+{
+	int32 viewId = 1;
+}
+
+message CreateWbsPlotRequest
+{
+	int32 caseId            = 1;
+	string wellPath         = 2;
+	int32 timeStep          = 3;
+	PdmObject wbsParameters = 4;
+}
+
+message ImportWellPathsRequest
+{
+	string wellPathFolder         = 1;
+	repeated string wellPathFiles = 2;
+}
+
+message ImportWellLogFilesRequest
+{
+	string         wellLogFolder = 1;
+	repeated string wellLogFiles = 2;
+}
+
+message ImportFormationNamesRequest
+{
+	repeated string formationFiles = 1;
+	int32            applyToCaseId = 2;
+}
+
+enum ExportFormat
+{
+	LAS   = 0;
+	ASCII = 1;
+}
+
+message ExportWellLogPlotDataRequest
+{
+	ExportFormat exportFormat = 1;
+	int32 viewId              = 2;
+	string exportFolder       = 3;
+	string filePrefix         = 4;
+	bool exportTvdRkb         = 5;
+	bool capitalizeFileNames  = 6;
+	double resampleInterval   = 7;
+	bool convertCurveUnits    = 8;
+}
+
+message ExportContourMapToTextRequest
+{
+        string exportFileName       = 1;
+        bool exportLocalCoordinates = 2;
+        string undefinedValueLabel  = 3;
+        bool excludeUndefinedValues = 4;
+        int32 viewId                = 5;
+}
+
+message SaveProjectRequest
+{
+        string filePath       = 1;
+}
+
+/* CommandParams handles both command name and parameters in one.
+ * The message type and content is used as parameters and
+ * the name of the variable is used to find the command name. */
+message CommandParams
+{
+	/* Since only one of these oneof-parameters can be set, we know which
+	 * command to run from the name of parameter. I.e. if openProject is set
+	 * we will run the RicfOpenProject command with the parameters set in
+	 * the FilePathRequest message. */
+	oneof params
+	{
+		FilePathRequest               openProject                      = 1;
+		Empty                         closeProject                     = 2;
+		FilePathRequest               setStartDir                      = 3;
+		FilePathRequest               loadCase                         = 4;
+		ReplaceCaseRequest            replaceCase                      = 5;
+		ReplaceSourceCasesRequest     replaceSourceCases               = 6;
+		ExportMultiCaseRequest        exportMultiCaseSnapshots         = 7;
+		ExportSnapshotsRequest        exportSnapshots                  = 8;
+		ExportPropertyRequest         exportProperty                   = 9;
+		ExportPropertyInViewsRequest  exportPropertyInViews            = 10;
+		ExportWellPathCompRequest     exportWellPathCompletions        = 11;
+		ExportSimWellPathFracRequest  exportSimWellFractureCompletions = 12;
+		ExportMswRequest              exportMsw                        = 13;
+		ExportWellPathRequest         exportWellPaths                  = 14;
+		ExportVisibleCellsRequest     exportVisibleCells               = 15;
+		SetExportFolderRequest        setExportFolder                  = 16;
+		RunOctaveScriptRequest        runOctaveScript                  = 17;
+		SetWindowSizeParams           setMainWindowSize                = 18;
+		ComputeCaseGroupStatRequest   computeCaseGroupStatistics       = 19;
+		SetTimeStepParams             setTimeStep                      = 20;
+		ScaleFractureTemplateRequest  scaleFractureTemplate            = 21;
+		SetFracContainmentRequest     setFractureContainment           = 22;
+		CreateMultipleFracRequest     createMultipleFractures          = 23;
+		CreateLgrForCompRequest       createLgrForCompletions          = 24;
+		CreateSatPressPlotRequest     createSaturationPressurePlots    = 25;		
+		ReplaceCaseRequests           replaceMultipleCases             = 26;
+		CreateGridCaseGroupRequest    createGridCaseGroup              = 27;
+		CreateStatisticsCaseRequest   createStatisticsCase             = 28;
+		ExportFlowInfoRequest         exportFlowCharacteristics        = 29;
+		CreateViewRequest             createView                       = 30;
+		CloneViewRequest              cloneView                        = 31;
+		CreateWbsPlotRequest          createWellBoreStabilityPlot      = 32;
+		ImportWellPathsRequest        importWellPaths                  = 33;
+		ImportWellLogFilesRequest     importWellLogFiles               = 34;
+		ImportFormationNamesRequest   importFormationNames             = 35;
+		ExportWellLogPlotDataRequest  exportWellLogPlotData            = 36;
+		SetWindowSizeParams           setPlotWindowSize                = 37;
+		ExportContourMapToTextRequest exportContourMapToText           = 38;
+		SaveProjectRequest 			  saveProject           		   = 39;
+	}
+}
+
+message GridCaseGroupResult
+{
+	int32  groupId   = 1;
+	string groupName = 2;
+}
+
+message CreateStatisticsCaseResult
+{
+	int32 caseId = 1;
+}
+
+message CreateViewResult
+{
+	int32 viewId = 1;
+}
+
+message CreateWbsPlotResult
+{
+	int32 viewId = 1;
+}
+
+message ImportWellPathsResult
+{
+	repeated string wellPathNames = 1;
+}
+
+message ImportWellLogFilesResult
+{
+	repeated string wellPathNames = 1;
+}
+
+message ExportWellLogPlotDataResult
+{
+	repeated string exportedFiles = 1;
+}
+
+/* Command reply handles the return values for the generic command
+ * The name of the variable is used to map to the cafPdmObject classKeyword */
+message CommandReply
+{
+	oneof result
+	{
+		Empty                                       emptyResult = 1;
+		CaseRequest                              loadCaseResult = 2;
+		GridCaseGroupResult           createGridCaseGroupResult = 3;
+		CreateStatisticsCaseResult   createStatisticsCaseResult = 4;
+		CreateViewResult                       createViewResult = 5;
+		CreateWbsPlotResult                 createWbsPlotResult = 6;
+		ImportWellPathsResult             importWellPathsResult = 7;
+		ImportWellLogFilesResult       importWellLogFilesResult = 8;
+		ExportWellLogPlotDataResult exportWellLogPlotDataResult = 9; 
+	}
+}
+

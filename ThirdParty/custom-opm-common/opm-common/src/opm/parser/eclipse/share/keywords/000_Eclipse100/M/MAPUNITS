@@ -1,0 +1,14 @@
+{
+  "name": "MAPUNITS",
+  "sections": [
+    "GRID"
+  ],
+  "size": 1,
+  "items": [
+    {
+      "name": "UNIT",
+      "value_type": "STRING",
+      "default": "METRES"
+    }
+  ]
+}

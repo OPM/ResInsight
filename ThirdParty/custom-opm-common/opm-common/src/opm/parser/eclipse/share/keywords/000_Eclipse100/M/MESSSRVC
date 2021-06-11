@@ -1,0 +1,14 @@
+{
+  "name": "MESSSRVC",
+  "sections": [
+    "RUNSPEC"
+  ],
+  "size": 1,
+  "items": [
+    {
+      "name": "PRODUCE_MESSAGE",
+      "value_type": "STRING",
+      "default": "ON"
+    }
+  ]
+}

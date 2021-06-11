@@ -1,0 +1,27 @@
+{
+  "name": "GRUPRIG",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "items": [
+    {
+      "name": "GROUP",
+      "value_type": "STRING"
+    },
+    {
+      "name": "WORKOVER_RIG_NUM",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "DRILLING_RIG_NUM",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "ADD_OR_REMOVE",
+      "value_type": "STRING",
+      "default": "ADD"
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "name": "WPOTCALC",
+  "size": 1,
+  "sections": [
+    "RUNSPEC"
+  ],
+  "items": [
+    {
+      "name": "FORCE_CALC",
+      "value_type": "STRING",
+      "default": "YES"
+    },
+    {
+      "name": "USE_SEGMENT_VOLUMES",
+      "value_type": "STRING",
+      "default": "NO"
+    }
+  ]
+}

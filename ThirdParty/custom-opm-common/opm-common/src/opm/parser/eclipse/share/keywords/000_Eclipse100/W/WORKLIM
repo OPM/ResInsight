@@ -1,0 +1,13 @@
+{
+  "name": "WORKLIM",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "size": 1,
+  "items": [
+    {
+      "name": "LIMIT",
+      "value_type": "DOUBLE"
+    }
+  ]
+}

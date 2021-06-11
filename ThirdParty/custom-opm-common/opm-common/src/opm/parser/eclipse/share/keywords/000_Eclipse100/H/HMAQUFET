@@ -1,0 +1,27 @@
+{
+  "name": "HMAQUFET",
+  "sections": [
+    "SOLUTION"
+  ],
+  "items": [
+    {
+      "name": "AQUIFER_ID",
+      "value_type": "INT"
+    },
+    {
+      "name": "DERIVATIES_RESP_WAT_VOL_MULT",
+      "value_type": "STRING",
+      "default": "NO"
+    },
+    {
+      "name": "DERIVATIES_RESP_AQUIFER_PROD_INDEX_MULT",
+      "value_type": "STRING",
+      "default": "NO"
+    },
+    {
+      "name": "DERIVATIES_RESP_AQUIFER_DEPTH",
+      "value_type": "STRING",
+      "default": "NO"
+    }
+  ]
+}

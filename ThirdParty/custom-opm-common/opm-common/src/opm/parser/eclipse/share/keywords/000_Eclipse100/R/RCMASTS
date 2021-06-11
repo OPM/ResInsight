@@ -1,0 +1,14 @@
+{
+  "name": "RCMASTS",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "size": 1,
+  "items": [
+    {
+      "name": "MIN_TSTEP",
+      "value_type": "DOUBLE",
+      "dimension": "Time"
+    }
+  ]
+}

@@ -1,0 +1,7 @@
+{
+  "name": "TRNHD",
+  "sections": [
+    "PROPS"
+  ],
+  "deck_name_regex": "TRNHD.+"
+}

@@ -1,0 +1,34 @@
+{
+  "name": "TUNINGH",
+  "size": 1,
+  "sections": [
+    "SCHEDULE"
+  ],
+  "items": [
+    {
+      "name": "GRGLCV",
+      "value_type": "DOUBLE",
+      "default": 0.0001
+    },
+    {
+      "name": "GXXLCV",
+      "value_type": "DOUBLE",
+      "default": 0.001
+    },
+    {
+      "name": "GMSLCV",
+      "value_type": "DOUBLE",
+      "default": 1e-20
+    },
+    {
+      "name": "LGTMIN",
+      "value_type": "INT",
+      "default": 1
+    },
+    {
+      "name": "LGTMAX",
+      "value_type": "INT",
+      "default": 25
+    }
+  ]
+}

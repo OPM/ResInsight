@@ -1,0 +1,10 @@
+{
+  "name": "MULTSIGV",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "data": {
+    "value_type": "DOUBLE",
+    "dimension": "1"
+  }
+}

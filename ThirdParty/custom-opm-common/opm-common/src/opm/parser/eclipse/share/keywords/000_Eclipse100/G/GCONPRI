@@ -1,0 +1,101 @@
+{
+  "name": "GCONPRI",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "items": [
+    {
+      "name": "GROUP",
+      "value_type": "STRING"
+    },
+    {
+      "name": "OIL_PROD_UPPER_LIMIT",
+      "value_type": "UDA",
+      "dimension": "LiquidSurfaceVolume/Time",
+      "default": 1e+200
+    },
+    {
+      "name": "PROCEDURE_OIL_LIMIT",
+      "value_type": "STRING",
+      "default": "NONE"
+    },
+    {
+      "name": "WAT_PROD_UPPER_LIMIT",
+      "value_type": "UDA",
+      "dimension": "LiquidSurfaceVolume/Time",
+      "default": 1e+200
+    },
+    {
+      "name": "PROCEDURE_WAT_LIMIT",
+      "value_type": "STRING",
+      "default": "NONE"
+    },
+    {
+      "name": "GAS_PROD_UPPER_LIMIT",
+      "value_type": "UDA",
+      "dimension": "GasSurfaceVolume/Time",
+      "default": 1e+200
+    },
+    {
+      "name": "PROCEDURE_GAS_LIMIT",
+      "value_type": "STRING",
+      "default": "NONE"
+    },
+    {
+      "name": "LIQ_PROD_UPPER_LIMIT",
+      "value_type": "UDA",
+      "dimension": "LiquidSurfaceVolume/Time",
+      "default": 1e+200
+    },
+    {
+      "name": "PROCEDURE_LIQ_LIMIT",
+      "value_type": "STRING",
+      "default": "NONE"
+    },
+    {
+      "name": "RES_FLUID_PROD_UPPER_LIMIT",
+      "value_type": "UDA",
+      "dimension": "ReservoirVolume/Time",
+      "default": 1e+200
+    },
+    {
+      "name": "RES_VOL_BALANCING_FRAC_UPPER_LIMIT",
+      "value_type": "UDA",
+      "dimension": "1",
+      "default": 1e+200
+    },
+    {
+      "name": "WET_GAS_PROD_UPPER_LIMIT",
+      "value_type": "UDA",
+      "dimension": "GasSurfaceVolume/Time",
+      "default": 1e+200
+    },
+    {
+      "name": "PROCEDURE_WET_GAS_LIMIT",
+      "value_type": "STRING",
+      "default": "NONE"
+    },
+    {
+      "name": "SURF_GAS_BALANCING_FRAC_UPPER_LIMIT",
+      "value_type": "UDA",
+      "dimension": "1",
+      "default": 1e+200
+    },
+    {
+      "name": "SURF_WAT_BALANCING_FRAC_UPPER_LIMIT",
+      "value_type": "UDA",
+      "dimension": "1",
+      "default": 1e+200
+    },
+    {
+      "name": "UPPER_LIMIT",
+      "value_type": "UDA",
+      "default": 1e+200
+    },
+    {
+      "name": "PROCEDURE_LIMIT",
+      "value_type": "STRING",
+      "default": "NONE"
+    }
+  ]
+}

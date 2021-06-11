@@ -1,0 +1,17 @@
+{
+  "name": "WALKALIN",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "items": [
+    {
+      "name": "WELL",
+      "value_type": "STRING"
+    },
+    {
+      "name": "ALKALINE_CONCENTRAION",
+      "value_type": "UDA",
+      "dimension": "Mass/LiquidSurfaceVolume"
+    }
+  ]
+}

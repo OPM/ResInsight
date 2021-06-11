@@ -1,0 +1,35 @@
+name: cmake-format
+
+on: [push]
+
+jobs:
+  cmake-format-job:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Install cmakelang for cmake-format
+      run: |
+        python3 -m pip install --user cmakelang
+    - uses: actions/checkout@v2
+    - name: Check format - ApplicationLibCode
+      run: |
+        ~/.local/bin/cmake-format -c ${{ github.workspace }}/cmake/cmake-format.py -i CMakeLists.txt
+
+        cd ApplicationLibCode
+        find -name CMake*.txt | xargs ~/.local/bin/cmake-format -c ${{ github.workspace }}/cmake/cmake-format.py -i
+        cd ..
+
+        cd ApplicationExeCode
+        find -name CMake*.txt | xargs ~/.local/bin/cmake-format -c ${{ github.workspace }}/cmake/cmake-format.py -i
+        cd ..
+
+        cd Fwk/AppFwk
+        find -name CMake*.txt | xargs ~/.local/bin/cmake-format -c ${{ github.workspace }}/cmake/cmake-format.py -i
+        cd ..
+
+        git diff
+    - uses: peter-evans/create-pull-request@v3
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        commit-message: 'Fixes by cmake-format'
+        title: 'Fixes by cmake-format'
+        branch: cmake-format-patches

@@ -1,0 +1,31 @@
+{
+  "name": "PVZG",
+  "sections": [
+    "PROPS"
+  ],
+  "size": {
+    "keyword": "TABDIMS",
+    "item": "NTPVT"
+  },
+  "alternating_records": [
+    [
+      {
+        "name": "REF_TEMP",
+        "value_type": "DOUBLE",
+        "dimension": "Temperature"
+      }
+    ],
+    [
+      {
+        "name": "table",
+        "value_type": "DOUBLE",
+        "size_type": "ALL",
+        "dimension": [
+          "Pressure",
+          "1",
+          "Viscosity"
+        ]
+      }
+    ]
+  ]
+}

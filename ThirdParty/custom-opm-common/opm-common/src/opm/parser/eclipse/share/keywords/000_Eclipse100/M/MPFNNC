@@ -1,0 +1,58 @@
+{
+  "name": "MPFNNC",
+  "sections": [
+    "GRID"
+  ],
+  "records_set": [
+    [
+      {
+        "name": "IX",
+        "value_type": "INT"
+      },
+      {
+        "name": "IY",
+        "value_type": "INT"
+      },
+      {
+        "name": "IZ",
+        "value_type": "INT"
+      },
+      {
+        "name": "JX",
+        "value_type": "INT"
+      },
+      {
+        "name": "JY",
+        "value_type": "INT"
+      },
+      {
+        "name": "JZ",
+        "value_type": "INT"
+      },
+      {
+        "name": "TRANP",
+        "value_type": "DOUBLE",
+        "dimension": "Transmissibility"
+      }
+    ],
+    [
+      {
+        "name": "KX",
+        "value_type": "INT"
+      },
+      {
+        "name": "KY",
+        "value_type": "INT"
+      },
+      {
+        "name": "KZ",
+        "value_type": "INT"
+      },
+      {
+        "name": "TRANS",
+        "value_type": "DOUBLE",
+        "dimension": "Transmissibility"
+      }
+    ]
+  ]
+}

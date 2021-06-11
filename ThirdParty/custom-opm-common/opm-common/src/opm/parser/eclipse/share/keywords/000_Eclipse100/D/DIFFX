@@ -1,0 +1,10 @@
+{
+  "name": "DIFFX",
+  "sections": [
+    "EDIT"
+  ],
+  "data": {
+    "value_type": "DOUBLE",
+    "dimension": "Length"
+  }
+}

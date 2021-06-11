@@ -1,0 +1,14 @@
+{
+  "name": "EXCAVATE",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "size": 1,
+  "items": [
+    {
+      "name": "DATA",
+      "value_type": "INT",
+      "size_type": "ALL"
+    }
+  ]
+}

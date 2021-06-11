@@ -115,14 +115,8 @@ cvf::ref<cvf::OpenGLContextGroup> caf::Viewer::sm_openGLContextGroup;
 ///
 //--------------------------------------------------------------------------------------------------
 caf::Viewer::Viewer( const QGLFormat& format, QWidget* parent )
-#if QT_VERSION >= 0x050000
     : caf::OpenGLWidget( contextGroup(), format, nullptr, sharedWidget() )
-    ,
-#else
-    : caf::OpenGLWidget( contextGroup(), format, new QWidget( parent ), sharedWidget() )
-    ,
-#endif
-    m_navigationPolicy( nullptr )
+    , m_navigationPolicy( nullptr )
     , m_navigationPolicyEnabled( true )
     , m_defaultPerspectiveNearPlaneDistance( 0.05 )
     , m_maxClipPlaneDistance( cvf::UNDEFINED_DOUBLE )
@@ -139,11 +133,7 @@ caf::Viewer::Viewer( const QGLFormat& format, QWidget* parent )
     , m_isComparisonFollowingAnimation( true )
     , m_isComparisonViewActiveFlag( false )
 {
-#if QT_VERSION >= 0x050000
     m_layoutWidget = new QWidget( parent );
-#else
-    m_layoutWidget = parentWidget();
-#endif
 
     QHBoxLayout* layout = new QHBoxLayout( m_layoutWidget );
 
@@ -598,7 +588,6 @@ bool caf::Viewer::calculateNearFarPlanes( const cvf::Rendering* rendering,
 //--------------------------------------------------------------------------------------------------
 bool caf::Viewer::event( QEvent* e )
 {
-#if QT_VERSION >= 0x050000
     // The most reliable way we have found of detecting when an OpenGL context is about to be destroyed is
     // hooking into the QEvent::PlatformSurface event and checking for the SurfaceAboutToBeDestroyed event type.
     // From the Qt doc:
@@ -613,7 +602,6 @@ bool caf::Viewer::event( QEvent* e )
             cvfShutdownOpenGLContext();
         }
     }
-#endif
 
     if ( e && m_navigationPolicy.notNull() && m_navigationPolicyEnabled )
     {
@@ -857,10 +845,7 @@ void caf::Viewer::paintEvent( QPaintEvent* event )
         m_overlayImage->setPixelSize( cvf::Vec2ui( this->width(), this->height() ) );
     }
 
-#if QT_VERSION >= 0x040600
-    // Qt 4.6
     painter.beginNativePainting();
-#endif
 
     if ( isShadersSupported() )
     {
@@ -897,10 +882,7 @@ void caf::Viewer::paintEvent( QPaintEvent* event )
         cvfqt::OpenGLContext::restoreOpenGLState( myOglContext.p() );
     }
 
-#if QT_VERSION >= 0x040600
-    // Qt 4.6
     painter.endNativePainting();
-#endif
 }
 
 //--------------------------------------------------------------------------------------------------

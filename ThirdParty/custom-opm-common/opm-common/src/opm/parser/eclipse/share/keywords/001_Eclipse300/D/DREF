@@ -1,0 +1,21 @@
+{
+  "name": "DREF",
+  "sections": [
+    "PROPS"
+  ],
+  "size": {
+    "keyword": "TABDIMS",
+    "item": "NUM_STATE_EQ"
+  },
+  "comment": "and this also cannot (yet?) be specified.",
+  "items": [
+    {
+      "name": "DENSITY",
+      "value_type": "DOUBLE",
+      "size_type": "ALL",
+      "dimension": [
+        "Density"
+      ]
+    }
+  ]
+}

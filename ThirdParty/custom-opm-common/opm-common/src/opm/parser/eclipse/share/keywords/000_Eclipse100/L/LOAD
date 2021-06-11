@@ -1,0 +1,32 @@
+{
+  "name": "LOAD",
+  "sections": [
+    "RUNSPEC"
+  ],
+  "size": 1,
+  "items": [
+    {
+      "name": "FILE",
+      "value_type": "STRING"
+    },
+    {
+      "name": "REPORT_STEP",
+      "value_type": "INT"
+    },
+    {
+      "name": "NOSIM",
+      "value_type": "STRING",
+      "default": "SIM"
+    },
+    {
+      "name": "FORMATTED",
+      "value_type": "STRING",
+      "default": "UNFORMATTED"
+    },
+    {
+      "name": "REQUEST_SAVE_OUTPUT",
+      "value_type": "STRING",
+      "default": "NO"
+    }
+  ]
+}

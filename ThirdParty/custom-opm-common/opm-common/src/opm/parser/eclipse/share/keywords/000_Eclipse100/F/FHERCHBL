@@ -1,0 +1,23 @@
+{
+  "name": "FHERCHBL",
+  "sections": [
+    "PROPS"
+  ],
+  "size": {
+    "keyword": "NNEWTF",
+    "item": "NTHRBL"
+  },
+  "items": [
+    {
+      "name": "DATA",
+      "value_type": "DOUBLE",
+      "size_type": "ALL",
+      "dimension": [
+        "Density",
+        "1",
+        "1",
+        "Pressure"
+      ]
+    }
+  ]
+}

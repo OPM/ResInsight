@@ -1,0 +1,16 @@
+{
+  "name": "WELEVNT",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "items": [
+    {
+      "name": "WELL",
+      "value_type": "STRING"
+    },
+    {
+      "name": "WPWEM_VALUE",
+      "value_type": "INT"
+    }
+  ]
+}

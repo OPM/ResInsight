@@ -82,6 +82,8 @@ CmdFeatureMenuBuilder& CmdFeatureMenuBuilder::operator<<( const QString& command
 //--------------------------------------------------------------------------------------------------
 CmdFeatureMenuBuilder& CmdFeatureMenuBuilder::addCmdFeature( const QString commandId, const QString& uiText )
 {
+    CAF_ASSERT( !commandId.isEmpty() );
+
     MenuItem i;
     i.itemType = MenuItem::COMMAND;
     i.itemName = commandId;

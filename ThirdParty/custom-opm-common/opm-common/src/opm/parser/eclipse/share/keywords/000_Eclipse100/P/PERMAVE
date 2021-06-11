@@ -1,0 +1,24 @@
+{
+  "name": "PERMAVE",
+  "sections": [
+    "GRID"
+  ],
+  "size": 1,
+  "items": [
+    {
+      "name": "EXPO_0",
+      "value_type": "INT",
+      "default": -1
+    },
+    {
+      "name": "EXPO_1",
+      "value_type": "INT",
+      "default": -1
+    },
+    {
+      "name": "EXPO_2",
+      "value_type": "INT",
+      "default": -1
+    }
+  ]
+}

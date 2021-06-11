@@ -1,0 +1,32 @@
+{
+  "name": "PLYVMH",
+  "sections": [
+    "PROPS"
+  ],
+  "size": {
+    "keyword": "REGDIMS",
+    "item": "NPLMIX"
+  },
+  "items": [
+    {
+      "name": "K_MH",
+      "value_type": "DOUBLE",
+      "dimension": "1"
+    },
+    {
+      "name": "A_MH",
+      "value_type": "DOUBLE",
+      "dimension": "1"
+    },
+    {
+      "name": "GAMMA",
+      "value_type": "DOUBLE",
+      "dimension": "1"
+    },
+    {
+      "name": "KAPPA",
+      "value_type": "DOUBLE",
+      "dimension": "1"
+    }
+  ]
+}

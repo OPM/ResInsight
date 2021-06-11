@@ -1,0 +1,49 @@
+{
+  "name": "COMPFLSH",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "items": [
+    {
+      "name": "WELL",
+      "value_type": "STRING"
+    },
+    {
+      "name": "I",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "J",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "UPPER_K",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "LOWER_K",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "F1",
+      "value_type": "DOUBLE",
+      "dimension": "1",
+      "default": 1
+    },
+    {
+      "name": "F2",
+      "value_type": "DOUBLE",
+      "dimension": "1",
+      "default": 1
+    },
+    {
+      "name": "FLASH_PVTNUM",
+      "value_type": "INT",
+      "default": 0
+    }
+  ]
+}

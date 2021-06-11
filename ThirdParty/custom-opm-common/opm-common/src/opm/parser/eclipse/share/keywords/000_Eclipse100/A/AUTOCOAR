@@ -1,0 +1,44 @@
+{
+  "name": "AUTOCOAR",
+  "sections": [
+    "GRID"
+  ],
+  "items": [
+    {
+      "name": "I1",
+      "value_type": "INT"
+    },
+    {
+      "name": "I2",
+      "value_type": "INT"
+    },
+    {
+      "name": "J1",
+      "value_type": "INT"
+    },
+    {
+      "name": "J2",
+      "value_type": "INT"
+    },
+    {
+      "name": "K1",
+      "value_type": "INT"
+    },
+    {
+      "name": "K2",
+      "value_type": "INT"
+    },
+    {
+      "name": "NX",
+      "value_type": "INT"
+    },
+    {
+      "name": "NY",
+      "value_type": "INT"
+    },
+    {
+      "name": "NZ",
+      "value_type": "INT"
+    }
+  ]
+}

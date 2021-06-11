@@ -1,0 +1,41 @@
+{
+  "name": "COMPLMPL",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "items": [
+    {
+      "name": "WELL",
+      "value_type": "STRING"
+    },
+    {
+      "name": "GRID",
+      "value_type": "STRING",
+      "default": ""
+    },
+    {
+      "name": "I",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "J",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "UPPER_K",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "LOWER_K",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "COMPLETION_NUMBER",
+      "value_type": "INT"
+    }
+  ]
+}

@@ -1,0 +1,74 @@
+{
+  "name": "RAINFALL",
+  "sections": [
+    "SOLUTION",
+    "SCHEDULE"
+  ],
+  "size": 1,
+  "items": [
+    {
+      "name": "AQUIFER_ID",
+      "value_type": "INT"
+    },
+    {
+      "name": "JAN_FLUX",
+      "value_type": "DOUBLE",
+      "dimension": "LiquidSurfaceVolume/Time*Length*Length"
+    },
+    {
+      "name": "FEB_FLUX",
+      "value_type": "DOUBLE",
+      "dimension": "LiquidSurfaceVolume/Time*Length*Length"
+    },
+    {
+      "name": "MAR_FLUX",
+      "value_type": "DOUBLE",
+      "dimension": "LiquidSurfaceVolume/Time*Length*Length"
+    },
+    {
+      "name": "APR_FLUX",
+      "value_type": "DOUBLE",
+      "dimension": "LiquidSurfaceVolume/Time*Length*Length"
+    },
+    {
+      "name": "MAI_FLUX",
+      "value_type": "DOUBLE",
+      "dimension": "LiquidSurfaceVolume/Time*Length*Length"
+    },
+    {
+      "name": "JUN_FLUX",
+      "value_type": "DOUBLE",
+      "dimension": "LiquidSurfaceVolume/Time*Length*Length"
+    },
+    {
+      "name": "JUL_FLUX",
+      "value_type": "DOUBLE",
+      "dimension": "LiquidSurfaceVolume/Time*Length*Length"
+    },
+    {
+      "name": "AUG_FLUX",
+      "value_type": "DOUBLE",
+      "dimension": "LiquidSurfaceVolume/Time*Length*Length"
+    },
+    {
+      "name": "SEP_FLUX",
+      "value_type": "DOUBLE",
+      "dimension": "LiquidSurfaceVolume/Time*Length*Length"
+    },
+    {
+      "name": "OCT_FLUX",
+      "value_type": "DOUBLE",
+      "dimension": "LiquidSurfaceVolume/Time*Length*Length"
+    },
+    {
+      "name": "NOV_FLUX",
+      "value_type": "DOUBLE",
+      "dimension": "LiquidSurfaceVolume/Time*Length*Length"
+    },
+    {
+      "name": "DES_FLUX",
+      "value_type": "DOUBLE",
+      "dimension": "LiquidSurfaceVolume/Time*Length*Length"
+    }
+  ]
+}

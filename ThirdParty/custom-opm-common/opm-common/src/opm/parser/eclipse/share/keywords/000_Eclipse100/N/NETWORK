@@ -1,0 +1,22 @@
+{
+  "name": "NETWORK",
+  "sections": [
+    "RUNSPEC"
+  ],
+  "size": 1,
+  "items": [
+    {
+      "name": "NODMAX",
+      "value_type": "INT"
+    },
+    {
+      "name": "NBRMAX",
+      "value_type": "INT"
+    },
+    {
+      "name": "NBCMAX",
+      "value_type": "INT",
+      "default": 20
+    }
+  ]
+}

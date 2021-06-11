@@ -176,6 +176,7 @@ public:
     size_t observerCount() const { return m_observerCallbacks.size(); }
 
 private:
+    Signal()                    = delete;
     Signal( const Signal& rhs ) = delete;
     Signal& operator=( const Signal& rhs ) = delete;
 

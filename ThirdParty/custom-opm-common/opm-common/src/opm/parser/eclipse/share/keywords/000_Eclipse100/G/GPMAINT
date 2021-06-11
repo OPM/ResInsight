@@ -1,0 +1,39 @@
+{
+  "name": "GPMAINT",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "items": [
+    {
+      "name": "GROUP",
+      "value_type": "STRING"
+    },
+    {
+      "name": "FLOW_TARGET",
+      "value_type": "STRING"
+    },
+    {
+      "name": "REGION",
+      "value_type": "INT"
+    },
+    {
+      "name": "FIP_FAMILY",
+      "value_type": "STRING"
+    },
+    {
+      "name": "PRESSURE_TARGET",
+      "value_type": "DOUBLE",
+      "dimension": "Pressure"
+    },
+    {
+      "name": "PROP_CONSTANT",
+      "value_type": "DOUBLE",
+      "dimension": "ReservoirVolume/Time*Pressure"
+    },
+    {
+      "name": "TIME_CONSTANT",
+      "value_type": "DOUBLE",
+      "dimension": "Time"
+    }
+  ]
+}

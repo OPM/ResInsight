@@ -1,0 +1,22 @@
+{
+  "name": "HMRREF",
+  "sections": [
+    "PROPS"
+  ],
+  "size": {
+    "keyword": "ROCKCOMP",
+    "item": "NTROCC"
+  },
+  "items": [
+    {
+      "name": "P_REF",
+      "value_type": "DOUBLE",
+      "dimension": "Pressure"
+    },
+    {
+      "name": "P_DIM",
+      "value_type": "DOUBLE",
+      "dimension": "Pressure"
+    }
+  ]
+}

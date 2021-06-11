@@ -1,0 +1,14 @@
+{
+  "name": "GUPFREQ",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "size": 1,
+  "items": [
+    {
+      "name": "UPDATE_FREQ_TYPE",
+      "value_type": "STRING",
+      "default": "ALL"
+    }
+  ]
+}

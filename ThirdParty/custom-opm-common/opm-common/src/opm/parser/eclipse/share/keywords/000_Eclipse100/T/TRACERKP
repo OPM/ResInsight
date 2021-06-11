@@ -1,0 +1,21 @@
+{
+  "name": "TRACERKP",
+  "sections": [
+    "PROPS"
+  ],
+  "size": {
+    "keyword": "PARTTRAC",
+    "item": "NKPTMX"
+  },
+  "items": [
+    {
+      "name": "TABLE",
+      "value_type": "DOUBLE",
+      "size_type": "ALL",
+      "dimension": [
+        "Pressure",
+        "1"
+      ]
+    }
+  ]
+}

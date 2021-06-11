@@ -1,0 +1,454 @@
+{
+  "name": "DEBUG_",
+  "sections": [
+    "RUNSPEC",
+    "GRID",
+    "EDIT",
+    "PROPS",
+    "REGIONS",
+    "SOLUTION",
+    "SUMMARY",
+    "SCHEDULE"
+  ],
+  "deck_names": [
+    "DEBUG"
+  ],
+  "size": 1,
+  "items": [
+    {
+      "name": "Item1",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "Item2",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "Item3",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "Item4",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "Item5",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "Item6",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "Item7",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "Item8",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "Item9",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "Item10",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "Item11",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "Item12",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "Item13",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "Item14",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "Item15",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "Item16",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "Item17",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "Item18",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "Item19",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "Item20",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "Item21",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "Item22",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "Item23",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "Item24",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "Item25",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "Item26",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "Item27",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "Item28",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "Item29",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "Item30",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "Item31",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "Item32",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "Item33",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "Item34",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "Item35",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "Item36",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "Item37",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "Item38",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "Item39",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "Item40",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "Item41",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "Item42",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "Item43",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "Item44",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "Item45",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "Item46",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "Item47",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "Item48",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "Item49",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "Item50",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "Item51",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "Item52",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "Item53",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "Item54",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "Item55",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "Item56",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "Item57",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "Item58",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "Item59",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "Item60",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "Item61",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "Item62",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "Item63",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "Item64",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "Item65",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "Item66",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "Item67",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "Item68",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "Item69",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "Item70",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "Item71",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "Item72",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "Item73",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "Item74",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "Item75",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "Item76",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "Item77",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "Item78",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "Item79",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "Item80",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "Item81",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "Item82",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "Item83",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "Item84",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "Item85",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "Item86",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "Item87",
+      "value_type": "INT",
+      "default": 0
+    }
+  ]
+}

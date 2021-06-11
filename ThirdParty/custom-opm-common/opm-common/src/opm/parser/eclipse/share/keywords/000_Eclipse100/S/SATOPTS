@@ -1,0 +1,14 @@
+{
+  "name": "SATOPTS",
+  "sections": [
+    "RUNSPEC"
+  ],
+  "size": 1,
+  "items": [
+    {
+      "name": "options",
+      "value_type": "STRING",
+      "size_type": "ALL"
+    }
+  ]
+}

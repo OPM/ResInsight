@@ -1,0 +1,11 @@
+{
+  "name": "ACTPARAM",
+  "sections": [
+    "RUNSPEC"
+  ],
+  "size": 1,
+  "data": {
+    "value_type": "DOUBLE",
+    "default": 0.0001
+  }
+}

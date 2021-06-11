@@ -1,0 +1,57 @@
+{
+  "name": "WSEGDFPA",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "size": 1,
+  "items": [
+    {
+      "name": "GAS_LIQUID_VD_FACTOR",
+      "value_type": "DOUBLE",
+      "default": 1
+    },
+    {
+      "name": "A1",
+      "value_type": "DOUBLE"
+    },
+    {
+      "name": "A2",
+      "value_type": "DOUBLE"
+    },
+    {
+      "name": "C0_A",
+      "value_type": "DOUBLE",
+      "default": 1.2
+    },
+    {
+      "name": "C0_B",
+      "value_type": "DOUBLE"
+    },
+    {
+      "name": "FV",
+      "value_type": "DOUBLE",
+      "default": 1
+    },
+    {
+      "name": "OIL_WATER_VD_FACTOR",
+      "value_type": "DOUBLE",
+      "default": -1
+    },
+    {
+      "name": "A",
+      "value_type": "DOUBLE"
+    },
+    {
+      "name": "B1",
+      "value_type": "DOUBLE"
+    },
+    {
+      "name": "B2",
+      "value_type": "DOUBLE"
+    },
+    {
+      "name": "N",
+      "value_type": "DOUBLE"
+    }
+  ]
+}

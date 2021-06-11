@@ -1,0 +1,9 @@
+{
+  "name": "SSWU",
+  "sections": [
+    "PROPS"
+  ],
+  "data": {
+    "value_type": "DOUBLE"
+  }
+}
