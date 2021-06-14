@@ -18,26 +18,9 @@
 
 #include "RimVfpTableExtractor.h"
 
-// #include "RiaApplication.h"
-
-// #include "RimCase.h"
-// #include "RimEclipseCase.h"
-// #include "RimGeoMechCase.h"
-// #include "RimOilField.h"
-// #include "RimProject.h"
-// #include "RimWellLogFile.h"
-// #include "RimWellPath.h"
-// #include "RimWellPathCollection.h"
-
 #include "cafPdmUiItem.h"
 #include "cafUtils.h"
 
-// #include <QDateTime>
-// #include <QDir>
-// #include <QFileInfo>
-
-// #include "opm/parser/eclipse/EclipseState/Schedule/VFPInjTable.hpp"
-// #include "opm/parser/eclipse/EclipseState/Schedule/VFPProdTable.hpp"
 #include "opm/parser/eclipse/Parser/Parser.hpp"
 
 //--------------------------------------------------------------------------------------------------
@@ -47,20 +30,26 @@ std::vector<Opm::VFPInjTable> RimVfpTableExtractor::extractVfpInjectionTables( c
 {
     std::vector<Opm::VFPInjTable> tables;
 
-    Opm::Parser parser;
-    auto        deck = parser.parseFile( filename );
-
-    std::string myKeyword   = "VFPINJ";
-    auto        keywordList = deck.getKeywordList( myKeyword );
-
-    Opm::UnitSystem unitSystem;
-
-    for ( auto kw : keywordList )
+    try
     {
-        auto name = kw->name();
+        Opm::Parser parser;
+        auto        deck = parser.parseFile( filename );
 
-        Opm::VFPInjTable table( *kw, unitSystem );
-        tables.push_back( table );
+        std::string myKeyword   = "VFPINJ";
+        auto        keywordList = deck.getKeywordList( myKeyword );
+
+        Opm::UnitSystem unitSystem;
+
+        for ( auto kw : keywordList )
+        {
+            auto name = kw->name();
+
+            Opm::VFPInjTable table( *kw, unitSystem );
+            tables.push_back( table );
+        }
+    }
+    catch ( ... )
+    {
     }
 
     return tables;
@@ -73,20 +62,26 @@ std::vector<Opm::VFPProdTable> RimVfpTableExtractor::extractVfpProductionTables(
 {
     std::vector<Opm::VFPProdTable> tables;
 
-    Opm::Parser parser;
-    auto        deck = parser.parseFile( filename );
-
-    std::string myKeyword   = "VFPPROD";
-    auto        keywordList = deck.getKeywordList( myKeyword );
-
-    Opm::UnitSystem unitSystem;
-
-    for ( auto kw : keywordList )
+    try
     {
-        auto name = kw->name();
+        Opm::Parser parser;
+        auto        deck = parser.parseFile( filename );
 
-        Opm::VFPProdTable table( *kw, unitSystem );
-        tables.push_back( table );
+        std::string myKeyword   = "VFPPROD";
+        auto        keywordList = deck.getKeywordList( myKeyword );
+
+        Opm::UnitSystem unitSystem;
+
+        for ( auto kw : keywordList )
+        {
+            auto name = kw->name();
+
+            Opm::VFPProdTable table( *kw, unitSystem );
+            tables.push_back( table );
+        }
+    }
+    catch ( ... )
+    {
     }
 
     return tables;
