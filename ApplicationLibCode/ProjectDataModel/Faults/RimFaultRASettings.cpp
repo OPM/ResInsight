@@ -415,7 +415,8 @@ std::list<RimGenericParameter*> RimFaultRASettings::basicParameters( int faultID
 //--------------------------------------------------------------------------------------------------
 std::list<RimGenericParameter*> RimFaultRASettings::advancedParameters( int faultID )
 {
-    m_advancedParametersRI->setParameterValue( "eclipse_loadstep_start", loadStepStart() );
+    bool advanced = true;
+    m_advancedParametersRI->setParameterValue( "eclipse_loadstep_start", loadStepStart( advanced ) );
     m_advancedParametersRI->setParameterValue( "eclipse_loadstep_end", loadStepEnd() );
     m_advancedParametersRI->setParameterValue( "faultid_calibration", faultID );
     m_advancedParametersRI->setParameterValue( "abaqus_elastic_properties", elasticPropertiesFilename() );
@@ -505,9 +506,25 @@ QString RimFaultRASettings::advancedMacrisDatabase() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimFaultRASettings::loadStepStart() const
+int RimFaultRASettings::timeStepDigits() const
 {
-    QString retval = QString( "PRESSURE_%1" ).arg( startTimeStepEclipseIndex(), 2, 10, QChar( '0' ) );
+    if ( m_eclipseCase == nullptr ) return 1;
+
+    int timesteps = m_eclipseCase->timeStepStrings().size();
+    if ( timesteps <= 0 ) return 1;
+
+    return 1 + (int)( std::log10( 1.0 * timesteps ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimFaultRASettings::loadStepStart( bool advanced /* = false */ ) const
+{
+    int startStep = 0;
+    if ( !advanced ) startStep = startTimeStepEclipseIndex();
+
+    QString retval = QString( "PRESSURE_%1" ).arg( startStep, timeStepDigits(), 10, QChar( '0' ) );
     return retval;
 }
 
@@ -516,7 +533,7 @@ QString RimFaultRASettings::loadStepStart() const
 //--------------------------------------------------------------------------------------------------
 QString RimFaultRASettings::loadStepEnd() const
 {
-    QString retval = QString( "PRESSURE_%1" ).arg( endTimeStepEclipseIndex(), 2, 10, QChar( '0' ) );
+    QString retval = QString( "PRESSURE_%1" ).arg( endTimeStepEclipseIndex(), timeStepDigits(), 10, QChar( '0' ) );
     return retval;
 }
 

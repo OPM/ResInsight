@@ -64,7 +64,7 @@ public:
 
     int     startTimeStepEclipseIndex() const;
     QString startTimeStepEclipse() const;
-    QString loadStepStart() const;
+    QString loadStepStart( bool advanced = false ) const;
     int     endTimeStepEclipseIndex() const;
     QString endTimeStepEclipse() const;
     QString loadStepEnd() const;
@@ -95,6 +95,7 @@ protected:
 
 private:
     void setupResInsightParameters();
+    int  timeStepDigits() const;
 
 private:
     caf::PdmPtrField<RimEclipseInputCase*> m_eclipseFRAGeneratedCase;
