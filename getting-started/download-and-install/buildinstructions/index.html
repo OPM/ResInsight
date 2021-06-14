@@ -12,18 +12,18 @@
     <title>Build Instructions :: ResInsight</title>
 
     
-    <link href="/css/nucleus.css?1607589083" rel="stylesheet">
-    <link href="/css/fontawesome-all.min.css?1607589083" rel="stylesheet">
-    <link href="/css/hybrid.css?1607589083" rel="stylesheet">
-    <link href="/css/featherlight.min.css?1607589083" rel="stylesheet">
-    <link href="/css/perfect-scrollbar.min.css?1607589083" rel="stylesheet">
-    <link href="/css/auto-complete.css?1607589083" rel="stylesheet">
-    <link href="/css/atom-one-dark-reasonable.css?1607589083" rel="stylesheet">
-    <link href="/css/theme.css?1607589083" rel="stylesheet">
-    <link href="/css/hugo-theme.css?1607589083" rel="stylesheet">
+    <link href="/css/nucleus.css?1623656032" rel="stylesheet">
+    <link href="/css/fontawesome-all.min.css?1623656032" rel="stylesheet">
+    <link href="/css/hybrid.css?1623656032" rel="stylesheet">
+    <link href="/css/featherlight.min.css?1623656032" rel="stylesheet">
+    <link href="/css/perfect-scrollbar.min.css?1623656032" rel="stylesheet">
+    <link href="/css/auto-complete.css?1623656032" rel="stylesheet">
+    <link href="/css/atom-one-dark-reasonable.css?1623656032" rel="stylesheet">
+    <link href="/css/theme.css?1623656032" rel="stylesheet">
+    <link href="/css/hugo-theme.css?1623656032" rel="stylesheet">
     
 
-    <script src="/js/jquery-3.3.1.min.js?1607589083"></script>
+    <script src="/js/jquery-3.3.1.min.js?1623656032"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -144,6 +144,25 @@
  
   
     
+      <li data-nav-id="/getting-started/projecttree/" title="Project Tree" class="dd-item ">
+        <a href="/getting-started/projecttree/">
+        Project Tree
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
     <li data-nav-id="/getting-started/download-and-install/" title="Download and Install" class="dd-item 
         parent
         
@@ -245,6 +264,9 @@
   
  
 
+            
+          
+             
             
           
              
@@ -537,9 +559,28 @@
  
   
     
-      <li data-nav-id="/3d-main-window/flowvectorresult/" title="Flow Vector Result" class="dd-item ">
+      <li data-nav-id="/3d-main-window/flowvectorresult/" title="Flow Results" class="dd-item ">
         <a href="/3d-main-window/flowvectorresult/">
-        Flow Vector Result
+        Flow Results
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/3d-main-window/streamlines/" title="Streamlines" class="dd-item ">
+        <a href="/3d-main-window/streamlines/">
+        Streamlines
         
         </a>
     </li>
@@ -594,9 +635,9 @@
  
   
     
-      <li data-nav-id="/3d-main-window/filters/" title="Cell Filters" class="dd-item ">
+      <li data-nav-id="/3d-main-window/filters/" title="Filters" class="dd-item ">
         <a href="/3d-main-window/filters/">
-        Cell Filters
+        Filters
         
         </a>
     </li>
@@ -1006,9 +1047,47 @@
  
   
     
+      <li data-nav-id="/plot-window/objectivefunctions/" title="Objective Functions" class="dd-item ">
+        <a href="/plot-window/objectivefunctions/">
+        Objective Functions
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
       <li data-nav-id="/plot-window/analysisplots/" title="Analysis Plots" class="dd-item ">
         <a href="/plot-window/analysisplots/">
         Analysis Plots
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/plot-window/gridstatisticsplots/" title="Grid Statistics Plots" class="dd-item ">
+        <a href="/plot-window/gridstatisticsplots/">
+        Grid Statistics Plots
         
         </a>
     </li>
@@ -1142,6 +1221,25 @@
       <li data-nav-id="/plot-window/pltplot/" title="PLT Plot" class="dd-item ">
         <a href="/plot-window/pltplot/">
         PLT Plot
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/plot-window/vfpplot/" title="VFP Plot" class="dd-item ">
+        <a href="/plot-window/vfpplot/">
+        VFP Plot
         
         </a>
     </li>
@@ -1339,6 +1437,25 @@
       <li data-nav-id="/wells-and-completions/createnewwellpaths/" title="Create Well Paths" class="dd-item ">
         <a href="/wells-and-completions/createnewwellpaths/">
         Create Well Paths
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/wells-and-completions/createmultilateralwellpaths/" title="Create Multilaterals Well Paths" class="dd-item ">
+        <a href="/wells-and-completions/createmultilateralwellpaths/">
+        Create Multilaterals Well Paths
         
         </a>
     </li>
@@ -2130,7 +2247,7 @@ if (!doNotTrack) {
           <ul>
             <li><a href="#windows-compiler">Windows Compiler</a></li>
             <li><a href="#gcc-compiler">GCC Compiler</a></li>
-            <li><a href="#qt5">Qt5</a></li>
+            <li><a href="#qt-5">Qt 5</a></li>
             <li><a href="#cmake">CMake</a></li>
           </ul>
         </li>
@@ -2174,26 +2291,18 @@ if (!doNotTrack) {
 <p>In a git enabled shell do: <code>git clone https://github.com/OPM/ResInsight.git</code></p>
 <h2 id="dependencies-and-prerequisites">Dependencies and Prerequisites</h2>
 <h3 id="windows-compiler">Windows Compiler</h3>
-<p>Visual Studio 2015 and later is supported.</p>
+<p>Visual Studio 2019 and later is supported.</p>
 <h3 id="gcc-compiler">GCC Compiler</h3>
 <p>GCC version 4.9 or later is supported. On RedHat Linux 6 you need to install devtoolset-3, and enable it with</p>
 <pre><code>source /opt/rh/devtoolset-3/enable
 </code></pre>
-<h3 id="qt5">Qt5</h3>
-<p><a href="http://download.qt.io/archive/qt/">Qt</a> Qt5 version 5.6.0 or later is supported.</p>
-<p>On some configurations you will be asked to specify the location of Qt5. Example for Windows :
-<code>Qt5_DIR=d:\Qt\5.11.3\msvc2017_64\lib\cmake\Qt5</code></p>
-<h4 id="qt4-deprecated">Qt4 (Deprecated)</h4>
-
-<div class="notices info" ><p>Qt4 is marked as deprecated and support for using Qt4 will soon be removed.</p>
-</div>
-
-<p><a href="http://download.qt.io/archive/qt/">Qt</a> Qt4 version 4.6.2 or later is supported. On Windows we recommend Qt-4.8.7, while the default installation will do under Linux.</p>
-<p><code>RESINSIGHT_BUILD_WITH_QT5=FALSE</code></p>
-<p>You will need to patch the Qt sources in order to make them build using Visual Studio 2015 using this : 
-<a href="https://github.com/appleseedhq/appleseed/wiki/Making-Qt-4.8.7-compile-with-Visual-Studio-2015">Qt-patch</a></p>
+<h3 id="qt-5">Qt 5</h3>
+<p>Qt 5.9 or later is supported.</p>
+<p><a href="http://download.qt.io/archive/qt/">Qt download</a></p>
+<p>On some configurations you will be asked to specify the location of Qt 5. Example for Windows :
+<code>Qt5_DIR=d:\Qt\5.15.0\msvc2019_64\lib\cmake\Qt5</code></p>
 <h3 id="cmake">CMake</h3>
-<p><a href="https://cmake.org/download/">CMake</a> version 2.8 or later is supported.</p>
+<p><a href="https://cmake.org/download/">CMake</a> version 3.12 or later is supported.</p>
 <h2 id="build-instructions">Build Instructions</h2>
 <p>The ResInsight build may be configured in different ways, with optional support for Octave plugins, 
 ABAQUS ODB API, HDF5, Pyton, and OpenMP. This is configured using options in CMake.</p>
@@ -2209,9 +2318,7 @@ This makes it easier to see all of the options for ResInsight.</p>
 <li>Run the compiler using the generated makefiles or solution file/project files to build ResInsight</li>
 </ul>
 <h3 id="windows">Windows</h3>
-<p>ResInsight has been verified to build and run on Windows 7/8/10 using Microsoft Visual Studio 2015/2017. 
-Typical usage on Windows is to follow the build instructions above, and then open the generated 
-solution file in Visual Studio to build the application.</p>
+<p>ResInsight has been verified to build and run on Windows 10 using Microsoft Visual Studio 2017/2019. Typical usage on Windows is to follow the build instructions above, and then open the generated solution file in Visual Studio to build the application.</p>
 <h3 id="linux">Linux</h3>
 <p>Typical usage is to follow the build instructions above to build the makefiles. Then go to the build directory, and run:</p>
 <ul>
@@ -2279,11 +2386,6 @@ solution file in Visual Studio to build the application.</p>
 </thead>
 <tbody>
 <tr>
-<td><code>RESINSIGHT_BUILD_WITH_QT5</code></td>
-<td>ON</td>
-<td>If ON, use Qt5. If OFF, use Qt4 (Support for Qt4 is deprecated and will be removed)</td>
-</tr>
-<tr>
 <td><code>RESINSIGHT_QT5_BUNDLE_LIBRARIES</code></td>
 <td>OFF</td>
 <td>Linux only: Include Qt5 libraries in the installation package</td>
@@ -2291,17 +2393,12 @@ solution file in Visual Studio to build the application.</p>
 <tr>
 <td><code>RESINSIGHT_BUNDLE_OPENSSL</code></td>
 <td>OFF</td>
-<td>Bundle the OpenSSL library DLLs in the Windows installer package</td>
+<td>Bundle the OpenSSL library binaries</td>
 </tr>
 <tr>
-<td><code>RESINSIGHT_ENABLE_COTIRE</code></td>
+<td><code>RESINSIGHT_ENABLE_UNITY_BUILD</code></td>
 <td>OFF</td>
-<td>Experimental speedup of compilation using cotire</td>
-</tr>
-<tr>
-<td><code>RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_SOURING</code></td>
-<td>ON</td>
-<td>Enable Souring features</td>
+<td>Activate use of CMAKE_UNITY_BUILD on some libraries to improve build speed</td>
 </tr>
 <tr>
 <td><code>RESINSIGHT_INCLUDE_APPFWK_TESTS</code></td>
@@ -2338,17 +2435,22 @@ solution file in Visual Studio to build the application.</p>
 <tr>
 <td><code>RESINSIGHT_ENABLE_GRPC</code></td>
 <td>OFF</td>
-<td>Enable ResInsight scripting server (required for use of Python)</td>
+<td>Enable gRPC scripting server. Required to be able to use ResInsight from Python</td>
+</tr>
+<tr>
+<td><code>RESINSIGHT_GRPC_BUNDLE_PYTHON_MODULE</code></td>
+<td>OFF</td>
+<td>Bundle GRPC Python module in install folder</td>
+</tr>
+<tr>
+<td><code>RESINSIGHT_GRPC_DOWNLOAD_PYTHON_MODULE</code></td>
+<td>ON</td>
+<td>Download GRPC Python module</td>
 </tr>
 <tr>
 <td><code>RESINSIGHT_GRPC_PYTHON_EXECUTABLE</code></td>
 <td>Blank</td>
 <td>Location of Python3 executable</td>
-</tr>
-<tr>
-<td><code>RESINSIGHT_GRPC_INSTALL_PREFIX</code></td>
-<td>Blank</td>
-<td>Linux only : Installation prefix for gRPC</td>
 </tr>
 </tbody>
 </table>
@@ -2446,7 +2548,23 @@ ResInsight has been built and tested with ABAQUS ODB API version 6.14-3 on Windo
             
                 
                     
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
                     
+                    
                 
                 
 
@@ -2522,10 +2640,15 @@ ResInsight has been built and tested with ABAQUS ODB API version 6.14-3 on Windo
                     
                     
 
+                    
+            
+        
                     
             
         
                     
+                        
+            
             
         
                     
@@ -2653,6 +2776,35 @@ ResInsight has been built and tested with ABAQUS ODB API version 6.14-3 on Windo
                     
             
         
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
                     
             
         
@@ -2670,6 +2822,9 @@ ResInsight has been built and tested with ABAQUS ODB API version 6.14-3 on Windo
                     
 
                     
+            
+        
+                    
                         
             
             
@@ -3002,9 +3157,25 @@ ResInsight has been built and tested with ABAQUS ODB API version 6.14-3 on Windo
                     
                     
 
+                    
+            
+        
                     
             
         
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
                     
                         
             
@@ -3021,6 +3192,19 @@ ResInsight has been built and tested with ABAQUS ODB API version 6.14-3 on Windo
                     
             
         
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
                     
             
         
@@ -3037,6 +3221,9 @@ ResInsight has been built and tested with ABAQUS ODB API version 6.14-3 on Windo
                     
                     
 
+                    
+            
+        
                     
                         
             
@@ -3360,7 +3547,20 @@ ResInsight has been built and tested with ABAQUS ODB API version 6.14-3 on Windo
                     
             
         
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
                     
+                    
+                    
+
+                    
                         
             
             
@@ -3373,6 +3573,9 @@ ResInsight has been built and tested with ABAQUS ODB API version 6.14-3 on Windo
                     
                     
 
+                    
+            
+        
                     
                         
             
@@ -3959,19 +4162,19 @@ ResInsight has been built and tested with ABAQUS ODB API version 6.14-3 on Windo
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/js/clipboard.min.js?1607589083"></script>
-    <script src="/js/perfect-scrollbar.min.js?1607589083"></script>
-    <script src="/js/perfect-scrollbar.jquery.min.js?1607589083"></script>
-    <script src="/js/jquery.sticky.js?1607589083"></script>
-    <script src="/js/featherlight.min.js?1607589083"></script>
-    <script src="/js/highlight.pack.js?1607589083"></script>
+    <script src="/js/clipboard.min.js?1623656032"></script>
+    <script src="/js/perfect-scrollbar.min.js?1623656032"></script>
+    <script src="/js/perfect-scrollbar.jquery.min.js?1623656032"></script>
+    <script src="/js/jquery.sticky.js?1623656032"></script>
+    <script src="/js/featherlight.min.js?1623656032"></script>
+    <script src="/js/highlight.pack.js?1623656032"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/js/modernizr.custom-3.6.0.js?1607589083"></script>
-    <script src="/js/learn.js?1607589083"></script>
-    <script src="/js/hugo-learn.js?1607589083"></script>
+    <script src="/js/modernizr.custom-3.6.0.js?1623656032"></script>
+    <script src="/js/learn.js?1623656032"></script>
+    <script src="/js/hugo-learn.js?1623656032"></script>
 
-    <link href="/mermaid/mermaid.css?1607589083" rel="stylesheet" />
-    <script src="/mermaid/mermaid.js?1607589083"></script>
+    <link href="/mermaid/mermaid.css?1623656032" rel="stylesheet" />
+    <script src="/mermaid/mermaid.js?1623656032"></script>
     <script>
         mermaid.initialize({ startOnLoad: true });
     </script>

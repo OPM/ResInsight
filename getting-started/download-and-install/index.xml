@@ -41,10 +41,11 @@ Ubuntu Linux 16.04-64bit On the command line do:</description>
       <guid>https://resinsight.org/getting-started/download-and-install/buildinstructions/</guid>
       <description>Source code The source code is hosted at GitHub
 In a git enabled shell do: git clone https://github.com/OPM/ResInsight.git
-Dependencies and Prerequisites Windows Compiler Visual Studio 2015 and later is supported.
+Dependencies and Prerequisites Windows Compiler Visual Studio 2019 and later is supported.
 GCC Compiler GCC version 4.9 or later is supported. On RedHat Linux 6 you need to install devtoolset-3, and enable it with
-source /opt/rh/devtoolset-3/enable Qt5 Qt Qt5 version 5.6.0 or later is supported.
-On some configurations you will be asked to specify the location of Qt5.</description>
+source /opt/rh/devtoolset-3/enable Qt 5 Qt 5.9 or later is supported.
+Qt download
+On some configurations you will be asked to specify the location of Qt 5.</description>
     </item>
     
     <item>
@@ -57,7 +58,7 @@ On some configurations you will be asked to specify the location of Qt5.</descri
 vcpkg requires relatively new versions of git and compiler.
 vcpkg
 grpc quickstart
-Reference project A test project for CentOS7 is configured using GitHub actions.</description>
+Reference project A workflow file is used to build using CentOS 7 on GitHub actions.</description>
     </item>
     
   </channel>

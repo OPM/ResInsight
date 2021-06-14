@@ -7,6 +7,10 @@
   </url>
   
   <url>
+    <loc>https://resinsight.org/getting-started/projecttree/</loc>
+  </url>
+  
+  <url>
     <loc>https://resinsight.org/3d-main-window/3dviews/</loc>
   </url>
   
@@ -72,6 +76,10 @@
   
   <url>
     <loc>https://resinsight.org/getting-started/whats-new/releasenotes_2020_10_1/</loc>
+  </url>
+  
+  <url>
+    <loc>https://resinsight.org/getting-started/whats-new/releasenotes_2021_06/</loc>
   </url>
   
   <url>
@@ -187,6 +195,10 @@
   </url>
   
   <url>
+    <loc>https://resinsight.org/wells-and-completions/createmultilateralwellpaths/</loc>
+  </url>
+  
+  <url>
     <loc>https://resinsight.org/workflows/</loc>
   </url>
   
@@ -255,6 +267,10 @@
   </url>
   
   <url>
+    <loc>https://resinsight.org/3d-main-window/streamlines/</loc>
+  </url>
+  
+  <url>
     <loc>https://resinsight.org/3d-main-window/tensors/</loc>
   </url>
   
@@ -263,7 +279,15 @@
   </url>
   
   <url>
+    <loc>https://resinsight.org/plot-window/objectivefunctions/</loc>
+  </url>
+  
+  <url>
     <loc>https://resinsight.org/plot-window/analysisplots/</loc>
+  </url>
+  
+  <url>
+    <loc>https://resinsight.org/plot-window/gridstatisticsplots/</loc>
   </url>
   
   <url>
@@ -364,6 +388,10 @@
   
   <url>
     <loc>https://resinsight.org/plot-window/pltplot/</loc>
+  </url>
+  
+  <url>
+    <loc>https://resinsight.org/plot-window/vfpplot/</loc>
   </url>
   
   <url>

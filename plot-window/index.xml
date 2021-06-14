@@ -86,6 +86,16 @@ Import There are several ways to import an ensemble:
     </item>
     
     <item>
+      <title>Objective Functions</title>
+      <link>https://resinsight.org/plot-window/objectivefunctions/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://resinsight.org/plot-window/objectivefunctions/</guid>
+      <description>An Objective Function is used to color the curves of an ensemble plot in ResInsight to highlight characteristics by a function definition based on individual summary vectors. As shown in the example above, the legend relates colours to values as calculated by a particular objective function and shows the use and formula of the objective function in the plot.
+Using Objective Functions Curve coloring by Objective Function is activated as shown below.</description>
+    </item>
+    
+    <item>
       <title>Analysis Plots</title>
       <link>https://resinsight.org/plot-window/analysisplots/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
@@ -95,6 +105,18 @@ Import There are several ways to import an ensemble:
 Creating an Analysis Plot The most convenient way to create an Analysis Plot at a given time step is often to right-click an Ensemble Plot and invoke New Analysis Plot as shown below.
 Alternatively, Analysis Plots can be created by right-clicking the Analysis Plots item in Plot Project Tree.
 Having created an Analysis Plot, subitems Value Axis and Plot Data Filters emerges in Plot Project Tree.</description>
+    </item>
+    
+    <item>
+      <title>Grid Statistics Plots</title>
+      <link>https://resinsight.org/plot-window/gridstatisticsplots/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://resinsight.org/plot-window/gridstatisticsplots/</guid>
+      <description>Grid Statistics Plots displays the histogram and statistics values for grid cells.
+Creating an Grid Statistics Plot The most convenient way to create an Grid Statistics Plot is often to right-click in the 3D view and invoke Create Grid Statistics Plot as shown below.
+Alternatively, Grid Statistics Plots can be created by right-clicking the Grid Statistics Plots item in Plot Project Tree.
+Filter by 3d View Visibility If you want to display the statistics for a subset of cells, you can select a view to use only the cells visible in that view.</description>
     </item>
     
     <item>
@@ -170,6 +192,17 @@ Create New Ensemble RFT Plot When a summary ensemble has been imported, observed
       <guid>https://resinsight.org/plot-window/pltplot/</guid>
       <description>A PLT (Production Log Tool) plot is a special well plot for comparing observed production (well flow rates) and simulated production. The curves are plotted as production against measured depth (MD). Simulated production data is retrieved directly from the grid model or from the corresponding (*.rft) files, while observed production data are loaded from well log files (*.las).
 Create New PLT Plot There are several ways to create new PLT Plots</description>
+    </item>
+    
+    <item>
+      <title>VFP Plot</title>
+      <link>https://resinsight.org/plot-window/vfpplot/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://resinsight.org/plot-window/vfpplot/</guid>
+      <description>A Vertical Flow Performance Plot (VFP Plot) shows the relationship between bottom hole well conditions and wellhead pressure describing a well&amp;rsquo;s ability to lift fluids to the surface. ResInsight can display both production and injection VFP plots.
+Creating VFP Plots VFP Plots are created by right-clicking the VFP Plots item in Plot Project Tree.
+Production VFP Plot The production VFP Plot shows the outflow or downstream pressure based on the inlet or upstream pressure and the phases flowing through the system.</description>
     </item>
     
     <item>

@@ -73,14 +73,25 @@ The figure above exemplifies a Comparison View for comparison of two different s
     </item>
     
     <item>
-      <title>Flow Vector Result</title>
+      <title>Flow Results</title>
       <link>https://resinsight.org/3d-main-window/flowvectorresult/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
       <guid>https://resinsight.org/3d-main-window/flowvectorresult/</guid>
-      <description>The Flow Vector Result View lets the user investigate fluxes by visualizing flow vectors in the reservoir. It allows for selecting and combining different fluids and directions. Selected vectors can be combined and scaled.
-The flow vectors are based on the Eclipse properties FLRGASI/J/K FLRWATI/J/K FLROILI/J/K
-Open the Flow Vector Result View In order to show Flow Vector Results, select and check the checkbox next to Flow Vector Result in the Project Tree.</description>
+      <description>Flow Results lets the user investigate flow properties and fluxes in a reservoir, e.g. by flow vector visualizations selecting and combining different fluids and directions.
+Flow Vectors Flow vectors are computed based on the Eclipse properties FLRGASI/J/K FLRWATI/J/K FLROILI/J/K. Visualization of flow vector results always use velocity instead of rate. Velocity is computed as flow rate divided by cell face area.
+In order to show flow vectors, check the checkbox next to Flow Vector Result in Project Tree.</description>
+    </item>
+    
+    <item>
+      <title>Streamlines</title>
+      <link>https://resinsight.org/3d-main-window/streamlines/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://resinsight.org/3d-main-window/streamlines/</guid>
+      <description>Streamlines lets the user investigate the flow of different phases through a reservoar. It allows for selecting both an individual phase or a combination of phases colored by the dominant phase or velocity. The visualization and animation of streamlines requires the Eclipse properties FLRGASI/J/K FLRWATI/J/K FLROILI/J/K.
+Displaying Streamlines To display streamlines, select a time step and check the Streamlines checkbox in Project Tree.
+Property Editor The display and animation of streamlines is controlled by the Property Editor.</description>
     </item>
     
     <item>
@@ -106,14 +117,15 @@ Visibility of the docking widows can be controlled from the Windows menu.
     </item>
     
     <item>
-      <title>Cell Filters</title>
+      <title>Filters</title>
       <link>https://resinsight.org/3d-main-window/filters/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
       <guid>https://resinsight.org/3d-main-window/filters/</guid>
-      <description>Cell Filters are used to control visibility of the cells in the 3D view. Two types of filters exists:
- Range Filter &amp;ndash; Extracts an IJK subset of the model. Property Filter &amp;ndash; Extracts cells with a property value matching a value range.  The visibilities of cells connection to wells, and fences based on these cells can be controlled from  Simulation Wells .
-(Not applicable for Geomechanical cases)</description>
+      <description>Filters are used to control the visibility of cells in the 3D view. Two types of filters exist:
+ Cell Filter &amp;ndash; Extracts subset(s) of grid cells Property Filter &amp;ndash; Extracts cells with a property value matching a value range  The visibility of cells connected to wells, and fences can be controlled from  Simulation Wells.
+(Not applicable for Geomechanical cases)
+Common Properties Cell and Property Filters Filters can be turned on and off using their check-boxes in Project Tree and controlled by their corresponding Property Editor.</description>
     </item>
     
     <item>

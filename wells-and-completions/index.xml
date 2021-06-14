@@ -43,6 +43,16 @@ Building a well path  Right click Wells in the project tree Select Create Well P
     </item>
     
     <item>
+      <title>Create Multilaterals Well Paths</title>
+      <link>https://resinsight.org/wells-and-completions/createmultilateralwellpaths/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://resinsight.org/wells-and-completions/createmultilateralwellpaths/</guid>
+      <description>ResInsight lets the user create additional well path laterals by clicking in the 3D view. Completions can be added to laterals, and the complete specification of the well can be exported using the Completion Export
+Building a well path  Start from an existing well path, either imported or create a new well path In the 3D view, right-click on the well path at the depth location for your lateral  A new well path lateral is created, and click in the 3D scene to define targets for the lateral Repeat from 2.</description>
+    </item>
+    
+    <item>
       <title>3D Well Log Plots</title>
       <link>https://resinsight.org/wells-and-completions/3dwelllogcurves/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>

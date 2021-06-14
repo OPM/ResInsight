@@ -22,6 +22,16 @@ Docking Windows Each of the main windows has a central area and several docking 
     </item>
     
     <item>
+      <title>Project Tree</title>
+      <link>https://resinsight.org/getting-started/projecttree/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://resinsight.org/getting-started/projecttree/</guid>
+      <description>As described in Overview, ResInsight has two main windows, one for 3D related visualizations and one for 2D graphs and plots. The content and appearance of displayed information is managed and controlled by the Project Tree and the Plot Project Tree, respectively. This page describes some of their general functionality illustrated by examples using Plot Project Tree.
+Multiple selection and collective actions Multiple selection of items in ResInsight offers an entrance to powerful combinations and collective actions.</description>
+    </item>
+    
+    <item>
       <title>What&#39;s New in 2019.04</title>
       <link>https://resinsight.org/getting-started/whats-new/releasenotes_2019_04/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
@@ -109,6 +119,17 @@ Most important fixes
     </item>
     
     <item>
+      <title>What&#39;s New in 2021.06</title>
+      <link>https://resinsight.org/getting-started/whats-new/releasenotes_2021_06/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://resinsight.org/getting-started/whats-new/releasenotes_2021_06/</guid>
+      <description>Version 2021.06 is a major update bringing a range of significant new and enhanced features as described below.
+Multilateral Wells ResInsight lets the user create Multilateral Well Paths by clicking in the 3D view. Completions can be added to laterals, and the complete specification of the well can be exported using the Completion Export
+Streamlines Streamlines lets the user investigate the flow of different phases through a reservoar. It allows for selecting both an individual phase or a combination of phases colored by the dominant phase or velocity.</description>
+    </item>
+    
+    <item>
       <title>What&#39;s New in 2018.11</title>
       <link>https://resinsight.org/getting-started/whats-new/releasenotes_2018_11/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
@@ -126,8 +147,9 @@ Well Path Creation ResInsight lets the user create new/custom well paths by clic
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
       <guid>https://resinsight.org/getting-started/helpmenuanddocumentation/</guid>
-      <description>ResInsight Help Menu ResInsight Help menu options are:
- About &amp;ndash; Opens a dialog with information on ResInsight version, enabled features, and technical information of subsystems. Command Line Help &amp;ndash; Provides an overview of ResInsight Command line parameters and their syntax. Summary Command Line Help &amp;ndash; Provides an overview of ResInsight Summary command line parameters and their syntax. Users Guide &amp;ndash; Opens the ResInsight documentation in your default browser Search Help &amp;ndash; Searches the ResInsight documentation for help on the selected item in Project Tree.</description>
+      <description>Integrated ResInsight Help If you need the user manual for an object, you can use the right-click menu of the object and select Search Help for:. This will open up the user manual for the selected object from resinsight.org.
+ResInsight Online Tutorials  ResInsight Tutorial Videos (YouTube) ResInsight Tutorials  ResInsight Help Menu ResInsight Help menu options are:
+ About &amp;ndash; Opens a dialog with information on ResInsight version, enabled features, and technical information of subsystems.</description>
     </item>
     
     <item>

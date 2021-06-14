@@ -22,6 +22,16 @@ Docking Windows Each of the main windows has a central area and several docking 
     </item>
     
     <item>
+      <title>Project Tree</title>
+      <link>https://resinsight.org/getting-started/projecttree/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://resinsight.org/getting-started/projecttree/</guid>
+      <description>As described in Overview, ResInsight has two main windows, one for 3D related visualizations and one for 2D graphs and plots. The content and appearance of displayed information is managed and controlled by the Project Tree and the Plot Project Tree, respectively. This page describes some of their general functionality illustrated by examples using Plot Project Tree.
+Multiple selection and collective actions Multiple selection of items in ResInsight offers an entrance to powerful combinations and collective actions.</description>
+    </item>
+    
+    <item>
       <title>3D Views</title>
       <link>https://resinsight.org/3d-main-window/3dviews/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
@@ -185,6 +195,17 @@ Most important fixes
     </item>
     
     <item>
+      <title>What&#39;s New in 2021.06</title>
+      <link>https://resinsight.org/getting-started/whats-new/releasenotes_2021_06/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://resinsight.org/getting-started/whats-new/releasenotes_2021_06/</guid>
+      <description>Version 2021.06 is a major update bringing a range of significant new and enhanced features as described below.
+Multilateral Wells ResInsight lets the user create Multilateral Well Paths by clicking in the 3D view. Completions can be added to laterals, and the complete specification of the well can be exported using the Completion Export
+Streamlines Streamlines lets the user investigate the flow of different phases through a reservoar. It allows for selecting both an individual phase or a combination of phases colored by the dominant phase or velocity.</description>
+    </item>
+    
+    <item>
       <title>Log ASCII Standard File</title>
       <link>https://resinsight.org/import/lasfile/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
@@ -321,8 +342,9 @@ Well Path Creation ResInsight lets the user create new/custom well paths by clic
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
       <guid>https://resinsight.org/getting-started/helpmenuanddocumentation/</guid>
-      <description>ResInsight Help Menu ResInsight Help menu options are:
- About &amp;ndash; Opens a dialog with information on ResInsight version, enabled features, and technical information of subsystems. Command Line Help &amp;ndash; Provides an overview of ResInsight Command line parameters and their syntax. Summary Command Line Help &amp;ndash; Provides an overview of ResInsight Summary command line parameters and their syntax. Users Guide &amp;ndash; Opens the ResInsight documentation in your default browser Search Help &amp;ndash; Searches the ResInsight documentation for help on the selected item in Project Tree.</description>
+      <description>Integrated ResInsight Help If you need the user manual for an object, you can use the right-click menu of the object and select Search Help for:. This will open up the user manual for the selected object from resinsight.org.
+ResInsight Online Tutorials  ResInsight Tutorial Videos (YouTube) ResInsight Tutorials  ResInsight Help Menu ResInsight Help menu options are:
+ About &amp;ndash; Opens a dialog with information on ResInsight version, enabled features, and technical information of subsystems.</description>
     </item>
     
     <item>
@@ -343,10 +365,11 @@ Importing such a file will enable result type called SourSimRL as explained in E
       <guid>https://resinsight.org/getting-started/download-and-install/buildinstructions/</guid>
       <description>Source code The source code is hosted at GitHub
 In a git enabled shell do: git clone https://github.com/OPM/ResInsight.git
-Dependencies and Prerequisites Windows Compiler Visual Studio 2015 and later is supported.
+Dependencies and Prerequisites Windows Compiler Visual Studio 2019 and later is supported.
 GCC Compiler GCC version 4.9 or later is supported. On RedHat Linux 6 you need to install devtoolset-3, and enable it with
-source /opt/rh/devtoolset-3/enable Qt5 Qt Qt5 version 5.6.0 or later is supported.
-On some configurations you will be asked to specify the location of Qt5.</description>
+source /opt/rh/devtoolset-3/enable Qt 5 Qt 5.9 or later is supported.
+Qt download
+On some configurations you will be asked to specify the location of Qt 5.</description>
     </item>
     
     <item>
@@ -359,7 +382,7 @@ On some configurations you will be asked to specify the location of Qt5.</descri
 vcpkg requires relatively new versions of git and compiler.
 vcpkg
 grpc quickstart
-Reference project A test project for CentOS7 is configured using GitHub actions.</description>
+Reference project A workflow file is used to build using CentOS 7 on GitHub actions.</description>
     </item>
     
     <item>
@@ -470,6 +493,16 @@ In this context highlighted means the marked item with a different background co
       <guid>https://resinsight.org/3d-main-window/colorlegends/</guid>
       <description>ResInsight offers both a rich set of built-in color legends and functionality for import and customizing color legends. All color legends are available from the Color Legends item in Project Tree.
 Standard Color Legends ResInsight offers an extensive set of built-in color legends as listed by Standard Color Legends. As Standard Color Legends cannot be modified, you must create a Custom Color Legend when needing a legend that is not covered by Standard Color Legends.</description>
+    </item>
+    
+    <item>
+      <title>Create Multilaterals Well Paths</title>
+      <link>https://resinsight.org/wells-and-completions/createmultilateralwellpaths/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://resinsight.org/wells-and-completions/createmultilateralwellpaths/</guid>
+      <description>ResInsight lets the user create additional well path laterals by clicking in the 3D view. Completions can be added to laterals, and the complete specification of the well can be exported using the Completion Export
+Building a well path  Start from an existing well path, either imported or create a new well path In the 3D view, right-click on the well path at the depth location for your lateral  A new well path lateral is created, and click in the 3D scene to define targets for the lateral Repeat from 2.</description>
     </item>
     
     <item>
@@ -594,14 +627,14 @@ Import There are several ways to import an ensemble:
     </item>
     
     <item>
-      <title>Flow Vector Result</title>
+      <title>Flow Results</title>
       <link>https://resinsight.org/3d-main-window/flowvectorresult/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
       <guid>https://resinsight.org/3d-main-window/flowvectorresult/</guid>
-      <description>The Flow Vector Result View lets the user investigate fluxes by visualizing flow vectors in the reservoir. It allows for selecting and combining different fluids and directions. Selected vectors can be combined and scaled.
-The flow vectors are based on the Eclipse properties FLRGASI/J/K FLRWATI/J/K FLROILI/J/K
-Open the Flow Vector Result View In order to show Flow Vector Results, select and check the checkbox next to Flow Vector Result in the Project Tree.</description>
+      <description>Flow Results lets the user investigate flow properties and fluxes in a reservoir, e.g. by flow vector visualizations selecting and combining different fluids and directions.
+Flow Vectors Flow vectors are computed based on the Eclipse properties FLRGASI/J/K FLRWATI/J/K FLROILI/J/K. Visualization of flow vector results always use velocity instead of rate. Velocity is computed as flow rate divided by cell face area.
+In order to show flow vectors, check the checkbox next to Flow Vector Result in Project Tree.</description>
     </item>
     
     <item>
@@ -614,6 +647,17 @@ Open the Flow Vector Result View In order to show Flow Vector Results, select an
  Octave functions that communicates with a running ResInsight session Features to simplify management and editing of Octave scripts from ResInsight Commands to execute scripts using Octave.  The Octave functions are documented in Octave Interface Reference.
 Note: The Octave interface does not support Flow diagnostics and Injection flooding results in addition to Geomechanical cases.
 Octave Script Management Octave scripts are available in the Scripts folder in the Project Tree.</description>
+    </item>
+    
+    <item>
+      <title>Streamlines</title>
+      <link>https://resinsight.org/3d-main-window/streamlines/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://resinsight.org/3d-main-window/streamlines/</guid>
+      <description>Streamlines lets the user investigate the flow of different phases through a reservoar. It allows for selecting both an individual phase or a combination of phases colored by the dominant phase or velocity. The visualization and animation of streamlines requires the Eclipse properties FLRGASI/J/K FLRWATI/J/K FLROILI/J/K.
+Displaying Streamlines To display streamlines, select a time step and check the Streamlines checkbox in Project Tree.
+Property Editor The display and animation of streamlines is controlled by the Property Editor.</description>
     </item>
     
     <item>
@@ -639,6 +683,16 @@ A dialog appears after selecting an export well path command.
     </item>
     
     <item>
+      <title>Objective Functions</title>
+      <link>https://resinsight.org/plot-window/objectivefunctions/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://resinsight.org/plot-window/objectivefunctions/</guid>
+      <description>An Objective Function is used to color the curves of an ensemble plot in ResInsight to highlight characteristics by a function definition based on individual summary vectors. As shown in the example above, the legend relates colours to values as calculated by a particular objective function and shows the use and formula of the objective function in the plot.
+Using Objective Functions Curve coloring by Objective Function is activated as shown below.</description>
+    </item>
+    
+    <item>
       <title>Analysis Plots</title>
       <link>https://resinsight.org/plot-window/analysisplots/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
@@ -648,6 +702,18 @@ A dialog appears after selecting an export well path command.
 Creating an Analysis Plot The most convenient way to create an Analysis Plot at a given time step is often to right-click an Ensemble Plot and invoke New Analysis Plot as shown below.
 Alternatively, Analysis Plots can be created by right-clicking the Analysis Plots item in Plot Project Tree.
 Having created an Analysis Plot, subitems Value Axis and Plot Data Filters emerges in Plot Project Tree.</description>
+    </item>
+    
+    <item>
+      <title>Grid Statistics Plots</title>
+      <link>https://resinsight.org/plot-window/gridstatisticsplots/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://resinsight.org/plot-window/gridstatisticsplots/</guid>
+      <description>Grid Statistics Plots displays the histogram and statistics values for grid cells.
+Creating an Grid Statistics Plot The most convenient way to create an Grid Statistics Plot is often to right-click in the 3D view and invoke Create Grid Statistics Plot as shown below.
+Alternatively, Grid Statistics Plots can be created by right-clicking the Grid Statistics Plots item in Plot Project Tree.
+Filter by 3d View Visibility If you want to display the statistics for a subset of cells, you can select a view to use only the cells visible in that view.</description>
     </item>
     
     <item>
@@ -729,14 +795,15 @@ Senior Petroleum Engineering Advisor, RPS Energy
     </item>
     
     <item>
-      <title>Cell Filters</title>
+      <title>Filters</title>
       <link>https://resinsight.org/3d-main-window/filters/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
       <guid>https://resinsight.org/3d-main-window/filters/</guid>
-      <description>Cell Filters are used to control visibility of the cells in the 3D view. Two types of filters exists:
- Range Filter &amp;ndash; Extracts an IJK subset of the model. Property Filter &amp;ndash; Extracts cells with a property value matching a value range.  The visibilities of cells connection to wells, and fences based on these cells can be controlled from  Simulation Wells .
-(Not applicable for Geomechanical cases)</description>
+      <description>Filters are used to control the visibility of cells in the 3D view. Two types of filters exist:
+ Cell Filter &amp;ndash; Extracts subset(s) of grid cells Property Filter &amp;ndash; Extracts cells with a property value matching a value range  The visibility of cells connected to wells, and fences can be controlled from  Simulation Wells.
+(Not applicable for Geomechanical cases)
+Common Properties Cell and Property Filters Filters can be turned on and off using their check-boxes in Project Tree and controlled by their corresponding Property Editor.</description>
     </item>
     
     <item>
@@ -882,6 +949,17 @@ To use this functionality you will need to :
       <guid>https://resinsight.org/plot-window/pltplot/</guid>
       <description>A PLT (Production Log Tool) plot is a special well plot for comparing observed production (well flow rates) and simulated production. The curves are plotted as production against measured depth (MD). Simulated production data is retrieved directly from the grid model or from the corresponding (*.rft) files, while observed production data are loaded from well log files (*.las).
 Create New PLT Plot There are several ways to create new PLT Plots</description>
+    </item>
+    
+    <item>
+      <title>VFP Plot</title>
+      <link>https://resinsight.org/plot-window/vfpplot/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://resinsight.org/plot-window/vfpplot/</guid>
+      <description>A Vertical Flow Performance Plot (VFP Plot) shows the relationship between bottom hole well conditions and wellhead pressure describing a well&amp;rsquo;s ability to lift fluids to the surface. ResInsight can display both production and injection VFP plots.
+Creating VFP Plots VFP Plots are created by right-clicking the VFP Plots item in Plot Project Tree.
+Production VFP Plot The production VFP Plot shows the outflow or downstream pressure based on the inlet or upstream pressure and the phases flowing through the system.</description>
     </item>
     
     <item>
