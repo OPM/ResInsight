@@ -43,6 +43,8 @@
 
 #include <QFileInfo>
 
+#include <cmath>
+
 CAF_PDM_SOURCE_INIT( RimFaultRASettings, "RimFaultRASettings" );
 
 //--------------------------------------------------------------------------------------------------
