@@ -430,9 +430,9 @@ cvf::BoundingBox RigCell::boundingBox() const
     cvf::BoundingBox          bb;
     std::array<cvf::Vec3d, 8> hexCorners;
 
-    if ( m_hostGrid && m_hostGrid->mainGrid() )
+    if ( m_hostGrid )
     {
-        m_hostGrid->mainGrid()->cellCornerVertices( mainGridCellIndex(), hexCorners.data() );
+        m_hostGrid->cellCornerVertices( m_gridLocalCellIndex, hexCorners.data() );
         for ( const auto& corner : hexCorners )
         {
             bb.add( corner );
@@ -442,7 +442,7 @@ cvf::BoundingBox RigCell::boundingBox() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Return the neighbor cell of the given face
+/// Return the main grid neighbor cell of the given face
 //--------------------------------------------------------------------------------------------------
 RigCell RigCell::neighborCell( cvf::StructGridInterface::FaceType face ) const
 {

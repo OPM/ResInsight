@@ -58,6 +58,8 @@ RimCellRangeFilter::RimCellRangeFilter()
     CAF_PDM_InitField( &cellCountK, "CellCountK", 1, "Cell Count K", "", "", "" );
     cellCountK.uiCapability()->setUiEditorTypeName( caf::PdmUiSliderEditor::uiEditorTypeName() );
 
+    m_propagateToSubGrids = true;
+
     updateIconState();
     setDeletable( true );
 }
@@ -265,6 +267,8 @@ void RimCellRangeFilter::defineUiOrdering( QString uiConfigName, caf::PdmUiOrder
 {
     RimCellFilter::defineUiOrdering( uiConfigName, uiOrdering );
 
+    m_gridIndex.uiCapability()->setUiReadOnly( true );
+
     const cvf::StructGridInterface* grid = selectedGrid();
 
     RimCase* rimCase = nullptr;
@@ -332,9 +336,11 @@ void RimCellRangeFilter::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrd
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimCellRangeFilter::updateCompundFilter( cvf::CellRangeFilter* cellRangeFilter )
+void RimCellRangeFilter::updateCompundFilter( cvf::CellRangeFilter* cellRangeFilter, int gridIndex )
 {
     CVF_ASSERT( cellRangeFilter );
+
+    if ( gridIndex != m_gridIndex ) return;
 
     if ( filterMode() == RimCellFilter::INCLUDE )
     {

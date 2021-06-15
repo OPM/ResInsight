@@ -263,10 +263,11 @@ RimUserDefinedFilter* RimCellFilterCollection::addNewUserDefinedFilter( RimCase*
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimCellRangeFilter* RimCellFilterCollection::addNewCellRangeFilter( RimCase* srcCase, int sliceDirection, int defaultSlice )
+RimCellRangeFilter* RimCellFilterCollection::addNewCellRangeFilter( RimCase* srcCase, int gridIndex, int sliceDirection, int defaultSlice )
 {
     RimCellRangeFilter* pFilter = new RimCellRangeFilter();
     addFilter( pFilter );
+    pFilter->setGridIndex( gridIndex );
     pFilter->setDefaultValues( sliceDirection, defaultSlice );
     onFilterUpdated( pFilter );
     return pFilter;
@@ -369,11 +370,13 @@ void RimCellFilterCollection::compoundCellRangeFilter( cvf::CellRangeFilter* cel
 {
     CVF_ASSERT( cellRangeFilter );
 
+    int gIndx = static_cast<int>( gridIndex );
+
     for ( RimCellFilter* filter : m_cellFilters )
     {
-        if ( filter->isFilterEnabled() && static_cast<size_t>( filter->gridIndex() ) == gridIndex )
+        if ( filter->isFilterEnabled() )
         {
-            filter->updateCompundFilter( cellRangeFilter );
+            filter->updateCompundFilter( cellRangeFilter, gIndx );
         }
     }
 }

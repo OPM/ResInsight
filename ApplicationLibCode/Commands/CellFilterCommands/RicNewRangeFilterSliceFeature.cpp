@@ -56,7 +56,8 @@ void RicNewRangeFilterSliceFeature::onActionTriggered( bool isChecked )
     RimCase* sourceCase = nullptr;
     filtColl->firstAncestorOrThisOfTypeAsserted( sourceCase );
 
-    RimCellFilter* lastCreatedOrUpdated = filtColl->addNewCellRangeFilter( sourceCase, m_sliceDirection );
+    int            gridIndex            = 0;
+    RimCellFilter* lastCreatedOrUpdated = filtColl->addNewCellRangeFilter( sourceCase, gridIndex, m_sliceDirection );
     if ( lastCreatedOrUpdated )
     {
         Riu3DMainWindowTools::selectAsCurrentItem( lastCreatedOrUpdated );

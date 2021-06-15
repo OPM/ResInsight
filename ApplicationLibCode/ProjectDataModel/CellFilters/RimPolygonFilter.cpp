@@ -26,6 +26,7 @@
 #include "RigGeoMechCaseData.h"
 #include "RigMainGrid.h"
 #include "RigPolyLinesData.h"
+#include "RigReservoirGridTools.h"
 
 #include "Rim3dView.h"
 #include "RimCase.h"
@@ -161,6 +162,8 @@ RimPolygonFilter::RimPolygonFilter()
     this->setUi3dEditorTypeName( RicPolyline3dEditor::uiEditorTypeName() );
     this->uiCapability()->setUiTreeChildrenHidden( true );
 
+    m_propagateToSubGrids = false;
+
     updateIconState();
     setDeletable( true );
 }
@@ -170,6 +173,10 @@ RimPolygonFilter::RimPolygonFilter()
 //--------------------------------------------------------------------------------------------------
 RimPolygonFilter::~RimPolygonFilter()
 {
+    for ( auto& i : m_cells )
+    {
+        delete i.second;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -237,7 +244,12 @@ QString RimPolygonFilter::fullName() const
 {
     if ( m_enableFiltering )
     {
-        return QString( "%1  [%2 cells]" ).arg( RimCellFilter::fullName(), QString::number( m_cells.size() ) );
+        int cells = 0;
+        for ( const auto& item : m_cells )
+        {
+            cells += (int)item.second->size();
+        }
+        return QString( "%1  [%2 cells]" ).arg( RimCellFilter::fullName(), QString::number( cells ) );
     }
     return QString( "%1  [off]" ).arg( RimCellFilter::fullName() );
 }
@@ -399,8 +411,6 @@ void RimPolygonFilter::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderin
     auto group3 = uiOrdering.addNewGroup( "Advanced Filter Settings" );
     group3->add( &m_enableKFilter );
     group3->add( &m_kFilterStr );
-    group3->add( &m_gridIndex );
-    group3->add( &m_propagateToSubGrids );
     group3->setCollapsedByDefault( true );
 
     uiOrdering.skipRemainingFields( true );
@@ -468,7 +478,7 @@ caf::PickEventHandler* RimPolygonFilter::pickEventHandler() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPolygonFilter::updateCompundFilter( cvf::CellRangeFilter* cellRangeFilter )
+void RimPolygonFilter::updateCompundFilter( cvf::CellRangeFilter* cellRangeFilter, int gridIndex )
 {
     CVF_ASSERT( cellRangeFilter );
 
@@ -476,10 +486,12 @@ void RimPolygonFilter::updateCompundFilter( cvf::CellRangeFilter* cellRangeFilte
 
     if ( m_cells.size() == 0 ) updateCells();
 
-    const auto grid = selectedGrid();
+    const auto grid = RigReservoirGridTools::gridByIndex( m_srcCase, gridIndex );
     size_t     i, j, k;
 
-    for ( size_t cellidx : m_cells )
+    if ( m_cells.find( gridIndex ) == m_cells.end() ) return;
+
+    for ( size_t cellidx : *m_cells[gridIndex] )
     {
         grid->ijkFromCellIndex( cellidx, &i, &j, &k );
         if ( this->filterMode() == RimCellFilter::INCLUDE )
@@ -531,14 +543,15 @@ bool RimPolygonFilter::cellInsidePolygon2D( cvf::Vec3d                 center,
     return bInside;
 }
 
-void RimPolygonFilter::updateCellsDepthEclipse( const std::vector<cvf::Vec3d>& points, const RigMainGrid* grid )
+void RimPolygonFilter::updateCellsDepthEclipse( const std::vector<cvf::Vec3d>& points, const RigGridBase* grid )
 {
     // we should look in depth using Z coordinate
+    const int gIdx = static_cast<int>( grid->gridIndex() );
     // loop over all cells
     for ( size_t n = 0; n < grid->cellCount(); n++ )
     {
         // valid cell?
-        RigCell cell = grid->cellByGridAndGridLocalCellIdx( gridIndex(), n );
+        RigCell cell = grid->cell( n );
         if ( cell.isInvalid() ) continue;
 
         // get corner coordinates
@@ -553,7 +566,7 @@ void RimPolygonFilter::updateCellsDepthEclipse( const std::vector<cvf::Vec3d>& p
         // check if the polygon includes the cell
         if ( cellInsidePolygon2D( cell.center(), hexCorners, points ) )
         {
-            m_cells.push_back( n );
+            m_cells[gIdx]->push_back( n );
         }
     }
 }
@@ -564,50 +577,19 @@ void RimPolygonFilter::updateCellsDepthEclipse( const std::vector<cvf::Vec3d>& p
 // 2. find all cells in this K layer that matches the selection criteria
 // 3. extend those cells to all K layers
 //--------------------------------------------------------------------------------------------------
-void RimPolygonFilter::updateCellsKIndexEclipse( const std::vector<cvf::Vec3d>& points, const RigMainGrid* grid )
+void RimPolygonFilter::updateCellsKIndexEclipse( const std::vector<cvf::Vec3d>& points, const RigGridBase* grid, int K )
 {
-    // we need to find the K layer we hit with the first point
-    size_t ni, nj, nk;
-    // move the point a bit downwards to make sure it is inside something
-    cvf::Vec3d point = points[0];
-    point.z() += 0.2;
-
-    bool cellFound = false;
-
-    // loop over all points to find at least one point with a valid K layer
-    for ( size_t p = 0; p < points.size() - 1; p++ )
-    {
-        // loop over all cells to find the correct one
-        for ( size_t i = 0; i < grid->cellCount(); i++ )
-        {
-            // valid cell?
-            RigCell cell = grid->cellByGridAndGridLocalCellIdx( gridIndex(), i );
-            if ( cell.isInvalid() ) continue;
-
-            // is the point inside?
-            cvf::BoundingBox bb = cell.boundingBox();
-            if ( !bb.contains( points[p] ) ) continue;
-
-            // found the cell, get the IJK
-            grid->ijkFromCellIndexUnguarded( cell.mainGridCellIndex(), &ni, &nj, &nk );
-            cellFound = true;
-            break;
-        }
-        if ( cellFound ) break;
-    }
-
-    // should not really happen, but just to be sure
-    if ( !cellFound ) return;
+    const int gIdx = static_cast<int>( grid->gridIndex() );
 
     std::list<size_t> foundCells;
 
-    // find all cells in this K layer that matches the polygon
+    // find all cells in the K layer that matches the polygon
     for ( size_t i = 0; i < grid->cellCountI(); i++ )
     {
         for ( size_t j = 0; j < grid->cellCountJ(); j++ )
         {
-            size_t  cellIdx = grid->cellIndexFromIJK( i, j, nk );
-            RigCell cell    = grid->cellByGridAndGridLocalCellIdx( gridIndex(), cellIdx );
+            size_t  cellIdx = grid->cellIndexFromIJK( i, j, K );
+            RigCell cell    = grid->cell( cellIdx );
             // valid cell?
             if ( cell.isInvalid() ) continue;
 
@@ -636,10 +618,10 @@ void RimPolygonFilter::updateCellsKIndexEclipse( const std::vector<cvf::Vec3d>& 
             // get the cell index
             size_t newIdx = grid->cellIndexFromIJK( ci, cj, k );
             // valid cell?
-            RigCell cell = grid->cellByGridAndGridLocalCellIdx( gridIndex(), newIdx );
+            RigCell cell = grid->cell( newIdx );
             if ( cell.isInvalid() ) continue;
 
-            m_cells.push_back( newIdx );
+            m_cells[gIdx]->push_back( newIdx );
         }
     }
 }
@@ -652,16 +634,24 @@ void RimPolygonFilter::updateCellsForEclipse( const std::vector<cvf::Vec3d>& poi
     RigEclipseCaseData* data = eCase->eclipseCaseData();
     if ( !data ) return;
 
-    RigMainGrid* grid = data->mainGrid();
-    if ( !grid ) return;
-
     if ( m_polyFilterMode == PolygonFilterModeType::DEPTH_Z )
     {
-        updateCellsDepthEclipse( points, grid );
+        for ( size_t gridIndex = 0; gridIndex < data->gridCount(); gridIndex++ )
+        {
+            auto grid = data->grid( gridIndex );
+            updateCellsDepthEclipse( points, grid );
+        }
     }
     else if ( m_polyFilterMode == PolygonFilterModeType::INDEX_K )
     {
-        updateCellsKIndexEclipse( points, grid );
+        int K = findEclipseKLayer( points, data );
+        if ( K < 0 ) return;
+
+        for ( size_t gridIndex = 0; gridIndex < data->gridCount(); gridIndex++ )
+        {
+            auto grid = data->grid( gridIndex );
+            updateCellsKIndexEclipse( points, grid, K );
+        }
     }
 }
 
@@ -693,7 +683,7 @@ void RimPolygonFilter::updateCellsDepthGeoMech( const std::vector<cvf::Vec3d>& p
                 // check if the polygon includes the cell
                 if ( cellInsidePolygon2D( center, corners, points ) )
                 {
-                    m_cells.push_back( cellIdx );
+                    m_cells[0]->push_back( cellIdx );
                 }
             }
         }
@@ -787,7 +777,7 @@ void RimPolygonFilter::updateCellsKIndexGeoMech( const std::vector<cvf::Vec3d>& 
 
             // get the cell index
             size_t newIdx = grid->cellIndexFromIJK( ci, cj, k );
-            m_cells.push_back( newIdx );
+            m_cells[0]->push_back( newIdx );
         }
     }
 }
@@ -813,12 +803,12 @@ void RimPolygonFilter::updateCellsForGeoMech( const std::vector<cvf::Vec3d>& poi
 }
 
 //--------------------------------------------------------------------------------------------------
-///  Update the cell index list with the cells that are inside our polygon, if any
+///  Update the cell index map with the cells that are inside our polygon, if any
 //--------------------------------------------------------------------------------------------------
 void RimPolygonFilter::updateCells()
 {
-    // reset
-    m_cells.clear();
+    // reset cell map for all grids
+    initializeCellMap();
 
     // get optional k-cell filter
     m_intervalTool.setInterval( m_enableKFilter, m_kFilterStr );
@@ -833,7 +823,7 @@ void RimPolygonFilter::updateCells()
     // We need at least three points to make a sensible polygon
     if ( points.size() < 3 ) return;
 
-    // make sure first and last point is the same (req. by polygon methods later)
+    // make sure first and last point is the same (req. by polygon methods used later)
     points.push_back( points.front() );
 
     RimEclipseCase* eCase = dynamic_cast<RimEclipseCase*>( m_srcCase() );
@@ -876,4 +866,65 @@ cvf::ref<RigPolyLinesData> RimPolygonFilter::polyLinesData() const
     }
 
     return pld;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPolygonFilter::initializeCellMap()
+{
+    for ( auto& i : m_cells )
+    {
+        delete i.second;
+    }
+    m_cells.clear();
+
+    int gridCount = RigReservoirGridTools::gridCount( m_srcCase() );
+    for ( int i = 0; i < gridCount; i++ )
+    {
+        m_cells[i] = new std::vector<size_t>();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Find which K layer we hit, in any of the grids, for any of the selected points
+//--------------------------------------------------------------------------------------------------
+int RimPolygonFilter::findEclipseKLayer( const std::vector<cvf::Vec3d>& points, RigEclipseCaseData* data )
+{
+    size_t ni, nj, nk;
+
+    // loop over all grids to find one with a cell hit
+    for ( size_t gridIndex = 0; gridIndex < data->gridCount(); gridIndex++ )
+    {
+        auto grid = data->grid( gridIndex );
+
+        // loop over all cells to find the correct one
+        for ( size_t i = 0; i < grid->cellCount(); i++ )
+        {
+            // valid cell?
+            RigCell cell = grid->cell( i );
+            if ( cell.isInvalid() ) continue;
+
+            // is the point inside cell bb?
+            cvf::BoundingBox          bb;
+            std::array<cvf::Vec3d, 8> hexCorners;
+            grid->cellCornerVertices( i, hexCorners.data() );
+            for ( const auto& corner : hexCorners )
+            {
+                bb.add( corner );
+            }
+
+            // loop over all points to find at least one point with a valid K layer
+            for ( size_t p = 0; p < points.size() - 1; p++ )
+            {
+                if ( bb.contains( points[p] ) )
+                {
+                    // found the cell, get the IJK
+                    grid->ijkFromCellIndexUnguarded( i, &ni, &nj, &nk );
+                    return static_cast<int>( nk );
+                }
+            }
+        }
+    }
+    return -1;
 }
