@@ -52,6 +52,7 @@ RicPolylineTargetsPickEventHandler::RicPolylineTargetsPickEventHandler( RimPolyl
 //--------------------------------------------------------------------------------------------------
 RicPolylineTargetsPickEventHandler::~RicPolylineTargetsPickEventHandler()
 {
+    Ric3dViewPickEventHandler::unregisterAsPickEventHandler();
 }
 
 //--------------------------------------------------------------------------------------------------
