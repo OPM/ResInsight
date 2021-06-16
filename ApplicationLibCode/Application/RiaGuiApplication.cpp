@@ -1582,6 +1582,9 @@ void RiaGuiApplication::slotWorkerProcessFinished( int exitCode, QProcess::ExitS
     }
     m_workerProcess = nullptr;
 
+    // Always make sure the command objects are executed before any return statement
+    executeCommandObjects();
+
     // Either the work process crashed or was aborted by the user
     if ( exitStatus == QProcess::CrashExit )
     {
@@ -1589,8 +1592,6 @@ void RiaGuiApplication::slotWorkerProcessFinished( int exitCode, QProcess::ExitS
         m_runningWorkerProcess = false;
         return;
     }
-
-    executeCommandObjects();
 
     // Exit code != 0 means we have an error
     if ( exitCode != 0 )
