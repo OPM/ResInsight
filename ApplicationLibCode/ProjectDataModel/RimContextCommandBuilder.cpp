@@ -413,10 +413,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicNewWellPathFractureFeature";
             menuBuilder.subMenuEnd();
             menuBuilder << "RicCreateTemporaryLgrFeature";
-            if ( RiaApplication::enableDevelopmentFeatures() )
-            {
-                menuBuilder << "RicNewStimPlanModelFeature";
-            }
+            menuBuilder << "RicNewStimPlanModelFeature";
             menuBuilder.addSeparator();
             appendExportCompletions( menuBuilder );
         }
@@ -447,12 +444,9 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         }
         else if ( dynamic_cast<RimStimPlanModel*>( firstUiItem ) )
         {
-            if ( RiaApplication::enableDevelopmentFeatures() )
-            {
-                menuBuilder << "RicNewStimPlanModelFeature";
-                menuBuilder << "RicNewStimPlanModelPlotFeature";
-                menuBuilder << "RicExportStimPlanModelToFileFeature";
-            }
+            menuBuilder << "RicNewStimPlanModelFeature";
+            menuBuilder << "RicNewStimPlanModelPlotFeature";
+            menuBuilder << "RicExportStimPlanModelToFileFeature";
         }
         else if ( dynamic_cast<RimPressureTable*>( firstUiItem ) )
         {
@@ -460,10 +454,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         }
         else if ( dynamic_cast<RimStimPlanModelCollection*>( firstUiItem ) )
         {
-            if ( RiaApplication::enableDevelopmentFeatures() )
-            {
-                menuBuilder << "RicNewStimPlanModelFeature";
-            }
+            menuBuilder << "RicNewStimPlanModelFeature";
         }
         else if ( dynamic_cast<Rim3dWellLogCurveCollection*>( firstUiItem ) ||
                   dynamic_cast<Rim3dWellLogExtractionCurve*>( firstUiItem ) ||
@@ -923,10 +914,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         }
         else if ( dynamic_cast<RimStimPlanModelTemplateCollection*>( firstUiItem ) )
         {
-            if ( RiaApplication::enableDevelopmentFeatures() )
-            {
-                menuBuilder << "RicNewStimPlanModelTemplateFeature";
-            }
+            menuBuilder << "RicNewStimPlanModelTemplateFeature";
         }
         else if ( dynamic_cast<RimFractureTemplateCollection*>( firstUiItem ) )
         {
@@ -1379,10 +1367,7 @@ int RimContextCommandBuilder::appendCreateCompletions( caf::CmdFeatureMenuBuilde
     candidates << "RicNewWellPathAttributeFeature";
     candidates << "Separator";
     candidates << "RicCreateTemporaryLgrFeature";
-    if ( RiaApplication::enableDevelopmentFeatures() )
-    {
-        candidates << "RicNewStimPlanModelFeature";
-    }
+    candidates << "RicNewStimPlanModelFeature";
 
     return appendSubMenuWithCommands( menuBuilder,
                                       candidates,
