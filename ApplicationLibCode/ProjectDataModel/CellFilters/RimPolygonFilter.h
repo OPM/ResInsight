@@ -119,7 +119,7 @@ private:
 
     bool cellInsidePolygon2D( cvf::Vec3d center, std::array<cvf::Vec3d, 8>& corners, std::vector<cvf::Vec3d> polygon );
 
-    void initializeCellMap();
+    void initializeCellList();
 
     caf::PdmField<bool>                                m_enablePicking;
     caf::PdmChildArrayField<RimPolylineTarget*>        m_targets;
@@ -140,7 +140,7 @@ private:
 
     std::shared_ptr<RicPolylineTargetsPickEventHandler> m_pickTargetsEventHandler;
 
-    std::map<int, std::vector<size_t>*> m_cells;
+    std::vector<std::vector<size_t>> m_cells;
 
     RimCellFilterIntervalTool m_intervalTool;
 };
