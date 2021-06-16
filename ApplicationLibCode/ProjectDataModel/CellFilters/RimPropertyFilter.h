@@ -34,7 +34,7 @@ public:
 
     std::vector<int> selectedCategoryValues() const;
 
-    void updateCompundFilter( cvf::CellRangeFilter* cellRangeFilter ) override{};
+    void updateCompundFilter( cvf::CellRangeFilter* cellRangeFilter, int gridIndex ) override{};
 
 protected:
     void setCategoryValues( const std::vector<int>& categoryValues );

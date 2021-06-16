@@ -42,9 +42,11 @@ class RimPolylineTarget;
 class RimCase;
 class RimEclipseCase;
 class RimGeoMechCase;
+class RigGridBase;
 class RigMainGrid;
 class RigFemPartGrid;
 class RigPolylinesData;
+class RigEclipseCaseData;
 
 //==================================================================================================
 ///
@@ -87,7 +89,7 @@ public:
     bool                            pickingEnabled() const override;
     caf::PickEventHandler*          pickEventHandler() const override;
 
-    void updateCompundFilter( cvf::CellRangeFilter* cellRangeFilter ) override;
+    void updateCompundFilter( cvf::CellRangeFilter* cellRangeFilter, int gridIndex ) override;
 
     cvf::ref<RigPolyLinesData> polyLinesData() const override;
 
@@ -108,12 +110,16 @@ private:
     void updateCellsForEclipse( const std::vector<cvf::Vec3d>& points, RimEclipseCase* eCase );
     void updateCellsForGeoMech( const std::vector<cvf::Vec3d>& points, RimGeoMechCase* gCase );
 
-    void updateCellsDepthEclipse( const std::vector<cvf::Vec3d>& points, const RigMainGrid* grid );
-    void updateCellsKIndexEclipse( const std::vector<cvf::Vec3d>& points, const RigMainGrid* grid );
+    void updateCellsDepthEclipse( const std::vector<cvf::Vec3d>& points, const RigGridBase* grid );
+    void updateCellsKIndexEclipse( const std::vector<cvf::Vec3d>& points, const RigGridBase* grid, int K );
+    int  findEclipseKLayer( const std::vector<cvf::Vec3d>& points, RigEclipseCaseData* data );
+
     void updateCellsDepthGeoMech( const std::vector<cvf::Vec3d>& points, const RigFemPartGrid* grid );
     void updateCellsKIndexGeoMech( const std::vector<cvf::Vec3d>& points, const RigFemPartGrid* grid );
 
     bool cellInsidePolygon2D( cvf::Vec3d center, std::array<cvf::Vec3d, 8>& corners, std::vector<cvf::Vec3d> polygon );
+
+    void initializeCellList();
 
     caf::PdmField<bool>                                m_enablePicking;
     caf::PdmChildArrayField<RimPolylineTarget*>        m_targets;
@@ -134,7 +140,7 @@ private:
 
     std::shared_ptr<RicPolylineTargetsPickEventHandler> m_pickTargetsEventHandler;
 
-    std::list<size_t> m_cells;
+    std::vector<std::vector<size_t>> m_cells;
 
     RimCellFilterIntervalTool m_intervalTool;
 };

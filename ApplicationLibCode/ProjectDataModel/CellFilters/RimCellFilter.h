@@ -69,7 +69,7 @@ public:
     void updateIconState();
     void updateActiveState( bool isControlled );
 
-    virtual void    updateCompundFilter( cvf::CellRangeFilter* cellRangeFilter ) = 0;
+    virtual void    updateCompundFilter( cvf::CellRangeFilter* cellRangeFilter, int gridIndex ) = 0;
     virtual QString fullName() const;
 
 protected:

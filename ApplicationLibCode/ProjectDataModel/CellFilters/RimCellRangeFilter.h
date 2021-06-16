@@ -57,7 +57,7 @@ public:
 
     void setDefaultValues( int sliceDirection = -1, int defaultSlice = -1 );
 
-    void updateCompundFilter( cvf::CellRangeFilter* cellRangeFilter ) override;
+    void updateCompundFilter( cvf::CellRangeFilter* cellRangeFilter, int gridIndex ) override;
 
 protected:
     void    fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;

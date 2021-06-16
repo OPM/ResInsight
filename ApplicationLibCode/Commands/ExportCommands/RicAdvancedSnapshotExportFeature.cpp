@@ -262,7 +262,8 @@ void RicAdvancedSnapshotExportFeature::exportViewVariationsToFolder( RimGridView
         }
         else
         {
-            RimCellRangeFilter* rangeFilter = rimView->cellFilterCollection()->addNewCellRangeFilter( rimCase );
+            int                 gridIndex = 0;
+            RimCellRangeFilter* rangeFilter = rimView->cellFilterCollection()->addNewCellRangeFilter( rimCase, gridIndex );
 
             bool rangeFilterInitState = rimView->cellFilterCollection()->isActive();
             rimView->cellFilterCollection()->setActive( true );

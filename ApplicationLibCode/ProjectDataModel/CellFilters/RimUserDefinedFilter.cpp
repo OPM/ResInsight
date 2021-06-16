@@ -35,6 +35,8 @@ RimUserDefinedFilter::RimUserDefinedFilter()
                                 "Use Ctrl-C for copy and Ctrl-V for paste",
                                 "" );
 
+    m_propagateToSubGrids = true;
+
     updateIconState();
     setDeletable( true );
 }
@@ -85,9 +87,11 @@ void RimUserDefinedFilter::fieldChangedByUi( const caf::PdmFieldHandle* changedF
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimUserDefinedFilter::updateCompundFilter( cvf::CellRangeFilter* cellRangeFilter )
+void RimUserDefinedFilter::updateCompundFilter( cvf::CellRangeFilter* cellRangeFilter, int gridIndex )
 {
     CVF_ASSERT( cellRangeFilter );
+
+    if ( gridIndex != m_gridIndex ) return;
 
     if ( this->filterMode() == RimCellFilter::INCLUDE )
     {

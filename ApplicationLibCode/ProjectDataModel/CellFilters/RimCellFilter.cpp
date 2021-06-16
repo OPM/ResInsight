@@ -210,7 +210,6 @@ void RimCellFilter::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& 
     auto group = uiOrdering.addNewGroup( "General" );
     group->add( &m_filterMode );
     group->add( &m_gridIndex );
-    group->add( &m_propagateToSubGrids );
 
     bool readOnlyState = isFilterControlled();
 
