@@ -72,10 +72,9 @@ void RicNewRangeFilterSlice3dviewFeature::onActionTriggered( bool isChecked )
     int sliceStart = list[1].toInt();
     int gridIndex  = list[2].toInt();
 
-    RimCellFilter* newFilter = filtColl->addNewCellRangeFilter( sourceCase, direction, sliceStart );
+    RimCellFilter* newFilter = filtColl->addNewCellRangeFilter( sourceCase, gridIndex, direction, sliceStart );
     if ( newFilter )
     {
-        newFilter->setGridIndex( gridIndex );
         Riu3DMainWindowTools::selectAsCurrentItem( newFilter );
         activeView->setSurfaceDrawstyle();
     }
