@@ -480,17 +480,16 @@ void RimPolygonFilter::updateCompundFilter( cvf::CellRangeFilter* cellRangeFilte
 
     if ( !m_enableFiltering ) return;
 
-    if ( m_cells.size() == 0 )
+    const int noofgrids = static_cast<int>( m_cells.size() );
+    if ( ( noofgrids == 0 ) || ( gridIndex >= noofgrids ) )
+    {
         updateCells();
-    else if ( gridIndex >= m_cells.size() )
-        updateCells();
+    }
 
-    if ( gridIndex >= m_cells.size() ) return;
+    if ( gridIndex >= static_cast<int>( m_cells.size() ) ) return;
 
     const auto grid = RigReservoirGridTools::gridByIndex( m_srcCase, gridIndex );
     size_t     i, j, k;
-
-    if ( gridIndex >= m_cells.size() ) return;
 
     for ( size_t cellidx : m_cells[gridIndex] )
     {
