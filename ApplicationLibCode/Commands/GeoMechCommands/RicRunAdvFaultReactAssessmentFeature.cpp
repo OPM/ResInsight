@@ -107,6 +107,9 @@ void RicRunAdvFaultReactAssessmentFeature::onActionTriggered( bool isChecked )
     addParameterFileForCleanUp( paramfilename );
     addParameterFileForCleanUp( paramfilename2 );
 
+    // remove any existing database file
+    removeFile( fraSettings->advancedMacrisDatabase() );
+
     // run the java macris program in calibrate mode
     QString     command    = RiaPreferencesGeoMech::current()->geomechFRAMacrisCommand();
     QStringList parameters = fraSettings->advancedMacrisParameters( faultID );

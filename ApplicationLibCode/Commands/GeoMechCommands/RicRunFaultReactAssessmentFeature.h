@@ -45,6 +45,8 @@ protected:
     void addParameterFileForCleanUp( QString filename );
     void cleanUpParameterFiles();
 
+    void removeFile( QString filename );
+
 private:
     std::list<QString> m_parameterFilesToCleanUp;
 };
