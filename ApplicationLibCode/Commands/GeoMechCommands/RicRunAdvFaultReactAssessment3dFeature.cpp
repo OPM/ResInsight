@@ -16,42 +16,30 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicRunAdvFaultReactAssessmentFeature.h"
-
-#include "RimFaultInViewCollection.h"
-#include "RimFaultRASettings.h"
+#include "RicRunAdvFaultReactAssessment3dFeature.h"
 
 #include <QAction>
 
-CAF_CMD_SOURCE_INIT( RicRunAdvFaultReactAssessmentFeature, "RicRunAdvFaultReactAssessmentFeature" );
+CAF_CMD_SOURCE_INIT( RicRunAdvFaultReactAssessment3dFeature, "RicRunAdvFaultReactAssessment3dFeature" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicRunAdvFaultReactAssessmentFeature::isCommandEnabled()
+void RicRunAdvFaultReactAssessment3dFeature::onActionTriggered( bool isChecked )
 {
-    RimFaultInViewCollection* faultColl = faultCollection();
+    QVariant userData = this->userData();
+    if ( userData.isNull() || userData.type() != QVariant::String ) return;
 
-    if ( faultColl )
-    {
-        return faultColl->faultRAAdvancedEnabled();
-    }
+    QString faultName = userData.toString();
 
-    return false;
+    int faultID = faultIDFromName( faultName );
+    if ( faultID >= 0 ) runAdvancedProcessing( selectedFaultID() );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicRunAdvFaultReactAssessmentFeature::onActionTriggered( bool isChecked )
-{
-    runAdvancedProcessing( selectedFaultID() );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RicRunAdvFaultReactAssessmentFeature::setupActionLook( QAction* actionToSetup )
+void RicRunAdvFaultReactAssessment3dFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setIcon( QIcon( ":/fault_react_24x24.png" ) );
     actionToSetup->setText( "Run Advanced Processing" );

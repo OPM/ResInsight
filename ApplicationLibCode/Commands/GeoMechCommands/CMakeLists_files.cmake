@@ -14,6 +14,8 @@ ${CMAKE_CURRENT_LIST_DIR}/RicImportGeoMechCaseTimeStepFilterFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicNewFaultReactAssessmentFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicRunBasicFaultReactAssessmentFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicRunAdvFaultReactAssessmentFeature.h
+${CMAKE_CURRENT_LIST_DIR}/RicRunBasicFaultReactAssessment3dFeature.h
+${CMAKE_CURRENT_LIST_DIR}/RicRunAdvFaultReactAssessment3dFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicRunFaultReactAssessmentFeature.h
 )
 
@@ -31,7 +33,9 @@ ${CMAKE_CURRENT_LIST_DIR}/RicImportGeoMechCaseTimeStepFilterFeature.cpp
 
 ${CMAKE_CURRENT_LIST_DIR}/RicNewFaultReactAssessmentFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicRunAdvFaultReactAssessmentFeature.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicRunAdvFaultReactAssessment3dFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicRunBasicFaultReactAssessmentFeature.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicRunBasicFaultReactAssessment3dFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicRunFaultReactAssessmentFeature.cpp
 )
 

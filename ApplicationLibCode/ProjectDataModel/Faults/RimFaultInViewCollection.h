@@ -64,6 +64,7 @@ public:
 
     RimFaultRASettings* faultRASettings() const;
     bool                faultRAEnabled() const;
+    bool                faultRAAdvancedEnabled() const;
     void                enableFaultRA( bool enable );
 
     caf::PdmField<bool> showFaultFaces;
