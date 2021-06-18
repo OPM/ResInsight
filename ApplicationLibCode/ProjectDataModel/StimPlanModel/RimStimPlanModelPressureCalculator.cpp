@@ -745,8 +745,12 @@ bool RimStimPlanModelPressureCalculator::handleFaciesWithInitialPressure( const 
             return false;
         }
 
-        CAF_ASSERT( faciesValues.size() == initialPressureValues.size() );
-        CAF_ASSERT( faciesValues.size() == values.size() );
+        if ( faciesValues.size() != initialPressureValues.size() || faciesValues.size() != values.size() )
+        {
+            RiaLogging::error( "Unable to handle facies with initial pressure: result length mismatch" );
+            return false;
+        }
+
         for ( size_t i = 0; i < faciesValues.size(); i++ )
         {
             // Use the values from initial pressure curve
