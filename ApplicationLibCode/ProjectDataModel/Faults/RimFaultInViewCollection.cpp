@@ -367,6 +367,14 @@ bool RimFaultInViewCollection::faultRAEnabled() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RimFaultInViewCollection::faultRAAdvancedEnabled() const
+{
+    return m_enableFaultRA() && ( m_faultRASettings->geomechCase() != nullptr );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimFaultInViewCollection::enableFaultRA( bool enable )
 {
     m_enableFaultRA = enable;

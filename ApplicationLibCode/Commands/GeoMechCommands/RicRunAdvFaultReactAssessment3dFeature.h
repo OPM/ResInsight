@@ -18,40 +18,16 @@
 
 #pragma once
 
-#include "cafCmdFeature.h"
-
-class RimFaultInViewCollection;
-class RimFaultRASettings;
-class RimSurfaceCollection;
-
-#include <QString>
+#include "RicRunBasicFaultReactAssessment3dFeature.h"
 
 //==================================================================================================
 ///
 //==================================================================================================
-class RicRunFaultReactAssessmentFeature : public caf::CmdFeature
+class RicRunAdvFaultReactAssessment3dFeature : public RicRunBasicFaultReactAssessment3dFeature
 {
+    CAF_CMD_HEADER_INIT;
+
 protected:
-    RicRunFaultReactAssessmentFeature();
-
-    virtual RimFaultInViewCollection* faultCollection();
-
-    int selectedFaultID();
-    int faultIDFromName( QString faultname ) const;
-
-    RimSurfaceCollection* surfaceCollection();
-
-    bool runPostProcessing( int faultID, RimFaultRASettings* settings );
-    void reloadSurfaces( RimFaultRASettings* settings );
-
-    void addParameterFileForCleanUp( QString filename );
-    void cleanUpParameterFiles();
-
-    void removeFile( QString filename );
-
-    void runBasicProcessing( int faultID );
-    void runAdvancedProcessing( int faultID );
-
-private:
-    std::list<QString> m_parameterFilesToCleanUp;
+    void onActionTriggered( bool isChecked ) override;
+    void setupActionLook( QAction* actionToSetup ) override;
 };

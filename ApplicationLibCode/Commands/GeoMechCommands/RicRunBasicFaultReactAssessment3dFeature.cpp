@@ -16,43 +16,60 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicRunAdvFaultReactAssessmentFeature.h"
+#include "RicRunBasicFaultReactAssessment3dFeature.h"
 
+#include "RimEclipseView.h"
 #include "RimFaultInViewCollection.h"
 #include "RimFaultRASettings.h"
+#include "RimGridView.h"
+
+#include "RiaApplication.h"
 
 #include <QAction>
+#include <QVariant>
 
-CAF_CMD_SOURCE_INIT( RicRunAdvFaultReactAssessmentFeature, "RicRunAdvFaultReactAssessmentFeature" );
+CAF_CMD_SOURCE_INIT( RicRunBasicFaultReactAssessment3dFeature, "RicRunBasicFaultReactAssessment3dFeature" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicRunAdvFaultReactAssessmentFeature::isCommandEnabled()
+bool RicRunBasicFaultReactAssessment3dFeature::isCommandEnabled()
 {
-    RimFaultInViewCollection* faultColl = faultCollection();
-
-    if ( faultColl )
-    {
-        return faultColl->faultRAAdvancedEnabled();
-    }
-
-    return false;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicRunAdvFaultReactAssessmentFeature::onActionTriggered( bool isChecked )
+void RicRunBasicFaultReactAssessment3dFeature::onActionTriggered( bool isChecked )
 {
-    runAdvancedProcessing( selectedFaultID() );
+    QVariant userData = this->userData();
+    if ( userData.isNull() || userData.type() != QVariant::String ) return;
+
+    QString faultName = userData.toString();
+
+    int faultID = faultIDFromName( faultName );
+    if ( faultID >= 0 ) runBasicProcessing( faultID );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicRunAdvFaultReactAssessmentFeature::setupActionLook( QAction* actionToSetup )
+void RicRunBasicFaultReactAssessment3dFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setIcon( QIcon( ":/fault_react_24x24.png" ) );
-    actionToSetup->setText( "Run Advanced Processing" );
+    actionToSetup->setText( "Run Basic Processing" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimFaultInViewCollection* RicRunBasicFaultReactAssessment3dFeature::faultCollection()
+{
+    RimGridView*    viewOrComparisonView = RiaApplication::instance()->activeMainOrComparisonGridView();
+    RimEclipseView* theView              = dynamic_cast<RimEclipseView*>( viewOrComparisonView );
+
+    CAF_ASSERT( theView );
+
+    return theView->faultCollection();
 }

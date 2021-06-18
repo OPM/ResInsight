@@ -429,15 +429,14 @@ void RiuViewerCommands::displayContextMenu( QMouseEvent* event )
             RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>( mainOrComparisonView );
             if ( eclipseView )
             {
-                // Hide faults command
+                // fault commands
                 const RigFault* fault =
                     eclipseView->mainGrid()->findFaultFromCellIndexAndCellFace( m_currentCellIndex, m_currentFaceIndex );
                 if ( fault )
                 {
                     menuBuilder.addSeparator();
 
-                    QString faultName = fault->name();
-
+                    QString      faultName = fault->name();
                     QVariantList hideFaultList;
                     qulonglong   currentCellIndex = m_currentCellIndex;
                     hideFaultList.push_back( currentCellIndex );
@@ -446,6 +445,22 @@ void RiuViewerCommands::displayContextMenu( QMouseEvent* event )
                     menuBuilder.addCmdFeatureWithUserData( "RicEclipseHideFaultFeature",
                                                            QString( "Hide " ) + faultName,
                                                            hideFaultList );
+
+                    if ( eclipseView->faultCollection() && eclipseView->faultCollection()->faultRAEnabled() )
+                    {
+                        menuBuilder.subMenuStart( "Reactivation Assessment" );
+                        menuBuilder.addCmdFeatureWithUserData( "RicRunBasicFaultReactAssessment3dFeature",
+                                                               "Run Basic Processing",
+                                                               QVariant( fault->name() ) );
+                        if ( eclipseView->faultCollection()->faultRAAdvancedEnabled() )
+                        {
+                            menuBuilder.addCmdFeatureWithUserData( "RicRunAdvFaultReactAssessment3dFeature",
+                                                                   "Run Advanced Processing",
+                                                                   QVariant( fault->name() ) );
+                        }
+                        menuBuilder.subMenuEnd();
+                        menuBuilder.addSeparator();
+                    }
                 }
             }
 
