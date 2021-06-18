@@ -142,6 +142,12 @@ void RiaGrpcServiceInterface::copyPdmObjectFromRipsToCaf( const rips::PdmObject*
         auto scriptability = field->template capability<caf::PdmAbstractFieldScriptingCapability>();
         if ( scriptability )
         {
+            if ( !dynamic_cast<caf::PdmValueField*>( field ) )
+            {
+                // Recursive object update is not supported
+                // https://github.com/OPM/ResInsight/issues/7794
+                continue;
+            }
             QString keyword = scriptability->scriptFieldName();
             QString value   = QString::fromStdString( parametersMap[keyword.toStdString()] );
 
