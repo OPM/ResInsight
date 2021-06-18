@@ -97,6 +97,9 @@ void RicRunBasicFaultReactAssessmentFeature::onActionTriggered( bool isChecked )
 
         addParameterFileForCleanUp( paramfilename );
 
+        // remove any existing database file
+        removeFile( fraSettings->basicMacrisDatabase() );
+
         // run the java macris program in calculate mode
         QString     command    = RiaPreferencesGeoMech::current()->geomechFRAMacrisCommand();
         QStringList parameters = fraSettings->basicMacrisParameters( faultID );

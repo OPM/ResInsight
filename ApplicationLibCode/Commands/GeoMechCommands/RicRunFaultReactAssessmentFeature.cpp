@@ -162,10 +162,18 @@ void RicRunFaultReactAssessmentFeature::cleanUpParameterFiles()
     {
         for ( auto& filename : m_parameterFilesToCleanUp )
         {
-            if ( QFile::exists( filename ) ) QFile::remove( filename );
+            removeFile( filename );
         }
     }
     m_parameterFilesToCleanUp.clear();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicRunFaultReactAssessmentFeature::removeFile( QString filename )
+{
+    if ( QFile::exists( filename ) ) QFile::remove( filename );
 }
 
 //--------------------------------------------------------------------------------------------------
