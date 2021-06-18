@@ -584,6 +584,12 @@ const std::vector<double>& RimStimPlanModelWellLogCalculator::loadResults( RigEc
     int                     timeStepIndex = 0;
     RigEclipseResultAddress resultAddress( resultType, propertyName );
 
+    if ( !resultData->hasResultEntry( resultAddress ) && resultType != RiaDefines::ResultCatType::INPUT_PROPERTY )
+    {
+        return loadResults( caseData, porosityModel, RiaDefines::ResultCatType::INPUT_PROPERTY, propertyName );
+    }
+
+    CAF_ASSERT( resultData->hasResultEntry( resultAddress ) );
     resultData->ensureKnownResultLoaded( resultAddress );
     return caseData->results( porosityModel )->cellScalarResults( resultAddress, timeStepIndex );
 }

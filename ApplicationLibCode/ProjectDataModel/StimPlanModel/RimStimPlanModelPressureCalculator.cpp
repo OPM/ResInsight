@@ -39,6 +39,7 @@
 #include "RimStimPlanModelCalculator.h"
 #include "RimStimPlanModelTemplate.h"
 #include "RimStimPlanModelWellLogCalculator.h"
+#include "cafAssert.h"
 
 #include <limits>
 
@@ -448,49 +449,70 @@ bool RimStimPlanModelPressureCalculator::buildPressureTablesPerEqlNum( const Rim
                                                                        EqlNumToDepthValuePairMap& valuesPerEqlNum,
                                                                        const std::set<int>&       presentEqlNums )
 {
-    RimEclipseCase* eclipseCase = stimPlanModel->eclipseCaseForProperty( RiaDefines::CurveProperty::EQLNUM );
+    int             gridIndex         = 0;
+    RimEclipseCase* eqlNumEclipseCase = stimPlanModel->eclipseCaseForProperty( RiaDefines::CurveProperty::EQLNUM );
+    CAF_ASSERT( eqlNumEclipseCase != nullptr );
 
-    // TODO: too naive??
-    int                gridIndex = 0;
-    const RigGridBase* grid      = eclipseCase->mainGrid()->gridByIndex( gridIndex );
+    const RigGridBase* eqlNumGrid = eqlNumEclipseCase->mainGrid()->gridByIndex( gridIndex );
+    CAF_ASSERT( eqlNumGrid != nullptr );
 
-    RigEclipseCaseData* caseData = eclipseCase->eclipseCaseData();
+    RigEclipseCaseData* eqlNumCaseData = eqlNumEclipseCase->eclipseCaseData();
+    CAF_ASSERT( eqlNumCaseData != nullptr );
 
     RiaDefines::PorosityModelType porosityModel = RiaDefines::PorosityModelType::MATRIX_MODEL;
     const std::vector<double>&    eqlNumValues =
-        RimStimPlanModelWellLogCalculator::loadResults( caseData,
+        RimStimPlanModelWellLogCalculator::loadResults( eqlNumCaseData,
                                                         porosityModel,
                                                         RiaDefines::ResultCatType::STATIC_NATIVE,
                                                         "EQLNUM" );
+
+    RimEclipseCase* pressureEclipseCase =
+        stimPlanModel->eclipseCaseForProperty( RiaDefines::CurveProperty::INITIAL_PRESSURE );
+    CAF_ASSERT( pressureEclipseCase != nullptr );
+
+    const RigGridBase* pressureGrid = pressureEclipseCase->mainGrid()->gridByIndex( gridIndex );
+    CAF_ASSERT( pressureGrid );
+
+    RigEclipseCaseData* pressureCaseData = pressureEclipseCase->eclipseCaseData();
+    CAF_ASSERT( pressureCaseData );
+
     const std::vector<double>& pressureValues =
-        RimStimPlanModelWellLogCalculator::loadResults( caseData,
+        RimStimPlanModelWellLogCalculator::loadResults( pressureCaseData,
                                                         porosityModel,
                                                         RiaDefines::ResultCatType::DYNAMIC_NATIVE,
                                                         "PRESSURE" );
 
-    if ( eqlNumValues.size() != pressureValues.size() )
+    auto   eqlNumActiveCellInfo = eqlNumCaseData->activeCellInfo( porosityModel );
+    size_t eqlNumCellCount      = eqlNumActiveCellInfo->reservoirCellCount();
+
+    auto pressureActiveCellInfo = pressureCaseData->activeCellInfo( porosityModel );
+
+    if ( eqlNumGrid->cellCountI() != pressureGrid->cellCountI() ||
+         eqlNumGrid->cellCountJ() != pressureGrid->cellCountJ() || eqlNumGrid->cellCountK() != pressureGrid->cellCountK() )
     {
-        RiaLogging::error( "Unexpected result size for EQLNUM and PRESSURE found for pressure calculation." );
+        RiaLogging::error( "Unexpected number of cells when building pressure per EQLNUM table. " );
+        RiaLogging::error( "Grid needs to have identical geometry." );
+        RiaLogging::error( QString( "EQLNUM grid dimensions: [ %1, %2, %3]" )
+                               .arg( eqlNumGrid->cellCountI() )
+                               .arg( eqlNumGrid->cellCountJ() )
+                               .arg( eqlNumGrid->cellCountK() ) );
+
+        RiaLogging::error( QString( "PRESSURE grid dimensions: [ %1, %2, %3]" )
+                               .arg( pressureGrid->cellCountI() )
+                               .arg( pressureGrid->cellCountJ() )
+                               .arg( pressureGrid->cellCountK() ) );
         return false;
     }
 
-    auto   activeCellInfo = caseData->activeCellInfo( porosityModel );
-    size_t cellCount      = activeCellInfo->reservoirActiveCellCount();
-
-    if ( cellCount != pressureValues.size() )
+    for ( size_t cellIndex = 0; cellIndex < eqlNumCellCount; cellIndex++ )
     {
-        RiaLogging::error( "Unexpected number of active cells in pressure calculation." );
-        return false;
-    }
-
-    for ( size_t cellIndex = 0; cellIndex < cellCount; cellIndex++ )
-    {
-        size_t resultIdx = activeCellInfo->cellResultIndex( cellIndex );
-        int    eqlNum    = static_cast<int>( eqlNumValues[resultIdx] );
-        double pressure  = pressureValues[resultIdx];
+        size_t resultIdx         = eqlNumActiveCellInfo->cellResultIndex( cellIndex );
+        int    eqlNum            = static_cast<int>( eqlNumValues[resultIdx] );
+        size_t pressureResultIdx = pressureActiveCellInfo->cellResultIndex( cellIndex );
+        double pressure          = pressureValues[pressureResultIdx];
         if ( presentEqlNums.count( eqlNum ) > 0 && !std::isinf( pressure ) )
         {
-            cvf::Vec3d center = grid->cell( cellIndex ).center();
+            cvf::Vec3d center = eqlNumGrid->cell( cellIndex ).center();
             valuesPerEqlNum[eqlNum].push_back( std::make_pair( -center.z(), pressure ) );
         }
     }
