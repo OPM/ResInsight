@@ -22,7 +22,6 @@
 
 #include "RimEnsembleCurveSetColorManager.h"
 #include "RimEnsembleCurveSetInterface.h"
-#include "RimRegularLegendConfig.h"
 
 #include "RigEnsembleParameter.h"
 
@@ -44,6 +43,7 @@ class RimEnsembleCurveFilterCollection;
 class RimEnsembleStatistics;
 class RimEnsembleStatisticsCase;
 class RimWellLogCurve;
+class RimWellLogFileCurve;
 class RimWellLogFile;
 class RimEnsembleWellLogStatistics;
 
@@ -51,9 +51,6 @@ class RiuDraggableOverlayFrame;
 
 class QwtPlot;
 class QwtPlotCurve;
-class QKeyEvent;
-class QFrame;
-class QDate;
 
 //==================================================================================================
 ///
@@ -63,10 +60,12 @@ class RimEnsembleWellLogCurveSet : public caf::PdmObject, public RimEnsembleCurv
     CAF_PDM_HEADER_INIT;
 
 public:
-    using ColorMode     = RimEnsembleCurveSetColorManager::ColorMode;
-    using ColorModeEnum = RimEnsembleCurveSetColorManager::ColorModeEnum;
+    enum class ColorMode
+    {
+        SINGLE_COLOR,
+        COLOR_BY_ENSEMBLE_CURVE_SET
+    };
 
-public:
     RimEnsembleWellLogCurveSet();
     ~RimEnsembleWellLogCurveSet() override;
 
@@ -95,14 +94,8 @@ public:
     void                      setSummaryCaseCollection( RimSummaryCaseCollection* sumCaseCollection );
     RimSummaryCaseCollection* summaryCaseCollection() const;
 
-    RimEnsembleCurveFilterCollection* filterCollection() const;
-
-    ColorMode                  colorMode() const;
-    void                       setColorMode( ColorMode mode );
-    void                       setEnsembleParameter( const QString& parameterName );
-    RigEnsembleParameter::Type currentEnsembleParameterType() const;
-
-    RimRegularLegendConfig* legendConfig();
+    ColorMode colorMode() const;
+    void      setColorMode( ColorMode mode );
 
     void                      updateEnsembleLegendItem();
     RiuDraggableOverlayFrame* legendFrame() const;
@@ -110,10 +103,7 @@ public:
     RimEnsembleWellLogCurveSet* clone() const;
     void                        showCurves( bool show );
 
-    void                              updateAllTextInPlot();
-    std::vector<RigEnsembleParameter> variationSortedEnsembleParameters() const;
-
-    std::vector<std::pair<RigEnsembleParameter, double>> correlationSortedEnsembleParameters() const;
+    void updateAllTextInPlot();
 
     std::vector<RimWellLogFile*> filterEnsembleCases( const std::vector<RimWellLogFile*>& sumCases );
     void                         disableStatisticCurves();
@@ -155,7 +145,11 @@ private:
     void updateMaxMinAndDefaultValues();
     void updateCurveColors();
 
-    bool isSameRealization( RimSummaryCase* summaryCase, RimWellLogFile* wellLogFile ) const;
+    bool            isSameRealization( RimSummaryCase* summaryCase, RimWellLogFile* wellLogFile ) const;
+    RimSummaryCase* findMatchingSummaryCase( RimWellLogFileCurve* wellLogCurve ) const;
+
+    void connectEnsembleCurveSetFilterSignals();
+    void onFilterSourceChanged( const caf::SignalEmitter* emitter );
 
 private:
     caf::PdmField<bool> m_showCurves;
@@ -163,13 +157,10 @@ private:
     caf::PdmPtrArrayField<RimWellLogCurve*> m_curves;
     caf::PdmPointer<RimWellLogCurve>        m_currentWellLogCurve;
 
-    caf::PdmField<ColorModeEnum> m_colorMode;
-    caf::PdmField<cvf::Color3f>  m_color;
-    caf::PdmField<QString>       m_ensembleParameter;
+    caf::PdmField<caf::AppEnum<ColorMode>> m_colorMode;
+    caf::PdmField<cvf::Color3f>            m_color;
 
-    caf::PdmChildField<RimRegularLegendConfig*>           m_legendConfig;
-    caf::PdmChildField<RimEnsembleCurveFilterCollection*> m_curveFilters;
-    caf::PdmChildField<RimEnsembleStatistics*>            m_statistics;
+    caf::PdmChildField<RimEnsembleStatistics*> m_statistics;
 
     caf::PdmField<bool>              m_isUsingAutoName;
     caf::PdmField<QString>           m_userDefinedName;

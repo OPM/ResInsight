@@ -1436,21 +1436,62 @@ ObjectiveFunctionTimeConfig RimEnsembleCurveSet::objectiveFunctionTimeConfig() c
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEnsembleCurveSet::updateCurveColors()
+void RimEnsembleCurveSet::updateLegendTitle()
 {
+    if ( m_colorMode == ColorMode::BY_ENSEMBLE_PARAM )
+    {
+        QString parameterName = m_ensembleParameter();
+
+        QString legendTitle = "Ensemble Parameter";
+        legendTitle += "\n";
+        legendTitle += parameterName;
+
+        m_legendConfig->setTitle( legendTitle );
+    }
+    else if ( m_colorMode == ColorMode::BY_OBJECTIVE_FUNCTION )
+    {
+        QString legendTitle = "Objective Function";
+
+        legendTitle += "\n";
+        legendTitle += caf::AppEnum<RimObjectiveFunction::FunctionType>( m_objectiveFunction()->functionType() ).uiText();
+
+        m_legendConfig->setTitle( legendTitle );
+    }
+    else if ( m_colorMode == ColorMode::BY_CUSTOM_OBJECTIVE_FUNCTION )
+    {
+        QString legendTitle = "Custom\nObjective Function";
+        legendTitle += "\n";
+        if ( m_customObjectiveFunction() && m_customObjectiveFunction()->isValid() )
+        {
+            QString descriptions = m_customObjectiveFunction()->title();
+            descriptions.truncate( 30 );
+            legendTitle += descriptions;
+            if ( m_customObjectiveFunction()->title().length() > descriptions.length() )
+            {
+                legendTitle += "...";
+            }
+        }
+        else
+        {
+            legendTitle += "(Invalid Objective Function)";
+        }
+
+        m_legendConfig->setTitle( legendTitle );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<cvf::Color3f> RimEnsembleCurveSet::generateColorsForCases( const std::vector<RimSummaryCase*>& summaryCases ) const
+{
+    std::vector<cvf::Color3f> caseColors;
+
     if ( m_colorMode == ColorMode::BY_ENSEMBLE_PARAM )
     {
         RimSummaryCaseCollection* group = m_yValuesSummaryCaseCollection();
 
         QString parameterName = m_ensembleParameter();
-
-        {
-            QString legendTitle = "Ensemble Parameter";
-            legendTitle += "\n";
-            legendTitle += parameterName;
-
-            m_legendConfig->setTitle( legendTitle );
-        }
 
         if ( group && !parameterName.isEmpty() && !group->allSummaryCases().empty() )
         {
@@ -1458,43 +1499,21 @@ void RimEnsembleCurveSet::updateCurveColors()
             if ( ensembleParam.isText() || ensembleParam.isNumeric() )
             {
                 RimEnsembleCurveSetColorManager::initializeLegendConfig( m_legendConfig, ensembleParam );
-                for ( auto& curve : m_curves )
+                for ( auto& rimCase : summaryCases )
                 {
-                    if ( curve->summaryAddressY().category() == RifEclipseSummaryAddress::SUMMARY_ENSEMBLE_STATISTICS )
-                        continue;
-                    RimSummaryCase* rimCase = curve->summaryCaseY();
-                    cvf::Color3f    curveColor =
-                        RimEnsembleCurveSetColorManager::caseColor( m_legendConfig, rimCase, ensembleParam );
-                    curve->setColor( curveColor );
-                    curve->updateCurveAppearance();
+                    caseColors.push_back(
+                        RimEnsembleCurveSetColorManager::caseColor( m_legendConfig, rimCase, ensembleParam ) );
                 }
             }
         }
     }
     else if ( m_colorMode == ColorMode::SINGLE_COLOR )
     {
-        for ( auto& curve : m_curves )
-        {
-            if ( curve->summaryAddressY().category() == RifEclipseSummaryAddress::SUMMARY_ENSEMBLE_STATISTICS )
-                continue;
-
-            curve->setColor( m_color );
-            curve->updateCurveAppearance();
-        }
+        caseColors.resize( summaryCases.size(), m_color );
     }
     else if ( m_colorMode == ColorMode::BY_OBJECTIVE_FUNCTION )
     {
         RimSummaryCaseCollection* group = m_yValuesSummaryCaseCollection();
-
-        {
-            QString legendTitle = "Objective Function";
-
-            legendTitle += "\n";
-            legendTitle +=
-                caf::AppEnum<RimObjectiveFunction::FunctionType>( m_objectiveFunction()->functionType() ).uiText();
-
-            m_legendConfig->setTitle( legendTitle );
-        }
 
         if ( group && !group->allSummaryCases().empty() )
         {
@@ -1504,25 +1523,20 @@ void RimEnsembleCurveSet::updateCurveColors()
             {
                 summaryAddresses.push_back( address->address() );
             }
+
+            RimEnsembleCurveSetColorManager::initializeLegendConfig( m_legendConfig,
+                                                                     objectiveFunction,
+                                                                     group->allSummaryCases(),
+                                                                     summaryAddresses,
+                                                                     objectiveFunctionTimeConfig() );
+            for ( auto& rimCase : summaryCases )
             {
-                RimEnsembleCurveSetColorManager::initializeLegendConfig( m_legendConfig,
-                                                                         objectiveFunction,
-                                                                         group->allSummaryCases(),
-                                                                         summaryAddresses,
-                                                                         objectiveFunctionTimeConfig() );
-                for ( auto& curve : m_curves )
-                {
-                    if ( curve->summaryAddressY().category() == RifEclipseSummaryAddress::SUMMARY_ENSEMBLE_STATISTICS )
-                        continue;
-                    RimSummaryCase* rimCase    = curve->summaryCaseY();
-                    cvf::Color3f    curveColor = RimEnsembleCurveSetColorManager::caseColor( m_legendConfig,
-                                                                                          rimCase,
-                                                                                          objectiveFunction,
-                                                                                          summaryAddresses,
-                                                                                          objectiveFunctionTimeConfig() );
-                    curve->setColor( curveColor );
-                    curve->updateCurveAppearance();
-                }
+                cvf::Color3f curveColor = RimEnsembleCurveSetColorManager::caseColor( m_legendConfig,
+                                                                                      rimCase,
+                                                                                      objectiveFunction,
+                                                                                      summaryAddresses,
+                                                                                      objectiveFunctionTimeConfig() );
+                caseColors.push_back( curveColor );
             }
         }
     }
@@ -1530,42 +1544,49 @@ void RimEnsembleCurveSet::updateCurveColors()
     {
         RimSummaryCaseCollection* group = m_yValuesSummaryCaseCollection();
 
-        {
-            QString legendTitle = "Custom\nObjective Function";
-            legendTitle += "\n";
-            if ( m_customObjectiveFunction() && m_customObjectiveFunction()->isValid() )
-            {
-                QString descriptions = m_customObjectiveFunction()->title();
-                descriptions.truncate( 30 );
-                legendTitle += descriptions;
-                if ( m_customObjectiveFunction()->title().length() > descriptions.length() )
-                {
-                    legendTitle += "...";
-                }
-            }
-            else
-            {
-                legendTitle += "(Invalid Objective Function)";
-            }
-
-            m_legendConfig->setTitle( legendTitle );
-        }
-
         if ( group && !group->allSummaryCases().empty() && m_customObjectiveFunction() &&
              m_customObjectiveFunction->isValid() )
         {
             RimEnsembleCurveSetColorManager::initializeLegendConfig( m_legendConfig, m_customObjectiveFunction() );
-            for ( auto& curve : m_curves )
+            for ( auto& rimCase : summaryCases )
             {
-                if ( curve->summaryAddressY().category() == RifEclipseSummaryAddress::SUMMARY_ENSEMBLE_STATISTICS )
-                    continue;
-                RimSummaryCase* rimCase = curve->summaryCaseY();
-                cvf::Color3f    curveColor =
+                cvf::Color3f curveColor =
                     RimEnsembleCurveSetColorManager::caseColor( m_legendConfig, rimCase, m_customObjectiveFunction() );
-                curve->setColor( curveColor );
-                curve->updateCurveAppearance();
+                caseColors.push_back( curveColor );
             }
         }
+    }
+
+    return caseColors;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEnsembleCurveSet::updateCurveColors()
+{
+    updateLegendTitle();
+
+    // Fint the curves to color (skip the statistics)
+    std::vector<RimSummaryCurve*> curvesToColor;
+    std::vector<RimSummaryCase*>  summaryCases;
+    for ( auto& curve : m_curves )
+    {
+        if ( curve->summaryAddressY().category() == RifEclipseSummaryAddress::SUMMARY_ENSEMBLE_STATISTICS ) continue;
+
+        curvesToColor.push_back( curve );
+        summaryCases.push_back( curve->summaryCaseY() );
+    }
+
+    // Get the colors
+    std::vector<cvf::Color3f> caseColors = generateColorsForCases( summaryCases );
+
+    // Apply the colors
+    if ( caseColors.size() != curvesToColor.size() ) return;
+    for ( size_t i = 0; i < curvesToColor.size(); i++ )
+    {
+        curvesToColor[i]->setColor( caseColors[i] );
+        curvesToColor[i]->updateCurveAppearance();
     }
 
     RimSummaryPlot* plot;
