@@ -45,11 +45,11 @@ public:
     RimEnsembleWellLogStatistics::StatisticsType statisticsType() const;
 
 protected:
-    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
-
     void performDataExtraction( bool* isUsingPseudoLength ) override;
 
     QString createCurveAutoName() override;
+
+    static void addDatapointsForBottomOfSegment( std::vector<double>& depthValues, std::vector<double>& values );
 
     caf::PdmPtrField<RimEnsembleWellLogCurveSet*>                             m_ensembleWellLogCurveSet;
     caf::PdmField<caf::AppEnum<RimEnsembleWellLogStatistics::StatisticsType>> m_statisticsType;

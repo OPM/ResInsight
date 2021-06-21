@@ -85,23 +85,6 @@ RimEnsembleWellLogStatistics::StatisticsType RimEnsembleWellLogStatisticsCurve::
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEnsembleWellLogStatisticsCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                                          const QVariant&            oldValue,
-                                                          const QVariant&            newValue )
-{
-    // RimWellLogExtractionCurve::fieldChangedByUi( changedField, oldValue, newValue );
-    // RimStimPlanModelPlot* ensembleWellLogCurveSetPlot;
-    // firstAncestorOrThisOfTypeAsserted( ensembleWellLogCurveSetPlot );
-
-    // if ( ensembleWellLogCurveSetPlot )
-    // {
-    //     ensembleWellLogCurveSetPlot->loadDataAndUpdate();
-    // }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimEnsembleWellLogStatisticsCurve::performDataExtraction( bool* isUsingPseudoLength )
 {
     std::vector<double> values;
@@ -126,7 +109,7 @@ void RimEnsembleWellLogStatisticsCurve::performDataExtraction( bool* isUsingPseu
         }
         else if ( m_statisticsType == RimEnsembleWellLogStatistics::StatisticsType::P10 )
         {
-            values              = ensembleWellLogStatistics->mean();
+            values              = ensembleWellLogStatistics->p10();
             measuredDepthValues = ensembleWellLogStatistics->measuredDepths();
         }
         else if ( m_statisticsType == RimEnsembleWellLogStatistics::StatisticsType::P50 )
@@ -143,6 +126,8 @@ void RimEnsembleWellLogStatisticsCurve::performDataExtraction( bool* isUsingPseu
         bool performDataSmoothing = false;
         if ( !values.empty() && !measuredDepthValues.empty() && measuredDepthValues.size() == values.size() )
         {
+            addDatapointsForBottomOfSegment( measuredDepthValues, values );
+
             this->setValuesAndDepths( values,
                                       measuredDepthValues,
                                       RiaDefines::DepthTypeEnum::MEASURED_DEPTH,
@@ -160,4 +145,35 @@ void RimEnsembleWellLogStatisticsCurve::performDataExtraction( bool* isUsingPseu
 QString RimEnsembleWellLogStatisticsCurve::createCurveAutoName()
 {
     return caf::AppEnum<RimEnsembleWellLogStatistics::StatisticsType>::uiText( m_statisticsType() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEnsembleWellLogStatisticsCurve::addDatapointsForBottomOfSegment( std::vector<double>& depthValues,
+                                                                         std::vector<double>& values )
+{
+    std::vector<double> depthValuesWithBottomLayers;
+    std::vector<double> valuesWithBottomLayers;
+    for ( size_t i = 0; i < values.size(); i++ )
+    {
+        // Add the data point at top of the layer
+        double topLayerDepth = depthValues[i];
+        double value         = values[i];
+        depthValuesWithBottomLayers.push_back( topLayerDepth );
+        valuesWithBottomLayers.push_back( value );
+
+        // Add extra data points for bottom part of the layer
+        if ( i < values.size() - 1 )
+        {
+            double bottomLayerDepth = depthValues[i + 1];
+            double bottomValue      = value;
+
+            depthValuesWithBottomLayers.push_back( bottomLayerDepth );
+            valuesWithBottomLayers.push_back( bottomValue );
+        }
+    }
+
+    values      = valuesWithBottomLayers;
+    depthValues = depthValuesWithBottomLayers;
 }
