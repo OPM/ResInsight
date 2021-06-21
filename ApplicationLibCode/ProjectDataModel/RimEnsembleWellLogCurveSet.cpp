@@ -19,37 +19,25 @@
 #include "RimEnsembleWellLogCurveSet.h"
 
 #include "RiaColorTools.h"
-#include "RiaGuiApplication.h"
 #include "RiaLogging.h"
-#include "RiaPreferences.h"
-#include "RiaResultNames.h"
-#include "RiaStatisticsTools.h"
-#include "RiaSummaryCurveAnalyzer.h"
-#include "RiaSummaryCurveDefinition.h"
-#include "RiaTimeTTools.h"
 
+#include "RimEnsembleCurveFilter.h"
+#include "RimEnsembleCurveFilterCollection.h"
 #include "RimEnsembleCurveSet.h"
+#include "RimEnsembleStatistics.h"
+#include "RimEnsembleWellLogStatistics.h"
 #include "RimEnsembleWellLogStatisticsCurve.h"
+#include "RimEnsembleWellLogs.h"
+#include "RimEnsembleWellLogsCollection.h"
 #include "RimMainPlotCollection.h"
 #include "RimOilField.h"
 #include "RimProject.h"
-#include "RimRegularLegendConfig.h"
 #include "RimWellLogCurve.h"
 #include "RimWellLogFile.h"
 #include "RimWellLogFileChannel.h"
 #include "RimWellLogFileCurve.h"
 #include "RimWellLogPlot.h"
 #include "RimWellLogTrack.h"
-
-#include "RimEnsembleCurveFilter.h"
-#include "RimEnsembleCurveFilterCollection.h"
-#include "RimEnsembleCurveSetCollection.h"
-#include "RimEnsembleCurveSetColorManager.h"
-#include "RimEnsembleStatistics.h"
-#include "RimEnsembleStatisticsCase.h"
-#include "RimEnsembleWellLogStatistics.h"
-#include "RimEnsembleWellLogs.h"
-#include "RimEnsembleWellLogsCollection.h"
 
 #include "RiuAbstractLegendFrame.h"
 #include "RiuDraggableOverlayFrame.h"
@@ -66,13 +54,6 @@
 #include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiSliderEditor.h"
 #include "cafPdmUiTreeOrdering.h"
-#include "cafPdmUiTreeSelectionEditor.h"
-#include "cafTitledOverlayFrame.h"
-
-// TODO: remove?
-#include "RifEnsembleStatisticsReader.h"
-
-// #include "cvfScalarMapper.h"
 
 #include "qwt_plot_curve.h"
 #include "qwt_symbol.h"
@@ -84,6 +65,19 @@
 /// Internal functions
 //--------------------------------------------------------------------------------------------------
 int statisticsCurveSymbolSize( RiuQwtSymbol::PointSymbolEnum symbol );
+
+namespace caf
+{
+template <>
+void AppEnum<RimEnsembleWellLogCurveSet::ColorMode>::setUp()
+{
+    addItem( RimEnsembleWellLogCurveSet::ColorMode::SINGLE_COLOR, "SINGLE_COLOR", "Single Color" );
+    addItem( RimEnsembleWellLogCurveSet::ColorMode::COLOR_BY_ENSEMBLE_CURVE_SET,
+             "BY_ENSEMBLE_CURVE_SET",
+             "Color by Ensemble Curve Set" );
+    setDefault( RimEnsembleWellLogCurveSet::ColorMode::SINGLE_COLOR );
+}
+}; // namespace caf
 
 CAF_PDM_SOURCE_INIT( RimEnsembleWellLogCurveSet, "RimEnsembleWellLogCurveSet" );
 
@@ -113,19 +107,6 @@ RimEnsembleWellLogCurveSet::RimEnsembleWellLogCurveSet()
     CAF_PDM_InitField( &m_colorMode, "ColorMode", caf::AppEnum<ColorMode>( ColorMode::SINGLE_COLOR ), "Coloring Mode", "", "", "" );
 
     CAF_PDM_InitField( &m_color, "Color", RiaColorTools::textColor3f(), "Color", "", "", "" );
-
-    CAF_PDM_InitField( &m_ensembleParameter, "EnsembleParameter", QString( "" ), "Ensemble Parameter", "", "", "" );
-    m_ensembleParameter.uiCapability()->setUiEditorTypeName( caf::PdmUiListEditor::uiEditorTypeName() );
-
-    CAF_PDM_InitFieldNoDefault( &m_legendConfig, "LegendConfig", "", "", "", "" );
-    m_legendConfig = new RimRegularLegendConfig();
-    m_legendConfig->setColorLegend(
-        RimRegularLegendConfig::mapToColorLegend( RimEnsembleCurveSetColorManager::DEFAULT_ENSEMBLE_COLOR_RANGE ) );
-
-    CAF_PDM_InitFieldNoDefault( &m_curveFilters, "CurveFilters", "Curve Filters", "", "", "" );
-    m_curveFilters = new RimEnsembleCurveFilterCollection();
-    m_curveFilters->setUiTreeHidden( true );
-    m_curveFilters->uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_statistics, "Statistics", "Statistics", "", "", "" );
     m_statistics = new RimEnsembleStatistics( this );
@@ -203,8 +184,6 @@ void RimEnsembleWellLogCurveSet::setColor( cvf::Color3f color )
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleWellLogCurveSet::loadDataAndUpdate( bool updateParentPlot )
 {
-    m_curveFilters->loadDataAndUpdate();
-
     updateAllCurves();
     updateFilterLegend();
 
@@ -357,14 +336,6 @@ void RimEnsembleWellLogCurveSet::deleteStatisticsCurves()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimRegularLegendConfig* RimEnsembleWellLogCurveSet::legendConfig()
-{
-    return m_legendConfig;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 RiuDraggableOverlayFrame* RimEnsembleWellLogCurveSet::legendFrame() const
 {
     return m_legendOverlayFrame;
@@ -381,14 +352,6 @@ void RimEnsembleWellLogCurveSet::onLegendDefinitionChanged()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimEnsembleCurveFilterCollection* RimEnsembleWellLogCurveSet::filterCollection() const
-{
-    return m_curveFilters;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 RimEnsembleWellLogCurveSet::ColorMode RimEnsembleWellLogCurveSet::colorMode() const
 {
     return m_colorMode();
@@ -400,33 +363,6 @@ RimEnsembleWellLogCurveSet::ColorMode RimEnsembleWellLogCurveSet::colorMode() co
 void RimEnsembleWellLogCurveSet::setColorMode( ColorMode mode )
 {
     m_colorMode = mode;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimEnsembleWellLogCurveSet::setEnsembleParameter( const QString& parameterName )
-{
-    m_ensembleParameter = parameterName;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RigEnsembleParameter::Type RimEnsembleWellLogCurveSet::currentEnsembleParameterType() const
-{
-    if ( m_colorMode() == ColorMode::BY_ENSEMBLE_PARAM )
-    {
-        // RimSummaryCaseCollection* group         = m_yValuesSummaryCaseCollection();
-        // QString                   parameterName = m_ensembleParameter();
-
-        // if ( group && !parameterName.isEmpty() )
-        // {
-        //     auto eParam = group->ensembleParameter( parameterName );
-        //     return eParam.type;
-        // }
-    }
-    return RigEnsembleParameter::TYPE_NONE;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -491,8 +427,8 @@ void RimEnsembleWellLogCurveSet::fieldChangedByUi( const caf::PdmFieldHandle* ch
     }
     else if ( changedField == &m_ensembleCurveSet )
     {
+        connectEnsembleCurveSetFilterSignals();
         updateAllCurves();
-
         loadDataAndUpdate( true );
         updateTextInPlot = true;
     }
@@ -507,24 +443,8 @@ void RimEnsembleWellLogCurveSet::fieldChangedByUi( const caf::PdmFieldHandle* ch
 
         updateTextInPlot = true;
     }
-    else if ( changedField == &m_ensembleParameter )
-    {
-        updateLegendMappingMode();
-        updateCurveColors();
-    }
     else if ( changedField == &m_colorMode )
     {
-        m_ensembleParameter.uiCapability()->setUiHidden( m_colorMode() != ColorMode::BY_ENSEMBLE_PARAM );
-
-        if ( m_colorMode() == ColorMode::BY_ENSEMBLE_PARAM )
-        {
-            if ( m_ensembleParameter().isEmpty() )
-            {
-                auto params         = variationSortedEnsembleParameters();
-                m_ensembleParameter = !params.empty() ? params.front().name : "";
-            }
-        }
-
         updateCurveColors();
 
         updateTextInPlot = true;
@@ -592,10 +512,6 @@ void RimEnsembleWellLogCurveSet::appendColorGroup( caf::PdmUiOrdering& uiOrderin
     {
         colorsGroup->add( &m_color );
     }
-    else if ( m_colorMode == ColorMode::BY_ENSEMBLE_PARAM )
-    {
-        colorsGroup->add( &m_ensembleParameter );
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -604,16 +520,6 @@ void RimEnsembleWellLogCurveSet::appendColorGroup( caf::PdmUiOrdering& uiOrderin
 void RimEnsembleWellLogCurveSet::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering,
                                                        QString                 uiConfigName /*= ""*/ )
 {
-    if ( m_colorMode == ColorMode::BY_ENSEMBLE_PARAM )
-    {
-        uiTreeOrdering.add( m_legendConfig() );
-    }
-
-    for ( auto filter : m_curveFilters->filters() )
-    {
-        uiTreeOrdering.add( filter );
-    }
-
     uiTreeOrdering.skipRemainingChildren( true );
 
     caf::IconProvider iconProvider = this->uiIconProvider();
@@ -713,26 +619,14 @@ QList<caf::PdmOptionItemInfo>
     }
     else if ( fieldNeedingOptions == &m_colorMode )
     {
-        auto singleColorOption = ColorModeEnum( ColorMode::SINGLE_COLOR );
-        auto byEnsParamOption  = ColorModeEnum( ColorMode::BY_ENSEMBLE_PARAM );
+        auto singleColorOption = caf::AppEnum<ColorMode>( ColorMode::SINGLE_COLOR );
 
         options.push_back( caf::PdmOptionItemInfo( singleColorOption.uiText(), ColorMode::SINGLE_COLOR ) );
 
-        RimEnsembleWellLogs* ensembleWellLogs = m_ensembleWellLogs;
-        if ( ensembleWellLogs && ensembleWellLogs->hasEnsembleParameters() )
+        if ( m_ensembleWellLogs && m_ensembleCurveSet )
         {
-            options.push_back( caf::PdmOptionItemInfo( byEnsParamOption.uiText(), ColorMode::BY_ENSEMBLE_PARAM ) );
-        }
-    }
-    else if ( fieldNeedingOptions == &m_ensembleParameter )
-    {
-        auto params = correlationSortedEnsembleParameters();
-        for ( const auto& paramCorrPair : params )
-        {
-            QString name = paramCorrPair.first.name;
-            double  corr = paramCorrPair.second;
-            options.push_back(
-                caf::PdmOptionItemInfo( QString( "%1 (Avg. correlation: %2)" ).arg( name ).arg( corr, 5, 'f', 2 ), name ) );
+            auto byEnsembleOption = caf::AppEnum<ColorMode>( ColorMode::COLOR_BY_ENSEMBLE_CURVE_SET );
+            options.push_back( caf::PdmOptionItemInfo( byEnsembleOption.uiText(), ColorMode::COLOR_BY_ENSEMBLE_CURVE_SET ) );
         }
     }
 
@@ -773,50 +667,61 @@ void RimEnsembleWellLogCurveSet::updateFilterLegend()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RimSummaryCase* RimEnsembleWellLogCurveSet::findMatchingSummaryCase( RimWellLogFileCurve* wellLogCurve ) const
+{
+    RimSummaryCaseCollection*    summaryCaseCollection = m_ensembleCurveSet->summaryCaseCollection();
+    std::vector<RimSummaryCase*> sumCases              = summaryCaseCollection->allSummaryCases();
+    for ( auto sumCase : sumCases )
+    {
+        if ( isSameRealization( sumCase, wellLogCurve->wellLogFile() ) )
+        {
+            return sumCase;
+        }
+    }
+
+    return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimEnsembleWellLogCurveSet::updateCurveColors()
 {
-    if ( m_colorMode == ColorMode::BY_ENSEMBLE_PARAM )
+    if ( m_colorMode == ColorMode::COLOR_BY_ENSEMBLE_CURVE_SET )
     {
-        QString parameterName = m_ensembleParameter();
-
+        if ( m_ensembleCurveSet != nullptr )
         {
-            QString legendTitle;
-            if ( m_isUsingAutoName )
+            // Fint the curves to color (skip the statistics)
+            std::vector<RimWellLogCurve*> curvesToColor;
+            std::vector<RimSummaryCase*>  summaryCases;
+
+            for ( auto& curve : m_curves )
             {
-                legendTitle = m_autoGeneratedName();
-            }
-            else
-            {
-                legendTitle += m_userDefinedName();
+                // Statistics curves have separate color settings
+                if ( dynamic_cast<RimEnsembleWellLogStatisticsCurve*>( curve.p() ) == nullptr )
+                {
+                    // Look for a matching summary case
+                    RimSummaryCase* summaryCase =
+                        findMatchingSummaryCase( dynamic_cast<RimWellLogFileCurve*>( curve.p() ) );
+                    if ( summaryCase )
+                    {
+                        summaryCases.push_back( summaryCase );
+                        curvesToColor.push_back( curve.p() );
+                    }
+                }
             }
 
-            legendTitle += "\n";
-            legendTitle += parameterName;
+            // Get the colors
+            std::vector<cvf::Color3f> caseColors = m_ensembleCurveSet->generateColorsForCases( summaryCases );
 
-            m_legendConfig->setTitle( legendTitle );
+            // Apply the colors
+            if ( caseColors.size() != curvesToColor.size() ) return;
+            for ( size_t i = 0; i < curvesToColor.size(); i++ )
+            {
+                curvesToColor[i]->setColor( caseColors[i] );
+                curvesToColor[i]->updateCurveAppearance();
+            }
         }
-
-        // if ( group && !parameterName.isEmpty() && !group->allSummaryCases().empty() )
-        // {
-        //     auto ensembleParam = group->ensembleParameter( parameterName );
-        //     if ( ensembleParam.isText() || ensembleParam.isNumeric() )
-        //     {
-        //         RimEnsembleCurveSetColorManager::initializeLegendConfig( m_legendConfig, ensembleParam );
-        //         // for ( auto& curve : m_curves )
-        //         // {
-        //         //     // if ( curve->summaryAddressY().category() ==
-        //         //     RifEclipseSummaryAddress::SUMMARY_ENSEMBLE_STATISTICS )
-        //         //     //     continue;
-        //         //     // RimSummaryCase* rimCase = curve->summaryCaseY();
-        //         //     // cvf::Color3f    curveColor =
-        //         //     //     RimEnsembleWellLogCurveSetColorManager::caseColor( m_legendConfig, rimCase,
-        //         ensembleParam
-        //         //     );
-        //         //     // curve->setColor( curveColor );
-        //         //     // curve->updateCurveAppearance();
-        //         // }
-        //     }
-        // }
     }
     else if ( m_colorMode == ColorMode::SINGLE_COLOR )
     {
@@ -835,24 +740,24 @@ void RimEnsembleWellLogCurveSet::updateCurveColors()
     firstAncestorOrThisOfType( plotTrack );
     if ( plotTrack && plotTrack->viewer() )
     {
-        //     if ( m_yValuesSummaryCaseCollection() && isCurvesVisible() && m_colorMode != ColorMode::SINGLE_COLOR &&
-        //          m_legendConfig->showLegend() )
-        //     {
-        //         if ( !m_legendOverlayFrame )
-        //         {
-        //             m_legendOverlayFrame =
-        //                 new RiuDraggableOverlayFrame( plot->viewer()->canvas(), plot->viewer()->overlayMargins() );
-        //         }
-        //         m_legendOverlayFrame->setContentFrame( m_legendConfig->makeLegendFrame() );
-        //         plot->viewer()->addOverlayFrame( m_legendOverlayFrame );
-        //     }
-        //     else
-        //     {
-        //         if ( m_legendOverlayFrame )
-        //         {
-        //             plot->viewer()->removeOverlayFrame( m_legendOverlayFrame );
-        //         }
-        //     }
+        if ( m_colorMode != ColorMode::SINGLE_COLOR && m_ensembleCurveSet != nullptr &&
+             m_ensembleCurveSet->colorMode() != RimEnsembleCurveSet::ColorMode::SINGLE_COLOR )
+        {
+            if ( !m_legendOverlayFrame )
+            {
+                m_legendOverlayFrame =
+                    new RiuDraggableOverlayFrame( plotTrack->viewer()->canvas(), plotTrack->viewer()->overlayMargins() );
+            }
+            m_legendOverlayFrame->setContentFrame( m_ensembleCurveSet->legendConfig()->makeLegendFrame() );
+            plotTrack->viewer()->addOverlayFrame( m_legendOverlayFrame );
+        }
+        else
+        {
+            if ( m_legendOverlayFrame )
+            {
+                plotTrack->viewer()->removeOverlayFrame( m_legendOverlayFrame );
+            }
+        }
         plotTrack->viewer()->scheduleReplot();
     }
 }
@@ -1001,6 +906,8 @@ void RimEnsembleWellLogCurveSet::updateStatisticsCurves( const std::vector<RimWe
         curve->updateCurveVisibility();
         curve->loadDataAndUpdate( false );
     }
+
+    updateCurveColors();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1014,12 +921,12 @@ void RimEnsembleWellLogCurveSet::updateStatisticsCurves()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimEnsembleWellLogCurveSet* RimEnsembleWellLogCurveSet::clone() const
-{
-    RimEnsembleWellLogCurveSet* copy = dynamic_cast<RimEnsembleWellLogCurveSet*>(
-        this->xmlCapability()->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
-    return copy;
-}
+// RimEnsembleWellLogCurveSet* RimEnsembleWellLogCurveSet::clone() const
+// {
+//     RimEnsembleWellLogCurveSet* copy = dynamic_cast<RimEnsembleWellLogCurveSet*>(
+//         this->xmlCapability()->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
+//     return copy;
+// }
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -1035,45 +942,6 @@ void RimEnsembleWellLogCurveSet::showCurves( bool show )
 void RimEnsembleWellLogCurveSet::updateAllTextInPlot()
 {
     updateEnsembleLegendItem();
-
-    // RimWellLogTrack* summaryPlot = nullptr;
-    // this->firstAncestorOrThisOfTypeAsserted( summaryPlot );
-    // if ( summaryPlot->viewer() )
-    // {
-    //     summaryPlot->u
-    // }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::vector<RigEnsembleParameter> RimEnsembleWellLogCurveSet::variationSortedEnsembleParameters() const
-{
-    // RimSummaryCaseCollection* ensemble = m_yValuesSummaryCaseCollection;
-    // if ( ensemble )
-    // {
-    //     return ensemble->variationSortedEnsembleParameters();
-    // }
-    // else
-    // {
-    return std::vector<RigEnsembleParameter>();
-    //}
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::vector<std::pair<RigEnsembleParameter, double>> RimEnsembleWellLogCurveSet::correlationSortedEnsembleParameters() const
-{
-    // RimSummaryCaseCollection* ensemble = m_yValuesSummaryCaseCollection;
-    // if ( ensemble )
-    // {
-    //     return ensemble->correlationSortedEnsembleParameters( summaryAddress() );
-    // }
-    // else
-    // {
-    return std::vector<std::pair<RigEnsembleParameter, double>>();
-    //}
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1219,7 +1087,7 @@ void RimEnsembleWellLogCurveSet::updateEnsembleLegendItem()
             symbol->setPen( curvePen );
             symbol->setSize( 6, 6 );
         }
-        else if ( m_colorMode == ColorMode::BY_ENSEMBLE_PARAM )
+        else if ( m_colorMode == ColorMode::COLOR_BY_ENSEMBLE_CURVE_SET )
         {
             QPixmap p = QPixmap( ":/Legend.png" );
 
@@ -1275,18 +1143,18 @@ QString RimEnsembleWellLogCurveSet::createAutoName() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEnsembleWellLogCurveSet::updateLegendMappingMode()
+void RimEnsembleWellLogCurveSet::connectEnsembleCurveSetFilterSignals()
 {
-    switch ( currentEnsembleParameterType() )
+    if ( m_ensembleCurveSet() )
     {
-        case RigEnsembleParameter::TYPE_TEXT:
-            if ( m_legendConfig->mappingMode() != RimRegularLegendConfig::MappingType::CATEGORY_INTEGER )
-                m_legendConfig->setMappingMode( RimRegularLegendConfig::MappingType::CATEGORY_INTEGER );
-            break;
-
-        case RigEnsembleParameter::TYPE_NUMERIC:
-            if ( m_legendConfig->mappingMode() == RimRegularLegendConfig::MappingType::CATEGORY_INTEGER )
-                m_legendConfig->setMappingMode( RimRegularLegendConfig::MappingType::LINEAR_CONTINUOUS );
-            break;
+        m_ensembleCurveSet()->filterChanged.connect( this, &RimEnsembleWellLogCurveSet::onFilterSourceChanged );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEnsembleWellLogCurveSet::onFilterSourceChanged( const caf::SignalEmitter* emitter )
+{
+    if ( m_ensembleCurveSet() ) loadDataAndUpdate( true );
 }

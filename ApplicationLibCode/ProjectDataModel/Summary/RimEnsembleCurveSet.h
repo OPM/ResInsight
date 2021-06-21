@@ -162,6 +162,8 @@ public:
 
     ObjectiveFunctionTimeConfig objectiveFunctionTimeConfig() const;
 
+    std::vector<cvf::Color3f> generateColorsForCases( const std::vector<RimSummaryCase*>& summaryCases ) const;
+
 private:
     void updateEnsembleCurves( const std::vector<RimSummaryCase*>& sumCases );
     void updateStatisticsCurves( const std::vector<RimSummaryCase*>& sumCases );
@@ -189,6 +191,8 @@ private:
     QString createAutoName() const;
 
     void updateLegendMappingMode();
+    void updateLegendTitle();
+
     void updateMaxMinAndDefaultValues();
     void updateCurveColors();
     void updateTimeAnnotations();
