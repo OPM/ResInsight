@@ -24,6 +24,7 @@
 #include "RiaEclipseUnitTools.h"
 #include "RiaLogging.h"
 
+#include "RiaResultNames.h"
 #include "RigAllanDiagramData.h"
 #include "RigCaseCellResultCalculator.h"
 #include "RigEclipseCaseData.h"
@@ -1098,6 +1099,13 @@ void RigCaseCellResultsData::createPlaceholderResultEntries()
             addStaticScalarResult( RiaDefines::ResultCatType::STATIC_NATIVE, RiaResultNames::mobilePoreVolumeName(), false, 0 );
         }
     }
+
+    // I/J/K indexes
+    {
+        addStaticScalarResult( RiaDefines::ResultCatType::STATIC_NATIVE, RiaResultNames::indexIResultName(), false, 0 );
+        addStaticScalarResult( RiaDefines::ResultCatType::STATIC_NATIVE, RiaResultNames::indexJResultName(), false, 0 );
+        addStaticScalarResult( RiaDefines::ResultCatType::STATIC_NATIVE, RiaResultNames::indexKResultName(), false, 0 );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1307,6 +1315,11 @@ size_t RigCaseCellResultsData::findOrLoadKnownScalarResult( const RigEclipseResu
                 includeInactiveCells = m_readerInterface->includeInactiveCellsInFaultGeometry();
             }
             computeAllanResults( this, m_ownerMainGrid, includeInactiveCells );
+        }
+        else if ( resultName == RiaResultNames::indexIResultName() ||
+                  resultName == RiaResultNames::indexJResultName() || resultName == RiaResultNames::indexKResultName() )
+        {
+            computeIndexResults();
         }
     }
     else if ( type == RiaDefines::ResultCatType::DYNAMIC_NATIVE )
@@ -1983,6 +1996,113 @@ void RigCaseCellResultsData::computeDepthRelatedResults()
         if ( computeBottom || isTemporaryGrid )
         {
             bottom[0][resultIndex] = cvf::Math::abs( cell.faceCenter( cvf::StructGridInterface::POS_K ).z() );
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigCaseCellResultsData::computeIndexResults()
+{
+    size_t reservoirCellCount = activeCellInfo()->reservoirCellCount();
+    if ( reservoirCellCount == 0 ) return;
+
+    size_t iResultIndex = findOrCreateScalarResultIndex( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE,
+                                                                                  RiaResultNames::indexIResultName() ),
+                                                         false );
+    size_t jResultIndex = findOrCreateScalarResultIndex( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE,
+                                                                                  RiaResultNames::indexJResultName() ),
+                                                         false );
+    size_t kResultIndex = findOrCreateScalarResultIndex( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE,
+                                                                                  RiaResultNames::indexKResultName() ),
+                                                         false );
+
+    bool computeIndexI = false;
+    bool computeIndexJ = false;
+    bool computeIndexK = false;
+
+    if ( iResultIndex == cvf::UNDEFINED_SIZE_T )
+    {
+        iResultIndex  = this->addStaticScalarResult( RiaDefines::ResultCatType::STATIC_NATIVE,
+                                                    RiaResultNames::indexIResultName(),
+                                                    false,
+                                                    reservoirCellCount );
+        computeIndexI = true;
+    }
+
+    if ( jResultIndex == cvf::UNDEFINED_SIZE_T )
+    {
+        jResultIndex  = this->addStaticScalarResult( RiaDefines::ResultCatType::STATIC_NATIVE,
+                                                    RiaResultNames::indexJResultName(),
+                                                    false,
+                                                    reservoirCellCount );
+        computeIndexJ = true;
+    }
+
+    if ( kResultIndex == cvf::UNDEFINED_SIZE_T )
+    {
+        kResultIndex  = this->addStaticScalarResult( RiaDefines::ResultCatType::STATIC_NATIVE,
+                                                    RiaResultNames::indexKResultName(),
+                                                    false,
+                                                    reservoirCellCount );
+        computeIndexK = true;
+    }
+
+    std::vector<std::vector<double>>& indexI = m_cellScalarResults[iResultIndex];
+    std::vector<std::vector<double>>& indexJ = m_cellScalarResults[jResultIndex];
+    std::vector<std::vector<double>>& indexK = m_cellScalarResults[kResultIndex];
+
+    {
+        if ( indexI[0].size() < reservoirCellCount )
+        {
+            indexI[0].resize( reservoirCellCount, std::numeric_limits<double>::infinity() );
+            computeIndexI = true;
+        }
+
+        if ( indexJ[0].size() < reservoirCellCount )
+        {
+            indexJ[0].resize( reservoirCellCount, std::numeric_limits<double>::infinity() );
+            computeIndexJ = true;
+        }
+
+        if ( indexK[0].size() < reservoirCellCount )
+        {
+            indexK[0].resize( reservoirCellCount, std::numeric_limits<double>::infinity() );
+            computeIndexK = true;
+        }
+    }
+
+    for ( size_t cellIdx = 0; cellIdx < m_ownerMainGrid->globalCellArray().size(); cellIdx++ )
+    {
+        const RigCell& cell = m_ownerMainGrid->globalCellArray()[cellIdx];
+
+        size_t resultIndex = cellIdx;
+        if ( resultIndex == cvf::UNDEFINED_SIZE_T ) continue;
+
+        bool isTemporaryGrid = cell.hostGrid()->isTempGrid();
+
+        size_t       gridLocalNativeCellIndex = cell.gridLocalCellIndex();
+        RigGridBase* grid                     = cell.hostGrid();
+
+        size_t i, j, k;
+        if ( grid->ijkFromCellIndex( gridLocalNativeCellIndex, &i, &j, &k ) )
+        {
+            // I/J/K is 1-indexed when shown to user, thus "+ 1"
+            if ( computeIndexI || isTemporaryGrid )
+            {
+                indexI[0][resultIndex] = i + 1;
+            }
+
+            if ( computeIndexJ || isTemporaryGrid )
+            {
+                indexJ[0][resultIndex] = j + 1;
+            }
+
+            if ( computeIndexK || isTemporaryGrid )
+            {
+                indexK[0][resultIndex] = k + 1;
+            }
         }
     }
 }

@@ -64,6 +64,10 @@ QString faultReactAssessmentPrefix();
 
 QString completionTypeResultName();
 
+QString indexIResultName();
+QString indexJResultName();
+QString indexKResultName();
+
 // Well path derived results
 QString wbsAzimuthResult();
 QString wbsInclinationResult();
