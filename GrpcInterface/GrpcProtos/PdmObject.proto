@@ -32,6 +32,7 @@ message CreatePdmChildObjectRequest
 {
 	PdmObject                  object = 1;
 	string                child_field = 2;
+	string              class_keyword = 3;
 }
 
 message PdmParentObjectRequest

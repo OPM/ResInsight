@@ -473,11 +473,15 @@ grpc::Status RiaGrpcPdmObjectService::CreateChildPdmObject( grpc::ServerContext*
     {
         CAF_ASSERT( request );
 
-        caf::PdmObjectHandle* pdmObject =
-            emplaceChildField( matchingObject, QString::fromStdString( request->child_field() ) );
-        if ( pdmObject )
+        QString keywordClassToCreate = QString::fromStdString( request->class_keyword() );
+        QString fieldKeyword         = QString::fromStdString( request->child_field() );
+
+        caf::PdmObjectHandle* pdmObjectHandle = emplaceChildField( matchingObject, fieldKeyword, keywordClassToCreate );
+        if ( pdmObjectHandle )
         {
-            copyPdmObjectFromCafToRips( pdmObject, reply );
+            copyPdmObjectFromCafToRips( pdmObjectHandle, reply );
+            matchingObject->uiCapability()->updateConnectedEditors();
+
             return grpc::Status::OK;
         }
         return grpc::Status( grpc::NOT_FOUND, "Could not create PdmObject" );

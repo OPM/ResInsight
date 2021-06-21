@@ -104,6 +104,8 @@ public:
     virtual void onChildDeleted( PdmChildArrayFieldHandle*           childArray,
                                  std::vector<caf::PdmObjectHandle*>& referringObjects );
 
+    virtual void onChildAdded( caf::PdmFieldHandle* containerForNewObject ){};
+
 protected:
     void addField( PdmFieldHandle* field, const QString& keyword );
 

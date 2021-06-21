@@ -60,10 +60,13 @@ public:
     static bool
         assignFieldValue( const QString& stringValue, caf::PdmFieldHandle* field, QVariant* oldValue, QVariant* newValue );
 
-    static caf::PdmObjectHandle* emplaceChildField( caf::PdmObject* parent, const QString& fieldLabel );
+    static caf::PdmObjectHandle*
+        emplaceChildField( caf::PdmObject* parent, const QString& fieldKeyword, const QString& keywordForClassToCreate );
 
-    static caf::PdmObjectHandle* emplaceChildField( caf::PdmChildFieldHandle* childField );
-    static caf::PdmObjectHandle* emplaceChildArrayField( caf::PdmChildArrayFieldHandle* childArrayField );
+    static caf::PdmObjectHandle* emplaceChildField( caf::PdmChildFieldHandle* childField,
+                                                    const QString&            keywordForClassToCreate );
+    static caf::PdmObjectHandle* emplaceChildArrayField( caf::PdmChildArrayFieldHandle* childArrayField,
+                                                         const QString&                 keywordForClassToCreate );
 };
 
 #include "cafFactory.h"

@@ -284,6 +284,38 @@ class PdmObjectBase:
                 return []
             raise e
 
+    def add_object(self, class_definition, child_field=""):
+        """Create and add an object to the specified child field
+        Arguments:
+            class_definition[class]: Class definition of the object to create
+            child_field[str]: The keyword for the field to create a new object in. If empty, the first child array field is used.
+        Returns:
+            The created PdmObject inside the child_field
+        """
+        from .generated.generated_classes import class_from_keyword
+        assert inspect.isclass(class_definition)
+
+        class_keyword = class_definition.__name__
+
+        request = PdmObject_pb2.CreatePdmChildObjectRequest(
+            object=self._pb2_object, child_field=child_field, class_keyword=class_keyword
+        )
+        try:
+            pb2_object = self._pdm_object_stub.CreateChildPdmObject(request)
+            child_class_definition = class_from_keyword(pb2_object.class_keyword)
+
+            if child_class_definition is None:
+                child_class_definition = class_keyword
+
+            pdm_object = child_class_definition(
+                pb2_object=pb2_object, channel=self.channel()
+            )
+            return pdm_object
+        except grpc.RpcError as e:
+            if e.code() == grpc.StatusCode.NOT_FOUND:
+                return []
+            raise e
+
     def ancestor(self, class_definition):
         """Find the first ancestor that matches the provided class_keyword
         Arguments:

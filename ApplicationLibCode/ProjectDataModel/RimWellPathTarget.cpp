@@ -61,7 +61,7 @@ RimWellPathTarget::RimWellPathTarget()
                                                     "",
                                                     "",
                                                     "",
-                                                    "WellTarget",
+                                                    "WellPathTarget",
                                                     "Class containing the Well Target definition" );
 
     CAF_PDM_InitField( &m_isEnabled, "IsEnabled", true, "", "", "", "" );
