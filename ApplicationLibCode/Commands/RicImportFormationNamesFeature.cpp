@@ -89,7 +89,9 @@ RimFormationNames* RicImportFormationNamesFeature::importFormationFiles( const Q
         }
     }
 
-    return formationNames.back();
+    if ( !formationNames.empty() ) return formationNames.back();
+
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
