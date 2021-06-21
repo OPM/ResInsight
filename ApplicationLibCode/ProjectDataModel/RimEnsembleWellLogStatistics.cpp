@@ -91,7 +91,7 @@ void RimEnsembleWellLogStatistics::calculate( const std::vector<RimWellLogFile*>
             }
         }
     }
-    curveMerger.computeInterpolatedValues( false );
+    curveMerger.computeInterpolatedValues( true );
 
     clearData();
 
