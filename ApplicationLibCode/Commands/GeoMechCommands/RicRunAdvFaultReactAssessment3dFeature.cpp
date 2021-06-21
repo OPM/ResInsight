@@ -33,7 +33,7 @@ void RicRunAdvFaultReactAssessment3dFeature::onActionTriggered( bool isChecked )
     QString faultName = userData.toString();
 
     int faultID = faultIDFromName( faultName );
-    if ( faultID >= 0 ) runAdvancedProcessing( selectedFaultID() );
+    if ( faultID >= 0 ) runAdvancedProcessing( faultID );
 }
 
 //--------------------------------------------------------------------------------------------------
