@@ -100,8 +100,6 @@ RimWellPath* RicNewWellPathLateralAtDepthFeature::createLateralAtMeasuredDepth( 
                     ->clippedPointSubset( parentWellPath->wellPathGeometry()->measuredDepths().front(), parentWellMD );
 
             newModeledWellPath->geometryDefinition()->setMdAtFirstTarget( measuredDepths.back() );
-            newModeledWellPath->geometryDefinition()->setFixedWellPathPoints( pointVector );
-            newModeledWellPath->geometryDefinition()->setFixedMeasuredDepths( measuredDepths );
         }
 
         newModeledWellPath->geometryDefinition()->setIsAttachedToParentWell( true );

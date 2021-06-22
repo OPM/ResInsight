@@ -105,8 +105,6 @@ RimWellPathGeometryDef::RimWellPathGeometryDef()
     m_autoTargetAtSeaLevel->setEnabled( false );
 
     CAF_PDM_InitScriptableField( &m_isAttachedToParentWell, "AttachedToParentWell", false, "Attached to Parent Well", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_fixedWellPathPoints, "FixedWellPathPoints", "", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_fixedMeasuredDepths, "FixedMeasuredDepths", "", "", "", "" );
 
     CAF_PDM_InitField( &m_pickPointsEnabled, "m_pickPointsEnabled", false, "", "", "", "" );
     caf::PdmUiPushButtonEditor::configureEditorForField( &m_pickPointsEnabled );
@@ -194,22 +192,6 @@ void RimWellPathGeometryDef::setIsAttachedToParentWell( bool isAttached )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellPathGeometryDef::setFixedWellPathPoints( const std::vector<cvf::Vec3d>& points )
-{
-    m_fixedWellPathPoints = points;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimWellPathGeometryDef::setFixedMeasuredDepths( const std::vector<double>& mds )
-{
-    m_fixedMeasuredDepths = mds;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 std::vector<RimWellPathTarget*> RimWellPathGeometryDef::createTargets( const std::vector<cvf::Vec3d>& points )
 {
     CAF_ASSERT( points.size() >= 2u );
@@ -237,8 +219,8 @@ cvf::ref<RigWellPath> RimWellPathGeometryDef::createWellPathGeometry()
         updateTargetAtSeaLevel();
     }
 
-    std::vector<cvf::Vec3d> wellPathPoints = m_fixedWellPathPoints;
-    std::vector<double>     measuredDepths = m_fixedMeasuredDepths;
+    std::vector<cvf::Vec3d> wellPathPoints;
+    std::vector<double>     measuredDepths;
 
     RiaLineArcWellPathCalculator wellPathCalculator = lineArcWellPathCalculator();
 

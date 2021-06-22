@@ -279,8 +279,6 @@ void RimModeledWellPath::updateTieInLocationFromParentWell()
 
                 m_geometryDefinition->setIsAttachedToParentWell( true );
                 m_geometryDefinition->setMdAtFirstTarget( measuredDepths.back() );
-                m_geometryDefinition->setFixedWellPathPoints( pointVector );
-                m_geometryDefinition->setFixedMeasuredDepths( measuredDepths );
 
                 updateGeometry( true );
             }
@@ -290,7 +288,5 @@ void RimModeledWellPath::updateTieInLocationFromParentWell()
     if ( !parentWellPath )
     {
         m_geometryDefinition->setIsAttachedToParentWell( false );
-        m_geometryDefinition->setFixedWellPathPoints( {} );
-        m_geometryDefinition->setFixedMeasuredDepths( {} );
     }
 }
