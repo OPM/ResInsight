@@ -293,12 +293,15 @@ class PdmObjectBase:
             The created PdmObject inside the child_field
         """
         from .generated.generated_classes import class_from_keyword
+
         assert inspect.isclass(class_definition)
 
         class_keyword = class_definition.__name__
 
         request = PdmObject_pb2.CreatePdmChildObjectRequest(
-            object=self._pb2_object, child_field=child_field, class_keyword=class_keyword
+            object=self._pb2_object,
+            child_field=child_field,
+            class_keyword=class_keyword,
         )
         try:
             pb2_object = self._pdm_object_stub.CreateChildPdmObject(request)
