@@ -284,7 +284,7 @@ class PdmObjectBase:
                 return []
             raise e
 
-    def add_object(self, class_definition, child_field=""):
+    def add_new_object(self, class_definition, child_field=""):
         """Create and add an object to the specified child field
         Arguments:
             class_definition[class]: Class definition of the object to create
