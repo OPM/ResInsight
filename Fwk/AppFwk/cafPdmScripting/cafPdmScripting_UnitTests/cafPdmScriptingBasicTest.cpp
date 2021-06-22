@@ -250,7 +250,8 @@ TEST( PdmScriptingTest, BasicUse )
     std::string fileExt = "py";
 
     std::unique_ptr<caf::PdmCodeGenerator> generator( caf::PdmCodeGeneratorFactory::instance()->create( fileExt ) );
-    auto generatedText = generator->generate( caf::PdmDefaultObjectFactory::instance() );
+    std::vector<QString>                   logMessages;
+    auto generatedText = generator->generate( caf::PdmDefaultObjectFactory::instance(), logMessages );
 
     auto string = generatedText.toStdString();
 }
