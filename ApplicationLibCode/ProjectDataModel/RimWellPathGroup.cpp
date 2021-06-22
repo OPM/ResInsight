@@ -38,12 +38,7 @@ CAF_PDM_SOURCE_INIT( RimWellPathGroup, "WellPathGroup" );
 //--------------------------------------------------------------------------------------------------
 RimWellPathGroup::RimWellPathGroup()
 {
-    CAF_PDM_InitScriptableObjectWithNameAndComment( "Well Path Group",
-                                                    ":/WellPathGroup.svg",
-                                                    "",
-                                                    "",
-                                                    "WellPathGroup",
-                                                    "A Group of Well Paths" );
+    CAF_PDM_InitObject( "Well Path Group", ":/WellPathGroup.svg", "", "", "" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_childWellPaths, "ChildWellPaths", "Child Well Paths", "", "", "" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_groupName, "GroupName", "Group Name", "", "", "" );
 

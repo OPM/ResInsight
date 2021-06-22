@@ -30,9 +30,9 @@ CAF_PDM_SOURCE_INIT( RimEnsembleFractureStatisticsPlotCollection, "EnsembleFract
 //--------------------------------------------------------------------------------------------------
 RimEnsembleFractureStatisticsPlotCollection::RimEnsembleFractureStatisticsPlotCollection()
 {
-    CAF_PDM_InitScriptableObject( "Ensemble Fracture Statistics Plots", ":/WellLogPlots16x16.png", "", "" );
+    CAF_PDM_InitObject( "Ensemble Fracture Statistics Plots", ":/WellLogPlots16x16.png", "", "" );
 
-    CAF_PDM_InitScriptableFieldNoDefault( &m_ensembleFractureStatisticsPlots, "EnsembleFractureStatisticsPlots", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_ensembleFractureStatisticsPlots, "EnsembleFractureStatisticsPlots", "", "", "", "" );
     m_ensembleFractureStatisticsPlots.uiCapability()->setUiHidden( true );
 }
 
