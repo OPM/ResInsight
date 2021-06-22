@@ -152,16 +152,32 @@ void RicWellTarget3dEditor::slotUpdated( const cvf::Vec3d& origin, const cvf::Ve
 
     cvf::ref<caf::DisplayCoordTransform> dispXf = view->displayCoordTransform();
 
-    RimWellPathGeometryDef* geomDef;
-    target->firstAncestorOrThisOfTypeAsserted( geomDef );
+    auto domainCoordXYZ = dispXf->transformToDomainCoord( origin );
 
-    cvf::Vec3d domainOrigin = dispXf->transformToDomainCoord( origin ) - geomDef->anchorPointXyz();
-    domainOrigin.z()        = -domainOrigin.z();
-    QVariant originVariant  = caf::PdmValueFieldSpecialization<cvf::Vec3d>::convert( domainOrigin );
+    bool modifyReferencePoint = ( QApplication::keyboardModifiers() & Qt::ControlModifier );
 
-    target->enableFullUpdate( false );
-    caf::PdmUiCommandSystemProxy::instance()->setUiValueToField( target->m_targetPointXYD.uiCapability(), originVariant );
-    target->enableFullUpdate( true );
+    if ( modifyReferencePoint )
+    {
+        RimWellPathGeometryDef* geomDef;
+        target->firstAncestorOrThisOfTypeAsserted( geomDef );
+
+        auto candidateLocationXYZ = domainCoordXYZ - geomDef->anchorPointXyz();
+        auto delta                = target->targetPointXYZ() - candidateLocationXYZ;
+
+        auto currentAnchor = geomDef->anchorPointXyz();
+        auto newAnchor     = currentAnchor - delta;
+        geomDef->setReferencePointXyz( newAnchor );
+        geomDef->changed.send( false );
+        geomDef->updateWellPathVisualization( true );
+        for ( auto wt : geomDef->activeWellTargets() )
+        {
+            wt->updateConnectedEditors();
+        }
+    }
+    else
+    {
+        target->updateFrom3DManipulator( domainCoordXYZ );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

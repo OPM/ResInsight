@@ -29,6 +29,7 @@
 #include "cafPdmUiCheckBoxEditor.h"
 #include "cafPdmUiLineEditor.h"
 
+#include "cafPdmUiCommandSystemProxy.h"
 #include <cmath>
 
 CAF_PDM_SOURCE_INIT( RimWellPathTarget, "WellPathTarget" );
@@ -158,6 +159,24 @@ void RimWellPathTarget::setDerivedTangent( double azimuth, double inclination )
     {
         m_azimuth     = cvf::Math::toDegrees( azimuth );
         m_inclination = cvf::Math::toDegrees( inclination );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellPathTarget::updateFrom3DManipulator( const cvf::Vec3d& candidateDomainCoordXYZ )
+{
+    auto geomDef = geometryDefinition();
+    if ( geomDef )
+    {
+        cvf::Vec3d domainOrigin = candidateDomainCoordXYZ - geomDef->anchorPointXyz();
+        domainOrigin.z()        = -domainOrigin.z();
+        QVariant originVariant  = caf::PdmValueFieldSpecialization<cvf::Vec3d>::convert( domainOrigin );
+
+        enableFullUpdate( false );
+        m_targetPointXYD.setValueWithFieldChanged( domainOrigin );
+        enableFullUpdate( true );
     }
 }
 
@@ -459,6 +478,10 @@ void RimWellPathTarget::fieldChangedByUi( const caf::PdmFieldHandle* changedFiel
             m_targetType = TargetTypeEnum::POINT_AND_TANGENT;
         else
             m_targetType = TargetTypeEnum::POINT;
+    }
+    else if ( changedField == &m_targetPointXYD )
+    {
+        qDebug() << "hei";
     }
 
     moved.send( m_isFullUpdateEnabled );

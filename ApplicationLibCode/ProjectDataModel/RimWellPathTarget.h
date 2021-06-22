@@ -50,6 +50,7 @@ public:
     void setAsPointXYZAndTangentTarget( const cvf::Vec3d& point, const cvf::Vec3d& tangent );
     void setAsPointXYZAndTangentTarget( const cvf::Vec3d& point, double azimuth, double inclination );
     void setDerivedTangent( double azimuth, double inclination );
+    void updateFrom3DManipulator( const cvf::Vec3d& candidateDomainCoordXYZ );
 
     RiaLineArcWellPathCalculator::WellTarget wellTargetData();
 

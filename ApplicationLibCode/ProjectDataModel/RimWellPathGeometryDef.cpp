@@ -146,6 +146,21 @@ void RimWellPathGeometryDef::setReferencePointXyz( const cvf::Vec3d& refPointXyz
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimWellPathGeometryDef::setReferencePointXyzFrom3DManipulator( const cvf::Vec3d& refPointXyz )
+{
+    cvf::Vec3d xyd( refPointXyz );
+    xyd.z() = -xyd.z();
+    m_referencePointUtmXyd.setValueWithFieldChanged( xyd );
+
+    for ( auto w : m_wellTargets() )
+    {
+        w->updateConnectedEditors();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 double RimWellPathGeometryDef::airGap() const
 {
     return m_airGap;
