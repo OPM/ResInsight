@@ -265,17 +265,17 @@ void RimModeledWellPath::updateTieInLocationFromParentWell()
         parentWellPath = tieIn->parentWell();
 
         auto targets = m_geometryDefinition->activeWellTargets();
-        if ( parentWellPath && !targets.empty() )
+        if ( parentWellPath && !targets.empty() && parentWellPath->wellPathGeometry() &&
+             !parentWellPath->wellPathGeometry()->measuredDepths().empty() )
         {
             auto [pointVector, measuredDepths] =
                 parentWellPath->wellPathGeometry()
                     ->clippedPointSubset( parentWellPath->wellPathGeometry()->measuredDepths().front(),
                                           tieIn->tieInMeasuredDepth() );
 
-            if ( pointVector.size() > 2u )
+            if ( pointVector.size() >= 2u )
             {
-                auto firstTarget = targets.front();
-                firstTarget->setPointXYZ( pointVector.back() );
+                m_geometryDefinition->setReferencePointXyz( pointVector.back() );
 
                 m_geometryDefinition->setIsAttachedToParentWell( true );
                 m_geometryDefinition->setMdAtFirstTarget( measuredDepths.back() );

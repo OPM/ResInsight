@@ -59,7 +59,7 @@ RimWellPathTarget::RimWellPathTarget()
     m_isLocked.uiCapability()->setUiHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_targetPointXYD, "TargetPoint", "Relative Coord", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_targetPointForDisplay, "TargetPointForDisplay", "Absolute Coord", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_targetPointForDisplay, "TargetPointForDisplay", "UTM Coord", "", "", "" );
     m_targetPointForDisplay.registerGetMethod( this, &RimWellPathTarget::targetPointForDisplayXYD );
     m_targetPointForDisplay.registerSetMethod( this, &RimWellPathTarget::setTargetPointFromDisplayCoord );
 
