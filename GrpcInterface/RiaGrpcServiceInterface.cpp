@@ -216,7 +216,7 @@ caf::PdmObjectHandle* RiaGrpcServiceInterface::emplaceChildField( caf::PdmObject
                 auto objectCreated = emplaceChildArrayField( pdmChildArrayField, keywordForClassToCreate );
 
                 // Notify parent object that a new object has been created
-                parent->onChildAdded( pdmChildArrayField );
+                if ( objectCreated ) parent->onChildAdded( pdmChildArrayField );
 
                 return objectCreated;
             }
@@ -247,6 +247,18 @@ caf::PdmObjectHandle* RiaGrpcServiceInterface::emplaceChildField( caf::PdmChildF
 
     auto pdmObjectHandle = caf::PdmDefaultObjectFactory::instance()->create( childClassKeyword );
     CAF_ASSERT( pdmObjectHandle );
+
+    {
+        auto childDataTypeName = childField->xmlCapability()->dataTypeName();
+
+        auto isInheritanceValid = pdmObjectHandle->xmlCapability()->inheritsClassWithKeyword( childDataTypeName );
+        if ( !isInheritanceValid )
+        {
+            delete pdmObjectHandle;
+            return nullptr;
+        }
+    }
+
     childField->setChildObject( pdmObjectHandle );
     return pdmObjectHandle;
 }
@@ -269,6 +281,17 @@ caf::PdmObjectHandle* RiaGrpcServiceInterface::emplaceChildArrayField( caf::PdmC
 
     auto pdmObjectHandle = caf::PdmDefaultObjectFactory::instance()->create( childClassKeyword );
     if ( !pdmObjectHandle ) return nullptr;
+
+    {
+        auto childDataTypeName = childArrayField->xmlCapability()->dataTypeName();
+
+        auto isInheritanceValid = pdmObjectHandle->xmlCapability()->inheritsClassWithKeyword( childDataTypeName );
+        if ( !isInheritanceValid )
+        {
+            delete pdmObjectHandle;
+            return nullptr;
+        }
+    }
 
     childArrayField->insertAt( -1, pdmObjectHandle );
 

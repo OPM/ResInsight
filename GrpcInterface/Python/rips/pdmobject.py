@@ -313,7 +313,7 @@ class PdmObjectBase:
             return pdm_object
         except grpc.RpcError as e:
             if e.code() == grpc.StatusCode.NOT_FOUND:
-                return []
+                return None
             raise e
 
     def ancestor(self, class_definition):
