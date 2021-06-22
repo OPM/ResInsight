@@ -1,9 +1,15 @@
-from rips.generated.generated_classes import ModeledWellPath, StimPlanModel, WellPathGeometry, WellPathTarget
+from rips.generated.generated_classes import (
+    ModeledWellPath,
+    StimPlanModel,
+    WellPathGeometry,
+    WellPathTarget,
+)
 import sys
 import os
 
 sys.path.insert(1, os.path.join(sys.path[0], "../../"))
 import rips
+
 
 def test_well_path_target(rips_instance, initialize_test):
     well_path_coll = rips_instance.project.descendants(rips.WellPathCollection)[0]
@@ -27,4 +33,3 @@ def test_well_path_target(rips_instance, initialize_test):
     # Not allowed to add object of unrelated type
     invalid_object = geometry.add_new_object(rips.WellPath)
     assert invalid_object is None
-    
