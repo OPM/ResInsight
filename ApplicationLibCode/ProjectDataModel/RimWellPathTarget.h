@@ -20,13 +20,15 @@
 #include "cafPdmObject.h"
 
 #include "RiaLineArcWellPathCalculator.h"
+
 #include "cafAppEnum.h"
 #include "cafPdmCoreVec3d.h"
 #include "cafPdmField.h"
+#include "cafPdmProxyValueField.h"
 #include "cafPdmPtrField.h"
 #include "cvfVector3.h"
 
-class RimWellPath;
+class RimWellPathGeometryDef;
 
 class RimWellPathTarget : public caf::PdmObject
 {
@@ -51,11 +53,12 @@ public:
 
     RiaLineArcWellPathCalculator::WellTarget wellTargetData();
 
-    enum TargetTypeEnum
+    enum class TargetTypeEnum
     {
         POINT_AND_TANGENT,
         POINT
     };
+
     TargetTypeEnum targetType() const;
     cvf::Vec3d     targetPointXYZ() const;
     double         azimuth() const;
@@ -77,6 +80,11 @@ private:
                                                          QString                    uiConfigName,
                                                          caf::PdmUiEditorAttribute* attribute ) override;
 
+    cvf::Vec3d targetPointForDisplayXYD() const;
+    void       setTargetPointFromDisplayCoord( const cvf::Vec3d& coordInXYZ );
+
+    RimWellPathGeometryDef* geometryDefinition() const;
+
 private:
     friend class RicWellTarget3dEditor;
     void                                        enableFullUpdate( bool enable );
@@ -84,12 +92,11 @@ private:
     caf::PdmField<bool>                         m_isEnabled;
     caf::PdmField<bool>                         m_isLocked;
     caf::PdmField<caf::AppEnum<TargetTypeEnum>> m_targetType;
-    caf::PdmField<cvf::Vec3d>                   m_targetPoint;
+    caf::PdmField<cvf::Vec3d>                   m_targetPointXYD;
+    caf::PdmProxyValueField<cvf::Vec3d>         m_targetPointForDisplay;
     caf::PdmField<double>                       m_azimuth;
     caf::PdmField<double>                       m_inclination;
     caf::PdmField<double>                       m_dogleg1;
     caf::PdmField<double>                       m_dogleg2;
     caf::PdmField<bool>                         m_hasTangentConstraintUiField;
-
-    caf::PdmPtrField<RimWellPath*> m_parentWellPath;
 };

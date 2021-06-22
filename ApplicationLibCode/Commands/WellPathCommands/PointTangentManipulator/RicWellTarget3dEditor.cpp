@@ -61,7 +61,7 @@ RicWellTarget3dEditor::~RicWellTarget3dEditor()
     if ( oldTarget )
     {
         oldTarget->m_targetType.uiCapability()->removeFieldEditor( this );
-        oldTarget->m_targetPoint.uiCapability()->removeFieldEditor( this );
+        oldTarget->m_targetPointXYD.uiCapability()->removeFieldEditor( this );
         oldTarget->m_azimuth.uiCapability()->removeFieldEditor( this );
         oldTarget->m_inclination.uiCapability()->removeFieldEditor( this );
     }
@@ -89,7 +89,7 @@ void RicWellTarget3dEditor::configureAndUpdateUi( const QString& uiConfigName )
     target->firstAncestorOrThisOfTypeAsserted( geomDef );
 
     target->m_targetType.uiCapability()->addFieldEditor( this );
-    target->m_targetPoint.uiCapability()->addFieldEditor( this );
+    target->m_targetPointXYD.uiCapability()->addFieldEditor( this );
     target->m_azimuth.uiCapability()->addFieldEditor( this );
     target->m_inclination.uiCapability()->addFieldEditor( this );
 
@@ -131,7 +131,7 @@ void RicWellTarget3dEditor::cleanupBeforeSettingPdmObject()
     if ( oldTarget )
     {
         oldTarget->m_targetType.uiCapability()->removeFieldEditor( this );
-        oldTarget->m_targetPoint.uiCapability()->removeFieldEditor( this );
+        oldTarget->m_targetPointXYD.uiCapability()->removeFieldEditor( this );
         oldTarget->m_azimuth.uiCapability()->removeFieldEditor( this );
         oldTarget->m_inclination.uiCapability()->removeFieldEditor( this );
     }
@@ -160,7 +160,7 @@ void RicWellTarget3dEditor::slotUpdated( const cvf::Vec3d& origin, const cvf::Ve
     QVariant originVariant  = caf::PdmValueFieldSpecialization<cvf::Vec3d>::convert( domainOrigin );
 
     target->enableFullUpdate( false );
-    caf::PdmUiCommandSystemProxy::instance()->setUiValueToField( target->m_targetPoint.uiCapability(), originVariant );
+    caf::PdmUiCommandSystemProxy::instance()->setUiValueToField( target->m_targetPointXYD.uiCapability(), originVariant );
     target->enableFullUpdate( true );
 }
 
