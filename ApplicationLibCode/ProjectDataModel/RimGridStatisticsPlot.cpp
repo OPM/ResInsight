@@ -24,6 +24,7 @@
 #include "RimCase.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCaseCollection.h"
+#include "RimEclipseCellColors.h"
 #include "RimEclipseResultCase.h"
 #include "RimEclipseResultDefinition.h"
 #include "RimEclipseView.h"
@@ -97,6 +98,22 @@ void RimGridStatisticsPlot::setDefaults()
             m_property->setResultVariable( "PORO" );
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGridStatisticsPlot::setPropertiesFromView( RimEclipseView* view )
+{
+    CAF_ASSERT( view );
+
+    m_case = view->ownerCase();
+
+    RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>( m_case.value() );
+    if ( eclipseCase ) m_property->setEclipseCase( eclipseCase );
+
+    const RimEclipseResultDefinition* resDef = dynamic_cast<const RimEclipseResultDefinition*>( view->cellResult() );
+    if ( resDef ) m_property->simpleCopy( resDef );
 }
 
 //--------------------------------------------------------------------------------------------------
