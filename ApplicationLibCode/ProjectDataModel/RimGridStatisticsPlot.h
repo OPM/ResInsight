@@ -32,6 +32,7 @@ class RimCase;
 class RimPlot;
 class RimGridView;
 class RimEclipseResultDefinition;
+class RimEclipseView;
 
 //==================================================================================================
 ///
@@ -46,6 +47,8 @@ public:
     ~RimGridStatisticsPlot() override;
 
     void cellFilterViewUpdated();
+
+    void setPropertiesFromView( RimEclipseView* view );
 
 protected:
     // Overridden PDM methods

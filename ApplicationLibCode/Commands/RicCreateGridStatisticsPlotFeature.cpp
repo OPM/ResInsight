@@ -20,6 +20,8 @@
 
 #include "RiaGuiApplication.h"
 
+#include "RimEclipseResultDefinition.h"
+#include "RimEclipseView.h"
 #include "RimGridStatisticsPlot.h"
 #include "RimGridStatisticsPlotCollection.h"
 #include "RimMainPlotCollection.h"
@@ -50,6 +52,10 @@ void RicCreateGridStatisticsPlotFeature::onActionTriggered( bool isChecked )
     RimGridStatisticsPlotCollection* collection = project->mainPlotCollection()->gridStatisticsPlotCollection();
 
     RimGridStatisticsPlot* plot = new RimGridStatisticsPlot();
+
+    RimEclipseView* activeView = dynamic_cast<RimEclipseView*>( RiaApplication::instance()->activeGridView() );
+    if ( activeView ) plot->setPropertiesFromView( activeView );
+
     plot->zoomAll();
     plot->updateConnectedEditors();
     plot->setAsPlotMdiWindow();
