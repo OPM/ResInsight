@@ -479,10 +479,6 @@ void RimWellPathTarget::fieldChangedByUi( const caf::PdmFieldHandle* changedFiel
         else
             m_targetType = TargetTypeEnum::POINT;
     }
-    else if ( changedField == &m_targetPointXYD )
-    {
-        qDebug() << "hei";
-    }
 
     moved.send( m_isFullUpdateEnabled );
 }
