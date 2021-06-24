@@ -154,6 +154,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RimTimeAxisAnnotation.h
 ${CMAKE_CURRENT_LIST_DIR}/RimPolylinesDataInterface.h
 ${CMAKE_CURRENT_LIST_DIR}/RimWellPathTieIn.h
 ${CMAKE_CURRENT_LIST_DIR}/cafTreeNode.h
+${CMAKE_CURRENT_LIST_DIR}/RimMultipleLocations.h
 )
 
 
@@ -308,6 +309,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RimEquilibriumAxisAnnotation.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimTimeAxisAnnotation.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimWellPathTieIn.cpp
 ${CMAKE_CURRENT_LIST_DIR}/cafTreeNode.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimMultipleLocations.cpp
 )
 
 if(Qt5Charts_FOUND)
