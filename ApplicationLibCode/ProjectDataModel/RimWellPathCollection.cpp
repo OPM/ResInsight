@@ -892,12 +892,11 @@ std::map<QString, std::vector<RimWellPath*>>
                 QString rootWellName = wellPath->name().left( indexOfLateralStart );
 
                 rootWells[rootWellName].push_back( wellPath );
+                continue;
             }
         }
-        else
-        {
-            rootWells[RimWellPathCollection::unGroupedText()].push_back( wellPath );
-        }
+
+        rootWells[RimWellPathCollection::unGroupedText()].push_back( wellPath );
     }
 
     return rootWells;
