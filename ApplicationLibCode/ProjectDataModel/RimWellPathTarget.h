@@ -50,7 +50,7 @@ public:
     void setAsPointXYZAndTangentTarget( const cvf::Vec3d& point, const cvf::Vec3d& tangent );
     void setAsPointXYZAndTangentTarget( const cvf::Vec3d& point, double azimuth, double inclination );
     void setDerivedTangent( double azimuth, double inclination );
-    void updateFrom3DManipulator( const cvf::Vec3d& candidateDomainCoordXYZ );
+    void updateFrom3DManipulator( const cvf::Vec3d& pointXYD );
 
     RiaLineArcWellPathCalculator::WellTarget wellTargetData();
 
@@ -70,6 +70,8 @@ public:
     void           flagRadius1AsIncorrect( bool isEditable, bool isIncorrect, double actualRadius );
     void           flagRadius2AsIncorrect( bool isEditable, bool isIncorrect, double actualRadius );
 
+    std::vector<caf::PdmFieldHandle*> fieldsFor3dManipulator();
+
     void onMoved();
 
 private:
@@ -87,7 +89,6 @@ private:
     RimWellPathGeometryDef* geometryDefinition() const;
 
 private:
-    friend class RicWellTarget3dEditor;
     void                                        enableFullUpdate( bool enable );
     bool                                        m_isFullUpdateEnabled;
     caf::PdmField<bool>                         m_isEnabled;

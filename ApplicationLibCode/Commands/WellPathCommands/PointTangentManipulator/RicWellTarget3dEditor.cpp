@@ -57,14 +57,7 @@ RicWellTarget3dEditor::~RicWellTarget3dEditor()
         ownerRiuViewer->removeStaticModel( m_cvfModel.p() );
     }
 
-    RimWellPathTarget* oldTarget = dynamic_cast<RimWellPathTarget*>( this->pdmObject() );
-    if ( oldTarget )
-    {
-        oldTarget->m_targetType.uiCapability()->removeFieldEditor( this );
-        oldTarget->m_targetPointXYD.uiCapability()->removeFieldEditor( this );
-        oldTarget->m_azimuth.uiCapability()->removeFieldEditor( this );
-        oldTarget->m_inclination.uiCapability()->removeFieldEditor( this );
-    }
+    removeAllFieldEditors();
 
     delete m_manipulator;
 }
@@ -88,10 +81,10 @@ void RicWellTarget3dEditor::configureAndUpdateUi( const QString& uiConfigName )
     RimWellPathGeometryDef* geomDef;
     target->firstAncestorOrThisOfTypeAsserted( geomDef );
 
-    target->m_targetType.uiCapability()->addFieldEditor( this );
-    target->m_targetPointXYD.uiCapability()->addFieldEditor( this );
-    target->m_azimuth.uiCapability()->addFieldEditor( this );
-    target->m_inclination.uiCapability()->addFieldEditor( this );
+    for ( auto field : target->fieldsFor3dManipulator() )
+    {
+        field->uiCapability()->addFieldEditor( this );
+    }
 
     if ( m_manipulator.isNull() )
     {
@@ -127,14 +120,7 @@ void RicWellTarget3dEditor::configureAndUpdateUi( const QString& uiConfigName )
 //--------------------------------------------------------------------------------------------------
 void RicWellTarget3dEditor::cleanupBeforeSettingPdmObject()
 {
-    RimWellPathTarget* oldTarget = dynamic_cast<RimWellPathTarget*>( this->pdmObject() );
-    if ( oldTarget )
-    {
-        oldTarget->m_targetType.uiCapability()->removeFieldEditor( this );
-        oldTarget->m_targetPointXYD.uiCapability()->removeFieldEditor( this );
-        oldTarget->m_azimuth.uiCapability()->removeFieldEditor( this );
-        oldTarget->m_inclination.uiCapability()->removeFieldEditor( this );
-    }
+    removeAllFieldEditors();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -150,23 +136,24 @@ void RicWellTarget3dEditor::slotUpdated( const cvf::Vec3d& origin, const cvf::Ve
         return;
     }
 
+    RimWellPathGeometryDef* geomDef;
+    target->firstAncestorOrThisOfTypeAsserted( geomDef );
+    if ( !geomDef ) return;
+
     cvf::ref<caf::DisplayCoordTransform> dispXf = view->displayCoordTransform();
 
     auto domainCoordXYZ = dispXf->transformToDomainCoord( origin );
 
+    // If CTRL is pressed, modify the reference point instead of the well path target
     bool modifyReferencePoint = ( QApplication::keyboardModifiers() & Qt::ControlModifier );
-
     if ( modifyReferencePoint )
     {
-        RimWellPathGeometryDef* geomDef;
-        target->firstAncestorOrThisOfTypeAsserted( geomDef );
+        auto relativePositionXYZ = domainCoordXYZ - geomDef->anchorPointXyz();
+        auto delta               = target->targetPointXYZ() - relativePositionXYZ;
 
-        auto candidateLocationXYZ = domainCoordXYZ - geomDef->anchorPointXyz();
-        auto delta                = target->targetPointXYZ() - candidateLocationXYZ;
-
-        auto currentAnchor = geomDef->anchorPointXyz();
-        auto newAnchor     = currentAnchor - delta;
-        geomDef->setReferencePointXyz( newAnchor );
+        auto currentRefPointXyz = geomDef->anchorPointXyz();
+        auto newRefPointXyz     = currentRefPointXyz - delta;
+        geomDef->setReferencePointXyz( newRefPointXyz );
         geomDef->changed.send( false );
         geomDef->updateWellPathVisualization( true );
         for ( auto wt : geomDef->activeWellTargets() )
@@ -176,7 +163,10 @@ void RicWellTarget3dEditor::slotUpdated( const cvf::Vec3d& origin, const cvf::Ve
     }
     else
     {
-        target->updateFrom3DManipulator( domainCoordXYZ );
+        cvf::Vec3d relativePositionXYD = domainCoordXYZ - geomDef->anchorPointXyz();
+        relativePositionXYD.z()        = -relativePositionXYD.z();
+
+        target->updateFrom3DManipulator( relativePositionXYD );
     }
 }
 
@@ -206,4 +196,18 @@ void RicWellTarget3dEditor::slotDragFinished()
     }
 
     target->onMoved();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicWellTarget3dEditor::removeAllFieldEditors()
+{
+    if ( RimWellPathTarget* oldTarget = dynamic_cast<RimWellPathTarget*>( this->pdmObject() ) )
+    {
+        for ( auto field : oldTarget->fieldsFor3dManipulator() )
+        {
+            field->uiCapability()->removeFieldEditor( this );
+        }
+    }
 }

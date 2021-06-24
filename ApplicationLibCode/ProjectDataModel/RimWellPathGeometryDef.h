@@ -52,7 +52,6 @@ public:
     cvf::Vec3d anchorPointXyz() const;
     cvf::Vec3d anchorPointXyd() const;
     void       setReferencePointXyz( const cvf::Vec3d& refPointXyz );
-    void       setReferencePointXyzFrom3DManipulator( const cvf::Vec3d& refPointXyz );
 
     double airGap() const;
     void   setAirGap( double airGap );

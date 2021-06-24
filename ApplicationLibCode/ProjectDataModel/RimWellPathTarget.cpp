@@ -165,19 +165,11 @@ void RimWellPathTarget::setDerivedTangent( double azimuth, double inclination )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellPathTarget::updateFrom3DManipulator( const cvf::Vec3d& candidateDomainCoordXYZ )
+void RimWellPathTarget::updateFrom3DManipulator( const cvf::Vec3d& pointXYD )
 {
-    auto geomDef = geometryDefinition();
-    if ( geomDef )
-    {
-        cvf::Vec3d domainOrigin = candidateDomainCoordXYZ - geomDef->anchorPointXyz();
-        domainOrigin.z()        = -domainOrigin.z();
-        QVariant originVariant  = caf::PdmValueFieldSpecialization<cvf::Vec3d>::convert( domainOrigin );
-
-        enableFullUpdate( false );
-        m_targetPointXYD.setValueWithFieldChanged( domainOrigin );
-        enableFullUpdate( true );
-    }
+    enableFullUpdate( false );
+    m_targetPointXYD.setValueWithFieldChanged( pointXYD );
+    enableFullUpdate( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -348,6 +340,14 @@ void RimWellPathTarget::flagRadius2AsIncorrect( bool isEditable, bool isIncorrec
     }
 
     m_dogleg2.uiCapability()->setUiReadOnly( !isEditable );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<caf::PdmFieldHandle*> RimWellPathTarget::fieldsFor3dManipulator()
+{
+    return { &m_targetType, &m_targetPointXYD, &m_azimuth, &m_inclination };
 }
 
 //--------------------------------------------------------------------------------------------------
