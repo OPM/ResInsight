@@ -339,6 +339,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         else if ( dynamic_cast<RimWellPathCollection*>( firstUiItem ) )
         {
             menuBuilder << "RicNewEditableWellPathFeature";
+            menuBuilder << "RicPasteModeledWellPathFeature";
             menuBuilder.addSeparator();
             menuBuilder.subMenuStart( "Import" );
             menuBuilder << "RicWellPathsImportFileFeature";
