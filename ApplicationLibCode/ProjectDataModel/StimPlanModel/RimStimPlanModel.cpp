@@ -1345,7 +1345,8 @@ bool RimStimPlanModel::useStaticEclipseCase( RiaDefines::CurveProperty curveProp
 //--------------------------------------------------------------------------------------------------
 RimEclipseCase* RimStimPlanModel::eclipseCaseForProperty( RiaDefines::CurveProperty curveProperty ) const
 {
-    if ( m_initialPressureEclipseCase && curveProperty == RiaDefines::CurveProperty::INITIAL_PRESSURE )
+    if ( m_initialPressureEclipseCase && ( curveProperty == RiaDefines::CurveProperty::INITIAL_PRESSURE ||
+                                           curveProperty == RiaDefines::CurveProperty::EQLNUM ) )
     {
         return m_initialPressureEclipseCase;
     }
