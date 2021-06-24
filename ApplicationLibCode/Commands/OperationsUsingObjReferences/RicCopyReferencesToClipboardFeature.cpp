@@ -29,6 +29,7 @@
 #include "RimGridCrossPlotCurve.h"
 #include "RimGridCrossPlotDataSet.h"
 #include "RimMimeData.h"
+#include "RimModeledWellPath.h"
 #include "RimSummaryCurveFilter.h"
 #include "RimSummaryPlot.h"
 #include "RimWellAllocationPlot.h"
@@ -174,6 +175,10 @@ bool RicCopyReferencesToClipboardFeature::isCopyOfObjectSupported( caf::PdmObjec
         return true;
     }
     else if ( dynamic_cast<RimGridCrossPlotDataSet*>( pdmObject ) )
+    {
+        return true;
+    }
+    else if ( dynamic_cast<RimModeledWellPath*>( pdmObject ) )
     {
         return true;
     }

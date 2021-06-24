@@ -19,6 +19,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RicDeletePolylineTargetFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicImportWellMeasurementsFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicNewWellPathLateralAtDepthFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicNewWellPathLateralFeature.h
+${CMAKE_CURRENT_LIST_DIR}/RicPasteModeledWellPathFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/PointTangentManipulator/Ric3dObjectEditorHandle.h
 ${CMAKE_CURRENT_LIST_DIR}/PointTangentManipulator/RicPointTangentManipulator.h
 ${CMAKE_CURRENT_LIST_DIR}/PointTangentManipulator/RicWellTarget3dEditor.h
@@ -48,6 +49,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RicDeletePolylineTargetFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicImportWellMeasurementsFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicNewWellPathLateralAtDepthFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicNewWellPathLateralFeature.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicPasteModeledWellPathFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/PointTangentManipulator/Ric3dObjectEditorHandle.cpp
 ${CMAKE_CURRENT_LIST_DIR}/PointTangentManipulator/RicPointTangentManipulator.cpp
 ${CMAKE_CURRENT_LIST_DIR}/PointTangentManipulator/RicWellTarget3dEditor.cpp
