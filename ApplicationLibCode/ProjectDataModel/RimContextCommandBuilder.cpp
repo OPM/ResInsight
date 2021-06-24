@@ -404,6 +404,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             if ( dynamic_cast<RimModeledWellPath*>( firstUiItem ) )
             {
                 menuBuilder << "RicShowWellPlanFeature";
+                menuBuilder << "RicCreateMultipleWellPathLaterals";
             }
         }
         else if ( dynamic_cast<RimWellPathCompletions*>( firstUiItem ) )
