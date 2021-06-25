@@ -90,6 +90,10 @@ void RimEnsembleWellLogStatistics::calculate( const std::vector<RimWellLogFile*>
                 curveMerger.addCurveData( depths, values );
             }
         }
+        else
+        {
+            RiaLogging::error( errorMessage );
+        }
     }
     curveMerger.computeInterpolatedValues( true );
 

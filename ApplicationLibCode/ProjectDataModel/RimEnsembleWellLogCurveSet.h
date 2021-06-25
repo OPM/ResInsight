@@ -123,9 +123,12 @@ public:
 
     const RimEnsembleWellLogStatistics* ensembleWellLogStatistics() const;
 
+    void updateStatistics();
+
 private:
     void updateEnsembleCurves( const std::vector<RimWellLogFile*>& curves );
     void updateStatisticsCurves( const std::vector<RimWellLogFile*>& curves );
+    void updateStatistics( const std::vector<RimWellLogFile*>& sumCases );
 
     caf::PdmFieldHandle* userDescriptionField() override;
     caf::PdmFieldHandle* objectToggleField() override;

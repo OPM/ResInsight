@@ -63,3 +63,14 @@ std::vector<RimEnsembleWellLogs*> RimEnsembleWellLogsCollection::ensembleWellLog
     }
     return ensembleWellLogs;
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEnsembleWellLogsCollection::loadDataAndUpdate()
+{
+    for ( const auto& e : m_ensembleWellLogs )
+    {
+        e->loadDataAndUpdate();
+    }
+}

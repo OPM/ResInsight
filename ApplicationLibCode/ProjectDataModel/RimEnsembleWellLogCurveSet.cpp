@@ -831,7 +831,15 @@ void RimEnsembleWellLogCurveSet::updateEnsembleCurves( const std::vector<RimWell
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEnsembleWellLogCurveSet::updateStatisticsCurves( const std::vector<RimWellLogFile*>& sumCases )
+void RimEnsembleWellLogCurveSet::updateStatistics()
+{
+    updateStatistics( std::vector<RimWellLogFile*>() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEnsembleWellLogCurveSet::updateStatistics( const std::vector<RimWellLogFile*>& sumCases )
 {
     RimEnsembleWellLogs* ensembleWellLogs   = m_ensembleWellLogs;
     QString              wellLogChannelName = m_wellLogChannelName();
@@ -839,18 +847,24 @@ void RimEnsembleWellLogCurveSet::updateStatisticsCurves( const std::vector<RimWe
     if ( !isCurvesVisible() || m_disableStatisticCurves || !ensembleWellLogs || wellLogChannelName == "None" ) return;
 
     // Calculate
+    std::vector<RimWellLogFile*> wellLogFiles = sumCases;
+    if ( wellLogFiles.empty() )
     {
-        std::vector<RimWellLogFile*> wellLogFiles = sumCases;
-        if ( wellLogFiles.empty() )
-        {
-            if ( m_statistics->basedOnFilteredCases() )
-                wellLogFiles = filterEnsembleCases( ensembleWellLogs->wellLogFiles() );
-            else
-                wellLogFiles = ensembleWellLogs->wellLogFiles();
-        }
-
-        m_ensembleWellLogStatistics->calculate( wellLogFiles, wellLogChannelName );
+        if ( m_statistics->basedOnFilteredCases() )
+            wellLogFiles = filterEnsembleCases( ensembleWellLogs->wellLogFiles() );
+        else
+            wellLogFiles = ensembleWellLogs->wellLogFiles();
     }
+
+    m_ensembleWellLogStatistics->calculate( wellLogFiles, wellLogChannelName );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEnsembleWellLogCurveSet::updateStatisticsCurves( const std::vector<RimWellLogFile*>& sumCases )
+{
+    updateStatistics( sumCases );
 
     RimWellLogPlot* plot = nullptr;
     firstAncestorOrThisOfType( plot );

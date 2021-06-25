@@ -99,6 +99,8 @@ void RimEnsembleWellLogStatisticsCurve::performDataExtraction( bool* isUsingPseu
         const RimEnsembleWellLogStatistics* ensembleWellLogStatistics =
             m_ensembleWellLogCurveSet->ensembleWellLogStatistics();
 
+        m_ensembleWellLogCurveSet->updateStatistics();
+
         RiaDefines::DepthUnitType depthUnit = ensembleWellLogStatistics->depthUnitType();
         QString                   xUnits    = ensembleWellLogStatistics->logChannelUnitString();
 
