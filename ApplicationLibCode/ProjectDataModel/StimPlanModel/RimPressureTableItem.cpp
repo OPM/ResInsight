@@ -18,6 +18,8 @@
 
 #include "RimPressureTableItem.h"
 
+#include "cafPdmFieldScriptingCapability.h"
+#include "cafPdmObjectScriptingCapability.h"
 #include "cafPdmUiCheckBoxEditor.h"
 #include "cafPdmUiLineEditor.h"
 
@@ -29,9 +31,11 @@ CAF_PDM_SOURCE_INIT( RimPressureTableItem, "PressureTableItem" );
 RimPressureTableItem::RimPressureTableItem()
     : changed( this )
 {
-    CAF_PDM_InitField( &m_depth, "Depth", 0.0, "Depth TVDMSL [m]", "", "", "" );
-    CAF_PDM_InitField( &m_initialPressure, "InitialPressure", 0.0, "Initial Pressure [Bar]", "", "", "" );
-    CAF_PDM_InitField( &m_pressure, "Pressure", 0.0, "Pressure [Bar]", "", "", "" );
+    CAF_PDM_InitScriptableObject( "Pressure Table Item", "", "", "" );
+
+    CAF_PDM_InitScriptableField( &m_depth, "Depth", 0.0, "Depth TVDMSL [m]", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_initialPressure, "InitialPressure", 0.0, "Initial Pressure [Bar]", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_pressure, "Pressure", 0.0, "Pressure [Bar]", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------
