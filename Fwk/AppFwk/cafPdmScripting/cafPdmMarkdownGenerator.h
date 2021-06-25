@@ -58,7 +58,7 @@ class PdmMarkdownGenerator : public PdmCodeGenerator
     };
 
 public:
-    QString generate( PdmObjectFactory* factory ) const override;
+    QString generate( PdmObjectFactory* factory, std::vector<QString>& errorMessages ) const override;
 };
 
 } // namespace caf

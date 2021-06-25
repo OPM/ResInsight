@@ -26,6 +26,9 @@
 #include "RimWellPath.h"
 #include "RimWellPathGeometryDef.h"
 
+#include "cafPdmFieldScriptingCapability.h"
+#include "cafPdmFieldScriptingCapabilityCvfVec3d.h"
+#include "cafPdmObjectScriptingCapability.h"
 #include "cafPdmUiCheckBoxEditor.h"
 #include "cafPdmUiLineEditor.h"
 
@@ -54,19 +57,26 @@ RimWellPathTarget::RimWellPathTarget()
     , m_inclination( 0.0 )
     , m_isFullUpdateEnabled( true )
 {
+    CAF_PDM_InitScriptableObjectWithNameAndComment( "Well Target",
+                                                    "",
+                                                    "",
+                                                    "",
+                                                    "WellPathTarget",
+                                                    "Class containing the Well Target definition" );
+
     CAF_PDM_InitField( &m_isEnabled, "IsEnabled", true, "", "", "", "" );
     CAF_PDM_InitField( &m_isLocked, "IsLocked", false, "", "", "", "" );
     m_isLocked.uiCapability()->setUiHidden( true );
     // m_targetType.uiCapability()->setUiHidden(true);
-    CAF_PDM_InitFieldNoDefault( &m_targetPoint, "TargetPoint", "Point", "", "", "" );
-    CAF_PDM_InitField( &m_dogleg1, "Dogleg1", 3.0, "DL in", "", "[deg/30m]", "" );
-    CAF_PDM_InitField( &m_dogleg2, "Dogleg2", 3.0, "DL out", "", "[deg/30m]", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_targetPoint, "TargetPoint", "Point", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_dogleg1, "Dogleg1", 3.0, "DL in", "", "[deg/30m]", "" );
+    CAF_PDM_InitScriptableField( &m_dogleg2, "Dogleg2", 3.0, "DL out", "", "[deg/30m]", "" );
     CAF_PDM_InitFieldNoDefault( &m_targetType, "TargetType", "Type", "", "", "" );
     m_targetType.uiCapability()->setUiHidden( true );
     CAF_PDM_InitField( &m_hasTangentConstraintUiField, "HasTangentConstraint", false, "Dir", "", "", "" );
     m_hasTangentConstraintUiField.xmlCapability()->disableIO();
-    CAF_PDM_InitField( &m_azimuth, "Azimuth", 0.0, "Azi(deg)", "", "", "" );
-    CAF_PDM_InitField( &m_inclination, "Inclination", 0.0, "Inc(deg)", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_azimuth, "Azimuth", 0.0, "Azi(deg)", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_inclination, "Inclination", 0.0, "Inc(deg)", "", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_parentWellPath, "ParentWellPath", "Parent Well Path", "", "", "" );
 

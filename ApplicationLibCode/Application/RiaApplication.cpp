@@ -1555,7 +1555,9 @@ bool RiaApplication::generateCode( const QString& fileName, gsl::not_null<QStrin
                        "objects automatically created based on the data model in ResInsight.";
             }
 
-            out << generator->generate( caf::PdmDefaultObjectFactory::instance() );
+            std::vector<QString> logMessages;
+
+            out << generator->generate( caf::PdmDefaultObjectFactory::instance(), logMessages );
         }
 
         {
@@ -1613,7 +1615,22 @@ bool RiaApplication::generateCode( const QString& fileName, gsl::not_null<QStrin
         }
         QTextStream out( &outputFile );
 
-        out << generator->generate( caf::PdmDefaultObjectFactory::instance() );
+        std::vector<QString> logMessages;
+
+        out << generator->generate( caf::PdmDefaultObjectFactory::instance(), logMessages );
+
+        QString errorText;
+        for ( const auto& msg : logMessages )
+        {
+            errorText += msg;
+            errorText += "\n";
+        }
+
+        if ( !errorText.isEmpty() )
+        {
+            *errMsg = errorText;
+            return false;
+        }
     }
 
     return true;

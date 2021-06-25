@@ -269,7 +269,7 @@ void RiaGrpcCommandService::assignPdmObjectValues( caf::PdmObjectHandle*        
                 }
                 else if ( childObjects.empty() )
                 {
-                    childObject = emplaceChildField( pdmChildFieldHandle );
+                    childObject = emplaceChildField( pdmChildFieldHandle, "" );
                 }
                 CAF_ASSERT( childObject );
                 if ( childObject )

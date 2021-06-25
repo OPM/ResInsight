@@ -142,6 +142,12 @@ void RiaGrpcServiceInterface::copyPdmObjectFromRipsToCaf( const rips::PdmObject*
         auto scriptability = field->template capability<caf::PdmAbstractFieldScriptingCapability>();
         if ( scriptability )
         {
+            if ( !dynamic_cast<caf::PdmValueField*>( field ) )
+            {
+                // Recursive object update is not supported
+                // https://github.com/OPM/ResInsight/issues/7794
+                continue;
+            }
             QString keyword = scriptability->scriptFieldName();
             QString value   = QString::fromStdString( parametersMap[keyword.toStdString()] );
 
@@ -181,7 +187,9 @@ bool RiaGrpcServiceInterface::assignFieldValue( const QString&       stringValue
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PdmObjectHandle* RiaGrpcServiceInterface::emplaceChildField( caf::PdmObject* parent, const QString& fieldLabel )
+caf::PdmObjectHandle* RiaGrpcServiceInterface::emplaceChildField( caf::PdmObject* parent,
+                                                                  const QString&  fieldKeyword,
+                                                                  const QString&  keywordForClassToCreate )
 {
     std::vector<caf::PdmFieldHandle*> fields;
     parent->fields( fields );
@@ -190,13 +198,32 @@ caf::PdmObjectHandle* RiaGrpcServiceInterface::emplaceChildField( caf::PdmObject
     {
         auto pdmChildArrayField = dynamic_cast<caf::PdmChildArrayFieldHandle*>( field );
         auto pdmChildField      = dynamic_cast<caf::PdmChildFieldHandle*>( field );
-        if ( pdmChildArrayField && pdmChildArrayField->keyword() == fieldLabel )
+        if ( pdmChildArrayField )
         {
-            return emplaceChildArrayField( pdmChildArrayField );
+            bool isMatching = false;
+            if ( fieldKeyword.isEmpty() )
+            {
+                // Use first child array field if no fieldKeyword is specified
+                isMatching = true;
+            }
+            else
+            {
+                isMatching = ( pdmChildArrayField->keyword() == fieldKeyword );
+            }
+
+            if ( isMatching )
+            {
+                auto objectCreated = emplaceChildArrayField( pdmChildArrayField, keywordForClassToCreate );
+
+                // Notify parent object that a new object has been created
+                if ( objectCreated ) parent->onChildAdded( pdmChildArrayField );
+
+                return objectCreated;
+            }
         }
-        else if ( pdmChildField && pdmChildField->keyword() == fieldLabel )
+        else if ( pdmChildField && pdmChildField->keyword() == fieldKeyword )
         {
-            return emplaceChildField( pdmChildField );
+            return emplaceChildField( pdmChildField, keywordForClassToCreate );
         }
     }
     return nullptr;
@@ -205,12 +232,33 @@ caf::PdmObjectHandle* RiaGrpcServiceInterface::emplaceChildField( caf::PdmObject
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PdmObjectHandle* RiaGrpcServiceInterface::emplaceChildField( caf::PdmChildFieldHandle* childField )
+caf::PdmObjectHandle* RiaGrpcServiceInterface::emplaceChildField( caf::PdmChildFieldHandle* childField,
+                                                                  const QString&            keywordForClassToCreate )
 {
-    QString childClassKeyword = childField->xmlCapability()->dataTypeName();
+    QString childClassKeyword;
+    if ( keywordForClassToCreate.isEmpty() )
+    {
+        childClassKeyword = childField->xmlCapability()->dataTypeName();
+    }
+    else
+    {
+        childClassKeyword = keywordForClassToCreate;
+    }
 
     auto pdmObjectHandle = caf::PdmDefaultObjectFactory::instance()->create( childClassKeyword );
     CAF_ASSERT( pdmObjectHandle );
+
+    {
+        auto childDataTypeName = childField->xmlCapability()->dataTypeName();
+
+        auto isInheritanceValid = pdmObjectHandle->xmlCapability()->inheritsClassWithKeyword( childDataTypeName );
+        if ( !isInheritanceValid )
+        {
+            delete pdmObjectHandle;
+            return nullptr;
+        }
+    }
+
     childField->setChildObject( pdmObjectHandle );
     return pdmObjectHandle;
 }
@@ -218,13 +266,34 @@ caf::PdmObjectHandle* RiaGrpcServiceInterface::emplaceChildField( caf::PdmChildF
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PdmObjectHandle* RiaGrpcServiceInterface::emplaceChildArrayField( caf::PdmChildArrayFieldHandle* childArrayField )
+caf::PdmObjectHandle* RiaGrpcServiceInterface::emplaceChildArrayField( caf::PdmChildArrayFieldHandle* childArrayField,
+                                                                       const QString& keywordForClassToCreate )
 {
-    QString childClassKeyword = childArrayField->xmlCapability()->dataTypeName();
+    QString childClassKeyword;
+    if ( keywordForClassToCreate.isEmpty() )
+    {
+        childClassKeyword = childArrayField->xmlCapability()->dataTypeName();
+    }
+    else
+    {
+        childClassKeyword = keywordForClassToCreate;
+    }
 
     auto pdmObjectHandle = caf::PdmDefaultObjectFactory::instance()->create( childClassKeyword );
-    CAF_ASSERT( pdmObjectHandle );
+    if ( !pdmObjectHandle ) return nullptr;
+
+    {
+        auto childDataTypeName = childArrayField->xmlCapability()->dataTypeName();
+
+        auto isInheritanceValid = pdmObjectHandle->xmlCapability()->inheritsClassWithKeyword( childDataTypeName );
+        if ( !isInheritanceValid )
+        {
+            delete pdmObjectHandle;
+            return nullptr;
+        }
+    }
 
     childArrayField->insertAt( -1, pdmObjectHandle );
+
     return pdmObjectHandle;
 }

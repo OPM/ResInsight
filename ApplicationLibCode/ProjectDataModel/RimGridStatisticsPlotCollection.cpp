@@ -30,9 +30,9 @@ CAF_PDM_SOURCE_INIT( RimGridStatisticsPlotCollection, "GridStatisticsPlotCollect
 //--------------------------------------------------------------------------------------------------
 RimGridStatisticsPlotCollection::RimGridStatisticsPlotCollection()
 {
-    CAF_PDM_InitScriptableObject( "Grid Statistics Plots", ":/WellLogPlots16x16.png", "", "" );
+    CAF_PDM_InitObject( "Grid Statistics Plots", ":/WellLogPlots16x16.png", "", "" );
 
-    CAF_PDM_InitScriptableFieldNoDefault( &m_gridStatisticsPlots, "GridStatisticsPlots", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_gridStatisticsPlots, "GridStatisticsPlots", "", "", "", "" );
     m_gridStatisticsPlots.uiCapability()->setUiHidden( true );
 }
 

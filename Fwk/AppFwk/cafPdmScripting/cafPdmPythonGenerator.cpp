@@ -59,7 +59,7 @@ CAF_PDM_CODE_GENERATOR_SOURCE_INIT( PdmPythonGenerator, "py" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString PdmPythonGenerator::generate( PdmObjectFactory* factory ) const
+QString caf::PdmPythonGenerator::generate( PdmObjectFactory* factory, std::vector<QString>& errorMessages ) const
 {
     QString     generatedCode;
     QTextStream out( &generatedCode );
@@ -92,6 +92,7 @@ QString PdmPythonGenerator::generate( PdmObjectFactory* factory ) const
     std::map<QString, std::map<QString, std::pair<QString, QString>>> classAttributesGenerated;
     std::map<QString, std::map<QString, QString>>                     classMethodsGenerated;
     std::map<QString, QString>                                        classCommentsGenerated;
+    std::set<QString>                                                 dataTypesInChildFields;
 
     // First generate all attributes and comments to go into each object
     for ( std::shared_ptr<PdmObject> object : dummyObjects )
@@ -181,9 +182,14 @@ QString PdmPythonGenerator::generate( PdmObjectFactory* factory ) const
                             }
                             else
                             {
-                                QString     valueString;
-                                QTextStream valueStream( &valueString );
-                                scriptability->readFromField( valueStream, true, true );
+                                QString valueString;
+
+                                // Always make sure the default value for a ptrField is empty string
+                                if ( !field->hasPtrReferencedObjects() )
+                                {
+                                    QTextStream valueStream( &valueString );
+                                    scriptability->readFromField( valueStream, true, true );
+                                }
                                 if ( valueString.isEmpty() ) valueString = QString( "\"\"" );
                                 valueString = pythonifyDataValue( valueString );
 
@@ -202,6 +208,8 @@ QString PdmPythonGenerator::generate( PdmObjectFactory* factory ) const
                             QString dataType = PdmPythonGenerator::dataTypeString( field, false );
                             QString scriptDataType =
                                 PdmObjectScriptingCapabilityRegister::scriptClassNameFromClassKeyword( dataType );
+
+                            dataTypesInChildFields.insert( scriptDataType );
 
                             QString commentDataType = field->xmlCapability()->isVectorField()
                                                           ? QString( "List of %1" ).arg( scriptDataType )
@@ -384,6 +392,16 @@ QString PdmPythonGenerator::generate( PdmObjectFactory* factory ) const
     out << "    if class_keyword in all_classes.keys():\n";
     out << "        return all_classes[class_keyword]\n";
     out << "    return None\n";
+
+    // Check if all referenced data types are exported as classes
+    for ( const auto& scriptDataType : dataTypesInChildFields )
+    {
+        if ( classesWritten.count( scriptDataType ) == 0 )
+        {
+            QString errorText = "No export for data type " + scriptDataType;
+            errorMessages.push_back( errorText );
+        }
+    }
 
     return generatedCode;
 }
