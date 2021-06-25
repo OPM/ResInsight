@@ -38,10 +38,7 @@ public:
 
     std::vector<RimWellLogFile*> wellLogFiles() const;
 
-    bool hasEnsembleParameters() const;
-
-protected:
-    void updateReferringCurveSets();
+    void loadDataAndUpdate();
 
 private:
     caf::PdmChildArrayField<RimWellLogFile*> m_wellLogFiles;

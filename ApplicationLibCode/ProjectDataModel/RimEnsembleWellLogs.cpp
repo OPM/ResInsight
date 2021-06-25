@@ -18,6 +18,8 @@
 
 #include "RimEnsembleWellLogs.h"
 
+#include "RiaLogging.h"
+
 #include "RimWellLogFile.h"
 
 #include "cafPdmFieldScriptingCapability.h"
@@ -63,7 +65,14 @@ std::vector<RimWellLogFile*> RimEnsembleWellLogs::wellLogFiles() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimEnsembleWellLogs::hasEnsembleParameters() const
+void RimEnsembleWellLogs::loadDataAndUpdate()
 {
-    return false;
+    for ( auto& w : m_wellLogFiles )
+    {
+        QString errorMessage;
+        if ( !w->readFile( &errorMessage ) )
+        {
+            RiaLogging::warning( errorMessage );
+        }
+    }
 }

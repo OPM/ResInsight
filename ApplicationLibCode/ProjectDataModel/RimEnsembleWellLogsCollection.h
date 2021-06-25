@@ -36,6 +36,7 @@ public:
     std::vector<RimEnsembleWellLogs*> ensembleWellLogs() const;
 
     void addEnsembleWellLogs( RimEnsembleWellLogs* ensembleWellLogs );
+    void loadDataAndUpdate();
 
 private:
     caf::PdmChildArrayField<RimEnsembleWellLogs*> m_ensembleWellLogs;

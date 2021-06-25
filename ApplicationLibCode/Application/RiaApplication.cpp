@@ -46,6 +46,7 @@
 #include "RimCompletionTemplateCollection.h"
 #include "RimEclipseCaseCollection.h"
 #include "RimEclipseView.h"
+#include "RimEnsembleWellLogsCollection.h"
 #include "RimFormationNamesCollection.h"
 #include "RimFractureTemplateCollection.h"
 #include "RimGeoMechCase.h"
@@ -499,6 +500,7 @@ bool RiaApplication::loadProject( const QString&      projectFileName,
         }
 
         oilField->wellPathCollection->loadDataAndUpdate();
+        oilField->ensembleWellLogsCollection->loadDataAndUpdate();
     }
 
     {
