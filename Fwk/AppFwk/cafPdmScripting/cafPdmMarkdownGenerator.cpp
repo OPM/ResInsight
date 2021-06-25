@@ -46,7 +46,7 @@ CAF_PDM_CODE_GENERATOR_SOURCE_INIT( PdmMarkdownGenerator, "md" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString caf::PdmMarkdownGenerator::generate( PdmObjectFactory* factory ) const
+QString caf::PdmMarkdownGenerator::generate( PdmObjectFactory* factory, std::vector<QString>& errorMessages ) const
 {
     QString     generatedCode;
     QTextStream out( &generatedCode );

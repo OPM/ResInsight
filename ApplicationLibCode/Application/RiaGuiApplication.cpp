@@ -453,7 +453,7 @@ RiaApplication::ApplicationStatus RiaGuiApplication::handleArguments( gsl::not_n
         if ( !RiaApplication::generateCode( outputFile, &errMsg ) )
         {
             RiaLogging::error( QString( "Error: %1" ).arg( errMsg ) );
-            return RiaApplication::ApplicationStatus::EXIT_WITH_ERROR;
+            return RiaApplication::ApplicationStatus::KEEP_GOING;
         }
 
         return RiaApplication::ApplicationStatus::EXIT_COMPLETED;

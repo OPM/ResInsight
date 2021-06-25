@@ -61,7 +61,7 @@ class PdmObjectFactory;
 class PdmCodeGenerator
 {
 public:
-    virtual QString generate( PdmObjectFactory* factory ) const = 0;
+    virtual QString generate( PdmObjectFactory* factory, std::vector<QString>& errorMessages ) const = 0;
 };
 
 typedef Factory<PdmCodeGenerator, std::string> PdmCodeGeneratorFactory;

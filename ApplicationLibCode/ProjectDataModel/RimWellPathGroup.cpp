@@ -25,8 +25,7 @@
 #include "RimWellPathCompletions.h"
 #include "RimWellPathValve.h"
 
-#include "cafPdmFieldScriptingCapability.h"
-#include "cafPdmObjectScriptingCapability.h"
+#include "cafPdmObject.h"
 #include "cafPdmUiTreeOrdering.h"
 
 #include <QStringList>
@@ -38,23 +37,18 @@ CAF_PDM_SOURCE_INIT( RimWellPathGroup, "WellPathGroup" );
 //--------------------------------------------------------------------------------------------------
 RimWellPathGroup::RimWellPathGroup()
 {
-    CAF_PDM_InitScriptableObjectWithNameAndComment( "Well Path Group",
-                                                    ":/WellPathGroup.svg",
-                                                    "",
-                                                    "",
-                                                    "WellPathGroup",
-                                                    "A Group of Well Paths" );
-    CAF_PDM_InitScriptableFieldNoDefault( &m_childWellPaths, "ChildWellPaths", "Child Well Paths", "", "", "" );
-    CAF_PDM_InitScriptableFieldNoDefault( &m_groupName, "GroupName", "Group Name", "", "", "" );
+    CAF_PDM_InitObject( "Well Path Group", ":/WellPathGroup.svg", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_childWellPaths, "ChildWellPaths", "Child Well Paths", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_groupName, "GroupName", "Group Name", "", "", "" );
 
-    CAF_PDM_InitScriptableField( &m_addValveAtConnection,
-                                 "AddValveAtConnection",
-                                 false,
-                                 "Add Outlet Valve for Branches",
-                                 "",
-                                 "Should an outlet valve be added to branches for MSW export?",
-                                 "" );
-    CAF_PDM_InitScriptableFieldNoDefault( &m_valve, "Valve", "Branch Outlet Valve", "", "", "" );
+    CAF_PDM_InitField( &m_addValveAtConnection,
+                       "AddValveAtConnection",
+                       false,
+                       "Add Outlet Valve for Branches",
+                       "",
+                       "Should an outlet valve be added to branches for MSW export?",
+                       "" );
+    CAF_PDM_InitFieldNoDefault( &m_valve, "Valve", "Branch Outlet Valve", "", "", "" );
     m_valve = new RimWellPathValve;
 
     m_groupName.registerGetMethod( this, &RimWellPathGroup::createGroupName );

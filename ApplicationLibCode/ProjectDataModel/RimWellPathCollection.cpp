@@ -54,6 +54,8 @@
 
 #include "Riu3DMainWindowTools.h"
 
+#include "cafPdmFieldScriptingCapability.h"
+#include "cafPdmObjectScriptingCapability.h"
 #include "cafPdmUiEditorHandle.h"
 #include "cafPdmUiTreeOrdering.h"
 #include "cafProgressInfo.h"
@@ -83,7 +85,12 @@ CAF_PDM_SOURCE_INIT( RimWellPathCollection, "WellPaths" );
 //--------------------------------------------------------------------------------------------------
 RimWellPathCollection::RimWellPathCollection()
 {
-    CAF_PDM_InitObject( "Wells", ":/WellCollection.png", "", "" );
+    CAF_PDM_InitScriptableObjectWithNameAndComment( "Wells",
+                                                    ":/WellCollection.png",
+                                                    "",
+                                                    "",
+                                                    "WellPathCollection",
+                                                    "Collection of Well Paths" );
 
     CAF_PDM_InitField( &isActive, "Active", true, "Active", "", "", "" );
     isActive.uiCapability()->setUiHidden( true );
@@ -109,7 +116,7 @@ RimWellPathCollection::RimWellPathCollection()
     CAF_PDM_InitField( &wellPathClip, "WellPathClip", true, "Clip Well Paths", "", "", "" );
     CAF_PDM_InitField( &wellPathClipZDistance, "WellPathClipZDistance", 100, "Well Path Clipping Depth Distance", "", "", "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_wellPaths, "WellPaths", "Well Paths", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_wellPaths, "WellPaths", "Well Paths", "", "", "" );
     m_wellPaths.uiCapability()->setUiHidden( true );
     m_wellPaths.uiCapability()->setUiTreeHidden( true );
     m_wellPaths.uiCapability()->setUiTreeChildrenHidden( true );
@@ -971,6 +978,17 @@ const RimWellMeasurementCollection* RimWellPathCollection::measurementCollection
 //--------------------------------------------------------------------------------------------------
 void RimWellPathCollection::onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
                                             std::vector<caf::PdmObjectHandle*>& referringObjects )
+{
+    rebuildWellPathNodes();
+
+    scheduleRedrawAffectedViews();
+    uiCapability()->updateConnectedEditors();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellPathCollection::onChildAdded( caf::PdmFieldHandle* containerForNewObject )
 {
     rebuildWellPathNodes();
 

@@ -49,7 +49,7 @@ class PdmPythonGenerator : public PdmCodeGenerator
     CAF_PDM_CODE_GENERATOR_HEADER_INIT;
 
 public:
-    QString        generate( PdmObjectFactory* factory ) const override;
+    QString        generate( PdmObjectFactory* factory, std::vector<QString>& errorMessages ) const override;
     static QString camelToSnakeCase( const QString& camelString );
     static QString dataTypeString( const PdmFieldHandle* field, bool useStrForUnknownDataTypes );
 

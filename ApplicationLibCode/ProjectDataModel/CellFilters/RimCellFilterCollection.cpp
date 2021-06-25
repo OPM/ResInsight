@@ -44,7 +44,7 @@ RimCellFilterCollection::RimCellFilterCollection()
     CAF_PDM_InitScriptableField( &m_isActive, "Active", true, "Active", "", "", "" );
     m_isActive.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitScriptableFieldNoDefault( &m_cellFilters, "CellFilters", "Filters", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_cellFilters, "CellFilters", "Filters", "", "", "" );
     m_cellFilters.uiCapability()->setUiTreeHidden( true );
     caf::PdmFieldReorderCapability::addToField( &m_cellFilters );
 
