@@ -182,9 +182,14 @@ QString caf::PdmPythonGenerator::generate( PdmObjectFactory* factory, std::vecto
                             }
                             else
                             {
-                                QString     valueString;
-                                QTextStream valueStream( &valueString );
-                                scriptability->readFromField( valueStream, true, true );
+                                QString valueString;
+
+                                // Always make sure the default value for a ptrField is empty string
+                                if ( !field->hasPtrReferencedObjects() )
+                                {
+                                    QTextStream valueStream( &valueString );
+                                    scriptability->readFromField( valueStream, true, true );
+                                }
                                 if ( valueString.isEmpty() ) valueString = QString( "\"\"" );
                                 valueString = pythonifyDataValue( valueString );
 
