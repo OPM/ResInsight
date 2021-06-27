@@ -34,5 +34,7 @@ protected:
     void setupActionLook( QAction* actionToSetup ) override;
 
 private:
-    static std::vector<RimModeledWellPath*> modeledWellPaths();
+    static std::vector<RimModeledWellPath*> modeledWellPathsFromClipboard();
+
+    void duplicateLaterals( RimModeledWellPath* source, RimModeledWellPath* destination );
 };
