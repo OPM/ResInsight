@@ -1172,3 +1172,11 @@ void RimEnsembleWellLogCurveSet::onFilterSourceChanged( const caf::SignalEmitter
 {
     if ( m_ensembleCurveSet() ) loadDataAndUpdate( true );
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEnsembleWellLogCurveSet::initAfterRead()
+{
+    connectEnsembleCurveSetFilterSignals();
+}
