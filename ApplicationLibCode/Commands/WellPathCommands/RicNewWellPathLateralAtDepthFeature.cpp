@@ -92,6 +92,7 @@ RimWellPath* RicNewWellPathLateralAtDepthFeature::createLateralAtMeasuredDepth( 
     if ( project && wellPathColl )
     {
         auto newModeledWellPath = new RimModeledWellPath();
+        newModeledWellPath->geometryDefinition()->enableReferencePointFromTopLevelWell( true );
 
         if ( parentWellPath->wellPathGeometry() && parentWellPath->wellPathGeometry()->measuredDepths().size() > 2 )
         {
@@ -100,7 +101,6 @@ RimWellPath* RicNewWellPathLateralAtDepthFeature::createLateralAtMeasuredDepth( 
                     ->clippedPointSubset( parentWellPath->wellPathGeometry()->measuredDepths().front(), parentWellMD );
 
             newModeledWellPath->geometryDefinition()->setMdAtFirstTarget( measuredDepths.back() );
-            //            newModeledWellPath->geometryDefinition()->setReferencePointXyz( pointVector.back() );
             newModeledWellPath->geometryDefinition()->setFixedWellPathPoints( pointVector );
             newModeledWellPath->geometryDefinition()->setFixedMeasuredDepths( measuredDepths );
         }

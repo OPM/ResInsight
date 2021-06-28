@@ -127,9 +127,15 @@ void RimWellPathTieIn::updateFirstTargetFromParentWell()
             newTarget = modeledWellPath->geometryDefinition()->activeWellTargets().front();
         }
 
-        auto lastPoint = pointVector.back();
-        auto tangent   = lastPoint - pointVector[pointVector.size() - 2];
-        newTarget->setAsPointXYZAndTangentTarget( { lastPoint[0], lastPoint[1], lastPoint[2] }, tangent );
+        auto lastPointXYZ = pointVector.back();
+        auto tangent      = lastPointXYZ - pointVector[pointVector.size() - 2];
+
+        modeledWellPath->updateReferencePoint();
+        cvf::Vec3d referencePointXYZ = modeledWellPath->geometryDefinition()->anchorPointXyz();
+        cvf::Vec3d relativePointXYZ  = lastPointXYZ - referencePointXYZ;
+
+        newTarget->setAsPointXYZAndTangentTarget( { relativePointXYZ[0], relativePointXYZ[1], relativePointXYZ[2] },
+                                                  tangent );
     }
 }
 

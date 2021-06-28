@@ -40,6 +40,7 @@ public:
     RimWellPathGeometryDef* geometryDefinition() const;
     QString                 wellPlanText();
     void                    updateTieInLocationFromParentWell();
+    void                    updateReferencePoint();
 
 private:
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName ) override;
