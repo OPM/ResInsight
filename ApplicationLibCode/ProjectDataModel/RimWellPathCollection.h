@@ -102,6 +102,8 @@ public:
     void groupWellPaths( const std::vector<RimWellPath*>& wellPaths );
     void rebuildWellPathNodes();
 
+    std::vector<RimWellPath*> connectedWellPathLaterals( const RimWellPath* parentWellPath ) const;
+
     RimWellPath* mostRecentlyUpdatedWellPath();
 
     void readWellPathFormationFiles();
@@ -146,7 +148,6 @@ private:
     cafTreeNode* addWellToWellNode( cafTreeNode* parent, RimWellPath* wellPath );
 
     std::vector<RimWellPath*> wellPathsWithNoParent( const std::vector<RimWellPath*>& sourceWellPaths ) const;
-    std::vector<RimWellPath*> connectedWellPathLaterals( const RimWellPath* parentWellPath ) const;
 
     std::map<QString, std::vector<RimWellPath*>>
         wellPathsForWellNameStem( const std::vector<RimWellPath*>& sourceWellPaths ) const;
