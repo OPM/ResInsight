@@ -52,6 +52,8 @@ public:
 
     bool isEnabled() const override; // RimWellPathCompletionsInterface override
 
+    void applyOffset( double offsetMD ) override;
+
 protected:
     void                          fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;

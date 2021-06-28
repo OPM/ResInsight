@@ -18,12 +18,15 @@
 
 #include "RicCreateMultipleWellPathLaterals.h"
 
+#include "RicNewWellPathLateralAtDepthFeature.h"
+
 #include "RigWellPath.h"
 
 #include "RimModeledWellPath.h"
 #include "RimProject.h"
 #include "RimTools.h"
 #include "RimWellPathCollection.h"
+#include "RimWellPathCompletions.h"
 #include "RimWellPathGeometryDef.h"
 #include "RimWellPathTarget.h"
 #include "RimWellPathTieIn.h"
@@ -127,9 +130,12 @@ void RicCreateMultipleWellPathLaterals::slotAppendFractures()
     RimModeledWellPath* sourceLateral = m_ui->sourceLateral();
 
     if ( !sourceLateral ) return;
-    if ( !sourceLateral->wellPathTieIn()->parentWell() ) return;
+
+    auto parentWellPath = sourceLateral->wellPathTieIn()->parentWell();
+    if ( !parentWellPath ) return;
 
     auto sourceLocationOfFirstWellTarget = sourceLateral->geometryDefinition()->firstActiveTarget()->targetPointXYZ();
+    auto sourceTieInMeasuredDepth        = sourceLateral->wellPathTieIn()->tieInMeasuredDepth();
 
     RimWellPathCollection* wellPathCollection = RimTools::wellPathCollection();
     if ( wellPathCollection )
@@ -140,8 +146,10 @@ void RicCreateMultipleWellPathLaterals::slotAppendFractures()
             RimModeledWellPath* newModeledWellPath = dynamic_cast<RimModeledWellPath*>(
                 sourceLateral->xmlCapability()->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
 
-            QString name = sourceLateral->name() + QString( " (# %1)" ).arg( index++ );
-            newModeledWellPath->setName( name );
+            auto nameOfNewWell =
+                RicNewWellPathLateralAtDepthFeature::updateNameOfParentAndFindNameOfSideStep( parentWellPath );
+            newModeledWellPath->setName( nameOfNewWell );
+
             newModeledWellPath->wellPathTieIn()->setTieInMeasuredDepth( measuredDepth );
 
             wellPathCollection->addWellPath( newModeledWellPath, false );
@@ -150,11 +158,15 @@ void RicCreateMultipleWellPathLaterals::slotAppendFractures()
             newModeledWellPath->updateReferencePoint();
 
             updateLocationOfTargets( newModeledWellPath, sourceLocationOfFirstWellTarget );
+            updateLocationOfCompletions( newModeledWellPath, sourceTieInMeasuredDepth );
 
             newModeledWellPath->updateWellPathVisualization();
         }
 
+        wellPathCollection->rebuildWellPathNodes();
         wellPathCollection->uiCapability()->updateConnectedEditors();
+
+        Riu3DMainWindowTools::selectAsCurrentItem( sourceLateral );
 
         RimProject::current()->scheduleCreateDisplayModelAndRedrawAllViews();
     }
@@ -181,5 +193,20 @@ void RicCreateMultipleWellPathLaterals::updateLocationOfTargets( RimModeledWellP
 
         auto newTargetLocationXYZ = wellTarget->targetPointXYZ() + offsetFirstTarget;
         wellTarget->setPointXYZ( newTargetLocationXYZ );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicCreateMultipleWellPathLaterals::updateLocationOfCompletions( RimModeledWellPath* newModeledWellPath,
+                                                                     const double        sourceTieInMeasuredDepth )
+{
+    auto tieInMeasuredDepth = newModeledWellPath->wellPathTieIn()->tieInMeasuredDepth();
+    auto diffMD             = tieInMeasuredDepth - sourceTieInMeasuredDepth;
+
+    for ( auto completion : newModeledWellPath->completions()->allCompletionsNoConst() )
+    {
+        completion->applyOffset( diffMD );
     }
 }

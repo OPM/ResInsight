@@ -30,11 +30,12 @@
 class RimWellPathComponentInterface
 {
 public:
-    virtual bool                              isEnabled() const             = 0;
-    virtual RiaDefines::WellPathComponentType componentType() const         = 0;
-    virtual QString                           componentLabel() const        = 0;
-    virtual QString                           componentTypeLabel() const    = 0;
-    virtual cvf::Color3f                      defaultComponentColor() const = 0;
-    virtual double                            startMD() const               = 0;
-    virtual double                            endMD() const                 = 0;
+    virtual bool                              isEnabled() const              = 0;
+    virtual RiaDefines::WellPathComponentType componentType() const          = 0;
+    virtual QString                           componentLabel() const         = 0;
+    virtual QString                           componentTypeLabel() const     = 0;
+    virtual cvf::Color3f                      defaultComponentColor() const  = 0;
+    virtual double                            startMD() const                = 0;
+    virtual double                            endMD() const                  = 0;
+    virtual void                              applyOffset( double offsetMD ) = 0;
 };

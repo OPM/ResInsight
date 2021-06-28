@@ -174,6 +174,35 @@ std::vector<RimWellPathFracture*> RimWellPathCompletions::activeFractures() cons
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::vector<RimWellPathComponentInterface*> RimWellPathCompletions::allCompletionsNoConst() const
+{
+    std::vector<RimWellPathComponentInterface*> completions;
+
+    for ( RimWellPathFracture* fracture : m_fractureCollection->allFractures() )
+    {
+        completions.push_back( fracture );
+    }
+    for ( RimFishbones* fishbones : m_fishbonesCollection->allFishbonesSubs() )
+    {
+        completions.push_back( fishbones );
+    }
+    for ( RimPerforationInterval* perforation : m_perforationCollection->perforationsNoConst() )
+    {
+        completions.push_back( perforation );
+    }
+
+    std::vector<RimWellPathValve*> allValves = valves();
+    for ( RimWellPathValve* valve : allValves )
+    {
+        completions.push_back( valve );
+    }
+
+    return completions;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::vector<const RimWellPathComponentInterface*> RimWellPathCompletions::allCompletions() const
 {
     std::vector<const RimWellPathComponentInterface*> completions;

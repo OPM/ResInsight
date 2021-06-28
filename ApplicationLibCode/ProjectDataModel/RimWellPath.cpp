@@ -242,6 +242,14 @@ cvf::Color3f RimWellPath::defaultComponentColor() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimWellPath::applyOffset( double offsetMD )
+{
+    // Nothing to do here, as the offset is intended for well path completions
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RimFishbonesCollection* RimWellPath::fishbonesCollection()
 {
     CVF_ASSERT( m_completions );
