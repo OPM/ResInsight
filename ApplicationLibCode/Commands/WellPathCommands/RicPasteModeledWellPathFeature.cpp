@@ -25,6 +25,7 @@ CAF_CMD_SOURCE_INIT( RicPasteModeledWellPathFeature, "RicPasteModeledWellPathFea
 #include "RimModeledWellPath.h"
 #include "RimOilField.h"
 #include "RimWellPathCollection.h"
+#include "RimWellPathTieIn.h"
 
 #include "cafPdmObjectGroup.h"
 #include "cafSelectionManager.h"
@@ -36,7 +37,7 @@ CAF_CMD_SOURCE_INIT( RicPasteModeledWellPathFeature, "RicPasteModeledWellPathFea
 //--------------------------------------------------------------------------------------------------
 bool RicPasteModeledWellPathFeature::isCommandEnabled()
 {
-    if ( !modeledWellPaths().empty() ) return true;
+    if ( !modeledWellPathsFromClipboard().empty() ) return true;
     {
         std::vector<RimWellPathCollection*> objects;
         caf::SelectionManager::instance()->objectsByType( &objects );
@@ -55,7 +56,7 @@ bool RicPasteModeledWellPathFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicPasteModeledWellPathFeature::onActionTriggered( bool isChecked )
 {
-    if ( modeledWellPaths().empty() ) return;
+    if ( modeledWellPathsFromClipboard().empty() ) return;
 
     RimProject* proj = RimProject::current();
 
@@ -65,21 +66,28 @@ void RicPasteModeledWellPathFeature::onActionTriggered( bool isChecked )
 
         if ( wellPathCollection )
         {
-            for ( auto souceWellPath : modeledWellPaths() )
+            RimModeledWellPath* wellPathToSelect = nullptr;
+            for ( auto sourceWellPath : modeledWellPathsFromClipboard() )
             {
-                RimModeledWellPath* newModeledWellPath = dynamic_cast<RimModeledWellPath*>(
-                    souceWellPath->xmlCapability()->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
+                RimModeledWellPath* destinationWellPath = dynamic_cast<RimModeledWellPath*>(
+                    sourceWellPath->xmlCapability()->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
 
-                QString name = souceWellPath->name() + " (copy)";
-                newModeledWellPath->setName( name );
+                QString name = sourceWellPath->name() + " (copy)";
+                destinationWellPath->setName( name );
 
-                wellPathCollection->addWellPath( newModeledWellPath, false );
-                wellPathCollection->uiCapability()->updateConnectedEditors();
+                wellPathCollection->addWellPath( destinationWellPath, false );
+                wellPathToSelect = destinationWellPath;
 
-                proj->scheduleCreateDisplayModelAndRedrawAllViews();
-
-                Riu3DMainWindowTools::selectAsCurrentItem( newModeledWellPath );
+                duplicateLaterals( sourceWellPath, destinationWellPath );
             }
+
+            RimTools::wellPathCollection()->rebuildWellPathNodes();
+
+            wellPathCollection->uiCapability()->updateConnectedEditors();
+
+            proj->scheduleCreateDisplayModelAndRedrawAllViews();
+
+            Riu3DMainWindowTools::selectAsCurrentItem( wellPathToSelect );
         }
     }
 }
@@ -96,7 +104,7 @@ void RicPasteModeledWellPathFeature::setupActionLook( QAction* actionToSetup )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimModeledWellPath*> RicPasteModeledWellPathFeature::modeledWellPaths()
+std::vector<RimModeledWellPath*> RicPasteModeledWellPathFeature::modeledWellPathsFromClipboard()
 {
     caf::PdmObjectGroup objectGroup;
     RicPasteFeatureImpl::findObjectsFromClipboardRefs( &objectGroup );
@@ -111,4 +119,33 @@ std::vector<RimModeledWellPath*> RicPasteModeledWellPathFeature::modeledWellPath
     }
 
     return wellPaths;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicPasteModeledWellPathFeature::duplicateLaterals( RimModeledWellPath* source, RimModeledWellPath* destination )
+{
+    auto wpc = RimTools::wellPathCollection();
+
+    auto sourceLaterals = wpc->connectedWellPathLaterals( source );
+
+    destination->createWellPathGeometry();
+    for ( auto lateral : sourceLaterals )
+    {
+        auto sourceLateral = dynamic_cast<RimModeledWellPath*>( lateral );
+        if ( !sourceLateral ) continue;
+
+        auto* destinationLateral = dynamic_cast<RimModeledWellPath*>(
+            sourceLateral->xmlCapability()->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
+
+        QString name = sourceLateral->name() + " (copy)";
+        destinationLateral->setName( name );
+
+        wpc->addWellPath( destinationLateral, false );
+
+        destinationLateral->connectWellPaths( destination, sourceLateral->wellPathTieIn()->tieInMeasuredDepth() );
+
+        duplicateLaterals( sourceLateral, destinationLateral );
+    }
 }

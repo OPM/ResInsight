@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2018-     Equinor ASA
+//  Copyright (C) 2021 Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -18,46 +18,48 @@
 
 #pragma once
 
+#include "RimMultipleLocations.h"
+
+#include "cafPdmChildArrayField.h"
 #include "cafPdmChildField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
+#include "cafPdmProxyValueField.h"
 #include "cafPdmPtrField.h"
 
-class RimWellPath;
-class RimWellPathValve;
+#include <QPointer>
 
-class RimWellPathTieIn : public caf::PdmObject
+class RimModeledWellPath;
+
+namespace caf
+{
+class PdmUiPropertyViewDialog;
+}
+
+//==================================================================================================
+///
+//==================================================================================================
+class RicCreateMultipleWellPathLateralsUi : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimWellPathTieIn();
+    RicCreateMultipleWellPathLateralsUi();
 
-    void         connectWellPaths( RimWellPath* parentWell, RimWellPath* childWell, double tieInMeasuredDepth );
-    RimWellPath* parentWell() const;
-    double       tieInMeasuredDepth() const;
-    void         setTieInMeasuredDepth( double measuredDepth );
+    void setSourceLateral( RimModeledWellPath* lateral );
+    void setDefaultValues( double start, double end );
 
-    RimWellPath* childWell() const;
-    void         updateChildWellGeometry();
-
-    void updateFirstTargetFromParentWell();
-
-    const RimWellPathValve* outletValve() const;
+    RimModeledWellPath*   sourceLateral() const;
+    RimMultipleLocations* locationConfig() const;
 
 private:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
-
-    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
                                                          bool*                      useOptionsOnly ) override;
 
 private:
-    caf::PdmPtrField<RimWellPath*> m_parentWell;
-    caf::PdmPtrField<RimWellPath*> m_childWell;
-    caf::PdmField<double>          m_tieInMeasuredDepth;
+    caf::PdmPtrField<RimModeledWellPath*> m_sourceLateral;
 
-    caf::PdmField<bool>                   m_addValveAtConnection;
-    caf::PdmChildField<RimWellPathValve*> m_valve;
+    caf::PdmChildField<RimMultipleLocations*> m_locations;
 };

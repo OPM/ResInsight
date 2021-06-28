@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2021- Equinor ASA
+//  Copyright (C) 2021 Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -20,12 +20,20 @@
 
 #include "cafCmdFeature.h"
 
+#include "RicCreateMultipleWellPathLateralsUi.h"
+
+#include "cvfVector3.h"
+
+#include <memory>
+
 class RimModeledWellPath;
+
 //==================================================================================================
 ///
 //==================================================================================================
-class RicPasteModeledWellPathFeature : public caf::CmdFeature
+class RicCreateMultipleWellPathLaterals : public caf::CmdFeature
 {
+    Q_OBJECT
     CAF_CMD_HEADER_INIT;
 
 protected:
@@ -33,8 +41,12 @@ protected:
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
 
-private:
-    static std::vector<RimModeledWellPath*> modeledWellPathsFromClipboard();
+private slots:
+    void slotAppendFractures();
 
-    void duplicateLaterals( RimModeledWellPath* source, RimModeledWellPath* destination );
+    void updateLocationOfTargets( RimModeledWellPath* newModeledWellPath,
+                                  const cvf::Vec3d&   sourceLocationOfFirstWellTarget );
+
+private:
+    std::unique_ptr<RicCreateMultipleWellPathLateralsUi> m_ui;
 };

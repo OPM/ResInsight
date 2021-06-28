@@ -60,6 +60,7 @@
 #include "cafPdmUiTreeOrdering.h"
 #include "cafProgressInfo.h"
 
+#include <QCollator>
 #include <QFile>
 #include <QFileInfo>
 #include <QString>
@@ -729,7 +730,13 @@ void RimWellPathCollection::removeWellPath( gsl::not_null<RimWellPath*> wellPath
 bool lessWellPath( const caf::PdmPointer<RimWellPath>& w1, const caf::PdmPointer<RimWellPath>& w2 )
 {
     if ( w1.notNull() && w2.notNull() )
-        return ( w1->name() < w2->name() );
+    {
+        // Use QCollator to sort integer values in addition to text
+
+        QCollator collator;
+        collator.setNumericMode( true );
+        return collator.compare( w1->name(), w2->name() ) < 0;
+    }
     else if ( w1.notNull() )
         return true;
     else
@@ -904,6 +911,11 @@ std::map<QString, std::vector<RimWellPath*>>
         }
 
         rootWells[RimWellPathCollection::unGroupedText()].push_back( wellPath );
+    }
+
+    for ( auto [groupName, wellPaths] : rootWells )
+    {
+        std::sort( wellPaths.begin(), wellPaths.end(), lessWellPath );
     }
 
     return rootWells;
