@@ -24,6 +24,8 @@
 #include "RimProject.h"
 #include "RimTools.h"
 #include "RimWellPathCollection.h"
+#include "RimWellPathGeometryDef.h"
+#include "RimWellPathTarget.h"
 #include "RimWellPathTieIn.h"
 
 #include "Riu3DMainWindowTools.h"
@@ -127,6 +129,8 @@ void RicCreateMultipleWellPathLaterals::slotAppendFractures()
     if ( !sourceLateral ) return;
     if ( !sourceLateral->wellPathTieIn()->parentWell() ) return;
 
+    auto sourceLocationOfFirstWellTarget = sourceLateral->geometryDefinition()->firstActiveTarget()->targetPointXYZ();
+
     RimWellPathCollection* wellPathCollection = RimTools::wellPathCollection();
     if ( wellPathCollection )
     {
@@ -142,7 +146,11 @@ void RicCreateMultipleWellPathLaterals::slotAppendFractures()
 
             wellPathCollection->addWellPath( newModeledWellPath, false );
             newModeledWellPath->resolveReferencesRecursively();
-            newModeledWellPath->wellPathTieIn()->updateFirstTargetFromParentWell();
+
+            newModeledWellPath->updateReferencePoint();
+
+            updateLocationOfTargets( newModeledWellPath, sourceLocationOfFirstWellTarget );
+
             newModeledWellPath->updateWellPathVisualization();
         }
 
@@ -155,6 +163,23 @@ void RicCreateMultipleWellPathLaterals::slotAppendFractures()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicCreateMultipleWellPathLaterals::slotClose()
+void RicCreateMultipleWellPathLaterals::updateLocationOfTargets( RimModeledWellPath* newModeledWellPath,
+                                                                 const cvf::Vec3d&   sourceLocationOfFirstWellTarget )
 {
+    newModeledWellPath->updateTieInLocationFromParentWell();
+    newModeledWellPath->wellPathTieIn()->updateFirstTargetFromParentWell();
+
+    auto firstTarget               = newModeledWellPath->geometryDefinition()->firstActiveTarget();
+    auto locationOfFirstWellTarget = firstTarget->targetPointXYZ();
+    auto offsetFirstTarget         = locationOfFirstWellTarget - sourceLocationOfFirstWellTarget;
+
+    auto targets = newModeledWellPath->geometryDefinition()->activeWellTargets();
+    for ( auto wellTarget : targets )
+    {
+        // Skip first target, as this is already updated by wellPathTieIn()->updateFirstTargetFromParentWell()
+        if ( wellTarget == firstTarget ) continue;
+
+        auto newTargetLocationXYZ = wellTarget->targetPointXYZ() + offsetFirstTarget;
+        wellTarget->setPointXYZ( newTargetLocationXYZ );
+    }
 }

@@ -22,7 +22,11 @@
 
 #include "RicCreateMultipleWellPathLateralsUi.h"
 
+#include "cvfVector3.h"
+
 #include <memory>
+
+class RimModeledWellPath;
 
 //==================================================================================================
 ///
@@ -39,7 +43,9 @@ protected:
 
 private slots:
     void slotAppendFractures();
-    void slotClose();
+
+    void updateLocationOfTargets( RimModeledWellPath* newModeledWellPath,
+                                  const cvf::Vec3d&   sourceLocationOfFirstWellTarget );
 
 private:
     std::unique_ptr<RicCreateMultipleWellPathLateralsUi> m_ui;
