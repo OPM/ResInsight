@@ -50,6 +50,7 @@ public:
     RimWellPathFractureCollection* fractureCollection() const;
     RimStimPlanModelCollection*    stimPlanModelCollection() const;
 
+    std::vector<RimWellPathComponentInterface*>       allCompletionsNoConst() const;
     std::vector<const RimWellPathComponentInterface*> allCompletions() const;
     bool                                              hasCompletions() const;
     void                                              setUnitSystemSpecificDefaults();

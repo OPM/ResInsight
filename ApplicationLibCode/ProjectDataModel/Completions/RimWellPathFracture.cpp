@@ -310,3 +310,11 @@ void RimWellPathFracture::triangleGeometry( std::vector<cvf::Vec3f>* nodeCoords,
 {
     m_fractureTemplate->fractureTriangleGeometry( nodeCoords, triangleIndices, m_wellPathDepthAtFracture );
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellPathFracture::applyOffset( double offsetMD )
+{
+    m_measuredDepth = m_measuredDepth + offsetMD;
+}

@@ -75,6 +75,7 @@ public:
     cvf::Color3f                      defaultComponentColor() const override;
     double                            startMD() const override;
     double                            endMD() const override;
+    void                              applyOffset( double offsetMD ) override;
 
     void templateUpdated();
 

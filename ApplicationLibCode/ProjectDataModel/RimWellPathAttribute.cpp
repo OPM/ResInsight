@@ -156,6 +156,15 @@ double RimWellPathAttribute::endMD() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimWellPathAttribute::applyOffset( double offsetMD )
+{
+    m_startMD = m_startMD + offsetMD;
+    m_endMD   = m_endMD + offsetMD;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::set<double> RimWellPathAttribute::supportedDiameters( RiaDefines::WellPathComponentType type )
 {
     CAF_ASSERT( type == RiaDefines::WellPathComponentType::CASING || type == RiaDefines::WellPathComponentType::LINER );

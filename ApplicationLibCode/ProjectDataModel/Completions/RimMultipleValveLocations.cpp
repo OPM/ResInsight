@@ -220,6 +220,17 @@ void RimMultipleValveLocations::initFields( LocationType               locationT
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimMultipleValveLocations::applyOffset( double offset )
+{
+    m_rangeStart = m_rangeStart + offset;
+    m_rangeEnd   = m_rangeEnd + offset;
+
+    computeRangesAndLocations();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimMultipleValveLocations::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     {
