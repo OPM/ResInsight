@@ -147,13 +147,13 @@ RiuWellPathSelectionItem* RicNewWellPathLateralAtDepthFeature::wellPathSelection
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RicNewWellPathLateralAtDepthFeature::updateNameOfParentAndFindNameOfSideStep( RimWellPath* parentwWellPath )
+QString RicNewWellPathLateralAtDepthFeature::updateNameOfParentAndFindNameOfSideStep( RimWellPath* parentWellPath )
 {
-    if ( !parentwWellPath ) return "";
+    if ( !parentWellPath ) return "";
 
     QString nameOfNewWell;
 
-    auto topLevelWell = parentwWellPath->topLevelWellPath();
+    auto topLevelWell = parentWellPath->topLevelWellPath();
 
     QStringList allNames;
     {
@@ -175,7 +175,7 @@ QString RicNewWellPathLateralAtDepthFeature::updateNameOfParentAndFindNameOfSide
 
     if ( allNames.size() == 1 )
     {
-        QString name = parentwWellPath->name();
+        QString name = parentWellPath->name();
 
         if ( name.contains( "Y1" ) )
         {
@@ -183,7 +183,7 @@ QString RicNewWellPathLateralAtDepthFeature::updateNameOfParentAndFindNameOfSide
         }
         else
         {
-            parentwWellPath->setNameNoUpdateOfExportName( name + " Y1" );
+            parentWellPath->setNameNoUpdateOfExportName( name + " Y1" );
             nameOfNewWell = name + " Y2";
         }
 

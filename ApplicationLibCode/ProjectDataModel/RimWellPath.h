@@ -153,6 +153,7 @@ public:
     QString                           componentLabel() const override;
     QString                           componentTypeLabel() const override;
     cvf::Color3f                      defaultComponentColor() const override;
+    void                              applyOffset( double offsetMD ) override;
 
     void onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
                          std::vector<caf::PdmObjectHandle*>& referringObjects ) override;

@@ -54,6 +54,7 @@ public:
     cvf::Color3f                      defaultComponentColor() const override;
     double                            startMD() const override;
     double                            endMD() const override;
+    void                              applyOffset( double offsetMD ) override;
 
 private:
     static std::set<double> supportedDiameters( RiaDefines::WellPathComponentType type );

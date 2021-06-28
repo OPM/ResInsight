@@ -55,6 +55,8 @@ public:
                      int                        valveCount,
                      const std::vector<double>& locationOfValves );
 
+    void applyOffset( double offset );
+
 protected:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;

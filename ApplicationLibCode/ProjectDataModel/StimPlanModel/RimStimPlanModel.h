@@ -145,7 +145,9 @@ public:
     cvf::Color3f                      defaultComponentColor() const override;
     double                            startMD() const override;
     double                            endMD() const override;
-    bool                              isEnabled() const override;
+    void                              applyOffset( double offsetMD ) override;
+
+    bool isEnabled() const override;
 
     RimWellPath* wellPath() const;
 

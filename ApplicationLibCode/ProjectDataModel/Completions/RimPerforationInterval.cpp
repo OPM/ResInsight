@@ -308,6 +308,15 @@ double RimPerforationInterval::endMD() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimPerforationInterval::applyOffset( double offsetMD )
+{
+    m_startMD = m_startMD + offsetMD;
+    m_endMD   = m_endMD + offsetMD;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimPerforationInterval::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
                                                const QVariant&            oldValue,
                                                const QVariant&            newValue )

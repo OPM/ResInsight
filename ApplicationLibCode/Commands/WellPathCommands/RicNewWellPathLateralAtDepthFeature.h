@@ -36,8 +36,8 @@ public:
     void setupActionLook( QAction* actionToSetup ) override;
 
     static RimWellPath* createLateralAtMeasuredDepth( RimWellPath* parentWellPath, double parentWellMD );
+    static QString      updateNameOfParentAndFindNameOfSideStep( RimWellPath* parentWellPath );
 
 private:
     static RiuWellPathSelectionItem* wellPathSelectionItem();
-    static QString                   updateNameOfParentAndFindNameOfSideStep( RimWellPath* parentwWellPath );
 };

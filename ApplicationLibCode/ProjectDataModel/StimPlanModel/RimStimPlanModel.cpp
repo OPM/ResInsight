@@ -478,6 +478,14 @@ double RimStimPlanModel::endMD() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimStimPlanModel::applyOffset( double offsetMD )
+{
+    // Nothing to do here, this operation is inteded for well path completions
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 cvf::Vec3d RimStimPlanModel::anchorPosition() const
 {
     return m_anchorPosition();

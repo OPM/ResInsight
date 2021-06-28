@@ -538,6 +538,14 @@ double RimFishbones::endMD() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimFishbones::applyOffset( double offsetMD )
+{
+    m_valveLocations->applyOffset( offsetMD );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimFishbones::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     if ( changedField == &m_subsOrientationMode )

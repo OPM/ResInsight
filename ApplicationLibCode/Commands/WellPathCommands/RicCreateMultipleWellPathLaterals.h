@@ -44,8 +44,11 @@ protected:
 private slots:
     void slotAppendFractures();
 
+private:
     void updateLocationOfTargets( RimModeledWellPath* newModeledWellPath,
                                   const cvf::Vec3d&   sourceLocationOfFirstWellTarget );
+
+    void updateLocationOfCompletions( RimModeledWellPath* newModeledWellPath, const double sourceTieInMeasuredDepth );
 
 private:
     std::unique_ptr<RicCreateMultipleWellPathLateralsUi> m_ui;
