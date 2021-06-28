@@ -42,17 +42,11 @@
 #include "RiuAbstractLegendFrame.h"
 #include "RiuDraggableOverlayFrame.h"
 #include "RiuPlotMainWindow.h"
-#include "RiuQwtPlotCurve.h"
 #include "RiuQwtPlotWidget.h"
 #include "RiuTextContentFrame.h"
 
 #include "cafPdmObject.h"
-#include "cafPdmUiDateEditor.h"
 #include "cafPdmUiItem.h"
-#include "cafPdmUiLineEditor.h"
-#include "cafPdmUiListEditor.h"
-#include "cafPdmUiPushButtonEditor.h"
-#include "cafPdmUiSliderEditor.h"
 #include "cafPdmUiTreeOrdering.h"
 
 #include "qwt_plot_curve.h"
@@ -137,23 +131,22 @@ RimEnsembleWellLogCurveSet::RimEnsembleWellLogCurveSet()
 //--------------------------------------------------------------------------------------------------
 RimEnsembleWellLogCurveSet::~RimEnsembleWellLogCurveSet()
 {
-    //    m_curves.deleteAllChildObjects();
+    RimWellLogTrack* plotTrack = nullptr;
+    firstAncestorOrThisOfType( plotTrack );
+    if ( plotTrack && plotTrack->viewer() )
+    {
+        if ( m_legendOverlayFrame )
+        {
+            plotTrack->viewer()->removeOverlayFrame( m_legendOverlayFrame );
+        }
+    }
 
-    RimWellLogPlot* parentPlot;
-    firstAncestorOrThisOfType( parentPlot );
-    // if ( parentPlot && parentPlot->viewer() )
-    // {
-    //     m_qwtPlotCurveForLegendText->detach();
-    //     if ( m_legendOverlayFrame )
-    //     {
-    //         parentPlot->viewer()->removeOverlayFrame( m_legendOverlayFrame );
-    //     }
-    // }
     if ( m_legendOverlayFrame )
     {
         m_legendOverlayFrame->setParent( nullptr );
         delete m_legendOverlayFrame;
     }
+
     if ( m_filterOverlayFrame )
     {
         m_filterOverlayFrame->setParent( nullptr );
@@ -186,6 +179,7 @@ void RimEnsembleWellLogCurveSet::loadDataAndUpdate( bool updateParentPlot )
 {
     updateAllCurves();
     updateFilterLegend();
+    updateAllTextInPlot();
 
     if ( updateParentPlot )
     {
@@ -231,40 +225,12 @@ void RimEnsembleWellLogCurveSet::reattachQwtCurves()
 
     m_qwtPlotCurveForLegendText->detach();
 
-    RimWellLogPlot* plot = nullptr;
+    RimWellLogTrack* plot = nullptr;
     firstAncestorOrThisOfType( plot );
-    // if ( plot )
-    // {
-    //     m_qwtPlotCurveForLegendText->attach( plot->viewer() );
-    // }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimEnsembleWellLogCurveSet::addCurve( RimWellLogCurve* curve )
-{
-    if ( curve )
+    if ( plot )
     {
-        RimWellLogPlot* plot;
-        firstAncestorOrThisOfType( plot );
-        // if ( plot ) curve->setParentQwtPlotNoReplot( plot->viewer() );
-
-        curve->setColor( m_color );
-        m_curves.push_back( curve );
+        m_qwtPlotCurveForLegendText->attach( plot->viewer() );
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimEnsembleWellLogCurveSet::deleteCurve( RimWellLogCurve* curve )
-{
-    // if ( curve )
-    // {
-    //     m_curves.removeChildObject( curve );
-    //     delete curve;
-    // }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -339,14 +305,6 @@ void RimEnsembleWellLogCurveSet::deleteStatisticsCurves()
 RiuDraggableOverlayFrame* RimEnsembleWellLogCurveSet::legendFrame() const
 {
     return m_legendOverlayFrame;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimEnsembleWellLogCurveSet::onLegendDefinitionChanged()
-{
-    updateCurveColors();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -524,13 +482,6 @@ void RimEnsembleWellLogCurveSet::defineUiTreeOrdering( caf::PdmUiTreeOrdering& u
 
     caf::IconProvider iconProvider = this->uiIconProvider();
     if ( !iconProvider.valid() ) return;
-
-    // RimEnsembleWellLogCurveSetCollection* coll = nullptr;
-    // this->firstAncestorOrThisOfType( coll );
-    // if ( coll && coll->curveSetForSourceStepping() == this )
-    // {
-    //     iconProvider.setOverlayResourceString( ":/StepUpDownCorner16x16.png" );
-    // }
 
     this->setUiIcon( iconProvider );
 }
@@ -776,10 +727,12 @@ void RimEnsembleWellLogCurveSet::updateEnsembleCurves( const std::vector<RimWell
     CVF_ASSERT( wellLogPlot );
 
     deleteEnsembleCurves();
-    // m_qwtPlotCurveForLegendText->detach();
+    m_qwtPlotCurveForLegendText->detach();
     deleteStatisticsCurves();
 
     if ( m_statistics->hideEnsembleCurves() ) return;
+
+    m_qwtPlotCurveForLegendText->attach( plotTrack->viewer() );
 
     QString wellLogChannelName = m_wellLogChannelName();
     if ( plotTrack && wellLogChannelName != "None" )
@@ -819,6 +772,7 @@ void RimEnsembleWellLogCurveSet::updateEnsembleCurves( const std::vector<RimWell
                 curve->loadDataAndUpdate( true );
 
                 curve->updateCurveVisibility();
+                curve->setShowInLegend( false );
 
                 m_curves.push_back( curve );
             }
@@ -826,6 +780,8 @@ void RimEnsembleWellLogCurveSet::updateEnsembleCurves( const std::vector<RimWell
             updateCurveColors();
         }
     }
+
+    plotTrack->updateLegend();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -935,16 +891,6 @@ void RimEnsembleWellLogCurveSet::updateStatisticsCurves()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-// RimEnsembleWellLogCurveSet* RimEnsembleWellLogCurveSet::clone() const
-// {
-//     RimEnsembleWellLogCurveSet* copy = dynamic_cast<RimEnsembleWellLogCurveSet*>(
-//         this->xmlCapability()->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
-//     return copy;
-// }
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimEnsembleWellLogCurveSet::showCurves( bool show )
 {
     m_showCurves = show;
@@ -955,7 +901,14 @@ void RimEnsembleWellLogCurveSet::showCurves( bool show )
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleWellLogCurveSet::updateAllTextInPlot()
 {
+    RimWellLogTrack* plotTrack = nullptr;
+    firstAncestorOrThisOfType( plotTrack );
+    CVF_ASSERT( plotTrack );
+    plotTrack->viewer()->setPlotTitle( name() );
+
     updateEnsembleLegendItem();
+
+    plotTrack->updateLegend();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -967,9 +920,7 @@ std::vector<RimWellLogFile*>
     std::vector<RimWellLogFile*> filteredCases;
 
     if ( m_ensembleCurveSet != nullptr && m_statistics->basedOnFilteredCases() )
-    { // && m_ensembleCurveSet->isFiltered() )
-        RiaLogging::debug( QString( "FILTERING ENSEMBLE CASES" ) );
-
+    {
         // Get the summary cases from the related ensemble summary curve set.
         RimSummaryCaseCollection* summaryCaseCollection = m_ensembleCurveSet->summaryCaseCollection();
 
@@ -989,8 +940,6 @@ std::vector<RimWellLogFile*>
     }
     else
     {
-        RiaLogging::debug( QString( "NOT FILTERING ENSEMBLE CASES" ) );
-
         filteredCases = wellLogFiles;
     }
 
@@ -1013,14 +962,10 @@ bool RimEnsembleWellLogCurveSet::isSameRealization( RimSummaryCase* summaryCase,
 
         if ( wellLogFileName.contains( QString( "realization-%1" ).arg( realizationNumber ) ) )
         {
-            RiaLogging::debug(
-                QString( "Matching summary case %1 with well log file %2" ).arg( summaryCaseFileName ).arg( wellLogFileName ) );
-
             return true;
         }
     }
 
-    RiaLogging::debug( QString( "No matching summary case found for well log file: %1." ).arg( wellLogFileName ) );
     return false;
 }
 

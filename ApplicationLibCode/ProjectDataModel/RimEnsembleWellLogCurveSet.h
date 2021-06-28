@@ -81,18 +81,10 @@ public:
     void detachQwtCurves();
     void reattachQwtCurves();
 
-    void addCurve( RimWellLogCurve* curve );
-    void deleteCurve( RimWellLogCurve* curve );
-
     std::vector<RimWellLogCurve*> curves() const;
 
     void deleteEnsembleCurves();
     void deleteStatisticsCurves();
-
-    void onLegendDefinitionChanged();
-
-    void                      setSummaryCaseCollection( RimSummaryCaseCollection* sumCaseCollection );
-    RimSummaryCaseCollection* summaryCaseCollection() const;
 
     ColorMode colorMode() const;
     void      setColorMode( ColorMode mode );
@@ -100,8 +92,7 @@ public:
     void                      updateEnsembleLegendItem();
     RiuDraggableOverlayFrame* legendFrame() const;
 
-    RimEnsembleWellLogCurveSet* clone() const;
-    void                        showCurves( bool show );
+    void showCurves( bool show );
 
     void updateAllTextInPlot();
 
@@ -145,8 +136,6 @@ private:
 
     QString createAutoName() const;
 
-    void updateLegendMappingMode();
-    void updateMaxMinAndDefaultValues();
     void updateCurveColors();
 
     bool            isSameRealization( RimSummaryCase* summaryCase, RimWellLogFile* wellLogFile ) const;
