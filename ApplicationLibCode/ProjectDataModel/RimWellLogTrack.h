@@ -231,6 +231,8 @@ public:
     static void addOverburden( std::vector<QString>& namesVector, CurveSamplingPointData& curveData, double height );
     static void addUnderburden( std::vector<QString>& namesVector, CurveSamplingPointData& curveData, double height );
 
+    void setCurvesTreeVisibility( bool isVisible );
+
 protected:
     // RimViewWindow overrides
     void deleteViewWidget() override;
