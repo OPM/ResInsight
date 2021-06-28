@@ -30,8 +30,6 @@
 
 #include "RiuMainWindow.h"
 
-#include "cafPdmFieldScriptingCapability.h"
-#include "cafPdmObjectScriptingCapability.h"
 #include "cafPdmUiDoubleValueEditor.h"
 
 CAF_PDM_SOURCE_INIT( RimWellPathTieIn, "RimWellPathTieIn" );
@@ -48,15 +46,9 @@ RimWellPathTieIn::RimWellPathTieIn()
     CAF_PDM_InitFieldNoDefault( &m_tieInMeasuredDepth, "TieInMeasuredDepth", "Tie In Measured Depth", "", "", "" );
     m_tieInMeasuredDepth.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitScriptableField( &m_addValveAtConnection,
-                                 "AddValveAtConnection",
-                                 false,
-                                 "Add Outlet Valve for Branches",
-                                 "",
-                                 "",
-                                 "" );
+    CAF_PDM_InitField( &m_addValveAtConnection, "AddValveAtConnection", false, "Add Outlet Valve for Branches", "", "", "" );
 
-    CAF_PDM_InitScriptableFieldNoDefault( &m_valve, "Valve", "Branch Outlet Valve", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_valve, "Valve", "Branch Outlet Valve", "", "", "" );
 
     m_valve = new RimWellPathValve;
 }
