@@ -23,6 +23,11 @@
 #include "RigMainGrid.h"
 #include "RigWellPath.h"
 
+#include "RimModeledWellPath.h"
+#include "RimTools.h"
+#include "RimWellPathCollection.h"
+#include "RimWellPathTieIn.h"
+
 #include "cafCmdFeatureMenuBuilder.h"
 #include "cafPdmUiPropertyViewDialog.h"
 #include "cafPdmUiTableViewEditor.h"
@@ -101,10 +106,19 @@ QList<caf::PdmOptionItemInfo>
 {
     QList<caf::PdmOptionItemInfo> options;
 
-    //     if ( fieldNeedingOptions == &m_sourceCase )
-    //     {
-    //         RimTools::caseOptionItems( &options );
-    //     }
+    if ( fieldNeedingOptions == &m_sourceLateral )
+    {
+        if ( sourceLateral()->wellPathTieIn() && sourceLateral()->wellPathTieIn()->parentWell() )
+        {
+            auto parentWell = sourceLateral()->wellPathTieIn()->parentWell();
+            auto laterals   = RimTools::wellPathCollection()->connectedWellPathLaterals( parentWell );
+
+            for ( auto lateral : laterals )
+            {
+                options.push_back( caf::PdmOptionItemInfo( lateral->name(), lateral ) );
+            }
+        }
+    }
 
     return options;
 }

@@ -71,11 +71,17 @@ void RicCreateMultipleWellPathLaterals::onActionTriggered( bool isChecked )
         double endMD   = 0.0;
         if ( auto tieIn = selected->wellPathTieIn() )
         {
-            startMD = selected->wellPathTieIn()->tieInMeasuredDepth() + 20.0;
+            startMD = selected->wellPathTieIn()->tieInMeasuredDepth() + 50.0;
+            endMD   = startMD + 50.0;
 
             if ( auto parentWell = selected->wellPathTieIn()->parentWell() )
             {
-                endMD = parentWell->wellPathGeometry()->measuredDepths().back();
+                if ( !parentWell->wellPathGeometry()->measuredDepths().empty() )
+                {
+                    double candidate = parentWell->wellPathGeometry()->measuredDepths().back() - 50.0;
+
+                    if ( candidate > startMD ) endMD = candidate;
+                }
             }
         }
 
@@ -169,6 +175,8 @@ void RicCreateMultipleWellPathLaterals::slotAppendFractures()
         Riu3DMainWindowTools::selectAsCurrentItem( sourceLateral );
 
         RimProject::current()->scheduleCreateDisplayModelAndRedrawAllViews();
+
+        m_ui->updateConnectedEditors();
     }
 }
 

@@ -66,7 +66,7 @@ RimMultipleLocations::RimMultipleLocations()
     CAF_PDM_InitFieldNoDefault( &m_maximumMD, "MaximumMD", "Maximum MD", "", "", "" );
     m_maximumMD.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitField( &m_rangeCount, "RangeValveCount", 13, "Number of Items", "", "", "" );
+    CAF_PDM_InitField( &m_rangeCount, "RangeValveCount", 10, "Number of Items", "", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_locations, "Locations", "Measured Depths", "", "", "" );
     m_locations.uiCapability()->setUiEditorTypeName( caf::PdmUiListEditor::uiEditorTypeName() );
