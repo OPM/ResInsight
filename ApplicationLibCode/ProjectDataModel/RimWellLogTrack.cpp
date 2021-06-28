@@ -3091,3 +3091,11 @@ void RimWellLogTrack::addUnderburden( std::vector<QString>& namesVector, CurveSa
         curveData.data.push_back( namesVector.size() - 1 );
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogTrack::setCurvesTreeVisibility( bool isVisible )
+{
+    m_curves.uiCapability()->setUiTreeChildrenHidden( !isVisible );
+}

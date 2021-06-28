@@ -186,6 +186,8 @@ void RimEnsembleWellLogCurveSet::loadDataAndUpdate( bool updateParentPlot )
         RimWellLogTrack* parentPlot;
         firstAncestorOrThisOfTypeAsserted( parentPlot );
         parentPlot->viewer()->scheduleReplot();
+
+        parentPlot->setCurvesTreeVisibility( false );
     }
 }
 
