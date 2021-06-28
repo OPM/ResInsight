@@ -275,13 +275,20 @@ void RimModeledWellPath::updateTieInLocationFromParentWell()
 
             if ( pointVector.size() >= 2u )
             {
-                auto firstTarget = targets.front();
-                firstTarget->setPointXYZ( pointVector.back() );
-
                 m_geometryDefinition->setIsAttachedToParentWell( true );
                 m_geometryDefinition->setMdAtFirstTarget( measuredDepths.back() );
                 m_geometryDefinition->setFixedWellPathPoints( pointVector );
                 m_geometryDefinition->setFixedMeasuredDepths( measuredDepths );
+
+                updateReferencePoint();
+
+                auto lastPointXYZ = pointVector.back();
+
+                cvf::Vec3d referencePointXYZ = m_geometryDefinition->anchorPointXyz();
+                cvf::Vec3d relativePointXYZ  = lastPointXYZ - referencePointXYZ;
+
+                auto firstTarget = targets.front();
+                firstTarget->setPointXYZ( relativePointXYZ );
 
                 updateGeometry( true );
             }
@@ -294,4 +301,21 @@ void RimModeledWellPath::updateTieInLocationFromParentWell()
         m_geometryDefinition->setFixedWellPathPoints( {} );
         m_geometryDefinition->setFixedMeasuredDepths( {} );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimModeledWellPath::updateReferencePoint()
+{
+    if ( !m_geometryDefinition->useReferencePointFromTopLevelWell() ) return;
+
+    RimWellPathTieIn* tieIn = wellPathTieIn();
+    if ( !tieIn ) return;
+
+    auto topLevelModelledWell = dynamic_cast<RimModeledWellPath*>( this->topLevelWellPath() );
+    if ( !topLevelModelledWell ) return;
+
+    auto refPoint = topLevelModelledWell->geometryDefinition()->anchorPointXyz();
+    m_geometryDefinition->setReferencePointXyz( refPoint );
 }

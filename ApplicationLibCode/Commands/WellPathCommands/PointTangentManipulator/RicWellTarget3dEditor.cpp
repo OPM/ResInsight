@@ -140,6 +140,21 @@ void RicWellTarget3dEditor::slotUpdated( const cvf::Vec3d& origin, const cvf::Ve
     target->firstAncestorOrThisOfTypeAsserted( geomDef );
     if ( !geomDef ) return;
 
+    if ( geomDef->useReferencePointFromTopLevelWell() )
+    {
+        RimModeledWellPath* modeledWellPath = nullptr;
+        geomDef->firstAncestorOfType( modeledWellPath );
+        if ( modeledWellPath )
+        {
+            auto topLevelWellPath = dynamic_cast<RimModeledWellPath*>( modeledWellPath->topLevelWellPath() );
+            if ( topLevelWellPath )
+            {
+                // Manipulate the reference point of top level well path
+                geomDef = topLevelWellPath->geometryDefinition();
+            }
+        }
+    }
+
     cvf::ref<caf::DisplayCoordTransform> dispXf = view->displayCoordTransform();
 
     auto domainCoordXYZ = dispXf->transformToDomainCoord( origin );

@@ -32,7 +32,6 @@
 #include "cafPdmUiCheckBoxEditor.h"
 #include "cafPdmUiLineEditor.h"
 
-#include "cafPdmUiCommandSystemProxy.h"
 #include <cmath>
 
 CAF_PDM_SOURCE_INIT( RimWellPathTarget, "WellPathTarget" );
