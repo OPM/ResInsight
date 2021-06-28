@@ -122,34 +122,3 @@ QList<caf::PdmOptionItemInfo>
 
     return options;
 }
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RicCreateMultipleWellPathLateralsUi::defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                                                 QString                    uiConfigName,
-                                                                 caf::PdmUiEditorAttribute* attribute )
-{
-    /*
-        if ( field == &m_fractureCreationSummary )
-        {
-            auto attr = dynamic_cast<caf::PdmUiTextEditorAttribute*>( attribute );
-            if ( attr )
-            {
-                QFont font( "Courier", 8 );
-
-                attr->font     = font;
-                attr->wrapMode = caf::PdmUiTextEditorAttribute::NoWrap;
-            }
-        }
-        else if ( field == &m_options )
-        {
-            auto attr = dynamic_cast<caf::PdmUiTableViewEditorAttribute*>( attribute );
-            if ( attr )
-            {
-                attr->minimumHeight = 130;
-                attr->columnWidths  = { 90, 90, 400, 70 };
-            }
-        }
-    */
-}
