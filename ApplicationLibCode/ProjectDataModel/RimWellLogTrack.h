@@ -233,6 +233,8 @@ public:
 
     void setCurvesTreeVisibility( bool isVisible );
 
+    void setEnsembleWellLogCurveSet( RimEnsembleWellLogCurveSet* curveSet );
+
 protected:
     // RimViewWindow overrides
     void deleteViewWidget() override;

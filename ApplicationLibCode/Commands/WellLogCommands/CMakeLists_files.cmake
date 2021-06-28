@@ -27,6 +27,7 @@ ${CMAKE_CURRENT_LIST_DIR}/Ric3dWellLogCurveDeleteFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/Ric3dWellLogCurvePickEventHandler.h
 ${CMAKE_CURRENT_LIST_DIR}/RicNewWellBoreStabilityPlotFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicNewWellMeasurementCurveFeature.h
+${CMAKE_CURRENT_LIST_DIR}/RicNewEnsembleWellLogCurveSetFeature.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -57,6 +58,7 @@ ${CMAKE_CURRENT_LIST_DIR}/Ric3dWellLogCurveDeleteFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/Ric3dWellLogCurvePickEventHandler.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicNewWellBoreStabilityPlotFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicNewWellMeasurementCurveFeature.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicNewEnsembleWellLogCurveSetFeature.cpp
 )
 
 list(APPEND COMMAND_CODE_HEADER_FILES
