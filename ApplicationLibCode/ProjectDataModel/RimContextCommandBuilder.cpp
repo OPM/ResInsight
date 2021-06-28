@@ -608,6 +608,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicNewWellLogRftCurveFeature";
             menuBuilder << "RicNewWellLogFileCurveFeature";
             menuBuilder << "RicNewWellMeasurementCurveFeature";
+            menuBuilder << "RicNewEnsembleWellLogCurveSetFeature";
             menuBuilder << "Separator";
             menuBuilder << "RicDeleteSubPlotFeature";
         }

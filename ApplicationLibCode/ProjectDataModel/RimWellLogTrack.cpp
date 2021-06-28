@@ -276,7 +276,7 @@ RimWellLogTrack::RimWellLogTrack()
                                 "",
                                 "",
                                 "" );
-    m_ensembleWellLogCurveSet = new RimEnsembleWellLogCurveSet;
+    m_ensembleWellLogCurveSet.uiCapability()->setUiHidden( true );
 
     m_formationsForCaseWithSimWellOnly = false;
 }
@@ -3098,4 +3098,12 @@ void RimWellLogTrack::addUnderburden( std::vector<QString>& namesVector, CurveSa
 void RimWellLogTrack::setCurvesTreeVisibility( bool isVisible )
 {
     m_curves.uiCapability()->setUiTreeChildrenHidden( !isVisible );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogTrack::setEnsembleWellLogCurveSet( RimEnsembleWellLogCurveSet* curveSet )
+{
+    m_ensembleWellLogCurveSet = curveSet;
 }
