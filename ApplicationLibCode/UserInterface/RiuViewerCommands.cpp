@@ -553,6 +553,7 @@ void RiuViewerCommands::displayContextMenu( QMouseEvent* event )
             menuBuilder.addSeparator();
             menuBuilder << "RicNewWellPathLateralAtDepthFeature";
             menuBuilder << "RicNewWellPathIntersectionFeature";
+            menuBuilder << "RicLinkWellPathFeature";
         }
 
         const RivSimWellPipeSourceInfo* eclipseWellSourceInfo =

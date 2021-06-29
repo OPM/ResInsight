@@ -24,6 +24,7 @@
 #include "RimCase.h"
 #include "RimModeledWellPath.h"
 #include "RimWellPathGeometryDef.h"
+#include "RimWellPathGeometryDefTools.h"
 #include "RimWellPathTarget.h"
 
 #include "RiuViewer.h"
@@ -166,15 +167,19 @@ void RicWellTarget3dEditor::slotUpdated( const cvf::Vec3d& origin, const cvf::Ve
         auto relativePositionXYZ = domainCoordXYZ - geomDef->anchorPointXyz();
         auto delta               = target->targetPointXYZ() - relativePositionXYZ;
 
-        auto currentRefPointXyz = geomDef->anchorPointXyz();
-        auto newRefPointXyz     = currentRefPointXyz - delta;
-        geomDef->setReferencePointXyz( newRefPointXyz );
-        geomDef->changed.send( false );
-        geomDef->updateWellPathVisualization( true );
-        for ( auto wt : geomDef->activeWellTargets() )
+        // Find all linked wells and update with delta change
+
+        std::vector<RimWellPathGeometryDef*> linkedWellPathGeoDefs;
+        if ( geomDef->isReferencePointUpdatesLinked() )
         {
-            wt->updateConnectedEditors();
+            linkedWellPathGeoDefs = RimWellPathGeometryDefTools::linkedDefinitions();
         }
+        else
+        {
+            linkedWellPathGeoDefs.push_back( geomDef );
+        }
+
+        RimWellPathGeometryDefTools::updateLinkedGeometryDefinitions( linkedWellPathGeoDefs, delta );
     }
     else
     {
