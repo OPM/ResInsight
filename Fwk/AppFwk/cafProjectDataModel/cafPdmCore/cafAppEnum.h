@@ -191,7 +191,10 @@ private:
     public:
         void addItem( T enumVal, const QString& text, QString uiText )
         {
-            instance()->m_mapping.push_back( Triplet( enumVal, text, uiText ) );
+            // Make sure the text is trimmed, as this text is streamed to XML and will be trimmed when read back from
+            // XML text
+            // https://github.com/OPM/ResInsight/issues/7829
+            instance()->m_mapping.push_back( Triplet( enumVal, text.trimmed(), uiText ) );
         }
 
         static EnumMapper* instance()
@@ -244,7 +247,9 @@ private:
             size_t idx;
             for ( idx = 0; idx < m_mapping.size(); ++idx )
             {
-                if ( text == m_mapping[idx].m_text )
+                // Make sure the text parsed from a text stream is trimmed
+                // https://github.com/OPM/ResInsight/issues/7829
+                if ( text.trimmed() == m_mapping[idx].m_text )
                 {
                     value = m_mapping[idx].m_enumVal;
                     return true;
@@ -349,7 +354,10 @@ QTextStream& operator>>( QTextStream& str, caf::AppEnum<T>& appEnum )
 {
     QString text;
     str >> text;
-    appEnum.setFromText( text );
+
+    // Make sure the text parsed from a text stream is trimmed
+    // https://github.com/OPM/ResInsight/issues/7829
+    appEnum.setFromText( text.trimmed() );
 
     return str;
 }
