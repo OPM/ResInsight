@@ -48,7 +48,7 @@ CAF_CMD_SOURCE_INIT( RicNewWellPathLateralAtDepthFeature, "RicNewWellPathLateral
 //--------------------------------------------------------------------------------------------------
 bool RicNewWellPathLateralAtDepthFeature::isCommandEnabled()
 {
-    if ( wellPathSelectionItem() )
+    if ( RiuWellPathSelectionItem::wellPathSelectionItem() )
     {
         return true;
     }
@@ -61,7 +61,7 @@ bool RicNewWellPathLateralAtDepthFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicNewWellPathLateralAtDepthFeature::onActionTriggered( bool isChecked )
 {
-    RiuWellPathSelectionItem* wellPathSelItem = wellPathSelectionItem();
+    RiuWellPathSelectionItem* wellPathSelItem = RiuWellPathSelectionItem::wellPathSelectionItem();
     CVF_ASSERT( wellPathSelItem );
 
     RimWellPath* parentWellPath = wellPathSelItem->m_wellpath;
@@ -129,19 +129,6 @@ RimWellPath* RicNewWellPathLateralAtDepthFeature::createLateralAtMeasuredDepth( 
     }
 
     return nullptr;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RiuWellPathSelectionItem* RicNewWellPathLateralAtDepthFeature::wellPathSelectionItem()
-{
-    Riu3dSelectionManager* riuSelManager = Riu3dSelectionManager::instance();
-    RiuSelectionItem*      selItem       = riuSelManager->selectedItem( Riu3dSelectionManager::RUI_TEMPORARY );
-
-    RiuWellPathSelectionItem* wellPathItem = dynamic_cast<RiuWellPathSelectionItem*>( selItem );
-
-    return wellPathItem;
 }
 
 //--------------------------------------------------------------------------------------------------

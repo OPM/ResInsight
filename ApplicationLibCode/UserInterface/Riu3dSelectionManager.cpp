@@ -286,6 +286,14 @@ RiuWellPathSelectionItem::RiuWellPathSelectionItem( const RivWellPathSourceInfo*
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RiuWellPathSelectionItem* RiuWellPathSelectionItem::wellPathSelectionItem()
+{
+    return Riu3dSelectionManager::instance()->objectByType<RiuWellPathSelectionItem>( Riu3dSelectionManager::RUI_TEMPORARY );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RiuSimWellSelectionItem::RiuSimWellSelectionItem( RimSimWellInView* simwell, cvf::Vec3d m_domainCoord, size_t m_branchIndex )
     : m_simWell( simwell )
     , m_domainCoord( m_domainCoord )
