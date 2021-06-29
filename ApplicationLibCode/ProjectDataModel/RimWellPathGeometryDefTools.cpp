@@ -28,7 +28,7 @@
 ///
 //--------------------------------------------------------------------------------------------------
 void RimWellPathGeometryDefTools::updateLinkedGeometryDefinitions( std::vector<RimWellPathGeometryDef*>& definitions,
-                                                                   cvf::Vec3d                            delta )
+                                                                   const cvf::Vec3d&                     delta )
 {
     for ( auto wellPathGeoDef : definitions )
     {

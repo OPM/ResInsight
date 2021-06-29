@@ -17,10 +17,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
+#include "cvfVector3.h"
+
+#include <vector>
+
+class RimWellPathGeometryDef;
+
 class RimWellPathGeometryDefTools
 {
 public:
-    static void updateLinkedGeometryDefinitions( std::vector<RimWellPathGeometryDef*>& definitions, cvf::Vec3d delta );
+    static void updateLinkedGeometryDefinitions( std::vector<RimWellPathGeometryDef*>& definitions,
+                                                 const cvf::Vec3d&                     delta );
 
     static std::vector<RimWellPathGeometryDef*> linkedDefinitions();
 };
