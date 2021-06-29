@@ -24,8 +24,12 @@ CAF_CMD_SOURCE_INIT( RicPasteModeledWellPathFeature, "RicPasteModeledWellPathFea
 
 #include "RimModeledWellPath.h"
 #include "RimOilField.h"
+#include "RimProject.h"
+#include "RimTools.h"
 #include "RimWellPathCollection.h"
 #include "RimWellPathTieIn.h"
+
+#include "Riu3DMainWindowTools.h"
 
 #include "cafPdmObjectGroup.h"
 #include "cafSelectionManager.h"
