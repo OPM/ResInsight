@@ -22,6 +22,17 @@
     </item>
     
     <item>
+      <title>Eclipse Summary Data</title>
+      <link>https://resinsight.org/import/eclipsesummarydata/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://resinsight.org/import/eclipsesummarydata/</guid>
+      <description>Summary data can be imported as a single summary file or an ensemble of summary files.
+Basic Summary Import Summary data is located in two files, summary vector names in *.SMSPEC and curve data in *.UNSMRY.
+Ensemble File Import When using the standard file selection dialog, the user is limited to select files in one directory only. If the interesting files are distributed over multiple directories, the dialog has to be opened once for each directory.</description>
+    </item>
+    
+    <item>
       <title>Log ASCII Standard File</title>
       <link>https://resinsight.org/import/lasfile/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>

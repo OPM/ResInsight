@@ -9,7 +9,7 @@
 
     <link rel="icon" href="/images/favicon.png" type="image/png">
 
-    <title>Miscellaneous :: ResInsight</title>
+    <title>Eclipse Summary Data :: ResInsight</title>
 
     
     <link href="/css/nucleus.css?1624973053" rel="stylesheet">
@@ -62,7 +62,7 @@
 </script>
 
   </head>
-  <body class="" data-url="/misc/">
+  <body class="" data-url="/import/eclipsesummarydata/">
     <nav id="sidebar" class="">
 
 
@@ -1556,7 +1556,7 @@
   
     
     <li data-nav-id="/import/" title="Import" class="dd-item 
-        
+        parent
         
         
         ">
@@ -1599,7 +1599,7 @@
  
   
     
-      <li data-nav-id="/import/eclipsesummarydata/" title="Eclipse Summary Data" class="dd-item ">
+      <li data-nav-id="/import/eclipsesummarydata/" title="Eclipse Summary Data" class="dd-item active">
         <a href="/import/eclipsesummarydata/">
         Eclipse Summary Data
         
@@ -2032,8 +2032,8 @@
   
     
     <li data-nav-id="/misc/" title="Miscellaneous" class="dd-item 
-        parent
-        active
+        
+        
         
         ">
       <a href="/misc/">
@@ -2234,7 +2234,13 @@ if (!doNotTrack) {
             
           
           
-            <a href='/'>ResInsight</a> > Miscellaneous
+            
+            
+          
+          
+            <a href='/'>ResInsight</a> > <a href='/import/'>Import</a> > Eclipse Summary Data
+          
+         
           
          
           
@@ -2245,7 +2251,25 @@ if (!doNotTrack) {
                 
                     <div class="progress">
     <div class="wrapper">
-<nav id="TableOfContents"></nav>
+<nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li>
+          <ul>
+            <li><a href="#basic-summary-import">Basic Summary Import</a></li>
+          </ul>
+        </li>
+        <li><a href="#ensemble-file-import">Ensemble File Import</a>
+          <ul>
+            <li><a href="#origin-files">Origin Files</a></li>
+            <li><a href="#summary-data-file-formats">Summary Data File Formats</a></li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</nav>
     </div>
 </div>
 
@@ -2261,7 +2285,7 @@ if (!doNotTrack) {
           
             <h1>
               
-              Miscellaneous
+              Eclipse Summary Data
             </h1>
           
 
@@ -2269,22 +2293,68 @@ if (!doNotTrack) {
 
 
 
+<p>Summary data can be imported as a single summary file or an ensemble of summary files.</p>
+<h3 id="basic-summary-import">Basic Summary Import</h3>
+<p>Summary data is located in two files, summary vector names in <strong>*.SMSPEC</strong> and curve data in <strong>*.UNSMRY</strong>.</p>
+<h2 id="ensemble-file-import">Ensemble File Import</h2>
+<p>When using the standard file selection dialog, the user is limited to select files in one directory only. If the interesting files are distributed over multiple directories, the dialog has to be opened once for each directory. The recursive file selection dialog is created to circumvent this limitation. This dialog is able to search a directory tree for files matching a specified pattern.</p>
 
-	<p><img src="/images/3d-main-window/MemoryManagementBanner.png" alt=""></p>
-<p>This chapter of the ResInsight documentation describes the following:</p>
+<div class="notices note" ><p>This dialog is used for import of different file types like *.EGRID and *.SMSPEC.</p>
+</div>
+
+<p><img src="/images/plot-window/RecursiveImportDialog2.png" alt=""></p>
+<p>The dialog consists of the following fields:</p>
 <ul>
-<li>defining preferences to customize and adapt the behavior of ResInsight for your purposes and work flow</li>
-<li>memory management, i.e. how to determine consumption and clearing data from computer memory</li>
-<li>keyboard shortcuts for effective and convenient usage of ResInsight</li>
-<li>use of the built-in regression test system of ResInsight</li>
+<li><strong>Path Pattern</strong>: The path filter uses normal wildcard file globbing, like in any unix shell. When the filter ends with a single &ldquo;**&rdquo; (eg. &ldquo;/home/*&quot;), however, ResInsight will search recursively in all subdirectories from that point. This is indicated by &ldquo;&hellip;&rdquo; in the <strong>Effective Filter</strong> label below.
+<ul>
+<li><strong>*</strong> Matches any number of any characters except the path separator</li>
+<li><strong>?</strong> Matches one character exception the directory separator</li>
+<li><strong>[abc]</strong> Matches one of the specified characters. Ex. a, b or c</li>
 </ul>
-<p>See the subsequent subchapters for more information on each topic.</p>
+</li>
+<li><strong>File Pattern</strong>: The search pattern that applies to the file name.</li>
+<li><strong>Effective Filter</strong>: The effective filter displays the resulting full path search pattern. It is updated on the fly as the user edits the pattern fields. A text string of &ldquo;&hellip;&rdquo; indicates a complete recursive directory search.</li>
+</ul>
+<p>After pressing the <strong>Find</strong> button, a file search is performed in the root directory and the directories below matching the path pattern. The files found are presented in a list, where the user can check/uncheck each file individually.</p>
+<p>When the <strong>OK</strong> button is pressed, all checked files are imported.</p>
+<h3 id="origin-files">Origin Files</h3>
+<p><img src="/images/plot-window/OriginFileDialog.png" alt=""></p>
+<p>During summary file import, ResInsight checks whether the summary file is restarted, i.e. has an origin file. If an origin file is found, the Origin Files dialog is displayed.</p>
+<p>Depending on what triggered the summary file import, the dialog shows slightly different information. If the summary file import was triggered by a grid file import, the dialog displays information about grid files in addition to the summary origin file(s). If the summary file was imported directly, information about grid files are not relevant and thus not displayed.</p>
+<p>The dialog contents are organized in groups:</p>
+<ul>
+<li><strong>Current Grid and Summary Files</strong> or <strong>Current Summary Files</strong>: This group displays the name of the main summary file to import. If the import is triggered by a grid file import, the name of the grid file is also displayed.</li>
+<li><strong>Origin Summary Files</strong>: This group displays the names of the origin summary file(s) found. If there are more than one file listed, it means that the found origin file also has an origin file. ResInsight will search the &ldquo;chain&rdquo; of summary origin files until it reaches the end.
+<ul>
+<li><strong>Import Options</strong> There are three options to control how origin summary file are imported
+<ul>
+<li><strong>Unified</strong>: The main summary files and all origin files are imported into one single summary case</li>
+<li><strong>Separate Cases</strong>: The main files and all origin files are imported into separate summary cases</li>
+<li><strong>Skip</strong>: Only the main summary file is imported. The origin summary files are skipped.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><strong>Origin Grid Files</strong>: If the summary file import was triggered by a grid file import, this group is visible. It contains a list of the grid files associated to the origin summary files
+<ul>
+<li><strong>Import Options</strong> There are two options to control how the grid files are imported
+<ul>
+<li><strong>Separate Cases</strong>: All &ldquo;origin&rdquo; grid files are imported into separate grid cases</li>
+<li><strong>Skip</strong>: Only the main grid file is imported. The &ldquo;origin&rdquo; grid files are skipped.</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p>By default the file names are displayed using relative path based on the common root folder for all files. In order to display the full path, check the <strong>Show full paths</strong> checkbox. Regardless of the checkbox state, there is always a tooltip showing the full path for every file. It is also possible to copy a full path file name to the clipboard. Right click on the file name and select <strong>Copy file name</strong>.</p>
+<p>If the user selected multiple summary files or grid files, this dialog will be displayed for every file that has an origin summary file. In this case the button <strong>OK to All</strong> appears. When this button is clicked, the rest of the files will be imported silently using the same options.</p>
+<h3 id="summary-data-file-formats">Summary Data File Formats</h3>
+<p><strong>h5 File Format</strong></p>
+<p><em>Eclipse</em> is able to reorganize the summary data after a simulations has completed. This will produce an additional curve data file with the extension <strong>h5</strong>. The curve data in this file is identical to curve data in <strong>UNSMRY</strong>.</p>
+<p>ResInsight will now by default use <strong>H5</strong> files to import summary data, as this format has good performance for large datasets. The native <em>Eclipse</em> <strong>UNSMRY</strong> reader can be used when configured in <a href="/misc/preferences/#eclipse-summary">Eclipse Summary Preferences</a>.</p>
 
 
-
-
-
-<footer class=" footline" >
+<footer class="footline">
 	
 </footer>
 
@@ -3494,6 +3564,7 @@ if (!doNotTrack) {
             
                 
                     
+                    
                 
                 
 
@@ -3506,6 +3577,9 @@ if (!doNotTrack) {
             
             
                 
+                    
+                        
+                        
                     
                 
                 
@@ -3523,21 +3597,6 @@ if (!doNotTrack) {
             
                 
                     
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
                     
                 
                 
@@ -3555,117 +3614,8 @@ if (!doNotTrack) {
             
                 
                     
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
                         
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
                         
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
                     
                 
                 
@@ -3854,6 +3804,19 @@ if (!doNotTrack) {
             
         
                     
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
             
         
                     
@@ -3862,6 +3825,24 @@ if (!doNotTrack) {
             
                 
                     
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+            
+        
+                    
+                        
+            
+            
+                
                     
                 
                 
@@ -3876,8 +3857,101 @@ if (!doNotTrack) {
             
                 
                     
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
                         
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
                         
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+                        
+            
+            
+                
                     
                 
                 
@@ -3966,10 +4040,10 @@ if (!doNotTrack) {
 	 
 	 
 		
-			<a class="nav nav-prev" href="/scripting/octaveinterfacereference/" title="Octave Interface Reference"> <i class="fa fa-chevron-left"></i></a>
+			<a class="nav nav-prev" href="/import/eclipsecases/" title="Eclipse Cases"> <i class="fa fa-chevron-left"></i></a>
 		
 		
-			<a class="nav nav-next" href="/misc/preferences/" title="Preferences" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
+			<a class="nav nav-next" href="/import/lasfile/" title="Log ASCII Standard File" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
 		
 	
     </div>
@@ -3999,3 +4073,4 @@ if (!doNotTrack) {
 
   </body>
 </html>
+

@@ -12,18 +12,18 @@
     <title>Eclipse Cases :: ResInsight</title>
 
     
-    <link href="/css/nucleus.css?1623656032" rel="stylesheet">
-    <link href="/css/fontawesome-all.min.css?1623656032" rel="stylesheet">
-    <link href="/css/hybrid.css?1623656032" rel="stylesheet">
-    <link href="/css/featherlight.min.css?1623656032" rel="stylesheet">
-    <link href="/css/perfect-scrollbar.min.css?1623656032" rel="stylesheet">
-    <link href="/css/auto-complete.css?1623656032" rel="stylesheet">
-    <link href="/css/atom-one-dark-reasonable.css?1623656032" rel="stylesheet">
-    <link href="/css/theme.css?1623656032" rel="stylesheet">
-    <link href="/css/hugo-theme.css?1623656032" rel="stylesheet">
+    <link href="/css/nucleus.css?1624973053" rel="stylesheet">
+    <link href="/css/fontawesome-all.min.css?1624973053" rel="stylesheet">
+    <link href="/css/hybrid.css?1624973053" rel="stylesheet">
+    <link href="/css/featherlight.min.css?1624973053" rel="stylesheet">
+    <link href="/css/perfect-scrollbar.min.css?1624973053" rel="stylesheet">
+    <link href="/css/auto-complete.css?1624973053" rel="stylesheet">
+    <link href="/css/atom-one-dark-reasonable.css?1624973053" rel="stylesheet">
+    <link href="/css/theme.css?1624973053" rel="stylesheet">
+    <link href="/css/hugo-theme.css?1624973053" rel="stylesheet">
     
 
-    <script src="/js/jquery-3.3.1.min.js?1623656032"></script>
+    <script src="/js/jquery-3.3.1.min.js?1624973053"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -1599,6 +1599,25 @@
  
   
     
+      <li data-nav-id="/import/eclipsesummarydata/" title="Eclipse Summary Data" class="dd-item ">
+        <a href="/import/eclipsesummarydata/">
+        Eclipse Summary Data
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
       <li data-nav-id="/import/lasfile/" title="Log ASCII Standard File" class="dd-item ">
         <a href="/import/lasfile/">
         Log ASCII Standard File
@@ -2236,14 +2255,18 @@ if (!doNotTrack) {
   <ul>
     <li>
       <ul>
-        <li>
+        <li><a href="#eclipse-results">Eclipse Results</a>
           <ul>
-            <li><a href="#eclipse-results">Eclipse Results</a></li>
-            <li><a href="#time-step-filtered-eclipse-result">Time Step Filtered Eclipse Result</a></li>
-            <li><a href="#eclipse-ascii-input-data">Eclipse ASCII Input Data</a></li>
-            <li><a href="#handling-missing-or-wrong-mapaxes">Handling Missing or Wrong MAPAXES</a></li>
+            <li><a href="#result-index-file">Result Index File</a></li>
           </ul>
         </li>
+        <li><a href="#time-step-filtered-eclipse-result">Time Step Filtered Eclipse Result</a></li>
+        <li><a href="#eclipse-ascii-input-data">Eclipse ASCII Input Data</a>
+          <ul>
+            <li><a href="#appending-additional-properties-to-a-binary-case">Appending additional properties to a binary case</a></li>
+          </ul>
+        </li>
+        <li><a href="#handling-missing-or-wrong-mapaxes">Handling Missing or Wrong MAPAXES</a></li>
       </ul>
     </li>
   </ul>
@@ -2280,24 +2303,24 @@ if (!doNotTrack) {
 <div class="notices note" ><p>Release 2018.11 supports import of simulations from Intersect. To be able to import into ResInsight, the Intersect simulation must be exported into Eclipse file format.</p>
 </div>
 
-<h3 id="eclipse-results">Eclipse Results</h3>
+<h2 id="eclipse-results">Eclipse Results</h2>
 <p>ResInsight offers several ways to import Eclipse (grid) files. Use one of the following commands in the <strong>File-&gt;Import-&gt;Eclipse Cases</strong> menu:</p>
 <ul>
 <li><strong>Import Eclipse Case</strong>: Brings up the standard file selection dialog. Select <em><code>*.EGRID</code></em> or <em><code>*.GRID</code></em> Eclipse files for import. Multiple selections are allowed.</li>
-<li><strong>Import Eclipse Cases Recursively</strong>: Brings up the recursive file selection dialog. This dialog is described in detail on the <a href="/plot-window/summaryplots/#recursive-summary-file-import">Summary Plots page</a>.</li>
+<li><strong>Import Eclipse Cases Recursively</strong>: Brings up the recursive file selection dialog. This dialog is described in detail on the <a href="/import/eclipsesummarydata/#ensemble-file-import">Summary Plots page</a>.</li>
 <li><strong>Import Eclipse Case (Time Step Filtered)</strong>: See <a href="#time-step-filtered-eclipse-result">description</a></li>
 <li><strong>Import Input Eclipse Case</strong>: See <a href="#eclipse-ascii-input-data">description</a></li>
-<li><strong>Create Grid Case Group from Files</strong> and <strong>Create Grid Case Group from Files Recursively</strong>: These commands import a number of Eclipse files and places the cases in a <a href="/3d-main-window/casegroupsandstatistics/#creating-grid-case-groups">grid case group</a>. The only difference between the two commands, is the dialog used to select files. The recursive version is using the <a href="/plot-window/summaryplots/#recursive-summary-file-import">recursive file selection dialog</a> and is considered the new way of selecting files.</li>
+<li><strong>Create Grid Case Group</strong> : Import a number of Eclipse files and places the cases in a <a href="/3d-main-window/casegroupsandstatistics/#creating-grid-case-groups">grid case group</a> See <a href="/import/eclipsesummarydata/#ensemble-file-import">File Selection Dialog</a> for how to import multiple files.</li>
 </ul>
 <p>The <strong>Reload Case</strong> command can be used to reload a previously imported case, to make sure it is up to date. This is useful if the grid or result files changes while a ResInsight session is active.</p>
 
 <div class="notices note" ><p>You can select several grid files in one go by multiple selection of files (Ctrl + left mouse button, Shift + left mouse button).</p>
 </div>
 
-<h4 id="result-index-file">Result Index File</h4>
+<h3 id="result-index-file">Result Index File</h3>
 <p>If enabled, ResInsight will generate an index file when reading the eclipse result files for the first time. This file will significantly reduce the time used to open the case next time. The file is named <em><code>&lt;casename&gt;.RESINSIGHT_IDX</code></em>
 See <a href="/misc/preferences/#behavior-when-loading-data">Preferences: Behavior When Loading Data</a></p>
-<h3 id="time-step-filtered-eclipse-result">Time Step Filtered Eclipse Result</h3>
+<h2 id="time-step-filtered-eclipse-result">Time Step Filtered Eclipse Result</h2>
 <p>Some Eclipse files have an enormous amount of time steps. If only a selection of the time steps really are needed for the session, the time steps can be filtered before loading. This can possibly speed up the import a great deal. Filtering can be done in the following way.</p>
 <p>Select <strong>File-&gt;Import-&gt;Eclipse Cases-&gt; <img src="https://resinsight.org/images/getting-started/Case24x24.png" style="display:inline; vertical-align:middle; margin:0">
  Import Eclipse Case (Time Step Filtered)</strong> and select an <em><code>*.EGRID</code></em> or <em><code>*.GRID</code></em> Eclipse file for import. A dialog will appear.</p>
@@ -2312,14 +2335,24 @@ See <a href="/misc/preferences/#behavior-when-loading-data">Preferences: Behavio
 <p>Filtering can also be done after import, in a case&rsquo;s <strong>Property Window</strong>.</p>
 <p><img src="/images/getting-started/timeStepFilterPropEditor.png" alt=""></p>
 <p>After clicking <em>Reload Case</em>, the time steps in the toolbar will be updated.</p>
-<h3 id="eclipse-ascii-input-data">Eclipse ASCII Input Data</h3>
+<h2 id="eclipse-ascii-input-data">Eclipse ASCII Input Data</h2>
 <ol>
 <li>Select <strong>File-&gt;Import-&gt;Eclipse Cases-&gt; <img src="https://resinsight.org/images/getting-started/EclipseInput24x24.png" style="display:inline; vertical-align:middle; margin:0">
  Import Input Eclipse Case</strong> and select a <em><code>*.GRDECL</code></em> file.</li>
 <li>The case is imported, and a view of the case is created</li>
 <li>Right-click the <strong>Input Properties</strong> in the generated <strong>Input Case</strong> and use the right-click menu to import additional Eclipse Property data files.</li>
 </ol>
-<h3 id="handling-missing-or-wrong-mapaxes">Handling Missing or Wrong MAPAXES</h3>
+<h3 id="appending-additional-properties-to-a-binary-case">Appending additional properties to a binary case</h3>
+<p>If a binary or text Eclipse case is loaded, additional properties can be appended to this binary case. Make sure that the number of values in the GRDECL file matches the total number of cells in the binary case.</p>
+<p>For export of currently selected cell result values to text file, see <a href="/export/eclipseproperties/">Export: Eclipse Properties</a></p>
+<p><strong>Appending properties</strong></p>
+<ol>
+<li>Open an Eclipse case (binary or input)</li>
+<li>From the right-click menu of the case or Cell Result, select <strong>Add Input Property</strong></li>
+<li>Select the text file with properties</li>
+<li>The imported data is then available in the <strong>Cell Result</strong> by activating the <strong>Input Property</strong> in the <strong>Type</strong> drop down list.</li>
+</ol>
+<h2 id="handling-missing-or-wrong-mapaxes">Handling Missing or Wrong MAPAXES</h2>
 <p>The X and Y grid data can be negated in order to make the Grid model appear correctly in ResInsight. This functionality is accessible in the <strong>Property Editor</strong> for all Eclipse Case types as the toggle buttons <strong>Flip X Axis</strong> and <strong>Flip Y Axis</strong> as shown in the example below.</p>
 <p><img src="/images/getting-started/CaseProperties.png" alt=""></p>
 
@@ -3659,6 +3692,22 @@ See <a href="/misc/preferences/#behavior-when-loading-data">Preferences: Behavio
             
         
                     
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
             
         
                     
@@ -3994,7 +4043,7 @@ See <a href="/misc/preferences/#behavior-when-loading-data">Preferences: Behavio
 			<a class="nav nav-prev" href="/import/" title="Import"> <i class="fa fa-chevron-left"></i></a>
 		
 		
-			<a class="nav nav-next" href="/import/lasfile/" title="Log ASCII Standard File" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
+			<a class="nav nav-next" href="/import/eclipsesummarydata/" title="Eclipse Summary Data" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
 		
 	
     </div>
@@ -4004,19 +4053,19 @@ See <a href="/misc/preferences/#behavior-when-loading-data">Preferences: Behavio
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/js/clipboard.min.js?1623656032"></script>
-    <script src="/js/perfect-scrollbar.min.js?1623656032"></script>
-    <script src="/js/perfect-scrollbar.jquery.min.js?1623656032"></script>
-    <script src="/js/jquery.sticky.js?1623656032"></script>
-    <script src="/js/featherlight.min.js?1623656032"></script>
-    <script src="/js/highlight.pack.js?1623656032"></script>
+    <script src="/js/clipboard.min.js?1624973053"></script>
+    <script src="/js/perfect-scrollbar.min.js?1624973053"></script>
+    <script src="/js/perfect-scrollbar.jquery.min.js?1624973053"></script>
+    <script src="/js/jquery.sticky.js?1624973053"></script>
+    <script src="/js/featherlight.min.js?1624973053"></script>
+    <script src="/js/highlight.pack.js?1624973053"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/js/modernizr.custom-3.6.0.js?1623656032"></script>
-    <script src="/js/learn.js?1623656032"></script>
-    <script src="/js/hugo-learn.js?1623656032"></script>
+    <script src="/js/modernizr.custom-3.6.0.js?1624973053"></script>
+    <script src="/js/learn.js?1624973053"></script>
+    <script src="/js/hugo-learn.js?1624973053"></script>
 
-    <link href="/mermaid/mermaid.css?1623656032" rel="stylesheet" />
-    <script src="/mermaid/mermaid.js?1623656032"></script>
+    <link href="/mermaid/mermaid.css?1624973053" rel="stylesheet" />
+    <script src="/mermaid/mermaid.js?1624973053"></script>
     <script>
         mermaid.initialize({ startOnLoad: true });
     </script>

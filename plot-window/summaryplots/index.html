@@ -12,18 +12,18 @@
     <title>Summary Plots :: ResInsight</title>
 
     
-    <link href="/css/nucleus.css?1623656032" rel="stylesheet">
-    <link href="/css/fontawesome-all.min.css?1623656032" rel="stylesheet">
-    <link href="/css/hybrid.css?1623656032" rel="stylesheet">
-    <link href="/css/featherlight.min.css?1623656032" rel="stylesheet">
-    <link href="/css/perfect-scrollbar.min.css?1623656032" rel="stylesheet">
-    <link href="/css/auto-complete.css?1623656032" rel="stylesheet">
-    <link href="/css/atom-one-dark-reasonable.css?1623656032" rel="stylesheet">
-    <link href="/css/theme.css?1623656032" rel="stylesheet">
-    <link href="/css/hugo-theme.css?1623656032" rel="stylesheet">
+    <link href="/css/nucleus.css?1624973053" rel="stylesheet">
+    <link href="/css/fontawesome-all.min.css?1624973053" rel="stylesheet">
+    <link href="/css/hybrid.css?1624973053" rel="stylesheet">
+    <link href="/css/featherlight.min.css?1624973053" rel="stylesheet">
+    <link href="/css/perfect-scrollbar.min.css?1624973053" rel="stylesheet">
+    <link href="/css/auto-complete.css?1624973053" rel="stylesheet">
+    <link href="/css/atom-one-dark-reasonable.css?1624973053" rel="stylesheet">
+    <link href="/css/theme.css?1624973053" rel="stylesheet">
+    <link href="/css/hugo-theme.css?1624973053" rel="stylesheet">
     
 
-    <script src="/js/jquery-3.3.1.min.js?1623656032"></script>
+    <script src="/js/jquery-3.3.1.min.js?1624973053"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -1599,6 +1599,25 @@
  
   
     
+      <li data-nav-id="/import/eclipsesummarydata/" title="Eclipse Summary Data" class="dd-item ">
+        <a href="/import/eclipsesummarydata/">
+        Eclipse Summary Data
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
       <li data-nav-id="/import/lasfile/" title="Log ASCII Standard File" class="dd-item ">
         <a href="/import/lasfile/">
         Log ASCII Standard File
@@ -2264,11 +2283,6 @@ if (!doNotTrack) {
           </ul>
         </li>
         <li><a href="#copy-and-paste">Copy and Paste</a></li>
-        <li><a href="#recursive-summary-file-import">Recursive summary file import</a>
-          <ul>
-            <li><a href="#origin-files">Origin Files</a></li>
-          </ul>
-        </li>
       </ul>
     </li>
   </ul>
@@ -2310,18 +2324,11 @@ if (!doNotTrack) {
 <h2 id="plot-data">Plot Data</h2>
 <p>ResInsight can create summary plots based on vectors from SUMMARY files ( <em><code>*.SMSPEC</code></em> ), imported Observed Time History Data, Grid Cell Time history Curve, and pasted ascii curves.</p>
 <h3 id="summary-files">SUMMARY Files</h3>
-<p>When opening an Eclipse case in the 3D view, the associated summary file is opened automatically by default and made available as a <strong>Summary Case</strong>.
-Summary files can also be imported directly using one of the following commands in the <strong>File-&gt;Import-&gt;Summary Cases</strong> menu:</p>
-<ul>
-<li><strong>Import Summary Case</strong>: Brings up the standard file selection dialog. Multiple selections are allowed.</li>
-<li><strong>Import Summary Cases Recursively</strong>: Brings up the <a href="#recursive-summary-file-import">recursive file selection</a> dialog to load files from multiple directories.</li>
-<li><strong>Import Summary Case Group</strong>: Brings up the <a href="#recursive-summary-file-import">recursive file selection</a> dialog. Selected files are automatically grouped.</li>
-<li><strong>Import Ensemble</strong>: Similar to the above, but in addition to just create a group, ResInsight performs some extra checking related to ensembles and converts the group to an ensemble, c.f. <a href="/plot-window/ensembleplotting/">Ensemble Plotting</a>.</li>
-</ul>
-<p>These commands can also be accessed in the right-click menu for the <strong>Summary Cases</strong> entry in the <strong>Plot Project Tree</strong>.
+<p>See <a href="/import/eclipsesummarydata/">Eclipse Summary Data</a> for description on how to import data.</p>
+<p>The input commands can also be accessed in the right-click menu for the <strong>Summary Cases</strong> entry in the <strong>Plot Project Tree</strong>.
 Notably, the right-click menu also allows creating a <a href="/plot-window/ensembleplotting/#delta-ensemble">delta ensemble</a> 
 and <a href="/plot-window/summaryplots/#delta-summary-case">delta summary case</a>.</p>
-<p>During summary file import, ResInsight checks whether the summary file is restarted, i.e. has an origin file. If an origin file is found, the <a href="#origin-files">Origin Files</a> dialog is displayed.</p>
+<p>During summary file import, ResInsight checks whether the summary file is restarted, i.e. has an origin file. If an origin file is found, the <a href="/import/eclipsesummarydata/#origin-files">Origin Files</a> dialog is displayed.</p>
 <h3 id="summary-case-groups">Summary Case Groups</h3>
 <p>A selection of cases can be grouped by right-clicking  a selection of summary cases and selecting the command <strong>Group Summary Cases</strong>. Summary cases can also be drag-dropped between summary groups. The groups will be used when listing the cases in the <a href="/plot-window/summaryploteditor/">Summary Plot Editor</a>.</p>
 <h3 id="delta-summary-case">Delta Summary Case</h3>
@@ -2497,54 +2504,6 @@ Pressing the button opens a dialog similar to the <a href="/plot-window/summaryp
 </ul>
 <h2 id="copy-and-paste">Copy and Paste</h2>
 <p>Copy and Paste of selections of Summary Plots and Curves, is possible using the Project Tree right-click menu and standard keyboard shortcuts (CTRL-C/CTRL-V).</p>
-<h2 id="recursive-summary-file-import">Recursive summary file import</h2>
-<p>When using the standard file selection dialog, the user is limited to select files in one directory only. If the interesting files are distributed over multiple directories, the dialog has to be opened once for each directory. The recursive file selection dialog is created to circumvent this limitation. This dialog is able to search a directory tree for files matching a specified pattern.</p>
-<p><img src="/images/plot-window/RecursiveImportDialog2.png" alt=""></p>
-<p>The dialog consists of the following fields:</p>
-<ul>
-<li><strong>Path Pattern</strong>: The path filter uses normal wildcard file globbing, like in any unix shell. When the filter ends with a single &ldquo;**&rdquo; (eg. &ldquo;/home/*&quot;), however, ResInsight will search recursively in all subdirectories from that point. This is indicated by &ldquo;&hellip;&rdquo; in the <strong>Effective Filter</strong> label below.
-<ul>
-<li><strong>*</strong> Matches any number of any characters except the path separator</li>
-<li><strong>?</strong> Matches one character exception the directory separator</li>
-<li><strong>[abc]</strong> Matches one of the specified characters. Ex. a, b or c</li>
-</ul>
-</li>
-<li><strong>File Pattern</strong>: The search pattern that applies to the file name.</li>
-<li><strong>Effective Filter</strong>: The effective filter displays the resulting full path search pattern. It is updated on the fly as the user edits the pattern fields. A text string of &ldquo;&hellip;&rdquo; indicates a complete recursive directory search.</li>
-</ul>
-<p>After pressing the <strong>Find</strong> button, a file search is performed in the root directory and the directories below matching the path pattern. The files found are presented in a list, where the user can check/uncheck each file individually.</p>
-<p>When the <strong>OK</strong> button is pressed, all checked files are imported.</p>
-<h3 id="origin-files">Origin Files</h3>
-<p><img src="/images/plot-window/OriginFileDialog.png" alt=""></p>
-<p>During summary file import, ResInsight checks whether the summary file is restarted, i.e. has an origin file. If an origin file is found, the Origin Files dialog is displayed.</p>
-<p>Depending on what triggered the summary file import, the dialog shows slightly different information. If the summary file import was triggered by a grid file import, the dialog displays information about grid files in addition to the summary origin file(s). If the summary file was imported directly, information about grid files are not relevant and thus not displayed.</p>
-<p>The dialog contents are organized in groups:</p>
-<ul>
-<li><strong>Current Grid and Summary Files</strong> or <strong>Current Summary Files</strong>: This group displays the name of the main summary file to import. If the import is triggered by a grid file import, the name of the grid file is also displayed.</li>
-<li><strong>Origin Summary Files</strong>: This group displays the names of the origin summary file(s) found. If there are more than one file listed, it means that the found origin file also has an origin file. ResInsight will search the &ldquo;chain&rdquo; of summary origin files until it reaches the end.
-<ul>
-<li><strong>Import Options</strong> There are three options to control how origin summary file are imported
-<ul>
-<li><strong>Unified</strong>: The main summary files and all origin files are imported into one single summary case</li>
-<li><strong>Separate Cases</strong>: The main files and all origin files are imported into separate summary cases</li>
-<li><strong>Skip</strong>: Only the main summary file is imported. The origin summary files are skipped.</li>
-</ul>
-</li>
-</ul>
-</li>
-<li><strong>Origin Grid Files</strong>: If the summary file import was triggered by a grid file import, this group is visible. It contains a list of the grid files associated to the origin summary files
-<ul>
-<li><strong>Import Options</strong> There are two options to control how the grid files are imported
-<ul>
-<li><strong>Separate Cases</strong>: All &ldquo;origin&rdquo; grid files are imported into separate grid cases</li>
-<li><strong>Skip</strong>: Only the main grid file is imported. The &ldquo;origin&rdquo; grid files are skipped.</li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-<p>By default the file names are displayed using relative path based on the common root folder for all files. In order to display the full path, check the <strong>Show full paths</strong> checkbox. Regardless of the checkbox state, there is always a tooltip showing the full path for every file. It is also possible to copy a full path file name to the clipboard. Right click on the file name and select <strong>Copy file name</strong>.</p>
-<p>If the user selected multiple summary files or grid files, this dialog will be displayed for every file that has an origin summary file. In this case the button <strong>OK to All</strong> appears. When this button is clicked, the rest of the files will be imported silently using the same options.</p>
 
 
 <footer class="footline">
@@ -3882,6 +3841,22 @@ Pressing the button opens a dialog similar to the <a href="/plot-window/summaryp
             
         
                     
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
             
         
                     
@@ -4227,19 +4202,19 @@ Pressing the button opens a dialog similar to the <a href="/plot-window/summaryp
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/js/clipboard.min.js?1623656032"></script>
-    <script src="/js/perfect-scrollbar.min.js?1623656032"></script>
-    <script src="/js/perfect-scrollbar.jquery.min.js?1623656032"></script>
-    <script src="/js/jquery.sticky.js?1623656032"></script>
-    <script src="/js/featherlight.min.js?1623656032"></script>
-    <script src="/js/highlight.pack.js?1623656032"></script>
+    <script src="/js/clipboard.min.js?1624973053"></script>
+    <script src="/js/perfect-scrollbar.min.js?1624973053"></script>
+    <script src="/js/perfect-scrollbar.jquery.min.js?1624973053"></script>
+    <script src="/js/jquery.sticky.js?1624973053"></script>
+    <script src="/js/featherlight.min.js?1624973053"></script>
+    <script src="/js/highlight.pack.js?1624973053"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/js/modernizr.custom-3.6.0.js?1623656032"></script>
-    <script src="/js/learn.js?1623656032"></script>
-    <script src="/js/hugo-learn.js?1623656032"></script>
+    <script src="/js/modernizr.custom-3.6.0.js?1624973053"></script>
+    <script src="/js/learn.js?1624973053"></script>
+    <script src="/js/hugo-learn.js?1624973053"></script>
 
-    <link href="/mermaid/mermaid.css?1623656032" rel="stylesheet" />
-    <script src="/mermaid/mermaid.js?1623656032"></script>
+    <link href="/mermaid/mermaid.css?1624973053" rel="stylesheet" />
+    <script src="/mermaid/mermaid.js?1624973053"></script>
     <script>
         mermaid.initialize({ startOnLoad: true });
     </script>

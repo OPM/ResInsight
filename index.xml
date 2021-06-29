@@ -54,15 +54,27 @@ Several views can be added to the same case by right-clicking the case or a view
     </item>
     
     <item>
+      <title>Eclipse Summary Data</title>
+      <link>https://resinsight.org/import/eclipsesummarydata/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://resinsight.org/import/eclipsesummarydata/</guid>
+      <description>Summary data can be imported as a single summary file or an ensemble of summary files.
+Basic Summary Import Summary data is located in two files, summary vector names in *.SMSPEC and curve data in *.UNSMRY.
+Ensemble File Import When using the standard file selection dialog, the user is limited to select files in one directory only. If the interesting files are distributed over multiple directories, the dialog has to be opened once for each directory.</description>
+    </item>
+    
+    <item>
       <title>Linux Installation</title>
       <link>https://resinsight.org/getting-started/download-and-install/linux-installation/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
       <guid>https://resinsight.org/getting-started/download-and-install/linux-installation/</guid>
-      <description>Install ResInsight From Binary Packages on Linux Please not that the distribution by the OPM Project will updated some time after the release of a new version on GitHub.
+      <description>Install From Binary Packages on Linux Please not that the distribution by the OPM Project will be updated some time after the release of a new version on GitHub.
 Red Hat Enterprise Linux 6 or 7 Login as root and do:
-yum-config-manager --add-repo https://opm-project.org/package/opm.repoyum install resinsightyum install resinsight-octave Then you are good, and can start ResInsight by typing: ResInsight
-Ubuntu Linux 16.04-64bit On the command line do:</description>
+yum-config-manager --add-repo https://opm-project.org/package/opm.repoyum install resinsightyum install resinsight-octave Launch the application using the command ResInsight
+Ubuntu On the command line do:
+sudo apt-get updatesudo apt-get install software-properties-commonsudo apt-add-repository ppa:opm/ppasudo apt-get updatesudo apt-get install resinsightsudo apt-get install octave-resinsight Launch the application using the command ResInsight</description>
     </item>
     
     <item>
@@ -268,7 +280,7 @@ Command line options General    Parameter Description     --help, --?</descripti
       <description>Eclipse Properties can be exported to Eclipse ASCII files. This is particularly useful when a new property is generated using Octave. The generated property can be exported for further use in the simulator.
 Export Command To export the property currently active in the 3D View, activate the right-click menu on a Cell Result item in the Project Tree.
 The following dialog will appear:
- Export File Name &amp;ndash; The path to exported file Eclipse Keyword &amp;ndash; The keyword to use for the property in the eclipse file Undefined Value &amp;ndash; This value is written to the file for all values that are flagged as undefined in ResInsight  File Format The exported file has the following format, that matches the Eclipse input format:</description>
+ Export File Name &amp;ndash; The path to exported file Eclipse Keyword &amp;ndash; The keyword to use for the property in the eclipse file Undefined Value &amp;ndash; This value is written to the file for all values that are flagged as undefined in ResInsight  For import this type of property data see Import: Eclipse Cases</description>
     </item>
     
     <item>
@@ -367,7 +379,7 @@ Importing such a file will enable result type called SourSimRL as explained in E
 In a git enabled shell do: git clone https://github.com/OPM/ResInsight.git
 Dependencies and Prerequisites Windows Compiler Visual Studio 2019 and later is supported.
 GCC Compiler GCC version 4.9 or later is supported. On RedHat Linux 6 you need to install devtoolset-3, and enable it with
-source /opt/rh/devtoolset-3/enable Qt 5 Qt 5.9 or later is supported.
+source /opt/rh/devtoolset-3/enable Qt 5 Qt 5.9 or later is supported, Qt 5.15 is recommended.
 Qt download
 On some configurations you will be asked to specify the location of Qt 5.</description>
     </item>

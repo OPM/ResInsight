@@ -12,18 +12,18 @@
     <title>Preferences :: ResInsight</title>
 
     
-    <link href="/css/nucleus.css?1623656032" rel="stylesheet">
-    <link href="/css/fontawesome-all.min.css?1623656032" rel="stylesheet">
-    <link href="/css/hybrid.css?1623656032" rel="stylesheet">
-    <link href="/css/featherlight.min.css?1623656032" rel="stylesheet">
-    <link href="/css/perfect-scrollbar.min.css?1623656032" rel="stylesheet">
-    <link href="/css/auto-complete.css?1623656032" rel="stylesheet">
-    <link href="/css/atom-one-dark-reasonable.css?1623656032" rel="stylesheet">
-    <link href="/css/theme.css?1623656032" rel="stylesheet">
-    <link href="/css/hugo-theme.css?1623656032" rel="stylesheet">
+    <link href="/css/nucleus.css?1624973053" rel="stylesheet">
+    <link href="/css/fontawesome-all.min.css?1624973053" rel="stylesheet">
+    <link href="/css/hybrid.css?1624973053" rel="stylesheet">
+    <link href="/css/featherlight.min.css?1624973053" rel="stylesheet">
+    <link href="/css/perfect-scrollbar.min.css?1624973053" rel="stylesheet">
+    <link href="/css/auto-complete.css?1624973053" rel="stylesheet">
+    <link href="/css/atom-one-dark-reasonable.css?1624973053" rel="stylesheet">
+    <link href="/css/theme.css?1624973053" rel="stylesheet">
+    <link href="/css/hugo-theme.css?1624973053" rel="stylesheet">
     
 
-    <script src="/js/jquery-3.3.1.min.js?1623656032"></script>
+    <script src="/js/jquery-3.3.1.min.js?1624973053"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -1599,6 +1599,25 @@
  
   
     
+      <li data-nav-id="/import/eclipsesummarydata/" title="Eclipse Summary Data" class="dd-item ">
+        <a href="/import/eclipsesummarydata/">
+        Eclipse Summary Data
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
       <li data-nav-id="/import/lasfile/" title="Log ASCII Standard File" class="dd-item ">
         <a href="/import/lasfile/">
         Log ASCII Standard File
@@ -2244,13 +2263,18 @@ if (!doNotTrack) {
             <li><a href="#other">Other</a></li>
           </ul>
         </li>
-        <li><a href="#eclipse---tab">Eclipse - tab</a>
+        <li><a href="#eclipse-grid">Eclipse Grid</a>
           <ul>
             <li><a href="#behavior-when-loading-data">Behavior When Loading Data</a></li>
+          </ul>
+        </li>
+        <li><a href="#eclipse-summary">Eclipse Summary</a>
+          <ul>
             <li><a href="#origin-files">Origin Files</a></li>
           </ul>
         </li>
-        <li><a href="#plotting---tab">Plotting - tab</a></li>
+        <li><a href="#summary-data-import">Summary Data Import</a></li>
+        <li><a href="#plotting">Plotting</a></li>
         <li><a href="#scripting---tab">Scripting - tab</a>
           <ul>
             <li><a href="#octave">Octave</a></li>
@@ -2287,7 +2311,7 @@ if (!doNotTrack) {
 
 
 <p>In this section the different settings that controls the default behavior of ResInsight is described. These settings can be controlled using the <strong>Preference</strong> dialog available from the <strong>Edit -&gt; Preferences</strong> menu.</p>
-<p><img src="/images/3d-main-window/Preferences.png" alt=""></p>
+<p><img src="/images/misc/PreferencesGeneral.png" alt=""></p>
 <p>When changing the preferences, any default color, font or Z-scale Factor that has not been changed by the user in the various views, will be applied immediately. If the user has changed font sizes in specific plots or annotations from the default value, ResInsight will ask if the user wants the new defaults applied to all existing views and plots even where custom settings have been set.</p>
 <p><img src="/images/3d-main-window/Preferences_ApplyToAll.png" alt=""></p>
 <p>The preferences are not stored in the project files, but rather in a platform specific way for each user.</p>
@@ -2315,18 +2339,17 @@ if (!doNotTrack) {
 <li><strong>Navigation mode</strong> &ndash; Defines how to use the mouse to interact with with the 3D model. Please refer to <a href="/getting-started/modelnavigation/">Model Navigation</a> for details.</li>
 <li><strong>Default Z Scale Factor</strong> &ndash; Default depth scale for grid models.</li>
 <li><strong>Show Box around Legends</strong> &ndash; Create a semi-transparent box containing each legend in the 3D Views.</li>
-<li><strong>Use shaders</strong> &ndash; This option controls the use of OpenGL shaders. Should be left <strong>On</strong>. Available only for testing purposes.</li>
-<li><strong>Show 3D Information</strong> &ndash; Displays graphical resource usage as text in the 3D view.</li>
+<li><strong>Enable Faults by Default</strong> &ndash; Controls default visibility of faults in views</li>
+<li><strong>Show Info Box in New Projects</strong> &ndash; Controls default visibility Info Box in upper right corner</li>
+<li><strong>Show Grid Box in New Projects</strong> &ndash; Controls default visibility of grid box</li>
 </ul>
 <h3 id="other">Other</h3>
 <ul>
-<li><strong>Date Format</strong> &ndash; Defines the date format to be used in time legend plotting</li>
-<li><strong>Time Format</strong> &ndash; Defines the time format to be used in time legend plotting</li>
 <li><strong>SSIHUB Address</strong> &ndash; Optional URL to Equinor internal web service used to import well paths</li>
 <li><strong>Show LAS Curve Without TVD Warning</strong> - Turn off the warning displayed when showing LAS curves in TVD mode</li>
 </ul>
-<h2 id="eclipse---tab">Eclipse - tab</h2>
-<p><img src="/images/3d-main-window/EclipsePreferences.png" alt=""></p>
+<h2 id="eclipse-grid">Eclipse Grid</h2>
+<p><img src="/images/misc/PreferencesEclipseGrid.png" alt=""></p>
 <h3 id="behavior-when-loading-data">Behavior When Loading Data</h3>
 <ul>
 <li><strong>Compute DEPTH Related Properties</strong> &ndash; If not present, compute DEPTH, DX, DY, DZ, TOP, BOTTOM when loading new cases.</li>
@@ -2336,9 +2359,25 @@ if (!doNotTrack) {
 <li><strong>Use Result Index File</strong> &ndash; If enabled ResInsight will try to save a result index file when opening a new case. The file is stored in the same directory as the <em><code>*.EGRID</code></em> file with filename <em><code>&lt;casename&gt;.RESINSIGHT_IDX</code></em> If it exists, ResInsight will use this when loading the case, resulting in a significant speedup.</li>
 <li><strong>Skip Import of Simulation Well Data</strong> &ndash; Disable import of simulation well data for a case to reduce case import time (opposite toggling than the other import commands).</li>
 </ul>
+<h2 id="eclipse-summary">Eclipse Summary</h2>
+<p><img src="/images/misc/PreferencesEclipseSummary.png" alt=""></p>
 <h3 id="origin-files">Origin Files</h3>
-<p>Please refer to <a href="/plot-window/summaryplots/">Summary Origin</a> for details related to handling of <strong>Origin Files</strong>.</p>
-<h2 id="plotting---tab">Plotting - tab</h2>
+<p>Please refer to <a href="/import/eclipsesummarydata/#origin-files">Summary Origin</a> for details related to handling of <strong>Origin Files</strong>.</p>
+<h2 id="summary-data-import">Summary Data Import</h2>
+<ul>
+<li><strong>File Format</strong>: Defines the file reader for summary data import
+<ul>
+<li><strong>h5 (HDF5)</strong> Import data from  h5 files</li>
+<li><strong>UNSMRY (libecl)</strong> Import data from native UNSMRY files</li>
+<li><strong>LODSMRY (opm-common)</strong> Experimental file format used by opm-flow</li>
+</ul>
+</li>
+<li><strong>Create h5 Summary Files</strong> : If no <strong>h5</strong> file is present on disk, import curve data from <strong>UNSMRY</strong> and export to a <strong>h5</strong> file in the same folder</li>
+<li><strong>Check File Timestamp</strong> : Update content of <strong>h5</strong> file if <strong>UNSMRY</strong> has new data</li>
+<li><strong>h5 Summary Export Thread Count</strong> : Defines number of threads when creating <strong>h5</strong> files</li>
+</ul>
+<p>Please refer to <a href="/import/eclipsesummarydata/#summary-data-file-formats">Ensemble Summary</a> for more details.</p>
+<h2 id="plotting">Plotting</h2>
 <p><img src="/images/misc/PreferencesPlotting.png" alt=""></p>
 <ul>
 <li><strong>Default Summary Curves</strong>: Defines default curves for import when creating a new summary plot, e.g. <code>FOPT WOPT*</code></li>
@@ -3710,6 +3749,22 @@ if (!doNotTrack) {
             
         
                     
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
             
         
                     
@@ -4060,19 +4115,19 @@ if (!doNotTrack) {
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/js/clipboard.min.js?1623656032"></script>
-    <script src="/js/perfect-scrollbar.min.js?1623656032"></script>
-    <script src="/js/perfect-scrollbar.jquery.min.js?1623656032"></script>
-    <script src="/js/jquery.sticky.js?1623656032"></script>
-    <script src="/js/featherlight.min.js?1623656032"></script>
-    <script src="/js/highlight.pack.js?1623656032"></script>
+    <script src="/js/clipboard.min.js?1624973053"></script>
+    <script src="/js/perfect-scrollbar.min.js?1624973053"></script>
+    <script src="/js/perfect-scrollbar.jquery.min.js?1624973053"></script>
+    <script src="/js/jquery.sticky.js?1624973053"></script>
+    <script src="/js/featherlight.min.js?1624973053"></script>
+    <script src="/js/highlight.pack.js?1624973053"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/js/modernizr.custom-3.6.0.js?1623656032"></script>
-    <script src="/js/learn.js?1623656032"></script>
-    <script src="/js/hugo-learn.js?1623656032"></script>
+    <script src="/js/modernizr.custom-3.6.0.js?1624973053"></script>
+    <script src="/js/learn.js?1624973053"></script>
+    <script src="/js/hugo-learn.js?1624973053"></script>
 
-    <link href="/mermaid/mermaid.css?1623656032" rel="stylesheet" />
-    <script src="/mermaid/mermaid.js?1623656032"></script>
+    <link href="/mermaid/mermaid.css?1624973053" rel="stylesheet" />
+    <script src="/mermaid/mermaid.js?1624973053"></script>
     <script>
         mermaid.initialize({ startOnLoad: true });
     </script>
