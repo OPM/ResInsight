@@ -41,7 +41,7 @@ CAF_CMD_SOURCE_INIT( RicNewValveAtMeasuredDepthFeature, "RicNewValveAtMeasuredDe
 //--------------------------------------------------------------------------------------------------
 void RicNewValveAtMeasuredDepthFeature::onActionTriggered( bool isChecked )
 {
-    RiuWellPathSelectionItem* wellPathSelItem = wellPathSelectionItem();
+    RiuWellPathSelectionItem* wellPathSelItem = RiuWellPathSelectionItem::wellPathSelectionItem();
     CVF_ASSERT( wellPathSelItem );
 
     RimWellPath* wellPath = wellPathSelItem->m_wellpath;
@@ -91,23 +91,11 @@ void RicNewValveAtMeasuredDepthFeature::setupActionLook( QAction* actionToSetup 
 //--------------------------------------------------------------------------------------------------
 bool RicNewValveAtMeasuredDepthFeature::isCommandEnabled()
 {
-    if ( wellPathSelectionItem() && dynamic_cast<RimPerforationInterval*>( wellPathSelectionItem()->m_wellPathComponent ) )
+    auto wellPathSelectionItem = RiuWellPathSelectionItem::wellPathSelectionItem();
+    if ( wellPathSelectionItem && dynamic_cast<RimPerforationInterval*>( wellPathSelectionItem->m_wellPathComponent ) )
     {
         return true;
     }
 
     return false;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RiuWellPathSelectionItem* RicNewValveAtMeasuredDepthFeature::wellPathSelectionItem()
-{
-    Riu3dSelectionManager* riuSelManager = Riu3dSelectionManager::instance();
-    RiuSelectionItem*      selItem       = riuSelManager->selectedItem( Riu3dSelectionManager::RUI_TEMPORARY );
-
-    RiuWellPathSelectionItem* wellPathItem = dynamic_cast<RiuWellPathSelectionItem*>( selItem );
-
-    return wellPathItem;
 }

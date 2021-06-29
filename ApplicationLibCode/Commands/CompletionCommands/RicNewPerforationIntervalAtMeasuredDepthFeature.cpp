@@ -41,7 +41,7 @@ CAF_CMD_SOURCE_INIT( RicNewPerforationIntervalAtMeasuredDepthFeature, "RicNewPer
 //--------------------------------------------------------------------------------------------------
 void RicNewPerforationIntervalAtMeasuredDepthFeature::onActionTriggered( bool isChecked )
 {
-    RiuWellPathSelectionItem* wellPathSelItem = wellPathSelectionItem();
+    RiuWellPathSelectionItem* wellPathSelItem = RiuWellPathSelectionItem::wellPathSelectionItem();
     CVF_ASSERT( wellPathSelItem );
 
     RimWellPath* wellPath = wellPathSelItem->m_wellpath;
@@ -67,19 +67,6 @@ void RicNewPerforationIntervalAtMeasuredDepthFeature::onActionTriggered( bool is
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuWellPathSelectionItem* RicNewPerforationIntervalAtMeasuredDepthFeature::wellPathSelectionItem()
-{
-    Riu3dSelectionManager* riuSelManager = Riu3dSelectionManager::instance();
-    RiuSelectionItem*      selItem       = riuSelManager->selectedItem( Riu3dSelectionManager::RUI_TEMPORARY );
-
-    RiuWellPathSelectionItem* wellPathItem = dynamic_cast<RiuWellPathSelectionItem*>( selItem );
-
-    return wellPathItem;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RicNewPerforationIntervalAtMeasuredDepthFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setIcon( QIcon( ":/PerforationIntervals16x16.png" ) );
@@ -91,7 +78,7 @@ void RicNewPerforationIntervalAtMeasuredDepthFeature::setupActionLook( QAction* 
 //--------------------------------------------------------------------------------------------------
 bool RicNewPerforationIntervalAtMeasuredDepthFeature::isCommandEnabled()
 {
-    if ( wellPathSelectionItem() )
+    if ( RiuWellPathSelectionItem::wellPathSelectionItem() )
     {
         return true;
     }

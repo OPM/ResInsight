@@ -20,7 +20,6 @@
 
 #include "cafCmdFeature.h"
 
-class RiuWellPathSelectionItem;
 class RimWellPath;
 
 //==================================================================================================
@@ -37,7 +36,4 @@ public:
 
     static RimWellPath* createLateralAtMeasuredDepth( RimWellPath* parentWellPath, double parentWellMD );
     static QString      updateNameOfParentAndFindNameOfSideStep( RimWellPath* parentWellPath );
-
-private:
-    static RiuWellPathSelectionItem* wellPathSelectionItem();
 };

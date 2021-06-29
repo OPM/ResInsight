@@ -38,10 +38,7 @@ CAF_CMD_SOURCE_INIT( RicNewWellPathStimPlanModelAtPosFeature, "RicNewWellPathSti
 //--------------------------------------------------------------------------------------------------
 void RicNewWellPathStimPlanModelAtPosFeature::onActionTriggered( bool isChecked )
 {
-    Riu3dSelectionManager* riuSelManager = Riu3dSelectionManager::instance();
-    RiuSelectionItem*      selItem       = riuSelManager->selectedItem( Riu3dSelectionManager::RUI_TEMPORARY );
-
-    RiuWellPathSelectionItem* wellPathItem = dynamic_cast<RiuWellPathSelectionItem*>( selItem );
+    RiuWellPathSelectionItem* wellPathItem = RiuWellPathSelectionItem::wellPathSelectionItem();
     if ( !wellPathItem ) return;
 
     RimWellPath* wellPath = wellPathItem->m_wellpath;
