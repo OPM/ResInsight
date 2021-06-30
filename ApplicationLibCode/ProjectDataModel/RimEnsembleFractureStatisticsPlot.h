@@ -51,6 +51,7 @@ protected:
                                                          bool*                      useOptionsOnly ) override;
 
     QString createAutoName() const override;
+    QString createXAxisTitle() const override;
 
     void             setDefaults();
     bool             hasStatisticsData() const override;

@@ -314,3 +314,22 @@ QString RimGridStatisticsPlot::timeStepString() const
 
     return "";
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimGridStatisticsPlot::createXAxisTitle() const
+{
+    if ( m_case() == nullptr ) return "";
+
+    QStringList nameTags;
+    nameTags += m_property()->resultVariable();
+
+    QString timeStepStr = timeStepString();
+    if ( !timeStepStr.isEmpty() )
+    {
+        nameTags += timeStepStr;
+    }
+
+    return nameTags.join( ", " );
+}

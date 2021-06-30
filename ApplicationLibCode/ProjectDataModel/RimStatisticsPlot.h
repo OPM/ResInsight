@@ -79,6 +79,9 @@ protected:
     virtual RigHistogramData createStatisticsData() const = 0;
     virtual QString          createAutoName() const       = 0;
 
+    virtual QString createXAxisTitle() const = 0;
+    virtual QString createYAxisTitle() const;
+
     void performAutoNameUpdate();
 
 private:

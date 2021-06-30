@@ -62,6 +62,8 @@ protected:
     QString createAutoName() const override;
     QString timeStepString() const;
 
+    QString createXAxisTitle() const override;
+
     void             setDefaults();
     bool             hasStatisticsData() const override;
     RigHistogramData createStatisticsData() const override;

@@ -311,11 +311,13 @@ void RimStatisticsPlot::updatePlots()
     QValueAxis* axisX = new QValueAxis();
     axisX->setRange( histogramData.min - xAxisExtension, histogramData.max + xAxisExtension );
     axisX->setLabelFormat( RiaNumberFormat::sprintfFormat( m_tickNumberFormat(), m_precision ) );
+    axisX->setTitleText( createXAxisTitle() );
     chart->addAxis( axisX, Qt::AlignBottom );
 
     QValueAxis* axisY = new QValueAxis();
     axisY->setRange( minValue, maxValue );
     axisY->setLabelFormat( RiaNumberFormat::sprintfFormat( m_tickNumberFormat(), m_precision ) );
+    axisY->setTitleText( createYAxisTitle() );
     chart->addAxis( axisY, Qt::AlignLeft );
 
     if ( !std::isinf( histogramData.p10 ) )
@@ -381,4 +383,12 @@ void RimStatisticsPlot::performAutoNameUpdate()
     QString name      = createAutoName();
     m_plotWindowTitle = name;
     setUiName( name );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimStatisticsPlot::createYAxisTitle() const
+{
+    return caf::AppEnum<RimStatisticsPlot::HistogramFrequencyType>::uiText( m_histogramFrequencyType() );
 }
