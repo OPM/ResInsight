@@ -51,6 +51,12 @@ public:
         RELATIVE_FREQUENCY_PERCENT
     };
 
+    enum class GraphType
+    {
+        BAR_GRAPH,
+        LINE_GRAPH
+    };
+
     RimStatisticsPlot();
     ~RimStatisticsPlot() override;
 
@@ -101,4 +107,5 @@ protected:
     caf::PdmField<caf::AppEnum<HistogramFrequencyType>>            m_histogramFrequencyType;
     caf::PdmField<int>                                             m_precision;
     caf::PdmField<caf::AppEnum<RiaNumberFormat::NumberFormatType>> m_tickNumberFormat;
+    caf::PdmField<caf::AppEnum<GraphType>>                         m_graphType;
 };

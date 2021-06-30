@@ -62,6 +62,15 @@ void caf::AppEnum<RimStatisticsPlot::HistogramFrequencyType>::setUp()
              "Relative Frequency [%]" );
     setDefault( RimStatisticsPlot::HistogramFrequencyType::ABSOLUTE_FREQUENCY );
 }
+template <>
+void caf::AppEnum<RimStatisticsPlot::GraphType>::setUp()
+
+{
+    addItem( RimStatisticsPlot::GraphType::BAR_GRAPH, "BAR_GRAPH", "Bar Graph" );
+    addItem( RimStatisticsPlot::GraphType::LINE_GRAPH, "LINE_GRAPH", "Line Graph" );
+    setDefault( RimStatisticsPlot::GraphType::BAR_GRAPH );
+}
+
 } // namespace caf
 
 CAF_PDM_ABSTRACT_SOURCE_INIT( RimStatisticsPlot, "StatisticsPlot" );
@@ -77,7 +86,7 @@ RimStatisticsPlot::RimStatisticsPlot()
     CAF_PDM_InitField( &m_numHistogramBins, "NumHistogramBins", 50, "Number of Bins", "", "", "" );
     m_numHistogramBins.uiCapability()->setUiEditorTypeName( caf::PdmUiLineEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitField( &m_histogramBarColor, "HistogramBarColor", cvf::Color3f( cvf::Color3f::SKY_BLUE ), "Bar Color", "", "", "" );
+    CAF_PDM_InitField( &m_histogramBarColor, "HistogramBarColor", cvf::Color3f( cvf::Color3f::SKY_BLUE ), "Color", "", "", "" );
 
     CAF_PDM_InitField( &m_histogramGapWidth, "HistogramGapWidth", 0.0, "Gap Width [%]", "", "", "" );
     m_histogramGapWidth.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
@@ -98,6 +107,8 @@ RimStatisticsPlot::RimStatisticsPlot()
                        "",
                        "",
                        "" );
+
+    CAF_PDM_InitFieldNoDefault( &m_graphType, "GraphType", "Graph Type", "", "", "" );
 
     m_plotLegendsHorizontal.uiCapability()->setUiHidden( true );
 
@@ -166,6 +177,7 @@ QImage RimStatisticsPlot::snapshotWindowContent()
 QWidget* RimStatisticsPlot::createViewWidget( QWidget* mainWindowParent )
 {
     m_viewer = new RiuQtChartView( this, mainWindowParent );
+    m_viewer->setRenderHint( QPainter::Antialiasing );
     return m_viewer;
 }
 
@@ -248,7 +260,8 @@ void RimStatisticsPlot::uiOrderingForHistogram( QString uiConfigName, caf::PdmUi
     caf::PdmUiGroup* histogramGroup = uiOrdering.addNewGroup( "Histogram" );
     if ( showHistogramBins ) histogramGroup->add( &m_numHistogramBins );
     histogramGroup->add( &m_histogramBarColor );
-    histogramGroup->add( &m_histogramGapWidth );
+    histogramGroup->add( &m_graphType );
+    if ( m_graphType == GraphType::BAR_GRAPH ) histogramGroup->add( &m_histogramGapWidth );
     histogramGroup->add( &m_histogramFrequencyType );
     histogramGroup->add( &m_precision );
     histogramGroup->add( &m_tickNumberFormat );
@@ -280,33 +293,49 @@ void RimStatisticsPlot::updatePlots()
     double   minValue = std::numeric_limits<double>::max();
     double   maxValue = -std::numeric_limits<double>::max();
 
+    QColor color = RiaColorTools::toQColor( m_histogramBarColor );
+
     // Make border same color as bar when user wants max bar width
     if ( m_histogramGapWidth() == 0.0 )
     {
-        set0->setBorderColor( RiaColorTools::toQColor( m_histogramBarColor ) );
+        set0->setBorderColor( color );
     }
 
     double sumElements = 0.0;
     for ( double value : histogramData.histogram )
         sumElements += value;
 
+    QLineSeries* lineSeries = new QLineSeries();
+    lineSeries->setName( m_plotWindowTitle );
+
+    QPen pen( color );
+    pen.setWidth( 2 );
+    lineSeries->setPen( pen );
+
+    double binSize   = ( histogramData.max - histogramData.min ) / histogramData.histogram.size();
+    double binCenter = histogramData.min;
     for ( double value : histogramData.histogram )
     {
         if ( m_histogramFrequencyType() == HistogramFrequencyType::RELATIVE_FREQUENCY ) value /= sumElements;
         if ( m_histogramFrequencyType() == HistogramFrequencyType::RELATIVE_FREQUENCY_PERCENT )
             value = value / sumElements * 100.0;
         *set0 << value;
+        *lineSeries << QPointF( binCenter, value );
+        binCenter += binSize;
+
         minValue = std::min( minValue, value );
         maxValue = std::max( maxValue, value );
     }
-    set0->setColor( RiaColorTools::toQColor( m_histogramBarColor ) );
+    set0->setColor( color );
+    lineSeries->setColor( color );
 
     QBarSeries* series = new QBarSeries();
     series->setBarWidth( ( 100.0 - m_histogramGapWidth() ) / 100.0 );
     series->append( set0 );
 
     QChart* chart = new QChart();
-    chart->addSeries( series );
+    if ( m_graphType == GraphType::BAR_GRAPH ) chart->addSeries( series );
+    if ( m_graphType == GraphType::LINE_GRAPH ) chart->addSeries( lineSeries );
     chart->setTitle( uiName() );
 
     // Axis
