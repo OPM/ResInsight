@@ -164,3 +164,13 @@ QString RimEnsembleFractureStatisticsPlot::createAutoName() const
 
     return nameTags.join( ", " );
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimEnsembleFractureStatisticsPlot::createXAxisTitle() const
+{
+    if ( m_ensembleFractureStatistics() == nullptr ) return "";
+
+    return caf::AppEnum<RigEnsembleFractureStatisticsCalculator::PropertyType>::uiText( m_property() );
+}
