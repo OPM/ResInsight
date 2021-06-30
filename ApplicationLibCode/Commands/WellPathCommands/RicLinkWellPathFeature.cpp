@@ -81,7 +81,11 @@ RimWellPathGeometryDef* RicLinkWellPathFeature::wellPathGeometryDef()
     auto wellPathSelectionItem = RiuWellPathSelectionItem::wellPathSelectionItem();
     if ( wellPathSelectionItem && wellPathSelectionItem->m_wellpath )
     {
-        auto modeledWellPath = dynamic_cast<RimModeledWellPath*>( wellPathSelectionItem->m_wellpath );
-        return modeledWellPath->geometryDefinition();
+        if ( auto modeledWellPath = dynamic_cast<RimModeledWellPath*>( wellPathSelectionItem->m_wellpath ) )
+        {
+            return modeledWellPath->geometryDefinition();
+        }
     }
+
+    return nullptr;
 }
