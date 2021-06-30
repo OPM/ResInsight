@@ -47,7 +47,8 @@ public:
     enum class HistogramFrequencyType
     {
         ABSOLUTE_FREQUENCY,
-        RELATIVE_FREQUENCY
+        RELATIVE_FREQUENCY,
+        RELATIVE_FREQUENCY_PERCENT
     };
 
     RimStatisticsPlot();
