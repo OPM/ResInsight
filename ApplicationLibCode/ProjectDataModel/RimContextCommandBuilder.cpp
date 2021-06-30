@@ -897,7 +897,9 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         }
         else if ( dynamic_cast<Rim3dOverlayInfoConfig*>( firstUiItem ) )
         {
+#ifdef USE_QTCHARTS
             menuBuilder << "RicCreateGridStatisticsPlotFeature";
+#endif
             menuBuilder << "RicShowGridStatisticsFeature";
         }
         else if ( dynamic_cast<RimSimWellFracture*>( firstUiItem ) )
