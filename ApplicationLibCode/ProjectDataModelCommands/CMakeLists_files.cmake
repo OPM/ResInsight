@@ -10,6 +10,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RimcStimPlanModelTemplateCollection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimcStimPlanModelPlotCollection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimcStimPlanModel.h
 ${CMAKE_CURRENT_LIST_DIR}/RimcSurfaceCollection.h
+${CMAKE_CURRENT_LIST_DIR}/RimcSurface.h
 ${CMAKE_CURRENT_LIST_DIR}/RimcDataContainerDouble.h
 ${CMAKE_CURRENT_LIST_DIR}/RimcDataContainerString.h
 ${CMAKE_CURRENT_LIST_DIR}/RimcDataContainerTime.h
@@ -31,6 +32,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RimcStimPlanModelTemplateCollection.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimcStimPlanModelPlotCollection.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimcStimPlanModel.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimcSurfaceCollection.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimcSurface.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimcDataContainerDouble.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimcDataContainerString.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimcDataContainerTime.cpp

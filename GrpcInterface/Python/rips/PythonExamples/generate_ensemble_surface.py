@@ -47,3 +47,12 @@ for path in case_file_paths:
         print("Generating surface K layer " + str(k_index) + " for case " + path_name)
 
         surface = surface_collection.new_surface(case, k_index)
+        print("Surface: ", surface)
+
+        parent_path = path.parent
+        export_folder_path = Path(parent_path, "surfaceexport")
+        export_folder_path.mkdir(parents=True, exist_ok=True)
+
+        export_file = Path(export_folder_path, "surf_" + str(k_index) + ".ts")
+        print("Exporting to " + export_file.as_posix())
+        surface.export_to_file(export_file.as_posix())
