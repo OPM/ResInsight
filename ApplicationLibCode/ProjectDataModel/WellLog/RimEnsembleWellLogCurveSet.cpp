@@ -39,6 +39,8 @@
 #include "RimWellLogPlot.h"
 #include "RimWellLogTrack.h"
 
+#include "RigWellLogIndexDepthOffset.h"
+
 #include "RiuAbstractLegendFrame.h"
 #include "RiuDraggableOverlayFrame.h"
 #include "RiuPlotMainWindow.h"
@@ -48,6 +50,8 @@
 #include "cafPdmObject.h"
 #include "cafPdmUiItem.h"
 #include "cafPdmUiTreeOrdering.h"
+
+#include "cvfObject.h"
 
 #include "qwt_plot_curve.h"
 #include "qwt_symbol.h"
@@ -97,6 +101,7 @@ RimEnsembleWellLogCurveSet::RimEnsembleWellLogCurveSet()
     CAF_PDM_InitFieldNoDefault( &m_wellLogChannelName, "WellLogChannelName", "Well Log Channel Name", "", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_ensembleCurveSet, "FilterEnsembleCurveSet", "Filter by Ensemble Curve Set", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_depthEqualization, "DepthEqualization", "Depth Equalization", "", "", "" );
 
     CAF_PDM_InitField( &m_colorMode, "ColorMode", caf::AppEnum<ColorMode>( ColorMode::SINGLE_COLOR ), "Coloring Mode", "", "", "" );
 
@@ -397,6 +402,11 @@ void RimEnsembleWellLogCurveSet::fieldChangedByUi( const caf::PdmFieldHandle* ch
         updateAllCurves();
         updateTextInPlot = true;
     }
+    else if ( changedField == &m_depthEqualization )
+    {
+        updateAllCurves();
+        updateTextInPlot = true;
+    }
     else if ( changedField == &m_color )
     {
         updateCurveColors();
@@ -437,6 +447,7 @@ void RimEnsembleWellLogCurveSet::defineUiOrdering( QString uiConfigName, caf::Pd
     uiOrdering.add( &m_ensembleWellLogs );
     uiOrdering.add( &m_wellLogChannelName );
     uiOrdering.add( &m_ensembleCurveSet );
+    uiOrdering.add( &m_depthEqualization );
 
     appendColorGroup( uiOrdering );
 
@@ -734,6 +745,12 @@ void RimEnsembleWellLogCurveSet::updateEnsembleCurves( const std::vector<RimWell
 
     if ( m_statistics->hideEnsembleCurves() ) return;
 
+    cvf::ref<RigWellLogIndexDepthOffset> offsets;
+    if ( m_depthEqualization() == RimEnsembleWellLogStatistics::DepthEqualization::K_LAYER )
+    {
+        offsets = RimEnsembleWellLogStatistics::calculateIndexDepthOffset( sumCases );
+    }
+
     m_qwtPlotCurveForLegendText->attach( plotTrack->viewer() );
 
     QString wellLogChannelName = m_wellLogChannelName();
@@ -771,6 +788,7 @@ void RimEnsembleWellLogCurveSet::updateEnsembleCurves( const std::vector<RimWell
                 curve->setWellLogChannelName( wellLogChannelName );
                 curve->setWellLogFile( wellLogFile );
 
+                if ( !offsets.isNull() ) curve->setIndexDepthOffsets( offsets );
                 curve->loadDataAndUpdate( true );
 
                 curve->updateCurveVisibility();
@@ -814,7 +832,7 @@ void RimEnsembleWellLogCurveSet::updateStatistics( const std::vector<RimWellLogF
             wellLogFiles = ensembleWellLogs->wellLogFiles();
     }
 
-    m_ensembleWellLogStatistics->calculate( wellLogFiles, wellLogChannelName );
+    m_ensembleWellLogStatistics->calculate( wellLogFiles, wellLogChannelName, m_depthEqualization() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -896,6 +914,14 @@ void RimEnsembleWellLogCurveSet::updateStatisticsCurves()
 void RimEnsembleWellLogCurveSet::showCurves( bool show )
 {
     m_showCurves = show;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimEnsembleWellLogStatistics::DepthEqualization RimEnsembleWellLogCurveSet::depthEqualization() const
+{
+    return m_depthEqualization();
 }
 
 //--------------------------------------------------------------------------------------------------

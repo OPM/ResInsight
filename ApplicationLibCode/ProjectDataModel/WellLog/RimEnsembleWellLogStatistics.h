@@ -20,11 +20,15 @@
 
 #include "RiaDefines.h"
 
+#include <cvfObject.h>
+
 #include <vector>
 
 class QString;
 
 class RimWellLogFile;
+
+class RigWellLogIndexDepthOffset;
 
 //==================================================================================================
 ///
@@ -38,6 +42,12 @@ public:
         P50,
         P90,
         MEAN
+    };
+
+    enum class DepthEqualization
+    {
+        K_LAYER,
+        NONE
     };
 
     RimEnsembleWellLogStatistics();
@@ -56,9 +66,17 @@ public:
     bool hasP90Data() const;
     bool hasMeanData() const;
 
-    void calculate( const std::vector<RimWellLogFile*>& sumCases, const QString& wellLogChannelName );
+    void calculate( const std::vector<RimWellLogFile*>& sumCases,
+                    const QString&                      wellLogChannelName,
+                    DepthEqualization                   depthEqualization );
+
+    static cvf::ref<RigWellLogIndexDepthOffset>
+        calculateIndexDepthOffset( const std::vector<RimWellLogFile*>& wellLogFiles );
 
 private:
+    void calculate( const std::vector<RimWellLogFile*>& sumCases, const QString& wellLogChannelName );
+    void calculateByKLayer( const std::vector<RimWellLogFile*>& sumCases, const QString& wellLogChannelName );
+
     void clearData();
 
     QString                   m_logChannelUnitString;
