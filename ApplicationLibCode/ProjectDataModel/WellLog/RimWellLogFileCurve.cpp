@@ -22,7 +22,9 @@
 #include "RiaLogging.h"
 #include "RiaPreferences.h"
 
+#include "RiaResultNames.h"
 #include "RigWellLogCurveData.h"
+#include "RigWellLogIndexDepthOffset.h"
 #include "RigWellPath.h"
 
 #include "RimProject.h"
@@ -93,6 +95,17 @@ void RimWellLogFileCurve::onLoadDataAndUpdate( bool updateParentPlot )
                 std::vector<double> tvdRkbValues        = wellLogFile->tvdRkbValues();
 
                 bool rkbDiff = m_wellPath->wellPathGeometry() ? m_wellPath->wellPathGeometry()->rkbDiff() : 0.0;
+
+                if ( !m_indexDepthOffsets.isNull() )
+                {
+                    // Adjust depths by reassigning depths for top and bottom of layer for each K layer
+                    std::vector<double> kIndexValues = wellLogFile->values( RiaResultNames::indexKResultName() );
+                    auto [valuesAdjusted, measuredDepthValuesAdjusted] =
+                        adjustByIndexDepthOffsets( measuredDepthValues, values, kIndexValues );
+
+                    values              = valuesAdjusted;
+                    measuredDepthValues = measuredDepthValuesAdjusted;
+                }
 
                 if ( tvdMslValues.size() != values.size() )
                 {
@@ -195,6 +208,55 @@ void RimWellLogFileCurve::onLoadDataAndUpdate( bool updateParentPlot )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::pair<std::vector<double>, std::vector<double>>
+    RimWellLogFileCurve::adjustByIndexDepthOffsets( const std::vector<double>& measuredDepthValues,
+                                                    const std::vector<double>& values,
+                                                    const std::vector<double>& kIndexValues ) const
+{
+    CAF_ASSERT( values.size() == kIndexValues.size() );
+
+    auto findFirstIndex = []( int kLayer, const std::vector<double>& vals ) {
+        for ( size_t i = 0; i < vals.size(); i++ )
+            if ( kLayer == static_cast<int>( vals[i] ) ) return i;
+
+        return vals.size();
+    };
+
+    auto findLastIndex = []( int kLayer, const std::vector<double>& vals ) {
+        for ( int i = static_cast<int>( vals.size() ) - 1; i >= 0; i-- )
+            if ( kLayer == static_cast<int>( vals[i] ) ) return static_cast<size_t>( i );
+
+        return vals.size();
+    };
+
+    std::vector<int> kIndexes = m_indexDepthOffsets->sortedIndexes();
+
+    std::vector<double> valuesAdjusted;
+    std::vector<double> measuredDepthValuesAdjusted;
+
+    for ( int kLayer : kIndexes )
+    {
+        size_t firstIndex = findFirstIndex( kLayer, kIndexValues );
+        size_t lastIndex  = findLastIndex( kLayer, kIndexValues );
+
+        if ( firstIndex != kIndexValues.size() && lastIndex != kIndexValues.size() )
+        {
+            // Add top
+            measuredDepthValuesAdjusted.push_back( m_indexDepthOffsets->getTopDepth( kLayer ) );
+            valuesAdjusted.push_back( values[firstIndex] );
+
+            // Add bottom of layer
+            measuredDepthValuesAdjusted.push_back( m_indexDepthOffsets->getBottomDepth( kLayer ) );
+            valuesAdjusted.push_back( values[lastIndex] );
+        }
+    }
+
+    return std::make_pair( valuesAdjusted, measuredDepthValuesAdjusted );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimWellLogFileCurve::setWellPath( RimWellPath* wellPath )
 {
     m_wellPath = wellPath;
@@ -222,6 +284,14 @@ void RimWellLogFileCurve::setWellLogChannelName( const QString& name )
 void RimWellLogFileCurve::setWellLogFile( RimWellLogFile* wellLogFile )
 {
     m_wellLogFile = wellLogFile;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogFileCurve::setIndexDepthOffsets( cvf::ref<RigWellLogIndexDepthOffset> depthOffsets )
+{
+    m_indexDepthOffsets = depthOffsets;
 }
 
 //--------------------------------------------------------------------------------------------------

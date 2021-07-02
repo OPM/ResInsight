@@ -89,7 +89,8 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RigSlice2D.h
     ${CMAKE_CURRENT_LIST_DIR}/RigEnsembleParameter.h
     ${CMAKE_CURRENT_LIST_DIR}/RigSurfaceResampler.h
-    ${CMAKE_CURRENT_LIST_DIR}/RigSurfaceStatisticsCalculator.h)
+    ${CMAKE_CURRENT_LIST_DIR}/RigSurfaceStatisticsCalculator.h
+    ${CMAKE_CURRENT_LIST_DIR}/RigWellLogIndexDepthOffset.h)
 
 set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RigActiveCellInfo.cpp
@@ -175,7 +176,8 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RigSlice2D.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigEnsembleParameter.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigSurfaceResampler.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RigSurfaceStatisticsCalculator.cpp)
+    ${CMAKE_CURRENT_LIST_DIR}/RigSurfaceStatisticsCalculator.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RigWellLogIndexDepthOffset.cpp)
 
 list(APPEND CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})
 

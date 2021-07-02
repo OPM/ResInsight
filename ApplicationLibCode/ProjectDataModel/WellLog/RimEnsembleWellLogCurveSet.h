@@ -22,6 +22,7 @@
 
 #include "RimEnsembleCurveSetColorManager.h"
 #include "RimEnsembleCurveSetInterface.h"
+#include "RimEnsembleWellLogStatistics.h"
 
 #include "RigEnsembleParameter.h"
 
@@ -45,7 +46,6 @@ class RimEnsembleStatisticsCase;
 class RimWellLogCurve;
 class RimWellLogFileCurve;
 class RimWellLogFile;
-class RimEnsembleWellLogStatistics;
 
 class RiuDraggableOverlayFrame;
 
@@ -112,7 +112,8 @@ public:
 
     void updateFilterLegend();
 
-    const RimEnsembleWellLogStatistics* ensembleWellLogStatistics() const;
+    const RimEnsembleWellLogStatistics*             ensembleWellLogStatistics() const;
+    RimEnsembleWellLogStatistics::DepthEqualization depthEqualization() const;
 
     void updateStatistics();
 
@@ -147,8 +148,9 @@ private:
 private:
     caf::PdmField<bool> m_showCurves;
 
-    caf::PdmPtrArrayField<RimWellLogCurve*> m_curves;
-    caf::PdmPointer<RimWellLogCurve>        m_currentWellLogCurve;
+    caf::PdmPtrArrayField<RimWellLogCurve*>                                      m_curves;
+    caf::PdmPointer<RimWellLogCurve>                                             m_currentWellLogCurve;
+    caf::PdmField<caf::AppEnum<RimEnsembleWellLogStatistics::DepthEqualization>> m_depthEqualization;
 
     caf::PdmField<caf::AppEnum<ColorMode>> m_colorMode;
     caf::PdmField<cvf::Color3f>            m_color;
