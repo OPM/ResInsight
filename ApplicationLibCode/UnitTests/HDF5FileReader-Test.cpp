@@ -90,7 +90,7 @@ TEST( HDFTests, ReadOpmSummaryData )
     hdf5SummaryReader.open( filePath, false, nullptr );
 
     auto addresses = hdf5SummaryReader.allResultAddresses();
-    EXPECT_EQ( size_t( 2770 ), addresses.size() );
+    EXPECT_EQ( size_t( 2786 ), addresses.size() );
 
     int    itemCount       = 0;
     size_t totalValueCount = 0;
