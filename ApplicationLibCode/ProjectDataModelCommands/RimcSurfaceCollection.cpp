@@ -19,7 +19,9 @@
 
 #include "SurfaceCommands/RicImportSurfacesFeature.h"
 
+#include "RimCase.h"
 #include "RimFileSurface.h"
+#include "RimGridCaseSurface.h"
 #include "RimSurface.h"
 #include "RimSurfaceCollection.h"
 
@@ -30,6 +32,7 @@
 
 CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimSurfaceCollection, RimcSurfaceCollection_importSurface, "ImportSurface" );
 CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimSurfaceCollection, RimcSurfaceCollection_addFolder, "AddFolder" );
+CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimSurfaceCollection, RimcSurfaceCollection_newSurface, "NewSurface" );
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -127,6 +130,55 @@ std::unique_ptr<caf::PdmObjectHandle> RimcSurfaceCollection_addFolder::defaultRe
 ///
 //--------------------------------------------------------------------------------------------------
 bool RimcSurfaceCollection_addFolder::isNullptrValidResult() const
+{
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimcSurfaceCollection_newSurface::RimcSurfaceCollection_newSurface( caf::PdmObjectHandle* self )
+    : caf::PdmObjectMethod( self )
+{
+    CAF_PDM_InitObject( "New Surface", "", "", "Create a new surface" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_case, "Case", "", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_kIndex, "KIndex", "", "", "", "" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+caf::PdmObjectHandle* RimcSurfaceCollection_newSurface::execute()
+{
+    RimSurfaceCollection* coll = self<RimSurfaceCollection>();
+    if ( coll && m_case )
+    {
+        RimSurface* surface = coll->addGridCaseSurface( m_case(), m_kIndex );
+        return surface;
+    }
+    return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimcSurfaceCollection_newSurface::resultIsPersistent() const
+{
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::unique_ptr<caf::PdmObjectHandle> RimcSurfaceCollection_newSurface::defaultResult() const
+{
+    return std::unique_ptr<caf::PdmObjectHandle>( new RimGridCaseSurface );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimcSurfaceCollection_newSurface::isNullptrValidResult() const
 {
     return true;
 }

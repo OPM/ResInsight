@@ -212,12 +212,10 @@ RimSurface* RimSurfaceCollection::copySurfaces( std::vector<RimSurface*> surface
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSurface* RimSurfaceCollection::addGridCaseSurface( RimCase* sourceCase )
+RimSurface* RimSurfaceCollection::addGridCaseSurface( RimCase* sourceCase, int oneBasedSliceIndex )
 {
     auto s = new RimGridCaseSurface;
     s->setCase( sourceCase );
-
-    int oneBasedSliceIndex = 1;
 
     s->setOneBasedIndex( oneBasedSliceIndex );
     s->setUserDescription( "Surface" );
