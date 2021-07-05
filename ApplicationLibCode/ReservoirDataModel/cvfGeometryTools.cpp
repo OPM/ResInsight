@@ -515,13 +515,13 @@ double GeometryTools::linePointSquareDist( const cvf::Vec3d& p1, const cvf::Vec3
 // dot product (3D) which allows vector operations in arguments
 #define dot( u, v ) ( ( u ).x() * ( v ).x() + ( u ).y() * ( v ).y() + ( u ).z() * ( v ).z() )
 
-int GeometryTools::intersectLineSegmentTriangle( const cvf::Vec3d p0,
-                                                 const cvf::Vec3d p1,
-                                                 const cvf::Vec3d t0,
-                                                 const cvf::Vec3d t1,
-                                                 const cvf::Vec3d t2,
-                                                 cvf::Vec3d*      intersectionPoint,
-                                                 bool*            isLineDirDotNormalNegative )
+int GeometryTools::intersectLineSegmentTriangle( const cvf::Vec3d& p0,
+                                                 const cvf::Vec3d& p1,
+                                                 const cvf::Vec3d& t0,
+                                                 const cvf::Vec3d& t1,
+                                                 const cvf::Vec3d& t2,
+                                                 cvf::Vec3d*       intersectionPoint,
+                                                 bool*             isLineDirDotNormalNegative )
 {
     CVF_TIGHT_ASSERT( intersectionPoint != nullptr );
     CVF_TIGHT_ASSERT( isLineDirDotNormalNegative != nullptr );
