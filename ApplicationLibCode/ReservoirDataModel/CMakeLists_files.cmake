@@ -90,6 +90,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RigStimPlanModelTools.h
 ${CMAKE_CURRENT_LIST_DIR}/RigSlice2D.h
 ${CMAKE_CURRENT_LIST_DIR}/RigEnsembleParameter.h
 ${CMAKE_CURRENT_LIST_DIR}/RigSurfaceResampler.h
+${CMAKE_CURRENT_LIST_DIR}/RigSurfaceStatisticsCalculator.h
 )
 
 
@@ -177,6 +178,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RigStimPlanModelTools.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RigSlice2D.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RigEnsembleParameter.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RigSurfaceResampler.cpp
+${CMAKE_CURRENT_LIST_DIR}/RigSurfaceStatisticsCalculator.cpp
 )
 
 list(APPEND CODE_HEADER_FILES
