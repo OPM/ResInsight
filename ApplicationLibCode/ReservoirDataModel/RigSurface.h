@@ -31,8 +31,8 @@ public:
     RigSurface();
     ~RigSurface() override;
 
-    const std::vector<unsigned>&   triangleIndices();
-    const std::vector<cvf::Vec3d>& vertices();
+    const std::vector<unsigned>&   triangleIndices() const;
+    const std::vector<cvf::Vec3d>& vertices() const;
 
     void setTriangleData( const std::vector<unsigned>& tringleIndices, const std::vector<cvf::Vec3d>& vertices );
     void addVerticeResult( const QString resultName, const std::vector<float>& resultValues );

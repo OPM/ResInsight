@@ -34,7 +34,7 @@ RigSurface::~RigSurface()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::vector<unsigned>& RigSurface::triangleIndices()
+const std::vector<unsigned>& RigSurface::triangleIndices() const
 {
     return m_triangleIndices;
 }
@@ -42,7 +42,7 @@ const std::vector<unsigned>& RigSurface::triangleIndices()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::vector<cvf::Vec3d>& RigSurface::vertices()
+const std::vector<cvf::Vec3d>& RigSurface::vertices() const
 {
     return m_vertices;
 }
