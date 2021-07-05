@@ -23,6 +23,7 @@
 #include "cafPdmObject.h"
 
 class RimSurface;
+class RimEnsembleSurface;
 class RimCase;
 
 class RimSurfaceCollection : public caf::PdmObject
@@ -35,6 +36,8 @@ public:
 
     void addSurface( RimSurface* surface );
     void setAsTopmostFolder();
+
+    void addEnsembleSurface( RimEnsembleSurface* ensembleSurface );
 
     RimSurface* importSurfacesFromFiles( const QStringList& fileNames, bool showLegend = true );
     RimSurface* addGridCaseSurface( RimCase* sourceCase, int oneBasedSliceIndex = 1 );
@@ -74,4 +77,5 @@ private:
     caf::PdmField<QString>                         m_collectionName;
     caf::PdmChildArrayField<RimSurface*>           m_surfaces;
     caf::PdmChildArrayField<RimSurfaceCollection*> m_subCollections;
+    caf::PdmChildArrayField<RimEnsembleSurface*>   m_ensembleSurfaces;
 };

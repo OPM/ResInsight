@@ -21,6 +21,7 @@
 #include "RiaColorTables.h"
 #include "RiaLogging.h"
 
+#include "RimEnsembleSurface.h"
 #include "RimFileSurface.h"
 #include "RimGridCaseSurface.h"
 #include "RimGridView.h"
@@ -56,6 +57,9 @@ RimSurfaceCollection::RimSurfaceCollection()
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_surfaces, "SurfacesField", "Surfaces", "", "", "" );
     m_surfaces.uiCapability()->setUiTreeHidden( true );
+
+    CAF_PDM_InitScriptableFieldNoDefault( &m_ensembleSurfaces, "EnsembleSurfaces", "Ensemble Surfaces", "", "", "" );
+    m_ensembleSurfaces.uiCapability()->setUiTreeHidden( true );
 
     setDeletable( true );
 }
@@ -106,6 +110,14 @@ caf::PdmFieldHandle* RimSurfaceCollection::userDescriptionField()
 void RimSurfaceCollection::addSurface( RimSurface* surface )
 {
     m_surfaces.push_back( surface );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSurfaceCollection::addEnsembleSurface( RimEnsembleSurface* ensembleSurface )
+{
+    m_ensembleSurfaces.push_back( ensembleSurface );
 }
 
 //--------------------------------------------------------------------------------------------------
