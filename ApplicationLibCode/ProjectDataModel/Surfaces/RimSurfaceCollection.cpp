@@ -268,6 +268,14 @@ std::vector<RimSurfaceCollection*> RimSurfaceCollection::subCollections() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::vector<RimEnsembleSurface*> RimSurfaceCollection::ensembleSurfaces() const
+{
+    return m_ensembleSurfaces.childObjects();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimSurfaceCollection::loadData()
 {
     for ( auto surf : m_surfaces )

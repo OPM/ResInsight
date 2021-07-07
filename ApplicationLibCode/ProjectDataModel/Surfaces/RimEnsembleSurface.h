@@ -23,6 +23,7 @@
 #include "cafPdmChildArrayField.h"
 
 class RimFileSurface;
+class RimSurface;
 
 //==================================================================================================
 ///
@@ -37,6 +38,8 @@ public:
     void addFileSurface( RimFileSurface* fileSurface );
 
     std::vector<RimFileSurface*> fileSurfaces() const;
+
+    std::vector<RimSurface*> surfaces() const;
 
     void loadDataAndUpdate();
 

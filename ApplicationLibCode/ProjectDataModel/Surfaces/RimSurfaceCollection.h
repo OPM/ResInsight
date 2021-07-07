@@ -67,6 +67,7 @@ public:
 
     std::vector<RimSurface*>           surfaces() const;
     std::vector<RimSurfaceCollection*> subCollections() const;
+    std::vector<RimEnsembleSurface*>   ensembleSurfaces() const;
 
 protected:
     caf::PdmFieldHandle* userDescriptionField() override;

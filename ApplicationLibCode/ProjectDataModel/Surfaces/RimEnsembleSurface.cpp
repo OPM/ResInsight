@@ -65,6 +65,18 @@ std::vector<RimFileSurface*> RimEnsembleSurface::fileSurfaces() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::vector<RimSurface*> RimEnsembleSurface::surfaces() const
+{
+    std::vector<RimSurface*> surfaces;
+    for ( auto fs : m_fileSurfaces.childObjects() )
+        surfaces.push_back( fs );
+
+    return surfaces;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimEnsembleSurface::loadDataAndUpdate()
 {
     for ( auto& w : m_fileSurfaces )
