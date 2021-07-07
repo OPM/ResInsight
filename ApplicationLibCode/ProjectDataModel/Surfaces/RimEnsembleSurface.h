@@ -22,8 +22,12 @@
 
 #include "cafPdmChildArrayField.h"
 
+#include "cvfObject.h"
+
 class RimFileSurface;
 class RimSurface;
+class RigSurface;
+class RimEnsembleStatisticsSurface;
 
 //==================================================================================================
 ///
@@ -43,6 +47,11 @@ public:
 
     void loadDataAndUpdate();
 
+    const RigSurface* statisticsSurface() const;
+
 private:
-    caf::PdmChildArrayField<RimFileSurface*> m_fileSurfaces;
+    caf::PdmChildArrayField<RimFileSurface*>               m_fileSurfaces;
+    caf::PdmChildArrayField<RimEnsembleStatisticsSurface*> m_statisticsSurfaces;
+
+    cvf::ref<RigSurface> m_statisticsSurface;
 };

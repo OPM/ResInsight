@@ -9,6 +9,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RimSurfaceInViewCollection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimSurfaceResultDefinition.h
 ${CMAKE_CURRENT_LIST_DIR}/RimEnsembleSurface.h
 ${CMAKE_CURRENT_LIST_DIR}/RimEnsembleSurfaceInView.h
+${CMAKE_CURRENT_LIST_DIR}/RimEnsembleStatisticsSurface.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -21,6 +22,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RimSurfaceInViewCollection.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimSurfaceResultDefinition.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimEnsembleSurface.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimEnsembleSurfaceInView.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimEnsembleStatisticsSurface.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

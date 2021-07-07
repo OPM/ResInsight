@@ -20,6 +20,10 @@
 
 #include "RiaLogging.h"
 
+#include "RigSurfaceResampler.h"
+#include "RigSurfaceStatisticsCalculator.h"
+
+#include "RimEnsembleStatisticsSurface.h"
 #include "RimFileSurface.h"
 
 #include "cafPdmFieldScriptingCapability.h"
@@ -36,6 +40,9 @@ RimEnsembleSurface::RimEnsembleSurface()
 
     CAF_PDM_InitFieldNoDefault( &m_fileSurfaces, "FileSurfaces", "", "", "", "" );
     m_fileSurfaces.uiCapability()->setUiHidden( true );
+
+    CAF_PDM_InitFieldNoDefault( &m_statisticsSurfaces, "StatisticsSurfaces", "", "", "", "" );
+    m_statisticsSurfaces.uiCapability()->setUiHidden( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -71,6 +78,9 @@ std::vector<RimSurface*> RimEnsembleSurface::surfaces() const
     for ( auto fs : m_fileSurfaces.childObjects() )
         surfaces.push_back( fs );
 
+    for ( auto s : m_statisticsSurfaces.childObjects() )
+        surfaces.push_back( s );
+
     return surfaces;
 }
 
@@ -86,4 +96,28 @@ void RimEnsembleSurface::loadDataAndUpdate()
             RiaLogging::warning( QString( "Failed to load surface: %1" ).arg( w->surfaceFilePath() ) );
         }
     }
+
+    if ( !m_fileSurfaces.empty() )
+    {
+        cvf::ref<RigSurface> firstSurface = m_fileSurfaces[0]->surfaceData();
+
+        std::vector<cvf::ref<RigSurface>> surfaces;
+        for ( auto& w : m_fileSurfaces )
+            surfaces.push_back( RigSurfaceResampler::resampleSurface( firstSurface, w->surfaceData() ) );
+
+        m_statisticsSurface = RigSurfaceStatisticsCalculator::computeStatistics( surfaces );
+        if ( !m_statisticsSurface.isNull() )
+        {
+            m_statisticsSurfaces.clear();
+            m_statisticsSurfaces.push_back( new RimEnsembleStatisticsSurface );
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const RigSurface* RimEnsembleSurface::statisticsSurface() const
+{
+    return m_statisticsSurface.p();
 }

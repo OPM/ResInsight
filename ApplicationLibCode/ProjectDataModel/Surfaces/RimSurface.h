@@ -71,11 +71,12 @@ protected:
     virtual bool updateSurfaceData()     = 0;
     virtual void clearCachedNativeData() = 0;
 
+protected:
+    cvf::ref<RigSurface> m_surfaceData;
+
 private:
     caf::PdmField<QString>           m_userDescription;
     caf::PdmField<cvf::Color3f>      m_color;
     caf::PdmField<double>            m_depthOffset;
     caf::PdmProxyValueField<QString> m_nameProxy;
-
-    cvf::ref<RigSurface> m_surfaceData;
 };

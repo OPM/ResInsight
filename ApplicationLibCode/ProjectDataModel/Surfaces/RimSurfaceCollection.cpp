@@ -282,6 +282,11 @@ void RimSurfaceCollection::loadData()
     {
         surf->loadDataIfRequired();
     }
+
+    for ( auto ensSurf : m_ensembleSurfaces )
+    {
+        ensSurf->loadDataAndUpdate();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
