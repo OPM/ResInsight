@@ -188,7 +188,7 @@ class Instance:
         # Main version check package
         self.app = App_pb2_grpc.AppStub(self.channel)
 
-        self._check_connection_and_version(self.channel, launched)
+        self._check_connection_and_version(self.channel, launched, location)
 
         # Intercept UNAVAILABLE errors and retry on failures
         interceptors = (
@@ -211,7 +211,7 @@ class Instance:
         path = os.getcwd()
         self.set_start_dir(path=path)
 
-    def _check_connection_and_version(self, channel, launched):
+    def _check_connection_and_version(self, channel, launched, location):
         connection_ok = False
         version_ok = False
 
