@@ -61,6 +61,14 @@ void RimEnsembleStatisticsSurface::setStatisticsType( RigSurfaceStatisticsCalcul
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString RimEnsembleStatisticsSurface::fullName() const
+{
+    return caf::AppEnum<RigSurfaceStatisticsCalculator::StatisticsType>::uiText( m_statisticsType.v() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RimEnsembleStatisticsSurface::onLoadData()
 {
     return updateSurfaceData();

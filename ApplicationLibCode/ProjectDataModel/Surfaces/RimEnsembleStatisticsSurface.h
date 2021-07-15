@@ -38,6 +38,8 @@ public:
 
     void setStatisticsType( RigSurfaceStatisticsCalculator::StatisticsType statisticsType );
 
+    QString fullName() const override;
+
 protected:
     bool updateSurfaceData() override;
     void clearCachedNativeData() override;
