@@ -23,8 +23,11 @@
 #include "RigSurfaceResampler.h"
 #include "RigSurfaceStatisticsCalculator.h"
 
+#include "RimEnsembleCurveSet.h"
 #include "RimEnsembleStatisticsSurface.h"
 #include "RimFileSurface.h"
+#include "RimMainPlotCollection.h"
+#include "RimProject.h"
 
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObjectScriptingCapability.h"
@@ -43,6 +46,8 @@ RimEnsembleSurface::RimEnsembleSurface()
 
     CAF_PDM_InitFieldNoDefault( &m_statisticsSurfaces, "StatisticsSurfaces", "", "", "", "" );
     m_statisticsSurfaces.uiCapability()->setUiHidden( true );
+
+    CAF_PDM_InitFieldNoDefault( &m_ensembleCurveSet, "FilterEnsembleCurveSet", "Filter by Ensemble Curve Set", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -97,9 +102,15 @@ void RimEnsembleSurface::loadDataAndUpdate()
         }
     }
 
-    if ( !m_fileSurfaces.empty() )
+    std::vector<RimFileSurface*> fileSurfaces = m_fileSurfaces.childObjects();
+    if ( m_ensembleCurveSet )
     {
-        cvf::ref<RigSurface> firstSurface = m_fileSurfaces[0]->surfaceData();
+        fileSurfaces = filterByEnsembleCurveSet( fileSurfaces );
+    }
+
+    if ( !fileSurfaces.empty() )
+    {
+        cvf::ref<RigSurface> firstSurface = fileSurfaces[0]->surfaceData();
 
         std::vector<cvf::ref<RigSurface>> surfaces;
         for ( auto& w : m_fileSurfaces )
@@ -129,7 +140,129 @@ void RimEnsembleSurface::loadDataAndUpdate()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::vector<RimFileSurface*>
+    RimEnsembleSurface::filterByEnsembleCurveSet( const std::vector<RimFileSurface*>& fileSurfaces ) const
+{
+    std::vector<RimFileSurface*> filteredCases;
+
+    if ( m_ensembleCurveSet != nullptr )
+    {
+        // Get the summary cases from the related ensemble summary curve set.
+        RimSummaryCaseCollection* summaryCaseCollection = m_ensembleCurveSet->summaryCaseCollection();
+
+        //
+        std::vector<RimSummaryCase*> sumCases =
+            m_ensembleCurveSet->filterEnsembleCases( summaryCaseCollection->allSummaryCases() );
+        for ( auto sumCase : sumCases )
+        {
+            for ( auto fileSurface : fileSurfaces )
+            {
+                if ( isSameRealization( sumCase, fileSurface ) )
+                {
+                    filteredCases.push_back( fileSurface );
+                }
+            }
+        }
+    }
+    else
+    {
+        filteredCases = fileSurfaces;
+    }
+
+    return filteredCases;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimEnsembleSurface::isSameRealization( RimSummaryCase* summaryCase, RimFileSurface* fileSurface ) const
+{
+    // TODO: duplication with RimEnsembleWellLogCurveSet::isSameRealization
+    QString fileSurfaceName = fileSurface->surfaceFilePath();
+    if ( summaryCase->hasCaseRealizationParameters() )
+    {
+        // TODO: make less naive..
+        int     realizationNumber   = summaryCase->caseRealizationParameters()->realizationNumber();
+        QString summaryCaseFileName = summaryCase->summaryHeaderFilename();
+
+        if ( fileSurfaceName.contains( QString( "realization-%1" ).arg( realizationNumber ) ) )
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 const RigSurface* RimEnsembleSurface::statisticsSurface() const
 {
     return m_statisticsSurface.p();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QList<caf::PdmOptionItemInfo> RimEnsembleSurface::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
+                                                                         bool*                      useOptionsOnly )
+{
+    QList<caf::PdmOptionItemInfo> options;
+
+    if ( fieldNeedingOptions == &m_ensembleCurveSet )
+    {
+        options.push_back( caf::PdmOptionItemInfo( "None", nullptr ) );
+
+        RimMainPlotCollection*            mainPlotColl = RimProject::current()->mainPlotCollection();
+        std::vector<RimEnsembleCurveSet*> ensembleCurveSets;
+        mainPlotColl->descendantsOfType( ensembleCurveSets );
+        for ( auto ensembleCurveSet : ensembleCurveSets )
+        {
+            options.push_back( caf::PdmOptionItemInfo( ensembleCurveSet->name(), ensembleCurveSet ) );
+        }
+    }
+
+    return options;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEnsembleSurface::connectEnsembleCurveSetFilterSignals()
+{
+    if ( m_ensembleCurveSet() )
+    {
+        m_ensembleCurveSet()->filterChanged.connect( this, &RimEnsembleSurface::onFilterSourceChanged );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEnsembleSurface::onFilterSourceChanged( const caf::SignalEmitter* emitter )
+{
+    if ( m_ensembleCurveSet() ) loadDataAndUpdate();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEnsembleSurface::initAfterRead()
+{
+    connectEnsembleCurveSetFilterSignals();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEnsembleSurface::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
+                                           const QVariant&            oldValue,
+                                           const QVariant&            newValue )
+{
+    if ( changedField == &m_ensembleCurveSet )
+    {
+        connectEnsembleCurveSetFilterSignals();
+        loadDataAndUpdate();
+    }
 }

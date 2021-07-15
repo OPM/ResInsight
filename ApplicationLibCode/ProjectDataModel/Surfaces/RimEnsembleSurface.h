@@ -21,6 +21,7 @@
 #include "RimNamedObject.h"
 
 #include "cafPdmChildArrayField.h"
+#include "cafPdmPtrField.h"
 
 #include "cvfObject.h"
 
@@ -28,6 +29,8 @@ class RimFileSurface;
 class RimSurface;
 class RigSurface;
 class RimEnsembleStatisticsSurface;
+class RimEnsembleCurveSet;
+class RimSummaryCase;
 
 //==================================================================================================
 ///
@@ -49,9 +52,24 @@ public:
 
     const RigSurface* statisticsSurface() const;
 
+protected:
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
+                                                         bool*                      useOptionsOnly ) override;
+
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+    void initAfterRead() override;
+
+    std::vector<RimFileSurface*> filterByEnsembleCurveSet( const std::vector<RimFileSurface*>& fileSurfaces ) const;
+
+    bool isSameRealization( RimSummaryCase* summaryCase, RimFileSurface* fileSurface ) const;
+
 private:
+    void connectEnsembleCurveSetFilterSignals();
+    void onFilterSourceChanged( const caf::SignalEmitter* emitter );
+
     caf::PdmChildArrayField<RimFileSurface*>               m_fileSurfaces;
     caf::PdmChildArrayField<RimEnsembleStatisticsSurface*> m_statisticsSurfaces;
+    caf::PdmPtrField<RimEnsembleCurveSet*>                 m_ensembleCurveSet;
 
     cvf::ref<RigSurface> m_statisticsSurface;
 };
