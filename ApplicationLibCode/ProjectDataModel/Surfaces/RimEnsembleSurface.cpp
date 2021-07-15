@@ -28,6 +28,7 @@
 #include "RimFileSurface.h"
 #include "RimMainPlotCollection.h"
 #include "RimProject.h"
+#include "RimSurfaceCollection.h"
 
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObjectScriptingCapability.h"
@@ -103,23 +104,25 @@ void RimEnsembleSurface::loadDataAndUpdate()
     }
 
     std::vector<RimFileSurface*> fileSurfaces = m_fileSurfaces.childObjects();
-    if ( m_ensembleCurveSet )
+    if ( m_ensembleCurveSet != nullptr )
     {
         fileSurfaces = filterByEnsembleCurveSet( fileSurfaces );
     }
+
+    m_statisticsSurfaces.deleteAllChildObjects();
+    m_statisticsSurfaces.clear();
 
     if ( !fileSurfaces.empty() )
     {
         cvf::ref<RigSurface> firstSurface = fileSurfaces[0]->surfaceData();
 
         std::vector<cvf::ref<RigSurface>> surfaces;
-        for ( auto& w : m_fileSurfaces )
+        for ( auto& w : fileSurfaces )
             surfaces.push_back( RigSurfaceResampler::resampleSurface( firstSurface, w->surfaceData() ) );
 
         m_statisticsSurface = RigSurfaceStatisticsCalculator::computeStatistics( surfaces );
         if ( !m_statisticsSurface.isNull() )
         {
-            m_statisticsSurfaces.clear();
             std::vector<RigSurfaceStatisticsCalculator::StatisticsType> statisticsTypes =
                 { RigSurfaceStatisticsCalculator::StatisticsType::MIN,
                   RigSurfaceStatisticsCalculator::StatisticsType::MAX,
@@ -132,9 +135,17 @@ void RimEnsembleSurface::loadDataAndUpdate()
                 auto statSurface = new RimEnsembleStatisticsSurface;
                 statSurface->setStatisticsType( s );
                 m_statisticsSurfaces.push_back( statSurface );
+                statSurface->onLoadData();
             }
         }
     }
+
+    RimSurfaceCollection* surfColl;
+    this->firstAncestorOrThisOfTypeAsserted( surfColl );
+
+    std::vector<RimSurface*> surfacesToUpdate;
+    surfColl->updateViews( surfaces(), false );
+    updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------
