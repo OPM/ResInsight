@@ -84,12 +84,18 @@ cvf::ref<RigSurface> RigSurfaceStatisticsCalculator::computeStatistics( const st
         double p90;
         RigStatisticsMath::calculateStatisticsCurves( samples, &p10, &p50, &p90, &mean );
 
-        meanValues[i] = mean;
-        minValues[i]  = min;
-        maxValues[i]  = max;
-        p10Values[i]  = p10;
-        p50Values[i]  = p50;
-        p90Values[i]  = p90;
+        // TODO: improve handling of these cases
+        auto makeValid = []( double val ) {
+            if ( std::isinf( val ) || std::isnan( val ) ) return 0.0;
+            return val;
+        };
+
+        meanValues[i] = makeValid( mean );
+        minValues[i]  = makeValid( min );
+        maxValues[i]  = makeValid( max );
+        p10Values[i]  = makeValid( p10 );
+        p50Values[i]  = makeValid( p50 );
+        p90Values[i]  = makeValid( p90 );
     }
 
     cvf::ref<RigSurface> statSurface = cvf::make_ref<RigSurface>();
