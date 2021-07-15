@@ -19,6 +19,7 @@
 #include "RimEnsembleStatisticsSurface.h"
 
 #include "RigSurface.h"
+#include "RigSurfaceStatisticsCalculator.h"
 #include "RimEnsembleSurface.h"
 #include "RimSurfaceCollection.h"
 
@@ -39,7 +40,7 @@ RimEnsembleStatisticsSurface::RimEnsembleStatisticsSurface()
 {
     CAF_PDM_InitScriptableObject( "Surface", ":/ReservoirSurface16x16.png", "", "" );
 
-    // CAF_PDM_InitFieldNoDefault( &m_surfaceDefinitionFilePath, "SurfaceFilePath", "File", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_statisticsType, "StatisticsType", "StatisticsType", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -47,6 +48,14 @@ RimEnsembleStatisticsSurface::RimEnsembleStatisticsSurface()
 //--------------------------------------------------------------------------------------------------
 RimEnsembleStatisticsSurface::~RimEnsembleStatisticsSurface()
 {
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEnsembleStatisticsSurface::setStatisticsType( RigSurfaceStatisticsCalculator::StatisticsType statisticsType )
+{
+    m_statisticsType = statisticsType;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -91,7 +100,8 @@ bool RimEnsembleStatisticsSurface ::updateSurfaceData()
             const std::vector<unsigned int>& indices  = surface->triangleIndices();
             const std::vector<cvf::Vec3d>&   vertices = surface->vertices();
 
-            const std::vector<float>& meanValues = surface->propertyValues( "MEAN" );
+            const std::vector<float>& meanValues = surface->propertyValues(
+                caf::AppEnum<RigSurfaceStatisticsCalculator::StatisticsType>::text( m_statisticsType.v() ) );
 
             std::vector<cvf::Vec3d> verts;
             for ( size_t i = 0; i < vertices.size(); i++ )

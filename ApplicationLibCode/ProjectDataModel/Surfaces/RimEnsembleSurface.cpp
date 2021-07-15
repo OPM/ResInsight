@@ -109,7 +109,19 @@ void RimEnsembleSurface::loadDataAndUpdate()
         if ( !m_statisticsSurface.isNull() )
         {
             m_statisticsSurfaces.clear();
-            m_statisticsSurfaces.push_back( new RimEnsembleStatisticsSurface );
+            std::vector<RigSurfaceStatisticsCalculator::StatisticsType> statisticsTypes =
+                { RigSurfaceStatisticsCalculator::StatisticsType::MIN,
+                  RigSurfaceStatisticsCalculator::StatisticsType::MAX,
+                  RigSurfaceStatisticsCalculator::StatisticsType::MEAN,
+                  RigSurfaceStatisticsCalculator::StatisticsType::P10,
+                  RigSurfaceStatisticsCalculator::StatisticsType::P50,
+                  RigSurfaceStatisticsCalculator::StatisticsType::P90 };
+            for ( auto s : statisticsTypes )
+            {
+                auto statSurface = new RimEnsembleStatisticsSurface;
+                statSurface->setStatisticsType( s );
+                m_statisticsSurfaces.push_back( statSurface );
+            }
         }
     }
 }

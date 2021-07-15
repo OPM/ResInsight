@@ -18,7 +18,12 @@
 
 #pragma once
 
+#include "RigSurface.h"
+
+#include "RigSurfaceStatisticsCalculator.h"
+
 #include "RimSurface.h"
+#include "cafAppEnum.h"
 
 class RimEnsembleStatisticsSurface : public RimSurface
 {
@@ -31,6 +36,8 @@ public:
     bool        onLoadData() override;
     RimSurface* createCopy() override;
 
+    void setStatisticsType( RigSurfaceStatisticsCalculator::StatisticsType statisticsType );
+
 protected:
     bool updateSurfaceData() override;
     void clearCachedNativeData() override;
@@ -38,4 +45,6 @@ protected:
 private:
     std::vector<unsigned>   m_tringleIndices;
     std::vector<cvf::Vec3d> m_vertices;
+
+    caf::PdmField<caf::AppEnum<RigSurfaceStatisticsCalculator::StatisticsType>> m_statisticsType;
 };
