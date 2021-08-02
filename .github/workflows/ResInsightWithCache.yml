@@ -152,7 +152,7 @@ jobs:
           vcpkgArguments: '@${{ github.workspace }}/${{ matrix.config.vcpkg-response-file }}'
           vcpkgDirectory: '${{ github.workspace }}/ThirdParty/vcpkg'
            # Ensure the cache key changes any time the content of the response file changes.
-          appendedCacheKey: ${{ hashFiles(env.VCPKGRESPONSEFILE) }}-cache-v2
+          appendedCacheKey: cache-key-v2
 
       - name: Cache dynamic version of OpenSSL (Linux)
         if: "contains( matrix.config.os, 'ubuntu_disabled')"
