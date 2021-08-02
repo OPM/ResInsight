@@ -146,7 +146,7 @@ jobs:
         with:
           VCPKGRESPONSEFILE: ${{ github.workspace }}/${{ matrix.config.vcpkg-response-file }}
       - name: Restore from cache and install vcpkg
-        uses: lukka/run-vcpkg@v7
+        uses: lukka/run-vcpkg@v7.3
         id: runvcpkg
         with:
           vcpkgArguments: '@${{ github.workspace }}/${{ matrix.config.vcpkg-response-file }}'
