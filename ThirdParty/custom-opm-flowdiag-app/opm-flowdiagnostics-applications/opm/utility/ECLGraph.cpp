@@ -1233,7 +1233,9 @@ deriveNeighbours(const std::vector<std::size_t>& gcells,
             continue;
         }
 
-        if (T[globID] > 0.0) {
+        // Guard access to transmissibility vector. Crash seen in some dual porosity models
+        // https://github.com/OPM/ResInsight/issues/7852
+        if (globID < T.size() && T[globID] > 0.0) {
             const auto other = this->cells_.getNeighbour(globID, d);
 
             if ((other >= 0) && ! this->cells_.isSubdivided(other)) {
