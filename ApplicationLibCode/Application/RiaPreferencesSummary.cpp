@@ -130,7 +130,7 @@ RiaPreferencesSummary::RiaPreferencesSummary()
 
     CAF_PDM_InitField( &m_createH5SummaryDataFile,
                        "createH5SummaryDataFile",
-                       false,
+                       true,
                        "Create h5 Summary Files",
                        "",
                        "If not present, create summary file with extension '*.h5'",
@@ -139,7 +139,7 @@ RiaPreferencesSummary::RiaPreferencesSummary()
 
     CAF_PDM_InitField( &m_checkH5FileTimeStamp,
                        "checkH5FileTimeStamp",
-                       false,
+                       true,
                        "Check File Timestamp",
                        "",
                        "Compare timestamp of h5 and SMSPEC, and recreate h5 when required",
