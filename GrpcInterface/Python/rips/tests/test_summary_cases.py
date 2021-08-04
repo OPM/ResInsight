@@ -39,7 +39,7 @@ def test_summary_data(rips_instance, initialize_test):
     addresses = summary_case.available_addresses()
     # Summary reader type is controlled from Preferences. libecl reports 343 vectors, opm_common reports 361.
     # As this configuration can be different, allow both variants
-    assert (len(addresses.values) == 343 or len(addresses.values) == 361)
+    assert len(addresses.values) == 343 or len(addresses.values) == 361
 
     summary_data = summary_case.summary_vector_values("FOPT")
     assert len(summary_data.values) == 60
