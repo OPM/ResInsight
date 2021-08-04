@@ -121,7 +121,7 @@ RimWellPathGeometryDef::RimWellPathGeometryDef()
     CAF_PDM_InitField( &m_pickPointsEnabled, "m_pickPointsEnabled", false, "", "", "", "" );
     caf::PdmUiPushButtonEditor::configureEditorForField( &m_pickPointsEnabled );
 
-    CAF_PDM_InitScriptableField( &m_showSpheres, "ShowSpheres", false, "Spheres", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_showSpheres, "ShowSpheres", true, "Spheres", "", "", "" );
     CAF_PDM_InitField( &m_sphereColor, "SphereColor", cvf::Color3f( cvf::Color3f::CEETRON ), "Sphere Color", "", "", "" );
     CAF_PDM_InitField( &m_sphereRadiusFactor, "SphereRadiusFactor", 0.15, "Sphere Radius Factor", "", "", "" );
 }
@@ -784,6 +784,14 @@ void RimWellPathGeometryDef::defineObjectEditorAttribute( QString uiConfigName, 
         attrib->pickEventHandler = m_pickTargetsEventHandler;
         attrib->enablePicking    = m_pickPointsEnabled;
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+caf::PdmFieldHandle* RimWellPathGeometryDef::objectToggleField()
+{
+    return &m_showSpheres;
 }
 
 //--------------------------------------------------------------------------------------------------

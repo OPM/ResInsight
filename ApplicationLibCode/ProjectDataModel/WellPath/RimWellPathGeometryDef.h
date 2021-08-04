@@ -102,6 +102,7 @@ protected:
                                 caf::PdmUiEditorAttribute* attribute ) override;
 
     void defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
+    caf::PdmFieldHandle* objectToggleField() override;
 
     void onTargetMoved( const caf::SignalEmitter* emitter, bool fullUpdate );
 
