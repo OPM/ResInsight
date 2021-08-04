@@ -315,41 +315,15 @@ cvf::Vec3d RigWellPath::tangentAlongWellPath( double measuredDepth ) const
 //--------------------------------------------------------------------------------------------------
 double RigWellPath::wellPathAzimuthAngle( const cvf::Vec3d& position ) const
 {
-    size_t closestIndex    = cvf::UNDEFINED_SIZE_T;
-    double closestDistance = cvf::UNDEFINED_DOUBLE;
-
-    for ( size_t i = 1; i < m_wellPathPoints.size(); i++ )
-    {
-        cvf::Vec3d p1 = m_wellPathPoints[i - 1];
-        cvf::Vec3d p2 = m_wellPathPoints[i - 0];
-
-        double candidateDistance = cvf::GeometryTools::linePointSquareDist( p1, p2, position );
-        if ( candidateDistance < closestDistance )
-        {
-            closestDistance = candidateDistance;
-            closestIndex    = i;
-        }
-    }
-
     // For vertical well (x-component of direction = 0) returned angle will be 90.
     double azimuthAngleDegrees = 90.0;
 
-    if ( closestIndex != cvf::UNDEFINED_DOUBLE )
+    cvf::Vec3d p1 = cvf::Vec3d::UNDEFINED;
+    cvf::Vec3d p2 = cvf::Vec3d::UNDEFINED;
+    twoClosestPoints( position, &p1, &p2 );
+
+    if ( !p1.isUndefined() )
     {
-        cvf::Vec3d p1;
-        cvf::Vec3d p2;
-
-        if ( closestIndex > 0 )
-        {
-            p1 = m_wellPathPoints[closestIndex - 1];
-            p2 = m_wellPathPoints[closestIndex - 0];
-        }
-        else
-        {
-            p1 = m_wellPathPoints[closestIndex + 1];
-            p2 = m_wellPathPoints[closestIndex + 0];
-        }
-
         cvf::Vec3d direction = p2 - p1;
 
         if ( fabs( direction.y() ) > 1e-5 )
@@ -370,34 +344,11 @@ void RigWellPath::twoClosestPoints( const cvf::Vec3d& position, cvf::Vec3d* p1, 
 {
     CVF_ASSERT( p1 && p2 );
 
-    size_t closestIndex    = cvf::UNDEFINED_SIZE_T;
-    double closestDistance = cvf::UNDEFINED_DOUBLE;
-
-    for ( size_t i = 1; i < m_wellPathPoints.size(); i++ )
+    auto closeIndices = closestIndices( position );
+    if ( closeIndices.first != cvf::UNDEFINED_SIZE_T )
     {
-        cvf::Vec3d point1 = m_wellPathPoints[i - 1];
-        cvf::Vec3d point2 = m_wellPathPoints[i - 0];
-
-        double candidateDistance = cvf::GeometryTools::linePointSquareDist( point1, point2, position );
-        if ( candidateDistance < closestDistance )
-        {
-            closestDistance = candidateDistance;
-            closestIndex    = i;
-        }
-    }
-
-    if ( closestIndex != cvf::UNDEFINED_SIZE_T )
-    {
-        if ( closestIndex > 0 )
-        {
-            *p1 = m_wellPathPoints[closestIndex - 1];
-            *p2 = m_wellPathPoints[closestIndex - 0];
-        }
-        else
-        {
-            *p1 = m_wellPathPoints[closestIndex + 1];
-            *p2 = m_wellPathPoints[closestIndex + 0];
-        }
+        *p1 = m_wellPathPoints[closeIndices.first];
+        *p2 = m_wellPathPoints[closeIndices.second];
     }
 }
 
@@ -427,6 +378,32 @@ double RigWellPath::identicalTubeLength( const RigWellPath& other ) const
         }
     }
     return identicalLength;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RigWellPath::closestMeasuredDepth( const cvf::Vec3d& position ) const
+{
+    auto [firstIndex, secondIndex] = closestIndices( position );
+    if ( firstIndex != cvf::UNDEFINED_SIZE_T )
+    {
+        cvf::Vec3d p1 = m_wellPathPoints[firstIndex];
+        cvf::Vec3d p2 = m_wellPathPoints[secondIndex];
+
+        double diffP1 = ( p1 - position ).lengthSquared();
+        double diffP2 = ( p2 - position ).lengthSquared();
+
+        double weigth1 = diffP2 / ( diffP1 + diffP2 );
+
+        double measureDepth1 = m_measuredDepths[firstIndex];
+        double measureDepth2 = m_measuredDepths[secondIndex];
+
+        double interpolatedValue = measureDepth1 * weigth1 + measureDepth2 * ( 1.0 - weigth1 );
+        return interpolatedValue;
+    }
+
+    return -1.0;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -680,4 +657,41 @@ std::vector<cvf::Vec3d> RigWellPath::clipPolylineStartAboveZ( const std::vector<
     }
 
     return clippedPolyLine;
+}
+
+//--------------------------------------------------------------------------------------------------
+// Returns the closes indices with smallest index first
+// If not found, cvf::UNDEFINED_SIZE_T is returned for both
+//--------------------------------------------------------------------------------------------------
+std::pair<size_t, size_t> RigWellPath::closestIndices( const cvf::Vec3d& position ) const
+{
+    size_t closestIndex    = cvf::UNDEFINED_SIZE_T;
+    double closestDistance = cvf::UNDEFINED_DOUBLE;
+
+    for ( size_t i = 1; i < m_wellPathPoints.size(); i++ )
+    {
+        cvf::Vec3d point1 = m_wellPathPoints[i - 1];
+        cvf::Vec3d point2 = m_wellPathPoints[i - 0];
+
+        double candidateDistance = cvf::GeometryTools::linePointSquareDist( point1, point2, position );
+        if ( candidateDistance < closestDistance )
+        {
+            closestDistance = candidateDistance;
+            closestIndex    = i;
+        }
+    }
+
+    if ( closestIndex != cvf::UNDEFINED_SIZE_T )
+    {
+        if ( closestIndex > 0 )
+        {
+            return { closestIndex - 1, closestIndex };
+        }
+        else
+        {
+            return { closestIndex, closestIndex + 1 };
+        }
+    }
+
+    return { cvf::UNDEFINED_SIZE_T, cvf::UNDEFINED_SIZE_T };
 }
