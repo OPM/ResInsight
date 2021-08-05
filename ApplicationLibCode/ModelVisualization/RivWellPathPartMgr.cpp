@@ -53,6 +53,7 @@
 #include "RimWellPathValve.h"
 
 #include "Riv3dWellLogPlanePartMgr.h"
+#include "RivDrawableSpheres.h"
 #include "RivFishbonesSubsPartMgr.h"
 #include "RivObjectSourceInfo.h"
 #include "RivPartPriority.h"
@@ -789,14 +790,14 @@ void RivWellPathPartMgr::buildWellPathParts( const caf::DisplayCoordTransform* d
                 colors->add( sphereColor );
             }
 
-            cvf::ref<cvf::DrawableVectors> vectorDrawable;
+            cvf::ref<RivDrawableSpheres> vectorDrawable;
             if ( RiaGuiApplication::instance()->useShaders() )
             {
-                vectorDrawable = new cvf::DrawableVectors( "u_transformationMatrix", "u_color" );
+                vectorDrawable = new RivDrawableSpheres( "u_transformationMatrix", "u_color" );
             }
             else
             {
-                vectorDrawable = new cvf::DrawableVectors();
+                vectorDrawable = new RivDrawableSpheres();
             }
 
             vectorDrawable->setVectors( vertices.p(), vecRes.p() );
@@ -814,11 +815,19 @@ void RivWellPathPartMgr::buildWellPathParts( const caf::DisplayCoordTransform* d
             cvf::GeometryUtils::createSphere( cellRadius, 15, 15, &builder );
             vectorDrawable->setGlyph( builder.trianglesUShort().p(), builder.vertices().p() );
 
+            {
+                vectorDrawable->setRadius( cellRadius );
+                vectorDrawable->setCenterCoords( vertices.p() );
+            }
+
             cvf::ref<cvf::Part> part = new cvf::Part;
             part->setName( "RivWellPathPartMgr_WellTargetSpheres" );
             part->setDrawable( vectorDrawable.p() );
 
             part->setEffect( new cvf::Effect() );
+
+            auto sourceInfo = new RivObjectSourceInfo( geoDef );
+            part->setSourceInfo( sourceInfo );
 
             m_spherePart = part;
         }
