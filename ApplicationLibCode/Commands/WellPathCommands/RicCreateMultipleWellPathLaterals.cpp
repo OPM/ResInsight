@@ -66,21 +66,27 @@ void RicCreateMultipleWellPathLaterals::onActionTriggered( bool isChecked )
 
     if ( selected )
     {
-        m_ui->setSourceLateral( selected );
+        m_ui->setTopLevelWellPath( selected->topLevelWellPath() );
+
         double startMD = 0.0;
         double endMD   = 0.0;
-        if ( auto tieIn = selected->wellPathTieIn() )
+
+        auto sourceLateral = m_ui->sourceLateral();
+        if ( sourceLateral )
         {
-            startMD = selected->wellPathTieIn()->tieInMeasuredDepth() + 50.0;
-            endMD   = startMD + 50.0;
-
-            if ( auto parentWell = selected->wellPathTieIn()->parentWell() )
+            if ( auto tieIn = sourceLateral->wellPathTieIn() )
             {
-                if ( !parentWell->wellPathGeometry()->measuredDepths().empty() )
-                {
-                    double candidate = parentWell->wellPathGeometry()->measuredDepths().back() - 50.0;
+                startMD = sourceLateral->wellPathTieIn()->tieInMeasuredDepth() + 50.0;
+                endMD   = startMD + 50.0;
 
-                    if ( candidate > startMD ) endMD = candidate;
+                if ( auto parentWell = sourceLateral->wellPathTieIn()->parentWell() )
+                {
+                    if ( !parentWell->wellPathGeometry()->measuredDepths().empty() )
+                    {
+                        double candidate = parentWell->wellPathGeometry()->measuredDepths().back() - 50.0;
+
+                        if ( candidate > startMD ) endMD = candidate;
+                    }
                 }
             }
         }

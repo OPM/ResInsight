@@ -47,6 +47,9 @@ RicCreateMultipleWellPathLateralsUi::RicCreateMultipleWellPathLateralsUi()
 {
     CAF_PDM_InitFieldNoDefault( &m_sourceLateral, "SourceLaterals", "Source Well Path Lateral", "", "", "" );
 
+    CAF_PDM_InitFieldNoDefault( &m_topLevelWellPath, "TopLevelWellPath", "Top Level Well Path", "", "", "" );
+    m_topLevelWellPath.uiCapability()->setUiHidden( true );
+
     CAF_PDM_InitFieldNoDefault( &m_locations, "Locations", "Locations", "", "", "" );
     m_locations = new RimMultipleLocations;
 }
@@ -54,9 +57,13 @@ RicCreateMultipleWellPathLateralsUi::RicCreateMultipleWellPathLateralsUi()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicCreateMultipleWellPathLateralsUi::setSourceLateral( RimModeledWellPath* lateral )
+void RicCreateMultipleWellPathLateralsUi::setTopLevelWellPath( RimWellPath* wellPath )
 {
-    m_sourceLateral = lateral;
+    m_topLevelWellPath = wellPath;
+
+    auto laterals = RimTools::wellPathCollection()->connectedWellPathLaterals( m_topLevelWellPath );
+
+    if ( !laterals.empty() ) m_sourceLateral = dynamic_cast<RimModeledWellPath*>( laterals.front() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -108,14 +115,15 @@ QList<caf::PdmOptionItemInfo>
 
     if ( fieldNeedingOptions == &m_sourceLateral )
     {
-        if ( sourceLateral()->wellPathTieIn() && sourceLateral()->wellPathTieIn()->parentWell() )
+        if ( m_topLevelWellPath )
         {
-            auto parentWell = sourceLateral()->wellPathTieIn()->parentWell();
-            auto laterals   = RimTools::wellPathCollection()->connectedWellPathLaterals( parentWell );
+            auto laterals = RimTools::wellPathCollection()->connectedWellPathLaterals( m_topLevelWellPath );
 
             for ( auto lateral : laterals )
             {
-                options.push_back( caf::PdmOptionItemInfo( lateral->name(), lateral ) );
+                caf::IconProvider iconProvider = lateral->uiIconProvider();
+
+                options.push_back( caf::PdmOptionItemInfo( lateral->name(), lateral, false, iconProvider ) );
             }
         }
     }

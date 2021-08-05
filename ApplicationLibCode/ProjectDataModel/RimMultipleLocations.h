@@ -64,8 +64,6 @@ protected:
 private:
     int                        rangeCountFromSpacing() const;
     double                     minimumSpacingMeters() const;
-    double                     minimumMD() const;
-    double                     maximumMD() const;
     static std::vector<double> locationsFromStartSpacingAndCount( double start, double spacing, size_t count );
 
 private:
@@ -74,9 +72,6 @@ private:
     caf::PdmField<double>                     m_rangeEnd;
     caf::PdmField<double>                     m_rangeSpacing;
     caf::PdmField<int>                        m_rangeCount;
-
-    caf::PdmField<double> m_minimumMD;
-    caf::PdmField<double> m_maximumMD;
 
     caf::PdmField<std::vector<double>> m_locations; // Given in measured depth
 };
