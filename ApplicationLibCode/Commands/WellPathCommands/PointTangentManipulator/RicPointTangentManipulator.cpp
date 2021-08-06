@@ -82,6 +82,14 @@ void RicPointTangentManipulator::setHandleSize( double handleSize )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RicPointTangentManipulator::setPolyline( const std::vector<cvf::Vec3d>& polyline )
+{
+    m_partManager->setPolyline( polyline );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RicPointTangentManipulator::appendPartsToModel( cvf::ModelBasicList* model )
 {
     m_partManager->appendPartsToModel( model );

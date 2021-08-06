@@ -20,12 +20,15 @@
 
 #include "RicPointTangentManipulator.h"
 
+#include "RigWellPath.h"
+
 #include "Rim3dView.h"
 #include "RimCase.h"
 #include "RimModeledWellPath.h"
 #include "RimWellPathGeometryDef.h"
 #include "RimWellPathGeometryDefTools.h"
 #include "RimWellPathTarget.h"
+#include "RimWellPathTieIn.h"
 
 #include "RiuViewer.h"
 
@@ -50,7 +53,7 @@ RicWellTarget3dEditor::RicWellTarget3dEditor()
 //--------------------------------------------------------------------------------------------------
 RicWellTarget3dEditor::~RicWellTarget3dEditor()
 {
-    RiuViewer* ownerRiuViewer = dynamic_cast<RiuViewer*>( ownerViewer() );
+    auto* ownerRiuViewer = dynamic_cast<RiuViewer*>( ownerViewer() );
 
     if ( m_cvfModel.notNull() && ownerRiuViewer )
     {
@@ -68,9 +71,9 @@ RicWellTarget3dEditor::~RicWellTarget3dEditor()
 //--------------------------------------------------------------------------------------------------
 void RicWellTarget3dEditor::configureAndUpdateUi( const QString& uiConfigName )
 {
-    RimWellPathTarget* target         = dynamic_cast<RimWellPathTarget*>( this->pdmObject() );
-    RiuViewer*         ownerRiuViewer = dynamic_cast<RiuViewer*>( ownerViewer() );
-    Rim3dView*         view           = mainOrComparisonView();
+    auto*      target         = dynamic_cast<RimWellPathTarget*>( this->pdmObject() );
+    auto*      ownerRiuViewer = dynamic_cast<RiuViewer*>( ownerViewer() );
+    Rim3dView* view           = mainOrComparisonView();
 
     if ( !target || !target->isEnabled() || !view )
     {
@@ -110,6 +113,29 @@ void RicWellTarget3dEditor::configureAndUpdateUi( const QString& uiConfigName )
     m_manipulator->setTangent( target->tangent() );
     m_manipulator->setHandleSize( handleSize );
 
+    {
+        RimWellPath* wellPath = nullptr;
+        target->firstAncestorOrThisOfType( wellPath );
+
+        if ( wellPath && !wellPath->isTopLevelWellPath() && geomDef->firstActiveTarget() == target )
+        {
+            if ( auto parentWellPath = wellPath->wellPathTieIn()->parentWell() )
+            {
+                auto geo    = parentWellPath->wellPathGeometry();
+                auto points = geo->wellPathPoints();
+
+                for ( auto& p : points )
+                {
+                    p = dispXf->transformToDisplayCoord( p );
+                }
+
+                // For the first target of a lateral, use the coordinates from the parent well as snap-to locations for
+                // the 3D manipulator sphere
+                m_manipulator->setPolyline( points );
+            }
+        }
+    }
+
     m_cvfModel->removeAllParts();
     m_manipulator->appendPartsToModel( m_cvfModel.p() );
 
@@ -129,8 +155,8 @@ void RicWellTarget3dEditor::cleanupBeforeSettingPdmObject()
 //--------------------------------------------------------------------------------------------------
 void RicWellTarget3dEditor::slotUpdated( const cvf::Vec3d& origin, const cvf::Vec3d& tangent )
 {
-    RimWellPathTarget* target = dynamic_cast<RimWellPathTarget*>( this->pdmObject() );
-    Rim3dView*         view   = mainOrComparisonView();
+    auto*      target = dynamic_cast<RimWellPathTarget*>( this->pdmObject() );
+    Rim3dView* view   = mainOrComparisonView();
 
     if ( !target || !view )
     {
@@ -140,6 +166,24 @@ void RicWellTarget3dEditor::slotUpdated( const cvf::Vec3d& origin, const cvf::Ve
     RimWellPathGeometryDef* geomDef;
     target->firstAncestorOrThisOfTypeAsserted( geomDef );
     if ( !geomDef ) return;
+
+    cvf::ref<caf::DisplayCoordTransform> dispXf         = view->displayCoordTransform();
+    auto                                 domainCoordXYZ = dispXf->transformToDomainCoord( origin );
+
+    if ( geomDef->activeWellTargets().front() == target )
+    {
+        RimModeledWellPath* modeledWellPath = nullptr;
+        geomDef->firstAncestorOfType( modeledWellPath );
+        if ( modeledWellPath && modeledWellPath->wellPathTieIn() && modeledWellPath->wellPathTieIn()->parentWell() )
+        {
+            auto parentWell  = modeledWellPath->wellPathTieIn()->parentWell();
+            auto wellPathGeo = parentWell->wellPathGeometry();
+            auto closestMD   = wellPathGeo->closestMeasuredDepth( domainCoordXYZ );
+
+            modeledWellPath->wellPathTieIn()->setTieInMeasuredDepth( closestMD );
+            modeledWellPath->wellPathTieIn()->updateChildWellGeometry();
+        }
+    }
 
     if ( geomDef->useReferencePointFromTopLevelWell() )
     {
@@ -155,10 +199,6 @@ void RicWellTarget3dEditor::slotUpdated( const cvf::Vec3d& origin, const cvf::Ve
             }
         }
     }
-
-    cvf::ref<caf::DisplayCoordTransform> dispXf = view->displayCoordTransform();
-
-    auto domainCoordXYZ = dispXf->transformToDomainCoord( origin );
 
     // If CTRL is pressed, modify the reference point instead of the well path target
     bool modifyReferencePoint = ( QApplication::keyboardModifiers() & Qt::ControlModifier );
@@ -195,7 +235,7 @@ void RicWellTarget3dEditor::slotUpdated( const cvf::Vec3d& origin, const cvf::Ve
 //--------------------------------------------------------------------------------------------------
 void RicWellTarget3dEditor::slotSelectedIn3D()
 {
-    RimWellPathTarget* target = dynamic_cast<RimWellPathTarget*>( this->pdmObject() );
+    auto* target = dynamic_cast<RimWellPathTarget*>( this->pdmObject() );
     if ( !target )
     {
         return;
@@ -209,7 +249,7 @@ void RicWellTarget3dEditor::slotSelectedIn3D()
 //--------------------------------------------------------------------------------------------------
 void RicWellTarget3dEditor::slotDragFinished()
 {
-    RimWellPathTarget* target = dynamic_cast<RimWellPathTarget*>( this->pdmObject() );
+    auto* target = dynamic_cast<RimWellPathTarget*>( this->pdmObject() );
     if ( !target )
     {
         return;
@@ -223,7 +263,7 @@ void RicWellTarget3dEditor::slotDragFinished()
 //--------------------------------------------------------------------------------------------------
 void RicWellTarget3dEditor::removeAllFieldEditors()
 {
-    if ( RimWellPathTarget* oldTarget = dynamic_cast<RimWellPathTarget*>( this->pdmObject() ) )
+    if ( auto* oldTarget = dynamic_cast<RimWellPathTarget*>( this->pdmObject() ) )
     {
         for ( auto field : oldTarget->fieldsFor3dManipulator() )
         {
