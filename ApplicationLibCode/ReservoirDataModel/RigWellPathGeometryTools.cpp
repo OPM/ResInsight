@@ -23,6 +23,7 @@
 #include "cvfMath.h"
 #include "cvfMatrix3.h"
 
+#include "RiaOffshoreSphericalCoords.h"
 #include <algorithm>
 #include <cmath>
 
@@ -131,6 +132,55 @@ std::vector<double> RigWellPathGeometryTools::interpolateMdFromTvd( const std::v
         interpolatedMdValues.push_back( mdValue );
     }
     return interpolatedMdValues;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::pair<double, double>
+    RigWellPathGeometryTools::calculateAzimuthAndInclinationAtMd( double                            measuredDepth,
+                                                                  gsl::not_null<const RigWellPath*> wellPathGeometry )
+{
+    int  mdIndex = -1;
+    auto mdList  = wellPathGeometry->measuredDepths();
+
+    for ( int i = 0; i < (int)mdList.size(); i++ )
+    {
+        if ( mdList[i] > measuredDepth )
+        {
+            mdIndex = i - 1;
+            break;
+        }
+    }
+
+    auto ptList = wellPathGeometry->wellPathPoints();
+    if ( mdIndex > 0 && mdIndex < (int)ptList.size() - 2 )
+    {
+        const auto& v1 = cvf::Vec3d( ptList[mdIndex - 1] );
+        const auto& v2 = cvf::Vec3d( ptList[mdIndex] );
+        const auto& v3 = cvf::Vec3d( ptList[mdIndex + 1] );
+        const auto& v4 = cvf::Vec3d( ptList[mdIndex + 2] );
+
+        auto v21 = v2 - v1;
+        auto v32 = v3 - v2;
+        auto v43 = v4 - v3;
+
+        v21.normalize();
+        v32.normalize();
+        v43.normalize();
+
+        auto v13mean = ( v21 + v32 ) / 2;
+        auto v24mean = ( v32 + v43 ) / 2;
+
+        double weight = ( measuredDepth - mdList[mdIndex] ) / ( mdList[mdIndex + 1] - mdList[mdIndex] );
+        auto   vTan   = v13mean * ( 1.0 - weight ) + v24mean * ( weight );
+
+        RiaOffshoreSphericalCoords coords( vTan );
+
+        return { coords.azi(), coords.inc() };
+    }
+
+    return { 0.0, 0.0 };
 }
 
 //--------------------------------------------------------------------------------------------------

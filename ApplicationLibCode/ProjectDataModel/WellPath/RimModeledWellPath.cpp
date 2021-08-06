@@ -34,6 +34,7 @@
 #include "RimWellPathTarget.h"
 #include "RimWellPathTieIn.h"
 
+#include "RigWellPathGeometryTools.h"
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmUiDoubleValueEditor.h"
 #include "cafPdmUiTreeOrdering.h"
@@ -288,7 +289,10 @@ void RimModeledWellPath::updateTieInLocationFromParentWell()
                 cvf::Vec3d relativePointXYZ  = lastPointXYZ - referencePointXYZ;
 
                 auto firstTarget = targets.front();
-                firstTarget->setPointXYZ( relativePointXYZ );
+                const auto [azimuth, inclination] =
+                    RigWellPathGeometryTools::calculateAzimuthAndInclinationAtMd( tieIn->tieInMeasuredDepth(),
+                                                                                  parentWellPath->wellPathGeometry() );
+                firstTarget->setAsPointXYZAndTangentTarget( relativePointXYZ, azimuth, inclination );
 
                 updateGeometry( true );
             }
