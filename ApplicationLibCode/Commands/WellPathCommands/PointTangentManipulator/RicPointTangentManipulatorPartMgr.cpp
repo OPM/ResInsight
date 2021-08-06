@@ -436,7 +436,7 @@ cvf::ref<cvf::DrawableGeo> RicPointTangentManipulatorPartMgr::createPolylineGeo(
 
     cvf::ref<cvf::GeometryBuilderTriangles> geomBuilder = new cvf::GeometryBuilderTriangles;
 
-    double radius = m_handleSize * 0.6;
+    double radius = m_handleSize * 0.3;
     cvf::GeometryUtils::createSphere( radius, 10, 10, geomBuilder.p() );
 
     Vec3f origin( m_origin );

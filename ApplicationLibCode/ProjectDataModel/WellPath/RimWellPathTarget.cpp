@@ -73,6 +73,9 @@ RimWellPathTarget::RimWellPathTarget()
     m_targetPointForDisplay.registerGetMethod( this, &RimWellPathTarget::targetPointForDisplayXYD );
     m_targetPointForDisplay.registerSetMethod( this, &RimWellPathTarget::setTargetPointFromDisplayCoord );
 
+    CAF_PDM_InitScriptableFieldNoDefault( &m_targetMeasuredDepth, "TargetMeasuredDepth", "MD", "", "", "" );
+    m_targetMeasuredDepth.registerGetMethod( this, &RimWellPathTarget::measuredDepth );
+
     CAF_PDM_InitScriptableField( &m_dogleg1, "Dogleg1", 3.0, "DL in", "", "[deg/30m]", "" );
     CAF_PDM_InitScriptableField( &m_dogleg2, "Dogleg2", 3.0, "DL out", "", "[deg/30m]", "" );
 
@@ -224,10 +227,8 @@ double RimWellPathTarget::azimuth() const
     {
         return cvf::Math::toRadians( m_azimuth );
     }
-    else
-    {
-        return std::numeric_limits<double>::infinity();
-    }
+
+    return std::numeric_limits<double>::infinity();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -239,10 +240,8 @@ double RimWellPathTarget::inclination() const
     {
         return cvf::Math::toRadians( m_inclination );
     }
-    else
-    {
-        return std::numeric_limits<double>::infinity();
-    }
+
+    return std::numeric_limits<double>::infinity();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -439,6 +438,28 @@ void RimWellPathTarget::setTargetPointFromDisplayCoord( const cvf::Vec3d& coordI
 
     auto newCoordInXYD = coordInXYD - offsetXYD;
     m_targetPointXYD   = newCoordInXYD;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimWellPathTarget::measuredDepth() const
+{
+    RimWellPath* wellPath = nullptr;
+    this->firstAncestorOfType( wellPath );
+
+    auto geoDef = geometryDefinition();
+
+    if ( geoDef && wellPath && wellPath->wellPathGeometry() )
+    {
+        auto offsetXYZ = geoDef->anchorPointXyz();
+        auto coordXYZ  = targetPointXYZ() + offsetXYZ;
+
+        auto wellPathGeo = wellPath->wellPathGeometry();
+        return wellPathGeo->closestMeasuredDepth( coordXYZ );
+    }
+
+    return 0.0;
 }
 
 //--------------------------------------------------------------------------------------------------
