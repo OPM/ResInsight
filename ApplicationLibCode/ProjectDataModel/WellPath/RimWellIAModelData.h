@@ -18,34 +18,41 @@
 
 #pragma once
 
-#include "cafPdmField.h"
-#include "cafPdmObject.h"
+#include "cvfVector3.h"
 
 #include <QString>
-
-#include "RimGenericParameter.h"
+#include <map>
+#include <vector>
 
 //==================================================================================================
 ///
 ///
 //==================================================================================================
-class RimDoubleParameter : public RimGenericParameter
+class RimWellIAModelData
 {
-    CAF_PDM_HEADER_INIT;
-
 public:
-    RimDoubleParameter();
-    ~RimDoubleParameter() override;
+    RimWellIAModelData();
+    ~RimWellIAModelData();
 
-    void     setValue( double value );
-    void     setValue( QString value ) override;
-    QVariant variantValue() const override;
-    QString  stringValue() const override;
+    std::vector<cvf::Vec3d> displacements() const;
+    void                    setDisplacement( int cornerIndex, cvf::Vec3d displacement );
 
-    double value() const;
+    void   setCasingPressure( double pressure );
+    double casingPressure() const;
 
-    virtual RimGenericParameter* duplicate() const;
+    void   setFormationPressure( double pressure );
+    double formationPressure() const;
+
+    void   setTemperature( double temp );
+    double temperature() const;
+
+    int  dayOffset() const;
+    void setDayOffset( int days );
 
 private:
-    caf::PdmField<double> m_value;
+    std::vector<cvf::Vec3d> m_displacements;
+    double                  m_casingPressure;
+    double                  m_formationPressure;
+    double                  m_temperature;
+    int                     m_dayoffset;
 };

@@ -59,6 +59,7 @@ class Rim3dWellLogCurve;
 class Rim3dWellLogCurveCollection;
 class RimWellPathTieIn;
 class RimMswCompletionParameters;
+class RimWellIASettingsCollection;
 
 //==================================================================================================
 ///
@@ -136,6 +137,7 @@ public:
     const RimStimPlanModelCollection*     stimPlanModelCollection() const;
     RimWellPathAttributeCollection*       attributeCollection();
     const RimWellPathAttributeCollection* attributeCollection() const;
+    RimWellIASettingsCollection*          wellIASettingsCollection();
 
     bool showWellPathLabel() const;
     bool showWellPath() const;
@@ -210,6 +212,7 @@ private:
     caf::PdmChildField<RimWellPathCompletionSettings*>  m_completionSettings;
     caf::PdmChildField<RimWellPathCompletions*>         m_completions;
     caf::PdmChildField<RimWellPathAttributeCollection*> m_wellPathAttributes;
+    caf::PdmChildField<RimWellIASettingsCollection*>    m_wellIASettingsCollection;
 
     caf::PdmChildField<RimWellPathTieIn*> m_wellPathTieIn;
 

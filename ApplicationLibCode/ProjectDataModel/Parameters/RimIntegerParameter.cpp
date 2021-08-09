@@ -72,7 +72,30 @@ QVariant RimIntegerParameter::variantValue() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+int RimIntegerParameter::value() const
+{
+    return m_value();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString RimIntegerParameter::stringValue() const
 {
     return QString::number( m_value() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimGenericParameter* RimIntegerParameter::duplicate() const
+{
+    RimIntegerParameter* retval = new RimIntegerParameter();
+    retval->setName( name() );
+    retval->setValue( value() );
+    retval->setDescription( description() );
+    retval->setLabel( label() );
+    retval->setAdvanced( isAdvanced() );
+
+    return retval;
 }

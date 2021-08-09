@@ -137,6 +137,7 @@
 #include "RimViewLinkerCollection.h"
 #include "RimVirtualPerforationResults.h"
 #include "RimWellAllocationPlot.h"
+#include "RimWellIASettings.h"
 #include "RimWellLogCurve.h"
 #include "RimWellLogFile.h"
 #include "RimWellLogFileChannel.h"
@@ -1100,7 +1101,10 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         // Work in progress -- End
         appendCreateCompletions( menuBuilder, menuBuilder.itemCount() > 0u );
         bool addedExportWellPaths = appendExportWellPaths( menuBuilder, menuBuilder.itemCount() > 0u ) > 0;
-        appendExportCompletions( menuBuilder, menuBuilder.itemCount() > 0u && !addedExportWellPaths );
+
+        // This needs further work. Now, the export menu shows up on all objects that has a wellpathcollection as a
+        // predecessor somewhere.
+        // appendExportCompletions( menuBuilder, menuBuilder.itemCount() > 0u && !addedExportWellPaths );
 
         if ( menuBuilder.itemCount() > 0u )
         {
@@ -1176,6 +1180,12 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "Separator";
             menuBuilder << "RicNewSimWellFractureFeature";
         }
+#ifdef USE_ODB_API
+        else if ( dynamic_cast<RimWellIASettings*>( firstUiItem ) )
+        {
+            menuBuilder << "RicRunWellIntegrityAnalysisFeature";
+        }
+#endif
         menuBuilder.addSeparator();
         menuBuilder << "RicCopyIntersectionsToAllViewsInCaseFeature";
     }

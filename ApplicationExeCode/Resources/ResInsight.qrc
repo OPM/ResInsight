@@ -239,6 +239,7 @@
         <file>redo.png</file>
         <file>ComboBoxDown.svg</file>
         <file>ComboBoxUp.svg</file>
+        <file>WellIntAnalysis.png</file>
     </qresource>
     <qresource prefix="/Shader">
         <file>fs_CellFace.glsl</file>

@@ -67,6 +67,7 @@
 #include "RimSurfaceInView.h"
 #include "RimTextAnnotation.h"
 #include "RimViewController.h"
+#include "RimWellIASettingsCollection.h"
 #include "RimWellPath.h"
 
 #include "Riu3dSelectionManager.h"
@@ -538,6 +539,13 @@ void RiuViewerCommands::displayContextMenu( QMouseEvent* event )
             menuBuilder.subMenuEnd();
 
             menuBuilder.addSeparator();
+
+            if ( wellPath->wellIASettingsCollection()->isEnabled() )
+            {
+                menuBuilder << "RicNewWellIntegrityAnalysisFeature";
+                menuBuilder.addSeparator();
+            }
+
             menuBuilder.subMenuStart( "Create Completions", QIcon( ":/FishBoneGroup16x16.png" ) );
 
             menuBuilder << "RicNewPerforationIntervalAtMeasuredDepthFeature";

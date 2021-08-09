@@ -40,6 +40,9 @@ public:
     void     setValue( QString value ) override;
     QVariant variantValue() const override;
     QString  stringValue() const override;
+    QString  jsonValue() const override;
+
+    RimGenericParameter* duplicate() const override;
 
 private:
     caf::PdmField<QString> m_value;

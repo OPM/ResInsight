@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2021 -    Equinor ASA
+//  Copyright (C) 2021    Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -18,34 +18,19 @@
 
 #pragma once
 
-#include "cafPdmField.h"
-#include "cafPdmObject.h"
+#include "cafCmdFeature.h"
 
-#include <QString>
-
-#include "RimGenericParameter.h"
+#include <vector>
 
 //==================================================================================================
 ///
-///
 //==================================================================================================
-class RimDoubleParameter : public RimGenericParameter
+class RicRunWellIntegrityAnalysisFeature : public caf::CmdFeature
 {
-    CAF_PDM_HEADER_INIT;
+    CAF_CMD_HEADER_INIT;
 
-public:
-    RimDoubleParameter();
-    ~RimDoubleParameter() override;
-
-    void     setValue( double value );
-    void     setValue( QString value ) override;
-    QVariant variantValue() const override;
-    QString  stringValue() const override;
-
-    double value() const;
-
-    virtual RimGenericParameter* duplicate() const;
-
-private:
-    caf::PdmField<double> m_value;
+protected:
+    void onActionTriggered( bool isChecked ) override;
+    void setupActionLook( QAction* actionToSetup ) override;
+    bool isCommandEnabled() override;
 };
