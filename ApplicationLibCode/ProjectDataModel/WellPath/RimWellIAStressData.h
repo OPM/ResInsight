@@ -18,34 +18,22 @@
 
 #pragma once
 
-#include "cafPdmField.h"
-#include "cafPdmObject.h"
+#include "cvfVector3.h"
 
-#include <QString>
-
-#include "RimGenericParameter.h"
+class RimGeoMechCase;
 
 //==================================================================================================
 ///
 ///
 //==================================================================================================
-class RimDoubleParameter : public RimGenericParameter
+class RimWellIAStressData
 {
-    CAF_PDM_HEADER_INIT;
-
 public:
-    RimDoubleParameter();
-    ~RimDoubleParameter() override;
+    RimWellIAStressData( RimGeoMechCase* thecase);
+    ~RimWellIAStressData();
 
-    void     setValue( double value );
-    void     setValue( QString value ) override;
-    QVariant variantValue() const override;
-    QString  stringValue() const override;
-
-    double value() const;
-
-    virtual RimGenericParameter* duplicate() const;
+    bool updateData( cvf::Vec3d position );
 
 private:
-    caf::PdmField<double> m_value;
+    RimGeoMechCase* m_case;
 };

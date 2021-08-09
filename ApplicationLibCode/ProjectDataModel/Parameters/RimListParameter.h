@@ -23,29 +23,21 @@
 
 #include <QString>
 
-#include "RimGenericParameter.h"
+#include "RimStringParameter.h"
 
 //==================================================================================================
 ///
 ///
 //==================================================================================================
-class RimDoubleParameter : public RimGenericParameter
+class RimListParameter : public RimStringParameter
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimDoubleParameter();
-    ~RimDoubleParameter() override;
+    RimListParameter();
+    ~RimListParameter() override;
 
-    void     setValue( double value );
-    void     setValue( QString value ) override;
-    QVariant variantValue() const override;
-    QString  stringValue() const override;
+    QString jsonValue() const override;
 
-    double value() const;
-
-    virtual RimGenericParameter* duplicate() const;
-
-private:
-    caf::PdmField<double> m_value;
+    RimGenericParameter* duplicate() const override;
 };

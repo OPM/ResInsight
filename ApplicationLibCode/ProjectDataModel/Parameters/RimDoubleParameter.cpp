@@ -84,3 +84,18 @@ double RimDoubleParameter::value() const
 {
     return m_value();
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimGenericParameter* RimDoubleParameter::duplicate() const
+{
+    RimDoubleParameter* retval = new RimDoubleParameter();
+    retval->setName( name() );
+    retval->setValue( value() );
+    retval->setDescription( description() );
+    retval->setLabel( label() );
+    retval->setAdvanced( isAdvanced() );
+
+    return retval;
+}

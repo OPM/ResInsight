@@ -43,12 +43,15 @@ public:
     virtual void     setValue( QString value ) = 0;
     virtual QVariant variantValue() const      = 0;
     virtual QString  stringValue() const       = 0;
+    virtual QString  jsonValue() const;
 
     QString name() const;
     QString label() const;
     QString description() const;
     bool    isAdvanced() const;
     bool    isValid() const;
+
+    virtual RimGenericParameter* duplicate() const = 0;
 
 protected:
     void setValid( bool valid );

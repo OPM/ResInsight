@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2021 -    Equinor ASA
+//  Copyright (C) 2021-   Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -18,34 +18,26 @@
 
 #pragma once
 
-#include "cafPdmField.h"
-#include "cafPdmObject.h"
+#include <cvfArray.h>
+#include <cvfColor3.h>
+#include <cvfVector3.h>
+#include <vector>
 
-#include <QString>
-
-#include "RimGenericParameter.h"
-
-//==================================================================================================
-///
-///
-//==================================================================================================
-class RimDoubleParameter : public RimGenericParameter
+namespace cvf
 {
-    CAF_PDM_HEADER_INIT;
+class Part;
+} // namespace cvf
 
+//==================================================================================================
+///
+//==================================================================================================
+class RivBoxGeometryGenerator
+{
 public:
-    RimDoubleParameter();
-    ~RimDoubleParameter() override;
+    static cvf::ref<cvf::Part> createBoxFromVertices( const std::vector<cvf::Vec3f>& vertices, const cvf::Color3f color );
 
-    void     setValue( double value );
-    void     setValue( QString value ) override;
-    QVariant variantValue() const override;
-    QString  stringValue() const override;
-
-    double value() const;
-
-    virtual RimGenericParameter* duplicate() const;
+    static cvf::ref<cvf::UIntArray> lineIndicesFromQuadVertexArray( const cvf::Vec3fArray* vertexArray );
 
 private:
-    caf::PdmField<double> m_value;
+    RivBoxGeometryGenerator(){};
 };
