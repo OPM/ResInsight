@@ -21,6 +21,7 @@
 #include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
+#include "cafPdmProxyValueField.h"
 
 #include <QString>
 #include <vector>
@@ -47,6 +48,8 @@ public:
     void appendParametersToList( std::list<RimGenericParameter*>& parameterList );
 
     void setName( QString name );
+    void setLabel( QString label );
+    void setComment( QString comment );
     void setExpanded( bool expand );
 
     void setParameterValue( QString name, int value );
@@ -55,20 +58,27 @@ public:
 
     bool    isExpanded() const;
     QString name() const;
+    QString comment() const;
+    QString label() const;
 
     std::vector<RimGenericParameter*> parameters() const;
 
     RimGenericParameter* parameter( QString name ) const;
 
 private:
-    void                 defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                                QString                    uiConfigName,
-                                                caf::PdmUiEditorAttribute* attribute ) override;
-    void                 defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    void defineEditorAttribute( const caf::PdmFieldHandle* field,
+                                QString                    uiConfigName,
+                                caf::PdmUiEditorAttribute* attribute ) override;
+    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+
     caf::PdmFieldHandle* userDescriptionField() override;
+    QString              labelOrName() const;
 
 private:
     caf::PdmChildArrayField<RimGenericParameter*> m_parameters;
     caf::PdmField<bool>                           m_showExpanded;
     caf::PdmField<QString>                        m_name;
+    caf::PdmField<QString>                        m_label;
+    caf::PdmField<QString>                        m_comment;
+    caf::PdmProxyValueField<QString>              m_labelProxy;
 };

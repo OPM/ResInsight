@@ -64,6 +64,14 @@ RiaPreferencesGeoMech::RiaPreferencesGeoMech()
     m_geomechFRADefaultAdvXML.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
     m_geomechFRADefaultAdvXML.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
 
+    CAF_PDM_InitFieldNoDefault( &m_geomechWIADefaultXML, "geomechWIADefaultXML", "Default Parameter XML File", "", "", "" );
+    m_geomechWIADefaultXML.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
+    m_geomechWIADefaultXML.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
+
+    CAF_PDM_InitFieldNoDefault( &m_geomechWIACommand, "geomechWIACommand", "Command to run", "", "", "" );
+    m_geomechWIACommand.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
+    m_geomechWIACommand.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
+
     CAF_PDM_InitField( &m_keepTemporaryFiles,
                        "keepTemporaryFile",
                        false,
@@ -88,18 +96,26 @@ RiaPreferencesGeoMech* RiaPreferencesGeoMech::current()
 void RiaPreferencesGeoMech::appendItems( caf::PdmUiOrdering& uiOrdering ) const
 {
     caf::PdmUiGroup* faultRAGroup = uiOrdering.addNewGroup( "Fault Reactivation Assessment" );
-    caf::PdmUiGroup* cmdGroup     = faultRAGroup->addNewGroup( "Commands (without parameters)" );
+    caf::PdmUiGroup* cmdFRAGroup  = faultRAGroup->addNewGroup( "Commands (without parameters)" );
 
-    cmdGroup->add( &m_geomechFRAPreprocCommand );
-    cmdGroup->add( &m_geomechFRAPostprocCommand );
-    cmdGroup->add( &m_geomechFRAMacrisCommand );
+    cmdFRAGroup->add( &m_geomechFRAPreprocCommand );
+    cmdFRAGroup->add( &m_geomechFRAPostprocCommand );
+    cmdFRAGroup->add( &m_geomechFRAMacrisCommand );
 
-    caf::PdmUiGroup* paramGroup = faultRAGroup->addNewGroup( "Parameters" );
-    paramGroup->add( &m_geomechFRADefaultBasicXML );
-    paramGroup->add( &m_geomechFRADefaultAdvXML );
+    caf::PdmUiGroup* paramFRAGroup = faultRAGroup->addNewGroup( "Parameters" );
+    paramFRAGroup->add( &m_geomechFRADefaultBasicXML );
+    paramFRAGroup->add( &m_geomechFRADefaultAdvXML );
 
-    caf::PdmUiGroup* settingsGroup = faultRAGroup->addNewGroup( "Settings" );
-    settingsGroup->add( &m_keepTemporaryFiles );
+    caf::PdmUiGroup* wellIAGroup = uiOrdering.addNewGroup( "Well Integrity Analysis" );
+    caf::PdmUiGroup* cmdWIAGroup = wellIAGroup->addNewGroup( "Commands (without parameters)" );
+
+    cmdWIAGroup->add( &m_geomechWIACommand );
+
+    caf::PdmUiGroup* paramWIAGroup = wellIAGroup->addNewGroup( "Parameters" );
+    paramWIAGroup->add( &m_geomechWIADefaultXML );
+
+    caf::PdmUiGroup* commonGroup = uiOrdering.addNewGroup( "Common Settings" );
+    commonGroup->add( &m_keepTemporaryFiles );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -152,6 +168,22 @@ QString RiaPreferencesGeoMech::geomechFRADefaultAdvXML() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString RiaPreferencesGeoMech::geomechWIACommand() const
+{
+    return m_geomechWIACommand;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RiaPreferencesGeoMech::geomechWIADefaultXML() const
+{
+    return m_geomechWIADefaultXML;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RiaPreferencesGeoMech::keepTemporaryFiles() const
 {
     return m_keepTemporaryFiles;
@@ -169,12 +201,31 @@ bool RiaPreferencesGeoMech::validateFRASettings() const
     files << geomechFRADefaultBasicXML();
     files << geomechFRADefaultAdvXML();
 
+    return filesExists( files );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiaPreferencesGeoMech::validateWIASettings() const
+{
+    QStringList files;
+    files << geomechWIACommand();
+    files << geomechWIADefaultXML();
+
+    return filesExists( files );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiaPreferencesGeoMech::filesExists( QStringList& files ) const
+{
     for ( int i = 0; i < files.size(); i++ )
     {
         if ( files[i].isEmpty() ) return false;
         QFile file( files[i] );
         if ( !file.exists() ) return false;
     }
-
     return true;
 }

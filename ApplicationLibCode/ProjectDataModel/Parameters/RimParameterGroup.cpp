@@ -49,9 +49,24 @@ RimParameterGroup::RimParameterGroup()
     m_name.uiCapability()->setUiHidden( true );
     m_name.uiCapability()->setUiReadOnly( true );
 
+    CAF_PDM_InitFieldNoDefault( &m_label, "Label", "Label", "", "", "" );
+    m_label.uiCapability()->setUiHidden( true );
+    m_label.uiCapability()->setUiReadOnly( true );
+
+    CAF_PDM_InitFieldNoDefault( &m_comment, "Comment", "Comment", "", "", "" );
+    m_comment.uiCapability()->setUiHidden( true );
+    m_comment.uiCapability()->setUiReadOnly( true );
+    m_comment.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+
     CAF_PDM_InitFieldNoDefault( &m_showExpanded, "Expanded", "Expanded", "", "", "" );
-    m_name.uiCapability()->setUiHidden( true );
-    m_name.uiCapability()->setUiReadOnly( true );
+    m_showExpanded.uiCapability()->setUiHidden( true );
+    m_showExpanded.uiCapability()->setUiReadOnly( true );
+
+    CAF_PDM_InitFieldNoDefault( &m_labelProxy, "LabelProxy", "Label Proxy", "", "", "" );
+    m_labelProxy.registerGetMethod( this, &RimParameterGroup::labelOrName );
+    m_labelProxy.uiCapability()->setUiReadOnly( true );
+    m_labelProxy.uiCapability()->setUiHidden( true );
+    m_labelProxy.xmlCapability()->disableIO();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -66,7 +81,16 @@ RimParameterGroup::~RimParameterGroup()
 //--------------------------------------------------------------------------------------------------
 caf::PdmFieldHandle* RimParameterGroup::userDescriptionField()
 {
-    return &m_name;
+    return &m_labelProxy;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimParameterGroup::labelOrName() const
+{
+    if ( m_label().isEmpty() ) return m_name;
+    return m_label;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -151,7 +175,8 @@ void RimParameterGroup::defineEditorAttribute( const caf::PdmFieldHandle* field,
 //--------------------------------------------------------------------------------------------------
 void RimParameterGroup::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    auto group = uiOrdering.addNewGroup( name() );
+    auto group = uiOrdering.addNewGroup( label() );
+    if ( !m_comment().isEmpty() ) group->add( &m_comment );
     group->add( &m_parameters );
 
     uiOrdering.skipRemainingFields( true );
@@ -163,6 +188,22 @@ void RimParameterGroup::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderi
 void RimParameterGroup::setName( QString name )
 {
     m_name = name;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimParameterGroup::setLabel( QString label )
+{
+    m_label = label;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimParameterGroup::setComment( QString comment )
+{
+    m_comment = comment;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -187,6 +228,22 @@ bool RimParameterGroup::isExpanded() const
 QString RimParameterGroup::name() const
 {
     return m_name;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimParameterGroup::comment() const
+{
+    return m_comment;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimParameterGroup::label() const
+{
+    return labelOrName();
 }
 
 //--------------------------------------------------------------------------------------------------

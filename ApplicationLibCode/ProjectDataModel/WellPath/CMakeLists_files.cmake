@@ -11,6 +11,8 @@ ${CMAKE_CURRENT_LIST_DIR}/RimWellPathAttributeCollection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimWellPathCollection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimWellPathTarget.h
 ${CMAKE_CURRENT_LIST_DIR}/RimWellPathTieIn.h
+${CMAKE_CURRENT_LIST_DIR}/RimWellIASettings.h
+${CMAKE_CURRENT_LIST_DIR}/RimWellIASettingsCollection.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -25,6 +27,8 @@ ${CMAKE_CURRENT_LIST_DIR}/RimWellPathGeometryDefTools.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimWellPathGroup.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimWellPathTarget.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimWellPathTieIn.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimWellIASettings.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimWellIASettingsCollection.cpp
 )
 
 list(APPEND CODE_HEADER_FILES
