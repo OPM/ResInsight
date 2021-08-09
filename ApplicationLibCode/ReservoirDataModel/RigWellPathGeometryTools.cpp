@@ -154,22 +154,24 @@ std::pair<double, double>
     }
 
     auto ptList = wellPathGeometry->wellPathPoints();
-    if ( mdIndex > 0 && mdIndex < (int)ptList.size() - 2 )
+    if ( mdIndex >= 0 && mdIndex < (int)ptList.size() - 2 )
     {
-        const auto& v1 = cvf::Vec3d( ptList[mdIndex - 1] );
         const auto& v2 = cvf::Vec3d( ptList[mdIndex] );
         const auto& v3 = cvf::Vec3d( ptList[mdIndex + 1] );
         const auto& v4 = cvf::Vec3d( ptList[mdIndex + 2] );
 
-        auto v21 = v2 - v1;
-        auto v32 = v3 - v2;
-        auto v43 = v4 - v3;
+        auto v32 = ( v3 - v2 ).getNormalized();
+        auto v43 = ( v4 - v3 ).getNormalized();
 
-        v21.normalize();
-        v32.normalize();
-        v43.normalize();
+        auto v13mean = v32;
 
-        auto v13mean = ( v21 + v32 ) / 2;
+        if ( mdIndex > 0 )
+        {
+            const auto& v1  = cvf::Vec3d( ptList[mdIndex - 1] );
+            auto        v21 = ( v2 - v1 ).getNormalized();
+            v13mean         = ( v21 + v32 ) / 2;
+        }
+
         auto v24mean = ( v32 + v43 ) / 2;
 
         double weight = ( measuredDepth - mdList[mdIndex] ) / ( mdList[mdIndex + 1] - mdList[mdIndex] );
