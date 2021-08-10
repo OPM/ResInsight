@@ -399,6 +399,8 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder.subMenuEnd();
             menuBuilder.addSeparator();
 
+            menuBuilder << "RicDeleteWellPathFeature";
+
             menuBuilder.addSeparator();
 
             if ( auto modeledWellPath = dynamic_cast<RimModeledWellPath*>( firstUiItem ) )
@@ -1072,6 +1074,9 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         menuBuilder << "RicCutReferencesToClipboardFeature";
 
         menuBuilder << "Separator";
+
+        menuBuilder << "RicDeleteWellPathFeature";
+
         if ( dynamic_cast<RimSummaryCase*>( firstUiItem ) || dynamic_cast<RimSummaryCaseCollection*>( firstUiItem ) )
         {
             menuBuilder << "RicCreatePlotFromSelectionFeature";

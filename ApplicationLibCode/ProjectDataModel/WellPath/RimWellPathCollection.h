@@ -98,6 +98,7 @@ public:
     void                      removeWellPath( gsl::not_null<RimWellPath*> wellPath );
 
     void deleteAllWellPaths();
+    void deleteWell( RimWellPath* wellPath );
 
     void groupWellPaths( const std::vector<RimWellPath*>& wellPaths );
     void rebuildWellPathNodes();

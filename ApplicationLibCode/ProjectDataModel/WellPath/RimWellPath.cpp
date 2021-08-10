@@ -137,8 +137,6 @@ RimWellPath::RimWellPath()
     CAF_PDM_InitFieldNoDefault( &m_wellPathTieIn, "WellPathTieIn", "well Path Tie-In", "", "", "" );
     m_wellPathTieIn = new RimWellPathTieIn;
     m_wellPathTieIn->connectWellPaths( nullptr, this, 0.0 );
-
-    this->setDeletable( true );
 }
 
 //--------------------------------------------------------------------------------------------------

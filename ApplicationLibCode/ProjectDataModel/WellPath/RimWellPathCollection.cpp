@@ -586,6 +586,15 @@ void RimWellPathCollection::deleteAllWellPaths()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimWellPathCollection::deleteWell( RimWellPath* wellPath )
+{
+    m_wellPaths.removeChildObject( wellPath );
+    delete wellPath;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimWellPathCollection::groupWellPaths( const std::vector<RimWellPath*>& wellPaths )
 {
     auto rootWells = wellPathsForWellNameStem( wellPaths );
