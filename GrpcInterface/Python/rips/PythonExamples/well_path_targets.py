@@ -18,7 +18,7 @@ reference_point = geometry.reference_point
 reference_point[0] = 457196
 reference_point[1] = 7322270
 reference_point[2] = 2742
-geometry.update() # Commit updates back to ResInsight
+geometry.update()  # Commit updates back to ResInsight
 
 # Create the first well target at the reference point
 coord = [0, 0, 0]
