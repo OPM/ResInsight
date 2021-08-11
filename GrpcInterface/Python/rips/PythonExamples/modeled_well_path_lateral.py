@@ -20,7 +20,7 @@ reference_point = geometry.reference_point
 reference_point[0] = 457196
 reference_point[1] = 7322270
 reference_point[2] = 2742
-geometry.update() # Commit updates back to ResInsight
+geometry.update()  # Commit updates back to ResInsight
 
 # Create the first well target at the reference point
 coord = [0, 0, 0]
@@ -56,4 +56,4 @@ print("Move reference point of parent well")
 geometry = well_path.well_path_geometry()
 reference_point = geometry.reference_point
 reference_point[2] += 50
-geometry.update() # Commit updates back to ResInsight
+geometry.update()  # Commit updates back to ResInsight
