@@ -164,21 +164,25 @@ bool RimStimPlanModelElasticPropertyCalculator::calculate( RiaDefines::CurveProp
     RimElasticProperties* elasticProperties = stimPlanModelTemplate->elasticProperties();
     if ( !elasticProperties )
     {
-        RiaLogging::error( QString( "No elastic properties found" ) );
+        RiaLogging::error( QString( "No elastic properties found weh extracting elastic properties." ) );
         return false;
     }
 
     std::vector<double> faciesValues =
         m_stimPlanModelCalculator->extractValues( RiaDefines::CurveProperty::FACIES, timeStep );
-
     if ( faciesValues.empty() )
     {
-        RiaLogging::error( QString( "No facies values found." ) );
+        RiaLogging::error( QString( "No facies values found when extracting elastic properties." ) );
         return false;
     }
 
     std::vector<double> poroValues =
         m_stimPlanModelCalculator->extractValues( RiaDefines::CurveProperty::POROSITY_UNSCALED, timeStep );
+    if ( poroValues.empty() )
+    {
+        RiaLogging::error( QString( "No porosity values found when extracting elastic properties." ) );
+        return false;
+    }
 
     double overburdenHeight = stimPlanModel->overburdenHeight();
     if ( overburdenHeight > 0.0 )
