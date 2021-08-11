@@ -161,13 +161,18 @@ bool RimStimPlanModelPressureCalculator::extractValuesForProperty( RiaDefines::C
     else
     {
         // Extract the property we care about
-        RimStimPlanModelWellLogCalculator::extractValuesForProperty( pressureCurveProperty,
-                                                                     stimPlanModel,
-                                                                     timeStep,
-                                                                     values,
-                                                                     measuredDepthValues,
-                                                                     tvDepthValues,
-                                                                     rkbDiff );
+        if ( !RimStimPlanModelWellLogCalculator::extractValuesForProperty( pressureCurveProperty,
+                                                                           stimPlanModel,
+                                                                           timeStep,
+                                                                           values,
+                                                                           measuredDepthValues,
+                                                                           tvDepthValues,
+                                                                           rkbDiff ) )
+        {
+            RiaLogging::error( QString( "Unable to extract pressure values for property: %1" )
+                                   .arg( caf::AppEnum<RiaDefines::CurveProperty>( curveProperty ).uiText() ) );
+            return false;
+        }
     }
 
     if ( targetTvds.size() != tvDepthValues.size() )
