@@ -171,7 +171,7 @@ std::pair<double, double>
         }
 
         auto v24mean = v32;
-        if ( mdIndex < ptList.size() - 2 )
+        if ( mdIndex < (int)ptList.size() - 2 )
         {
             const auto& v4  = cvf::Vec3d( ptList[mdIndex + 2] );
             auto        v43 = ( v4 - v3 ).getNormalized();
