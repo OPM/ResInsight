@@ -17,6 +17,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RimcWellLogPlotCollection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimcWellLogPlot.h
 ${CMAKE_CURRENT_LIST_DIR}/RimcWellLogTrack.h
 ${CMAKE_CURRENT_LIST_DIR}/RimcWellPathGeometryDef.h
+${CMAKE_CURRENT_LIST_DIR}/RimcModeledWellPath.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -37,6 +38,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RimcWellLogPlotCollection.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimcWellLogPlot.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimcWellLogTrack.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimcWellPathGeometryDef.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimcModeledWellPath.cpp
 )
 
 list(APPEND CODE_HEADER_FILES
