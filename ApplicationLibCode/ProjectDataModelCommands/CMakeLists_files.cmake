@@ -14,8 +14,9 @@ ${CMAKE_CURRENT_LIST_DIR}/RimcDataContainerDouble.h
 ${CMAKE_CURRENT_LIST_DIR}/RimcDataContainerString.h
 ${CMAKE_CURRENT_LIST_DIR}/RimcDataContainerTime.h
 ${CMAKE_CURRENT_LIST_DIR}/RimcWellLogPlotCollection.h
-${CMAKE_CURRENT_LIST_DIR}/RimcWellLogPlot.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimcWellLogTrack.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimcWellLogPlot.h
+${CMAKE_CURRENT_LIST_DIR}/RimcWellLogTrack.h
+${CMAKE_CURRENT_LIST_DIR}/RimcWellPathGeometryDef.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -35,6 +36,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RimcDataContainerTime.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimcWellLogPlotCollection.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimcWellLogPlot.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimcWellLogTrack.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimcWellPathGeometryDef.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

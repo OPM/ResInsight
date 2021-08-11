@@ -43,7 +43,7 @@ void caf::AppEnum<RimWellPathTarget::TargetTypeEnum>::setUp()
 {
     addItem( RimWellPathTarget::TargetTypeEnum::POINT_AND_TANGENT, "POINT_AND_TANGENT", "Point and Tangent" );
     addItem( RimWellPathTarget::TargetTypeEnum::POINT, "POINT", "Point" );
-    setDefault( RimWellPathTarget::TargetTypeEnum::POINT_AND_TANGENT );
+    setDefault( RimWellPathTarget::TargetTypeEnum::POINT );
 }
 } // namespace caf
 //--------------------------------------------------------------------------------------------------
@@ -51,7 +51,7 @@ void caf::AppEnum<RimWellPathTarget::TargetTypeEnum>::setUp()
 //--------------------------------------------------------------------------------------------------
 RimWellPathTarget::RimWellPathTarget()
     : moved( this )
-    , m_targetType( TargetTypeEnum::POINT_AND_TANGENT )
+    , m_targetType( TargetTypeEnum::POINT )
     , m_targetPointXYD( cvf::Vec3d::ZERO )
     , m_azimuth( 0.0 )
     , m_inclination( 0.0 )
@@ -69,7 +69,7 @@ RimWellPathTarget::RimWellPathTarget()
     m_isLocked.uiCapability()->setUiHidden( true );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_targetPointXYD, "TargetPoint", "Relative Coord", "", "", "" );
-    CAF_PDM_InitScriptableFieldNoDefault( &m_targetPointForDisplay, "TargetPointForDisplay", "UTM Coord", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_targetPointForDisplay, "TargetPointForDisplay", "UTM Coord", "", "", "" );
     m_targetPointForDisplay.registerGetMethod( this, &RimWellPathTarget::targetPointForDisplayXYD );
     m_targetPointForDisplay.registerSetMethod( this, &RimWellPathTarget::setTargetPointFromDisplayCoord );
 
