@@ -30,3 +30,5 @@ target = geometry.append_well_target(coord)
 
 coord = [1054.28, 250, -50]
 target = geometry.append_well_target(coord)
+
+well_path.append_perforation_interval(3300, 3350, 0.2, 0.76)
