@@ -25,6 +25,7 @@
 
 #include "cafPdmAbstractFieldScriptingCapability.h"
 #include "cafPdmFieldScriptingCapability.h"
+#include "cafPdmFieldScriptingCapabilityCvfVec3d.h"
 
 CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimWellPathGeometryDef,
                                    RimcRimWellPathGeometryDef_appendNewWellTarget,
