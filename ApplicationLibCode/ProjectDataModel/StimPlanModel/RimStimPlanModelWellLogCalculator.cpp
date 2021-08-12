@@ -24,6 +24,7 @@
 
 #include "RigActiveCellInfo.h"
 #include "RigEclipseCaseData.h"
+#include "RigEclipseResultAddress.h"
 #include "RigEclipseWellLogExtractor.h"
 #include "RigMainGrid.h"
 #include "RigResultAccessor.h"
@@ -80,6 +81,8 @@ bool RimStimPlanModelWellLogCalculator::calculate( RiaDefines::CurveProperty cur
                                                    std::vector<double>&      tvDepthValues,
                                                    double&                   rkbDiff ) const
 {
+    RiaLogging::debug(
+        QString( "Calculating well log for '%1'." ).arg( caf::AppEnum<RiaDefines::CurveProperty>( curveProperty ).uiText() ) );
     std::deque<RimStimPlanModel::MissingValueStrategy> missingValueStratgies =
         stimPlanModel->missingValueStrategies( curveProperty );
 
@@ -173,6 +176,9 @@ bool RimStimPlanModelWellLogCalculator::calculate( RiaDefines::CurveProperty cur
         scaleByNetToGross( stimPlanModel, netToGross, values );
     }
 
+    RiaLogging::debug( QString( "Well log for '%1' done. Size: %2." )
+                           .arg( caf::AppEnum<RiaDefines::CurveProperty>( curveProperty ).uiText() )
+                           .arg( values.size() ) );
     return true;
 }
 
@@ -357,7 +363,9 @@ void RimStimPlanModelWellLogCalculator::scaleByNetToGross( const RimStimPlanMode
 {
     if ( netToGross.size() != values.size() )
     {
-        RiaLogging::error( QString( "Different sizes for net to gross calculation." ) );
+        RiaLogging::error( QString( "Different sizes for net to gross calculation. NTG length: %1. Values length: %2" )
+                               .arg( netToGross.size() )
+                               .arg( values.size() ) );
         return;
     }
 
@@ -409,6 +417,9 @@ bool RimStimPlanModelWellLogCalculator::extractValuesForProperty( RiaDefines::Cu
         return false;
     }
 
+    RiaLogging::info( QString( "Extracting values for '%1' from grid '%2'." )
+                          .arg( caf::AppEnum<RiaDefines::CurveProperty>( curveProperty ).uiText() )
+                          .arg( eclipseCase->caseUserDescription() ) );
     RigEclipseWellLogExtractor eclExtractor( eclipseCase->eclipseCaseData(), wellPathGeometry, "fracture model" );
 
     measuredDepthValues = eclExtractor.cellIntersectionMDs();
@@ -438,6 +449,10 @@ bool RimStimPlanModelWellLogCalculator::extractValuesForProperty( RiaDefines::Cu
     if ( resAcc.notNull() )
     {
         eclExtractor.curveData( resAcc.p(), &values );
+        RiaLogging::info( QString( "Extracted values %1 from grid '%2' for '%3'." )
+                              .arg( values.size() )
+                              .arg( eclipseCase->caseUserDescription() )
+                              .arg( caf::AppEnum<RiaDefines::CurveProperty>( curveProperty ).uiText() ) );
     }
     else
     {
@@ -492,6 +507,8 @@ bool RimStimPlanModelWellLogCalculator::replaceMissingValuesWithDefault( RiaDefi
         RigEclipseWellLogExtractor eclExtractor( eclipseCase->eclipseCaseData(), wellPathGeometry, "fracture model" );
         eclExtractor.curveData( backupResAcc.p(), &replacementValues );
 
+        RiaLogging::debug( QString( "Read %1 values for '%2'" ).arg( replacementValues.size() ).arg( resultVariable ) );
+
         if ( values.empty() )
         {
             values              = replacementValues;
@@ -529,6 +546,10 @@ bool RimStimPlanModelWellLogCalculator::replaceMissingValuesWithDefault( RiaDefi
 
             replaceMissingValues( values, replacementValues );
         }
+    }
+    else
+    {
+        RiaLogging::debug( "No backup result accessor found." );
     }
 
     // If the backup accessor is not found, or does not provide all the missing values:

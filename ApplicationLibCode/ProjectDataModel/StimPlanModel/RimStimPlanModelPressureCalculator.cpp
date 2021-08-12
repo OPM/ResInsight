@@ -619,7 +619,8 @@ bool RimStimPlanModelPressureCalculator::interpolateInitialPressureByEquilibrati
     // EQLNUM data has values for over/underburden, but the pressure values does not.
     if ( eqlNumValues.size() != ( values.size() + 4 ) )
     {
-        RiaLogging::error( QString( "Failed to build EQLNUM pressure data: result length mismatch." ) );
+        RiaLogging::error(
+            QString( "Failed to build EQLNUM pressure data for initial pressure: result length mismatch." ) );
         RiaLogging::error(
             QString( "EQLNUM length: %1 PRESSURE length: %2" ).arg( eqlNumValues.size() ).arg( values.size() ) );
         return false;
