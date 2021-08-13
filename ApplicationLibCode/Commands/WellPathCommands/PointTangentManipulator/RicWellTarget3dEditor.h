@@ -26,6 +26,7 @@
 #include <QPointer>
 
 class RicPointTangentManipulator;
+class RimWellPathTarget;
 
 namespace cvf
 {
@@ -53,6 +54,8 @@ private slots:
 
 private:
     void removeAllFieldEditors();
+
+    static void updateTargetWithDeltaChange( RimWellPathTarget* target, const cvf::Vec3d& delta );
 
 private:
     QPointer<RicPointTangentManipulator> m_manipulator;
