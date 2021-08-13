@@ -39,6 +39,8 @@
 #include "cvfModelBasicList.h"
 #include "cvfPart.h"
 
+#include <QDebug>
+
 CAF_PDM_UI_3D_OBJECT_EDITOR_SOURCE_INIT( RicWellTarget3dEditor );
 
 //--------------------------------------------------------------------------------------------------
@@ -170,8 +172,16 @@ void RicWellTarget3dEditor::slotUpdated( const cvf::Vec3d& origin, const cvf::Ve
     cvf::ref<caf::DisplayCoordTransform> dispXf         = view->displayCoordTransform();
     auto                                 domainCoordXYZ = dispXf->transformToDomainCoord( origin );
 
+    qDebug() << "Entering slotUpdated";
+
+    //
+    // Modification of tie in
+    //
     if ( geomDef->activeWellTargets().front() == target )
     {
+        auto relativePositionXYZ = domainCoordXYZ - geomDef->anchorPointXyz();
+        auto delta               = target->targetPointXYZ() - relativePositionXYZ;
+
         RimModeledWellPath* modeledWellPath = nullptr;
         geomDef->firstAncestorOfType( modeledWellPath );
         if ( modeledWellPath && modeledWellPath->wellPathTieIn() && modeledWellPath->wellPathTieIn()->parentWell() )
@@ -183,45 +193,155 @@ void RicWellTarget3dEditor::slotUpdated( const cvf::Vec3d& origin, const cvf::Ve
             modeledWellPath->wellPathTieIn()->setTieInMeasuredDepth( closestMD );
             modeledWellPath->wellPathTieIn()->updateChildWellGeometry();
         }
+
+        bool modifyAllTargetsOnAllWells = ( ( QApplication::keyboardModifiers() & Qt::ControlModifier ) &&
+                                            ( QApplication::keyboardModifiers() & Qt::SHIFT ) );
+
+        if ( modifyAllTargetsOnAllWells )
+        {
+            for ( auto wellLateral : modeledWellPath->wellPathLaterals() )
+            {
+                if ( auto modeledLateral = dynamic_cast<RimModeledWellPath*>( wellLateral ) )
+                {
+                    auto activeTargets = modeledLateral->geometryDefinition()->activeWellTargets();
+                    for ( auto t : activeTargets )
+                    {
+                        if ( t == activeTargets.front() ) continue;
+                        if ( t == target ) continue;
+
+                        auto coordXYZ = t->targetPointXYZ() - delta;
+                        t->setPointXYZ( coordXYZ );
+                        t->updateConnectedEditors();
+                    }
+                }
+            }
+        }
+
+        if ( QApplication::keyboardModifiers() & Qt::ControlModifier )
+        {
+            for ( auto target : geomDef->activeWellTargets() )
+            {
+                if ( target == geomDef->activeWellTargets().front() ) continue;
+
+                auto position = target->targetPointXYZ() - delta;
+                target->setPointXYZ( position );
+                target->updateConnectedEditors();
+            }
+        }
+
+        cvf::Vec3d relativePositionXYD = domainCoordXYZ - geomDef->anchorPointXyz();
+        relativePositionXYD.z()        = -relativePositionXYD.z();
+
+        target->updateFrom3DManipulator( relativePositionXYD );
+
+        return;
     }
 
-    if ( geomDef->useReferencePointFromTopLevelWell() )
     {
         RimModeledWellPath* modeledWellPath = nullptr;
         geomDef->firstAncestorOfType( modeledWellPath );
-        if ( modeledWellPath )
+        if ( modeledWellPath && modeledWellPath->isTopLevelWellPath() )
         {
-            auto topLevelWellPath = dynamic_cast<RimModeledWellPath*>( modeledWellPath->topLevelWellPath() );
-            if ( topLevelWellPath )
+            //
+            // Modification of top level well path
+            //
+            //
+            bool modifyReferencePoint = ( ( QApplication::keyboardModifiers() & Qt::ControlModifier ) &&
+                                          ( QApplication::keyboardModifiers() & Qt::SHIFT ) );
+
+            if ( modifyReferencePoint )
             {
-                // Manipulate the reference point of top level well path
-                geomDef = topLevelWellPath->geometryDefinition();
+                auto relativePositionXYZ = domainCoordXYZ - geomDef->anchorPointXyz();
+                auto delta               = target->targetPointXYZ() - relativePositionXYZ;
+
+                // Find all linked wells and update with delta change
+                std::vector<RimWellPathGeometryDef*> linkedWellPathGeoDefs;
+                if ( geomDef->isReferencePointUpdatesLinked() )
+                {
+                    linkedWellPathGeoDefs = RimWellPathGeometryDefTools::linkedDefinitions();
+                }
+                else
+                {
+                    linkedWellPathGeoDefs.push_back( geomDef );
+                }
+
+                QString s = QString( "%1 %2 %2" ).arg( delta.x() ).arg( delta.y() ).arg( delta.z() );
+
+                qDebug() << s;
+
+                RimWellPathGeometryDefTools::updateLinkedGeometryDefinitions( linkedWellPathGeoDefs, delta );
+
+                return;
+            }
+
+            bool modifyAllTargetOnWell = ( QApplication::keyboardModifiers() & Qt::ControlModifier );
+            if ( modifyAllTargetOnWell )
+            {
+                auto relativePositionXYZ = domainCoordXYZ - geomDef->anchorPointXyz();
+                auto delta               = target->targetPointXYZ() - relativePositionXYZ;
+
+                for ( auto t : geomDef->activeWellTargets() )
+                {
+                    if ( t == target ) continue;
+
+                    auto coordXYZ = t->targetPointXYZ();
+                    coordXYZ -= delta;
+                    t->setPointXYZ( coordXYZ );
+                    t->updateConnectedEditors();
+                }
+            }
+        }
+        else if ( modeledWellPath && !modeledWellPath->isTopLevelWellPath() )
+        {
+            bool modifyAllTargetsOnAllWells = ( ( QApplication::keyboardModifiers() & Qt::ControlModifier ) &&
+                                                ( QApplication::keyboardModifiers() & Qt::SHIFT ) );
+
+            if ( modifyAllTargetsOnAllWells )
+            {
+                auto relativePositionXYZ = domainCoordXYZ - geomDef->anchorPointXyz();
+                auto delta               = target->targetPointXYZ() - relativePositionXYZ;
+
+                for ( auto wellLateral : modeledWellPath->wellPathLaterals() )
+                {
+                    if ( auto modeledLateral = dynamic_cast<RimModeledWellPath*>( wellLateral ) )
+                    {
+                        auto activeTargets = modeledLateral->geometryDefinition()->activeWellTargets();
+                        for ( auto t : activeTargets )
+                        {
+                            if ( t == activeTargets.front() ) continue;
+                            if ( t == target ) continue;
+
+                            auto coordXYZ = t->targetPointXYZ();
+                            coordXYZ -= delta;
+                            t->setPointXYZ( coordXYZ );
+                            t->updateConnectedEditors();
+                        }
+                    }
+                }
+            }
+
+            bool modifyAllTargets = ( QApplication::keyboardModifiers() & Qt::ControlModifier );
+
+            if ( modifyAllTargets )
+            {
+                auto relativePositionXYZ = domainCoordXYZ - geomDef->anchorPointXyz();
+                auto delta               = target->targetPointXYZ() - relativePositionXYZ;
+
+                for ( auto t : geomDef->activeWellTargets() )
+                {
+                    if ( t == geomDef->activeWellTargets().front() ) continue;
+                    if ( t == target ) continue;
+
+                    auto coordXYZ = t->targetPointXYZ();
+                    coordXYZ -= delta;
+                    t->setPointXYZ( coordXYZ );
+                    t->updateConnectedEditors();
+                }
             }
         }
     }
 
-    // If CTRL is pressed, modify the reference point instead of the well path target
-    bool modifyReferencePoint = ( QApplication::keyboardModifiers() & Qt::ControlModifier );
-    if ( modifyReferencePoint )
-    {
-        auto relativePositionXYZ = domainCoordXYZ - geomDef->anchorPointXyz();
-        auto delta               = target->targetPointXYZ() - relativePositionXYZ;
-
-        // Find all linked wells and update with delta change
-
-        std::vector<RimWellPathGeometryDef*> linkedWellPathGeoDefs;
-        if ( geomDef->isReferencePointUpdatesLinked() )
-        {
-            linkedWellPathGeoDefs = RimWellPathGeometryDefTools::linkedDefinitions();
-        }
-        else
-        {
-            linkedWellPathGeoDefs.push_back( geomDef );
-        }
-
-        RimWellPathGeometryDefTools::updateLinkedGeometryDefinitions( linkedWellPathGeoDefs, delta );
-    }
-    else
+    // Modify a single well target
     {
         cvf::Vec3d relativePositionXYD = domainCoordXYZ - geomDef->anchorPointXyz();
         relativePositionXYD.z()        = -relativePositionXYD.z();

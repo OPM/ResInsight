@@ -1171,6 +1171,31 @@ std::vector<RimWellPath*> RimWellPath::allWellPathLaterals() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::vector<RimWellPath*> RimWellPath::wellPathLaterals() const
+{
+    std::vector<RimWellPath*> laterals;
+
+    std::vector<caf::PdmObjectHandle*> referringObjects;
+    this->objectsWithReferringPtrFields( referringObjects );
+    for ( auto obj : referringObjects )
+    {
+        if ( auto tieIn = dynamic_cast<RimWellPathTieIn*>( obj ) )
+        {
+            auto tieInWellPath = tieIn->childWell();
+            if ( tieInWellPath == this ) continue;
+            if ( tieInWellPath )
+            {
+                laterals.push_back( tieInWellPath );
+            }
+        }
+    }
+
+    return laterals;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RimWellPathTieIn* RimWellPath::wellPathTieIn() const
 {
     return m_wellPathTieIn();
