@@ -7,6 +7,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RicNewWellPathListTargetFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicNewWellPathAttributeFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicDeleteWellPathTargetFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicDeleteWellPathAttributeFeature.h
+${CMAKE_CURRENT_LIST_DIR}/RicDeleteWellPathFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicWellPathsUnitSystemSettingsImpl.h
 ${CMAKE_CURRENT_LIST_DIR}/RicWellPathsUnitSystemSettingsUi.h
 ${CMAKE_CURRENT_LIST_DIR}/RicWellPathPickEventHandler.h 
@@ -40,6 +41,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RicNewWellPathListTargetFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicNewWellPathAttributeFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicDeleteWellPathTargetFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicDeleteWellPathAttributeFeature.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicDeleteWellPathFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicWellPathsUnitSystemSettingsImpl.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicWellPathsUnitSystemSettingsUi.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicWellPathPickEventHandler.cpp

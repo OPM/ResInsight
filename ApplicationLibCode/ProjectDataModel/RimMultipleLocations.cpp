@@ -60,12 +60,6 @@ RimMultipleLocations::RimMultipleLocations()
     CAF_PDM_InitFieldNoDefault( &m_rangeSpacing, "Spacing", "Spacing", "", "", "" );
     m_rangeSpacing.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitFieldNoDefault( &m_minimumMD, "MinimumMD", "Minimum MD", "", "", "" );
-    m_minimumMD.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
-
-    CAF_PDM_InitFieldNoDefault( &m_maximumMD, "MaximumMD", "Maximum MD", "", "", "" );
-    m_maximumMD.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
-
     CAF_PDM_InitField( &m_rangeCount, "RangeValveCount", 10, "Number of Items", "", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_locations, "Locations", "Measured Depths", "", "", "" );
@@ -77,9 +71,6 @@ RimMultipleLocations::RimMultipleLocations()
 //--------------------------------------------------------------------------------------------------
 void RimMultipleLocations::setRange( double minimumMD, double maximumMD )
 {
-    m_minimumMD = minimumMD;
-    m_maximumMD = maximumMD;
-
     m_rangeStart = minimumMD;
     m_rangeEnd   = maximumMD;
 }
@@ -91,8 +82,6 @@ void RimMultipleLocations::updateRangesAndLocations()
 {
     double existingRangeStart = m_rangeStart();
     double existingRangeEnd   = m_rangeEnd();
-    m_rangeStart              = std::clamp( m_rangeStart(), minimumMD(), maximumMD() );
-    m_rangeEnd                = std::clamp( m_rangeEnd(), minimumMD(), maximumMD() );
     if ( existingRangeStart != m_rangeStart() || existingRangeEnd != m_rangeEnd() )
     {
         computeRangesAndLocations();
@@ -295,8 +284,6 @@ void RimMultipleLocations::fieldChangedByUi( const caf::PdmFieldHandle* changedF
          changedField == &m_rangeSpacing )
     {
         recomputeLocations = true;
-        m_rangeStart       = std::clamp( m_rangeStart(), minimumMD(), maximumMD() );
-        m_rangeEnd         = std::clamp( m_rangeEnd(), minimumMD(), maximumMD() );
     }
 
     if ( changedField == &m_rangeSpacing )
@@ -335,22 +322,6 @@ double RimMultipleLocations::minimumSpacingMeters() const
     // Minimum distance between fishbones is 13.0m
     // Use 10.0m to allow for some flexibility
     return 10.0;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-double RimMultipleLocations::minimumMD() const
-{
-    return m_rangeStart();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-double RimMultipleLocations::maximumMD() const
-{
-    return m_rangeEnd();
 }
 
 //--------------------------------------------------------------------------------------------------

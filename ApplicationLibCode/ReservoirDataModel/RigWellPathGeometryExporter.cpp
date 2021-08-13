@@ -53,10 +53,6 @@ void RigWellPathGeometryExporter::exportWellPathGeometry( gsl::not_null<const Ri
             {
                 rkbOffset = modeledWellPath->geometryDefinition()->airGap();
             }
-            else
-            {
-                rkbOffset = modeledWellPath->geometryDefinition()->mdAtFirstTarget();
-            }
         }
     }
     exportWellPathGeometry( *wellPathGeom, mdStepSize, rkbOffset, xValues, yValues, tvdValues, mdValues );

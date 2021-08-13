@@ -25,6 +25,8 @@
 
 #include <vector>
 
+#include <gsl/gsl>
+
 class RigWellPath;
 
 //==================================================================================================
@@ -44,6 +46,9 @@ public:
     static std::vector<double>     interpolateMdFromTvd( const std::vector<double>& originalMdValues,
                                                          const std::vector<double>& originalTvdValues,
                                                          const std::vector<double>& tvdValuesToInterpolateFrom );
+
+    static std::pair<double, double>
+        calculateAzimuthAndInclinationAtMd( double measuredDepth, gsl::not_null<const RigWellPath*> wellPathGeometry );
 
 private:
     static std::vector<cvf::Vec3d> interpolateUndefinedNormals( const cvf::Vec3d&              planeNormal,

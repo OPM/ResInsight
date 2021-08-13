@@ -59,6 +59,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RivWellDiskPartMgr.h
 ${CMAKE_CURRENT_LIST_DIR}/RivElementVectorResultPartMgr.h
 ${CMAKE_CURRENT_LIST_DIR}/RivPolylinePartMgr.h
 ${CMAKE_CURRENT_LIST_DIR}/RivCellFilterPartMgr.h
+${CMAKE_CURRENT_LIST_DIR}/RivDrawableSpheres.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -116,6 +117,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RivWellDiskPartMgr.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RivElementVectorResultPartMgr.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RivPolylinePartMgr.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RivCellFilterPartMgr.cpp
+${CMAKE_CURRENT_LIST_DIR}/RivDrawableSpheres.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

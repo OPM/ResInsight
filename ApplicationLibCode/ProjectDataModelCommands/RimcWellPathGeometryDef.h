@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2020-     Equinor ASA
+//  Copyright (C) 2021- Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -18,23 +18,29 @@
 
 #pragma once
 
-#include "cafCmdFeature.h"
+#include "cafPdmField.h"
+#include "cafPdmObjectHandle.h"
+#include "cafPdmObjectMethod.h"
 
-class RimModeledWellPath;
-class RimWellPath;
+#include "cvfVector3.h"
+
+#include <QString>
 
 //==================================================================================================
 ///
 //==================================================================================================
-class RicNewWellPathLateralAtDepthFeature : public caf::CmdFeature
+class RimcRimWellPathGeometryDef_appendNewWellTarget : public caf::PdmObjectMethod
 {
-    CAF_CMD_HEADER_INIT;
+    CAF_PDM_HEADER_INIT;
 
 public:
-    bool isCommandEnabled() override;
-    void onActionTriggered( bool isChecked ) override;
-    void setupActionLook( QAction* actionToSetup ) override;
+    RimcRimWellPathGeometryDef_appendNewWellTarget( caf::PdmObjectHandle* self );
 
-    static RimModeledWellPath* createLateralAtMeasuredDepth( RimWellPath* parentWellPath, double parentWellMD );
-    static QString             updateNameOfParentAndFindNameOfSideStep( RimWellPath* parentWellPath );
+    caf::PdmObjectHandle*            execute() override;
+    bool                             resultIsPersistent() const override;
+    std::unique_ptr<PdmObjectHandle> defaultResult() const override;
+
+private:
+    caf::PdmField<cvf::Vec3d> m_coordinate;
+    caf::PdmField<bool>       m_isAbsolute;
 };

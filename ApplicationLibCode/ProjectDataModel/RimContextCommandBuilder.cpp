@@ -372,6 +372,9 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         {
             menuBuilder << "RicNewEditableWellPathFeature";
             menuBuilder << "RicNewWellPathLateralFeature";
+            menuBuilder << "RicLinkWellPathFeature";
+
+            menuBuilder.addSeparator();
             menuBuilder << "RicNewWellPathIntersectionFeature";
 
             appendCreateCompletions( menuBuilder );
@@ -399,12 +402,18 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder.subMenuEnd();
             menuBuilder.addSeparator();
 
+            menuBuilder << "RicDeleteWellPathFeature";
+
             menuBuilder.addSeparator();
 
-            if ( dynamic_cast<RimModeledWellPath*>( firstUiItem ) )
+            if ( auto modeledWellPath = dynamic_cast<RimModeledWellPath*>( firstUiItem ) )
             {
                 menuBuilder << "RicShowWellPlanFeature";
-                menuBuilder << "RicCreateMultipleWellPathLaterals";
+
+                if ( modeledWellPath->isTopLevelWellPath() )
+                {
+                    menuBuilder << "RicCreateMultipleWellPathLaterals";
+                }
             }
         }
         else if ( dynamic_cast<RimWellPathCompletions*>( firstUiItem ) )
@@ -1068,6 +1077,10 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         menuBuilder << "RicCutReferencesToClipboardFeature";
 
         menuBuilder << "Separator";
+
+        menuBuilder << "RicDeleteWellPathFeature";
+        menuBuilder << "RicLinkWellPathFeature";
+
         if ( dynamic_cast<RimSummaryCase*>( firstUiItem ) || dynamic_cast<RimSummaryCaseCollection*>( firstUiItem ) )
         {
             menuBuilder << "RicCreatePlotFromSelectionFeature";

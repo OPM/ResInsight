@@ -84,8 +84,8 @@ void RicNewWellPathLateralAtDepthFeature::setupActionLook( QAction* actionToSetu
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimWellPath* RicNewWellPathLateralAtDepthFeature::createLateralAtMeasuredDepth( RimWellPath* parentWellPath,
-                                                                                double       parentWellMD )
+RimModeledWellPath* RicNewWellPathLateralAtDepthFeature::createLateralAtMeasuredDepth( RimWellPath* parentWellPath,
+                                                                                       double       parentWellMD )
 {
     RimProject*            project      = RimProject::current();
     RimWellPathCollection* wellPathColl = RimTools::wellPathCollection();

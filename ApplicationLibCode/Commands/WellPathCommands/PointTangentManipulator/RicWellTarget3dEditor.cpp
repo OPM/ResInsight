@@ -20,12 +20,15 @@
 
 #include "RicPointTangentManipulator.h"
 
+#include "RigWellPath.h"
+
 #include "Rim3dView.h"
 #include "RimCase.h"
 #include "RimModeledWellPath.h"
 #include "RimWellPathGeometryDef.h"
 #include "RimWellPathGeometryDefTools.h"
 #include "RimWellPathTarget.h"
+#include "RimWellPathTieIn.h"
 
 #include "RiuViewer.h"
 
@@ -50,7 +53,7 @@ RicWellTarget3dEditor::RicWellTarget3dEditor()
 //--------------------------------------------------------------------------------------------------
 RicWellTarget3dEditor::~RicWellTarget3dEditor()
 {
-    RiuViewer* ownerRiuViewer = dynamic_cast<RiuViewer*>( ownerViewer() );
+    auto* ownerRiuViewer = dynamic_cast<RiuViewer*>( ownerViewer() );
 
     if ( m_cvfModel.notNull() && ownerRiuViewer )
     {
@@ -68,9 +71,9 @@ RicWellTarget3dEditor::~RicWellTarget3dEditor()
 //--------------------------------------------------------------------------------------------------
 void RicWellTarget3dEditor::configureAndUpdateUi( const QString& uiConfigName )
 {
-    RimWellPathTarget* target         = dynamic_cast<RimWellPathTarget*>( this->pdmObject() );
-    RiuViewer*         ownerRiuViewer = dynamic_cast<RiuViewer*>( ownerViewer() );
-    Rim3dView*         view           = mainOrComparisonView();
+    auto*      target         = dynamic_cast<RimWellPathTarget*>( this->pdmObject() );
+    auto*      ownerRiuViewer = dynamic_cast<RiuViewer*>( ownerViewer() );
+    Rim3dView* view           = mainOrComparisonView();
 
     if ( !target || !target->isEnabled() || !view )
     {
@@ -110,6 +113,29 @@ void RicWellTarget3dEditor::configureAndUpdateUi( const QString& uiConfigName )
     m_manipulator->setTangent( target->tangent() );
     m_manipulator->setHandleSize( handleSize );
 
+    {
+        RimWellPath* wellPath = nullptr;
+        target->firstAncestorOrThisOfType( wellPath );
+
+        if ( wellPath && !wellPath->isTopLevelWellPath() && geomDef->firstActiveTarget() == target )
+        {
+            if ( auto parentWellPath = wellPath->wellPathTieIn()->parentWell() )
+            {
+                auto geo    = parentWellPath->wellPathGeometry();
+                auto points = geo->wellPathPoints();
+
+                for ( auto& p : points )
+                {
+                    p = dispXf->transformToDisplayCoord( p );
+                }
+
+                // For the first target of a lateral, use the coordinates from the parent well as snap-to locations for
+                // the 3D manipulator sphere
+                m_manipulator->setPolyline( points );
+            }
+        }
+    }
+
     m_cvfModel->removeAllParts();
     m_manipulator->appendPartsToModel( m_cvfModel.p() );
 
@@ -129,64 +155,167 @@ void RicWellTarget3dEditor::cleanupBeforeSettingPdmObject()
 //--------------------------------------------------------------------------------------------------
 void RicWellTarget3dEditor::slotUpdated( const cvf::Vec3d& origin, const cvf::Vec3d& tangent )
 {
-    RimWellPathTarget* target = dynamic_cast<RimWellPathTarget*>( this->pdmObject() );
-    Rim3dView*         view   = mainOrComparisonView();
+    auto*      manipulatedTarget = dynamic_cast<RimWellPathTarget*>( this->pdmObject() );
+    Rim3dView* view              = mainOrComparisonView();
 
-    if ( !target || !view )
+    if ( !manipulatedTarget || !view )
     {
         return;
     }
 
     RimWellPathGeometryDef* geomDef;
-    target->firstAncestorOrThisOfTypeAsserted( geomDef );
+    manipulatedTarget->firstAncestorOrThisOfTypeAsserted( geomDef );
     if ( !geomDef ) return;
 
-    if ( geomDef->useReferencePointFromTopLevelWell() )
+    RimModeledWellPath* modeledWellPath = nullptr;
+    geomDef->firstAncestorOfType( modeledWellPath );
+
+    cvf::Vec3d domainCoordXYZ; // domain coordinate of the new location
+    cvf::Vec3d deltaManipulatorMovement; // delta change relative current location of target
+    cvf::Vec3d relativePositionXYZ; // position of well target relative to anchor point
     {
-        RimModeledWellPath* modeledWellPath = nullptr;
-        geomDef->firstAncestorOfType( modeledWellPath );
-        if ( modeledWellPath )
+        cvf::ref<caf::DisplayCoordTransform> dispXf = view->displayCoordTransform();
+        domainCoordXYZ                              = dispXf->transformToDomainCoord( origin );
+
+        relativePositionXYZ      = domainCoordXYZ - geomDef->anchorPointXyz();
+        deltaManipulatorMovement = manipulatedTarget->targetPointXYZ() - relativePositionXYZ;
+    }
+
+    if ( geomDef->activeWellTargets().front() == manipulatedTarget )
+    {
+        // The first well target of a lateral is the tie-in well target
+
+        if ( modeledWellPath && modeledWellPath->wellPathTieIn() && modeledWellPath->wellPathTieIn()->parentWell() )
         {
-            auto topLevelWellPath = dynamic_cast<RimModeledWellPath*>( modeledWellPath->topLevelWellPath() );
-            if ( topLevelWellPath )
+            auto parentWell  = modeledWellPath->wellPathTieIn()->parentWell();
+            auto wellPathGeo = parentWell->wellPathGeometry();
+            auto closestMD   = wellPathGeo->closestMeasuredDepth( domainCoordXYZ );
+
+            modeledWellPath->wellPathTieIn()->setTieInMeasuredDepth( closestMD );
+            modeledWellPath->wellPathTieIn()->updateChildWellGeometry();
+        }
+
+        bool modifyAllTargetsOnAllWells = ( ( QApplication::keyboardModifiers() & Qt::ControlModifier ) &&
+                                            ( QApplication::keyboardModifiers() & Qt::SHIFT ) );
+
+        if ( modifyAllTargetsOnAllWells )
+        {
+            for ( auto wellLateral : modeledWellPath->wellPathLaterals() )
             {
-                // Manipulate the reference point of top level well path
-                geomDef = topLevelWellPath->geometryDefinition();
+                if ( auto modeledLateral = dynamic_cast<RimModeledWellPath*>( wellLateral ) )
+                {
+                    auto activeTargets = modeledLateral->geometryDefinition()->activeWellTargets();
+                    for ( auto t : activeTargets )
+                    {
+                        if ( t == activeTargets.front() ) continue;
+                        if ( t == manipulatedTarget ) continue;
+
+                        // Does not work very well
+                        // Must update the tie-in MD also
+                        updateTargetWithDeltaChange( t, deltaManipulatorMovement );
+                    }
+                }
+            }
+        }
+
+        if ( QApplication::keyboardModifiers() & Qt::ControlModifier )
+        {
+            for ( auto target : geomDef->activeWellTargets() )
+            {
+                if ( target == geomDef->activeWellTargets().front() ) continue;
+
+                updateTargetWithDeltaChange( target, deltaManipulatorMovement );
+            }
+        }
+
+        cvf::Vec3d relativePositionXYD = relativePositionXYZ;
+        relativePositionXYD.z()        = -relativePositionXYD.z();
+
+        manipulatedTarget->updateFrom3DManipulator( relativePositionXYD );
+
+        return;
+    }
+
+    if ( modeledWellPath && modeledWellPath->isTopLevelWellPath() )
+    {
+        // Modification of top level well path
+
+        bool modifyReferencePoint = ( ( QApplication::keyboardModifiers() & Qt::ControlModifier ) &&
+                                      ( QApplication::keyboardModifiers() & Qt::SHIFT ) );
+        if ( modifyReferencePoint )
+        {
+            // Find all linked wells and update reference point with delta change
+            std::vector<RimWellPathGeometryDef*> linkedWellPathGeoDefs;
+            if ( geomDef->isReferencePointUpdatesLinked() )
+            {
+                linkedWellPathGeoDefs = RimWellPathGeometryDefTools::linkedDefinitions();
+            }
+            else
+            {
+                linkedWellPathGeoDefs.push_back( geomDef );
+            }
+
+            RimWellPathGeometryDefTools::updateLinkedGeometryDefinitions( linkedWellPathGeoDefs, deltaManipulatorMovement );
+
+            return;
+        }
+
+        bool modifyAllTargetOnWell = ( QApplication::keyboardModifiers() & Qt::ControlModifier );
+        if ( modifyAllTargetOnWell )
+        {
+            for ( auto t : geomDef->activeWellTargets() )
+            {
+                if ( t == manipulatedTarget ) continue;
+
+                updateTargetWithDeltaChange( t, deltaManipulatorMovement );
+            }
+        }
+    }
+    else if ( modeledWellPath && !modeledWellPath->isTopLevelWellPath() )
+    {
+        bool modifyAllTargetsOnAllWells = ( ( QApplication::keyboardModifiers() & Qt::ControlModifier ) &&
+                                            ( QApplication::keyboardModifiers() & Qt::SHIFT ) );
+        if ( modifyAllTargetsOnAllWells )
+        {
+            // Update all well targets on all connected laterals
+
+            for ( auto wellLateral : modeledWellPath->wellPathLaterals() )
+            {
+                if ( auto modeledLateral = dynamic_cast<RimModeledWellPath*>( wellLateral ) )
+                {
+                    auto activeTargets = modeledLateral->geometryDefinition()->activeWellTargets();
+                    for ( auto t : activeTargets )
+                    {
+                        if ( t == activeTargets.front() ) continue;
+                        if ( t == manipulatedTarget ) continue;
+
+                        updateTargetWithDeltaChange( t, deltaManipulatorMovement );
+                    }
+                }
+            }
+        }
+
+        bool modifyAllTargets = ( QApplication::keyboardModifiers() & Qt::ControlModifier );
+        if ( modifyAllTargets )
+        {
+            // Update all well targets on current well path
+
+            for ( auto t : geomDef->activeWellTargets() )
+            {
+                if ( t == geomDef->activeWellTargets().front() ) continue;
+                if ( t == manipulatedTarget ) continue;
+
+                updateTargetWithDeltaChange( t, deltaManipulatorMovement );
             }
         }
     }
 
-    cvf::ref<caf::DisplayCoordTransform> dispXf = view->displayCoordTransform();
-
-    auto domainCoordXYZ = dispXf->transformToDomainCoord( origin );
-
-    // If CTRL is pressed, modify the reference point instead of the well path target
-    bool modifyReferencePoint = ( QApplication::keyboardModifiers() & Qt::ControlModifier );
-    if ( modifyReferencePoint )
+    // Modify a single well target
     {
-        auto relativePositionXYZ = domainCoordXYZ - geomDef->anchorPointXyz();
-        auto delta               = target->targetPointXYZ() - relativePositionXYZ;
-
-        // Find all linked wells and update with delta change
-
-        std::vector<RimWellPathGeometryDef*> linkedWellPathGeoDefs;
-        if ( geomDef->isReferencePointUpdatesLinked() )
-        {
-            linkedWellPathGeoDefs = RimWellPathGeometryDefTools::linkedDefinitions();
-        }
-        else
-        {
-            linkedWellPathGeoDefs.push_back( geomDef );
-        }
-
-        RimWellPathGeometryDefTools::updateLinkedGeometryDefinitions( linkedWellPathGeoDefs, delta );
-    }
-    else
-    {
-        cvf::Vec3d relativePositionXYD = domainCoordXYZ - geomDef->anchorPointXyz();
+        cvf::Vec3d relativePositionXYD = relativePositionXYZ;
         relativePositionXYD.z()        = -relativePositionXYD.z();
 
-        target->updateFrom3DManipulator( relativePositionXYD );
+        manipulatedTarget->updateFrom3DManipulator( relativePositionXYD );
     }
 }
 
@@ -195,7 +324,7 @@ void RicWellTarget3dEditor::slotUpdated( const cvf::Vec3d& origin, const cvf::Ve
 //--------------------------------------------------------------------------------------------------
 void RicWellTarget3dEditor::slotSelectedIn3D()
 {
-    RimWellPathTarget* target = dynamic_cast<RimWellPathTarget*>( this->pdmObject() );
+    auto* target = dynamic_cast<RimWellPathTarget*>( this->pdmObject() );
     if ( !target )
     {
         return;
@@ -209,7 +338,7 @@ void RicWellTarget3dEditor::slotSelectedIn3D()
 //--------------------------------------------------------------------------------------------------
 void RicWellTarget3dEditor::slotDragFinished()
 {
-    RimWellPathTarget* target = dynamic_cast<RimWellPathTarget*>( this->pdmObject() );
+    auto* target = dynamic_cast<RimWellPathTarget*>( this->pdmObject() );
     if ( !target )
     {
         return;
@@ -223,11 +352,21 @@ void RicWellTarget3dEditor::slotDragFinished()
 //--------------------------------------------------------------------------------------------------
 void RicWellTarget3dEditor::removeAllFieldEditors()
 {
-    if ( RimWellPathTarget* oldTarget = dynamic_cast<RimWellPathTarget*>( this->pdmObject() ) )
+    if ( auto* oldTarget = dynamic_cast<RimWellPathTarget*>( this->pdmObject() ) )
     {
         for ( auto field : oldTarget->fieldsFor3dManipulator() )
         {
             field->uiCapability()->removeFieldEditor( this );
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicWellTarget3dEditor::updateTargetWithDeltaChange( RimWellPathTarget* target, const cvf::Vec3d& delta )
+{
+    auto coordXYZ = target->targetPointXYZ() - delta;
+    target->setPointXYZ( coordXYZ );
+    target->updateConnectedEditors();
 }

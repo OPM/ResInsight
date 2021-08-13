@@ -55,6 +55,7 @@ public:
     void setOrigin( const cvf::Vec3d& origin );
     void setTangent( const cvf::Vec3d& tangent );
     void setHandleSize( double handleSize );
+    void setPolyline( const std::vector<cvf::Vec3d>& polyline );
 
     void appendPartsToModel( cvf::ModelBasicList* model );
 

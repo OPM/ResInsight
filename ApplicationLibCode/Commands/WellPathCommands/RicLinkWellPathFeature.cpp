@@ -24,6 +24,7 @@
 #include "Riu3dSelectionManager.h"
 
 #include "cafSelectionManager.h"
+#include "cafSelectionManagerTools.h"
 
 #include <QAction>
 
@@ -34,7 +35,7 @@ CAF_CMD_SOURCE_INIT( RicLinkWellPathFeature, "RicLinkWellPathFeature" );
 //--------------------------------------------------------------------------------------------------
 bool RicLinkWellPathFeature::isCommandEnabled()
 {
-    return ( wellPathGeometryDef() != nullptr );
+    return ( !wellPaths().empty() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -42,10 +43,14 @@ bool RicLinkWellPathFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicLinkWellPathFeature::onActionTriggered( bool isChecked )
 {
-    if ( auto geoDef = wellPathGeometryDef() )
+    for ( auto w : wellPaths() )
     {
-        geoDef->enableLinkOfReferencePointUpdates( isChecked );
-        geoDef->updateConnectedEditors();
+        if ( auto modeledWell = dynamic_cast<RimModeledWellPath*>( w ) )
+        {
+            auto geoDef = modeledWell->geometryDefinition();
+            geoDef->enableLinkOfReferencePointUpdates( isChecked );
+            geoDef->updateConnectedEditors();
+        }
     }
 }
 
@@ -58,6 +63,8 @@ void RicLinkWellPathFeature::setupActionLook( QAction* actionToSetup )
     actionToSetup->setText( text );
     actionToSetup->setCheckable( true );
     actionToSetup->setChecked( isCommandChecked() );
+
+    actionToSetup->setIcon( QIcon( ":/chain.png" ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -65,27 +72,39 @@ void RicLinkWellPathFeature::setupActionLook( QAction* actionToSetup )
 //--------------------------------------------------------------------------------------------------
 bool RicLinkWellPathFeature::isCommandChecked()
 {
-    if ( auto geoDef = wellPathGeometryDef() )
+    if ( !wellPaths().empty() )
     {
-        return geoDef->isReferencePointUpdatesLinked();
+        auto firstWell = dynamic_cast<RimModeledWellPath*>( wellPaths().front() );
+        if ( auto geoDef = firstWell->geometryDefinition() )
+        {
+            return geoDef->isReferencePointUpdatesLinked();
+        }
     }
-
     return false;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimWellPathGeometryDef* RicLinkWellPathFeature::wellPathGeometryDef()
+std::vector<RimWellPath*> RicLinkWellPathFeature::wellPaths()
 {
+    std::vector<RimWellPath*> wellPaths;
+
     auto wellPathSelectionItem = RiuWellPathSelectionItem::wellPathSelectionItem();
     if ( wellPathSelectionItem && wellPathSelectionItem->m_wellpath )
     {
-        if ( auto modeledWellPath = dynamic_cast<RimModeledWellPath*>( wellPathSelectionItem->m_wellpath ) )
+        if ( auto modeledWellPath =
+                 dynamic_cast<RimModeledWellPath*>( wellPathSelectionItem->m_wellpath->topLevelWellPath() ) )
         {
-            return modeledWellPath->geometryDefinition();
+            wellPaths.push_back( modeledWellPath );
         }
     }
 
-    return nullptr;
+    auto selectedWells = caf::selectedObjectsByTypeStrict<RimWellPath*>();
+    for ( auto w : selectedWells )
+    {
+        wellPaths.push_back( w->topLevelWellPath() );
+    }
+
+    return wellPaths;
 }

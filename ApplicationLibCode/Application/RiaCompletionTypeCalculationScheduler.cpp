@@ -114,12 +114,6 @@ void RiaCompletionTypeCalculationScheduler::slotRecalculateCompletionType()
 
     Rim3dView* activeView = RiaApplication::instance()->activeReservoirView();
 
-    QModelIndex mi;
-    if ( RiuMainWindow::instance() )
-    {
-        mi = RiuMainWindow::instance()->projectTreeView()->treeView()->currentIndex();
-    }
-
     for ( RimEclipseCase* eclipseCase : uniqueCases )
     {
         if ( eclipseCase )
@@ -147,11 +141,6 @@ void RiaCompletionTypeCalculationScheduler::slotRecalculateCompletionType()
         {
             RiuMainWindow::instance()->setActiveViewer( activeView->viewer()->layoutWidget() );
         }
-    }
-
-    if ( mi.isValid() && RiuMainWindow::instance() )
-    {
-        RiuMainWindow::instance()->projectTreeView()->treeView()->setCurrentIndex( mi );
     }
 }
 

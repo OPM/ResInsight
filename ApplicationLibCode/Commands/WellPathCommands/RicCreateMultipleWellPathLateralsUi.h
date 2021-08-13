@@ -30,6 +30,7 @@
 #include <QPointer>
 
 class RimModeledWellPath;
+class RimWellPath;
 
 namespace caf
 {
@@ -46,7 +47,7 @@ class RicCreateMultipleWellPathLateralsUi : public caf::PdmObject
 public:
     RicCreateMultipleWellPathLateralsUi();
 
-    void setSourceLateral( RimModeledWellPath* lateral );
+    void setTopLevelWellPath( RimWellPath* wellPath );
     void setDefaultValues( double start, double end );
 
     RimModeledWellPath*   sourceLateral() const;
@@ -60,6 +61,7 @@ private:
 
 private:
     caf::PdmPtrField<RimModeledWellPath*> m_sourceLateral;
+    caf::PdmPtrField<RimWellPath*>        m_topLevelWellPath;
 
     caf::PdmChildField<RimMultipleLocations*> m_locations;
 };

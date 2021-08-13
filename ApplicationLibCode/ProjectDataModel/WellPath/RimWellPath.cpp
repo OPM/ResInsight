@@ -137,8 +137,6 @@ RimWellPath::RimWellPath()
     CAF_PDM_InitFieldNoDefault( &m_wellPathTieIn, "WellPathTieIn", "well Path Tie-In", "", "", "" );
     m_wellPathTieIn = new RimWellPathTieIn;
     m_wellPathTieIn->connectWellPaths( nullptr, this, 0.0 );
-
-    this->setDeletable( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1166,6 +1164,31 @@ std::vector<RimWellPath*> RimWellPath::allWellPathLaterals() const
     std::vector<RimWellPath*> laterals;
 
     this->wellPathLateralsRecursively( laterals );
+
+    return laterals;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimWellPath*> RimWellPath::wellPathLaterals() const
+{
+    std::vector<RimWellPath*> laterals;
+
+    std::vector<caf::PdmObjectHandle*> referringObjects;
+    this->objectsWithReferringPtrFields( referringObjects );
+    for ( auto obj : referringObjects )
+    {
+        if ( auto tieIn = dynamic_cast<RimWellPathTieIn*>( obj ) )
+        {
+            auto tieInWellPath = tieIn->childWell();
+            if ( tieInWellPath == this ) continue;
+            if ( tieInWellPath )
+            {
+                laterals.push_back( tieInWellPath );
+            }
+        }
+    }
 
     return laterals;
 }

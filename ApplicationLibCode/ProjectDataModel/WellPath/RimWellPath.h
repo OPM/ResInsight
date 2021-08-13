@@ -163,6 +163,7 @@ public:
     RimWellPath*              topLevelWellPath();
     const RimWellPath*        topLevelWellPath() const;
     std::vector<RimWellPath*> allWellPathLaterals() const;
+    std::vector<RimWellPath*> wellPathLaterals() const;
 
     RimWellPathTieIn* wellPathTieIn() const;
     void              connectWellPaths( RimWellPath* childWell, double tieInMeasuredDepth );

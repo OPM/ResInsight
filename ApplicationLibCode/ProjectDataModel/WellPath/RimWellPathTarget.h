@@ -85,6 +85,7 @@ private:
 
     cvf::Vec3d targetPointForDisplayXYD() const;
     void       setTargetPointFromDisplayCoord( const cvf::Vec3d& coordInXYZ );
+    double     measuredDepth() const;
 
     RimWellPathGeometryDef* geometryDefinition() const;
 
@@ -96,9 +97,11 @@ private:
     caf::PdmField<caf::AppEnum<TargetTypeEnum>> m_targetType;
     caf::PdmField<cvf::Vec3d>                   m_targetPointXYD;
     caf::PdmProxyValueField<cvf::Vec3d>         m_targetPointForDisplay;
-    caf::PdmField<double>                       m_azimuth;
-    caf::PdmField<double>                       m_inclination;
-    caf::PdmField<double>                       m_dogleg1;
-    caf::PdmField<double>                       m_dogleg2;
-    caf::PdmField<bool>                         m_hasTangentConstraintUiField;
+    caf::PdmProxyValueField<double>             m_targetMeasuredDepth;
+
+    caf::PdmField<double> m_azimuth;
+    caf::PdmField<double> m_inclination;
+    caf::PdmField<double> m_dogleg1;
+    caf::PdmField<double> m_dogleg2;
+    caf::PdmField<bool>   m_hasTangentConstraintUiField;
 };

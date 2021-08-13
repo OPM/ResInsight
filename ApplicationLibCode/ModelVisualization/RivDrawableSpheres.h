@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2021-     Equinor ASA
+//  Copyright (C) 2021 -     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -18,23 +18,22 @@
 
 #pragma once
 
-#include "cafCmdFeature.h"
+#include "cvfDrawableVectors.h"
 
-class RimWellPath;
-
-//==================================================================================================
-///
-//==================================================================================================
-class RicLinkWellPathFeature : public caf::CmdFeature
+class RivDrawableSpheres : public cvf::DrawableVectors
 {
-    CAF_CMD_HEADER_INIT;
-
 public:
-    bool isCommandEnabled() override;
-    void onActionTriggered( bool isChecked ) override;
-    void setupActionLook( QAction* actionToSetup ) override;
-    bool isCommandChecked() override;
+    RivDrawableSpheres();
+    RivDrawableSpheres( cvf::String vectorMatrixUniformName, cvf::String colorUniformName );
+
+    bool rayIntersectCreateDetail( const cvf::Ray&           ray,
+                                   cvf::Vec3d*               intersectionPoint,
+                                   cvf::ref<cvf::HitDetail>* hitDetail ) const override;
+
+    void setRadius( float radius );
+    void setCenterCoords( cvf::Vec3fArray* vertexArray );
 
 private:
-    static std::vector<RimWellPath*> wellPaths();
+    cvf::ref<cvf::Vec3fArray> m_centerCoordArray; // Coordinates for sphere center
+    float                     m_radius; // Sphere radius
 };

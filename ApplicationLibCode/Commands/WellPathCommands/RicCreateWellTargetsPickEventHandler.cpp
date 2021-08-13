@@ -27,6 +27,7 @@
 #include "RigHexIntersectionTools.h"
 #include "RigMainGrid.h"
 #include "RigWellPath.h"
+#include "RigWellPathGeometryTools.h"
 
 #include "Rim3dView.h"
 #include "RimEclipseView.h"
@@ -111,8 +112,15 @@ bool RicCreateWellTargetsPickEventHandler::handle3dPickEvent( const Ric3dPickEve
             targetPointInDomain =
                 wellPathSourceInfo->closestPointOnCenterLine( firstPickItem.faceIdx(), intersectionPointInDomain );
             double md = wellPathSourceInfo->measuredDepth( firstPickItem.faceIdx(), intersectionPointInDomain );
-            doSetAzimuthAndInclination = calculateAzimuthAndInclinationAtMd( md, wellPathGeometry, &azimuth, &inclination );
-            double rkbDiff             = wellPathGeometry->rkbDiff();
+
+            {
+                const auto [az, inc] = RigWellPathGeometryTools::calculateAzimuthAndInclinationAtMd( md, wellPathGeometry );
+                azimuth              = az;
+                inclination          = inc;
+                doSetAzimuthAndInclination = true;
+            }
+
+            double rkbDiff = wellPathGeometry->rkbDiff();
             if ( m_geometryToAddTargetsTo->airGap() == 0.0 && rkbDiff != std::numeric_limits<double>::infinity() )
             {
                 m_geometryToAddTargetsTo->setAirGap( rkbDiff );
@@ -187,59 +195,6 @@ bool RicCreateWellTargetsPickEventHandler::handle3dPickEvent( const Ric3dPickEve
         return true; // Todo: See if we really should eat the event instead
     }
 
-    return false;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RicCreateWellTargetsPickEventHandler::calculateAzimuthAndInclinationAtMd( double measuredDepth,
-                                                                               gsl::not_null<const RigWellPath*> wellPathGeometry,
-                                                                               double* azimuth,
-                                                                               double* inclination ) const
-{
-    int  mdIndex = -1;
-    auto mdList  = wellPathGeometry->measuredDepths();
-
-    for ( int i = 0; i < (int)mdList.size(); i++ )
-    {
-        if ( mdList[i] > measuredDepth )
-        {
-            mdIndex = i - 1;
-            break;
-        }
-    }
-
-    auto ptList = wellPathGeometry->wellPathPoints();
-    if ( mdIndex > 0 && mdIndex < (int)ptList.size() - 2 )
-    {
-        auto v1 = cvf::Vec3d( ptList[mdIndex - 1] );
-        auto v2 = cvf::Vec3d( ptList[mdIndex] );
-        auto v3 = cvf::Vec3d( ptList[mdIndex + 1] );
-        auto v4 = cvf::Vec3d( ptList[mdIndex + 2] );
-
-        auto v21 = v2 - v1;
-        auto v32 = v3 - v2;
-        auto v43 = v4 - v3;
-
-        v21.normalize();
-        v32.normalize();
-        v43.normalize();
-
-        auto v13mean = ( v21 + v32 ) / 2;
-        auto v24mean = ( v32 + v43 ) / 2;
-
-        double weight = ( measuredDepth - mdList[mdIndex] ) / ( mdList[mdIndex + 1] - mdList[mdIndex] );
-        auto   vTan   = v13mean * weight + v24mean * ( 1 - weight );
-
-        RiaOffshoreSphericalCoords coords( vTan );
-        *azimuth     = coords.azi();
-        *inclination = coords.inc();
-        return true;
-    }
-
-    *azimuth     = 0.0;
-    *inclination = 0.0;
     return false;
 }
 

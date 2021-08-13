@@ -30,7 +30,8 @@
 
 #include "RiuMainWindow.h"
 
-#include "cafPdmUiDoubleValueEditor.h"
+#include "RigWellPathGeometryTools.h"
+#include "cafPdmUiDoubleSliderEditor.h"
 
 CAF_PDM_SOURCE_INIT( RimWellPathTieIn, "RimWellPathTieIn" );
 
@@ -44,7 +45,7 @@ RimWellPathTieIn::RimWellPathTieIn()
     CAF_PDM_InitFieldNoDefault( &m_parentWell, "ParentWellPath", "Parent Well Path", "", "", "" );
     CAF_PDM_InitFieldNoDefault( &m_childWell, "ChildWellPath", "ChildWellPath", "", "", "" );
     CAF_PDM_InitFieldNoDefault( &m_tieInMeasuredDepth, "TieInMeasuredDepth", "Tie In Measured Depth", "", "", "" );
-    m_tieInMeasuredDepth.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
+    m_tieInMeasuredDepth.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
 
     CAF_PDM_InitField( &m_addValveAtConnection, "AddValveAtConnection", false, "Add Outlet Valve for Branches", "", "", "" );
 
@@ -226,4 +227,33 @@ QList<caf::PdmOptionItemInfo> RimWellPathTieIn::calculateValueOptions( const caf
     }
 
     return options;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellPathTieIn::defineEditorAttribute( const caf::PdmFieldHandle* field,
+                                              QString                    uiConfigName,
+                                              caf::PdmUiEditorAttribute* attribute )
+{
+    if ( field == &m_tieInMeasuredDepth )
+    {
+        caf::PdmUiDoubleSliderEditorAttribute* myAttr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute );
+
+        if ( myAttr && parentWell() )
+        {
+            double minimumValue = 0.0, maximumValue = 0.0;
+
+            auto wellPathGeo = parentWell()->wellPathGeometry();
+
+            if ( wellPathGeo )
+            {
+                minimumValue = wellPathGeo->measuredDepths().front();
+                maximumValue = wellPathGeo->measuredDepths().back();
+
+                myAttr->m_minimum = minimumValue;
+                myAttr->m_maximum = maximumValue;
+            }
+        }
+    }
 }
