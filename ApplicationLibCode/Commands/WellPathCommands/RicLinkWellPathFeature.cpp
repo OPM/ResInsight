@@ -74,8 +74,7 @@ bool RicLinkWellPathFeature::isCommandChecked()
 {
     if ( !wellPaths().empty() )
     {
-        auto firstWell = dynamic_cast<RimModeledWellPath*>( wellPaths().front() );
-        if ( firstWell )
+        if ( auto firstWell = dynamic_cast<RimModeledWellPath*>( wellPaths().front() ) )
         {
             if ( auto geoDef = firstWell->geometryDefinition() )
             {
