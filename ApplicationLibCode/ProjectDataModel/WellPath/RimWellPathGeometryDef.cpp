@@ -105,7 +105,7 @@ RimWellPathGeometryDef::RimWellPathGeometryDef()
     CAF_PDM_InitScriptableField( &m_linkReferencePointUpdates,
                                  "LinkReferencePointUpdates",
                                  false,
-                                 "Link Reference Point Updates",
+                                 "Link Reference Point",
                                  "",
                                  "",
                                  "" );

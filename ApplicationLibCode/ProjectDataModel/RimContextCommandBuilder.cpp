@@ -1076,6 +1076,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         menuBuilder << "Separator";
 
         menuBuilder << "RicDeleteWellPathFeature";
+        menuBuilder << "RicLinkWellPathFeature";
 
         if ( dynamic_cast<RimSummaryCase*>( firstUiItem ) || dynamic_cast<RimSummaryCaseCollection*>( firstUiItem ) )
         {

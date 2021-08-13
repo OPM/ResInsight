@@ -20,7 +20,7 @@
 
 #include "cafCmdFeature.h"
 
-class RimWellPathGeometryDef;
+class RimWellPath;
 
 //==================================================================================================
 ///
@@ -36,5 +36,5 @@ public:
     bool isCommandChecked() override;
 
 private:
-    static RimWellPathGeometryDef* wellPathGeometryDef();
+    static std::vector<RimWellPath*> wellPaths();
 };
