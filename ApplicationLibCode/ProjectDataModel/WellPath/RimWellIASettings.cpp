@@ -111,6 +111,21 @@ bool RimWellIASettings::initSettings( QString& outErrmsg )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimWellIASettings::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
+                                          const QVariant&            oldValue,
+                                          const QVariant&            newValue )
+{
+    if ( ( changedField == &m_startMD ) || ( changedField == &m_endMD ) )
+    {
+        RiaApplication::instance()->project()->scheduleCreateDisplayModelAndRedrawAllViews();
+    }
+
+    this->updateConnectedEditors();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo> RimWellIASettings::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
                                                                         bool*                      useOptionsOnly )
 {
@@ -319,4 +334,20 @@ void RimWellIASettings::setDepthInterval( double startMD, double endMD )
 {
     m_startMD = startMD;
     m_endMD   = endMD;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimWellIASettings::startMD()
+{
+    return m_startMD;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimWellIASettings::endMD()
+{
+    return m_endMD;
 }

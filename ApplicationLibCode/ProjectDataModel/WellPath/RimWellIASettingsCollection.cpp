@@ -18,9 +18,11 @@
 
 #include "RimWellIASettingsCollection.h"
 
+#include "RiaApplication.h"
 #include "RiaLogging.h"
 
 #include "RimGeoMechCase.h"
+#include "RimProject.h"
 #include "RimWellIASettings.h"
 #include "RimWellPath.h"
 #include "cafPdmFieldScriptingCapability.h"
@@ -76,6 +78,8 @@ RimWellIASettings* RimWellIASettingsCollection::startWellIntegrationAnalysis( QS
     }
 
     m_wellIASettings.push_back( modelSettings );
+
+    RiaApplication::instance()->project()->scheduleCreateDisplayModelAndRedrawAllViews();
 
     return modelSettings;
 }

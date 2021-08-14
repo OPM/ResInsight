@@ -52,7 +52,9 @@ public:
 
     RimGenericParameter* getInputParameter( QString name ) const;
 
-    void setDepthInterval( double startMD, double endMD );
+    void   setDepthInterval( double startMD, double endMD );
+    double startMD();
+    double endMD();
 
     QString modelName() const;
     void    setModelName( const QString name );
@@ -61,6 +63,7 @@ protected:
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
                                                          bool*                      useOptionsOnly ) override;
 
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void defineEditorAttribute( const caf::PdmFieldHandle* field,
                                 QString                    uiConfigName,
