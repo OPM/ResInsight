@@ -500,6 +500,12 @@ bool RimSurfaceCollection::containsSurface()
     {
         containsSurface |= coll->containsSurface();
     }
+
+    for ( auto ensSurf : m_ensembleSurfaces )
+    {
+        containsSurface |= ( ensSurf->surfaces().size() > 0 );
+    }
+
     return containsSurface;
 }
 
