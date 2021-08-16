@@ -45,6 +45,12 @@ public:
 
     static double pressureDifferenceInterpolationOffset();
 
+    static std::tuple<std::vector<double>, std::vector<double>, std::vector<double>>
+        interpolateMissingValues( const std::vector<double>& staticTvDepthValues,
+                                  const std::vector<double>& staticMeasuredDepthValues,
+                                  const std::vector<double>& measuredDepthValues,
+                                  const std::vector<double>& values );
+
 protected:
     bool extractValuesForProperty( RiaDefines::CurveProperty curveProperty,
                                    const RimStimPlanModel*   stimPlanModel,
@@ -77,12 +83,6 @@ protected:
                                           int                        timeStep,
                                           const std::vector<double>& faciesValues,
                                           std::vector<double>&       values ) const;
-
-    static std::tuple<std::vector<double>, std::vector<double>, std::vector<double>>
-        interpolateMissingValues( const std::vector<double>& staticTvDepthValues,
-                                  const std::vector<double>& staticMeasuredDepthValues,
-                                  const std::vector<double>& measuredDepthValues,
-                                  const std::vector<double>& values );
 
     typedef std::pair<double, double>           DepthValuePair;
     typedef std::vector<DepthValuePair>         DepthValuePairVector;
