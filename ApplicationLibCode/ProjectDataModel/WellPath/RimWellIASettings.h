@@ -17,6 +17,8 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
+#include "RimCheckableNamedObject.h"
+
 #include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
@@ -30,7 +32,7 @@ class RimGeoMechCase;
 class RimParameterGroup;
 class RimGenericParameter;
 
-class RimWellIASettings : public caf::PdmObject
+class RimWellIASettings : public RimCheckableNamedObject
 {
     CAF_PDM_HEADER_INIT;
 
@@ -77,7 +79,6 @@ private:
     void setupResInsightParameters();
 
 private:
-    caf::PdmField<QString>           m_modelName;
     caf::PdmProxyValueField<QString> m_nameProxy;
 
     caf::PdmPtrField<RimGeoMechCase*> m_geomechCase;

@@ -1045,6 +1045,7 @@ void RivWellPathPartMgr::appendWellIntegrityIntervalsToModel( cvf::ModelBasicLis
 
     for ( auto wiaModel : m_rimWellPath->wellIASettingsCollection()->settings() )
     {
+        if ( !wiaModel->isChecked() ) continue;
         if ( wiaModel->startMD() > wiaModel->endMD() ) continue;
 
         double                  horizontalLengthAlongWellPath = 0.0;

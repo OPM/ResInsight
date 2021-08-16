@@ -117,4 +117,5 @@ void RimWellIASettingsCollection::onChildDeleted( caf::PdmChildArrayFieldHandle*
     RimWellPath* wellPath;
     this->firstAncestorOrThisOfType( wellPath );
     if ( wellPath ) wellPath->updateConnectedEditors();
+    RiaApplication::instance()->project()->scheduleCreateDisplayModelAndRedrawAllViews();
 }

@@ -53,8 +53,7 @@ RimWellIASettings::RimWellIASettings()
 {
     CAF_PDM_InitObject( "Integrity Analysis Model Settings", ":/WellIntAnalysis.png", "", "" );
 
-    CAF_PDM_InitScriptableFieldNoDefault( &m_modelName, "ModelName", "Name", "", "", "" );
-    m_modelName = "Model";
+    setName( "Model" );
 
     CAF_PDM_InitFieldNoDefault( &m_geomechCase, "GeomechCase", "GeoMech Case", "", "", "" );
     // m_geomechCase.uiCapability()->setUiReadOnly( true );
@@ -115,7 +114,7 @@ void RimWellIASettings::fieldChangedByUi( const caf::PdmFieldHandle* changedFiel
                                           const QVariant&            oldValue,
                                           const QVariant&            newValue )
 {
-    if ( ( changedField == &m_startMD ) || ( changedField == &m_endMD ) )
+    if ( ( changedField == &m_startMD ) || ( changedField == &m_endMD ) || changedField == objectToggleField() )
     {
         RiaApplication::instance()->project()->scheduleCreateDisplayModelAndRedrawAllViews();
     }
@@ -160,7 +159,7 @@ void RimWellIASettings::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderi
         }
     }
 
-    uiOrdering.add( &m_modelName );
+    uiOrdering.add( nameField() );
     uiOrdering.add( &m_geomechCase );
     uiOrdering.add( &m_baseDir );
     uiOrdering.add( &m_startMD );
@@ -193,27 +192,11 @@ void RimWellIASettings::defineEditorAttribute( const caf::PdmFieldHandle* field,
 }
 
 //--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RimWellIASettings::modelName() const
-{
-    return m_modelName.value();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimWellIASettings::setModelName( const QString name )
-{
-    return m_modelName.setValue( name );
-}
-
-//--------------------------------------------------------------------------------------------------
 /// Return the name to show in the tree selector
 //--------------------------------------------------------------------------------------------------
 QString RimWellIASettings::fullName() const
 {
-    return QString( "%1 - [%2 - %3]" ).arg( m_modelName ).arg( m_startMD ).arg( m_endMD );
+    return QString( "%1 - [%2 - %3]" ).arg( name() ).arg( m_startMD ).arg( m_endMD );
 }
 
 //--------------------------------------------------------------------------------------------------
