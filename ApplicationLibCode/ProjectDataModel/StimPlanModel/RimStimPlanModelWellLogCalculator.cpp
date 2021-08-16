@@ -37,6 +37,7 @@
 #include "RimEclipseInputProperty.h"
 #include "RimEclipseInputPropertyCollection.h"
 #include "RimEclipseResultDefinition.h"
+#include "RimExtractionConfiguration.h"
 #include "RimModeledWellPath.h"
 #include "RimNonNetLayers.h"
 #include "RimStimPlanModel.h"
@@ -83,21 +84,47 @@ bool RimStimPlanModelWellLogCalculator::calculate( RiaDefines::CurveProperty cur
 {
     RiaLogging::debug(
         QString( "Calculating well log for '%1'." ).arg( caf::AppEnum<RiaDefines::CurveProperty>( curveProperty ).uiText() ) );
+
+    std::deque<RimExtractionConfiguration> extractionConfigurations =
+        stimPlanModel->extractionConfigurations( curveProperty );
+
     std::deque<RimStimPlanModel::MissingValueStrategy> missingValueStratgies =
         stimPlanModel->missingValueStrategies( curveProperty );
 
-    if ( !extractValuesForProperty( curveProperty, stimPlanModel, timeStep, values, measuredDepthValues, tvDepthValues, rkbDiff ) )
+    if ( extractionConfigurations.empty() )
     {
-        if ( std::find( missingValueStratgies.begin(),
-                        missingValueStratgies.end(),
-                        RimStimPlanModel::MissingValueStrategy::DEFAULT_VALUE ) != missingValueStratgies.end() )
+        if ( !extractValuesForProperty( curveProperty, stimPlanModel, timeStep, values, measuredDepthValues, tvDepthValues, rkbDiff ) )
         {
-            RiaLogging::warning( QString( "Extraction failed. Trying fallback" ) );
-            if ( !replaceMissingValuesWithDefault( curveProperty, stimPlanModel, values, measuredDepthValues, tvDepthValues, rkbDiff ) )
+            if ( std::find( missingValueStratgies.begin(),
+                            missingValueStratgies.end(),
+                            RimStimPlanModel::MissingValueStrategy::DEFAULT_VALUE ) != missingValueStratgies.end() )
             {
-                RiaLogging::error( "Fallback failed too." );
-                return false;
+                RiaLogging::warning( QString( "Extraction failed. Trying fallback" ) );
+                if ( !replaceMissingValuesWithDefault( curveProperty,
+                                                       stimPlanModel,
+                                                       values,
+                                                       measuredDepthValues,
+                                                       tvDepthValues,
+                                                       rkbDiff ) )
+                {
+                    RiaLogging::error( "Fallback failed too." );
+                    return false;
+                }
             }
+        }
+    }
+    else
+    {
+        if ( !extractValuesForPropertyWithConfigurations( curveProperty,
+                                                          stimPlanModel,
+                                                          timeStep,
+                                                          values,
+                                                          measuredDepthValues,
+                                                          tvDepthValues,
+                                                          rkbDiff ) )
+
+        {
+            return false;
         }
     }
 
@@ -391,6 +418,65 @@ void RimStimPlanModelWellLogCalculator::scaleByNetToGross( const RimStimPlanMode
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RimStimPlanModelWellLogCalculator::extractValuesForPropertyWithConfigurations( RiaDefines::CurveProperty curveProperty,
+                                                                                    const RimStimPlanModel* stimPlanModel,
+                                                                                    int                     timeStep,
+                                                                                    std::vector<double>&    values,
+                                                                                    std::vector<double>& measuredDepthValues,
+                                                                                    std::vector<double>& tvDepthValues,
+                                                                                    double&              rkbDiff ) const
+{
+    std::deque<RimExtractionConfiguration> extractionConfigurations =
+        stimPlanModel->extractionConfigurations( curveProperty );
+
+    QString curvePropertyName = caf::AppEnum<RiaDefines::CurveProperty>( curveProperty ).uiText();
+
+    for ( auto extractionConfig : extractionConfigurations )
+    {
+        RiaDefines::ResultCatType                   resultType      = extractionConfig.resultCategory;
+        QString                                     resultVariable  = extractionConfig.resultVariable;
+        RimExtractionConfiguration::EclipseCaseType eclipseCaseType = extractionConfig.eclipseCaseType;
+
+        RiaLogging::info(
+            QString( "Trying extraction option for '%1': %2 %3 %4" )
+                .arg( curvePropertyName )
+                .arg( resultVariable )
+                .arg( caf::AppEnum<RiaDefines::ResultCatType>( resultType ).uiText() )
+                .arg( caf::AppEnum<RimExtractionConfiguration::EclipseCaseType>( eclipseCaseType ).uiText() ) );
+
+        RimEclipseCase* eclipseCase = stimPlanModel->eclipseCaseForType( eclipseCaseType );
+
+        if ( !eclipseCase )
+        {
+            RiaLogging::info( "Skipping extraction config due to missing model." );
+        }
+        else
+        {
+            bool isOk = extractValuesForProperty( curveProperty,
+                                                  stimPlanModel,
+                                                  eclipseCase,
+                                                  resultType,
+                                                  resultVariable,
+                                                  timeStep,
+                                                  values,
+                                                  measuredDepthValues,
+                                                  tvDepthValues,
+                                                  rkbDiff );
+            if ( isOk )
+            {
+                RiaLogging::info( "Extraction succeeded" );
+                return true;
+            }
+        }
+    }
+
+    RiaLogging::info( QString( "Extraction failed. Tried %1 configurations." ).arg( extractionConfigurations.size() ) );
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RimStimPlanModelWellLogCalculator::extractValuesForProperty( RiaDefines::CurveProperty curveProperty,
                                                                   const RimStimPlanModel*   stimPlanModel,
                                                                   int                       timeStep,
@@ -400,11 +486,37 @@ bool RimStimPlanModelWellLogCalculator::extractValuesForProperty( RiaDefines::Cu
                                                                   double&                   rkbDiff ) const
 {
     RimEclipseCase* eclipseCase = stimPlanModel->eclipseCaseForProperty( curveProperty );
-    if ( !eclipseCase )
-    {
-        return false;
-    }
+    if ( !eclipseCase ) return false;
 
+    RiaDefines::ResultCatType resultType     = stimPlanModel->eclipseResultCategory( curveProperty );
+    QString                   resultVariable = stimPlanModel->eclipseResultVariable( curveProperty );
+
+    return extractValuesForProperty( curveProperty,
+                                     stimPlanModel,
+                                     eclipseCase,
+                                     resultType,
+                                     resultVariable,
+                                     timeStep,
+                                     values,
+                                     measuredDepthValues,
+                                     tvDepthValues,
+                                     rkbDiff );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimStimPlanModelWellLogCalculator::extractValuesForProperty( RiaDefines::CurveProperty curveProperty,
+                                                                  const RimStimPlanModel*   stimPlanModel,
+                                                                  RimEclipseCase*           eclipseCase,
+                                                                  RiaDefines::ResultCatType resultCategory,
+                                                                  const QString             resultVariable,
+                                                                  int                       timeStep,
+                                                                  std::vector<double>&      values,
+                                                                  std::vector<double>&      measuredDepthValues,
+                                                                  std::vector<double>&      tvDepthValues,
+                                                                  double&                   rkbDiff ) const
+{
     if ( !stimPlanModel->thicknessDirectionWellPath() )
     {
         return false;
@@ -428,13 +540,13 @@ bool RimStimPlanModelWellLogCalculator::extractValuesForProperty( RiaDefines::Cu
 
     RimEclipseResultDefinition eclipseResultDefinition;
     eclipseResultDefinition.setEclipseCase( eclipseCase );
-    eclipseResultDefinition.setResultType( stimPlanModel->eclipseResultCategory( curveProperty ) );
+    eclipseResultDefinition.setResultType( resultCategory );
     eclipseResultDefinition.setPorosityModel( RiaDefines::PorosityModelType::MATRIX_MODEL );
-    eclipseResultDefinition.setResultVariable( stimPlanModel->eclipseResultVariable( curveProperty ) );
+    eclipseResultDefinition.setResultVariable( resultVariable );
 
     eclipseResultDefinition.loadResult();
 
-    if ( stimPlanModel->eclipseResultCategory( curveProperty ) != RiaDefines::ResultCatType::DYNAMIC_NATIVE ||
+    if ( resultCategory != RiaDefines::ResultCatType::DYNAMIC_NATIVE ||
          curveProperty == RiaDefines::CurveProperty::INITIAL_PRESSURE )
     {
         timeStep = 0;

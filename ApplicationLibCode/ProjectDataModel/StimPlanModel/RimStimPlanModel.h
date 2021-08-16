@@ -21,6 +21,7 @@
 #include "RiaStimPlanModelDefines.h"
 
 #include "RimCheckableNamedObject.h"
+#include "RimExtractionConfiguration.h"
 #include "RimWellPathComponentInterface.h"
 
 #include "RigWellLogExtractor.h"
@@ -177,6 +178,9 @@ public:
     RimStimPlanModel::BurdenStrategy                   burdenStrategy( RiaDefines::CurveProperty curveProperty ) const;
     RiaDefines::ResultCatType eclipseResultCategory( RiaDefines::CurveProperty curveProperty ) const;
     QString                   eclipseResultVariable( RiaDefines::CurveProperty curveProperty ) const;
+
+    std::deque<RimExtractionConfiguration> extractionConfigurations( RiaDefines::CurveProperty curveProperty ) const;
+    RimEclipseCase*                        eclipseCaseForType( RimExtractionConfiguration::EclipseCaseType ) const;
 
     static double findFaciesValue( const RimColorLegend& colorLegend, const QString& name );
 
