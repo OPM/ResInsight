@@ -42,6 +42,7 @@
 #include "RimNonNetLayers.h"
 #include "RimStimPlanModel.h"
 #include "RimStimPlanModelCalculator.h"
+#include "RimStimPlanModelPressureCalculator.h"
 #include "RimStimPlanModelTemplate.h"
 #include "RimWellPath.h"
 
@@ -201,6 +202,36 @@ bool RimStimPlanModelWellLogCalculator::calculate( RiaDefines::CurveProperty cur
             m_stimPlanModelCalculator->extractValues( RiaDefines::CurveProperty::NET_TO_GROSS, timeStep );
 
         scaleByNetToGross( stimPlanModel, netToGross, values );
+    }
+
+    // Extracted well log needs to be sampled at same depths as well logs from static grid.
+    // If the well log is extracted from a different model it needs to be resampled.
+    if ( curveProperty != RiaDefines::CurveProperty::FACIES )
+    {
+        std::vector<double> targetMds;
+        std::vector<double> targetTvds;
+        std::vector<double> faciesValues;
+        if ( !stimPlanModel->calculator()->extractCurveData( RiaDefines::CurveProperty::FACIES,
+                                                             timeStep,
+                                                             faciesValues,
+                                                             targetMds,
+                                                             targetTvds,
+                                                             rkbDiff ) )
+        {
+            return false;
+        }
+
+        if ( targetMds.size() != measuredDepthValues.size() )
+        {
+            RiaLogging::info( "Resampling data to fit static case." );
+            auto [tvds, mds, results] = RimStimPlanModelPressureCalculator::interpolateMissingValues( targetTvds,
+                                                                                                      targetMds,
+                                                                                                      measuredDepthValues,
+                                                                                                      values );
+            tvDepthValues             = tvds;
+            measuredDepthValues       = mds;
+            values                    = results;
+        }
     }
 
     RiaLogging::debug( QString( "Well log for '%1' done. Size: %2." )
