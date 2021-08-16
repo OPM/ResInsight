@@ -34,4 +34,10 @@ public:
                                const std::vector<unsigned int>& indices,
                                const std::vector<cvf::Vec3d>&   vertices,
                                cvf::Vec3d&                      intersectionPoint );
+
+private:
+    static bool findClosestPointXY( const cvf::Vec3d&              targetPoint,
+                                    const std::vector<cvf::Vec3d>& vertices,
+                                    double                         maxDistance,
+                                    cvf::Vec3d&                    intersectionPoint );
 };
