@@ -29,9 +29,10 @@
 #include <vector>
 
 class RigEclipseCaseData;
+class RigResultAccessor;
 class RimEclipseInputPropertyCollection;
 class RimEclipseResultDefinition;
-class RigResultAccessor;
+class RimEclipseCase;
 
 class RimStimPlanModelWellLogCalculator : public RimStimPlanModelPropertyCalculator
 {
@@ -86,6 +87,25 @@ protected:
                                            std::vector<double>&      measuredDepthValues,
                                            std::vector<double>&      tvDepthValues,
                                            double&                   rkbDiff ) const;
+
+    bool extractValuesForProperty( RiaDefines::CurveProperty curveProperty,
+                                   const RimStimPlanModel*   stimPlanModel,
+                                   RimEclipseCase*           eclipseCase,
+                                   RiaDefines::ResultCatType resultCategory,
+                                   const QString             resultVariable,
+                                   int                       timeStep,
+                                   std::vector<double>&      values,
+                                   std::vector<double>&      measuredDepthValues,
+                                   std::vector<double>&      tvDepthValues,
+                                   double&                   rkbDiff ) const;
+
+    bool extractValuesForPropertyWithConfigurations( RiaDefines::CurveProperty curveProperty,
+                                                     const RimStimPlanModel*   stimPlanModel,
+                                                     int                       timeStep,
+                                                     std::vector<double>&      values,
+                                                     std::vector<double>&      measuredDepthValues,
+                                                     std::vector<double>&      tvDepthValues,
+                                                     double&                   rkbDiff ) const;
 
     bool replaceMissingValuesWithDefault( RiaDefines::CurveProperty curveProperty,
                                           const RimStimPlanModel*   stimPlanModel,

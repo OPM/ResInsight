@@ -23,6 +23,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RimNonNetLayers.h
 ${CMAKE_CURRENT_LIST_DIR}/RimFaciesInitialPressureConfig.h
 ${CMAKE_CURRENT_LIST_DIR}/RimPressureTableItem.h
 ${CMAKE_CURRENT_LIST_DIR}/RimPressureTable.h
+${CMAKE_CURRENT_LIST_DIR}/RimExtractionConfiguration.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -47,6 +48,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RimNonNetLayers.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimFaciesInitialPressureConfig.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimPressureTableItem.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimPressureTable.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimExtractionConfiguration.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

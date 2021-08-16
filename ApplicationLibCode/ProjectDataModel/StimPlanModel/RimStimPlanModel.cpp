@@ -40,6 +40,7 @@
 #include "RimEclipseCase.h"
 #include "RimEclipseResultDefinition.h"
 #include "RimEclipseView.h"
+#include "RimExtractionConfiguration.h"
 #include "RimFaciesProperties.h"
 #include "RimFaultInView.h"
 #include "RimFaultInViewCollection.h"
@@ -1709,4 +1710,57 @@ QString RimStimPlanModel::pressureDate() const
         return m_eclipseCase->timeStepStrings()[m_timeStep];
     else
         return QString();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::deque<RimExtractionConfiguration>
+    RimStimPlanModel::extractionConfigurations( RiaDefines::CurveProperty curveProperty ) const
+{
+    if ( curveProperty == RiaDefines::CurveProperty::EQLNUM )
+    {
+        return {
+            RimExtractionConfiguration( "EQLNUM_1",
+                                        RiaDefines::ResultCatType::INPUT_PROPERTY,
+                                        RimExtractionConfiguration::EclipseCaseType::INITIAL_PRESSURE_CASE ),
+            RimExtractionConfiguration( "EQLNUM",
+                                        RiaDefines::ResultCatType::INPUT_PROPERTY,
+                                        RimExtractionConfiguration::EclipseCaseType::INITIAL_PRESSURE_CASE ),
+            RimExtractionConfiguration( "EQLNUM_1",
+                                        RiaDefines::ResultCatType::INPUT_PROPERTY,
+                                        RimExtractionConfiguration::EclipseCaseType::DYNAMIC_CASE ),
+            RimExtractionConfiguration( "EQLNUM",
+                                        RiaDefines::ResultCatType::INPUT_PROPERTY,
+                                        RimExtractionConfiguration::EclipseCaseType::DYNAMIC_CASE ),
+            RimExtractionConfiguration( "EQLNUM_1",
+                                        RiaDefines::ResultCatType::INPUT_PROPERTY,
+                                        RimExtractionConfiguration::EclipseCaseType::STATIC_CASE ),
+            RimExtractionConfiguration( "EQLNUM",
+                                        RiaDefines::ResultCatType::INPUT_PROPERTY,
+                                        RimExtractionConfiguration::EclipseCaseType::STATIC_CASE ),
+            RimExtractionConfiguration( "EQLNUM",
+                                        RiaDefines::ResultCatType::STATIC_NATIVE,
+                                        RimExtractionConfiguration::EclipseCaseType::STATIC_CASE ),
+            RimExtractionConfiguration( "EQLNUM",
+                                        RiaDefines::ResultCatType::STATIC_NATIVE,
+                                        RimExtractionConfiguration::EclipseCaseType::INITIAL_PRESSURE_CASE ),
+            RimExtractionConfiguration( "EQLNUM",
+                                        RiaDefines::ResultCatType::STATIC_NATIVE,
+                                        RimExtractionConfiguration::EclipseCaseType::DYNAMIC_CASE ),
+
+        };
+    }
+
+    return std::deque<RimExtractionConfiguration>();
+}
+
+RimEclipseCase* RimStimPlanModel::eclipseCaseForType( RimExtractionConfiguration::EclipseCaseType caseType ) const
+{
+    if ( caseType == RimExtractionConfiguration::EclipseCaseType::STATIC_CASE ) return m_staticEclipseCase;
+    if ( caseType == RimExtractionConfiguration::EclipseCaseType::DYNAMIC_CASE ) return m_eclipseCase;
+    if ( caseType == RimExtractionConfiguration::EclipseCaseType::INITIAL_PRESSURE_CASE )
+        return m_initialPressureEclipseCase;
+
+    return nullptr;
 }
