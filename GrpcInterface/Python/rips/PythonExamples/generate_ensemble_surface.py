@@ -56,3 +56,7 @@ for path in case_file_paths:
         export_file = Path(export_folder_path, "surf_" + str(k_index) + ".ts")
         print("Exporting to " + export_file.as_posix())
         surface.export_to_file(export_file.as_posix())
+
+    # Close project to avoid aggregated memory usage
+    # Can be replaced when case.close() is implemented
+    resinsight.project.close()
