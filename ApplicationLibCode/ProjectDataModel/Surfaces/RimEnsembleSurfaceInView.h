@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2020-     Equinor ASA
+//  Copyright (C) 2021-     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -41,18 +41,18 @@ class RimRegularLegendConfig;
 class RiuViewer;
 class RivIntersectionGeometryGeneratorIF;
 
-class RimSurfaceInViewCollection : public RimCheckableNamedObject
+class RimEnsembleSurfaceInView : public RimCheckableNamedObject
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimSurfaceInViewCollection();
-    ~RimSurfaceInViewCollection() override;
+    RimEnsembleSurfaceInView();
+    ~RimEnsembleSurfaceInView() override;
 
     QString name() const override;
 
-    RimSurfaceCollection* surfaceCollection() const;
-    void                  setSurfaceCollection( RimSurfaceCollection* surfcoll );
+    RimEnsembleSurface* ensembleSurface() const;
+    void                setEnsembleSurface( RimEnsembleSurface* surfcoll );
 
     void updateFromSurfaceCollection();
     void loadData();
@@ -67,7 +67,7 @@ public:
 
     std::vector<RimRegularLegendConfig*> legendConfigs();
 
-    std::vector<const RivIntersectionGeometryGeneratorIF*> intersectionGeometryGenerators() const;
+    void updateAllViewItems();
 
 protected:
     void                 initAfterRead() override;
@@ -76,19 +76,11 @@ protected:
 private:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
-    RimSurfaceInView*           getSurfaceInViewForSurface( const RimSurface* surf ) const;
-    RimSurfaceInViewCollection* getCollectionInViewForCollection( const RimSurfaceCollection* coll ) const;
-    RimEnsembleSurfaceInView*   getEnsembleSurfaceInViewForEnsembleSurface( const RimEnsembleSurface* coll ) const;
+    RimSurfaceInView* getSurfaceInViewForSurface( const RimSurface* surf ) const;
 
-    void updateAllViewItems();
-    void syncCollectionsWithView();
     void syncSurfacesWithView();
-    void syncEnsembleSurfacesWithView();
 
-    caf::PdmProxyValueField<QString>                     m_collectionName;
-    caf::PdmChildArrayField<RimSurfaceInViewCollection*> m_collectionsInView;
-    caf::PdmChildArrayField<RimSurfaceInView*>           m_surfacesInView;
-    caf::PdmChildArrayField<RimEnsembleSurfaceInView*>   m_ensembleSurfacesInView;
-
-    caf::PdmPtrField<RimSurfaceCollection*> m_surfaceCollection;
+    caf::PdmProxyValueField<QString>           m_ensembleSurfaceName;
+    caf::PdmChildArrayField<RimSurfaceInView*> m_surfacesInView;
+    caf::PdmPtrField<RimEnsembleSurface*>      m_ensembleSurface;
 };

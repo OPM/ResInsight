@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2020-     Equinor ASA
+//  Copyright (C) 2021- Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -15,80 +15,77 @@
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
+#include "RimcSurface.h"
+
+#include "RimCase.h"
+#include "RimSurface.h"
+#include "RimcDataContainerString.h"
+
 #include "RigSurface.h"
 
+#include "RifSurfaceExporter.h"
+
+#include "cafPdmFieldScriptingCapability.h"
+#include "cafPdmObjectScriptingCapability.h"
+
+#include <QStringList>
+
+CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimSurface, RimcSurface_exportToFile, "ExportToFile" );
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigSurface::RigSurface()
+RimcSurface_exportToFile::RimcSurface_exportToFile( caf::PdmObjectHandle* self )
+    : caf::PdmObjectMethod( self )
 {
+    CAF_PDM_InitObject( "Export Surface To fiole", "", "", "Export a surface to file" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_fileName, "FileName", "", "", "", "Filename to export surface to" );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigSurface::~RigSurface()
+caf::PdmObjectHandle* RimcSurface_exportToFile::execute()
 {
-}
+    RimSurface* surface = self<RimSurface>();
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-const std::vector<unsigned>& RigSurface::triangleIndices() const
-{
-    return m_triangleIndices;
-}
+    auto dataObject = new RimcDataContainerString();
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-const std::vector<cvf::Vec3d>& RigSurface::vertices() const
-{
-    return m_vertices;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RigSurface::setTriangleData( const std::vector<unsigned>& tringleIndices, const std::vector<cvf::Vec3d>& vertices )
-{
-    m_triangleIndices = tringleIndices;
-    m_vertices        = vertices;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RigSurface::addVerticeResult( const QString resultName, const std::vector<float>& resultValues )
-{
-    m_verticeResults[resultName] = resultValues;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::vector<float> RigSurface::propertyValues( const QString& propertyName ) const
-{
-    auto it = m_verticeResults.find( propertyName );
-    if ( it != m_verticeResults.end() )
+    if ( surface )
     {
-        return it->second;
+        RigSurface* surfaceData = surface->surfaceData();
+
+        RifSurfaceExporter::writeGocadTSurfFile( m_fileName(),
+                                                 surface->userDescription(),
+                                                 surfaceData->vertices(),
+                                                 surfaceData->triangleIndices() );
+
+        dataObject->m_stringValues = { m_fileName() };
     }
 
-    return {};
+    return dataObject;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<QString> RigSurface::propertyNames() const
+bool RimcSurface_exportToFile::resultIsPersistent() const
 {
-    std::vector<QString> names;
+    return false;
+}
 
-    for ( const auto& propertyResult : m_verticeResults )
-    {
-        names.push_back( propertyResult.first );
-    }
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::unique_ptr<caf::PdmObjectHandle> RimcSurface_exportToFile::defaultResult() const
+{
+    return std::unique_ptr<caf::PdmObjectHandle>( new RimcDataContainerString() );
+}
 
-    return names;
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimcSurface_exportToFile::isNullptrValidResult() const
+{
+    return true;
 }

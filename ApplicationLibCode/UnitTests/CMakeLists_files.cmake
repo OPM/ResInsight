@@ -77,6 +77,8 @@ ${CMAKE_CURRENT_LIST_DIR}/RigWellPathGeometryExporter-Test.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RifStimPlanModelDeviationFrkExporter-Test.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RifSummaryDataReader-Test.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RigSlice2D-Test.cpp
+${CMAKE_CURRENT_LIST_DIR}/RigSurfaceResampler-Test.cpp
+${CMAKE_CURRENT_LIST_DIR}/RigSurfaceStatisticsCalculator-Test.cpp
 )
 
 if (RESINSIGHT_ENABLE_GRPC)

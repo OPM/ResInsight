@@ -21,6 +21,7 @@
 #include "RiaColorTables.h"
 #include "RiaLogging.h"
 
+#include "RimEnsembleSurface.h"
 #include "RimFileSurface.h"
 #include "RimGridCaseSurface.h"
 #include "RimGridView.h"
@@ -56,6 +57,9 @@ RimSurfaceCollection::RimSurfaceCollection()
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_surfaces, "SurfacesField", "Surfaces", "", "", "" );
     m_surfaces.uiCapability()->setUiTreeHidden( true );
+
+    CAF_PDM_InitScriptableFieldNoDefault( &m_ensembleSurfaces, "EnsembleSurfaces", "Ensemble Surfaces", "", "", "" );
+    m_ensembleSurfaces.uiCapability()->setUiTreeHidden( true );
 
     setDeletable( true );
 }
@@ -106,6 +110,14 @@ caf::PdmFieldHandle* RimSurfaceCollection::userDescriptionField()
 void RimSurfaceCollection::addSurface( RimSurface* surface )
 {
     m_surfaces.push_back( surface );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSurfaceCollection::addEnsembleSurface( RimEnsembleSurface* ensembleSurface )
+{
+    m_ensembleSurfaces.push_back( ensembleSurface );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -212,12 +224,10 @@ RimSurface* RimSurfaceCollection::copySurfaces( std::vector<RimSurface*> surface
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSurface* RimSurfaceCollection::addGridCaseSurface( RimCase* sourceCase )
+RimSurface* RimSurfaceCollection::addGridCaseSurface( RimCase* sourceCase, int oneBasedSliceIndex )
 {
     auto s = new RimGridCaseSurface;
     s->setCase( sourceCase );
-
-    int oneBasedSliceIndex = 1;
 
     s->setOneBasedIndex( oneBasedSliceIndex );
     s->setUserDescription( "Surface" );
@@ -258,11 +268,24 @@ std::vector<RimSurfaceCollection*> RimSurfaceCollection::subCollections() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::vector<RimEnsembleSurface*> RimSurfaceCollection::ensembleSurfaces() const
+{
+    return m_ensembleSurfaces.childObjects();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimSurfaceCollection::loadData()
 {
     for ( auto surf : m_surfaces )
     {
         surf->loadDataIfRequired();
+    }
+
+    for ( auto ensSurf : m_ensembleSurfaces )
+    {
+        ensSurf->loadDataAndUpdate();
     }
 }
 
@@ -477,6 +500,12 @@ bool RimSurfaceCollection::containsSurface()
     {
         containsSurface |= coll->containsSurface();
     }
+
+    for ( auto ensSurf : m_ensembleSurfaces )
+    {
+        containsSurface |= ( ensSurf->surfaces().size() > 0 );
+    }
+
     return containsSurface;
 }
 

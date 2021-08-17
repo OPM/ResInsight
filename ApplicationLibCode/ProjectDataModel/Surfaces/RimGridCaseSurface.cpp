@@ -18,17 +18,19 @@
 
 #include "RimGridCaseSurface.h"
 
+#include "RigMainGrid.h"
+#include "RigReservoirGridTools.h"
 #include "RigSurface.h"
 
-#include "RigMainGrid.h"
 #include "RimCase.h"
 #include "RimEclipseCase.h"
 #include "RimSurfaceCollection.h"
 #include "RimTools.h"
 
+#include "cafPdmFieldScriptingCapability.h"
+#include "cafPdmObjectScriptingCapability.h"
 #include "cafPdmUiSliderEditor.h"
 
-#include "RigReservoirGridTools.h"
 #include "cvfVector3.h"
 
 CAF_PDM_SOURCE_INIT( RimGridCaseSurface, "GridCaseSurface" );
@@ -38,11 +40,11 @@ CAF_PDM_SOURCE_INIT( RimGridCaseSurface, "GridCaseSurface" );
 //--------------------------------------------------------------------------------------------------
 RimGridCaseSurface::RimGridCaseSurface()
 {
-    CAF_PDM_InitObject( "Surface", ":/ReservoirSurface16x16.png", "", "" );
+    CAF_PDM_InitScriptableObject( "Surface", ":/ReservoirSurface16x16.png", "", "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_case, "SourceCase", "Source Case", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_case, "SourceCase", "Source Case", "", "", "" );
 
-    CAF_PDM_InitField( &m_oneBasedSliceIndex, "SliceIndex", 1, "Slice Index (K)", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_oneBasedSliceIndex, "SliceIndex", 1, "Slice Index (K)", "", "", "" );
     m_oneBasedSliceIndex.uiCapability()->setUiEditorTypeName( caf::PdmUiSliderEditor::uiEditorTypeName() );
 }
 
