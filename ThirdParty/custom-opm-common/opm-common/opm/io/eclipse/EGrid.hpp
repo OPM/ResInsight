@@ -48,6 +48,9 @@ public:
     void getCellCorners(int globindex, std::array<double,8>& X, std::array<double,8>& Y, std::array<double,8>& Z);
     void getCellCorners(const std::array<int, 3>& ijk, std::array<double,8>& X, std::array<double,8>& Y, std::array<double,8>& Z);
 
+    std::vector<std::array<float, 3>> getXYZ_layer(int layer, bool bottom=false);
+    std::vector<std::array<float, 3>> getXYZ_layer(int layer, std::array<int, 4>& box, bool bottom=false);
+
     int activeCells() const { return nactive; }
     int totalNumberOfCells() const { return nijk[0] * nijk[1] * nijk[2]; }
 
@@ -93,6 +96,12 @@ private:
     int actnum_array_index;
     int nnc1_array_index;
     int nnc2_array_index;
+
+    std::vector<float> get_zcorn_from_disk(int layer, bool bottom);
+
+    void getCellCorners(const std::array<int, 3>& ijk, const std::vector<float>& zcorn_layer,
+                           std::array<double,4>& X, std::array<double,4>& Y, std::array<double,4>& Z);
+
 };
 
 }} // namespace Opm::EclIO

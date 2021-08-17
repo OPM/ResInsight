@@ -54,9 +54,6 @@ public:
     const std::vector<T>& getRestartData(const std::string& name, int reportStepNumber, int occurrence);
 
     template <typename T>
-    const std::vector<T>& getRestartData(const std::string& name, int reportStepNumber, const std::string& lgr_name);
-
-    template <typename T>
     const std::vector<T>& getRestartData(int index, int reportStepNumber)
     {
         auto indRange = this->getIndexRange(reportStepNumber);
@@ -64,16 +61,10 @@ public:
     }
 
     template <typename T>
-    const std::vector<T>& getRestartData(int index, int reportStepNumber, const std::string& lgr_name)
-    {
-        auto indRange = this->getIndexRange(reportStepNumber);
+    const std::vector<T>& getRestartData(const std::string& name, int reportStepNumber, const std::string& lgr_name);
 
-        if ((std::get<0>(indRange) + index) > std::get<1>(indRange))
-            OPM_THROW(std::invalid_argument, "getRestartData, index out of range");
-
-        int start_ind = get_start_index_lgrname(reportStepNumber, lgr_name);
-        return  this->get<T>(index + start_ind);
-    }
+    template <typename T>
+    const std::vector<T>& getRestartData(int index, int reportStepNumber, const std::string& lgr_name);
 
     int occurrence_count(const std::string& name, int reportStepNumber) const;
     size_t numberOfReportSteps() const { return seqnum.size(); };

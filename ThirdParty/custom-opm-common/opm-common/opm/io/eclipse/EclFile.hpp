@@ -19,11 +19,10 @@
 #ifndef OPM_IO_ECLFILE_HPP
 #define OPM_IO_ECLFILE_HPP
 
-#include <opm/common/ErrorMacros.hpp>
-
 #include <opm/io/eclipse/EclIOdata.hpp>
 
 #include <ios>
+#include <map>
 #include <string>
 #include <stdexcept>
 #include <tuple>
@@ -97,19 +96,7 @@ protected:
     template<class T>
     const std::vector<T>& getImpl(int arrIndex, eclArrType type,
                                   const std::unordered_map<int, std::vector<T>>& array,
-                                  const std::string& typeStr)
-    {
-        if (array_type[arrIndex] != type) {
-            std::string message = "Array with index " + std::to_string(arrIndex) + " is not of type " + typeStr;
-            OPM_THROW(std::runtime_error, message);
-        }
-
-        if (!arrayLoaded[arrIndex]) {
-          loadData(arrIndex);
-        }
-
-        return array.at(arrIndex);
-    }
+                                  const std::string& typeStr);
 
     std::streampos
     seekPosition(const std::vector<std::string>::size_type arrIndex) const;

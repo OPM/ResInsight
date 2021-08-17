@@ -157,5 +157,40 @@ std::vector<EclFile::EclEntry> EInit::list_arrays() const
     return array_list;
 }
 
+template <typename T>
+const std::vector<T>& EInit::ImplgetInitData(const std::string& name, const std::string& grid_name)
+{
+    int arr_ind = get_array_index(name, grid_name);
+
+    if constexpr (std::is_same_v<T, int>)
+            return getImpl(arr_ind, INTE, inte_array, "integer");
+
+    if constexpr (std::is_same_v<T, float>)
+            return getImpl(arr_ind, REAL, real_array, "float");
+
+    if constexpr (std::is_same_v<T, double>)
+            return getImpl(arr_ind, DOUB, doub_array, "double");
+
+    if constexpr (std::is_same_v<T, bool>)
+            return getImpl(arr_ind, LOGI, logi_array, "bool");
+
+    if constexpr (std::is_same_v<T, std::string>)
+    {
+        if (array_type[arr_ind] == Opm::EclIO::CHAR)
+            return getImpl(arr_ind, array_type[arr_ind], char_array, "char");
+
+        if (array_type[arr_ind] == Opm::EclIO::C0NN)
+            return getImpl(arr_ind, array_type[arr_ind], char_array, "c0nn");
+
+        OPM_THROW(std::runtime_error, "Array not of type CHAR or C0nn");
+    }
+
+    OPM_THROW(std::runtime_error, "type not supported");
+}
+
+template const std::vector<int>& EInit::ImplgetInitData(const std::string& name, const std::string& grid_name);
+template const std::vector<float>& EInit::ImplgetInitData(const std::string& name, const std::string& grid_name);
+template const std::vector<double>& EInit::ImplgetInitData(const std::string& name, const std::string& grid_name);
+template const std::vector<bool>& EInit::ImplgetInitData(const std::string& name, const std::string& grid_name);
 
 }} // namespace Opm::EclIO
