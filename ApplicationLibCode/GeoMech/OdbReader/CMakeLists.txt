@@ -61,8 +61,7 @@ if(MSVC)
     ${RESINSIGHT_ODB_API_DIR}/lib/ABQSMAOdbCoreGeom.lib
     ${RESINSIGHT_ODB_API_DIR}/lib/ABQSMAOdbDdbOdb.lib
     ${RESINSIGHT_ODB_API_DIR}/lib/ABQSMARomDiagEx.lib
-    ${RESINSIGHT_ODB_API_DIR}/lib/ABQSMASimInterface.lib
-    )
+    ${RESINSIGHT_ODB_API_DIR}/lib/ABQSMASimInterface.lib)
 else()
   list(
     APPEND
@@ -78,8 +77,7 @@ else()
     ${RESINSIGHT_ODB_API_DIR}/lib/libABQSMABasAlloc.so
     ${RESINSIGHT_ODB_API_DIR}/lib/libABQSMAAbuGeom.so
     ${RESINSIGHT_ODB_API_DIR}/lib/libABQSMARomDiagEx.so
-    ${RESINSIGHT_ODB_API_DIR}/lib/libABQSMASimInterface.so
-    )
+    ${RESINSIGHT_ODB_API_DIR}/lib/libABQSMASimInterface.so)
 endif(MSVC)
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
