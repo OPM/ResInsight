@@ -118,6 +118,8 @@ public:
 
     bool usePressureTableForProperty( RiaDefines::CurveProperty curveProperty ) const;
 
+    bool useEqlnumForPressureInterpolation() const;
+
 protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
@@ -148,6 +150,7 @@ private:
     caf::PdmPtrField<RimEclipseCase*>         m_initialPressureEclipseCase;
     caf::PdmField<bool>                       m_useTableForInitialPressure;
     caf::PdmField<bool>                       m_useTableForPressure;
+    caf::PdmField<bool>                       m_useEqlnumForPressureInterpolation;
     caf::PdmField<bool>                       m_editPressureTable;
     caf::PdmPtrField<RimEclipseCase*>         m_staticEclipseCase;
     caf::PdmField<double>                     m_defaultPorosity;

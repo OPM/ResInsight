@@ -183,6 +183,7 @@ bool RimStimPlanModelPressureCalculator::extractValuesForProperty( RiaDefines::C
         values                    = results;
     }
 
+    bool useEqlnumForPressureInterpolation = stimPlanModel->stimPlanModelTemplate()->useEqlnumForPressureInterpolation();
     if ( curveProperty == RiaDefines::CurveProperty::INITIAL_PRESSURE )
     {
         auto hasMissingValues = []( const std::vector<double>& vec ) {
@@ -191,12 +192,12 @@ bool RimStimPlanModelPressureCalculator::extractValuesForProperty( RiaDefines::C
 
         if ( hasMissingValues( values ) )
         {
-            if ( !interpolateInitialPressureByEquilibrationRegion( curveProperty,
-                                                                   stimPlanModel,
-                                                                   timeStep,
-                                                                   measuredDepthValues,
-                                                                   tvDepthValues,
-                                                                   values ) )
+            if ( useEqlnumForPressureInterpolation && !interpolateInitialPressureByEquilibrationRegion( curveProperty,
+                                                                                                        stimPlanModel,
+                                                                                                        timeStep,
+                                                                                                        measuredDepthValues,
+                                                                                                        tvDepthValues,
+                                                                                                        values ) )
             {
                 RiaLogging::error( "Pressure interpolation by equilibration region failed." );
             }
@@ -210,7 +211,8 @@ bool RimStimPlanModelPressureCalculator::extractValuesForProperty( RiaDefines::C
     {
         std::vector<double> initialPressureValues = values;
         values.clear();
-        if ( !interpolatePressureDifferenceByEquilibrationRegion( curveProperty,
+        if ( useEqlnumForPressureInterpolation &&
+             !interpolatePressureDifferenceByEquilibrationRegion( curveProperty,
                                                                   stimPlanModel,
                                                                   timeStep,
                                                                   measuredDepthValues,
