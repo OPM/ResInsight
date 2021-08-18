@@ -95,6 +95,14 @@ RimStimPlanModelTemplate::RimStimPlanModelTemplate()
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_staticEclipseCase, "StaticEclipseCase", "Static Case", "", "", "" );
 
+    CAF_PDM_InitField( &m_useEqlnumForPressureInterpolation,
+                       "UseEqlNumForPressureInterpolation",
+                       true,
+                       "Use EQLNUM For Pressure Interpolation",
+                       "",
+                       "",
+                       "" );
+
     CAF_PDM_InitScriptableField( &m_defaultPorosity,
                                  "DefaultPorosity",
                                  RiaDefines::defaultPorosity(),
@@ -312,6 +320,7 @@ void RimStimPlanModelTemplate::defineUiOrdering( QString uiConfigName, caf::PdmU
     pressureDataSourceGroup->add( &m_useTableForInitialPressure, { true, 2, 1 } );
     pressureDataSourceGroup->add( &m_editPressureTable, { false, 1, 0 } );
     pressureDataSourceGroup->add( &m_useTableForPressure );
+    pressureDataSourceGroup->add( &m_useEqlnumForPressureInterpolation );
     m_initialPressureEclipseCase.uiCapability()->setUiReadOnly( m_useTableForInitialPressure() );
 
     caf::PdmUiOrdering* defaultsGroup = uiOrdering.addNewGroup( "Defaults" );
@@ -911,4 +920,12 @@ bool RimStimPlanModelTemplate::usePressureTableForProperty( RiaDefines::CurvePro
         return m_useTableForPressure();
     else
         return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimStimPlanModelTemplate::useEqlnumForPressureInterpolation() const
+{
+    return m_useEqlnumForPressureInterpolation;
 }
