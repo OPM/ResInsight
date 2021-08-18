@@ -23,7 +23,7 @@ import RiaVersionInfo
 from .project import Project
 from .retry_policy import ExponentialBackoffRetryPolicy
 from .grpc_retry_interceptor import RetryOnRpcErrorClientInterceptor
-
+from .generated.generated_classes import CommandRouter
 
 class Instance:
     """The ResInsight Instance class. Use to launch or find existing ResInsight instances
@@ -202,11 +202,14 @@ class Instance:
 
         intercepted_channel = grpc.intercept_channel(self.channel, *interceptors)
 
-        # Recreate ommand stubs with the retry policy
+        # Recreate command stubs with the retry policy
         self.commands = Commands_pb2_grpc.CommandsStub(intercepted_channel)
 
         # Service packages
         self.project = Project.create(intercepted_channel)
+
+        # Command Router object used as entry point for independent processing functions
+        self.command_router = CommandRouter(self.app.GetPdmObject(Empty()), intercepted_channel)
 
         path = os.getcwd()
         self.set_start_dir(path=path)
