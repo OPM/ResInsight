@@ -469,7 +469,7 @@ bool RimStimPlanModelWellLogCalculator::extractValuesForPropertyWithConfiguratio
         RimExtractionConfiguration::EclipseCaseType eclipseCaseType = extractionConfig.eclipseCaseType;
 
         RiaLogging::info(
-            QString( "Trying extraction option for '%1': %2 %3 %4" )
+            QString( "Trying extraction option for '%1': result property: '%2' result type: '%3' case type: '%4'" )
                 .arg( curvePropertyName )
                 .arg( resultVariable )
                 .arg( caf::AppEnum<RiaDefines::ResultCatType>( resultType ).uiText() )
