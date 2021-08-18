@@ -1751,6 +1751,24 @@ std::deque<RimExtractionConfiguration>
 
         };
     }
+    else if ( curveProperty == RiaDefines::CurveProperty::POROSITY ||
+              curveProperty == RiaDefines::CurveProperty::POROSITY_UNSCALED ||
+              curveProperty == RiaDefines::CurveProperty::PERMEABILITY_X ||
+              curveProperty == RiaDefines::CurveProperty::PERMEABILITY_Z )
+    {
+        QString resultName = eclipseResultVariable( curveProperty );
+        return {
+            RimExtractionConfiguration( QString( "%1_1" ).arg( resultName ),
+                                        RiaDefines::ResultCatType::INPUT_PROPERTY,
+                                        RimExtractionConfiguration::EclipseCaseType::STATIC_CASE ),
+            RimExtractionConfiguration( resultName,
+                                        RiaDefines::ResultCatType::INPUT_PROPERTY,
+                                        RimExtractionConfiguration::EclipseCaseType::STATIC_CASE ),
+            RimExtractionConfiguration( resultName,
+                                        RiaDefines::ResultCatType::STATIC_NATIVE,
+                                        RimExtractionConfiguration::EclipseCaseType::DYNAMIC_CASE ),
+        };
+    }
 
     return std::deque<RimExtractionConfiguration>();
 }
