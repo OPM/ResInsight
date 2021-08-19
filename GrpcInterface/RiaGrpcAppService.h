@@ -46,4 +46,5 @@ public:
     grpc::Status Exit( grpc::ServerContext* context, const rips::Empty* request, rips::Empty* reply ) override;
     grpc::Status GetRuntimeInfo( grpc::ServerContext* context, const rips::Empty* request, rips::RuntimeInfo* reply ) override;
     std::vector<RiaGrpcCallbackInterface*> createCallbacks() override;
+    grpc::Status GetPdmObject( grpc::ServerContext* context, const rips::Empty* request, rips::PdmObject* reply ) override;
 };
