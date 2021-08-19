@@ -25,6 +25,7 @@ from .retry_policy import ExponentialBackoffRetryPolicy
 from .grpc_retry_interceptor import RetryOnRpcErrorClientInterceptor
 from .generated.generated_classes import CommandRouter
 
+
 class Instance:
     """The ResInsight Instance class. Use to launch or find existing ResInsight instances
 
@@ -209,7 +210,9 @@ class Instance:
         self.project = Project.create(intercepted_channel)
 
         # Command Router object used as entry point for independent processing functions
-        self.command_router = CommandRouter(self.app.GetPdmObject(Empty()), intercepted_channel)
+        self.command_router = CommandRouter(
+            self.app.GetPdmObject(Empty()), intercepted_channel
+        )
 
         path = os.getcwd()
         self.set_start_dir(path=path)
