@@ -23,6 +23,8 @@
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObjectHandle.h"
 
+#include "opm/io/eclipse/EGrid.hpp"
+
 #include <memory>
 
 CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimCommandRouter, RimcCommandRouter_extractSurfaces, "ExtractSurfaces" );
@@ -48,17 +50,30 @@ RimcCommandRouter_extractSurfaces::RimcCommandRouter_extractSurfaces( caf::PdmOb
 //--------------------------------------------------------------------------------------------------
 caf::PdmObjectHandle* RimcCommandRouter_extractSurfaces::execute()
 {
-    /*
-        auto parentWellPath = self<RimModeledWellPath>();
+    try
+    {
+        std::string       filename = m_gridModelFilename().toStdString();
+        Opm::EclIO::EGrid grid1( filename );
 
-        auto lateral = RicNewWellPathLateralAtDepthFeature::createLateralAtMeasuredDepth( parentWellPath, m_tieInDepth
-       ); if ( !m_lateralName().isEmpty() )
+        auto dims = grid1.dimension();
+        int  minI = m_minimumI() == -1 ? 0 : m_minimumI();
+        int  maxI = m_maximumJ() == -1 ? dims[0] : m_maximumI();
+        int  minJ = m_minimumI() == -1 ? 0 : m_minimumJ();
+        int  maxJ = m_minimumI() == -1 ? dims[1] : m_maximumJ();
+
+        std::array<int, 4> range = { minI, maxI, minJ, maxJ };
+
+        for ( auto layer : m_layers() )
         {
-            lateral->setName( m_lateralName );
-        }
-        lateral->geometryDefinition()->enableTargetPointPicking( false );
+            auto xyz_data = grid1.getXYZ_layer( layer, range, false );
 
-        return lateral;*/
+            // Create surface from coords
+            // Write to TS file on disk
+        }
+    }
+    catch ( ... )
+    {
+    }
 
     return nullptr;
 }
