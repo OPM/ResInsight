@@ -182,16 +182,7 @@ QString caf::PdmPythonGenerator::generate( PdmObjectFactory* factory, std::vecto
                             }
                             else
                             {
-                                QString valueString;
-
-                                // Always make sure the default value for a ptrField is empty string
-                                if ( !field->hasPtrReferencedObjects() )
-                                {
-                                    QTextStream valueStream( &valueString );
-                                    scriptability->readFromField( valueStream, true, true );
-                                }
-                                if ( valueString.isEmpty() ) valueString = QString( "\"\"" );
-                                valueString = pythonifyDataValue( valueString );
+                                QString valueString = getDefaultValue( field );
 
                                 QString fieldCode =
                                     QString( "        self.%1 = %2\n" ).arg( snake_field_name ).arg( valueString );
@@ -269,12 +260,15 @@ QString caf::PdmPythonGenerator::generate( PdmObjectFactory* factory, std::vecto
 
                 for ( auto field : arguments )
                 {
-                    bool    isList        = field->xmlCapability()->isVectorField();
-                    QString defaultValue  = isList ? "[]" : "None";
-                    auto    scriptability = field->capability<PdmAbstractFieldScriptingCapability>();
-                    auto    argumentName  = camelToSnakeCase( scriptability->scriptFieldName() );
-                    auto    dataType      = dataTypeString( field, false );
+                    auto scriptability = field->capability<PdmAbstractFieldScriptingCapability>();
+                    auto argumentName  = camelToSnakeCase( scriptability->scriptFieldName() );
+                    auto dataType      = dataTypeString( field, false );
+
+                    bool isList = field->xmlCapability()->isVectorField();
                     if ( isList ) dataType = "List of " + dataType;
+
+                    QString defaultValue = getDefaultValue( field );
+
                     inputArgumentStrings.push_back( QString( "%1=%2" ).arg( argumentName ).arg( defaultValue ) );
                     outputArgumentStrings.push_back( QString( "%1=%1" ).arg( argumentName ) );
                     argumentComments.push_back(
@@ -405,6 +399,39 @@ QString caf::PdmPythonGenerator::generate( PdmObjectFactory* factory, std::vecto
     }
 
     return generatedCode;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString PdmPythonGenerator::getDefaultValue( PdmFieldHandle* field )
+{
+    QString defaultValue = "None";
+
+    bool isList = field->xmlCapability()->isVectorField();
+    if ( isList )
+    {
+        defaultValue = "[]";
+    }
+    else
+    {
+        QString valueString;
+
+        // Always make sure the default value for a ptrField is empty string
+        if ( !field->hasPtrReferencedObjects() )
+        {
+            auto scriptability = field->template capability<PdmAbstractFieldScriptingCapability>();
+
+            QTextStream valueStream( &valueString );
+            scriptability->readFromField( valueStream, true, true );
+        }
+        if ( valueString.isEmpty() ) valueString = QString( "\"\"" );
+        valueString = pythonifyDataValue( valueString );
+
+        defaultValue = valueString;
+    }
+
+    return defaultValue;
 }
 
 //--------------------------------------------------------------------------------------------------
