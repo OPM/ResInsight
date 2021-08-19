@@ -17,8 +17,8 @@ directory_path = "e:/gitroot/webviz-subsurface-testdata/reek_history_match"
 
 
 case_file_paths = []
-num_realizations = 1 #9
-num_iterations = 1 #4
+num_realizations = 9
+num_iterations = 4
 
 
 for realization in range(0, num_realizations):
@@ -31,7 +31,7 @@ for realization in range(0, num_realizations):
         )
         case_file_paths.append(path)
 
-k_indexes = [10]
+k_indexes = [4, 10]
 
 command_router = resinsight.command_router
 

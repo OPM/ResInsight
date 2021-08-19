@@ -19,11 +19,16 @@
 #include "RimcCommandRouter.h"
 #include "RimCommandRouter.h"
 
+#include "RifSurfaceExporter.h"
+
+#include "opm/io/eclipse/EGrid.hpp"
+
 #include "cafPdmAbstractFieldScriptingCapability.h"
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObjectHandle.h"
 
-#include "opm/io/eclipse/EGrid.hpp"
+#include <QDir>
+#include <QFileInfo>
 
 #include <memory>
 
@@ -57,18 +62,59 @@ caf::PdmObjectHandle* RimcCommandRouter_extractSurfaces::execute()
 
         auto dims = grid1.dimension();
         int  minI = m_minimumI() == -1 ? 0 : m_minimumI();
-        int  maxI = m_maximumJ() == -1 ? dims[0] : m_maximumI();
+        int  maxI = m_maximumJ() == -1 ? dims[0] - 1 : m_maximumI();
         int  minJ = m_minimumI() == -1 ? 0 : m_minimumJ();
-        int  maxJ = m_minimumI() == -1 ? dims[1] : m_maximumJ();
+        int  maxJ = m_minimumI() == -1 ? dims[1] - 1 : m_maximumJ();
 
         std::array<int, 4> range = { minI, maxI, minJ, maxJ };
 
         for ( auto layer : m_layers() )
         {
-            auto xyz_data = grid1.getXYZ_layer( layer, range, false );
+            bool bottom   = false;
+            auto xyz_data = grid1.getXYZ_layer( layer, range, bottom );
+            auto mapAxis  = grid1.get_mapaxes();
 
             // Create surface from coords
+
+            std::vector<unsigned>   triangleIndices;
+            std::vector<cvf::Vec3d> vertices;
+
+            unsigned startOfCellCoordIndex = 0;
+            while ( startOfCellCoordIndex + 4 < xyz_data.size() )
+            {
+                for ( size_t cornerIdx = 0; cornerIdx < 4; cornerIdx++ )
+                {
+                    auto coord1   = xyz_data[startOfCellCoordIndex + cornerIdx];
+                    auto cvfCoord = cvf::Vec3d( coord1[0], coord1[1], -coord1[2] );
+
+                    if ( !mapAxis.empty() )
+                    {
+                        cvfCoord[0] += mapAxis[2];
+                        cvfCoord[1] += mapAxis[3];
+                    }
+                    vertices.push_back( cvfCoord );
+                }
+
+                triangleIndices.push_back( startOfCellCoordIndex );
+                triangleIndices.push_back( startOfCellCoordIndex + 3 );
+                triangleIndices.push_back( startOfCellCoordIndex + 2 );
+
+                triangleIndices.push_back( startOfCellCoordIndex );
+                triangleIndices.push_back( startOfCellCoordIndex + 1 );
+                triangleIndices.push_back( startOfCellCoordIndex + 3 );
+
+                // Coordinates are given for each four corners for each cell of the surface
+                startOfCellCoordIndex += 4;
+            }
+
+            //
             // Write to TS file on disk
+
+            QFileInfo fi( m_gridModelFilename );
+            QString   surfaceFilename = fi.absoluteDir().absolutePath() +
+                                      QString( "/surfaceexport/layer-%1.ts" ).arg( layer );
+
+            RifSurfaceExporter::writeGocadTSurfFile( surfaceFilename, "msj test", vertices, triangleIndices );
         }
     }
     catch ( ... )
