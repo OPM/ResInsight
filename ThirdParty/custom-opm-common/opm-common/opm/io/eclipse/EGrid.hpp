@@ -67,10 +67,16 @@ public:
 
     const std::vector<std::string>& list_of_lgrs() const { return lgr_names; }
 
+    std::vector<float> get_mapaxes() const { return m_mapaxes; }
+    std::string get_mapunits() const { return m_mapunits; }
+
 private:
     Opm::filesystem::path inputFileName, initFileName;
     std::string m_grid_name;
     bool m_radial;
+
+    std::vector<float> m_mapaxes;
+    std::string m_mapunits;
 
     std::array<int, 3> nijk;
     std::array<int, 3> host_nijk;

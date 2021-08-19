@@ -59,6 +59,7 @@ namespace EclIO
         nnc1_array_index = -1;
         nnc2_array_index = -1;
         m_radial = false;
+        m_mapunits = "";
 
         int hostnum_index = -1;
 
@@ -81,6 +82,14 @@ namespace EclIO
                 else
                     lgrname = lgr_names[nnchead[1] - 1];
             }
+
+            if (array_name[n] == "MAPUNITS") {
+                auto mapunits = this->get<std::string>(n);
+                m_mapunits = mapunits[0];
+            }
+
+            if (array_name[n] == "MAPAXES")
+                m_mapaxes = this->get<float>(n);
 
             if (lgrname == grid_name) {
                 if (array_name[n] == "GRIDHEAD") {
