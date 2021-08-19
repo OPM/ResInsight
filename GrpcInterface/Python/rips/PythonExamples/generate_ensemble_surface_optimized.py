@@ -12,7 +12,7 @@ home_dir = expanduser("~")
 
 export_folder = tempfile.mkdtemp()
 
-#directory_path = "resprojects/webviz-subsurface-testdata/reek_history_match/"
+# directory_path = "resprojects/webviz-subsurface-testdata/reek_history_match/"
 directory_path = "e:/gitroot/webviz-subsurface-testdata/reek_history_match"
 
 
@@ -39,4 +39,3 @@ for path in case_file_paths:
     path_name = path.as_posix()
 
     command_router.extract_surfaces(path_name, k_indexes)
-
