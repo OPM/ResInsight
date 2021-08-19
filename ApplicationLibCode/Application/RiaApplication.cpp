@@ -43,6 +43,7 @@
 #include "RimAnnotationTextAppearance.h"
 #include "RimCellFilterCollection.h"
 #include "RimCommandObject.h"
+#include "RimCommandRouter.h"
 #include "RimCompletionTemplateCollection.h"
 #include "RimEclipseCaseCollection.h"
 #include "RimEclipseView.h"
@@ -149,6 +150,8 @@ RiaApplication::RiaApplication()
 #endif
 
     setLastUsedDialogDirectory( "MULTICASEIMPORT", "/" );
+
+    m_commandRouter = std::make_unique<RimCommandRouter>();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -299,6 +302,14 @@ int RiaApplication::currentScriptCaseId() const
 RimProject* RiaApplication::project()
 {
     return m_project.get();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimCommandRouter* RiaApplication::commandRouter()
+{
+    return m_commandRouter.get();
 }
 
 //--------------------------------------------------------------------------------------------------
