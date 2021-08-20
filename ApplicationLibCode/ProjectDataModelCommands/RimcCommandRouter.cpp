@@ -38,7 +38,7 @@ CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimCommandRouter, RimcCommandRouter_extractSu
 ///
 //--------------------------------------------------------------------------------------------------
 RimcCommandRouter_extractSurfaces::RimcCommandRouter_extractSurfaces( caf::PdmObjectHandle* self )
-    : caf::PdmObjectMethod( self )
+    : RimCommandRouterMethod( self )
 {
     CAF_PDM_InitObject( "Extract Layer Surface", "", "", "Extract Layer Surface" );
 
@@ -121,29 +121,5 @@ caf::PdmObjectHandle* RimcCommandRouter_extractSurfaces::execute()
     {
     }
 
-    return nullptr;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RimcCommandRouter_extractSurfaces::isNullptrValidResult() const
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RimcCommandRouter_extractSurfaces::resultIsPersistent() const
-{
-    return false;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::unique_ptr<caf::PdmObjectHandle> RimcCommandRouter_extractSurfaces::defaultResult() const
-{
     return nullptr;
 }

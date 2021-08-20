@@ -18,9 +18,9 @@
 
 #pragma once
 
+#include "RimCommandRouter.h"
+
 #include "cafPdmField.h"
-#include "cafPdmObjectHandle.h"
-#include "cafPdmObjectMethod.h"
 
 #include "cvfVector3.h"
 
@@ -31,17 +31,14 @@
 //==================================================================================================
 ///
 //==================================================================================================
-class RimcCommandRouter_extractSurfaces : public caf::PdmObjectMethod
+class RimcCommandRouter_extractSurfaces : public RimCommandRouterMethod
 {
     CAF_PDM_HEADER_INIT;
 
 public:
     RimcCommandRouter_extractSurfaces( caf::PdmObjectHandle* self );
 
-    caf::PdmObjectHandle*            execute() override;
-    bool                             isNullptrValidResult() const override;
-    bool                             resultIsPersistent() const override;
-    std::unique_ptr<PdmObjectHandle> defaultResult() const override;
+    caf::PdmObjectHandle* execute() override;
 
 private:
     caf::PdmField<QString>          m_gridModelFilename;
