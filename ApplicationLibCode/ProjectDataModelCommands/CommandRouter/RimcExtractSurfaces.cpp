@@ -16,7 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimcCommandRouter.h"
+#include "RimcExtractSurfaces.h"
 #include "RimCommandRouter.h"
 
 #include "RifSurfaceExporter.h"
