@@ -22,7 +22,7 @@
 #include "RiaGrpcServer.h"
 #include "RiaVersionInfo.h"
 
-#include "RimCommandRouter.h"
+#include "ProjectDataModelCommands/CommandRouter/RimCommandRouter.h"
 
 #include <QApplication>
 

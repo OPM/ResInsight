@@ -20,8 +20,8 @@
 #include "RiaApplication.h"
 #include "RiaGrpcCallbacks.h"
 
+#include "ProjectDataModelCommands/CommandRouter/RimCommandRouter.h"
 #include "Rim3dView.h"
-#include "RimCommandRouter.h"
 #include "RimEclipseResultDefinition.h"
 #include "RimProject.h"
 

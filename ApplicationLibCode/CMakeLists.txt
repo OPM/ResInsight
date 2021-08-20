@@ -401,7 +401,8 @@ target_link_libraries(${PROJECT_NAME} ${LINK_LIBRARIES}
 target_include_directories(
   ${PROJECT_NAME}
   PRIVATE ${CMAKE_BINARY_DIR}/Generated
-  PUBLIC ${CMAKE_SOURCE_DIR}/ApplicationLibCode/Application
+  PUBLIC ${CMAKE_SOURCE_DIR}/ApplicationLibCode
+         ${CMAKE_SOURCE_DIR}/ApplicationLibCode/Application
          ${CMAKE_SOURCE_DIR}/ApplicationLibCode/Application/Tools
          ${CMAKE_SOURCE_DIR}/ApplicationLibCode/CommandFileInterface
          ${CMAKE_SOURCE_DIR}/ApplicationLibCode/CommandFileInterface/Core
