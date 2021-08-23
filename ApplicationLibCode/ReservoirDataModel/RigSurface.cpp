@@ -16,6 +16,9 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 #include "RigSurface.h"
+#include "cafAssert.h"
+#include "cvfBoundingBox.h"
+#include "cvfBoundingBoxTree.h"
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -91,4 +94,52 @@ std::vector<QString> RigSurface::propertyNames() const
     }
 
     return names;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigSurface::findIntersectingTriangles( const cvf::BoundingBox& inputBB, std::vector<size_t>* elementIndices ) const
+{
+    CAF_ASSERT( m_elementSearchTree.notNull() );
+
+    m_elementSearchTree->findIntersections( inputBB, elementIndices );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigSurface::ensureIntersectionSearchTreeIsBuilt()
+{
+    // build tree
+    if ( m_elementSearchTree.isNull() )
+    {
+        size_t itemCount = triangleCount();
+
+        std::vector<cvf::BoundingBox> cellBoundingBoxes;
+        std::vector<size_t>           boundingBoxIds;
+        cellBoundingBoxes.resize( itemCount );
+        boundingBoxIds.resize( itemCount );
+
+        for ( size_t triangleIdx = 0; triangleIdx < itemCount; ++triangleIdx )
+        {
+            cvf::BoundingBox& cellBB = cellBoundingBoxes[triangleIdx];
+            cellBB.add( m_vertices[m_triangleIndices[triangleIdx * 3 + 0]] );
+            cellBB.add( m_vertices[m_triangleIndices[triangleIdx * 3 + 1]] );
+            cellBB.add( m_vertices[m_triangleIndices[triangleIdx * 3 + 2]] );
+
+            boundingBoxIds[triangleIdx] = triangleIdx;
+        }
+
+        m_elementSearchTree = new cvf::BoundingBoxTree;
+        m_elementSearchTree->buildTreeFromBoundingBoxes( cellBoundingBoxes, &boundingBoxIds );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+size_t RigSurface::triangleCount() const
+{
+    return m_triangleIndices.size() / 3;
 }

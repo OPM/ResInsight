@@ -562,7 +562,8 @@ void Rim2dIntersectionView::onCreateDisplayModel()
     m_flatSimWellPipePartMgr = nullptr;
     m_flatWellHeadPartMgr    = nullptr;
 
-    if ( m_intersection->type() == RimExtrudedCurveIntersection::CS_SIMULATION_WELL && m_intersection->simulationWell() )
+    if ( m_intersection->type() == RimExtrudedCurveIntersection::CrossSectionEnum::CS_SIMULATION_WELL &&
+         m_intersection->simulationWell() )
     {
         RimEclipseView* eclipseView = nullptr;
         m_intersection->firstAncestorOrThisOfType( eclipseView );
@@ -575,7 +576,8 @@ void Rim2dIntersectionView::onCreateDisplayModel()
     }
 
     m_flatWellpathPartMgr = nullptr;
-    if ( m_intersection->type() == RimExtrudedCurveIntersection::CS_WELL_PATH && m_intersection->wellPath() )
+    if ( m_intersection->type() == RimExtrudedCurveIntersection::CrossSectionEnum::CS_WELL_PATH &&
+         m_intersection->wellPath() )
     {
         Rim3dView* settingsView = nullptr;
         m_intersection->firstAncestorOrThisOfType( settingsView );

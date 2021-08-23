@@ -17,25 +17,18 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RiuPvtPlotUpdater.h"
-#include "Riu3dSelectionManager.h"
-#include "RiuPvtPlotPanel.h"
-#include "RiuRelativePermeabilityPlotUpdater.h"
 
-#include "RigActiveCellInfo.h"
-#include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
-#include "RigGridBase.h"
 #include "RigResultAccessor.h"
 #include "RigResultAccessorFactory.h"
 
-#include "Rim2dIntersectionView.h"
 #include "Rim3dView.h"
-#include "RimEclipseCellColors.h"
 #include "RimEclipseResultCase.h"
-#include "RimEclipseView.h"
-#include "RimExtrudedCurveIntersection.h"
+#include "RimEclipseResultDefinition.h"
 
-//#include "cvfTrace.h"
+#include "Riu3dSelectionManager.h"
+#include "RiuPvtPlotPanel.h"
+#include "RiuRelativePermeabilityPlotUpdater.h"
 
 #include <cmath>
 

@@ -39,6 +39,7 @@ class RigResultAccessor;
 class RimExtrudedCurveIntersection;
 class RivIntersectionHexGridInterface;
 class RivIntersectionVertexWeights;
+class RimSurface;
 
 namespace cvf
 {
@@ -77,12 +78,12 @@ public:
         return m_faultMeshLabelAndAnchorPositions;
     }
 
-    RimExtrudedCurveIntersection* intersection() const;
-
     cvf::Mat4d unflattenTransformMatrix( const cvf::Vec3d& intersectionPointFlat ) const;
 
     // GeomGen Interface
     bool isAnyGeometryPresent() const override;
+
+    std::map<RimSurface*, std::vector<cvf::Vec3d>> surfaceIntersectionPolyLines() const;
 
     const std::vector<size_t>&                       triangleToCellIndex() const override;
     const std::vector<RivIntersectionVertexWeights>& triangleVxToCellCornerInterpolationWeights() const override;
@@ -92,7 +93,14 @@ private:
     void calculateArrays();
     void calculateSegementTransformPrLinePoint();
     void calculateFlattenedOrOffsetedPolyline();
+    void calculateSurfaceIntersectionPoints();
 
+    RimExtrudedCurveIntersection* intersection() const;
+
+    static std::vector<cvf::Vec3d> computeResampledPolyline( const std::vector<cvf::Vec3d>& polyline,
+                                                             double                         resamplingDistance );
+
+private:
     RimExtrudedCurveIntersection*              m_intersection;
     cvf::cref<RivIntersectionHexGridInterface> m_hexGrid;
     const std::vector<std::vector<cvf::Vec3d>> m_polyLines;
@@ -110,4 +118,6 @@ private:
     std::vector<std::vector<cvf::Mat4d>>      m_segementTransformPrLinePoint;
 
     std::vector<std::pair<QString, cvf::Vec3d>> m_faultMeshLabelAndAnchorPositions;
+
+    std::map<RimSurface*, std::vector<cvf::Vec3d>> m_surfaceIntersectionPolyLines;
 };

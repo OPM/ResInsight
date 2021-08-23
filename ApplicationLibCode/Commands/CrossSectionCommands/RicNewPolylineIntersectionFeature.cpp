@@ -109,8 +109,7 @@ void RicNewPolylineIntersectionFeatureCmd::redo()
 
     RimExtrudedCurveIntersection* intersection = new RimExtrudedCurveIntersection();
     intersection->setName( "Polyline" );
-    intersection->type                           = RimExtrudedCurveIntersection::CS_POLYLINE;
-    intersection->inputPolyLineFromViewerEnabled = true;
+    intersection->configureForPolyLine();
 
     m_intersectionCollection->appendIntersectionAndUpdate( intersection, false );
 

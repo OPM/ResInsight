@@ -21,15 +21,20 @@
 
 #include "RigMainGrid.h"
 #include "RigResultAccessor.h"
+#include "RigSurface.h"
+#include "RigSurfaceResampler.h"
+#include "RigWellPath.h"
 
 #include "Rim3dView.h"
 #include "RimCase.h"
 #include "RimExtrudedCurveIntersection.h"
 #include "RimGridView.h"
+#include "RimSurface.h"
 
 #include "RivExtrudedCurveIntersectionPartMgr.h"
 #include "RivHexGridIntersectionTools.h"
 #include "RivPolylineGenerator.h"
+#include "RivSectionFlattner.h"
 
 #include "cafDisplayCoordTransform.h"
 #include "cafHexGridIntersectionTools/cafHexGridIntersectionTools.h"
@@ -41,8 +46,6 @@
 #include "cvfPrimitiveSetIndexedUInt.h"
 #include "cvfRay.h"
 #include "cvfScalarMapper.h"
-
-#include "RivSectionFlattner.h"
 
 cvf::ref<caf::DisplayCoordTransform> displayCoordTransform( const RimExtrudedCurveIntersection* intersection )
 {
@@ -93,14 +96,13 @@ void RivExtrudedCurveIntersectionGeometryGenerator::calculateSegementTransformPr
 {
     if ( m_isFlattened )
     {
-        if ( !( m_polyLines.size() && m_polyLines.back().size() ) ) return;
+        if ( !( !m_polyLines.empty() && !m_polyLines.back().empty() ) ) return;
 
         cvf::Vec3d startOffset = m_flattenedPolylineStartPoint;
 
-        for ( size_t pLineIdx = 0; pLineIdx < m_polyLines.size(); ++pLineIdx )
+        for ( const std::vector<cvf::Vec3d>& polyLine : m_polyLines )
         {
-            const std::vector<cvf::Vec3d>& polyLine = m_polyLines[pLineIdx];
-            startOffset.z()                         = polyLine[0].z();
+            startOffset.z() = polyLine[0].z();
             m_segementTransformPrLinePoint.emplace_back(
                 RivSectionFlattner::calculateFlatteningCSsForPolyline( polyLine,
                                                                        m_extrusionDirection,
@@ -154,6 +156,46 @@ void RivExtrudedCurveIntersectionGeometryGenerator::calculateFlattenedOrOffseted
         {
             m_flattenedOrOffsettedPolyLines.back().push_back(
                 polyLine[pIdx].getTransformedPoint( m_segementTransformPrLinePoint[pLineIdx][pIdx] ) );
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RivExtrudedCurveIntersectionGeometryGenerator::calculateSurfaceIntersectionPoints()
+{
+    if ( !m_polyLines.empty() )
+    {
+        auto firstPolyLine = m_polyLines.front();
+        for ( auto surf : m_intersection->annotatedSurfaces() )
+        {
+            if ( !surf ) return;
+
+            surf->loadDataIfRequired();
+
+            std::vector<cvf::Vec3d> surfacePolyLine;
+
+            auto surface = surf->surfaceData();
+
+            // Resample polyline to required resolutions
+            const double            maxLineSegmentLenght = 1.0;
+            std::vector<cvf::Vec3d> resampledPolyline = computeResampledPolyline( firstPolyLine, maxLineSegmentLenght );
+
+            for ( auto point : resampledPolyline )
+            {
+                cvf::Vec3d pointAbove = cvf::Vec3d( point.x(), point.y(), 10000.0 );
+                cvf::Vec3d pointBelow = cvf::Vec3d( point.x(), point.y(), -10000.0 );
+
+                cvf::Vec3d intersectionPoint;
+                bool foundMatch = RigSurfaceResampler::resamplePoint( surface, pointAbove, pointBelow, intersectionPoint );
+                if ( !foundMatch )
+                    intersectionPoint = cvf::Vec3d( point.x(), point.y(), std::numeric_limits<double>::infinity() );
+
+                surfacePolyLine.push_back( intersectionPoint );
+            }
+
+            m_surfaceIntersectionPolyLines[surf] = surfacePolyLine;
         }
     }
 }
@@ -257,7 +299,7 @@ void RivExtrudedCurveIntersectionGeometryGenerator::calculateArrays()
             double maxSectionHeightUp   = 0;
             double maxSectionHeightDown = 0;
 
-            if ( m_intersection->type == RimExtrudedCurveIntersection::CS_AZIMUTHLINE )
+            if ( m_intersection->type() == RimExtrudedCurveIntersection::CrossSectionEnum::CS_AZIMUTHLINE )
             {
                 maxSectionHeightUp   = m_intersection->lengthUp();
                 maxSectionHeightDown = m_intersection->lengthDown();
@@ -307,10 +349,8 @@ void RivExtrudedCurveIntersectionGeometryGenerator::calculateArrays()
 
             cvf::Mat4d invSectionCS = m_segementTransformPrLinePoint[pLineIdx][lIdx];
 
-            for ( size_t cccIdx = 0; cccIdx < columnCellCandidates.size(); ++cccIdx )
+            for ( auto globalCellIdx : columnCellCandidates )
             {
-                size_t globalCellIdx = columnCellCandidates[cccIdx];
-
                 if ( !m_hexGrid->useCell( globalCellIdx ) ) continue;
 
                 hexPlaneCutTriangleVxes.clear();
@@ -323,10 +363,10 @@ void RivExtrudedCurveIntersectionGeometryGenerator::calculateArrays()
                                                                        &hexPlaneCutTriangleVxes,
                                                                        &cellFaceForEachTriangleEdge );
 
-                if ( m_intersection->type == RimExtrudedCurveIntersection::CS_AZIMUTHLINE )
+                if ( m_intersection->type() == RimExtrudedCurveIntersection::CrossSectionEnum::CS_AZIMUTHLINE )
                 {
                     bool hasAnyPointsOnSurface = false;
-                    for ( caf::HexGridIntersectionTools::ClipVx vertex : hexPlaneCutTriangleVxes )
+                    for ( const caf::HexGridIntersectionTools::ClipVx& vertex : hexPlaneCutTriangleVxes )
                     {
                         cvf::Vec3d temp        = vertex.vx - p1;
                         double     dot         = temp.dot( m_extrusionDirection );
@@ -400,22 +440,22 @@ void RivExtrudedCurveIntersectionGeometryGenerator::calculateArrays()
                         caf::HexGridIntersectionTools::ClipVx cvx = clippedTriangleVxes[triVxIdx + i];
                         if ( cvx.isVxIdsNative )
                         {
-                            m_triVxToCellCornerWeights.push_back( RivIntersectionVertexWeights( cvx.clippedEdgeVx1Id,
-                                                                                                cvx.clippedEdgeVx2Id,
-                                                                                                cvx.normDistFromEdgeVx1 ) );
+                            m_triVxToCellCornerWeights.emplace_back( cvx.clippedEdgeVx1Id,
+                                                                     cvx.clippedEdgeVx2Id,
+                                                                     cvx.normDistFromEdgeVx1 );
                         }
                         else
                         {
                             caf::HexGridIntersectionTools::ClipVx cvx1 = hexPlaneCutTriangleVxes[cvx.clippedEdgeVx1Id];
                             caf::HexGridIntersectionTools::ClipVx cvx2 = hexPlaneCutTriangleVxes[cvx.clippedEdgeVx2Id];
 
-                            m_triVxToCellCornerWeights.push_back( RivIntersectionVertexWeights( cvx1.clippedEdgeVx1Id,
-                                                                                                cvx1.clippedEdgeVx2Id,
-                                                                                                cvx1.normDistFromEdgeVx1,
-                                                                                                cvx2.clippedEdgeVx1Id,
-                                                                                                cvx2.clippedEdgeVx2Id,
-                                                                                                cvx2.normDistFromEdgeVx1,
-                                                                                                cvx.normDistFromEdgeVx1 ) );
+                            m_triVxToCellCornerWeights.emplace_back( cvx1.clippedEdgeVx1Id,
+                                                                     cvx1.clippedEdgeVx2Id,
+                                                                     cvx1.normDistFromEdgeVx1,
+                                                                     cvx2.clippedEdgeVx1Id,
+                                                                     cvx2.clippedEdgeVx2Id,
+                                                                     cvx2.normDistFromEdgeVx1,
+                                                                     cvx.normDistFromEdgeVx1 );
                         }
                     }
                 }
@@ -430,8 +470,10 @@ void RivExtrudedCurveIntersectionGeometryGenerator::calculateArrays()
 
     for ( const auto& it : meshAcc.faultToHighestFaultMeshVxMap )
     {
-        m_faultMeshLabelAndAnchorPositions.push_back( { it.first->name(), it.second } );
+        m_faultMeshLabelAndAnchorPositions.emplace_back( it.first->name(), it.second );
     }
+
+    calculateSurfaceIntersectionPoints();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -577,6 +619,55 @@ RimExtrudedCurveIntersection* RivExtrudedCurveIntersectionGeometryGenerator::int
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::vector<cvf::Vec3d>
+    RivExtrudedCurveIntersectionGeometryGenerator::computeResampledPolyline( const std::vector<cvf::Vec3d>& polyline,
+                                                                             double resamplingDistance )
+{
+    std::vector<cvf::Vec3d> resampledPolyline;
+
+    if ( polyline.size() > 1 )
+    {
+        std::vector<double> measuredDepth;
+        {
+            double aggregatedLenght = 0.0;
+
+            cvf::Vec3d previousPoint = polyline.front();
+            measuredDepth.push_back( aggregatedLenght );
+
+            for ( size_t i = 1; i < polyline.size(); i++ )
+            {
+                aggregatedLenght += ( previousPoint - polyline[i] ).length();
+                previousPoint = polyline[i];
+                measuredDepth.push_back( aggregatedLenght );
+            }
+        }
+
+        RigWellPath dummyWellPath( polyline, measuredDepth );
+        for ( size_t i = 1; i < polyline.size(); i++ )
+        {
+            const auto& lineSegmentStart = polyline[i - 1];
+            const auto& lineSegmentEnd   = polyline[i - 0];
+
+            auto startMD = measuredDepth[i - 1];
+            auto endMD   = measuredDepth[i - 0];
+
+            resampledPolyline.push_back( lineSegmentStart );
+
+            for ( auto md = startMD + resamplingDistance; md < endMD; md += resamplingDistance )
+            {
+                resampledPolyline.push_back( dummyWellPath.interpolatedPointAlongWellPath( md ) );
+            }
+
+            resampledPolyline.push_back( lineSegmentEnd );
+        }
+    }
+
+    return resampledPolyline;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 cvf::Mat4d
     RivExtrudedCurveIntersectionGeometryGenerator::unflattenTransformMatrix( const cvf::Vec3d& intersectionPointFlat ) const
 {
@@ -593,7 +684,7 @@ cvf::Mat4d
                 flattenMx    = m_segementTransformPrLinePoint[pLineIdx][csIdx];
                 break;
             }
-            else if ( pIdx == polyLine.size() - 1 )
+            if ( pIdx == polyLine.size() - 1 )
             {
                 flattenMx = m_segementTransformPrLinePoint[pLineIdx][pIdx];
             }
@@ -612,8 +703,15 @@ bool RivExtrudedCurveIntersectionGeometryGenerator::isAnyGeometryPresent() const
     {
         return false;
     }
-    else
-    {
-        return true;
-    }
+
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::map<RimSurface*, std::vector<cvf::Vec3d>>
+    RivExtrudedCurveIntersectionGeometryGenerator::surfaceIntersectionPolyLines() const
+{
+    return m_surfaceIntersectionPolyLines;
 }
