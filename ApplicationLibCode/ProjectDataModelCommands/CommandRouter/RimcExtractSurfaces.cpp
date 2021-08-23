@@ -17,9 +17,10 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RimcExtractSurfaces.h"
-#include "RimCommandRouter.h"
 
+#include "RiaLogging.h"
 #include "RifSurfaceExporter.h"
+#include "RimCommandRouter.h"
 
 #include "opm/io/eclipse/EGrid.hpp"
 
@@ -114,11 +115,19 @@ caf::PdmObjectHandle* RimcCommandRouter_extractSurfaces::execute()
                                       QString( "/surfaceexport/layer-%1.ts" ).arg( layer );
 
             // TODO: Add more info in surface comment
-            RifSurfaceExporter::writeGocadTSurfFile( surfaceFilename, "Surface comment", vertices, triangleIndices );
+            if ( !RifSurfaceExporter::writeGocadTSurfFile( surfaceFilename, "Surface comment", vertices, triangleIndices ) )
+            {
+                RiaLogging::error( "Failed to export surface data to " + surfaceFilename );
+            }
+            else
+            {
+                RiaLogging::error( "Successfully exported surface data to " + surfaceFilename );
+            }
         }
     }
     catch ( ... )
     {
+        RiaLogging::error( "Error during creation of surface data for model " + m_gridModelFilename() );
     }
 
     return nullptr;
