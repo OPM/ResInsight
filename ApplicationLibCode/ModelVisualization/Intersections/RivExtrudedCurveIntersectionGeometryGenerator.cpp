@@ -179,8 +179,8 @@ void RivExtrudedCurveIntersectionGeometryGenerator::calculateSurfaceIntersection
             auto surface = surf->surfaceData();
 
             // Resample polyline to required resolutions
-            const double            maxLineSegmentLenght = 1.0;
-            std::vector<cvf::Vec3d> resampledPolyline = computeResampledPolyline( firstPolyLine, maxLineSegmentLenght );
+            const double            maxLineSegmentLength = 1.0;
+            std::vector<cvf::Vec3d> resampledPolyline = computeResampledPolyline( firstPolyLine, maxLineSegmentLength );
 
             for ( auto point : resampledPolyline )
             {
@@ -629,16 +629,16 @@ std::vector<cvf::Vec3d>
     {
         std::vector<double> measuredDepth;
         {
-            double aggregatedLenght = 0.0;
+            double aggregatedLength = 0.0;
 
             cvf::Vec3d previousPoint = polyline.front();
-            measuredDepth.push_back( aggregatedLenght );
+            measuredDepth.push_back( aggregatedLength );
 
             for ( size_t i = 1; i < polyline.size(); i++ )
             {
-                aggregatedLenght += ( previousPoint - polyline[i] ).length();
+                aggregatedLength += ( previousPoint - polyline[i] ).length();
                 previousPoint = polyline[i];
-                measuredDepth.push_back( aggregatedLenght );
+                measuredDepth.push_back( aggregatedLength );
             }
         }
 
