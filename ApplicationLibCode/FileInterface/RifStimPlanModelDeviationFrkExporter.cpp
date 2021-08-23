@@ -147,7 +147,9 @@ void RifStimPlanModelDeviationFrkExporter::fixupDepthValuesForExport( const std:
         // Move the MD value to produce a file which can be imported.
         if ( changeMd < changeTvd )
         {
-            exportMdValues.push_back( exportMdValues[i - 1] + changeTvd );
+            // Add small amount in addition to delta TVD to work around floating point imprecision.
+            double wiggle = 0.001;
+            exportMdValues.push_back( exportMdValues[i - 1] + changeTvd + wiggle );
         }
         else
         {
