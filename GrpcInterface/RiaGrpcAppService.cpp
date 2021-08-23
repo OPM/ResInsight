@@ -22,6 +22,8 @@
 #include "RiaGrpcServer.h"
 #include "RiaVersionInfo.h"
 
+#include "ProjectDataModelCommands/CommandRouter/RimCommandRouter.h"
+
 #include <QApplication>
 
 //--------------------------------------------------------------------------------------------------
@@ -51,7 +53,7 @@ grpc::Status
     RiaGrpcAppService::GetRuntimeInfo( grpc::ServerContext* context, const rips::Empty* request, rips::RuntimeInfo* reply )
 {
     rips::ApplicationTypeEnum appType = rips::CONSOLE_APPLICATION;
-    if ( dynamic_cast<QApplication*>(RiaApplication::instance()))
+    if ( dynamic_cast<QApplication*>( RiaApplication::instance() ) )
     {
         appType = rips::GUI_APPLICATION;
     }
@@ -70,7 +72,24 @@ std::vector<RiaGrpcCallbackInterface*> RiaGrpcAppService::createCallbacks()
              new RiaGrpcUnaryCallback<Self, rips::Empty, rips::Empty>( this, &Self::Exit, &Self::RequestExit ),
              new RiaGrpcUnaryCallback<Self, rips::Empty, rips::RuntimeInfo>( this,
                                                                              &Self::GetRuntimeInfo,
-                                                                             &Self::RequestGetRuntimeInfo ) };
+                                                                             &Self::RequestGetRuntimeInfo ),
+             new RiaGrpcUnaryCallback<Self, rips::Empty, rips::PdmObject>( this,
+                                                                           &Self::GetPdmObject,
+                                                                           &Self::RequestGetPdmObject ) };
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+grpc::Status
+    RiaGrpcAppService::GetPdmObject( grpc::ServerContext* context, const rips::Empty* request, rips::PdmObject* reply )
+{
+    auto* commandRouter = RiaApplication::instance()->commandRouter();
+    if ( commandRouter )
+    {
+        copyPdmObjectFromCafToRips( commandRouter, reply );
+    }
+    return grpc::Status::OK;
 }
 
 static bool RiaGrpcAppInfoService_init =

@@ -34,7 +34,9 @@
 #include <grpcpp/grpcpp.h>
 
 #include <PdmObject.pb.h>
+#include <QDebug>
 #include <QXmlStreamReader>
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -137,6 +139,16 @@ void RiaGrpcServiceInterface::copyPdmObjectFromRipsToCaf( const rips::PdmObject*
     destination->fields( fields );
 
     auto parametersMap = source->parameters();
+
+    bool printContent = false; // Flag to control debug output to debugger
+    if ( printContent )
+    {
+        for ( const auto& p : parametersMap )
+        {
+            qDebug() << QString::fromStdString( p.first ) << " : " << QString::fromStdString( p.second );
+        }
+    }
+
     for ( auto field : fields )
     {
         auto scriptability = field->template capability<caf::PdmAbstractFieldScriptingCapability>();

@@ -184,6 +184,7 @@ list(
   ProjectDataModel/WellMeasurement/CMakeLists_files.cmake
   ProjectDataModel/WellPath/CMakeLists_files.cmake
   ProjectDataModelCommands/CMakeLists_files.cmake
+  ProjectDataModelCommands/CommandRouter/CMakeLists_files.cmake
   GeoMech/GeoMechVisualization/CMakeLists_files.cmake
   ModelVisualization/CMakeLists_files.cmake
   ModelVisualization/GridBox/CMakeLists_files.cmake
@@ -400,7 +401,8 @@ target_link_libraries(${PROJECT_NAME} ${LINK_LIBRARIES}
 target_include_directories(
   ${PROJECT_NAME}
   PRIVATE ${CMAKE_BINARY_DIR}/Generated
-  PUBLIC ${CMAKE_SOURCE_DIR}/ApplicationLibCode/Application
+  PUBLIC ${CMAKE_SOURCE_DIR}/ApplicationLibCode
+         ${CMAKE_SOURCE_DIR}/ApplicationLibCode/Application
          ${CMAKE_SOURCE_DIR}/ApplicationLibCode/Application/Tools
          ${CMAKE_SOURCE_DIR}/ApplicationLibCode/CommandFileInterface
          ${CMAKE_SOURCE_DIR}/ApplicationLibCode/CommandFileInterface/Core

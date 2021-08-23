@@ -52,6 +52,7 @@ class RiaSocketServer;
 class RigEclipseCaseData;
 
 class RimCommandObject;
+class RimCommandRouter;
 class RimEclipseCase;
 class RimEclipseView;
 class RimWellPath;
@@ -115,7 +116,8 @@ public:
     RimGridView*     activeMainOrComparisonGridView();
     int              currentScriptCaseId() const;
 
-    RimProject* project();
+    RimProject*       project();
+    RimCommandRouter* commandRouter();
 
     void createMockModel();
     void createResultsMockModel();
@@ -233,6 +235,8 @@ protected:
 
     caf::PdmPointer<Rim3dView>  m_activeReservoirView;
     std::unique_ptr<RimProject> m_project;
+
+    std::unique_ptr<RimCommandRouter> m_commandRouter;
 
     QPointer<RiaSocketServer>       m_socketServer;
     std::unique_ptr<caf::UiProcess> m_workerProcess;

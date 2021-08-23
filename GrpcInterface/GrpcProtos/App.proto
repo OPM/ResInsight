@@ -3,11 +3,13 @@ syntax = "proto3";
 package rips;
 
 import "Definitions.proto";
+import "PdmObject.proto";
 
 service App {
   rpc GetVersion(Empty) returns (Version) {}
   rpc Exit(Empty) returns (Empty) {}
   rpc GetRuntimeInfo(Empty) returns (RuntimeInfo) {}
+  rpc GetPdmObject(Empty) returns (PdmObject) {}
 }
 
 message Version {

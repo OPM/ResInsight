@@ -37,6 +37,7 @@
 #include "RicfCommandFileExecutor.h"
 #include "RicfCommandObject.h"
 
+#include "CommandRouter/RimCommandRouter.h"
 #include "Rim2dIntersectionViewCollection.h"
 #include "RimAnnotationCollection.h"
 #include "RimAnnotationInViewCollection.h"
@@ -149,6 +150,8 @@ RiaApplication::RiaApplication()
 #endif
 
     setLastUsedDialogDirectory( "MULTICASEIMPORT", "/" );
+
+    m_commandRouter = std::make_unique<RimCommandRouter>();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -299,6 +302,14 @@ int RiaApplication::currentScriptCaseId() const
 RimProject* RiaApplication::project()
 {
     return m_project.get();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimCommandRouter* RiaApplication::commandRouter()
+{
+    return m_commandRouter.get();
 }
 
 //--------------------------------------------------------------------------------------------------

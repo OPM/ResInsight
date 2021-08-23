@@ -23,6 +23,7 @@
 #include <opm/io/eclipse/EclUtil.hpp>
 #include <opm/io/eclipse/EclOutput.hpp>
 #include <opm/common/utility/TimeService.hpp>
+#include <opm/common/ErrorMacros.hpp>
 
 #include <algorithm>
 #include <chrono>

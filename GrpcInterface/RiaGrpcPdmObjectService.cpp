@@ -17,7 +17,10 @@
 //////////////////////////////////////////////////////////////////////////////////
 #include "RiaGrpcPdmObjectService.h"
 
+#include "RiaApplication.h"
 #include "RiaGrpcCallbacks.h"
+
+#include "ProjectDataModelCommands/CommandRouter/RimCommandRouter.h"
 #include "Rim3dView.h"
 #include "RimEclipseResultDefinition.h"
 #include "RimProject.h"
@@ -613,10 +616,12 @@ caf::PdmObject* RiaGrpcPdmObjectService::findCafObjectFromRipsObject( const rips
 caf::PdmObject* RiaGrpcPdmObjectService::findCafObjectFromScriptNameAndAddress( const QString& scriptClassName,
                                                                                 uint64_t       address )
 {
+    QString classKeyword = caf::PdmObjectScriptingCapabilityRegister::classKeywordFromScriptClassName( scriptClassName );
+
+    if ( classKeyword == RimCommandRouter::classKeywordStatic() ) return RiaApplication::instance()->commandRouter();
+
     RimProject*                  project = RimProject::current();
     std::vector<caf::PdmObject*> objectsOfCurrentClass;
-
-    QString classKeyword = caf::PdmObjectScriptingCapabilityRegister::classKeywordFromScriptClassName( scriptClassName );
 
     project->descendantsIncludingThisFromClassKeyword( classKeyword, objectsOfCurrentClass );
 
