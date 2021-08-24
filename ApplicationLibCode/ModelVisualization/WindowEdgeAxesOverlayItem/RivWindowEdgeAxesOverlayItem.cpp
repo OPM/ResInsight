@@ -132,6 +132,8 @@ void RivWindowEdgeAxesOverlayItem::updateFromCamera( const Camera* camera )
         windowMaxInDomain   = m_dispalyCoordsTransform->transformToDomainCoord( windowMaxInDomain );
     }
 
+    if ( windowOrigoInDomain == windowMaxInDomain ) return;
+
     double domainMinX = windowOrigoInDomain.x();
     double domainMaxX = windowMaxInDomain.x();
 

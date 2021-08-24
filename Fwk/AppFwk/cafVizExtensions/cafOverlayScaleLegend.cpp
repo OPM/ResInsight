@@ -731,6 +731,8 @@ void OverlayScaleLegend::updateFromCamera( const Camera* camera )
         windowMaxInDomain   = m_dispalyCoordsTransform->transformToDomainCoord( windowMaxInDomain );
     }
 
+    if ( windowMaxInDomain == windowOrigoInDomain ) return;
+
     Vec3d windowOrigoPoint;
     Vec3d windowMaxPoint;
     camera->project( windowOrigoInDomain, &windowOrigoPoint );
