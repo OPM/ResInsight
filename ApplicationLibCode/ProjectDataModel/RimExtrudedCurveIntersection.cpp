@@ -22,14 +22,21 @@
 #include "RigEclipseCaseData.h"
 #include "RigWellPath.h"
 
+#include "Rim2dIntersectionView.h"
 #include "Rim3dView.h"
 #include "RimCase.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
+#include "RimEnsembleSurface.h"
+#include "RimGridView.h"
+#include "RimIntersectionResultDefinition.h"
+#include "RimIntersectionResultsDefinitionCollection.h"
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimSimWellInView.h"
 #include "RimSimWellInViewCollection.h"
+#include "RimSurface.h"
+#include "RimSurfaceCollection.h"
 #include "RimTools.h"
 #include "RimWellPath.h"
 
@@ -42,10 +49,7 @@
 #include "cafPdmUiListEditor.h"
 #include "cafPdmUiPushButtonEditor.h"
 
-#include "Rim2dIntersectionView.h"
-#include "RimGridView.h"
-#include "RimIntersectionResultDefinition.h"
-#include "RimIntersectionResultsDefinitionCollection.h"
+#include "cafPdmUiTreeSelectionEditor.h"
 #include "cvfBoundingBox.h"
 #include "cvfGeometryTools.h"
 #include "cvfPlane.h"
@@ -55,20 +59,20 @@ namespace caf
 template <>
 void caf::AppEnum<RimExtrudedCurveIntersection::CrossSectionEnum>::setUp()
 {
-    addItem( RimExtrudedCurveIntersection::CS_WELL_PATH, "CS_WELL_PATH", "Well Path" );
-    addItem( RimExtrudedCurveIntersection::CS_SIMULATION_WELL, "CS_SIMULATION_WELL", "Simulation Well" );
-    addItem( RimExtrudedCurveIntersection::CS_POLYLINE, "CS_POLYLINE", "Polyline" );
-    addItem( RimExtrudedCurveIntersection::CS_AZIMUTHLINE, "CS_AZIMUTHLINE", "Azimuth and Dip" );
-    setDefault( RimExtrudedCurveIntersection::CS_WELL_PATH );
+    addItem( RimExtrudedCurveIntersection::CrossSectionEnum::CS_WELL_PATH, "CS_WELL_PATH", "Well Path" );
+    addItem( RimExtrudedCurveIntersection::CrossSectionEnum::CS_SIMULATION_WELL, "CS_SIMULATION_WELL", "Simulation Well" );
+    addItem( RimExtrudedCurveIntersection::CrossSectionEnum::CS_POLYLINE, "CS_POLYLINE", "Polyline" );
+    addItem( RimExtrudedCurveIntersection::CrossSectionEnum::CS_AZIMUTHLINE, "CS_AZIMUTHLINE", "Azimuth and Dip" );
+    setDefault( RimExtrudedCurveIntersection::CrossSectionEnum::CS_WELL_PATH );
 }
 
 template <>
 void caf::AppEnum<RimExtrudedCurveIntersection::CrossSectionDirEnum>::setUp()
 {
-    addItem( RimExtrudedCurveIntersection::CS_VERTICAL, "CS_VERTICAL", "Vertical" );
-    addItem( RimExtrudedCurveIntersection::CS_HORIZONTAL, "CS_HORIZONTAL", "Horizontal" );
-    addItem( RimExtrudedCurveIntersection::CS_TWO_POINTS, "CS_TWO_POINTS", "Defined by Two Points" );
-    setDefault( RimExtrudedCurveIntersection::CS_VERTICAL );
+    addItem( RimExtrudedCurveIntersection::CrossSectionDirEnum::CS_VERTICAL, "CS_VERTICAL", "Vertical" );
+    addItem( RimExtrudedCurveIntersection::CrossSectionDirEnum::CS_HORIZONTAL, "CS_HORIZONTAL", "Horizontal" );
+    addItem( RimExtrudedCurveIntersection::CrossSectionDirEnum::CS_TWO_POINTS, "CS_TWO_POINTS", "Defined by Two Points" );
+    setDefault( RimExtrudedCurveIntersection::CrossSectionDirEnum::CS_VERTICAL );
 }
 
 } // namespace caf
@@ -88,15 +92,107 @@ const RivIntersectionGeometryGeneratorIF* RimExtrudedCurveIntersection::intersec
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RimExtrudedCurveIntersection::CrossSectionEnum RimExtrudedCurveIntersection::type() const
+{
+    return m_type();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimExtrudedCurveIntersection::CrossSectionDirEnum RimExtrudedCurveIntersection::direction() const
+{
+    return m_direction();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimWellPath* RimExtrudedCurveIntersection::wellPath() const
+{
+    return m_wellPath;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimSimWellInView* RimExtrudedCurveIntersection::simulationWell() const
+{
+    return m_simulationWell;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimExtrudedCurveIntersection::inputPolyLineFromViewerEnabled() const
+{
+    return m_inputPolyLineFromViewerEnabled;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimExtrudedCurveIntersection::inputExtrusionPointsFromViewerEnabled() const
+{
+    return m_inputExtrusionPointsFromViewerEnabled;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimExtrudedCurveIntersection::inputTwoAzimuthPointsFromViewerEnabled() const
+{
+    return m_inputTwoAzimuthPointsFromViewerEnabled;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimExtrudedCurveIntersection::configureForSimulationWell( RimSimWellInView* simWell )
+{
+    m_type           = CrossSectionEnum::CS_SIMULATION_WELL;
+    m_simulationWell = simWell;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimExtrudedCurveIntersection::configureForWellPath( RimWellPath* wellPath )
+{
+    m_type     = CrossSectionEnum::CS_WELL_PATH;
+    m_wellPath = wellPath;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimExtrudedCurveIntersection::configureForPolyLine()
+{
+    m_type                           = CrossSectionEnum::CS_POLYLINE;
+    m_inputPolyLineFromViewerEnabled = true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimExtrudedCurveIntersection::configureForAzimuthLine()
+{
+    m_type                                   = CrossSectionEnum::CS_AZIMUTHLINE;
+    m_inputTwoAzimuthPointsFromViewerEnabled = true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RimExtrudedCurveIntersection::RimExtrudedCurveIntersection()
 {
     CAF_PDM_InitObject( "Intersection", ":/CrossSection16x16.png", "", "" );
     CAF_PDM_InitField( &m_name, "UserDescription", QString( "Intersection Name" ), "Name", "", "", "" );
 
-    CAF_PDM_InitFieldNoDefault( &type, "Type", "Type", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &direction, "Direction", "Direction", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &wellPath, "WellPath", "Well Path        ", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &simulationWell, "SimulationWell", "Simulation Well", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_type, "Type", "Type", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_direction, "Direction", "Direction", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_wellPath, "WellPath", "Well Path        ", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_simulationWell, "SimulationWell", "Simulation Well", "", "", "" );
     CAF_PDM_InitFieldNoDefault( &m_userPolyline, "Points", "Points", "", "Use Ctrl-C for copy and Ctrl-V for paste", "" );
 
     CAF_PDM_InitField( &m_azimuthAngle, "AzimuthAngle", 0.0, "Azimuth", "", "", "" );
@@ -118,22 +214,30 @@ RimExtrudedCurveIntersection::RimExtrudedCurveIntersection()
     CAF_PDM_InitField( &m_lengthUp, "lengthUp", 1000.0, "Length Up", "", "", "" );
     CAF_PDM_InitField( &m_lengthDown, "lengthDown", 1000.0, "Length Down", "", "", "" );
 
-    CAF_PDM_InitFieldNoDefault( &inputPolyLineFromViewerEnabled, "m_activateUiAppendPointsCommand", "", "", "", "" );
-    caf::PdmUiPushButtonEditor::configureEditorForField( &inputPolyLineFromViewerEnabled );
-    inputPolyLineFromViewerEnabled = false;
+    CAF_PDM_InitFieldNoDefault( &m_inputPolyLineFromViewerEnabled, "m_activateUiAppendPointsCommand", "", "", "", "" );
+    caf::PdmUiPushButtonEditor::configureEditorForField( &m_inputPolyLineFromViewerEnabled );
+    m_inputPolyLineFromViewerEnabled = false;
 
-    CAF_PDM_InitFieldNoDefault( &inputExtrusionPointsFromViewerEnabled, "inputExtrusionPointsFromViewerEnabled", "", "", "", "" );
-    caf::PdmUiPushButtonEditor::configureEditorForField( &inputExtrusionPointsFromViewerEnabled );
-    inputExtrusionPointsFromViewerEnabled = false;
+    CAF_PDM_InitFieldNoDefault( &m_inputExtrusionPointsFromViewerEnabled,
+                                "inputExtrusionPointsFromViewerEnabled",
+                                "",
+                                "",
+                                "",
+                                "" );
+    caf::PdmUiPushButtonEditor::configureEditorForField( &m_inputExtrusionPointsFromViewerEnabled );
+    m_inputExtrusionPointsFromViewerEnabled = false;
 
-    CAF_PDM_InitFieldNoDefault( &inputTwoAzimuthPointsFromViewerEnabled,
+    CAF_PDM_InitFieldNoDefault( &m_inputTwoAzimuthPointsFromViewerEnabled,
                                 "inputTwoAzimuthPointsFromViewerEnabled",
                                 "",
                                 "",
                                 "",
                                 "" );
-    caf::PdmUiPushButtonEditor::configureEditorForField( &inputTwoAzimuthPointsFromViewerEnabled );
-    inputTwoAzimuthPointsFromViewerEnabled = false;
+    caf::PdmUiPushButtonEditor::configureEditorForField( &m_inputTwoAzimuthPointsFromViewerEnabled );
+    m_inputTwoAzimuthPointsFromViewerEnabled = false;
+
+    CAF_PDM_InitFieldNoDefault( &m_annotationSurfaces, "annotationSurfaces", "", "", "", "" );
+    m_annotationSurfaces.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
 
     uiCapability()->setUiTreeChildrenHidden( true );
 
@@ -178,30 +282,21 @@ void RimExtrudedCurveIntersection::fieldChangedByUi( const caf::PdmFieldHandle* 
                                                      const QVariant&            oldValue,
                                                      const QVariant&            newValue )
 {
-    // clang-format off
-    if ( changedField == &m_isActive || 
-         changedField == &type || 
-         changedField == &direction || 
-         changedField == &wellPath ||
-         changedField == &simulationWell || 
-         changedField == &m_branchIndex || 
-         changedField == &m_extentLength ||
-         changedField == &m_lengthUp || 
-         changedField == &m_lengthDown || 
-         changedField == &m_showInactiveCells ||
-         changedField == &m_useSeparateDataSource || 
+    if ( changedField == &m_isActive || changedField == &m_type || changedField == &m_direction ||
+         changedField == &m_wellPath || changedField == &m_simulationWell || changedField == &m_branchIndex ||
+         changedField == &m_extentLength || changedField == &m_lengthUp || changedField == &m_lengthDown ||
+         changedField == &m_showInactiveCells || changedField == &m_useSeparateDataSource ||
          changedField == &m_separateDataSource )
     {
         rebuildGeometryAndScheduleCreateDisplayModel();
     }
-    // clang-format on
 
-    if ( changedField == &simulationWell || changedField == &m_isActive || changedField == &type )
+    if ( changedField == &m_simulationWell || changedField == &m_isActive || changedField == &m_type )
     {
         recomputeSimulationWellBranchData();
     }
 
-    if ( changedField == &simulationWell || changedField == &wellPath || changedField == &m_branchIndex )
+    if ( changedField == &m_simulationWell || changedField == &m_wellPath || changedField == &m_branchIndex )
     {
         updateName();
     }
@@ -216,34 +311,34 @@ void RimExtrudedCurveIntersection::fieldChangedByUi( const caf::PdmFieldHandle* 
         }
     }
 
-    if ( changedField == &inputPolyLineFromViewerEnabled || changedField == &m_userPolyline )
+    if ( changedField == &m_inputPolyLineFromViewerEnabled || changedField == &m_userPolyline )
     {
-        if ( inputPolyLineFromViewerEnabled )
+        if ( m_inputPolyLineFromViewerEnabled )
         {
-            inputExtrusionPointsFromViewerEnabled  = false;
-            inputTwoAzimuthPointsFromViewerEnabled = false;
+            m_inputExtrusionPointsFromViewerEnabled  = false;
+            m_inputTwoAzimuthPointsFromViewerEnabled = false;
         }
 
         rebuildGeometryAndScheduleCreateDisplayModel();
     }
 
-    if ( changedField == &inputExtrusionPointsFromViewerEnabled || changedField == &m_customExtrusionPoints )
+    if ( changedField == &m_inputExtrusionPointsFromViewerEnabled || changedField == &m_customExtrusionPoints )
     {
-        if ( inputExtrusionPointsFromViewerEnabled )
+        if ( m_inputExtrusionPointsFromViewerEnabled )
         {
-            inputPolyLineFromViewerEnabled         = false;
-            inputTwoAzimuthPointsFromViewerEnabled = false;
+            m_inputPolyLineFromViewerEnabled         = false;
+            m_inputTwoAzimuthPointsFromViewerEnabled = false;
         }
 
         rebuildGeometryAndScheduleCreateDisplayModel();
     }
 
-    if ( changedField == &inputTwoAzimuthPointsFromViewerEnabled || changedField == &m_twoAzimuthPoints )
+    if ( changedField == &m_inputTwoAzimuthPointsFromViewerEnabled || changedField == &m_twoAzimuthPoints )
     {
-        if ( inputTwoAzimuthPointsFromViewerEnabled )
+        if ( m_inputTwoAzimuthPointsFromViewerEnabled )
         {
-            inputPolyLineFromViewerEnabled        = false;
-            inputExtrusionPointsFromViewerEnabled = false;
+            m_inputPolyLineFromViewerEnabled        = false;
+            m_inputExtrusionPointsFromViewerEnabled = false;
         }
 
         rebuildGeometryAndScheduleCreateDisplayModel();
@@ -259,6 +354,12 @@ void RimExtrudedCurveIntersection::fieldChangedByUi( const caf::PdmFieldHandle* 
     {
         rebuildGeometryAndScheduleCreateDisplayModel();
     }
+
+    if ( changedField == &m_annotationSurfaces )
+
+    {
+        rebuildGeometryAndScheduleCreateDisplayModel();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -268,56 +369,56 @@ void RimExtrudedCurveIntersection::defineUiOrdering( QString uiConfigName, caf::
 {
     uiOrdering.add( &m_name );
     caf::PdmUiGroup* geometryGroup = uiOrdering.addNewGroup( "Intersecting Geometry" );
-    geometryGroup->add( &type );
+    geometryGroup->add( &m_type );
 
-    if ( type == CS_WELL_PATH )
+    if ( m_type() == CrossSectionEnum::CS_WELL_PATH )
     {
-        geometryGroup->add( &wellPath );
+        geometryGroup->add( &m_wellPath );
     }
-    else if ( type == CS_SIMULATION_WELL )
+    else if ( type() == CrossSectionEnum::CS_SIMULATION_WELL )
     {
-        geometryGroup->add( &simulationWell );
+        geometryGroup->add( &m_simulationWell );
         updateSimulationWellCenterline();
-        if ( simulationWell() && m_simulationWellBranchCenterlines.size() > 1 )
+        if ( m_simulationWell() && m_simulationWellBranchCenterlines.size() > 1 )
         {
             geometryGroup->add( &m_branchIndex );
         }
     }
-    else if ( type == CS_POLYLINE )
+    else if ( type() == CrossSectionEnum::CS_POLYLINE )
     {
         geometryGroup->add( &m_userPolyline );
-        geometryGroup->add( &inputPolyLineFromViewerEnabled );
+        geometryGroup->add( &m_inputPolyLineFromViewerEnabled );
     }
-    else if ( type == CS_AZIMUTHLINE )
+    else if ( type() == CrossSectionEnum::CS_AZIMUTHLINE )
     {
         geometryGroup->add( &m_twoAzimuthPoints );
-        geometryGroup->add( &inputTwoAzimuthPointsFromViewerEnabled );
+        geometryGroup->add( &m_inputTwoAzimuthPointsFromViewerEnabled );
         geometryGroup->add( &m_azimuthAngle );
         geometryGroup->add( &m_dipAngle );
     }
 
     caf::PdmUiGroup* optionsGroup = uiOrdering.addNewGroup( "Options" );
 
-    if ( type == CS_AZIMUTHLINE )
+    if ( type() == CrossSectionEnum::CS_AZIMUTHLINE )
     {
         optionsGroup->add( &m_lengthUp );
         optionsGroup->add( &m_lengthDown );
     }
     else
     {
-        optionsGroup->add( &direction );
+        optionsGroup->add( &m_direction );
         optionsGroup->add( &m_extentLength );
     }
 
-    if ( direction == CS_TWO_POINTS )
+    if ( direction() == CrossSectionDirEnum::CS_TWO_POINTS )
     {
         optionsGroup->add( &m_customExtrusionPoints );
-        optionsGroup->add( &inputExtrusionPointsFromViewerEnabled );
+        optionsGroup->add( &m_inputExtrusionPointsFromViewerEnabled );
     }
 
     optionsGroup->add( &m_showInactiveCells );
 
-    if ( type == CS_POLYLINE )
+    if ( type() == CrossSectionEnum::CS_POLYLINE )
     {
         m_extentLength.uiCapability()->setUiReadOnly( true );
     }
@@ -325,6 +426,9 @@ void RimExtrudedCurveIntersection::defineUiOrdering( QString uiConfigName, caf::
     {
         m_extentLength.uiCapability()->setUiReadOnly( false );
     }
+
+    caf::PdmUiGroup* surfaceGroup = uiOrdering.addNewGroup( "Surfaces" );
+    surfaceGroup->add( &m_annotationSurfaces );
 
     this->defineSeparateDataSourceUi( uiConfigName, uiOrdering );
 
@@ -340,16 +444,16 @@ QList<caf::PdmOptionItemInfo>
 {
     QList<caf::PdmOptionItemInfo> options;
 
-    if ( fieldNeedingOptions == &wellPath )
+    if ( fieldNeedingOptions == &m_wellPath )
     {
         RimTools::wellPathOptionItems( &options );
 
-        if ( options.size() > 0 )
+        if ( !options.empty() )
         {
             options.push_front( caf::PdmOptionItemInfo( "None", nullptr ) );
         }
     }
-    else if ( fieldNeedingOptions == &simulationWell )
+    else if ( fieldNeedingOptions == &m_simulationWell )
     {
         RimSimWellInViewCollection* coll = simulationWellCollection();
         if ( coll )
@@ -363,7 +467,7 @@ QList<caf::PdmOptionItemInfo>
             }
         }
 
-        if ( options.size() == 0 )
+        if ( options.empty() )
         {
             options.push_front( caf::PdmOptionItemInfo( "None", nullptr ) );
         }
@@ -379,6 +483,23 @@ QList<caf::PdmOptionItemInfo>
         for ( size_t bIdx = 0; bIdx < branchCount; ++bIdx )
         {
             options.push_back( caf::PdmOptionItemInfo( QString::number( bIdx + 1 ), QVariant::fromValue( bIdx ) ) );
+        }
+    }
+    else if ( fieldNeedingOptions == &m_annotationSurfaces )
+    {
+        RimSurfaceCollection* surfColl = RimProject::current()->activeOilField()->surfaceCollection();
+
+        caf::IconProvider surfaceIcon( ":/ReservoirSurface16x16.png" );
+        for ( auto surf : surfColl->surfaces() )
+        {
+            options.push_back( caf::PdmOptionItemInfo( surf->userDescription(), surf, false, surfaceIcon ) );
+        }
+        for ( auto ensambleSurf : surfColl->ensembleSurfaces() )
+        {
+            for ( auto surf : ensambleSurf->surfaces() )
+            {
+                options.push_back( caf::PdmOptionItemInfo( surf->userDescription(), surf, false, surfaceIcon ) );
+            }
         }
     }
     else
@@ -438,11 +559,11 @@ std::vector<std::vector<cvf::Vec3d>> RimExtrudedCurveIntersection::polyLines( cv
 
     double horizontalProjectedLengthAlongWellPathToClipPoint = 0.0;
 
-    if ( type == CS_WELL_PATH )
+    if ( type() == CrossSectionEnum::CS_WELL_PATH )
     {
-        if ( wellPath() && wellPath->wellPathGeometry() )
+        if ( m_wellPath() && wellPath()->wellPathGeometry() )
         {
-            lines.push_back( wellPath->wellPathGeometry()->wellPathPoints() );
+            lines.push_back( wellPath()->wellPathGeometry()->wellPathPoints() );
             RimCase* ownerCase = nullptr;
             this->firstAncestorOrThisOfType( ownerCase );
             if ( ownerCase )
@@ -455,9 +576,9 @@ std::vector<std::vector<cvf::Vec3d>> RimExtrudedCurveIntersection::polyLines( cv
             }
         }
     }
-    else if ( type == CS_SIMULATION_WELL )
+    else if ( type() == CrossSectionEnum::CS_SIMULATION_WELL )
     {
-        if ( simulationWell() )
+        if ( m_simulationWell() )
         {
             updateSimulationWellCenterline();
 
@@ -474,37 +595,35 @@ std::vector<std::vector<cvf::Vec3d>> RimExtrudedCurveIntersection::polyLines( cv
             }
         }
     }
-    else if ( type == CS_POLYLINE )
+    else if ( type() == CrossSectionEnum::CS_POLYLINE )
     {
         lines.push_back( m_userPolyline );
     }
-    else if ( type == CS_AZIMUTHLINE )
+    else if ( type() == CrossSectionEnum::CS_AZIMUTHLINE )
     {
         lines.push_back( m_twoAzimuthPoints );
     }
 
-    if ( type == CS_WELL_PATH || type == CS_SIMULATION_WELL )
+    if ( type() == CrossSectionEnum::CS_WELL_PATH || type() == CrossSectionEnum::CS_SIMULATION_WELL )
     {
-        if ( type == CS_SIMULATION_WELL && simulationWell() )
+        if ( type() == CrossSectionEnum::CS_SIMULATION_WELL && m_simulationWell() )
         {
             cvf::Vec3d top, bottom;
 
-            simulationWell->wellHeadTopBottomPosition( -1, &top, &bottom );
+            m_simulationWell->wellHeadTopBottomPosition( -1, &top, &bottom );
 
-            for ( size_t lIdx = 0; lIdx < lines.size(); ++lIdx )
+            for ( std::vector<cvf::Vec3d>& polyLine : lines )
             {
-                std::vector<cvf::Vec3d>& polyLine = lines[lIdx];
                 polyLine.insert( polyLine.begin(), top );
             }
         }
 
-        for ( size_t lIdx = 0; lIdx < lines.size(); ++lIdx )
+        for ( std::vector<cvf::Vec3d>& polyLine : lines )
         {
-            std::vector<cvf::Vec3d>& polyLine = lines[lIdx];
             addExtents( polyLine );
         }
 
-        if ( flattenedPolylineStartPoint && lines.size() && lines[0].size() > 1 )
+        if ( flattenedPolylineStartPoint && !lines.empty() && lines[0].size() > 1 )
         {
             ( *flattenedPolylineStartPoint )[0] = horizontalProjectedLengthAlongWellPathToClipPoint - m_extentLength;
             ( *flattenedPolylineStartPoint )[2] = lines[0][1].z(); // Depth of first point in first polyline
@@ -512,7 +631,7 @@ std::vector<std::vector<cvf::Vec3d>> RimExtrudedCurveIntersection::polyLines( cv
     }
     else
     {
-        if ( flattenedPolylineStartPoint && lines.size() && lines[0].size() )
+        if ( flattenedPolylineStartPoint && !lines.empty() && !( lines[0] ).empty() )
         {
             ( *flattenedPolylineStartPoint )[2] = lines[0][0].z(); // Depth of first point in first polyline
         }
@@ -551,11 +670,11 @@ std::vector<cvf::Vec3d> RimExtrudedCurveIntersection::polyLinesForExtrusionDirec
 //--------------------------------------------------------------------------------------------------
 void RimExtrudedCurveIntersection::updateSimulationWellCenterline() const
 {
-    if ( m_isActive() && type == CS_SIMULATION_WELL && simulationWell() )
+    if ( m_isActive() && type() == CrossSectionEnum::CS_SIMULATION_WELL && m_simulationWell() )
     {
         if ( m_simulationWellBranchCenterlines.empty() )
         {
-            auto branches = simulationWell->wellPipeBranches();
+            auto branches = m_simulationWell->wellPipeBranches();
             for ( const auto& branch : branches )
             {
                 m_simulationWellBranchCenterlines.push_back( branch->wellPathPoints() );
@@ -629,17 +748,17 @@ void RimExtrudedCurveIntersection::addExtents( std::vector<cvf::Vec3d>& polyLine
 //--------------------------------------------------------------------------------------------------
 void RimExtrudedCurveIntersection::updateName()
 {
-    if ( type == CS_SIMULATION_WELL && simulationWell() )
+    if ( type() == CrossSectionEnum::CS_SIMULATION_WELL && m_simulationWell() )
     {
-        m_name = simulationWell()->name();
+        m_name = m_simulationWell()->name();
         if ( branchIndex() != -1 )
         {
             m_name = m_name() + " Branch " + QString::number( branchIndex() + 1 );
         }
     }
-    else if ( type() == CS_WELL_PATH && wellPath() )
+    else if ( m_type() == CrossSectionEnum::CS_WELL_PATH && m_wellPath() )
     {
-        m_name = wellPath()->name();
+        m_name = m_wellPath()->name();
     }
 
     Rim2dIntersectionView* iView = correspondingIntersectionView();
@@ -708,8 +827,7 @@ void RimExtrudedCurveIntersection::defineEditorAttribute( const caf::PdmFieldHan
                                                           QString                    uiConfigName,
                                                           caf::PdmUiEditorAttribute* attribute )
 {
-    caf::PdmUiDoubleSliderEditorAttribute* doubleSliderAttrib =
-        dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute );
+    auto* doubleSliderAttrib = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute );
     if ( doubleSliderAttrib )
     {
         if ( field == &m_azimuthAngle )
@@ -725,31 +843,32 @@ void RimExtrudedCurveIntersection::defineEditorAttribute( const caf::PdmFieldHan
             doubleSliderAttrib->m_sliderTickCount = 180;
         }
     }
-    else if ( field == &inputPolyLineFromViewerEnabled )
+    else if ( field == &m_inputPolyLineFromViewerEnabled )
     {
-        setPushButtonText( inputPolyLineFromViewerEnabled, dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute ) );
+        setPushButtonText( m_inputPolyLineFromViewerEnabled,
+                           dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute ) );
     }
     else if ( field == &m_userPolyline )
     {
-        setBaseColor( inputPolyLineFromViewerEnabled, dynamic_cast<caf::PdmUiListEditorAttribute*>( attribute ) );
+        setBaseColor( m_inputPolyLineFromViewerEnabled, dynamic_cast<caf::PdmUiListEditorAttribute*>( attribute ) );
     }
-    else if ( field == &inputTwoAzimuthPointsFromViewerEnabled )
+    else if ( field == &m_inputTwoAzimuthPointsFromViewerEnabled )
     {
-        setPushButtonText( inputTwoAzimuthPointsFromViewerEnabled,
+        setPushButtonText( m_inputTwoAzimuthPointsFromViewerEnabled,
                            dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute ) );
     }
     else if ( field == &m_twoAzimuthPoints )
     {
-        setBaseColor( inputTwoAzimuthPointsFromViewerEnabled, dynamic_cast<caf::PdmUiListEditorAttribute*>( attribute ) );
+        setBaseColor( m_inputTwoAzimuthPointsFromViewerEnabled, dynamic_cast<caf::PdmUiListEditorAttribute*>( attribute ) );
     }
-    else if ( field == &inputExtrusionPointsFromViewerEnabled )
+    else if ( field == &m_inputExtrusionPointsFromViewerEnabled )
     {
-        setPushButtonText( inputExtrusionPointsFromViewerEnabled,
+        setPushButtonText( m_inputExtrusionPointsFromViewerEnabled,
                            dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute ) );
     }
     else if ( field == &m_customExtrusionPoints )
     {
-        setBaseColor( inputExtrusionPointsFromViewerEnabled, dynamic_cast<caf::PdmUiListEditorAttribute*>( attribute ) );
+        setBaseColor( m_inputExtrusionPointsFromViewerEnabled, dynamic_cast<caf::PdmUiListEditorAttribute*>( attribute ) );
     }
 }
 
@@ -768,7 +887,7 @@ void RimExtrudedCurveIntersection::appendPointToPolyLine( const cvf::Vec3d& poin
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-Rim2dIntersectionView* RimExtrudedCurveIntersection::correspondingIntersectionView()
+Rim2dIntersectionView* RimExtrudedCurveIntersection::correspondingIntersectionView() const
 {
     std::vector<Rim2dIntersectionView*> objects;
     this->objectsWithReferringPtrFieldsOfType( objects );
@@ -831,10 +950,10 @@ cvf::Vec3d RimExtrudedCurveIntersection::extrusionDirection() const
 {
     cvf::Vec3d dir = cvf::Vec3d::Z_AXIS;
 
-    if ( direction() == RimExtrudedCurveIntersection::CS_HORIZONTAL )
+    if ( m_direction() == RimExtrudedCurveIntersection::CrossSectionDirEnum::CS_HORIZONTAL )
     {
         std::vector<std::vector<cvf::Vec3d>> lines = this->polyLines();
-        if ( lines.size() > 0 && lines[0].size() > 1 )
+        if ( !lines.empty() && lines[0].size() > 1 )
         {
             std::vector<cvf::Vec3d> firstLine = lines[0];
 
@@ -846,7 +965,8 @@ cvf::Vec3d RimExtrudedCurveIntersection::extrusionDirection() const
             dir                    = polyLineDir ^ up;
         }
     }
-    else if ( direction() == RimExtrudedCurveIntersection::CS_TWO_POINTS && m_customExtrusionPoints().size() > 1 )
+    else if ( m_direction() == RimExtrudedCurveIntersection::CrossSectionDirEnum::CS_TWO_POINTS &&
+              m_customExtrusionPoints().size() > 1 )
     {
         dir = m_customExtrusionPoints()[m_customExtrusionPoints().size() - 1] - m_customExtrusionPoints()[0];
     }
@@ -902,7 +1022,7 @@ double RimExtrudedCurveIntersection::extentLength()
 //--------------------------------------------------------------------------------------------------
 void RimExtrudedCurveIntersection::recomputeSimulationWellBranchData()
 {
-    if ( type() == CS_SIMULATION_WELL )
+    if ( m_type() == CrossSectionEnum::CS_SIMULATION_WELL )
     {
         m_simulationWellBranchCenterlines.clear();
         updateSimulationWellCenterline();
@@ -916,7 +1036,15 @@ void RimExtrudedCurveIntersection::recomputeSimulationWellBranchData()
 //--------------------------------------------------------------------------------------------------
 bool RimExtrudedCurveIntersection::hasDefiningPoints() const
 {
-    return type == CS_POLYLINE || type == CS_AZIMUTHLINE;
+    return m_type() == CrossSectionEnum::CS_POLYLINE || m_type() == CrossSectionEnum::CS_AZIMUTHLINE;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimSurface*> RimExtrudedCurveIntersection::annotatedSurfaces() const
+{
+    return m_annotationSurfaces.ptrReferencedObjects();
 }
 
 //--------------------------------------------------------------------------------------------------

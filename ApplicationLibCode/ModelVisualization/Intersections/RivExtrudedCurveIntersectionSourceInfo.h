@@ -19,8 +19,11 @@
 
 #pragma once
 
+#include "cafPdmPointer.h"
+
 #include "cvfArray.h"
 #include "cvfObject.h"
+
 #include <array>
 
 class RivExtrudedCurveIntersectionGeometryGenerator;
@@ -29,7 +32,8 @@ class RimExtrudedCurveIntersection;
 class RivExtrudedCurveIntersectionSourceInfo : public cvf::Object
 {
 public:
-    explicit RivExtrudedCurveIntersectionSourceInfo( RivExtrudedCurveIntersectionGeometryGenerator* geometryGenerator );
+    explicit RivExtrudedCurveIntersectionSourceInfo( RivExtrudedCurveIntersectionGeometryGenerator* geometryGenerator,
+                                                     RimExtrudedCurveIntersection*                  intersection );
 
     const std::vector<size_t>&    triangleToCellIndex() const;
     std::array<cvf::Vec3f, 3>     triangle( int triangleIdx ) const;
@@ -37,4 +41,5 @@ public:
 
 private:
     cvf::cref<RivExtrudedCurveIntersectionGeometryGenerator> m_intersectionGeometryGenerator;
+    caf::PdmPointer<RimExtrudedCurveIntersection>            m_intersection;
 };

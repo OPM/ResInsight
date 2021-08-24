@@ -170,7 +170,7 @@ void RimIntersection::updateDefaultSeparateDataSource()
         {
             std::vector<RimIntersectionResultDefinition*> iResDefs = defcoll->intersectionResultsDefinitions();
 
-            if ( iResDefs.size() )
+            if ( !iResDefs.empty() )
             {
                 m_separateDataSource = iResDefs[0];
             }
@@ -188,7 +188,7 @@ cvf::ref<RivIntersectionHexGridInterface> RimIntersection::createHexGridInterfac
     {
         // Eclipse case
 
-        RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>( resDef->activeCase() );
+        auto* eclipseCase = dynamic_cast<RimEclipseCase*>( resDef->activeCase() );
         if ( eclipseCase && eclipseCase->eclipseCaseData() )
         {
             return new RivEclipseIntersectionGrid( eclipseCase->eclipseCaseData()->mainGrid(),
@@ -199,7 +199,7 @@ cvf::ref<RivIntersectionHexGridInterface> RimIntersection::createHexGridInterfac
 
         // Geomech case
 
-        RimGeoMechCase* geomCase = dynamic_cast<RimGeoMechCase*>( resDef->activeCase() );
+        auto* geomCase = dynamic_cast<RimGeoMechCase*>( resDef->activeCase() );
 
         if ( geomCase && geomCase->geoMechData() && geomCase->geoMechData()->femParts() )
         {

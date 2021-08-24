@@ -364,7 +364,7 @@ bool RimIntersectionCollection::hasActiveIntersectionForSimulationWell( const Ri
 
     for ( RimExtrudedCurveIntersection* cs : m_intersections )
     {
-        if ( cs->isActive() && cs->type() == RimExtrudedCurveIntersection::CS_SIMULATION_WELL &&
+        if ( cs->isActive() && cs->type() == RimExtrudedCurveIntersection::CrossSectionEnum::CS_SIMULATION_WELL &&
              cs->simulationWell() == simWell )
         {
             return true;

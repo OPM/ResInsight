@@ -114,8 +114,7 @@ void RicNewWellPathIntersectionFeatureCmd::redo()
 
     RimExtrudedCurveIntersection* intersection = new RimExtrudedCurveIntersection();
     intersection->setName( m_wellPath->name() );
-    intersection->type     = RimExtrudedCurveIntersection::CS_WELL_PATH;
-    intersection->wellPath = m_wellPath;
+    intersection->configureForWellPath( m_wellPath );
 
     m_intersectionCollection->appendIntersectionAndUpdate( intersection, false );
 }

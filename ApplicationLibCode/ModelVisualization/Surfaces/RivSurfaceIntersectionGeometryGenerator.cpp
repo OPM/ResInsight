@@ -19,6 +19,8 @@
 
 #include "RivSurfaceIntersectionGeometryGenerator.h"
 
+#include "RiaLogging.h"
+
 #include "RigMainGrid.h"
 #include "RigResultAccessor.h"
 
@@ -32,9 +34,12 @@
 #include "RivExtrudedCurveIntersectionPartMgr.h"
 #include "RivHexGridIntersectionTools.h"
 #include "RivPolylineGenerator.h"
+#include "RivSectionFlattner.h"
 
 #include "cafDisplayCoordTransform.h"
 #include "cafHexGridIntersectionTools/cafHexGridIntersectionTools.h"
+
+#include "../cafHexInterpolator/cafHexInterpolator.h" // Use relative path, as this is a header only file not part of a library
 
 #include "cvfDrawableGeo.h"
 #include "cvfGeometryTools.h"
@@ -43,12 +48,6 @@
 #include "cvfPrimitiveSetIndexedUInt.h"
 #include "cvfRay.h"
 #include "cvfScalarMapper.h"
-
-#include "../cafHexInterpolator/cafHexInterpolator.h"
-#include "RivSectionFlattner.h"
-
-#include "RiaLogging.h"
-#include "clipper.hpp"
 
 cvf::ref<caf::DisplayCoordTransform> displayCoordTransform( const RimIntersection* intersection )
 {
@@ -206,10 +205,8 @@ void RivSurfaceIntersectionGeometryGenerator::calculateArrays()
             std::array<cvf::Vec3d, 8> cellCorners;
             std::array<size_t, 8>     cornerIndices;
 
-            for ( size_t ticIdx = 0; ticIdx < triIntersectedCellCandidates.size(); ++ticIdx )
+            for ( size_t globalCellIdx : triIntersectedCellCandidates )
             {
-                size_t globalCellIdx = triIntersectedCellCandidates[ticIdx];
-
                 if ( !m_hexGrid->useCell( globalCellIdx ) ) continue;
 
                 hexPlaneCutTriangleVxes.clear();
@@ -309,7 +306,7 @@ void RivSurfaceIntersectionGeometryGenerator::calculateArrays()
 
     for ( const auto& it : meshAcc.faultToHighestFaultMeshVxMap )
     {
-        m_faultMeshLabelAndAnchorPositions.push_back( { it.first->name(), it.second } );
+        m_faultMeshLabelAndAnchorPositions.emplace_back( it.first->name(), it.second );
     }
 }
 
@@ -417,8 +414,6 @@ bool RivSurfaceIntersectionGeometryGenerator::isAnyGeometryPresent() const
     {
         return false;
     }
-    else
-    {
-        return true;
-    }
+
+    return true;
 }
