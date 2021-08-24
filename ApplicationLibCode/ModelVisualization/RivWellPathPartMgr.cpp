@@ -814,11 +814,8 @@ void RivWellPathPartMgr::buildWellPathParts( const caf::DisplayCoordTransform* d
             cvf::GeometryBuilderTriangles builder;
             cvf::GeometryUtils::createSphere( cellRadius, 15, 15, &builder );
             vectorDrawable->setGlyph( builder.trianglesUShort().p(), builder.vertices().p() );
-
-            {
-                vectorDrawable->setRadius( cellRadius );
-                vectorDrawable->setCenterCoords( vertices.p() );
-            }
+            vectorDrawable->setRadius( cellRadius );
+            vectorDrawable->setCenterCoords( vertices.p() );
 
             cvf::ref<cvf::Part> part = new cvf::Part;
             part->setName( "RivWellPathPartMgr_WellTargetSpheres" );
@@ -906,10 +903,16 @@ void RivWellPathPartMgr::appendFlattenedStaticGeometryPartsToModel( cvf::ModelBa
         model->addPart( m_wellLabelPart.p() );
     }
 
-    if ( m_spherePart.notNull() )
-    {
-        model->addPart( m_spherePart.p() );
-    }
+    /*
+    // TODO: Currently not supported.
+    // Require coordinate transformations of the spheres similar to RivWellPathPartMgr::buildWellPathParts
+    // https://github.com/OPM/ResInsight/issues/7891
+    //
+        if ( m_spherePart.notNull() )
+        {
+            model->addPart( m_spherePart.p() );
+        }
+    */
 }
 
 //--------------------------------------------------------------------------------------------------

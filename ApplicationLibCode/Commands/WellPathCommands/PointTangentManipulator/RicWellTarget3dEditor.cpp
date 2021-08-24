@@ -22,6 +22,7 @@
 
 #include "RigWellPath.h"
 
+#include "Rim2dIntersectionView.h"
 #include "Rim3dView.h"
 #include "RimCase.h"
 #include "RimModeledWellPath.h"
@@ -74,6 +75,8 @@ void RicWellTarget3dEditor::configureAndUpdateUi( const QString& uiConfigName )
     auto*      target         = dynamic_cast<RimWellPathTarget*>( this->pdmObject() );
     auto*      ownerRiuViewer = dynamic_cast<RiuViewer*>( ownerViewer() );
     Rim3dView* view           = mainOrComparisonView();
+
+    if ( dynamic_cast<Rim2dIntersectionView*>( view ) ) return;
 
     if ( !target || !target->isEnabled() || !view )
     {
