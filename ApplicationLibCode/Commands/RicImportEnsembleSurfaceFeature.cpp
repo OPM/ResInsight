@@ -84,6 +84,9 @@ void RicImportEnsembleSurfaceFeature::onActionTriggered( bool isChecked )
         ensemble->addFileSurface( surface );
 
     RimProject::current()->activeOilField()->surfaceCollection->addEnsembleSurface( ensemble );
+
+    ensemble->loadDataAndUpdate();
+
     RimProject::current()->activeOilField()->surfaceCollection->updateConnectedEditors();
 }
 
