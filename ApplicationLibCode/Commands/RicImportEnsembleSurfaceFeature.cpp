@@ -19,7 +19,11 @@
 #include "RicImportEnsembleSurfaceFeature.h"
 
 #include "RiaApplication.h"
+#include "RiaEnsembleNameTools.h"
 #include "RiaLogging.h"
+#include "RiaSummaryTools.h"
+
+#include "RicRecursiveFileSearchDialog.h"
 
 #include "RimEnsembleSurface.h"
 #include "RimFileSurface.h"
@@ -27,7 +31,7 @@
 #include "RimProject.h"
 #include "RimSurfaceCollection.h"
 
-#include "RicRecursiveFileSearchDialog.h"
+#include "Riu3DMainWindowTools.h"
 
 #include <QAction>
 #include <QFileInfo>
@@ -61,14 +65,23 @@ void RicImportEnsembleSurfaceFeature::onActionTriggered( bool isChecked )
     QStringList     fileNames     = runRecursiveFileSearchDialog( "Import Ensemble Surface", pathCacheName );
     if ( fileNames.isEmpty() ) return;
 
-    QString ensembleName = "Ensemble Surface";
-    if ( ensembleName.isEmpty() ) return;
+    QString ensembleName = RiaEnsembleNameTools::findSuitableEnsembleName( fileNames );
+    QString layerName    = RiaEnsembleNameTools::findCommonBaseName( fileNames );
+    if ( !layerName.isEmpty() )
+    {
+        ensembleName += QString( " : %1" ).arg( layerName );
+    }
+
+    if ( ensembleName.isEmpty() ) ensembleName = "Ensemble Surface";
 
     std::vector<RimFileSurface*> surfaces;
-    for ( QString fileName : fileNames )
+    for ( const auto& fileName : fileNames )
     {
         RimFileSurface* fileSurface = new RimFileSurface;
         fileSurface->setSurfaceFilePath( fileName );
+
+        auto shortName = RiaEnsembleNameTools::uniqueShortName( fileName, fileNames );
+        fileSurface->setUserDescription( shortName );
 
         if ( fileSurface->onLoadData() )
         {
@@ -88,6 +101,7 @@ void RicImportEnsembleSurfaceFeature::onActionTriggered( bool isChecked )
     ensemble->loadDataAndUpdate();
 
     RimProject::current()->activeOilField()->surfaceCollection->updateConnectedEditors();
+    Riu3DMainWindowTools::selectAsCurrentItem( ensemble );
 }
 
 //--------------------------------------------------------------------------------------------------

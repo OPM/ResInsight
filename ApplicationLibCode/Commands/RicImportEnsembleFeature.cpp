@@ -19,6 +19,7 @@
 #include "RicImportEnsembleFeature.h"
 
 #include "RiaApplication.h"
+#include "RiaEnsembleNameTools.h"
 #include "RiaFilePathTools.h"
 #include "RiaPreferences.h"
 #include "RiaSummaryTools.h"
@@ -76,7 +77,7 @@ void RicImportEnsembleFeature::onActionTriggered( bool isChecked )
 
     if ( fileNames.isEmpty() ) return;
 
-    QString ensembleNameSuggestion = RiaSummaryTools::findSuitableEnsembleName( fileNames );
+    QString ensembleNameSuggestion = RiaEnsembleNameTools::findSuitableEnsembleName( fileNames );
 
     QString ensembleName = askForEnsembleName( ensembleNameSuggestion );
     if ( ensembleName.isEmpty() ) return;
