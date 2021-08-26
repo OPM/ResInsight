@@ -6,7 +6,7 @@ jobs:
   cmake-format-job:
     runs-on: ubuntu-latest
     steps:
-    - name: Install cmakelang for cmake-format
+    - name: Install cmakelang for cmake-format 
       run: |
         python3 -m pip install --user cmakelang
     - uses: actions/checkout@v2
