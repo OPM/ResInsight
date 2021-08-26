@@ -34,7 +34,7 @@
 #include "RivExtrudedCurveIntersectionPartMgr.h"
 #include "RivHexGridIntersectionTools.h"
 #include "RivPolylineGenerator.h"
-#include "RivSectionFlattner.h"
+#include "RivSectionFlattener.h"
 
 #include "cafDisplayCoordTransform.h"
 #include "cafHexGridIntersectionTools/cafHexGridIntersectionTools.h"

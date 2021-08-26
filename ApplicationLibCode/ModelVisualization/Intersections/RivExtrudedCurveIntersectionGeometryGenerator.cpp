@@ -34,7 +34,7 @@
 #include "RivExtrudedCurveIntersectionPartMgr.h"
 #include "RivHexGridIntersectionTools.h"
 #include "RivPolylineGenerator.h"
-#include "RivSectionFlattner.h"
+#include "RivSectionFlattener.h"
 
 #include "cafDisplayCoordTransform.h"
 #include "cafHexGridIntersectionTools/cafHexGridIntersectionTools.h"
@@ -96,17 +96,18 @@ void RivExtrudedCurveIntersectionGeometryGenerator::calculateLineSegementTransfo
 {
     if ( m_isFlattened )
     {
-        if ( !( !m_polylines.empty() && !m_polylines.back().empty() ) ) return;
+        if ( m_polylines.empty() || m_polylines.back().empty() ) return;
 
         cvf::Vec3d startOffset = m_flattenedPolylineStartPoint;
 
         for ( const std::vector<cvf::Vec3d>& polyLine : m_polylines )
         {
             startOffset.z() = polyLine[0].z();
-            m_lineSegmentTransforms.emplace_back( RivSectionFlattner::calculateFlatteningCSsForPolyline( polyLine,
-                                                                                                         m_extrusionDirection,
-                                                                                                         startOffset,
-                                                                                                         &startOffset ) );
+            m_lineSegmentTransforms.emplace_back(
+                RivSectionFlattener::calculateFlatteningCSsForPolyline( polyLine,
+                                                                        m_extrusionDirection,
+                                                                        startOffset,
+                                                                        &startOffset ) );
         }
     }
     else
@@ -148,8 +149,6 @@ void RivExtrudedCurveIntersectionGeometryGenerator::calculateTransformedPolyline
     {
         auto        flatPolyline = m_transformedPolyLines.emplace_back();
         const auto& polyline     = m_polylines[lineIdx];
-
-        CVF_ASSERT( polyline.size() == m_polylines[lineIdx].size() );
 
         for ( size_t index = 0; index < polyline.size(); ++index )
         {
@@ -283,7 +282,7 @@ void RivExtrudedCurveIntersectionGeometryGenerator::calculateArrays()
         size_t lIdx      = 0;
         while ( lIdx < lineCount - 1 )
         {
-            size_t idxToNextP = RivSectionFlattner::indexToNextValidPoint( polyLine, m_extrusionDirection, lIdx );
+            size_t idxToNextP = RivSectionFlattener::indexToNextValidPoint( polyLine, m_extrusionDirection, lIdx );
 
             if ( idxToNextP == size_t( -1 ) ) break;
 

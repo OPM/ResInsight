@@ -140,7 +140,7 @@ private:
     caf::PdmPtrField<RimWellPath*>      m_wellPath;
     caf::PdmPtrField<RimSimWellInView*> m_simulationWell;
 
-    caf::PdmField<bool> m_inputPolyLineFromViewerEnabled;
+    caf::PdmField<bool> m_inputPolylineFromViewerEnabled;
     caf::PdmField<bool> m_inputExtrusionPointsFromViewerEnabled;
     caf::PdmField<bool> m_inputTwoAzimuthPointsFromViewerEnabled;
 

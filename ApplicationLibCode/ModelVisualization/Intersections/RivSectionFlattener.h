@@ -22,7 +22,7 @@
 
 #include <vector>
 
-class RivSectionFlattner
+class RivSectionFlattener
 {
 public:
     static size_t indexToNextValidPoint( const std::vector<cvf::Vec3d>& polyLine,

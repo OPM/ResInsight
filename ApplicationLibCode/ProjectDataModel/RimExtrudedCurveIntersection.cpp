@@ -126,7 +126,7 @@ RimSimWellInView* RimExtrudedCurveIntersection::simulationWell() const
 //--------------------------------------------------------------------------------------------------
 bool RimExtrudedCurveIntersection::inputPolyLineFromViewerEnabled() const
 {
-    return m_inputPolyLineFromViewerEnabled;
+    return m_inputPolylineFromViewerEnabled;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -169,7 +169,7 @@ void RimExtrudedCurveIntersection::configureForWellPath( RimWellPath* wellPath )
 void RimExtrudedCurveIntersection::configureForPolyLine()
 {
     m_type                           = CrossSectionEnum::CS_POLYLINE;
-    m_inputPolyLineFromViewerEnabled = true;
+    m_inputPolylineFromViewerEnabled = true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -214,9 +214,9 @@ RimExtrudedCurveIntersection::RimExtrudedCurveIntersection()
     CAF_PDM_InitField( &m_lengthUp, "lengthUp", 1000.0, "Length Up", "", "", "" );
     CAF_PDM_InitField( &m_lengthDown, "lengthDown", 1000.0, "Length Down", "", "", "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_inputPolyLineFromViewerEnabled, "m_activateUiAppendPointsCommand", "", "", "", "" );
-    caf::PdmUiPushButtonEditor::configureEditorForField( &m_inputPolyLineFromViewerEnabled );
-    m_inputPolyLineFromViewerEnabled = false;
+    CAF_PDM_InitFieldNoDefault( &m_inputPolylineFromViewerEnabled, "m_activateUiAppendPointsCommand", "", "", "", "" );
+    caf::PdmUiPushButtonEditor::configureEditorForField( &m_inputPolylineFromViewerEnabled );
+    m_inputPolylineFromViewerEnabled = false;
 
     CAF_PDM_InitFieldNoDefault( &m_inputExtrusionPointsFromViewerEnabled,
                                 "inputExtrusionPointsFromViewerEnabled",
@@ -311,9 +311,9 @@ void RimExtrudedCurveIntersection::fieldChangedByUi( const caf::PdmFieldHandle* 
         }
     }
 
-    if ( changedField == &m_inputPolyLineFromViewerEnabled || changedField == &m_userPolyline )
+    if ( changedField == &m_inputPolylineFromViewerEnabled || changedField == &m_userPolyline )
     {
-        if ( m_inputPolyLineFromViewerEnabled )
+        if ( m_inputPolylineFromViewerEnabled )
         {
             m_inputExtrusionPointsFromViewerEnabled  = false;
             m_inputTwoAzimuthPointsFromViewerEnabled = false;
@@ -326,7 +326,7 @@ void RimExtrudedCurveIntersection::fieldChangedByUi( const caf::PdmFieldHandle* 
     {
         if ( m_inputExtrusionPointsFromViewerEnabled )
         {
-            m_inputPolyLineFromViewerEnabled         = false;
+            m_inputPolylineFromViewerEnabled         = false;
             m_inputTwoAzimuthPointsFromViewerEnabled = false;
         }
 
@@ -337,7 +337,7 @@ void RimExtrudedCurveIntersection::fieldChangedByUi( const caf::PdmFieldHandle* 
     {
         if ( m_inputTwoAzimuthPointsFromViewerEnabled )
         {
-            m_inputPolyLineFromViewerEnabled        = false;
+            m_inputPolylineFromViewerEnabled        = false;
             m_inputExtrusionPointsFromViewerEnabled = false;
         }
 
@@ -387,7 +387,7 @@ void RimExtrudedCurveIntersection::defineUiOrdering( QString uiConfigName, caf::
     else if ( type() == CrossSectionEnum::CS_POLYLINE )
     {
         geometryGroup->add( &m_userPolyline );
-        geometryGroup->add( &m_inputPolyLineFromViewerEnabled );
+        geometryGroup->add( &m_inputPolylineFromViewerEnabled );
     }
     else if ( type() == CrossSectionEnum::CS_AZIMUTHLINE )
     {
@@ -843,14 +843,14 @@ void RimExtrudedCurveIntersection::defineEditorAttribute( const caf::PdmFieldHan
             doubleSliderAttrib->m_sliderTickCount = 180;
         }
     }
-    else if ( field == &m_inputPolyLineFromViewerEnabled )
+    else if ( field == &m_inputPolylineFromViewerEnabled )
     {
-        setPushButtonText( m_inputPolyLineFromViewerEnabled,
+        setPushButtonText( m_inputPolylineFromViewerEnabled,
                            dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute ) );
     }
     else if ( field == &m_userPolyline )
     {
-        setBaseColor( m_inputPolyLineFromViewerEnabled, dynamic_cast<caf::PdmUiListEditorAttribute*>( attribute ) );
+        setBaseColor( m_inputPolylineFromViewerEnabled, dynamic_cast<caf::PdmUiListEditorAttribute*>( attribute ) );
     }
     else if ( field == &m_inputTwoAzimuthPointsFromViewerEnabled )
     {

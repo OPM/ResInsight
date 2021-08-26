@@ -37,7 +37,7 @@
 #include "RimVirtualPerforationResults.h"
 
 #include "RivPipeGeometryGenerator.h"
-#include "RivSectionFlattner.h"
+#include "RivSectionFlattener.h"
 #include "RivSimWellConnectionSourceInfo.h"
 #include "RivSimWellPipeSourceInfo.h"
 #include "RivWellConnectionFactorGeometryGenerator.h"
@@ -203,10 +203,10 @@ void RivSimWellPipesPartMgr::buildWellPipeParts( const caf::DisplayCoordTransfor
         if ( doFlatten )
         {
             std::vector<cvf::Mat4d> flatningCSs =
-                RivSectionFlattner::calculateFlatteningCSsForPolyline( m_pipeBranchesCLCoords[brIdx],
-                                                                       cvf::Vec3d::Z_AXIS,
-                                                                       flattenedStartOffset,
-                                                                       &flattenedStartOffset );
+                RivSectionFlattener::calculateFlatteningCSsForPolyline( m_pipeBranchesCLCoords[brIdx],
+                                                                        cvf::Vec3d::Z_AXIS,
+                                                                        flattenedStartOffset,
+                                                                        &flattenedStartOffset );
             for ( size_t cIdx = 0; cIdx < cvfCoords->size(); ++cIdx )
             {
                 ( *cvfCoords )[cIdx] = ( ( *cvfCoords )[cIdx] ).getTransformedPoint( flatningCSs[cIdx] );

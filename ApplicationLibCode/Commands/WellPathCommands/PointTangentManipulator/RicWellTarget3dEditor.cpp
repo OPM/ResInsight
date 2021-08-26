@@ -76,6 +76,8 @@ void RicWellTarget3dEditor::configureAndUpdateUi( const QString& uiConfigName )
     auto*      ownerRiuViewer = dynamic_cast<RiuViewer*>( ownerViewer() );
     Rim3dView* view           = mainOrComparisonView();
 
+    // TODO: The location of the well target must be updated before displayed in the 2D intersection view. Currently
+    // disabled.
     if ( dynamic_cast<Rim2dIntersectionView*>( view ) ) return;
 
     if ( !target || !target->isEnabled() || !view )

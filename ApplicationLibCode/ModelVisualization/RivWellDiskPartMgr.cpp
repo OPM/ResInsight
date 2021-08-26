@@ -33,7 +33,7 @@
 
 #include "RivDiskGeometryGenerator.h"
 #include "RivPartPriority.h"
-#include "RivSectionFlattner.h"
+#include "RivSectionFlattener.h"
 #include "RivSimWellPipeSourceInfo.h"
 #include "RivTextLabelSourceInfo.h"
 
