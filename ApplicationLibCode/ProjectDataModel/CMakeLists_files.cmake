@@ -1,274 +1,269 @@
+set(SOURCE_GROUP_HEADER_FILES
+    ${CMAKE_CURRENT_LIST_DIR}/RimEclipseCaseCollection.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimCaseCollection.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimLegendConfigChangeType.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimRegularLegendConfig.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimOilField.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimProject.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimEclipseCase.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimIdenticalGridCaseGroup.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimEclipseInputProperty.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimEclipseInputPropertyCollection.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimEclipseInputCase.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimEclipseResultCase.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimEclipseView.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimEclipseResultDefinition.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimEclipseCellColors.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimCellEdgeColors.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimSimWellInView.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimSimWellInViewCollection.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimSimWellInViewTools.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimScriptCollection.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimEclipseStatisticsCase.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimEclipseStatisticsCaseCollection.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimCalcScript.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimExportInputPropertySettings.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimBinaryExportSettings.h
+    ${CMAKE_CURRENT_LIST_DIR}/Rim3dOverlayInfoConfig.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimHistogramCalculator.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimTensorResults.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimReservoirCellResultsStorage.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimEclipseStatisticsCaseEvaluator.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimMimeData.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimCommandObject.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimTools.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimFormationNames.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimFormationNamesCollection.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimMockModelSettings.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimTernaryLegendConfig.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimEclipseFaultColors.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimViewWindow.h
+    ${CMAKE_CURRENT_LIST_DIR}/Rim3dView.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimGridView.h
+    ${CMAKE_CURRENT_LIST_DIR}/Rim2dIntersectionView.h
+    ${CMAKE_CURRENT_LIST_DIR}/Rim2dIntersectionViewCollection.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimViewManipulator.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimCase.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimViewController.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimMainPlotCollection.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimRftPlotCollection.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimPltPlotCollection.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimVfpPlotCollection.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimVfpPlot.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimVfpDefines.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimPlot.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimPlotWindow.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimMultiPlot.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimDepthTrackPlot.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimWellBoreStabilityPlot.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimWbsParameters.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimViewLinker.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimViewLinkerCollection.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimIntersection.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimExtrudedCurveIntersection.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimIntersectionCollection.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimIntersectionResultDefinition.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimIntersectionResultsDefinitionCollection.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimContextCommandBuilder.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimGridCollection.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimPlotCurve.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimStackablePlotCurve.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimBoxIntersection.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimAdvancedSnapshotExportDefinition.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimMdiWindowController.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimNamedObject.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimCheckableNamedObject.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimCheckableObject.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimGridTimeHistoryCurve.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimGeometrySelectionItem.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimEclipseGeometrySelectionItem.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimDialogData.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimTimeStepFilter.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimSummaryCalculation.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimSummaryCalculationCollection.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimSummaryCalculationVariable.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimStimPlanLegendConfig.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimStimPlanColors.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimVirtualPerforationResults.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimLegendConfig.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimNameConfig.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimDataSourceSteppingTools.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimContourMapProjection.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimEclipseContourMapProjection.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimEclipseContourMapView.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimEclipseContourMapViewCollection.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimMudWeightWindowParameters.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimViewNameConfig.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimReloadCaseTools.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimPlotAxisPropertiesInterface.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimPlotAxisProperties.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimPlotAxisAnnotation.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimObservedDataCollection.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimObservedFmuRftData.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimMultiPlotCollection.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimWellDiskConfig.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimElementVectorResult.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimColorLegendCollection.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimColorLegend.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimColorLegendItem.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimAbstractPlotCollection.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimPolylinePickerInterface.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimVfpTableExtractor.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimCaseDisplayNameTools.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimCustomObjectiveFunctionCollection.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimCustomObjectiveFunction.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimCustomObjectiveFunctionWeight.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimEquilibriumAxisAnnotation.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimTimeAxisAnnotation.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimPolylinesDataInterface.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimEnsembleCurveSetInterface.h
+    ${CMAKE_CURRENT_LIST_DIR}/cafTreeNode.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimMultipleLocations.h)
 
-set (SOURCE_GROUP_HEADER_FILES
-${CMAKE_CURRENT_LIST_DIR}/RimEclipseCaseCollection.h
-${CMAKE_CURRENT_LIST_DIR}/RimCaseCollection.h
-${CMAKE_CURRENT_LIST_DIR}/RimLegendConfigChangeType.h
-${CMAKE_CURRENT_LIST_DIR}/RimRegularLegendConfig.h
-${CMAKE_CURRENT_LIST_DIR}/RimOilField.h
-${CMAKE_CURRENT_LIST_DIR}/RimProject.h
-${CMAKE_CURRENT_LIST_DIR}/RimEclipseCase.h
-${CMAKE_CURRENT_LIST_DIR}/RimIdenticalGridCaseGroup.h
-${CMAKE_CURRENT_LIST_DIR}/RimEclipseInputProperty.h
-${CMAKE_CURRENT_LIST_DIR}/RimEclipseInputPropertyCollection.h
-${CMAKE_CURRENT_LIST_DIR}/RimEclipseInputCase.h
-${CMAKE_CURRENT_LIST_DIR}/RimEclipseResultCase.h
-${CMAKE_CURRENT_LIST_DIR}/RimEclipseView.h
-${CMAKE_CURRENT_LIST_DIR}/RimEclipseResultDefinition.h
-${CMAKE_CURRENT_LIST_DIR}/RimEclipseCellColors.h
-${CMAKE_CURRENT_LIST_DIR}/RimCellEdgeColors.h
-${CMAKE_CURRENT_LIST_DIR}/RimSimWellInView.h
-${CMAKE_CURRENT_LIST_DIR}/RimSimWellInViewCollection.h
-${CMAKE_CURRENT_LIST_DIR}/RimSimWellInViewTools.h
-${CMAKE_CURRENT_LIST_DIR}/RimScriptCollection.h
-${CMAKE_CURRENT_LIST_DIR}/RimEclipseStatisticsCase.h
-${CMAKE_CURRENT_LIST_DIR}/RimEclipseStatisticsCaseCollection.h
-${CMAKE_CURRENT_LIST_DIR}/RimCalcScript.h
-${CMAKE_CURRENT_LIST_DIR}/RimExportInputPropertySettings.h
-${CMAKE_CURRENT_LIST_DIR}/RimBinaryExportSettings.h
-${CMAKE_CURRENT_LIST_DIR}/Rim3dOverlayInfoConfig.h
-${CMAKE_CURRENT_LIST_DIR}/RimHistogramCalculator.h
-${CMAKE_CURRENT_LIST_DIR}/RimTensorResults.h
-${CMAKE_CURRENT_LIST_DIR}/RimReservoirCellResultsStorage.h
-${CMAKE_CURRENT_LIST_DIR}/RimEclipseStatisticsCaseEvaluator.h
-${CMAKE_CURRENT_LIST_DIR}/RimMimeData.h
-${CMAKE_CURRENT_LIST_DIR}/RimCommandObject.h
-${CMAKE_CURRENT_LIST_DIR}/RimTools.h
-${CMAKE_CURRENT_LIST_DIR}/RimFormationNames.h
-${CMAKE_CURRENT_LIST_DIR}/RimFormationNamesCollection.h
-${CMAKE_CURRENT_LIST_DIR}/RimMockModelSettings.h
-${CMAKE_CURRENT_LIST_DIR}/RimTernaryLegendConfig.h
-${CMAKE_CURRENT_LIST_DIR}/RimEclipseFaultColors.h
-${CMAKE_CURRENT_LIST_DIR}/RimViewWindow.h
-${CMAKE_CURRENT_LIST_DIR}/Rim3dView.h
-${CMAKE_CURRENT_LIST_DIR}/RimGridView.h
-${CMAKE_CURRENT_LIST_DIR}/Rim2dIntersectionView.h
-${CMAKE_CURRENT_LIST_DIR}/Rim2dIntersectionViewCollection.h
-${CMAKE_CURRENT_LIST_DIR}/RimViewManipulator.h
-${CMAKE_CURRENT_LIST_DIR}/RimCase.h
-${CMAKE_CURRENT_LIST_DIR}/RimViewController.h
-${CMAKE_CURRENT_LIST_DIR}/RimMainPlotCollection.h
-${CMAKE_CURRENT_LIST_DIR}/RimRftPlotCollection.h
-${CMAKE_CURRENT_LIST_DIR}/RimPltPlotCollection.h
-${CMAKE_CURRENT_LIST_DIR}/RimVfpPlotCollection.h
-${CMAKE_CURRENT_LIST_DIR}/RimVfpPlot.h
-${CMAKE_CURRENT_LIST_DIR}/RimVfpDefines.h
-${CMAKE_CURRENT_LIST_DIR}/RimPlot.h
-${CMAKE_CURRENT_LIST_DIR}/RimPlotWindow.h
-${CMAKE_CURRENT_LIST_DIR}/RimMultiPlot.h
-${CMAKE_CURRENT_LIST_DIR}/RimDepthTrackPlot.h
-${CMAKE_CURRENT_LIST_DIR}/RimWellBoreStabilityPlot.h
-${CMAKE_CURRENT_LIST_DIR}/RimWbsParameters.h
-${CMAKE_CURRENT_LIST_DIR}/RimViewLinker.h
-${CMAKE_CURRENT_LIST_DIR}/RimViewLinkerCollection.h
-${CMAKE_CURRENT_LIST_DIR}/RimIntersection.h
-${CMAKE_CURRENT_LIST_DIR}/RimExtrudedCurveIntersection.h
-${CMAKE_CURRENT_LIST_DIR}/RimIntersectionCollection.h
-${CMAKE_CURRENT_LIST_DIR}/RimIntersectionResultDefinition.h
-${CMAKE_CURRENT_LIST_DIR}/RimIntersectionResultsDefinitionCollection.h
-${CMAKE_CURRENT_LIST_DIR}/RimContextCommandBuilder.h
-${CMAKE_CURRENT_LIST_DIR}/RimGridCollection.h
-${CMAKE_CURRENT_LIST_DIR}/RimPlotCurve.h
-${CMAKE_CURRENT_LIST_DIR}/RimStackablePlotCurve.h
-${CMAKE_CURRENT_LIST_DIR}/RimBoxIntersection.h
-${CMAKE_CURRENT_LIST_DIR}/RimAdvancedSnapshotExportDefinition.h
-${CMAKE_CURRENT_LIST_DIR}/RimMdiWindowController.h
-${CMAKE_CURRENT_LIST_DIR}/RimNamedObject.h
-${CMAKE_CURRENT_LIST_DIR}/RimCheckableNamedObject.h
-${CMAKE_CURRENT_LIST_DIR}/RimCheckableObject.h
-${CMAKE_CURRENT_LIST_DIR}/RimGridTimeHistoryCurve.h
-${CMAKE_CURRENT_LIST_DIR}/RimGeometrySelectionItem.h
-${CMAKE_CURRENT_LIST_DIR}/RimEclipseGeometrySelectionItem.h
-${CMAKE_CURRENT_LIST_DIR}/RimDialogData.h
-${CMAKE_CURRENT_LIST_DIR}/RimTimeStepFilter.h
-${CMAKE_CURRENT_LIST_DIR}/RimSummaryCalculation.h
-${CMAKE_CURRENT_LIST_DIR}/RimSummaryCalculationCollection.h
-${CMAKE_CURRENT_LIST_DIR}/RimSummaryCalculationVariable.h
-${CMAKE_CURRENT_LIST_DIR}/RimStimPlanLegendConfig.h
-${CMAKE_CURRENT_LIST_DIR}/RimStimPlanColors.h
-${CMAKE_CURRENT_LIST_DIR}/RimVirtualPerforationResults.h
-${CMAKE_CURRENT_LIST_DIR}/RimLegendConfig.h
-${CMAKE_CURRENT_LIST_DIR}/RimNameConfig.h
-${CMAKE_CURRENT_LIST_DIR}/RimDataSourceSteppingTools.h
-${CMAKE_CURRENT_LIST_DIR}/RimContourMapProjection.h
-${CMAKE_CURRENT_LIST_DIR}/RimEclipseContourMapProjection.h
-${CMAKE_CURRENT_LIST_DIR}/RimEclipseContourMapView.h
-${CMAKE_CURRENT_LIST_DIR}/RimEclipseContourMapViewCollection.h
-${CMAKE_CURRENT_LIST_DIR}/RimMudWeightWindowParameters.h
-${CMAKE_CURRENT_LIST_DIR}/RimViewNameConfig.h
-${CMAKE_CURRENT_LIST_DIR}/RimReloadCaseTools.h
-${CMAKE_CURRENT_LIST_DIR}/RimPlotAxisPropertiesInterface.h
-${CMAKE_CURRENT_LIST_DIR}/RimPlotAxisProperties.h
-${CMAKE_CURRENT_LIST_DIR}/RimPlotAxisAnnotation.h
-${CMAKE_CURRENT_LIST_DIR}/RimObservedDataCollection.h
-${CMAKE_CURRENT_LIST_DIR}/RimObservedFmuRftData.h
-${CMAKE_CURRENT_LIST_DIR}/RimMultiPlotCollection.h
-${CMAKE_CURRENT_LIST_DIR}/RimWellDiskConfig.h
-${CMAKE_CURRENT_LIST_DIR}/RimElementVectorResult.h
-${CMAKE_CURRENT_LIST_DIR}/RimColorLegendCollection.h
-${CMAKE_CURRENT_LIST_DIR}/RimColorLegend.h
-${CMAKE_CURRENT_LIST_DIR}/RimColorLegendItem.h
-${CMAKE_CURRENT_LIST_DIR}/RimAbstractPlotCollection.h
-${CMAKE_CURRENT_LIST_DIR}/RimPolylinePickerInterface.h
-${CMAKE_CURRENT_LIST_DIR}/RimVfpTableExtractor.h
-${CMAKE_CURRENT_LIST_DIR}/RimCaseDisplayNameTools.h
-${CMAKE_CURRENT_LIST_DIR}/RimCustomObjectiveFunctionCollection.h
-${CMAKE_CURRENT_LIST_DIR}/RimCustomObjectiveFunction.h
-${CMAKE_CURRENT_LIST_DIR}/RimCustomObjectiveFunctionWeight.h
-${CMAKE_CURRENT_LIST_DIR}/RimEquilibriumAxisAnnotation.h
-${CMAKE_CURRENT_LIST_DIR}/RimTimeAxisAnnotation.h
-${CMAKE_CURRENT_LIST_DIR}/RimPolylinesDataInterface.h
-${CMAKE_CURRENT_LIST_DIR}/RimEnsembleCurveSetInterface.h
-${CMAKE_CURRENT_LIST_DIR}/cafTreeNode.h
-${CMAKE_CURRENT_LIST_DIR}/RimMultipleLocations.h
-)
-
-
-set (SOURCE_GROUP_SOURCE_FILES
-${CMAKE_CURRENT_LIST_DIR}/RimEclipseCaseCollection.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimCaseCollection.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimRegularLegendConfig.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimOilField.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimProject.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimEclipseCase.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimIdenticalGridCaseGroup.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimEclipseInputProperty.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimEclipseInputPropertyCollection.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimEclipseInputCase.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimEclipseResultCase.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimEclipseView.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimEclipseResultDefinition.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimEclipseCellColors.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimCellEdgeColors.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimSimWellInView.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimSimWellInViewCollection.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimSimWellInViewTools.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimScriptCollection.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimEclipseStatisticsCase.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimEclipseStatisticsCaseCollection.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimCalcScript.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimExportInputPropertySettings.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimBinaryExportSettings.cpp
-${CMAKE_CURRENT_LIST_DIR}/Rim3dOverlayInfoConfig.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimHistogramCalculator.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimTensorResults.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimReservoirCellResultsStorage.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimEclipseStatisticsCaseEvaluator.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimMimeData.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimCommandObject.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimTools.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimFormationNames.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimFormationNamesCollection.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimMockModelSettings.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimTernaryLegendConfig.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimEclipseFaultColors.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimMudWeightWindowParameters.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimViewWindow.cpp
-${CMAKE_CURRENT_LIST_DIR}/Rim3dView.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimGridView.cpp
-${CMAKE_CURRENT_LIST_DIR}/Rim2dIntersectionView.cpp
-${CMAKE_CURRENT_LIST_DIR}/Rim2dIntersectionViewCollection.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimViewManipulator.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimCase.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimViewController.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimMainPlotCollection.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimRftPlotCollection.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimPltPlotCollection.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimVfpPlotCollection.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimVfpPlot.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimVfpDefines.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimPlot.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimPlotWindow.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimMultiPlot.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimDepthTrackPlot.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimWellBoreStabilityPlot.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimWbsParameters.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimViewLinker.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimViewLinkerCollection.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimIntersection.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimExtrudedCurveIntersection.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimIntersectionCollection.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimIntersectionResultDefinition.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimIntersectionResultsDefinitionCollection.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimContextCommandBuilder.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimGridCollection.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimPlotCurve.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimStackablePlotCurve.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimBoxIntersection.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimAdvancedSnapshotExportDefinition.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimMdiWindowController.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimNamedObject.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimCheckableNamedObject.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimCheckableObject.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimGridTimeHistoryCurve.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimGeometrySelectionItem.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimEclipseGeometrySelectionItem.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimDialogData.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimTimeStepFilter.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimSummaryCalculation.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimSummaryCalculationCollection.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimSummaryCalculationVariable.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimStimPlanLegendConfig.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimStimPlanColors.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimVirtualPerforationResults.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimLegendConfig.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimNameConfig.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimDataSourceSteppingTools.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimContourMapProjection.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimEclipseContourMapProjection.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimEclipseContourMapView.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimEclipseContourMapViewCollection.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimViewNameConfig.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimReloadCaseTools.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimPlotAxisPropertiesInterface.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimPlotAxisProperties.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimPlotAxisAnnotation.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimObservedDataCollection.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimObservedFmuRftData.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimMultiPlotCollection.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimWellDiskConfig.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimElementVectorResult.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimColorLegendCollection.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimColorLegend.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimColorLegendItem.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimVfpTableExtractor.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimCaseDisplayNameTools.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimCustomObjectiveFunctionCollection.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimCustomObjectiveFunction.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimCustomObjectiveFunctionWeight.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimEquilibriumAxisAnnotation.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimTimeAxisAnnotation.cpp
-${CMAKE_CURRENT_LIST_DIR}/cafTreeNode.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimMultipleLocations.cpp
-)
+set(SOURCE_GROUP_SOURCE_FILES
+    ${CMAKE_CURRENT_LIST_DIR}/RimEclipseCaseCollection.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimCaseCollection.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimRegularLegendConfig.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimOilField.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimProject.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimEclipseCase.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimIdenticalGridCaseGroup.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimEclipseInputProperty.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimEclipseInputPropertyCollection.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimEclipseInputCase.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimEclipseResultCase.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimEclipseView.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimEclipseResultDefinition.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimEclipseCellColors.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimCellEdgeColors.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimSimWellInView.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimSimWellInViewCollection.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimSimWellInViewTools.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimScriptCollection.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimEclipseStatisticsCase.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimEclipseStatisticsCaseCollection.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimCalcScript.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimExportInputPropertySettings.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimBinaryExportSettings.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/Rim3dOverlayInfoConfig.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimHistogramCalculator.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimTensorResults.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimReservoirCellResultsStorage.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimEclipseStatisticsCaseEvaluator.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimMimeData.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimCommandObject.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimTools.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimFormationNames.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimFormationNamesCollection.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimMockModelSettings.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimTernaryLegendConfig.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimEclipseFaultColors.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimMudWeightWindowParameters.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimViewWindow.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/Rim3dView.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimGridView.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/Rim2dIntersectionView.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/Rim2dIntersectionViewCollection.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimViewManipulator.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimCase.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimViewController.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimMainPlotCollection.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimRftPlotCollection.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimPltPlotCollection.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimVfpPlotCollection.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimVfpPlot.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimVfpDefines.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimPlot.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimPlotWindow.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimMultiPlot.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimDepthTrackPlot.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimWellBoreStabilityPlot.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimWbsParameters.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimViewLinker.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimViewLinkerCollection.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimIntersection.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimExtrudedCurveIntersection.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimIntersectionCollection.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimIntersectionResultDefinition.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimIntersectionResultsDefinitionCollection.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimContextCommandBuilder.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimGridCollection.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimPlotCurve.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimStackablePlotCurve.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimBoxIntersection.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimAdvancedSnapshotExportDefinition.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimMdiWindowController.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimNamedObject.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimCheckableNamedObject.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimCheckableObject.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimGridTimeHistoryCurve.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimGeometrySelectionItem.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimEclipseGeometrySelectionItem.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimDialogData.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimTimeStepFilter.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimSummaryCalculation.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimSummaryCalculationCollection.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimSummaryCalculationVariable.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimStimPlanLegendConfig.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimStimPlanColors.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimVirtualPerforationResults.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimLegendConfig.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimNameConfig.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimDataSourceSteppingTools.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimContourMapProjection.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimEclipseContourMapProjection.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimEclipseContourMapView.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimEclipseContourMapViewCollection.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimViewNameConfig.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimReloadCaseTools.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimPlotAxisPropertiesInterface.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimPlotAxisProperties.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimPlotAxisAnnotation.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimObservedDataCollection.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimObservedFmuRftData.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimMultiPlotCollection.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimWellDiskConfig.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimElementVectorResult.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimColorLegendCollection.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimColorLegend.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimColorLegendItem.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimVfpTableExtractor.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimCaseDisplayNameTools.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimCustomObjectiveFunctionCollection.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimCustomObjectiveFunction.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimCustomObjectiveFunctionWeight.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimEquilibriumAxisAnnotation.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimTimeAxisAnnotation.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/cafTreeNode.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimMultipleLocations.cpp)
 
 if(Qt5Charts_FOUND)
-  list(APPEND SOURCE_GROUP_HEADER_FILES
-       ${CMAKE_CURRENT_LIST_DIR}/RimStatisticsPlot.h
-       ${CMAKE_CURRENT_LIST_DIR}/RimEnsembleFractureStatisticsPlot.h
-       ${CMAKE_CURRENT_LIST_DIR}/RimEnsembleFractureStatisticsPlotCollection.h
-       ${CMAKE_CURRENT_LIST_DIR}/RimGridStatisticsPlotCollection.h
-       ${CMAKE_CURRENT_LIST_DIR}/RimGridStatisticsPlot.h)
+  list(
+    APPEND
+    SOURCE_GROUP_HEADER_FILES
+    ${CMAKE_CURRENT_LIST_DIR}/RimStatisticsPlot.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimEnsembleFractureStatisticsPlot.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimEnsembleFractureStatisticsPlotCollection.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimGridStatisticsPlotCollection.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimGridStatisticsPlot.h)
 
-
-  list(APPEND SOURCE_GROUP_SOURCE_FILES
-       ${CMAKE_CURRENT_LIST_DIR}/RimStatisticsPlot.cpp
-       ${CMAKE_CURRENT_LIST_DIR}/RimEnsembleFractureStatisticsPlot.cpp
-       ${CMAKE_CURRENT_LIST_DIR}/RimEnsembleFractureStatisticsPlotCollection.cpp
-       ${CMAKE_CURRENT_LIST_DIR}/RimGridStatisticsPlotCollection.cpp
-       ${CMAKE_CURRENT_LIST_DIR}/RimGridStatisticsPlot.cpp)
+  list(
+    APPEND
+    SOURCE_GROUP_SOURCE_FILES
+    ${CMAKE_CURRENT_LIST_DIR}/RimStatisticsPlot.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimEnsembleFractureStatisticsPlot.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimEnsembleFractureStatisticsPlotCollection.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimGridStatisticsPlotCollection.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimGridStatisticsPlot.cpp)
 endif()
 
+list(APPEND CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})
 
-list(APPEND CODE_HEADER_FILES
-${SOURCE_GROUP_HEADER_FILES}
-)
+list(APPEND CODE_SOURCE_FILES ${SOURCE_GROUP_SOURCE_FILES})
 
-list(APPEND CODE_SOURCE_FILES
-${SOURCE_GROUP_SOURCE_FILES}
-)
+list(APPEND QT_MOC_HEADERS ${CMAKE_CURRENT_LIST_DIR}/RimPlot.h)
 
-list(APPEND QT_MOC_HEADERS
-${CMAKE_CURRENT_LIST_DIR}/RimPlot.h
-)
-
-source_group( "ProjectDataModel" FILES ${SOURCE_GROUP_HEADER_FILES} ${SOURCE_GROUP_SOURCE_FILES} ${CMAKE_CURRENT_LIST_DIR}/CMakeLists_files.cmake )
+source_group(
+  "ProjectDataModel"
+  FILES ${SOURCE_GROUP_HEADER_FILES} ${SOURCE_GROUP_SOURCE_FILES}
+        ${CMAKE_CURRENT_LIST_DIR}/CMakeLists_files.cmake)
