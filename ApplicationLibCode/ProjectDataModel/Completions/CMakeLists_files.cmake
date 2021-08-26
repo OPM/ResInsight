@@ -1,81 +1,75 @@
+set(SOURCE_GROUP_HEADER_FILES
+    ${CMAKE_CURRENT_LIST_DIR}/RimCompletionCellIntersectionCalc.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimFishbonesCollection.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimFishbones.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimFishbonesPipeProperties.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimFishboneWellPath.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimFishboneWellPathCollection.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimPerforationCollection.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimPerforationInterval.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimWellPathCompletions.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimWellPathCompletionSettings.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimEllipseFractureTemplate.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimFracture.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimFractureContainment.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimFractureContainmentTools.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimFractureExportSettings.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimFractureTemplate.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimCompletionTemplateCollection.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimFractureTemplateCollection.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimValveTemplateCollection.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimValveTemplate.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimSimWellFracture.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimSimWellFractureCollection.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimStimPlanFractureTemplate.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimWellPathFracture.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimWellPathFractureCollection.h
+    ${CMAKE_CURRENT_LIST_DIR}/Rim3dWellLogCurveCollection.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimMswCompletionParameters.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimNonDarcyPerforationParameters.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimWellPathComponentInterface.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimWellPathValve.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimMultipleValveLocations.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimWellPathAicdParameters.h)
 
-set (SOURCE_GROUP_HEADER_FILES
-${CMAKE_CURRENT_LIST_DIR}/RimCompletionCellIntersectionCalc.h
-${CMAKE_CURRENT_LIST_DIR}/RimFishbonesCollection.h
-${CMAKE_CURRENT_LIST_DIR}/RimFishbones.h
-${CMAKE_CURRENT_LIST_DIR}/RimFishbonesPipeProperties.h
-${CMAKE_CURRENT_LIST_DIR}/RimFishboneWellPath.h
-${CMAKE_CURRENT_LIST_DIR}/RimFishboneWellPathCollection.h
-${CMAKE_CURRENT_LIST_DIR}/RimPerforationCollection.h
-${CMAKE_CURRENT_LIST_DIR}/RimPerforationInterval.h
-${CMAKE_CURRENT_LIST_DIR}/RimWellPathCompletions.h
-${CMAKE_CURRENT_LIST_DIR}/RimWellPathCompletionSettings.h
-${CMAKE_CURRENT_LIST_DIR}/RimEllipseFractureTemplate.h
-${CMAKE_CURRENT_LIST_DIR}/RimFracture.h
-${CMAKE_CURRENT_LIST_DIR}/RimFractureContainment.h
-${CMAKE_CURRENT_LIST_DIR}/RimFractureContainmentTools.h
-${CMAKE_CURRENT_LIST_DIR}/RimFractureExportSettings.h
-${CMAKE_CURRENT_LIST_DIR}/RimFractureTemplate.h
-${CMAKE_CURRENT_LIST_DIR}/RimCompletionTemplateCollection.h
-${CMAKE_CURRENT_LIST_DIR}/RimFractureTemplateCollection.h
-${CMAKE_CURRENT_LIST_DIR}/RimValveTemplateCollection.h
-${CMAKE_CURRENT_LIST_DIR}/RimValveTemplate.h
-${CMAKE_CURRENT_LIST_DIR}/RimSimWellFracture.h
-${CMAKE_CURRENT_LIST_DIR}/RimSimWellFractureCollection.h
-${CMAKE_CURRENT_LIST_DIR}/RimStimPlanFractureTemplate.h
-${CMAKE_CURRENT_LIST_DIR}/RimWellPathFracture.h
-${CMAKE_CURRENT_LIST_DIR}/RimWellPathFractureCollection.h
-${CMAKE_CURRENT_LIST_DIR}/Rim3dWellLogCurveCollection.h
-${CMAKE_CURRENT_LIST_DIR}/RimMswCompletionParameters.h
-${CMAKE_CURRENT_LIST_DIR}/RimNonDarcyPerforationParameters.h
-${CMAKE_CURRENT_LIST_DIR}/RimWellPathComponentInterface.h
-${CMAKE_CURRENT_LIST_DIR}/RimWellPathValve.h
-${CMAKE_CURRENT_LIST_DIR}/RimMultipleValveLocations.h
-${CMAKE_CURRENT_LIST_DIR}/RimWellPathAicdParameters.h
+set(SOURCE_GROUP_SOURCE_FILES
+    ${CMAKE_CURRENT_LIST_DIR}/RimCompletionCellIntersectionCalc.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimFishbonesCollection.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimFishbones.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimFishbonesPipeProperties.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimImportedFishboneLaterals.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimImportedFishboneLateralsCollection.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimPerforationCollection.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimPerforationInterval.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimWellPathCompletions.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimWellPathCompletionSettings.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimEllipseFractureTemplate.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimFracture.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimFractureContainment.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimFractureContainmentTools.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimFractureExportSettings.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimFractureTemplate.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimCompletionTemplateCollection.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimFractureTemplateCollection.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimValveTemplateCollection.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimValveTemplate.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimSimWellFracture.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimSimWellFractureCollection.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimStimPlanFractureTemplate.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimWellPathFracture.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimWellPathFractureCollection.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/Rim3dWellLogCurveCollection.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimMswCompletionParameters.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimNonDarcyPerforationParameters.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimWellPathValve.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimMultipleValveLocations.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimWellPathAicdParameters.cpp)
 
-)
+list(APPEND CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})
 
+list(APPEND CODE_SOURCE_FILES ${SOURCE_GROUP_SOURCE_FILES})
 
-set (SOURCE_GROUP_SOURCE_FILES
-${CMAKE_CURRENT_LIST_DIR}/RimCompletionCellIntersectionCalc.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimFishbonesCollection.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimFishbones.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimFishbonesPipeProperties.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimImportedFishboneLaterals.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimImportedFishboneLateralsCollection.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimPerforationCollection.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimPerforationInterval.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimWellPathCompletions.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimWellPathCompletionSettings.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimEllipseFractureTemplate.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimFracture.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimFractureContainment.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimFractureContainmentTools.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimFractureExportSettings.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimFractureTemplate.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimCompletionTemplateCollection.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimFractureTemplateCollection.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimValveTemplateCollection.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimValveTemplate.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimSimWellFracture.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimSimWellFractureCollection.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimStimPlanFractureTemplate.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimWellPathFracture.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimWellPathFractureCollection.cpp
-${CMAKE_CURRENT_LIST_DIR}/Rim3dWellLogCurveCollection.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimMswCompletionParameters.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimNonDarcyPerforationParameters.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimWellPathValve.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimMultipleValveLocations.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimWellPathAicdParameters.cpp
-)
-
-list(APPEND CODE_HEADER_FILES
-${SOURCE_GROUP_HEADER_FILES}
-)
-
-list(APPEND CODE_SOURCE_FILES
-${SOURCE_GROUP_SOURCE_FILES}
-)
-
-source_group( "ProjectDataModel\\Completions" FILES ${SOURCE_GROUP_HEADER_FILES} ${SOURCE_GROUP_SOURCE_FILES} ${CMAKE_CURRENT_LIST_DIR}/CMakeLists_files.cmake )
+source_group(
+  "ProjectDataModel\\Completions"
+  FILES ${SOURCE_GROUP_HEADER_FILES} ${SOURCE_GROUP_SOURCE_FILES}
+        ${CMAKE_CURRENT_LIST_DIR}/CMakeLists_files.cmake)
