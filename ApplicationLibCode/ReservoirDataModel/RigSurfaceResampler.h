@@ -29,11 +29,10 @@ class RigSurfaceResampler
 public:
     static cvf::ref<RigSurface> resampleSurface( cvf::ref<RigSurface> targetSurface, cvf::ref<RigSurface> surface );
 
-    static bool resamplePoint( const cvf::Vec3d&                pointAbove,
-                               const cvf::Vec3d&                pointBelow,
-                               const std::vector<unsigned int>& indices,
-                               const std::vector<cvf::Vec3d>&   vertices,
-                               cvf::Vec3d&                      intersectionPoint );
+    static bool resamplePoint( RigSurface*       surface,
+                               const cvf::Vec3d& pointAbove,
+                               const cvf::Vec3d& pointBelow,
+                               cvf::Vec3d&       intersectionPoint );
 
 private:
     static bool findClosestPointXY( const cvf::Vec3d&              targetPoint,

@@ -62,7 +62,7 @@ void RicNewIntersectionViewFeature::onActionTriggered( bool isChecked )
         intersection->firstAncestorOrThisOfType( rimCase );
         if ( rimCase )
         {
-            if ( intersection->direction() != RimExtrudedCurveIntersection::CS_VERTICAL )
+            if ( intersection->direction() != RimExtrudedCurveIntersection::CrossSectionDirEnum::CS_VERTICAL )
             {
                 QString text = QString( "The intersection view only supports vertical intersections.\n"
                                         "The intersection '%1' is not vertical but a converted version will be shown "

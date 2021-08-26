@@ -15,11 +15,14 @@
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
+
 #include "RigSurfaceResampler.h"
 
 #include "cvfGeometryTools.h"
 
+#include "cvfBoundingBox.h"
 #include "cvfObject.h"
+
 #include <limits>
 
 //--------------------------------------------------------------------------------------------------
@@ -40,8 +43,7 @@ cvf::ref<RigSurface> RigSurfaceResampler::resampleSurface( cvf::ref<RigSurface> 
         cvf::Vec3d pointBelow = cvf::Vec3d( targetVert.x(), targetVert.y(), -10000.0 );
 
         cvf::Vec3d intersectionPoint;
-        bool       foundMatch =
-            resamplePoint( pointAbove, pointBelow, surface->triangleIndices(), surface->vertices(), intersectionPoint );
+        bool       foundMatch = resamplePoint( surface.p(), pointAbove, pointBelow, intersectionPoint );
         if ( !foundMatch )
             intersectionPoint = cvf::Vec3d( targetVert.x(), targetVert.y(), std::numeric_limits<double>::infinity() );
 
@@ -56,23 +58,37 @@ cvf::ref<RigSurface> RigSurfaceResampler::resampleSurface( cvf::ref<RigSurface> 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RigSurfaceResampler::resamplePoint( const cvf::Vec3d&                pointAbove,
-                                         const cvf::Vec3d&                pointBelow,
-                                         const std::vector<unsigned int>& indices,
-                                         const std::vector<cvf::Vec3d>&   vertices,
-                                         cvf::Vec3d&                      intersectionPoint )
+bool RigSurfaceResampler::resamplePoint( RigSurface*       surface,
+                                         const cvf::Vec3d& pointAbove,
+                                         const cvf::Vec3d& pointBelow,
+                                         cvf::Vec3d&       intersectionPoint )
 {
-    for ( size_t i = 0; i < indices.size(); i += 3 )
+    surface->ensureIntersectionSearchTreeIsBuilt();
+
+    cvf::BoundingBox bb;
+    bb.add( pointAbove );
+    bb.add( pointBelow );
+
+    std::vector<size_t> triangleStartIndices;
+    surface->findIntersectingTriangles( bb, &triangleStartIndices );
+
+    const std::vector<unsigned int>& indices  = surface->triangleIndices();
+    const std::vector<cvf::Vec3d>&   vertices = surface->vertices();
+
+    if ( !triangleStartIndices.empty() )
     {
-        bool isLineDirDotNormalNegative = false;
-        if ( cvf::GeometryTools::intersectLineSegmentTriangle( pointAbove,
-                                                               pointBelow,
-                                                               vertices[indices[i]],
-                                                               vertices[indices[i + 1]],
-                                                               vertices[indices[i + 2]],
-                                                               &intersectionPoint,
-                                                               &isLineDirDotNormalNegative ) == 1 )
-            return true;
+        for ( auto triangleStartIndex : triangleStartIndices )
+        {
+            bool isLineDirDotNormalNegative = false;
+            if ( cvf::GeometryTools::intersectLineSegmentTriangle( pointAbove,
+                                                                   pointBelow,
+                                                                   vertices[indices[triangleStartIndex + 0]],
+                                                                   vertices[indices[triangleStartIndex + 1]],
+                                                                   vertices[indices[triangleStartIndex + 2]],
+                                                                   &intersectionPoint,
+                                                                   &isLineDirDotNormalNegative ) == 1 )
+                return true;
+        }
     }
 
     // Handle cases where no match is found due to floating point imprecision,

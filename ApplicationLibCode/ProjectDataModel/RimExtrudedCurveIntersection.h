@@ -19,15 +19,9 @@
 
 #pragma once
 
-#include "cafAppEnum.h"
-#include "cafPdmField.h"
-#include "cafPdmFieldCvfVec3d.h"
-#include "cafPdmObject.h"
-#include "cafPdmPtrField.h"
-
 #include "RimIntersection.h"
-#include "cvfObject.h"
-#include "cvfVector3.h"
+
+#include "cafPdmPtrArrayField.h"
 
 class RimWellPath;
 class RivExtrudedCurveIntersectionPartMgr;
@@ -35,6 +29,7 @@ class RimIntersectionResultDefinition;
 class RimSimWellInView;
 class RimSimWellInViewCollection;
 class Rim2dIntersectionView;
+class RimSurface;
 
 namespace caf
 {
@@ -52,7 +47,7 @@ class RimExtrudedCurveIntersection : public RimIntersection
     CAF_PDM_HEADER_INIT;
 
 public:
-    enum CrossSectionEnum
+    enum class CrossSectionEnum
     {
         CS_WELL_PATH,
         CS_SIMULATION_WELL,
@@ -60,7 +55,7 @@ public:
         CS_AZIMUTHLINE
     };
 
-    enum CrossSectionDirEnum
+    enum class CrossSectionDirEnum
     {
         CS_VERTICAL,
         CS_HORIZONTAL,
@@ -71,23 +66,27 @@ public:
     RimExtrudedCurveIntersection();
     ~RimExtrudedCurveIntersection() override;
 
-    caf::PdmField<caf::AppEnum<CrossSectionEnum>>    type;
-    caf::PdmField<caf::AppEnum<CrossSectionDirEnum>> direction;
-
-    caf::PdmPtrField<RimWellPath*>      wellPath;
-    caf::PdmPtrField<RimSimWellInView*> simulationWell;
-
-    caf::PdmField<bool> inputPolyLineFromViewerEnabled;
-    caf::PdmField<bool> inputExtrusionPointsFromViewerEnabled;
-    caf::PdmField<bool> inputTwoAzimuthPointsFromViewerEnabled;
-
     QString name() const override;
     void    setName( const QString& newName );
+
+    RimExtrudedCurveIntersection::CrossSectionEnum    type() const;
+    RimExtrudedCurveIntersection::CrossSectionDirEnum direction() const;
+
+    RimWellPath*      wellPath() const;
+    RimSimWellInView* simulationWell() const;
+    bool              inputPolyLineFromViewerEnabled() const;
+    bool              inputExtrusionPointsFromViewerEnabled() const;
+    bool              inputTwoAzimuthPointsFromViewerEnabled() const;
+
+    void configureForSimulationWell( RimSimWellInView* simWell );
+    void configureForWellPath( RimWellPath* wellPath );
+    void configureForPolyLine();
+    void configureForAzimuthLine();
 
     std::vector<std::vector<cvf::Vec3d>> polyLines( cvf::Vec3d* flattenedPolylineStartPoint = nullptr ) const;
     void                                 appendPointToPolyLine( const cvf::Vec3d& point );
 
-    Rim2dIntersectionView*                    correspondingIntersectionView();
+    Rim2dIntersectionView*                    correspondingIntersectionView() const;
     RivExtrudedCurveIntersectionPartMgr*      intersectionPartMgr();
     void                                      rebuildGeometry();
     const RivIntersectionGeometryGeneratorIF* intersectionGeometryGenerator() const override;
@@ -106,6 +105,8 @@ public:
     void       recomputeSimulationWellBranchData();
     bool       hasDefiningPoints() const;
 
+    std::vector<RimSurface*> annotatedSurfaces() const;
+
     int  branchIndex() const;
     void rebuildGeometryAndScheduleCreateDisplayModel();
 
@@ -120,7 +121,28 @@ protected:
                                                          bool*                      useOptionsOnly ) override;
 
 private:
+    static void setPushButtonText( bool buttonEnable, caf::PdmUiPushButtonEditorAttribute* attribute );
+    static void setBaseColor( bool enable, caf::PdmUiListEditorAttribute* attribute );
+
+    RimSimWellInViewCollection* simulationWellCollection() const;
+    void                        updateAzimuthLine();
+    void                        updateSimulationWellCenterline() const;
+    void                        addExtents( std::vector<cvf::Vec3d>& polyLine ) const;
+    void                        updateName();
+    static double               azimuthInRadians( cvf::Vec3d vec );
+
+private:
     caf::PdmField<QString> m_name;
+
+    caf::PdmField<caf::AppEnum<CrossSectionEnum>>    m_type;
+    caf::PdmField<caf::AppEnum<CrossSectionDirEnum>> m_direction;
+
+    caf::PdmPtrField<RimWellPath*>      m_wellPath;
+    caf::PdmPtrField<RimSimWellInView*> m_simulationWell;
+
+    caf::PdmField<bool> m_inputPolylineFromViewerEnabled;
+    caf::PdmField<bool> m_inputExtrusionPointsFromViewerEnabled;
+    caf::PdmField<bool> m_inputTwoAzimuthPointsFromViewerEnabled;
 
     caf::PdmField<int>    m_branchIndex;
     caf::PdmField<double> m_extentLength;
@@ -133,17 +155,9 @@ private:
     caf::PdmField<std::vector<cvf::Vec3d>> m_customExtrusionPoints;
     caf::PdmField<std::vector<cvf::Vec3d>> m_twoAzimuthPoints;
 
-    static void setPushButtonText( bool buttonEnable, caf::PdmUiPushButtonEditorAttribute* attribute );
-    static void setBaseColor( bool enable, caf::PdmUiListEditorAttribute* attribute );
+    // Surface intersection annotations
+    caf::PdmPtrArrayField<RimSurface*> m_annotationSurfaces;
 
-    RimSimWellInViewCollection* simulationWellCollection() const;
-    void                        updateAzimuthLine();
-    void                        updateSimulationWellCenterline() const;
-    void                        addExtents( std::vector<cvf::Vec3d>& polyLine ) const;
-    void                        updateName();
-    static double               azimuthInRadians( cvf::Vec3d vec );
-
-private:
     cvf::ref<RivExtrudedCurveIntersectionPartMgr> m_crossSectionPartMgr;
 
     mutable std::vector<std::vector<cvf::Vec3d>> m_simulationWellBranchCenterlines;

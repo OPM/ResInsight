@@ -15,21 +15,22 @@
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
+
 #include "RigSurface.h"
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RigSurface::RigSurface()
-{
-}
+#include "cafAssert.h"
+#include "cvfBoundingBox.h"
+#include "cvfBoundingBoxTree.h"
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigSurface::~RigSurface()
-{
-}
+RigSurface::RigSurface() = default;
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RigSurface::~RigSurface() = default;
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -91,4 +92,51 @@ std::vector<QString> RigSurface::propertyNames() const
     }
 
     return names;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigSurface::findIntersectingTriangles( const cvf::BoundingBox& inputBB, std::vector<size_t>* triangleStartIndices ) const
+{
+    CAF_ASSERT( m_surfaceBoundingBoxTree.notNull() );
+
+    m_surfaceBoundingBoxTree->findIntersections( inputBB, triangleStartIndices );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigSurface::ensureIntersectionSearchTreeIsBuilt()
+{
+    if ( m_surfaceBoundingBoxTree.isNull() )
+    {
+        size_t itemCount = triangleCount();
+
+        std::vector<cvf::BoundingBox> cellBoundingBoxes;
+        std::vector<size_t>           boundingBoxIds;
+        cellBoundingBoxes.resize( itemCount );
+        boundingBoxIds.resize( itemCount );
+
+        for ( size_t triangleIdx = 0; triangleIdx < itemCount; ++triangleIdx )
+        {
+            cvf::BoundingBox& cellBB = cellBoundingBoxes[triangleIdx];
+            cellBB.add( m_vertices[m_triangleIndices[triangleIdx * 3 + 0]] );
+            cellBB.add( m_vertices[m_triangleIndices[triangleIdx * 3 + 1]] );
+            cellBB.add( m_vertices[m_triangleIndices[triangleIdx * 3 + 2]] );
+
+            boundingBoxIds[triangleIdx] = triangleIdx * 3;
+        }
+
+        m_surfaceBoundingBoxTree = new cvf::BoundingBoxTree;
+        m_surfaceBoundingBoxTree->buildTreeFromBoundingBoxes( cellBoundingBoxes, &boundingBoxIds );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+size_t RigSurface::triangleCount() const
+{
+    return m_triangleIndices.size() / 3;
 }

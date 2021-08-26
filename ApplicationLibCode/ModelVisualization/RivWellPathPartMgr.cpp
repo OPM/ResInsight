@@ -58,7 +58,7 @@
 #include "RivObjectSourceInfo.h"
 #include "RivPartPriority.h"
 #include "RivPipeGeometryGenerator.h"
-#include "RivSectionFlattner.h"
+#include "RivSectionFlattener.h"
 #include "RivTextLabelSourceInfo.h"
 #include "RivWellConnectionFactorPartMgr.h"
 #include "RivWellFracturePartMgr.h"
@@ -438,12 +438,12 @@ void RivWellPathPartMgr::appendPerforationsToModel( cvf::ModelBasicList*        
         {
             cvf::Vec3d         dummy;
             vector<cvf::Mat4d> flatningCSs =
-                RivSectionFlattner::calculateFlatteningCSsForPolyline( perfIntervalCL,
-                                                                       cvf::Vec3d::Z_AXIS,
-                                                                       { horizontalLengthAlongWellPath,
-                                                                         0.0,
-                                                                         perfIntervalCL[0].z() },
-                                                                       &dummy );
+                RivSectionFlattener::calculateFlatteningCSsForPolyline( perfIntervalCL,
+                                                                        cvf::Vec3d::Z_AXIS,
+                                                                        { horizontalLengthAlongWellPath,
+                                                                          0.0,
+                                                                          perfIntervalCL[0].z() },
+                                                                        &dummy );
 
             for ( size_t cIdx = 0; cIdx < perfIntervalCL.size(); ++cIdx )
             {
@@ -668,12 +668,12 @@ void RivWellPathPartMgr::buildWellPathParts( const caf::DisplayCoordTransform* d
     {
         cvf::Vec3d              dummy;
         std::vector<cvf::Mat4d> flatningCSs =
-            RivSectionFlattner::calculateFlatteningCSsForPolyline( clippedWellPathCenterLine,
-                                                                   cvf::Vec3d::Z_AXIS,
-                                                                   { horizontalLengthAlongWellToClipPoint,
-                                                                     0.0,
-                                                                     clippedWellPathCenterLine[0].z() },
-                                                                   &dummy );
+            RivSectionFlattener::calculateFlatteningCSsForPolyline( clippedWellPathCenterLine,
+                                                                    cvf::Vec3d::Z_AXIS,
+                                                                    { horizontalLengthAlongWellToClipPoint,
+                                                                      0.0,
+                                                                      clippedWellPathCenterLine[0].z() },
+                                                                    &dummy );
 
         for ( size_t cIdx = 0; cIdx < cvfCoords->size(); ++cIdx )
         {
@@ -814,11 +814,8 @@ void RivWellPathPartMgr::buildWellPathParts( const caf::DisplayCoordTransform* d
             cvf::GeometryBuilderTriangles builder;
             cvf::GeometryUtils::createSphere( cellRadius, 15, 15, &builder );
             vectorDrawable->setGlyph( builder.trianglesUShort().p(), builder.vertices().p() );
-
-            {
-                vectorDrawable->setRadius( cellRadius );
-                vectorDrawable->setCenterCoords( vertices.p() );
-            }
+            vectorDrawable->setRadius( cellRadius );
+            vectorDrawable->setCenterCoords( vertices.p() );
 
             cvf::ref<cvf::Part> part = new cvf::Part;
             part->setName( "RivWellPathPartMgr_WellTargetSpheres" );
@@ -906,10 +903,16 @@ void RivWellPathPartMgr::appendFlattenedStaticGeometryPartsToModel( cvf::ModelBa
         model->addPart( m_wellLabelPart.p() );
     }
 
-    if ( m_spherePart.notNull() )
-    {
-        model->addPart( m_spherePart.p() );
-    }
+    /*
+    // TODO: Currently not supported.
+    // Require coordinate transformations of the spheres similar to RivWellPathPartMgr::buildWellPathParts
+    // https://github.com/OPM/ResInsight/issues/7891
+    //
+        if ( m_spherePart.notNull() )
+        {
+            model->addPart( m_spherePart.p() );
+        }
+    */
 }
 
 //--------------------------------------------------------------------------------------------------

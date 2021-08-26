@@ -8,7 +8,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RivHexGridIntersectionTools.h
 ${CMAKE_CURRENT_LIST_DIR}/RivBoxIntersectionGeometryGenerator.h
 ${CMAKE_CURRENT_LIST_DIR}/RivBoxIntersectionPartMgr.h
 ${CMAKE_CURRENT_LIST_DIR}/RivBoxIntersectionSourceInfo.h
-${CMAKE_CURRENT_LIST_DIR}/RivSectionFlattner.h
+${CMAKE_CURRENT_LIST_DIR}/RivSectionFlattener.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -20,7 +20,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RivHexGridIntersectionTools.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RivBoxIntersectionGeometryGenerator.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RivBoxIntersectionPartMgr.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RivBoxIntersectionSourceInfo.cpp
-${CMAKE_CURRENT_LIST_DIR}/RivSectionFlattner.cpp
+${CMAKE_CURRENT_LIST_DIR}/RivSectionFlattener.cpp
 )
 
 list(APPEND CODE_HEADER_FILES
