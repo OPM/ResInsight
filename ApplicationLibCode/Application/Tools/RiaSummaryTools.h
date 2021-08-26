@@ -64,8 +64,6 @@ public:
                                                            std::vector<RimSummaryCase*>&          cases,
                                                            std::vector<RifEclipseSummaryAddress>& addresses );
 
-    static QString findSuitableEnsembleName( const QStringList& summaryCaseFileNames );
-
     static std::pair<std::vector<time_t>, std::vector<double>>
         resampledValuesForPeriod( const RifEclipseSummaryAddress&   address,
                                   const std::vector<time_t>&        timeSteps,

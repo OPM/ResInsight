@@ -73,7 +73,7 @@ caf::PdmFieldHandle* RimEnsembleSurfaceInView::userDescriptionField()
 //--------------------------------------------------------------------------------------------------
 QString RimEnsembleSurfaceInView::name() const
 {
-    if ( m_ensembleSurface ) return m_ensembleSurface->uiName();
+    if ( m_ensembleSurface ) return m_ensembleSurface->name();
 
     return "";
 }

@@ -597,7 +597,6 @@ void RimEclipseView::onCreateDisplayModel()
     m_surfaceVizModel->removeAllParts();
     if ( m_surfaceCollection )
     {
-        m_surfaceCollection->clearGeometry();
         m_surfaceCollection->appendPartsToModel( m_surfaceVizModel.p(), m_reservoirGridPartManager->scaleTransform() );
         nativeOrOverrideViewer()->addStaticModelOnce( m_surfaceVizModel.p(), isUsingOverrideViewer() );
     }

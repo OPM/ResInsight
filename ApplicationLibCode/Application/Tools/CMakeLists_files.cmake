@@ -46,6 +46,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RiaWellLogUnitTools.h
 ${CMAKE_CURRENT_LIST_DIR}/RiaWellLogUnitTools.inl
 ${CMAKE_CURRENT_LIST_DIR}/RiaTimeTTools.h
 ${CMAKE_CURRENT_LIST_DIR}/RiaValidRegExpValidator.h
+${CMAKE_CURRENT_LIST_DIR}/RiaEnsembleNameTools.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -88,6 +89,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RiaFieldHandleTools.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiaBoundingBoxTools.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiaTimeTTools.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiaValidRegExpValidator.cpp
+${CMAKE_CURRENT_LIST_DIR}/RiaEnsembleNameTools.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

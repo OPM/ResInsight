@@ -56,6 +56,8 @@ RimEnsembleStatisticsSurface::~RimEnsembleStatisticsSurface()
 void RimEnsembleStatisticsSurface::setStatisticsType( RigSurfaceStatisticsCalculator::StatisticsType statisticsType )
 {
     m_statisticsType = statisticsType;
+
+    setUserDescription( fullName() );
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -33,6 +33,7 @@
 
 #include "cvfAssert.h"
 
+#include "RiaEnsembleNameTools.h"
 #include <QFileInfo>
 #include <QRegularExpression>
 
@@ -296,42 +297,7 @@ QString RimSummaryCase::uniqueShortNameForEnsembleCase( RimSummaryCase* summaryC
         }
     }
 
-    std::map<QString, QStringList> keyFileComponentsForAllFiles =
-        RiaFilePathTools::keyPathComponentsForEachFilePath( summaryFilePaths );
-
-    QStringList keyFileComponents = keyFileComponentsForAllFiles[summaryCase->summaryHeaderFilename()];
-    if ( keyFileComponents.empty() ) return ensembleCaseName;
-
-    if ( !ensembleCaseName.isEmpty() )
-    {
-        for ( auto& component : keyFileComponents )
-        {
-            component = component.replace( ensembleCaseName, "" );
-            component = component.replace( trimRe, "" );
-        }
-    }
-
-    QStringList        shortNameComponents;
-    QRegularExpression numberRe( "[0-9]+" );
-    for ( auto keyComponent : keyFileComponents )
-    {
-        QStringList subComponents;
-        QString     numberGroup = numberRe.match( keyComponent ).captured();
-        if ( !numberGroup.isEmpty() )
-        {
-            keyComponent = keyComponent.replace( numberGroup, "" );
-            QString stem = keyComponent.left( RimCaseDisplayNameTools::CASE_SHORT_NAME_LENGTH );
-            if ( !stem.isEmpty() ) subComponents.push_back( stem );
-            subComponents.push_back( numberGroup );
-        }
-        else
-        {
-            subComponents.push_back( keyComponent.left( RimCaseDisplayNameTools::CASE_SHORT_NAME_LENGTH ) );
-        }
-
-        shortNameComponents.push_back( subComponents.join( "-" ) );
-    }
-    return shortNameComponents.join( "," );
+    return RiaEnsembleNameTools::uniqueShortName( summaryCase->summaryHeaderFilename(), summaryFilePaths, ensembleCaseName );
 }
 
 //--------------------------------------------------------------------------------------------------
