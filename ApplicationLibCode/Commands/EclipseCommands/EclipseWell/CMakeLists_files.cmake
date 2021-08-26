@@ -1,4 +1,3 @@
-
 set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicEclipseWellFeatureImpl.h
     ${CMAKE_CURRENT_LIST_DIR}/RicEclipseWellShowFeatures.h)
