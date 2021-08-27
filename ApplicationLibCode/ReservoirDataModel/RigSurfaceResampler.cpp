@@ -93,7 +93,7 @@ bool RigSurfaceResampler::resamplePoint( RigSurface*       surface,
 
     // Handle cases where no match is found due to floating point imprecision,
     // or when falling off resulting grid slightly.
-    double maxDistance = 10.0;
+    double maxDistance = 100.0;
     return findClosestPointXY( pointAbove, vertices, maxDistance, intersectionPoint );
 }
 
