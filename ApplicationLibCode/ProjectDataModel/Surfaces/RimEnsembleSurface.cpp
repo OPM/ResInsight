@@ -109,9 +109,6 @@ void RimEnsembleSurface::loadDataAndUpdate()
         fileSurfaces = filterByEnsembleCurveSet( fileSurfaces );
     }
 
-    m_statisticsSurfaces.deleteAllChildObjects();
-    m_statisticsSurfaces.clear();
-
     if ( !fileSurfaces.empty() )
     {
         cvf::ref<RigSurface> firstSurface = fileSurfaces[0]->surfaceData();
@@ -123,19 +120,26 @@ void RimEnsembleSurface::loadDataAndUpdate()
         m_statisticsSurface = RigSurfaceStatisticsCalculator::computeStatistics( surfaces );
         if ( !m_statisticsSurface.isNull() )
         {
-            std::vector<RigSurfaceStatisticsCalculator::StatisticsType> statisticsTypes =
-                { RigSurfaceStatisticsCalculator::StatisticsType::MIN,
-                  RigSurfaceStatisticsCalculator::StatisticsType::MAX,
-                  RigSurfaceStatisticsCalculator::StatisticsType::MEAN,
-                  RigSurfaceStatisticsCalculator::StatisticsType::P10,
-                  RigSurfaceStatisticsCalculator::StatisticsType::P50,
-                  RigSurfaceStatisticsCalculator::StatisticsType::P90 };
-            for ( auto s : statisticsTypes )
+            if ( m_statisticsSurfaces.empty() )
             {
-                auto statSurface = new RimEnsembleStatisticsSurface;
-                statSurface->setStatisticsType( s );
-                m_statisticsSurfaces.push_back( statSurface );
-                statSurface->onLoadData();
+                std::vector<RigSurfaceStatisticsCalculator::StatisticsType> statisticsTypes =
+                    { RigSurfaceStatisticsCalculator::StatisticsType::MIN,
+                      RigSurfaceStatisticsCalculator::StatisticsType::MAX,
+                      RigSurfaceStatisticsCalculator::StatisticsType::MEAN,
+                      RigSurfaceStatisticsCalculator::StatisticsType::P10,
+                      RigSurfaceStatisticsCalculator::StatisticsType::P50,
+                      RigSurfaceStatisticsCalculator::StatisticsType::P90 };
+                for ( auto s : statisticsTypes )
+                {
+                    auto statSurface = new RimEnsembleStatisticsSurface;
+                    statSurface->setStatisticsType( s );
+                    m_statisticsSurfaces.push_back( statSurface );
+                }
+            }
+
+            for ( auto s : m_statisticsSurfaces )
+            {
+                s->onLoadData();
             }
         }
     }
