@@ -121,7 +121,7 @@ caf::PdmObjectHandle* RimcCommandRouter_extractSurfaces::execute()
             }
             else
             {
-                RiaLogging::error( "Successfully exported surface data to " + surfaceFilename );
+                RiaLogging::info( "Successfully exported surface data to " + surfaceFilename );
             }
         }
     }
