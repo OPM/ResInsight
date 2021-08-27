@@ -2678,7 +2678,13 @@ void RimWellLogTrack::updateResultPropertyNamesOnPlot()
         RigResultAccessorFactory::createFromResultDefinition( eclipseCase->eclipseCaseData(), 0, m_timeStep, m_resultDefinition );
     if ( !resultAccessor.notNull() )
     {
-        RiaLogging::error( "Unable to get result accessor" );
+        QString resultTypeStr = caf::AppEnum<RiaDefines::ResultCatType>( m_resultDefinition->resultType() ).uiText();
+        RiaLogging::error(
+            QString( "Unable to find result for region annotation for '%1' track. Tried '%2' (%3) on case: '%4'" )
+                .arg( m_description() )
+                .arg( m_resultDefinition->resultVariable() )
+                .arg( resultTypeStr )
+                .arg( eclipseCase->caseUserDescription() ) );
         return;
     }
 
