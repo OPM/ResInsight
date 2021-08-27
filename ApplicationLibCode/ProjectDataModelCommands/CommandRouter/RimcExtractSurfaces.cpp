@@ -111,8 +111,14 @@ caf::PdmObjectHandle* RimcCommandRouter_extractSurfaces::execute()
             // Write to TS file on disk
 
             QFileInfo fi( m_gridModelFilename );
-            QString   surfaceFilename = fi.absoluteDir().absolutePath() +
-                                      QString( "/surfaceexport/layer-%1.ts" ).arg( layer );
+            QString   exportFolder = fi.absoluteDir().absolutePath() + "/surfaceexport";
+
+            {
+                QDir dir( exportFolder );
+                if ( !dir.exists() ) dir.mkpath( "." );
+            }
+
+            QString surfaceFilename = exportFolder + QString( "/layer-%1.ts" ).arg( layer );
 
             // TODO: Add more info in surface comment
             if ( !RifSurfaceExporter::writeGocadTSurfFile( surfaceFilename, "Surface comment", vertices, triangleIndices ) )

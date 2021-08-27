@@ -49,6 +49,8 @@ RimEnsembleSurface::RimEnsembleSurface()
     m_statisticsSurfaces.uiCapability()->setUiHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_ensembleCurveSet, "FilterEnsembleCurveSet", "Filter by Ensemble Curve Set", "", "", "" );
+
+    setDeletable( true );
 }
 
 //--------------------------------------------------------------------------------------------------
