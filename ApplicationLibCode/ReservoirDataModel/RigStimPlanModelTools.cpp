@@ -88,6 +88,10 @@ cvf::Vec3d RigStimPlanModelTools::calculateTSTDirection( RigEclipseCaseData* ecl
         direction *= -1.0;
     }
 
+    // Calculate an adjusted TST direction to improve the zone thickness in the well log plot.
+    // Using average of TST and TVD (default direction) in 3D.
+    direction = ( direction + defaultDirection ) / 2.0;
+
     return direction;
 }
 
