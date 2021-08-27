@@ -156,6 +156,51 @@ void StructGridInterface::cellFaceVertexIndices( FaceType face, cvf::ubyte verte
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::pair<ubyte, ubyte> StructGridInterface::edgeVertexIndices( FaceType face1, FaceType face2 )
+{
+    //
+    // Return the two shared vertex indices between two faces
+    // Asserts if the two faces do not have any shared vertices
+    // The ordering is identical to the ordering in StructGridInterface::cellFaceVertexIndices
+    //
+
+    // Ensure face1 has the largest enum value
+    if ( face2 > face1 ) std::swap( face1, face2 );
+
+    if ( face1 == NEG_K )
+    {
+        if ( face2 == NEG_I ) return { 0, 3 };
+        if ( face2 == POS_I ) return { 2, 1 };
+        if ( face2 == NEG_J ) return { 1, 0 };
+        if ( face2 == POS_J ) return { 3, 2 };
+    }
+
+    if ( face1 == POS_K )
+    {
+        if ( face2 == NEG_I ) return { 7, 4 };
+        if ( face2 == POS_I ) return { 5, 6 };
+        if ( face2 == NEG_J ) return { 4, 5 };
+        if ( face2 == POS_J ) return { 6, 7 };
+    }
+
+    if ( face1 == NEG_J )
+    {
+        if ( face2 == NEG_I ) return { 4, 0 };
+        if ( face2 == POS_I ) return { 1, 5 };
+    }
+
+    if ( face1 == POS_J )
+    {
+        if ( face2 == NEG_I ) return { 3, 7 };
+        if ( face2 == POS_I ) return { 6, 2 };
+    }
+
+    return {};
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 StructGridInterface::FaceType StructGridInterface::oppositeFace( FaceType face )
 {
     FaceType opposite;
