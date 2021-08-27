@@ -23,6 +23,7 @@
 #include "RiaGuiApplication.h"
 #include "RiaLogging.h"
 
+#include "RiaStimPlanModelDefines.h"
 #include "WellLogCommands/RicNewWellLogPlotFeatureImpl.h"
 
 #include "RigWellPath.h"
@@ -81,8 +82,9 @@ RimStimPlanModelPlot* RicNewStimPlanModelPlotFeature::createPlot( RimStimPlanMod
     }
 
     {
-        auto task = progInfo.task( "Creating facies track", 2 );
-        createFaciesTrack( plot, stimPlanModel, eclipseCase );
+        auto            task              = progInfo.task( "Creating facies track", 2 );
+        RimEclipseCase* faciesEclipseCase = stimPlanModel->eclipseCaseForProperty( RiaDefines::CurveProperty::FACIES );
+        createFaciesTrack( plot, stimPlanModel, faciesEclipseCase );
     }
 
     {
