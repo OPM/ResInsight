@@ -75,7 +75,8 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RifSummaryDataReader-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigSlice2D-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigSurfaceResampler-Test.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RigSurfaceStatisticsCalculator-Test.cpp)
+    ${CMAKE_CURRENT_LIST_DIR}/RigSurfaceStatisticsCalculator-Test.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/StructGridInterface-Test.cpp)
 
 if(RESINSIGHT_ENABLE_GRPC)
   list(APPEND GPRC_UNIT_TEST_SOURCE_FILES
