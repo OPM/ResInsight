@@ -77,7 +77,7 @@ function (vcpkg_bootstrap)
     find_program(AUTO_VCPKG_EXECUTABLE
             vcpkg PATHS ${AUTO_VCPKG_ROOT})
     if (NOT AUTO_VCPKG_EXECUTABLE)
-        execute_process(COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_SOURCE_DIR}/vcpkg-bootstrap.cmake" "${AUTO_VCPKG_ROOT}")
+        execute_process(COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_SOURCE_DIR}/cmake/vcpkg-bootstrap.cmake" "${AUTO_VCPKG_ROOT}")
         execute_process(COMMAND ${CMAKE_COMMAND} -P "${AUTO_VCPKG_ROOT}/vcpkg-bootstrap.cmake"
                 WORKING_DIRECTORY ${AUTO_VCPKG_ROOT})
     endif ()
