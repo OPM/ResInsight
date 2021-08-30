@@ -158,11 +158,8 @@ void StructGridInterface::cellFaceVertexIndices( FaceType face, cvf::ubyte verte
 //--------------------------------------------------------------------------------------------------
 std::pair<ubyte, ubyte> StructGridInterface::edgeVertexIndices( FaceType face1, FaceType face2 )
 {
-    //
     // Return the two shared vertex indices between two faces
-    // Asserts if the two faces do not have any shared vertices
     // The ordering is identical to the ordering in StructGridInterface::cellFaceVertexIndices
-    //
 
     // Ensure face1 has the largest enum value
     if ( face2 > face1 ) std::swap( face1, face2 );

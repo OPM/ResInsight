@@ -65,6 +65,14 @@ private:
     // Extract 4 vertices per grid cell
     void extractGridDataUsingFourVerticesPerCell();
 
+    void addGeometryForFaultFaces( const RigMainGrid*                 grid,
+                                   size_t                             currentCellIndex,
+                                   cvf::StructGridInterface::FaceType extractionFace,
+                                   cvf::StructGridInterface::FaceType faultFace,
+                                   cvf::Vec3d*                        currentCornerVerts,
+                                   std::vector<cvf::Vec3d>&           vertices,
+                                   std::vector<unsigned>&             triangleIndices );
+
     // This method will populate m_structGridIndices used when exporting to PTL file format
     // Fault geometry will be smoothed using this method
     void extractStructuredSurfaceFromGridData();
