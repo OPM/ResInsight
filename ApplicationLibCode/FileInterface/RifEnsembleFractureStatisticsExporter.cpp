@@ -33,11 +33,12 @@
 //--------------------------------------------------------------------------------------------------
 bool RifEnsembleFractureStatisticsExporter::writeAsStimPlanXml( const std::vector<std::shared_ptr<RigSlice2D>>& statistics,
                                                                 const std::vector<std::pair<QString, QString>>& properties,
-                                                                const QString&                filePath,
-                                                                const std::vector<double>&    gridXs,
-                                                                const std::vector<double>&    gridYs,
-                                                                double                        time,
-                                                                RiaDefines::EclipseUnitSystem unitSystem )
+                                                                const QString&                             filePath,
+                                                                const std::vector<double>&                 gridXs,
+                                                                const std::vector<double>&                 gridYs,
+                                                                double                                     time,
+                                                                RiaDefines::EclipseUnitSystem              unitSystem,
+                                                                RigStimPlanFractureDefinition::Orientation orientation )
 {
     QFile data( filePath );
     if ( !data.open( QFile::WriteOnly | QFile::Truncate ) )
@@ -47,6 +48,7 @@ bool RifEnsembleFractureStatisticsExporter::writeAsStimPlanXml( const std::vecto
 
     QTextStream stream( &data );
     appendHeaderToStream( stream );
+    appendOrientationToStream( stream, orientation );
     appendGridDimensionsToStream( stream, gridXs, gridYs, unitSystem );
     appendPropertiesToStream( stream, statistics, properties, gridYs, time );
     appendFooterToStream( stream );
@@ -108,6 +110,19 @@ void RifEnsembleFractureStatisticsExporter::appendPropertiesToStream(
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RifEnsembleFractureStatisticsExporter::appendOrientationToStream( QTextStream& stream,
+                                                                       RigStimPlanFractureDefinition::Orientation orientation )
+{
+    if ( orientation != RigStimPlanFractureDefinition::Orientation::UNDEFINED )
+    {
+        QString orientationString = getStringForOrientation( orientation );
+        stream << QString( "<orientation>%1</orientation>" ).arg( orientationString ) << endl;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RifEnsembleFractureStatisticsExporter::appendGridDimensionsToStream( QTextStream&                  stream,
                                                                           const std::vector<double>&    gridXs,
                                                                           const std::vector<double>&    gridYs,
@@ -147,6 +162,19 @@ QString RifEnsembleFractureStatisticsExporter::getStringForUnitSystem( RiaDefine
         return "m";
     else if ( unitSystem == RiaDefines::EclipseUnitSystem::UNITS_FIELD )
         return "ft";
+    else
+        return "";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RifEnsembleFractureStatisticsExporter::getStringForOrientation( RigStimPlanFractureDefinition::Orientation orientation )
+{
+    if ( orientation == RigStimPlanFractureDefinition::Orientation::TRANSVERSE )
+        return "transverse";
+    else if ( orientation == RigStimPlanFractureDefinition::Orientation::LONGITUDINAL )
+        return "longitudinal";
     else
         return "";
 }
