@@ -300,7 +300,7 @@ void RimGridCaseSurface::extractGridDataUsingFourVerticesPerCell()
 
         size_t zeroBasedLayerIndex = static_cast<size_t>( m_oneBasedSliceIndex ) - 1;
 
-        cvf::StructGridInterface::FaceType faceType = cvf::StructGridInterface::NEG_K;
+        cvf::StructGridInterface::FaceType extractionFace = cvf::StructGridInterface::NEG_K;
 
         std::vector<unsigned>   triangleIndices;
         std::vector<cvf::Vec3d> vertices;
@@ -320,7 +320,7 @@ void RimGridCaseSurface::extractGridDataUsingFourVerticesPerCell()
                 {
                     cvf::ubyte currentFaceConn[4];
                     grid->cellCornerVertices( currentCellIndex, currentCornerVerts );
-                    grid->cellFaceVertexIndices( faceType, currentFaceConn );
+                    grid->cellFaceVertexIndices( extractionFace, currentFaceConn );
 
                     auto currentCellStartIndex = static_cast<unsigned>( vertices.size() );
 
@@ -340,77 +340,71 @@ void RimGridCaseSurface::extractGridDataUsingFourVerticesPerCell()
 
                 if ( m_watertight() )
                 {
-                    if ( grid->findFaultFromCellIndexAndCellFace( currentCellIndex, cvf::StructGridInterface::POS_I ) )
-                    {
-                        auto nextCell = grid->cell( currentCellIndex ).neighborCell( cvf::StructGridInterface::POS_I );
-                        if ( !nextCell.isInvalid() )
-                        {
-                            size_t     nextCellIndex = nextCell.mainGridCellIndex();
-                            cvf::Vec3d nextCellCornerVerts[8];
-                            grid->cellCornerVertices( nextCellIndex, nextCellCornerVerts );
+                    addGeometryForFaultFaces( grid,
+                                              currentCellIndex,
+                                              extractionFace,
+                                              cvf::StructGridInterface::POS_I,
+                                              currentCornerVerts,
+                                              vertices,
+                                              triangleIndices );
 
-                            auto startIndex = static_cast<unsigned>( vertices.size() );
-                            {
-                                auto edgeVertexIndices =
-                                    grid->edgeVertexIndices( faceType, cvf::StructGridInterface::POS_I );
-                                vertices.push_back( currentCornerVerts[edgeVertexIndices.first] );
-                                vertices.push_back( currentCornerVerts[edgeVertexIndices.second] );
-                            }
-                            {
-                                auto edgeVertexIndices =
-                                    grid->edgeVertexIndices( faceType, cvf::StructGridInterface::NEG_I );
-                                vertices.push_back( nextCellCornerVerts[edgeVertexIndices.first] );
-                                vertices.push_back( nextCellCornerVerts[edgeVertexIndices.second] );
-                            }
-
-                            triangleIndices.push_back( startIndex );
-                            triangleIndices.push_back( startIndex + 1 );
-                            triangleIndices.push_back( startIndex + 2 );
-
-                            triangleIndices.push_back( startIndex );
-                            triangleIndices.push_back( startIndex + 2 );
-                            triangleIndices.push_back( startIndex + 3 );
-                        }
-                    }
-
-                    if ( grid->findFaultFromCellIndexAndCellFace( currentCellIndex, cvf::StructGridInterface::POS_J ) )
-                    {
-                        auto nextCell = grid->cell( currentCellIndex ).neighborCell( cvf::StructGridInterface::POS_J );
-                        if ( !nextCell.isInvalid() )
-                        {
-                            size_t     nextCellIndex = nextCell.mainGridCellIndex();
-                            cvf::Vec3d nextCellCornerVerts[8];
-                            grid->cellCornerVertices( nextCellIndex, nextCellCornerVerts );
-
-                            auto startIndex = static_cast<unsigned>( vertices.size() );
-                            {
-                                auto edgeVertexIndices =
-                                    grid->edgeVertexIndices( faceType, cvf::StructGridInterface::POS_J );
-                                vertices.push_back( currentCornerVerts[edgeVertexIndices.first] );
-                                vertices.push_back( currentCornerVerts[edgeVertexIndices.second] );
-                            }
-                            {
-                                auto edgeVertexIndices =
-                                    grid->edgeVertexIndices( faceType, cvf::StructGridInterface::NEG_J );
-                                vertices.push_back( nextCellCornerVerts[edgeVertexIndices.first] );
-                                vertices.push_back( nextCellCornerVerts[edgeVertexIndices.second] );
-                            }
-
-                            triangleIndices.push_back( startIndex );
-                            triangleIndices.push_back( startIndex + 1 );
-                            triangleIndices.push_back( startIndex + 2 );
-
-                            triangleIndices.push_back( startIndex );
-                            triangleIndices.push_back( startIndex + 2 );
-                            triangleIndices.push_back( startIndex + 3 );
-                        }
-                    }
+                    addGeometryForFaultFaces( grid,
+                                              currentCellIndex,
+                                              extractionFace,
+                                              cvf::StructGridInterface::POS_J,
+                                              currentCornerVerts,
+                                              vertices,
+                                              triangleIndices );
                 }
             }
         }
 
         m_vertices        = vertices;
         m_triangleIndices = triangleIndices;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGridCaseSurface::addGeometryForFaultFaces( const RigMainGrid*                 grid,
+                                                   size_t                             currentCellIndex,
+                                                   cvf::StructGridInterface::FaceType extractionFace,
+                                                   cvf::StructGridInterface::FaceType faultFace,
+                                                   cvf::Vec3d*                        currentCornerVerts,
+                                                   std::vector<cvf::Vec3d>&           vertices,
+                                                   std::vector<unsigned>&             triangleIndices )
+{
+    if ( grid->findFaultFromCellIndexAndCellFace( currentCellIndex, faultFace ) )
+    {
+        auto nextCell = grid->cell( currentCellIndex ).neighborCell( faultFace );
+        if ( !nextCell.isInvalid() )
+        {
+            size_t     nextCellIndex = nextCell.mainGridCellIndex();
+            cvf::Vec3d nextCellCornerVerts[8];
+            grid->cellCornerVertices( nextCellIndex, nextCellCornerVerts );
+
+            auto startIndex = static_cast<unsigned>( vertices.size() );
+            {
+                auto edgeVertexIndices = grid->edgeVertexIndices( extractionFace, faultFace );
+                vertices.push_back( currentCornerVerts[edgeVertexIndices.first] );
+                vertices.push_back( currentCornerVerts[edgeVertexIndices.second] );
+            }
+            {
+                auto oppositeFaultFace = cvf::StructGridInterface::oppositeFace( faultFace );
+                auto edgeVertexIndices = grid->edgeVertexIndices( extractionFace, oppositeFaultFace );
+                vertices.push_back( nextCellCornerVerts[edgeVertexIndices.first] );
+                vertices.push_back( nextCellCornerVerts[edgeVertexIndices.second] );
+            }
+
+            triangleIndices.push_back( startIndex );
+            triangleIndices.push_back( startIndex + 1 );
+            triangleIndices.push_back( startIndex + 2 );
+
+            triangleIndices.push_back( startIndex );
+            triangleIndices.push_back( startIndex + 2 );
+            triangleIndices.push_back( startIndex + 3 );
+        }
     }
 }
 
