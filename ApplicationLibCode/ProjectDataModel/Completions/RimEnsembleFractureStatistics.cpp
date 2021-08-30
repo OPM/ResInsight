@@ -902,17 +902,6 @@ double RimEnsembleFractureStatistics::linearSampling( double               minVa
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimEnsembleFractureStatistics::isCoordinateInsideFractureCell( double x, double y, const RigFractureCell& cell )
-{
-    const cvf::Vec3d& minPoint = cell.getPolygon()[0];
-    const cvf::Vec3d& maxPoint = cell.getPolygon()[2];
-    // TODO: Investigate strange ordering for y coords.
-    return ( x > minPoint.x() && x <= maxPoint.x() && y <= minPoint.y() && y > maxPoint.y() );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 double RimEnsembleFractureStatistics::computeDepthOfWellPathAtFracture(
     cvf::ref<RigStimPlanFractureDefinition> stimPlanFractureDefinitionData )
 {
@@ -939,24 +928,24 @@ void RimEnsembleFractureStatistics::sampleAllGrids( const std::vector<cvf::cref<
                                                     const std::vector<double>&                     samplesY,
                                                     std::vector<std::vector<double>>&              samples )
 {
-    for ( size_t y = 0; y < samplesY.size(); y++ )
+    const int ny = samplesY.size();
+#pragma omp parallel for
+    for ( int y = 0; y < ny; y++ )
     {
         for ( size_t x = 0; x < samplesX.size(); x++ )
         {
-            double posX = samplesX[x];
-            double posY = samplesY[y];
+            double     posX = samplesX[x];
+            double     posY = samplesY[y];
+            cvf::Vec3d pos( posX, posY, 0.0 );
 
             for ( auto fractureGrid : fractureGrids )
             {
-                for ( auto fractureCell : fractureGrid->fractureCells() )
+                const RigFractureCell* fractureCell = fractureGrid->getCellFromPosition( pos );
+                if ( fractureCell )
                 {
-                    if ( isCoordinateInsideFractureCell( posX, posY, fractureCell ) )
-                    {
-                        size_t idx   = y * samplesX.size() + x;
-                        double value = fractureCell.getConductivityValue();
-                        if ( !std::isinf( value ) ) samples[idx].push_back( value );
-                        break;
-                    }
+                    size_t idx   = y * samplesX.size() + x;
+                    double value = fractureCell->getConductivityValue();
+                    if ( !std::isinf( value ) ) samples[idx].push_back( value );
                 }
             }
         }
@@ -1032,7 +1021,9 @@ void RimEnsembleFractureStatistics::generateStatisticsGrids(
 
     RigSlice2D occurrenceGrid( numSamplesX, numSamplesY );
 
-    for ( size_t y = 0; y < numSamplesY; y++ )
+    const int ny = static_cast<int>( numSamplesY );
+#pragma omp parallel for
+    for ( int y = 0; y < ny; y++ )
     {
         for ( size_t x = 0; x < numSamplesX; x++ )
         {
