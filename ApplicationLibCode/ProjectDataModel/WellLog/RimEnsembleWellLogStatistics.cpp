@@ -255,12 +255,11 @@ void RimEnsembleWellLogStatistics::calculateByKLayer( const std::vector<RimWellL
 std::shared_ptr<RigWellLogIndexDepthOffset>
     RimEnsembleWellLogStatistics::calculateIndexDepthOffset( const std::vector<RimWellLogFile*>& wellLogFiles )
 {
-    int                 hack = 1000;
-    std::vector<double> sumTopDepths( hack, 0.0 );
-    std::vector<int>    numTopDepths( hack, 0 );
+    std::map<int, double> sumTopDepths;
+    std::map<int, int>    numTopDepths;
 
-    std::vector<double> sumBottomDepths( hack, 0.0 );
-    std::vector<int>    numBottomDepths( hack, 0 );
+    std::map<int, double> sumBottomDepths;
+    std::map<int, int>    numBottomDepths;
 
     int minLayerK = std::numeric_limits<int>::max();
     int maxLayerK = -std::numeric_limits<int>::max();
