@@ -25,6 +25,7 @@
 #include "Rim2dIntersectionView.h"
 #include "Rim3dView.h"
 #include "RimCase.h"
+#include "RimCurveIntersectionBand.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
 #include "RimEnsembleSurface.h"
@@ -49,6 +50,8 @@
 #include "cafPdmUiListEditor.h"
 #include "cafPdmUiPushButtonEditor.h"
 
+#include "cafCmdFeatureMenuBuilder.h"
+#include "cafPdmUiTableViewEditor.h"
 #include "cafPdmUiTreeSelectionEditor.h"
 #include "cvfBoundingBox.h"
 #include "cvfGeometryTools.h"
@@ -238,6 +241,12 @@ RimExtrudedCurveIntersection::RimExtrudedCurveIntersection()
 
     CAF_PDM_InitFieldNoDefault( &m_annotationSurfaces, "annotationSurfaces", "", "", "", "" );
     m_annotationSurfaces.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
+
+    CAF_PDM_InitFieldNoDefault( &m_annotationBands, "AnnotationBands", "", "", "", "" );
+    m_annotationBands.uiCapability()->setUiEditorTypeName( caf::PdmUiTableViewEditor::uiEditorTypeName() );
+    // m_annotationBands.uiCapability()->setUiTreeChildrenHidden(true);
+    m_annotationBands.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
+    m_annotationBands.uiCapability()->setCustomContextMenuEnabled( true );
 
     uiCapability()->setUiTreeChildrenHidden( true );
 
@@ -429,6 +438,7 @@ void RimExtrudedCurveIntersection::defineUiOrdering( QString uiConfigName, caf::
 
     caf::PdmUiGroup* surfaceGroup = uiOrdering.addNewGroup( "Surfaces" );
     surfaceGroup->add( &m_annotationSurfaces );
+    surfaceGroup->add( &m_annotationBands );
 
     this->defineSeparateDataSourceUi( uiConfigName, uiOrdering );
 
@@ -508,6 +518,21 @@ QList<caf::PdmOptionItemInfo>
     }
 
     return options;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimExtrudedCurveIntersection::defineCustomContextMenu( const caf::PdmFieldHandle* fieldNeedingMenu,
+                                                            QMenu*                     menu,
+                                                            QWidget*                   fieldEditorWidget )
+{
+    caf::CmdFeatureMenuBuilder menuBuilder;
+
+    menuBuilder << "RicNewIntersectionBandFeature";
+    menuBuilder << "RicDeleteIntersectionBandFeature";
+
+    menuBuilder.appendToMenu( menu );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1045,6 +1070,26 @@ bool RimExtrudedCurveIntersection::hasDefiningPoints() const
 std::vector<RimSurface*> RimExtrudedCurveIntersection::annotatedSurfaces() const
 {
     return m_annotationSurfaces.ptrReferencedObjects();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimCurveIntersectionBand* RimExtrudedCurveIntersection::appendNewIntersectionBand()
+{
+    auto intersectionBand = new RimCurveIntersectionBand();
+    m_annotationBands.push_back( intersectionBand );
+
+    return intersectionBand;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimExtrudedCurveIntersection::deleteIntersectionBand( RimCurveIntersectionBand* intersectionBand )
+{
+    m_annotationBands.removeChildObject( intersectionBand );
+    delete intersectionBand;
 }
 
 //--------------------------------------------------------------------------------------------------

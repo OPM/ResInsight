@@ -118,7 +118,8 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimPolylinesDataInterface.h
     ${CMAKE_CURRENT_LIST_DIR}/RimEnsembleCurveSetInterface.h
     ${CMAKE_CURRENT_LIST_DIR}/cafTreeNode.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimMultipleLocations.h)
+    ${CMAKE_CURRENT_LIST_DIR}/RimMultipleLocations.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimCurveIntersectionBand.h)
 
 set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimEclipseCaseCollection.cpp
@@ -235,7 +236,9 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimEquilibriumAxisAnnotation.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimTimeAxisAnnotation.cpp
     ${CMAKE_CURRENT_LIST_DIR}/cafTreeNode.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RimMultipleLocations.cpp)
+    ${CMAKE_CURRENT_LIST_DIR}/RimMultipleLocations.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimCurveIntersectionBand.cpp)
+
 
 if(Qt5Charts_FOUND)
   list(

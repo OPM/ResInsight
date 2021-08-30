@@ -19,55 +19,37 @@
 
 #pragma once
 
-#include "RimIntersection.h"
+#include "cafPdmField.h"
+#include "cafPdmObject.h"
+#include "cafPdmPtrField.h"
 
-#include "cafPdmChildArrayField.h"
-#include "cafPdmPtrArrayField.h"
-
-class RimWellPath;
-class RivExtrudedCurveIntersectionPartMgr;
-class RimIntersectionResultDefinition;
-class RimSimWellInView;
-class RimSimWellInViewCollection;
-class Rim2dIntersectionView;
 class RimSurface;
-class RimCurveIntersectionBand;
-
-namespace caf
-{
-class PdmUiListEditorAttribute;
-class PdmUiPushButtonEditorAttribute;
-} // namespace caf
 
 //==================================================================================================
 //
 //
 //
 //==================================================================================================
-class RimExtrudedCurveIntersection : public RimIntersection
+class RimCurveIntersectionBand : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    enum class CrossSectionEnum
-    {
-        CS_WELL_PATH,
-        CS_SIMULATION_WELL,
-        CS_POLYLINE,
-        CS_AZIMUTHLINE
-    };
+    RimCurveIntersectionBand();
 
-    enum class CrossSectionDirEnum
-    {
-        CS_VERTICAL,
-        CS_HORIZONTAL,
-        CS_TWO_POINTS,
-    };
+protected:
+    void                          fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+    void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
+                                                         bool*                      useOptionsOnly ) override;
 
-public:
-    RimExtrudedCurveIntersection();
-    ~RimExtrudedCurveIntersection() override;
+private:
+    caf::PdmPtrField<RimSurface*> m_surface1;
+    caf::PdmPtrField<RimSurface*> m_surface2;
+    caf::PdmField<double>         m_transparency;
+};
 
+/*
     QString name() const override;
     void    setName( const QString& newName );
 
@@ -109,23 +91,17 @@ public:
 
     std::vector<RimSurface*> annotatedSurfaces() const;
 
-    RimCurveIntersectionBand* appendNewIntersectionBand();
-    void                      deleteIntersectionBand( RimCurveIntersectionBand* intersectionBand );
-
     int  branchIndex() const;
     void rebuildGeometryAndScheduleCreateDisplayModel();
 
 protected:
     caf::PdmFieldHandle*          userDescriptionField() final;
-    void                          fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
-    void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
-    void                          defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                                         QString                    uiConfigName,
-                                                         caf::PdmUiEditorAttribute* attribute ) override;
-    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                         bool*                      useOptionsOnly ) override;
-
-    void defineCustomContextMenu( const caf::PdmFieldHandle* fieldNeedingMenu, QMenu* menu, QWidget* fieldEditorWidget ) override;
+    void                          fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant&
+oldValue, const QVariant& newValue ) override; void                          defineUiOrdering( QString uiConfigName,
+caf::PdmUiOrdering& uiOrdering ) override; void                          defineEditorAttribute( const
+caf::PdmFieldHandle* field, QString                    uiConfigName, caf::PdmUiEditorAttribute* attribute )
+override; QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions, bool*
+useOptionsOnly ) override;
 
 private:
     static void setPushButtonText( bool buttonEnable, caf::PdmUiPushButtonEditorAttribute* attribute );
@@ -163,10 +139,10 @@ private:
     caf::PdmField<std::vector<cvf::Vec3d>> m_twoAzimuthPoints;
 
     // Surface intersection annotations
-    caf::PdmPtrArrayField<RimSurface*>                 m_annotationSurfaces;
-    caf::PdmChildArrayField<RimCurveIntersectionBand*> m_annotationBands;
+    caf::PdmPtrArrayField<RimSurface*> m_annotationSurfaces;
 
     cvf::ref<RivExtrudedCurveIntersectionPartMgr> m_crossSectionPartMgr;
 
     mutable std::vector<std::vector<cvf::Vec3d>> m_simulationWellBranchCenterlines;
 };
+*/
