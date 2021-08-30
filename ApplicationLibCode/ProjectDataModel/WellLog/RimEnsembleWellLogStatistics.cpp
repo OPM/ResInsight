@@ -21,11 +21,13 @@
 #include "RiaCurveMerger.h"
 #include "RiaDefines.h"
 #include "RiaLogging.h"
+#include "RiaResultNames.h"
 #include "RiaWeightedMeanCalculator.h"
 #include "RiaWellLogUnitTools.h"
 
 #include "RigStatisticsMath.h"
 #include "RigWellLogFile.h"
+#include "RigWellLogIndexDepthOffset.h"
 
 #include "RimWellLogFile.h"
 
@@ -43,12 +45,39 @@ void caf::AppEnum<RimEnsembleWellLogStatistics::StatisticsType>::setUp()
 
     setDefault( RimEnsembleWellLogStatistics::StatisticsType::MEAN );
 }
+
+template <>
+void caf::AppEnum<RimEnsembleWellLogStatistics::DepthEqualization>::setUp()
+{
+    addItem( RimEnsembleWellLogStatistics::DepthEqualization::K_LAYER, "K_LAYER", "By K-Layer" );
+    addItem( RimEnsembleWellLogStatistics::DepthEqualization::NONE, "NONE", "None" );
+
+    setDefault( RimEnsembleWellLogStatistics::DepthEqualization::NONE );
+}
+
 }; // namespace caf
 
 RimEnsembleWellLogStatistics::RimEnsembleWellLogStatistics()
 {
     m_depthUnit            = RiaDefines::DepthUnitType::UNIT_NONE;
     m_logChannelUnitString = RiaWellLogUnitTools<double>::noUnitString();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEnsembleWellLogStatistics::calculate( const std::vector<RimWellLogFile*>& wellLogFiles,
+                                              const QString&                      wellLogChannelName,
+                                              DepthEqualization                   depthEqualization )
+{
+    if ( depthEqualization == DepthEqualization::NONE )
+    {
+        calculate( wellLogFiles, wellLogChannelName );
+    }
+    else if ( depthEqualization == DepthEqualization::K_LAYER )
+    {
+        calculateByKLayer( wellLogFiles, wellLogChannelName );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -125,6 +154,196 @@ void RimEnsembleWellLogStatistics::calculate( const std::vector<RimWellLogFile*>
             m_meanData.push_back( mean );
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEnsembleWellLogStatistics::calculateByKLayer( const std::vector<RimWellLogFile*>& wellLogFiles,
+                                                      const QString&                      wellLogChannelName )
+{
+    cvf::ref<RigWellLogIndexDepthOffset> offsets = RimEnsembleWellLogStatistics::calculateIndexDepthOffset( wellLogFiles );
+
+    std::map<int, std::vector<double>> topValues;
+    std::map<int, std::vector<double>> bottomValues;
+
+    for ( RimWellLogFile* wellLogFile : wellLogFiles )
+    {
+        QString errorMessage;
+        if ( wellLogFile->readFile( &errorMessage ) )
+        {
+            RigWellLogFile* fileData = wellLogFile->wellLogFileData();
+
+            std::vector<double> kIndexValues = fileData->values( RiaResultNames::indexKResultName() );
+            std::vector<double> values       = fileData->values( wellLogChannelName );
+
+            CAF_ASSERT( values.size() == kIndexValues.size() );
+
+            std::set<int> seenTopIndexes;
+            std::set<int> seenBottomIndexes;
+
+            for ( size_t i = 0; i < values.size(); i++ )
+            {
+                int kLayer = static_cast<int>( kIndexValues[i] );
+                if ( seenTopIndexes.count( kLayer ) == 0 )
+                {
+                    seenTopIndexes.insert( kLayer );
+                    topValues[kLayer].push_back( values[i] );
+                }
+            }
+
+            for ( int i = static_cast<int>( values.size() ) - 1; i >= 0; i-- )
+            {
+                int kLayer = static_cast<int>( kIndexValues[i] );
+                if ( seenBottomIndexes.count( kLayer ) == 0 )
+                {
+                    seenBottomIndexes.insert( kLayer );
+                    bottomValues[kLayer].push_back( values[i] );
+                }
+            }
+        }
+    }
+
+    clearData();
+
+    std::vector<int> kIndexes = offsets->sortedIndexes();
+    for ( auto kIndex : kIndexes )
+    {
+        double topMean    = -1.0;
+        double bottomMean = -2.3;
+        // Top first
+        {
+            std::vector<double> valuesAtDepth = topValues[kIndex];
+            double              p10, p50, p90, mean;
+            RigStatisticsMath::calculateStatisticsCurves( valuesAtDepth, &p10, &p50, &p90, &mean );
+            m_measuredDepths.push_back( offsets->getTopDepth( kIndex ) );
+            m_p10Data.push_back( p10 );
+            m_p50Data.push_back( p50 );
+            m_p90Data.push_back( p90 );
+            m_meanData.push_back( mean );
+
+            topMean = mean;
+        }
+
+        // Then bottom of k-layer
+        {
+            std::vector<double> valuesAtDepth = bottomValues[kIndex];
+            double              p10, p50, p90, mean;
+            RigStatisticsMath::calculateStatisticsCurves( valuesAtDepth, &p10, &p50, &p90, &mean );
+            m_measuredDepths.push_back( offsets->getBottomDepth( kIndex ) );
+            m_p10Data.push_back( p10 );
+            m_p50Data.push_back( p50 );
+            m_p90Data.push_back( p90 );
+            m_meanData.push_back( mean );
+
+            bottomMean = mean;
+        }
+
+        RiaLogging::debug( QString( "[%1] top: %2 bttom: %3 %4 %5" )
+                               .arg( kIndex )
+                               .arg( offsets->getTopDepth( kIndex ) )
+                               .arg( offsets->getBottomDepth( kIndex ) )
+                               .arg( topMean )
+                               .arg( bottomMean ) );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+cvf::ref<RigWellLogIndexDepthOffset>
+    RimEnsembleWellLogStatistics::calculateIndexDepthOffset( const std::vector<RimWellLogFile*>& wellLogFiles )
+{
+    int                 hack = 1000;
+    std::vector<double> sumTopDepths( hack, 0.0 );
+    std::vector<int>    numTopDepths( hack, 0 );
+
+    std::vector<double> sumBottomDepths( hack, 0.0 );
+    std::vector<int>    numBottomDepths( hack, 0 );
+
+    int minLayerK = std::numeric_limits<int>::max();
+    int maxLayerK = -std::numeric_limits<int>::max();
+
+    std::vector<std::vector<double>> topValues;
+
+    for ( RimWellLogFile* wellLogFile : wellLogFiles )
+    {
+        QString errorMessage;
+        if ( wellLogFile->readFile( &errorMessage ) )
+        {
+            RigWellLogFile* fileData = wellLogFile->wellLogFileData();
+
+            std::vector<double> depths       = fileData->depthValues();
+            std::vector<double> kIndexValues = fileData->values( RiaResultNames::indexKResultName() );
+
+            std::set<int> seenTopIndexes;
+            std::set<int> seenBottomIndexes;
+            if ( !depths.empty() && !kIndexValues.empty() )
+            {
+                // Find top indexes
+                for ( size_t i = 0; i < kIndexValues.size(); i++ )
+                {
+                    int kLayer = static_cast<int>( kIndexValues[i] );
+                    if ( seenTopIndexes.count( kLayer ) == 0 )
+                    {
+                        // Only use the first value encountered per index per file.
+                        // This is depth of the top of the index since the file is
+                        // sorted by increasing depth.
+                        seenTopIndexes.insert( kLayer );
+                        sumTopDepths[kLayer] += depths[i];
+                        numTopDepths[kLayer] += 1;
+                        minLayerK = std::min( minLayerK, kLayer );
+                        maxLayerK = std::max( maxLayerK, kLayer );
+                    }
+                }
+
+                // Find bottom indexes
+                for ( int i = static_cast<int>( kIndexValues.size() ) - 1; i >= 0; i-- )
+                {
+                    int kLayer = static_cast<int>( kIndexValues[i] );
+                    if ( seenBottomIndexes.count( kLayer ) == 0 )
+                    {
+                        // Only use the last value encountered per index per file.
+                        // This is depth of the bottom of the index since the file is
+                        // sorted by increasing depth.
+                        seenBottomIndexes.insert( kLayer );
+                        sumBottomDepths[kLayer] += depths[i];
+                        numBottomDepths[kLayer] += 1;
+                    }
+                }
+            }
+        }
+        else
+        {
+            RiaLogging::error( errorMessage );
+        }
+    }
+
+    if ( minLayerK > maxLayerK )
+    {
+        RiaLogging::error(
+            QString( "Invalid K layers found. Minimum: %1 > Maximum : %2" ).arg( minLayerK ).arg( maxLayerK ) );
+        return nullptr;
+    }
+
+    cvf::ref<RigWellLogIndexDepthOffset> offset = cvf::make_ref<RigWellLogIndexDepthOffset>();
+    for ( int kLayer = minLayerK; kLayer <= maxLayerK; kLayer++ )
+    {
+        if ( numTopDepths[kLayer] > 0 && numBottomDepths[kLayer] > 0 )
+        {
+            double topDepth    = sumTopDepths[kLayer] / numTopDepths[kLayer];
+            double bottomDepth = sumBottomDepths[kLayer] / numBottomDepths[kLayer];
+            RiaLogging::debug( QString( "K: %1 mean depth range: %2 - %3 Samples: %4 - %5" )
+                                   .arg( kLayer )
+                                   .arg( topDepth )
+                                   .arg( bottomDepth )
+                                   .arg( numTopDepths[kLayer] )
+                                   .arg( numBottomDepths[kLayer] ) );
+            offset->setIndexOffsetDepth( kLayer, topDepth, bottomDepth );
+        }
+    }
+
+    return offset;
 }
 
 //--------------------------------------------------------------------------------------------------

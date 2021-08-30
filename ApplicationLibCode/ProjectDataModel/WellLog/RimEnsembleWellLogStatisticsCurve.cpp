@@ -128,7 +128,8 @@ void RimEnsembleWellLogStatisticsCurve::performDataExtraction( bool* isUsingPseu
         bool performDataSmoothing = false;
         if ( !values.empty() && !measuredDepthValues.empty() && measuredDepthValues.size() == values.size() )
         {
-            addDatapointsForBottomOfSegment( measuredDepthValues, values );
+            if ( m_ensembleWellLogCurveSet->depthEqualization() == RimEnsembleWellLogStatistics::DepthEqualization::NONE )
+                addDatapointsForBottomOfSegment( measuredDepthValues, values );
 
             this->setValuesAndDepths( values,
                                       measuredDepthValues,

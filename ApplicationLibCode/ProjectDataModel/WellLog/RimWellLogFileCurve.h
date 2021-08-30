@@ -29,6 +29,7 @@
 class RimWellPath;
 class RimWellLogFileChannel;
 class RimWellLogFile;
+class RigWellLogIndexDepthOffset;
 
 //==================================================================================================
 ///
@@ -46,6 +47,7 @@ public:
     RimWellPath* wellPath() const;
     void         setWellLogChannelName( const QString& name );
     void         setWellLogFile( RimWellLogFile* wellLogFile );
+    void         setIndexDepthOffsets( cvf::ref<RigWellLogIndexDepthOffset> depthOffsets );
 
     // Overrides from RimWellLogPlotCurve
     QString wellName() const override;
@@ -69,9 +71,16 @@ protected:
 
     bool isRftPlotChild() const;
 
+    std::pair<std::vector<double>, std::vector<double>>
+        adjustByIndexDepthOffsets( const std::vector<double>& measuredDepthValues,
+                                   const std::vector<double>& values,
+                                   const std::vector<double>& kIndexValues ) const;
+
 protected:
     caf::PdmPtrField<RimWellPath*>    m_wellPath;
     caf::PdmPtrField<RimWellLogFile*> m_wellLogFile;
     caf::PdmField<QString>            m_wellLogChannelName;
     caf::PdmField<QString>            m_wellLogChannnelUnit;
+
+    cvf::ref<RigWellLogIndexDepthOffset> m_indexDepthOffsets;
 };
