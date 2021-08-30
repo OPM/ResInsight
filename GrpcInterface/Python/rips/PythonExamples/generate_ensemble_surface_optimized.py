@@ -12,12 +12,12 @@ home_dir = expanduser("~")
 
 export_folder = tempfile.mkdtemp()
 
-directory_path = "resprojects/webviz-subsurface-testdata/reek_history_match/"
-# directory_path = "e:/gitroot/webviz-subsurface-testdata/reek_history_match"
+#directory_path = "resprojects/webviz-subsurface-testdata/reek_history_match/"
+directory_path = "e:/gitroot/webviz-subsurface-testdata/reek_history_match"
 
 
 case_file_paths = []
-num_realizations = 9
+num_realizations = 10
 num_iterations = 4
 
 
