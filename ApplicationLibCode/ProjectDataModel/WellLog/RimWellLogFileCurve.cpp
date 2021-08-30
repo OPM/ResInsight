@@ -96,7 +96,7 @@ void RimWellLogFileCurve::onLoadDataAndUpdate( bool updateParentPlot )
 
                 bool rkbDiff = m_wellPath->wellPathGeometry() ? m_wellPath->wellPathGeometry()->rkbDiff() : 0.0;
 
-                if ( !m_indexDepthOffsets.isNull() )
+                if ( m_indexDepthOffsets )
                 {
                     // Adjust depths by reassigning depths for top and bottom of layer for each K layer
                     std::vector<double> kIndexValues = wellLogFile->values( RiaResultNames::indexKResultName() );
@@ -289,7 +289,7 @@ void RimWellLogFileCurve::setWellLogFile( RimWellLogFile* wellLogFile )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellLogFileCurve::setIndexDepthOffsets( cvf::ref<RigWellLogIndexDepthOffset> depthOffsets )
+void RimWellLogFileCurve::setIndexDepthOffsets( std::shared_ptr<RigWellLogIndexDepthOffset> depthOffsets )
 {
     m_indexDepthOffsets = depthOffsets;
 }

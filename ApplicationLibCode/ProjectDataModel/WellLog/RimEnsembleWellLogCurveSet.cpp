@@ -745,7 +745,7 @@ void RimEnsembleWellLogCurveSet::updateEnsembleCurves( const std::vector<RimWell
 
     if ( m_statistics->hideEnsembleCurves() ) return;
 
-    cvf::ref<RigWellLogIndexDepthOffset> offsets;
+    std::shared_ptr<RigWellLogIndexDepthOffset> offsets;
     if ( m_depthEqualization() == RimEnsembleWellLogStatistics::DepthEqualization::K_LAYER )
     {
         offsets = RimEnsembleWellLogStatistics::calculateIndexDepthOffset( sumCases );
@@ -788,7 +788,7 @@ void RimEnsembleWellLogCurveSet::updateEnsembleCurves( const std::vector<RimWell
                 curve->setWellLogChannelName( wellLogChannelName );
                 curve->setWellLogFile( wellLogFile );
 
-                if ( !offsets.isNull() ) curve->setIndexDepthOffsets( offsets );
+                if ( offsets ) curve->setIndexDepthOffsets( offsets );
                 curve->loadDataAndUpdate( true );
 
                 curve->updateCurveVisibility();

@@ -162,7 +162,8 @@ void RimEnsembleWellLogStatistics::calculate( const std::vector<RimWellLogFile*>
 void RimEnsembleWellLogStatistics::calculateByKLayer( const std::vector<RimWellLogFile*>& wellLogFiles,
                                                       const QString&                      wellLogChannelName )
 {
-    cvf::ref<RigWellLogIndexDepthOffset> offsets = RimEnsembleWellLogStatistics::calculateIndexDepthOffset( wellLogFiles );
+    std::shared_ptr<RigWellLogIndexDepthOffset> offsets =
+        RimEnsembleWellLogStatistics::calculateIndexDepthOffset( wellLogFiles );
 
     std::map<int, std::vector<double>> topValues;
     std::map<int, std::vector<double>> bottomValues;
@@ -251,15 +252,14 @@ void RimEnsembleWellLogStatistics::calculateByKLayer( const std::vector<RimWellL
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::ref<RigWellLogIndexDepthOffset>
+std::shared_ptr<RigWellLogIndexDepthOffset>
     RimEnsembleWellLogStatistics::calculateIndexDepthOffset( const std::vector<RimWellLogFile*>& wellLogFiles )
 {
-    int                 hack = 1000;
-    std::vector<double> sumTopDepths( hack, 0.0 );
-    std::vector<int>    numTopDepths( hack, 0 );
+    std::map<int, double> sumTopDepths;
+    std::map<int, int>    numTopDepths;
 
-    std::vector<double> sumBottomDepths( hack, 0.0 );
-    std::vector<int>    numBottomDepths( hack, 0 );
+    std::map<int, double> sumBottomDepths;
+    std::map<int, int>    numBottomDepths;
 
     int minLayerK = std::numeric_limits<int>::max();
     int maxLayerK = -std::numeric_limits<int>::max();
@@ -326,7 +326,7 @@ cvf::ref<RigWellLogIndexDepthOffset>
         return nullptr;
     }
 
-    cvf::ref<RigWellLogIndexDepthOffset> offset = cvf::make_ref<RigWellLogIndexDepthOffset>();
+    std::shared_ptr<RigWellLogIndexDepthOffset> offset = std::make_shared<RigWellLogIndexDepthOffset>();
     for ( int kLayer = minLayerK; kLayer <= maxLayerK; kLayer++ )
     {
         if ( numTopDepths[kLayer] > 0 && numBottomDepths[kLayer] > 0 )
