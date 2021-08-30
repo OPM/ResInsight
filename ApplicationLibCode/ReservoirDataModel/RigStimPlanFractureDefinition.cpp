@@ -487,6 +487,7 @@ cvf::cref<RigFractureGrid>
     fractureGrid->setWellCenterFractureCellIJ( wellCenterStimPlanCellIJ );
     fractureGrid->setICellCount( this->m_Xs.size() - 2 );
     fractureGrid->setJCellCount( this->m_Ys.size() - 2 );
+    fractureGrid->ensureCellSearchTreeIsBuilt();
 
     return cvf::cref<RigFractureGrid>( fractureGrid.p() );
 }
