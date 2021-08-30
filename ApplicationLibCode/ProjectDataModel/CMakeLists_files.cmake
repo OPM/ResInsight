@@ -239,7 +239,6 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimMultipleLocations.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimCurveIntersectionBand.cpp)
 
-
 if(Qt5Charts_FOUND)
   list(
     APPEND
