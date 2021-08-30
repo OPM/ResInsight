@@ -47,7 +47,7 @@ public:
     RimWellPath* wellPath() const;
     void         setWellLogChannelName( const QString& name );
     void         setWellLogFile( RimWellLogFile* wellLogFile );
-    void         setIndexDepthOffsets( cvf::ref<RigWellLogIndexDepthOffset> depthOffsets );
+    void         setIndexDepthOffsets( std::shared_ptr<RigWellLogIndexDepthOffset> depthOffsets );
 
     // Overrides from RimWellLogPlotCurve
     QString wellName() const override;
@@ -82,5 +82,5 @@ protected:
     caf::PdmField<QString>            m_wellLogChannelName;
     caf::PdmField<QString>            m_wellLogChannnelUnit;
 
-    cvf::ref<RigWellLogIndexDepthOffset> m_indexDepthOffsets;
+    std::shared_ptr<RigWellLogIndexDepthOffset> m_indexDepthOffsets;
 };

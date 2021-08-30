@@ -20,8 +20,7 @@
 
 #include "RiaDefines.h"
 
-#include <cvfObject.h>
-
+#include <memory>
 #include <vector>
 
 class QString;
@@ -70,7 +69,7 @@ public:
                     const QString&                      wellLogChannelName,
                     DepthEqualization                   depthEqualization );
 
-    static cvf::ref<RigWellLogIndexDepthOffset>
+    static std::shared_ptr<RigWellLogIndexDepthOffset>
         calculateIndexDepthOffset( const std::vector<RimWellLogFile*>& wellLogFiles );
 
 private:

@@ -162,7 +162,8 @@ void RimEnsembleWellLogStatistics::calculate( const std::vector<RimWellLogFile*>
 void RimEnsembleWellLogStatistics::calculateByKLayer( const std::vector<RimWellLogFile*>& wellLogFiles,
                                                       const QString&                      wellLogChannelName )
 {
-    cvf::ref<RigWellLogIndexDepthOffset> offsets = RimEnsembleWellLogStatistics::calculateIndexDepthOffset( wellLogFiles );
+    std::shared_ptr<RigWellLogIndexDepthOffset> offsets =
+        RimEnsembleWellLogStatistics::calculateIndexDepthOffset( wellLogFiles );
 
     std::map<int, std::vector<double>> topValues;
     std::map<int, std::vector<double>> bottomValues;
@@ -251,7 +252,7 @@ void RimEnsembleWellLogStatistics::calculateByKLayer( const std::vector<RimWellL
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::ref<RigWellLogIndexDepthOffset>
+std::shared_ptr<RigWellLogIndexDepthOffset>
     RimEnsembleWellLogStatistics::calculateIndexDepthOffset( const std::vector<RimWellLogFile*>& wellLogFiles )
 {
     int                 hack = 1000;
@@ -326,7 +327,7 @@ cvf::ref<RigWellLogIndexDepthOffset>
         return nullptr;
     }
 
-    cvf::ref<RigWellLogIndexDepthOffset> offset = cvf::make_ref<RigWellLogIndexDepthOffset>();
+    std::shared_ptr<RigWellLogIndexDepthOffset> offset = std::make_shared<RigWellLogIndexDepthOffset>();
     for ( int kLayer = minLayerK; kLayer <= maxLayerK; kLayer++ )
     {
         if ( numTopDepths[kLayer] > 0 && numBottomDepths[kLayer] > 0 )
