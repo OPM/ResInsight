@@ -20,7 +20,8 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicWellPathFractureTextReportFeatureImpl.h
     ${CMAKE_CURRENT_LIST_DIR}/RicWellPathFractureReportItem.h
     ${CMAKE_CURRENT_LIST_DIR}/RicExportCompletionsForTemporaryLgrsFeature.h
-    ${CMAKE_CURRENT_LIST_DIR}/RicMswTableFormatterTools.h)
+    ${CMAKE_CURRENT_LIST_DIR}/RicMswTableFormatterTools.h
+)
 
 set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicExportCompletionDataSettingsUi.cpp
@@ -44,7 +45,8 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicWellPathFractureTextReportFeatureImpl.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicWellPathFractureReportItem.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicExportCompletionsForTemporaryLgrsFeature.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RicMswTableFormatterTools.cpp)
+    ${CMAKE_CURRENT_LIST_DIR}/RicMswTableFormatterTools.cpp
+)
 
 list(APPEND COMMAND_CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})
 
@@ -53,4 +55,5 @@ list(APPEND COMMAND_CODE_SOURCE_FILES ${SOURCE_GROUP_SOURCE_FILES})
 source_group(
   "CommandFeature\\CompletionExport"
   FILES ${SOURCE_GROUP_HEADER_FILES} ${SOURCE_GROUP_SOURCE_FILES}
-        ${CMAKE_CURRENT_LIST_DIR}/CMakeLists_files.cmake)
+        ${CMAKE_CURRENT_LIST_DIR}/CMakeLists_files.cmake
+)

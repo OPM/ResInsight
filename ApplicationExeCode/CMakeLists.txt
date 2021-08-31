@@ -14,7 +14,8 @@ endif()
 
 if(CMAKE_COMPILER_IS_GNUCXX)
   set(CMAKE_CXX_FLAGS
-      "${CMAKE_CXX_FLAGS} -Wno-deprecated -Wno-deprecated-declarations")
+      "${CMAKE_CXX_FLAGS} -Wno-deprecated -Wno-deprecated-declarations"
+  )
 endif()
 
 # Open GL
@@ -23,7 +24,8 @@ find_package(OpenGL)
 find_package(
   Qt5
   COMPONENTS Core
-  QUIET)
+  QUIET
+)
 
 if(Qt5Core_FOUND)
   find_package(
@@ -38,7 +40,8 @@ if(Qt5Core_FOUND)
                Concurrent
                PrintSupport
                Svg
-    OPTIONAL_COMPONENTS Charts)
+    OPTIONAL_COMPONENTS Charts
+  )
   set(QT_LIBRARIES
       Qt5::Core
       Qt5::Gui
@@ -49,7 +52,8 @@ if(Qt5Core_FOUND)
       Qt5::Xml
       Qt5::Concurrent
       Qt5::PrintSupport
-      Qt5::Svg)
+      Qt5::Svg
+  )
   if(Qt5Charts_FOUND)
     list(APPEND QT_LIBRARIES Qt5::Charts)
   endif(Qt5Charts_FOUND)
@@ -70,12 +74,15 @@ set(CODE_SOURCE_FILES RiaMain.cpp)
 
 if(RESINSIGHT_ENABLE_GRPC)
   list(APPEND CODE_HEAD_FILES RiaGrpcConsoleApplication.h
-       RiaGrpcGuiApplication.h)
+       RiaGrpcGuiApplication.h
+  )
   list(APPEND CODE_SOURCE_FILES RiaGrpcConsoleApplication.cpp
-       RiaGrpcGuiApplication.cpp)
+       RiaGrpcGuiApplication.cpp
+  )
 
   list(APPEND QT_MOC_HEADERS RiaGrpcConsoleApplication.h
-       RiaGrpcGuiApplication.h)
+       RiaGrpcGuiApplication.h
+  )
 
   # Find Protobuf installation Looks for protobuf-config.cmake file installed by
   # Protobuf's cmake installation.
@@ -88,12 +95,14 @@ if(RESINSIGHT_ENABLE_GRPC)
     find_package(gRPC CONFIG REQUIRED)
     set(_PROTOBUF_LIBPROTOBUF protobuf::libprotobuf)
     set(_GRPC_GRPCPP_UNSECURE gRPC::grpc++_unsecure gRPC::grpc_unsecure
-                              gRPC::gpr)
+                              gRPC::gpr
+    )
     set(GRPC_LINK_LIBRARIES ${_GRPC_GRPCPP_UNSECURE} ${_PROTOBUF_LIBPROTOBUF})
   else()
     set(RESINSIGHT_GRPC_INSTALL_PREFIX
         ""
-        CACHE PATH "gRPC : Install prefix for gRPC")
+        CACHE PATH "gRPC : Install prefix for gRPC"
+    )
     set(ENV{PKG_CONFIG_PATH} "${RESINSIGHT_GRPC_INSTALL_PREFIX}/lib/pkgconfig")
     find_package(PkgConfig REQUIRED)
     pkg_check_modules(
@@ -104,7 +113,8 @@ if(RESINSIGHT_ENABLE_GRPC)
       grpc_unsecure
       gpr
       protobuf
-      libcares)
+      libcares
+    )
   endif()
 endif()
 
@@ -156,7 +166,8 @@ set(EXE_FILES
     ${HEADER_FILES}
     ${REFERENCED_CMAKE_FILES}
     .clang-format
-    .clang-tidy)
+    .clang-tidy
+)
 
 add_executable(ResInsight ${EXE_FILES})
 
@@ -165,7 +176,8 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     ResInsight
     PROPERTIES
       COMPILE_FLAGS
-      "-Wall -Wno-unused-parameter -Wno-reorder -Wno-parentheses -Wno-switch")
+      "-Wall -Wno-unused-parameter -Wno-reorder -Wno-parentheses -Wno-switch"
+  )
   # Treat warnings as errors if asked to do so
   if(RESINSIGHT_TREAT_WARNINGS_AS_ERRORS)
     set_target_properties(
@@ -212,8 +224,9 @@ if(MSVC)
   endif()
 
   message(STATUS "BUILD_FLAGS_FOR_MSVC ${BUILD_FLAGS_FOR_MSVC}")
-  set_target_properties(ResInsight PROPERTIES COMPILE_FLAGS
-                                              ${BUILD_FLAGS_FOR_MSVC})
+  set_target_properties(
+    ResInsight PROPERTIES COMPILE_FLAGS ${BUILD_FLAGS_FOR_MSVC}
+  )
 
 endif()
 
@@ -227,22 +240,27 @@ if(APPLE)
     COMMAND
       sips -s format icns ${CMAKE_CURRENT_SOURCE_DIR}/Resources/AppLogo48x48.png
       --out ${CMAKE_CURRENT_BINARY_DIR}/Resources/ResInsight.icns
-    COMMENT Converting application icon)
+    COMMENT Converting application icon
+  )
   add_custom_target(
     ResInsight-icns
-    DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/Resources/ResInsight.icns)
+    DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/Resources/ResInsight.icns
+  )
   add_dependencies(ResInsight ResInsight-icns)
   set_target_properties(
     ResInsight PROPERTIES MACOSX_BUNDLE_ICON_FILE
-                          ${CMAKE_CURRENT_BINARY_DIR}/Resources/ResInsight.icns)
+                          ${CMAKE_CURRENT_BINARY_DIR}/Resources/ResInsight.icns
+  )
 endif()
 
 if(RESINSIGHT_ENABLE_GRPC)
   list(APPEND THIRD_PARTY_LIBRARIES ${GRPC_LINK_LIBRARIES})
 
   if(MSVC)
-    set_target_properties(ResInsight PROPERTIES LINK_FLAGS_RELWITHDEBINFO
-                                                "/NODEFAULTLIB:MSVCRTD.lib")
+    set_target_properties(
+      ResInsight PROPERTIES LINK_FLAGS_RELWITHDEBINFO
+                            "/NODEFAULTLIB:MSVCRTD.lib"
+    )
   endif()
 endif()
 
@@ -264,7 +282,8 @@ set(LINK_LIBRARIES
     ${APP_FWK_LIBRARIES}
     ${VIZ_FWK_LIBRARIES}
     ApplicationLibCode
-    Commands)
+    Commands
+)
 
 if(RESINSIGHT_ENABLE_GRPC)
   list(APPEND LINK_LIBRARIES GrpcInterface)
@@ -291,12 +310,14 @@ set(UNITY_EXCLUDE_FILES
     qrc_cafCommandFeatures.cpp
     # Exclude files including opm-common
     ProjectDataModel/RimVfpTableExtractor.cpp
-    ProjectDataModel/RimVfpPlot.cpp)
+    ProjectDataModel/RimVfpPlot.cpp
+)
 
 if(RESINSIGHT_ENABLE_UNITY_BUILD)
   foreach(fileToExclude ${UNITY_EXCLUDE_FILES})
-    set_source_files_properties(${fileToExclude}
-                                PROPERTIES SKIP_UNITY_BUILD_INCLUSION TRUE)
+    set_source_files_properties(
+      ${fileToExclude} PROPERTIES SKIP_UNITY_BUILD_INCLUSION TRUE
+    )
   endforeach(fileToExclude)
 endif()
 
@@ -330,7 +351,8 @@ if(MSVC)
     set(HDF5_DLL_NAMES hdf5 hdf5_cpp szip zlib)
     foreach(HDF5_DLL_NAME ${HDF5_DLL_NAMES})
       list(APPEND RI_DLL_FILENAMES
-           ${RESINSIGHT_HDF5_DIR}/bin/${HDF5_DLL_NAME}.dll)
+           ${RESINSIGHT_HDF5_DIR}/bin/${HDF5_DLL_NAME}.dll
+      )
     endforeach(HDF5_DLL_NAME)
   endif()
 
@@ -342,7 +364,8 @@ foreach(FILE_TO_COPY ${RI_DLL_FILENAMES})
     TARGET ResInsight
     POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different ${FILE_TO_COPY}
-            $<TARGET_FILE_DIR:ResInsight>)
+            $<TARGET_FILE_DIR:ResInsight>
+  )
 endforeach()
 
 # Generate Python code in a target that is part of ALL_BUILD and depends on
@@ -355,9 +378,11 @@ if(RESINSIGHT_ENABLE_GRPC)
     OUTPUT ${GENERATED_CLASSES_FILE}
     COMMAND ResInsight ARGS --console --generate ${GENERATED_CLASSES_FILE}
     DEPENDS ResInsight
-    COMMENT "Generating ${GENERATED_CLASSES_FILE}")
-  add_custom_target(RipsGeneratedPythonClasses ALL
-                    SOURCES ${GENERATED_CLASSES_FILE})
+    COMMENT "Generating ${GENERATED_CLASSES_FILE}"
+  )
+  add_custom_target(
+    RipsGeneratedPythonClasses ALL SOURCES ${GENERATED_CLASSES_FILE}
+  )
   source_group("Source Files" ${GENERATED_CLASSES_FILE})
   add_dependencies(RipsGeneratedPythonClasses ResInsight)
 
@@ -369,7 +394,8 @@ if(RESINSIGHT_ENABLE_GRPC)
     COMMAND
       ${CMAKE_COMMAND} -E copy_directory
       "${CMAKE_SOURCE_DIR}/GrpcInterface/Python"
-      $<TARGET_FILE_DIR:ResInsight>/Python)
+      $<TARGET_FILE_DIR:ResInsight>/Python
+  )
 
 endif(RESINSIGHT_ENABLE_GRPC)
 
@@ -389,19 +415,22 @@ if(RESINSIGHT_PRIVATE_INSTALL)
       # different installoptions that does things this way, and really do copy
       # them when doing PRIVATE_INSTALL
       set(RESINSIGHT_INSTALL_RPATH ${RESINSIGHT_INSTALL_RPATH}
-                                   ${RESINSIGHT_ODB_API_DIR}/lib)
+                                   ${RESINSIGHT_ODB_API_DIR}/lib
+      )
     endif()
 
     if(EXISTS ${RESINSIGHT_ERT_EXTERNAL_LIB_ROOT})
       # append the external ERT lib root
       set(RESINSIGHT_INSTALL_RPATH ${RESINSIGHT_INSTALL_RPATH}
-                                   ${RESINSIGHT_ERT_EXTERNAL_LIB_ROOT})
+                                   ${RESINSIGHT_ERT_EXTERNAL_LIB_ROOT}
+      )
     endif()
 
     # message("RESINSIGHT_INSTALL_RPATH : " "${RESINSIGHT_INSTALL_RPATH}")
 
-    set_target_properties(ResInsight PROPERTIES INSTALL_RPATH
-                                                "${RESINSIGHT_INSTALL_RPATH}")
+    set_target_properties(
+      ResInsight PROPERTIES INSTALL_RPATH "${RESINSIGHT_INSTALL_RPATH}"
+    )
 
     # bundle Qt5 libraries
     option(RESINSIGHT_QT5_BUNDLE_LIBRARIES "Bundle Qt5 libraries" OFF)
@@ -413,7 +442,8 @@ if(RESINSIGHT_PRIVATE_INSTALL)
       get_property(
         _filepath
         TARGET "Qt5::Core"
-        PROPERTY LOCATION_RELEASE)
+        PROPERTY LOCATION_RELEASE
+      )
       get_filename_component(_dir ${_filepath} PATH)
 
       foreach(qtlib ${QT_LIBRARIES})
@@ -436,7 +466,8 @@ if(RESINSIGHT_PRIVATE_INSTALL)
         install(
           FILES ${FILE_AND_SYMLINKS}
           DESTINATION ${RESINSIGHT_INSTALL_FOLDER}
-          OPTIONAL)
+          OPTIONAL
+        )
       endforeach()
 
       set(QT_PLUGIN_PATH "$ENV{QT_PLUGIN_PATH}")
@@ -447,21 +478,26 @@ if(RESINSIGHT_PRIVATE_INSTALL)
 
       # include platform files
       install(FILES ${QT_PLUGIN_PATH}/platforms/libqxcb.so
-              DESTINATION ${RESINSIGHT_INSTALL_FOLDER}/platforms/)
+              DESTINATION ${RESINSIGHT_INSTALL_FOLDER}/platforms/
+      )
       install(FILES ${QT_PLUGIN_PATH}/imageformats/libqsvg.so
-              DESTINATION ${RESINSIGHT_INSTALL_FOLDER}/imageformats/)
+              DESTINATION ${RESINSIGHT_INSTALL_FOLDER}/imageformats/
+      )
       install(FILES ${QT_PLUGIN_PATH}/iconengines/libqsvgicon.so
-              DESTINATION ${RESINSIGHT_INSTALL_FOLDER}/iconengines/)
+              DESTINATION ${RESINSIGHT_INSTALL_FOLDER}/iconengines/
+      )
 
       # Required by xcb module used to create OpenGL widgets
       install(
         FILES ${QT_PLUGIN_PATH}/xcbglintegrations/libqxcb-egl-integration.so
         DESTINATION ${RESINSIGHT_INSTALL_FOLDER}/plugins/xcbglintegrations/
-        OPTIONAL)
+        OPTIONAL
+      )
       install(
         FILES ${QT_PLUGIN_PATH}/xcbglintegrations/libqxcb-glx-integration.so
         DESTINATION ${RESINSIGHT_INSTALL_FOLDER}/plugins/xcbglintegrations/
-        OPTIONAL)
+        OPTIONAL
+      )
 
     endif(RESINSIGHT_QT5_BUNDLE_LIBRARIES)
 
@@ -477,14 +513,16 @@ if(RESINSIGHT_PRIVATE_INSTALL)
 
     if(WIN32
        AND TARGET Qt5::qmake
-       AND NOT TARGET Qt5::windeployqt)
+       AND NOT TARGET Qt5::windeployqt
+    )
       get_target_property(_qt5_qmake_location Qt5::qmake IMPORTED_LOCATION)
 
       execute_process(
         COMMAND "${_qt5_qmake_location}" -query QT_INSTALL_PREFIX
         RESULT_VARIABLE return_code
         OUTPUT_VARIABLE qt5_install_prefix
-        OUTPUT_STRIP_TRAILING_WHITESPACE)
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+      )
 
       set(imported_location "${qt5_install_prefix}/bin/windeployqt.exe")
 
@@ -494,8 +532,9 @@ if(RESINSIGHT_PRIVATE_INSTALL)
       if(EXISTS ${imported_location})
         add_executable(Qt5::windeployqt IMPORTED)
 
-        set_target_properties(Qt5::windeployqt PROPERTIES IMPORTED_LOCATION
-                                                          ${imported_location})
+        set_target_properties(
+          Qt5::windeployqt PROPERTIES IMPORTED_LOCATION ${imported_location}
+        )
       endif()
     endif()
 
@@ -514,7 +553,8 @@ if(RESINSIGHT_PRIVATE_INSTALL)
           Qt5::windeployqt --no-compiler-runtime --no-system-d3d-compiler
           --no-quick-import --no-translations --verbose 0 --dir
           "${CMAKE_CURRENT_BINARY_DIR}/windeployqt"
-          "$<TARGET_FILE_DIR:ResInsight>/$<TARGET_FILE_NAME:ResInsight>")
+          "$<TARGET_FILE_DIR:ResInsight>/$<TARGET_FILE_NAME:ResInsight>"
+      )
 
       # Qt DLLs
       message(STATUS "Creating post build step for copying Qt DLLs")
@@ -527,11 +567,13 @@ if(RESINSIGHT_PRIVATE_INSTALL)
         COMMAND
           ${CMAKE_COMMAND} -E copy_directory
           "${CMAKE_CURRENT_BINARY_DIR}/windeployqt/"
-          $<TARGET_FILE_DIR:ResInsight>)
+          $<TARGET_FILE_DIR:ResInsight>
+      )
 
       # copy deployment directory during installation
       install(DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/windeployqt/"
-              DESTINATION ${RESINSIGHT_INSTALL_FOLDER})
+              DESTINATION ${RESINSIGHT_INSTALL_FOLDER}
+      )
     endif()
 
     # install GRPC-related DLLs and generated_classes.py
@@ -541,12 +583,14 @@ if(RESINSIGHT_PRIVATE_INSTALL)
       set(GRPC_DLL_NAMES ${PROTOBUF_DLL} cares ${ZLIB_DLL} abseil_dll)
       foreach(dllname ${GRPC_DLL_NAMES})
         install(FILES $<TARGET_FILE_DIR:ResInsight>/${dllname}.dll
-                DESTINATION ${RESINSIGHT_INSTALL_FOLDER})
+                DESTINATION ${RESINSIGHT_INSTALL_FOLDER}
+        )
       endforeach(dllname ${GRPC_DLL_NAMES})
       install(
         FILES
           ${CMAKE_SOURCE_DIR}/GrpcInterface/Python/rips/generated/generated_classes.py
-        DESTINATION ${RESINSIGHT_INSTALL_FOLDER}/Python/rips/generated)
+        DESTINATION ${RESINSIGHT_INSTALL_FOLDER}/Python/rips/generated
+      )
     endif()
 
     # Boost
@@ -555,7 +599,8 @@ if(RESINSIGHT_PRIVATE_INSTALL)
     get_property(
       _filepath
       TARGET "Boost::filesystem"
-      PROPERTY LOCATION_RELEASE)
+      PROPERTY LOCATION_RELEASE
+    )
     message("_filepath: ${_filepath}")
 
     # The location of Boost is based on the file structure as installed by vcpkg
@@ -571,14 +616,16 @@ if(RESINSIGHT_PRIVATE_INSTALL)
     install(
       FILES ${RI_BOOST_DLLS}
       DESTINATION ${RESINSIGHT_INSTALL_FOLDER}
-      CONFIGURATIONS Debug Release RelWithDebInfo)
+      CONFIGURATIONS Debug Release RelWithDebInfo
+    )
 
     # CRT
     set(CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_SKIP ON)
     set(CMAKE_INSTALL_OPENMP_LIBRARIES ON)
     include(InstallRequiredSystemLibraries)
     install(PROGRAMS ${CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS}
-            DESTINATION ${RESINSIGHT_INSTALL_FOLDER})
+            DESTINATION ${RESINSIGHT_INSTALL_FOLDER}
+    )
 
   endif()
 
@@ -597,7 +644,8 @@ if(RESINSIGHT_PRIVATE_INSTALL)
         GROUP_READ
         GROUP_EXECUTE
         WORLD_READ
-        WORLD_EXECUTE)
+        WORLD_EXECUTE
+    )
   endif()
 
 else(RESINSIGHT_PRIVATE_INSTALL)
@@ -609,13 +657,17 @@ else(RESINSIGHT_PRIVATE_INSTALL)
   install(
     FILES ${CMAKE_CURRENT_SOURCE_DIR}/Resources/AppLogo48x48.png
     DESTINATION share/icons/hicolor/48x48/apps
-    RENAME ResInsight.png)
+    RENAME ResInsight.png
+  )
   # desktop environment icon; remember to call `update-desktop-database` in
   # package post-install scripts
-  configure_file(${CMAKE_CURRENT_SOURCE_DIR}/resinsight.desktop.in
-                 ${CMAKE_CURRENT_BINARY_DIR}/resinsight.desktop @ONLY)
+  configure_file(
+    ${CMAKE_CURRENT_SOURCE_DIR}/resinsight.desktop.in
+    ${CMAKE_CURRENT_BINARY_DIR}/resinsight.desktop @ONLY
+  )
   install(FILES ${CMAKE_CURRENT_BINARY_DIR}/resinsight.desktop
-          DESTINATION share/applications)
+          DESTINATION share/applications
+  )
 endif(RESINSIGHT_PRIVATE_INSTALL)
 
 # OpenSSL
@@ -633,25 +685,32 @@ if(RESINSIGHT_BUNDLE_OPENSSL)
       message("OpenSSL binary dir: ${OPENSSL_BIN_DIR}")
 
       install(FILES ${OPENSSL_BIN_DIR}/libcrypto-1_1-x64.dll
-              DESTINATION ${RESINSIGHT_INSTALL_FOLDER})
+              DESTINATION ${RESINSIGHT_INSTALL_FOLDER}
+      )
       install(FILES ${OPENSSL_BIN_DIR}/libssl-1_1-x64.dll
-              DESTINATION ${RESINSIGHT_INSTALL_FOLDER})
+              DESTINATION ${RESINSIGHT_INSTALL_FOLDER}
+      )
     endif(OPENSSL_FOUND)
   elseif(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     # Assumes that OpenSSL is installed by ./vcpkg install
     # --overlay-triplets=custom-triplets --triplet x64-linux-dynamic openssl
     set(OPENSSL_BIN_DIR
-        ${CMAKE_SOURCE_DIR}/ThirdParty/vcpkg/installed/x64-linux-dynamic/lib)
+        ${CMAKE_SOURCE_DIR}/ThirdParty/vcpkg/installed/x64-linux-dynamic/lib
+    )
     message("OpenSSL binary dir: ${OPENSSL_BIN_DIR}")
 
     install(FILES ${OPENSSL_BIN_DIR}/libcrypto.so
-            DESTINATION ${RESINSIGHT_INSTALL_FOLDER})
+            DESTINATION ${RESINSIGHT_INSTALL_FOLDER}
+    )
     install(FILES ${OPENSSL_BIN_DIR}/libcrypto.so.1.1
-            DESTINATION ${RESINSIGHT_INSTALL_FOLDER})
+            DESTINATION ${RESINSIGHT_INSTALL_FOLDER}
+    )
     install(FILES ${OPENSSL_BIN_DIR}/libssl.so
-            DESTINATION ${RESINSIGHT_INSTALL_FOLDER})
+            DESTINATION ${RESINSIGHT_INSTALL_FOLDER}
+    )
     install(FILES ${OPENSSL_BIN_DIR}/libssl.so.1.1
-            DESTINATION ${RESINSIGHT_INSTALL_FOLDER})
+            DESTINATION ${RESINSIGHT_INSTALL_FOLDER}
+    )
   endif()
 endif(RESINSIGHT_BUNDLE_OPENSSL)
 
@@ -687,7 +746,8 @@ endif()
 
 if(NOT ${OCTAVE_VERSION_STRING} EQUAL "")
   set(RESINSIGHT_PACKAGE_NAME
-      "${RESINSIGHT_PACKAGE_NAME}_oct-${OCTAVE_VERSION_STRING}")
+      "${RESINSIGHT_PACKAGE_NAME}_oct-${OCTAVE_VERSION_STRING}"
+  )
 endif()
 
 if(RESINSIGHT_BUNDLE_OPENSSL AND OPENSSL_FOUND)
@@ -697,7 +757,8 @@ endif()
 # Append el5 when compiled on RHEL5 and el6 if compiled on RHEL6
 if(NOT "${RESINSIGHT_RHEL_SYSTEM_NAME}" STREQUAL "")
   set(RESINSIGHT_PACKAGE_NAME
-      "${RESINSIGHT_PACKAGE_NAME}_${RESINSIGHT_RHEL_SYSTEM_NAME}")
+      "${RESINSIGHT_PACKAGE_NAME}_${RESINSIGHT_RHEL_SYSTEM_NAME}"
+  )
 else()
   set(RESINSIGHT_PACKAGE_NAME "${RESINSIGHT_PACKAGE_NAME}_${CPACK_SYSTEM_NAME}")
 endif()

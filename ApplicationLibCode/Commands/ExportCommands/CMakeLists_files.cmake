@@ -25,7 +25,8 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicExportLgrFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicExportLgrUi.h
     ${CMAKE_CURRENT_LIST_DIR}/RicEclipseCellResultToFileImpl.h
-    ${CMAKE_CURRENT_LIST_DIR}/RicLgrSplitType.h)
+    ${CMAKE_CURRENT_LIST_DIR}/RicLgrSplitType.h
+)
 
 set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicCellRangeUi.cpp
@@ -53,7 +54,8 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicExportWellPathsUi.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicExportLgrFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicExportLgrUi.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RicEclipseCellResultToFileImpl.cpp)
+    ${CMAKE_CURRENT_LIST_DIR}/RicEclipseCellResultToFileImpl.cpp
+)
 
 list(APPEND COMMAND_CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})
 
@@ -62,4 +64,5 @@ list(APPEND COMMAND_CODE_SOURCE_FILES ${SOURCE_GROUP_SOURCE_FILES})
 source_group(
   "CommandFeature\\Export"
   FILES ${SOURCE_GROUP_HEADER_FILES} ${SOURCE_GROUP_SOURCE_FILES}
-        ${CMAKE_CURRENT_LIST_DIR}/CMakeLists_files.cmake)
+        ${CMAKE_CURRENT_LIST_DIR}/CMakeLists_files.cmake
+)

@@ -42,7 +42,8 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicClearSourceSteppingEnsembleCurveSetFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicSetSourceSteppingEnsembleCurveSetFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicActivateCurveFilterInToolbarFeature.h
-    ${CMAKE_CURRENT_LIST_DIR}/RicNewDerivedSummaryFeature.h)
+    ${CMAKE_CURRENT_LIST_DIR}/RicNewDerivedSummaryFeature.h
+)
 
 set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicNewSummaryPlotFeature.cpp
@@ -88,7 +89,8 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicClearSourceSteppingEnsembleCurveSetFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicSetSourceSteppingEnsembleCurveSetFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicActivateCurveFilterInToolbarFeature.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RicNewDerivedSummaryFeature.cpp)
+    ${CMAKE_CURRENT_LIST_DIR}/RicNewDerivedSummaryFeature.cpp
+)
 
 list(APPEND COMMAND_CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})
 
@@ -100,9 +102,11 @@ list(
   ${CMAKE_CURRENT_LIST_DIR}/RicSummaryPlotEditorWidgetCreator.h
   ${CMAKE_CURRENT_LIST_DIR}/RicSummaryPlotEditorDialog.h
   ${CMAKE_CURRENT_LIST_DIR}/RicSummaryCurveCalculatorWidgetCreator.h
-  ${CMAKE_CURRENT_LIST_DIR}/RicSummaryCurveCalculatorDialog.h)
+  ${CMAKE_CURRENT_LIST_DIR}/RicSummaryCurveCalculatorDialog.h
+)
 
 source_group(
   "CommandFeature\\SummaryPlot"
   FILES ${SOURCE_GROUP_HEADER_FILES} ${SOURCE_GROUP_SOURCE_FILES}
-        ${CMAKE_CURRENT_LIST_DIR}/CMakeLists_files.cmake)
+        ${CMAKE_CURRENT_LIST_DIR}/CMakeLists_files.cmake
+)

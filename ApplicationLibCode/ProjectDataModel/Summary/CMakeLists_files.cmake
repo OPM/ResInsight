@@ -37,7 +37,8 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimDerivedEnsembleCaseCollection.h
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryPlotFilterTextCurveSetEditor.h
     ${CMAKE_CURRENT_LIST_DIR}/RimObjectiveFunction.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimObjectiveFunctionTools.h)
+    ${CMAKE_CURRENT_LIST_DIR}/RimObjectiveFunctionTools.h
+)
 
 set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimAsciiDataCurve.cpp
@@ -78,7 +79,8 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimDerivedEnsembleCaseCollection.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryPlotFilterTextCurveSetEditor.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimObjectiveFunction.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RimObjectiveFunctionTools.cpp)
+    ${CMAKE_CURRENT_LIST_DIR}/RimObjectiveFunctionTools.cpp
+)
 
 list(APPEND CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})
 
@@ -89,4 +91,5 @@ list(APPEND QT_MOC_HEADERS ${CMAKE_CURRENT_LIST_DIR}/RimSummaryPlot.h)
 source_group(
   "ProjectDataModel\\Summary"
   FILES ${SOURCE_GROUP_HEADER_FILES} ${SOURCE_GROUP_SOURCE_FILES}
-        ${CMAKE_CURRENT_LIST_DIR}/CMakeLists_files.cmake)
+        ${CMAKE_CURRENT_LIST_DIR}/CMakeLists_files.cmake
+)

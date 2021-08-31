@@ -15,7 +15,8 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimReachCircleAnnotationInView.h
     ${CMAKE_CURRENT_LIST_DIR}/RimTextAnnotationInView.h
     ${CMAKE_CURRENT_LIST_DIR}/RimAnnotationGroupCollection.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimPolylineTarget.h)
+    ${CMAKE_CURRENT_LIST_DIR}/RimPolylineTarget.h
+)
 
 set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimAnnotationCollectionBase.cpp
@@ -34,7 +35,8 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimReachCircleAnnotationInView.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimTextAnnotationInView.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimAnnotationGroupCollection.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RimPolylineTarget.cpp)
+    ${CMAKE_CURRENT_LIST_DIR}/RimPolylineTarget.cpp
+)
 
 list(APPEND CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})
 
@@ -45,4 +47,5 @@ set(QT_MOC_HEADERS ${QT_MOC_HEADERS})
 source_group(
   "ProjectDataModel\\Annotations"
   FILES ${SOURCE_GROUP_HEADER_FILES} ${SOURCE_GROUP_SOURCE_FILES}
-        ${CMAKE_CURRENT_LIST_DIR}/CMakeLists_files.cmake)
+        ${CMAKE_CURRENT_LIST_DIR}/CMakeLists_files.cmake
+)

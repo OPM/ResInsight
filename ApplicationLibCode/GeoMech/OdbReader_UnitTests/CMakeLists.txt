@@ -4,13 +4,16 @@ project(OdbReader_UnitTests)
 
 set(RI_VIZ_FWK_ROOT
     ../../../Fwk/VizFwk
-    CACHE PATH "Path to VizFwk")
+    CACHE PATH "Path to VizFwk"
+)
 set(RI_GTEST_ROOT
     ../../../ThirdParty
-    CACHE PATH "Path to folder containing gtest folder")
+    CACHE PATH "Path to folder containing gtest folder"
+)
 set(RI_TEST_FILE
     ""
-    CACHE FILEPATH "Path to test file")
+    CACHE FILEPATH "Path to test file"
+)
 
 include(${RI_VIZ_FWK_ROOT}/CMake/Utils/ceeDetermineCompilerFlags.cmake)
 
@@ -29,7 +32,8 @@ include_directories(../GeoMechDataModel)
 include_directories(${RI_GTEST_ROOT})
 
 set(UNIT_TEST_CPP_SOURCES main.cpp RifOdbReader-Test.cpp
-                          ${RI_GTEST_ROOT}/gtest/gtest-all.cc)
+                          ${RI_GTEST_ROOT}/gtest/gtest-all.cc
+)
 
 add_executable(${PROJECT_NAME} ${UNIT_TEST_CPP_SOURCES})
 target_link_libraries(${PROJECT_NAME} RifOdbReader)

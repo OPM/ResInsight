@@ -19,7 +19,8 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR} # required for gtest-all.cpp
 )
 
 set(PROJECT_FILES cafHexInterpolatorBasicTest.cpp
-                  cafHexInterpolator_UnitTests_main.cpp)
+                  cafHexInterpolator_UnitTests_main.cpp
+)
 
 # add the executable
 add_executable(${PROJECT_NAME} ${PROJECT_FILES} gtest/gtest-all.cpp)

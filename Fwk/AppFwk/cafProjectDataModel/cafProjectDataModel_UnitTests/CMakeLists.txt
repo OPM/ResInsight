@@ -6,7 +6,8 @@ project(cafProjectDataModel_UnitTests)
 find_package(
   Qt5
   COMPONENTS
-  REQUIRED Core Xml Gui)
+  REQUIRED Core Xml Gui
+)
 set(QT_LIBRARIES Qt5::Core Qt5::Xml Qt5::Gui)
 
 if(MSVC AND (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 19.11))
@@ -23,13 +24,15 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR} # required for gtest-all.cpp
 )
 
 set(PROJECT_FILES cafPdmBasicTest.cpp cafProjectDataModel_UnitTests.cpp
-                  Child.cpp Parent.cpp TestObj.cpp)
+                  Child.cpp Parent.cpp TestObj.cpp
+)
 
 # add the executable
 add_executable(${PROJECT_NAME} ${PROJECT_FILES} gtest/gtest-all.cpp)
 
-target_link_libraries(${PROJECT_NAME} cafProjectDataModel ${QT_LIBRARIES}
-                      ${THREAD_LIBRARY})
+target_link_libraries(
+  ${PROJECT_NAME} cafProjectDataModel ${QT_LIBRARIES} ${THREAD_LIBRARY}
+)
 
 source_group("" FILES ${PROJECT_FILES})
 
@@ -39,5 +42,6 @@ foreach(qtlib ${QT_LIBRARIES})
     TARGET ${PROJECT_NAME}
     POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:${qtlib}>
-            $<TARGET_FILE_DIR:${PROJECT_NAME}>)
+            $<TARGET_FILE_DIR:${PROJECT_NAME}>
+  )
 endforeach(qtlib)

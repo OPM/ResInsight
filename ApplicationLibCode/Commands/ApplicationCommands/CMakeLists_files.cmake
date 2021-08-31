@@ -18,7 +18,8 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicDefaultDockConfigEclipseFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicDefaultDockConfigGeoMechFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicExportObjectAndFieldKeywordsFeature.h
-    ${CMAKE_CURRENT_LIST_DIR}/RicSaveProjectNoGlobalPathsFeature.h)
+    ${CMAKE_CURRENT_LIST_DIR}/RicSaveProjectNoGlobalPathsFeature.h
+)
 
 set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicLaunchUnitTestsFeature.cpp
@@ -40,7 +41,8 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicDefaultDockConfigEclipseFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicDefaultDockConfigGeoMechFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicExportObjectAndFieldKeywordsFeature.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RicSaveProjectNoGlobalPathsFeature.cpp)
+    ${CMAKE_CURRENT_LIST_DIR}/RicSaveProjectNoGlobalPathsFeature.cpp
+)
 
 list(APPEND COMMAND_CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})
 
@@ -51,4 +53,5 @@ set(COMMAND_QT_MOC_HEADERS ${COMMAND_QT_MOC_HEADERS})
 source_group(
   "CommandFeature\\Application"
   FILES ${SOURCE_GROUP_HEADER_FILES} ${SOURCE_GROUP_SOURCE_FILES}
-        ${CMAKE_CURRENT_LIST_DIR}/CMakeLists_files.cmake)
+        ${CMAKE_CURRENT_LIST_DIR}/CMakeLists_files.cmake
+)

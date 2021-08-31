@@ -1,5 +1,7 @@
-configure_file(${CMAKE_CURRENT_LIST_DIR}/RiaTestDataDirectory.h.cmake
-               ${CMAKE_BINARY_DIR}/Generated/RiaTestDataDirectory.h)
+configure_file(
+  ${CMAKE_CURRENT_LIST_DIR}/RiaTestDataDirectory.h.cmake
+  ${CMAKE_BINARY_DIR}/Generated/RiaTestDataDirectory.h
+)
 
 set(SOURCE_GROUP_HEADER_FILES)
 
@@ -76,11 +78,13 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RigSlice2D-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigSurfaceResampler-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigSurfaceStatisticsCalculator-Test.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/StructGridInterface-Test.cpp)
+    ${CMAKE_CURRENT_LIST_DIR}/StructGridInterface-Test.cpp
+)
 
 if(RESINSIGHT_ENABLE_GRPC)
   list(APPEND GPRC_UNIT_TEST_SOURCE_FILES
-       ${CMAKE_CURRENT_LIST_DIR}/RiaGrpcInterface-Test.cpp)
+       ${CMAKE_CURRENT_LIST_DIR}/RiaGrpcInterface-Test.cpp
+  )
   list(APPEND SOURCE_GROUP_SOURCE_FILES ${GRPC_UNIT_TEST_SOURCE_FILES})
 endif(RESINSIGHT_ENABLE_GRPC)
 
@@ -90,4 +94,5 @@ list(APPEND CODE_SOURCE_FILES ${SOURCE_GROUP_SOURCE_FILES})
 
 source_group(
   "UnitTests" FILES ${SOURCE_GROUP_HEADER_FILES} ${SOURCE_GROUP_SOURCE_FILES}
-                    ${CMAKE_CURRENT_LIST_DIR}/CMakeLists_files.cmake)
+                    ${CMAKE_CURRENT_LIST_DIR}/CMakeLists_files.cmake
+)
