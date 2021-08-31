@@ -20,6 +20,8 @@
 
 #include "RiaDefines.h"
 
+#include "RigStimPlanFractureDefinition.h"
+
 #include <memory>
 #include <vector>
 
@@ -40,10 +42,12 @@ public:
                                     const std::vector<double>&                      gridXs,
                                     const std::vector<double>&                      gridYs,
                                     double                                          time,
-                                    RiaDefines::EclipseUnitSystem                   unitSystem );
+                                    RiaDefines::EclipseUnitSystem                   unitSystem,
+                                    RigStimPlanFractureDefinition::Orientation      orientation );
 
 private:
     static void appendHeaderToStream( QTextStream& stream );
+    static void appendOrientationToStream( QTextStream& stream, RigStimPlanFractureDefinition::Orientation orientation );
     static void appendGridDimensionsToStream( QTextStream&                  stream,
                                               const std::vector<double>&    gridXs,
                                               const std::vector<double>&    gridYs,
@@ -56,4 +60,6 @@ private:
     static void appendFooterToStream( QTextStream& stream );
 
     static QString getStringForUnitSystem( RiaDefines::EclipseUnitSystem unitSystem );
+
+    static QString getStringForOrientation( RigStimPlanFractureDefinition::Orientation orientation );
 };

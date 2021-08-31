@@ -344,11 +344,17 @@ std::vector<QString> RimEnsembleFractureStatistics::computeStatistics()
     double timeStep = 1.0;
 
     double referenceDepth = 0.0;
+
+    RigStimPlanFractureDefinition::Orientation orientation = RigStimPlanFractureDefinition::Orientation::UNDEFINED;
     if ( m_meshAlignmentType() == MeshAlignmentType::PERFORATION_DEPTH )
     {
         for ( auto definition : stimPlanFractureDefinitions )
         {
             referenceDepth += computeDepthOfWellPathAtFracture( definition );
+            // Take the first orientation which is defined (all the fractures
+            // should have the same orientation).
+            if ( orientation == RigStimPlanFractureDefinition::Orientation::UNDEFINED )
+                orientation = definition->orientation();
         }
         referenceDepth /= stimPlanFractureDefinitions.size();
     }
@@ -421,7 +427,8 @@ std::vector<QString> RimEnsembleFractureStatistics::computeStatistics()
                                                                    gridXs,
                                                                    gridYsWithOffset,
                                                                    timeStep,
-                                                                   unitSystem );
+                                                                   unitSystem,
+                                                                   orientation );
 
         xmlFilePaths.push_back( xmlFilePath );
     }
