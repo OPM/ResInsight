@@ -34,8 +34,10 @@ public:
     typedef std::map<QString, int> FileCaseIdMap;
 
     static bool openEclipseCasesFromFile( const QStringList& fileNames,
+                                          bool               createView,
                                           FileCaseIdMap*     openedFilesOut = nullptr,
                                           bool               noDialog       = false );
+
     static bool openEclipseCaseShowTimeStepFilter( const QString& fileName );
 
     static int openEclipseInputCaseFromFileNames( const QStringList& fileNames, QString* fileContainingGrid = nullptr );
@@ -43,8 +45,8 @@ public:
 
     static bool addEclipseCases( const QStringList& fileNames, RimIdenticalGridCaseGroup** resultingCaseGroup = nullptr );
 
-    static int openEclipseCaseFromFile( const QString& fileName );
+    static int openEclipseCaseFromFile( const QString& fileName, bool createView );
 
 private:
-    static int openEclipseCaseShowTimeStepFilterImpl( const QString& fileName, bool showTimeStepFilter );
+    static int openEclipseCaseShowTimeStepFilterImpl( const QString& fileName, bool showTimeStepFilter, bool createView );
 };

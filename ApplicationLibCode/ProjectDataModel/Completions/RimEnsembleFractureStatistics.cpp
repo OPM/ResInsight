@@ -935,7 +935,7 @@ void RimEnsembleFractureStatistics::sampleAllGrids( const std::vector<cvf::cref<
                                                     const std::vector<double>&                     samplesY,
                                                     std::vector<std::vector<double>>&              samples )
 {
-    const int ny = samplesY.size();
+    const int ny = static_cast<int>( samplesY.size() );
 #pragma omp parallel for
     for ( int y = 0; y < ny; y++ )
     {

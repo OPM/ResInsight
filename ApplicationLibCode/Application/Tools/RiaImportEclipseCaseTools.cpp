@@ -70,6 +70,7 @@
 ///
 //--------------------------------------------------------------------------------------------------
 bool RiaImportEclipseCaseTools::openEclipseCasesFromFile( const QStringList& fileNames,
+                                                          bool               createView,
                                                           FileCaseIdMap*     openedFilesOut,
                                                           bool               noDialog )
 {
@@ -87,7 +88,7 @@ bool RiaImportEclipseCaseTools::openEclipseCasesFromFile( const QStringList& fil
     // Import eclipse case files
     for ( const QString& gridCaseFile : selector.gridCaseFiles() )
     {
-        int caseId = RiaImportEclipseCaseTools::openEclipseCaseFromFile( gridCaseFile );
+        int caseId = RiaImportEclipseCaseTools::openEclipseCaseFromFile( gridCaseFile, createView );
         if ( caseId >= 0 )
         {
             openedFiles.insert( std::make_pair( gridCaseFile, caseId ) );
@@ -223,11 +224,11 @@ bool RiaImportEclipseCaseTools::openEclipseCasesFromFile( const QStringList& fil
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int RiaImportEclipseCaseTools::openEclipseCaseFromFile( const QString& fileName )
+int RiaImportEclipseCaseTools::openEclipseCaseFromFile( const QString& fileName, bool createView )
 {
     if ( !caf::Utils::fileExists( fileName ) ) return -1;
 
-    return RiaImportEclipseCaseTools::openEclipseCaseShowTimeStepFilterImpl( fileName, false );
+    return RiaImportEclipseCaseTools::openEclipseCaseShowTimeStepFilterImpl( fileName, createView, false );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -237,7 +238,8 @@ bool RiaImportEclipseCaseTools::openEclipseCaseShowTimeStepFilter( const QString
 {
     if ( !caf::Utils::fileExists( fileName ) ) return false;
 
-    return RiaImportEclipseCaseTools::openEclipseCaseShowTimeStepFilterImpl( fileName, true ) >= 0;
+    bool createView = true;
+    return RiaImportEclipseCaseTools::openEclipseCaseShowTimeStepFilterImpl( fileName, createView, true ) >= 0;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -294,13 +296,16 @@ int RiaImportEclipseCaseTools::openEclipseInputCaseFromFileNames( const QStringL
 //--------------------------------------------------------------------------------------------------
 bool RiaImportEclipseCaseTools::openMockModel( const QString& name )
 {
-    return RiaImportEclipseCaseTools::openEclipseCaseShowTimeStepFilterImpl( name, false );
+    bool createView = true;
+    return RiaImportEclipseCaseTools::openEclipseCaseShowTimeStepFilterImpl( name, createView, false );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int RiaImportEclipseCaseTools::openEclipseCaseShowTimeStepFilterImpl( const QString& fileName, bool showTimeStepFilter )
+int RiaImportEclipseCaseTools::openEclipseCaseShowTimeStepFilterImpl( const QString& fileName,
+                                                                      bool           showTimeStepFilter,
+                                                                      bool           createView )
 {
     QFileInfo gridFileName( fileName );
     QString   caseName = gridFileName.completeBaseName();
@@ -335,21 +340,33 @@ int RiaImportEclipseCaseTools::openEclipseCaseShowTimeStepFilterImpl( const QStr
         return -1;
     }
 
-    RimEclipseView* riv = rimResultReservoir->createAndAddReservoirView();
-
-    riv->loadDataAndUpdate();
-
-    if ( !riv->cellResult()->hasResult() )
+    if ( createView )
     {
-        riv->cellResult()->setResultVariable( RiaResultNames::undefinedResultName() );
+        RimEclipseView* riv = rimResultReservoir->createAndAddReservoirView();
+
+        riv->loadDataAndUpdate();
+
+        if ( !riv->cellResult()->hasResult() )
+        {
+            riv->cellResult()->setResultVariable( RiaResultNames::undefinedResultName() );
+        }
+
+        analysisModels->updateConnectedEditors();
+
+        if ( RiaGuiApplication::isRunning() )
+        {
+            RiuMainWindow::instance()->selectAsCurrentItem( riv->cellResult() );
+        }
+    }
+    else
+    {
+        // Make sure the placeholder result entries are created, as this functionality is triggered when creating a
+        // view. See RimEclipseView::onLoadDataAndUpdate() and the call to openReserviorCase()
+        rimResultReservoir->openReserviorCase();
+
+        analysisModels->updateConnectedEditors();
     }
 
-    analysisModels->updateConnectedEditors();
-
-    if ( RiaGuiApplication::isRunning() )
-    {
-        RiuMainWindow::instance()->selectAsCurrentItem( riv->cellResult() );
-    }
     return rimResultReservoir->caseId();
 }
 

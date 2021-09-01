@@ -905,10 +905,8 @@ void RimEclipseCase::setFilesContainingFaults( const std::vector<QString>& pathS
 //--------------------------------------------------------------------------------------------------
 bool RimEclipseCase::ensureReservoirCaseIsOpen()
 {
-    if ( m_rigEclipseCase.notNull() )
-    {
-        return true;
-    }
+    // Call openReserviorCase, as this is a cheap method to call multiple times
+    // Add extra testing here if performance issues are seen
 
     return openReserviorCase();
 }
