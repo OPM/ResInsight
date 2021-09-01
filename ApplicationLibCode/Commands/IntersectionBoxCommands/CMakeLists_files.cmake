@@ -5,7 +5,8 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicIntersectionBoxXSliceFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicIntersectionBoxYSliceFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicIntersectionBoxZSliceFeature.h
-    ${CMAKE_CURRENT_LIST_DIR}/RicIntersectionBoxAtPosFeature.h)
+    ${CMAKE_CURRENT_LIST_DIR}/RicIntersectionBoxAtPosFeature.h
+)
 
 set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicIntersectionFeatureImpl.cpp
@@ -14,7 +15,8 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicIntersectionBoxXSliceFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicIntersectionBoxYSliceFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicIntersectionBoxZSliceFeature.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RicIntersectionBoxAtPosFeature.cpp)
+    ${CMAKE_CURRENT_LIST_DIR}/RicIntersectionBoxAtPosFeature.cpp
+)
 
 list(APPEND COMMAND_CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})
 
@@ -22,9 +24,11 @@ list(APPEND COMMAND_CODE_SOURCE_FILES ${SOURCE_GROUP_SOURCE_FILES})
 
 set(COMMAND_QT_MOC_HEADERS
     ${COMMAND_QT_MOC_HEADERS}
-    ${CMAKE_CURRENT_LIST_DIR}/RicBoxManipulatorEventHandler.h)
+    ${CMAKE_CURRENT_LIST_DIR}/RicBoxManipulatorEventHandler.h
+)
 
 source_group(
   "CommandFeature\\IntersectionBox"
   FILES ${SOURCE_GROUP_HEADER_FILES} ${SOURCE_GROUP_SOURCE_FILES}
-        ${CMAKE_CURRENT_LIST_DIR}/CMakeLists_files.cmake)
+        ${CMAKE_CURRENT_LIST_DIR}/CMakeLists_files.cmake
+)

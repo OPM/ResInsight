@@ -16,7 +16,8 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicApplyPropertyFilterAsCellResultFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicImportEclipseCaseTimeStepFilterFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicEclipsePropertyFilterNewInViewFeature.h
-    ${CMAKE_CURRENT_LIST_DIR}/RicEclipseHideFaultFeature.h)
+    ${CMAKE_CURRENT_LIST_DIR}/RicEclipseHideFaultFeature.h
+)
 
 set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicAddEclipseInputPropertyFeature.cpp
@@ -36,7 +37,8 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicApplyPropertyFilterAsCellResultFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicImportEclipseCaseTimeStepFilterFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicEclipsePropertyFilterNewInViewFeature.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RicEclipseHideFaultFeature.cpp)
+    ${CMAKE_CURRENT_LIST_DIR}/RicEclipseHideFaultFeature.cpp
+)
 
 list(APPEND COMMAND_CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})
 
@@ -45,4 +47,5 @@ list(APPEND COMMAND_CODE_SOURCE_FILES ${SOURCE_GROUP_SOURCE_FILES})
 source_group(
   "CommandFeature\\Eclipse"
   FILES ${SOURCE_GROUP_HEADER_FILES} ${SOURCE_GROUP_SOURCE_FILES}
-        ${CMAKE_CURRENT_LIST_DIR}/CMakeLists_files.cmake)
+        ${CMAKE_CURRENT_LIST_DIR}/CMakeLists_files.cmake
+)

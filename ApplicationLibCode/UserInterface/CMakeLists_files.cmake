@@ -92,7 +92,8 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiuScalarMapperLegendFrame.h
     ${CMAKE_CURRENT_LIST_DIR}/RiuFileDialogTools.h
     ${CMAKE_CURRENT_LIST_DIR}/RiuGuiTheme.h
-    ${CMAKE_CURRENT_LIST_DIR}/RiuQssSyntaxHighlighter.h)
+    ${CMAKE_CURRENT_LIST_DIR}/RiuQssSyntaxHighlighter.h
+)
 
 set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiuCadNavigation.cpp
@@ -186,7 +187,8 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiuGuiTheme.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuQssSyntaxHighlighter.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuTextEditWithCompletion.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RiuTextContentFrame.cpp)
+    ${CMAKE_CURRENT_LIST_DIR}/RiuTextContentFrame.cpp
+)
 
 if(Qt5Charts_FOUND)
   list(APPEND CODE_HEADER_FILES ${CMAKE_CURRENT_LIST_DIR}/RiuQtChartView.h)
@@ -246,11 +248,13 @@ list(
   ${CMAKE_CURRENT_LIST_DIR}/RiuCategoryLegendFrame.h
   ${CMAKE_CURRENT_LIST_DIR}/RiuScalarMapperLegendFrame.h
   ${CMAKE_CURRENT_LIST_DIR}/RiuTextEditWithCompletion.h
-  ${CMAKE_CURRENT_LIST_DIR}/RiuTextContentFrame.h)
+  ${CMAKE_CURRENT_LIST_DIR}/RiuTextContentFrame.h
+)
 
 list(APPEND QT_UI_FILES)
 
 source_group(
   "UserInterface"
   FILES ${SOURCE_GROUP_HEADER_FILES} ${SOURCE_GROUP_SOURCE_FILES}
-        ${CMAKE_CURRENT_LIST_DIR}/CMakeLists_files.cmake)
+        ${CMAKE_CURRENT_LIST_DIR}/CMakeLists_files.cmake
+)

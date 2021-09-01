@@ -22,7 +22,8 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimWellLogFileChannel.h
     ${CMAKE_CURRENT_LIST_DIR}/RimWellLogFileCurve.h
     ${CMAKE_CURRENT_LIST_DIR}/RimWellLogRftCurve.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimWellLogWbsCurve.h)
+    ${CMAKE_CURRENT_LIST_DIR}/RimWellLogWbsCurve.h
+)
 
 set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimWellLogPlotCollection.cpp
@@ -48,7 +49,8 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimEnsembleWellLogsCollection.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimEnsembleWellLogCurveSet.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimEnsembleWellLogStatistics.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RimEnsembleWellLogStatisticsCurve.cpp)
+    ${CMAKE_CURRENT_LIST_DIR}/RimEnsembleWellLogStatisticsCurve.cpp
+)
 
 list(APPEND CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})
 
@@ -57,4 +59,5 @@ list(APPEND CODE_SOURCE_FILES ${SOURCE_GROUP_SOURCE_FILES})
 source_group(
   "ProjectDataModel\\WellLog"
   FILES ${SOURCE_GROUP_HEADER_FILES} ${SOURCE_GROUP_SOURCE_FILES}
-        ${CMAKE_CURRENT_LIST_DIR}/CMakeLists_files.cmake)
+        ${CMAKE_CURRENT_LIST_DIR}/CMakeLists_files.cmake
+)

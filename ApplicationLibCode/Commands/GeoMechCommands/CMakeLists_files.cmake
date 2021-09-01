@@ -13,7 +13,8 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicRunAdvFaultReactAssessmentFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicRunBasicFaultReactAssessment3dFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicRunAdvFaultReactAssessment3dFeature.h
-    ${CMAKE_CURRENT_LIST_DIR}/RicRunFaultReactAssessmentFeature.h)
+    ${CMAKE_CURRENT_LIST_DIR}/RicRunFaultReactAssessmentFeature.h
+)
 
 set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicGeoMechCopyCaseFeature.cpp
@@ -30,7 +31,8 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicRunAdvFaultReactAssessment3dFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicRunBasicFaultReactAssessmentFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicRunBasicFaultReactAssessment3dFeature.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RicRunFaultReactAssessmentFeature.cpp)
+    ${CMAKE_CURRENT_LIST_DIR}/RicRunFaultReactAssessmentFeature.cpp
+)
 
 list(APPEND COMMAND_CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})
 
@@ -42,4 +44,5 @@ list(APPEND COMMAND_CODE_SOURCE_FILES ${SOURCE_GROUP_SOURCE_FILES})
 source_group(
   "CommandFeature\\GeoMechCommands"
   FILES ${SOURCE_GROUP_HEADER_FILES} ${SOURCE_GROUP_SOURCE_FILES}
-        ${CMAKE_CURRENT_LIST_DIR}/CMakeLists_files.cmake)
+        ${CMAKE_CURRENT_LIST_DIR}/CMakeLists_files.cmake
+)

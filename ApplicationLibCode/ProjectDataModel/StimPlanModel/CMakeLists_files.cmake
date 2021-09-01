@@ -22,7 +22,8 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimFaciesInitialPressureConfig.h
     ${CMAKE_CURRENT_LIST_DIR}/RimPressureTableItem.h
     ${CMAKE_CURRENT_LIST_DIR}/RimPressureTable.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimExtractionConfiguration.h)
+    ${CMAKE_CURRENT_LIST_DIR}/RimExtractionConfiguration.h
+)
 
 set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimStimPlanModelCollection.cpp
@@ -46,7 +47,8 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimFaciesInitialPressureConfig.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimPressureTableItem.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimPressureTable.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RimExtractionConfiguration.cpp)
+    ${CMAKE_CURRENT_LIST_DIR}/RimExtractionConfiguration.cpp
+)
 
 list(APPEND CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})
 
@@ -57,4 +59,5 @@ list(APPEND QT_MOC_HEADERS)
 source_group(
   "ProjectDataModel\\StimPlanModel"
   FILES ${SOURCE_GROUP_HEADER_FILES} ${SOURCE_GROUP_SOURCE_FILES}
-        ${CMAKE_CURRENT_LIST_DIR}/CMakeLists_files.cmake)
+        ${CMAKE_CURRENT_LIST_DIR}/CMakeLists_files.cmake
+)

@@ -19,7 +19,8 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicCreateMultipleFracturesOptionItemUi.h
     ${CMAKE_CURRENT_LIST_DIR}/RicCreateMultipleFracturesUi.h
     ${CMAKE_CURRENT_LIST_DIR}/RicNewOptionItemFeature.h
-    ${CMAKE_CURRENT_LIST_DIR}/RicDeleteOptionItemFeature.h)
+    ${CMAKE_CURRENT_LIST_DIR}/RicDeleteOptionItemFeature.h
+)
 
 set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicPasteEllipseFractureFeature.cpp
@@ -42,16 +43,19 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicCreateMultipleFracturesOptionItemUi.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicCreateMultipleFracturesUi.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicNewOptionItemFeature.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RicDeleteOptionItemFeature.cpp)
+    ${CMAKE_CURRENT_LIST_DIR}/RicDeleteOptionItemFeature.cpp
+)
 
 list(APPEND COMMAND_CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})
 
 list(APPEND COMMAND_CODE_SOURCE_FILES ${SOURCE_GROUP_SOURCE_FILES})
 
 list(APPEND COMMAND_QT_MOC_HEADERS
-     ${CMAKE_CURRENT_LIST_DIR}/RicCreateMultipleFracturesFeature.h)
+     ${CMAKE_CURRENT_LIST_DIR}/RicCreateMultipleFracturesFeature.h
+)
 
 source_group(
   "CommandFeature\\Fracture"
   FILES ${SOURCE_GROUP_HEADER_FILES} ${SOURCE_GROUP_SOURCE_FILES}
-        ${CMAKE_CURRENT_LIST_DIR}/CMakeLists_files.cmake)
+        ${CMAKE_CURRENT_LIST_DIR}/CMakeLists_files.cmake
+)
