@@ -20,29 +20,23 @@
 
 #include "cafCmdFeature.h"
 
-#include <QString>
+#include <list>
+
+class RicGenerateMultipleSurfacesUi;
 
 //==================================================================================================
 ///
 //==================================================================================================
-class RicImportEnsembleSurfaceFeature : public caf::CmdFeature
+class RicGenerateMultipleSurfacesFeature : public caf::CmdFeature
 {
-public:
     CAF_CMD_HEADER_INIT;
 
-    RicImportEnsembleSurfaceFeature();
-
-    static void importEnsembleSurfaceFromFiles( const QStringList& fileNames );
+public:
+    static void openDialogAndExecuteCommand();
+    static void executeCommand( const RicGenerateMultipleSurfacesUi& ui, const std::list<QString>& fileNames );
 
 protected:
-    // Overrides
     bool isCommandEnabled() override;
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
-
-    QStringList runRecursiveFileSearchDialog( const QString& dialogTitle, const QString& pathCacheName );
-
-private:
-    QString m_pathFilter;
-    QString m_fileNameFilter;
 };

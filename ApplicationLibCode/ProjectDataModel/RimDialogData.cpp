@@ -27,6 +27,7 @@
 #include "ExportCommands/RicExportWellPathsUi.h"
 #include "FractureCommands/RicCreateMultipleFracturesUi.h"
 #include "HoloLensCommands/RicHoloLensExportToFolderUi.h"
+#include "RicGenerateMultipleSurfacesUi.h"
 
 CAF_PDM_SOURCE_INIT( RimDialogData, "RimDialogData" );
 
@@ -65,6 +66,14 @@ RimDialogData::RimDialogData()
 
     CAF_PDM_InitFieldNoDefault( &m_mockModelSettings, "MockModelSettings", "Mock Model Settings", "", "", "" );
     m_mockModelSettings = new RimMockModelSettings();
+
+    CAF_PDM_InitFieldNoDefault( &m_generateEnsembleSurfacesUi,
+                                "GenerateMultipleSurfacesUi",
+                                "Generate Ensmeble Surfaces Ui",
+                                "",
+                                "",
+                                "" );
+    m_generateEnsembleSurfacesUi = new RicGenerateMultipleSurfacesUi();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -154,4 +163,12 @@ RicExportEclipseSectorModelUi* RimDialogData::exportSectorModelUi() const
 RimMockModelSettings* RimDialogData::mockModelSettings() const
 {
     return m_mockModelSettings;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RicGenerateMultipleSurfacesUi* RimDialogData::generateEnsembleSurfacesUi() const
+{
+    return m_generateEnsembleSurfacesUi;
 }

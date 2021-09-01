@@ -25,6 +25,7 @@
 #include "cvfVector3.h"
 
 #include <QString>
+#include <QStringList>
 
 #include <memory>
 
@@ -39,6 +40,14 @@ public:
     RimcCommandRouter_extractSurfaces( caf::PdmObjectHandle* self );
 
     caf::PdmObjectHandle* execute() override;
+
+    static bool readMinMaxLayerFromGridFile( const QString& gridFileName, int& minK, int& maxK );
+    static std::pair<bool, QStringList> extractSurfaces( const QString&          gridModelFileName,
+                                                         const std::vector<int>& layers,
+                                                         int                     minI = -1,
+                                                         int                     maxI = -1,
+                                                         int                     minJ = -1,
+                                                         int                     maxJ = -1 );
 
 private:
     caf::PdmField<QString>          m_gridModelFilename;

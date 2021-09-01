@@ -23,6 +23,7 @@
 #include "RiaLogging.h"
 #include "RiaSummaryTools.h"
 
+#include "RicImportEnsembleFeature.h"
 #include "RicRecursiveFileSearchDialog.h"
 
 #include "RimEnsembleSurface.h"
@@ -63,6 +64,13 @@ void RicImportEnsembleSurfaceFeature::onActionTriggered( bool isChecked )
     RiaApplication* app           = RiaApplication::instance();
     QString         pathCacheName = "ENSEMBLE_SURFACE_FILES";
     QStringList     fileNames     = runRecursiveFileSearchDialog( "Import Ensemble Surface", pathCacheName );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicImportEnsembleSurfaceFeature::importEnsembleSurfaceFromFiles( const QStringList& fileNames )
+{
     if ( fileNames.isEmpty() ) return;
 
     QString ensembleName = RiaEnsembleNameTools::findSuitableEnsembleName( fileNames );
