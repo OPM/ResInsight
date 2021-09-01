@@ -14,7 +14,8 @@ if(UNIX)
   option(
     RESINSIGHT_PREFER_LEGACY_OPENGL
     "Link with Legacy OpenGL libraries. This may be necessary in some virtualization environments"
-    ON)
+    ON
+  )
   if(RESINSIGHT_PREFER_LEGACY_OPENGL)
     set(OpenGL_GL_PREFERENCE LEGACY)
   endif()
@@ -24,14 +25,16 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 set(BUILD_SHARED_LIBS
     OFF
-    CACHE BOOL "ERT: Build shared libraries")
+    CACHE BOOL "ERT: Build shared libraries"
+)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 
 option(RESINSIGHT_BUNDLE_TESTMODELS "Copy TestModels into the installation" OFF)
 
 option(VCPKG_AUTO_INSTALL
-       "Automatically download build pre-requisites with VCPKG" OFF)
+       "Automatically download build pre-requisites with VCPKG" OFF
+)
 if(VCPKG_AUTO_INSTALL)
   include(AutoVcpkg)
   set(AUTO_VCPKG_ROOT "${CMAKE_SOURCE_DIR}/ThirdParty/vcpkg")
@@ -73,7 +76,8 @@ if(RESINSIGHT_USE_OPENMP)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS} -DUSE_OPENMP")
     set(CMAKE_EXE_LINKER_FLAGS
-        "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
+        "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}"
+    )
   else()
     message(STATUS "Disabling OpenMP support")
   endif()
@@ -112,9 +116,11 @@ if(RESINSIGHT_ENABLE_GRPC)
   option(
     RESINSIGHT_GRPC_DOWNLOAD_PYTHON_MODULE
     "Download the gRPC python modules to enable generation of Python interface"
-    ON)
+    ON
+  )
   option(RESINSIGHT_GRPC_BUNDLE_PYTHON_MODULE
-         "Bundle the gRPC python modules into the install folder" OFF)
+         "Bundle the gRPC python modules into the install folder" OFF
+  )
   add_definitions(-DENABLE_GRPC)
 endif()
 
@@ -124,7 +130,8 @@ endif()
 
 # CMAKE_UNITY_BUILD was introduced in CMake 3.16.2
 option(RESINSIGHT_ENABLE_UNITY_BUILD
-       "Experimental speedup of compilation using CMake Unity Build" OFF)
+       "Experimental speedup of compilation using CMake Unity Build" OFF
+)
 mark_as_advanced(FORCE RESINSIGHT_ENABLE_UNITY_BUILD)
 if(RESINSIGHT_ENABLE_UNITY_BUILD)
   set(CAF_ENABLE_UNITY_BUILD true)
@@ -145,15 +152,18 @@ if(NOT MSVC)
   # libraries and includes
   set(RESINSIGHT_ERT_EXTERNAL_LIB_ROOT
       ""
-      CACHE PATH "Path to installed ERT libraries")
+      CACHE PATH "Path to installed ERT libraries"
+  )
   set(RESINSIGHT_ERT_EXTERNAL_INCLUDE_ROOT
       ""
-      CACHE PATH "Path to installed ERT includes")
+      CACHE PATH "Path to installed ERT includes"
+  )
 endif()
 
 if(RESINSIGHT_ERT_EXTERNAL_LIB_ROOT OR RESINSIGHT_ERT_EXTERNAL_INCLUDE_ROOT)
   if(NOT (RESINSIGHT_ERT_EXTERNAL_LIB_ROOT
-          AND RESINSIGHT_ERT_EXTERNAL_INCLUDE_ROOT))
+          AND RESINSIGHT_ERT_EXTERNAL_INCLUDE_ROOT)
+  )
     message(
       FATAL_ERROR
         "Both RESINSIGHT_ERT_EXTERNAL_LIB_ROOT and RESINSIGHT_ERT_EXTERNAL_INCLUDE_ROOT must be defined"
@@ -162,7 +172,8 @@ if(RESINSIGHT_ERT_EXTERNAL_LIB_ROOT OR RESINSIGHT_ERT_EXTERNAL_INCLUDE_ROOT)
 
   message(
     FATAL_ERROR
-      "TODO: Building using and external system installed ERT is broken.")
+      "TODO: Building using and external system installed ERT is broken."
+  )
 
   list(APPEND ERT_INCLUDE_DIRS ${RESINSIGHT_ERT_EXTERNAL_INCLUDE_ROOT})
 
@@ -174,10 +185,12 @@ else()
   # directly
   set(INSTALL_ERT
       OFF
-      CACHE BOOL "ERT: Install library")
+      CACHE BOOL "ERT: Install library"
+  )
   set(ERT_USE_OPENMP
       ${OPENMP_FOUND}
-      CACHE BOOL "ERT: Compile using OpenMP")
+      CACHE BOOL "ERT: Compile using OpenMP"
+  )
 
   # Remember original state
   set(ORIGINAL_BUILD_SHARED_LIBS ${BUILD_SHARED_LIBS})
@@ -189,7 +202,8 @@ else()
   else()
     set(RESINSIGHT_ERT_EXTERNAL_SOURCE_ROOT
         ""
-        CACHE STRING "Path to ERT CMakeList.txt (source path)")
+        CACHE STRING "Path to ERT CMakeList.txt (source path)"
+    )
 
     # Force dynamic linking on other platforms Copy of libraries into install
     # folder of ResInsight is done a bit further down in this file
@@ -197,8 +211,9 @@ else()
   endif()
 
   if(RESINSIGHT_ERT_EXTERNAL_SOURCE_ROOT)
-    add_subdirectory(${RESINSIGHT_ERT_EXTERNAL_SOURCE_ROOT}
-                     ${CMAKE_BINARY_DIR}/ThirdParty/Ert)
+    add_subdirectory(
+      ${RESINSIGHT_ERT_EXTERNAL_SOURCE_ROOT} ${CMAKE_BINARY_DIR}/ThirdParty/Ert
+    )
   else()
     add_subdirectory(ThirdParty/Ert)
   endif()
@@ -215,7 +230,8 @@ else()
     set_target_properties(
       ecl
       PROPERTIES COMPILE_FLAGS
-                 "-Wno-deprecated -Wno-deprecated-declarations -Wno-clobbered")
+                 "-Wno-deprecated -Wno-deprecated-declarations -Wno-clobbered"
+    )
   endif()
 
   list(APPEND THIRD_PARTY_LIBRARIES ecl)
@@ -252,7 +268,8 @@ if(GIT_FOUND AND EXISTS "${PROJECT_SOURCE_DIR}/.git")
         COMMAND ${GIT_EXECUTABLE} submodule update --init --recursive --
                 ${SUBDIR}
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-        RESULT_VARIABLE GIT_SUBMOD_RESULT)
+        RESULT_VARIABLE GIT_SUBMOD_RESULT
+      )
       if(NOT GIT_SUBMOD_RESULT EQUAL "0")
         message(
           FATAL_ERROR
@@ -283,7 +300,8 @@ if(buildcache_program)
     if(CMAKE_CXX_FLAGS_DEBUG MATCHES "/Zi")
       message(STATUS "Clearing pdb setting")
       string(REGEX REPLACE "/Zi" "" CMAKE_CXX_FLAGS_DEBUG
-                           "${CMAKE_CXX_FLAGS_DEBUG}")
+                           "${CMAKE_CXX_FLAGS_DEBUG}"
+      )
     endif()
 
     set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /Z7")
@@ -298,13 +316,15 @@ endif()
 if(MSVC)
   set(RESINSIGHT_HDF5_DIR
       ""
-      CACHE PATH "Windows Only: Optional path to HDF5 libraries on Windows")
+      CACHE PATH "Windows Only: Optional path to HDF5 libraries on Windows"
+  )
 endif()
 
 if(MSVC)
   if(NOT ${RESINSIGHT_HDF5_DIR} EQUAL "")
     list(APPEND EXTERNAL_LINK_LIBRARIES ${RESINSIGHT_HDF5_DIR}/lib/hdf5.lib
-         ${RESINSIGHT_HDF5_DIR}/lib/hdf5_cpp.lib)
+         ${RESINSIGHT_HDF5_DIR}/lib/hdf5_cpp.lib
+    )
 
     set(RESINSIGHT_FOUND_HDF5 1)
     message(STATUS "Using HDF5 from : ${RESINSIGHT_HDF5_DIR}")
@@ -349,7 +369,8 @@ add_subdirectory(ThirdParty/custom-opm-common)
 add_subdirectory(ThirdParty/custom-opm-common/custom-opm-parser-tests)
 
 list(APPEND OPM_LIBRARIES custom-opm-flowdiagnostics custom-opm-flowdiag-app
-     custom-opm-common)
+     custom-opm-common
+)
 
 set_property(TARGET ${OPM_LIBRARIES} PROPERTY FOLDER "Thirdparty/OPM")
 
@@ -373,7 +394,8 @@ find_package(
              Script
              ScriptTools
              Widgets
-  OPTIONAL_COMPONENTS Charts)
+  OPTIONAL_COMPONENTS Charts
+)
 if(Qt5Charts_FOUND)
   message(STATUS "QtCharts found: ${Qt5Charts_LIBRARIES}")
   add_definitions(-DUSE_QTCHARTS)
@@ -446,7 +468,8 @@ if(CMAKE_COMPILER_IS_GNUCC)
             __sync_fetch_and_add(&a, 1);
             __sync_sub_and_fetch(&a, 1);
             __sync_fetch_and_sub(&a, 1); }"
-      HAVE_GCC_SYNC_FUNCTIONS)
+      HAVE_GCC_SYNC_FUNCTIONS
+    )
   endif()
 
   if(HAVE_GCC_SYNC_FUNCTIONS)
@@ -474,7 +497,8 @@ list(
   LibViewing
   LibRender
   LibGeometry
-  LibCore)
+  LibCore
+)
 
 set_property(TARGET ${VIZ_FWK_LIBRARIES} PROPERTY FOLDER "VizFwk")
 
@@ -520,7 +544,8 @@ list(
   cafTensor
   CommonCode
   cafVizExtensions
-  cafPdmScripting)
+  cafPdmScripting
+)
 
 set_property(TARGET ${APP_FWK_LIBRARIES} PROPERTY FOLDER "AppFwk")
 
@@ -530,11 +555,13 @@ mark_as_advanced(FORCE RESINSIGHT_INCLUDE_APPFWK_TESTS)
 if(RESINSIGHT_INCLUDE_APPFWK_TESTS)
   # Unit Tests
   add_subdirectory(Fwk/AppFwk/cafProjectDataModel/cafProjectDataModel_UnitTests)
-  set_property(TARGET cafProjectDataModel_UnitTests PROPERTY FOLDER
-                                                             "AppFwkTests")
+  set_property(
+    TARGET cafProjectDataModel_UnitTests PROPERTY FOLDER "AppFwkTests"
+  )
 
   add_subdirectory(
-    Fwk/AppFwk/cafProjectDataModel/cafPdmCore/cafPdmCore_UnitTests)
+    Fwk/AppFwk/cafProjectDataModel/cafPdmCore/cafPdmCore_UnitTests
+  )
   set_property(TARGET cafPdmCore_UnitTests PROPERTY FOLDER "AppFwkTests")
 
   add_subdirectory(Fwk/AppFwk/cafProjectDataModel/cafPdmXml/cafPdmXml_UnitTests)
@@ -560,7 +587,8 @@ set(RESINSIGHT_INSTALL_FOLDER ".")
 # override system install prefix if private installation chosen
 option(RESINSIGHT_PRIVATE_INSTALL
        "Linux only: Install the libecl shared libraries along the executable"
-       ON)
+       ON
+)
 mark_as_advanced(FORCE RESINSIGHT_PRIVATE_INSTALL)
 
 if(RESINSIGHT_PRIVATE_INSTALL)
@@ -577,7 +605,8 @@ if(RESINSIGHT_PRIVATE_INSTALL)
         ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/libecl.so.2.4
     )
     install(FILES ${ERT_SHARED_LIB_FILES}
-            DESTINATION ${RESINSIGHT_INSTALL_FOLDER})
+            DESTINATION ${RESINSIGHT_INSTALL_FOLDER}
+    )
   endif()
 
   if(APPLE)
@@ -588,7 +617,8 @@ if(RESINSIGHT_PRIVATE_INSTALL)
     )
     install(
       FILES ${ERT_SHARED_LIB_FILES}
-      DESTINATION ${RESINSIGHT_INSTALL_FOLDER}/ResInsight.app/Contents/MacOS)
+      DESTINATION ${RESINSIGHT_INSTALL_FOLDER}/ResInsight.app/Contents/MacOS
+    )
   endif()
 
 endif(RESINSIGHT_PRIVATE_INSTALL)
@@ -602,7 +632,8 @@ if(RESINSIGHT_HDF5_BUNDLE_LIBRARIES)
       if(${POS_IN_STRING} GREATER -1)
         file(GLOB FILE_AND_SYMLINKS ${FILE_TO_COPY}*)
         install(FILES ${FILE_AND_SYMLINKS}
-                DESTINATION ${RESINSIGHT_INSTALL_FOLDER})
+                DESTINATION ${RESINSIGHT_INSTALL_FOLDER}
+        )
       endif()
     endforeach()
   endif()
@@ -610,7 +641,8 @@ endif(RESINSIGHT_HDF5_BUNDLE_LIBRARIES)
 
 if(RESINSIGHT_BUNDLE_TESTMODELS)
   install(DIRECTORY ${CMAKE_SOURCE_DIR}/TestModels
-          DESTINATION ${RESINSIGHT_INSTALL_FOLDER})
+          DESTINATION ${RESINSIGHT_INSTALL_FOLDER}
+  )
 endif()
 
 # ##############################################################################
@@ -628,14 +660,16 @@ if(OCTAVE_MKOCTFILE)
   add_subdirectory(OctavePlugin)
 else(OCTAVE_MKOCTFILE)
   message(
-    STATUS "Could not find OCTAVE_MKOCTFILE, skipping OctavePlugin library")
+    STATUS "Could not find OCTAVE_MKOCTFILE, skipping OctavePlugin library"
+  )
 endif(OCTAVE_MKOCTFILE)
 
 # ##############################################################################
 # Code documentation using Doxygen
 # ##############################################################################
 option(RESINSIGHT_BUILD_DOCUMENTATION
-       "Use Doxygen to create the HTML based API documentation" OFF)
+       "Use Doxygen to create the HTML based API documentation" OFF
+)
 if(RESINSIGHT_BUILD_DOCUMENTATION)
   find_package(Doxygen)
   if(NOT DOXYGEN_FOUND)
@@ -650,7 +684,8 @@ if(RESINSIGHT_BUILD_DOCUMENTATION)
   add_custom_target(
     Docs
     COMMAND ${DOXYGEN_EXECUTABLE} ${PROJECT_BINARY_DIR}/Doxyfile
-    SOURCES ${PROJECT_BINARY_DIR}/Doxyfile)
+    SOURCES ${PROJECT_BINARY_DIR}/Doxyfile
+  )
   # IF you do NOT want the documentation to be generated EVERY time you build
   # the project then leave out the 'ALL' keyword from the above command.
 endif(RESINSIGHT_BUILD_DOCUMENTATION)

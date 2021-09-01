@@ -72,7 +72,8 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicNewPressureTableItemFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicDeletePressureTableItemFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicImportGridModelFromSummaryCaseFeature.h
-    ${CMAKE_CURRENT_LIST_DIR}/RicImportGridModelFromSummaryCurveFeature.h)
+    ${CMAKE_CURRENT_LIST_DIR}/RicImportGridModelFromSummaryCurveFeature.h
+)
 
 set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicWellLogTools.cpp
@@ -147,17 +148,20 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicNewPressureTableItemFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicDeletePressureTableItemFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicImportGridModelFromSummaryCaseFeature.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RicImportGridModelFromSummaryCurveFeature.cpp)
+    ${CMAKE_CURRENT_LIST_DIR}/RicImportGridModelFromSummaryCurveFeature.cpp
+)
 
 if(Qt5Charts_FOUND)
   list(
     APPEND SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicCreateEnsembleFractureStatisticsPlotFeature.h
-    ${CMAKE_CURRENT_LIST_DIR}/RicCreateGridStatisticsPlotFeature.h)
+    ${CMAKE_CURRENT_LIST_DIR}/RicCreateGridStatisticsPlotFeature.h
+  )
   list(
     APPEND SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicCreateEnsembleFractureStatisticsPlotFeature.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RicCreateGridStatisticsPlotFeature.cpp)
+    ${CMAKE_CURRENT_LIST_DIR}/RicCreateGridStatisticsPlotFeature.cpp
+  )
 endif()
 
 list(APPEND COMMAND_CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})
@@ -170,9 +174,11 @@ list(
   ${CMAKE_CURRENT_LIST_DIR}/RicGridStatisticsDialog.h
   ${CMAKE_CURRENT_LIST_DIR}/RicRecursiveFileSearchDialog.h
   ${CMAKE_CURRENT_LIST_DIR}/RicSummaryCaseRestartDialog.h
-  ${CMAKE_CURRENT_LIST_DIR}/RicResampleDialog.h)
+  ${CMAKE_CURRENT_LIST_DIR}/RicResampleDialog.h
+)
 
 source_group(
   "CommandFeature"
   FILES ${SOURCE_GROUP_HEADER_FILES} ${SOURCE_GROUP_SOURCE_FILES}
-        ${CMAKE_CURRENT_LIST_DIR}/CMakeLists_files.cmake)
+        ${CMAKE_CURRENT_LIST_DIR}/CMakeLists_files.cmake
+)

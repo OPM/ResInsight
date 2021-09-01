@@ -19,7 +19,8 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/VdeExportPart.h
     ${CMAKE_CURRENT_LIST_DIR}/VdeFileExporter.h
     ${CMAKE_CURRENT_LIST_DIR}/VdePacketDirectory.h
-    ${CMAKE_CURRENT_LIST_DIR}/VdeVizDataExtractor.h)
+    ${CMAKE_CURRENT_LIST_DIR}/VdeVizDataExtractor.h
+)
 
 set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicHoloLensExportToFolderFeature.cpp
@@ -41,7 +42,8 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/VdeExportPart.cpp
     ${CMAKE_CURRENT_LIST_DIR}/VdeFileExporter.cpp
     ${CMAKE_CURRENT_LIST_DIR}/VdePacketDirectory.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/VdeVizDataExtractor.cpp)
+    ${CMAKE_CURRENT_LIST_DIR}/VdeVizDataExtractor.cpp
+)
 
 list(APPEND COMMAND_CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})
 
@@ -49,9 +51,11 @@ list(APPEND COMMAND_CODE_SOURCE_FILES ${SOURCE_GROUP_SOURCE_FILES})
 
 set(COMMAND_QT_MOC_HEADERS
     ${COMMAND_QT_MOC_HEADERS} ${CMAKE_CURRENT_LIST_DIR}/RicHoloLensRestClient.h
-    ${CMAKE_CURRENT_LIST_DIR}/RicExportToSharingServerScheduler.h)
+    ${CMAKE_CURRENT_LIST_DIR}/RicExportToSharingServerScheduler.h
+)
 
 source_group(
   "CommandFeature\\HoloLens"
   FILES ${SOURCE_GROUP_HEADER_FILES} ${SOURCE_GROUP_SOURCE_FILES}
-        ${CMAKE_CURRENT_LIST_DIR}/CMakeLists_files.cmake)
+        ${CMAKE_CURRENT_LIST_DIR}/CMakeLists_files.cmake
+)

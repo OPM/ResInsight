@@ -13,7 +13,8 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimWellPlotTools.h
     ${CMAKE_CURRENT_LIST_DIR}/RimWellRftEnsembleCurveSet.h
     ${CMAKE_CURRENT_LIST_DIR}/RimWellDistributionPlot.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimWellDistributionPlotCollection.h)
+    ${CMAKE_CURRENT_LIST_DIR}/RimWellDistributionPlotCollection.h
+)
 
 set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimFlowDiagSolution.cpp
@@ -30,7 +31,8 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimWellPlotTools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimWellRftEnsembleCurveSet.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimWellDistributionPlot.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RimWellDistributionPlotCollection.cpp)
+    ${CMAKE_CURRENT_LIST_DIR}/RimWellDistributionPlotCollection.cpp
+)
 
 list(APPEND CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})
 
@@ -39,4 +41,5 @@ list(APPEND CODE_SOURCE_FILES ${SOURCE_GROUP_SOURCE_FILES})
 source_group(
   "ProjectDataModel\\Flow"
   FILES ${SOURCE_GROUP_HEADER_FILES} ${SOURCE_GROUP_SOURCE_FILES}
-        ${CMAKE_CURRENT_LIST_DIR}/CMakeLists_files.cmake)
+        ${CMAKE_CURRENT_LIST_DIR}/CMakeLists_files.cmake
+)

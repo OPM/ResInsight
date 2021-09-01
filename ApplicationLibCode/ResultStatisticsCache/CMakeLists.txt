@@ -8,7 +8,8 @@ add_library(
   ${PROJECT_NAME}
   RigStatisticsCalculator.h RigStatisticsCalculator.cpp
   RigStatisticsDataCache.h RigStatisticsDataCache.cpp RigStatisticsMath.h
-  RigStatisticsMath.cpp)
+  RigStatisticsMath.cpp
+)
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 

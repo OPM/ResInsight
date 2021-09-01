@@ -78,9 +78,11 @@ list(
   ${CMAKE_CURRENT_LIST_DIR}/PointTangentManipulator/RicWellPathGeometry3dEditor.h
   ${CMAKE_CURRENT_LIST_DIR}/PointTangentManipulator/RicPolyline3dEditor.h
   ${CMAKE_CURRENT_LIST_DIR}/PointTangentManipulator/RicPolylineTarget3dEditor.h
-  ${CMAKE_CURRENT_LIST_DIR}/RicCreateMultipleWellPathLaterals.h)
+  ${CMAKE_CURRENT_LIST_DIR}/RicCreateMultipleWellPathLaterals.h
+)
 
 source_group(
   "CommandFeature\\WellPath"
   FILES ${SOURCE_GROUP_HEADER_FILES} ${SOURCE_GROUP_SOURCE_FILES}
-        ${CMAKE_CURRENT_LIST_DIR}/CMakeLists_files.cmake)
+        ${CMAKE_CURRENT_LIST_DIR}/CMakeLists_files.cmake
+)

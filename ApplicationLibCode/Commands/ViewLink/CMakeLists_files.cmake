@@ -8,7 +8,8 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicDeleteAllLinkedViewsFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicSetMasterViewFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicRemoveComparison3dViewFeature.h
-    ${CMAKE_CURRENT_LIST_DIR}/RicCompareTo3dViewFeature.h)
+    ${CMAKE_CURRENT_LIST_DIR}/RicCompareTo3dViewFeature.h
+)
 
 set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicLinkVisibleViewsFeature.cpp
@@ -20,7 +21,8 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicDeleteAllLinkedViewsFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicSetMasterViewFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicRemoveComparison3dViewFeature.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RicCompareTo3dViewFeature.cpp)
+    ${CMAKE_CURRENT_LIST_DIR}/RicCompareTo3dViewFeature.cpp
+)
 
 list(APPEND COMMAND_CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})
 
@@ -29,4 +31,5 @@ list(APPEND COMMAND_CODE_SOURCE_FILES ${SOURCE_GROUP_SOURCE_FILES})
 source_group(
   "CommandFeature\\ViewLink"
   FILES ${SOURCE_GROUP_HEADER_FILES} ${SOURCE_GROUP_SOURCE_FILES}
-        ${CMAKE_CURRENT_LIST_DIR}/CMakeLists_files.cmake)
+        ${CMAKE_CURRENT_LIST_DIR}/CMakeLists_files.cmake
+)

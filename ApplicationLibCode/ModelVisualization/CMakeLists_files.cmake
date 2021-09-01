@@ -58,7 +58,8 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RivElementVectorResultPartMgr.h
     ${CMAKE_CURRENT_LIST_DIR}/RivPolylinePartMgr.h
     ${CMAKE_CURRENT_LIST_DIR}/RivCellFilterPartMgr.h
-    ${CMAKE_CURRENT_LIST_DIR}/RivDrawableSpheres.h)
+    ${CMAKE_CURRENT_LIST_DIR}/RivDrawableSpheres.h
+)
 
 set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RivCellEdgeEffectGenerator.cpp
@@ -115,7 +116,8 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RivElementVectorResultPartMgr.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RivPolylinePartMgr.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RivCellFilterPartMgr.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RivDrawableSpheres.cpp)
+    ${CMAKE_CURRENT_LIST_DIR}/RivDrawableSpheres.cpp
+)
 
 list(APPEND CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})
 
@@ -124,4 +126,5 @@ list(APPEND CODE_SOURCE_FILES ${SOURCE_GROUP_SOURCE_FILES})
 source_group(
   "ModelVisualization"
   FILES ${SOURCE_GROUP_HEADER_FILES} ${SOURCE_GROUP_SOURCE_FILES}
-        ${CMAKE_CURRENT_LIST_DIR}/CMakeLists_files.cmake)
+        ${CMAKE_CURRENT_LIST_DIR}/CMakeLists_files.cmake
+)
