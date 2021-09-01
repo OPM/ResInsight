@@ -970,6 +970,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicImportSurfacesFeature";
             menuBuilder << "RicNewGridSurfaceFeature";
             menuBuilder << "RicImportEnsembleSurfaceFeature";
+            menuBuilder << "RicExportMultipleSurfacesFeature";
             menuBuilder.addSeparator();
             menuBuilder << "RicNewSurfaceCollectionFeature";
         }

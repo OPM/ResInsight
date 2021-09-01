@@ -73,6 +73,8 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicDeletePressureTableItemFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicImportGridModelFromSummaryCaseFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicImportGridModelFromSummaryCurveFeature.h
+    ${CMAKE_CURRENT_LIST_DIR}/RicExportMultipleSurfacesFeature.h
+    ${CMAKE_CURRENT_LIST_DIR}/RicExportMultipleSurfacesUi.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
@@ -149,6 +151,8 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicDeletePressureTableItemFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicImportGridModelFromSummaryCaseFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicImportGridModelFromSummaryCurveFeature.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicExportMultipleSurfacesFeature.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicExportMultipleSurfacesUi.cpp
 )
 
 if(Qt5Charts_FOUND)
