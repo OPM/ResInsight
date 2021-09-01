@@ -56,20 +56,36 @@ RimcCommandRouter_extractSurfaces::RimcCommandRouter_extractSurfaces( caf::PdmOb
 //--------------------------------------------------------------------------------------------------
 caf::PdmObjectHandle* RimcCommandRouter_extractSurfaces::execute()
 {
+    extractSurfaces( m_gridModelFilename, m_layers(), m_minimumI(), m_maximumI(), m_minimumJ(), m_maximumJ() );
+    return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::pair<bool, QStringList> RimcCommandRouter_extractSurfaces::extractSurfaces( const QString& gridModelFilename,
+                                                                                 const std::vector<int>& layers,
+                                                                                 int                     minI,
+                                                                                 int                     maxI,
+                                                                                 int                     minJ,
+                                                                                 int                     maxJ )
+{
+    QStringList surfaceFileNames;
+
     try
     {
-        std::string       filename = m_gridModelFilename().toStdString();
+        std::string       filename = gridModelFilename.toStdString();
         Opm::EclIO::EGrid grid1( filename );
 
         auto dims = grid1.dimension();
-        int  minI = m_minimumI() == -1 ? 0 : m_minimumI();
-        int  maxI = m_maximumI() == -1 ? dims[0] - 1 : m_maximumI();
-        int  minJ = m_minimumJ() == -1 ? 0 : m_minimumJ();
-        int  maxJ = m_maximumJ() == -1 ? dims[1] - 1 : m_maximumJ();
+        minI      = minI == -1 ? 0 : minI;
+        maxI      = maxI == -1 ? dims[0] - 1 : maxI;
+        minJ      = minJ == -1 ? 0 : minJ;
+        maxJ      = maxJ == -1 ? dims[1] - 1 : maxJ;
 
         std::array<int, 4> range = { minI, maxI, minJ, maxJ };
 
-        for ( auto layer : m_layers() )
+        for ( auto layer : layers )
         {
             bool bottom   = false;
             auto xyz_data = grid1.getXYZ_layer( layer, range, bottom );
@@ -108,27 +124,62 @@ caf::PdmObjectHandle* RimcCommandRouter_extractSurfaces::execute()
                 startOfCellCoordIndex += 4;
             }
 
-            // Write to TS file on disk
+            QString surfaceExportDirName = "surfaceexport";
 
-            QFileInfo fi( m_gridModelFilename );
-            QString   surfaceFilename = fi.absoluteDir().absolutePath() +
-                                      QString( "/surfaceexport/layer-%1.ts" ).arg( layer );
+            // Create missing directories
+            QFileInfo fi( gridModelFilename );
+            if ( !fi.absoluteDir().exists( surfaceExportDirName ) )
+            {
+                if ( !fi.absoluteDir().mkpath( surfaceExportDirName ) )
+                {
+                    RiaLogging::error( "Unable to create directory for surface export: " + fi.absoluteDir().absolutePath() );
+                    return std::make_pair( false, surfaceFileNames );
+                }
+            }
+
+            // Write to TS file on disk
+            QString surfaceFilename = fi.absoluteDir().absolutePath() +
+                                      QString( "/%1/layer-%2.ts" ).arg( surfaceExportDirName ).arg( layer );
 
             // TODO: Add more info in surface comment
             if ( !RifSurfaceExporter::writeGocadTSurfFile( surfaceFilename, "Surface comment", vertices, triangleIndices ) )
             {
                 RiaLogging::error( "Failed to export surface data to " + surfaceFilename );
+                return std::make_pair( false, surfaceFileNames );
             }
             else
             {
-                RiaLogging::error( "Successfully exported surface data to " + surfaceFilename );
+                surfaceFileNames << surfaceFilename;
+                RiaLogging::info( "Successfully exported surface data to " + surfaceFilename );
             }
         }
+
+        return std::make_pair( true, surfaceFileNames );
     }
     catch ( ... )
     {
-        RiaLogging::error( "Error during creation of surface data for model " + m_gridModelFilename() );
+        RiaLogging::error( "Error during creation of surface data for model " + gridModelFilename );
+        return std::make_pair( false, surfaceFileNames );
     }
+}
 
-    return nullptr;
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimcCommandRouter_extractSurfaces::readMinMaxLayerFromGridFile( const QString& gridFileName, int& minK, int& maxK )
+{
+    try
+    {
+        Opm::EclIO::EGrid grid1( gridFileName.toStdString() );
+
+        auto dims = grid1.dimension();
+        minK      = 1;
+        maxK      = dims[2];
+        return true;
+    }
+    catch ( ... )
+    {
+        RiaLogging::error( "Unable to read dimensions from " + gridFileName );
+        return false;
+    }
 }
