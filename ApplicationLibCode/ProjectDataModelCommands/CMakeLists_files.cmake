@@ -17,7 +17,8 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimcWellLogPlot.h
     ${CMAKE_CURRENT_LIST_DIR}/RimcWellLogTrack.h
     ${CMAKE_CURRENT_LIST_DIR}/RimcWellPathGeometryDef.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimcModeledWellPath.h)
+    ${CMAKE_CURRENT_LIST_DIR}/RimcModeledWellPath.h
+)
 
 set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimcSummaryPlotCollection.cpp
@@ -38,7 +39,8 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimcWellLogPlot.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimcWellLogTrack.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimcWellPathGeometryDef.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RimcModeledWellPath.cpp)
+    ${CMAKE_CURRENT_LIST_DIR}/RimcModeledWellPath.cpp
+)
 
 list(APPEND CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})
 
@@ -47,4 +49,5 @@ list(APPEND CODE_SOURCE_FILES ${SOURCE_GROUP_SOURCE_FILES})
 source_group(
   "ProjectDataModelCommands"
   FILES ${SOURCE_GROUP_HEADER_FILES} ${SOURCE_GROUP_SOURCE_FILES}
-        ${CMAKE_CURRENT_LIST_DIR}/CMakeLists_files.cmake)
+        ${CMAKE_CURRENT_LIST_DIR}/CMakeLists_files.cmake
+)

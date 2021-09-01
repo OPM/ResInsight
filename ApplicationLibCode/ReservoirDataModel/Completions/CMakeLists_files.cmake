@@ -7,7 +7,8 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RigWellPathStimplanIntersector.h
     ${CMAKE_CURRENT_LIST_DIR}/RigVirtualPerforationTransmissibilities.h
     ${CMAKE_CURRENT_LIST_DIR}/RigEclipseToStimPlanCalculator.h
-    ${CMAKE_CURRENT_LIST_DIR}/RigPerforationTransmissibilityEquations.h)
+    ${CMAKE_CURRENT_LIST_DIR}/RigPerforationTransmissibilityEquations.h
+)
 
 set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RigCompletionData.cpp
@@ -18,7 +19,8 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RigWellPathStimplanIntersector.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigVirtualPerforationTransmissibilities.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigEclipseToStimPlanCalculator.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RigPerforationTransmissibilityEquations.cpp)
+    ${CMAKE_CURRENT_LIST_DIR}/RigPerforationTransmissibilityEquations.cpp
+)
 
 list(APPEND CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})
 
@@ -27,4 +29,5 @@ list(APPEND CODE_SOURCE_FILES ${SOURCE_GROUP_SOURCE_FILES})
 source_group(
   "ReservoirDataModel\\Completions"
   FILES ${SOURCE_GROUP_HEADER_FILES} ${SOURCE_GROUP_SOURCE_FILES}
-        ${CMAKE_CURRENT_LIST_DIR}/CMakeLists_files.cmake)
+        ${CMAKE_CURRENT_LIST_DIR}/CMakeLists_files.cmake
+)

@@ -9,7 +9,8 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicPlotProductionRateFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicSelectViewUI.h
     ${CMAKE_CURRENT_LIST_DIR}/RicShowTotalAllocationDataFeature.h
-    ${CMAKE_CURRENT_LIST_DIR}/RicShowCumulativePhasePlotFeature.h)
+    ${CMAKE_CURRENT_LIST_DIR}/RicShowCumulativePhasePlotFeature.h
+)
 
 set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicAddStoredFlowCharacteristicsPlotFeature.cpp
@@ -22,7 +23,8 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicPlotProductionRateFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicSelectViewUI.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicShowTotalAllocationDataFeature.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RicShowCumulativePhasePlotFeature.cpp)
+    ${CMAKE_CURRENT_LIST_DIR}/RicShowCumulativePhasePlotFeature.cpp
+)
 
 list(APPEND COMMAND_CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})
 
@@ -31,4 +33,5 @@ list(APPEND COMMAND_CODE_SOURCE_FILES ${SOURCE_GROUP_SOURCE_FILES})
 source_group(
   "CommandFeature\\FlowDiagnostics"
   FILES ${SOURCE_GROUP_HEADER_FILES} ${SOURCE_GROUP_SOURCE_FILES}
-        ${CMAKE_CURRENT_LIST_DIR}/CMakeLists_files.cmake)
+        ${CMAKE_CURRENT_LIST_DIR}/CMakeLists_files.cmake
+)

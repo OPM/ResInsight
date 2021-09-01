@@ -4,7 +4,8 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiaSCurveCalculator.h
     ${CMAKE_CURRENT_LIST_DIR}/RiaArcCurveCalculator.h
     ${CMAKE_CURRENT_LIST_DIR}/RiaJCurveCalculator.h
-    ${CMAKE_CURRENT_LIST_DIR}/RiaLineArcWellPathCalculator.h)
+    ${CMAKE_CURRENT_LIST_DIR}/RiaLineArcWellPathCalculator.h
+)
 
 set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiaPolyArcLineSampler.cpp
@@ -12,7 +13,8 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiaSCurveCalculator.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaArcCurveCalculator.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaJCurveCalculator.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RiaLineArcWellPathCalculator.cpp)
+    ${CMAKE_CURRENT_LIST_DIR}/RiaLineArcWellPathCalculator.cpp
+)
 
 list(APPEND CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})
 
@@ -23,4 +25,5 @@ set(QT_MOC_HEADERS ${QT_MOC_HEADERS})
 source_group(
   "Application\\Tools\\WellPathTools"
   FILES ${SOURCE_GROUP_HEADER_FILES} ${SOURCE_GROUP_SOURCE_FILES}
-        ${CMAKE_CURRENT_LIST_DIR}/CMakeLists_files.cmake)
+        ${CMAKE_CURRENT_LIST_DIR}/CMakeLists_files.cmake
+)

@@ -32,7 +32,8 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimMultipleValveLocations.h
     ${CMAKE_CURRENT_LIST_DIR}/RimWellPathAicdParameters.h
     ${CMAKE_CURRENT_LIST_DIR}/RimEnsembleFractureStatistics.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimEnsembleFractureStatisticsCollection.h)
+    ${CMAKE_CURRENT_LIST_DIR}/RimEnsembleFractureStatisticsCollection.h
+)
 
 set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimCompletionCellIntersectionCalc.cpp
@@ -65,7 +66,8 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimMultipleValveLocations.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimWellPathAicdParameters.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimEnsembleFractureStatistics.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RimEnsembleFractureStatisticsCollection.cpp)
+    ${CMAKE_CURRENT_LIST_DIR}/RimEnsembleFractureStatisticsCollection.cpp
+)
 
 list(APPEND CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})
 
@@ -74,4 +76,5 @@ list(APPEND CODE_SOURCE_FILES ${SOURCE_GROUP_SOURCE_FILES})
 source_group(
   "ProjectDataModel\\Completions"
   FILES ${SOURCE_GROUP_HEADER_FILES} ${SOURCE_GROUP_SOURCE_FILES}
-        ${CMAKE_CURRENT_LIST_DIR}/CMakeLists_files.cmake)
+        ${CMAKE_CURRENT_LIST_DIR}/CMakeLists_files.cmake
+)

@@ -44,7 +44,8 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiaWellLogUnitTools.h
     ${CMAKE_CURRENT_LIST_DIR}/RiaWellLogUnitTools.inl
     ${CMAKE_CURRENT_LIST_DIR}/RiaTimeTTools.h
-    ${CMAKE_CURRENT_LIST_DIR}/RiaValidRegExpValidator.h)
+    ${CMAKE_CURRENT_LIST_DIR}/RiaValidRegExpValidator.h
+)
 
 set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiaArgumentParser.h
@@ -93,7 +94,8 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiaWellLogUnitTools.inl
     ${CMAKE_CURRENT_LIST_DIR}/RiaTimeTTools.h
     ${CMAKE_CURRENT_LIST_DIR}/RiaValidRegExpValidator.h
-    ${CMAKE_CURRENT_LIST_DIR}/RiaEnsembleNameTools.h)
+    ${CMAKE_CURRENT_LIST_DIR}/RiaEnsembleNameTools.h
+)
 
 set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiaArgumentParser.cpp
@@ -135,7 +137,8 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiaBoundingBoxTools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaTimeTTools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaValidRegExpValidator.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RiaEnsembleNameTools.cpp)
+    ${CMAKE_CURRENT_LIST_DIR}/RiaEnsembleNameTools.cpp
+)
 
 list(APPEND CODE_SOURCE_FILES ${SOURCE_GROUP_SOURCE_FILES})
 
@@ -144,4 +147,5 @@ set(QT_MOC_HEADERS ${QT_MOC_HEADERS})
 source_group(
   "Application\\Tools"
   FILES ${SOURCE_GROUP_HEADER_FILES} ${SOURCE_GROUP_SOURCE_FILES}
-        ${CMAKE_CURRENT_LIST_DIR}/CMakeLists_files.cmake)
+        ${CMAKE_CURRENT_LIST_DIR}/CMakeLists_files.cmake
+)

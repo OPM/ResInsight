@@ -118,7 +118,8 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimPolylinesDataInterface.h
     ${CMAKE_CURRENT_LIST_DIR}/RimEnsembleCurveSetInterface.h
     ${CMAKE_CURRENT_LIST_DIR}/cafTreeNode.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimMultipleLocations.h)
+    ${CMAKE_CURRENT_LIST_DIR}/RimMultipleLocations.h
+)
 
 set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimEclipseCaseCollection.cpp
@@ -235,7 +236,8 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimEquilibriumAxisAnnotation.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimTimeAxisAnnotation.cpp
     ${CMAKE_CURRENT_LIST_DIR}/cafTreeNode.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RimMultipleLocations.cpp)
+    ${CMAKE_CURRENT_LIST_DIR}/RimMultipleLocations.cpp
+)
 
 if(Qt5Charts_FOUND)
   list(
@@ -245,7 +247,8 @@ if(Qt5Charts_FOUND)
     ${CMAKE_CURRENT_LIST_DIR}/RimEnsembleFractureStatisticsPlot.h
     ${CMAKE_CURRENT_LIST_DIR}/RimEnsembleFractureStatisticsPlotCollection.h
     ${CMAKE_CURRENT_LIST_DIR}/RimGridStatisticsPlotCollection.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimGridStatisticsPlot.h)
+    ${CMAKE_CURRENT_LIST_DIR}/RimGridStatisticsPlot.h
+  )
 
   list(
     APPEND
@@ -254,7 +257,8 @@ if(Qt5Charts_FOUND)
     ${CMAKE_CURRENT_LIST_DIR}/RimEnsembleFractureStatisticsPlot.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimEnsembleFractureStatisticsPlotCollection.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimGridStatisticsPlotCollection.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RimGridStatisticsPlot.cpp)
+    ${CMAKE_CURRENT_LIST_DIR}/RimGridStatisticsPlot.cpp
+  )
 endif()
 
 list(APPEND CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})
@@ -266,4 +270,5 @@ list(APPEND QT_MOC_HEADERS ${CMAKE_CURRENT_LIST_DIR}/RimPlot.h)
 source_group(
   "ProjectDataModel"
   FILES ${SOURCE_GROUP_HEADER_FILES} ${SOURCE_GROUP_SOURCE_FILES}
-        ${CMAKE_CURRENT_LIST_DIR}/CMakeLists_files.cmake)
+        ${CMAKE_CURRENT_LIST_DIR}/CMakeLists_files.cmake
+)

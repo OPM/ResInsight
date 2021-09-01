@@ -14,19 +14,22 @@ endif()
 
 if(CMAKE_COMPILER_IS_GNUCXX)
   set(CMAKE_CXX_FLAGS
-      "${CMAKE_CXX_FLAGS} -Wno-deprecated -Wno-deprecated-declarations")
+      "${CMAKE_CXX_FLAGS} -Wno-deprecated -Wno-deprecated-declarations"
+  )
 endif()
 
 # Open GL
 find_package(OpenGL)
 
 option(RESINSIGHT_TREAT_WARNINGS_AS_ERRORS
-       "Treat warnings as errors (stops build)" OFF)
+       "Treat warnings as errors (stops build)" OFF
+)
 
 find_package(
   Qt5
   COMPONENTS Core
-  QUIET)
+  QUIET
+)
 
 if(Qt5Core_FOUND)
   find_package(
@@ -41,7 +44,8 @@ if(Qt5Core_FOUND)
                Concurrent
                PrintSupport
                Svg
-    OPTIONAL_COMPONENTS Charts)
+    OPTIONAL_COMPONENTS Charts
+  )
   set(QT_LIBRARIES
       Qt5::Core
       Qt5::Gui
@@ -52,7 +56,8 @@ if(Qt5Core_FOUND)
       Qt5::Xml
       Qt5::Concurrent
       Qt5::PrintSupport
-      Qt5::Svg)
+      Qt5::Svg
+  )
   if(Qt5Charts_FOUND)
     list(APPEND QT_LIBRARIES Qt5::Charts)
   endif(Qt5Charts_FOUND)
@@ -60,11 +65,15 @@ endif(Qt5Core_FOUND)
 
 # NB: The generated file is written to Cmake binary folder to avoid source tree
 # pollution This folder is added to include_directories
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/Adm/RiaVersionInfo.h.cmake
-               ${CMAKE_BINARY_DIR}/Generated/RiaVersionInfo.h)
+configure_file(
+  ${CMAKE_CURRENT_SOURCE_DIR}/Adm/RiaVersionInfo.h.cmake
+  ${CMAKE_BINARY_DIR}/Generated/RiaVersionInfo.h
+)
 
-configure_file(${CMAKE_CURRENT_LIST_DIR}/RiuThemesDirectory.h.cmake
-               ${CMAKE_BINARY_DIR}/Generated/RiuThemesDirectory.h)
+configure_file(
+  ${CMAKE_CURRENT_LIST_DIR}/RiuThemesDirectory.h.cmake
+  ${CMAKE_BINARY_DIR}/Generated/RiuThemesDirectory.h
+)
 if(MSVC)
   # Avoid Qt warnings about macro redefinitions for math constants
   add_definitions(-D_USE_MATH_DEFINES)
@@ -120,7 +129,8 @@ include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}/GeoMech/GeoMechDataModel
   ${CMAKE_CURRENT_SOURCE_DIR}/GeoMech/GeoMechVisualization
   ${CMAKE_BINARY_DIR}/Generated
-  ${CMAKE_CURRENT_BINARY_DIR})
+  ${CMAKE_CURRENT_BINARY_DIR}
+)
 
 # ##############################################################################
 # Eigen
@@ -147,7 +157,8 @@ set(SOCKET_INTERFACE_FILES
     SocketInterface/RiaPropertyDataCommands.cpp
     SocketInterface/RiaWellDataCommands.cpp
     SocketInterface/RiaSocketTools.cpp
-    SocketInterface/RiaSocketDataTransfer.cpp)
+    SocketInterface/RiaSocketDataTransfer.cpp
+)
 
 list(APPEND CPP_SOURCES ${SOCKET_INTERFACE_FILES} ${UNIT_TEST_FILES})
 
@@ -195,10 +206,12 @@ list(
   UserInterface/CMakeLists_files.cmake
   UserInterface/AnalysisPlots/CMakeLists_files.cmake
   CommandFileInterface/CMakeLists_files.cmake
-  CommandFileInterface/Core/CMakeLists_files.cmake)
+  CommandFileInterface/Core/CMakeLists_files.cmake
+)
 
 option(RESINSIGHT_INCLUDE_APPLICATION_UNIT_TESTS
-       "Include ApplicationCode Unit Tests" OFF)
+       "Include ApplicationCode Unit Tests" OFF
+)
 mark_as_advanced(FORCE RESINSIGHT_INCLUDE_APPLICATION_UNIT_TESTS)
 if(RESINSIGHT_INCLUDE_APPLICATION_UNIT_TESTS)
   add_definitions(-DUSE_UNIT_TESTS)
@@ -206,7 +219,8 @@ if(RESINSIGHT_INCLUDE_APPLICATION_UNIT_TESTS)
   list(APPEND REFERENCED_CMAKE_FILES UnitTests/CMakeLists_files.cmake)
 
   list(APPEND CPP_SOURCES
-       ${ResInsight_SOURCE_DIR}/ThirdParty/gtest/gtest-all.cc)
+       ${ResInsight_SOURCE_DIR}/ThirdParty/gtest/gtest-all.cc
+  )
 
 endif()
 
@@ -253,7 +267,8 @@ if(RESINSIGHT_FOUND_HDF5)
       FileInterface/RifHdf5Exporter.h
       FileInterface/RifHdf5Exporter.cpp
       FileInterface/RifHdf5SummaryExporter.h
-      FileInterface/RifHdf5SummaryExporter.cpp)
+      FileInterface/RifHdf5SummaryExporter.cpp
+  )
 
   list(APPEND CPP_SOURCES ${HDF5_FILES})
 
@@ -280,7 +295,8 @@ endif()
 
 set(QT_MOC_HEADERS
     ${QT_MOC_HEADERS} ProjectDataModel/RimMimeData.h
-    ProjectDataModel/RimBoxIntersection.h SocketInterface/RiaSocketServer.h)
+    ProjectDataModel/RimBoxIntersection.h SocketInterface/RiaSocketServer.h
+)
 
 qt5_wrap_cpp(MOC_SOURCE_FILES ${QT_MOC_HEADERS})
 qt5_wrap_ui(FORM_FILES_CPP ${QT_UI_FILES})
@@ -303,7 +319,8 @@ list(
   ../ResInsightVersion.cmake
   .clang-format
   .clang-tidy
-  Adm/RiaVersionInfo.h.cmake)
+  Adm/RiaVersionInfo.h.cmake
+)
 
 add_library(${PROJECT_NAME} OBJECT ${ALL_SOURCE_FILES})
 
@@ -315,7 +332,8 @@ if(RESINSIGHT_ENABLE_PRECOMPILED_HEADERS)
 
   set_source_files_properties(
     ${ResInsight_SOURCE_DIR}/ThirdParty/gtest/gtest-all.cc
-    PROPERTIES SKIP_PRECOMPILE_HEADERS ON)
+    PROPERTIES SKIP_PRECOMPILE_HEADERS ON
+  )
 endif()
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
@@ -323,7 +341,8 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     ${PROJECT_NAME}
     PROPERTIES
       COMPILE_FLAGS
-      "-Wall -Wno-unused-parameter -Wno-reorder -Wno-parentheses -Wno-switch")
+      "-Wall -Wno-unused-parameter -Wno-reorder -Wno-parentheses -Wno-switch"
+  )
   # Treat warnings as errors if asked to do so
   if(RESINSIGHT_TREAT_WARNINGS_AS_ERRORS)
     set_target_properties(
@@ -370,8 +389,9 @@ if(MSVC)
   endif()
 
   message(STATUS "BUILD_FLAGS_FOR_MSVC ${BUILD_FLAGS_FOR_MSVC}")
-  set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS
-                                                   ${BUILD_FLAGS_FOR_MSVC})
+  set_target_properties(
+    ${PROJECT_NAME} PROPERTIES COMPILE_FLAGS ${BUILD_FLAGS_FOR_MSVC}
+  )
 
 endif()
 
@@ -387,7 +407,8 @@ set(LINK_LIBRARIES
     ${OPM_LIBRARIES}
     ${APP_FWK_LIBRARIES}
     ${VIZ_FWK_LIBRARIES}
-    ${RI_LIBRARIES})
+    ${RI_LIBRARIES}
+)
 
 # According to ivarun this is needed on OpenSuse, and Fedora. See:
 # https://github.com/OPM/ResInsight/pull/7
@@ -395,8 +416,9 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
   list(APPEND EXTERNAL_LINK_LIBRARIES rt)
 endif()
 
-target_link_libraries(${PROJECT_NAME} ${LINK_LIBRARIES}
-                      ${EXTERNAL_LINK_LIBRARIES})
+target_link_libraries(
+  ${PROJECT_NAME} ${LINK_LIBRARIES} ${EXTERNAL_LINK_LIBRARIES}
+)
 
 target_include_directories(
   ${PROJECT_NAME}
@@ -413,7 +435,8 @@ target_include_directories(
          ${CMAKE_SOURCE_DIR}/ApplicationLibCode/ProjectDataModel/Flow
          ${CMAKE_SOURCE_DIR}/ApplicationLibCode/ReservoirDataModel
          ${CMAKE_SOURCE_DIR}/ApplicationLibCode/SocketInterface
-         ${CMAKE_SOURCE_DIR}/ApplicationLibCode/UserInterface)
+         ${CMAKE_SOURCE_DIR}/ApplicationLibCode/UserInterface
+)
 
 # ##############################################################################
 # Unity builds
@@ -428,11 +451,13 @@ set(UNITY_EXCLUDE_FILES
     qrc_cafCommandFeatures.cpp
     # Exclude files including opm-common
     ProjectDataModel/RimVfpTableExtractor.cpp
-    ProjectDataModel/RimVfpPlot.cpp)
+    ProjectDataModel/RimVfpPlot.cpp
+)
 
 if(RESINSIGHT_ENABLE_UNITY_BUILD)
   foreach(fileToExclude ${UNITY_EXCLUDE_FILES})
-    set_source_files_properties(${fileToExclude}
-                                PROPERTIES SKIP_UNITY_BUILD_INCLUSION TRUE)
+    set_source_files_properties(
+      ${fileToExclude} PROPERTIES SKIP_UNITY_BUILD_INCLUSION TRUE
+    )
   endforeach(fileToExclude)
 endif()
