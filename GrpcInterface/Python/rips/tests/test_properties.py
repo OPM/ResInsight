@@ -101,7 +101,8 @@ def test_10k_PoroPermX(rips_instance, initialize_test):
 
 def test_exportPropertyInView(rips_instance, initialize_test):
     case_path = dataroot.PATH + "/TEST10K_FLT_LGR_NNC/TEST10K_FLT_LGR_NNC.EGRID"
-    rips_instance.project.load_case(case_path)
+    case = rips_instance.project.load_case(case_path)
+    case.create_view()
     with tempfile.TemporaryDirectory(prefix="rips") as tmpdirname:
         print("Temporary folder: ", tmpdirname)
         rips_instance.set_export_folder(export_type="PROPERTIES", path=tmpdirname)

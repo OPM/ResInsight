@@ -17,6 +17,7 @@ path_name = os.path.join(
     test_models_path, "TEST10K_FLT_LGR_NNC/TEST10K_FLT_LGR_NNC.EGRID"
 )
 case = resinsight.project.load_case(path_name)
+case.create_view()
 
 # Print out lots of information from the case object
 print("Case id: " + str(case.id))
