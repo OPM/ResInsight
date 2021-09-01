@@ -228,7 +228,8 @@ int RiaImportEclipseCaseTools::openEclipseCaseFromFile( const QString& fileName,
 {
     if ( !caf::Utils::fileExists( fileName ) ) return -1;
 
-    return RiaImportEclipseCaseTools::openEclipseCaseShowTimeStepFilterImpl( fileName, createView, false );
+    bool showTimeStepFilter = false;
+    return RiaImportEclipseCaseTools::openEclipseCaseShowTimeStepFilterImpl( fileName, showTimeStepFilter, createView );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -238,8 +239,9 @@ bool RiaImportEclipseCaseTools::openEclipseCaseShowTimeStepFilter( const QString
 {
     if ( !caf::Utils::fileExists( fileName ) ) return false;
 
-    bool createView = true;
-    return RiaImportEclipseCaseTools::openEclipseCaseShowTimeStepFilterImpl( fileName, createView, true ) >= 0;
+    bool showTimeStepFilter = true;
+    bool createView         = true;
+    return RiaImportEclipseCaseTools::openEclipseCaseShowTimeStepFilterImpl( fileName, showTimeStepFilter, createView ) >= 0;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -296,8 +298,9 @@ int RiaImportEclipseCaseTools::openEclipseInputCaseFromFileNames( const QStringL
 //--------------------------------------------------------------------------------------------------
 bool RiaImportEclipseCaseTools::openMockModel( const QString& name )
 {
-    bool createView = true;
-    return RiaImportEclipseCaseTools::openEclipseCaseShowTimeStepFilterImpl( name, createView, false );
+    bool showTimeStepFilter = false;
+    bool createView         = true;
+    return RiaImportEclipseCaseTools::openEclipseCaseShowTimeStepFilterImpl( name, showTimeStepFilter, createView );
 }
 
 //--------------------------------------------------------------------------------------------------
