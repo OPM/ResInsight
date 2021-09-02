@@ -22,6 +22,7 @@
 #include "RiaPreferencesGeoMech.h"
 
 #include "RigWellPath.h"
+#include "RigWellPathGeometryTools.h"
 
 #include "RimDoubleParameter.h"
 #include "RimGenericParameter.h"
@@ -32,6 +33,7 @@
 #include "RimStringParameter.h"
 #include "RimTools.h"
 #include "RimWellIAModelData.h"
+#include "RimWellIAStressData.h"
 #include "RimWellPath.h"
 
 #include "RifParameterXmlReader.h"
@@ -425,6 +427,8 @@ void RimWellIASettings::updateResInsightParameters()
     RimParameterGroup* initcond = new RimParameterGroup();
     initcond->setName( "BC_initial_conditions" );
     initcond->setLabel( "BC Initial Conditions" );
+    initcond->addParameter( "analysis_depth", std::abs( m_modelbox.center().z() ) );
+
     m_parametersRI.push_back( initcond );
 
     RimParameterGroup* initialStress = new RimParameterGroup();
@@ -434,7 +438,24 @@ void RimWellIASettings::updateResInsightParameters()
         "SXX is in North direction, SYY is East, SZZ is vertical; PP is the initial pore pressure in the "
         "formation, set to 0 for hydrostatic assumption; inclination is 0 for a vertical well" );
 
-    wellcoords->addParameter( "analysis_depth", m_startMD );
+    RimWellIAStressData stressData( m_geomechCase );
+    stressData.extractData( m_modelbox.center() );
+
+    initialStress->addParameter( "SXX", stressData.sxx() );
+    initialStress->addParameter( "SYY", stressData.syy() );
+    initialStress->addParameter( "SZZ", stressData.szz() );
+    initialStress->addParameter( "SXY", stressData.sxy() );
+    initialStress->addParameter( "SXZ", stressData.sxz() );
+    initialStress->addParameter( "SYZ", stressData.syz() );
+    initialStress->addParameter( "PP", stressData.pp() );
+
+    auto angles = RigWellPathGeometryTools::calculateAzimuthAndInclinationAtMd( ( m_startMD + m_endMD ) / 2.0,
+                                                                                wellPath()->wellPathGeometry() );
+
+    initialStress->addParameter( "azimuth_well", angles.first );
+    initialStress->addParameter( "inclination_well", angles.second );
+
+    m_parametersRI.push_back( initialStress );
 }
 
 void RimWellIASettings::addCsvGroup( QString name, QStringList timeSteps, double defaultValue /* = 0.0 */ )
@@ -550,6 +571,7 @@ void RimWellIASettings::generateModelBox()
 //--------------------------------------------------------------------------------------------------
 void RimWellIASettings::extractModelData()
 {
+    generateModelBox();
     updateResInsightParameters();
 
     resetModelData();
