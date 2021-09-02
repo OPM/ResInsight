@@ -37,7 +37,7 @@ RiaSummaryCurveDefinition::RiaSummaryCurveDefinition()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiaSummaryCurveDefinition::RiaSummaryCurveDefinition( gsl::not_null<RimSummaryCase*>  summaryCase,
+RiaSummaryCurveDefinition::RiaSummaryCurveDefinition( RimSummaryCase*                 summaryCase,
                                                       const RifEclipseSummaryAddress& summaryAddress,
                                                       bool                            isEnsembleCurve )
     : m_summaryCase( summaryCase )
@@ -55,8 +55,8 @@ RiaSummaryCurveDefinition::RiaSummaryCurveDefinition( gsl::not_null<RimSummaryCa
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiaSummaryCurveDefinition::RiaSummaryCurveDefinition( gsl::not_null<RimSummaryCaseCollection*> ensemble,
-                                                      const RifEclipseSummaryAddress&          summaryAddress )
+RiaSummaryCurveDefinition::RiaSummaryCurveDefinition( RimSummaryCaseCollection*       ensemble,
+                                                      const RifEclipseSummaryAddress& summaryAddress )
     : m_summaryCase( nullptr )
     , m_summaryAddress( summaryAddress )
     , m_ensemble( ensemble )

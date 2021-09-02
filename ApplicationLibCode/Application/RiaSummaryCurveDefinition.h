@@ -37,11 +37,10 @@ class RiaSummaryCurveDefinition
 {
 public:
     RiaSummaryCurveDefinition();
-    explicit RiaSummaryCurveDefinition( gsl::not_null<RimSummaryCase*>  summaryCase,
+    explicit RiaSummaryCurveDefinition( RimSummaryCase*                 summaryCase,
                                         const RifEclipseSummaryAddress& summaryAddress,
                                         bool                            isEnsembleCurve );
-    explicit RiaSummaryCurveDefinition( gsl::not_null<RimSummaryCaseCollection*> ensemble,
-                                        const RifEclipseSummaryAddress&          summaryAddress );
+    explicit RiaSummaryCurveDefinition( RimSummaryCaseCollection* ensemble, const RifEclipseSummaryAddress& summaryAddress );
 
     RimSummaryCase*                 summaryCase() const;
     const RifEclipseSummaryAddress& summaryAddress() const;
