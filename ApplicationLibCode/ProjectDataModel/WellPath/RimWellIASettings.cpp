@@ -614,7 +614,8 @@ std::vector<QDateTime> RimWellIASettings::timeStepDates()
 {
     std::vector<QDateTime> dates = m_geomechCase->timeStepDates();
 
-    if ( dates.size() < m_geomechCase->timeStepStrings().size() ) dates.insert( dates.begin(), m_geostaticDate );
+    if ( dates.size() < (size_t)m_geomechCase->timeStepStrings().size() )
+        dates.insert( dates.begin(), m_geostaticDate );
 
     return dates;
 }
