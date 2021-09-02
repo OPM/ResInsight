@@ -42,7 +42,6 @@ RimWellIAStressData::RimWellIAStressData( RimGeoMechCase* thecase )
 RimWellIAStressData::~RimWellIAStressData()
 {
 }
-#pragma optimize( "", off )
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -105,15 +104,16 @@ double RimWellIAStressData::ppValue( RigGeoMechCaseData* caseData, size_t cellId
                                                          position );
 
     int resultIndex = closestIndexCalc.resultIndexToClosestResult();
+    if ( resultIndex >= 0 )
+    {
+        size_t ri = resultIndex;
 
-    const std::vector<float>& scalarResults = caseData->femPartResults()->resultValues( address, 0, 0 );
+        const std::vector<float>& scalarResults = caseData->femPartResults()->resultValues( address, 0, 0 );
 
-    if ( ( resultIndex > 0 ) && ( resultIndex < scalarResults.size() ) ) return scalarResults[resultIndex];
-
+        if ( ri < scalarResults.size() ) return scalarResults[ri];
+    }
     return 0.0;
 }
-
-#pragma optimize( "", on )
 
 //--------------------------------------------------------------------------------------------------
 ///
