@@ -20,7 +20,12 @@
 
 #include "cvfVector3.h"
 
+#include <QString>
+
+#include <vector>
+
 class RimGeoMechCase;
+class RigGeoMechCaseData;
 
 //==================================================================================================
 ///
@@ -29,11 +34,24 @@ class RimGeoMechCase;
 class RimWellIAStressData
 {
 public:
-    RimWellIAStressData( RimGeoMechCase* thecase);
+    RimWellIAStressData( RimGeoMechCase* thecase );
     ~RimWellIAStressData();
 
-    bool updateData( cvf::Vec3d position );
+    bool extractData( cvf::Vec3d position );
+
+    double sxx() const;
+    double syy() const;
+    double szz() const;
+    double sxy() const;
+    double sxz() const;
+    double syz() const;
+    double pp() const;
 
 private:
-    RimGeoMechCase* m_case;
+    double stressValue( RigGeoMechCaseData* caseData, QString componentName, size_t resultIndex );
+    double ppValue( RigGeoMechCaseData* caseData, size_t cellIdx, cvf::Vec3d position );
+
+    RimGeoMechCase*     m_case;
+    std::vector<double> m_stressValues;
+    double              m_pp;
 };
