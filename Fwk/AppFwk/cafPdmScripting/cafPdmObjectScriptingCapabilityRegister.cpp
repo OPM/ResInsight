@@ -99,5 +99,13 @@ QString PdmObjectScriptingCapabilityRegister::scriptClassComment( const QString&
 //--------------------------------------------------------------------------------------------------
 bool PdmObjectScriptingCapabilityRegister::isScriptable( const caf::PdmObject* object )
 {
-    return s_classKeywordToScriptClassName.find( object->classKeyword() ) != s_classKeywordToScriptClassName.end();
+    return isScriptable( object->classKeyword() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool PdmObjectScriptingCapabilityRegister::isScriptable( const QString& classKeyword )
+{
+    return s_classKeywordToScriptClassName.find( classKeyword ) != s_classKeywordToScriptClassName.end();
 }

@@ -73,15 +73,39 @@ void RiaGrpcServiceInterface::copyPdmObjectFromCafToRips( const caf::PdmObjectHa
     CAF_ASSERT( source && destination && source->xmlCapability() );
 
     QString classKeyword = source->xmlCapability()->classKeyword();
-    QString scriptName   = caf::PdmObjectScriptingCapabilityRegister::scriptClassNameFromClassKeyword( classKeyword );
-    destination->set_class_keyword( scriptName.toStdString() );
+
+    QString scriptClassName;
+
+    // Find first scriptable object in inheritance stack
+    {
+        auto pdmObject         = dynamic_cast<const caf::PdmObject*>( source );
+        auto classKeywordStack = pdmObject->classInheritanceStack();
+
+        // Reverse to get leaf node first
+        classKeywordStack.reverse();
+
+        for ( const auto& candidateClassKeyword : classKeywordStack )
+        {
+            if ( caf::PdmObjectScriptingCapabilityRegister::isScriptable( candidateClassKeyword ) )
+            {
+                scriptClassName =
+                    caf::PdmObjectScriptingCapabilityRegister::scriptClassNameFromClassKeyword( candidateClassKeyword );
+
+                break;
+            }
+        }
+
+        // Fallback to source object class name
+        if ( scriptClassName.isEmpty() ) scriptClassName = classKeyword;
+    }
+
+    destination->set_class_keyword( scriptClassName.toStdString() );
     destination->set_address( reinterpret_cast<uint64_t>( source ) );
 
     bool visible = true;
     if ( source->uiCapability() && source->uiCapability()->objectToggleField() )
     {
-        const caf::PdmField<bool>* boolField =
-            dynamic_cast<const caf::PdmField<bool>*>( source->uiCapability()->objectToggleField() );
+        const auto* boolField = dynamic_cast<const caf::PdmField<bool>*>( source->uiCapability()->objectToggleField() );
         if ( boolField )
         {
             visible = boolField->value();
@@ -124,8 +148,7 @@ void RiaGrpcServiceInterface::copyPdmObjectFromRipsToCaf( const rips::PdmObject*
 
     if ( destination->uiCapability() && destination->uiCapability()->objectToggleField() )
     {
-        caf::PdmField<bool>* boolField =
-            dynamic_cast<caf::PdmField<bool>*>( destination->uiCapability()->objectToggleField() );
+        auto* boolField = dynamic_cast<caf::PdmField<bool>*>( destination->uiCapability()->objectToggleField() );
         if ( boolField )
         {
             QVariant oldValue = boolField->toQVariant();
@@ -185,7 +208,7 @@ bool RiaGrpcServiceInterface::assignFieldValue( const QString&       stringValue
     auto scriptability = field->template capability<caf::PdmAbstractFieldScriptingCapability>();
     if ( field && scriptability != nullptr )
     {
-        caf::PdmValueField*      valueField = dynamic_cast<caf::PdmValueField*>( field );
+        auto*                    valueField = dynamic_cast<caf::PdmValueField*>( field );
         QTextStream              stream( stringValue.toLatin1() );
         caf::PdmScriptIOMessages messages;
         if ( valueField ) *oldValue = valueField->toQVariant();

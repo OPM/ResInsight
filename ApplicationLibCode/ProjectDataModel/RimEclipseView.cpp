@@ -2082,6 +2082,8 @@ std::vector<double> RimEclipseView::currentCellResultData() const
     std::vector<double> resultData;
     if ( currentGridCellResults() && cellResult() )
     {
+        if ( !currentGridCellResults()->hasResultEntry( cellResult()->eclipseResultAddress() ) ) return {};
+
         int timeStep = 0;
         if ( cellResult()->hasDynamicResult() )
         {
@@ -2097,7 +2099,7 @@ std::vector<double> RimEclipseView::currentCellResultData() const
 //--------------------------------------------------------------------------------------------------
 void RimEclipseView::setCurrentCellResultData( const std::vector<double>& values )
 {
-    if ( currentGridCellResults() && cellResult() )
+    if ( !values.empty() && currentGridCellResults() && cellResult() )
     {
         int timeStep = 0;
         if ( cellResult()->hasDynamicResult() )
