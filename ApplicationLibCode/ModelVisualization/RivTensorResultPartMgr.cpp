@@ -373,6 +373,7 @@ cvf::ref<cvf::Part> RivTensorResultPartMgr::createPart( const std::vector<Tensor
     drawable->setTextureCoordArray( lineTexCoords.p() );
 
     cvf::ref<cvf::Part> part = new cvf::Part;
+    part->setName( "RivTensorResultPartMgr" );
     part->setDrawable( drawable.p() );
     part->setEffect( scalarMapperMeshEffect.p() );
 

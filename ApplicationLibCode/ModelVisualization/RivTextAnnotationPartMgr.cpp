@@ -103,6 +103,7 @@ void RivTextAnnotationPartMgr::buildParts( const caf::DisplayCoordTransform* dis
         cvf::ref<cvf::DrawableGeo> drawableGeo = RivPolylineGenerator::createLineAlongPolylineDrawable( points );
 
         cvf::ref<cvf::Part> part = new cvf::Part;
+        part->setName( "RivTextAnnotationPartMgr" );
         part->setDrawable( drawableGeo.p() );
 
         caf::MeshEffectGenerator colorEffgen( anchorLineColor );

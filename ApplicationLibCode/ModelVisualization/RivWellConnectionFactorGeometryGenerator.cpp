@@ -57,6 +57,7 @@ cvf::ref<cvf::Part> RivWellConnectionFactorGeometryGenerator::createSurfacePart(
     if ( drawable.notNull() )
     {
         cvf::ref<cvf::Part> part = new cvf::Part;
+        part->setName( "RivWellConnectionFactorGeometryGenerator" );
         part->setDrawable( drawable.p() );
 
         // Compute texture coords

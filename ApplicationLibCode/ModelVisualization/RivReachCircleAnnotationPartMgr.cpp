@@ -82,6 +82,7 @@ void RivReachCircleAnnotationPartMgr::buildParts( const caf::DisplayCoordTransfo
         cvf::ref<cvf::DrawableGeo> drawableGeo = RivPolylineGenerator::createLineAlongPolylineDrawable( points );
 
         cvf::ref<cvf::Part> part = new cvf::Part;
+        part->setName( "RivReachCircleAnnotationPartMgr" );
         part->setDrawable( drawableGeo.p() );
 
         caf::MeshEffectGenerator effgen( lineColor );
@@ -111,6 +112,7 @@ void RivReachCircleAnnotationPartMgr::buildParts( const caf::DisplayCoordTransfo
         cvf::ref<cvf::DrawableGeo>      drawableGeo = RivPolylineGenerator::createLineAlongPolylineDrawable( symbol );
 
         cvf::ref<cvf::Part> part = new cvf::Part;
+        part->setName( "RivReachCircleAnnotationPartMgr" );
         part->setDrawable( drawableGeo.p() );
 
         caf::MeshEffectGenerator effgen( lineColor );
