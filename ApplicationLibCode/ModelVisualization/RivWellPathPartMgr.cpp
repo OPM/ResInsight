@@ -1080,7 +1080,7 @@ void RivWellPathPartMgr::appendWellIntegrityIntervalsToModel( cvf::ModelBasicLis
 
         if ( wiaModel->showBox() )
         {
-            auto& vertices = wiaModel->modelBoxVertices();
+            const auto& vertices = wiaModel->modelBoxVertices();
 
             std::vector<cvf::Vec3f> transformedVertices;
 

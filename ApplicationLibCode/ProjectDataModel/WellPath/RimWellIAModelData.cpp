@@ -50,7 +50,9 @@ std::vector<cvf::Vec3d> RimWellIAModelData::displacements() const
 //--------------------------------------------------------------------------------------------------
 void RimWellIAModelData::setDisplacement( int cornerIndex, cvf::Vec3d displacement )
 {
-    if ( ( cornerIndex >= 0 ) && ( cornerIndex < m_displacements.size() ) ) m_displacements[cornerIndex] = displacement;
+    size_t ci = cornerIndex;
+
+    if ( ( cornerIndex >= 0 ) && ( ci < m_displacements.size() ) ) m_displacements[ci] = displacement;
 }
 
 //--------------------------------------------------------------------------------------------------
