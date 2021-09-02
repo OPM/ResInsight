@@ -121,13 +121,13 @@ public:
     {
         Opm::ECLInitFileData initData( init );
 
-        m_eclGraph.reset( new Opm::ECLGraph( Opm::ECLGraph::load( mainGrid, initData ) ) );
-
-        m_hasUnifiedRestartFile = false;
-        m_poreVolume            = m_eclGraph->poreVolume();
-
         try
         {
+            m_eclGraph.reset( new Opm::ECLGraph( Opm::ECLGraph::load( mainGrid, initData ) ) );
+
+            m_hasUnifiedRestartFile = false;
+            m_poreVolume            = m_eclGraph->poreVolume();
+
             m_eclSaturationFunc.reset( new Opm::ECLSaturationFunc( *m_eclGraph, initData ) );
         }
         catch ( ... )
