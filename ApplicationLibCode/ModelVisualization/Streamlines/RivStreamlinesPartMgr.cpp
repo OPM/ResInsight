@@ -218,6 +218,8 @@ cvf::ref<cvf::Part> RivStreamlinesPartMgr::createPart( const RimStreamlineInView
     drawable->setTextureCoordArray( lineTexCoords.p() );
 
     cvf::ref<cvf::Part> part = new cvf::Part;
+    part->setName( "RivStreamlinesPartMgr" );
+
     part->setDrawable( drawable.p() );
     part->setEffect( effect.p() );
     part->updateBoundingBox();

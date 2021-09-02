@@ -697,6 +697,7 @@ void RivWellPathPartMgr::buildWellPathParts( const caf::DisplayCoordTransform* d
     if ( m_surfaceDrawable.notNull() )
     {
         m_surfacePart = new cvf::Part;
+        m_surfacePart->setName( "RivWellPathPartMgr::surface" );
         m_surfacePart->setDrawable( m_surfaceDrawable.p() );
 
         RivWellPathSourceInfo* sourceInfo = new RivWellPathSourceInfo( m_rimWellPath, m_pipeGeomGenerator.p() );
@@ -711,6 +712,7 @@ void RivWellPathPartMgr::buildWellPathParts( const caf::DisplayCoordTransform* d
     if ( m_centerLineDrawable.notNull() )
     {
         m_centerLinePart = new cvf::Part;
+        m_centerLinePart->setName( "RivWellPathPartMgr::centerLinePart" );
         m_centerLinePart->setDrawable( m_centerLineDrawable.p() );
 
         caf::MeshEffectGenerator gen( m_rimWellPath->wellPathColor() );

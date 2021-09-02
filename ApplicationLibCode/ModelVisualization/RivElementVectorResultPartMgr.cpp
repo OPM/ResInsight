@@ -372,6 +372,8 @@ cvf::ref<cvf::Part>
     drawable->setTextureCoordArray( lineTexCoords.p() );
 
     cvf::ref<cvf::Part> part = new cvf::Part;
+    part->setName( "RivElementVectorResultPartMgr::createPart" );
+
     part->setDrawable( drawable.p() );
     part->setEffect( effect.p() );
 

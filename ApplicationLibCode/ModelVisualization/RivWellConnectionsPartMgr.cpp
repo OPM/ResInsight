@@ -238,8 +238,10 @@ cvf::ref<cvf::Part> RivWellConnectionsPartMgr::createArrowPart( const cvf::Vec3f
                                                                 const cvf::Color4f& arrowColor,
                                                                 bool                enableLighting )
 {
-    cvf::ref<cvf::Part>        part = new cvf::Part;
-    cvf::ref<cvf::DrawableGeo> geo  = createArrowGeometry( startPoint, endPoint, width, isProducer );
+    cvf::ref<cvf::Part> part = new cvf::Part;
+    part->setName( "RivWellConnectionsPartMgr::createArrowPart" );
+
+    cvf::ref<cvf::DrawableGeo> geo = createArrowGeometry( startPoint, endPoint, width, isProducer );
 
     part->setDrawable( geo.p() );
     caf::SurfaceEffectGenerator surfaceGen( arrowColor, caf::PO_1 );
