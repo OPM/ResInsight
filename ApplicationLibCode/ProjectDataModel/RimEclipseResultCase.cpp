@@ -109,13 +109,15 @@ bool RimEclipseResultCase::openEclipseGridFile()
 //--------------------------------------------------------------------------------------------------
 bool RimEclipseResultCase::importGridAndResultMetaData( bool showTimeStepFilter )
 {
+    // Early exit if data is already read
+    // Make sure that the progress info dialog is created after the return statement. If created before, the progress
+    // dialog triggers a redraw with incomplete geometry data and causes a crash
+    if ( m_gridAndWellDataIsReadFromFile ) return true;
+
     caf::ProgressInfo progInfo( 50, "Reading Eclipse Grid File" );
 
     progInfo.setProgressDescription( "Open Grid File" );
     progInfo.setNextProgressIncrement( 48 );
-
-    // Early exit if data is already read
-    if ( m_gridAndWellDataIsReadFromFile ) return true;
 
     cvf::ref<RifReaderInterface> readerInterface;
 
