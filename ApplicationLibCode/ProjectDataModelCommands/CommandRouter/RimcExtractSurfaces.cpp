@@ -63,9 +63,9 @@ caf::PdmObjectHandle* RimcCommandRouter_extractSurfaces::execute()
 
         auto dims = grid1.dimension();
         int  minI = m_minimumI() == -1 ? 0 : m_minimumI();
-        int  maxI = m_maximumJ() == -1 ? dims[0] - 1 : m_maximumI();
-        int  minJ = m_minimumI() == -1 ? 0 : m_minimumJ();
-        int  maxJ = m_minimumI() == -1 ? dims[1] - 1 : m_maximumJ();
+        int  maxI = m_maximumI() == -1 ? dims[0] - 1 : m_maximumI();
+        int  minJ = m_minimumJ() == -1 ? 0 : m_minimumJ();
+        int  maxJ = m_maximumJ() == -1 ? dims[1] - 1 : m_maximumJ();
 
         std::array<int, 4> range = { minI, maxI, minJ, maxJ };
 
