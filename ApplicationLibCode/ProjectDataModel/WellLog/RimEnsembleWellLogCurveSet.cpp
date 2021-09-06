@@ -764,6 +764,7 @@ void RimEnsembleWellLogCurveSet::updateEnsembleCurves( const std::vector<RimWell
             {
                 RimWellLogFileCurve* curve = new RimWellLogFileCurve;
                 plotTrack->addCurve( curve );
+                curve->setUiTreeHidden( true );
 
                 QString errorMessage;
                 if ( wellLogFile->readFile( &errorMessage ) )
@@ -1152,4 +1153,20 @@ void RimEnsembleWellLogCurveSet::onFilterSourceChanged( const caf::SignalEmitter
 void RimEnsembleWellLogCurveSet::initAfterRead()
 {
     connectEnsembleCurveSetFilterSignals();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEnsembleWellLogCurveSet::setEnsembleWellLogs( RimEnsembleWellLogs* ensembleWellLogs )
+{
+    m_ensembleWellLogs = ensembleWellLogs;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEnsembleWellLogCurveSet::setWellLogChannelName( const QString& wellLogChannelName )
+{
+    m_wellLogChannelName = wellLogChannelName;
 }

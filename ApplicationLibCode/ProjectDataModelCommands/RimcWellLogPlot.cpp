@@ -60,9 +60,20 @@ caf::PdmObjectHandle* RimcWellLogPlot_newWellLogTrack::execute()
 
     if ( !wellLogPlot ) return nullptr;
 
-    RimWellLogTrack* plotTrack = RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack( false, m_title, wellLogPlot );
-    if ( m_case() ) plotTrack->setFormationCase( m_case );
-    if ( m_wellPath() ) plotTrack->setFormationWellPath( m_wellPath );
+    return createWellLogTrack( wellLogPlot, m_case(), m_wellPath(), m_title() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimWellLogTrack* RimcWellLogPlot_newWellLogTrack::createWellLogTrack( RimWellLogPlot* wellLogPlot,
+                                                                      RimEclipseCase* eclipseCase,
+                                                                      RimWellPath*    wellPath,
+                                                                      const QString&  title )
+{
+    RimWellLogTrack* plotTrack = RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack( false, title, wellLogPlot );
+    if ( eclipseCase ) plotTrack->setFormationCase( eclipseCase );
+    if ( wellPath ) plotTrack->setFormationWellPath( wellPath );
     plotTrack->setColSpan( RimPlot::TWO );
     plotTrack->setLegendsVisible( true );
     plotTrack->setPlotTitleVisible( true );

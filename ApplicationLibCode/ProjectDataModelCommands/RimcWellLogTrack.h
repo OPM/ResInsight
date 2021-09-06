@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include "RiaDefines.h"
+
 #include "cafPdmField.h"
 #include "cafPdmObjectHandle.h"
 #include "cafPdmObjectMethod.h"
@@ -27,6 +29,7 @@
 class RimEclipseCase;
 class RimWellPath;
 class RimWellLogTrack;
+class RimWellLogExtractionCurve;
 
 //==================================================================================================
 ///
@@ -41,6 +44,13 @@ public:
     caf::PdmObjectHandle*            execute() override;
     bool                             resultIsPersistent() const override;
     std::unique_ptr<PdmObjectHandle> defaultResult() const override;
+
+    static RimWellLogExtractionCurve* addExtractionCurve( RimWellLogTrack*          wellLogTrack,
+                                                          RimEclipseCase*           eclipseCase,
+                                                          RimWellPath*              wellPath,
+                                                          const QString&            propertyName,
+                                                          RiaDefines::ResultCatType resultCategoryType,
+                                                          int                       timeStep );
 
 private:
     caf::PdmPtrField<RimEclipseCase*> m_case;

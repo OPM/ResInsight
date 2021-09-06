@@ -18,6 +18,7 @@
 #include "RimcWellLogTrack.h"
 
 #include "RiaApplication.h"
+#include "RiaDefines.h"
 #include "RiaGuiApplication.h"
 
 #include "WellLogCommands/RicNewWellLogPlotFeatureImpl.h"
@@ -61,35 +62,50 @@ caf::PdmObjectHandle* RimcWellLogTrack_addExtractionCurve::execute()
 
     if ( m_case && m_wellPath && wellLogTrack )
     {
-        RimWellLogExtractionCurve* curve = new RimWellLogExtractionCurve;
-        curve->setWellPath( m_wellPath );
-        curve->setCase( m_case );
-        curve->setCurrentTimeStep( m_timeStep );
-        curve->setEclipseResultVariable( m_propertyName );
-
         RiaDefines::ResultCatType resultCategoryType = caf::AppEnum<RiaDefines::ResultCatType>::fromText( m_propertyType );
-        curve->setEclipseResultCategory( resultCategoryType );
 
-        wellLogTrack->addCurve( curve );
-        curve->loadDataAndUpdate( true );
-
-        curve->updateConnectedEditors();
-
-        wellLogTrack->setXAxisGridVisibility( RimWellLogPlot::AXIS_GRID_MAJOR );
-        wellLogTrack->setShowRegionLabels( true );
-        wellLogTrack->setAutoScaleXEnabled( true );
-        wellLogTrack->updateConnectedEditors();
-        wellLogTrack->setShowWindow( true );
-
-        RiaApplication::instance()->project()->updateConnectedEditors();
-
-        RimWellLogPlot* wellLogPlot = dynamic_cast<RimWellLogPlot*>( wellLogTrack->parentField() );
-        if ( wellLogPlot ) wellLogPlot->loadDataAndUpdate();
-
-        return curve;
+        return addExtractionCurve( wellLogTrack, m_case, m_wellPath, m_propertyName, resultCategoryType, m_timeStep );
     }
 
     return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimWellLogExtractionCurve*
+    RimcWellLogTrack_addExtractionCurve::addExtractionCurve( RimWellLogTrack*          wellLogTrack,
+                                                             RimEclipseCase*           eclipseCase,
+                                                             RimWellPath*              wellPath,
+                                                             const QString&            propertyName,
+                                                             RiaDefines::ResultCatType resultCategoryType,
+                                                             int                       timeStep )
+{
+    RimWellLogExtractionCurve* curve = new RimWellLogExtractionCurve;
+    curve->setWellPath( wellPath );
+    curve->setCase( eclipseCase );
+    curve->setCurrentTimeStep( timeStep );
+    curve->setEclipseResultVariable( propertyName );
+
+    curve->setEclipseResultCategory( resultCategoryType );
+
+    wellLogTrack->addCurve( curve );
+    curve->loadDataAndUpdate( true );
+
+    curve->updateConnectedEditors();
+
+    wellLogTrack->setXAxisGridVisibility( RimWellLogPlot::AXIS_GRID_MAJOR );
+    wellLogTrack->setShowRegionLabels( true );
+    wellLogTrack->setAutoScaleXEnabled( true );
+    wellLogTrack->updateConnectedEditors();
+    wellLogTrack->setShowWindow( true );
+
+    RiaApplication::instance()->project()->updateConnectedEditors();
+
+    RimWellLogPlot* wellLogPlot = dynamic_cast<RimWellLogPlot*>( wellLogTrack->parentField() );
+    if ( wellLogPlot ) wellLogPlot->loadDataAndUpdate();
+
+    return curve;
 }
 
 //--------------------------------------------------------------------------------------------------

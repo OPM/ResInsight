@@ -20,30 +20,25 @@
 
 #include "cafCmdFeature.h"
 
-#include <QString>
+#include <list>
 
-class RimEnsembleWellLogs;
+class RicCreateEnsembleWellLogUi;
+class RimEclipseCase;
 
 //==================================================================================================
 ///
 //==================================================================================================
-class RicImportEnsembleWellLogsFeature : public caf::CmdFeature
+class RicCreateEnsembleWellLogFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
 
-    RicImportEnsembleWellLogsFeature();
-
-    static RimEnsembleWellLogs* createEnsembleWellLogsFromFiles( const QStringList& fileNames );
+public:
+    static void            openDialogAndExecuteCommand();
+    static void            executeCommand( const RicCreateEnsembleWellLogUi& ui, const std::list<QString>& fileNames );
+    static RimEclipseCase* loadEclipseCase( const QString& fileName );
 
 protected:
-    // Overrides
     bool isCommandEnabled() override;
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
-
-    QStringList runRecursiveFileSearchDialog( const QString& dialogTitle, const QString& pathCacheName );
-
-private:
-    QString m_pathFilter;
-    QString m_fileNameFilter;
 };

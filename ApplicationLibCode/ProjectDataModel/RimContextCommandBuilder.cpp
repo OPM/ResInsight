@@ -340,6 +340,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         {
             menuBuilder << "RicNewEditableWellPathFeature";
             menuBuilder << "RicPasteModeledWellPathFeature";
+            menuBuilder << "RicCreateEnsembleWellLogFeature";
             menuBuilder.addSeparator();
             menuBuilder.subMenuStart( "Import" );
             menuBuilder << "RicWellPathsImportFileFeature";
