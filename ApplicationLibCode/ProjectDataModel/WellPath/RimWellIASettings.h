@@ -114,6 +114,8 @@ private:
 
     void addCsvGroup( QString name, QStringList timeSteps, double defaultValue = 0.0 );
 
+    std::vector<cvf::Vec3d> extractDisplacments( std::vector<cvf::Vec3d> corners, int timestep );
+
 private:
     caf::PdmProxyValueField<QString> m_nameProxy;
 

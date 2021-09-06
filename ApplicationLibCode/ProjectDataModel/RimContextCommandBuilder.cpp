@@ -1098,12 +1098,9 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         menuBuilder << "RicNewMultiPlotFeature";
 
         // Work in progress -- End
-        appendCreateCompletions( menuBuilder, menuBuilder.itemCount() > 0u );
-        bool addedExportWellPaths = appendExportWellPaths( menuBuilder, menuBuilder.itemCount() > 0u ) > 0;
 
-        // This needs further work. Now, the export menu shows up on all objects that has a wellpathcollection as a
-        // predecessor somewhere.
-        // appendExportCompletions( menuBuilder, menuBuilder.itemCount() > 0u && !addedExportWellPaths );
+        appendCreateCompletions( menuBuilder, menuBuilder.itemCount() > 0u );
+        appendExportWellPaths( menuBuilder, menuBuilder.itemCount() > 0u );
 
         if ( menuBuilder.itemCount() > 0u )
         {
