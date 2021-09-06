@@ -19,9 +19,8 @@
 #include "RicImportEnsembleWellLogsFeature.h"
 
 #include "RiaApplication.h"
+#include "RiaEnsembleNameTools.h"
 #include "RiaLogging.h"
-
-#include "WellLogCommands/RicWellLogsImportFileFeature.h"
 
 #include "RimEnsembleWellLogs.h"
 #include "RimEnsembleWellLogsCollection.h"
@@ -30,6 +29,7 @@
 #include "RimWellLogFile.h"
 
 #include "RicRecursiveFileSearchDialog.h"
+#include "WellLogCommands/RicWellLogsImportFileFeature.h"
 
 #include <QAction>
 #include <QFileInfo>
@@ -63,8 +63,15 @@ void RicImportEnsembleWellLogsFeature::onActionTriggered( bool isChecked )
     QStringList     fileNames     = runRecursiveFileSearchDialog( "Import Ensemble Well Logs", pathCacheName );
     if ( fileNames.isEmpty() ) return;
 
-    QString ensembleName = "Ensemble Well Logs";
-    if ( ensembleName.isEmpty() ) return;
+    createEnsembleWellLogsFromFiles( fileNames );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimEnsembleWellLogs* RicImportEnsembleWellLogsFeature::createEnsembleWellLogsFromFiles( const QStringList& fileNames )
+{
+    if ( fileNames.isEmpty() ) return nullptr;
 
     std::vector<RimWellLogFile*> cases;
     for ( QString fileNames : fileNames )
@@ -78,15 +85,19 @@ void RicImportEnsembleWellLogsFeature::onActionTriggered( bool isChecked )
         }
     }
 
-    if ( cases.empty() ) return;
+    if ( cases.empty() ) return nullptr;
 
     RimEnsembleWellLogs* ensemble = new RimEnsembleWellLogs;
+
+    QString ensembleName = RiaEnsembleNameTools::findSuitableEnsembleName( fileNames );
     ensemble->setName( ensembleName );
     for ( auto wellLogFile : cases )
         ensemble->addWellLogFile( wellLogFile );
 
     RimProject::current()->activeOilField()->ensembleWellLogsCollection->addEnsembleWellLogs( ensemble );
     RimProject::current()->activeOilField()->ensembleWellLogsCollection->updateConnectedEditors();
+
+    return ensemble;
 }
 
 //--------------------------------------------------------------------------------------------------

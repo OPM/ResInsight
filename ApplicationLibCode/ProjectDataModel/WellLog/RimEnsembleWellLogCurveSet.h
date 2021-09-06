@@ -117,6 +117,9 @@ public:
 
     void updateStatistics();
 
+    void setEnsembleWellLogs( RimEnsembleWellLogs* ensembleWellLogs );
+    void setWellLogChannelName( const QString& wellLogChannelName );
+
 private:
     void updateEnsembleCurves( const std::vector<RimWellLogFile*>& curves );
     void updateStatisticsCurves( const std::vector<RimWellLogFile*>& curves );

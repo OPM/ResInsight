@@ -30,6 +30,7 @@ class RicExportWellPathsUi;
 class RicExportLgrUi;
 class RimMockModelSettings;
 class RicGenerateMultipleSurfacesUi;
+class RicCreateEnsembleWellLogUi;
 
 //==================================================================================================
 ///
@@ -63,6 +64,7 @@ public:
     RicExportEclipseSectorModelUi* exportSectorModelUi() const;
     RimMockModelSettings*          mockModelSettings() const;
     RicGenerateMultipleSurfacesUi* generateEnsembleSurfacesUi() const;
+    RicCreateEnsembleWellLogUi*    createEnsembleWellLogUi() const;
 
 private:
     caf::PdmChildField<RicExportCarfinUi*>                 m_exportCarfin;
@@ -74,4 +76,5 @@ private:
     caf::PdmChildField<RicExportEclipseSectorModelUi*>     m_exportSectorModelData;
     caf::PdmChildField<RimMockModelSettings*>              m_mockModelSettings;
     caf::PdmChildField<RicGenerateMultipleSurfacesUi*>     m_generateEnsembleSurfacesUi;
+    caf::PdmChildField<RicCreateEnsembleWellLogUi*>        m_createEnsembleWellLogUi;
 };
