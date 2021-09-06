@@ -32,6 +32,7 @@
 #include "RimProject.h"
 #include "RimStringParameter.h"
 #include "RimTools.h"
+#include "RimWellIADisplacementData.h"
 #include "RimWellIAModelData.h"
 #include "RimWellIAStressData.h"
 #include "RimWellPath.h"
@@ -602,6 +603,12 @@ void RimWellIASettings::extractModelData()
             }
         }
 
+        const std::vector<cvf::Vec3d> displacements = extractDisplacments( m_modelbox.vertices(), timestep );
+
+        for ( size_t i = 0; i < displacements.size(); i++ )
+        {
+            data->setDisplacement( (int)i, displacements[i] );
+        }
         m_modelData.push_back( data );
         timestep++;
     }
@@ -618,4 +625,20 @@ std::vector<QDateTime> RimWellIASettings::timeStepDates()
         dates.insert( dates.begin(), m_geostaticDate );
 
     return dates;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<cvf::Vec3d> RimWellIASettings::extractDisplacments( std::vector<cvf::Vec3d> corners, int timestep )
+{
+    RimWellIADisplacementData displacementAccess( m_geomechCase );
+
+    std::vector<cvf::Vec3d> displacements;
+
+    for ( auto& pos : corners )
+    {
+        displacements.push_back( displacementAccess.getDisplacement( pos, timestep ) );
+    }
+    return displacements;
 }

@@ -85,7 +85,7 @@ double RimWellIAStressData::stressValue( RigGeoMechCaseData* caseData, QString c
 
     const std::vector<float>& scalarResults = caseData->femPartResults()->resultValues( address, 0, 0 );
 
-    if ( ( resultIndex > 0 ) && ( resultIndex < scalarResults.size() ) ) return scalarResults[resultIndex];
+    if ( ( resultIndex >= 0 ) && ( resultIndex < scalarResults.size() ) ) return scalarResults[resultIndex];
 
     return 0.0;
 }
