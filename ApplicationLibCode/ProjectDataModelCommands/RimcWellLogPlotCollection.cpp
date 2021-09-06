@@ -20,6 +20,7 @@
 #include "RiaApplication.h"
 #include "RiaGuiApplication.h"
 
+#include "RimcWellLogPlot.h"
 #include "WellLogCommands/RicNewWellLogPlotFeatureImpl.h"
 
 #include "RimEclipseCase.h"
@@ -64,17 +65,28 @@ caf::PdmObjectHandle* RimcWellLogPlotCollection_newWellLogPlot::execute()
 
     if ( m_case && m_wellPath && wellLogPlotCollection )
     {
-        newWellLogPlot = new RimWellLogPlot;
-        newWellLogPlot->setAsPlotMdiWindow();
-
-        wellLogPlotCollection->addWellLogPlot( newWellLogPlot );
-
-        newWellLogPlot->commonDataSource()->setCaseToApply( m_case );
-        newWellLogPlot->commonDataSource()->setWellPathToApply( m_wellPath );
-        newWellLogPlot->loadDataAndUpdate();
-        newWellLogPlot->updateConnectedEditors();
+        newWellLogPlot = createWellLogPlot( wellLogPlotCollection, m_wellPath, m_case );
     }
 
+    return newWellLogPlot;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimWellLogPlot* RimcWellLogPlotCollection_newWellLogPlot::createWellLogPlot( RimWellLogPlotCollection* wellLogPlotCollection,
+                                                                             RimWellPath*              wellPath,
+                                                                             RimEclipseCase*           eclipseCase )
+{
+    RimWellLogPlot* newWellLogPlot = new RimWellLogPlot;
+    newWellLogPlot->setAsPlotMdiWindow();
+
+    wellLogPlotCollection->addWellLogPlot( newWellLogPlot );
+
+    newWellLogPlot->commonDataSource()->setCaseToApply( eclipseCase );
+    newWellLogPlot->commonDataSource()->setWellPathToApply( wellPath );
+    newWellLogPlot->loadDataAndUpdate();
+    newWellLogPlot->updateConnectedEditors();
     return newWellLogPlot;
 }
 

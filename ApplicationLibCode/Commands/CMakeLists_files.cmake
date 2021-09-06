@@ -75,6 +75,8 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicImportGridModelFromSummaryCurveFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicGenerateMultipleSurfacesFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicGenerateMultipleSurfacesUi.h
+    ${CMAKE_CURRENT_LIST_DIR}/RicCreateEnsembleWellLogFeature.h
+    ${CMAKE_CURRENT_LIST_DIR}/RicCreateEnsembleWellLogUi.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
@@ -153,6 +155,8 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicImportGridModelFromSummaryCurveFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicGenerateMultipleSurfacesFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicGenerateMultipleSurfacesUi.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicCreateEnsembleWellLogFeature.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicCreateEnsembleWellLogUi.cpp
 )
 
 if(Qt5Charts_FOUND)

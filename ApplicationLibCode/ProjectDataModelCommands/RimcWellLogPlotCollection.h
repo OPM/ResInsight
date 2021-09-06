@@ -42,6 +42,10 @@ public:
     bool                             resultIsPersistent() const override;
     std::unique_ptr<PdmObjectHandle> defaultResult() const override;
 
+    static RimWellLogPlot* createWellLogPlot( RimWellLogPlotCollection* wellLogPlotCollection,
+                                              RimWellPath*              wellPath,
+                                              RimEclipseCase*           eclipseCase );
+
 private:
     caf::PdmPtrField<RimEclipseCase*> m_case;
     caf::PdmPtrField<RimWellPath*>    m_wellPath;

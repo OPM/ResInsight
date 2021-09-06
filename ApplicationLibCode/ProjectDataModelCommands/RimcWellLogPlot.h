@@ -28,6 +28,7 @@
 
 class RimEclipseCase;
 class RimWellPath;
+class RimWellLogTrack;
 
 //==================================================================================================
 ///
@@ -42,6 +43,11 @@ public:
     caf::PdmObjectHandle*            execute() override;
     bool                             resultIsPersistent() const override;
     std::unique_ptr<PdmObjectHandle> defaultResult() const override;
+
+    static RimWellLogTrack* createWellLogTrack( RimWellLogPlot* wellLogPlot,
+                                                RimEclipseCase* eclipseCase,
+                                                RimWellPath*    wellPath,
+                                                const QString&  title );
 
 private:
     caf::PdmField<QString>            m_title;
