@@ -36,7 +36,7 @@ public:
 
     void mergeGroup( RimParameterGroup* group, bool addCommentAsParameter = false );
 
-    std::vector<RimParameterGroup*> groups();
+    const std::vector<RimParameterGroup*> groups() const;
 
     void clear();
 

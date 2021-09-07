@@ -139,7 +139,7 @@ RimWellPath::RimWellPath()
     m_wellPathTieIn = new RimWellPathTieIn;
     m_wellPathTieIn->connectWellPaths( nullptr, this, 0.0 );
 
-    CAF_PDM_InitFieldNoDefault( &m_wellIASettingsCollection, "WellIASettings", "Integritry Analysis Settings", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_wellIASettingsCollection, "WellIASettings", "Integrity Analysis Settings", "", "", "" );
     m_wellIASettingsCollection = new RimWellIASettingsCollection();
     m_wellIASettingsCollection->uiCapability()->setUiTreeHidden( true );
 

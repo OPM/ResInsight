@@ -92,6 +92,8 @@ void RicRunWellIntegrityAnalysisFeature::onActionTriggered( bool isChecked )
 
     runProgress.incrementProgress();
     runProgress.setProgressDescription( "Loading modeling results." );
+
+    // TODO - load results from Abaqus modeling here.
 }
 
 //--------------------------------------------------------------------------------------------------

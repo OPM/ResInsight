@@ -41,8 +41,7 @@ cvf::ref<cvf::Part> RivBoxGeometryGenerator::createBoxFromVertices( const std::v
         cvf::ubyte faceConn[4];
         cvf::StructGridInterface::cellFaceVertexIndices( face, faceConn );
 
-        int n;
-        for ( n = 0; n < 4; n++ )
+        for ( int n = 0; n < 4; n++ )
         {
             boxVertices.push_back( cvf::Vec3f( vertices[faceConn[n]] ) );
         }
@@ -79,6 +78,8 @@ cvf::ref<cvf::Part> RivBoxGeometryGenerator::createBoxFromVertices( const std::v
 
 cvf::ref<cvf::UIntArray> RivBoxGeometryGenerator::lineIndicesFromQuadVertexArray( const cvf::Vec3fArray* vertexArray )
 {
+    // TODO - see issue #7890
+
     CVF_ASSERT( vertexArray );
 
     size_t numVertices = vertexArray->size();

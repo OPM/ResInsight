@@ -79,7 +79,7 @@ void RimParameterGroups::mergeGroup( RimParameterGroup* group, bool addCommentAs
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimParameterGroup*> RimParameterGroups::groups()
+const std::vector<RimParameterGroup*> RimParameterGroups::groups() const
 {
     std::vector<RimParameterGroup*> retGroups;
 

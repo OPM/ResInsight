@@ -66,10 +66,8 @@ public:
     bool showBox() const;
     void setShowBox( bool show );
 
-    std::list<RimParameterGroup*> inputParameterGroups();
-    std::list<RimParameterGroup*> resinsightParameterGroups();
-
-    RimGenericParameter* getInputParameter( QString name ) const;
+    const std::list<RimParameterGroup*> inputParameterGroups() const;
+    const std::list<RimParameterGroup*> resinsightParameterGroups() const;
 
     void   setDepthInterval( double startMD, double endMD );
     double startMD();

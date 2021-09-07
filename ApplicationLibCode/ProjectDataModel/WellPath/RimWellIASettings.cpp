@@ -186,15 +186,20 @@ void RimWellIASettings::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderi
         }
     }
 
-    uiOrdering.add( nameField() );
-    uiOrdering.add( &m_geomechCase );
-    uiOrdering.add( &m_baseDir );
-    uiOrdering.add( &m_startMD );
-    uiOrdering.add( &m_endMD );
-    uiOrdering.add( &m_bufferXY );
-    uiOrdering.add( &m_bufferZ );
-    uiOrdering.add( &m_showBox );
-    uiOrdering.add( &m_geostaticDate );
+    auto generalGroup = uiOrdering.addNewGroup( "General" );
+    generalGroup->add( nameField() );
+    generalGroup->add( &m_baseDir );
+
+    auto geoGroup = uiOrdering.addNewGroup( "GeoMechanical Settings" );
+    geoGroup->add( &m_geomechCase );
+    geoGroup->add( &m_geostaticDate );
+
+    auto modelGroup = uiOrdering.addNewGroup( "Model Settings" );
+    modelGroup->add( &m_startMD );
+    modelGroup->add( &m_endMD );
+    modelGroup->add( &m_bufferXY );
+    modelGroup->add( &m_bufferZ );
+    modelGroup->add( &m_showBox );
 
     uiOrdering.skipRemainingFields( true );
 }
@@ -374,7 +379,7 @@ bool RimWellIASettings::showBox() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::list<RimParameterGroup*> RimWellIASettings::inputParameterGroups()
+const std::list<RimParameterGroup*> RimWellIASettings::inputParameterGroups() const
 {
     std::list<RimParameterGroup*> retlist;
 
@@ -387,7 +392,7 @@ std::list<RimParameterGroup*> RimWellIASettings::inputParameterGroups()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::list<RimParameterGroup*> RimWellIASettings::resinsightParameterGroups()
+const std::list<RimParameterGroup*> RimWellIASettings::resinsightParameterGroups() const
 {
     std::list<RimParameterGroup*> retlist;
 
@@ -491,22 +496,6 @@ void RimWellIASettings::initCsvParameters()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimGenericParameter* RimWellIASettings::getInputParameter( QString name ) const
-{
-    RimGenericParameter* retval = nullptr;
-
-    for ( auto group : m_parameters.childObjects() )
-    {
-        retval = group->parameter( name );
-        if ( retval != nullptr ) return retval;
-    }
-
-    return retval;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimWellIASettings::setDepthInterval( double startMD, double endMD )
 {
     m_startMD = startMD;
@@ -548,7 +537,6 @@ RimWellPath* RimWellIASettings::wellPath() const
 {
     RimWellPath* wellpath = nullptr;
     this->firstAncestorOrThisOfTypeAsserted( wellpath );
-
     return wellpath;
 }
 
@@ -576,7 +564,6 @@ void RimWellIASettings::extractModelData()
 {
     generateModelBox();
     updateResInsightParameters();
-
     resetModelData();
 
     QDateTime startDate = geostaticDate();
