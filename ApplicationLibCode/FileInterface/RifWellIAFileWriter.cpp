@@ -69,7 +69,7 @@ bool RifWellIAFileWriter::writeToJsonFile( RimWellIASettings& settings, QString&
 
             const auto& parameters = group->parameters();
 
-            for ( int i = 0; i < parameters.size(); )
+            for ( size_t i = 0; i < parameters.size(); )
             {
                 stream << "   \"" + parameters[i]->name() + "\": " + parameters[i]->jsonValue();
 
