@@ -117,9 +117,12 @@ double RimWellIADataAccess::interpolatedResultValue( QString             fieldNa
 
     for ( int lNodeIdx = 0; lNodeIdx < elmNodeCount; ++lNodeIdx )
     {
-        int    nodeIdx        = elementConn[lNodeIdx];
-        size_t resIdx         = femPart->elementNodeResultIdx( elmIdx, lNodeIdx );
-        nodeResults[lNodeIdx] = scalarResults[resIdx];
+        int    nodeIdx = elementConn[lNodeIdx];
+        size_t resIdx  = femPart->resultValueIdxFromResultPosType( resultType, elmIdx, lNodeIdx );
+        if ( resIdx >= scalarResults.size() )
+            nodeResults[lNodeIdx] = 0.0;
+        else
+            nodeResults[lNodeIdx] = scalarResults[resIdx];
         nodeCorners[lNodeIdx] = cvf::Vec3d( femPart->nodes().coordinates[nodeIdx] );
     }
 
