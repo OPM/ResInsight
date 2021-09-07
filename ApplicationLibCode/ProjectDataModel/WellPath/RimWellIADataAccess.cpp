@@ -24,6 +24,8 @@
 #include "RigGeoMechCaseData.h"
 #include "RimGeoMechCase.h"
 
+#include "../cafHexInterpolator/cafHexInterpolator.h" // Use relative path, as this is a header only file not part of a library
+
 #include "cvfBoundingBox.h"
 
 //--------------------------------------------------------------------------------------------------
@@ -93,11 +95,33 @@ double RimWellIADataAccess::resultValue( QString             fieldName,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RimWellIADataAccess::interpolatedResultValue( QString             fieldname,
+double RimWellIADataAccess::interpolatedResultValue( QString             fieldName,
                                                      QString             componentName,
                                                      RigFemResultPosEnum resultType,
                                                      cvf::Vec3d          position,
                                                      int                 timeStep )
 {
-    return 0.0;
+    RigFemResultAddress address( resultType, fieldName.toStdString(), componentName.toStdString() );
+
+    int elmIdx = elementIndex( position );
+
+    RigFemPart*    femPart      = m_caseData->femParts()->part( 0 );
+    RigElementType elmType      = femPart->elementType( elmIdx );
+    const int*     elementConn  = femPart->connectivities( elmIdx );
+    int            elmNodeCount = RigFemTypes::elementNodeCount( elmType );
+
+    const std::vector<float>& scalarResults = m_caseData->femPartResults()->resultValues( address, 0, timeStep );
+
+    std::array<double, 8>     nodeResults;
+    std::array<cvf::Vec3d, 8> nodeCorners;
+
+    for ( int lNodeIdx = 0; lNodeIdx < elmNodeCount; ++lNodeIdx )
+    {
+        int    nodeIdx        = elementConn[lNodeIdx];
+        size_t resIdx         = femPart->elementNodeResultIdx( elmIdx, lNodeIdx );
+        nodeResults[lNodeIdx] = scalarResults[resIdx];
+        nodeCorners[lNodeIdx] = cvf::Vec3d( femPart->nodes().coordinates[nodeIdx] );
+    }
+
+    return caf::HexInterpolator::interpolateHex( nodeCorners, nodeResults, position );
 }

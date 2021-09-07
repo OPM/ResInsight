@@ -443,16 +443,14 @@ void RimWellIASettings::updateResInsightParameters()
     std::vector<QString> nativeKeys{ "S11", "S22", "S33", "S12", "S13", "S23" };
     std::vector<QString> paramKeys{ "SXX", "SYY", "SZZ", "SXY", "SXZ", "SYZ" };
 
-    int resultIndex = dataAccess.resultIndex( RigFemResultPosEnum::RIG_ELEMENT_NODAL, position );
     for ( size_t i = 0; i < nativeKeys.size(); i++ )
     {
         double stressValue =
-            dataAccess.resultValue( "ST", nativeKeys[i], RigFemResultPosEnum::RIG_ELEMENT_NODAL, resultIndex, 0 );
+            dataAccess.interpolatedResultValue( "ST", nativeKeys[i], RigFemResultPosEnum::RIG_ELEMENT_NODAL, position, 0 );
         initialStress->addParameter( paramKeys[i], stressValue );
     }
 
-    resultIndex    = dataAccess.resultIndex( RigFemResultPosEnum::RIG_NODAL, position );
-    double ppValue = dataAccess.resultValue( "POR-Bar", "", RigFemResultPosEnum::RIG_NODAL, resultIndex, 0 );
+    double ppValue = dataAccess.interpolatedResultValue( "POR-Bar", "", RigFemResultPosEnum::RIG_NODAL, position, 0 );
     initialStress->addParameter( "PP", ppValue );
 
     auto angles = RigWellPathGeometryTools::calculateAzimuthAndInclinationAtMd( ( m_startMD + m_endMD ) / 2.0,
@@ -642,11 +640,9 @@ std::vector<cvf::Vec3d> RimWellIASettings::extractDisplacments( std::vector<cvf:
 
     for ( auto& pos : corners )
     {
-        int resultIndex = dataAccess.resultIndex( RigFemResultPosEnum::RIG_NODAL, pos );
-
-        double u1 = dataAccess.resultValue( "U", "U1", RigFemResultPosEnum::RIG_NODAL, resultIndex, timeStep );
-        double u2 = dataAccess.resultValue( "U", "U2", RigFemResultPosEnum::RIG_NODAL, resultIndex, timeStep );
-        double u3 = dataAccess.resultValue( "U", "U3", RigFemResultPosEnum::RIG_NODAL, resultIndex, timeStep );
+        double u1 = dataAccess.interpolatedResultValue( "U", "U1", RigFemResultPosEnum::RIG_NODAL, pos, timeStep );
+        double u2 = dataAccess.interpolatedResultValue( "U", "U2", RigFemResultPosEnum::RIG_NODAL, pos, timeStep );
+        double u3 = dataAccess.interpolatedResultValue( "U", "U3", RigFemResultPosEnum::RIG_NODAL, pos, timeStep );
 
         displacements.push_back( cvf::Vec3d( u1, u2, u3 ) );
     }
