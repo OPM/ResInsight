@@ -14,8 +14,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimWellIASettingsCollection.h
     ${CMAKE_CURRENT_LIST_DIR}/RimWellIAModelBox.h
     ${CMAKE_CURRENT_LIST_DIR}/RimWellIAModelData.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimWellIAStressData.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimWellIADisplacementData.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimWellIADataAccess.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
@@ -34,8 +33,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimWellIASettingsCollection.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimWellIAModelBox.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimWellIAModelData.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RimWellIAStressData.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RimWellIADisplacementData.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimWellIADataAccess.cpp
 )
 
 list(APPEND CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})

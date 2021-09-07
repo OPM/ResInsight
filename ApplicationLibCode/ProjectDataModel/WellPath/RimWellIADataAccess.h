@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include "RigFemResultPosEnum.h"
+
 #include "cvfVector3.h"
 
 #include <QString>
@@ -31,16 +33,26 @@ class RigGeoMechCaseData;
 ///
 ///
 //==================================================================================================
-class RimWellIADisplacementData
+class RimWellIADataAccess
 {
 public:
-    RimWellIADisplacementData( RimGeoMechCase* thecase );
-    ~RimWellIADisplacementData();
+    RimWellIADataAccess( RimGeoMechCase* thecase );
+    ~RimWellIADataAccess();
 
-    cvf::Vec3d getDisplacement( cvf::Vec3d position, int timeStep );
+    int    resultIndex( RigFemResultPosEnum resultType, cvf::Vec3d position );
+    int    elementIndex( cvf::Vec3d position );
+    double resultValue( QString             fieldName,
+                        QString             componentName,
+                        RigFemResultPosEnum resultType,
+                        size_t              resultIndex,
+                        int                 timeStep );
+    double interpolatedResultValue( QString             fieldname,
+                                    QString             componentName,
+                                    RigFemResultPosEnum resultType,
+                                    cvf::Vec3d          position,
+                                    int                 timeStep );
 
 private:
-    double displacementValue( RigGeoMechCaseData* caseData, QString componentName, size_t resultIndex, int timeStep );
-
-    RimGeoMechCase* m_case;
+    RimGeoMechCase*     m_case;
+    RigGeoMechCaseData* m_caseData;
 };
