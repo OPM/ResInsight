@@ -87,7 +87,7 @@ double RimWellIADataAccess::resultValue( QString             fieldName,
 
     const std::vector<float>& scalarResults = m_caseData->femPartResults()->resultValues( address, 0, timeStep );
 
-    if ( ( resultIndex >= 0 ) && ( resultIndex < scalarResults.size() ) ) return scalarResults[resultIndex];
+    if ( resultIndex < scalarResults.size() ) return scalarResults[resultIndex];
 
     return 0.0;
 }
