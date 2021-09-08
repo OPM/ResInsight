@@ -32,8 +32,6 @@ public:
 private:
     void calculateArrays();
 
-    static cvf::ref<cvf::UIntArray> lineIndicesFromQuadVertexArray( const cvf::Vec3fArray* vertexArray );
-
 private:
     cvf::Vec3d m_origin;
     cvf::Vec3d m_size;

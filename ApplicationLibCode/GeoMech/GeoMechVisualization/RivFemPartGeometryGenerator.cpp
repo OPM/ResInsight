@@ -27,6 +27,7 @@
 #include "cvfOutlineEdgeExtractor.h"
 #include "cvfPrimitiveSetIndexedUInt.h"
 #include "cvfScalarMapper.h"
+#include "cvfStructGridGeometryGenerator.h"
 
 #include <cmath>
 #include <cstdlib>
@@ -84,8 +85,9 @@ ref<DrawableGeo> RivFemPartGeometryGenerator::createMeshDrawable()
     ref<DrawableGeo> geo = new DrawableGeo;
     geo->setVertexArray( m_quadVertices.p() );
 
-    ref<UIntArray>               indices = lineIndicesFromQuadVertexArray( m_quadVertices.p() );
-    ref<PrimitiveSetIndexedUInt> prim    = new PrimitiveSetIndexedUInt( PT_LINES );
+    ref<UIntArray> indices = cvf::StructGridGeometryGenerator::lineIndicesFromQuadVertexArray( m_quadVertices.p() );
+
+    ref<PrimitiveSetIndexedUInt> prim = new PrimitiveSetIndexedUInt( PT_LINES );
     prim->setIndices( indices.p() );
 
     geo->addPrimitiveSet( prim.p() );
@@ -101,7 +103,7 @@ ref<DrawableGeo> RivFemPartGeometryGenerator::createOutlineMeshDrawable( double 
 
     cvf::OutlineEdgeExtractor ee( creaseAngle, *m_quadVertices );
 
-    ref<UIntArray> indices = lineIndicesFromQuadVertexArray( m_quadVertices.p() );
+    ref<UIntArray> indices = cvf::StructGridGeometryGenerator::lineIndicesFromQuadVertexArray( m_quadVertices.p() );
     ee.addPrimitives( 4, *indices );
 
     ref<cvf::UIntArray> lineIndices = ee.lineIndices();
@@ -118,40 +120,6 @@ ref<DrawableGeo> RivFemPartGeometryGenerator::createOutlineMeshDrawable( double 
     geo->addPrimitiveSet( prim.p() );
 
     return geo;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-///
-///
-///
-//--------------------------------------------------------------------------------------------------
-ref<UIntArray> RivFemPartGeometryGenerator::lineIndicesFromQuadVertexArray( const Vec3fArray* vertexArray )
-{
-    CVF_ASSERT( vertexArray );
-
-    size_t numVertices = vertexArray->size();
-    int    numQuads    = static_cast<int>( numVertices / 4 );
-    CVF_ASSERT( numVertices % 4 == 0 );
-
-    ref<UIntArray> indices = new UIntArray;
-    indices->resize( numQuads * 8 );
-
-#pragma omp parallel for
-    for ( int i = 0; i < numQuads; i++ )
-    {
-        int idx = 8 * i;
-        indices->set( idx + 0, i * 4 + 0 );
-        indices->set( idx + 1, i * 4 + 1 );
-        indices->set( idx + 2, i * 4 + 1 );
-        indices->set( idx + 3, i * 4 + 2 );
-        indices->set( idx + 4, i * 4 + 2 );
-        indices->set( idx + 5, i * 4 + 3 );
-        indices->set( idx + 6, i * 4 + 3 );
-        indices->set( idx + 7, i * 4 + 0 );
-    }
-
-    return indices;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -336,8 +304,9 @@ cvf::ref<cvf::DrawableGeo>
     ref<DrawableGeo> geo = new DrawableGeo;
     geo->setVertexArray( quadVertices.p() );
 
-    ref<UIntArray>               indices = lineIndicesFromQuadVertexArray( quadVertices.p() );
-    ref<PrimitiveSetIndexedUInt> prim    = new PrimitiveSetIndexedUInt( PT_LINES );
+    ref<UIntArray> indices = cvf::StructGridGeometryGenerator::lineIndicesFromQuadVertexArray( quadVertices.p() );
+
+    ref<PrimitiveSetIndexedUInt> prim = new PrimitiveSetIndexedUInt( PT_LINES );
     prim->setIndices( indices.p() );
 
     geo->addPrimitiveSet( prim.p() );
