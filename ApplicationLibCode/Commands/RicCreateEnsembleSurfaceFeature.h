@@ -22,18 +22,18 @@
 
 #include <list>
 
-class RicGenerateMultipleSurfacesUi;
+class RicCreateEnsembleSurfaceUi;
 
 //==================================================================================================
 ///
 //==================================================================================================
-class RicGenerateMultipleSurfacesFeature : public caf::CmdFeature
+class RicCreateEnsembleSurfaceFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
 
 public:
     static void openDialogAndExecuteCommand();
-    static void executeCommand( const RicGenerateMultipleSurfacesUi& ui, const std::list<QString>& fileNames );
+    static void executeCommand( const RicCreateEnsembleSurfaceUi& ui, const std::list<QString>& fileNames );
 
 protected:
     bool isCommandEnabled() override;
