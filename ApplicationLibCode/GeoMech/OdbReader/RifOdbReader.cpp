@@ -101,10 +101,11 @@ size_t RifOdbReader::sm_instanceCount = 0;
 std::map<std::string, RigElementType> initFemTypeMap()
 {
     std::map<std::string, RigElementType> typeMap;
-    typeMap["C3D8R"] = HEX8;
-    typeMap["C3D8"]  = HEX8;
-    typeMap["C3D8P"] = HEX8P;
-    typeMap["CAX4"]  = CAX4;
+    typeMap["C3D8R"]   = HEX8;
+    typeMap["C3D8"]    = HEX8;
+    typeMap["C3D8P"]   = HEX8P;
+    typeMap["CAX4"]    = CAX4;
+    typeMap["C3D20RT"] = HEX8;
 
     return typeMap;
 }
@@ -396,6 +397,8 @@ bool RifOdbReader::readFemParts( RigFemPartCollection* femParts )
 
             int        nodeCount             = 0;
             const int* idBasedConnectivities = odbElm.connectivity( nodeCount );
+            nodeCount                        = std::min( nodeCount, RigFemTypes::elementNodeCount( elmType ) );
+
             CVF_TIGHT_ASSERT( nodeCount == RigFemTypes::elementNodeCount( elmType ) );
 
             indexBasedConnectivities.resize( nodeCount );
