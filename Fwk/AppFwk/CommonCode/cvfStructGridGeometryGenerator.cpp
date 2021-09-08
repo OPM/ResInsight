@@ -324,12 +324,12 @@ ref<UIntArray> StructGridGeometryGenerator::lineIndicesFromQuadVertexArray( cons
     CVF_ASSERT( numVertices % 4 == 0 );
 
     ref<UIntArray> indices = new UIntArray;
-    indices->resize( numQuads * 8 );
+    indices->resize( (size_t)numQuads * 8 );
 
 #pragma omp parallel for
     for ( int i = 0; i < numQuads; i++ )
     {
-        int idx = 8 * i;
+        size_t idx = (size_t)i * 8;
         indices->set( idx + 0, i * 4 + 0 );
         indices->set( idx + 1, i * 4 + 1 );
         indices->set( idx + 2, i * 4 + 1 );

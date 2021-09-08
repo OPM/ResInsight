@@ -79,8 +79,9 @@ cvf::ref<cvf::DrawableGeo> RivFaultGeometryGenerator::createMeshDrawable()
     cvf::ref<cvf::DrawableGeo> geo = new cvf::DrawableGeo;
     geo->setVertexArray( m_vertices.p() );
 
-    cvf::ref<cvf::UIntArray>               indices = lineIndicesFromQuadVertexArray( m_vertices.p() );
-    cvf::ref<cvf::PrimitiveSetIndexedUInt> prim    = new cvf::PrimitiveSetIndexedUInt( cvf::PT_LINES );
+    cvf::ref<cvf::UIntArray> indices = cvf::StructGridGeometryGenerator::lineIndicesFromQuadVertexArray( m_vertices.p() );
+
+    cvf::ref<cvf::PrimitiveSetIndexedUInt> prim = new cvf::PrimitiveSetIndexedUInt( cvf::PT_LINES );
     prim->setIndices( indices.p() );
 
     geo->addPrimitiveSet( prim.p() );
@@ -96,7 +97,7 @@ cvf::ref<cvf::DrawableGeo> RivFaultGeometryGenerator::createOutlineMeshDrawable(
 
     cvf::OutlineEdgeExtractor ee( creaseAngle, *m_vertices );
 
-    cvf::ref<cvf::UIntArray> indices = lineIndicesFromQuadVertexArray( m_vertices.p() );
+    cvf::ref<cvf::UIntArray> indices = cvf::StructGridGeometryGenerator::lineIndicesFromQuadVertexArray( m_vertices.p() );
     ee.addPrimitives( 4, *indices );
 
     cvf::ref<cvf::UIntArray> lineIndices = ee.lineIndices();
@@ -113,37 +114,6 @@ cvf::ref<cvf::DrawableGeo> RivFaultGeometryGenerator::createOutlineMeshDrawable(
     geo->addPrimitiveSet( prim.p() );
 
     return geo;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-cvf::ref<cvf::UIntArray> RivFaultGeometryGenerator::lineIndicesFromQuadVertexArray( const cvf::Vec3fArray* vertexArray )
-{
-    CVF_ASSERT( vertexArray );
-
-    size_t numVertices = vertexArray->size();
-    int    numQuads    = static_cast<int>( numVertices / 4 );
-    CVF_ASSERT( numVertices % 4 == 0 );
-
-    cvf::ref<cvf::UIntArray> indices = new cvf::UIntArray;
-    indices->resize( numQuads * 8 );
-
-#pragma omp parallel for
-    for ( int i = 0; i < numQuads; i++ )
-    {
-        int idx = 8 * i;
-        indices->set( idx + 0, i * 4 + 0 );
-        indices->set( idx + 1, i * 4 + 1 );
-        indices->set( idx + 2, i * 4 + 1 );
-        indices->set( idx + 3, i * 4 + 2 );
-        indices->set( idx + 4, i * 4 + 2 );
-        indices->set( idx + 5, i * 4 + 3 );
-        indices->set( idx + 6, i * 4 + 3 );
-        indices->set( idx + 7, i * 4 + 0 );
-    }
-
-    return indices;
 }
 
 //--------------------------------------------------------------------------------------------------
