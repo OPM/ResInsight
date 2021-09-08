@@ -16,13 +16,13 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicGenerateMultipleSurfacesFeature.h"
+#include "RicCreateEnsembleSurfaceFeature.h"
 
 #include "RiaApplication.h"
 #include "RiaLogging.h"
 
 #include "CommandRouter/RimcExtractSurfaces.h"
-#include "RicGenerateMultipleSurfacesUi.h"
+#include "RicCreateEnsembleSurfaceUi.h"
 #include "RicImportEnsembleSurfaceFeature.h"
 #include "RicRecursiveFileSearchDialog.h"
 #include "RimDialogData.h"
@@ -41,12 +41,12 @@
 #include <QDir>
 #include <QFileInfo>
 
-CAF_CMD_SOURCE_INIT( RicGenerateMultipleSurfacesFeature, "RicGenerateMultipleSurfacesFeature" );
+CAF_CMD_SOURCE_INIT( RicCreateEnsembleSurfaceFeature, "RicCreateEnsembleSurfaceFeature" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicGenerateMultipleSurfacesFeature::openDialogAndExecuteCommand()
+void RicCreateEnsembleSurfaceFeature::openDialogAndExecuteCommand()
 {
     // Get the list of egrid files
     RiaApplication* app        = RiaApplication::instance();
@@ -74,12 +74,12 @@ void RicGenerateMultipleSurfacesFeature::openDialogAndExecuteCommand()
     if ( !RimcCommandRouter_extractSurfaces::readMinMaxLayerFromGridFile( result.files[0], minLayerK, maxLayerK ) )
         return;
 
-    RicGenerateMultipleSurfacesUi* ui = RimProject::current()->dialogData()->generateEnsembleSurfacesUi();
+    RicCreateEnsembleSurfaceUi* ui = RimProject::current()->dialogData()->createEnsembleSurfaceUi();
     ui->setLayersMinMax( minLayerK, maxLayerK );
 
     RiuPropertyViewTabWidget propertyDialog( Riu3DMainWindowTools::mainWindowWidget(),
                                              ui,
-                                             "Export Multiple Surfaces",
+                                             "Create Ensemble Surface",
                                              ui->tabNames() );
 
     if ( propertyDialog.exec() == QDialog::Accepted )
@@ -91,12 +91,12 @@ void RicGenerateMultipleSurfacesFeature::openDialogAndExecuteCommand()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicGenerateMultipleSurfacesFeature::executeCommand( const RicGenerateMultipleSurfacesUi& ui,
-                                                         const std::list<QString>&            fileNames )
+void RicCreateEnsembleSurfaceFeature::executeCommand( const RicCreateEnsembleSurfaceUi& ui,
+                                                      const std::list<QString>&         fileNames )
 {
     std::vector layers = ui.layers();
 
-    caf::ProgressInfo progress( fileNames.size(), "Generating ensemble surfaces" );
+    caf::ProgressInfo progress( fileNames.size(), "Generating ensemble surface" );
 
     QStringList allSurfaceFileNames;
     for ( auto fileName : fileNames )
@@ -113,7 +113,7 @@ void RicGenerateMultipleSurfacesFeature::executeCommand( const RicGenerateMultip
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicGenerateMultipleSurfacesFeature::isCommandEnabled()
+bool RicCreateEnsembleSurfaceFeature::isCommandEnabled()
 {
     return true;
 }
@@ -121,7 +121,7 @@ bool RicGenerateMultipleSurfacesFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicGenerateMultipleSurfacesFeature::onActionTriggered( bool isChecked )
+void RicCreateEnsembleSurfaceFeature::onActionTriggered( bool isChecked )
 {
     openDialogAndExecuteCommand();
 }
@@ -129,7 +129,7 @@ void RicGenerateMultipleSurfacesFeature::onActionTriggered( bool isChecked )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicGenerateMultipleSurfacesFeature::setupActionLook( QAction* actionToSetup )
+void RicCreateEnsembleSurfaceFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setText( "Generate Multiple Surfaces..." );
+    actionToSetup->setText( "Create Ensemble Surface..." );
 }

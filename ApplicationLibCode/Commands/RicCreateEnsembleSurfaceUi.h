@@ -29,13 +29,13 @@ class RigEclipseCaseData;
 //==================================================================================================
 ///
 //==================================================================================================
-class RicGenerateMultipleSurfacesUi : public caf::PdmObject
+class RicCreateEnsembleSurfaceUi : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    RicGenerateMultipleSurfacesUi();
-    ~RicGenerateMultipleSurfacesUi() override;
+    RicCreateEnsembleSurfaceUi();
+    ~RicCreateEnsembleSurfaceUi() override;
     const QStringList& tabNames() const;
 
     void setLayersMinMax( int minLayer, int maxLayer );

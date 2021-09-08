@@ -16,7 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicGenerateMultipleSurfacesUi.h"
+#include "RicCreateEnsembleSurfaceUi.h"
 
 #include "RiaApplication.h"
 
@@ -25,12 +25,12 @@
 #include "cafPdmUiListEditor.h"
 #include "cafPdmUiOrdering.h"
 
-CAF_PDM_SOURCE_INIT( RicGenerateMultipleSurfacesUi, "RicGenerateMultipleSurfacesUi" );
+CAF_PDM_SOURCE_INIT( RicCreateEnsembleSurfaceUi, "RicCreateEnsembleSurfaceUi" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicGenerateMultipleSurfacesUi::RicGenerateMultipleSurfacesUi()
+RicCreateEnsembleSurfaceUi::RicCreateEnsembleSurfaceUi()
 {
     CAF_PDM_InitObject( "Export Multiple Surfaces", "", "", "" );
 
@@ -53,14 +53,14 @@ RicGenerateMultipleSurfacesUi::RicGenerateMultipleSurfacesUi()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicGenerateMultipleSurfacesUi::~RicGenerateMultipleSurfacesUi()
+RicCreateEnsembleSurfaceUi::~RicCreateEnsembleSurfaceUi()
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const QStringList& RicGenerateMultipleSurfacesUi::tabNames() const
+const QStringList& RicCreateEnsembleSurfaceUi::tabNames() const
 {
     return m_tabNames;
 }
@@ -68,7 +68,7 @@ const QStringList& RicGenerateMultipleSurfacesUi::tabNames() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicGenerateMultipleSurfacesUi::setLayersMinMax( int minLayer, int maxLayer )
+void RicCreateEnsembleSurfaceUi::setLayersMinMax( int minLayer, int maxLayer )
 {
     m_minLayer = minLayer;
     m_maxLayer = maxLayer;
@@ -77,9 +77,9 @@ void RicGenerateMultipleSurfacesUi::setLayersMinMax( int minLayer, int maxLayer 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicGenerateMultipleSurfacesUi::defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                                           QString                    uiConfigName,
-                                                           caf::PdmUiEditorAttribute* attribute )
+void RicCreateEnsembleSurfaceUi::defineEditorAttribute( const caf::PdmFieldHandle* field,
+                                                        QString                    uiConfigName,
+                                                        caf::PdmUiEditorAttribute* attribute )
 {
     if ( field == &m_layers )
     {
@@ -94,7 +94,7 @@ void RicGenerateMultipleSurfacesUi::defineEditorAttribute( const caf::PdmFieldHa
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicGenerateMultipleSurfacesUi::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
+void RicCreateEnsembleSurfaceUi::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     if ( uiConfigName == m_tabNames[0] )
     {
@@ -108,8 +108,7 @@ void RicGenerateMultipleSurfacesUi::defineUiOrdering( QString uiConfigName, caf:
 ///
 //--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo>
-    RicGenerateMultipleSurfacesUi::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                          bool*                      useOptionsOnly )
+    RicCreateEnsembleSurfaceUi::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly )
 {
     QList<caf::PdmOptionItemInfo> options;
     if ( fieldNeedingOptions == &m_layers )
@@ -125,7 +124,7 @@ QList<caf::PdmOptionItemInfo>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<int> RicGenerateMultipleSurfacesUi::layers() const
+std::vector<int> RicCreateEnsembleSurfaceUi::layers() const
 {
     return m_layers();
 }
@@ -133,7 +132,7 @@ std::vector<int> RicGenerateMultipleSurfacesUi::layers() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicGenerateMultipleSurfacesUi::autoCreateEnsembleSurfaces() const
+bool RicCreateEnsembleSurfaceUi::autoCreateEnsembleSurfaces() const
 {
     return m_autoCreateEnsembleSurfaces;
 }
