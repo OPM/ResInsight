@@ -169,6 +169,15 @@ void RimWellLogPlotCollection::deleteAllPlots()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimWellLogPlotCollection::removePlot( gsl::not_null<RimWellLogPlot*> plot )
+{
+    m_wellLogPlots.removeChildObject( plot );
+    updateAllRequiredEditors();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimWellLogPlotCollection::loadDataAndUpdateAllPlots()
 {
     for ( const auto& w : m_wellLogPlots() )

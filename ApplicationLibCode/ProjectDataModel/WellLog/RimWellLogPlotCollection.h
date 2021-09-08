@@ -59,10 +59,12 @@ public:
     RigGeoMechWellLogExtractor* findOrCreateExtractor( RimWellPath* wellPath, RimGeoMechCase* geoMechCase );
 
     std::vector<RimWellLogPlot*> wellLogPlots() const;
-    void                         addWellLogPlot( gsl::not_null<RimWellLogPlot*> wellLogPlot );
-    void                         deleteAllPlots() override;
-    void                         loadDataAndUpdateAllPlots() override;
-    size_t                       plotCount() const override;
+
+    void   addWellLogPlot( gsl::not_null<RimWellLogPlot*> wellLogPlot );
+    void   removePlot( gsl::not_null<RimWellLogPlot*> plot );
+    void   deleteAllPlots() override;
+    void   loadDataAndUpdateAllPlots() override;
+    size_t plotCount() const override;
 
     void deleteAllExtractors();
     void removeExtractors( const RigWellPath* wellPathGeometry );
