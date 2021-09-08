@@ -438,6 +438,7 @@ void RiaPreferences::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
         otherGroup->add( &showLasCurveWithoutTvdWarning );
         otherGroup->add( &holoLensDisableCertificateVerification );
         otherGroup->add( &m_useUndoRedo );
+        otherGroup->add( &m_showProgressBar );
     }
     else if ( uiConfigName == RiaPreferences::tabNameEclipseGrid() )
     {
@@ -536,7 +537,6 @@ void RiaPreferences::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
         }
 
         uiOrdering.add( &m_gtestFilter );
-        uiOrdering.add( &m_showProgressBar );
         uiOrdering.add( &m_showProjectChangedDialog );
         uiOrdering.add( &m_showTestToolbar );
         uiOrdering.add( &m_includeFractureDebugInfoFile );
