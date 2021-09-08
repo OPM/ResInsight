@@ -21,6 +21,7 @@
 #include "RiaApplication.h"
 
 #include "cafPdmObject.h"
+#include "cafPdmUiCheckBoxEditor.h"
 #include "cafPdmUiListEditor.h"
 #include "cafPdmUiOrdering.h"
 
@@ -41,12 +42,12 @@ RicGenerateMultipleSurfacesUi::RicGenerateMultipleSurfacesUi()
                        "",
                        "",
                        "" );
+    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_autoCreateEnsembleSurfaces );
 
     CAF_PDM_InitFieldNoDefault( &m_minLayer, "MinLayer", "MinLayer", "", "", "" );
     CAF_PDM_InitFieldNoDefault( &m_maxLayer, "MaxLayer", "MaxLayer", "", "", "" );
 
-    m_tabNames << "Layers"
-               << "Ensemble Surfaces";
+    m_tabNames << "Configuration";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -98,9 +99,6 @@ void RicGenerateMultipleSurfacesUi::defineUiOrdering( QString uiConfigName, caf:
     if ( uiConfigName == m_tabNames[0] )
     {
         uiOrdering.add( &m_layers );
-    }
-    else if ( uiConfigName == m_tabNames[1] )
-    {
         uiOrdering.add( &m_autoCreateEnsembleSurfaces );
     }
     uiOrdering.skipRemainingFields( true );
