@@ -71,28 +71,43 @@ void RicWellPathExportMswCompletionsImpl::exportWellSegmentsForAllCompletions(
     if ( exportSettings.fileSplit() == RicExportCompletionDataSettingsUi::ExportSplit::UNIFIED_FILE )
     {
         {
-            QString   fileName;
+            QString fileName;
+            QString folderName;
+
             QFileInfo fi( exportSettings.customFileName() );
             if ( !exportSettings.customFileName().isEmpty() )
-                fileName = fi.baseName() + "_MSW";
+            {
+                fileName   = fi.baseName();
+                folderName = fi.absolutePath();
+            }
             else
+            {
                 fileName = QString( "UnifiedCompletions_MSW_%1" ).arg( exportSettings.caseToApply->caseUserDescription() );
+                folderName = exportSettings.folder;
+            }
 
             unifiedExportFile =
-                RicWellPathExportCompletionsFileTools::openFileForExport( exportSettings.folder, fileName, fi.suffix() );
+                RicWellPathExportCompletionsFileTools::openFileForExport( folderName, fileName, fi.suffix() );
         }
 
         {
             QString   lgrFileName;
+            QString   folderName;
             QFileInfo fi( exportSettings.customFileName() );
             if ( !exportSettings.customFileName().isEmpty() )
+            {
                 lgrFileName = fi.baseName() + "_LGR_MSW";
+                folderName  = fi.absolutePath();
+            }
             else
+            {
                 lgrFileName =
                     QString( "UnifiedCompletions_LGR_MSW_%1" ).arg( exportSettings.caseToApply->caseUserDescription() );
+                folderName = exportSettings.folder;
+            }
 
             unifiedLgrExportFile =
-                RicWellPathExportCompletionsFileTools::openFileForExport( exportSettings.folder, lgrFileName, fi.suffix() );
+                RicWellPathExportCompletionsFileTools::openFileForExport( folderName, lgrFileName, fi.suffix() );
         }
     }
 
