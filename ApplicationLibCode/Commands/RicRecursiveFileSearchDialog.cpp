@@ -76,20 +76,15 @@ RicRecursiveFileSearchDialogResult RicRecursiveFileSearchDialog::runRecursiveSea
     QString pathFilterText = dir;
     RiaFilePathTools::appendSeparatorIfNo( pathFilterText );
     pathFilterText += pathFilter;
+    dialog.m_fileFilterField->addItem( fileNameFilter );
+    dialog.m_pathFilterField->addItem( QDir::toNativeSeparators( pathFilterText ) );
 
-    const QString searchHistoryStringsRegistryKey =
-        QString( "RicRecursiveFileSearchDialog %1" ).arg( caption ).replace( " ", "_" );
-    const int maxItemsInRegistry = 10;
-    {
-        RiaStringListSerializer stringListSerializer( searchHistoryStringsRegistryKey );
-        QStringList             files = stringListSerializer.textStrings();
+    const QString filePathRegistryKey = QString( "RicRecursiveFileSearchDialog %1" ).arg( caption ).replace( " ", "_" );
+    populateComboBoxHistoryFromRegistry( dialog.m_pathFilterField, filePathRegistryKey );
 
-        int numRecentFiles = std::min( files.size(), maxItemsInRegistry );
-        for ( int i = 0; i < numRecentFiles; i++ )
-        {
-            dialog.m_pathFilterField->addItem( files[i] );
-        }
-    }
+    const QString fileFilterRegistryKey =
+        QString( "RicRecursiveFileSearchDialog file filter %1" ).arg( caption ).replace( " ", "_" );
+    populateComboBoxHistoryFromRegistry( dialog.m_fileFilterField, fileFilterRegistryKey );
 
     QSettings     settings;
     const QString useRealizationStarRegistryKey = "RecursiveFileSearchDialog_use_realization";
@@ -97,11 +92,12 @@ RicRecursiveFileSearchDialogResult RicRecursiveFileSearchDialog::runRecursiveSea
     bool isChecked = settings.value( useRealizationStarRegistryKey, true ).toBool();
     dialog.m_useRealizationStarCheckBox->setChecked( isChecked );
 
-    dialog.m_pathFilterField->addItem( QDir::toNativeSeparators( pathFilterText ) );
-    dialog.m_pathFilterField->setCurrentText( QDir::toNativeSeparators( pathFilterText ) );
+    dialog.m_fileFilterField->setCurrentText( fileNameFilter );
+    dialog.m_fileFilterField->setEditable( true );
 
+    dialog.m_pathFilterField->setCurrentText( QDir::toNativeSeparators( pathFilterText ) );
     dialog.m_pathFilterField->setEditable( true );
-    dialog.m_fileFilterField->setText( fileNameFilter );
+
     dialog.m_fileExtensions = trimLeftStrings( fileExtensions, "." );
 
     dialog.updateEffectiveFilter();
@@ -113,10 +109,18 @@ RicRecursiveFileSearchDialogResult RicRecursiveFileSearchDialog::runRecursiveSea
 
     if ( dialog.result() == QDialog::Accepted )
     {
-        RiaStringListSerializer stringListSerializer( searchHistoryStringsRegistryKey );
-        stringListSerializer.addString( dialog.m_pathFilterField->currentText(), maxItemsInRegistry );
-
         settings.setValue( useRealizationStarRegistryKey, dialog.m_useRealizationStarCheckBox->isChecked() );
+
+        const int maxItemsInRegistry = 10;
+
+        {
+            RiaStringListSerializer stringListSerializer( filePathRegistryKey );
+            stringListSerializer.addString( dialog.m_pathFilterField->currentText(), maxItemsInRegistry );
+        }
+        {
+            RiaStringListSerializer stringListSerializer( fileFilterRegistryKey );
+            stringListSerializer.addString( dialog.m_fileFilterField->currentText(), maxItemsInRegistry );
+        }
     }
 
     return RicRecursiveFileSearchDialogResult( dialog.result() == QDialog::Accepted,
@@ -141,7 +145,7 @@ RicRecursiveFileSearchDialog::RicRecursiveFileSearchDialog( QWidget* parent )
     m_pathFilterLabel             = new QLabel();
     m_pathFilterField             = new QComboBox();
     m_fileFilterLabel             = new QLabel();
-    m_fileFilterField             = new QLineEdit();
+    m_fileFilterField             = new QComboBox();
     m_effectiveFilterLabel        = new QLabel();
     m_effectiveFilterContentLabel = new QLabel();
     m_searchRootLabel             = new QLabel();
@@ -155,13 +159,20 @@ RicRecursiveFileSearchDialog::RicRecursiveFileSearchDialog( QWidget* parent )
     connect( m_pathFilterField,
              SIGNAL( currentTextChanged( const QString& ) ),
              this,
-             SLOT( slotFilterChanged( const QString& ) ) );
+             SLOT( slotPathFilterChanged( const QString& ) ) );
     connect( m_pathFilterField,
              SIGNAL( editTextChanged( const QString& ) ),
              this,
-             SLOT( slotFilterChanged( const QString& ) ) );
+             SLOT( slotPathFilterChanged( const QString& ) ) );
 
-    connect( m_fileFilterField, SIGNAL( textChanged( const QString& ) ), this, SLOT( slotFilterChanged( const QString& ) ) );
+    connect( m_fileFilterField,
+             SIGNAL( currentTextChanged( const QString& ) ),
+             this,
+             SLOT( slotFileFilterChanged( const QString& ) ) );
+    connect( m_fileFilterField,
+             SIGNAL( editTextChanged( const QString& ) ),
+             this,
+             SLOT( slotFileFilterChanged( const QString& ) ) );
 
     connect( m_fileListWidget,
              SIGNAL( customContextMenuRequested( const QPoint& ) ),
@@ -312,7 +323,7 @@ QString RicRecursiveFileSearchDialog::pathFilterWithoutStartSeparator() const
 //--------------------------------------------------------------------------------------------------
 QString RicRecursiveFileSearchDialog::fileNameFilter() const
 {
-    return m_fileFilterField->text().trimmed();
+    return m_fileFilterField->currentText().trimmed();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -338,7 +349,7 @@ QString RicRecursiveFileSearchDialog::extensionFromFileNameFilter() const
 {
     for ( const QString& ext : m_fileExtensions )
     {
-        if ( m_fileFilterField->text().endsWith( ext, Qt::CaseInsensitive ) )
+        if ( m_fileFilterField->currentText().endsWith( ext, Qt::CaseInsensitive ) )
         {
             return ext;
         }
@@ -562,6 +573,23 @@ QString RicRecursiveFileSearchDialog::replaceWithRealizationStar( const QString&
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RicRecursiveFileSearchDialog::populateComboBoxHistoryFromRegistry( QComboBox* comboBox, const QString& registryKey )
+{
+    RiaStringListSerializer stringListSerializer( registryKey );
+    QStringList             files = stringListSerializer.textStrings();
+
+    const int maxItemsInRegistry = 10;
+
+    int numRecentFiles = std::min( files.size(), maxItemsInRegistry );
+    for ( int i = 0; i < numRecentFiles; i++ )
+    {
+        comboBox->addItem( files[i] );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RicRecursiveFileSearchDialog::updateEffectiveFilter()
 {
     QString pathFilterText = pathFilterWithoutStartSeparator();
@@ -609,8 +637,21 @@ void RicRecursiveFileSearchDialog::warningIfInvalidCharacters()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicRecursiveFileSearchDialog::slotFilterChanged( const QString& text )
+void RicRecursiveFileSearchDialog::slotPathFilterChanged( const QString& text )
 {
+    updateEffectiveFilter();
+    warningIfInvalidCharacters();
+    m_findOrCancelButton->setDefault( true );
+
+    slotFindOrCancelButtonClicked();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicRecursiveFileSearchDialog::slotFileFilterChanged( const QString& text )
+{
+    clearFileList();
     updateEffectiveFilter();
     warningIfInvalidCharacters();
     m_findOrCancelButton->setDefault( true );
