@@ -18,7 +18,7 @@
 
 #include "RimSurfaceInViewCollection.h"
 
-#include "RimEnsembleSurfaceInView.h"
+#include "RimEnsembleSurface.h"
 #include "RimGridView.h"
 #include "RimIntersectionResultDefinition.h"
 #include "RimOilField.h"
@@ -56,9 +56,6 @@ RimSurfaceInViewCollection::RimSurfaceInViewCollection()
 
     CAF_PDM_InitFieldNoDefault( &m_surfacesInView, "SurfacesInViewField", "SurfacesInViewField", "", "", "" );
     m_surfacesInView.uiCapability()->setUiTreeHidden( true );
-
-    CAF_PDM_InitFieldNoDefault( &m_ensembleSurfacesInView, "EnsemblesSurfacesInView", "EnsembleSurfacesInView", "", "", "" );
-    m_ensembleSurfacesInView.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_surfaceCollection, "SurfaceCollectionRef", "SurfaceCollection", "", "", "" );
     m_surfaceCollection.uiCapability()->setUiHidden( true );
@@ -113,7 +110,6 @@ void RimSurfaceInViewCollection::setSurfaceCollection( RimSurfaceCollection* sur
 void RimSurfaceInViewCollection::updateAllViewItems()
 {
     syncCollectionsWithView();
-    syncEnsembleSurfacesWithView();
     syncSurfacesWithView();
     updateConnectedEditors();
 }
@@ -171,56 +167,6 @@ void RimSurfaceInViewCollection::syncCollectionsWithView()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSurfaceInViewCollection::syncEnsembleSurfacesWithView()
-{
-    // check that we have ensemble in view collectinons
-    std::vector<RimEnsembleSurfaceInView*> ensembleSurfaces = m_ensembleSurfacesInView.childObjects();
-
-    for ( auto ensembleSurface : ensembleSurfaces )
-    {
-        if ( !ensembleSurface->ensembleSurface() )
-        {
-            m_ensembleSurfacesInView.removeChildObject( ensembleSurface );
-            delete ensembleSurface;
-        }
-    }
-
-    // Create new collection entries and reorder
-    std::vector<RimEnsembleSurfaceInView*> orderedEnsembleSurfaces;
-    if ( m_surfaceCollection )
-    {
-        // pick up the collections and the order from the surface collection
-        std::vector<RimEnsembleSurface*> ensSurfs = m_surfaceCollection->ensembleSurfaces();
-        for ( auto ensSurf : ensSurfs )
-        {
-            // check if this is a collection we need to create
-
-            RimEnsembleSurfaceInView* ensembleSurfaceInView = this->getEnsembleSurfaceInViewForEnsembleSurface( ensSurf );
-            if ( ensembleSurfaceInView == nullptr )
-            {
-                RimEnsembleSurfaceInView* newColl = new RimEnsembleSurfaceInView();
-                newColl->setEnsembleSurface( ensSurf );
-                orderedEnsembleSurfaces.push_back( newColl );
-            }
-            else
-            {
-                orderedEnsembleSurfaces.push_back( ensembleSurfaceInView );
-            }
-        }
-
-        // make sure our view surfaces have the same order as the source surface collection
-        m_ensembleSurfacesInView.clear();
-        for ( auto ensSurf : orderedEnsembleSurfaces )
-        {
-            m_ensembleSurfacesInView.push_back( ensSurf );
-            ensSurf->updateAllViewItems();
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimSurfaceInViewCollection::syncSurfacesWithView()
 {
     // Delete surfaceInView without any real Surface connection
@@ -236,7 +182,7 @@ void RimSurfaceInViewCollection::syncSurfacesWithView()
         }
     }
 
-    // Create new surfade entries and reorder
+    // Create new surface entries and reorder
     std::vector<RimSurfaceInView*> orderedSurfs;
 
     if ( m_surfaceCollection )
@@ -251,6 +197,12 @@ void RimSurfaceInViewCollection::syncSurfacesWithView()
             {
                 RimSurfaceInView* newSurfInView = new RimSurfaceInView();
                 newSurfInView->setSurface( surf );
+
+                if ( m_surfaceCollection->collectionName() == RimEnsembleSurface::ensembleSourceFileCollectionName() )
+                {
+                    newSurfInView->setActive( false );
+                }
+
                 orderedSurfs.push_back( newSurfInView );
             }
             else
@@ -286,11 +238,6 @@ void RimSurfaceInViewCollection::loadData()
         coll->loadData();
     }
 
-    for ( RimEnsembleSurfaceInView* ensSurf : m_ensembleSurfacesInView )
-    {
-        ensSurf->loadData();
-    }
-
     for ( RimSurfaceInView* surf : m_surfacesInView )
     {
         if ( surf->isActive() )
@@ -308,11 +255,6 @@ void RimSurfaceInViewCollection::clearGeometry()
     for ( RimSurfaceInViewCollection* coll : m_collectionsInView )
     {
         coll->clearGeometry();
-    }
-
-    for ( RimEnsembleSurfaceInView* ensSurf : m_ensembleSurfacesInView )
-    {
-        ensSurf->clearGeometry();
     }
 
     for ( RimSurfaceInView* surf : m_surfacesInView )
@@ -333,14 +275,6 @@ void RimSurfaceInViewCollection::appendPartsToModel( cvf::ModelBasicList* model,
         if ( coll->isChecked() )
         {
             coll->appendPartsToModel( model, scaleTransform );
-        }
-    }
-
-    for ( RimEnsembleSurfaceInView* ensSurf : m_ensembleSurfacesInView )
-    {
-        if ( ensSurf->isChecked() )
-        {
-            ensSurf->appendPartsToModel( model, scaleTransform );
         }
     }
 
@@ -405,23 +339,6 @@ RimSurfaceInViewCollection*
     for ( auto collInView : m_collectionsInView )
     {
         if ( collInView->surfaceCollection() == coll )
-        {
-            return collInView;
-        }
-    }
-
-    return nullptr;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RimEnsembleSurfaceInView*
-    RimSurfaceInViewCollection::getEnsembleSurfaceInViewForEnsembleSurface( const RimEnsembleSurface* coll ) const
-{
-    for ( auto collInView : m_ensembleSurfacesInView )
-    {
-        if ( collInView->ensembleSurface() == coll )
         {
             return collInView;
         }

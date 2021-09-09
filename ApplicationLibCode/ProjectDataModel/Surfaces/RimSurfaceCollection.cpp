@@ -58,9 +58,6 @@ RimSurfaceCollection::RimSurfaceCollection()
     CAF_PDM_InitScriptableFieldNoDefault( &m_surfaces, "SurfacesField", "Surfaces", "", "", "" );
     m_surfaces.uiCapability()->setUiTreeHidden( true );
 
-    CAF_PDM_InitScriptableFieldNoDefault( &m_ensembleSurfaces, "EnsembleSurfaces", "Ensemble Surfaces", "", "", "" );
-    m_ensembleSurfaces.uiCapability()->setUiTreeHidden( true );
-
     setDeletable( true );
 }
 
@@ -117,7 +114,7 @@ void RimSurfaceCollection::addSurface( RimSurface* surface )
 //--------------------------------------------------------------------------------------------------
 void RimSurfaceCollection::addEnsembleSurface( RimEnsembleSurface* ensembleSurface )
 {
-    m_ensembleSurfaces.push_back( ensembleSurface );
+    addSubCollection( ensembleSurface );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -268,14 +265,6 @@ std::vector<RimSurfaceCollection*> RimSurfaceCollection::subCollections() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimEnsembleSurface*> RimSurfaceCollection::ensembleSurfaces() const
-{
-    return m_ensembleSurfaces.childObjects();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimSurfaceCollection::loadData()
 {
     for ( auto surf : m_surfaces )
@@ -283,9 +272,9 @@ void RimSurfaceCollection::loadData()
         surf->loadDataIfRequired();
     }
 
-    for ( auto ensSurf : m_ensembleSurfaces )
+    for ( auto subColl : m_subCollections )
     {
-        ensSurf->loadDataAndUpdate();
+        subColl->loadData();
     }
 }
 
@@ -479,7 +468,7 @@ void RimSurfaceCollection::addSubCollection( RimSurfaceCollection* subcoll )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSurfaceCollection* RimSurfaceCollection::getSubCollection( const QString name )
+RimSurfaceCollection* RimSurfaceCollection::getSubCollection( const QString& name ) const
 {
     for ( auto coll : m_subCollections )
     {
@@ -492,6 +481,19 @@ RimSurfaceCollection* RimSurfaceCollection::getSubCollection( const QString name
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimSurfaceCollection::deleteSubCollection( const QString& name )
+{
+    auto coll = getSubCollection( name );
+    if ( coll )
+    {
+        auto index = m_subCollections.index( coll );
+        m_subCollections.erase( index );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RimSurfaceCollection::containsSurface()
 {
     bool containsSurface = ( surfaces().size() > 0 );
@@ -499,11 +501,6 @@ bool RimSurfaceCollection::containsSurface()
     for ( auto coll : m_subCollections )
     {
         containsSurface |= coll->containsSurface();
-    }
-
-    for ( auto ensSurf : m_ensembleSurfaces )
-    {
-        containsSurface |= ( ensSurf->surfaces().size() > 0 );
     }
 
     return containsSurface;

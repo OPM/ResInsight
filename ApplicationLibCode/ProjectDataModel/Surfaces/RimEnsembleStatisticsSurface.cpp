@@ -96,7 +96,8 @@ RimSurface* RimEnsembleStatisticsSurface::createCopy()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimEnsembleStatisticsSurface ::updateSurfaceData()
+bool RimEnsembleStatisticsSurface::updateSurfaceData()
+
 {
     RimEnsembleSurface* ensembleSurface;
     firstAncestorOrThisOfType( ensembleSurface );
@@ -107,24 +108,24 @@ bool RimEnsembleStatisticsSurface ::updateSurfaceData()
 
         if ( surface )
         {
-            const std::vector<unsigned int>& indices  = surface->triangleIndices();
-            const std::vector<cvf::Vec3d>&   vertices = surface->vertices();
+            const std::vector<unsigned int>& indices = surface->triangleIndices();
+            std::vector<cvf::Vec3d>          verts;
 
-            const std::vector<float>& meanValues = surface->propertyValues(
-                caf::AppEnum<RigSurfaceStatisticsCalculator::StatisticsType>::text( m_statisticsType.v() ) );
-
-            std::vector<cvf::Vec3d> verts;
-            for ( size_t i = 0; i < vertices.size(); i++ )
             {
-                verts.push_back( cvf::Vec3d( vertices[i].x(), vertices[i].y(), meanValues[i] ) );
-            }
+                const std::vector<cvf::Vec3d>& vertices = surface->vertices();
 
-            m_tringleIndices = indices;
-            m_vertices       = verts;
+                const std::vector<float>& meanValues = surface->propertyValues(
+                    caf::AppEnum<RigSurfaceStatisticsCalculator::StatisticsType>::text( m_statisticsType.v() ) );
+
+                for ( size_t i = 0; i < vertices.size(); i++ )
+                {
+                    verts.push_back( cvf::Vec3d( vertices[i].x(), vertices[i].y(), meanValues[i] ) );
+                }
+            }
 
             m_surfaceData = new RigSurface;
 
-            m_surfaceData->setTriangleData( m_tringleIndices, m_vertices );
+            m_surfaceData->setTriangleData( indices, verts );
 
             return true;
         }
@@ -136,6 +137,6 @@ bool RimEnsembleStatisticsSurface ::updateSurfaceData()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEnsembleStatisticsSurface ::clearCachedNativeData()
+void RimEnsembleStatisticsSurface::clearCachedNativeData()
 {
 }

@@ -489,18 +489,7 @@ QList<caf::PdmOptionItemInfo>
     {
         RimSurfaceCollection* surfColl = RimProject::current()->activeOilField()->surfaceCollection();
 
-        caf::IconProvider surfaceIcon( ":/ReservoirSurface16x16.png" );
-        for ( auto surf : surfColl->surfaces() )
-        {
-            options.push_back( caf::PdmOptionItemInfo( surf->userDescription(), surf, false, surfaceIcon ) );
-        }
-        for ( auto ensambleSurf : surfColl->ensembleSurfaces() )
-        {
-            for ( auto surf : ensambleSurf->surfaces() )
-            {
-                options.push_back( caf::PdmOptionItemInfo( surf->userDescription(), surf, false, surfaceIcon ) );
-            }
-        }
+        appendOptionItemsForSources( 0, surfColl, options );
     }
     else
     {
@@ -1083,4 +1072,28 @@ void RimExtrudedCurveIntersection::rebuildGeometryAndScheduleCreateDisplayModel(
 double RimExtrudedCurveIntersection::azimuthInRadians( cvf::Vec3d vec )
 {
     return cvf::GeometryTools::getAngle( -cvf::Vec3d::Z_AXIS, cvf::Vec3d::Y_AXIS, vec );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimExtrudedCurveIntersection::appendOptionItemsForSources( int                            currentLevel,
+                                                                RimSurfaceCollection*          currentCollection,
+                                                                QList<caf::PdmOptionItemInfo>& options ) const
+{
+    caf::IconProvider surfaceIcon( ":/ReservoirSurface16x16.png" );
+
+    options.push_back( caf::PdmOptionItemInfo::createHeader( currentCollection->collectionName(), true ) );
+
+    for ( auto surf : currentCollection->surfaces() )
+    {
+        auto itemInfo = caf::PdmOptionItemInfo( surf->userDescription(), surf, false, surfaceIcon );
+        itemInfo.setLevel( currentLevel + 1 );
+        options.push_back( itemInfo );
+    }
+
+    for ( auto subColl : currentCollection->subCollections() )
+    {
+        appendOptionItemsForSources( currentLevel, subColl, options );
+    }
 }

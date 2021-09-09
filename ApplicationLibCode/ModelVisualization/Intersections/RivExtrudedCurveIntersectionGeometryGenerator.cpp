@@ -173,6 +173,7 @@ void RivExtrudedCurveIntersectionGeometryGenerator::calculateSurfaceIntersection
 
             rimSurface->loadDataIfRequired();
             auto surface = rimSurface->surfaceData();
+            if ( !surface ) return;
 
             std::vector<cvf::Vec3d> transformedSurfacePolyline;
 

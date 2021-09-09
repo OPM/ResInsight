@@ -35,7 +35,6 @@ class ScalarMapper;
 class RimSurfaceInView;
 class RimSurface;
 class RimSurfaceCollection;
-class RimEnsembleSurfaceInView;
 class RimEnsembleSurface;
 class RimRegularLegendConfig;
 class RiuViewer;
@@ -78,17 +77,15 @@ private:
 
     RimSurfaceInView*           getSurfaceInViewForSurface( const RimSurface* surf ) const;
     RimSurfaceInViewCollection* getCollectionInViewForCollection( const RimSurfaceCollection* coll ) const;
-    RimEnsembleSurfaceInView*   getEnsembleSurfaceInViewForEnsembleSurface( const RimEnsembleSurface* coll ) const;
 
     void updateAllViewItems();
     void syncCollectionsWithView();
     void syncSurfacesWithView();
-    void syncEnsembleSurfacesWithView();
 
+private:
     caf::PdmProxyValueField<QString>                     m_collectionName;
-    caf::PdmChildArrayField<RimSurfaceInViewCollection*> m_collectionsInView;
     caf::PdmChildArrayField<RimSurfaceInView*>           m_surfacesInView;
-    caf::PdmChildArrayField<RimEnsembleSurfaceInView*>   m_ensembleSurfacesInView;
+    caf::PdmChildArrayField<RimSurfaceInViewCollection*> m_collectionsInView;
 
     caf::PdmPtrField<RimSurfaceCollection*> m_surfaceCollection;
 };

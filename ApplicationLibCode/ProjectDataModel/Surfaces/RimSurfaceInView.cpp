@@ -206,11 +206,18 @@ void RimSurfaceInView::fieldChangedByUi( const caf::PdmFieldHandle* changedField
 
     bool scheduleRedraw = false;
 
-    if ( changedField == &m_isActive || changedField == &m_useSeparateDataSource || changedField == &m_separateDataSource )
+    if ( changedField == &m_useSeparateDataSource || changedField == &m_separateDataSource )
     {
         scheduleRedraw = true;
     }
-    else if ( changedField == &m_showInactiveCells )
+    else if ( changedField == &m_isActive )
+    {
+        // if ( m_isActive ) clearGeometry();
+
+        scheduleRedraw = true;
+    }
+
+    if ( changedField == &m_showInactiveCells )
     {
         clearGeometry();
         scheduleRedraw = true;

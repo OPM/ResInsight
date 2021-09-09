@@ -64,6 +64,8 @@ void RicImportEnsembleSurfaceFeature::onActionTriggered( bool isChecked )
     RiaApplication* app           = RiaApplication::instance();
     QString         pathCacheName = "ENSEMBLE_SURFACE_FILES";
     QStringList     fileNames     = runRecursiveFileSearchDialog( "Import Ensemble Surface", pathCacheName );
+
+    importEnsembleSurfaceFromFiles( fileNames );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -100,13 +102,12 @@ void RicImportEnsembleSurfaceFeature::importEnsembleSurfaceFromFiles( const QStr
     if ( surfaces.empty() ) return;
 
     RimEnsembleSurface* ensemble = new RimEnsembleSurface;
-    ensemble->setName( ensembleName );
+    ensemble->setCollectionName( ensembleName );
     for ( auto surface : surfaces )
         ensemble->addFileSurface( surface );
 
-    RimProject::current()->activeOilField()->surfaceCollection->addEnsembleSurface( ensemble );
-
     ensemble->loadDataAndUpdate();
+    RimProject::current()->activeOilField()->surfaceCollection->addEnsembleSurface( ensemble );
 
     RimProject::current()->activeOilField()->surfaceCollection->updateConnectedEditors();
     Riu3DMainWindowTools::selectAsCurrentItem( ensemble );
