@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2016-     Statoil ASA
+//  Copyright (C) 2021-   Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -62,7 +62,7 @@ void RicNewWellIntegrityAnalysisFeature::onActionTriggered( bool isChecked )
         QMessageBox::critical( nullptr,
                                "Well Integrity Analysis",
                                "Well Integrity Analysis has not been properly set up.\nPlease go to ResInsight "
-                               "preferences and set / check the GeoMechanical settings !" );
+                               "preferences and set / check the GeoMechanical settings." );
 
         return;
     }

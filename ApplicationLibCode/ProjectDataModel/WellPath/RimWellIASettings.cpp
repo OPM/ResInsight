@@ -466,6 +466,9 @@ void RimWellIASettings::updateResInsightParameters()
     m_parametersRI.push_back( initialStress );
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimWellIASettings::addCsvGroup( QString name, QStringList timeSteps, double defaultValue /* = 0.0 */ )
 {
     RimParameterGroup* group = new RimParameterGroup();

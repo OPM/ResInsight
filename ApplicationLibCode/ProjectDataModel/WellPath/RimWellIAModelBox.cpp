@@ -80,6 +80,9 @@ bool RimWellIAModelBox::updateBox( cvf::Vec3d startPos, cvf::Vec3d endPos, doubl
     return true;
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::vector<cvf::Vec3d>
     RimWellIAModelBox::generateRectangle( cvf::Vec3d center, cvf::Vec3d unitX, cvf::Vec3d unitY, double buffer )
 {

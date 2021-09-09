@@ -71,7 +71,7 @@ void RicNewFaultReactAssessmentFeature::onActionTriggered( bool isChecked )
         QMessageBox::critical( nullptr,
                                "Fault Reactivation Assessment",
                                "Fault Reactivation Assessment has not been properly set up.\nPlease go to ResInsight "
-                               "preferences and set/check the GeoMechanical settings!" );
+                               "preferences and set/check the GeoMechanical settings." );
         return;
     }
 

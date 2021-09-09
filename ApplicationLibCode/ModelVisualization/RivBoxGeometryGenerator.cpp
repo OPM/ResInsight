@@ -64,7 +64,7 @@ cvf::ref<cvf::Part> RivBoxGeometryGenerator::createBoxFromVertices( const std::v
     geo->addPrimitiveSet( prim.p() );
 
     cvf::ref<cvf::Part> part = new cvf::Part;
-    part->setName( cvf::String( "Box" ) );
+    part->setName( cvf::String( "RivBoxGeometryGenerator::createBoxFromVertices" ) );
 
     part->setDrawable( geo.p() );
 
