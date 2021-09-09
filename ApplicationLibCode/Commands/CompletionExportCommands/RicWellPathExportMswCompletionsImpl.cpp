@@ -77,7 +77,7 @@ void RicWellPathExportMswCompletionsImpl::exportWellSegmentsForAllCompletions(
             QFileInfo fi( exportSettings.customFileName() );
             if ( !exportSettings.customFileName().isEmpty() )
             {
-                fileName   = fi.baseName();
+                fileName   = fi.baseName() + "_MSW";
                 folderName = fi.absolutePath();
             }
             else
