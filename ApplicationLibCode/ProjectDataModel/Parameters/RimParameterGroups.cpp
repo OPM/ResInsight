@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2021 -    Equinor ASA
+//  Copyright (C) 2021-    Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -16,76 +16,77 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimStringParameter.h"
+#include "RimParameterGroups.h"
 
-#include "cafPdmFieldScriptingCapability.h"
-#include "cafPdmObjectScriptingCapability.h"
-#include "cafPdmUiCheckBoxEditor.h"
-#include "cafPdmUiLineEditor.h"
-
-#include <cmath>
-
-CAF_PDM_SOURCE_INIT( RimStringParameter, "StringParameter" );
+#include "RimGenericParameter.h"
+#include "RimParameterGroup.h"
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimStringParameter::RimStringParameter()
-{
-    CAF_PDM_InitField( &m_value, "Value", QString(), "Value", "", "", "" );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RimStringParameter::~RimStringParameter()
+RimParameterGroups::RimParameterGroups()
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimStringParameter::setValue( QString value )
+RimParameterGroups::~RimParameterGroups()
 {
-    m_value = value;
-    setValid( true );
+    clear();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QVariant RimStringParameter::variantValue() const
+void RimParameterGroups::clear()
 {
-    return QVariant( m_value() );
+    for ( const auto& [key, value] : m_groups )
+    {
+        delete value;
+    }
+    m_groups.clear();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimStringParameter::stringValue() const
+void RimParameterGroups::mergeGroup( RimParameterGroup* group, bool addCommentAsParameter /* = false */ )
 {
-    return m_value();
+    const QString grpName = group->name();
+
+    if ( m_groups.count( grpName ) == 0 )
+    {
+        RimParameterGroup* newGroup = new RimParameterGroup();
+        newGroup->setName( grpName );
+        newGroup->setLabel( group->label() );
+        newGroup->setComment( group->comment() );
+        if ( addCommentAsParameter && !newGroup->comment().isEmpty() )
+        {
+            newGroup->addParameter( "comments", newGroup->comment() );
+        }
+
+        m_groups[grpName] = newGroup;
+    }
+
+    RimParameterGroup* dstGroup = m_groups[grpName];
+    for ( auto& parameter : group->parameters() )
+    {
+        dstGroup->addParameter( parameter->duplicate() );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimStringParameter::jsonValue() const
+const std::vector<RimParameterGroup*> RimParameterGroups::groups() const
 {
-    return QString( "\"%1\"" ).arg( stringValue() );
-}
+    std::vector<RimParameterGroup*> retGroups;
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RimGenericParameter* RimStringParameter::duplicate() const
-{
-    RimStringParameter* retval = new RimStringParameter();
-    retval->setName( name() );
-    retval->setValue( stringValue() );
-    retval->setDescription( description() );
-    retval->setLabel( label() );
-    retval->setAdvanced( isAdvanced() );
+    for ( const auto& [key, value] : m_groups )
+    {
+        retGroups.push_back( value );
+    }
 
-    return retval;
+    return retGroups;
 }

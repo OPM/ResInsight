@@ -42,6 +42,7 @@
 #include "RimProject.h"
 #include "RimStimPlanModelCollection.h"
 #include "RimTools.h"
+#include "RimWellIASettingsCollection.h"
 #include "RimWellLogFile.h"
 #include "RimWellLogFileChannel.h"
 #include "RimWellLogPlotCollection.h"
@@ -137,6 +138,12 @@ RimWellPath::RimWellPath()
     CAF_PDM_InitFieldNoDefault( &m_wellPathTieIn, "WellPathTieIn", "well Path Tie-In", "", "", "" );
     m_wellPathTieIn = new RimWellPathTieIn;
     m_wellPathTieIn->connectWellPaths( nullptr, this, 0.0 );
+
+    CAF_PDM_InitFieldNoDefault( &m_wellIASettingsCollection, "WellIASettings", "Integrity Analysis Settings", "", "", "" );
+    m_wellIASettingsCollection = new RimWellIASettingsCollection();
+    m_wellIASettingsCollection->uiCapability()->setUiTreeHidden( true );
+
+    this->setDeletable( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -613,6 +620,14 @@ const RimWellPathAttributeCollection* RimWellPath::attributeCollection() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RimWellIASettingsCollection* RimWellPath::wellIASettingsCollection()
+{
+    return m_wellIASettingsCollection;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RimWellPath::showWellPathLabel() const
 {
     return m_showWellPathLabel();
@@ -713,6 +728,11 @@ void RimWellPath::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& ui
 void RimWellPath::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName )
 {
     uiTreeOrdering.add( &m_wellLogFiles );
+
+    if ( m_wellIASettingsCollection()->isEnabled() && m_wellIASettingsCollection()->hasSettings() )
+    {
+        uiTreeOrdering.add( m_wellIASettingsCollection() );
+    }
 
     if ( m_completionSettings() && !allCompletionsRecursively().empty() )
     {

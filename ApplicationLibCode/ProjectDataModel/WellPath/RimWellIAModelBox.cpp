@@ -16,86 +16,94 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimIntegerParameter.h"
-
-#include "cafPdmFieldScriptingCapability.h"
-#include "cafPdmObjectScriptingCapability.h"
-#include "cafPdmUiCheckBoxEditor.h"
-#include "cafPdmUiLineEditor.h"
-
-#include <cmath>
-
-CAF_PDM_SOURCE_INIT( RimIntegerParameter, "IntegerParameter" );
+#include "RimWellIAModelBox.h"
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimIntegerParameter::RimIntegerParameter()
+RimWellIAModelBox::RimWellIAModelBox()
 {
-    CAF_PDM_InitField( &m_value, "Value", 0, "Value", "", "", "" );
+    m_vertices.resize( 8 );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimIntegerParameter::~RimIntegerParameter()
+RimWellIAModelBox::~RimWellIAModelBox()
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimIntegerParameter::setValue( QString value )
+std::vector<cvf::Vec3d> RimWellIAModelBox::vertices() const
 {
-    bool bOk = false;
-    m_value  = value.toInt( &bOk );
-    setValid( bOk );
+    return m_vertices;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimIntegerParameter::setValue( int value )
+cvf::Vec3d RimWellIAModelBox::center() const
 {
-    m_value = value;
-    setValid( true );
+    return m_center;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QVariant RimIntegerParameter::variantValue() const
+bool RimWellIAModelBox::updateBox( cvf::Vec3d startPos, cvf::Vec3d endPos, double xyBuffer, double depthBuffer )
 {
-    return QVariant( m_value() );
+    m_center = startPos + endPos;
+    m_center /= 2.0;
+
+    cvf::Vec3d upwards = startPos - endPos;
+    upwards.normalize();
+    cvf::Vec3d downwards = upwards * -1.0;
+    cvf::Vec3d xdir      = upwards.perpendicularVector();
+    xdir.normalize();
+    cvf::Vec3d ydir = upwards ^ xdir;
+    ydir.normalize();
+
+    cvf::Vec3d topCenter    = startPos + upwards * depthBuffer;
+    cvf::Vec3d bottomCenter = endPos + downwards * depthBuffer;
+
+    std::vector<cvf::Vec3d> topVertices    = generateRectangle( topCenter, xdir, ydir, xyBuffer );
+    std::vector<cvf::Vec3d> bottomVertices = generateRectangle( bottomCenter, xdir, ydir, xyBuffer );
+
+    for ( size_t i = 0; i < 4; i++ )
+    {
+        m_vertices[i]     = bottomVertices[i];
+        m_vertices[i + 4] = topVertices[i];
+    }
+
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int RimIntegerParameter::value() const
+std::vector<cvf::Vec3d>
+    RimWellIAModelBox::generateRectangle( cvf::Vec3d center, cvf::Vec3d unitX, cvf::Vec3d unitY, double buffer )
 {
-    return m_value();
-}
+    std::vector<cvf::Vec3d> corners;
+    corners.resize( 4 );
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RimIntegerParameter::stringValue() const
-{
-    return QString::number( m_value() );
-}
+    corners[0] = center;
+    corners[0] -= unitX * buffer;
+    corners[0] -= unitY * buffer;
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RimGenericParameter* RimIntegerParameter::duplicate() const
-{
-    RimIntegerParameter* retval = new RimIntegerParameter();
-    retval->setName( name() );
-    retval->setValue( value() );
-    retval->setDescription( description() );
-    retval->setLabel( label() );
-    retval->setAdvanced( isAdvanced() );
+    corners[1] = center;
+    corners[1] += unitX * buffer;
+    corners[1] -= unitY * buffer;
 
-    return retval;
+    corners[2] = center;
+    corners[2] += unitX * buffer;
+    corners[2] += unitY * buffer;
+
+    corners[3] = center;
+    corners[3] -= unitX * buffer;
+    corners[3] += unitY * buffer;
+
+    return corners;
 }

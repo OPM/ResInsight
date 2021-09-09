@@ -14,6 +14,8 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicRunBasicFaultReactAssessment3dFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicRunAdvFaultReactAssessment3dFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicRunFaultReactAssessmentFeature.h
+    ${CMAKE_CURRENT_LIST_DIR}/RicNewWellIntegrityAnalysisFeature.h
+    ${CMAKE_CURRENT_LIST_DIR}/RicRunWellIntegrityAnalysisFeature.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
@@ -32,6 +34,8 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicRunBasicFaultReactAssessmentFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicRunBasicFaultReactAssessment3dFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicRunFaultReactAssessmentFeature.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicNewWellIntegrityAnalysisFeature.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicRunWellIntegrityAnalysisFeature.cpp
 )
 
 list(APPEND COMMAND_CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})

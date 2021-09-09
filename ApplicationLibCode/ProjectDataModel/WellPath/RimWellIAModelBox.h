@@ -18,34 +18,30 @@
 
 #pragma once
 
-#include "cafPdmField.h"
-#include "cafPdmObject.h"
+#include "cvfVector3.h"
 
 #include <QString>
-
-#include "RimGenericParameter.h"
+#include <map>
+#include <vector>
 
 //==================================================================================================
 ///
 ///
 //==================================================================================================
-class RimDoubleParameter : public RimGenericParameter
+class RimWellIAModelBox
 {
-    CAF_PDM_HEADER_INIT;
-
 public:
-    RimDoubleParameter();
-    ~RimDoubleParameter() override;
+    RimWellIAModelBox();
+    ~RimWellIAModelBox();
 
-    void     setValue( double value );
-    void     setValue( QString value ) override;
-    QVariant variantValue() const override;
-    QString  stringValue() const override;
+    std::vector<cvf::Vec3d> vertices() const;
+    cvf::Vec3d              center() const;
 
-    double value() const;
-
-    virtual RimGenericParameter* duplicate() const;
+    bool updateBox( cvf::Vec3d startPos, cvf::Vec3d endPos, double xyBuffer, double depthBuffer );
 
 private:
-    caf::PdmField<double> m_value;
+    std::vector<cvf::Vec3d> generateRectangle( cvf::Vec3d center, cvf::Vec3d unitX, cvf::Vec3d unitY, double buffer );
+
+    std::vector<cvf::Vec3d> m_vertices;
+    cvf::Vec3d              m_center;
 };

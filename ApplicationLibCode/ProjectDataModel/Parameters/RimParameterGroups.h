@@ -18,34 +18,28 @@
 
 #pragma once
 
-#include "cafPdmField.h"
-#include "cafPdmObject.h"
-
 #include <QString>
+#include <map>
+#include <vector>
 
-#include "RimGenericParameter.h"
+class RimParameterGroup;
 
 //==================================================================================================
 ///
 ///
 //==================================================================================================
-class RimDoubleParameter : public RimGenericParameter
+class RimParameterGroups
 {
-    CAF_PDM_HEADER_INIT;
-
 public:
-    RimDoubleParameter();
-    ~RimDoubleParameter() override;
+    RimParameterGroups();
+    ~RimParameterGroups();
 
-    void     setValue( double value );
-    void     setValue( QString value ) override;
-    QVariant variantValue() const override;
-    QString  stringValue() const override;
+    void mergeGroup( RimParameterGroup* group, bool addCommentAsParameter = false );
 
-    double value() const;
+    const std::vector<RimParameterGroup*> groups() const;
 
-    virtual RimGenericParameter* duplicate() const;
+    void clear();
 
 private:
-    caf::PdmField<double> m_value;
+    std::map<QString, RimParameterGroup*> m_groups;
 };

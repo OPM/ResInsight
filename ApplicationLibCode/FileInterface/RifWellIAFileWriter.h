@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2021 -    Equinor ASA
+//  Copyright (C) 2021  Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -18,34 +18,16 @@
 
 #pragma once
 
-#include "cafPdmField.h"
-#include "cafPdmObject.h"
-
 #include <QString>
 
-#include "RimGenericParameter.h"
+class RimWellIASettings;
 
-//==================================================================================================
-///
-///
-//==================================================================================================
-class RimDoubleParameter : public RimGenericParameter
+class RifWellIAFileWriter
 {
-    CAF_PDM_HEADER_INIT;
-
 public:
-    RimDoubleParameter();
-    ~RimDoubleParameter() override;
-
-    void     setValue( double value );
-    void     setValue( QString value ) override;
-    QVariant variantValue() const override;
-    QString  stringValue() const override;
-
-    double value() const;
-
-    virtual RimGenericParameter* duplicate() const;
+    static bool writeToJsonFile( RimWellIASettings& settings, QString& outErrorText );
+    static bool writeToCSVFile( RimWellIASettings& settings, QString& outErrorText );
 
 private:
-    caf::PdmField<double> m_value;
+    RifWellIAFileWriter(){};
 };

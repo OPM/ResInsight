@@ -16,71 +16,40 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimStringParameter.h"
-
-#include "cafPdmFieldScriptingCapability.h"
-#include "cafPdmObjectScriptingCapability.h"
-#include "cafPdmUiCheckBoxEditor.h"
-#include "cafPdmUiLineEditor.h"
+#include "RimListParameter.h"
 
 #include <cmath>
 
-CAF_PDM_SOURCE_INIT( RimStringParameter, "StringParameter" );
+CAF_PDM_SOURCE_INIT( RimListParameter, "ListParameter" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimStringParameter::RimStringParameter()
-{
-    CAF_PDM_InitField( &m_value, "Value", QString(), "Value", "", "", "" );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RimStringParameter::~RimStringParameter()
+RimListParameter::RimListParameter()
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimStringParameter::setValue( QString value )
+RimListParameter::~RimListParameter()
 {
-    m_value = value;
-    setValid( true );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QVariant RimStringParameter::variantValue() const
+QString RimListParameter::jsonValue() const
 {
-    return QVariant( m_value() );
+    return stringValue();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimStringParameter::stringValue() const
+RimGenericParameter* RimListParameter::duplicate() const
 {
-    return m_value();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RimStringParameter::jsonValue() const
-{
-    return QString( "\"%1\"" ).arg( stringValue() );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RimGenericParameter* RimStringParameter::duplicate() const
-{
-    RimStringParameter* retval = new RimStringParameter();
+    RimListParameter* retval = new RimListParameter();
     retval->setName( name() );
     retval->setValue( stringValue() );
     retval->setDescription( description() );

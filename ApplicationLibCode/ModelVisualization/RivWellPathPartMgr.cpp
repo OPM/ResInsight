@@ -37,6 +37,8 @@
 #include "RimPerforationInterval.h"
 #include "RimRegularLegendConfig.h"
 #include "RimTools.h"
+#include "RimWellIASettings.h"
+#include "RimWellIASettingsCollection.h"
 #include "RimWellMeasurement.h"
 #include "RimWellMeasurementCollection.h"
 #include "RimWellMeasurementFilter.h"
@@ -53,6 +55,7 @@
 #include "RimWellPathValve.h"
 
 #include "Riv3dWellLogPlanePartMgr.h"
+#include "RivBoxGeometryGenerator.h"
 #include "RivDrawableSpheres.h"
 #include "RivFishbonesSubsPartMgr.h"
 #include "RivObjectSourceInfo.h"
@@ -868,6 +871,7 @@ void RivWellPathPartMgr::appendStaticGeometryPartsToModel( cvf::ModelBasicList* 
 
     appendFishboneSubsPartsToModel( model, displayCoordTransform, characteristicCellSize );
     appendWellPathAttributesToModel( model, displayCoordTransform, characteristicCellSize );
+    appendWellIntegrityIntervalsToModel( model, displayCoordTransform, characteristicCellSize );
 
     RimGridView* gridView = dynamic_cast<RimGridView*>( m_rimView.p() );
     if ( gridView )
@@ -1020,4 +1024,77 @@ double RivWellPathPartMgr::wellMeasurementRadius( double                        
 {
     return wellPathCollection->wellPathRadiusScaleFactor() * wellMeasurementInView->radiusScaleFactor() *
            characteristicCellSize;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RivWellPathPartMgr::appendWellIntegrityIntervalsToModel( cvf::ModelBasicList*              model,
+                                                              const caf::DisplayCoordTransform* displayCoordTransform,
+                                                              double                            characteristicCellSize )
+{
+    if ( !m_rimWellPath ) return;
+
+    RimWellPathCollection* wellPathCollection = this->wellPathCollection();
+    if ( !wellPathCollection ) return;
+
+    RigWellPath* wellPathGeometry = m_rimWellPath->wellPathGeometry();
+    if ( !wellPathGeometry ) return;
+
+    // Since we're using the index of measured depths to find the index of a point, ensure they're equal
+    CVF_ASSERT( wellPathGeometry->measuredDepths().size() == wellPathGeometry->wellPathPoints().size() );
+
+    double wellPathRadius    = this->wellPathRadius( characteristicCellSize, wellPathCollection );
+    double wiaIntervalRadius = wellPathRadius * 1.15;
+
+    RivPipeGeometryGenerator geoGenerator;
+
+    for ( auto wiaModel : m_rimWellPath->wellIASettingsCollection()->settings() )
+    {
+        if ( !wiaModel->isChecked() ) continue;
+        if ( wiaModel->startMD() > wiaModel->endMD() ) continue;
+
+        double                  horizontalLengthAlongWellPath = 0.0;
+        std::vector<cvf::Vec3d> intervalCL;
+        {
+            std::pair<std::vector<cvf::Vec3d>, std::vector<double>> intervalCoordsAndMD =
+                wellPathGeometry->clippedPointSubset( wiaModel->startMD(), wiaModel->endMD(), &horizontalLengthAlongWellPath );
+            intervalCL = intervalCoordsAndMD.first;
+        }
+
+        if ( intervalCL.size() < 2 ) continue;
+
+        std::vector<cvf::Vec3d> intervalCLDisplayCS;
+
+        for ( cvf::Vec3d& point : intervalCL )
+        {
+            intervalCLDisplayCS.push_back( displayCoordTransform->transformToDisplayCoord( point ) );
+        }
+        cvf::ref<RivObjectSourceInfo> objectSourceInfo = new RivObjectSourceInfo( wiaModel );
+
+        cvf::Collection<cvf::Part> parts;
+        geoGenerator.cylinderWithCenterLineParts( &parts, intervalCLDisplayCS, cvf::Color3f::ORCHID, wiaIntervalRadius );
+        for ( auto& part : parts )
+        {
+            part->setSourceInfo( objectSourceInfo.p() );
+            model->addPart( part.p() );
+        }
+
+        if ( wiaModel->showBox() )
+        {
+            const auto& vertices = wiaModel->modelBoxVertices();
+
+            std::vector<cvf::Vec3f> transformedVertices;
+
+            for ( auto& v : vertices )
+            {
+                transformedVertices.push_back( cvf::Vec3f( displayCoordTransform->transformToDisplayCoord( v ) ) );
+            }
+
+            cvf::ref<cvf::Part> boxpart =
+                RivBoxGeometryGenerator::createBoxFromVertices( transformedVertices, cvf::Color3f::ORCHID );
+            boxpart->setSourceInfo( objectSourceInfo.p() );
+            model->addPart( boxpart.p() );
+        }
+    }
 }

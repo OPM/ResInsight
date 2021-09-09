@@ -16,138 +16,105 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimGenericParameter.h"
-
-#include "RiuGuiTheme.h"
-
-#include "cafPdmFieldScriptingCapability.h"
-#include "cafPdmObjectScriptingCapability.h"
-#include "cafPdmUiCheckBoxEditor.h"
-#include "cafPdmUiLineEditor.h"
-
-#include <cmath>
-
-CAF_PDM_ABSTRACT_SOURCE_INIT( RimGenericParameter, "GenericParameter" );
+#include "RimWellIAModelData.h"
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimGenericParameter::RimGenericParameter()
+RimWellIAModelData::RimWellIAModelData()
 {
-    CAF_PDM_InitObject( "Parameter", ":/Bullet.png", "", "" );
-
-    CAF_PDM_InitField( &m_name, "Name", QString(), "Name", "", "", "" );
-    m_name.uiCapability()->setUiReadOnly( true );
-    m_name.uiCapability()->setUiHidden( true );
-
-    CAF_PDM_InitField( &m_label, "Label", QString(), "Name", "", "", "" );
-    m_label.uiCapability()->setUiReadOnly( true );
-    m_label.uiCapability()->setUiContentTextColor( RiuGuiTheme::getColorByVariableName( "textColor" ) );
-
-    CAF_PDM_InitField( &m_description, "Description", QString(), "Description", "", "", "" );
-    m_description.uiCapability()->setUiReadOnly( true );
-    m_description.uiCapability()->setUiHidden( true );
-
-    CAF_PDM_InitField( &m_advanced, "Advanced", false, "Advanced", "", "", "" );
-    m_advanced.uiCapability()->setUiReadOnly( true );
-    m_advanced.uiCapability()->setUiHidden( true );
-
-    CAF_PDM_InitField( &m_valid, "Valid", false, "Valid", "", "", "" );
-    m_valid.uiCapability()->setUiReadOnly( true );
-    m_valid.uiCapability()->setUiHidden( true );
+    m_displacements.resize( 8 );
+    m_casingPressure    = 0.0;
+    m_formationPressure = 0.0;
+    m_temperature       = 0.0;
+    m_dayoffset         = 0;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimGenericParameter::~RimGenericParameter()
+RimWellIAModelData::~RimWellIAModelData()
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGenericParameter::setName( QString name )
+std::vector<cvf::Vec3d> RimWellIAModelData::displacements() const
 {
-    m_name = name;
+    return m_displacements;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGenericParameter::setLabel( QString labelText )
+void RimWellIAModelData::setDisplacement( int cornerIndex, cvf::Vec3d displacement )
 {
-    m_label = labelText;
+    size_t ci = cornerIndex;
+
+    if ( ( cornerIndex >= 0 ) && ( ci < m_displacements.size() ) ) m_displacements[ci] = displacement;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGenericParameter::setDescription( QString description )
+void RimWellIAModelData::setCasingPressure( double pressure )
 {
-    m_description = description;
+    m_casingPressure = pressure;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGenericParameter::setAdvanced( bool isAdvanced )
+double RimWellIAModelData::casingPressure() const
 {
-    m_advanced = isAdvanced;
+    return m_casingPressure;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimGenericParameter::isAdvanced() const
+void RimWellIAModelData::setFormationPressure( double pressure )
 {
-    return m_advanced();
+    m_formationPressure = pressure;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimGenericParameter::isValid() const
+double RimWellIAModelData::formationPressure() const
 {
-    return m_valid();
+    return m_formationPressure;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGenericParameter::setValid( bool valid )
+void RimWellIAModelData::setTemperature( double temp )
 {
-    m_valid = valid;
+    m_temperature = temp;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimGenericParameter::name() const
+double RimWellIAModelData::temperature() const
 {
-    return m_name();
+    return m_temperature;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimGenericParameter::label() const
+int RimWellIAModelData::dayOffset() const
 {
-    return m_label();
+    return m_dayoffset;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimGenericParameter::description() const
+void RimWellIAModelData::setDayOffset( int days )
 {
-    return m_description();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RimGenericParameter::jsonValue() const
-{
-    return stringValue();
+    m_dayoffset = days;
 }
