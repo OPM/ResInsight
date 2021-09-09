@@ -30,6 +30,11 @@ include_directories(
     generated-opm-common/include
 )
 
+ add_definitions(-DFMT_HEADER_ONLY)
+    include_directories(SYSTEM ../fmtlib/include)
+    # Not sure why this is needed.
+    #list(APPEND EXTRA_INCLUDES ${PROJECT_SOURCE_DIR}/external/fmtlib/include)
+
 # Set defines to include requred files
 set(ENABLE_ECL_INPUT true)
 #set(ENABLE_ECL_OUTPUT true)
