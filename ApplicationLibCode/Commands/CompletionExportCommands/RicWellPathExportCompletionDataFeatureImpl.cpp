@@ -94,6 +94,7 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions( const std::v
         return;
     }
 
+    if ( exportSettings.customFileName().isEmpty() )
     {
         QDir folder( exportSettings.folder );
         if ( !folder.exists() )
