@@ -89,7 +89,7 @@ void RivFemElmVisibilityCalculator::computeRangeVisibility( cvf::UByteArray*    
 ///
 //--------------------------------------------------------------------------------------------------
 void RivFemElmVisibilityCalculator::computePropertyVisibility( cvf::UByteArray*       cellVisibility,
-                                                               const RigFemPart*      grid,
+                                                               const RigFemPart*      part,
                                                                int                    timeStepIndex,
                                                                const cvf::UByteArray* rangeFilterVisibility,
                                                                RimGeoMechPropertyFilterCollection* propFilterColl )
@@ -98,12 +98,12 @@ void RivFemElmVisibilityCalculator::computePropertyVisibility( cvf::UByteArray* 
     CVF_ASSERT( rangeFilterVisibility != nullptr );
     CVF_ASSERT( propFilterColl != nullptr );
 
-    CVF_ASSERT( grid->elementCount() > 0 );
-    CVF_ASSERT( rangeFilterVisibility->size() == static_cast<size_t>( grid->elementCount() ) );
+    CVF_ASSERT( part->elementCount() > 0 );
+    CVF_ASSERT( rangeFilterVisibility->size() == static_cast<size_t>( part->elementCount() ) );
 
     // Copy if not equal
     if ( cellVisibility != rangeFilterVisibility ) ( *cellVisibility ) = *rangeFilterVisibility;
-    const int elementCount = grid->elementCount();
+    const int elementCount = part->elementCount();
 
     if ( !propFilterColl->hasActiveFilters() ) return;
 
@@ -124,10 +124,11 @@ void RivFemElmVisibilityCalculator::computePropertyVisibility( cvf::UByteArray* 
             resVarAddress.resultPosType = RIG_ELEMENT_NODAL;
 
         const std::vector<float>& resVals =
-            caseData->femPartResults()->resultValues( resVarAddress, grid->elementPartId(), timeStepIndex );
+            caseData->femPartResults()->resultValues( resVarAddress, part->elementPartId(), timeStepIndex );
 
         if ( !propertyFilter->isActive() ) continue;
         if ( !propertyFilter->resultDefinition->hasResult() ) continue;
+        if ( resVals.size() == 0 ) continue;
 
         const double lowerBound = propertyFilter->lowerBound();
         const double upperBound = propertyFilter->upperBound();
@@ -145,7 +146,7 @@ void RivFemElmVisibilityCalculator::computePropertyVisibility( cvf::UByteArray* 
             {
                 if ( !( *cellVisibility )[cellIndex] ) continue;
 
-                size_t resultValueIndex = grid->elementNodeResultIdx( cellIndex, 0 );
+                size_t resultValueIndex = part->elementNodeResultIdx( cellIndex, 0 );
                 double scalarValue      = resVals[resultValueIndex];
                 int    intValue         = nearbyint( scalarValue );
                 if ( integerSet.find( intValue ) != integerSet.end() )
@@ -196,10 +197,10 @@ void RivFemElmVisibilityCalculator::computePropertyVisibility( cvf::UByteArray* 
             {
                 if ( !( *cellVisibility )[cellIndex] ) continue;
 
-                RigElementType eType        = grid->elementType( cellIndex );
+                RigElementType eType        = part->elementType( cellIndex );
                 int            elmNodeCount = RigFemTypes::elementNodeCount( eType );
 
-                const int* elmNodeIndices = grid->connectivities( cellIndex );
+                const int* elmNodeIndices = part->connectivities( cellIndex );
                 for ( int enIdx = 0; enIdx < elmNodeCount; ++enIdx )
                 {
                     size_t resultValueIndex = cvf::UNDEFINED_SIZE_T;
@@ -209,7 +210,7 @@ void RivFemElmVisibilityCalculator::computePropertyVisibility( cvf::UByteArray* 
                     }
                     else
                     {
-                        resultValueIndex = grid->elementNodeResultIdx( cellIndex, enIdx );
+                        resultValueIndex = part->elementNodeResultIdx( cellIndex, enIdx );
                     }
 
                     double scalarValue = resVals[resultValueIndex];

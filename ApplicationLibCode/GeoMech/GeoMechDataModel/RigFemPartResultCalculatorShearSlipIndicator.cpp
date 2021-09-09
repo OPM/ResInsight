@@ -94,8 +94,10 @@ RigFemScalarResultFrames*
     for ( int fIdx = 0; fIdx < frameCount; ++fIdx )
     {
         const std::vector<float>& porFrameData = porePressureDataFrames->frameData( fIdx );
+        if ( porFrameData.size() == 0 ) continue;
 
         const std::vector<float>& stressFrameData = stressDataFrames->frameData( fIdx );
+        if ( stressFrameData.size() == 0 ) continue;
 
         std::vector<float>& shearSlipIndicatorFrameData = shearSlipIndicatorFrames->frameData( fIdx );
 

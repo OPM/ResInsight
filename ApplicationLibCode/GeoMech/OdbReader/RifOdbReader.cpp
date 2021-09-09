@@ -856,13 +856,16 @@ void RifOdbReader::readElementNodeField( const std::string&                field
         int*   elementLabels = bulkData.elementLabels();
         float* data          = bulkDataGetter.data();
 
+        // use max HEX8 nodes
+        int usedElemNodeCount = std::min( elemNodeCount, 8 );
+
         for ( int elem = 0; elem < elemCount; elem++ )
         {
             int elementIdx                  = elementIdToIdxMap[elementLabels[elem * elemNodeCount]];
-            int elementResultStartDestIdx   = elementIdx * elemNodeCount; // Ikke generellt riktig !
+            int elementResultStartDestIdx   = elementIdx * usedElemNodeCount;
             int elementResultStartSourceIdx = elem * elemNodeCount * numComp;
 
-            for ( int elemNode = 0; elemNode < elemNodeCount; elemNode++ )
+            for ( int elemNode = 0; elemNode < usedElemNodeCount; elemNode++ )
             {
                 int destIdx = elementResultStartDestIdx + elemNode;
                 int srcIdx  = elementResultStartSourceIdx + elemNode * numComp;
