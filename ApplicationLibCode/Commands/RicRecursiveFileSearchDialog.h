@@ -89,8 +89,11 @@ private:
     QStringList    createFileNameFilterList();
     static QString replaceWithRealizationStar( const QString& text );
 
+    static void populateComboBoxHistoryFromRegistry( QComboBox* comboBox, const QString& registryKey );
+
 private slots:
-    void slotFilterChanged( const QString& text );
+    void slotPathFilterChanged( const QString& text );
+    void slotFileFilterChanged( const QString& text );
     void slotBrowseButtonClicked();
     void slotUseRealizationStarClicked();
     void slotFindOrCancelButtonClicked();
@@ -111,7 +114,7 @@ private:
     QCheckBox*   m_useRealizationStarCheckBox;
 
     QLabel*    m_fileFilterLabel;
-    QLineEdit* m_fileFilterField;
+    QComboBox* m_fileFilterField;
 
     QLabel*      m_effectiveFilterLabel;
     QLabel*      m_effectiveFilterContentLabel;
