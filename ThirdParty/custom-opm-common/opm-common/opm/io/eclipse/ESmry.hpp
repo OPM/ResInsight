@@ -35,13 +35,14 @@ namespace Opm { namespace EclIO {
 
 using ArrSourceEntry = std::tuple<std::string, std::string, int, uint64_t>;
 using TimeStepEntry = std::tuple<int, int, uint64_t>;
+using RstEntry = std::tuple<std::string, int>;
 
 class ESmry
 {
 public:
 
     // input is smspec (or fsmspec file)
-    explicit ESmry(const std::string& filename, bool loadBaseRunData=false, bool uselodsmry=false);
+    explicit ESmry(const std::string& filename, bool loadBaseRunData=false);
 
     int numberOfVectors() const { return nVect; }
 
@@ -58,10 +59,7 @@ public:
     void LoadData(const std::vector<std::string>& vectList) const;
     void LoadData() const;
 
-    bool make_lodsmry_file();
-
-    // Added based on requirements from ResInsight
-    void use_lodsmry_file(bool enable);
+    bool make_esmry_file();
 
     time_point startdate() const { return startdat; }
 
@@ -77,16 +75,19 @@ public:
     const std::string& get_unit(const SummaryNode& node) const;
 
     void write_rsm(std::ostream&) const;
-    void write_rsm_file(std::optional<Opm::filesystem::path> = std::nullopt) const;
+    void write_rsm_file(std::optional<filesystem::path> = std::nullopt) const;
+
+    bool all_steps_available();
 
     void ijk_from_global_index(int glob, int &i, int &j, int &k) const;
-private:
-    bool useLodsmryFile; // Added by ResInsight use
 
-    Opm::filesystem::path inputFileName, lodFileName;
+private:
+
+    filesystem::path inputFileName;
+    RstEntry restart_info;
+
     int nI, nJ, nK, nSpecFiles;
-    bool fromSingleRun, lodEnabeled;
-    uint64_t lod_offset, lod_arr_size;
+    bool fromSingleRun;
     size_t nVect, nTstep;
 
     std::vector<bool> formattedFiles;
@@ -94,6 +95,7 @@ private:
     mutable std::vector<std::vector<float>> vectorData;
     mutable std::vector<bool> vectorLoaded;
     std::vector<TimeStepEntry> timeStepList;
+    std::vector<TimeStepEntry> miniStepList;
     std::vector<std::map<int, int>> arrayPos;
     std::vector<std::string> keyword;
     std::map<std::string, int> keyword_index;
@@ -102,6 +104,7 @@ private:
     std::vector<std::vector<std::string>> keywordListSpecFile;
 
     std::vector<int> seqIndex;
+    std::vector<int> mini_steps;
 
 
     std::vector<SummaryNode> summaryNodes;
@@ -109,15 +112,15 @@ private:
 
     time_point startdat;
 
-    std::vector<std::string> checkForMultipleResultFiles(const Opm::filesystem::path& rootN, bool formatted) const;
+    std::vector<std::string> checkForMultipleResultFiles(const filesystem::path& rootN, bool formatted) const;
 
     void getRstString(const std::vector<std::string>& restartArray,
-                      Opm::filesystem::path& pathRst,
-                      Opm::filesystem::path& rootN) const;
+                      filesystem::path& pathRst,
+                      filesystem::path& rootN) const;
 
-    void updatePathAndRootName(Opm::filesystem::path& dir, Opm::filesystem::path& rootN) const;
+    void updatePathAndRootName(filesystem::path& dir, filesystem::path& rootN) const;
 
-    std::string makeKeyString(const std::string& keyword, const std::string& wgname, int num, const std::string& lgr, int lgri, int lgrj, int lgrk) const;
+    std::string makeKeyString(const std::string& keyword, const std::string& wgname, int num) const;
 
     std::string unpackNumber(const SummaryNode&) const;
     std::string lookupKey(const SummaryNode&) const;
@@ -140,8 +143,9 @@ private:
     std::vector<std::tuple <std::string, uint64_t>> getListOfArrays(std::string filename, bool formatted);
     std::vector<int> makeKeywPosVector(int speInd) const;
     std::string read_string_from_disk(std::fstream& fileH, uint64_t size) const;
-    void inspect_lodsmry();
-    void Load_from_lodsmry(const std::vector<int>& keywIndVect) const;
+
+    void read_ministeps_from_disk();
+    int read_ministep_formatted(std::fstream& fileH);
 };
 
 }} // namespace Opm::EclIO

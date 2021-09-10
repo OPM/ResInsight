@@ -37,6 +37,7 @@ namespace Opm
 namespace EclIO
 {
     class ESmry;
+    class ExtESmry;
     struct SummaryNode;
 } // namespace EclIO
 } // namespace Opm
@@ -81,9 +82,12 @@ private:
     bool openESmryFile( const QString& headerFileName, bool includeRestartFiles, RiaThreadSafeLogger* threadSafeLogger );
 
     static void increaseLodFileCount();
+    static QString extendedSummaryFilename(const QString& headerFileName);
 
 private:
     std::unique_ptr<Opm::EclIO::ESmry>         m_eSmry;
+    std::unique_ptr<Opm::EclIO::ExtESmry>         m_exteSmry;
+
     std::vector<std::string>                   m_eSmryKeywords;
     std::map<RifEclipseSummaryAddress, size_t> m_adrToSummaryNodeIndex;
     std::vector<time_t>                        m_timeSteps;

@@ -49,7 +49,7 @@ public:
     void getCellCorners(const std::array<int, 3>& ijk, std::array<double,8>& X, std::array<double,8>& Y, std::array<double,8>& Z);
 
     std::vector<std::array<float, 3>> getXYZ_layer(int layer, bool bottom=false);
-    std::vector<std::array<float, 3>> getXYZ_layer(int layer, std::array<int, 4>& box, bool bottom=false);
+    std::vector<std::array<float, 3>> getXYZ_layer(int layer, const std::array<int, 4>& box, bool bottom=false);
 
     int activeCells() const { return nactive; }
     int totalNumberOfCells() const { return nijk[0] * nijk[1] * nijk[2]; }
@@ -67,8 +67,8 @@ public:
 
     const std::vector<std::string>& list_of_lgrs() const { return lgr_names; }
 
-    std::vector<float> get_mapaxes() const { return m_mapaxes; }
-    std::string get_mapunits() const { return m_mapunits; }
+    const std::vector<float>& get_mapaxes() const { return m_mapaxes; }
+    const std::string& get_mapunits() const { return m_mapunits; }
 
 private:
     Opm::filesystem::path inputFileName, initFileName;
