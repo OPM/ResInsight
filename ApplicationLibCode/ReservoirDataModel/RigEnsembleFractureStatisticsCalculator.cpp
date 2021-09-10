@@ -63,6 +63,17 @@ RigHistogramData RigEnsembleFractureStatisticsCalculator::createStatisticsData( 
 {
     std::vector<cvf::ref<RigStimPlanFractureDefinition>> defs = esf->readFractureDefinitions();
 
+    return createStatisticsData( defs, propertyType, numBins );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RigHistogramData RigEnsembleFractureStatisticsCalculator::createStatisticsData(
+    const std::vector<cvf::ref<RigStimPlanFractureDefinition>>& defs,
+    PropertyType                                                propertyType,
+    int                                                         numBins )
+{
     std::vector<double> samples;
     if ( propertyType == PropertyType::HEIGHT )
     {
