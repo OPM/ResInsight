@@ -36,8 +36,6 @@ class RivBoxGeometryGenerator
 public:
     static cvf::ref<cvf::Part> createBoxFromVertices( const std::vector<cvf::Vec3f>& vertices, const cvf::Color3f color );
 
-    static cvf::ref<cvf::UIntArray> lineIndicesFromQuadVertexArray( const cvf::Vec3fArray* vertexArray );
-
 private:
     RivBoxGeometryGenerator(){};
 };

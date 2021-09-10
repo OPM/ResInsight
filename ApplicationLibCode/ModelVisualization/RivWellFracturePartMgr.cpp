@@ -60,6 +60,7 @@
 #include "cvfPrimitiveSetIndexedUInt.h"
 #include "cvfRenderStateDepth.h"
 #include "cvfScalarMapperContinuousLinear.h"
+#include "cvfStructGridGeometryGenerator.h"
 #include "cvfTransform.h"
 
 #include <cmath>
@@ -1077,7 +1078,8 @@ cvf::ref<cvf::DrawableGeo>
 
     cvf::ref<cvf::DrawableGeo> stimPlanMeshGeo = new cvf::DrawableGeo;
     stimPlanMeshGeo->setVertexArray( stimPlanMeshVertexList );
-    cvf::ref<cvf::UIntArray> indices = RivFaultGeometryGenerator::lineIndicesFromQuadVertexArray( stimPlanMeshVertexList );
+    cvf::ref<cvf::UIntArray> indices =
+        cvf::StructGridGeometryGenerator::lineIndicesFromQuadVertexArray( stimPlanMeshVertexList );
     cvf::ref<cvf::PrimitiveSetIndexedUInt> prim = new cvf::PrimitiveSetIndexedUInt( cvf::PT_LINES );
     prim->setIndices( indices.p() );
 

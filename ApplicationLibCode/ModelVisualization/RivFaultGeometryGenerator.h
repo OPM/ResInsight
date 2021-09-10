@@ -57,8 +57,6 @@ public:
     cvf::ref<cvf::DrawableGeo> createMeshDrawable();
     cvf::ref<cvf::DrawableGeo> createOutlineMeshDrawable( double creaseAngle );
 
-    static cvf::ref<cvf::UIntArray> lineIndicesFromQuadVertexArray( const cvf::Vec3fArray* vertexArray );
-
 private:
     void computeArrays();
 
