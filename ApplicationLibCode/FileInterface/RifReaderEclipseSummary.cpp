@@ -97,8 +97,8 @@ bool RifReaderEclipseSummary::open( const QString& headerFileName, RiaThreadSafe
     {
         auto opmCommonReader = std::make_unique<RifOpmCommonEclipseSummary>();
 
-        opmCommonReader->useLodsmaryFiles( prefSummary->useOptimizedSummaryDataFiles() );
-        opmCommonReader->createLodsmaryFiles( prefSummary->createOptimizedSummaryDataFiles() );
+        opmCommonReader->useEnhancedSummaryFiles( prefSummary->useEnhancedSummaryDataFiles() );
+        opmCommonReader->createEnhancedSummaryFiles( prefSummary->createEnhancedSummaryDataFiles() );
         isValid = opmCommonReader->open( headerFileName, false, threadSafeLogger );
 
         if ( isValid )

@@ -484,7 +484,7 @@ void RimSummaryCaseMainCollection::loadFileSummaryCaseData( std::vector<RimFileS
 
     caf::ProgressInfo progInfo( fileSummaryCases.size(), "Loading Summary Cases" );
 
-    RifOpmCommonEclipseSummary::resetLodCount();
+    RifOpmCommonEclipseSummary::resetEnhancedSummaryFileCount();
 
     RiaThreadSafeLogger threadSafeLogger;
 
@@ -508,11 +508,11 @@ void RimSummaryCaseMainCollection::loadFileSummaryCaseData( std::vector<RimFileS
         RiaLogging::info( txt );
     }
 
-    auto numberOfLodFilesCreated = RifOpmCommonEclipseSummary::numberOfLodFilesCreated();
-    if ( numberOfLodFilesCreated > 0 )
+    auto numberOfEsmryFilesCreated = RifOpmCommonEclipseSummary::numberOfEnhancedSummaryFileCreated();
+    if ( numberOfEsmryFilesCreated > 0 )
     {
-        RiaLogging::info( QString( "Optimized Summary Reader : Converted and created %1 '*.LODSMRY' files on disk." )
-                              .arg( numberOfLodFilesCreated ) );
+        RiaLogging::info(
+            QString( "Summary Files : Converted and created %1 '*.ESMRY' files on disk." ).arg( numberOfEsmryFilesCreated ) );
     }
 
     // This loop is not thread safe, use serial loop

@@ -52,7 +52,7 @@ void RiaPreferencesSummary::SummaryReaderModeType::setUp()
 {
     addItem( RiaPreferencesSummary::SummaryReaderMode::LIBECL, "LIBECL", "UNSMRY (libecl)" );
     addItem( RiaPreferencesSummary::SummaryReaderMode::HDF5_OPM_COMMON, "HDF5_OPM_COMMON", "h5 (HDF5)" );
-    addItem( RiaPreferencesSummary::SummaryReaderMode::OPM_COMMON, "OPM_COMMON", "LODSMRY (opm-common)" );
+    addItem( RiaPreferencesSummary::SummaryReaderMode::OPM_COMMON, "OPM_COMMON", "ESMRY (opm-common)" );
     setDefault( RiaPreferencesSummary::SummaryReaderMode::HDF5_OPM_COMMON );
 }
 } // namespace caf
@@ -110,23 +110,23 @@ RiaPreferencesSummary::RiaPreferencesSummary()
                        "Semicolon separated list of filters used to create curves in new summary plots",
                        "" );
 
-    CAF_PDM_InitField( &m_createOptimizedSummaryDataFile,
+    CAF_PDM_InitField( &m_createEnhancedSummaryDataFile,
                        "createOptimizedSummaryDataFile",
                        false,
-                       "Create LODSMRY Summary Files",
+                       "Create ESMRY Summary Files",
                        "",
-                       "If not present, create summary file with extension '*.LODSMRY'",
+                       "If not present, create summary file with extension '*.ESMRY'",
                        "" );
-    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_createOptimizedSummaryDataFile );
+    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_createEnhancedSummaryDataFile );
 
-    CAF_PDM_InitField( &m_useOptimizedSummaryDataFile,
+    CAF_PDM_InitField( &m_useEnhancedSummaryDataFile,
                        "useOptimizedSummaryDataFile",
                        true,
-                       "Use LODSMRY Summary Files",
+                       "Use ESMRY Files",
                        "",
-                       "If present, import summary files with extension '*.LODSMRY'",
+                       "If present, import summary files with extension '*.ESMRY'",
                        "" );
-    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_useOptimizedSummaryDataFile );
+    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_useEnhancedSummaryDataFile );
 
     CAF_PDM_InitField( &m_createH5SummaryDataFile,
                        "createH5SummaryDataFile",
@@ -194,17 +194,17 @@ RiaPreferencesSummary::SummaryReaderMode RiaPreferencesSummary::summaryDataReade
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RiaPreferencesSummary::useOptimizedSummaryDataFiles() const
+bool RiaPreferencesSummary::useEnhancedSummaryDataFiles() const
 {
-    return m_useOptimizedSummaryDataFile();
+    return m_useEnhancedSummaryDataFile();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RiaPreferencesSummary::createOptimizedSummaryDataFiles() const
+bool RiaPreferencesSummary::createEnhancedSummaryDataFiles() const
 {
-    return m_createOptimizedSummaryDataFile();
+    return m_createEnhancedSummaryDataFile();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -341,8 +341,8 @@ void RiaPreferencesSummary::defineUiOrdering( QString uiConfigName, caf::PdmUiOr
 
     if ( m_summaryReader == SummaryReaderMode::OPM_COMMON )
     {
-        uiOrdering.add( &m_useOptimizedSummaryDataFile );
-        uiOrdering.add( &m_createOptimizedSummaryDataFile );
+        uiOrdering.add( &m_useEnhancedSummaryDataFile );
+        uiOrdering.add( &m_createEnhancedSummaryDataFile );
     }
     else if ( m_summaryReader == SummaryReaderMode::HDF5_OPM_COMMON )
     {

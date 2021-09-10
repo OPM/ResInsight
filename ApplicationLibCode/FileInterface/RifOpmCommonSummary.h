@@ -67,11 +67,11 @@ public:
     RifOpmCommonEclipseSummary();
     ~RifOpmCommonEclipseSummary() override;
 
-    void useLodsmaryFiles( bool enable );
-    void createLodsmaryFiles( bool enable );
+    void useEnhancedSummaryFiles( bool enable );
+    void createEnhancedSummaryFiles( bool enable );
 
-    static void   resetLodCount();
-    static size_t numberOfLodFilesCreated();
+    static void   resetEnhancedSummaryFileCount();
+    static size_t numberOfEnhancedSummaryFileCreated();
 
     bool open( const QString& headerFileName, bool includeRestartFiles, RiaThreadSafeLogger* threadSafeLogger );
 
@@ -82,21 +82,20 @@ public:
 
 private:
     void buildMetaData();
-    bool openESmryFile( const QString& headerFileName, bool includeRestartFiles, RiaThreadSafeLogger* threadSafeLogger );
+    bool openFileReader( const QString& headerFileName, bool includeRestartFiles, RiaThreadSafeLogger* threadSafeLogger );
 
-    static void    increaseLodFileCount();
-    static QString extendedSummaryFilename( const QString& headerFileName );
+    static void    increaseEsmryFileCount();
+    static QString enhancedSummaryFilename( const QString& headerFileName );
 
 private:
-    std::unique_ptr<Opm::EclIO::ESmry>    m_eSmry;
-    std::unique_ptr<Opm::EclIO::ExtESmry> m_exteSmry;
+    std::unique_ptr<Opm::EclIO::ESmry>    m_standardReader;
+    std::unique_ptr<Opm::EclIO::ExtESmry> m_enhancedReader;
 
-    std::vector<std::string>                        m_eSmryKeywords;
-    std::map<RifEclipseSummaryAddress, std::string> m_adrToKeyword;
+    std::map<RifEclipseSummaryAddress, std::string> m_summaryAddressToKeywordMap;
     std::vector<time_t>                             m_timeSteps;
 
-    static size_t sm_createdLodFileCount;
+    static size_t sm_createdEsmryFileCount;
 
-    bool m_useLodsmryFiles;
-    bool m_createLodsmryFiles;
+    bool m_useEsmryFiles;
+    bool m_createEsmryFiles;
 };
