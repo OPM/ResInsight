@@ -19,7 +19,8 @@
 #ifndef OPM_FILESYSTEM_HPP
 #define OPM_FILESYSTEM_HPP
 
-#if !defined(_WIN32) && (__cplusplus < 201703L || (defined(__GNUC__) && __GNUC__ < 8 && !defined(__clang__)))
+#if !defined(_WIN32) && (__cplusplus < 201703L || \
+    (defined(__GNUC__) && __GNUC__ < 8 && !defined(__clang__)))
 #include <experimental/filesystem>
 #else
 #include <filesystem>
@@ -30,10 +31,14 @@
 
 namespace Opm
 {
-#if !defined(_WIN32) && (__cplusplus < 201703L || (defined(__GNUC__) && __GNUC__ < 8 && !defined(__clang__)))
+#if !defined(_WIN32) && (__cplusplus < 201703L || \
+    (defined(__GNUC__) && __GNUC__ < 8 && !defined(__clang__)))
     namespace filesystem = std::experimental::filesystem;
+    filesystem::path proximate(const filesystem::path& p,
+                               const filesystem::path& base = filesystem::current_path());
 #else
     namespace filesystem = std::filesystem;
+    using filesystem::proximate;
 #endif
 
     // A poor man's filesystem::unique_path
