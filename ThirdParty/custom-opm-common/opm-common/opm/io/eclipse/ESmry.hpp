@@ -44,7 +44,7 @@ public:
     // input is smspec (or fsmspec file)
     explicit ESmry(const std::string& filename, bool loadBaseRunData=false);
 
-    int numberOfVectors() const { return nVect; }
+    int numberOfVectors() const { return static_cast<int>(nVect); }
 
     bool hasKey(const std::string& key) const;
 
