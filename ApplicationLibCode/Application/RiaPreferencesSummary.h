@@ -60,8 +60,8 @@ public:
     static RiaPreferencesSummary* current();
 
     SummaryReaderMode summaryDataReader() const;
-    bool              useOptimizedSummaryDataFiles() const;
-    bool              createOptimizedSummaryDataFiles() const;
+    bool              useEnhancedSummaryDataFiles() const;
+    bool              createEnhancedSummaryDataFiles() const;
 
     bool createH5SummaryDataFiles() const;
     bool checkH5SummaryDataTimeStamp() const;
@@ -98,8 +98,8 @@ private:
     caf::PdmField<bool> m_showSummaryTimeAsLongString;
     caf::PdmField<bool> m_useMultipleThreadsWhenLoadingSummaryCases;
 
-    caf::PdmField<bool> m_createOptimizedSummaryDataFile;
-    caf::PdmField<bool> m_useOptimizedSummaryDataFile;
+    caf::PdmField<bool> m_createEnhancedSummaryDataFile;
+    caf::PdmField<bool> m_useEnhancedSummaryDataFile;
 
     caf::PdmField<bool> m_createH5SummaryDataFile;
     caf::PdmField<bool> m_checkH5FileTimeStamp;

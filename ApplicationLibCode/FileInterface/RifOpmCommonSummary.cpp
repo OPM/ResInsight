@@ -26,56 +26,55 @@
 #ifdef USE_OPENMP
 #include <omp.h>
 #endif
-#include "QFileInfo"
 
-size_t RifOpmCommonEclipseSummary::sm_createdLodFileCount = 0;
+#include <QFileInfo>
+
+size_t RifOpmCommonEclipseSummary::sm_createdEsmryFileCount = 0;
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RifOpmCommonEclipseSummary::RifOpmCommonEclipseSummary()
-    : m_useLodsmryFiles( false )
-    , m_createLodsmryFiles( false )
+    : m_useEsmryFiles( false )
+    , m_createEsmryFiles( false )
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifOpmCommonEclipseSummary::~RifOpmCommonEclipseSummary()
+RifOpmCommonEclipseSummary::~RifOpmCommonEclipseSummary() = default;
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RifOpmCommonEclipseSummary::useEnhancedSummaryFiles( bool enable )
 {
+    m_useEsmryFiles = enable;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RifOpmCommonEclipseSummary::useLodsmaryFiles( bool enable )
+void RifOpmCommonEclipseSummary::createEnhancedSummaryFiles( bool enable )
 {
-    m_useLodsmryFiles = enable;
+    m_createEsmryFiles = enable;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RifOpmCommonEclipseSummary::createLodsmaryFiles( bool enable )
+void RifOpmCommonEclipseSummary::resetEnhancedSummaryFileCount()
 {
-    m_createLodsmryFiles = enable;
+    sm_createdEsmryFileCount = 0;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RifOpmCommonEclipseSummary::resetLodCount()
+size_t RifOpmCommonEclipseSummary::numberOfEnhancedSummaryFileCreated()
 {
-    sm_createdLodFileCount = 0;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-size_t RifOpmCommonEclipseSummary::numberOfLodFilesCreated()
-{
-    return sm_createdLodFileCount;
+    return sm_createdEsmryFileCount;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -85,9 +84,9 @@ bool RifOpmCommonEclipseSummary::open( const QString&       headerFileName,
                                        bool                 includeRestartFiles,
                                        RiaThreadSafeLogger* threadSafeLogger )
 {
-    if ( m_createLodsmryFiles )
+    if ( m_createEsmryFiles )
     {
-        auto candidateFileName = extendedSummaryFilename( headerFileName );
+        auto candidateFileName = enhancedSummaryFilename( headerFileName );
         if ( !QFileInfo::exists( candidateFileName ) )
         {
             try
@@ -97,7 +96,7 @@ bool RifOpmCommonEclipseSummary::open( const QString&       headerFileName,
 
                 temporarySummaryFile->make_esmry_file();
 
-                RifOpmCommonEclipseSummary::increaseLodFileCount();
+                RifOpmCommonEclipseSummary::increaseEsmryFileCount();
             }
             catch ( std::exception& e )
             {
@@ -110,9 +109,9 @@ bool RifOpmCommonEclipseSummary::open( const QString&       headerFileName,
         }
     }
 
-    if ( !openESmryFile( headerFileName, includeRestartFiles, threadSafeLogger ) ) return false;
+    if ( !openFileReader( headerFileName, includeRestartFiles, threadSafeLogger ) ) return false;
 
-    if ( !m_eSmry && !m_exteSmry ) return false;
+    if ( !m_standardReader && !m_enhancedReader ) return false;
 
     buildMetaData();
 
@@ -132,19 +131,19 @@ const std::vector<time_t>& RifOpmCommonEclipseSummary::timeSteps( const RifEclip
 //--------------------------------------------------------------------------------------------------
 bool RifOpmCommonEclipseSummary::values( const RifEclipseSummaryAddress& resultAddress, std::vector<double>* values ) const
 {
-    auto it = m_adrToKeyword.find( resultAddress );
-    if ( it != m_adrToKeyword.end() )
+    auto it = m_summaryAddressToKeywordMap.find( resultAddress );
+    if ( it != m_summaryAddressToKeywordMap.end() )
     {
         auto keyword = it->second;
-        if ( m_exteSmry )
+        if ( m_enhancedReader )
         {
-            auto fileValues = m_exteSmry->get( keyword );
+            auto fileValues = m_enhancedReader->get( keyword );
             values->insert( values->begin(), fileValues.begin(), fileValues.end() );
         }
 
-        if ( m_eSmry )
+        if ( m_standardReader )
         {
-            auto fileValues = m_eSmry->get( keyword );
+            auto fileValues = m_standardReader->get( keyword );
             values->insert( values->begin(), fileValues.begin(), fileValues.end() );
         }
         return true;
@@ -158,17 +157,17 @@ bool RifOpmCommonEclipseSummary::values( const RifEclipseSummaryAddress& resultA
 //--------------------------------------------------------------------------------------------------
 std::string RifOpmCommonEclipseSummary::unitName( const RifEclipseSummaryAddress& resultAddress ) const
 {
-    auto it = m_adrToKeyword.find( resultAddress );
-    if ( it != m_adrToKeyword.end() )
+    auto it = m_summaryAddressToKeywordMap.find( resultAddress );
+    if ( it != m_summaryAddressToKeywordMap.end() )
     {
         auto keyword = it->second;
-        if ( m_exteSmry )
+        if ( m_enhancedReader )
         {
-            return m_exteSmry->get_unit( keyword );
+            return m_enhancedReader->get_unit( keyword );
         }
-        if ( m_eSmry )
+        if ( m_standardReader )
         {
-            return m_eSmry->get_unit( keyword );
+            return m_standardReader->get_unit( keyword );
         }
     }
 
@@ -192,16 +191,16 @@ void RifOpmCommonEclipseSummary::buildMetaData()
     std::vector<Opm::time_point> dates;
     std::vector<std::string>     keywords;
 
-    if ( m_exteSmry )
+    if ( m_enhancedReader )
     {
-        dates    = m_exteSmry->dates();
-        keywords = m_exteSmry->keywordList();
+        dates    = m_enhancedReader->dates();
+        keywords = m_enhancedReader->keywordList();
     }
 
-    if ( m_eSmry )
+    if ( m_standardReader )
     {
-        dates    = m_eSmry->dates();
-        keywords = m_eSmry->keywordList();
+        dates    = m_standardReader->dates();
+        keywords = m_standardReader->keywordList();
     }
 
     for ( const auto& d : dates )
@@ -212,23 +211,24 @@ void RifOpmCommonEclipseSummary::buildMetaData()
 
     auto [addresses, addressMap] = RifOpmCommonSummaryTools::buildMetaDataKeyword( keywords );
 
-    m_allResultAddresses = addresses;
-    m_adrToKeyword       = addressMap;
+    m_allResultAddresses         = addresses;
+    m_summaryAddressToKeywordMap = addressMap;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RifOpmCommonEclipseSummary::openESmryFile( const QString&       headerFileName,
-                                                bool                 includeRestartFiles,
-                                                RiaThreadSafeLogger* threadSafeLogger )
+bool RifOpmCommonEclipseSummary::openFileReader( const QString&       headerFileName,
+                                                 bool                 includeRestartFiles,
+                                                 RiaThreadSafeLogger* threadSafeLogger )
 {
-    if ( m_useLodsmryFiles )
+    if ( m_useEsmryFiles )
     {
         try
         {
-            auto candidateFileName = extendedSummaryFilename( headerFileName );
-            m_exteSmry = std::make_unique<Opm::EclIO::ExtESmry>( candidateFileName.toStdString(), includeRestartFiles );
+            auto candidateFileName = enhancedSummaryFilename( headerFileName );
+            m_enhancedReader =
+                std::make_unique<Opm::EclIO::ExtESmry>( candidateFileName.toStdString(), includeRestartFiles );
 
             return true;
         }
@@ -240,7 +240,7 @@ bool RifOpmCommonEclipseSummary::openESmryFile( const QString&       headerFileN
 
     try
     {
-        m_eSmry = std::make_unique<Opm::EclIO::ESmry>( headerFileName.toStdString(), includeRestartFiles );
+        m_standardReader = std::make_unique<Opm::EclIO::ESmry>( headerFileName.toStdString(), includeRestartFiles );
     }
     catch ( std::exception& e )
     {
@@ -257,17 +257,17 @@ bool RifOpmCommonEclipseSummary::openESmryFile( const QString&       headerFileN
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RifOpmCommonEclipseSummary::increaseLodFileCount()
+void RifOpmCommonEclipseSummary::increaseEsmryFileCount()
 {
     // This function can be called from a parallel loop, make it thread safe
 #pragma omp critical
-    sm_createdLodFileCount++;
+    sm_createdEsmryFileCount++;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RifOpmCommonEclipseSummary::extendedSummaryFilename( const QString& headerFileName )
+QString RifOpmCommonEclipseSummary::enhancedSummaryFilename( const QString& headerFileName )
 {
     QString s( headerFileName );
     return s.replace( ".SMSPEC", ".ESMRY" );
