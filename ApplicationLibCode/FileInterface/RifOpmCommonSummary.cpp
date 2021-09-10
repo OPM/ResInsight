@@ -93,7 +93,7 @@ bool RifOpmCommonEclipseSummary::open( const QString&       headerFileName,
             try
             {
                 auto temporarySummaryFile =
-                    std::make_unique<Opm::EclIO::ESmry>(headerFileName.toStdString(), includeRestartFiles );
+                    std::make_unique<Opm::EclIO::ESmry>( headerFileName.toStdString(), includeRestartFiles );
 
                 temporarySummaryFile->make_esmry_file();
 
@@ -137,10 +137,10 @@ bool RifOpmCommonEclipseSummary::values( const RifEclipseSummaryAddress& resultA
         auto it = m_adrToSummaryNodeIndex.find( resultAddress );
         if ( it != m_adrToSummaryNodeIndex.end() )
         {
-//             auto index      = it->second;
-//             auto node       = m_exteSmry->summaryNodeList()[index];
-//             auto fileValues = m_exteSmry->get( node );
-//             values->insert( values->begin(), fileValues.begin(), fileValues.end() );
+            //             auto index      = it->second;
+            //             auto node       = m_exteSmry->summaryNodeList()[index];
+            //             auto fileValues = m_exteSmry->get( node );
+            //             values->insert( values->begin(), fileValues.begin(), fileValues.end() );
         }
 
         return true;
@@ -263,9 +263,9 @@ void RifOpmCommonEclipseSummary::increaseLodFileCount()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RifOpmCommonEclipseSummary::extendedSummaryFilename( const QString& headerFileName)
+QString RifOpmCommonEclipseSummary::extendedSummaryFilename( const QString& headerFileName )
 {
-    QString s(headerFileName);
+    QString s( headerFileName );
     return s.replace( ".SMSPEC", ".ESMRY" );
 }
 
