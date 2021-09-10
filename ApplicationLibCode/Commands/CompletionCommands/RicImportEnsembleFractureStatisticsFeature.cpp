@@ -28,6 +28,8 @@
 #include "RimOilField.h"
 #include "RimProject.h"
 
+#include "cafProgressInfo.h"
+
 #include <QAction>
 #include <QFileInfo>
 
@@ -72,9 +74,17 @@ void RicImportEnsembleFractureStatisticsFeature::onActionTriggered( bool isCheck
     auto fractureGroupStatistics = new RimEnsembleFractureStatistics;
     fractureGroupStatistics->setName( "Ensemble Fracture Statistics" );
 
+    caf::ProgressInfo progInfo( fileNames.size() + 1, "Creating Ensemble Fracture Statistics" );
+
     for ( auto f : fileNames )
     {
+        auto task = progInfo.task( "Loading files", 1 );
         fractureGroupStatistics->addFilePath( f );
+    }
+
+    {
+        auto task = progInfo.task( "Generating statistics", 1 );
+        fractureGroupStatistics->loadAndUpdateData();
     }
 
     fractureGroupStatisticsCollection->addFractureGroupStatistics( fractureGroupStatistics );

@@ -170,7 +170,6 @@ RimEnsembleFractureStatistics::~RimEnsembleFractureStatistics()
 void RimEnsembleFractureStatistics::addFilePath( const QString& filePath )
 {
     m_filePaths.v().push_back( filePath );
-    loadAndUpdateData();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1162,7 +1161,9 @@ QString RimEnsembleFractureStatistics::generateStatisticsTable(
         QString name    = caf::AppEnum<RigEnsembleFractureStatisticsCalculator::PropertyType>::uiText( propertyType );
         int     numBins = 50;
         RigHistogramData histogramData =
-            RigEnsembleFractureStatisticsCalculator::createStatisticsData( this, propertyType, numBins );
+            RigEnsembleFractureStatisticsCalculator::createStatisticsData( stimPlanFractureDefinitions,
+                                                                           propertyType,
+                                                                           numBins );
 
         text += QString( "<tr>"
                          "<td>%1</td>"

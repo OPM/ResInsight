@@ -52,6 +52,10 @@ public:
     static RigHistogramData
         createStatisticsData( const RimEnsembleFractureStatistics* esf, PropertyType propertyType, int numBins );
 
+    static RigHistogramData createStatisticsData( const std::vector<cvf::ref<RigStimPlanFractureDefinition>>& defs,
+                                                  PropertyType propertyType,
+                                                  int          numBins );
+
 private:
     static std::vector<double> calculateGridStatistics( const std::vector<cvf::ref<RigStimPlanFractureDefinition>>& defs,
                                                         double( func )( cvf::cref<RigFractureGrid> ) );
