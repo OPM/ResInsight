@@ -21,10 +21,12 @@
 #include "RiaLogging.h"
 
 #include "opm/io/eclipse/ESmry.hpp"
+#include "opm/io/eclipse/ExtESmry.hpp"
 
 #ifdef USE_OPENMP
 #include <omp.h>
 #endif
+#include "QFileInfo"
 
 size_t RifOpmCommonEclipseSummary::sm_createdLodFileCount = 0;
 
@@ -83,26 +85,34 @@ bool RifOpmCommonEclipseSummary::open( const QString&       headerFileName,
                                        bool                 includeRestartFiles,
                                        RiaThreadSafeLogger* threadSafeLogger )
 {
-    if ( !openESmryFile( headerFileName, includeRestartFiles, threadSafeLogger ) ) return false;
-
-    if ( m_createLodsmryFiles && !includeRestartFiles )
+    if ( m_createLodsmryFiles )
     {
-        // Create the lodsmry file, no-op if already present.
-        bool hasFileBeenCreated = m_eSmry->make_lodsmry_file();
-
-        if ( hasFileBeenCreated )
+        auto candidateFileName = extendedSummaryFilename( headerFileName );
+        if ( !QFileInfo::exists( candidateFileName ) )
         {
-            RifOpmCommonEclipseSummary::increaseLodFileCount();
+            try
+            {
+                auto temporarySummaryFile =
+                    std::make_unique<Opm::EclIO::ESmry>(headerFileName.toStdString(), includeRestartFiles );
 
-            // If a LODSMRY file has been created, all data for all vectors has now been loaded into the summary file
-            // object. Close the file object to make sure allocated data is released, and create a new file object
-            // that will import only the meta data and no curve data. This is a relatively fast operation.
+                temporarySummaryFile->make_esmry_file();
 
-            if ( !openESmryFile( headerFileName, includeRestartFiles, threadSafeLogger ) ) return false;
+                RifOpmCommonEclipseSummary::increaseLodFileCount();
+            }
+            catch ( std::exception& e )
+            {
+                QString txt = QString( "Failed to create optimized summary file. Error text : %1" ).arg( e.what() );
+
+                if ( threadSafeLogger ) threadSafeLogger->error( txt );
+
+                return false;
+            }
         }
     }
 
-    if ( !m_eSmry ) return false;
+    if ( !openESmryFile( headerFileName, includeRestartFiles, threadSafeLogger ) ) return false;
+
+    if ( !m_eSmry && !m_exteSmry ) return false;
 
     buildMetaData();
 
@@ -122,6 +132,20 @@ const std::vector<time_t>& RifOpmCommonEclipseSummary::timeSteps( const RifEclip
 //--------------------------------------------------------------------------------------------------
 bool RifOpmCommonEclipseSummary::values( const RifEclipseSummaryAddress& resultAddress, std::vector<double>* values ) const
 {
+    if ( m_exteSmry )
+    {
+        auto it = m_adrToSummaryNodeIndex.find( resultAddress );
+        if ( it != m_adrToSummaryNodeIndex.end() )
+        {
+//             auto index      = it->second;
+//             auto node       = m_exteSmry->summaryNodeList()[index];
+//             auto fileValues = m_exteSmry->get( node );
+//             values->insert( values->begin(), fileValues.begin(), fileValues.end() );
+        }
+
+        return true;
+    }
+
     if ( m_eSmry )
     {
         auto it = m_adrToSummaryNodeIndex.find( resultAddress );
@@ -195,10 +219,24 @@ bool RifOpmCommonEclipseSummary::openESmryFile( const QString&       headerFileN
                                                 bool                 includeRestartFiles,
                                                 RiaThreadSafeLogger* threadSafeLogger )
 {
+    if ( m_useLodsmryFiles )
+    {
+        try
+        {
+            auto candidateFileName = extendedSummaryFilename( headerFileName );
+            m_exteSmry = std::make_unique<Opm::EclIO::ExtESmry>( candidateFileName.toStdString(), includeRestartFiles );
+
+            return true;
+        }
+        catch ( ... )
+        {
+            // Do not do anything here, try to open the file using standard esmy reader
+        }
+    }
+
     try
     {
-        m_eSmry =
-            std::make_unique<Opm::EclIO::ESmry>( headerFileName.toStdString(), includeRestartFiles, m_useLodsmryFiles );
+        m_eSmry = std::make_unique<Opm::EclIO::ESmry>( headerFileName.toStdString(), includeRestartFiles );
     }
     catch ( std::exception& e )
     {
@@ -220,6 +258,15 @@ void RifOpmCommonEclipseSummary::increaseLodFileCount()
     // This function can be called from a parallel loop, make it thread safe
 #pragma omp critical
     sm_createdLodFileCount++;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RifOpmCommonEclipseSummary::extendedSummaryFilename( const QString& headerFileName)
+{
+    QString s(headerFileName);
+    return s.replace( ".SMSPEC", ".ESMRY" );
 }
 
 //--------------------------------------------------------------------------------------------------
