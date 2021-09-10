@@ -52,6 +52,9 @@ public:
 
     static std::pair<std::set<RifEclipseSummaryAddress>, std::map<RifEclipseSummaryAddress, size_t>>
         buildMetaData( const Opm::EclIO::ESmry* summaryFile );
+
+    static std::pair<std::set<RifEclipseSummaryAddress>, std::map<RifEclipseSummaryAddress, std::string>>
+        buildMetaDataKeyword( const std::vector<std::string>& keywords );
 };
 
 //==================================================================================================
@@ -81,16 +84,16 @@ private:
     void buildMetaData();
     bool openESmryFile( const QString& headerFileName, bool includeRestartFiles, RiaThreadSafeLogger* threadSafeLogger );
 
-    static void increaseLodFileCount();
-    static QString extendedSummaryFilename(const QString& headerFileName);
+    static void    increaseLodFileCount();
+    static QString extendedSummaryFilename( const QString& headerFileName );
 
 private:
-    std::unique_ptr<Opm::EclIO::ESmry>         m_eSmry;
-    std::unique_ptr<Opm::EclIO::ExtESmry>         m_exteSmry;
+    std::unique_ptr<Opm::EclIO::ESmry>    m_eSmry;
+    std::unique_ptr<Opm::EclIO::ExtESmry> m_exteSmry;
 
-    std::vector<std::string>                   m_eSmryKeywords;
-    std::map<RifEclipseSummaryAddress, size_t> m_adrToSummaryNodeIndex;
-    std::vector<time_t>                        m_timeSteps;
+    std::vector<std::string>                        m_eSmryKeywords;
+    std::map<RifEclipseSummaryAddress, std::string> m_adrToKeyword;
+    std::vector<time_t>                             m_timeSteps;
 
     static size_t sm_createdLodFileCount;
 
