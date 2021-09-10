@@ -20,7 +20,6 @@
 
 #include <algorithm>
 #include <iterator>
-#include <sstream>
 #include <string>
 #include <vector>
 
@@ -41,7 +40,7 @@ public:
 
     static bool endsWith( const std::string& mainStr, const std::string& toMatch );
 
-    static std::vector<std::string> splitStringBySpace( const std::string& s );
+    static std::vector<std::string> splitString( const std::string& s, char delimiter );
 
     static int computeEditDistance( const std::string& x, const std::string& y );
 
@@ -57,13 +56,12 @@ private:
 template <class Container>
 void RiaStdStringTools::splitByDelimiter( const std::string& str, Container& cont, char delimiter )
 {
-    std::stringstream ss( str );
-    std::string       token;
-    while ( std::getline( ss, token, delimiter ) )
+    size_t start;
+    size_t end = 0;
+
+    while ( ( start = str.find_first_not_of( delimiter, end ) ) != std::string::npos )
     {
-        if ( token.find_first_not_of( delimiter ) != std::string::npos )
-        {
-            cont.push_back( token );
-        }
+        end = str.find( delimiter, start );
+        cont.push_back( str.substr( start, end - start ) );
     }
 }

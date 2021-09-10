@@ -19,6 +19,7 @@
 #include "RifOpmCommonSummary.h"
 
 #include "RiaLogging.h"
+#include "RiaStdStringTools.h"
 
 #include "opm/io/eclipse/ESmry.hpp"
 #include "opm/io/eclipse/ExtESmry.hpp"
@@ -393,9 +394,9 @@ std::pair<std::set<RifEclipseSummaryAddress>, std::map<RifEclipseSummaryAddress,
     std::set<RifEclipseSummaryAddress>              addresses;
     std::map<RifEclipseSummaryAddress, std::string> addressToNodeIndexMap;
 
-    for ( auto keyword : keywords )
+    for ( const auto& keyword : keywords )
     {
-        auto eclAdr = RifEclipseSummaryAddress::fromEclipseTextAddress( keyword );
+        auto eclAdr = RifEclipseSummaryAddress::fromEclipseTextAddress2( keyword );
 
         if ( eclAdr.isValid() )
         {

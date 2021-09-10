@@ -282,12 +282,150 @@ RifEclipseSummaryAddress RifEclipseSummaryAddress::fromEclipseTextAddress( const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RifEclipseSummaryAddress RifEclipseSummaryAddress::fromEclipseTextAddress2( const std::string& textAddress )
+{
+    std::string quantityName;
+    std::string token1;
+    std::string token2;
+
+    auto names = RiaStdStringTools::splitString( textAddress, ':' );
+    if ( names.empty() )
+    {
+        return RifEclipseSummaryAddress();
+    }
+    quantityName = names[0];
+
+    if ( names.size() > 1 ) token1 = names[1];
+    if ( names.size() > 2 ) token2 = names[2];
+
+    SummaryVarCategory category = identifyCategory( quantityName );
+
+    switch ( category )
+    {
+        case SUMMARY_FIELD:
+            return fieldAddress( quantityName );
+
+        case SUMMARY_AQUIFER:
+            if ( !token1.empty() ) return aquiferAddress( quantityName, RiaStdStringTools::toInt( token1 ) );
+            break;
+
+        case SUMMARY_NETWORK:
+            return networkAddress( quantityName );
+            break;
+
+        case SUMMARY_MISC:
+            return miscAddress( quantityName );
+            break;
+
+        case SUMMARY_REGION:
+            if ( !token1.empty() ) return regionAddress( quantityName, RiaStdStringTools::toInt( token1 ) );
+            break;
+
+        case SUMMARY_REGION_2_REGION:
+            if ( !token1.empty() )
+            {
+                auto regions = RiaStdStringTools::splitString( token1, '-' );
+                if ( regions.size() == 2 )
+                {
+                    return regionToRegionAddress( quantityName,
+                                                  RiaStdStringTools::toInt( regions[0] ),
+                                                  RiaStdStringTools::toInt( regions[1] ) );
+                }
+            }
+            break;
+
+        case SUMMARY_WELL_GROUP:
+            if ( !token1.empty() ) return wellGroupAddress( quantityName, token1 );
+            break;
+
+        case SUMMARY_WELL:
+            if ( !token1.empty() ) return wellAddress( quantityName, token1 );
+            break;
+
+        case SUMMARY_WELL_COMPLETION:
+            if ( !token2.empty() )
+            {
+                auto ijk = RiaStdStringTools::splitString( token2, ',' );
+                if ( ijk.size() == 3 )
+                {
+                    return wellCompletionAddress( quantityName,
+                                                  token1,
+                                                  RiaStdStringTools::toInt( ijk[0] ),
+                                                  RiaStdStringTools::toInt( ijk[1] ),
+                                                  RiaStdStringTools::toInt( ijk[2] ) );
+                }
+            }
+            break;
+
+        case SUMMARY_WELL_LGR:
+            if ( !token1.empty() && !token2.empty() ) return wellLgrAddress( quantityName, token1, token2 );
+            break;
+
+        case SUMMARY_WELL_COMPLETION_LGR:
+            if ( !token2.empty() )
+            {
+                auto ijk = RiaStdStringTools::splitString( token2, ',' );
+                if ( ijk.size() == 3 )
+                {
+                    return wellCompletionLgrAddress( quantityName,
+                                                     token1,
+                                                     token2,
+                                                     RiaStdStringTools::toInt( ijk[0] ),
+                                                     RiaStdStringTools::toInt( ijk[1] ),
+                                                     RiaStdStringTools::toInt( ijk[2] ) );
+                }
+            }
+            break;
+
+        case SUMMARY_WELL_SEGMENT:
+            if ( !token2.empty() )
+                return wellSegmentAddress( quantityName, token1, RiaStdStringTools::toInt( token2 ) );
+            break;
+
+        case SUMMARY_BLOCK:
+            if ( !token1.empty() )
+            {
+                auto ijk = RiaStdStringTools::splitString( token2, ',' );
+                if ( ijk.size() == 3 )
+                {
+                    return blockAddress( quantityName,
+                                         RiaStdStringTools::toInt( ijk[0] ),
+                                         RiaStdStringTools::toInt( ijk[1] ),
+                                         RiaStdStringTools::toInt( ijk[2] ) );
+                }
+            }
+            break;
+
+        case SUMMARY_BLOCK_LGR:
+            if ( !token2.empty() )
+            {
+                auto ijk = RiaStdStringTools::splitString( token2, ',' );
+                if ( ijk.size() == 3 )
+                {
+                    return blockLgrAddress( quantityName,
+                                            token1,
+                                            RiaStdStringTools::toInt( ijk[0] ),
+                                            RiaStdStringTools::toInt( ijk[1] ),
+                                            RiaStdStringTools::toInt( ijk[2] ) );
+                }
+            }
+            break;
+
+        case SUMMARY_IMPORTED:
+        case SUMMARY_INVALID:
+        default:
+            break;
+    }
+
+    return RifEclipseSummaryAddress();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RifEclipseSummaryAddress::SummaryVarCategory RifEclipseSummaryAddress::identifyCategory( const std::string& quantityName )
 {
     if ( quantityName.size() < 3 || quantityName.size() > 8 ) return SUMMARY_INVALID;
-
-    QRegExp regexp( "^[A-Za-z0-9_\\-+#]*$" );
-    if ( !regexp.exactMatch( QString::fromStdString( quantityName ) ) ) return SUMMARY_INVALID;
 
     // First, try to lookup vector in vector table
     auto category = RiuSummaryQuantityNameInfoProvider::instance()->categoryFromQuantityName( quantityName );

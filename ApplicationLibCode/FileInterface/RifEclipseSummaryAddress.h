@@ -125,7 +125,9 @@ public:
     // Static specialized creation methods
 
     static RifEclipseSummaryAddress fromEclipseTextAddress( const std::string& textAddress );
-    static SummaryVarCategory       identifyCategory( const std::string& quantityName );
+    static RifEclipseSummaryAddress fromEclipseTextAddress2( const std::string& textAddress );
+
+    static SummaryVarCategory identifyCategory( const std::string& quantityName );
 
     static RifEclipseSummaryAddress fieldAddress( const std::string& quantityName );
     static RifEclipseSummaryAddress aquiferAddress( const std::string& quantityName, int aquiferNumber );

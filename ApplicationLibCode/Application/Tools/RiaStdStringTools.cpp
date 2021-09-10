@@ -120,11 +120,11 @@ bool RiaStdStringTools::endsWith( const std::string& mainStr, const std::string&
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<std::string> RiaStdStringTools::splitStringBySpace( const std::string& s )
+std::vector<std::string> RiaStdStringTools::splitString( const std::string& s, char delimiter )
 {
     std::vector<std::string> words;
 
-    splitByDelimiter( s, words );
+    splitByDelimiter( s, words, delimiter );
 
     return words;
 }

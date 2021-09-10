@@ -365,7 +365,7 @@ bool RifEclipseUserDataKeywordTools::knownKeywordsWithZeroRequiredHeaderLines( c
 //--------------------------------------------------------------------------------------------------
 void RifEclipseUserDataKeywordTools::extractThreeInts( int* cellI, int* cellJ, int* cellK, const std::string& line )
 {
-    std::vector<std::string> words = RiaStdStringTools::splitStringBySpace( line );
+    std::vector<std::string> words = RiaStdStringTools::splitString( line, ' ' );
     if ( words.size() > 2 )
     {
         *cellI = RiaStdStringTools::toInt( words[0] );
