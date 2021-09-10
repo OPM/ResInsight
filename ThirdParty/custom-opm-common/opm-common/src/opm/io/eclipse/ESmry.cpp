@@ -171,12 +171,33 @@ ESmry::ESmry(const std::string &filename, bool loadBaseRunData) :
         const std::vector<int> nums = smspecList.back().get<int>("NUMS");
         const std::vector<std::string> units = smspecList.back().get<std::string>("UNITS");
 
+        std::vector<std::string> lgrs;
+        std::vector<int> numlx;
+        std::vector<int> numly;
+        std::vector<int> numlz;
+
+        if (smspecList.back().hasKey("LGRS")) lgrs = smspecList.back().get<std::string>("LGRS");
+        if (smspecList.back().hasKey("NUMLX")) numlx = smspecList.back().get<int>("NUMLX");
+        if (smspecList.back().hasKey("NUMLY")) numly = smspecList.back().get<int>("NUMLY");
+        if (smspecList.back().hasKey("NUMLZ")) numlz = smspecList.back().get<int>("NUMLZ");
+
         std::vector<std::string> combindKeyList;
         combindKeyList.reserve(dimens[0]);
 
         this->startdat = make_date(smspecList.back().get<int>("STARTDAT"));
 
         for (unsigned int i=0; i<keywords.size(); i++) {
+
+            std::string lgrName;
+            int lgri = -1;
+            int lgrj = -1;
+            int lgrk = -1;
+
+            if (i < lgrs.size()) lgrName = lgrs[i];
+            if (i < numlx.size()) lgri = numlx[i];
+            if (i < numly.size()) lgrj = numly[i];
+            if (i < numlz.size()) lgrk = numlz[i];
+
             const std::string keyString = makeKeyString(keywords[i], wgnames[i], nums[i]);
             combindKeyList.push_back(keyString);
 
@@ -187,6 +208,11 @@ ESmry::ESmry(const std::string &filename, bool loadBaseRunData) :
                     SummaryNode::Type::Undefined,
                     wgnames[i],
                     nums[i],
+                    lgrName,
+                    lgri,
+                    lgrj,
+                    lgrk,
+                    i,
                     ""
                 });
 
@@ -263,12 +289,33 @@ ESmry::ESmry(const std::string &filename, bool loadBaseRunData) :
         const std::vector<int> nums = smspecList.back().get<int>("NUMS");
         const std::vector<std::string> units = smspecList.back().get<std::string>("UNITS");
 
+        std::vector<std::string> lgrs;
+        std::vector<int> numlx;
+        std::vector<int> numly;
+        std::vector<int> numlz;
+
+        if (smspecList.back().hasKey("LGRS")) lgrs = smspecList.back().get<std::string>("LGRS");
+        if (smspecList.back().hasKey("NUMLX")) numlx = smspecList.back().get<int>("NUMLX");
+        if (smspecList.back().hasKey("NUMLY")) numly = smspecList.back().get<int>("NUMLY");
+        if (smspecList.back().hasKey("NUMLZ")) numlz = smspecList.back().get<int>("NUMLZ");
+
         std::vector<std::string> combindKeyList;
         combindKeyList.reserve(dimens[0]);
 
         this->startdat = make_date(smspecList.back().get<int>("STARTDAT"));
 
         for (size_t i = 0; i < keywords.size(); i++) {
+
+            std::string lgrName;
+            int lgri = -1;
+            int lgrj = -1;
+            int lgrk = -1;
+
+            if (i < lgrs.size()) lgrName = lgrs[i];
+            if (i < numlx.size()) lgri = numlx[i];
+            if (i < numly.size()) lgrj = numly[i];
+            if (i < numlz.size()) lgrk = numlz[i];
+
             const std::string keyString = makeKeyString(keywords[i], wgnames[i], nums[i]);
             combindKeyList.push_back(keyString);
 
@@ -279,6 +326,11 @@ ESmry::ESmry(const std::string &filename, bool loadBaseRunData) :
                     SummaryNode::Type::Undefined,
                     wgnames[i],
                     nums[i],
+                    lgrName,
+                    lgri,
+                    lgrj,
+                    lgrk,
+                    i,
                     ""
                 });
 
