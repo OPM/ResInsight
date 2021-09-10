@@ -180,8 +180,7 @@ bool RifOpmHdf5Summary::openESmryFile( const QString&       headerFileName,
 {
     try
     {
- 
-        m_eSmry = std::make_unique<Opm::EclIO::ESmry>( headerFileName.toStdString(), includeRestartFiles);
+        m_eSmry = std::make_unique<Opm::EclIO::ESmry>( headerFileName.toStdString(), includeRestartFiles );
     }
     catch ( std::exception& e )
     {
