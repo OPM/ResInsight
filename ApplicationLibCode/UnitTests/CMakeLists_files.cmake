@@ -79,6 +79,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RigSurfaceResampler-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigSurfaceStatisticsCalculator-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/StructGridInterface-Test.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/opm-summary-Test.cpp
 )
 
 if(RESINSIGHT_ENABLE_GRPC)

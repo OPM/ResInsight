@@ -93,7 +93,7 @@ bool RifOpmCommonEclipseSummary::open( const QString&       headerFileName,
             try
             {
                 auto temporarySummaryFile =
-                    std::make_unique<Opm::EclIO::ESmry>(headerFileName.toStdString(), includeRestartFiles );
+                    std::make_unique<Opm::EclIO::ESmry>( headerFileName.toStdString(), includeRestartFiles );
 
                 temporarySummaryFile->make_esmry_file();
 
@@ -132,31 +132,21 @@ const std::vector<time_t>& RifOpmCommonEclipseSummary::timeSteps( const RifEclip
 //--------------------------------------------------------------------------------------------------
 bool RifOpmCommonEclipseSummary::values( const RifEclipseSummaryAddress& resultAddress, std::vector<double>* values ) const
 {
-    if ( m_exteSmry )
+    auto it = m_adrToKeyword.find( resultAddress );
+    if ( it != m_adrToKeyword.end() )
     {
-        auto it = m_adrToSummaryNodeIndex.find( resultAddress );
-        if ( it != m_adrToSummaryNodeIndex.end() )
+        auto keyword = it->second;
+        if ( m_exteSmry )
         {
-//             auto index      = it->second;
-//             auto node       = m_exteSmry->summaryNodeList()[index];
-//             auto fileValues = m_exteSmry->get( node );
-//             values->insert( values->begin(), fileValues.begin(), fileValues.end() );
-        }
-
-        return true;
-    }
-
-    if ( m_eSmry )
-    {
-        auto it = m_adrToSummaryNodeIndex.find( resultAddress );
-        if ( it != m_adrToSummaryNodeIndex.end() )
-        {
-            auto index      = it->second;
-            auto node       = m_eSmry->summaryNodeList()[index];
-            auto fileValues = m_eSmry->get( node );
+            auto fileValues = m_exteSmry->get( keyword );
             values->insert( values->begin(), fileValues.begin(), fileValues.end() );
         }
 
+        if ( m_eSmry )
+        {
+            auto fileValues = m_eSmry->get( keyword );
+            values->insert( values->begin(), fileValues.begin(), fileValues.end() );
+        }
         return true;
     }
 
@@ -168,14 +158,17 @@ bool RifOpmCommonEclipseSummary::values( const RifEclipseSummaryAddress& resultA
 //--------------------------------------------------------------------------------------------------
 std::string RifOpmCommonEclipseSummary::unitName( const RifEclipseSummaryAddress& resultAddress ) const
 {
-    if ( m_eSmry )
+    auto it = m_adrToKeyword.find( resultAddress );
+    if ( it != m_adrToKeyword.end() )
     {
-        auto it = m_adrToSummaryNodeIndex.find( resultAddress );
-        if ( it != m_adrToSummaryNodeIndex.end() )
+        auto keyword = it->second;
+        if ( m_exteSmry )
         {
-            auto index = it->second;
-            auto node  = m_eSmry->summaryNodeList()[index];
-            return m_eSmry->get_unit( node );
+            return m_exteSmry->get_unit( keyword );
+        }
+        if ( m_eSmry )
+        {
+            return m_eSmry->get_unit( keyword );
         }
     }
 
@@ -196,20 +189,31 @@ RiaDefines::EclipseUnitSystem RifOpmCommonEclipseSummary::unitSystem() const
 //--------------------------------------------------------------------------------------------------
 void RifOpmCommonEclipseSummary::buildMetaData()
 {
+    std::vector<Opm::time_point> dates;
+    std::vector<std::string>     keywords;
+
+    if ( m_exteSmry )
+    {
+        dates    = m_exteSmry->dates();
+        keywords = m_exteSmry->keywordList();
+    }
+
     if ( m_eSmry )
     {
-        auto dates = m_eSmry->dates();
-        for ( const auto& d : dates )
-        {
-            auto timeAsTimeT = std::chrono::system_clock::to_time_t( d );
-            m_timeSteps.push_back( timeAsTimeT );
-        }
-
-        auto [addresses, addressMap] = RifOpmCommonSummaryTools::buildMetaData( m_eSmry.get() );
-
-        m_allResultAddresses    = addresses;
-        m_adrToSummaryNodeIndex = addressMap;
+        dates    = m_eSmry->dates();
+        keywords = m_eSmry->keywordList();
     }
+
+    for ( const auto& d : dates )
+    {
+        auto timeAsTimeT = std::chrono::system_clock::to_time_t( d );
+        m_timeSteps.push_back( timeAsTimeT );
+    }
+
+    auto [addresses, addressMap] = RifOpmCommonSummaryTools::buildMetaDataKeyword( keywords );
+
+    m_allResultAddresses = addresses;
+    m_adrToKeyword       = addressMap;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -263,9 +267,9 @@ void RifOpmCommonEclipseSummary::increaseLodFileCount()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RifOpmCommonEclipseSummary::extendedSummaryFilename( const QString& headerFileName)
+QString RifOpmCommonEclipseSummary::extendedSummaryFilename( const QString& headerFileName )
 {
-    QString s(headerFileName);
+    QString s( headerFileName );
     return s.replace( ".SMSPEC", ".ESMRY" );
 }
 
@@ -374,6 +378,29 @@ std::pair<std::set<RifEclipseSummaryAddress>, std::map<RifEclipseSummaryAddress,
                 addresses.insert( eclAdr );
                 addressToNodeIndexMap[eclAdr] = i;
             }
+        }
+    }
+
+    return { addresses, addressToNodeIndexMap };
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::pair<std::set<RifEclipseSummaryAddress>, std::map<RifEclipseSummaryAddress, std::string>>
+    RifOpmCommonSummaryTools::buildMetaDataKeyword( const std::vector<std::string>& keywords )
+{
+    std::set<RifEclipseSummaryAddress>              addresses;
+    std::map<RifEclipseSummaryAddress, std::string> addressToNodeIndexMap;
+
+    for ( auto keyword : keywords )
+    {
+        auto eclAdr = RifEclipseSummaryAddress::fromEclipseTextAddress( keyword );
+
+        if ( eclAdr.isValid() )
+        {
+            addresses.insert( eclAdr );
+            addressToNodeIndexMap[eclAdr] = keyword;
         }
     }
 
