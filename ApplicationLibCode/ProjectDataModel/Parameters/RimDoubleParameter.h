@@ -44,7 +44,7 @@ public:
 
     double value() const;
 
-    virtual RimGenericParameter* duplicate() const;
+    RimGenericParameter* duplicate() const override;
 
 private:
     caf::PdmField<double> m_value;
