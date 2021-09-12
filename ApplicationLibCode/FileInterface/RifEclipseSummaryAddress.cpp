@@ -112,167 +112,31 @@ RifEclipseSummaryAddress::RifEclipseSummaryAddress( SummaryVarCategory          
 //--------------------------------------------------------------------------------------------------
 /// Column header text format:   [<ER|ERR|ERROR>:]<VECTOR>:<CATEGORY_PARAM_NAME1>[:<CATEGORY_PARAM_NAME2>][....]
 //--------------------------------------------------------------------------------------------------
-RifEclipseSummaryAddress RifEclipseSummaryAddress::fromEclipseTextAddress( const std::string& textAddress )
+RifEclipseSummaryAddress RifEclipseSummaryAddress::fromEclipseTextAddressParseErrorTokens( const std::string& textAddress )
 {
-    QStringList names = QString().fromStdString( textAddress ).split( ":" );
+    auto tokens = RiaStdStringTools::splitString( textAddress, ':' );
 
     bool isErrorResult = false;
 
-    if ( names.size() > 1 )
+    if ( tokens.size() > 1 )
     {
-        QString name = names[0].trimmed();
-        if ( name.compare( "ER", Qt::CaseInsensitive ) == 0 || name.compare( "ERR", Qt::CaseInsensitive ) == 0 ||
-             name.compare( "ERROR", Qt::CaseInsensitive ) == 0 )
+        auto firstToken = RiaStdStringTools::trimString( tokens[0] );
+        firstToken      = RiaStdStringTools::toUpper( firstToken );
+
+        if ( ( firstToken == "ER" ) || ( firstToken == "ERR" ) || ( firstToken == "ERROR" ) )
         {
             isErrorResult = true;
-            names.pop_front();
+            tokens.erase( tokens.begin() );
         }
     }
-    else if ( names.empty() )
-    {
-        return RifEclipseSummaryAddress();
-    }
 
-    std::string quantityName = names[0].trimmed().toStdString();
-    names.pop_front();
-
-    SummaryVarCategory category = identifyCategory( quantityName );
-
-    RifEclipseSummaryAddress address;
-    switch ( category )
-    {
-        case SUMMARY_FIELD:
-            address = fieldAddress( quantityName );
-            break;
-
-        case SUMMARY_AQUIFER:
-            if ( names.size() > 0 )
-                address = aquiferAddress( quantityName, RiaStdStringTools::toInt( names[0].toStdString() ) );
-            break;
-
-        case SUMMARY_NETWORK:
-            address = networkAddress( quantityName );
-            break;
-
-        case SUMMARY_MISC:
-            address = miscAddress( quantityName );
-            break;
-
-        case SUMMARY_REGION:
-            if ( names.size() > 0 )
-                address = regionAddress( quantityName, RiaStdStringTools::toInt( names[0].toStdString() ) );
-            break;
-
-        case SUMMARY_REGION_2_REGION:
-            if ( names.size() > 0 )
-            {
-                QStringList regions = names[0].trimmed().split( "-" );
-                if ( regions.size() == 2 )
-                {
-                    address = regionToRegionAddress( quantityName,
-                                                     RiaStdStringTools::toInt( regions[0].toStdString() ),
-                                                     RiaStdStringTools::toInt( regions[1].toStdString() ) );
-                }
-            }
-            break;
-
-        case SUMMARY_WELL_GROUP:
-            if ( names.size() > 0 ) address = wellGroupAddress( quantityName, names[0].toStdString() );
-            break;
-
-        case SUMMARY_WELL:
-            if ( names.size() > 0 ) address = wellAddress( quantityName, names[0].toStdString() );
-            break;
-
-        case SUMMARY_WELL_COMPLETION:
-            if ( names.size() > 1 )
-            {
-                QStringList ijk = names[1].trimmed().split( "," );
-                if ( ijk.size() == 3 )
-                {
-                    address = wellCompletionAddress( quantityName,
-                                                     names[0].toStdString(),
-                                                     RiaStdStringTools::toInt( ijk[0].toStdString() ),
-                                                     RiaStdStringTools::toInt( ijk[1].toStdString() ),
-                                                     RiaStdStringTools::toInt( ijk[2].toStdString() ) );
-                }
-            }
-            break;
-
-        case SUMMARY_WELL_LGR:
-            if ( names.size() > 1 )
-                address = wellLgrAddress( quantityName, names[0].toStdString(), names[1].toStdString() );
-            break;
-
-        case SUMMARY_WELL_COMPLETION_LGR:
-            if ( names.size() > 2 )
-            {
-                QStringList ijk = names[2].trimmed().split( "," );
-                if ( ijk.size() == 3 )
-                {
-                    address = wellCompletionLgrAddress( quantityName,
-                                                        names[0].toStdString(),
-                                                        names[1].toStdString(),
-                                                        RiaStdStringTools::toInt( ijk[0].toStdString() ),
-                                                        RiaStdStringTools::toInt( ijk[1].toStdString() ),
-                                                        RiaStdStringTools::toInt( ijk[2].toStdString() ) );
-                }
-            }
-            break;
-
-        case SUMMARY_WELL_SEGMENT:
-            if ( names.size() > 1 )
-                address = wellSegmentAddress( quantityName,
-                                              names[0].toStdString(),
-                                              RiaStdStringTools::toInt( names[1].toStdString() ) );
-            break;
-
-        case SUMMARY_BLOCK:
-            if ( names.size() > 0 )
-            {
-                QStringList ijk = names[0].trimmed().split( "," );
-                if ( ijk.size() == 3 )
-                {
-                    address = blockAddress( quantityName,
-                                            RiaStdStringTools::toInt( ijk[0].toStdString() ),
-                                            RiaStdStringTools::toInt( ijk[1].toStdString() ),
-                                            RiaStdStringTools::toInt( ijk[2].toStdString() ) );
-                }
-            }
-            break;
-
-        case SUMMARY_BLOCK_LGR:
-            if ( names.size() > 1 )
-            {
-                QStringList ijk = names[1].trimmed().split( "," );
-                if ( ijk.size() == 3 )
-                {
-                    address = blockLgrAddress( quantityName,
-                                               names[0].toStdString(),
-                                               RiaStdStringTools::toInt( ijk[0].toStdString() ),
-                                               RiaStdStringTools::toInt( ijk[1].toStdString() ),
-                                               RiaStdStringTools::toInt( ijk[2].toStdString() ) );
-                }
-            }
-            break;
-
-        case SUMMARY_CALCULATED:
-            address = calculatedAddress( quantityName, RiaStdStringTools::toInt( names[0].toStdString() ) );
-            break;
-
-        case SUMMARY_IMPORTED:
-        case SUMMARY_INVALID:
-        default:
-            break;
-    }
+    auto address = fromTokens( tokens );
 
     if ( address.category() == SUMMARY_INVALID || address.category() == SUMMARY_IMPORTED )
     {
-        // Address category not recognized, use complete text address
-        // QString addr = QString::fromStdString(quantityName) + (!names.empty() ? (":" + names.join(":")) : "");
-        QStringList addr = names;
-        addr.push_front( QString::fromStdString( quantityName ) );
-        address = importedAddress( addr.join( ":" ).toStdString() );
+        // Address category not recognized, use incoming text string without error prefix as quantity name
+        auto text = RiaStdStringTools::joinStrings( tokens, ':' );
+        address   = importedAddress( text );
     }
 
     if ( isErrorResult ) address.setAsErrorResult();
@@ -282,12 +146,19 @@ RifEclipseSummaryAddress RifEclipseSummaryAddress::fromEclipseTextAddress( const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RifEclipseSummaryAddress RifEclipseSummaryAddress::fromEclipseTextAddress( const std::string& textAddress )
+{
+    auto tokens = RiaStdStringTools::splitString( textAddress, ':' );
+
+    return fromTokens( tokens );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RifEclipseSummaryAddress::SummaryVarCategory RifEclipseSummaryAddress::identifyCategory( const std::string& quantityName )
 {
     if ( quantityName.size() < 3 || quantityName.size() > 8 ) return SUMMARY_INVALID;
-
-    QRegExp regexp( "^[A-Za-z0-9_\\-+#]*$" );
-    if ( !regexp.exactMatch( QString::fromStdString( quantityName ) ) ) return SUMMARY_INVALID;
 
     // First, try to lookup vector in vector table
     auto category = RiuSummaryQuantityNameInfoProvider::instance()->categoryFromQuantityName( quantityName );
@@ -859,6 +730,148 @@ bool RifEclipseSummaryAddress::hasAccumulatedData() const
     }
 
     return qBaseName.endsWith( "T" ) || qBaseName.endsWith( "TH" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RifEclipseSummaryAddress RifEclipseSummaryAddress::fromTokens( const std::vector<std::string>& tokens )
+{
+    if ( tokens.empty() )
+    {
+        return RifEclipseSummaryAddress();
+    }
+
+    std::string quantityName;
+    std::string token1;
+    std::string token2;
+
+    quantityName = tokens[0];
+
+    if ( tokens.size() > 1 ) token1 = tokens[1];
+    if ( tokens.size() > 2 ) token2 = tokens[2];
+
+    SummaryVarCategory category = identifyCategory( quantityName );
+
+    switch ( category )
+    {
+        case SUMMARY_FIELD:
+            return fieldAddress( quantityName );
+
+        case SUMMARY_AQUIFER:
+            if ( !token1.empty() ) return aquiferAddress( quantityName, RiaStdStringTools::toInt( token1 ) );
+            break;
+
+        case SUMMARY_NETWORK:
+            return networkAddress( quantityName );
+            break;
+
+        case SUMMARY_MISC:
+            return miscAddress( quantityName );
+            break;
+
+        case SUMMARY_REGION:
+            if ( !token1.empty() ) return regionAddress( quantityName, RiaStdStringTools::toInt( token1 ) );
+            break;
+
+        case SUMMARY_REGION_2_REGION:
+            if ( !token1.empty() )
+            {
+                auto regions = RiaStdStringTools::splitString( token1, '-' );
+                if ( regions.size() == 2 )
+                {
+                    return regionToRegionAddress( quantityName,
+                                                  RiaStdStringTools::toInt( regions[0] ),
+                                                  RiaStdStringTools::toInt( regions[1] ) );
+                }
+            }
+            break;
+
+        case SUMMARY_WELL_GROUP:
+            if ( !token1.empty() ) return wellGroupAddress( quantityName, token1 );
+            break;
+
+        case SUMMARY_WELL:
+            if ( !token1.empty() ) return wellAddress( quantityName, token1 );
+            break;
+
+        case SUMMARY_WELL_COMPLETION:
+            if ( !token2.empty() )
+            {
+                auto ijk = RiaStdStringTools::splitString( token2, ',' );
+                if ( ijk.size() == 3 )
+                {
+                    return wellCompletionAddress( quantityName,
+                                                  token1,
+                                                  RiaStdStringTools::toInt( ijk[0] ),
+                                                  RiaStdStringTools::toInt( ijk[1] ),
+                                                  RiaStdStringTools::toInt( ijk[2] ) );
+                }
+            }
+            break;
+
+        case SUMMARY_WELL_LGR:
+            if ( !token1.empty() && !token2.empty() ) return wellLgrAddress( quantityName, token1, token2 );
+            break;
+
+        case SUMMARY_WELL_COMPLETION_LGR:
+            if ( tokens.size() > 2 )
+            {
+                auto token3 = tokens[3];
+                auto ijk    = RiaStdStringTools::splitString( token3, ',' );
+                if ( ijk.size() == 3 )
+                {
+                    return wellCompletionLgrAddress( quantityName,
+                                                     token1,
+                                                     token2,
+                                                     RiaStdStringTools::toInt( ijk[0] ),
+                                                     RiaStdStringTools::toInt( ijk[1] ),
+                                                     RiaStdStringTools::toInt( ijk[2] ) );
+                }
+            }
+            break;
+
+        case SUMMARY_WELL_SEGMENT:
+            if ( !token2.empty() )
+                return wellSegmentAddress( quantityName, token1, RiaStdStringTools::toInt( token2 ) );
+            break;
+
+        case SUMMARY_BLOCK:
+            if ( !token1.empty() )
+            {
+                auto ijk = RiaStdStringTools::splitString( token1, ',' );
+                if ( ijk.size() == 3 )
+                {
+                    return blockAddress( quantityName,
+                                         RiaStdStringTools::toInt( ijk[0] ),
+                                         RiaStdStringTools::toInt( ijk[1] ),
+                                         RiaStdStringTools::toInt( ijk[2] ) );
+                }
+            }
+            break;
+
+        case SUMMARY_BLOCK_LGR:
+            if ( !token2.empty() )
+            {
+                auto ijk = RiaStdStringTools::splitString( token2, ',' );
+                if ( ijk.size() == 3 )
+                {
+                    return blockLgrAddress( quantityName,
+                                            token1,
+                                            RiaStdStringTools::toInt( ijk[0] ),
+                                            RiaStdStringTools::toInt( ijk[1] ),
+                                            RiaStdStringTools::toInt( ijk[2] ) );
+                }
+            }
+            break;
+
+        case SUMMARY_IMPORTED:
+        case SUMMARY_INVALID:
+        default:
+            break;
+    }
+
+    return RifEclipseSummaryAddress();
 }
 
 //--------------------------------------------------------------------------------------------------
