@@ -51,7 +51,7 @@ caf::PdmObjectHandle* RimSummaryCase_summaryVectorValues::execute()
     auto*                      summaryCase = self<RimSummaryCase>();
     RifSummaryReaderInterface* sumReader   = summaryCase->summaryReader();
 
-    auto adr = RifEclipseSummaryAddress::fromEclipseTextAddress( m_addressString().toStdString() );
+    auto adr = RifEclipseSummaryAddress::fromEclipseTextAddressParseErrorTokens( m_addressString().toStdString() );
 
     std::vector<double> values;
 
@@ -205,7 +205,7 @@ caf::PdmObjectHandle* RimSummaryCase_resampleValues::execute()
     auto*                      summaryCase = self<RimSummaryCase>();
     RifSummaryReaderInterface* sumReader   = summaryCase->summaryReader();
 
-    auto adr = RifEclipseSummaryAddress::fromEclipseTextAddress( m_addressString().toStdString() );
+    auto adr = RifEclipseSummaryAddress::fromEclipseTextAddressParseErrorTokens( m_addressString().toStdString() );
 
     auto dataObject = new RimcSummaryResampleData();
 
