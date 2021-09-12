@@ -127,6 +127,14 @@ RimEnsembleFractureStatistics::RimEnsembleFractureStatistics()
     m_filePathsTable.uiCapability()->setUiReadOnly( true );
     m_filePathsTable.xmlCapability()->disableIO();
 
+    CAF_PDM_InitField( &m_excludeZeroWidthFractures,
+                       "ExcludeZeroWidthFractures",
+                       true,
+                       "Exclude Zero Width Fractures",
+                       "",
+                       "",
+                       "" );
+
     CAF_PDM_InitFieldNoDefault( &m_statisticsTable, "StatisticsTable", "Statistics Table", "", "", "" );
     m_statisticsTable.uiCapability()->setUiEditorTypeName( caf::PdmUiTextEditor::uiEditorTypeName() );
     m_statisticsTable.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
@@ -283,6 +291,10 @@ void RimEnsembleFractureStatistics::fieldChangedByUi( const caf::PdmFieldHandle*
             RimProject::current()->scheduleCreateDisplayModelAndRedrawAllViews();
         }
     }
+    else if ( changedField == &m_excludeZeroWidthFractures )
+    {
+        loadAndUpdateData();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -292,6 +304,7 @@ void RimEnsembleFractureStatistics::defineUiOrdering( QString uiConfigName, caf:
 {
     caf::PdmUiOrdering* settingsGroup = uiOrdering.addNewGroup( "Settings" );
     settingsGroup->add( nameField() );
+    settingsGroup->add( &m_excludeZeroWidthFractures );
     settingsGroup->add( &m_meshAlignmentType );
     settingsGroup->add( &m_meshType );
     settingsGroup->add( &m_numSamplesX );
@@ -332,6 +345,15 @@ void RimEnsembleFractureStatistics::loadAndUpdateData()
     std::vector<cvf::ref<RigStimPlanFractureDefinition>> stimPlanFractureDefinitions =
         readFractureDefinitions( m_filePaths.v(), unitSystem );
 
+    if ( m_excludeZeroWidthFractures() )
+    {
+        size_t numBeforeFiltering = stimPlanFractureDefinitions.size();
+        stimPlanFractureDefinitions =
+            RigEnsembleFractureStatisticsCalculator::removeZeroWidthDefinitions( stimPlanFractureDefinitions );
+        size_t numRemoved = numBeforeFiltering - stimPlanFractureDefinitions.size();
+        RiaLogging::info( QString( "Excluded %1 zero width fractures." ).arg( numRemoved ) );
+    }
+
     m_statisticsTable = generateStatisticsTable( stimPlanFractureDefinitions );
 }
 
@@ -344,6 +366,12 @@ std::vector<QString> RimEnsembleFractureStatistics::computeStatistics()
 
     std::vector<cvf::ref<RigStimPlanFractureDefinition>> stimPlanFractureDefinitions =
         readFractureDefinitions( m_filePaths.v(), unitSystem );
+
+    if ( m_excludeZeroWidthFractures() )
+    {
+        stimPlanFractureDefinitions =
+            RigEnsembleFractureStatisticsCalculator::removeZeroWidthDefinitions( stimPlanFractureDefinitions );
+    }
 
     std::set<std::pair<QString, QString>> availableResults = findAllResultNames( stimPlanFractureDefinitions );
 

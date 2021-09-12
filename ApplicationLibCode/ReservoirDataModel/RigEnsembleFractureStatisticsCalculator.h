@@ -56,6 +56,9 @@ public:
                                                   PropertyType propertyType,
                                                   int          numBins );
 
+    static std::vector<cvf::ref<RigStimPlanFractureDefinition>>
+        removeZeroWidthDefinitions( const std::vector<cvf::ref<RigStimPlanFractureDefinition>>& defs );
+
 private:
     static std::vector<double> calculateGridStatistics( const std::vector<cvf::ref<RigStimPlanFractureDefinition>>& defs,
                                                         double( func )( cvf::cref<RigFractureGrid> ) );

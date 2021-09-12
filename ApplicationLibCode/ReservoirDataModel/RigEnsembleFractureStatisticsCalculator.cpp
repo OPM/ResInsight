@@ -376,3 +376,27 @@ double RigEnsembleFractureStatisticsCalculator::convertUnit( double             
     }
     return value;
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<cvf::ref<RigStimPlanFractureDefinition>> RigEnsembleFractureStatisticsCalculator::removeZeroWidthDefinitions(
+    const std::vector<cvf::ref<RigStimPlanFractureDefinition>>& defs )
+{
+    std::vector<double> samples =
+        calculateAreaWeightedStatistics( defs, &RigEnsembleFractureStatisticsCalculator::calculateAreaWeightedWidth );
+
+    std::vector<cvf::ref<RigStimPlanFractureDefinition>> filteredDefs;
+
+    int index = 0;
+    for ( double sample : samples )
+    {
+        if ( sample > 0.0 )
+        {
+            filteredDefs.push_back( defs[index] );
+        }
+        index++;
+    }
+
+    return filteredDefs;
+}
