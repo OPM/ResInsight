@@ -25,7 +25,7 @@
 //--------------------------------------------------------------------------------------------------
 RiuSummaryQuantityNameInfoProvider* RiuSummaryQuantityNameInfoProvider::instance()
 {
-    static RiuSummaryQuantityNameInfoProvider* singleton = new RiuSummaryQuantityNameInfoProvider;
+    static auto* singleton = new RiuSummaryQuantityNameInfoProvider;
     return singleton;
 }
 
@@ -52,7 +52,8 @@ RiuSummaryQuantityNameInfoProvider::RiuSummaryQuantityInfo
     {
         return it->second;
     }
-    else if ( quantity.size() > 1 && quantity[1] == 'U' )
+
+    if ( quantity.size() > 1 && quantity[1] == 'U' )
     {
         // User defined vector name
         // The summary type is given by the first letter, and U defines user-defined
@@ -62,7 +63,7 @@ RiuSummaryQuantityNameInfoProvider::RiuSummaryQuantityInfo
 
         return RiuSummaryQuantityInfo();
     }
-    else if ( quantity.size() > 5 )
+    if ( quantity.size() > 5 )
     {
         // Check for custom vector naming
 
@@ -112,12 +113,12 @@ RiuSummaryQuantityNameInfoProvider::RiuSummaryQuantityNameInfoProvider()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::map<std::string, RiuSummaryQuantityNameInfoProvider::RiuSummaryQuantityInfo>
+std::unordered_map<std::string, RiuSummaryQuantityNameInfoProvider::RiuSummaryQuantityInfo>
     RiuSummaryQuantityNameInfoProvider::createInfoForEclipseKeywords()
 {
     using A = RifEclipseSummaryAddress;
 
-    std::map<std::string, RiuSummaryQuantityInfo> info;
+    std::unordered_map<std::string, RiuSummaryQuantityInfo> info;
 
     info.insert( { "FOPR", { A::SUMMARY_FIELD, "Oil Production Rate" } } );
     info.insert( { "FOPRA", { A::SUMMARY_FIELD, "Oil Production Rate above GOC" } } );
@@ -2149,18 +2150,18 @@ std::map<std::string, RiuSummaryQuantityNameInfoProvider::RiuSummaryQuantityInfo
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::map<std::string, RiuSummaryQuantityNameInfoProvider::RiuSummaryQuantityInfo>
+std::unordered_map<std::string, RiuSummaryQuantityNameInfoProvider::RiuSummaryQuantityInfo>
     RiuSummaryQuantityNameInfoProvider::createInfoFor6xKeywords()
 {
     using A = RifEclipseSummaryAddress;
 
-    std::map<std::string, RiuSummaryQuantityInfo> info;
+    std::unordered_map<std::string, RiuSummaryQuantityInfo> info;
 
     int nporo = 6;
     for ( int iporo = 0; iporo < nporo; ++iporo )
     {
-        std::string suffix( "" );
-        std::string descadd( "" );
+        std::string suffix;
+        std::string descadd;
         if ( iporo == 1 )
         {
             suffix  = "F";

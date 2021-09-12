@@ -20,8 +20,8 @@
 
 #include "RifEclipseSummaryAddress.h"
 
-#include <map>
 #include <string>
+#include <unordered_map>
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -57,9 +57,9 @@ private:
 
     RiuSummaryQuantityInfo quantityInfo( const std::string& quantity ) const;
 
-    static std::map<std::string, RiuSummaryQuantityInfo> createInfoForEclipseKeywords();
-    static std::map<std::string, RiuSummaryQuantityInfo> createInfoFor6xKeywords();
+    static std::unordered_map<std::string, RiuSummaryQuantityInfo> createInfoForEclipseKeywords();
+    static std::unordered_map<std::string, RiuSummaryQuantityInfo> createInfoFor6xKeywords();
 
 private:
-    std::map<std::string, RiuSummaryQuantityInfo> m_summaryToDescMap;
+    std::unordered_map<std::string, RiuSummaryQuantityInfo> m_summaryToDescMap;
 };
