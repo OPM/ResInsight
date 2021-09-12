@@ -125,7 +125,7 @@ public:
     // Static specialized creation methods
 
     static RifEclipseSummaryAddress fromEclipseTextAddress( const std::string& textAddress );
-    static RifEclipseSummaryAddress fromEclipseTextAddress2( const std::string& textAddress );
+    static RifEclipseSummaryAddress fromEclipseTextAddressParseErrorTokens( const std::string& textAddress );
 
     static SummaryVarCategory identifyCategory( const std::string& quantityName );
 
@@ -211,6 +211,8 @@ public:
     static QString baseQuantityName( const QString& quantityName );
 
 private:
+    static RifEclipseSummaryAddress fromTokens( const std::vector<std::string>& tokens );
+
     bool                                         isValidEclipseCategory() const;
     static std::tuple<int32_t, int32_t, int32_t> ijkTupleFromUiText( const std::string& s );
     std::string                                  formatUiTextRegionToRegion() const;

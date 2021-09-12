@@ -20,6 +20,7 @@
 
 #include <algorithm>
 #include <iterator>
+#include <numeric>
 #include <string>
 #include <vector>
 
@@ -38,9 +39,12 @@ public:
     static bool    containsAlphabetic( const std::string& s );
     static bool    startsWithAlphabetic( const std::string& s );
 
+    static void toUpper( std::string& s );
+
     static bool endsWith( const std::string& mainStr, const std::string& toMatch );
 
     static std::vector<std::string> splitString( const std::string& s, char delimiter );
+    static std::string              joinStrings( const std::vector<std::string>& s, char delimiter );
 
     static int computeEditDistance( const std::string& x, const std::string& y );
 
@@ -64,4 +68,14 @@ void RiaStdStringTools::splitByDelimiter( const std::string& str, Container& con
         end = str.find( delimiter, start );
         cont.push_back( str.substr( start, end - start ) );
     }
+}
+
+template <typename InputIt>
+std::string join( InputIt begin, InputIt end, const std::string& separator = ", " )
+{
+    auto compose_key = [&separator]( std::string& key, const std::string& key_part ) -> std::string {
+        return key.empty() ? key_part : key + separator + key_part;
+    };
+
+    return std::accumulate( begin, end, std::string(), compose_key );
 }

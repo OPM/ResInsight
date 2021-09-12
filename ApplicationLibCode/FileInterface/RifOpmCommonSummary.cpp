@@ -396,7 +396,7 @@ std::pair<std::set<RifEclipseSummaryAddress>, std::map<RifEclipseSummaryAddress,
 
     for ( const auto& keyword : keywords )
     {
-        auto eclAdr = RifEclipseSummaryAddress::fromEclipseTextAddress2( keyword );
+        auto eclAdr = RifEclipseSummaryAddress::fromEclipseTextAddress( keyword );
 
         if ( eclAdr.isValid() )
         {

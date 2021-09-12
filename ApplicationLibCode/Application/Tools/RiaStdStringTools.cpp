@@ -108,6 +108,14 @@ bool RiaStdStringTools::startsWithAlphabetic( const std::string& s )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RiaStdStringTools::toUpper( std::string& s )
+{
+    std::transform( s.begin(), s.end(), s.begin(), std::toupper );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RiaStdStringTools::endsWith( const std::string& mainStr, const std::string& toMatch )
 {
     if ( mainStr.size() >= toMatch.size() &&
@@ -127,6 +135,16 @@ std::vector<std::string> RiaStdStringTools::splitString( const std::string& s, c
     splitByDelimiter( s, words, delimiter );
 
     return words;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::string RiaStdStringTools::joinStrings( const std::vector<std::string>& s, char delimiter )
+{
+    std::string delimiterString( 1, delimiter );
+
+    return join( s.begin(), s.end(), delimiterString );
 }
 
 //--------------------------------------------------------------------------------------------------
