@@ -45,6 +45,7 @@
 #include "FractureCommands/RicNewStimPlanFractureTemplateFeature.h"
 
 #include "cafAppEnum.h"
+#include "cafPdmUiLineEditor.h"
 #include "cafPdmUiTextEditor.h"
 #include "cafPdmUiToolButtonEditor.h"
 #include "cafPdmUiTreeSelectionEditor.h"
@@ -53,6 +54,7 @@
 
 #include <QDir>
 #include <QFile>
+#include <QIntValidator>
 
 namespace caf
 {
@@ -242,6 +244,16 @@ void RimEnsembleFractureStatistics::defineEditorAttribute( const caf::PdmFieldHa
         {
             myAttr->wrapMode = caf::PdmUiTextEditorAttribute::NoWrap;
             myAttr->textMode = caf::PdmUiTextEditorAttribute::HTML;
+        }
+    }
+    else if ( field == &m_adaptiveNumLayers || field == &m_numSamplesX || field == &m_numSamplesY )
+    {
+        caf::PdmUiLineEditorAttribute* lineEditorAttr = dynamic_cast<caf::PdmUiLineEditorAttribute*>( attribute );
+        if ( lineEditorAttr )
+        {
+            // Positive integer
+            QIntValidator* validator  = new QIntValidator( 1, std::numeric_limits<int>::max(), nullptr );
+            lineEditorAttr->validator = validator;
         }
     }
 }
@@ -601,6 +613,9 @@ void RimEnsembleFractureStatistics::generateUniformMesh( double               mi
                                                          std::vector<double>& gridXs,
                                                          std::vector<double>& gridYs ) const
 {
+    CAF_ASSERT( m_numSamplesX > 0 );
+    CAF_ASSERT( m_numSamplesY > 0 );
+
     int    numSamplesX     = m_numSamplesX();
     double sampleDistanceX = linearSampling( minX, maxX, numSamplesX, gridXs );
 
@@ -862,7 +877,11 @@ void RimEnsembleFractureStatistics::generateAllLayers(
 int RimEnsembleFractureStatistics::getTargetNumberOfLayers(
     const std::vector<cvf::ref<RigStimPlanFractureDefinition>>& stimPlanFractureDefinitions ) const
 {
-    if ( m_adaptiveNumLayersType() == AdaptiveNumLayersType::USER_DEFINED ) return m_adaptiveNumLayers();
+    if ( m_adaptiveNumLayersType() == AdaptiveNumLayersType::USER_DEFINED )
+    {
+        CAF_ASSERT( m_adaptiveNumLayers() > 0 );
+        return m_adaptiveNumLayers();
+    }
 
     int maxNy = 0;
     int minNy = std::numeric_limits<int>::max();
@@ -894,6 +913,7 @@ double RimEnsembleFractureStatistics::linearSampling( double               minVa
                                                       int                  numSamples,
                                                       std::vector<double>& samples )
 {
+    CAF_ASSERT( numSamples > 0 );
     double sampleDistance = ( maxValue - minValue ) / numSamples;
 
     for ( int s = 0; s < numSamples; s++ )
