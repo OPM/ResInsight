@@ -33,7 +33,9 @@
 #include "RigStatisticsMath.h"
 #include "RigStimPlanFractureDefinition.h"
 
+#ifdef USE_QTCHARTS
 #include "RimEnsembleFractureStatisticsPlot.h"
+#endif
 #include "RimFractureTemplateCollection.h"
 #include "RimHistogramCalculator.h"
 #include "RimProject.h"
@@ -296,6 +298,7 @@ void RimEnsembleFractureStatistics::fieldChangedByUi( const caf::PdmFieldHandle*
     {
         loadAndUpdateData();
 
+#ifdef USE_QTCHARTS
         // Update referring plots
         std::vector<caf::PdmObjectHandle*> referringObjects;
         this->objectsWithReferringPtrFields( referringObjects );
@@ -304,6 +307,7 @@ void RimEnsembleFractureStatistics::fieldChangedByUi( const caf::PdmFieldHandle*
             auto plot = dynamic_cast<RimEnsembleFractureStatisticsPlot*>( obj );
             if ( plot ) plot->loadDataAndUpdate();
         }
+#endif
     }
 }
 
