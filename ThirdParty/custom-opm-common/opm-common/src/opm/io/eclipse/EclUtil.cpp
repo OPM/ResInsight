@@ -25,6 +25,7 @@
 #include <algorithm>
 #include <array>
 #include <stdexcept>
+#include <cctype>
 #include <cmath>
 #include <fstream>
 #include <cstring>
