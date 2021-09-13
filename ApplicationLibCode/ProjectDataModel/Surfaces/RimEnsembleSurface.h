@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include "RimNamedObject.h"
+#include "RimSurfaceCollection.h"
 
 #include "cafPdmChildArrayField.h"
 #include "cafPdmPtrField.h"
@@ -35,22 +35,20 @@ class RimSummaryCase;
 //==================================================================================================
 ///
 //==================================================================================================
-class RimEnsembleSurface : public RimNamedObject
+class RimEnsembleSurface : public RimSurfaceCollection
 {
     CAF_PDM_HEADER_INIT;
 
 public:
     RimEnsembleSurface();
-    void removeFileSurface( RimFileSurface* fileSurface );
-    void addFileSurface( RimFileSurface* fileSurface );
 
-    std::vector<RimFileSurface*> fileSurfaces() const;
-
-    std::vector<RimSurface*> surfaces() const;
-
-    void loadDataAndUpdate();
-
+    void              addFileSurface( RimFileSurface* fileSurface );
+    void              loadDataAndUpdate();
     const RigSurface* statisticsSurface() const;
+
+    static QString ensembleSourceFileCollectionName();
+
+    void loadData() override;
 
 protected:
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
@@ -67,9 +65,11 @@ private:
     void connectEnsembleCurveSetFilterSignals();
     void onFilterSourceChanged( const caf::SignalEmitter* emitter );
 
-    caf::PdmChildArrayField<RimFileSurface*>               m_fileSurfaces;
-    caf::PdmChildArrayField<RimEnsembleStatisticsSurface*> m_statisticsSurfaces;
-    caf::PdmPtrField<RimEnsembleCurveSet*>                 m_ensembleCurveSet;
+    RimSurfaceCollection*        sourceFileSurfaceCollection() const;
+    std::vector<RimFileSurface*> sourceFileSurfaces() const;
+
+private:
+    caf::PdmPtrField<RimEnsembleCurveSet*> m_ensembleCurveSet;
 
     cvf::ref<RigSurface> m_statisticsSurface;
 };

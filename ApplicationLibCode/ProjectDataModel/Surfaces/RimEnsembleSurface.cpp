@@ -28,6 +28,7 @@
 #include "RimFileSurface.h"
 #include "RimMainPlotCollection.h"
 #include "RimProject.h"
+#include "RimSurface.h"
 #include "RimSurfaceCollection.h"
 
 #include "cafPdmFieldScriptingCapability.h"
@@ -42,21 +43,22 @@ RimEnsembleSurface::RimEnsembleSurface()
 {
     CAF_PDM_InitScriptableObject( "Ensemble Surface", ":/ReservoirSurfaces16x16.png", "", "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_fileSurfaces, "FileSurfaces", "", "", "", "" );
-    m_fileSurfaces.uiCapability()->setUiHidden( true );
-
-    CAF_PDM_InitFieldNoDefault( &m_statisticsSurfaces, "StatisticsSurfaces", "", "", "", "" );
-    m_statisticsSurfaces.uiCapability()->setUiHidden( true );
-
     CAF_PDM_InitFieldNoDefault( &m_ensembleCurveSet, "FilterEnsembleCurveSet", "Filter by Ensemble Curve Set", "", "", "" );
-}
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimEnsembleSurface::removeFileSurface( RimFileSurface* fileSurface )
-{
-    m_fileSurfaces.removeChildObject( fileSurface );
+    std::vector<RigSurfaceStatisticsCalculator::StatisticsType> statisticsTypes =
+        { RigSurfaceStatisticsCalculator::StatisticsType::MIN,
+          RigSurfaceStatisticsCalculator::StatisticsType::MAX,
+          RigSurfaceStatisticsCalculator::StatisticsType::MEAN,
+          RigSurfaceStatisticsCalculator::StatisticsType::P10,
+          RigSurfaceStatisticsCalculator::StatisticsType::P50,
+          RigSurfaceStatisticsCalculator::StatisticsType::P90 };
+
+    for ( auto s : statisticsTypes )
+    {
+        auto statSurface = new RimEnsembleStatisticsSurface;
+        statSurface->setStatisticsType( s );
+        addSurface( statSurface );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -64,30 +66,35 @@ void RimEnsembleSurface::removeFileSurface( RimFileSurface* fileSurface )
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleSurface::addFileSurface( RimFileSurface* fileSurface )
 {
-    m_fileSurfaces.push_back( fileSurface );
+    if ( !sourceFileSurfaceCollection() )
+    {
+        auto coll = new RimSurfaceCollection;
+        coll->setCollectionName( ensembleSourceFileCollectionName() );
+        addSubCollection( coll );
+    }
+
+    sourceFileSurfaceCollection()->addSurface( fileSurface );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimFileSurface*> RimEnsembleSurface::fileSurfaces() const
+std::vector<RimFileSurface*> RimEnsembleSurface::sourceFileSurfaces() const
 {
-    return m_fileSurfaces().childObjects();
-}
+    std::vector<RimFileSurface*> fileSurfs;
+    for ( auto& w : sourceFileSurfaceCollection()->surfaces() )
+    {
+        if ( auto fsurf = dynamic_cast<RimFileSurface*>( w ) )
+        {
+            fileSurfs.push_back( fsurf );
+        }
+        else
+        {
+            RiaLogging::warning( QString( "Detected unknown surface type in File Surface collection" ) );
+        }
+    }
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::vector<RimSurface*> RimEnsembleSurface::surfaces() const
-{
-    std::vector<RimSurface*> surfaces;
-    for ( auto fs : m_fileSurfaces.childObjects() )
-        surfaces.push_back( fs );
-
-    for ( auto s : m_statisticsSurfaces.childObjects() )
-        surfaces.push_back( s );
-
-    return surfaces;
+    return fileSurfs;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -95,7 +102,7 @@ std::vector<RimSurface*> RimEnsembleSurface::surfaces() const
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleSurface::loadDataAndUpdate()
 {
-    for ( auto& w : m_fileSurfaces )
+    for ( auto& w : sourceFileSurfaces() )
     {
         if ( !w->onLoadData() )
         {
@@ -103,38 +110,25 @@ void RimEnsembleSurface::loadDataAndUpdate()
         }
     }
 
-    std::vector<RimFileSurface*> fileSurfaces = m_fileSurfaces.childObjects();
+    std::vector<RimFileSurface*> sourceSurfaceForStatistics = sourceFileSurfaces();
     if ( m_ensembleCurveSet != nullptr )
     {
-        fileSurfaces = filterByEnsembleCurveSet( fileSurfaces );
+        sourceSurfaceForStatistics = filterByEnsembleCurveSet( sourceSurfaceForStatistics );
     }
 
-    m_statisticsSurfaces.deleteAllChildObjects();
-    m_statisticsSurfaces.clear();
-
-    if ( !fileSurfaces.empty() )
+    if ( !sourceSurfaceForStatistics.empty() )
     {
-        cvf::ref<RigSurface> firstSurface = fileSurfaces[0]->surfaceData();
+        cvf::ref<RigSurface> firstSurface = sourceSurfaceForStatistics[0]->surfaceData();
 
-        std::vector<cvf::ref<RigSurface>> surfaces;
-        for ( auto& w : fileSurfaces )
-            surfaces.push_back( RigSurfaceResampler::resampleSurface( firstSurface, w->surfaceData() ) );
+        std::vector<cvf::ref<RigSurface>> sourceSurfaces;
+        for ( auto& w : sourceSurfaceForStatistics )
+            sourceSurfaces.push_back( RigSurfaceResampler::resampleSurface( firstSurface, w->surfaceData() ) );
 
-        m_statisticsSurface = RigSurfaceStatisticsCalculator::computeStatistics( surfaces );
+        m_statisticsSurface = RigSurfaceStatisticsCalculator::computeStatistics( sourceSurfaces );
         if ( !m_statisticsSurface.isNull() )
         {
-            std::vector<RigSurfaceStatisticsCalculator::StatisticsType> statisticsTypes =
-                { RigSurfaceStatisticsCalculator::StatisticsType::MIN,
-                  RigSurfaceStatisticsCalculator::StatisticsType::MAX,
-                  RigSurfaceStatisticsCalculator::StatisticsType::MEAN,
-                  RigSurfaceStatisticsCalculator::StatisticsType::P10,
-                  RigSurfaceStatisticsCalculator::StatisticsType::P50,
-                  RigSurfaceStatisticsCalculator::StatisticsType::P90 };
-            for ( auto s : statisticsTypes )
+            for ( auto statSurface : surfaces() )
             {
-                auto statSurface = new RimEnsembleStatisticsSurface;
-                statSurface->setStatisticsType( s );
-                m_statisticsSurfaces.push_back( statSurface );
                 statSurface->onLoadData();
             }
         }
@@ -254,6 +248,35 @@ void RimEnsembleSurface::connectEnsembleCurveSetFilterSignals()
 void RimEnsembleSurface::onFilterSourceChanged( const caf::SignalEmitter* emitter )
 {
     if ( m_ensembleCurveSet() ) loadDataAndUpdate();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimSurfaceCollection* RimEnsembleSurface::sourceFileSurfaceCollection() const
+
+{
+    auto name = ensembleSourceFileCollectionName();
+
+    return getSubCollection( name );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimEnsembleSurface::ensembleSourceFileCollectionName()
+{
+    auto name = caf::AppEnum<RimSurface::SurfaceType>::uiText( RimSurface::SurfaceType::ENSEMBLE_SOURCE );
+
+    return name;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEnsembleSurface::loadData()
+{
+    loadDataAndUpdate();
 }
 
 //--------------------------------------------------------------------------------------------------

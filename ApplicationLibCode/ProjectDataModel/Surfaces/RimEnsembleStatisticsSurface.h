@@ -42,11 +42,11 @@ public:
 
 protected:
     bool updateSurfaceData() override;
+
+    std::vector<cvf::Vec3d> extractStatisticalDepthForVertices( const RigSurface* surface ) const;
+
     void clearCachedNativeData() override;
 
 private:
-    std::vector<unsigned>   m_tringleIndices;
-    std::vector<cvf::Vec3d> m_vertices;
-
     caf::PdmField<caf::AppEnum<RigSurfaceStatisticsCalculator::StatisticsType>> m_statisticsType;
 };

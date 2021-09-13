@@ -45,7 +45,8 @@ public:
     RimSurface* addSurfacesAtIndex( int index, std::vector<RimSurface*> surfaces );
 
     void                  addSubCollection( RimSurfaceCollection* collection );
-    RimSurfaceCollection* getSubCollection( const QString name );
+    RimSurfaceCollection* getSubCollection( const QString& name ) const;
+    void                  deleteSubCollection( const QString& name );
 
     bool containsFileSurface( QString filename );
     bool containsSurface();
@@ -54,7 +55,7 @@ public:
     void removeSurface( RimSurface* surface );
     void removeMissingFileSurfaces();
 
-    void loadData();
+    virtual void loadData();
 
     void updateViews();
     void updateViews( const std::vector<RimSurface*>& surfsToReload, bool showLegend = true );
@@ -67,7 +68,6 @@ public:
 
     std::vector<RimSurface*>           surfaces() const;
     std::vector<RimSurfaceCollection*> subCollections() const;
-    std::vector<RimEnsembleSurface*>   ensembleSurfaces() const;
 
 protected:
     caf::PdmFieldHandle* userDescriptionField() override;
@@ -78,5 +78,4 @@ private:
     caf::PdmField<QString>                         m_collectionName;
     caf::PdmChildArrayField<RimSurface*>           m_surfaces;
     caf::PdmChildArrayField<RimSurfaceCollection*> m_subCollections;
-    caf::PdmChildArrayField<RimEnsembleSurface*>   m_ensembleSurfaces;
 };

@@ -35,6 +35,16 @@ class RimSurface : public caf::PdmObject
     CAF_PDM_HEADER_INIT;
 
 public:
+    enum class SurfaceType
+    {
+        DEFAULT,
+        ENSEMBLE_SOURCE,
+        ENSEMBLE_STATISTICS,
+        // TODO: Add fault reactivation surfaces
+
+    };
+
+public:
     RimSurface();
     ~RimSurface() override;
 

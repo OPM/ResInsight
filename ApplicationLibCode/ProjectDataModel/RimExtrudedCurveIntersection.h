@@ -30,6 +30,7 @@ class RimSimWellInView;
 class RimSimWellInViewCollection;
 class Rim2dIntersectionView;
 class RimSurface;
+class RimSurfaceCollection;
 
 namespace caf
 {
@@ -130,6 +131,10 @@ private:
     void                        addExtents( std::vector<cvf::Vec3d>& polyLine ) const;
     void                        updateName();
     static double               azimuthInRadians( cvf::Vec3d vec );
+
+    void appendOptionItemsForSources( int                            currentLevel,
+                                      RimSurfaceCollection*          currentCollection,
+                                      QList<caf::PdmOptionItemInfo>& options ) const;
 
 private:
     caf::PdmField<QString> m_name;

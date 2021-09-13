@@ -81,7 +81,7 @@ bool RimEnsembleStatisticsSurface::onLoadData()
 //--------------------------------------------------------------------------------------------------
 RimSurface* RimEnsembleStatisticsSurface::createCopy()
 {
-    RimEnsembleStatisticsSurface* newSurface = dynamic_cast<RimEnsembleStatisticsSurface*>(
+    auto* newSurface = dynamic_cast<RimEnsembleStatisticsSurface*>(
         xmlCapability()->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
 
     if ( !newSurface->onLoadData() )
@@ -96,7 +96,7 @@ RimSurface* RimEnsembleStatisticsSurface::createCopy()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimEnsembleStatisticsSurface ::updateSurfaceData()
+bool RimEnsembleStatisticsSurface::updateSurfaceData()
 {
     RimEnsembleSurface* ensembleSurface;
     firstAncestorOrThisOfType( ensembleSurface );
@@ -107,24 +107,11 @@ bool RimEnsembleStatisticsSurface ::updateSurfaceData()
 
         if ( surface )
         {
-            const std::vector<unsigned int>& indices  = surface->triangleIndices();
-            const std::vector<cvf::Vec3d>&   vertices = surface->vertices();
-
-            const std::vector<float>& meanValues = surface->propertyValues(
-                caf::AppEnum<RigSurfaceStatisticsCalculator::StatisticsType>::text( m_statisticsType.v() ) );
-
-            std::vector<cvf::Vec3d> verts;
-            for ( size_t i = 0; i < vertices.size(); i++ )
-            {
-                verts.push_back( cvf::Vec3d( vertices[i].x(), vertices[i].y(), meanValues[i] ) );
-            }
-
-            m_tringleIndices = indices;
-            m_vertices       = verts;
+            const auto indices = surface->triangleIndices();
+            const auto verts   = extractStatisticalDepthForVertices( surface );
 
             m_surfaceData = new RigSurface;
-
-            m_surfaceData->setTriangleData( m_tringleIndices, m_vertices );
+            m_surfaceData->setTriangleData( indices, verts );
 
             return true;
         }
@@ -136,6 +123,26 @@ bool RimEnsembleStatisticsSurface ::updateSurfaceData()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEnsembleStatisticsSurface ::clearCachedNativeData()
+std::vector<cvf::Vec3d> RimEnsembleStatisticsSurface::extractStatisticalDepthForVertices( const RigSurface* surface ) const
+
+{
+    CVF_ASSERT( surface );
+    std::vector<cvf::Vec3d> verts = surface->vertices();
+
+    const auto& meanValues = surface->propertyValues(
+        caf::AppEnum<RigSurfaceStatisticsCalculator::StatisticsType>::text( m_statisticsType.v() ) );
+
+    for ( size_t i = 0; i < verts.size(); i++ )
+    {
+        verts[i].z() = meanValues[i];
+    }
+
+    return verts;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEnsembleStatisticsSurface::clearCachedNativeData()
 {
 }

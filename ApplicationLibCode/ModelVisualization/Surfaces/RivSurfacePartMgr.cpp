@@ -237,6 +237,8 @@ QString RivSurfacePartMgr::resultInfoText( Rim3dView* view, uint hitPart, cvf::V
     {
         const auto& values =
             m_usedSurfaceData->propertyValues( m_surfaceInView->surfaceResultDefinition()->propertyName() );
+        if ( values.empty() ) return "";
+
         const auto& ind  = m_usedSurfaceData->triangleIndices();
         const auto& vert = m_usedSurfaceData->vertices();
 
@@ -253,9 +255,11 @@ QString RivSurfacePartMgr::resultInfoText( Rim3dView* view, uint hitPart, cvf::V
             double dist2 = vert[vertIndex2].pointDistance( hitPoint );
             double dist3 = vert[vertIndex3].pointDistance( hitPoint );
 
-            double resultValue = values[vertIndex1];
-            if ( dist2 < dist1 ) resultValue = values[vertIndex2];
-            if ( ( dist3 < dist1 ) && ( dist3 < dist2 ) ) resultValue = values[vertIndex3];
+            double resultValue = -1.0;
+            if ( vertIndex1 < values.size() ) resultValue = values[vertIndex1];
+            if ( dist2 < dist1 && vertIndex2 < values.size() ) resultValue = values[vertIndex2];
+            if ( ( dist3 < dist1 ) && ( dist3 < dist2 ) && vertIndex3 < values.size() )
+                resultValue = values[vertIndex3];
 
             retval +=
                 QString( "%1 : %2\n\n" ).arg( m_surfaceInView->surfaceResultDefinition()->propertyName() ).arg( resultValue );
