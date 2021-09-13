@@ -928,6 +928,22 @@ RimEnsembleWellLogStatistics::DepthEqualization RimEnsembleWellLogCurveSet::dept
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimEnsembleWellLogCurveSet::setDepthEqualization( RimEnsembleWellLogStatistics::DepthEqualization depthEqualization )
+{
+    m_depthEqualization = depthEqualization;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEnsembleWellLogCurveSet::setFilterByEnsembleCurveSet( RimEnsembleCurveSet* ensembleCurveSet )
+{
+    m_ensembleCurveSet = ensembleCurveSet;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimEnsembleWellLogCurveSet::updateAllTextInPlot()
 {
     RimWellLogTrack* plotTrack = nullptr;

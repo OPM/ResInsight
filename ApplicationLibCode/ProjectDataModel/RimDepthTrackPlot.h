@@ -21,6 +21,7 @@
 
 #include "RiaDefines.h"
 #include "RimAbstractPlotCollection.h"
+#include "RimEnsembleWellLogStatistics.h"
 #include "RimPlotWindow.h"
 #include "RimWellLogPlotNameConfig.h"
 
@@ -30,6 +31,7 @@
 #include "cafPdmField.h"
 #include "cafPdmFieldHandle.h"
 #include "cafPdmObject.h"
+#include "cafPdmPtrField.h"
 
 #include <QPointer>
 
@@ -38,6 +40,8 @@
 class RimWellLogCurveCommonDataSource;
 class RiuWellLogPlot;
 class RimPlot;
+class RimEnsembleCurveSet;
+
 class QKeyEvent;
 
 //==================================================================================================
@@ -174,6 +178,9 @@ protected:
 
     caf::PdmChildField<RimWellLogPlotNameConfig*> m_nameConfig;
     caf::PdmChildArrayField<RimPlot*>             m_plots;
+
+    caf::PdmField<caf::AppEnum<RimEnsembleWellLogStatistics::DepthEqualization>> m_depthEqualization;
+    caf::PdmPtrField<RimEnsembleCurveSet*>                                       m_ensembleCurveSet;
 
     QPointer<RiuWellLogPlot>            m_viewer;
     std::set<RiaDefines::DepthUnitType> m_availableDepthUnits;
