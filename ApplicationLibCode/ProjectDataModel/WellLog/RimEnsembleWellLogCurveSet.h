@@ -114,11 +114,14 @@ public:
 
     const RimEnsembleWellLogStatistics*             ensembleWellLogStatistics() const;
     RimEnsembleWellLogStatistics::DepthEqualization depthEqualization() const;
+    void setDepthEqualization( RimEnsembleWellLogStatistics::DepthEqualization depthEqualization );
 
     void updateStatistics();
 
     void setEnsembleWellLogs( RimEnsembleWellLogs* ensembleWellLogs );
     void setWellLogChannelName( const QString& wellLogChannelName );
+
+    void setFilterByEnsembleCurveSet( RimEnsembleCurveSet* ensembleCurveSet );
 
 private:
     void updateEnsembleCurves( const std::vector<RimWellLogFile*>& curves );

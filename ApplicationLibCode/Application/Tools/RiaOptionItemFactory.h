@@ -28,4 +28,5 @@ class RiaOptionItemFactory
 {
 public:
     static void appendOptionItemFromViewNameAndCaseName( Rim3dView* view, QList<caf::PdmOptionItemInfo>* optionItems );
+    static void appendOptionItemsForEnsembleCurveSets( QList<caf::PdmOptionItemInfo>* options );
 };
