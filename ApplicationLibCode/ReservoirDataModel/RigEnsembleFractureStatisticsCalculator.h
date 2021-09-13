@@ -53,27 +53,27 @@ public:
         createStatisticsData( const RimEnsembleFractureStatistics* esf, PropertyType propertyType, int numBins );
 
     static RigHistogramData
-        createStatisticsData( const std::vector<cvf::ref<RigStimPlanFractureDefinition>>& fractureDefintions,
+        createStatisticsData( const std::vector<cvf::ref<RigStimPlanFractureDefinition>>& fractureDefinitions,
                               PropertyType                                                propertyType,
                               int                                                         numBins );
 
     static std::vector<cvf::ref<RigStimPlanFractureDefinition>>
-        removeZeroWidthDefinitions( const std::vector<cvf::ref<RigStimPlanFractureDefinition>>& fractureDefintions );
+        removeZeroWidthDefinitions( const std::vector<cvf::ref<RigStimPlanFractureDefinition>>& fractureDefinitions );
 
 private:
     static std::vector<double>
-        calculateGridStatistics( const std::vector<cvf::ref<RigStimPlanFractureDefinition>>& fractureDefintions,
+        calculateGridStatistics( const std::vector<cvf::ref<RigStimPlanFractureDefinition>>& fractureDefinitions,
                                  double( func )( cvf::cref<RigFractureGrid> ) );
 
     static std::vector<double>
-        calculateAreaWeightedStatistics( const std::vector<cvf::ref<RigStimPlanFractureDefinition>>& fractureDefintions,
+        calculateAreaWeightedStatistics( const std::vector<cvf::ref<RigStimPlanFractureDefinition>>& fractureDefinitions,
                                          double( func )( cvf::cref<RigFractureGrid>,
                                                          cvf::cref<RigFractureGrid>,
                                                          RiaDefines::EclipseUnitSystem,
                                                          const QString& ) );
 
     static std::vector<double>
-        calculateFormationDip( const std::vector<cvf::ref<RigStimPlanFractureDefinition>>& fractureDefintions );
+        calculateFormationDip( const std::vector<cvf::ref<RigStimPlanFractureDefinition>>& fractureDefinitions );
 
     static double calculateHeight( cvf::cref<RigFractureGrid> fractureGrid );
     static double calculateArea( cvf::cref<RigFractureGrid> fractureGrid );
