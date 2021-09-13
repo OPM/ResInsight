@@ -40,6 +40,7 @@
 #include <QMenu>
 #include <QPushButton>
 #include <QSettings>
+#include <QSignalBlocker>
 #include <QTextEdit>
 #include <QTime>
 #include <QToolBar>
@@ -69,42 +70,46 @@ RicRecursiveFileSearchDialogResult RicRecursiveFileSearchDialog::runRecursiveSea
                                                                                            const QString& fileNameFilter,
                                                                                            const QStringList& fileExtensions )
 {
-    RicRecursiveFileSearchDialog dialog( parent );
-
-    dialog.setWindowTitle( caption );
-
-    QString pathFilterText = dir;
-    RiaFilePathTools::appendSeparatorIfNo( pathFilterText );
-    pathFilterText += pathFilter;
-    dialog.m_fileFilterField->addItem( fileNameFilter );
-    dialog.m_pathFilterField->addItem( QDir::toNativeSeparators( pathFilterText ) );
-
     const QString filePathRegistryKey = QString( "RicRecursiveFileSearchDialog %1" ).arg( caption ).replace( " ", "_" );
-    populateComboBoxHistoryFromRegistry( dialog.m_pathFilterField, filePathRegistryKey );
-
     const QString fileFilterRegistryKey =
         QString( "RicRecursiveFileSearchDialog file filter %1" ).arg( caption ).replace( " ", "_" );
-    populateComboBoxHistoryFromRegistry( dialog.m_fileFilterField, fileFilterRegistryKey );
-
-    QSettings     settings;
     const QString useRealizationStarRegistryKey = "RecursiveFileSearchDialog_use_realization";
+    QSettings     settings;
 
-    bool isChecked = settings.value( useRealizationStarRegistryKey, true ).toBool();
-    dialog.m_useRealizationStarCheckBox->setChecked( isChecked );
+    RicRecursiveFileSearchDialog dialog( parent );
+    {
+        QSignalBlocker signalBlocker( dialog.m_pathFilterField );
 
-    dialog.m_fileFilterField->setCurrentText( fileNameFilter );
-    dialog.m_fileFilterField->setEditable( true );
+        dialog.setWindowTitle( caption );
 
-    dialog.m_pathFilterField->setCurrentText( QDir::toNativeSeparators( pathFilterText ) );
-    dialog.m_pathFilterField->setEditable( true );
+        QString pathFilterText = dir;
+        RiaFilePathTools::appendSeparatorIfNo( pathFilterText );
+        pathFilterText += pathFilter;
+        dialog.m_fileFilterField->addItem( fileNameFilter );
+        dialog.m_pathFilterField->addItem( QDir::toNativeSeparators( pathFilterText ) );
 
-    dialog.m_fileExtensions = trimLeftStrings( fileExtensions, "." );
+        populateComboBoxHistoryFromRegistry( dialog.m_pathFilterField, filePathRegistryKey );
 
-    dialog.updateEffectiveFilter();
-    dialog.clearFileList();
-    dialog.setOkButtonEnabled( false );
+        populateComboBoxHistoryFromRegistry( dialog.m_fileFilterField, fileFilterRegistryKey );
 
-    dialog.resize( 800, 150 );
+        bool isChecked = settings.value( useRealizationStarRegistryKey, true ).toBool();
+        dialog.m_useRealizationStarCheckBox->setChecked( isChecked );
+
+        dialog.m_fileFilterField->setCurrentText( fileNameFilter );
+        dialog.m_fileFilterField->setEditable( true );
+
+        dialog.m_pathFilterField->setCurrentText( QDir::toNativeSeparators( pathFilterText ) );
+        dialog.m_pathFilterField->setEditable( true );
+
+        dialog.m_fileExtensions = trimLeftStrings( fileExtensions, "." );
+
+        dialog.updateEffectiveFilter();
+        dialog.clearFileList();
+        dialog.setOkButtonEnabled( false );
+
+        dialog.resize( 800, 150 );
+    }
+
     dialog.exec();
 
     if ( dialog.result() == QDialog::Accepted )
