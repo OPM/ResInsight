@@ -108,7 +108,7 @@ TEST( DISABLED_RiuSummaryQuantityNameInfoProvider, PerformanceLookup )
     {
         for ( const auto& s : values )
         {
-            auto category = RiuSummaryQuantityNameInfoProvider::instance()->categoryFromQuantityName( s );
+            RiuSummaryQuantityNameInfoProvider::instance()->categoryFromQuantityName( s );
         }
     }
 
