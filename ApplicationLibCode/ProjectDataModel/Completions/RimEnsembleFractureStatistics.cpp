@@ -33,6 +33,7 @@
 #include "RigStatisticsMath.h"
 #include "RigStimPlanFractureDefinition.h"
 
+#include "RimEnsembleFractureStatisticsPlot.h"
 #include "RimFractureTemplateCollection.h"
 #include "RimHistogramCalculator.h"
 #include "RimProject.h"
@@ -294,6 +295,15 @@ void RimEnsembleFractureStatistics::fieldChangedByUi( const caf::PdmFieldHandle*
     else if ( changedField == &m_excludeZeroWidthFractures )
     {
         loadAndUpdateData();
+
+        // Update referring plots
+        std::vector<caf::PdmObjectHandle*> referringObjects;
+        this->objectsWithReferringPtrFields( referringObjects );
+        for ( caf::PdmObjectHandle* obj : referringObjects )
+        {
+            auto plot = dynamic_cast<RimEnsembleFractureStatisticsPlot*>( obj );
+            if ( plot ) plot->loadDataAndUpdate();
+        }
     }
 }
 
