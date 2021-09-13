@@ -11,7 +11,7 @@ static const QString H5_TEST_DATA_DIRECTORY = QString( "%1/h5-file/" ).arg( TEST
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-TEST( DISABLED_OpmSummaryTests, ReadOpmSummaryDataListContent )
+TEST( OpmSummaryTests, ReadOpmSummaryDataListContent )
 {
     std::vector<std::string> esmryKeywords;
     {
@@ -42,12 +42,4 @@ TEST( DISABLED_OpmSummaryTests, ReadOpmSummaryDataListContent )
         RifEclipseSummaryAddress eclAdr = RifEclipseSummaryAddress::fromEclipseTextAddress( s1 );
         EXPECT_TRUE( eclAdr.isValid() );
     }
-
-    /*
-        auto keywords = eSmry.keywordList();
-        for ( auto k : keywords )
-        {
-            std::cout << k << "\n";
-        }
-    */
 }

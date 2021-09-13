@@ -111,8 +111,8 @@ RiaPreferencesSummary::RiaPreferencesSummary()
                        "" );
 
     CAF_PDM_InitField( &m_createEnhancedSummaryDataFile,
-                       "createOptimizedSummaryDataFile",
-                       false,
+                       "createEnhancedSummaryDataFile",
+                       true,
                        "Create ESMRY Summary Files",
                        "",
                        "If not present, create summary file with extension '*.ESMRY'",
@@ -120,7 +120,7 @@ RiaPreferencesSummary::RiaPreferencesSummary()
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_createEnhancedSummaryDataFile );
 
     CAF_PDM_InitField( &m_useEnhancedSummaryDataFile,
-                       "useOptimizedSummaryDataFile",
+                       "useEnhancedSummaryDataFile",
                        true,
                        "Use ESMRY Files",
                        "",
