@@ -33,6 +33,7 @@
 #include "RigStatisticsMath.h"
 #include "RigStimPlanFractureDefinition.h"
 
+#include "RimEnsembleFractureStatisticsPlot.h"
 #include "RimFractureTemplateCollection.h"
 #include "RimHistogramCalculator.h"
 #include "RimProject.h"
@@ -126,6 +127,14 @@ RimEnsembleFractureStatistics::RimEnsembleFractureStatistics()
     m_filePathsTable.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
     m_filePathsTable.uiCapability()->setUiReadOnly( true );
     m_filePathsTable.xmlCapability()->disableIO();
+
+    CAF_PDM_InitField( &m_excludeZeroWidthFractures,
+                       "ExcludeZeroWidthFractures",
+                       true,
+                       "Exclude Zero Width Fractures",
+                       "",
+                       "",
+                       "" );
 
     CAF_PDM_InitFieldNoDefault( &m_statisticsTable, "StatisticsTable", "Statistics Table", "", "", "" );
     m_statisticsTable.uiCapability()->setUiEditorTypeName( caf::PdmUiTextEditor::uiEditorTypeName() );
@@ -283,6 +292,19 @@ void RimEnsembleFractureStatistics::fieldChangedByUi( const caf::PdmFieldHandle*
             RimProject::current()->scheduleCreateDisplayModelAndRedrawAllViews();
         }
     }
+    else if ( changedField == &m_excludeZeroWidthFractures )
+    {
+        loadAndUpdateData();
+
+        // Update referring plots
+        std::vector<caf::PdmObjectHandle*> referringObjects;
+        this->objectsWithReferringPtrFields( referringObjects );
+        for ( caf::PdmObjectHandle* obj : referringObjects )
+        {
+            auto plot = dynamic_cast<RimEnsembleFractureStatisticsPlot*>( obj );
+            if ( plot ) plot->loadDataAndUpdate();
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -292,6 +314,7 @@ void RimEnsembleFractureStatistics::defineUiOrdering( QString uiConfigName, caf:
 {
     caf::PdmUiOrdering* settingsGroup = uiOrdering.addNewGroup( "Settings" );
     settingsGroup->add( nameField() );
+    settingsGroup->add( &m_excludeZeroWidthFractures );
     settingsGroup->add( &m_meshAlignmentType );
     settingsGroup->add( &m_meshType );
     settingsGroup->add( &m_numSamplesX );
@@ -332,6 +355,15 @@ void RimEnsembleFractureStatistics::loadAndUpdateData()
     std::vector<cvf::ref<RigStimPlanFractureDefinition>> stimPlanFractureDefinitions =
         readFractureDefinitions( m_filePaths.v(), unitSystem );
 
+    if ( m_excludeZeroWidthFractures() )
+    {
+        size_t numBeforeFiltering = stimPlanFractureDefinitions.size();
+        stimPlanFractureDefinitions =
+            RigEnsembleFractureStatisticsCalculator::removeZeroWidthDefinitions( stimPlanFractureDefinitions );
+        size_t numRemoved = numBeforeFiltering - stimPlanFractureDefinitions.size();
+        RiaLogging::info( QString( "Excluded %1 zero width fractures." ).arg( numRemoved ) );
+    }
+
     m_statisticsTable = generateStatisticsTable( stimPlanFractureDefinitions );
 }
 
@@ -344,6 +376,12 @@ std::vector<QString> RimEnsembleFractureStatistics::computeStatistics()
 
     std::vector<cvf::ref<RigStimPlanFractureDefinition>> stimPlanFractureDefinitions =
         readFractureDefinitions( m_filePaths.v(), unitSystem );
+
+    if ( m_excludeZeroWidthFractures() )
+    {
+        stimPlanFractureDefinitions =
+            RigEnsembleFractureStatisticsCalculator::removeZeroWidthDefinitions( stimPlanFractureDefinitions );
+    }
 
     std::set<std::pair<QString, QString>> availableResults = findAllResultNames( stimPlanFractureDefinitions );
 
@@ -487,6 +525,14 @@ std::vector<cvf::ref<RigStimPlanFractureDefinition>>
     }
 
     return results;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimEnsembleFractureStatistics::excludeZeroWidthFractures() const
+{
+    return m_excludeZeroWidthFractures;
 }
 
 //--------------------------------------------------------------------------------------------------
