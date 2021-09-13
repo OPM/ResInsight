@@ -61,55 +61,55 @@ RigHistogramData RigEnsembleFractureStatisticsCalculator::createStatisticsData( 
                                                                                 PropertyType propertyType,
                                                                                 int          numBins )
 {
-    std::vector<cvf::ref<RigStimPlanFractureDefinition>> defs = esf->readFractureDefinitions();
+    std::vector<cvf::ref<RigStimPlanFractureDefinition>> fractureDefintions = esf->readFractureDefinitions();
 
     if ( esf->excludeZeroWidthFractures() )
     {
-        defs = RigEnsembleFractureStatisticsCalculator::removeZeroWidthDefinitions( defs );
+        fractureDefintions = RigEnsembleFractureStatisticsCalculator::removeZeroWidthDefinitions( fractureDefintions );
     }
 
-    return createStatisticsData( defs, propertyType, numBins );
+    return createStatisticsData( fractureDefintions, propertyType, numBins );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RigHistogramData RigEnsembleFractureStatisticsCalculator::createStatisticsData(
-    const std::vector<cvf::ref<RigStimPlanFractureDefinition>>& defs,
+    const std::vector<cvf::ref<RigStimPlanFractureDefinition>>& fractureDefintions,
     PropertyType                                                propertyType,
     int                                                         numBins )
 {
     std::vector<double> samples;
     if ( propertyType == PropertyType::HEIGHT )
     {
-        samples = calculateGridStatistics( defs, &RigEnsembleFractureStatisticsCalculator::calculateHeight );
+        samples = calculateGridStatistics( fractureDefintions, &RigEnsembleFractureStatisticsCalculator::calculateHeight );
     }
     else if ( propertyType == PropertyType::AREA )
     {
-        samples = calculateGridStatistics( defs, &RigEnsembleFractureStatisticsCalculator::calculateArea );
+        samples = calculateGridStatistics( fractureDefintions, &RigEnsembleFractureStatisticsCalculator::calculateArea );
     }
     else if ( propertyType == PropertyType::WIDTH )
     {
-        samples =
-            calculateAreaWeightedStatistics( defs, &RigEnsembleFractureStatisticsCalculator::calculateAreaWeightedWidth );
+        samples = calculateAreaWeightedStatistics( fractureDefintions,
+                                                   &RigEnsembleFractureStatisticsCalculator::calculateAreaWeightedWidth );
     }
     else if ( propertyType == PropertyType::PERMEABILITY )
     {
         samples =
-            calculateAreaWeightedStatistics( defs,
+            calculateAreaWeightedStatistics( fractureDefintions,
                                              &RigEnsembleFractureStatisticsCalculator::calculateAreaWeightedPermeability );
     }
     else if ( propertyType == PropertyType::XF )
     {
-        samples = calculateGridStatistics( defs, &RigEnsembleFractureStatisticsCalculator::calculateXf );
+        samples = calculateGridStatistics( fractureDefintions, &RigEnsembleFractureStatisticsCalculator::calculateXf );
     }
     else if ( propertyType == PropertyType::KFWF )
     {
-        samples = calculateGridStatistics( defs, &RigEnsembleFractureStatisticsCalculator::calculateKfWf );
+        samples = calculateGridStatistics( fractureDefintions, &RigEnsembleFractureStatisticsCalculator::calculateKfWf );
     }
     else if ( propertyType == PropertyType::FORMATION_DIP )
     {
-        samples = calculateFormationDip( defs );
+        samples = calculateFormationDip( fractureDefintions );
     }
 
     RigHistogramData histogramData;
@@ -143,17 +143,17 @@ RigHistogramData RigEnsembleFractureStatisticsCalculator::createStatisticsData(
 ///
 //--------------------------------------------------------------------------------------------------
 std::vector<double> RigEnsembleFractureStatisticsCalculator::calculateGridStatistics(
-    const std::vector<cvf::ref<RigStimPlanFractureDefinition>>& defs,
+    const std::vector<cvf::ref<RigStimPlanFractureDefinition>>& fractureDefintions,
     double( func )( cvf::cref<RigFractureGrid> ) )
 {
     std::vector<double> samples;
-    if ( defs.empty() ) return samples;
+    if ( fractureDefintions.empty() ) return samples;
 
     // TODO: heuristic to find conductivity name?
-    QString conductivityResultName = defs[0]->conductivityResultNames()[0];
+    QString conductivityResultName = fractureDefintions[0]->conductivityResultNames()[0];
 
     std::vector<cvf::cref<RigFractureGrid>> grids =
-        RimEnsembleFractureStatistics::createFractureGrids( defs,
+        RimEnsembleFractureStatistics::createFractureGrids( fractureDefintions,
                                                             RiaDefines::EclipseUnitSystem::UNITS_METRIC,
                                                             conductivityResultName,
                                                             RimEnsembleFractureStatistics::MeshAlignmentType::PERFORATION_DEPTH );
@@ -241,24 +241,25 @@ double RigEnsembleFractureStatisticsCalculator::calculateKfWf( cvf::cref<RigFrac
 ///
 //--------------------------------------------------------------------------------------------------
 std::vector<double> RigEnsembleFractureStatisticsCalculator::calculateAreaWeightedStatistics(
-    const std::vector<cvf::ref<RigStimPlanFractureDefinition>>& defs,
+    const std::vector<cvf::ref<RigStimPlanFractureDefinition>>& fractureDefintions,
     double( func )( cvf::cref<RigFractureGrid>, cvf::cref<RigFractureGrid>, RiaDefines::EclipseUnitSystem, const QString& ) )
 {
     std::vector<double> samples;
-    if ( defs.empty() ) return samples;
+    if ( fractureDefintions.empty() ) return samples;
 
     // TODO: heuristic to find conductivity name?
-    QString conductivityResultName = defs[0]->conductivityResultNames()[0];
+    QString conductivityResultName = fractureDefintions[0]->conductivityResultNames()[0];
 
     std::vector<cvf::cref<RigFractureGrid>> grids =
-        RimEnsembleFractureStatistics::createFractureGrids( defs,
+        RimEnsembleFractureStatistics::createFractureGrids( fractureDefintions,
                                                             RiaDefines::EclipseUnitSystem::UNITS_METRIC,
                                                             conductivityResultName,
                                                             RimEnsembleFractureStatistics::MeshAlignmentType::PERFORATION_DEPTH );
 
-    auto [widthResultName, widthResultUnit] = RimStimPlanFractureTemplate::widthParameterNameAndUnit( defs[0] );
+    auto [widthResultName, widthResultUnit] =
+        RimStimPlanFractureTemplate::widthParameterNameAndUnit( fractureDefintions[0] );
     std::vector<cvf::cref<RigFractureGrid>> widthGrids =
-        RimEnsembleFractureStatistics::createFractureGrids( defs,
+        RimEnsembleFractureStatistics::createFractureGrids( fractureDefintions,
                                                             RiaDefines::EclipseUnitSystem::UNITS_METRIC,
                                                             widthResultName,
                                                             RimEnsembleFractureStatistics::MeshAlignmentType::PERFORATION_DEPTH );
@@ -353,12 +354,12 @@ double RigEnsembleFractureStatisticsCalculator::calculateXf( cvf::cref<RigFractu
 ///
 //--------------------------------------------------------------------------------------------------
 std::vector<double> RigEnsembleFractureStatisticsCalculator::calculateFormationDip(
-    const std::vector<cvf::ref<RigStimPlanFractureDefinition>>& defs )
+    const std::vector<cvf::ref<RigStimPlanFractureDefinition>>& fractureDefintions )
 {
     std::vector<double> formationDips;
-    for ( auto def : defs )
+    for ( auto fractureDefinition : fractureDefintions )
     {
-        formationDips.push_back( def->formationDip() );
+        formationDips.push_back( fractureDefinition->formationDip() );
     }
 
     return formationDips;
@@ -386,22 +387,23 @@ double RigEnsembleFractureStatisticsCalculator::convertUnit( double             
 ///
 //--------------------------------------------------------------------------------------------------
 std::vector<cvf::ref<RigStimPlanFractureDefinition>> RigEnsembleFractureStatisticsCalculator::removeZeroWidthDefinitions(
-    const std::vector<cvf::ref<RigStimPlanFractureDefinition>>& defs )
+    const std::vector<cvf::ref<RigStimPlanFractureDefinition>>& fractureDefintions )
 {
     std::vector<double> samples =
-        calculateAreaWeightedStatistics( defs, &RigEnsembleFractureStatisticsCalculator::calculateAreaWeightedWidth );
+        calculateAreaWeightedStatistics( fractureDefintions,
+                                         &RigEnsembleFractureStatisticsCalculator::calculateAreaWeightedWidth );
 
-    std::vector<cvf::ref<RigStimPlanFractureDefinition>> filteredDefs;
+    std::vector<cvf::ref<RigStimPlanFractureDefinition>> filteredFractureDefintions;
 
     int index = 0;
     for ( double sample : samples )
     {
         if ( sample > 0.0 )
         {
-            filteredDefs.push_back( defs[index] );
+            filteredFractureDefintions.push_back( fractureDefintions[index] );
         }
         index++;
     }
 
-    return filteredDefs;
+    return filteredFractureDefintions;
 }
