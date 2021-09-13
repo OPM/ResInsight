@@ -42,6 +42,9 @@ public:
 
 protected:
     bool updateSurfaceData() override;
+
+    std::vector<cvf::Vec3d> extractStatisticalDepthForVertices( const RigSurface* surface ) const;
+
     void clearCachedNativeData() override;
 
 private:
