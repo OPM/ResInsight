@@ -140,8 +140,7 @@ bool RifOpmCommonEclipseSummary::values( const RifEclipseSummaryAddress& resultA
             auto fileValues = m_enhancedReader->get( keyword );
             values->insert( values->begin(), fileValues.begin(), fileValues.end() );
         }
-
-        if ( m_standardReader )
+        else if ( m_standardReader )
         {
             auto fileValues = m_standardReader->get( keyword );
             values->insert( values->begin(), fileValues.begin(), fileValues.end() );
@@ -165,6 +164,7 @@ std::string RifOpmCommonEclipseSummary::unitName( const RifEclipseSummaryAddress
         {
             return m_enhancedReader->get_unit( keyword );
         }
+
         if ( m_standardReader )
         {
             return m_standardReader->get_unit( keyword );
@@ -196,8 +196,7 @@ void RifOpmCommonEclipseSummary::buildMetaData()
         dates    = m_enhancedReader->dates();
         keywords = m_enhancedReader->keywordList();
     }
-
-    if ( m_standardReader )
+    else if ( m_standardReader )
     {
         dates    = m_standardReader->dates();
         keywords = m_standardReader->keywordList();
