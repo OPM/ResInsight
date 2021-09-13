@@ -319,8 +319,9 @@ bool RifCsvUserDataParser::parseColumnInfo( QTextStream*                 dataStr
         for ( int iCol = 0; iCol < colCount; iCol++ )
         {
             QString                  colName = RiaTextStringTools::trimAndRemoveDoubleSpaces( lineColumns[iCol] );
-            RifEclipseSummaryAddress addr = RifEclipseSummaryAddress::fromEclipseTextAddressParseErrorTokens( colName.toStdString() );
-            Column                   col  = Column::createColumnInfoFromCsvData( addr, "" );
+            RifEclipseSummaryAddress addr =
+                RifEclipseSummaryAddress::fromEclipseTextAddressParseErrorTokens( colName.toStdString() );
+            Column col = Column::createColumnInfoFromCsvData( addr, "" );
 
             columnInfoList->push_back( col );
         }
