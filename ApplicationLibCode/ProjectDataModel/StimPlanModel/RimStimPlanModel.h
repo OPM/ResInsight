@@ -153,6 +153,7 @@ public:
     RimWellPath* wellPath() const;
 
     void loadDataAndUpdate();
+    void resetAnchorPositionAndThicknessDirection();
 
     RimModeledWellPath* thicknessDirectionWellPath() const;
     void                setThicknessDirectionWellPath( RimModeledWellPath* thicknessDirectionWellPath );

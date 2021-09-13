@@ -173,9 +173,11 @@ RimStimPlanModel::RimStimPlanModel()
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_anchorPosition, "AnchorPosition", "Anchor Position", "", "", "" );
     m_anchorPosition.uiCapability()->setUiReadOnly( true );
+    m_anchorPosition.xmlCapability()->disableIO();
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_thicknessDirection, "ThicknessDirection", "Thickness Direction", "", "", "" );
     m_thicknessDirection.uiCapability()->setUiReadOnly( true );
+    m_thicknessDirection.xmlCapability()->disableIO();
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_thicknessDirectionWellPath,
                                           "ThicknessDirectionWellPath",
@@ -920,6 +922,17 @@ void RimStimPlanModel::updateThicknessDirectionWellPathName()
 //--------------------------------------------------------------------------------------------------
 void RimStimPlanModel::loadDataAndUpdate()
 {
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimStimPlanModel::resetAnchorPositionAndThicknessDirection()
+{
+    // Always recompute thickness direction as MD in project file might have been changed
+    updatePositionFromMeasuredDepth();
+    updateThicknessDirection();
+    updateBarrierProperties();
 }
 
 //--------------------------------------------------------------------------------------------------
