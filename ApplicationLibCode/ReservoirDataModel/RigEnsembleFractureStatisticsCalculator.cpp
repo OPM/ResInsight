@@ -63,6 +63,11 @@ RigHistogramData RigEnsembleFractureStatisticsCalculator::createStatisticsData( 
 {
     std::vector<cvf::ref<RigStimPlanFractureDefinition>> defs = esf->readFractureDefinitions();
 
+    if ( esf->excludeZeroWidthFractures() )
+    {
+        defs = RigEnsembleFractureStatisticsCalculator::removeZeroWidthDefinitions( defs );
+    }
+
     return createStatisticsData( defs, propertyType, numBins );
 }
 

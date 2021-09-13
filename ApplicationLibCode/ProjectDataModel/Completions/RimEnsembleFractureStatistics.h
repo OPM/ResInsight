@@ -104,6 +104,8 @@ public:
                              const QString&                                              resultName,
                              MeshAlignmentType                                           meshAlignmentType );
 
+    bool excludeZeroWidthFractures() const;
+
 protected:
     void defineEditorAttribute( const caf::PdmFieldHandle* field,
                                 QString                    uiConfigName,

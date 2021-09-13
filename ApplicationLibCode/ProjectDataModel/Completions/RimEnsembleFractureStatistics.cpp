@@ -520,6 +520,14 @@ std::vector<cvf::ref<RigStimPlanFractureDefinition>>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RimEnsembleFractureStatistics::excludeZeroWidthFractures() const
+{
+    return m_excludeZeroWidthFractures;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::set<std::pair<QString, QString>> RimEnsembleFractureStatistics::findAllResultNames(
     const std::vector<cvf::ref<RigStimPlanFractureDefinition>>& stimPlanFractureDefinitions )
 {
