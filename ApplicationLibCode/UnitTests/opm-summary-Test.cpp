@@ -39,7 +39,7 @@ TEST( OpmSummaryTests, ReadOpmSummaryDataListContent )
         auto s2 = extEsmryKeywords[i];
         EXPECT_STREQ( s1.c_str(), s2.c_str() );
 
-        RifEclipseSummaryAddress eclAdr = RifEclipseSummaryAddress::fromEclipseTextAddress( s1 );
+        RifEclipseSummaryAddress eclAdr = RifEclipseSummaryAddress::fromEclipseTextAddressParseErrorTokens( s1 );
         EXPECT_TRUE( eclAdr.isValid() );
     }
 }

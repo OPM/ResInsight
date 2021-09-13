@@ -319,8 +319,9 @@ bool RifCsvUserDataParser::parseColumnInfo( QTextStream*                 dataStr
         for ( int iCol = 0; iCol < colCount; iCol++ )
         {
             QString                  colName = RiaTextStringTools::trimAndRemoveDoubleSpaces( lineColumns[iCol] );
-            RifEclipseSummaryAddress addr = RifEclipseSummaryAddress::fromEclipseTextAddress( colName.toStdString() );
-            Column                   col  = Column::createColumnInfoFromCsvData( addr, "" );
+            RifEclipseSummaryAddress addr =
+                RifEclipseSummaryAddress::fromEclipseTextAddressParseErrorTokens( colName.toStdString() );
+            Column col = Column::createColumnInfoFromCsvData( addr, "" );
 
             columnInfoList->push_back( col );
         }
@@ -520,7 +521,7 @@ bool RifCsvUserDataParser::parseLineBasedData()
 
         {
             auto textAddr = dataItems[colIndexes[(size_t)CsvLineBasedColumnType::VECTOR]];
-            auto addr     = RifEclipseSummaryAddress::fromEclipseTextAddress( textAddr.toStdString() );
+            auto addr     = RifEclipseSummaryAddress::fromEclipseTextAddressParseErrorTokens( textAddr.toStdString() );
             auto errAddr  = addr;
             errAddr.setAsErrorResult();
 

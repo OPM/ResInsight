@@ -108,6 +108,17 @@ bool RiaStdStringTools::startsWithAlphabetic( const std::string& s )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::string RiaStdStringTools::toUpper( const std::string& s )
+{
+    auto strCopy( s );
+    std::transform( strCopy.begin(), strCopy.end(), strCopy.begin(), []( unsigned char c ) { return std::toupper( c ); } );
+
+    return strCopy;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RiaStdStringTools::endsWith( const std::string& mainStr, const std::string& toMatch )
 {
     if ( mainStr.size() >= toMatch.size() &&
@@ -120,13 +131,23 @@ bool RiaStdStringTools::endsWith( const std::string& mainStr, const std::string&
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<std::string> RiaStdStringTools::splitStringBySpace( const std::string& s )
+std::vector<std::string> RiaStdStringTools::splitString( const std::string& s, char delimiter )
 {
     std::vector<std::string> words;
 
-    splitByDelimiter( s, words );
+    splitByDelimiter( s, words, delimiter );
 
     return words;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::string RiaStdStringTools::joinStrings( const std::vector<std::string>& s, char delimiter )
+{
+    std::string delimiterString( 1, delimiter );
+
+    return join( s.begin(), s.end(), delimiterString );
 }
 
 //--------------------------------------------------------------------------------------------------

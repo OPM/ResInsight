@@ -392,7 +392,7 @@ std::pair<std::set<RifEclipseSummaryAddress>, std::map<RifEclipseSummaryAddress,
     std::set<RifEclipseSummaryAddress>              addresses;
     std::map<RifEclipseSummaryAddress, std::string> addressToNodeIndexMap;
 
-    for ( auto keyword : keywords )
+    for ( const auto& keyword : keywords )
     {
         auto eclAdr = RifEclipseSummaryAddress::fromEclipseTextAddress( keyword );
 

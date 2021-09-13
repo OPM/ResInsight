@@ -20,7 +20,7 @@
 
 #include <algorithm>
 #include <iterator>
-#include <sstream>
+#include <numeric>
 #include <string>
 #include <vector>
 
@@ -39,9 +39,12 @@ public:
     static bool    containsAlphabetic( const std::string& s );
     static bool    startsWithAlphabetic( const std::string& s );
 
+    static std::string toUpper( const std::string& s );
+
     static bool endsWith( const std::string& mainStr, const std::string& toMatch );
 
-    static std::vector<std::string> splitStringBySpace( const std::string& s );
+    static std::vector<std::string> splitString( const std::string& s, char delimiter );
+    static std::string              joinStrings( const std::vector<std::string>& s, char delimiter );
 
     static int computeEditDistance( const std::string& x, const std::string& y );
 
@@ -57,13 +60,22 @@ private:
 template <class Container>
 void RiaStdStringTools::splitByDelimiter( const std::string& str, Container& cont, char delimiter )
 {
-    std::stringstream ss( str );
-    std::string       token;
-    while ( std::getline( ss, token, delimiter ) )
+    size_t start;
+    size_t end = 0;
+
+    while ( ( start = str.find_first_not_of( delimiter, end ) ) != std::string::npos )
     {
-        if ( token.find_first_not_of( delimiter ) != std::string::npos )
-        {
-            cont.push_back( token );
-        }
+        end = str.find( delimiter, start );
+        cont.push_back( str.substr( start, end - start ) );
     }
+}
+
+template <typename InputIt>
+std::string join( InputIt begin, InputIt end, const std::string& separator = ", " )
+{
+    auto compose_key = [&separator]( std::string& key, const std::string& key_part ) -> std::string {
+        return key.empty() ? key_part : key + separator + key_part;
+    };
+
+    return std::accumulate( begin, end, std::string(), compose_key );
 }
