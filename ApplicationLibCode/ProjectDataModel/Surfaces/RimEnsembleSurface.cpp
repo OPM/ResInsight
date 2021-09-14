@@ -102,12 +102,13 @@ std::vector<RimFileSurface*> RimEnsembleSurface::sourceFileSurfaces() const
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleSurface::loadDataAndUpdate()
 {
-    for ( auto& w : sourceFileSurfaces() )
+    auto fileSurfaces = sourceFileSurfaces();
+    int  surfaceCount = static_cast<int>( fileSurfaces.size() );
+#pragma omp parallel for
+    for ( int i = 0; i < surfaceCount; i++ )
     {
-        if ( !w->onLoadData() )
-        {
-            RiaLogging::warning( QString( "Failed to load surface: %1" ).arg( w->surfaceFilePath() ) );
-        }
+        auto surf = fileSurfaces[i];
+        surf->onLoadData();
     }
 
     std::vector<RimFileSurface*> sourceSurfaceForStatistics = sourceFileSurfaces();
