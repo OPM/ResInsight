@@ -37,6 +37,6 @@ public:
 private:
     static bool findClosestPointXY( const cvf::Vec3d&              targetPoint,
                                     const std::vector<cvf::Vec3d>& vertices,
-                                    double                         maxDistance,
+                                    double                         maxDistanceSquared,
                                     cvf::Vec3d&                    intersectionPoint );
 };

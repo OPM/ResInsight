@@ -104,7 +104,7 @@ bool RigSurfaceResampler::resamplePoint( RigSurface*       surface,
         maxDistance = std::max( maxDistance, candidate );
     }
 
-    return findClosestPointXY( pointAbove, vertices, maxDistance, intersectionPoint );
+    return findClosestPointXY( pointAbove, vertices, maxDistance * maxDistance, intersectionPoint );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -113,27 +113,27 @@ bool RigSurfaceResampler::resamplePoint( RigSurface*       surface,
 //--------------------------------------------------------------------------------------------------
 bool RigSurfaceResampler::findClosestPointXY( const cvf::Vec3d&              targetPoint,
                                               const std::vector<cvf::Vec3d>& vertices,
-                                              double                         maxDistance,
+                                              double                         maxDistanceSquared,
                                               cvf::Vec3d&                    intersectionPoint )
 {
     // Find closest vertices
-    double shortestDistance = std::numeric_limits<double>::max();
-    double closestZ         = std::numeric_limits<double>::infinity();
+    double shortestDistanceSquared = std::numeric_limits<double>::max();
+    double closestZ                = std::numeric_limits<double>::infinity();
     for ( auto v : vertices )
     {
         // Ignore height (z) component when finding closest by
         // moving point to same height as target point above
         cvf::Vec3d p( v.x(), v.y(), targetPoint.z() );
-        double     distance = p.pointDistance( targetPoint );
-        if ( distance < shortestDistance )
+        double     distanceSquared = p.pointDistanceSquared( targetPoint );
+        if ( distanceSquared < shortestDistanceSquared )
         {
-            shortestDistance = distance;
-            closestZ         = v.z();
+            shortestDistanceSquared = distanceSquared;
+            closestZ                = v.z();
         }
     }
 
     // Check if the closest point is not to far away to be valid
-    if ( shortestDistance < maxDistance )
+    if ( shortestDistanceSquared < maxDistanceSquared )
     {
         intersectionPoint = cvf::Vec3d( targetPoint.x(), targetPoint.y(), closestZ );
         return true;
