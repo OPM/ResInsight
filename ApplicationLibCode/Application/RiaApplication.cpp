@@ -665,6 +665,12 @@ bool RiaApplication::loadProject( const QString&      projectFileName,
         }
 
         oilField->annotationCollection()->loadDataAndUpdate();
+
+        for ( auto well : oilField->wellPathCollection()->allWellPaths() )
+        {
+            for ( auto stimPlan : well->stimPlanModelCollection()->allStimPlanModels() )
+                stimPlan->resetAnchorPositionAndThicknessDirection();
+        }
     }
 
     // Some procedures in onProjectOpened() may rely on the display model having been created
