@@ -107,6 +107,22 @@ void RigSurface::findIntersectingTriangles( const cvf::BoundingBox& inputBB, std
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+double RigSurface::maxExtentTriangleInXDirection() const
+{
+    return m_maxExtentTriangleInXDirection;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RigSurface::maxExtentTriangleInYDirection() const
+{
+    return m_maxExtentTriangleInYDirection;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RigSurface::ensureIntersectionSearchTreeIsBuilt()
 {
     if ( m_surfaceBoundingBoxTree.isNull() )
@@ -118,6 +134,9 @@ void RigSurface::ensureIntersectionSearchTreeIsBuilt()
         cellBoundingBoxes.resize( itemCount );
         boundingBoxIds.resize( itemCount );
 
+        double maxX = -1.0;
+        double maxY = -1.0;
+
         for ( size_t triangleIdx = 0; triangleIdx < itemCount; ++triangleIdx )
         {
             cvf::BoundingBox& cellBB = cellBoundingBoxes[triangleIdx];
@@ -126,7 +145,13 @@ void RigSurface::ensureIntersectionSearchTreeIsBuilt()
             cellBB.add( m_vertices[m_triangleIndices[triangleIdx * 3 + 2]] );
 
             boundingBoxIds[triangleIdx] = triangleIdx * 3;
+
+            if ( cellBB.extent().x() > maxX ) maxX = cellBB.extent().x();
+            if ( cellBB.extent().y() > maxY ) maxY = cellBB.extent().y();
         }
+
+        m_maxExtentTriangleInXDirection = maxX;
+        m_maxExtentTriangleInYDirection = maxY;
 
         m_surfaceBoundingBoxTree = new cvf::BoundingBoxTree;
         m_surfaceBoundingBoxTree->buildTreeFromBoundingBoxes( cellBoundingBoxes, &boundingBoxIds );
