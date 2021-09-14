@@ -17,6 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RifSurfaceImporter.h"
+#include "RiaStdStringTools.h"
 #include "RigGocadData.h"
 
 #include "cafProgressInfo.h"
@@ -61,7 +62,11 @@ void RifSurfaceImporter::readGocadFile( const QString& filename, RigGocadData* g
     std::vector<std::vector<float>> propertyValues;
 
     {
-        std::ifstream stream( filename.toLatin1().data() );
+        std::stringstream stream;
+        {
+            std::ifstream t( filename.toLatin1().data() );
+            stream << t.rdbuf();
+        }
 
         bool           isInTfaceSection = false;
         GocadZPositive zDir             = GocadZPositive::Unknown;
@@ -71,12 +76,10 @@ void RifSurfaceImporter::readGocadFile( const QString& filename, RigGocadData* g
             std::string line;
             std::getline( stream, line );
 
-            std::transform( line.begin(), line.end(), line.begin(), ::toupper );
-
-            std::istringstream lineStream( line );
+            auto tokens = RiaStdStringTools::splitString( line, ' ' );
 
             std::string firstToken;
-            lineStream >> firstToken;
+            if ( !tokens.empty() ) firstToken = tokens.front();
 
             if ( isInTfaceSection )
             {
@@ -88,7 +91,13 @@ void RifSurfaceImporter::readGocadFile( const QString& filename, RigGocadData* g
                     double      z{ std::numeric_limits<double>::infinity() };
                     std::string endVertex;
 
-                    lineStream >> vertexId >> x >> y >> z >> endVertex;
+                    if ( tokens.size() > 4 )
+                    {
+                        vertexId = RiaStdStringTools::toInt( tokens[1] );
+                        x        = RiaStdStringTools::toDouble( tokens[2] );
+                        y        = RiaStdStringTools::toDouble( tokens[3] );
+                        z        = RiaStdStringTools::toDouble( tokens[4] );
+                    }
 
                     if ( vertexId > -1 )
                     {
@@ -103,28 +112,34 @@ void RifSurfaceImporter::readGocadFile( const QString& filename, RigGocadData* g
                 }
                 else if ( firstToken.compare( "PVRTX" ) == 0 )
                 {
-                    int    vertexId = -1;
-                    double x{ std::numeric_limits<double>::infinity() };
-                    double y{ std::numeric_limits<double>::infinity() };
-                    double z{ std::numeric_limits<double>::infinity() };
-
-                    lineStream >> vertexId >> x >> y >> z;
-
-                    if ( vertexId > -1 )
+                    if ( tokens.size() > 4 )
                     {
-                        if ( zDir == GocadZPositive::Depth ) z = -z;
+                        int    vertexId = -1;
+                        double x{ std::numeric_limits<double>::infinity() };
+                        double y{ std::numeric_limits<double>::infinity() };
+                        double z{ std::numeric_limits<double>::infinity() };
+                        vertexId = RiaStdStringTools::toInt( tokens[1] );
+                        x        = RiaStdStringTools::toDouble( tokens[2] );
+                        y        = RiaStdStringTools::toDouble( tokens[3] );
+                        z        = RiaStdStringTools::toDouble( tokens[4] );
 
-                        vertices.emplace_back( cvf::Vec3d( x, y, z ) );
-                        vertexIdToIndex[vertexId] = static_cast<unsigned>( vertices.size() - 1 );
-                    }
+                        if ( vertexId > -1 )
+                        {
+                            if ( zDir == GocadZPositive::Depth ) z = -z;
 
-                    for ( size_t i = 0; i < propertyNames.size(); i++ )
-                    {
-                        float value = std::numeric_limits<double>::infinity();
+                            vertices.emplace_back( cvf::Vec3d( x, y, z ) );
+                            vertexIdToIndex[vertexId] = static_cast<unsigned>( vertices.size() - 1 );
+                        }
 
-                        lineStream >> value;
+                        for ( size_t i = 0; i < propertyNames.size(); i++ )
+                        {
+                            float value = std::numeric_limits<double>::infinity();
 
-                        propertyValues[i].push_back( value );
+                            auto tokenIndex = 5 + i;
+                            if ( tokenIndex < tokens.size() ) value = RiaStdStringTools::toDouble( tokens[tokenIndex] );
+
+                            propertyValues[i].push_back( value );
+                        }
                     }
                 }
                 else if ( firstToken.compare( "TRGL" ) == 0 )
@@ -133,7 +148,12 @@ void RifSurfaceImporter::readGocadFile( const QString& filename, RigGocadData* g
                     int id2{ -1 };
                     int id3{ -1 };
 
-                    lineStream >> id1 >> id2 >> id3;
+                    if ( tokens.size() > 3 )
+                    {
+                        id1 = RiaStdStringTools::toInt( tokens[1] );
+                        id2 = RiaStdStringTools::toInt( tokens[2] );
+                        id3 = RiaStdStringTools::toInt( tokens[3] );
+                    }
 
                     if ( id1 >= 0 && id2 >= 0 && id3 >= 0 )
                     {
@@ -153,19 +173,9 @@ void RifSurfaceImporter::readGocadFile( const QString& filename, RigGocadData* g
             }
             else if ( firstToken.compare( "PROPERTIES" ) == 0 )
             {
-                QString qstringLine = QString::fromStdString( line );
-
-                qstringLine.remove( "PROPERTIES" );
-
-#if QT_VERSION >= QT_VERSION_CHECK( 5, 15, 0 )
-                QStringList words = qstringLine.split( " ", Qt::SkipEmptyParts );
-#else
-                QStringList words = qstringLine.split( " ", QString::SkipEmptyParts );
-#endif
-
-                for ( auto w : words )
+                for ( size_t i = 1; i < tokens.size(); i++ )
                 {
-                    propertyNames.push_back( w );
+                    propertyNames.push_back( QString::fromStdString( tokens[i] ) );
                 }
 
                 propertyValues.resize( propertyNames.size() );
@@ -173,7 +183,10 @@ void RifSurfaceImporter::readGocadFile( const QString& filename, RigGocadData* g
             else if ( firstToken.compare( "ZPOSITIVE" ) == 0 )
             {
                 std::string secondToken;
-                lineStream >> secondToken;
+
+                if ( tokens.size() > 1 ) secondToken = tokens[1];
+
+                secondToken = RiaStdStringTools::toUpper( secondToken );
 
                 if ( secondToken == "DEPTH" )
                 {
