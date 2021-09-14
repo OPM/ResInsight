@@ -19,6 +19,7 @@
 #include "RimEnsembleSurface.h"
 
 #include "RiaLogging.h"
+#include "RiaOptionItemFactory.h"
 
 #include "RigSurfaceResampler.h"
 #include "RigSurfaceStatisticsCalculator.h"
@@ -217,15 +218,7 @@ QList<caf::PdmOptionItemInfo> RimEnsembleSurface::calculateValueOptions( const c
 
     if ( fieldNeedingOptions == &m_ensembleCurveSet )
     {
-        options.push_back( caf::PdmOptionItemInfo( "None", nullptr ) );
-
-        RimMainPlotCollection*            mainPlotColl = RimProject::current()->mainPlotCollection();
-        std::vector<RimEnsembleCurveSet*> ensembleCurveSets;
-        mainPlotColl->descendantsOfType( ensembleCurveSets );
-        for ( auto ensembleCurveSet : ensembleCurveSets )
-        {
-            options.push_back( caf::PdmOptionItemInfo( ensembleCurveSet->name(), ensembleCurveSet ) );
-        }
+        RiaOptionItemFactory::appendOptionItemsForEnsembleCurveSets( &options );
     }
 
     return options;

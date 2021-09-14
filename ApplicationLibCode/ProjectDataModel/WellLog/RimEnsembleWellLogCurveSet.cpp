@@ -20,6 +20,7 @@
 
 #include "RiaColorTools.h"
 #include "RiaLogging.h"
+#include "RiaOptionItemFactory.h"
 
 #include "RimEnsembleCurveFilter.h"
 #include "RimEnsembleCurveFilterCollection.h"
@@ -571,15 +572,7 @@ QList<caf::PdmOptionItemInfo>
     }
     else if ( fieldNeedingOptions == &m_ensembleCurveSet )
     {
-        options.push_back( caf::PdmOptionItemInfo( "None", nullptr ) );
-
-        RimMainPlotCollection*            mainPlotColl = RimProject::current()->mainPlotCollection();
-        std::vector<RimEnsembleCurveSet*> ensembleCurveSets;
-        mainPlotColl->descendantsOfType( ensembleCurveSets );
-        for ( auto ensembleCurveSet : ensembleCurveSets )
-        {
-            options.push_back( caf::PdmOptionItemInfo( ensembleCurveSet->name(), ensembleCurveSet ) );
-        }
+        RiaOptionItemFactory::appendOptionItemsForEnsembleCurveSets( &options );
     }
     else if ( fieldNeedingOptions == &m_colorMode )
     {
@@ -923,6 +916,22 @@ void RimEnsembleWellLogCurveSet::showCurves( bool show )
 RimEnsembleWellLogStatistics::DepthEqualization RimEnsembleWellLogCurveSet::depthEqualization() const
 {
     return m_depthEqualization();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEnsembleWellLogCurveSet::setDepthEqualization( RimEnsembleWellLogStatistics::DepthEqualization depthEqualization )
+{
+    m_depthEqualization = depthEqualization;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEnsembleWellLogCurveSet::setFilterByEnsembleCurveSet( RimEnsembleCurveSet* ensembleCurveSet )
+{
+    m_ensembleCurveSet = ensembleCurveSet;
 }
 
 //--------------------------------------------------------------------------------------------------
