@@ -941,11 +941,6 @@ QString RimSummaryCurve::curveExportDescription( const RifEclipseSummaryAddress&
     auto group    = curveSet ? curveSet->summaryCaseCollection() : nullptr;
 
     auto addressUiText = addr.uiText();
-    if ( addr.category() == RifEclipseSummaryAddress::SUMMARY_ENSEMBLE_STATISTICS )
-    {
-        addressUiText =
-            RiaStatisticsTools::replacePercentileByPValueText( QString::fromStdString( addressUiText ) ).toStdString();
-    }
 
     if ( group && group->isEnsemble() )
     {

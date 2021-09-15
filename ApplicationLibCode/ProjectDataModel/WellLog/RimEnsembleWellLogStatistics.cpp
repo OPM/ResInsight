@@ -145,7 +145,12 @@ void RimEnsembleWellLogStatistics::calculate( const std::vector<RimWellLogFile*>
                 valuesAtDepth.push_back( curveValues[depthIdx] );
             }
             double p10, p50, p90, mean;
-            RigStatisticsMath::calculateStatisticsCurves( valuesAtDepth, &p10, &p50, &p90, &mean );
+            RigStatisticsMath::calculateStatisticsCurves( valuesAtDepth,
+                                                          &p10,
+                                                          &p50,
+                                                          &p90,
+                                                          &mean,
+                                                          RigStatisticsMath::PercentileStyle::SWITCHED );
 
             m_measuredDepths.push_back( allDepths[depthIdx] );
             m_p10Data.push_back( p10 );
@@ -216,7 +221,12 @@ void RimEnsembleWellLogStatistics::calculateByKLayer( const std::vector<RimWellL
         {
             std::vector<double> valuesAtDepth = topValues[kIndex];
             double              p10, p50, p90, mean;
-            RigStatisticsMath::calculateStatisticsCurves( valuesAtDepth, &p10, &p50, &p90, &mean );
+            RigStatisticsMath::calculateStatisticsCurves( valuesAtDepth,
+                                                          &p10,
+                                                          &p50,
+                                                          &p90,
+                                                          &mean,
+                                                          RigStatisticsMath::PercentileStyle::SWITCHED );
             m_measuredDepths.push_back( offsets->getTopDepth( kIndex ) );
             m_p10Data.push_back( p10 );
             m_p50Data.push_back( p50 );
@@ -230,7 +240,12 @@ void RimEnsembleWellLogStatistics::calculateByKLayer( const std::vector<RimWellL
         {
             std::vector<double> valuesAtDepth = bottomValues[kIndex];
             double              p10, p50, p90, mean;
-            RigStatisticsMath::calculateStatisticsCurves( valuesAtDepth, &p10, &p50, &p90, &mean );
+            RigStatisticsMath::calculateStatisticsCurves( valuesAtDepth,
+                                                          &p10,
+                                                          &p50,
+                                                          &p90,
+                                                          &mean,
+                                                          RigStatisticsMath::PercentileStyle::SWITCHED );
             m_measuredDepths.push_back( offsets->getBottomDepth( kIndex ) );
             m_p10Data.push_back( p10 );
             m_p50Data.push_back( p50 );

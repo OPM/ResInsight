@@ -20,38 +20,7 @@
 
 #include "RiaStatisticsTools.h"
 
-#include "RifEclipseSummaryAddress.h"
 #include "RigStatisticsMath.h"
-
-#include "cafAssert.h"
-
-#include <QString>
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-const QString RiaStatisticsTools::replacePercentileByPValueText( const QString& percentile )
-{
-    QString result = percentile;
-
-    if ( result == ENSEMBLE_STAT_P10_QUANTITY_NAME )
-    {
-        result = ENSEMBLE_STAT_P90_QUANTITY_NAME;
-    }
-    else if ( result == ENSEMBLE_STAT_P90_QUANTITY_NAME )
-    {
-        result = ENSEMBLE_STAT_P10_QUANTITY_NAME;
-    }
-    else if ( percentile.contains( QString( "%1:" ).arg( ENSEMBLE_STAT_P10_QUANTITY_NAME ) ) )
-    {
-        result.replace( ENSEMBLE_STAT_P10_QUANTITY_NAME, ENSEMBLE_STAT_P90_QUANTITY_NAME );
-    }
-    else if ( percentile.contains( QString( "%1:" ).arg( ENSEMBLE_STAT_P90_QUANTITY_NAME ) ) )
-    {
-        result.replace( ENSEMBLE_STAT_P90_QUANTITY_NAME, ENSEMBLE_STAT_P10_QUANTITY_NAME );
-    }
-    return result;
-}
 
 //--------------------------------------------------------------------------------------------------
 ///

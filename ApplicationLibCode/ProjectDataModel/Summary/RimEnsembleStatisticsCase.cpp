@@ -188,8 +188,12 @@ void RimEnsembleStatisticsCase::calculate( const std::vector<RimSummaryCase*> su
         }
 
         double p10, p50, p90, mean;
-        RigStatisticsMath::calculateStatisticsCurves( valuesAtTimeStep, &p10, &p50, &p90, &mean );
-
+        RigStatisticsMath::calculateStatisticsCurves( valuesAtTimeStep,
+                                                      &p10,
+                                                      &p50,
+                                                      &p90,
+                                                      &mean,
+                                                      RigStatisticsMath::PercentileStyle::SWITCHED );
         m_p10Data.push_back( p10 );
         m_p50Data.push_back( p50 );
         m_p90Data.push_back( p90 );

@@ -37,9 +37,9 @@ RimEnsembleStatistics::RimEnsembleStatistics( RimEnsembleCurveSetInterface* pare
     CAF_PDM_InitField( &m_active, "Active", true, "Show Statistics Curves", "", "", "" );
     CAF_PDM_InitField( &m_hideEnsembleCurves, "HideEnsembleCurves", false, "Hide Ensemble Curves", "", "", "" );
     CAF_PDM_InitField( &m_basedOnFilteredCases, "BasedOnFilteredCases", false, "Based on Filtered Cases", "", "", "" );
-    CAF_PDM_InitField( &m_showP10Curve, "ShowP10Curve", true, "P90", "", "", "" ); // Yes, P90
+    CAF_PDM_InitField( &m_showP10Curve, "ShowP10Curve", true, "P10", "", "", "" );
     CAF_PDM_InitField( &m_showP50Curve, "ShowP50Curve", false, "P50", "", "", "" );
-    CAF_PDM_InitField( &m_showP90Curve, "ShowP90Curve", true, "P10", "", "", "" ); // Yes, P10
+    CAF_PDM_InitField( &m_showP90Curve, "ShowP90Curve", true, "P90", "", "", "" );
     CAF_PDM_InitField( &m_showMeanCurve, "ShowMeanCurve", true, "Mean", "", "", "" );
     CAF_PDM_InitField( &m_showCurveLabels, "ShowCurveLabels", true, "Show Curve Labels", "", "", "" );
     CAF_PDM_InitField( &m_includeIncompleteCurves, "IncludeIncompleteCurves", false, "Include Incomplete Curves", "", "", "" );
@@ -149,8 +149,8 @@ void RimEnsembleStatistics::defineUiOrdering( QString uiConfigName, caf::PdmUiOr
     m_showCurveLabels.uiCapability()->setUiReadOnly( !m_active );
     m_color.uiCapability()->setUiReadOnly( !m_active );
 
-    m_showP10Curve.uiCapability()->setUiName( curveSet->hasP10Data() ? "P90" : "P90 (Needs > 8 curves)" );
-    m_showP90Curve.uiCapability()->setUiName( curveSet->hasP90Data() ? "P10" : "P10 (Needs > 8 curves)" );
+    m_showP10Curve.uiCapability()->setUiName( curveSet->hasP10Data() ? "P10" : "P10 (Needs > 8 curves)" );
+    m_showP90Curve.uiCapability()->setUiName( curveSet->hasP90Data() ? "P90" : "P90 (Needs > 8 curves)" );
 
     uiOrdering.skipRemainingFields( true );
 }

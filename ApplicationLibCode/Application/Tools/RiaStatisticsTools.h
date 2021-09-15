@@ -24,8 +24,6 @@
 #include <numeric>
 #include <vector>
 
-class QString;
-
 //==================================================================================================
 //
 //
@@ -34,8 +32,6 @@ class QString;
 class RiaStatisticsTools
 {
 public:
-    static const QString replacePercentileByPValueText( const QString& percentile );
-
     template <class NumberType>
     static bool isInvalidNumber( NumberType value )
     {

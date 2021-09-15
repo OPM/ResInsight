@@ -196,9 +196,7 @@ QString RimSummaryCurveAutoName::buildCurveName( const RifEclipseSummaryAddress&
 
         if ( summaryAddress.category() == RifEclipseSummaryAddress::SUMMARY_ENSEMBLE_STATISTICS )
         {
-            text = RiaStatisticsTools::replacePercentileByPValueText(
-                       QString::fromStdString( summaryAddress.quantityName() ) )
-                       .toStdString();
+            text = summaryAddress.quantityName();
         }
         else if ( summaryAddress.category() == RifEclipseSummaryAddress::SUMMARY_CALCULATED )
         {

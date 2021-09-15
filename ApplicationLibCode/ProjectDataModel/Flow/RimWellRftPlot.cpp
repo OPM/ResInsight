@@ -582,7 +582,6 @@ void RimWellRftPlot::updateCurvesInPlot( const std::set<RiaRftPltCurveDefinition
                     QString uiText =
                         caf::AppEnum<RifEclipseRftAddress::RftWellLogChannelType>::uiText( rftAddress.wellLogChannel() );
                     QString label = uiText.replace( ": Pressure", "" );
-                    label         = RiaStatisticsTools::replacePercentileByPValueText( label );
                     curve->setSymbolLabel( label );
                     curve->setLineThickness( 3 );
                 }
