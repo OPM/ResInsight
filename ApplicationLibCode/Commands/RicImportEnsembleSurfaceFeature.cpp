@@ -76,61 +76,79 @@ void RicImportEnsembleSurfaceFeature::importEnsembleSurfaceFromFiles( const QStr
 {
     if ( fileNames.isEmpty() ) return;
 
-    QString ensembleName = RiaEnsembleNameTools::findSuitableEnsembleName( fileNames );
-    QString layerName    = RiaEnsembleNameTools::findCommonBaseName( fileNames );
-    if ( !layerName.isEmpty() )
+    // Create a list of file names for each layer
+    std::map<QString, QStringList> fileNamesForEachLayer;
     {
-        ensembleName += QString( " : %1" ).arg( layerName );
-    }
-
-    if ( ensembleName.isEmpty() ) ensembleName = "Ensemble Surface";
-
-    std::map<QString, QStringList> keyFileComponentsForAllFiles =
-        RiaFilePathTools::keyPathComponentsForEachFilePath( fileNames );
-
-    std::vector<RimFileSurface*> surfaces;
-
-    int fileCount = static_cast<int>( fileNames.size() );
-#pragma omp parallel for
-    for ( int i = 0; i < fileCount; i++ )
-    {
-        auto fileName = fileNames[i];
-
-        RimFileSurface* fileSurface = nullptr;
-#pragma omp critical( new_rimFileSurface )
-        fileSurface = new RimFileSurface;
-
-        fileSurface->setSurfaceFilePath( fileName );
-
-        auto shortName =
-            RiaEnsembleNameTools::uniqueShortNameFromComponents( fileName, keyFileComponentsForAllFiles, ensembleName );
-        fileSurface->setUserDescription( shortName );
-
-#pragma omp critical( RicImportEnsembleSurfaceFeature_importEnsembleSurfaceFromFiles )
+        for ( const auto& name : fileNames )
         {
-            if ( fileSurface->onLoadData() )
-            {
-                surfaces.push_back( fileSurface );
-            }
-            else
-            {
-                delete fileSurface;
-            }
+            QFileInfo fi( name );
+
+            auto layerName = fi.baseName();
+            fileNamesForEachLayer[layerName].push_back( name );
         }
     }
 
-    if ( surfaces.empty() ) return;
+    RimEnsembleSurface* ensembleToSelect = nullptr;
+    for ( const auto& [layer, fileNames] : fileNamesForEachLayer )
+    {
+        QString ensembleName = RiaEnsembleNameTools::findSuitableEnsembleName( fileNames );
+        QString layerName    = layer;
+        if ( !layerName.isEmpty() )
+        {
+            ensembleName += QString( " : %1" ).arg( layerName );
+        }
 
-    RimEnsembleSurface* ensemble = new RimEnsembleSurface;
-    ensemble->setCollectionName( ensembleName );
-    for ( auto surface : surfaces )
-        ensemble->addFileSurface( surface );
+        if ( ensembleName.isEmpty() ) ensembleName = "Ensemble Surface";
 
-    ensemble->loadDataAndUpdate();
-    RimProject::current()->activeOilField()->surfaceCollection->addEnsembleSurface( ensemble );
+        std::map<QString, QStringList> keyFileComponentsForAllFiles =
+            RiaFilePathTools::keyPathComponentsForEachFilePath( fileNames );
+
+        std::vector<RimFileSurface*> surfaces;
+
+        int fileCount = static_cast<int>( fileNames.size() );
+#pragma omp parallel for
+        for ( int i = 0; i < fileCount; i++ )
+        {
+            auto fileName = fileNames[i];
+
+            RimFileSurface* fileSurface = nullptr;
+#pragma omp critical( new_rimFileSurface ) // Creation of a new Pdm object is not thread-safe
+            fileSurface = new RimFileSurface;
+
+            fileSurface->setSurfaceFilePath( fileName );
+
+            auto shortName =
+                RiaEnsembleNameTools::uniqueShortNameFromComponents( fileName, keyFileComponentsForAllFiles, ensembleName );
+            fileSurface->setUserDescription( shortName );
+
+#pragma omp critical( RicImportEnsembleSurfaceFeature_importEnsembleSurfaceFromFiles )
+            {
+                if ( fileSurface->onLoadData() )
+                {
+                    surfaces.push_back( fileSurface );
+                }
+                else
+                {
+                    delete fileSurface;
+                }
+            }
+        }
+
+        if ( surfaces.empty() ) return;
+
+        RimEnsembleSurface* ensemble = new RimEnsembleSurface;
+        ensemble->setCollectionName( ensembleName );
+        for ( auto surface : surfaces )
+            ensemble->addFileSurface( surface );
+
+        ensemble->loadDataAndUpdate();
+        RimProject::current()->activeOilField()->surfaceCollection->addEnsembleSurface( ensemble );
+
+        ensembleToSelect = ensemble;
+    }
 
     RimProject::current()->activeOilField()->surfaceCollection->updateConnectedEditors();
-    Riu3DMainWindowTools::selectAsCurrentItem( ensemble );
+    Riu3DMainWindowTools::selectAsCurrentItem( ensembleToSelect );
 }
 
 //--------------------------------------------------------------------------------------------------
