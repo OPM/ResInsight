@@ -230,8 +230,10 @@ void RicImportGeneralDataFeature::openFileDialog( ImportFileType fileTypes )
 //--------------------------------------------------------------------------------------------------
 bool RicImportGeneralDataFeature::openEclipseCaseFromFileNames( const QStringList& fileNames )
 {
+    bool                                     createView = false;
+    bool                                     noDialog   = false;
     RiaImportEclipseCaseTools::FileCaseIdMap newCaseFiles;
-    if ( RiaImportEclipseCaseTools::openEclipseCasesFromFile( fileNames, &newCaseFiles ) )
+    if ( RiaImportEclipseCaseTools::openEclipseCasesFromFile( fileNames, createView, &newCaseFiles, noDialog ) )
     {
         for ( const auto& newCaseFileAndId : newCaseFiles )
         {

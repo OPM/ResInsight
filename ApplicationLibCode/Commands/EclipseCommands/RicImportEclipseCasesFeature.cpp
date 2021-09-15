@@ -70,8 +70,10 @@ void RicImportEclipseCasesFeature::onActionTriggered( bool isChecked )
     // Remember the path to next time
     app->setLastUsedDialogDirectory( "BINARY_GRID", QFileInfo( result.rootDir ).absoluteFilePath() );
 
+    bool                                     createView = false;
+    bool                                     noDialog   = false;
     RiaImportEclipseCaseTools::FileCaseIdMap newCaseFiles;
-    RiaImportEclipseCaseTools::openEclipseCasesFromFile( result.files, &newCaseFiles );
+    RiaImportEclipseCaseTools::openEclipseCasesFromFile( result.files, createView, &newCaseFiles, noDialog );
 
     for ( const auto& newCaseFileAndId : newCaseFiles )
     {

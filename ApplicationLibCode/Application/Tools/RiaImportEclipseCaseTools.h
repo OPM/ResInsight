@@ -35,8 +35,8 @@ public:
 
     static bool openEclipseCasesFromFile( const QStringList& fileNames,
                                           bool               createView,
-                                          FileCaseIdMap*     openedFilesOut = nullptr,
-                                          bool               noDialog       = false );
+                                          FileCaseIdMap*     openedFilesOut,
+                                          bool               noDialog );
 
     static bool openEclipseCaseShowTimeStepFilter( const QString& fileName );
 
