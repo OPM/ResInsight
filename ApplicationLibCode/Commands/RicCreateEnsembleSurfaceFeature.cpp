@@ -84,7 +84,7 @@ void RicCreateEnsembleSurfaceFeature::openDialogAndExecuteCommand()
 
     if ( propertyDialog.exec() == QDialog::Accepted )
     {
-        executeCommand( *ui, result.files.toStdList() );
+        executeCommand( *ui, result.files.toVector().toStdVector() );
     }
 }
 
@@ -92,18 +92,26 @@ void RicCreateEnsembleSurfaceFeature::openDialogAndExecuteCommand()
 ///
 //--------------------------------------------------------------------------------------------------
 void RicCreateEnsembleSurfaceFeature::executeCommand( const RicCreateEnsembleSurfaceUi& ui,
-                                                      const std::list<QString>&         fileNames )
+                                                      const std::vector<QString>&       fileNames )
 {
     std::vector layers = ui.layers();
 
     caf::ProgressInfo progress( fileNames.size(), "Generating ensemble surface" );
 
     QStringList allSurfaceFileNames;
-    for ( auto fileName : fileNames )
+
+    int fileCount = static_cast<int>( fileNames.size() );
+#pragma omp parallel for
+    for ( int i = 0; i < fileCount; i++ )
     {
-        auto task                     = progress.task( QString( "Extracting surfaces for %1" ).arg( fileName ) );
+        auto fileName                 = fileNames[i];
         auto [isOk, surfaceFileNames] = RimcCommandRouter_extractSurfaces::extractSurfaces( fileName, layers );
-        if ( isOk ) allSurfaceFileNames << surfaceFileNames;
+
+#pragma omp critical( RicCreateEnsembleSurfaceFeature )
+        {
+            auto task = progress.task( QString( "Extracting surfaces for %1" ).arg( fileName ) );
+            if ( isOk ) allSurfaceFileNames << surfaceFileNames;
+        }
     }
 
     if ( ui.autoCreateEnsembleSurfaces() )

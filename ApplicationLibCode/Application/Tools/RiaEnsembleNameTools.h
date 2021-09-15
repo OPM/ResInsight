@@ -19,6 +19,7 @@
 #pragma once
 
 #include <QString>
+#include <map>
 
 //==================================================================================================
 //
@@ -32,4 +33,8 @@ public:
     static QString uniqueShortName( const QString&     sourceFileName,
                                     const QStringList& allFileNames,
                                     const QString&     ensembleCaseName = QString() );
+
+    static QString uniqueShortNameFromComponents( const QString&                        sourceFileName,
+                                                  const std::map<QString, QStringList>& keyFileComponentsForAllFiles,
+                                                  const QString&                        ensembleCaseName );
 };

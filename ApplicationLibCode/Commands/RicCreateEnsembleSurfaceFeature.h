@@ -33,7 +33,7 @@ class RicCreateEnsembleSurfaceFeature : public caf::CmdFeature
 
 public:
     static void openDialogAndExecuteCommand();
-    static void executeCommand( const RicCreateEnsembleSurfaceUi& ui, const std::list<QString>& fileNames );
+    static void executeCommand( const RicCreateEnsembleSurfaceUi& ui, const std::vector<QString>& fileNames );
 
 protected:
     bool isCommandEnabled() override;

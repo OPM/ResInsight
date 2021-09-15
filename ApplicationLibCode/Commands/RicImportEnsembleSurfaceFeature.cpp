@@ -20,6 +20,7 @@
 
 #include "RiaApplication.h"
 #include "RiaEnsembleNameTools.h"
+#include "RiaFilePathTools.h"
 #include "RiaLogging.h"
 #include "RiaSummaryTools.h"
 
@@ -84,18 +85,37 @@ void RicImportEnsembleSurfaceFeature::importEnsembleSurfaceFromFiles( const QStr
 
     if ( ensembleName.isEmpty() ) ensembleName = "Ensemble Surface";
 
+    std::map<QString, QStringList> keyFileComponentsForAllFiles =
+        RiaFilePathTools::keyPathComponentsForEachFilePath( fileNames );
+
     std::vector<RimFileSurface*> surfaces;
-    for ( const auto& fileName : fileNames )
+
+    int fileCount = static_cast<int>( fileNames.size() );
+#pragma omp parallel for
+    for ( int i = 0; i < fileCount; i++ )
     {
-        RimFileSurface* fileSurface = new RimFileSurface;
+        auto fileName = fileNames[i];
+
+        RimFileSurface* fileSurface = nullptr;
+#pragma omp critical( new_rimFileSurface )
+        fileSurface = new RimFileSurface;
+
         fileSurface->setSurfaceFilePath( fileName );
 
-        auto shortName = RiaEnsembleNameTools::uniqueShortName( fileName, fileNames );
+        auto shortName =
+            RiaEnsembleNameTools::uniqueShortNameFromComponents( fileName, keyFileComponentsForAllFiles, ensembleName );
         fileSurface->setUserDescription( shortName );
 
-        if ( fileSurface->onLoadData() )
+#pragma omp critical( RicImportEnsembleSurfaceFeature_importEnsembleSurfaceFromFiles )
         {
-            surfaces.push_back( fileSurface );
+            if ( fileSurface->onLoadData() )
+            {
+                surfaces.push_back( fileSurface );
+            }
+            else
+            {
+                delete fileSurface;
+            }
         }
     }
 

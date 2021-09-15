@@ -120,12 +120,23 @@ QString RiaEnsembleNameTools::uniqueShortName( const QString&     sourceFileName
                                                const QStringList& allFileNames,
                                                const QString&     ensembleCaseName )
 {
-    QRegularExpression trimRe( "^[^a-zA-Z0-9]+" );
-
     std::map<QString, QStringList> keyFileComponentsForAllFiles =
         RiaFilePathTools::keyPathComponentsForEachFilePath( allFileNames );
 
-    QStringList keyFileComponents = keyFileComponentsForAllFiles[sourceFileName];
+    return uniqueShortNameFromComponents( sourceFileName, keyFileComponentsForAllFiles, ensembleCaseName );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RiaEnsembleNameTools::uniqueShortNameFromComponents( const QString&                        sourceFileName,
+                                                             const std::map<QString, QStringList>& keyFileComponentsForAllFiles,
+                                                             const QString&                        ensembleCaseName )
+{
+    QRegularExpression trimRe( "^[^a-zA-Z0-9]+" );
+
+    auto        modifyableMap( keyFileComponentsForAllFiles );
+    QStringList keyFileComponents = modifyableMap[sourceFileName];
     if ( keyFileComponents.empty() ) return "Unnamed";
 
     if ( !ensembleCaseName.isEmpty() )
