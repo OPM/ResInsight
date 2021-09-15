@@ -24,6 +24,7 @@
 #include "RiaLogging.h"
 
 #include "ExportCommands/RicExportToLasFileFeature.h"
+#include "RicCloseCaseFeature.h"
 #include "RicCreateEnsembleWellLogUi.h"
 #include "RicImportEnsembleWellLogsFeature.h"
 #include "RicRecursiveFileSearchDialog.h"
@@ -121,7 +122,7 @@ void RicCreateEnsembleWellLogFeature::executeCommand( const RicCreateEnsembleWel
     RimWellPath* wellPath = wellPaths[0];
 
     QStringList allLasFileNames;
-    for ( auto fileName : fileNames )
+    for ( const auto& fileName : fileNames )
     {
         auto task = progress.task( QString( "Extracting well log for %1" ).arg( fileName ) );
 
@@ -143,7 +144,7 @@ void RicCreateEnsembleWellLogFeature::executeCommand( const RicCreateEnsembleWel
             RimcWellLogPlot_newWellLogTrack::createWellLogTrack( wellLogPlot, eclipseCase, wellPath, title );
 
         // Create a well log curve for each property
-        for ( auto property : properties )
+        for ( const auto& property : properties )
         {
             QString                   propertyName       = property.first;
             RiaDefines::ResultCatType resultCategoryType = property.second;
@@ -187,12 +188,14 @@ void RicCreateEnsembleWellLogFeature::executeCommand( const RicCreateEnsembleWel
                                                                                          alwaysOverwrite,
                                                                                          resampleInterval,
                                                                                          convertCurveUnits );
-            for ( auto lasFile : lasFiles )
+            for ( const auto& lasFile : lasFiles )
                 allLasFileNames << lasFile;
         }
 
         // Remove the temporary plots after export
         plotCollection->removePlot( wellLogPlot );
+
+        RicCloseCaseFeature::deleteEclipseCase( eclipseCase );
     }
 
     if ( ui.autoCreateEnsembleWellLogs() )
@@ -208,7 +211,7 @@ void RicCreateEnsembleWellLogFeature::executeCommand( const RicCreateEnsembleWel
                 RimcWellLogPlotCollection_newWellLogPlot::createWellLogPlot( plotCollection, wellPath, eclipseCase );
 
             // Create a track per property
-            for ( auto property : properties )
+            for ( const auto& property : properties )
             {
                 // Create well log track
                 cvf::Color3f color = RiaColorTables::normalPaletteColors().cycledColor3f( wellLogPlot->plotCount() );
