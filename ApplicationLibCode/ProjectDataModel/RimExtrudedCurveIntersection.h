@@ -21,6 +21,7 @@
 
 #include "RimIntersection.h"
 
+#include "cafPdmChildField.h"
 #include "cafPdmPtrArrayField.h"
 
 class RimWellPath;
@@ -31,6 +32,7 @@ class RimSimWellInViewCollection;
 class Rim2dIntersectionView;
 class RimSurface;
 class RimSurfaceCollection;
+class RimSurfaceIntersectionCollection;
 
 namespace caf
 {
@@ -162,6 +164,8 @@ private:
 
     // Surface intersection annotations
     caf::PdmPtrArrayField<RimSurface*> m_annotationSurfaces;
+
+    caf::PdmChildField<RimSurfaceIntersectionCollection*> m_surfaceIntersections;
 
     cvf::ref<RivExtrudedCurveIntersectionPartMgr> m_crossSectionPartMgr;
 

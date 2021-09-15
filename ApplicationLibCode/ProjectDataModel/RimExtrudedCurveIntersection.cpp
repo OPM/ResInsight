@@ -37,6 +37,7 @@
 #include "RimSimWellInViewCollection.h"
 #include "RimSurface.h"
 #include "RimSurfaceCollection.h"
+#include "RimSurfaceIntersectionCollection.h"
 #include "RimTools.h"
 #include "RimWellPath.h"
 
@@ -239,7 +240,8 @@ RimExtrudedCurveIntersection::RimExtrudedCurveIntersection()
     CAF_PDM_InitFieldNoDefault( &m_annotationSurfaces, "annotationSurfaces", "", "", "", "" );
     m_annotationSurfaces.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
 
-    uiCapability()->setUiTreeChildrenHidden( true );
+    CAF_PDM_InitFieldNoDefault( &m_surfaceIntersections, "SurfaceIntersections", "Surface Intersections", "", "", "" );
+    m_surfaceIntersections = new RimSurfaceIntersectionCollection;
 
     setDeletable( true );
 }
