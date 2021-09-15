@@ -104,8 +104,12 @@ void RicCreateEnsembleSurfaceFeature::executeCommand( const RicCreateEnsembleSur
 #pragma omp parallel for
     for ( int i = 0; i < fileCount; i++ )
     {
-        auto fileName                 = fileNames[i];
-        auto [isOk, surfaceFileNames] = RimcCommandRouter_extractSurfaces::extractSurfaces( fileName, layers );
+        auto fileName = fileNames[i];
+
+        // Not possible to use structured bindings here due to a bug in clang
+        auto surfaceResult    = RimcCommandRouter_extractSurfaces::extractSurfaces( fileName, layers );
+        auto isOk             = surfaceResult.first;
+        auto surfaceFileNames = surfaceResult.second;
 
 #pragma omp critical( RicCreateEnsembleSurfaceFeature )
         {
