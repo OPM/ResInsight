@@ -39,4 +39,6 @@ private:
                                     const std::vector<cvf::Vec3d>& vertices,
                                     double                         maxDistance,
                                     cvf::Vec3d&                    intersectionPoint );
+
+    static double computeMaxDistance( RigSurface* surface );
 };

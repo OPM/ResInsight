@@ -91,9 +91,8 @@ bool RigSurfaceResampler::resamplePoint( RigSurface*       surface,
         }
     }
 
-    // Handle cases where no match is found due to floating point imprecision,
-    // or when falling off resulting grid slightly.
-    double maxDistance = 10.0;
+    double maxDistance = computeMaxDistance( surface );
+
     return findClosestPointXY( pointAbove, vertices, maxDistance, intersectionPoint );
 }
 
@@ -106,24 +105,26 @@ bool RigSurfaceResampler::findClosestPointXY( const cvf::Vec3d&              tar
                                               double                         maxDistance,
                                               cvf::Vec3d&                    intersectionPoint )
 {
+    double maxDistanceSquared = maxDistance * maxDistance;
+
     // Find closest vertices
-    double shortestDistance = std::numeric_limits<double>::max();
-    double closestZ         = std::numeric_limits<double>::infinity();
+    double shortestDistanceSquared = std::numeric_limits<double>::max();
+    double closestZ                = std::numeric_limits<double>::infinity();
     for ( auto v : vertices )
     {
         // Ignore height (z) component when finding closest by
         // moving point to same height as target point above
         cvf::Vec3d p( v.x(), v.y(), targetPoint.z() );
-        double     distance = p.pointDistance( targetPoint );
-        if ( distance < shortestDistance )
+        double     distanceSquared = p.pointDistanceSquared( targetPoint );
+        if ( distanceSquared < shortestDistanceSquared )
         {
-            shortestDistance = distance;
-            closestZ         = v.z();
+            shortestDistanceSquared = distanceSquared;
+            closestZ                = v.z();
         }
     }
 
     // Check if the closest point is not to far away to be valid
-    if ( shortestDistance < maxDistance )
+    if ( shortestDistanceSquared < maxDistanceSquared )
     {
         intersectionPoint = cvf::Vec3d( targetPoint.x(), targetPoint.y(), closestZ );
         return true;
@@ -132,4 +133,27 @@ bool RigSurfaceResampler::findClosestPointXY( const cvf::Vec3d&              tar
     {
         return false;
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RigSurfaceResampler::computeMaxDistance( RigSurface* surface )
+{
+    // Handle cases where no match is found due to floating point imprecision,
+    // or when falling off resulting grid slightly.
+    // Use the XY extent of a triangle to define a suitable search distance
+
+    const double minimumDistance = 10.0;
+
+    if ( !surface ) return minimumDistance;
+
+    auto maxX = surface->maxExtentTriangleInXDirection() / 2.0;
+    auto maxY = surface->maxExtentTriangleInYDirection() / 2.0;
+
+    auto candidate = std::min( maxX, maxY );
+
+    double distance = std::max( minimumDistance, candidate );
+
+    return distance;
 }

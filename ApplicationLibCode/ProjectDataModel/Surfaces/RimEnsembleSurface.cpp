@@ -103,11 +103,14 @@ std::vector<RimFileSurface*> RimEnsembleSurface::sourceFileSurfaces() const
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleSurface::loadDataAndUpdate()
 {
-    for ( auto& w : sourceFileSurfaces() )
     {
-        if ( !w->onLoadData() )
+        auto fileSurfaces = sourceFileSurfaces();
+        auto surfaceCount = static_cast<int>( fileSurfaces.size() );
+#pragma omp parallel for
+        for ( int i = 0; i < surfaceCount; i++ )
         {
-            RiaLogging::warning( QString( "Failed to load surface: %1" ).arg( w->surfaceFilePath() ) );
+            auto surf = fileSurfaces[i];
+            surf->onLoadData();
         }
     }
 
@@ -121,9 +124,16 @@ void RimEnsembleSurface::loadDataAndUpdate()
     {
         cvf::ref<RigSurface> firstSurface = sourceSurfaceForStatistics[0]->surfaceData();
 
-        std::vector<cvf::ref<RigSurface>> sourceSurfaces;
-        for ( auto& w : sourceSurfaceForStatistics )
-            sourceSurfaces.push_back( RigSurfaceResampler::resampleSurface( firstSurface, w->surfaceData() ) );
+        auto                              surfaceCount = static_cast<int>( sourceSurfaceForStatistics.size() );
+        std::vector<cvf::ref<RigSurface>> sourceSurfaces( surfaceCount );
+
+#pragma omp parallel for
+        for ( int i = 0; i < surfaceCount; i++ )
+        {
+            auto surf             = sourceSurfaceForStatistics[i];
+            auto resampledSurface = RigSurfaceResampler::resampleSurface( firstSurface, surf->surfaceData() );
+            sourceSurfaces[i]     = resampledSurface;
+        }
 
         m_statisticsSurface = RigSurfaceStatisticsCalculator::computeStatistics( sourceSurfaces );
         if ( !m_statisticsSurface.isNull() )

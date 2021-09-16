@@ -84,7 +84,7 @@ void RicCreateEnsembleSurfaceFeature::openDialogAndExecuteCommand()
 
     if ( propertyDialog.exec() == QDialog::Accepted )
     {
-        executeCommand( *ui, result.files.toStdList() );
+        executeCommand( *ui, result.files.toVector().toStdVector() );
     }
 }
 
@@ -92,19 +92,32 @@ void RicCreateEnsembleSurfaceFeature::openDialogAndExecuteCommand()
 ///
 //--------------------------------------------------------------------------------------------------
 void RicCreateEnsembleSurfaceFeature::executeCommand( const RicCreateEnsembleSurfaceUi& ui,
-                                                      const std::list<QString>&         fileNames )
+                                                      const std::vector<QString>&       fileNames )
 {
     std::vector layers = ui.layers();
 
     caf::ProgressInfo progress( fileNames.size(), "Generating ensemble surface" );
 
     QStringList allSurfaceFileNames;
-    for ( auto fileName : fileNames )
+
+    auto fileCount = static_cast<int>( fileNames.size() );
+#pragma omp parallel for
+    for ( int i = 0; i < fileCount; i++ )
     {
-        auto task                     = progress.task( QString( "Extracting surfaces for %1" ).arg( fileName ) );
-        auto [isOk, surfaceFileNames] = RimcCommandRouter_extractSurfaces::extractSurfaces( fileName, layers );
-        if ( isOk ) allSurfaceFileNames << surfaceFileNames;
+        auto fileName = fileNames[i];
+
+        // Not possible to use structured bindings here due to a bug in clang
+        auto surfaceResult    = RimcCommandRouter_extractSurfaces::extractSurfaces( fileName, layers );
+        auto isOk             = surfaceResult.first;
+        auto surfaceFileNames = surfaceResult.second;
+
+#pragma omp critical( RicCreateEnsembleSurfaceFeature )
+        {
+            auto task = progress.task( QString( "Extracting surfaces for %1" ).arg( fileName ) );
+            if ( isOk ) allSurfaceFileNames << surfaceFileNames;
+        }
     }
+    progress.setProgress( fileNames.size() );
 
     if ( ui.autoCreateEnsembleSurfaces() )
         RicImportEnsembleSurfaceFeature::importEnsembleSurfaceFromFiles( allSurfaceFileNames );

@@ -49,6 +49,9 @@ public:
     void ensureIntersectionSearchTreeIsBuilt();
     void findIntersectingTriangles( const cvf::BoundingBox& inputBB, std::vector<size_t>* triangleStartIndices ) const;
 
+    double maxExtentTriangleInXDirection() const;
+    double maxExtentTriangleInYDirection() const;
+
 private:
     size_t triangleCount() const;
 
@@ -58,4 +61,7 @@ private:
     std::map<QString, std::vector<float>> m_verticeResults;
 
     cvf::ref<cvf::BoundingBoxTree> m_surfaceBoundingBoxTree;
+
+    double m_maxExtentTriangleInXDirection;
+    double m_maxExtentTriangleInYDirection;
 };
