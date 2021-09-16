@@ -100,7 +100,7 @@ void RicCreateEnsembleSurfaceFeature::executeCommand( const RicCreateEnsembleSur
 
     QStringList allSurfaceFileNames;
 
-    int fileCount = static_cast<int>( fileNames.size() );
+    auto fileCount = static_cast<int>( fileNames.size() );
 #pragma omp parallel for
     for ( int i = 0; i < fileCount; i++ )
     {
@@ -117,6 +117,7 @@ void RicCreateEnsembleSurfaceFeature::executeCommand( const RicCreateEnsembleSur
             if ( isOk ) allSurfaceFileNames << surfaceFileNames;
         }
     }
+    progress.setProgress( fileNames.size() );
 
     if ( ui.autoCreateEnsembleSurfaces() )
         RicImportEnsembleSurfaceFeature::importEnsembleSurfaceFromFiles( allSurfaceFileNames );

@@ -78,21 +78,21 @@ void RicImportEnsembleSurfaceFeature::importEnsembleSurfaceFromFiles( const QStr
 
     // Create a list of file names for each layer
     std::map<QString, QStringList> fileNamesForEachLayer;
+    for ( const auto& name : fileNames )
     {
-        for ( const auto& name : fileNames )
-        {
-            QFileInfo fi( name );
+        QFileInfo fi( name );
 
-            auto layerName = fi.baseName();
-            fileNamesForEachLayer[layerName].push_back( name );
-        }
+        auto layerName = fi.baseName();
+        fileNamesForEachLayer[layerName].push_back( name );
     }
 
     RimEnsembleSurface* ensembleToSelect = nullptr;
-    for ( const auto& [layer, fileNames] : fileNamesForEachLayer )
+    for ( const auto& fileNamesForLayer : fileNamesForEachLayer )
     {
+        auto    filenames    = fileNamesForLayer.second;
         QString ensembleName = RiaEnsembleNameTools::findSuitableEnsembleName( fileNames );
-        QString layerName    = layer;
+
+        QString layerName = fileNamesForLayer.first;
         if ( !layerName.isEmpty() )
         {
             ensembleName += QString( " : %1" ).arg( layerName );
@@ -104,39 +104,46 @@ void RicImportEnsembleSurfaceFeature::importEnsembleSurfaceFromFiles( const QStr
             RiaFilePathTools::keyPathComponentsForEachFilePath( fileNames );
 
         std::vector<RimFileSurface*> surfaces;
+        for ( size_t i = 0; i < fileNames.size(); i++ )
+        {
+            surfaces.push_back( new RimFileSurface );
+        }
 
-        int fileCount = static_cast<int>( fileNames.size() );
+        auto fileCount = static_cast<int>( fileNames.size() );
 #pragma omp parallel for
         for ( int i = 0; i < fileCount; i++ )
         {
             auto fileName = fileNames[i];
 
-            RimFileSurface* fileSurface = nullptr;
-#pragma omp critical( new_rimFileSurface ) // Creation of a new Pdm object is not thread-safe
-            fileSurface = new RimFileSurface;
-
+            auto fileSurface = surfaces[i];
             fileSurface->setSurfaceFilePath( fileName );
 
             auto shortName =
                 RiaEnsembleNameTools::uniqueShortNameFromComponents( fileName, keyFileComponentsForAllFiles, ensembleName );
             fileSurface->setUserDescription( shortName );
 
-#pragma omp critical( RicImportEnsembleSurfaceFeature_importEnsembleSurfaceFromFiles )
+            auto isOk = fileSurface->onLoadData();
+            if ( !isOk )
             {
-                if ( fileSurface->onLoadData() )
-                {
-                    surfaces.push_back( fileSurface );
-                }
-                else
-                {
-                    delete fileSurface;
-                }
+                delete fileSurface;
+                surfaces[i] = nullptr;
             }
+        }
+
+        {
+            // Remove null pointers from vector of surfaces
+            std::vector<RimFileSurface*> tmp;
+            for ( auto s : surfaces )
+            {
+                if ( s != nullptr ) tmp.push_back( s );
+            }
+
+            surfaces.swap( tmp );
         }
 
         if ( surfaces.empty() ) return;
 
-        RimEnsembleSurface* ensemble = new RimEnsembleSurface;
+        auto ensemble = new RimEnsembleSurface;
         ensemble->setCollectionName( ensembleName );
         for ( auto surface : surfaces )
             ensemble->addFileSurface( surface );

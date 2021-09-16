@@ -104,7 +104,7 @@ void RimEnsembleSurface::loadDataAndUpdate()
 {
     {
         auto fileSurfaces = sourceFileSurfaces();
-        int  surfaceCount = static_cast<int>( fileSurfaces.size() );
+        auto surfaceCount = static_cast<int>( fileSurfaces.size() );
 #pragma omp parallel for
         for ( int i = 0; i < surfaceCount; i++ )
         {
@@ -123,18 +123,15 @@ void RimEnsembleSurface::loadDataAndUpdate()
     {
         cvf::ref<RigSurface> firstSurface = sourceSurfaceForStatistics[0]->surfaceData();
 
-        std::vector<cvf::ref<RigSurface>> sourceSurfaces;
-        {
-            int surfaceCount = static_cast<int>( sourceSurfaceForStatistics.size() );
-#pragma omp parallel for
-            for ( int i = 0; i < surfaceCount; i++ )
-            {
-                auto surf             = sourceSurfaceForStatistics[i];
-                auto resampledSurface = RigSurfaceResampler::resampleSurface( firstSurface, surf->surfaceData() );
+        auto                              surfaceCount = static_cast<int>( sourceSurfaceForStatistics.size() );
+        std::vector<cvf::ref<RigSurface>> sourceSurfaces( surfaceCount );
 
-#pragma omp critical( sourceSurfaces )
-                sourceSurfaces.push_back( resampledSurface );
-            }
+#pragma omp parallel for
+        for ( int i = 0; i < surfaceCount; i++ )
+        {
+            auto surf             = sourceSurfaceForStatistics[i];
+            auto resampledSurface = RigSurfaceResampler::resampleSurface( firstSurface, surf->surfaceData() );
+            sourceSurfaces[i]     = resampledSurface;
         }
 
         m_statisticsSurface = RigSurfaceStatisticsCalculator::computeStatistics( sourceSurfaces );

@@ -91,20 +91,9 @@ bool RigSurfaceResampler::resamplePoint( RigSurface*       surface,
         }
     }
 
-    // Handle cases where no match is found due to floating point imprecision,
-    // or when falling off resulting grid slightly.
-    // Use the XY extent of a triangle to define a suitable search distance
-    double maxDistance = 10.0;
-    {
-        auto maxX = surface->maxExtentTriangleInXDirection() / 2.0;
-        auto maxY = surface->maxExtentTriangleInYDirection() / 2.0;
+    double maxDistance = computeMaxDistance( surface );
 
-        auto candidate = std::min( maxX, maxY );
-
-        maxDistance = std::max( maxDistance, candidate );
-    }
-
-    return findClosestPointXY( pointAbove, vertices, maxDistance * maxDistance, intersectionPoint );
+    return findClosestPointXY( pointAbove, vertices, maxDistance, intersectionPoint );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -113,9 +102,11 @@ bool RigSurfaceResampler::resamplePoint( RigSurface*       surface,
 //--------------------------------------------------------------------------------------------------
 bool RigSurfaceResampler::findClosestPointXY( const cvf::Vec3d&              targetPoint,
                                               const std::vector<cvf::Vec3d>& vertices,
-                                              double                         maxDistanceSquared,
+                                              double                         maxDistance,
                                               cvf::Vec3d&                    intersectionPoint )
 {
+    double maxDistanceSquared = maxDistance * maxDistance;
+
     // Find closest vertices
     double shortestDistanceSquared = std::numeric_limits<double>::max();
     double closestZ                = std::numeric_limits<double>::infinity();
@@ -142,4 +133,24 @@ bool RigSurfaceResampler::findClosestPointXY( const cvf::Vec3d&              tar
     {
         return false;
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RigSurfaceResampler::computeMaxDistance( RigSurface* surface )
+{
+    // Handle cases where no match is found due to floating point imprecision,
+    // or when falling off resulting grid slightly.
+    // Use the XY extent of a triangle to define a suitable search distance
+
+    double maxDistance = 10.0;
+    auto   maxX        = surface->maxExtentTriangleInXDirection() / 2.0;
+    auto   maxY        = surface->maxExtentTriangleInYDirection() / 2.0;
+
+    auto candidate = std::min( maxX, maxY );
+
+    maxDistance = std::max( maxDistance, candidate );
+
+    return maxDistance;
 }
