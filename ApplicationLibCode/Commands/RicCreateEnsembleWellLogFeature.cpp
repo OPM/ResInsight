@@ -92,7 +92,7 @@ void RicCreateEnsembleWellLogFeature::openDialogAndExecuteCommand()
                                              "Create Ensemble Well Log",
                                              ui->tabNames() );
 
-    if ( propertyDialog.exec() == QDialog::Accepted && !ui->properties().empty() && !ui->wellPathFilePath().isEmpty() )
+    if ( propertyDialog.exec() == QDialog::Accepted && !ui->properties().empty() )
     {
         executeCommand( *ui, result.files.toStdList() );
     }
@@ -110,16 +110,30 @@ void RicCreateEnsembleWellLogFeature::executeCommand( const RicCreateEnsembleWel
 
     RimWellLogPlotCollection* plotCollection = RimProject::current()->mainPlotCollection()->wellLogPlotCollection();
 
-    // Load well path from file
-    QStringList wellPathFilePaths;
-    wellPathFilePaths << ui.wellPathFilePath();
-    bool                      importGrouped = false;
-    QStringList               errorMessages;
-    std::vector<RimWellPath*> wellPaths =
-        RicImportWellPaths::importWellPaths( wellPathFilePaths, importGrouped, &errorMessages );
-    if ( wellPaths.empty() ) return;
+    RimWellPath* wellPath = nullptr;
 
-    RimWellPath* wellPath = wellPaths[0];
+    if ( ui.wellPathSource() == RicCreateEnsembleWellLogUi::WellPathSource::FILE )
+    {
+        if ( ui.wellPathFilePath().isEmpty() ) return;
+
+        // Load well path from file
+        QStringList wellPathFilePaths;
+        wellPathFilePaths << ui.wellPathFilePath();
+        bool                      importGrouped = false;
+        QStringList               errorMessages;
+        std::vector<RimWellPath*> wellPaths =
+            RicImportWellPaths::importWellPaths( wellPathFilePaths, importGrouped, &errorMessages );
+        if ( wellPaths.empty() ) return;
+
+        wellPath = wellPaths[0];
+    }
+    else
+    {
+        CAF_ASSERT( ui.wellPathSource() == RicCreateEnsembleWellLogUi::WellPathSource::PROJECT_WELLS );
+        wellPath = ui.wellPathFromProject();
+    }
+
+    if ( !wellPath ) return;
 
     QStringList allLasFileNames;
     for ( const auto& fileName : fileNames )

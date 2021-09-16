@@ -27,7 +27,9 @@
 #include "RimEclipseCase.h"
 #include "RimEclipseResultDefinition.h"
 #include "RimTools.h"
+#include "RimWellPath.h"
 
+#include "cafAppEnum.h"
 #include "cafPdmObject.h"
 #include "cafPdmUiCheckBoxEditor.h"
 #include "cafPdmUiListEditor.h"
@@ -35,6 +37,17 @@
 #include "cafPdmUiTreeSelectionEditor.h"
 
 CAF_PDM_SOURCE_INIT( RicCreateEnsembleWellLogUi, "RicCreateEnsembleWellLogUi" );
+
+namespace caf
+{
+template <>
+void caf::AppEnum<RicCreateEnsembleWellLogUi::WellPathSource>::setUp()
+{
+    addItem( RicCreateEnsembleWellLogUi::WellPathSource::FILE, "FILE", "From file" );
+    addItem( RicCreateEnsembleWellLogUi::WellPathSource::PROJECT_WELLS, "PROJECT_WELLS", "From Project Wells" );
+    setDefault( RicCreateEnsembleWellLogUi::WellPathSource::FILE );
+}
+}; // namespace caf
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -53,6 +66,8 @@ RicCreateEnsembleWellLogUi::RicCreateEnsembleWellLogUi()
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_autoCreateEnsembleWellLogs );
 
     CAF_PDM_InitField( &m_timeStep, "TimeStep", 0, "Time Step", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_wellPathSource, "WellPathSource", "Well Path Source", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_wellPath, "WellPath", "Well Path", "", "", "" );
     CAF_PDM_InitFieldNoDefault( &m_well, "Well", "Well", "", "", "" );
     CAF_PDM_InitFieldNoDefault( &m_selectedKeywords, "SelectedProperties", "Selected Properties", "", "", "" );
     m_selectedKeywords.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
@@ -83,7 +98,13 @@ void RicCreateEnsembleWellLogUi::defineUiOrdering( QString uiConfigName, caf::Pd
 {
     if ( uiConfigName == m_tabNames[0] )
     {
+        uiOrdering.add( &m_wellPathSource );
+
+        bool fileSource = ( m_wellPathSource == RicCreateEnsembleWellLogUi::WellPathSource::FILE );
         uiOrdering.add( &m_well );
+        uiOrdering.add( &m_wellPath );
+        m_well.uiCapability()->setUiHidden( !fileSource );
+        m_wellPath.uiCapability()->setUiHidden( fileSource );
         uiOrdering.add( &m_autoCreateEnsembleWellLogs );
     }
     else if ( uiConfigName == m_tabNames[1] )
@@ -134,6 +155,10 @@ QList<caf::PdmOptionItemInfo>
     else if ( fieldNeedingOptions == &m_timeStep )
     {
         RimTools::timeStepsForCase( m_caseData->ownerCase(), &options );
+    }
+    else if ( fieldNeedingOptions == &m_wellPath )
+    {
+        RimTools::wellPathOptionItems( &options );
     }
 
     return options;
@@ -201,6 +226,22 @@ int RicCreateEnsembleWellLogUi::timeStep() const
 QString RicCreateEnsembleWellLogUi::wellPathFilePath() const
 {
     return m_well().path();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RicCreateEnsembleWellLogUi::WellPathSource RicCreateEnsembleWellLogUi::wellPathSource() const
+{
+    return m_wellPathSource();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimWellPath* RicCreateEnsembleWellLogUi::wellPathFromProject() const
+{
+    return m_wellPath;
 }
 
 //--------------------------------------------------------------------------------------------------
