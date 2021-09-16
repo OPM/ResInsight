@@ -144,13 +144,16 @@ double RigSurfaceResampler::computeMaxDistance( RigSurface* surface )
     // or when falling off resulting grid slightly.
     // Use the XY extent of a triangle to define a suitable search distance
 
-    double maxDistance = 10.0;
-    auto   maxX        = surface->maxExtentTriangleInXDirection() / 2.0;
-    auto   maxY        = surface->maxExtentTriangleInYDirection() / 2.0;
+    const double minimumDistance = 10.0;
+
+    if ( !surface ) return minimumDistance;
+
+    auto maxX = surface->maxExtentTriangleInXDirection() / 2.0;
+    auto maxY = surface->maxExtentTriangleInYDirection() / 2.0;
 
     auto candidate = std::min( maxX, maxY );
 
-    maxDistance = std::max( maxDistance, candidate );
+    double distance = std::max( minimumDistance, candidate );
 
-    return maxDistance;
+    return distance;
 }
