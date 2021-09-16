@@ -18,8 +18,6 @@
 
 #include "RimSummaryCurveAutoName.h"
 
-#include "RiaStatisticsTools.h"
-
 #include "RifEclipseSummaryAddress.h"
 
 #include "RimEnsembleCurveSet.h"

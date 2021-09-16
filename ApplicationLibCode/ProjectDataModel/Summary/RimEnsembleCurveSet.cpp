@@ -22,7 +22,6 @@
 #include "RiaGuiApplication.h"
 #include "RiaPreferences.h"
 #include "RiaResultNames.h"
-#include "RiaStatisticsTools.h"
 #include "RiaSummaryCurveAnalyzer.h"
 #include "RiaSummaryCurveDefinition.h"
 #include "RiaTimeTTools.h"
@@ -30,8 +29,6 @@
 #include "SummaryPlotCommands/RicSummaryPlotEditorUi.h"
 
 #include "RifEnsembleStatisticsReader.h"
-
-#include "RigStatisticsMath.h"
 
 #include "RimCustomObjectiveFunction.h"
 #include "RimCustomObjectiveFunctionCollection.h"

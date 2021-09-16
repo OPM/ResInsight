@@ -24,7 +24,6 @@
 #include "RiaLogging.h"
 #include "RiaPreferencesSummary.h"
 #include "RiaResultNames.h"
-#include "RiaStatisticsTools.h"
 #include "RiaSummaryCurveDefinition.h"
 #include "RiaSummaryTools.h"
 

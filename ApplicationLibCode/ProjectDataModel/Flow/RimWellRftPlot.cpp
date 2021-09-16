@@ -22,7 +22,6 @@
 #include "RiaColorTools.h"
 #include "RiaDateStringParser.h"
 #include "RiaSimWellBranchTools.h"
-#include "RiaStatisticsTools.h"
 
 #include "RifReaderEclipseRft.h"
 
