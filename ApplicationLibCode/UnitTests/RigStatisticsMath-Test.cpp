@@ -169,7 +169,7 @@ TEST( RigStatisticsMath, InterpolatedPercentiles )
         RigStatisticsMath::calculateInterpolatedPercentiles( values, pValPos, RigStatisticsMath::PercentileStyle::REGULAR );
 
     EXPECT_DOUBLE_EQ( -72278.340409937548, pVals[0] );
-    EXPECT_DOUBLE_EQ( -2265.6006907818719, pVals[1] );
+    EXPECT_DOUBLE_EQ( -2265.6006907818496, pVals[1] );
     EXPECT_DOUBLE_EQ( 6391.9799990972897, pVals[2] );
     EXPECT_DOUBLE_EQ( 93073.49128098879, pVals[3] );
 }
