@@ -64,6 +64,7 @@ void RifSurfaceImporter::readGocadFile( const QString& filename, RigGocadData* g
     {
         std::stringstream stream;
         {
+            // Read the file content into a stringstream to avoid expensive file operations
             std::ifstream t( filename.toLatin1().data() );
             stream << t.rdbuf();
         }
@@ -85,43 +86,33 @@ void RifSurfaceImporter::readGocadFile( const QString& filename, RigGocadData* g
             {
                 if ( firstToken.compare( "VRTX" ) == 0 )
                 {
-                    int         vertexId = -1;
-                    double      x{ std::numeric_limits<double>::infinity() };
-                    double      y{ std::numeric_limits<double>::infinity() };
-                    double      z{ std::numeric_limits<double>::infinity() };
-                    std::string endVertex;
-
                     if ( tokens.size() > 4 )
                     {
-                        vertexId = RiaStdStringTools::toInt( tokens[1] );
-                        x        = RiaStdStringTools::toDouble( tokens[2] );
-                        y        = RiaStdStringTools::toDouble( tokens[3] );
-                        z        = RiaStdStringTools::toDouble( tokens[4] );
-                    }
+                        int    vertexId = RiaStdStringTools::toInt( tokens[1] );
+                        double x        = RiaStdStringTools::toDouble( tokens[2] );
+                        double y        = RiaStdStringTools::toDouble( tokens[3] );
+                        double z        = RiaStdStringTools::toDouble( tokens[4] );
 
-                    if ( vertexId > -1 )
-                    {
-                        if ( zDir == GocadZPositive::Depth )
+                        if ( vertexId > -1 )
                         {
-                            z = -z;
-                        }
+                            if ( zDir == GocadZPositive::Depth )
+                            {
+                                z = -z;
+                            }
 
-                        vertices.emplace_back( cvf::Vec3d( x, y, z ) );
-                        vertexIdToIndex[vertexId] = static_cast<unsigned>( vertices.size() - 1 );
+                            vertices.emplace_back( cvf::Vec3d( x, y, z ) );
+                            vertexIdToIndex[vertexId] = static_cast<unsigned>( vertices.size() - 1 );
+                        }
                     }
                 }
                 else if ( firstToken.compare( "PVRTX" ) == 0 )
                 {
                     if ( tokens.size() > 4 )
                     {
-                        int    vertexId = -1;
-                        double x{ std::numeric_limits<double>::infinity() };
-                        double y{ std::numeric_limits<double>::infinity() };
-                        double z{ std::numeric_limits<double>::infinity() };
-                        vertexId = RiaStdStringTools::toInt( tokens[1] );
-                        x        = RiaStdStringTools::toDouble( tokens[2] );
-                        y        = RiaStdStringTools::toDouble( tokens[3] );
-                        z        = RiaStdStringTools::toDouble( tokens[4] );
+                        int    vertexId = RiaStdStringTools::toInt( tokens[1] );
+                        double x        = RiaStdStringTools::toDouble( tokens[2] );
+                        double y        = RiaStdStringTools::toDouble( tokens[3] );
+                        double z        = RiaStdStringTools::toDouble( tokens[4] );
 
                         if ( vertexId > -1 )
                         {
@@ -129,37 +120,34 @@ void RifSurfaceImporter::readGocadFile( const QString& filename, RigGocadData* g
 
                             vertices.emplace_back( cvf::Vec3d( x, y, z ) );
                             vertexIdToIndex[vertexId] = static_cast<unsigned>( vertices.size() - 1 );
-                        }
 
-                        for ( size_t i = 0; i < propertyNames.size(); i++ )
-                        {
-                            float value = std::numeric_limits<double>::infinity();
+                            for ( size_t i = 0; i < propertyNames.size(); i++ )
+                            {
+                                float value = std::numeric_limits<double>::infinity();
 
-                            auto tokenIndex = 5 + i;
-                            if ( tokenIndex < tokens.size() ) value = RiaStdStringTools::toDouble( tokens[tokenIndex] );
+                                auto tokenIndex = 5 + i;
+                                if ( tokenIndex < tokens.size() )
+                                    value = RiaStdStringTools::toDouble( tokens[tokenIndex] );
 
-                            propertyValues[i].push_back( value );
+                                propertyValues[i].push_back( value );
+                            }
                         }
                     }
                 }
                 else if ( firstToken.compare( "TRGL" ) == 0 )
                 {
-                    int id1{ -1 };
-                    int id2{ -1 };
-                    int id3{ -1 };
-
                     if ( tokens.size() > 3 )
                     {
-                        id1 = RiaStdStringTools::toInt( tokens[1] );
-                        id2 = RiaStdStringTools::toInt( tokens[2] );
-                        id3 = RiaStdStringTools::toInt( tokens[3] );
-                    }
+                        auto id1 = RiaStdStringTools::toInt( tokens[1] );
+                        auto id2 = RiaStdStringTools::toInt( tokens[2] );
+                        auto id3 = RiaStdStringTools::toInt( tokens[3] );
 
-                    if ( id1 >= 0 && id2 >= 0 && id3 >= 0 )
-                    {
-                        trianglesByIds.emplace_back( static_cast<unsigned int>( id1 ) );
-                        trianglesByIds.emplace_back( static_cast<unsigned int>( id2 ) );
-                        trianglesByIds.emplace_back( static_cast<unsigned int>( id3 ) );
+                        if ( id1 >= 0 && id2 >= 0 && id3 >= 0 )
+                        {
+                            trianglesByIds.emplace_back( static_cast<unsigned int>( id1 ) );
+                            trianglesByIds.emplace_back( static_cast<unsigned int>( id2 ) );
+                            trianglesByIds.emplace_back( static_cast<unsigned int>( id3 ) );
+                        }
                     }
                 }
                 else if ( firstToken.compare( "END" ) == 0 )
@@ -184,10 +172,7 @@ void RifSurfaceImporter::readGocadFile( const QString& filename, RigGocadData* g
             {
                 std::string secondToken;
 
-                if ( tokens.size() > 1 ) secondToken = tokens[1];
-
-                secondToken = RiaStdStringTools::toUpper( secondToken );
-
+                if ( tokens.size() > 1 ) secondToken = RiaStdStringTools::toUpper( tokens[1] );
                 if ( secondToken == "DEPTH" )
                 {
                     zDir = GocadZPositive::Depth;
@@ -381,8 +366,8 @@ std::pair<std::vector<cvf::Vec3d>, std::vector<unsigned>>
     auto to2d = []( const cvf::Vec3d vector ) -> cvf::Vec2d { return cvf::Vec2d( vector.x(), vector.y() ); };
     auto to3d = []( const cvf::Vec2d vector ) -> cvf::Vec3d { return cvf::Vec3d( vector.x(), vector.y(), 0.0 ); };
 
-    // Checks if the given vector is a possible new candidate for an axis vector and adds it to the given list of
-    // axesVectorCandidates. Also increases the number of occurrences of vector candidates.
+    // Checks if the given vector is a possible new candidate for an axis vector and adds it to the given list
+    // of axesVectorCandidates. Also increases the number of occurrences of vector candidates.
     auto maybeInsertAxisVectorCandidate =
         [epsilon]( const cvf::Vec2d                              vector,
                    std::map<cvf::Vec2d, double, vec2dCompare>&   axesVectorCandidates,
