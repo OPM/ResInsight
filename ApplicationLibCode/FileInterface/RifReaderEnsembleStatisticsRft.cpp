@@ -240,7 +240,12 @@ void RifReaderEnsembleStatisticsRft::calculateStatistics( const RifEclipseRftAdd
                 pressuresAtDepth.push_back( curvePressures[depthIdx] );
             }
             double p10, p50, p90, mean;
-            RigStatisticsMath::calculateStatisticsCurves( pressuresAtDepth, &p10, &p50, &p90, &mean );
+            RigStatisticsMath::calculateStatisticsCurves( pressuresAtDepth,
+                                                          &p10,
+                                                          &p50,
+                                                          &p90,
+                                                          &mean,
+                                                          RigStatisticsMath::PercentileStyle::SWITCHED );
 
             m_cachedValues[depthAddress].push_back( allDepths[depthIdx] );
 

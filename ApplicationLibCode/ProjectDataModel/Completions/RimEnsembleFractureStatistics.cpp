@@ -1131,7 +1131,12 @@ void RimEnsembleFractureStatistics::generateStatisticsGrids(
                 double p50;
                 double p90;
                 double mean;
-                RigStatisticsMath::calculateStatisticsCurves( samples[idx], &p10, &p50, &p90, &mean );
+                RigStatisticsMath::calculateStatisticsCurves( samples[idx],
+                                                              &p10,
+                                                              &p50,
+                                                              &p90,
+                                                              &mean,
+                                                              RigStatisticsMath::PercentileStyle::SWITCHED );
 
                 if ( calculateP10 )
                     setValueNoInf( statisticsGrids[RimEnsembleFractureStatistics::StatisticsType::P10], x, y, p10 );

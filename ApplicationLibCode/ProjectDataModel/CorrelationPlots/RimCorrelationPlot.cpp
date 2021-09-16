@@ -20,7 +20,6 @@
 
 #include "RiaPreferences.h"
 #include "RiaQDateTimeTools.h"
-#include "RiaStatisticsTools.h"
 #include "RiuGroupedBarChartBuilder.h"
 #include "RiuPlotMainWindowTools.h"
 #include "RiuQwtPlotWidget.h"

@@ -22,7 +22,6 @@
 #include "RiaEclipseUnitTools.h"
 #include "RiaQDateTimeTools.h"
 #include "RiaSimWellBranchTools.h"
-#include "RiaStatisticsTools.h"
 
 #include "RifEclipseRftAddress.h"
 #include "RifReaderEclipseRft.h"
@@ -359,7 +358,6 @@ QString RimWellLogRftCurve::createCurveAutoName()
         RifEclipseRftAddress::RftWellLogChannelType channelNameEnum =
             caf::AppEnum<RifEclipseRftAddress::RftWellLogChannelType>::fromText( wellLogChannelUiName() );
         QString channelName = caf::AppEnum<RifEclipseRftAddress::RftWellLogChannelType>::uiText( channelNameEnum );
-        channelName         = RiaStatisticsTools::replacePercentileByPValueText( channelName );
         name.push_back( channelName );
     }
     if ( !m_timeStep().isNull() )

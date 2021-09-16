@@ -74,8 +74,8 @@ TEST( RigSurfaceStatisticsTests, computeStatistics )
         ASSERT_EQ( 49.5, meanValues[i] );
         ASSERT_EQ( 0, minValues[i] );
         ASSERT_EQ( 99, maxValues[i] );
-        ASSERT_NEAR( 9.1, p10Values[i], 0.0001 );
+        ASSERT_NEAR( 9.1, p90Values[i], 0.0001 );
         ASSERT_NEAR( 49.5, p50Values[i], 0.0001 );
-        ASSERT_NEAR( 89.9, p90Values[i], 0.0001 );
+        ASSERT_NEAR( 89.9, p10Values[i], 0.0001 );
     }
 }

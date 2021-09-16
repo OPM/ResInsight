@@ -21,7 +21,6 @@
 #include "RiaColorTables.h"
 #include "RiaPreferences.h"
 #include "RiaQDateTimeTools.h"
-#include "RiaStatisticsTools.h"
 #include "RiaTextStringTools.h"
 
 #include "RifSummaryReaderInterface.h"

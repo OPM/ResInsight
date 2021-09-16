@@ -22,7 +22,6 @@
 #include "RiaColorTools.h"
 #include "RiaDateStringParser.h"
 #include "RiaSimWellBranchTools.h"
-#include "RiaStatisticsTools.h"
 
 #include "RifReaderEclipseRft.h"
 
@@ -582,7 +581,6 @@ void RimWellRftPlot::updateCurvesInPlot( const std::set<RiaRftPltCurveDefinition
                     QString uiText =
                         caf::AppEnum<RifEclipseRftAddress::RftWellLogChannelType>::uiText( rftAddress.wellLogChannel() );
                     QString label = uiText.replace( ": Pressure", "" );
-                    label         = RiaStatisticsTools::replacePercentileByPValueText( label );
                     curve->setSymbolLabel( label );
                     curve->setLineThickness( 3 );
                 }

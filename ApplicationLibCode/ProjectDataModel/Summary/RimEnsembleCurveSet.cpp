@@ -22,7 +22,6 @@
 #include "RiaGuiApplication.h"
 #include "RiaPreferences.h"
 #include "RiaResultNames.h"
-#include "RiaStatisticsTools.h"
 #include "RiaSummaryCurveAnalyzer.h"
 #include "RiaSummaryCurveDefinition.h"
 #include "RiaTimeTTools.h"
@@ -30,8 +29,6 @@
 #include "SummaryPlotCommands/RicSummaryPlotEditorUi.h"
 
 #include "RifEnsembleStatisticsReader.h"
-
-#include "RigStatisticsMath.h"
 
 #include "RimCustomObjectiveFunction.h"
 #include "RimCustomObjectiveFunctionCollection.h"
@@ -1804,8 +1801,7 @@ void RimEnsembleCurveSet::updateStatisticsCurves( const std::vector<RimSummaryCa
         curve->setSymbolSkipDistance( 150 );
         if ( m_statistics->showCurveLabels() )
         {
-            curve->setSymbolLabel( RiaStatisticsTools::replacePercentileByPValueText(
-                QString::fromStdString( address.ensembleStatisticsQuantityName() ) ) );
+            curve->setSymbolLabel( QString::fromStdString( address.ensembleStatisticsQuantityName() ) );
         }
         curve->setLineStyle( RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_SOLID );
         curve->setSummaryCaseY( m_ensembleStatCase.get() );

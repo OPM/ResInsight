@@ -86,7 +86,8 @@ TEST( RigStatisticsMath, RankPercentiles )
     pValPos.push_back( 40 );
     pValPos.push_back( 50 );
     pValPos.push_back( 90 );
-    std::vector<double> pVals = RigStatisticsMath::calculateNearestRankPercentiles( values, pValPos );
+    std::vector<double> pVals =
+        RigStatisticsMath::calculateNearestRankPercentiles( values, pValPos, RigStatisticsMath::PercentileStyle::REGULAR );
 
     EXPECT_DOUBLE_EQ( -76092.8157632591000, pVals[0] );
     EXPECT_DOUBLE_EQ( 2788.2723335651900, pVals[1] );
@@ -126,9 +127,9 @@ TEST( RigStatisticsMath, HistogramPercentiles )
     histCalc.addData( values );
 
     double p10, p50, p90;
-    p10 = histCalc.calculatePercentil( 0.1 );
-    p50 = histCalc.calculatePercentil( 0.5 );
-    p90 = histCalc.calculatePercentil( 0.9 );
+    p10 = histCalc.calculatePercentil( 0.1, RigStatisticsMath::PercentileStyle::REGULAR );
+    p50 = histCalc.calculatePercentil( 0.5, RigStatisticsMath::PercentileStyle::REGULAR );
+    p90 = histCalc.calculatePercentil( 0.9, RigStatisticsMath::PercentileStyle::REGULAR );
 
     EXPECT_DOUBLE_EQ( -76273.240559989776, p10 );
     EXPECT_DOUBLE_EQ( 5312.1312871307755, p50 );
@@ -164,10 +165,11 @@ TEST( RigStatisticsMath, InterpolatedPercentiles )
     pValPos.push_back( 40 );
     pValPos.push_back( 50 );
     pValPos.push_back( 90 );
-    std::vector<double> pVals = RigStatisticsMath::calculateInterpolatedPercentiles( values, pValPos );
+    std::vector<double> pVals =
+        RigStatisticsMath::calculateInterpolatedPercentiles( values, pValPos, RigStatisticsMath::PercentileStyle::REGULAR );
 
     EXPECT_DOUBLE_EQ( -72278.340409937548, pVals[0] );
-    EXPECT_DOUBLE_EQ( -2265.6006907818719, pVals[1] );
+    EXPECT_DOUBLE_EQ( -2265.6006907818496, pVals[1] );
     EXPECT_DOUBLE_EQ( 6391.9799990972897, pVals[2] );
     EXPECT_DOUBLE_EQ( 93073.49128098879, pVals[3] );
 }
@@ -226,6 +228,8 @@ TEST( RigStatisticsMath, Accumulators )
 //--------------------------------------------------------------------------------------------------
 TEST( RigStatisticsMath, calculateStatisticsCurves )
 {
+    RigStatisticsMath::PercentileStyle percentileStyle = RigStatisticsMath::PercentileStyle::REGULAR;
+
     {
         std::vector<double> values;
 
@@ -234,7 +238,7 @@ TEST( RigStatisticsMath, calculateStatisticsCurves )
         double p50  = HUGE_VAL;
         double p90  = HUGE_VAL;
 
-        RigStatisticsMath::calculateStatisticsCurves( values, &p10, &p50, &p90, &mean );
+        RigStatisticsMath::calculateStatisticsCurves( values, &p10, &p50, &p90, &mean, percentileStyle );
         EXPECT_TRUE( std::isinf( p10 ) );
         EXPECT_TRUE( std::isinf( p50 ) );
         EXPECT_TRUE( std::isinf( p90 ) );
@@ -254,7 +258,7 @@ TEST( RigStatisticsMath, calculateStatisticsCurves )
         double p90  = HUGE_VAL;
 
         // If we have few samples, P10 and P90 cannot be computed
-        RigStatisticsMath::calculateStatisticsCurves( values, &p10, &p50, &p90, &mean );
+        RigStatisticsMath::calculateStatisticsCurves( values, &p10, &p50, &p90, &mean, percentileStyle );
         EXPECT_TRUE( std::isinf( p10 ) );
         EXPECT_TRUE( std::isinf( p90 ) );
         EXPECT_DOUBLE_EQ( 1.0, p50 );
@@ -269,7 +273,7 @@ TEST( RigStatisticsMath, calculateStatisticsCurves )
         double p50  = HUGE_VAL;
         double p90  = HUGE_VAL;
 
-        RigStatisticsMath::calculateStatisticsCurves( values, &p10, &p50, &p90, &mean );
+        RigStatisticsMath::calculateStatisticsCurves( values, &p10, &p50, &p90, &mean, percentileStyle );
         EXPECT_DOUBLE_EQ( 1.0, p10 );
         EXPECT_DOUBLE_EQ( 1.0, p50 );
         EXPECT_FALSE( std::isinf( p90 ) );
@@ -284,7 +288,7 @@ TEST( RigStatisticsMath, calculateStatisticsCurves )
         double p50  = HUGE_VAL;
         double p90  = HUGE_VAL;
 
-        RigStatisticsMath::calculateStatisticsCurves( values, &p10, &p50, &p90, &mean );
+        RigStatisticsMath::calculateStatisticsCurves( values, &p10, &p50, &p90, &mean, percentileStyle );
         EXPECT_DOUBLE_EQ( 1.0, p10 );
         EXPECT_DOUBLE_EQ( 1.0, p50 );
         EXPECT_DOUBLE_EQ( 1.0, p90 );

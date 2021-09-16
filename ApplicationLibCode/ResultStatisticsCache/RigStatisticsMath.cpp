@@ -91,7 +91,8 @@ void RigStatisticsMath::calculateStatisticsCurves( const std::vector<double>& va
                                                    double*                    p10,
                                                    double*                    p50,
                                                    double*                    p90,
-                                                   double*                    mean )
+                                                   double*                    mean,
+                                                   PercentileStyle            percentileStyle )
 {
     CVF_ASSERT( p10 && p50 && p90 && mean );
 
@@ -145,9 +146,20 @@ void RigStatisticsMath::calculateStatisticsCurves( const std::vector<double>& va
         }
     }
 
-    *p10  = pValues[P10];
-    *p50  = pValues[P50];
-    *p90  = pValues[P90];
+    *p50 = pValues[P50];
+
+    if ( percentileStyle == PercentileStyle::REGULAR )
+    {
+        *p10 = pValues[P10];
+        *p90 = pValues[P90];
+    }
+    else
+    {
+        CVF_ASSERT( percentileStyle == PercentileStyle::SWITCHED );
+        *p10 = pValues[P90];
+        *p90 = pValues[P10];
+    }
+
     *mean = valueSum / valueCount;
 }
 
@@ -158,7 +170,8 @@ void RigStatisticsMath::calculateStatisticsCurves( const std::vector<double>& va
 //--------------------------------------------------------------------------------------------------
 
 std::vector<double> RigStatisticsMath::calculateNearestRankPercentiles( const std::vector<double>& inputValues,
-                                                                        const std::vector<double>& pValPositions )
+                                                                        const std::vector<double>& pValPositions,
+                                                                        RigStatisticsMath::PercentileStyle percentileStyle )
 {
     std::vector<double> sortedValues;
     sortedValues.reserve( inputValues.size() );
@@ -180,7 +193,10 @@ std::vector<double> RigStatisticsMath::calculateNearestRankPercentiles( const st
         {
             double pVal = HUGE_VAL;
 
-            size_t pValIndex = static_cast<size_t>( sortedValues.size() * cvf::Math::abs( pValPositions[i] ) / 100 );
+            double pValPosition = cvf::Math::abs( pValPositions[i] ) / 100;
+            if ( percentileStyle == RigStatisticsMath::PercentileStyle::SWITCHED ) pValPosition = 1.0 - pValPosition;
+
+            size_t pValIndex = static_cast<size_t>( sortedValues.size() * pValPosition );
 
             if ( pValIndex >= sortedValues.size() ) pValIndex = sortedValues.size() - 1;
 
@@ -198,7 +214,8 @@ std::vector<double> RigStatisticsMath::calculateNearestRankPercentiles( const st
 /// the inputValues does not contain any valid values
 //--------------------------------------------------------------------------------------------------
 std::vector<double> RigStatisticsMath::calculateInterpolatedPercentiles( const std::vector<double>& inputValues,
-                                                                         const std::vector<double>& pValPositions )
+                                                                         const std::vector<double>& pValPositions,
+                                                                         RigStatisticsMath::PercentileStyle percentileStyle )
 {
     std::vector<double> sortedValues;
     sortedValues.reserve( inputValues.size() );
@@ -220,7 +237,10 @@ std::vector<double> RigStatisticsMath::calculateInterpolatedPercentiles( const s
         {
             double pVal = HUGE_VAL;
 
-            double doubleIndex = ( sortedValues.size() - 1 ) * cvf::Math::abs( pValPositions[i] ) / 100.0;
+            double pValPosition = cvf::Math::abs( pValPositions[i] ) / 100.0;
+            if ( percentileStyle == RigStatisticsMath::PercentileStyle::SWITCHED ) pValPosition = 1.0 - pValPosition;
+
+            double doubleIndex = ( sortedValues.size() - 1 ) * pValPosition;
 
             size_t lowerValueIndex = static_cast<size_t>( floor( doubleIndex ) );
             size_t upperValueIndex = lowerValueIndex + 1;
@@ -315,12 +335,16 @@ void RigHistogramCalculator::addData( const std::vector<float>& data )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RigHistogramCalculator::calculatePercentil( double pVal )
+double RigHistogramCalculator::calculatePercentil( double pVal, RigStatisticsMath::PercentileStyle percentileStyle )
 {
     assert( m_histogram );
     assert( m_histogram->size() );
     auto pValClamped = cvf::Math::clamp( pVal, 0.0, 1.0 );
     assert( 0.0 <= pValClamped && pValClamped <= 1.0 );
+    if ( percentileStyle == RigStatisticsMath::PercentileStyle::SWITCHED )
+    {
+        pValClamped = 1.0 - pValClamped;
+    }
 
     double pValObservationCount = pValClamped * m_observationCount;
     if ( pValObservationCount == 0.0 ) return m_min;

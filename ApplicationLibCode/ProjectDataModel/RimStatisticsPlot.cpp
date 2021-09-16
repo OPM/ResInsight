@@ -365,7 +365,7 @@ void RimStatisticsPlot::updatePlots()
         p10series->attachAxis( axisY );
     }
 
-    if ( !std::isinf( histogramData.p10 ) )
+    if ( !std::isinf( histogramData.p90 ) )
     {
         QLineSeries* p90series = new QLineSeries();
         chart->addSeries( p90series );

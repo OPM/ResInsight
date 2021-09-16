@@ -481,9 +481,9 @@ QString Rim3dOverlayInfoConfig::resultInfoText( const RigHistogramData& histData
                              "<tr> <td>%1</td>  <td> %2</td> <td>  %3</td> <td> %4</td> <td> %5</td> <td> %6</td> </tr>"
                              "</table>" )
                         .arg( histData.min )
-                        .arg( histData.p10 )
-                        .arg( histData.mean )
                         .arg( histData.p90 )
+                        .arg( histData.mean )
+                        .arg( histData.p10 )
                         .arg( histData.max )
                         .arg( histData.sum );
             }
@@ -652,9 +652,9 @@ QString Rim3dOverlayInfoConfig::resultInfoText( const RigHistogramData& histData
                             "<tr> <td>%1</td>  <td> %2</td> <td> %3</td>  <td> %4</td> <td> %5</td> <td> %6</td> </tr>"
                             "</table>" )
                             .arg( histData.min )
-                            .arg( histData.p10 )
-                            .arg( histData.mean )
                             .arg( histData.p90 )
+                            .arg( histData.mean )
+                            .arg( histData.p10 )
                             .arg( histData.max )
                             .arg( histData.sum );
                 }
@@ -863,7 +863,7 @@ void Rim3dOverlayInfoConfig::updateEclipse3DInfo( RimEclipseView* eclipseView )
         {
             eclipseView->viewer()->showHistogram( true );
             eclipseView->viewer()->setHistogram( histData.min, histData.max, histData.histogram );
-            eclipseView->viewer()->setHistogramPercentiles( histData.p10, histData.p90, histData.mean );
+            eclipseView->viewer()->setHistogramPercentiles( histData.p90, histData.p10, histData.mean );
         }
     }
 }
@@ -912,7 +912,7 @@ void Rim3dOverlayInfoConfig::updateGeoMech3DInfo( RimGeoMechView* geoMechView )
         {
             geoMechView->viewer()->showHistogram( true );
             geoMechView->viewer()->setHistogram( histData.min, histData.max, histData.histogram );
-            geoMechView->viewer()->setHistogramPercentiles( histData.p10, histData.p90, histData.mean );
+            geoMechView->viewer()->setHistogramPercentiles( histData.p90, histData.p10, histData.mean );
         }
     }
 }

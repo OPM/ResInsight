@@ -127,7 +127,12 @@ RigHistogramData RigEnsembleFractureStatisticsCalculator::createStatisticsData(
 
     double p50;
     double mean;
-    RigStatisticsMath::calculateStatisticsCurves( samples, &histogramData.p10, &p50, &histogramData.p90, &mean );
+    RigStatisticsMath::calculateStatisticsCurves( samples,
+                                                  &histogramData.p10,
+                                                  &p50,
+                                                  &histogramData.p90,
+                                                  &mean,
+                                                  RigStatisticsMath::PercentileStyle::SWITCHED );
 
     std::vector<size_t>    histogram;
     RigHistogramCalculator histogramCalculator( histogramData.min, histogramData.max, numBins, &histogram );
