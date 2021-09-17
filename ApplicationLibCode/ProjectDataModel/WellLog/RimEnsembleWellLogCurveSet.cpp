@@ -121,6 +121,15 @@ RimEnsembleWellLogCurveSet::RimEnsembleWellLogCurveSet()
 
     CAF_PDM_InitField( &m_isUsingAutoName, "AutoName", true, "Auto Name", "", "", "" );
 
+    CAF_PDM_InitFieldNoDefault( &m_curveAppearance, "PlotCurveAppearance", "PlotCurveAppearance", "", "", "" );
+    m_curveAppearance = new RimPlotCurveAppearance;
+    m_curveAppearance.uiCapability()->setUiTreeHidden( true );
+    m_curveAppearance->setInterpolationVisible( false );
+    m_curveAppearance->setColorVisible( false );
+    m_curveAppearance->setFillOptionsVisible( false );
+
+    m_curveAppearance->appearanceChanged.connect( this, &RimEnsembleWellLogCurveSet::onEnsembleCurvesAppearanceChanged );
+
     m_qwtPlotCurveForLegendText = new QwtPlotCurve;
     m_qwtPlotCurveForLegendText->setLegendAttribute( QwtPlotCurve::LegendShowSymbol, true );
 
@@ -334,6 +343,14 @@ void RimEnsembleWellLogCurveSet::setColorMode( ColorMode mode )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimEnsembleWellLogCurveSet::onEnsembleCurvesAppearanceChanged( const caf::SignalEmitter* emitter )
+{
+    loadDataAndUpdate( true );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimEnsembleWellLogCurveSet::updateAllCurves()
 {
     RimEnsembleWellLogs* group = m_ensembleWellLogs;
@@ -468,6 +485,9 @@ void RimEnsembleWellLogCurveSet::defineUiOrdering( QString uiConfigName, caf::Pd
 
     caf::PdmUiGroup* statGroup = uiOrdering.addNewGroup( "Statistics" );
     m_statistics->defineUiOrdering( uiConfigName, *statGroup );
+
+    caf::PdmUiGroup* curveAppearanceGroup = uiOrdering.addNewGroup( "Curve Appearance" );
+    m_curveAppearance->appearanceUiOrdering( *curveAppearanceGroup );
 
     uiOrdering.skipRemainingFields( true );
 }
@@ -781,6 +801,13 @@ void RimEnsembleWellLogCurveSet::updateEnsembleCurves( const std::vector<RimWell
                 curve->setWellPath( wellPath );
                 curve->setWellLogChannelName( wellLogChannelName );
                 curve->setWellLogFile( wellLogFile );
+
+                curve->setSymbol( m_curveAppearance->symbol() );
+                curve->setSymbolSize( m_curveAppearance->symbolSize() );
+                curve->setSymbolSkipDistance( m_curveAppearance->symbolSkipDistance() );
+                curve->setSymbolEdgeColor( m_curveAppearance->symbolEdgeColor() );
+                curve->setLineStyle( m_curveAppearance->lineStyle() );
+                curve->setLineThickness( m_curveAppearance->lineThickness() );
 
                 if ( offsets ) curve->setIndexDepthOffsets( offsets );
                 curve->loadDataAndUpdate( true );
