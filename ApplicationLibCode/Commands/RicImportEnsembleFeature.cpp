@@ -70,13 +70,24 @@ bool RicImportEnsembleFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicImportEnsembleFeature::onActionTriggered( bool isChecked )
 {
-    RiaApplication* app           = RiaApplication::instance();
-    QString         pathCacheName = "ENSEMBLE_FILES";
-    QStringList     fileNames =
+    QString     pathCacheName = "ENSEMBLE_FILES";
+    QStringList fileNames =
         RicImportSummaryCasesFeature::runRecursiveSummaryCaseFileSearchDialog( "Import Ensemble", pathCacheName );
 
     if ( fileNames.isEmpty() ) return;
 
+    std::vector<QStringList> groupedByEnsemble = RiaEnsembleNameTools::groupFilesByEnsemble( fileNames );
+    for ( const QStringList& groupedFileNames : groupedByEnsemble )
+    {
+        importSingleEnsemble( groupedFileNames );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicImportEnsembleFeature::importSingleEnsemble( const QStringList& fileNames )
+{
     QString ensembleNameSuggestion = RiaEnsembleNameTools::findSuitableEnsembleName( fileNames );
 
     QString ensembleName = askForEnsembleName( ensembleNameSuggestion );
@@ -102,7 +113,7 @@ void RicImportEnsembleFeature::onActionTriggered( bool isChecked )
     }
 
     std::vector<RimCase*> allCases;
-    app->project()->allCases( allCases );
+    RiaApplication::instance()->project()->allCases( allCases );
 
     if ( allCases.size() == 0 )
     {

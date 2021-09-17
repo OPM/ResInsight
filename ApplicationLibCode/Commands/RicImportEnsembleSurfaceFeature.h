@@ -42,6 +42,8 @@ protected:
 
     QStringList runRecursiveFileSearchDialog( const QString& dialogTitle, const QString& pathCacheName );
 
+    static void importSingleEnsembleSurfaceFromFiles( const QStringList& fileNames );
+
 private:
     QString m_pathFilter;
     QString m_fileNameFilter;

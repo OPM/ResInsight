@@ -33,7 +33,9 @@ class RicImportEnsembleWellLogsFeature : public caf::CmdFeature
 
     RicImportEnsembleWellLogsFeature();
 
-    static RimEnsembleWellLogs* createEnsembleWellLogsFromFiles( const QStringList& fileNames );
+    static RimEnsembleWellLogs* createSingleEnsembleWellLogsFromFiles( const QStringList& fileNames );
+
+    static std::vector<RimEnsembleWellLogs*> createEnsembleWellLogsFromFiles( const QStringList& fileNames );
 
 protected:
     // Overrides
