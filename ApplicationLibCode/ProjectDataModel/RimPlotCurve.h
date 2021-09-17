@@ -19,6 +19,8 @@
 
 #include "RifEclipseSummaryAddress.h"
 
+#include "RimPlotCurveAppearance.h"
+
 #include "RiaCurveDataTools.h"
 #include "RiaDefines.h"
 
@@ -50,13 +52,6 @@ public:
     caf::Signal<bool>    visibilityChanged;
     caf::Signal<>        dataChanged;
     caf::Signal<QString> nameChanged;
-
-public:
-    typedef caf::AppEnum<RiuQwtPlotCurveDefines::CurveInterpolationEnum> CurveInterpolation;
-    typedef caf::AppEnum<RiuQwtPlotCurveDefines::LineStyleEnum>          LineStyle;
-    typedef caf::AppEnum<RiuQwtSymbol::PointSymbolEnum>                  PointSymbol;
-    typedef caf::AppEnum<RiuQwtSymbol::LabelPosition>                    LabelPosition;
-    typedef caf::AppEnum<Qt::BrushStyle>                                 FillStyle;
 
 public:
     RimPlotCurve();
@@ -185,11 +180,11 @@ protected:
     caf::PdmField<float>        m_symbolSkipPixelDistance;
     caf::PdmField<bool>         m_showErrorBars;
 
-    caf::PdmField<PointSymbol>        m_pointSymbol;
-    caf::PdmField<LineStyle>          m_lineStyle;
-    caf::PdmField<FillStyle>          m_fillStyle;
-    caf::PdmField<cvf::Color3f>       m_fillColor;
-    caf::PdmField<CurveInterpolation> m_curveInterpolation;
-    caf::PdmField<LabelPosition>      m_symbolLabelPosition;
-    caf::PdmField<cvf::Color3f>       m_symbolEdgeColor;
+    caf::PdmField<RimPlotCurveAppearance::PointSymbol>        m_pointSymbol;
+    caf::PdmField<RimPlotCurveAppearance::LineStyle>          m_lineStyle;
+    caf::PdmField<RimPlotCurveAppearance::FillStyle>          m_fillStyle;
+    caf::PdmField<cvf::Color3f>                               m_fillColor;
+    caf::PdmField<RimPlotCurveAppearance::CurveInterpolation> m_curveInterpolation;
+    caf::PdmField<RimPlotCurveAppearance::LabelPosition>      m_symbolLabelPosition;
+    caf::PdmField<cvf::Color3f>                               m_symbolEdgeColor;
 };

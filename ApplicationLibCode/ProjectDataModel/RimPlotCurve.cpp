@@ -50,53 +50,6 @@ CAF_PDM_XML_ABSTRACT_SOURCE_INIT( RimPlotCurve, "PlotCurve" );
 
 #define DOUBLE_INF std::numeric_limits<double>::infinity()
 
-namespace caf
-{
-template <>
-void RimPlotCurve::PointSymbol::setUp()
-{
-    addItem( RiuQwtSymbol::SYMBOL_NONE, "SYMBOL_NONE", "None" );
-    addItem( RiuQwtSymbol::SYMBOL_ELLIPSE, "SYMBOL_ELLIPSE", "Ellipse" );
-    addItem( RiuQwtSymbol::SYMBOL_RECT, "SYMBOL_RECT", "Rect" );
-    addItem( RiuQwtSymbol::SYMBOL_DIAMOND, "SYMBOL_DIAMOND", "Diamond" );
-    addItem( RiuQwtSymbol::SYMBOL_TRIANGLE, "SYMBOL_TRIANGLE", "Triangle" );
-    addItem( RiuQwtSymbol::SYMBOL_DOWN_TRIANGLE, "SYMBOL_DOWN_TRIANGLE", "Down Triangle" );
-    addItem( RiuQwtSymbol::SYMBOL_CROSS, "SYMBOL_CROSS", "Cross" );
-    addItem( RiuQwtSymbol::SYMBOL_XCROSS, "SYMBOL_XCROSS", "X Cross" );
-    addItem( RiuQwtSymbol::SYMBOL_STAR1, "SYMBOL_STAR1", "Star 1" );
-    addItem( RiuQwtSymbol::SYMBOL_STAR2, "SYMBOL_STAR2", "Star 2" );
-    addItem( RiuQwtSymbol::SYMBOL_HEXAGON, "SYMBOL_HEXAGON", "Hexagon" );
-    addItem( RiuQwtSymbol::SYMBOL_LEFT_TRIANGLE, "SYMBOL_LEFT_TRIANGLE", "Left Triangle" );
-    addItem( RiuQwtSymbol::SYMBOL_RIGHT_TRIANGLE, "SYMBOL_RIGHT_TRIANGLE", "Right Triangle" );
-    setDefault( RiuQwtSymbol::SYMBOL_NONE );
-}
-
-template <>
-void RimPlotCurve::LabelPosition::setUp()
-{
-    addItem( RiuQwtSymbol::LabelAboveSymbol, "LABEL_ABOVE_SYMBOL", "Label above Symbol" );
-    addItem( RiuQwtSymbol::LabelBelowSymbol, "LABEL_BELOW_SYMBOL", "Label below Symbol" );
-    addItem( RiuQwtSymbol::LabelLeftOfSymbol, "LABEL_LEFT_OF_SYMBOL", "Label left of Symbol" );
-    addItem( RiuQwtSymbol::LabelRightOfSymbol, "LABEL_RIGHT_OF_SYMBOL", "Label right of Symbol" );
-    setDefault( RiuQwtSymbol::LabelAboveSymbol );
-}
-
-template <>
-void RimPlotCurve::FillStyle::setUp()
-{
-    addItem( Qt::NoBrush, "NO_FILL", "No Fill" );
-    addItem( Qt::SolidPattern, "SOLID_FILL", "Solid Fill" );
-    addItem( Qt::Dense1Pattern, "DENSE_FILL", "Dense Pattern" );
-    addItem( Qt::Dense7Pattern, "SPARSE_FILL", "Sparse Pattern" );
-    addItem( Qt::HorPattern, "HOR_FILL", "Horizontal Lines" );
-    addItem( Qt::VerPattern, "VER_FILL", "Vertical Lines" );
-    addItem( Qt::BDiagPattern, "DIAG_FILL", "Diagonal Lines" );
-    addItem( Qt::CrossPattern, "CROSS_FILL", "Mesh" );
-    addItem( Qt::DiagCrossPattern, "DIAG_CROSS_FILL", "Diagonal Mesh" );
-}
-
-} // namespace caf
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------

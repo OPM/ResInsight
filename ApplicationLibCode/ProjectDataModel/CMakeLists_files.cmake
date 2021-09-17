@@ -67,6 +67,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimContextCommandBuilder.h
     ${CMAKE_CURRENT_LIST_DIR}/RimGridCollection.h
     ${CMAKE_CURRENT_LIST_DIR}/RimPlotCurve.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimPlotCurveCurve.h
     ${CMAKE_CURRENT_LIST_DIR}/RimStackablePlotCurve.h
     ${CMAKE_CURRENT_LIST_DIR}/RimBoxIntersection.h
     ${CMAKE_CURRENT_LIST_DIR}/RimAdvancedSnapshotExportDefinition.h
@@ -193,6 +194,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimContextCommandBuilder.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimGridCollection.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimPlotCurve.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimPlotCurveAppearance.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimStackablePlotCurve.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimBoxIntersection.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimAdvancedSnapshotExportDefinition.cpp
