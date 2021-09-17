@@ -819,10 +819,24 @@ void RimEnsembleWellLogCurveSet::updateEnsembleCurves( const std::vector<RimWell
             }
 
             updateCurveColors();
+            setLogScaleFromSelectedResult( wellLogChannelName );
         }
     }
 
     plotTrack->updateLegend();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEnsembleWellLogCurveSet::setLogScaleFromSelectedResult( const QString resVar )
+{
+    if ( resVar.toUpper().contains( "PERM" ) )
+    {
+        RimWellLogTrack* track = nullptr;
+        this->firstAncestorOrThisOfType( track );
+        if ( track ) track->setLogarithmicScale( true );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

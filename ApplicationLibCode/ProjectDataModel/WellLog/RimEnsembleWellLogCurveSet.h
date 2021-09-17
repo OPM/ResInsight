@@ -152,6 +152,7 @@ private:
     void connectEnsembleCurveSetFilterSignals();
     void onFilterSourceChanged( const caf::SignalEmitter* emitter );
     void onEnsembleCurvesAppearanceChanged( const caf::SignalEmitter* emitter );
+    void setLogScaleFromSelectedResult( const QString resVar );
 
 private:
     caf::PdmField<bool> m_showCurves;
