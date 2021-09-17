@@ -35,6 +35,8 @@ public:
     static QStringList runRecursiveFileSearchDialog( const QString& dialogTitle, const QString& pathCacheName );
 
 protected:
+    static void importSingleEnsembleFractureStatistics( const QStringList& fileNames );
+
     // Overrides
     bool isCommandEnabled() override;
     void onActionTriggered( bool isChecked ) override;
