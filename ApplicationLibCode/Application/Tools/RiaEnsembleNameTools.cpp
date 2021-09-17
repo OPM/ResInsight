@@ -29,6 +29,63 @@
 //--------------------------------------------------------------------------------------------------
 QString RiaEnsembleNameTools::findSuitableEnsembleName( const QStringList& fileNames )
 {
+    QStringList iterations = findUniqueIterations( fileNames );
+    if ( iterations.size() == 1u )
+    {
+        return iterations.front();
+    }
+
+    if ( !iterations.empty() )
+    {
+        return QString( "Multiple iterations: %1" ).arg( iterations.join( ", " ) );
+    }
+
+    QString root = RiaFilePathTools::commonRootOfFileNames( fileNames );
+
+    QRegularExpression trimRe( "[^a-zA-Z0-9]+$" );
+    QString            trimmedRoot = root.replace( trimRe, "" );
+    if ( trimmedRoot.length() >= 4 )
+    {
+        return trimmedRoot;
+    }
+
+    return "Ensemble";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<QStringList> RiaEnsembleNameTools::groupFilesByEnsemble( const QStringList& fileNames )
+{
+    QStringList iterations = findUniqueIterations( fileNames );
+    if ( iterations.size() <= 1 )
+    {
+        // All the files are in the same ensemble
+        return { fileNames };
+    }
+
+    std::vector<QStringList> groupedByIteration;
+    for ( auto iteration : iterations )
+    {
+        QStringList fileNamesFromIteration;
+        for ( auto filePath : fileNames )
+        {
+            if ( filePath.contains( iteration ) )
+            {
+                fileNamesFromIteration << filePath;
+            }
+        }
+        groupedByIteration.push_back( fileNamesFromIteration );
+    }
+
+    return groupedByIteration;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QStringList RiaEnsembleNameTools::findUniqueIterations( const QStringList& fileNames )
+{
     std::vector<QStringList> componentsForAllFilePaths;
 
     for ( const auto& filePath : fileNames )
@@ -55,27 +112,7 @@ QString RiaEnsembleNameTools::findSuitableEnsembleName( const QStringList& fileN
     }
 
     iterations.removeDuplicates();
-
-    if ( iterations.size() == 1u )
-    {
-        return iterations.front();
-    }
-
-    if ( !iterations.empty() )
-    {
-        return QString( "Multiple iterations: %1" ).arg( iterations.join( ", " ) );
-    }
-
-    QString root = RiaFilePathTools::commonRootOfFileNames( fileNames );
-
-    QRegularExpression trimRe( "[^a-zA-Z0-9]+$" );
-    QString            trimmedRoot = root.replace( trimRe, "" );
-    if ( trimmedRoot.length() >= 4 )
-    {
-        return trimmedRoot;
-    }
-
-    return "Ensemble";
+    return iterations;
 }
 
 //--------------------------------------------------------------------------------------------------

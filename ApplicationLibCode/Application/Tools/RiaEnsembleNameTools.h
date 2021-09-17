@@ -20,6 +20,7 @@
 
 #include <QString>
 #include <map>
+#include <vector>
 
 //==================================================================================================
 //
@@ -37,4 +38,7 @@ public:
     static QString uniqueShortNameFromComponents( const QString&                        sourceFileName,
                                                   const std::map<QString, QStringList>& keyFileComponentsForAllFiles,
                                                   const QString&                        ensembleCaseName );
+
+    static QStringList              findUniqueIterations( const QStringList& fileNames );
+    static std::vector<QStringList> groupFilesByEnsemble( const QStringList& fileNames );
 };

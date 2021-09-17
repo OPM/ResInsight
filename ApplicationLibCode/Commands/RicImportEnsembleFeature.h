@@ -37,5 +37,6 @@ protected:
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
 
-    QString askForEnsembleName( const QString& suggestion );
+    static QString askForEnsembleName( const QString& suggestion );
+    static void    importSingleEnsemble( const QStringList& fileNames );
 };

@@ -76,6 +76,18 @@ void RicImportEnsembleSurfaceFeature::importEnsembleSurfaceFromFiles( const QStr
 {
     if ( fileNames.isEmpty() ) return;
 
+    std::vector<QStringList> groupedByEnsemble = RiaEnsembleNameTools::groupFilesByEnsemble( fileNames );
+    for ( const QStringList& groupedFileNames : groupedByEnsemble )
+    {
+        importSingleEnsembleSurfaceFromFiles( groupedFileNames );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicImportEnsembleSurfaceFeature::importSingleEnsembleSurfaceFromFiles( const QStringList& fileNames )
+{
     // Create a list of file names for each layer
     std::map<QString, QStringList> fileNamesForEachLayer;
     for ( const auto& name : fileNames )
@@ -104,7 +116,7 @@ void RicImportEnsembleSurfaceFeature::importEnsembleSurfaceFromFiles( const QStr
             RiaFilePathTools::keyPathComponentsForEachFilePath( fileNames );
 
         std::vector<RimFileSurface*> surfaces;
-        for ( size_t i = 0; i < fileNames.size(); i++ )
+        for ( int i = 0; i < fileNames.size(); i++ )
         {
             surfaces.push_back( new RimFileSurface );
         }

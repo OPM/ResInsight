@@ -223,36 +223,40 @@ void RicCreateEnsembleWellLogFeature::executeCommand( const RicCreateEnsembleWel
 
     if ( ui.autoCreateEnsembleWellLogs() )
     {
-        RimEnsembleWellLogs* ensembleWellLogs =
+        std::vector<RimEnsembleWellLogs*> ensembleWellLogs =
             RicImportEnsembleWellLogsFeature::createEnsembleWellLogsFromFiles( allLasFileNames );
-        if ( ensembleWellLogs )
+
+        for ( auto ensembleWellLog : ensembleWellLogs )
         {
-            RimEclipseCase* eclipseCase = nullptr;
-
-            // Create the well log plot
-            RimWellLogPlot* wellLogPlot =
-                RimcWellLogPlotCollection_newWellLogPlot::createWellLogPlot( plotCollection, wellPath, eclipseCase );
-
-            // Create a track per property
-            for ( const auto& property : properties )
+            if ( ensembleWellLog )
             {
-                // Create well log track
-                cvf::Color3f color = RiaColorTables::normalPaletteColors().cycledColor3f( wellLogPlot->plotCount() );
-                QString      title = QString( "Track %1" ).arg( wellLogPlot->plotCount() );
-                RimWellLogTrack* wellLogTrack =
-                    RimcWellLogPlot_newWellLogTrack::createWellLogTrack( wellLogPlot, eclipseCase, wellPath, title );
-                RimEnsembleWellLogCurveSet* ensembleWellLogCurveSet = new RimEnsembleWellLogCurveSet();
-                ensembleWellLogCurveSet->setEnsembleWellLogs( ensembleWellLogs );
-                ensembleWellLogCurveSet->setColor( color );
-                ensembleWellLogCurveSet->setWellLogChannelName( property.first );
-                wellLogTrack->setEnsembleWellLogCurveSet( ensembleWellLogCurveSet );
-                ensembleWellLogCurveSet->loadDataAndUpdate( true );
+                RimEclipseCase* eclipseCase = nullptr;
+
+                // Create the well log plot
+                RimWellLogPlot* wellLogPlot =
+                    RimcWellLogPlotCollection_newWellLogPlot::createWellLogPlot( plotCollection, wellPath, eclipseCase );
+
+                // Create a track per property
+                for ( const auto& property : properties )
+                {
+                    // Create well log track
+                    cvf::Color3f color = RiaColorTables::normalPaletteColors().cycledColor3f( wellLogPlot->plotCount() );
+                    QString      title = QString( "Track %1" ).arg( wellLogPlot->plotCount() );
+                    RimWellLogTrack* wellLogTrack =
+                        RimcWellLogPlot_newWellLogTrack::createWellLogTrack( wellLogPlot, eclipseCase, wellPath, title );
+                    RimEnsembleWellLogCurveSet* ensembleWellLogCurveSet = new RimEnsembleWellLogCurveSet();
+                    ensembleWellLogCurveSet->setEnsembleWellLogs( ensembleWellLog );
+                    ensembleWellLogCurveSet->setColor( color );
+                    ensembleWellLogCurveSet->setWellLogChannelName( property.first );
+                    wellLogTrack->setEnsembleWellLogCurveSet( ensembleWellLogCurveSet );
+                    ensembleWellLogCurveSet->loadDataAndUpdate( true );
+                }
+
+                wellLogPlot->updateConnectedEditors();
+
+                RiuPlotMainWindowTools::showPlotMainWindow();
+                RiuPlotMainWindowTools::selectAsCurrentItem( wellLogPlot );
             }
-
-            wellLogPlot->updateConnectedEditors();
-
-            RiuPlotMainWindowTools::showPlotMainWindow();
-            RiuPlotMainWindowTools::selectAsCurrentItem( wellLogPlot );
         }
     }
 }
