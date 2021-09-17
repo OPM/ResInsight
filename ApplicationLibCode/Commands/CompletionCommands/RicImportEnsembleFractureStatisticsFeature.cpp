@@ -18,6 +18,7 @@
 
 #include "RicImportEnsembleFractureStatisticsFeature.h"
 
+#include "RiaEnsembleNameTools.h"
 #include "RiaGuiApplication.h"
 
 #include "RicRecursiveFileSearchDialog.h"
@@ -58,6 +59,24 @@ void RicImportEnsembleFractureStatisticsFeature::onActionTriggered( bool isCheck
     QString            pathCacheName = "INPUT_FILES";
     QStringList        fileNames     = runRecursiveFileSearchDialog( "Import StimPlan Fractures", pathCacheName );
 
+    std::vector<QStringList> groupedByEnsemble = RiaEnsembleNameTools::groupFilesByEnsemble( fileNames );
+    for ( const QStringList& groupedFileNames : groupedByEnsemble )
+    {
+        importSingleEnsembleFractureStatistics( groupedFileNames );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicImportEnsembleFractureStatisticsFeature::importSingleEnsembleFractureStatistics( const QStringList& fileNames )
+{
+    auto    fractureGroupStatistics = new RimEnsembleFractureStatistics;
+    QString ensembleNameSuggestion  = RiaEnsembleNameTools::findSuitableEnsembleName( fileNames );
+    fractureGroupStatistics->setName( ensembleNameSuggestion );
+
+    caf::ProgressInfo progInfo( fileNames.size() + 1, "Creating Ensemble Fracture Statistics" );
+
     RimProject* project = RimProject::current();
     CVF_ASSERT( project );
 
@@ -70,11 +89,6 @@ void RicImportEnsembleFractureStatisticsFeature::onActionTriggered( bool isCheck
     RimEnsembleFractureStatisticsCollection* fractureGroupStatisticsCollection =
         completionTemplateCollection->fractureGroupStatisticsCollection();
     if ( !fractureGroupStatisticsCollection ) return;
-
-    auto fractureGroupStatistics = new RimEnsembleFractureStatistics;
-    fractureGroupStatistics->setName( "Ensemble Fracture Statistics" );
-
-    caf::ProgressInfo progInfo( fileNames.size() + 1, "Creating Ensemble Fracture Statistics" );
 
     for ( auto f : fileNames )
     {
