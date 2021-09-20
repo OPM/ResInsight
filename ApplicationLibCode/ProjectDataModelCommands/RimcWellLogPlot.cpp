@@ -18,7 +18,6 @@
 #include "RimcWellLogPlot.h"
 
 #include "RiaApplication.h"
-#include "RiaGuiApplication.h"
 
 #include "WellLogCommands/RicNewWellLogPlotFeatureImpl.h"
 
@@ -54,9 +53,6 @@ RimcWellLogPlot_newWellLogTrack::RimcWellLogPlot_newWellLogTrack( caf::PdmObject
 caf::PdmObjectHandle* RimcWellLogPlot_newWellLogTrack::execute()
 {
     RimWellLogPlot* wellLogPlot = self<RimWellLogPlot>();
-
-    // Make sure the plot window is created
-    RiaGuiApplication::instance()->getOrCreateMainPlotWindow();
 
     if ( !wellLogPlot ) return nullptr;
 
