@@ -27,6 +27,7 @@
 namespace RiaResultNames
 {
 bool isPerCellFaceResult( const QString& resultName );
+bool isLogarithmicResult( const QString& resultName );
 
 QString undefinedResultName();
 QString undefinedGridFaultName();
