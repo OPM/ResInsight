@@ -49,8 +49,8 @@ RimAsciiDataCurve::RimAsciiDataCurve()
     CAF_PDM_InitFieldNoDefault( &m_values, "Values", "Values", "", "", "" );
     CAF_PDM_InitFieldNoDefault( &m_title, "Title", "Title", "", "", "" );
 
-    m_symbolSkipPixelDistance = 10.0f;
-    m_curveThickness          = 2;
+    setSymbolSkipDistance( 10.0f );
+    setLineThickness( 2 );
 
     setDeletable( true );
 }

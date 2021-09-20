@@ -125,8 +125,8 @@ RimSummaryCurve::RimSummaryCurve()
     CAF_PDM_InitField( &m_isTopZWithinCategory, "isTopZWithinCategory", false, "", "", "", "" );
     m_isTopZWithinCategory.uiCapability()->setUiHidden( true );
 
-    m_symbolSkipPixelDistance = 10.0f;
-    m_curveThickness          = 2;
+    setSymbolSkipDistance( 10.0f );
+    setLineThickness( 2 );
 
     CAF_PDM_InitFieldNoDefault( &m_yValuesSummaryFilter_OBSOLETE, "VarListFilter", "Filter", "", "", "" );
     m_yValuesSummaryFilter_OBSOLETE.uiCapability()->setUiTreeChildrenHidden( true );
@@ -380,7 +380,8 @@ double RimSummaryCurve::yValueAtTimeT( time_t time ) const
         }
         else if ( i < timeSteps.size() - 1u && timeSteps[i] < time && time < timeSteps[i + 1] )
         {
-            if ( m_curveInterpolation == RiuQwtPlotCurveDefines::CurveInterpolationEnum::INTERPOLATION_STEP_LEFT )
+            if ( m_curveAppearance->interpolation() ==
+                 RiuQwtPlotCurveDefines::CurveInterpolationEnum::INTERPOLATION_STEP_LEFT )
             {
                 return values[i + 1];
             }
@@ -976,7 +977,7 @@ void RimSummaryCurve::setCurveAppearanceFromCaseType()
 
         if ( prefs->defaultSummaryHistoryCurveStyle() == RiaPreferencesSummary::SummaryHistoryCurveStyleMode::SYMBOLS )
         {
-            m_symbolEdgeColor = m_curveColor;
+            setSymbolEdgeColor( m_curveAppearance->color() );
 
             setSymbol( RiuQwtSymbol::SYMBOL_XCROSS );
             setLineStyle( RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_NONE );
@@ -984,7 +985,7 @@ void RimSummaryCurve::setCurveAppearanceFromCaseType()
         else if ( prefs->defaultSummaryHistoryCurveStyle() ==
                   RiaPreferencesSummary::SummaryHistoryCurveStyleMode::SYMBOLS_AND_LINES )
         {
-            m_symbolEdgeColor = m_curveColor;
+            setSymbolEdgeColor( m_curveAppearance->color() );
 
             setSymbol( RiuQwtSymbol::SYMBOL_XCROSS );
             setLineStyle( RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_SOLID );
@@ -1262,11 +1263,12 @@ void RimSummaryCurve::calculateCurveInterpolationFromAddress()
         auto address = m_yValuesSummaryAddress()->address();
         if ( RiaSummaryTools::hasAccumulatedData( address ) )
         {
-            m_curveInterpolation = RiuQwtPlotCurveDefines::CurveInterpolationEnum::INTERPOLATION_POINT_TO_POINT;
+            m_curveAppearance->setInterpolation(
+                RiuQwtPlotCurveDefines::CurveInterpolationEnum::INTERPOLATION_POINT_TO_POINT );
         }
         else
         {
-            m_curveInterpolation = RiuQwtPlotCurveDefines::CurveInterpolationEnum::INTERPOLATION_STEP_LEFT;
+            m_curveAppearance->setInterpolation( RiuQwtPlotCurveDefines::CurveInterpolationEnum::INTERPOLATION_STEP_LEFT );
         }
     }
 }
