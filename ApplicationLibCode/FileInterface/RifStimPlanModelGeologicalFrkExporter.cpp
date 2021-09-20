@@ -110,6 +110,16 @@ bool RifStimPlanModelGeologicalFrkExporter::writeToFile( RimStimPlanModel* stimP
     std::vector<double> stressGradients = stimPlanModel->calculator()->calculateStressGradient();
     fixupStressGradients( stressGradients, MIN_STRESS_GRADIENT, MAX_STRESS_GRADIENT, DEFAULT_STRESS_GRADIENT );
 
+    // Make sure porosity and permeability is valid
+    std::vector<double> porosity = stimPlanModel->calculator()->calculatePorosity();
+    fixupLowerBoundary( porosity, stimPlanModel->defaultPorosity(), "porosity" );
+
+    std::vector<double> horizontalPermeability = stimPlanModel->calculator()->calculateHorizontalPermeability();
+    fixupLowerBoundary( horizontalPermeability, stimPlanModel->defaultPermeability(), "horizontal permeability" );
+
+    std::vector<double> verticalPermeability = stimPlanModel->calculator()->calculateVerticalPermeability();
+    fixupLowerBoundary( verticalPermeability, stimPlanModel->defaultPermeability() * 0.1, "vertical permeability" );
+
     std::map<QString, std::vector<double>> values;
     values["dpthlyr"]        = tvd;
     values["strs"]           = stimPlanModel->calculator()->calculateStress();
@@ -122,9 +132,9 @@ bool RifStimPlanModelGeologicalFrkExporter::writeToFile( RimStimPlanModel* stimP
     values["pembed"]         = stimPlanModel->calculator()->calculateProppandEmbedment();
     values["zoneResPres"]    = stimPlanModel->calculator()->calculateReservoirPressure();
     values["zoneWaterSat"]   = stimPlanModel->calculator()->calculateImmobileFluidSaturation();
-    values["zonePorosity"]   = stimPlanModel->calculator()->calculatePorosity();
-    values["zoneHorizPerm"]  = stimPlanModel->calculator()->calculateHorizontalPermeability();
-    values["zoneVertPerm"]   = stimPlanModel->calculator()->calculateVerticalPermeability();
+    values["zonePorosity"]   = porosity;
+    values["zoneHorizPerm"]  = horizontalPermeability;
+    values["zoneVertPerm"]   = verticalPermeability;
     values["zoneTemp"]       = stimPlanModel->calculator()->calculateTemperature();
     values["zoneRelPerm"]    = stimPlanModel->calculator()->calculateRelativePermeabilityFactor();
     values["zonePoroElas"]   = stimPlanModel->calculator()->calculatePoroElasticConstant();
@@ -291,6 +301,27 @@ void RifStimPlanModelGeologicalFrkExporter::fixupStressGradients( std::vector<do
                     .arg( defaultStressGradient ) );
 
             stressGradients[i] = defaultStressGradient;
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RifStimPlanModelGeologicalFrkExporter::fixupLowerBoundary( std::vector<double>& values,
+                                                                double               minValue,
+                                                                const QString&       property )
+{
+    for ( double& value : values )
+    {
+        if ( value < minValue )
+        {
+            RiaLogging::warning(
+                QString( "Found %1 outside valid lower boundary (%2). Replacing %3 with default value: %2." )
+                    .arg( property )
+                    .arg( minValue )
+                    .arg( value ) );
+            value = minValue;
         }
     }
 }

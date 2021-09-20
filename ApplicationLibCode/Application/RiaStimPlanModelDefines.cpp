@@ -71,7 +71,7 @@ double defaultPorosity()
 
 double defaultPermeability()
 {
-    return 1.0e-5;
+    return 1.0e-4;
 }
 
 double zeroReplacementForLogarithmicPlot()

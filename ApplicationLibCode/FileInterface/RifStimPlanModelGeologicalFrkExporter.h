@@ -54,7 +54,7 @@ private:
                                       double               minStressGradient,
                                       double               maxStressGradient,
                                       double               defaultStressGradient );
-
+    static void fixupLowerBoundary( std::vector<double>& values, double minValue, const QString& property );
     static std::pair<std::vector<double>, std::vector<double>> createDepthRanges( const std::vector<double>& tvd );
 
     static bool warnOnInvalidData( const QString& label, const std::vector<double>& values );
