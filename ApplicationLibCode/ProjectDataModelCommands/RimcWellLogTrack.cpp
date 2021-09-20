@@ -19,7 +19,6 @@
 
 #include "RiaApplication.h"
 #include "RiaDefines.h"
-#include "RiaGuiApplication.h"
 
 #include "WellLogCommands/RicNewWellLogPlotFeatureImpl.h"
 
@@ -56,9 +55,6 @@ RimcWellLogTrack_addExtractionCurve::RimcWellLogTrack_addExtractionCurve( caf::P
 caf::PdmObjectHandle* RimcWellLogTrack_addExtractionCurve::execute()
 {
     RimWellLogTrack* wellLogTrack = self<RimWellLogTrack>();
-
-    // Make sure the plot window is created
-    RiaGuiApplication::instance()->getOrCreateMainPlotWindow();
 
     if ( m_case && m_wellPath && wellLogTrack )
     {
