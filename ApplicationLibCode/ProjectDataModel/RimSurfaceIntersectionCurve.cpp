@@ -19,6 +19,7 @@
 #include "RimSurfaceIntersectionCurve.h"
 
 #include "RimAnnotationLineAppearance.h"
+#include "RimEnsembleSurface.h"
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimSurface.h"
@@ -70,7 +71,7 @@ QList<caf::PdmOptionItemInfo>
     {
         RimSurfaceCollection* surfColl = RimProject::current()->activeOilField()->surfaceCollection();
 
-        appendOptionItemsForSources( 0, surfColl, options );
+        appendOptionItemsForSources( 0, surfColl, true, options );
     }
 
     return options;
@@ -81,6 +82,7 @@ QList<caf::PdmOptionItemInfo>
 //--------------------------------------------------------------------------------------------------
 void RimSurfaceIntersectionCurve::appendOptionItemsForSources( int                            currentLevel,
                                                                RimSurfaceCollection*          currentCollection,
+                                                               bool                           showEnsembleSurfaces,
                                                                QList<caf::PdmOptionItemInfo>& options )
 {
     caf::IconProvider surfaceIcon( ":/ReservoirSurface16x16.png" );
@@ -94,8 +96,12 @@ void RimSurfaceIntersectionCurve::appendOptionItemsForSources( int              
         options.push_back( itemInfo );
     }
 
-    for ( auto subColl : currentCollection->subCollections() )
+    auto ensembleSurface = dynamic_cast<RimEnsembleSurface*>( currentCollection );
+    if ( !ensembleSurface || ( showEnsembleSurfaces && ensembleSurface ) )
     {
-        appendOptionItemsForSources( currentLevel, subColl, options );
+        for ( auto subColl : currentCollection->subCollections() )
+        {
+            appendOptionItemsForSources( currentLevel, subColl, showEnsembleSurfaces, options );
+        }
     }
 }

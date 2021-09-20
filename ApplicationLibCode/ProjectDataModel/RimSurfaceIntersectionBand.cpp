@@ -116,7 +116,7 @@ QList<caf::PdmOptionItemInfo>
     {
         RimSurfaceCollection* surfColl = RimProject::current()->activeOilField()->surfaceCollection();
 
-        RimSurfaceIntersectionCurve::appendOptionItemsForSources( 0, surfColl, options );
+        RimSurfaceIntersectionCurve::appendOptionItemsForSources( 0, surfColl, false, options );
     }
 
     return options;

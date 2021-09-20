@@ -43,6 +43,7 @@ public:
 
     static void appendOptionItemsForSources( int                            currentLevel,
                                              RimSurfaceCollection*          currentCollection,
+                                             bool                           showEnsembleSurfaces,
                                              QList<caf::PdmOptionItemInfo>& options );
 
 private:
