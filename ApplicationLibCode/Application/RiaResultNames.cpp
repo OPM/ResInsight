@@ -74,6 +74,19 @@ bool RiaResultNames::isPerCellFaceResult( const QString& resultName )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RiaResultNames::isLogarithmicResult( const QString& resultName )
+{
+    QStringList subStringsToMatch{ "TRAN", "MULT", "PERM" };
+
+    for ( const auto& s : subStringsToMatch )
+        if ( resultName.contains( s, Qt::CaseInsensitive ) ) return true;
+
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString RiaResultNames::activeFormationNamesResultName()
 {
     return "Active Formation Names";

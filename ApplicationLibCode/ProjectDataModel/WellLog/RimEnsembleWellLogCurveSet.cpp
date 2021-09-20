@@ -21,6 +21,7 @@
 #include "RiaColorTools.h"
 #include "RiaLogging.h"
 #include "RiaOptionItemFactory.h"
+#include "RiaResultNames.h"
 
 #include "RimEnsembleCurveFilter.h"
 #include "RimEnsembleCurveFilterCollection.h"
@@ -831,7 +832,7 @@ void RimEnsembleWellLogCurveSet::updateEnsembleCurves( const std::vector<RimWell
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleWellLogCurveSet::setLogScaleFromSelectedResult( const QString resVar )
 {
-    if ( resVar.toUpper().contains( "PERM" ) )
+    if ( RiaResultNames::isLogarithmicResult( resVar ) )
     {
         RimWellLogTrack* track = nullptr;
         this->firstAncestorOrThisOfType( track );

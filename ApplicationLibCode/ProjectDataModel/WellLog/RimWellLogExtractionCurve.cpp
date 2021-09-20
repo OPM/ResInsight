@@ -21,6 +21,7 @@
 
 #include "RiaColorTables.h"
 #include "RiaLogging.h"
+#include "RiaResultNames.h"
 #include "RiaSimWellBranchTools.h"
 
 #include "RiaWellLogUnitTools.h"
@@ -829,18 +830,11 @@ void RimWellLogExtractionCurve::defineUiTreeOrdering( caf::PdmUiTreeOrdering& ui
 void RimWellLogExtractionCurve::setLogScaleFromSelectedResult()
 {
     QString resVar = m_eclipseResultDefinition->resultVariable();
-
-    if ( resVar.toUpper().contains( "PERM" ) )
+    if ( RiaResultNames::isLogarithmicResult( resVar ) )
     {
         RimWellLogTrack* track = nullptr;
         this->firstAncestorOrThisOfType( track );
-        if ( track )
-        {
-            if ( track->curveCount() == 1 )
-            {
-                track->setLogarithmicScale( true );
-            }
-        }
+        if ( track && track->curveCount() == 1 ) track->setLogarithmicScale( true );
     }
 }
 
