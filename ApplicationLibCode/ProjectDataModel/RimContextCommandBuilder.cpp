@@ -388,6 +388,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             appendExportWellPaths( menuBuilder );
             menuBuilder.addSeparator();
 
+            menuBuilder << "RicCreateEnsembleWellLogFeature";
             menuBuilder.subMenuStart( "Well Plots", QIcon( ":/WellLogTrack16x16.png" ) );
             menuBuilder << "RicNewRftPlotFeature";
             menuBuilder << "RicNewPltPlotFeature";

@@ -50,10 +50,14 @@ public:
 
     bool autoCreateEnsembleWellLogs() const;
 
-    int            timeStep() const;
-    QString        wellPathFilePath() const;
+    int     timeStep() const;
+    QString wellPathFilePath() const;
+
     WellPathSource wellPathSource() const;
-    RimWellPath*   wellPathFromProject() const;
+    void           setWellPathSource( WellPathSource wellPathSource );
+
+    void         setWellPathFromProject( RimWellPath* wellPath );
+    RimWellPath* wellPathFromProject() const;
 
     std::vector<std::pair<QString, RiaDefines::ResultCatType>> properties() const;
 

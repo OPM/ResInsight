@@ -239,9 +239,25 @@ RicCreateEnsembleWellLogUi::WellPathSource RicCreateEnsembleWellLogUi::wellPathS
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RicCreateEnsembleWellLogUi::setWellPathSource( RicCreateEnsembleWellLogUi::WellPathSource wellPathSource )
+{
+    m_wellPathSource = wellPathSource;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RimWellPath* RicCreateEnsembleWellLogUi::wellPathFromProject() const
 {
     return m_wellPath;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicCreateEnsembleWellLogUi::setWellPathFromProject( RimWellPath* wellPath )
+{
+    m_wellPath = wellPath;
 }
 
 //--------------------------------------------------------------------------------------------------

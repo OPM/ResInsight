@@ -36,6 +36,7 @@
 #include "RimMainPlotCollection.h"
 #include "RimProject.h"
 #include "RimWellLogTrack.h"
+#include "RimWellPath.h"
 #include "RimcWellLogPlot.h"
 #include "RimcWellLogPlotCollection.h"
 #include "RimcWellLogTrack.h"
@@ -86,6 +87,14 @@ void RicCreateEnsembleWellLogFeature::openDialogAndExecuteCommand()
 
     RicCreateEnsembleWellLogUi* ui = RimProject::current()->dialogData()->createEnsembleWellLogUi();
     ui->setCaseData( eclipseCase->eclipseCaseData() );
+
+    // Automatically selected the well path the dialog was triggered on (if any)
+    RimWellPath* wellPath = caf::SelectionManager::instance()->selectedItemOfType<RimWellPath>();
+    if ( wellPath )
+    {
+        ui->setWellPathSource( RicCreateEnsembleWellLogUi::WellPathSource::PROJECT_WELLS );
+        ui->setWellPathFromProject( wellPath );
+    }
 
     RiuPropertyViewTabWidget propertyDialog( Riu3DMainWindowTools::mainWindowWidget(),
                                              ui,
