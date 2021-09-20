@@ -65,13 +65,13 @@ void RimStackablePlotCurve::assignStackColor( size_t index, size_t count )
         }
     }
 
-    m_fillColor = curveColor;
+    setFillColor( curveColor );
 
     {
         auto moreSaturatedColor = RiaColorTools::toQColor( curveColor );
         moreSaturatedColor      = RiaColorTools::modifySaturation( moreSaturatedColor, 1.2 );
 
-        m_curveColor = RiaColorTools::fromQColorTo3f( moreSaturatedColor );
+        m_curveAppearance->setColor( RiaColorTools::fromQColorTo3f( moreSaturatedColor ) );
     }
 
     this->updateCurveAppearance();
@@ -100,10 +100,10 @@ void RimStackablePlotCurve::setIsStacked( bool stacked )
 {
     m_isStacked = stacked;
 
-    if ( !m_isStacked() && m_fillStyle() != Qt::NoBrush )
+    if ( !m_isStacked() && fillStyle() != Qt::NoBrush )
     {
         // Switch off area fill when turning off stacking.
-        m_fillStyle = Qt::NoBrush;
+        setFillStyle( Qt::NoBrush );
     }
     stackingChanged.send( m_isStacked() );
 }
@@ -119,10 +119,10 @@ void RimStackablePlotCurve::fieldChangedByUi( const caf::PdmFieldHandle* changed
 
     if ( changedField == &m_isStacked )
     {
-        if ( !m_isStacked() && m_fillStyle() != Qt::NoBrush )
+        if ( !m_isStacked() && fillStyle() != Qt::NoBrush )
         {
             // Switch off area fill when turning off stacking.
-            m_fillStyle = Qt::NoBrush;
+            setFillStyle( Qt::NoBrush );
         }
         stackingChanged.send( m_isStacked() );
     }
@@ -130,11 +130,16 @@ void RimStackablePlotCurve::fieldChangedByUi( const caf::PdmFieldHandle* changed
     {
         stackingColorsChanged.send( m_isStackedWithPhaseColors() );
     }
-    else if ( changedField == &m_fillColor )
-    {
-        m_isStackedWithPhaseColors = false;
-        this->updateConnectedEditors();
-    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimStackablePlotCurve::onFillColorChanged( const caf::SignalEmitter* emitter )
+{
+    m_isStackedWithPhaseColors = false;
+    this->updateConnectedEditors();
+    stackingColorsChanged.send( m_isStackedWithPhaseColors() );
 }
 
 //--------------------------------------------------------------------------------------------------

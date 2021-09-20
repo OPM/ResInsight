@@ -37,6 +37,7 @@ class RimPlotCurveAppearance : public caf::PdmObject
 
 public:
     caf::Signal<> appearanceChanged;
+    caf::Signal<> fillColorChanged;
 
 public:
     typedef caf::AppEnum<RiuQwtPlotCurveDefines::CurveInterpolationEnum> CurveInterpolation;
@@ -50,7 +51,7 @@ public:
     ~RimPlotCurveAppearance() override;
 
     void         setColor( const cvf::Color3f& color );
-    cvf::Color3f color() const { return m_curveColor; }
+    cvf::Color3f color() const;
 
     void                                  setLineStyle( RiuQwtPlotCurveDefines::LineStyleEnum lineStyle );
     RiuQwtPlotCurveDefines::LineStyleEnum lineStyle() const;
@@ -70,23 +71,27 @@ public:
     void  setSymbolSkipDistance( float distance );
     float symbolSkipDistance() const;
 
-    void setSymbolLabel( const QString& label );
+    void    setSymbolLabel( const QString& label );
+    QString symbolLabel() const;
 
     void                        setSymbolLabelPosition( RiuQwtSymbol::LabelPosition labelPosition );
-    RiuQwtSymbol::LabelPosition systemLabelPosition();
+    RiuQwtSymbol::LabelPosition symbolLabelPosition() const;
 
     void           resetAppearance();
     Qt::BrushStyle fillStyle() const;
     void           setFillStyle( Qt::BrushStyle brushStyle );
-    void           setFillColor( const cvf::Color3f& fillColor );
 
-    void setInterpolation( RiuQwtPlotCurveDefines::CurveInterpolationEnum );
+    void         setFillColor( const cvf::Color3f& fillColor );
+    cvf::Color3f fillColor() const;
+
+    void                                           setInterpolation( RiuQwtPlotCurveDefines::CurveInterpolationEnum );
+    RiuQwtPlotCurveDefines::CurveInterpolationEnum interpolation() const;
 
     void setInterpolationVisible( bool isVisible );
     void setColorVisible( bool isVisible );
     void setFillOptionsVisible( bool isVisible );
 
-    void appearanceUiOrdering( caf::PdmUiOrdering& uiOrdering );
+    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
 protected:
     // Overridden PDM methods

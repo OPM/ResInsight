@@ -28,6 +28,8 @@
 
 #include "RiuQwtPlotCurve.h"
 
+#include "RiaColorTools.h"
+
 #include "qwt_plot.h"
 
 #include <cmath>
@@ -201,10 +203,9 @@ void RimWellFlowRateCurve::updateCurveAppearance()
     if ( m_doFillCurve || isLastCurveInGroup ) // Fill the last curve in group with a transparent color to "tie" the
                                                // group together
     {
-        QColor curveQColor =
-            QColor( m_curveColor.value().rByte(), m_curveColor.value().gByte(), m_curveColor.value().bByte() );
-        QColor fillColor = curveQColor;
-        QColor lineColor = curveQColor.darker();
+        QColor curveQColor = RiaColorTools::toQColor( m_curveAppearance->color() );
+        QColor fillColor   = curveQColor;
+        QColor lineColor   = curveQColor.darker();
 
         if ( !m_doFillCurve && isLastCurveInGroup )
         {
@@ -239,8 +240,6 @@ void RimWellFlowRateCurve::defineUiOrdering( QString uiConfigName, caf::PdmUiOrd
 {
     uiOrdering.add( &m_curveName );
     m_curveName.uiCapability()->setUiReadOnly( true );
-    uiOrdering.add( &m_curveColor );
-    m_curveColor.uiCapability()->setUiReadOnly( true );
 
     uiOrdering.skipRemainingFields();
 }

@@ -38,6 +38,8 @@ protected:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void stackingUiOrdering( caf::PdmUiOrdering& uiOrdering );
 
+    void onFillColorChanged( const caf::SignalEmitter* emitter ) override;
+
 protected:
     caf::PdmField<bool> m_isStacked;
     caf::PdmField<bool> m_isStackedWithPhaseColors;

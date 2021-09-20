@@ -78,6 +78,7 @@ void RimPlotCurveAppearance::FillStyle::setUp()
 //--------------------------------------------------------------------------------------------------
 RimPlotCurveAppearance::RimPlotCurveAppearance()
     : appearanceChanged( this )
+    , fillColorChanged( this )
     , m_colorVisible( true )
     , m_interpolationVisible( true )
     , m_fillOptionsVisible( true )
@@ -141,6 +142,10 @@ void RimPlotCurveAppearance::fieldChangedByUi( const caf::PdmFieldHandle* change
             m_curveInterpolation.uiCapability()->setUiReadOnly( m_lineStyle() ==
                                                                 RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_NONE );
         }
+        else if ( &m_fillColor == changedField )
+        {
+            fillColorChanged.send();
+        }
 
         appearanceChanged.send();
     }
@@ -169,7 +174,15 @@ void RimPlotCurveAppearance::setColor( const cvf::Color3f& color )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPlotCurveAppearance::appearanceUiOrdering( caf::PdmUiOrdering& uiOrdering )
+cvf::Color3f RimPlotCurveAppearance::color() const
+{
+    return m_curveColor;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlotCurveAppearance::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     uiOrdering.add( &m_curveColor );
     m_curveColor.uiCapability()->setUiHidden( !m_colorVisible );
@@ -243,6 +256,14 @@ void RimPlotCurveAppearance::setInterpolation( RiuQwtPlotCurveDefines::CurveInte
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RiuQwtPlotCurveDefines::CurveInterpolationEnum RimPlotCurveAppearance::interpolation() const
+{
+    return m_curveInterpolation();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RiuQwtPlotCurveDefines::LineStyleEnum RimPlotCurveAppearance::lineStyle() const
 {
     return m_lineStyle();
@@ -307,9 +328,25 @@ void RimPlotCurveAppearance::setSymbolLabel( const QString& label )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString RimPlotCurveAppearance::symbolLabel() const
+{
+    return m_symbolLabel;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimPlotCurveAppearance::setSymbolLabelPosition( RiuQwtSymbol::LabelPosition labelPosition )
 {
     m_symbolLabelPosition = labelPosition;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiuQwtSymbol::LabelPosition RimPlotCurveAppearance::symbolLabelPosition() const
+{
+    return m_symbolLabelPosition.value();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -371,6 +408,14 @@ void RimPlotCurveAppearance::setFillStyle( Qt::BrushStyle brushStyle )
 void RimPlotCurveAppearance::setFillColor( const cvf::Color3f& fillColor )
 {
     m_fillColor = fillColor;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+cvf::Color3f RimPlotCurveAppearance::fillColor() const
+{
+    return m_fillColor;
 }
 
 //--------------------------------------------------------------------------------------------------
