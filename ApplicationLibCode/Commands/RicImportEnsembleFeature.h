@@ -38,5 +38,5 @@ protected:
     void setupActionLook( QAction* actionToSetup ) override;
 
     static QString askForEnsembleName( const QString& suggestion );
-    static void    importSingleEnsemble( const QStringList& fileNames );
+    static void    importSingleEnsemble( const QStringList& fileNames, bool useEnsembleNameDialog );
 };
