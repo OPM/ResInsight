@@ -52,6 +52,7 @@
 #include <QFileInfo>
 #include <QInputDialog>
 #include <QRegularExpression>
+#include <QStringList>
 
 #include <set>
 
@@ -70,16 +71,24 @@ bool RicImportEnsembleFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicImportEnsembleFeature::onActionTriggered( bool isChecked )
 {
-    QString     pathCacheName = "ENSEMBLE_FILES";
-    QStringList fileNames =
-        RicImportSummaryCasesFeature::runRecursiveSummaryCaseFileSearchDialog( "Import Ensemble", pathCacheName );
+    QString pathCacheName = "ENSEMBLE_FILES";
+    auto [fileNames, groupByIteration] =
+        RicImportSummaryCasesFeature::runRecursiveSummaryCaseFileSearchDialogWithGrouping( "Import Ensemble",
+                                                                                           pathCacheName );
 
     if ( fileNames.isEmpty() ) return;
 
-    std::vector<QStringList> groupedByEnsemble = RiaEnsembleNameTools::groupFilesByEnsemble( fileNames );
-    for ( const QStringList& groupedFileNames : groupedByEnsemble )
+    if ( groupByIteration )
     {
-        importSingleEnsemble( groupedFileNames );
+        std::vector<QStringList> groupedByEnsemble = RiaEnsembleNameTools::groupFilesByEnsemble( fileNames );
+        for ( const QStringList& groupedFileNames : groupedByEnsemble )
+        {
+            importSingleEnsemble( groupedFileNames );
+        }
+    }
+    else
+    {
+        importSingleEnsemble( fileNames );
     }
 }
 

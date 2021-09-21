@@ -62,11 +62,14 @@ bool RicImportEnsembleSurfaceFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicImportEnsembleSurfaceFeature::onActionTriggered( bool isChecked )
 {
-    RiaApplication* app           = RiaApplication::instance();
-    QString         pathCacheName = "ENSEMBLE_SURFACE_FILES";
-    QStringList     fileNames     = runRecursiveFileSearchDialog( "Import Ensemble Surface", pathCacheName );
+    RiaApplication* app                = RiaApplication::instance();
+    QString         pathCacheName      = "ENSEMBLE_SURFACE_FILES";
+    auto [fileNames, groupByIteration] = runRecursiveFileSearchDialog( "Import Ensemble Surface", pathCacheName );
 
-    importEnsembleSurfaceFromFiles( fileNames );
+    if ( groupByIteration )
+        importEnsembleSurfaceFromFiles( fileNames );
+    else
+        importSingleEnsembleSurfaceFromFiles( fileNames );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -182,8 +185,8 @@ void RicImportEnsembleSurfaceFeature::setupActionLook( QAction* actionToSetup )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QStringList RicImportEnsembleSurfaceFeature::runRecursiveFileSearchDialog( const QString& dialogTitle,
-                                                                           const QString& pathCacheName )
+std::pair<QStringList, bool> RicImportEnsembleSurfaceFeature::runRecursiveFileSearchDialog( const QString& dialogTitle,
+                                                                                            const QString& pathCacheName )
 {
     RiaApplication* app        = RiaApplication::instance();
     QString         defaultDir = app->lastUsedDialogDirectory( pathCacheName );
@@ -201,10 +204,10 @@ QStringList RicImportEnsembleSurfaceFeature::runRecursiveFileSearchDialog( const
     m_pathFilter     = result.pathFilter;
     m_fileNameFilter = result.fileNameFilter;
 
-    if ( !result.ok ) return QStringList();
+    if ( !result.ok ) return std::pair( QStringList(), false );
 
     // Remember the path to next time
     app->setLastUsedDialogDirectory( pathCacheName, QFileInfo( result.rootDir ).absoluteFilePath() );
 
-    return result.files;
+    return std::pair( result.files, result.groupByIteration );
 }

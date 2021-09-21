@@ -58,12 +58,15 @@ bool RicImportEnsembleWellLogsFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicImportEnsembleWellLogsFeature::onActionTriggered( bool isChecked )
 {
-    RiaApplication* app           = RiaApplication::instance();
-    QString         pathCacheName = "ENSEMBLE_WELL_LOGS_FILES";
-    QStringList     fileNames     = runRecursiveFileSearchDialog( "Import Ensemble Well Logs", pathCacheName );
+    RiaApplication* app                = RiaApplication::instance();
+    QString         pathCacheName      = "ENSEMBLE_WELL_LOGS_FILES";
+    auto [fileNames, groupByIteration] = runRecursiveFileSearchDialog( "Import Ensemble Well Logs", pathCacheName );
     if ( fileNames.isEmpty() ) return;
 
-    createEnsembleWellLogsFromFiles( fileNames );
+    if ( groupByIteration )
+        createEnsembleWellLogsFromFiles( fileNames );
+    else
+        createSingleEnsembleWellLogsFromFiles( fileNames );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -130,8 +133,8 @@ void RicImportEnsembleWellLogsFeature::setupActionLook( QAction* actionToSetup )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QStringList RicImportEnsembleWellLogsFeature::runRecursiveFileSearchDialog( const QString& dialogTitle,
-                                                                            const QString& pathCacheName )
+std::pair<QStringList, bool> RicImportEnsembleWellLogsFeature::runRecursiveFileSearchDialog( const QString& dialogTitle,
+                                                                                             const QString& pathCacheName )
 {
     RiaApplication* app        = RiaApplication::instance();
     QString         defaultDir = app->lastUsedDialogDirectory( pathCacheName );
@@ -149,10 +152,10 @@ QStringList RicImportEnsembleWellLogsFeature::runRecursiveFileSearchDialog( cons
     m_pathFilter     = result.pathFilter;
     m_fileNameFilter = result.fileNameFilter;
 
-    if ( !result.ok ) return QStringList();
+    if ( !result.ok ) return std::make_pair( QStringList(), false );
 
     // Remember the path to next time
     app->setLastUsedDialogDirectory( pathCacheName, QFileInfo( result.rootDir ).absoluteFilePath() );
 
-    return result.files;
+    return std::make_pair( result.files, result.groupByIteration );
 }

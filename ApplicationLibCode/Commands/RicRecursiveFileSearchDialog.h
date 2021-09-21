@@ -70,6 +70,7 @@ private:
 
     QStringList fileExtensions() const;
     QString     extensionFromFileNameFilter() const;
+    bool        groupByIteration() const;
 
     void setOkButtonEnabled( bool enabled );
     void warningIfInvalidCharacters();
@@ -78,6 +79,7 @@ private:
 
     void updateFileListWidget();
     void clearFileList();
+    void addToFileListWidget( const QStringList& fileNames );
 
     // File search methods
 
@@ -112,6 +114,7 @@ private:
     QComboBox*   m_pathFilterField;
     QPushButton* m_browseButton;
     QCheckBox*   m_useRealizationStarCheckBox;
+    QCheckBox*   m_groupByIterationCheckBox;
 
     QLabel*    m_fileFilterLabel;
     QComboBox* m_fileFilterField;
@@ -147,12 +150,14 @@ public:
                                         const QStringList& files,
                                         const QString&     rootDir,
                                         const QString&     pathFilter,
-                                        const QString&     fileNameFilter )
+                                        const QString&     fileNameFilter,
+                                        bool               groupByIteration )
         : ok( ok )
         , files( files )
         , rootDir( rootDir )
         , pathFilter( pathFilter )
         , fileNameFilter( fileNameFilter )
+        , groupByIteration( groupByIteration )
     {
     }
 
@@ -161,4 +166,5 @@ public:
     QString     rootDir;
     QString     pathFilter;
     QString     fileNameFilter;
+    bool        groupByIteration;
 };

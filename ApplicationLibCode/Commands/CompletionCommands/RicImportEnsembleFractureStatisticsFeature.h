@@ -32,7 +32,8 @@ class RicImportEnsembleFractureStatisticsFeature : public caf::CmdFeature
 public:
     RicImportEnsembleFractureStatisticsFeature() {}
 
-    static QStringList runRecursiveFileSearchDialog( const QString& dialogTitle, const QString& pathCacheName );
+    static std::pair<QStringList, bool> runRecursiveFileSearchDialog( const QString& dialogTitle,
+                                                                      const QString& pathCacheName );
 
 protected:
     static void importSingleEnsembleFractureStatistics( const QStringList& fileNames );

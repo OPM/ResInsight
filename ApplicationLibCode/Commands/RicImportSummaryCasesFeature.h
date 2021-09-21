@@ -48,6 +48,9 @@ public:
 
     static QStringList runRecursiveSummaryCaseFileSearchDialog( const QString& dialogTitle, const QString& pathCacheName );
 
+    static std::pair<QStringList, bool>
+        runRecursiveSummaryCaseFileSearchDialogWithGrouping( const QString& dialogTitle, const QString& pathCacheName );
+
 protected:
     // Overrides
     bool isCommandEnabled() override;
