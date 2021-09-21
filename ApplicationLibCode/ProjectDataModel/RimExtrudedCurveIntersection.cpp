@@ -240,9 +240,6 @@ RimExtrudedCurveIntersection::RimExtrudedCurveIntersection()
     caf::PdmUiPushButtonEditor::configureEditorForField( &m_inputTwoAzimuthPointsFromViewerEnabled );
     m_inputTwoAzimuthPointsFromViewerEnabled = false;
 
-    CAF_PDM_InitFieldNoDefault( &m_annotationSurfaces, "annotationSurfaces", "", "", "", "" );
-    m_annotationSurfaces.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
-
     CAF_PDM_InitFieldNoDefault( &m_surfaceIntersections, "SurfaceIntersections", "Surface Intersections", "", "", "" );
     m_surfaceIntersections = new RimSurfaceIntersectionCollection;
     m_surfaceIntersections->objectChanged.connect( this, &RimExtrudedCurveIntersection::onSurfaceIntersectionsChanged );
@@ -360,12 +357,6 @@ void RimExtrudedCurveIntersection::fieldChangedByUi( const caf::PdmFieldHandle* 
     {
         rebuildGeometryAndScheduleCreateDisplayModel();
     }
-
-    if ( changedField == &m_annotationSurfaces )
-
-    {
-        rebuildGeometryAndScheduleCreateDisplayModel();
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -433,9 +424,6 @@ void RimExtrudedCurveIntersection::defineUiOrdering( QString uiConfigName, caf::
         m_extentLength.uiCapability()->setUiReadOnly( false );
     }
 
-    caf::PdmUiGroup* surfaceGroup = uiOrdering.addNewGroup( "Surfaces" );
-    surfaceGroup->add( &m_annotationSurfaces );
-
     this->defineSeparateDataSourceUi( uiConfigName, uiOrdering );
 
     uiOrdering.skipRemainingFields( true );
@@ -490,12 +478,6 @@ QList<caf::PdmOptionItemInfo>
         {
             options.push_back( caf::PdmOptionItemInfo( QString::number( bIdx + 1 ), QVariant::fromValue( bIdx ) ) );
         }
-    }
-    else if ( fieldNeedingOptions == &m_annotationSurfaces )
-    {
-        RimSurfaceCollection* surfColl = RimProject::current()->activeOilField()->surfaceCollection();
-
-        appendOptionItemsForSources( 0, surfColl, options );
     }
     else
     {
@@ -1049,14 +1031,6 @@ void RimExtrudedCurveIntersection::recomputeSimulationWellBranchData()
 bool RimExtrudedCurveIntersection::hasDefiningPoints() const
 {
     return m_type() == CrossSectionEnum::CS_POLYLINE || m_type() == CrossSectionEnum::CS_AZIMUTHLINE;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::vector<RimSurface*> RimExtrudedCurveIntersection::annotatedSurfaces() const
-{
-    return m_annotationSurfaces.ptrReferencedObjects();
 }
 
 //--------------------------------------------------------------------------------------------------

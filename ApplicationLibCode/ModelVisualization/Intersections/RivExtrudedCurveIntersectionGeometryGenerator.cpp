@@ -177,8 +177,8 @@ void RivExtrudedCurveIntersectionGeometryGenerator::calculateSurfaceIntersection
         }
         for ( auto band : m_intersection->surfaceIntersectionBands() )
         {
-            if ( auto surf = band->surfaces()[0] ) surfaces.push_back( surf );
-            if ( auto surf = band->surfaces()[1] ) surfaces.push_back( surf );
+            if ( band->surface1() ) surfaces.push_back( band->surface1() );
+            if ( band->surface2() ) surfaces.push_back( band->surface2() );
         }
 
         for ( auto rimSurface : surfaces )

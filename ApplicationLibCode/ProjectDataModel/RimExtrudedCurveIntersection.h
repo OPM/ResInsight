@@ -170,9 +170,6 @@ private:
     caf::PdmField<std::vector<cvf::Vec3d>> m_customExtrusionPoints;
     caf::PdmField<std::vector<cvf::Vec3d>> m_twoAzimuthPoints;
 
-    // Surface intersection annotations
-    caf::PdmPtrArrayField<RimSurface*> m_annotationSurfaces;
-
     caf::PdmChildField<RimSurfaceIntersectionCollection*> m_surfaceIntersections;
 
     cvf::ref<RivExtrudedCurveIntersectionPartMgr> m_crossSectionPartMgr;

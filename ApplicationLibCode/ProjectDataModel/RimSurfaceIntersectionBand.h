@@ -25,8 +25,6 @@
 #include "cafPdmProxyValueField.h"
 #include "cafPdmPtrArrayField.h"
 
-#include <array>
-
 class RimSurface;
 class RimAnnotationLineAppearance;
 
@@ -48,7 +46,11 @@ public:
     RimAnnotationLineAppearance* lineAppearance() const;
     cvf::Color3f                 bandColor() const;
     float                        bandOpacity() const;
-    std::array<RimSurface*, 2>   surfaces() const;
+
+    double polygonOffsetUnit() const;
+
+    RimSurface* surface1() const;
+    RimSurface* surface2() const;
 
 private:
     caf::PdmFieldHandle* userDescriptionField() override;
@@ -56,6 +58,10 @@ private:
 
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
                                                          bool*                      useOptionsOnly ) override;
+
+    void defineEditorAttribute( const caf::PdmFieldHandle* field,
+                                QString                    uiConfigName,
+                                caf::PdmUiEditorAttribute* attribute ) override;
 
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void onObjectChanged( const caf::SignalEmitter* emitter );
@@ -66,6 +72,7 @@ private:
     caf::PdmChildField<RimAnnotationLineAppearance*> m_lineAppearance;
     caf::PdmField<cvf::Color3f>                      m_bandColor;
     caf::PdmField<double>                            m_bandOpacity;
+    caf::PdmField<double>                            m_bandPolygonOffsetUnit;
     caf::PdmPtrArrayField<RimSurface*>               m_surfaces;
     caf::PdmProxyValueField<QString>                 m_nameProxy;
 };

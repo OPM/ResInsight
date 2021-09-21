@@ -628,8 +628,8 @@ void RivExtrudedCurveIntersectionPartMgr::createAnnotationSurfaceParts( bool use
     {
         if ( !band->isChecked() ) continue;
 
-        auto surface1 = band->surfaces()[0];
-        auto surface2 = band->surfaces()[1];
+        auto surface1 = band->surface1();
+        auto surface2 = band->surface2();
 
         if ( !surface1 || !surface2 ) continue;
 
@@ -695,7 +695,19 @@ void RivExtrudedCurveIntersectionPartMgr::createAnnotationSurfaceParts( bool use
                 auto                        color = cvf::Color4f( band->bandColor(), band->bandOpacity() );
                 caf::SurfaceEffectGenerator geometryEffgen( color, caf::PO_NEG_LARGE );
 
-                cvf::ref<cvf::Effect> geometryOnlyEffect = geometryEffgen.generateCachedEffect();
+                cvf::ref<cvf::Effect> geometryOnlyEffect = geometryEffgen.generateUnCachedEffect();
+
+                {
+                    cvf::ref<cvf::RenderStatePolygonOffset> polyOffset = new cvf::RenderStatePolygonOffset;
+
+                    polyOffset->enableFillMode( true );
+                    const double offsetFactor = -5;
+                    polyOffset->setFactor( offsetFactor );
+                    polyOffset->setUnits( band->polygonOffsetUnit() );
+
+                    geometryOnlyEffect->setRenderState( polyOffset.p() );
+                }
+
                 part->setEffect( geometryOnlyEffect.p() );
 
                 m_annotationParts.push_back( part.p() );
@@ -726,7 +738,7 @@ cvf::ref<cvf::Part> RivExtrudedCurveIntersectionPartMgr::createCurvePart( const 
         part->setDrawable( polylineGeo.p() );
 
         part->updateBoundingBox();
-        part->setPriority( RivPartPriority::PartType::Highlight );
+        part->setPriority( RivPartPriority::PartType::FaultMeshLines );
 
         cvf::ref<cvf::Effect>    eff;
         caf::MeshEffectGenerator lineEffGen( color );
@@ -734,6 +746,16 @@ cvf::ref<cvf::Part> RivExtrudedCurveIntersectionPartMgr::createCurvePart( const 
         lineEffGen.setLineWidth( lineWidth );
 
         eff = lineEffGen.generateUnCachedEffect();
+
+        cvf::ref<cvf::RenderStatePolygonOffset> polyOffset = new cvf::RenderStatePolygonOffset;
+
+        polyOffset->enableFillMode( true );
+        polyOffset->setFactor( -5 );
+        const double maxOffsetFactor = -1000;
+        polyOffset->setUnits( maxOffsetFactor );
+
+        eff->setRenderState( polyOffset.p() );
+
         part->setEffect( eff.p() );
         return part;
     }

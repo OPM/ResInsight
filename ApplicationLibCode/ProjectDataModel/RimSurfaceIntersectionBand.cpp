@@ -25,6 +25,7 @@
 #include "RimSurfaceCollection.h"
 #include "RimSurfaceIntersectionCurve.h"
 
+#include "cafPdmUiDoubleSliderEditor.h"
 #include "cafPdmUiTreeSelectionEditor.h"
 
 CAF_PDM_SOURCE_INIT( RimSurfaceIntersectionBand, "RimSurfaceIntersectionBand" );
@@ -52,6 +53,16 @@ RimSurfaceIntersectionBand::RimSurfaceIntersectionBand()
 
     CAF_PDM_InitField( &m_bandColor, "BandColor", cvf::Color3f( cvf::Color3f::BLACK ), "Band Color", "", "", "" );
     CAF_PDM_InitField( &m_bandOpacity, "BandOpacity", 0.8, "Band Opacity", "", "", "" );
+    m_bandOpacity.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
+
+    CAF_PDM_InitField( &m_bandPolygonOffsetUnit,
+                       "BandPolygonOffsetUnit",
+                       -5.0,
+                       "Depth Offset",
+                       "",
+                       "Larger Value Closer to Camera",
+                       "" );
+    m_bandPolygonOffsetUnit.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
 
     CAF_PDM_InitFieldNoDefault( &m_surfaces, "Surfaces", "Band Surfaces", "", "", "" );
     m_surfaces.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
@@ -88,18 +99,33 @@ float RimSurfaceIntersectionBand::bandOpacity() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::array<RimSurface*, 2> RimSurfaceIntersectionBand::surfaces() const
+double RimSurfaceIntersectionBand::polygonOffsetUnit() const
 {
-    std::array<RimSurface*, 2> surfs;
-    surfs[0] = nullptr;
-    surfs[1] = nullptr;
+    // Use positive value in user interface
 
+    return -( m_bandPolygonOffsetUnit );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimSurface* RimSurfaceIntersectionBand::surface1() const
+{
     auto surfaces = m_surfaces.ptrReferencedObjects();
+    if ( !surfaces.empty() ) return surfaces[0];
 
-    if ( surfaces.size() > 0 ) surfs[0] = surfaces[0];
-    if ( surfaces.size() > 1 ) surfs[1] = surfaces[1];
+    return nullptr;
+}
 
-    return surfs;
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimSurface* RimSurfaceIntersectionBand::surface2() const
+{
+    auto surfaces = m_surfaces.ptrReferencedObjects();
+    if ( surfaces.size() > 1 ) return surfaces[1];
+
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -139,6 +165,33 @@ QList<caf::PdmOptionItemInfo>
     }
 
     return options;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSurfaceIntersectionBand::defineEditorAttribute( const caf::PdmFieldHandle* field,
+                                                        QString                    uiConfigName,
+                                                        caf::PdmUiEditorAttribute* attribute )
+{
+    if ( field == &m_bandPolygonOffsetUnit )
+    {
+        auto* myAttr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute );
+        if ( myAttr )
+        {
+            myAttr->m_minimum = 5;
+            myAttr->m_maximum = 1000;
+        }
+    }
+    else if ( field == &m_bandOpacity )
+    {
+        auto* myAttr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute );
+        if ( myAttr )
+        {
+            myAttr->m_minimum = 0.0;
+            myAttr->m_maximum = 1.0;
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
