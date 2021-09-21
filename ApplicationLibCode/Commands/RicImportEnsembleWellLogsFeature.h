@@ -43,7 +43,7 @@ protected:
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
 
-    QStringList runRecursiveFileSearchDialog( const QString& dialogTitle, const QString& pathCacheName );
+    std::pair<QStringList, bool> runRecursiveFileSearchDialog( const QString& dialogTitle, const QString& pathCacheName );
 
 private:
     QString m_pathFilter;

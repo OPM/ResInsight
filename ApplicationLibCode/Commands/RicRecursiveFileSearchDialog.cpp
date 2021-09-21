@@ -18,6 +18,7 @@
 
 #include "RicRecursiveFileSearchDialog.h"
 
+#include "RiaEnsembleNameTools.h"
 #include "RiaFilePathTools.h"
 #include "RiaGuiApplication.h"
 #include "RiaStringListSerializer.h"
@@ -132,7 +133,8 @@ RicRecursiveFileSearchDialogResult RicRecursiveFileSearchDialog::runRecursiveSea
                                                dialog.m_foundFiles,
                                                dialog.rootDirWithEndSeparator(),
                                                dialog.pathFilterWithoutStartSeparator(),
-                                               dialog.fileNameFilter() );
+                                               dialog.fileNameFilter(),
+                                               dialog.groupByIteration() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -146,6 +148,9 @@ RicRecursiveFileSearchDialog::RicRecursiveFileSearchDialog( QWidget* parent )
 
     m_useRealizationStarCheckBox = new QCheckBox( "Use 'realization-*' in filter" );
     connect( m_useRealizationStarCheckBox, SIGNAL( clicked() ), this, SLOT( slotUseRealizationStarClicked() ) );
+
+    m_groupByIterationCheckBox = new QCheckBox( "Group by iteration" );
+    m_groupByIterationCheckBox->setChecked( true );
 
     m_pathFilterLabel             = new QLabel();
     m_pathFilterField             = new QComboBox();
@@ -225,9 +230,10 @@ RicRecursiveFileSearchDialog::RicRecursiveFileSearchDialog( QWidget* parent )
     inputGridLayout->addWidget( m_fileFilterLabel, 1, 0 );
     inputGridLayout->addWidget( m_fileFilterField, 1, 1, 1, 2 );
     inputGridLayout->addWidget( m_useRealizationStarCheckBox, 2, 1 );
-    inputGridLayout->addWidget( m_effectiveFilterLabel, 3, 0 );
-    inputGridLayout->addWidget( m_effectiveFilterContentLabel, 3, 1 );
-    inputGridLayout->addWidget( m_findOrCancelButton, 3, 2, 1, 2 );
+    inputGridLayout->addWidget( m_groupByIterationCheckBox, 3, 1 );
+    inputGridLayout->addWidget( m_effectiveFilterLabel, 4, 0 );
+    inputGridLayout->addWidget( m_effectiveFilterContentLabel, 4, 1 );
+    inputGridLayout->addWidget( m_findOrCancelButton, 4, 2, 1, 2 );
 
     inputGroup->setLayout( inputGridLayout );
 
@@ -369,9 +375,30 @@ void RicRecursiveFileSearchDialog::updateFileListWidget()
 {
     m_fileListWidget->clear();
 
+    if ( m_groupByIterationCheckBox->isChecked() )
+    {
+        std::vector<QStringList> groupedByEnsemble = RiaEnsembleNameTools::groupFilesByEnsemble( m_foundFiles );
+        for ( const QStringList& groupedFileNames : groupedByEnsemble )
+        {
+            QString          iterationName = RiaEnsembleNameTools::findSuitableEnsembleName( groupedFileNames );
+            QListWidgetItem* item = new QListWidgetItem( QDir::toNativeSeparators( iterationName ), m_fileListWidget );
+            addToFileListWidget( groupedFileNames );
+        }
+    }
+    else
+    {
+        addToFileListWidget( m_foundFiles );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicRecursiveFileSearchDialog::addToFileListWidget( const QStringList& fileNames )
+{
     int rootSearchPathLength = rootDirWithEndSeparator().size();
 
-    for ( const auto& fileName : m_foundFiles )
+    for ( const auto& fileName : fileNames )
     {
         QString itemText = fileName;
         itemText.remove( 0, rootSearchPathLength );
@@ -853,6 +880,14 @@ void RicRecursiveFileSearchDialog::slotBrowseButtonClicked()
 void RicRecursiveFileSearchDialog::slotUseRealizationStarClicked()
 {
     updateEffectiveFilter();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RicRecursiveFileSearchDialog::groupByIteration() const
+{
+    return m_groupByIterationCheckBox->isChecked();
 }
 
 //--------------------------------------------------------------------------------------------------
