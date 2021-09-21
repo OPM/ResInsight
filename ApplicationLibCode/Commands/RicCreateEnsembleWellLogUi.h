@@ -22,11 +22,13 @@
 
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
+#include "cafPdmPtrField.h"
 
 #include <QString>
 #include <QStringList>
 
 class RigEclipseCaseData;
+class RimWellPath;
 
 //==================================================================================================
 ///
@@ -36,14 +38,27 @@ class RicCreateEnsembleWellLogUi : public caf::PdmObject
     CAF_PDM_HEADER_INIT;
 
 public:
+    enum class WellPathSource
+    {
+        FILE,
+        PROJECT_WELLS
+    };
+
     RicCreateEnsembleWellLogUi();
     ~RicCreateEnsembleWellLogUi() override;
     const QStringList& tabNames() const;
 
     bool autoCreateEnsembleWellLogs() const;
 
-    int                                                        timeStep() const;
-    QString                                                    wellPathFilePath() const;
+    int     timeStep() const;
+    QString wellPathFilePath() const;
+
+    WellPathSource wellPathSource() const;
+    void           setWellPathSource( WellPathSource wellPathSource );
+
+    void         setWellPathFromProject( RimWellPath* wellPath );
+    RimWellPath* wellPathFromProject() const;
+
     std::vector<std::pair<QString, RiaDefines::ResultCatType>> properties() const;
 
     void setCaseData( RigEclipseCaseData* caseData );
@@ -57,8 +72,10 @@ protected:
     std::vector<RiaDefines::ResultCatType> validResultCategories() const;
 
 private:
-    caf::PdmField<caf::FilePath> m_well;
-    caf::PdmField<bool>          m_autoCreateEnsembleWellLogs;
+    caf::PdmField<caf::FilePath>                m_well;
+    caf::PdmField<caf::AppEnum<WellPathSource>> m_wellPathSource;
+    caf::PdmPtrField<RimWellPath*>              m_wellPath;
+    caf::PdmField<bool>                         m_autoCreateEnsembleWellLogs;
 
     caf::PdmField<std::vector<QString>> m_selectedKeywords;
     caf::PdmField<int>                  m_timeStep;

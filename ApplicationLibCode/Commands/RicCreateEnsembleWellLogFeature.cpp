@@ -36,6 +36,7 @@
 #include "RimMainPlotCollection.h"
 #include "RimProject.h"
 #include "RimWellLogTrack.h"
+#include "RimWellPath.h"
 #include "RimcWellLogPlot.h"
 #include "RimcWellLogPlotCollection.h"
 #include "RimcWellLogTrack.h"
@@ -87,12 +88,20 @@ void RicCreateEnsembleWellLogFeature::openDialogAndExecuteCommand()
     RicCreateEnsembleWellLogUi* ui = RimProject::current()->dialogData()->createEnsembleWellLogUi();
     ui->setCaseData( eclipseCase->eclipseCaseData() );
 
+    // Automatically selected the well path the dialog was triggered on (if any)
+    RimWellPath* wellPath = caf::SelectionManager::instance()->selectedItemOfType<RimWellPath>();
+    if ( wellPath )
+    {
+        ui->setWellPathSource( RicCreateEnsembleWellLogUi::WellPathSource::PROJECT_WELLS );
+        ui->setWellPathFromProject( wellPath );
+    }
+
     RiuPropertyViewTabWidget propertyDialog( Riu3DMainWindowTools::mainWindowWidget(),
                                              ui,
                                              "Create Ensemble Well Log",
                                              ui->tabNames() );
 
-    if ( propertyDialog.exec() == QDialog::Accepted && !ui->properties().empty() && !ui->wellPathFilePath().isEmpty() )
+    if ( propertyDialog.exec() == QDialog::Accepted && !ui->properties().empty() )
     {
         executeCommand( *ui, result.files.toStdList() );
     }
@@ -110,16 +119,30 @@ void RicCreateEnsembleWellLogFeature::executeCommand( const RicCreateEnsembleWel
 
     RimWellLogPlotCollection* plotCollection = RimProject::current()->mainPlotCollection()->wellLogPlotCollection();
 
-    // Load well path from file
-    QStringList wellPathFilePaths;
-    wellPathFilePaths << ui.wellPathFilePath();
-    bool                      importGrouped = false;
-    QStringList               errorMessages;
-    std::vector<RimWellPath*> wellPaths =
-        RicImportWellPaths::importWellPaths( wellPathFilePaths, importGrouped, &errorMessages );
-    if ( wellPaths.empty() ) return;
+    RimWellPath* wellPath = nullptr;
 
-    RimWellPath* wellPath = wellPaths[0];
+    if ( ui.wellPathSource() == RicCreateEnsembleWellLogUi::WellPathSource::FILE )
+    {
+        if ( ui.wellPathFilePath().isEmpty() ) return;
+
+        // Load well path from file
+        QStringList wellPathFilePaths;
+        wellPathFilePaths << ui.wellPathFilePath();
+        bool                      importGrouped = false;
+        QStringList               errorMessages;
+        std::vector<RimWellPath*> wellPaths =
+            RicImportWellPaths::importWellPaths( wellPathFilePaths, importGrouped, &errorMessages );
+        if ( wellPaths.empty() ) return;
+
+        wellPath = wellPaths[0];
+    }
+    else
+    {
+        CAF_ASSERT( ui.wellPathSource() == RicCreateEnsembleWellLogUi::WellPathSource::PROJECT_WELLS );
+        wellPath = ui.wellPathFromProject();
+    }
+
+    if ( !wellPath ) return;
 
     QStringList allLasFileNames;
     for ( const auto& fileName : fileNames )
