@@ -22,6 +22,7 @@
 
 #include "cafPdmChildField.h"
 #include "cafPdmFieldCvfColor.h" // Include to make Pdm work for cvf::Color
+#include "cafPdmProxyValueField.h"
 #include "cafPdmPtrArrayField.h"
 
 #include <array>
@@ -50,16 +51,21 @@ public:
     std::array<RimSurface*, 2>   surfaces() const;
 
 private:
-    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+    caf::PdmFieldHandle* userDescriptionField() override;
+    void                 fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
                                                          bool*                      useOptionsOnly ) override;
 
+    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void onObjectChanged( const caf::SignalEmitter* emitter );
+
+    QString objectName() const;
 
 private:
     caf::PdmChildField<RimAnnotationLineAppearance*> m_lineAppearance;
     caf::PdmField<cvf::Color3f>                      m_bandColor;
-    caf::PdmField<float>                             m_bandOpacity;
+    caf::PdmField<double>                            m_bandOpacity;
     caf::PdmPtrArrayField<RimSurface*>               m_surfaces;
+    caf::PdmProxyValueField<QString>                 m_nameProxy;
 };

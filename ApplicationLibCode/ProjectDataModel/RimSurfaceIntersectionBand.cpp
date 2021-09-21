@@ -32,20 +32,33 @@ CAF_PDM_SOURCE_INIT( RimSurfaceIntersectionBand, "RimSurfaceIntersectionBand" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+caf::PdmFieldHandle* RimSurfaceIntersectionBand::userDescriptionField()
+{
+    return &m_nameProxy;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RimSurfaceIntersectionBand::RimSurfaceIntersectionBand()
     : objectChanged( this )
 {
-    CAF_PDM_InitObject( "SurfaceIntersectionBand", ":/do_not_exist.png", "", "" );
+    CAF_PDM_InitObject( "SurfaceIntersectionBand", ":/ReservoirSurface16x16.png", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_lineAppearance, "LineAppearance", "Line Appearance", "", "", "" );
     m_lineAppearance = new RimAnnotationLineAppearance;
     m_lineAppearance->objectChanged.connect( this, &RimSurfaceIntersectionBand::onObjectChanged );
+    uiCapability()->setUiTreeChildrenHidden( true );
 
     CAF_PDM_InitField( &m_bandColor, "BandColor", cvf::Color3f( cvf::Color3f::BLACK ), "Band Color", "", "", "" );
-    CAF_PDM_InitField( &m_bandOpacity, "BandOpacity", 0.8f, "Band Opacity", "", "", "" );
+    CAF_PDM_InitField( &m_bandOpacity, "BandOpacity", 0.8, "Band Opacity", "", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_surfaces, "Surfaces", "Band Surfaces", "", "", "" );
     m_surfaces.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
+
+    CAF_PDM_InitFieldNoDefault( &m_nameProxy, "NameProxy", "Name", "", "", "" );
+    m_nameProxy.registerGetMethod( this, &RimSurfaceIntersectionBand::objectName );
+    m_nameProxy.uiCapability()->setUiHidden( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -134,4 +147,46 @@ QList<caf::PdmOptionItemInfo>
 void RimSurfaceIntersectionBand::onObjectChanged( const caf::SignalEmitter* emitter )
 {
     objectChanged.send();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimSurfaceIntersectionBand::objectName() const
+{
+    auto surfaces = m_surfaces.ptrReferencedObjects();
+
+    if ( surfaces.size() == 2 )
+    {
+        QString text;
+
+        auto                  firstSurface = surfaces[0];
+        RimSurfaceCollection* surfColl     = nullptr;
+        firstSurface->firstAncestorOfType( surfColl );
+        if ( surfColl )
+        {
+            text += surfColl->collectionName();
+        }
+
+        if ( surfaces[0] ) text += "(" + surfaces[0]->userDescription() + " - " + surfaces[1]->userDescription() + ")";
+        return text;
+    }
+
+    return "Surface Band";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSurfaceIntersectionBand::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
+{
+    {
+        caf::PdmUiGroup* group = uiOrdering.addNewGroup( "Band Appearance" );
+        group->add( &m_bandColor );
+        group->add( &m_bandOpacity );
+    }
+    {
+        caf::PdmUiGroup* group = uiOrdering.addNewGroup( "Line Appearance" );
+        m_lineAppearance->uiOrdering( uiConfigName, *group );
+    }
 }

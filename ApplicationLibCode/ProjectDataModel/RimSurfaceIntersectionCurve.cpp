@@ -35,14 +35,19 @@ CAF_PDM_SOURCE_INIT( RimSurfaceIntersectionCurve, "RimSurfaceIntersectionCurve" 
 RimSurfaceIntersectionCurve::RimSurfaceIntersectionCurve()
     : objectChanged( this )
 {
-    CAF_PDM_InitObject( "SurfaceIntersectionCurve", ":/do_not_exist.png", "", "" );
+    CAF_PDM_InitObject( "SurfaceIntersectionCurve", ":/ReservoirSurface16x16.png", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_lineAppearance, "LineAppearance", "Line Appearance", "", "", "" );
     m_lineAppearance = new RimAnnotationLineAppearance;
     m_lineAppearance->objectChanged.connect( this, &RimSurfaceIntersectionCurve::onObjectChanged );
+    uiCapability()->setUiTreeChildrenHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_surface1, "Surface1", "Surface 1", "", "", "" );
     m_surface1.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
+
+    CAF_PDM_InitFieldNoDefault( &m_nameProxy, "NameProxy", "Name", "", "", "" );
+    m_nameProxy.registerGetMethod( this, &RimSurfaceIntersectionCurve::objectName );
+    m_nameProxy.uiCapability()->setUiHidden( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -59,6 +64,14 @@ RimSurface* RimSurfaceIntersectionCurve::surface() const
 RimAnnotationLineAppearance* RimSurfaceIntersectionCurve::lineAppearance() const
 {
     return m_lineAppearance();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+caf::PdmFieldHandle* RimSurfaceIntersectionCurve::userDescriptionField()
+{
+    return &m_nameProxy;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -92,9 +105,41 @@ QList<caf::PdmOptionItemInfo>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimSurfaceIntersectionCurve::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
+{
+    caf::PdmUiGroup* group = uiOrdering.addNewGroup( "Line Appearance" );
+    m_lineAppearance->uiOrdering( uiConfigName, *group );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimSurfaceIntersectionCurve::onObjectChanged( const caf::SignalEmitter* emitter )
 {
     objectChanged.send();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimSurfaceIntersectionCurve::objectName() const
+{
+    if ( m_surface1() )
+    {
+        QString text;
+
+        RimSurfaceCollection* surfColl = nullptr;
+        m_surface1()->firstAncestorOfType( surfColl );
+        if ( surfColl )
+        {
+            text += surfColl->collectionName();
+        }
+
+        if ( m_surface1() ) text += "( " + m_surface1()->userDescription() + " )";
+        return text;
+    }
+
+    return "Surface Curve";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -105,6 +150,8 @@ void RimSurfaceIntersectionCurve::appendOptionItemsForSources( int              
                                                                bool                           showEnsembleSurfaces,
                                                                QList<caf::PdmOptionItemInfo>& options )
 {
+    if ( !currentCollection ) return;
+
     caf::IconProvider surfaceIcon( ":/ReservoirSurface16x16.png" );
 
     options.push_back( caf::PdmOptionItemInfo::createHeader( currentCollection->collectionName(), true ) );

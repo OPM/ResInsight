@@ -37,7 +37,9 @@
 #include "RimSimWellInViewCollection.h"
 #include "RimSurface.h"
 #include "RimSurfaceCollection.h"
+#include "RimSurfaceIntersectionBand.h"
 #include "RimSurfaceIntersectionCollection.h"
+#include "RimSurfaceIntersectionCurve.h"
 #include "RimTools.h"
 #include "RimWellPath.h"
 
@@ -50,6 +52,7 @@
 #include "cafPdmUiListEditor.h"
 #include "cafPdmUiPushButtonEditor.h"
 
+#include "cafPdmUiTreeOrdering.h"
 #include "cafPdmUiTreeSelectionEditor.h"
 #include "cvfBoundingBox.h"
 #include "cvfGeometryTools.h"
@@ -500,6 +503,23 @@ QList<caf::PdmOptionItemInfo>
     }
 
     return options;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimExtrudedCurveIntersection::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName )
+{
+    for ( auto c : m_surfaceIntersections->surfaceIntersectionCurves() )
+    {
+        uiTreeOrdering.add( c );
+    }
+    for ( auto c : m_surfaceIntersections->surfaceIntersectionBands() )
+    {
+        uiTreeOrdering.add( c );
+    }
+
+    uiTreeOrdering.skipRemainingChildren( true );
 }
 
 //--------------------------------------------------------------------------------------------------

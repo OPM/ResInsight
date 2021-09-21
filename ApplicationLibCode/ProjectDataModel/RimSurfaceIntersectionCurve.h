@@ -20,6 +20,7 @@
 
 #include "RimCheckableObject.h"
 #include "cafPdmChildField.h"
+#include "cafPdmProxyValueField.h"
 #include "cafPdmPtrField.h"
 
 class RimSurface;
@@ -50,14 +51,19 @@ public:
                                              QList<caf::PdmOptionItemInfo>& options );
 
 private:
-    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+    caf::PdmFieldHandle* userDescriptionField() override;
+    void                 fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
                                                          bool*                      useOptionsOnly ) override;
 
-    void onObjectChanged( const caf::SignalEmitter* emitter );
+    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+
+    void    onObjectChanged( const caf::SignalEmitter* emitter );
+    QString objectName() const;
 
 private:
     caf::PdmPtrField<RimSurface*>                    m_surface1;
     caf::PdmChildField<RimAnnotationLineAppearance*> m_lineAppearance;
+    caf::PdmProxyValueField<QString>                 m_nameProxy;
 };
