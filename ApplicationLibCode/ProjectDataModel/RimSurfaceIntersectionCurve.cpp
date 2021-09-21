@@ -33,11 +33,13 @@ CAF_PDM_SOURCE_INIT( RimSurfaceIntersectionCurve, "RimSurfaceIntersectionCurve" 
 ///
 //--------------------------------------------------------------------------------------------------
 RimSurfaceIntersectionCurve::RimSurfaceIntersectionCurve()
+    : objectChanged( this )
 {
     CAF_PDM_InitObject( "SurfaceIntersectionCurve", ":/do_not_exist.png", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_lineAppearance, "LineAppearance", "Line Appearance", "", "", "" );
     m_lineAppearance = new RimAnnotationLineAppearance;
+    m_lineAppearance->objectChanged.connect( this, &RimSurfaceIntersectionCurve::onObjectChanged );
 
     CAF_PDM_InitFieldNoDefault( &m_surface1, "Surface1", "Surface 1", "", "", "" );
     m_surface1.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
@@ -62,6 +64,16 @@ RimAnnotationLineAppearance* RimSurfaceIntersectionCurve::lineAppearance() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimSurfaceIntersectionCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
+                                                    const QVariant&            oldValue,
+                                                    const QVariant&            newValue )
+{
+    onObjectChanged( this );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo>
     RimSurfaceIntersectionCurve::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly )
 {
@@ -75,6 +87,14 @@ QList<caf::PdmOptionItemInfo>
     }
 
     return options;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSurfaceIntersectionCurve::onObjectChanged( const caf::SignalEmitter* emitter )
+{
+    objectChanged.send();
 }
 
 //--------------------------------------------------------------------------------------------------

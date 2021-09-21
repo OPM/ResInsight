@@ -242,6 +242,7 @@ RimExtrudedCurveIntersection::RimExtrudedCurveIntersection()
 
     CAF_PDM_InitFieldNoDefault( &m_surfaceIntersections, "SurfaceIntersections", "Surface Intersections", "", "", "" );
     m_surfaceIntersections = new RimSurfaceIntersectionCollection;
+    m_surfaceIntersections->objectChanged.connect( this, &RimExtrudedCurveIntersection::onSurfaceIntersectionsChanged );
 
     setDeletable( true );
 }
@@ -1114,4 +1115,12 @@ void RimExtrudedCurveIntersection::appendOptionItemsForSources( int             
     {
         appendOptionItemsForSources( currentLevel, subColl, options );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimExtrudedCurveIntersection::onSurfaceIntersectionsChanged( const caf::SignalEmitter* emitter )
+{
+    rebuildGeometryAndScheduleCreateDisplayModel();
 }

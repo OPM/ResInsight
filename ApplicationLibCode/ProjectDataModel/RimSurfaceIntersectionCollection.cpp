@@ -27,17 +27,36 @@ CAF_PDM_SOURCE_INIT( RimSurfaceIntersectionCollection, "RimSurfaceIntersectionCo
 ///
 //--------------------------------------------------------------------------------------------------
 RimSurfaceIntersectionCollection::RimSurfaceIntersectionCollection()
+    : objectChanged( this )
 {
     CAF_PDM_InitObject( "SurfaceIntersectionCollection_msj", ":/do_not_exist.png", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_intersectionBands, "IntersectionBands", "Intersection Bands", "", "", "" );
     CAF_PDM_InitFieldNoDefault( &m_intersectionCurves, "IntersectionCurves", "Intersection Curves", "", "", "" );
 
-    m_intersectionBands.push_back( new RimSurfaceIntersectionBand );
-    m_intersectionBands.push_back( new RimSurfaceIntersectionBand );
+    addIntersectionCurve();
+    addIntersectionCurve();
 
-    m_intersectionCurves.push_back( new RimSurfaceIntersectionCurve );
-    m_intersectionCurves.push_back( new RimSurfaceIntersectionCurve );
+    addIntersectionBand();
+    addIntersectionBand();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSurfaceIntersectionCollection::addIntersectionCurve()
+{
+    auto curve = new RimSurfaceIntersectionCurve;
+    curve->objectChanged.connect( this, &RimSurfaceIntersectionCollection::onObjectChanged );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSurfaceIntersectionCollection::addIntersectionBand()
+{
+    auto band = new RimSurfaceIntersectionBand;
+    band->objectChanged.connect( this, &RimSurfaceIntersectionCollection::onObjectChanged );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -54,4 +73,28 @@ std::vector<RimSurfaceIntersectionCurve*> RimSurfaceIntersectionCollection::surf
 std::vector<RimSurfaceIntersectionBand*> RimSurfaceIntersectionCollection::surfaceIntersectionBands() const
 {
     return m_intersectionBands.childObjects();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSurfaceIntersectionCollection::onObjectChanged( const caf::SignalEmitter* emitter )
+{
+    objectChanged.send();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSurfaceIntersectionCollection::initAfterRead()
+{
+    for ( const auto& band : m_intersectionBands )
+    {
+        band->objectChanged.connect( this, &RimSurfaceIntersectionCollection::onObjectChanged );
+    }
+
+    for ( const auto& curve : m_intersectionCurves )
+    {
+        curve->objectChanged.connect( this, &RimSurfaceIntersectionCollection::onObjectChanged );
+    }
 }

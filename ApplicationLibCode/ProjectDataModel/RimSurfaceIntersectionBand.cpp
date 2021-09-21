@@ -33,10 +33,14 @@ CAF_PDM_SOURCE_INIT( RimSurfaceIntersectionBand, "RimSurfaceIntersectionBand" );
 ///
 //--------------------------------------------------------------------------------------------------
 RimSurfaceIntersectionBand::RimSurfaceIntersectionBand()
+    : objectChanged( this )
 {
     CAF_PDM_InitObject( "SurfaceIntersectionBand", ":/do_not_exist.png", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_lineAppearance, "LineAppearance", "Line Appearance", "", "", "" );
+    m_lineAppearance = new RimAnnotationLineAppearance;
+    m_lineAppearance->objectChanged.connect( this, &RimSurfaceIntersectionBand::onObjectChanged );
+
     CAF_PDM_InitField( &m_bandColor, "BandColor", cvf::Color3f( cvf::Color3f::BLACK ), "Band Color", "", "", "" );
     CAF_PDM_InitField( &m_bandOpacity, "BandOpacity", 0.8f, "Band Opacity", "", "", "" );
 
@@ -102,6 +106,8 @@ void RimSurfaceIntersectionBand::fieldChangedByUi( const caf::PdmFieldHandle* ch
 
         m_surfaces.setValue( surfaces );
     }
+
+    onObjectChanged( this );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -120,4 +126,12 @@ QList<caf::PdmOptionItemInfo>
     }
 
     return options;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSurfaceIntersectionBand::onObjectChanged( const caf::SignalEmitter* emitter )
+{
+    objectChanged.send();
 }

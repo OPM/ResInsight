@@ -36,6 +36,9 @@ class RimSurfaceIntersectionCurve : public RimCheckableObject
     CAF_PDM_HEADER_INIT;
 
 public:
+    caf::Signal<> objectChanged;
+
+public:
     RimSurfaceIntersectionCurve();
 
     RimSurface*                  surface() const;
@@ -47,10 +50,13 @@ public:
                                              QList<caf::PdmOptionItemInfo>& options );
 
 private:
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
                                                          bool*                      useOptionsOnly ) override;
 
-private:
+    void onObjectChanged( const caf::SignalEmitter* emitter );
+
 private:
     caf::PdmPtrField<RimSurface*>                    m_surface1;
     caf::PdmChildField<RimAnnotationLineAppearance*> m_lineAppearance;

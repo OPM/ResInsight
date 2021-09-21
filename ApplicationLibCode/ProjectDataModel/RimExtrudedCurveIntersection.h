@@ -142,6 +142,8 @@ private:
                                       RimSurfaceCollection*          currentCollection,
                                       QList<caf::PdmOptionItemInfo>& options ) const;
 
+    void onSurfaceIntersectionsChanged( const caf::SignalEmitter* emitter );
+
 private:
     caf::PdmField<QString> m_name;
 

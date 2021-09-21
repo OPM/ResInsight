@@ -39,6 +39,9 @@ class RimSurfaceIntersectionBand : public RimCheckableObject
     CAF_PDM_HEADER_INIT;
 
 public:
+    caf::Signal<> objectChanged;
+
+public:
     RimSurfaceIntersectionBand();
 
     RimAnnotationLineAppearance* lineAppearance() const;
@@ -51,6 +54,8 @@ private:
 
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
                                                          bool*                      useOptionsOnly ) override;
+
+    void onObjectChanged( const caf::SignalEmitter* emitter );
 
 private:
     caf::PdmChildField<RimAnnotationLineAppearance*> m_lineAppearance;

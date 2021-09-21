@@ -35,10 +35,20 @@ class RimSurfaceIntersectionCollection : public RimCheckableObject
     CAF_PDM_HEADER_INIT;
 
 public:
+    caf::Signal<> objectChanged;
+
+public:
     RimSurfaceIntersectionCollection();
+
+    void addIntersectionCurve();
+    void addIntersectionBand();
 
     std::vector<RimSurfaceIntersectionCurve*> surfaceIntersectionCurves() const;
     std::vector<RimSurfaceIntersectionBand*>  surfaceIntersectionBands() const;
+
+private:
+    void onObjectChanged( const caf::SignalEmitter* emitter );
+    void initAfterRead() override;
 
 private:
     caf::PdmChildArrayField<RimSurfaceIntersectionBand*>  m_intersectionBands;
