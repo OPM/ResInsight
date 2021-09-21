@@ -40,13 +40,16 @@ public:
 public:
     RimSurfaceIntersectionCollection();
 
-    void addIntersectionCurve();
-    void addIntersectionBand();
+    RimSurfaceIntersectionCurve* addIntersectionCurve();
+    RimSurfaceIntersectionBand*  addIntersectionBand();
 
     std::vector<RimSurfaceIntersectionCurve*> surfaceIntersectionCurves() const;
     std::vector<RimSurfaceIntersectionBand*>  surfaceIntersectionBands() const;
 
 private:
+    void onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
+                         std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
+
     void onObjectChanged( const caf::SignalEmitter* emitter );
     void initAfterRead() override;
 

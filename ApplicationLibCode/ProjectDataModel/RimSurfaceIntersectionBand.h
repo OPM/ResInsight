@@ -43,6 +43,11 @@ public:
 public:
     RimSurfaceIntersectionBand();
 
+    void setSurfaces( RimSurface* surface1, RimSurface* surface2 );
+    void setBandColor( const cvf::Color3f& color );
+    void setBandOpacity( double opacity );
+    void setPolygonOffsetUnit( double offset );
+
     RimAnnotationLineAppearance* lineAppearance() const;
     cvf::Color3f                 bandColor() const;
     float                        bandOpacity() const;

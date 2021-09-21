@@ -810,6 +810,9 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         }
         else if ( dynamic_cast<RimExtrudedCurveIntersection*>( firstUiItem ) )
         {
+            menuBuilder << "RicCreateSurfaceIntersectionBandFeature";
+            menuBuilder << "RicCreateSurfaceIntersectionCurveFeature";
+            menuBuilder.addSeparator();
             menuBuilder << "RicPasteIntersectionsFeature";
             menuBuilder.addSeparator();
             menuBuilder << "RicAppendIntersectionFeature";

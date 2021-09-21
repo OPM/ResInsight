@@ -63,6 +63,14 @@ void RimEnsembleStatisticsSurface::setStatisticsType( RigSurfaceStatisticsCalcul
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RigSurfaceStatisticsCalculator::StatisticsType RimEnsembleStatisticsSurface::statisticsType() const
+{
+    return m_statisticsType();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString RimEnsembleStatisticsSurface::fullName() const
 {
     return caf::AppEnum<RigSurfaceStatisticsCalculator::StatisticsType>::uiText( m_statisticsType.v() );

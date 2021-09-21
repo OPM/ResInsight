@@ -70,6 +70,43 @@ RimSurfaceIntersectionBand::RimSurfaceIntersectionBand()
     CAF_PDM_InitFieldNoDefault( &m_nameProxy, "NameProxy", "Name", "", "", "" );
     m_nameProxy.registerGetMethod( this, &RimSurfaceIntersectionBand::objectName );
     m_nameProxy.uiCapability()->setUiHidden( true );
+
+    setDeletable( true );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSurfaceIntersectionBand::setSurfaces( RimSurface* surface1, RimSurface* surface2 )
+{
+    m_surfaces.clear();
+
+    m_surfaces.push_back( surface1 );
+    m_surfaces.push_back( surface2 );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSurfaceIntersectionBand::setBandColor( const cvf::Color3f& color )
+{
+    m_bandColor = color;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSurfaceIntersectionBand::setBandOpacity( double opacity )
+{
+    m_bandOpacity = opacity;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSurfaceIntersectionBand::setPolygonOffsetUnit( double offset )
+{
+    m_bandPolygonOffsetUnit = offset;
 }
 
 //--------------------------------------------------------------------------------------------------

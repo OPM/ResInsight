@@ -120,6 +120,18 @@ void RimSurfaceCollection::addEnsembleSurface( RimEnsembleSurface* ensembleSurfa
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::vector<RimEnsembleSurface*> RimSurfaceCollection::ensembleSurfaces() const
+{
+    std::vector<RimEnsembleSurface*> ensSurfaces;
+
+    this->descendantsIncludingThisOfType( ensSurfaces );
+
+    return ensSurfaces;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RimSurface* RimSurfaceCollection::importSurfacesFromFiles( const QStringList& fileNames, bool showLegend /* = true */ )
 {
     size_t  newSurfCount      = 0;

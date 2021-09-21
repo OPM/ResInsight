@@ -285,6 +285,22 @@ void RimEnsembleSurface::loadData()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RimSurface* RimEnsembleSurface::findStatisticsSurface( RigSurfaceStatisticsCalculator::StatisticsType statisticsType )
+{
+    for ( auto s : surfaces() )
+    {
+        if ( auto ensambleSurface = dynamic_cast<RimEnsembleStatisticsSurface*>( s ) )
+        {
+            if ( ensambleSurface->statisticsType() == statisticsType ) return s;
+        }
+    }
+
+    return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimEnsembleSurface::initAfterRead()
 {
     connectEnsembleCurveSetFilterSignals();

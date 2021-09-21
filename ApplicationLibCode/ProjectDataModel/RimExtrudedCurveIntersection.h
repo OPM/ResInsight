@@ -110,9 +110,10 @@ public:
     void       recomputeSimulationWellBranchData();
     bool       hasDefiningPoints() const;
 
-    std::vector<RimSurface*>                  annotatedSurfaces() const;
     std::vector<RimSurfaceIntersectionCurve*> surfaceIntersectionCurves() const;
     std::vector<RimSurfaceIntersectionBand*>  surfaceIntersectionBands() const;
+    RimSurfaceIntersectionCurve*              addIntersectionCurve();
+    RimSurfaceIntersectionBand*               addIntersectionBand();
 
     int  branchIndex() const;
     void rebuildGeometryAndScheduleCreateDisplayModel();

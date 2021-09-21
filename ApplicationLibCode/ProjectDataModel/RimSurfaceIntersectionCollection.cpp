@@ -44,19 +44,25 @@ RimSurfaceIntersectionCollection::RimSurfaceIntersectionCollection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSurfaceIntersectionCollection::addIntersectionCurve()
+RimSurfaceIntersectionCurve* RimSurfaceIntersectionCollection::addIntersectionCurve()
 {
     auto curve = new RimSurfaceIntersectionCurve;
     curve->objectChanged.connect( this, &RimSurfaceIntersectionCollection::onObjectChanged );
+    m_intersectionCurves.push_back( curve );
+
+    return curve;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSurfaceIntersectionCollection::addIntersectionBand()
+RimSurfaceIntersectionBand* RimSurfaceIntersectionCollection::addIntersectionBand()
 {
     auto band = new RimSurfaceIntersectionBand;
     band->objectChanged.connect( this, &RimSurfaceIntersectionCollection::onObjectChanged );
+    m_intersectionBands.push_back( band );
+
+    return band;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -73,6 +79,15 @@ std::vector<RimSurfaceIntersectionCurve*> RimSurfaceIntersectionCollection::surf
 std::vector<RimSurfaceIntersectionBand*> RimSurfaceIntersectionCollection::surfaceIntersectionBands() const
 {
     return m_intersectionBands.childObjects();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSurfaceIntersectionCollection::onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
+                                                       std::vector<caf::PdmObjectHandle*>& referringObjects )
+{
+    onObjectChanged( this );
 }
 
 //--------------------------------------------------------------------------------------------------

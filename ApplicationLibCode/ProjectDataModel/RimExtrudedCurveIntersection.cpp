@@ -1052,6 +1052,22 @@ std::vector<RimSurfaceIntersectionBand*> RimExtrudedCurveIntersection::surfaceIn
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RimSurfaceIntersectionCurve* RimExtrudedCurveIntersection::addIntersectionCurve()
+{
+    return m_surfaceIntersections->addIntersectionCurve();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimSurfaceIntersectionBand* RimExtrudedCurveIntersection::addIntersectionBand()
+{
+    return m_surfaceIntersections->addIntersectionBand();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimExtrudedCurveIntersection::setLengthUp( double lengthUp )
 {
     m_lengthUp = lengthUp;
@@ -1116,5 +1132,6 @@ void RimExtrudedCurveIntersection::appendOptionItemsForSources( int             
 //--------------------------------------------------------------------------------------------------
 void RimExtrudedCurveIntersection::onSurfaceIntersectionsChanged( const caf::SignalEmitter* emitter )
 {
+    updateAllRequiredEditors();
     rebuildGeometryAndScheduleCreateDisplayModel();
 }

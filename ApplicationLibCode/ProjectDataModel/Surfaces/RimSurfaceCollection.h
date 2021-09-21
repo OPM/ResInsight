@@ -37,7 +37,8 @@ public:
     void addSurface( RimSurface* surface );
     void setAsTopmostFolder();
 
-    void addEnsembleSurface( RimEnsembleSurface* ensembleSurface );
+    void                             addEnsembleSurface( RimEnsembleSurface* ensembleSurface );
+    std::vector<RimEnsembleSurface*> ensembleSurfaces() const;
 
     RimSurface* importSurfacesFromFiles( const QStringList& fileNames, bool showLegend = true );
     RimSurface* addGridCaseSurface( RimCase* sourceCase, int oneBasedSliceIndex = 1 );

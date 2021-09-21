@@ -20,6 +20,8 @@
 
 #include "RimSurfaceCollection.h"
 
+#include "RigSurfaceStatisticsCalculator.h"
+
 #include "cafPdmChildArrayField.h"
 #include "cafPdmPtrField.h"
 
@@ -49,6 +51,8 @@ public:
     static QString ensembleSourceFileCollectionName();
 
     void loadData() override;
+
+    RimSurface* findStatisticsSurface( RigSurfaceStatisticsCalculator::StatisticsType statisticsType );
 
 protected:
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
