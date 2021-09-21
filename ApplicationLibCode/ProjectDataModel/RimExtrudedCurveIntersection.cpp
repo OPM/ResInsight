@@ -1041,6 +1041,22 @@ std::vector<RimSurface*> RimExtrudedCurveIntersection::annotatedSurfaces() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::vector<RimSurfaceIntersectionCurve*> RimExtrudedCurveIntersection::surfaceIntersectionCurves() const
+{
+    return m_surfaceIntersections->surfaceIntersectionCurves();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimSurfaceIntersectionBand*> RimExtrudedCurveIntersection::surfaceIntersectionBands() const
+{
+    return m_surfaceIntersections->surfaceIntersectionBands();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimExtrudedCurveIntersection::setLengthUp( double lengthUp )
 {
     m_lengthUp = lengthUp;

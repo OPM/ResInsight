@@ -37,6 +37,9 @@ class RimSurfaceIntersectionCollection : public RimCheckableObject
 public:
     RimSurfaceIntersectionCollection();
 
+    std::vector<RimSurfaceIntersectionCurve*> surfaceIntersectionCurves() const;
+    std::vector<RimSurfaceIntersectionBand*>  surfaceIntersectionBands() const;
+
 private:
     caf::PdmChildArrayField<RimSurfaceIntersectionBand*>  m_intersectionBands;
     caf::PdmChildArrayField<RimSurfaceIntersectionCurve*> m_intersectionCurves;

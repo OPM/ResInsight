@@ -39,3 +39,19 @@ RimSurfaceIntersectionCollection::RimSurfaceIntersectionCollection()
     m_intersectionCurves.push_back( new RimSurfaceIntersectionCurve );
     m_intersectionCurves.push_back( new RimSurfaceIntersectionCurve );
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimSurfaceIntersectionCurve*> RimSurfaceIntersectionCollection::surfaceIntersectionCurves() const
+{
+    return m_intersectionCurves.childObjects();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimSurfaceIntersectionBand*> RimSurfaceIntersectionCollection::surfaceIntersectionBands() const
+{
+    return m_intersectionBands.childObjects();
+}

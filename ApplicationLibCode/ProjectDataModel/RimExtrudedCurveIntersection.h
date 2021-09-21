@@ -33,6 +33,8 @@ class Rim2dIntersectionView;
 class RimSurface;
 class RimSurfaceCollection;
 class RimSurfaceIntersectionCollection;
+class RimSurfaceIntersectionCurve;
+class RimSurfaceIntersectionBand;
 
 namespace caf
 {
@@ -108,7 +110,9 @@ public:
     void       recomputeSimulationWellBranchData();
     bool       hasDefiningPoints() const;
 
-    std::vector<RimSurface*> annotatedSurfaces() const;
+    std::vector<RimSurface*>                  annotatedSurfaces() const;
+    std::vector<RimSurfaceIntersectionCurve*> surfaceIntersectionCurves() const;
+    std::vector<RimSurfaceIntersectionBand*>  surfaceIntersectionBands() const;
 
     int  branchIndex() const;
     void rebuildGeometryAndScheduleCreateDisplayModel();
