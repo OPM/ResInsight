@@ -270,7 +270,7 @@ void RicCreateEnsembleWellLogUi::setCaseData( RigEclipseCaseData* caseData )
     if ( m_selectedKeywords().empty() )
     {
         RigCaseCellResultsData* resultData      = caseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
-        std::vector<QString>    defaultKeywords = { "INDEX_K", "PORO", "PERMZ", "PRESSURE" };
+        std::vector<QString>    defaultKeywords = { "INDEX_K", "PORO", "PERMX", "PRESSURE" };
         std::vector<RiaDefines::ResultCatType> categories = validResultCategories();
 
         for ( auto keyword : defaultKeywords )
