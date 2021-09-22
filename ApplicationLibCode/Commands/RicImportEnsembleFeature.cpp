@@ -72,13 +72,13 @@ bool RicImportEnsembleFeature::isCommandEnabled()
 void RicImportEnsembleFeature::onActionTriggered( bool isChecked )
 {
     QString pathCacheName = "ENSEMBLE_FILES";
-    auto [fileNames, groupByIteration] =
+    auto [fileNames, groupByEnsemble] =
         RicImportSummaryCasesFeature::runRecursiveSummaryCaseFileSearchDialogWithGrouping( "Import Ensemble",
                                                                                            pathCacheName );
 
     if ( fileNames.isEmpty() ) return;
 
-    if ( groupByIteration )
+    if ( groupByEnsemble )
     {
         std::vector<QStringList> groupedByEnsemble = RiaEnsembleNameTools::groupFilesByEnsemble( fileNames );
         for ( const QStringList& groupedFileNames : groupedByEnsemble )

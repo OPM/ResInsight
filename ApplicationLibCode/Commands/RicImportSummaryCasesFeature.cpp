@@ -275,7 +275,7 @@ std::pair<QStringList, bool>
     // Remember the path to next time
     app->setLastUsedDialogDirectory( pathCacheName, QFileInfo( result.rootDir ).absoluteFilePath() );
 
-    return std::make_pair( result.files, result.groupByIteration );
+    return std::make_pair( result.files, result.groupByEnsemble );
 }
 
 //--------------------------------------------------------------------------------------------------

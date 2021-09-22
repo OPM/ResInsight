@@ -62,11 +62,11 @@ bool RicImportEnsembleSurfaceFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicImportEnsembleSurfaceFeature::onActionTriggered( bool isChecked )
 {
-    RiaApplication* app                = RiaApplication::instance();
-    QString         pathCacheName      = "ENSEMBLE_SURFACE_FILES";
-    auto [fileNames, groupByIteration] = runRecursiveFileSearchDialog( "Import Ensemble Surface", pathCacheName );
+    RiaApplication* app               = RiaApplication::instance();
+    QString         pathCacheName     = "ENSEMBLE_SURFACE_FILES";
+    auto [fileNames, groupByEnsemble] = runRecursiveFileSearchDialog( "Import Ensemble Surface", pathCacheName );
 
-    if ( groupByIteration )
+    if ( groupByEnsemble )
         importEnsembleSurfaceFromFiles( fileNames );
     else
         importSingleEnsembleSurfaceFromFiles( fileNames );
@@ -209,5 +209,5 @@ std::pair<QStringList, bool> RicImportEnsembleSurfaceFeature::runRecursiveFileSe
     // Remember the path to next time
     app->setLastUsedDialogDirectory( pathCacheName, QFileInfo( result.rootDir ).absoluteFilePath() );
 
-    return std::pair( result.files, result.groupByIteration );
+    return std::pair( result.files, result.groupByEnsemble );
 }
