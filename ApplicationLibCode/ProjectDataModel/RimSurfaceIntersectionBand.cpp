@@ -258,7 +258,8 @@ QString RimSurfaceIntersectionBand::objectName() const
             text += surfColl->collectionName();
         }
 
-        if ( surfaces[0] ) text += "(" + surfaces[0]->userDescription() + " - " + surfaces[1]->userDescription() + ")";
+        if ( surfaces[0] )
+            text += "( " + surfaces[0]->userDescription() + " - " + surfaces[1]->userDescription() + " )";
         return text;
     }
 

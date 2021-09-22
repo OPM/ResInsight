@@ -124,9 +124,11 @@ void RimEnsembleSurface::loadDataAndUpdate()
     {
         cvf::ref<RigSurface> firstSurface = sourceSurfaceForStatistics[0]->surfaceData();
 
+        // The search tree must be created before the multi threading loop is initiated to avoid crash
+        firstSurface->ensureIntersectionSearchTreeIsBuilt();
+
         auto                              surfaceCount = static_cast<int>( sourceSurfaceForStatistics.size() );
         std::vector<cvf::ref<RigSurface>> sourceSurfaces( surfaceCount );
-
 #pragma omp parallel for
         for ( int i = 0; i < surfaceCount; i++ )
         {

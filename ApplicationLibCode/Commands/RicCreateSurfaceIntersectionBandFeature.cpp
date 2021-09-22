@@ -18,6 +18,9 @@
 
 #include "RicCreateSurfaceIntersectionBandFeature.h"
 
+#include "RiaColorTables.h"
+
+#include "RimAnnotationLineAppearance.h"
 #include "RimEnsembleSurface.h"
 #include "RimExtrudedCurveIntersection.h"
 #include "RimOilField.h"
@@ -75,6 +78,8 @@ void RicCreateSurfaceIntersectionBandFeature::onActionTriggered( bool isChecked 
         {
             const double defaultOpacity = 0.6;
 
+            auto colors = RiaColorTables::structuralUncertaintyColors();
+
             // Create min/max band
             {
                 auto surf1 =
@@ -86,9 +91,13 @@ void RicCreateSurfaceIntersectionBandFeature::onActionTriggered( bool isChecked 
                 {
                     auto band = intersection->addIntersectionBand();
                     band->setSurfaces( surf1, surf2 );
-                    band->setBandColor( surf2->color() );
+
+                    auto color = colors.cycledColor3f( 0 );
+                    band->setBandColor( color );
                     band->setBandOpacity( defaultOpacity );
                     band->setPolygonOffsetUnit( 80 );
+
+                    band->lineAppearance()->setColor( color );
 
                     objectToSelect = band;
                 }
@@ -105,9 +114,13 @@ void RicCreateSurfaceIntersectionBandFeature::onActionTriggered( bool isChecked 
                 {
                     auto band = intersection->addIntersectionBand();
                     band->setSurfaces( surf1, surf2 );
-                    band->setBandColor( surf2->color() );
+
+                    auto color = colors.cycledColor3f( 1 );
+                    band->setBandColor( color );
                     band->setBandOpacity( defaultOpacity );
                     band->setPolygonOffsetUnit( 100 );
+
+                    band->lineAppearance()->setColor( color );
                 }
             }
         }
