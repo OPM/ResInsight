@@ -60,6 +60,10 @@ public:
     static std::vector<cvf::ref<RigStimPlanFractureDefinition>>
         removeZeroWidthDefinitions( const std::vector<cvf::ref<RigStimPlanFractureDefinition>>& fractureDefinitions );
 
+    static std::vector<double>
+        calculateProperty( const std::vector<cvf::ref<RigStimPlanFractureDefinition>>& fractureDefinitions,
+                           PropertyType                                                propertyType );
+
 private:
     static std::vector<double>
         calculateGridStatistics( const std::vector<cvf::ref<RigStimPlanFractureDefinition>>& fractureDefinitions,

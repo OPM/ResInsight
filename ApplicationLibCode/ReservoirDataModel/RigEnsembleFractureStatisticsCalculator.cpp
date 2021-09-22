@@ -79,6 +79,47 @@ RigHistogramData RigEnsembleFractureStatisticsCalculator::createStatisticsData(
     PropertyType                                                propertyType,
     int                                                         numBins )
 {
+    std::vector<double> samples = calculateProperty( fractureDefinitions, propertyType );
+
+    RigHistogramData histogramData;
+
+    double sum;
+    double range;
+    double dev;
+    RigStatisticsMath::calculateBasicStatistics( samples,
+                                                 &histogramData.min,
+                                                 &histogramData.max,
+                                                 &sum,
+                                                 &range,
+                                                 &histogramData.mean,
+                                                 &dev );
+
+    double p50;
+    double mean;
+    RigStatisticsMath::calculateStatisticsCurves( samples,
+                                                  &histogramData.p10,
+                                                  &p50,
+                                                  &histogramData.p90,
+                                                  &mean,
+                                                  RigStatisticsMath::PercentileStyle::SWITCHED );
+
+    std::vector<size_t>    histogram;
+    RigHistogramCalculator histogramCalculator( histogramData.min, histogramData.max, numBins, &histogram );
+    for ( auto s : samples )
+        histogramCalculator.addValue( s );
+
+    histogramData.histogram = histogram;
+
+    return histogramData;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<double> RigEnsembleFractureStatisticsCalculator::calculateProperty(
+    const std::vector<cvf::ref<RigStimPlanFractureDefinition>>& fractureDefinitions,
+    PropertyType                                                propertyType )
+{
     std::vector<double> samples;
     if ( propertyType == PropertyType::HEIGHT )
     {
@@ -112,36 +153,7 @@ RigHistogramData RigEnsembleFractureStatisticsCalculator::createStatisticsData(
         samples = calculateFormationDip( fractureDefinitions );
     }
 
-    RigHistogramData histogramData;
-
-    double sum;
-    double range;
-    double dev;
-    RigStatisticsMath::calculateBasicStatistics( samples,
-                                                 &histogramData.min,
-                                                 &histogramData.max,
-                                                 &sum,
-                                                 &range,
-                                                 &histogramData.mean,
-                                                 &dev );
-
-    double p50;
-    double mean;
-    RigStatisticsMath::calculateStatisticsCurves( samples,
-                                                  &histogramData.p10,
-                                                  &p50,
-                                                  &histogramData.p90,
-                                                  &mean,
-                                                  RigStatisticsMath::PercentileStyle::SWITCHED );
-
-    std::vector<size_t>    histogram;
-    RigHistogramCalculator histogramCalculator( histogramData.min, histogramData.max, numBins, &histogram );
-    for ( auto s : samples )
-        histogramCalculator.addValue( s );
-
-    histogramData.histogram = histogram;
-
-    return histogramData;
+    return samples;
 }
 
 //--------------------------------------------------------------------------------------------------
