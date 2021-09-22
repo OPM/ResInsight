@@ -36,7 +36,8 @@
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObjectScriptingCapability.h"
 
-#include "QFile"
+#include <QFile>
+#include <QFileInfo>
 
 CAF_PDM_SOURCE_INIT( RimSurfaceCollection, "SurfaceCollection" );
 
@@ -147,6 +148,8 @@ RimSurface* RimSurfaceCollection::importSurfacesFromFiles( const QStringList& fi
         auto newColor = RiaColorTables::categoryPaletteColors().cycledColor3f( existingSurfCount + newSurfCount );
 
         newSurface->setSurfaceFilePath( newFileName );
+        newSurface->setUserDescription( QFileInfo( newFileName ).fileName() );
+
         newSurface->setColor( newColor );
 
         if ( !newSurface->onLoadData() )

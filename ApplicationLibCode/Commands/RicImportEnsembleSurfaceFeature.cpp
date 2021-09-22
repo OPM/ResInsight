@@ -104,10 +104,11 @@ void RicImportEnsembleSurfaceFeature::importSingleEnsembleSurfaceFromFiles( cons
     RimEnsembleSurface* ensembleToSelect = nullptr;
     for ( const auto& fileNamesForLayer : fileNamesForEachLayer )
     {
-        auto    layerFileNames = fileNamesForLayer.second;
-        QString ensembleName   = RiaEnsembleNameTools::findSuitableEnsembleName( layerFileNames );
+        const QStringList& layerFileNames = fileNamesForLayer.second; // NB! This must be a const reference to avoid
+                                                                      // threading issues
 
-        QString layerName = fileNamesForLayer.first;
+        QString ensembleName = RiaEnsembleNameTools::findSuitableEnsembleName( layerFileNames );
+        QString layerName    = fileNamesForLayer.first;
         if ( !layerName.isEmpty() )
         {
             ensembleName += QString( " : %1" ).arg( layerName );
