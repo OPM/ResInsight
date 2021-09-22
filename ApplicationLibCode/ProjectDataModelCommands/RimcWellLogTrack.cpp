@@ -19,6 +19,7 @@
 
 #include "RiaApplication.h"
 #include "RiaDefines.h"
+#include "RiaResultNames.h"
 
 #include "WellLogCommands/RicNewWellLogPlotFeatureImpl.h"
 
@@ -81,7 +82,16 @@ RimWellLogExtractionCurve*
     curve->setWellPath( wellPath );
     curve->setCase( eclipseCase );
     curve->setCurrentTimeStep( timeStep );
-    curve->setEclipseResultVariable( propertyName );
+
+    if ( resultCategoryType == RiaDefines::ResultCatType::FORMATION_NAMES )
+    {
+        // The result name for formations is fragile. Always use the application result name for this
+        curve->setEclipseResultVariable( RiaResultNames::activeFormationNamesResultName() );
+    }
+    else
+    {
+        curve->setEclipseResultVariable( propertyName );
+    }
 
     curve->setEclipseResultCategory( resultCategoryType );
 
