@@ -359,6 +359,15 @@ void RimEnsembleFractureStatistics::loadAndUpdateData()
     std::vector<cvf::ref<RigStimPlanFractureDefinition>> stimPlanFractureDefinitions =
         readFractureDefinitions( m_filePaths.v(), unitSystem );
 
+    // Log area for each fracture for debugging
+    std::vector<double> area =
+        RigEnsembleFractureStatisticsCalculator::calculateProperty( stimPlanFractureDefinitions,
+                                                                    RigEnsembleFractureStatisticsCalculator::PropertyType::AREA );
+    for ( size_t i = 0; i < m_filePaths.v().size(); i++ )
+    {
+        RiaLogging::info( QString( "%1 Area: %2" ).arg( m_filePaths.v()[i].path() ).arg( area[i] ) );
+    }
+
     if ( m_excludeZeroWidthFractures() )
     {
         size_t numBeforeFiltering = stimPlanFractureDefinitions.size();
