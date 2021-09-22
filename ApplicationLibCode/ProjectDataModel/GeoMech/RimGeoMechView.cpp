@@ -37,6 +37,8 @@
 #include "RimEclipseView.h"
 #include "RimGeoMechCase.h"
 #include "RimGeoMechCellColors.h"
+#include "RimGeoMechPart.h"
+#include "RimGeoMechPartCollection.h"
 #include "RimGeoMechPropertyFilterCollection.h"
 #include "RimGridCollection.h"
 #include "RimIntersectionCollection.h"
@@ -95,6 +97,10 @@ RimGeoMechView::RimGeoMechView( void )
     CAF_PDM_InitFieldNoDefault( &m_propertyFilterCollection, "PropertyFilters", "Property Filters", "", "", "" );
     m_propertyFilterCollection = new RimGeoMechPropertyFilterCollection();
     m_propertyFilterCollection.uiCapability()->setUiHidden( true );
+
+    CAF_PDM_InitFieldNoDefault( &m_partsCollection, "Parts", "Parts", "", "", "" );
+    m_partsCollection = new RimGeoMechPartCollection();
+    m_partsCollection.uiCapability()->setUiHidden( true );
 
     m_scaleTransform = new cvf::Transform();
     m_vizLogic       = new RivGeoMechVizLogic( this );
@@ -175,7 +181,9 @@ void RimGeoMechView::onLoadDataAndUpdate()
     this->geoMechPropertyFilterCollection()->loadAndInitializePropertyFilters();
     m_wellMeasurementCollection->syncWithChangesInWellMeasurementCollection();
 
-    if ( this->m_surfaceCollection ) this->m_surfaceCollection->loadData();
+    if ( m_surfaceCollection ) m_surfaceCollection->loadData();
+
+    if ( m_partsCollection ) m_partsCollection->syncWithCase( m_geomechCase );
 
     this->scheduleCreateDisplayModelAndRedraw();
 
@@ -183,8 +191,6 @@ void RimGeoMechView::onLoadDataAndUpdate()
 }
 
 //--------------------------------------------------------------------------------------------------
-///
-/// Todo: Work in progress
 ///
 //--------------------------------------------------------------------------------------------------
 
@@ -244,9 +250,15 @@ void RimGeoMechView::onCreateDisplayModel()
 
     if ( !( m_geomechCase && m_geomechCase->geoMechData() && m_geomechCase->geoMechData()->femParts() ) ) return;
 
-    int partCount = m_geomechCase->geoMechData()->femParts()->partCount();
+    const auto& theParts  = femParts();
+    int         partCount = theParts->partCount();
 
     if ( partCount <= 0 ) return;
+
+    for ( int i = 0; i < partCount; i++ )
+    {
+        theParts->part( i )->setEnabled( m_partsCollection()->isPartEnabled( i ) );
+    }
 
     // Remove all existing animation frames from the viewer.
     // The parts are still cached in the RivReservoir geometry and friends
@@ -968,6 +980,8 @@ void RimGeoMechView::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrderin
     uiTreeOrdering.add( m_cellFilterCollection() );
     uiTreeOrdering.add( m_propertyFilterCollection() );
 
+    if ( m_partsCollection->shouldBeVisibleInTree() ) uiTreeOrdering.add( m_partsCollection() );
+
     uiTreeOrdering.skipRemainingChildren( true );
 }
 
@@ -985,4 +999,12 @@ RimGeoMechResultDefinition* RimGeoMechView::cellResultResultDefinition() const
 const RimPropertyFilterCollection* RimGeoMechView::propertyFilterCollection() const
 {
     return geoMechPropertyFilterCollection();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const RimGeoMechPartCollection* RimGeoMechView::partsCollection() const
+{
+    return m_partsCollection();
 }

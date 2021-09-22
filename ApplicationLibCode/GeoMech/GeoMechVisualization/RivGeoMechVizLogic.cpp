@@ -202,10 +202,11 @@ RivGeoMechPartMgr* RivGeoMechVizLogic::getUpdatedPartMgr( RivGeoMechPartMgrCache
         partMgrToUpdate->clearAndSetReservoir( caseData );
     }
 
+    partMgrToUpdate->setTransform( m_geomechView->scaleTransform() );
+
     for ( int femPartIdx = 0; femPartIdx < partCount; ++femPartIdx )
     {
         cvf::ref<cvf::UByteArray> elmVisibility = partMgrToUpdate->cellVisibility( femPartIdx );
-        partMgrToUpdate->setTransform( m_geomechView->scaleTransform() );
 
         if ( pMgrKey.geometryType() == RANGE_FILTERED )
         {

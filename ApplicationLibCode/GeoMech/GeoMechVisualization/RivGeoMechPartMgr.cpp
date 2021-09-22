@@ -71,19 +71,19 @@ void RivGeoMechPartMgr::setTransform( cvf::Transform* scaleTransform )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivGeoMechPartMgr::setCellVisibility( size_t gridIndex, cvf::UByteArray* cellVisibilities )
+void RivGeoMechPartMgr::setCellVisibility( size_t partIndex, cvf::UByteArray* cellVisibilities )
 {
-    CVF_ASSERT( gridIndex < m_femPartPartMgrs.size() );
-    m_femPartPartMgrs[gridIndex]->setCellVisibility( cellVisibilities );
+    CVF_ASSERT( partIndex < m_femPartPartMgrs.size() );
+    m_femPartPartMgrs[partIndex]->setCellVisibility( cellVisibilities );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::ref<cvf::UByteArray> RivGeoMechPartMgr::cellVisibility( size_t gridIdx )
+cvf::ref<cvf::UByteArray> RivGeoMechPartMgr::cellVisibility( size_t partIdx )
 {
-    CVF_ASSERT( gridIdx < m_femPartPartMgrs.size() );
-    return m_femPartPartMgrs[gridIdx]->cellVisibility();
+    CVF_ASSERT( partIdx < m_femPartPartMgrs.size() );
+    return m_femPartPartMgrs[partIdx]->cellVisibility();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -122,13 +122,13 @@ void RivGeoMechPartMgr::appendGridPartsToModel( cvf::ModelBasicList* model )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivGeoMechPartMgr::appendGridPartsToModel( cvf::ModelBasicList* model, const std::vector<size_t>& gridIndices )
+void RivGeoMechPartMgr::appendGridPartsToModel( cvf::ModelBasicList* model, const std::vector<size_t>& partIndices )
 {
-    for ( size_t i = 0; i < gridIndices.size(); ++i )
+    for ( size_t i = 0; i < partIndices.size(); ++i )
     {
-        if ( gridIndices[i] < m_femPartPartMgrs.size() )
+        if ( partIndices[i] < m_femPartPartMgrs.size() )
         {
-            m_femPartPartMgrs[gridIndices[i]]->appendPartsToModel( model );
+            m_femPartPartMgrs[partIndices[i]]->appendPartsToModel( model );
         }
     }
 }

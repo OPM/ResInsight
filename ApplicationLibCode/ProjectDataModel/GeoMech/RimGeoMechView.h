@@ -45,6 +45,7 @@ class RiuViewer;
 class RivGeoMechPartMgr;
 class RivGeoMechVizLogic;
 class RivTensorResultPartMgr;
+class RimGeoMechPartCollection;
 
 namespace cvf
 {
@@ -72,6 +73,8 @@ public:
     RimGeoMechResultDefinition*               cellResultResultDefinition() const;
 
     const RimPropertyFilterCollection* propertyFilterCollection() const override;
+
+    const RimGeoMechPartCollection* partsCollection() const;
 
     RimGeoMechPropertyFilterCollection*       geoMechPropertyFilterCollection();
     const RimGeoMechPropertyFilterCollection* geoMechPropertyFilterCollection() const;
@@ -133,6 +136,7 @@ private:
     caf::PdmChildField<RimTensorResults*>                   m_tensorResults;
     caf::PdmChildField<RimGeoMechPropertyFilterCollection*> m_propertyFilterCollection;
     caf::PdmPointer<RimGeoMechPropertyFilterCollection>     m_overridePropertyFilterCollection;
+    caf::PdmChildField<RimGeoMechPartCollection*>           m_partsCollection;
 
     caf::PdmPointer<RimGeoMechCase> m_geomechCase;
     cvf::ref<RivGeoMechVizLogic>    m_vizLogic;

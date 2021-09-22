@@ -27,6 +27,7 @@
 #include "cvfBoundingBox.h"
 #include "cvfObject.h"
 #include "cvfVector3.h"
+#include <string>
 #include <vector>
 
 class RigFemPartGrid;
@@ -92,8 +93,16 @@ public:
     const RigFemPartGrid*   getOrCreateStructGrid() const;
     const std::vector<int>& elementIdxToId() const;
 
+    void        setName( std::string name );
+    std::string name() const;
+
+    void setEnabled( bool enable );
+    bool enabled() const;
+
 private:
-    int m_elementPartId;
+    int         m_elementPartId;
+    std::string m_name;
+    bool        m_enabled;
 
     std::vector<int>            m_elementId;
     std::vector<RigElementType> m_elementTypes;

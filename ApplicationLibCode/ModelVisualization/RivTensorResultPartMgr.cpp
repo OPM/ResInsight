@@ -95,7 +95,8 @@ void RivTensorResultPartMgr::appendDynamicGeometryPartsToModel( cvf::ModelBasicL
     {
         std::vector<caf::Ten3f> vertexTensors = resultCollection->tensors( address, partIdx, (int)frameIndex );
 
-        const RigFemPart*       part = femParts->part( partIdx );
+        const RigFemPart* part = femParts->part( partIdx );
+
         std::vector<caf::Ten3f> elmTensors;
 
         calculateElementTensors( *part, vertexTensors, &elmTensors );

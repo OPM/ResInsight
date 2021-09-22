@@ -344,9 +344,13 @@ bool RifOdbReader::readFemParts( RigFemPartCollection* femParts )
         modelProgress.setProgressDescription( QString( iter.currentKey().cStr() ) + ": Reading Nodes" );
         m_nodeIdToIdxMaps.push_back( std::map<int, int>() );
 
-        odb_Instance& inst = instanceRepository[iter.currentKey()];
+        const auto& key = iter.currentKey();
+
+        odb_Instance& inst = instanceRepository[key];
 
         RigFemPart* femPart = new RigFemPart;
+
+        femPart->setName( key.cStr() );
 
         // Extract nodes
         const odb_SequenceNode& odbNodes = inst.nodes();
@@ -373,7 +377,7 @@ bool RifOdbReader::readFemParts( RigFemPartCollection* femParts )
         }
 
         modelProgress.incrementProgress();
-        modelProgress.setProgressDescription( QString( iter.currentKey().cStr() ) + ": Reading Elements" );
+        modelProgress.setProgressDescription( QString( key.cStr() ) + ": Reading Elements" );
 
         // Extract elements
         const odb_SequenceElement& elements = inst.elements();

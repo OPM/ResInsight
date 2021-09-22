@@ -63,8 +63,8 @@ private:
     void generatePartGeometry( RivFemPartGeometryGenerator& geoBuilder );
 
 private:
-    int                   m_gridIdx;
-    cvf::cref<RigFemPart> m_grid;
+    int                   m_partIdx;
+    cvf::cref<RigFemPart> m_part;
 
     cvf::ref<cvf::Transform> m_scaleTransform;
     float                    m_opacityLevel;
