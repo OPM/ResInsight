@@ -58,12 +58,12 @@ bool RicImportEnsembleWellLogsFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicImportEnsembleWellLogsFeature::onActionTriggered( bool isChecked )
 {
-    RiaApplication* app                = RiaApplication::instance();
-    QString         pathCacheName      = "ENSEMBLE_WELL_LOGS_FILES";
-    auto [fileNames, groupByIteration] = runRecursiveFileSearchDialog( "Import Ensemble Well Logs", pathCacheName );
+    RiaApplication* app               = RiaApplication::instance();
+    QString         pathCacheName     = "ENSEMBLE_WELL_LOGS_FILES";
+    auto [fileNames, groupByEnsemble] = runRecursiveFileSearchDialog( "Import Ensemble Well Logs", pathCacheName );
     if ( fileNames.isEmpty() ) return;
 
-    if ( groupByIteration )
+    if ( groupByEnsemble )
         createEnsembleWellLogsFromFiles( fileNames );
     else
         createSingleEnsembleWellLogsFromFiles( fileNames );
@@ -157,5 +157,5 @@ std::pair<QStringList, bool> RicImportEnsembleWellLogsFeature::runRecursiveFileS
     // Remember the path to next time
     app->setLastUsedDialogDirectory( pathCacheName, QFileInfo( result.rootDir ).absoluteFilePath() );
 
-    return std::make_pair( result.files, result.groupByIteration );
+    return std::make_pair( result.files, result.groupByEnsemble );
 }

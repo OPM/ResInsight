@@ -134,7 +134,7 @@ RicRecursiveFileSearchDialogResult RicRecursiveFileSearchDialog::runRecursiveSea
                                                dialog.rootDirWithEndSeparator(),
                                                dialog.pathFilterWithoutStartSeparator(),
                                                dialog.fileNameFilter(),
-                                               dialog.groupByIteration() );
+                                               dialog.groupByEnsemble() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -149,8 +149,8 @@ RicRecursiveFileSearchDialog::RicRecursiveFileSearchDialog( QWidget* parent )
     m_useRealizationStarCheckBox = new QCheckBox( "Use 'realization-*' in filter" );
     connect( m_useRealizationStarCheckBox, SIGNAL( clicked() ), this, SLOT( slotUseRealizationStarClicked() ) );
 
-    m_groupByIterationCheckBox = new QCheckBox( "Group by iteration" );
-    m_groupByIterationCheckBox->setChecked( true );
+    m_groupByEnsembleCheckBox = new QCheckBox( "Group by ensemble" );
+    m_groupByEnsembleCheckBox->setChecked( true );
 
     m_pathFilterLabel             = new QLabel();
     m_pathFilterField             = new QComboBox();
@@ -230,7 +230,7 @@ RicRecursiveFileSearchDialog::RicRecursiveFileSearchDialog( QWidget* parent )
     inputGridLayout->addWidget( m_fileFilterLabel, 1, 0 );
     inputGridLayout->addWidget( m_fileFilterField, 1, 1, 1, 2 );
     inputGridLayout->addWidget( m_useRealizationStarCheckBox, 2, 1 );
-    inputGridLayout->addWidget( m_groupByIterationCheckBox, 3, 1 );
+    inputGridLayout->addWidget( m_groupByEnsembleCheckBox, 3, 1 );
     inputGridLayout->addWidget( m_effectiveFilterLabel, 4, 0 );
     inputGridLayout->addWidget( m_effectiveFilterContentLabel, 4, 1 );
     inputGridLayout->addWidget( m_findOrCancelButton, 4, 2, 1, 2 );
@@ -375,13 +375,13 @@ void RicRecursiveFileSearchDialog::updateFileListWidget()
 {
     m_fileListWidget->clear();
 
-    if ( m_groupByIterationCheckBox->isChecked() )
+    if ( m_groupByEnsembleCheckBox->isChecked() )
     {
         std::vector<QStringList> groupedByEnsemble = RiaEnsembleNameTools::groupFilesByEnsemble( m_foundFiles );
         for ( const QStringList& groupedFileNames : groupedByEnsemble )
         {
-            QString          iterationName = RiaEnsembleNameTools::findSuitableEnsembleName( groupedFileNames );
-            QListWidgetItem* item = new QListWidgetItem( QDir::toNativeSeparators( iterationName ), m_fileListWidget );
+            QString          ensembleName = RiaEnsembleNameTools::findSuitableEnsembleName( groupedFileNames );
+            QListWidgetItem* item = new QListWidgetItem( QDir::toNativeSeparators( ensembleName ), m_fileListWidget );
             addToFileListWidget( groupedFileNames );
         }
     }
@@ -885,9 +885,9 @@ void RicRecursiveFileSearchDialog::slotUseRealizationStarClicked()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicRecursiveFileSearchDialog::groupByIteration() const
+bool RicRecursiveFileSearchDialog::groupByEnsemble() const
 {
-    return m_groupByIterationCheckBox->isChecked();
+    return m_groupByEnsembleCheckBox->isChecked();
 }
 
 //--------------------------------------------------------------------------------------------------
