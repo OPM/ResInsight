@@ -33,12 +33,6 @@ RimSurfaceIntersectionCollection::RimSurfaceIntersectionCollection()
 
     CAF_PDM_InitFieldNoDefault( &m_intersectionBands, "IntersectionBands", "Intersection Bands", "", "", "" );
     CAF_PDM_InitFieldNoDefault( &m_intersectionCurves, "IntersectionCurves", "Intersection Curves", "", "", "" );
-
-    addIntersectionCurve();
-    addIntersectionCurve();
-
-    addIntersectionBand();
-    addIntersectionBand();
 }
 
 //--------------------------------------------------------------------------------------------------

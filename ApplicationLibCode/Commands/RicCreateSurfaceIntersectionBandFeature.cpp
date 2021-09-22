@@ -87,7 +87,8 @@ void RicCreateSurfaceIntersectionBandFeature::onActionTriggered( bool isChecked 
                     auto band = intersection->addIntersectionBand();
                     band->setSurfaces( surf1, surf2 );
                     band->setBandColor( surf2->color() );
-                    band->setBandOpacity( defaultOpacity * 0.7 );
+                    band->setBandOpacity( defaultOpacity );
+                    band->setPolygonOffsetUnit( 80 );
 
                     objectToSelect = band;
                 }
@@ -111,6 +112,7 @@ void RicCreateSurfaceIntersectionBandFeature::onActionTriggered( bool isChecked 
             }
         }
 
+        intersection->rebuildGeometryAndScheduleCreateDisplayModel();
         intersection->updateAllRequiredEditors();
 
         Riu3DMainWindowTools::selectAsCurrentItem( objectToSelect );
