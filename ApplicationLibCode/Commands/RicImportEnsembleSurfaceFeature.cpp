@@ -120,7 +120,7 @@ void RicImportEnsembleSurfaceFeature::importSingleEnsembleSurfaceFromFiles( cons
             RiaFilePathTools::keyPathComponentsForEachFilePath( layerFileNames );
 
         std::vector<RimFileSurface*> surfaces;
-        for ( size_t i = 0; i < layerFileNames.size(); i++ )
+        for ( int i = 0; i < layerFileNames.size(); i++ )
         {
             surfaces.push_back( new RimFileSurface );
         }
