@@ -229,9 +229,6 @@ cvf::cref<RigFractureGrid> RimEllipseFractureTemplate::createFractureGrid( doubl
                  ( cellPolygon[1].y() <= 0.0 && cellPolygon[2].y() >= 0.0 ) )
             {
                 wellCenterFractureCellIJ = std::make_pair( fractureCell.getI(), fractureCell.getJ() );
-                RiaLogging::debug(
-                    QString( "Setting wellCenterStimPlanCell at cell %1, %2" )
-                        .arg( QString::number( fractureCell.getI() ), QString::number( fractureCell.getJ() ) ) );
             }
         }
     }
