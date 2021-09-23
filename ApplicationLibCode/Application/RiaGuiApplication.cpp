@@ -674,8 +674,11 @@ RiaApplication::ApplicationStatus RiaGuiApplication::handleArguments( gsl::not_n
         QStringList fileNames =
             RicImportGeneralDataFeature::fileNamesFromCaseNames( cvfqt::Utils::toQStringList( o.values() ) );
 
+        bool createView = true;
+        bool createPlot = true;
+
         RicImportGeneralDataFeature::OpenCaseResults results =
-            RicImportGeneralDataFeature::openEclipseFilesFromFileNames( fileNames, true );
+            RicImportGeneralDataFeature::openEclipseFilesFromFileNames( fileNames, createPlot, createView );
         if ( results && !results.eclipseSummaryFiles.empty() )
         {
             getOrCreateAndShowMainPlotWindow();

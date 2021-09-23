@@ -103,7 +103,8 @@ void RicNewFaultReactAssessmentFeature::onActionTriggered( bool isChecked )
     gridList << frapSettings.outputEclipseFilename();
 
     // load the new grid
-    int caseId = RiaImportEclipseCaseTools::openEclipseInputCaseFromFileNames( gridList );
+    bool createView = true;
+    int  caseId     = RiaImportEclipseCaseTools::openEclipseInputCaseFromFileNames( gridList, createView );
     if ( caseId < 0 )
     {
         QMessageBox::critical( nullptr, "Fault Reactivation Assessment", "Unable to load generated Eclipse grid." );

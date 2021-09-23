@@ -285,7 +285,9 @@ RiaApplication::ApplicationStatus RiaConsoleApplication::handleArguments( gsl::n
         QStringList fileNames =
             RicImportGeneralDataFeature::fileNamesFromCaseNames( cvfqt::Utils::toQStringList( o.values() ) );
 
-        RicImportGeneralDataFeature::openEclipseFilesFromFileNames( fileNames, true );
+        bool createView = true;
+        bool createPlot = true;
+        RicImportGeneralDataFeature::openEclipseFilesFromFileNames( fileNames, createPlot, createView );
     }
 
     if ( cvf::Option o = progOpt->option( "commandFile" ) )

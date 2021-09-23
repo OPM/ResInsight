@@ -59,7 +59,9 @@ void RicImportEclipseCaseFeature::onActionTriggered( bool isChecked )
     defaultDir = QFileInfo( fileNames.last() ).absolutePath();
     app->setLastUsedDialogDirectory( "BINARY_GRID", defaultDir );
 
-    openEclipseCaseFromFileNames( fileNames );
+    bool             createDefaultView = false;
+    std::vector<int> caseIds;
+    openEclipseCaseFromFileNames( fileNames, createDefaultView, caseIds );
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -27,6 +27,7 @@
 #include "RicCloseCaseFeature.h"
 #include "RicCreateEnsembleWellLogUi.h"
 #include "RicImportEnsembleWellLogsFeature.h"
+#include "RicImportGeneralDataFeature.h"
 #include "RicRecursiveFileSearchDialog.h"
 #include "WellPathCommands/RicImportWellPaths.h"
 
@@ -75,7 +76,7 @@ void RicCreateEnsembleWellLogFeature::openDialogAndExecuteCommand()
                                                                 defaultDir,
                                                                 pathFilter,
                                                                 fileNameFilter,
-                                                                QStringList( ".EGRID" ) );
+                                                                { ".GRDECL", ".EGRID" } );
 
     if ( !result.ok || result.files.isEmpty() )
     {
@@ -84,12 +85,13 @@ void RicCreateEnsembleWellLogFeature::openDialogAndExecuteCommand()
 
     // Use case data from first case
     RimEclipseCase* eclipseCase = loadEclipseCase( result.files[0] );
+    if ( !eclipseCase ) return;
 
     RicCreateEnsembleWellLogUi* ui = RimProject::current()->dialogData()->createEnsembleWellLogUi();
     ui->setCaseData( eclipseCase->eclipseCaseData() );
 
     // Automatically selected the well path the dialog was triggered on (if any)
-    RimWellPath* wellPath = caf::SelectionManager::instance()->selectedItemOfType<RimWellPath>();
+    auto* wellPath = caf::SelectionManager::instance()->selectedItemOfType<RimWellPath>();
     if ( wellPath )
     {
         ui->setWellPathSource( RicCreateEnsembleWellLogUi::WellPathSource::PROJECT_WELLS );
@@ -244,7 +246,7 @@ void RicCreateEnsembleWellLogFeature::executeCommand( const RicCreateEnsembleWel
                     QString      title = QString( "Track %1" ).arg( wellLogPlot->plotCount() );
                     RimWellLogTrack* wellLogTrack =
                         RimcWellLogPlot_newWellLogTrack::createWellLogTrack( wellLogPlot, eclipseCase, wellPath, title );
-                    RimEnsembleWellLogCurveSet* ensembleWellLogCurveSet = new RimEnsembleWellLogCurveSet();
+                    auto* ensembleWellLogCurveSet = new RimEnsembleWellLogCurveSet();
                     ensembleWellLogCurveSet->setEnsembleWellLogs( ensembleWellLog );
                     ensembleWellLogCurveSet->setColor( color );
                     ensembleWellLogCurveSet->setWellLogChannelName( property.first );
@@ -273,17 +275,18 @@ RimEclipseCase* RicCreateEnsembleWellLogFeature::loadEclipseCase( const QString&
         QDir startDir( RiaApplication::instance()->startDir() );
         absolutePath = startDir.absoluteFilePath( fileName );
     }
+    bool createView = false;
+    bool createPlot = false;
+    auto openResult = RicImportGeneralDataFeature::openEclipseFilesFromFileNames( QStringList( { absolutePath } ),
+                                                                                  createPlot,
+                                                                                  createView );
 
-    RiaImportEclipseCaseTools::FileCaseIdMap fileCaseIdMap;
-    bool                                     createView      = false;
-    bool                                     doNotShowDialog = true;
-    bool ok = RiaImportEclipseCaseTools::openEclipseCasesFromFile( QStringList( { absolutePath } ),
-                                                                   createView,
-                                                                   &fileCaseIdMap,
-                                                                   doNotShowDialog );
-    if ( !ok || fileCaseIdMap.empty() ) return nullptr;
+    if ( !openResult.createdCaseIds.empty() )
+    {
+        return RimProject::current()->eclipseCaseFromCaseId( openResult.createdCaseIds.front() );
+    }
 
-    return RimProject::current()->eclipseCaseFromCaseId( fileCaseIdMap.begin()->second );
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
