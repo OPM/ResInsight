@@ -148,10 +148,6 @@ void RivFemPartGeometryGenerator::computeArrays()
     trianglesToElements.reserve( estimatedQuadVxCount / 2 );
     trianglesToElementFaces.reserve( estimatedQuadVxCount / 2 );
 
-    // TODO - use femParts() bounding box here, not just local for this part?
-    // cvf::Vec3d displayOffset = m_part->boundingBox().min();
-    // cvf::Vec3d displayOffset( -5.0, -5.0, 0.0 );
-
     const std::vector<cvf::Vec3f>& nodeCoordinates = m_part->nodes().coordinates;
 
 #pragma omp parallel for schedule( dynamic )
@@ -275,8 +271,6 @@ cvf::ref<cvf::DrawableGeo>
         int            faceCount = RigFemTypes::elementFaceCount( eType );
 
         const int* elmNodeIndices = part->connectivities( elmIdx );
-
-        // cvf::Vec3d displayOffset = part->boundingBox().min();
 
         for ( int lfIdx = 0; lfIdx < faceCount; ++lfIdx )
         {
