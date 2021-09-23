@@ -240,7 +240,6 @@ bool RicImportGeneralDataFeature::openEclipseCaseFromFileNames( const QStringLis
     {
         for ( const auto& newCaseFileAndId : newCaseFiles )
         {
-            RiaApplication::instance()->addToRecentFiles( newCaseFileAndId.first );
             createdCaseIds.push_back( newCaseFileAndId.second );
         }
         return true;
