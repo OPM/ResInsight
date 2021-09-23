@@ -21,6 +21,7 @@
 
 #include "RimIntersection.h"
 
+#include "cafPdmChildField.h"
 #include "cafPdmPtrArrayField.h"
 
 class RimWellPath;
@@ -31,6 +32,9 @@ class RimSimWellInViewCollection;
 class Rim2dIntersectionView;
 class RimSurface;
 class RimSurfaceCollection;
+class RimSurfaceIntersectionCollection;
+class RimSurfaceIntersectionCurve;
+class RimSurfaceIntersectionBand;
 
 namespace caf
 {
@@ -106,7 +110,10 @@ public:
     void       recomputeSimulationWellBranchData();
     bool       hasDefiningPoints() const;
 
-    std::vector<RimSurface*> annotatedSurfaces() const;
+    std::vector<RimSurfaceIntersectionCurve*> surfaceIntersectionCurves() const;
+    std::vector<RimSurfaceIntersectionBand*>  surfaceIntersectionBands() const;
+    RimSurfaceIntersectionCurve*              addIntersectionCurve();
+    RimSurfaceIntersectionBand*               addIntersectionBand();
 
     int  branchIndex() const;
     void rebuildGeometryAndScheduleCreateDisplayModel();
@@ -120,6 +127,8 @@ protected:
                                                          caf::PdmUiEditorAttribute* attribute ) override;
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
                                                          bool*                      useOptionsOnly ) override;
+
+    void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
 
 private:
     static void setPushButtonText( bool buttonEnable, caf::PdmUiPushButtonEditorAttribute* attribute );
@@ -135,6 +144,8 @@ private:
     void appendOptionItemsForSources( int                            currentLevel,
                                       RimSurfaceCollection*          currentCollection,
                                       QList<caf::PdmOptionItemInfo>& options ) const;
+
+    void onSurfaceIntersectionsChanged( const caf::SignalEmitter* emitter );
 
 private:
     caf::PdmField<QString> m_name;
@@ -160,8 +171,7 @@ private:
     caf::PdmField<std::vector<cvf::Vec3d>> m_customExtrusionPoints;
     caf::PdmField<std::vector<cvf::Vec3d>> m_twoAzimuthPoints;
 
-    // Surface intersection annotations
-    caf::PdmPtrArrayField<RimSurface*> m_annotationSurfaces;
+    caf::PdmChildField<RimSurfaceIntersectionCollection*> m_surfaceIntersections;
 
     cvf::ref<RivExtrudedCurveIntersectionPartMgr> m_crossSectionPartMgr;
 

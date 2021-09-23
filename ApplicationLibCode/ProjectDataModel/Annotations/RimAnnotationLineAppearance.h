@@ -34,6 +34,9 @@ class RimAnnotationLineAppearance : public caf::PdmObject
     CAF_PDM_HEADER_INIT;
 
 public:
+    caf::Signal<> objectChanged;
+
+public:
     enum LineStyleEnum
     {
         STYLE_SOLID,

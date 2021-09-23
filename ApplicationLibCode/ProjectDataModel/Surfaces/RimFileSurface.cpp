@@ -59,10 +59,6 @@ RimFileSurface::~RimFileSurface()
 void RimFileSurface::setSurfaceFilePath( const QString& filePath )
 {
     m_surfaceDefinitionFilePath = filePath;
-    if ( userDescription().isEmpty() )
-    {
-        setUserDescription( QFileInfo( filePath ).fileName() );
-    }
 
     clearCachedNativeData();
 }

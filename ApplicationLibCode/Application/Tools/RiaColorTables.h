@@ -67,6 +67,9 @@ public:
 
     static WellPathComponentColors wellPathComponentColors();
 
+    // Colors used in WebViz
+    static const caf::ColorTable& structuralUncertaintyColors();
+
     // Default 3d View colors
     static cvf::Color3f defaultGridLineColor();
     static cvf::Color3f defaultFaultLineColor();

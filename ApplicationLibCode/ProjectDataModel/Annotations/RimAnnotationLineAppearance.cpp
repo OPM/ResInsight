@@ -61,6 +61,7 @@ CAF_PDM_SOURCE_INIT( RimAnnotationLineAppearance, "RimAnnotationLineAppearance" 
 ///
 //--------------------------------------------------------------------------------------------------
 RimAnnotationLineAppearance::RimAnnotationLineAppearance()
+    : objectChanged( this )
 {
     CAF_PDM_InitObject( "AnnotationLineAppearance", ":/WellCollection.png", "", "" );
 
@@ -139,8 +140,10 @@ void RimAnnotationLineAppearance::fieldChangedByUi( const caf::PdmFieldHandle* c
                                                     const QVariant&            newValue )
 {
     RimAnnotationCollection* annColl = nullptr;
-    this->firstAncestorOrThisOfTypeAsserted( annColl );
-    annColl->scheduleRedrawOfRelevantViews();
+    this->firstAncestorOrThisOfType( annColl );
+    if ( annColl ) annColl->scheduleRedrawOfRelevantViews();
+
+    objectChanged.send();
 }
 
 //--------------------------------------------------------------------------------------------------

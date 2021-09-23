@@ -31,6 +31,7 @@
 #include "RigResultAccessorFactory.h"
 
 #include "Rim2dIntersectionView.h"
+#include "RimAnnotationLineAppearance.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
 #include "RimEclipseView.h"
@@ -43,6 +44,8 @@
 #include "RimSimWellInView.h"
 #include "RimSimWellInViewCollection.h"
 #include "RimSurface.h"
+#include "RimSurfaceIntersectionBand.h"
+#include "RimSurfaceIntersectionCurve.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 
@@ -601,47 +604,62 @@ void RivExtrudedCurveIntersectionPartMgr::createAnnotationSurfaceParts( bool use
     m_annotationParts.clear();
 
     auto surfPolys = m_intersectionGenerator->transformedSurfaceIntersectionPolylines();
-    for ( auto [surface, polylines] : surfPolys )
+
+    for ( auto curve : m_rimIntersection->surfaceIntersectionCurves() )
     {
+        if ( !curve->isChecked() ) continue;
+
+        auto surface = curve->surface();
         if ( !surface ) continue;
 
-        auto polylineGeo = RivPolylineGenerator::createLineAlongPolylineDrawable( polylines );
-        if ( polylineGeo.notNull() )
-        {
-            if ( useBufferObjects )
-            {
-                polylineGeo->setRenderMode( cvf::DrawableGeo::BUFFER_OBJECT );
-            }
+        if ( surfPolys.count( surface ) == 0 ) continue;
+        auto polylines = surfPolys[surface];
 
-            cvf::ref<cvf::Part> part = new cvf::Part;
-            part->setName( "Intersection " + surface->userDescription().toStdString() );
-            part->setDrawable( polylineGeo.p() );
+        auto part = createCurvePart( polylines,
+                                     useBufferObjects,
+                                     surface->userDescription(),
+                                     curve->lineAppearance()->color(),
+                                     curve->lineAppearance()->thickness() );
 
-            part->updateBoundingBox();
-            part->setPriority( RivPartPriority::PartType::Highlight );
-
-            cvf::ref<cvf::Effect>    eff;
-            caf::MeshEffectGenerator lineEffGen( surface->color() );
-
-            lineEffGen.setLineWidth( 5.0f );
-
-            eff = lineEffGen.generateUnCachedEffect();
-            part->setEffect( eff.p() );
-
-            m_annotationParts.push_back( part.p() );
-        }
+        if ( part.notNull() ) m_annotationParts.push_back( part.p() );
     }
 
-    if ( surfPolys.size() > 1 )
+    for ( auto band : m_rimIntersection->surfaceIntersectionBands() )
     {
-        // Create a quad strip between the two first polylines
+        if ( !band->isChecked() ) continue;
 
-        auto firstSurfaceItem  = surfPolys.begin();
-        auto secondSurfaceItem = firstSurfaceItem++;
+        auto surface1 = band->surface1();
+        auto surface2 = band->surface2();
 
-        auto polylineA = firstSurfaceItem->second;
-        auto polylineB = secondSurfaceItem->second;
+        if ( !surface1 || !surface2 ) continue;
 
+        if ( surfPolys.count( surface1 ) == 0 ) continue;
+        if ( surfPolys.count( surface2 ) == 0 ) continue;
+
+        auto polylineA = surfPolys[surface1];
+        auto polylineB = surfPolys[surface2];
+
+        // Create curve parts
+        {
+            auto part = createCurvePart( polylineA,
+                                         useBufferObjects,
+                                         surface1->userDescription(),
+                                         band->lineAppearance()->color(),
+                                         band->lineAppearance()->thickness() );
+
+            if ( part.notNull() ) m_annotationParts.push_back( part.p() );
+        }
+        {
+            auto part = createCurvePart( polylineB,
+                                         useBufferObjects,
+                                         surface2->userDescription(),
+                                         band->lineAppearance()->color(),
+                                         band->lineAppearance()->thickness() );
+
+            if ( part.notNull() ) m_annotationParts.push_back( part.p() );
+        }
+
+        // Create a quad strip between the two polylines
         size_t pointCount = std::min( polylineA.size(), polylineB.size() );
         if ( pointCount > 1 )
         {
@@ -674,16 +692,77 @@ void RivExtrudedCurveIntersectionPartMgr::createAnnotationSurfaceParts( bool use
                 part->setEnableMask( intersectionCellFaceBit );
                 part->setPriority( RivPartPriority::PartType::Transparent );
 
-                auto                        color = cvf::Color4f( cvf::Color3f::OLIVE, 0.5f );
+                auto                        color = cvf::Color4f( band->bandColor(), band->bandOpacity() );
                 caf::SurfaceEffectGenerator geometryEffgen( color, caf::PO_NEG_LARGE );
 
-                cvf::ref<cvf::Effect> geometryOnlyEffect = geometryEffgen.generateCachedEffect();
+                cvf::ref<cvf::Effect> geometryOnlyEffect = geometryEffgen.generateUnCachedEffect();
+
+                {
+                    cvf::ref<cvf::RenderStatePolygonOffset> polyOffset = new cvf::RenderStatePolygonOffset;
+
+                    polyOffset->enableFillMode( true );
+
+                    // The factor value is defined by enums in
+                    // EffectGenerator::createAndConfigurePolygonOffsetRenderState() Use a factor that is more negative
+                    // than the existing enums
+                    const double offsetFactor = -5;
+                    polyOffset->setFactor( offsetFactor );
+
+                    polyOffset->setUnits( band->polygonOffsetUnit() );
+
+                    geometryOnlyEffect->setRenderState( polyOffset.p() );
+                }
+
                 part->setEffect( geometryOnlyEffect.p() );
 
                 m_annotationParts.push_back( part.p() );
             }
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+cvf::ref<cvf::Part> RivExtrudedCurveIntersectionPartMgr::createCurvePart( const std::vector<cvf::Vec3d>& polylines,
+                                                                          bool                useBufferObjects,
+                                                                          const QString&      description,
+                                                                          const cvf::Color3f& color,
+                                                                          float               lineWidth )
+{
+    auto polylineGeo = RivPolylineGenerator::createLineAlongPolylineDrawable( polylines );
+    if ( polylineGeo.notNull() )
+    {
+        if ( useBufferObjects )
+        {
+            polylineGeo->setRenderMode( cvf::DrawableGeo::BUFFER_OBJECT );
+        }
+
+        cvf::ref<cvf::Part> part = new cvf::Part;
+        part->setName( "Intersection " + description.toStdString() );
+        part->setDrawable( polylineGeo.p() );
+
+        part->updateBoundingBox();
+        part->setPriority( RivPartPriority::PartType::FaultMeshLines );
+
+        caf::MeshEffectGenerator lineEffGen( color );
+        lineEffGen.setLineWidth( lineWidth );
+
+        cvf::ref<cvf::Effect> eff = lineEffGen.generateUnCachedEffect();
+
+        cvf::ref<cvf::RenderStatePolygonOffset> polyOffset = new cvf::RenderStatePolygonOffset;
+        polyOffset->enableFillMode( true );
+        polyOffset->setFactor( -5 );
+        const double maxOffsetFactor = -1000;
+        polyOffset->setUnits( maxOffsetFactor );
+
+        eff->setRenderState( polyOffset.p() );
+
+        part->setEffect( eff.p() );
+        return part;
+    }
+
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

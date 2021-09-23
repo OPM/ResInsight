@@ -37,6 +37,9 @@
 #include "RimSimWellInViewCollection.h"
 #include "RimSurface.h"
 #include "RimSurfaceCollection.h"
+#include "RimSurfaceIntersectionBand.h"
+#include "RimSurfaceIntersectionCollection.h"
+#include "RimSurfaceIntersectionCurve.h"
 #include "RimTools.h"
 #include "RimWellPath.h"
 
@@ -49,6 +52,7 @@
 #include "cafPdmUiListEditor.h"
 #include "cafPdmUiPushButtonEditor.h"
 
+#include "cafPdmUiTreeOrdering.h"
 #include "cafPdmUiTreeSelectionEditor.h"
 #include "cvfBoundingBox.h"
 #include "cvfGeometryTools.h"
@@ -236,10 +240,9 @@ RimExtrudedCurveIntersection::RimExtrudedCurveIntersection()
     caf::PdmUiPushButtonEditor::configureEditorForField( &m_inputTwoAzimuthPointsFromViewerEnabled );
     m_inputTwoAzimuthPointsFromViewerEnabled = false;
 
-    CAF_PDM_InitFieldNoDefault( &m_annotationSurfaces, "annotationSurfaces", "", "", "", "" );
-    m_annotationSurfaces.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
-
-    uiCapability()->setUiTreeChildrenHidden( true );
+    CAF_PDM_InitFieldNoDefault( &m_surfaceIntersections, "SurfaceIntersections", "Surface Intersections", "", "", "" );
+    m_surfaceIntersections = new RimSurfaceIntersectionCollection;
+    m_surfaceIntersections->objectChanged.connect( this, &RimExtrudedCurveIntersection::onSurfaceIntersectionsChanged );
 
     setDeletable( true );
 }
@@ -354,12 +357,6 @@ void RimExtrudedCurveIntersection::fieldChangedByUi( const caf::PdmFieldHandle* 
     {
         rebuildGeometryAndScheduleCreateDisplayModel();
     }
-
-    if ( changedField == &m_annotationSurfaces )
-
-    {
-        rebuildGeometryAndScheduleCreateDisplayModel();
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -427,9 +424,6 @@ void RimExtrudedCurveIntersection::defineUiOrdering( QString uiConfigName, caf::
         m_extentLength.uiCapability()->setUiReadOnly( false );
     }
 
-    caf::PdmUiGroup* surfaceGroup = uiOrdering.addNewGroup( "Surfaces" );
-    surfaceGroup->add( &m_annotationSurfaces );
-
     this->defineSeparateDataSourceUi( uiConfigName, uiOrdering );
 
     uiOrdering.skipRemainingFields( true );
@@ -485,18 +479,29 @@ QList<caf::PdmOptionItemInfo>
             options.push_back( caf::PdmOptionItemInfo( QString::number( bIdx + 1 ), QVariant::fromValue( bIdx ) ) );
         }
     }
-    else if ( fieldNeedingOptions == &m_annotationSurfaces )
-    {
-        RimSurfaceCollection* surfColl = RimProject::current()->activeOilField()->surfaceCollection();
-
-        appendOptionItemsForSources( 0, surfColl, options );
-    }
     else
     {
         options = RimIntersection::calculateValueOptions( fieldNeedingOptions, useOptionsOnly );
     }
 
     return options;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimExtrudedCurveIntersection::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName )
+{
+    for ( auto c : m_surfaceIntersections->surfaceIntersectionCurves() )
+    {
+        uiTreeOrdering.add( c );
+    }
+    for ( auto c : m_surfaceIntersections->surfaceIntersectionBands() )
+    {
+        uiTreeOrdering.add( c );
+    }
+
+    uiTreeOrdering.skipRemainingChildren( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1031,9 +1036,33 @@ bool RimExtrudedCurveIntersection::hasDefiningPoints() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimSurface*> RimExtrudedCurveIntersection::annotatedSurfaces() const
+std::vector<RimSurfaceIntersectionCurve*> RimExtrudedCurveIntersection::surfaceIntersectionCurves() const
 {
-    return m_annotationSurfaces.ptrReferencedObjects();
+    return m_surfaceIntersections->surfaceIntersectionCurves();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimSurfaceIntersectionBand*> RimExtrudedCurveIntersection::surfaceIntersectionBands() const
+{
+    return m_surfaceIntersections->surfaceIntersectionBands();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimSurfaceIntersectionCurve* RimExtrudedCurveIntersection::addIntersectionCurve()
+{
+    return m_surfaceIntersections->addIntersectionCurve();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimSurfaceIntersectionBand* RimExtrudedCurveIntersection::addIntersectionBand()
+{
+    return m_surfaceIntersections->addIntersectionBand();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1096,4 +1125,13 @@ void RimExtrudedCurveIntersection::appendOptionItemsForSources( int             
     {
         appendOptionItemsForSources( currentLevel, subColl, options );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimExtrudedCurveIntersection::onSurfaceIntersectionsChanged( const caf::SignalEmitter* emitter )
+{
+    updateAllRequiredEditors();
+    rebuildGeometryAndScheduleCreateDisplayModel();
 }

@@ -30,6 +30,8 @@
 #include "RimExtrudedCurveIntersection.h"
 #include "RimGridView.h"
 #include "RimSurface.h"
+#include "RimSurfaceIntersectionBand.h"
+#include "RimSurfaceIntersectionCurve.h"
 
 #include "RivExtrudedCurveIntersectionPartMgr.h"
 #include "RivHexGridIntersectionTools.h"
@@ -167,7 +169,19 @@ void RivExtrudedCurveIntersectionGeometryGenerator::calculateSurfaceIntersection
     if ( !m_polylines.empty() )
     {
         auto firstPolyLine = m_polylines.front();
-        for ( auto rimSurface : m_intersection->annotatedSurfaces() )
+
+        std::vector<RimSurface*> surfaces;
+        for ( auto curve : m_intersection->surfaceIntersectionCurves() )
+        {
+            if ( curve->surface() ) surfaces.push_back( curve->surface() );
+        }
+        for ( auto band : m_intersection->surfaceIntersectionBands() )
+        {
+            if ( band->surface1() ) surfaces.push_back( band->surface1() );
+            if ( band->surface2() ) surfaces.push_back( band->surface2() );
+        }
+
+        for ( auto rimSurface : surfaces )
         {
             if ( !rimSurface ) return;
 

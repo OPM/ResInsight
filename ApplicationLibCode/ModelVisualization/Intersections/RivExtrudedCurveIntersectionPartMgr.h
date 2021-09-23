@@ -88,6 +88,12 @@ private:
     void createExtrusionDirParts( bool useBufferObjects );
     void createAnnotationSurfaceParts( bool useBufferObjects );
 
+    cvf::ref<cvf::Part> createCurvePart( const std::vector<cvf::Vec3d>& polylines,
+                                         bool                           useBufferObjects,
+                                         const QString&                 description,
+                                         const cvf::Color3f&            color,
+                                         float                          lineWidth );
+
 private:
     caf::PdmPointer<RimExtrudedCurveIntersection> m_rimIntersection;
 

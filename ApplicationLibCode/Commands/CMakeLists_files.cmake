@@ -77,6 +77,8 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicCreateEnsembleSurfaceUi.h
     ${CMAKE_CURRENT_LIST_DIR}/RicCreateEnsembleWellLogFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicCreateEnsembleWellLogUi.h
+    ${CMAKE_CURRENT_LIST_DIR}/RicCreateSurfaceIntersectionBandFeature.h
+    ${CMAKE_CURRENT_LIST_DIR}/RicCreateSurfaceIntersectionCurveFeature.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
@@ -157,6 +159,8 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicCreateEnsembleSurfaceUi.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicCreateEnsembleWellLogFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicCreateEnsembleWellLogUi.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicCreateSurfaceIntersectionBandFeature.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicCreateSurfaceIntersectionCurveFeature.cpp
 )
 
 if(Qt5Charts_FOUND)

@@ -93,21 +93,22 @@ void RicImportEnsembleSurfaceFeature::importSingleEnsembleSurfaceFromFiles( cons
 {
     // Create a list of file names for each layer
     std::map<QString, QStringList> fileNamesForEachLayer;
-    for ( const auto& name : fileNames )
+    for ( const auto& fileName : fileNames )
     {
-        QFileInfo fi( name );
+        QFileInfo fi( fileName );
 
         auto layerName = fi.baseName();
-        fileNamesForEachLayer[layerName].push_back( name );
+        fileNamesForEachLayer[layerName].push_back( fileName );
     }
 
     RimEnsembleSurface* ensembleToSelect = nullptr;
     for ( const auto& fileNamesForLayer : fileNamesForEachLayer )
     {
-        auto    filenames    = fileNamesForLayer.second;
-        QString ensembleName = RiaEnsembleNameTools::findSuitableEnsembleName( fileNames );
+        // NB! This must be a const reference to avoid threading issues
+        const QStringList& layerFileNames = fileNamesForLayer.second;
 
-        QString layerName = fileNamesForLayer.first;
+        QString ensembleName = RiaEnsembleNameTools::findSuitableEnsembleName( layerFileNames );
+        QString layerName    = fileNamesForLayer.first;
         if ( !layerName.isEmpty() )
         {
             ensembleName += QString( " : %1" ).arg( layerName );
@@ -116,19 +117,19 @@ void RicImportEnsembleSurfaceFeature::importSingleEnsembleSurfaceFromFiles( cons
         if ( ensembleName.isEmpty() ) ensembleName = "Ensemble Surface";
 
         std::map<QString, QStringList> keyFileComponentsForAllFiles =
-            RiaFilePathTools::keyPathComponentsForEachFilePath( fileNames );
+            RiaFilePathTools::keyPathComponentsForEachFilePath( layerFileNames );
 
         std::vector<RimFileSurface*> surfaces;
-        for ( int i = 0; i < fileNames.size(); i++ )
+        for ( int i = 0; i < layerFileNames.size(); i++ )
         {
             surfaces.push_back( new RimFileSurface );
         }
 
-        auto fileCount = static_cast<int>( fileNames.size() );
+        auto fileCount = static_cast<int>( layerFileNames.size() );
 #pragma omp parallel for
         for ( int i = 0; i < fileCount; i++ )
         {
-            auto fileName = fileNames[i];
+            auto fileName = layerFileNames[i];
 
             auto fileSurface = surfaces[i];
             fileSurface->setSurfaceFilePath( fileName );

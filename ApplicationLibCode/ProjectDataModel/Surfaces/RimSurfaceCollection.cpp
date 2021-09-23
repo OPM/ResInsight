@@ -36,7 +36,8 @@
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObjectScriptingCapability.h"
 
-#include "QFile"
+#include <QFile>
+#include <QFileInfo>
 
 CAF_PDM_SOURCE_INIT( RimSurfaceCollection, "SurfaceCollection" );
 
@@ -120,6 +121,18 @@ void RimSurfaceCollection::addEnsembleSurface( RimEnsembleSurface* ensembleSurfa
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::vector<RimEnsembleSurface*> RimSurfaceCollection::ensembleSurfaces() const
+{
+    std::vector<RimEnsembleSurface*> ensSurfaces;
+
+    this->descendantsIncludingThisOfType( ensSurfaces );
+
+    return ensSurfaces;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RimSurface* RimSurfaceCollection::importSurfacesFromFiles( const QStringList& fileNames, bool showLegend /* = true */ )
 {
     size_t  newSurfCount      = 0;
@@ -135,6 +148,8 @@ RimSurface* RimSurfaceCollection::importSurfacesFromFiles( const QStringList& fi
         auto newColor = RiaColorTables::categoryPaletteColors().cycledColor3f( existingSurfCount + newSurfCount );
 
         newSurface->setSurfaceFilePath( newFileName );
+        newSurface->setUserDescription( QFileInfo( newFileName ).fileName() );
+
         newSurface->setColor( newColor );
 
         if ( !newSurface->onLoadData() )
