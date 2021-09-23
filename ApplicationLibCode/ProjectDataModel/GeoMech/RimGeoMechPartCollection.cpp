@@ -63,7 +63,7 @@ void RimGeoMechPartCollection::syncWithCase( RimGeoMechCase* geoCase )
     {
         const int count = geoCase->geoMechData()->femParts()->partCount();
 
-        if ( count != m_parts.size() )
+        if ( count != (int)m_parts.size() )
         {
             m_parts.clear();
 

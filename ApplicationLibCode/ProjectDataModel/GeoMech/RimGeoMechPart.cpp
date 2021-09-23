@@ -72,8 +72,6 @@ void RimGeoMechPart::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
 {
     updateUiIconFromToggleField();
 
-    bool scheduleRedraw = false;
-
     if ( changedField == objectToggleField() )
     {
         RimGeoMechView* ownerView;
