@@ -173,7 +173,7 @@ void RivExtrudedCurveIntersectionGeometryGenerator::calculateSurfaceIntersection
         std::vector<RimSurface*> surfaces;
         for ( auto curve : m_intersection->surfaceIntersectionCurves() )
         {
-            if ( auto surf = curve->surface() ) surfaces.push_back( surf );
+            if ( curve->surface() ) surfaces.push_back( curve->surface() );
         }
         for ( auto band : m_intersection->surfaceIntersectionBands() )
         {

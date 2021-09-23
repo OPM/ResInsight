@@ -701,8 +701,13 @@ void RivExtrudedCurveIntersectionPartMgr::createAnnotationSurfaceParts( bool use
                     cvf::ref<cvf::RenderStatePolygonOffset> polyOffset = new cvf::RenderStatePolygonOffset;
 
                     polyOffset->enableFillMode( true );
+
+                    // The factor value is defined by enums in
+                    // EffectGenerator::createAndConfigurePolygonOffsetRenderState() Use a factor that is more negative
+                    // than the existing enums
                     const double offsetFactor = -5;
                     polyOffset->setFactor( offsetFactor );
+
                     polyOffset->setUnits( band->polygonOffsetUnit() );
 
                     geometryOnlyEffect->setRenderState( polyOffset.p() );
@@ -740,15 +745,12 @@ cvf::ref<cvf::Part> RivExtrudedCurveIntersectionPartMgr::createCurvePart( const 
         part->updateBoundingBox();
         part->setPriority( RivPartPriority::PartType::FaultMeshLines );
 
-        cvf::ref<cvf::Effect>    eff;
         caf::MeshEffectGenerator lineEffGen( color );
-
         lineEffGen.setLineWidth( lineWidth );
 
-        eff = lineEffGen.generateUnCachedEffect();
+        cvf::ref<cvf::Effect> eff = lineEffGen.generateUnCachedEffect();
 
         cvf::ref<cvf::RenderStatePolygonOffset> polyOffset = new cvf::RenderStatePolygonOffset;
-
         polyOffset->enableFillMode( true );
         polyOffset->setFactor( -5 );
         const double maxOffsetFactor = -1000;

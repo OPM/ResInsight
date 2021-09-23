@@ -95,7 +95,7 @@ void RicCreateSurfaceIntersectionBandFeature::onActionTriggered( bool isChecked 
                     auto color = colors.cycledColor3f( 0 );
                     band->setBandColor( color );
                     band->setBandOpacity( defaultOpacity );
-                    band->setPolygonOffsetUnit( 80 );
+                    band->setPolygonOffsetUnit( 0.08 );
 
                     band->lineAppearance()->setColor( color );
 
@@ -118,7 +118,7 @@ void RicCreateSurfaceIntersectionBandFeature::onActionTriggered( bool isChecked 
                     auto color = colors.cycledColor3f( 1 );
                     band->setBandColor( color );
                     band->setBandOpacity( defaultOpacity );
-                    band->setPolygonOffsetUnit( 100 );
+                    band->setPolygonOffsetUnit( 0.1 );
 
                     band->lineAppearance()->setColor( color );
                 }

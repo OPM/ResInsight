@@ -291,10 +291,9 @@ RimSurface* RimEnsembleSurface::findStatisticsSurface( RigSurfaceStatisticsCalcu
 {
     for ( auto s : surfaces() )
     {
-        if ( auto ensambleSurface = dynamic_cast<RimEnsembleStatisticsSurface*>( s ) )
-        {
-            if ( ensambleSurface->statisticsType() == statisticsType ) return s;
-        }
+        auto ensembleSurface = dynamic_cast<RimEnsembleStatisticsSurface*>( s );
+
+        if ( ensembleSurface && ensembleSurface->statisticsType() == statisticsType ) return s;
     }
 
     return nullptr;

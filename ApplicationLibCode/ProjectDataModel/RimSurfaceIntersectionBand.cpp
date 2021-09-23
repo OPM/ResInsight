@@ -138,9 +138,13 @@ float RimSurfaceIntersectionBand::bandOpacity() const
 //--------------------------------------------------------------------------------------------------
 double RimSurfaceIntersectionBand::polygonOffsetUnit() const
 {
-    // Use positive value in user interface
+    // The value in user interface is [0..1]
+    // An offsetUnitValue in the range -5..-1000 seems to give good visual results
 
-    return -( m_bandPolygonOffsetUnit );
+    const double minimumValue = 5.0;
+    auto         value        = minimumValue + m_bandPolygonOffsetUnit * 1000.0;
+
+    return -value;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -175,9 +179,12 @@ void RimSurfaceIntersectionBand::fieldChangedByUi( const caf::PdmFieldHandle* ch
     if ( changedField == &m_surfaces )
     {
         auto surfaces = m_surfaces.ptrReferencedObjects();
+
         if ( surfaces.size() > 2 )
         {
-            surfaces.erase( surfaces.begin() + 1, surfaces.end() - 1 );
+            // Keep first and last surface to make it possible to select a new surface by using a single click
+            auto firstAndLast = { surfaces.front(), surfaces.back() };
+            surfaces          = firstAndLast;
         }
 
         m_surfaces.setValue( surfaces );
@@ -216,8 +223,8 @@ void RimSurfaceIntersectionBand::defineEditorAttribute( const caf::PdmFieldHandl
         auto* myAttr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute );
         if ( myAttr )
         {
-            myAttr->m_minimum = 5;
-            myAttr->m_maximum = 1000;
+            myAttr->m_minimum = 0;
+            myAttr->m_maximum = 1.0;
         }
     }
     else if ( field == &m_bandOpacity )
