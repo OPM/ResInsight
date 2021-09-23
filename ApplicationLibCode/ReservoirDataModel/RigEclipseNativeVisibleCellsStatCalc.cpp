@@ -115,6 +115,9 @@ void RigEclipseNativeVisibleCellsStatCalc::mobileVolumeWeightedMean( size_t time
 
     m_caseData->ensureKnownResultLoaded( mobPorvAddress );
 
+    if ( !m_caseData->hasResultEntry( m_resultAddress ) ) return;
+    if ( m_caseData->timeStepCount( m_resultAddress ) == 0 ) return;
+
     const std::vector<double>& weights = m_caseData->cellScalarResults( mobPorvAddress, 0 );
     const std::vector<double>& values  = m_caseData->cellScalarResults( m_resultAddress, timeStepIndex );
 
