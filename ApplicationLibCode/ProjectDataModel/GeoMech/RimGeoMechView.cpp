@@ -968,6 +968,7 @@ void RimGeoMechView::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrderin
 {
     uiTreeOrdering.add( m_overlayInfoConfig() );
     uiTreeOrdering.add( m_gridCollection() );
+    if ( m_partsCollection->shouldBeVisibleInTree() ) uiTreeOrdering.add( m_partsCollection() );
 
     uiTreeOrdering.add( cellResult() );
     uiTreeOrdering.add( m_tensorResults() );
@@ -979,8 +980,6 @@ void RimGeoMechView::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrderin
 
     uiTreeOrdering.add( m_cellFilterCollection() );
     uiTreeOrdering.add( m_propertyFilterCollection() );
-
-    if ( m_partsCollection->shouldBeVisibleInTree() ) uiTreeOrdering.add( m_partsCollection() );
 
     uiTreeOrdering.skipRemainingChildren( true );
 }

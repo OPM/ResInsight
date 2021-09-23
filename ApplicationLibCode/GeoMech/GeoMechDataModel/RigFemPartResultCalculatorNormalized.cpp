@@ -108,6 +108,7 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorNormalized::calculate( int  
     for ( int fIdx = 0; fIdx < frameCount; ++fIdx )
     {
         const std::vector<float>& porFrameData = porDataFrames->frameData( fIdx );
+        if ( porFrameData.size() == 0 ) continue;
         const std::vector<float>& srcFrameData = srcDataFrames->frameData( fIdx );
         std::vector<float>&       dstFrameData = dstDataFrames->frameData( fIdx );
 
