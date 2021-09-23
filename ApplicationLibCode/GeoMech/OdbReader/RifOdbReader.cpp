@@ -97,7 +97,6 @@ size_t RifOdbReader::sm_instanceCount = 0;
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-
 std::map<std::string, RigElementType> initFemTypeMap()
 {
     std::map<std::string, RigElementType> typeMap;
@@ -106,6 +105,7 @@ std::map<std::string, RigElementType> initFemTypeMap()
     typeMap["C3D8P"]   = HEX8P;
     typeMap["CAX4"]    = CAX4;
     typeMap["C3D20RT"] = HEX8;
+    typeMap["C3D8RT"]  = HEX8;
 
     return typeMap;
 }
@@ -640,13 +640,28 @@ odb_Instance* RifOdbReader::instance( int instanceIndex )
 //--------------------------------------------------------------------------------------------------
 /// Get the number of result items (== #nodes or #elements)
 //--------------------------------------------------------------------------------------------------
-size_t RifOdbReader::resultItemCount( const std::string& fieldName, int partIndex, int stepIndex, int frameIndex )
+size_t RifOdbReader::resultItemCount( const std::string& fieldName,
+                                      int                partIndex,
+                                      int                stepIndex,
+                                      int                frameIndex,
+                                      ResultPosition     resultPosition )
 {
     odb_Instance* partInstance = instance( partIndex );
     CVF_ASSERT( partInstance != NULL );
 
-    const odb_Frame&       frame               = stepFrame( stepIndex, frameIndex );
-    const odb_FieldOutput& instanceFieldOutput = frame.fieldOutputs()[fieldName.c_str()].getSubset( *partInstance );
+    const odb_Frame& frame               = stepFrame( stepIndex, frameIndex );
+    odb_FieldOutput& instanceFieldOutput = frame.fieldOutputs()[fieldName.c_str()].getSubset( *partInstance );
+
+    if ( resultPosition != NONE )
+    {
+        odb_Enum::odb_ResultPositionEnum odbResultPos = odb_Enum::NODAL;
+        if ( resultPosition == ELEMENT_NODAL )
+            odbResultPos = odb_Enum::ELEMENT_NODAL;
+        else if ( resultPosition == INTEGRATION_POINT )
+            odbResultPos = odb_Enum::INTEGRATION_POINT;
+        instanceFieldOutput = instanceFieldOutput.getSubset( odbResultPos );
+    }
+
     const odb_SequenceFieldBulkData& seqFieldBulkData = instanceFieldOutput.bulkDataBlocks();
 
     size_t resultItemCount = 0;
@@ -720,7 +735,7 @@ void RifOdbReader::readDisplacements( int partIndex, int stepIndex, int frameInd
     odb_Instance* partInstance = instance( partIndex );
     CVF_ASSERT( partInstance != NULL );
 
-    size_t dataSize = resultItemCount( "U", partIndex, stepIndex, frameIndex );
+    size_t dataSize = resultItemCount( "U", partIndex, stepIndex, frameIndex, NONE );
     if ( dataSize > 0 )
     {
         displacements->resize( dataSize );
@@ -828,7 +843,7 @@ void RifOdbReader::readElementNodeField( const std::string&                field
     size_t compCount = componentsCount( fieldName, ELEMENT_NODAL );
     CVF_ASSERT( compCount == resultValues->size() );
 
-    size_t dataSize = resultItemCount( fieldName, partIndex, stepIndex, frameIndex );
+    size_t dataSize = resultItemCount( fieldName, partIndex, stepIndex, frameIndex, ELEMENT_NODAL );
     if ( dataSize > 0 )
     {
         for ( int comp = 0; comp < compCount; comp++ )
@@ -900,7 +915,7 @@ void RifOdbReader::readIntegrationPointField( const std::string&                
     size_t compCount = componentsCount( fieldName, INTEGRATION_POINT );
     CVF_ASSERT( compCount == resultValues->size() );
 
-    size_t dataSize = resultItemCount( fieldName, partIndex, stepIndex, frameIndex );
+    size_t dataSize = resultItemCount( fieldName, partIndex, stepIndex, frameIndex, INTEGRATION_POINT );
     if ( dataSize > 0 )
     {
         for ( int comp = 0; comp < compCount; comp++ )
