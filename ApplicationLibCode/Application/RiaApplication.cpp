@@ -233,7 +233,9 @@ void RiaApplication::createMockModelCustomized()
 //--------------------------------------------------------------------------------------------------
 void RiaApplication::createInputMockModel()
 {
-    RiaImportEclipseCaseTools::openEclipseInputCaseFromFileNames( QStringList( RiaDefines::mockModelBasicInputCase() ) );
+    bool createView = true;
+    RiaImportEclipseCaseTools::openEclipseInputCaseFromFileNames( QStringList( RiaDefines::mockModelBasicInputCase() ),
+                                                                  createView );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -336,7 +338,10 @@ bool RiaApplication::openFile( const QString& fileName )
     }
     else if ( int( fileType ) & int( RiaDefines::ImportFileType::ANY_ECLIPSE_FILE ) )
     {
-        loadingSucceded   = RicImportGeneralDataFeature::openEclipseFilesFromFileNames( QStringList{ fileName }, true );
+        bool createView = true;
+        bool createPlot = true;
+        loadingSucceded =
+            RicImportGeneralDataFeature::openEclipseFilesFromFileNames( QStringList{ fileName }, createPlot, createView );
         lastUsedDialogTag = RiaDefines::defaultDirectoryLabel( fileType );
     }
 

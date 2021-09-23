@@ -43,7 +43,9 @@ CAF_CMD_SOURCE_INIT( RicImportGeneralDataFeature, "RicImportGeneralDataFeature" 
 ///
 //--------------------------------------------------------------------------------------------------
 RicImportGeneralDataFeature::OpenCaseResults
-    RicImportGeneralDataFeature::openEclipseFilesFromFileNames( const QStringList& fileNames, bool doCreateDefaultPlot )
+    RicImportGeneralDataFeature::openEclipseFilesFromFileNames( const QStringList& fileNames,
+                                                                bool               doCreateDefaultPlot,
+                                                                bool               createDefaultView )
 {
     CVF_ASSERT( !fileNames.empty() );
 
@@ -73,7 +75,7 @@ RicImportGeneralDataFeature::OpenCaseResults
     OpenCaseResults results;
     if ( !eclipseCaseFiles.empty() )
     {
-        if ( !openEclipseCaseFromFileNames( eclipseCaseFiles ) )
+        if ( !openEclipseCaseFromFileNames( eclipseCaseFiles, createDefaultView, results.createdCaseIds ) )
         {
             return OpenCaseResults();
         }
@@ -83,7 +85,7 @@ RicImportGeneralDataFeature::OpenCaseResults
     }
     if ( !eclipseInputFiles.empty() )
     {
-        if ( !openInputEclipseCaseFromFileNames( eclipseInputFiles ) )
+        if ( !openInputEclipseCaseFromFileNames( eclipseInputFiles, createDefaultView, results.createdCaseIds ) )
         {
             return OpenCaseResults();
         }
@@ -219,7 +221,7 @@ void RicImportGeneralDataFeature::openFileDialog( ImportFileType fileTypes )
                                                                 fileNames.front() );
     }
 
-    if ( !openEclipseFilesFromFileNames( fileNames, true ) )
+    if ( !openEclipseFilesFromFileNames( fileNames, true, true ) )
     {
         RiaLogging::error( QString( "Failed to open file names: %1" ).arg( fileNames.join( ", " ) ) );
     }
@@ -228,16 +230,18 @@ void RicImportGeneralDataFeature::openFileDialog( ImportFileType fileTypes )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicImportGeneralDataFeature::openEclipseCaseFromFileNames( const QStringList& fileNames )
+bool RicImportGeneralDataFeature::openEclipseCaseFromFileNames( const QStringList& fileNames,
+                                                                bool               createDefaultView,
+                                                                std::vector<int>&  createdCaseIds )
 {
-    bool                                     createView = true;
-    bool                                     noDialog   = false;
+    bool                                     noDialog = false;
     RiaImportEclipseCaseTools::FileCaseIdMap newCaseFiles;
-    if ( RiaImportEclipseCaseTools::openEclipseCasesFromFile( fileNames, createView, &newCaseFiles, noDialog ) )
+    if ( RiaImportEclipseCaseTools::openEclipseCasesFromFile( fileNames, createDefaultView, &newCaseFiles, noDialog ) )
     {
         for ( const auto& newCaseFileAndId : newCaseFiles )
         {
             RiaApplication::instance()->addToRecentFiles( newCaseFileAndId.first );
+            createdCaseIds.push_back( newCaseFileAndId.second );
         }
         return true;
     }
@@ -247,12 +251,16 @@ bool RicImportGeneralDataFeature::openEclipseCaseFromFileNames( const QStringLis
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicImportGeneralDataFeature::openInputEclipseCaseFromFileNames( const QStringList& fileNames )
+bool RicImportGeneralDataFeature::openInputEclipseCaseFromFileNames( const QStringList& fileNames,
+                                                                     bool               createDefaultView,
+                                                                     std::vector<int>&  createdCaseIds )
 {
     QString fileContainingGrid;
-    if ( RiaImportEclipseCaseTools::openEclipseInputCaseFromFileNames( fileNames, &fileContainingGrid ) >= 0 )
+    auto generatedCaseId = RiaImportEclipseCaseTools::openEclipseInputCaseFromFileNames( fileNames, &fileContainingGrid );
+    if ( generatedCaseId >= 0 )
     {
         RiaApplication::instance()->addToRecentFiles( fileContainingGrid );
+        createdCaseIds.push_back( generatedCaseId );
         return true;
     }
     return false;

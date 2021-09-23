@@ -247,8 +247,7 @@ bool RiaImportEclipseCaseTools::openEclipseCaseShowTimeStepFilter( const QString
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int RiaImportEclipseCaseTools::openEclipseInputCaseFromFileNames( const QStringList& fileNames,
-                                                                  QString*           fileContainingGrid /*=nullptr*/ )
+int RiaImportEclipseCaseTools::openEclipseInputCaseFromFileNames( const QStringList& fileNames, bool createDefaultView )
 {
     RimEclipseInputCase* rimInputReservoir = new RimEclipseInputCase();
 
@@ -270,24 +269,26 @@ int RiaImportEclipseCaseTools::openEclipseInputCaseFromFileNames( const QStringL
 
     analysisModels->cases.push_back( rimInputReservoir );
 
-    RimEclipseView* riv = rimInputReservoir->createAndAddReservoirView();
-
-    riv->cellResult()->setResultType( RiaDefines::ResultCatType::INPUT_PROPERTY );
-
-    riv->loadDataAndUpdate();
-
-    if ( !riv->cellResult()->hasResult() )
+    RimEclipseView* eclipseView = nullptr;
+    if ( createDefaultView )
     {
-        riv->cellResult()->setResultVariable( RiaResultNames::undefinedResultName() );
+        eclipseView = rimInputReservoir->createAndAddReservoirView();
+
+        eclipseView->cellResult()->setResultType( RiaDefines::ResultCatType::INPUT_PROPERTY );
+
+        eclipseView->loadDataAndUpdate();
+
+        if ( !eclipseView->cellResult()->hasResult() )
+        {
+            eclipseView->cellResult()->setResultVariable( RiaResultNames::undefinedResultName() );
+        }
     }
 
     analysisModels->updateConnectedEditors();
 
-    Riu3DMainWindowTools::selectAsCurrentItem( riv->cellResult() );
-
-    if ( fileContainingGrid )
+    if ( eclipseView )
     {
-        *fileContainingGrid = rimInputReservoir->gridFileName();
+        Riu3DMainWindowTools::selectAsCurrentItem( eclipseView->cellResult() );
     }
 
     return rimInputReservoir->caseId();
