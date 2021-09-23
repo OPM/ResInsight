@@ -21,6 +21,9 @@
 #include "RiaColorTables.h"
 #include "RiaLogging.h"
 
+#include "Rim2dIntersectionView.h"
+#include "Rim2dIntersectionViewCollection.h"
+#include "RimCase.h"
 #include "RimEnsembleSurface.h"
 #include "RimFileSurface.h"
 #include "RimGridCaseSurface.h"
@@ -333,6 +336,15 @@ void RimSurfaceCollection::updateViews( const std::vector<RimSurface*>& surfsToR
     for ( auto view : viewsNeedingUpdate )
     {
         view->scheduleCreateDisplayModelAndRedraw();
+
+        if ( view->ownerCase() )
+        {
+            auto views = view->ownerCase()->intersectionViewCollection()->views();
+            for ( Rim2dIntersectionView* view : views )
+            {
+                view->scheduleCreateDisplayModelAndRedraw();
+            }
+        }
     }
 }
 
