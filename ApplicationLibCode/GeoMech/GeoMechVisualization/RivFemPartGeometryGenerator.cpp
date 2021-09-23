@@ -42,8 +42,9 @@ using namespace cvf;
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RivFemPartGeometryGenerator::RivFemPartGeometryGenerator( const RigFemPart* part )
+RivFemPartGeometryGenerator::RivFemPartGeometryGenerator( const RigFemPart* part, cvf::Vec3d displayOffset )
     : m_part( part )
+    , m_displayOffset( displayOffset )
 {
     CVF_ASSERT( part );
     m_triangleMapper = new RivFemPartTriangleToElmMapper;
@@ -148,7 +149,8 @@ void RivFemPartGeometryGenerator::computeArrays()
     trianglesToElementFaces.reserve( estimatedQuadVxCount / 2 );
 
     // TODO - use femParts() bounding box here, not just local for this part?
-    cvf::Vec3d displayOffset = m_part->boundingBox().min();
+    // cvf::Vec3d displayOffset = m_part->boundingBox().min();
+    // cvf::Vec3d displayOffset( -5.0, -5.0, 0.0 );
 
     const std::vector<cvf::Vec3f>& nodeCoordinates = m_part->nodes().coordinates;
 
@@ -179,13 +181,13 @@ void RivFemPartGeometryGenerator::computeArrays()
                 if ( faceNodeCount == 4 )
                 {
                     cvf::Vec3f quadVxs0( cvf::Vec3d( nodeCoordinates[elmNodeIndices[localElmNodeIndicesForFace[0]]] ) -
-                                         displayOffset );
+                                         m_displayOffset );
                     cvf::Vec3f quadVxs1( cvf::Vec3d( nodeCoordinates[elmNodeIndices[localElmNodeIndicesForFace[1]]] ) -
-                                         displayOffset );
+                                         m_displayOffset );
                     cvf::Vec3f quadVxs2( cvf::Vec3d( nodeCoordinates[elmNodeIndices[localElmNodeIndicesForFace[2]]] ) -
-                                         displayOffset );
+                                         m_displayOffset );
                     cvf::Vec3f quadVxs3( cvf::Vec3d( nodeCoordinates[elmNodeIndices[localElmNodeIndicesForFace[3]]] ) -
-                                         displayOffset );
+                                         m_displayOffset );
 
                     int qNodeIdx[4];
                     qNodeIdx[0] = elmNodeIndices[localElmNodeIndicesForFace[0]];

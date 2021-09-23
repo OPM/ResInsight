@@ -64,7 +64,7 @@ private:
 class RivFemPartGeometryGenerator : public cvf::Object
 {
 public:
-    explicit RivFemPartGeometryGenerator( const RigFemPart* part );
+    explicit RivFemPartGeometryGenerator( const RigFemPart* part, cvf::Vec3d displayOffset );
     ~RivFemPartGeometryGenerator() override;
 
     // Setup methods
@@ -102,6 +102,7 @@ private:
     // Input
     cvf::cref<RigFemPart>      m_part; // The part being processed
     cvf::cref<cvf::UByteArray> m_elmVisibility;
+    cvf::Vec3d                 m_displayOffset;
 
     // Created arrays
     cvf::ref<cvf::Vec3fArray> m_quadVertices;

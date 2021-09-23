@@ -50,9 +50,11 @@ void RivGeoMechPartMgr::clearAndSetReservoir( const RigGeoMechCaseData* geoMechC
     {
         const RigFemPartCollection* femParts = geoMechCase->femParts();
 
+        cvf::Vec3d displayOffset = femParts->boundingBox().min();
+
         for ( int i = 0; i < femParts->partCount(); ++i )
         {
-            m_femPartPartMgrs.push_back( new RivFemPartPartMgr( femParts->part( i ) ) );
+            m_femPartPartMgrs.push_back( new RivFemPartPartMgr( femParts->part( i ), displayOffset ) );
         }
     }
 }

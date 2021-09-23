@@ -61,8 +61,8 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RivFemPartPartMgr::RivFemPartPartMgr( const RigFemPart* part )
-    : m_surfaceGenerator( part )
+RivFemPartPartMgr::RivFemPartPartMgr( const RigFemPart* part, cvf::Vec3d displayOffset )
+    : m_surfaceGenerator( part, displayOffset )
     , m_part( part )
     , m_opacityLevel( 1.0f )
     , m_defaultColor( cvf::Color3::WHITE )

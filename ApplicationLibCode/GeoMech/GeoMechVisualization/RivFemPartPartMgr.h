@@ -46,7 +46,7 @@ class RigFemPart;
 class RivFemPartPartMgr : public cvf::Object
 {
 public:
-    explicit RivFemPartPartMgr( const RigFemPart* femPart );
+    explicit RivFemPartPartMgr( const RigFemPart* femPart, cvf::Vec3d displayOffset );
     ~RivFemPartPartMgr() override;
     void                      setTransform( cvf::Transform* scaleTransform );
     void                      setCellVisibility( cvf::UByteArray* cellVisibilities );
