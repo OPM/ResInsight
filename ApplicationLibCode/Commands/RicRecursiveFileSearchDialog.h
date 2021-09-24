@@ -60,7 +60,7 @@ public:
                                                                         const QStringList& fileExtensions = QStringList() );
 
 private:
-    RicRecursiveFileSearchDialog( QWidget* parent );
+    RicRecursiveFileSearchDialog( QWidget* parent, const QStringList& fileExtensions );
     ~RicRecursiveFileSearchDialog() override;
 
     QString cleanTextFromPathFilterField() const;
@@ -96,6 +96,7 @@ private:
 private slots:
     void slotPathFilterChanged( const QString& text );
     void slotFileFilterChanged( const QString& text );
+    void slotFileExtensionsChanged();
     void slotBrowseButtonClicked();
     void slotUseRealizationStarClicked();
     void slotFindOrCancelButtonClicked();
@@ -119,6 +120,9 @@ private:
     QLabel*    m_fileFilterLabel;
     QComboBox* m_fileFilterField;
 
+    QLabel*    m_fileExtensionsLabel;
+    QLineEdit* m_fileExtensionsField;
+
     QLabel*      m_effectiveFilterLabel;
     QLabel*      m_effectiveFilterContentLabel;
     QPushButton* m_findOrCancelButton;
@@ -130,8 +134,9 @@ private:
 
     QDialogButtonBox* m_buttons;
 
-    QStringList m_foundFiles;
-    QStringList m_fileExtensions;
+    QStringList       m_foundFiles;
+    const QStringList m_incomingFileExtensions;
+    QStringList       m_fileExtensions;
 
     bool m_isCancelPressed;
 
