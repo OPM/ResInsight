@@ -115,7 +115,7 @@ private:
                 const std::vector<float>& values = m_resultsData->resultValues( m_resVarAddr, pIdx, (int)timeStepIndex );
                 int                       elmCount = part->elementCount();
 
-                if ( values.size() == 0 ) continue;
+                if ( values.empty() ) continue;
 
                 for ( int elmIdx = 0; elmIdx < elmCount; ++elmIdx )
                 {

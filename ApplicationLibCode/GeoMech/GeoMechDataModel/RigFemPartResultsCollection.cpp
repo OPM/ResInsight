@@ -504,7 +504,6 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::findOrLoadScalarResult( i
             std::vector<double> frameTimes = m_readerInterface->frameTimes( stepIndex );
 
             for ( int fIdx = 1; (size_t)fIdx < frameTimes.size() && fIdx < 2; ++fIdx ) // Read only the second frame
-            // for ( int fIdx = 0; (size_t)fIdx < frameTimes.size(); ++fIdx )
             {
                 std::vector<std::vector<float>*> componentDataVectors;
                 for ( auto& componentResult : resultsForEachComponent )

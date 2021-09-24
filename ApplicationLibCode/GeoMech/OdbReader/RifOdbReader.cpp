@@ -35,6 +35,7 @@
 
 #include "RigFemPart.h"
 #include "RigFemPartCollection.h"
+#include "RigFemTypes.h"
 
 #include "cafProgressInfo.h"
 #include <QString>
@@ -652,7 +653,6 @@ size_t RifOdbReader::resultItemCount( const std::string& fieldName,
         if ( resultPosition == INTEGRATION_POINT )
         {
             int numValues = bulkData.length();
-            int numComp   = bulkData.width();
             int elemCount = bulkData.numberOfElements();
             int ipCount   = numValues / elemCount;
 
@@ -855,7 +855,6 @@ void RifOdbReader::readElementNodeField( const std::string&                field
             CVF_ASSERT( ( *resultValues )[comp] );
 
             ( *resultValues )[comp]->resize( dataSize, std::numeric_limits<float>::infinity() );
-            //( *resultValues )[comp]->resize( dataSize, 0.0 );
         }
     }
 
@@ -953,6 +952,9 @@ void RifOdbReader::readIntegrationPointField( const std::string&                
         int*   elementLabels = bulkData.elementLabels();
         float* data          = bulkDataGetter.data();
 
+        RigElementType eType                    = toRigElementType( bulkData.baseElementType() );
+        const int*     elmNodeToIpResultMapping = RigFemTypes::localElmNodeToIntegrationPointMapping( eType );
+
         for ( int elem = 0; elem < elemCount; elem++ )
         {
             int elementIdx                  = elementIdToIdxMap[elementLabels[elem * ipCount]];
@@ -961,7 +963,7 @@ void RifOdbReader::readIntegrationPointField( const std::string&                
 
             for ( int ipIdx = 0; ipIdx < ipDestCount; ipIdx++ )
             {
-                int resultIpIdx = std::min( ipIdx, ipCount - 1 );
+                int resultIpIdx = elmNodeToIpResultMapping[std::min( ipIdx, ipCount - 1 )];
                 int srcIdx      = elementResultStartSourceIdx + resultIpIdx * numComp;
 
                 int destIdx = elementResultStartDestIdx + ipIdx;

@@ -173,10 +173,10 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorMudWeightWindow::calculate( 
     for ( int fIdx = 0; fIdx < frameCount; ++fIdx )
     {
         const std::vector<float>& porFrameData = porePressureDataFrames->frameData( fIdx );
-        if ( porFrameData.size() == 0 ) continue;
+        if ( porFrameData.empty() ) continue;
 
         const std::vector<float>& initialPorFrameData = porePressureDataFrames->frameData( 0 );
-        if ( initialPorFrameData.size() == 0 ) continue;
+        if ( initialPorFrameData.empty() ) continue;
 
         const std::vector<float>& stressFrameData = stressDataFrames->frameData( fIdx );
         const std::vector<float>& obg0FrameData   = obg0DataFrames->frameData( 0 );
