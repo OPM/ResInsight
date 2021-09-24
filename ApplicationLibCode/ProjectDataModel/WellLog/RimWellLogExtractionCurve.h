@@ -94,6 +94,8 @@ public:
     void setAutoNameComponents( bool addCaseName, bool addProperty, bool addWellname, bool addTimeStep, bool addDate );
     RiaDefines::PhaseType phaseType() const override;
 
+    static QString wellDateFromGridCaseModel( RimCase* gridCaseModel, int timeStep );
+
 protected:
     QString createCurveAutoName() override;
     void    onLoadDataAndUpdate( bool updateParentPlot ) override;

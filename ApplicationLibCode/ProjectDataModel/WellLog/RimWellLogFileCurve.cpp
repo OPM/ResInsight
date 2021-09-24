@@ -100,11 +100,14 @@ void RimWellLogFileCurve::onLoadDataAndUpdate( bool updateParentPlot )
                 {
                     // Adjust depths by reassigning depths for top and bottom of layer for each K layer
                     std::vector<double> kIndexValues = wellLogFile->values( RiaResultNames::indexKResultName() );
-                    auto [valuesAdjusted, measuredDepthValuesAdjusted] =
-                        adjustByIndexDepthOffsets( measuredDepthValues, values, kIndexValues );
+                    if ( values.size() == kIndexValues.size() )
+                    {
+                        auto [valuesAdjusted, measuredDepthValuesAdjusted] =
+                            adjustByIndexDepthOffsets( measuredDepthValues, values, kIndexValues );
 
-                    values              = valuesAdjusted;
-                    measuredDepthValues = measuredDepthValuesAdjusted;
+                        values              = valuesAdjusted;
+                        measuredDepthValues = measuredDepthValuesAdjusted;
+                    }
                 }
 
                 if ( tvdMslValues.size() != values.size() )

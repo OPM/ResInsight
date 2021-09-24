@@ -183,28 +183,29 @@ void RimEnsembleWellLogStatistics::calculateByKLayer( const std::vector<RimWellL
             std::vector<double> kIndexValues = fileData->values( RiaResultNames::indexKResultName() );
             std::vector<double> values       = fileData->values( wellLogChannelName );
 
-            CAF_ASSERT( values.size() == kIndexValues.size() );
-
-            std::set<int> seenTopIndexes;
-            std::set<int> seenBottomIndexes;
-
-            for ( size_t i = 0; i < values.size(); i++ )
+            if ( values.size() == kIndexValues.size() )
             {
-                int kLayer = static_cast<int>( kIndexValues[i] );
-                if ( seenTopIndexes.count( kLayer ) == 0 )
+                std::set<int> seenTopIndexes;
+                std::set<int> seenBottomIndexes;
+
+                for ( size_t i = 0; i < values.size(); i++ )
                 {
-                    seenTopIndexes.insert( kLayer );
-                    topValues[kLayer].push_back( values[i] );
+                    int kLayer = static_cast<int>( kIndexValues[i] );
+                    if ( seenTopIndexes.count( kLayer ) == 0 )
+                    {
+                        seenTopIndexes.insert( kLayer );
+                        topValues[kLayer].push_back( values[i] );
+                    }
                 }
-            }
 
-            for ( int i = static_cast<int>( values.size() ) - 1; i >= 0; i-- )
-            {
-                int kLayer = static_cast<int>( kIndexValues[i] );
-                if ( seenBottomIndexes.count( kLayer ) == 0 )
+                for ( int i = static_cast<int>( values.size() ) - 1; i >= 0; i-- )
                 {
-                    seenBottomIndexes.insert( kLayer );
-                    bottomValues[kLayer].push_back( values[i] );
+                    int kLayer = static_cast<int>( kIndexValues[i] );
+                    if ( seenBottomIndexes.count( kLayer ) == 0 )
+                    {
+                        seenBottomIndexes.insert( kLayer );
+                        bottomValues[kLayer].push_back( values[i] );
+                    }
                 }
             }
         }
