@@ -32,6 +32,7 @@
 #include "cafAppEnum.h"
 #include "cafPdmObject.h"
 #include "cafPdmUiCheckBoxEditor.h"
+#include "cafPdmUiFilePathEditor.h"
 #include "cafPdmUiListEditor.h"
 #include "cafPdmUiOrdering.h"
 #include "cafPdmUiTreeSelectionEditor.h"
@@ -68,7 +69,7 @@ RicCreateEnsembleWellLogUi::RicCreateEnsembleWellLogUi()
     CAF_PDM_InitField( &m_timeStep, "TimeStep", 0, "Time Step", "", "", "" );
     CAF_PDM_InitFieldNoDefault( &m_wellPathSource, "WellPathSource", "Well Path Source", "", "", "" );
     CAF_PDM_InitFieldNoDefault( &m_wellPath, "WellPath", "Well Path", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_well, "Well", "Well", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_wellFilePath, "WellFilePath", "Well File Path", "", "", "" );
     CAF_PDM_InitFieldNoDefault( &m_selectedKeywords, "SelectedProperties", "Selected Properties", "", "", "" );
     m_selectedKeywords.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
 
@@ -101,9 +102,9 @@ void RicCreateEnsembleWellLogUi::defineUiOrdering( QString uiConfigName, caf::Pd
         uiOrdering.add( &m_wellPathSource );
 
         bool fileSource = ( m_wellPathSource == RicCreateEnsembleWellLogUi::WellPathSource::FILE );
-        uiOrdering.add( &m_well );
+        uiOrdering.add( &m_wellFilePath );
         uiOrdering.add( &m_wellPath );
-        m_well.uiCapability()->setUiHidden( !fileSource );
+        m_wellFilePath.uiCapability()->setUiHidden( !fileSource );
         m_wellPath.uiCapability()->setUiHidden( fileSource );
         uiOrdering.add( &m_autoCreateEnsembleWellLogs );
     }
@@ -167,6 +168,23 @@ QList<caf::PdmOptionItemInfo>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RicCreateEnsembleWellLogUi::defineEditorAttribute( const caf::PdmFieldHandle* field,
+                                                        QString                    uiConfigName,
+                                                        caf::PdmUiEditorAttribute* attribute )
+{
+    if ( field == &m_wellFilePath )
+    {
+        auto* myAttr = dynamic_cast<caf::PdmUiFilePathEditorAttribute*>( attribute );
+        if ( myAttr )
+        {
+            myAttr->m_fileSelectionFilter = "Well Path Files(*.dev);;All Files (*.*)";
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RicCreateEnsembleWellLogUi::autoCreateEnsembleWellLogs() const
 {
     return m_autoCreateEnsembleWellLogs;
@@ -225,7 +243,7 @@ int RicCreateEnsembleWellLogUi::timeStep() const
 //--------------------------------------------------------------------------------------------------
 QString RicCreateEnsembleWellLogUi::wellPathFilePath() const
 {
-    return m_well().path();
+    return m_wellFilePath().path();
 }
 
 //--------------------------------------------------------------------------------------------------

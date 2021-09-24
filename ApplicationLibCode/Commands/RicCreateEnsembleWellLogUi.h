@@ -68,11 +68,14 @@ protected:
 
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
                                                          bool*                      useOptionsOnly ) override;
+    void                          defineEditorAttribute( const caf::PdmFieldHandle* field,
+                                                         QString                    uiConfigName,
+                                                         caf::PdmUiEditorAttribute* attribute ) override;
 
     std::vector<RiaDefines::ResultCatType> validResultCategories() const;
 
 private:
-    caf::PdmField<caf::FilePath>                m_well;
+    caf::PdmField<caf::FilePath>                m_wellFilePath;
     caf::PdmField<caf::AppEnum<WellPathSource>> m_wellPathSource;
     caf::PdmPtrField<RimWellPath*>              m_wellPath;
     caf::PdmField<bool>                         m_autoCreateEnsembleWellLogs;
