@@ -530,32 +530,5 @@ void Rim3dWellLogExtractionCurve::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 QString Rim3dWellLogExtractionCurve::wellDate() const
 {
-    RimGeoMechCase* geomCase    = dynamic_cast<RimGeoMechCase*>( m_case.value() );
-    RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>( m_case.value() );
-
-    QStringList timeStepNames;
-
-    if ( eclipseCase )
-    {
-        if ( m_eclipseResultDefinition->resultType() == RiaDefines::ResultCatType::STATIC_NATIVE )
-        {
-            return QString();
-        }
-        if ( eclipseCase->eclipseCaseData() )
-        {
-            timeStepNames = eclipseCase->timeStepStrings();
-        }
-    }
-    else if ( geomCase )
-    {
-        if ( geomCase->geoMechData() )
-        {
-            timeStepNames = geomCase->timeStepStrings();
-        }
-    }
-    if ( m_timeStep == -1 )
-    {
-        return QString( "Animation Time Step" );
-    }
-    return ( m_timeStep >= 0 && m_timeStep < timeStepNames.size() ) ? timeStepNames[m_timeStep] : "";
+    return RimWellLogExtractionCurve::wellDateFromGridCaseModel( m_case, m_timeStep );
 }

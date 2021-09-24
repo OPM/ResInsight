@@ -617,6 +617,36 @@ RiaDefines::PhaseType RimWellLogExtractionCurve::phaseType() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString RimWellLogExtractionCurve::wellDateFromGridCaseModel( RimCase* gridCaseModel, int timeStep )
+{
+    auto* geomCase    = dynamic_cast<RimGeoMechCase*>( gridCaseModel );
+    auto* eclipseCase = dynamic_cast<RimEclipseCase*>( gridCaseModel );
+
+    QStringList timeStepNames;
+
+    if ( eclipseCase )
+    {
+        if ( eclipseCase->eclipseCaseData() )
+        {
+            timeStepNames = eclipseCase->timeStepStrings();
+        }
+    }
+    else if ( geomCase )
+    {
+        if ( geomCase->geoMechData() )
+        {
+            timeStepNames = geomCase->timeStepStrings();
+        }
+    }
+
+    if ( timeStep >= 0 && timeStep < timeStepNames.size() ) return timeStepNames[timeStep];
+
+    return "01_Jan_2000";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::set<QString> RimWellLogExtractionCurve::sortedSimWellNames()
 {
     std::set<QString> sortedWellNames;
@@ -975,27 +1005,7 @@ QString RimWellLogExtractionCurve::wellName() const
 //--------------------------------------------------------------------------------------------------
 QString RimWellLogExtractionCurve::wellDate() const
 {
-    RimGeoMechCase* geomCase    = dynamic_cast<RimGeoMechCase*>( m_case.value() );
-    RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>( m_case.value() );
-
-    QStringList timeStepNames;
-
-    if ( eclipseCase )
-    {
-        if ( eclipseCase->eclipseCaseData() )
-        {
-            timeStepNames = eclipseCase->timeStepStrings();
-        }
-    }
-    else if ( geomCase )
-    {
-        if ( geomCase->geoMechData() )
-        {
-            timeStepNames = geomCase->timeStepStrings();
-        }
-    }
-
-    return ( m_timeStep >= 0 && m_timeStep < timeStepNames.size() ) ? timeStepNames[m_timeStep] : "";
+    return RimWellLogExtractionCurve::wellDateFromGridCaseModel( m_case(), m_timeStep );
 }
 
 //--------------------------------------------------------------------------------------------------
