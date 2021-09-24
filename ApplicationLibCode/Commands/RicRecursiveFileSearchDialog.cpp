@@ -77,7 +77,7 @@ RicRecursiveFileSearchDialogResult RicRecursiveFileSearchDialog::runRecursiveSea
     const QString useRealizationStarRegistryKey = "RecursiveFileSearchDialog_use_realization";
     QSettings     settings;
 
-    RicRecursiveFileSearchDialog dialog( parent );
+    RicRecursiveFileSearchDialog dialog( parent, fileExtensions );
     {
         QSignalBlocker signalBlocker( dialog.m_pathFilterField );
 
@@ -88,6 +88,14 @@ RicRecursiveFileSearchDialogResult RicRecursiveFileSearchDialog::runRecursiveSea
         pathFilterText += pathFilter;
         dialog.m_fileFilterField->addItem( fileNameFilter );
         dialog.m_pathFilterField->addItem( QDir::toNativeSeparators( pathFilterText ) );
+
+        for ( const auto& s : fileExtensions )
+        {
+            QString joined = fileExtensions.join( '|' );
+            dialog.m_fileExtensionsField->setText( joined );
+        }
+
+        dialog.m_fileFilterField->addItem( fileNameFilter );
 
         populateComboBoxHistoryFromRegistry( dialog.m_pathFilterField, filePathRegistryKey );
 
@@ -140,8 +148,9 @@ RicRecursiveFileSearchDialogResult RicRecursiveFileSearchDialog::runRecursiveSea
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicRecursiveFileSearchDialog::RicRecursiveFileSearchDialog( QWidget* parent )
+RicRecursiveFileSearchDialog::RicRecursiveFileSearchDialog( QWidget* parent, const QStringList& fileExtensions )
     : QDialog( parent, RiuTools::defaultDialogFlags() )
+    , m_incomingFileExtensions( fileExtensions )
 {
     // Create widgets
     m_browseButton = new QPushButton();
@@ -156,6 +165,8 @@ RicRecursiveFileSearchDialog::RicRecursiveFileSearchDialog( QWidget* parent )
     m_pathFilterField             = new QComboBox();
     m_fileFilterLabel             = new QLabel();
     m_fileFilterField             = new QComboBox();
+    m_fileExtensionsLabel         = new QLabel();
+    m_fileExtensionsField         = new QLineEdit();
     m_effectiveFilterLabel        = new QLabel();
     m_effectiveFilterContentLabel = new QLabel();
     m_searchRootLabel             = new QLabel();
@@ -184,6 +195,8 @@ RicRecursiveFileSearchDialog::RicRecursiveFileSearchDialog( QWidget* parent )
              this,
              SLOT( slotFileFilterChanged( const QString& ) ) );
 
+    connect( m_fileExtensionsField, SIGNAL( editingFinished() ), this, SLOT( slotFileExtensionsChanged() ) );
+
     connect( m_fileListWidget,
              SIGNAL( customContextMenuRequested( const QPoint& ) ),
              this,
@@ -199,6 +212,7 @@ RicRecursiveFileSearchDialog::RicRecursiveFileSearchDialog( QWidget* parent )
     // Set widget properties
     m_pathFilterLabel->setText( "Path pattern" );
     m_fileFilterLabel->setText( "File pattern" );
+    m_fileExtensionsLabel->setText( "File Extensions" );
     m_effectiveFilterLabel->setText( "Effective filter" );
     m_searchRootLabel->setText( "Root" );
     m_searchRootLabel->setVisible( false );
@@ -224,16 +238,31 @@ RicRecursiveFileSearchDialog::RicRecursiveFileSearchDialog( QWidget* parent )
 
     QGroupBox*   inputGroup      = new QGroupBox( "Filter" );
     QGridLayout* inputGridLayout = new QGridLayout();
-    inputGridLayout->addWidget( m_pathFilterLabel, 0, 0 );
-    inputGridLayout->addWidget( m_pathFilterField, 0, 1, 1, 2 );
-    inputGridLayout->addWidget( m_browseButton, 0, 3 );
-    inputGridLayout->addWidget( m_fileFilterLabel, 1, 0 );
-    inputGridLayout->addWidget( m_fileFilterField, 1, 1, 1, 2 );
-    inputGridLayout->addWidget( m_useRealizationStarCheckBox, 2, 1 );
-    inputGridLayout->addWidget( m_groupByEnsembleCheckBox, 3, 1 );
-    inputGridLayout->addWidget( m_effectiveFilterLabel, 4, 0 );
-    inputGridLayout->addWidget( m_effectiveFilterContentLabel, 4, 1 );
-    inputGridLayout->addWidget( m_findOrCancelButton, 4, 2, 1, 2 );
+    int          row             = 0;
+    inputGridLayout->addWidget( m_pathFilterLabel, row, 0 );
+    inputGridLayout->addWidget( m_pathFilterField, row, 1, 1, 2 );
+    inputGridLayout->addWidget( m_browseButton, row, 3 );
+
+    row++;
+    inputGridLayout->addWidget( m_fileFilterLabel, row, 0 );
+    inputGridLayout->addWidget( m_fileFilterField, row, 1, 1, 2 );
+
+    row++;
+    inputGridLayout->addWidget( m_fileExtensionsLabel, row, 0 );
+    inputGridLayout->addWidget( m_fileExtensionsField, row, 1, 1, 2 );
+
+    row++;
+    {
+        QHBoxLayout* horizontalLayout = new QHBoxLayout;
+        horizontalLayout->addWidget( m_useRealizationStarCheckBox );
+        horizontalLayout->addWidget( m_groupByEnsembleCheckBox );
+        inputGridLayout->addLayout( horizontalLayout, row, 1 );
+    }
+
+    row++;
+    inputGridLayout->addWidget( m_effectiveFilterLabel, row, 0 );
+    inputGridLayout->addWidget( m_effectiveFilterContentLabel, row, 1 );
+    inputGridLayout->addWidget( m_findOrCancelButton, row, 2 );
 
     inputGroup->setLayout( inputGridLayout );
 
@@ -252,33 +281,44 @@ RicRecursiveFileSearchDialog::RicRecursiveFileSearchDialog( QWidget* parent )
 
     setLayout( dialogLayout );
 
-    QString pathFilterHelpText =
-        "The path filter uses normal wildcard file globbing, like in any unix shell. \n"
-        "When the filter ends with a single \"*\" (eg. \"/home/*\"), however, ResInsight will \n"
-        "search recursively in all subdirectories from that point.\n"
-        "This is indicated by \"...\" in the Effective Filter label below.\n"
-        "\n"
-        "An asterix \"*\" matches any number of any characters, except the path separator.\n"
-        "A question mark \"?\" matches any single character, except the path separator.\n"
-        "Square brackets \"[]\" encloses a list of characters and matches one of the enclosed characters.\n"
-        "they are also used to escape the characters *,? and []";
+    {
+        QString text =
+            "The path filter uses normal wildcard file globbing, like in any unix shell. \n"
+            "When the filter ends with a single \"*\" (eg. \"/home/*\"), however, ResInsight will \n"
+            "search recursively in all subdirectories from that point.\n"
+            "This is indicated by \"...\" in the Effective Filter label below.\n"
+            "\n"
+            "An asterix \"*\" matches any number of any characters, except the path separator.\n"
+            "A question mark \"?\" matches any single character, except the path separator.\n"
+            "Square brackets \"[]\" encloses a list of characters and matches one of the enclosed characters.\n"
+            "they are also used to escape the characters *,? and []";
 
-    // https://doc.qt.io/qt-5/qregularexpression.html#wildcardToRegularExpression
+        // https://doc.qt.io/qt-5/qregularexpression.html#wildcardToRegularExpression
 
-    m_pathFilterLabel->setToolTip( pathFilterHelpText );
-    m_pathFilterField->setToolTip( pathFilterHelpText );
+        m_pathFilterLabel->setToolTip( text );
+        m_pathFilterField->setToolTip( text );
+    }
 
-    QString fileFilterHelpText =
-        "The file filter uses normal wildcards, but is not allowed to contain path separators. ";
+    {
+        QString text = "Define the extension using \".EGRID|.GRDECL\"";
+        m_fileExtensionsLabel->setToolTip( text );
+        m_fileExtensionsField->setToolTip( text );
+    }
 
-    m_fileFilterLabel->setToolTip( fileFilterHelpText );
-    m_fileFilterField->setToolTip( fileFilterHelpText );
+    {
+        QString text = "The file filter uses normal wild cards, but is not allowed to contain path separators. ";
 
-    QString effectiveFilterHelpText = "This label displays the complete filter that is being applied. \n"
-                                      "The possible \"...\" indicates a complete recursive directory search.";
+        m_fileFilterLabel->setToolTip( text );
+        m_fileFilterField->setToolTip( text );
+    }
 
-    m_effectiveFilterLabel->setToolTip( effectiveFilterHelpText );
-    m_effectiveFilterContentLabel->setToolTip( effectiveFilterHelpText );
+    {
+        QString text = "This label displays the complete filter that is being applied. \n"
+                       "The possible \"...\" indicates a complete recursive directory search.";
+
+        m_effectiveFilterLabel->setToolTip( text );
+        m_effectiveFilterContentLabel->setToolTip( text );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -687,6 +727,18 @@ void RicRecursiveFileSearchDialog::slotFileFilterChanged( const QString& text )
     updateEffectiveFilter();
     warningIfInvalidCharacters();
     m_findOrCancelButton->setDefault( true );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicRecursiveFileSearchDialog::slotFileExtensionsChanged()
+{
+    QStringList items = m_fileExtensionsField->text().split( '|' );
+
+    m_fileExtensions = trimLeftStrings( items, "." );
+
+    updateEffectiveFilter();
 }
 
 //--------------------------------------------------------------------------------------------------
