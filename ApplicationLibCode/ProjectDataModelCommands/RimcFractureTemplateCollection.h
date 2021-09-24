@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2016-     Statoil ASA
+//  Copyright (C) 2021- Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -18,30 +18,28 @@
 
 #pragma once
 
-#include "cafCmdFeature.h"
+#include "RimFractureTemplateCollection.h"
 
-#include <gsl/gsl>
-#include <vector>
+#include "cafPdmField.h"
+#include "cafPdmObjectHandle.h"
+#include "cafPdmObjectMethod.h"
 
-class RimWellPathFractureCollection;
-class RimWellPath;
-class RimWellPathFracture;
+#include <QString>
 
 //==================================================================================================
 ///
 //==================================================================================================
-class RicNewWellPathFractureFeature : public caf::CmdFeature
+class RimcFractureTemplateCollection_newFractureTemplate : public caf::PdmObjectMethod
 {
-    CAF_CMD_HEADER_INIT;
+    CAF_PDM_HEADER_INIT;
 
 public:
-    static RimWellPathFracture* addFracture( gsl::not_null<RimWellPath*> wellPath, double measuredDepth );
+    RimcFractureTemplateCollection_newFractureTemplate( caf::PdmObjectHandle* self );
 
-protected:
-    void onActionTriggered( bool isChecked ) override;
-    void setupActionLook( QAction* actionToSetup ) override;
-    bool isCommandEnabled() override;
+    caf::PdmObjectHandle*            execute() override;
+    bool                             resultIsPersistent() const override;
+    std::unique_ptr<PdmObjectHandle> defaultResult() const override;
 
 private:
-    static RimWellPathFractureCollection* selectedWellPathFractureCollection();
+    caf::PdmField<QString> m_filePath;
 };

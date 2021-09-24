@@ -52,9 +52,9 @@ CAF_CMD_SOURCE_INIT( RicNewWellPathFractureFeature, "RicNewWellPathFractureFeatu
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicNewWellPathFractureFeature::addFracture( gsl::not_null<RimWellPath*> wellPath, double measuredDepth )
+RimWellPathFracture* RicNewWellPathFractureFeature::addFracture( gsl::not_null<RimWellPath*> wellPath, double measuredDepth )
 {
-    if ( !RicWellPathsUnitSystemSettingsImpl::ensureHasUnitSystem( wellPath ) ) return;
+    if ( !RicWellPathsUnitSystemSettingsImpl::ensureHasUnitSystem( wellPath ) ) return nullptr;
 
     RimWellPathFractureCollection* fractureCollection = wellPath->fractureCollection();
     CVF_ASSERT( fractureCollection );
@@ -68,22 +68,22 @@ void RicNewWellPathFractureFeature::addFracture( gsl::not_null<RimWellPath*> wel
         }
     }
 
+    auto wellPathGeometry = wellPath->wellPathGeometry();
+    CVF_ASSERT( wellPathGeometry );
+    if ( !wellPathGeometry ) return nullptr;
+
+    RimOilField* oilfield = nullptr;
+    fractureCollection->firstAncestorOrThisOfType( oilfield );
+    if ( !oilfield ) return nullptr;
+
     RimWellPathFracture* fracture = new RimWellPathFracture();
     fractureCollection->addFracture( fracture );
 
     fracture->setMeasuredDepth( measuredDepth );
     fracture->setFractureUnit( wellPath->unitSystem() );
 
-    auto wellPathGeometry = wellPath->wellPathGeometry();
-    CVF_ASSERT( wellPathGeometry );
-    if ( !wellPathGeometry ) return;
-
     cvf::Vec3d positionAtWellpath = wellPathGeometry->interpolatedPointAlongWellPath( measuredDepth );
     fracture->setAnchorPosition( positionAtWellpath );
-
-    RimOilField* oilfield = nullptr;
-    fractureCollection->firstAncestorOrThisOfType( oilfield );
-    if ( !oilfield ) return;
 
     fracture->setName( RicFractureNameGenerator::nameForNewFracture() );
 
@@ -105,6 +105,7 @@ void RicNewWellPathFractureFeature::addFracture( gsl::not_null<RimWellPath*> wel
     }
 
     Riu3DMainWindowTools::selectAsCurrentItem( fracture );
+    return fracture;
 }
 
 //--------------------------------------------------------------------------------------------------
