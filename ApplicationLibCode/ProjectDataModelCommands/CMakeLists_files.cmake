@@ -18,6 +18,8 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimcWellLogTrack.h
     ${CMAKE_CURRENT_LIST_DIR}/RimcWellPathGeometryDef.h
     ${CMAKE_CURRENT_LIST_DIR}/RimcModeledWellPath.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimcWellPath.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimcFractureTemplateCollection.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
@@ -40,6 +42,8 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimcWellLogTrack.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimcWellPathGeometryDef.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimcModeledWellPath.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimcWellPath.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimcFractureTemplateCollection.cpp
 )
 
 list(APPEND CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})

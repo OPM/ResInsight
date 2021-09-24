@@ -45,7 +45,9 @@
 
 #include "RivWellFracturePartMgr.h"
 
+#include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObject.h"
+#include "cafPdmObjectScriptingCapability.h"
 #include "cafPdmUiDoubleSliderEditor.h"
 #include "cafPdmUiFilePathEditor.h"
 #include "cafPdmUiTextEditor.h"
@@ -68,7 +70,7 @@ CAF_PDM_SOURCE_INIT( RimStimPlanFractureTemplate, "RimStimPlanFractureTemplate" 
 //--------------------------------------------------------------------------------------------------
 RimStimPlanFractureTemplate::RimStimPlanFractureTemplate()
 {
-    CAF_PDM_InitObject( "Fracture Template", ":/FractureTemplate16x16.png", "", "" );
+    CAF_PDM_InitScriptableObject( "Fracture Template", ":/FractureTemplate16x16.png", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_stimPlanFileName, "StimPlanFileName", "File Name", "", "", "" );
     m_stimPlanFileName.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
