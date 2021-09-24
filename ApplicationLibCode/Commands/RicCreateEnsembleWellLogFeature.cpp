@@ -146,7 +146,8 @@ void RicCreateEnsembleWellLogFeature::executeCommand( const RicCreateEnsembleWel
 
     if ( !wellPath ) return;
 
-    QStringList allLasFileNames;
+    std::vector<RimWellLogPlot*> tmpPlotsToDelete;
+    QStringList                  allLasFileNames;
     for ( const auto& fileName : fileNames )
     {
         auto task = progress.task( QString( "Extracting well log for %1" ).arg( fileName ) );
@@ -217,10 +218,19 @@ void RicCreateEnsembleWellLogFeature::executeCommand( const RicCreateEnsembleWel
                 allLasFileNames << lasFile;
         }
 
-        // Remove the temporary plots after export
-        plotCollection->removePlot( wellLogPlot );
+        tmpPlotsToDelete.push_back( wellLogPlot );
 
         RicCloseCaseFeature::deleteEclipseCase( eclipseCase );
+    }
+
+    for ( auto wlp : tmpPlotsToDelete )
+    {
+        // Hide window to avoid flickering
+        wlp->setShowWindow( false );
+        wlp->updateMdiWindowVisibility();
+
+        plotCollection->removePlot( wlp );
+        delete wlp;
     }
 
     if ( ui.autoCreateEnsembleWellLogs() )
