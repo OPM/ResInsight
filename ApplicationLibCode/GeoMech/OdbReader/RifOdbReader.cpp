@@ -658,13 +658,18 @@ size_t RifOdbReader::resultItemCount( const std::string& fieldName,
 
             // handle reduced integration point elements
             if ( ipCount == 1 )
-            {
                 resultItemCount += numValues * 8;
-            }
             else
-            {
                 resultItemCount += numValues;
-            }
+        }
+        else if ( resultPosition == ELEMENT_NODAL )
+        {
+            int numValues     = bulkData.length();
+            int elemCount     = bulkData.numberOfElements();
+            int elemNodeCount = numValues / elemCount;
+
+            // handle that we use just 8 nodes per element
+            resultItemCount += elemCount * std::min( elemNodeCount, 8 );
         }
         else
         {
@@ -850,6 +855,7 @@ void RifOdbReader::readElementNodeField( const std::string&                field
             CVF_ASSERT( ( *resultValues )[comp] );
 
             ( *resultValues )[comp]->resize( dataSize, std::numeric_limits<float>::infinity() );
+            //( *resultValues )[comp]->resize( dataSize, 0.0 );
         }
     }
 
