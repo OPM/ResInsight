@@ -106,6 +106,7 @@ std::map<std::string, RigElementType> initFemTypeMap()
     typeMap["CAX4"]    = CAX4;
     typeMap["C3D20RT"] = HEX8;
     typeMap["C3D8RT"]  = HEX8;
+    typeMap["C3D8R"]   = HEX8;
 
     return typeMap;
 }
@@ -336,7 +337,7 @@ bool RifOdbReader::readFemParts( RigFemPartCollection* femParts )
     odb_InstanceRepository   instanceRepository = m_odb->rootAssembly().instances();
     odb_InstanceRepositoryIT iter( instanceRepository );
 
-    caf::ProgressInfo modelProgress( instanceRepository.size() * ( 2 + 4 ), "Reading Odb Parts" );
+    caf::ProgressInfo modelProgress( instanceRepository.size() * ( size_t )( 2 + 4 ), "Reading Odb Parts" );
 
     int instanceCount = 0;
     for ( iter.first(); !iter.isDone(); iter.next(), instanceCount++ )
@@ -669,8 +670,30 @@ size_t RifOdbReader::resultItemCount( const std::string& fieldName,
 
     for ( int block = 0; block < numBlocks; block++ )
     {
-        const odb_FieldBulkData& bulkData = seqFieldBulkData[block];
-        resultItemCount += bulkData.length();
+        const odb_FieldBulkData& bulkData  = seqFieldBulkData[block];
+        int                      numValues = bulkData.length();
+
+        if ( resultPosition == INTEGRATION_POINT )
+        {
+            int numValues = bulkData.length();
+            int numComp   = bulkData.width();
+            int elemCount = bulkData.numberOfElements();
+            int ipCount   = numValues / elemCount;
+
+            // handle reduced integration point elements
+            if ( ipCount == 1 )
+            {
+                resultItemCount += numValues * 8;
+            }
+            else
+            {
+                resultItemCount += numValues;
+            }
+        }
+        else
+        {
+            resultItemCount += numValues;
+        }
     }
 
     return resultItemCount;
@@ -944,26 +967,27 @@ void RifOdbReader::readIntegrationPointField( const std::string&                
         int    numComp       = bulkData.width();
         int    elemCount     = bulkData.numberOfElements();
         int    ipCount       = numValues / elemCount;
+        int    ipDestCount   = std::max( ipCount, 8 ); // always use 8 integration points in destination
         int*   elementLabels = bulkData.elementLabels();
         float* data          = bulkDataGetter.data();
 
         RigElementType eType = toRigElementType( bulkData.baseElementType() );
-        const int*     elmNodeToIpResultMapping =
-            localElmNodeToIntegrationPointMapping( eType ); // Todo: Use the one in RigFemTypes.h, but we need to guard
-                                                            // against unknown element types first.
+
+        const int* elmNodeToIpResultMapping = localElmNodeToIntegrationPointMapping( eType );
         if ( !elmNodeToIpResultMapping ) continue;
 
         for ( int elem = 0; elem < elemCount; elem++ )
         {
             int elementIdx                  = elementIdToIdxMap[elementLabels[elem * ipCount]];
-            int elementResultStartDestIdx   = elementIdx * ipCount; // Ikke generellt riktig !
+            int elementResultStartDestIdx   = elementIdx * ipDestCount;
             int elementResultStartSourceIdx = elem * ipCount * numComp;
 
-            for ( int ipIdx = 0; ipIdx < ipCount; ipIdx++ )
+            for ( int ipIdx = 0; ipIdx < ipDestCount; ipIdx++ )
             {
-                int resultIpIdx = elmNodeToIpResultMapping[ipIdx];
-                int destIdx     = elementResultStartDestIdx + ipIdx;
+                int resultIpIdx = elmNodeToIpResultMapping[std::min( ipIdx, ipCount - 1 )];
                 int srcIdx      = elementResultStartSourceIdx + resultIpIdx * numComp;
+
+                int destIdx = elementResultStartDestIdx + ipIdx;
 
                 for ( int comp = 0; comp < numComp; comp++ )
                 {
