@@ -108,7 +108,7 @@ int RigFemTypes::oppositeFace( RigElementType elmType, int faceIdx )
 
 const int* RigFemTypes::localElmNodeToIntegrationPointMapping( RigElementType elmType )
 {
-    static const int HEX8_Mapping[8] = { 0, 1, 3, 2, 4, 5, 7, 6 };
+    static const int HEX8_Mapping[8] = { 0, 1, 2, 3, 4, 5, 6, 7 };
 
     switch ( elmType )
     {

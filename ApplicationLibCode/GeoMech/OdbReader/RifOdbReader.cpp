@@ -134,30 +134,6 @@ RigElementType toRigElementType( const odb_String& odbTypeName )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-
-const int* localElmNodeToIntegrationPointMapping( RigElementType elmType )
-{
-    static const int HEX8_Mapping[8] = { 0, 1, 3, 2, 4, 5, 7, 6 };
-
-    switch ( elmType )
-    {
-        case HEX8:
-        case HEX8P:
-            return HEX8_Mapping;
-            break;
-        case CAX4:
-            return HEX8_Mapping; // First four is identical to HEX8
-            break;
-        default:
-            // assert(false); // Element type not supported
-            break;
-    }
-    return NULL;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 RifOdbReader::RifOdbReader()
 {
     if ( ++sm_instanceCount == 1 )
@@ -971,11 +947,6 @@ void RifOdbReader::readIntegrationPointField( const std::string&                
         int*   elementLabels = bulkData.elementLabels();
         float* data          = bulkDataGetter.data();
 
-        RigElementType eType = toRigElementType( bulkData.baseElementType() );
-
-        const int* elmNodeToIpResultMapping = localElmNodeToIntegrationPointMapping( eType );
-        if ( !elmNodeToIpResultMapping ) continue;
-
         for ( int elem = 0; elem < elemCount; elem++ )
         {
             int elementIdx                  = elementIdToIdxMap[elementLabels[elem * ipCount]];
@@ -984,7 +955,7 @@ void RifOdbReader::readIntegrationPointField( const std::string&                
 
             for ( int ipIdx = 0; ipIdx < ipDestCount; ipIdx++ )
             {
-                int resultIpIdx = elmNodeToIpResultMapping[std::min( ipIdx, ipCount - 1 )];
+                int resultIpIdx = std::min( ipIdx, ipCount - 1 );
                 int srcIdx      = elementResultStartSourceIdx + resultIpIdx * numComp;
 
                 int destIdx = elementResultStartDestIdx + ipIdx;
