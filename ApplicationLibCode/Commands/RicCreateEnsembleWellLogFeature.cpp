@@ -29,6 +29,7 @@
 #include "RicImportEnsembleWellLogsFeature.h"
 #include "RicImportGeneralDataFeature.h"
 #include "RicRecursiveFileSearchDialog.h"
+#include "RifReaderSettings.h"
 #include "WellPathCommands/RicImportWellPaths.h"
 
 #include "RimDialogData.h"
@@ -287,9 +288,12 @@ RimEclipseCase* RicCreateEnsembleWellLogFeature::loadEclipseCase( const QString&
     }
     bool createView = false;
     bool createPlot = false;
+
+    std::shared_ptr<RifReaderSettings> readerSettings = RifReaderSettings::createGridOnlyReaderSettings();
     auto openResult = RicImportGeneralDataFeature::openEclipseFilesFromFileNames( QStringList( { absolutePath } ),
                                                                                   createPlot,
-                                                                                  createView );
+                                                                                  createView,
+                                                                                  readerSettings );
 
     if ( !openResult.createdCaseIds.empty() )
     {

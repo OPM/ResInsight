@@ -23,7 +23,6 @@
 #include "RiaCellDividingTools.h"
 #include "RiaEclipseUnitTools.h"
 #include "RiaLogging.h"
-#include "RiaPreferences.h"
 
 #include "RiaStringEncodingTools.h"
 #include "RifActiveCellsReader.h"
@@ -490,15 +489,14 @@ bool RifReaderEclipseOutput::open( const QString& fileName, RigEclipseCaseData* 
             RigActiveCellInfo* activeCellInfo =
                 m_eclipseCase->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
 
-            bool includeInactiveCells = RiaPreferences::current()->readerSettings()->includeInactiveCellsInFaultGeometry;
-
+            bool includeInactiveCells = includeInactiveCellsInFaultGeometry();
             mainGrid->nncData()->setSourceDataForProcessing( mainGrid, activeCellInfo, includeInactiveCells );
         }
     }
 
     {
         auto task = progress.task( "Handling well information", 10 );
-        if ( !RiaPreferences::current()->readerSettings()->skipWellData() )
+        if ( !isSkipWellData() )
         {
             readWellCells( mainEclGrid, isImportOfCompleteMswDataEnabled() );
         }

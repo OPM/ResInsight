@@ -72,6 +72,9 @@ RifReaderSettings::RifReaderSettings()
                        "Path used to prefix absolute UNIX paths in include statements on Windows, used when searching "
                        "for FAULTS and EQUIL",
                        "" );
+
+    CAF_PDM_InitField( &importSummaryData, "importSummaryData", true, "Import summary data", "", "", "" );
+    importSummaryData.uiCapability()->setUiHidden( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -94,4 +97,20 @@ void RifReaderSettings::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderi
     includeInactiveCellsInFaultGeometry.uiCapability()->setUiReadOnly( setFaultImportSettingsReadOnly );
     includeFileAbsolutePathPrefix.uiCapability()->setUiReadOnly( setFaultImportSettingsReadOnly );
     importNNCs.uiCapability()->setUiReadOnly( setFaultImportSettingsReadOnly );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::shared_ptr<RifReaderSettings> RifReaderSettings::createGridOnlyReaderSettings()
+{
+    std::shared_ptr<RifReaderSettings> readerSettings = std::make_shared<RifReaderSettings>();
+    // Disable as much as possible
+    readerSettings->importNNCs                          = false;
+    readerSettings->importFaults                        = false;
+    readerSettings->skipWellData                        = true;
+    readerSettings->includeInactiveCellsInFaultGeometry = false;
+    readerSettings->importAdvancedMswData               = false;
+    readerSettings->importSummaryData                   = false;
+    return readerSettings;
 }

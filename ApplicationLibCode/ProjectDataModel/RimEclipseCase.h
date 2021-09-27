@@ -33,6 +33,7 @@
 #include "cvfColor3.h"
 #include "cvfObject.h"
 
+#include <memory>
 #include <set>
 
 class QString;
@@ -49,6 +50,7 @@ class RimEclipseInputPropertyCollection;
 class RimEclipseView;
 class RimIdenticalGridCaseGroup;
 class RimReservoirCellResultsStorage;
+class RifReaderSettings;
 
 //==================================================================================================
 //
@@ -119,6 +121,8 @@ public:
     bool ensureNncDataIsComputed();
     void createDisplayModelAndUpdateAllViews();
 
+    void setReaderSettings( std::shared_ptr<RifReaderSettings> readerSettings );
+
 protected:
     void initAfterRead() override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
@@ -140,6 +144,8 @@ protected:
     caf::PdmField<bool>                                    m_flipXAxis;
     caf::PdmField<bool>                                    m_flipYAxis;
     caf::PdmChildField<RimEclipseInputPropertyCollection*> m_inputPropertyCollection;
+
+    std::shared_ptr<RifReaderSettings> m_readerSettings;
 
 private:
     caf::PdmField<bool> m_releaseResultMemory;

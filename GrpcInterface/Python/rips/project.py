@@ -62,7 +62,7 @@ def close(self):
 
 
 @add_method(Project)
-def load_case(self, path):
+def load_case(self, path, grid_only=False):
     """Load a new grid case from the given file path
 
     Arguments:
@@ -71,7 +71,7 @@ def load_case(self, path):
         :class:`rips.generated.generated_classes.Case`
     """
     command_reply = self._execute_command(
-        loadCase=Commands_pb2.FilePathRequest(path=path)
+        loadCase=Commands_pb2.FilePathRequest(path=path, gridOnly=grid_only)
     )
     return self.case(command_reply.loadCaseResult.id)
 

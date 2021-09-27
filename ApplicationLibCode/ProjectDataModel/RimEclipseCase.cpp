@@ -696,7 +696,8 @@ void RimEclipseCase::ensureFaultDataIsComputed()
     RigEclipseCaseData* rigEclipseCase = eclipseCaseData();
     if ( rigEclipseCase )
     {
-        bool computeFaults = RiaPreferences::current()->readerSettings()->importFaults();
+        bool computeFaults = ( m_readerSettings && m_readerSettings->importFaults() ) ||
+                             ( !m_readerSettings && RiaPreferences::current()->readerSettings()->importFaults() );
         if ( computeFaults )
         {
             RigActiveCellInfo* actCellInfo = rigEclipseCase->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
@@ -1115,4 +1116,12 @@ std::vector<QDateTime> RimEclipseCase::timeStepDates() const
 bool RimEclipseCase::importAsciiInputProperties( const QStringList& fileNames )
 {
     return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCase::setReaderSettings( std::shared_ptr<RifReaderSettings> readerSettings )
+{
+    m_readerSettings = readerSettings;
 }
