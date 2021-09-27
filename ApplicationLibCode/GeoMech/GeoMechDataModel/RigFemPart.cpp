@@ -29,6 +29,7 @@
 RigFemPart::RigFemPart()
     : m_elementPartId( -1 )
     , m_characteristicElementSize( std::numeric_limits<float>::infinity() )
+    , m_enabled( true )
 {
 }
 
@@ -409,7 +410,7 @@ float RigFemPart::characteristicElementSize() const
     {
         RigElementType eType = this->elementType( elmIdx );
 
-        if ( eType == HEX8P )
+        if ( ( eType == HEX8P ) || ( eType == HEX8 ) )
         {
             const int* elementConn = this->connectivities( elmIdx );
             cvf::Vec3f nodePos0    = this->nodes().coordinates[elementConn[0]];
@@ -561,4 +562,36 @@ bool RigFemPart::isHexahedron( size_t elementIdx ) const
 {
     RigElementType elType = elementType( elementIdx );
     return elType == HEX8 || elType == HEX8P;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigFemPart::setName( std::string name )
+{
+    m_name = name;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::string RigFemPart::name() const
+{
+    return m_name;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigFemPart::setEnabled( bool enable )
+{
+    m_enabled = enable;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RigFemPart::enabled() const
+{
+    return m_enabled;
 }

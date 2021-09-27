@@ -202,10 +202,11 @@ RivGeoMechPartMgr* RivGeoMechVizLogic::getUpdatedPartMgr( RivGeoMechPartMgrCache
         partMgrToUpdate->clearAndSetReservoir( caseData );
     }
 
+    partMgrToUpdate->setTransform( m_geomechView->scaleTransform() );
+
     for ( int femPartIdx = 0; femPartIdx < partCount; ++femPartIdx )
     {
         cvf::ref<cvf::UByteArray> elmVisibility = partMgrToUpdate->cellVisibility( femPartIdx );
-        partMgrToUpdate->setTransform( m_geomechView->scaleTransform() );
 
         if ( pMgrKey.geometryType() == RANGE_FILTERED )
         {
@@ -269,9 +270,12 @@ void RivGeoMechVizLogic::calculateCurrentTotalCellVisibility( cvf::UByteArray* t
 
     if ( gridCount == 0 ) return;
 
-    RigFemPart* part     = m_geomechView->femParts()->part( 0 );
-    int         elmCount = part->elementCount();
-
+    int elmCount = 0;
+    for ( int i = 0; i < m_geomechView->femParts()->partCount(); i++ )
+    {
+        RigFemPart* part = m_geomechView->femParts()->part( i );
+        elmCount += part->elementCount();
+    }
     totalVisibility->resize( elmCount );
     totalVisibility->setAll( false );
 
@@ -282,10 +286,17 @@ void RivGeoMechVizLogic::calculateCurrentTotalCellVisibility( cvf::UByteArray* t
         CVF_ASSERT( partMgr );
         if ( partMgr )
         {
-            cvf::ref<cvf::UByteArray> visibility = partMgr->cellVisibility( 0 );
-            for ( int elmIdx = 0; elmIdx < elmCount; ++elmIdx )
+            int elmOffset = 0;
+            for ( int i = 0; i < m_geomechView->femParts()->partCount(); i++ )
             {
-                ( *totalVisibility )[elmIdx] |= ( *visibility )[elmIdx];
+                RigFemPart* part = m_geomechView->femParts()->part( i );
+
+                cvf::ref<cvf::UByteArray> visibility = partMgr->cellVisibility( i );
+                for ( int elmIdx = 0; elmIdx < part->elementCount(); ++elmIdx )
+                {
+                    ( *totalVisibility )[elmOffset + elmIdx] |= ( *visibility )[elmIdx];
+                }
+                elmOffset += part->elementCount();
             }
         }
     }

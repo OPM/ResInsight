@@ -86,6 +86,7 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorNormalST::calculate( int    
     {
         const std::vector<float>& srcSFrameData   = srcSDataFrames->frameData( fIdx );
         const std::vector<float>& srcPORFrameData = srcPORDataFrames->frameData( fIdx );
+        if ( srcPORFrameData.empty() ) continue;
 
         int elementCount = femPart->elementCount();
 

@@ -46,7 +46,7 @@ class RigFemPart;
 class RivFemPartPartMgr : public cvf::Object
 {
 public:
-    explicit RivFemPartPartMgr( const RigFemPart* femPart );
+    explicit RivFemPartPartMgr( const RigFemPart* femPart, cvf::Vec3d displayOffset );
     ~RivFemPartPartMgr() override;
     void                      setTransform( cvf::Transform* scaleTransform );
     void                      setCellVisibility( cvf::UByteArray* cellVisibilities );
@@ -63,8 +63,8 @@ private:
     void generatePartGeometry( RivFemPartGeometryGenerator& geoBuilder );
 
 private:
-    int                   m_gridIdx;
-    cvf::cref<RigFemPart> m_grid;
+    int                   m_partIdx;
+    cvf::cref<RigFemPart> m_part;
 
     cvf::ref<cvf::Transform> m_scaleTransform;
     float                    m_opacityLevel;

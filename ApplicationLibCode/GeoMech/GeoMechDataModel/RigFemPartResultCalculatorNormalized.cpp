@@ -100,7 +100,7 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorNormalized::calculate( int  
     const RigFemPart*     femPart     = m_resultCollection->parts()->part( partIndex );
     const RigFemPartGrid* femPartGrid = femPart->getOrCreateStructGrid();
 
-    float                          inf          = std::numeric_limits<float>::infinity();
+    const float                    inf          = std::numeric_limits<float>::infinity();
     int                            elmNodeCount = femPart->elementCount();
     const std::vector<cvf::Vec3f>& nodeCoords   = femPart->nodes().coordinates;
 
@@ -108,6 +108,7 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorNormalized::calculate( int  
     for ( int fIdx = 0; fIdx < frameCount; ++fIdx )
     {
         const std::vector<float>& porFrameData = porDataFrames->frameData( fIdx );
+        if ( porFrameData.empty() ) continue;
         const std::vector<float>& srcFrameData = srcDataFrames->frameData( fIdx );
         std::vector<float>&       dstFrameData = dstDataFrames->frameData( fIdx );
 

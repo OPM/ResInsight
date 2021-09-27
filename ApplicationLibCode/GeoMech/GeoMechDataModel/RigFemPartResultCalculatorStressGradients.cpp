@@ -120,6 +120,8 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorStressGradients::calculate( 
         std::vector<float>& dstFrameDataY = dataFramesY->frameData( fIdx );
         std::vector<float>& dstFrameDataZ = dataFramesZ->frameData( fIdx );
         size_t              valCount      = inputData.size();
+        if ( valCount == 0 ) continue;
+
         dstFrameDataX.resize( valCount );
         dstFrameDataY.resize( valCount );
         dstFrameDataZ.resize( valCount );
