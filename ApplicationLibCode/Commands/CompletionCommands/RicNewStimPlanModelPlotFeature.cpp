@@ -77,8 +77,10 @@ RimStimPlanModelPlot* RicNewStimPlanModelPlotFeature::createPlot( RimStimPlanMod
     plot->setStimPlanModel( stimPlanModel );
 
     {
-        auto task = progInfo.task( "Creating formation track", 2 );
-        createFormationTrack( plot, stimPlanModel, eclipseCase );
+        auto            task = progInfo.task( "Creating formation track", 2 );
+        RimEclipseCase* formationEclipseCase =
+            stimPlanModel->eclipseCaseForType( RimExtractionConfiguration::EclipseCaseType::STATIC_CASE );
+        createFormationTrack( plot, stimPlanModel, formationEclipseCase );
     }
 
     {
