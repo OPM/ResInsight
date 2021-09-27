@@ -2072,9 +2072,12 @@ void RigCaseCellResultsData::computeIndexResults()
         }
     }
 
-    for ( size_t cellIdx = 0; cellIdx < m_ownerMainGrid->globalCellArray().size(); cellIdx++ )
+    const std::vector<RigCell>& globalCellArray = m_ownerMainGrid->globalCellArray();
+    long long                   numCells        = static_cast<long long>( globalCellArray.size() );
+#pragma omp for
+    for ( long long cellIdx = 0; cellIdx < numCells; cellIdx++ )
     {
-        const RigCell& cell = m_ownerMainGrid->globalCellArray()[cellIdx];
+        const RigCell& cell = globalCellArray[cellIdx];
 
         size_t resultIndex = cellIdx;
         if ( resultIndex == cvf::UNDEFINED_SIZE_T ) continue;
