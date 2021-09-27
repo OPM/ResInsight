@@ -256,11 +256,10 @@ bool RicImportGeneralDataFeature::openInputEclipseCaseFromFileNames( const QStri
                                                                      bool               createDefaultView,
                                                                      std::vector<int>&  createdCaseIds )
 {
-    QString fileContainingGrid;
-    auto generatedCaseId = RiaImportEclipseCaseTools::openEclipseInputCaseFromFileNames( fileNames, &fileContainingGrid );
+    auto generatedCaseId = RiaImportEclipseCaseTools::openEclipseInputCaseFromFileNames( fileNames, createDefaultView );
     if ( generatedCaseId >= 0 )
     {
-        RiaApplication::instance()->addToRecentFiles( fileContainingGrid );
+        RiaApplication::instance()->addToRecentFiles( fileNames[0] );
         createdCaseIds.push_back( generatedCaseId );
         return true;
     }
