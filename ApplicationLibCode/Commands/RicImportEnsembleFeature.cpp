@@ -72,34 +72,37 @@ bool RicImportEnsembleFeature::isCommandEnabled()
 void RicImportEnsembleFeature::onActionTriggered( bool isChecked )
 {
     QString pathCacheName = "ENSEMBLE_FILES";
-    auto [fileNames, groupByEnsemble] =
+    auto [fileNames, ensembleGroupingMode] =
         RicImportSummaryCasesFeature::runRecursiveSummaryCaseFileSearchDialogWithGrouping( "Import Ensemble",
                                                                                            pathCacheName );
 
     if ( fileNames.isEmpty() ) return;
 
-    if ( groupByEnsemble )
+    if ( ensembleGroupingMode == RiaEnsembleNameTools::EnsembleGroupingMode::NONE )
     {
-        std::vector<QStringList> groupedByEnsemble = RiaEnsembleNameTools::groupFilesByEnsemble( fileNames );
-        for ( const QStringList& groupedFileNames : groupedByEnsemble )
-        {
-            bool useEnsembleNameDialog = false;
-            importSingleEnsemble( groupedFileNames, useEnsembleNameDialog );
-        }
+        bool useEnsembleNameDialog = true;
+        importSingleEnsemble( fileNames, ensembleGroupingMode, useEnsembleNameDialog );
     }
     else
     {
-        bool useEnsembleNameDialog = true;
-        importSingleEnsemble( fileNames, useEnsembleNameDialog );
+        std::vector<QStringList> groupedByEnsemble =
+            RiaEnsembleNameTools::groupFilesByEnsemble( fileNames, ensembleGroupingMode );
+        for ( const QStringList& groupedFileNames : groupedByEnsemble )
+        {
+            bool useEnsembleNameDialog = false;
+            importSingleEnsemble( groupedFileNames, ensembleGroupingMode, useEnsembleNameDialog );
+        }
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicImportEnsembleFeature::importSingleEnsemble( const QStringList& fileNames, bool useEnsembleNameDialog )
+void RicImportEnsembleFeature::importSingleEnsemble( const QStringList&                         fileNames,
+                                                     RiaEnsembleNameTools::EnsembleGroupingMode groupingMode,
+                                                     bool                                       useEnsembleNameDialog )
 {
-    QString ensembleName = RiaEnsembleNameTools::findSuitableEnsembleName( fileNames );
+    QString ensembleName = RiaEnsembleNameTools::findSuitableEnsembleName( fileNames, groupingMode );
 
     if ( useEnsembleNameDialog ) ensembleName = askForEnsembleName( ensembleName );
 

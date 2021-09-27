@@ -19,17 +19,43 @@
 #include "RiaEnsembleNameTools.h"
 
 #include "RiaFilePathTools.h"
+#include "RiaTextStringTools.h"
 
 #include "RimCaseDisplayNameTools.h"
+
+#include "cafAppEnum.h"
+
 #include <QFileInfo>
 #include <QRegularExpression>
+
+template <>
+void caf::AppEnum<RiaEnsembleNameTools::EnsembleGroupingMode>::setUp()
+{
+    addItem( RiaEnsembleNameTools::EnsembleGroupingMode::FIRST_FOLDER, "FIRST_FOLDER", "First Folder" );
+    addItem( RiaEnsembleNameTools::EnsembleGroupingMode::SECOND_FOLDER, "SECOND_FOLDER", "Second Folder" );
+    addItem( RiaEnsembleNameTools::EnsembleGroupingMode::NONE, "None", "None" );
+    setDefault( RiaEnsembleNameTools::EnsembleGroupingMode::SECOND_FOLDER );
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiaEnsembleNameTools::findSuitableEnsembleName( const QStringList& fileNames )
+QString RiaEnsembleNameTools::findSuitableEnsembleName( const QStringList& fileNames, EnsembleGroupingMode folderLevel )
 {
-    QStringList iterations = findUniqueIterations( fileNames );
+    if ( folderLevel == EnsembleGroupingMode::FIRST_FOLDER )
+    {
+        QString     commonRoot     = RiaTextStringTools::commonRoot( fileNames );
+        QStringList rootComponents = RiaFilePathTools::splitPathIntoComponents( commonRoot );
+
+        if ( rootComponents.size() > 2 )
+        {
+            return rootComponents[rootComponents.size() - 2];
+        }
+
+        return "Ensemble";
+    }
+
+    QStringList iterations = findUniqueIterations( fileNames, folderLevel );
     if ( iterations.size() == 1u )
     {
         return iterations.front();
@@ -55,9 +81,10 @@ QString RiaEnsembleNameTools::findSuitableEnsembleName( const QStringList& fileN
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<QStringList> RiaEnsembleNameTools::groupFilesByEnsemble( const QStringList& fileNames )
+std::vector<QStringList> RiaEnsembleNameTools::groupFilesByEnsemble( const QStringList&   fileNames,
+                                                                     EnsembleGroupingMode groupingMode )
 {
-    QStringList iterations = findUniqueIterations( fileNames );
+    QStringList iterations = findUniqueIterations( fileNames, groupingMode );
     if ( iterations.size() <= 1 )
     {
         // All the files are in the same ensemble
@@ -84,7 +111,7 @@ std::vector<QStringList> RiaEnsembleNameTools::groupFilesByEnsemble( const QStri
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QStringList RiaEnsembleNameTools::findUniqueIterations( const QStringList& fileNames )
+QStringList RiaEnsembleNameTools::findUniqueIterations( const QStringList& fileNames, EnsembleGroupingMode groupingMode )
 {
     std::vector<QStringList> componentsForAllFilePaths;
 
@@ -94,20 +121,43 @@ QStringList RiaEnsembleNameTools::findUniqueIterations( const QStringList& fileN
         componentsForAllFilePaths.push_back( components );
     }
 
-    // Find list of all folders inside a folder matching realization-*
-    QRegularExpression realizationRe( "realization\\-\\d+" );
-
     QStringList iterations;
-    for ( const auto& fileComponents : componentsForAllFilePaths )
+    if ( groupingMode == EnsembleGroupingMode::FIRST_FOLDER )
     {
-        QString lastComponent = "";
-        for ( auto it = fileComponents.rbegin(); it != fileComponents.rend(); ++it )
+        QString     commonRoot           = RiaTextStringTools::commonRoot( fileNames );
+        QStringList rootComponents       = RiaFilePathTools::splitPathIntoComponents( commonRoot );
+        auto        commonComponentCount = rootComponents.size();
+
+        std::set<QString> ensembleSet;
+        for ( const auto& componentsForFile : componentsForAllFilePaths )
         {
-            if ( realizationRe.match( *it ).hasMatch() )
+            if ( commonComponentCount - 1 < componentsForFile.size() )
             {
-                iterations.push_back( lastComponent );
+                ensembleSet.insert( componentsForFile[commonComponentCount - 1] );
             }
-            lastComponent = *it;
+        }
+
+        for ( const auto& ensembleName : ensembleSet )
+        {
+            iterations.push_back( ensembleName );
+        }
+    }
+    else if ( groupingMode == EnsembleGroupingMode::SECOND_FOLDER )
+    {
+        // Find list of all folders inside a folder matching realization-*
+        QRegularExpression realizationRe( "realization\\-\\d+" );
+
+        for ( const auto& fileComponents : componentsForAllFilePaths )
+        {
+            QString lastComponent = "";
+            for ( auto it = fileComponents.rbegin(); it != fileComponents.rend(); ++it )
+            {
+                if ( realizationRe.match( *it ).hasMatch() )
+                {
+                    iterations.push_back( lastComponent );
+                }
+                lastComponent = *it;
+            }
         }
     }
 

@@ -120,7 +120,8 @@ void RicCreateEnsembleSurfaceFeature::executeCommand( const RicCreateEnsembleSur
     progress.setProgress( fileNames.size() );
 
     if ( ui.autoCreateEnsembleSurfaces() )
-        RicImportEnsembleSurfaceFeature::importEnsembleSurfaceFromFiles( allSurfaceFileNames );
+        RicImportEnsembleSurfaceFeature::importEnsembleSurfaceFromFiles( allSurfaceFileNames,
+                                                                         RiaEnsembleNameTools::EnsembleGroupingMode::SECOND_FOLDER );
 }
 
 //--------------------------------------------------------------------------------------------------

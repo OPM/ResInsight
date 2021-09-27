@@ -22,6 +22,7 @@
 
 #include "cafPdmPointer.h"
 
+#include "RiaEnsembleNameTools.h"
 #include <QDialog>
 
 class QLabel;
@@ -70,7 +71,8 @@ private:
 
     QStringList fileExtensions() const;
     QString     extensionFromFileNameFilter() const;
-    bool        groupByEnsemble() const;
+
+    RiaEnsembleNameTools::EnsembleGroupingMode ensembleGroupingMode() const;
 
     void setOkButtonEnabled( bool enabled );
     void warningIfInvalidCharacters();
@@ -127,6 +129,8 @@ private:
     QLabel*      m_effectiveFilterContentLabel;
     QPushButton* m_findOrCancelButton;
 
+    QComboBox* m_ensembleNameLevel;
+
     QGroupBox*   m_outputGroup;
     QLabel*      m_searchRootLabel;
     QLabel*      m_searchRootContentLabel;
@@ -151,18 +155,18 @@ private:
 class RicRecursiveFileSearchDialogResult
 {
 public:
-    RicRecursiveFileSearchDialogResult( bool               ok,
-                                        const QStringList& files,
-                                        const QString&     rootDir,
-                                        const QString&     pathFilter,
-                                        const QString&     fileNameFilter,
-                                        bool               groupByEnsemble )
+    RicRecursiveFileSearchDialogResult( bool                                       ok,
+                                        const QStringList&                         files,
+                                        const QString&                             rootDir,
+                                        const QString&                             pathFilter,
+                                        const QString&                             fileNameFilter,
+                                        RiaEnsembleNameTools::EnsembleGroupingMode groupingMode )
         : ok( ok )
         , files( files )
         , rootDir( rootDir )
         , pathFilter( pathFilter )
         , fileNameFilter( fileNameFilter )
-        , groupByEnsemble( groupByEnsemble )
+        , groupingMode( groupingMode )
     {
     }
 
@@ -171,5 +175,6 @@ public:
     QString     rootDir;
     QString     pathFilter;
     QString     fileNameFilter;
-    bool        groupByEnsemble;
+
+    RiaEnsembleNameTools::EnsembleGroupingMode groupingMode;
 };

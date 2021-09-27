@@ -251,7 +251,7 @@ void RicImportSummaryCasesFeature::addCasesToGroupIfRelevant( const std::vector<
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<QStringList, bool>
+std::pair<QStringList, RiaEnsembleNameTools::EnsembleGroupingMode>
     RicImportSummaryCasesFeature::runRecursiveSummaryCaseFileSearchDialogWithGrouping( const QString& dialogTitle,
                                                                                        const QString& pathCacheName )
 {
@@ -270,12 +270,12 @@ std::pair<QStringList, bool>
     m_pathFilter     = result.pathFilter;
     m_fileNameFilter = result.fileNameFilter;
 
-    if ( !result.ok ) return std::make_pair( QStringList(), false );
+    if ( !result.ok ) return std::make_pair( QStringList(), RiaEnsembleNameTools::EnsembleGroupingMode::NONE );
 
     // Remember the path to next time
     app->setLastUsedDialogDirectory( pathCacheName, QFileInfo( result.rootDir ).absoluteFilePath() );
 
-    return std::make_pair( result.files, result.groupByEnsemble );
+    return std::make_pair( result.files, result.groupingMode );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -284,6 +284,6 @@ std::pair<QStringList, bool>
 QStringList RicImportSummaryCasesFeature::runRecursiveSummaryCaseFileSearchDialog( const QString& dialogTitle,
                                                                                    const QString& pathCacheName )
 {
-    std::pair<QStringList, bool> result = runRecursiveSummaryCaseFileSearchDialogWithGrouping( dialogTitle, pathCacheName );
+    auto result = runRecursiveSummaryCaseFileSearchDialogWithGrouping( dialogTitle, pathCacheName );
     return result.first;
 }
