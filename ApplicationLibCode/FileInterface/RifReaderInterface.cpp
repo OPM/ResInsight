@@ -50,6 +50,14 @@ bool RifReaderInterface::isNNCsEnabled()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RifReaderInterface::isSkipWellData()
+{
+    return readerSettings()->skipWellData;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RifReaderInterface::includeInactiveCellsInFaultGeometry()
 {
     return readerSettings()->includeInactiveCellsInFaultGeometry();
@@ -115,9 +123,24 @@ size_t RifReaderInterface::timeStepIndexOnFile( size_t timeStepIndex ) const
 //--------------------------------------------------------------------------------------------------
 const RifReaderSettings* RifReaderInterface::readerSettings() const
 {
-    RiaPreferences* prefs = RiaPreferences::current();
+    if ( m_readerSettings )
+    {
+        return m_readerSettings.get();
+    }
+    else
+    {
+        RiaPreferences* prefs = RiaPreferences::current();
 
-    CVF_ASSERT( prefs->readerSettings() );
+        CVF_ASSERT( prefs->readerSettings() );
 
-    return prefs->readerSettings();
+        return prefs->readerSettings();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RifReaderInterface::setReaderSettings( std::shared_ptr<RifReaderSettings> readerSettings )
+{
+    m_readerSettings = readerSettings;
 }

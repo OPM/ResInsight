@@ -134,6 +134,7 @@ bool RimEclipseResultCase::importGridAndResultMetaData( bool showTimeStepFilter 
 
         cvf::ref<RifReaderEclipseOutput> readerEclipseOutput = new RifReaderEclipseOutput;
         readerEclipseOutput->setFilenamesWithFaults( this->filesContainingFaults() );
+        readerEclipseOutput->setReaderSettings( m_readerSettings );
 
         cvf::ref<RifEclipseRestartDataAccess> restartDataAccess =
             RifEclipseOutputFileTools::createDynamicResultAccess( gridFileName() );

@@ -50,4 +50,5 @@ public:
 
 private:
     caf::PdmField<QString> m_path;
+    caf::PdmField<bool>    m_gridOnly;
 };

@@ -43,9 +43,10 @@ CAF_CMD_SOURCE_INIT( RicImportGeneralDataFeature, "RicImportGeneralDataFeature" 
 ///
 //--------------------------------------------------------------------------------------------------
 RicImportGeneralDataFeature::OpenCaseResults
-    RicImportGeneralDataFeature::openEclipseFilesFromFileNames( const QStringList& fileNames,
-                                                                bool               doCreateDefaultPlot,
-                                                                bool               createDefaultView )
+    RicImportGeneralDataFeature::openEclipseFilesFromFileNames( const QStringList&                 fileNames,
+                                                                bool                               doCreateDefaultPlot,
+                                                                bool                               createDefaultView,
+                                                                std::shared_ptr<RifReaderSettings> readerSettings )
 {
     CVF_ASSERT( !fileNames.empty() );
 
@@ -75,7 +76,7 @@ RicImportGeneralDataFeature::OpenCaseResults
     OpenCaseResults results;
     if ( !eclipseCaseFiles.empty() )
     {
-        if ( !openEclipseCaseFromFileNames( eclipseCaseFiles, createDefaultView, results.createdCaseIds ) )
+        if ( !openEclipseCaseFromFileNames( eclipseCaseFiles, createDefaultView, results.createdCaseIds, readerSettings ) )
         {
             return OpenCaseResults();
         }
@@ -221,7 +222,7 @@ void RicImportGeneralDataFeature::openFileDialog( ImportFileType fileTypes )
                                                                 fileNames.front() );
     }
 
-    if ( !openEclipseFilesFromFileNames( fileNames, true, true ) )
+    if ( !openEclipseFilesFromFileNames( fileNames, true, true, nullptr ) )
     {
         RiaLogging::error( QString( "Failed to open file names: %1" ).arg( fileNames.join( ", " ) ) );
     }
@@ -230,13 +231,14 @@ void RicImportGeneralDataFeature::openFileDialog( ImportFileType fileTypes )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicImportGeneralDataFeature::openEclipseCaseFromFileNames( const QStringList& fileNames,
-                                                                bool               createDefaultView,
-                                                                std::vector<int>&  createdCaseIds )
+bool RicImportGeneralDataFeature::openEclipseCaseFromFileNames( const QStringList&                 fileNames,
+                                                                bool                               createDefaultView,
+                                                                std::vector<int>&                  createdCaseIds,
+                                                                std::shared_ptr<RifReaderSettings> readerSettings )
 {
     bool                                     noDialog = false;
     RiaImportEclipseCaseTools::FileCaseIdMap newCaseFiles;
-    if ( RiaImportEclipseCaseTools::openEclipseCasesFromFile( fileNames, createDefaultView, &newCaseFiles, noDialog ) )
+    if ( RiaImportEclipseCaseTools::openEclipseCasesFromFile( fileNames, createDefaultView, &newCaseFiles, noDialog, readerSettings ) )
     {
         for ( const auto& newCaseFileAndId : newCaseFiles )
         {

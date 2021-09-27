@@ -24,7 +24,10 @@
 
 #include <QStringList>
 
+#include <memory>
 #include <vector>
+
+class RifReaderSettings;
 
 //==================================================================================================
 ///
@@ -48,10 +51,12 @@ public:
         }
     };
 
-    static OpenCaseResults
-                       openEclipseFilesFromFileNames( const QStringList& fileNames, bool doCreateDefaultPlot, bool createDefaultView );
-    static QStringList fileNamesFromCaseNames( const QStringList& caseNames );
-    static QStringList getEclipseFileNamesWithDialog( RiaDefines::ImportFileType fileTypes );
+    static OpenCaseResults openEclipseFilesFromFileNames( const QStringList&                 fileNames,
+                                                          bool                               doCreateDefaultPlot,
+                                                          bool                               createDefaultView,
+                                                          std::shared_ptr<RifReaderSettings> readerSettings = nullptr );
+    static QStringList     fileNamesFromCaseNames( const QStringList& caseNames );
+    static QStringList     getEclipseFileNamesWithDialog( RiaDefines::ImportFileType fileTypes );
 
 protected:
     // Overrides
@@ -61,9 +66,10 @@ protected:
 
     static void openFileDialog( RiaDefines::ImportFileType fileTypes );
 
-    static bool openEclipseCaseFromFileNames( const QStringList& fileNames,
-                                              bool               createDefaultView,
-                                              std::vector<int>&  createdCaseIds );
+    static bool openEclipseCaseFromFileNames( const QStringList&                 fileNames,
+                                              bool                               createDefaultView,
+                                              std::vector<int>&                  createdCaseIds,
+                                              std::shared_ptr<RifReaderSettings> readerSettings );
     static bool openInputEclipseCaseFromFileNames( const QStringList& fileNames,
                                                    bool               createDefaultView,
                                                    std::vector<int>&  createdCaseIds );

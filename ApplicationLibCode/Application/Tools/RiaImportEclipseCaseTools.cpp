@@ -29,6 +29,7 @@
 #include "RiaLogging.h"
 
 #include "RifEclipseSummaryTools.h"
+#include "RifReaderSettings.h"
 #include "RifSummaryCaseRestartSelector.h"
 
 #include "RigGridManager.h"
@@ -69,10 +70,11 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RiaImportEclipseCaseTools::openEclipseCasesFromFile( const QStringList& fileNames,
-                                                          bool               createView,
-                                                          FileCaseIdMap*     openedFilesOut,
-                                                          bool               noDialog )
+bool RiaImportEclipseCaseTools::openEclipseCasesFromFile( const QStringList&                 fileNames,
+                                                          bool                               createView,
+                                                          FileCaseIdMap*                     openedFilesOut,
+                                                          bool                               noDialog,
+                                                          std::shared_ptr<RifReaderSettings> readerSettings )
 {
     RiaApplication* app     = RiaApplication::instance();
     RimProject*     project = app->project();
@@ -88,7 +90,7 @@ bool RiaImportEclipseCaseTools::openEclipseCasesFromFile( const QStringList& fil
     // Import eclipse case files
     for ( const QString& gridCaseFile : selector.gridCaseFiles() )
     {
-        int caseId = RiaImportEclipseCaseTools::openEclipseCaseFromFile( gridCaseFile, createView );
+        int caseId = RiaImportEclipseCaseTools::openEclipseCaseFromFile( gridCaseFile, createView, readerSettings );
         if ( caseId >= 0 )
         {
             openedFiles.insert( std::make_pair( gridCaseFile, caseId ) );
@@ -104,7 +106,8 @@ bool RiaImportEclipseCaseTools::openEclipseCasesFromFile( const QStringList& fil
     }
 
     // Import summary cases
-    if ( !summaryFileInfos.empty() )
+    bool importSummaryCases = readerSettings && readerSettings->importSummaryData;
+    if ( importSummaryCases && !summaryFileInfos.empty() )
     {
         RimSummaryCaseMainCollection* sumCaseColl =
             project->activeOilField() ? project->activeOilField()->summaryCaseMainCollection() : nullptr;
@@ -224,12 +227,17 @@ bool RiaImportEclipseCaseTools::openEclipseCasesFromFile( const QStringList& fil
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int RiaImportEclipseCaseTools::openEclipseCaseFromFile( const QString& fileName, bool createView )
+int RiaImportEclipseCaseTools::openEclipseCaseFromFile( const QString&                     fileName,
+                                                        bool                               createView,
+                                                        std::shared_ptr<RifReaderSettings> readerSettings )
 {
     if ( !caf::Utils::fileExists( fileName ) ) return -1;
 
     bool showTimeStepFilter = false;
-    return RiaImportEclipseCaseTools::openEclipseCaseShowTimeStepFilterImpl( fileName, showTimeStepFilter, createView );
+    return RiaImportEclipseCaseTools::openEclipseCaseShowTimeStepFilterImpl( fileName,
+                                                                             showTimeStepFilter,
+                                                                             createView,
+                                                                             readerSettings );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -241,7 +249,10 @@ bool RiaImportEclipseCaseTools::openEclipseCaseShowTimeStepFilter( const QString
 
     bool showTimeStepFilter = true;
     bool createView         = true;
-    return RiaImportEclipseCaseTools::openEclipseCaseShowTimeStepFilterImpl( fileName, showTimeStepFilter, createView ) >= 0;
+    return RiaImportEclipseCaseTools::openEclipseCaseShowTimeStepFilterImpl( fileName,
+                                                                             showTimeStepFilter,
+                                                                             createView,
+                                                                             nullptr ) >= 0;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -301,7 +312,7 @@ bool RiaImportEclipseCaseTools::openMockModel( const QString& name )
 {
     bool showTimeStepFilter = false;
     bool createView         = true;
-    return RiaImportEclipseCaseTools::openEclipseCaseShowTimeStepFilterImpl( name, showTimeStepFilter, createView );
+    return RiaImportEclipseCaseTools::openEclipseCaseShowTimeStepFilterImpl( name, showTimeStepFilter, createView, nullptr );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -309,13 +320,15 @@ bool RiaImportEclipseCaseTools::openMockModel( const QString& name )
 //--------------------------------------------------------------------------------------------------
 int RiaImportEclipseCaseTools::openEclipseCaseShowTimeStepFilterImpl( const QString& fileName,
                                                                       bool           showTimeStepFilter,
-                                                                      bool           createView )
+                                                                      bool           createView,
+                                                                      std::shared_ptr<RifReaderSettings> readerSettings )
 {
     QFileInfo gridFileName( fileName );
     QString   caseName = gridFileName.completeBaseName();
 
     RimEclipseResultCase* rimResultReservoir = new RimEclipseResultCase();
     rimResultReservoir->setCaseInfo( caseName, fileName );
+    rimResultReservoir->setReaderSettings( readerSettings );
 
     RiaApplication* app     = RiaApplication::instance();
     RimProject*     project = app->project();

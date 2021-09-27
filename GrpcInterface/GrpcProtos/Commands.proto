@@ -21,6 +21,7 @@ service Commands
 message FilePathRequest
 {
 	string path = 1;
+	bool gridOnly = 2;
 }
 
 message ReplaceCaseRequest

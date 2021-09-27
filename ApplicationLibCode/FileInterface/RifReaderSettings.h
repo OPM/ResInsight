@@ -42,6 +42,9 @@ public:
     caf::PdmField<QString> includeFileAbsolutePathPrefix;
     caf::PdmField<bool>    useResultIndexFile;
     caf::PdmField<bool>    skipWellData;
+    caf::PdmField<bool>    importSummaryData;
+
+    static std::shared_ptr<RifReaderSettings> createGridOnlyReaderSettings();
 
 private:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;

@@ -41,7 +41,8 @@ for realization in range(0, num_realizations):
 for path in case_file_paths:
     # Load a case
     path_name = path.as_posix()
-    case = resinsight.project.load_case(path_name)
+    grid_only = True
+    case = resinsight.project.load_case(path_name, grid_only)
 
     # Load some wells
     well_paths = resinsight.project.import_well_paths(

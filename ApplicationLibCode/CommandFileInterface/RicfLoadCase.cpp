@@ -23,6 +23,7 @@
 #include "RiaImportEclipseCaseTools.h"
 #include "RiaLogging.h"
 
+#include "RifReaderSettings.h"
 #include "cafPdmFieldScriptingCapability.h"
 
 #include <QDir>
@@ -48,6 +49,7 @@ CAF_PDM_SOURCE_INIT( RicfLoadCase, "loadCase" );
 RicfLoadCase::RicfLoadCase()
 {
     CAF_PDM_InitScriptableField( &m_path, "path", QString(), "Path to Case File", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_gridOnly, "gridOnly", false, "Load Grid Data Only", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -66,10 +68,15 @@ caf::PdmScriptResponse RicfLoadCase::execute()
     RiaImportEclipseCaseTools::FileCaseIdMap fileCaseIdMap;
     bool                                     createView      = false;
     bool                                     doNotShowDialog = true;
+
+    std::shared_ptr<RifReaderSettings> readerSettings;
+    if ( m_gridOnly ) readerSettings = RifReaderSettings::createGridOnlyReaderSettings();
+
     bool ok = RiaImportEclipseCaseTools::openEclipseCasesFromFile( QStringList( { absolutePath } ),
                                                                    createView,
                                                                    &fileCaseIdMap,
-                                                                   doNotShowDialog );
+                                                                   doNotShowDialog,
+                                                                   readerSettings );
     if ( !ok )
     {
         QString error = QString( "loadCase: Unable to load case from %1" ).arg( absolutePath );
