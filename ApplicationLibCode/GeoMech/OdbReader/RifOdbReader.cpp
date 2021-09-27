@@ -656,7 +656,7 @@ size_t RifOdbReader::resultItemCount( const std::string& fieldName,
             int elemCount = bulkData.numberOfElements();
             int ipCount   = numValues / elemCount;
 
-            // handle reduced integration point elements
+            // handle reduced integration point elements by using the same value 8 times
             if ( ipCount == 1 )
                 resultItemCount += numValues * 8;
             else
@@ -948,7 +948,7 @@ void RifOdbReader::readIntegrationPointField( const std::string&                
         int    numComp       = bulkData.width();
         int    elemCount     = bulkData.numberOfElements();
         int    ipCount       = numValues / elemCount;
-        int    ipDestCount   = std::max( ipCount, 8 ); // always use 8 integration points in destination
+        int    ipDestCount   = std::max( ipCount, 8 ); // always use max. 8 integration points in destination
         int*   elementLabels = bulkData.elementLabels();
         float* data          = bulkDataGetter.data();
 
