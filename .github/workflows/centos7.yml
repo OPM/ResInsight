@@ -11,7 +11,7 @@ jobs:
     container:
       image: centos:7
     steps:
-    - name: Intall Dependencies
+    - name: Install Dependencies
       run: | 
         yum install -y centos-release-scl
         yum-config-manager --enable rhel-server-rhscl-7-rpms
