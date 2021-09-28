@@ -97,12 +97,12 @@ RimStimPlanModelPlot* RicNewStimPlanModelPlotFeature::createPlot( RimStimPlanMod
     {
         auto task = progInfo.task( "Creating parameters track", 15 );
 
-        std::map<QString, std::vector<RiaDefines::CurveProperty>> plots;
-        plots["Porosity"]     = { RiaDefines::CurveProperty::POROSITY, RiaDefines::CurveProperty::POROSITY_UNSCALED };
-        plots["Pressure"]     = { RiaDefines::CurveProperty::INITIAL_PRESSURE, RiaDefines::CurveProperty::PRESSURE };
-        plots["Permeability"] = { RiaDefines::CurveProperty::PERMEABILITY_X, RiaDefines::CurveProperty::PERMEABILITY_Z };
-        plots["Net-To-Gross"] = { RiaDefines::CurveProperty::NET_TO_GROSS };
-        plots["EQLNUM"]       = { RiaDefines::CurveProperty::EQLNUM };
+        std::vector<std::pair<QString, std::vector<RiaDefines::CurveProperty>>> plots =
+            { { "Porosity", { RiaDefines::CurveProperty::POROSITY, RiaDefines::CurveProperty::POROSITY_UNSCALED } },
+              { "Permeability", { RiaDefines::CurveProperty::PERMEABILITY_X, RiaDefines::CurveProperty::PERMEABILITY_Z } },
+              { "Pressure", { RiaDefines::CurveProperty::INITIAL_PRESSURE, RiaDefines::CurveProperty::PRESSURE } },
+              { "Net-To-Gross", { RiaDefines::CurveProperty::NET_TO_GROSS } },
+              { "EQLNUM", { RiaDefines::CurveProperty::EQLNUM } } };
 
         std::set<QString> logarithmicPlots;
         logarithmicPlots.insert( "Permeability" );
