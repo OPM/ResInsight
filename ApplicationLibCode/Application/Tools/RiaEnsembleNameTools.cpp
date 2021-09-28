@@ -31,8 +31,8 @@
 template <>
 void caf::AppEnum<RiaEnsembleNameTools::EnsembleGroupingMode>::setUp()
 {
-    addItem( RiaEnsembleNameTools::EnsembleGroupingMode::FIRST_FOLDER, "FIRST_FOLDER", "First Folder" );
-    addItem( RiaEnsembleNameTools::EnsembleGroupingMode::SECOND_FOLDER, "SECOND_FOLDER", "Second Folder" );
+    addItem( RiaEnsembleNameTools::EnsembleGroupingMode::FIRST_FOLDER, "FIRST_FOLDER", "Everest Folder Structure" );
+    addItem( RiaEnsembleNameTools::EnsembleGroupingMode::SECOND_FOLDER, "SECOND_FOLDER", "FMU Folder Structure" );
     addItem( RiaEnsembleNameTools::EnsembleGroupingMode::NONE, "None", "None" );
     setDefault( RiaEnsembleNameTools::EnsembleGroupingMode::SECOND_FOLDER );
 }
@@ -42,20 +42,27 @@ void caf::AppEnum<RiaEnsembleNameTools::EnsembleGroupingMode>::setUp()
 //--------------------------------------------------------------------------------------------------
 QString RiaEnsembleNameTools::findSuitableEnsembleName( const QStringList& fileNames, EnsembleGroupingMode folderLevel )
 {
-    if ( folderLevel == EnsembleGroupingMode::FIRST_FOLDER )
+    std::vector<QStringList> componentsForAllFilePaths;
+
+    for ( const auto& filePath : fileNames )
     {
-        QString     commonRoot     = RiaTextStringTools::commonRoot( fileNames );
-        QStringList rootComponents = RiaFilePathTools::splitPathIntoComponents( commonRoot );
-
-        if ( rootComponents.size() > 2 )
-        {
-            return rootComponents[rootComponents.size() - 2];
-        }
-
-        return "Ensemble";
+        QStringList components = RiaFilePathTools::splitPathIntoComponents( filePath );
+        componentsForAllFilePaths.push_back( components );
     }
 
-    QStringList iterations = findUniqueIterations( fileNames, folderLevel );
+    if ( folderLevel == EnsembleGroupingMode::FIRST_FOLDER )
+    {
+        QString commonRoot         = RiaTextStringTools::commonRoot( fileNames );
+        commonRoot                 = commonRoot.left( commonRoot.lastIndexOf( '/' ) );
+        QStringList rootComponents = RiaFilePathTools::splitPathIntoComponents( commonRoot );
+
+        if ( !rootComponents.empty() )
+        {
+            return rootComponents.back();
+        }
+    }
+
+    QStringList iterations = findUniqueIterations( fileNames, componentsForAllFilePaths, folderLevel );
     if ( iterations.size() == 1u )
     {
         return iterations.front();
@@ -84,7 +91,15 @@ QString RiaEnsembleNameTools::findSuitableEnsembleName( const QStringList& fileN
 std::vector<QStringList> RiaEnsembleNameTools::groupFilesByEnsemble( const QStringList&   fileNames,
                                                                      EnsembleGroupingMode groupingMode )
 {
-    QStringList iterations = findUniqueIterations( fileNames, groupingMode );
+    std::vector<QStringList> componentsForAllFilePaths;
+
+    for ( const auto& filePath : fileNames )
+    {
+        QStringList components = RiaFilePathTools::splitPathIntoComponents( filePath );
+        componentsForAllFilePaths.push_back( components );
+    }
+
+    QStringList iterations = findUniqueIterations( fileNames, componentsForAllFilePaths, groupingMode );
     if ( iterations.size() <= 1 )
     {
         // All the files are in the same ensemble
@@ -92,14 +107,22 @@ std::vector<QStringList> RiaEnsembleNameTools::groupFilesByEnsemble( const QStri
     }
 
     std::vector<QStringList> groupedByIteration;
-    for ( auto iteration : iterations )
+    for ( const auto& iteration : iterations )
     {
         QStringList fileNamesFromIteration;
-        for ( auto filePath : fileNames )
+
+        for ( int i = 0; i < fileNames.size(); i++ )
         {
-            if ( filePath.contains( iteration ) )
+            auto components = componentsForAllFilePaths[i];
+            bool foundMatch = false;
+            for ( const auto& component : components )
             {
-                fileNamesFromIteration << filePath;
+                if ( component == iteration ) foundMatch = true;
+            }
+
+            if ( foundMatch )
+            {
+                fileNamesFromIteration << fileNames[i];
             }
         }
         groupedByIteration.push_back( fileNamesFromIteration );
@@ -111,16 +134,10 @@ std::vector<QStringList> RiaEnsembleNameTools::groupFilesByEnsemble( const QStri
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QStringList RiaEnsembleNameTools::findUniqueIterations( const QStringList& fileNames, EnsembleGroupingMode groupingMode )
+QStringList RiaEnsembleNameTools::findUniqueIterations( const QStringList&              fileNames,
+                                                        const std::vector<QStringList>& fileNameComponents,
+                                                        EnsembleGroupingMode            groupingMode )
 {
-    std::vector<QStringList> componentsForAllFilePaths;
-
-    for ( const auto& filePath : fileNames )
-    {
-        QStringList components = RiaFilePathTools::splitPathIntoComponents( filePath );
-        componentsForAllFilePaths.push_back( components );
-    }
-
     QStringList iterations;
     if ( groupingMode == EnsembleGroupingMode::FIRST_FOLDER )
     {
@@ -129,7 +146,7 @@ QStringList RiaEnsembleNameTools::findUniqueIterations( const QStringList& fileN
         auto        commonComponentCount = rootComponents.size();
 
         std::set<QString> ensembleSet;
-        for ( const auto& componentsForFile : componentsForAllFilePaths )
+        for ( const auto& componentsForFile : fileNameComponents )
         {
             if ( commonComponentCount - 1 < componentsForFile.size() )
             {
@@ -147,7 +164,7 @@ QStringList RiaEnsembleNameTools::findUniqueIterations( const QStringList& fileN
         // Find list of all folders inside a folder matching realization-*
         QRegularExpression realizationRe( "realization\\-\\d+" );
 
-        for ( const auto& fileComponents : componentsForAllFilePaths )
+        for ( const auto& fileComponents : fileNameComponents )
         {
             QString lastComponent = "";
             for ( auto it = fileComponents.rbegin(); it != fileComponents.rend(); ++it )

@@ -47,6 +47,10 @@ public:
                                                   const std::map<QString, QStringList>& keyFileComponentsForAllFiles,
                                                   const QString&                        ensembleCaseName );
 
-    static QStringList findUniqueIterations( const QStringList& fileNames, EnsembleGroupingMode groupingMode );
     static std::vector<QStringList> groupFilesByEnsemble( const QStringList& fileNames, EnsembleGroupingMode groupingMode );
+
+private:
+    static QStringList findUniqueIterations( const QStringList&              fileNames,
+                                             const std::vector<QStringList>& fileNameComponents,
+                                             EnsembleGroupingMode            groupingMode );
 };
