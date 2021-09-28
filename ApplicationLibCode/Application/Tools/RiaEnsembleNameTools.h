@@ -30,8 +30,8 @@ class RiaEnsembleNameTools
 public:
     enum class EnsembleGroupingMode
     {
-        FIRST_FOLDER,
-        SECOND_FOLDER,
+        FMU_FOLDER_MODE,
+        EVEREST_FOLDER_MODE,
         NONE
     };
 

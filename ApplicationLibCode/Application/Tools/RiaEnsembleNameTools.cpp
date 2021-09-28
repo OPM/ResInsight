@@ -31,10 +31,12 @@
 template <>
 void caf::AppEnum<RiaEnsembleNameTools::EnsembleGroupingMode>::setUp()
 {
-    addItem( RiaEnsembleNameTools::EnsembleGroupingMode::FIRST_FOLDER, "FIRST_FOLDER", "Everest Folder Structure" );
-    addItem( RiaEnsembleNameTools::EnsembleGroupingMode::SECOND_FOLDER, "SECOND_FOLDER", "FMU Folder Structure" );
+    addItem( RiaEnsembleNameTools::EnsembleGroupingMode::FMU_FOLDER_MODE, "FMU_FOLDER_MODE", "FMU Folder Structure" );
+    addItem( RiaEnsembleNameTools::EnsembleGroupingMode::EVEREST_FOLDER_MODE,
+             "EVEREST_FOLDER_MODE",
+             "Everest Folder Structure" );
     addItem( RiaEnsembleNameTools::EnsembleGroupingMode::NONE, "None", "None" );
-    setDefault( RiaEnsembleNameTools::EnsembleGroupingMode::SECOND_FOLDER );
+    setDefault( RiaEnsembleNameTools::EnsembleGroupingMode::FMU_FOLDER_MODE );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -50,7 +52,7 @@ QString RiaEnsembleNameTools::findSuitableEnsembleName( const QStringList& fileN
         componentsForAllFilePaths.push_back( components );
     }
 
-    if ( folderLevel == EnsembleGroupingMode::FIRST_FOLDER )
+    if ( folderLevel == EnsembleGroupingMode::EVEREST_FOLDER_MODE )
     {
         QString commonRoot         = RiaTextStringTools::commonRoot( fileNames );
         commonRoot                 = commonRoot.left( commonRoot.lastIndexOf( '/' ) );
@@ -139,7 +141,7 @@ QStringList RiaEnsembleNameTools::findUniqueIterations( const QStringList&      
                                                         EnsembleGroupingMode            groupingMode )
 {
     QStringList iterations;
-    if ( groupingMode == EnsembleGroupingMode::FIRST_FOLDER )
+    if ( groupingMode == EnsembleGroupingMode::EVEREST_FOLDER_MODE )
     {
         QString     commonRoot           = RiaTextStringTools::commonRoot( fileNames );
         QStringList rootComponents       = RiaFilePathTools::splitPathIntoComponents( commonRoot );
@@ -159,7 +161,7 @@ QStringList RiaEnsembleNameTools::findUniqueIterations( const QStringList&      
             iterations.push_back( ensembleName );
         }
     }
-    else if ( groupingMode == EnsembleGroupingMode::SECOND_FOLDER )
+    else if ( groupingMode == EnsembleGroupingMode::FMU_FOLDER_MODE )
     {
         // Find list of all folders inside a folder matching realization-*
         QRegularExpression realizationRe( "realization\\-\\d+" );

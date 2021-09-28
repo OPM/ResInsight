@@ -117,7 +117,6 @@ private:
     QComboBox*   m_pathFilterField;
     QPushButton* m_browseButton;
     QCheckBox*   m_useRealizationStarCheckBox;
-    QCheckBox*   m_groupByEnsembleCheckBox;
 
     QLabel*    m_fileFilterLabel;
     QComboBox* m_fileFilterField;
@@ -129,7 +128,7 @@ private:
     QLabel*      m_effectiveFilterContentLabel;
     QPushButton* m_findOrCancelButton;
 
-    QComboBox* m_ensembleNameLevel;
+    QComboBox* m_ensembleGroupingMode;
 
     QGroupBox*   m_outputGroup;
     QLabel*      m_searchRootLabel;

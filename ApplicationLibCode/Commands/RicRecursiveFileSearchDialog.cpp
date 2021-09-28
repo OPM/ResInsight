@@ -114,7 +114,7 @@ RicRecursiveFileSearchDialogResult RicRecursiveFileSearchDialog::runRecursiveSea
 
         for ( const auto& s : caf::AppEnum<RiaEnsembleNameTools::EnsembleGroupingMode>::uiTexts() )
         {
-            dialog.m_ensembleNameLevel->addItem( s );
+            dialog.m_ensembleGroupingMode->addItem( s );
         }
 
         dialog.updateEffectiveFilter();
@@ -163,9 +163,6 @@ RicRecursiveFileSearchDialog::RicRecursiveFileSearchDialog( QWidget* parent, con
     m_useRealizationStarCheckBox = new QCheckBox( "Use 'realization-*' in filter" );
     connect( m_useRealizationStarCheckBox, SIGNAL( clicked() ), this, SLOT( slotUseRealizationStarClicked() ) );
 
-    m_groupByEnsembleCheckBox = new QCheckBox( "Group by ensemble" );
-    m_groupByEnsembleCheckBox->setChecked( true );
-
     m_pathFilterLabel             = new QLabel();
     m_pathFilterField             = new QComboBox();
     m_fileFilterLabel             = new QLabel();
@@ -174,7 +171,7 @@ RicRecursiveFileSearchDialog::RicRecursiveFileSearchDialog( QWidget* parent, con
     m_fileExtensionsField         = new QLineEdit();
     m_effectiveFilterLabel        = new QLabel();
     m_effectiveFilterContentLabel = new QLabel();
-    m_ensembleNameLevel           = new QComboBox();
+    m_ensembleGroupingMode        = new QComboBox();
     m_searchRootLabel             = new QLabel();
     m_searchRootContentLabel      = new QLabel();
     m_findOrCancelButton          = new QPushButton();
@@ -210,7 +207,7 @@ RicRecursiveFileSearchDialog::RicRecursiveFileSearchDialog( QWidget* parent, con
 
     connect( m_browseButton, SIGNAL( clicked() ), this, SLOT( slotBrowseButtonClicked() ) );
 
-    connect( m_ensembleNameLevel, SIGNAL( currentIndexChanged() ), this, SLOT( slotFindOrCancelButtonClicked() ) );
+    connect( m_ensembleGroupingMode, SIGNAL( currentIndexChanged() ), this, SLOT( slotFindOrCancelButtonClicked() ) );
 
     connect( m_findOrCancelButton, SIGNAL( clicked() ), this, SLOT( slotFindOrCancelButtonClicked() ) );
 
@@ -263,8 +260,10 @@ RicRecursiveFileSearchDialog::RicRecursiveFileSearchDialog( QWidget* parent, con
     {
         QHBoxLayout* horizontalLayout = new QHBoxLayout;
         horizontalLayout->addWidget( m_useRealizationStarCheckBox );
-        horizontalLayout->addWidget( m_groupByEnsembleCheckBox );
-        horizontalLayout->addWidget( m_ensembleNameLevel );
+        QLabel* ensembleGroupingLabel = new QLabel( "Ensemble Grouping" );
+        horizontalLayout->addWidget( ensembleGroupingLabel );
+        horizontalLayout->addWidget( m_ensembleGroupingMode );
+        horizontalLayout->addStretch( 1 );
         inputGridLayout->addLayout( horizontalLayout, row, 1 );
     }
 
@@ -424,7 +423,7 @@ void RicRecursiveFileSearchDialog::updateFileListWidget()
 {
     m_fileListWidget->clear();
 
-    if ( m_groupByEnsembleCheckBox->isChecked() )
+    if ( ensembleGroupingMode() != RiaEnsembleNameTools::EnsembleGroupingMode::NONE )
     {
         std::vector<QStringList> groupedByEnsemble =
             RiaEnsembleNameTools::groupFilesByEnsemble( m_foundFiles, ensembleGroupingMode() );
@@ -950,11 +949,13 @@ void RicRecursiveFileSearchDialog::slotUseRealizationStarClicked()
 //--------------------------------------------------------------------------------------------------
 RiaEnsembleNameTools::EnsembleGroupingMode RicRecursiveFileSearchDialog::ensembleGroupingMode() const
 {
-    if ( m_ensembleNameLevel->currentIndex() == 0 ) return RiaEnsembleNameTools::EnsembleGroupingMode::FIRST_FOLDER;
-    if ( m_ensembleNameLevel->currentIndex() == 1 ) return RiaEnsembleNameTools::EnsembleGroupingMode::SECOND_FOLDER;
-    if ( m_ensembleNameLevel->currentIndex() == 2 ) return RiaEnsembleNameTools::EnsembleGroupingMode::NONE;
+    if ( m_ensembleGroupingMode->currentIndex() == 0 )
+        return RiaEnsembleNameTools::EnsembleGroupingMode::FMU_FOLDER_MODE;
+    if ( m_ensembleGroupingMode->currentIndex() == 1 )
+        return RiaEnsembleNameTools::EnsembleGroupingMode::EVEREST_FOLDER_MODE;
+    if ( m_ensembleGroupingMode->currentIndex() == 2 ) return RiaEnsembleNameTools::EnsembleGroupingMode::NONE;
 
-    return RiaEnsembleNameTools::EnsembleGroupingMode::SECOND_FOLDER;
+    return RiaEnsembleNameTools::EnsembleGroupingMode::FMU_FOLDER_MODE;
 }
 
 //--------------------------------------------------------------------------------------------------
