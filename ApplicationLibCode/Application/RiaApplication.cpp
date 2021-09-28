@@ -891,6 +891,7 @@ bool RiaApplication::openOdbCaseFromFile( const QString& fileName, bool applyTim
 
     m_project->updateConnectedEditors();
     Riu3DMainWindowTools::setExpanded( riv );
+    Riu3DMainWindowTools::selectAsCurrentItem( riv );
 
     return true;
 }

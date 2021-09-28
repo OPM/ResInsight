@@ -93,7 +93,14 @@ void RicRunWellIntegrityAnalysisFeature::onActionTriggered( bool isChecked )
     runProgress.incrementProgress();
     runProgress.setProgressDescription( "Loading modeling results." );
 
-    // TODO - load results from Abaqus modeling here.
+    RiaApplication* app = RiaApplication::instance();
+    if ( !app->openOdbCaseFromFile( modelSettings->outputOdbFilename() ) )
+    {
+        QMessageBox::critical( nullptr,
+                               wiaTitle,
+                               "Failed to load modeling results. Check log window for additional information." );
+        return;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
