@@ -627,20 +627,17 @@ size_t RifOdbReader::resultItemCount( const std::string& fieldName,
     odb_Instance* partInstance = instance( partIndex );
     CVF_ASSERT( partInstance != NULL );
 
-    const odb_Frame& frame               = stepFrame( stepIndex, frameIndex );
-    odb_FieldOutput& instanceFieldOutput = frame.fieldOutputs()[fieldName.c_str()].getSubset( *partInstance );
+    const odb_Frame&       frame               = stepFrame( stepIndex, frameIndex );
+    const odb_FieldOutput& instanceFieldOutput = frame.fieldOutputs()[fieldName.c_str()].getSubset( *partInstance );
 
-    if ( resultPosition != NONE )
-    {
-        odb_Enum::odb_ResultPositionEnum odbResultPos = odb_Enum::NODAL;
-        if ( resultPosition == ELEMENT_NODAL )
-            odbResultPos = odb_Enum::ELEMENT_NODAL;
-        else if ( resultPosition == INTEGRATION_POINT )
-            odbResultPos = odb_Enum::INTEGRATION_POINT;
-        instanceFieldOutput = instanceFieldOutput.getSubset( odbResultPos );
-    }
+    odb_Enum::odb_ResultPositionEnum odbResultPos = odb_Enum::NODAL;
+    if ( resultPosition == ELEMENT_NODAL )
+        odbResultPos = odb_Enum::ELEMENT_NODAL;
+    else if ( resultPosition == INTEGRATION_POINT )
+        odbResultPos = odb_Enum::INTEGRATION_POINT;
 
-    const odb_SequenceFieldBulkData& seqFieldBulkData = instanceFieldOutput.bulkDataBlocks();
+    const odb_FieldOutput&           subsetOutput     = instanceFieldOutput.getSubset( odbResultPos );
+    const odb_SequenceFieldBulkData& seqFieldBulkData = subsetOutput.bulkDataBlocks();
 
     size_t resultItemCount = 0;
     int    numBlocks       = seqFieldBulkData.size();
@@ -739,7 +736,7 @@ void RifOdbReader::readDisplacements( int partIndex, int stepIndex, int frameInd
     odb_Instance* partInstance = instance( partIndex );
     CVF_ASSERT( partInstance != NULL );
 
-    size_t dataSize = resultItemCount( "U", partIndex, stepIndex, frameIndex, NONE );
+    size_t dataSize = resultItemCount( "U", partIndex, stepIndex, frameIndex, NODAL );
     if ( dataSize > 0 )
     {
         displacements->resize( dataSize );
