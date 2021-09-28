@@ -87,7 +87,10 @@ void RicWellPathExportMswCompletionsImpl::exportWellSegmentsForAllCompletions(
             }
 
             unifiedExportFile =
-                RicWellPathExportCompletionsFileTools::openFileForExport( folderName, fileName, fi.suffix() );
+                RicWellPathExportCompletionsFileTools::openFileForExport( folderName,
+                                                                          fileName,
+                                                                          fi.suffix(),
+                                                                          exportSettings.exportDataSourceAsComment() );
         }
 
         {
@@ -107,7 +110,10 @@ void RicWellPathExportMswCompletionsImpl::exportWellSegmentsForAllCompletions(
             }
 
             unifiedLgrExportFile =
-                RicWellPathExportCompletionsFileTools::openFileForExport( folderName, lgrFileName, fi.suffix() );
+                RicWellPathExportCompletionsFileTools::openFileForExport( folderName,
+                                                                          lgrFileName,
+                                                                          fi.suffix(),
+                                                                          exportSettings.exportDataSourceAsComment() );
         }
     }
 
@@ -136,9 +142,15 @@ void RicWellPathExportMswCompletionsImpl::exportWellSegmentsForAllCompletions(
             QString wellFileName = QString( "%1_UnifiedCompletions_MSW_%2" )
                                        .arg( wellPath->name(), exportSettings.caseToApply->caseUserDescription() );
             unifiedWellPathFile =
-                RicWellPathExportCompletionsFileTools::openFileForExport( exportSettings.folder, wellFileName );
+                RicWellPathExportCompletionsFileTools::openFileForExport( exportSettings.folder,
+                                                                          wellFileName,
+                                                                          "",
+                                                                          exportSettings.exportDataSourceAsComment() );
             unifiedLgrWellPathFile =
-                RicWellPathExportCompletionsFileTools::openFileForExport( exportSettings.folder, wellFileName + "_LGR" );
+                RicWellPathExportCompletionsFileTools::openFileForExport( exportSettings.folder,
+                                                                          wellFileName + "_LGR",
+                                                                          "",
+                                                                          exportSettings.exportDataSourceAsComment() );
         }
 
         {
@@ -171,9 +183,16 @@ void RicWellPathExportMswCompletionsImpl::exportWellSegmentsForAllCompletions(
                 QString fileName =
                     QString( "%1_%2MSW_%3" )
                         .arg( wellPath->name(), perforationText, exportSettings.caseToApply->caseUserDescription() );
-                exportFile = RicWellPathExportCompletionsFileTools::openFileForExport( exportSettings.folder, fileName );
+                exportFile =
+                    RicWellPathExportCompletionsFileTools::openFileForExport( exportSettings.folder,
+                                                                              fileName,
+                                                                              "",
+                                                                              exportSettings.exportDataSourceAsComment() );
                 lgrExportFile =
-                    RicWellPathExportCompletionsFileTools::openFileForExport( exportSettings.folder, fileName + "_LGR" );
+                    RicWellPathExportCompletionsFileTools::openFileForExport( exportSettings.folder,
+                                                                              fileName + "_LGR",
+                                                                              "",
+                                                                              exportSettings.exportDataSourceAsComment() );
             }
             exportWellSegmentsForPerforations( exportSettings.caseToApply,
                                                exportFile,
@@ -203,9 +222,16 @@ void RicWellPathExportMswCompletionsImpl::exportWellSegmentsForAllCompletions(
             {
                 QString fileName =
                     QString( "%1_Fracture_MSW_%2" ).arg( wellPath->name(), exportSettings.caseToApply->caseUserDescription() );
-                exportFile = RicWellPathExportCompletionsFileTools::openFileForExport( exportSettings.folder, fileName );
+                exportFile =
+                    RicWellPathExportCompletionsFileTools::openFileForExport( exportSettings.folder,
+                                                                              fileName,
+                                                                              "",
+                                                                              exportSettings.exportDataSourceAsComment() );
                 lgrExportFile =
-                    RicWellPathExportCompletionsFileTools::openFileForExport( exportSettings.folder, fileName + "_LGR" );
+                    RicWellPathExportCompletionsFileTools::openFileForExport( exportSettings.folder,
+                                                                              fileName + "_LGR",
+                                                                              "",
+                                                                              exportSettings.exportDataSourceAsComment() );
             }
             exportWellSegmentsForFractures( exportSettings.caseToApply,
                                             exportFile,
@@ -234,9 +260,16 @@ void RicWellPathExportMswCompletionsImpl::exportWellSegmentsForAllCompletions(
             {
                 QString fileName =
                     QString( "%1_Fishbones_MSW_%2" ).arg( wellPath->name(), exportSettings.caseToApply->caseUserDescription() );
-                exportFile = RicWellPathExportCompletionsFileTools::openFileForExport( exportSettings.folder, fileName );
+                exportFile =
+                    RicWellPathExportCompletionsFileTools::openFileForExport( exportSettings.folder,
+                                                                              fileName,
+                                                                              "",
+                                                                              exportSettings.exportDataSourceAsComment() );
                 lgrExportFile =
-                    RicWellPathExportCompletionsFileTools::openFileForExport( exportSettings.folder, fileName + "_LGR" );
+                    RicWellPathExportCompletionsFileTools::openFileForExport( exportSettings.folder,
+                                                                              fileName + "_LGR",
+                                                                              "",
+                                                                              exportSettings.exportDataSourceAsComment() );
             }
             exportWellSegmentsForFishbones( exportSettings.caseToApply,
                                             exportFile,

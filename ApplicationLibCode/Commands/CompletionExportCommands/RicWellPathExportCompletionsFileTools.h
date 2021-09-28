@@ -35,9 +35,13 @@ public:
         QString message;
     };
 
-    static std::shared_ptr<QFile> openFileForExport( const QString& folderName, const QString& fileName );
+    static const RimWellPath* findWellPathFromExportName( const QString& wellNameForExport );
+
     static std::shared_ptr<QFile>
-                                  openFileForExport( const QString& folderName, const QString& fileName, const QString& suffix );
-    static std::shared_ptr<QFile> openFileForExport( const QString& fullFileName );
-    static const RimWellPath*     findWellPathFromExportName( const QString& wellNameForExport );
+        openFileForExport( const QString& folderName, const QString& fileName, const QString& suffix, bool writeInfoHeader );
+
+private:
+    static std::shared_ptr<QFile> openFile( const QString& folderName, const QString& fileName, const QString& suffix );
+
+    static QString createProjectFileHeader();
 };
