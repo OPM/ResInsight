@@ -168,7 +168,7 @@ void RimStimPlanModelCurve::performDataExtraction( bool* isUsingPseudoLength )
 QString RimStimPlanModelCurve::createCurveAutoName()
 {
     QString textWithLineFeed = caf::AppEnum<RiaDefines::CurveProperty>::uiText( m_curveProperty() ).trimmed();
-    if ( m_curveProperty == RiaDefines::CurveProperty::PRESSURE )
+    if ( m_curveProperty == RiaDefines::CurveProperty::PRESSURE || m_curveProperty == RiaDefines::CurveProperty::STRESS )
     {
         // Append date for pressure
         QString pressureDate = m_stimPlanModel->pressureDate();
