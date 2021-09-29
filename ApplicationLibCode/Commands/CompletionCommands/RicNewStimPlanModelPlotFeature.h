@@ -60,7 +60,8 @@ private:
                                        const std::vector<RiaDefines::CurveProperty>& propertyTypes,
                                        bool                                          isPlotLogarithmic = false );
 
-    static bool shouldShowByDefault( const std::vector<RiaDefines::CurveProperty>& propertyTypes );
+    static bool shouldShowByDefault( const std::vector<RiaDefines::CurveProperty>& propertyTypes,
+                                     bool                                          useDetailedFluidLoss );
 
     static RimStimPlanModelPlot* createStimPlanModelPlot( bool showAfterCreation, const QString& plotDescription );
 
