@@ -1134,9 +1134,16 @@ std::string ESmry::makeKeyString(const std::string& keywordArg, const std::strin
             return "";
         }
 
-        if (keywordArg[1] == 'F') {
+        std::string str34 = keywordArg.substr(2, 2);
+        std::string str45 = keywordArg.substr(3, 2);
+
+        if (keywordArg == "RORFR")    // exception, standard region summary keyword
+            return fmt::format("{}:{}", keywordArg, num);
+
+        if ((str34 == "FR") || (str34 == "FT") || (str45 == "FR") || (str45 == "FT")) {
+
             // NUMS = R1 + 32768*(R2 + 10)
-            const auto r1 =  num % (1UL << 15);
+            const auto r1 = num % (1UL << 15);
             const auto r2 = (num / (1UL << 15)) - 10;
 
             return fmt::format("{}:{}-{}", keywordArg, r1, r2);
