@@ -183,6 +183,11 @@ RimStimPlanModel::RimStimPlanModel()
     m_anchorPosition.uiCapability()->setUiReadOnly( true );
     m_anchorPosition.xmlCapability()->disableIO();
 
+    CAF_PDM_InitFieldNoDefault( &m_anchorPositionForUi, "AnchorPositionForUi", "Anchor Position", "", "", "" );
+    m_anchorPositionForUi.registerGetMethod( this, &RimStimPlanModel::anchorPositionForUi );
+    m_anchorPositionForUi.uiCapability()->setUiReadOnly( true );
+    m_anchorPositionForUi.xmlCapability()->disableIO();
+
     CAF_PDM_InitScriptableFieldNoDefault( &m_thicknessDirection, "ThicknessDirection", "Thickness Direction", "", "", "" );
     m_thicknessDirection.uiCapability()->setUiReadOnly( true );
     m_thicknessDirection.xmlCapability()->disableIO();
@@ -320,6 +325,7 @@ void RimStimPlanModel::fieldChangedByUi( const caf::PdmFieldHandle* changedField
     if ( changedField == &m_MD )
     {
         updatePositionFromMeasuredDepth();
+        updateExtractionDepthBoundaries();
     }
 
     if ( changedField == &m_extractionOffsetTop || changedField == &m_extractionOffsetBottom )
@@ -511,6 +517,16 @@ cvf::Vec3d RimStimPlanModel::anchorPosition() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+cvf::Vec3d RimStimPlanModel::anchorPositionForUi() const
+{
+    cvf::Vec3d v = m_anchorPosition;
+    v.z()        = -v.z();
+    return v;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 cvf::Vec3d RimStimPlanModel::thicknessDirection() const
 {
     return m_thicknessDirection();
@@ -603,6 +619,7 @@ void RimStimPlanModel::updateExtractionDepthBoundaries()
 
         m_extractionDepthTop    = std::max( depth - m_extractionOffsetTop, -boundingBox.max().z() );
         m_extractionDepthBottom = std::min( depth + m_extractionOffsetBottom, -boundingBox.min().z() );
+        updateConnectedEditors();
     }
 }
 
@@ -830,7 +847,7 @@ void RimStimPlanModel::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderin
 
     uiOrdering.add( &m_MD );
     uiOrdering.add( &m_extractionType );
-    uiOrdering.add( &m_anchorPosition );
+    uiOrdering.add( &m_anchorPositionForUi );
     uiOrdering.add( &m_thicknessDirection );
 
     caf::PdmUiOrdering* extractionBoundariesGroup = uiOrdering.addNewGroup( "Extraction Depth Boundaries" );

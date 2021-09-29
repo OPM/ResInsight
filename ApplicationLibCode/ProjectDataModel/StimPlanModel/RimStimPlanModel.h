@@ -222,6 +222,8 @@ private:
 
     static bool useStaticEclipseCase( RiaDefines::CurveProperty curveProperty );
 
+    cvf::Vec3d anchorPositionForUi() const;
+
 protected:
     caf::PdmField<double>                       m_MD;
     caf::PdmPtrField<RimEclipseCase*>           m_eclipseCase;
@@ -234,6 +236,7 @@ protected:
     caf::PdmField<double>                       m_extractionDepthTop;
     caf::PdmField<double>                       m_extractionDepthBottom;
     caf::PdmField<cvf::Vec3d>                   m_anchorPosition;
+    caf::PdmProxyValueField<cvf::Vec3d>         m_anchorPositionForUi;
     caf::PdmField<cvf::Vec3d>                   m_thicknessDirection;
     caf::PdmField<double>                       m_boundingBoxVertical;
     caf::PdmField<double>                       m_boundingBoxHorizontal;
