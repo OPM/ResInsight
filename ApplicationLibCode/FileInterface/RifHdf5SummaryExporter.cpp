@@ -20,6 +20,7 @@
 
 #include "RiaLogging.h"
 #include "RiaPreferencesSummary.h"
+#include "RiaStdStringTools.h"
 
 #include "RifHdf5Exporter.h"
 #include "RifSummaryReaderInterface.h"
@@ -225,6 +226,8 @@ bool RifHdf5SummaryExporter::writeSummaryVectors( RifHdf5Exporter& exporter, Opm
         }
     }
 
+    std::set<std::string> exportErrorKeywords;
+
     for ( const auto& nodesForKeyword : mapKeywordToSummaryNodeIndex )
     {
         std::string keyword = nodesForKeyword.first;
@@ -237,15 +240,34 @@ bool RifHdf5SummaryExporter::writeSummaryVectors( RifHdf5Exporter& exporter, Opm
             auto           smspecKeywordIndex = summaryNode.smspecKeywordIndex;
             const QString& smspecKeywordText  = QString( "%1" ).arg( smspecKeywordIndex );
 
-            auto dataValuesGroup             = exporter.createGroup( &keywordGroup, smspecKeywordText.toStdString() );
-            const std::vector<float>& values = sourceSummaryData.get( summaryNode );
+            try
+            {
+                const std::vector<float>& values = sourceSummaryData.get( summaryNode );
+                auto dataValuesGroup = exporter.createGroup( &keywordGroup, smspecKeywordText.toStdString() );
 
-            exporter.writeDataset( dataValuesGroup, datasetName, values );
-
-            dataValuesGroup.close();
+                exporter.writeDataset( dataValuesGroup, datasetName, values );
+                dataValuesGroup.close();
+            }
+            catch ( ... )
+            {
+                exportErrorKeywords.insert( keyword );
+            }
         }
 
         keywordGroup.close();
+    }
+
+    if ( !exportErrorKeywords.empty() )
+    {
+        std::vector<std::string> keywordVector;
+        for ( const auto& k : exportErrorKeywords )
+        {
+            keywordVector.push_back( k );
+        }
+        auto txt = RiaStdStringTools::joinStrings( keywordVector, ',' );
+
+        QString errorTxt = QString( "Failed to export keywords %1 " ).arg( QString::fromStdString( txt ) );
+        RiaLogging::error( errorTxt );
     }
 
     return true;
