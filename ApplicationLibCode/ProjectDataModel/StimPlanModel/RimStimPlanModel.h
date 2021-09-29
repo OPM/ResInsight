@@ -229,6 +229,8 @@ protected:
     caf::PdmPtrField<RimEclipseCase*>           m_initialPressureEclipseCase;
     caf::PdmPtrField<RimEclipseCase*>           m_staticEclipseCase;
     caf::PdmField<caf::AppEnum<ExtractionType>> m_extractionType;
+    caf::PdmField<double>                       m_extractionOffsetTop;
+    caf::PdmField<double>                       m_extractionOffsetBottom;
     caf::PdmField<double>                       m_extractionDepthTop;
     caf::PdmField<double>                       m_extractionDepthBottom;
     caf::PdmField<cvf::Vec3d>                   m_anchorPosition;
