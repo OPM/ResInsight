@@ -157,11 +157,19 @@ RimStimPlanModel::RimStimPlanModel()
     CAF_PDM_InitScriptableField( &m_MD, "MeasuredDepth", 0.0, "Measured Depth", "", "", "" );
     m_MD.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitScriptableField( &m_extractionDepthTop, "ExtractionDepthTop", -1.0, "Top", "", "", "" );
-    m_extractionDepthTop.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
+    CAF_PDM_InitScriptableField( &m_extractionOffsetTop, "ExtractionOffsetTop", -1.0, "Top Offset", "", "", "" );
+    m_extractionOffsetTop.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitScriptableField( &m_extractionDepthBottom, "ExtractionDepthBottom", -1.0, "Bottom", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_extractionOffsetBottom, "ExtractionOffsetBottom", -1.0, "Bottom Offset", "", "", "" );
+    m_extractionOffsetBottom.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
+
+    CAF_PDM_InitScriptableField( &m_extractionDepthTop, "ExtractionDepthTop", -1.0, "Depth", "", "", "" );
+    m_extractionDepthTop.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
+    m_extractionDepthTop.uiCapability()->setUiReadOnly( true );
+
+    CAF_PDM_InitScriptableField( &m_extractionDepthBottom, "ExtractionDepthBottom", -1.0, "Depth", "", "", "" );
     m_extractionDepthBottom.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
+    m_extractionDepthBottom.uiCapability()->setUiReadOnly( true );
 
     CAF_PDM_InitScriptableField( &m_extractionType,
                                  "ExtractionType",
@@ -314,11 +322,17 @@ void RimStimPlanModel::fieldChangedByUi( const caf::PdmFieldHandle* changedField
         updatePositionFromMeasuredDepth();
     }
 
+    if ( changedField == &m_extractionOffsetTop || changedField == &m_extractionOffsetBottom )
+    {
+        updateExtractionDepthBoundaries();
+    }
+
     if ( changedField == &m_MD || changedField == &m_extractionType || changedField == &m_boundingBoxVertical ||
          changedField == &m_boundingBoxHorizontal || changedField == &m_fractureOrientation ||
          changedField == &m_autoComputeBarrier || changedField == &m_azimuthAngle ||
          changedField == &m_showOnlyBarrierFault || changedField == &m_eclipseCase ||
-         changedField == &m_extractionDepthTop || changedField == &m_extractionDepthBottom )
+         changedField == &m_extractionDepthTop || changedField == &m_extractionDepthBottom ||
+         changedField == &m_extractionOffsetTop || changedField == &m_extractionOffsetBottom )
     {
         updateThicknessDirection();
         updateBarrierProperties();
@@ -582,8 +596,13 @@ void RimStimPlanModel::updateExtractionDepthBoundaries()
     if ( eclipseCaseData )
     {
         const cvf::BoundingBox& boundingBox = eclipseCaseData->mainGrid()->boundingBox();
-        m_extractionDepthTop                = -boundingBox.max().z();
-        m_extractionDepthBottom             = -boundingBox.min().z();
+
+        double depth = -m_anchorPosition().z();
+        if ( m_extractionOffsetTop() < 0.0 ) m_extractionOffsetTop = boundingBox.extent().z();
+        if ( m_extractionOffsetBottom() < 0.0 ) m_extractionOffsetBottom = boundingBox.extent().z();
+
+        m_extractionDepthTop    = std::max( depth - m_extractionOffsetTop, -boundingBox.max().z() );
+        m_extractionDepthBottom = std::min( depth + m_extractionOffsetBottom, -boundingBox.min().z() );
     }
 }
 
@@ -815,8 +834,11 @@ void RimStimPlanModel::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderin
     uiOrdering.add( &m_thicknessDirection );
 
     caf::PdmUiOrdering* extractionBoundariesGroup = uiOrdering.addNewGroup( "Extraction Depth Boundaries" );
-    extractionBoundariesGroup->add( &m_extractionDepthTop );
-    extractionBoundariesGroup->add( &m_extractionDepthBottom );
+    extractionBoundariesGroup->add( &m_extractionOffsetTop, caf::PdmUiOrdering::LayoutOptions( true, 3, 1 ) );
+    extractionBoundariesGroup->add( &m_extractionDepthTop, { false, 2, 1 } );
+
+    extractionBoundariesGroup->add( &m_extractionOffsetBottom, caf::PdmUiOrdering::LayoutOptions( true, 3, 1 ) );
+    extractionBoundariesGroup->add( &m_extractionDepthBottom, { false, 2, 1 } );
 
     caf::PdmUiOrdering* boundingBoxGroup = uiOrdering.addNewGroup( "Bounding Box" );
     boundingBoxGroup->add( &m_boundingBoxHorizontal );
@@ -931,6 +953,7 @@ void RimStimPlanModel::resetAnchorPositionAndThicknessDirection()
 {
     // Always recompute thickness direction as MD in project file might have been changed
     updatePositionFromMeasuredDepth();
+    updateExtractionDepthBoundaries();
     updateThicknessDirection();
     updateBarrierProperties();
 }
@@ -1287,6 +1310,7 @@ void RimStimPlanModel::setMD( double md )
 {
     m_MD = md;
     updatePositionFromMeasuredDepth();
+    updateExtractionDepthBoundaries();
     updateThicknessDirection();
     updateBarrierProperties();
 }
@@ -1298,6 +1322,7 @@ void RimStimPlanModel::setEclipseCaseAndTimeStep( RimEclipseCase* eclipseCase, i
 {
     setEclipseCase( eclipseCase );
     setTimeStep( timeStep );
+    updateExtractionDepthBoundaries();
     updateThicknessDirection();
     updateBarrierProperties();
     updateViewsAndPlots();
