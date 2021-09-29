@@ -79,3 +79,19 @@ void RimGeoMechPart::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
         if ( ownerView ) ownerView->scheduleCreateDisplayModelAndRedraw();
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGeoMechPart::setDisplacements( std::vector<cvf::Vec3f> displacements )
+{
+    m_displacements = displacements;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const std::vector<cvf::Vec3f> RimGeoMechPart::displacements() const
+{
+    return m_displacements;
+}

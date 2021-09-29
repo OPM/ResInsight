@@ -102,6 +102,9 @@ RimGeoMechView::RimGeoMechView( void )
     m_partsCollection = new RimGeoMechPartCollection();
     m_partsCollection.uiCapability()->setUiHidden( true );
 
+    CAF_PDM_InitField( &m_showDisplacement, "ShowDisplacement", false, "Show Displacement", "", "", "" );
+    CAF_PDM_InitField( &m_displacementScaling, "DisplacementScaling", 1.0, "Scaling Factor", "", "", "" );
+
     m_scaleTransform = new cvf::Transform();
     m_vizLogic       = new RivGeoMechVizLogic( this );
     m_tensorPartMgr  = new RivTensorResultPartMgr( this );
@@ -349,6 +352,19 @@ RimPropertyFilterCollection* RimGeoMechView::nativePropertyFilterCollection()
 void RimGeoMechView::onUpdateDisplayModelForCurrentTimeStep()
 {
     onUpdateLegends();
+
+    if ( m_partsCollection->shouldRebuildPartVisualization( m_currentTimeStep, m_showDisplacement ) )
+    {
+        for ( auto part : m_partsCollection->parts() )
+        {
+            std::string             errmsg;
+            std::vector<cvf::Vec3f> displacements;
+            m_geomechCase->geoMechData()->readDisplacements( &errmsg, m_currentTimeStep, part->partId(), &displacements );
+            part->setDisplacements( displacements );
+        }
+        m_partsCollection->setCurrentDisplacementTimeStep( m_currentTimeStep );
+        m_partsCollection->setDisplacementsUsed( m_showDisplacement );
+    }
 
     if ( this->isTimeStepDependentDataVisibleInThisOrComparisonView() )
     {
@@ -819,6 +835,11 @@ void RimGeoMechView::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
                                        const QVariant&            newValue )
 {
     RimGridView::fieldChangedByUi( changedField, oldValue, newValue );
+
+    if ( ( changedField == &m_showDisplacement ) || ( ( changedField == &m_displacementScaling ) && m_showDisplacement() ) )
+    {
+        this->createDisplayModelAndRedraw();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -955,6 +976,10 @@ void RimGeoMechView::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
 
     caf::PdmUiGroup* nameGroup = uiOrdering.addNewGroup( "View Name" );
     nameConfig()->uiOrdering( uiConfigName, *nameGroup );
+
+    auto displacementGroup = uiOrdering.addNewGroup( "Displacements" );
+    displacementGroup->add( &m_showDisplacement );
+    displacementGroup->add( &m_displacementScaling );
 }
 
 //--------------------------------------------------------------------------------------------------

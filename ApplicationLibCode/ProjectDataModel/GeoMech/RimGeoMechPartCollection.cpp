@@ -36,6 +36,8 @@ CAF_PDM_SOURCE_INIT( RimGeoMechPartCollection, "GeoMechPartCollection" );
 //--------------------------------------------------------------------------------------------------
 RimGeoMechPartCollection::RimGeoMechPartCollection()
     : m_case( nullptr )
+    , m_currentDisplacementTimeStep( -1 )
+    , m_diplacementsUsed( false )
 {
     CAF_PDM_InitScriptableObject( "Parts", ":/GeoMechCase24x24.png", "", "" );
 
@@ -109,4 +111,74 @@ bool RimGeoMechPartCollection::isPartEnabled( int partId ) const
     }
 
     return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGeoMechPartCollection::setCurrentDisplacementTimeStep( int timeStep )
+{
+    m_currentDisplacementTimeStep = timeStep;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RimGeoMechPartCollection::currentDisplacementTimeStep() const
+{
+    return m_currentDisplacementTimeStep;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGeoMechPartCollection::setDisplacementsForPart( int partId, std::vector<cvf::Vec3f> displacements )
+{
+    for ( const auto& part : m_parts )
+    {
+        if ( part->partId() == partId )
+        {
+            part->setDisplacements( displacements );
+            return;
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const std::vector<cvf::Vec3f> RimGeoMechPartCollection::displacements( int partId ) const
+{
+    for ( const auto& part : m_parts )
+    {
+        if ( part->partId() == partId )
+        {
+            return part->displacements();
+        }
+    }
+    return std::vector<cvf::Vec3f>();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGeoMechPartCollection::setDisplacementsUsed( bool isUsed )
+{
+    m_diplacementsUsed = isUsed;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimGeoMechPartCollection::isDisplacementsUsed() const
+{
+    return m_diplacementsUsed;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimGeoMechPartCollection::shouldRebuildPartVisualization( int currentTimeStep, bool showDisplacement )
+{
+    return ( ( m_currentDisplacementTimeStep != currentTimeStep ) || ( m_diplacementsUsed != showDisplacement ) );
 }

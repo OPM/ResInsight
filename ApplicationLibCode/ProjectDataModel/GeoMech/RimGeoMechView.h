@@ -137,10 +137,12 @@ private:
     caf::PdmChildField<RimGeoMechPropertyFilterCollection*> m_propertyFilterCollection;
     caf::PdmPointer<RimGeoMechPropertyFilterCollection>     m_overridePropertyFilterCollection;
     caf::PdmChildField<RimGeoMechPartCollection*>           m_partsCollection;
+    caf::PdmPointer<RimGeoMechCase>                         m_geomechCase;
+    caf::PdmField<bool>                                     m_showDisplacement;
+    caf::PdmField<double>                                   m_displacementScaling;
 
-    caf::PdmPointer<RimGeoMechCase> m_geomechCase;
-    cvf::ref<RivGeoMechVizLogic>    m_vizLogic;
-    cvf::ref<cvf::Transform>        m_scaleTransform;
+    cvf::ref<RivGeoMechVizLogic> m_vizLogic;
+    cvf::ref<cvf::Transform>     m_scaleTransform;
 
     cvf::ref<RivTensorResultPartMgr> m_tensorPartMgr;
 };

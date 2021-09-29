@@ -23,6 +23,10 @@
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 
+#include "cvfVector3.h"
+
+#include <vector>
+
 class RimGeoMechPart : public RimCheckableNamedObject
 {
     CAF_PDM_HEADER_INIT;
@@ -34,9 +38,14 @@ public:
     void setPartId( int partId );
     int  partId() const;
 
+    void                          setDisplacements( std::vector<cvf::Vec3f> displacements );
+    const std::vector<cvf::Vec3f> displacements() const;
+
 protected:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
 private:
     caf::PdmField<int> m_partId;
+
+    std::vector<cvf::Vec3f> m_displacements;
 };

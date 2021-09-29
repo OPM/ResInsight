@@ -155,3 +155,19 @@ bool RigGeoMechCaseData::readFemParts( std::string* errorMessage, const std::vec
     *errorMessage = std::string( "Could not read FEM parts" );
     return false;
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RigGeoMechCaseData::readDisplacements( std::string*             errorMessage,
+                                            int                      partId,
+                                            int                      timeStep,
+                                            std::vector<cvf::Vec3f>* displacements )
+{
+    CVF_ASSERT( errorMessage );
+#ifdef USE_ODB_API
+
+#endif
+    *errorMessage = std::string( "Could not read displacements." );
+    return false;
+}
