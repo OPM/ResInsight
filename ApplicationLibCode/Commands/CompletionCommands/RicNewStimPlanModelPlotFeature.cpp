@@ -356,7 +356,7 @@ void RicNewStimPlanModelPlotFeature::createParametersTrack( RimStimPlanModelPlot
     plotTrack->setColSpan( RimPlot::TWO );
     plotTrack->setLegendsVisible( true );
     plotTrack->setPlotTitleVisible( true );
-    plotTrack->setShowWindow( shouldShowByDefault( propertyTypes ) );
+    plotTrack->setShowWindow( shouldShowByDefault( propertyTypes, stimPlanModel->useDetailedFluidLoss() ) );
 
     caf::ColorTable colors = RiaColorTables::wellLogPlotPaletteColors();
 
@@ -472,11 +472,16 @@ RimStimPlanModelPlotCollection* RicNewStimPlanModelPlotFeature::stimPlanModelPlo
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicNewStimPlanModelPlotFeature::shouldShowByDefault( const std::vector<RiaDefines::CurveProperty>& propertyTypes )
+bool RicNewStimPlanModelPlotFeature::shouldShowByDefault( const std::vector<RiaDefines::CurveProperty>& propertyTypes,
+                                                          bool useDetailedFluidLoss )
 {
     std::vector<RiaDefines::CurveProperty> defaultPropertyTypes = {
+        RiaDefines::CurveProperty::FACIES,
+        RiaDefines::CurveProperty::POROSITY,
         RiaDefines::CurveProperty::INITIAL_PRESSURE,
         RiaDefines::CurveProperty::PRESSURE,
+        RiaDefines::CurveProperty::PERMEABILITY_X,
+        RiaDefines::CurveProperty::PERMEABILITY_Z,
         RiaDefines::CurveProperty::STRESS,
         RiaDefines::CurveProperty::INITIAL_STRESS,
         RiaDefines::CurveProperty::STRESS_GRADIENT,
@@ -484,8 +489,14 @@ bool RicNewStimPlanModelPlotFeature::shouldShowByDefault( const std::vector<RiaD
         RiaDefines::CurveProperty::POISSONS_RATIO,
         RiaDefines::CurveProperty::K_IC,
         RiaDefines::CurveProperty::PROPPANT_EMBEDMENT,
-        RiaDefines::CurveProperty::FLUID_LOSS_COEFFICIENT,
+        RiaDefines::CurveProperty::BIOT_COEFFICIENT,
+        RiaDefines::CurveProperty::K0,
     };
+
+    if ( !useDetailedFluidLoss )
+    {
+        defaultPropertyTypes.push_back( RiaDefines::CurveProperty::FLUID_LOSS_COEFFICIENT );
+    }
 
     for ( auto propertyType : propertyTypes )
     {
