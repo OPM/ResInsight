@@ -59,17 +59,18 @@ void RicImportEnsembleFractureStatisticsFeature::onActionTriggered( bool isCheck
     QString            pathCacheName  = "INPUT_FILES";
     auto [fileNames, groupByEnsemble] = runRecursiveFileSearchDialog( "Import StimPlan Fractures", pathCacheName );
 
-    if ( groupByEnsemble )
+    if ( groupByEnsemble == RiaEnsembleNameTools::EnsembleGroupingMode::NONE )
     {
-        std::vector<QStringList> groupedByEnsemble = RiaEnsembleNameTools::groupFilesByEnsemble( fileNames );
+        importSingleEnsembleFractureStatistics( fileNames );
+    }
+    else
+    {
+        std::vector<QStringList> groupedByEnsemble =
+            RiaEnsembleNameTools::groupFilesByEnsemble( fileNames, groupByEnsemble );
         for ( const QStringList& groupedFileNames : groupedByEnsemble )
         {
             importSingleEnsembleFractureStatistics( groupedFileNames );
         }
-    }
-    else
-    {
-        importSingleEnsembleFractureStatistics( fileNames );
     }
 }
 
@@ -79,7 +80,9 @@ void RicImportEnsembleFractureStatisticsFeature::onActionTriggered( bool isCheck
 void RicImportEnsembleFractureStatisticsFeature::importSingleEnsembleFractureStatistics( const QStringList& fileNames )
 {
     auto    fractureGroupStatistics = new RimEnsembleFractureStatistics;
-    QString ensembleNameSuggestion  = RiaEnsembleNameTools::findSuitableEnsembleName( fileNames );
+    QString ensembleNameSuggestion =
+        RiaEnsembleNameTools::findSuitableEnsembleName( fileNames,
+                                                        RiaEnsembleNameTools::EnsembleGroupingMode::FMU_FOLDER_STRUCTURE );
     fractureGroupStatistics->setName( ensembleNameSuggestion );
 
     caf::ProgressInfo progInfo( fileNames.size() + 1, "Creating Ensemble Fracture Statistics" );
@@ -124,7 +127,7 @@ void RicImportEnsembleFractureStatisticsFeature::setupActionLook( QAction* actio
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<QStringList, bool>
+std::pair<QStringList, RiaEnsembleNameTools::EnsembleGroupingMode>
     RicImportEnsembleFractureStatisticsFeature::runRecursiveFileSearchDialog( const QString& dialogTitle,
                                                                               const QString& pathCacheName )
 {
@@ -143,10 +146,10 @@ std::pair<QStringList, bool>
     m_pathFilter     = result.pathFilter;
     m_fileNameFilter = result.fileNameFilter;
 
-    if ( !result.ok ) return std::make_pair( QStringList(), false );
+    if ( !result.ok ) return std::make_pair( QStringList(), RiaEnsembleNameTools::EnsembleGroupingMode::NONE );
 
     // Remember the path to next time
     app->setLastUsedDialogDirectory( pathCacheName, QFileInfo( result.rootDir ).absoluteFilePath() );
 
-    return std::make_pair( result.files, result.groupByEnsemble );
+    return std::make_pair( result.files, result.groupingMode );
 }

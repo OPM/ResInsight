@@ -112,6 +112,11 @@ RicRecursiveFileSearchDialogResult RicRecursiveFileSearchDialog::runRecursiveSea
 
         dialog.m_fileExtensions = trimLeftStrings( fileExtensions, "." );
 
+        for ( const auto& s : caf::AppEnum<RiaEnsembleNameTools::EnsembleGroupingMode>::uiTexts() )
+        {
+            dialog.m_ensembleGroupingMode->addItem( s );
+        }
+
         dialog.updateEffectiveFilter();
         dialog.clearFileList();
         dialog.setOkButtonEnabled( false );
@@ -142,7 +147,7 @@ RicRecursiveFileSearchDialogResult RicRecursiveFileSearchDialog::runRecursiveSea
                                                dialog.rootDirWithEndSeparator(),
                                                dialog.pathFilterWithoutStartSeparator(),
                                                dialog.fileNameFilter(),
-                                               dialog.groupByEnsemble() );
+                                               dialog.ensembleGroupingMode() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -158,9 +163,6 @@ RicRecursiveFileSearchDialog::RicRecursiveFileSearchDialog( QWidget* parent, con
     m_useRealizationStarCheckBox = new QCheckBox( "Use 'realization-*' in filter" );
     connect( m_useRealizationStarCheckBox, SIGNAL( clicked() ), this, SLOT( slotUseRealizationStarClicked() ) );
 
-    m_groupByEnsembleCheckBox = new QCheckBox( "Group by ensemble" );
-    m_groupByEnsembleCheckBox->setChecked( true );
-
     m_pathFilterLabel             = new QLabel();
     m_pathFilterField             = new QComboBox();
     m_fileFilterLabel             = new QLabel();
@@ -169,6 +171,7 @@ RicRecursiveFileSearchDialog::RicRecursiveFileSearchDialog( QWidget* parent, con
     m_fileExtensionsField         = new QLineEdit();
     m_effectiveFilterLabel        = new QLabel();
     m_effectiveFilterContentLabel = new QLabel();
+    m_ensembleGroupingMode        = new QComboBox();
     m_searchRootLabel             = new QLabel();
     m_searchRootContentLabel      = new QLabel();
     m_findOrCancelButton          = new QPushButton();
@@ -203,6 +206,8 @@ RicRecursiveFileSearchDialog::RicRecursiveFileSearchDialog( QWidget* parent, con
              SLOT( slotFileListCustomMenuRequested( const QPoint& ) ) );
 
     connect( m_browseButton, SIGNAL( clicked() ), this, SLOT( slotBrowseButtonClicked() ) );
+
+    connect( m_ensembleGroupingMode, SIGNAL( currentIndexChanged() ), this, SLOT( slotFindOrCancelButtonClicked() ) );
 
     connect( m_findOrCancelButton, SIGNAL( clicked() ), this, SLOT( slotFindOrCancelButtonClicked() ) );
 
@@ -255,7 +260,10 @@ RicRecursiveFileSearchDialog::RicRecursiveFileSearchDialog( QWidget* parent, con
     {
         QHBoxLayout* horizontalLayout = new QHBoxLayout;
         horizontalLayout->addWidget( m_useRealizationStarCheckBox );
-        horizontalLayout->addWidget( m_groupByEnsembleCheckBox );
+        QLabel* ensembleGroupingLabel = new QLabel( "Ensemble Grouping" );
+        horizontalLayout->addWidget( ensembleGroupingLabel );
+        horizontalLayout->addWidget( m_ensembleGroupingMode );
+        horizontalLayout->addStretch( 1 );
         inputGridLayout->addLayout( horizontalLayout, row, 1 );
     }
 
@@ -415,12 +423,14 @@ void RicRecursiveFileSearchDialog::updateFileListWidget()
 {
     m_fileListWidget->clear();
 
-    if ( m_groupByEnsembleCheckBox->isChecked() )
+    if ( ensembleGroupingMode() != RiaEnsembleNameTools::EnsembleGroupingMode::NONE )
     {
-        std::vector<QStringList> groupedByEnsemble = RiaEnsembleNameTools::groupFilesByEnsemble( m_foundFiles );
+        std::vector<QStringList> groupedByEnsemble =
+            RiaEnsembleNameTools::groupFilesByEnsemble( m_foundFiles, ensembleGroupingMode() );
         for ( const QStringList& groupedFileNames : groupedByEnsemble )
         {
-            QString          ensembleName = RiaEnsembleNameTools::findSuitableEnsembleName( groupedFileNames );
+            QString ensembleName =
+                RiaEnsembleNameTools::findSuitableEnsembleName( groupedFileNames, ensembleGroupingMode() );
             QListWidgetItem* item = new QListWidgetItem( QDir::toNativeSeparators( ensembleName ), m_fileListWidget );
             addToFileListWidget( groupedFileNames );
         }
@@ -937,9 +947,15 @@ void RicRecursiveFileSearchDialog::slotUseRealizationStarClicked()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicRecursiveFileSearchDialog::groupByEnsemble() const
+RiaEnsembleNameTools::EnsembleGroupingMode RicRecursiveFileSearchDialog::ensembleGroupingMode() const
 {
-    return m_groupByEnsembleCheckBox->isChecked();
+    if ( m_ensembleGroupingMode->currentIndex() == 0 )
+        return RiaEnsembleNameTools::EnsembleGroupingMode::FMU_FOLDER_STRUCTURE;
+    if ( m_ensembleGroupingMode->currentIndex() == 1 )
+        return RiaEnsembleNameTools::EnsembleGroupingMode::EVEREST_FOLDER_STRUCTURE;
+    if ( m_ensembleGroupingMode->currentIndex() == 2 ) return RiaEnsembleNameTools::EnsembleGroupingMode::NONE;
+
+    return RiaEnsembleNameTools::EnsembleGroupingMode::FMU_FOLDER_STRUCTURE;
 }
 
 //--------------------------------------------------------------------------------------------------

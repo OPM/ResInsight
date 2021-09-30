@@ -66,30 +66,29 @@ void RicImportEnsembleSurfaceFeature::onActionTriggered( bool isChecked )
     QString         pathCacheName     = "ENSEMBLE_SURFACE_FILES";
     auto [fileNames, groupByEnsemble] = runRecursiveFileSearchDialog( "Import Ensemble Surface", pathCacheName );
 
-    if ( groupByEnsemble )
-        importEnsembleSurfaceFromFiles( fileNames );
-    else
-        importSingleEnsembleSurfaceFromFiles( fileNames );
+    importEnsembleSurfaceFromFiles( fileNames, groupByEnsemble );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicImportEnsembleSurfaceFeature::importEnsembleSurfaceFromFiles( const QStringList& fileNames )
+void RicImportEnsembleSurfaceFeature::importEnsembleSurfaceFromFiles( const QStringList& fileNames,
+                                                                      RiaEnsembleNameTools::EnsembleGroupingMode groupingMode )
 {
     if ( fileNames.isEmpty() ) return;
 
-    std::vector<QStringList> groupedByEnsemble = RiaEnsembleNameTools::groupFilesByEnsemble( fileNames );
+    std::vector<QStringList> groupedByEnsemble = RiaEnsembleNameTools::groupFilesByEnsemble( fileNames, groupingMode );
     for ( const QStringList& groupedFileNames : groupedByEnsemble )
     {
-        importSingleEnsembleSurfaceFromFiles( groupedFileNames );
+        importSingleEnsembleSurfaceFromFiles( groupedFileNames, groupingMode );
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicImportEnsembleSurfaceFeature::importSingleEnsembleSurfaceFromFiles( const QStringList& fileNames )
+void RicImportEnsembleSurfaceFeature::importSingleEnsembleSurfaceFromFiles( const QStringList& fileNames,
+                                                                            RiaEnsembleNameTools::EnsembleGroupingMode groupingMode )
 {
     // Create a list of file names for each layer
     std::map<QString, QStringList> fileNamesForEachLayer;
@@ -107,7 +106,7 @@ void RicImportEnsembleSurfaceFeature::importSingleEnsembleSurfaceFromFiles( cons
         // NB! This must be a const reference to avoid threading issues
         const QStringList& layerFileNames = fileNamesForLayer.second;
 
-        QString ensembleName = RiaEnsembleNameTools::findSuitableEnsembleName( layerFileNames );
+        QString ensembleName = RiaEnsembleNameTools::findSuitableEnsembleName( layerFileNames, groupingMode );
         QString layerName    = fileNamesForLayer.first;
         if ( !layerName.isEmpty() )
         {
@@ -186,8 +185,8 @@ void RicImportEnsembleSurfaceFeature::setupActionLook( QAction* actionToSetup )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<QStringList, bool> RicImportEnsembleSurfaceFeature::runRecursiveFileSearchDialog( const QString& dialogTitle,
-                                                                                            const QString& pathCacheName )
+std::pair<QStringList, RiaEnsembleNameTools::EnsembleGroupingMode>
+    RicImportEnsembleSurfaceFeature::runRecursiveFileSearchDialog( const QString& dialogTitle, const QString& pathCacheName )
 {
     RiaApplication* app        = RiaApplication::instance();
     QString         defaultDir = app->lastUsedDialogDirectory( pathCacheName );
@@ -205,10 +204,10 @@ std::pair<QStringList, bool> RicImportEnsembleSurfaceFeature::runRecursiveFileSe
     m_pathFilter     = result.pathFilter;
     m_fileNameFilter = result.fileNameFilter;
 
-    if ( !result.ok ) return std::pair( QStringList(), false );
+    if ( !result.ok ) return std::pair( QStringList(), RiaEnsembleNameTools::EnsembleGroupingMode::NONE );
 
     // Remember the path to next time
     app->setLastUsedDialogDirectory( pathCacheName, QFileInfo( result.rootDir ).absoluteFilePath() );
 
-    return std::pair( result.files, result.groupByEnsemble );
+    return std::pair( result.files, result.groupingMode );
 }

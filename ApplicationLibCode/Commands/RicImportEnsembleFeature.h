@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include "RiaEnsembleNameTools.h"
+
 #include "cafCmdFeature.h"
 
 #include <QString>
@@ -38,5 +40,7 @@ protected:
     void setupActionLook( QAction* actionToSetup ) override;
 
     static QString askForEnsembleName( const QString& suggestion );
-    static void    importSingleEnsemble( const QStringList& fileNames, bool useEnsembleNameDialog );
+    static void    importSingleEnsemble( const QStringList&                         fileNames,
+                                         bool                                       useEnsembleNameDialog,
+                                         RiaEnsembleNameTools::EnsembleGroupingMode groupingMode );
 };

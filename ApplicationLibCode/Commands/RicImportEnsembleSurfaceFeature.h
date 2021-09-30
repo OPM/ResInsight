@@ -20,6 +20,8 @@
 
 #include "cafCmdFeature.h"
 
+#include "RiaEnsembleNameTools.h"
+
 #include <QString>
 
 //==================================================================================================
@@ -32,7 +34,8 @@ public:
 
     RicImportEnsembleSurfaceFeature();
 
-    static void importEnsembleSurfaceFromFiles( const QStringList& fileNames );
+    static void importEnsembleSurfaceFromFiles( const QStringList&                         fileNames,
+                                                RiaEnsembleNameTools::EnsembleGroupingMode groupingMode );
 
 protected:
     // Overrides
@@ -40,9 +43,11 @@ protected:
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
 
-    std::pair<QStringList, bool> runRecursiveFileSearchDialog( const QString& dialogTitle, const QString& pathCacheName );
+    std::pair<QStringList, RiaEnsembleNameTools::EnsembleGroupingMode>
+        runRecursiveFileSearchDialog( const QString& dialogTitle, const QString& pathCacheName );
 
-    static void importSingleEnsembleSurfaceFromFiles( const QStringList& fileNames );
+    static void importSingleEnsembleSurfaceFromFiles( const QStringList&                         fileNames,
+                                                      RiaEnsembleNameTools::EnsembleGroupingMode groupingMode );
 
 private:
     QString m_pathFilter;

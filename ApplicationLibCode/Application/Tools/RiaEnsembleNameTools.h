@@ -28,7 +28,15 @@
 class RiaEnsembleNameTools
 {
 public:
-    static QString findSuitableEnsembleName( const QStringList& fileNames );
+    enum class EnsembleGroupingMode
+    {
+        FMU_FOLDER_STRUCTURE,
+        EVEREST_FOLDER_STRUCTURE,
+        NONE
+    };
+
+public:
+    static QString findSuitableEnsembleName( const QStringList& fileNames, EnsembleGroupingMode groupingMode );
     static QString findCommonBaseName( const QStringList& fileNames );
 
     static QString uniqueShortName( const QString&     sourceFileName,
@@ -39,6 +47,10 @@ public:
                                                   const std::map<QString, QStringList>& keyFileComponentsForAllFiles,
                                                   const QString&                        ensembleCaseName );
 
-    static QStringList              findUniqueIterations( const QStringList& fileNames );
-    static std::vector<QStringList> groupFilesByEnsemble( const QStringList& fileNames );
+    static std::vector<QStringList> groupFilesByEnsemble( const QStringList& fileNames, EnsembleGroupingMode groupingMode );
+
+private:
+    static QStringList findUniqueEnsembleNames( const QStringList&              fileNames,
+                                                const std::vector<QStringList>& fileNameComponents,
+                                                EnsembleGroupingMode            groupingMode );
 };

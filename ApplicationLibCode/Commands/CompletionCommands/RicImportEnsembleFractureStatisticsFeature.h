@@ -20,6 +20,8 @@
 
 #include "cafCmdFeature.h"
 
+#include "RiaEnsembleNameTools.h"
+
 #include <QString>
 
 //==================================================================================================
@@ -32,8 +34,8 @@ class RicImportEnsembleFractureStatisticsFeature : public caf::CmdFeature
 public:
     RicImportEnsembleFractureStatisticsFeature() {}
 
-    static std::pair<QStringList, bool> runRecursiveFileSearchDialog( const QString& dialogTitle,
-                                                                      const QString& pathCacheName );
+    static std::pair<QStringList, RiaEnsembleNameTools::EnsembleGroupingMode>
+        runRecursiveFileSearchDialog( const QString& dialogTitle, const QString& pathCacheName );
 
 protected:
     static void importSingleEnsembleFractureStatistics( const QStringList& fileNames );
