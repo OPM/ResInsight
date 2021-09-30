@@ -81,7 +81,7 @@ void RicImportEnsembleFeature::onActionTriggered( bool isChecked )
     if ( ensembleGroupingMode == RiaEnsembleNameTools::EnsembleGroupingMode::NONE )
     {
         bool useEnsembleNameDialog = true;
-        importSingleEnsemble( fileNames, ensembleGroupingMode, useEnsembleNameDialog );
+        importSingleEnsemble( fileNames, useEnsembleNameDialog, ensembleGroupingMode );
     }
     else
     {
@@ -90,7 +90,7 @@ void RicImportEnsembleFeature::onActionTriggered( bool isChecked )
         for ( const QStringList& groupedFileNames : groupedByEnsemble )
         {
             bool useEnsembleNameDialog = false;
-            importSingleEnsemble( groupedFileNames, ensembleGroupingMode, useEnsembleNameDialog );
+            importSingleEnsemble( groupedFileNames, useEnsembleNameDialog, ensembleGroupingMode );
         }
     }
 }
@@ -99,8 +99,8 @@ void RicImportEnsembleFeature::onActionTriggered( bool isChecked )
 ///
 //--------------------------------------------------------------------------------------------------
 void RicImportEnsembleFeature::importSingleEnsemble( const QStringList&                         fileNames,
-                                                     RiaEnsembleNameTools::EnsembleGroupingMode groupingMode,
-                                                     bool                                       useEnsembleNameDialog )
+                                                     bool                                       useEnsembleNameDialog,
+                                                     RiaEnsembleNameTools::EnsembleGroupingMode groupingMode )
 {
     QString ensembleName = RiaEnsembleNameTools::findSuitableEnsembleName( fileNames, groupingMode );
 

@@ -950,12 +950,12 @@ void RicRecursiveFileSearchDialog::slotUseRealizationStarClicked()
 RiaEnsembleNameTools::EnsembleGroupingMode RicRecursiveFileSearchDialog::ensembleGroupingMode() const
 {
     if ( m_ensembleGroupingMode->currentIndex() == 0 )
-        return RiaEnsembleNameTools::EnsembleGroupingMode::FMU_FOLDER_MODE;
+        return RiaEnsembleNameTools::EnsembleGroupingMode::FMU_FOLDER_STRUCTURE;
     if ( m_ensembleGroupingMode->currentIndex() == 1 )
-        return RiaEnsembleNameTools::EnsembleGroupingMode::EVEREST_FOLDER_MODE;
+        return RiaEnsembleNameTools::EnsembleGroupingMode::EVEREST_FOLDER_STRUCTURE;
     if ( m_ensembleGroupingMode->currentIndex() == 2 ) return RiaEnsembleNameTools::EnsembleGroupingMode::NONE;
 
-    return RiaEnsembleNameTools::EnsembleGroupingMode::FMU_FOLDER_MODE;
+    return RiaEnsembleNameTools::EnsembleGroupingMode::FMU_FOLDER_STRUCTURE;
 }
 
 //--------------------------------------------------------------------------------------------------

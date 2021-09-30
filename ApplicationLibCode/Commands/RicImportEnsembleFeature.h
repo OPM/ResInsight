@@ -41,6 +41,6 @@ protected:
 
     static QString askForEnsembleName( const QString& suggestion );
     static void    importSingleEnsemble( const QStringList&                         fileNames,
-                                         RiaEnsembleNameTools::EnsembleGroupingMode groupingMode,
-                                         bool                                       useEnsembleNameDialog );
+                                         bool                                       useEnsembleNameDialog,
+                                         RiaEnsembleNameTools::EnsembleGroupingMode groupingMode );
 };

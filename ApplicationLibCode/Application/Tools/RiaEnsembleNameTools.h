@@ -30,8 +30,8 @@ class RiaEnsembleNameTools
 public:
     enum class EnsembleGroupingMode
     {
-        FMU_FOLDER_MODE,
-        EVEREST_FOLDER_MODE,
+        FMU_FOLDER_STRUCTURE,
+        EVEREST_FOLDER_STRUCTURE,
         NONE
     };
 
@@ -50,7 +50,7 @@ public:
     static std::vector<QStringList> groupFilesByEnsemble( const QStringList& fileNames, EnsembleGroupingMode groupingMode );
 
 private:
-    static QStringList findUniqueIterations( const QStringList&              fileNames,
-                                             const std::vector<QStringList>& fileNameComponents,
-                                             EnsembleGroupingMode            groupingMode );
+    static QStringList findUniqueEnsembleNames( const QStringList&              fileNames,
+                                                const std::vector<QStringList>& fileNameComponents,
+                                                EnsembleGroupingMode            groupingMode );
 };

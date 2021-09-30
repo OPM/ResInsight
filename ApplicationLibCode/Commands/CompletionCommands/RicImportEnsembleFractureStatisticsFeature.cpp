@@ -82,7 +82,7 @@ void RicImportEnsembleFractureStatisticsFeature::importSingleEnsembleFractureSta
     auto    fractureGroupStatistics = new RimEnsembleFractureStatistics;
     QString ensembleNameSuggestion =
         RiaEnsembleNameTools::findSuitableEnsembleName( fileNames,
-                                                        RiaEnsembleNameTools::EnsembleGroupingMode::FMU_FOLDER_MODE );
+                                                        RiaEnsembleNameTools::EnsembleGroupingMode::FMU_FOLDER_STRUCTURE );
     fractureGroupStatistics->setName( ensembleNameSuggestion );
 
     caf::ProgressInfo progInfo( fileNames.size() + 1, "Creating Ensemble Fracture Statistics" );

@@ -238,7 +238,7 @@ void RicCreateEnsembleWellLogFeature::executeCommand( const RicCreateEnsembleWel
     {
         std::vector<RimEnsembleWellLogs*> ensembleWellLogs =
             RicImportEnsembleWellLogsFeature::createEnsembleWellLogsFromFiles( allLasFileNames,
-                                                                               RiaEnsembleNameTools::EnsembleGroupingMode::FMU_FOLDER_MODE );
+                                                                               RiaEnsembleNameTools::EnsembleGroupingMode::FMU_FOLDER_STRUCTURE );
 
         for ( auto ensembleWellLog : ensembleWellLogs )
         {
