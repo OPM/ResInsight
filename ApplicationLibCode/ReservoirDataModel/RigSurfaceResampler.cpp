@@ -108,14 +108,22 @@ bool RigSurfaceResampler::findClosestPointXY( const cvf::Vec3d&              tar
     double maxDistanceSquared = maxDistance * maxDistance;
 
     // Find closest vertices
-    double shortestDistanceSquared = std::numeric_limits<double>::max();
-    double closestZ                = std::numeric_limits<double>::infinity();
-    for ( auto v : vertices )
+    double     shortestDistanceSquared = std::numeric_limits<double>::max();
+    double     closestZ                = std::numeric_limits<double>::infinity();
+    cvf::Vec3d p;
+    double     distanceSquared = 0.0;
+    for ( const auto& v : vertices )
     {
+        if ( std::fabs( targetPoint.x() - v.x() ) > maxDistance ) continue;
+        if ( std::fabs( targetPoint.y() - v.y() ) > maxDistance ) continue;
+
         // Ignore height (z) component when finding closest by
         // moving point to same height as target point above
-        cvf::Vec3d p( v.x(), v.y(), targetPoint.z() );
-        double     distanceSquared = p.pointDistanceSquared( targetPoint );
+        p.x() = v.x();
+        p.y() = v.y();
+        p.z() = targetPoint.z();
+
+        distanceSquared = p.pointDistanceSquared( targetPoint );
         if ( distanceSquared < shortestDistanceSquared )
         {
             shortestDistanceSquared = distanceSquared;
