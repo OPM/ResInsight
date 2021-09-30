@@ -122,11 +122,17 @@ void RimEnsembleSurface::loadDataAndUpdate()
 
     if ( !sourceSurfaceForStatistics.empty() )
     {
-        cvf::ref<RigSurface> firstSurface = sourceSurfaceForStatistics[0]->surfaceData();
+        for ( auto& surf : sourceSurfaceForStatistics )
+        {
+            // The search tree must be created before the multi threading loop is initiated to avoid crash in
+            // RigSurfaceResampler::resampleSurface
+            // NB! Do not use OpenMP on this loop, as the construction of the AABB tree is using OpenMP internally, and
+            // mixing these causes crash.
 
-        // The search tree must be created before the multi threading loop is initiated to avoid crash
-        firstSurface->ensureIntersectionSearchTreeIsBuilt();
+            surf->surfaceData()->ensureIntersectionSearchTreeIsBuilt();
+        }
 
+        cvf::ref<RigSurface>              firstSurface = sourceSurfaceForStatistics[0]->surfaceData();
         auto                              surfaceCount = static_cast<int>( sourceSurfaceForStatistics.size() );
         std::vector<cvf::ref<RigSurface>> sourceSurfaces( surfaceCount );
 #pragma omp parallel for
