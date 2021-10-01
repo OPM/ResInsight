@@ -48,6 +48,8 @@ class RimWellLogFileCurve;
 class RimWellLogFile;
 class RimPlotCurveAppearance;
 
+class RigWellPathFormations;
+
 class RiuDraggableOverlayFrame;
 
 class QwtPlot;
@@ -153,6 +155,8 @@ private:
     void onFilterSourceChanged( const caf::SignalEmitter* emitter );
     void onEnsembleCurvesAppearanceChanged( const caf::SignalEmitter* emitter );
     void setLogScaleFromSelectedResult( const QString resVar );
+
+    cvf::ref<RigWellPathFormations> createWellPathFormations( std::shared_ptr<RigWellLogIndexDepthOffset> offsets );
 
 private:
     caf::PdmField<bool> m_showCurves;
