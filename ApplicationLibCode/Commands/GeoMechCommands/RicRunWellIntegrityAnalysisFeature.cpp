@@ -94,12 +94,20 @@ void RicRunWellIntegrityAnalysisFeature::onActionTriggered( bool isChecked )
     runProgress.setProgressDescription( "Loading modeling results." );
 
     RiaApplication* app = RiaApplication::instance();
+    if ( !app->openOdbCaseFromFile( modelSettings->outputHeatOdbFilename() ) )
+    {
+        QMessageBox::critical( nullptr,
+                               wiaTitle,
+                               "Failed to load modeling results from file \"" + modelSettings->outputHeatOdbFilename() +
+                                   "\". Check log window for additional information." );
+    }
+
     if ( !app->openOdbCaseFromFile( modelSettings->outputOdbFilename() ) )
     {
         QMessageBox::critical( nullptr,
                                wiaTitle,
-                               "Failed to load modeling results. Check log window for additional information." );
-        return;
+                               "Failed to load modeling results from file \"" + modelSettings->outputOdbFilename() +
+                                   "\". Check log window for additional information." );
     }
 }
 
