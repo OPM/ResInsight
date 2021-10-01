@@ -88,7 +88,11 @@ void RimSurfaceInViewCollection::defineUiTreeOrdering( caf::PdmUiTreeOrdering& u
 {
     RimGridView* gridView = nullptr;
     this->firstAncestorOfType( gridView );
-    if ( gridView )
+
+    RimSurfaceInViewCollection* surfViewColl = nullptr;
+    this->firstAncestorOfType( surfViewColl );
+
+    if ( gridView && !surfViewColl )
     {
         auto uiTree = gridView->separateSurfaceResultsCollection()->uiTreeOrdering();
 

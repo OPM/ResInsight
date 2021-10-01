@@ -456,7 +456,7 @@ void RimEclipseView::onCreateDisplayModel()
     else if ( this->cellResult()->hasStaticResult() || this->cellEdgeResult()->hasResult() ||
               this->eclipsePropertyFilterCollection()->hasActiveFilters() ||
               this->intersectionCollection()->hasAnyActiveSeparateResults() ||
-              this->surfaceInViewCollection()->hasAnyActiveSeparateResults() )
+              ( this->surfaceInViewCollection() && this->surfaceInViewCollection()->hasAnyActiveSeparateResults() ) )
     {
         // The one and only static result entry
         timeStepIndices.push_back( 0 );
