@@ -433,7 +433,7 @@ void RimWellIASettings::resetResInsightParameters()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellIASettings::updateResInsightParameters()
+bool RimWellIASettings::updateResInsightParameters()
 {
     resetResInsightParameters();
 
@@ -469,10 +469,25 @@ void RimWellIASettings::updateResInsightParameters()
         double stressValue =
             dataAccess.interpolatedResultValue( "ST", nativeKeys[i], RigFemResultPosEnum::RIG_ELEMENT_NODAL, position, 0 );
         initialStress->addParameter( paramKeys[i], stressValue );
+        if ( std::isfinite( stressValue ) )
+        {
+            initialStress->addParameter( paramKeys[i], stressValue );
+        }
+        else
+        {
+            return false;
+        }
     }
 
     double ppValue = dataAccess.interpolatedResultValue( "POR-Bar", "", RigFemResultPosEnum::RIG_NODAL, position, 0 );
-    initialStress->addParameter( "PP", ppValue );
+    if ( std::isfinite( ppValue ) )
+    {
+        initialStress->addParameter( "PP", ppValue );
+    }
+    else
+    {
+        return false;
+    }
 
     auto angles = RigWellPathGeometryTools::calculateAzimuthAndInclinationAtMd( ( m_startMD + m_endMD ) / 2.0,
                                                                                 wellPath()->wellPathGeometry() );
@@ -480,6 +495,8 @@ void RimWellIASettings::updateResInsightParameters()
     initialStress->addParameter( "inclination_well", angles.second );
 
     m_parametersRI.push_back( initialStress );
+
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -579,11 +596,14 @@ void RimWellIASettings::generateModelBox()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellIASettings::extractModelData()
+bool RimWellIASettings::extractModelData()
 {
     generateModelBox();
-    updateResInsightParameters();
     resetModelData();
+    if ( !updateResInsightParameters() )
+    {
+        return false;
+    }
 
     QDateTime startDate = geostaticDate();
 
@@ -611,7 +631,7 @@ void RimWellIASettings::extractModelData()
             }
         }
 
-        const std::vector<cvf::Vec3d> displacements = extractDisplacments( m_modelbox.vertices(), timestep );
+        const std::vector<cvf::Vec3d> displacements = extractDisplacements( m_modelbox.vertices(), timestep );
 
         for ( size_t i = 0; i < displacements.size(); i++ )
         {
@@ -620,6 +640,8 @@ void RimWellIASettings::extractModelData()
         m_modelData.push_back( data );
         timestep++;
     }
+
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -638,7 +660,7 @@ std::vector<QDateTime> RimWellIASettings::timeStepDates()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<cvf::Vec3d> RimWellIASettings::extractDisplacments( std::vector<cvf::Vec3d> corners, int timeStep )
+std::vector<cvf::Vec3d> RimWellIASettings::extractDisplacements( std::vector<cvf::Vec3d> corners, int timeStep )
 {
     RimWellIADataAccess dataAccess( m_geomechCase );
 
