@@ -59,12 +59,7 @@ bool RifStimPlanModelPerfsFrkExporter::writeToFile( RimStimPlanModel* stimPlanMo
     appendFractureOrientationToStream( stream, isTransverse );
 
     // Unit: meter
-    double perforationLength = stimPlanModel->perforationLength();
-
-    double anchorPositionMD = computeMeasuredDepthForPosition( wellPath, stimPlanModel->anchorPosition() );
-    double topMD            = anchorPositionMD - ( perforationLength / 2.0 );
-    double bottomMD         = anchorPositionMD + ( perforationLength / 2.0 );
-
+    auto [topMD, bottomMD] = calculateTopAndBottomMeasuredDepth( stimPlanModel, wellPath );
     appendPerforationToStream( stream,
                                1,
                                RiaEclipseUnitTools::meterToFeet( topMD ),
@@ -157,4 +152,20 @@ double RifStimPlanModelPerfsFrkExporter::computeMeasuredDepthForPosition( const 
         RiaLogging::error( "Unable to compute measured depth from well path data." );
         return -1.0;
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::pair<double, double>
+    RifStimPlanModelPerfsFrkExporter::calculateTopAndBottomMeasuredDepth( RimStimPlanModel* stimPlanModel,
+                                                                          RimWellPath*      wellPath )
+{
+    double perforationLength = stimPlanModel->perforationLength();
+
+    double anchorPositionMD = computeMeasuredDepthForPosition( wellPath, stimPlanModel->anchorPosition() );
+    double topMD            = anchorPositionMD - ( perforationLength / 2.0 );
+    double bottomMD         = anchorPositionMD + ( perforationLength / 2.0 );
+
+    return std::make_pair( topMD, bottomMD );
 }
