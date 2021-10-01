@@ -63,6 +63,7 @@ public:
     void    setOutputBaseDirectory( QString baseDir );
     QString outputBaseDirectory() const;
     QString outputOdbFilename() const;
+    QString outputHeatOdbFilename() const;
 
     bool showBox() const;
     void setShowBox( bool show );
