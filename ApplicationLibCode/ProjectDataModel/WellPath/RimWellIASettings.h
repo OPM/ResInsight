@@ -86,7 +86,7 @@ public:
     std::vector<cvf::Vec3d>          modelBoxVertices() const;
     std::vector<RimWellIAModelData*> modelData() const;
 
-    void extractModelData();
+    bool extractModelData();
     void updateVisualization();
 
 protected:
@@ -107,14 +107,14 @@ private:
     std::vector<QDateTime> timeStepDates();
 
     void initCsvParameters();
-    void updateResInsightParameters();
+    bool updateResInsightParameters();
     void generateModelBox();
     void resetModelData();
     void resetResInsightParameters();
 
     void addCsvGroup( QString name, QStringList timeSteps, double defaultValue = 0.0 );
 
-    std::vector<cvf::Vec3d> extractDisplacments( std::vector<cvf::Vec3d> corners, int timeStep );
+    std::vector<cvf::Vec3d> extractDisplacements( std::vector<cvf::Vec3d> corners, int timeStep );
 
 private:
     caf::PdmProxyValueField<QString> m_nameProxy;

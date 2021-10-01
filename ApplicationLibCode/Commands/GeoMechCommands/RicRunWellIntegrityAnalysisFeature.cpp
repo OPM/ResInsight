@@ -60,7 +60,14 @@ void RicRunWellIntegrityAnalysisFeature::onActionTriggered( bool isChecked )
 
     runProgress.setProgressDescription( "Writing input files." );
 
-    modelSettings->extractModelData();
+    if ( !modelSettings->extractModelData() )
+    {
+        QMessageBox::critical( nullptr,
+                               wiaTitle,
+                               "Unable to get necessary data from the defined model box. Is the model box center "
+                               "outside the reservoir?" );
+        return;
+    }
 
     if ( !RifWellIAFileWriter::writeToJsonFile( *modelSettings, outErrorText ) )
     {
