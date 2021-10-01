@@ -20,6 +20,8 @@
 
 #include "cvfVector3.h"
 
+#include <utility>
+
 class RimStimPlanModel;
 class RimWellPath;
 
@@ -34,10 +36,14 @@ class RifStimPlanModelPerfsFrkExporter
 public:
     static bool writeToFile( RimStimPlanModel* stimPlanModel, const QString& filepath );
 
-private:
-    static void   appendHeaderToStream( QTextStream& stream );
-    static void   appendFractureOrientationToStream( QTextStream& stream, bool isTranseverse );
-    static void   appendPerforationToStream( QTextStream& stream, int index, double topMd, double bottomMd );
-    static void   appendFooterToStream( QTextStream& stream );
+    static std::pair<double, double> calculateTopAndBottomMeasuredDepth( RimStimPlanModel* stimPlanModel,
+                                                                         RimWellPath*      wellPath );
+
     static double computeMeasuredDepthForPosition( const RimWellPath* wellPath, const cvf::Vec3d& position );
+
+private:
+    static void appendHeaderToStream( QTextStream& stream );
+    static void appendFractureOrientationToStream( QTextStream& stream, bool isTranseverse );
+    static void appendPerforationToStream( QTextStream& stream, int index, double topMd, double bottomMd );
+    static void appendFooterToStream( QTextStream& stream );
 };

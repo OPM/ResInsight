@@ -65,6 +65,9 @@ public:
     std::vector<double> calculatePoroElasticConstant() const;
     std::vector<double> calculateThermalExpansionCoefficient() const;
 
+    std::pair<std::vector<double>, std::vector<QString>> calculateFacies() const;
+    std::pair<std::vector<double>, std::vector<QString>> calculateFormation() const;
+
     void calculateTemperature( std::vector<double>& temperatures ) const;
 
     void clearCache();
