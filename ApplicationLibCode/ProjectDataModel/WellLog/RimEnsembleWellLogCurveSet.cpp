@@ -31,6 +31,8 @@
 #include "RimEnsembleWellLogStatisticsCurve.h"
 #include "RimEnsembleWellLogs.h"
 #include "RimEnsembleWellLogsCollection.h"
+#include "RimFormationNames.h"
+#include "RimFormationNamesCollection.h"
 #include "RimMainPlotCollection.h"
 #include "RimOilField.h"
 #include "RimProject.h"
@@ -40,7 +42,9 @@
 #include "RimWellLogFileCurve.h"
 #include "RimWellLogPlot.h"
 #include "RimWellLogTrack.h"
+#include "RimWellPath.h"
 
+#include "RigFormationNames.h"
 #include "RigWellLogIndexDepthOffset.h"
 
 #include "RiuAbstractLegendFrame.h"
@@ -761,9 +765,12 @@ void RimEnsembleWellLogCurveSet::updateEnsembleCurves( const std::vector<RimWell
     if ( m_statistics->hideEnsembleCurves() ) return;
 
     std::shared_ptr<RigWellLogIndexDepthOffset> offsets;
+    cvf::ref<RigWellPathFormations>             wellPathFormations;
+
     if ( m_depthEqualization() == RimEnsembleWellLogStatistics::DepthEqualization::K_LAYER )
     {
-        offsets = RimEnsembleWellLogStatistics::calculateIndexDepthOffset( sumCases );
+        offsets            = RimEnsembleWellLogStatistics::calculateIndexDepthOffset( sumCases );
+        wellPathFormations = createWellPathFormations( offsets );
     }
 
     m_qwtPlotCurveForLegendText->attach( plotTrack->viewer() );
@@ -800,6 +807,8 @@ void RimEnsembleWellLogCurveSet::updateEnsembleCurves( const std::vector<RimWell
                 }
 
                 RimWellPath* wellPath = RimProject::current()->wellPathByName( wellLogFile->wellName() );
+                if ( wellPathFormations.notNull() ) wellPath->setFormationsGeometry( wellPathFormations );
+
                 curve->setWellPath( wellPath );
                 curve->setWellLogChannelName( wellLogChannelName );
                 curve->setWellLogFile( wellLogFile );
@@ -1221,4 +1230,36 @@ void RimEnsembleWellLogCurveSet::setEnsembleWellLogs( RimEnsembleWellLogs* ensem
 void RimEnsembleWellLogCurveSet::setWellLogChannelName( const QString& wellLogChannelName )
 {
     m_wellLogChannelName = wellLogChannelName;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+cvf::ref<RigWellPathFormations>
+    RimEnsembleWellLogCurveSet::createWellPathFormations( std::shared_ptr<RigWellLogIndexDepthOffset> offsets )
+{
+    RimFormationNamesCollection* formationNamesCollection =
+        RimProject::current()->activeOilField()->formationNamesCollection.v();
+    if ( !formationNamesCollection ) return nullptr;
+
+    RimFormationNames* rimFormationNames = formationNamesCollection->formationNamesList()[0];
+    if ( !rimFormationNames ) return nullptr;
+
+    RigFormationNames* formationNames = rimFormationNames->formationNamesData();
+    if ( !formationNames ) return nullptr;
+
+    std::vector<RigWellPathFormation> wellPathFormationItems;
+    for ( int kLayer : offsets->sortedIndexes() )
+    {
+        RigWellPathFormation wellPathFormation;
+        wellPathFormation.mdTop         = offsets->getTopDepth( kLayer );
+        wellPathFormation.mdBase        = offsets->getBottomDepth( kLayer );
+        wellPathFormation.formationName = formationNames->formationNameFromKLayerIdx( kLayer - 1 );
+        wellPathFormationItems.push_back( wellPathFormation );
+    }
+
+    QString                         unusedFilePath = "";
+    cvf::ref<RigWellPathFormations> wellPathFormations =
+        new RigWellPathFormations( wellPathFormationItems, unusedFilePath, "Ensemble formation" );
+    return wellPathFormations;
 }
