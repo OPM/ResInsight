@@ -252,9 +252,10 @@ void RicNewStimPlanModelPlotFeature::createFaciesTrack( RimStimPlanModelPlot* pl
     faciesTrack->setFormationCase( eclipseCase );
     faciesTrack->setAnnotationType( RiuPlotAnnotationTool::RegionAnnotationType::RESULT_PROPERTY_ANNOTATIONS );
     faciesTrack->setRegionPropertyResultType( faciesDefinition->resultType(), faciesDefinition->resultVariable() );
+    faciesTrack->setAnnotationDisplay( RiuPlotAnnotationTool::COLOR_SHADING );
     faciesTrack->setOverburdenHeight( stimPlanModel->overburdenHeight() );
     faciesTrack->setUnderburdenHeight( stimPlanModel->underburdenHeight() );
-    faciesTrack->setLegendsVisible( true );
+    faciesTrack->setLegendsVisible( false );
     faciesTrack->setPlotTitleVisible( true );
 
     RimColorLegend* faciesColors = faciesProperties->colorLegend();
@@ -262,6 +263,9 @@ void RicNewStimPlanModelPlotFeature::createFaciesTrack( RimStimPlanModelPlot* pl
 
     faciesTrack->setVisibleXRange( 0.0, 0.0 );
     faciesTrack->setColSpan( RimPlot::ONE );
+    faciesTrack->setAutoScaleXEnabled( false );
+    faciesTrack->setVisibleXRange( 0.0, 0.0 );
+    faciesTrack->setXAxisGridVisibility( RimWellLogPlot::AxisGridVisibility::AXIS_GRID_NONE );
 
     caf::ColorTable colors = RiaColorTables::wellLogPlotPaletteColors();
 
@@ -271,12 +275,11 @@ void RicNewStimPlanModelPlotFeature::createFaciesTrack( RimStimPlanModelPlot* pl
     curve->setEclipseResultCategory( faciesDefinition->resultType() );
     curve->setEclipseResultVariable( faciesDefinition->resultVariable() );
     curve->setColor( colors.cycledColor3f( 0 ) );
-    curve->setLineStyle( RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_SOLID );
+    curve->setLineStyle( RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_NONE );
     curve->setLineThickness( 2 );
     curve->setAutoNameComponents( false, true, false, false, false );
 
     faciesTrack->addCurve( curve );
-    faciesTrack->setAutoScaleXEnabled( true );
     curve->loadDataAndUpdate( true );
 
     curve->updateConnectedEditors();
