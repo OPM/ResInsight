@@ -74,7 +74,8 @@ public:
                              int                                           shadingAlphaByte,
                              bool                                          showNames   = true,
                              TrackSpan                                     trackSpan   = TrackSpan::FULL_WIDTH,
-                             const std::vector<Qt::BrushStyle>&            brushStyles = {} );
+                             const std::vector<Qt::BrushStyle>&            brushStyles = {},
+                             int                                           fontSize    = 0 );
     void attachWellPicks( QwtPlot* plot, const std::vector<QString>& names, const std::vector<double>& yPositions );
 
     void attachAnnotationLine( QwtPlot*       plot,
@@ -112,7 +113,8 @@ private:
                                                double         yValue,
                                                const QColor&  color               = QColor( 0, 0, 100 ),
                                                const QColor&  textColor           = QColor( 0, 0, 100 ),
-                                               Qt::Alignment  horizontalAlignment = Qt::AlignRight );
+                                               Qt::Alignment  horizontalAlignment = Qt::AlignRight,
+                                               int            fontSize            = 0 );
 
     void verticalLine( QwtPlotMarker* line,
                        const QString& name,
