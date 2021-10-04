@@ -267,7 +267,7 @@ void RimPlotCurve::updateCurveVisibility()
 //--------------------------------------------------------------------------------------------------
 void RimPlotCurve::initAfterRead()
 {
-    if ( RimProject::current()->isProjectFileVersionEqualOrOlderThan( "2024.10.1" ) )
+    if ( RimProject::current()->isProjectFileVersionEqualOrOlderThan( "2021.06.0" ) )
     {
         // Forward values of obsolete fields to appearance object
         m_curveAppearance->setSymbolSize( m_symbolSize_OBSOLETE );
