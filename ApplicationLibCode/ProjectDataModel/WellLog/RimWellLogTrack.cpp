@@ -218,6 +218,7 @@ RimWellLogTrack::RimWellLogTrack()
     m_colorShadingTransparency.uiCapability()->setUiEditorTypeName( caf::PdmUiSliderEditor::uiEditorTypeName() );
 
     CAF_PDM_InitField( &m_showRegionLabels, "ShowFormationLabels", true, "Show Labels", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_regionLabelFontSize, "RegionLabelFontSize", "Font Size", "", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_formationSource, "FormationSource", "Source", "", "", "" );
 
@@ -617,7 +618,7 @@ void RimWellLogTrack::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
         updateConnectedEditors();
         RiuPlotMainWindowTools::refreshToolbars();
     }
-    else if ( changedField == &m_showRegionLabels )
+    else if ( changedField == &m_showRegionLabels || changedField == &m_regionLabelFontSize )
     {
         loadDataAndUpdate();
     }
@@ -1742,6 +1743,8 @@ void RimWellLogTrack::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering
     annotationGroup->add( &m_regionAnnotationType );
     annotationGroup->add( &m_regionAnnotationDisplay );
     annotationGroup->add( &m_showRegionLabels );
+    if ( m_regionAnnotationType() == RiuPlotAnnotationTool::RegionAnnotationType::RESULT_PROPERTY_ANNOTATIONS )
+        annotationGroup->add( &m_regionLabelFontSize );
 
     if ( m_regionAnnotationDisplay() & RiuPlotAnnotationTool::COLOR_SHADING ||
          m_regionAnnotationDisplay() & RiuPlotAnnotationTool::COLORED_LINES )
@@ -2760,6 +2763,10 @@ void RimWellLogTrack::updateResultPropertyNamesOnPlot()
         }
 
         caf::ColorTable colorTable( colors );
+
+        int fontSize = caf::FontTools::absolutePointSize( RiaPreferences::current()->defaultPlotFontSize(),
+                                                          m_regionLabelFontSize() );
+
         m_annotationTool->attachNamedRegions( m_plotWidget,
                                               namesToPlot,
                                               xRange,
@@ -2767,7 +2774,10 @@ void RimWellLogTrack::updateResultPropertyNamesOnPlot()
                                               m_regionAnnotationDisplay(),
                                               colorTable,
                                               ( ( 100 - m_colorShadingTransparency ) * 255 ) / 100,
-                                              m_showRegionLabels() );
+                                              m_showRegionLabels(),
+                                              RiuPlotAnnotationTool::TrackSpan::FULL_WIDTH,
+                                              {},
+                                              fontSize );
     }
 }
 
