@@ -1005,7 +1005,7 @@ void RimWellPltPlot::defineEditorAttribute( const caf::PdmFieldHandle* field,
 //--------------------------------------------------------------------------------------------------
 void RimWellPltPlot::initAfterRead()
 {
-    RimViewWindow::initAfterRead();
+    RimDepthTrackPlot::initAfterRead();
 
     if ( m_wellLogPlot_OBSOLETE )
     {
