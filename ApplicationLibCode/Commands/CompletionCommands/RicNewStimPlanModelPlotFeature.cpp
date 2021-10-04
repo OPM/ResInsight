@@ -223,6 +223,7 @@ void RicNewStimPlanModelPlotFeature::createFormationTrack( RimStimPlanModelPlot*
     formationTrack->setFormationWellPath( stimPlanModel->thicknessDirectionWellPath() );
     formationTrack->setFormationCase( eclipseCase );
     formationTrack->setAnnotationType( RiuPlotAnnotationTool::RegionAnnotationType::FORMATION_ANNOTATIONS );
+    formationTrack->setXAxisGridVisibility( RimWellLogPlot::AxisGridVisibility::AXIS_GRID_NONE );
     formationTrack->setVisibleXRange( 0.0, 0.0 );
     formationTrack->setOverburdenHeight( stimPlanModel->overburdenHeight() );
     formationTrack->setUnderburdenHeight( stimPlanModel->underburdenHeight() );
