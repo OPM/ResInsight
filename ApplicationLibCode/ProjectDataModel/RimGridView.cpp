@@ -531,16 +531,6 @@ void RimGridView::addRequiredUiTreeObjects( caf::PdmUiTreeOrdering& uiTreeOrderi
     }
 
     {
-        std::vector<RimSurfaceInView*> surfaces;
-
-        this->descendantsIncludingThisOfType( surfaces );
-        if ( !surfaces.empty() )
-        {
-            uiTreeOrdering.add( &m_surfaceResultDefCollection );
-        }
-    }
-
-    {
         RimWellPathCollection* wellPathCollection = RimTools::wellPathCollection();
         if ( wellPathCollection )
         {

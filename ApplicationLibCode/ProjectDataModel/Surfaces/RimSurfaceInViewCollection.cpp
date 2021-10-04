@@ -21,6 +21,7 @@
 #include "RimEnsembleSurface.h"
 #include "RimGridView.h"
 #include "RimIntersectionResultDefinition.h"
+#include "RimIntersectionResultsDefinitionCollection.h"
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimSurface.h"
@@ -30,6 +31,7 @@
 
 #include "RivSurfacePartMgr.h"
 
+#include "cafPdmUiTreeOrdering.h"
 #include "cvfModelBasicList.h"
 
 CAF_PDM_SOURCE_INIT( RimSurfaceInViewCollection, "SurfaceInViewCollection" );
@@ -76,6 +78,22 @@ RimSurfaceInViewCollection::~RimSurfaceInViewCollection()
 caf::PdmFieldHandle* RimSurfaceInViewCollection::userDescriptionField()
 {
     return &m_collectionName;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSurfaceInViewCollection::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering,
+                                                       QString                 uiConfigName /*= ""*/ )
+{
+    RimGridView* gridView = nullptr;
+    this->firstAncestorOfType( gridView );
+    if ( gridView )
+    {
+        auto uiTree = gridView->separateSurfaceResultsCollection()->uiTreeOrdering();
+
+        uiTreeOrdering.appendChild( uiTree );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
