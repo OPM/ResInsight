@@ -81,22 +81,17 @@ RimGridView::RimGridView()
 
     CAF_PDM_InitFieldNoDefault( &m_intersectionResultDefCollection,
                                 "IntersectionResultDefColl",
-                                "Separate Intersection Results",
+                                "Intersection Results",
                                 "",
                                 "",
                                 "" );
     m_intersectionResultDefCollection.uiCapability()->setUiTreeHidden( true );
     m_intersectionResultDefCollection = new RimIntersectionResultsDefinitionCollection;
 
-    CAF_PDM_InitFieldNoDefault( &m_surfaceResultDefCollection,
-                                "ReservoirSurfaceResultDefColl",
-                                "Separate Surface Results",
-                                "",
-                                "",
-                                "" );
+    CAF_PDM_InitFieldNoDefault( &m_surfaceResultDefCollection, "ReservoirSurfaceResultDefColl", "Surface Results", "", "", "" );
     m_surfaceResultDefCollection.uiCapability()->setUiTreeHidden( true );
     m_surfaceResultDefCollection = new RimIntersectionResultsDefinitionCollection;
-    m_surfaceResultDefCollection->uiCapability()->setUiName( "Separate Surface Results" );
+    m_surfaceResultDefCollection->uiCapability()->setUiName( "Surface Results" );
     m_surfaceResultDefCollection->uiCapability()->setUiIcon( caf::IconProvider( ":/ReservoirSurface16x16.png" ) );
 
     CAF_PDM_InitFieldNoDefault( &m_gridCollection, "GridCollection", "GridCollection", "", "", "" );
