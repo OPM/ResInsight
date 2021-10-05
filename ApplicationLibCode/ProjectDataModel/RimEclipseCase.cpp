@@ -302,8 +302,6 @@ RimEclipseView* RimEclipseCase::createAndAddReservoirView()
 
         rimEclipseView->faultCollection()->showFaultCollection = prefs->enableFaultsByDefault();
 
-        rimEclipseView->hasUserRequestedAnimation = true;
-
         rimEclipseView->cellEdgeResult()->setResultVariable( "MULT" );
         rimEclipseView->cellEdgeResult()->setActive( false );
         rimEclipseView->fractureColors()->setDefaultResultName();

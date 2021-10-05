@@ -638,7 +638,7 @@ void RimEclipseView::onCreateDisplayModel()
 
     // If the animation was active before recreating everything, make viewer view current frame
 
-    if ( frameModels.size() > 1 && this->hasUserRequestedAnimation() )
+    if ( frameModels.size() > 1 )
     {
         if ( viewer() && !isUsingOverrideViewer() ) viewer()->setCurrentFrame( m_currentTimeStep );
     }
@@ -888,15 +888,14 @@ void RimEclipseView::updateVisibleCellColors()
 
     for ( size_t i = 0; i < geometriesToRecolor.size(); ++i )
     {
-        if ( this->hasUserRequestedAnimation() && this->cellEdgeResult()->hasResult() )
+        if ( this->cellEdgeResult()->hasResult() )
         {
             m_reservoirGridPartManager->updateCellEdgeResultColor( geometriesToRecolor[i],
                                                                    m_currentTimeStep,
                                                                    this->cellResult(),
                                                                    this->cellEdgeResult() );
         }
-        else if ( ( this->hasUserRequestedAnimation() && this->cellResult()->hasResult() ) ||
-                  this->cellResult()->isTernarySaturationSelected() )
+        else if ( this->cellResult()->hasResult() || this->cellResult()->isTernarySaturationSelected() )
         {
             m_reservoirGridPartManager->updateCellResultColor( geometriesToRecolor[i],
                                                                m_currentTimeStep,
@@ -910,8 +909,7 @@ void RimEclipseView::updateVisibleCellColors()
 
     this->updateFaultColors();
 
-    bool hasGeneralCellResult = ( this->hasUserRequestedAnimation() && this->cellResult()->hasResult() ) ||
-                                this->cellResult()->isTernarySaturationSelected();
+    bool hasGeneralCellResult = this->cellResult()->hasResult() || this->cellResult()->isTernarySaturationSelected();
 
     m_intersectionCollection->updateCellResultColor( hasGeneralCellResult, m_currentTimeStep );
     if ( m_surfaceCollection ) m_surfaceCollection->updateCellResultColor( hasGeneralCellResult, m_currentTimeStep );
@@ -1801,7 +1799,7 @@ void RimEclipseView::updateDisplayModelForWellResults()
     onCreateDisplayModel();
     updateDisplayModelVisibility();
 
-    if ( hasUserRequestedAnimation() && nativeOrOverrideViewer() )
+    if ( nativeOrOverrideViewer() )
     {
         nativeOrOverrideViewer()->animationControl()->setCurrentFrame( m_currentTimeStep );
     }
@@ -2007,7 +2005,7 @@ void RimEclipseView::updateFaultColors()
 
     for ( RivCellSetEnum cellSetType : faultGeometriesToRecolor )
     {
-        if ( this->hasUserRequestedAnimation() && this->cellEdgeResult()->hasResult() )
+        if ( this->cellEdgeResult()->hasResult() )
         {
             m_reservoirGridPartManager->updateFaultCellEdgeResultColor( cellSetType,
                                                                         m_currentTimeStep,

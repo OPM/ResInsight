@@ -88,8 +88,6 @@ void RimPerforationCollection::appendPerforation( RimPerforationInterval* perfor
     Rim3dView* activeView = RiaApplication::instance()->activeReservoirView();
     if ( activeView )
     {
-        activeView->hasUserRequestedAnimation = true;
-
         RimEclipseCase* eclipseCase = nullptr;
         activeView->firstAncestorOrThisOfType( eclipseCase );
         if ( eclipseCase )

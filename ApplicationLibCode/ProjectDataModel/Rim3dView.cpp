@@ -128,8 +128,6 @@ Rim3dView::Rim3dView()
 
     CAF_PDM_InitField( &maximumFrameRate, "MaximumFrameRate", 10, "Maximum Frame Rate", "", "", "" );
     maximumFrameRate.uiCapability()->setUiHidden( true );
-    CAF_PDM_InitField( &hasUserRequestedAnimation, "AnimationMode", false, "Animation Mode", "", "", "" );
-    hasUserRequestedAnimation.uiCapability()->setUiHidden( true );
 
     CAF_PDM_InitScriptableField( &m_currentTimeStep, "CurrentTimeStep", 0, "Current Time Step", "", "", "" );
     m_currentTimeStep.uiCapability()->setUiHidden( true );
@@ -556,8 +554,6 @@ void Rim3dView::setCurrentTimeStep( int frameIndex )
         RiuTimeStepChangedHandler::instance()->handleTimeStepChanged( this );
         this->onClearReservoirCellVisibilitiesIfNecessary();
     }
-
-    this->hasUserRequestedAnimation = true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -703,7 +699,6 @@ void Rim3dView::setDefaultView()
 //--------------------------------------------------------------------------------------------------
 void Rim3dView::endAnimation()
 {
-    this->hasUserRequestedAnimation = false;
     this->onUpdateStaticCellColors();
 }
 
@@ -751,9 +746,6 @@ void Rim3dView::setupBeforeSave()
 {
     if ( m_viewer )
     {
-        hasUserRequestedAnimation = m_viewer->isAnimationActive(); // JJS: This is not conceptually correct. The
-                                                                   // variable is updated as we go, and store the user
-                                                                   // intentions. But I guess that in practice...
         m_cameraPosition        = m_viewer->mainCamera()->viewMatrix();
         m_cameraPointOfInterest = m_viewer->pointOfInterest();
     }
