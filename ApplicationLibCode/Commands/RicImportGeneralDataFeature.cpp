@@ -226,6 +226,13 @@ void RicImportGeneralDataFeature::openFileDialog( ImportFileType fileTypes )
     {
         RiaLogging::error( QString( "Failed to open file names: %1" ).arg( fileNames.join( ", " ) ) );
     }
+    else
+    {
+        if ( fileNames.size() == 1 )
+        {
+            RiaApplication::instance()->addToRecentFiles( fileNames.front() );
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
