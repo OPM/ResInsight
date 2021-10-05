@@ -131,8 +131,8 @@ RigHistogramData RimHistogramCalculator::histogramData( RimEclipseView*         
 {
     if ( eclipseView )
     {
-        RimEclipseResultDefinition* eclResultDefinition = eclipseView->cellResult();
-        bool isResultsInfoRelevant = eclipseView->hasUserRequestedAnimation() && eclResultDefinition->hasResult();
+        RimEclipseResultDefinition* eclResultDefinition   = eclipseView->cellResult();
+        bool                        isResultsInfoRelevant = eclResultDefinition->hasResult();
 
         if ( isResultsInfoRelevant )
         {
@@ -270,8 +270,7 @@ RigHistogramData RimHistogramCalculator::histogramData( RimGeoMechView*         
     {
         RimGeoMechCase*     geoMechCase           = geoMechView->geoMechCase();
         RigGeoMechCaseData* caseData              = geoMechCase ? geoMechCase->geoMechData() : nullptr;
-        bool                isResultsInfoRelevant = caseData && geoMechView->hasUserRequestedAnimation() &&
-                                     geoMechView->cellResultResultDefinition()->hasResult();
+        bool                isResultsInfoRelevant = caseData && geoMechView->cellResultResultDefinition()->hasResult();
 
         if ( isResultsInfoRelevant )
         {

@@ -302,8 +302,6 @@ RimEclipseContourMapView* RicNewContourMapViewFeature::createEclipseContourMap( 
 
     eclipseCase->contourMapCollection()->push_back( contourMap );
 
-    contourMap->hasUserRequestedAnimation = true;
-
     auto col = RiuGuiTheme::getColorByVariableName( "backgroundColor2" );
     contourMap->setBackgroundColor( RiaColorTools::fromQColorTo3f( col ) ); // Ignore original view background
 
@@ -385,8 +383,6 @@ RimGeoMechContourMapView* RicNewContourMapViewFeature::createGeoMechContourMap( 
     size_t i = geoMechCase->contourMapCollection()->views().size();
     contourMap->setName( QString( "Contour Map %1" ).arg( i + 1 ) );
     geoMechCase->contourMapCollection()->push_back( contourMap );
-
-    contourMap->hasUserRequestedAnimation = true;
 
     auto col = RiuGuiTheme::getColorByVariableName( "backgroundColor2" );
     contourMap->setBackgroundColor( RiaColorTools::fromQColorTo3f( col ) ); // Ignore original view background

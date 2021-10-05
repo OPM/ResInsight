@@ -92,8 +92,6 @@ Rim2dIntersectionView::Rim2dIntersectionView( void )
     m_scaleTransform       = new cvf::Transform();
     m_intersectionVizModel = new cvf::ModelBasicList;
 
-    hasUserRequestedAnimation = true;
-
     ( (RiuViewerToViewInterface*)this )->setCameraPosition( sm_defaultViewMatrix );
 
     disableGridBoxField();
@@ -595,10 +593,7 @@ void Rim2dIntersectionView::onCreateDisplayModel()
 
     m_intersectionVizModel->updateBoundingBoxesRecursive();
 
-    if ( this->hasUserRequestedAnimation() )
-    {
-        if ( viewer() ) viewer()->setCurrentFrame( m_currentTimeStep );
-    }
+    if ( viewer() ) viewer()->setCurrentFrame( m_currentTimeStep );
 
     if ( this->viewer()->mainCamera()->viewMatrix() == sm_defaultViewMatrix )
     {
@@ -670,7 +665,7 @@ void Rim2dIntersectionView::onUpdateDisplayModelForCurrentTimeStep()
         }
     }
 
-    if ( ( this->hasUserRequestedAnimation() && this->hasResults() ) )
+    if ( this->hasResults() )
     {
         m_flatIntersectionPartMgr->updateCellResultColor( m_currentTimeStep,
                                                           m_legendConfig->scalarMapper(),
