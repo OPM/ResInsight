@@ -27,6 +27,7 @@
 #include "RigMainGrid.h"
 
 #include "RimEclipseCase.h"
+#include "RimEclipseFaultColors.h"
 #include "RimEclipseInputCase.h"
 #include "RimEclipseView.h"
 #include "RimFaultInView.h"
@@ -316,6 +317,14 @@ void RimFaultInViewCollection::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiT
     if ( ( inputCase != nullptr ) && m_enableFaultRA() )
     {
         uiTreeOrdering.add( &m_faultRASettings );
+    }
+
+    RimEclipseView* eclipseView = nullptr;
+    this->firstAncestorOfType( eclipseView );
+    if ( eclipseView )
+    {
+        auto uiTree = eclipseView->faultResultSettings()->uiTreeOrdering();
+        uiTreeOrdering.appendChild( uiTree );
     }
 }
 

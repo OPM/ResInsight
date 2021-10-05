@@ -521,26 +521,6 @@ void RimGridView::clearReservoirCellVisibilities()
 void RimGridView::addRequiredUiTreeObjects( caf::PdmUiTreeOrdering& uiTreeOrdering )
 {
     {
-        std::vector<RimIntersection*> intersections;
-
-        this->descendantsIncludingThisOfType( intersections );
-        if ( !intersections.empty() )
-        {
-            uiTreeOrdering.add( &m_intersectionResultDefCollection );
-        }
-    }
-
-    {
-        std::vector<RimSurfaceInView*> surfaces;
-
-        this->descendantsIncludingThisOfType( surfaces );
-        if ( !surfaces.empty() )
-        {
-            uiTreeOrdering.add( &m_surfaceResultDefCollection );
-        }
-    }
-
-    {
         RimWellPathCollection* wellPathCollection = RimTools::wellPathCollection();
         if ( wellPathCollection )
         {
