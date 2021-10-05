@@ -411,12 +411,6 @@ void RimGeoMechResultDefinition::fieldChangedByUi( const caf::PdmFieldHandle* ch
                 m_compactionRefLayer = m_compactionRefLayerUiField();
             }
 
-            if ( m_geomCase->geoMechData() &&
-                 m_geomCase->geoMechData()->femPartResults()->assertResultsLoaded( this->resultAddress() ) )
-            {
-                if ( view ) view->hasUserRequestedAnimation = true;
-            }
-
             if ( propFilter )
             {
                 propFilter->setToDefaultValues();

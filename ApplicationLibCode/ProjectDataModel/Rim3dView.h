@@ -96,7 +96,6 @@ public:
     caf::PdmField<double> scaleZ;
     caf::PdmField<bool>   isPerspectiveView;
     caf::PdmField<int>    maximumFrameRate;
-    caf::PdmField<bool>   hasUserRequestedAnimation;
 
     // Draw style
 

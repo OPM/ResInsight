@@ -104,11 +104,6 @@ void RimEclipseCellColors::fieldChangedByUi( const caf::PdmFieldHandle* changedF
             changeLegendConfig( this->resultVariableUiName() );
         }
 
-        if ( newValue != RiaResultNames::undefinedResultName() )
-        {
-            if ( m_reservoirView ) m_reservoirView->hasUserRequestedAnimation = true;
-        }
-
         RimEclipseFaultColors* faultColors = dynamic_cast<RimEclipseFaultColors*>( this->parentField()->ownerObject() );
         if ( faultColors )
         {

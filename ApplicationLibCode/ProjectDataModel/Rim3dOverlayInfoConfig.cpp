@@ -432,7 +432,7 @@ QString Rim3dOverlayInfoConfig::resultInfoText( const RigHistogramData& histData
     }
     else if ( eclipseView )
     {
-        bool isResultsInfoRelevant = eclipseView->hasUserRequestedAnimation() && eclipseView->cellResult()->hasResult();
+        bool isResultsInfoRelevant = eclipseView->cellResult()->hasResult();
 
         if ( eclipseView->cellResult()->isTernarySaturationSelected() )
         {
@@ -519,7 +519,7 @@ QString Rim3dOverlayInfoConfig::resultInfoText( const RigHistogramData& histData
             }
         }
 
-        if ( eclipseView->hasUserRequestedAnimation() && eclipseView->cellEdgeResult()->hasResult() )
+        if ( eclipseView->cellEdgeResult()->hasResult() )
         {
             double  min, max;
             QString cellEdgeName = eclipseView->cellEdgeResult()->resultVariableUiShortName();
@@ -552,8 +552,7 @@ QString Rim3dOverlayInfoConfig::resultInfoText( const RigHistogramData& histData
     {
         RimGeoMechCase*     geoMechCase           = geoMechView->geoMechCase();
         RigGeoMechCaseData* caseData              = geoMechCase ? geoMechCase->geoMechData() : nullptr;
-        bool                isResultsInfoRelevant = caseData && geoMechView->hasUserRequestedAnimation() &&
-                                     geoMechView->cellResultResultDefinition()->hasResult();
+        bool                isResultsInfoRelevant = caseData && geoMechView->cellResultResultDefinition()->hasResult();
 
         if ( isResultsInfoRelevant )
         {
@@ -857,7 +856,7 @@ void Rim3dOverlayInfoConfig::updateEclipse3DInfo( RimEclipseView* eclipseView )
 
     if ( m_showHistogram() )
     {
-        bool isResultsInfoRelevant = eclipseView->hasUserRequestedAnimation() && eclipseView->cellResult()->hasResult();
+        bool isResultsInfoRelevant = eclipseView->cellResult()->hasResult();
 
         if ( isResultsInfoRelevant && histData.isHistogramVectorValid() )
         {
@@ -905,8 +904,7 @@ void Rim3dOverlayInfoConfig::updateGeoMech3DInfo( RimGeoMechView* geoMechView )
     {
         RimGeoMechCase*     geoMechCase           = geoMechView->geoMechCase();
         RigGeoMechCaseData* caseData              = geoMechCase ? geoMechCase->geoMechData() : nullptr;
-        bool                isResultsInfoRelevant = caseData && geoMechView->hasUserRequestedAnimation() &&
-                                     geoMechView->cellResultResultDefinition()->hasResult();
+        bool                isResultsInfoRelevant = caseData && geoMechView->cellResultResultDefinition()->hasResult();
 
         if ( isResultsInfoRelevant && histData.isHistogramVectorValid() )
         {
