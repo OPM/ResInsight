@@ -25,6 +25,9 @@
 #include "RimBoxIntersection.h"
 #include "RimCase.h"
 #include "RimExtrudedCurveIntersection.h"
+#include "RimGridView.h"
+#include "RimIntersectionResultDefinition.h"
+#include "RimIntersectionResultsDefinitionCollection.h"
 #include "RimSimWellInView.h"
 
 #include "Riu3DMainWindowTools.h"
@@ -32,7 +35,7 @@
 #include "RivBoxIntersectionPartMgr.h"
 #include "RivExtrudedCurveIntersectionPartMgr.h"
 
-#include "RimIntersectionResultDefinition.h"
+#include "cafPdmUiTreeOrdering.h"
 #include "cvfModelBasicList.h"
 
 CAF_PDM_SOURCE_INIT( RimIntersectionCollection, "CrossSectionCollection" );
@@ -69,6 +72,22 @@ RimIntersectionCollection::~RimIntersectionCollection()
 caf::PdmFieldHandle* RimIntersectionCollection::objectToggleField()
 {
     return &isActive;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimIntersectionCollection::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering,
+                                                      QString                 uiConfigName /*= "" */ )
+{
+    RimGridView* gridView = nullptr;
+    this->firstAncestorOfType( gridView );
+    if ( gridView )
+    {
+        auto uiTree = gridView->separateIntersectionResultsCollection()->uiTreeOrdering();
+
+        uiTreeOrdering.appendChild( uiTree );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
