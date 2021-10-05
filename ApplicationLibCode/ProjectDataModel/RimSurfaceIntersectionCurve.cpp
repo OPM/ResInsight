@@ -128,17 +128,17 @@ QString RimSurfaceIntersectionCurve::objectName() const
 {
     if ( m_surface1() )
     {
-        QString text;
-
-        RimSurfaceCollection* surfColl = nullptr;
-        m_surface1()->firstAncestorOfType( surfColl );
-        if ( surfColl )
+        RimEnsembleSurface* ensembleSurface = nullptr;
+        m_surface1()->firstAncestorOfType( ensembleSurface );
+        if ( ensembleSurface )
         {
-            text += surfColl->collectionName();
+            QString text;
+            text += ensembleSurface->collectionName();
+            text += "( " + m_surface1()->fullName() + " )";
+            return text;
         }
 
-        if ( m_surface1() ) text += "( " + m_surface1()->userDescription() + " )";
-        return text;
+        return m_surface1()->fullName();
     }
 
     return "Surface Curve";
@@ -160,7 +160,7 @@ void RimSurfaceIntersectionCurve::appendOptionItemsForSources( int              
 
     for ( auto surf : currentCollection->surfaces() )
     {
-        auto itemInfo = caf::PdmOptionItemInfo( surf->userDescription(), surf, false, surfaceIcon );
+        auto itemInfo = caf::PdmOptionItemInfo( surf->fullName(), surf, false, surfaceIcon );
         itemInfo.setLevel( currentLevel + 1 );
         options.push_back( itemInfo );
     }
