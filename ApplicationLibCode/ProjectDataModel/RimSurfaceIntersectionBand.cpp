@@ -257,17 +257,24 @@ QString RimSurfaceIntersectionBand::objectName() const
     {
         QString text;
 
-        auto                  firstSurface = surfaces[0];
-        RimSurfaceCollection* surfColl     = nullptr;
-        firstSurface->firstAncestorOfType( surfColl );
-        if ( surfColl )
+        auto firstSurface = surfaces[0];
+        if ( firstSurface )
         {
-            text += surfColl->collectionName();
+            RimSurfaceCollection* surfColl = nullptr;
+            firstSurface->firstAncestorOfType( surfColl );
+            if ( surfColl )
+            {
+                text += surfColl->collectionName();
+            }
         }
 
-        if ( surfaces[0] )
-            text += "( " + surfaces[0]->userDescription() + " - " + surfaces[1]->userDescription() + " )";
-        return text;
+        auto secondSurface = surfaces[0];
+
+        if ( firstSurface && secondSurface )
+        {
+            text += "( " + firstSurface->fullName() + " - " + secondSurface->fullName() + " )";
+            return text;
+        }
     }
 
     return "Surface Band";
