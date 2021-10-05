@@ -380,7 +380,13 @@ void RimGeoMechView::onUpdateDisplayModelForCurrentTimeStep()
 
                     cvf::ref<cvf::ModelBasicList> frameParts = new cvf::ModelBasicList;
                     frameParts->setName( name );
+
+                    // TODO - add/remove displacements and regenerate grid here, if necessary
+                    if ( m_partsCollection->shouldRebuildPartVisualization( m_currentTimeStep, m_showDisplacement ) )
+                    {
+                    }
                     m_vizLogic->appendPartsToModel( m_currentTimeStep, frameParts.p() );
+
                     frameParts->updateBoundingBoxesRecursive();
 
                     frameScene->addModel( frameParts.p() );
@@ -812,6 +818,11 @@ bool RimGeoMechView::isTimeStepDependentDataVisible() const
     }
 
     if ( m_wellMeasurementCollection->isChecked() )
+    {
+        return true;
+    }
+
+    if ( ( m_showDisplacement ) || m_partsCollection->isDisplacementsUsed() )
     {
         return true;
     }

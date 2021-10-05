@@ -37,6 +37,7 @@ class Rim3dOverlayInfoConfig;
 class RimCellRangeFilterCollection;
 class RimGeoMechCase;
 class RimGeoMechCellColors;
+class RimGeoMechPartCollection;
 class RimGeoMechPropertyFilterCollection;
 class RimGeoMechResultDefinition;
 class RimRegularLegendConfig;
