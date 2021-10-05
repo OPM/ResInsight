@@ -95,6 +95,18 @@ std::vector<RimGeoMechPart*> RimGeoMechPartCollection::parts() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+const RimGeoMechPart* RimGeoMechPartCollection::part( int partId ) const
+{
+    for ( const auto& part : m_parts )
+    {
+        if ( part->partId() == partId ) return part;
+    }
+    return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RimGeoMechPartCollection::shouldBeVisibleInTree() const
 {
     return m_parts.size() > 1;

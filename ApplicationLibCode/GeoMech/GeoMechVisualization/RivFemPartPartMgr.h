@@ -20,8 +20,11 @@
 #pragma once
 
 #include "cvfObject.h"
+#include "cvfVector3.h"
 
 #include "RivFemPartGeometryGenerator.h"
+
+#include <vector>
 
 namespace cvf
 {
@@ -52,6 +55,8 @@ public:
     void                      setCellVisibility( cvf::UByteArray* cellVisibilities );
     cvf::ref<cvf::UByteArray> cellVisibility() { return m_cellVisibility; }
 
+    void setDisplacements( bool useDisplacements, double scalingFactor, std::vector<cvf::Vec3f> displacements );
+
     void updateCellColor( cvf::Color4f color );
     void updateCellResultColor( size_t timeStepIndex, RimGeoMechCellColors* cellResultColors );
 
@@ -65,6 +70,8 @@ private:
 private:
     int                   m_partIdx;
     cvf::cref<RigFemPart> m_part;
+
+    std::vector<cvf::Vec3f> m_displacedNodeCoordinates;
 
     cvf::ref<cvf::Transform> m_scaleTransform;
     float                    m_opacityLevel;

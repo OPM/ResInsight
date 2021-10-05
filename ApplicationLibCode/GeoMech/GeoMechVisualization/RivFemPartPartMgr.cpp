@@ -19,12 +19,15 @@
 
 #include <cstdlib>
 
+#include "RivFemPartPartMgr.h"
+
 #include "RivGeoMechPartMgr.h"
 
 #include "RiaPreferences.h"
 
 #include "RifGeoMechReaderInterface.h"
 
+#include "RigFemPart.h"
 #include "RigFemPartResultsCollection.h"
 #include "RigFemScalarResultFrames.h"
 #include "RigGeoMechCaseData.h"
@@ -61,14 +64,14 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RivFemPartPartMgr::RivFemPartPartMgr( const RigFemPart* part, cvf::Vec3d displayOffset )
-    : m_surfaceGenerator( part, displayOffset )
-    , m_part( part )
+RivFemPartPartMgr::RivFemPartPartMgr( const RigFemPart* femPart, cvf::Vec3d displayOffset )
+    : m_surfaceGenerator( femPart, displayOffset )
+    , m_part( femPart )
     , m_opacityLevel( 1.0f )
     , m_defaultColor( cvf::Color3::WHITE )
 {
-    CVF_ASSERT( part );
-    m_partIdx                   = part->elementPartId();
+    CVF_ASSERT( femPart );
+    m_partIdx                   = femPart->elementPartId();
     m_cellVisibility            = new cvf::UByteArray;
     m_surfaceFacesTextureCoords = new cvf::Vec2fArray;
 }
@@ -106,6 +109,23 @@ void RivFemPartPartMgr::setCellVisibility( cvf::UByteArray* cellVisibilities )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RivFemPartPartMgr::setDisplacements( bool useDisplacements, double scalingFactor, std::vector<cvf::Vec3f> displacements )
+{
+    size_t nodeCount = m_part->nodes().coordinates.size();
+    m_displacedNodeCoordinates.resize( nodeCount );
+    const auto coords = m_part->nodes().coordinates;
+
+    if ( !useDisplacements ) scalingFactor = 0.0;
+
+    for ( size_t i = 0; i < nodeCount; i++ )
+    {
+        m_displacedNodeCoordinates[i] = coords[i] + displacements[i] * scalingFactor;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RivFemPartPartMgr::generatePartGeometry( RivFemPartGeometryGenerator& geoBuilder )
 {
     bool useBufferObjects = true;
@@ -113,7 +133,7 @@ void RivFemPartPartMgr::generatePartGeometry( RivFemPartGeometryGenerator& geoBu
     {
         m_surfaceFaces = nullptr; // To possibly free memory before adding the new stuff
 
-        cvf::ref<cvf::DrawableGeo> geo = geoBuilder.generateSurface();
+        cvf::ref<cvf::DrawableGeo> geo = geoBuilder.generateSurface( m_displacedNodeCoordinates );
         if ( geo.notNull() )
         {
             geo->computeNormals();

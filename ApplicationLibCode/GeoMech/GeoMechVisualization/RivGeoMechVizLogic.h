@@ -30,6 +30,7 @@
 
 class RimGeoMechView;
 class RimGeoMechCellColors;
+class RimGeoMechPartCollection;
 
 namespace cvf
 {

@@ -260,6 +260,8 @@ void RimGeoMechView::onCreateDisplayModel()
         theParts->part( i )->setEnabled( m_partsCollection()->isPartEnabled( i ) );
     }
 
+    updateElementDisplacements();
+
     // Remove all existing animation frames from the viewer.
     // The parts are still cached in the RivReservoir geometry and friends
 
@@ -349,21 +351,29 @@ RimPropertyFilterCollection* RimGeoMechView::nativePropertyFilterCollection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimGeoMechView::updateElementDisplacements()
+{
+    for ( auto part : m_partsCollection->parts() )
+    {
+        std::string             errmsg;
+        std::vector<cvf::Vec3f> displacements;
+        m_geomechCase->geoMechData()->readDisplacements( &errmsg, m_currentTimeStep, part->partId(), &displacements );
+        part->setDisplacements( displacements );
+    }
+    m_partsCollection->setCurrentDisplacementTimeStep( m_currentTimeStep );
+    m_partsCollection->setDisplacementsUsed( m_showDisplacement );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimGeoMechView::onUpdateDisplayModelForCurrentTimeStep()
 {
     onUpdateLegends();
 
     if ( m_partsCollection->shouldRebuildPartVisualization( m_currentTimeStep, m_showDisplacement ) )
     {
-        for ( auto part : m_partsCollection->parts() )
-        {
-            std::string             errmsg;
-            std::vector<cvf::Vec3f> displacements;
-            m_geomechCase->geoMechData()->readDisplacements( &errmsg, m_currentTimeStep, part->partId(), &displacements );
-            part->setDisplacements( displacements );
-        }
-        m_partsCollection->setCurrentDisplacementTimeStep( m_currentTimeStep );
-        m_partsCollection->setDisplacementsUsed( m_showDisplacement );
+        updateElementDisplacements();
     }
 
     if ( this->isTimeStepDependentDataVisibleInThisOrComparisonView() )
@@ -381,10 +391,10 @@ void RimGeoMechView::onUpdateDisplayModelForCurrentTimeStep()
                     cvf::ref<cvf::ModelBasicList> frameParts = new cvf::ModelBasicList;
                     frameParts->setName( name );
 
-                    // TODO - add/remove displacements and regenerate grid here, if necessary
+                    // tell geometry generator to add/remove displacements and regenerate grid, if necessary
                     if ( m_partsCollection->shouldRebuildPartVisualization( m_currentTimeStep, m_showDisplacement ) )
-                    {
-                    }
+                        m_vizLogic->scheduleGeometryRegen( RivCellSetEnum::ALL_CELLS );
+
                     m_vizLogic->appendPartsToModel( m_currentTimeStep, frameParts.p() );
 
                     frameParts->updateBoundingBoxesRecursive();
@@ -1038,4 +1048,20 @@ const RimPropertyFilterCollection* RimGeoMechView::propertyFilterCollection() co
 const RimGeoMechPartCollection* RimGeoMechView::partsCollection() const
 {
     return m_partsCollection();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimGeoMechView::displacementScaleFactor() const
+{
+    return m_displacementScaling;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimGeoMechView::showDisplacements() const
+{
+    return m_showDisplacement;
 }

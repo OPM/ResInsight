@@ -27,6 +27,7 @@
 #include "RimCellFilterCollection.h"
 #include "RimGeoMechCase.h"
 #include "RimGeoMechCellColors.h"
+#include "RimGeoMechPartCollection.h"
 #include "RimGeoMechPropertyFilterCollection.h"
 #include "RimGeoMechView.h"
 #include "RimViewController.h"
@@ -202,6 +203,10 @@ RivGeoMechPartMgr* RivGeoMechVizLogic::getUpdatedPartMgr( RivGeoMechPartMgrCache
         partMgrToUpdate->clearAndSetReservoir( caseData );
     }
 
+    partMgrToUpdate->updateDisplacements( m_geomechView->partsCollection(),
+                                          m_geomechView->showDisplacements(),
+                                          m_geomechView->displacementScaleFactor() );
+
     partMgrToUpdate->setTransform( m_geomechView->scaleTransform() );
 
     for ( int femPartIdx = 0; femPartIdx < partCount; ++femPartIdx )
@@ -266,12 +271,11 @@ void RivGeoMechVizLogic::calculateCurrentTotalCellVisibility( cvf::UByteArray* t
 {
     if ( !m_geomechView->geoMechCase() ) return;
 
-    size_t gridCount = m_geomechView->femParts()->partCount();
-
-    if ( gridCount == 0 ) return;
+    int partCount = m_geomechView->femParts()->partCount();
+    if ( partCount == 0 ) return;
 
     int elmCount = 0;
-    for ( int i = 0; i < m_geomechView->femParts()->partCount(); i++ )
+    for ( int i = 0; i < partCount; i++ )
     {
         RigFemPart* part = m_geomechView->femParts()->part( i );
         elmCount += part->elementCount();
@@ -287,7 +291,7 @@ void RivGeoMechVizLogic::calculateCurrentTotalCellVisibility( cvf::UByteArray* t
         if ( partMgr )
         {
             int elmOffset = 0;
-            for ( int i = 0; i < m_geomechView->femParts()->partCount(); i++ )
+            for ( int i = 0; i < partCount; i++ )
             {
                 RigFemPart* part = m_geomechView->femParts()->part( i );
 

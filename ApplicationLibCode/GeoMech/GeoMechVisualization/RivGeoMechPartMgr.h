@@ -33,6 +33,7 @@ class Transform;
 class RimGeoMechCellColors;
 class RigGeoMechCaseData;
 class RimGeoMechView;
+class RimGeoMechPartCollection;
 
 //==================================================================================================
 ///
@@ -51,6 +52,7 @@ public:
     void clearAndSetReservoir( const RigGeoMechCaseData* geoMechCase );
     void setTransform( cvf::Transform* scaleTransform );
     void setCellVisibility( size_t partIndex, cvf::UByteArray* cellVisibilities );
+    void updateDisplacements( const RimGeoMechPartCollection* parts, bool showDisplacements, double scaleFactor );
 
     cvf::ref<cvf::UByteArray> cellVisibility( size_t partIndex );
 

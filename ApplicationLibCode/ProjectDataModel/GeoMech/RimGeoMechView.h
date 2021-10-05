@@ -106,6 +106,9 @@ public:
 
     void convertCameraPositionFromOldProjectFiles();
 
+    double displacementScaleFactor() const;
+    bool   showDisplacements() const;
+
 protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
@@ -133,6 +136,8 @@ private:
     void onUpdateLegends() override;
 
     void updateTensorLegendTextAndRanges( RimRegularLegendConfig* legendConfig, int timeStepIndex );
+
+    void updateElementDisplacements();
 
     caf::PdmChildField<RimTensorResults*>                   m_tensorResults;
     caf::PdmChildField<RimGeoMechPropertyFilterCollection*> m_propertyFilterCollection;

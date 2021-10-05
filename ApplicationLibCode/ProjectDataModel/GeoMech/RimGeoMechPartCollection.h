@@ -53,6 +53,7 @@ public:
     bool isDisplacementsUsed() const;
 
     std::vector<RimGeoMechPart*> parts() const;
+    const RimGeoMechPart*        part( int partId ) const;
 
 private:
     caf::PdmChildArrayField<RimGeoMechPart*> m_parts;

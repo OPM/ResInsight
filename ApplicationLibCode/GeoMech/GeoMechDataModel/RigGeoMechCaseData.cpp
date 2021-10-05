@@ -166,6 +166,11 @@ bool RigGeoMechCaseData::readDisplacements( std::string*             errorMessag
 {
     CVF_ASSERT( errorMessage );
 #ifdef USE_ODB_API
+    if ( m_readerInterface.notNull() && m_readerInterface->isOpen() )
+    {
+        m_readerInterface->readDisplacements( partId, timeStep, 1, displacements );
+        return true;
+    }
 
 #endif
     *errorMessage = std::string( "Could not read displacements." );
