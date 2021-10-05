@@ -159,7 +159,7 @@ RimEclipseView::RimEclipseView()
     m_elementVectorResult = new RimElementVectorResult;
     m_elementVectorResult.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_faultResultSettings, "FaultResultSettings", "Separate Fault Result", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_faultResultSettings, "FaultResultSettings", "Fault Result", "", "", "" );
     m_faultResultSettings = new RimEclipseFaultColors();
     m_faultResultSettings.uiCapability()->setUiHidden( true );
 

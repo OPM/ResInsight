@@ -30,7 +30,7 @@ CAF_PDM_SOURCE_INIT( RimIntersectionResultsDefinitionCollection, "RimIntersectio
 //--------------------------------------------------------------------------------------------------
 RimIntersectionResultsDefinitionCollection::RimIntersectionResultsDefinitionCollection()
 {
-    CAF_PDM_InitObject( "Separate Intersection Results", ":/CrossSections16x16.png", "", "" );
+    CAF_PDM_InitObject( "Intersection Results", ":/CrossSections16x16.png", "", "" );
 
     CAF_PDM_InitField( &m_isActive, "isActive", false, "Active", "", "", "" );
     m_isActive.uiCapability()->setUiHidden( true );
