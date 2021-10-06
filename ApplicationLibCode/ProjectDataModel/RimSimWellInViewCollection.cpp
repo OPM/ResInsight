@@ -37,6 +37,7 @@
 #include "RimSimWellFractureCollection.h"
 #include "RimSimWellInView.h"
 #include "RimSimWellInViewTools.h"
+#include "RimVirtualPerforationResults.h"
 #include "RimWellAllocationPlot.h"
 #include "RimWellDiskConfig.h"
 
@@ -50,6 +51,7 @@
 #include "cafPdmUiCheckBoxTristateEditor.h"
 #include "cafPdmUiListEditor.h"
 #include "cafPdmUiPushButtonEditor.h"
+#include "cafPdmUiTreeOrdering.h"
 
 #include <set>
 
@@ -589,6 +591,19 @@ QList<caf::PdmOptionItemInfo>
     }
 
     return options;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSimWellInViewCollection::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering,
+                                                       QString                 uiConfigName /*= "" */ )
+{
+    if ( m_reservoirView && m_reservoirView->virtualPerforationResult() )
+    {
+        auto uiTree = m_reservoirView->virtualPerforationResult()->uiTreeOrdering( uiConfigName );
+        uiTreeOrdering.appendChild( uiTree );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
