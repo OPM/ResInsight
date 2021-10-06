@@ -162,14 +162,11 @@ void RimWellLogFileCurve::onLoadDataAndUpdate( bool updateParentPlot )
                                  .arg( depthTitle );
                 }
 
-                bool showWarning = !RiaPreferences::current()->showLasCurveWithoutTvdWarning();
-                if ( !errMsg.isEmpty() && showWarning )
+                if ( !errMsg.isEmpty() )
                 {
                     QString tmp = QString( "The LAS curve can not be displayed.\n%1\n" ).arg( errMsg );
-                    tmp += "Control display of this warning from \"Preferences->Show LAS curve without TVD "
-                           "warning\"";
 
-                    RiaLogging::errorInMessageBox( nullptr, "LAS curve without current depth type", tmp );
+                    RiaLogging::warning( tmp );
                 }
             }
 
