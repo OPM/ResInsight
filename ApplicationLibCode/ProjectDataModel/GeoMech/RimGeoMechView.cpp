@@ -968,14 +968,13 @@ void RimGeoMechView::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrderin
 
     uiTreeOrdering.add( cellResult() );
     uiTreeOrdering.add( m_tensorResults() );
+    uiTreeOrdering.add( m_cellFilterCollection() );
+    uiTreeOrdering.add( m_propertyFilterCollection() );
 
     addRequiredUiTreeObjects( uiTreeOrdering );
 
     uiTreeOrdering.add( m_intersectionCollection() );
     if ( surfaceInViewCollection() ) uiTreeOrdering.add( surfaceInViewCollection() );
-
-    uiTreeOrdering.add( m_cellFilterCollection() );
-    uiTreeOrdering.add( m_propertyFilterCollection() );
 
     uiTreeOrdering.skipRemainingChildren( true );
 }

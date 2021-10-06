@@ -515,15 +515,13 @@ void RimGridView::clearReservoirCellVisibilities()
 //--------------------------------------------------------------------------------------------------
 void RimGridView::addRequiredUiTreeObjects( caf::PdmUiTreeOrdering& uiTreeOrdering )
 {
+    RimWellPathCollection* wellPathCollection = RimTools::wellPathCollection();
+    if ( wellPathCollection )
     {
-        RimWellPathCollection* wellPathCollection = RimTools::wellPathCollection();
-        if ( wellPathCollection )
+        const RimWellMeasurementCollection* measurementCollection = wellPathCollection->measurementCollection();
+        if ( !measurementCollection->measurements().empty() )
         {
-            const RimWellMeasurementCollection* measurementCollection = wellPathCollection->measurementCollection();
-            if ( !measurementCollection->measurements().empty() )
-            {
-                uiTreeOrdering.add( &m_wellMeasurementCollection );
-            }
+            uiTreeOrdering.add( &m_wellMeasurementCollection );
         }
     }
 }

@@ -1933,8 +1933,10 @@ void RimEclipseView::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrderin
 
     uiTreeOrdering.add( cellResult() );
     uiTreeOrdering.add( cellEdgeResult() );
-    uiTreeOrdering.add( elementVectorResult() );
+    uiTreeOrdering.add( cellFilterCollection() );
+    uiTreeOrdering.add( m_propertyFilterCollection() );
 
+    uiTreeOrdering.add( elementVectorResult() );
     if ( m_streamlineCollection->shouldBeAvailable() ) uiTreeOrdering.add( &m_streamlineCollection );
 
     addRequiredUiTreeObjects( uiTreeOrdering );
@@ -1958,16 +1960,12 @@ void RimEclipseView::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrderin
         }
     }
 
-    uiTreeOrdering.add( m_virtualPerforationResult );
-
     uiTreeOrdering.add( faultCollection() );
     uiTreeOrdering.add( annotationCollection() );
     uiTreeOrdering.add( intersectionCollection() );
 
     if ( surfaceInViewCollection() ) uiTreeOrdering.add( surfaceInViewCollection() );
 
-    uiTreeOrdering.add( cellFilterCollection() );
-    uiTreeOrdering.add( m_propertyFilterCollection() );
     uiTreeOrdering.skipRemainingChildren( true );
 }
 
