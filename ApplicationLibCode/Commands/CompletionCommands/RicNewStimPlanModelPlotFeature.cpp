@@ -24,6 +24,7 @@
 #include "RiaLogging.h"
 
 #include "RiaStimPlanModelDefines.h"
+#include "RimPlotCurveAppearance.h"
 #include "WellLogCommands/RicNewWellLogPlotFeatureImpl.h"
 
 #include "RigWellPath.h"
@@ -354,15 +355,15 @@ void RicNewStimPlanModelPlotFeature::createParametersTrack( RimStimPlanModelPlot
                                                             const std::vector<RiaDefines::CurveProperty>& propertyTypes,
                                                             bool isPlotLogarithmic )
 {
+    CAF_ASSERT( !propertyTypes.empty() );
+
     RimWellLogTrack* plotTrack = RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack( false, trackTitle, plot );
     plotTrack->setFormationCase( eclipseCase );
     plotTrack->setFormationWellPath( stimPlanModel->thicknessDirectionWellPath() );
-    plotTrack->setColSpan( RimPlot::TWO );
+    plotTrack->setColSpan( defaultColSpan( propertyTypes[0] ) );
     plotTrack->setLegendsVisible( true );
     plotTrack->setPlotTitleVisible( true );
     plotTrack->setShowWindow( shouldShowByDefault( propertyTypes, stimPlanModel->useDetailedFluidLoss() ) );
-
-    caf::ColorTable colors = RiaColorTables::wellLogPlotPaletteColors();
 
     int colorIndex = 0;
     for ( const RiaDefines::CurveProperty& propertyType : propertyTypes )
@@ -378,8 +379,16 @@ void RicNewStimPlanModelPlotFeature::createParametersTrack( RimStimPlanModelPlot
         curve->setStimPlanModel( stimPlanModel );
         curve->setEclipseResultVariable( resultVariable );
         curve->setEclipseResultCategory( resultCategoryType );
-        curve->setColor( colors.cycledColor3f( colorIndex ) );
-        curve->setLineStyle( RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_SOLID );
+        curve->setColor( defaultColor( propertyType, colorIndex ) );
+
+        RimPlotCurveAppearance::FillStyle fillStyle = defaultFillStyle( propertyType );
+        if ( fillStyle != Qt::NoBrush )
+        {
+            curve->setFillStyle( fillStyle );
+            curve->setFillColor( defaultFillColor( propertyType ) );
+        }
+
+        curve->setLineStyle( defaultLineStyle( propertyType ) );
         curve->setLineThickness( 2 );
 
         if ( propertyType == RiaDefines::CurveProperty::STRESS_GRADIENT )
@@ -510,4 +519,100 @@ bool RicNewStimPlanModelPlotFeature::shouldShowByDefault( const std::vector<RiaD
         }
     }
     return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+cvf::Color3f RicNewStimPlanModelPlotFeature::defaultColor( RiaDefines::CurveProperty property, int colorIndex )
+{
+    if ( property == RiaDefines::CurveProperty::LAYERS ) return cvf::Color3f( 0.0, 0.0, 1.0 );
+    if ( property == RiaDefines::CurveProperty::POROSITY ) return cvf::Color3f( 0.804, 0.522, 0.247 );
+    if ( property == RiaDefines::CurveProperty::POROSITY_UNSCALED ) return cvf::Color3f::BLACK;
+    if ( property == RiaDefines::CurveProperty::PERMEABILITY_X ) return cvf::Color3f( 0.745, 0.0, 0.0 );
+    if ( property == RiaDefines::CurveProperty::PERMEABILITY_Z ) return cvf::Color3f::RED;
+    if ( property == RiaDefines::CurveProperty::INITIAL_PRESSURE ) return cvf::Color3f::BLACK;
+    if ( property == RiaDefines::CurveProperty::PRESSURE ) return cvf::Color3f( 0.0, 0.333, 1.0 );
+    if ( property == RiaDefines::CurveProperty::INITIAL_STRESS ) return cvf::Color3f::BLACK;
+    if ( property == RiaDefines::CurveProperty::STRESS ) return cvf::Color3f( 0.541, 0.169, 0.886 );
+    if ( property == RiaDefines::CurveProperty::STRESS_GRADIENT ) return cvf::Color3f( 0.522, 0.522, 0.784 );
+    if ( property == RiaDefines::CurveProperty::YOUNGS_MODULUS ) return cvf::Color3f( 0.565, 0.565, 0.424 );
+    if ( property == RiaDefines::CurveProperty::POISSONS_RATIO ) return cvf::Color3f( 0.804, 0.522, 0.247 );
+    if ( property == RiaDefines::CurveProperty::BIOT_COEFFICIENT ) return cvf::Color3f( 0.0, 0.506, 0.761 );
+    if ( property == RiaDefines::CurveProperty::K0 ) return cvf::Color3f( 0.294, 0.765, 0.529 );
+    if ( property == RiaDefines::CurveProperty::K_IC ) return cvf::Color3f( 0.576, 0.576, 0.0 );
+    if ( property == RiaDefines::CurveProperty::PROPPANT_EMBEDMENT ) return cvf::Color3f( 0.667, 0.333, 0.498 );
+
+    caf::ColorTable colors = RiaColorTables::wellLogPlotPaletteColors();
+    return colors.cycledColor3f( colorIndex );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+cvf::Color3f RicNewStimPlanModelPlotFeature::defaultFillColor( RiaDefines::CurveProperty property )
+{
+    if ( property == RiaDefines::CurveProperty::POROSITY ) return cvf::Color3f( 0.988, 0.635, 0.302 );
+    if ( property == RiaDefines::CurveProperty::PERMEABILITY_X ) return cvf::Color3f( 1.0, 0.486, 0.486 );
+    if ( property == RiaDefines::CurveProperty::PERMEABILITY_Z ) return cvf::Color3f( 1.0, 0.486, 0.486 );
+    if ( property == RiaDefines::CurveProperty::STRESS_GRADIENT ) return cvf::Color3f( 0.667, 0.6667, 1.0 );
+    if ( property == RiaDefines::CurveProperty::YOUNGS_MODULUS ) return cvf::Color3f( 0.667, 0.667, 0.498 );
+    if ( property == RiaDefines::CurveProperty::POISSONS_RATIO ) return cvf::Color3f( 1.0, 0.667, 0.498 );
+    if ( property == RiaDefines::CurveProperty::BIOT_COEFFICIENT ) return cvf::Color3f( 0.647, 0.847, 1.0 );
+    if ( property == RiaDefines::CurveProperty::K0 ) return cvf::Color3f( 0.482, 0.765, 0.573 );
+    if ( property == RiaDefines::CurveProperty::K_IC ) return cvf::Color3f( 0.839, 0.729, 0.0941 );
+    if ( property == RiaDefines::CurveProperty::PROPPANT_EMBEDMENT ) return cvf::Color3f( 0.882, 0.439, 0.663 );
+
+    return cvf::Color3f::LIGHT_GRAY;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimPlotCurveAppearance::FillStyle RicNewStimPlanModelPlotFeature::defaultFillStyle( RiaDefines::CurveProperty property )
+{
+    std::set<RiaDefines::CurveProperty> solids = {
+        RiaDefines::CurveProperty::POROSITY,
+        RiaDefines::CurveProperty::PERMEABILITY_X,
+        RiaDefines::CurveProperty::PERMEABILITY_Z,
+        RiaDefines::CurveProperty::STRESS_GRADIENT,
+        RiaDefines::CurveProperty::YOUNGS_MODULUS,
+        RiaDefines::CurveProperty::POISSONS_RATIO,
+        RiaDefines::CurveProperty::BIOT_COEFFICIENT,
+        RiaDefines::CurveProperty::K0,
+        RiaDefines::CurveProperty::K_IC,
+        RiaDefines::CurveProperty::PROPPANT_EMBEDMENT,
+    };
+
+    if ( solids.count( property ) > 0 ) return RimPlotCurveAppearance::FillStyle( Qt::SolidPattern );
+
+    return RimPlotCurveAppearance::FillStyle( Qt::NoBrush );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiuQwtPlotCurveDefines::LineStyleEnum RicNewStimPlanModelPlotFeature::defaultLineStyle( RiaDefines::CurveProperty property )
+{
+    std::set<RiaDefines::CurveProperty> dashedProperties = { RiaDefines::CurveProperty::INITIAL_STRESS,
+                                                             RiaDefines::CurveProperty::INITIAL_PRESSURE };
+
+    if ( dashedProperties.count( property ) > 0 ) return RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_DASH;
+
+    return RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_SOLID;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimPlot::RowOrColSpan RicNewStimPlanModelPlotFeature::defaultColSpan( RiaDefines::CurveProperty property )
+{
+    std::set<RiaDefines::CurveProperty> wideProperties = { RiaDefines::CurveProperty::STRESS,
+                                                           RiaDefines::CurveProperty::INITIAL_STRESS,
+                                                           RiaDefines::CurveProperty::PRESSURE,
+                                                           RiaDefines::CurveProperty::INITIAL_PRESSURE };
+
+    if ( wideProperties.count( property ) > 0 ) return RimPlot::TWO;
+
+    return RimPlot::ONE;
 }
