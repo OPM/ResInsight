@@ -36,7 +36,6 @@ add_library(
   RigFemResultAddress.h
   RigFemResultPosEnum.h
   RimFemResultObserver.h
-  RimFemResultObserver.cpp
   RigHexGradientTools.h
   RigHexGradientTools.cpp
   RigFemPartResultCalculator.h

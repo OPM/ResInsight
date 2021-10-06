@@ -384,7 +384,7 @@ void RimGeoMechResultDefinition::fieldChangedByUi( const caf::PdmFieldHandle* ch
 
     if ( &m_resultVariableUiField == changedField || &m_compactionRefLayerUiField == changedField ||
          &m_timeLapseBaseTimestep == changedField || &m_normalizeByHydrostaticPressure == changedField ||
-         &m_normalizationAirGap == changedField || &m_referenceTimeStep == changedField )
+         &m_normalizationAirGap == changedField || &m_referenceTimeStep == changedField || &m_isChecked == changedField )
     {
         QStringList fieldComponentNames = m_resultVariableUiField().split( QRegExp( "\\s+" ) );
         if ( fieldComponentNames.size() > 0 )
@@ -671,6 +671,8 @@ RigFemResultPosEnum RimGeoMechResultDefinition::resultPositionType() const
 //--------------------------------------------------------------------------------------------------
 QString RimGeoMechResultDefinition::resultFieldName() const
 {
+    if ( !isChecked() ) return "";
+
     return m_resultFieldName();
 }
 
