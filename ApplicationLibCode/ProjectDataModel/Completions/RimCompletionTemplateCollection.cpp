@@ -145,9 +145,9 @@ const RimEnsembleFractureStatisticsCollection* RimCompletionTemplateCollection::
 void RimCompletionTemplateCollection::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering,
                                                             QString                 uiConfigName /*= ""*/ )
 {
+    uiTreeOrdering.add( m_valveTemplates );
     uiTreeOrdering.add( m_fractureTemplates );
     uiTreeOrdering.add( m_stimPlanModelTemplates );
-    uiTreeOrdering.add( m_valveTemplates );
     uiTreeOrdering.add( m_fractureGroupStatisticsCollection );
     uiTreeOrdering.skipRemainingChildren( true );
 }
