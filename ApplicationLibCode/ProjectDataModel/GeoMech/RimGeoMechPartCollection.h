@@ -37,8 +37,9 @@ public:
     ~RimGeoMechPartCollection() override;
 
     void syncWithCase( RimGeoMechCase* geoCase );
-    bool shouldRebuildPartVisualization( int currentTimeStep, bool showDisplacement, double scaleFactor );
 
+    bool shouldRebuildPartVisualization( int currentTimeStep, bool showDisplacement, double scaleFactor );
+    bool shouldReloadDisplacements( int currentTimeStep, bool showDisplacement, double scaleFactor );
     bool shouldBeVisibleInTree() const;
 
     bool isPartEnabled( int partId ) const;

@@ -356,12 +356,15 @@ void RimGeoMechView::updateElementDisplacements()
     if ( !m_partsCollection->shouldRebuildPartVisualization( m_currentTimeStep, m_showDisplacement, m_displacementScaling ) )
         return;
 
-    for ( auto part : m_partsCollection->parts() )
+    if ( m_partsCollection->shouldReloadDisplacements( m_currentTimeStep, m_showDisplacement, m_displacementScaling ) )
     {
-        std::string             errmsg;
-        std::vector<cvf::Vec3f> displacements;
-        m_geomechCase->geoMechData()->readDisplacements( &errmsg, part->partId(), m_currentTimeStep, &displacements );
-        part->setDisplacements( displacements );
+        for ( auto part : m_partsCollection->parts() )
+        {
+            std::string             errmsg;
+            std::vector<cvf::Vec3f> displacements;
+            m_geomechCase->geoMechData()->readDisplacements( &errmsg, part->partId(), m_currentTimeStep, &displacements );
+            part->setDisplacements( displacements );
+        }
     }
     // store current settings so that we know if we need to rebuild later if any of them changes
     m_partsCollection->setCurrentDisplacementSettings( m_currentTimeStep, m_showDisplacement, m_displacementScaling );

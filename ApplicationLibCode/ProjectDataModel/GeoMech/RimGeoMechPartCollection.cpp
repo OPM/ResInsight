@@ -187,17 +187,31 @@ bool RimGeoMechPartCollection::isDisplacementsUsed() const
 //--------------------------------------------------------------------------------------------------
 bool RimGeoMechPartCollection::shouldRebuildPartVisualization( int currentTimeStep, bool showDisplacement, double scaleFactor )
 {
-    // if we have no displacements at all, we need to rebuild.
-    for ( const auto& part : m_parts )
-    {
-        if ( part->displacements().size() == 0 ) return true;
-    }
-
+    // if show flag has changed, we need to rebuild grid viz.
     bool retVal = m_displacementsUsed != showDisplacement;
 
+    // if scaling or timestep has changed, we need to rebuild grid if the displacement should be visible
     if ( showDisplacement )
         retVal = retVal || ( m_currentDisplacementTimeStep != currentTimeStep ) ||
                  ( std::abs( m_currentScaleFactor - scaleFactor ) > 0.0001 );
 
     return retVal;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimGeoMechPartCollection::shouldReloadDisplacements( int currentTimeStep, bool showDisplacement, double scaleFactor )
+{
+    // no need to reload something we are not showing
+    if ( !showDisplacement ) return false;
+
+    // if we have no displacements at all, we need to reload.
+    for ( const auto& part : m_parts )
+    {
+        if ( part->displacements().size() == 0 ) return true;
+    }
+
+    // if timestep has changed we need to reload
+    return m_currentDisplacementTimeStep != currentTimeStep;
 }
