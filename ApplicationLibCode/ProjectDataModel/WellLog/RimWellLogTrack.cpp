@@ -563,8 +563,7 @@ void RimWellLogTrack::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
     }
     else if ( changedField == &m_visibleXRangeMin || changedField == &m_visibleXRangeMax )
     {
-        bool emptyRange = std::abs( m_visibleXRangeMax() - m_visibleXRangeMin ) <
-                          1.0e-6 * std::max( 1.0, std::max( m_visibleXRangeMax(), m_visibleXRangeMin() ) );
+        bool emptyRange = isEmptyVisibleXRange();
         m_explicitTickIntervals.uiCapability()->setUiReadOnly( emptyRange );
         m_xAxisGridVisibility.uiCapability()->setUiReadOnly( emptyRange );
 
@@ -766,9 +765,7 @@ void RimWellLogTrack::updateXAxisAndGridTickIntervals()
 {
     if ( !m_plotWidget ) return;
 
-    bool emptyRange = std::abs( m_visibleXRangeMax() - m_visibleXRangeMin ) <
-                      1.0e-6 * std::max( 1.0, std::max( m_visibleXRangeMax(), m_visibleXRangeMin() ) );
-
+    bool emptyRange = isEmptyVisibleXRange();
     if ( emptyRange )
     {
         m_plotWidget->enableGridLines( QwtPlot::xTop, false, false );
@@ -1151,6 +1148,15 @@ void RimWellLogTrack::visibleDepthRange( double* minDepth, double* maxDepth )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RimWellLogTrack::isEmptyVisibleXRange() const
+{
+    return std::abs( m_visibleXRangeMax() - m_visibleXRangeMin ) <
+           1.0e-6 * std::max( 1.0, std::max( m_visibleXRangeMax(), m_visibleXRangeMin() ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimWellLogTrack::onLoadDataAndUpdate()
 {
     RimDepthTrackPlot* wellLogPlot = nullptr;
@@ -1196,8 +1202,7 @@ void RimWellLogTrack::onLoadDataAndUpdate()
     m_majorTickInterval.uiCapability()->setUiHidden( !m_explicitTickIntervals() );
     m_minorTickInterval.uiCapability()->setUiHidden( !m_explicitTickIntervals() );
 
-    bool emptyRange = std::abs( m_visibleXRangeMax() - m_visibleXRangeMin ) <
-                      1.0e-6 * std::max( 1.0, std::max( m_visibleXRangeMax(), m_visibleXRangeMin() ) );
+    bool emptyRange = isEmptyVisibleXRange();
     m_explicitTickIntervals.uiCapability()->setUiReadOnly( emptyRange );
     m_xAxisGridVisibility.uiCapability()->setUiReadOnly( emptyRange );
 
@@ -1280,6 +1285,10 @@ void RimWellLogTrack::setAutoScaleYEnabled( bool enabled )
 //--------------------------------------------------------------------------------------------------
 void RimWellLogTrack::setAutoScaleXIfNecessary()
 {
+    // Avoid resetting if visible range has set to empty by user
+    bool emptyRange = isEmptyVisibleXRange();
+    if ( !m_isAutoScaleXEnabled && emptyRange ) return;
+
     const double eps = 1.0e-8;
     calculateXZoomRange();
 
