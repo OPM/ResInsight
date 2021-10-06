@@ -173,15 +173,6 @@ RiaPreferences::RiaPreferences()
     CAF_PDM_InitFieldNoDefault( &defaultWellLabelFontSize, "defaultWellLabelFontSizePt", "Well Label Font Size", "", "", "" );
     CAF_PDM_InitFieldNoDefault( &defaultPlotFontSize, "defaultPlotFontSizePt", "Plot Font Size", "", "", "" );
 
-    CAF_PDM_InitField( &showLasCurveWithoutTvdWarning,
-                       "showLasCurveWithoutTvdWarning",
-                       true,
-                       "Show LAS Curve Without TVD Warning",
-                       "",
-                       "",
-                       "" );
-    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &showLasCurveWithoutTvdWarning );
-
     CAF_PDM_InitField( &m_useShaders, "useShaders", true, "Use Shaders", "", "", "" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_useShaders );
     CAF_PDM_InitField( &m_showHud, "showHud", false, "Show 3D Information", "", "", "" );
@@ -435,7 +426,6 @@ void RiaPreferences::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
 
         caf::PdmUiGroup* otherGroup = uiOrdering.addNewGroup( "Other" );
         otherGroup->add( &ssihubAddress );
-        otherGroup->add( &showLasCurveWithoutTvdWarning );
         otherGroup->add( &holoLensDisableCertificateVerification );
         otherGroup->add( &m_useUndoRedo );
         otherGroup->add( &m_showProgressBar );
