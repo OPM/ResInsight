@@ -109,7 +109,9 @@ void RivFemPartPartMgr::setCellVisibility( cvf::UByteArray* cellVisibilities )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivFemPartPartMgr::setDisplacements( bool useDisplacements, double scalingFactor, const std::vector<cvf::Vec3f>& displacements )
+void RivFemPartPartMgr::setDisplacements( bool                           useDisplacements,
+                                          double                         scalingFactor,
+                                          const std::vector<cvf::Vec3f>& displacements )
 {
     size_t nodeCount = m_part->nodes().coordinates.size();
     m_displacedNodeCoordinates.resize( nodeCount );
