@@ -182,8 +182,13 @@ cvf::BoundingBox RimGeoMechContourMapProjection::calculateExpandedPorBarBBox( in
     RigFemPartResultsCollection* resultCollection = caseData->femPartResults();
 
     const std::vector<float>& resultValues = resultCollection->resultValues( porBarAddr, 0, timeStep );
+    cvf::BoundingBox          boundingBox;
 
-    cvf::BoundingBox boundingBox;
+    if ( resultValues.empty() )
+    {
+        return boundingBox;
+    }
+
     for ( int i = 0; i < m_femPart->elementCount(); ++i )
     {
         size_t resValueIdx = m_femPart->elementNodeResultIdx( (int)i, 0 );
@@ -227,11 +232,17 @@ void RimGeoMechContourMapProjection::updateGridInformation()
     if ( m_limitToPorePressureRegions )
     {
         m_expandedBoundingBox = calculateExpandedPorBarBBox( view()->currentTimeStep() );
+        if ( !m_expandedBoundingBox.isValid() )
+        {
+            m_limitToPorePressureRegions = false;
+        }
     }
-    else
+
+    if ( !m_limitToPorePressureRegions )
     {
         m_expandedBoundingBox = m_gridBoundingBox;
     }
+
     cvf::Vec3d minExpandedPoint = m_expandedBoundingBox.min() - cvf::Vec3d( gridEdgeOffset(), gridEdgeOffset(), 0.0 );
     cvf::Vec3d maxExpandedPoint = m_expandedBoundingBox.max() + cvf::Vec3d( gridEdgeOffset(), gridEdgeOffset(), 0.0 );
     if ( m_limitToPorePressureRegions && !m_applyPPRegionLimitVertically )
