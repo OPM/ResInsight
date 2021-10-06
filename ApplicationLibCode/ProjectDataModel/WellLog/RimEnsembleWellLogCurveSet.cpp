@@ -1242,6 +1242,8 @@ cvf::ref<RigWellPathFormations>
         RimProject::current()->activeOilField()->formationNamesCollection.v();
     if ( !formationNamesCollection ) return nullptr;
 
+    if ( formationNamesCollection->formationNamesList().empty() ) return nullptr;
+
     RimFormationNames* rimFormationNames = formationNamesCollection->formationNamesList()[0];
     if ( !rimFormationNames ) return nullptr;
 
