@@ -18,16 +18,12 @@
 
 #pragma once
 
-#include "cafPdmObject.h"
-
 #include <vector>
 
 class RigFemResultAddress;
 
-class RimFemResultObserver : public caf::PdmObject
+class RimFemResultObserver
 {
-    CAF_PDM_HEADER_INIT;
-
 public:
     virtual std::vector<RigFemResultAddress> observedResults() const = 0;
 };

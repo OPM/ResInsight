@@ -37,7 +37,7 @@ class RimRegularLegendConfig;
 ///
 ///
 //==================================================================================================
-class RimTensorResults : public RimFemResultObserver
+class RimTensorResults : public RimFemResultObserver, public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
 

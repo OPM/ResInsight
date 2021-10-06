@@ -149,18 +149,23 @@ std::vector<RigEclipseResultAddress> RiaMemoryCleanup::selectedEclipseResults() 
 std::set<RigFemResultAddress> RiaMemoryCleanup::findGeoMechCaseResultsInUse() const
 {
     std::set<RigFemResultAddress> resultsInUse;
-    RimGeoMechCase*               geoMechCase = dynamic_cast<RimGeoMechCase*>( m_case() );
+
+    auto geoMechCase = dynamic_cast<RimGeoMechCase*>( m_case() );
     if ( geoMechCase )
     {
         std::vector<RimFemResultObserver*> geoMechResults;
         geoMechCase->descendantsIncludingThisOfType( geoMechResults );
         for ( RimFemResultObserver* resultDef : geoMechResults )
         {
-            caf::PdmField<bool>* field = dynamic_cast<caf::PdmField<bool>*>( resultDef->objectToggleField() );
-            if ( !field || ( *field )() )
+            auto pdmObj = dynamic_cast<caf::PdmObject*>( resultDef );
+            if ( pdmObj )
             {
-                std::vector<RigFemResultAddress> required = resultDef->observedResults();
-                resultsInUse.insert( required.begin(), required.end() );
+                auto field = dynamic_cast<caf::PdmField<bool>*>( pdmObj->objectToggleField() );
+                if ( !field || ( *field )() )
+                {
+                    std::vector<RigFemResultAddress> required = resultDef->observedResults();
+                    resultsInUse.insert( required.begin(), required.end() );
+                }
             }
         }
     }
