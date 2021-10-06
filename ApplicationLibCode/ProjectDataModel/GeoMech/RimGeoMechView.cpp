@@ -353,15 +353,21 @@ RimPropertyFilterCollection* RimGeoMechView::nativePropertyFilterCollection()
 //--------------------------------------------------------------------------------------------------
 void RimGeoMechView::updateElementDisplacements()
 {
+    if ( !m_partsCollection->shouldRebuildPartVisualization( m_currentTimeStep, m_showDisplacement, m_displacementScaling ) )
+        return;
+
     for ( auto part : m_partsCollection->parts() )
     {
         std::string             errmsg;
         std::vector<cvf::Vec3f> displacements;
-        m_geomechCase->geoMechData()->readDisplacements( &errmsg, m_currentTimeStep, part->partId(), &displacements );
+        m_geomechCase->geoMechData()->readDisplacements( &errmsg, part->partId(), m_currentTimeStep, &displacements );
         part->setDisplacements( displacements );
     }
-    m_partsCollection->setCurrentDisplacementTimeStep( m_currentTimeStep );
-    m_partsCollection->setDisplacementsUsed( m_showDisplacement );
+    // store current settings so that we know if we need to rebuild later if any of them changes
+    m_partsCollection->setCurrentDisplacementSettings( m_currentTimeStep, m_showDisplacement, m_displacementScaling );
+
+    // tell geometry generator to regenerate grid
+    m_vizLogic->scheduleGeometryRegenOfVisiblePartMgrs( m_currentTimeStep );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -371,10 +377,7 @@ void RimGeoMechView::onUpdateDisplayModelForCurrentTimeStep()
 {
     onUpdateLegends();
 
-    if ( m_partsCollection->shouldRebuildPartVisualization( m_currentTimeStep, m_showDisplacement ) )
-    {
-        updateElementDisplacements();
-    }
+    updateElementDisplacements();
 
     if ( this->isTimeStepDependentDataVisibleInThisOrComparisonView() )
     {
@@ -390,10 +393,6 @@ void RimGeoMechView::onUpdateDisplayModelForCurrentTimeStep()
 
                     cvf::ref<cvf::ModelBasicList> frameParts = new cvf::ModelBasicList;
                     frameParts->setName( name );
-
-                    // tell geometry generator to add/remove displacements and regenerate grid, if necessary
-                    if ( m_partsCollection->shouldRebuildPartVisualization( m_currentTimeStep, m_showDisplacement ) )
-                        m_vizLogic->scheduleGeometryRegen( RivCellSetEnum::ALL_CELLS );
 
                     m_vizLogic->appendPartsToModel( m_currentTimeStep, frameParts.p() );
 

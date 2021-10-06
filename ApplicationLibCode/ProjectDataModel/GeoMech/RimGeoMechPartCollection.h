@@ -37,20 +37,19 @@ public:
     ~RimGeoMechPartCollection() override;
 
     void syncWithCase( RimGeoMechCase* geoCase );
-    bool shouldRebuildPartVisualization( int currentTimeStep, bool showDisplacement );
+    bool shouldRebuildPartVisualization( int currentTimeStep, bool showDisplacement, double scaleFactor );
 
     bool shouldBeVisibleInTree() const;
 
     bool isPartEnabled( int partId ) const;
 
-    void setCurrentDisplacementTimeStep( int timeStep );
-    int  currentDisplacementTimeStep() const;
-
     void                          setDisplacementsForPart( int partId, std::vector<cvf::Vec3f> displacements );
     const std::vector<cvf::Vec3f> displacements( int partId ) const;
 
-    void setDisplacementsUsed( bool isUsed );
-    bool isDisplacementsUsed() const;
+    void   setCurrentDisplacementSettings( int currentTimeStep, bool showDisplacement, double scaleFactor );
+    bool   isDisplacementsUsed() const;
+    int    currentDisplacementTimeStep() const;
+    double currentScaleFactor() const;
 
     std::vector<RimGeoMechPart*> parts() const;
     const RimGeoMechPart*        part( int partId ) const;
@@ -59,6 +58,7 @@ private:
     caf::PdmChildArrayField<RimGeoMechPart*> m_parts;
     RimGeoMechCase*                          m_case;
 
-    int  m_currentDisplacementTimeStep;
-    bool m_diplacementsUsed;
+    int    m_currentDisplacementTimeStep;
+    double m_currentScaleFactor;
+    bool   m_displacementsUsed;
 };

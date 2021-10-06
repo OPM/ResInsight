@@ -48,6 +48,7 @@ public:
     void updateCellResultColor( int timeStepIndex, RimGeoMechCellColors* cellResultColors );
     void updateStaticCellColors( int timeStepIndex );
     void scheduleGeometryRegen( RivCellSetEnum geometryType );
+    void scheduleGeometryRegenOfVisiblePartMgrs( int timeStepIndex );
     void calculateCurrentTotalCellVisibility( cvf::UByteArray* totalVisibility, int timeStepIndex );
     std::vector<RivGeoMechPartMgrCache::Key> keysToVisiblePartMgrs( int timeStepIndex ) const;
     const cvf::ref<RivGeoMechPartMgrCache>   partMgrCache() const;

@@ -127,6 +127,21 @@ void RivGeoMechVizLogic::scheduleGeometryRegen( RivCellSetEnum geometryType )
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RivGeoMechVizLogic::scheduleGeometryRegenOfVisiblePartMgrs( int timeStepIndex )
+{
+    std::vector<RivGeoMechPartMgrCache::Key> visiblePartMgrs = keysToVisiblePartMgrs( timeStepIndex );
+    for ( size_t pmIdx = 0; pmIdx < visiblePartMgrs.size(); ++pmIdx )
+    {
+        m_partMgrCache->scheduleRegeneration( visiblePartMgrs[pmIdx] );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RivGeoMechVizLogic::scheduleRegenOfDirectlyDependentGeometry( RivCellSetEnum geometryType )
 {
     if ( geometryType == RANGE_FILTERED )
