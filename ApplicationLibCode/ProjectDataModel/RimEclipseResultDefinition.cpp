@@ -260,6 +260,14 @@ RimEclipseCase* RimEclipseResultDefinition::eclipseCase() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RiaDefines::ResultCatType RimEclipseResultDefinition::resultType() const
+{
+    return m_resultType();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RigCaseCellResultsData* RimEclipseResultDefinition::currentGridCellResults() const
 {
     if ( !m_eclipseCase ) return nullptr;
@@ -878,6 +886,7 @@ QList<caf::PdmOptionItemInfo>
 //--------------------------------------------------------------------------------------------------
 RigEclipseResultAddress RimEclipseResultDefinition::eclipseResultAddress() const
 {
+    if ( !isChecked() ) return RigEclipseResultAddress();
     if ( isFlowDiagOrInjectionFlooding() ) return RigEclipseResultAddress();
 
     const RigCaseCellResultsData* gridCellResults = this->currentGridCellResults();
@@ -1320,10 +1329,28 @@ void RimEclipseResultDefinition::setResultType( RiaDefines::ResultCatType val )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RiaDefines::PorosityModelType RimEclipseResultDefinition::porosityModel() const
+{
+    return m_porosityModel();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimEclipseResultDefinition::setPorosityModel( RiaDefines::PorosityModelType val )
 {
     m_porosityModel        = val;
     m_porosityModelUiField = val;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimEclipseResultDefinition::resultVariable() const
+{
+    if ( !isChecked() ) return RiaResultNames::undefinedResultName();
+
+    return m_resultVariable();
 }
 
 //--------------------------------------------------------------------------------------------------
