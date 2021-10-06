@@ -42,11 +42,11 @@ using namespace cvf;
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RivFemPartGeometryGenerator::RivFemPartGeometryGenerator( const RigFemPart* femPart, cvf::Vec3d displayOffset )
-    : m_femPart( femPart )
+RivFemPartGeometryGenerator::RivFemPartGeometryGenerator( const RigFemPart* part, cvf::Vec3d displayOffset )
+    : m_part( part )
     , m_displayOffset( displayOffset )
 {
-    CVF_ASSERT( femPart );
+    CVF_ASSERT( part );
     m_triangleMapper = new RivFemPartTriangleToElmMapper;
 }
 
@@ -139,7 +139,7 @@ void RivFemPartGeometryGenerator::computeArrays( const std::vector<cvf::Vec3f> n
     trianglesToElements.clear();
     trianglesToElementFaces.clear();
 
-    size_t estimatedQuadVxCount = m_femPart->elementCount() * 6 * 4;
+    size_t estimatedQuadVxCount = m_part->elementCount() * 6 * 4;
 
     vertices.reserve( estimatedQuadVxCount );
     m_quadVerticesToNodeIdx.reserve( estimatedQuadVxCount );
@@ -149,20 +149,20 @@ void RivFemPartGeometryGenerator::computeArrays( const std::vector<cvf::Vec3f> n
     trianglesToElementFaces.reserve( estimatedQuadVxCount / 2 );
 
 #pragma omp parallel for schedule( dynamic )
-    for ( int elmIdx = 0; elmIdx < static_cast<int>( m_femPart->elementCount() ); elmIdx++ )
+    for ( int elmIdx = 0; elmIdx < static_cast<int>( m_part->elementCount() ); elmIdx++ )
     {
         if ( m_elmVisibility.isNull() || ( *m_elmVisibility )[elmIdx] )
         {
-            RigElementType eType     = m_femPart->elementType( elmIdx );
+            RigElementType eType     = m_part->elementType( elmIdx );
             int            faceCount = RigFemTypes::elementFaceCount( eType );
 
-            const int* elmNodeIndices = m_femPart->connectivities( elmIdx );
+            const int* elmNodeIndices = m_part->connectivities( elmIdx );
 
             int elmNodFaceResIdxElmStart = elmIdx * 24; // HACK should get from part
 
             for ( int lfIdx = 0; lfIdx < faceCount; ++lfIdx )
             {
-                int elmNeighbor = m_femPart->elementNeighbor( elmIdx, lfIdx );
+                int elmNeighbor = m_part->elementNeighbor( elmIdx, lfIdx );
 
                 if ( elmNeighbor != -1 && ( m_elmVisibility.isNull() || ( *m_elmVisibility )[elmNeighbor] ) )
                 {
@@ -190,10 +190,10 @@ void RivFemPartGeometryGenerator::computeArrays( const std::vector<cvf::Vec3f> n
                     qNodeIdx[3] = elmNodeIndices[localElmNodeIndicesForFace[3]];
 
                     size_t qElmNodeResIdx[4];
-                    qElmNodeResIdx[0] = m_femPart->elementNodeResultIdx( elmIdx, localElmNodeIndicesForFace[0] );
-                    qElmNodeResIdx[1] = m_femPart->elementNodeResultIdx( elmIdx, localElmNodeIndicesForFace[1] );
-                    qElmNodeResIdx[2] = m_femPart->elementNodeResultIdx( elmIdx, localElmNodeIndicesForFace[2] );
-                    qElmNodeResIdx[3] = m_femPart->elementNodeResultIdx( elmIdx, localElmNodeIndicesForFace[3] );
+                    qElmNodeResIdx[0] = m_part->elementNodeResultIdx( elmIdx, localElmNodeIndicesForFace[0] );
+                    qElmNodeResIdx[1] = m_part->elementNodeResultIdx( elmIdx, localElmNodeIndicesForFace[1] );
+                    qElmNodeResIdx[2] = m_part->elementNodeResultIdx( elmIdx, localElmNodeIndicesForFace[2] );
+                    qElmNodeResIdx[3] = m_part->elementNodeResultIdx( elmIdx, localElmNodeIndicesForFace[3] );
 
 #pragma omp critical( critical_section_RivFemPartGeometryGenerator_computeArrays )
                     {
