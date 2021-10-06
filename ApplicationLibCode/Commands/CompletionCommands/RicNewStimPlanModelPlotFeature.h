@@ -22,6 +22,10 @@
 
 #include "RiaDefines.h"
 #include "RiaStimPlanModelDefines.h"
+#include "RimPlot.h"
+#include "RimPlotCurveAppearance.h"
+
+#include "cvfColor3.h"
 
 class RimEclipseCase;
 class RimStimPlanModelPlot;
@@ -66,4 +70,10 @@ private:
     static RimStimPlanModelPlot* createStimPlanModelPlot( bool showAfterCreation, const QString& plotDescription );
 
     static RimStimPlanModelPlotCollection* stimPlanModelPlotCollection();
+
+    static cvf::Color3f                          defaultColor( RiaDefines::CurveProperty property, int colorIndex );
+    static cvf::Color3f                          defaultFillColor( RiaDefines::CurveProperty property );
+    static RimPlotCurveAppearance::FillStyle     defaultFillStyle( RiaDefines::CurveProperty property );
+    static RiuQwtPlotCurveDefines::LineStyleEnum defaultLineStyle( RiaDefines::CurveProperty property );
+    static RimPlot::RowOrColSpan                 defaultColSpan( RiaDefines::CurveProperty property );
 };
