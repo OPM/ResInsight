@@ -64,14 +64,14 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RivFemPartPartMgr::RivFemPartPartMgr( const RigFemPart* femPart, cvf::Vec3d displayOffset )
-    : m_surfaceGenerator( femPart, displayOffset )
-    , m_part( femPart )
+RivFemPartPartMgr::RivFemPartPartMgr( const RigFemPart* part, cvf::Vec3d displayOffset )
+    : m_surfaceGenerator( part, displayOffset )
+    , m_part( part )
     , m_opacityLevel( 1.0f )
     , m_defaultColor( cvf::Color3::WHITE )
 {
-    CVF_ASSERT( femPart );
-    m_partIdx                   = femPart->elementPartId();
+    CVF_ASSERT( part );
+    m_partIdx                   = part->elementPartId();
     m_cellVisibility            = new cvf::UByteArray;
     m_surfaceFacesTextureCoords = new cvf::Vec2fArray;
 }

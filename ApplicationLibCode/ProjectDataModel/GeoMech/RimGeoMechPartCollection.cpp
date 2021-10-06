@@ -96,7 +96,7 @@ std::vector<RimGeoMechPart*> RimGeoMechPartCollection::parts() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const RimGeoMechPart* RimGeoMechPartCollection::part( int partId ) const
+RimGeoMechPart* RimGeoMechPartCollection::part( int partId ) const
 {
     for ( const auto& part : m_parts )
     {
@@ -118,10 +118,8 @@ bool RimGeoMechPartCollection::shouldBeVisibleInTree() const
 //--------------------------------------------------------------------------------------------------
 bool RimGeoMechPartCollection::isPartEnabled( int partId ) const
 {
-    for ( const auto& part : m_parts )
-    {
-        if ( part->partId() == partId ) return part->isChecked();
-    }
+    RimGeoMechPart* thepart = part( partId );
+    if ( thepart ) return thepart->isChecked();
 
     return false;
 }
@@ -149,14 +147,8 @@ int RimGeoMechPartCollection::currentDisplacementTimeStep() const
 //--------------------------------------------------------------------------------------------------
 void RimGeoMechPartCollection::setDisplacementsForPart( int partId, std::vector<cvf::Vec3f> displacements )
 {
-    for ( const auto& part : m_parts )
-    {
-        if ( part->partId() == partId )
-        {
-            part->setDisplacements( displacements );
-            return;
-        }
-    }
+    RimGeoMechPart* thepart = part( partId );
+    if ( thepart ) thepart->setDisplacements( displacements );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -164,13 +156,9 @@ void RimGeoMechPartCollection::setDisplacementsForPart( int partId, std::vector<
 //--------------------------------------------------------------------------------------------------
 const std::vector<cvf::Vec3f> RimGeoMechPartCollection::displacements( int partId ) const
 {
-    for ( const auto& part : m_parts )
-    {
-        if ( part->partId() == partId )
-        {
-            return part->displacements();
-        }
-    }
+    RimGeoMechPart* thepart = part( partId );
+    if ( thepart ) return thepart->displacements();
+
     return std::vector<cvf::Vec3f>();
 }
 

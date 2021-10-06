@@ -148,8 +148,6 @@ void RivFemPartGeometryGenerator::computeArrays( const std::vector<cvf::Vec3f> n
     trianglesToElements.reserve( estimatedQuadVxCount / 2 );
     trianglesToElementFaces.reserve( estimatedQuadVxCount / 2 );
 
-    //    const std::vector<cvf::Vec3f>& nodeCoordinates = m_femPart->nodes().coordinates;
-
 #pragma omp parallel for schedule( dynamic )
     for ( int elmIdx = 0; elmIdx < static_cast<int>( m_femPart->elementCount() ); elmIdx++ )
     {

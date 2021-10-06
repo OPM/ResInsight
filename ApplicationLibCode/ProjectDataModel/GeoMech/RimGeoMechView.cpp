@@ -396,9 +396,7 @@ void RimGeoMechView::onUpdateDisplayModelForCurrentTimeStep()
 
                     cvf::ref<cvf::ModelBasicList> frameParts = new cvf::ModelBasicList;
                     frameParts->setName( name );
-
                     m_vizLogic->appendPartsToModel( m_currentTimeStep, frameParts.p() );
-
                     frameParts->updateBoundingBoxesRecursive();
 
                     frameScene->addModel( frameParts.p() );

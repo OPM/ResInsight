@@ -53,9 +53,10 @@ public:
     double currentScaleFactor() const;
 
     std::vector<RimGeoMechPart*> parts() const;
-    const RimGeoMechPart*        part( int partId ) const;
 
 private:
+    RimGeoMechPart* part( int partId ) const;
+
     caf::PdmChildArrayField<RimGeoMechPart*> m_parts;
     RimGeoMechCase*                          m_case;
 

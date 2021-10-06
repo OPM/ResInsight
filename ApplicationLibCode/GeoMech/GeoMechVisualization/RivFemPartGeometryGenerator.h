@@ -36,7 +36,6 @@ class ScalarMapper;
 } // namespace cvf
 
 class RigFemPartScalarDataAccess;
-class RimGeoMechPart;
 
 //==================================================================================================
 //

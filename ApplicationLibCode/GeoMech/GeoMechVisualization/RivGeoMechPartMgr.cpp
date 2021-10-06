@@ -22,7 +22,6 @@
 #include "RigFemPartCollection.h"
 #include "RigGeoMechCaseData.h"
 
-#include "RimGeoMechPart.h"
 #include "RimGeoMechPartCollection.h"
 
 #include "cvfModelBasicList.h"
