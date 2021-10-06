@@ -24,6 +24,7 @@
 #include "RiaPorosityModel.h"
 
 #include "RigFlowDiagResultAddress.h"
+#include "RimCheckableObject.h"
 #include "RimFlowDiagSolution.h"
 
 #include "cafAppEnum.h"
@@ -48,7 +49,7 @@ class RimTernaryLegendConfig;
 ///
 ///
 //==================================================================================================
-class RimEclipseResultDefinition : public caf::PdmObject
+class RimEclipseResultDefinition : public RimCheckableObject
 {
     CAF_PDM_HEADER_INIT;
 
@@ -79,11 +80,11 @@ public:
     void            setEclipseCase( RimEclipseCase* eclipseCase );
     RimEclipseCase* eclipseCase() const;
 
-    RiaDefines::ResultCatType     resultType() const { return m_resultType(); }
+    RiaDefines::ResultCatType     resultType() const;
     void                          setResultType( RiaDefines::ResultCatType val );
-    RiaDefines::PorosityModelType porosityModel() const { return m_porosityModel(); }
+    RiaDefines::PorosityModelType porosityModel() const;
     void                          setPorosityModel( RiaDefines::PorosityModelType val );
-    QString                       resultVariable() const { return m_resultVariable(); }
+    QString                       resultVariable() const;
     virtual void                  setResultVariable( const QString& val );
     RiaDefines::PhaseType         resultPhaseType() const;
 
