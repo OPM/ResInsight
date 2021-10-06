@@ -61,7 +61,7 @@ RivFemPartGeometryGenerator::~RivFemPartGeometryGenerator()
 /// Generate surface drawable geo from the specified region
 ///
 //--------------------------------------------------------------------------------------------------
-ref<DrawableGeo> RivFemPartGeometryGenerator::generateSurface( const std::vector<cvf::Vec3f> nodeCoordinates )
+ref<DrawableGeo> RivFemPartGeometryGenerator::generateSurface( const std::vector<cvf::Vec3f>& nodeCoordinates )
 {
     computeArrays( nodeCoordinates );
 
@@ -126,7 +126,7 @@ ref<DrawableGeo> RivFemPartGeometryGenerator::createOutlineMeshDrawable( double 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivFemPartGeometryGenerator::computeArrays( const std::vector<cvf::Vec3f> nodeCoordinates )
+void RivFemPartGeometryGenerator::computeArrays( const std::vector<cvf::Vec3f>& nodeCoordinates )
 {
     std::vector<Vec3f> vertices;
     std::vector<int>&  trianglesToElements     = m_triangleMapper->triangleToElmIndexMap();

@@ -55,7 +55,7 @@ public:
     void                      setCellVisibility( cvf::UByteArray* cellVisibilities );
     cvf::ref<cvf::UByteArray> cellVisibility() { return m_cellVisibility; }
 
-    void setDisplacements( bool useDisplacements, double scalingFactor, std::vector<cvf::Vec3f> displacements );
+    void setDisplacements( bool useDisplacements, double scalingFactor, const std::vector<cvf::Vec3f>& displacements );
 
     void updateCellColor( cvf::Color4f color );
     void updateCellResultColor( size_t timeStepIndex, RimGeoMechCellColors* cellResultColors );

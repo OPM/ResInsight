@@ -83,7 +83,7 @@ void RimGeoMechPart::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGeoMechPart::setDisplacements( std::vector<cvf::Vec3f> displacements )
+void RimGeoMechPart::setDisplacements( std::vector<cvf::Vec3f>& displacements )
 {
     m_displacements = displacements;
 }

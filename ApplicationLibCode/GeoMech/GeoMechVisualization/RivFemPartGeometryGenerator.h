@@ -80,7 +80,7 @@ public:
 
     // Generated geometry
 
-    cvf::ref<cvf::DrawableGeo> generateSurface( const std::vector<cvf::Vec3f> nodeCoordinates );
+    cvf::ref<cvf::DrawableGeo> generateSurface( const std::vector<cvf::Vec3f>& nodeCoordinates );
     cvf::ref<cvf::DrawableGeo> createMeshDrawable();
     cvf::ref<cvf::DrawableGeo> createOutlineMeshDrawable( double creaseAngle );
 
@@ -99,7 +99,7 @@ public:
                                                                            const cvf::Vec3d& displayModelOffset );
 
 private:
-    void computeArrays( const std::vector<cvf::Vec3f> nodeCoordinates );
+    void computeArrays( const std::vector<cvf::Vec3f>& nodeCoordinates );
 
 private:
     // Input

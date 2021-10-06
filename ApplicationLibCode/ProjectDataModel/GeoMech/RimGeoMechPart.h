@@ -38,7 +38,7 @@ public:
     void setPartId( int partId );
     int  partId() const;
 
-    void                          setDisplacements( std::vector<cvf::Vec3f> displacements );
+    void                          setDisplacements( std::vector<cvf::Vec3f>& displacements );
     const std::vector<cvf::Vec3f> displacements() const;
 
 protected:
