@@ -424,3 +424,20 @@ std::vector<cvf::ref<RigStimPlanFractureDefinition>> RigEnsembleFractureStatisti
 
     return filteredFractureDefinitions;
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RigEnsembleFractureStatisticsCalculator::PropertyType> RigEnsembleFractureStatisticsCalculator::propertyTypes()
+{
+    std::vector<RigEnsembleFractureStatisticsCalculator::PropertyType> types = {
+        RigEnsembleFractureStatisticsCalculator::PropertyType::HEIGHT,
+        RigEnsembleFractureStatisticsCalculator::PropertyType::XF,
+        RigEnsembleFractureStatisticsCalculator::PropertyType::AREA,
+        RigEnsembleFractureStatisticsCalculator::PropertyType::PERMEABILITY,
+        RigEnsembleFractureStatisticsCalculator::PropertyType::WIDTH,
+        RigEnsembleFractureStatisticsCalculator::PropertyType::KFWF,
+        RigEnsembleFractureStatisticsCalculator::PropertyType::FORMATION_DIP,
+    };
+    return types;
+}

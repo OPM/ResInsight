@@ -28,6 +28,7 @@
 
 #include "RifStimPlanXmlReader.h"
 
+#include "RigEnsembleFractureStatisticsCalculator.h"
 #include "RigFractureGrid.h"
 #include "RigStimPlanFractureDefinition.h"
 #include "RigTransmissibilityEquations.h"
@@ -328,6 +329,8 @@ void RimStimPlanFractureTemplate::loadDataAndUpdate()
     // Todo: Must update all views using this fracture template
     RimEclipseView* activeView = dynamic_cast<RimEclipseView*>( RiaApplication::instance()->activeReservoirView() );
     if ( activeView ) activeView->fractureColors()->loadDataAndUpdate();
+
+    m_propertiesTable = generatePropertiesTable();
 
     updateConnectedEditors();
 }
@@ -1189,11 +1192,25 @@ QString RimStimPlanFractureTemplate::generatePropertiesTable() const
 
     if ( !m_stimPlanFractureDefinitionData.isNull() )
     {
-        appendTextIfValidValue( body, "Formation Dip", m_stimPlanFractureDefinitionData->formationDip() );
         appendTextIfValidValue( body, "Top MD", m_stimPlanFractureDefinitionData->topPerfMd() );
         appendTextIfValidValue( body, "Bottom MD", m_stimPlanFractureDefinitionData->bottomPerfMd() );
         appendTextIfValidValue( body, "Top TVD", m_stimPlanFractureDefinitionData->topPerfTvd() );
         appendTextIfValidValue( body, "Bottom TVD", m_stimPlanFractureDefinitionData->bottomPerfTvd() );
+
+        std::vector<cvf::ref<RigStimPlanFractureDefinition>> fractureDefinitions = { m_stimPlanFractureDefinitionData };
+
+        std::vector<RigEnsembleFractureStatisticsCalculator::PropertyType> propertyTypes =
+            RigEnsembleFractureStatisticsCalculator::propertyTypes();
+        for ( auto propertyType : propertyTypes )
+        {
+            std::vector<double> values =
+                RigEnsembleFractureStatisticsCalculator::calculateProperty( fractureDefinitions, propertyType );
+            if ( !values.empty() )
+            {
+                QString name = caf::AppEnum<RigEnsembleFractureStatisticsCalculator::PropertyType>::uiText( propertyType );
+                appendTextIfValidValue( body, name, values[0] );
+            }
+        }
     }
 
     return body;
