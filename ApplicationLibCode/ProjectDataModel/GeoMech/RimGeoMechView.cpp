@@ -102,6 +102,9 @@ RimGeoMechView::RimGeoMechView( void )
     m_partsCollection = new RimGeoMechPartCollection();
     m_partsCollection.uiCapability()->setUiHidden( true );
 
+    CAF_PDM_InitField( &m_showDisplacement, "ShowDisplacement", false, "Show Displacement", "", "", "" );
+    CAF_PDM_InitField( &m_displacementScaling, "DisplacementScaling", 1.0, "Scaling Factor", "", "", "" );
+
     m_scaleTransform = new cvf::Transform();
     m_vizLogic       = new RivGeoMechVizLogic( this );
     m_tensorPartMgr  = new RivTensorResultPartMgr( this );
@@ -257,6 +260,8 @@ void RimGeoMechView::onCreateDisplayModel()
         theParts->part( i )->setEnabled( m_partsCollection()->isPartEnabled( i ) );
     }
 
+    updateElementDisplacements();
+
     // Remove all existing animation frames from the viewer.
     // The parts are still cached in the RivReservoir geometry and friends
 
@@ -346,9 +351,36 @@ RimPropertyFilterCollection* RimGeoMechView::nativePropertyFilterCollection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimGeoMechView::updateElementDisplacements()
+{
+    if ( !m_partsCollection->shouldRebuildPartVisualization( m_currentTimeStep, m_showDisplacement, m_displacementScaling ) )
+        return;
+
+    if ( m_partsCollection->shouldReloadDisplacements( m_currentTimeStep, m_showDisplacement, m_displacementScaling ) )
+    {
+        for ( auto part : m_partsCollection->parts() )
+        {
+            std::string             errmsg;
+            std::vector<cvf::Vec3f> displacements;
+            m_geomechCase->geoMechData()->readDisplacements( &errmsg, part->partId(), m_currentTimeStep, &displacements );
+            part->setDisplacements( displacements );
+        }
+    }
+    // store current settings so that we know if we need to rebuild later if any of them changes
+    m_partsCollection->setCurrentDisplacementSettings( m_currentTimeStep, m_showDisplacement, m_displacementScaling );
+
+    // tell geometry generator to regenerate grid
+    m_vizLogic->scheduleGeometryRegenOfVisiblePartMgrs( m_currentTimeStep );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimGeoMechView::onUpdateDisplayModelForCurrentTimeStep()
 {
     onUpdateLegends();
+
+    updateElementDisplacements();
 
     if ( this->isTimeStepDependentDataVisibleInThisOrComparisonView() )
     {
@@ -800,6 +832,11 @@ bool RimGeoMechView::isTimeStepDependentDataVisible() const
         return true;
     }
 
+    if ( ( m_showDisplacement ) || m_partsCollection->isDisplacementsUsed() )
+    {
+        return true;
+    }
+
     return false;
 }
 
@@ -819,6 +856,11 @@ void RimGeoMechView::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
                                        const QVariant&            newValue )
 {
     RimGridView::fieldChangedByUi( changedField, oldValue, newValue );
+
+    if ( ( changedField == &m_showDisplacement ) || ( ( changedField == &m_displacementScaling ) && m_showDisplacement() ) )
+    {
+        this->createDisplayModelAndRedraw();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -955,6 +997,10 @@ void RimGeoMechView::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
 
     caf::PdmUiGroup* nameGroup = uiOrdering.addNewGroup( "View Name" );
     nameConfig()->uiOrdering( uiConfigName, *nameGroup );
+
+    auto displacementGroup = uiOrdering.addNewGroup( "Displacements" );
+    displacementGroup->add( &m_showDisplacement );
+    displacementGroup->add( &m_displacementScaling );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1001,4 +1047,20 @@ const RimPropertyFilterCollection* RimGeoMechView::propertyFilterCollection() co
 const RimGeoMechPartCollection* RimGeoMechView::partsCollection() const
 {
     return m_partsCollection();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimGeoMechView::displacementScaleFactor() const
+{
+    return m_displacementScaling;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimGeoMechView::showDisplacements() const
+{
+    return m_showDisplacement;
 }

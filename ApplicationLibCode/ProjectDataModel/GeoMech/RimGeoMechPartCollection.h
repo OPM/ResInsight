@@ -21,6 +21,10 @@
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 
+#include "cvfVector3.h"
+
+#include <vector>
+
 class RimGeoMechPart;
 class RimGeoMechCase;
 
@@ -34,13 +38,29 @@ public:
 
     void syncWithCase( RimGeoMechCase* geoCase );
 
+    bool shouldRebuildPartVisualization( int currentTimeStep, bool showDisplacement, double scaleFactor );
+    bool shouldReloadDisplacements( int currentTimeStep, bool showDisplacement, double scaleFactor );
     bool shouldBeVisibleInTree() const;
 
     bool isPartEnabled( int partId ) const;
 
+    void                          setDisplacementsForPart( int partId, std::vector<cvf::Vec3f> displacements );
+    const std::vector<cvf::Vec3f> displacements( int partId ) const;
+
+    void   setCurrentDisplacementSettings( int currentTimeStep, bool showDisplacement, double scaleFactor );
+    bool   isDisplacementsUsed() const;
+    int    currentDisplacementTimeStep() const;
+    double currentScaleFactor() const;
+
     std::vector<RimGeoMechPart*> parts() const;
 
 private:
+    RimGeoMechPart* part( int partId ) const;
+
     caf::PdmChildArrayField<RimGeoMechPart*> m_parts;
     RimGeoMechCase*                          m_case;
+
+    int    m_currentDisplacementTimeStep;
+    double m_currentScaleFactor;
+    bool   m_displacementsUsed;
 };

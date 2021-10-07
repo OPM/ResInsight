@@ -36,6 +36,9 @@ CAF_PDM_SOURCE_INIT( RimGeoMechPartCollection, "GeoMechPartCollection" );
 //--------------------------------------------------------------------------------------------------
 RimGeoMechPartCollection::RimGeoMechPartCollection()
     : m_case( nullptr )
+    , m_currentDisplacementTimeStep( -1 )
+    , m_displacementsUsed( false )
+    , m_currentScaleFactor( 1.0 )
 {
     CAF_PDM_InitScriptableObject( "Parts", ":/GeoMechCase24x24.png", "", "" );
 
@@ -93,6 +96,18 @@ std::vector<RimGeoMechPart*> RimGeoMechPartCollection::parts() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RimGeoMechPart* RimGeoMechPartCollection::part( int partId ) const
+{
+    for ( const auto& part : m_parts )
+    {
+        if ( part->partId() == partId ) return part;
+    }
+    return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RimGeoMechPartCollection::shouldBeVisibleInTree() const
 {
     return m_parts.size() > 1;
@@ -103,10 +118,88 @@ bool RimGeoMechPartCollection::shouldBeVisibleInTree() const
 //--------------------------------------------------------------------------------------------------
 bool RimGeoMechPartCollection::isPartEnabled( int partId ) const
 {
-    for ( const auto& part : m_parts )
-    {
-        if ( part->partId() == partId ) return part->isChecked();
-    }
+    RimGeoMechPart* thepart = part( partId );
+    if ( thepart ) return thepart->isChecked();
 
     return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGeoMechPartCollection::setCurrentDisplacementSettings( int currentTimeStep, bool showDisplacement, double scaleFactor )
+{
+    m_currentDisplacementTimeStep = currentTimeStep;
+    m_displacementsUsed           = showDisplacement;
+    m_currentScaleFactor          = scaleFactor;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RimGeoMechPartCollection::currentDisplacementTimeStep() const
+{
+    return m_currentDisplacementTimeStep;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGeoMechPartCollection::setDisplacementsForPart( int partId, std::vector<cvf::Vec3f> displacements )
+{
+    RimGeoMechPart* thepart = part( partId );
+    if ( thepart ) thepart->setDisplacements( displacements );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const std::vector<cvf::Vec3f> RimGeoMechPartCollection::displacements( int partId ) const
+{
+    RimGeoMechPart* thepart = part( partId );
+    if ( thepart ) return thepart->displacements();
+
+    return std::vector<cvf::Vec3f>();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimGeoMechPartCollection::isDisplacementsUsed() const
+{
+    return m_displacementsUsed;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimGeoMechPartCollection::shouldRebuildPartVisualization( int currentTimeStep, bool showDisplacement, double scaleFactor )
+{
+    // if show flag has changed, we need to rebuild grid viz.
+    bool retVal = m_displacementsUsed != showDisplacement;
+
+    // if scaling or timestep has changed, we need to rebuild grid if the displacement should be visible
+    if ( showDisplacement )
+        retVal = retVal || ( m_currentDisplacementTimeStep != currentTimeStep ) ||
+                 ( std::abs( m_currentScaleFactor - scaleFactor ) > 0.0001 );
+
+    return retVal;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimGeoMechPartCollection::shouldReloadDisplacements( int currentTimeStep, bool showDisplacement, double scaleFactor )
+{
+    // no need to reload something we are not showing
+    if ( !showDisplacement ) return false;
+
+    // if we have no displacements at all, we need to reload.
+    for ( const auto& part : m_parts )
+    {
+        if ( part->displacements().size() == 0 ) return true;
+    }
+
+    // if timestep has changed we need to reload
+    return m_currentDisplacementTimeStep != currentTimeStep;
 }

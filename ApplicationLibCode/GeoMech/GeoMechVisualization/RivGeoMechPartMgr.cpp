@@ -18,12 +18,15 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RivGeoMechPartMgr.h"
-#include "cvfModelBasicList.h"
-#include "cvfPart.h"
-#include <cstdlib>
 
 #include "RigFemPartCollection.h"
 #include "RigGeoMechCaseData.h"
+
+#include "RimGeoMechPartCollection.h"
+
+#include "cvfModelBasicList.h"
+#include "cvfPart.h"
+#include <cstdlib>
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -56,6 +59,17 @@ void RivGeoMechPartMgr::clearAndSetReservoir( const RigGeoMechCaseData* geoMechC
         {
             m_femPartPartMgrs.push_back( new RivFemPartPartMgr( femParts->part( i ), displayOffset ) );
         }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RivGeoMechPartMgr::updateDisplacements( const RimGeoMechPartCollection* parts, bool showDisplacements, double scaleFactor )
+{
+    for ( size_t i = 0; i < m_femPartPartMgrs.size(); i++ )
+    {
+        m_femPartPartMgrs[i]->setDisplacements( showDisplacements, scaleFactor, parts->displacements( (int)i ) );
     }
 }
 

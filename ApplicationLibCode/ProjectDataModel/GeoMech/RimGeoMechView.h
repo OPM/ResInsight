@@ -37,6 +37,7 @@ class Rim3dOverlayInfoConfig;
 class RimCellRangeFilterCollection;
 class RimGeoMechCase;
 class RimGeoMechCellColors;
+class RimGeoMechPartCollection;
 class RimGeoMechPropertyFilterCollection;
 class RimGeoMechResultDefinition;
 class RimRegularLegendConfig;
@@ -105,6 +106,9 @@ public:
 
     void convertCameraPositionFromOldProjectFiles();
 
+    double displacementScaleFactor() const;
+    bool   showDisplacements() const;
+
 protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
@@ -133,14 +137,18 @@ private:
 
     void updateTensorLegendTextAndRanges( RimRegularLegendConfig* legendConfig, int timeStepIndex );
 
+    void updateElementDisplacements();
+
     caf::PdmChildField<RimTensorResults*>                   m_tensorResults;
     caf::PdmChildField<RimGeoMechPropertyFilterCollection*> m_propertyFilterCollection;
     caf::PdmPointer<RimGeoMechPropertyFilterCollection>     m_overridePropertyFilterCollection;
     caf::PdmChildField<RimGeoMechPartCollection*>           m_partsCollection;
+    caf::PdmPointer<RimGeoMechCase>                         m_geomechCase;
+    caf::PdmField<bool>                                     m_showDisplacement;
+    caf::PdmField<double>                                   m_displacementScaling;
 
-    caf::PdmPointer<RimGeoMechCase> m_geomechCase;
-    cvf::ref<RivGeoMechVizLogic>    m_vizLogic;
-    cvf::ref<cvf::Transform>        m_scaleTransform;
+    cvf::ref<RivGeoMechVizLogic> m_vizLogic;
+    cvf::ref<cvf::Transform>     m_scaleTransform;
 
     cvf::ref<RivTensorResultPartMgr> m_tensorPartMgr;
 };

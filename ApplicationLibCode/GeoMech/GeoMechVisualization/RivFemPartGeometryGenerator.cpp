@@ -61,9 +61,9 @@ RivFemPartGeometryGenerator::~RivFemPartGeometryGenerator()
 /// Generate surface drawable geo from the specified region
 ///
 //--------------------------------------------------------------------------------------------------
-ref<DrawableGeo> RivFemPartGeometryGenerator::generateSurface()
+ref<DrawableGeo> RivFemPartGeometryGenerator::generateSurface( const std::vector<cvf::Vec3f>& nodeCoordinates )
 {
-    computeArrays();
+    computeArrays( nodeCoordinates );
 
     CVF_ASSERT( m_quadVertices.notNull() );
 
@@ -126,7 +126,7 @@ ref<DrawableGeo> RivFemPartGeometryGenerator::createOutlineMeshDrawable( double 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivFemPartGeometryGenerator::computeArrays()
+void RivFemPartGeometryGenerator::computeArrays( const std::vector<cvf::Vec3f>& nodeCoordinates )
 {
     std::vector<Vec3f> vertices;
     std::vector<int>&  trianglesToElements     = m_triangleMapper->triangleToElmIndexMap();
@@ -147,8 +147,6 @@ void RivFemPartGeometryGenerator::computeArrays()
     m_quadVerticesToGlobalElmIdx.reserve( estimatedQuadVxCount );
     trianglesToElements.reserve( estimatedQuadVxCount / 2 );
     trianglesToElementFaces.reserve( estimatedQuadVxCount / 2 );
-
-    const std::vector<cvf::Vec3f>& nodeCoordinates = m_part->nodes().coordinates;
 
 #pragma omp parallel for schedule( dynamic )
     for ( int elmIdx = 0; elmIdx < static_cast<int>( m_part->elementCount() ); elmIdx++ )
