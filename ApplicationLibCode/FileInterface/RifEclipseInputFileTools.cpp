@@ -1081,24 +1081,8 @@ void RifEclipseInputFileTools::parseAndReadPathAliasKeyword( const QString&     
 //--------------------------------------------------------------------------------------------------
 const std::vector<QString>& RifEclipseInputFileTools::invalidPropertyDataKeywords()
 {
-    static std::vector<QString> keywords;
-    static bool                 isInitialized = false;
-    if ( !isInitialized )
-    {
-        // Related to geometry
-        keywords.push_back( "COORD" );
-        keywords.push_back( "ZCORN" );
-        keywords.push_back( "SPECGRID" );
-        keywords.push_back( "MAPAXES" );
-        keywords.push_back( "NOECHO" );
-        keywords.push_back( "ECHO" );
-        keywords.push_back( "MAPUNITS" );
-        keywords.push_back( "GRIDUNIT" );
-
-        keywords.push_back( faultsKeyword );
-
-        isInitialized = true;
-    }
+    static std::vector<QString> keywords =
+        { "COORD", "ZCORN", "SPECGRID", "MAPAXES", "NOECHO", "ECHO", "MAPUNITS", "GRIDUNIT", "GDORIENT", "INC", "DEC", faultsKeyword };
 
     return keywords;
 }
