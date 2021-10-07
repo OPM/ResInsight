@@ -1212,15 +1212,8 @@ void RimEnsembleFractureStatistics::generateStatisticsGrids(
 QString RimEnsembleFractureStatistics::generateStatisticsTable(
     const std::vector<cvf::ref<RigStimPlanFractureDefinition>>& stimPlanFractureDefinitions ) const
 {
-    std::vector<RigEnsembleFractureStatisticsCalculator::PropertyType> propertyTypes = {
-        RigEnsembleFractureStatisticsCalculator::PropertyType::HEIGHT,
-        RigEnsembleFractureStatisticsCalculator::PropertyType::XF,
-        RigEnsembleFractureStatisticsCalculator::PropertyType::AREA,
-        RigEnsembleFractureStatisticsCalculator::PropertyType::PERMEABILITY,
-        RigEnsembleFractureStatisticsCalculator::PropertyType::WIDTH,
-        RigEnsembleFractureStatisticsCalculator::PropertyType::KFWF,
-        RigEnsembleFractureStatisticsCalculator::PropertyType::FORMATION_DIP,
-    };
+    std::vector<RigEnsembleFractureStatisticsCalculator::PropertyType> propertyTypes =
+        RigEnsembleFractureStatisticsCalculator::propertyTypes();
 
     QString text;
     text += "<table border=1><thead><tr bgcolor=lightblue>";

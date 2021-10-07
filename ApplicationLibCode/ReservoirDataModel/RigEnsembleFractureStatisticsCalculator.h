@@ -64,6 +64,8 @@ public:
         calculateProperty( const std::vector<cvf::ref<RigStimPlanFractureDefinition>>& fractureDefinitions,
                            PropertyType                                                propertyType );
 
+    static std::vector<RigEnsembleFractureStatisticsCalculator::PropertyType> propertyTypes();
+
 private:
     static std::vector<double>
         calculateGridStatistics( const std::vector<cvf::ref<RigStimPlanFractureDefinition>>& fractureDefinitions,
