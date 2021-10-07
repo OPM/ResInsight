@@ -526,22 +526,26 @@ bool RicNewStimPlanModelPlotFeature::shouldShowByDefault( const std::vector<RiaD
 //--------------------------------------------------------------------------------------------------
 cvf::Color3f RicNewStimPlanModelPlotFeature::defaultColor( RiaDefines::CurveProperty property, int colorIndex )
 {
-    if ( property == RiaDefines::CurveProperty::LAYERS ) return cvf::Color3f( 0.0, 0.0, 1.0 );
-    if ( property == RiaDefines::CurveProperty::POROSITY ) return cvf::Color3f( 0.804, 0.522, 0.247 );
-    if ( property == RiaDefines::CurveProperty::POROSITY_UNSCALED ) return cvf::Color3f::BLACK;
-    if ( property == RiaDefines::CurveProperty::PERMEABILITY_X ) return cvf::Color3f( 0.745, 0.0, 0.0 );
-    if ( property == RiaDefines::CurveProperty::PERMEABILITY_Z ) return cvf::Color3f::RED;
-    if ( property == RiaDefines::CurveProperty::INITIAL_PRESSURE ) return cvf::Color3f::BLACK;
-    if ( property == RiaDefines::CurveProperty::PRESSURE ) return cvf::Color3f( 0.0, 0.333, 1.0 );
-    if ( property == RiaDefines::CurveProperty::INITIAL_STRESS ) return cvf::Color3f::BLACK;
-    if ( property == RiaDefines::CurveProperty::STRESS ) return cvf::Color3f( 0.541, 0.169, 0.886 );
-    if ( property == RiaDefines::CurveProperty::STRESS_GRADIENT ) return cvf::Color3f( 0.522, 0.522, 0.784 );
-    if ( property == RiaDefines::CurveProperty::YOUNGS_MODULUS ) return cvf::Color3f( 0.565, 0.565, 0.424 );
-    if ( property == RiaDefines::CurveProperty::POISSONS_RATIO ) return cvf::Color3f( 0.804, 0.522, 0.247 );
-    if ( property == RiaDefines::CurveProperty::BIOT_COEFFICIENT ) return cvf::Color3f( 0.0, 0.506, 0.761 );
-    if ( property == RiaDefines::CurveProperty::K0 ) return cvf::Color3f( 0.294, 0.765, 0.529 );
-    if ( property == RiaDefines::CurveProperty::K_IC ) return cvf::Color3f( 0.576, 0.576, 0.0 );
-    if ( property == RiaDefines::CurveProperty::PROPPANT_EMBEDMENT ) return cvf::Color3f( 0.667, 0.333, 0.498 );
+    std::map<RiaDefines::CurveProperty, cvf::Color3f> colorMap;
+
+    colorMap[RiaDefines::CurveProperty::LAYERS]             = cvf::Color3f( 0.000f, 0.000f, 1.000f );
+    colorMap[RiaDefines::CurveProperty::POROSITY]           = cvf::Color3f( 0.804f, 0.522f, 0.247f );
+    colorMap[RiaDefines::CurveProperty::POROSITY_UNSCALED]  = cvf::Color3f::BLACK;
+    colorMap[RiaDefines::CurveProperty::PERMEABILITY_X]     = cvf::Color3f( 0.745f, 0.000f, 0.000f );
+    colorMap[RiaDefines::CurveProperty::PERMEABILITY_Z]     = cvf::Color3f::RED;
+    colorMap[RiaDefines::CurveProperty::INITIAL_PRESSURE]   = cvf::Color3f::BLACK;
+    colorMap[RiaDefines::CurveProperty::PRESSURE]           = cvf::Color3f( 0.000f, 0.333f, 1.000f );
+    colorMap[RiaDefines::CurveProperty::INITIAL_STRESS]     = cvf::Color3f::BLACK;
+    colorMap[RiaDefines::CurveProperty::STRESS]             = cvf::Color3f( 0.541f, 0.169f, 0.886f );
+    colorMap[RiaDefines::CurveProperty::STRESS_GRADIENT]    = cvf::Color3f( 0.522f, 0.522f, 0.784f );
+    colorMap[RiaDefines::CurveProperty::YOUNGS_MODULUS]     = cvf::Color3f( 0.565f, 0.565f, 0.424f );
+    colorMap[RiaDefines::CurveProperty::POISSONS_RATIO]     = cvf::Color3f( 0.804f, 0.522f, 0.247f );
+    colorMap[RiaDefines::CurveProperty::BIOT_COEFFICIENT]   = cvf::Color3f( 0.000f, 0.506f, 0.761f );
+    colorMap[RiaDefines::CurveProperty::K0]                 = cvf::Color3f( 0.294f, 0.765f, 0.529f );
+    colorMap[RiaDefines::CurveProperty::K_IC]               = cvf::Color3f( 0.576f, 0.576f, 0.000f );
+    colorMap[RiaDefines::CurveProperty::PROPPANT_EMBEDMENT] = cvf::Color3f( 0.667f, 0.333f, 0.498f );
+
+    if ( colorMap.count( property ) > 0 ) return colorMap[property];
 
     caf::ColorTable colors = RiaColorTables::wellLogPlotPaletteColors();
     return colors.cycledColor3f( colorIndex );
@@ -552,16 +556,20 @@ cvf::Color3f RicNewStimPlanModelPlotFeature::defaultColor( RiaDefines::CurveProp
 //--------------------------------------------------------------------------------------------------
 cvf::Color3f RicNewStimPlanModelPlotFeature::defaultFillColor( RiaDefines::CurveProperty property )
 {
-    if ( property == RiaDefines::CurveProperty::POROSITY ) return cvf::Color3f( 0.988, 0.635, 0.302 );
-    if ( property == RiaDefines::CurveProperty::PERMEABILITY_X ) return cvf::Color3f( 1.0, 0.486, 0.486 );
-    if ( property == RiaDefines::CurveProperty::PERMEABILITY_Z ) return cvf::Color3f( 1.0, 0.486, 0.486 );
-    if ( property == RiaDefines::CurveProperty::STRESS_GRADIENT ) return cvf::Color3f( 0.667, 0.6667, 1.0 );
-    if ( property == RiaDefines::CurveProperty::YOUNGS_MODULUS ) return cvf::Color3f( 0.667, 0.667, 0.498 );
-    if ( property == RiaDefines::CurveProperty::POISSONS_RATIO ) return cvf::Color3f( 1.0, 0.667, 0.498 );
-    if ( property == RiaDefines::CurveProperty::BIOT_COEFFICIENT ) return cvf::Color3f( 0.647, 0.847, 1.0 );
-    if ( property == RiaDefines::CurveProperty::K0 ) return cvf::Color3f( 0.482, 0.765, 0.573 );
-    if ( property == RiaDefines::CurveProperty::K_IC ) return cvf::Color3f( 0.839, 0.729, 0.0941 );
-    if ( property == RiaDefines::CurveProperty::PROPPANT_EMBEDMENT ) return cvf::Color3f( 0.882, 0.439, 0.663 );
+    std::map<RiaDefines::CurveProperty, cvf::Color3f> colorMap;
+
+    colorMap[RiaDefines::CurveProperty::POROSITY]           = cvf::Color3f( 0.988f, 0.635f, 0.302f );
+    colorMap[RiaDefines::CurveProperty::PERMEABILITY_X]     = cvf::Color3f( 1.000f, 0.486f, 0.486f );
+    colorMap[RiaDefines::CurveProperty::PERMEABILITY_Z]     = cvf::Color3f( 1.000f, 0.486f, 0.486f );
+    colorMap[RiaDefines::CurveProperty::STRESS_GRADIENT]    = cvf::Color3f( 0.667f, 0.667f, 1.000f );
+    colorMap[RiaDefines::CurveProperty::YOUNGS_MODULUS]     = cvf::Color3f( 0.667f, 0.667f, 0.498f );
+    colorMap[RiaDefines::CurveProperty::POISSONS_RATIO]     = cvf::Color3f( 1.000f, 0.667f, 0.498f );
+    colorMap[RiaDefines::CurveProperty::BIOT_COEFFICIENT]   = cvf::Color3f( 0.647f, 0.847f, 1.000f );
+    colorMap[RiaDefines::CurveProperty::K0]                 = cvf::Color3f( 0.482f, 0.765f, 0.573f );
+    colorMap[RiaDefines::CurveProperty::K_IC]               = cvf::Color3f( 0.839f, 0.729f, 0.941f );
+    colorMap[RiaDefines::CurveProperty::PROPPANT_EMBEDMENT] = cvf::Color3f( 0.882f, 0.439f, 0.663f );
+
+    if ( colorMap.count( property ) > 0 ) return colorMap[property];
 
     return cvf::Color3f::LIGHT_GRAY;
 }
