@@ -44,13 +44,11 @@ public:
 
     bool isPartEnabled( int partId ) const;
 
-    void                          setDisplacementsForPart( int partId, std::vector<cvf::Vec3f> displacements );
     const std::vector<cvf::Vec3f> displacements( int partId ) const;
 
-    void   setCurrentDisplacementSettings( int currentTimeStep, bool showDisplacement, double scaleFactor );
-    bool   isDisplacementsUsed() const;
-    int    currentDisplacementTimeStep() const;
-    double currentScaleFactor() const;
+    void setCurrentDisplacementSettings( int currentTimeStep, bool showDisplacement, double scaleFactor );
+    bool isDisplacementsUsed() const;
+    int  currentDisplacementTimeStep() const;
 
     std::vector<RimGeoMechPart*> parts() const;
 
