@@ -1214,17 +1214,17 @@ QString RimEnsembleFractureStatistics::generateStatisticsTable(
 {
     std::vector<RigEnsembleFractureStatisticsCalculator::PropertyType> propertyTypes = {
         RigEnsembleFractureStatisticsCalculator::PropertyType::HEIGHT,
-        RigEnsembleFractureStatisticsCalculator::PropertyType::AREA,
-        RigEnsembleFractureStatisticsCalculator::PropertyType::WIDTH,
         RigEnsembleFractureStatisticsCalculator::PropertyType::XF,
-        RigEnsembleFractureStatisticsCalculator::PropertyType::KFWF,
+        RigEnsembleFractureStatisticsCalculator::PropertyType::AREA,
         RigEnsembleFractureStatisticsCalculator::PropertyType::PERMEABILITY,
+        RigEnsembleFractureStatisticsCalculator::PropertyType::WIDTH,
+        RigEnsembleFractureStatisticsCalculator::PropertyType::KFWF,
         RigEnsembleFractureStatisticsCalculator::PropertyType::FORMATION_DIP,
     };
 
     QString text;
     text += "<table border=1><thead><tr bgcolor=lightblue>";
-    std::vector<QString> statisticsTypes = { "Name", "Mean", "Minimum", "Maximum", "P10", "P90" };
+    std::vector<QString> statisticsTypes = { "Name", "Minimum", "P90", "Mean", "P10", "Maximum" };
     for ( auto statType : statisticsTypes )
     {
         text += QString( "<th>%1</th>" ).arg( statType );
@@ -1258,11 +1258,11 @@ QString RimEnsembleFractureStatistics::generateStatisticsTable(
                          "<td align=right>%6</td>"
                          "</tr>" )
                     .arg( name )
-                    .arg( emptyTextOnInf( histogramData.mean ) )
                     .arg( emptyTextOnInf( histogramData.min ) )
-                    .arg( emptyTextOnInf( histogramData.max ) )
+                    .arg( emptyTextOnInf( histogramData.p90 ) )
+                    .arg( emptyTextOnInf( histogramData.mean ) )
                     .arg( emptyTextOnInf( histogramData.p10 ) )
-                    .arg( emptyTextOnInf( histogramData.p90 ) );
+                    .arg( emptyTextOnInf( histogramData.max ) );
     }
 
     text += "</tbody>";
