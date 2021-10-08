@@ -251,11 +251,12 @@ void RicCreateEnsembleWellLogFeature::executeCommand( const RicCreateEnsembleWel
                     RimcWellLogPlotCollection_newWellLogPlot::createWellLogPlot( plotCollection, wellPath, eclipseCase );
 
                 // Create a track per property
+                int trackNum = 0;
                 for ( const auto& property : properties )
                 {
                     // Create well log track
-                    cvf::Color3f color = RiaColorTables::normalPaletteColors().cycledColor3f( wellLogPlot->plotCount() );
-                    QString      title = QString( "Track %1" ).arg( wellLogPlot->plotCount() );
+                    cvf::Color3f     color = RiaColorTables::normalPaletteColors().cycledColor3f( trackNum );
+                    QString          title = QString( "Track %1" ).arg( trackNum );
                     RimWellLogTrack* wellLogTrack =
                         RimcWellLogPlot_newWellLogTrack::createWellLogTrack( wellLogPlot, eclipseCase, wellPath, title );
                     auto* ensembleWellLogCurveSet = new RimEnsembleWellLogCurveSet();
@@ -264,6 +265,7 @@ void RicCreateEnsembleWellLogFeature::executeCommand( const RicCreateEnsembleWel
                     ensembleWellLogCurveSet->setWellLogChannelName( property.first );
                     wellLogTrack->setEnsembleWellLogCurveSet( ensembleWellLogCurveSet );
                     ensembleWellLogCurveSet->loadDataAndUpdate( true );
+                    trackNum++;
                 }
 
                 wellLogPlot->updateConnectedEditors();
