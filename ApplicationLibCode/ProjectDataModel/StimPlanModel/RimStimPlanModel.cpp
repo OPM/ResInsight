@@ -726,7 +726,7 @@ void RimStimPlanModel::updateDistanceToBarrierAndDip()
                               .arg( barrierDip )
                               .arg( foundFault->name() ) );
         QString barrierText =
-            QString( "Barrier Fault: %1\nDistance: %2m" ).arg( foundFault->name() ).arg( shortestDistance );
+            QString( "Barrier Fault for %1\nFault: %2\nDistance: %3m" ).arg( name() ).arg( foundFault->name() ).arg( shortestDistance );
 
         clearBarrierAnnotation();
         addBarrierAnnotation( position, barrierPosition, barrierText );
