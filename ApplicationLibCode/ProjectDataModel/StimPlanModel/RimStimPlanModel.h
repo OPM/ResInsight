@@ -253,17 +253,16 @@ protected:
     caf::PdmField<double>                            m_azimuthAngle;
     caf::PdmField<double>                            m_perforationLength;
 
-    caf::PdmField<double>                                m_formationDip;
-    caf::PdmField<bool>                                  m_autoComputeBarrier;
-    caf::PdmField<bool>                                  m_hasBarrier;
-    caf::PdmField<double>                                m_distanceToBarrier;
-    caf::PdmField<double>                                m_barrierDip;
-    caf::PdmField<int>                                   m_wellPenetrationLayer;
-    caf::PdmPtrField<RimUserDefinedPolylinesAnnotation*> m_barrierAnnotation;
-    caf::PdmPtrField<RimTextAnnotation*>                 m_barrierTextAnnotation;
-    caf::PdmField<QString>                               m_barrierFaultName;
-    caf::PdmField<bool>                                  m_showOnlyBarrierFault;
-    caf::PdmField<bool>                                  m_showAllFaults;
+    caf::PdmField<double>                m_formationDip;
+    caf::PdmField<bool>                  m_autoComputeBarrier;
+    caf::PdmField<bool>                  m_hasBarrier;
+    caf::PdmField<double>                m_distanceToBarrier;
+    caf::PdmField<double>                m_barrierDip;
+    caf::PdmField<int>                   m_wellPenetrationLayer;
+    caf::PdmPtrField<RimTextAnnotation*> m_barrierTextAnnotation;
+    caf::PdmField<QString>               m_barrierFaultName;
+    caf::PdmField<bool>                  m_showOnlyBarrierFault;
+    caf::PdmField<bool>                  m_showAllFaults;
 
     std::shared_ptr<RimStimPlanModelCalculator> m_calculator;
 };
