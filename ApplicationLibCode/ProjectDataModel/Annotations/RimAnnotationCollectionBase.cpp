@@ -76,6 +76,14 @@ void RimAnnotationCollectionBase::addAnnotation( RimTextAnnotation* annotation )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimAnnotationCollectionBase::removeAnnotation( RimTextAnnotation* annotation )
+{
+    m_textAnnotations->removeAnnotation( annotation );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::vector<RimTextAnnotation*> RimAnnotationCollectionBase::textAnnotations() const
 {
     std::vector<RimTextAnnotation*> annotations;

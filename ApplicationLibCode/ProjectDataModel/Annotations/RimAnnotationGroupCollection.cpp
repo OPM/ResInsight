@@ -93,6 +93,14 @@ void RimAnnotationGroupCollection::addAnnotation( caf::PdmObject* annotation )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimAnnotationGroupCollection::removeAnnotation( caf::PdmObject* annotation )
+{
+    m_annotations.removeChildObject( annotation );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::vector<caf::PdmObject*> RimAnnotationGroupCollection::annotations() const
 {
     return m_annotations.childObjects();
