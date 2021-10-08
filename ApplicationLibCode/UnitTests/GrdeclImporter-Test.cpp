@@ -22,6 +22,7 @@
 #include <fstream>
 #include <string>
 
+/*
 //#include "mio/include/mio/mmap.hpp"
 #include "fast_float/include/fast_float/fast_float.h"
 #include "mio/single_include/mio/mio.hpp"
@@ -240,7 +241,7 @@ TEST( GrdeclImporter, MioReadFileFast )
         }
     }
 
-    /*
+    / *
         size_t offset = 0;
 
         while ( offset < stringData.length() )
@@ -251,5 +252,6 @@ TEST( GrdeclImporter, MioReadFileFast )
 
             offset += bytesRead;
         }
-    */
+    * /
 }
+*/
