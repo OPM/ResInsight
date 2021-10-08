@@ -56,7 +56,6 @@
 #include "RimStimPlanModelTemplateCollection.h"
 #include "RimTextAnnotation.h"
 #include "RimTools.h"
-#include "RimUserDefinedPolylinesAnnotation.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 #include "RimWellPathGeometryDef.h"
@@ -253,7 +252,6 @@ RimStimPlanModel::RimStimPlanModel()
     CAF_PDM_InitScriptableField( &m_barrierFaultName, "BarrierFaultName", QString( "" ), "Barrier Fault", "", "", "" );
     m_barrierFaultName.uiCapability()->setUiReadOnly( true );
 
-    CAF_PDM_InitScriptableFieldNoDefault( &m_barrierAnnotation, "BarrierAnnotation", "Barrier Annotation", "", "", "" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_barrierTextAnnotation,
                                           "BarrierTextAnnotation",
                                           "Barrier Text Annotation",
@@ -754,13 +752,6 @@ void RimStimPlanModel::updateDistanceToBarrierAndDip()
 //--------------------------------------------------------------------------------------------------
 void RimStimPlanModel::clearBarrierAnnotation()
 {
-    auto existingAnnotation = m_barrierAnnotation.value();
-    if ( existingAnnotation )
-    {
-        delete existingAnnotation;
-        m_barrierAnnotation = nullptr;
-    }
-
     auto existingTextAnnotation = m_barrierTextAnnotation.value();
     if ( existingTextAnnotation )
     {
@@ -785,31 +776,14 @@ void RimStimPlanModel::addBarrierAnnotation( const cvf::Vec3d& startPosition,
     RimAnnotationCollectionBase* coll = annotationCollection();
     if ( !coll ) return;
 
-    {
-        auto newAnnotation = new RimUserDefinedPolylinesAnnotation();
+    auto newAnnotation = new RimTextAnnotation();
+    newAnnotation->setText( text );
+    newAnnotation->setLabelPoint( endPosition );
+    newAnnotation->setAnchorPoint( startPosition );
 
-        RimPolylineTarget* startTarget = new RimPolylineTarget();
-        startTarget->setAsPointXYZ( startPosition );
-        newAnnotation->insertTarget( nullptr, startTarget );
+    m_barrierTextAnnotation = newAnnotation;
 
-        RimPolylineTarget* endTarget = new RimPolylineTarget();
-        endTarget->setAsPointXYZ( endPosition );
-        newAnnotation->insertTarget( nullptr, endTarget );
-
-        m_barrierAnnotation = newAnnotation;
-        dynamic_cast<RimAnnotationCollection*>( coll )->addAnnotation( newAnnotation );
-    }
-
-    {
-        auto newAnnotation = new RimTextAnnotation();
-        newAnnotation->setText( text );
-        newAnnotation->setLabelPoint( endPosition );
-        newAnnotation->setAnchorPoint( endPosition );
-
-        m_barrierTextAnnotation = newAnnotation;
-        coll->addAnnotation( newAnnotation );
-    }
-
+    coll->addAnnotation( newAnnotation );
     coll->scheduleRedrawOfRelevantViews();
     coll->updateConnectedEditors();
 }
@@ -830,7 +804,6 @@ RimAnnotationCollectionBase* RimStimPlanModel::annotationCollection()
 void RimStimPlanModel::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     m_thicknessDirectionWellPath.uiCapability()->setUiHidden( true );
-    m_barrierAnnotation.uiCapability()->setUiHidden( true );
     m_barrierTextAnnotation.uiCapability()->setUiHidden( true );
     m_azimuthAngle.uiCapability()->setUiHidden( m_fractureOrientation() != RimStimPlanModel::FractureOrientation::AZIMUTH );
 
