@@ -52,6 +52,7 @@ public:
     bool isVisible() const;
 
     void                         addAnnotation( caf::PdmObject* annotation );
+    void                         removeAnnotation( caf::PdmObject* annotation );
     std::vector<caf::PdmObject*> annotations() const;
 
 protected:

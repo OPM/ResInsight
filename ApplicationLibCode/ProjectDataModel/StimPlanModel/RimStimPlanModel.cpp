@@ -752,16 +752,14 @@ void RimStimPlanModel::updateDistanceToBarrierAndDip()
 //--------------------------------------------------------------------------------------------------
 void RimStimPlanModel::clearBarrierAnnotation()
 {
+    RimAnnotationCollectionBase* coll = annotationCollection();
+
     auto existingTextAnnotation = m_barrierTextAnnotation.value();
-    if ( existingTextAnnotation )
+    if ( coll && existingTextAnnotation )
     {
+        coll->removeAnnotation( existingTextAnnotation );
         delete existingTextAnnotation;
         m_barrierTextAnnotation = nullptr;
-    }
-
-    RimAnnotationCollectionBase* coll = annotationCollection();
-    if ( coll )
-    {
         coll->onAnnotationDeleted();
     }
 }
