@@ -145,6 +145,18 @@ std::vector<std::string> RiaStdStringTools::splitString( const std::string& s, c
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::vector<std::string_view> RiaStdStringTools::splitStringView( const std::string& s, char delimiter )
+{
+    std::vector<std::string_view> words;
+
+    splitByDelimiter( s, words, delimiter );
+
+    return words;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::string RiaStdStringTools::joinStrings( const std::vector<std::string>& s, char delimiter )
 {
     std::string delimiterString( 1, delimiter );

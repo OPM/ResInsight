@@ -43,14 +43,16 @@ public:
 
     static bool endsWith( const std::string& mainStr, const std::string& toMatch );
 
-    static std::vector<std::string> splitString( const std::string& s, char delimiter );
-    static std::string              joinStrings( const std::vector<std::string>& s, char delimiter );
+    static std::vector<std::string>      splitString( const std::string& s, char delimiter );
+    static std::vector<std::string_view> splitStringView( const std::string& s, char delimiter );
+
+    static std::string joinStrings( const std::vector<std::string>& s, char delimiter );
 
     static int computeEditDistance( const std::string& x, const std::string& y );
 
 private:
     template <class Container>
-    static void   splitByDelimiter( const std::string& str, Container& cont, char delimiter = ' ' );
+    static void   splitByDelimiter( const std::string_view& str, Container& cont, char delimiter = ' ' );
     static size_t findCharMatchCount( const std::string& s, char c );
 };
 
@@ -58,7 +60,7 @@ private:
 //
 //==================================================================================================
 template <class Container>
-void RiaStdStringTools::splitByDelimiter( const std::string& str, Container& cont, char delimiter )
+void RiaStdStringTools::splitByDelimiter( const std::string_view& str, Container& cont, char delimiter )
 {
     size_t start;
     size_t end = 0;
@@ -66,7 +68,7 @@ void RiaStdStringTools::splitByDelimiter( const std::string& str, Container& con
     while ( ( start = str.find_first_not_of( delimiter, end ) ) != std::string::npos )
     {
         end = str.find( delimiter, start );
-        cont.push_back( str.substr( start, end - start ) );
+        cont.emplace_back( str.substr( start, end - start ) );
     }
 }
 
