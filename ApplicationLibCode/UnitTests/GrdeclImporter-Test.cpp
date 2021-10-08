@@ -69,6 +69,8 @@ std::pair<std::string, std::vector<float>> importKeyword( std::iostream& stream 
 //--------------------------------------------------------------------------------------------------
 TEST( GrdeclImporter, ReadFileFast )
 {
+    return;
+
     std::string filename =
         "e:/gitroot-ceesol/ResInsight-regression-test/ModelData/TestCase_Ascii_no_map_axis/geocell.grdecl";
 
@@ -172,24 +174,27 @@ std::pair<std::string, std::vector<float>>
             continue;
         }
 
-        bool useFastFloat = true;
-
         if ( !endOfKeyword )
         {
-            const auto tokens = RiaStdStringTools::splitStringView( line, ' ' );
+            // const auto tokens = RiaStdStringTools::splitStringView( line, ' ' );
 
-            float value = 0.0f;
-            for ( const auto& t : tokens )
+            size_t start;
+            size_t end = 0;
+
+            const auto delimiter = ' ';
+            while ( ( start = line.find_first_not_of( delimiter, end ) ) != std::string::npos )
             {
-                if ( useFastFloat )
+                end = line.find( delimiter, start );
+                // cont.emplace_back( str.substr( start, end - start ) );
+
+                float value = 0.0f;
                 {
-                    auto answer = fast_float::from_chars( t.data(), t.data() + t.size(), value );
+                    auto answer = fast_float::from_chars( line.data() + start, line.data() + end, value );
+                    if ( answer.ec == std::errc() )
+                    {
+                        values.emplace_back( value );
+                    }
                 }
-                else
-                {
-                    value = std::strtof( t.data(), nullptr );
-                }
-                values.emplace_back( value );
             }
         }
     }
