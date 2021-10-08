@@ -4,9 +4,6 @@
 [submodule "ThirdParty/vcpkg"]
 	path = ThirdParty/vcpkg
 	url = https://github.com/CeetronSolutions/vcpkg
-[submodule "ThirdParty/toolbelt"]
-	path = ThirdParty/toolbelt
-	url = https://github.com/oschonrock/toolbelt
 [submodule "ThirdParty/mio"]
 	path = ThirdParty/mio
 	url = https://github.com/mandreyel/mio
