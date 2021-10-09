@@ -21,7 +21,6 @@
 #include "RigActiveCellInfo.h"
 #include "RigEclipseCaseData.h"
 #include "RigFemPartCollection.h"
-#include "RigGeoMechCaseData.h"
 
 #include "Rim3dView.h"
 #include "RimCellEdgeColors.h"
