@@ -20,6 +20,8 @@
 
 #include "RigActiveCellInfo.h"
 #include "RigEclipseCaseData.h"
+#include "RigFemPartCollection.h"
+#include "RigGeoMechCaseData.h"
 
 #include "Rim3dView.h"
 #include "RimCellEdgeColors.h"
@@ -65,6 +67,14 @@ bool RicNewContourMapViewFeature::isCommandEnabled()
 {
     bool selectedView = caf::SelectionManager::instance()->selectedItemOfType<RimGridView>() != nullptr;
     bool selectedCase = caf::SelectionManager::instance()->selectedItemOfType<RimCase>() != nullptr;
+
+    RimGeoMechView* gmView = caf::SelectionManager::instance()->selectedItemOfType<RimGeoMechView>();
+    if ( gmView )
+    {
+        // if we have more than one geomech part, contour maps does not work with the current implementation
+        if ( gmView->femParts()->partCount() > 1 ) return false;
+    }
+
     bool selectedEclipseContourMapCollection =
         caf::SelectionManager::instance()->selectedItemOfType<RimEclipseContourMapViewCollection>();
     bool selectedGeoMechContourMapCollection =
