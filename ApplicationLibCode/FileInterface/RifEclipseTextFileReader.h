@@ -34,7 +34,8 @@ public:
 private:
     static constexpr const char* m_whiteSpace = " \t\n\r\f\v";
 
-private:
+    // TODO: Make private or move to separate file, now public to be able to test code
+public:
     std::string_view readLine( const std::string_view& source, const size_t offset, size_t& bytesRead );
 
     // trim from end of string (right)

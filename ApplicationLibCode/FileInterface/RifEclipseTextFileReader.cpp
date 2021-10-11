@@ -92,8 +92,13 @@ std::string_view RifEclipseTextFileReader::readLine( const std::string_view& sou
     if ( offset >= source.size() ) return {};
 
     auto start = source.find_first_not_of( RifEclipseTextFileReader::m_whiteSpace, offset );
-    auto end   = source.find_first_of( '\n', start );
+    if ( start == std::string::npos )
+    {
+        bytesRead = source.size() - offset;
+        return source.substr( offset, bytesRead );
+    }
 
+    auto end = source.find_first_of( '\n', start );
     if ( end != std::string::npos )
     {
         // Add 1 to skip the \n we have found
@@ -101,7 +106,11 @@ std::string_view RifEclipseTextFileReader::readLine( const std::string_view& sou
         return source.substr( start, end - start );
     }
 
-    return {};
+    // No line shift found, reached end of string data
+    end = source.size();
+
+    bytesRead = end - offset;
+    return source.substr( start, bytesRead );
 }
 
 //--------------------------------------------------------------------------------------------------

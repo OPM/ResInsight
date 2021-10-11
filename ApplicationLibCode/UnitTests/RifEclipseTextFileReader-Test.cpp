@@ -42,11 +42,6 @@ TEST( RifEclipseTextFileReader, ReadKeywordsAndValues )
     mio::mmap_sink   rw_mmap    = mio::make_mmap_sink( filename, 0, mio::map_entire_file, error );
     std::string_view stringData = rw_mmap.data();
 
-    std::string         keywordName;
-    std::string         line;
-    std::vector<double> values;
-    bool                endOfKeyword = false;
-
     size_t offset    = 0;
     size_t bytesRead = 0;
 
@@ -63,5 +58,65 @@ TEST( RifEclipseTextFileReader, ReadKeywordsAndValues )
             std::cout << values.front() << " " << values.back();
             std::cout << "\n\n";
         }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( RifEclipseTextFileReader, ReadLine )
+{
+    {
+        // Empty string
+
+        std::string              fileContent;
+        RifEclipseTextFileReader reader;
+        size_t                   offset    = 0;
+        size_t                   bytesRead = 0;
+        auto                     line      = reader.readLine( fileContent, offset, bytesRead );
+
+        EXPECT_EQ( size_t( 0 ), bytesRead );
+        EXPECT_EQ( size_t( 0 ), line.size() );
+    }
+
+    {
+        // Offset too large
+        std::string              fileContent = "f";
+        RifEclipseTextFileReader reader;
+        size_t                   offset    = 10;
+        size_t                   bytesRead = 0;
+        auto                     line      = reader.readLine( fileContent, offset, bytesRead );
+
+        EXPECT_EQ( size_t( 0 ), bytesRead );
+        EXPECT_EQ( size_t( 0 ), line.size() );
+    }
+
+    {
+        // One line, no line break
+        std::string              fileContent = "file content";
+        RifEclipseTextFileReader reader;
+        size_t                   offset    = 0;
+        size_t                   bytesRead = 0;
+        auto                     line      = reader.readLine( fileContent, offset, bytesRead );
+
+        EXPECT_EQ( size_t( 12 ), bytesRead );
+        EXPECT_EQ( size_t( 12 ), line.size() );
+    }
+
+    {
+        // two lines with line break
+        std::string              fileContent = "file content\n next Line";
+        RifEclipseTextFileReader reader;
+        size_t                   offset    = 0;
+        size_t                   bytesRead = 0;
+        auto                     line      = reader.readLine( fileContent, offset, bytesRead );
+
+        // bytesRead includes line break
+        EXPECT_EQ( size_t( 13 ), bytesRead );
+        EXPECT_EQ( size_t( 12 ), line.size() );
+
+        auto secondLine = reader.readLine( fileContent, offset + bytesRead, bytesRead );
+        EXPECT_EQ( size_t( 10 ), bytesRead );
+        EXPECT_EQ( size_t( 9 ), secondLine.size() );
     }
 }
