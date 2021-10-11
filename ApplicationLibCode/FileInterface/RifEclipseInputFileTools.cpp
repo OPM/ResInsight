@@ -45,6 +45,7 @@
 #include <QFileInfo>
 #include <QTextStream>
 
+#include "RifEclipseTextFileReader.h"
 #include "ert/ecl/ecl_box.hpp"
 #include "ert/ecl/ecl_grid.hpp"
 #include "ert/ecl/ecl_kw.h"
@@ -824,6 +825,54 @@ std::map<QString, QString> RifEclipseInputFileTools::readProperties( const QStri
 
     fclose( gridFilePointer );
     return newResults;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::map<QString, QString> RifEclipseInputFileTools::readProperties_msj( const QString&      fileName,
+                                                                         RigEclipseCaseData* eclipseCase )
+{
+    std::string fileContent;
+    {
+        QFile data( fileName );
+        if ( !data.open( QFile::ReadOnly ) )
+        {
+            RiaLogging::error( "Failed to open " + fileName );
+            return {};
+        }
+
+        fileContent = data.readAll();
+    }
+
+    size_t offset    = 0;
+    size_t bytesRead = 0;
+
+    std::map<QString, QString> resultNameAndEclipseNameMap;
+    while ( offset < fileContent.size() )
+    {
+        RifEclipseTextFileReader reader;
+        auto [keyword, values] = reader.readKeywordAndValues( fileContent, offset, bytesRead );
+        offset += bytesRead;
+
+        if ( !values.empty() )
+        {
+            QString newResultName = eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL )
+                                        ->makeResultNameUnique( QString::fromStdString( keyword ) );
+
+            QString errorText;
+            if ( appendInputPropertyResult( eclipseCase, keyword, values, &errorText ) )
+            {
+                resultNameAndEclipseNameMap[newResultName] = QString::fromStdString( keyword );
+            }
+            else
+            {
+                RiaLogging::error( errorText );
+            }
+        }
+    }
+
+    return resultNameAndEclipseNameMap;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1716,6 +1765,53 @@ cvf::StructGridInterface::FaceEnum RifEclipseInputFileTools::faceEnumFromText( c
     }
 
     return cvf::StructGridInterface::NO_FACE;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RifEclipseInputFileTools::appendInputPropertyResult( RigEclipseCaseData*        caseData,
+                                                          const std::string&         resultName,
+                                                          const std::vector<double>& values,
+                                                          QString*                   errMsg )
+{
+    QString qResultName = QString::fromStdString( resultName );
+
+    if ( !isValidDataKeyword( qResultName ) ) return false;
+
+    CVF_ASSERT( caseData );
+    CVF_ASSERT( errMsg );
+
+    {
+        bool   mathingItemCount = false;
+        size_t keywordItemCount = values.size();
+        if ( keywordItemCount == caseData->mainGrid()->cellCount() )
+        {
+            mathingItemCount = true;
+        }
+        else if ( keywordItemCount ==
+                  caseData->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL )->reservoirActiveCellCount() )
+        {
+            mathingItemCount = true;
+        }
+
+        if ( !mathingItemCount )
+        {
+            QString errFormat( "Size mismatch: Main Grid has %1 cells, keyword %2 has %3 cells" );
+            *errMsg = errFormat.arg( caseData->mainGrid()->cellCount() ).arg( qResultName ).arg( keywordItemCount );
+            return false;
+        }
+    }
+
+    RigEclipseResultAddress resAddr( RiaDefines::ResultCatType::INPUT_PROPERTY, qResultName );
+    caseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->createResultEntry( resAddr, false );
+
+    auto newPropertyData =
+        caseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->modifiableCellScalarResultTimesteps( resAddr );
+
+    newPropertyData->push_back( values );
+
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------

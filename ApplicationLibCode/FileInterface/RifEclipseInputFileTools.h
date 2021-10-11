@@ -99,6 +99,7 @@ public:
 
     // Returns map of assigned resultName and Eclipse Keyword.
     static std::map<QString, QString> readProperties( const QString& fileName, RigEclipseCaseData* eclipseCase );
+    static std::map<QString, QString> readProperties_msj( const QString& fileName, RigEclipseCaseData* eclipseCase );
     static bool                       readProperty( const QString&      fileName,
                                                     RigEclipseCaseData* eclipseCase,
                                                     const QString&      eclipseKeyWord,
@@ -145,6 +146,12 @@ public:
     static RiaDefines::EclipseUnitSystem readUnitSystem( QFile& file, qint64 gridunitPos );
 
     static cvf::StructGridInterface::FaceEnum faceEnumFromText( const QString& faceString );
+
+    // Functions to be moved to separate file
+    static bool appendInputPropertyResult( RigEclipseCaseData*        caseData,
+                                           const std::string&         resultName,
+                                           const std::vector<double>& values,
+                                           QString*                   errMsg );
 
 private:
     static bool readDataFromKeyword( ecl_kw_type*        eclipseKeywordData,

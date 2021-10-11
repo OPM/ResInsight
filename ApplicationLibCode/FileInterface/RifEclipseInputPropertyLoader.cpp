@@ -93,8 +93,10 @@ bool RifEclipseInputPropertyLoader::readInputPropertiesFromFiles( RimEclipseInpu
 {
     for ( const QString& propertyFileName : filenames )
     {
+        //         std::map<QString, QString> readProperties =
+        //             RifEclipseInputFileTools::readProperties( propertyFileName, eclipseCaseData );
         std::map<QString, QString> readProperties =
-            RifEclipseInputFileTools::readProperties( propertyFileName, eclipseCaseData );
+            RifEclipseInputFileTools::readProperties_msj( propertyFileName, eclipseCaseData );
 
         std::map<QString, QString>::iterator it;
         for ( it = readProperties.begin(); it != readProperties.end(); ++it )

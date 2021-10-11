@@ -28,7 +28,7 @@
 class RifEclipseTextFileReader
 {
 public:
-    std::pair<std::string, std::vector<float>>
+    std::pair<std::string, std::vector<double>>
         readKeywordAndValues( const std::string_view& stringData, const size_t startOffset, size_t& bytesRead );
 
 private:

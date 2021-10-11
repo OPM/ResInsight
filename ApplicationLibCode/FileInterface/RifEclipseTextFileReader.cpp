@@ -23,10 +23,10 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<std::string, std::vector<float>>
+std::pair<std::string, std::vector<double>>
     RifEclipseTextFileReader::readKeywordAndValues( const std::string_view& stringData, const size_t offset, size_t& bytesRead )
 {
-    std::vector<float> values;
+    std::vector<double> values;
 
     const auto commentChar = '-';
 
