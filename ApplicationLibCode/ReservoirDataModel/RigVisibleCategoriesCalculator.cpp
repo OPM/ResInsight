@@ -45,7 +45,7 @@
 #include "RimSurfaceInView.h"
 #include "RimSurfaceInViewCollection.h"
 
-#include "RivHexGridIntersectionTools.h"
+#include "RivIntersectionGeometryGeneratorInterface.h"
 
 #include <cmath>
 
@@ -199,7 +199,7 @@ void RigVisibleCategoriesCalculator::appendVisibleFaultCells( RimEclipseView* ec
 void RigVisibleCategoriesCalculator::appendVisibleIntersectionCells( RimEclipseView* eclView, std::set<size_t>& visibleCells )
 {
     // Intersections
-    std::vector<const RivIntersectionGeometryGeneratorIF*> intersectionGeoGenerators;
+    std::vector<const RivIntersectionGeometryGeneratorInterface*> intersectionGeoGenerators;
 
     if ( !eclView->separateIntersectionResultsCollection()->isActive() )
     {

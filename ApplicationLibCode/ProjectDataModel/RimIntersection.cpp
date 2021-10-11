@@ -29,7 +29,9 @@
 #include "RimGridView.h"
 #include "RimIntersectionResultDefinition.h"
 #include "RimIntersectionResultsDefinitionCollection.h"
-#include "RivHexGridIntersectionTools.h"
+
+#include "RivEclipseIntersectionGrid.h"
+#include "RivFemIntersectionGrid.h"
 
 CAF_PDM_ABSTRACT_SOURCE_INIT( RimIntersection, "RimIntersectionHandle" );
 

@@ -516,9 +516,9 @@ std::vector<RimRegularLegendConfig*> RimSurfaceInViewCollection::legendConfigs()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<const RivIntersectionGeometryGeneratorIF*> RimSurfaceInViewCollection::intersectionGeometryGenerators() const
+std::vector<const RivIntersectionGeometryGeneratorInterface*> RimSurfaceInViewCollection::intersectionGeometryGenerators() const
 {
-    std::vector<const RivIntersectionGeometryGeneratorIF*> generators;
+    std::vector<const RivIntersectionGeometryGeneratorInterface*> generators;
 
     for ( auto surf : m_surfacesInView )
     {

@@ -37,6 +37,8 @@
 #include "RigGeoMechCaseData.h"
 #include "RigResultAccessorFactory.h"
 
+#include "RivIntersectionGeometryGeneratorInterface.h"
+#include "RivIntersectionVertexWeights.h"
 #include "RivScalarMapperUtils.h"
 #include "RivTernaryTextureCoordsCreator.h"
 
@@ -49,14 +51,14 @@
 ///
 //--------------------------------------------------------------------------------------------------
 void RivIntersectionResultsColoringTools::calculateIntersectionResultColors(
-    size_t                                    timeStepIndex,
-    bool                                      useSeparateIntersectionResDefTimeStep,
-    RimIntersection*                          rimIntersectionHandle,
-    const RivIntersectionGeometryGeneratorIF* intersectionGeomGenIF,
-    const cvf::ScalarMapper*                  explicitScalarColorMapper,
-    const RivTernaryScalarMapper*             explicitTernaryColorMapper,
-    cvf::Part*                                intersectionFacesPart,
-    cvf::Vec2fArray*                          intersectionFacesTextureCoords )
+    size_t                                           timeStepIndex,
+    bool                                             useSeparateIntersectionResDefTimeStep,
+    RimIntersection*                                 rimIntersectionHandle,
+    const RivIntersectionGeometryGeneratorInterface* intersectionGeomGenIF,
+    const cvf::ScalarMapper*                         explicitScalarColorMapper,
+    const RivTernaryScalarMapper*                    explicitTernaryColorMapper,
+    cvf::Part*                                       intersectionFacesPart,
+    cvf::Vec2fArray*                                 intersectionFacesTextureCoords )
 {
     if ( !intersectionGeomGenIF || !intersectionGeomGenIF->isAnyGeometryPresent() ) return;
 
@@ -223,13 +225,14 @@ void RivIntersectionResultsColoringTools::updateEclipseTernaryCellResultColors(
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivIntersectionResultsColoringTools::updateGeoMechCellResultColors( const RimGeoMechResultDefinition* geomResultDef,
-                                                                         size_t                   timeStepIndex,
-                                                                         const cvf::ScalarMapper* scalarColorMapper,
-                                                                         bool                     isLightingDisabled,
-                                                                         const RivIntersectionGeometryGeneratorIF* geomGenerator,
-                                                                         cvf::Part*       intersectionFacesPart,
-                                                                         cvf::Vec2fArray* intersectionFacesTextureCoords )
+void RivIntersectionResultsColoringTools::updateGeoMechCellResultColors(
+    const RimGeoMechResultDefinition*                geomResultDef,
+    size_t                                           timeStepIndex,
+    const cvf::ScalarMapper*                         scalarColorMapper,
+    bool                                             isLightingDisabled,
+    const RivIntersectionGeometryGeneratorInterface* geomGenerator,
+    cvf::Part*                                       intersectionFacesPart,
+    cvf::Vec2fArray*                                 intersectionFacesTextureCoords )
 {
     RigGeoMechCaseData* caseData = nullptr;
     RigFemResultAddress resVarAddress;

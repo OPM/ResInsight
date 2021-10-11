@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) Statoil ASA
+//  Copyright (C) 2021 - Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -18,82 +18,7 @@
 
 #pragma once
 
-#include "cvfBoundingBox.h"
-#include "cvfObject.h"
-#include "cvfVector3.h"
-
-#include "cvfStructGrid.h"
-
 #include <array>
-#include <vector>
-
-class RigActiveCellInfo;
-class RigFemPart;
-class RigMainGrid;
-class RigFault;
-
-//--------------------------------------------------------------------------------------------------
-/// Interface definition used to compute the geometry for planes intersecting a grid
-//--------------------------------------------------------------------------------------------------
-class RivIntersectionHexGridInterface : public cvf::Object
-{
-public:
-    virtual cvf::Vec3d       displayOffset() const                                                              = 0;
-    virtual cvf::BoundingBox boundingBox() const                                                                = 0;
-    virtual void             findIntersectingCells( const cvf::BoundingBox& intersectingBB,
-                                                    std::vector<size_t>*    intersectedCells ) const               = 0;
-    virtual bool             useCell( size_t cellIndex ) const                                                  = 0;
-    virtual void             cellCornerVertices( size_t cellIndex, cvf::Vec3d cellCorners[8] ) const            = 0;
-    virtual void             cellCornerIndices( size_t cellIndex, size_t cornerIndices[8] ) const               = 0;
-    virtual const RigFault*  findFaultFromCellIndexAndCellFace( size_t                             reservoirCellIndex,
-                                                                cvf::StructGridInterface::FaceType face ) const = 0;
-};
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-class RivEclipseIntersectionGrid : public RivIntersectionHexGridInterface
-{
-public:
-    RivEclipseIntersectionGrid( const RigMainGrid* mainGrid, const RigActiveCellInfo* activeCellInfo, bool showInactiveCells );
-
-    cvf::Vec3d       displayOffset() const override;
-    cvf::BoundingBox boundingBox() const override;
-    void             findIntersectingCells( const cvf::BoundingBox& intersectingBB,
-                                            std::vector<size_t>*    intersectedCells ) const override;
-    bool             useCell( size_t cellIndex ) const override;
-    void             cellCornerVertices( size_t cellIndex, cvf::Vec3d cellCorners[8] ) const override;
-    void             cellCornerIndices( size_t cellIndex, size_t cornerIndices[8] ) const override;
-    const RigFault*  findFaultFromCellIndexAndCellFace( size_t                             reservoirCellIndex,
-                                                        cvf::StructGridInterface::FaceType face ) const override;
-
-private:
-    cvf::cref<RigMainGrid>       m_mainGrid;
-    cvf::cref<RigActiveCellInfo> m_activeCellInfo;
-    bool                         m_showInactiveCells;
-};
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-class RivFemIntersectionGrid : public RivIntersectionHexGridInterface
-{
-public:
-    explicit RivFemIntersectionGrid( const RigFemPart* femPart );
-
-    cvf::Vec3d       displayOffset() const override;
-    cvf::BoundingBox boundingBox() const override;
-    void             findIntersectingCells( const cvf::BoundingBox& intersectingBB,
-                                            std::vector<size_t>*    intersectedCells ) const override;
-    bool             useCell( size_t cellIndex ) const override;
-    void             cellCornerVertices( size_t cellIndex, cvf::Vec3d cellCorners[8] ) const override;
-    void             cellCornerIndices( size_t cellIndex, size_t cornerIndices[8] ) const override;
-    const RigFault*  findFaultFromCellIndexAndCellFace( size_t                             reservoirCellIndex,
-                                                        cvf::StructGridInterface::FaceType face ) const override;
-
-private:
-    cvf::cref<RigFemPart> m_femPart;
-};
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -221,13 +146,4 @@ private:
     std::array<size_t, 8> m_vxIds;
     std::array<float, 8>  m_weights;
     int                   m_count;
-};
-
-class RivIntersectionGeometryGeneratorIF
-{
-public:
-    virtual bool                                             isAnyGeometryPresent() const                       = 0;
-    virtual const std::vector<size_t>&                       triangleToCellIndex() const                        = 0;
-    virtual const std::vector<RivIntersectionVertexWeights>& triangleVxToCellCornerInterpolationWeights() const = 0;
-    virtual const cvf::Vec3fArray*                           triangleVxes() const                               = 0;
 };

@@ -51,7 +51,7 @@ CAF_PDM_SOURCE_INIT( RimBoxIntersection, "IntersectionBox" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const RivIntersectionGeometryGeneratorIF* RimBoxIntersection::intersectionGeometryGenerator() const
+const RivIntersectionGeometryGeneratorInterface* RimBoxIntersection::intersectionGeometryGenerator() const
 {
     if ( m_intersectionBoxPartMgr.notNull() ) return m_intersectionBoxPartMgr->intersectionGeometryGenerator();
 

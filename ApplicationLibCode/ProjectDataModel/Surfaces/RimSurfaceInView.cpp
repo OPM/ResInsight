@@ -30,7 +30,6 @@
 
 #include "RiuViewer.h"
 
-#include "RivHexGridIntersectionTools.h"
 #include "RivSurfacePartMgr.h"
 
 #include "cafPdmUiDoubleSliderEditor.h"
@@ -144,7 +143,7 @@ RivSurfacePartMgr* RimSurfaceInView::surfacePartMgr()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const RivIntersectionGeometryGeneratorIF* RimSurfaceInView::intersectionGeometryGenerator() const
+const RivIntersectionGeometryGeneratorInterface* RimSurfaceInView::intersectionGeometryGenerator() const
 {
     if ( m_surfacePartMgr.notNull() ) return m_surfacePartMgr->intersectionGeometryGenerator();
 

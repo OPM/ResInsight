@@ -38,7 +38,7 @@ class RimSurfaceCollection;
 class RimEnsembleSurface;
 class RimRegularLegendConfig;
 class RiuViewer;
-class RivIntersectionGeometryGeneratorIF;
+class RivIntersectionGeometryGeneratorInterface;
 
 class RimSurfaceInViewCollection : public RimCheckableNamedObject
 {
@@ -66,14 +66,13 @@ public:
 
     std::vector<RimRegularLegendConfig*> legendConfigs();
 
-    std::vector<const RivIntersectionGeometryGeneratorIF*> intersectionGeometryGenerators() const;
+    std::vector<const RivIntersectionGeometryGeneratorInterface*> intersectionGeometryGenerators() const;
 
 protected:
     void                 initAfterRead() override;
     caf::PdmFieldHandle* userDescriptionField() override;
 
-
-    void defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
+    void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
 
 private:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;

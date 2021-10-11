@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) Statoil ASA
+//  Copyright (C) 2021 - Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -16,90 +16,9 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RivHexGridIntersectionTools.h"
+#include "RivFemIntersectionGrid.h"
 
-#include "RigActiveCellInfo.h"
 #include "RigFemPart.h"
-#include "RigMainGrid.h"
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RivEclipseIntersectionGrid::RivEclipseIntersectionGrid( const RigMainGrid*       mainGrid,
-                                                        const RigActiveCellInfo* activeCellInfo,
-                                                        bool                     showInactiveCells )
-    : m_mainGrid( mainGrid )
-    , m_activeCellInfo( activeCellInfo )
-    , m_showInactiveCells( showInactiveCells )
-{
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-cvf::Vec3d RivEclipseIntersectionGrid::displayOffset() const
-{
-    return m_mainGrid->displayModelOffset();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-cvf::BoundingBox RivEclipseIntersectionGrid::boundingBox() const
-{
-    return m_mainGrid->boundingBox();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RivEclipseIntersectionGrid::findIntersectingCells( const cvf::BoundingBox& intersectingBB,
-                                                        std::vector<size_t>*    intersectedCells ) const
-{
-    m_mainGrid->findIntersectingCells( intersectingBB, intersectedCells );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RivEclipseIntersectionGrid::useCell( size_t cellIndex ) const
-{
-    const RigCell& cell = m_mainGrid->globalCellArray()[cellIndex];
-    if ( m_showInactiveCells )
-        return !( cell.isInvalid() || ( cell.subGrid() != nullptr ) );
-    else
-        return m_activeCellInfo->isActive( cellIndex ) && ( cell.subGrid() == nullptr );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RivEclipseIntersectionGrid::cellCornerVertices( size_t cellIndex, cvf::Vec3d cellCorners[8] ) const
-{
-    m_mainGrid->cellCornerVertices( cellIndex, cellCorners );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RivEclipseIntersectionGrid::cellCornerIndices( size_t cellIndex, size_t cornerIndices[8] ) const
-{
-    const std::array<size_t, 8>& cornerIndicesSource = m_mainGrid->globalCellArray()[cellIndex].cornerIndices();
-
-    for ( size_t i = 0; i < 8; i++ )
-    {
-        cornerIndices[i] = cornerIndicesSource[i];
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-const RigFault* RivEclipseIntersectionGrid::findFaultFromCellIndexAndCellFace( size_t reservoirCellIndex,
-                                                                               cvf::StructGridInterface::FaceType face ) const
-{
-    return m_mainGrid->findFaultFromCellIndexAndCellFace( reservoirCellIndex, face );
-}
 
 //--------------------------------------------------------------------------------------------------
 ///

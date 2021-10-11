@@ -51,9 +51,9 @@ public:
     bool                        isNativeSurfaceResultsActive() const;
     RimSurfaceResultDefinition* surfaceResultDefinition();
 
-    void                                      clearGeometry();
-    RivSurfacePartMgr*                        surfacePartMgr();
-    const RivIntersectionGeometryGeneratorIF* intersectionGeometryGenerator() const override;
+    void                                             clearGeometry();
+    RivSurfacePartMgr*                               surfacePartMgr();
+    const RivIntersectionGeometryGeneratorInterface* intersectionGeometryGenerator() const override;
 
     void loadDataAndUpdate();
 

@@ -32,7 +32,8 @@
 #include "RimSurfaceInView.h"
 
 #include "RivExtrudedCurveIntersectionPartMgr.h"
-#include "RivHexGridIntersectionTools.h"
+#include "RivIntersectionHexGridInterface.h"
+#include "RivIntersectionVertexWeights.h"
 #include "RivPolylineGenerator.h"
 #include "RivSectionFlattener.h"
 

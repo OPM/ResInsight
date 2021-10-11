@@ -28,6 +28,8 @@
 #include "RimSurfaceInView.h"
 #include "RimSurfaceResultDefinition.h"
 
+#include "RivIntersectionGeometryGeneratorInterface.h"
+#include "RivIntersectionHexGridInterface.h"
 #include "RivIntersectionResultsColoringTools.h"
 #include "RivMeshLinesSourceInfo.h"
 #include "RivPartPriority.h"
@@ -271,7 +273,7 @@ QString RivSurfacePartMgr::resultInfoText( Rim3dView* view, uint hitPart, cvf::V
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const RivIntersectionGeometryGeneratorIF* RivSurfacePartMgr::intersectionGeometryGenerator() const
+const RivIntersectionGeometryGeneratorInterface* RivSurfacePartMgr::intersectionGeometryGenerator() const
 {
     if ( m_intersectionGenerator.notNull() ) return m_intersectionGenerator.p();
 
