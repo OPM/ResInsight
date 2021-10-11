@@ -19,12 +19,13 @@
 #include "RivFemIntersectionGrid.h"
 
 #include "RigFemPart.h"
+#include "RigFemPartCollection.h"
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RivFemIntersectionGrid::RivFemIntersectionGrid( const RigFemPart* femPart )
-    : m_femPart( femPart )
+RivFemIntersectionGrid::RivFemIntersectionGrid( const RigFemPartCollection* femParts )
+    : m_femParts( femParts )
 {
 }
 
@@ -33,7 +34,7 @@ RivFemIntersectionGrid::RivFemIntersectionGrid( const RigFemPart* femPart )
 //--------------------------------------------------------------------------------------------------
 cvf::Vec3d RivFemIntersectionGrid::displayOffset() const
 {
-    return m_femPart->boundingBox().min();
+    return m_femParts->boundingBox().min();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -41,7 +42,7 @@ cvf::Vec3d RivFemIntersectionGrid::displayOffset() const
 //--------------------------------------------------------------------------------------------------
 cvf::BoundingBox RivFemIntersectionGrid::boundingBox() const
 {
-    return m_femPart->boundingBox();
+    return m_femParts->boundingBox();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -50,7 +51,11 @@ cvf::BoundingBox RivFemIntersectionGrid::boundingBox() const
 void RivFemIntersectionGrid::findIntersectingCells( const cvf::BoundingBox& intersectingBB,
                                                     std::vector<size_t>*    intersectedCells ) const
 {
-    m_femPart->findIntersectingCells( intersectingBB, intersectedCells );
+    // TODO - create some sort of local list of pair<partId, cellIdx> and use those as "global" indexes
+    for ( int i = 0; i < m_femParts->partCount(); i++ )
+    {
+        m_femParts->part( i )->findIntersectingCells( intersectingBB, intersectedCells );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -58,10 +63,8 @@ void RivFemIntersectionGrid::findIntersectingCells( const cvf::BoundingBox& inte
 //--------------------------------------------------------------------------------------------------
 bool RivFemIntersectionGrid::useCell( size_t cellIndex ) const
 {
-    RigElementType elmType = m_femPart->elementType( cellIndex );
-
-    if ( !( elmType == HEX8 || elmType == HEX8P ) ) return false;
-
+    // we don't know which part the element we are asked for belongs to, but we only support HEX 8 anyways, so we are
+    // good to go.
     return true;
 }
 
@@ -70,11 +73,8 @@ bool RivFemIntersectionGrid::useCell( size_t cellIndex ) const
 //--------------------------------------------------------------------------------------------------
 void RivFemIntersectionGrid::cellCornerVertices( size_t cellIndex, cvf::Vec3d cellCorners[8] ) const
 {
-    RigElementType elmType = m_femPart->elementType( cellIndex );
-    if ( !( elmType == HEX8 || elmType == HEX8P ) ) return;
-
-    const std::vector<cvf::Vec3f>& nodeCoords    = m_femPart->nodes().coordinates;
-    const int*                     cornerIndices = m_femPart->connectivities( cellIndex );
+    const std::vector<cvf::Vec3f>& nodeCoords    = m_femParts->part( 0 )->nodes().coordinates;
+    const int*                     cornerIndices = m_femParts->part( 0 )->connectivities( cellIndex );
 
     cellCorners[0] = cvf::Vec3d( nodeCoords[cornerIndices[0]] );
     cellCorners[1] = cvf::Vec3d( nodeCoords[cornerIndices[1]] );
@@ -91,17 +91,17 @@ void RivFemIntersectionGrid::cellCornerVertices( size_t cellIndex, cvf::Vec3d ce
 //--------------------------------------------------------------------------------------------------
 void RivFemIntersectionGrid::cellCornerIndices( size_t cellIndex, size_t cornerIndices[8] ) const
 {
-    RigElementType elmType = m_femPart->elementType( cellIndex );
+    RigElementType elmType = m_femParts->part( 0 )->elementType( cellIndex );
     if ( !( elmType == HEX8 || elmType == HEX8P ) ) return;
     int elmIdx       = static_cast<int>( cellIndex );
-    cornerIndices[0] = m_femPart->elementNodeResultIdx( elmIdx, 0 );
-    cornerIndices[1] = m_femPart->elementNodeResultIdx( elmIdx, 1 );
-    cornerIndices[2] = m_femPart->elementNodeResultIdx( elmIdx, 2 );
-    cornerIndices[3] = m_femPart->elementNodeResultIdx( elmIdx, 3 );
-    cornerIndices[4] = m_femPart->elementNodeResultIdx( elmIdx, 4 );
-    cornerIndices[5] = m_femPart->elementNodeResultIdx( elmIdx, 5 );
-    cornerIndices[6] = m_femPart->elementNodeResultIdx( elmIdx, 6 );
-    cornerIndices[7] = m_femPart->elementNodeResultIdx( elmIdx, 7 );
+    cornerIndices[0] = m_femParts->part( 0 )->elementNodeResultIdx( elmIdx, 0 );
+    cornerIndices[1] = m_femParts->part( 0 )->elementNodeResultIdx( elmIdx, 1 );
+    cornerIndices[2] = m_femParts->part( 0 )->elementNodeResultIdx( elmIdx, 2 );
+    cornerIndices[3] = m_femParts->part( 0 )->elementNodeResultIdx( elmIdx, 3 );
+    cornerIndices[4] = m_femParts->part( 0 )->elementNodeResultIdx( elmIdx, 4 );
+    cornerIndices[5] = m_femParts->part( 0 )->elementNodeResultIdx( elmIdx, 5 );
+    cornerIndices[6] = m_femParts->part( 0 )->elementNodeResultIdx( elmIdx, 6 );
+    cornerIndices[7] = m_femParts->part( 0 )->elementNodeResultIdx( elmIdx, 7 );
 }
 
 //--------------------------------------------------------------------------------------------------

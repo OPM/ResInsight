@@ -205,8 +205,7 @@ cvf::ref<RivIntersectionHexGridInterface> RimIntersection::createHexGridInterfac
 
         if ( geomCase && geomCase->geoMechData() && geomCase->geoMechData()->femParts() )
         {
-            RigFemPart* femPart = geomCase->geoMechData()->femParts()->part( 0 );
-            return new RivFemIntersectionGrid( femPart );
+            return new RivFemIntersectionGrid( geomCase->geoMechData()->femParts() );
         }
     }
 
@@ -221,11 +220,9 @@ cvf::ref<RivIntersectionHexGridInterface> RimIntersection::createHexGridInterfac
 
     RimGeoMechView* geoView;
     this->firstAncestorOrThisOfType( geoView );
-    if ( geoView && geoView->femParts() && geoView->femParts()->partCount() )
+    if ( geoView && geoView->femParts() )
     {
-        RigFemPart* femPart = geoView->femParts()->part( 0 );
-
-        return new RivFemIntersectionGrid( femPart );
+        return new RivFemIntersectionGrid( geoView->femParts() );
     }
 
     return nullptr;

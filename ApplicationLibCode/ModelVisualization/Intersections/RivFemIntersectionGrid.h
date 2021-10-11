@@ -29,12 +29,13 @@
 #include <vector>
 
 class RigFemPart;
+class RigFemPartCollection;
 class RigFault;
 
 class RivFemIntersectionGrid : public RivIntersectionHexGridInterface
 {
 public:
-    explicit RivFemIntersectionGrid( const RigFemPart* femPart );
+    explicit RivFemIntersectionGrid( const RigFemPartCollection* femParts );
 
     cvf::Vec3d       displayOffset() const override;
     cvf::BoundingBox boundingBox() const override;
@@ -47,5 +48,5 @@ public:
                                                         cvf::StructGridInterface::FaceType face ) const override;
 
 private:
-    cvf::cref<RigFemPart> m_femPart;
+    cvf::cref<RigFemPartCollection> m_femParts;
 };
