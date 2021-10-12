@@ -18,10 +18,12 @@
 
 #include "RifEclipseInputPropertyLoader.h"
 
+#include "RiaLogging.h"
+
 #include "RifEclipseInputFileTools.h"
+#include "RifEclipseTextFileReader.h"
 #include "RifReaderEclipseInput.h"
 
-#include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
 #include "RigMainGrid.h"
@@ -32,7 +34,7 @@
 
 #include "cafProgressInfo.h"
 
-#include <QFileInfo>
+#include <QFile>
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -50,7 +52,7 @@ void RifEclipseInputPropertyLoader::loadAndSyncronizeInputProperties( RimEclipse
     {
         progInfo.setProgressDescription( filename );
 
-        auto resultNamesEclipseKeywords = RifEclipseInputFileTools::readProperties( filename, eclipseCaseData );
+        auto resultNamesEclipseKeywords = RifEclipseInputPropertyLoader::readProperties( filename, eclipseCaseData );
 
         for ( const auto& [resultName, eclipseKeyword] : resultNamesEclipseKeywords )
         {
@@ -135,6 +137,134 @@ bool RifEclipseInputPropertyLoader::importFaultsFromFile( RigEclipseCaseData* ec
     }
 
     eclipseCaseData->mainGrid()->setFaults( faults );
+
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::map<QString, QString> RifEclipseInputPropertyLoader::readProperties( const QString&      fileName,
+                                                                          RigEclipseCaseData* eclipseCase )
+{
+    std::string fileContent;
+    {
+        QFile data( fileName );
+        if ( !data.open( QFile::ReadOnly ) )
+        {
+            RiaLogging::error( "Failed to open " + fileName );
+            return {};
+        }
+
+        fileContent = data.readAll();
+    }
+
+    size_t offset    = 0;
+    size_t bytesRead = 0;
+
+    std::map<QString, QString> resultNameAndEclipseNameMap;
+    while ( offset < fileContent.size() )
+    {
+        RifEclipseTextFileReader reader;
+        auto [eclipseKeyword, values] = reader.readKeywordAndValues( fileContent, offset, bytesRead );
+        offset += bytesRead;
+
+        if ( !values.empty() )
+        {
+            QString newResultName = eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL )
+                                        ->makeResultNameUnique( QString::fromStdString( eclipseKeyword ) );
+
+            QString errorText;
+            if ( appendInputPropertyResult( eclipseCase, newResultName, eclipseKeyword, values, &errorText ) )
+            {
+                resultNameAndEclipseNameMap[newResultName] = QString::fromStdString( eclipseKeyword );
+            }
+            else
+            {
+                RiaLogging::error( errorText );
+            }
+        }
+    }
+
+    return resultNameAndEclipseNameMap;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const std::vector<QString>& RifEclipseInputPropertyLoader::invalidPropertyDataKeywords()
+{
+    static std::vector<QString> keywords;
+    static bool                 isInitialized = false;
+    if ( !isInitialized )
+    {
+        // Related to geometry
+        keywords.push_back( "COORD" );
+        keywords.push_back( "ZCORN" );
+        keywords.push_back( "SPECGRID" );
+        keywords.push_back( "MAPAXES" );
+        keywords.push_back( "NOECHO" );
+        keywords.push_back( "ECHO" );
+        keywords.push_back( "MAPUNITS" );
+        keywords.push_back( "GRIDUNIT" );
+
+        keywords.push_back( "FAULTS" );
+
+        isInitialized = true;
+    }
+
+    return keywords;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RifEclipseInputPropertyLoader::isValidDataKeyword( const QString& keyword )
+{
+    const std::vector<QString>& keywordsToSkip = RifEclipseInputPropertyLoader::invalidPropertyDataKeywords();
+    for ( const QString& keywordToSkip : keywordsToSkip )
+    {
+        if ( keywordToSkip == keyword.toUpper() )
+        {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RifEclipseInputPropertyLoader::appendInputPropertyResult( RigEclipseCaseData*       caseData,
+                                                               const QString&            resultName,
+                                                               const std::string&        eclipseKeyword,
+                                                               const std::vector<float>& values,
+                                                               QString*                  errMsg )
+{
+    if ( !isValidDataKeyword( QString::fromStdString( eclipseKeyword ) ) ) return false;
+
+    CVF_ASSERT( caseData );
+    CVF_ASSERT( errMsg );
+
+    size_t keywordItemCount = values.size();
+    if ( keywordItemCount != caseData->mainGrid()->cellCount() )
+    {
+        QString errFormat( "Size mismatch: Main Grid has %1 cells, keyword %2 has %3 cells" );
+        *errMsg = errFormat.arg( caseData->mainGrid()->cellCount() ).arg( resultName ).arg( keywordItemCount );
+        return false;
+    }
+
+    RigEclipseResultAddress resAddr( RiaDefines::ResultCatType::INPUT_PROPERTY, resultName );
+    caseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->createResultEntry( resAddr, false );
+
+    auto newPropertyData =
+        caseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->modifiableCellScalarResultTimesteps( resAddr );
+
+    std::vector<double> doubleVals;
+    doubleVals.insert( doubleVals.begin(), values.begin(), values.end() );
+
+    newPropertyData->push_back( doubleVals );
 
     return true;
 }

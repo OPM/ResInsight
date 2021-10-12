@@ -18,12 +18,11 @@
 
 #pragma once
 
-#include "RimEclipseInputProperty.h"
+#include <QString>
 
+#include <map>
 #include <set>
 #include <vector>
-
-#include <QString>
 
 class RimEclipseInputPropertyCollection;
 class RigEclipseCaseData;
@@ -50,4 +49,16 @@ private:
     RifEclipseInputPropertyLoader();
 
     static bool importFaultsFromFile( RigEclipseCaseData* eclipseCase, const QString& fileName );
+
+    // Returns map of assigned resultName and Eclipse Keyword.
+    static std::map<QString, QString> readProperties( const QString& fileName, RigEclipseCaseData* eclipseCase );
+
+    static const std::vector<QString>& invalidPropertyDataKeywords();
+    static bool                        isValidDataKeyword( const QString& keyword );
+
+    static bool appendInputPropertyResult( RigEclipseCaseData*       caseData,
+                                           const QString&            resultName,
+                                           const std::string&        eclipseKeyword,
+                                           const std::vector<float>& values,
+                                           QString*                  errMsg );
 };
