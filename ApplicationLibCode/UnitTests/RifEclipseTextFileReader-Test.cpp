@@ -34,16 +34,15 @@
 //--------------------------------------------------------------------------------------------------
 TEST( RifEclipseTextFileReader, ReadKeywordsAndValues )
 {
-    QString baseFolder = QString( "%1/RifReaderEclipseOutput/TEST10K_FLT_LGR_NNC_OUT.GRDECL" ).arg( TEST_DATA_DIR );
-
-    std::string filename = baseFolder.toStdString();
+    QString     qtFileName = QString( "%1/RifEclipseTextFileParser/GRID.GRDECL" ).arg( TEST_DATA_DIR );
+    std::string fileName   = qtFileName.toStdString();
 
     //    "e:/gitroot-ceesol/ResInsight-regression-test/ModelData/TestCase_Ascii_no_map_axis/geocell.grdecl";
     // filename = "d:/scratch/R5_H25_C1_aug_grid.grdecl";
 
     std::error_code error;
 
-    mio::mmap_sink   rw_mmap    = mio::make_mmap_sink( filename, 0, mio::map_entire_file, error );
+    mio::mmap_sink   rw_mmap    = mio::make_mmap_sink( fileName, 0, mio::map_entire_file, error );
     std::string_view stringData = rw_mmap.data();
 
     size_t offset    = 0;
@@ -70,11 +69,11 @@ TEST( RifEclipseTextFileReader, ReadKeywordsAndValues )
 //--------------------------------------------------------------------------------------------------
 TEST( RifEclipseTextFileReader, ReadKeywordsAndValuesFromFile )
 {
-    QString baseFolder = QString( "%1/RifReaderEclipseOutput/TEST10K_FLT_LGR_NNC_OUT.GRDECL" ).arg( TEST_DATA_DIR );
+    QString qtFileName = QString( "%1/RifEclipseTextFileParser/GRID.GRDECL" ).arg( TEST_DATA_DIR );
     //    "e:/gitroot-ceesol/ResInsight-regression-test/ModelData/TestCase_Ascii_no_map_axis/geocell.grdecl";
     // filename = "d:/scratch/R5_H25_C1_aug_grid.grdecl";
 
-    std::string filename = baseFolder.toStdString();
+    std::string filename = qtFileName.toStdString();
 
     RifEclipseTextFileReader reader;
     auto                     objects = reader.readKeywordAndValues( filename );
