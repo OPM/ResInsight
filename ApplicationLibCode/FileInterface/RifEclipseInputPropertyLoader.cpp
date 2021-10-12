@@ -156,7 +156,7 @@ std::map<QString, QString> RifEclipseInputPropertyLoader::readProperties( const 
             return {};
         }
 
-        fileContent = data.readAll();
+        fileContent = data.readAll().toStdString();
     }
 
     size_t offset    = 0;
