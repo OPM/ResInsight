@@ -28,6 +28,7 @@
 #include "RiaLogging.h"
 #include "RiaPlotWindowRedrawScheduler.h"
 #include "RiaPreferences.h"
+#include "RiaPreferencesSystem.h"
 #include "RiaProjectModifier.h"
 #include "RiaRegressionTestRunner.h"
 #include "RiaSocketServer.h"
@@ -239,7 +240,8 @@ QString RiaGuiApplication::promptForProjectSaveAsFileName() const
 //--------------------------------------------------------------------------------------------------
 bool RiaGuiApplication::askUserToSaveModifiedProject()
 {
-    if ( m_preferences->showProjectChangedDialog() && caf::PdmUiModelChangeDetector::instance()->isModelChanged() )
+    if ( RiaPreferencesSystem::current()->showProjectChangedDialog() &&
+         caf::PdmUiModelChangeDetector::instance()->isModelChanged() )
     {
         QMessageBox msgBox;
         msgBox.setIcon( QMessageBox::Question );
@@ -377,7 +379,7 @@ RimViewWindow* RiaGuiApplication::activePlotWindow() const
 //--------------------------------------------------------------------------------------------------
 bool RiaGuiApplication::useShaders() const
 {
-    if ( !m_preferences->useShaders() ) return false;
+    if ( !RiaPreferencesSystem::current()->useShaders() ) return false;
 
     bool isShadersSupported = true;
     if ( platformName() != "offscreen" ) // Avoid opengl access if we are in qt offscreen mode
@@ -1353,7 +1355,7 @@ void RiaGuiApplication::applyGuiPreferences( const RiaPreferences*              
     if ( m_activeReservoirView && m_activeReservoirView->viewer() )
     {
         m_activeReservoirView->viewer()->updateNavigationPolicy();
-        m_activeReservoirView->viewer()->enablePerfInfoHud( m_preferences->show3dInformation() );
+        m_activeReservoirView->viewer()->enablePerfInfoHud( RiaPreferencesSystem::current()->show3dInformation() );
     }
 
     if ( useShaders() )
@@ -1367,10 +1369,11 @@ void RiaGuiApplication::applyGuiPreferences( const RiaPreferences*              
 
     if ( m_mainWindow && m_mainWindow->projectTreeView() )
     {
-        m_mainWindow->projectTreeView()->enableAppendOfClassNameToUiItemText( m_preferences->appendClassNameToUiText() );
+        m_mainWindow->projectTreeView()->enableAppendOfClassNameToUiItemText(
+            RiaPreferencesSystem::current()->appendClassNameToUiText() );
         if ( mainPlotWindow() )
             mainPlotWindow()->projectTreeView()->enableAppendOfClassNameToUiItemText(
-                m_preferences->appendClassNameToUiText() );
+                RiaPreferencesSystem::current()->appendClassNameToUiText() );
     }
 
     for ( auto fontObject : defaultFontObjects )
@@ -1536,7 +1539,7 @@ void RiaGuiApplication::applyGuiPreferences( const RiaPreferences*              
             uiItem->updateConnectedEditors();
         }
     }
-    caf::PdmUiItem::enableExtraDebugText( m_preferences->appendFieldKeywordToToolTipText() );
+    caf::PdmUiItem::enableExtraDebugText( RiaPreferencesSystem::current()->appendFieldKeywordToToolTipText() );
 
     if ( oldPreferences )
     {

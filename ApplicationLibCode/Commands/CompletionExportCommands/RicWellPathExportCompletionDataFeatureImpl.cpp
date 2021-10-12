@@ -22,7 +22,7 @@
 #include "RiaFilePathTools.h"
 #include "RiaFractureDefines.h"
 #include "RiaLogging.h"
-#include "RiaPreferences.h"
+#include "RiaPreferencesSystem.h"
 #include "RiaWeightedMeanCalculator.h"
 
 #include "ExportCommands/RicExportLgrFeature.h"
@@ -113,7 +113,7 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions( const std::v
         std::unique_ptr<QTextStream>               fractureTransmissibilityExportInformationStream = nullptr;
         QFile                                      fractureTransmissibilityExportInformationFile;
 
-        RiaPreferences* prefs = RiaPreferences::current();
+        RiaPreferencesSystem* prefs = RiaPreferencesSystem::current();
         if ( prefs->includeFractureDebugInfoFile() )
         {
             QDir outputDir = QDir( exportSettings.folder );
