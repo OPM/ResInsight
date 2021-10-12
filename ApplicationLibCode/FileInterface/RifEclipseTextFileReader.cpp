@@ -42,11 +42,24 @@ std::pair<std::string, std::vector<float>>
     bytesRead   = 0;
     float value = 0.0f;
 
+    bool isFaultKeyword = false;
+
     while ( !isEndTokenKeywordRead && ( offset + bytesRead < stringData.size() ) )
     {
         size_t bytesReadLine = 0;
         line                 = readLine( stringData, offset + bytesRead, bytesReadLine );
         bytesRead += bytesReadLine;
+
+        if ( isFaultKeyword )
+        {
+            // Read data until the FAULTS section is closed with a single / on one line
+            const auto& trimmed = ltrim( line );
+            if ( !trimmed.empty() && trimmed[0] == '/' )
+            {
+                return std::make_pair( keywordName, values );
+            }
+            continue;
+        }
 
         // Check for '--', used to define start of comments
         if ( line.size() > 2 && line[0] == commentChar && line[1] == commentChar ) continue;
@@ -57,6 +70,7 @@ std::pair<std::string, std::vector<float>>
             if ( !candidate.empty() )
             {
                 keywordName = candidate;
+                if ( keywordName == "FAULTS" ) isFaultKeyword = true;
             }
             continue;
         }

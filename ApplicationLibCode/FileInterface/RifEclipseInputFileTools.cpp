@@ -78,195 +78,6 @@ bool RifEclipseInputFileTools::openGridFile( const QString&      fileName,
                                              bool                readFaultData,
                                              QString*            errorMessages )
 {
-    return openGridFile_msj( fileName, eclipseCase, readFaultData, errorMessages );
-
-    CVF_ASSERT( eclipseCase && errorMessages );
-
-    std::vector<RifKeywordAndFilePos> keywordsAndFilePos;
-    findKeywordsOnFile( fileName, &keywordsAndFilePos );
-
-    qint64 coordPos    = -1;
-    qint64 zcornPos    = -1;
-    qint64 specgridPos = -1;
-    qint64 actnumPos   = -1;
-    qint64 mapaxesPos  = -1;
-    qint64 gridunitPos = -1;
-
-    findGridKeywordPositions( keywordsAndFilePos, &coordPos, &zcornPos, &specgridPos, &actnumPos, &mapaxesPos, &gridunitPos );
-
-    if ( coordPos < 0 || zcornPos < 0 || specgridPos < 0 )
-    {
-        QString errorText = QString( "Failed to import grid file '%1'\n" ).arg( fileName );
-
-        if ( coordPos < 0 )
-        {
-            errorText += "  Missing required keyword COORD";
-        }
-
-        if ( zcornPos < 0 )
-        {
-            errorText += "  Missing required keyword ZCORN";
-        }
-
-        if ( specgridPos < 0 )
-        {
-            errorText += "  Missing required keyword SPECGRID";
-        }
-
-        *errorMessages += errorText;
-
-        return false;
-    }
-
-    if ( gridunitPos >= 0 )
-    {
-        QFile gridFile( fileName );
-        if ( gridFile.open( QFile::ReadOnly ) )
-        {
-            RiaDefines::EclipseUnitSystem units = readUnitSystem( gridFile, gridunitPos );
-            if ( units != RiaDefines::EclipseUnitSystem::UNITS_UNKNOWN )
-            {
-                eclipseCase->setUnitsType( units );
-            }
-        }
-    }
-
-    FILE* gridFilePointer = util_fopen( fileName.toLatin1().data(), "r" );
-    if ( !gridFilePointer ) return false;
-
-    // Main grid dimensions
-    // SPECGRID - This is whats normally available, but not really the input to Eclipse.
-    // DIMENS - Is what Eclipse expects and uses, but is not defined in the GRID section and is not (?) available
-    // normally ZCORN, COORD, ACTNUM, MAPAXES
-
-    // ecl_kw_type  *  ecl_kw_fscanf_alloc_grdecl_dynamic__( FILE * stream , const char * kw , bool strict ,
-    // ecl_type_enum ecl_type); ecl_grid_type * ecl_grid_alloc_GRDECL_kw( int nx, int ny , int nz , const ecl_kw_type *
-    // zcorn_kw , const ecl_kw_type * coord_kw , const ecl_kw_type * actnum_kw , const ecl_kw_type * mapaxes_kw );
-
-    ecl_kw_type* specGridKw = nullptr;
-    ecl_kw_type* zCornKw    = nullptr;
-    ecl_kw_type* coordKw    = nullptr;
-    ecl_kw_type* actNumKw   = nullptr;
-    ecl_kw_type* mapAxesKw  = nullptr;
-
-    // Try to read all the needed keywords. Early exit if some are not found
-    caf::ProgressInfo progress( 8, "Read Grid from Eclipse Input file" );
-
-    bool allKwReadOk = true;
-
-    fseek( gridFilePointer, specgridPos, SEEK_SET );
-    allKwReadOk =
-        allKwReadOk &&
-        nullptr != ( specGridKw = ecl_kw_fscanf_alloc_current_grdecl__( gridFilePointer,
-                                                                        false,
-                                                                        ecl_type_create_from_type( ECL_INT_TYPE ) ) );
-    progress.setProgress( 1 );
-
-    fseek( gridFilePointer, zcornPos, SEEK_SET );
-    allKwReadOk = allKwReadOk &&
-                  nullptr !=
-                      ( zCornKw = ecl_kw_fscanf_alloc_current_grdecl__( gridFilePointer,
-                                                                        false,
-                                                                        ecl_type_create_from_type( ECL_FLOAT_TYPE ) ) );
-    progress.setProgress( 2 );
-
-    fseek( gridFilePointer, coordPos, SEEK_SET );
-    allKwReadOk = allKwReadOk &&
-                  nullptr !=
-                      ( coordKw = ecl_kw_fscanf_alloc_current_grdecl__( gridFilePointer,
-                                                                        false,
-                                                                        ecl_type_create_from_type( ECL_FLOAT_TYPE ) ) );
-    progress.setProgress( 3 );
-
-    // If ACTNUM is not defined, this pointer will be nullptr, which is a valid condition
-    if ( actnumPos >= 0 )
-    {
-        fseek( gridFilePointer, actnumPos, SEEK_SET );
-        allKwReadOk =
-            allKwReadOk &&
-            nullptr != ( actNumKw = ecl_kw_fscanf_alloc_current_grdecl__( gridFilePointer,
-                                                                          false,
-                                                                          ecl_type_create_from_type( ECL_INT_TYPE ) ) );
-        progress.setProgress( 4 );
-    }
-
-    // If MAPAXES is not defined, this pointer will be nullptr, which is a valid condition
-    if ( mapaxesPos >= 0 )
-    {
-        fseek( gridFilePointer, mapaxesPos, SEEK_SET );
-        mapAxesKw =
-            ecl_kw_fscanf_alloc_current_grdecl__( gridFilePointer, false, ecl_type_create_from_type( ECL_FLOAT_TYPE ) );
-    }
-
-    if ( !allKwReadOk )
-    {
-        if ( specGridKw ) ecl_kw_free( specGridKw );
-        if ( zCornKw ) ecl_kw_free( zCornKw );
-        if ( coordKw ) ecl_kw_free( coordKw );
-        if ( actNumKw ) ecl_kw_free( actNumKw );
-        if ( mapAxesKw ) ecl_kw_free( mapAxesKw );
-
-        return false;
-    }
-
-    progress.setProgress( 5 );
-
-    int nx = ecl_kw_iget_int( specGridKw, 0 );
-    int ny = ecl_kw_iget_int( specGridKw, 1 );
-    int nz = ecl_kw_iget_int( specGridKw, 2 );
-
-    ecl_grid_type* inputGrid = ecl_grid_alloc_GRDECL_kw( nx, ny, nz, zCornKw, coordKw, actNumKw, mapAxesKw );
-
-    progress.setProgress( 6 );
-
-    RifReaderEclipseOutput::transferGeometry( inputGrid, eclipseCase );
-
-    progress.setProgress( 7 );
-    progress.setProgressDescription( "Read faults ..." );
-
-    if ( readFaultData )
-    {
-        cvf::Collection<RigFault> faults;
-        RifEclipseInputFileTools::readFaults( fileName, keywordsAndFilePos, &faults );
-
-        RigMainGrid* mainGrid = eclipseCase->mainGrid();
-        mainGrid->setFaults( faults );
-    }
-
-    bool useMapAxes = ecl_grid_use_mapaxes( inputGrid );
-    eclipseCase->mainGrid()->setUseMapAxes( useMapAxes );
-
-    if ( useMapAxes )
-    {
-        std::array<double, 6> mapAxesValues;
-        ecl_grid_init_mapaxes_data_double( inputGrid, mapAxesValues.data() );
-        eclipseCase->mainGrid()->setMapAxes( mapAxesValues );
-    }
-
-    progress.setProgress( 8 );
-    progress.setProgressDescription( "Cleaning up ..." );
-
-    ecl_kw_free( specGridKw );
-    ecl_kw_free( zCornKw );
-    ecl_kw_free( coordKw );
-    if ( actNumKw ) ecl_kw_free( actNumKw );
-    if ( mapAxesKw ) ecl_kw_free( mapAxesKw );
-
-    ecl_grid_free( inputGrid );
-
-    fclose( gridFilePointer );
-
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RifEclipseInputFileTools::openGridFile_msj( const QString&      fileName,
-                                                 RigEclipseCaseData* eclipseCase,
-                                                 bool                readFaultData,
-                                                 QString*            errorMessages )
-{
     std::string filename = fileName.toStdString();
 
     RifEclipseTextFileReader reader;
@@ -348,14 +159,14 @@ bool RifEclipseInputFileTools::openGridFile_msj( const QString&      fileName,
 
         RifReaderEclipseOutput::transferGeometry( inputGrid, eclipseCase );
 
-        //         if ( readFaultData )
-        //         {
-        //             cvf::Collection<RigFault> faults;
-        //             RifEclipseInputFileTools::readFaults( fileName, keywordsAndFilePos, &faults );
-        //
-        //             RigMainGrid* mainGrid = eclipseCase->mainGrid();
-        //             mainGrid->setFaults( faults );
-        //         }
+        if ( readFaultData )
+        {
+            cvf::Collection<RigFault> faults;
+            RifEclipseInputFileTools::parseAndReadFaults( fileName, &faults );
+
+            RigMainGrid* mainGrid = eclipseCase->mainGrid();
+            mainGrid->setFaults( faults );
+        }
 
         bool useMapAxes = ecl_grid_use_mapaxes( inputGrid );
         eclipseCase->mainGrid()->setUseMapAxes( useMapAxes );
@@ -2091,4 +1902,191 @@ void RifEclipseInputFileTools::readFaults( QFile&                     data,
     {
         RiaLogging::warning( warningMessage );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RifEclipseInputFileTools::openGridFile_obsolete( const QString&      fileName,
+                                                      RigEclipseCaseData* eclipseCase,
+                                                      bool                readFaultData,
+                                                      QString*            errorMessages )
+{
+    CVF_ASSERT( eclipseCase && errorMessages );
+
+    std::vector<RifKeywordAndFilePos> keywordsAndFilePos;
+    findKeywordsOnFile( fileName, &keywordsAndFilePos );
+
+    qint64 coordPos    = -1;
+    qint64 zcornPos    = -1;
+    qint64 specgridPos = -1;
+    qint64 actnumPos   = -1;
+    qint64 mapaxesPos  = -1;
+    qint64 gridunitPos = -1;
+
+    findGridKeywordPositions( keywordsAndFilePos, &coordPos, &zcornPos, &specgridPos, &actnumPos, &mapaxesPos, &gridunitPos );
+
+    if ( coordPos < 0 || zcornPos < 0 || specgridPos < 0 )
+    {
+        QString errorText = QString( "Failed to import grid file '%1'\n" ).arg( fileName );
+
+        if ( coordPos < 0 )
+        {
+            errorText += "  Missing required keyword COORD";
+        }
+
+        if ( zcornPos < 0 )
+        {
+            errorText += "  Missing required keyword ZCORN";
+        }
+
+        if ( specgridPos < 0 )
+        {
+            errorText += "  Missing required keyword SPECGRID";
+        }
+
+        *errorMessages += errorText;
+
+        return false;
+    }
+
+    if ( gridunitPos >= 0 )
+    {
+        QFile gridFile( fileName );
+        if ( gridFile.open( QFile::ReadOnly ) )
+        {
+            RiaDefines::EclipseUnitSystem units = readUnitSystem( gridFile, gridunitPos );
+            if ( units != RiaDefines::EclipseUnitSystem::UNITS_UNKNOWN )
+            {
+                eclipseCase->setUnitsType( units );
+            }
+        }
+    }
+
+    FILE* gridFilePointer = util_fopen( fileName.toLatin1().data(), "r" );
+    if ( !gridFilePointer ) return false;
+
+    // Main grid dimensions
+    // SPECGRID - This is whats normally available, but not really the input to Eclipse.
+    // DIMENS - Is what Eclipse expects and uses, but is not defined in the GRID section and is not (?) available
+    // normally ZCORN, COORD, ACTNUM, MAPAXES
+
+    // ecl_kw_type  *  ecl_kw_fscanf_alloc_grdecl_dynamic__( FILE * stream , const char * kw , bool strict ,
+    // ecl_type_enum ecl_type); ecl_grid_type * ecl_grid_alloc_GRDECL_kw( int nx, int ny , int nz , const ecl_kw_type *
+    // zcorn_kw , const ecl_kw_type * coord_kw , const ecl_kw_type * actnum_kw , const ecl_kw_type * mapaxes_kw );
+
+    ecl_kw_type* specGridKw = nullptr;
+    ecl_kw_type* zCornKw    = nullptr;
+    ecl_kw_type* coordKw    = nullptr;
+    ecl_kw_type* actNumKw   = nullptr;
+    ecl_kw_type* mapAxesKw  = nullptr;
+
+    // Try to read all the needed keywords. Early exit if some are not found
+    caf::ProgressInfo progress( 8, "Read Grid from Eclipse Input file" );
+
+    bool allKwReadOk = true;
+
+    fseek( gridFilePointer, specgridPos, SEEK_SET );
+    allKwReadOk =
+        allKwReadOk &&
+        nullptr != ( specGridKw = ecl_kw_fscanf_alloc_current_grdecl__( gridFilePointer,
+                                                                        false,
+                                                                        ecl_type_create_from_type( ECL_INT_TYPE ) ) );
+    progress.setProgress( 1 );
+
+    fseek( gridFilePointer, zcornPos, SEEK_SET );
+    allKwReadOk = allKwReadOk &&
+                  nullptr !=
+                      ( zCornKw = ecl_kw_fscanf_alloc_current_grdecl__( gridFilePointer,
+                                                                        false,
+                                                                        ecl_type_create_from_type( ECL_FLOAT_TYPE ) ) );
+    progress.setProgress( 2 );
+
+    fseek( gridFilePointer, coordPos, SEEK_SET );
+    allKwReadOk = allKwReadOk &&
+                  nullptr !=
+                      ( coordKw = ecl_kw_fscanf_alloc_current_grdecl__( gridFilePointer,
+                                                                        false,
+                                                                        ecl_type_create_from_type( ECL_FLOAT_TYPE ) ) );
+    progress.setProgress( 3 );
+
+    // If ACTNUM is not defined, this pointer will be nullptr, which is a valid condition
+    if ( actnumPos >= 0 )
+    {
+        fseek( gridFilePointer, actnumPos, SEEK_SET );
+        allKwReadOk =
+            allKwReadOk &&
+            nullptr != ( actNumKw = ecl_kw_fscanf_alloc_current_grdecl__( gridFilePointer,
+                                                                          false,
+                                                                          ecl_type_create_from_type( ECL_INT_TYPE ) ) );
+        progress.setProgress( 4 );
+    }
+
+    // If MAPAXES is not defined, this pointer will be nullptr, which is a valid condition
+    if ( mapaxesPos >= 0 )
+    {
+        fseek( gridFilePointer, mapaxesPos, SEEK_SET );
+        mapAxesKw =
+            ecl_kw_fscanf_alloc_current_grdecl__( gridFilePointer, false, ecl_type_create_from_type( ECL_FLOAT_TYPE ) );
+    }
+
+    if ( !allKwReadOk )
+    {
+        if ( specGridKw ) ecl_kw_free( specGridKw );
+        if ( zCornKw ) ecl_kw_free( zCornKw );
+        if ( coordKw ) ecl_kw_free( coordKw );
+        if ( actNumKw ) ecl_kw_free( actNumKw );
+        if ( mapAxesKw ) ecl_kw_free( mapAxesKw );
+
+        return false;
+    }
+
+    progress.setProgress( 5 );
+
+    int nx = ecl_kw_iget_int( specGridKw, 0 );
+    int ny = ecl_kw_iget_int( specGridKw, 1 );
+    int nz = ecl_kw_iget_int( specGridKw, 2 );
+
+    ecl_grid_type* inputGrid = ecl_grid_alloc_GRDECL_kw( nx, ny, nz, zCornKw, coordKw, actNumKw, mapAxesKw );
+
+    progress.setProgress( 6 );
+
+    RifReaderEclipseOutput::transferGeometry( inputGrid, eclipseCase );
+
+    progress.setProgress( 7 );
+    progress.setProgressDescription( "Read faults ..." );
+
+    if ( readFaultData )
+    {
+        cvf::Collection<RigFault> faults;
+        RifEclipseInputFileTools::readFaults( fileName, keywordsAndFilePos, &faults );
+
+        RigMainGrid* mainGrid = eclipseCase->mainGrid();
+        mainGrid->setFaults( faults );
+    }
+
+    bool useMapAxes = ecl_grid_use_mapaxes( inputGrid );
+    eclipseCase->mainGrid()->setUseMapAxes( useMapAxes );
+
+    if ( useMapAxes )
+    {
+        std::array<double, 6> mapAxesValues;
+        ecl_grid_init_mapaxes_data_double( inputGrid, mapAxesValues.data() );
+        eclipseCase->mainGrid()->setMapAxes( mapAxesValues );
+    }
+
+    progress.setProgress( 8 );
+    progress.setProgressDescription( "Cleaning up ..." );
+
+    ecl_kw_free( specGridKw );
+    ecl_kw_free( zCornKw );
+    ecl_kw_free( coordKw );
+    if ( actNumKw ) ecl_kw_free( actNumKw );
+    if ( mapAxesKw ) ecl_kw_free( mapAxesKw );
+
+    ecl_grid_free( inputGrid );
+
+    fclose( gridFilePointer );
+
+    return true;
 }

@@ -59,11 +59,6 @@ public:
     static bool
         openGridFile( const QString& fileName, RigEclipseCaseData* eclipseCase, bool readFaultData, QString* errorMessages );
 
-    static bool openGridFile_msj( const QString&      fileName,
-                                  RigEclipseCaseData* eclipseCase,
-                                  bool                readFaultData,
-                                  QString*            errorMessages );
-
     static bool exportGrid( const QString&         gridFileName,
                             RigEclipseCaseData*    eclipseCase,
                             bool                   exportInLocalCoordinates,
@@ -188,4 +183,8 @@ private:
 
 private:
     static const std::vector<QString>& invalidPropertyDataKeywords();
+    static bool                        openGridFile_obsolete( const QString&      fileName,
+                                                              RigEclipseCaseData* eclipseCase,
+                                                              bool                readFaultData,
+                                                              QString*            errorMessages );
 };
