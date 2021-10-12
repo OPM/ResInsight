@@ -20,8 +20,8 @@
 #include "RicfLoadCase.h"
 
 #include "RiaApplication.h"
-#include "RiaImportEclipseCaseTools.h"
 #include "RiaLogging.h"
+#include "RicImportGeneralDataFeature.h"
 
 #include "RifReaderSettings.h"
 #include "cafPdmFieldScriptingCapability.h"
@@ -65,26 +65,24 @@ caf::PdmScriptResponse RicfLoadCase::execute()
         absolutePath = startDir.absoluteFilePath( m_path );
     }
 
-    RiaImportEclipseCaseTools::FileCaseIdMap fileCaseIdMap;
-    bool                                     createView      = false;
-    bool                                     doNotShowDialog = true;
-
     std::shared_ptr<RifReaderSettings> readerSettings;
     if ( m_gridOnly ) readerSettings = RifReaderSettings::createGridOnlyReaderSettings();
 
-    bool ok = RiaImportEclipseCaseTools::openEclipseCasesFromFile( QStringList( { absolutePath } ),
-                                                                   createView,
-                                                                   &fileCaseIdMap,
-                                                                   doNotShowDialog,
-                                                                   readerSettings );
-    if ( !ok )
+    bool createPlot       = false;
+    bool createView       = false;
+    auto fileOpenMetaData = RicImportGeneralDataFeature::openEclipseFilesFromFileNames( QStringList{ absolutePath },
+                                                                                        createPlot,
+                                                                                        createView,
+                                                                                        readerSettings );
+
+    if ( fileOpenMetaData.createdCaseIds.empty() )
     {
         QString error = QString( "loadCase: Unable to load case from %1" ).arg( absolutePath );
         RiaLogging::error( error );
         return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
     }
-    CAF_ASSERT( fileCaseIdMap.size() == 1u );
+
     caf::PdmScriptResponse response;
-    response.setResult( new RicfLoadCaseResult( fileCaseIdMap.begin()->second ) );
+    response.setResult( new RicfLoadCaseResult( fileOpenMetaData.createdCaseIds.front() ) );
     return response;
 }
