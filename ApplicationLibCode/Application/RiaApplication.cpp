@@ -25,6 +25,7 @@
 #include "RiaImportEclipseCaseTools.h"
 #include "RiaLogging.h"
 #include "RiaPreferences.h"
+#include "RiaPreferencesSystem.h"
 #include "RiaProjectModifier.h"
 #include "RiaSocketServer.h"
 #include "RiaTextStringTools.h"
@@ -1213,7 +1214,7 @@ void RiaApplication::applyPreferences()
         this->project()->updateConnectedEditors();
     }
 
-    caf::ProgressInfoStatic::setEnabled( m_preferences->showProgressBar() );
+    caf::ProgressInfoStatic::setEnabled( RiaPreferencesSystem::current()->showProgressBar() );
 
     m_preferences->writePreferencesToApplicationStore();
 }
@@ -1360,7 +1361,7 @@ int RiaApplication::launchUnitTests()
 
     //
     // Use the gtest filter to execute a subset of tests
-    QString filterText = RiaPreferences::current()->gtestFilter();
+    QString filterText = RiaPreferencesSystem::current()->gtestFilter();
     if ( !filterText.isEmpty() )
     {
         ::testing::GTEST_FLAG( filter ) = filterText.toStdString();
