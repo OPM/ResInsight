@@ -24,6 +24,7 @@
 #include "RiaGuiApplication.h"
 #include "RiaOptionItemFactory.h"
 #include "RiaPreferences.h"
+#include "RiaPreferencesSystem.h"
 #include "RiaViewRedrawScheduler.h"
 
 #include "RicfCommandObject.h"
@@ -335,7 +336,7 @@ void Rim3dView::updateViewWidgetAfterCreation()
     this->onResetLegendsInViewer();
 
     m_viewer->updateNavigationPolicy();
-    m_viewer->enablePerfInfoHud( RiaGuiApplication::instance()->preferences()->show3dInformation() );
+    m_viewer->enablePerfInfoHud( RiaPreferencesSystem::current()->show3dInformation() );
 
     m_viewer->mainCamera()->setViewMatrix( m_cameraPosition );
     m_viewer->setPointOfInterest( m_cameraPointOfInterest() );

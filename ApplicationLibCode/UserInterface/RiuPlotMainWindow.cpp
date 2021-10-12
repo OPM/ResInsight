@@ -22,6 +22,7 @@
 #include "RiaBaseDefs.h"
 #include "RiaGuiApplication.h"
 #include "RiaPreferences.h"
+#include "RiaPreferencesSystem.h"
 #include "RiaRegressionTestRunner.h"
 #include "RiaSummaryTools.h"
 
@@ -450,7 +451,7 @@ void RiuPlotMainWindow::createDockPanels()
         m_projectTreeView = new caf::PdmUiTreeView( this );
         m_projectTreeView->enableSelectionManagerUpdating( true );
 
-        m_projectTreeView->enableAppendOfClassNameToUiItemText( RiaPreferences::current()->appendClassNameToUiText() );
+        m_projectTreeView->enableAppendOfClassNameToUiItemText( RiaPreferencesSystem::current()->appendClassNameToUiText() );
 
         dockWidget->setWidget( m_projectTreeView );
 

@@ -23,6 +23,7 @@
 #include "RiaBaseDefs.h"
 #include "RiaGuiApplication.h"
 #include "RiaPreferences.h"
+#include "RiaPreferencesSystem.h"
 #include "RiaRegressionTest.h"
 #include "RiaRegressionTestRunner.h"
 
@@ -685,7 +686,7 @@ void RiuMainWindow::createToolBars()
         toolbar->addAction( polyMeasureAction );
     }
 
-    if ( RiaPreferences::current()->showTestToolbar() )
+    if ( RiaPreferencesSystem::current()->showTestToolbar() )
     {
         QToolBar* toolbar = addToolBar( tr( "Test" ) );
         toolbar->setObjectName( toolbar->windowTitle() );
@@ -717,7 +718,7 @@ void RiuMainWindow::createDockPanels()
         m_projectTreeView = new caf::PdmUiTreeView( this );
         m_projectTreeView->enableSelectionManagerUpdating( true );
 
-        m_projectTreeView->enableAppendOfClassNameToUiItemText( RiaPreferences::current()->appendClassNameToUiText() );
+        m_projectTreeView->enableAppendOfClassNameToUiItemText( RiaPreferencesSystem::current()->appendClassNameToUiText() );
 
         dockWidget->setWidget( m_projectTreeView );
 
