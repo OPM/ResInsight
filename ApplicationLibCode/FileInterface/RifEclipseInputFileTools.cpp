@@ -78,6 +78,8 @@ bool RifEclipseInputFileTools::openGridFile( const QString&      fileName,
                                              bool                readFaultData,
                                              QString*            errorMessages )
 {
+    return openGridFile_msj( fileName, eclipseCase, readFaultData, errorMessages );
+
     CVF_ASSERT( eclipseCase && errorMessages );
 
     std::vector<RifKeywordAndFilePos> keywordsAndFilePos;
@@ -253,6 +255,128 @@ bool RifEclipseInputFileTools::openGridFile( const QString&      fileName,
     ecl_grid_free( inputGrid );
 
     fclose( gridFilePointer );
+
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RifEclipseInputFileTools::openGridFile_msj( const QString&      fileName,
+                                                 RigEclipseCaseData* eclipseCase,
+                                                 bool                readFaultData,
+                                                 QString*            errorMessages )
+{
+    std::string filename = fileName.toStdString();
+
+    RifEclipseTextFileReader reader;
+    auto                     objects = reader.readKeywordAndValues( filename );
+
+    ecl_kw_type* specGridKw = nullptr;
+    ecl_kw_type* zCornKw    = nullptr;
+    ecl_kw_type* coordKw    = nullptr;
+    ecl_kw_type* actNumKw   = nullptr;
+    ecl_kw_type* mapAxesKw  = nullptr;
+
+    for ( const auto& obj : objects )
+    {
+        {
+            std::string keyword = "SPECGRID";
+            if ( obj.keyword.compare( keyword ) == 0 )
+            {
+                std::vector<int> intValues;
+                for ( const auto& val : obj.values )
+                {
+                    intValues.push_back( val );
+                }
+
+                specGridKw = ecl_kw_alloc_new( keyword.data(), (int)obj.values.size(), ECL_INT, intValues.data() );
+                continue;
+            }
+        }
+
+        {
+            std::string keyword = "COORD";
+            if ( obj.keyword.compare( keyword ) == 0 )
+            {
+                coordKw = ecl_kw_alloc_new( keyword.data(), (int)obj.values.size(), ECL_FLOAT, obj.values.data() );
+                continue;
+            }
+        }
+
+        {
+            std::string keyword = "ZCORN";
+            if ( obj.keyword.compare( keyword ) == 0 )
+            {
+                zCornKw = ecl_kw_alloc_new( keyword.data(), (int)obj.values.size(), ECL_FLOAT, obj.values.data() );
+                continue;
+            }
+        }
+
+        {
+            std::string keyword = "ACTNUM";
+            if ( obj.keyword.compare( keyword ) == 0 )
+            {
+                std::vector<int> intValues;
+                for ( const auto& val : obj.values )
+                {
+                    intValues.push_back( val );
+                }
+
+                actNumKw = ecl_kw_alloc_new( keyword.data(), (int)obj.values.size(), ECL_INT, intValues.data() );
+                continue;
+            }
+        }
+
+        {
+            std::string keyword = "MAPAXES";
+            if ( obj.keyword.compare( keyword ) == 0 )
+            {
+                zCornKw = ecl_kw_alloc_new( keyword.data(), (int)obj.values.size(), ECL_FLOAT, obj.values.data() );
+                continue;
+            }
+        }
+    }
+
+    if ( specGridKw && zCornKw && coordKw )
+    {
+        int nx = ecl_kw_iget_int( specGridKw, 0 );
+        int ny = ecl_kw_iget_int( specGridKw, 1 );
+        int nz = ecl_kw_iget_int( specGridKw, 2 );
+
+        ecl_grid_type* inputGrid = ecl_grid_alloc_GRDECL_kw( nx, ny, nz, zCornKw, coordKw, actNumKw, mapAxesKw );
+
+        RifReaderEclipseOutput::transferGeometry( inputGrid, eclipseCase );
+
+        //         if ( readFaultData )
+        //         {
+        //             cvf::Collection<RigFault> faults;
+        //             RifEclipseInputFileTools::readFaults( fileName, keywordsAndFilePos, &faults );
+        //
+        //             RigMainGrid* mainGrid = eclipseCase->mainGrid();
+        //             mainGrid->setFaults( faults );
+        //         }
+
+        bool useMapAxes = ecl_grid_use_mapaxes( inputGrid );
+        eclipseCase->mainGrid()->setUseMapAxes( useMapAxes );
+
+        if ( useMapAxes )
+        {
+            std::array<double, 6> mapAxesValues;
+            ecl_grid_init_mapaxes_data_double( inputGrid, mapAxesValues.data() );
+            eclipseCase->mainGrid()->setMapAxes( mapAxesValues );
+        }
+
+        ecl_kw_free( specGridKw );
+        ecl_kw_free( zCornKw );
+        ecl_kw_free( coordKw );
+        if ( actNumKw ) ecl_kw_free( actNumKw );
+        if ( mapAxesKw ) ecl_kw_free( mapAxesKw );
+
+        ecl_grid_free( inputGrid );
+
+        return true;
+    }
 
     return true;
 }
@@ -1770,10 +1894,10 @@ cvf::StructGridInterface::FaceEnum RifEclipseInputFileTools::faceEnumFromText( c
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RifEclipseInputFileTools::appendInputPropertyResult( RigEclipseCaseData*        caseData,
-                                                          const std::string&         resultName,
-                                                          const std::vector<double>& values,
-                                                          QString*                   errMsg )
+bool RifEclipseInputFileTools::appendInputPropertyResult( RigEclipseCaseData*       caseData,
+                                                          const std::string&        resultName,
+                                                          const std::vector<float>& values,
+                                                          QString*                  errMsg )
 {
     QString qResultName = QString::fromStdString( resultName );
 
@@ -1809,7 +1933,10 @@ bool RifEclipseInputFileTools::appendInputPropertyResult( RigEclipseCaseData*   
     auto newPropertyData =
         caseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->modifiableCellScalarResultTimesteps( resAddr );
 
-    newPropertyData->push_back( values );
+    std::vector<double> doubleVals;
+    doubleVals.insert( doubleVals.begin(), values.begin(), values.end() );
+
+    newPropertyData->push_back( doubleVals );
 
     return true;
 }

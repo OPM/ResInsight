@@ -20,13 +20,18 @@
 
 #include "fast_float/include/fast_float/fast_float.h"
 
+#include <fstream>
+#include <iosfwd>
+#include <iostream>
+#include <sstream>
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<std::string, std::vector<double>>
+std::pair<std::string, std::vector<float>>
     RifEclipseTextFileReader::readKeywordAndValues( const std::string_view& stringData, const size_t offset, size_t& bytesRead )
 {
-    std::vector<double> values;
+    std::vector<float> values;
 
     const auto commentChar = '-';
 
@@ -82,6 +87,54 @@ std::pair<std::string, std::vector<double>>
     }
 
     return std::make_pair( keywordName, values );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RifEclipseKeywordContent> RifEclipseTextFileReader::readKeywordAndValues( const std::string& filename )
+{
+    std::string stringData;
+    {
+        std::ifstream inFile;
+        inFile.open( filename );
+
+        std::stringstream strStream;
+        strStream << inFile.rdbuf();
+        stringData = strStream.str();
+    }
+
+    size_t offset    = 0;
+    size_t bytesRead = 0;
+
+    std::vector<RifEclipseKeywordContent> dataObjects;
+
+    RifEclipseTextFileReader reader;
+    while ( offset < stringData.size() )
+    {
+        auto [keyword, values] = reader.readKeywordAndValues( stringData, offset, bytesRead );
+
+        if ( !keyword.empty() )
+        {
+            RifEclipseKeywordContent content;
+            content.keyword = keyword;
+            content.offset  = offset;
+            if ( values.empty() )
+            {
+                content.content = stringData.substr( offset, bytesRead );
+            }
+            else
+            {
+                content.values = values;
+            }
+
+            dataObjects.emplace_back( content );
+        }
+
+        offset += bytesRead;
+    }
+
+    return dataObjects;
 }
 
 //--------------------------------------------------------------------------------------------------

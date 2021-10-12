@@ -59,6 +59,11 @@ public:
     static bool
         openGridFile( const QString& fileName, RigEclipseCaseData* eclipseCase, bool readFaultData, QString* errorMessages );
 
+    static bool openGridFile_msj( const QString&      fileName,
+                                  RigEclipseCaseData* eclipseCase,
+                                  bool                readFaultData,
+                                  QString*            errorMessages );
+
     static bool exportGrid( const QString&         gridFileName,
                             RigEclipseCaseData*    eclipseCase,
                             bool                   exportInLocalCoordinates,
@@ -148,10 +153,10 @@ public:
     static cvf::StructGridInterface::FaceEnum faceEnumFromText( const QString& faceString );
 
     // Functions to be moved to separate file
-    static bool appendInputPropertyResult( RigEclipseCaseData*        caseData,
-                                           const std::string&         resultName,
-                                           const std::vector<double>& values,
-                                           QString*                   errMsg );
+    static bool appendInputPropertyResult( RigEclipseCaseData*       caseData,
+                                           const std::string&        resultName,
+                                           const std::vector<float>& values,
+                                           QString*                  errMsg );
 
 private:
     static bool readDataFromKeyword( ecl_kw_type*        eclipseKeywordData,

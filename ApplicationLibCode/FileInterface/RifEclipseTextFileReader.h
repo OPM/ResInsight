@@ -20,6 +20,15 @@
 
 #include "RifReaderInterface.h"
 
+class RifEclipseKeywordContent
+{
+public:
+    std::string        keyword;
+    std::string        content;
+    std::vector<float> values;
+    size_t             offset;
+};
+
 //==================================================================================================
 //
 // File interface for Eclipse output files
@@ -28,8 +37,10 @@
 class RifEclipseTextFileReader
 {
 public:
-    std::pair<std::string, std::vector<double>>
+    std::pair<std::string, std::vector<float>>
         readKeywordAndValues( const std::string_view& stringData, const size_t startOffset, size_t& bytesRead );
+
+    std::vector<RifEclipseKeywordContent> readKeywordAndValues( const std::string& filename );
 
 private:
     static constexpr const char* m_whiteSpace = " \t\n\r\f\v";

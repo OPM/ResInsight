@@ -24,6 +24,10 @@
 #include "mio/single_include/mio/mio.hpp"
 
 #include <QString>
+#include <fstream>
+#include <iosfwd>
+#include <iostream>
+#include <sstream>
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -58,6 +62,27 @@ TEST( RifEclipseTextFileReader, ReadKeywordsAndValues )
             std::cout << values.front() << " " << values.back();
             std::cout << "\n\n";
         }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( RifEclipseTextFileReader, ReadKeywordsAndValuesFromFile )
+{
+    QString baseFolder = QString( "%1/RifReaderEclipseOutput/TEST10K_FLT_LGR_NNC_OUT.GRDECL" ).arg( TEST_DATA_DIR );
+    //    "e:/gitroot-ceesol/ResInsight-regression-test/ModelData/TestCase_Ascii_no_map_axis/geocell.grdecl";
+    // filename = "d:/scratch/R5_H25_C1_aug_grid.grdecl";
+
+    std::string filename = baseFolder.toStdString();
+
+    RifEclipseTextFileReader reader;
+    auto                     objects = reader.readKeywordAndValues( filename );
+
+    EXPECT_EQ( size_t( 7 ), objects.size() );
+    for ( const auto& obj : objects )
+    {
+        std::cout << obj.keyword << "\n";
     }
 }
 
