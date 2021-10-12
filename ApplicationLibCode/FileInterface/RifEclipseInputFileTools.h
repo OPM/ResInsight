@@ -97,13 +97,13 @@ public:
                             const cvf::Vec3st& max        = cvf::Vec3st::UNDEFINED,
                             const cvf::Vec3st& refinement = cvf::Vec3st( 1, 1, 1 ) );
 
+    static bool importFaultsFromFile( RigEclipseCaseData* eclipseCase, const QString& fileName );
+
     static void readFaultsInGridSection( const QString&             fileName,
                                          cvf::Collection<RigFault>* faults,
                                          std::vector<QString>*      filenamesWithFaults,
                                          const QString&             faultIncludeFileAbsolutePathPrefix );
     static void parseAndReadFaults( const QString& fileName, cvf::Collection<RigFault>* faults );
-
-    static void findKeywordsOnFile( const QString& fileName, std::vector<RifKeywordAndFilePos>* keywords );
 
     static void parseAndReadPathAliasKeyword( const QString&                            fileName,
                                               std::vector<std::pair<QString, QString>>* pathAliasDefinitions );

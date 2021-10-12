@@ -48,8 +48,6 @@ private:
     // Hide constructor to prevent instantiation
     RifEclipseInputPropertyLoader();
 
-    static bool importFaultsFromFile( RigEclipseCaseData* eclipseCase, const QString& fileName );
-
     // Returns map of assigned resultName and Eclipse Keyword.
     static std::map<QString, QString> readProperties( const QString& fileName, RigEclipseCaseData* eclipseCase );
 

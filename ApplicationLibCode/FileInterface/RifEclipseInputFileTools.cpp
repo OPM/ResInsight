@@ -161,11 +161,16 @@ bool RifEclipseInputFileTools::openGridFile( const QString&      fileName,
 
         if ( readFaultData )
         {
-            cvf::Collection<RigFault> faults;
-            RifEclipseInputFileTools::parseAndReadFaults( fileName, &faults );
+            bool isFaultKeywordPresent = false;
+            for ( const auto& keywordObj : objects )
+            {
+                if ( keywordObj.keyword == "FAULTS" ) isFaultKeywordPresent = true;
+            }
 
-            RigMainGrid* mainGrid = eclipseCase->mainGrid();
-            mainGrid->setFaults( faults );
+            if ( isFaultKeywordPresent )
+            {
+                importFaultsFromFile( eclipseCase, fileName );
+            }
         }
 
         bool useMapAxes = ecl_grid_use_mapaxes( inputGrid );
@@ -694,6 +699,61 @@ void RifEclipseInputFileTools::saveFaults( QTextStream&       stream,
         }
     }
     stream << "/" << '\n';
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RifEclipseInputFileTools::importFaultsFromFile( RigEclipseCaseData* eclipseCaseData, const QString& fileName )
+{
+    cvf::Collection<RigFault> faultCollectionFromFile;
+    RifEclipseInputFileTools::parseAndReadFaults( fileName, &faultCollectionFromFile );
+    if ( faultCollectionFromFile.empty() )
+    {
+        return false;
+    }
+
+    cvf::Collection<RigFault> faults;
+    {
+        cvf::Collection<RigFault> faultCollection = eclipseCaseData->mainGrid()->faults();
+        for ( size_t i = 0; i < faultCollection.size(); i++ )
+        {
+            RigFault* f = faultCollection.at( i );
+            if ( f->name() == RiaResultNames::undefinedGridFaultName() ||
+                 f->name() == RiaResultNames::undefinedGridFaultName() )
+            {
+                // Do not include undefined grid faults, as these are recomputed based on the imported faults from files
+                continue;
+            }
+
+            faults.push_back( f );
+        }
+    }
+
+    for ( size_t i = 0; i < faultCollectionFromFile.size(); i++ )
+    {
+        RigFault* faultFromFile = faultCollectionFromFile.at( i );
+
+        bool existFaultWithSameName = false;
+        for ( size_t j = 0; j < faults.size(); j++ )
+        {
+            RigFault* existingFault = faults.at( j );
+
+            if ( existingFault->name() == faultFromFile->name() )
+            {
+                existFaultWithSameName = true;
+            }
+        }
+
+        if ( !existFaultWithSameName )
+        {
+            faults.push_back( faultFromFile );
+        }
+    }
+
+    eclipseCaseData->mainGrid()->setFaults( faults );
+
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------
