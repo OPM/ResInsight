@@ -21,7 +21,7 @@
 #include "RiaTestDataDirectory.h"
 #include "RifEclipseTextFileReader.h"
 
-#include "mio/single_include/mio/mio.hpp"
+//#include "mio/mio.hpp"
 
 #include <QString>
 #include <fstream>
@@ -40,28 +40,30 @@ TEST( RifEclipseTextFileReader, ReadKeywordsAndValues )
     //    "e:/gitroot-ceesol/ResInsight-regression-test/ModelData/TestCase_Ascii_no_map_axis/geocell.grdecl";
     // filename = "d:/scratch/R5_H25_C1_aug_grid.grdecl";
 
-    std::error_code error;
+    /*
+        std::error_code error;
 
-    mio::mmap_sink   rw_mmap    = mio::make_mmap_sink( fileName, 0, mio::map_entire_file, error );
-    std::string_view stringData = rw_mmap.data();
+        mio::mmap_sink   rw_mmap    = mio::make_mmap_sink( fileName, 0, mio::map_entire_file, error );
+        std::string_view stringData = rw_mmap.data();
 
-    size_t offset    = 0;
-    size_t bytesRead = 0;
+        size_t offset    = 0;
+        size_t bytesRead = 0;
 
-    while ( offset < stringData.size() )
-    {
-        RifEclipseTextFileReader reader;
-        auto [keyword, values] = reader.readKeywordAndValues( stringData, offset, bytesRead );
-        offset += bytesRead;
-
-        std::cout << keyword << " : " << values.size() << "\n";
-
-        if ( !values.empty() )
+        while ( offset < stringData.size() )
         {
-            std::cout << values.front() << " " << values.back();
-            std::cout << "\n\n";
+            RifEclipseTextFileReader reader;
+            auto [keyword, values] = reader.readKeywordAndValues( stringData, offset, bytesRead );
+            offset += bytesRead;
+
+            std::cout << keyword << " : " << values.size() << "\n";
+
+            if ( !values.empty() )
+            {
+                std::cout << values.front() << " " << values.back();
+                std::cout << "\n\n";
+            }
         }
-    }
+    */
 }
 
 //--------------------------------------------------------------------------------------------------

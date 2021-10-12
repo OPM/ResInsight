@@ -19,6 +19,9 @@
 #include "RifEclipseTextFileReader.h"
 
 #include "fast_float/include/fast_float/fast_float.h"
+#include "mio/mio.hpp"
+
+#include "RiaPreferencesSystem.h"
 
 #include <fstream>
 #include <iosfwd>
@@ -108,15 +111,74 @@ std::pair<std::string, std::vector<float>>
 //--------------------------------------------------------------------------------------------------
 std::vector<RifEclipseKeywordContent> RifEclipseTextFileReader::readKeywordAndValues( const std::string& filename )
 {
-    std::string stringData;
+    if ( RiaPreferencesSystem::current()->eclipseTextFileReaderMode() ==
+         RiaPreferencesSystem::EclipseTextFileReaderMode::MEMORY_MAPPED_FILE )
     {
-        std::ifstream inFile;
-        inFile.open( filename );
-
-        std::stringstream strStream;
-        strStream << inFile.rdbuf();
-        stringData = strStream.str();
+        return readKeywordAndValuesMemoryMappedFile( filename );
     }
+
+    return readKeywordAndValuesFile( filename );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RifEclipseKeywordContent> RifEclipseTextFileReader::readKeywordAndValuesFile( const std::string& filename )
+{
+    std::string stringData;
+
+    std::ifstream inFile;
+    inFile.open( filename );
+
+    std::stringstream strStream;
+    strStream << inFile.rdbuf();
+
+    stringData = strStream.str();
+
+    size_t offset    = 0;
+    size_t bytesRead = 0;
+
+    std::vector<RifEclipseKeywordContent> dataObjects;
+
+    RifEclipseTextFileReader reader;
+    while ( offset < stringData.size() )
+    {
+        auto [keyword, values] = reader.readKeywordAndValues( stringData, offset, bytesRead );
+
+        if ( !keyword.empty() )
+        {
+            RifEclipseKeywordContent content;
+            content.keyword = keyword;
+            content.offset  = offset;
+            if ( values.empty() )
+            {
+                content.content = stringData.substr( offset, bytesRead );
+            }
+            else
+            {
+                content.values = values;
+            }
+
+            dataObjects.emplace_back( content );
+        }
+
+        offset += bytesRead;
+    }
+
+    return dataObjects;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RifEclipseKeywordContent>
+    RifEclipseTextFileReader::readKeywordAndValuesMemoryMappedFile( const std::string& filename )
+{
+    mio::mmap_source mmap( filename );
+
+    std::error_code  error;
+    mio::mmap_sink   rw_mmap    = mio::make_mmap_sink( filename, 0, mio::map_entire_file, error );
+    std::string_view stringData = rw_mmap.data();
 
     size_t offset    = 0;
     size_t bytesRead = 0;
