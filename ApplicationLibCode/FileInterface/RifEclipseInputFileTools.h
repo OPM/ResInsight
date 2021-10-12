@@ -99,7 +99,6 @@ public:
 
     // Returns map of assigned resultName and Eclipse Keyword.
     static std::map<QString, QString> readProperties( const QString& fileName, RigEclipseCaseData* eclipseCase );
-    static std::map<QString, QString> readProperties_msj( const QString& fileName, RigEclipseCaseData* eclipseCase );
     static bool                       readProperty( const QString&      fileName,
                                                     RigEclipseCaseData* eclipseCase,
                                                     const QString&      eclipseKeyWord,
@@ -149,7 +148,8 @@ public:
 
     // Functions to be moved to separate file
     static bool appendInputPropertyResult( RigEclipseCaseData*       caseData,
-                                           const std::string&        resultName,
+                                           const QString&            resultName,
+                                           const std::string&        eclipseKeyword,
                                            const std::vector<float>& values,
                                            QString*                  errMsg );
 
@@ -187,4 +187,5 @@ private:
                                                               RigEclipseCaseData* eclipseCase,
                                                               bool                readFaultData,
                                                               QString*            errorMessages );
+    static std::map<QString, QString> readProperties_obsolete( const QString& fileName, RigEclipseCaseData* eclipseCase );
 };

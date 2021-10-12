@@ -45,34 +45,9 @@ public:
                                                   const std::vector<QString>&        filenames,
                                                   bool                               allowImportOfFaults );
 
-    static bool readInputPropertiesFromFiles( RimEclipseInputPropertyCollection* inputPropertyCollection,
-                                              RigEclipseCaseData*                eclipseCaseData,
-                                              bool                               importFaults,
-                                              const std::vector<QString>&        filenames );
-
-    static bool importFaultsFromFile( RigEclipseCaseData* eclipseCase, const QString& fileName );
-
 private:
     // Hide constructor to prevent instantiation
     RifEclipseInputPropertyLoader();
 
-    static std::set<QString> extractKeywordsOnFile( const QString& filename, bool isExistingFile );
-
-    static void setResolvedState( RimEclipseInputPropertyCollection*    inputPropertyCollection,
-                                  RimEclipseInputProperty::ResolveState currentState,
-                                  RimEclipseInputProperty::ResolveState newState );
-
-    static void readDataForEachInputProperty( RimEclipseInputPropertyCollection* inputPropertyCollection,
-                                              RigEclipseCaseData*                eclipseCaseData,
-                                              const QString&                     filename,
-                                              bool                               isExistingFile,
-                                              bool                               allowImportOfFaults,
-                                              std::set<QString>*                 fileKeywordSet,
-                                              caf::ProgressInfo*                 progressInfo,
-                                              int                                progressOffset );
-
-    static void readInputPropertiesForRemainingKeywords( RimEclipseInputPropertyCollection* inputPropertyCollection,
-                                                         RigEclipseCaseData*                eclipseCaseData,
-                                                         const QString&                     filename,
-                                                         std::set<QString>*                 fileKeywordSet );
+    static bool importFaultsFromFile( RigEclipseCaseData* eclipseCase, const QString& fileName );
 };

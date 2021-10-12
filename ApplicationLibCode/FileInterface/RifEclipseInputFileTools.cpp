@@ -189,7 +189,7 @@ bool RifEclipseInputFileTools::openGridFile( const QString&      fileName,
         return true;
     }
 
-    return true;
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -699,7 +699,8 @@ void RifEclipseInputFileTools::saveFaults( QTextStream&       stream,
 //--------------------------------------------------------------------------------------------------
 /// Read known properties from the input file
 //--------------------------------------------------------------------------------------------------
-std::map<QString, QString> RifEclipseInputFileTools::readProperties( const QString& fileName, RigEclipseCaseData* caseData )
+std::map<QString, QString> RifEclipseInputFileTools::readProperties_obsolete( const QString&      fileName,
+                                                                              RigEclipseCaseData* caseData )
 {
     CVF_ASSERT( caseData );
 
@@ -765,8 +766,8 @@ std::map<QString, QString> RifEclipseInputFileTools::readProperties( const QStri
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::map<QString, QString> RifEclipseInputFileTools::readProperties_msj( const QString&      fileName,
-                                                                         RigEclipseCaseData* eclipseCase )
+std::map<QString, QString> RifEclipseInputFileTools::readProperties( const QString&      fileName,
+                                                                     RigEclipseCaseData* eclipseCase )
 {
     std::string fileContent;
     {
@@ -787,18 +788,18 @@ std::map<QString, QString> RifEclipseInputFileTools::readProperties_msj( const Q
     while ( offset < fileContent.size() )
     {
         RifEclipseTextFileReader reader;
-        auto [keyword, values] = reader.readKeywordAndValues( fileContent, offset, bytesRead );
+        auto [eclipseKeyword, values] = reader.readKeywordAndValues( fileContent, offset, bytesRead );
         offset += bytesRead;
 
         if ( !values.empty() )
         {
             QString newResultName = eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL )
-                                        ->makeResultNameUnique( QString::fromStdString( keyword ) );
+                                        ->makeResultNameUnique( QString::fromStdString( eclipseKeyword ) );
 
             QString errorText;
-            if ( appendInputPropertyResult( eclipseCase, keyword, values, &errorText ) )
+            if ( appendInputPropertyResult( eclipseCase, newResultName, eclipseKeyword, values, &errorText ) )
             {
-                resultNameAndEclipseNameMap[newResultName] = QString::fromStdString( keyword );
+                resultNameAndEclipseNameMap[newResultName] = QString::fromStdString( eclipseKeyword );
             }
             else
             {
@@ -1706,39 +1707,25 @@ cvf::StructGridInterface::FaceEnum RifEclipseInputFileTools::faceEnumFromText( c
 ///
 //--------------------------------------------------------------------------------------------------
 bool RifEclipseInputFileTools::appendInputPropertyResult( RigEclipseCaseData*       caseData,
-                                                          const std::string&        resultName,
+                                                          const QString&            resultName,
+                                                          const std::string&        eclipseKeyword,
                                                           const std::vector<float>& values,
                                                           QString*                  errMsg )
 {
-    QString qResultName = QString::fromStdString( resultName );
-
-    if ( !isValidDataKeyword( qResultName ) ) return false;
+    if ( !isValidDataKeyword( QString::fromStdString( eclipseKeyword ) ) ) return false;
 
     CVF_ASSERT( caseData );
     CVF_ASSERT( errMsg );
 
+    size_t keywordItemCount = values.size();
+    if ( keywordItemCount != caseData->mainGrid()->cellCount() )
     {
-        bool   mathingItemCount = false;
-        size_t keywordItemCount = values.size();
-        if ( keywordItemCount == caseData->mainGrid()->cellCount() )
-        {
-            mathingItemCount = true;
-        }
-        else if ( keywordItemCount ==
-                  caseData->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL )->reservoirActiveCellCount() )
-        {
-            mathingItemCount = true;
-        }
-
-        if ( !mathingItemCount )
-        {
-            QString errFormat( "Size mismatch: Main Grid has %1 cells, keyword %2 has %3 cells" );
-            *errMsg = errFormat.arg( caseData->mainGrid()->cellCount() ).arg( qResultName ).arg( keywordItemCount );
-            return false;
-        }
+        QString errFormat( "Size mismatch: Main Grid has %1 cells, keyword %2 has %3 cells" );
+        *errMsg = errFormat.arg( caseData->mainGrid()->cellCount() ).arg( resultName ).arg( keywordItemCount );
+        return false;
     }
 
-    RigEclipseResultAddress resAddr( RiaDefines::ResultCatType::INPUT_PROPERTY, qResultName );
+    RigEclipseResultAddress resAddr( RiaDefines::ResultCatType::INPUT_PROPERTY, resultName );
     caseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->createResultEntry( resAddr, false );
 
     auto newPropertyData =
