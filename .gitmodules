@@ -4,9 +4,6 @@
 [submodule "ThirdParty/vcpkg"]
 	path = ThirdParty/vcpkg
 	url = https://github.com/CeetronSolutions/vcpkg
-[submodule "ThirdParty/mio"]
-	path = ThirdParty/mio
-	url = https://github.com/mandreyel/mio
 [submodule "ThirdParty/fast_float"]
 	path = ThirdParty/fast_float
 	url = https://github.com/fastfloat/fast_float
