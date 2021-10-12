@@ -94,7 +94,7 @@ QSize RiuPropertyViewTabWidget::minimumSizeHint() const
     for ( auto w : m_pageWidgets )
     {
         QSize pageSize = w->minimumSizeHint();
-        pageSize += QSize( 0, 100 );
+        pageSize += QSize( 0, 150 );
 
         maxSizeHint = maxSizeHint.expandedTo( pageSize );
     }
@@ -114,7 +114,7 @@ QSize RiuPropertyViewTabWidget::sizeHint() const
         // qDebug() << "tab size hint" << w->sizeHint();
 
         QSize pageSize = w->sizeHint();
-        pageSize += QSize( 0, 100 );
+        pageSize += QSize( 0, 150 );
 
         maxSizeHint = maxSizeHint.expandedTo( pageSize );
     }

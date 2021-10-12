@@ -24,6 +24,21 @@
 #include "cafPdmUiCheckBoxEditor.h"
 #include "cafPdmUiFilePathEditor.h"
 
+namespace caf
+{
+template <>
+void RiaPreferencesSystem::EclipseTextFileReaderModeType::setUp()
+{
+    addItem( RiaPreferencesSystem::EclipseTextFileReaderMode::MEMORY_MAPPED_FILE,
+             "MEMORY_MAPPED_FILE",
+             "Memory Mapped File Import" );
+    addItem( RiaPreferencesSystem::EclipseTextFileReaderMode::FILE, "FILE", "Default File Import" );
+
+    setDefault( RiaPreferencesSystem::EclipseTextFileReaderMode::FILE );
+}
+
+} // namespace caf
+
 CAF_PDM_SOURCE_INIT( RiaPreferencesSystem, "RiaPreferencesSystem" );
 
 //--------------------------------------------------------------------------------------------------
@@ -79,6 +94,14 @@ RiaPreferencesSystem::RiaPreferencesSystem()
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_showProgressBar );
 
     CAF_PDM_InitField( &m_gtestFilter, "gtestFilter", QString(), "Unit Test Filter (gtest)", "", "", "" );
+
+    CAF_PDM_InitField( &m_eclipseReaderMode,
+                       "eclipseReaderMode",
+                       EclipseTextFileReaderModeType( RiaPreferencesSystem::EclipseTextFileReaderMode::FILE ),
+                       "Default Summary Import Option",
+                       "",
+                       "",
+                       "" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -190,6 +213,14 @@ bool RiaPreferencesSystem::showProgressBar() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RiaPreferencesSystem::EclipseTextFileReaderMode RiaPreferencesSystem::eclipseTextFileReaderMode() const
+{
+    return m_eclipseReaderMode();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiaPreferencesSystem::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     {
@@ -221,49 +252,6 @@ QList<caf::PdmOptionItemInfo>
 {
     QList<caf::PdmOptionItemInfo> options;
     *useOptionsOnly = true;
-
-    /*
-        if ( fieldNeedingOptions == &m_summaryReader )
-        {
-            std::vector<SummaryReaderMode> availableModes;
-
-    #ifdef USE_HDF5
-            availableModes.push_back( SummaryReaderMode::HDF5_OPM_COMMON );
-    #endif // USE_HDF5
-            availableModes.push_back( SummaryReaderMode::LIBECL );
-            availableModes.push_back( SummaryReaderMode::OPM_COMMON );
-
-            for ( auto enumValue : availableModes )
-            {
-                options.push_back( caf::PdmOptionItemInfo( SummaryReaderModeType::uiText( enumValue ), enumValue ) );
-            }
-        }
-        else if ( fieldNeedingOptions == &m_gridImportMode )
-        {
-            // Manual option handling in order to one only a subset of the enum values
-            SummaryRestartFilesImportModeType skip( RiaPreferencesSummary::SummaryRestartFilesImportMode::NOT_IMPORT );
-            SummaryRestartFilesImportModeType separate(
-    RiaPreferencesSummary::SummaryRestartFilesImportMode::SEPARATE_CASES );
-
-            options.push_back(
-                caf::PdmOptionItemInfo( skip.uiText(), RiaPreferencesSummary::SummaryRestartFilesImportMode::NOT_IMPORT
-    ) ); options.push_back( caf::PdmOptionItemInfo( separate.uiText(),
-                                                       RiaPreferencesSummary::SummaryRestartFilesImportMode::SEPARATE_CASES
-    ) );
-        }
-        else if ( fieldNeedingOptions == &m_summaryEnsembleImportMode )
-        {
-            // Manual option handling in order to one only a subset of the enum values
-            SummaryRestartFilesImportModeType skip( RiaPreferencesSummary::SummaryRestartFilesImportMode::NOT_IMPORT );
-            SummaryRestartFilesImportModeType allowImport( RiaPreferencesSummary::SummaryRestartFilesImportMode::IMPORT
-    );
-
-            options.push_back(
-                caf::PdmOptionItemInfo( skip.uiText(), RiaPreferencesSummary::SummaryRestartFilesImportMode::NOT_IMPORT
-    ) ); options.push_back( caf::PdmOptionItemInfo( allowImport.uiText(),
-                                                       RiaPreferencesSummary::SummaryRestartFilesImportMode::IMPORT ) );
-        }
-    */
 
     return options;
 }
