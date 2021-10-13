@@ -30,6 +30,13 @@ class RiaPreferencesSystem : public caf::PdmObject
     CAF_PDM_HEADER_INIT;
 
 public:
+    enum class EclipseTextFileReaderMode
+    {
+        MEMORY_MAPPED_FILE,
+        FILE,
+    };
+    using EclipseTextFileReaderModeType = caf::AppEnum<EclipseTextFileReaderMode>;
+
 public:
     RiaPreferencesSystem();
 
@@ -46,6 +53,8 @@ public:
     bool    show3dInformation() const;
     QString gtestFilter() const;
     bool    showProgressBar() const;
+
+    EclipseTextFileReaderMode eclipseTextFileReaderMode() const;
 
 protected:
     void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
@@ -70,4 +79,6 @@ private:
 
     caf::PdmField<bool>    m_showProgressBar;
     caf::PdmField<QString> m_gtestFilter;
+
+    caf::PdmField<EclipseTextFileReaderModeType> m_eclipseReaderMode;
 };
