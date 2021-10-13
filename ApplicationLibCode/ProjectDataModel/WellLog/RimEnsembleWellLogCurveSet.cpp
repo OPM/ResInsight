@@ -104,7 +104,7 @@ RimEnsembleWellLogCurveSet::RimEnsembleWellLogCurveSet()
     CAF_PDM_InitFieldNoDefault( &m_ensembleWellLogs, "EnsembleWellLogs", "Ensemble Well Logs", "", "", "" );
     m_ensembleWellLogs.uiCapability()->setUiTreeChildrenHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_wellLogChannelName, "WellLogChannelName", "Well Log Channel Name", "", "", "" );
+    CAF_PDM_InitField( &m_wellLogChannelName, "WellLogChannelName", QString( "None" ), "Well Log Channel Name", "", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_ensembleCurveSet, "FilterEnsembleCurveSet", "Filter by Ensemble Curve Set", "", "", "" );
     CAF_PDM_InitFieldNoDefault( &m_depthEqualization, "DepthEqualization", "Depth Equalization", "", "", "" );
@@ -206,8 +206,6 @@ void RimEnsembleWellLogCurveSet::loadDataAndUpdate( bool updateParentPlot )
         RimWellLogTrack* parentPlot;
         firstAncestorOrThisOfTypeAsserted( parentPlot );
         parentPlot->viewer()->scheduleReplot();
-
-        parentPlot->setCurvesTreeVisibility( false );
     }
 }
 
@@ -788,8 +786,9 @@ void RimEnsembleWellLogCurveSet::updateEnsembleCurves( const std::vector<RimWell
             for ( auto& wellLogFile : sumCases )
             {
                 RimWellLogFileCurve* curve = new RimWellLogFileCurve;
-                plotTrack->addCurve( curve );
                 curve->setUiTreeHidden( true );
+                curve->setUiTreeChildrenHidden( true );
+                plotTrack->addCurve( curve );
 
                 QString errorMessage;
                 if ( wellLogFile->readFile( &errorMessage ) )
@@ -924,6 +923,8 @@ void RimEnsembleWellLogCurveSet::updateStatisticsCurves( const std::vector<RimWe
     for ( auto statisticsType : statisticsTypes )
     {
         auto curve = new RimEnsembleWellLogStatisticsCurve();
+        curve->setUiTreeHidden( true );
+        curve->setUiTreeChildrenHidden( true );
         curve->setEnsembleWellLogCurveSet( this );
         curve->setStatisticsType( statisticsType );
 
