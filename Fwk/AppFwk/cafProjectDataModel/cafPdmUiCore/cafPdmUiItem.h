@@ -66,6 +66,7 @@ public:
     PdmUiItemInfo()
         : m_editorTypeName( "" )
         , m_isHidden( -1 )
+        , m_isTreeHidden( -1 )
         , m_isTreeChildrenHidden( -1 )
         , m_isReadOnly( -1 )
         , m_labelAlignment( LEFT )
@@ -99,6 +100,7 @@ private:
     QString m_editorTypeName; ///< Use this exact type of editor to edit this UiItem
     QString m_3dEditorTypeName; ///< If set, use this editor type to edit this UiItem in 3D
     int     m_isHidden; ///< UiItem should be hidden. -1 means not set
+    int     m_isTreeHidden; ///< UiItem should be hidden in tree. -1 means not set
     int     m_isTreeChildrenHidden; ///< Children of UiItem should be hidden. -1 means not set
     int     m_isReadOnly; ///< UiItem should be insensitive, or read only. -1 means not set.
     LabelPosType m_labelAlignment;
@@ -267,7 +269,7 @@ public:
     void setUiHidden( bool isHidden, const QString& uiConfigName = "" );
 
     bool isUiTreeHidden( const QString& uiConfigName = "" ) const;
-    void setUiTreeHidden( bool isHidden, const QString& uiConfigName = "" );
+    void setUiTreeHidden( bool isTreeHidden, const QString& uiConfigName = "" );
 
     bool isUiTreeChildrenHidden( const QString& uiConfigName = "" ) const;
     void setUiTreeChildrenHidden( bool isTreeChildrenHidden, const QString& uiConfigName = "" );
