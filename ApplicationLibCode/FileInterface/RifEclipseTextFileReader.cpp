@@ -106,8 +106,8 @@ std::pair<std::string, std::vector<float>>
         if ( isFaultKeyword )
         {
             // Read data until the FAULTS section is closed with a single / on one line
-            const auto& trimmed = ltrim( line );
-            if ( !trimmed.empty() && trimmed[0] == '/' )
+            ltrim( line );
+            if ( !line.empty() && line[0] == '/' )
             {
                 return std::make_pair( keywordName, values );
             }
@@ -119,10 +119,10 @@ std::pair<std::string, std::vector<float>>
 
         if ( keywordName.empty() )
         {
-            std::string candidate = trim( line );
-            if ( !candidate.empty() )
+            trim( line );
+            if ( !line.empty() )
             {
-                keywordName = candidate;
+                keywordName = line;
                 if ( keywordName == "FAULTS" ) isFaultKeyword = true;
             }
             continue;
@@ -225,25 +225,24 @@ std::string_view RifEclipseTextFileReader::readLine( const std::string_view& sou
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::string& RifEclipseTextFileReader::rtrim( std::string& s, const char* t /*= ws */ )
+void RifEclipseTextFileReader::rtrim( std::string& s, const char* t /*= ws */ )
 {
     s.erase( s.find_last_not_of( t ) + 1 );
-    return s;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::string& RifEclipseTextFileReader::ltrim( std::string& s, const char* t /*= ws */ )
+void RifEclipseTextFileReader::ltrim( std::string& s, const char* t /*= ws */ )
 {
     s.erase( 0, s.find_first_not_of( t ) );
-    return s;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::string& RifEclipseTextFileReader::trim( std::string& s, const char* t /*= ws */ )
+void RifEclipseTextFileReader::trim( std::string& s, const char* t /*= ws */ )
 {
-    return ltrim( rtrim( s, t ), t );
+    rtrim( s, t );
+    ltrim( s, t );
 }

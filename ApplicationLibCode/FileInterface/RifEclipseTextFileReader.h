@@ -58,13 +58,13 @@ public:
     static std::string_view readLine( const std::string_view& source, const size_t offset, size_t& bytesRead );
 
     // trim from end of string (right)
-    static std::string& rtrim( std::string& s, const char* t = m_whiteSpace );
+    static void rtrim( std::string& s, const char* t = m_whiteSpace );
 
     // trim from beginning of string (left)
-    static std::string& ltrim( std::string& s, const char* t = m_whiteSpace );
+    static void ltrim( std::string& s, const char* t = m_whiteSpace );
 
     // trim from both ends of string (right then left)
-    static std::string& trim( std::string& s, const char* t = m_whiteSpace );
+    static void trim( std::string& s, const char* t = m_whiteSpace );
 
     // Parse string data for Eclipse keywords
     static std::vector<RifEclipseKeywordContent> parseStringData( const std::string_view& stringData );

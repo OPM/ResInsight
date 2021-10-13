@@ -98,7 +98,7 @@ RiaPreferencesSystem::RiaPreferencesSystem()
     CAF_PDM_InitField( &m_eclipseReaderMode,
                        "eclipseReaderMode",
                        EclipseTextFileReaderModeType( RiaPreferencesSystem::EclipseTextFileReaderMode::FILE ),
-                       "Default Summary Import Option",
+                       "Eclipse Text File Import mode (GRDECL)",
                        "",
                        "",
                        "" );

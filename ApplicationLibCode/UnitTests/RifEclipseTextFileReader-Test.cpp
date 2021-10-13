@@ -33,8 +33,9 @@
 //--------------------------------------------------------------------------------------------------
 TEST( RifEclipseTextFileReader, DISABLED_ReadKeywordsAndValuesPerformanceTest )
 {
-    // std::string filename       = "d:/scratchMsj/2021-10-13-norne-1M-single-grdecl/GRID.GRDECL";
-    // std::string filename = "e:/project/2021-10-13-norne-1M-single-grdecl/GRID.GRDECL";
+    // Remove DISABLED_ from the name of the test to run this performance test
+    // Intended to be executed locally
+
     std::string filename       = "c:/temp/GRID.GRDECL";
     size_t      iterationCount = 10;
 
@@ -84,11 +85,8 @@ TEST( RifEclipseTextFileReader, DISABLED_ReadKeywordsAndValuesPerformanceTest )
 //--------------------------------------------------------------------------------------------------
 TEST( RifEclipseTextFileReader, ReadKeywordsAndValuesFromFile )
 {
-    QString qtFileName = QString( "%1/RifEclipseTextFileParser/GRID.GRDECL" ).arg( TEST_DATA_DIR );
-    //    "e:/gitroot-ceesol/ResInsight-regression-test/ModelData/TestCase_Ascii_no_map_axis/geocell.grdecl";
-    // filename = "d:/scratch/R5_H25_C1_aug_grid.grdecl";
-
-    std::string filename = qtFileName.toStdString();
+    QString     qtFileName = QString( "%1/RifEclipseTextFileParser/GRID.GRDECL" ).arg( TEST_DATA_DIR );
+    std::string filename   = qtFileName.toStdString();
 
     auto objects = RifEclipseTextFileReader::readKeywordAndValues( filename );
 
@@ -102,55 +100,60 @@ TEST( RifEclipseTextFileReader, ReadKeywordsAndValuesFromFile )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-TEST( RifEclipseTextFileReader, ReadLine )
+TEST( RifEclipseTextFileReader, ReadLine_EmptyString )
 {
-    {
-        // Empty string
+    std::string fileContent;
+    size_t      offset    = 0;
+    size_t      bytesRead = 0;
+    auto        line      = RifEclipseTextFileReader::readLine( fileContent, offset, bytesRead );
 
-        std::string fileContent;
-        size_t      offset    = 0;
-        size_t      bytesRead = 0;
-        auto        line      = RifEclipseTextFileReader::readLine( fileContent, offset, bytesRead );
+    EXPECT_EQ( size_t( 0 ), bytesRead );
+    EXPECT_EQ( size_t( 0 ), line.size() );
+}
 
-        EXPECT_EQ( size_t( 0 ), bytesRead );
-        EXPECT_EQ( size_t( 0 ), line.size() );
-    }
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( RifEclipseTextFileReader, ReadLine_TooLargeOffset )
+{
+    std::string fileContent = "f";
+    size_t      offset      = 10;
+    size_t      bytesRead   = 0;
+    auto        line        = RifEclipseTextFileReader::readLine( fileContent, offset, bytesRead );
 
-    {
-        // Offset too large
-        std::string fileContent = "f";
-        size_t      offset      = 10;
-        size_t      bytesRead   = 0;
-        auto        line        = RifEclipseTextFileReader::readLine( fileContent, offset, bytesRead );
+    EXPECT_EQ( size_t( 0 ), bytesRead );
+    EXPECT_EQ( size_t( 0 ), line.size() );
+}
 
-        EXPECT_EQ( size_t( 0 ), bytesRead );
-        EXPECT_EQ( size_t( 0 ), line.size() );
-    }
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( RifEclipseTextFileReader, ReadLine_SingleLineNoLineBreak )
+{
+    std::string fileContent = "file content";
+    size_t      offset      = 0;
+    size_t      bytesRead   = 0;
+    auto        line        = RifEclipseTextFileReader::readLine( fileContent, offset, bytesRead );
 
-    {
-        // One line, no line break
-        std::string fileContent = "file content";
-        size_t      offset      = 0;
-        size_t      bytesRead   = 0;
-        auto        line        = RifEclipseTextFileReader::readLine( fileContent, offset, bytesRead );
+    EXPECT_EQ( size_t( 12 ), bytesRead );
+    EXPECT_EQ( size_t( 12 ), line.size() );
+}
 
-        EXPECT_EQ( size_t( 12 ), bytesRead );
-        EXPECT_EQ( size_t( 12 ), line.size() );
-    }
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( RifEclipseTextFileReader, ReadLine_TwoLinesWithLineBreak )
+{
+    std::string fileContent = "file content\n next Line";
+    size_t      offset      = 0;
+    size_t      bytesRead   = 0;
+    auto        line        = RifEclipseTextFileReader::readLine( fileContent, offset, bytesRead );
 
-    {
-        // two lines with line break
-        std::string fileContent = "file content\n next Line";
-        size_t      offset      = 0;
-        size_t      bytesRead   = 0;
-        auto        line        = RifEclipseTextFileReader::readLine( fileContent, offset, bytesRead );
+    // bytesRead includes line break
+    EXPECT_EQ( size_t( 13 ), bytesRead );
+    EXPECT_EQ( size_t( 12 ), line.size() );
 
-        // bytesRead includes line break
-        EXPECT_EQ( size_t( 13 ), bytesRead );
-        EXPECT_EQ( size_t( 12 ), line.size() );
-
-        auto secondLine = RifEclipseTextFileReader::readLine( fileContent, offset + bytesRead, bytesRead );
-        EXPECT_EQ( size_t( 10 ), bytesRead );
-        EXPECT_EQ( size_t( 9 ), secondLine.size() );
-    }
+    auto secondLine = RifEclipseTextFileReader::readLine( fileContent, offset + bytesRead, bytesRead );
+    EXPECT_EQ( size_t( 10 ), bytesRead );
+    EXPECT_EQ( size_t( 9 ), secondLine.size() );
 }
