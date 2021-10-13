@@ -40,7 +40,6 @@ RimElasticPropertyScalingCollection::RimElasticPropertyScalingCollection()
                                           "",
                                           "",
                                           "" );
-    m_elasticPropertyScalings.uiCapability()->setUiHidden( true );
     m_elasticPropertyScalings.uiCapability()->setUiTreeHidden( true );
 }
 

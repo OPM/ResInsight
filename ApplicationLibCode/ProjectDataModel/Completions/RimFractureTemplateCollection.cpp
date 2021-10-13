@@ -63,7 +63,7 @@ RimFractureTemplateCollection::RimFractureTemplateCollection()
                        "" );
 
     CAF_PDM_InitFieldNoDefault( &m_fractureDefinitions, "FractureDefinitions", "", "", "", "" );
-    m_fractureDefinitions.uiCapability()->setUiHidden( true );
+    m_fractureDefinitions.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitField( &m_nextValidFractureTemplateId, "NextValidFractureTemplateId", 0, "", "", "", "" );
     m_nextValidFractureTemplateId.uiCapability()->setUiHidden( true );

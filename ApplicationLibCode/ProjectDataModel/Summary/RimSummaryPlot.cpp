@@ -212,7 +212,6 @@ RimSummaryPlot::RimSummaryPlot()
 
     CAF_PDM_InitFieldNoDefault( &m_ensembleCurveSetCollection, "EnsembleCurveSetCollection", "", "", "", "" );
     m_ensembleCurveSetCollection.uiCapability()->setUiTreeHidden( true );
-    m_ensembleCurveSetCollection.uiCapability()->setUiHidden( true );
     m_ensembleCurveSetCollection = new RimEnsembleCurveSetCollection();
 
     CAF_PDM_InitFieldNoDefault( &m_gridTimeHistoryCurves, "GridTimeHistoryCurves", "", "", "", "" );

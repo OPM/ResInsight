@@ -85,7 +85,7 @@ RimEnsembleCurveFilter::RimEnsembleCurveFilter()
     m_objectiveValuesSummaryAddressesUiField.uiCapability()->setUiEditorTypeName( caf::PdmUiLineEditor::uiEditorTypeName() );
 
     CAF_PDM_InitFieldNoDefault( &m_objectiveValuesSummaryAddresses, "ObjectiveSummaryAddress", "Summary Address", "", "", "" );
-    m_objectiveValuesSummaryAddresses.uiCapability()->setUiHidden( true );
+    m_objectiveValuesSummaryAddresses.uiCapability()->setUiTreeHidden( true );
     m_objectiveValuesSummaryAddresses.uiCapability()->setUiTreeChildrenHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_objectiveValuesSelectSummaryAddressPushButton,
@@ -100,7 +100,6 @@ RimEnsembleCurveFilter::RimEnsembleCurveFilter()
 
     CAF_PDM_InitFieldNoDefault( &m_objectiveFunction, "ObjectiveFunction", "Objective Function", "", "", "" );
     m_objectiveFunction = new RimObjectiveFunction();
-    m_objectiveFunction.uiCapability()->setUiHidden( true );
     m_objectiveFunction.uiCapability()->setUiTreeHidden( true );
     m_objectiveFunction.uiCapability()->setUiTreeChildrenHidden( true );
     m_objectiveFunction->changed.connect( this, &RimEnsembleCurveFilter::onObjectionFunctionChanged );

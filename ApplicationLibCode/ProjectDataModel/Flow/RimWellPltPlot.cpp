@@ -101,7 +101,7 @@ RimWellPltPlot::RimWellPltPlot()
     CAF_PDM_InitObject( "Well Allocation Plot", ":/WellFlowPlot16x16.png", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_wellLogPlot_OBSOLETE, "WellLog", "WellLog", "", "", "" );
-    m_wellLogPlot_OBSOLETE.uiCapability()->setUiHidden( true );
+    m_wellLogPlot_OBSOLETE.uiCapability()->setUiTreeHidden( true );
     m_wellLogPlot_OBSOLETE.xmlCapability()->setIOWritable( false );
 
     CAF_PDM_InitFieldNoDefault( &m_wellPathName, "WellName", "Well Name", "", "", "" );
@@ -113,7 +113,6 @@ RimWellPltPlot::RimWellPltPlot()
     m_selectedSources.xmlCapability()->disableIO();
 
     CAF_PDM_InitFieldNoDefault( &m_selectedSourcesForIo, "Sources", "Sources", "", "", "" );
-    m_selectedSourcesForIo.uiCapability()->setUiHidden( true );
     m_selectedSourcesForIo.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_selectedTimeSteps, "TimeSteps", "Time Steps", "", "", "" );

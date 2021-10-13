@@ -33,7 +33,7 @@ RimEnsembleFractureStatisticsPlotCollection::RimEnsembleFractureStatisticsPlotCo
     CAF_PDM_InitObject( "Ensemble Fracture Statistics Plots", ":/WellLogPlots16x16.png", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_ensembleFractureStatisticsPlots, "EnsembleFractureStatisticsPlots", "", "", "", "" );
-    m_ensembleFractureStatisticsPlots.uiCapability()->setUiHidden( true );
+    m_ensembleFractureStatisticsPlots.uiCapability()->setUiTreeHidden( true );
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -88,19 +88,19 @@ RimGeoMechView::RimGeoMechView( void )
 
     CAF_PDM_InitFieldNoDefault( &cellResult, "GridCellResult", "Color Result", ":/CellResult.png", "", "" );
     cellResult = new RimGeoMechCellColors();
-    cellResult.uiCapability()->setUiHidden( true );
+    cellResult.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_tensorResults, "TensorResults", "Tensor Results", "", "", "" );
     m_tensorResults = new RimTensorResults();
-    m_tensorResults.uiCapability()->setUiHidden( true );
+    m_tensorResults.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_propertyFilterCollection, "PropertyFilters", "Property Filters", "", "", "" );
     m_propertyFilterCollection = new RimGeoMechPropertyFilterCollection();
-    m_propertyFilterCollection.uiCapability()->setUiHidden( true );
+    m_propertyFilterCollection.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_partsCollection, "Parts", "Parts", "", "", "" );
     m_partsCollection = new RimGeoMechPartCollection();
-    m_partsCollection.uiCapability()->setUiHidden( true );
+    m_partsCollection.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitField( &m_showDisplacement, "ShowDisplacement", false, "Show Displacement", "", "", "" );
     CAF_PDM_InitField( &m_displacementScaling, "DisplacementScaling", 1.0, "Scaling Factor", "", "", "" );

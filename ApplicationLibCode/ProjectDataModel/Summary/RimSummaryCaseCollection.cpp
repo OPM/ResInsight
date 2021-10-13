@@ -108,7 +108,7 @@ RimSummaryCaseCollection::RimSummaryCaseCollection()
     CAF_PDM_InitScriptableObject( "Summary Case Group", ":/SummaryGroup16x16.png", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_cases, "SummaryCases", "", "", "", "" );
-    m_cases.uiCapability()->setUiHidden( true );
+    m_cases.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitScriptableField( &m_name, "SummaryCollectionName", QString( "Group" ), "Name", "", "", "" );
 

@@ -42,7 +42,7 @@ RimPltPlotCollection::RimPltPlotCollection()
     CAF_PDM_InitObject( "PLT Plots", ":/WellAllocPlots16x16.png", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_pltPlots, "PltPlots", "", "", "", "" );
-    m_pltPlots.uiCapability()->setUiHidden( true );
+    m_pltPlots.uiCapability()->setUiTreeHidden( true );
 }
 
 //--------------------------------------------------------------------------------------------------

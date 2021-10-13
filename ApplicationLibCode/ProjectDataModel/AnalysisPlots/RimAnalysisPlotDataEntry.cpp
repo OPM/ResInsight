@@ -44,7 +44,7 @@ RimAnalysisPlotDataEntry::RimAnalysisPlotDataEntry()
     m_ensemble.uiCapability()->setAutoAddingOptionFromValue( false );
 
     CAF_PDM_InitFieldNoDefault( &m_summaryAddress, "SummaryAddress", "Summary Address", "", "", "" );
-    m_summaryAddress.uiCapability()->setUiHidden( true );
+    m_summaryAddress.uiCapability()->setUiTreeHidden( true );
     m_summaryAddress.uiCapability()->setUiTreeChildrenHidden( true );
     m_summaryAddress = new RimSummaryAddress;
 

@@ -37,7 +37,7 @@ RimViewLinkerCollection::RimViewLinkerCollection( void )
     isActive.uiCapability()->setUiHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &viewLinker, "ViewLinkers", "View Linkers", "", "", "" );
-    viewLinker.uiCapability()->setUiHidden( true );
+    viewLinker.uiCapability()->setUiTreeHidden( true );
 }
 
 //--------------------------------------------------------------------------------------------------

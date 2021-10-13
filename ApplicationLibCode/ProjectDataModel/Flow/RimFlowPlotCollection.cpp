@@ -36,16 +36,16 @@ RimFlowPlotCollection::RimFlowPlotCollection()
     CAF_PDM_InitObject( "Flow Diagnostics Plots", ":/WellAllocPlots16x16.png", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_flowCharacteristicsPlot, "FlowCharacteristicsPlot", "", "", "", "" );
-    m_flowCharacteristicsPlot.uiCapability()->setUiHidden( true );
+    m_flowCharacteristicsPlot.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_defaultWellAllocPlot, "DefaultWellAllocationPlot", "", "", "", "" );
-    m_defaultWellAllocPlot.uiCapability()->setUiHidden( true );
+    m_defaultWellAllocPlot.uiCapability()->setUiTreeHidden( true );
 
     // CAF_PDM_InitFieldNoDefault( &m_dbgWellDistributionPlot, "DbgWellDistributionPlot", "", "", "", "" );
     // m_dbgWellDistributionPlot.uiCapability()->setUiHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_wellDistributionPlotCollection, "WellDistributionPlotCollection", "", "", "", "" );
-    m_wellDistributionPlotCollection.uiCapability()->setUiHidden( true );
+    m_wellDistributionPlotCollection.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_storedWellAllocPlots, "StoredWellAllocationPlots", "Stored Well Allocation Plots", "", "", "" );
     CAF_PDM_InitFieldNoDefault( &m_storedFlowCharacteristicsPlots,

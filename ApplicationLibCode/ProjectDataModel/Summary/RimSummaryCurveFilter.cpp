@@ -57,7 +57,7 @@ RimSummaryCurveFilter_OBSOLETE::RimSummaryCurveFilter_OBSOLETE()
 
     CAF_PDM_InitFieldNoDefault( &m_summaryFilter, "VarListFilter", "Filter", "", "", "" );
     m_summaryFilter.uiCapability()->setUiTreeChildrenHidden( true );
-    m_summaryFilter.uiCapability()->setUiHidden( true );
+    m_summaryFilter.uiCapability()->setUiTreeHidden( true );
 
     m_summaryFilter = new RimSummaryFilter_OBSOLETE;
 
@@ -73,7 +73,7 @@ RimSummaryCurveFilter_OBSOLETE::RimSummaryCurveFilter_OBSOLETE()
     m_uiFilterResultMultiSelection.uiCapability()->setAutoAddingOptionFromValue( false );
 
     CAF_PDM_InitFieldNoDefault( &m_curves, "FilteredCurves", "Filtered Curves", "", "", "" );
-    m_curves.uiCapability()->setUiHidden( true );
+    m_curves.uiCapability()->setUiTreeHidden( true );
     m_curves.uiCapability()->setUiTreeChildrenHidden( false );
 
     CAF_PDM_InitFieldNoDefault( &m_applyButtonField, "ApplySelection", "", "", "", "" );
@@ -99,7 +99,7 @@ RimSummaryCurveFilter_OBSOLETE::RimSummaryCurveFilter_OBSOLETE()
     CAF_PDM_InitField( &m_showLegend, "ShowLegend", true, "Contribute To Legend", "", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_curveNameConfig, "SummaryCurveNameConfig", "SummaryCurveNameConfig", "", "", "" );
-    m_curveNameConfig.uiCapability()->setUiHidden( true );
+    m_curveNameConfig.uiCapability()->setUiTreeHidden( true );
     m_curveNameConfig.uiCapability()->setUiTreeChildrenHidden( true );
 
     m_curveNameConfig = new RimSummaryCurveAutoName;

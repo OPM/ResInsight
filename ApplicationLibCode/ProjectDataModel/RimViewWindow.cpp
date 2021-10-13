@@ -49,7 +49,7 @@ RimViewWindow::RimViewWindow( void )
                                                     "The Base Class for all Views and Plots in ResInsight" );
 
     CAF_PDM_InitFieldNoDefault( &m_windowController, "WindowController", "", "", "", "" );
-    m_windowController.uiCapability()->setUiHidden( true );
+    m_windowController.uiCapability()->setUiTreeHidden( true );
     m_windowController.uiCapability()->setUiTreeChildrenHidden( true );
 
     CAF_PDM_InitField( &m_showWindow, "ShowWindow", true, "Show Window", "", "", "" );

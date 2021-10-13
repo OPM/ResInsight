@@ -67,7 +67,7 @@ RimCase::RimCase()
     CAF_PDM_InitFieldNoDefault( &m_activeFormationNames, "DefaultFormationNames", "Formation Names File", "", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_timeStepFilter, "TimeStepFilter", "Time Step Filter", "", "", "" );
-    m_timeStepFilter.uiCapability()->setUiHidden( true );
+    m_timeStepFilter.uiCapability()->setUiTreeHidden( true );
     m_timeStepFilter.uiCapability()->setUiTreeChildrenHidden( true );
     m_timeStepFilter = new RimTimeStepFilter;
 

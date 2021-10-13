@@ -77,7 +77,7 @@ RimGridCrossPlot::RimGridCrossPlot()
     connectAxisSignals( m_yAxisProperties() );
 
     CAF_PDM_InitFieldNoDefault( &m_crossPlotDataSets, "CrossPlotCurve", "Cross Plot Data Set", "", "", "" );
-    m_crossPlotDataSets.uiCapability()->setUiHidden( true );
+    m_crossPlotDataSets.uiCapability()->setUiTreeHidden( true );
 
     setDeletable( true );
 }

@@ -41,7 +41,7 @@ RimSurfaceResultDefinition::RimSurfaceResultDefinition()
     CAF_PDM_InitFieldNoDefault( &m_propertyName, "PropertyName", "Property Name", "", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_legendConfig, "LegendConfig", "Legend", "", "", "" );
-    m_legendConfig.uiCapability()->setUiHidden( true );
+    m_legendConfig.uiCapability()->setUiTreeHidden( true );
     m_legendConfig.uiCapability()->setUiTreeChildrenHidden( false );
     m_legendConfig = new RimRegularLegendConfig;
 

@@ -39,7 +39,7 @@ RimEclipsePropertyFilterCollection::RimEclipsePropertyFilterCollection()
     CAF_PDM_InitObject( "Property Filters", ":/CellFilter_Values.png", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &propertyFilters, "PropertyFilters", "Property Filters", "", "", "" );
-    propertyFilters.uiCapability()->setUiHidden( true );
+    propertyFilters.uiCapability()->setUiTreeHidden( true );
 }
 
 //--------------------------------------------------------------------------------------------------

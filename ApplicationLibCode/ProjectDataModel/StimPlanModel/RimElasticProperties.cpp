@@ -51,7 +51,6 @@ RimElasticProperties::RimElasticProperties()
     CAF_PDM_InitScriptableField( &m_showScaledProperties, "ShowScaledProperties", true, "Show Scaled Properties", "", "", "" );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_scalings, "PropertyScalingCollection", "PropertyScalingCollection", "", "", "" );
-    m_scalings.uiCapability()->setUiHidden( true );
     m_scalings.uiCapability()->setUiTreeHidden( true );
     m_scalings = new RimElasticPropertyScalingCollection;
     m_scalings->changed.connect( this, &RimElasticProperties::elasticPropertyScalingCollectionChanged );

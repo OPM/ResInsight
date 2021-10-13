@@ -46,7 +46,7 @@ RimPerforationCollection::RimPerforationCollection()
     this->setName( "Perforations" );
 
     CAF_PDM_InitFieldNoDefault( &m_perforations, "Perforations", "Perforations", "", "", "" );
-    m_perforations.uiCapability()->setUiHidden( true );
+    m_perforations.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_nonDarcyParameters, "NonDarcyParameters", "Non-Darcy Parameters", "", "", "" );
     m_nonDarcyParameters = new RimNonDarcyPerforationParameters();

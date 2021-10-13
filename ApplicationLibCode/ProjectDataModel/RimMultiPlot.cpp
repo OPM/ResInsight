@@ -74,7 +74,7 @@ RimMultiPlot::RimMultiPlot()
     CAF_PDM_InitField( &m_plotWindowTitle, "PlotDescription", QString( "" ), "Name", "", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_plots, "Plots", "", "", "", "" );
-    m_plots.uiCapability()->setUiHidden( true );
+    m_plots.uiCapability()->setUiTreeHidden( true );
     auto reorderability = caf::PdmFieldReorderCapability::addToField( &m_plots );
     reorderability->orderChanged.connect( this, &RimMultiPlot::onPlotsReordered );
 

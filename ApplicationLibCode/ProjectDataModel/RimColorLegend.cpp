@@ -39,7 +39,7 @@ RimColorLegend::RimColorLegend()
     CAF_PDM_InitField( &m_colorLegendName, "ColorLegendName", QString( "" ), "Color Legend Name", "", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_colorLegendItems, "ColorLegendItems", "", "", "", "" );
-    m_colorLegendItems.uiCapability()->setUiHidden( true );
+    m_colorLegendItems.uiCapability()->setUiTreeHidden( true );
 
     setDeletable( true );
 }

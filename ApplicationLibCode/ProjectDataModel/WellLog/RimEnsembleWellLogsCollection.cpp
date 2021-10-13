@@ -32,7 +32,7 @@ RimEnsembleWellLogsCollection::RimEnsembleWellLogsCollection()
     CAF_PDM_InitObject( "Ensemble Well Logs", ":/LasFile16x16.png", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_ensembleWellLogs, "EnsembleWellLogsCollection", "", "", "", "" );
-    m_ensembleWellLogs.uiCapability()->setUiHidden( true );
+    m_ensembleWellLogs.uiCapability()->setUiTreeHidden( true );
 }
 
 //--------------------------------------------------------------------------------------------------

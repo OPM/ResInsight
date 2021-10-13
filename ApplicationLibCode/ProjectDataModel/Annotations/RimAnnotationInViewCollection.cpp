@@ -108,10 +108,10 @@ RimAnnotationInViewCollection::RimAnnotationInViewCollection()
 
     CAF_PDM_InitFieldNoDefault( &m_annotationFontSize, "AnnotationFontSize", "Default Font Size", "", "", "" );
 
-    m_globalTextAnnotations.uiCapability()->setUiHidden( true );
-    m_globalReachCircleAnnotations.uiCapability()->setUiHidden( true );
-    m_globalUserDefinedPolylineAnnotations.uiCapability()->setUiHidden( true );
-    m_globalPolylineFromFileAnnotations.uiCapability()->setUiHidden( true );
+    m_globalTextAnnotations.uiCapability()->setUiTreeHidden( true );
+    m_globalReachCircleAnnotations.uiCapability()->setUiTreeHidden( true );
+    m_globalUserDefinedPolylineAnnotations.uiCapability()->setUiTreeHidden( true );
+    m_globalPolylineFromFileAnnotations.uiCapability()->setUiTreeHidden( true );
 
     m_globalTextAnnotations                = new RimAnnotationGroupCollection();
     m_globalReachCircleAnnotations         = new RimAnnotationGroupCollection();

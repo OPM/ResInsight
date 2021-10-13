@@ -37,7 +37,7 @@ RimValveTemplateCollection::RimValveTemplateCollection()
                                 "",
                                 "" );
     m_defaultUnitsForValveTemplates = RiaDefines::EclipseUnitSystem::UNITS_METRIC;
-    m_valveDefinitions.uiCapability()->setUiHidden( true );
+    m_valveDefinitions.uiCapability()->setUiTreeHidden( true );
     addDefaultValveTemplates();
 }
 

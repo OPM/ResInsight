@@ -101,7 +101,7 @@ RimEnsembleCurveSet::RimEnsembleCurveSet()
     CAF_PDM_InitObject( "Ensemble Curve Set", ":/EnsembleCurveSet16x16.png", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_curves, "EnsembleCurveSet", "Ensemble Curve Set", "", "", "" );
-    m_curves.uiCapability()->setUiHidden( true );
+    m_curves.uiCapability()->setUiTreeHidden( true );
     m_curves.uiCapability()->setUiTreeChildrenHidden( false );
 
     CAF_PDM_InitField( &m_showCurves, "IsActive", true, "Show Curves", "", "", "" );
@@ -117,7 +117,7 @@ RimEnsembleCurveSet::RimEnsembleCurveSet()
     m_yValuesSummaryAddressUiField.uiCapability()->setUiEditorTypeName( caf::PdmUiLineEditor::uiEditorTypeName() );
 
     CAF_PDM_InitFieldNoDefault( &m_yValuesSummaryAddress, "SummaryAddress", "Summary Address", "", "", "" );
-    m_yValuesSummaryAddress.uiCapability()->setUiHidden( true );
+    m_yValuesSummaryAddress.uiCapability()->setUiTreeHidden( true );
     m_yValuesSummaryAddress.uiCapability()->setUiTreeChildrenHidden( true );
     m_yValuesSummaryAddress = new RimSummaryAddress;
 
@@ -140,7 +140,7 @@ RimEnsembleCurveSet::RimEnsembleCurveSet()
     m_objectiveValuesSummaryAddressesUiField.uiCapability()->setUiEditorTypeName( caf::PdmUiLineEditor::uiEditorTypeName() );
 
     CAF_PDM_InitFieldNoDefault( &m_objectiveValuesSummaryAddresses, "ObjectiveSummaryAddress", "Summary Address", "", "", "" );
-    m_objectiveValuesSummaryAddresses.uiCapability()->setUiHidden( true );
+    m_objectiveValuesSummaryAddresses.uiCapability()->setUiTreeHidden( true );
     m_objectiveValuesSummaryAddresses.uiCapability()->setUiTreeChildrenHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_objectiveValuesSelectSummaryAddressPushButton,
@@ -200,7 +200,7 @@ RimEnsembleCurveSet::RimEnsembleCurveSet()
 
     CAF_PDM_InitFieldNoDefault( &m_objectiveFunction, "ObjectiveFunction", "Objective Function", "", "", "" );
     m_objectiveFunction = new RimObjectiveFunction();
-    m_objectiveFunction.uiCapability()->setUiHidden( true );
+    m_objectiveFunction.uiCapability()->setUiTreeHidden( true );
     m_objectiveFunction->changed.connect( this, &RimEnsembleCurveSet::onObjectiveFunctionChanged );
 
     CAF_PDM_InitFieldNoDefault( &m_statistics, "Statistics", "Statistics", "", "", "" );
@@ -216,7 +216,7 @@ RimEnsembleCurveSet::RimEnsembleCurveSet()
 
     CAF_PDM_InitField( &m_isUsingAutoName, "AutoName", true, "Auto Name", "", "", "" );
     CAF_PDM_InitFieldNoDefault( &m_summaryAddressNameTools, "SummaryAddressNameTools", "SummaryAddressNameTools", "", "", "" );
-    m_summaryAddressNameTools.uiCapability()->setUiHidden( true );
+    m_summaryAddressNameTools.uiCapability()->setUiTreeHidden( true );
     m_summaryAddressNameTools.uiCapability()->setUiTreeChildrenHidden( true );
 
     m_summaryAddressNameTools = new RimSummaryCurveAutoName;
@@ -235,7 +235,7 @@ RimEnsembleCurveSet::RimEnsembleCurveSet()
 
     CAF_PDM_InitFieldNoDefault( &m_yValuesSummaryFilter_OBSOLETE, "VarListFilter", "Filter", "", "", "" );
     m_yValuesSummaryFilter_OBSOLETE.uiCapability()->setUiTreeChildrenHidden( true );
-    m_yValuesSummaryFilter_OBSOLETE.uiCapability()->setUiHidden( true );
+    m_yValuesSummaryFilter_OBSOLETE.uiCapability()->setUiTreeHidden( true );
     m_yValuesSummaryFilter_OBSOLETE.xmlCapability()->setIOWritable( false );
     m_yValuesSummaryFilter_OBSOLETE = new RimSummaryFilter_OBSOLETE;
 
