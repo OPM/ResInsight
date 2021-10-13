@@ -21,9 +21,8 @@
 #include "RiaTestDataDirectory.h"
 #include "RifEclipseTextFileReader.h"
 
-//#include "mio/mio.hpp"
-
 #include <QString>
+#include <chrono>
 #include <fstream>
 #include <iosfwd>
 #include <iostream>
@@ -32,38 +31,52 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-TEST( RifEclipseTextFileReader, ReadKeywordsAndValues )
+TEST( RifEclipseTextFileReader, DISABLED_ReadKeywordsAndValuesPerformanceTest )
 {
-    QString     qtFileName = QString( "%1/RifEclipseTextFileParser/GRID.GRDECL" ).arg( TEST_DATA_DIR );
-    std::string fileName   = qtFileName.toStdString();
+    // std::string filename       = "d:/scratchMsj/2021-10-13-norne-1M-single-grdecl/GRID.GRDECL";
+    // std::string filename = "e:/project/2021-10-13-norne-1M-single-grdecl/GRID.GRDECL";
+    std::string filename       = "c:/temp/GRID.GRDECL";
+    size_t      iterationCount = 10;
 
-    //    "e:/gitroot-ceesol/ResInsight-regression-test/ModelData/TestCase_Ascii_no_map_axis/geocell.grdecl";
-    // filename = "d:/scratch/R5_H25_C1_aug_grid.grdecl";
+    {
+        auto aggregatedStart = std::chrono::high_resolution_clock::now();
 
-    /*
-        std::error_code error;
-
-        mio::mmap_sink   rw_mmap    = mio::make_mmap_sink( fileName, 0, mio::map_entire_file, error );
-        std::string_view stringData = rw_mmap.data();
-
-        size_t offset    = 0;
-        size_t bytesRead = 0;
-
-        while ( offset < stringData.size() )
+        for ( auto i = 0; i < iterationCount; i++ )
         {
-            RifEclipseTextFileReader reader;
-            auto [keyword, values] = reader.readKeywordAndValues( stringData, offset, bytesRead );
-            offset += bytesRead;
+            auto start = std::chrono::high_resolution_clock::now();
 
-            std::cout << keyword << " : " << values.size() << "\n";
+            auto objects = RifEclipseTextFileReader::readKeywordAndValuesMemoryMappedFile( filename );
 
-            if ( !values.empty() )
-            {
-                std::cout << values.front() << " " << values.back();
-                std::cout << "\n\n";
-            }
+            auto                          end  = std::chrono::high_resolution_clock::now();
+            std::chrono::duration<double> diff = end - start;
+            std::cout << "RifEclipseTextFileReader MM : " << std::setw( 9 ) << diff.count() << " s\n";
         }
-    */
+
+        auto                          end  = std::chrono::high_resolution_clock::now();
+        std::chrono::duration<double> diff = end - aggregatedStart;
+        std::cout << "RifEclipseTextFileReader MM [" << iterationCount << " runs] : " << std::setw( 9 ) << diff.count()
+                  << " s\n";
+    }
+
+    {
+        auto aggregatedStart = std::chrono::high_resolution_clock::now();
+
+        for ( auto i = 0; i < iterationCount; i++ )
+        {
+            auto start = std::chrono::high_resolution_clock::now();
+
+            auto objects = RifEclipseTextFileReader::readKeywordAndValuesFile( filename );
+
+            auto                          end  = std::chrono::high_resolution_clock::now();
+            std::chrono::duration<double> diff = end - start;
+            std::cout << "RifEclipseTextFileReader File : " << std::setw( 9 ) << diff.count() << " s\n";
+        }
+
+        auto                          end  = std::chrono::high_resolution_clock::now();
+        std::chrono::duration<double> diff = end - aggregatedStart;
+        std::cout << "RifEclipseTextFileReader File [" << iterationCount << " runs] : " << std::setw( 9 )
+                  << diff.count() << " s\n";
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

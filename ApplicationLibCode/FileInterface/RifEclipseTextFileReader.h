@@ -37,27 +37,35 @@ public:
 class RifEclipseTextFileReader
 {
 public:
-    std::pair<std::string, std::vector<float>>
-        readKeywordAndValues( const std::string_view& stringData, const size_t startOffset, size_t& bytesRead );
+    // Settings in Preferences will be used to forward to either file-direct or memory mapped file reader
+    static std::vector<RifEclipseKeywordContent> readKeywordAndValues( const std::string& filename );
 
-    std::vector<RifEclipseKeywordContent> readKeywordAndValues( const std::string& filename );
+    // Read data directly from file
+    static std::vector<RifEclipseKeywordContent> readKeywordAndValuesFile( const std::string& filename );
+
+    // Read data using memory mapped file
+    static std::vector<RifEclipseKeywordContent> readKeywordAndValuesMemoryMappedFile( const std::string& filename );
+
+    // Data import function, public to be able to use from unit test
+    static std::pair<std::string, std::vector<float>>
+        readKeywordAndValues( const std::string_view& stringData, const size_t startOffset, size_t& bytesRead );
 
 private:
     static constexpr const char* m_whiteSpace = " \t\n\r\f\v";
 
-    std::vector<RifEclipseKeywordContent> readKeywordAndValuesFile( const std::string& filename );
-    std::vector<RifEclipseKeywordContent> readKeywordAndValuesMemoryMappedFile( const std::string& filename );
-
     // TODO: Make private or move to separate file, now public to be able to test code
 public:
-    std::string_view readLine( const std::string_view& source, const size_t offset, size_t& bytesRead );
+    static std::string_view readLine( const std::string_view& source, const size_t offset, size_t& bytesRead );
 
     // trim from end of string (right)
-    std::string& rtrim( std::string& s, const char* t = m_whiteSpace );
+    static std::string& rtrim( std::string& s, const char* t = m_whiteSpace );
 
     // trim from beginning of string (left)
-    std::string& ltrim( std::string& s, const char* t = m_whiteSpace );
+    static std::string& ltrim( std::string& s, const char* t = m_whiteSpace );
 
     // trim from both ends of string (right then left)
-    std::string& trim( std::string& s, const char* t = m_whiteSpace );
+    static std::string& trim( std::string& s, const char* t = m_whiteSpace );
+
+    // Parse string data for Eclipse keywords
+    static std::vector<RifEclipseKeywordContent> parseStringData( const std::string_view& stringData );
 };
