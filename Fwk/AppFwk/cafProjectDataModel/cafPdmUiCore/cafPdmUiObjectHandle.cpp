@@ -94,7 +94,7 @@ PdmUiTreeOrdering* PdmUiObjectHandle::uiTreeOrdering( const QString& uiConfigNam
 
     PdmUiTreeOrdering* uiTreeOrdering = new PdmUiTreeOrdering( nullptr, m_owner );
 
-    expandUiTree( uiTreeOrdering, uiConfigName );
+    if ( !m_owner->uiCapability()->isUiTreeHidden() ) expandUiTree( uiTreeOrdering, uiConfigName );
 
     return uiTreeOrdering;
 }
@@ -120,7 +120,8 @@ void PdmUiObjectHandle::addDefaultUiTreeChildren( PdmUiTreeOrdering* uiTreeOrder
         {
             if ( fields[fIdx]->hasChildObjects() && !uiTreeOrdering->containsField( fields[fIdx] ) )
             {
-                if ( fields[fIdx]->uiCapability()->isUiHidden() && !fields[fIdx]->uiCapability()->isUiTreeChildrenHidden() )
+                if ( fields[fIdx]->uiCapability()->isUiTreeHidden() &&
+                     !fields[fIdx]->uiCapability()->isUiTreeChildrenHidden() )
                 {
                     std::vector<PdmObjectHandle*> children;
                     fields[fIdx]->childObjects( &children );
@@ -128,7 +129,8 @@ void PdmUiObjectHandle::addDefaultUiTreeChildren( PdmUiTreeOrdering* uiTreeOrder
                     std::set<PdmObjectHandle*> objectsAddedByApplication;
                     for ( int i = 0; i < uiTreeOrdering->childCount(); i++ )
                     {
-                        if ( uiTreeOrdering->child( i )->isRepresentingObject() )
+                        if ( uiTreeOrdering->child( i )->isRepresentingObject() &&
+                             !uiTreeOrdering->child( i )->object()->uiCapability()->isUiTreeHidden() )
                         {
                             objectsAddedByApplication.insert( uiTreeOrdering->child( i )->object() );
                         }
@@ -146,14 +148,14 @@ void PdmUiObjectHandle::addDefaultUiTreeChildren( PdmUiTreeOrdering* uiTreeOrder
                                 break;
                             }
 
-                            if ( !isAlreadyAdded )
+                            if ( !isAlreadyAdded && !children[cIdx]->uiCapability()->isUiTreeHidden() )
                             {
                                 uiTreeOrdering->add( children[cIdx] );
                             }
                         }
                     }
                 }
-                else if ( !fields[fIdx]->uiCapability()->isUiHidden() )
+                else if ( !fields[fIdx]->uiCapability()->isUiTreeHidden() )
                 {
                     uiTreeOrdering->add( fields[fIdx] );
                 }
@@ -177,7 +179,7 @@ void PdmUiObjectHandle::expandUiTree( PdmUiTreeOrdering* root, const QString& ui
         for ( int cIdx = 0; cIdx < root->childCount(); ++cIdx )
         {
             PdmUiTreeOrdering* child = root->child( cIdx );
-            if ( child->isValid() && !child->ignoreSubTree() )
+            if ( child->isValid() && !child->ignoreSubTree() && !child->activeItem()->isUiTreeHidden( uiConfigName ) )
             {
                 expandUiTree( child, uiConfigName );
             }
@@ -187,20 +189,21 @@ void PdmUiObjectHandle::expandUiTree( PdmUiTreeOrdering* root, const QString& ui
     {
         if ( !root->ignoreSubTree() )
         {
-            if ( root->isRepresentingField() && !root->field()->uiCapability()->isUiTreeChildrenHidden( uiConfigName ) )
+            if ( root->isRepresentingField() && !root->field()->uiCapability()->isUiTreeHidden( uiConfigName ) &&
+                 !root->field()->uiCapability()->isUiTreeChildrenHidden( uiConfigName ) )
             {
                 std::vector<PdmObjectHandle*> fieldsChildObjects;
                 root->field()->childObjects( &fieldsChildObjects );
                 for ( size_t cIdx = 0; cIdx < fieldsChildObjects.size(); ++cIdx )
                 {
                     PdmObjectHandle* childObject = fieldsChildObjects[cIdx];
-                    if ( childObject )
+                    if ( childObject && !childObject->uiCapability()->isUiTreeHidden() )
                     {
                         root->appendChild( uiObj( childObject )->uiTreeOrdering( uiConfigName ) );
                     }
                 }
             }
-            else if ( root->isRepresentingObject() &&
+            else if ( root->isRepresentingObject() && !root->object()->uiCapability()->isUiTreeHidden( uiConfigName ) &&
                       !root->object()->uiCapability()->isUiTreeChildrenHidden( uiConfigName ) )
             {
                 uiObj( root->object() )->defineUiTreeOrdering( *root, uiConfigName );

@@ -63,7 +63,7 @@ void PdmUiTreeOrdering::add( PdmFieldHandle* field, QString uiConfigName )
 
             for ( PdmObjectHandle* objHandle : children )
             {
-                this->add( objHandle );
+                if ( !objHandle->uiCapability()->isUiTreeHidden() ) this->add( objHandle );
             }
         }
     }
