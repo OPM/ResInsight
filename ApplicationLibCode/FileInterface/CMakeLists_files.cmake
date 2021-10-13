@@ -67,8 +67,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RifSummaryReaderMultipleFiles.h
     ${CMAKE_CURRENT_LIST_DIR}/RifEclEclipseSummary.h
     ${CMAKE_CURRENT_LIST_DIR}/RifWellIAFileWriter.h
-    # HDF5 file reader is directly included in ResInsight main CmakeList.txt
-    # ${CMAKE_CURRENT_LIST_DIR}/RifHdf5Reader.h
+    ${CMAKE_CURRENT_LIST_DIR}/RifEclipseTextFileReader.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
@@ -138,8 +137,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RifSummaryReaderMultipleFiles.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifEclEclipseSummary.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifWellIAFileWriter.cpp
-    # HDF5 file reader is directly included in ResInsight main CmakeList.txt
-    # ${CMAKE_CURRENT_LIST_DIR}/RifHdf5Reader.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RifEclipseTextFileReader.cpp
 )
 
 list(APPEND CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})
