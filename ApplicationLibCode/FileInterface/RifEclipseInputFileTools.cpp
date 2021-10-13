@@ -24,6 +24,7 @@
 #include "RiaLogging.h"
 #include "RiaStringEncodingTools.h"
 
+#include "RifEclipseTextFileReader.h"
 #include "RifReaderEclipseOutput.h"
 
 #include "RigActiveCellInfo.h"
@@ -77,68 +78,9 @@ bool RifEclipseInputFileTools::openGridFile( const QString&      fileName,
                                              bool                readFaultData,
                                              QString*            errorMessages )
 {
-    CVF_ASSERT( eclipseCase && errorMessages );
+    std::string filename = fileName.toStdString();
 
-    std::vector<RifKeywordAndFilePos> keywordsAndFilePos;
-    findKeywordsOnFile( fileName, &keywordsAndFilePos );
-
-    qint64 coordPos    = -1;
-    qint64 zcornPos    = -1;
-    qint64 specgridPos = -1;
-    qint64 actnumPos   = -1;
-    qint64 mapaxesPos  = -1;
-    qint64 gridunitPos = -1;
-
-    findGridKeywordPositions( keywordsAndFilePos, &coordPos, &zcornPos, &specgridPos, &actnumPos, &mapaxesPos, &gridunitPos );
-
-    if ( coordPos < 0 || zcornPos < 0 || specgridPos < 0 )
-    {
-        QString errorText = QString( "Failed to import grid file '%1'\n" ).arg( fileName );
-
-        if ( coordPos < 0 )
-        {
-            errorText += "  Missing required keyword COORD";
-        }
-
-        if ( zcornPos < 0 )
-        {
-            errorText += "  Missing required keyword ZCORN";
-        }
-
-        if ( specgridPos < 0 )
-        {
-            errorText += "  Missing required keyword SPECGRID";
-        }
-
-        *errorMessages += errorText;
-
-        return false;
-    }
-
-    if ( gridunitPos >= 0 )
-    {
-        QFile gridFile( fileName );
-        if ( gridFile.open( QFile::ReadOnly ) )
-        {
-            RiaDefines::EclipseUnitSystem units = readUnitSystem( gridFile, gridunitPos );
-            if ( units != RiaDefines::EclipseUnitSystem::UNITS_UNKNOWN )
-            {
-                eclipseCase->setUnitsType( units );
-            }
-        }
-    }
-
-    FILE* gridFilePointer = util_fopen( fileName.toLatin1().data(), "r" );
-    if ( !gridFilePointer ) return false;
-
-    // Main grid dimensions
-    // SPECGRID - This is whats normally available, but not really the input to Eclipse.
-    // DIMENS - Is what Eclipse expects and uses, but is not defined in the GRID section and is not (?) available
-    // normally ZCORN, COORD, ACTNUM, MAPAXES
-
-    // ecl_kw_type  *  ecl_kw_fscanf_alloc_grdecl_dynamic__( FILE * stream , const char * kw , bool strict ,
-    // ecl_type_enum ecl_type); ecl_grid_type * ecl_grid_alloc_GRDECL_kw( int nx, int ny , int nz , const ecl_kw_type *
-    // zcorn_kw , const ecl_kw_type * coord_kw , const ecl_kw_type * actnum_kw , const ecl_kw_type * mapaxes_kw );
+    auto objects = RifEclipseTextFileReader::readKeywordAndValues( filename );
 
     ecl_kw_type* specGridKw = nullptr;
     ecl_kw_type* zCornKw    = nullptr;
@@ -146,114 +88,112 @@ bool RifEclipseInputFileTools::openGridFile( const QString&      fileName,
     ecl_kw_type* actNumKw   = nullptr;
     ecl_kw_type* mapAxesKw  = nullptr;
 
-    // Try to read all the needed keywords. Early exit if some are not found
-    caf::ProgressInfo progress( 8, "Read Grid from Eclipse Input file" );
-
-    bool allKwReadOk = true;
-
-    fseek( gridFilePointer, specgridPos, SEEK_SET );
-    allKwReadOk =
-        allKwReadOk &&
-        nullptr != ( specGridKw = ecl_kw_fscanf_alloc_current_grdecl__( gridFilePointer,
-                                                                        false,
-                                                                        ecl_type_create_from_type( ECL_INT_TYPE ) ) );
-    progress.setProgress( 1 );
-
-    fseek( gridFilePointer, zcornPos, SEEK_SET );
-    allKwReadOk = allKwReadOk &&
-                  nullptr !=
-                      ( zCornKw = ecl_kw_fscanf_alloc_current_grdecl__( gridFilePointer,
-                                                                        false,
-                                                                        ecl_type_create_from_type( ECL_FLOAT_TYPE ) ) );
-    progress.setProgress( 2 );
-
-    fseek( gridFilePointer, coordPos, SEEK_SET );
-    allKwReadOk = allKwReadOk &&
-                  nullptr !=
-                      ( coordKw = ecl_kw_fscanf_alloc_current_grdecl__( gridFilePointer,
-                                                                        false,
-                                                                        ecl_type_create_from_type( ECL_FLOAT_TYPE ) ) );
-    progress.setProgress( 3 );
-
-    // If ACTNUM is not defined, this pointer will be nullptr, which is a valid condition
-    if ( actnumPos >= 0 )
+    for ( const auto& obj : objects )
     {
-        fseek( gridFilePointer, actnumPos, SEEK_SET );
-        allKwReadOk =
-            allKwReadOk &&
-            nullptr != ( actNumKw = ecl_kw_fscanf_alloc_current_grdecl__( gridFilePointer,
-                                                                          false,
-                                                                          ecl_type_create_from_type( ECL_INT_TYPE ) ) );
-        progress.setProgress( 4 );
+        {
+            std::string keyword = "SPECGRID";
+            if ( obj.keyword.compare( keyword ) == 0 )
+            {
+                std::vector<int> intValues;
+                for ( const auto& val : obj.values )
+                {
+                    intValues.push_back( val );
+                }
+
+                specGridKw = ecl_kw_alloc_new( keyword.data(), (int)obj.values.size(), ECL_INT, intValues.data() );
+                continue;
+            }
+        }
+
+        {
+            std::string keyword = "COORD";
+            if ( obj.keyword.compare( keyword ) == 0 )
+            {
+                coordKw = ecl_kw_alloc_new( keyword.data(), (int)obj.values.size(), ECL_FLOAT, obj.values.data() );
+                continue;
+            }
+        }
+
+        {
+            std::string keyword = "ZCORN";
+            if ( obj.keyword.compare( keyword ) == 0 )
+            {
+                zCornKw = ecl_kw_alloc_new( keyword.data(), (int)obj.values.size(), ECL_FLOAT, obj.values.data() );
+                continue;
+            }
+        }
+
+        {
+            std::string keyword = "ACTNUM";
+            if ( obj.keyword.compare( keyword ) == 0 )
+            {
+                std::vector<int> intValues;
+                for ( const auto& val : obj.values )
+                {
+                    intValues.push_back( val );
+                }
+
+                actNumKw = ecl_kw_alloc_new( keyword.data(), (int)obj.values.size(), ECL_INT, intValues.data() );
+                continue;
+            }
+        }
+
+        {
+            std::string keyword = "MAPAXES";
+            if ( obj.keyword.compare( keyword ) == 0 )
+            {
+                zCornKw = ecl_kw_alloc_new( keyword.data(), (int)obj.values.size(), ECL_FLOAT, obj.values.data() );
+                continue;
+            }
+        }
     }
 
-    // If MAPAXES is not defined, this pointer will be nullptr, which is a valid condition
-    if ( mapaxesPos >= 0 )
+    if ( specGridKw && zCornKw && coordKw )
     {
-        fseek( gridFilePointer, mapaxesPos, SEEK_SET );
-        mapAxesKw =
-            ecl_kw_fscanf_alloc_current_grdecl__( gridFilePointer, false, ecl_type_create_from_type( ECL_FLOAT_TYPE ) );
-    }
+        int nx = ecl_kw_iget_int( specGridKw, 0 );
+        int ny = ecl_kw_iget_int( specGridKw, 1 );
+        int nz = ecl_kw_iget_int( specGridKw, 2 );
 
-    if ( !allKwReadOk )
-    {
-        if ( specGridKw ) ecl_kw_free( specGridKw );
-        if ( zCornKw ) ecl_kw_free( zCornKw );
-        if ( coordKw ) ecl_kw_free( coordKw );
+        ecl_grid_type* inputGrid = ecl_grid_alloc_GRDECL_kw( nx, ny, nz, zCornKw, coordKw, actNumKw, mapAxesKw );
+
+        RifReaderEclipseOutput::transferGeometry( inputGrid, eclipseCase );
+
+        if ( readFaultData )
+        {
+            bool isFaultKeywordPresent = false;
+            for ( const auto& keywordObj : objects )
+            {
+                if ( keywordObj.keyword == "FAULTS" ) isFaultKeywordPresent = true;
+            }
+
+            if ( isFaultKeywordPresent )
+            {
+                importFaultsFromFile( eclipseCase, fileName );
+            }
+        }
+
+        bool useMapAxes = ecl_grid_use_mapaxes( inputGrid );
+        eclipseCase->mainGrid()->setUseMapAxes( useMapAxes );
+
+        if ( useMapAxes )
+        {
+            std::array<double, 6> mapAxesValues;
+            ecl_grid_init_mapaxes_data_double( inputGrid, mapAxesValues.data() );
+            eclipseCase->mainGrid()->setMapAxes( mapAxesValues );
+        }
+
+        ecl_kw_free( specGridKw );
+        ecl_kw_free( zCornKw );
+        ecl_kw_free( coordKw );
         if ( actNumKw ) ecl_kw_free( actNumKw );
         if ( mapAxesKw ) ecl_kw_free( mapAxesKw );
 
-        return false;
+        ecl_grid_free( inputGrid );
+
+        return true;
     }
 
-    progress.setProgress( 5 );
-
-    int nx = ecl_kw_iget_int( specGridKw, 0 );
-    int ny = ecl_kw_iget_int( specGridKw, 1 );
-    int nz = ecl_kw_iget_int( specGridKw, 2 );
-
-    ecl_grid_type* inputGrid = ecl_grid_alloc_GRDECL_kw( nx, ny, nz, zCornKw, coordKw, actNumKw, mapAxesKw );
-
-    progress.setProgress( 6 );
-
-    RifReaderEclipseOutput::transferGeometry( inputGrid, eclipseCase );
-
-    progress.setProgress( 7 );
-    progress.setProgressDescription( "Read faults ..." );
-
-    if ( readFaultData )
-    {
-        cvf::Collection<RigFault> faults;
-        RifEclipseInputFileTools::readFaults( fileName, keywordsAndFilePos, &faults );
-
-        RigMainGrid* mainGrid = eclipseCase->mainGrid();
-        mainGrid->setFaults( faults );
-    }
-
-    bool useMapAxes = ecl_grid_use_mapaxes( inputGrid );
-    eclipseCase->mainGrid()->setUseMapAxes( useMapAxes );
-
-    if ( useMapAxes )
-    {
-        std::array<double, 6> mapAxesValues;
-        ecl_grid_init_mapaxes_data_double( inputGrid, mapAxesValues.data() );
-        eclipseCase->mainGrid()->setMapAxes( mapAxesValues );
-    }
-
-    progress.setProgress( 8 );
-    progress.setProgressDescription( "Cleaning up ..." );
-
-    ecl_kw_free( specGridKw );
-    ecl_kw_free( zCornKw );
-    ecl_kw_free( coordKw );
-    if ( actNumKw ) ecl_kw_free( actNumKw );
-    if ( mapAxesKw ) ecl_kw_free( mapAxesKw );
-
-    ecl_grid_free( inputGrid );
-
-    fclose( gridFilePointer );
-
-    return true;
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -761,252 +701,58 @@ void RifEclipseInputFileTools::saveFaults( QTextStream&       stream,
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Read known properties from the input file
+///
 //--------------------------------------------------------------------------------------------------
-std::map<QString, QString> RifEclipseInputFileTools::readProperties( const QString& fileName, RigEclipseCaseData* caseData )
+bool RifEclipseInputFileTools::importFaultsFromFile( RigEclipseCaseData* eclipseCaseData, const QString& fileName )
 {
-    CVF_ASSERT( caseData );
-
-    caf::ProgressInfo mainProgress( 2, "Reading Eclipse Input properties" );
-
-    std::vector<RifKeywordAndFilePos> fileKeywords;
-    RifEclipseInputFileTools::findKeywordsOnFile( fileName, &fileKeywords );
-
-    if ( !fileKeywords.size() )
+    cvf::Collection<RigFault> faultCollectionFromFile;
+    RifEclipseInputFileTools::parseAndReadFaults( fileName, &faultCollectionFromFile );
+    if ( faultCollectionFromFile.empty() )
     {
-        RiaLogging::warning( QString( "No keywords found in file: %1" ).arg( fileName ) );
-    }
-    mainProgress.setProgress( 1 );
-    caf::ProgressInfo progress( fileKeywords.size(), "Reading properties" );
-
-    FILE* gridFilePointer = util_fopen( fileName.toLatin1().data(), "r" );
-
-    if ( !gridFilePointer )
-    {
-        RiaLogging::warning( QString( "Could not open file: %1" ).arg( fileName ) );
-        return std::map<QString, QString>();
-    }
-
-    std::map<QString, QString> newResults;
-    for ( size_t i = 0; i < fileKeywords.size(); ++i )
-    {
-        if ( !isValidDataKeyword( fileKeywords[i].keyword ) )
-        {
-            continue;
-        }
-
-        fseek( gridFilePointer, fileKeywords[i].filePos, SEEK_SET );
-
-        ecl_kw_type* eclipseKeywordData =
-            ecl_kw_fscanf_alloc_current_grdecl__( gridFilePointer, false, ecl_type_create_from_type( ECL_FLOAT_TYPE ) );
-        if ( eclipseKeywordData )
-        {
-            QString newResultName =
-                caseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->makeResultNameUnique( fileKeywords[i].keyword );
-            QString errMsg;
-            if ( readDataFromKeyword( eclipseKeywordData, caseData, newResultName, &errMsg ) )
-            {
-                newResults[newResultName] = fileKeywords[i].keyword;
-            }
-            else
-            {
-                RiaLogging::error( QString( "Failed to read keyword: %1" ).arg( errMsg ) );
-            }
-            ecl_kw_free( eclipseKeywordData );
-        }
-        else
-        {
-            RiaLogging::error( QString( "Failed to allocate keyword: %1" ).arg( fileKeywords[i].keyword ) );
-        }
-
-        progress.setProgress( i );
-    }
-
-    fclose( gridFilePointer );
-    return newResults;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// Reads the property data requested into the \a reservoir, overwriting any previous
-/// properties with the same name.
-//--------------------------------------------------------------------------------------------------
-bool RifEclipseInputFileTools::readProperty( const QString&      fileName,
-                                             RigEclipseCaseData* caseData,
-                                             const QString&      eclipseKeyWord,
-                                             const QString&      resultName )
-{
-    CVF_ASSERT( caseData );
-
-    if ( !isValidDataKeyword( eclipseKeyWord ) ) return false;
-
-    FILE* filePointer = util_fopen( fileName.toLatin1().data(), "r" );
-    if ( !filePointer )
-    {
-        RiaLogging::error( QString( "Could not open property file: %1" ).arg( fileName ) );
         return false;
     }
 
-    qint64 filePos = -1;
-
+    cvf::Collection<RigFault> faults;
     {
-        std::vector<RifKeywordAndFilePos> keywordsAndFilePos;
-        findKeywordsOnFile( fileName, &keywordsAndFilePos );
-        for ( auto kwAndPos : keywordsAndFilePos )
+        cvf::Collection<RigFault> faultCollection = eclipseCaseData->mainGrid()->faults();
+        for ( size_t i = 0; i < faultCollection.size(); i++ )
         {
-            if ( kwAndPos.keyword == eclipseKeyWord )
+            RigFault* f = faultCollection.at( i );
+            if ( f->name() == RiaResultNames::undefinedGridFaultName() ||
+                 f->name() == RiaResultNames::undefinedGridFaultName() )
             {
-                filePos = kwAndPos.filePos;
+                // Do not include undefined grid faults, as these are recomputed based on the imported faults from files
+                continue;
+            }
+
+            faults.push_back( f );
+        }
+    }
+
+    for ( size_t i = 0; i < faultCollectionFromFile.size(); i++ )
+    {
+        RigFault* faultFromFile = faultCollectionFromFile.at( i );
+
+        bool existFaultWithSameName = false;
+        for ( size_t j = 0; j < faults.size(); j++ )
+        {
+            RigFault* existingFault = faults.at( j );
+
+            if ( existingFault->name() == faultFromFile->name() )
+            {
+                existFaultWithSameName = true;
             }
         }
-    }
 
-    bool isOk = false;
-
-    if ( filePos == -1 )
-    {
-        RiaLogging::error( QString( "Failed to load keyword %1 from file: %2" ).arg( eclipseKeyWord ).arg( fileName ) );
-    }
-    else
-    {
-        fseek( filePointer, filePos, SEEK_SET );
-
-        ecl_kw_type* eclipseKeywordData =
-            ecl_kw_fscanf_alloc_grdecl_dynamic__( filePointer,
-                                                  eclipseKeyWord.toLatin1().data(),
-                                                  false,
-                                                  ecl_type_create_from_type( ECL_FLOAT_TYPE ) );
-
-        if ( eclipseKeywordData )
+        if ( !existFaultWithSameName )
         {
-            QString errMsg;
-            isOk = readDataFromKeyword( eclipseKeywordData, caseData, resultName, &errMsg );
-            if ( !isOk )
-            {
-                RiaLogging::error( QString( "Failed to read property: %1" ).arg( errMsg ) );
-            }
-            ecl_kw_free( eclipseKeywordData );
-        }
-        else
-        {
-            RiaLogging::error( QString( "Failed to load keyword %1 from file: %2" ).arg( eclipseKeyWord ).arg( fileName ) );
+            faults.push_back( faultFromFile );
         }
     }
 
-    fclose( filePointer );
-
-    return isOk;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RifEclipseInputFileTools::readDataFromKeyword( ecl_kw_type*        eclipseKeywordData,
-                                                    RigEclipseCaseData* caseData,
-                                                    const QString&      resultName,
-                                                    QString*            errMsg )
-{
-    CVF_ASSERT( caseData );
-    CVF_ASSERT( eclipseKeywordData );
-    CVF_ASSERT( errMsg );
-
-    // Number of values to allocate in the result data structure. Must either be number of active cells or
-    // number of total cells in case to match the criteria in RigCaseCellResultsData::isUsingGlobalActiveIndex
-    size_t scalarValueCount = 0u;
-
-    {
-        bool   mathingItemCount = false;
-        size_t keywordItemCount = static_cast<size_t>( ecl_kw_get_size( eclipseKeywordData ) );
-        if ( keywordItemCount == caseData->mainGrid()->cellCount() )
-        {
-            mathingItemCount = true;
-
-            scalarValueCount = caseData->mainGrid()->globalCellArray().size();
-        }
-        else if ( keywordItemCount ==
-                  caseData->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL )->reservoirActiveCellCount() )
-        {
-            mathingItemCount = true;
-            scalarValueCount =
-                caseData->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL )->reservoirActiveCellCount();
-        }
-
-        if ( !mathingItemCount )
-        {
-            QString errFormat( "Size mismatch: Main Grid has %1 cells, keyword %2 has %3 cells" );
-            *errMsg = errFormat.arg( caseData->mainGrid()->cellCount() ).arg( resultName ).arg( keywordItemCount );
-            return false;
-        }
-    }
-
-    RigEclipseResultAddress resAddr( RiaDefines::ResultCatType::INPUT_PROPERTY, resultName );
-    caseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->createResultEntry( resAddr, false );
-
-    auto newPropertyData =
-        caseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->modifiableCellScalarResultTimesteps( resAddr );
-
-    newPropertyData->push_back( std::vector<double>() );
-    newPropertyData->at( 0 ).resize( scalarValueCount, HUGE_VAL );
-
-    ecl_kw_get_data_as_double( eclipseKeywordData, newPropertyData->at( 0 ).data() );
+    eclipseCaseData->mainGrid()->setFaults( faults );
 
     return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// Read all the keywords from a file
-//
-// This code was originally written using QTextStream, but due to a bug in Qt version up to 4.8.0
-// we had to implement the reading using QFile and QFile::readLine
-//
-// See:
-// https://bugreports.qt-project.org/browse/QTBUG-9814
-//
-//--------------------------------------------------------------------------------------------------
-void RifEclipseInputFileTools::findKeywordsOnFile( const QString& fileName, std::vector<RifKeywordAndFilePos>* keywords )
-{
-    char buf[1024];
-
-    QFile data( fileName );
-    data.open( QFile::ReadOnly );
-
-    QString line;
-    qint64  filepos    = -1;
-    qint64  lineLength = -1;
-
-    do
-    {
-        lineLength = data.readLine( buf, sizeof( buf ) );
-        if ( lineLength > 0 )
-        {
-            line = QString::fromLatin1( buf );
-            RifKeywordAndFilePos keyPos;
-
-            filepos        = data.pos() - lineLength;
-            keyPos.filePos = filepos;
-
-            QString trimmedLine  = line;
-            int     commentStart = trimmedLine.indexOf( "--" );
-            if ( commentStart > 0 )
-            {
-                trimmedLine = trimmedLine.left( commentStart );
-            }
-
-            trimmedLine = trimmedLine.trimmed();
-            if ( !trimmedLine.isEmpty() && trimmedLine[0].isLetter() )
-            {
-                // Ensure we don't attempt to find keywords with a space in it.
-                QStringList keywordCandidates = trimmedLine.split( " " );
-                if ( !keywordCandidates.isEmpty() )
-                {
-                    QString keywordCandidate = keywordCandidates.front();
-
-                    keyPos.keyword = keywordCandidate;
-                    keywords->push_back( keyPos );
-                    // qDebug() << keyPos.keyword << " - " << keyPos.filePos;
-                }
-            }
-        }
-    } while ( lineLength != -1 );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1074,33 +820,6 @@ void RifEclipseInputFileTools::parseAndReadPathAliasKeyword( const QString&     
             }
         }
     } while ( !data.atEnd() );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-const std::vector<QString>& RifEclipseInputFileTools::invalidPropertyDataKeywords()
-{
-    static std::vector<QString> keywords;
-    static bool                 isInitialized = false;
-    if ( !isInitialized )
-    {
-        // Related to geometry
-        keywords.push_back( "COORD" );
-        keywords.push_back( "ZCORN" );
-        keywords.push_back( "SPECGRID" );
-        keywords.push_back( "MAPAXES" );
-        keywords.push_back( "NOECHO" );
-        keywords.push_back( "ECHO" );
-        keywords.push_back( "MAPUNITS" );
-        keywords.push_back( "GRIDUNIT" );
-
-        keywords.push_back( faultsKeyword );
-
-        isInitialized = true;
-    }
-
-    return keywords;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1280,23 +999,6 @@ qint64 RifEclipseInputFileTools::findKeyword( const QString& keyword, QFile& fil
     } while ( !file.atEnd() );
 
     return -1;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RifEclipseInputFileTools::isValidDataKeyword( const QString& keyword )
-{
-    const std::vector<QString>& keywordsToSkip = RifEclipseInputFileTools::invalidPropertyDataKeywords();
-    for ( const QString& keywordToSkip : keywordsToSkip )
-    {
-        if ( keywordToSkip == keyword.toUpper() )
-        {
-            return false;
-        }
-    }
-
-    return true;
 }
 
 //--------------------------------------------------------------------------------------------------

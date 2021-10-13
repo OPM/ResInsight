@@ -244,11 +244,13 @@ bool RimEclipseResultCase::importGridAndResultMetaData( bool showTimeStepFilter 
 bool RimEclipseResultCase::importAsciiInputProperties( const QStringList& fileNames )
 {
     bool importFaults = false;
-    return RifEclipseInputPropertyLoader::readInputPropertiesFromFiles( m_inputPropertyCollection,
-                                                                        this->eclipseCaseData(),
-                                                                        importFaults,
-                                                                        std::vector<QString>( fileNames.begin(),
-                                                                                              fileNames.end() ) );
+    RifEclipseInputPropertyLoader::loadAndSyncronizeInputProperties( m_inputPropertyCollection,
+                                                                     this->eclipseCaseData(),
+                                                                     std::vector<QString>( fileNames.begin(),
+                                                                                           fileNames.end() ),
+                                                                     importFaults );
+
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------
