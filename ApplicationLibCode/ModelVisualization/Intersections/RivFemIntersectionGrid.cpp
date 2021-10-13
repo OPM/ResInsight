@@ -51,30 +51,40 @@ cvf::BoundingBox RivFemIntersectionGrid::boundingBox() const
 void RivFemIntersectionGrid::findIntersectingCells( const cvf::BoundingBox& intersectingBB,
                                                     std::vector<size_t>*    intersectedCells ) const
 {
-    // TODO - create some sort of local list of pair<partId, cellIdx> and use those as "global" indexes
     for ( int i = 0; i < m_femParts->partCount(); i++ )
     {
-        m_femParts->part( i )->findIntersectingCells( intersectingBB, intersectedCells );
+        const RigFemPart*   part = m_femParts->part( i );
+        std::vector<size_t> foundElements;
+        part->findIntersectingCells( intersectingBB, &foundElements );
+
+        for ( size_t t = 0; t < foundElements.size(); t++ )
+        {
+            size_t globalIdx = m_femParts->globalIndex( i, foundElements[t] );
+            intersectedCells->push_back( globalIdx );
+        }
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RivFemIntersectionGrid::useCell( size_t cellIndex ) const
+bool RivFemIntersectionGrid::useCell( size_t globalCellIndex ) const
 {
-    // we don't know which part the element we are asked for belongs to, but we only support HEX 8 anyways, so we are
-    // good to go.
-    return true;
+    auto [part, elementIdx] = m_femParts->partAndElementIndex( globalCellIndex );
+
+    return ( ( part->elementType( elementIdx ) == RigElementType::HEX8 ) ||
+             ( part->elementType( elementIdx ) == RigElementType::HEX8P ) );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivFemIntersectionGrid::cellCornerVertices( size_t cellIndex, cvf::Vec3d cellCorners[8] ) const
+void RivFemIntersectionGrid::cellCornerVertices( size_t globalCellIndex, cvf::Vec3d cellCorners[8] ) const
 {
-    const std::vector<cvf::Vec3f>& nodeCoords    = m_femParts->part( 0 )->nodes().coordinates;
-    const int*                     cornerIndices = m_femParts->part( 0 )->connectivities( cellIndex );
+    auto [part, elementIdx] = m_femParts->partAndElementIndex( globalCellIndex );
+
+    const std::vector<cvf::Vec3f>& nodeCoords    = part->nodes().coordinates;
+    const int*                     cornerIndices = part->connectivities( elementIdx );
 
     cellCorners[0] = cvf::Vec3d( nodeCoords[cornerIndices[0]] );
     cellCorners[1] = cvf::Vec3d( nodeCoords[cornerIndices[1]] );
@@ -89,19 +99,24 @@ void RivFemIntersectionGrid::cellCornerVertices( size_t cellIndex, cvf::Vec3d ce
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivFemIntersectionGrid::cellCornerIndices( size_t cellIndex, size_t cornerIndices[8] ) const
+void RivFemIntersectionGrid::cellCornerIndices( size_t globalCellIndex, size_t cornerIndices[8] ) const
 {
-    RigElementType elmType = m_femParts->part( 0 )->elementType( cellIndex );
+    auto [part, elementIdx] = m_femParts->partAndElementIndex( globalCellIndex );
+
+    RigElementType elmType = part->elementType( elementIdx );
     if ( !( elmType == HEX8 || elmType == HEX8P ) ) return;
-    int elmIdx       = static_cast<int>( cellIndex );
-    cornerIndices[0] = m_femParts->part( 0 )->elementNodeResultIdx( elmIdx, 0 );
-    cornerIndices[1] = m_femParts->part( 0 )->elementNodeResultIdx( elmIdx, 1 );
-    cornerIndices[2] = m_femParts->part( 0 )->elementNodeResultIdx( elmIdx, 2 );
-    cornerIndices[3] = m_femParts->part( 0 )->elementNodeResultIdx( elmIdx, 3 );
-    cornerIndices[4] = m_femParts->part( 0 )->elementNodeResultIdx( elmIdx, 4 );
-    cornerIndices[5] = m_femParts->part( 0 )->elementNodeResultIdx( elmIdx, 5 );
-    cornerIndices[6] = m_femParts->part( 0 )->elementNodeResultIdx( elmIdx, 6 );
-    cornerIndices[7] = m_femParts->part( 0 )->elementNodeResultIdx( elmIdx, 7 );
+
+    // TODO - adjust the elementNodeResultIdx to global index to match the results when coloring later
+
+    int elmIdx       = static_cast<int>( elementIdx );
+    cornerIndices[0] = part->elementNodeResultIdx( elmIdx, 0 );
+    cornerIndices[1] = part->elementNodeResultIdx( elmIdx, 1 );
+    cornerIndices[2] = part->elementNodeResultIdx( elmIdx, 2 );
+    cornerIndices[3] = part->elementNodeResultIdx( elmIdx, 3 );
+    cornerIndices[4] = part->elementNodeResultIdx( elmIdx, 4 );
+    cornerIndices[5] = part->elementNodeResultIdx( elmIdx, 5 );
+    cornerIndices[6] = part->elementNodeResultIdx( elmIdx, 6 );
+    cornerIndices[7] = part->elementNodeResultIdx( elmIdx, 7 );
 }
 
 //--------------------------------------------------------------------------------------------------

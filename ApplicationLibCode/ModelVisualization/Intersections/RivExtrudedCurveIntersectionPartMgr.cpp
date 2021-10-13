@@ -176,7 +176,7 @@ void RivIntersectionResultsColoringTools::calculateNodeOrElementNodeBasedGeoMech
     const std::vector<RivIntersectionVertexWeights>& vertexWeights,
     const std::vector<float>&                        resultValues,
     bool                                             isElementNodalResult,
-    const RigFemPart*                                femPart,
+    const RigFemPartCollection*                      femParts,
     const cvf::ScalarMapper*                         mapper )
 {
     textureCoords->resize( vertexWeights.size() );
@@ -210,7 +210,7 @@ void RivIntersectionResultsColoringTools::calculateNodeOrElementNodeBasedGeoMech
                     }
                     else
                     {
-                        resIdx = femPart->nodeIdxFromElementNodeResultIdx( vertexWeights[triangleVxIdx].vxId( wIdx ) );
+                        resIdx = femParts->nodeIdxFromElementNodeResultIdx( vertexWeights[triangleVxIdx].vxId( wIdx ) );
                     }
 
                     resValue += resultValues[resIdx] * vertexWeights[triangleVxIdx].weight( wIdx );

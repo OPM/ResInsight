@@ -29,7 +29,7 @@ class RivIntersectionVertexWeights;
 class RivTernaryScalarMapper;
 
 class RigResultAccessor;
-class RigFemPart;
+class RigFemPartCollection;
 class RigGeoMechCaseData;
 class RigFemResultAddress;
 
@@ -84,10 +84,10 @@ private:
     static void
         calculateNodeOrElementNodeBasedGeoMechTextureCoords( cvf::Vec2fArray* textureCoords,
                                                              const std::vector<RivIntersectionVertexWeights>& vertexWeights,
-                                                             const std::vector<float>& resultValues,
-                                                             bool                      isElementNodalResult,
-                                                             const RigFemPart*         femPart,
-                                                             const cvf::ScalarMapper*  mapper );
+                                                             const std::vector<float>&   resultValues,
+                                                             bool                        isElementNodalResult,
+                                                             const RigFemPartCollection* femParts,
+                                                             const cvf::ScalarMapper*    mapper );
 
     static void calculateElementBasedGeoMechTextureCoords( cvf::Vec2fArray*           textureCoords,
                                                            const std::vector<float>&  resultValues,

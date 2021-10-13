@@ -250,13 +250,26 @@ void RivIntersectionResultsColoringTools::updateGeoMechCellResultColors(
 
     if ( resVarAddress.resultPosType == RIG_ELEMENT )
     {
-        const std::vector<float>& resultValues =
-            caseData->femPartResults()->resultValues( resVarAddress, 0, (int)timeStepIndex );
+        if ( caseData->femPartResults()->partCount() == 1 )
+        {
+            const std::vector<float>& resultValues =
+                caseData->femPartResults()->resultValues( resVarAddress, 0, (int)timeStepIndex );
 
-        RivIntersectionResultsColoringTools::calculateElementBasedGeoMechTextureCoords( intersectionFacesTextureCoords,
-                                                                                        resultValues,
-                                                                                        triangleToCellIdx,
-                                                                                        scalarColorMapper );
+            RivIntersectionResultsColoringTools::calculateElementBasedGeoMechTextureCoords( intersectionFacesTextureCoords,
+                                                                                            resultValues,
+                                                                                            triangleToCellIdx,
+                                                                                            scalarColorMapper );
+        }
+        else
+        {
+            std::vector<float> resultValues;
+            caseData->femPartResults()->globalResultValues( resVarAddress, (int)timeStepIndex, resultValues );
+
+            RivIntersectionResultsColoringTools::calculateElementBasedGeoMechTextureCoords( intersectionFacesTextureCoords,
+                                                                                            resultValues,
+                                                                                            triangleToCellIdx,
+                                                                                            scalarColorMapper );
+        }
     }
     else if ( resVarAddress.resultPosType == RIG_ELEMENT_NODAL_FACE )
     {
@@ -288,19 +301,31 @@ void RivIntersectionResultsColoringTools::updateGeoMechCellResultColors(
         {
             resVarAddress.resultPosType = RIG_ELEMENT_NODAL;
         }
+        bool isElementNodalResult = !( resVarAddress.resultPosType == RIG_NODAL );
 
-        const std::vector<float>& resultValues =
-            caseData->femPartResults()->resultValues( resVarAddress, 0, (int)timeStepIndex );
+        if ( caseData->femPartResults()->partCount() == 1 )
+        {
+            const std::vector<float>& resultValues =
+                caseData->femPartResults()->resultValues( resVarAddress, 0, (int)timeStepIndex );
+            RivIntersectionResultsColoringTools::calculateNodeOrElementNodeBasedGeoMechTextureCoords( intersectionFacesTextureCoords,
+                                                                                                      vertexWeights,
+                                                                                                      resultValues,
+                                                                                                      isElementNodalResult,
+                                                                                                      caseData->femParts(),
+                                                                                                      scalarColorMapper );
+        }
+        else
+        {
+            std::vector<float> resultValues;
+            caseData->femPartResults()->globalResultValues( resVarAddress, (int)timeStepIndex, resultValues );
 
-        RigFemPart* femPart              = caseData->femParts()->part( 0 );
-        bool        isElementNodalResult = !( resVarAddress.resultPosType == RIG_NODAL );
-
-        RivIntersectionResultsColoringTools::calculateNodeOrElementNodeBasedGeoMechTextureCoords( intersectionFacesTextureCoords,
-                                                                                                  vertexWeights,
-                                                                                                  resultValues,
-                                                                                                  isElementNodalResult,
-                                                                                                  femPart,
-                                                                                                  scalarColorMapper );
+            RivIntersectionResultsColoringTools::calculateNodeOrElementNodeBasedGeoMechTextureCoords( intersectionFacesTextureCoords,
+                                                                                                      vertexWeights,
+                                                                                                      resultValues,
+                                                                                                      isElementNodalResult,
+                                                                                                      caseData->femParts(),
+                                                                                                      scalarColorMapper );
+        }
     }
 
     RivScalarMapperUtils::applyTextureResultsToPart( intersectionFacesPart,

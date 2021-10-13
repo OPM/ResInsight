@@ -1046,6 +1046,54 @@ const std::vector<float>&
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RigFemPartResultsCollection::globalResultValues( const RigFemResultAddress& resVarAddr,
+                                                      int                        timeStepIndex,
+                                                      std::vector<float>&        resultValues )
+{
+    CVF_ASSERT( resVarAddr.isValid() );
+
+    for ( int i = 0; i < partCount(); i++ )
+    {
+        const std::vector<float>& partResults = this->resultValues( resVarAddr, i, (int)timeStepIndex );
+        if ( partResults.empty() )
+        {
+            size_t expectedSize = 0;
+
+            switch ( resVarAddr.resultPosType )
+            {
+                case RIG_NODAL:
+                    expectedSize = m_femParts->part( i )->nodes().nodeIds.size();
+                    break;
+
+                case RIG_ELEMENT_NODAL:
+                case RIG_INTEGRATION_POINT:
+                    expectedSize = m_femParts->part( i )->elementNodeResultCount();
+                    break;
+
+                case RIG_ELEMENT_NODAL_FACE:
+                    expectedSize = m_femParts->part( i )->elementCount() * 6;
+                    break;
+
+                case RIG_ELEMENT:
+                    expectedSize = m_femParts->part( i )->elementCount();
+                    break;
+
+                default:
+                    break;
+            }
+
+            resultValues.resize( resultValues.size() + expectedSize, NAN );
+        }
+        else
+        {
+            resultValues.insert( resultValues.end(), partResults.begin(), partResults.end() );
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::vector<caf::Ten3f>
     RigFemPartResultsCollection::tensors( const RigFemResultAddress& resVarAddr, int partIndex, int frameIndex )
 {

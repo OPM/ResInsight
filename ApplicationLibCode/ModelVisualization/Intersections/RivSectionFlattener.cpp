@@ -39,7 +39,7 @@ size_t RivSectionFlattener::indexToNextValidPoint( const std::vector<cvf::Vec3d>
         cvf::Vec3d p2   = polyLine[lIdx];
         cvf::Vec3d p1p2 = p2 - p1;
 
-        if ( ( p1p2 - ( p1p2 * extrDir ) * extrDir ).length() > 0.1 )
+        if ( ( p1p2 - ( p1p2 * extrDir ) * extrDir ).length() > 0.001 )
         {
             return lIdx;
         }

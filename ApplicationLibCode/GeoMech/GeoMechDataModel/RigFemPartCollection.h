@@ -38,6 +38,13 @@ public:
     float            characteristicElementSize() const;
     cvf::BoundingBox boundingBox() const;
 
+    std::pair<int, size_t>               partIdAndElementIndex( size_t globalIndex ) const;
+    std::pair<const RigFemPart*, size_t> partAndElementIndex( size_t globalIndex ) const;
+    size_t                               globalIndex( int partId, size_t localIndex ) const;
+
+    int nodeIdxFromElementNodeResultIdx( size_t globalResultIdx ) const;
+
 private:
     cvf::Collection<RigFemPart> m_femParts;
+    std::vector<size_t>         m_partElementOffset;
 };
