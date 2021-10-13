@@ -100,7 +100,7 @@ RimStreamlineInViewCollection::RimStreamlineInViewCollection()
     CAF_PDM_InitFieldNoDefault( &m_legendConfig, "LegendDefinition", "Color Legend", "", "", "" );
     m_legendConfig = new RimRegularLegendConfig();
     m_legendConfig->setMappingMode( RimRegularLegendConfig::MappingType::LOG10_CONTINUOUS );
-    m_legendConfig.uiCapability()->setUiHidden( true );
+    m_legendConfig.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_collectionName, "Name", "Name", "", "", "" );
     m_collectionName = "Streamlines";

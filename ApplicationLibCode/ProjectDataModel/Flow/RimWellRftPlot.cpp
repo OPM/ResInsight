@@ -89,7 +89,7 @@ RimWellRftPlot::RimWellRftPlot()
     CAF_PDM_InitField( &m_showErrorInObservedData, "ShowErrorObserved", true, "Show Observed Data Error", "", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_wellLogPlot_OBSOLETE, "WellLog", "Well Log", "", "", "" );
-    m_wellLogPlot_OBSOLETE.uiCapability()->setUiHidden( true );
+    m_wellLogPlot_OBSOLETE.uiCapability()->setUiTreeHidden( true );
     m_wellLogPlot_OBSOLETE.xmlCapability()->setIOWritable( false );
 
     m_depthType = RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH;

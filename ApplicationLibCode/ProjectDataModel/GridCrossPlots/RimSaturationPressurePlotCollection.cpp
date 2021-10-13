@@ -37,7 +37,7 @@ RimSaturationPressurePlotCollection::RimSaturationPressurePlotCollection()
     CAF_PDM_InitObject( "Saturation Pressure Plots", ":/SummaryXPlotsLight16x16.png", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_saturationPressurePlots, "SaturationPressurePlots", "Saturation Pressure Plots", "", "", "" );
-    m_saturationPressurePlots.uiCapability()->setUiHidden( true );
+    m_saturationPressurePlots.uiCapability()->setUiTreeHidden( true );
 }
 
 //--------------------------------------------------------------------------------------------------

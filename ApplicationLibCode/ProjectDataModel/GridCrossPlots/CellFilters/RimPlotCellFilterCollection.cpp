@@ -31,7 +31,7 @@ RimPlotCellFilterCollection::RimPlotCellFilterCollection()
     CAF_PDM_InitObject( "Plot Cell Filters", "", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_cellFilters, "CellFilters", "Cell Filters", "", "", "" );
-    m_cellFilters.uiCapability()->setUiHidden( true );
+    m_cellFilters.uiCapability()->setUiTreeHidden( true );
 
     setName( "Filter Collection" );
 }

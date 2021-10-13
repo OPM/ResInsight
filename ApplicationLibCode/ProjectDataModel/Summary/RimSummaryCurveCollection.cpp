@@ -51,12 +51,13 @@ RimSummaryCurveCollection::RimSummaryCurveCollection()
     CAF_PDM_InitObject( "Summary Curves", ":/SummaryCurveFilter16x16.png", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_curves, "CollectionCurves", "Collection Curves", "", "", "" );
-    m_curves.uiCapability()->setUiHidden( true );
+    m_curves.uiCapability()->setUiTreeHidden( true );
     m_curves.uiCapability()->setUiTreeChildrenHidden( false );
     caf::PdmFieldReorderCapability::addToFieldWithCallback( &m_curves, this, &RimSummaryCurveCollection::onCurvesReordered );
 
     CAF_PDM_InitField( &m_showCurves, "IsActive", true, "Show Curves", "", "", "" );
     m_showCurves.uiCapability()->setUiHidden( true );
+    m_showCurves.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitField( &m_editPlot, "EditPlot", false, "", "", "", "" );
     m_editPlot.xmlCapability()->disableIO();
@@ -65,21 +66,21 @@ RimSummaryCurveCollection::RimSummaryCurveCollection()
     CAF_PDM_InitFieldNoDefault( &m_ySourceStepping, "YSourceStepping", "", "", "", "" );
     m_ySourceStepping = new RimSummaryPlotSourceStepping;
     m_ySourceStepping->setSourceSteppingType( RimSummaryPlotSourceStepping::Y_AXIS );
-    m_ySourceStepping.uiCapability()->setUiHidden( true );
+    m_ySourceStepping.uiCapability()->setUiTreeHidden( true );
     m_ySourceStepping.uiCapability()->setUiTreeChildrenHidden( true );
     m_ySourceStepping.xmlCapability()->disableIO();
 
     CAF_PDM_InitFieldNoDefault( &m_xSourceStepping, "XSourceStepping", "", "", "", "" );
     m_xSourceStepping = new RimSummaryPlotSourceStepping;
     m_xSourceStepping->setSourceSteppingType( RimSummaryPlotSourceStepping::X_AXIS );
-    m_xSourceStepping.uiCapability()->setUiHidden( true );
+    m_xSourceStepping.uiCapability()->setUiTreeHidden( true );
     m_xSourceStepping.uiCapability()->setUiTreeChildrenHidden( true );
     m_xSourceStepping.xmlCapability()->disableIO();
 
     CAF_PDM_InitFieldNoDefault( &m_unionSourceStepping, "UnionSourceStepping", "", "", "", "" );
     m_unionSourceStepping = new RimSummaryPlotSourceStepping;
     m_unionSourceStepping->setSourceSteppingType( RimSummaryPlotSourceStepping::UNION_X_Y_AXIS );
-    m_unionSourceStepping.uiCapability()->setUiHidden( true );
+    m_unionSourceStepping.uiCapability()->setUiTreeHidden( true );
     m_unionSourceStepping.uiCapability()->setUiTreeChildrenHidden( true );
     m_unionSourceStepping.xmlCapability()->disableIO();
 }

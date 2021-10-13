@@ -49,9 +49,10 @@ RimSurfaceInView::RimSurfaceInView()
 
     CAF_PDM_InitFieldNoDefault( &m_surface, "SurfaceRef", "Surface", "", "", "" );
     m_surface.uiCapability()->setUiHidden( true );
+    m_surface.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_resultDefinition, "ResultDefinition", "Result Definition", "", "", "" );
-    m_resultDefinition.uiCapability()->setUiHidden( true );
+    m_resultDefinition.uiCapability()->setUiTreeHidden( true );
     m_resultDefinition.uiCapability()->setUiTreeChildrenHidden( true );
     m_resultDefinition = new RimSurfaceResultDefinition;
     m_resultDefinition->setCheckState( false );

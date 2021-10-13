@@ -96,8 +96,7 @@ RimPlotAxisProperties::RimPlotAxisProperties()
     CAF_PDM_InitFieldNoDefault(&m_valuesFontSize, "ValueDeltaFontSize", "Font Size", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_annotations, "Annotations", "", "", "", "");
-
-    m_annotations.uiCapability()->setUiHidden(true);
+    m_annotations.uiCapability()->setUiTreeHidden(true);
 //     m_annotations.uiCapability()->setUiTreeChildrenHidden(true);
 
     updateOptionSensitivity();

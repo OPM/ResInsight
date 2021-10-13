@@ -226,7 +226,7 @@ RimSimWellInViewCollection::RimSimWellInViewCollection()
                        "" );
 
     CAF_PDM_InitFieldNoDefault( &wells, "Wells", "Wells", "", "", "" );
-    wells.uiCapability()->setUiHidden( true );
+    wells.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_showWellCellFence, "ShowWellCellFenceTristate", "Show Well Cell Fence", "", "", "" );
     m_showWellCellFence.uiCapability()->setUiEditorTypeName( caf::PdmUiCheckBoxTristateEditor::uiEditorTypeName() );

@@ -34,7 +34,7 @@ RimEclipseInputPropertyCollection::RimEclipseInputPropertyCollection()
     CAF_PDM_InitObject( "Input Properties", ":/EclipseInput48x48.png", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &inputProperties, "InputProperties", "", "", "", "" );
-    inputProperties.uiCapability()->setUiHidden( true );
+    inputProperties.uiCapability()->setUiTreeHidden( true );
 }
 
 //--------------------------------------------------------------------------------------------------

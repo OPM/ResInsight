@@ -97,13 +97,13 @@ RimGridCrossPlotDataSet::RimGridCrossPlotDataSet()
 
     CAF_PDM_InitFieldNoDefault( &m_xAxisProperty, "XAxisProperty", "X-Axis Property", "", "", "" );
     m_xAxisProperty = new RimEclipseResultDefinition( caf::PdmUiItemInfo::TOP );
-    m_xAxisProperty.uiCapability()->setUiHidden( true );
+    m_xAxisProperty.uiCapability()->setUiTreeHidden( true );
     m_xAxisProperty.uiCapability()->setUiTreeChildrenHidden( true );
     m_xAxisProperty->setTernaryEnabled( false );
 
     CAF_PDM_InitFieldNoDefault( &m_yAxisProperty, "YAxisProperty", "Y-Axis Property", "", "", "" );
     m_yAxisProperty = new RimEclipseResultDefinition( caf::PdmUiItemInfo::TOP );
-    m_yAxisProperty.uiCapability()->setUiHidden( true );
+    m_yAxisProperty.uiCapability()->setUiTreeHidden( true );
     m_yAxisProperty.uiCapability()->setUiTreeChildrenHidden( true );
 
     m_yAxisProperty->setTernaryEnabled( false );
@@ -111,7 +111,7 @@ RimGridCrossPlotDataSet::RimGridCrossPlotDataSet()
     CAF_PDM_InitFieldNoDefault( &m_groupingProperty, "GroupingProperty", "Data Grouping Property", "", "", "" );
     m_groupingProperty = new RimEclipseCellColors;
     m_groupingProperty->useDiscreteLogLevels( true );
-    m_groupingProperty.uiCapability()->setUiHidden( true );
+    m_groupingProperty.uiCapability()->setUiTreeHidden( true );
     CVF_ASSERT( m_groupingProperty->legendConfig() );
     m_groupingProperty->legendConfig()->setMappingMode( RimRegularLegendConfig::MappingType::CATEGORY_INTEGER );
     m_groupingProperty->setTernaryEnabled( false );
@@ -128,7 +128,6 @@ RimGridCrossPlotDataSet::RimGridCrossPlotDataSet()
     CAF_PDM_InitField( &m_customColor, "CustomColor", cvf::Color3f( cvf::Color3f::BLACK ), "Custom Color", "", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_plotCellFilterCollection, "PlotCellFilterCollection", "Cell Filters", "", "", "" );
-    m_plotCellFilterCollection.uiCapability()->setUiHidden( true );
     m_plotCellFilterCollection.uiCapability()->setUiTreeHidden( true );
     m_plotCellFilterCollection.uiCapability()->setUiTreeChildrenHidden( true );
     m_plotCellFilterCollection = new RimPlotCellFilterCollection;

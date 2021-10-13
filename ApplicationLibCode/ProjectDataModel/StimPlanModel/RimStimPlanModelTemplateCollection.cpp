@@ -44,7 +44,7 @@ RimStimPlanModelTemplateCollection::RimStimPlanModelTemplateCollection()
                                           "",
                                           "",
                                           "" );
-    m_stimPlanModelTemplates.uiCapability()->setUiHidden( true );
+    m_stimPlanModelTemplates.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitField( &m_nextValidId, "NextValidId", 0, "", "", "", "" );
     m_nextValidId.uiCapability()->setUiHidden( true );

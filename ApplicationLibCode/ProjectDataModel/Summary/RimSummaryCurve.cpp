@@ -77,7 +77,7 @@ RimSummaryCurve::RimSummaryCurve()
     m_yValuesSummaryAddressUiField.uiCapability()->setUiEditorTypeName( caf::PdmUiLineEditor::uiEditorTypeName() );
 
     CAF_PDM_InitFieldNoDefault( &m_yValuesSummaryAddress, "SummaryAddress", "Summary Address", "", "", "" );
-    m_yValuesSummaryAddress.uiCapability()->setUiHidden( true );
+    m_yValuesSummaryAddress.uiCapability()->setUiTreeHidden( true );
     m_yValuesSummaryAddress.uiCapability()->setUiTreeChildrenHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_yPushButtonSelectSummaryAddress, "SelectAddress", "", "", "", "" );
@@ -99,7 +99,7 @@ RimSummaryCurve::RimSummaryCurve()
     m_xValuesSummaryAddressUiField.uiCapability()->setUiEditorTypeName( caf::PdmUiLineEditor::uiEditorTypeName() );
 
     CAF_PDM_InitFieldNoDefault( &m_xValuesSummaryAddress, "SummaryAddressX", "Summary Address", "", "", "" );
-    m_xValuesSummaryAddress.uiCapability()->setUiHidden( true );
+    m_xValuesSummaryAddress.uiCapability()->setUiTreeHidden( true );
     m_xValuesSummaryAddress.uiCapability()->setUiTreeChildrenHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_xPushButtonSelectSummaryAddress, "SelectAddressX", "", "", "", "" );
@@ -117,7 +117,7 @@ RimSummaryCurve::RimSummaryCurve()
     CAF_PDM_InitFieldNoDefault( &m_plotAxis, "PlotAxis", "Axis", "", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_curveNameConfig, "SummaryCurveNameConfig", "SummaryCurveNameConfig", "", "", "" );
-    m_curveNameConfig.uiCapability()->setUiHidden( true );
+    m_curveNameConfig.uiCapability()->setUiTreeHidden( true );
     m_curveNameConfig.uiCapability()->setUiTreeChildrenHidden( true );
 
     m_curveNameConfig = new RimSummaryCurveAutoName;
@@ -130,13 +130,13 @@ RimSummaryCurve::RimSummaryCurve()
 
     CAF_PDM_InitFieldNoDefault( &m_yValuesSummaryFilter_OBSOLETE, "VarListFilter", "Filter", "", "", "" );
     m_yValuesSummaryFilter_OBSOLETE.uiCapability()->setUiTreeChildrenHidden( true );
-    m_yValuesSummaryFilter_OBSOLETE.uiCapability()->setUiHidden( true );
+    m_yValuesSummaryFilter_OBSOLETE.uiCapability()->setUiTreeHidden( true );
     m_yValuesSummaryFilter_OBSOLETE.xmlCapability()->setIOWritable( false );
     m_yValuesSummaryFilter_OBSOLETE = new RimSummaryFilter_OBSOLETE;
 
     CAF_PDM_InitFieldNoDefault( &m_xValuesSummaryFilter_OBSOLETE, "VarListFilterX", "Filter", "", "", "" );
     m_xValuesSummaryFilter_OBSOLETE.uiCapability()->setUiTreeChildrenHidden( true );
-    m_xValuesSummaryFilter_OBSOLETE.uiCapability()->setUiHidden( true );
+    m_xValuesSummaryFilter_OBSOLETE.uiCapability()->setUiTreeHidden( true );
     m_xValuesSummaryFilter_OBSOLETE.xmlCapability()->setIOWritable( false );
     m_xValuesSummaryFilter_OBSOLETE = new RimSummaryFilter_OBSOLETE;
 

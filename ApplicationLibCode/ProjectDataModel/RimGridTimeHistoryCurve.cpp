@@ -59,11 +59,11 @@ RimGridTimeHistoryCurve::RimGridTimeHistoryCurve()
     m_geometrySelectionText.uiCapability()->setUiReadOnly( true );
 
     CAF_PDM_InitFieldNoDefault( &m_eclipseResultDefinition, "EclipseResultDefinition", "Eclipse Result Definition", "", "", "" );
-    m_eclipseResultDefinition.uiCapability()->setUiHidden( true );
+    m_eclipseResultDefinition.uiCapability()->setUiTreeHidden( true );
     m_eclipseResultDefinition.uiCapability()->setUiTreeChildrenHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_geoMechResultDefinition, "GeoMechResultDefinition", "GeoMech Result Definition", "", "", "" );
-    m_geoMechResultDefinition.uiCapability()->setUiHidden( true );
+    m_geoMechResultDefinition.uiCapability()->setUiTreeHidden( true );
     m_geoMechResultDefinition.uiCapability()->setUiTreeChildrenHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_geometrySelectionItem, "GeometrySelectionItem", "Geometry Selection", "", "", "" );

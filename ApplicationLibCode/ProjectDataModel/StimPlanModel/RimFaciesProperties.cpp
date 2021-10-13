@@ -53,7 +53,7 @@ RimFaciesProperties::RimFaciesProperties()
     m_propertiesTable.xmlCapability()->disableIO();
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_faciesDefinition, "FaciesDefinition", "", "", "", "" );
-    m_faciesDefinition.uiCapability()->setUiHidden( true );
+    m_faciesDefinition.uiCapability()->setUiTreeHidden( true );
     m_faciesDefinition.uiCapability()->setUiTreeChildrenHidden( true );
     m_faciesDefinition = new RimEclipseResultDefinition;
     m_faciesDefinition->findField( "MResultType" )->uiCapability()->setUiName( "Facies Definiton" );

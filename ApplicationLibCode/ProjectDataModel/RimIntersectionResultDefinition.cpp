@@ -57,22 +57,22 @@ RimIntersectionResultDefinition::RimIntersectionResultDefinition()
     m_autoName.xmlCapability()->setIOWritable( false );
 
     CAF_PDM_InitFieldNoDefault( &m_eclipseResultDefinition, "EclipseResultDef", "EclipseResultDef", "", "", "" );
-    m_eclipseResultDefinition.uiCapability()->setUiHidden( true );
+    m_eclipseResultDefinition.uiCapability()->setUiTreeHidden( true );
     m_eclipseResultDefinition.uiCapability()->setUiTreeChildrenHidden( true );
     m_eclipseResultDefinition = new RimEclipseResultDefinition;
 
     CAF_PDM_InitFieldNoDefault( &m_geomResultDefinition, "GeoMechResultDef", "GeoMechResultDef", "", "", "" );
-    m_geomResultDefinition.uiCapability()->setUiHidden( true );
+    m_geomResultDefinition.uiCapability()->setUiTreeHidden( true );
     m_geomResultDefinition.uiCapability()->setUiTreeChildrenHidden( true );
     m_geomResultDefinition = new RimGeoMechResultDefinition;
 
     CAF_PDM_InitFieldNoDefault( &m_legendConfig, "LegendConfig", "Legend", "", "", "" );
-    m_legendConfig.uiCapability()->setUiHidden( true );
+    m_legendConfig.uiCapability()->setUiTreeHidden( true );
     m_legendConfig.uiCapability()->setUiTreeChildrenHidden( false );
     m_legendConfig = new RimRegularLegendConfig;
 
     CAF_PDM_InitFieldNoDefault( &m_ternaryLegendConfig, "TernaryLegendConfig", "Legend", "", "", "" );
-    m_ternaryLegendConfig.uiCapability()->setUiHidden( true );
+    m_ternaryLegendConfig.uiCapability()->setUiTreeHidden( true );
     m_ternaryLegendConfig.uiCapability()->setUiTreeChildrenHidden( false );
     m_ternaryLegendConfig = new RimTernaryLegendConfig;
 

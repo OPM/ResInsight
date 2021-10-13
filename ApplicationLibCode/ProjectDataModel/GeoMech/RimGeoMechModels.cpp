@@ -37,7 +37,7 @@ RimGeoMechModels::RimGeoMechModels( void )
     CAF_PDM_InitObject( "Geomechanical Models", ":/GeoMechCases48x48.png", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_cases, "Cases", "", "", "", "" );
-    m_cases.uiCapability()->setUiHidden( true );
+    m_cases.uiCapability()->setUiTreeHidden( true );
 }
 
 //--------------------------------------------------------------------------------------------------

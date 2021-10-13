@@ -56,7 +56,7 @@ RimReservoirCellResultsStorage::RimReservoirCellResultsStorage()
     CAF_PDM_InitField( &m_resultCacheFileName, "ResultCacheFileName", QString(), "UiDummyname", "", "", "" );
     m_resultCacheFileName.uiCapability()->setUiHidden( true );
     CAF_PDM_InitFieldNoDefault( &m_resultCacheMetaData, "ResultCacheEntries", "UiDummyname", "", "", "" );
-    m_resultCacheMetaData.uiCapability()->setUiHidden( true );
+    m_resultCacheMetaData.uiCapability()->setUiTreeHidden( true );
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -46,8 +46,7 @@ RimFishbonesCollection::RimFishbonesCollection()
     this->setName( "Fishbones" );
 
     CAF_PDM_InitFieldNoDefault( &m_fishbones, "FishbonesSubs", "fishbonesSubs", "", "", "" );
-
-    m_fishbones.uiCapability()->setUiHidden( true );
+    m_fishbones.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitField( &m_startMD, "StartMD", HUGE_VAL, "Start MD", "", "", "" );
     CAF_PDM_InitField( &m_mainBoreDiameter, "MainBoreDiameter", 0.216, "Main Bore Diameter", "", "", "" );

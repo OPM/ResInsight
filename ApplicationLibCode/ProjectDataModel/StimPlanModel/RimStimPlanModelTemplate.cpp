@@ -202,20 +202,16 @@ RimStimPlanModelTemplate::RimStimPlanModelTemplate()
     m_faciesInitialPressureConfigs.uiCapability()->setUiTreeChildrenHidden( true );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_pressureTable, "PressureTable", "Pressure Table", "", "", "" );
-    m_pressureTable.uiCapability()->setUiHidden( true );
     m_pressureTable.uiCapability()->setUiTreeHidden( true );
     setPressureTable( new RimPressureTable );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_elasticProperties, "ElasticProperties", "Elastic Properties", "", "", "" );
-    m_elasticProperties.uiCapability()->setUiHidden( true );
     m_elasticProperties.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_faciesProperties, "FaciesProperties", "Facies Properties", "", "", "" );
-    m_faciesProperties.uiCapability()->setUiHidden( true );
     m_faciesProperties.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_nonNetLayers, "NonNetLayers", "Non-Net Layers", "", "", "" );
-    m_nonNetLayers.uiCapability()->setUiHidden( true );
     m_nonNetLayers.uiCapability()->setUiTreeHidden( true );
     setNonNetLayers( new RimNonNetLayers );
 

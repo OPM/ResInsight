@@ -19,6 +19,8 @@
 
 #include "RiaFieldHandleTools.h"
 
+#include "cafPdmChildArrayField.h"
+#include "cafPdmChildField.h"
 #include "cafPdmFieldHandle.h"
 #include "cafPdmUiFieldHandle.h"
 #include "cafPdmXmlFieldHandle.h"
@@ -34,7 +36,11 @@ void RiaFieldhandleTools::disableWriteAndSetFieldHidden( caf::PdmFieldHandle* fi
 
     if ( fieldHandle->uiCapability() )
     {
-        fieldHandle->uiCapability()->setUiHidden( true );
+        if ( dynamic_cast<caf::PdmChildFieldHandle*>( fieldHandle ) ||
+             dynamic_cast<caf::PdmChildArrayFieldHandle*>( fieldHandle ) )
+            fieldHandle->uiCapability()->setUiTreeHidden( true );
+        else
+            fieldHandle->uiCapability()->setUiHidden( true );
     }
 
     if ( fieldHandle->xmlCapability() )

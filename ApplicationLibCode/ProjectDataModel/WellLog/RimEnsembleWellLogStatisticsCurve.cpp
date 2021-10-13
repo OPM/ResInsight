@@ -43,7 +43,7 @@ RimEnsembleWellLogStatisticsCurve::RimEnsembleWellLogStatisticsCurve()
 
     CAF_PDM_InitFieldNoDefault( &m_ensembleWellLogCurveSet, "EnsembleWellLogCurveSet", "Ensemble Well Log Curve Set", "", "", "" );
     m_ensembleWellLogCurveSet.uiCapability()->setUiTreeChildrenHidden( true );
-    m_ensembleWellLogCurveSet.uiCapability()->setUiHidden( true );
+    m_ensembleWellLogCurveSet.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_statisticsType, "StatisticsType", "Statistics Type", "", "", "" );
     m_statisticsType.uiCapability()->setUiHidden( true );

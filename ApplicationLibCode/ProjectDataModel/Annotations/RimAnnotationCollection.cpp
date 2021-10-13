@@ -52,9 +52,9 @@ RimAnnotationCollection::RimAnnotationCollection()
                                 "" );
     CAF_PDM_InitFieldNoDefault( &m_polylineFromFileAnnotations, "PolylineFromFileAnnotations", "Polylines From File", "", "", "" );
 
-    m_reachCircleAnnotations.uiCapability()->setUiHidden( true );
-    m_userDefinedPolylineAnnotations.uiCapability()->setUiHidden( true );
-    m_polylineFromFileAnnotations.uiCapability()->setUiHidden( true );
+    m_reachCircleAnnotations.uiCapability()->setUiTreeHidden( true );
+    m_userDefinedPolylineAnnotations.uiCapability()->setUiTreeHidden( true );
+    m_polylineFromFileAnnotations.uiCapability()->setUiTreeHidden( true );
 
     m_reachCircleAnnotations         = new RimAnnotationGroupCollection();
     m_userDefinedPolylineAnnotations = new RimAnnotationGroupCollection();

@@ -77,7 +77,6 @@ RimEclipseResultCase::RimEclipseResultCase()
     m_unitSystem.uiCapability()->setUiReadOnly( true );
 
     CAF_PDM_InitFieldNoDefault( &m_flowDiagSolutions, "FlowDiagSolutions", "Flow Diagnostics Solutions", "", "", "" );
-    m_flowDiagSolutions.uiCapability()->setUiHidden( true );
     m_flowDiagSolutions.uiCapability()->setUiTreeHidden( true );
     m_flowDiagSolutions.uiCapability()->setUiTreeChildrenHidden( true );
 

@@ -96,12 +96,12 @@ RimEclipseCase::RimEclipseCase()
                                                            "",
                                                            "",
                                                            "All Eclipse Views in the case" );
-    reservoirViews.uiCapability()->setUiHidden( true );
+    reservoirViews.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_matrixModelResults, "MatrixModelResults", "", "", "", "" );
-    m_matrixModelResults.uiCapability()->setUiHidden( true );
+    m_matrixModelResults.uiCapability()->setUiTreeHidden( true );
     CAF_PDM_InitFieldNoDefault( &m_fractureModelResults, "FractureModelResults", "", "", "", "" );
-    m_fractureModelResults.uiCapability()->setUiHidden( true );
+    m_fractureModelResults.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitField( &m_flipXAxis, "FlipXAxis", false, "Flip X Axis", "", "", "" );
     CAF_PDM_InitField( &m_flipYAxis, "FlipYAxis", false, "Flip Y Axis", "", "", "" );
@@ -116,16 +116,16 @@ RimEclipseCase::RimEclipseCase()
 
     CAF_PDM_InitFieldNoDefault( &m_inputPropertyCollection, "InputPropertyCollection", "", "", "", "" );
     m_inputPropertyCollection = new RimEclipseInputPropertyCollection;
-    m_inputPropertyCollection->parentField()->uiCapability()->setUiHidden( true );
+    m_inputPropertyCollection->parentField()->uiCapability()->setUiTreeHidden( true );
 
     // Init
 
     m_matrixModelResults = new RimReservoirCellResultsStorage;
-    m_matrixModelResults.uiCapability()->setUiHidden( true );
+    m_matrixModelResults.uiCapability()->setUiTreeHidden( true );
     m_matrixModelResults.uiCapability()->setUiTreeChildrenHidden( true );
 
     m_fractureModelResults = new RimReservoirCellResultsStorage;
-    m_fractureModelResults.uiCapability()->setUiHidden( true );
+    m_fractureModelResults.uiCapability()->setUiTreeHidden( true );
     m_fractureModelResults.uiCapability()->setUiTreeChildrenHidden( true );
 
     this->setReservoirData( nullptr );

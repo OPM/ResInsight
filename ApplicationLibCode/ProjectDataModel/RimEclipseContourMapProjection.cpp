@@ -66,7 +66,7 @@ RimEclipseContourMapProjection::RimEclipseContourMapProjection()
 
     CAF_PDM_InitField( &m_weightByParameter, "WeightByParameter", false, "Weight by Result Parameter", "", "", "" );
     CAF_PDM_InitFieldNoDefault( &m_weightingResult, "WeightingResult", "", "", "", "" );
-    m_weightingResult.uiCapability()->setUiHidden( true );
+    m_weightingResult.uiCapability()->setUiTreeHidden( true );
     m_weightingResult.uiCapability()->setUiTreeChildrenHidden( true );
     m_weightingResult = new RimEclipseResultDefinition;
     m_weightingResult->findField( "MResultType" )->uiCapability()->setUiName( "Result Type" );
