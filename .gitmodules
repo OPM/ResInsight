@@ -4,3 +4,6 @@
 [submodule "ThirdParty/vcpkg"]
 	path = ThirdParty/vcpkg
 	url = https://github.com/CeetronSolutions/vcpkg
+[submodule "ThirdParty/fast_float"]
+	path = ThirdParty/fast_float
+	url = https://github.com/fastfloat/fast_float
