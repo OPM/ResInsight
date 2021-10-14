@@ -124,8 +124,8 @@ bool RiaImportEclipseCaseTools::openEclipseCasesFromFile( const QStringList&    
                 {
                     RimSummaryCase* existingSummaryCase =
                         sumCaseColl->findSummaryCaseFromFileName( newSumCase->summaryHeaderFilename() );
-                    RimGridSummaryCase* existingGridSummaryCase = dynamic_cast<RimGridSummaryCase*>( existingSummaryCase );
-                    RimFileSummaryCase* existingFileSummaryCase = dynamic_cast<RimFileSummaryCase*>( existingSummaryCase );
+                    auto* existingGridSummaryCase = dynamic_cast<RimGridSummaryCase*>( existingSummaryCase );
+                    auto* existingFileSummaryCase = dynamic_cast<RimFileSummaryCase*>( existingSummaryCase );
                     if ( existingGridSummaryCase )
                     {
                         delete newSumCase; // No need to add anything new. Already have one.
@@ -260,7 +260,7 @@ bool RiaImportEclipseCaseTools::openEclipseCaseShowTimeStepFilter( const QString
 //--------------------------------------------------------------------------------------------------
 int RiaImportEclipseCaseTools::openEclipseInputCaseFromFileNames( const QStringList& fileNames, bool createDefaultView )
 {
-    RimEclipseInputCase* rimInputReservoir = new RimEclipseInputCase();
+    auto* rimInputReservoir = new RimEclipseInputCase();
 
     RiaApplication* app     = RiaApplication::instance();
     RimProject*     project = app->project();
@@ -326,7 +326,7 @@ int RiaImportEclipseCaseTools::openEclipseCaseShowTimeStepFilterImpl( const QStr
     QFileInfo gridFileName( fileName );
     QString   caseName = gridFileName.completeBaseName();
 
-    RimEclipseResultCase* rimResultReservoir = new RimEclipseResultCase();
+    auto* rimResultReservoir = new RimEclipseResultCase();
     rimResultReservoir->setCaseInfo( caseName, fileName );
     rimResultReservoir->setReaderSettings( readerSettings );
 
@@ -393,7 +393,7 @@ int RiaImportEclipseCaseTools::openEclipseCaseShowTimeStepFilterImpl( const QStr
 bool RiaImportEclipseCaseTools::addEclipseCases( const QStringList&          fileNames,
                                                  RimIdenticalGridCaseGroup** resultingCaseGroup /*=nullptr*/ )
 {
-    if ( fileNames.size() == 0 ) return true;
+    if ( fileNames.empty() ) return true;
 
     // First file is read completely including grid.
     // The main grid from the first case is reused directly in for the other cases.
@@ -411,7 +411,7 @@ bool RiaImportEclipseCaseTools::addEclipseCases( const QStringList&          fil
 
         QString caseName = gridFileName.completeBaseName();
 
-        RimEclipseResultCase* rimResultReservoir = new RimEclipseResultCase();
+        auto* rimResultReservoir = new RimEclipseResultCase();
         rimResultReservoir->setCaseInfo( caseName, firstFileName );
         if ( !rimResultReservoir->openEclipseGridFile() )
         {
@@ -439,7 +439,7 @@ bool RiaImportEclipseCaseTools::addEclipseCases( const QStringList&          fil
 
         QString caseName = gridFileName.completeBaseName();
 
-        RimEclipseResultCase* rimResultReservoir = new RimEclipseResultCase();
+        auto* rimResultReservoir = new RimEclipseResultCase();
         rimResultReservoir->setCaseInfo( caseName, caseFileName );
 
         std::vector<std::vector<int>> caseGridDimensions;
@@ -482,7 +482,7 @@ bool RiaImportEclipseCaseTools::addEclipseCases( const QStringList&          fil
 
     project->activeOilField()->analysisModels()->updateConnectedEditors();
 
-    if ( RiaGuiApplication::isRunning() && gridCaseGroup && gridCaseGroup->statisticsCaseCollection()->reservoirs.size() > 0 )
+    if ( RiaGuiApplication::isRunning() && gridCaseGroup && !gridCaseGroup->statisticsCaseCollection()->reservoirs.empty() )
     {
         RiuMainWindow::instance()->selectAsCurrentItem( gridCaseGroup->statisticsCaseCollection()->reservoirs[0] );
     }
