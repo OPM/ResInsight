@@ -472,6 +472,9 @@ void RimEnsembleWellLogCurveSet::defineUiOrdering( QString uiConfigName, caf::Pd
     uiOrdering.add( &m_ensembleCurveSet );
     uiOrdering.add( &m_depthEqualization );
 
+    bool hasKLayerIndex = hasPropertyInFile( RiaResultNames::indexKResultName() );
+    m_depthEqualization.uiCapability()->setUiReadOnly( !hasKLayerIndex );
+
     appendColorGroup( uiOrdering );
 
     {
@@ -1264,4 +1267,28 @@ cvf::ref<RigWellPathFormations>
     cvf::ref<RigWellPathFormations> wellPathFormations =
         new RigWellPathFormations( wellPathFormationItems, unusedFilePath, "Ensemble formation" );
     return wellPathFormations;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimEnsembleWellLogCurveSet::hasPropertyInFile( const QString& property ) const
+{
+    RimEnsembleWellLogs* group = m_ensembleWellLogs;
+    if ( !group ) return false;
+
+    std::vector<RimWellLogFile*> allWellLogFiles = group->wellLogFiles();
+    for ( auto& wellLogFile : allWellLogFiles )
+    {
+        QString errorMessage;
+        if ( !wellLogFile->readFile( &errorMessage ) ) return false;
+
+        RigWellLogFile* wellLogDataFile = wellLogFile->wellLogFileData();
+        CVF_ASSERT( wellLogDataFile );
+
+        std::vector<double> values = wellLogDataFile->values( RiaResultNames::indexKResultName() );
+        if ( values.empty() ) return false;
+    }
+
+    return true;
 }

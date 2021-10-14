@@ -23,6 +23,7 @@
 #include "RiaOptionItemFactory.h"
 #include "RiaPreferences.h"
 
+#include "RiaResultNames.h"
 #include "RigWellLogCurveData.h"
 #include "RigWellPath.h"
 
@@ -890,6 +891,13 @@ void RimDepthTrackPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderi
         caf::PdmUiGroup* ensembleWellLogGroup = uiOrdering.addNewGroup( "Ensemble Well Log" );
         ensembleWellLogGroup->add( &m_depthEqualization );
         ensembleWellLogGroup->add( &m_ensembleCurveSet );
+
+        // Disable depth equalization if any of the ensmble is missing k-layer info
+        bool hasKLayerIndex = true;
+        for ( auto wellLogCurveSet : ensembleWellLogCurveSets )
+            if ( !wellLogCurveSet->hasPropertyInFile( RiaResultNames::indexKResultName() ) ) hasKLayerIndex = false;
+
+        m_depthEqualization.uiCapability()->setUiReadOnly( !hasKLayerIndex );
     }
 
     uiOrdering.skipRemainingFields( true );

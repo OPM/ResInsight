@@ -179,6 +179,8 @@ bool RimEclipseInputCase::openDataFileSet( const QStringList& fileNames )
         this->ensureFaultDataIsComputed();
     }
 
+    results( RiaDefines::PorosityModelType::MATRIX_MODEL )->createPlaceholderResultEntries();
+
     return true;
 }
 

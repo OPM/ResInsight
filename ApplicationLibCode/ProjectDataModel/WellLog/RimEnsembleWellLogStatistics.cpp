@@ -169,6 +169,7 @@ void RimEnsembleWellLogStatistics::calculateByKLayer( const std::vector<RimWellL
 {
     std::shared_ptr<RigWellLogIndexDepthOffset> offsets =
         RimEnsembleWellLogStatistics::calculateIndexDepthOffset( wellLogFiles );
+    if ( !offsets ) return;
 
     std::map<int, std::vector<double>> topValues;
     std::map<int, std::vector<double>> bottomValues;
