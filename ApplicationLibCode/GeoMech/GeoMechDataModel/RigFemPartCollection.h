@@ -44,6 +44,8 @@ public:
 
     int nodeIdxFromElementNodeResultIdx( size_t globalResultIdx ) const;
 
+    size_t globalElementNodeResultIdx( int part, int elementIdx, int elmLocalNodeIdx ) const;
+
 private:
     cvf::Collection<RigFemPart> m_femParts;
     std::vector<size_t>         m_partElementOffset;

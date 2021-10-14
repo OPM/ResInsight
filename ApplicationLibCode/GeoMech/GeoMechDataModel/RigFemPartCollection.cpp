@@ -163,3 +163,11 @@ int RigFemPartCollection::nodeIdxFromElementNodeResultIdx( size_t globalIndex ) 
     auto [part, elementIdx] = partAndElementIndex( globalIndex );
     return part->nodeIdxFromElementNodeResultIdx( elementIdx );
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+size_t RigFemPartCollection::globalElementNodeResultIdx( int partId, int elementIdx, int elmLocalNodeIdx ) const
+{
+    return m_partElementOffset[partId] * 8 + part( partId )->elementNodeResultIdx( elementIdx, elmLocalNodeIdx );
+}

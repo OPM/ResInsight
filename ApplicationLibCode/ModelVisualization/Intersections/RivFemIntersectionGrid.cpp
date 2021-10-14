@@ -106,17 +106,22 @@ void RivFemIntersectionGrid::cellCornerIndices( size_t globalCellIndex, size_t c
     RigElementType elmType = part->elementType( elementIdx );
     if ( !( elmType == HEX8 || elmType == HEX8P ) ) return;
 
-    // TODO - adjust the elementNodeResultIdx to global index to match the results when coloring later
+    int       elmIdx = static_cast<int>( elementIdx );
+    const int partId = part->elementPartId();
 
-    int elmIdx       = static_cast<int>( elementIdx );
-    cornerIndices[0] = part->elementNodeResultIdx( elmIdx, 0 );
-    cornerIndices[1] = part->elementNodeResultIdx( elmIdx, 1 );
-    cornerIndices[2] = part->elementNodeResultIdx( elmIdx, 2 );
-    cornerIndices[3] = part->elementNodeResultIdx( elmIdx, 3 );
-    cornerIndices[4] = part->elementNodeResultIdx( elmIdx, 4 );
-    cornerIndices[5] = part->elementNodeResultIdx( elmIdx, 5 );
-    cornerIndices[6] = part->elementNodeResultIdx( elmIdx, 6 );
-    cornerIndices[7] = part->elementNodeResultIdx( elmIdx, 7 );
+    for ( int i = 0; i < 8; i++ )
+    {
+        cornerIndices[i] = m_femParts->globalElementNodeResultIdx( partId, elmIdx, i );
+    }
+
+    // cornerIndices[0] = part->elementNodeResultIdx( elmIdx, 0 );
+    // cornerIndices[1] = part->elementNodeResultIdx( elmIdx, 1 );
+    // cornerIndices[2] = part->elementNodeResultIdx( elmIdx, 2 );
+    // cornerIndices[3] = part->elementNodeResultIdx( elmIdx, 3 );
+    // cornerIndices[4] = part->elementNodeResultIdx( elmIdx, 4 );
+    // cornerIndices[5] = part->elementNodeResultIdx( elmIdx, 5 );
+    // cornerIndices[6] = part->elementNodeResultIdx( elmIdx, 6 );
+    // cornerIndices[7] = part->elementNodeResultIdx( elmIdx, 7 );
 }
 
 //--------------------------------------------------------------------------------------------------
