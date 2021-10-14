@@ -126,6 +126,8 @@ public:
 
     void setFilterByEnsembleCurveSet( RimEnsembleCurveSet* ensembleCurveSet );
 
+    bool hasPropertyInFile( const QString& property ) const;
+
 private:
     void updateEnsembleCurves( const std::vector<RimWellLogFile*>& curves );
     void updateStatisticsCurves( const std::vector<RimWellLogFile*>& curves );
