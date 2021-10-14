@@ -127,26 +127,10 @@ std::map<QString, QString> RifEclipseInputPropertyLoader::readProperties( const 
 //--------------------------------------------------------------------------------------------------
 const std::vector<QString>& RifEclipseInputPropertyLoader::invalidPropertyDataKeywords()
 {
-    static std::vector<QString> keywords;
-    static bool                 isInitialized = false;
-    if ( !isInitialized )
-    {
-        // Related to geometry
-        keywords.push_back( "COORD" );
-        keywords.push_back( "ZCORN" );
-        keywords.push_back( "SPECGRID" );
-        keywords.push_back( "MAPAXES" );
-        keywords.push_back( "NOECHO" );
-        keywords.push_back( "ECHO" );
-        keywords.push_back( "MAPUNITS" );
-        keywords.push_back( "GRIDUNIT" );
+    // List of keywords that will be skipped when looking for property data
 
-        keywords.push_back( "FAULTS" );
-
-        isInitialized = true;
-    }
-
-    return keywords;
+    static std::vector<QString> keywords =
+        { "COORD", "ZCORN", "SPECGRID", "MAPAXES", "NOECHO", "ECHO", "MAPUNITS", "GRIDUNIT", "GDORIENT", "INC", "DEC", "FAULTS" };
 }
 
 //--------------------------------------------------------------------------------------------------
