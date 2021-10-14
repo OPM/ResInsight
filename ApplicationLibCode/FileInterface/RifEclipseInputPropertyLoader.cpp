@@ -131,6 +131,8 @@ const std::vector<QString>& RifEclipseInputPropertyLoader::invalidPropertyDataKe
 
     static std::vector<QString> keywords =
         { "COORD", "ZCORN", "SPECGRID", "MAPAXES", "NOECHO", "ECHO", "MAPUNITS", "GRIDUNIT", "GDORIENT", "INC", "DEC", "FAULTS" };
+
+    return keywords;
 }
 
 //--------------------------------------------------------------------------------------------------
