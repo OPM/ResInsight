@@ -81,7 +81,7 @@ bool RiaImportEclipseCaseTools::openEclipseCasesFromFile( const QStringList&    
 
     // Get list of files to import
     RifSummaryCaseRestartSelector selector;
-    if ( noDialog ) selector.showDialog( false );
+    if ( noDialog || !RiaGuiApplication::isRunning() ) selector.showDialog( false );
     selector.determineFilesToImportFromGridFiles( fileNames );
     std::vector<RifSummaryCaseFileResultInfo> summaryFileInfos = selector.summaryFileInfos();
 
