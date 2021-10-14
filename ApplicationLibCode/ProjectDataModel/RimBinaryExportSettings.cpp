@@ -43,11 +43,11 @@ void RimBinaryExportSettings::defineEditorAttribute( const caf::PdmFieldHandle* 
 {
     if ( field == &fileName )
     {
-        caf::PdmUiFilePathEditorAttribute* myAttr = dynamic_cast<caf::PdmUiFilePathEditorAttribute*>( attribute );
+        auto* myAttr = dynamic_cast<caf::PdmUiFilePathEditorAttribute*>( attribute );
         if ( myAttr )
         {
             myAttr->m_selectSaveFileName  = true;
-            myAttr->m_fileSelectionFilter = "Text files (*.txt);;All files (*.*)";
+            myAttr->m_fileSelectionFilter = "GRDECL files (*.grdecl *.GRDECL);;All files (*.*)";
         }
     }
 }
