@@ -146,6 +146,8 @@ RigFemScalarResultFrames*
     for ( int fIdx = 0; fIdx < frameCount; ++fIdx )
     {
         const std::vector<float>& s11 = s11Frames->frameData( fIdx );
+        if ( s11.empty() ) continue;
+
         const std::vector<float>& s22 = s22Frames->frameData( fIdx );
         const std::vector<float>& s33 = s33Frames->frameData( fIdx );
         const std::vector<float>& s12 = s12Frames->frameData( fIdx );

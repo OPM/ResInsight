@@ -275,23 +275,28 @@ void RivIntersectionResultsColoringTools::updateGeoMechCellResultColors(
     {
         // Special direction sensitive result calculation
 
-        if ( resVarAddress.componentName == "Pazi" || resVarAddress.componentName == "Pinc" )
+        if ( caseData->femPartResults()->partCount() == 1 ) // only supported for single-part geomech cases
         {
-            RivIntersectionResultsColoringTools::calculatePlaneAngleTextureCoords( intersectionFacesTextureCoords,
-                                                                                   triangelVxes,
-                                                                                   resVarAddress,
-                                                                                   scalarColorMapper );
+            if ( resVarAddress.componentName == "Pazi" || resVarAddress.componentName == "Pinc" )
+            {
+                RivIntersectionResultsColoringTools::calculatePlaneAngleTextureCoords( intersectionFacesTextureCoords,
+                                                                                       triangelVxes,
+                                                                                       resVarAddress,
+                                                                                       scalarColorMapper );
+            }
+            else
+            {
+                RivIntersectionResultsColoringTools::calculateGeoMechTensorXfTextureCoords( intersectionFacesTextureCoords,
+                                                                                            triangelVxes,
+                                                                                            vertexWeights,
+                                                                                            caseData,
+                                                                                            resVarAddress,
+                                                                                            (int)timeStepIndex,
+                                                                                            scalarColorMapper );
+            }
         }
         else
-        {
-            RivIntersectionResultsColoringTools::calculateGeoMechTensorXfTextureCoords( intersectionFacesTextureCoords,
-                                                                                        triangelVxes,
-                                                                                        vertexWeights,
-                                                                                        caseData,
-                                                                                        resVarAddress,
-                                                                                        (int)timeStepIndex,
-                                                                                        scalarColorMapper );
-        }
+            return;
     }
     else
     {

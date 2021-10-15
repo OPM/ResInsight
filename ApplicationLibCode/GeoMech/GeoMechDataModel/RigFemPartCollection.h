@@ -42,6 +42,8 @@ public:
     std::pair<const RigFemPart*, size_t> partAndElementIndex( size_t globalIndex ) const;
     size_t                               globalIndex( int partId, size_t localIndex ) const;
 
+    std::pair<int, size_t> partIdAndNodeIndex( size_t globalNodeIndex ) const;
+
     int nodeIdxFromElementNodeResultIdx( size_t globalResultIdx ) const;
 
     size_t globalElementNodeResultIdx( int part, int elementIdx, int elmLocalNodeIdx ) const;
@@ -49,4 +51,6 @@ public:
 private:
     cvf::Collection<RigFemPart> m_femParts;
     std::vector<size_t>         m_partElementOffset;
+    std::vector<size_t>         m_partNodeOffset;
+    std::vector<size_t>         m_partConnectivityOffset;
 };
