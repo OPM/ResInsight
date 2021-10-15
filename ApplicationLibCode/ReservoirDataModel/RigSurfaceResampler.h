@@ -35,10 +35,12 @@ public:
                                cvf::Vec3d&       intersectionPoint );
 
 private:
-    static bool findClosestPointXY( const cvf::Vec3d&              targetPoint,
-                                    const std::vector<cvf::Vec3d>& vertices,
-                                    double                         maxDistance,
-                                    cvf::Vec3d&                    intersectionPoint );
+    static bool findClosestPointXY( const cvf::Vec3d&                targetPoint,
+                                    const std::vector<cvf::Vec3d>&   vertices,
+                                    const std::vector<unsigned int>& triangleIndices,
+                                    const std::vector<size_t>&       triangleStartIndices,
+                                    double                           maxDistance,
+                                    cvf::Vec3d&                      intersectionPoint );
 
     static double computeMaxDistance( RigSurface* surface );
 };
