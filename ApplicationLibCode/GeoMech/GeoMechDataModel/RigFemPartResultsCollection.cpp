@@ -503,36 +503,35 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::findOrLoadScalarResult( i
         {
             std::vector<double> frameTimes = m_readerInterface->frameTimes( stepIndex );
 
-            for ( int fIdx = 1; (size_t)fIdx < frameTimes.size() && fIdx < 2; ++fIdx ) // Read only the second frame
-            {
-                std::vector<std::vector<float>*> componentDataVectors;
-                for ( auto& componentResult : resultsForEachComponent )
-                {
-                    componentDataVectors.push_back( &( componentResult->frameData( stepIndex ) ) );
-                }
+            int fIdx = (int)( frameTimes.size() - 1 );
 
-                switch ( resVarAddr.resultPosType )
-                {
-                    case RIG_NODAL:
-                        m_readerInterface->readNodeField( resVarAddr.fieldName, partIndex, stepIndex, fIdx, &componentDataVectors );
-                        break;
-                    case RIG_ELEMENT_NODAL:
-                        m_readerInterface->readElementNodeField( resVarAddr.fieldName,
-                                                                 partIndex,
-                                                                 stepIndex,
-                                                                 fIdx,
-                                                                 &componentDataVectors );
-                        break;
-                    case RIG_INTEGRATION_POINT:
-                        m_readerInterface->readIntegrationPointField( resVarAddr.fieldName,
-                                                                      partIndex,
-                                                                      stepIndex,
-                                                                      fIdx,
-                                                                      &componentDataVectors );
-                        break;
-                    default:
-                        break;
-                }
+            std::vector<std::vector<float>*> componentDataVectors;
+            for ( auto& componentResult : resultsForEachComponent )
+            {
+                componentDataVectors.push_back( &( componentResult->frameData( stepIndex ) ) );
+            }
+
+            switch ( resVarAddr.resultPosType )
+            {
+                case RIG_NODAL:
+                    m_readerInterface->readNodeField( resVarAddr.fieldName, partIndex, stepIndex, fIdx, &componentDataVectors );
+                    break;
+                case RIG_ELEMENT_NODAL:
+                    m_readerInterface->readElementNodeField( resVarAddr.fieldName,
+                                                             partIndex,
+                                                             stepIndex,
+                                                             fIdx,
+                                                             &componentDataVectors );
+                    break;
+                case RIG_INTEGRATION_POINT:
+                    m_readerInterface->readIntegrationPointField( resVarAddr.fieldName,
+                                                                  partIndex,
+                                                                  stepIndex,
+                                                                  fIdx,
+                                                                  &componentDataVectors );
+                    break;
+                default:
+                    break;
             }
 
             progress.incrementProgress();

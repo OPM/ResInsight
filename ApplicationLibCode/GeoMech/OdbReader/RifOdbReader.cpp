@@ -250,8 +250,8 @@ std::map<RifOdbReader::RifOdbResultKey, std::vector<std::string>> RifOdbReader::
 
     if ( stepFrames.size() > 1 )
     {
-        // Optimization: Get results metadata for the second frame of the first step only
-        const odb_Frame& frame = stepFrames.constGet( 1 );
+        // Optimization: Get results metadata for the last frame of the first step only
+        const odb_Frame& frame = stepFrames.constGet( stepFrames.size() - 1 );
 
         const odb_FieldOutputRepository& fieldCon = frame.fieldOutputs();
         odb_FieldOutputRepositoryIT      fieldConIT( fieldCon );

@@ -168,7 +168,8 @@ bool RigGeoMechCaseData::readDisplacements( std::string*             errorMessag
 #ifdef USE_ODB_API
     if ( m_readerInterface.notNull() && m_readerInterface->isOpen() )
     {
-        m_readerInterface->readDisplacements( partId, timeStep, 1, displacements );
+        const auto& frames = m_readerInterface->frameTimes( timeStep );
+        m_readerInterface->readDisplacements( partId, timeStep, (int)frames.size() - 1, displacements );
         return true;
     }
 
