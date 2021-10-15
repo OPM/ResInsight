@@ -63,6 +63,11 @@ void RicImportEclipseCaseFeature::onActionTriggered( bool isChecked )
     std::vector<int>                   caseIds;
     std::shared_ptr<RifReaderSettings> readerSettings;
     openEclipseCaseFromFileNames( fileNames, createDefaultView, caseIds, readerSettings );
+
+    for ( const auto& f : fileNames )
+    {
+        RiaApplication::instance()->addToRecentFiles( f );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
