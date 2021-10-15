@@ -391,8 +391,8 @@ double RigWellPath::closestMeasuredDepth( const cvf::Vec3d& position ) const
         cvf::Vec3d p1 = m_wellPathPoints[firstIndex];
         cvf::Vec3d p2 = m_wellPathPoints[secondIndex];
 
-        double diffP1 = ( p1 - position ).lengthSquared();
-        double diffP2 = ( p2 - position ).lengthSquared();
+        double diffP1 = ( p1 - position ).length();
+        double diffP2 = ( p2 - position ).length();
 
         double weigth1 = diffP2 / ( diffP1 + diffP2 );
 
