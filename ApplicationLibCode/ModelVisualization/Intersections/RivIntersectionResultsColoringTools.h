@@ -20,17 +20,16 @@
 
 #include "cvfArray.h"
 
-#include "RivHexGridIntersectionTools.h"
-
 class RimEclipseResultDefinition;
 class RimGeoMechResultDefinition;
 class RimIntersection;
 
-class RivIntersectionGeometryGeneratorIF;
+class RivIntersectionGeometryGeneratorInterface;
+class RivIntersectionVertexWeights;
 class RivTernaryScalarMapper;
 
 class RigResultAccessor;
-class RigFemPart;
+class RigFemPartCollection;
 class RigGeoMechCaseData;
 class RigFemResultAddress;
 
@@ -46,11 +45,11 @@ public:
     static void calculateIntersectionResultColors( size_t           timeStepIndex,
                                                    bool             useSeparateIntersectionResDefTimeStep,
                                                    RimIntersection* rimIntersectionHandle,
-                                                   const RivIntersectionGeometryGeneratorIF* intersectionGeomGenIF,
-                                                   const cvf::ScalarMapper*                  explicitScalarColorMapper,
-                                                   const RivTernaryScalarMapper*             explicitTernaryColorMapper,
-                                                   cvf::Part*                                intersectionFacesPart,
-                                                   cvf::Vec2fArray* intersectionFacesTextureCoords );
+                                                   const RivIntersectionGeometryGeneratorInterface* intersectionGeomGenIF,
+                                                   const cvf::ScalarMapper*      explicitScalarColorMapper,
+                                                   const RivTernaryScalarMapper* explicitTernaryColorMapper,
+                                                   cvf::Part*                    intersectionFacesPart,
+                                                   cvf::Vec2fArray*              intersectionFacesTextureCoords );
 
 private:
     static void updateEclipseCellResultColors( const RimEclipseResultDefinition* eclipseResDef,
@@ -69,12 +68,12 @@ private:
                                                       cvf::Part*                        m_intersectionBoxFaces,
                                                       cvf::Vec2fArray* m_intersectionBoxFacesTextureCoords );
 
-    static void updateGeoMechCellResultColors( const RimGeoMechResultDefinition*         geomResultDef,
-                                               size_t                                    timeStepIndex,
-                                               const cvf::ScalarMapper*                  scalarColorMapper,
-                                               bool                                      isLightingDisabled,
-                                               const RivIntersectionGeometryGeneratorIF* geomGenerator,
-                                               cvf::Part*                                m_intersectionBoxFaces,
+    static void updateGeoMechCellResultColors( const RimGeoMechResultDefinition*                geomResultDef,
+                                               size_t                                           timeStepIndex,
+                                               const cvf::ScalarMapper*                         scalarColorMapper,
+                                               bool                                             isLightingDisabled,
+                                               const RivIntersectionGeometryGeneratorInterface* geomGenerator,
+                                               cvf::Part*                                       m_intersectionBoxFaces,
                                                cvf::Vec2fArray* m_intersectionBoxFacesTextureCoords );
 
     static void calculateEclipseTextureCoordinates( cvf::Vec2fArray*           textureCoords,
@@ -85,10 +84,10 @@ private:
     static void
         calculateNodeOrElementNodeBasedGeoMechTextureCoords( cvf::Vec2fArray* textureCoords,
                                                              const std::vector<RivIntersectionVertexWeights>& vertexWeights,
-                                                             const std::vector<float>& resultValues,
-                                                             bool                      isElementNodalResult,
-                                                             const RigFemPart*         femPart,
-                                                             const cvf::ScalarMapper*  mapper );
+                                                             const std::vector<float>&   resultValues,
+                                                             bool                        isElementNodalResult,
+                                                             const RigFemPartCollection* femParts,
+                                                             const cvf::ScalarMapper*    mapper );
 
     static void calculateElementBasedGeoMechTextureCoords( cvf::Vec2fArray*           textureCoords,
                                                            const std::vector<float>&  resultValues,

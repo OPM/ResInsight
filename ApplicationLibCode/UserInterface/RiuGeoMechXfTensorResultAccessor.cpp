@@ -18,7 +18,7 @@
 
 #include "RiuGeoMechXfTensorResultAccessor.h"
 #include "RigFemPartResultsCollection.h"
-#include "RivHexGridIntersectionTools.h"
+#include "RivIntersectionVertexWeights.h"
 #include "cvfAssert.h"
 #include "cvfGeometryTools.h"
 

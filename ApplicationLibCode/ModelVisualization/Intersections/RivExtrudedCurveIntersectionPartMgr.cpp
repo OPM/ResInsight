@@ -53,7 +53,7 @@
 
 #include "RivExtrudedCurveIntersectionGeometryGenerator.h"
 #include "RivExtrudedCurveIntersectionSourceInfo.h"
-#include "RivHexGridIntersectionTools.h"
+#include "RivIntersectionHexGridInterface.h"
 #include "RivIntersectionResultsColoringTools.h"
 #include "RivMeshLinesSourceInfo.h"
 #include "RivObjectSourceInfo.h"
@@ -176,7 +176,7 @@ void RivIntersectionResultsColoringTools::calculateNodeOrElementNodeBasedGeoMech
     const std::vector<RivIntersectionVertexWeights>& vertexWeights,
     const std::vector<float>&                        resultValues,
     bool                                             isElementNodalResult,
-    const RigFemPart*                                femPart,
+    const RigFemPartCollection*                      femParts,
     const cvf::ScalarMapper*                         mapper )
 {
     textureCoords->resize( vertexWeights.size() );
@@ -210,7 +210,7 @@ void RivIntersectionResultsColoringTools::calculateNodeOrElementNodeBasedGeoMech
                     }
                     else
                     {
-                        resIdx = femPart->nodeIdxFromElementNodeResultIdx( vertexWeights[triangleVxIdx].vxId( wIdx ) );
+                        resIdx = femParts->nodeIdxFromElementNodeResultIdx( vertexWeights[triangleVxIdx].vxId( wIdx ) );
                     }
 
                     resValue += resultValues[resIdx] * vertexWeights[triangleVxIdx].weight( wIdx );
@@ -895,7 +895,7 @@ cvf::Mat4d RivExtrudedCurveIntersectionPartMgr::unflattenTransformMatrix( const 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const RivIntersectionGeometryGeneratorIF* RivExtrudedCurveIntersectionPartMgr::intersectionGeometryGenerator() const
+const RivIntersectionGeometryGeneratorInterface* RivExtrudedCurveIntersectionPartMgr::intersectionGeometryGenerator() const
 {
     if ( m_intersectionGenerator.notNull() ) return m_intersectionGenerator.p();
 

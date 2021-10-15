@@ -36,6 +36,8 @@
 
 #include "RivBoxIntersectionSourceInfo.h"
 #include "RivExtrudedCurveIntersectionPartMgr.h"
+#include "RivIntersectionGeometryGeneratorInterface.h"
+#include "RivIntersectionHexGridInterface.h"
 #include "RivIntersectionResultsColoringTools.h"
 #include "RivMeshLinesSourceInfo.h"
 #include "RivPartPriority.h"
@@ -219,7 +221,7 @@ void RivBoxIntersectionPartMgr::appendMeshLinePartsToModel( cvf::ModelBasicList*
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const RivIntersectionGeometryGeneratorIF* RivBoxIntersectionPartMgr::intersectionGeometryGenerator() const
+const RivIntersectionGeometryGeneratorInterface* RivBoxIntersectionPartMgr::intersectionGeometryGenerator() const
 {
     if ( m_intersectionBoxGenerator.notNull() ) return m_intersectionBoxGenerator.p();
 

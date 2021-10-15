@@ -125,7 +125,9 @@ public:
     std::vector<RigFemResultAddress> loadedResults() const;
 
     const std::vector<float>& resultValues( const RigFemResultAddress& resVarAddr, int partIndex, int frameIndex );
-    std::vector<caf::Ten3f>   tensors( const RigFemResultAddress& resVarAddr, int partIndex, int frameIndex );
+    void globalResultValues( const RigFemResultAddress& resVarAddr, int timeStepIndex, std::vector<float>& resultValues );
+
+    std::vector<caf::Ten3f> tensors( const RigFemResultAddress& resVarAddr, int partIndex, int frameIndex );
 
     const RigFemPartCollection* parts() const;
     int                         partCount() const;

@@ -1077,6 +1077,7 @@ void RiuViewerCommands::findCellAndGridIndex( Rim3dView*                       m
 {
     CVF_ASSERT( cellIndex && gridIndex );
     RimEclipseCase* eclipseCase = nullptr;
+    RimGeoMechCase* geomechCase = dynamic_cast<RimGeoMechCase*>( mainOrComparisonView->ownerCase() );
 
     if ( sepInterResDef )
     {
@@ -1095,6 +1096,13 @@ void RiuViewerCommands::findCellAndGridIndex( Rim3dView*                       m
         const RigCell& cell = eclipseCase->mainGrid()->globalCellArray()[globalCellIndex];
         *cellIndex          = cell.gridLocalCellIndex();
         *gridIndex          = cell.hostGrid()->gridIndex();
+    }
+    else if ( geomechCase )
+    {
+        RigFemPartCollection* parts = geomechCase->geoMechData()->femParts();
+        auto [partId, elementIdx]   = parts->partIdAndElementIndex( globalCellIndex );
+        *cellIndex                  = elementIdx;
+        *gridIndex                  = (size_t)partId;
     }
     else
     {
