@@ -21,6 +21,7 @@
 #include "fast_float/include/fast_float/fast_float.h"
 
 #include <cctype>
+#include <charconv>
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -122,14 +123,11 @@ bool RiaStdStringTools::toDouble( const std::string_view& s, double& value )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RiaStdStringTools::toInt( const std::string& s, int& value )
+bool RiaStdStringTools::toInt( const std::string_view& s, int& value )
 {
-    //     auto resultObject = std::from_chars( s.data(), s.data() + s.size(), value );
-    //     return ( resultObject.ec == std::errc() );
+    auto resultObject = std::from_chars( s.data(), s.data() + s.size(), value );
 
-    value = toInt( s );
-
-    return true;
+    return ( resultObject.ec == std::errc() );
 }
 
 //--------------------------------------------------------------------------------------------------
