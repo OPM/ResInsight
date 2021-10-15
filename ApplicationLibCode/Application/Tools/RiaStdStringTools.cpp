@@ -113,29 +113,21 @@ bool RiaStdStringTools::startsWithAlphabetic( const std::string& s )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RiaStdStringTools::toDoubleFast( const std::string_view& s, double& value )
+bool RiaStdStringTools::toDouble( const std::string_view& s, double& value )
 {
     auto resultObject = fast_float::from_chars( s.data(), s.data() + s.size(), value );
-    if ( resultObject.ec == std::errc() )
-    {
-        return true;
-    }
 
-    return false;
+    return ( resultObject.ec == std::errc() );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RiaStdStringTools::toIntFast( const std::string_view& s, int& value )
+bool RiaStdStringTools::toInt( const std::string_view& s, int& value )
 {
     auto resultObject = std::from_chars( s.data(), s.data() + s.size(), value );
-    if ( resultObject.ec == std::errc() )
-    {
-        return true;
-    }
 
-    return false;
+    return ( resultObject.ec == std::errc() );
 }
 
 //--------------------------------------------------------------------------------------------------

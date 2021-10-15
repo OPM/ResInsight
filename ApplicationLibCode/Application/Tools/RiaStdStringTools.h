@@ -39,8 +39,9 @@ public:
     static bool    containsAlphabetic( const std::string& s );
     static bool    startsWithAlphabetic( const std::string& s );
 
-    static bool toDoubleFast( const std::string_view& s, double& value );
-    static bool toIntFast( const std::string_view& s, int& value );
+    // Conversion using fastest known approach
+    static bool toDouble( const std::string_view& s, double& value );
+    static bool toInt( const std::string_view& s, int& value );
 
     static std::string toUpper( const std::string& s );
 

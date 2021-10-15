@@ -97,10 +97,10 @@ void RifSurfaceImporter::readGocadFile( const QString& filename, RigGocadData* g
                 {
                     if ( tokens.size() > 4 )
                     {
-                        RiaStdStringTools::toIntFast( tokens[1], vertexId );
-                        RiaStdStringTools::toDoubleFast( tokens[2], x );
-                        RiaStdStringTools::toDoubleFast( tokens[3], y );
-                        RiaStdStringTools::toDoubleFast( tokens[4], z );
+                        RiaStdStringTools::toInt( tokens[1], vertexId );
+                        RiaStdStringTools::toDouble( tokens[2], x );
+                        RiaStdStringTools::toDouble( tokens[3], y );
+                        RiaStdStringTools::toDouble( tokens[4], z );
 
                         if ( vertexId > -1 )
                         {
@@ -118,10 +118,10 @@ void RifSurfaceImporter::readGocadFile( const QString& filename, RigGocadData* g
                 {
                     if ( tokens.size() > 4 )
                     {
-                        RiaStdStringTools::toIntFast( tokens[1], vertexId );
-                        RiaStdStringTools::toDoubleFast( tokens[2], x );
-                        RiaStdStringTools::toDoubleFast( tokens[3], y );
-                        RiaStdStringTools::toDoubleFast( tokens[4], z );
+                        RiaStdStringTools::toInt( tokens[1], vertexId );
+                        RiaStdStringTools::toDouble( tokens[2], x );
+                        RiaStdStringTools::toDouble( tokens[3], y );
+                        RiaStdStringTools::toDouble( tokens[4], z );
 
                         if ( vertexId > -1 )
                         {
@@ -135,7 +135,7 @@ void RifSurfaceImporter::readGocadFile( const QString& filename, RigGocadData* g
                             {
                                 auto tokenIndex = 5 + i;
                                 if ( tokenIndex < tokens.size() )
-                                    RiaStdStringTools::toDoubleFast( tokens[tokenIndex], value );
+                                    RiaStdStringTools::toDouble( tokens[tokenIndex], value );
 
                                 propertyValues[i].push_back( static_cast<float>( value ) );
                             }
@@ -146,9 +146,9 @@ void RifSurfaceImporter::readGocadFile( const QString& filename, RigGocadData* g
                 {
                     if ( tokens.size() > 3 )
                     {
-                        RiaStdStringTools::toIntFast( tokens[1], id1 );
-                        RiaStdStringTools::toIntFast( tokens[2], id2 );
-                        RiaStdStringTools::toIntFast( tokens[3], id3 );
+                        RiaStdStringTools::toInt( tokens[1], id1 );
+                        RiaStdStringTools::toInt( tokens[2], id2 );
+                        RiaStdStringTools::toInt( tokens[3], id3 );
 
                         if ( id1 >= 0 && id2 >= 0 && id3 >= 0 )
                         {
