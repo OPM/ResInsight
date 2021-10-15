@@ -47,6 +47,7 @@
 #include "RimModeledWellPath.h"
 #include "RimNonNetLayers.h"
 #include "RimOilField.h"
+#include "RimPerforationCollection.h"
 #include "RimPolylineTarget.h"
 #include "RimPressureTable.h"
 #include "RimProject.h"
@@ -259,6 +260,8 @@ RimStimPlanModel::RimStimPlanModel()
                                           "",
                                           "" );
 
+    CAF_PDM_InitScriptableFieldNoDefault( &m_perforationInterval, "PerforationInterval", "Perforation Interval", "", "", "" );
+
     m_calculator = std::shared_ptr<RimStimPlanModelCalculator>( new RimStimPlanModelCalculator );
     m_calculator->setStimPlanModel( this );
 
@@ -336,10 +339,12 @@ void RimStimPlanModel::fieldChangedByUi( const caf::PdmFieldHandle* changedField
          changedField == &m_autoComputeBarrier || changedField == &m_azimuthAngle ||
          changedField == &m_showOnlyBarrierFault || changedField == &m_eclipseCase ||
          changedField == &m_extractionDepthTop || changedField == &m_extractionDepthBottom ||
-         changedField == &m_extractionOffsetTop || changedField == &m_extractionOffsetBottom )
+         changedField == &m_extractionOffsetTop || changedField == &m_extractionOffsetBottom ||
+         changedField == &m_perforationLength )
     {
         updateThicknessDirection();
         updateBarrierProperties();
+        updatePerforationInterval();
     }
 
     if ( changedField == &m_eclipseCase )
@@ -799,6 +804,26 @@ RimAnnotationCollectionBase* RimStimPlanModel::annotationCollection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimStimPlanModel::updatePerforationInterval()
+{
+    if ( m_thicknessDirectionWellPath )
+    {
+        if ( !m_perforationInterval )
+        {
+            m_perforationInterval = new RimPerforationInterval;
+            m_thicknessDirectionWellPath->perforationIntervalCollection()->appendPerforation( m_perforationInterval );
+        }
+
+        double closestMd = m_thicknessDirectionWellPath->wellPathGeometry()->closestMeasuredDepth( m_anchorPosition );
+        m_perforationInterval->setStartAndEndMD( closestMd - perforationLength(), closestMd + perforationLength() );
+        m_perforationInterval->updateConnectedEditors();
+        updateViewsAndPlots();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimStimPlanModel::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     m_thicknessDirectionWellPath.uiCapability()->setUiHidden( true );
@@ -943,6 +968,7 @@ void RimStimPlanModel::resetAnchorPositionAndThicknessDirection()
     updatePositionFromMeasuredDepth();
     updateExtractionDepthBoundaries();
     updateThicknessDirection();
+    updatePerforationInterval();
     updateBarrierProperties();
 }
 
@@ -1300,6 +1326,7 @@ void RimStimPlanModel::setMD( double md )
     updatePositionFromMeasuredDepth();
     updateExtractionDepthBoundaries();
     updateThicknessDirection();
+    updatePerforationInterval();
     updateBarrierProperties();
 }
 
@@ -1312,6 +1339,7 @@ void RimStimPlanModel::setEclipseCaseAndTimeStep( RimEclipseCase* eclipseCase, i
     setTimeStep( timeStep );
     updateExtractionDepthBoundaries();
     updateThicknessDirection();
+    updatePerforationInterval();
     updateBarrierProperties();
     updateViewsAndPlots();
     updateConnectedEditors();
@@ -1517,8 +1545,8 @@ void RimStimPlanModel::stimPlanModelTemplateChanged( const caf::SignalEmitter* e
         m_initialPressureEclipseCase = m_stimPlanModelTemplate()->initialPressureEclipseCase();
         m_staticEclipseCase          = m_stimPlanModelTemplate()->staticEclipseCase();
         updateExtractionDepthBoundaries();
-
         updateThicknessDirection();
+        updatePerforationInterval();
         updateBarrierProperties();
     }
 
