@@ -69,41 +69,51 @@ bool RigSurfaceResampler::resamplePoint( RigSurface*       surface,
     bb.add( pointAbove );
     bb.add( pointBelow );
 
-    std::vector<size_t> triangleStartIndices;
-    surface->findIntersectingTriangles( bb, &triangleStartIndices );
+    const std::vector<unsigned int>& triIndices = surface->triangleIndices();
+    const std::vector<cvf::Vec3d>&   vertices   = surface->vertices();
 
-    const std::vector<unsigned int>& indices  = surface->triangleIndices();
-    const std::vector<cvf::Vec3d>&   vertices = surface->vertices();
-
-    if ( !triangleStartIndices.empty() )
     {
-        for ( auto triangleStartIndex : triangleStartIndices )
+        std::vector<size_t> triangleStartIndices;
+        surface->findIntersectingTriangles( bb, &triangleStartIndices );
+
+        if ( !triangleStartIndices.empty() )
         {
-            bool isLineDirDotNormalNegative = false;
-            if ( cvf::GeometryTools::intersectLineSegmentTriangle( pointAbove,
-                                                                   pointBelow,
-                                                                   vertices[indices[triangleStartIndex + 0]],
-                                                                   vertices[indices[triangleStartIndex + 1]],
-                                                                   vertices[indices[triangleStartIndex + 2]],
-                                                                   &intersectionPoint,
-                                                                   &isLineDirDotNormalNegative ) == 1 )
-                return true;
+            for ( auto triangleStartIndex : triangleStartIndices )
+            {
+                bool isLineDirDotNormalNegative = false;
+                if ( cvf::GeometryTools::intersectLineSegmentTriangle( pointAbove,
+                                                                       pointBelow,
+                                                                       vertices[triIndices[triangleStartIndex + 0]],
+                                                                       vertices[triIndices[triangleStartIndex + 1]],
+                                                                       vertices[triIndices[triangleStartIndex + 2]],
+                                                                       &intersectionPoint,
+                                                                       &isLineDirDotNormalNegative ) == 1 )
+                    return true;
+            }
         }
     }
 
     double maxDistance = computeMaxDistance( surface );
 
-    return findClosestPointXY( pointAbove, vertices, maxDistance, intersectionPoint );
+    // Expand the bounding box to cover a larger volume. Use this volume to find intersections.
+    bb.expand( maxDistance );
+
+    std::vector<size_t> triangleStartIndices;
+    surface->findIntersectingTriangles( bb, &triangleStartIndices );
+
+    return findClosestPointXY( pointAbove, vertices, triIndices, triangleStartIndices, maxDistance, intersectionPoint );
 }
 
 //--------------------------------------------------------------------------------------------------
 /// Find the closest vertex to targetPoint (must be closer than maxDistance) in XY plane.
 /// Unit maxDistance: meter.
 //--------------------------------------------------------------------------------------------------
-bool RigSurfaceResampler::findClosestPointXY( const cvf::Vec3d&              targetPoint,
-                                              const std::vector<cvf::Vec3d>& vertices,
-                                              double                         maxDistance,
-                                              cvf::Vec3d&                    intersectionPoint )
+bool RigSurfaceResampler::findClosestPointXY( const cvf::Vec3d&                targetPoint,
+                                              const std::vector<cvf::Vec3d>&   vertices,
+                                              const std::vector<unsigned int>& triangleIndices,
+                                              const std::vector<size_t>&       triangleStartIndices,
+                                              double                           maxDistance,
+                                              cvf::Vec3d&                      intersectionPoint )
 {
     double maxDistanceSquared = maxDistance * maxDistance;
 
@@ -112,22 +122,27 @@ bool RigSurfaceResampler::findClosestPointXY( const cvf::Vec3d&              tar
     double     closestZ                = std::numeric_limits<double>::infinity();
     cvf::Vec3d p;
     double     distanceSquared = 0.0;
-    for ( const auto& v : vertices )
+    for ( auto triangleStartIndex : triangleStartIndices )
     {
-        if ( std::fabs( targetPoint.x() - v.x() ) > maxDistance ) continue;
-        if ( std::fabs( targetPoint.y() - v.y() ) > maxDistance ) continue;
-
-        // Ignore height (z) component when finding closest by
-        // moving point to same height as target point above
-        p.x() = v.x();
-        p.y() = v.y();
-        p.z() = targetPoint.z();
-
-        distanceSquared = p.pointDistanceSquared( targetPoint );
-        if ( distanceSquared < shortestDistanceSquared )
+        for ( size_t localIdx = 0; localIdx < 3; localIdx++ )
         {
-            shortestDistanceSquared = distanceSquared;
-            closestZ                = v.z();
+            const auto& v = vertices[triangleIndices[triangleStartIndex + localIdx]];
+
+            if ( std::fabs( targetPoint.x() - v.x() ) > maxDistance ) continue;
+            if ( std::fabs( targetPoint.y() - v.y() ) > maxDistance ) continue;
+
+            // Ignore height (z) component when finding closest by
+            // moving point to same height as target point above
+            p.x() = v.x();
+            p.y() = v.y();
+            p.z() = targetPoint.z();
+
+            distanceSquared = p.pointDistanceSquared( targetPoint );
+            if ( distanceSquared < shortestDistanceSquared )
+            {
+                shortestDistanceSquared = distanceSquared;
+                closestZ                = v.z();
+            }
         }
     }
 
@@ -137,10 +152,8 @@ bool RigSurfaceResampler::findClosestPointXY( const cvf::Vec3d&              tar
         intersectionPoint = cvf::Vec3d( targetPoint.x(), targetPoint.y(), closestZ );
         return true;
     }
-    else
-    {
-        return false;
-    }
+
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------
