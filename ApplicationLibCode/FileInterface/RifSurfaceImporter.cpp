@@ -72,6 +72,15 @@ void RifSurfaceImporter::readGocadFile( const QString& filename, RigGocadData* g
         bool           isInTfaceSection = false;
         GocadZPositive zDir             = GocadZPositive::Unknown;
 
+        int    vertexId = -1;
+        double x        = 0.0;
+        double y        = 0.0;
+        double z        = 0.0;
+
+        int id1 = -1;
+        int id2 = -1;
+        int id3 = -1;
+
         while ( stream.good() )
         {
             std::string line;
@@ -88,10 +97,10 @@ void RifSurfaceImporter::readGocadFile( const QString& filename, RigGocadData* g
                 {
                     if ( tokens.size() > 4 )
                     {
-                        int    vertexId = RiaStdStringTools::toInt( tokens[1] );
-                        double x        = RiaStdStringTools::toDouble( tokens[2] );
-                        double y        = RiaStdStringTools::toDouble( tokens[3] );
-                        double z        = RiaStdStringTools::toDouble( tokens[4] );
+                        RiaStdStringTools::toIntFast( tokens[1], vertexId );
+                        RiaStdStringTools::toDoubleFast( tokens[2], x );
+                        RiaStdStringTools::toDoubleFast( tokens[3], y );
+                        RiaStdStringTools::toDoubleFast( tokens[4], z );
 
                         if ( vertexId > -1 )
                         {
@@ -109,10 +118,10 @@ void RifSurfaceImporter::readGocadFile( const QString& filename, RigGocadData* g
                 {
                     if ( tokens.size() > 4 )
                     {
-                        int    vertexId = RiaStdStringTools::toInt( tokens[1] );
-                        double x        = RiaStdStringTools::toDouble( tokens[2] );
-                        double y        = RiaStdStringTools::toDouble( tokens[3] );
-                        double z        = RiaStdStringTools::toDouble( tokens[4] );
+                        RiaStdStringTools::toIntFast( tokens[1], vertexId );
+                        RiaStdStringTools::toDoubleFast( tokens[2], x );
+                        RiaStdStringTools::toDoubleFast( tokens[3], y );
+                        RiaStdStringTools::toDoubleFast( tokens[4], z );
 
                         if ( vertexId > -1 )
                         {
@@ -121,15 +130,14 @@ void RifSurfaceImporter::readGocadFile( const QString& filename, RigGocadData* g
                             vertices.emplace_back( cvf::Vec3d( x, y, z ) );
                             vertexIdToIndex[vertexId] = static_cast<unsigned>( vertices.size() - 1 );
 
+                            double value = std::numeric_limits<double>::infinity();
                             for ( size_t i = 0; i < propertyNames.size(); i++ )
                             {
-                                float value = std::numeric_limits<double>::infinity();
-
                                 auto tokenIndex = 5 + i;
                                 if ( tokenIndex < tokens.size() )
-                                    value = RiaStdStringTools::toDouble( tokens[tokenIndex] );
+                                    RiaStdStringTools::toDoubleFast( tokens[tokenIndex], value );
 
-                                propertyValues[i].push_back( value );
+                                propertyValues[i].push_back( static_cast<float>( value ) );
                             }
                         }
                     }
@@ -138,9 +146,9 @@ void RifSurfaceImporter::readGocadFile( const QString& filename, RigGocadData* g
                 {
                     if ( tokens.size() > 3 )
                     {
-                        auto id1 = RiaStdStringTools::toInt( tokens[1] );
-                        auto id2 = RiaStdStringTools::toInt( tokens[2] );
-                        auto id3 = RiaStdStringTools::toInt( tokens[3] );
+                        RiaStdStringTools::toIntFast( tokens[1], id1 );
+                        RiaStdStringTools::toIntFast( tokens[2], id2 );
+                        RiaStdStringTools::toIntFast( tokens[3], id3 );
 
                         if ( id1 >= 0 && id2 >= 0 && id3 >= 0 )
                         {

@@ -18,7 +18,10 @@
 
 #include "RiaStdStringTools.h"
 
+#include "fast_float/include/fast_float/fast_float.h"
+
 #include <cctype>
+#include <charconv>
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -105,6 +108,34 @@ bool RiaStdStringTools::startsWithAlphabetic( const std::string& s )
     if ( s.empty() ) return false;
 
     return isalpha( s[0] ) != 0;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiaStdStringTools::toDoubleFast( const std::string_view& s, double& value )
+{
+    auto resultObject = fast_float::from_chars( s.data(), s.data() + s.size(), value );
+    if ( resultObject.ec == std::errc() )
+    {
+        return true;
+    }
+
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiaStdStringTools::toIntFast( const std::string_view& s, int& value )
+{
+    auto resultObject = std::from_chars( s.data(), s.data() + s.size(), value );
+    if ( resultObject.ec == std::errc() )
+    {
+        return true;
+    }
+
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------
