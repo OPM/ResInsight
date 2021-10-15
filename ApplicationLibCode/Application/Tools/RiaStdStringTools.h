@@ -41,7 +41,7 @@ public:
 
     // Conversion using fastest known approach
     static bool toDouble( const std::string_view& s, double& value );
-    static bool toInt( const std::string_view& s, int& value );
+    static bool toInt( const std::string& s, int& value );
 
     static std::string toUpper( const std::string& s );
 
