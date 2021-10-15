@@ -86,14 +86,10 @@ void RivFemIntersectionGrid::cellCornerVertices( size_t globalCellIndex, cvf::Ve
     const std::vector<cvf::Vec3f>& nodeCoords    = part->nodes().coordinates;
     const int*                     cornerIndices = part->connectivities( elementIdx );
 
-    cellCorners[0] = cvf::Vec3d( nodeCoords[cornerIndices[0]] );
-    cellCorners[1] = cvf::Vec3d( nodeCoords[cornerIndices[1]] );
-    cellCorners[2] = cvf::Vec3d( nodeCoords[cornerIndices[2]] );
-    cellCorners[3] = cvf::Vec3d( nodeCoords[cornerIndices[3]] );
-    cellCorners[4] = cvf::Vec3d( nodeCoords[cornerIndices[4]] );
-    cellCorners[5] = cvf::Vec3d( nodeCoords[cornerIndices[5]] );
-    cellCorners[6] = cvf::Vec3d( nodeCoords[cornerIndices[6]] );
-    cellCorners[7] = cvf::Vec3d( nodeCoords[cornerIndices[7]] );
+    for ( int i = 0; i < 8; i++ )
+    {
+        cellCorners[i] = cvf::Vec3d( nodeCoords[cornerIndices[i]] );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -113,15 +109,6 @@ void RivFemIntersectionGrid::cellCornerIndices( size_t globalCellIndex, size_t c
     {
         cornerIndices[i] = m_femParts->globalElementNodeResultIdx( partId, elmIdx, i );
     }
-
-    // cornerIndices[0] = part->elementNodeResultIdx( elmIdx, 0 );
-    // cornerIndices[1] = part->elementNodeResultIdx( elmIdx, 1 );
-    // cornerIndices[2] = part->elementNodeResultIdx( elmIdx, 2 );
-    // cornerIndices[3] = part->elementNodeResultIdx( elmIdx, 3 );
-    // cornerIndices[4] = part->elementNodeResultIdx( elmIdx, 4 );
-    // cornerIndices[5] = part->elementNodeResultIdx( elmIdx, 5 );
-    // cornerIndices[6] = part->elementNodeResultIdx( elmIdx, 6 );
-    // cornerIndices[7] = part->elementNodeResultIdx( elmIdx, 7 );
 }
 
 //--------------------------------------------------------------------------------------------------
