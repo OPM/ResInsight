@@ -142,7 +142,7 @@ bool RifEclipseInputFileTools::openGridFile( const QString&      fileName,
             std::string keyword = "MAPAXES";
             if ( obj.keyword.compare( keyword ) == 0 )
             {
-                zCornKw = ecl_kw_alloc_new( keyword.data(), (int)obj.values.size(), ECL_FLOAT, obj.values.data() );
+                mapAxesKw = ecl_kw_alloc_new( keyword.data(), (int)obj.values.size(), ECL_FLOAT, obj.values.data() );
                 continue;
             }
         }
