@@ -643,7 +643,7 @@ RigFemResultAddress RimGeoMechResultDefinition::resultAddress() const
 
         if ( RigFemPartResultsCollection::isReferenceCaseDependentResult( address ) )
         {
-            address.timeLapseBaseFrameIdx = RigFemResultAddress::noTimeLapseValue();
+            address.timeLapseBaseStepIdx = RigFemResultAddress::noTimeLapseValue();
         }
 
         return address;
@@ -925,7 +925,7 @@ void RimGeoMechResultDefinition::setResultAddress( const RigFemResultAddress& re
     m_resultPositionType             = resultAddress.resultPosType;
     m_resultFieldName                = QString::fromStdString( resultAddress.fieldName );
     m_resultComponentName            = QString::fromStdString( resultAddress.componentName );
-    m_timeLapseBaseTimestep          = resultAddress.timeLapseBaseFrameIdx;
+    m_timeLapseBaseTimestep          = resultAddress.timeLapseBaseStepIdx;
     m_compactionRefLayer             = resultAddress.refKLayerIndex;
     m_normalizeByHydrostaticPressure = resultAddress.normalizedByHydrostaticPressure;
 

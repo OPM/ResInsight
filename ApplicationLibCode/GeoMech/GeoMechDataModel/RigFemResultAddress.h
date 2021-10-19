@@ -33,7 +33,7 @@ public:
         : resultPosType( RIG_NODAL )
         , fieldName( "" )
         , componentName( "" )
-        , timeLapseBaseFrameIdx( NO_TIME_LAPSE )
+        , timeLapseBaseStepIdx( NO_TIME_LAPSE )
         , refKLayerIndex( NO_COMPACTION )
         , normalizedByHydrostaticPressure( false )
     {
@@ -42,13 +42,13 @@ public:
     RigFemResultAddress( RigFemResultPosEnum resPosType,
                          const std::string&  aFieldName,
                          const std::string&  aComponentName,
-                         int                 timeLapseBaseFrameIdx           = NO_TIME_LAPSE,
+                         int                 timeLapseBaseStepIdx            = NO_TIME_LAPSE,
                          int                 refKLayerIndex                  = NO_COMPACTION,
                          bool                normalizedByHydrostaticPressure = false )
         : resultPosType( resPosType )
         , fieldName( aFieldName )
         , componentName( aComponentName )
-        , timeLapseBaseFrameIdx( timeLapseBaseFrameIdx )
+        , timeLapseBaseStepIdx( timeLapseBaseStepIdx )
         , refKLayerIndex( refKLayerIndex )
         , normalizedByHydrostaticPressure( normalizedByHydrostaticPressure )
     {
@@ -58,7 +58,7 @@ public:
         : resultPosType( rhs.resultPosType )
         , fieldName( rhs.fieldName )
         , componentName( rhs.componentName )
-        , timeLapseBaseFrameIdx( rhs.timeLapseBaseFrameIdx )
+        , timeLapseBaseStepIdx( rhs.timeLapseBaseStepIdx )
         , refKLayerIndex( rhs.refKLayerIndex )
         , normalizedByHydrostaticPressure( rhs.normalizedByHydrostaticPressure )
     {
@@ -69,7 +69,7 @@ public:
         resultPosType                   = rhs.resultPosType;
         fieldName                       = rhs.fieldName;
         componentName                   = rhs.componentName;
-        timeLapseBaseFrameIdx           = rhs.timeLapseBaseFrameIdx;
+        timeLapseBaseStepIdx            = rhs.timeLapseBaseStepIdx;
         refKLayerIndex                  = rhs.refKLayerIndex;
         normalizedByHydrostaticPressure = rhs.normalizedByHydrostaticPressure;
         return *this;
@@ -78,7 +78,7 @@ public:
     RigFemResultPosEnum resultPosType;
     std::string         fieldName;
     std::string         componentName;
-    int                 timeLapseBaseFrameIdx;
+    int                 timeLapseBaseStepIdx;
     int                 refKLayerIndex;
     bool                normalizedByHydrostaticPressure;
 
@@ -93,8 +93,8 @@ public:
     static constexpr int noTimeLapseValue() { return NO_TIME_LAPSE; }
     static constexpr int noCompactionValue() { return NO_COMPACTION; }
 
-    bool isTimeLapse() const { return timeLapseBaseFrameIdx > NO_TIME_LAPSE; }
-    bool representsAllTimeLapses() const { return timeLapseBaseFrameIdx == ALL_TIME_LAPSES; }
+    bool isTimeLapse() const { return timeLapseBaseStepIdx > NO_TIME_LAPSE; }
+    bool representsAllTimeLapses() const { return timeLapseBaseStepIdx == ALL_TIME_LAPSES; }
     bool normalizeByHydrostaticPressure() const { return normalizedByHydrostaticPressure; }
 
     bool isValid() const
@@ -115,9 +115,9 @@ public:
             return ( normalizedByHydrostaticPressure < other.normalizedByHydrostaticPressure );
         }
 
-        if ( timeLapseBaseFrameIdx != other.timeLapseBaseFrameIdx )
+        if ( timeLapseBaseStepIdx != other.timeLapseBaseStepIdx )
         {
-            return ( timeLapseBaseFrameIdx < other.timeLapseBaseFrameIdx );
+            return ( timeLapseBaseStepIdx < other.timeLapseBaseStepIdx );
         }
 
         if ( resultPosType != other.resultPosType )
@@ -141,7 +141,7 @@ public:
     bool operator==( const RigFemResultAddress& other ) const
     {
         if ( resultPosType != other.resultPosType || fieldName != other.fieldName ||
-             componentName != other.componentName || timeLapseBaseFrameIdx != other.timeLapseBaseFrameIdx ||
+             componentName != other.componentName || timeLapseBaseStepIdx != other.timeLapseBaseStepIdx ||
              normalizedByHydrostaticPressure != other.normalizedByHydrostaticPressure )
         {
             return false;

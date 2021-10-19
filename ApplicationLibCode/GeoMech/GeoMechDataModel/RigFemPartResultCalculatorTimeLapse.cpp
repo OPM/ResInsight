@@ -112,7 +112,7 @@ RigFemScalarResultFrames*
     frameCountProgress.incrementProgress();
 
     int frameCount   = srcDataFrames->frameCount();
-    int baseFrameIdx = resVarAddr.timeLapseBaseFrameIdx;
+    int baseFrameIdx = resVarAddr.timeLapseBaseStepIdx;
     if ( baseFrameIdx >= frameCount ) return dstDataFrames;
     const std::vector<float>& baseFrameData = srcDataFrames->frameData( baseFrameIdx );
     if ( baseFrameData.empty() ) return dstDataFrames;
@@ -152,7 +152,7 @@ RigFemScalarResultFrames*
         "Calculating " + QString::fromStdString( resVarAddr.fieldName + ": " + resVarAddr.componentName ) );
     frameCountProgress.setNextProgressIncrement( m_resultCollection->frameCount() );
 
-    RigFemResultAddress totStressCompAddr( resVarAddr.resultPosType, "ST", "", resVarAddr.timeLapseBaseFrameIdx );
+    RigFemResultAddress totStressCompAddr( resVarAddr.resultPosType, "ST", "", resVarAddr.timeLapseBaseStepIdx );
     {
         std::string scomp;
         std::string gcomp = resVarAddr.componentName;
@@ -175,11 +175,9 @@ RigFemScalarResultFrames*
     frameCountProgress.incrementProgress();
     frameCountProgress.setNextProgressIncrement( m_resultCollection->frameCount() );
     RigFemScalarResultFrames* srcPORDataFrames =
-        m_resultCollection->findOrLoadScalarResult( partIndex,
-                                                    RigFemResultAddress( RIG_NODAL,
-                                                                         "POR-Bar",
-                                                                         "",
-                                                                         resVarAddr.timeLapseBaseFrameIdx ) );
+        m_resultCollection
+            ->findOrLoadScalarResult( partIndex,
+                                      RigFemResultAddress( RIG_NODAL, "POR-Bar", "", resVarAddr.timeLapseBaseStepIdx ) );
     RigFemScalarResultFrames* dstDataFrames = m_resultCollection->createScalarResult( partIndex, resVarAddr );
 
     frameCountProgress.incrementProgress();

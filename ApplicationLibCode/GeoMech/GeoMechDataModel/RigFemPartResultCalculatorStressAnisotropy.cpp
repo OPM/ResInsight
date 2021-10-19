@@ -176,23 +176,23 @@ RigFemScalarResultFrames*
                                                 RigFemResultAddress( resVarAddr.resultPosType,
                                                                      resVarAddr.fieldName,
                                                                      "SA12",
-                                                                     resVarAddr.timeLapseBaseFrameIdx ) );
+                                                                     resVarAddr.timeLapseBaseStepIdx ) );
     RigFemScalarResultFrames* s13Frames =
         m_resultCollection->createScalarResult( partIndex,
                                                 RigFemResultAddress( resVarAddr.resultPosType,
                                                                      resVarAddr.fieldName,
                                                                      "SA13",
-                                                                     resVarAddr.timeLapseBaseFrameIdx ) );
+                                                                     resVarAddr.timeLapseBaseStepIdx ) );
     RigFemScalarResultFrames* s23Frames =
         m_resultCollection->createScalarResult( partIndex,
                                                 RigFemResultAddress( resVarAddr.resultPosType,
                                                                      resVarAddr.fieldName,
                                                                      "SA23",
-                                                                     resVarAddr.timeLapseBaseFrameIdx ) );
+                                                                     resVarAddr.timeLapseBaseStepIdx ) );
 
     float inf          = std::numeric_limits<float>::infinity();
     int   frameCount   = s1Frames->frameCount();
-    int   baseTimeStep = resVarAddr.timeLapseBaseFrameIdx;
+    int   baseTimeStep = resVarAddr.timeLapseBaseStepIdx;
 
     for ( int fIdx = 0; fIdx < frameCount; ++fIdx )
     {
