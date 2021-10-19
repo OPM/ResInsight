@@ -295,8 +295,11 @@ std::tuple<std::vector<double>, std::vector<double>, std::vector<double>>
         }
         else
         {
-            // The last point is added without interpolation
-            value = sourceValues.back();
+            if ( !sourceValues.empty() )
+            {
+                // The last point is added without interpolation
+                value = sourceValues.back();
+            }
         }
 
         interpolatedValues.push_back( value );
