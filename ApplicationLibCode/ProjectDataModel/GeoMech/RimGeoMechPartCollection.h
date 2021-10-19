@@ -62,4 +62,6 @@ private:
     int    m_currentDisplacementTimeStep;
     double m_currentScaleFactor;
     bool   m_displacementsUsed;
+
+    std::vector<cvf::Vec3f> m_noDisplacements;
 };
