@@ -997,7 +997,7 @@ void RigFemPartResultsCollection::deleteResultForAllTimeSteps( const std::vector
     {
         auto resToDelete = res;
 
-        resToDelete.timeLapseBaseFrameIdx = RigFemResultAddress::allTimeLapsesValue();
+        resToDelete.timeLapseBaseStepIdx = RigFemResultAddress::allTimeLapsesValue();
 
         deleteResult( resToDelete );
     }
