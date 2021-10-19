@@ -145,7 +145,15 @@ int RimGeoMechPartCollection::currentDisplacementTimeStep() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::vector<cvf::Vec3f> RimGeoMechPartCollection::displacements( int partId ) const
+double RimGeoMechPartCollection::currentDisplacementScaleFactor() const
+{
+    return m_currentScaleFactor;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const std::vector<cvf::Vec3f>& RimGeoMechPartCollection::displacements( int partId ) const
 {
     RimGeoMechPart* thepart = part( partId );
     if ( thepart ) return thepart->displacements();

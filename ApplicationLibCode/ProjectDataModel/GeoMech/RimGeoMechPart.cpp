@@ -91,7 +91,7 @@ void RimGeoMechPart::setDisplacements( const std::vector<cvf::Vec3f>& displaceme
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::vector<cvf::Vec3f> RimGeoMechPart::displacements() const
+const std::vector<cvf::Vec3f>& RimGeoMechPart::displacements() const
 {
     return m_displacements;
 }

@@ -21,11 +21,14 @@
 #include "RigFemPart.h"
 #include "RigFemPartCollection.h"
 
+#include "RimGeoMechPartCollection.h"
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RivFemIntersectionGrid::RivFemIntersectionGrid( const RigFemPartCollection* femParts )
+RivFemIntersectionGrid::RivFemIntersectionGrid( const RigFemPartCollection* femParts, const RimGeoMechPartCollection* parts )
     : m_femParts( femParts )
+    , m_parts( parts )
 {
 }
 
@@ -83,12 +86,27 @@ void RivFemIntersectionGrid::cellCornerVertices( size_t globalCellIndex, cvf::Ve
 {
     auto [part, elementIdx] = m_femParts->partAndElementIndex( globalCellIndex );
 
+    const bool useDisplacements = m_parts->isDisplacementsUsed();
+
     const std::vector<cvf::Vec3f>& nodeCoords    = part->nodes().coordinates;
     const int*                     cornerIndices = part->connectivities( elementIdx );
 
-    for ( int i = 0; i < 8; i++ )
+    if ( useDisplacements )
     {
-        cellCorners[i] = cvf::Vec3d( nodeCoords[cornerIndices[i]] );
+        const double                   scaleFactor   = m_parts->currentDisplacementScaleFactor();
+        const std::vector<cvf::Vec3f>& displacements = m_parts->displacements( part->elementPartId() );
+        for ( int i = 0; i < 8; i++ )
+        {
+            const int idx  = cornerIndices[i];
+            cellCorners[i] = cvf::Vec3d( nodeCoords[idx] + displacements[idx] * scaleFactor );
+        }
+    }
+    else
+    {
+        for ( int i = 0; i < 8; i++ )
+        {
+            cellCorners[i] = cvf::Vec3d( nodeCoords[cornerIndices[i]] );
+        }
     }
 }
 
