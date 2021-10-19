@@ -434,14 +434,21 @@ void RimGeoMechView::onUpdateDisplayModelForCurrentTimeStep()
             }
         }
 
-        if ( this->cellResult()->hasResult() )
+        bool hasGeneralCellResult = this->cellResult()->hasResult();
+
+        if ( hasGeneralCellResult )
             m_vizLogic->updateCellResultColor( m_currentTimeStep(), this->cellResult() );
         else
             m_vizLogic->updateStaticCellColors( m_currentTimeStep() );
 
-        bool hasGeneralCellResult = this->cellResult()->hasResult();
+        // Intersections
+        {
+            m_intersectionVizModel->removeAllParts();
+            m_intersectionCollection->rebuildGeometry();
+            m_intersectionCollection->appendPartsToModel( *this, m_intersectionVizModel.p(), scaleTransform() );
+            m_intersectionCollection->updateCellResultColor( hasGeneralCellResult, m_currentTimeStep );
+        }
 
-        m_intersectionCollection->updateCellResultColor( hasGeneralCellResult, m_currentTimeStep );
         if ( m_surfaceCollection )
         {
             m_surfaceCollection->updateCellResultColor( hasGeneralCellResult, m_currentTimeStep );

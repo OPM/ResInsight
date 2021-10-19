@@ -185,6 +185,9 @@ void RimIntersection::updateDefaultSeparateDataSource()
 //--------------------------------------------------------------------------------------------------
 cvf::ref<RivIntersectionHexGridInterface> RimIntersection::createHexGridInterface()
 {
+    RimGeoMechView* geoView;
+    this->firstAncestorOrThisOfType( geoView );
+
     RimIntersectionResultDefinition* resDef = activeSeparateResultDefinition();
     if ( resDef && resDef->activeCase() )
     {
@@ -203,9 +206,9 @@ cvf::ref<RivIntersectionHexGridInterface> RimIntersection::createHexGridInterfac
 
         auto* geomCase = dynamic_cast<RimGeoMechCase*>( resDef->activeCase() );
 
-        if ( geomCase && geomCase->geoMechData() && geomCase->geoMechData()->femParts() )
+        if ( geomCase && geomCase->geoMechData() && geomCase->geoMechData()->femParts() && geoView )
         {
-            return new RivFemIntersectionGrid( geomCase->geoMechData()->femParts() );
+            return new RivFemIntersectionGrid( geomCase->geoMechData()->femParts(), geoView->partsCollection() );
         }
     }
 
@@ -218,11 +221,9 @@ cvf::ref<RivIntersectionHexGridInterface> RimIntersection::createHexGridInterfac
         return new RivEclipseIntersectionGrid( grid, eclipseView->currentActiveCellInfo(), this->isInactiveCellsVisible() );
     }
 
-    RimGeoMechView* geoView;
-    this->firstAncestorOrThisOfType( geoView );
     if ( geoView && geoView->femParts() )
     {
-        return new RivFemIntersectionGrid( geoView->femParts() );
+        return new RivFemIntersectionGrid( geoView->femParts(), geoView->partsCollection() );
     }
 
     return nullptr;

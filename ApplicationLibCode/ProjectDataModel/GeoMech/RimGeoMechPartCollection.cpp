@@ -39,6 +39,7 @@ RimGeoMechPartCollection::RimGeoMechPartCollection()
     , m_currentDisplacementTimeStep( -1 )
     , m_displacementsUsed( false )
     , m_currentScaleFactor( 1.0 )
+    , m_noDisplacements()
 {
     CAF_PDM_InitScriptableObject( "Parts", ":/GeoMechCase24x24.png", "", "" );
 
@@ -145,12 +146,20 @@ int RimGeoMechPartCollection::currentDisplacementTimeStep() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::vector<cvf::Vec3f> RimGeoMechPartCollection::displacements( int partId ) const
+double RimGeoMechPartCollection::currentDisplacementScaleFactor() const
+{
+    return m_currentScaleFactor;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const std::vector<cvf::Vec3f>& RimGeoMechPartCollection::displacements( int partId ) const
 {
     RimGeoMechPart* thepart = part( partId );
     if ( thepart ) return thepart->displacements();
 
-    return std::vector<cvf::Vec3f>();
+    return m_noDisplacements;
 }
 
 //--------------------------------------------------------------------------------------------------

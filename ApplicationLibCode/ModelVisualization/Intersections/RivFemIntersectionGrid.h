@@ -31,11 +31,12 @@
 class RigFemPart;
 class RigFemPartCollection;
 class RigFault;
+class RimGeoMechPartCollection;
 
 class RivFemIntersectionGrid : public RivIntersectionHexGridInterface
 {
 public:
-    explicit RivFemIntersectionGrid( const RigFemPartCollection* femParts );
+    explicit RivFemIntersectionGrid( const RigFemPartCollection* femParts, const RimGeoMechPartCollection* parts );
 
     cvf::Vec3d       displayOffset() const override;
     cvf::BoundingBox boundingBox() const override;
@@ -49,4 +50,5 @@ public:
 
 private:
     cvf::cref<RigFemPartCollection> m_femParts;
+    const RimGeoMechPartCollection* m_parts;
 };
