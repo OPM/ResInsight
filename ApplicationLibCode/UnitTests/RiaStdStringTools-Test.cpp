@@ -3,6 +3,7 @@
 #include "RiaStdStringTools.h"
 
 #include <QLocale>
+#include <charconv>
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -55,5 +56,61 @@ TEST( RiaStdStringToolsTest, TrimStrings )
 
         std::string expectedText = "test  next word";
         EXPECT_EQ( text, expectedText );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( RiaStdStringToolsTest, DISABLED_PerformanceConversion )
+{
+    size_t      itemCount     = 1000000;
+    std::string valueAsString = "1234567";
+
+    int intValue = 0;
+
+    {
+        auto start = std::chrono::high_resolution_clock::now();
+
+        for ( size_t i = 0; i < itemCount; i++ )
+        {
+            intValue = std::stoi( valueAsString );
+        }
+
+        auto                          end  = std::chrono::high_resolution_clock::now();
+        std::chrono::duration<double> diff = end - start;
+        std::cout << "std::stoi (no try/catch) " << std::setw( 9 ) << diff.count() << " s\n";
+    }
+
+    {
+        auto start = std::chrono::high_resolution_clock::now();
+
+        for ( size_t i = 0; i < itemCount; i++ )
+        {
+            try
+            {
+                intValue = std::stoi( valueAsString );
+            }
+            catch ( ... )
+            {
+            }
+        }
+
+        auto                          end  = std::chrono::high_resolution_clock::now();
+        std::chrono::duration<double> diff = end - start;
+        std::cout << "std::stoi incl try/catch" << std::setw( 9 ) << diff.count() << " s\n";
+    }
+
+    {
+        auto start = std::chrono::high_resolution_clock::now();
+
+        for ( size_t i = 0; i < itemCount; i++ )
+        {
+            std::from_chars( valueAsString.data(), valueAsString.data() + valueAsString.size(), intValue );
+        }
+
+        auto                          end  = std::chrono::high_resolution_clock::now();
+        std::chrono::duration<double> diff = end - start;
+        std::cout << "std::from_chars " << std::setw( 9 ) << diff.count() << " s\n";
     }
 }
