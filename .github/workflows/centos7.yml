@@ -35,7 +35,7 @@ jobs:
         yum install -y rh-python36
     - name: Build QtCharts
       run: |
-        source /opt/rh/devtoolset-7/enable
+        source /opt/rh/devtoolset-10/enable
         git clone git://code.qt.io/qt/qtcharts.git
         cd qtcharts/
         git checkout v5.9.7
