@@ -30,12 +30,12 @@ jobs:
         yum install -y mesa-libGL-devel
         yum install -y freeglut-devel
 
-        yum install -y devtoolset-7
+        yum install -y devtoolset-10
         
         yum install -y rh-python36
     - name: Build QtCharts
       run: |
-        source /opt/rh/devtoolset-7/enable
+        source /opt/rh/devtoolset-10/enable
         git clone git://code.qt.io/qt/qtcharts.git
         cd qtcharts/
         git checkout v5.9.7
@@ -55,7 +55,7 @@ jobs:
         echo "::set-output name=PYTHON_EXECUTABLE::$(python -c 'import sys; import pathlib; print (pathlib.PurePath(sys.executable).as_posix())')"
     - name: Build ResInsight
       run: |
-        source /opt/rh/devtoolset-7/enable
+        source /opt/rh/devtoolset-10/enable
         source /opt/rh/rh-python36/enable
 
         cmake3 --version
