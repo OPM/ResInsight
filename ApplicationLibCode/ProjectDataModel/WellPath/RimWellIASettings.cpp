@@ -486,7 +486,7 @@ bool RimWellIASettings::updateResInsightParameters()
     }
     else
     {
-        return false;
+        initialStress->addParameter( "PP", 0.0 );
     }
 
     auto angles = RigWellPathGeometryTools::calculateAzimuthAndInclinationAtMd( ( m_startMD + m_endMD ) / 2.0,
