@@ -358,12 +358,15 @@ void RimProject::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 void RimProject::setupBeforeSave()
 {
-    RiaGuiApplication* guiApp = RiaGuiApplication::instance();
-
-    if ( guiApp )
+    if ( RiaGuiApplication::isRunning() )
     {
-        m_show3DWindow   = guiApp->mainWindow()->isVisible();
-        m_showPlotWindow = guiApp->mainPlotWindow() && guiApp->mainPlotWindow()->isVisible();
+        RiaGuiApplication* guiApp = RiaGuiApplication::instance();
+
+        if ( guiApp )
+        {
+            m_show3DWindow   = guiApp->mainWindow()->isVisible();
+            m_showPlotWindow = guiApp->mainPlotWindow() && guiApp->mainPlotWindow()->isVisible();
+        }
     }
 
     m_projectFileVersionString = STRPRODUCTVER;
