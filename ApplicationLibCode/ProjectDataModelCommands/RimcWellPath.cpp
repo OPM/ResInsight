@@ -27,12 +27,12 @@
 #include "cafPdmAbstractFieldScriptingCapability.h"
 #include "cafPdmFieldScriptingCapability.h"
 
-CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimWellPath, RimcWellPath_newFracture, "NewFracture" );
+CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimWellPath, RimcWellPath_addFracture, "AddFracture" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimcWellPath_newFracture::RimcWellPath_newFracture( caf::PdmObjectHandle* self )
+RimcWellPath_addFracture::RimcWellPath_addFracture( caf::PdmObjectHandle* self )
     : caf::PdmObjectMethod( self )
 {
     CAF_PDM_InitObject( "Add StimPlan Fracture", "", "", "Add StimPlan Fracture" );
@@ -49,7 +49,7 @@ RimcWellPath_newFracture::RimcWellPath_newFracture( caf::PdmObjectHandle* self )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PdmObjectHandle* RimcWellPath_newFracture::execute()
+caf::PdmObjectHandle* RimcWellPath_addFracture::execute()
 {
     auto wellPath = self<RimWellPath>();
 
@@ -63,7 +63,7 @@ caf::PdmObjectHandle* RimcWellPath_newFracture::execute()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimcWellPath_newFracture::resultIsPersistent() const
+bool RimcWellPath_addFracture::resultIsPersistent() const
 {
     return true;
 }
@@ -71,7 +71,7 @@ bool RimcWellPath_newFracture::resultIsPersistent() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::unique_ptr<caf::PdmObjectHandle> RimcWellPath_newFracture::defaultResult() const
+std::unique_ptr<caf::PdmObjectHandle> RimcWellPath_addFracture::defaultResult() const
 {
     return std::unique_ptr<caf::PdmObjectHandle>( new RimWellPathFracture );
 }

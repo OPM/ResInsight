@@ -31,13 +31,14 @@
 #include "cafPdmFieldScriptingCapability.h"
 
 CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimFractureTemplateCollection,
-                                   RimcFractureTemplateCollection_newFractureTemplate,
-                                   "NewFractureTemplate" );
+                                   RimcFractureTemplateCollection_appendFractureTemplate,
+                                   "AppendFractureTemplate" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimcFractureTemplateCollection_newFractureTemplate::RimcFractureTemplateCollection_newFractureTemplate( caf::PdmObjectHandle* self )
+RimcFractureTemplateCollection_appendFractureTemplate::RimcFractureTemplateCollection_appendFractureTemplate(
+    caf::PdmObjectHandle* self )
     : caf::PdmObjectMethod( self )
 {
     CAF_PDM_InitObject( "Create Fracture Template", "", "", "Create a new StimPlan Fracture Template" );
@@ -47,7 +48,7 @@ RimcFractureTemplateCollection_newFractureTemplate::RimcFractureTemplateCollecti
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PdmObjectHandle* RimcFractureTemplateCollection_newFractureTemplate::execute()
+caf::PdmObjectHandle* RimcFractureTemplateCollection_appendFractureTemplate::execute()
 {
     RimFractureTemplateCollection* stimPlanModelTemplateCollection = self<RimFractureTemplateCollection>();
 
@@ -65,7 +66,7 @@ caf::PdmObjectHandle* RimcFractureTemplateCollection_newFractureTemplate::execut
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimcFractureTemplateCollection_newFractureTemplate::resultIsPersistent() const
+bool RimcFractureTemplateCollection_appendFractureTemplate::resultIsPersistent() const
 {
     return true;
 }
@@ -73,7 +74,7 @@ bool RimcFractureTemplateCollection_newFractureTemplate::resultIsPersistent() co
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::unique_ptr<caf::PdmObjectHandle> RimcFractureTemplateCollection_newFractureTemplate::defaultResult() const
+std::unique_ptr<caf::PdmObjectHandle> RimcFractureTemplateCollection_appendFractureTemplate::defaultResult() const
 {
     return std::unique_ptr<caf::PdmObjectHandle>( new RimStimPlanFractureTemplate );
 }

@@ -28,13 +28,13 @@
 #include "cafPdmFieldScriptingCapability.h"
 
 CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimStimPlanModelPlotCollection,
-                                   RimcStimPlanModelPlotCollection_newStimPlanModelPlot,
-                                   "NewStimPlanModelPlot" );
+                                   RimcStimPlanModelPlotCollection_appendStimPlanModelPlot,
+                                   "AppendStimPlanModelPlot" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimcStimPlanModelPlotCollection_newStimPlanModelPlot::RimcStimPlanModelPlotCollection_newStimPlanModelPlot(
+RimcStimPlanModelPlotCollection_appendStimPlanModelPlot::RimcStimPlanModelPlotCollection_appendStimPlanModelPlot(
     caf::PdmObjectHandle* self )
     : caf::PdmObjectMethod( self )
 {
@@ -45,23 +45,23 @@ RimcStimPlanModelPlotCollection_newStimPlanModelPlot::RimcStimPlanModelPlotColle
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PdmObjectHandle* RimcStimPlanModelPlotCollection_newStimPlanModelPlot::execute()
+caf::PdmObjectHandle* RimcStimPlanModelPlotCollection_appendStimPlanModelPlot::execute()
 {
-    RimStimPlanModelPlot*           newStimPlanModelPlot        = nullptr;
+    RimStimPlanModelPlot*           stimPlanModelPlot           = nullptr;
     RimStimPlanModelPlotCollection* stimPlanModelPlotCollection = self<RimStimPlanModelPlotCollection>();
 
     if ( m_stimPlanModel && stimPlanModelPlotCollection )
     {
-        newStimPlanModelPlot = RicNewStimPlanModelPlotFeature::createPlot( m_stimPlanModel );
+        stimPlanModelPlot = RicNewStimPlanModelPlotFeature::createPlot( m_stimPlanModel );
     }
 
-    return newStimPlanModelPlot;
+    return stimPlanModelPlot;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimcStimPlanModelPlotCollection_newStimPlanModelPlot::resultIsPersistent() const
+bool RimcStimPlanModelPlotCollection_appendStimPlanModelPlot::resultIsPersistent() const
 {
     return true;
 }
@@ -69,7 +69,7 @@ bool RimcStimPlanModelPlotCollection_newStimPlanModelPlot::resultIsPersistent() 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::unique_ptr<caf::PdmObjectHandle> RimcStimPlanModelPlotCollection_newStimPlanModelPlot::defaultResult() const
+std::unique_ptr<caf::PdmObjectHandle> RimcStimPlanModelPlotCollection_appendStimPlanModelPlot::defaultResult() const
 {
     return std::unique_ptr<caf::PdmObjectHandle>( new RimStimPlanModelPlot );
 }

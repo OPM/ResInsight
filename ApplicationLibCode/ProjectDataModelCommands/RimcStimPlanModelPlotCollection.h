@@ -31,12 +31,12 @@ class RimStimPlanModel;
 //==================================================================================================
 ///
 //==================================================================================================
-class RimcStimPlanModelPlotCollection_newStimPlanModelPlot : public caf::PdmObjectMethod
+class RimcStimPlanModelPlotCollection_appendStimPlanModelPlot : public caf::PdmObjectMethod
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimcStimPlanModelPlotCollection_newStimPlanModelPlot( caf::PdmObjectHandle* self );
+    RimcStimPlanModelPlotCollection_appendStimPlanModelPlot( caf::PdmObjectHandle* self );
 
     caf::PdmObjectHandle*            execute() override;
     bool                             resultIsPersistent() const override;

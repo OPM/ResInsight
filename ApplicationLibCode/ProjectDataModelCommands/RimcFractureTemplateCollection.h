@@ -29,12 +29,12 @@
 //==================================================================================================
 ///
 //==================================================================================================
-class RimcFractureTemplateCollection_newFractureTemplate : public caf::PdmObjectMethod
+class RimcFractureTemplateCollection_appendFractureTemplate : public caf::PdmObjectMethod
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimcFractureTemplateCollection_newFractureTemplate( caf::PdmObjectHandle* self );
+    RimcFractureTemplateCollection_appendFractureTemplate( caf::PdmObjectHandle* self );
 
     caf::PdmObjectHandle*            execute() override;
     bool                             resultIsPersistent() const override;
