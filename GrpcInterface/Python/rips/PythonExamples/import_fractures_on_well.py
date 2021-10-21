@@ -19,7 +19,9 @@ case = cases[0]
 
 # Create stim plan template
 fmt_collection = project.descendants(rips.FractureDefinitionCollection)[0]
-fracture_template = fmt_collection.append_fracture_template(file_path=stim_plan_file_path)
+fracture_template = fmt_collection.append_fracture_template(
+    file_path=stim_plan_file_path
+)
 
 well_name = "B-2 H"
 
