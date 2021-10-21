@@ -87,6 +87,7 @@ void RimEnsembleWellLogStatistics::calculate( const std::vector<RimWellLogFile*>
                                               const QString&                      wellLogChannelName )
 {
     RiaCurveMerger<double> curveMerger;
+    RiaCurveMerger<double> tvdCurveMerger;
 
     RiaWeightedMeanCalculator<size_t> dataSetSizeCalc;
 
@@ -111,12 +112,14 @@ void RimEnsembleWellLogStatistics::calculate( const std::vector<RimWellLogFile*>
             }
             m_logChannelUnitString = logChannelUnitString;
 
-            std::vector<double> depths = fileData->depthValues();
-            std::vector<double> values = fileData->values( wellLogChannelName );
-            if ( !depths.empty() && !values.empty() )
+            std::vector<double> depths       = fileData->depthValues();
+            std::vector<double> tvdMslValues = fileData->tvdMslValues();
+            std::vector<double> values       = fileData->values( wellLogChannelName );
+            if ( !depths.empty() && !values.empty() && !tvdMslValues.empty() )
             {
                 dataSetSizeCalc.addValueAndWeight( depths.size(), 1.0 );
                 curveMerger.addCurveData( depths, values );
+                tvdCurveMerger.addCurveData( depths, tvdMslValues );
             }
         }
         else
@@ -125,6 +128,7 @@ void RimEnsembleWellLogStatistics::calculate( const std::vector<RimWellLogFile*>
         }
     }
     curveMerger.computeInterpolatedValues( true );
+    tvdCurveMerger.computeInterpolatedValues( true );
 
     clearData();
 
@@ -144,6 +148,7 @@ void RimEnsembleWellLogStatistics::calculate( const std::vector<RimWellLogFile*>
                 const std::vector<double>& curveValues = curveMerger.interpolatedYValuesForAllXValues( curveIdx );
                 valuesAtDepth.push_back( curveValues[depthIdx] );
             }
+
             double p10, p50, p90, mean;
             RigStatisticsMath::calculateStatisticsCurves( valuesAtDepth,
                                                           &p10,
@@ -152,6 +157,30 @@ void RimEnsembleWellLogStatistics::calculate( const std::vector<RimWellLogFile*>
                                                           &mean,
                                                           RigStatisticsMath::PercentileStyle::SWITCHED );
 
+            // TVD is the mean TVD at a given MD
+            std::vector<double> tvdsAtDepth;
+            tvdsAtDepth.reserve( tvdCurveMerger.curveCount() );
+
+            for ( size_t curveIdx = 0; curveIdx < tvdCurveMerger.curveCount(); ++curveIdx )
+            {
+                const std::vector<double>& curveValues = tvdCurveMerger.interpolatedYValuesForAllXValues( curveIdx );
+                tvdsAtDepth.push_back( curveValues[depthIdx] );
+            }
+
+            double sumTvds = 0.0;
+            int    numTvds = 0;
+            for ( auto tvd : tvdsAtDepth )
+            {
+                if ( !std::isinf( tvd ) )
+                {
+                    sumTvds += tvd;
+                    numTvds++;
+                }
+            }
+
+            double meanTvd = sumTvds / numTvds;
+
+            m_tvDepths.push_back( meanTvd );
             m_measuredDepths.push_back( allDepths[depthIdx] );
             m_p10Data.push_back( p10 );
             m_p50Data.push_back( p50 );
@@ -217,8 +246,8 @@ void RimEnsembleWellLogStatistics::calculateByKLayer( const std::vector<RimWellL
     std::vector<int> kIndexes = offsets->sortedIndexes();
     for ( auto kIndex : kIndexes )
     {
-        double topMean    = -1.0;
-        double bottomMean = -2.3;
+        double topMean    = 0.0;
+        double bottomMean = 0.0;
         // Top first
         {
             std::vector<double> valuesAtDepth = topValues[kIndex];
@@ -229,7 +258,8 @@ void RimEnsembleWellLogStatistics::calculateByKLayer( const std::vector<RimWellL
                                                           &p90,
                                                           &mean,
                                                           RigStatisticsMath::PercentileStyle::SWITCHED );
-            m_measuredDepths.push_back( offsets->getTopDepth( kIndex ) );
+            m_measuredDepths.push_back( offsets->getTopMd( kIndex ) );
+            m_tvDepths.push_back( offsets->getTopTvd( kIndex ) );
             m_p10Data.push_back( p10 );
             m_p50Data.push_back( p50 );
             m_p90Data.push_back( p90 );
@@ -248,7 +278,8 @@ void RimEnsembleWellLogStatistics::calculateByKLayer( const std::vector<RimWellL
                                                           &p90,
                                                           &mean,
                                                           RigStatisticsMath::PercentileStyle::SWITCHED );
-            m_measuredDepths.push_back( offsets->getBottomDepth( kIndex ) );
+            m_measuredDepths.push_back( offsets->getBottomMd( kIndex ) );
+            m_tvDepths.push_back( offsets->getBottomTvd( kIndex ) );
             m_p10Data.push_back( p10 );
             m_p50Data.push_back( p50 );
             m_p90Data.push_back( p90 );
@@ -259,8 +290,8 @@ void RimEnsembleWellLogStatistics::calculateByKLayer( const std::vector<RimWellL
 
         RiaLogging::debug( QString( "[%1] top: %2 bttom: %3 %4 %5" )
                                .arg( kIndex )
-                               .arg( offsets->getTopDepth( kIndex ) )
-                               .arg( offsets->getBottomDepth( kIndex ) )
+                               .arg( offsets->getTopMd( kIndex ) )
+                               .arg( offsets->getBottomMd( kIndex ) )
                                .arg( topMean )
                                .arg( bottomMean ) );
     }
@@ -272,11 +303,13 @@ void RimEnsembleWellLogStatistics::calculateByKLayer( const std::vector<RimWellL
 std::shared_ptr<RigWellLogIndexDepthOffset>
     RimEnsembleWellLogStatistics::calculateIndexDepthOffset( const std::vector<RimWellLogFile*>& wellLogFiles )
 {
-    std::map<int, double> sumTopDepths;
-    std::map<int, int>    numTopDepths;
+    std::map<int, double> sumTopMds;
+    std::map<int, double> sumTopTvds;
+    std::map<int, int>    numTopMds;
 
-    std::map<int, double> sumBottomDepths;
-    std::map<int, int>    numBottomDepths;
+    std::map<int, double> sumBottomMds;
+    std::map<int, double> sumBottomTvds;
+    std::map<int, int>    numBottomMds;
 
     int minLayerK = std::numeric_limits<int>::max();
     int maxLayerK = -std::numeric_limits<int>::max();
@@ -291,11 +324,12 @@ std::shared_ptr<RigWellLogIndexDepthOffset>
             RigWellLogFile* fileData = wellLogFile->wellLogFileData();
 
             std::vector<double> depths       = fileData->depthValues();
+            std::vector<double> tvdDepths    = fileData->tvdMslValues();
             std::vector<double> kIndexValues = fileData->values( RiaResultNames::indexKResultName() );
 
             std::set<int> seenTopIndexes;
             std::set<int> seenBottomIndexes;
-            if ( !depths.empty() && !kIndexValues.empty() )
+            if ( !depths.empty() && !tvdDepths.empty() && !kIndexValues.empty() )
             {
                 // Find top indexes
                 for ( size_t i = 0; i < kIndexValues.size(); i++ )
@@ -307,8 +341,9 @@ std::shared_ptr<RigWellLogIndexDepthOffset>
                         // This is depth of the top of the index since the file is
                         // sorted by increasing depth.
                         seenTopIndexes.insert( kLayer );
-                        sumTopDepths[kLayer] += depths[i];
-                        numTopDepths[kLayer] += 1;
+                        sumTopMds[kLayer] += depths[i];
+                        sumTopTvds[kLayer] += tvdDepths[i];
+                        numTopMds[kLayer] += 1;
                         minLayerK = std::min( minLayerK, kLayer );
                         maxLayerK = std::max( maxLayerK, kLayer );
                     }
@@ -324,8 +359,9 @@ std::shared_ptr<RigWellLogIndexDepthOffset>
                         // This is depth of the bottom of the index since the file is
                         // sorted by increasing depth.
                         seenBottomIndexes.insert( kLayer );
-                        sumBottomDepths[kLayer] += depths[i];
-                        numBottomDepths[kLayer] += 1;
+                        sumBottomMds[kLayer] += depths[i];
+                        sumBottomTvds[kLayer] += tvdDepths[i];
+                        numBottomMds[kLayer] += 1;
                     }
                 }
             }
@@ -346,17 +382,19 @@ std::shared_ptr<RigWellLogIndexDepthOffset>
     std::shared_ptr<RigWellLogIndexDepthOffset> offset = std::make_shared<RigWellLogIndexDepthOffset>();
     for ( int kLayer = minLayerK; kLayer <= maxLayerK; kLayer++ )
     {
-        if ( numTopDepths[kLayer] > 0 && numBottomDepths[kLayer] > 0 )
+        if ( numTopMds[kLayer] > 0 && numBottomMds[kLayer] > 0 )
         {
-            double topDepth    = sumTopDepths[kLayer] / numTopDepths[kLayer];
-            double bottomDepth = sumBottomDepths[kLayer] / numBottomDepths[kLayer];
+            double topMd     = sumTopMds[kLayer] / numTopMds[kLayer];
+            double bottomMd  = sumBottomMds[kLayer] / numBottomMds[kLayer];
+            double topTvd    = sumTopTvds[kLayer] / numBottomMds[kLayer];
+            double bottomTvd = sumBottomTvds[kLayer] / numBottomMds[kLayer];
             RiaLogging::debug( QString( "K: %1 mean depth range: %2 - %3 Samples: %4 - %5" )
                                    .arg( kLayer )
-                                   .arg( topDepth )
-                                   .arg( bottomDepth )
-                                   .arg( numTopDepths[kLayer] )
-                                   .arg( numBottomDepths[kLayer] ) );
-            offset->setIndexOffsetDepth( kLayer, topDepth, bottomDepth );
+                                   .arg( topMd )
+                                   .arg( bottomMd )
+                                   .arg( numTopMds[kLayer] )
+                                   .arg( numBottomMds[kLayer] ) );
+            offset->setIndexOffsetDepth( kLayer, topMd, bottomMd, topTvd, bottomTvd );
         }
     }
 

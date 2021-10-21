@@ -855,21 +855,24 @@ void RimEnsembleWellLogCurveSet::setLogScaleFromSelectedResult( const QString re
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEnsembleWellLogCurveSet::updateStatistics()
+bool RimEnsembleWellLogCurveSet::updateStatistics()
 {
-    updateStatistics( std::vector<RimWellLogFile*>() );
+    return updateStatistics( std::vector<RimWellLogFile*>() );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEnsembleWellLogCurveSet::updateStatistics( const std::vector<RimWellLogFile*>& sumCases )
+bool RimEnsembleWellLogCurveSet::updateStatistics( const std::vector<RimWellLogFile*>& sumCases )
 {
     RimEnsembleWellLogs* ensembleWellLogs   = m_ensembleWellLogs;
     QString              wellLogChannelName = m_wellLogChannelName();
 
-    if ( !isCurvesVisible() || m_disableStatisticCurves || !ensembleWellLogs || wellLogChannelName == "None" ) return;
-
+    if ( !isCurvesVisible() || m_disableStatisticCurves || !ensembleWellLogs || wellLogChannelName == "None" )
+    {
+        m_ensembleWellLogStatistics->clearData();
+        return false;
+    }
     // Calculate
     std::vector<RimWellLogFile*> wellLogFiles = sumCases;
     if ( wellLogFiles.empty() )
@@ -881,6 +884,7 @@ void RimEnsembleWellLogCurveSet::updateStatistics( const std::vector<RimWellLogF
     }
 
     m_ensembleWellLogStatistics->calculate( wellLogFiles, wellLogChannelName, m_depthEqualization() );
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -888,7 +892,9 @@ void RimEnsembleWellLogCurveSet::updateStatistics( const std::vector<RimWellLogF
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleWellLogCurveSet::updateStatisticsCurves( const std::vector<RimWellLogFile*>& sumCases )
 {
-    updateStatistics( sumCases );
+    deleteStatisticsCurves();
+
+    if ( !updateStatistics( sumCases ) ) return;
 
     RimWellLogPlot* plot = nullptr;
     firstAncestorOrThisOfType( plot );
@@ -919,7 +925,6 @@ void RimEnsembleWellLogCurveSet::updateStatisticsCurves( const std::vector<RimWe
     firstAncestorOrThisOfType( plotTrack );
     CVF_ASSERT( plotTrack );
 
-    deleteStatisticsCurves();
     for ( auto statisticsType : statisticsTypes )
     {
         auto curve = new RimEnsembleWellLogStatisticsCurve();
@@ -1258,8 +1263,8 @@ cvf::ref<RigWellPathFormations>
     for ( int kLayer : offsets->sortedIndexes() )
     {
         RigWellPathFormation wellPathFormation;
-        wellPathFormation.mdTop         = offsets->getTopDepth( kLayer );
-        wellPathFormation.mdBase        = offsets->getBottomDepth( kLayer );
+        wellPathFormation.mdTop         = offsets->getTopMd( kLayer );
+        wellPathFormation.mdBase        = offsets->getBottomMd( kLayer );
         wellPathFormation.formationName = formationNames->formationNameFromKLayerIdx( kLayer - 1 );
         wellPathFormationItems.push_back( wellPathFormation );
     }

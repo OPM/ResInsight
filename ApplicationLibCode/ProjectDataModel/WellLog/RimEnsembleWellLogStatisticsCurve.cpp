@@ -108,36 +108,49 @@ void RimEnsembleWellLogStatisticsCurve::performDataExtraction( bool* isUsingPseu
         {
             values              = ensembleWellLogStatistics->mean();
             measuredDepthValues = ensembleWellLogStatistics->measuredDepths();
+            tvDepthValues       = ensembleWellLogStatistics->tvDepths();
         }
         else if ( m_statisticsType == RimEnsembleWellLogStatistics::StatisticsType::P10 )
         {
             values              = ensembleWellLogStatistics->p10();
             measuredDepthValues = ensembleWellLogStatistics->measuredDepths();
+            tvDepthValues       = ensembleWellLogStatistics->tvDepths();
         }
         else if ( m_statisticsType == RimEnsembleWellLogStatistics::StatisticsType::P50 )
         {
             values              = ensembleWellLogStatistics->p50();
             measuredDepthValues = ensembleWellLogStatistics->measuredDepths();
+            tvDepthValues       = ensembleWellLogStatistics->tvDepths();
         }
         else if ( m_statisticsType == RimEnsembleWellLogStatistics::StatisticsType::P90 )
         {
             values              = ensembleWellLogStatistics->p90();
             measuredDepthValues = ensembleWellLogStatistics->measuredDepths();
+            tvDepthValues       = ensembleWellLogStatistics->tvDepths();
         }
 
-        bool performDataSmoothing = false;
         if ( !values.empty() && !measuredDepthValues.empty() && measuredDepthValues.size() == values.size() )
         {
             if ( m_ensembleWellLogCurveSet->depthEqualization() == RimEnsembleWellLogStatistics::DepthEqualization::NONE )
+            {
+                std::vector<double> dummyValues( values.begin(), values.end() );
                 addDatapointsForBottomOfSegment( measuredDepthValues, values );
+                // Pass copy of values vector to avoid adding bottom segments twice
+                addDatapointsForBottomOfSegment( tvDepthValues, dummyValues );
+            }
 
-            this->setValuesAndDepths( values,
-                                      measuredDepthValues,
-                                      RiaDefines::DepthTypeEnum::MEASURED_DEPTH,
-                                      rkbDiff,
-                                      depthUnit,
-                                      !performDataSmoothing,
-                                      xUnits );
+            std::map<RiaDefines::DepthTypeEnum, std::vector<double>> validDepths;
+            if ( values.size() == measuredDepthValues.size() )
+            {
+                validDepths.insert( std::make_pair( RiaDefines::DepthTypeEnum::MEASURED_DEPTH, measuredDepthValues ) );
+            }
+            if ( values.size() == tvDepthValues.size() )
+            {
+                validDepths.insert( std::make_pair( RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH, tvDepthValues ) );
+                validDepths.insert( std::make_pair( RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH_RKB, tvDepthValues ) );
+            }
+
+            this->setValuesAndDepths( values, validDepths, rkbDiff, depthUnit, false );
         }
     }
 }

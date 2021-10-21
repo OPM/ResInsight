@@ -242,11 +242,11 @@ std::pair<std::vector<double>, std::vector<double>>
         if ( firstIndex != kIndexValues.size() && lastIndex != kIndexValues.size() )
         {
             // Add top
-            measuredDepthValuesAdjusted.push_back( m_indexDepthOffsets->getTopDepth( kLayer ) );
+            measuredDepthValuesAdjusted.push_back( m_indexDepthOffsets->getTopMd( kLayer ) );
             valuesAdjusted.push_back( values[firstIndex] );
 
             // Add bottom of layer
-            measuredDepthValuesAdjusted.push_back( m_indexDepthOffsets->getBottomDepth( kLayer ) );
+            measuredDepthValuesAdjusted.push_back( m_indexDepthOffsets->getBottomMd( kLayer ) );
             valuesAdjusted.push_back( values[lastIndex] );
         }
     }

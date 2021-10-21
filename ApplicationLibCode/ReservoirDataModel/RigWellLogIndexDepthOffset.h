@@ -28,11 +28,14 @@ public:
     RigWellLogIndexDepthOffset()           = default;
     ~RigWellLogIndexDepthOffset() override = default;
 
-    void             setIndexOffsetDepth( int kIndex, double topDepth, double bottomDepth );
-    double           getTopDepth( int kIndex ) const;
-    double           getBottomDepth( int kIndex ) const;
+    void             setIndexOffsetDepth( int kIndex, double topMd, double bottomMd, double topTvd, double bottomTvd );
+    double           getTopMd( int kIndex ) const;
+    double           getBottomMd( int kIndex ) const;
+    double           getTopTvd( int kIndex ) const;
+    double           getBottomTvd( int kIndex ) const;
     std::vector<int> sortedIndexes() const;
 
 private:
-    std::map<int, std::pair<double, double>> m_depthOffsets;
+    std::map<int, std::pair<double, double>> m_mdOffsets;
+    std::map<int, std::pair<double, double>> m_tvdOffsets;
 };
