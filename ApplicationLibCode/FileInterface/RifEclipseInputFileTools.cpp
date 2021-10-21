@@ -24,6 +24,8 @@
 #include "RiaLogging.h"
 #include "RiaStringEncodingTools.h"
 
+#include "RifEclipseInputPropertyLoader.h"
+#include "RifEclipseKeywordContent.h"
 #include "RifEclipseTextFileReader.h"
 #include "RifReaderEclipseOutput.h"
 
@@ -189,6 +191,9 @@ bool RifEclipseInputFileTools::openGridFile( const QString&      fileName,
         if ( mapAxesKw ) ecl_kw_free( mapAxesKw );
 
         ecl_grid_free( inputGrid );
+
+        // Import additional keywords as input properties
+        RifEclipseInputPropertyLoader::createInputPropertiesFromKeywords( eclipseCase, objects );
 
         return true;
     }

@@ -19,6 +19,8 @@
 #include "gtest/gtest.h"
 
 #include "RiaTestDataDirectory.h"
+
+#include "RifEclipseKeywordContent.h"
 #include "RifEclipseTextFileReader.h"
 
 #include <QString>

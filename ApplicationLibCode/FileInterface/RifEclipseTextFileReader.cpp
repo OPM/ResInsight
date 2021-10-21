@@ -17,6 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RifEclipseTextFileReader.h"
+#include "RifEclipseKeywordContent.h"
 
 // Utility class for fast conversion from string to float
 #include "fast_float/include/fast_float/fast_float.h"

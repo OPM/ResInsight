@@ -20,14 +20,7 @@
 
 #include "RifReaderInterface.h"
 
-class RifEclipseKeywordContent
-{
-public:
-    std::string        keyword;
-    std::string        content;
-    std::vector<float> values;
-    size_t             offset;
-};
+class RifEclipseKeywordContent;
 
 //==================================================================================================
 //
