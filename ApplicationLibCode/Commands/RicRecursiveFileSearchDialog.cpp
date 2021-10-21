@@ -80,6 +80,7 @@ RicRecursiveFileSearchDialogResult RicRecursiveFileSearchDialog::runRecursiveSea
     RicRecursiveFileSearchDialog dialog( parent, fileExtensions );
     {
         QSignalBlocker signalBlocker( dialog.m_pathFilterField );
+        QSignalBlocker signalBlocker2( dialog.m_ensembleGroupingMode );
 
         dialog.setWindowTitle( caption );
 
