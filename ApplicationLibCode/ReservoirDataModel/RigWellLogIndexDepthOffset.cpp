@@ -23,18 +23,19 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigWellLogIndexDepthOffset::setIndexOffsetDepth( int kIndex, double topDepth, double bottomDepth )
+void RigWellLogIndexDepthOffset::setIndexOffsetDepth( int kIndex, double topMd, double bottomMd, double topTvd, double bottomTvd )
 {
-    m_depthOffsets[kIndex] = std::pair<double, double>( topDepth, bottomDepth );
+    m_mdOffsets[kIndex]  = std::pair<double, double>( topMd, bottomMd );
+    m_tvdOffsets[kIndex] = std::pair<double, double>( topTvd, bottomTvd );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RigWellLogIndexDepthOffset::getTopDepth( int kIndex ) const
+double RigWellLogIndexDepthOffset::getTopMd( int kIndex ) const
 {
-    auto hit = m_depthOffsets.find( kIndex );
-    if ( hit != m_depthOffsets.end() )
+    auto hit = m_mdOffsets.find( kIndex );
+    if ( hit != m_mdOffsets.end() )
     {
         return hit->second.first;
     }
@@ -45,10 +46,38 @@ double RigWellLogIndexDepthOffset::getTopDepth( int kIndex ) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RigWellLogIndexDepthOffset::getBottomDepth( int kIndex ) const
+double RigWellLogIndexDepthOffset::getBottomMd( int kIndex ) const
 {
-    auto hit = m_depthOffsets.find( kIndex );
-    if ( hit != m_depthOffsets.end() )
+    auto hit = m_mdOffsets.find( kIndex );
+    if ( hit != m_mdOffsets.end() )
+    {
+        return hit->second.second;
+    }
+
+    return std::numeric_limits<double>::infinity();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RigWellLogIndexDepthOffset::getTopTvd( int kIndex ) const
+{
+    auto hit = m_tvdOffsets.find( kIndex );
+    if ( hit != m_tvdOffsets.end() )
+    {
+        return hit->second.first;
+    }
+
+    return std::numeric_limits<double>::infinity();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RigWellLogIndexDepthOffset::getBottomTvd( int kIndex ) const
+{
+    auto hit = m_tvdOffsets.find( kIndex );
+    if ( hit != m_tvdOffsets.end() )
     {
         return hit->second.second;
     }
@@ -62,7 +91,7 @@ double RigWellLogIndexDepthOffset::getBottomDepth( int kIndex ) const
 std::vector<int> RigWellLogIndexDepthOffset::sortedIndexes() const
 {
     std::vector<int> indexes;
-    for ( auto m : m_depthOffsets )
+    for ( auto m : m_mdOffsets )
     {
         indexes.push_back( m.first );
     }

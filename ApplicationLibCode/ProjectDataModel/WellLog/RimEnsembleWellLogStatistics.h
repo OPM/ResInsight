@@ -72,11 +72,11 @@ public:
     static std::shared_ptr<RigWellLogIndexDepthOffset>
         calculateIndexDepthOffset( const std::vector<RimWellLogFile*>& wellLogFiles );
 
+    void clearData();
+
 private:
     void calculate( const std::vector<RimWellLogFile*>& sumCases, const QString& wellLogChannelName );
     void calculateByKLayer( const std::vector<RimWellLogFile*>& sumCases, const QString& wellLogChannelName );
-
-    void clearData();
 
     QString                   m_logChannelUnitString;
     RiaDefines::DepthUnitType m_depthUnit;

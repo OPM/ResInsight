@@ -119,7 +119,7 @@ public:
     RimEnsembleWellLogStatistics::DepthEqualization depthEqualization() const;
     void setDepthEqualization( RimEnsembleWellLogStatistics::DepthEqualization depthEqualization );
 
-    void updateStatistics();
+    bool updateStatistics();
 
     void setEnsembleWellLogs( RimEnsembleWellLogs* ensembleWellLogs );
     void setWellLogChannelName( const QString& wellLogChannelName );
@@ -131,7 +131,7 @@ public:
 private:
     void updateEnsembleCurves( const std::vector<RimWellLogFile*>& curves );
     void updateStatisticsCurves( const std::vector<RimWellLogFile*>& curves );
-    void updateStatistics( const std::vector<RimWellLogFile*>& sumCases );
+    bool updateStatistics( const std::vector<RimWellLogFile*>& sumCases );
 
     caf::PdmFieldHandle* userDescriptionField() override;
     caf::PdmFieldHandle* objectToggleField() override;
