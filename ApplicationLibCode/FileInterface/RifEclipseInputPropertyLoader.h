@@ -26,6 +26,8 @@
 
 class RimEclipseInputPropertyCollection;
 class RigEclipseCaseData;
+class RifEclipseKeywordContent;
+
 namespace caf
 {
 class ProgressInfo;
@@ -44,6 +46,9 @@ public:
                                                   const std::vector<QString>&        filenames,
                                                   bool                               allowImportOfFaults );
 
+    static void createInputPropertiesFromKeywords( RigEclipseCaseData*                          eclipseCase,
+                                                   const std::vector<RifEclipseKeywordContent>& keywordContent );
+
 private:
     // Hide constructor to prevent instantiation
     RifEclipseInputPropertyLoader();
@@ -54,9 +59,17 @@ private:
     static const std::vector<QString>& invalidPropertyDataKeywords();
     static bool                        isValidDataKeyword( const QString& keyword );
 
-    static bool appendInputPropertyResult( RigEclipseCaseData*       caseData,
-                                           const QString&            resultName,
-                                           const std::string&        eclipseKeyword,
-                                           const std::vector<float>& values,
-                                           QString*                  errMsg );
+    static bool isInputPropertyCandidate( const RigEclipseCaseData* caseData,
+                                          const std::string&        eclipseKeyword,
+                                          size_t                    numberOfValues );
+
+    static bool appendNewInputPropertyResult( RigEclipseCaseData*       caseData,
+                                              const QString&            resultName,
+                                              const std::string&        eclipseKeyword,
+                                              const std::vector<float>& values,
+                                              QString*                  errMsg );
+
+    static QString evaluateAndCreateInputPropertyResult( RigEclipseCaseData*             eclipseCase,
+                                                         const RifEclipseKeywordContent& keywordContent,
+                                                         QString*                        errorMessage );
 };

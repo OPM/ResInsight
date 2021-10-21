@@ -678,8 +678,6 @@ void RimEclipseCase::loadAndSyncronizeInputProperties( bool importGridOrFaultDat
         filenames.push_back( fileName );
     }
 
-    if ( importGridOrFaultData ) filenames.push_back( gridFileName() );
-
     RifEclipseInputPropertyLoader::loadAndSyncronizeInputProperties( inputPropertyCollection(),
                                                                      eclipseCaseData(),
                                                                      filenames,

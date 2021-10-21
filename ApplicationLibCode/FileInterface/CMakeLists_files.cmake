@@ -68,6 +68,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RifEclEclipseSummary.h
     ${CMAKE_CURRENT_LIST_DIR}/RifWellIAFileWriter.h
     ${CMAKE_CURRENT_LIST_DIR}/RifEclipseTextFileReader.h
+    ${CMAKE_CURRENT_LIST_DIR}/RifEclipseKeywordContent.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
