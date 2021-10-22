@@ -43,6 +43,8 @@ public:
     double cellSizeZ() const;
     double area() const;
 
+    cvf::Vec3d centerPosition() const;
+
 private:
     std::vector<cvf::Vec3d> m_polygon;
     double                  m_conductivityValue;

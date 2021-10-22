@@ -434,11 +434,27 @@ std::vector<QString> RimEnsembleFractureStatistics::computeStatistics()
         std::vector<cvf::cref<RigFractureGrid>> fractureGrids =
             createFractureGrids( stimPlanFractureDefinitions, unitSystem, result.first, m_meshAlignmentType() );
 
+        double           numBins = 50;
+        RigHistogramData areaHistogramData =
+            RigEnsembleFractureStatisticsCalculator::createStatisticsData( stimPlanFractureDefinitions,
+                                                                           RigEnsembleFractureStatisticsCalculator::PropertyType::AREA,
+                                                                           numBins );
+
         std::vector<std::vector<double>> samples( gridXs.size() * gridYs.size() );
-        sampleAllGrids( fractureGrids, gridXs, gridYs, samples );
+        std::shared_ptr<RigSlice2D>      areaGrid     = std::make_shared<RigSlice2D>( gridXs.size(), gridYs.size() );
+        std::shared_ptr<RigSlice2D>      distanceGrid = std::make_shared<RigSlice2D>( gridXs.size(), gridYs.size() );
+        sampleAllGrids( fractureGrids, gridXs, gridYs, samples, areaGrid, distanceGrid );
 
         std::map<RimEnsembleFractureStatistics::StatisticsType, std::shared_ptr<RigSlice2D>> statisticsGrids;
-        generateStatisticsGrids( samples, gridXs.size(), gridYs.size(), fractureGrids.size(), statisticsGrids, selectedStatistics );
+        generateStatisticsGrids( samples,
+                                 gridXs.size(),
+                                 gridYs.size(),
+                                 fractureGrids.size(),
+                                 statisticsGrids,
+                                 selectedStatistics,
+                                 areaHistogramData,
+                                 areaGrid,
+                                 distanceGrid );
 
         for ( auto [statType, slice] : statisticsGrids )
         {
@@ -1011,28 +1027,68 @@ double RimEnsembleFractureStatistics::computeDepthOfWellPathAtFracture(
 void RimEnsembleFractureStatistics::sampleAllGrids( const std::vector<cvf::cref<RigFractureGrid>>& fractureGrids,
                                                     const std::vector<double>&                     samplesX,
                                                     const std::vector<double>&                     samplesY,
-                                                    std::vector<std::vector<double>>&              samples )
+                                                    std::vector<std::vector<double>>&              samples,
+                                                    std::shared_ptr<RigSlice2D>                    areaGrid,
+                                                    std::shared_ptr<RigSlice2D>                    distanceGrid )
 {
+    auto computeCellSideLength = []( const std::vector<double>& values, size_t idx ) {
+        if ( idx < values.size() - 1 )
+            return values[idx + 1] - values[idx];
+        else
+            return values[1] - values[0];
+    };
+
     const int ny = static_cast<int>( samplesY.size() );
 #pragma omp parallel for
     for ( int y = 0; y < ny; y++ )
     {
         for ( size_t x = 0; x < samplesX.size(); x++ )
         {
-            double     posX = samplesX[x];
-            double     posY = samplesY[y];
-            cvf::Vec3d pos( posX, posY, 0.0 );
+            // Position of cell center
+            const cvf::Vec3d pos( samplesX[x], samplesY[y], 0.0 );
+            const size_t     idx = y * samplesX.size() + x;
 
+            double sumDistance = 0.0;
             for ( auto fractureGrid : fractureGrids )
             {
+                // Sample each fracture grid at a given position
                 const RigFractureCell* fractureCell = fractureGrid->getCellFromPosition( pos );
                 if ( fractureCell )
                 {
-                    size_t idx   = y * samplesX.size() + x;
                     double value = fractureCell->getConductivityValue();
                     if ( !std::isinf( value ) ) samples[idx].push_back( value );
                 }
+
+                // Find distance to the fracture grid well path intersection for the given
+                // cell center position (X, Y).
+                std::pair<size_t, size_t> centerIJ = fractureGrid->fractureCellAtWellCenter();
+                size_t centerIdx = fractureGrid->getGlobalIndexFromIJ( centerIJ.first, centerIJ.second );
+                const RigFractureCell& centerCell = fractureGrid->cellFromIndex( centerIdx );
+                const cvf::Vec3d&      centerPos  = centerCell.centerPosition();
+
+                sumDistance += pos.pointDistance( centerPos );
             }
+
+            // Average distance for all the fractures
+            distanceGrid->setValue( x, y, sumDistance / fractureGrids.size() );
+
+            // Compute the area of the cell
+            double area = 0.0;
+            if ( !samples.empty() )
+            {
+                double sum = 0.0;
+                for ( auto s : samples[idx] )
+                    sum += s;
+
+                // Only cells with non-zero conductivity have defined area
+                if ( sum > 0.0 )
+                {
+                    double diffX = computeCellSideLength( samplesX, x );
+                    double diffY = computeCellSideLength( samplesY, y );
+                    area         = std::fabs( diffX ) * std::fabs( diffY );
+                }
+            }
+            areaGrid->setValue( x, y, area );
         }
     }
 }
@@ -1078,7 +1134,10 @@ void RimEnsembleFractureStatistics::generateStatisticsGrids(
     size_t                                                                                numSamplesY,
     size_t                                                                                numGrids,
     std::map<RimEnsembleFractureStatistics::StatisticsType, std::shared_ptr<RigSlice2D>>& statisticsGrids,
-    const std::vector<caf::AppEnum<RimEnsembleFractureStatistics::StatisticsType>>&       statisticsTypes )
+    const std::vector<caf::AppEnum<RimEnsembleFractureStatistics::StatisticsType>>&       statisticsTypes,
+    const RigHistogramData&                                                               areaHistogram,
+    std::shared_ptr<RigSlice2D>                                                           areaGrid,
+    std::shared_ptr<RigSlice2D>                                                           distanceGrid )
 {
     for ( auto t : statisticsTypes )
     {
@@ -1104,6 +1163,13 @@ void RimEnsembleFractureStatistics::generateStatisticsGrids(
         grid->setValue( x, y, value );
     };
 
+    auto removeNonPositiveValues = []( const std::vector<double>& values ) {
+        std::vector<double> nonZeroValues;
+        for ( double value : values )
+            if ( value > 0.0 ) nonZeroValues.push_back( value );
+        return nonZeroValues;
+    };
+
     RigSlice2D occurrenceGrid( numSamplesX, numSamplesY );
 
     const int ny = static_cast<int>( numSamplesY );
@@ -1114,6 +1180,8 @@ void RimEnsembleFractureStatistics::generateStatisticsGrids(
         {
             size_t idx = y * numSamplesX + x;
 
+            // Remove samples without positive values (no conductivity).
+            std::vector<double> values = removeNonPositiveValues( samples[idx] );
             if ( calculateMin || calculateMax || calculateMean )
             {
                 double min;
@@ -1122,7 +1190,7 @@ void RimEnsembleFractureStatistics::generateStatisticsGrids(
                 double range;
                 double mean;
                 double dev;
-                RigStatisticsMath::calculateBasicStatistics( samples[idx], &min, &max, &sum, &range, &mean, &dev );
+                RigStatisticsMath::calculateBasicStatistics( values, &min, &max, &sum, &range, &mean, &dev );
 
                 if ( calculateMean )
                     setValueNoInf( statisticsGrids[RimEnsembleFractureStatistics::StatisticsType::MEAN], x, y, mean );
@@ -1140,7 +1208,7 @@ void RimEnsembleFractureStatistics::generateStatisticsGrids(
                 double p50;
                 double p90;
                 double mean;
-                RigStatisticsMath::calculateStatisticsCurves( samples[idx],
+                RigStatisticsMath::calculateStatisticsCurves( values,
                                                               &p10,
                                                               &p50,
                                                               &p90,
@@ -1159,51 +1227,117 @@ void RimEnsembleFractureStatistics::generateStatisticsGrids(
 
             if ( calculateOccurrence )
             {
-                statisticsGrids[RimEnsembleFractureStatistics::StatisticsType::OCCURRENCE]->setValue( x,
-                                                                                                      y,
-                                                                                                      samples[idx].size() );
+                statisticsGrids[RimEnsembleFractureStatistics::StatisticsType::OCCURRENCE]->setValue( x, y, values.size() );
             }
 
             // Internal occurrence grid for the area correction is always calculated
-            occurrenceGrid.setValue( x, y, samples[idx].size() );
+            occurrenceGrid.setValue( x, y, values.size() );
         }
     }
 
-    auto clearCells =
-        []( std::shared_ptr<RigSlice2D>& grid, const RigSlice2D& occurrenceGrid, size_t numGrids, double limitFraction ) {
-            for ( size_t y = 0; y < occurrenceGrid.ny(); y++ )
-            {
-                for ( size_t x = 0; x < occurrenceGrid.nx(); x++ )
-                {
-                    double fraction = occurrenceGrid.getValue( x, y ) / numGrids;
-                    if ( fraction < limitFraction )
-                    {
-                        grid->setValue( x, y, 0.0 );
-                    }
-                }
-            }
-        };
+    std::map<RimEnsembleFractureStatistics::StatisticsType, double> areaMapping;
+    areaMapping[RimEnsembleFractureStatistics::StatisticsType::MIN]  = areaHistogram.min;
+    areaMapping[RimEnsembleFractureStatistics::StatisticsType::MAX]  = areaHistogram.max;
+    areaMapping[RimEnsembleFractureStatistics::StatisticsType::MEAN] = areaHistogram.mean;
+    areaMapping[RimEnsembleFractureStatistics::StatisticsType::P50]  = areaHistogram.mean;
+    areaMapping[RimEnsembleFractureStatistics::StatisticsType::P10]  = areaHistogram.p10;
+    areaMapping[RimEnsembleFractureStatistics::StatisticsType::P90]  = areaHistogram.p90;
 
     // Post-process the resulting grids improve area representation
-    // 1: Mean only include cells which have values in half of more of the grids
-    if ( calculateMean )
-        clearCells( statisticsGrids[RimEnsembleFractureStatistics::StatisticsType::MEAN], occurrenceGrid, numGrids, 0.5 );
+    for ( auto statisticsType : statisticsTypes )
+    {
+        statisticsGrids[statisticsType] = setCellsToFillTargetArea( statisticsGrids[statisticsType],
+                                                                    occurrenceGrid,
+                                                                    *areaGrid,
+                                                                    *distanceGrid,
+                                                                    areaMapping[statisticsType] );
+    }
+}
 
-    // 2: Minimum only include cells present in every grid
-    if ( calculateMin )
-        clearCells( statisticsGrids[RimEnsembleFractureStatistics::StatisticsType::MIN], occurrenceGrid, numGrids, 1.0 );
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::shared_ptr<RigSlice2D> RimEnsembleFractureStatistics::setCellsToFillTargetArea( std::shared_ptr<RigSlice2D>& grid,
+                                                                                     const RigSlice2D& occurrenceGrid,
+                                                                                     const RigSlice2D& areaGrid,
+                                                                                     const RigSlice2D& distanceGrid,
+                                                                                     double            targetArea )
+{
+    // Internal cell data class for ordering cells.
+    class CellData
+    {
+    public:
+        size_t x;
+        size_t y;
+        double occurrence;
+        double area;
+        double distance;
 
-    // 3: P10 only include cells with have values in 10% or more of the grids
-    if ( calculateP10 )
-        clearCells( statisticsGrids[RimEnsembleFractureStatistics::StatisticsType::P10], occurrenceGrid, numGrids, 0.1 );
+        // The cells are ordered by:
+        // 1. Occurrence: how often the cell had conductivity in the individual fractures.
+        // 2. Distance: distance from the well path intersection point (average for all fractures).
+        //              Short distance is preferred.
+        // 3. Area: The area of the cell. Smaller is preferred.
+        // 4. X and Y cell index: Not important for sorting, but used to avoid rejecting cells
+        //       when everything else is equal.
+        bool operator<( CellData const& p ) const
+        {
+            if ( occurrence > p.occurrence )
+                return true;
+            else if ( occurrence == p.occurrence && distance < p.distance )
+                return true;
+            else if ( occurrence == p.occurrence && distance == p.distance && area < p.area )
+                return true;
+            else if ( occurrence == p.occurrence && distance == p.distance && area == p.area && x < p.x )
+                return true;
+            else if ( occurrence == p.occurrence && distance == p.distance && area == p.area && x == p.x && y < p.y )
+                return true;
 
-    // 4: P50 only include cells which have values in half of more of the grids
-    if ( calculateP50 )
-        clearCells( statisticsGrids[RimEnsembleFractureStatistics::StatisticsType::P50], occurrenceGrid, numGrids, 0.5 );
+            return false;
+        }
+    };
 
-    // 5: P90 only include cells with have values in 90% or more of the grids
-    if ( calculateP90 )
-        clearCells( statisticsGrids[RimEnsembleFractureStatistics::StatisticsType::P90], occurrenceGrid, numGrids, 0.9 );
+    // Create ordered list of the cells
+    std::set<CellData> cells;
+    for ( size_t y = 0; y < occurrenceGrid.ny(); y++ )
+    {
+        for ( size_t x = 0; x < occurrenceGrid.nx(); x++ )
+        {
+            CellData cell;
+            cell.x          = x;
+            cell.y          = y;
+            cell.occurrence = occurrenceGrid.getValue( x, y );
+            cell.area       = areaGrid.getValue( x, y );
+            cell.distance   = distanceGrid.getValue( x, y );
+            cells.insert( cell );
+        }
+    }
+
+    // Fill cells in the output grid until the target area is reached.
+    // This ensures that the statistics fracture grids have representantive sizes.
+    std::shared_ptr<RigSlice2D> outputGrid = std::make_shared<RigSlice2D>( grid->nx(), grid->ny() );
+    double                      area       = 0.0;
+    for ( const CellData& cellData : cells )
+    {
+        if ( area < targetArea )
+        {
+            double value = grid->getValue( cellData.x, cellData.y );
+            if ( !std::isinf( value ) && cellData.area > 0.0 )
+            {
+                outputGrid->setValue( cellData.x, cellData.y, value );
+                area += cellData.area;
+            }
+        }
+        else
+        {
+            // Target area is reached.
+            break;
+        }
+    }
+
+    RiaLogging::info( QString( "Statistics fracture area: %1 target area: %2" ).arg( area ).arg( targetArea ) );
+
+    return outputGrid;
 }
 
 //--------------------------------------------------------------------------------------------------

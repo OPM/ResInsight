@@ -20,6 +20,8 @@
 
 #include "RiaLogging.h"
 
+#include "cvfGeometryTools.h"
+
 #include <QString>
 
 //--------------------------------------------------------------------------------------------------
@@ -106,4 +108,12 @@ double RigFractureCell::cellSizeZ() const
 double RigFractureCell::area() const
 {
     return cellSizeX() * cellSizeZ();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+cvf::Vec3d RigFractureCell::centerPosition() const
+{
+    return cvf::GeometryTools::computePolygonCenter( m_polygon );
 }
