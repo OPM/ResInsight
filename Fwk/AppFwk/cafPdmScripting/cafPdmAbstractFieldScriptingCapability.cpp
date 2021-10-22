@@ -38,6 +38,8 @@
 #include "cafPdmFieldHandle.h"
 #include "cafPdmPythonGenerator.h"
 
+#include <QStringList>
+
 using namespace caf;
 
 //--------------------------------------------------------------------------------------------------
@@ -95,4 +97,12 @@ QString PdmAbstractFieldScriptingCapability::helpString( const QString& existing
 
     if ( !existingTooltip.isEmpty() ) return existingTooltip + "\n\n" + helpString;
     return helpString;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QStringList PdmAbstractFieldScriptingCapability::enumScriptTexts() const
+{
+    return QStringList();
 }
