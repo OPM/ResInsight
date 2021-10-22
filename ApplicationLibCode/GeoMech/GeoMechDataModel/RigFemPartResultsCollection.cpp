@@ -178,8 +178,12 @@ RigFemPartResultsCollection::RigFemPartResultsCollection( RifGeoMechReaderInterf
         std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorNE( *this ) ) );
     m_resultCalculators.push_back(
         std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorGamma( *this ) ) );
-    m_resultCalculators.push_back(
-        std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorPrincipalStrain( *this ) ) );
+    m_resultCalculators.push_back( std::unique_ptr<RigFemPartResultCalculator>(
+        new RigFemPartResultCalculatorPrincipalStrain( *this, "NE", "E" ) ) );
+    m_resultCalculators.push_back( std::unique_ptr<RigFemPartResultCalculator>(
+        new RigFemPartResultCalculatorPrincipalStrain( *this, "LE", "LE" ) ) );
+    m_resultCalculators.push_back( std::unique_ptr<RigFemPartResultCalculator>(
+        new RigFemPartResultCalculatorPrincipalStrain( *this, "PE", "PE" ) ) );
     m_resultCalculators.push_back(
         std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorPrincipalStress( *this ) ) );
     m_resultCalculators.push_back(
@@ -677,6 +681,20 @@ std::map<std::string, std::vector<std::string>>
             fieldCompNames["MUD-WEIGHT"].push_back( "MWM" );
             fieldCompNames["MUD-WEIGHT"].push_back( "UMWL" );
             fieldCompNames["MUD-WEIGHT"].push_back( "LMWL" );
+
+            if ( fieldCompNames.count( "LE" ) > 0 )
+            {
+                fieldCompNames["LE"].push_back( "LE1" );
+                fieldCompNames["LE"].push_back( "LE2" );
+                fieldCompNames["LE"].push_back( "LE3" );
+            }
+
+            if ( fieldCompNames.count( "PE" ) > 0 )
+            {
+                fieldCompNames["PE"].push_back( "PE1" );
+                fieldCompNames["PE"].push_back( "PE2" );
+                fieldCompNames["PE"].push_back( "PE3" );
+            }
         }
         else if ( resPos == RIG_INTEGRATION_POINT )
         {
@@ -767,6 +785,20 @@ std::map<std::string, std::vector<std::string>>
             fieldCompNames["MUD-WEIGHT"].push_back( "MWM" );
             fieldCompNames["MUD-WEIGHT"].push_back( "UMWL" );
             fieldCompNames["MUD-WEIGHT"].push_back( "LMWL" );
+
+            if ( fieldCompNames.count( "LE" ) > 0 )
+            {
+                fieldCompNames["LE"].push_back( "LE1" );
+                fieldCompNames["LE"].push_back( "LE2" );
+                fieldCompNames["LE"].push_back( "LE3" );
+            }
+
+            if ( fieldCompNames.count( "PE" ) > 0 )
+            {
+                fieldCompNames["PE"].push_back( "PE1" );
+                fieldCompNames["PE"].push_back( "PE2" );
+                fieldCompNames["PE"].push_back( "PE3" );
+            }
         }
         else if ( resPos == RIG_ELEMENT_NODAL_FACE )
         {

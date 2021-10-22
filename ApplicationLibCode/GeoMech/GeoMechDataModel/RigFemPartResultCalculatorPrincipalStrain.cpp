@@ -31,9 +31,17 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigFemPartResultCalculatorPrincipalStrain::RigFemPartResultCalculatorPrincipalStrain( RigFemPartResultsCollection& collection )
+RigFemPartResultCalculatorPrincipalStrain::RigFemPartResultCalculatorPrincipalStrain( RigFemPartResultsCollection& collection,
+                                                                                      const std::string fieldName,
+                                                                                      const std::string componentPrefix )
     : RigFemPartResultCalculator( collection )
+    , m_fieldName( fieldName )
+    , m_componentPrefix( componentPrefix )
+    , m_componentNames( 3 )
 {
+    m_componentNames[0] = componentPrefix + "1";
+    m_componentNames[1] = componentPrefix + "2";
+    m_componentNames[2] = componentPrefix + "3";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -48,8 +56,12 @@ RigFemPartResultCalculatorPrincipalStrain::~RigFemPartResultCalculatorPrincipalS
 //--------------------------------------------------------------------------------------------------
 bool RigFemPartResultCalculatorPrincipalStrain::isMatching( const RigFemResultAddress& resVarAddr ) const
 {
-    return ( ( resVarAddr.fieldName == "NE" ) && ( resVarAddr.componentName == "E1" || resVarAddr.componentName == "E2" ||
-                                                   resVarAddr.componentName == "E3" ) );
+    if ( resVarAddr.fieldName != m_fieldName ) return false;
+
+    for ( const auto& component : m_componentNames )
+        if ( resVarAddr.componentName == component ) return true;
+
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -58,30 +70,32 @@ bool RigFemPartResultCalculatorPrincipalStrain::isMatching( const RigFemResultAd
 RigFemScalarResultFrames* RigFemPartResultCalculatorPrincipalStrain::calculate( int                        partIndex,
                                                                                 const RigFemResultAddress& resAddr )
 {
-    CVF_ASSERT( resAddr.componentName == "E1" || resAddr.componentName == "E2" || resAddr.componentName == "E3" );
+    CVF_ASSERT( resAddr.componentName == m_componentNames[0] || resAddr.componentName == m_componentNames[1] ||
+                resAddr.componentName == m_componentNames[2] );
 
     QString progressText = "Calculating " + QString::fromStdString( resAddr.fieldName + ": " + resAddr.componentName );
 
     caf::ProgressInfo frameCountProgress( static_cast<size_t>( m_resultCollection->frameCount() ) * 7, progressText );
 
-    auto loadFrameLambda = [&]( const QString& component ) {
-        auto task = frameCountProgress.task( "Loading " + component, m_resultCollection->frameCount() );
-        return m_resultCollection->findOrLoadScalarResult( partIndex, resAddr.copyWithComponent( component.toStdString() ) );
+    auto loadFrameLambda = [&]( const std::string& component ) {
+        auto task = frameCountProgress.task( QString::fromStdString( "Loading " + component ),
+                                             m_resultCollection->frameCount() );
+        return m_resultCollection->findOrLoadScalarResult( partIndex, resAddr.copyWithComponent( component ) );
     };
 
-    RigFemScalarResultFrames* e11Frames = loadFrameLambda( "E11" );
-    RigFemScalarResultFrames* e22Frames = loadFrameLambda( "E22" );
-    RigFemScalarResultFrames* e33Frames = loadFrameLambda( "E33" );
-    RigFemScalarResultFrames* e12Frames = loadFrameLambda( "E12" );
-    RigFemScalarResultFrames* e13Frames = loadFrameLambda( "E13" );
-    RigFemScalarResultFrames* e23Frames = loadFrameLambda( "E23" );
+    RigFemScalarResultFrames* e11Frames = loadFrameLambda( m_componentPrefix + "11" );
+    RigFemScalarResultFrames* e22Frames = loadFrameLambda( m_componentPrefix + "22" );
+    RigFemScalarResultFrames* e33Frames = loadFrameLambda( m_componentPrefix + "33" );
+    RigFemScalarResultFrames* e12Frames = loadFrameLambda( m_componentPrefix + "12" );
+    RigFemScalarResultFrames* e13Frames = loadFrameLambda( m_componentPrefix + "13" );
+    RigFemScalarResultFrames* e23Frames = loadFrameLambda( m_componentPrefix + "23" );
 
     RigFemScalarResultFrames* e1Frames =
-        m_resultCollection->createScalarResult( partIndex, resAddr.copyWithComponent( "E1" ) );
+        m_resultCollection->createScalarResult( partIndex, resAddr.copyWithComponent( m_componentNames[0] ) );
     RigFemScalarResultFrames* e2Frames =
-        m_resultCollection->createScalarResult( partIndex, resAddr.copyWithComponent( "E2" ) );
+        m_resultCollection->createScalarResult( partIndex, resAddr.copyWithComponent( m_componentNames[1] ) );
     RigFemScalarResultFrames* e3Frames =
-        m_resultCollection->createScalarResult( partIndex, resAddr.copyWithComponent( "E3" ) );
+        m_resultCollection->createScalarResult( partIndex, resAddr.copyWithComponent( m_componentNames[2] ) );
 
     int frameCount = e11Frames->frameCount();
     for ( int fIdx = 0; fIdx < frameCount; ++fIdx )
