@@ -20,6 +20,9 @@
 
 #include "RigFemPartResultCalculator.h"
 
+#include <string>
+#include <vector>
+
 class RigFemPartResultsCollection;
 class RigFemScalarResultFrames;
 class RigFemResultAddress;
@@ -30,8 +33,15 @@ class RigFemResultAddress;
 class RigFemPartResultCalculatorPrincipalStrain : public RigFemPartResultCalculator
 {
 public:
-    explicit RigFemPartResultCalculatorPrincipalStrain( RigFemPartResultsCollection& collection );
+    explicit RigFemPartResultCalculatorPrincipalStrain( RigFemPartResultsCollection& collection,
+                                                        const std::string            fieldName,
+                                                        const std::string            componentPrefix );
     ~RigFemPartResultCalculatorPrincipalStrain() override;
     bool                      isMatching( const RigFemResultAddress& resVarAddr ) const override;
     RigFemScalarResultFrames* calculate( int partIndex, const RigFemResultAddress& resVarAddr ) override;
+
+private:
+    const std::string        m_fieldName;
+    const std::string        m_componentPrefix;
+    std::vector<std::string> m_componentNames;
 };
