@@ -39,6 +39,7 @@
 #include <QString>
 
 class QTextStream;
+class QStringList;
 
 namespace caf
 {
@@ -67,6 +68,8 @@ public:
                                caf::PdmObjectHandle*     existingObjectsRoot = nullptr ) = 0;
 
     static QString helpString( const QString& existingTooltip, const QString& keyword );
+
+    virtual QStringList enumScriptTexts() const;
 
 protected:
     PdmFieldHandle* m_owner;

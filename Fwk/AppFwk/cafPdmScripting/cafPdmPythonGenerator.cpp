@@ -187,8 +187,21 @@ QString caf::PdmPythonGenerator::generate( PdmObjectFactory* factory, std::vecto
                                 QString fieldCode =
                                     QString( "        self.%1 = %2\n" ).arg( snake_field_name ).arg( valueString );
 
-                                QString fullComment =
-                                    QString( "%1 (%2): %3\n" ).arg( snake_field_name ).arg( dataType ).arg( comment );
+                                QString fullComment;
+                                {
+                                    QString commentAndEnum = comment;
+
+                                    QStringList enumTexts = scriptability->enumScriptTexts();
+                                    if ( !enumTexts.empty() )
+                                    {
+                                        // Replace the comment text with enum values
+                                        // The space is limited for the generation of documentation
+                                        commentAndEnum = "One of [" + enumTexts.join( ", " ) + "]";
+                                    }
+
+                                    fullComment =
+                                        QString( "%1 (%2): %3\n" ).arg( snake_field_name ).arg( dataType ).arg( commentAndEnum );
+                                }
 
                                 classAttributesGenerated[field->ownerClass()][snake_field_name].first  = fieldCode;
                                 classAttributesGenerated[field->ownerClass()][snake_field_name].second = fullComment;
