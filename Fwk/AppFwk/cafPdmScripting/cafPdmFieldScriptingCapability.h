@@ -186,9 +186,8 @@ struct PdmFieldScriptingCapabilityIOHandler<AppEnum<T>>
         {
             // Unexpected enum value
             // Error message
-            errorMessageContainer->addError( "Argument must be valid enum value. " +
-                                             errorMessageContainer->currentArgument + "\" argument of the command: \"" +
-                                             errorMessageContainer->currentCommand + "\"" );
+            errorMessageContainer->addError( "Failed to set enum text value \"" + accumulatedFieldValue +
+                                             "\" for the command: \"" + errorMessageContainer->currentCommand + "\"" );
         }
     }
 

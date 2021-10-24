@@ -31,6 +31,7 @@ class PdmChildFieldHandle;
 class PdmFieldHandle;
 class PdmObject;
 class PdmObjectHandle;
+class PdmScriptIOMessages;
 } // namespace caf
 
 namespace rips
@@ -57,8 +58,11 @@ public:
     static void copyPdmObjectFromCafToRips( const caf::PdmObjectHandle* source, rips::PdmObject* destination );
     static void copyPdmObjectFromRipsToCaf( const rips::PdmObject* source, caf::PdmObjectHandle* destination );
 
-    static bool
-        assignFieldValue( const QString& stringValue, caf::PdmFieldHandle* field, QVariant* oldValue, QVariant* newValue );
+    static bool assignFieldValue( const QString&            stringValue,
+                                  caf::PdmFieldHandle*      field,
+                                  QVariant*                 oldValue,
+                                  QVariant*                 newValue,
+                                  caf::PdmScriptIOMessages* messages );
 
     static caf::PdmObjectHandle*
         emplaceChildField( caf::PdmObject* parent, const QString& fieldKeyword, const QString& keywordForClassToCreate );
