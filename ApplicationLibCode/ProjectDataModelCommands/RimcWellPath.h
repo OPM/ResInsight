@@ -30,12 +30,12 @@ class RimStimPlanFractureTemplate;
 //==================================================================================================
 ///
 //==================================================================================================
-class RimcWellPath_newFracture : public caf::PdmObjectMethod
+class RimcWellPath_addFracture : public caf::PdmObjectMethod
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimcWellPath_newFracture( caf::PdmObjectHandle* self );
+    RimcWellPath_addFracture( caf::PdmObjectHandle* self );
 
     caf::PdmObjectHandle*            execute() override;
     bool                             resultIsPersistent() const override;

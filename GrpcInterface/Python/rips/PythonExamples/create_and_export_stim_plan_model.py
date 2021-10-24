@@ -28,7 +28,7 @@ time_step = time_steps[len(time_steps) - 1]
 
 # Create stim plan model template
 fmt_collection = project.descendants(rips.StimPlanModelTemplateCollection)[0]
-stim_plan_model_template = fmt_collection.new_stim_plan_model_template(
+stim_plan_model_template = fmt_collection.append_stim_plan_model_template(
     eclipse_case=case,
     time_step=time_step,
     elastic_properties_file_path=elastic_properties_file_path,
@@ -84,7 +84,7 @@ measured_depths = [3200.0, 3400.0, 3600.0]
 for measured_depth in measured_depths:
 
     # Create stim plan model at a give measured depth
-    stim_plan_model = stim_plan_model_collection.new_stim_plan_model(
+    stim_plan_model = stim_plan_model_collection.append_stim_plan_model(
         well_path=well_path,
         measured_depth=measured_depth,
         stim_plan_model_template=stim_plan_model_template,
@@ -107,7 +107,7 @@ for measured_depth in measured_depths:
     stim_plan_model_plot_collection = project.descendants(
         rips.StimPlanModelPlotCollection
     )[0]
-    stim_plan_model_plot = stim_plan_model_plot_collection.new_stim_plan_model_plot(
+    stim_plan_model_plot = stim_plan_model_plot_collection.append_stim_plan_model_plot(
         stim_plan_model=stim_plan_model
     )
 

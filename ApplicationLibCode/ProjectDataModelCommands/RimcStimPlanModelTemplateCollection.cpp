@@ -31,13 +31,13 @@
 #include "cafPdmFieldScriptingCapability.h"
 
 CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimStimPlanModelTemplateCollection,
-                                   RimcStimPlanModelTemplateCollection_newStimPlanModelTemplate,
-                                   "NewStimPlanModelTemplate" );
+                                   RimcStimPlanModelTemplateCollection_appendStimPlanModelTemplate,
+                                   "AppendStimPlanModelTemplate" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimcStimPlanModelTemplateCollection_newStimPlanModelTemplate::RimcStimPlanModelTemplateCollection_newStimPlanModelTemplate(
+RimcStimPlanModelTemplateCollection_appendStimPlanModelTemplate::RimcStimPlanModelTemplateCollection_appendStimPlanModelTemplate(
     caf::PdmObjectHandle* self )
     : caf::PdmObjectMethod( self )
 {
@@ -62,34 +62,34 @@ RimcStimPlanModelTemplateCollection_newStimPlanModelTemplate::RimcStimPlanModelT
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PdmObjectHandle* RimcStimPlanModelTemplateCollection_newStimPlanModelTemplate::execute()
+caf::PdmObjectHandle* RimcStimPlanModelTemplateCollection_appendStimPlanModelTemplate::execute()
 {
     if ( !m_eclipseCase ) return nullptr;
 
-    RimStimPlanModelTemplate*           newStimPlanModelTemplate        = new RimStimPlanModelTemplate;
+    RimStimPlanModelTemplate*           appendStimPlanModelTemplate     = new RimStimPlanModelTemplate;
     RimStimPlanModelTemplateCollection* stimPlanModelTemplateCollection = self<RimStimPlanModelTemplateCollection>();
 
-    newStimPlanModelTemplate->setName( RicFractureNameGenerator::nameForNewStimPlanModelTemplate() );
-    newStimPlanModelTemplate->setDynamicEclipseCase( m_eclipseCase );
-    newStimPlanModelTemplate->setTimeStep( m_timeStep );
-    newStimPlanModelTemplate->setInitialPressureEclipseCase( m_eclipseCase );
-    newStimPlanModelTemplate->setStaticEclipseCase( m_eclipseCase );
+    appendStimPlanModelTemplate->setName( RicFractureNameGenerator::nameForNewStimPlanModelTemplate() );
+    appendStimPlanModelTemplate->setDynamicEclipseCase( m_eclipseCase );
+    appendStimPlanModelTemplate->setTimeStep( m_timeStep );
+    appendStimPlanModelTemplate->setInitialPressureEclipseCase( m_eclipseCase );
+    appendStimPlanModelTemplate->setStaticEclipseCase( m_eclipseCase );
 
-    stimPlanModelTemplateCollection->addStimPlanModelTemplate( newStimPlanModelTemplate );
+    stimPlanModelTemplateCollection->addStimPlanModelTemplate( appendStimPlanModelTemplate );
 
     RicElasticPropertiesImportTools::importElasticPropertiesFromFile( m_elasticPropertiesFilePath,
-                                                                      newStimPlanModelTemplate );
+                                                                      appendStimPlanModelTemplate );
     RicFaciesPropertiesImportTools::importFaciesPropertiesFromFile( m_faciesPropertiesFilePath,
-                                                                    newStimPlanModelTemplate,
+                                                                    appendStimPlanModelTemplate,
                                                                     true );
     stimPlanModelTemplateCollection->updateAllRequiredEditors();
-    return newStimPlanModelTemplate;
+    return appendStimPlanModelTemplate;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimcStimPlanModelTemplateCollection_newStimPlanModelTemplate::resultIsPersistent() const
+bool RimcStimPlanModelTemplateCollection_appendStimPlanModelTemplate::resultIsPersistent() const
 {
     return true;
 }
@@ -97,7 +97,7 @@ bool RimcStimPlanModelTemplateCollection_newStimPlanModelTemplate::resultIsPersi
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::unique_ptr<caf::PdmObjectHandle> RimcStimPlanModelTemplateCollection_newStimPlanModelTemplate::defaultResult() const
+std::unique_ptr<caf::PdmObjectHandle> RimcStimPlanModelTemplateCollection_appendStimPlanModelTemplate::defaultResult() const
 {
     return std::unique_ptr<caf::PdmObjectHandle>( new RimStimPlanModelTemplate );
 }
