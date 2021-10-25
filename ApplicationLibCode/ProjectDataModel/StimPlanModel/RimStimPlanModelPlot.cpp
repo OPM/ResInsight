@@ -109,7 +109,7 @@ QList<caf::PdmOptionItemInfo>
 {
     QList<caf::PdmOptionItemInfo> options;
 
-    if ( fieldNeedingOptions == &m_stimPlanModel )
+    if ( fieldNeedingOptions == &m_stimPlanModel && m_stimPlanModel )
     {
         // The user is not allowed to change this field, but option box looks good
         options.push_back( caf::PdmOptionItemInfo( m_stimPlanModel->name(), m_stimPlanModel ) );

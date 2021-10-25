@@ -681,7 +681,6 @@ public:
         return enumTexts;
     }
 
-    // Xml Serializing
 private:
     PdmField<caf::AppEnum<DataType>>* m_field;
 };
