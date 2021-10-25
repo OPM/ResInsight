@@ -45,7 +45,7 @@
 
 #include <map>
 
-CAF_PDM_SOURCE_INIT( RimFractureTemplateCollection, "FractureDefinitionCollection" );
+CAF_PDM_SOURCE_INIT( RimFractureTemplateCollection, "FractureTemplateCollection", "FractureDefinitionCollection" );
 
 //--------------------------------------------------------------------------------------------------
 ///

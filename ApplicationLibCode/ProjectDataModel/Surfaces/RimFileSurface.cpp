@@ -31,10 +31,7 @@
 
 #include <QFileInfo>
 
-// TODO: Use the alias concept prototyped below when the alias concept for class is ready
-// CAF_PDM_SOURCE_INIT( RimFileSurface, "FileSurface", "Surface" );
-// CAF_PDM_SOURCE_INIT( <class>       ,  <keyword>   , <alias>);
-CAF_PDM_SOURCE_INIT( RimFileSurface, "Surface" );
+CAF_PDM_SOURCE_INIT( RimFileSurface, "Surface", "FileSurface" );
 
 //--------------------------------------------------------------------------------------------------
 ///

@@ -32,7 +32,7 @@
 #include "cafPdmObjectScriptingCapability.h"
 #include "cvfStructGridGeometryGenerator.h"
 
-CAF_PDM_SOURCE_INIT( RimCellFilterCollection, "RimCellFilterCollection", "CellRangeFilterCollection" );
+CAF_PDM_SOURCE_INIT( RimCellFilterCollection, "CellFilterCollection", "RimCellFilterCollection", "CellRangeFilterCollection" );
 
 //--------------------------------------------------------------------------------------------------
 ///

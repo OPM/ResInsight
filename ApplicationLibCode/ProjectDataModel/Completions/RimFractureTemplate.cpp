@@ -103,7 +103,7 @@ void caf::AppEnum<RimFractureTemplate::BetaFactorEnum>::setUp()
 #define CAF_PDM_InitField_Basic( field, keyword, default, uiName ) \
     CAF_PDM_InitField( field, keyword, default, uiName, "", "", "" )
 
-CAF_PDM_XML_ABSTRACT_SOURCE_INIT( RimFractureTemplate, "RimFractureTemplate" );
+CAF_PDM_XML_ABSTRACT_SOURCE_INIT( RimFractureTemplate, "FractureTemplate", "RimFractureTemplate" );
 
 //--------------------------------------------------------------------------------------------------
 ///

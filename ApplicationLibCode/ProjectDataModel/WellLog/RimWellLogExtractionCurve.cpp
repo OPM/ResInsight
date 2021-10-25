@@ -76,7 +76,7 @@
 ///
 //==================================================================================================
 
-CAF_PDM_SOURCE_INIT( RimWellLogExtractionCurve, "RimWellLogExtractionCurve" );
+CAF_PDM_SOURCE_INIT( RimWellLogExtractionCurve, "WellLogExtractionCurve", "RimWellLogExtractionCurve" );
 
 namespace caf
 {
