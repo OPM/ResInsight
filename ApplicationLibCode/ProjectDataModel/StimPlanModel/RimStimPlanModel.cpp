@@ -48,7 +48,6 @@
 #include "RimNonNetLayers.h"
 #include "RimOilField.h"
 #include "RimPerforationCollection.h"
-#include "RimPolylineTarget.h"
 #include "RimPressureTable.h"
 #include "RimProject.h"
 #include "RimStimPlanModelCalculator.h"
