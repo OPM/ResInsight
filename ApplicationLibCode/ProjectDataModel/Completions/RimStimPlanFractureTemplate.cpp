@@ -64,7 +64,7 @@
 
 static std::vector<double> EMPTY_DOUBLE_VECTOR;
 
-CAF_PDM_SOURCE_INIT( RimStimPlanFractureTemplate, "RimStimPlanFractureTemplate" );
+CAF_PDM_SOURCE_INIT( RimStimPlanFractureTemplate, "StimPlanFractureTemplate", "RimStimPlanFractureTemplate" );
 
 //--------------------------------------------------------------------------------------------------
 ///

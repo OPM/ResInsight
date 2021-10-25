@@ -18,7 +18,7 @@ cases = resinsight.project.cases()
 case = cases[0]
 
 # Create stim plan template
-fmt_collection = project.descendants(rips.FractureDefinitionCollection)[0]
+fmt_collection = project.descendants(rips.FractureTemplateCollection)[0]
 fracture_template = fmt_collection.append_fracture_template(
     file_path=stim_plan_file_path
 )
