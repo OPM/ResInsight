@@ -71,7 +71,6 @@ void RimElasticPropertyScalingCollection::addElasticPropertyScaling( RimElasticP
 {
     scaling->changed.connect( this, &RimElasticPropertyScalingCollection::elasticPropertyScalingChanged );
     m_elasticPropertyScalings.push_back( scaling );
-    scaling->ensureDefaultFormationAndFacies();
 }
 
 //--------------------------------------------------------------------------------------------------
