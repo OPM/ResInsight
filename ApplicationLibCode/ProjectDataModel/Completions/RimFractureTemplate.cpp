@@ -27,7 +27,9 @@
 #include "RimFractureContainment.h"
 #include "RimProject.h"
 
+#include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObject.h"
+#include "cafPdmObjectScriptingCapability.h"
 #include "cafPdmUiDoubleSliderEditor.h"
 #include "cafPdmUiDoubleValueEditor.h"
 #include "cafPdmUiPushButtonEditor.h"
@@ -109,7 +111,7 @@ CAF_PDM_XML_ABSTRACT_SOURCE_INIT( RimFractureTemplate, "RimFractureTemplate" );
 RimFractureTemplate::RimFractureTemplate()
     : wellPathDepthAtFractureChanged( this )
 {
-    CAF_PDM_InitObject( "Fracture Template", ":/FractureTemplate16x16.png", "", "" );
+    CAF_PDM_InitScriptableObject( "Fracture Template", ":/FractureTemplate16x16.png", "", "" );
 
     CAF_PDM_InitField( &m_id, "Id", -1, "ID", "", "", "" );
     m_id.uiCapability()->setUiReadOnly( true );
@@ -130,13 +132,14 @@ RimFractureTemplate::RimFractureTemplate()
                        "" );
     m_fractureTemplateUnit.uiCapability()->setUiReadOnly( true );
 
-    CAF_PDM_InitField( &m_orientationType,
-                       "Orientation",
-                       caf::AppEnum<FracOrientationEnum>( TRANSVERSE_WELL_PATH ),
-                       "Fracture Orientation",
-                       "",
-                       "",
-                       "" );
+    CAF_PDM_InitScriptableField( &m_orientationType,
+                                 "Orientation",
+                                 caf::AppEnum<FracOrientationEnum>( TRANSVERSE_WELL_PATH ),
+                                 "Fracture Orientation",
+                                 "",
+                                 "",
+                                 "" );
+
     CAF_PDM_InitField( &m_azimuthAngle, "AzimuthAngle", 0.0f, "Azimuth Angle", "", "", "" ); // Is this correct
                                                                                              // description?
     CAF_PDM_InitField( &m_skinFactor, "SkinFactor", 0.0f, "Skin Factor", "", "", "" );
@@ -468,7 +471,7 @@ void RimFractureTemplate::defineEditorAttribute( const caf::PdmFieldHandle* fiel
 
     if ( field == &m_scaleApplyButton )
     {
-        caf::PdmUiPushButtonEditorAttribute* attrib = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute );
+        auto* attrib = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute );
         if ( attrib )
         {
             attrib->m_buttonText = "Apply";
@@ -477,7 +480,7 @@ void RimFractureTemplate::defineEditorAttribute( const caf::PdmFieldHandle* fiel
 
     if ( field == &m_wellPathDepthAtFracture )
     {
-        caf::PdmUiDoubleSliderEditorAttribute* myAttr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute );
+        auto* myAttr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute );
         if ( myAttr )
         {
             auto [minimum, maximum] = wellPathDepthAtFractureRange();
@@ -664,26 +667,24 @@ double RimFractureTemplate::computeEffectivePermeability( const RimFracture* fra
     {
         return m_userDefinedEffectivePermeability;
     }
+
+    double fracPermeability = 0.0;
+    auto   values           = wellFractureIntersectionData( fractureInstance );
+    if ( values.isWidthAndPermeabilityDefined() )
+    {
+        fracPermeability = values.m_permeability;
+    }
     else
     {
-        double fracPermeability = 0.0;
-        auto   values           = wellFractureIntersectionData( fractureInstance );
-        if ( values.isWidthAndPermeabilityDefined() )
-        {
-            fracPermeability = values.m_permeability;
-        }
-        else
-        {
-            auto conductivity = values.m_conductivity;
-            auto width        = computeFractureWidth( fractureInstance );
+        auto conductivity = values.m_conductivity;
+        auto width        = computeFractureWidth( fractureInstance );
 
-            if ( fabs( width ) < 1e-10 ) return std::numeric_limits<double>::infinity();
+        if ( fabs( width ) < 1e-10 ) return std::numeric_limits<double>::infinity();
 
-            fracPermeability = conductivity / width;
-        }
-
-        return fracPermeability * m_relativePermeability;
+        fracPermeability = conductivity / width;
     }
+
+    return fracPermeability * m_relativePermeability;
 }
 
 //--------------------------------------------------------------------------------------------------
