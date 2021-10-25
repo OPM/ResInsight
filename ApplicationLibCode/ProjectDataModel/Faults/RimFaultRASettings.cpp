@@ -40,6 +40,7 @@
 #include "cafPdmUiComboBoxEditor.h"
 #include "cafPdmUiFilePathEditor.h"
 #include "cafPdmUiTableViewEditor.h"
+#include "cafPdmUiTreeOrdering.h"
 
 #include <QFileInfo>
 
@@ -167,6 +168,16 @@ void RimFaultRASettings::defineUiOrdering( QString uiConfigName, caf::PdmUiOrder
         tableGroup->add( &m_elasticTableFilename );
     }
     uiOrdering.skipRemainingFields( true );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFaultRASettings::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName )
+{
+    uiTreeOrdering.add( &m_basicParameters );
+    uiTreeOrdering.add( &m_advancedParameters );
+    uiTreeOrdering.skipRemainingChildren();
 }
 
 //--------------------------------------------------------------------------------------------------
