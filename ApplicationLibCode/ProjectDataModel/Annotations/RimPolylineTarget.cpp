@@ -121,11 +121,3 @@ void RimPolylineTarget::triggerVisualizationUpdate() const
     firstAncestorOrThisOfTypeAsserted( ppInterface );
     if ( ppInterface ) ppInterface->updateVisualization();
 }
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimPolylineTarget::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
-{
-    m_targetPointXyd.uiCapability()->setUiReadOnly( m_isEnabled() );
-}
