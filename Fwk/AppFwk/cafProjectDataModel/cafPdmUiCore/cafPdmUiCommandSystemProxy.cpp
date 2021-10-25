@@ -149,14 +149,24 @@ std::vector<PdmFieldHandle*> PdmUiCommandSystemProxy::fieldsFromSelection( PdmFi
     if ( !editorField ) return {};
     if ( !editorField->ownerObject() ) return {};
 
+    std::vector<PdmUiItem*> items;
+
+    // Find all selected items at one level starting from the largest level. This is required to be able to modify
+    // multiple rows in the table editor. Items in the table editor use by default SelectionManager::FIRST_LEVEL
+    for ( int candidateSelectionLevel = SelectionManager::SECOND_LEVEL;
+          candidateSelectionLevel != SelectionManager::UNDEFINED;
+          candidateSelectionLevel-- )
+    {
+        SelectionManager::instance()->selectedItems( items, candidateSelectionLevel );
+        if ( !items.empty() ) break;
+    }
+
+    if ( items.size() < 2 ) return {};
+
+    const auto                   fieldKeyword     = editorField->keyword();
+    const auto&                  fieldOwnerTypeId = typeid( *editorField->ownerObject() );
     std::vector<PdmFieldHandle*> additionalFieldsToUpdate;
 
-    const auto  fieldKeyword     = editorField->keyword();
-    const auto& fieldOwnerTypeId = typeid( *editorField->ownerObject() );
-
-    int                     selectionLevel = 0;
-    std::vector<PdmUiItem*> items;
-    SelectionManager::instance()->selectedItems( items, selectionLevel );
     for ( auto& item : items )
     {
         auto* objectHandle = dynamic_cast<PdmObjectHandle*>( item );
