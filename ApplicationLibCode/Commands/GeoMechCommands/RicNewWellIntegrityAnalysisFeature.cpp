@@ -105,5 +105,6 @@ void RicNewWellIntegrityAnalysisFeature::setupActionLook( QAction* actionToSetup
 //--------------------------------------------------------------------------------------------------
 bool RicNewWellIntegrityAnalysisFeature::isCommandEnabled()
 {
-    return true;
+    RimGeoMechView* view = dynamic_cast<RimGeoMechView*>( RiaApplication::instance()->activeGridView() );
+    return ( view != nullptr );
 }

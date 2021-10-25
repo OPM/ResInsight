@@ -141,7 +141,6 @@ RimWellPath::RimWellPath()
 
     CAF_PDM_InitFieldNoDefault( &m_wellIASettingsCollection, "WellIASettings", "Integrity Analysis Settings", "", "", "" );
     m_wellIASettingsCollection = new RimWellIASettingsCollection();
-    m_wellIASettingsCollection->uiCapability()->setUiTreeHidden( true );
 
     this->setDeletable( true );
 }

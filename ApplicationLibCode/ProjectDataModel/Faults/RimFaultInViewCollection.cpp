@@ -99,6 +99,7 @@ RimFaultInViewCollection::RimFaultInViewCollection()
 
     CAF_PDM_InitFieldNoDefault( &m_faultRASettings, "FaultRASettings", "Reactivation Assessment Settings", "", "", "" );
     m_faultRASettings = new RimFaultRASettings();
+    m_faultRASettings.uiCapability()->setUiHidden( true );
     m_faultRASettings.uiCapability()->setUiTreeHidden( true );
 }
 
@@ -325,6 +326,13 @@ void RimFaultInViewCollection::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiT
         auto uiTree = eclipseView->faultResultSettings()->uiTreeOrdering();
         uiTreeOrdering.appendChild( uiTree );
     }
+
+    for ( const auto& fault : faults )
+    {
+        uiTreeOrdering.add( fault );
+    }
+
+    uiTreeOrdering.skipRemainingChildren( true );
 }
 
 //--------------------------------------------------------------------------------------------------
