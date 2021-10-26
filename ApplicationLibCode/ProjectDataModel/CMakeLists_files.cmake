@@ -59,17 +59,11 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimWbsParameters.h
     ${CMAKE_CURRENT_LIST_DIR}/RimViewLinker.h
     ${CMAKE_CURRENT_LIST_DIR}/RimViewLinkerCollection.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimIntersection.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimExtrudedCurveIntersection.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimIntersectionCollection.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimIntersectionResultDefinition.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimIntersectionResultsDefinitionCollection.h
     ${CMAKE_CURRENT_LIST_DIR}/RimContextCommandBuilder.h
     ${CMAKE_CURRENT_LIST_DIR}/RimGridCollection.h
     ${CMAKE_CURRENT_LIST_DIR}/RimPlotCurve.h
     ${CMAKE_CURRENT_LIST_DIR}/RimPlotCurveAppearance.h
     ${CMAKE_CURRENT_LIST_DIR}/RimStackablePlotCurve.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimBoxIntersection.h
     ${CMAKE_CURRENT_LIST_DIR}/RimAdvancedSnapshotExportDefinition.h
     ${CMAKE_CURRENT_LIST_DIR}/RimMdiWindowController.h
     ${CMAKE_CURRENT_LIST_DIR}/RimNamedObject.h
@@ -186,17 +180,11 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimWbsParameters.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimViewLinker.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimViewLinkerCollection.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RimIntersection.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RimExtrudedCurveIntersection.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RimIntersectionCollection.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RimIntersectionResultDefinition.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RimIntersectionResultsDefinitionCollection.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimContextCommandBuilder.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimGridCollection.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimPlotCurve.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimPlotCurveAppearance.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimStackablePlotCurve.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RimBoxIntersection.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimAdvancedSnapshotExportDefinition.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimMdiWindowController.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimNamedObject.cpp
