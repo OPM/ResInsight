@@ -159,3 +159,25 @@ TEST( RifEclipseTextFileReader, ReadLine_TwoLinesWithLineBreak )
     EXPECT_EQ( size_t( 10 ), bytesRead );
     EXPECT_EQ( size_t( 9 ), secondLine.size() );
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( RifEclipseTextFileReader, ValueMultiplier )
+{
+    std::string fileContent = "ZCORN\n"
+                              "2*2.21 0.5 3*12345.12\n"
+                              "/\n";
+
+    auto keywordDataItems = RifEclipseTextFileReader::parseStringData( fileContent );
+
+    EXPECT_EQ( size_t( 1 ), keywordDataItems.size() );
+
+    auto firstKeyword = keywordDataItems.front();
+
+    EXPECT_EQ( size_t( 6 ), firstKeyword.values.size() );
+    EXPECT_FLOAT_EQ( 2.21f, firstKeyword.values[0] );
+    EXPECT_FLOAT_EQ( 2.21f, firstKeyword.values[1] );
+    EXPECT_FLOAT_EQ( 0.5f, firstKeyword.values[2] );
+    EXPECT_FLOAT_EQ( 12345.12f, firstKeyword.values[3] );
+}
