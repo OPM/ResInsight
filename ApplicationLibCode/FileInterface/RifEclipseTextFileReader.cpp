@@ -26,6 +26,7 @@
 #include "mio/mio.hpp"
 
 #include "RiaPreferencesSystem.h"
+#include "RiaStdStringTools.h"
 
 #include <fstream>
 #include <iosfwd>
@@ -89,9 +90,9 @@ std::pair<std::string, std::vector<float>>
 
     const auto commentChar = '-';
 
-    std::string keywordName;
-    std::string line;
-    bool        isEndTokenKeywordRead = false;
+    std::string      keywordName;
+    std::string_view line;
+    bool             isEndTokenKeywordRead = false;
 
     bytesRead   = 0;
     float value = 0.0f;
@@ -134,14 +135,36 @@ std::pair<std::string, std::vector<float>>
             size_t start = 0;
             size_t end   = 0;
 
+            // Index in token for the '*' character used to define a multiplier for the float value
+            //
+            size_t multiplierIndex = 0;
+
             while ( ( start = line.find_first_not_of( RifEclipseTextFileReader::m_whiteSpace, end ) ) != std::string::npos )
             {
                 end = line.find_first_of( RifEclipseTextFileReader::m_whiteSpace, start );
 
+                int multiplier = 1;
+
+                multiplierIndex = line.find_first_of( '*', start );
+                if ( multiplierIndex < end )
+                {
+                    int multiplierCandidate = 1;
+
+                    if ( RiaStdStringTools::toInt( line.substr( start, multiplierIndex - start ), multiplierCandidate ) )
+                    {
+                        multiplier = multiplierCandidate;
+                    }
+
+                    start = multiplierIndex + 1;
+                }
+
                 auto resultObject = fast_float::from_chars( line.data() + start, line.data() + end, value );
                 if ( resultObject.ec == std::errc() )
                 {
-                    values.emplace_back( value );
+                    for ( size_t i = 0; i < static_cast<size_t>( multiplier ); i++ )
+                    {
+                        values.emplace_back( value );
+                    }
                 }
             }
         }
@@ -226,24 +249,30 @@ std::string_view RifEclipseTextFileReader::readLine( const std::string_view& sou
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RifEclipseTextFileReader::rtrim( std::string& s, const char* t /*= ws */ )
+void RifEclipseTextFileReader::rtrim( std::string_view& s, const char* t /*= ws */ )
 {
-    s.erase( s.find_last_not_of( t ) + 1 );
+    if ( s.empty() ) return;
+
+    s = s.substr( 0, s.find_last_not_of( t ) + 1 );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RifEclipseTextFileReader::ltrim( std::string& s, const char* t /*= ws */ )
+void RifEclipseTextFileReader::ltrim( std::string_view& s, const char* t /*= ws */ )
 {
-    s.erase( 0, s.find_first_not_of( t ) );
+    if ( s.empty() ) return;
+
+    s = s.substr( s.find_first_not_of( t ), s.size() );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RifEclipseTextFileReader::trim( std::string& s, const char* t /*= ws */ )
+void RifEclipseTextFileReader::trim( std::string_view& s, const char* t /*= ws */ )
 {
+    if ( s.empty() ) return;
+
     rtrim( s, t );
     ltrim( s, t );
 }
