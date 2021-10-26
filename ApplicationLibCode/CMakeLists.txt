@@ -297,7 +297,8 @@ endif()
 
 set(QT_MOC_HEADERS
     ${QT_MOC_HEADERS} ProjectDataModel/RimMimeData.h
-    ProjectDataModel/Intersections/RimBoxIntersection.h SocketInterface/RiaSocketServer.h
+    ProjectDataModel/Intersections/RimBoxIntersection.h
+    SocketInterface/RiaSocketServer.h
 )
 
 qt5_wrap_cpp(MOC_SOURCE_FILES ${QT_MOC_HEADERS})
