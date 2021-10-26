@@ -44,9 +44,12 @@ namespace caf
 template <>
 void caf::AppEnum<RimFractureTemplate::FracOrientationEnum>::setUp()
 {
-    addItem( RimFractureTemplate::AZIMUTH, "Az", "Azimuth" );
-    addItem( RimFractureTemplate::ALONG_WELL_PATH, "AlongWellPath", "Along Well Path" );
-    addItem( RimFractureTemplate::TRANSVERSE_WELL_PATH, "TransverseWellPath", "Transverse (normal) to Well Path" );
+    addItem( RimFractureTemplate::AZIMUTH, "Azimuth", "Azimuth", QStringList( "Az" ) );
+    addItem( RimFractureTemplate::ALONG_WELL_PATH, "Longitudinal", "Along Well Path", QStringList( "AlongWellPath" ) );
+    addItem( RimFractureTemplate::TRANSVERSE_WELL_PATH,
+             "Transverse",
+             "Transverse (normal) to Well Path",
+             QStringList( "TransverseWellPath" ) );
 
     setDefault( RimFractureTemplate::TRANSVERSE_WELL_PATH );
 }

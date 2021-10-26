@@ -95,11 +95,16 @@ void caf::AppEnum<RimStimPlanModel::ExtractionType>::setUp()
 template <>
 void caf::AppEnum<RimStimPlanModel::FractureOrientation>::setUp()
 {
-    addItem( RimStimPlanModel::FractureOrientation::ALONG_WELL_PATH, "ALONG_WELL_PATH", "Along Well Path" );
+    addItem( RimStimPlanModel::FractureOrientation::ALONG_WELL_PATH,
+             "Longitudinal",
+             "Along Well Path",
+             QStringList( "ALONG_WELL_PATH" ) );
     addItem( RimStimPlanModel::FractureOrientation::TRANSVERSE_WELL_PATH,
-             "TRANSVERSE_WELL_PATH",
-             "Transverse (normal) to Well Path" );
-    addItem( RimStimPlanModel::FractureOrientation::AZIMUTH, "AZIMUTH", "Azimuth" );
+             "Transverse",
+             "Transverse (normal) to Well Path",
+             QStringList( "TRANSVERSE_WELL_PATH" ) );
+
+    addItem( RimStimPlanModel::FractureOrientation::AZIMUTH, "Azimuth", "Azimuth", QStringList( "AZIMUTH" ) );
 
     setDefault( RimStimPlanModel::FractureOrientation::TRANSVERSE_WELL_PATH );
 }
