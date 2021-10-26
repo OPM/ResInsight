@@ -115,6 +115,7 @@ include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/StimPlanModel
   ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/Summary
   ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/Surfaces
+  ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/Intersections
   ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/Streamlines
   ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/CellFilters
   ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/ProcessControl
@@ -189,6 +190,7 @@ list(
   ProjectDataModel/StimPlanModel/CMakeLists_files.cmake
   ProjectDataModel/Streamlines/CMakeLists_files.cmake
   ProjectDataModel/Surfaces/CMakeLists_files.cmake
+  ProjectDataModel/Intersections/CMakeLists_files.cmake
   ProjectDataModel/CellFilters/CMakeLists_files.cmake
   ProjectDataModel/ProcessControl/CMakeLists_files.cmake
   ProjectDataModel/WellLog/CMakeLists_files.cmake
@@ -295,7 +297,8 @@ endif()
 
 set(QT_MOC_HEADERS
     ${QT_MOC_HEADERS} ProjectDataModel/RimMimeData.h
-    ProjectDataModel/RimBoxIntersection.h SocketInterface/RiaSocketServer.h
+    ProjectDataModel/Intersections/RimBoxIntersection.h
+    SocketInterface/RiaSocketServer.h
 )
 
 qt5_wrap_cpp(MOC_SOURCE_FILES ${QT_MOC_HEADERS})
@@ -433,6 +436,7 @@ target_include_directories(
          ${CMAKE_SOURCE_DIR}/ApplicationLibCode/ModelVisualization
          ${CMAKE_SOURCE_DIR}/ApplicationLibCode/ProjectDataModel
          ${CMAKE_SOURCE_DIR}/ApplicationLibCode/ProjectDataModel/Flow
+         ${CMAKE_SOURCE_DIR}/ApplicationLibCode/ProjectDataModel/Intersections
          ${CMAKE_SOURCE_DIR}/ApplicationLibCode/ReservoirDataModel
          ${CMAKE_SOURCE_DIR}/ApplicationLibCode/SocketInterface
          ${CMAKE_SOURCE_DIR}/ApplicationLibCode/UserInterface
