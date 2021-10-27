@@ -218,7 +218,9 @@ RimWellLogTrack::RimWellLogTrack()
     m_colorShadingTransparency.uiCapability()->setUiEditorTypeName( caf::PdmUiSliderEditor::uiEditorTypeName() );
 
     CAF_PDM_InitField( &m_showRegionLabels, "ShowFormationLabels", true, "Show Labels", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_regionLabelFontSize, "RegionLabelFontSize", "Font Size", "", "", "" );
+
+    caf::FontTools::RelativeSizeEnum regionLabelFontSizeDefault = caf::FontTools::RelativeSize::XSmall;
+    CAF_PDM_InitField( &m_regionLabelFontSize, "RegionLabelFontSize", regionLabelFontSizeDefault, "Font Size", "", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_formationSource, "FormationSource", "Source", "", "", "" );
 
