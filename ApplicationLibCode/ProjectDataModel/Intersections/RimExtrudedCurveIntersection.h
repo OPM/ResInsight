@@ -22,6 +22,7 @@
 #include "RimIntersection.h"
 
 #include "cafPdmChildField.h"
+#include "cafPdmProxyValueField.h"
 #include "cafPdmPtrArrayField.h"
 
 class RimWellPath;
@@ -89,7 +90,7 @@ public:
     void configureForAzimuthLine();
 
     std::vector<std::vector<cvf::Vec3d>> polyLines( cvf::Vec3d* flattenedPolylineStartPoint = nullptr ) const;
-    void                                 appendPointToPolyLine( const cvf::Vec3d& point );
+    void                                 appendPointToPolyLine( const cvf::Vec3d& pointXyz );
 
     Rim2dIntersectionView*                           correspondingIntersectionView() const;
     RivExtrudedCurveIntersectionPartMgr*             intersectionPartMgr();
@@ -147,6 +148,9 @@ private:
 
     void onSurfaceIntersectionsChanged( const caf::SignalEmitter* emitter );
 
+    std::vector<cvf::Vec3d> pointsXYD() const;
+    void                    setPointsFromXYD( const std::vector<cvf::Vec3d>& pointsXYD );
+
 private:
     caf::PdmField<QString> m_name;
 
@@ -167,7 +171,9 @@ private:
     caf::PdmField<double> m_lengthUp;
     caf::PdmField<double> m_lengthDown;
 
-    caf::PdmField<std::vector<cvf::Vec3d>> m_userPolyline;
+    caf::PdmProxyValueField<std::vector<cvf::Vec3d>> m_userPolylineXydForUi;
+
+    caf::PdmField<std::vector<cvf::Vec3d>> m_userPolylineXyz;
     caf::PdmField<std::vector<cvf::Vec3d>> m_customExtrusionPoints;
     caf::PdmField<std::vector<cvf::Vec3d>> m_twoAzimuthPoints;
 
