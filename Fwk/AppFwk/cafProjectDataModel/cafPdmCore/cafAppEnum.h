@@ -36,9 +36,12 @@
 
 #pragma once
 
+#include "cafAssert.h"
+
 #include <QString>
 #include <QStringList>
 #include <QTextStream>
+
 #include <vector>
 
 namespace caf
@@ -155,9 +158,9 @@ private:
     /// method. It may also set a default value using \m setDefault
     //==================================================================================================
     static void setUp();
-    static void addItem( T enumVal, const QString& text, const QString& uiText )
+    static void addItem( T enumVal, const QString& text, const QString& uiText, const QStringList& aliases = {} )
     {
-        EnumMapper::instance()->addItem( enumVal, text, uiText );
+        EnumMapper::instance()->addItem( enumVal, text, uiText, aliases );
     }
 
     static void setDefault( T defaultEnumValue ) { EnumMapper::instance()->setDefault( defaultEnumValue ); }
@@ -174,27 +177,40 @@ private:
     class EnumMapper
     {
     private:
-        struct Triplet
+        class EnumData
         {
-            Triplet( T enumVal, const QString& text, QString uiText )
+        public:
+            EnumData( T enumVal, const QString& text, const QString& uiText, const QStringList& aliases )
                 : m_enumVal( enumVal )
                 , m_text( text )
                 , m_uiText( uiText )
+                , m_aliases( aliases )
             {
             }
 
-            T       m_enumVal;
-            QString m_text;
-            QString m_uiText;
+            bool isMatching( const QString& text ) const { return ( text == m_text || m_aliases.contains( text ) ); }
+
+            T           m_enumVal;
+            QString     m_text;
+            QString     m_uiText;
+            QStringList m_aliases;
         };
 
     public:
-        void addItem( T enumVal, const QString& text, QString uiText )
+        void addItem( T enumVal, const QString& text, QString uiText, const QStringList& aliases )
         {
-            // Make sure the text is trimmed, as this text is streamed to XML and will be trimmed when read back from
-            // XML text
-            // https://github.com/OPM/ResInsight/issues/7829
-            instance()->m_mapping.push_back( Triplet( enumVal, text.trimmed(), uiText ) );
+            // Make sure the alias text is unique for enum
+            for ( const auto& alias : aliases )
+            {
+                for ( const auto& enumData : instance()->m_mapping )
+                {
+                    CAF_ASSERT( !enumData.isMatching( alias ) );
+                }
+            }
+
+            // Make sure the text is trimmed, as this text is streamed to XML and will be trimmed when read back
+            // from XML text https://github.com/OPM/ResInsight/issues/7829
+            instance()->m_mapping.push_back( EnumData( enumVal, text.trimmed(), uiText, aliases ) );
         }
 
         static EnumMapper* instance()
@@ -244,12 +260,14 @@ private:
         bool enumVal( T& value, const QString& text ) const
         {
             value = defaultValue();
-            size_t idx;
-            for ( idx = 0; idx < m_mapping.size(); ++idx )
+
+            QString trimmedText = text.trimmed();
+
+            for ( size_t idx = 0; idx < m_mapping.size(); ++idx )
             {
                 // Make sure the text parsed from a text stream is trimmed
                 // https://github.com/OPM/ResInsight/issues/7829
-                if ( text.trimmed() == m_mapping[idx].m_text )
+                if ( m_mapping[idx].isMatching( trimmedText ) )
                 {
                     value = m_mapping[idx].m_enumVal;
                     return true;
@@ -320,9 +338,9 @@ private:
 
         friend class AppEnum<T>;
 
-        std::vector<Triplet> m_mapping;
-        T                    m_defaultValue;
-        bool                 m_defaultValueIsSet;
+        std::vector<EnumData> m_mapping;
+        T                     m_defaultValue;
+        bool                  m_defaultValueIsSet;
     };
 };
 
