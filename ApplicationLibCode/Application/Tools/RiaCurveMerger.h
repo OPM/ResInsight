@@ -57,6 +57,9 @@ public:
     // See ExpressionParserImpl::assignVector()
     std::vector<double>& interpolatedYValuesForAllXValues( size_t curveIdx );
 
+    static void removeValuesForPartialCurves( std::set<XValueType, XComparator>&                    unionOfXValues,
+                                              const std::vector<std::pair<XValueType, XValueType>>& originalXBounds );
+
 public:
     // Helper methods, available as public to be able to access from unit tests
 
