@@ -19,6 +19,8 @@
 
 #include "RimExtrudedCurveIntersection.h"
 
+#include "RiaVec3Tools.h"
+
 #include "RigEclipseCaseData.h"
 #include "RigWellPath.h"
 
@@ -197,7 +199,11 @@ RimExtrudedCurveIntersection::RimExtrudedCurveIntersection()
     CAF_PDM_InitFieldNoDefault( &m_direction, "Direction", "Direction", "", "", "" );
     CAF_PDM_InitFieldNoDefault( &m_wellPath, "WellPath", "Well Path        ", "", "", "" );
     CAF_PDM_InitFieldNoDefault( &m_simulationWell, "SimulationWell", "Simulation Well", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_userPolyline, "Points", "Points", "", "Use Ctrl-C for copy and Ctrl-V for paste", "" );
+    CAF_PDM_InitFieldNoDefault( &m_userPolylineXyz, "Points", "Points", "", "Use Ctrl-C for copy and Ctrl-V for paste", "" );
+
+    CAF_PDM_InitFieldNoDefault( &m_userPolylineXydForUi, "PointsUi", "Points", "", "Use Ctrl-C for copy and Ctrl-V for paste", "" );
+    m_userPolylineXydForUi.registerSetMethod( this, &RimExtrudedCurveIntersection::setPointsFromXYD );
+    m_userPolylineXydForUi.registerGetMethod( this, &RimExtrudedCurveIntersection::pointsXYD );
 
     CAF_PDM_InitField( &m_azimuthAngle, "AzimuthAngle", 0.0, "Azimuth", "", "", "" );
     m_azimuthAngle.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
@@ -314,7 +320,8 @@ void RimExtrudedCurveIntersection::fieldChangedByUi( const caf::PdmFieldHandle* 
         }
     }
 
-    if ( changedField == &m_inputPolylineFromViewerEnabled || changedField == &m_userPolyline )
+    if ( changedField == &m_inputPolylineFromViewerEnabled || changedField == &m_userPolylineXyz ||
+         changedField == &m_userPolylineXydForUi )
     {
         if ( m_inputPolylineFromViewerEnabled )
         {
@@ -383,7 +390,7 @@ void RimExtrudedCurveIntersection::defineUiOrdering( QString uiConfigName, caf::
     }
     else if ( type() == CrossSectionEnum::CS_POLYLINE )
     {
-        geometryGroup->add( &m_userPolyline );
+        geometryGroup->add( &m_userPolylineXydForUi );
         geometryGroup->add( &m_inputPolylineFromViewerEnabled );
     }
     else if ( type() == CrossSectionEnum::CS_AZIMUTHLINE )
@@ -591,7 +598,7 @@ std::vector<std::vector<cvf::Vec3d>> RimExtrudedCurveIntersection::polyLines( cv
     }
     else if ( type() == CrossSectionEnum::CS_POLYLINE )
     {
-        lines.push_back( m_userPolyline );
+        lines.push_back( m_userPolylineXyz );
     }
     else if ( type() == CrossSectionEnum::CS_AZIMUTHLINE )
     {
@@ -842,7 +849,7 @@ void RimExtrudedCurveIntersection::defineEditorAttribute( const caf::PdmFieldHan
         setPushButtonText( m_inputPolylineFromViewerEnabled,
                            dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute ) );
     }
-    else if ( field == &m_userPolyline )
+    else if ( field == &m_userPolylineXydForUi )
     {
         setBaseColor( m_inputPolylineFromViewerEnabled, dynamic_cast<caf::PdmUiListEditorAttribute*>( attribute ) );
     }
@@ -869,11 +876,11 @@ void RimExtrudedCurveIntersection::defineEditorAttribute( const caf::PdmFieldHan
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimExtrudedCurveIntersection::appendPointToPolyLine( const cvf::Vec3d& point )
+void RimExtrudedCurveIntersection::appendPointToPolyLine( const cvf::Vec3d& pointXyz )
 {
-    m_userPolyline.v().push_back( point );
+    m_userPolylineXyz.v().push_back( pointXyz );
 
-    m_userPolyline.uiCapability()->updateConnectedEditors();
+    m_userPolylineXyz.uiCapability()->updateConnectedEditors();
 
     rebuildGeometryAndScheduleCreateDisplayModel();
 }
@@ -1134,4 +1141,20 @@ void RimExtrudedCurveIntersection::onSurfaceIntersectionsChanged( const caf::Sig
 {
     updateAllRequiredEditors();
     rebuildGeometryAndScheduleCreateDisplayModel();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<cvf::Vec3d> RimExtrudedCurveIntersection::pointsXYD() const
+{
+    return RiaVec3Tools::invertZSign( m_userPolylineXyz() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimExtrudedCurveIntersection::setPointsFromXYD( const std::vector<cvf::Vec3d>& pointsXYD )
+{
+    m_userPolylineXyz = RiaVec3Tools::invertZSign( pointsXYD );
 }
