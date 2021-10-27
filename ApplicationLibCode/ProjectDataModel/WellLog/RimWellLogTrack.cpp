@@ -25,6 +25,7 @@
 #include "RiaLogging.h"
 #include "RiaPreferences.h"
 #include "RiaSimWellBranchTools.h"
+#include "RiaWellLogCurveMerger.h"
 
 #include "RigEclipseCaseData.h"
 #include "RigEclipseResultAddress.h"
@@ -844,6 +845,9 @@ QString RimWellLogTrack::asciiDataForPlotExport() const
         }
     }
 
+    RiaWellLogCurveMerger curveMerger;
+    bool                  foundNonMatchingDepths = false;
+
     for ( RimWellLogCurve* curve : m_curves() )
     {
         if ( !curve->isCurveVisible() ) continue;
@@ -858,7 +862,7 @@ QString RimWellLogTrack::asciiDataForPlotExport() const
         }
 
         std::vector<double> xPlotValues = curveData->xPlotValues();
-        if ( curveDepths.size() != xPlotValues.size() || xPlotValues.empty() )
+        if ( xPlotValues.empty() )
         {
             curveNames.pop_back();
 
@@ -868,6 +872,15 @@ QString RimWellLogTrack::asciiDataForPlotExport() const
             }
             continue;
         }
+
+        if ( curveDepths.size() != xPlotValues.size() )
+        {
+            foundNonMatchingDepths = true;
+        }
+
+        std::vector<double> depths = curveData->depthPlotValues( depthType, depthUnit );
+        curveMerger.addCurveData( depths, xPlotValues );
+
         curvesPlotXValues.push_back( xPlotValues );
     }
 
@@ -899,6 +912,26 @@ QString RimWellLogTrack::asciiDataForPlotExport() const
         out += "  \t" + name;
     }
     out += "\n";
+
+    // Resample when curves have different depth
+    if ( foundNonMatchingDepths )
+    {
+        curvesPlotXValues.clear();
+        curveDepths.clear();
+
+        curveMerger.computeLookupValues();
+
+        const std::vector<double>& allDepths = curveMerger.allXValues();
+        curveDepths                          = allDepths;
+        for ( size_t depthIdx = 0; depthIdx < allDepths.size(); depthIdx++ )
+        {
+            for ( size_t curveIdx = 0; curveIdx < curveMerger.curveCount(); ++curveIdx )
+            {
+                const std::vector<double>& curveValues = curveMerger.lookupYValuesForAllXValues( curveIdx );
+                curvesPlotXValues.push_back( curveValues );
+            }
+        }
+    }
 
     for ( size_t dIdx = 0; dIdx < curveDepths.size(); ++dIdx )
     {

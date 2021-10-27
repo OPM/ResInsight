@@ -28,6 +28,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiaCurveMerger.h
     ${CMAKE_CURRENT_LIST_DIR}/RiaCurveMerger.inl
     ${CMAKE_CURRENT_LIST_DIR}/RiaCurveDataTools.h
+    ${CMAKE_CURRENT_LIST_DIR}/RiaWellLogCurveMerger.h
     ${CMAKE_CURRENT_LIST_DIR}/RiaTimeHistoryCurveResampler.h
     ${CMAKE_CURRENT_LIST_DIR}/RiaStatisticsTools.h
     ${CMAKE_CURRENT_LIST_DIR}/RiaOffshoreSphericalCoords.h
@@ -77,6 +78,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiaFilePathTools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaCurveMerger.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaCurveDataTools.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RiaWellLogCurveMerger.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaTimeHistoryCurveResampler.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaStatisticsTools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaWeightedGeometricMeanCalculator.cpp

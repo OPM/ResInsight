@@ -194,31 +194,38 @@ void RiaCurveMerger<XValueType>::computeUnionOfXValues( bool includeValuesForPar
         originalXBounds.push_back( std::make_pair( *( minmax_it.first ), *( minmax_it.second ) ) );
     }
 
-    if ( !includeValuesForPartialCurves )
-    {
-        for ( auto it = unionOfXValues.begin(); it != unionOfXValues.end(); )
-        {
-            bool outsideBounds = false;
-            for ( const auto& curveXBounds : originalXBounds )
-            {
-                if ( *it < curveXBounds.first || *it > curveXBounds.second )
-                {
-                    outsideBounds = true;
-                    break;
-                }
-            }
-            if ( outsideBounds )
-            {
-                it = unionOfXValues.erase( it );
-            }
-            else
-            {
-                ++it;
-            }
-        }
-    }
+    if ( !includeValuesForPartialCurves ) removeValuesForPartialCurves( unionOfXValues, originalXBounds );
 
     m_allXValues = std::vector<XValueType>( unionOfXValues.begin(), unionOfXValues.end() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+template <typename XValueType>
+void RiaCurveMerger<XValueType>::removeValuesForPartialCurves( std::set<XValueType, XComparator>& unionOfXValues,
+                                                               const std::vector<std::pair<XValueType, XValueType>>& originalXBounds )
+{
+    for ( auto it = unionOfXValues.begin(); it != unionOfXValues.end(); )
+    {
+        bool outsideBounds = false;
+        for ( const auto& curveXBounds : originalXBounds )
+        {
+            if ( *it < curveXBounds.first || *it > curveXBounds.second )
+            {
+                outsideBounds = true;
+                break;
+            }
+        }
+        if ( outsideBounds )
+        {
+            it = unionOfXValues.erase( it );
+        }
+        else
+        {
+            ++it;
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
