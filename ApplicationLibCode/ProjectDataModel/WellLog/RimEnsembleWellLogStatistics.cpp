@@ -133,13 +133,11 @@ void RimEnsembleWellLogStatistics::calculate( const std::vector<RimWellLogFile*>
     clearData();
 
     const std::vector<double>& allDepths = curveMerger.allXValues();
-    if ( !allDepths.empty() )
+    for ( size_t depthIdx = 0; depthIdx < allDepths.size(); depthIdx++ )
     {
-        // Make sure we end up with approximately the same amount of points as originally
-        // Since allDepths contain *valid* values, it can potentially be smaller than the mean.
-        // Thus we need to ensure sizeMultiplier is at least 1.
-        size_t sizeMultiplier = std::max( (size_t)1, allDepths.size() / dataSetSizeCalc.weightedMean() );
-        for ( size_t depthIdx = 0; depthIdx < allDepths.size(); depthIdx += sizeMultiplier )
+        std::vector<double> valuesAtDepth;
+        valuesAtDepth.reserve( curveMerger.curveCount() );
+        for ( size_t curveIdx = 0; curveIdx < curveMerger.curveCount(); ++curveIdx )
         {
             std::vector<double> valuesAtDepth;
             valuesAtDepth.reserve( curveMerger.curveCount() );
