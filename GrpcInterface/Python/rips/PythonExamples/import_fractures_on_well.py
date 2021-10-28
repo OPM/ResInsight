@@ -40,6 +40,8 @@ for measured_depth in measured_depths:
         stim_plan_fracture_template=fracture_template,
     )
 
-# Update the orientation of the fracture, call update() to propagate changes in Python to ResInsight
-fracture_template.orientation = "Az"
+# Update the orientation of the fracture
+# Call update() to propagate changes from the Python object back to ResInsight
+fracture_template.orientation = "Azimuth"
+fracture_template.azimuth_angle = 60.0
 fracture_template.update()

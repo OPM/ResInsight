@@ -143,8 +143,8 @@ RimFractureTemplate::RimFractureTemplate()
                                  "",
                                  "" );
 
-    CAF_PDM_InitField( &m_azimuthAngle, "AzimuthAngle", 0.0f, "Azimuth Angle", "", "", "" ); // Is this correct
-                                                                                             // description?
+    CAF_PDM_InitScriptableField( &m_azimuthAngle, "AzimuthAngle", 0.0f, "Azimuth Angle", "", "", "" );
+
     CAF_PDM_InitField( &m_skinFactor, "SkinFactor", 0.0f, "Skin Factor", "", "", "" );
 
     CAF_PDM_InitField( &m_perforationLength, "PerforationLength", 1.0, "Perforation Length", "", "", "" );
