@@ -48,7 +48,7 @@ RimcWellLogPlotCollection_newWellLogPlot::RimcWellLogPlotCollection_newWellLogPl
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_propertyType, "PropertyType", "", "", "", "Property Type" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_propertyName, "PropertyName", "", "", "", "Property Name" );
-    CAF_PDM_InitScriptableFieldNoDefault( &m_timeStep, "TimeStep", "", "", "", "Time Step" );
+    CAF_PDM_InitScriptableField( &m_timeStep, "TimeStep", 0, "", "", "", "Time Step" );
 }
 
 //--------------------------------------------------------------------------------------------------
