@@ -1402,7 +1402,11 @@ void RicWellPathExportMswCompletionsImpl::createValveCompletions(
 
         if ( ICV )
         {
-            segment->addCompletion( std::move( ICV ) );
+            auto segmentWithLowerMD = branch->findClosestSegmentWithLowerMD( ICV->startMD() );
+            if ( segmentWithLowerMD )
+            {
+                segmentWithLowerMD->addCompletion( std::move( ICV ) );
+            }
         }
         else
         {
@@ -1410,11 +1414,19 @@ void RicWellPathExportMswCompletionsImpl::createValveCompletions(
             {
                 if ( totalAICDOverlap > totalICDOverlap )
                 {
-                    segment->addCompletion( std::move( superAICD ) );
+                    auto segmentWithLowerMD = branch->findClosestSegmentWithLowerMD( superAICD->startMD() );
+                    if ( segmentWithLowerMD )
+                    {
+                        segmentWithLowerMD->addCompletion( std::move( superAICD ) );
+                    }
                 }
                 else
                 {
-                    segment->addCompletion( std::move( superICD ) );
+                    auto segmentWithLowerMD = branch->findClosestSegmentWithLowerMD( superICD->startMD() );
+                    if ( segmentWithLowerMD )
+                    {
+                        segmentWithLowerMD->addCompletion( std::move( superICD ) );
+                    };
                 }
             }
         }

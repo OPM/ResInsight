@@ -221,12 +221,7 @@ RicMswSegment* RicMswBranch::findClosestSegmentWithLowerMD( double measuredDepth
             // Use a signed difference to find the closest segment below the measured depth location
             double candidateDistance = measuredDepthLocation - midpointMD;
 
-            if ( closestSegment == nullptr )
-            {
-                closestSegment   = seg;
-                smallestDistance = std::fabs( candidateDistance );
-            }
-            else if ( candidateDistance > 0.0 && candidateDistance < smallestDistance )
+            if ( candidateDistance > 0.0 && candidateDistance < smallestDistance )
             {
                 closestSegment   = seg;
                 smallestDistance = std::fabs( candidateDistance );
