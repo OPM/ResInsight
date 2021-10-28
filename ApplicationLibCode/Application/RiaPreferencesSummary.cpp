@@ -53,7 +53,7 @@ void RiaPreferencesSummary::SummaryReaderModeType::setUp()
     addItem( RiaPreferencesSummary::SummaryReaderMode::LIBECL, "LIBECL", "UNSMRY (libecl)" );
     addItem( RiaPreferencesSummary::SummaryReaderMode::HDF5_OPM_COMMON, "HDF5_OPM_COMMON", "h5 (HDF5)" );
     addItem( RiaPreferencesSummary::SummaryReaderMode::OPM_COMMON, "OPM_COMMON", "ESMRY (opm-common)" );
-    setDefault( RiaPreferencesSummary::SummaryReaderMode::HDF5_OPM_COMMON );
+    setDefault( RiaPreferencesSummary::SummaryReaderMode::OPM_COMMON );
 }
 } // namespace caf
 
