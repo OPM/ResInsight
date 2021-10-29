@@ -46,9 +46,11 @@
 #include "cafSelectionManager.h"
 
 #include <QApplication>
+#include <QClipboard>
 #include <QEvent>
 #include <QGridLayout>
 #include <QHeaderView>
+#include <QKeyEvent>
 #include <QLabel>
 #include <QMenu>
 #include <QTableView>
@@ -411,7 +413,27 @@ bool PdmUiTableViewEditor::eventFilter( QObject* obj, QEvent* event )
     {
         this->updateSelectionManagerFromTableSelection();
     }
-    // standard event processing
+
+    auto keyEvent = dynamic_cast<QKeyEvent*>( event );
+    if ( keyEvent && keyEvent->matches( QKeySequence::Copy ) )
+    {
+        QString text;
+
+        for ( const QItemSelectionRange& range : m_tableView->selectionModel()->selection() )
+        {
+            for ( auto i = range.top(); i <= range.bottom(); ++i )
+            {
+                QStringList rowContents;
+                for ( auto j = range.left(); j <= range.right(); ++j )
+                    rowContents << m_tableView->model()->index( i, j ).data().toString();
+                text += rowContents.join( "\t" );
+                text += "\n";
+            }
+        }
+
+        QApplication::clipboard()->setText( text );
+    }
+
     return QObject::eventFilter( obj, event );
 }
 
