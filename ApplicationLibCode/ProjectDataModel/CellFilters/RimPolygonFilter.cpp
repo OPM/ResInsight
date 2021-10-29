@@ -364,6 +364,7 @@ void RimPolygonFilter::defineCustomContextMenu( const caf::PdmFieldHandle* field
     caf::CmdFeatureMenuBuilder menuBuilder;
 
     menuBuilder << "RicDeletePolylineTargetFeature";
+    menuBuilder << "RicAppendPointsToPolygonFilterFeature";
 
     menuBuilder.appendToMenu( menu );
 }

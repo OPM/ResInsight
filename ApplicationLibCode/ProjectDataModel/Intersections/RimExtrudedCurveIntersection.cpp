@@ -881,6 +881,7 @@ void RimExtrudedCurveIntersection::appendPointToPolyLine( const cvf::Vec3d& poin
     m_userPolylineXyz.v().push_back( pointXyz );
 
     m_userPolylineXyz.uiCapability()->updateConnectedEditors();
+    m_userPolylineXydForUi.uiCapability()->updateConnectedEditors();
 
     rebuildGeometryAndScheduleCreateDisplayModel();
 }
