@@ -550,36 +550,29 @@ void RicMswTableFormatterTools::generateWsegvalvTableRecursively( gsl::not_null<
         {
             if ( RigCompletionData::isWsegValveTypes( completion->completionType() ) )
             {
-                auto wsegValve = static_cast<RicMswWsegValve*>( completion );
-                if ( !wsegValve->segments().empty() )
+                // Related function RicWellPathExportMswCompletionsImpl::moveIntersectionsToSuperICDsOrAICDs
+
+                auto wsegValve     = static_cast<RicMswWsegValve*>( completion );
+                int  segmentNumber = -1;
+                for ( auto seg : wsegValve->segments() )
                 {
-                    CVF_ASSERT( wsegValve->segments().size() == 1u );
+                    if ( seg->segmentNumber() > -1 ) segmentNumber = seg->segmentNumber();
+                    if ( seg->intersections().empty() ) continue;
 
-                    auto firstSubSegment = wsegValve->segments().front();
+                    size_t cellIndex = seg->intersections().front()->globalCellIndex();
 
-                    // TODO: The following line was blocking export of valves for fishbones
-                    // Unclear why this line was included. Remove when MSW export has ben verified correctly
-                    // if ( !firstSubSegment->intersections().empty() )
+                    QString comment;
+                    if ( wsegValve->completionType() == RigCompletionData::CompletionType::PERFORATION_ICD ||
+                         wsegValve->completionType() == RigCompletionData::CompletionType::PERFORATION_ICV )
                     {
-                        QString comment;
-                        if ( wsegValve->completionType() == RigCompletionData::CompletionType::PERFORATION_ICD ||
-                             wsegValve->completionType() == RigCompletionData::CompletionType::PERFORATION_ICV )
-                        {
-                            comment = wsegValve->label();
-                        }
-
-                        size_t cellIndex = std::numeric_limits<size_t>::max();
-                        if ( !firstSubSegment->intersections().empty() )
-                        {
-                            cellIndex = firstSubSegment->intersections().front()->globalCellIndex();
-                        }
-
-                        wsegvalveData[cellIndex].push_back( WsegvalveData( wellNameForExport,
-                                                                           comment,
-                                                                           firstSubSegment->segmentNumber(),
-                                                                           wsegValve->flowCoefficient(),
-                                                                           wsegValve->area() ) );
+                        comment = wsegValve->label();
                     }
+
+                    wsegvalveData[cellIndex].push_back( WsegvalveData( wellNameForExport,
+                                                                       comment,
+                                                                       segmentNumber,
+                                                                       wsegValve->flowCoefficient(),
+                                                                       wsegValve->area() ) );
                 }
             }
         }
@@ -739,22 +732,19 @@ void RicMswTableFormatterTools::generateWsegAicdTableRecursively( RicMswExportIn
                 auto aicd = static_cast<const RicMswPerforationAICD*>( completion );
                 if ( aicd->isValid() )
                 {
-                    if ( !aicd->segments().empty() )
+                    int segmentNumber = -1;
+                    for ( auto seg : aicd->segments() )
                     {
-                        CVF_ASSERT( aicd->segments().size() == 1u );
-                        auto firstSegment = aicd->segments().front();
+                        if ( seg->segmentNumber() > -1 ) segmentNumber = seg->segmentNumber();
+                        if ( seg->intersections().empty() ) continue;
 
-                        size_t cellIndex = std::numeric_limits<size_t>::max();
-                        if ( !firstSegment->intersections().empty() )
-                        {
-                            cellIndex = firstSegment->intersections().front()->globalCellIndex();
-                        }
+                        size_t cellIndex = seg->intersections().front()->globalCellIndex();
 
                         auto wellName = exportInfo.mainBoreBranch()->wellPath()->completionSettings()->wellNameForExport();
                         auto comment = aicd->label();
                         aicdValveData[cellIndex].push_back( AicdWsegvalveData( wellName,
                                                                                comment,
-                                                                               firstSegment->segmentNumber(),
+                                                                               segmentNumber,
                                                                                aicd->flowScalingFactor(),
                                                                                aicd->isOpen(),
                                                                                aicd->values() ) );

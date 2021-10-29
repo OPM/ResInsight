@@ -281,6 +281,14 @@ std::unique_ptr<RicMswCompletion> RicMswSegment::removeCompletion( RicMswComplet
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RicMswSegment::deleteAllCompletions()
+{
+    m_completions.clear();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RicMswSegment::addIntersection( std::shared_ptr<RicMswSegmentCellIntersection> intersection )
 {
     m_intersections.push_back( intersection );

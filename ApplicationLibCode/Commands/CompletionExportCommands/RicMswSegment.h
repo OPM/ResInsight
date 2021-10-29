@@ -76,6 +76,7 @@ public:
 
     void                              addCompletion( std::unique_ptr<RicMswCompletion> completion );
     std::unique_ptr<RicMswCompletion> removeCompletion( RicMswCompletion* completion );
+    void                              deleteAllCompletions();
 
     void addIntersection( std::shared_ptr<RicMswSegmentCellIntersection> intersection );
 
