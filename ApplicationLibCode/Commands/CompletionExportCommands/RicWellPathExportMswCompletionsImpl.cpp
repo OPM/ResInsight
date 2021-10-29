@@ -1622,13 +1622,13 @@ void RicWellPathExportMswCompletionsImpl::moveIntersectionsToSuperICDsOrAICDs( g
         std::vector<RicMswCompletion*> perforations;
         for ( auto completion : segment->completions() )
         {
-            if ( RigCompletionData::isPerforationValve( completion->completionType() ) )
+            if ( completion->completionType() == RigCompletionData::CompletionType::PERFORATION_ICD ||
+                 completion->completionType() == RigCompletionData::CompletionType::PERFORATION_AICD )
             {
                 superValve = completion;
             }
-            else
+            else if ( completion->completionType() == RigCompletionData::CompletionType::PERFORATION )
             {
-                CVF_ASSERT( completion->completionType() == RigCompletionData::CompletionType::PERFORATION );
                 perforations.push_back( completion );
             }
         }
@@ -1636,21 +1636,55 @@ void RicWellPathExportMswCompletionsImpl::moveIntersectionsToSuperICDsOrAICDs( g
         if ( superValve == nullptr ) continue;
 
         CVF_ASSERT( superValve->segments().size() == 1u );
+
+        double aggregatedMinStartMD = std::numeric_limits<double>::max();
+
         // Remove and take over ownership of the superValve completion
         auto completionPtr = segment->removeCompletion( superValve );
         for ( auto perforation : perforations )
         {
             for ( auto subSegment : perforation->segments() )
             {
+                aggregatedMinStartMD = std::min( aggregatedMinStartMD, subSegment->startMD() );
+
+                // The valve completions on the main branch will be deleted. Create a segment with startMD and
+                // endMD representing the perforation along main well path to be connected to the valve. When COMPSEGS
+                // data is exported, the startMD and endMD of the segment is used to define the Start Length and End
+                // Length of the COMPSEGS keyword
+                //
+                // Example output
+                //
+                // COMPSEGS
+                // --Name
+                //     Well - 1 /
+                // --I      J      K      Branch no     Start Length     End Length
+                //   17     17     9      2             3030.71791       3034.01331 /
+                //   17     18     9      3             3034.01331       3125.47617 /
+
+                auto valveInflowSegment =
+                    std::make_unique<RicMswSegment>( QString( "%1 real valve segment " ).arg( branch->label() ),
+                                                     subSegment->startMD(),
+                                                     subSegment->endMD(),
+                                                     subSegment->startTVD(),
+                                                     subSegment->endTVD() );
+
                 for ( auto intersectionPtr : subSegment->intersections() )
                 {
-                    completionPtr->segments()[0]->addIntersection( intersectionPtr );
+                    valveInflowSegment->addIntersection( intersectionPtr );
                 }
+
+                completionPtr->addSegment( std::move( valveInflowSegment ) );
             }
         }
+
         // Remove all completions and re-add the super valve
-        segment->completions().clear();
-        segment->addCompletion( std::move( completionPtr ) );
+        segment->deleteAllCompletions();
+
+        auto segmentWithLowerMD = branch->findClosestSegmentWithLowerMD( aggregatedMinStartMD );
+        if ( segmentWithLowerMD )
+        {
+            segmentWithLowerMD->addCompletion( std::move( completionPtr ) );
+        }
     }
 }
 
