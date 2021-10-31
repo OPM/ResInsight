@@ -30,8 +30,10 @@
 #include "cvfObject.h"
 #include "cvfVector3.h"
 
+#include "RigEnsembleFractureStatisticsCalculator.h"
 #include "RigFractureCell.h"
 #include "RigFractureGrid.h"
+
 #include <vector>
 
 class RigStimPlanFractureDefinition;
@@ -137,6 +139,9 @@ private:
 
     QString     generatePropertiesTable() const;
     static void appendTextIfValidValue( QString& body, const QString& title, double value );
+    static void appendTextIfValidValue( QString&                                              body,
+                                        double                                                value,
+                                        RigEnsembleFractureStatisticsCalculator::PropertyType propertyType );
 
 private:
     caf::PdmField<int>     m_activeTimeStepIndex;

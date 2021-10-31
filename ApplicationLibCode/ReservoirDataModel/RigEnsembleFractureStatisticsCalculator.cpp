@@ -20,6 +20,7 @@
 
 #include "RiaDefines.h"
 #include "RiaEclipseUnitTools.h"
+#include "RiaNumberFormat.h"
 #include "RiaWeightedMeanCalculator.h"
 
 #include "RigFractureCell.h"
@@ -440,4 +441,16 @@ std::vector<RigEnsembleFractureStatisticsCalculator::PropertyType> RigEnsembleFr
         RigEnsembleFractureStatisticsCalculator::PropertyType::FORMATION_DIP,
     };
     return types;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::pair<RiaNumberFormat::NumberFormatType, int>
+    RigEnsembleFractureStatisticsCalculator::numberFormatForProperty( PropertyType propertyType )
+{
+    if ( propertyType == PropertyType::WIDTH )
+        return std::make_pair( RiaNumberFormat::NumberFormatType::FIXED, 4 );
+    else
+        return std::make_pair( RiaNumberFormat::NumberFormatType::FIXED, 1 );
 }

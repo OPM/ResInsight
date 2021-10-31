@@ -20,6 +20,7 @@
 
 #include "RiaDefines.h"
 
+#include "RiaNumberFormat.h"
 #include "RigHistogramData.h"
 
 #include "cvfObject.h"
@@ -65,6 +66,8 @@ public:
                            PropertyType                                                propertyType );
 
     static std::vector<RigEnsembleFractureStatisticsCalculator::PropertyType> propertyTypes();
+
+    static std::pair<RiaNumberFormat::NumberFormatType, int> numberFormatForProperty( PropertyType propertyType );
 
 private:
     static std::vector<double>
