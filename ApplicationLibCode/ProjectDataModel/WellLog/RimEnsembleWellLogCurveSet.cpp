@@ -50,7 +50,9 @@
 #include "RiuAbstractLegendFrame.h"
 #include "RiuDraggableOverlayFrame.h"
 #include "RiuPlotMainWindow.h"
+#include "RiuQwtPlotCurveDefines.h"
 #include "RiuQwtPlotWidget.h"
+#include "RiuQwtSymbol.h"
 #include "RiuTextContentFrame.h"
 
 #include "cafPdmObject.h"
@@ -133,6 +135,10 @@ RimEnsembleWellLogCurveSet::RimEnsembleWellLogCurveSet()
     m_curveAppearance->setColorVisible( false );
     m_curveAppearance->setFillOptionsVisible( false );
 
+    m_curveAppearance->setSymbol( RiuQwtSymbol::PointSymbolEnum::SYMBOL_ELLIPSE );
+    m_curveAppearance->setSymbolSize( 5 );
+    m_curveAppearance->setLineStyle( RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_NONE );
+    m_curveAppearance->setSymbolEdgeColor( cvf::Color3f::BLACK );
     m_curveAppearance->appearanceChanged.connect( this, &RimEnsembleWellLogCurveSet::onEnsembleCurvesAppearanceChanged );
 
     m_qwtPlotCurveForLegendText = new QwtPlotCurve;
