@@ -23,6 +23,7 @@
 #include "RiaEclipseUnitTools.h"
 #include "RiaFractureDefines.h"
 #include "RiaLogging.h"
+#include "RiaNumberFormat.h"
 #include "RiaWeightedGeometricMeanCalculator.h"
 #include "RiaWeightedMeanCalculator.h"
 
@@ -1207,8 +1208,7 @@ QString RimStimPlanFractureTemplate::generatePropertiesTable() const
                 RigEnsembleFractureStatisticsCalculator::calculateProperty( fractureDefinitions, propertyType );
             if ( !values.empty() )
             {
-                QString name = caf::AppEnum<RigEnsembleFractureStatisticsCalculator::PropertyType>::uiText( propertyType );
-                appendTextIfValidValue( body, name, values[0] );
+                appendTextIfValidValue( body, values[0], propertyType );
             }
         }
     }
@@ -1224,5 +1224,20 @@ void RimStimPlanFractureTemplate::appendTextIfValidValue( QString& body, const Q
     if ( value != HUGE_VAL )
     {
         body += QString( "%1: %2<br>" ).arg( title ).arg( value );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimStimPlanFractureTemplate::appendTextIfValidValue( QString&                                              body,
+                                                          double                                                value,
+                                                          RigEnsembleFractureStatisticsCalculator::PropertyType propertyType )
+{
+    if ( value != HUGE_VAL )
+    {
+        QString name = caf::AppEnum<RigEnsembleFractureStatisticsCalculator::PropertyType>::uiText( propertyType );
+        auto [numberFormat, precision] = RigEnsembleFractureStatisticsCalculator::numberFormatForProperty( propertyType );
+        body += QString( "%1: %2<br>" ).arg( name ).arg( RiaNumberFormat::valueToText( value, numberFormat, precision ) );
     }
 }

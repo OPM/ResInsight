@@ -22,6 +22,7 @@
 #include "RiaDefines.h"
 #include "RiaInterpolationTools.h"
 #include "RiaLogging.h"
+#include "RiaNumberFormat.h"
 #include "RiaPreferences.h"
 #include "RiaWeightedGeometricMeanCalculator.h"
 #include "RiaWeightedHarmonicMeanCalculator.h"
@@ -1360,11 +1361,11 @@ QString RimEnsembleFractureStatistics::generateStatisticsTable(
     text += "</thead>";
     text += "<tbody>";
 
-    auto emptyTextOnInf = []( double value ) {
+    auto emptyTextOnInf = []( double value, RiaNumberFormat::NumberFormatType numberFormat, int precision ) {
         if ( std::isinf( value ) )
             return QString( "" );
         else
-            return QString::number( value );
+            return RiaNumberFormat::valueToText( value, numberFormat, precision );
     };
 
     for ( auto propertyType : propertyTypes )
@@ -1376,6 +1377,7 @@ QString RimEnsembleFractureStatistics::generateStatisticsTable(
                                                                            propertyType,
                                                                            numBins );
 
+        auto [numberFormat, precision] = RigEnsembleFractureStatisticsCalculator::numberFormatForProperty( propertyType );
         text += QString( "<tr>"
                          "<td>%1</td>"
                          "<td align=right>%2</td>"
@@ -1385,11 +1387,11 @@ QString RimEnsembleFractureStatistics::generateStatisticsTable(
                          "<td align=right>%6</td>"
                          "</tr>" )
                     .arg( name )
-                    .arg( emptyTextOnInf( histogramData.min ) )
-                    .arg( emptyTextOnInf( histogramData.p90 ) )
-                    .arg( emptyTextOnInf( histogramData.mean ) )
-                    .arg( emptyTextOnInf( histogramData.p10 ) )
-                    .arg( emptyTextOnInf( histogramData.max ) );
+                    .arg( emptyTextOnInf( histogramData.min, numberFormat, precision ) )
+                    .arg( emptyTextOnInf( histogramData.p90, numberFormat, precision ) )
+                    .arg( emptyTextOnInf( histogramData.mean, numberFormat, precision ) )
+                    .arg( emptyTextOnInf( histogramData.p10, numberFormat, precision ) )
+                    .arg( emptyTextOnInf( histogramData.max, numberFormat, precision ) );
     }
 
     text += "</tbody>";
