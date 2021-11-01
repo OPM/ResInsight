@@ -31,10 +31,8 @@
 template <>
 void caf::AppEnum<RiaEnsembleNameTools::EnsembleGroupingMode>::setUp()
 {
-    addItem( RiaEnsembleNameTools::EnsembleGroupingMode::FMU_FOLDER_STRUCTURE, "FMU_FOLDER_MODE", "FMU Folder Structure" );
-    addItem( RiaEnsembleNameTools::EnsembleGroupingMode::EVEREST_FOLDER_STRUCTURE,
-             "EVEREST_FOLDER_MODE",
-             "Everest Folder Structure" );
+    addItem( RiaEnsembleNameTools::EnsembleGroupingMode::FMU_FOLDER_STRUCTURE, "FMU_FOLDER_MODE", "Sub Folder" );
+    addItem( RiaEnsembleNameTools::EnsembleGroupingMode::EVEREST_FOLDER_STRUCTURE, "EVEREST_FOLDER_MODE", "Main Folder" );
     addItem( RiaEnsembleNameTools::EnsembleGroupingMode::NONE, "None", "None" );
     setDefault( RiaEnsembleNameTools::EnsembleGroupingMode::FMU_FOLDER_STRUCTURE );
 }
