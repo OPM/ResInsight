@@ -202,6 +202,7 @@ RimWellLogTrack::RimWellLogTrack()
     CAF_PDM_InitFieldNoDefault( &m_xAxisGridVisibility, "ShowXGridLines", "Show Grid Lines", "", "", "" );
 
     CAF_PDM_InitField( &m_explicitTickIntervals, "ExplicitTickIntervals", false, "Manually Set Tick Intervals", "", "", "" );
+    CAF_PDM_InitField( &m_minAndMaxTicksOnly, "MinAndMaxTicksOnly", false, "Show Ticks at Min and Max", "", "", "" );
     CAF_PDM_InitField( &m_majorTickInterval, "MajorTickIntervals", 0.0, "Major Tick Interval", "", "", "" );
     CAF_PDM_InitField( &m_minorTickInterval, "MinorTickIntervals", 0.0, "Minor Tick Interval", "", "", "" );
     m_majorTickInterval.uiCapability()->setUiHidden( true );
@@ -560,7 +561,7 @@ void RimWellLogTrack::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
         }
     }
     else if ( changedField == &m_xAxisGridVisibility || changedField == &m_majorTickInterval ||
-              changedField == &m_minorTickInterval )
+              changedField == &m_minorTickInterval || changedField == &m_minAndMaxTicksOnly )
     {
         updateXAxisAndGridTickIntervals();
     }
@@ -778,7 +779,43 @@ void RimWellLogTrack::updateXAxisAndGridTickIntervals()
     else
     {
         m_plotWidget->setAxisLabelsAndTicksEnabled( QwtPlot::xTop, true, true );
-        if ( m_explicitTickIntervals )
+        if ( m_minAndMaxTicksOnly )
+        {
+            auto roundToDigits = []( double value, int numberOfDigits, bool useFloor ) {
+                if ( value == 0.0 ) return 0.0;
+
+                double factor = std::pow( 10.0, numberOfDigits - std::ceil( std::log10( std::fabs( value ) ) ) );
+
+                if ( useFloor )
+                {
+                    // Use floor for maximum value to ensure we get a value inside the complete range
+                    return std::floor( value * factor ) / factor;
+                }
+
+                // Use ceil for minimum value to ensure we get a value inside the complete range
+                return std::ceil( value * factor ) / factor;
+            };
+
+            auto div = QwtScaleDiv( m_visibleXRangeMin(), m_visibleXRangeMax() );
+
+            QList<double> majorTicks;
+
+            auto min = roundToDigits( m_visibleXRangeMin(), 2, false );
+            auto max = roundToDigits( m_visibleXRangeMax(), 2, true );
+            if ( min == max )
+            {
+                min = roundToDigits( m_visibleXRangeMin(), 3, false );
+                max = roundToDigits( m_visibleXRangeMax(), 3, true );
+            }
+
+            majorTicks.push_back( min );
+            majorTicks.push_back( max );
+
+            div.setTicks( QwtScaleDiv::TickType::MajorTick, majorTicks );
+
+            m_plotWidget->setAxisScaleDiv( QwtPlot::xTop, div );
+        }
+        else if ( m_explicitTickIntervals )
         {
             m_plotWidget->setMajorAndMinorTickIntervals( QwtPlot::xTop,
                                                          m_majorTickInterval(),
@@ -2195,12 +2232,13 @@ void RimWellLogTrack::uiOrderingForXAxisSettings( caf::PdmUiOrdering& uiOrdering
     gridGroup->add( &m_visibleXRangeMin );
     gridGroup->add( &m_visibleXRangeMax );
     gridGroup->add( &m_xAxisGridVisibility );
+    gridGroup->add( &m_minAndMaxTicksOnly );
 
     // TODO Revisit if these settings are required
     // See issue https://github.com/OPM/ResInsight/issues/4367
-    //     gridGroup->add(&m_explicitTickIntervals);
-    //     gridGroup->add(&m_majorTickInterval);
-    //     gridGroup->add(&m_minorTickInterval);
+    //     gridGroup->add( &m_explicitTickIntervals );
+    //     gridGroup->add( &m_majorTickInterval );
+    //     gridGroup->add( &m_minorTickInterval );
 }
 
 //--------------------------------------------------------------------------------------------------
