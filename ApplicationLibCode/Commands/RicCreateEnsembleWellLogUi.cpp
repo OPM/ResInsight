@@ -59,7 +59,7 @@ RicCreateEnsembleWellLogUi::RicCreateEnsembleWellLogUi()
 
     CAF_PDM_InitField( &m_autoCreateEnsembleWellLogs,
                        "AutoCreateEnsembleWellLogs",
-                       false,
+                       true,
                        "Create Ensemble Well Logs From Exported Files",
                        "",
                        "",
