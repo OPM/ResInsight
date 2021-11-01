@@ -55,6 +55,14 @@ RimIntersectionCollection::RimIntersectionCollection()
 
     CAF_PDM_InitField( &isActive, "Active", true, "Active", "", "", "" );
     isActive.uiCapability()->setUiHidden( true );
+
+    CAF_PDM_InitField( &m_showIntersectionsOutsideFilters,
+                       "ShowIntersectionsOutsideFilters",
+                       true,
+                       "Show Intersections Outside Filters",
+                       "",
+                       "",
+                       "" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -72,6 +80,17 @@ RimIntersectionCollection::~RimIntersectionCollection()
 caf::PdmFieldHandle* RimIntersectionCollection::objectToggleField()
 {
     return &isActive;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimIntersectionCollection::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
+{
+    caf::PdmUiGroup* adv = uiOrdering.addNewGroup( "Intersection Options" );
+    adv->add( &m_showIntersectionsOutsideFilters );
+
+    uiOrdering.skipRemainingFields( true );
 }
 
 //--------------------------------------------------------------------------------------------------

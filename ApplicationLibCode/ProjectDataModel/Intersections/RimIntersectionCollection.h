@@ -84,8 +84,11 @@ protected:
     void                 fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     caf::PdmFieldHandle* objectToggleField() override;
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
+    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
 private:
     caf::PdmChildArrayField<RimExtrudedCurveIntersection*> m_intersections;
     caf::PdmChildArrayField<RimBoxIntersection*>           m_intersectionBoxes;
+
+    caf::PdmField<bool> m_showIntersectionsOutsideFilters;
 };
