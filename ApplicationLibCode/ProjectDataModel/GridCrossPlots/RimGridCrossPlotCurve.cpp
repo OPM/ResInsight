@@ -157,7 +157,7 @@ void RimGridCrossPlotCurve::updateLegendsInPlot()
     {
         plot->reattachAllCurves();
     }
-    RimPlotCurve::updateLegendsInPlot();
+    RimQwtPlotCurve::updateLegendsInPlot();
 }
 
 //--------------------------------------------------------------------------------------------------
