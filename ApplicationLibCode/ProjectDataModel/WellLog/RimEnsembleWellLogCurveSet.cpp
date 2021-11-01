@@ -1229,6 +1229,12 @@ void RimEnsembleWellLogCurveSet::onFilterSourceChanged( const caf::SignalEmitter
 void RimEnsembleWellLogCurveSet::initAfterRead()
 {
     connectEnsembleCurveSetFilterSignals();
+
+    // Hide the ensemble and statistics curves in the project tree on reload
+    for ( auto c : m_curves() )
+    {
+        c->setUiTreeHidden( true );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
