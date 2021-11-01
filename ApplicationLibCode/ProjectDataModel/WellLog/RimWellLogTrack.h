@@ -162,6 +162,7 @@ public:
     void updateEditors();
 
     void setTickIntervals( double majorTickInterval, double minorTickInterval );
+    void setMinAndMaxTicksOnly( bool enable );
     void setXAxisGridVisibility( RimWellLogPlot::AxisGridVisibility gridLines );
 
     void setAnnotationType( RiuPlotAnnotationTool::RegionAnnotationType annotationType );
@@ -319,9 +320,11 @@ private:
     caf::PdmField<bool>                         m_isAutoScaleXEnabled;
     caf::PdmField<bool>                         m_isLogarithmicScaleEnabled;
     caf::PdmField<RimWellLogPlot::AxisGridEnum> m_xAxisGridVisibility;
-    caf::PdmField<bool>                         m_explicitTickIntervals;
-    caf::PdmField<double>                       m_majorTickInterval;
-    caf::PdmField<double>                       m_minorTickInterval;
+
+    caf::PdmField<bool>   m_explicitTickIntervals;
+    caf::PdmField<bool>   m_minAndMaxTicksOnly;
+    caf::PdmField<double> m_majorTickInterval;
+    caf::PdmField<double> m_minorTickInterval;
 
     caf::PdmField<caf::FontTools::RelativeSizeEnum> m_axisFontSize;
 

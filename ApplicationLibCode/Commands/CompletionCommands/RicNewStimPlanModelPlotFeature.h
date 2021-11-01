@@ -76,4 +76,5 @@ private:
     static RimPlotCurveAppearance::FillStyle     defaultFillStyle( RiaDefines::CurveProperty property );
     static RiuQwtPlotCurveDefines::LineStyleEnum defaultLineStyle( RiaDefines::CurveProperty property );
     static RimPlot::RowOrColSpan                 defaultColSpan( RiaDefines::CurveProperty property );
+    static bool                                  useMinMaxTicksOnly( RiaDefines::CurveProperty property );
 };
