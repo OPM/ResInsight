@@ -57,7 +57,7 @@ private:
 class ProgressInfo
 {
 public:
-    ProgressInfo( size_t maxProgressValue, const QString& title, bool delayShowingProgress = false );
+    ProgressInfo( size_t maxProgressValue, const QString& title, bool delayShowingProgress = true );
 
     ~ProgressInfo();
     void setProgressDescription( const QString& description );
