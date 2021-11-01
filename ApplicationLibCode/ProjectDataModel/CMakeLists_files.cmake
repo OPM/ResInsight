@@ -64,6 +64,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimPlotCurve.h
     ${CMAKE_CURRENT_LIST_DIR}/RimPlotCurveAppearance.h
     ${CMAKE_CURRENT_LIST_DIR}/RimStackablePlotCurve.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimQwtPlotCurve.h
     ${CMAKE_CURRENT_LIST_DIR}/RimAdvancedSnapshotExportDefinition.h
     ${CMAKE_CURRENT_LIST_DIR}/RimMdiWindowController.h
     ${CMAKE_CURRENT_LIST_DIR}/RimNamedObject.h
@@ -185,6 +186,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimPlotCurve.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimPlotCurveAppearance.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimStackablePlotCurve.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimQwtPlotCurve.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimAdvancedSnapshotExportDefinition.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimMdiWindowController.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimNamedObject.cpp
