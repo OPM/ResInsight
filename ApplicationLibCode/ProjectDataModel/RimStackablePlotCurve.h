@@ -17,9 +17,9 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
-#include "RimPlotCurve.h"
+#include "RimQwtPlotCurve.h"
 
-class RimStackablePlotCurve : public RimPlotCurve
+class RimStackablePlotCurve : public RimQwtPlotCurve
 {
 public:
     caf::Signal<bool> stackingChanged;

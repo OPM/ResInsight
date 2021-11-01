@@ -32,13 +32,7 @@
 #include "cafPdmFieldCvfColor.h"
 #include "cafPdmObject.h"
 
-#include <QPointer>
 #include <Qt>
-
-class QwtPlot;
-class QwtPlotCurve;
-class QwtPlotIntervalCurve;
-class RiuQwtPlotCurve;
 
 //==================================================================================================
 ///
@@ -59,15 +53,6 @@ public:
     ~RimPlotCurve() override;
 
     void loadDataAndUpdate( bool updateParentPlot );
-
-    virtual bool xValueRangeInQwt( double* minimumValue, double* maximumValue ) const;
-    virtual bool yValueRangeInQwt( double* minimumValue, double* maximumValue ) const;
-
-    void          setParentQwtPlotAndReplot( QwtPlot* plot );
-    void          setParentQwtPlotNoReplot( QwtPlot* plot );
-    void          detachQwtCurve();
-    void          reattachQwtCurve();
-    QwtPlotCurve* qwtPlotCurve() const;
 
     void                          setColor( const cvf::Color3f& color );
     cvf::Color3f                  color() const;
@@ -104,20 +89,22 @@ public:
     QString legendEntryText() const;
     void    setLegendEntryText( const QString& legendEntryText );
 
-    void updateCurveVisibility();
-    void updateLegendEntryVisibilityAndPlotLegend();
-    void updateLegendEntryVisibilityNoPlotUpdate();
+    virtual void refreshParentPlot()     = 0;
+    virtual void updateCurveVisibility() = 0;
+    void         updateLegendEntryVisibilityAndPlotLegend();
+    virtual void updateLegendEntryVisibilityNoPlotUpdate() = 0;
 
     bool showInLegend() const;
     bool errorBarsVisible() const;
 
-    void setShowInLegend( bool show );
-    void setZOrder( double z );
-    void setErrorBarsVisible( bool isVisible );
+    void         setShowInLegend( bool show );
+    virtual void setZOrder( double z ) = 0;
+    void         setErrorBarsVisible( bool isVisible );
 
-    virtual void updateCurveAppearance();
+    virtual void updateCurveAppearance() = 0;
     bool         isCrossPlotCurve() const;
-    void         updateUiIconFromPlotSymbol();
+    virtual void updateUiIconFromPlotSymbol() = 0;
+    virtual bool hasParentPlot() const        = 0;
 
 protected:
     virtual QString createCurveAutoName()                        = 0;
@@ -128,23 +115,27 @@ protected:
 
     void         updateOptionSensitivity();
     void         updatePlotTitle();
-    virtual void updateLegendsInPlot();
+    virtual void updateLegendsInPlot()                 = 0;
+    virtual void setCurveTitle( const QString& title ) = 0;
 
-    void setSamplesFromXYErrorValues( const std::vector<double>& xValues,
-                                      const std::vector<double>& yValues,
-                                      const std::vector<double>& errorValues,
-                                      bool                       keepOnlyPositiveValues,
-                                      RiaCurveDataTools::ErrorAxis errorAxis = RiaCurveDataTools::ErrorAxis::ERROR_ALONG_Y_AXIS );
-    void setSamplesFromXYValues( const std::vector<double>& xValues,
-                                 const std::vector<double>& yValues,
-                                 bool                       keepOnlyPositiveValues );
-    void setSamplesFromDatesAndYValues( const std::vector<QDateTime>& dateTimes,
-                                        const std::vector<double>&    yValues,
-                                        bool                          keepOnlyPositiveValues );
+    virtual void setSamplesFromXYErrorValues(
+        const std::vector<double>&   xValues,
+        const std::vector<double>&   yValues,
+        const std::vector<double>&   errorValues,
+        bool                         keepOnlyPositiveValues,
+        RiaCurveDataTools::ErrorAxis errorAxis = RiaCurveDataTools::ErrorAxis::ERROR_ALONG_Y_AXIS ) = 0;
 
-    void setSamplesFromTimeTAndYValues( const std::vector<time_t>& dateTimes,
-                                        const std::vector<double>& yValues,
-                                        bool                       keepOnlyPositiveValues );
+    virtual void setSamplesFromXYValues( const std::vector<double>& xValues,
+                                         const std::vector<double>& yValues,
+                                         bool                       keepOnlyPositiveValues ) = 0;
+
+    virtual void setSamplesFromDatesAndYValues( const std::vector<QDateTime>& dateTimes,
+                                                const std::vector<double>&    yValues,
+                                                bool                          keepOnlyPositiveValues ) = 0;
+
+    virtual void setSamplesFromTimeTAndYValues( const std::vector<time_t>& dateTimes,
+                                                const std::vector<double>& yValues,
+                                                bool                       keepOnlyPositiveValues ) = 0;
 
 protected:
     // Overridden PDM methods
@@ -157,17 +148,11 @@ protected:
     virtual void onCurveAppearanceChanged( const caf::SignalEmitter* emitter );
     virtual void onFillColorChanged( const caf::SignalEmitter* emitter );
 
-private:
-    bool canCurveBeAttached() const;
-    void attachCurveAndErrorBars();
-    void checkAndApplyDefaultFillColor();
+    bool         canCurveBeAttached() const;
+    virtual void attachCurveAndErrorBars() = 0;
+    void         checkAndApplyDefaultFillColor();
 
 protected:
-    QPointer<QwtPlot> m_parentQwtPlot;
-
-    RiuQwtPlotCurve*      m_qwtPlotCurve;
-    QwtPlotIntervalCurve* m_qwtCurveErrorBars;
-
     caf::PdmField<bool>    m_showCurve;
     caf::PdmField<QString> m_curveName;
     caf::PdmField<QString> m_customCurveName;
