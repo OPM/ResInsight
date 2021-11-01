@@ -175,7 +175,7 @@ RimCorrelationMatrixPlot::RimCorrelationMatrixPlot()
     m_legendConfig = new RimRegularLegendConfig();
     m_legendConfig->setAutomaticRanges( -1.0, 1.0, -1.0, 1.0 );
     m_legendConfig->setColorLegend(
-        RimRegularLegendConfig::mapToColorLegend( RimRegularLegendConfig::ColorRangesType::RED_WHITE_BLUE ) );
+        RimRegularLegendConfig::mapToColorLegend( RimRegularLegendConfig::ColorRangesType::BLUE_WHITE_RED ) );
 
     setLegendsVisible( false );
 
