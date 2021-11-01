@@ -352,7 +352,7 @@ void RimWellLogTrack::cleanupBeforeClose()
 //--------------------------------------------------------------------------------------------------
 void RimWellLogTrack::detachAllPlotItems()
 {
-    for ( RimPlotCurve* curve : m_curves )
+    for ( RimQwtPlotCurve* curve : m_curves )
     {
         curve->detachQwtCurve();
     }
@@ -1547,7 +1547,7 @@ void RimWellLogTrack::detachAllCurves()
 //--------------------------------------------------------------------------------------------------
 void RimWellLogTrack::reattachAllCurves()
 {
-    for ( RimPlotCurve* curve : m_curves )
+    for ( RimQwtPlotCurve* curve : m_curves )
     {
         curve->reattachQwtCurve();
     }

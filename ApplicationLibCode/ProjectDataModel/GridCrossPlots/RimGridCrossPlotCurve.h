@@ -17,7 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
-#include "RimPlotCurve.h"
+#include "RimQwtPlotCurve.h"
 
 #include "cafPdmChildField.h"
 #include "cafPdmPtrField.h"
@@ -27,13 +27,12 @@
 
 class RimCase;
 class RimEclipseResultDefinition;
-class QwtPlotCurve;
 
 //==================================================================================================
 ///
 ///
 //==================================================================================================
-class RimGridCrossPlotCurve : public RimPlotCurve
+class RimGridCrossPlotCurve : public RimQwtPlotCurve
 {
     CAF_PDM_HEADER_INIT;
 

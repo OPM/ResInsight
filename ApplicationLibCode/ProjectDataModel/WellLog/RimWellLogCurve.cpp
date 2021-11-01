@@ -178,7 +178,7 @@ const RigWellLogCurveData* RimWellLogCurve::curveData() const
 //--------------------------------------------------------------------------------------------------
 void RimWellLogCurve::updateCurveAppearance()
 {
-    RimPlotCurve::updateCurveAppearance();
+    RimQwtPlotCurve::updateCurveAppearance();
     if ( fillStyle() != Qt::BrushStyle::NoBrush )
     {
         m_qwtPlotCurve->setOrientation( Qt::Horizontal );
