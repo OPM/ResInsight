@@ -26,7 +26,7 @@
 
 #include "RiaDefines.h"
 #include "RifEclipseSummaryAddress.h"
-#include "RimPlotCurve.h"
+#include "RimQwtPlotCurve.h"
 
 #include "cafAppEnum.h"
 
@@ -41,7 +41,7 @@ class RimAsciiDataCurveAutoName;
 ///
 ///
 //==================================================================================================
-class RimAsciiDataCurve : public RimPlotCurve
+class RimAsciiDataCurve : public RimQwtPlotCurve
 {
     CAF_PDM_HEADER_INIT;
 
