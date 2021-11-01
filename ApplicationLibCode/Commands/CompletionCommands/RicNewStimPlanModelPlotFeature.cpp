@@ -422,6 +422,8 @@ void RicNewStimPlanModelPlotFeature::createParametersTrack( RimStimPlanModelPlot
     plotTrack->setShowRegionLabels( true );
     plotTrack->setLogarithmicScale( isPlotLogarithmic );
     plotTrack->setAutoScaleXEnabled( true );
+    plotTrack->setMinAndMaxTicksOnly( useMinMaxTicksOnly( propertyTypes[0] ) );
+
     plotTrack->updateConnectedEditors();
     plot->updateConnectedEditors();
 
@@ -626,4 +628,19 @@ RimPlot::RowOrColSpan RicNewStimPlanModelPlotFeature::defaultColSpan( RiaDefines
     if ( wideProperties.count( property ) > 0 ) return RimPlot::TWO;
 
     return RimPlot::ONE;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RicNewStimPlanModelPlotFeature::useMinMaxTicksOnly( RiaDefines::CurveProperty property )
+{
+    std::set<RiaDefines::CurveProperty> useMajorAndMinorTickmarks = { RiaDefines::CurveProperty::STRESS,
+                                                                      RiaDefines::CurveProperty::INITIAL_STRESS,
+                                                                      RiaDefines::CurveProperty::PRESSURE,
+                                                                      RiaDefines::CurveProperty::INITIAL_PRESSURE };
+
+    if ( useMajorAndMinorTickmarks.count( property ) ) return false;
+
+    return true;
 }

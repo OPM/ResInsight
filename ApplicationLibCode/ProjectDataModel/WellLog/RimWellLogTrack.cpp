@@ -1627,6 +1627,14 @@ void RimWellLogTrack::setTickIntervals( double majorTickInterval, double minorTi
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimWellLogTrack::setMinAndMaxTicksOnly( bool enable )
+{
+    m_minAndMaxTicksOnly = enable;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimWellLogTrack::setXAxisGridVisibility( RimWellLogPlot::AxisGridVisibility gridLines )
 {
     m_xAxisGridVisibility = gridLines;
