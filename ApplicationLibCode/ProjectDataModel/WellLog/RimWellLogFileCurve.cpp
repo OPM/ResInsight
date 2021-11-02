@@ -423,6 +423,8 @@ QList<caf::PdmOptionItemInfo> RimWellLogFileCurve::calculateValueOptions( const 
 //--------------------------------------------------------------------------------------------------
 void RimWellLogFileCurve::initAfterRead()
 {
+    RimWellLogCurve::initAfterRead();
+
     if ( !m_wellPath ) return;
 
     if ( m_wellPath->wellLogFiles().size() == 1 )

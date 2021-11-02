@@ -598,6 +598,8 @@ void RimGridTimeHistoryCurve::defineUiOrdering( QString uiConfigName, caf::PdmUi
 //--------------------------------------------------------------------------------------------------
 void RimGridTimeHistoryCurve::initAfterRead()
 {
+    RimPlotCurve::initAfterRead();
+
     updateResultDefinitionFromCase();
 }
 

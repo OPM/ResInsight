@@ -745,6 +745,8 @@ void RimSummaryCurve::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrderi
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCurve::initAfterRead()
 {
+    RimStackablePlotCurve::initAfterRead();
+
     if ( m_isEnsembleCurve().isPartiallyTrue() )
     {
         m_isEnsembleCurve.v() = ( summaryCaseY() && summaryCaseY()->ensemble() ) ? caf::Tristate::State::True
