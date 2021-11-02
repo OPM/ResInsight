@@ -869,17 +869,41 @@ void RicMswTableFormatterTools::writeValveWelsegsSegment( const RicMswSegment*  
 
     auto segments = valve->segments();
 
-    auto subSegment = segments.front();
-    subSegment->setSegmentNumber( *segmentNumber );
+    double startMD = 0.0;
+    double endMD   = 0.0;
 
-    double startMD = subSegment->startMD();
-    double endMD   = subSegment->endMD();
+    if ( valve->completionType() == RigCompletionData::CompletionType::PERFORATION_ICD ||
+         valve->completionType() == RigCompletionData::CompletionType::PERFORATION_AICD )
+    {
+        CVF_ASSERT( segments.size() > 1 );
 
-    double midPointMD  = 0.5 * ( startMD + endMD );
-    double midPointTVD = tvdFromMeasuredDepth( valve->wellPath(), midPointMD );
+        // The 0.1 valve segment is the first, the perforated segment is the second
+        auto subSegment = segments[0];
+        subSegment->setSegmentNumber( *segmentNumber );
 
-    subSegment->setOutputMD( midPointMD );
-    subSegment->setOutputTVD( midPointTVD );
+        double midPointMD = subSegment->outputMD();
+        startMD           = midPointMD;
+        endMD             = startMD + 0.1;
+
+        double midPointTVD = tvdFromMeasuredDepth( valve->wellPath(), midPointMD );
+
+        subSegment->setOutputMD( midPointMD );
+        subSegment->setOutputTVD( midPointTVD );
+    }
+    else
+    {
+        auto subSegment = segments.front();
+        subSegment->setSegmentNumber( *segmentNumber );
+
+        startMD = subSegment->startMD();
+        endMD   = subSegment->endMD();
+
+        double midPointMD  = 0.5 * ( startMD + endMD );
+        double midPointTVD = tvdFromMeasuredDepth( valve->wellPath(), midPointMD );
+
+        subSegment->setOutputMD( midPointMD );
+        subSegment->setOutputTVD( midPointTVD );
+    }
 
     std::vector<std::pair<double, double>> splitSegments = createSubSegmentMDPairs( startMD, endMD, maxSegmentLength );
 

@@ -1639,16 +1639,12 @@ void RicWellPathExportMswCompletionsImpl::moveIntersectionsToSuperICDsOrAICDs( g
 
         CVF_ASSERT( superValve->segments().size() == 1u );
 
-        double aggregatedMinStartMD = std::numeric_limits<double>::max();
-
         // Remove and take over ownership of the superValve completion
         auto completionPtr = segment->removeCompletion( superValve );
         for ( auto perforation : perforations )
         {
             for ( auto subSegment : perforation->segments() )
             {
-                aggregatedMinStartMD = std::min( aggregatedMinStartMD, subSegment->startMD() );
-
                 // The valve completions on the main branch will be deleted. Create a segment with startMD and
                 // endMD representing the perforation along main well path to be connected to the valve. When COMPSEGS
                 // data is exported, the startMD and endMD of the segment is used to define the Start Length and End
@@ -1675,18 +1671,20 @@ void RicWellPathExportMswCompletionsImpl::moveIntersectionsToSuperICDsOrAICDs( g
                     valveInflowSegment->addIntersection( intersectionPtr );
                 }
 
+                {
+                    double midpoint = ( segment->startMD() + segment->endMD() ) * 0.5;
+
+                    // Set the output MD to the midpoint of the segment, this info is used when exporting WELSEGS in
+                    // RicMswTableFormatterTools::writeValveWelsegsSegment
+                    completionPtr->segments()[0]->setOutputMD( midpoint );
+                }
                 completionPtr->addSegment( std::move( valveInflowSegment ) );
             }
         }
 
         // Remove all completions and re-add the super valve
         segment->deleteAllCompletions();
-
-        auto segmentWithLowerMD = branch->findClosestSegmentWithLowerMD( aggregatedMinStartMD );
-        if ( segmentWithLowerMD )
-        {
-            segmentWithLowerMD->addCompletion( std::move( completionPtr ) );
-        }
+        segment->addCompletion( std::move( completionPtr ) );
     }
 }
 
