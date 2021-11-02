@@ -324,6 +324,7 @@ void RicWellPathExportMswCompletionsImpl::exportWellSegmentsForPerforations( Rim
         {
             QTextStream               stream( exportFile.get() );
             RifTextDataTableFormatter formatter( stream );
+            formatter.setOptionalComment( exportDataSourceAsComment );
 
             RicMswTableFormatterTools::generateWelsegsTable( formatter,
                                                              exportInfo,
@@ -339,6 +340,7 @@ void RicWellPathExportMswCompletionsImpl::exportWellSegmentsForPerforations( Rim
         {
             QTextStream               stream( lgrExportFile.get() );
             RifTextDataTableFormatter formatter( stream );
+            formatter.setOptionalComment( exportDataSourceAsComment );
 
             RicMswTableFormatterTools::generateWelsegsTable( formatter,
                                                              exportInfo,
