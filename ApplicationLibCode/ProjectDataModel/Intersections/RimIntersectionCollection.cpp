@@ -24,6 +24,7 @@
 #include "Rim3dView.h"
 #include "RimBoxIntersection.h"
 #include "RimCase.h"
+#include "RimEclipseView.h"
 #include "RimExtrudedCurveIntersection.h"
 #include "RimGridView.h"
 #include "RimIntersectionResultDefinition.h"
@@ -87,8 +88,13 @@ caf::PdmFieldHandle* RimIntersectionCollection::objectToggleField()
 //--------------------------------------------------------------------------------------------------
 void RimIntersectionCollection::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    caf::PdmUiGroup* adv = uiOrdering.addNewGroup( "Intersection Options" );
-    adv->add( &m_showIntersectionsOutsideFilters );
+    RimEclipseView* eclView = nullptr;
+    this->firstAncestorOfType( eclView );
+    if ( eclView )
+    {
+        caf::PdmUiGroup* adv = uiOrdering.addNewGroup( "Intersection Options" );
+        adv->add( &m_showIntersectionsOutsideFilters );
+    }
 
     uiOrdering.skipRemainingFields( true );
 }
