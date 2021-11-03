@@ -18,6 +18,7 @@
 
 #include "RimAnalysisPlot.h"
 
+#include "RiaPlotDefines.h"
 #include "RiaPreferences.h"
 #include "RiaSummaryCurveDefinition.h"
 #include "RiaTextStringTools.h"
@@ -159,7 +160,7 @@ RimAnalysisPlot::RimAnalysisPlot()
     CAF_PDM_InitFieldNoDefault( &m_valueAxisProperties, "ValueAxisProperties", "ValueAxisProperties" );
     m_valueAxisProperties.uiCapability()->setUiTreeHidden( true );
     m_valueAxisProperties = new RimPlotAxisProperties;
-    m_valueAxisProperties->setNameAndAxis( "Value-Axis", QwtPlot::yLeft );
+    m_valueAxisProperties->setNameAndAxis( "Value-Axis", RiaDefines::fromQwtPlotAxis( QwtPlot::yLeft ) );
     m_valueAxisProperties->enableRangeSettings( false );
 
     CAF_PDM_InitFieldNoDefault( &m_plotDataFilterCollection, "PlotDataFilterCollection", "PlotDataFilterCollection" );
@@ -877,7 +878,7 @@ void RimAnalysisPlot::updateAxes()
     if ( valAxisProperties->isActive() )
     {
         m_plotWidget->enableAxis( qwtAxis, true );
-        m_valueAxisProperties->setNameAndAxis( "Value-Axis", qwtAxis );
+        m_valueAxisProperties->setNameAndAxis( "Value-Axis", RiaDefines::fromQwtPlotAxis( qwtAxis ) );
 
         RimSummaryPlotAxisFormatter calc( valAxisProperties, {}, curveDefinitions(), {}, {} );
         calc.applyAxisPropertiesToPlot( m_plotWidget );

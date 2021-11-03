@@ -20,6 +20,7 @@
 
 #include "RiaColorTables.h"
 #include "RiaFieldHandleTools.h"
+#include "RiaPlotDefines.h"
 #include "RiaSummaryCurveAnalyzer.h"
 #include "RiaSummaryCurveDefinition.h"
 #include "RiaSummaryTools.h"
@@ -224,17 +225,17 @@ RimSummaryPlot::RimSummaryPlot()
     CAF_PDM_InitFieldNoDefault( &m_leftYAxisProperties, "LeftYAxisProperties", "Left Y Axis" );
     m_leftYAxisProperties.uiCapability()->setUiTreeHidden( true );
     m_leftYAxisProperties = new RimPlotAxisProperties;
-    m_leftYAxisProperties->setNameAndAxis( "Left Y-Axis", QwtPlot::yLeft );
+    m_leftYAxisProperties->setNameAndAxis( "Left Y-Axis", RiaDefines::PlotAxis::PLOT_AXIS_LEFT );
 
     CAF_PDM_InitFieldNoDefault( &m_rightYAxisProperties, "RightYAxisProperties", "Right Y Axis" );
     m_rightYAxisProperties.uiCapability()->setUiTreeHidden( true );
     m_rightYAxisProperties = new RimPlotAxisProperties;
-    m_rightYAxisProperties->setNameAndAxis( "Right Y-Axis", QwtPlot::yRight );
+    m_rightYAxisProperties->setNameAndAxis( "Right Y-Axis", RiaDefines::PlotAxis::PLOT_AXIS_RIGHT );
 
     CAF_PDM_InitFieldNoDefault( &m_bottomAxisProperties, "BottomAxisProperties", "Bottom X Axis" );
     m_bottomAxisProperties.uiCapability()->setUiTreeHidden( true );
     m_bottomAxisProperties = new RimPlotAxisProperties;
-    m_bottomAxisProperties->setNameAndAxis( "Bottom X-Axis", QwtPlot::xBottom );
+    m_bottomAxisProperties->setNameAndAxis( "Bottom X-Axis", RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM );
 
     connectAxisSignals( m_leftYAxisProperties() );
     connectAxisSignals( m_rightYAxisProperties() );
@@ -911,7 +912,8 @@ void RimSummaryPlot::updateZoomForAxis( RiaDefines::PlotAxis plotAxis )
 
         if ( yAxisProps->isAutoZoom() )
         {
-            m_plotWidget->setAxisIsLogarithmic( yAxisProps->qwtPlotAxisType(), yAxisProps->isLogarithmicScaleEnabled );
+            m_plotWidget->setAxisIsLogarithmic( RiaDefines::toQwtPlotAxis( yAxisProps->plotAxisType() ),
+                                                yAxisProps->isLogarithmicScaleEnabled );
 
             if ( yAxisProps->isLogarithmicScaleEnabled )
             {
@@ -941,21 +943,21 @@ void RimSummaryPlot::updateZoomForAxis( RiaDefines::PlotAxis plotAxis )
                     std::swap( min, max );
                 }
 
-                m_plotWidget->setAxisScale( yAxisProps->qwtPlotAxisType(), min, max );
+                m_plotWidget->setAxisScale( RiaDefines::toQwtPlotAxis( yAxisProps->plotAxisType() ), min, max );
             }
             else
             {
-                m_plotWidget->setAxisAutoScale( yAxisProps->qwtPlotAxisType(), true );
+                m_plotWidget->setAxisAutoScale( RiaDefines::toQwtPlotAxis( yAxisProps->plotAxisType() ), true );
             }
         }
         else
         {
-            m_plotWidget->setAxisScale( yAxisProps->qwtPlotAxisType(),
+            m_plotWidget->setAxisScale( RiaDefines::toQwtPlotAxis( yAxisProps->plotAxisType() ),
                                         yAxisProps->visibleRangeMin(),
                                         yAxisProps->visibleRangeMax() );
         }
 
-        m_plotWidget->axisScaleEngine( yAxisProps->qwtPlotAxisType() )
+        m_plotWidget->axisScaleEngine( RiaDefines::toQwtPlotAxis( yAxisProps->plotAxisType() ) )
             ->setAttribute( QwtScaleEngine::Inverted, yAxisProps->isAxisInverted() );
     }
 }

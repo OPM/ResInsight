@@ -71,15 +71,6 @@ void caf::AppEnum<RiaDefines::DepthTypeEnum>::setUp()
 }
 
 template <>
-void caf::AppEnum<RiaDefines::PlotAxis>::setUp()
-{
-    addItem( RiaDefines::PlotAxis::PLOT_AXIS_LEFT, "PLOT_AXIS_LEFT", "Left" );
-    addItem( RiaDefines::PlotAxis::PLOT_AXIS_RIGHT, "PLOT_AXIS_RIGHT", "Right" );
-
-    setDefault( RiaDefines::PlotAxis::PLOT_AXIS_LEFT );
-}
-
-template <>
 void caf::AppEnum<RiaDefines::PhaseType>::setUp()
 {
     addItem( RiaDefines::PhaseType::OIL_PHASE, "OIL_PHASE", "Oil" );
@@ -238,30 +229,6 @@ RiaDefines::EclipseUnitSystem RiaDefines::fromDepthUnit( DepthUnitType depthUnit
     }
 
     return RiaDefines::EclipseUnitSystem::UNITS_UNKNOWN;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-double RiaDefines::minimumDefaultValuePlot()
-{
-    return -10.0;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-double RiaDefines::minimumDefaultLogValuePlot()
-{
-    return 1.0;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-double RiaDefines::maximumDefaultValuePlot()
-{
-    return 100.0;
 }
 
 //--------------------------------------------------------------------------------------------------
