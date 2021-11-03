@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include "RimPlot.h"
+#include "RimQwtPlot.h"
 #include "RimVfpDefines.h"
 
 #include "cafFilePath.h"
@@ -35,7 +35,7 @@ class VfpPlotData;
 //--------------------------------------------------------------------------------------------------
 /// Vertical Flow Performance Plot
 //--------------------------------------------------------------------------------------------------
-class RimVfpPlot : public RimPlot
+class RimVfpPlot : public RimQwtPlot
 {
     CAF_PDM_HEADER_INIT;
 
