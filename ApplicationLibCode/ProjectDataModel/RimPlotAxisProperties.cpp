@@ -36,72 +36,69 @@
 
 #include <qwt_plot_curve.h>
 
-// clang-format off
 namespace caf
 {
-template<>
+template <>
 void caf::AppEnum<RimPlotAxisProperties::NumberFormatType>::setUp()
 {
-    addItem(RimPlotAxisProperties::NUMBER_FORMAT_AUTO,       "NUMBER_FORMAT_AUTO",       "Auto");
-    addItem(RimPlotAxisProperties::NUMBER_FORMAT_DECIMAL,    "NUMBER_FORMAT_DECIMAL",    "Decimal");
-    addItem(RimPlotAxisProperties::NUMBER_FORMAT_SCIENTIFIC, "NUMBER_FORMAT_SCIENTIFIC", "Scientific");
+    addItem( RimPlotAxisProperties::NUMBER_FORMAT_AUTO, "NUMBER_FORMAT_AUTO", "Auto" );
+    addItem( RimPlotAxisProperties::NUMBER_FORMAT_DECIMAL, "NUMBER_FORMAT_DECIMAL", "Decimal" );
+    addItem( RimPlotAxisProperties::NUMBER_FORMAT_SCIENTIFIC, "NUMBER_FORMAT_SCIENTIFIC", "Scientific" );
 
-    setDefault(RimPlotAxisProperties::NUMBER_FORMAT_AUTO);
+    setDefault( RimPlotAxisProperties::NUMBER_FORMAT_AUTO );
 }
 } // namespace caf
 
-CAF_PDM_SOURCE_INIT(RimPlotAxisProperties, "SummaryYAxisProperties");
+CAF_PDM_SOURCE_INIT( RimPlotAxisProperties, "SummaryYAxisProperties" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RimPlotAxisProperties::RimPlotAxisProperties()
-    : settingsChanged(this)
-    , logarithmicChanged(this)
-    , m_enableTitleTextSettings(true)
-    , m_isRangeSettingsEnabled(true)
+    : settingsChanged( this )
+    , logarithmicChanged( this )
+    , m_enableTitleTextSettings( true )
+    , m_isRangeSettingsEnabled( true )
 {
-    CAF_PDM_InitObject("Axis Properties", ":/LeftAxis16x16.png", "", "");
+    CAF_PDM_InitObject( "Axis Properties", ":/LeftAxis16x16.png", "", "" );
 
-    CAF_PDM_InitField(&m_isActive, "Active", true, "Active", "", "", "");
-    m_isActive.uiCapability()->setUiHidden(true);
+    CAF_PDM_InitField( &m_isActive, "Active", true, "Active", "", "", "" );
+    m_isActive.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitFieldNoDefault(&m_name, "Name", "Name", "", "", "");
-    m_name.uiCapability()->setUiHidden(true);
+    CAF_PDM_InitFieldNoDefault( &m_name, "Name", "Name", "", "", "" );
+    m_name.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitField(&isAutoTitle, "AutoTitle", true, "Auto Title", "", "", "");
-    
-    CAF_PDM_InitField(&m_displayLongName,   "DisplayLongName",  true,   "   Names", "", "", "");
-    CAF_PDM_InitField(&m_displayShortName,  "DisplayShortName", false,  "   Acronyms", "", "", "");
-    CAF_PDM_InitField(&m_displayUnitText,   "DisplayUnitText",  true,   "   Units", "", "", "");
+    CAF_PDM_InitField( &isAutoTitle, "AutoTitle", true, "Auto Title", "", "", "" );
 
-    CAF_PDM_InitFieldNoDefault(&customTitle,        "CustomTitle",      "Title", "", "", "");
+    CAF_PDM_InitField( &m_displayLongName, "DisplayLongName", true, "   Names", "", "", "" );
+    CAF_PDM_InitField( &m_displayShortName, "DisplayShortName", false, "   Acronyms", "", "", "" );
+    CAF_PDM_InitField( &m_displayUnitText, "DisplayUnitText", true, "   Units", "", "", "" );
 
-    CAF_PDM_InitField(&visibleRangeMax, "VisibleRangeMax", RiaDefines::maximumDefaultValuePlot(), "Max", "", "", "");
-    CAF_PDM_InitField(&visibleRangeMin, "VisibleRangeMin", RiaDefines::minimumDefaultValuePlot(), "Min", "", "", "");
+    CAF_PDM_InitFieldNoDefault( &customTitle, "CustomTitle", "Title", "", "", "" );
 
-    CAF_PDM_InitFieldNoDefault(&numberFormat,   "NumberFormat",         "Number Format", "", "", "");
-    CAF_PDM_InitField(&numberOfDecimals,        "Decimals", 2,          "Number of Decimals", "", "", "");
-    CAF_PDM_InitField(&scaleFactor,             "ScaleFactor", 1.0,     "Scale Factor", "", "", "");
+    CAF_PDM_InitField( &visibleRangeMax, "VisibleRangeMax", RiaDefines::maximumDefaultValuePlot(), "Max", "", "", "" );
+    CAF_PDM_InitField( &visibleRangeMin, "VisibleRangeMin", RiaDefines::minimumDefaultValuePlot(), "Min", "", "", "" );
 
-    numberOfDecimals.uiCapability()->setUiEditorTypeName(caf::PdmUiSliderEditor::uiEditorTypeName());
+    CAF_PDM_InitFieldNoDefault( &numberFormat, "NumberFormat", "Number Format", "", "", "" );
+    CAF_PDM_InitField( &numberOfDecimals, "Decimals", 2, "Number of Decimals", "", "", "" );
+    CAF_PDM_InitField( &scaleFactor, "ScaleFactor", 1.0, "Scale Factor", "", "", "" );
 
-    CAF_PDM_InitField(&m_isAutoZoom, "AutoZoom", true, "Set Range Automatically", "", "", "");
-    CAF_PDM_InitField(&isLogarithmicScaleEnabled, "LogarithmicScale", false, "Logarithmic Scale", "", "", "");
-    CAF_PDM_InitField(&m_isAxisInverted, "AxisInverted", false, "Invert Axis", "", "", "");
+    numberOfDecimals.uiCapability()->setUiEditorTypeName( caf::PdmUiSliderEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitFieldNoDefault(&m_titlePositionEnum, "TitlePosition", "Title Position", "", "", "");
+    CAF_PDM_InitField( &m_isAutoZoom, "AutoZoom", true, "Set Range Automatically", "", "", "" );
+    CAF_PDM_InitField( &isLogarithmicScaleEnabled, "LogarithmicScale", false, "Logarithmic Scale", "", "", "" );
+    CAF_PDM_InitField( &m_isAxisInverted, "AxisInverted", false, "Invert Axis", "", "", "" );
 
-    CAF_PDM_InitFieldNoDefault(&m_titleFontSize, "TitleDeltaFontSize", "Font Size", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&m_valuesFontSize, "ValueDeltaFontSize", "Font Size", "", "", "");
+    CAF_PDM_InitFieldNoDefault( &m_titlePositionEnum, "TitlePosition", "Title Position", "", "", "" );
 
-    CAF_PDM_InitFieldNoDefault(&m_annotations, "Annotations", "", "", "", "");
-    m_annotations.uiCapability()->setUiTreeHidden(true);
-//     m_annotations.uiCapability()->setUiTreeChildrenHidden(true);
+    CAF_PDM_InitFieldNoDefault( &m_titleFontSize, "TitleDeltaFontSize", "Font Size", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_valuesFontSize, "ValueDeltaFontSize", "Font Size", "", "", "" );
+
+    CAF_PDM_InitFieldNoDefault( &m_annotations, "Annotations", "", "", "", "" );
+    m_annotations.uiCapability()->setUiTreeHidden( true );
 
     updateOptionSensitivity();
 }
-// clang-format on
 
 //--------------------------------------------------------------------------------------------------
 ///
