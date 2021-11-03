@@ -118,8 +118,7 @@ RimSummaryTimeAxisProperties::RimSummaryTimeAxisProperties()
     CAF_PDM_InitFieldNoDefault( &m_majorTickmarkCount, "MajorTickmarkCount", "Major Tickmark Count", "", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_annotations, "Annotations", "", "", "", "" );
-
-    m_annotations.uiCapability()->setUiHidden( true );
+    m_annotations.uiCapability()->setUiTreeHidden( true );
 }
 
 //--------------------------------------------------------------------------------------------------

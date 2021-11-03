@@ -97,10 +97,7 @@ QString createResultNameRange( const QString& resultName )
 }
 QString createResultNamePVal( const QString& resultName, double pValPos )
 {
-    // Invert the number for display text
-    double valueForDisplay = 100.0 - pValPos;
-
-    return resultName + "_P" + QString::number( valueForDisplay );
+    return resultName + "_P" + QString::number( pValPos );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -296,7 +293,9 @@ void RimEclipseStatisticsCaseEvaluator::evaluateForResults( const QList<ResSpec>
                                     pValPoss.push_back( m_statisticsConfig.m_pMidPos );
                                     pValPoss.push_back( m_statisticsConfig.m_pMaxPos );
                                     std::vector<double> pVals =
-                                        RigStatisticsMath::calculateNearestRankPercentiles( values, pValPoss );
+                                        RigStatisticsMath::calculateNearestRankPercentiles( values,
+                                                                                            pValPoss,
+                                                                                            RigStatisticsMath::PercentileStyle::SWITCHED );
                                     statParams[PMIN] = pVals[0];
                                     statParams[PMID] = pVals[1];
                                     statParams[PMAX] = pVals[2];
@@ -306,9 +305,15 @@ void RimEclipseStatisticsCaseEvaluator::evaluateForResults( const QList<ResSpec>
                                     std::vector<size_t>    histogram;
                                     RigHistogramCalculator histCalc( statParams[MIN], statParams[MAX], 100, &histogram );
                                     histCalc.addData( values );
-                                    statParams[PMIN] = histCalc.calculatePercentil( m_statisticsConfig.m_pMinPos / 100.0 );
-                                    statParams[PMID] = histCalc.calculatePercentil( m_statisticsConfig.m_pMidPos / 100.0 );
-                                    statParams[PMAX] = histCalc.calculatePercentil( m_statisticsConfig.m_pMaxPos / 100.0 );
+                                    statParams[PMIN] =
+                                        histCalc.calculatePercentil( m_statisticsConfig.m_pMinPos / 100.0,
+                                                                     RigStatisticsMath::PercentileStyle::SWITCHED );
+                                    statParams[PMID] =
+                                        histCalc.calculatePercentil( m_statisticsConfig.m_pMidPos / 100.0,
+                                                                     RigStatisticsMath::PercentileStyle::SWITCHED );
+                                    statParams[PMAX] =
+                                        histCalc.calculatePercentil( m_statisticsConfig.m_pMaxPos / 100.0,
+                                                                     RigStatisticsMath::PercentileStyle::SWITCHED );
                                 }
                                 else if ( m_statisticsConfig.m_pValMethod ==
                                           RimEclipseStatisticsCase::INTERPOLATED_OBSERVATION )
@@ -318,7 +323,9 @@ void RimEclipseStatisticsCaseEvaluator::evaluateForResults( const QList<ResSpec>
                                     pValPoss.push_back( m_statisticsConfig.m_pMidPos );
                                     pValPoss.push_back( m_statisticsConfig.m_pMaxPos );
                                     std::vector<double> pVals =
-                                        RigStatisticsMath::calculateInterpolatedPercentiles( values, pValPoss );
+                                        RigStatisticsMath::calculateInterpolatedPercentiles( values,
+                                                                                             pValPoss,
+                                                                                             RigStatisticsMath::PercentileStyle::SWITCHED );
                                     statParams[PMIN] = pVals[0];
                                     statParams[PMID] = pVals[1];
                                     statParams[PMAX] = pVals[2];

@@ -56,16 +56,16 @@ caf::PdmScriptResponse RicfCreateView::execute()
             if ( eclipseCase )
             {
                 RimEclipseView* view = eclipseCase->createAndAddReservoirView();
-                viewId               = view->id();
                 view->loadDataAndUpdate();
+                viewId = view->id();
                 eclipseCase->updateConnectedEditors();
                 Riu3DMainWindowTools::setExpanded( view );
             }
             else if ( geoMechCase )
             {
                 RimGeoMechView* view = geoMechCase->createAndAddReservoirView();
-                viewId               = view->id();
                 view->loadDataAndUpdate();
+                viewId = view->id();
                 geoMechCase->updateConnectedEditors();
                 Riu3DMainWindowTools::setExpanded( view );
             }

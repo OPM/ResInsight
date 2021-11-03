@@ -40,7 +40,7 @@ CAF_CMD_SOURCE_INIT( RicNewFishbonesSubsAtMeasuredDepthFeature, "RicNewFishbones
 //--------------------------------------------------------------------------------------------------
 void RicNewFishbonesSubsAtMeasuredDepthFeature::onActionTriggered( bool isChecked )
 {
-    RiuWellPathSelectionItem* wellPathSelItem = wellPathSelectionItem();
+    RiuWellPathSelectionItem* wellPathSelItem = RiuWellPathSelectionItem::wellPathSelectionItem();
     CVF_ASSERT( wellPathSelItem );
 
     RimWellPath* wellPath = wellPathSelItem->m_wellpath;
@@ -66,19 +66,6 @@ void RicNewFishbonesSubsAtMeasuredDepthFeature::onActionTriggered( bool isChecke
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuWellPathSelectionItem* RicNewFishbonesSubsAtMeasuredDepthFeature::wellPathSelectionItem()
-{
-    Riu3dSelectionManager* riuSelManager = Riu3dSelectionManager::instance();
-    RiuSelectionItem*      selItem       = riuSelManager->selectedItem( Riu3dSelectionManager::RUI_TEMPORARY );
-
-    RiuWellPathSelectionItem* wellPathItem = dynamic_cast<RiuWellPathSelectionItem*>( selItem );
-
-    return wellPathItem;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RicNewFishbonesSubsAtMeasuredDepthFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setIcon( QIcon( ":/FishBoneGroup16x16.png" ) );
@@ -90,7 +77,7 @@ void RicNewFishbonesSubsAtMeasuredDepthFeature::setupActionLook( QAction* action
 //--------------------------------------------------------------------------------------------------
 bool RicNewFishbonesSubsAtMeasuredDepthFeature::isCommandEnabled()
 {
-    if ( wellPathSelectionItem() )
+    if ( RiuWellPathSelectionItem::wellPathSelectionItem() )
     {
         return true;
     }

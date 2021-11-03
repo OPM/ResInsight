@@ -25,6 +25,7 @@
 
 class RimWellPathFractureCollection;
 class RimWellPath;
+class RimWellPathFracture;
 
 //==================================================================================================
 ///
@@ -34,7 +35,7 @@ class RicNewWellPathFractureFeature : public caf::CmdFeature
     CAF_CMD_HEADER_INIT;
 
 public:
-    static void addFracture( gsl::not_null<RimWellPath*> wellPath, double measuredDepth );
+    static RimWellPathFracture* addFracture( gsl::not_null<RimWellPath*> wellPath, double measuredDepth );
 
 protected:
     void onActionTriggered( bool isChecked ) override;

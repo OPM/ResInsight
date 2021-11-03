@@ -21,6 +21,8 @@
 #include "RiaStimPlanModelDefines.h"
 
 #include "RimCheckableNamedObject.h"
+#include "RimExtractionConfiguration.h"
+#include "RimPerforationInterval.h"
 #include "RimWellPathComponentInterface.h"
 
 #include "RigWellLogExtractor.h"
@@ -145,11 +147,14 @@ public:
     cvf::Color3f                      defaultComponentColor() const override;
     double                            startMD() const override;
     double                            endMD() const override;
-    bool                              isEnabled() const override;
+    void                              applyOffset( double offsetMD ) override;
+
+    bool isEnabled() const override;
 
     RimWellPath* wellPath() const;
 
     void loadDataAndUpdate();
+    void resetAnchorPositionAndThicknessDirection();
 
     RimModeledWellPath* thicknessDirectionWellPath() const;
     void                setThicknessDirectionWellPath( RimModeledWellPath* thicknessDirectionWellPath );
@@ -176,6 +181,9 @@ public:
     RiaDefines::ResultCatType eclipseResultCategory( RiaDefines::CurveProperty curveProperty ) const;
     QString                   eclipseResultVariable( RiaDefines::CurveProperty curveProperty ) const;
 
+    std::deque<RimExtractionConfiguration> extractionConfigurations( RiaDefines::CurveProperty curveProperty ) const;
+    RimEclipseCase*                        eclipseCaseForType( RimExtractionConfiguration::EclipseCaseType ) const;
+
     static double findFaciesValue( const RimColorLegend& colorLegend, const QString& name );
 
     bool isScaledByNetToGross( RiaDefines::CurveProperty curveProperty ) const;
@@ -196,6 +204,7 @@ private:
     void updateThicknessDirection();
     void updateDistanceToBarrierAndDip();
     void updateThicknessDirectionWellPathName();
+    void updatePerforationInterval();
 
     RigEclipseCaseData* getEclipseCaseData() const;
 
@@ -215,6 +224,8 @@ private:
 
     static bool useStaticEclipseCase( RiaDefines::CurveProperty curveProperty );
 
+    cvf::Vec3d anchorPositionForUi() const;
+
 protected:
     caf::PdmField<double>                       m_MD;
     caf::PdmPtrField<RimEclipseCase*>           m_eclipseCase;
@@ -222,9 +233,12 @@ protected:
     caf::PdmPtrField<RimEclipseCase*>           m_initialPressureEclipseCase;
     caf::PdmPtrField<RimEclipseCase*>           m_staticEclipseCase;
     caf::PdmField<caf::AppEnum<ExtractionType>> m_extractionType;
+    caf::PdmField<double>                       m_extractionOffsetTop;
+    caf::PdmField<double>                       m_extractionOffsetBottom;
     caf::PdmField<double>                       m_extractionDepthTop;
     caf::PdmField<double>                       m_extractionDepthBottom;
     caf::PdmField<cvf::Vec3d>                   m_anchorPosition;
+    caf::PdmProxyValueField<cvf::Vec3d>         m_anchorPositionForUi;
     caf::PdmField<cvf::Vec3d>                   m_thicknessDirection;
     caf::PdmField<double>                       m_boundingBoxVertical;
     caf::PdmField<double>                       m_boundingBoxHorizontal;
@@ -241,17 +255,17 @@ protected:
     caf::PdmField<double>                            m_azimuthAngle;
     caf::PdmField<double>                            m_perforationLength;
 
-    caf::PdmField<double>                                m_formationDip;
-    caf::PdmField<bool>                                  m_autoComputeBarrier;
-    caf::PdmField<bool>                                  m_hasBarrier;
-    caf::PdmField<double>                                m_distanceToBarrier;
-    caf::PdmField<double>                                m_barrierDip;
-    caf::PdmField<int>                                   m_wellPenetrationLayer;
-    caf::PdmPtrField<RimUserDefinedPolylinesAnnotation*> m_barrierAnnotation;
-    caf::PdmPtrField<RimTextAnnotation*>                 m_barrierTextAnnotation;
-    caf::PdmField<QString>                               m_barrierFaultName;
-    caf::PdmField<bool>                                  m_showOnlyBarrierFault;
-    caf::PdmField<bool>                                  m_showAllFaults;
+    caf::PdmField<double>                     m_formationDip;
+    caf::PdmField<bool>                       m_autoComputeBarrier;
+    caf::PdmField<bool>                       m_hasBarrier;
+    caf::PdmField<double>                     m_distanceToBarrier;
+    caf::PdmField<double>                     m_barrierDip;
+    caf::PdmField<int>                        m_wellPenetrationLayer;
+    caf::PdmPtrField<RimTextAnnotation*>      m_barrierTextAnnotation;
+    caf::PdmField<QString>                    m_barrierFaultName;
+    caf::PdmField<bool>                       m_showOnlyBarrierFault;
+    caf::PdmField<bool>                       m_showAllFaults;
+    caf::PdmPtrField<RimPerforationInterval*> m_perforationInterval;
 
     std::shared_ptr<RimStimPlanModelCalculator> m_calculator;
 };

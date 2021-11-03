@@ -20,7 +20,7 @@
 
 #include "cafCmdFeature.h"
 
-class RiuWellPathSelectionItem;
+class RimModeledWellPath;
 class RimWellPath;
 
 //==================================================================================================
@@ -35,9 +35,6 @@ public:
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
 
-    static RimWellPath* createLateralAtMeasuredDepth( RimWellPath* parentWellPath, double parentWellMD );
-
-private:
-    static RiuWellPathSelectionItem* wellPathSelectionItem();
-    static QString                   updateNameOfParentAndFindNameOfSideStep( RimWellPath* parentwWellPath );
+    static RimModeledWellPath* createLateralAtMeasuredDepth( RimWellPath* parentWellPath, double parentWellMD );
+    static QString             updateNameOfParentAndFindNameOfSideStep( RimWellPath* parentWellPath );
 };

@@ -98,7 +98,6 @@ private:
                                         const caf::DisplayCoordTransform* displayCoordTransform,
                                         double                            characteristicCellSize );
 
-
     void appendPerforationsToModel( cvf::ModelBasicList*              model,
                                     size_t                            timeStepIndex,
                                     const caf::DisplayCoordTransform* displayCoordTransform,
@@ -115,6 +114,10 @@ private:
                                                  size_t                            timeStepIndex,
                                                  const caf::DisplayCoordTransform* displayCoordTransform,
                                                  double                            characteristicCellSize );
+
+    void appendWellIntegrityIntervalsToModel( cvf::ModelBasicList*              model,
+                                              const caf::DisplayCoordTransform* displayCoordTransform,
+                                              double                            characteristicCellSize );
 
     void buildWellPathParts( const caf::DisplayCoordTransform* displayCoordTransform,
                              double                            characteristicCellSize,

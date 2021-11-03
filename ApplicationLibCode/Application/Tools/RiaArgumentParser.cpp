@@ -142,6 +142,7 @@ bool RiaArgumentParser::parseArguments( cvf::ProgramOptions* progOpt )
 #endif
     progOpt->registerOption( "generate", "[<outputFile>]", "Generate code or documentation", cvf::ProgramOptions::SINGLE_VALUE );
     progOpt->registerOption( "ignoreArgs", "", "System command. Ignore all arguments. Mostly for testing purposes" );
+    progOpt->registerOption( "version", "", "Display the application version string" );
 
     progOpt->setOptionPrefix( cvf::ProgramOptions::DOUBLE_DASH );
 

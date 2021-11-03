@@ -29,6 +29,7 @@
 RigFemPart::RigFemPart()
     : m_elementPartId( -1 )
     , m_characteristicElementSize( std::numeric_limits<float>::infinity() )
+    , m_enabled( true )
 {
 }
 
@@ -89,6 +90,14 @@ void RigFemPart::appendElement( RigElementType elmType, int id, const int* conne
 int RigFemPart::elementCount() const
 {
     return static_cast<int>( m_elementId.size() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RigFemPart::allConnectivitiesCount() const
+{
+    return static_cast<int>( m_allElementConnectivities.size() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -403,35 +412,41 @@ float RigFemPart::characteristicElementSize() const
 {
     if ( m_characteristicElementSize != std::numeric_limits<float>::infinity() ) return m_characteristicElementSize;
 
-    int   elmsToAverageCount = 0;
-    float sumMaxEdgeLength   = 0;
-    for ( int elmIdx = 0; elmIdx < elementCount(); elmIdx++ )
+    std::vector<RigElementType> elementPriority = { HEX8P, HEX8 };
+
+    for ( auto elmType : elementPriority )
     {
-        RigElementType eType = this->elementType( elmIdx );
-
-        if ( eType == HEX8P )
+        int   elmsToAverageCount = 0;
+        float sumMaxEdgeLength   = 0;
+        for ( int elmIdx = 0; elmIdx < elementCount(); elmIdx++ )
         {
-            const int* elementConn = this->connectivities( elmIdx );
-            cvf::Vec3f nodePos0    = this->nodes().coordinates[elementConn[0]];
-            cvf::Vec3f nodePos1    = this->nodes().coordinates[elementConn[1]];
-            cvf::Vec3f nodePos3    = this->nodes().coordinates[elementConn[3]];
-            cvf::Vec3f nodePos4    = this->nodes().coordinates[elementConn[4]];
+            RigElementType eType = this->elementType( elmIdx );
 
-            float l1 = ( nodePos1 - nodePos0 ).length();
-            float l3 = ( nodePos3 - nodePos0 ).length();
-            float l4 = ( nodePos4 - nodePos0 ).length();
+            if ( eType == elmType )
+            {
+                const int* elementConn = this->connectivities( elmIdx );
+                cvf::Vec3f nodePos0    = this->nodes().coordinates[elementConn[0]];
+                cvf::Vec3f nodePos1    = this->nodes().coordinates[elementConn[1]];
+                cvf::Vec3f nodePos3    = this->nodes().coordinates[elementConn[3]];
+                cvf::Vec3f nodePos4    = this->nodes().coordinates[elementConn[4]];
 
-            float maxLength = l1 > l3 ? l1 : l3;
-            maxLength       = maxLength > l4 ? maxLength : l4;
+                float l1 = ( nodePos1 - nodePos0 ).length();
+                float l3 = ( nodePos3 - nodePos0 ).length();
+                float l4 = ( nodePos4 - nodePos0 ).length();
 
-            sumMaxEdgeLength += maxLength;
-            ++elmsToAverageCount;
+                float maxLength = l1 > l3 ? l1 : l3;
+                maxLength       = maxLength > l4 ? maxLength : l4;
+
+                sumMaxEdgeLength += maxLength;
+                ++elmsToAverageCount;
+            }
+        }
+        if ( elmsToAverageCount > 0 )
+        {
+            m_characteristicElementSize = sumMaxEdgeLength / elmsToAverageCount;
+            break;
         }
     }
-
-    CVF_ASSERT( elmsToAverageCount );
-
-    m_characteristicElementSize = sumMaxEdgeLength / elmsToAverageCount;
 
     return m_characteristicElementSize;
 }
@@ -561,4 +576,36 @@ bool RigFemPart::isHexahedron( size_t elementIdx ) const
 {
     RigElementType elType = elementType( elementIdx );
     return elType == HEX8 || elType == HEX8P;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigFemPart::setName( std::string name )
+{
+    m_name = name;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::string RigFemPart::name() const
+{
+    return m_name;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigFemPart::setEnabled( bool enable )
+{
+    m_enabled = enable;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RigFemPart::enabled() const
+{
+    return m_enabled;
 }

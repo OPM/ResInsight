@@ -39,7 +39,7 @@ RimVfpPlotCollection::RimVfpPlotCollection()
     CAF_PDM_InitObject( "VFP Plots", ":/VfpPlotCollection.svg", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_vfpPlots, "VfpPlots", "Vertical Flow Performance Plots", "", "", "" );
-    m_vfpPlots.uiCapability()->setUiHidden( true );
+    m_vfpPlots.uiCapability()->setUiTreeHidden( true );
 }
 
 //--------------------------------------------------------------------------------------------------

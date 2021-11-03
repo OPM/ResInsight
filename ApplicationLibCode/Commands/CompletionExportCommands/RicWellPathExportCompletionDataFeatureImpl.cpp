@@ -22,7 +22,7 @@
 #include "RiaFilePathTools.h"
 #include "RiaFractureDefines.h"
 #include "RiaLogging.h"
-#include "RiaPreferences.h"
+#include "RiaPreferencesSystem.h"
 #include "RiaWeightedMeanCalculator.h"
 
 #include "ExportCommands/RicExportLgrFeature.h"
@@ -94,6 +94,7 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions( const std::v
         return;
     }
 
+    if ( exportSettings.customFileName().isEmpty() )
     {
         QDir folder( exportSettings.folder );
         if ( !folder.exists() )
@@ -112,7 +113,7 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions( const std::v
         std::unique_ptr<QTextStream>               fractureTransmissibilityExportInformationStream = nullptr;
         QFile                                      fractureTransmissibilityExportInformationFile;
 
-        RiaPreferences* prefs = RiaPreferences::current();
+        RiaPreferencesSystem* prefs = RiaPreferencesSystem::current();
         if ( prefs->includeFractureDebugInfoFile() )
         {
             QDir outputDir = QDir( exportSettings.folder );
@@ -267,11 +268,22 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions( const std::v
 
         if ( exportSettings.fileSplit == RicExportCompletionDataSettingsUi::ExportSplit::UNIFIED_FILE )
         {
-            QString fileName = exportSettings.customFileName();
-            if ( fileName.isEmpty() ) fileName = QString( "UnifiedCompletions_%1" ).arg( eclipseCaseName );
+            QString fileName;
+            QString folderName;
+            if ( exportSettings.customFileName().isEmpty() )
+            {
+                fileName   = QString( "UnifiedCompletions_%1" ).arg( eclipseCaseName );
+                folderName = exportSettings.folder;
+            }
+            else
+            {
+                fileName = exportSettings.customFileName();
+                QFileInfo fi( fileName );
+                folderName = fi.absolutePath();
+            }
 
             sortAndExportCompletionsToFile( exportSettings.caseToApply,
-                                            exportSettings.folder,
+                                            folderName,
                                             fileName,
                                             completions,
                                             fractureDataReportItems,
@@ -883,7 +895,10 @@ void RicWellPathExportCompletionDataFeatureImpl::sortAndExportCompletionsToFile(
         {
             QFileInfo              fi( fileName );
             std::shared_ptr<QFile> exportFile =
-                RicWellPathExportCompletionsFileTools::openFileForExport( folderName, fi.baseName(), fi.suffix() );
+                RicWellPathExportCompletionsFileTools::openFileForExport( folderName,
+                                                                          fi.baseName(),
+                                                                          fi.suffix(),
+                                                                          exportDataSourceAsComment );
 
             std::map<QString, std::vector<RigCompletionData>> completionsForGrid;
             completionsForGrid.insert( std::pair<QString, std::vector<RigCompletionData>>( "", completionsForMainGrid ) );
@@ -908,7 +923,10 @@ void RicWellPathExportCompletionDataFeatureImpl::sortAndExportCompletionsToFile(
 
             QString                lgrFileName = fi.baseName() + "_LGR";
             std::shared_ptr<QFile> exportFile =
-                RicWellPathExportCompletionsFileTools::openFileForExport( folderName, lgrFileName, fi.suffix() );
+                RicWellPathExportCompletionsFileTools::openFileForExport( folderName,
+                                                                          lgrFileName,
+                                                                          fi.suffix(),
+                                                                          exportDataSourceAsComment );
 
             exportWellPathFractureReport( eclipseCase, exportFile, wellPathFractureReportItems );
             if ( exportWelspec )

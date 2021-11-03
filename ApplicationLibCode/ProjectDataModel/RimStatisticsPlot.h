@@ -47,7 +47,14 @@ public:
     enum class HistogramFrequencyType
     {
         ABSOLUTE_FREQUENCY,
-        RELATIVE_FREQUENCY
+        RELATIVE_FREQUENCY,
+        RELATIVE_FREQUENCY_PERCENT
+    };
+
+    enum class GraphType
+    {
+        BAR_GRAPH,
+        LINE_GRAPH
     };
 
     RimStatisticsPlot();
@@ -79,6 +86,9 @@ protected:
     virtual RigHistogramData createStatisticsData() const = 0;
     virtual QString          createAutoName() const       = 0;
 
+    virtual QString createXAxisTitle() const = 0;
+    virtual QString createYAxisTitle() const;
+
     void performAutoNameUpdate();
 
 private:
@@ -97,4 +107,5 @@ protected:
     caf::PdmField<caf::AppEnum<HistogramFrequencyType>>            m_histogramFrequencyType;
     caf::PdmField<int>                                             m_precision;
     caf::PdmField<caf::AppEnum<RiaNumberFormat::NumberFormatType>> m_tickNumberFormat;
+    caf::PdmField<caf::AppEnum<GraphType>>                         m_graphType;
 };

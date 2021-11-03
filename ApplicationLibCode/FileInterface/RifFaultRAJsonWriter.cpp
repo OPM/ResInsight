@@ -36,7 +36,7 @@ bool RifFaultRAJSonWriter::writeToPreprocFile( RimFaultRAPreprocSettings& settin
     outErrorText = "Unable to write to file \"" + filename + "\" - ";
 
     QFile file( filename );
-    if ( file.open( QIODevice::ReadWrite ) )
+    if ( file.open( QIODevice::ReadWrite | QIODevice::Truncate | QIODevice::Text ) )
     {
         QTextStream stream( &file );
 
@@ -69,7 +69,7 @@ bool RifFaultRAJSonWriter::writeToPostprocFile( int faultID, RimFaultRAPostprocS
     outErrorText = "Unable to write to file \"" + filename + "\" - ";
 
     QFile file( filename );
-    if ( file.open( QIODevice::ReadWrite ) )
+    if ( file.open( QIODevice::ReadWrite | QIODevice::Truncate | QIODevice::Text ) )
     {
         QTextStream stream( &file );
 

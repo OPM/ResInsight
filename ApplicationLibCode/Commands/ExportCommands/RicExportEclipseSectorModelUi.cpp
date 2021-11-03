@@ -165,7 +165,7 @@ void RicExportEclipseSectorModelUi::setCaseData( RigEclipseCaseData* caseData /*
 
     if ( selectedKeywords.v().empty() )
     {
-        for ( QString keyword : mainKeywords() )
+        for ( const QString& keyword : mainKeywords() )
         {
             if ( caseData &&
                  caseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL )
@@ -178,7 +178,7 @@ void RicExportEclipseSectorModelUi::setCaseData( RigEclipseCaseData* caseData /*
     else
     {
         std::vector<QString> validSelectedKeywords;
-        for ( QString keyword : selectedKeywords() )
+        for ( const QString& keyword : selectedKeywords() )
         {
             if ( caseData &&
                  caseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL )
@@ -239,19 +239,20 @@ void RicExportEclipseSectorModelUi::defineEditorAttribute( const caf::PdmFieldHa
     const RigMainGrid* mainGrid = m_caseData->mainGrid();
     cvf::Vec3i gridDimensions( int( mainGrid->cellCountI() ), int( mainGrid->cellCountJ() ), int( mainGrid->cellCountK() ) );
 
-    caf::PdmUiLineEditorAttribute* lineEditorAttr = dynamic_cast<caf::PdmUiLineEditorAttribute*>( attribute );
+    auto* lineEditorAttr = dynamic_cast<caf::PdmUiLineEditorAttribute*>( attribute );
 
     if ( field == &exportParametersFilename || field == &exportGridFilename || field == &exportFaultsFilename )
     {
-        caf::PdmUiFilePathEditorAttribute* myAttr = dynamic_cast<caf::PdmUiFilePathEditorAttribute*>( attribute );
+        auto* myAttr = dynamic_cast<caf::PdmUiFilePathEditorAttribute*>( attribute );
         if ( myAttr )
         {
-            myAttr->m_selectSaveFileName = true;
+            myAttr->m_selectSaveFileName  = true;
+            myAttr->m_fileSelectionFilter = "GRDECL files (*.grdecl *.GRDECL);;All files (*.*)";
         }
     }
     else if ( field == &selectedKeywords )
     {
-        caf::PdmUiListEditorAttribute* myAttr = dynamic_cast<caf::PdmUiListEditorAttribute*>( attribute );
+        auto* myAttr = dynamic_cast<caf::PdmUiListEditorAttribute*>( attribute );
         if ( myAttr )
         {
             myAttr->m_heightHint = 280;
@@ -261,7 +262,7 @@ void RicExportEclipseSectorModelUi::defineEditorAttribute( const caf::PdmFieldHa
     {
         if ( lineEditorAttr )
         {
-            QIntValidator* validator  = new QIntValidator( 1, 10, nullptr );
+            auto* validator           = new QIntValidator( 1, 10, nullptr );
             lineEditorAttr->validator = validator;
         }
     }
@@ -447,7 +448,7 @@ QList<caf::PdmOptionItemInfo>
                                                                                resultData );
 
         std::set<QString> mainKeywords = this->mainKeywords();
-        for ( caf::PdmOptionItemInfo option : allOptions )
+        for ( const caf::PdmOptionItemInfo& option : allOptions )
         {
             if ( mainKeywords.count( option.optionUiText() ) )
             {
@@ -458,7 +459,7 @@ QList<caf::PdmOptionItemInfo>
                 }
             }
         }
-        for ( caf::PdmOptionItemInfo option : allOptions )
+        for ( const caf::PdmOptionItemInfo& option : allOptions )
         {
             if ( !mainKeywords.count( option.optionUiText() ) && option.optionUiText() != "None" )
             {
@@ -609,7 +610,7 @@ void RicExportEclipseSectorModelUi::removeInvalidKeywords()
     RigCaseCellResultsData* resultData = m_caseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
 
     std::vector<QString> validKeywords;
-    for ( QString keyword : selectedKeywords() )
+    for ( const QString& keyword : selectedKeywords() )
     {
         if ( resultData->hasResultEntry( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, keyword ) ) )
         {

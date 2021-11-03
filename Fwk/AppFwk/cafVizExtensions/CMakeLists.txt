@@ -15,7 +15,8 @@ find_package(OpenGL)
 find_package(
   Qt5
   COMPONENTS
-  REQUIRED Core Gui Widgets OpenGL)
+  REQUIRED Core Gui Widgets OpenGL
+)
 set(QT_LIBRARIES Qt5::Core Qt5::Gui Qt5::Widgets Qt5::OpenGL)
 qt5_wrap_cpp(MOC_SOURCE_FILES ${MOC_HEADER_FILES})
 
@@ -49,7 +50,8 @@ add_library(
   TranspWB_PartlyTranspPartsFrag.glsl
   TranspWB_TransparentPartsFrag.glsl
   cafHexGridIntersectionTools/cafHexGridIntersectionTools.h
-  cafHexGridIntersectionTools/cafHexGridIntersectionTools.cpp)
+  cafHexGridIntersectionTools/cafHexGridIntersectionTools.cpp
+)
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
@@ -61,6 +63,7 @@ target_link_libraries(
   LibRender
   LibGuiQt
   CommonCode
-  ${QT_LIBRARIES})
+  ${QT_LIBRARIES}
+)
 
 source_group("" FILES ${PROJECT_FILES})

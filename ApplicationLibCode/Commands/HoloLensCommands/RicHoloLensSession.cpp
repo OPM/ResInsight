@@ -21,6 +21,7 @@
 
 #include "RiaLogging.h"
 #include "RiaPreferences.h"
+#include "RiaPreferencesSystem.h"
 
 #include "VdeArrayDataPacket.h"
 #include "VdeFileExporter.h"
@@ -80,7 +81,7 @@ RicHoloLensSession* RicHoloLensSession::createSession( const QString&           
 
     newSession->m_sessionObserver = sessionObserver;
 
-    const QString dbgExportFolder = RiaPreferences::current()->holoLensExportFolder();
+    const QString dbgExportFolder = RiaPreferencesSystem::current()->holoLensExportFolder();
     if ( !dbgExportFolder.isEmpty() )
     {
         newSession->m_dbgFileExportDestinationFolder = dbgExportFolder;
@@ -99,7 +100,7 @@ RicHoloLensSession* RicHoloLensSession::createDummyFileBackedSession()
 
     newSession->m_isSessionValid = true;
 
-    newSession->m_dbgFileExportDestinationFolder = RiaPreferences::current()->holoLensExportFolder();
+    newSession->m_dbgFileExportDestinationFolder = RiaPreferencesSystem::current()->holoLensExportFolder();
 
     return newSession;
 }

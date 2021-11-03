@@ -1,7 +1,3 @@
-You need sphinx to update the documentation.
+The documentation is moved to 
 
-pip install sphinx sphinx-markdown-builder
-
-To update run "make markdown" to update to reflect changes to the python code.
-The generated files are located in build/markdown
-
+https://github.com/OPM/ResInsight-UserDocumentation/tree/master/docs

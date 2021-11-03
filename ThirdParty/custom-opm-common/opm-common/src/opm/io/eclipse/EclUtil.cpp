@@ -83,28 +83,6 @@ bool Opm::EclIO::is_number(const std::string& numstr)
 }
 
 
-bool Opm::EclIO::isEqualCaseInsensitive(const std::string& string1, const std::string& string2)
-{
-    std::string string1LowerCase(string1);
-    std::string string2LowerCase(string2);
-    
-    std::transform(string1.begin(), string1.end(), string1LowerCase.begin(), ::tolower);
-    std::transform(string2.begin(), string2.end(), string2LowerCase.begin(), ::tolower);
-
-    return string1LowerCase == string2LowerCase;
-}
-
-Opm::filesystem::path Opm::EclIO::findFileCaseInsensitive(const Opm::filesystem::path& folder, const std::string& filename)
-{
-    for (auto& p : Opm::filesystem::directory_iterator(folder)) {
-        std::string candidate = p.path().filename().string();
-
-        if (isEqualCaseInsensitive(filename, candidate)) return p.path();
-    }
-
-    return { };
-}
-
 bool Opm::EclIO::isFormatted(const std::string& filename)
 {
     const auto p = filename.find_last_of(".");
@@ -443,9 +421,9 @@ std::vector<T> Opm::EclIO::readBinaryArray(std::fstream& fileH, const int64_t si
         std::get<0>(sizeData) = elementSize;
     }
 
-    int sizeOfElement = std::get<0>(sizeData);
-    int maxBlockSize = std::get<1>(sizeData);
-    int maxNumberOfElements = maxBlockSize / sizeOfElement;
+    const int sizeOfElement = std::get<0>(sizeData);
+    const int maxBlockSize = std::get<1>(sizeData);
+    const int maxNumberOfElements = maxBlockSize / sizeOfElement;
 
     arr.reserve(size);
 
@@ -455,22 +433,25 @@ std::vector<T> Opm::EclIO::readBinaryArray(std::fstream& fileH, const int64_t si
         int dhead;
         fileH.read(reinterpret_cast<char*>(&dhead), sizeof(dhead));
         dhead = Opm::EclIO::flipEndianInt(dhead);
-        int num = dhead / sizeOfElement;
+        const int num = dhead / sizeOfElement;
 
         if ((num > maxNumberOfElements) || (num < 0)) {
             OPM_THROW(std::runtime_error, "Error reading binary data, inconsistent header data or incorrect number of elements");
         }
 
-        for (int i = 0; i < num; i++) {
-            T2 value;
-
-            if constexpr (std::is_same_v<T2, std::string>) {
+        if constexpr (std::is_same_v<T2, std::string>) {
+            for (int i = 0; i < num; i++) {
+                T2 value;
                 value.resize(sizeOfElement) ;
                 fileH.read(&value[0], sizeOfElement);
-            } else
-                fileH.read(reinterpret_cast<char*>(&value), sizeOfElement);
+                arr.push_back(flip(value));
+            }
+        } else {
+            std::vector<T2> buf(num);
+            fileH.read(reinterpret_cast<char*>(buf.data()), buf.size()*sizeof(T2));
 
-            arr.push_back(flip(value));
+            for (const auto& value : buf)
+                arr.push_back(flip(value));
         }
 
         rest -= num;

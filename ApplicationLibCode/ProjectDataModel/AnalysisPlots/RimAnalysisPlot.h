@@ -23,6 +23,8 @@
 #include "RimSummaryCaseCollection.h"
 #include "RimTimeStepFilter.h"
 
+#include "RigEnsembleParameter.h"
+
 #include "cafPdmPtrField.h"
 
 #include <QDateTime>
@@ -81,8 +83,8 @@ public:
     void setTimeSteps( const std::vector<time_t>& timeSteps );
 
     std::set<RifEclipseSummaryAddress> unfilteredAddresses();
-    std::set<EnsembleParameter>        ensembleParameters();
-    EnsembleParameter                  ensembleParameter( const QString& ensembleParameterName );
+    std::set<RigEnsembleParameter>     ensembleParameters();
+    RigEnsembleParameter               ensembleParameter( const QString& ensembleParameterName );
 
     void maxMinValueFromAddress( const RifEclipseSummaryAddress&           address,
                                  RimPlotDataFilterItem::TimeStepSourceType timeStepSourceType,

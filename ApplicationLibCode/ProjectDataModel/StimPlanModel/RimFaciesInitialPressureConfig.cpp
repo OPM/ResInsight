@@ -38,7 +38,7 @@ RimFaciesInitialPressureConfig::RimFaciesInitialPressureConfig()
     CAF_PDM_InitScriptableFieldNoDefault( &m_faciesName, "FaciesName", "Facies", "", "", "" );
     m_faciesName.uiCapability()->setUiReadOnly( true );
 
-    CAF_PDM_InitScriptableFieldNoDefault( &m_faciesValue, "FaciesValue", "Value", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_faciesValue, "FaciesValue", -1, "Value", "", "", "" );
     m_faciesValue.uiCapability()->setUiHidden( true );
 
     // Use unicode for delta letter

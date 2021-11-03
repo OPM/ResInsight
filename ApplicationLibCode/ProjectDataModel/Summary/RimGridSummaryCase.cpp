@@ -145,9 +145,13 @@ RimEclipseCase* RimGridSummaryCase::associatedEclipseCase()
 //--------------------------------------------------------------------------------------------------
 QString RimGridSummaryCase::summaryHeaderFilename() const
 {
-    if ( !m_eclipseCase() ) return m_summaryHeaderFilename().path();
+    if ( m_eclipseCase() )
+    {
+        auto candidate = summaryHeaderFilenameFromEclipseCase( m_eclipseCase );
+        if ( QFileInfo::exists( candidate ) ) return candidate;
+    }
 
-    return summaryHeaderFilenameFromEclipseCase( m_eclipseCase() );
+    return m_summaryHeaderFilename().path();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -10,6 +10,7 @@ import dataroot
 def test_10k(rips_instance, initialize_test):
     case_path = dataroot.PATH + "/TEST10K_FLT_LGR_NNC/TEST10K_FLT_LGR_NNC.EGRID"
     case = rips_instance.project.load_case(path=case_path)
+    case.create_view()
     assert len(case.grids()) == 2
     cell_count_info = case.cell_count()
 

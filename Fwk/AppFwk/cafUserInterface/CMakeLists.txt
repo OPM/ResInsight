@@ -52,12 +52,14 @@ set(MOC_HEADER_FILES
     cafPdmUniqueIdValidator.h
     cafPdmDoubleStringValidator.h
     cafPdmUiPickableLineEditor.h
-    cafPdmUiLabelEditor.h)
+    cafPdmUiLabelEditor.h
+)
 
 find_package(
   Qt5
   COMPONENTS
-  REQUIRED Core Gui Widgets)
+  REQUIRED Core Gui Widgets
+)
 set(QT_LIBRARIES Qt5::Core Qt5::Gui Qt5::Widgets)
 qt5_wrap_cpp(MOC_SOURCE_FILES ${MOC_HEADER_FILES})
 
@@ -162,14 +164,17 @@ set(PROJECT_FILES
     cafStyleSheetTools.h
     cafStyleSheetTools.cpp
     cafPdmUiTabbedPropertyViewDialog.h
-    cafPdmUiTabbedPropertyViewDialog.cpp)
+    cafPdmUiTabbedPropertyViewDialog.cpp
+)
 
-add_library(${PROJECT_NAME} ${PROJECT_FILES} ${MOC_SOURCE_FILES}
-                            ${QRC_FILES_CPP})
+add_library(
+  ${PROJECT_NAME} ${PROJECT_FILES} ${MOC_SOURCE_FILES} ${QRC_FILES_CPP}
+)
 
 if(MSVC)
-  set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS
-                                                   "/W4 /wd4100 /wd4127")
+  set_target_properties(
+    ${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "/W4 /wd4100 /wd4127"
+  )
 endif()
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})

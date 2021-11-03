@@ -20,8 +20,11 @@
 
 #pragma once
 
-#include "RigFemResultPosEnum.h"
+#include "RimCheckableObject.h"
 #include "RimFemResultObserver.h"
+
+#include "RigFemResultPosEnum.h"
+
 #include "cafAppEnum.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
@@ -38,7 +41,7 @@ class RimRegularLegendConfig;
 ///
 ///
 //==================================================================================================
-class RimGeoMechResultDefinition : public RimFemResultObserver
+class RimGeoMechResultDefinition : public RimFemResultObserver, public RimCheckableObject
 {
     CAF_PDM_HEADER_INIT;
 

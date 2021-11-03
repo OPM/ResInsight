@@ -801,6 +801,7 @@ void RivPipeGeometryGenerator::cylinderWithCenterLineParts( cvf::Collection<cvf:
     if ( surfaceGeo.notNull() )
     {
         cvf::Part* part = new cvf::Part;
+        part->setName( "RivPipeGeometryGenerator::surface" );
         part->setDrawable( surfaceGeo.p() );
 
         caf::SurfaceEffectGenerator surfaceGen( cvf::Color4f( color ), caf::PO_1 );
@@ -815,6 +816,7 @@ void RivPipeGeometryGenerator::cylinderWithCenterLineParts( cvf::Collection<cvf:
     if ( centerLineGeo.notNull() )
     {
         cvf::Part* part = new cvf::Part;
+        part->setName( "RivPipeGeometryGenerator::centerLineGeo" );
         part->setDrawable( centerLineGeo.p() );
 
         caf::SurfaceEffectGenerator surfaceGen( cvf::Color4f( color ), caf::PO_1 );
@@ -844,6 +846,7 @@ void RivPipeGeometryGenerator::tubeWithCenterLinePartsAndVariableWidth( cvf::Col
     if ( surfaceGeo.notNull() )
     {
         cvf::Part* part = new cvf::Part;
+        part->setName( "tubeWithCenterLinePartsAndVariableWidth::surface" );
         part->setDrawable( surfaceGeo.p() );
 
         caf::SurfaceEffectGenerator surfaceGen( cvf::Color4f( color ), caf::PO_1 );
@@ -858,6 +861,7 @@ void RivPipeGeometryGenerator::tubeWithCenterLinePartsAndVariableWidth( cvf::Col
     if ( centerLineGeo.notNull() )
     {
         cvf::Part* part = new cvf::Part;
+        part->setName( "tubeWithCenterLinePartsAndVariableWidth::centerLineGeo" );
         part->setDrawable( centerLineGeo.p() );
 
         caf::SurfaceEffectGenerator surfaceGen( cvf::Color4f( color ), caf::PO_1 );

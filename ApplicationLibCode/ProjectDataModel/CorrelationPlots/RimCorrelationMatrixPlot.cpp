@@ -30,6 +30,8 @@
 
 #include "RifSummaryReaderInterface.h"
 
+#include "RigEnsembleParameter.h"
+
 #include "RimDerivedSummaryCase.h"
 #include "RimEnsembleCurveSet.h"
 #include "RimPlotAxisProperties.h"
@@ -173,7 +175,7 @@ RimCorrelationMatrixPlot::RimCorrelationMatrixPlot()
     m_legendConfig = new RimRegularLegendConfig();
     m_legendConfig->setAutomaticRanges( -1.0, 1.0, -1.0, 1.0 );
     m_legendConfig->setColorLegend(
-        RimRegularLegendConfig::mapToColorLegend( RimRegularLegendConfig::ColorRangesType::RED_WHITE_BLUE ) );
+        RimRegularLegendConfig::mapToColorLegend( RimRegularLegendConfig::ColorRangesType::BLUE_WHITE_RED ) );
 
     setLegendsVisible( false );
 
@@ -221,10 +223,10 @@ RimRegularLegendConfig* RimCorrelationMatrixPlot::legendConfig()
 void RimCorrelationMatrixPlot::selectAllParameters()
 {
     m_selectedParametersList.v().clear();
-    std::set<EnsembleParameter> params = variationSortedEnsembleParameters();
+    std::set<RigEnsembleParameter> params = variationSortedEnsembleParameters();
     for ( auto param : params )
     {
-        if ( !m_excludeParametersWithoutVariation() || param.variationBin > EnsembleParameter::NO_VARIATION )
+        if ( !m_excludeParametersWithoutVariation() || param.variationBin > RigEnsembleParameter::NO_VARIATION )
         {
             m_selectedParametersList.v().push_back( param.name );
         }
@@ -347,10 +349,10 @@ QList<caf::PdmOptionItemInfo>
 
     if ( fieldNeedingOptions == &m_selectedParametersList )
     {
-        std::set<EnsembleParameter> params = variationSortedEnsembleParameters();
+        std::set<RigEnsembleParameter> params = variationSortedEnsembleParameters();
         for ( auto param : params )
         {
-            if ( !m_excludeParametersWithoutVariation() || param.variationBin > EnsembleParameter::NO_VARIATION )
+            if ( !m_excludeParametersWithoutVariation() || param.variationBin > RigEnsembleParameter::NO_VARIATION )
             {
                 options.push_back( caf::PdmOptionItemInfo( param.uiName(), param.name ) );
             }
@@ -522,7 +524,7 @@ void RimCorrelationMatrixPlot::createMatrix()
                 std::vector<double> caseValuesAtTimestep;
                 std::vector<double> parameterValues;
 
-                EnsembleParameter parameter = ensemble->ensembleParameter( paramName );
+                RigEnsembleParameter parameter = ensemble->ensembleParameter( paramName );
 
                 if ( parameter.isValid() )
                 {

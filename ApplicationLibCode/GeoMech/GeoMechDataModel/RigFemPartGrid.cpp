@@ -74,8 +74,6 @@ void RigFemPartGrid::generateStructGridData()
 
     int elmIdxForIJK_000 = findElmIdxForIJK000();
 
-    CVF_ASSERT( elmIdxForIJK_000 != -1 ); // Debug. When we have run enough tests, remove
-
     if ( elmIdxForIJK_000 == -1 ) return;
 
     // Find the IJK faces based on the corner cell

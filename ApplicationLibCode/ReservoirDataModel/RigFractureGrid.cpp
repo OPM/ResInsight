@@ -20,6 +20,9 @@
 
 #include "RiaLogging.h"
 
+#include "cvfBoundingBox.h"
+#include "cvfBoundingBoxTree.h"
+
 #include <QString>
 
 //--------------------------------------------------------------------------------------------------
@@ -121,4 +124,55 @@ size_t RigFractureGrid::iCellCount() const
 std::pair<size_t, size_t> RigFractureGrid::fractureCellAtWellCenter() const
 {
     return m_wellCenterFractureCellIJ;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigFractureGrid::ensureCellSearchTreeIsBuilt()
+{
+    if ( m_cellBoundingBoxTree.isNull() )
+    {
+        size_t itemCount = m_fractureCells.size();
+
+        std::vector<cvf::BoundingBox> cellBoundingBoxes( itemCount );
+        std::vector<size_t>           boundingBoxIds( itemCount );
+
+        for ( size_t idx = 0; idx < itemCount; ++idx )
+        {
+            const RigFractureCell&         cell    = m_fractureCells[idx];
+            cvf::BoundingBox&              cellBB  = cellBoundingBoxes[idx];
+            const std::vector<cvf::Vec3d>& corners = cell.getPolygon();
+            for ( auto c : corners )
+                cellBB.add( c );
+
+            boundingBoxIds[idx] = idx;
+        }
+
+        m_cellBoundingBoxTree = new cvf::BoundingBoxTree;
+        m_cellBoundingBoxTree->buildTreeFromBoundingBoxes( cellBoundingBoxes, &boundingBoxIds );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const RigFractureCell* RigFractureGrid::getCellFromPosition( const cvf::Vec3d& position ) const
+{
+    cvf::BoundingBox inputBB;
+    inputBB.add( position );
+
+    std::vector<size_t> indexes;
+    m_cellBoundingBoxTree->findIntersections( inputBB, &indexes );
+
+    if ( !indexes.empty() )
+    {
+        // Hit: should only one cell since they have no overlap
+        return &m_fractureCells[indexes[0]];
+    }
+    else
+    {
+        // No hit
+        return nullptr;
+    }
 }

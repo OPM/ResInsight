@@ -23,6 +23,7 @@
 #include "cafPdmObject.h"
 
 class RimSurface;
+class RimEnsembleSurface;
 class RimCase;
 
 class RimSurfaceCollection : public caf::PdmObject
@@ -36,13 +37,17 @@ public:
     void addSurface( RimSurface* surface );
     void setAsTopmostFolder();
 
+    void                             addEnsembleSurface( RimEnsembleSurface* ensembleSurface );
+    std::vector<RimEnsembleSurface*> ensembleSurfaces() const;
+
     RimSurface* importSurfacesFromFiles( const QStringList& fileNames, bool showLegend = true );
-    RimSurface* addGridCaseSurface( RimCase* sourceCase );
+    RimSurface* addGridCaseSurface( RimCase* sourceCase, int oneBasedSliceIndex = 1 );
     RimSurface* copySurfaces( std::vector<RimSurface*> surfaces );
     RimSurface* addSurfacesAtIndex( int index, std::vector<RimSurface*> surfaces );
 
     void                  addSubCollection( RimSurfaceCollection* collection );
-    RimSurfaceCollection* getSubCollection( const QString name );
+    RimSurfaceCollection* getSubCollection( const QString& name ) const;
+    void                  deleteSubCollection( const QString& name );
 
     bool containsFileSurface( QString filename );
     bool containsSurface();
@@ -51,7 +56,7 @@ public:
     void removeSurface( RimSurface* surface );
     void removeMissingFileSurfaces();
 
-    void loadData();
+    virtual void loadData();
 
     void updateViews();
     void updateViews( const std::vector<RimSurface*>& surfsToReload, bool showLegend = true );

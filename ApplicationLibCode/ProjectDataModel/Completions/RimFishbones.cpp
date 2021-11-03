@@ -127,7 +127,7 @@ RimFishbones::RimFishbones()
     CAF_PDM_InitFieldNoDefault( &m_valveLocations, "ValveLocations", "Valve Locations", "", "", "" );
     m_valveLocations = new RimMultipleValveLocations();
     m_valveLocations->findField( "RangeValveCount" )->uiCapability()->setUiName( "Number of Subs" );
-    m_valveLocations.uiCapability()->setUiHidden( true );
+    m_valveLocations.uiCapability()->setUiTreeHidden( true );
     m_valveLocations.uiCapability()->setUiTreeChildrenHidden( true );
 
     CAF_PDM_InitField( &m_subsOrientationMode,
@@ -154,7 +154,7 @@ RimFishbones::RimFishbones()
                        "" );
 
     CAF_PDM_InitFieldNoDefault( &m_pipeProperties, "PipeProperties", "Pipe Properties", "", "", "" );
-    m_pipeProperties.uiCapability()->setUiHidden( true );
+    m_pipeProperties.uiCapability()->setUiTreeHidden( true );
     m_pipeProperties.uiCapability()->setUiTreeChildrenHidden( true );
 
     m_pipeProperties = new RimFishbonesPipeProperties;
@@ -533,6 +533,14 @@ double RimFishbones::endMD() const
     }
 
     return measuredDepth;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFishbones::applyOffset( double offsetMD )
+{
+    m_valveLocations->applyOffset( offsetMD );
 }
 
 //--------------------------------------------------------------------------------------------------

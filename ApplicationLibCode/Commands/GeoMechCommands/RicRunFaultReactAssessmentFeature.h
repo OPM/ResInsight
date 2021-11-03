@@ -34,8 +34,10 @@ class RicRunFaultReactAssessmentFeature : public caf::CmdFeature
 protected:
     RicRunFaultReactAssessmentFeature();
 
-    RimFaultInViewCollection* faultCollection();
-    int                       selectedFaultID();
+    virtual RimFaultInViewCollection* faultCollection();
+
+    int selectedFaultID();
+    int faultIDFromName( QString faultname ) const;
 
     RimSurfaceCollection* surfaceCollection();
 
@@ -44,6 +46,11 @@ protected:
 
     void addParameterFileForCleanUp( QString filename );
     void cleanUpParameterFiles();
+
+    void removeFile( QString filename );
+
+    void runBasicProcessing( int faultID );
+    void runAdvancedProcessing( int faultID );
 
 private:
     std::list<QString> m_parameterFilesToCleanUp;

@@ -343,8 +343,8 @@ void RigStatisticsDataCache::computeHistogramStatisticsIfNeeded()
 
         m_statisticsCalculator->addDataToHistogramCalculator( histCalc );
 
-        m_statsAllTimesteps.m_p10 = histCalc.calculatePercentil( 0.1 );
-        m_statsAllTimesteps.m_p90 = histCalc.calculatePercentil( 0.9 );
+        m_statsAllTimesteps.m_p10 = histCalc.calculatePercentil( 0.1, RigStatisticsMath::PercentileStyle::SWITCHED );
+        m_statsAllTimesteps.m_p90 = histCalc.calculatePercentil( 0.9, RigStatisticsMath::PercentileStyle::SWITCHED );
     }
 }
 
@@ -364,8 +364,8 @@ void RigStatisticsDataCache::computeHistogramStatisticsIfNeeded( size_t timeStep
 
         m_statisticsCalculator->addDataToHistogramCalculator( timeStepIndex, histCalc );
 
-        m_statsPrTs[timeStepIndex].m_p10 = histCalc.calculatePercentil( 0.1 );
-        m_statsPrTs[timeStepIndex].m_p90 = histCalc.calculatePercentil( 0.9 );
+        m_statsPrTs[timeStepIndex].m_p10 = histCalc.calculatePercentil( 0.1, RigStatisticsMath::PercentileStyle::SWITCHED );
+        m_statsPrTs[timeStepIndex].m_p90 = histCalc.calculatePercentil( 0.9, RigStatisticsMath::PercentileStyle::SWITCHED );
     }
 }
 

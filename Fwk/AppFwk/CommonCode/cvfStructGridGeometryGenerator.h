@@ -200,10 +200,10 @@ public:
     static ref<DrawableGeo> createMeshDrawableFromSingleCell( const StructGridInterface* grid,
                                                               size_t                     cellIndex,
                                                               const cvf::Vec3d&          displayModelOffset );
+    static ref<UIntArray>   lineIndicesFromQuadVertexArray( const Vec3fArray* vertexArray );
 
 private:
-    static ref<UIntArray> lineIndicesFromQuadVertexArray( const Vec3fArray* vertexArray );
-    bool                  isCellFaceVisible( size_t i, size_t j, size_t k, StructGridInterface::FaceType face ) const;
+    bool isCellFaceVisible( size_t i, size_t j, size_t k, StructGridInterface::FaceType face ) const;
 
     void computeArrays();
 

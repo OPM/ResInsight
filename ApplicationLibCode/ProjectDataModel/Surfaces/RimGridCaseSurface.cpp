@@ -18,17 +18,19 @@
 
 #include "RimGridCaseSurface.h"
 
+#include "RigMainGrid.h"
+#include "RigReservoirGridTools.h"
 #include "RigSurface.h"
 
-#include "RigMainGrid.h"
 #include "RimCase.h"
 #include "RimEclipseCase.h"
 #include "RimSurfaceCollection.h"
 #include "RimTools.h"
 
+#include "cafPdmFieldScriptingCapability.h"
+#include "cafPdmObjectScriptingCapability.h"
 #include "cafPdmUiSliderEditor.h"
 
-#include "RigReservoirGridTools.h"
 #include "cvfVector3.h"
 
 CAF_PDM_SOURCE_INIT( RimGridCaseSurface, "GridCaseSurface" );
@@ -38,12 +40,14 @@ CAF_PDM_SOURCE_INIT( RimGridCaseSurface, "GridCaseSurface" );
 //--------------------------------------------------------------------------------------------------
 RimGridCaseSurface::RimGridCaseSurface()
 {
-    CAF_PDM_InitObject( "Surface", ":/ReservoirSurface16x16.png", "", "" );
+    CAF_PDM_InitScriptableObject( "Surface", ":/ReservoirSurface16x16.png", "", "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_case, "SourceCase", "Source Case", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_case, "SourceCase", "Source Case", "", "", "" );
 
-    CAF_PDM_InitField( &m_oneBasedSliceIndex, "SliceIndex", 1, "Slice Index (K)", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_oneBasedSliceIndex, "SliceIndex", 1, "Slice Index (K)", "", "", "" );
     m_oneBasedSliceIndex.uiCapability()->setUiEditorTypeName( caf::PdmUiSliderEditor::uiEditorTypeName() );
+
+    CAF_PDM_InitScriptableField( &m_watertight, "Watertight", false, "Watertight Surface (fill gaps)", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -82,7 +86,7 @@ bool RimGridCaseSurface::onLoadData()
 //--------------------------------------------------------------------------------------------------
 RimSurface* RimGridCaseSurface::createCopy()
 {
-    RimGridCaseSurface* newSurface = dynamic_cast<RimGridCaseSurface*>(
+    auto* newSurface = dynamic_cast<RimGridCaseSurface*>(
         xmlCapability()->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
     newSurface->setCase( m_case.value() ); // TODO: case seems to get lost in the xml copy, investigate later
 
@@ -120,7 +124,7 @@ void RimGridCaseSurface::defineEditorAttribute( const caf::PdmFieldHandle* field
 {
     RimSurface::defineEditorAttribute( field, uiConfigName, attribute );
 
-    caf::PdmUiSliderEditorAttribute* myAttr = dynamic_cast<caf::PdmUiSliderEditorAttribute*>( attribute );
+    auto* myAttr = dynamic_cast<caf::PdmUiSliderEditorAttribute*>( attribute );
     if ( myAttr && m_case )
     {
         const cvf::StructGridInterface* grid = RigReservoirGridTools::mainGrid( m_case );
@@ -140,7 +144,7 @@ void RimGridCaseSurface::fieldChangedByUi( const caf::PdmFieldHandle* changedFie
 {
     RimSurface::fieldChangedByUi( changedField, oldValue, newValue );
 
-    if ( changedField == &m_case || changedField == &m_oneBasedSliceIndex )
+    if ( changedField == &m_case || changedField == &m_oneBasedSliceIndex || changedField == &m_watertight )
     {
         clearCachedNativeData();
         updateSurfaceData();
@@ -154,13 +158,13 @@ void RimGridCaseSurface::fieldChangedByUi( const caf::PdmFieldHandle* changedFie
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridCaseSurface::extractDataFromGrid()
+void RimGridCaseSurface::extractStructuredSurfaceFromGridData()
 {
     clearCachedNativeData();
 
     if ( m_case )
     {
-        RimEclipseCase* eclCase = dynamic_cast<RimEclipseCase*>( m_case() );
+        auto* eclCase = dynamic_cast<RimEclipseCase*>( m_case() );
         if ( eclCase && eclCase->mainGrid() )
         {
             const RigMainGrid* grid = eclCase->mainGrid();
@@ -246,15 +250,15 @@ void RimGridCaseSurface::extractDataFromGrid()
                         cvf::ubyte faceConn[4];
                         grid->cellFaceVertexIndices( faceType, faceConn );
 
-                        structGridVertexIndices.push_back(
-                            std::make_pair( static_cast<cvf::uint>( column + 1 ), static_cast<cvf::uint>( row + 1 ) ) );
+                        structGridVertexIndices.emplace_back( static_cast<cvf::uint>( column + 1 ),
+                                                              static_cast<cvf::uint>( row + 1 ) );
 
                         vertices.push_back( cornerVerts[faceConn[cellFaceIndex]] );
 
                         if ( row < maxRow && column < maxColumn )
                         {
-                            cvf::uint triangleIndexLeft = static_cast<cvf::uint>( column * ( maxRow + 1 ) + row );
-                            cvf::uint triangleIndexRight = static_cast<cvf::uint>( ( column + 1 ) * ( maxRow + 1 ) + row );
+                            auto triangleIndexLeft  = static_cast<cvf::uint>( column * ( maxRow + 1 ) + row );
+                            auto triangleIndexRight = static_cast<cvf::uint>( ( column + 1 ) * ( maxRow + 1 ) + row );
 
                             triangleIndices.push_back( triangleIndexLeft );
                             triangleIndices.push_back( triangleIndexLeft + 1 );
@@ -271,6 +275,135 @@ void RimGridCaseSurface::extractDataFromGrid()
             m_vertices          = vertices;
             m_triangleIndices   = triangleIndices;
             m_structGridIndices = structGridVertexIndices;
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGridCaseSurface::extractGridDataUsingFourVerticesPerCell()
+{
+    clearCachedNativeData();
+
+    if ( !m_case ) return;
+
+    auto* eclCase = dynamic_cast<RimEclipseCase*>( m_case() );
+    if ( eclCase && eclCase->mainGrid() )
+    {
+        const RigMainGrid* grid = eclCase->mainGrid();
+
+        size_t minI = 0;
+        size_t minJ = 0;
+        size_t maxI = grid->cellCountI();
+        size_t maxJ = grid->cellCountJ();
+
+        size_t zeroBasedLayerIndex = static_cast<size_t>( m_oneBasedSliceIndex ) - 1;
+
+        cvf::StructGridInterface::FaceType extractionFace = cvf::StructGridInterface::NEG_K;
+
+        std::vector<unsigned>   triangleIndices;
+        std::vector<cvf::Vec3d> vertices;
+
+        for ( size_t i = minI; i <= maxI; i++ )
+        {
+            for ( size_t j = minJ; j <= maxJ; j++ )
+            {
+                if ( !grid->isCellValid( i, j, zeroBasedLayerIndex ) ) continue;
+
+                size_t      currentCellIndex = grid->cellIndexFromIJK( i, j, zeroBasedLayerIndex );
+                const auto& cell             = grid->cell( currentCellIndex );
+                if ( cell.isInvalid() ) continue;
+
+                cvf::Vec3d currentCornerVerts[8];
+
+                {
+                    cvf::ubyte currentFaceConn[4];
+                    grid->cellCornerVertices( currentCellIndex, currentCornerVerts );
+                    grid->cellFaceVertexIndices( extractionFace, currentFaceConn );
+
+                    auto currentCellStartIndex = static_cast<unsigned>( vertices.size() );
+
+                    for ( auto fc : currentFaceConn )
+                    {
+                        vertices.push_back( currentCornerVerts[fc] );
+                    }
+
+                    triangleIndices.push_back( currentCellStartIndex );
+                    triangleIndices.push_back( currentCellStartIndex + 1 );
+                    triangleIndices.push_back( currentCellStartIndex + 2 );
+
+                    triangleIndices.push_back( currentCellStartIndex );
+                    triangleIndices.push_back( currentCellStartIndex + 2 );
+                    triangleIndices.push_back( currentCellStartIndex + 3 );
+                }
+
+                if ( m_watertight() )
+                {
+                    addGeometryForFaultFaces( grid,
+                                              currentCellIndex,
+                                              extractionFace,
+                                              cvf::StructGridInterface::POS_I,
+                                              currentCornerVerts,
+                                              vertices,
+                                              triangleIndices );
+
+                    addGeometryForFaultFaces( grid,
+                                              currentCellIndex,
+                                              extractionFace,
+                                              cvf::StructGridInterface::POS_J,
+                                              currentCornerVerts,
+                                              vertices,
+                                              triangleIndices );
+                }
+            }
+        }
+
+        m_vertices        = vertices;
+        m_triangleIndices = triangleIndices;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGridCaseSurface::addGeometryForFaultFaces( const RigMainGrid*                 grid,
+                                                   size_t                             currentCellIndex,
+                                                   cvf::StructGridInterface::FaceType extractionFace,
+                                                   cvf::StructGridInterface::FaceType faultFace,
+                                                   cvf::Vec3d*                        currentCornerVerts,
+                                                   std::vector<cvf::Vec3d>&           vertices,
+                                                   std::vector<unsigned>&             triangleIndices )
+{
+    if ( grid->findFaultFromCellIndexAndCellFace( currentCellIndex, faultFace ) )
+    {
+        auto nextCell = grid->cell( currentCellIndex ).neighborCell( faultFace );
+        if ( !nextCell.isInvalid() )
+        {
+            size_t     nextCellIndex = nextCell.mainGridCellIndex();
+            cvf::Vec3d nextCellCornerVerts[8];
+            grid->cellCornerVertices( nextCellIndex, nextCellCornerVerts );
+
+            auto startIndex = static_cast<unsigned>( vertices.size() );
+            {
+                auto edgeVertexIndices = grid->edgeVertexIndices( extractionFace, faultFace );
+                vertices.push_back( currentCornerVerts[edgeVertexIndices.first] );
+                vertices.push_back( currentCornerVerts[edgeVertexIndices.second] );
+            }
+            {
+                auto oppositeFaultFace = cvf::StructGridInterface::oppositeFace( faultFace );
+                auto edgeVertexIndices = grid->edgeVertexIndices( extractionFace, oppositeFaultFace );
+                vertices.push_back( nextCellCornerVerts[edgeVertexIndices.first] );
+                vertices.push_back( nextCellCornerVerts[edgeVertexIndices.second] );
+            }
+
+            triangleIndices.push_back( startIndex );
+            triangleIndices.push_back( startIndex + 1 );
+            triangleIndices.push_back( startIndex + 2 );
+
+            triangleIndices.push_back( startIndex );
+            triangleIndices.push_back( startIndex + 2 );
+            triangleIndices.push_back( startIndex + 3 );
         }
     }
 }
@@ -355,7 +488,7 @@ bool RimGridCaseSurface::updateSurfaceData()
 {
     if ( m_vertices.empty() || m_triangleIndices.empty() || m_structGridIndices.empty() )
     {
-        extractDataFromGrid();
+        extractGridDataUsingFourVerticesPerCell();
     }
 
     RigSurface* surfaceData = nullptr;
@@ -411,7 +544,7 @@ bool RimGridCaseSurface::exportStructSurfaceFromGridCase( std::vector<cvf::Vec3d
 {
     if ( m_vertices.empty() || m_triangleIndices.empty() || m_structGridIndices.empty() )
     {
-        extractDataFromGrid();
+        extractStructuredSurfaceFromGridData();
     }
 
     if ( m_vertices.empty() ) return false;

@@ -29,6 +29,8 @@ class RicHoloLensExportToFolderUi;
 class RicExportWellPathsUi;
 class RicExportLgrUi;
 class RimMockModelSettings;
+class RicCreateEnsembleSurfaceUi;
+class RicCreateEnsembleWellLogUi;
 
 //==================================================================================================
 ///
@@ -61,6 +63,8 @@ public:
     RicExportLgrUi*                exportLgrData() const;
     RicExportEclipseSectorModelUi* exportSectorModelUi() const;
     RimMockModelSettings*          mockModelSettings() const;
+    RicCreateEnsembleSurfaceUi*    createEnsembleSurfaceUi() const;
+    RicCreateEnsembleWellLogUi*    createEnsembleWellLogUi() const;
 
 private:
     caf::PdmChildField<RicExportCarfinUi*>                 m_exportCarfin;
@@ -71,4 +75,6 @@ private:
     caf::PdmChildField<RicExportLgrUi*>                    m_exportLgrData;
     caf::PdmChildField<RicExportEclipseSectorModelUi*>     m_exportSectorModelData;
     caf::PdmChildField<RimMockModelSettings*>              m_mockModelSettings;
+    caf::PdmChildField<RicCreateEnsembleSurfaceUi*>        m_createEnsembleSurfaceUi;
+    caf::PdmChildField<RicCreateEnsembleWellLogUi*>        m_createEnsembleWellLogUi;
 };

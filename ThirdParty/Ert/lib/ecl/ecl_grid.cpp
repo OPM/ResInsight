@@ -6369,8 +6369,9 @@ static bool ecl_grid_init_coord_section__( const ecl_grid_type * grid , int i, i
   const int top_index    = ecl_grid_get_top_valid_index( grid , i , j );
   const int bottom_index = ecl_grid_get_bottom_valid_index( grid , i , j );
 
-  if (top_index == -1)
-    util_exit("% : no cell with a valid geometry description found in (i,j) = %d,%d - then what? \n",__func__ , i,j);
+  // util_exit("% : no cell with a valid geometry description found in (i,j) = %d,%d - then what? \n",__func__ , i,j);
+  // https://github.com/OPM/ResInsight/issues/7944
+  if (top_index == -1) return false;
 
   {
     point_type top_point;

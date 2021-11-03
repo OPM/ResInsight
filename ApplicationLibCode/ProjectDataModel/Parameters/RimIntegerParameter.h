@@ -41,6 +41,9 @@ public:
     void     setValue( QString value ) override;
     QVariant variantValue() const override;
     QString  stringValue() const override;
+    int      value() const;
+
+    RimGenericParameter* duplicate() const override;
 
 private:
     caf::PdmField<int> m_value;

@@ -102,7 +102,7 @@ void EclOutput::write(const std::string& name, const std::vector<std::string>& d
         });
 
         if (it->size() > static_cast<size_t>(element_size))
-            OPM_THROW(std::runtime_error, "specified element size for type C0NN less than maximum string length in ouput data");
+            OPM_THROW(std::runtime_error, "specified element size for type C0NN less than maximum string length in output data");
     }
 
     if (isFormatted)
@@ -222,14 +222,9 @@ void EclOutput::writeBinaryHeader(const std::string&arrName, int64_t size, eclAr
 template <typename T>
 void EclOutput::writeBinaryArray(const std::vector<T>& data)
 {
-    int num, rval;
-    int64_t rest;
+    int num;
+    int64_t rest, offset;
     int dhead;
-    float value_f;
-    double value_d;
-    int intVal;
-
-    int64_t n = 0;
     int64_t size = data.size();
 
     eclArrType arrType = MESS;
@@ -257,6 +252,9 @@ void EclOutput::writeBinaryArray(const std::vector<T>& data)
     int logi_true_val = ix_standard ? true_value_ix : true_value_ecl;
 
     rest = size * static_cast<int64_t>(sizeOfElement);
+
+    offset = 0;
+
     while (rest > 0) {
         if (rest > maxBlockSize) {
             rest -= maxBlockSize;
@@ -270,27 +268,56 @@ void EclOutput::writeBinaryArray(const std::vector<T>& data)
 
         ofileH.write(reinterpret_cast<char*>(&dhead), sizeof(dhead));
 
-        for (int i = 0; i < num; i++) {
-            if (arrType == INTE) {
-                rval = flipEndianInt(data[n]);
-                ofileH.write(reinterpret_cast<char*>(&rval), sizeof(rval));
-            } else if (arrType == REAL) {
-                value_f = flipEndianFloat(data[n]);
-                ofileH.write(reinterpret_cast<char*>(&value_f), sizeof(value_f));
-            } else if (arrType == DOUB) {
-                value_d = flipEndianDouble(data[n]);
-                ofileH.write(reinterpret_cast<char*>(&value_d), sizeof(value_d));
-            } else if (arrType == LOGI) {
-                intVal = data[n] ? logi_true_val : false_value;
-                ofileH.write(reinterpret_cast<char*>(&intVal), sizeOfElement);
-            } else {
-                std::cerr << "type not supported in write binaryarray\n";
-                std::exit(EXIT_FAILURE);
-            }
+        if (arrType == INTE) {
 
-            n++;
+            std::vector<int> flipped_data;
+            flipped_data.resize(num, 0);
+
+            for (int m = 0; m < num; m++)
+                flipped_data[m] = flipEndianInt(data[m + offset]);
+
+            ofileH.write((char*)(flipped_data.data()), flipped_data.size() * sizeof(int)) ;
+
+        } else if (arrType == REAL) {
+
+            std::vector<float> flipped_data;
+            flipped_data.resize(num, 0);
+
+            for (int m = 0; m < num; m++)
+                flipped_data[m] = flipEndianFloat(data[m + offset]);
+
+            ofileH.write((char*)(flipped_data.data()), flipped_data.size() * sizeof(float)) ;
+
+        } else if (arrType == DOUB) {
+
+            std::vector<double> flipped_data;
+            flipped_data.resize(num, 0);
+
+            for (int m = 0; m < num; m++)
+                flipped_data[m] = flipEndianDouble(data[m + offset]);
+
+            ofileH.write((char*)(flipped_data.data()), flipped_data.size() * sizeof(double)) ;
+
+        } else if (arrType == LOGI) {
+
+            std::vector<int> logi_data;
+            logi_data.resize(num, 0);
+
+            for (int m = 0; m < num; m++)
+                if (data[m + offset])
+                    logi_data[m] = logi_true_val;
+                else
+                    logi_data[m] = false_value;
+
+            ofileH.write((char*)(logi_data.data()), logi_data.size() * sizeof(int)) ;
+
+        } else {
+
+            std::cerr << "type not supported in write binaryarray\n";
+            std::exit(EXIT_FAILURE);
         }
 
+        offset += num;
         ofileH.write(reinterpret_cast<char*>(&dhead), sizeof(dhead));
     }
 }

@@ -20,7 +20,6 @@
 
 #include "RiaPreferences.h"
 #include "RiaQDateTimeTools.h"
-#include "RiaStatisticsTools.h"
 #include "RiuGroupedBarChartBuilder.h"
 #include "RiuPlotMainWindowTools.h"
 #include "RiuQwtPlotWidget.h"
@@ -156,10 +155,10 @@ QList<caf::PdmOptionItemInfo> RimCorrelationPlot::calculateValueOptions( const c
 
     if ( fieldNeedingOptions == &m_selectedParametersList )
     {
-        std::set<EnsembleParameter> params = variationSortedEnsembleParameters();
+        std::set<RigEnsembleParameter> params = variationSortedEnsembleParameters();
         for ( auto param : params )
         {
-            if ( !m_excludeParametersWithoutVariation() || param.variationBin > EnsembleParameter::NO_VARIATION )
+            if ( !m_excludeParametersWithoutVariation() || param.variationBin > RigEnsembleParameter::NO_VARIATION )
             {
                 options.push_back( caf::PdmOptionItemInfo( param.uiName(), param.name ) );
             }
@@ -242,7 +241,7 @@ void RimCorrelationPlot::addDataToChartBuilder( RiuGroupedBarChartBuilder& chart
 
     std::set<RimSummaryCase*> activeCases = filterEnsembleCases( ensemble );
 
-    std::vector<std::pair<EnsembleParameter, double>> correlations =
+    std::vector<std::pair<RigEnsembleParameter, double>> correlations =
         ensemble->parameterCorrelations( address, selectedTimestep, m_selectedParametersList(), activeCases );
 
     for ( auto parameterCorrPair : correlations )
@@ -332,10 +331,10 @@ void RimCorrelationPlot::setSortByAbsoluteValues( bool sortByAbsoluteValues )
 void RimCorrelationPlot::selectAllParameters()
 {
     m_selectedParametersList.v().clear();
-    std::set<EnsembleParameter> params = variationSortedEnsembleParameters();
+    std::set<RigEnsembleParameter> params = variationSortedEnsembleParameters();
     for ( auto param : params )
     {
-        if ( !m_excludeParametersWithoutVariation() || param.variationBin > EnsembleParameter::NO_VARIATION )
+        if ( !m_excludeParametersWithoutVariation() || param.variationBin > RigEnsembleParameter::NO_VARIATION )
         {
             m_selectedParametersList.v().push_back( param.name );
         }

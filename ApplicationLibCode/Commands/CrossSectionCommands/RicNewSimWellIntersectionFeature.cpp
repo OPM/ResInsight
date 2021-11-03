@@ -105,8 +105,7 @@ void RicNewSimWellIntersectionCmd::redo()
 
     RimExtrudedCurveIntersection* intersection = new RimExtrudedCurveIntersection();
     intersection->setName( m_simWell->name );
-    intersection->type           = RimExtrudedCurveIntersection::CS_SIMULATION_WELL;
-    intersection->simulationWell = m_simWell;
+    intersection->configureForSimulationWell( m_simWell );
 
     m_intersectionCollection->appendIntersectionAndUpdate( intersection, false );
 }

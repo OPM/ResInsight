@@ -94,8 +94,10 @@ void RivTensorResultPartMgr::appendDynamicGeometryPartsToModel( cvf::ModelBasicL
     for ( int partIdx = 0; partIdx < femParts->partCount(); partIdx++ )
     {
         std::vector<caf::Ten3f> vertexTensors = resultCollection->tensors( address, partIdx, (int)frameIndex );
+        if ( vertexTensors.empty() ) continue;
 
-        const RigFemPart*       part = femParts->part( partIdx );
+        const RigFemPart* part = femParts->part( partIdx );
+
         std::vector<caf::Ten3f> elmTensors;
 
         calculateElementTensors( *part, vertexTensors, &elmTensors );
@@ -129,7 +131,8 @@ void RivTensorResultPartMgr::appendDynamicGeometryPartsToModel( cvf::ModelBasicL
         for ( const RivGeoMechPartMgrCache::Key& partKey : partKeys )
         {
             const RivGeoMechPartMgr* partMgr = partMgrCache->partMgr( partKey );
-            for ( auto mgr : partMgr->femPartMgrs() )
+
+            auto mgr = partMgr->femPartMgrs()[partIdx];
             {
                 const RivFemPartGeometryGenerator* surfaceGenerator     = mgr->surfaceGenerator();
                 const std::vector<size_t>& quadVerticesToNodeIdxMapping = surfaceGenerator->quadVerticesToNodeIdxMapping();
@@ -373,6 +376,7 @@ cvf::ref<cvf::Part> RivTensorResultPartMgr::createPart( const std::vector<Tensor
     drawable->setTextureCoordArray( lineTexCoords.p() );
 
     cvf::ref<cvf::Part> part = new cvf::Part;
+    part->setName( "RivTensorResultPartMgr" );
     part->setDrawable( drawable.p() );
     part->setEffect( scalarMapperMeshEffect.p() );
 

@@ -39,9 +39,9 @@ RimScriptCollection::RimScriptCollection()
 
     CAF_PDM_InitFieldNoDefault( &directory, "ScriptDirectory", "Folder", "", "", "" );
     CAF_PDM_InitFieldNoDefault( &calcScripts, "CalcScripts", "", "", "", "" );
-    calcScripts.uiCapability()->setUiHidden( true );
+    calcScripts.uiCapability()->setUiTreeHidden( true );
     CAF_PDM_InitFieldNoDefault( &subDirectories, "SubDirectories", "", "", "", "" );
-    subDirectories.uiCapability()->setUiHidden( true );
+    subDirectories.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitField( &m_searchSubFolders, "SearchSubFolders", false, "Add Subfolders", "", "", "" );
 

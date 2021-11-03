@@ -12,7 +12,8 @@ endif()
 find_package(
   Qt5
   COMPONENTS
-  REQUIRED Core Gui Widgets)
+  REQUIRED Core Gui Widgets
+)
 set(QT_LIBRARIES Qt5::Core Qt5::Gui Qt5::Widgets)
 
 set(PROJECT_FILES
@@ -23,7 +24,8 @@ set(PROJECT_FILES
     cafPdmObjectGroup.cpp
     cafPdmObjectGroup.h
     cafPdmObject.cpp
-    cafPdmObject.h)
+    cafPdmObject.h
+)
 
 add_library(${PROJECT_NAME} ${PROJECT_FILES})
 
@@ -32,8 +34,9 @@ target_link_libraries(${PROJECT_NAME} cafPdmUiCore cafPdmXml ${QT_LIBRARIES})
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 if(MSVC)
-  set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS
-                                                   "/W4 /wd4100 /wd4127")
+  set_target_properties(
+    ${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "/W4 /wd4100 /wd4127"
+  )
 endif()
 
 source_group("" FILES ${PROJECT_FILES})

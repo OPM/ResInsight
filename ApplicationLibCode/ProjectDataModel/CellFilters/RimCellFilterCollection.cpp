@@ -32,7 +32,7 @@
 #include "cafPdmObjectScriptingCapability.h"
 #include "cvfStructGridGeometryGenerator.h"
 
-CAF_PDM_SOURCE_INIT( RimCellFilterCollection, "RimCellFilterCollection", "CellRangeFilterCollection" );
+CAF_PDM_SOURCE_INIT( RimCellFilterCollection, "CellFilterCollection", "RimCellFilterCollection", "CellRangeFilterCollection" );
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -50,7 +50,7 @@ RimCellFilterCollection::RimCellFilterCollection()
 
     // for backwards project file compatibility with old CellRangeFilterCollection
     CAF_PDM_InitFieldNoDefault( &m_rangeFilters_OBSOLETE, "RangeFilters", "Range Filters", "", "", "" );
-    m_rangeFilters_OBSOLETE.uiCapability()->setUiHidden( true );
+    m_rangeFilters_OBSOLETE.uiCapability()->setUiTreeHidden( true );
     m_rangeFilters_OBSOLETE.xmlCapability()->setIOWritable( false );
 }
 

@@ -23,6 +23,12 @@
 
 #include <vector>
 
+namespace cvf
+{
+class BoundingBox;
+class BoundingBoxTree;
+} // namespace cvf
+
 class RigFractureCell;
 
 //==================================================================================================
@@ -47,9 +53,14 @@ public:
 
     std::pair<size_t, size_t> fractureCellAtWellCenter() const;
 
+    const RigFractureCell* getCellFromPosition( const cvf::Vec3d& position ) const;
+    void                   ensureCellSearchTreeIsBuilt();
+
 private:
     std::vector<RigFractureCell> m_fractureCells;
     std::pair<size_t, size_t>    m_wellCenterFractureCellIJ;
     size_t                       m_iCellCount;
     size_t                       m_jCellCount;
+
+    cvf::ref<cvf::BoundingBoxTree> m_cellBoundingBoxTree;
 };

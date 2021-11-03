@@ -10,13 +10,15 @@ endif()
 
 # These headers need to go through Qt's MOC compiler
 set(MOC_HEADER_FILES cafPdmUiEditorHandle.h cafPdmUiFieldEditorHandle.h
-                     cafPdmUiSelection3dEditorVisualizer.h cafQShortenedLabel.h)
+                     cafPdmUiSelection3dEditorVisualizer.h cafQShortenedLabel.h
+)
 
 # Qt
 find_package(
   Qt5
   COMPONENTS
-  REQUIRED Core Gui Widgets)
+  REQUIRED Core Gui Widgets
+)
 set(QT_LIBRARIES Qt5::Core Qt5::Gui Qt5::Widgets)
 qt5_wrap_cpp(MOC_SOURCE_FILES ${MOC_HEADER_FILES})
 
@@ -69,7 +71,8 @@ set(PROJECT_FILES
     cafIconProvider.cpp
     cafIconProvider.h
     cafFontTools.cpp
-    cafFontTools.h)
+    cafFontTools.h
+)
 
 # NOTE! Resources in this subfolder appends to the variable QRC_FILES in parent
 # scope CMakeList.txt in the application folder (parent scope) must use the
@@ -80,7 +83,8 @@ set(PROJECT_FILES
 
 set(QRC_FILES
     ${QRC_FILES} ${CMAKE_CURRENT_SOURCE_DIR}/Resources/caf.qrc
-    PARENT_SCOPE)
+    PARENT_SCOPE
+)
 
 add_library(${PROJECT_NAME} ${PROJECT_FILES} ${MOC_SOURCE_FILES})
 
@@ -89,8 +93,9 @@ target_link_libraries(${PROJECT_NAME} cafPdmCore ${QT_LIBRARIES})
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 if(MSVC)
-  set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS
-                                                   "/W4 /wd4100 /wd4127")
+  set_target_properties(
+    ${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "/W4 /wd4100 /wd4127"
+  )
 endif()
 
 source_group("" FILES ${PROJECT_FILES})

@@ -9,7 +9,8 @@ find_package(OpenGL)
 
 # Qt MOC
 set(MOC_HEADER_FILES MainWindow.h WidgetLayoutTest.h CustomObjectEditor.h
-                     MenuItemProducer.h)
+                     MenuItemProducer.h
+)
 
 # Resource file
 set(QRC_FILES ${QRC_FILES} textedit.qrc)
@@ -17,7 +18,8 @@ set(QRC_FILES ${QRC_FILES} textedit.qrc)
 find_package(
   Qt5
   COMPONENTS
-  REQUIRED Core Gui Widgets OpenGL)
+  REQUIRED Core Gui Widgets OpenGL
+)
 set(QT_LIBRARIES Qt5::Core Qt5::Gui Qt5::Widgets Qt5::OpenGL)
 qt5_wrap_cpp(MOC_SOURCE_FILES ${MOC_HEADER_FILES})
 qt5_add_resources(QRC_FILES_CPP ${QRC_FILES})
@@ -42,7 +44,8 @@ set(PROJECT_FILES
     MenuItemProducer.cpp
     MenuItemProducer.h
     TamComboBox.h
-    TamComboBox.cpp)
+    TamComboBox.cpp
+)
 
 # add the executable
 add_executable(
@@ -71,8 +74,10 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
   list(APPEND EXTERNAL_LINK_LIBRARIES rt pthread)
 endif()
 
-target_link_libraries(${PROJECT_NAME} ${TAP_LINK_LIBRARIES} ${QT_LIBRARIES}
-                      ${EXTERNAL_LINK_LIBRARIES})
+target_link_libraries(
+  ${PROJECT_NAME} ${TAP_LINK_LIBRARIES} ${QT_LIBRARIES}
+  ${EXTERNAL_LINK_LIBRARIES}
+)
 
 source_group("" FILES ${PROJECT_FILES})
 
@@ -81,5 +86,6 @@ foreach(qtlib ${QT_LIBRARIES})
     TARGET ${PROJECT_NAME}
     POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:${qtlib}>
-            $<TARGET_FILE_DIR:${PROJECT_NAME}>)
+            $<TARGET_FILE_DIR:${PROJECT_NAME}>
+  )
 endforeach(qtlib)

@@ -40,7 +40,6 @@ RimElasticPropertyScalingCollection::RimElasticPropertyScalingCollection()
                                           "",
                                           "",
                                           "" );
-    m_elasticPropertyScalings.uiCapability()->setUiHidden( true );
     m_elasticPropertyScalings.uiCapability()->setUiTreeHidden( true );
 }
 
@@ -72,7 +71,6 @@ void RimElasticPropertyScalingCollection::addElasticPropertyScaling( RimElasticP
 {
     scaling->changed.connect( this, &RimElasticPropertyScalingCollection::elasticPropertyScalingChanged );
     m_elasticPropertyScalings.push_back( scaling );
-    scaling->ensureDefaultFormationAndFacies();
 }
 
 //--------------------------------------------------------------------------------------------------

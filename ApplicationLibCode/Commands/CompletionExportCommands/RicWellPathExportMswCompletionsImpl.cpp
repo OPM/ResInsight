@@ -71,28 +71,49 @@ void RicWellPathExportMswCompletionsImpl::exportWellSegmentsForAllCompletions(
     if ( exportSettings.fileSplit() == RicExportCompletionDataSettingsUi::ExportSplit::UNIFIED_FILE )
     {
         {
-            QString   fileName;
+            QString fileName;
+            QString folderName;
+
             QFileInfo fi( exportSettings.customFileName() );
             if ( !exportSettings.customFileName().isEmpty() )
-                fileName = fi.baseName() + "_MSW";
+            {
+                fileName   = fi.baseName() + "_MSW";
+                folderName = fi.absolutePath();
+            }
             else
+            {
                 fileName = QString( "UnifiedCompletions_MSW_%1" ).arg( exportSettings.caseToApply->caseUserDescription() );
+                folderName = exportSettings.folder;
+            }
 
             unifiedExportFile =
-                RicWellPathExportCompletionsFileTools::openFileForExport( exportSettings.folder, fileName, fi.suffix() );
+                RicWellPathExportCompletionsFileTools::openFileForExport( folderName,
+                                                                          fileName,
+                                                                          fi.suffix(),
+                                                                          exportSettings.exportDataSourceAsComment() );
         }
 
         {
             QString   lgrFileName;
+            QString   folderName;
             QFileInfo fi( exportSettings.customFileName() );
             if ( !exportSettings.customFileName().isEmpty() )
+            {
                 lgrFileName = fi.baseName() + "_LGR_MSW";
+                folderName  = fi.absolutePath();
+            }
             else
+            {
                 lgrFileName =
                     QString( "UnifiedCompletions_LGR_MSW_%1" ).arg( exportSettings.caseToApply->caseUserDescription() );
+                folderName = exportSettings.folder;
+            }
 
             unifiedLgrExportFile =
-                RicWellPathExportCompletionsFileTools::openFileForExport( exportSettings.folder, lgrFileName, fi.suffix() );
+                RicWellPathExportCompletionsFileTools::openFileForExport( folderName,
+                                                                          lgrFileName,
+                                                                          fi.suffix(),
+                                                                          exportSettings.exportDataSourceAsComment() );
         }
     }
 
@@ -121,9 +142,15 @@ void RicWellPathExportMswCompletionsImpl::exportWellSegmentsForAllCompletions(
             QString wellFileName = QString( "%1_UnifiedCompletions_MSW_%2" )
                                        .arg( wellPath->name(), exportSettings.caseToApply->caseUserDescription() );
             unifiedWellPathFile =
-                RicWellPathExportCompletionsFileTools::openFileForExport( exportSettings.folder, wellFileName );
+                RicWellPathExportCompletionsFileTools::openFileForExport( exportSettings.folder,
+                                                                          wellFileName,
+                                                                          "",
+                                                                          exportSettings.exportDataSourceAsComment() );
             unifiedLgrWellPathFile =
-                RicWellPathExportCompletionsFileTools::openFileForExport( exportSettings.folder, wellFileName + "_LGR" );
+                RicWellPathExportCompletionsFileTools::openFileForExport( exportSettings.folder,
+                                                                          wellFileName + "_LGR",
+                                                                          "",
+                                                                          exportSettings.exportDataSourceAsComment() );
         }
 
         {
@@ -156,9 +183,16 @@ void RicWellPathExportMswCompletionsImpl::exportWellSegmentsForAllCompletions(
                 QString fileName =
                     QString( "%1_%2MSW_%3" )
                         .arg( wellPath->name(), perforationText, exportSettings.caseToApply->caseUserDescription() );
-                exportFile = RicWellPathExportCompletionsFileTools::openFileForExport( exportSettings.folder, fileName );
+                exportFile =
+                    RicWellPathExportCompletionsFileTools::openFileForExport( exportSettings.folder,
+                                                                              fileName,
+                                                                              "",
+                                                                              exportSettings.exportDataSourceAsComment() );
                 lgrExportFile =
-                    RicWellPathExportCompletionsFileTools::openFileForExport( exportSettings.folder, fileName + "_LGR" );
+                    RicWellPathExportCompletionsFileTools::openFileForExport( exportSettings.folder,
+                                                                              fileName + "_LGR",
+                                                                              "",
+                                                                              exportSettings.exportDataSourceAsComment() );
             }
             exportWellSegmentsForPerforations( exportSettings.caseToApply,
                                                exportFile,
@@ -188,9 +222,16 @@ void RicWellPathExportMswCompletionsImpl::exportWellSegmentsForAllCompletions(
             {
                 QString fileName =
                     QString( "%1_Fracture_MSW_%2" ).arg( wellPath->name(), exportSettings.caseToApply->caseUserDescription() );
-                exportFile = RicWellPathExportCompletionsFileTools::openFileForExport( exportSettings.folder, fileName );
+                exportFile =
+                    RicWellPathExportCompletionsFileTools::openFileForExport( exportSettings.folder,
+                                                                              fileName,
+                                                                              "",
+                                                                              exportSettings.exportDataSourceAsComment() );
                 lgrExportFile =
-                    RicWellPathExportCompletionsFileTools::openFileForExport( exportSettings.folder, fileName + "_LGR" );
+                    RicWellPathExportCompletionsFileTools::openFileForExport( exportSettings.folder,
+                                                                              fileName + "_LGR",
+                                                                              "",
+                                                                              exportSettings.exportDataSourceAsComment() );
             }
             exportWellSegmentsForFractures( exportSettings.caseToApply,
                                             exportFile,
@@ -219,9 +260,16 @@ void RicWellPathExportMswCompletionsImpl::exportWellSegmentsForAllCompletions(
             {
                 QString fileName =
                     QString( "%1_Fishbones_MSW_%2" ).arg( wellPath->name(), exportSettings.caseToApply->caseUserDescription() );
-                exportFile = RicWellPathExportCompletionsFileTools::openFileForExport( exportSettings.folder, fileName );
+                exportFile =
+                    RicWellPathExportCompletionsFileTools::openFileForExport( exportSettings.folder,
+                                                                              fileName,
+                                                                              "",
+                                                                              exportSettings.exportDataSourceAsComment() );
                 lgrExportFile =
-                    RicWellPathExportCompletionsFileTools::openFileForExport( exportSettings.folder, fileName + "_LGR" );
+                    RicWellPathExportCompletionsFileTools::openFileForExport( exportSettings.folder,
+                                                                              fileName + "_LGR",
+                                                                              "",
+                                                                              exportSettings.exportDataSourceAsComment() );
             }
             exportWellSegmentsForFishbones( exportSettings.caseToApply,
                                             exportFile,
@@ -276,6 +324,7 @@ void RicWellPathExportMswCompletionsImpl::exportWellSegmentsForPerforations( Rim
         {
             QTextStream               stream( exportFile.get() );
             RifTextDataTableFormatter formatter( stream );
+            formatter.setOptionalComment( exportDataSourceAsComment );
 
             RicMswTableFormatterTools::generateWelsegsTable( formatter,
                                                              exportInfo,
@@ -291,6 +340,7 @@ void RicWellPathExportMswCompletionsImpl::exportWellSegmentsForPerforations( Rim
         {
             QTextStream               stream( lgrExportFile.get() );
             RifTextDataTableFormatter formatter( stream );
+            formatter.setOptionalComment( exportDataSourceAsComment );
 
             RicMswTableFormatterTools::generateWelsegsTable( formatter,
                                                              exportInfo,
@@ -1574,13 +1624,13 @@ void RicWellPathExportMswCompletionsImpl::moveIntersectionsToSuperICDsOrAICDs( g
         std::vector<RicMswCompletion*> perforations;
         for ( auto completion : segment->completions() )
         {
-            if ( RigCompletionData::isPerforationValve( completion->completionType() ) )
+            if ( completion->completionType() == RigCompletionData::CompletionType::PERFORATION_ICD ||
+                 completion->completionType() == RigCompletionData::CompletionType::PERFORATION_AICD )
             {
                 superValve = completion;
             }
-            else
+            else if ( completion->completionType() == RigCompletionData::CompletionType::PERFORATION )
             {
-                CVF_ASSERT( completion->completionType() == RigCompletionData::CompletionType::PERFORATION );
                 perforations.push_back( completion );
             }
         }
@@ -1588,20 +1638,52 @@ void RicWellPathExportMswCompletionsImpl::moveIntersectionsToSuperICDsOrAICDs( g
         if ( superValve == nullptr ) continue;
 
         CVF_ASSERT( superValve->segments().size() == 1u );
+
         // Remove and take over ownership of the superValve completion
         auto completionPtr = segment->removeCompletion( superValve );
         for ( auto perforation : perforations )
         {
             for ( auto subSegment : perforation->segments() )
             {
+                // The valve completions on the main branch will be deleted. Create a segment with startMD and
+                // endMD representing the perforation along main well path to be connected to the valve. When COMPSEGS
+                // data is exported, the startMD and endMD of the segment is used to define the Start Length and End
+                // Length of the COMPSEGS keyword
+                //
+                // Example output
+                //
+                // COMPSEGS
+                // --Name
+                //     Well - 1 /
+                // --I      J      K      Branch no     Start Length     End Length
+                //   17     17     9      2             3030.71791       3034.01331 /
+                //   17     18     9      3             3034.01331       3125.47617 /
+
+                auto valveInflowSegment =
+                    std::make_unique<RicMswSegment>( QString( "%1 real valve segment " ).arg( branch->label() ),
+                                                     subSegment->startMD(),
+                                                     subSegment->endMD(),
+                                                     subSegment->startTVD(),
+                                                     subSegment->endTVD() );
+
                 for ( auto intersectionPtr : subSegment->intersections() )
                 {
-                    completionPtr->segments()[0]->addIntersection( intersectionPtr );
+                    valveInflowSegment->addIntersection( intersectionPtr );
                 }
+
+                {
+                    double midpoint = ( segment->startMD() + segment->endMD() ) * 0.5;
+
+                    // Set the output MD to the midpoint of the segment, this info is used when exporting WELSEGS in
+                    // RicMswTableFormatterTools::writeValveWelsegsSegment
+                    completionPtr->segments()[0]->setOutputMD( midpoint );
+                }
+                completionPtr->addSegment( std::move( valveInflowSegment ) );
             }
         }
+
         // Remove all completions and re-add the super valve
-        segment->completions().clear();
+        segment->deleteAllCompletions();
         segment->addCompletion( std::move( completionPtr ) );
     }
 }

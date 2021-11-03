@@ -18,6 +18,11 @@
 
 #include "RiaStdStringTools.h"
 
+#include "fast_float/include/fast_float/fast_float.h"
+
+#include <cctype>
+#include <charconv>
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -108,6 +113,37 @@ bool RiaStdStringTools::startsWithAlphabetic( const std::string& s )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RiaStdStringTools::toDouble( const std::string_view& s, double& value )
+{
+    auto resultObject = fast_float::from_chars( s.data(), s.data() + s.size(), value );
+
+    return ( resultObject.ec == std::errc() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiaStdStringTools::toInt( const std::string_view& s, int& value )
+{
+    auto resultObject = std::from_chars( s.data(), s.data() + s.size(), value );
+
+    return ( resultObject.ec == std::errc() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::string RiaStdStringTools::toUpper( const std::string& s )
+{
+    auto strCopy( s );
+    std::transform( strCopy.begin(), strCopy.end(), strCopy.begin(), []( unsigned char c ) { return std::toupper( c ); } );
+
+    return strCopy;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RiaStdStringTools::endsWith( const std::string& mainStr, const std::string& toMatch )
 {
     if ( mainStr.size() >= toMatch.size() &&
@@ -120,13 +156,23 @@ bool RiaStdStringTools::endsWith( const std::string& mainStr, const std::string&
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<std::string> RiaStdStringTools::splitStringBySpace( const std::string& s )
+std::vector<std::string> RiaStdStringTools::splitString( const std::string& s, char delimiter )
 {
     std::vector<std::string> words;
 
-    splitByDelimiter( s, words );
+    splitByDelimiter( s, words, delimiter );
 
     return words;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::string RiaStdStringTools::joinStrings( const std::vector<std::string>& s, char delimiter )
+{
+    std::string delimiterString( 1, delimiter );
+
+    return join( s.begin(), s.end(), delimiterString );
 }
 
 //--------------------------------------------------------------------------------------------------

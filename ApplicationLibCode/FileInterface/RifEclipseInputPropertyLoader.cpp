@@ -18,10 +18,13 @@
 
 #include "RifEclipseInputPropertyLoader.h"
 
+#include "RiaLogging.h"
+
 #include "RifEclipseInputFileTools.h"
+#include "RifEclipseKeywordContent.h"
+#include "RifEclipseTextFileReader.h"
 #include "RifReaderEclipseInput.h"
 
-#include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
 #include "RigMainGrid.h"
@@ -32,262 +35,202 @@
 
 #include "cafProgressInfo.h"
 
-#include <QFileInfo>
+#include <QFile>
 
 //--------------------------------------------------------------------------------------------------
-/// Loads input property data from the gridFile and additional files
-/// Creates new InputProperties if necessary, and flags the unused ones as obsolete
+///
 //--------------------------------------------------------------------------------------------------
 void RifEclipseInputPropertyLoader::loadAndSyncronizeInputProperties( RimEclipseInputPropertyCollection* inputPropertyCollection,
                                                                       RigEclipseCaseData*         eclipseCaseData,
                                                                       const std::vector<QString>& filenames,
                                                                       bool                        allowImportOfFaults )
 {
-    CVF_ASSERT( inputPropertyCollection );
-    CVF_ASSERT( eclipseCaseData );
-    CVF_ASSERT( eclipseCaseData->mainGrid()->gridPointDimensions() != cvf::Vec3st( 0, 0, 0 ) );
+    std::vector<RimEclipseInputProperty*> existingProperties = inputPropertyCollection->inputProperties.childObjects();
 
-    size_t            inputPropCount = inputPropertyCollection->inputProperties.size();
-    caf::ProgressInfo progInfo( static_cast<int>( filenames.size() * inputPropCount ), "Reading Input properties" );
+    caf::ProgressInfo progInfo( static_cast<int>( filenames.size() ), "Reading Input properties" );
 
-    int i = 0;
-    for ( const QString& filename : filenames )
+    for ( const auto& filename : filenames )
     {
-        int progress = static_cast<int>( i * inputPropCount );
         progInfo.setProgressDescription( filename );
 
-        QFileInfo fileNameInfo( filename );
-        bool      isExistingFile = fileNameInfo.exists();
+        auto resultNamesEclipseKeywords = RifEclipseInputPropertyLoader::readProperties( filename, eclipseCaseData );
 
-        // Find all the keywords present on the file
-        std::set<QString> fileKeywordSet = extractKeywordsOnFile( filenames[i], isExistingFile );
-
-        readDataForEachInputProperty( inputPropertyCollection,
-                                      eclipseCaseData,
-                                      filename,
-                                      isExistingFile,
-                                      allowImportOfFaults,
-                                      &fileKeywordSet,
-                                      &progInfo,
-                                      progress );
-
-        progInfo.setProgress( static_cast<int>( progress + inputPropCount ) );
-
-        // Check if there are more known property keywords left on file.
-        // If it is, read them and create inputProperty objects
-        readInputPropertiesForRemainingKeywords( inputPropertyCollection, eclipseCaseData, filename, &fileKeywordSet );
-        i++;
-    }
-
-    // All input properties still unknown at this stage is missing a file
-    setResolvedState( inputPropertyCollection, RimEclipseInputProperty::UNKNOWN, RimEclipseInputProperty::FILE_MISSING );
-}
-
-//--------------------------------------------------------------------------------------------------
-/// Loads input property data from additional files.
-//--------------------------------------------------------------------------------------------------
-bool RifEclipseInputPropertyLoader::readInputPropertiesFromFiles( RimEclipseInputPropertyCollection* inputPropertyCollection,
-                                                                  RigEclipseCaseData*                eclipseCaseData,
-                                                                  bool                               importFaults,
-                                                                  const std::vector<QString>&        filenames )
-{
-    for ( const QString& propertyFileName : filenames )
-    {
-        std::map<QString, QString> readProperties =
-            RifEclipseInputFileTools::readProperties( propertyFileName, eclipseCaseData );
-
-        std::map<QString, QString>::iterator it;
-        for ( it = readProperties.begin(); it != readProperties.end(); ++it )
+        for ( const auto& [resultName, eclipseKeyword] : resultNamesEclipseKeywords )
         {
-            RimEclipseInputProperty* inputProperty = new RimEclipseInputProperty;
-            inputProperty->resultName              = it->first;
-            inputProperty->eclipseKeyword          = it->second;
-            inputProperty->fileName                = propertyFileName;
-            inputProperty->resolvedState           = RimEclipseInputProperty::RESOLVED;
-            inputPropertyCollection->inputProperties.push_back( inputProperty );
-        }
+            bool isProperyPresent      = false;
+            bool isFaultKeywordPresent = false;
+            for ( const auto* propertyObj : existingProperties )
+            {
+                if ( propertyObj->resultName() == resultName )
+                {
+                    isProperyPresent = true;
+                }
+                else if ( propertyObj->resultName() == "FAULTS" )
+                {
+                    isFaultKeywordPresent = true;
+                }
+            }
 
-        if ( importFaults )
-        {
-            bool anyFaultsImported = importFaultsFromFile( eclipseCaseData, propertyFileName );
-            if ( anyFaultsImported )
+            if ( !isProperyPresent )
             {
                 RimEclipseInputProperty* inputProperty = new RimEclipseInputProperty;
-                inputProperty->resultName              = "FAULTS";
-                inputProperty->eclipseKeyword          = "FAULTS";
-                inputProperty->fileName                = propertyFileName;
+                inputProperty->resultName              = resultName;
+                inputProperty->eclipseKeyword          = eclipseKeyword;
+                inputProperty->fileName                = filename;
                 inputProperty->resolvedState           = RimEclipseInputProperty::RESOLVED;
                 inputPropertyCollection->inputProperties.push_back( inputProperty );
             }
-        }
-    }
 
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RifEclipseInputPropertyLoader::importFaultsFromFile( RigEclipseCaseData* eclipseCaseData, const QString& fileName )
-{
-    cvf::Collection<RigFault> faultCollectionFromFile;
-    RifEclipseInputFileTools::parseAndReadFaults( fileName, &faultCollectionFromFile );
-    if ( faultCollectionFromFile.empty() )
-    {
-        return false;
-    }
-
-    cvf::Collection<RigFault> faults;
-    {
-        cvf::Collection<RigFault> faultCollection = eclipseCaseData->mainGrid()->faults();
-        for ( size_t i = 0; i < faultCollection.size(); i++ )
-        {
-            RigFault* f = faultCollection.at( i );
-            if ( f->name() == RiaResultNames::undefinedGridFaultName() ||
-                 f->name() == RiaResultNames::undefinedGridFaultName() )
+            if ( allowImportOfFaults && isFaultKeywordPresent )
             {
-                // Do not include undefined grid faults, as these are recomputed based on the imported faults from filesa
-                continue;
-            }
-
-            faults.push_back( f );
-        }
-    }
-
-    for ( size_t i = 0; i < faultCollectionFromFile.size(); i++ )
-    {
-        RigFault* faultFromFile = faultCollectionFromFile.at( i );
-
-        bool existFaultWithSameName = false;
-        for ( size_t j = 0; j < faults.size(); j++ )
-        {
-            RigFault* existingFault = faults.at( j );
-
-            if ( existingFault->name() == faultFromFile->name() )
-            {
-                existFaultWithSameName = true;
+                RifEclipseInputFileTools::importFaultsFromFile( eclipseCaseData, filename );
             }
         }
 
-        if ( !existFaultWithSameName )
-        {
-            faults.push_back( faultFromFile );
-        }
-    }
-
-    eclipseCaseData->mainGrid()->setFaults( faults );
-
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// Extract keywords from a input property file.
-//--------------------------------------------------------------------------------------------------
-std::set<QString> RifEclipseInputPropertyLoader::extractKeywordsOnFile( const QString& filename, bool isExistingFile )
-{
-    std::set<QString> fileKeywordSet;
-    if ( isExistingFile )
-    {
-        std::vector<RifKeywordAndFilePos> fileKeywords;
-        RifEclipseInputFileTools::findKeywordsOnFile( filename, &fileKeywords );
-
-        for ( const RifKeywordAndFilePos& fileKeyword : fileKeywords )
-        {
-            fileKeywordSet.insert( fileKeyword.keyword );
-        }
-    }
-    return fileKeywordSet;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// Change the resolved state of all matching input properties in a collection.
-//--------------------------------------------------------------------------------------------------
-void RifEclipseInputPropertyLoader::setResolvedState( RimEclipseInputPropertyCollection*    inputPropertyCollection,
-                                                      RimEclipseInputProperty::ResolveState currentState,
-                                                      RimEclipseInputProperty::ResolveState newState )
-{
-    for ( RimEclipseInputProperty* inputProperty : inputPropertyCollection->inputProperties )
-    {
-        if ( inputProperty->resolvedState() == currentState )
-        {
-            inputProperty->resolvedState = newState;
-        }
+        progInfo.incrementProgress();
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RifEclipseInputPropertyLoader::readDataForEachInputProperty( RimEclipseInputPropertyCollection* inputPropertyCollection,
-                                                                  RigEclipseCaseData*                eclipseCaseData,
-                                                                  const QString&                     filename,
-                                                                  bool                               isExistingFile,
-                                                                  bool               allowImportOfFaults,
-                                                                  std::set<QString>* fileKeywordSet,
-                                                                  caf::ProgressInfo* progressInfo,
-                                                                  int                progressOffset )
+QString RifEclipseInputPropertyLoader::evaluateAndCreateInputPropertyResult( RigEclipseCaseData* eclipseCase,
+                                                                             const RifEclipseKeywordContent& keywordContent,
+                                                                             QString* errorMessage )
 {
-    // Find the input property objects referring to the file
-    std::vector<RimEclipseInputProperty*> ipsUsingThisFile = inputPropertyCollection->findInputProperties( filename );
-
-    // Read property data for each inputProperty
-    int progress = 0;
-    for ( RimEclipseInputProperty* inputProperty : ipsUsingThisFile )
+    auto eclipseKeyword = keywordContent.keyword;
+    if ( isInputPropertyCandidate( eclipseCase, eclipseKeyword, keywordContent.values.size() ) )
     {
-        if ( !isExistingFile )
+        QString newResultName = eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL )
+                                    ->makeResultNameUnique( QString::fromStdString( eclipseKeyword ) );
+
+        if ( appendNewInputPropertyResult( eclipseCase, newResultName, eclipseKeyword, keywordContent.values, errorMessage ) )
         {
-            inputProperty->resolvedState = RimEclipseInputProperty::FILE_MISSING;
+            return newResultName;
+        }
+    }
+
+    return "";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RifEclipseInputPropertyLoader::createInputPropertiesFromKeywords( RigEclipseCaseData* eclipseCase,
+                                                                       const std::vector<RifEclipseKeywordContent>& keywordContent )
+{
+    for ( const auto& keywordAndValues : keywordContent )
+    {
+        RifEclipseInputPropertyLoader::evaluateAndCreateInputPropertyResult( eclipseCase, keywordAndValues, nullptr );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RifEclipseInputPropertyLoader::isInputPropertyCandidate( const RigEclipseCaseData* caseData,
+                                                              const std::string&        eclipseKeyword,
+                                                              size_t                    numberOfValues )
+{
+    CVF_ASSERT( caseData );
+
+    if ( !isValidDataKeyword( QString::fromStdString( eclipseKeyword ) ) ) return false;
+
+    return ( numberOfValues == caseData->mainGrid()->cellCount() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::map<QString, QString> RifEclipseInputPropertyLoader::readProperties( const QString&      fileName,
+                                                                          RigEclipseCaseData* eclipseCase )
+{
+    std::map<QString, QString> resultNameAndEclipseNameMap;
+
+    auto keywordContent = RifEclipseTextFileReader::readKeywordAndValues( fileName.toStdString() );
+    for ( const auto& keywordAndValues : keywordContent )
+    {
+        QString errorText;
+
+        QString newResultName = evaluateAndCreateInputPropertyResult( eclipseCase, keywordAndValues, &errorText );
+        if ( !newResultName.isEmpty() )
+        {
+            resultNameAndEclipseNameMap[newResultName] = QString::fromStdString( keywordAndValues.keyword );
         }
         else
         {
-            inputProperty->resolvedState = RimEclipseInputProperty::KEYWORD_NOT_IN_FILE;
-
-            QString kw = inputProperty->eclipseKeyword();
-            if ( kw == "FAULTS" )
-            {
-                if ( allowImportOfFaults )
-                {
-                    importFaultsFromFile( eclipseCaseData, filename );
-                }
-            }
-            else
-            {
-                if ( fileKeywordSet->count( kw ) )
-                {
-                    if ( RifEclipseInputFileTools::readProperty( filename, eclipseCaseData, kw, inputProperty->resultName ) )
-                    {
-                        inputProperty->resolvedState = RimEclipseInputProperty::RESOLVED;
-                    }
-                }
-                fileKeywordSet->erase( kw );
-            }
+            RiaLogging::error( errorText );
         }
-
-        progressInfo->setProgress( static_cast<int>( progressOffset + progress ) );
-        progress++;
     }
+
+    return resultNameAndEclipseNameMap;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RifEclipseInputPropertyLoader::readInputPropertiesForRemainingKeywords( RimEclipseInputPropertyCollection* inputPropertyCollection,
-                                                                             RigEclipseCaseData* eclipseCaseData,
-                                                                             const QString&      filename,
-                                                                             std::set<QString>*  fileKeywordSet )
+const std::vector<QString>& RifEclipseInputPropertyLoader::invalidPropertyDataKeywords()
 {
-    for ( const QString& fileKeyword : *fileKeywordSet )
+    // List of keywords that will be skipped when looking for property data
+
+    static std::vector<QString> keywords =
+        { "COORD", "ZCORN", "SPECGRID", "MAPAXES", "NOECHO", "ECHO", "MAPUNITS", "GRIDUNIT", "GDORIENT", "INC", "DEC", "FAULTS" };
+
+    return keywords;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RifEclipseInputPropertyLoader::isValidDataKeyword( const QString& keyword )
+{
+    const std::vector<QString>& keywordsToSkip = RifEclipseInputPropertyLoader::invalidPropertyDataKeywords();
+    for ( const QString& keywordToSkip : keywordsToSkip )
     {
-        QString resultName =
-            eclipseCaseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->makeResultNameUnique( fileKeyword );
-        if ( RifEclipseInputFileTools::readProperty( filename, eclipseCaseData, fileKeyword, resultName ) )
+        if ( keywordToSkip == keyword.toUpper() )
         {
-            RimEclipseInputProperty* inputProperty = new RimEclipseInputProperty;
-            inputProperty->resultName              = resultName;
-            inputProperty->eclipseKeyword          = fileKeyword;
-            inputProperty->fileName                = filename;
-            inputProperty->resolvedState           = RimEclipseInputProperty::RESOLVED;
-            inputPropertyCollection->inputProperties.push_back( inputProperty );
+            return false;
         }
     }
+
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RifEclipseInputPropertyLoader::appendNewInputPropertyResult( RigEclipseCaseData*       caseData,
+                                                                  const QString&            resultName,
+                                                                  const std::string&        eclipseKeyword,
+                                                                  const std::vector<float>& values,
+                                                                  QString*                  errMsg )
+{
+    if ( !isValidDataKeyword( QString::fromStdString( eclipseKeyword ) ) ) return false;
+
+    CVF_ASSERT( caseData );
+
+    size_t keywordItemCount = values.size();
+    if ( keywordItemCount != caseData->mainGrid()->cellCount() )
+    {
+        if ( errMsg )
+        {
+            QString errFormat( "Size mismatch: Main Grid has %1 cells, keyword %2 has %3 cells" );
+            *errMsg = errFormat.arg( caseData->mainGrid()->cellCount() ).arg( resultName ).arg( keywordItemCount );
+        }
+
+        return false;
+    }
+
+    RigEclipseResultAddress resAddr( RiaDefines::ResultCatType::INPUT_PROPERTY, resultName );
+    caseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->createResultEntry( resAddr, false );
+
+    auto newPropertyData =
+        caseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->modifiableCellScalarResultTimesteps( resAddr );
+
+    std::vector<double> doubleVals;
+    doubleVals.insert( doubleVals.begin(), values.begin(), values.end() );
+
+    newPropertyData->push_back( doubleVals );
+
+    return true;
 }

@@ -40,7 +40,8 @@ set(COMMAND_REFERENCED_CMAKE_FILES
     WellLogCommands/CMakeLists_files.cmake
     WellPathCommands/CMakeLists_files.cmake
     PlotTemplateCommands/CMakeLists_files.cmake
-    FractureCommands/CMakeLists_files.cmake)
+    FractureCommands/CMakeLists_files.cmake
+)
 
 # Include source file lists from *.cmake files
 foreach(referencedfile ${COMMAND_REFERENCED_CMAKE_FILES})
@@ -55,13 +56,15 @@ qt5_wrap_cpp(COMMAND_MOC_SOURCE_FILES ${COMMAND_QT_MOC_HEADERS})
 add_library(
   ${PROJECT_NAME} OBJECT
   ${COMMAND_CODE_SOURCE_FILES} ${COMMAND_CODE_HEADER_FILES}
-  ${COMMAND_MOC_SOURCE_FILES})
+  ${COMMAND_MOC_SOURCE_FILES}
+)
 
 target_include_directories(
   ${PROJECT_NAME}
   PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_SOURCE_DIR}/ThirdParty
          ${CMAKE_SOURCE_DIR}/ThirdParty/custom-opm-common/generated-opm-common
-         ${CMAKE_SOURCE_DIR}/ThirdParty/custom-opm-common/opm-common)
+         ${CMAKE_SOURCE_DIR}/ThirdParty/custom-opm-common/opm-common
+)
 
 if(MSVC)
   # The following warnings are supposed to be used in ResInsight, but
@@ -88,8 +91,9 @@ if(MSVC)
     set(BUILD_FLAGS_FOR_MSVC "${BUILD_FLAGS_FOR_MSVC} /wd4505")
   endif()
 
-  set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS
-                                                   ${BUILD_FLAGS_FOR_MSVC})
+  set_target_properties(
+    ${PROJECT_NAME} PROPERTIES COMPILE_FLAGS ${BUILD_FLAGS_FOR_MSVC}
+  )
 
 endif()
 
@@ -105,7 +109,8 @@ set(LINK_LIBRARIES
     nightcharts
     qwt
     ${QT_LIBRARIES}
-    Eigen3::Eigen)
+    Eigen3::Eigen
+)
 
 target_link_libraries(${PROJECT_NAME} PRIVATE ${LINK_LIBRARIES})
 

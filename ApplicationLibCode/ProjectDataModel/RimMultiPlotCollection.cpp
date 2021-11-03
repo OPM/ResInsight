@@ -32,7 +32,7 @@ RimMultiPlotCollection::RimMultiPlotCollection()
     CAF_PDM_InitObject( "Multi Plots", ":/MultiPlot16x16.png", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_multiPlots, "MultiPlots", "Plots Reports", "", "", "" );
-    m_multiPlots.uiCapability()->setUiHidden( true );
+    m_multiPlots.uiCapability()->setUiTreeHidden( true );
     caf::PdmFieldReorderCapability::addToField( &m_multiPlots );
 }
 

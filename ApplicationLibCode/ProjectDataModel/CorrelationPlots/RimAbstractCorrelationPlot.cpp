@@ -469,15 +469,15 @@ void RimAbstractCorrelationPlot::setCaseFilterDataSource( RimEnsembleCurveSet* e
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::set<EnsembleParameter> RimAbstractCorrelationPlot::ensembleParameters()
+std::set<RigEnsembleParameter> RimAbstractCorrelationPlot::ensembleParameters()
 {
-    std::set<EnsembleParameter> ensembleParms;
+    std::set<RigEnsembleParameter> ensembleParms;
 
     RiaSummaryCurveDefinitionAnalyser* analyserOfSelectedCurveDefs = getOrCreateSelectedCurveDefAnalyser();
 
     for ( RimSummaryCaseCollection* ensemble : analyserOfSelectedCurveDefs->m_ensembles )
     {
-        std::vector<EnsembleParameter> parameters = ensemble->alphabeticEnsembleParameters();
+        std::vector<RigEnsembleParameter> parameters = ensemble->alphabeticEnsembleParameters();
         ensembleParms.insert( parameters.begin(), parameters.end() );
     }
     return ensembleParms;
@@ -486,15 +486,15 @@ std::set<EnsembleParameter> RimAbstractCorrelationPlot::ensembleParameters()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::set<EnsembleParameter> RimAbstractCorrelationPlot::variationSortedEnsembleParameters()
+std::set<RigEnsembleParameter> RimAbstractCorrelationPlot::variationSortedEnsembleParameters()
 {
-    std::set<EnsembleParameter> ensembleParms;
+    std::set<RigEnsembleParameter> ensembleParms;
 
     RiaSummaryCurveDefinitionAnalyser* analyserOfSelectedCurveDefs = getOrCreateSelectedCurveDefAnalyser();
 
     for ( RimSummaryCaseCollection* ensemble : analyserOfSelectedCurveDefs->m_ensembles )
     {
-        std::vector<EnsembleParameter> parameters = ensemble->variationSortedEnsembleParameters();
+        std::vector<RigEnsembleParameter> parameters = ensemble->variationSortedEnsembleParameters();
         ensembleParms.insert( parameters.begin(), parameters.end() );
     }
     return ensembleParms;
@@ -503,15 +503,15 @@ std::set<EnsembleParameter> RimAbstractCorrelationPlot::variationSortedEnsembleP
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-EnsembleParameter RimAbstractCorrelationPlot::ensembleParameter( const QString& ensembleParameterName )
+RigEnsembleParameter RimAbstractCorrelationPlot::ensembleParameter( const QString& ensembleParameterName )
 {
-    std::set<EnsembleParameter> ensembleParms = ensembleParameters();
-    for ( const EnsembleParameter& eParam : ensembleParms )
+    std::set<RigEnsembleParameter> ensembleParms = ensembleParameters();
+    for ( const RigEnsembleParameter& eParam : ensembleParms )
     {
         if ( eParam.name == ensembleParameterName ) return eParam;
     }
 
-    return EnsembleParameter();
+    return RigEnsembleParameter();
 }
 
 //--------------------------------------------------------------------------------------------------

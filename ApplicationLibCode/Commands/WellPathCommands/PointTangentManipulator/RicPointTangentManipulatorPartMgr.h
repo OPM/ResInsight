@@ -38,18 +38,19 @@ class String;
 
 template <typename>
 class Array;
-typedef Array<Vec3f> Vec3fArray;
-typedef Array<uint>  UIntArray;
+using Vec3fArray = Array<Vec3f>;
+using UIntArray  = Array<uint>;
 
 } // namespace cvf
 
 class RicPointTangentManipulatorPartMgr : public cvf::Object
 {
 public:
-    enum HandleType
+    enum class HandleType
     {
         HORIZONTAL_PLANE,
         VERTICAL_AXIS,
+        PRESCRIBED_POLYLINE,
         AZIMUTH,
         INCLINATION,
         NONE
@@ -63,6 +64,7 @@ public:
     void setTangent( const cvf::Vec3d& tangent );
     void setHandleSize( double handleSize );
     void originAndTangent( cvf::Vec3d* origin, cvf::Vec3d* tangent );
+    void setPolyline( const std::vector<cvf::Vec3d>& polyline );
 
     bool isManipulatorActive() const;
     void tryToActivateManipulator( const cvf::HitItem* hitItem );
@@ -81,6 +83,9 @@ private:
     void                       createVerticalAxisHandle();
     cvf::ref<cvf::DrawableGeo> createVerticalAxisGeo();
 
+    void                       createPolylineHandle();
+    cvf::ref<cvf::DrawableGeo> createPolylineGeo();
+
     void addHandlePart( cvf::DrawableGeo* geo, const cvf::Color4f& color, HandleType handleId, const cvf::String& partName );
 
     void addActiveModePart( cvf::DrawableGeo* geo, const cvf::Color4f& color, HandleType handleId, const cvf::String& partName );
@@ -98,6 +103,8 @@ private:
     cvf::Vec3d m_tangent;
     double     m_handleSize;
     bool       m_isGeometryUpdateNeeded;
+
+    std::vector<cvf::Vec3d> m_polyline;
 
     HandleType m_activeHandle;
     cvf::Vec3d m_initialPickPoint;

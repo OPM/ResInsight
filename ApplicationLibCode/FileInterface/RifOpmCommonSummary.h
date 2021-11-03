@@ -37,6 +37,7 @@ namespace Opm
 namespace EclIO
 {
     class ESmry;
+    class ExtESmry;
     struct SummaryNode;
 } // namespace EclIO
 } // namespace Opm
@@ -51,6 +52,9 @@ public:
 
     static std::pair<std::set<RifEclipseSummaryAddress>, std::map<RifEclipseSummaryAddress, size_t>>
         buildMetaData( const Opm::EclIO::ESmry* summaryFile );
+
+    static std::pair<std::set<RifEclipseSummaryAddress>, std::map<RifEclipseSummaryAddress, std::string>>
+        buildMetaDataKeyword( const std::vector<std::string>& keywords );
 };
 
 //==================================================================================================
@@ -63,11 +67,11 @@ public:
     RifOpmCommonEclipseSummary();
     ~RifOpmCommonEclipseSummary() override;
 
-    void useLodsmaryFiles( bool enable );
-    void createLodsmaryFiles( bool enable );
+    void useEnhancedSummaryFiles( bool enable );
+    void createEnhancedSummaryFiles( bool enable );
 
-    static void   resetLodCount();
-    static size_t numberOfLodFilesCreated();
+    static void   resetEnhancedSummaryFileCount();
+    static size_t numberOfEnhancedSummaryFileCreated();
 
     bool open( const QString& headerFileName, bool includeRestartFiles, RiaThreadSafeLogger* threadSafeLogger );
 
@@ -78,18 +82,20 @@ public:
 
 private:
     void buildMetaData();
-    bool openESmryFile( const QString& headerFileName, bool includeRestartFiles, RiaThreadSafeLogger* threadSafeLogger );
+    bool openFileReader( const QString& headerFileName, bool includeRestartFiles, RiaThreadSafeLogger* threadSafeLogger );
 
-    static void increaseLodFileCount();
+    static void    increaseEsmryFileCount();
+    static QString enhancedSummaryFilename( const QString& headerFileName );
 
 private:
-    std::unique_ptr<Opm::EclIO::ESmry>         m_eSmry;
-    std::vector<std::string>                   m_eSmryKeywords;
-    std::map<RifEclipseSummaryAddress, size_t> m_adrToSummaryNodeIndex;
-    std::vector<time_t>                        m_timeSteps;
+    std::unique_ptr<Opm::EclIO::ESmry>    m_standardReader;
+    std::unique_ptr<Opm::EclIO::ExtESmry> m_enhancedReader;
 
-    static size_t sm_createdLodFileCount;
+    std::map<RifEclipseSummaryAddress, std::string> m_summaryAddressToKeywordMap;
+    std::vector<time_t>                             m_timeSteps;
 
-    bool m_useLodsmryFiles;
-    bool m_createLodsmryFiles;
+    static size_t sm_createdEsmryFileCount;
+
+    bool m_useEsmryFiles;
+    bool m_createEsmryFiles;
 };

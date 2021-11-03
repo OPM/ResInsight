@@ -46,7 +46,7 @@ RimPerforationCollection::RimPerforationCollection()
     this->setName( "Perforations" );
 
     CAF_PDM_InitFieldNoDefault( &m_perforations, "Perforations", "Perforations", "", "", "" );
-    m_perforations.uiCapability()->setUiHidden( true );
+    m_perforations.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_nonDarcyParameters, "NonDarcyParameters", "Non-Darcy Parameters", "", "", "" );
     m_nonDarcyParameters = new RimNonDarcyPerforationParameters();
@@ -88,8 +88,6 @@ void RimPerforationCollection::appendPerforation( RimPerforationInterval* perfor
     Rim3dView* activeView = RiaApplication::instance()->activeReservoirView();
     if ( activeView )
     {
-        activeView->hasUserRequestedAnimation = true;
-
         RimEclipseCase* eclipseCase = nullptr;
         activeView->firstAncestorOrThisOfType( eclipseCase );
         if ( eclipseCase )
@@ -132,6 +130,21 @@ void RimPerforationCollection::appendPerforation( RimPerforationInterval* perfor
 std::vector<const RimPerforationInterval*> RimPerforationCollection::perforations() const
 {
     std::vector<const RimPerforationInterval*> myPerforations;
+
+    for ( const auto& perforation : m_perforations )
+    {
+        myPerforations.push_back( perforation );
+    }
+
+    return myPerforations;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimPerforationInterval*> RimPerforationCollection::perforationsNoConst() const
+{
+    std::vector<RimPerforationInterval*> myPerforations;
 
     for ( const auto& perforation : m_perforations )
     {

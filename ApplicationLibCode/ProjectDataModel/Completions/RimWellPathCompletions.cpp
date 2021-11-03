@@ -53,19 +53,19 @@ RimWellPathCompletions::RimWellPathCompletions()
 
     CAF_PDM_InitFieldNoDefault( &m_perforationCollection, "Perforations", "Perforations", "", "", "" );
     m_perforationCollection = new RimPerforationCollection;
-    m_perforationCollection.uiCapability()->setUiHidden( true );
+    m_perforationCollection.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_fishbonesCollection, "Fishbones", "Fishbones", "", "", "" );
     m_fishbonesCollection = new RimFishbonesCollection;
-    m_fishbonesCollection.uiCapability()->setUiHidden( true );
+    m_fishbonesCollection.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_fractureCollection, "Fractures", "Fractures", "", "", "" );
     m_fractureCollection = new RimWellPathFractureCollection;
-    m_fractureCollection.uiCapability()->setUiHidden( true );
+    m_fractureCollection.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_stimPlanModelCollection, "StimPlanModels", "StimPlan Models", "", "", "" );
     m_stimPlanModelCollection = new RimStimPlanModelCollection;
-    m_stimPlanModelCollection.uiCapability()->setUiHidden( true );
+    m_stimPlanModelCollection.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitField( &m_wellNameForExport_OBSOLETE, "WellNameForExport", QString(), "Well Name", "", "", "" );
     m_wellNameForExport_OBSOLETE.xmlCapability()->setIOWritable( false );
@@ -169,6 +169,35 @@ std::vector<RimWellPathFracture*> RimWellPathCompletions::activeFractures() cons
         return m_fractureCollection->activeFractures();
     }
     return {};
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimWellPathComponentInterface*> RimWellPathCompletions::allCompletionsNoConst() const
+{
+    std::vector<RimWellPathComponentInterface*> completions;
+
+    for ( RimWellPathFracture* fracture : m_fractureCollection->allFractures() )
+    {
+        completions.push_back( fracture );
+    }
+    for ( RimFishbones* fishbones : m_fishbonesCollection->allFishbonesSubs() )
+    {
+        completions.push_back( fishbones );
+    }
+    for ( RimPerforationInterval* perforation : m_perforationCollection->perforationsNoConst() )
+    {
+        completions.push_back( perforation );
+    }
+
+    std::vector<RimWellPathValve*> allValves = valves();
+    for ( RimWellPathValve* valve : allValves )
+    {
+        completions.push_back( valve );
+    }
+
+    return completions;
 }
 
 //--------------------------------------------------------------------------------------------------

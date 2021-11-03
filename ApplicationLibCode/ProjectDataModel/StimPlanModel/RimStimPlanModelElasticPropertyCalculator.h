@@ -44,6 +44,8 @@ public:
 
     bool isMatching( RiaDefines::CurveProperty curveProperty ) const override;
 
+    static QString findFaciesName( const RimColorLegend& colorLegend, double value );
+
 protected:
     static void addOverburden( std::vector<QString>& formationNames,
                                std::vector<double>&  formationValues,
@@ -58,8 +60,6 @@ protected:
                                 std::vector<double>&  measuredDepthValues,
                                 double                underburdenHeight,
                                 const QString&        formationName );
-
-    static QString findFaciesName( const RimColorLegend& colorLegend, double value );
 
 private:
     RimStimPlanModelCalculator* m_stimPlanModelCalculator;

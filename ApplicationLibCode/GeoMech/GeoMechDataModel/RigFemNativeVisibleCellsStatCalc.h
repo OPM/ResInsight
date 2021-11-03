@@ -115,6 +115,8 @@ private:
                 const std::vector<float>& values = m_resultsData->resultValues( m_resVarAddr, pIdx, (int)timeStepIndex );
                 int                       elmCount = part->elementCount();
 
+                if ( values.empty() ) continue;
+
                 for ( int elmIdx = 0; elmIdx < elmCount; ++elmIdx )
                 {
                     if ( !( *m_cellVisibilities )[elmIdx] ) continue;

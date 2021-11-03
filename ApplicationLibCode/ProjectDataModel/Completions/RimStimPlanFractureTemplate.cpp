@@ -23,11 +23,13 @@
 #include "RiaEclipseUnitTools.h"
 #include "RiaFractureDefines.h"
 #include "RiaLogging.h"
+#include "RiaNumberFormat.h"
 #include "RiaWeightedGeometricMeanCalculator.h"
 #include "RiaWeightedMeanCalculator.h"
 
 #include "RifStimPlanXmlReader.h"
 
+#include "RigEnsembleFractureStatisticsCalculator.h"
 #include "RigFractureGrid.h"
 #include "RigStimPlanFractureDefinition.h"
 #include "RigTransmissibilityEquations.h"
@@ -45,7 +47,9 @@
 
 #include "RivWellFracturePartMgr.h"
 
+#include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObject.h"
+#include "cafPdmObjectScriptingCapability.h"
 #include "cafPdmUiDoubleSliderEditor.h"
 #include "cafPdmUiFilePathEditor.h"
 #include "cafPdmUiTextEditor.h"
@@ -61,14 +65,14 @@
 
 static std::vector<double> EMPTY_DOUBLE_VECTOR;
 
-CAF_PDM_SOURCE_INIT( RimStimPlanFractureTemplate, "RimStimPlanFractureTemplate" );
+CAF_PDM_SOURCE_INIT( RimStimPlanFractureTemplate, "StimPlanFractureTemplate", "RimStimPlanFractureTemplate" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RimStimPlanFractureTemplate::RimStimPlanFractureTemplate()
 {
-    CAF_PDM_InitObject( "Fracture Template", ":/FractureTemplate16x16.png", "", "" );
+    CAF_PDM_InitScriptableObject( "Fracture Template", ":/FractureTemplate16x16.png", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_stimPlanFileName, "StimPlanFileName", "File Name", "", "", "" );
     m_stimPlanFileName.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
@@ -326,6 +330,8 @@ void RimStimPlanFractureTemplate::loadDataAndUpdate()
     // Todo: Must update all views using this fracture template
     RimEclipseView* activeView = dynamic_cast<RimEclipseView*>( RiaApplication::instance()->activeReservoirView() );
     if ( activeView ) activeView->fractureColors()->loadDataAndUpdate();
+
+    m_propertiesTable = generatePropertiesTable();
 
     updateConnectedEditors();
 }
@@ -1187,11 +1193,24 @@ QString RimStimPlanFractureTemplate::generatePropertiesTable() const
 
     if ( !m_stimPlanFractureDefinitionData.isNull() )
     {
-        appendTextIfValidValue( body, "Formation Dip", m_stimPlanFractureDefinitionData->formationDip() );
         appendTextIfValidValue( body, "Top MD", m_stimPlanFractureDefinitionData->topPerfMd() );
         appendTextIfValidValue( body, "Bottom MD", m_stimPlanFractureDefinitionData->bottomPerfMd() );
         appendTextIfValidValue( body, "Top TVD", m_stimPlanFractureDefinitionData->topPerfTvd() );
         appendTextIfValidValue( body, "Bottom TVD", m_stimPlanFractureDefinitionData->bottomPerfTvd() );
+
+        std::vector<cvf::ref<RigStimPlanFractureDefinition>> fractureDefinitions = { m_stimPlanFractureDefinitionData };
+
+        std::vector<RigEnsembleFractureStatisticsCalculator::PropertyType> propertyTypes =
+            RigEnsembleFractureStatisticsCalculator::propertyTypes();
+        for ( auto propertyType : propertyTypes )
+        {
+            std::vector<double> values =
+                RigEnsembleFractureStatisticsCalculator::calculateProperty( fractureDefinitions, propertyType );
+            if ( !values.empty() )
+            {
+                appendTextIfValidValue( body, values[0], propertyType );
+            }
+        }
     }
 
     return body;
@@ -1205,5 +1224,20 @@ void RimStimPlanFractureTemplate::appendTextIfValidValue( QString& body, const Q
     if ( value != HUGE_VAL )
     {
         body += QString( "%1: %2<br>" ).arg( title ).arg( value );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimStimPlanFractureTemplate::appendTextIfValidValue( QString&                                              body,
+                                                          double                                                value,
+                                                          RigEnsembleFractureStatisticsCalculator::PropertyType propertyType )
+{
+    if ( value != HUGE_VAL )
+    {
+        QString name = caf::AppEnum<RigEnsembleFractureStatisticsCalculator::PropertyType>::uiText( propertyType );
+        auto [numberFormat, precision] = RigEnsembleFractureStatisticsCalculator::numberFormatForProperty( propertyType );
+        body += QString( "%1: %2<br>" ).arg( name ).arg( RiaNumberFormat::valueToText( value, numberFormat, precision ) );
     }
 }

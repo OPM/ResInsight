@@ -21,7 +21,8 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR} # required for gtest-all.cpp
 set(PROJECT_FILES
     cafHexGridIntersectionToolsBasicTests.cpp
     cafHexGridIntersectionTools_UnitTests_main.cpp
-    ../cafHexGridIntersectionTools.cpp ../cafHexGridIntersectionTools.h)
+    ../cafHexGridIntersectionTools.cpp ../cafHexGridIntersectionTools.h
+)
 
 # add the executable
 add_executable(${PROJECT_NAME} ${PROJECT_FILES} gtest/gtest-all.cpp)

@@ -44,6 +44,7 @@ public:
     bool isActive() const;
 
     void addAnnotation( RimTextAnnotation* annotation );
+    void removeAnnotation( RimTextAnnotation* annotation );
 
     std::vector<RimTextAnnotation*> textAnnotations() const;
 

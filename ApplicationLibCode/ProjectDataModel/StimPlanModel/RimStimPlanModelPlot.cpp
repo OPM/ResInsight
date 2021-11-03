@@ -109,7 +109,7 @@ QList<caf::PdmOptionItemInfo>
 {
     QList<caf::PdmOptionItemInfo> options;
 
-    if ( fieldNeedingOptions == &m_stimPlanModel )
+    if ( fieldNeedingOptions == &m_stimPlanModel && m_stimPlanModel )
     {
         // The user is not allowed to change this field, but option box looks good
         options.push_back( caf::PdmOptionItemInfo( m_stimPlanModel->name(), m_stimPlanModel ) );
@@ -161,28 +161,6 @@ void RimStimPlanModelPlot::onLoadDataAndUpdate()
         m_eclipseCase = stimPlanModel()->eclipseCaseForProperty( RiaDefines::CurveProperty::UNDEFINED );
         m_timeStep    = stimPlanModel()->timeStep();
         updateConnectedEditors();
-
-        // Enable and disable detailed fluid loss curves
-        std::vector<RiaDefines::CurveProperty> fluidLossCurves = { RiaDefines::CurveProperty::PORO_ELASTIC_CONSTANT,
-                                                                   RiaDefines::CurveProperty::RELATIVE_PERMEABILITY_FACTOR,
-                                                                   RiaDefines::CurveProperty::THERMAL_EXPANSION_COEFFICIENT,
-                                                                   RiaDefines::CurveProperty::IMMOBILE_FLUID_SATURATION };
-
-        bool detailedFluidLoss = stimPlanModel()->useDetailedFluidLoss();
-
-        for ( auto curveProperty : fluidLossCurves )
-        {
-            RimWellLogExtractionCurve* curve = findCurveByProperty( curveProperty );
-            if ( curve )
-            {
-                RimWellLogTrack* track = nullptr;
-                curve->firstAncestorOfType( track );
-                if ( track )
-                {
-                    track->setShowWindow( detailedFluidLoss );
-                }
-            }
-        }
     }
 
     RimDepthTrackPlot::onLoadDataAndUpdate();

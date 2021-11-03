@@ -20,7 +20,6 @@
 #define OPM_IO_ECLUTIL_HPP
 
 #include <opm/io/eclipse/EclIOdata.hpp>
-#include <opm/common/utility/FileSystem.hpp>
 
 #include <string>
 #include <tuple>
@@ -37,9 +36,6 @@ namespace Opm { namespace EclIO {
     bool fileExists(const std::string& filename);
     bool isFormatted(const std::string& filename);
     bool is_number(const std::string& numstr);
-
-    bool isEqualCaseInsensitive(const std::string& string1, const std::string& string2);
-    Opm::filesystem::path findFileCaseInsensitive(const Opm::filesystem::path& folder, const std::string& filename);
 
     std::tuple<int, int> block_size_data_binary(eclArrType arrType);
     std::tuple<int, int, int> block_size_data_formatted(eclArrType arrType);

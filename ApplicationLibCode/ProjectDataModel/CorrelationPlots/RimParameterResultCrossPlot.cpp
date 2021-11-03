@@ -21,10 +21,11 @@
 #include "RiaColorTables.h"
 #include "RiaPreferences.h"
 #include "RiaQDateTimeTools.h"
-#include "RiaStatisticsTools.h"
 #include "RiaTextStringTools.h"
 
 #include "RifSummaryReaderInterface.h"
+
+#include "RigEnsembleParameter.h"
 
 #include "RimDerivedSummaryCase.h"
 #include "RimEnsembleCurveSet.h"
@@ -244,7 +245,7 @@ void RimParameterResultCrossPlot::createPoints()
         int addressIdx = 0;
         for ( auto address : addresses() )
         {
-            EnsembleParameter parameter = ensembleParameter( m_ensembleParameter );
+            RigEnsembleParameter parameter = ensembleParameter( m_ensembleParameter );
             if ( !( parameter.isNumeric() && parameter.isValid() ) ) return;
 
             QStringList caseNames      = caseNamesOfValidEnsembleCases( ensemble );

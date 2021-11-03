@@ -124,7 +124,11 @@ std::string RifOpmHdf5Summary::unitName( const RifEclipseSummaryAddress& resultA
         {
             auto index = it->second;
             auto node  = m_eSmry->summaryNodeList()[index];
-            return m_eSmry->get_unit( node );
+
+            if ( m_eSmry->hasKey( node.keyword ) )
+            {
+                return m_eSmry->get_unit( node );
+            }
         }
     }
 
@@ -180,7 +184,7 @@ bool RifOpmHdf5Summary::openESmryFile( const QString&       headerFileName,
 {
     try
     {
-        m_eSmry = std::make_unique<Opm::EclIO::ESmry>( headerFileName.toStdString(), includeRestartFiles, false );
+        m_eSmry = std::make_unique<Opm::EclIO::ESmry>( headerFileName.toStdString(), includeRestartFiles );
     }
     catch ( std::exception& e )
     {

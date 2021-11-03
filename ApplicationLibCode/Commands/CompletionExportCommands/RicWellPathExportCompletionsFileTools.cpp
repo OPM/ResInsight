@@ -20,6 +20,8 @@
 
 #include "RiaFilePathTools.h"
 #include "RiaLogging.h"
+#include "RiaPreferences.h"
+#include "RiaRegressionTestRunner.h"
 
 #include "RimProject.h"
 #include "RimWellPath.h"
@@ -27,7 +29,9 @@
 
 #include "cafUtils.h"
 
+#include <QDateTime>
 #include <QDir>
+#include <QTextStream>
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -40,18 +44,9 @@ RicWellPathExportCompletionsFileTools::OpenFileException::OpenFileException( con
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::shared_ptr<QFile> RicWellPathExportCompletionsFileTools::openFileForExport( const QString& fullFileName )
-{
-    std::pair<QString, QString> folderAndFileName = RiaFilePathTools::toFolderAndFileName( fullFileName );
-    return openFileForExport( folderAndFileName.first, folderAndFileName.second );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::shared_ptr<QFile> RicWellPathExportCompletionsFileTools::openFileForExport( const QString& folderName,
-                                                                                 const QString& fileName,
-                                                                                 const QString& suffix )
+std::shared_ptr<QFile> RicWellPathExportCompletionsFileTools::openFile( const QString& folderName,
+                                                                        const QString& fileName,
+                                                                        const QString& suffix )
 {
     QString validFileName = caf::Utils::makeValidFileBasename( fileName );
 
@@ -84,15 +79,6 @@ std::shared_ptr<QFile> RicWellPathExportCompletionsFileTools::openFileForExport(
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::shared_ptr<QFile> RicWellPathExportCompletionsFileTools::openFileForExport( const QString& folderName,
-                                                                                 const QString& fileName )
-{
-    return openFileForExport( folderName, fileName, "" );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 const RimWellPath* RicWellPathExportCompletionsFileTools::findWellPathFromExportName( const QString& wellNameForExport )
 {
     auto allWellPaths = RimProject::current()->allWellPaths();
@@ -102,4 +88,61 @@ const RimWellPath* RicWellPathExportCompletionsFileTools::findWellPathFromExport
         if ( wellPath->completionSettings()->wellNameForExport() == wellNameForExport ) return wellPath;
     }
     return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::shared_ptr<QFile> RicWellPathExportCompletionsFileTools::openFileForExport( const QString& folderName,
+                                                                                 const QString& fileName,
+                                                                                 const QString& suffix,
+                                                                                 bool           writeInfoHeader )
+{
+    auto file = openFile( folderName, fileName, suffix );
+
+    // Do not write header when running regression tests to make sure the text content is stable
+    if ( file && writeInfoHeader && !RiaRegressionTestRunner::instance()->isRunningRegressionTests() )
+    {
+        QString header = createProjectFileHeader();
+        if ( !header.isEmpty() )
+        {
+            QTextStream stream( file.get() );
+
+            stream << header;
+        }
+    }
+
+    return file;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RicWellPathExportCompletionsFileTools::createProjectFileHeader()
+{
+    QString txt = QString( "-- Exported from ResInsight " );
+
+    auto dateTimeFormatString = RiaPreferences::current()->dateTimeFormat();
+    if ( !dateTimeFormatString.isEmpty() )
+    {
+        auto currentDateTime = QDateTime::currentDateTime();
+        auto dateStampString = currentDateTime.toString( dateTimeFormatString );
+        txt += dateStampString;
+    }
+
+    txt += "\n";
+
+    auto proj = RimProject::current();
+    if ( proj && !proj->fileName().isEmpty() )
+    {
+        QString fileName = proj->fileName();
+        if ( !fileName.isEmpty() )
+        {
+            txt += "-- " + fileName + "\n";
+        }
+
+        txt += "\n";
+    }
+
+    return txt;
 }

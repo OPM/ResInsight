@@ -66,3 +66,26 @@ QString RimStringParameter::stringValue() const
 {
     return m_value();
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimStringParameter::jsonValue() const
+{
+    return QString( "\"%1\"" ).arg( stringValue() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimGenericParameter* RimStringParameter::duplicate() const
+{
+    RimStringParameter* retval = new RimStringParameter();
+    retval->setName( name() );
+    retval->setValue( stringValue() );
+    retval->setDescription( description() );
+    retval->setLabel( label() );
+    retval->setAdvanced( isAdvanced() );
+
+    return retval;
+}

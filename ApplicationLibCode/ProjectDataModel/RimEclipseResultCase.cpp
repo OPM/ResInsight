@@ -77,7 +77,6 @@ RimEclipseResultCase::RimEclipseResultCase()
     m_unitSystem.uiCapability()->setUiReadOnly( true );
 
     CAF_PDM_InitFieldNoDefault( &m_flowDiagSolutions, "FlowDiagSolutions", "Flow Diagnostics Solutions", "", "", "" );
-    m_flowDiagSolutions.uiCapability()->setUiHidden( true );
     m_flowDiagSolutions.uiCapability()->setUiTreeHidden( true );
     m_flowDiagSolutions.uiCapability()->setUiTreeChildrenHidden( true );
 
@@ -109,13 +108,15 @@ bool RimEclipseResultCase::openEclipseGridFile()
 //--------------------------------------------------------------------------------------------------
 bool RimEclipseResultCase::importGridAndResultMetaData( bool showTimeStepFilter )
 {
+    // Early exit if data is already read
+    // Make sure that the progress info dialog is created after the return statement. If created before, the progress
+    // dialog triggers a redraw with incomplete geometry data and causes a crash
+    if ( m_gridAndWellDataIsReadFromFile ) return true;
+
     caf::ProgressInfo progInfo( 50, "Reading Eclipse Grid File" );
 
     progInfo.setProgressDescription( "Open Grid File" );
     progInfo.setNextProgressIncrement( 48 );
-
-    // Early exit if data is already read
-    if ( m_gridAndWellDataIsReadFromFile ) return true;
 
     cvf::ref<RifReaderInterface> readerInterface;
 
@@ -132,6 +133,7 @@ bool RimEclipseResultCase::importGridAndResultMetaData( bool showTimeStepFilter 
 
         cvf::ref<RifReaderEclipseOutput> readerEclipseOutput = new RifReaderEclipseOutput;
         readerEclipseOutput->setFilenamesWithFaults( this->filesContainingFaults() );
+        readerEclipseOutput->setReaderSettings( m_readerSettings );
 
         cvf::ref<RifEclipseRestartDataAccess> restartDataAccess =
             RifEclipseOutputFileTools::createDynamicResultAccess( gridFileName() );
@@ -241,11 +243,13 @@ bool RimEclipseResultCase::importGridAndResultMetaData( bool showTimeStepFilter 
 bool RimEclipseResultCase::importAsciiInputProperties( const QStringList& fileNames )
 {
     bool importFaults = false;
-    return RifEclipseInputPropertyLoader::readInputPropertiesFromFiles( m_inputPropertyCollection,
-                                                                        this->eclipseCaseData(),
-                                                                        importFaults,
-                                                                        std::vector<QString>( fileNames.begin(),
-                                                                                              fileNames.end() ) );
+    RifEclipseInputPropertyLoader::loadAndSyncronizeInputProperties( m_inputPropertyCollection,
+                                                                     this->eclipseCaseData(),
+                                                                     std::vector<QString>( fileNames.begin(),
+                                                                                           fileNames.end() ),
+                                                                     importFaults );
+
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------

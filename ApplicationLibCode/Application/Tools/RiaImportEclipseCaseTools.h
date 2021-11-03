@@ -19,11 +19,13 @@
 #pragma once
 
 #include <map>
+#include <memory>
 
 class QString;
 class QStringList;
 
 class RimIdenticalGridCaseGroup;
+class RifReaderSettings;
 
 //==================================================================================================
 ///
@@ -33,18 +35,26 @@ class RiaImportEclipseCaseTools
 public:
     typedef std::map<QString, int> FileCaseIdMap;
 
-    static bool openEclipseCasesFromFile( const QStringList& fileNames,
-                                          FileCaseIdMap*     openedFilesOut = nullptr,
-                                          bool               noDialog       = false );
+    static bool openEclipseCasesFromFile( const QStringList&                 fileNames,
+                                          bool                               createView,
+                                          FileCaseIdMap*                     openedFilesOut,
+                                          bool                               noDialog,
+                                          std::shared_ptr<RifReaderSettings> readerSettings = nullptr );
+
     static bool openEclipseCaseShowTimeStepFilter( const QString& fileName );
 
-    static int openEclipseInputCaseFromFileNames( const QStringList& fileNames, QString* fileContainingGrid = nullptr );
+    static int  openEclipseInputCaseFromFileNames( const QStringList& fileNames, bool createDefaultView );
     static bool openMockModel( const QString& name );
 
     static bool addEclipseCases( const QStringList& fileNames, RimIdenticalGridCaseGroup** resultingCaseGroup = nullptr );
 
-    static int openEclipseCaseFromFile( const QString& fileName );
+    static int openEclipseCaseFromFile( const QString&                     fileName,
+                                        bool                               createView,
+                                        std::shared_ptr<RifReaderSettings> readerSettings = nullptr );
 
 private:
-    static int openEclipseCaseShowTimeStepFilterImpl( const QString& fileName, bool showTimeStepFilter );
+    static int openEclipseCaseShowTimeStepFilterImpl( const QString&                     fileName,
+                                                      bool                               showTimeStepFilter,
+                                                      bool                               createView,
+                                                      std::shared_ptr<RifReaderSettings> readerSettings );
 };

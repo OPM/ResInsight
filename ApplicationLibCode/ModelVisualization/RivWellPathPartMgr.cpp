@@ -37,6 +37,8 @@
 #include "RimPerforationInterval.h"
 #include "RimRegularLegendConfig.h"
 #include "RimTools.h"
+#include "RimWellIASettings.h"
+#include "RimWellIASettingsCollection.h"
 #include "RimWellMeasurement.h"
 #include "RimWellMeasurementCollection.h"
 #include "RimWellMeasurementFilter.h"
@@ -53,11 +55,13 @@
 #include "RimWellPathValve.h"
 
 #include "Riv3dWellLogPlanePartMgr.h"
+#include "RivBoxGeometryGenerator.h"
+#include "RivDrawableSpheres.h"
 #include "RivFishbonesSubsPartMgr.h"
 #include "RivObjectSourceInfo.h"
 #include "RivPartPriority.h"
 #include "RivPipeGeometryGenerator.h"
-#include "RivSectionFlattner.h"
+#include "RivSectionFlattener.h"
 #include "RivTextLabelSourceInfo.h"
 #include "RivWellConnectionFactorPartMgr.h"
 #include "RivWellFracturePartMgr.h"
@@ -437,12 +441,12 @@ void RivWellPathPartMgr::appendPerforationsToModel( cvf::ModelBasicList*        
         {
             cvf::Vec3d         dummy;
             vector<cvf::Mat4d> flatningCSs =
-                RivSectionFlattner::calculateFlatteningCSsForPolyline( perfIntervalCL,
-                                                                       cvf::Vec3d::Z_AXIS,
-                                                                       { horizontalLengthAlongWellPath,
-                                                                         0.0,
-                                                                         perfIntervalCL[0].z() },
-                                                                       &dummy );
+                RivSectionFlattener::calculateFlatteningCSsForPolyline( perfIntervalCL,
+                                                                        cvf::Vec3d::Z_AXIS,
+                                                                        { horizontalLengthAlongWellPath,
+                                                                          0.0,
+                                                                          perfIntervalCL[0].z() },
+                                                                        &dummy );
 
             for ( size_t cIdx = 0; cIdx < perfIntervalCL.size(); ++cIdx )
             {
@@ -667,12 +671,12 @@ void RivWellPathPartMgr::buildWellPathParts( const caf::DisplayCoordTransform* d
     {
         cvf::Vec3d              dummy;
         std::vector<cvf::Mat4d> flatningCSs =
-            RivSectionFlattner::calculateFlatteningCSsForPolyline( clippedWellPathCenterLine,
-                                                                   cvf::Vec3d::Z_AXIS,
-                                                                   { horizontalLengthAlongWellToClipPoint,
-                                                                     0.0,
-                                                                     clippedWellPathCenterLine[0].z() },
-                                                                   &dummy );
+            RivSectionFlattener::calculateFlatteningCSsForPolyline( clippedWellPathCenterLine,
+                                                                    cvf::Vec3d::Z_AXIS,
+                                                                    { horizontalLengthAlongWellToClipPoint,
+                                                                      0.0,
+                                                                      clippedWellPathCenterLine[0].z() },
+                                                                    &dummy );
 
         for ( size_t cIdx = 0; cIdx < cvfCoords->size(); ++cIdx )
         {
@@ -696,6 +700,7 @@ void RivWellPathPartMgr::buildWellPathParts( const caf::DisplayCoordTransform* d
     if ( m_surfaceDrawable.notNull() )
     {
         m_surfacePart = new cvf::Part;
+        m_surfacePart->setName( "RivWellPathPartMgr::surface" );
         m_surfacePart->setDrawable( m_surfaceDrawable.p() );
 
         RivWellPathSourceInfo* sourceInfo = new RivWellPathSourceInfo( m_rimWellPath, m_pipeGeomGenerator.p() );
@@ -710,6 +715,7 @@ void RivWellPathPartMgr::buildWellPathParts( const caf::DisplayCoordTransform* d
     if ( m_centerLineDrawable.notNull() )
     {
         m_centerLinePart = new cvf::Part;
+        m_centerLinePart->setName( "RivWellPathPartMgr::centerLinePart" );
         m_centerLinePart->setDrawable( m_centerLineDrawable.p() );
 
         caf::MeshEffectGenerator gen( m_rimWellPath->wellPathColor() );
@@ -789,14 +795,14 @@ void RivWellPathPartMgr::buildWellPathParts( const caf::DisplayCoordTransform* d
                 colors->add( sphereColor );
             }
 
-            cvf::ref<cvf::DrawableVectors> vectorDrawable;
+            cvf::ref<RivDrawableSpheres> vectorDrawable;
             if ( RiaGuiApplication::instance()->useShaders() )
             {
-                vectorDrawable = new cvf::DrawableVectors( "u_transformationMatrix", "u_color" );
+                vectorDrawable = new RivDrawableSpheres( "u_transformationMatrix", "u_color" );
             }
             else
             {
-                vectorDrawable = new cvf::DrawableVectors();
+                vectorDrawable = new RivDrawableSpheres();
             }
 
             vectorDrawable->setVectors( vertices.p(), vecRes.p() );
@@ -813,12 +819,17 @@ void RivWellPathPartMgr::buildWellPathParts( const caf::DisplayCoordTransform* d
             cvf::GeometryBuilderTriangles builder;
             cvf::GeometryUtils::createSphere( cellRadius, 15, 15, &builder );
             vectorDrawable->setGlyph( builder.trianglesUShort().p(), builder.vertices().p() );
+            vectorDrawable->setRadius( cellRadius );
+            vectorDrawable->setCenterCoords( vertices.p() );
 
             cvf::ref<cvf::Part> part = new cvf::Part;
             part->setName( "RivWellPathPartMgr_WellTargetSpheres" );
             part->setDrawable( vectorDrawable.p() );
 
             part->setEffect( new cvf::Effect() );
+
+            auto sourceInfo = new RivObjectSourceInfo( geoDef );
+            part->setSourceInfo( sourceInfo );
 
             m_spherePart = part;
         }
@@ -860,6 +871,7 @@ void RivWellPathPartMgr::appendStaticGeometryPartsToModel( cvf::ModelBasicList* 
 
     appendFishboneSubsPartsToModel( model, displayCoordTransform, characteristicCellSize );
     appendWellPathAttributesToModel( model, displayCoordTransform, characteristicCellSize );
+    appendWellIntegrityIntervalsToModel( model, displayCoordTransform, characteristicCellSize );
 
     RimGridView* gridView = dynamic_cast<RimGridView*>( m_rimView.p() );
     if ( gridView )
@@ -897,10 +909,16 @@ void RivWellPathPartMgr::appendFlattenedStaticGeometryPartsToModel( cvf::ModelBa
         model->addPart( m_wellLabelPart.p() );
     }
 
-    if ( m_spherePart.notNull() )
-    {
-        model->addPart( m_spherePart.p() );
-    }
+    /*
+    // TODO: Currently not supported.
+    // Require coordinate transformations of the spheres similar to RivWellPathPartMgr::buildWellPathParts
+    // https://github.com/OPM/ResInsight/issues/7891
+    //
+        if ( m_spherePart.notNull() )
+        {
+            model->addPart( m_spherePart.p() );
+        }
+    */
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1006,4 +1024,77 @@ double RivWellPathPartMgr::wellMeasurementRadius( double                        
 {
     return wellPathCollection->wellPathRadiusScaleFactor() * wellMeasurementInView->radiusScaleFactor() *
            characteristicCellSize;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RivWellPathPartMgr::appendWellIntegrityIntervalsToModel( cvf::ModelBasicList*              model,
+                                                              const caf::DisplayCoordTransform* displayCoordTransform,
+                                                              double                            characteristicCellSize )
+{
+    if ( !m_rimWellPath ) return;
+
+    RimWellPathCollection* wellPathCollection = this->wellPathCollection();
+    if ( !wellPathCollection ) return;
+
+    RigWellPath* wellPathGeometry = m_rimWellPath->wellPathGeometry();
+    if ( !wellPathGeometry ) return;
+
+    // Since we're using the index of measured depths to find the index of a point, ensure they're equal
+    CVF_ASSERT( wellPathGeometry->measuredDepths().size() == wellPathGeometry->wellPathPoints().size() );
+
+    double wellPathRadius    = this->wellPathRadius( characteristicCellSize, wellPathCollection );
+    double wiaIntervalRadius = wellPathRadius * 1.15;
+
+    RivPipeGeometryGenerator geoGenerator;
+
+    for ( auto wiaModel : m_rimWellPath->wellIASettingsCollection()->settings() )
+    {
+        if ( !wiaModel->isChecked() ) continue;
+        if ( wiaModel->startMD() > wiaModel->endMD() ) continue;
+
+        double                  horizontalLengthAlongWellPath = 0.0;
+        std::vector<cvf::Vec3d> intervalCL;
+        {
+            std::pair<std::vector<cvf::Vec3d>, std::vector<double>> intervalCoordsAndMD =
+                wellPathGeometry->clippedPointSubset( wiaModel->startMD(), wiaModel->endMD(), &horizontalLengthAlongWellPath );
+            intervalCL = intervalCoordsAndMD.first;
+        }
+
+        if ( intervalCL.size() < 2 ) continue;
+
+        std::vector<cvf::Vec3d> intervalCLDisplayCS;
+
+        for ( cvf::Vec3d& point : intervalCL )
+        {
+            intervalCLDisplayCS.push_back( displayCoordTransform->transformToDisplayCoord( point ) );
+        }
+        cvf::ref<RivObjectSourceInfo> objectSourceInfo = new RivObjectSourceInfo( wiaModel );
+
+        cvf::Collection<cvf::Part> parts;
+        geoGenerator.cylinderWithCenterLineParts( &parts, intervalCLDisplayCS, cvf::Color3f::ORCHID, wiaIntervalRadius );
+        for ( auto& part : parts )
+        {
+            part->setSourceInfo( objectSourceInfo.p() );
+            model->addPart( part.p() );
+        }
+
+        if ( wiaModel->showBox() )
+        {
+            const auto& vertices = wiaModel->modelBoxVertices();
+
+            std::vector<cvf::Vec3f> transformedVertices;
+
+            for ( auto& v : vertices )
+            {
+                transformedVertices.push_back( cvf::Vec3f( displayCoordTransform->transformToDisplayCoord( v ) ) );
+            }
+
+            cvf::ref<cvf::Part> boxpart =
+                RivBoxGeometryGenerator::createBoxFromVertices( transformedVertices, cvf::Color3f::ORCHID );
+            boxpart->setSourceInfo( objectSourceInfo.p() );
+            model->addPart( boxpart.p() );
+        }
+    }
 }

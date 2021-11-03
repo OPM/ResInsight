@@ -37,6 +37,8 @@
 #include "RimEclipseView.h"
 #include "RimGeoMechCase.h"
 #include "RimGeoMechCellColors.h"
+#include "RimGeoMechPart.h"
+#include "RimGeoMechPartCollection.h"
 #include "RimGeoMechPropertyFilterCollection.h"
 #include "RimGridCollection.h"
 #include "RimIntersectionCollection.h"
@@ -86,15 +88,22 @@ RimGeoMechView::RimGeoMechView( void )
 
     CAF_PDM_InitFieldNoDefault( &cellResult, "GridCellResult", "Color Result", ":/CellResult.png", "", "" );
     cellResult = new RimGeoMechCellColors();
-    cellResult.uiCapability()->setUiHidden( true );
+    cellResult.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_tensorResults, "TensorResults", "Tensor Results", "", "", "" );
     m_tensorResults = new RimTensorResults();
-    m_tensorResults.uiCapability()->setUiHidden( true );
+    m_tensorResults.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_propertyFilterCollection, "PropertyFilters", "Property Filters", "", "", "" );
     m_propertyFilterCollection = new RimGeoMechPropertyFilterCollection();
-    m_propertyFilterCollection.uiCapability()->setUiHidden( true );
+    m_propertyFilterCollection.uiCapability()->setUiTreeHidden( true );
+
+    CAF_PDM_InitFieldNoDefault( &m_partsCollection, "Parts", "Parts", "", "", "" );
+    m_partsCollection = new RimGeoMechPartCollection();
+    m_partsCollection.uiCapability()->setUiTreeHidden( true );
+
+    CAF_PDM_InitField( &m_showDisplacement, "ShowDisplacement", false, "Show Displacement", "", "", "" );
+    CAF_PDM_InitField( &m_displacementScaling, "DisplacementScaling", 1.0, "Scaling Factor", "", "", "" );
 
     m_scaleTransform = new cvf::Transform();
     m_vizLogic       = new RivGeoMechVizLogic( this );
@@ -162,11 +171,8 @@ void RimGeoMechView::onLoadDataAndUpdate()
     progress.setProgressDescription( "Reading Current Result" );
 
     CVF_ASSERT( this->cellResult() != nullptr );
-    if ( this->hasUserRequestedAnimation() )
-    {
-        m_geomechCase->geoMechData()->femPartResults()->setNormalizationAirGap( this->cellResult()->normalizationAirGap() );
-        m_geomechCase->geoMechData()->femPartResults()->assertResultsLoaded( this->cellResult()->resultAddress() );
-    }
+    m_geomechCase->geoMechData()->femPartResults()->setNormalizationAirGap( this->cellResult()->normalizationAirGap() );
+    m_geomechCase->geoMechData()->femPartResults()->assertResultsLoaded( this->cellResult()->resultAddress() );
     progress.incrementProgress();
     progress.setProgressDescription( "Create Display model" );
 
@@ -175,7 +181,9 @@ void RimGeoMechView::onLoadDataAndUpdate()
     this->geoMechPropertyFilterCollection()->loadAndInitializePropertyFilters();
     m_wellMeasurementCollection->syncWithChangesInWellMeasurementCollection();
 
-    if ( this->m_surfaceCollection ) this->m_surfaceCollection->loadData();
+    if ( m_surfaceCollection ) m_surfaceCollection->loadData();
+
+    if ( m_partsCollection ) m_partsCollection->syncWithCase( m_geomechCase );
 
     this->scheduleCreateDisplayModelAndRedraw();
 
@@ -183,8 +191,6 @@ void RimGeoMechView::onLoadDataAndUpdate()
 }
 
 //--------------------------------------------------------------------------------------------------
-///
-/// Todo: Work in progress
 ///
 //--------------------------------------------------------------------------------------------------
 
@@ -244,9 +250,17 @@ void RimGeoMechView::onCreateDisplayModel()
 
     if ( !( m_geomechCase && m_geomechCase->geoMechData() && m_geomechCase->geoMechData()->femParts() ) ) return;
 
-    int partCount = m_geomechCase->geoMechData()->femParts()->partCount();
+    const auto& theParts  = femParts();
+    int         partCount = theParts->partCount();
 
     if ( partCount <= 0 ) return;
+
+    for ( int i = 0; i < partCount; i++ )
+    {
+        theParts->part( i )->setEnabled( m_partsCollection()->isPartEnabled( i ) );
+    }
+
+    updateElementDisplacements();
 
     // Remove all existing animation frames from the viewer.
     // The parts are still cached in the RivReservoir geometry and friends
@@ -337,9 +351,36 @@ RimPropertyFilterCollection* RimGeoMechView::nativePropertyFilterCollection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimGeoMechView::updateElementDisplacements()
+{
+    if ( !m_partsCollection->shouldRebuildPartVisualization( m_currentTimeStep, m_showDisplacement, m_displacementScaling ) )
+        return;
+
+    if ( m_partsCollection->shouldReloadDisplacements( m_currentTimeStep, m_showDisplacement, m_displacementScaling ) )
+    {
+        for ( auto part : m_partsCollection->parts() )
+        {
+            std::string             errmsg;
+            std::vector<cvf::Vec3f> displacements;
+            m_geomechCase->geoMechData()->readDisplacements( &errmsg, part->partId(), m_currentTimeStep, &displacements );
+            part->setDisplacements( displacements );
+        }
+    }
+    // store current settings so that we know if we need to rebuild later if any of them changes
+    m_partsCollection->setCurrentDisplacementSettings( m_currentTimeStep, m_showDisplacement, m_displacementScaling );
+
+    // tell geometry generator to regenerate grid
+    m_vizLogic->scheduleGeometryRegenOfVisiblePartMgrs( m_currentTimeStep );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimGeoMechView::onUpdateDisplayModelForCurrentTimeStep()
 {
     onUpdateLegends();
+
+    updateElementDisplacements();
 
     if ( this->isTimeStepDependentDataVisibleInThisOrComparisonView() )
     {
@@ -393,14 +434,21 @@ void RimGeoMechView::onUpdateDisplayModelForCurrentTimeStep()
             }
         }
 
-        if ( this->cellResult()->hasResult() )
+        bool hasGeneralCellResult = this->cellResult()->hasResult();
+
+        if ( hasGeneralCellResult )
             m_vizLogic->updateCellResultColor( m_currentTimeStep(), this->cellResult() );
         else
             m_vizLogic->updateStaticCellColors( m_currentTimeStep() );
 
-        bool hasGeneralCellResult = this->cellResult()->hasResult();
+        // Intersections
+        {
+            m_intersectionVizModel->removeAllParts();
+            m_intersectionCollection->rebuildGeometry();
+            m_intersectionCollection->appendPartsToModel( *this, m_intersectionVizModel.p(), scaleTransform() );
+            m_intersectionCollection->updateCellResultColor( hasGeneralCellResult, m_currentTimeStep );
+        }
 
-        m_intersectionCollection->updateCellResultColor( hasGeneralCellResult, m_currentTimeStep );
         if ( m_surfaceCollection )
         {
             m_surfaceCollection->updateCellResultColor( hasGeneralCellResult, m_currentTimeStep );
@@ -766,8 +814,7 @@ size_t RimGeoMechView::onTimeStepCountRequested()
 //--------------------------------------------------------------------------------------------------
 bool RimGeoMechView::isTimeStepDependentDataVisible() const
 {
-    if ( this->hasUserRequestedAnimation() &&
-         ( this->cellResult()->hasResult() || this->geoMechPropertyFilterCollection()->hasActiveFilters() ) )
+    if ( this->cellResult()->hasResult() || this->geoMechPropertyFilterCollection()->hasActiveFilters() )
     {
         return true;
     }
@@ -792,6 +839,11 @@ bool RimGeoMechView::isTimeStepDependentDataVisible() const
         return true;
     }
 
+    if ( ( m_showDisplacement ) || m_partsCollection->isDisplacementsUsed() )
+    {
+        return true;
+    }
+
     return false;
 }
 
@@ -811,6 +863,11 @@ void RimGeoMechView::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
                                        const QVariant&            newValue )
 {
     RimGridView::fieldChangedByUi( changedField, oldValue, newValue );
+
+    if ( ( changedField == &m_showDisplacement ) || ( ( changedField == &m_displacementScaling ) && m_showDisplacement() ) )
+    {
+        this->createDisplayModelAndRedraw();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -947,6 +1004,10 @@ void RimGeoMechView::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
 
     caf::PdmUiGroup* nameGroup = uiOrdering.addNewGroup( "View Name" );
     nameConfig()->uiOrdering( uiConfigName, *nameGroup );
+
+    auto displacementGroup = uiOrdering.addNewGroup( "Displacements" );
+    displacementGroup->add( &m_showDisplacement );
+    displacementGroup->add( &m_displacementScaling );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -956,17 +1017,17 @@ void RimGeoMechView::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrderin
 {
     uiTreeOrdering.add( m_overlayInfoConfig() );
     uiTreeOrdering.add( m_gridCollection() );
+    if ( m_partsCollection->shouldBeVisibleInTree() ) uiTreeOrdering.add( m_partsCollection() );
 
     uiTreeOrdering.add( cellResult() );
     uiTreeOrdering.add( m_tensorResults() );
+    uiTreeOrdering.add( m_cellFilterCollection() );
+    uiTreeOrdering.add( m_propertyFilterCollection() );
 
     addRequiredUiTreeObjects( uiTreeOrdering );
 
     uiTreeOrdering.add( m_intersectionCollection() );
     if ( surfaceInViewCollection() ) uiTreeOrdering.add( surfaceInViewCollection() );
-
-    uiTreeOrdering.add( m_cellFilterCollection() );
-    uiTreeOrdering.add( m_propertyFilterCollection() );
 
     uiTreeOrdering.skipRemainingChildren( true );
 }
@@ -985,4 +1046,28 @@ RimGeoMechResultDefinition* RimGeoMechView::cellResultResultDefinition() const
 const RimPropertyFilterCollection* RimGeoMechView::propertyFilterCollection() const
 {
     return geoMechPropertyFilterCollection();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const RimGeoMechPartCollection* RimGeoMechView::partsCollection() const
+{
+    return m_partsCollection();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimGeoMechView::displacementScaleFactor() const
+{
+    return m_displacementScaling;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimGeoMechView::showDisplacements() const
+{
+    return m_showDisplacement;
 }

@@ -16,7 +16,7 @@ endif()
 
  if(MSVC)
   add_definitions( "/wd4996 /wd4244 /wd4267" )
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP /permissive-")
 endif(MSVC)
 
 project (custom-opm-common)
@@ -29,6 +29,9 @@ include_directories(
     generated-opm-common 
     generated-opm-common/include
 )
+
+ add_definitions(-DFMT_HEADER_ONLY)
+    include_directories(SYSTEM ../fmtlib/include)
 
 # Set defines to include requred files
 set(ENABLE_ECL_INPUT true)
@@ -79,6 +82,7 @@ add_library(${PROJECT_NAME}
     opm-common/src/opm/io/eclipse/EclUtil.cpp
     opm-common/src/opm/io/eclipse/EGrid.cpp
     opm-common/src/opm/io/eclipse/ESmry.cpp
+    opm-common/src/opm/io/eclipse/ExtESmry.cpp
     opm-common/src/opm/io/eclipse/EInit.cpp
 
     # Required for use of static function RstConnection::inverse_peaceman

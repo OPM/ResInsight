@@ -50,7 +50,7 @@ RimAnnotationGroupCollection::RimAnnotationGroupCollection()
     CAF_PDM_InitFieldNoDefault( &m_annotations, "Annotations", "Annotations", "", "", "" );
 
     m_isActive.uiCapability()->setUiHidden( true );
-    m_annotations.uiCapability()->setUiHidden( true );
+    m_annotations.uiCapability()->setUiTreeHidden( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -88,6 +88,14 @@ bool RimAnnotationGroupCollection::isVisible() const
 void RimAnnotationGroupCollection::addAnnotation( caf::PdmObject* annotation )
 {
     m_annotations.push_back( annotation );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimAnnotationGroupCollection::removeAnnotation( caf::PdmObject* annotation )
+{
+    m_annotations.removeChildObject( annotation );
 }
 
 //--------------------------------------------------------------------------------------------------

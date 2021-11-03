@@ -22,7 +22,6 @@
 #include "RiaColorTools.h"
 #include "RiaDateStringParser.h"
 #include "RiaSimWellBranchTools.h"
-#include "RiaStatisticsTools.h"
 
 #include "RifReaderEclipseRft.h"
 
@@ -90,7 +89,7 @@ RimWellRftPlot::RimWellRftPlot()
     CAF_PDM_InitField( &m_showErrorInObservedData, "ShowErrorObserved", true, "Show Observed Data Error", "", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_wellLogPlot_OBSOLETE, "WellLog", "Well Log", "", "", "" );
-    m_wellLogPlot_OBSOLETE.uiCapability()->setUiHidden( true );
+    m_wellLogPlot_OBSOLETE.uiCapability()->setUiTreeHidden( true );
     m_wellLogPlot_OBSOLETE.xmlCapability()->setIOWritable( false );
 
     m_depthType = RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH;
@@ -582,7 +581,6 @@ void RimWellRftPlot::updateCurvesInPlot( const std::set<RiaRftPltCurveDefinition
                     QString uiText =
                         caf::AppEnum<RifEclipseRftAddress::RftWellLogChannelType>::uiText( rftAddress.wellLogChannel() );
                     QString label = uiText.replace( ": Pressure", "" );
-                    label         = RiaStatisticsTools::replacePercentileByPValueText( label );
                     curve->setSymbolLabel( label );
                     curve->setLineThickness( 3 );
                 }

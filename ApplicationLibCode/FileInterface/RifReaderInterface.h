@@ -30,6 +30,7 @@
 #include <QString>
 #include <QStringList>
 
+#include <memory>
 #include <set>
 #include <vector>
 
@@ -47,10 +48,13 @@ public:
     RifReaderInterface() {}
     ~RifReaderInterface() override {}
 
+    void setReaderSettings( std::shared_ptr<RifReaderSettings> readerSettings );
+
     bool          isFaultImportEnabled();
     bool          isImportOfCompleteMswDataEnabled();
     bool          isNNCsEnabled();
     bool          includeInactiveCellsInFaultGeometry();
+    bool          isSkipWellData();
     const QString faultIncludeFileAbsolutePathPrefix();
 
     virtual bool open( const QString& fileName, RigEclipseCaseData* eclipseCase ) = 0;
@@ -83,4 +87,6 @@ private:
     std::vector<QString> m_filenamesWithFaults;
 
     std::vector<size_t> m_fileTimeStepIndices;
+
+    std::shared_ptr<RifReaderSettings> m_readerSettings;
 };

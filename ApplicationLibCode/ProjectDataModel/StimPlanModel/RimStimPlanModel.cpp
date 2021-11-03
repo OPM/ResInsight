@@ -40,13 +40,14 @@
 #include "RimEclipseCase.h"
 #include "RimEclipseResultDefinition.h"
 #include "RimEclipseView.h"
+#include "RimExtractionConfiguration.h"
 #include "RimFaciesProperties.h"
 #include "RimFaultInView.h"
 #include "RimFaultInViewCollection.h"
 #include "RimModeledWellPath.h"
 #include "RimNonNetLayers.h"
 #include "RimOilField.h"
-#include "RimPolylineTarget.h"
+#include "RimPerforationCollection.h"
 #include "RimPressureTable.h"
 #include "RimProject.h"
 #include "RimStimPlanModelCalculator.h"
@@ -55,7 +56,6 @@
 #include "RimStimPlanModelTemplateCollection.h"
 #include "RimTextAnnotation.h"
 #include "RimTools.h"
-#include "RimUserDefinedPolylinesAnnotation.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 #include "RimWellPathGeometryDef.h"
@@ -95,11 +95,16 @@ void caf::AppEnum<RimStimPlanModel::ExtractionType>::setUp()
 template <>
 void caf::AppEnum<RimStimPlanModel::FractureOrientation>::setUp()
 {
-    addItem( RimStimPlanModel::FractureOrientation::ALONG_WELL_PATH, "ALONG_WELL_PATH", "Along Well Path" );
+    addItem( RimStimPlanModel::FractureOrientation::ALONG_WELL_PATH,
+             "Longitudinal",
+             "Along Well Path",
+             QStringList( "ALONG_WELL_PATH" ) );
     addItem( RimStimPlanModel::FractureOrientation::TRANSVERSE_WELL_PATH,
-             "TRANSVERSE_WELL_PATH",
-             "Transverse (normal) to Well Path" );
-    addItem( RimStimPlanModel::FractureOrientation::AZIMUTH, "AZIMUTH", "Azimuth" );
+             "Transverse",
+             "Transverse (normal) to Well Path",
+             QStringList( "TRANSVERSE_WELL_PATH" ) );
+
+    addItem( RimStimPlanModel::FractureOrientation::AZIMUTH, "Azimuth", "Azimuth", QStringList( "AZIMUTH" ) );
 
     setDefault( RimStimPlanModel::FractureOrientation::TRANSVERSE_WELL_PATH );
 }
@@ -156,11 +161,19 @@ RimStimPlanModel::RimStimPlanModel()
     CAF_PDM_InitScriptableField( &m_MD, "MeasuredDepth", 0.0, "Measured Depth", "", "", "" );
     m_MD.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitScriptableField( &m_extractionDepthTop, "ExtractionDepthTop", -1.0, "Top", "", "", "" );
-    m_extractionDepthTop.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
+    CAF_PDM_InitScriptableField( &m_extractionOffsetTop, "ExtractionOffsetTop", -1.0, "Top Offset", "", "", "" );
+    m_extractionOffsetTop.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitScriptableField( &m_extractionDepthBottom, "ExtractionDepthBottom", -1.0, "Bottom", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_extractionOffsetBottom, "ExtractionOffsetBottom", -1.0, "Bottom Offset", "", "", "" );
+    m_extractionOffsetBottom.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
+
+    CAF_PDM_InitScriptableField( &m_extractionDepthTop, "ExtractionDepthTop", -1.0, "Depth", "", "", "" );
+    m_extractionDepthTop.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
+    m_extractionDepthTop.uiCapability()->setUiReadOnly( true );
+
+    CAF_PDM_InitScriptableField( &m_extractionDepthBottom, "ExtractionDepthBottom", -1.0, "Depth", "", "", "" );
     m_extractionDepthBottom.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
+    m_extractionDepthBottom.uiCapability()->setUiReadOnly( true );
 
     CAF_PDM_InitScriptableField( &m_extractionType,
                                  "ExtractionType",
@@ -172,9 +185,16 @@ RimStimPlanModel::RimStimPlanModel()
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_anchorPosition, "AnchorPosition", "Anchor Position", "", "", "" );
     m_anchorPosition.uiCapability()->setUiReadOnly( true );
+    m_anchorPosition.xmlCapability()->disableIO();
+
+    CAF_PDM_InitFieldNoDefault( &m_anchorPositionForUi, "AnchorPositionForUi", "Anchor Position", "", "", "" );
+    m_anchorPositionForUi.registerGetMethod( this, &RimStimPlanModel::anchorPositionForUi );
+    m_anchorPositionForUi.uiCapability()->setUiReadOnly( true );
+    m_anchorPositionForUi.xmlCapability()->disableIO();
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_thicknessDirection, "ThicknessDirection", "Thickness Direction", "", "", "" );
     m_thicknessDirection.uiCapability()->setUiReadOnly( true );
+    m_thicknessDirection.xmlCapability()->disableIO();
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_thicknessDirectionWellPath,
                                           "ThicknessDirectionWellPath",
@@ -237,13 +257,14 @@ RimStimPlanModel::RimStimPlanModel()
     CAF_PDM_InitScriptableField( &m_barrierFaultName, "BarrierFaultName", QString( "" ), "Barrier Fault", "", "", "" );
     m_barrierFaultName.uiCapability()->setUiReadOnly( true );
 
-    CAF_PDM_InitScriptableFieldNoDefault( &m_barrierAnnotation, "BarrierAnnotation", "Barrier Annotation", "", "", "" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_barrierTextAnnotation,
                                           "BarrierTextAnnotation",
                                           "Barrier Text Annotation",
                                           "",
                                           "",
                                           "" );
+
+    CAF_PDM_InitScriptableFieldNoDefault( &m_perforationInterval, "PerforationInterval", "Perforation Interval", "", "", "" );
 
     m_calculator = std::shared_ptr<RimStimPlanModelCalculator>( new RimStimPlanModelCalculator );
     m_calculator->setStimPlanModel( this );
@@ -309,16 +330,25 @@ void RimStimPlanModel::fieldChangedByUi( const caf::PdmFieldHandle* changedField
     if ( changedField == &m_MD )
     {
         updatePositionFromMeasuredDepth();
+        updateExtractionDepthBoundaries();
+    }
+
+    if ( changedField == &m_extractionOffsetTop || changedField == &m_extractionOffsetBottom )
+    {
+        updateExtractionDepthBoundaries();
     }
 
     if ( changedField == &m_MD || changedField == &m_extractionType || changedField == &m_boundingBoxVertical ||
          changedField == &m_boundingBoxHorizontal || changedField == &m_fractureOrientation ||
          changedField == &m_autoComputeBarrier || changedField == &m_azimuthAngle ||
          changedField == &m_showOnlyBarrierFault || changedField == &m_eclipseCase ||
-         changedField == &m_extractionDepthTop || changedField == &m_extractionDepthBottom )
+         changedField == &m_extractionDepthTop || changedField == &m_extractionDepthBottom ||
+         changedField == &m_extractionOffsetTop || changedField == &m_extractionOffsetBottom ||
+         changedField == &m_perforationLength )
     {
         updateThicknessDirection();
         updateBarrierProperties();
+        updatePerforationInterval();
     }
 
     if ( changedField == &m_eclipseCase )
@@ -478,9 +508,27 @@ double RimStimPlanModel::endMD() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimStimPlanModel::applyOffset( double offsetMD )
+{
+    // Nothing to do here, this operation is inteded for well path completions
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 cvf::Vec3d RimStimPlanModel::anchorPosition() const
 {
     return m_anchorPosition();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+cvf::Vec3d RimStimPlanModel::anchorPositionForUi() const
+{
+    cvf::Vec3d v = m_anchorPosition;
+    v.z()        = -v.z();
+    return v;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -571,8 +619,14 @@ void RimStimPlanModel::updateExtractionDepthBoundaries()
     if ( eclipseCaseData )
     {
         const cvf::BoundingBox& boundingBox = eclipseCaseData->mainGrid()->boundingBox();
-        m_extractionDepthTop                = -boundingBox.max().z();
-        m_extractionDepthBottom             = -boundingBox.min().z();
+
+        double depth = -m_anchorPosition().z();
+        if ( m_extractionOffsetTop() < 0.0 ) m_extractionOffsetTop = boundingBox.extent().z();
+        if ( m_extractionOffsetBottom() < 0.0 ) m_extractionOffsetBottom = boundingBox.extent().z();
+
+        m_extractionDepthTop    = std::max( depth - m_extractionOffsetTop, -boundingBox.max().z() );
+        m_extractionDepthBottom = std::min( depth + m_extractionOffsetBottom, -boundingBox.min().z() );
+        updateConnectedEditors();
     }
 }
 
@@ -681,7 +735,7 @@ void RimStimPlanModel::updateDistanceToBarrierAndDip()
                               .arg( barrierDip )
                               .arg( foundFault->name() ) );
         QString barrierText =
-            QString( "Barrier Fault: %1\nDistance: %2m" ).arg( foundFault->name() ).arg( shortestDistance );
+            QString( "Barrier Fault for %1\nFault: %2\nDistance: %3m" ).arg( name() ).arg( foundFault->name() ).arg( shortestDistance );
 
         clearBarrierAnnotation();
         addBarrierAnnotation( position, barrierPosition, barrierText );
@@ -707,23 +761,14 @@ void RimStimPlanModel::updateDistanceToBarrierAndDip()
 //--------------------------------------------------------------------------------------------------
 void RimStimPlanModel::clearBarrierAnnotation()
 {
-    auto existingAnnotation = m_barrierAnnotation.value();
-    if ( existingAnnotation )
-    {
-        delete existingAnnotation;
-        m_barrierAnnotation = nullptr;
-    }
+    RimAnnotationCollectionBase* coll = annotationCollection();
 
     auto existingTextAnnotation = m_barrierTextAnnotation.value();
-    if ( existingTextAnnotation )
+    if ( coll && existingTextAnnotation )
     {
+        coll->removeAnnotation( existingTextAnnotation );
         delete existingTextAnnotation;
         m_barrierTextAnnotation = nullptr;
-    }
-
-    RimAnnotationCollectionBase* coll = annotationCollection();
-    if ( coll )
-    {
         coll->onAnnotationDeleted();
     }
 }
@@ -738,31 +783,14 @@ void RimStimPlanModel::addBarrierAnnotation( const cvf::Vec3d& startPosition,
     RimAnnotationCollectionBase* coll = annotationCollection();
     if ( !coll ) return;
 
-    {
-        auto newAnnotation = new RimUserDefinedPolylinesAnnotation();
+    auto newAnnotation = new RimTextAnnotation();
+    newAnnotation->setText( text );
+    newAnnotation->setLabelPoint( endPosition );
+    newAnnotation->setAnchorPoint( startPosition );
 
-        RimPolylineTarget* startTarget = new RimPolylineTarget();
-        startTarget->setAsPointXYZ( startPosition );
-        newAnnotation->insertTarget( nullptr, startTarget );
+    m_barrierTextAnnotation = newAnnotation;
 
-        RimPolylineTarget* endTarget = new RimPolylineTarget();
-        endTarget->setAsPointXYZ( endPosition );
-        newAnnotation->insertTarget( nullptr, endTarget );
-
-        m_barrierAnnotation = newAnnotation;
-        dynamic_cast<RimAnnotationCollection*>( coll )->addAnnotation( newAnnotation );
-    }
-
-    {
-        auto newAnnotation = new RimTextAnnotation();
-        newAnnotation->setText( text );
-        newAnnotation->setLabelPoint( endPosition );
-        newAnnotation->setAnchorPoint( endPosition );
-
-        m_barrierTextAnnotation = newAnnotation;
-        coll->addAnnotation( newAnnotation );
-    }
-
+    coll->addAnnotation( newAnnotation );
     coll->scheduleRedrawOfRelevantViews();
     coll->updateConnectedEditors();
 }
@@ -780,10 +808,29 @@ RimAnnotationCollectionBase* RimStimPlanModel::annotationCollection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimStimPlanModel::updatePerforationInterval()
+{
+    if ( m_thicknessDirectionWellPath )
+    {
+        if ( !m_perforationInterval )
+        {
+            m_perforationInterval = new RimPerforationInterval;
+            m_thicknessDirectionWellPath->perforationIntervalCollection()->appendPerforation( m_perforationInterval );
+        }
+
+        double closestMd = m_thicknessDirectionWellPath->wellPathGeometry()->closestMeasuredDepth( m_anchorPosition );
+        m_perforationInterval->setStartAndEndMD( closestMd - perforationLength(), closestMd + perforationLength() );
+        m_perforationInterval->updateConnectedEditors();
+        updateViewsAndPlots();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimStimPlanModel::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     m_thicknessDirectionWellPath.uiCapability()->setUiHidden( true );
-    m_barrierAnnotation.uiCapability()->setUiHidden( true );
     m_barrierTextAnnotation.uiCapability()->setUiHidden( true );
     m_azimuthAngle.uiCapability()->setUiHidden( m_fractureOrientation() != RimStimPlanModel::FractureOrientation::AZIMUTH );
 
@@ -800,12 +847,15 @@ void RimStimPlanModel::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderin
 
     uiOrdering.add( &m_MD );
     uiOrdering.add( &m_extractionType );
-    uiOrdering.add( &m_anchorPosition );
+    uiOrdering.add( &m_anchorPositionForUi );
     uiOrdering.add( &m_thicknessDirection );
 
     caf::PdmUiOrdering* extractionBoundariesGroup = uiOrdering.addNewGroup( "Extraction Depth Boundaries" );
-    extractionBoundariesGroup->add( &m_extractionDepthTop );
-    extractionBoundariesGroup->add( &m_extractionDepthBottom );
+    extractionBoundariesGroup->add( &m_extractionOffsetTop, caf::PdmUiOrdering::LayoutOptions( true, 3, 1 ) );
+    extractionBoundariesGroup->add( &m_extractionDepthTop, { false, 2, 1 } );
+
+    extractionBoundariesGroup->add( &m_extractionOffsetBottom, caf::PdmUiOrdering::LayoutOptions( true, 3, 1 ) );
+    extractionBoundariesGroup->add( &m_extractionDepthBottom, { false, 2, 1 } );
 
     caf::PdmUiOrdering* boundingBoxGroup = uiOrdering.addNewGroup( "Bounding Box" );
     boundingBoxGroup->add( &m_boundingBoxHorizontal );
@@ -911,6 +961,19 @@ void RimStimPlanModel::updateThicknessDirectionWellPathName()
 //--------------------------------------------------------------------------------------------------
 void RimStimPlanModel::loadDataAndUpdate()
 {
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimStimPlanModel::resetAnchorPositionAndThicknessDirection()
+{
+    // Always recompute thickness direction as MD in project file might have been changed
+    updatePositionFromMeasuredDepth();
+    updateExtractionDepthBoundaries();
+    updateThicknessDirection();
+    updatePerforationInterval();
+    updateBarrierProperties();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1265,7 +1328,9 @@ void RimStimPlanModel::setMD( double md )
 {
     m_MD = md;
     updatePositionFromMeasuredDepth();
+    updateExtractionDepthBoundaries();
     updateThicknessDirection();
+    updatePerforationInterval();
     updateBarrierProperties();
 }
 
@@ -1276,7 +1341,9 @@ void RimStimPlanModel::setEclipseCaseAndTimeStep( RimEclipseCase* eclipseCase, i
 {
     setEclipseCase( eclipseCase );
     setTimeStep( timeStep );
+    updateExtractionDepthBoundaries();
     updateThicknessDirection();
+    updatePerforationInterval();
     updateBarrierProperties();
     updateViewsAndPlots();
     updateConnectedEditors();
@@ -1345,7 +1412,8 @@ bool RimStimPlanModel::useStaticEclipseCase( RiaDefines::CurveProperty curveProp
 //--------------------------------------------------------------------------------------------------
 RimEclipseCase* RimStimPlanModel::eclipseCaseForProperty( RiaDefines::CurveProperty curveProperty ) const
 {
-    if ( m_initialPressureEclipseCase && curveProperty == RiaDefines::CurveProperty::INITIAL_PRESSURE )
+    if ( m_initialPressureEclipseCase && ( curveProperty == RiaDefines::CurveProperty::INITIAL_PRESSURE ||
+                                           curveProperty == RiaDefines::CurveProperty::EQLNUM ) )
     {
         return m_initialPressureEclipseCase;
     }
@@ -1481,8 +1549,8 @@ void RimStimPlanModel::stimPlanModelTemplateChanged( const caf::SignalEmitter* e
         m_initialPressureEclipseCase = m_stimPlanModelTemplate()->initialPressureEclipseCase();
         m_staticEclipseCase          = m_stimPlanModelTemplate()->staticEclipseCase();
         updateExtractionDepthBoundaries();
-
         updateThicknessDirection();
+        updatePerforationInterval();
         updateBarrierProperties();
     }
 
@@ -1700,4 +1768,75 @@ QString RimStimPlanModel::pressureDate() const
         return m_eclipseCase->timeStepStrings()[m_timeStep];
     else
         return QString();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::deque<RimExtractionConfiguration>
+    RimStimPlanModel::extractionConfigurations( RiaDefines::CurveProperty curveProperty ) const
+{
+    if ( curveProperty == RiaDefines::CurveProperty::EQLNUM )
+    {
+        return {
+            RimExtractionConfiguration( "EQLNUM_1",
+                                        RiaDefines::ResultCatType::INPUT_PROPERTY,
+                                        RimExtractionConfiguration::EclipseCaseType::INITIAL_PRESSURE_CASE ),
+            RimExtractionConfiguration( "EQLNUM",
+                                        RiaDefines::ResultCatType::INPUT_PROPERTY,
+                                        RimExtractionConfiguration::EclipseCaseType::INITIAL_PRESSURE_CASE ),
+            RimExtractionConfiguration( "EQLNUM_1",
+                                        RiaDefines::ResultCatType::INPUT_PROPERTY,
+                                        RimExtractionConfiguration::EclipseCaseType::DYNAMIC_CASE ),
+            RimExtractionConfiguration( "EQLNUM",
+                                        RiaDefines::ResultCatType::INPUT_PROPERTY,
+                                        RimExtractionConfiguration::EclipseCaseType::DYNAMIC_CASE ),
+            RimExtractionConfiguration( "EQLNUM_1",
+                                        RiaDefines::ResultCatType::INPUT_PROPERTY,
+                                        RimExtractionConfiguration::EclipseCaseType::STATIC_CASE ),
+            RimExtractionConfiguration( "EQLNUM",
+                                        RiaDefines::ResultCatType::INPUT_PROPERTY,
+                                        RimExtractionConfiguration::EclipseCaseType::STATIC_CASE ),
+            RimExtractionConfiguration( "EQLNUM",
+                                        RiaDefines::ResultCatType::STATIC_NATIVE,
+                                        RimExtractionConfiguration::EclipseCaseType::STATIC_CASE ),
+            RimExtractionConfiguration( "EQLNUM",
+                                        RiaDefines::ResultCatType::STATIC_NATIVE,
+                                        RimExtractionConfiguration::EclipseCaseType::INITIAL_PRESSURE_CASE ),
+            RimExtractionConfiguration( "EQLNUM",
+                                        RiaDefines::ResultCatType::STATIC_NATIVE,
+                                        RimExtractionConfiguration::EclipseCaseType::DYNAMIC_CASE ),
+
+        };
+    }
+    else if ( curveProperty == RiaDefines::CurveProperty::POROSITY ||
+              curveProperty == RiaDefines::CurveProperty::POROSITY_UNSCALED ||
+              curveProperty == RiaDefines::CurveProperty::PERMEABILITY_X ||
+              curveProperty == RiaDefines::CurveProperty::PERMEABILITY_Z )
+    {
+        QString resultName = eclipseResultVariable( curveProperty );
+        return {
+            RimExtractionConfiguration( QString( "%1_1" ).arg( resultName ),
+                                        RiaDefines::ResultCatType::INPUT_PROPERTY,
+                                        RimExtractionConfiguration::EclipseCaseType::STATIC_CASE ),
+            RimExtractionConfiguration( resultName,
+                                        RiaDefines::ResultCatType::INPUT_PROPERTY,
+                                        RimExtractionConfiguration::EclipseCaseType::STATIC_CASE ),
+            RimExtractionConfiguration( resultName,
+                                        RiaDefines::ResultCatType::STATIC_NATIVE,
+                                        RimExtractionConfiguration::EclipseCaseType::DYNAMIC_CASE ),
+        };
+    }
+
+    return std::deque<RimExtractionConfiguration>();
+}
+
+RimEclipseCase* RimStimPlanModel::eclipseCaseForType( RimExtractionConfiguration::EclipseCaseType caseType ) const
+{
+    if ( caseType == RimExtractionConfiguration::EclipseCaseType::STATIC_CASE ) return m_staticEclipseCase;
+    if ( caseType == RimExtractionConfiguration::EclipseCaseType::DYNAMIC_CASE ) return m_eclipseCase;
+    if ( caseType == RimExtractionConfiguration::EclipseCaseType::INITIAL_PRESSURE_CASE )
+        return m_initialPressureEclipseCase;
+
+    return nullptr;
 }

@@ -64,10 +64,11 @@ RimViewLinker::RimViewLinker()
 
     CAF_PDM_InitFieldNoDefault(&m_masterView, "MainView", "Main View", "", "", "");
     m_masterView.uiCapability()->setUiTreeChildrenHidden(true);
+    m_masterView.uiCapability()->setUiTreeHidden(true);
     m_masterView.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&m_viewControllers, "ManagedViews", "Managed Views", "", "", "");
-    m_viewControllers.uiCapability()->setUiHidden(true);
+    m_viewControllers.uiCapability()->setUiTreeHidden(true);
     m_viewControllers.uiCapability()->setUiTreeChildrenHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&m_comparisonView, "LinkedComparisonView", "Comparison View", "", "", "");

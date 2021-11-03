@@ -18,10 +18,13 @@
 
 #include "RifStimPlanModelGeologicalFrkExporter.h"
 
+#include "RiaEclipseUnitTools.h"
 #include "RiaLogging.h"
 #include "RiaPreferences.h"
 
 #include "RifCsvDataTableFormatter.h"
+#include "RifStimPlanModelPerfsFrkExporter.h"
+#include "RifTextDataTableFormatter.h"
 
 #include "RimStimPlanModel.h"
 #include "RimStimPlanModelCalculator.h"
@@ -110,6 +113,16 @@ bool RifStimPlanModelGeologicalFrkExporter::writeToFile( RimStimPlanModel* stimP
     std::vector<double> stressGradients = stimPlanModel->calculator()->calculateStressGradient();
     fixupStressGradients( stressGradients, MIN_STRESS_GRADIENT, MAX_STRESS_GRADIENT, DEFAULT_STRESS_GRADIENT );
 
+    // Make sure porosity and permeability is valid
+    std::vector<double> porosity = stimPlanModel->calculator()->calculatePorosity();
+    fixupLowerBoundary( porosity, stimPlanModel->defaultPorosity(), "porosity" );
+
+    std::vector<double> horizontalPermeability = stimPlanModel->calculator()->calculateHorizontalPermeability();
+    fixupLowerBoundary( horizontalPermeability, stimPlanModel->defaultPermeability(), "horizontal permeability" );
+
+    std::vector<double> verticalPermeability = stimPlanModel->calculator()->calculateVerticalPermeability();
+    fixupLowerBoundary( verticalPermeability, stimPlanModel->defaultPermeability() * 0.1, "vertical permeability" );
+
     std::map<QString, std::vector<double>> values;
     values["dpthlyr"]        = tvd;
     values["strs"]           = stimPlanModel->calculator()->calculateStress();
@@ -122,23 +135,41 @@ bool RifStimPlanModelGeologicalFrkExporter::writeToFile( RimStimPlanModel* stimP
     values["pembed"]         = stimPlanModel->calculator()->calculateProppandEmbedment();
     values["zoneResPres"]    = stimPlanModel->calculator()->calculateReservoirPressure();
     values["zoneWaterSat"]   = stimPlanModel->calculator()->calculateImmobileFluidSaturation();
-    values["zonePorosity"]   = stimPlanModel->calculator()->calculatePorosity();
-    values["zoneHorizPerm"]  = stimPlanModel->calculator()->calculateHorizontalPermeability();
-    values["zoneVertPerm"]   = stimPlanModel->calculator()->calculateVerticalPermeability();
+    values["zonePorosity"]   = porosity;
+    values["zoneHorizPerm"]  = horizontalPermeability;
+    values["zoneVertPerm"]   = verticalPermeability;
     values["zoneTemp"]       = stimPlanModel->calculator()->calculateTemperature();
     values["zoneRelPerm"]    = stimPlanModel->calculator()->calculateRelativePermeabilityFactor();
     values["zonePoroElas"]   = stimPlanModel->calculator()->calculatePoroElasticConstant();
     values["zoneThermalExp"] = stimPlanModel->calculator()->calculateThermalExpansionCoefficient();
 
+    auto [faciesIndex, faciesNames] = stimPlanModel->calculator()->calculateFacies();
+    values["faciesIdx"]             = faciesIndex;
+    if ( faciesIndex.size() != tvd.size() || faciesNames.size() != tvd.size() ) return false;
+
+    auto [formationIndex, formationNames] = stimPlanModel->calculator()->calculateFormation();
+    values["formationIdx"]                = formationIndex;
+    if ( formationIndex.size() != tvd.size() || formationNames.size() != tvd.size() ) return false;
+
     // Special values for csv export
-    auto [depthStart, depthEnd]    = createDepthRanges( tvd );
-    values["dpthstart"]            = depthStart;
-    values["dpthend"]              = depthEnd;
-    std::vector<QString> csvLabels = { "dpthstart", "dpthend" };
+    auto [depthStart, depthEnd] = createDepthRanges( tvd );
+    values["dpthstart"]         = depthStart;
+    values["dpthend"]           = depthEnd;
+
+    auto [perforationTop, perforationBottom] =
+        RifStimPlanModelPerfsFrkExporter::calculateTopAndBottomMeasuredDepth( stimPlanModel, stimPlanModel->wellPath() );
+
+    values["perfs"] = createPerforationValues( depthStart,
+                                               depthEnd,
+                                               RiaEclipseUnitTools::meterToFeet( perforationTop ),
+                                               RiaEclipseUnitTools::meterToFeet( perforationBottom ) );
+
+    std::vector<QString> csvLabels = { "dpthstart", "dpthend", "faciesIdx", "formationIdx", "perfs" };
     for ( const QString& label : labels )
         csvLabels.push_back( label );
 
-    return writeToFrkFile( filepath, labels, values ) && writeToCsvFile( filepath, csvLabels, values );
+    return writeToFrkFile( filepath, labels, values ) &&
+           writeToCsvFile( filepath, csvLabels, values, faciesNames, formationNames );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -177,8 +208,9 @@ bool RifStimPlanModelGeologicalFrkExporter::writeToFrkFile( const QString&      
 //--------------------------------------------------------------------------------------------------
 bool RifStimPlanModelGeologicalFrkExporter::writeToCsvFile( const QString&                                filepath,
                                                             const std::vector<QString>&                   labels,
-                                                            const std::map<QString, std::vector<double>>& values )
-
+                                                            const std::map<QString, std::vector<double>>& values,
+                                                            const std::vector<QString>&                   faciesNames,
+                                                            const std::vector<QString>& formationNames )
 {
     // Create the csv in the same directory as the frk file
     QFileInfo fi( filepath );
@@ -200,6 +232,8 @@ bool RifStimPlanModelGeologicalFrkExporter::writeToCsvFile( const QString&      
     {
         header.push_back( RifTextDataTableColumn( label, RifTextDataTableDoubleFormat::RIF_FLOAT ) );
     }
+    header.push_back( RifTextDataTableColumn( "Facies" ) );
+    header.push_back( RifTextDataTableColumn( "Formation" ) );
     formatter.header( header );
 
     // The length of the vectors are assumed to be equal
@@ -219,6 +253,11 @@ bool RifStimPlanModelGeologicalFrkExporter::writeToCsvFile( const QString&      
             {
                 formatter.add( vals->second[idx] );
             }
+        }
+        if ( !isDone )
+        {
+            formatter.add( faciesNames[idx] );
+            formatter.add( formationNames[idx] );
         }
         formatter.rowCompleted();
         idx++;
@@ -298,6 +337,27 @@ void RifStimPlanModelGeologicalFrkExporter::fixupStressGradients( std::vector<do
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RifStimPlanModelGeologicalFrkExporter::fixupLowerBoundary( std::vector<double>& values,
+                                                                double               minValue,
+                                                                const QString&       property )
+{
+    for ( double& value : values )
+    {
+        if ( value < minValue )
+        {
+            RiaLogging::warning(
+                QString( "Found %1 outside valid lower boundary (%2). Replacing %3 with default value: %2." )
+                    .arg( property )
+                    .arg( minValue )
+                    .arg( value ) );
+            value = minValue;
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RifStimPlanModelGeologicalFrkExporter::warnOnInvalidData( const QString& label, const std::vector<double>& values )
 {
     bool isInvalid = hasInvalidData( values );
@@ -342,4 +402,26 @@ std::pair<std::vector<double>, std::vector<double>>
     }
 
     return std::make_pair( startTvd, endTvd );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<double> RifStimPlanModelGeologicalFrkExporter::createPerforationValues( const std::vector<double>& depthStart,
+                                                                                    const std::vector<double>& depthEnd,
+                                                                                    double perforationTop,
+                                                                                    double perforationBottom )
+{
+    std::vector<double> perfs;
+    for ( size_t idx = 0; idx < depthStart.size(); idx++ )
+    {
+        double top    = depthStart[idx];
+        double bottom = depthEnd[idx];
+
+        // Layer is perforation if end points are inside the perforation interval
+        bool isPerforation = !( bottom < perforationTop || top > perforationBottom );
+        perfs.push_back( static_cast<double>( isPerforation ) );
+    }
+
+    return perfs;
 }

@@ -20,6 +20,7 @@
 
 #include "RigActiveCellInfo.h"
 #include "RigEclipseCaseData.h"
+#include "RigFemPartCollection.h"
 
 #include "Rim3dView.h"
 #include "RimCellEdgeColors.h"
@@ -65,6 +66,14 @@ bool RicNewContourMapViewFeature::isCommandEnabled()
 {
     bool selectedView = caf::SelectionManager::instance()->selectedItemOfType<RimGridView>() != nullptr;
     bool selectedCase = caf::SelectionManager::instance()->selectedItemOfType<RimCase>() != nullptr;
+
+    RimGeoMechView* gmView = caf::SelectionManager::instance()->selectedItemOfType<RimGeoMechView>();
+    if ( gmView )
+    {
+        // if we have more than one geomech part, contour maps does not work with the current implementation
+        if ( gmView->femParts()->partCount() > 1 ) return false;
+    }
+
     bool selectedEclipseContourMapCollection =
         caf::SelectionManager::instance()->selectedItemOfType<RimEclipseContourMapViewCollection>();
     bool selectedGeoMechContourMapCollection =
@@ -302,8 +311,6 @@ RimEclipseContourMapView* RicNewContourMapViewFeature::createEclipseContourMap( 
 
     eclipseCase->contourMapCollection()->push_back( contourMap );
 
-    contourMap->hasUserRequestedAnimation = true;
-
     auto col = RiuGuiTheme::getColorByVariableName( "backgroundColor2" );
     contourMap->setBackgroundColor( RiaColorTools::fromQColorTo3f( col ) ); // Ignore original view background
 
@@ -385,8 +392,6 @@ RimGeoMechContourMapView* RicNewContourMapViewFeature::createGeoMechContourMap( 
     size_t i = geoMechCase->contourMapCollection()->views().size();
     contourMap->setName( QString( "Contour Map %1" ).arg( i + 1 ) );
     geoMechCase->contourMapCollection()->push_back( contourMap );
-
-    contourMap->hasUserRequestedAnimation = true;
 
     auto col = RiuGuiTheme::getColorByVariableName( "backgroundColor2" );
     contourMap->setBackgroundColor( RiaColorTools::fromQColorTo3f( col ) ); // Ignore original view background

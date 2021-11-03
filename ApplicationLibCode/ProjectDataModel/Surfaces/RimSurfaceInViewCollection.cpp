@@ -18,8 +18,10 @@
 
 #include "RimSurfaceInViewCollection.h"
 
+#include "RimEnsembleSurface.h"
 #include "RimGridView.h"
 #include "RimIntersectionResultDefinition.h"
+#include "RimIntersectionResultsDefinitionCollection.h"
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimSurface.h"
@@ -29,6 +31,7 @@
 
 #include "RivSurfacePartMgr.h"
 
+#include "cafPdmUiTreeOrdering.h"
 #include "cvfModelBasicList.h"
 
 CAF_PDM_SOURCE_INIT( RimSurfaceInViewCollection, "SurfaceInViewCollection" );
@@ -75,6 +78,26 @@ RimSurfaceInViewCollection::~RimSurfaceInViewCollection()
 caf::PdmFieldHandle* RimSurfaceInViewCollection::userDescriptionField()
 {
     return &m_collectionName;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSurfaceInViewCollection::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering,
+                                                       QString                 uiConfigName /*= ""*/ )
+{
+    RimGridView* gridView = nullptr;
+    this->firstAncestorOfType( gridView );
+
+    RimSurfaceInViewCollection* surfViewColl = nullptr;
+    this->firstAncestorOfType( surfViewColl );
+
+    if ( gridView && !surfViewColl )
+    {
+        auto uiTree = gridView->separateSurfaceResultsCollection()->uiTreeOrdering();
+
+        uiTreeOrdering.appendChild( uiTree );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -181,7 +204,7 @@ void RimSurfaceInViewCollection::syncSurfacesWithView()
         }
     }
 
-    // Create new surfade entries and reorder
+    // Create new surface entries and reorder
     std::vector<RimSurfaceInView*> orderedSurfs;
 
     if ( m_surfaceCollection )
@@ -196,6 +219,12 @@ void RimSurfaceInViewCollection::syncSurfacesWithView()
             {
                 RimSurfaceInView* newSurfInView = new RimSurfaceInView();
                 newSurfInView->setSurface( surf );
+
+                if ( m_surfaceCollection->collectionName() == RimEnsembleSurface::ensembleSourceFileCollectionName() )
+                {
+                    newSurfInView->setActive( false );
+                }
+
                 orderedSurfs.push_back( newSurfInView );
             }
             else
@@ -487,9 +516,9 @@ std::vector<RimRegularLegendConfig*> RimSurfaceInViewCollection::legendConfigs()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<const RivIntersectionGeometryGeneratorIF*> RimSurfaceInViewCollection::intersectionGeometryGenerators() const
+std::vector<const RivIntersectionGeometryGeneratorInterface*> RimSurfaceInViewCollection::intersectionGeometryGenerators() const
 {
-    std::vector<const RivIntersectionGeometryGeneratorIF*> generators;
+    std::vector<const RivIntersectionGeometryGeneratorInterface*> generators;
 
     for ( auto surf : m_surfacesInView )
     {

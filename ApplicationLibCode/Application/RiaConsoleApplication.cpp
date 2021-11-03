@@ -22,6 +22,7 @@
 #include "RiaPreferences.h"
 #include "RiaProjectModifier.h"
 #include "RiaSocketServer.h"
+#include "RiaVersionInfo.h"
 
 #include "RicImportGeneralDataFeature.h"
 
@@ -124,6 +125,15 @@ RiaApplication::ApplicationStatus RiaConsoleApplication::handleArguments( gsl::n
     {
         this->showFormattedTextInMessageBoxOrConsole( "\nThe current command line options in ResInsight are:\n" +
                                                       this->commandLineParameterHelp() );
+        return RiaApplication::ApplicationStatus::EXIT_COMPLETED;
+    }
+
+    if ( progOpt->option( "version" ) )
+    {
+        QString text = QString( STRPRODUCTVER ) + "\n";
+
+        this->showFormattedTextInMessageBoxOrConsole( text );
+
         return RiaApplication::ApplicationStatus::EXIT_COMPLETED;
     }
 
@@ -275,7 +285,9 @@ RiaApplication::ApplicationStatus RiaConsoleApplication::handleArguments( gsl::n
         QStringList fileNames =
             RicImportGeneralDataFeature::fileNamesFromCaseNames( cvfqt::Utils::toQStringList( o.values() ) );
 
-        RicImportGeneralDataFeature::openEclipseFilesFromFileNames( fileNames, true );
+        bool createView = true;
+        bool createPlot = true;
+        RicImportGeneralDataFeature::openEclipseFilesFromFileNames( fileNames, createPlot, createView );
     }
 
     if ( cvf::Option o = progOpt->option( "commandFile" ) )

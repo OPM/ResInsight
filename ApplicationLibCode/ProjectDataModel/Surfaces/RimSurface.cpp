@@ -38,6 +38,16 @@
 
 CAF_PDM_ABSTRACT_SOURCE_INIT( RimSurface, "SurfaceInterface" );
 
+template <>
+void caf::AppEnum<RimSurface::SurfaceType>::setUp()
+{
+    addItem( RimSurface::SurfaceType::DEFAULT, "DEFAULT", "Default" );
+    addItem( RimSurface::SurfaceType::ENSEMBLE_SOURCE, "ENSEMBLE_SOURCE", "Ensemble Source" );
+    addItem( RimSurface::SurfaceType::ENSEMBLE_STATISTICS, "ENSEMBLE_STATISTICS", "Ensemble Statistics" );
+
+    setDefault( RimSurface::SurfaceType::DEFAULT );
+}
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------

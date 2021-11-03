@@ -34,6 +34,7 @@ class RigMainGrid;
 class RigResultAccessor;
 
 class RivTernaryScalarMapper;
+class RivIntersectionGeometryGeneratorInterface;
 
 class RimCellEdgeColors;
 class RimEclipseCellColors;
@@ -60,7 +61,7 @@ public:
     void appendNativeIntersectionFacesToModel( cvf::ModelBasicList* model, cvf::Transform* scaleTransform );
     void appendMeshLinePartsToModel( cvf::ModelBasicList* model, cvf::Transform* scaleTransform );
 
-    const RivIntersectionGeometryGeneratorIF* intersectionGeometryGenerator() const;
+    const RivIntersectionGeometryGeneratorInterface* intersectionGeometryGenerator() const;
 
 private:
     void updatePartEffect();

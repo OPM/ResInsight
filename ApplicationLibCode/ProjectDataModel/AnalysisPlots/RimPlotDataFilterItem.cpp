@@ -298,8 +298,8 @@ QList<caf::PdmOptionItemInfo>
     {
         if ( m_filterTarget() == ENSEMBLE_CASE )
         {
-            std::set<EnsembleParameter> ensembleParams = parentPlot->ensembleParameters();
-            for ( const EnsembleParameter& ensParam : ensembleParams )
+            std::set<RigEnsembleParameter> ensembleParams = parentPlot->ensembleParameters();
+            for ( const RigEnsembleParameter& ensParam : ensembleParams )
             {
                 options.push_back( caf::PdmOptionItemInfo( ensParam.uiName(), ensParam.name ) );
             }
@@ -307,7 +307,7 @@ QList<caf::PdmOptionItemInfo>
     }
     else if ( fieldNeedingOptions == &m_ensembleParameterValueCategories )
     {
-        EnsembleParameter eParm = selectedEnsembleParameter();
+        RigEnsembleParameter eParm = selectedEnsembleParameter();
         if ( eParm.isText() )
         {
             for ( const auto& val : eParm.values )
@@ -359,7 +359,7 @@ void RimPlotDataFilterItem::defineUiOrdering( QString uiConfigName, caf::PdmUiOr
         }
     }
 
-    EnsembleParameter eParm;
+    RigEnsembleParameter eParm;
     if ( m_filterTarget() == ENSEMBLE_CASE )
     {
         eParm = selectedEnsembleParameter();
@@ -430,14 +430,14 @@ void RimPlotDataFilterItem::updateMaxMinAndDefaultValues( bool forceDefault )
     {
         if ( !selectedEnsembleParameter().isValid() )
         {
-            std::set<EnsembleParameter> ensembleParams = parentPlot->ensembleParameters();
+            std::set<RigEnsembleParameter> ensembleParams = parentPlot->ensembleParameters();
             if ( !ensembleParams.empty() )
             {
                 m_filterEnsembleParameter = ensembleParams.begin()->name;
             }
         }
 
-        EnsembleParameter eParam = selectedEnsembleParameter();
+        RigEnsembleParameter eParam = selectedEnsembleParameter();
         if ( eParam.isValid() && eParam.isNumeric() )
         {
             if ( RiaCurveDataTools::isValidValue( eParam.minValue, false ) )
@@ -475,7 +475,7 @@ void RimPlotDataFilterItem::updateMaxMinAndDefaultValues( bool forceDefault )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-EnsembleParameter RimPlotDataFilterItem::selectedEnsembleParameter() const
+RigEnsembleParameter RimPlotDataFilterItem::selectedEnsembleParameter() const
 {
     RimAnalysisPlot* parentPlot;
     this->firstAncestorOrThisOfTypeAsserted( parentPlot );

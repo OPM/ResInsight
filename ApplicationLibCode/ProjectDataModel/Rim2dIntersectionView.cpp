@@ -69,7 +69,7 @@ Rim2dIntersectionView::Rim2dIntersectionView( void )
     m_intersection.uiCapability()->setUiHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_legendConfig, "LegendDefinition", "Color Legend", "", "", "" );
-    m_legendConfig.uiCapability()->setUiHidden( true );
+    m_legendConfig.uiCapability()->setUiTreeHidden( true );
     m_legendConfig.uiCapability()->setUiTreeChildrenHidden( true );
     m_legendConfig.xmlCapability()->disableIO();
     m_legendConfig = new RimRegularLegendConfig();
@@ -91,8 +91,6 @@ Rim2dIntersectionView::Rim2dIntersectionView( void )
     m_showWindow           = false;
     m_scaleTransform       = new cvf::Transform();
     m_intersectionVizModel = new cvf::ModelBasicList;
-
-    hasUserRequestedAnimation = true;
 
     ( (RiuViewerToViewInterface*)this )->setCameraPosition( sm_defaultViewMatrix );
 
@@ -562,7 +560,8 @@ void Rim2dIntersectionView::onCreateDisplayModel()
     m_flatSimWellPipePartMgr = nullptr;
     m_flatWellHeadPartMgr    = nullptr;
 
-    if ( m_intersection->type() == RimExtrudedCurveIntersection::CS_SIMULATION_WELL && m_intersection->simulationWell() )
+    if ( m_intersection->type() == RimExtrudedCurveIntersection::CrossSectionEnum::CS_SIMULATION_WELL &&
+         m_intersection->simulationWell() )
     {
         RimEclipseView* eclipseView = nullptr;
         m_intersection->firstAncestorOrThisOfType( eclipseView );
@@ -575,7 +574,8 @@ void Rim2dIntersectionView::onCreateDisplayModel()
     }
 
     m_flatWellpathPartMgr = nullptr;
-    if ( m_intersection->type() == RimExtrudedCurveIntersection::CS_WELL_PATH && m_intersection->wellPath() )
+    if ( m_intersection->type() == RimExtrudedCurveIntersection::CrossSectionEnum::CS_WELL_PATH &&
+         m_intersection->wellPath() )
     {
         Rim3dView* settingsView = nullptr;
         m_intersection->firstAncestorOrThisOfType( settingsView );
@@ -593,10 +593,7 @@ void Rim2dIntersectionView::onCreateDisplayModel()
 
     m_intersectionVizModel->updateBoundingBoxesRecursive();
 
-    if ( this->hasUserRequestedAnimation() )
-    {
-        if ( viewer() ) viewer()->setCurrentFrame( m_currentTimeStep );
-    }
+    if ( viewer() ) viewer()->setCurrentFrame( m_currentTimeStep );
 
     if ( this->viewer()->mainCamera()->viewMatrix() == sm_defaultViewMatrix )
     {
@@ -668,7 +665,7 @@ void Rim2dIntersectionView::onUpdateDisplayModelForCurrentTimeStep()
         }
     }
 
-    if ( ( this->hasUserRequestedAnimation() && this->hasResults() ) )
+    if ( this->hasResults() )
     {
         m_flatIntersectionPartMgr->updateCellResultColor( m_currentTimeStep,
                                                           m_legendConfig->scalarMapper(),

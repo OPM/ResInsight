@@ -20,15 +20,20 @@
 #include "RimDepthTrackPlot.h"
 
 #include "RiaGuiApplication.h"
+#include "RiaOptionItemFactory.h"
 #include "RiaPreferences.h"
 
+#include "RiaResultNames.h"
 #include "RigWellLogCurveData.h"
 #include "RigWellPath.h"
 
 #include "RimEclipseCase.h"
 #include "RimEclipseCaseCollection.h"
 #include "RimEclipseResultCase.h"
+#include "RimEnsembleCurveSet.h"
+#include "RimEnsembleWellLogCurveSet.h"
 #include "RimGeoMechCase.h"
+#include "RimMainPlotCollection.h"
 #include "RimOilField.h"
 #include "RimPlot.h"
 #include "RimProject.h"
@@ -118,8 +123,11 @@ RimDepthTrackPlot::RimDepthTrackPlot()
     m_nameConfig.uiCapability()->setUiTreeChildrenHidden( true );
     m_nameConfig = new RimWellLogPlotNameConfig();
 
+    CAF_PDM_InitFieldNoDefault( &m_ensembleCurveSet, "FilterEnsembleCurveSet", "Filter by Ensemble Curve Set", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_depthEqualization, "DepthEqualization", "Depth Equalization", "", "", "" );
+
     CAF_PDM_InitFieldNoDefault( &m_plots, "Tracks", "", "", "", "" );
-    m_plots.uiCapability()->setUiHidden( true );
+    m_plots.uiCapability()->setUiTreeHidden( true );
     auto reorderability = caf::PdmFieldReorderCapability::addToField( &m_plots );
     reorderability->orderChanged.connect( this, &RimDepthTrackPlot::onPlotsReordered );
 
@@ -830,6 +838,26 @@ void RimDepthTrackPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedFiel
     {
         performAutoNameUpdate();
     }
+    else if ( changedField == &m_depthEqualization )
+    {
+        std::vector<RimEnsembleWellLogCurveSet*> ensembleWellLogCurveSets;
+        descendantsOfType( ensembleWellLogCurveSets );
+        for ( auto ensembleWellLogCurveSet : ensembleWellLogCurveSets )
+        {
+            ensembleWellLogCurveSet->setDepthEqualization( m_depthEqualization() );
+            ensembleWellLogCurveSet->loadDataAndUpdate( true );
+        }
+    }
+    else if ( changedField == &m_ensembleCurveSet )
+    {
+        std::vector<RimEnsembleWellLogCurveSet*> ensembleWellLogCurveSets;
+        descendantsOfType( ensembleWellLogCurveSets );
+        for ( auto ensembleWellLogCurveSet : ensembleWellLogCurveSets )
+        {
+            ensembleWellLogCurveSet->setFilterByEnsembleCurveSet( m_ensembleCurveSet() );
+            ensembleWellLogCurveSet->loadDataAndUpdate( true );
+        }
+    }
 
     updateConnectedEditors();
 }
@@ -855,6 +883,22 @@ void RimDepthTrackPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderi
     plotLayoutGroup->add( &m_subTitleFontSize );
     plotLayoutGroup->add( &m_axisTitleFontSize );
     plotLayoutGroup->add( &m_axisValueFontSize );
+
+    std::vector<RimEnsembleWellLogCurveSet*> ensembleWellLogCurveSets;
+    descendantsOfType( ensembleWellLogCurveSets );
+    if ( !ensembleWellLogCurveSets.empty() )
+    {
+        caf::PdmUiGroup* ensembleWellLogGroup = uiOrdering.addNewGroup( "Ensemble Well Log" );
+        ensembleWellLogGroup->add( &m_depthEqualization );
+        ensembleWellLogGroup->add( &m_ensembleCurveSet );
+
+        // Disable depth equalization if any of the ensmble is missing k-layer info
+        bool hasKLayerIndex = true;
+        for ( auto wellLogCurveSet : ensembleWellLogCurveSets )
+            if ( !wellLogCurveSet->hasPropertyInFile( RiaResultNames::indexKResultName() ) ) hasKLayerIndex = false;
+
+        m_depthEqualization.uiCapability()->setUiReadOnly( !hasKLayerIndex );
+    }
 
     uiOrdering.skipRemainingFields( true );
 }
@@ -892,6 +936,10 @@ QList<caf::PdmOptionItemInfo> RimDepthTrackPlot::calculateValueOptions( const ca
               fieldNeedingOptions == &m_axisValueFontSize )
     {
         options = caf::FontTools::relativeSizeValueOptions( RiaPreferences::current()->defaultPlotFontSize() );
+    }
+    else if ( fieldNeedingOptions == &m_ensembleCurveSet )
+    {
+        RiaOptionItemFactory::appendOptionItemsForEnsembleCurveSets( &options );
     }
 
     ( *useOptionsOnly ) = true;

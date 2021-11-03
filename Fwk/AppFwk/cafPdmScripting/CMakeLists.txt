@@ -31,7 +31,8 @@ set(PROJECT_FILES
     cafPdmMarkdownGenerator.h
     cafPdmMarkdownGenerator.cpp
     cafPdmMarkdownBuilder.h
-    cafPdmMarkdownBuilder.cpp)
+    cafPdmMarkdownBuilder.cpp
+)
 
 set(CAF_LIBS cafProjectDataModel)
 
@@ -42,7 +43,8 @@ if(CAF_CVF_SCRIPTING)
     cafPdmFieldScriptingCapabilityCvfColor3.h
     cafPdmFieldScriptingCapabilityCvfColor3.cpp
     cafPdmFieldScriptingCapabilityCvfVec3d.h
-    cafPdmFieldScriptingCapabilityCvfVec3d.cpp)
+    cafPdmFieldScriptingCapabilityCvfVec3d.cpp
+  )
   list(APPEND CAF_LIBS cafPdmCvf)
 endif()
 

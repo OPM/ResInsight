@@ -38,7 +38,7 @@ RiaApplication* createApplication( int& argc, char* argv[] )
 {
     for ( int i = 1; i < argc; ++i )
     {
-        if ( !qstrcmp( argv[i], "--console" ) || !qstrcmp( argv[i], "--unittest" ) )
+        if ( !qstrcmp( argv[i], "--console" ) || !qstrcmp( argv[i], "--unittest" ) || !qstrcmp( argv[i], "--version" ) )
         {
 #ifdef ENABLE_GRPC
             return new RiaGrpcConsoleApplication( argc, argv );

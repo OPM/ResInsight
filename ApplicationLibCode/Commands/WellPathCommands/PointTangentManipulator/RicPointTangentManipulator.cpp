@@ -82,6 +82,14 @@ void RicPointTangentManipulator::setHandleSize( double handleSize )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RicPointTangentManipulator::setPolyline( const std::vector<cvf::Vec3d>& polyline )
+{
+    m_partManager->setPolyline( polyline );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RicPointTangentManipulator::appendPartsToModel( cvf::ModelBasicList* model )
 {
     m_partManager->appendPartsToModel( model );
@@ -94,7 +102,7 @@ bool RicPointTangentManipulator::eventFilter( QObject* obj, QEvent* inputEvent )
 {
     if ( inputEvent->type() == QEvent::MouseButtonPress )
     {
-        QMouseEvent* mouseEvent = static_cast<QMouseEvent*>( inputEvent );
+        auto* mouseEvent = static_cast<QMouseEvent*>( inputEvent );
 
         if ( mouseEvent->button() == Qt::LeftButton )
         {
@@ -119,7 +127,7 @@ bool RicPointTangentManipulator::eventFilter( QObject* obj, QEvent* inputEvent )
     {
         if ( m_partManager->isManipulatorActive() )
         {
-            QMouseEvent* mouseEvent = static_cast<QMouseEvent*>( inputEvent );
+            auto* mouseEvent = static_cast<QMouseEvent*>( inputEvent );
 
             cvf::ref<cvf::RayIntersectSpec> rayIs =
                 m_viewer->rayIntersectSpecFromWindowCoordinates( mouseEvent->pos().x(),

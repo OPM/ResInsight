@@ -39,6 +39,7 @@
 #include "RimStimPlanModelCalculator.h"
 #include "RimStimPlanModelTemplate.h"
 #include "RimStimPlanModelWellLogCalculator.h"
+#include "cafAssert.h"
 
 #include <limits>
 
@@ -160,13 +161,18 @@ bool RimStimPlanModelPressureCalculator::extractValuesForProperty( RiaDefines::C
     else
     {
         // Extract the property we care about
-        RimStimPlanModelWellLogCalculator::extractValuesForProperty( pressureCurveProperty,
-                                                                     stimPlanModel,
-                                                                     timeStep,
-                                                                     values,
-                                                                     measuredDepthValues,
-                                                                     tvDepthValues,
-                                                                     rkbDiff );
+        if ( !RimStimPlanModelWellLogCalculator::extractValuesForProperty( pressureCurveProperty,
+                                                                           stimPlanModel,
+                                                                           timeStep,
+                                                                           values,
+                                                                           measuredDepthValues,
+                                                                           tvDepthValues,
+                                                                           rkbDiff ) )
+        {
+            RiaLogging::error( QString( "Unable to extract pressure values for property: %1" )
+                                   .arg( caf::AppEnum<RiaDefines::CurveProperty>( curveProperty ).uiText() ) );
+            return false;
+        }
     }
 
     if ( targetTvds.size() != tvDepthValues.size() )
@@ -177,6 +183,7 @@ bool RimStimPlanModelPressureCalculator::extractValuesForProperty( RiaDefines::C
         values                    = results;
     }
 
+    bool useEqlnumForPressureInterpolation = stimPlanModel->stimPlanModelTemplate()->useEqlnumForPressureInterpolation();
     if ( curveProperty == RiaDefines::CurveProperty::INITIAL_PRESSURE )
     {
         auto hasMissingValues = []( const std::vector<double>& vec ) {
@@ -185,12 +192,12 @@ bool RimStimPlanModelPressureCalculator::extractValuesForProperty( RiaDefines::C
 
         if ( hasMissingValues( values ) )
         {
-            if ( !interpolateInitialPressureByEquilibrationRegion( curveProperty,
-                                                                   stimPlanModel,
-                                                                   timeStep,
-                                                                   measuredDepthValues,
-                                                                   tvDepthValues,
-                                                                   values ) )
+            if ( useEqlnumForPressureInterpolation && !interpolateInitialPressureByEquilibrationRegion( curveProperty,
+                                                                                                        stimPlanModel,
+                                                                                                        timeStep,
+                                                                                                        measuredDepthValues,
+                                                                                                        tvDepthValues,
+                                                                                                        values ) )
             {
                 RiaLogging::error( "Pressure interpolation by equilibration region failed." );
             }
@@ -204,7 +211,8 @@ bool RimStimPlanModelPressureCalculator::extractValuesForProperty( RiaDefines::C
     {
         std::vector<double> initialPressureValues = values;
         values.clear();
-        if ( !interpolatePressureDifferenceByEquilibrationRegion( curveProperty,
+        if ( useEqlnumForPressureInterpolation &&
+             !interpolatePressureDifferenceByEquilibrationRegion( curveProperty,
                                                                   stimPlanModel,
                                                                   timeStep,
                                                                   measuredDepthValues,
@@ -287,8 +295,11 @@ std::tuple<std::vector<double>, std::vector<double>, std::vector<double>>
         }
         else
         {
-            // The last point is added without interpolation
-            value = sourceValues.back();
+            if ( !sourceValues.empty() )
+            {
+                // The last point is added without interpolation
+                value = sourceValues.back();
+            }
         }
 
         interpolatedValues.push_back( value );
@@ -448,49 +459,70 @@ bool RimStimPlanModelPressureCalculator::buildPressureTablesPerEqlNum( const Rim
                                                                        EqlNumToDepthValuePairMap& valuesPerEqlNum,
                                                                        const std::set<int>&       presentEqlNums )
 {
-    RimEclipseCase* eclipseCase = stimPlanModel->eclipseCaseForProperty( RiaDefines::CurveProperty::EQLNUM );
+    int             gridIndex         = 0;
+    RimEclipseCase* eqlNumEclipseCase = stimPlanModel->eclipseCaseForProperty( RiaDefines::CurveProperty::EQLNUM );
+    CAF_ASSERT( eqlNumEclipseCase != nullptr );
 
-    // TODO: too naive??
-    int                gridIndex = 0;
-    const RigGridBase* grid      = eclipseCase->mainGrid()->gridByIndex( gridIndex );
+    const RigGridBase* eqlNumGrid = eqlNumEclipseCase->mainGrid()->gridByIndex( gridIndex );
+    CAF_ASSERT( eqlNumGrid != nullptr );
 
-    RigEclipseCaseData* caseData = eclipseCase->eclipseCaseData();
+    RigEclipseCaseData* eqlNumCaseData = eqlNumEclipseCase->eclipseCaseData();
+    CAF_ASSERT( eqlNumCaseData != nullptr );
 
     RiaDefines::PorosityModelType porosityModel = RiaDefines::PorosityModelType::MATRIX_MODEL;
     const std::vector<double>&    eqlNumValues =
-        RimStimPlanModelWellLogCalculator::loadResults( caseData,
+        RimStimPlanModelWellLogCalculator::loadResults( eqlNumCaseData,
                                                         porosityModel,
                                                         RiaDefines::ResultCatType::STATIC_NATIVE,
                                                         "EQLNUM" );
+
+    RimEclipseCase* pressureEclipseCase =
+        stimPlanModel->eclipseCaseForProperty( RiaDefines::CurveProperty::INITIAL_PRESSURE );
+    CAF_ASSERT( pressureEclipseCase != nullptr );
+
+    const RigGridBase* pressureGrid = pressureEclipseCase->mainGrid()->gridByIndex( gridIndex );
+    CAF_ASSERT( pressureGrid );
+
+    RigEclipseCaseData* pressureCaseData = pressureEclipseCase->eclipseCaseData();
+    CAF_ASSERT( pressureCaseData );
+
     const std::vector<double>& pressureValues =
-        RimStimPlanModelWellLogCalculator::loadResults( caseData,
+        RimStimPlanModelWellLogCalculator::loadResults( pressureCaseData,
                                                         porosityModel,
                                                         RiaDefines::ResultCatType::DYNAMIC_NATIVE,
                                                         "PRESSURE" );
 
-    if ( eqlNumValues.size() != pressureValues.size() )
+    auto   eqlNumActiveCellInfo = eqlNumCaseData->activeCellInfo( porosityModel );
+    size_t eqlNumCellCount      = eqlNumActiveCellInfo->reservoirCellCount();
+
+    auto pressureActiveCellInfo = pressureCaseData->activeCellInfo( porosityModel );
+
+    if ( eqlNumGrid->cellCountI() != pressureGrid->cellCountI() ||
+         eqlNumGrid->cellCountJ() != pressureGrid->cellCountJ() || eqlNumGrid->cellCountK() != pressureGrid->cellCountK() )
     {
-        RiaLogging::error( "Unexpected result size for EQLNUM and PRESSURE found for pressure calculation." );
+        RiaLogging::error( "Unexpected number of cells when building pressure per EQLNUM table. " );
+        RiaLogging::error( "Grid needs to have identical geometry." );
+        RiaLogging::error( QString( "EQLNUM grid dimensions: [ %1, %2, %3]" )
+                               .arg( eqlNumGrid->cellCountI() )
+                               .arg( eqlNumGrid->cellCountJ() )
+                               .arg( eqlNumGrid->cellCountK() ) );
+
+        RiaLogging::error( QString( "PRESSURE grid dimensions: [ %1, %2, %3]" )
+                               .arg( pressureGrid->cellCountI() )
+                               .arg( pressureGrid->cellCountJ() )
+                               .arg( pressureGrid->cellCountK() ) );
         return false;
     }
 
-    auto   activeCellInfo = caseData->activeCellInfo( porosityModel );
-    size_t cellCount      = activeCellInfo->reservoirActiveCellCount();
-
-    if ( cellCount != pressureValues.size() )
+    for ( size_t cellIndex = 0; cellIndex < eqlNumCellCount; cellIndex++ )
     {
-        RiaLogging::error( "Unexpected number of active cells in pressure calculation." );
-        return false;
-    }
-
-    for ( size_t cellIndex = 0; cellIndex < cellCount; cellIndex++ )
-    {
-        size_t resultIdx = activeCellInfo->cellResultIndex( cellIndex );
-        int    eqlNum    = static_cast<int>( eqlNumValues[resultIdx] );
-        double pressure  = pressureValues[resultIdx];
+        size_t resultIdx         = eqlNumActiveCellInfo->cellResultIndex( cellIndex );
+        int    eqlNum            = static_cast<int>( eqlNumValues[resultIdx] );
+        size_t pressureResultIdx = pressureActiveCellInfo->cellResultIndex( cellIndex );
+        double pressure          = pressureValues[pressureResultIdx];
         if ( presentEqlNums.count( eqlNum ) > 0 && !std::isinf( pressure ) )
         {
-            cvf::Vec3d center = grid->cell( cellIndex ).center();
+            cvf::Vec3d center = eqlNumGrid->cell( cellIndex ).center();
             valuesPerEqlNum[eqlNum].push_back( std::make_pair( -center.z(), pressure ) );
         }
     }
@@ -590,7 +622,14 @@ bool RimStimPlanModelPressureCalculator::interpolateInitialPressureByEquilibrati
     }
 
     // EQLNUM data has values for over/underburden, but the pressure values does not.
-    CAF_ASSERT( eqlNumValues.size() == ( values.size() + 4 ) );
+    if ( eqlNumValues.size() != ( values.size() + 4 ) )
+    {
+        RiaLogging::error(
+            QString( "Failed to build EQLNUM pressure data for initial pressure: result length mismatch." ) );
+        RiaLogging::error(
+            QString( "EQLNUM length: %1 PRESSURE length: %2" ).arg( eqlNumValues.size() ).arg( values.size() ) );
+        return false;
+    }
 
     size_t overburdenOffset = 2;
     for ( size_t i = 0; i < values.size(); i++ )
@@ -654,7 +693,13 @@ bool RimStimPlanModelPressureCalculator::interpolatePressureDifferenceByEquilibr
     values.resize( initialPressureValues.size(), std::numeric_limits<double>::infinity() );
 
     // EQLNUM data has values for over/underburden, but the pressure values does not.
-    CAF_ASSERT( eqlNumValues.size() == ( values.size() + 4 ) );
+    if ( eqlNumValues.size() != ( values.size() + 4 ) )
+    {
+        RiaLogging::error( QString( "Failed to build EQLNUM pressure data: result length mismatch." ) );
+        RiaLogging::error(
+            QString( "EQLNUM length: %1 PRESSURE length: %2" ).arg( eqlNumValues.size() ).arg( values.size() ) );
+        return false;
+    }
 
     size_t overburdenOffset = 2;
     for ( size_t i = 0; i < values.size(); i++ )
@@ -723,8 +768,12 @@ bool RimStimPlanModelPressureCalculator::handleFaciesWithInitialPressure( const 
             return false;
         }
 
-        CAF_ASSERT( faciesValues.size() == initialPressureValues.size() );
-        CAF_ASSERT( faciesValues.size() == values.size() );
+        if ( faciesValues.size() != initialPressureValues.size() || faciesValues.size() != values.size() )
+        {
+            RiaLogging::error( "Unable to handle facies with initial pressure: result length mismatch" );
+            return false;
+        }
+
         for ( size_t i = 0; i < faciesValues.size(); i++ )
         {
             // Use the values from initial pressure curve

@@ -57,6 +57,7 @@ public:
     static QString scriptClassComment( const QString& classKeyword );
 
     static bool isScriptable( const caf::PdmObject* object );
+    static bool isScriptable( const QString& classKeyword );
 
 private:
     static std::map<QString, QString> s_classKeywordToScriptClassName;

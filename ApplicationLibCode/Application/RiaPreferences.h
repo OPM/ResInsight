@@ -42,6 +42,7 @@
 class RifReaderSettings;
 class RiaPreferencesSummary;
 class RiaPreferencesGeoMech;
+class RiaPreferencesSystem;
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -70,18 +71,7 @@ public:
 
     const RifReaderSettings* readerSettings() const;
 
-    // Debug settings
-    bool    appendClassNameToUiText() const;
-    bool    appendFieldKeywordToToolTipText() const;
-    bool    showViewIdInProjectTree() const;
-    bool    showTestToolbar() const;
-    bool    includeFractureDebugInfoFile() const;
-    bool    showProjectChangedDialog() const;
-    QString holoLensExportFolder() const;
-    bool    useShaders() const;
-    bool    show3dInformation() const;
-    QString gtestFilter() const;
-    bool    useUndoRedo() const;
+    bool useUndoRedo() const;
 
     const QString& dateFormat() const;
     const QString& timeFormat() const;
@@ -93,7 +83,6 @@ public:
     void        appendPlotTemplateFolders( const QString& folder );
     QString     defaultPlotTemplateAbsolutePath() const;
     void        setDefaultPlotTemplatePath( const QString& templatePath );
-    bool        showProgressBar() const;
     bool        openExportedPdfInViewer() const;
 
     RiaDefines::ThemeEnum guiTheme() const;
@@ -123,6 +112,7 @@ public:
 
     RiaPreferencesGeoMech* geoMechPreferences() const;
     RiaPreferencesSummary* summaryPreferences() const;
+    RiaPreferencesSystem*  systemPreferences() const;
 
 public:
     caf::PdmField<bool> enableGrpcServer;
@@ -139,7 +129,6 @@ public:
     caf::PdmField<cvf::Color3f> defaultFaultGridLineColors;
     caf::PdmField<cvf::Color3f> defaultViewerBackgroundColor;
     caf::PdmField<cvf::Color3f> defaultWellLabelColor;
-    caf::PdmField<bool>         showLasCurveWithoutTvdWarning;
 
     caf::PdmField<FontSizeEnum> defaultSceneFontSize;
     caf::PdmField<FontSizeEnum> defaultWellLabelFontSize;
@@ -180,23 +169,10 @@ private:
 private:
     caf::PdmChildField<RifReaderSettings*> m_readerSettings;
 
-    caf::PdmField<bool> m_appendClassNameToUiText;
-    caf::PdmField<bool> m_appendFieldKeywordToToolTipText;
-    caf::PdmField<bool> m_showViewIdInProjectTree;
-    caf::PdmField<bool> m_useShaders;
-    caf::PdmField<bool> m_showHud;
-
-    caf::PdmField<bool> m_showProjectChangedDialog;
-
-    caf::PdmField<bool>    m_showTestToolbar;
-    caf::PdmField<bool>    m_includeFractureDebugInfoFile;
-    caf::PdmField<QString> m_holoLensExportFolder;
     caf::PdmField<QString> m_dateFormat;
     caf::PdmField<QString> m_timeFormat;
 
-    caf::PdmField<bool>    m_showProgressBar;
-    caf::PdmField<QString> m_gtestFilter;
-    caf::PdmField<bool>    m_useUndoRedo;
+    caf::PdmField<bool> m_useUndoRedo;
 
     caf::PdmField<caf::AppEnum<RiaDefines::ThemeEnum>> m_guiTheme;
 
@@ -227,6 +203,9 @@ private:
 
     // Summary data
     caf::PdmChildField<RiaPreferencesSummary*> m_summaryPreferences;
+
+    // System settings
+    caf::PdmChildField<RiaPreferencesSystem*> m_systemPreferences;
 
     // 3d view
     caf::PdmField<caf::AppEnum<RiaDefines::MeshModeType>>       m_defaultMeshModeType;

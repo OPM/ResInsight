@@ -30,7 +30,6 @@
 
 #include "RiuViewer.h"
 
-#include "RivHexGridIntersectionTools.h"
 #include "RivSurfacePartMgr.h"
 
 #include "cafPdmUiDoubleSliderEditor.h"
@@ -50,9 +49,10 @@ RimSurfaceInView::RimSurfaceInView()
 
     CAF_PDM_InitFieldNoDefault( &m_surface, "SurfaceRef", "Surface", "", "", "" );
     m_surface.uiCapability()->setUiHidden( true );
+    m_surface.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_resultDefinition, "ResultDefinition", "Result Definition", "", "", "" );
-    m_resultDefinition.uiCapability()->setUiHidden( true );
+    m_resultDefinition.uiCapability()->setUiTreeHidden( true );
     m_resultDefinition.uiCapability()->setUiTreeChildrenHidden( true );
     m_resultDefinition = new RimSurfaceResultDefinition;
     m_resultDefinition->setCheckState( false );
@@ -144,7 +144,7 @@ RivSurfacePartMgr* RimSurfaceInView::surfacePartMgr()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const RivIntersectionGeometryGeneratorIF* RimSurfaceInView::intersectionGeometryGenerator() const
+const RivIntersectionGeometryGeneratorInterface* RimSurfaceInView::intersectionGeometryGenerator() const
 {
     if ( m_surfacePartMgr.notNull() ) return m_surfacePartMgr->intersectionGeometryGenerator();
 
@@ -206,11 +206,18 @@ void RimSurfaceInView::fieldChangedByUi( const caf::PdmFieldHandle* changedField
 
     bool scheduleRedraw = false;
 
-    if ( changedField == &m_isActive || changedField == &m_useSeparateDataSource || changedField == &m_separateDataSource )
+    if ( changedField == &m_useSeparateDataSource || changedField == &m_separateDataSource )
     {
         scheduleRedraw = true;
     }
-    else if ( changedField == &m_showInactiveCells )
+    else if ( changedField == &m_isActive )
+    {
+        // if ( m_isActive ) clearGeometry();
+
+        scheduleRedraw = true;
+    }
+
+    if ( changedField == &m_showInactiveCells )
     {
         clearGeometry();
         scheduleRedraw = true;

@@ -67,6 +67,7 @@
 #include "RimSurfaceInView.h"
 #include "RimTextAnnotation.h"
 #include "RimViewController.h"
+#include "RimWellIASettingsCollection.h"
 #include "RimWellPath.h"
 
 #include "Riu3dSelectionManager.h"
@@ -429,15 +430,14 @@ void RiuViewerCommands::displayContextMenu( QMouseEvent* event )
             RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>( mainOrComparisonView );
             if ( eclipseView )
             {
-                // Hide faults command
+                // fault commands
                 const RigFault* fault =
                     eclipseView->mainGrid()->findFaultFromCellIndexAndCellFace( m_currentCellIndex, m_currentFaceIndex );
                 if ( fault )
                 {
                     menuBuilder.addSeparator();
 
-                    QString faultName = fault->name();
-
+                    QString      faultName = fault->name();
                     QVariantList hideFaultList;
                     qulonglong   currentCellIndex = m_currentCellIndex;
                     hideFaultList.push_back( currentCellIndex );
@@ -446,6 +446,22 @@ void RiuViewerCommands::displayContextMenu( QMouseEvent* event )
                     menuBuilder.addCmdFeatureWithUserData( "RicEclipseHideFaultFeature",
                                                            QString( "Hide " ) + faultName,
                                                            hideFaultList );
+
+                    if ( eclipseView->faultCollection() && eclipseView->faultCollection()->faultRAEnabled() )
+                    {
+                        menuBuilder.subMenuStart( "Reactivation Assessment" );
+                        menuBuilder.addCmdFeatureWithUserData( "RicRunBasicFaultReactAssessment3dFeature",
+                                                               "Run Basic Processing",
+                                                               QVariant( fault->name() ) );
+                        if ( eclipseView->faultCollection()->faultRAAdvancedEnabled() )
+                        {
+                            menuBuilder.addCmdFeatureWithUserData( "RicRunAdvFaultReactAssessment3dFeature",
+                                                                   "Run Advanced Processing",
+                                                                   QVariant( fault->name() ) );
+                        }
+                        menuBuilder.subMenuEnd();
+                        menuBuilder.addSeparator();
+                    }
                 }
             }
 
@@ -523,6 +539,13 @@ void RiuViewerCommands::displayContextMenu( QMouseEvent* event )
             menuBuilder.subMenuEnd();
 
             menuBuilder.addSeparator();
+
+            if ( wellPath->wellIASettingsCollection()->isEnabled() )
+            {
+                menuBuilder << "RicNewWellIntegrityAnalysisFeature";
+                menuBuilder.addSeparator();
+            }
+
             menuBuilder.subMenuStart( "Create Completions", QIcon( ":/FishBoneGroup16x16.png" ) );
 
             menuBuilder << "RicNewPerforationIntervalAtMeasuredDepthFeature";
@@ -538,6 +561,7 @@ void RiuViewerCommands::displayContextMenu( QMouseEvent* event )
             menuBuilder.addSeparator();
             menuBuilder << "RicNewWellPathLateralAtDepthFeature";
             menuBuilder << "RicNewWellPathIntersectionFeature";
+            menuBuilder << "RicLinkWellPathFeature";
         }
 
         const RivSimWellPipeSourceInfo* eclipseWellSourceInfo =
@@ -1053,6 +1077,7 @@ void RiuViewerCommands::findCellAndGridIndex( Rim3dView*                       m
 {
     CVF_ASSERT( cellIndex && gridIndex );
     RimEclipseCase* eclipseCase = nullptr;
+    RimGeoMechCase* geomechCase = dynamic_cast<RimGeoMechCase*>( mainOrComparisonView->ownerCase() );
 
     if ( sepInterResDef )
     {
@@ -1071,6 +1096,13 @@ void RiuViewerCommands::findCellAndGridIndex( Rim3dView*                       m
         const RigCell& cell = eclipseCase->mainGrid()->globalCellArray()[globalCellIndex];
         *cellIndex          = cell.gridLocalCellIndex();
         *gridIndex          = cell.hostGrid()->gridIndex();
+    }
+    else if ( geomechCase )
+    {
+        RigFemPartCollection* parts = geomechCase->geoMechData()->femParts();
+        auto [partId, elementIdx]   = parts->partIdAndElementIndex( globalCellIndex );
+        *cellIndex                  = elementIdx;
+        *gridIndex                  = (size_t)partId;
     }
     else
     {

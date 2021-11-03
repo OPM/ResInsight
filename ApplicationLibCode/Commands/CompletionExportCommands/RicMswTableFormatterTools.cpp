@@ -550,36 +550,29 @@ void RicMswTableFormatterTools::generateWsegvalvTableRecursively( gsl::not_null<
         {
             if ( RigCompletionData::isWsegValveTypes( completion->completionType() ) )
             {
-                auto wsegValve = static_cast<RicMswWsegValve*>( completion );
-                if ( !wsegValve->segments().empty() )
+                // Related function RicWellPathExportMswCompletionsImpl::moveIntersectionsToSuperICDsOrAICDs
+
+                auto wsegValve     = static_cast<RicMswWsegValve*>( completion );
+                int  segmentNumber = -1;
+                for ( auto seg : wsegValve->segments() )
                 {
-                    CVF_ASSERT( wsegValve->segments().size() == 1u );
+                    if ( seg->segmentNumber() > -1 ) segmentNumber = seg->segmentNumber();
+                    if ( seg->intersections().empty() ) continue;
 
-                    auto firstSubSegment = wsegValve->segments().front();
+                    size_t cellIndex = seg->intersections().front()->globalCellIndex();
 
-                    // TODO: The following line was blocking export of valves for fishbones
-                    // Unclear why this line was included. Remove when MSW export has ben verified correctly
-                    // if ( !firstSubSegment->intersections().empty() )
+                    QString comment;
+                    if ( wsegValve->completionType() == RigCompletionData::CompletionType::PERFORATION_ICD ||
+                         wsegValve->completionType() == RigCompletionData::CompletionType::PERFORATION_ICV )
                     {
-                        QString comment;
-                        if ( wsegValve->completionType() == RigCompletionData::CompletionType::PERFORATION_ICD ||
-                             wsegValve->completionType() == RigCompletionData::CompletionType::PERFORATION_ICV )
-                        {
-                            comment = wsegValve->label();
-                        }
-
-                        size_t cellIndex = std::numeric_limits<size_t>::max();
-                        if ( !firstSubSegment->intersections().empty() )
-                        {
-                            cellIndex = firstSubSegment->intersections().front()->globalCellIndex();
-                        }
-
-                        wsegvalveData[cellIndex].push_back( WsegvalveData( wellNameForExport,
-                                                                           comment,
-                                                                           firstSubSegment->segmentNumber(),
-                                                                           wsegValve->flowCoefficient(),
-                                                                           wsegValve->area() ) );
+                        comment = wsegValve->label();
                     }
+
+                    wsegvalveData[cellIndex].push_back( WsegvalveData( wellNameForExport,
+                                                                       comment,
+                                                                       segmentNumber,
+                                                                       wsegValve->flowCoefficient(),
+                                                                       wsegValve->area() ) );
                 }
             }
         }
@@ -739,22 +732,19 @@ void RicMswTableFormatterTools::generateWsegAicdTableRecursively( RicMswExportIn
                 auto aicd = static_cast<const RicMswPerforationAICD*>( completion );
                 if ( aicd->isValid() )
                 {
-                    if ( !aicd->segments().empty() )
+                    int segmentNumber = -1;
+                    for ( auto seg : aicd->segments() )
                     {
-                        CVF_ASSERT( aicd->segments().size() == 1u );
-                        auto firstSegment = aicd->segments().front();
+                        if ( seg->segmentNumber() > -1 ) segmentNumber = seg->segmentNumber();
+                        if ( seg->intersections().empty() ) continue;
 
-                        size_t cellIndex = std::numeric_limits<size_t>::max();
-                        if ( !firstSegment->intersections().empty() )
-                        {
-                            cellIndex = firstSegment->intersections().front()->globalCellIndex();
-                        }
+                        size_t cellIndex = seg->intersections().front()->globalCellIndex();
 
                         auto wellName = exportInfo.mainBoreBranch()->wellPath()->completionSettings()->wellNameForExport();
                         auto comment = aicd->label();
                         aicdValveData[cellIndex].push_back( AicdWsegvalveData( wellName,
                                                                                comment,
-                                                                               firstSegment->segmentNumber(),
+                                                                               segmentNumber,
                                                                                aicd->flowScalingFactor(),
                                                                                aicd->isOpen(),
                                                                                aicd->values() ) );
@@ -879,17 +869,41 @@ void RicMswTableFormatterTools::writeValveWelsegsSegment( const RicMswSegment*  
 
     auto segments = valve->segments();
 
-    auto subSegment = segments.front();
-    subSegment->setSegmentNumber( *segmentNumber );
+    double startMD = 0.0;
+    double endMD   = 0.0;
 
-    double startMD = subSegment->startMD();
-    double endMD   = subSegment->endMD();
+    if ( valve->completionType() == RigCompletionData::CompletionType::PERFORATION_ICD ||
+         valve->completionType() == RigCompletionData::CompletionType::PERFORATION_AICD )
+    {
+        CVF_ASSERT( segments.size() > 1 );
 
-    double midPointMD  = 0.5 * ( startMD + endMD );
-    double midPointTVD = tvdFromMeasuredDepth( valve->wellPath(), midPointMD );
+        // The 0.1 valve segment is the first, the perforated segment is the second
+        auto subSegment = segments[0];
+        subSegment->setSegmentNumber( *segmentNumber );
 
-    subSegment->setOutputMD( midPointMD );
-    subSegment->setOutputTVD( midPointTVD );
+        double midPointMD = subSegment->outputMD();
+        startMD           = midPointMD;
+        endMD             = startMD + 0.1;
+
+        double midPointTVD = tvdFromMeasuredDepth( valve->wellPath(), midPointMD );
+
+        subSegment->setOutputMD( midPointMD );
+        subSegment->setOutputTVD( midPointTVD );
+    }
+    else
+    {
+        auto subSegment = segments.front();
+        subSegment->setSegmentNumber( *segmentNumber );
+
+        startMD = subSegment->startMD();
+        endMD   = subSegment->endMD();
+
+        double midPointMD  = 0.5 * ( startMD + endMD );
+        double midPointTVD = tvdFromMeasuredDepth( valve->wellPath(), midPointMD );
+
+        subSegment->setOutputMD( midPointMD );
+        subSegment->setOutputTVD( midPointTVD );
+    }
 
     std::vector<std::pair<double, double>> splitSegments = createSubSegmentMDPairs( startMD, endMD, maxSegmentLength );
 

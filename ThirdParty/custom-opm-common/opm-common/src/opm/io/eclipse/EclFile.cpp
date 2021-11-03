@@ -20,7 +20,7 @@
 #include <opm/io/eclipse/EclUtil.hpp>
 #include <opm/common/ErrorMacros.hpp>
 
-//#include <fmt/format.h>
+#include <fmt/format.h>
 #include <algorithm>
 #include <array>
 #include <cstring>
@@ -48,8 +48,7 @@ void EclFile::load(bool preload) {
     }
 
     if (!fileH)
-        //throw std::runtime_error(fmt::format("Can not open EclFile: {}", this->inputFilename));
-        throw std::runtime_error("Can not open EclFile: {}");
+        throw std::runtime_error(fmt::format("Can not open EclFile: {}", this->inputFilename));
 
     int n = 0;
     while (!isEOF(&fileH)) {
@@ -110,7 +109,7 @@ EclFile::EclFile(const std::string& filename, bool preload) :
     inputFilename(filename)
 {
     if (!fileExists(filename))
-        throw std::runtime_error("Can not open EclFile: {}");
+        throw std::runtime_error(fmt::format("Can not open EclFile: {}", filename));
 
     formatted = isFormatted(filename);
     this->load(preload);
@@ -225,16 +224,13 @@ void EclFile::loadData(const std::string& name)
 
                 inFile.seekg(ifStreamPos[arrIndex]);
 
-                char* buffer;
                 size_t size = sizeOnDiskFormatted(array_size[arrIndex], array_type[arrIndex], array_element_size[arrIndex])+1;
-                buffer = new char [size];
-                inFile.read (buffer, size);
+                std::vector<char> buffer(size);
+                inFile.read (buffer.data(), size);
 
-                std::string fileStr = std::string(buffer, size);
+                std::string fileStr = std::string(buffer.data(), size);
 
                 loadFormattedArray(fileStr, arrIndex, 0);
-
-                delete[] buffer;
             }
         }
 
@@ -270,16 +266,13 @@ void EclFile::loadData(const std::vector<int>& arrIndex)
 
             inFile.seekg(ifStreamPos[ind]);
 
-            char* buffer;
             size_t size = sizeOnDiskFormatted(array_size[ind], array_type[ind], array_element_size[ind])+1;
-            buffer = new char [size];
-            inFile.read (buffer, size);
+            std::vector<char> buffer(size);
+            inFile.read (buffer.data(), size);
 
-            std::string fileStr = std::string(buffer, size);
+            std::string fileStr = std::string(buffer.data(), size);
 
             loadFormattedArray(fileStr, ind, 0);
-
-            delete[] buffer;
         }
 
     } else {
@@ -308,16 +301,13 @@ void EclFile::loadData(int arrIndex)
 
             inFile.seekg(ifStreamPos[arrIndex]);
 
-            char* buffer;
             size_t size = sizeOnDiskFormatted(array_size[arrIndex], array_type[arrIndex], array_element_size[arrIndex])+1;
-            buffer = new char [size];
-            inFile.read (buffer, size);
+            std::vector<char> buffer(size);
+            inFile.read (buffer.data(), size);
 
-            std::string fileStr = std::string(buffer, size);
+            std::string fileStr = std::string(buffer.data(), size);
 
             loadFormattedArray(fileStr, arrIndex, 0);
-
-            delete[] buffer;
 
 
     } else {
@@ -422,17 +412,15 @@ std::vector<std::string> EclFile::get_fmt_real_raw_str_values(int arrIndex) cons
 
     inFile.seekg(ifStreamPos[arrIndex]);
 
-    char* buffer;
     size_t size = sizeOnDiskFormatted(array_size[arrIndex], array_type[arrIndex], array_element_size[arrIndex])+1;
 
-    buffer = new char [size];
-    inFile.read (buffer, size);
+    std::vector<char> buffer(size);
+    inFile.read (buffer.data(), size);
 
-    std::string fileStr = std::string(buffer, size);
+    std::string fileStr = std::string(buffer.data(), size);
 
     std::vector<std::string> real_vect_str;
     real_vect_str = readFormattedRealRawStrings(fileStr, array_size[arrIndex], 0);
-    delete buffer;
 
     return real_vect_str;
 }
@@ -629,6 +617,24 @@ const std::vector<std::string>& EclFile::get<std::string>(const std::string &nam
     }
 
     return getImpl(search->second, array_type[search->second], char_array, "string");
+}
+
+
+template<class T>
+const std::vector<T>& EclFile::getImpl(int arrIndex, eclArrType type,
+                                       const std::unordered_map<int, std::vector<T>>& array,
+                                       const std::string& typeStr)
+{
+    if (array_type[arrIndex] != type) {
+        std::string message = "Array with index " + std::to_string(arrIndex) + " is not of type " + typeStr;
+        OPM_THROW(std::runtime_error, message);
+    }
+
+    if (!arrayLoaded[arrIndex]) {
+        loadData(arrIndex);
+    }
+
+    return array.at(arrIndex);
 }
 
 

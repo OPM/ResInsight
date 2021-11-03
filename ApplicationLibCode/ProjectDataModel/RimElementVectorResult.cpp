@@ -74,7 +74,7 @@ RimElementVectorResult::RimElementVectorResult()
 
     CAF_PDM_InitFieldNoDefault( &m_legendConfig, "LegendDefinition", "Color Legend", "", "", "" );
     m_legendConfig = new RimRegularLegendConfig();
-    m_legendConfig.uiCapability()->setUiHidden( true );
+    m_legendConfig.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitField( &m_showOil, "ShowOil", true, "Oil", "", "", "" );
     CAF_PDM_InitField( &m_showGas, "ShowGas", true, "Gas", "", "", "" );

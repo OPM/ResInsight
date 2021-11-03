@@ -57,6 +57,7 @@ void AppEnum<RiaDefines::CurveProperty>::setUp()
     addItem( RiaDefines::CurveProperty::POROSITY_UNSCALED, "POROSITY_UNSCALED", "Porosity (Unscaled)" );
     addItem( RiaDefines::CurveProperty::EQLNUM, "EQLNUM", "Equilibration Number" );
     addItem( RiaDefines::CurveProperty::PRESSURE_GRADIENT, "PRESSURE_GRADIENT", "Pressure Gradient" );
+    addItem( RiaDefines::CurveProperty::FORMATIONS, "FORMATIONS", "Formations" );
 
     setDefault( RiaDefines::CurveProperty::UNDEFINED );
 }
@@ -71,7 +72,7 @@ double defaultPorosity()
 
 double defaultPermeability()
 {
-    return 1.0e-5;
+    return 1.0e-4;
 }
 
 double zeroReplacementForLogarithmicPlot()

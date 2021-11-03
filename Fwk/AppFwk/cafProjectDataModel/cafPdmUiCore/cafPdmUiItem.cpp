@@ -56,6 +56,7 @@ PdmUiItemInfo::PdmUiItemInfo( const QString& uiName,
     , m_extraDebugText( extraDebugText )
     , m_editorTypeName( "" )
     , m_isHidden( false )
+    , m_isTreeHidden( false )
     , m_isTreeChildrenHidden( false )
     , m_isReadOnly( false )
     , m_labelAlignment( LEFT )
@@ -78,6 +79,7 @@ PdmUiItemInfo::PdmUiItemInfo( const QString& uiName,
     , m_extraDebugText( extraDebugText )
     , m_editorTypeName( "" )
     , m_isHidden( false )
+    , m_isTreeHidden( false )
     , m_isTreeChildrenHidden( false )
     , m_isReadOnly( false )
     , m_labelAlignment( LEFT )
@@ -409,17 +411,23 @@ void PdmUiItem::setUiHidden( bool isHidden, const QString& uiConfigName /*= ""*/
 //--------------------------------------------------------------------------------------------------
 bool PdmUiItem::isUiTreeHidden( const QString& uiConfigName ) const
 {
-    // TODO: Must be separated from uiHidden when childField object embedding is implemented
+    const PdmUiItemInfo* conInfo = configInfo( uiConfigName );
+    const PdmUiItemInfo* defInfo = defaultInfo();
+    const PdmUiItemInfo* sttInfo = m_staticItemInfo;
 
-    return isUiHidden( uiConfigName );
+    if ( conInfo && !( conInfo->m_isTreeHidden == -1 ) ) return conInfo->m_isTreeHidden;
+    if ( defInfo && !( defInfo->m_isTreeHidden == -1 ) ) return defInfo->m_isTreeHidden;
+    if ( sttInfo && !( sttInfo->m_isTreeHidden == -1 ) ) return sttInfo->m_isTreeHidden;
+
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiItem::setUiTreeHidden( bool isHidden, const QString& uiConfigName /*= ""*/ )
+void PdmUiItem::setUiTreeHidden( bool isTreeHidden, const QString& uiConfigName /*= ""*/ )
 {
-    m_configItemInfos[uiConfigName].m_isHidden = isHidden;
+    m_configItemInfos[uiConfigName].m_isTreeHidden = isTreeHidden;
 }
 
 //--------------------------------------------------------------------------------------------------

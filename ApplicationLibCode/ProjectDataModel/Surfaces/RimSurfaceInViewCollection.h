@@ -35,9 +35,10 @@ class ScalarMapper;
 class RimSurfaceInView;
 class RimSurface;
 class RimSurfaceCollection;
+class RimEnsembleSurface;
 class RimRegularLegendConfig;
 class RiuViewer;
-class RivIntersectionGeometryGeneratorIF;
+class RivIntersectionGeometryGeneratorInterface;
 
 class RimSurfaceInViewCollection : public RimCheckableNamedObject
 {
@@ -65,11 +66,13 @@ public:
 
     std::vector<RimRegularLegendConfig*> legendConfigs();
 
-    std::vector<const RivIntersectionGeometryGeneratorIF*> intersectionGeometryGenerators() const;
+    std::vector<const RivIntersectionGeometryGeneratorInterface*> intersectionGeometryGenerators() const;
 
 protected:
     void                 initAfterRead() override;
     caf::PdmFieldHandle* userDescriptionField() override;
+
+    void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
 
 private:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
@@ -81,8 +84,10 @@ private:
     void syncCollectionsWithView();
     void syncSurfacesWithView();
 
+private:
     caf::PdmProxyValueField<QString>                     m_collectionName;
-    caf::PdmChildArrayField<RimSurfaceInViewCollection*> m_collectionsInView;
     caf::PdmChildArrayField<RimSurfaceInView*>           m_surfacesInView;
-    caf::PdmPtrField<RimSurfaceCollection*>              m_surfaceCollection;
+    caf::PdmChildArrayField<RimSurfaceInViewCollection*> m_collectionsInView;
+
+    caf::PdmPtrField<RimSurfaceCollection*> m_surfaceCollection;
 };

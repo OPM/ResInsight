@@ -51,7 +51,8 @@ bool RicImportGridModelFromSummaryCaseFeature::openOrImportGridModelFromSummaryC
 
     if ( QFileInfo::exists( candidateGridFileName ) )
     {
-        auto id = RiaImportEclipseCaseTools::openEclipseCaseFromFile( candidateGridFileName );
+        bool createView = true;
+        auto id         = RiaImportEclipseCaseTools::openEclipseCaseFromFile( candidateGridFileName, createView );
         if ( id > -1 )
         {
             RiaLogging::info( QString( "Imported %1" ).arg( candidateGridFileName ) );

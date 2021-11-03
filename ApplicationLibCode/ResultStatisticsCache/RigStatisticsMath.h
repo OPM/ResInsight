@@ -27,6 +27,12 @@
 class RigStatisticsMath
 {
 public:
+    enum class PercentileStyle
+    {
+        REGULAR,
+        SWITCHED
+    };
+
     static void calculateBasicStatistics( const std::vector<double>& values,
                                           double*                    min,
                                           double*                    max,
@@ -34,13 +40,21 @@ public:
                                           double*                    range,
                                           double*                    mean,
                                           double*                    dev );
-    static void
-        calculateStatisticsCurves( const std::vector<double>& values, double* p10, double* p50, double* p90, double* mean );
+
+    static void calculateStatisticsCurves( const std::vector<double>& values,
+                                           double*                    p10,
+                                           double*                    p50,
+                                           double*                    p90,
+                                           double*                    mean,
+                                           PercentileStyle            percentileStyle );
 
     static std::vector<double> calculateNearestRankPercentiles( const std::vector<double>& inputValues,
-                                                                const std::vector<double>& pValPositions );
+                                                                const std::vector<double>& pValPositions,
+                                                                PercentileStyle            percentileStyle );
+
     static std::vector<double> calculateInterpolatedPercentiles( const std::vector<double>& inputValues,
-                                                                 const std::vector<double>& pValPositions );
+                                                                 const std::vector<double>& pValPositions,
+                                                                 PercentileStyle            percentileStyle );
 };
 
 //==================================================================================================
@@ -61,7 +75,7 @@ public:
     /// the percentile is the domain value at which pVal of the observations are below it.
     /// Will only consider observed values between min and max, as all other values are discarded from the histogram
 
-    double calculatePercentil( double pVal );
+    double calculatePercentil( double pVal, RigStatisticsMath::PercentileStyle percentileStyle );
 
 private:
     size_t               m_maxIndex;

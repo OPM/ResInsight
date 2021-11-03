@@ -22,6 +22,7 @@
 #include "RiaDefines.h"
 #include "RiaInterpolationTools.h"
 #include "RiaLogging.h"
+#include "RiaNumberFormat.h"
 #include "RiaPreferences.h"
 #include "RiaWeightedGeometricMeanCalculator.h"
 #include "RiaWeightedHarmonicMeanCalculator.h"
@@ -33,6 +34,9 @@
 #include "RigStatisticsMath.h"
 #include "RigStimPlanFractureDefinition.h"
 
+#ifdef USE_QTCHARTS
+#include "RimEnsembleFractureStatisticsPlot.h"
+#endif
 #include "RimFractureTemplateCollection.h"
 #include "RimHistogramCalculator.h"
 #include "RimProject.h"
@@ -45,6 +49,7 @@
 #include "FractureCommands/RicNewStimPlanFractureTemplateFeature.h"
 
 #include "cafAppEnum.h"
+#include "cafPdmUiLineEditor.h"
 #include "cafPdmUiTextEditor.h"
 #include "cafPdmUiToolButtonEditor.h"
 #include "cafPdmUiTreeSelectionEditor.h"
@@ -53,6 +58,7 @@
 
 #include <QDir>
 #include <QFile>
+#include <QIntValidator>
 
 namespace caf
 {
@@ -125,6 +131,14 @@ RimEnsembleFractureStatistics::RimEnsembleFractureStatistics()
     m_filePathsTable.uiCapability()->setUiReadOnly( true );
     m_filePathsTable.xmlCapability()->disableIO();
 
+    CAF_PDM_InitField( &m_excludeZeroWidthFractures,
+                       "ExcludeZeroWidthFractures",
+                       true,
+                       "Exclude Zero Width Fractures",
+                       "",
+                       "",
+                       "" );
+
     CAF_PDM_InitFieldNoDefault( &m_statisticsTable, "StatisticsTable", "Statistics Table", "", "", "" );
     m_statisticsTable.uiCapability()->setUiEditorTypeName( caf::PdmUiTextEditor::uiEditorTypeName() );
     m_statisticsTable.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
@@ -170,7 +184,6 @@ RimEnsembleFractureStatistics::~RimEnsembleFractureStatistics()
 void RimEnsembleFractureStatistics::addFilePath( const QString& filePath )
 {
     m_filePaths.v().push_back( filePath );
-    loadAndUpdateData();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -245,6 +258,16 @@ void RimEnsembleFractureStatistics::defineEditorAttribute( const caf::PdmFieldHa
             myAttr->textMode = caf::PdmUiTextEditorAttribute::HTML;
         }
     }
+    else if ( field == &m_adaptiveNumLayers || field == &m_numSamplesX || field == &m_numSamplesY )
+    {
+        caf::PdmUiLineEditorAttribute* lineEditorAttr = dynamic_cast<caf::PdmUiLineEditorAttribute*>( attribute );
+        if ( lineEditorAttr )
+        {
+            // Positive integer
+            QIntValidator* validator  = new QIntValidator( 1, std::numeric_limits<int>::max(), nullptr );
+            lineEditorAttr->validator = validator;
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -272,6 +295,21 @@ void RimEnsembleFractureStatistics::fieldChangedByUi( const caf::PdmFieldHandle*
             RimProject::current()->scheduleCreateDisplayModelAndRedrawAllViews();
         }
     }
+    else if ( changedField == &m_excludeZeroWidthFractures )
+    {
+        loadAndUpdateData();
+
+#ifdef USE_QTCHARTS
+        // Update referring plots
+        std::vector<caf::PdmObjectHandle*> referringObjects;
+        this->objectsWithReferringPtrFields( referringObjects );
+        for ( caf::PdmObjectHandle* obj : referringObjects )
+        {
+            auto plot = dynamic_cast<RimEnsembleFractureStatisticsPlot*>( obj );
+            if ( plot ) plot->loadDataAndUpdate();
+        }
+#endif
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -281,6 +319,7 @@ void RimEnsembleFractureStatistics::defineUiOrdering( QString uiConfigName, caf:
 {
     caf::PdmUiOrdering* settingsGroup = uiOrdering.addNewGroup( "Settings" );
     settingsGroup->add( nameField() );
+    settingsGroup->add( &m_excludeZeroWidthFractures );
     settingsGroup->add( &m_meshAlignmentType );
     settingsGroup->add( &m_meshType );
     settingsGroup->add( &m_numSamplesX );
@@ -321,6 +360,24 @@ void RimEnsembleFractureStatistics::loadAndUpdateData()
     std::vector<cvf::ref<RigStimPlanFractureDefinition>> stimPlanFractureDefinitions =
         readFractureDefinitions( m_filePaths.v(), unitSystem );
 
+    // Log area for each fracture for debugging
+    std::vector<double> area =
+        RigEnsembleFractureStatisticsCalculator::calculateProperty( stimPlanFractureDefinitions,
+                                                                    RigEnsembleFractureStatisticsCalculator::PropertyType::AREA );
+    for ( size_t i = 0; i < m_filePaths.v().size(); i++ )
+    {
+        RiaLogging::info( QString( "%1 Area: %2" ).arg( m_filePaths.v()[i].path() ).arg( area[i] ) );
+    }
+
+    if ( m_excludeZeroWidthFractures() )
+    {
+        size_t numBeforeFiltering = stimPlanFractureDefinitions.size();
+        stimPlanFractureDefinitions =
+            RigEnsembleFractureStatisticsCalculator::removeZeroWidthDefinitions( stimPlanFractureDefinitions );
+        size_t numRemoved = numBeforeFiltering - stimPlanFractureDefinitions.size();
+        RiaLogging::info( QString( "Excluded %1 zero width fractures." ).arg( numRemoved ) );
+    }
+
     m_statisticsTable = generateStatisticsTable( stimPlanFractureDefinitions );
 }
 
@@ -334,6 +391,12 @@ std::vector<QString> RimEnsembleFractureStatistics::computeStatistics()
     std::vector<cvf::ref<RigStimPlanFractureDefinition>> stimPlanFractureDefinitions =
         readFractureDefinitions( m_filePaths.v(), unitSystem );
 
+    if ( m_excludeZeroWidthFractures() )
+    {
+        stimPlanFractureDefinitions =
+            RigEnsembleFractureStatisticsCalculator::removeZeroWidthDefinitions( stimPlanFractureDefinitions );
+    }
+
     std::set<std::pair<QString, QString>> availableResults = findAllResultNames( stimPlanFractureDefinitions );
 
     std::map<std::pair<RimEnsembleFractureStatistics::StatisticsType, QString>, std::shared_ptr<RigSlice2D>> statisticsGridsAll;
@@ -344,11 +407,17 @@ std::vector<QString> RimEnsembleFractureStatistics::computeStatistics()
     double timeStep = 1.0;
 
     double referenceDepth = 0.0;
+
+    RigStimPlanFractureDefinition::Orientation orientation = RigStimPlanFractureDefinition::Orientation::UNDEFINED;
     if ( m_meshAlignmentType() == MeshAlignmentType::PERFORATION_DEPTH )
     {
         for ( auto definition : stimPlanFractureDefinitions )
         {
             referenceDepth += computeDepthOfWellPathAtFracture( definition );
+            // Take the first orientation which is defined (all the fractures
+            // should have the same orientation).
+            if ( orientation == RigStimPlanFractureDefinition::Orientation::UNDEFINED )
+                orientation = definition->orientation();
         }
         referenceDepth /= stimPlanFractureDefinitions.size();
     }
@@ -366,11 +435,27 @@ std::vector<QString> RimEnsembleFractureStatistics::computeStatistics()
         std::vector<cvf::cref<RigFractureGrid>> fractureGrids =
             createFractureGrids( stimPlanFractureDefinitions, unitSystem, result.first, m_meshAlignmentType() );
 
+        double           numBins = 50;
+        RigHistogramData areaHistogramData =
+            RigEnsembleFractureStatisticsCalculator::createStatisticsData( stimPlanFractureDefinitions,
+                                                                           RigEnsembleFractureStatisticsCalculator::PropertyType::AREA,
+                                                                           numBins );
+
         std::vector<std::vector<double>> samples( gridXs.size() * gridYs.size() );
-        sampleAllGrids( fractureGrids, gridXs, gridYs, samples );
+        std::shared_ptr<RigSlice2D>      areaGrid     = std::make_shared<RigSlice2D>( gridXs.size(), gridYs.size() );
+        std::shared_ptr<RigSlice2D>      distanceGrid = std::make_shared<RigSlice2D>( gridXs.size(), gridYs.size() );
+        sampleAllGrids( fractureGrids, gridXs, gridYs, samples, areaGrid, distanceGrid );
 
         std::map<RimEnsembleFractureStatistics::StatisticsType, std::shared_ptr<RigSlice2D>> statisticsGrids;
-        generateStatisticsGrids( samples, gridXs.size(), gridYs.size(), fractureGrids.size(), statisticsGrids, selectedStatistics );
+        generateStatisticsGrids( samples,
+                                 gridXs.size(),
+                                 gridYs.size(),
+                                 fractureGrids.size(),
+                                 statisticsGrids,
+                                 selectedStatistics,
+                                 areaHistogramData,
+                                 areaGrid,
+                                 distanceGrid );
 
         for ( auto [statType, slice] : statisticsGrids )
         {
@@ -421,7 +506,8 @@ std::vector<QString> RimEnsembleFractureStatistics::computeStatistics()
                                                                    gridXs,
                                                                    gridYsWithOffset,
                                                                    timeStep,
-                                                                   unitSystem );
+                                                                   unitSystem,
+                                                                   orientation );
 
         xmlFilePaths.push_back( xmlFilePath );
     }
@@ -469,6 +555,14 @@ std::vector<cvf::ref<RigStimPlanFractureDefinition>>
     }
 
     return results;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimEnsembleFractureStatistics::excludeZeroWidthFractures() const
+{
+    return m_excludeZeroWidthFractures;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -595,6 +689,9 @@ void RimEnsembleFractureStatistics::generateUniformMesh( double               mi
                                                          std::vector<double>& gridXs,
                                                          std::vector<double>& gridYs ) const
 {
+    CAF_ASSERT( m_numSamplesX > 0 );
+    CAF_ASSERT( m_numSamplesY > 0 );
+
     int    numSamplesX     = m_numSamplesX();
     double sampleDistanceX = linearSampling( minX, maxX, numSamplesX, gridXs );
 
@@ -856,7 +953,11 @@ void RimEnsembleFractureStatistics::generateAllLayers(
 int RimEnsembleFractureStatistics::getTargetNumberOfLayers(
     const std::vector<cvf::ref<RigStimPlanFractureDefinition>>& stimPlanFractureDefinitions ) const
 {
-    if ( m_adaptiveNumLayersType() == AdaptiveNumLayersType::USER_DEFINED ) return m_adaptiveNumLayers();
+    if ( m_adaptiveNumLayersType() == AdaptiveNumLayersType::USER_DEFINED )
+    {
+        CAF_ASSERT( m_adaptiveNumLayers() > 0 );
+        return m_adaptiveNumLayers();
+    }
 
     int maxNy = 0;
     int minNy = std::numeric_limits<int>::max();
@@ -888,6 +989,7 @@ double RimEnsembleFractureStatistics::linearSampling( double               minVa
                                                       int                  numSamples,
                                                       std::vector<double>& samples )
 {
+    CAF_ASSERT( numSamples > 0 );
     double sampleDistance = ( maxValue - minValue ) / numSamples;
 
     for ( int s = 0; s < numSamples; s++ )
@@ -897,17 +999,6 @@ double RimEnsembleFractureStatistics::linearSampling( double               minVa
     }
 
     return sampleDistance;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RimEnsembleFractureStatistics::isCoordinateInsideFractureCell( double x, double y, const RigFractureCell& cell )
-{
-    const cvf::Vec3d& minPoint = cell.getPolygon()[0];
-    const cvf::Vec3d& maxPoint = cell.getPolygon()[2];
-    // TODO: Investigate strange ordering for y coords.
-    return ( x > minPoint.x() && x <= maxPoint.x() && y <= minPoint.y() && y > maxPoint.y() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -937,28 +1028,68 @@ double RimEnsembleFractureStatistics::computeDepthOfWellPathAtFracture(
 void RimEnsembleFractureStatistics::sampleAllGrids( const std::vector<cvf::cref<RigFractureGrid>>& fractureGrids,
                                                     const std::vector<double>&                     samplesX,
                                                     const std::vector<double>&                     samplesY,
-                                                    std::vector<std::vector<double>>&              samples )
+                                                    std::vector<std::vector<double>>&              samples,
+                                                    std::shared_ptr<RigSlice2D>                    areaGrid,
+                                                    std::shared_ptr<RigSlice2D>                    distanceGrid )
 {
-    for ( size_t y = 0; y < samplesY.size(); y++ )
+    auto computeCellSideLength = []( const std::vector<double>& values, size_t idx ) {
+        if ( idx < values.size() - 1 )
+            return values[idx + 1] - values[idx];
+        else
+            return values[1] - values[0];
+    };
+
+    const int ny = static_cast<int>( samplesY.size() );
+#pragma omp parallel for
+    for ( int y = 0; y < ny; y++ )
     {
         for ( size_t x = 0; x < samplesX.size(); x++ )
         {
-            double posX = samplesX[x];
-            double posY = samplesY[y];
+            // Position of cell center
+            const cvf::Vec3d pos( samplesX[x], samplesY[y], 0.0 );
+            const size_t     idx = y * samplesX.size() + x;
 
+            double sumDistance = 0.0;
             for ( auto fractureGrid : fractureGrids )
             {
-                for ( auto fractureCell : fractureGrid->fractureCells() )
+                // Sample each fracture grid at a given position
+                const RigFractureCell* fractureCell = fractureGrid->getCellFromPosition( pos );
+                if ( fractureCell )
                 {
-                    if ( isCoordinateInsideFractureCell( posX, posY, fractureCell ) )
-                    {
-                        size_t idx   = y * samplesX.size() + x;
-                        double value = fractureCell.getConductivityValue();
-                        if ( !std::isinf( value ) ) samples[idx].push_back( value );
-                        break;
-                    }
+                    double value = fractureCell->getConductivityValue();
+                    if ( !std::isinf( value ) ) samples[idx].push_back( value );
+                }
+
+                // Find distance to the fracture grid well path intersection for the given
+                // cell center position (X, Y).
+                std::pair<size_t, size_t> centerIJ = fractureGrid->fractureCellAtWellCenter();
+                size_t centerIdx = fractureGrid->getGlobalIndexFromIJ( centerIJ.first, centerIJ.second );
+                const RigFractureCell& centerCell = fractureGrid->cellFromIndex( centerIdx );
+                const cvf::Vec3d&      centerPos  = centerCell.centerPosition();
+
+                sumDistance += pos.pointDistance( centerPos );
+            }
+
+            // Average distance for all the fractures
+            distanceGrid->setValue( x, y, sumDistance / fractureGrids.size() );
+
+            // Compute the area of the cell
+            double area = 0.0;
+            if ( !samples.empty() )
+            {
+                double sum = 0.0;
+                for ( auto s : samples[idx] )
+                    sum += s;
+
+                // Only cells with non-zero conductivity have defined area
+                if ( sum > 0.0 )
+                {
+                    double diffX = computeCellSideLength( samplesX, x );
+                    double diffY = computeCellSideLength( samplesY, y );
+                    area         = std::fabs( diffX ) * std::fabs( diffY );
                 }
             }
+            areaGrid->setValue( x, y, area );
         }
     }
 }
@@ -1004,7 +1135,10 @@ void RimEnsembleFractureStatistics::generateStatisticsGrids(
     size_t                                                                                numSamplesY,
     size_t                                                                                numGrids,
     std::map<RimEnsembleFractureStatistics::StatisticsType, std::shared_ptr<RigSlice2D>>& statisticsGrids,
-    const std::vector<caf::AppEnum<RimEnsembleFractureStatistics::StatisticsType>>&       statisticsTypes )
+    const std::vector<caf::AppEnum<RimEnsembleFractureStatistics::StatisticsType>>&       statisticsTypes,
+    const RigHistogramData&                                                               areaHistogram,
+    std::shared_ptr<RigSlice2D>                                                           areaGrid,
+    std::shared_ptr<RigSlice2D>                                                           distanceGrid )
 {
     for ( auto t : statisticsTypes )
     {
@@ -1030,14 +1164,25 @@ void RimEnsembleFractureStatistics::generateStatisticsGrids(
         grid->setValue( x, y, value );
     };
 
+    auto removeNonPositiveValues = []( const std::vector<double>& values ) {
+        std::vector<double> nonZeroValues;
+        for ( double value : values )
+            if ( value > 0.0 ) nonZeroValues.push_back( value );
+        return nonZeroValues;
+    };
+
     RigSlice2D occurrenceGrid( numSamplesX, numSamplesY );
 
-    for ( size_t y = 0; y < numSamplesY; y++ )
+    const int ny = static_cast<int>( numSamplesY );
+#pragma omp parallel for
+    for ( int y = 0; y < ny; y++ )
     {
         for ( size_t x = 0; x < numSamplesX; x++ )
         {
             size_t idx = y * numSamplesX + x;
 
+            // Remove samples without positive values (no conductivity).
+            std::vector<double> values = removeNonPositiveValues( samples[idx] );
             if ( calculateMin || calculateMax || calculateMean )
             {
                 double min;
@@ -1046,7 +1191,7 @@ void RimEnsembleFractureStatistics::generateStatisticsGrids(
                 double range;
                 double mean;
                 double dev;
-                RigStatisticsMath::calculateBasicStatistics( samples[idx], &min, &max, &sum, &range, &mean, &dev );
+                RigStatisticsMath::calculateBasicStatistics( values, &min, &max, &sum, &range, &mean, &dev );
 
                 if ( calculateMean )
                     setValueNoInf( statisticsGrids[RimEnsembleFractureStatistics::StatisticsType::MEAN], x, y, mean );
@@ -1064,7 +1209,12 @@ void RimEnsembleFractureStatistics::generateStatisticsGrids(
                 double p50;
                 double p90;
                 double mean;
-                RigStatisticsMath::calculateStatisticsCurves( samples[idx], &p10, &p50, &p90, &mean );
+                RigStatisticsMath::calculateStatisticsCurves( values,
+                                                              &p10,
+                                                              &p50,
+                                                              &p90,
+                                                              &mean,
+                                                              RigStatisticsMath::PercentileStyle::SWITCHED );
 
                 if ( calculateP10 )
                     setValueNoInf( statisticsGrids[RimEnsembleFractureStatistics::StatisticsType::P10], x, y, p10 );
@@ -1078,51 +1228,117 @@ void RimEnsembleFractureStatistics::generateStatisticsGrids(
 
             if ( calculateOccurrence )
             {
-                statisticsGrids[RimEnsembleFractureStatistics::StatisticsType::OCCURRENCE]->setValue( x,
-                                                                                                      y,
-                                                                                                      samples[idx].size() );
+                statisticsGrids[RimEnsembleFractureStatistics::StatisticsType::OCCURRENCE]->setValue( x, y, values.size() );
             }
 
             // Internal occurrence grid for the area correction is always calculated
-            occurrenceGrid.setValue( x, y, samples[idx].size() );
+            occurrenceGrid.setValue( x, y, values.size() );
         }
     }
 
-    auto clearCells =
-        []( std::shared_ptr<RigSlice2D>& grid, const RigSlice2D& occurrenceGrid, size_t numGrids, double limitFraction ) {
-            for ( size_t y = 0; y < occurrenceGrid.ny(); y++ )
-            {
-                for ( size_t x = 0; x < occurrenceGrid.nx(); x++ )
-                {
-                    double fraction = occurrenceGrid.getValue( x, y ) / numGrids;
-                    if ( fraction < limitFraction )
-                    {
-                        grid->setValue( x, y, 0.0 );
-                    }
-                }
-            }
-        };
+    std::map<RimEnsembleFractureStatistics::StatisticsType, double> areaMapping;
+    areaMapping[RimEnsembleFractureStatistics::StatisticsType::MIN]  = areaHistogram.min;
+    areaMapping[RimEnsembleFractureStatistics::StatisticsType::MAX]  = areaHistogram.max;
+    areaMapping[RimEnsembleFractureStatistics::StatisticsType::MEAN] = areaHistogram.mean;
+    areaMapping[RimEnsembleFractureStatistics::StatisticsType::P50]  = areaHistogram.mean;
+    areaMapping[RimEnsembleFractureStatistics::StatisticsType::P10]  = areaHistogram.p10;
+    areaMapping[RimEnsembleFractureStatistics::StatisticsType::P90]  = areaHistogram.p90;
 
     // Post-process the resulting grids improve area representation
-    // 1: Mean only include cells which have values in half of more of the grids
-    if ( calculateMean )
-        clearCells( statisticsGrids[RimEnsembleFractureStatistics::StatisticsType::MEAN], occurrenceGrid, numGrids, 0.5 );
+    for ( auto statisticsType : statisticsTypes )
+    {
+        statisticsGrids[statisticsType] = setCellsToFillTargetArea( statisticsGrids[statisticsType],
+                                                                    occurrenceGrid,
+                                                                    *areaGrid,
+                                                                    *distanceGrid,
+                                                                    areaMapping[statisticsType] );
+    }
+}
 
-    // 2: Minimum only include cells present in every grid
-    if ( calculateMin )
-        clearCells( statisticsGrids[RimEnsembleFractureStatistics::StatisticsType::MIN], occurrenceGrid, numGrids, 1.0 );
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::shared_ptr<RigSlice2D> RimEnsembleFractureStatistics::setCellsToFillTargetArea( std::shared_ptr<RigSlice2D>& grid,
+                                                                                     const RigSlice2D& occurrenceGrid,
+                                                                                     const RigSlice2D& areaGrid,
+                                                                                     const RigSlice2D& distanceGrid,
+                                                                                     double            targetArea )
+{
+    // Internal cell data class for ordering cells.
+    class CellData
+    {
+    public:
+        size_t x;
+        size_t y;
+        double occurrence;
+        double area;
+        double distance;
 
-    // 3: P10 only include cells with have values in 10% or more of the grids
-    if ( calculateP10 )
-        clearCells( statisticsGrids[RimEnsembleFractureStatistics::StatisticsType::P10], occurrenceGrid, numGrids, 0.1 );
+        // The cells are ordered by:
+        // 1. Occurrence: how often the cell had conductivity in the individual fractures.
+        // 2. Distance: distance from the well path intersection point (average for all fractures).
+        //              Short distance is preferred.
+        // 3. Area: The area of the cell. Smaller is preferred.
+        // 4. X and Y cell index: Not important for sorting, but used to avoid rejecting cells
+        //       when everything else is equal.
+        bool operator<( CellData const& p ) const
+        {
+            if ( occurrence > p.occurrence )
+                return true;
+            else if ( occurrence == p.occurrence && distance < p.distance )
+                return true;
+            else if ( occurrence == p.occurrence && distance == p.distance && area < p.area )
+                return true;
+            else if ( occurrence == p.occurrence && distance == p.distance && area == p.area && x < p.x )
+                return true;
+            else if ( occurrence == p.occurrence && distance == p.distance && area == p.area && x == p.x && y < p.y )
+                return true;
 
-    // 4: P50 only include cells which have values in half of more of the grids
-    if ( calculateP50 )
-        clearCells( statisticsGrids[RimEnsembleFractureStatistics::StatisticsType::P50], occurrenceGrid, numGrids, 0.5 );
+            return false;
+        }
+    };
 
-    // 5: P90 only include cells with have values in 90% or more of the grids
-    if ( calculateP90 )
-        clearCells( statisticsGrids[RimEnsembleFractureStatistics::StatisticsType::P90], occurrenceGrid, numGrids, 0.9 );
+    // Create ordered list of the cells
+    std::set<CellData> cells;
+    for ( size_t y = 0; y < occurrenceGrid.ny(); y++ )
+    {
+        for ( size_t x = 0; x < occurrenceGrid.nx(); x++ )
+        {
+            CellData cell;
+            cell.x          = x;
+            cell.y          = y;
+            cell.occurrence = occurrenceGrid.getValue( x, y );
+            cell.area       = areaGrid.getValue( x, y );
+            cell.distance   = distanceGrid.getValue( x, y );
+            cells.insert( cell );
+        }
+    }
+
+    // Fill cells in the output grid until the target area is reached.
+    // This ensures that the statistics fracture grids have representantive sizes.
+    std::shared_ptr<RigSlice2D> outputGrid = std::make_shared<RigSlice2D>( grid->nx(), grid->ny() );
+    double                      area       = 0.0;
+    for ( const CellData& cellData : cells )
+    {
+        if ( area < targetArea )
+        {
+            double value = grid->getValue( cellData.x, cellData.y );
+            if ( !std::isinf( value ) && cellData.area > 0.0 )
+            {
+                outputGrid->setValue( cellData.x, cellData.y, value );
+                area += cellData.area;
+            }
+        }
+        else
+        {
+            // Target area is reached.
+            break;
+        }
+    }
+
+    RiaLogging::info( QString( "Statistics fracture area: %1 target area: %2" ).arg( area ).arg( targetArea ) );
+
+    return outputGrid;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1131,19 +1347,12 @@ void RimEnsembleFractureStatistics::generateStatisticsGrids(
 QString RimEnsembleFractureStatistics::generateStatisticsTable(
     const std::vector<cvf::ref<RigStimPlanFractureDefinition>>& stimPlanFractureDefinitions ) const
 {
-    std::vector<RigEnsembleFractureStatisticsCalculator::PropertyType> propertyTypes = {
-        RigEnsembleFractureStatisticsCalculator::PropertyType::HEIGHT,
-        RigEnsembleFractureStatisticsCalculator::PropertyType::AREA,
-        RigEnsembleFractureStatisticsCalculator::PropertyType::WIDTH,
-        RigEnsembleFractureStatisticsCalculator::PropertyType::XF,
-        RigEnsembleFractureStatisticsCalculator::PropertyType::KFWF,
-        RigEnsembleFractureStatisticsCalculator::PropertyType::PERMEABILITY,
-        RigEnsembleFractureStatisticsCalculator::PropertyType::FORMATION_DIP,
-    };
+    std::vector<RigEnsembleFractureStatisticsCalculator::PropertyType> propertyTypes =
+        RigEnsembleFractureStatisticsCalculator::propertyTypes();
 
     QString text;
     text += "<table border=1><thead><tr bgcolor=lightblue>";
-    std::vector<QString> statisticsTypes = { "Name", "Mean", "Minimum", "Maximum", "P10", "P90" };
+    std::vector<QString> statisticsTypes = { "Name", "Minimum", "P90", "Mean", "P10", "Maximum" };
     for ( auto statType : statisticsTypes )
     {
         text += QString( "<th>%1</th>" ).arg( statType );
@@ -1152,11 +1361,11 @@ QString RimEnsembleFractureStatistics::generateStatisticsTable(
     text += "</thead>";
     text += "<tbody>";
 
-    auto emptyTextOnInf = []( double value ) {
+    auto emptyTextOnInf = []( double value, RiaNumberFormat::NumberFormatType numberFormat, int precision ) {
         if ( std::isinf( value ) )
             return QString( "" );
         else
-            return QString::number( value );
+            return RiaNumberFormat::valueToText( value, numberFormat, precision );
     };
 
     for ( auto propertyType : propertyTypes )
@@ -1164,8 +1373,11 @@ QString RimEnsembleFractureStatistics::generateStatisticsTable(
         QString name    = caf::AppEnum<RigEnsembleFractureStatisticsCalculator::PropertyType>::uiText( propertyType );
         int     numBins = 50;
         RigHistogramData histogramData =
-            RigEnsembleFractureStatisticsCalculator::createStatisticsData( this, propertyType, numBins );
+            RigEnsembleFractureStatisticsCalculator::createStatisticsData( stimPlanFractureDefinitions,
+                                                                           propertyType,
+                                                                           numBins );
 
+        auto [numberFormat, precision] = RigEnsembleFractureStatisticsCalculator::numberFormatForProperty( propertyType );
         text += QString( "<tr>"
                          "<td>%1</td>"
                          "<td align=right>%2</td>"
@@ -1175,11 +1387,11 @@ QString RimEnsembleFractureStatistics::generateStatisticsTable(
                          "<td align=right>%6</td>"
                          "</tr>" )
                     .arg( name )
-                    .arg( emptyTextOnInf( histogramData.mean ) )
-                    .arg( emptyTextOnInf( histogramData.min ) )
-                    .arg( emptyTextOnInf( histogramData.max ) )
-                    .arg( emptyTextOnInf( histogramData.p10 ) )
-                    .arg( emptyTextOnInf( histogramData.p90 ) );
+                    .arg( emptyTextOnInf( histogramData.min, numberFormat, precision ) )
+                    .arg( emptyTextOnInf( histogramData.p90, numberFormat, precision ) )
+                    .arg( emptyTextOnInf( histogramData.mean, numberFormat, precision ) )
+                    .arg( emptyTextOnInf( histogramData.p10, numberFormat, precision ) )
+                    .arg( emptyTextOnInf( histogramData.max, numberFormat, precision ) );
     }
 
     text += "</tbody>";

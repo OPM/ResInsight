@@ -19,14 +19,17 @@
 
 #include "RivExtrudedCurveIntersectionSourceInfo.h"
 
+#include "RimExtrudedCurveIntersection.h"
 #include "RivExtrudedCurveIntersectionGeometryGenerator.h"
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RivExtrudedCurveIntersectionSourceInfo::RivExtrudedCurveIntersectionSourceInfo(
-    RivExtrudedCurveIntersectionGeometryGenerator* geometryGenerator )
+    RivExtrudedCurveIntersectionGeometryGenerator* geometryGenerator,
+    RimExtrudedCurveIntersection*                  intersection )
     : m_intersectionGeometryGenerator( geometryGenerator )
+    , m_intersection( intersection )
 {
     CVF_ASSERT( m_intersectionGeometryGenerator.notNull() );
 }
@@ -59,5 +62,5 @@ std::array<cvf::Vec3f, 3> RivExtrudedCurveIntersectionSourceInfo::triangle( int 
 //--------------------------------------------------------------------------------------------------
 RimExtrudedCurveIntersection* RivExtrudedCurveIntersectionSourceInfo::intersection() const
 {
-    return m_intersectionGeometryGenerator->intersection();
+    return m_intersection;
 }

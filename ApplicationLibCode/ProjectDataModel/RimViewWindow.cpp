@@ -22,7 +22,7 @@
 #include "RiaColorTools.h"
 #include "RiaFieldHandleTools.h"
 #include "RiaGuiApplication.h"
-#include "RiaPreferences.h"
+#include "RiaPreferencesSystem.h"
 
 #include "RicfCommandObject.h"
 
@@ -49,7 +49,7 @@ RimViewWindow::RimViewWindow( void )
                                                     "The Base Class for all Views and Plots in ResInsight" );
 
     CAF_PDM_InitFieldNoDefault( &m_windowController, "WindowController", "", "", "", "" );
-    m_windowController.uiCapability()->setUiHidden( true );
+    m_windowController.uiCapability()->setUiTreeHidden( true );
     m_windowController.uiCapability()->setUiTreeChildrenHidden( true );
 
     CAF_PDM_InitField( &m_showWindow, "ShowWindow", true, "Show Window", "", "", "" );
@@ -328,7 +328,7 @@ void RimViewWindow::initAfterRead()
 void RimViewWindow::defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
 {
     caf::PdmUiTreeViewItemAttribute* treeItemAttribute = dynamic_cast<caf::PdmUiTreeViewItemAttribute*>( attribute );
-    if ( treeItemAttribute && RiaPreferences::current()->showViewIdInProjectTree() && id() >= 0 )
+    if ( treeItemAttribute && RiaPreferencesSystem::current()->showViewIdInProjectTree() && id() >= 0 )
     {
         treeItemAttribute->tags.clear();
         auto tag                   = caf::PdmUiTreeViewItemAttribute::Tag::create();

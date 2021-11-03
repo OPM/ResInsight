@@ -47,6 +47,7 @@
 #include "RimDialogData.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCaseCollection.h"
+#include "RimEnsembleWellLogsCollection.h"
 #include "RimFlowPlotCollection.h"
 #include "RimFormationNamesCollection.h"
 #include "RimFractureTemplate.h"
@@ -137,23 +138,23 @@ RimProject::RimProject( void )
     m_globalPathList.uiCapability()->setUiHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &oilFields, "OilFields", "Oil Fields", "", "", "" );
-    oilFields.uiCapability()->setUiHidden( true );
+    oilFields.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &colorLegendCollection, "ColorLegendCollection", "Color Legend Collection", "", "", "" );
     colorLegendCollection = new RimColorLegendCollection();
     colorLegendCollection->createStandardColorLegends();
 
     CAF_PDM_InitFieldNoDefault( &scriptCollection, "ScriptCollection", "Octave Scripts", ":/octave.png", "", "" );
-    scriptCollection.uiCapability()->setUiHidden( true );
+    scriptCollection.uiCapability()->setUiTreeHidden( true );
     scriptCollection.xmlCapability()->disableIO();
 
     CAF_PDM_InitFieldNoDefault( &wellPathImport, "WellPathImport", "WellPathImport", "", "", "" );
     wellPathImport = new RimWellPathImport();
-    wellPathImport.uiCapability()->setUiHidden( true );
+    wellPathImport.uiCapability()->setUiTreeHidden( true );
     wellPathImport.uiCapability()->setUiTreeChildrenHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &mainPlotCollection, "MainPlotCollection", "Plots", "", "", "" );
-    mainPlotCollection.uiCapability()->setUiHidden( true );
+    mainPlotCollection.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &viewLinkerCollection,
                                 "LinkedViews",
@@ -161,7 +162,7 @@ RimProject::RimProject( void )
                                 ":/LinkView16x16.png",
                                 "",
                                 "" );
-    viewLinkerCollection.uiCapability()->setUiHidden( true );
+    viewLinkerCollection.uiCapability()->setUiTreeHidden( true );
     viewLinkerCollection = new RimViewLinkerCollection;
 
     CAF_PDM_InitFieldNoDefault( &calculationCollection, "CalculationCollection", "Calculation Collection", "", "", "" );
@@ -196,7 +197,7 @@ RimProject::RimProject( void )
 
     CAF_PDM_InitFieldNoDefault( &m_dialogData, "DialogData", "DialogData", "", "", "" );
     m_dialogData = new RimDialogData();
-    m_dialogData.uiCapability()->setUiHidden( true );
+    m_dialogData.uiCapability()->setUiTreeHidden( true );
     m_dialogData.uiCapability()->setUiTreeChildrenHidden( true );
 
     // Obsolete fields. The content is moved to OilFields and friends
@@ -357,12 +358,15 @@ void RimProject::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 void RimProject::setupBeforeSave()
 {
-    RiaGuiApplication* guiApp = RiaGuiApplication::instance();
-
-    if ( guiApp )
+    if ( RiaGuiApplication::isRunning() )
     {
-        m_show3DWindow   = guiApp->mainWindow()->isVisible();
-        m_showPlotWindow = guiApp->mainPlotWindow() && guiApp->mainPlotWindow()->isVisible();
+        RiaGuiApplication* guiApp = RiaGuiApplication::instance();
+
+        if ( guiApp )
+        {
+            m_show3DWindow   = guiApp->mainWindow()->isVisible();
+            m_showPlotWindow = guiApp->mainPlotWindow() && guiApp->mainPlotWindow()->isVisible();
+        }
     }
 
     m_projectFileVersionString = STRPRODUCTVER;
@@ -1410,6 +1414,10 @@ void RimProject::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, Q
                 {
                     itemCollection->add( oilField->observedDataCollection() );
                 }
+                if ( oilField->ensembleWellLogsCollection() )
+                {
+                    itemCollection->add( oilField->ensembleWellLogsCollection() );
+                }
             }
         }
 
@@ -1474,10 +1482,7 @@ void RimProject::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, Q
 
             if ( mainPlotCollection->stimPlanModelPlotCollection() )
             {
-                if ( RiaApplication::enableDevelopmentFeatures() )
-                {
-                    itemCollection->add( mainPlotCollection->stimPlanModelPlotCollection() );
-                }
+                itemCollection->add( mainPlotCollection->stimPlanModelPlotCollection() );
             }
 
             if ( mainPlotCollection->vfpPlotCollection() )
@@ -1493,12 +1498,7 @@ void RimProject::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, Q
                     statisticsItemCollection->add( mainPlotCollection->gridStatisticsPlotCollection() );
 
                 if ( mainPlotCollection->ensembleFractureStatisticsPlotCollection() )
-                {
-                    if ( RiaApplication::enableDevelopmentFeatures() )
-                    {
-                        statisticsItemCollection->add( mainPlotCollection->ensembleFractureStatisticsPlotCollection() );
-                    }
-                }
+                    statisticsItemCollection->add( mainPlotCollection->ensembleFractureStatisticsPlotCollection() );
             }
 #endif
         }

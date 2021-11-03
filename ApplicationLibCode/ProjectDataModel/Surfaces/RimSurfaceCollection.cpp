@@ -21,6 +21,10 @@
 #include "RiaColorTables.h"
 #include "RiaLogging.h"
 
+#include "Rim2dIntersectionView.h"
+#include "Rim2dIntersectionViewCollection.h"
+#include "RimCase.h"
+#include "RimEnsembleSurface.h"
 #include "RimFileSurface.h"
 #include "RimGridCaseSurface.h"
 #include "RimGridView.h"
@@ -35,7 +39,8 @@
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObjectScriptingCapability.h"
 
-#include "QFile"
+#include <QFile>
+#include <QFileInfo>
 
 CAF_PDM_SOURCE_INIT( RimSurfaceCollection, "SurfaceCollection" );
 
@@ -111,6 +116,26 @@ void RimSurfaceCollection::addSurface( RimSurface* surface )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimSurfaceCollection::addEnsembleSurface( RimEnsembleSurface* ensembleSurface )
+{
+    addSubCollection( ensembleSurface );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimEnsembleSurface*> RimSurfaceCollection::ensembleSurfaces() const
+{
+    std::vector<RimEnsembleSurface*> ensSurfaces;
+
+    this->descendantsIncludingThisOfType( ensSurfaces );
+
+    return ensSurfaces;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RimSurface* RimSurfaceCollection::importSurfacesFromFiles( const QStringList& fileNames, bool showLegend /* = true */ )
 {
     size_t  newSurfCount      = 0;
@@ -126,6 +151,8 @@ RimSurface* RimSurfaceCollection::importSurfacesFromFiles( const QStringList& fi
         auto newColor = RiaColorTables::categoryPaletteColors().cycledColor3f( existingSurfCount + newSurfCount );
 
         newSurface->setSurfaceFilePath( newFileName );
+        newSurface->setUserDescription( QFileInfo( newFileName ).fileName() );
+
         newSurface->setColor( newColor );
 
         if ( !newSurface->onLoadData() )
@@ -212,12 +239,10 @@ RimSurface* RimSurfaceCollection::copySurfaces( std::vector<RimSurface*> surface
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSurface* RimSurfaceCollection::addGridCaseSurface( RimCase* sourceCase )
+RimSurface* RimSurfaceCollection::addGridCaseSurface( RimCase* sourceCase, int oneBasedSliceIndex )
 {
     auto s = new RimGridCaseSurface;
     s->setCase( sourceCase );
-
-    int oneBasedSliceIndex = 1;
 
     s->setOneBasedIndex( oneBasedSliceIndex );
     s->setUserDescription( "Surface" );
@@ -264,6 +289,11 @@ void RimSurfaceCollection::loadData()
     {
         surf->loadDataIfRequired();
     }
+
+    for ( auto subColl : m_subCollections )
+    {
+        subColl->loadData();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -306,6 +336,15 @@ void RimSurfaceCollection::updateViews( const std::vector<RimSurface*>& surfsToR
     for ( auto view : viewsNeedingUpdate )
     {
         view->scheduleCreateDisplayModelAndRedraw();
+
+        if ( view->ownerCase() )
+        {
+            auto views = view->ownerCase()->intersectionViewCollection()->views();
+            for ( Rim2dIntersectionView* view : views )
+            {
+                view->scheduleCreateDisplayModelAndRedraw();
+            }
+        }
     }
 }
 
@@ -456,7 +495,7 @@ void RimSurfaceCollection::addSubCollection( RimSurfaceCollection* subcoll )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSurfaceCollection* RimSurfaceCollection::getSubCollection( const QString name )
+RimSurfaceCollection* RimSurfaceCollection::getSubCollection( const QString& name ) const
 {
     for ( auto coll : m_subCollections )
     {
@@ -464,6 +503,19 @@ RimSurfaceCollection* RimSurfaceCollection::getSubCollection( const QString name
     }
 
     return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSurfaceCollection::deleteSubCollection( const QString& name )
+{
+    auto coll = getSubCollection( name );
+    if ( coll )
+    {
+        auto index = m_subCollections.index( coll );
+        m_subCollections.erase( index );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -477,6 +529,7 @@ bool RimSurfaceCollection::containsSurface()
     {
         containsSurface |= coll->containsSurface();
     }
+
     return containsSurface;
 }
 

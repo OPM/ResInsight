@@ -20,6 +20,8 @@
 
 #include "RimEclipseCellColors.h"
 
+#include "RiaResultNames.h"
+
 #include "RicfCommandObject.h"
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
@@ -102,11 +104,6 @@ void RimEclipseCellColors::fieldChangedByUi( const caf::PdmFieldHandle* changedF
             changeLegendConfig( this->resultVariableUiName() );
         }
 
-        if ( newValue != RiaResultNames::undefinedResultName() )
-        {
-            if ( m_reservoirView ) m_reservoirView->hasUserRequestedAnimation = true;
-        }
-
         RimEclipseFaultColors* faultColors = dynamic_cast<RimEclipseFaultColors*>( this->parentField()->ownerObject() );
         if ( faultColors )
         {
@@ -184,19 +181,7 @@ RimRegularLegendConfig* RimEclipseCellColors::createLegendForResult( const QStri
                                                                      bool           useDiscreteLogLevels,
                                                                      bool           isCategoryResult )
 {
-    bool useLog = false;
-    {
-        QStringList subStringsToMatch{ "TRAN", "MULT", "PERM" };
-
-        for ( const auto& s : subStringsToMatch )
-        {
-            if ( resultName.contains( s, Qt::CaseInsensitive ) )
-            {
-                useLog = true;
-                break;
-            }
-        }
-    }
+    bool useLog = RiaResultNames::isLogarithmicResult( resultName );
 
     RimRegularLegendConfig::ColorRangesType colorRangeType = RimRegularLegendConfig::ColorRangesType::UNDEFINED;
     if ( isCategoryResult )

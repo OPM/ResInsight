@@ -159,7 +159,7 @@ RimRegularLegendConfig* RimWellRftEnsembleCurveSet::legendConfig()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-EnsembleParameter::Type RimWellRftEnsembleCurveSet::currentEnsembleParameterType() const
+RigEnsembleParameter::Type RimWellRftEnsembleCurveSet::currentEnsembleParameterType() const
 {
     if ( m_ensembleColorMode() == ColorMode::BY_ENSEMBLE_PARAM )
     {
@@ -172,7 +172,7 @@ EnsembleParameter::Type RimWellRftEnsembleCurveSet::currentEnsembleParameterType
             return eParam.type;
         }
     }
-    return EnsembleParameter::TYPE_NONE;
+    return RigEnsembleParameter::TYPE_NONE;
 }
 
 //--------------------------------------------------------------------------------------------------

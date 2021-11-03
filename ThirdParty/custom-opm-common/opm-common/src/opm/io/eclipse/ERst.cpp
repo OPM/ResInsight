@@ -18,6 +18,8 @@
 
 #include <opm/io/eclipse/ERst.hpp>
 
+#include <opm/common/ErrorMacros.hpp>
+
 #include <algorithm>
 #include <cstring>
 #include <exception>
@@ -407,5 +409,22 @@ const std::vector<std::string>& ERst::getRestartData<std::string>(const std::str
     return getImpl(ind, CHAR, char_array, "char");
 }
 
+template <typename T>
+const std::vector<T>& ERst::getRestartData(int index, int reportStepNumber, const std::string& lgr_name)
+{
+    auto indRange = this->getIndexRange(reportStepNumber);
+
+    if ((std::get<0>(indRange) + index) > std::get<1>(indRange))
+        OPM_THROW(std::invalid_argument, "getRestartData, index out of range");
+
+    int start_ind = get_start_index_lgrname(reportStepNumber, lgr_name);
+    return  this->get<T>(index + start_ind);
+}
+
+template const std::vector<int>& ERst::getRestartData(int index, int reportStepNumber, const std::string& lgr_name);
+template const std::vector<std::string>& ERst::getRestartData(int index, int reportStepNumber, const std::string& lgr_name);
+template const std::vector<float>& ERst::getRestartData(int index, int reportStepNumber, const std::string& lgr_name);
+template const std::vector<double>& ERst::getRestartData(int index, int reportStepNumber, const std::string& lgr_name);
+template const std::vector<bool>& ERst::getRestartData(int index, int reportStepNumber, const std::string& lgr_name);
 
 }} // namespace Opm::ecl

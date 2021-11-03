@@ -54,7 +54,7 @@ RimStimPlanModelLayerCalculator::RimStimPlanModelLayerCalculator( RimStimPlanMod
 //--------------------------------------------------------------------------------------------------
 bool RimStimPlanModelLayerCalculator::isMatching( RiaDefines::CurveProperty curveProperty ) const
 {
-    return curveProperty == RiaDefines::CurveProperty::LAYERS;
+    return ( curveProperty == RiaDefines::CurveProperty::LAYERS || curveProperty == RiaDefines::CurveProperty::FORMATIONS );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -165,7 +165,16 @@ bool RimStimPlanModelLayerCalculator::calculate( RiaDefines::CurveProperty curve
             layerNo++;
         }
 
-        values[i]         = layerNo;
+        if ( curveProperty == RiaDefines::CurveProperty::LAYERS )
+        {
+            values[i] = layerNo;
+        }
+        else
+        {
+            CAF_ASSERT( curveProperty == RiaDefines::CurveProperty::FORMATIONS );
+            values[i] = curveData.data[i];
+        }
+
         previousFormation = curveData.data[i];
         previousFacies    = faciesValues[i];
         if ( useNetToGross )

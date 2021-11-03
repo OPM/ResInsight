@@ -167,6 +167,8 @@ cvf::ref<cvf::Part> RivWellSpheresPartMgr::createPart( std::vector<std::pair<cvf
     vectorDrawable->setGlyph( builder.trianglesUShort().p(), builder.vertices().p() );
 
     cvf::ref<cvf::Part> part = new cvf::Part;
+    part->setName( "RivWellSpheresPartMgr" );
+
     part->setDrawable( vectorDrawable.p() );
 
     cvf::ref<cvf::Effect> eff = new cvf::Effect;

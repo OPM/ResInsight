@@ -27,6 +27,7 @@
 namespace RiaResultNames
 {
 bool isPerCellFaceResult( const QString& resultName );
+bool isLogarithmicResult( const QString& resultName );
 
 QString undefinedResultName();
 QString undefinedGridFaultName();
@@ -63,6 +64,10 @@ QString mobilePoreVolumeName();
 QString faultReactAssessmentPrefix();
 
 QString completionTypeResultName();
+
+QString indexIResultName();
+QString indexJResultName();
+QString indexKResultName();
 
 // Well path derived results
 QString wbsAzimuthResult();

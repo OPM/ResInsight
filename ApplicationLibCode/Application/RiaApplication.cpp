@@ -25,6 +25,7 @@
 #include "RiaImportEclipseCaseTools.h"
 #include "RiaLogging.h"
 #include "RiaPreferences.h"
+#include "RiaPreferencesSystem.h"
 #include "RiaProjectModifier.h"
 #include "RiaSocketServer.h"
 #include "RiaTextStringTools.h"
@@ -37,6 +38,7 @@
 #include "RicfCommandFileExecutor.h"
 #include "RicfCommandObject.h"
 
+#include "CommandRouter/RimCommandRouter.h"
 #include "Rim2dIntersectionViewCollection.h"
 #include "RimAnnotationCollection.h"
 #include "RimAnnotationInViewCollection.h"
@@ -46,6 +48,7 @@
 #include "RimCompletionTemplateCollection.h"
 #include "RimEclipseCaseCollection.h"
 #include "RimEclipseView.h"
+#include "RimEnsembleWellLogsCollection.h"
 #include "RimFormationNamesCollection.h"
 #include "RimFractureTemplateCollection.h"
 #include "RimGeoMechCase.h"
@@ -148,6 +151,8 @@ RiaApplication::RiaApplication()
 #endif
 
     setLastUsedDialogDirectory( "MULTICASEIMPORT", "/" );
+
+    m_commandRouter = std::make_unique<RimCommandRouter>();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -229,7 +234,9 @@ void RiaApplication::createMockModelCustomized()
 //--------------------------------------------------------------------------------------------------
 void RiaApplication::createInputMockModel()
 {
-    RiaImportEclipseCaseTools::openEclipseInputCaseFromFileNames( QStringList( RiaDefines::mockModelBasicInputCase() ) );
+    bool createView = true;
+    RiaImportEclipseCaseTools::openEclipseInputCaseFromFileNames( QStringList( RiaDefines::mockModelBasicInputCase() ),
+                                                                  createView );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -303,6 +310,14 @@ RimProject* RiaApplication::project()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RimCommandRouter* RiaApplication::commandRouter()
+{
+    return m_commandRouter.get();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RiaApplication::openFile( const QString& fileName )
 {
     if ( !caf::Utils::fileExists( fileName ) ) return false;
@@ -324,7 +339,10 @@ bool RiaApplication::openFile( const QString& fileName )
     }
     else if ( int( fileType ) & int( RiaDefines::ImportFileType::ANY_ECLIPSE_FILE ) )
     {
-        loadingSucceded   = RicImportGeneralDataFeature::openEclipseFilesFromFileNames( QStringList{ fileName }, true );
+        bool createView = true;
+        bool createPlot = true;
+        loadingSucceded =
+            RicImportGeneralDataFeature::openEclipseFilesFromFileNames( QStringList{ fileName }, createPlot, createView );
         lastUsedDialogTag = RiaDefines::defaultDirectoryLabel( fileType );
     }
 
@@ -499,6 +517,7 @@ bool RiaApplication::loadProject( const QString&      projectFileName,
         }
 
         oilField->wellPathCollection->loadDataAndUpdate();
+        oilField->ensembleWellLogsCollection->loadDataAndUpdate();
     }
 
     {
@@ -652,6 +671,12 @@ bool RiaApplication::loadProject( const QString&      projectFileName,
         }
 
         oilField->annotationCollection()->loadDataAndUpdate();
+
+        for ( auto well : oilField->wellPathCollection()->allWellPaths() )
+        {
+            for ( auto stimPlan : well->stimPlanModelCollection()->allStimPlanModels() )
+                stimPlan->resetAnchorPositionAndThicknessDirection();
+        }
     }
 
     // Some procedures in onProjectOpened() may rely on the display model having been created
@@ -867,6 +892,7 @@ bool RiaApplication::openOdbCaseFromFile( const QString& fileName, bool applyTim
 
     m_project->updateConnectedEditors();
     Riu3DMainWindowTools::setExpanded( riv );
+    Riu3DMainWindowTools::selectAsCurrentItem( riv );
 
     return true;
 }
@@ -1188,7 +1214,7 @@ void RiaApplication::applyPreferences()
         this->project()->updateConnectedEditors();
     }
 
-    caf::ProgressInfoStatic::setEnabled( m_preferences->showProgressBar() );
+    caf::ProgressInfoStatic::setEnabled( RiaPreferencesSystem::current()->showProgressBar() );
 
     m_preferences->writePreferencesToApplicationStore();
 }
@@ -1335,7 +1361,7 @@ int RiaApplication::launchUnitTests()
 
     //
     // Use the gtest filter to execute a subset of tests
-    QString filterText = RiaPreferences::current()->gtestFilter();
+    QString filterText = RiaPreferencesSystem::current()->gtestFilter();
     if ( !filterText.isEmpty() )
     {
         ::testing::GTEST_FLAG( filter ) = filterText.toStdString();

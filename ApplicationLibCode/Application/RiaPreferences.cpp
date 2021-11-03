@@ -25,6 +25,7 @@
 #include "RiaColorTables.h"
 #include "RiaPreferencesGeoMech.h"
 #include "RiaPreferencesSummary.h"
+#include "RiaPreferencesSystem.h"
 #include "RiaValidRegExpValidator.h"
 
 #include "RifReaderSettings.h"
@@ -173,46 +174,6 @@ RiaPreferences::RiaPreferences()
     CAF_PDM_InitFieldNoDefault( &defaultWellLabelFontSize, "defaultWellLabelFontSizePt", "Well Label Font Size", "", "", "" );
     CAF_PDM_InitFieldNoDefault( &defaultPlotFontSize, "defaultPlotFontSizePt", "Plot Font Size", "", "", "" );
 
-    CAF_PDM_InitField( &showLasCurveWithoutTvdWarning,
-                       "showLasCurveWithoutTvdWarning",
-                       true,
-                       "Show LAS Curve Without TVD Warning",
-                       "",
-                       "",
-                       "" );
-    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &showLasCurveWithoutTvdWarning );
-
-    CAF_PDM_InitField( &m_useShaders, "useShaders", true, "Use Shaders", "", "", "" );
-    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_useShaders );
-    CAF_PDM_InitField( &m_showHud, "showHud", false, "Show 3D Information", "", "", "" );
-    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_showHud );
-    CAF_PDM_InitField( &m_appendClassNameToUiText, "appendClassNameToUiText", false, "Show Class Names", "", "", "" );
-    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_appendClassNameToUiText );
-
-    CAF_PDM_InitField( &m_appendFieldKeywordToToolTipText,
-                       "appendFieldKeywordToToolTipText",
-                       false,
-                       "Show Field Keyword in ToolTip",
-                       "",
-                       "",
-                       "" );
-    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_appendFieldKeywordToToolTipText );
-
-    CAF_PDM_InitField( &m_showViewIdInProjectTree, "showViewIdInTree", false, "Show View Id in Project Tree", "", "", "" );
-    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_showViewIdInProjectTree );
-
-    CAF_PDM_InitField( &m_showTestToolbar, "showTestToolbar", false, "Enable Test Toolbar", "", "", "" );
-    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_showTestToolbar );
-
-    CAF_PDM_InitField( &m_includeFractureDebugInfoFile,
-                       "includeFractureDebugInfoFile",
-                       false,
-                       "Include Fracture Debug Info for Completion Export",
-                       "",
-                       "",
-                       "" );
-    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_includeFractureDebugInfoFile );
-
     CAF_PDM_InitField( &m_showLegendBackground, "showLegendBackground", true, "Show Box around Legends", "", "", "" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_showLegendBackground );
 
@@ -240,10 +201,6 @@ RiaPreferences::RiaPreferences()
     CAF_PDM_InitField( &loadAndShowSoil, "loadAndShowSoil", true, "Load and Show SOIL", "", "", "" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &loadAndShowSoil );
 
-    CAF_PDM_InitFieldNoDefault( &m_holoLensExportFolder, "holoLensExportFolder", "HoloLens Export Folder", "", "", "" );
-    m_holoLensExportFolder.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
-    m_holoLensExportFolder.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
-
     CAF_PDM_InitField( &holoLensDisableCertificateVerification,
                        "holoLensDisableCertificateVerification",
                        false,
@@ -261,15 +218,6 @@ RiaPreferences::RiaPreferences()
                        "",
                        "" );
 
-    CAF_PDM_InitField( &m_showProjectChangedDialog,
-                       "showProjectChangedDialog",
-                       true,
-                       "Show 'Project has changed' dialog",
-                       "",
-                       "",
-                       "" );
-    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_showProjectChangedDialog );
-
     CAF_PDM_InitFieldNoDefault( &m_readerSettings, "readerSettings", "Reader Settings", "", "", "" );
     m_readerSettings = new RifReaderSettings;
     CAF_PDM_InitFieldNoDefault( &m_dateFormat, "dateFormat", "Date Format", "", "", "" );
@@ -279,9 +227,6 @@ RiaPreferences::RiaPreferences()
     CAF_PDM_InitFieldNoDefault( &m_timeFormat, "timeFormat", "Time Format", "", "", "" );
     m_timeFormat.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
     m_timeFormat = RiaQDateTimeTools::supportedTimeFormats().front();
-
-    CAF_PDM_InitField( &m_showProgressBar, "showProgressBar", true, "Show Progress Bar", "", "", "" );
-    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_showProgressBar );
 
     CAF_PDM_InitField( &m_useUndoRedo, "useUndoRedo", true, "Enable Undo/Redo for Property Editor changes", "", "", "" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_useUndoRedo );
@@ -309,8 +254,6 @@ RiaPreferences::RiaPreferences()
     CAF_PDM_InitField( &m_openExportedPdfInViewer, "openExportedPdfInViewer", false, "Open Exported PDF in Viewer", "", "", "" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_openExportedPdfInViewer );
 
-    CAF_PDM_InitField( &m_gtestFilter, "gtestFilter", QString(), "Unit Test Filter (gtest)", "", "", "" );
-
     CAF_PDM_InitField( &m_surfaceImportResamplingDistance,
                        "SurfaceImportResamplingDistance",
                        100.0,
@@ -336,6 +279,9 @@ RiaPreferences::RiaPreferences()
 
     CAF_PDM_InitFieldNoDefault( &m_geoMechPreferences, "geoMechPreferences", "geoMechPreferences", "", "", "" );
     m_geoMechPreferences = new RiaPreferencesGeoMech;
+
+    CAF_PDM_InitFieldNoDefault( &m_systemPreferences, "systemPreferences", "systemPreferences", "", "", "" );
+    m_systemPreferences = new RiaPreferencesSystem;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -375,14 +321,6 @@ void RiaPreferences::defineEditorAttribute( const caf::PdmFieldHandle* field,
         }
     }
 
-    if ( field == &m_holoLensExportFolder )
-    {
-        caf::PdmUiFilePathEditorAttribute* myAttr = dynamic_cast<caf::PdmUiFilePathEditorAttribute*>( attribute );
-        if ( myAttr )
-        {
-            myAttr->m_selectDirectory = true;
-        }
-    }
     if ( field == &defaultSceneFontSize || field == &defaultWellLabelFontSize || field == &defaultAnnotationFontSize ||
          field == &defaultPlotFontSize )
     {
@@ -435,7 +373,6 @@ void RiaPreferences::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
 
         caf::PdmUiGroup* otherGroup = uiOrdering.addNewGroup( "Other" );
         otherGroup->add( &ssihubAddress );
-        otherGroup->add( &showLasCurveWithoutTvdWarning );
         otherGroup->add( &holoLensDisableCertificateVerification );
         otherGroup->add( &m_useUndoRedo );
     }
@@ -522,25 +459,7 @@ void RiaPreferences::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
     }
     else if ( RiaApplication::enableDevelopmentFeatures() && uiConfigName == RiaPreferences::tabNameSystem() )
     {
-        {
-            caf::PdmUiGroup* group = uiOrdering.addNewGroup( "Project Tree" );
-            group->add( &m_appendClassNameToUiText );
-            group->add( &m_appendFieldKeywordToToolTipText );
-            group->add( &m_showViewIdInProjectTree );
-        }
-
-        {
-            caf::PdmUiGroup* group = uiOrdering.addNewGroup( "3D View" );
-            group->add( &m_useShaders );
-            group->add( &m_showHud );
-        }
-
-        uiOrdering.add( &m_gtestFilter );
-        uiOrdering.add( &m_showProgressBar );
-        uiOrdering.add( &m_showProjectChangedDialog );
-        uiOrdering.add( &m_showTestToolbar );
-        uiOrdering.add( &m_includeFractureDebugInfoFile );
-        uiOrdering.add( &m_holoLensExportFolder );
+        m_systemPreferences()->uiOrdering( uiConfigName, uiOrdering );
     }
 
     uiOrdering.skipRemainingFields( true );
@@ -736,96 +655,6 @@ const RifReaderSettings* RiaPreferences::readerSettings() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RiaPreferences::appendClassNameToUiText() const
-{
-    return RiaApplication::enableDevelopmentFeatures() && m_appendClassNameToUiText();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RiaPreferences::appendFieldKeywordToToolTipText() const
-{
-    return RiaApplication::enableDevelopmentFeatures() && m_appendFieldKeywordToToolTipText();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RiaPreferences::showViewIdInProjectTree() const
-{
-    return RiaApplication::enableDevelopmentFeatures() && m_showViewIdInProjectTree();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RiaPreferences::showTestToolbar() const
-{
-    return RiaApplication::enableDevelopmentFeatures() && m_showTestToolbar();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RiaPreferences::includeFractureDebugInfoFile() const
-{
-    return RiaApplication::enableDevelopmentFeatures() && m_includeFractureDebugInfoFile();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RiaPreferences::showProjectChangedDialog() const
-{
-    if ( !RiaApplication::enableDevelopmentFeatures() )
-    {
-        return true;
-    }
-
-    return m_showProjectChangedDialog();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RiaPreferences::holoLensExportFolder() const
-{
-    return m_holoLensExportFolder();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RiaPreferences::useShaders() const
-{
-    if ( !RiaApplication::enableDevelopmentFeatures() )
-    {
-        return true;
-    }
-
-    return m_useShaders();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RiaPreferences::show3dInformation() const
-{
-    return RiaApplication::enableDevelopmentFeatures() && m_showHud();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RiaPreferences::gtestFilter() const
-{
-    return m_gtestFilter();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 bool RiaPreferences::useUndoRedo() const
 {
     return m_useUndoRedo();
@@ -914,14 +743,6 @@ QString RiaPreferences::defaultPlotTemplateAbsolutePath() const
 void RiaPreferences::setDefaultPlotTemplatePath( const QString& templatePath )
 {
     m_defaultPlotTemplate = templatePath;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RiaPreferences::showProgressBar() const
-{
-    return m_showProgressBar;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1074,6 +895,14 @@ QString RiaPreferences::octaveExecutable() const
 RiaPreferencesSummary* RiaPreferences::summaryPreferences() const
 {
     return m_summaryPreferences();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiaPreferencesSystem* RiaPreferences::systemPreferences() const
+{
+    return m_systemPreferences();
 }
 
 //--------------------------------------------------------------------------------------------------

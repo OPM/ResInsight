@@ -560,6 +560,22 @@ RiaColorTables::WellPathComponentColors RiaColorTables::wellPathComponentColors(
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+const caf::ColorTable& RiaColorTables::structuralUncertaintyColors()
+{
+    static std::vector<cvf::Color3ub> colors{
+        cvf::Color3ub( 255, 183, 198 ), // Large band
+        cvf::Color3ub( 255, 113, 142 ), // Narrow band
+        cvf::Color3ub( 255, 18, 67 ), // Mean curve
+    };
+
+    static caf::ColorTable colorTable = caf::ColorTable( colors );
+
+    return colorTable;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 cvf::Color3f RiaColorTables::defaultGridLineColor()
 {
     return cvf::Color3f( 0.92f, 0.92f, 0.92f );

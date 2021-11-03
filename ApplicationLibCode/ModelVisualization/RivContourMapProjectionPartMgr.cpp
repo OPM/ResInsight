@@ -82,6 +82,7 @@ void RivContourMapProjectionPartMgr::appendPickPointVisToModel( cvf::ModelBasicL
         cvf::ref<cvf::Effect> effect = meshEffectGen.generateCachedEffect();
 
         cvf::ref<cvf::Part> part = new cvf::Part;
+        part->setName( "RivContourMapProjectionPartMgr::appendPickPointVisToModel" );
         part->setDrawable( drawable.p() );
         part->setEffect( effect.p() );
         part->setSourceInfo( new RivMeshLinesSourceInfo( m_contourMapProjection.p() ) );
@@ -158,6 +159,7 @@ void RivContourMapProjectionPartMgr::appendContourLinesToModel( const cvf::Camer
                     cvf::ref<cvf::Effect> effect = meshEffectGen.generateCachedEffect();
 
                     cvf::ref<cvf::Part> part = new cvf::Part;
+                    part->setName( "RivContourMapProjectionPartMgr::contourDrawable_mesh" );
                     part->setDrawable( contourDrawable.p() );
                     part->setEffect( effect.p() );
                     part->setPriority( RivPartPriority::MeshLines );
@@ -173,6 +175,7 @@ void RivContourMapProjectionPartMgr::appendContourLinesToModel( const cvf::Camer
             for ( auto labelDrawableRef : labelDrawables )
             {
                 cvf::ref<cvf::Part> part = new cvf::Part;
+                part->setName( "RivContourMapProjectionPartMgr::labelDrawableRef" );
                 part->setDrawable( labelDrawableRef.p() );
                 part->setEffect( m_labelEffect.p() );
                 part->setPriority( RivPartPriority::Text );
@@ -237,6 +240,7 @@ cvf::ref<cvf::Part>
     geo->setVertexArray( vertexArray.p() );
 
     cvf::ref<cvf::Part> part = new cvf::Part;
+    part->setName( "RivContourMapProjectionPartMgr::createProjectionMapPart" );
     part->setDrawable( geo.p() );
 
     cvf::ScalarMapper* mapper = m_contourMapProjection->legendConfig()->scalarMapper();

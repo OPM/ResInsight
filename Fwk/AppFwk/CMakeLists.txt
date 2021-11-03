@@ -20,13 +20,15 @@ if(CEE_USE_QT5)
   find_package(
     Qt5
     COMPONENTS
-    REQUIRED Core Gui OpenGL Widgets)
+    REQUIRED Core Gui OpenGL Widgets
+  )
   set(QT_LIBRARIES Qt5::Core Qt5::Gui Qt5::OpenGL Qt5::Widgets)
 else()
   find_package(
     Qt4
     COMPONENTS QtCore QtGui QtMain QtOpenGl
-    REQUIRED)
+    REQUIRED
+  )
   include(${QT_USE_FILE})
 endif(CEE_USE_QT5)
 
@@ -70,5 +72,7 @@ add_subdirectory(cafPdmScripting/cafPdmScripting_UnitTests)
 # folders
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
-set_property(TARGET cafPdmCore cafPdmCore_UnitTests cafPdmXml
-                    cafPdmXml_UnitTests cafPdmUiCore PROPERTY FOLDER "PdmCore")
+set_property(
+  TARGET cafPdmCore cafPdmCore_UnitTests cafPdmXml cafPdmXml_UnitTests
+         cafPdmUiCore PROPERTY FOLDER "PdmCore"
+)

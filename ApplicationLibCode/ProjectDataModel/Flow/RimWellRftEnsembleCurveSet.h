@@ -21,6 +21,8 @@
 #include "RimEnsembleCurveSetColorManager.h"
 #include "RimSummaryCaseCollection.h"
 
+#include "RigEnsembleParameter.h"
+
 #include "cafPdmChildField.h"
 #include "cafPdmObject.h"
 #include "cafPdmProxyValueField.h"
@@ -51,9 +53,9 @@ public:
     cvf::Color3f              caseColor( const RimSummaryCase* summaryCase ) const;
     QString                   currentEnsembleParameter() const;
 
-    void                    setEnsembleParameter( const QString& parameterName );
-    RimRegularLegendConfig* legendConfig();
-    EnsembleParameter::Type currentEnsembleParameterType() const;
+    void                       setEnsembleParameter( const QString& parameterName );
+    RimRegularLegendConfig*    legendConfig();
+    RigEnsembleParameter::Type currentEnsembleParameterType() const;
 
 protected:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;

@@ -84,7 +84,8 @@ void RicSaveEclipseResultAsInputPropertyExec::redo()
         }
 
         QString outputFileName = projectFolder + "/" +
-                                 caf::Utils::makeValidFileBasename( m_cellColors->resultVariableUiShortName() );
+                                 caf::Utils::makeValidFileBasename( m_cellColors->resultVariableUiShortName() ) +
+                                 ".GRDECL";
 
         exportSettings.fileName = outputFileName;
     }

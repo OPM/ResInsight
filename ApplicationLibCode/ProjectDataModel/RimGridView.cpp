@@ -72,35 +72,30 @@ RimGridView::RimGridView()
                                 "",
                                 "",
                                 "" );
-    m_overrideCellFilterCollection.uiCapability()->setUiHidden( true );
+    m_overrideCellFilterCollection.uiCapability()->setUiTreeHidden( true );
     m_overrideCellFilterCollection.xmlCapability()->disableIO();
 
     CAF_PDM_InitFieldNoDefault( &m_intersectionCollection, "CrossSections", "Intersections", "", "", "" );
-    m_intersectionCollection.uiCapability()->setUiHidden( true );
+    m_intersectionCollection.uiCapability()->setUiTreeHidden( true );
     m_intersectionCollection = new RimIntersectionCollection();
 
     CAF_PDM_InitFieldNoDefault( &m_intersectionResultDefCollection,
                                 "IntersectionResultDefColl",
-                                "Separate Intersection Results",
+                                "Intersection Results",
                                 "",
                                 "",
                                 "" );
     m_intersectionResultDefCollection.uiCapability()->setUiTreeHidden( true );
     m_intersectionResultDefCollection = new RimIntersectionResultsDefinitionCollection;
 
-    CAF_PDM_InitFieldNoDefault( &m_surfaceResultDefCollection,
-                                "ReservoirSurfaceResultDefColl",
-                                "Separate Surface Results",
-                                "",
-                                "",
-                                "" );
+    CAF_PDM_InitFieldNoDefault( &m_surfaceResultDefCollection, "ReservoirSurfaceResultDefColl", "Surface Results", "", "", "" );
     m_surfaceResultDefCollection.uiCapability()->setUiTreeHidden( true );
     m_surfaceResultDefCollection = new RimIntersectionResultsDefinitionCollection;
-    m_surfaceResultDefCollection->uiCapability()->setUiName( "Separate Surface Results" );
+    m_surfaceResultDefCollection->uiCapability()->setUiName( "Surface Results" );
     m_surfaceResultDefCollection->uiCapability()->setUiIcon( caf::IconProvider( ":/ReservoirSurface16x16.png" ) );
 
     CAF_PDM_InitFieldNoDefault( &m_gridCollection, "GridCollection", "GridCollection", "", "", "" );
-    m_gridCollection.uiCapability()->setUiHidden( true );
+    m_gridCollection.uiCapability()->setUiTreeHidden( true );
     m_gridCollection = new RimGridCollection();
 
     m_previousGridModeMeshLinesWasFaults = false;
@@ -108,18 +103,18 @@ RimGridView::RimGridView()
     CAF_PDM_InitFieldNoDefault( &m_overlayInfoConfig, "OverlayInfoConfig", "Info Box", "", "", "" );
     m_overlayInfoConfig = new Rim3dOverlayInfoConfig();
     m_overlayInfoConfig->setReservoirView( this );
-    m_overlayInfoConfig.uiCapability()->setUiHidden( true );
+    m_overlayInfoConfig.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_wellMeasurementCollection, "WellMeasurements", "Well Measurements", "", "", "" );
     m_wellMeasurementCollection = new RimWellMeasurementInViewCollection;
-    m_wellMeasurementCollection.uiCapability()->setUiHidden( true );
+    m_wellMeasurementCollection.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_surfaceCollection, "SurfaceInViewCollection", "Surface Collection Field", "", "", "" );
     m_surfaceCollection.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_cellFilterCollection, "RangeFilters", "Cell Filter Collection Field", "", "", "" );
     m_cellFilterCollection = new RimCellFilterCollection();
-    m_cellFilterCollection.uiCapability()->setUiHidden( true );
+    m_cellFilterCollection.uiCapability()->setUiTreeHidden( true );
 
     m_surfaceVizModel = new cvf::ModelBasicList;
     m_surfaceVizModel->setName( "SurfaceModel" );
@@ -520,35 +515,13 @@ void RimGridView::clearReservoirCellVisibilities()
 //--------------------------------------------------------------------------------------------------
 void RimGridView::addRequiredUiTreeObjects( caf::PdmUiTreeOrdering& uiTreeOrdering )
 {
+    RimWellPathCollection* wellPathCollection = RimTools::wellPathCollection();
+    if ( wellPathCollection )
     {
-        std::vector<RimIntersection*> intersections;
-
-        this->descendantsIncludingThisOfType( intersections );
-        if ( !intersections.empty() )
+        const RimWellMeasurementCollection* measurementCollection = wellPathCollection->measurementCollection();
+        if ( !measurementCollection->measurements().empty() )
         {
-            uiTreeOrdering.add( &m_intersectionResultDefCollection );
-        }
-    }
-
-    {
-        std::vector<RimSurfaceInView*> surfaces;
-
-        this->descendantsIncludingThisOfType( surfaces );
-        if ( !surfaces.empty() )
-        {
-            uiTreeOrdering.add( &m_surfaceResultDefCollection );
-        }
-    }
-
-    {
-        RimWellPathCollection* wellPathCollection = RimTools::wellPathCollection();
-        if ( wellPathCollection )
-        {
-            const RimWellMeasurementCollection* measurementCollection = wellPathCollection->measurementCollection();
-            if ( !measurementCollection->measurements().empty() )
-            {
-                uiTreeOrdering.add( &m_wellMeasurementCollection );
-            }
+            uiTreeOrdering.add( &m_wellMeasurementCollection );
         }
     }
 }

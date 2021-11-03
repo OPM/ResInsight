@@ -36,12 +36,12 @@ class RimEclipseCase;
 //==================================================================================================
 ///
 //==================================================================================================
-class RimcStimPlanModelCollection_newStimPlanModel : public caf::PdmObjectMethod
+class RimcStimPlanModelCollection_appendStimPlanModel : public caf::PdmObjectMethod
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimcStimPlanModelCollection_newStimPlanModel( caf::PdmObjectHandle* self );
+    RimcStimPlanModelCollection_appendStimPlanModel( caf::PdmObjectHandle* self );
 
     caf::PdmObjectHandle*            execute() override;
     bool                             resultIsPersistent() const override;

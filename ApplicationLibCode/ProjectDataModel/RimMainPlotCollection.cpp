@@ -71,31 +71,31 @@ RimMainPlotCollection::RimMainPlotCollection()
     m_show.uiCapability()->setUiHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_wellLogPlotCollection, "WellLogPlotCollection", "", "", "", "" );
-    m_wellLogPlotCollection.uiCapability()->setUiHidden( true );
+    m_wellLogPlotCollection.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_rftPlotCollection, "RftPlotCollection", "", "", "", "" );
-    m_rftPlotCollection.uiCapability()->setUiHidden( true );
+    m_rftPlotCollection.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_pltPlotCollection, "PltPlotCollection", "", "", "", "" );
-    m_pltPlotCollection.uiCapability()->setUiHidden( true );
+    m_pltPlotCollection.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_summaryPlotCollection, "SummaryPlotCollection", "Summary Plots", "", "", "" );
-    m_summaryPlotCollection.uiCapability()->setUiHidden( true );
+    m_summaryPlotCollection.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_analysisPlotCollection, "AnalysisPlotCollection", "Analysis Plots", "", "", "" );
-    m_analysisPlotCollection.uiCapability()->setUiHidden( true );
+    m_analysisPlotCollection.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_correlationPlotCollection, "CorrelationPlotCollection", "Correlation Plots", "", "", "" );
-    m_correlationPlotCollection.uiCapability()->setUiHidden( true );
+    m_correlationPlotCollection.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_summaryCrossPlotCollection, "SummaryCrossPlotCollection", "Summary Cross Plots", "", "", "" );
-    m_summaryCrossPlotCollection.uiCapability()->setUiHidden( true );
+    m_summaryCrossPlotCollection.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_flowPlotCollection, "FlowPlotCollection", "Flow Diagnostics Plots", "", "", "" );
-    m_flowPlotCollection.uiCapability()->setUiHidden( true );
+    m_flowPlotCollection.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_gridCrossPlotCollection, "Rim3dCrossPlotCollection", "3d Cross Plots", "", "", "" );
-    m_gridCrossPlotCollection.uiCapability()->setUiHidden( true );
+    m_gridCrossPlotCollection.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_saturationPressurePlotCollection,
                                 "RimSaturationPressurePlotCollection",
@@ -103,19 +103,19 @@ RimMainPlotCollection::RimMainPlotCollection()
                                 "",
                                 "",
                                 "" );
-    m_saturationPressurePlotCollection.uiCapability()->setUiHidden( true );
+    m_saturationPressurePlotCollection.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_multiPlotCollection, "RimMultiPlotCollection", "Multi Plots", "", "", "" );
-    m_multiPlotCollection.uiCapability()->setUiHidden( true );
+    m_multiPlotCollection.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_stimPlanModelPlotCollection, "StimPlanModelPlotCollection", "", "", "", "" );
-    m_stimPlanModelPlotCollection.uiCapability()->setUiHidden( true );
+    m_stimPlanModelPlotCollection.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_vfpPlotCollection, "VfpPlotCollection", "", "", "", "" );
-    m_vfpPlotCollection.uiCapability()->setUiHidden( true );
+    m_vfpPlotCollection.uiCapability()->setUiTreeHidden( true );
 #ifdef USE_QTCHARTS
     CAF_PDM_InitFieldNoDefault( &m_gridStatisticsPlotCollection, "GridStatisticsPlotCollection", "", "", "", "" );
-    m_gridStatisticsPlotCollection.uiCapability()->setUiHidden( true );
+    m_gridStatisticsPlotCollection.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_ensembleFractureStatisticsPlotCollection,
                                 "EnsembleFractureStatisticsPlotCollection",
@@ -123,7 +123,7 @@ RimMainPlotCollection::RimMainPlotCollection()
                                 "",
                                 "",
                                 "" );
-    m_ensembleFractureStatisticsPlotCollection.uiCapability()->setUiHidden( true );
+    m_ensembleFractureStatisticsPlotCollection.uiCapability()->setUiTreeHidden( true );
 #endif
 
     m_wellLogPlotCollection            = new RimWellLogPlotCollection();

@@ -27,7 +27,9 @@
 #include "RimFractureContainment.h"
 #include "RimProject.h"
 
+#include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObject.h"
+#include "cafPdmObjectScriptingCapability.h"
 #include "cafPdmUiDoubleSliderEditor.h"
 #include "cafPdmUiDoubleValueEditor.h"
 #include "cafPdmUiPushButtonEditor.h"
@@ -42,9 +44,12 @@ namespace caf
 template <>
 void caf::AppEnum<RimFractureTemplate::FracOrientationEnum>::setUp()
 {
-    addItem( RimFractureTemplate::AZIMUTH, "Az", "Azimuth" );
-    addItem( RimFractureTemplate::ALONG_WELL_PATH, "AlongWellPath", "Along Well Path" );
-    addItem( RimFractureTemplate::TRANSVERSE_WELL_PATH, "TransverseWellPath", "Transverse (normal) to Well Path" );
+    addItem( RimFractureTemplate::AZIMUTH, "Azimuth", "Azimuth", QStringList( "Az" ) );
+    addItem( RimFractureTemplate::ALONG_WELL_PATH, "Longitudinal", "Along Well Path", QStringList( "AlongWellPath" ) );
+    addItem( RimFractureTemplate::TRANSVERSE_WELL_PATH,
+             "Transverse",
+             "Transverse (normal) to Well Path",
+             QStringList( "TransverseWellPath" ) );
 
     setDefault( RimFractureTemplate::TRANSVERSE_WELL_PATH );
 }
@@ -101,7 +106,7 @@ void caf::AppEnum<RimFractureTemplate::BetaFactorEnum>::setUp()
 #define CAF_PDM_InitField_Basic( field, keyword, default, uiName ) \
     CAF_PDM_InitField( field, keyword, default, uiName, "", "", "" )
 
-CAF_PDM_XML_ABSTRACT_SOURCE_INIT( RimFractureTemplate, "RimFractureTemplate" );
+CAF_PDM_XML_ABSTRACT_SOURCE_INIT( RimFractureTemplate, "FractureTemplate", "RimFractureTemplate" );
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -109,7 +114,7 @@ CAF_PDM_XML_ABSTRACT_SOURCE_INIT( RimFractureTemplate, "RimFractureTemplate" );
 RimFractureTemplate::RimFractureTemplate()
     : wellPathDepthAtFractureChanged( this )
 {
-    CAF_PDM_InitObject( "Fracture Template", ":/FractureTemplate16x16.png", "", "" );
+    CAF_PDM_InitScriptableObject( "Fracture Template", ":/FractureTemplate16x16.png", "", "" );
 
     CAF_PDM_InitField( &m_id, "Id", -1, "ID", "", "", "" );
     m_id.uiCapability()->setUiReadOnly( true );
@@ -130,15 +135,16 @@ RimFractureTemplate::RimFractureTemplate()
                        "" );
     m_fractureTemplateUnit.uiCapability()->setUiReadOnly( true );
 
-    CAF_PDM_InitField( &m_orientationType,
-                       "Orientation",
-                       caf::AppEnum<FracOrientationEnum>( TRANSVERSE_WELL_PATH ),
-                       "Fracture Orientation",
-                       "",
-                       "",
-                       "" );
-    CAF_PDM_InitField( &m_azimuthAngle, "AzimuthAngle", 0.0f, "Azimuth Angle", "", "", "" ); // Is this correct
-                                                                                             // description?
+    CAF_PDM_InitScriptableField( &m_orientationType,
+                                 "Orientation",
+                                 caf::AppEnum<FracOrientationEnum>( TRANSVERSE_WELL_PATH ),
+                                 "Fracture Orientation",
+                                 "",
+                                 "",
+                                 "" );
+
+    CAF_PDM_InitScriptableField( &m_azimuthAngle, "AzimuthAngle", 0.0f, "Azimuth Angle", "", "", "" );
+
     CAF_PDM_InitField( &m_skinFactor, "SkinFactor", 0.0f, "Skin Factor", "", "", "" );
 
     CAF_PDM_InitField( &m_perforationLength, "PerforationLength", 1.0, "Perforation Length", "", "", "" );
@@ -468,7 +474,7 @@ void RimFractureTemplate::defineEditorAttribute( const caf::PdmFieldHandle* fiel
 
     if ( field == &m_scaleApplyButton )
     {
-        caf::PdmUiPushButtonEditorAttribute* attrib = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute );
+        auto* attrib = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute );
         if ( attrib )
         {
             attrib->m_buttonText = "Apply";
@@ -477,7 +483,7 @@ void RimFractureTemplate::defineEditorAttribute( const caf::PdmFieldHandle* fiel
 
     if ( field == &m_wellPathDepthAtFracture )
     {
-        caf::PdmUiDoubleSliderEditorAttribute* myAttr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute );
+        auto* myAttr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute );
         if ( myAttr )
         {
             auto [minimum, maximum] = wellPathDepthAtFractureRange();
@@ -664,26 +670,24 @@ double RimFractureTemplate::computeEffectivePermeability( const RimFracture* fra
     {
         return m_userDefinedEffectivePermeability;
     }
+
+    double fracPermeability = 0.0;
+    auto   values           = wellFractureIntersectionData( fractureInstance );
+    if ( values.isWidthAndPermeabilityDefined() )
+    {
+        fracPermeability = values.m_permeability;
+    }
     else
     {
-        double fracPermeability = 0.0;
-        auto   values           = wellFractureIntersectionData( fractureInstance );
-        if ( values.isWidthAndPermeabilityDefined() )
-        {
-            fracPermeability = values.m_permeability;
-        }
-        else
-        {
-            auto conductivity = values.m_conductivity;
-            auto width        = computeFractureWidth( fractureInstance );
+        auto conductivity = values.m_conductivity;
+        auto width        = computeFractureWidth( fractureInstance );
 
-            if ( fabs( width ) < 1e-10 ) return std::numeric_limits<double>::infinity();
+        if ( fabs( width ) < 1e-10 ) return std::numeric_limits<double>::infinity();
 
-            fracPermeability = conductivity / width;
-        }
-
-        return fracPermeability * m_relativePermeability;
+        fracPermeability = conductivity / width;
     }
+
+    return fracPermeability * m_relativePermeability;
 }
 
 //--------------------------------------------------------------------------------------------------

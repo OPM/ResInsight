@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include "RiaEnsembleNameTools.h"
+
 #include "cafCmdFeature.h"
 
 #include <QString>
@@ -47,6 +49,9 @@ public:
     static void addCasesToGroupIfRelevant( const std::vector<RimSummaryCase*>& cases );
 
     static QStringList runRecursiveSummaryCaseFileSearchDialog( const QString& dialogTitle, const QString& pathCacheName );
+
+    static std::pair<QStringList, RiaEnsembleNameTools::EnsembleGroupingMode>
+        runRecursiveSummaryCaseFileSearchDialogWithGrouping( const QString& dialogTitle, const QString& pathCacheName );
 
 protected:
     // Overrides

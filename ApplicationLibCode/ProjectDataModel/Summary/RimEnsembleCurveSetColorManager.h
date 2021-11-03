@@ -23,6 +23,8 @@
 #include "RimRegularLegendConfig.h"
 #include "RimSummaryCaseCollection.h"
 
+#include "RigEnsembleParameter.h"
+
 #include "cafPdmPointer.h"
 
 #include <map>
@@ -58,7 +60,7 @@ public:
         return m_ensembleColorRanges.find( colorRange ) != m_ensembleColorRanges.end();
     }
 
-    static void initializeLegendConfig( RimRegularLegendConfig* legendConfig, const EnsembleParameter& parameter );
+    static void initializeLegendConfig( RimRegularLegendConfig* legendConfig, const RigEnsembleParameter& parameter );
     static void initializeLegendConfig( RimRegularLegendConfig*                      legendConfig,
                                         RimObjectiveFunction*                        objectiveFunction,
                                         const std::vector<RimSummaryCase*>&          summaryCases,
@@ -70,7 +72,7 @@ public:
 
     static cvf::Color3f caseColor( const RimRegularLegendConfig* legendConfig,
                                    const RimSummaryCase*         summaryCase,
-                                   const EnsembleParameter&      parameter );
+                                   const RigEnsembleParameter&   parameter );
 
     static cvf::Color3f caseColor( const RimRegularLegendConfig*         legendConfig,
                                    RimSummaryCase*                       summaryCase,

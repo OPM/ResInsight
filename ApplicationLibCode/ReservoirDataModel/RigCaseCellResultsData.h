@@ -188,6 +188,8 @@ private:
     void computeOilVolumes();
     void computeMobilePV();
 
+    void computeIndexResults();
+
     bool isDataPresent( size_t scalarResultIndex ) const;
 
     void assignValuesToTemporaryLgrs( const QString& resultName, std::vector<double>& values );

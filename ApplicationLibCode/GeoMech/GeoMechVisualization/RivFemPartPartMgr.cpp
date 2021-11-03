@@ -19,12 +19,15 @@
 
 #include <cstdlib>
 
+#include "RivFemPartPartMgr.h"
+
 #include "RivGeoMechPartMgr.h"
 
 #include "RiaPreferences.h"
 
 #include "RifGeoMechReaderInterface.h"
 
+#include "RigFemPart.h"
 #include "RigFemPartResultsCollection.h"
 #include "RigFemScalarResultFrames.h"
 #include "RigGeoMechCaseData.h"
@@ -61,16 +64,23 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RivFemPartPartMgr::RivFemPartPartMgr( const RigFemPart* grid )
-    : m_surfaceGenerator( grid )
-    , m_grid( grid )
+RivFemPartPartMgr::RivFemPartPartMgr( const RigFemPart* part, cvf::Vec3d displayOffset )
+    : m_surfaceGenerator( part, displayOffset )
+    , m_part( part )
     , m_opacityLevel( 1.0f )
     , m_defaultColor( cvf::Color3::WHITE )
 {
-    CVF_ASSERT( grid );
-    m_gridIdx                   = grid->elementPartId();
+    CVF_ASSERT( part );
+    m_partIdx                   = part->elementPartId();
     m_cellVisibility            = new cvf::UByteArray;
     m_surfaceFacesTextureCoords = new cvf::Vec2fArray;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RivFemPartPartMgr::~RivFemPartPartMgr()
+{
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -99,6 +109,33 @@ void RivFemPartPartMgr::setCellVisibility( cvf::UByteArray* cellVisibilities )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RivFemPartPartMgr::setDisplacements( bool                           useDisplacements,
+                                          double                         scalingFactor,
+                                          const std::vector<cvf::Vec3f>& displacements )
+{
+    size_t nodeCount = m_part->nodes().coordinates.size();
+    m_displacedNodeCoordinates.resize( nodeCount );
+    const auto coords = m_part->nodes().coordinates;
+
+    if ( useDisplacements )
+    {
+        for ( size_t i = 0; i < nodeCount; i++ )
+        {
+            m_displacedNodeCoordinates[i] = coords[i] + displacements[i] * scalingFactor;
+        }
+    }
+    else
+    {
+        for ( size_t i = 0; i < nodeCount; i++ )
+        {
+            m_displacedNodeCoordinates[i] = coords[i];
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RivFemPartPartMgr::generatePartGeometry( RivFemPartGeometryGenerator& geoBuilder )
 {
     bool useBufferObjects = true;
@@ -106,7 +143,7 @@ void RivFemPartPartMgr::generatePartGeometry( RivFemPartGeometryGenerator& geoBu
     {
         m_surfaceFaces = nullptr; // To possibly free memory before adding the new stuff
 
-        cvf::ref<cvf::DrawableGeo> geo = geoBuilder.generateSurface();
+        cvf::ref<cvf::DrawableGeo> geo = geoBuilder.generateSurface( m_displacedNodeCoordinates );
         if ( geo.notNull() )
         {
             geo->computeNormals();
@@ -117,13 +154,13 @@ void RivFemPartPartMgr::generatePartGeometry( RivFemPartGeometryGenerator& geoBu
             }
 
             cvf::ref<cvf::Part> part = new cvf::Part;
-            part->setName( "FemPart " + cvf::String( m_gridIdx ) );
-            part->setId( m_gridIdx ); // Use grid index as part ID
+            part->setName( "FemPart " + cvf::String( m_partIdx ) );
+            part->setId( m_partIdx ); // Use part index as part ID
             part->setDrawable( geo.p() );
             part->setTransform( m_scaleTransform.p() );
 
             // Set mapping from triangle face index to element index
-            cvf::ref<RivFemPickSourceInfo> si = new RivFemPickSourceInfo( m_gridIdx, geoBuilder.triangleToElementMapper() );
+            cvf::ref<RivFemPickSourceInfo> si = new RivFemPickSourceInfo( m_partIdx, geoBuilder.triangleToElementMapper() );
             part->setSourceInfo( si.p() );
 
             part->updateBoundingBox();
@@ -150,7 +187,7 @@ void RivFemPartPartMgr::generatePartGeometry( RivFemPartGeometryGenerator& geoBu
             }
 
             cvf::ref<cvf::Part> part = new cvf::Part;
-            part->setName( "Grid mesh " + cvf::String( m_gridIdx ) );
+            part->setName( "Grid mesh " + cvf::String( m_partIdx ) );
             part->setDrawable( geoMesh.p() );
 
             part->setTransform( m_scaleTransform.p() );
@@ -181,8 +218,11 @@ void RivFemPartPartMgr::appendPartsToModel( cvf::ModelBasicList* model )
 {
     CVF_ASSERT( model != nullptr );
 
-    if ( m_surfaceFaces.notNull() ) model->addPart( m_surfaceFaces.p() );
-    if ( m_surfaceGridLines.notNull() ) model->addPart( m_surfaceGridLines.p() );
+    if ( m_part->enabled() )
+    {
+        if ( m_surfaceFaces.notNull() ) model->addPart( m_surfaceFaces.p() );
+        if ( m_surfaceGridLines.notNull() ) model->addPart( m_surfaceGridLines.p() );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -199,6 +239,7 @@ const RivFemPartGeometryGenerator* RivFemPartPartMgr::surfaceGenerator() const
 void RivFemPartPartMgr::updateCellColor( cvf::Color4f color )
 {
     if ( m_surfaceFaces.isNull() ) return;
+    if ( !m_part->enabled() ) return;
 
     // Set default effect
     caf::SurfaceEffectGenerator geometryEffgen( color, caf::PO_1 );
@@ -234,6 +275,8 @@ void RivFemPartPartMgr::updateCellResultColor( size_t timeStepIndex, RimGeoMechC
 {
     CVF_ASSERT( cellResultColors );
 
+    if ( !m_part->enabled() ) return;
+
     cvf::ref<cvf::Color3ubArray> surfaceFacesColorArray;
 
     // Outer surface
@@ -254,7 +297,7 @@ void RivFemPartPartMgr::updateCellResultColor( size_t timeStepIndex, RimGeoMechC
         }
 
         const std::vector<float>& resultValues =
-            caseData->femPartResults()->resultValues( resVarAddress, m_gridIdx, (int)timeStepIndex );
+            caseData->femPartResults()->resultValues( resVarAddress, m_partIdx, (int)timeStepIndex );
 
         const std::vector<size_t>* vxToResultMapping = nullptr;
         int                        vxCount           = 0;
@@ -328,11 +371,4 @@ void RivFemPartPartMgr::updateCellResultColor( size_t timeStepIndex, RimGeoMechC
                                                          caf::FC_NONE,
                                                          view->isLightingDisabled() );
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RivFemPartPartMgr::~RivFemPartPartMgr()
-{
 }

@@ -25,6 +25,7 @@
 #include "RiaResultNames.h"
 
 #include "RifFaultRAJsonWriter.h"
+#include "RifFaultRAXmlWriter.h"
 
 #include "RimEclipseInputCase.h"
 #include "RimEclipseResultCase.h"
@@ -86,22 +87,34 @@ RimFaultInViewCollection* RicRunFaultReactAssessmentFeature::faultCollection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+int RicRunFaultReactAssessmentFeature::faultIDFromName( QString faultName ) const
+{
+    int retval = -1;
+
+    QString lookFor = RiaResultNames::faultReactAssessmentPrefix();
+    QString name    = faultName;
+    if ( !name.startsWith( lookFor ) ) return retval;
+
+    name = name.mid( lookFor.length() );
+    if ( name.size() == 0 ) return retval;
+
+    bool bOK;
+    retval = name.toInt( &bOK );
+    if ( !bOK ) retval = -1;
+
+    return retval;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 int RicRunFaultReactAssessmentFeature::selectedFaultID()
 {
     int             retval = -1;
     RimFaultInView* selObj = dynamic_cast<RimFaultInView*>( caf::SelectionManager::instance()->selectedItem() );
     if ( selObj )
     {
-        QString lookFor = RiaResultNames::faultReactAssessmentPrefix();
-        QString name    = selObj->name();
-        if ( !name.startsWith( lookFor ) ) return retval;
-
-        name = name.mid( lookFor.length() );
-        if ( name.size() == 0 ) return retval;
-
-        bool bOK;
-        retval = name.toInt( &bOK );
-        if ( !bOK ) retval = -1;
+        return faultIDFromName( selObj->name() );
     }
 
     return retval;
@@ -162,10 +175,18 @@ void RicRunFaultReactAssessmentFeature::cleanUpParameterFiles()
     {
         for ( auto& filename : m_parameterFilesToCleanUp )
         {
-            if ( QFile::exists( filename ) ) QFile::remove( filename );
+            removeFile( filename );
         }
     }
     m_parameterFilesToCleanUp.clear();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicRunFaultReactAssessmentFeature::removeFile( QString filename )
+{
+    if ( QFile::exists( filename ) ) QFile::remove( filename );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -225,4 +246,146 @@ void RicRunFaultReactAssessmentFeature::reloadSurfaces( RimFaultRASettings* sett
 
     // import the new surfaces
     surfColl->importSurfacesFromFiles( newFiles, showLegendInView );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicRunFaultReactAssessmentFeature::runBasicProcessing( int faultID )
+{
+    RimFaultInViewCollection* coll = faultCollection();
+    if ( coll == nullptr ) return;
+
+    RimFaultRASettings* fraSettings = coll->faultRASettings();
+    if ( fraSettings == nullptr ) return;
+
+    caf::ProgressInfo runProgress( 3, "Running Basic Fault RA processing, please wait..." );
+
+    {
+        runProgress.setProgressDescription( "Macris calculate command." );
+        QString paramfilename = fraSettings->basicParameterXMLFilename( faultID );
+
+        RifFaultRAXmlWriter xmlwriter( fraSettings );
+        QString             outErrorText;
+        if ( !xmlwriter.writeCalculateFile( paramfilename, faultID, outErrorText ) )
+        {
+            QMessageBox::warning( nullptr,
+                                  "Fault Reactivation Assessment Processing",
+                                  "Unable to write parameter file! " + outErrorText );
+            return;
+        }
+
+        addParameterFileForCleanUp( paramfilename );
+
+        // remove any existing database file
+        removeFile( fraSettings->basicMacrisDatabase() );
+
+        // run the java macris program in calculate mode
+        QString     command    = RiaPreferencesGeoMech::current()->geomechFRAMacrisCommand();
+        QStringList parameters = fraSettings->basicMacrisParameters( faultID );
+
+        RimProcess process;
+        process.setCommand( command );
+        process.setParameters( parameters );
+        if ( !process.execute() )
+        {
+            QMessageBox::critical( nullptr,
+                                   "Basic Fault Reactivation Assessment Processing",
+                                   "Failed to run Macris calculate command. Check log window for additional "
+                                   "information." );
+            cleanUpParameterFiles();
+            return;
+        }
+
+        runProgress.incrementProgress();
+    }
+
+    runProgress.setProgressDescription( "Generating surface results." );
+
+    if ( runPostProcessing( faultID, fraSettings ) )
+    {
+        runProgress.incrementProgress();
+
+        runProgress.setProgressDescription( "Importing surface results." );
+
+        // reload output surfaces
+        reloadSurfaces( fraSettings );
+    }
+    // delete parameter files
+    cleanUpParameterFiles();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicRunFaultReactAssessmentFeature::runAdvancedProcessing( int faultID )
+{
+    RimFaultInViewCollection* coll = faultCollection();
+    if ( coll == nullptr ) return;
+
+    RimFaultRASettings* fraSettings = coll->faultRASettings();
+    if ( fraSettings == nullptr ) return;
+
+    caf::ProgressInfo runProgress( 3, "Running Advanced Fault RA processing, please wait..." );
+
+    runProgress.setProgressDescription( "Macris calibrate command." );
+    QString paramfilename = fraSettings->basicParameterXMLFilename( faultID );
+
+    RifFaultRAXmlWriter xmlwriter( fraSettings );
+    QString             outErrorText;
+    if ( !xmlwriter.writeCalculateFile( paramfilename, faultID, outErrorText ) )
+    {
+        QMessageBox::warning( nullptr,
+                              "Fault Reactivation Assessment Processing",
+                              "Unable to write parameter file! " + outErrorText );
+        return;
+    }
+
+    QString paramfilename2 = fraSettings->advancedParameterXMLFilename( faultID );
+    if ( !xmlwriter.writeCalibrateFile( paramfilename2, faultID, outErrorText ) )
+    {
+        QMessageBox::warning( nullptr,
+                              "Fault Reactivation Assessment Processing",
+                              "Unable to write calibrate parameter file! " + outErrorText );
+        return;
+    }
+
+    addParameterFileForCleanUp( paramfilename );
+    addParameterFileForCleanUp( paramfilename2 );
+
+    // remove any existing database file
+    removeFile( fraSettings->advancedMacrisDatabase() );
+
+    // run the java macris program in calibrate mode
+    QString     command    = RiaPreferencesGeoMech::current()->geomechFRAMacrisCommand();
+    QStringList parameters = fraSettings->advancedMacrisParameters( faultID );
+
+    RimProcess process;
+    process.setCommand( command );
+    process.setParameters( parameters );
+    if ( !process.execute() )
+    {
+        QMessageBox::critical( nullptr,
+                               "Advanced Fault Reactivation Assessment Processing",
+                               "Failed to run Macris calibrate command. Check log window for additional information." );
+        cleanUpParameterFiles();
+        return;
+    }
+
+    runProgress.incrementProgress();
+
+    runProgress.setProgressDescription( "Generating surface results." );
+
+    if ( runPostProcessing( faultID, fraSettings ) )
+    {
+        runProgress.incrementProgress();
+
+        runProgress.setProgressDescription( "Importing surface results." );
+
+        // reload output surfaces
+        reloadSurfaces( fraSettings );
+    }
+
+    // delete parameter files
+    cleanUpParameterFiles();
 }

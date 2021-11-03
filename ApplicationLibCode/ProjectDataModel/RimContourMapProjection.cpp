@@ -1344,6 +1344,11 @@ std::vector<RimContourMapProjection::CellIndexAndResult>
     std::vector<std::vector<size_t>> kLayerCellIndexVector;
     kLayerCellIndexVector.resize( kLayers() );
 
+    if ( kLayerCellIndexVector.empty() )
+    {
+        return matchingVisibleCellsAndWeight;
+    }
+
     for ( size_t globalCellIdx : allCellIndices )
     {
         if ( ( *m_cellGridIdxVisibility )[globalCellIdx] )

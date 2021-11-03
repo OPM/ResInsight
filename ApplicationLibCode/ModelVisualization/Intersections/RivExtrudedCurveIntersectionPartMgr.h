@@ -26,6 +26,7 @@
 #include "cvfVector3.h"
 
 #include "cafPdmPointer.h"
+#include "cvfCollection.h"
 
 #include <QString>
 
@@ -55,7 +56,7 @@ class RivExtrudedCurveIntersectionGeometryGenerator;
 class RivIntersectionHexGridInterface;
 class RivIntersectionVertexWeights;
 class RivPipeGeometryGenerator;
-class RivIntersectionGeometryGeneratorIF;
+class RivIntersectionGeometryGeneratorInterface;
 
 //==================================================================================================
 ///
@@ -76,18 +77,22 @@ public:
     void appendMeshLinePartsToModel( cvf::ModelBasicList* model, cvf::Transform* scaleTransform );
     void appendPolylinePartsToModel( Rim3dView& view, cvf::ModelBasicList* model, cvf::Transform* scaleTransform );
 
-    const RimExtrudedCurveIntersection* intersection() const;
-
     cvf::Mat4d unflattenTransformMatrix( const cvf::Vec3d& intersectionPointFlat ) const;
 
-    const RivIntersectionGeometryGeneratorIF* intersectionGeometryGenerator() const;
+    const RivIntersectionGeometryGeneratorInterface* intersectionGeometryGenerator() const;
 
-public:
 private:
     void generatePartGeometry();
     void createFaultLabelParts( const std::vector<std::pair<QString, cvf::Vec3d>>& labelAndAnchors );
     void createPolyLineParts( bool useBufferObjects );
     void createExtrusionDirParts( bool useBufferObjects );
+    void createAnnotationSurfaceParts( bool useBufferObjects );
+
+    cvf::ref<cvf::Part> createCurvePart( const std::vector<cvf::Vec3d>& polylines,
+                                         bool                           useBufferObjects,
+                                         const QString&                 description,
+                                         const cvf::Color3f&            color,
+                                         float                          lineWidth );
 
 private:
     caf::PdmPointer<RimExtrudedCurveIntersection> m_rimIntersection;
@@ -103,6 +108,8 @@ private:
     cvf::ref<cvf::Part> m_highlightPointsForPolyline;
     cvf::ref<cvf::Part> m_highlightLineAlongExtrusionDir;
     cvf::ref<cvf::Part> m_highlightPointsForExtrusionDir;
+
+    cvf::Collection<cvf::Part> m_annotationParts;
 
     cvf::ref<cvf::Vec2fArray> m_intersectionFacesTextureCoords;
 

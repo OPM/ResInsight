@@ -141,6 +141,7 @@ void Riv3dWellLogPlanePartMgr::append3dWellLogCurveToModel( cvf::ModelBasicList*
         cvf::ref<cvf::Effect> effect = meshEffectGen.generateCachedEffect();
 
         cvf::ref<cvf::Part> part = new cvf::Part;
+        part->setName( "append3dWellLogCurveToModel" );
         part->setDrawable( curveDrawable.p() );
         part->setEffect( effect.p() );
 
@@ -244,6 +245,7 @@ void Riv3dWellLogPlanePartMgr::appendDrawSurfaceToModel( cvf::ModelBasicList*   
         cvf::ref<cvf::Part> part = createPart( background.p(), backgroundEffect.p() );
         if ( part.notNull() )
         {
+            part->setName( "Riv3dWellLogPlanePartMgr::background" );
             model->addPart( part.p() );
             part->setSourceInfo( sourceInfo.p() );
         }
@@ -257,6 +259,7 @@ void Riv3dWellLogPlanePartMgr::appendDrawSurfaceToModel( cvf::ModelBasicList*   
             cvf::ref<cvf::Part> part = createPart( border.p(), borderEffect.p() );
             if ( part.notNull() )
             {
+                part->setName( "Riv3dWellLogPlanePartMgr::border" );
                 model->addPart( part.p() );
             }
         }
@@ -273,6 +276,7 @@ void Riv3dWellLogPlanePartMgr::appendDrawSurfaceToModel( cvf::ModelBasicList*   
             cvf::ref<cvf::Part> part = createPart( normals.p(), curveNormalsEffect.p() );
             if ( part.notNull() )
             {
+                part->setName( "Riv3dWellLogPlanePartMgr::normals" );
                 model->addPart( part.p() );
                 part->setSourceInfo( sourceInfo.p() );
             }

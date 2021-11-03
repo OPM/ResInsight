@@ -24,7 +24,10 @@
 
 #include <QStringList>
 
+#include <memory>
 #include <vector>
+
+class RifReaderSettings;
 
 //==================================================================================================
 ///
@@ -40,13 +43,18 @@ public:
         QStringList eclipseInputFiles;
         QStringList eclipseSummaryFiles;
 
+        std::vector<int> createdCaseIds;
+
         operator bool() const
         {
             return !( eclipseCaseFiles.empty() && eclipseInputFiles.empty() && eclipseSummaryFiles.empty() );
         }
     };
 
-    static OpenCaseResults openEclipseFilesFromFileNames( const QStringList& fileNames, bool doCreateDefaultPlot );
+    static OpenCaseResults openEclipseFilesFromFileNames( const QStringList&                 fileNames,
+                                                          bool                               doCreateDefaultPlot,
+                                                          bool                               createDefaultView,
+                                                          std::shared_ptr<RifReaderSettings> readerSettings = nullptr );
     static QStringList     fileNamesFromCaseNames( const QStringList& caseNames );
     static QStringList     getEclipseFileNamesWithDialog( RiaDefines::ImportFileType fileTypes );
 
@@ -58,7 +66,12 @@ protected:
 
     static void openFileDialog( RiaDefines::ImportFileType fileTypes );
 
-    static bool openEclipseCaseFromFileNames( const QStringList& fileNames );
-    static bool openInputEclipseCaseFromFileNames( const QStringList& fileNames );
+    static bool openEclipseCaseFromFileNames( const QStringList&                 fileNames,
+                                              bool                               createDefaultView,
+                                              std::vector<int>&                  createdCaseIds,
+                                              std::shared_ptr<RifReaderSettings> readerSettings );
+    static bool openInputEclipseCaseFromFileNames( const QStringList& fileNames,
+                                                   bool               createDefaultView,
+                                                   std::vector<int>&  createdCaseIds );
     static bool openSummaryCaseFromFileNames( const QStringList& fileNames, bool doCreateDefaultPlot = true );
 };

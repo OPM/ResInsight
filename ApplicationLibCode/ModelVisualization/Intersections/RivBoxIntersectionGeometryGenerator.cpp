@@ -18,6 +18,8 @@
 
 #include "RivBoxIntersectionGeometryGenerator.h"
 
+#include "RivIntersectionHexGridInterface.h"
+
 #include "RimBoxIntersection.h"
 #include "RimCase.h"
 #include "RimGridView.h"

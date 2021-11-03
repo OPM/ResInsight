@@ -143,3 +143,11 @@ QString RimGenericParameter::description() const
 {
     return m_description();
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimGenericParameter::jsonValue() const
+{
+    return stringValue();
+}

@@ -60,54 +60,89 @@ bool RifReaderEclipseSummary::open( const QString& headerFileName, RiaThreadSafe
 {
     bool isValid = false;
 
-    // Try to create readers. If HDF5 or Opm readers fails to create, use libecl reader
+    // Create reader as specified by the user using the following fallback strategy
+    //
+    // ESMRY
+    // - if h5 file is present on disk
+    //   - use h5 reader
+    // - else
+    //   - create ESMRY file if defined in preference
+    //   - use ESMRY reader
+    // - if no reader has been created, fallback to libecl
+    //
+    // H5
+    // - if h5 file is present on disk
+    //   - use h5 reader
+    // - else
+    //   - create h5 file if defined in preference
+    //   - use h5 reader
+    // - if no reader has been created, fallback to libecl
+    //
+    // For all import modes, use libecl to read data if no data is imported with ESMRY or h5
 
     RiaPreferencesSummary* prefSummary = RiaPreferencesSummary::current();
 
-    if ( prefSummary->summaryDataReader() == RiaPreferencesSummary::SummaryReaderMode::HDF5_OPM_COMMON )
+    if ( prefSummary->summaryDataReader() == RiaPreferencesSummary::SummaryReaderMode::HDF5_OPM_COMMON ||
+         prefSummary->summaryDataReader() == RiaPreferencesSummary::SummaryReaderMode::OPM_COMMON )
     {
-#ifdef USE_HDF5
-        if ( prefSummary->createH5SummaryDataFiles() )
+        bool h5FileFound = false;
         {
             QFileInfo fi( headerFileName );
-            QString   h5FilenameCandidate = fi.absolutePath() + "/" + fi.baseName() + ".h5";
+            QString   basenameNoExtension = fi.absolutePath() + "/" + fi.baseName();
 
-            size_t createdH5FileCount = 0;
-            RifHdf5SummaryExporter::ensureHdf5FileIsCreated( headerFileName.toStdString(),
-                                                             h5FilenameCandidate.toStdString(),
-                                                             createdH5FileCount );
+            QString h5FileName = basenameNoExtension + ".h5";
 
-            if ( createdH5FileCount > 0 )
+            h5FileFound = QFile::exists( h5FileName );
+        }
+
+        if ( h5FileFound ||
+             ( prefSummary->summaryDataReader() == RiaPreferencesSummary::SummaryReaderMode::HDF5_OPM_COMMON ) )
+        {
+#ifdef USE_HDF5
+            if ( prefSummary->createH5SummaryDataFiles() )
             {
-                QString txt = QString( "Created %1 " ).arg( h5FilenameCandidate );
-                if ( threadSafeLogger ) threadSafeLogger->info( txt );
+                QFileInfo fi( headerFileName );
+                QString   h5FilenameCandidate = fi.absolutePath() + "/" + fi.baseName() + ".h5";
+
+                size_t createdH5FileCount = 0;
+                RifHdf5SummaryExporter::ensureHdf5FileIsCreated( headerFileName.toStdString(),
+                                                                 h5FilenameCandidate.toStdString(),
+                                                                 createdH5FileCount );
+
+                if ( createdH5FileCount > 0 )
+                {
+                    QString txt = QString( "Created %1 " ).arg( h5FilenameCandidate );
+                    if ( threadSafeLogger ) threadSafeLogger->info( txt );
+                }
+            }
+
+            auto hdfReader = std::make_unique<RifOpmHdf5Summary>();
+
+            isValid = hdfReader->open( headerFileName, false, threadSafeLogger );
+            if ( isValid )
+            {
+                m_summaryReader = std::move( hdfReader );
+            }
+#endif
+        }
+
+        if ( !isValid && prefSummary->summaryDataReader() == RiaPreferencesSummary::SummaryReaderMode::OPM_COMMON )
+        {
+            auto opmCommonReader = std::make_unique<RifOpmCommonEclipseSummary>();
+
+            opmCommonReader->useEnhancedSummaryFiles( prefSummary->useEnhancedSummaryDataFiles() );
+            opmCommonReader->createEnhancedSummaryFiles( prefSummary->createEnhancedSummaryDataFiles() );
+            isValid = opmCommonReader->open( headerFileName, false, threadSafeLogger );
+
+            if ( isValid )
+            {
+                m_summaryReader = std::move( opmCommonReader );
             }
         }
-
-        auto hdfReader = std::make_unique<RifOpmHdf5Summary>();
-
-        isValid = hdfReader->open( headerFileName, false, threadSafeLogger );
-        if ( isValid )
-        {
-            m_summaryReader = std::move( hdfReader );
-        }
-#endif
-    }
-    else if ( prefSummary->summaryDataReader() == RiaPreferencesSummary::SummaryReaderMode::OPM_COMMON )
-    {
-        auto opmCommonReader = std::make_unique<RifOpmCommonEclipseSummary>();
-
-        opmCommonReader->useLodsmaryFiles( prefSummary->useOptimizedSummaryDataFiles() );
-        opmCommonReader->createLodsmaryFiles( prefSummary->createOptimizedSummaryDataFiles() );
-        isValid = opmCommonReader->open( headerFileName, false, threadSafeLogger );
-
-        if ( isValid )
-        {
-            m_summaryReader = std::move( opmCommonReader );
-        }
     }
 
-    if ( !isValid || prefSummary->summaryDataReader() == RiaPreferencesSummary::SummaryReaderMode::LIBECL )
+    // If no summary reader has been created, always try to read data using libecl
+    if ( !isValid )
     {
         auto libeclReader = std::make_unique<RifEclEclipseSummary>();
 

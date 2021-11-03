@@ -15,6 +15,7 @@
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
+
 #include "RicPointTangentManipulatorPartMgr.h"
 
 #include "RivPartPriority.h"
@@ -36,9 +37,8 @@
 #include "cvfPrimitiveSetIndexedUInt.h"
 #include "cvfRay.h"
 
+#include "cvfGeometryTools.h"
 #include "cvfMath.h"
-
-#include <QDebug>
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -46,7 +46,7 @@
 RicPointTangentManipulatorPartMgr::RicPointTangentManipulatorPartMgr()
     : m_tangentOnStartManipulation( cvf::Vec3d::UNDEFINED )
     , m_originOnStartManipulation( cvf::Vec3d::UNDEFINED )
-    , m_activeHandle( NONE )
+    , m_activeHandle( HandleType::NONE )
     , m_handleSize( 1.0 )
     , m_isGeometryUpdateNeeded( true )
 {
@@ -107,9 +107,17 @@ void RicPointTangentManipulatorPartMgr::originAndTangent( cvf::Vec3d* origin, cv
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RicPointTangentManipulatorPartMgr::setPolyline( const std::vector<cvf::Vec3d>& polyline )
+{
+    m_polyline = polyline;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RicPointTangentManipulatorPartMgr::isManipulatorActive() const
 {
-    return m_activeHandle != NONE;
+    return m_activeHandle != HandleType::NONE;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -172,7 +180,37 @@ void RicPointTangentManipulatorPartMgr::updateManipulatorFromRay( const cvf::Ray
 {
     if ( !isManipulatorActive() ) return;
 
-    if ( m_activeHandle == HORIZONTAL_PLANE )
+    if ( m_activeHandle == HandleType::PRESCRIBED_POLYLINE )
+    {
+        cvf::Plane plane;
+        plane.setFromPointAndNormal( m_origin, newMouseRay->direction() );
+        cvf::Vec3d newIntersection;
+        newMouseRay->planeIntersect( plane, &newIntersection );
+
+        const cvf::Vec3d newOrigin = m_originOnStartManipulation + ( newIntersection - m_initialPickPoint );
+
+        double     closestDistance = std::numeric_limits<double>::max();
+        cvf::Vec3d closestPoint;
+
+        for ( size_t i = 1; i < m_polyline.size(); i++ )
+        {
+            const auto& p1 = m_polyline[i];
+            const auto& p2 = m_polyline[i - 1];
+
+            double     normalizedIntersection;
+            const auto pointOnLine = cvf::GeometryTools::projectPointOnLine( p1, p2, newOrigin, &normalizedIntersection );
+
+            const double candidateDistance = pointOnLine.pointDistanceSquared( newOrigin );
+            if ( candidateDistance < closestDistance )
+            {
+                closestDistance = candidateDistance;
+                closestPoint    = pointOnLine;
+            }
+        }
+
+        m_origin = closestPoint;
+    }
+    else if ( m_activeHandle == HandleType::HORIZONTAL_PLANE )
     {
         cvf::Plane plane;
         plane.setFromPointAndNormal( m_origin, cvf::Vec3d::Z_AXIS );
@@ -183,7 +221,7 @@ void RicPointTangentManipulatorPartMgr::updateManipulatorFromRay( const cvf::Ray
 
         m_origin = newOrigin;
     }
-    else if ( m_activeHandle == VERTICAL_AXIS )
+    else if ( m_activeHandle == HandleType::VERTICAL_AXIS )
     {
         cvf::Plane plane;
         cvf::Vec3d planeNormal = ( newMouseRay->direction() ^ cvf::Vec3d::Z_AXIS ) ^ cvf::Vec3d::Z_AXIS;
@@ -201,7 +239,6 @@ void RicPointTangentManipulatorPartMgr::updateManipulatorFromRay( const cvf::Ray
 
         m_origin = newOrigin;
     }
-    // m_tangent = newTangent;
 
     m_isGeometryUpdateNeeded = true;
 }
@@ -211,7 +248,7 @@ void RicPointTangentManipulatorPartMgr::updateManipulatorFromRay( const cvf::Ray
 //--------------------------------------------------------------------------------------------------
 void RicPointTangentManipulatorPartMgr::endManipulator()
 {
-    m_activeHandle = NONE;
+    m_activeHandle = HandleType::NONE;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -219,8 +256,15 @@ void RicPointTangentManipulatorPartMgr::endManipulator()
 //--------------------------------------------------------------------------------------------------
 void RicPointTangentManipulatorPartMgr::recreateAllGeometryAndParts()
 {
-    createHorizontalPlaneHandle();
-    createVerticalAxisHandle();
+    if ( m_polyline.empty() )
+    {
+        createHorizontalPlaneHandle();
+        createVerticalAxisHandle();
+    }
+    else
+    {
+        createPolylineHandle();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -228,8 +272,15 @@ void RicPointTangentManipulatorPartMgr::recreateAllGeometryAndParts()
 //--------------------------------------------------------------------------------------------------
 void RicPointTangentManipulatorPartMgr::createGeometryOnly()
 {
-    m_handleParts[HORIZONTAL_PLANE]->setDrawable( createHorizontalPlaneGeo().p() );
-    m_handleParts[VERTICAL_AXIS]->setDrawable( createVerticalAxisGeo().p() );
+    if ( m_polyline.empty() )
+    {
+        m_handleParts[HandleType::HORIZONTAL_PLANE]->setDrawable( createHorizontalPlaneGeo().p() );
+        m_handleParts[HandleType::VERTICAL_AXIS]->setDrawable( createVerticalAxisGeo().p() );
+    }
+    else
+    {
+        m_handleParts[HandleType::PRESCRIBED_POLYLINE]->setDrawable( createPolylineGeo().p() );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -241,7 +292,7 @@ void RicPointTangentManipulatorPartMgr::createHorizontalPlaneHandle()
 
     ref<cvf::DrawableGeo> geo = createHorizontalPlaneGeo();
 
-    HandleType   handleId = HORIZONTAL_PLANE;
+    HandleType   handleId = HandleType::HORIZONTAL_PLANE;
     cvf::Color4f color    = cvf::Color4f( 1.0f, 0.0f, 1.0f, 0.7f );
     cvf::String  partName( "PointTangentManipulator Horizontal Plane Handle" );
 
@@ -318,7 +369,7 @@ void RicPointTangentManipulatorPartMgr::createVerticalAxisHandle()
     using namespace cvf;
     cvf::ref<cvf::DrawableGeo> geo = createVerticalAxisGeo();
 
-    HandleType   handleId = VERTICAL_AXIS;
+    HandleType   handleId = HandleType::VERTICAL_AXIS;
     cvf::Color4f color    = cvf::Color4f( 0.0f, 0.7f, 0.8f, 0.7f );
     cvf::String  partName( "PointTangentManipulator Vertical Axis Handle" );
 
@@ -355,6 +406,42 @@ cvf::ref<cvf::DrawableGeo> RicPointTangentManipulatorPartMgr::createVerticalAxis
     geomBuilder->transformVertexRange( vxArraySizeFirstCylinder,
                                        geomBuilder->vertexCount() - 1,
                                        cvf::Mat4f::fromTranslation( origin ) );
+
+    cvf::ref<cvf::Vec3fArray> vertexArray = geomBuilder->vertices();
+    cvf::ref<cvf::UIntArray>  indexArray  = geomBuilder->triangles();
+
+    return createIndexedTriangelDrawableGeo( vertexArray.p(), indexArray.p() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicPointTangentManipulatorPartMgr::createPolylineHandle()
+{
+    cvf::ref<cvf::DrawableGeo> geo = createPolylineGeo();
+
+    HandleType   handleId = HandleType::PRESCRIBED_POLYLINE;
+    cvf::Color4f color    = cvf::Color4f( 0.8f, 0.7f, 0.8f, 0.7f );
+    cvf::String  partName( "PointTangentManipulator Polyline Handle" );
+
+    addHandlePart( geo.p(), color, handleId, partName );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+cvf::ref<cvf::DrawableGeo> RicPointTangentManipulatorPartMgr::createPolylineGeo()
+{
+    using namespace cvf;
+
+    cvf::ref<cvf::GeometryBuilderTriangles> geomBuilder = new cvf::GeometryBuilderTriangles;
+
+    double radius = m_handleSize * 0.3;
+    cvf::GeometryUtils::createSphere( radius, 10, 10, geomBuilder.p() );
+
+    Vec3f origin( m_origin );
+
+    geomBuilder->transformVertexRange( 0, geomBuilder->vertexCount() - 1, cvf::Mat4f::fromTranslation( origin ) );
 
     cvf::ref<cvf::Vec3fArray> vertexArray = geomBuilder->vertices();
     cvf::ref<cvf::UIntArray>  indexArray  = geomBuilder->triangles();

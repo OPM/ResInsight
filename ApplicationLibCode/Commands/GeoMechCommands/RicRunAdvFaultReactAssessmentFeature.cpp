@@ -18,38 +18,10 @@
 
 #include "RicRunAdvFaultReactAssessmentFeature.h"
 
-#include "RiaApplication.h"
-#include "RiaEclipseFileNameTools.h"
-#include "RiaImportEclipseCaseTools.h"
-#include "RiaPreferencesGeoMech.h"
-#include "RiaResultNames.h"
-
-#include "RifFaultRAJsonWriter.h"
-#include "RifFaultRAXmlWriter.h"
-
-#include "RimEclipseInputCase.h"
-#include "RimEclipseResultCase.h"
-#include "RimEclipseView.h"
-#include "RimFaultInView.h"
 #include "RimFaultInViewCollection.h"
-#include "RimFaultRAPreprocSettings.h"
 #include "RimFaultRASettings.h"
-#include "RimGeoMechCase.h"
-#include "RimProcess.h"
-#include "RimProject.h"
-
-#include "Riu3DMainWindowTools.h"
-#include "RiuFileDialogTools.h"
-
-#include "cafPdmUiPropertyViewDialog.h"
-#include "cafProgressInfo.h"
-#include "cafSelectionManagerTools.h"
-#include "cafUtils.h"
 
 #include <QAction>
-#include <QDebug>
-#include <QDir>
-#include <QMessageBox>
 
 CAF_CMD_SOURCE_INIT( RicRunAdvFaultReactAssessmentFeature, "RicRunAdvFaultReactAssessmentFeature" );
 
@@ -62,7 +34,7 @@ bool RicRunAdvFaultReactAssessmentFeature::isCommandEnabled()
 
     if ( faultColl )
     {
-        return ( faultColl->faultRAEnabled() && faultColl->faultRASettings()->geomechCase() != nullptr );
+        return faultColl->faultRAAdvancedEnabled();
     }
 
     return false;
@@ -73,72 +45,7 @@ bool RicRunAdvFaultReactAssessmentFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicRunAdvFaultReactAssessmentFeature::onActionTriggered( bool isChecked )
 {
-    RimFaultInViewCollection* coll = faultCollection();
-    if ( coll == nullptr ) return;
-
-    RimFaultRASettings* fraSettings = coll->faultRASettings();
-    if ( fraSettings == nullptr ) return;
-
-    int               faultID = selectedFaultID();
-    caf::ProgressInfo runProgress( 3, "Running Advanced Fault RA processing, please wait..." );
-
-    runProgress.setProgressDescription( "Macris calibrate command." );
-    QString paramfilename = fraSettings->basicParameterXMLFilename( faultID );
-
-    RifFaultRAXmlWriter xmlwriter( fraSettings );
-    QString             outErrorText;
-    if ( !xmlwriter.writeCalculateFile( paramfilename, faultID, outErrorText ) )
-    {
-        QMessageBox::warning( nullptr,
-                              "Fault Reactivation Assessment Processing",
-                              "Unable to write parameter file! " + outErrorText );
-        return;
-    }
-
-    QString paramfilename2 = fraSettings->advancedParameterXMLFilename( faultID );
-    if ( !xmlwriter.writeCalibrateFile( paramfilename2, faultID, outErrorText ) )
-    {
-        QMessageBox::warning( nullptr,
-                              "Fault Reactivation Assessment Processing",
-                              "Unable to write calibrate parameter file! " + outErrorText );
-        return;
-    }
-
-    addParameterFileForCleanUp( paramfilename );
-    addParameterFileForCleanUp( paramfilename2 );
-
-    // run the java macris program in calibrate mode
-    QString     command    = RiaPreferencesGeoMech::current()->geomechFRAMacrisCommand();
-    QStringList parameters = fraSettings->advancedMacrisParameters( faultID );
-
-    RimProcess process;
-    process.setCommand( command );
-    process.setParameters( parameters );
-    if ( !process.execute() )
-    {
-        QMessageBox::critical( nullptr,
-                               "Advanced Fault Reactivation Assessment Processing",
-                               "Failed to run Macris calibrate command. Check log window for additional information." );
-        cleanUpParameterFiles();
-        return;
-    }
-
-    runProgress.incrementProgress();
-
-    runProgress.setProgressDescription( "Generating surface results." );
-
-    if ( runPostProcessing( faultID, fraSettings ) )
-    {
-        runProgress.incrementProgress();
-
-        runProgress.setProgressDescription( "Importing surface results." );
-
-        // reload output surfaces
-        reloadSurfaces( fraSettings );
-    }
-
-    // delete parameter files
-    cleanUpParameterFiles();
+    runAdvancedProcessing( selectedFaultID() );
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -119,10 +119,6 @@ void RimFileSummaryCase::createSummaryReaderInterface()
 void RimFileSummaryCase::createRftReaderInterface()
 {
     m_summaryEclipseRftReader = RimFileSummaryCase::findRftDataAndCreateReader( this->summaryHeaderFilename() );
-    if ( m_summaryEclipseRftReader.notNull() )
-    {
-        RiaLogging::info( QString( "Found RFT Data for %1" ).arg( this->summaryHeaderFilename() ) );
-    }
 }
 
 //--------------------------------------------------------------------------------------------------

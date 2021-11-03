@@ -1,6 +1,7 @@
 #include "gtest/gtest.h"
 
 #include "RiuSummaryQuantityNameInfoProvider.h"
+#include <chrono>
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -86,4 +87,32 @@ TEST( RiuSummaryQuantityNameInfoProvider, Test6x )
         auto        cat = RiuSummaryQuantityNameInfoProvider::instance()->categoryFromQuantityName( s );
         EXPECT_TRUE( cat == RifEclipseSummaryAddress::SUMMARY_WELL );
     }
+}
+
+TEST( DISABLED_RiuSummaryQuantityNameInfoProvider, PerformanceLookup )
+{
+    std::vector<std::string> values;
+
+    values.emplace_back( "WOPT" );
+    values.emplace_back( "WOPR" );
+    values.emplace_back( "FOPT" );
+    values.emplace_back( "FOPR" );
+    values.emplace_back( "BHP" );
+    values.emplace_back( "nothing" );
+
+    auto start = std::chrono::high_resolution_clock::now();
+
+    const size_t iterationCount = 10000000;
+
+    for ( size_t i = 0; i < iterationCount; i++ )
+    {
+        for ( const auto& s : values )
+        {
+            RiuSummaryQuantityNameInfoProvider::instance()->categoryFromQuantityName( s );
+        }
+    }
+
+    auto                          end  = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> diff = end - start;
+    std::cout << "RiuSummaryQuantityNameInfoProvider : Duration " << std::setw( 9 ) << diff.count() << " s\n";
 }

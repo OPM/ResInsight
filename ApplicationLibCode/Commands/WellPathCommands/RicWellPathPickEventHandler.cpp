@@ -31,14 +31,15 @@
 #include "RimWellPath.h"
 #include "RimWellPathAttribute.h"
 #include "RimWellPathAttributeCollection.h"
+#include "RimWellPathGeometryDef.h"
 #include "RimWellPathValve.h"
 
 #include "RiuMainWindow.h"
 
+#include "RivExtrudedCurveIntersectionPartMgr.h"
 #include "RivObjectSourceInfo.h"
 #include "RivWellPathSourceInfo.h"
 
-#include "RivExtrudedCurveIntersectionPartMgr.h"
 #include "cafDisplayCoordTransform.h"
 #include "cafSelectionManager.h"
 #include "cvfPart.h"
@@ -178,6 +179,10 @@ bool RicWellPathPickEventHandler::handle3dPickEvent( const Ric3dPickEvent& event
                             }
                         }
                     }
+                }
+                else if ( auto geoDef = dynamic_cast<RimWellPathGeometryDef*>( sourceInfo->object() ) )
+                {
+                    RiuMainWindow::instance()->selectAsCurrentItem( geoDef );
                 }
             }
 

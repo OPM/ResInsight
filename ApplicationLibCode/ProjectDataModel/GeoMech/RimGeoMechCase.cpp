@@ -115,7 +115,7 @@ RimGeoMechCase::RimGeoMechCase( void )
                                                            "",
                                                            "",
                                                            "All GeoMech Views in the Case" );
-    geoMechViews.uiCapability()->setUiHidden( true );
+    geoMechViews.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitField( &m_cohesion, "CaseCohesion", 10.0, "Cohesion", "", "Used to calculate the SE:SFI result", "" );
     CAF_PDM_InitField( &m_frictionAngleDeg,

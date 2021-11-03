@@ -15,7 +15,8 @@ set(MOC_HEADER_FILES)
 find_package(
   Qt5
   COMPONENTS
-  REQUIRED Core Gui Widgets)
+  REQUIRED Core Gui Widgets
+)
 set(QT_LIBRARIES Qt5::Core Qt5::Gui Qt5::Widgets)
 qt5_wrap_cpp(MOC_SOURCE_FILES ${MOC_HEADER_FILES})
 
@@ -42,7 +43,8 @@ set(PROJECT_FILES
     ToggleCommands/cafToggleItemsOnFeature.cpp
     ToggleCommands/cafToggleItemsOnFeature.h
     ToggleCommands/cafToggleItemsOnOthersOffFeature.cpp
-    ToggleCommands/cafToggleItemsOnOthersOffFeature.h)
+    ToggleCommands/cafToggleItemsOnOthersOffFeature.h
+)
 
 # NOTE! Resources in this subfolder appends to the variable QRC_FILES in parent
 # scope CMakeList.txt in the application folder (parent scope) must use the
@@ -53,7 +55,8 @@ set(PROJECT_FILES
 
 set(QRC_FILES
     ${QRC_FILES} ${CMAKE_CURRENT_SOURCE_DIR}/Resources/cafCommandFeatures.qrc
-    PARENT_SCOPE)
+    PARENT_SCOPE
+)
 
 # NOTE! Adding the library as a cmake "OBJECT" library to make sure the linker
 # is not pruning the seemingly unused features, and to make sure that the static
@@ -88,8 +91,9 @@ set_property(TARGET ${PROJECT_NAME} PROPERTY POSITION_INDEPENDENT_CODE ON)
 # ${PROJECT_NAME} cafCommand cafUserInterface ${QT_LIBRARIES} )
 
 if(MSVC)
-  set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS
-                                                   "/W4 /wd4100 /wd4127")
+  set_target_properties(
+    ${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "/W4 /wd4100 /wd4127"
+  )
 endif()
 
 source_group("" FILES ${PROJECT_FILES})

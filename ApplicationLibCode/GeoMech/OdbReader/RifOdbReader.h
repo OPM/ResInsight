@@ -104,7 +104,11 @@ private:
 
     void             assertMetaDataLoaded();
     void             close();
-    size_t           resultItemCount( const std::string& fieldName, int partIndex, int stepIndex, int frameIndex );
+    size_t           resultItemCount( const std::string& fieldName,
+                                      int                partIndex,
+                                      int                stepIndex,
+                                      int                frameIndex,
+                                      ResultPosition     resultPosition );
     size_t           componentsCount( const std::string& fieldName, ResultPosition position );
     const odb_Frame& stepFrame( int stepIndex, int frameIndex ) const;
     odb_Instance*    instance( int instanceIndex );

@@ -485,7 +485,7 @@ void ProgressInfoStatic::start( size_t maxProgressValue, const QString& title, b
             dialog->setCancelButton( nullptr );
             if ( delayShowingProgress )
             {
-                dialog->setMinimumDuration( 1000 );
+                dialog->setMinimumDuration( 2000 );
             }
             else
             {

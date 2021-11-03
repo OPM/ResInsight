@@ -25,14 +25,20 @@
 #include <map>
 #include <vector>
 
+namespace cvf
+{
+class BoundingBox;
+class BoundingBoxTree;
+} // namespace cvf
+
 class RigSurface : public cvf::Object
 {
 public:
     RigSurface();
     ~RigSurface() override;
 
-    const std::vector<unsigned>&   triangleIndices();
-    const std::vector<cvf::Vec3d>& vertices();
+    const std::vector<unsigned>&   triangleIndices() const;
+    const std::vector<cvf::Vec3d>& vertices() const;
 
     void setTriangleData( const std::vector<unsigned>& tringleIndices, const std::vector<cvf::Vec3d>& vertices );
     void addVerticeResult( const QString resultName, const std::vector<float>& resultValues );
@@ -40,8 +46,22 @@ public:
     std::vector<float>   propertyValues( const QString& propertyName ) const;
     std::vector<QString> propertyNames() const;
 
+    void ensureIntersectionSearchTreeIsBuilt();
+    void findIntersectingTriangles( const cvf::BoundingBox& inputBB, std::vector<size_t>* triangleStartIndices ) const;
+
+    double maxExtentTriangleInXDirection() const;
+    double maxExtentTriangleInYDirection() const;
+
+private:
+    size_t triangleCount() const;
+
 private:
     std::vector<unsigned>                 m_triangleIndices;
     std::vector<cvf::Vec3d>               m_vertices;
     std::map<QString, std::vector<float>> m_verticeResults;
+
+    cvf::ref<cvf::BoundingBoxTree> m_surfaceBoundingBoxTree;
+
+    double m_maxExtentTriangleInXDirection;
+    double m_maxExtentTriangleInYDirection;
 };

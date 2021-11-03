@@ -110,8 +110,7 @@ void RicNewAzimuthDipIntersectionFeatureCmd::redo()
 
     RimExtrudedCurveIntersection* intersection = new RimExtrudedCurveIntersection();
     intersection->setName( "Azimuth and Dip" );
-    intersection->type                                   = RimExtrudedCurveIntersection::CS_AZIMUTHLINE;
-    intersection->inputTwoAzimuthPointsFromViewerEnabled = true;
+    intersection->configureForAzimuthLine();
 
     RimCase* rimCase;
     m_intersectionCollection->firstAncestorOrThisOfTypeAsserted( rimCase );

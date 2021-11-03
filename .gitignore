@@ -64,6 +64,7 @@ out
 build
 CMakeSettings.json
 enc_temp_folder
+CMakePresets.json
 
 #Visual Studio Code files
 .vscode
@@ -78,3 +79,5 @@ enc_temp_folder
 
 #Python
 *.pyc
+
+*.ESMRY

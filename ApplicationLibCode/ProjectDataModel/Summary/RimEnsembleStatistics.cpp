@@ -17,30 +17,29 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RimEnsembleStatistics.h"
+#include "RimEnsembleCurveSetInterface.h"
 
 #include "RiaColorTools.h"
-#include "RifSummaryReaderInterface.h"
-#include "RigStatisticsMath.h"
 
 #include "RimEnsembleCurveSet.h"
-#include "RimSummaryCase.h"
-#include "RimSummaryCaseCollection.h"
 
 CAF_PDM_SOURCE_INIT( RimEnsembleStatistics, "RimEnsembleStatistics" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimEnsembleStatistics::RimEnsembleStatistics()
+RimEnsembleStatistics::RimEnsembleStatistics( RimEnsembleCurveSetInterface* parentCurveSet )
 {
     CAF_PDM_InitObject( "Ensemble Curve Filter", ":/EnsembleCurveSet16x16.png", "", "" );
+
+    m_parentCurveSet = parentCurveSet;
 
     CAF_PDM_InitField( &m_active, "Active", true, "Show Statistics Curves", "", "", "" );
     CAF_PDM_InitField( &m_hideEnsembleCurves, "HideEnsembleCurves", false, "Hide Ensemble Curves", "", "", "" );
     CAF_PDM_InitField( &m_basedOnFilteredCases, "BasedOnFilteredCases", false, "Based on Filtered Cases", "", "", "" );
-    CAF_PDM_InitField( &m_showP10Curve, "ShowP10Curve", true, "P90", "", "", "" ); // Yes, P90
+    CAF_PDM_InitField( &m_showP10Curve, "ShowP10Curve", true, "P10", "", "", "" );
     CAF_PDM_InitField( &m_showP50Curve, "ShowP50Curve", false, "P50", "", "", "" );
-    CAF_PDM_InitField( &m_showP90Curve, "ShowP90Curve", true, "P10", "", "", "" ); // Yes, P10
+    CAF_PDM_InitField( &m_showP90Curve, "ShowP90Curve", true, "P90", "", "", "" );
     CAF_PDM_InitField( &m_showMeanCurve, "ShowMeanCurve", true, "Mean", "", "", "" );
     CAF_PDM_InitField( &m_showCurveLabels, "ShowCurveLabels", true, "Show Curve Labels", "", "", "" );
     CAF_PDM_InitField( &m_includeIncompleteCurves, "IncludeIncompleteCurves", false, "Include Incomplete Curves", "", "", "" );
@@ -105,17 +104,17 @@ void RimEnsembleStatistics::fieldChangedByUi( const caf::PdmFieldHandle* changed
          changedField == &m_showP50Curve || changedField == &m_showP90Curve || changedField == &m_showMeanCurve ||
          changedField == &m_showCurveLabels || changedField == &m_color || changedField == &m_includeIncompleteCurves )
     {
-        auto curveSet = parentCurveSet();
+        auto curveSet = m_parentCurveSet;
         if ( !curveSet ) return;
 
         curveSet->updateStatisticsCurves();
 
-        if ( changedField == &m_active || changedField == &m_basedOnFilteredCases ) curveSet->updateConnectedEditors();
+        if ( changedField == &m_active || changedField == &m_basedOnFilteredCases ) curveSet->updateEditors();
     }
 
     if ( changedField == &m_hideEnsembleCurves )
     {
-        auto curveSet = parentCurveSet();
+        auto curveSet = m_parentCurveSet;
         if ( !curveSet ) return;
 
         curveSet->updateAllCurves();
@@ -127,7 +126,7 @@ void RimEnsembleStatistics::fieldChangedByUi( const caf::PdmFieldHandle* changed
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleStatistics::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    auto curveSet = parentCurveSet();
+    auto curveSet = m_parentCurveSet;
 
     uiOrdering.add( &m_active );
     uiOrdering.add( &m_hideEnsembleCurves );
@@ -150,18 +149,8 @@ void RimEnsembleStatistics::defineUiOrdering( QString uiConfigName, caf::PdmUiOr
     m_showCurveLabels.uiCapability()->setUiReadOnly( !m_active );
     m_color.uiCapability()->setUiReadOnly( !m_active );
 
-    m_showP10Curve.uiCapability()->setUiName( curveSet->hasP10Data() ? "P90" : "P90 (Needs > 8 curves)" );
-    m_showP90Curve.uiCapability()->setUiName( curveSet->hasP90Data() ? "P10" : "P10 (Needs > 8 curves)" );
+    m_showP10Curve.uiCapability()->setUiName( curveSet->hasP10Data() ? "P10" : "P10 (Needs > 8 curves)" );
+    m_showP90Curve.uiCapability()->setUiName( curveSet->hasP90Data() ? "P90" : "P90 (Needs > 8 curves)" );
 
     uiOrdering.skipRemainingFields( true );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RimEnsembleCurveSet* RimEnsembleStatistics::parentCurveSet() const
-{
-    RimEnsembleCurveSet* curveSet;
-    firstAncestorOrThisOfType( curveSet );
-    return curveSet;
 }

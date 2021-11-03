@@ -120,6 +120,9 @@ public:
 
     static GridAxisType gridAxisFromFace( FaceType face );
 
+    static std::pair<ubyte, ubyte> edgeVertexIndices( cvf::StructGridInterface::FaceType face1,
+                                                      cvf::StructGridInterface::FaceType face2 );
+
 private:
     mutable double m_characteristicCellSizeI;
     mutable double m_characteristicCellSizeJ;

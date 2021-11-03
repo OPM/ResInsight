@@ -62,7 +62,20 @@ protected:
 private:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
-    void extractDataFromGrid();
+    // Extract 4 vertices per grid cell
+    void extractGridDataUsingFourVerticesPerCell();
+
+    void addGeometryForFaultFaces( const RigMainGrid*                 grid,
+                                   size_t                             currentCellIndex,
+                                   cvf::StructGridInterface::FaceType extractionFace,
+                                   cvf::StructGridInterface::FaceType faultFace,
+                                   cvf::Vec3d*                        currentCornerVerts,
+                                   std::vector<cvf::Vec3d>&           vertices,
+                                   std::vector<unsigned>&             triangleIndices );
+
+    // This method will populate m_structGridIndices used when exporting to PTL file format
+    // Fault geometry will be smoothed using this method
+    void extractStructuredSurfaceFromGridData();
 
     bool findValidCellIndex( const RigMainGrid*                       grid,
                              const cvf::StructGridInterface::FaceType faceType,
@@ -75,6 +88,7 @@ private:
 private:
     caf::PdmPtrField<RimCase*> m_case;
     caf::PdmField<int>         m_oneBasedSliceIndex;
+    caf::PdmField<bool>        m_watertight;
 
     std::vector<unsigned>                      m_triangleIndices;
     std::vector<cvf::Vec3d>                    m_vertices;

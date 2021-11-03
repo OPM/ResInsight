@@ -18,12 +18,15 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RivGeoMechPartMgr.h"
-#include "cvfModelBasicList.h"
-#include "cvfPart.h"
-#include <cstdlib>
 
 #include "RigFemPartCollection.h"
 #include "RigGeoMechCaseData.h"
+
+#include "RimGeoMechPartCollection.h"
+
+#include "cvfModelBasicList.h"
+#include "cvfPart.h"
+#include <cstdlib>
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -50,10 +53,23 @@ void RivGeoMechPartMgr::clearAndSetReservoir( const RigGeoMechCaseData* geoMechC
     {
         const RigFemPartCollection* femParts = geoMechCase->femParts();
 
+        cvf::Vec3d displayOffset = femParts->boundingBox().min();
+
         for ( int i = 0; i < femParts->partCount(); ++i )
         {
-            m_femPartPartMgrs.push_back( new RivFemPartPartMgr( femParts->part( i ) ) );
+            m_femPartPartMgrs.push_back( new RivFemPartPartMgr( femParts->part( i ), displayOffset ) );
         }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RivGeoMechPartMgr::updateDisplacements( const RimGeoMechPartCollection* parts, bool showDisplacements, double scaleFactor )
+{
+    for ( size_t i = 0; i < m_femPartPartMgrs.size(); i++ )
+    {
+        m_femPartPartMgrs[i]->setDisplacements( showDisplacements, scaleFactor, parts->displacements( (int)i ) );
     }
 }
 
@@ -71,19 +87,19 @@ void RivGeoMechPartMgr::setTransform( cvf::Transform* scaleTransform )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivGeoMechPartMgr::setCellVisibility( size_t gridIndex, cvf::UByteArray* cellVisibilities )
+void RivGeoMechPartMgr::setCellVisibility( size_t partIndex, cvf::UByteArray* cellVisibilities )
 {
-    CVF_ASSERT( gridIndex < m_femPartPartMgrs.size() );
-    m_femPartPartMgrs[gridIndex]->setCellVisibility( cellVisibilities );
+    CVF_ASSERT( partIndex < m_femPartPartMgrs.size() );
+    m_femPartPartMgrs[partIndex]->setCellVisibility( cellVisibilities );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::ref<cvf::UByteArray> RivGeoMechPartMgr::cellVisibility( size_t gridIdx )
+cvf::ref<cvf::UByteArray> RivGeoMechPartMgr::cellVisibility( size_t partIdx )
 {
-    CVF_ASSERT( gridIdx < m_femPartPartMgrs.size() );
-    return m_femPartPartMgrs[gridIdx]->cellVisibility();
+    CVF_ASSERT( partIdx < m_femPartPartMgrs.size() );
+    return m_femPartPartMgrs[partIdx]->cellVisibility();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -122,13 +138,13 @@ void RivGeoMechPartMgr::appendGridPartsToModel( cvf::ModelBasicList* model )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivGeoMechPartMgr::appendGridPartsToModel( cvf::ModelBasicList* model, const std::vector<size_t>& gridIndices )
+void RivGeoMechPartMgr::appendGridPartsToModel( cvf::ModelBasicList* model, const std::vector<size_t>& partIndices )
 {
-    for ( size_t i = 0; i < gridIndices.size(); ++i )
+    for ( size_t i = 0; i < partIndices.size(); ++i )
     {
-        if ( gridIndices[i] < m_femPartPartMgrs.size() )
+        if ( partIndices[i] < m_femPartPartMgrs.size() )
         {
-            m_femPartPartMgrs[gridIndices[i]]->appendPartsToModel( model );
+            m_femPartPartMgrs[partIndices[i]]->appendPartsToModel( model );
         }
     }
 }

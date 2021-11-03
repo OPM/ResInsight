@@ -24,7 +24,10 @@
 
 #include "RigEclipseCaseData.h"
 
+#include "RimColorLegend.h"
+#include "RimEclipseCase.h"
 #include "RimEclipseResultDefinition.h"
+#include "RimFaciesProperties.h"
 #include "RimStimPlanModel.h"
 #include "RimStimPlanModelCalculator.h"
 #include "RimStimPlanModelElasticPropertyCalculator.h"
@@ -32,7 +35,9 @@
 #include "RimStimPlanModelPressureCalculator.h"
 #include "RimStimPlanModelPropertyCalculator.h"
 #include "RimStimPlanModelStressCalculator.h"
+#include "RimStimPlanModelTemplate.h"
 #include "RimStimPlanModelWellLogCalculator.h"
+#include "RimWellLogTrack.h"
 
 #include <cmath>
 
@@ -705,6 +710,66 @@ double RimStimPlanModelCalculator::calculateStressAtDepth( double depth,
     double depthDiff = depth - stressDepthRef;
     double stress    = verticalStressRef + verticalStressGradientRef * depthDiff;
     return stress;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::pair<std::vector<double>, std::vector<QString>> RimStimPlanModelCalculator::calculateFacies() const
+{
+    std::vector<double>  values = findCurveAndComputeTopOfLayer( RiaDefines::CurveProperty::FACIES );
+    std::vector<QString> faciesNames;
+
+    RimStimPlanModelTemplate* stimPlanModelTemplate = m_stimPlanModel->stimPlanModelTemplate();
+    if ( !stimPlanModelTemplate )
+    {
+        RiaLogging::error( QString( "No fracture model template found" ) );
+        return std::make_pair( values, faciesNames );
+    }
+
+    RimFaciesProperties* faciesProperties = stimPlanModelTemplate->faciesProperties();
+    if ( !faciesProperties )
+    {
+        RiaLogging::error( QString( "No facies properties found when extracting elastic properties." ) );
+        return std::make_pair( values, faciesNames );
+    }
+
+    RimColorLegend* colorLegend = faciesProperties->colorLegend();
+    if ( !colorLegend )
+    {
+        RiaLogging::error( QString( "No color legend found when extracting elastic properties." ) );
+        return std::make_pair( values, faciesNames );
+    }
+
+    for ( auto value : values )
+    {
+        faciesNames.push_back( RimStimPlanModelElasticPropertyCalculator::findFaciesName( *colorLegend, value ) );
+    }
+
+    return std::make_pair( values, faciesNames );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::pair<std::vector<double>, std::vector<QString>> RimStimPlanModelCalculator::calculateFormation() const
+{
+    std::vector<double> values = findCurveAndComputeTopOfLayer( RiaDefines::CurveProperty::FORMATIONS );
+
+    RimEclipseCase*      eclipseCase = m_stimPlanModel->eclipseCaseForProperty( RiaDefines::CurveProperty::FACIES );
+    std::vector<QString> formationNamesVector = RimWellLogTrack::formationNamesVector( eclipseCase );
+
+    std::vector<QString> formationNames;
+    for ( auto value : values )
+    {
+        int idx = static_cast<int>( value );
+        if ( idx < static_cast<int>( formationNamesVector.size() ) )
+            formationNames.push_back( formationNamesVector[idx] );
+        else
+            formationNames.push_back( "_" );
+    }
+
+    return std::make_pair( values, formationNames );
 }
 
 //--------------------------------------------------------------------------------------------------

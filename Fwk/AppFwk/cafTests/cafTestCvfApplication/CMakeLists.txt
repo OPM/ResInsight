@@ -11,7 +11,8 @@ set(QRC_FILES textedit.qrc)
 find_package(
   Qt5
   COMPONENTS
-  REQUIRED Core Gui Widgets OpenGL)
+  REQUIRED Core Gui Widgets OpenGL
+)
 set(QT_LIBRARIES Qt5::Core Qt5::Gui Qt5::Widgets Qt5::OpenGL)
 qt5_wrap_cpp(MOC_SOURCE_FILES ${MOC_HEADER_FILES})
 qt5_add_resources(QRC_FILES_CPP ${QRC_FILES})
@@ -25,22 +26,27 @@ include_directories(
   ${LibRender_SOURCE_DIR}
   ${LibViewing_SOURCE_DIR}
   ${cafProjectDataModel_SOURCE_DIR}
-  ${cafUserInterface_SOURCE_DIR})
+  ${cafUserInterface_SOURCE_DIR}
+)
 
 if(USE_COMMAND_FRAMEWORK)
   include_directories(${cafCommand_SOURCE_DIR})
   add_definitions(-DTAP_USE_COMMAND_FRAMEWORK)
 endif(USE_COMMAND_FRAMEWORK)
 
-include_directories(${cafPdmCore_SOURCE_DIR} ${cafPdmUiCore_SOURCE_DIR}
-                    ${cafPdmXml_SOURCE_DIR} ${cafPdmCvf_SOURCE_DIR})
+include_directories(
+  ${cafPdmCore_SOURCE_DIR} ${cafPdmUiCore_SOURCE_DIR} ${cafPdmXml_SOURCE_DIR}
+  ${cafPdmCvf_SOURCE_DIR}
+)
 
 set(PROJECT_FILES Main.cpp MainWindow.cpp WidgetLayoutTest.cpp
-                  TapCvfSpecialization.cpp TapProject.cpp)
+                  TapCvfSpecialization.cpp TapProject.cpp
+)
 
 # add the executable
-add_executable(${PROJECT_NAME} ${PROJECT_FILES} ${MOC_SOURCE_FILES}
-                               ${QRC_FILES_CPP})
+add_executable(
+  ${PROJECT_NAME} ${PROJECT_FILES} ${MOC_SOURCE_FILES} ${QRC_FILES_CPP}
+)
 
 set(TAP_LINK_LIBRARIES cafUserInterface cafPdmXml cafPdmCvf ${QT_LIBRARIES})
 
@@ -57,5 +63,6 @@ foreach(qtlib ${QT_LIBRARIES})
     TARGET ${PROJECT_NAME}
     POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:${qtlib}>
-            $<TARGET_FILE_DIR:${PROJECT_NAME}>)
+            $<TARGET_FILE_DIR:${PROJECT_NAME}>
+  )
 endforeach(qtlib)

@@ -70,6 +70,7 @@ public:
     double wellPathAzimuthAngle( const cvf::Vec3d& position ) const;
     void   twoClosestPoints( const cvf::Vec3d& position, cvf::Vec3d* p1, cvf::Vec3d* p2 ) const;
     double identicalTubeLength( const RigWellPath& otherWellPathGeometry ) const;
+    double closestMeasuredDepth( const cvf::Vec3d& position ) const;
 
     static cvf::ref<RigWellPath> commonGeometry( const std::vector<const RigWellPath*>& allGeometries );
     void                         setUniqueStartAndEndIndex( size_t uniqueStartIndex, size_t uniqueEndIndex );
@@ -89,6 +90,9 @@ public:
                                                             double                         maxZ,
                                                             double* horizontalLengthAlongWellToClipPoint,
                                                             size_t* indexToFirstVisibleSegment );
+
+private:
+    std::pair<size_t, size_t> closestIndices( const cvf::Vec3d& position ) const;
 
 private:
     std::vector<cvf::Vec3d> m_wellPathPoints;

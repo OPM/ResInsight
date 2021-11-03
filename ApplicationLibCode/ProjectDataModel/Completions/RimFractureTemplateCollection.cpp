@@ -39,18 +39,20 @@
 #include "RimWellPathFracture.h"
 #include "RimWellPathFractureCollection.h"
 
+#include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObject.h"
+#include "cafPdmObjectScriptingCapability.h"
 
 #include <map>
 
-CAF_PDM_SOURCE_INIT( RimFractureTemplateCollection, "FractureDefinitionCollection" );
+CAF_PDM_SOURCE_INIT( RimFractureTemplateCollection, "FractureTemplateCollection", "FractureDefinitionCollection" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RimFractureTemplateCollection::RimFractureTemplateCollection()
 {
-    CAF_PDM_InitObject( "Fracture Templates", ":/FractureTemplates16x16.png", "", "" );
+    CAF_PDM_InitScriptableObject( "Fracture Templates", ":/FractureTemplates16x16.png", "", "" );
 
     CAF_PDM_InitField( &m_defaultUnitsForFracTemplates,
                        "DefaultUnitForTemplates",
@@ -61,7 +63,7 @@ RimFractureTemplateCollection::RimFractureTemplateCollection()
                        "" );
 
     CAF_PDM_InitFieldNoDefault( &m_fractureDefinitions, "FractureDefinitions", "", "", "", "" );
-    m_fractureDefinitions.uiCapability()->setUiHidden( true );
+    m_fractureDefinitions.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitField( &m_nextValidFractureTemplateId, "NextValidFractureTemplateId", 0, "", "", "", "" );
     m_nextValidFractureTemplateId.uiCapability()->setUiHidden( true );

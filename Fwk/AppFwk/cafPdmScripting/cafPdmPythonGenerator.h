@@ -54,6 +54,9 @@ public:
     static QString dataTypeString( const PdmFieldHandle* field, bool useStrForUnknownDataTypes );
 
     static QString pythonifyDataValue( const QString& dataValue );
+
+private:
+    static QString getDefaultValue( PdmFieldHandle* field );
 };
 
 } // namespace caf

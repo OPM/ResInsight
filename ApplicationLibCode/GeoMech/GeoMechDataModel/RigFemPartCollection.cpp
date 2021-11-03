@@ -39,7 +39,24 @@ RigFemPartCollection::~RigFemPartCollection()
 //--------------------------------------------------------------------------------------------------
 void RigFemPartCollection::addFemPart( RigFemPart* part )
 {
+    size_t globalElementOffset      = 0;
+    size_t globalNodeOffset         = 0;
+    size_t globalConnectivityOffset = 0;
+    if ( m_femParts.size() > 0 )
+    {
+        size_t lastIndex = m_femParts.size() - 1;
+        globalElementOffset += m_femParts[lastIndex]->elementCount();
+        globalElementOffset += m_partElementOffset[lastIndex];
+        globalNodeOffset += m_femParts[lastIndex]->nodes().nodeIds.size();
+        globalNodeOffset += m_partNodeOffset[lastIndex];
+        globalConnectivityOffset += m_femParts[lastIndex]->allConnectivitiesCount();
+        globalConnectivityOffset += m_partConnectivityOffset[lastIndex];
+    }
+
     m_femParts.push_back( part );
+    m_partElementOffset.push_back( globalElementOffset );
+    m_partNodeOffset.push_back( globalNodeOffset );
+    m_partConnectivityOffset.push_back( globalConnectivityOffset );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -107,4 +124,75 @@ cvf::BoundingBox RigFemPartCollection::boundingBox() const
         bBox.add( part( i )->boundingBox() );
     }
     return bBox;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// convert from global element index to part and part-local index
+//--------------------------------------------------------------------------------------------------
+std::pair<int, size_t> RigFemPartCollection::partIdAndElementIndex( size_t globalIndex ) const
+{
+    const size_t nParts = m_partElementOffset.size();
+
+    CVF_ASSERT( nParts > 0 );
+
+    for ( size_t i = 1; i < nParts; i++ )
+    {
+        if ( globalIndex < m_partElementOffset[i] )
+        {
+            return std::make_pair( (int)( i - 1 ), globalIndex - m_partElementOffset[i - 1] );
+        }
+    }
+
+    return std::make_pair( (int)( nParts - 1 ), globalIndex - m_partElementOffset.back() );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// convert from global element index to part and part-local index
+//--------------------------------------------------------------------------------------------------
+std::pair<const RigFemPart*, size_t> RigFemPartCollection::partAndElementIndex( size_t globalIndex ) const
+{
+    auto [partId, elementIdx] = partIdAndElementIndex( globalIndex );
+    return std::make_pair( part( partId ), elementIdx );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// convert from part and part-local index to global index
+//--------------------------------------------------------------------------------------------------
+size_t RigFemPartCollection::globalIndex( int partId, size_t localIndex ) const
+{
+    return localIndex + m_partElementOffset[partId];
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RigFemPartCollection::nodeIdxFromElementNodeResultIdx( size_t globalIndex ) const
+{
+    const size_t nParts = m_partConnectivityOffset.size();
+    CVF_ASSERT( nParts > 0 );
+
+    int    partId  = (int)( nParts - 1 );
+    size_t partIdx = globalIndex - m_partConnectivityOffset.back();
+
+    for ( size_t i = 1; i < nParts; i++ )
+    {
+        if ( globalIndex < m_partConnectivityOffset[i] )
+        {
+            partId  = (int)( i - 1 );
+            partIdx = globalIndex - m_partConnectivityOffset[i - 1];
+            break;
+        }
+    }
+
+    const RigFemPart* part = this->part( partId );
+
+    return (int)m_partNodeOffset[partId] + part->nodeIdxFromElementNodeResultIdx( partIdx );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+size_t RigFemPartCollection::globalElementNodeResultIdx( int partId, int elementIdx, int elmLocalNodeIdx ) const
+{
+    return m_partElementOffset[partId] * 8 + part( partId )->elementNodeResultIdx( elementIdx, elmLocalNodeIdx );
 }

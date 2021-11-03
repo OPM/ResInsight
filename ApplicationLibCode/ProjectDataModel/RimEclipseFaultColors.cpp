@@ -35,7 +35,7 @@ CAF_PDM_SOURCE_INIT( RimEclipseFaultColors, "RimFaultResultSlot" );
 //--------------------------------------------------------------------------------------------------
 RimEclipseFaultColors::RimEclipseFaultColors()
 {
-    CAF_PDM_InitObject( "Separate Fault Result", ":/draw_style_faults_24x24.png", "", "" );
+    CAF_PDM_InitObject( "Fault Result", ":/draw_style_faults_24x24.png", "", "" );
 
     CAF_PDM_InitField( &showCustomFaultResult, "ShowCustomFaultResult", false, "Show Custom Fault Result", "", "", "" );
     showCustomFaultResult.uiCapability()->setUiHidden( true );
@@ -47,7 +47,7 @@ RimEclipseFaultColors::RimEclipseFaultColors()
                                 "",
                                 "" );
     m_customFaultResultColors = new RimEclipseCellColors();
-    m_customFaultResultColors.uiCapability()->setUiHidden( true );
+    m_customFaultResultColors.uiCapability()->setUiTreeHidden( true );
     m_customFaultResultColors->enableDeltaResults( true );
 }
 

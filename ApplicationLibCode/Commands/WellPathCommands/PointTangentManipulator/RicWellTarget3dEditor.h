@@ -20,10 +20,13 @@
 
 #include "Ric3dObjectEditorHandle.h"
 
-class RicPointTangentManipulator;
-
 #include "cvfObject.h"
 #include "cvfVector3.h"
+
+#include <QPointer>
+
+class RicPointTangentManipulator;
+class RimWellPathTarget;
 
 namespace cvf
 {
@@ -31,7 +34,6 @@ class ModelBasicList;
 }
 
 class QString;
-#include <QPointer>
 
 class RicWellTarget3dEditor : public Ric3dObjectEditorHandle
 {
@@ -49,6 +51,11 @@ private slots:
     void slotUpdated( const cvf::Vec3d& origin, const cvf::Vec3d& tangent );
     void slotSelectedIn3D();
     void slotDragFinished();
+
+private:
+    void removeAllFieldEditors();
+
+    static void updateTargetWithDeltaChange( RimWellPathTarget* target, const cvf::Vec3d& delta );
 
 private:
     QPointer<RicPointTangentManipulator> m_manipulator;

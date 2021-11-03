@@ -21,59 +21,60 @@
 #include "RiaLogging.h"
 
 #include "opm/io/eclipse/ESmry.hpp"
+#include "opm/io/eclipse/ExtESmry.hpp"
 
 #ifdef USE_OPENMP
 #include <omp.h>
 #endif
 
-size_t RifOpmCommonEclipseSummary::sm_createdLodFileCount = 0;
+#include <QFileInfo>
+
+size_t RifOpmCommonEclipseSummary::sm_createdEsmryFileCount = 0;
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RifOpmCommonEclipseSummary::RifOpmCommonEclipseSummary()
-    : m_useLodsmryFiles( false )
-    , m_createLodsmryFiles( false )
+    : m_useEsmryFiles( false )
+    , m_createEsmryFiles( false )
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifOpmCommonEclipseSummary::~RifOpmCommonEclipseSummary()
+RifOpmCommonEclipseSummary::~RifOpmCommonEclipseSummary() = default;
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RifOpmCommonEclipseSummary::useEnhancedSummaryFiles( bool enable )
 {
+    m_useEsmryFiles = enable;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RifOpmCommonEclipseSummary::useLodsmaryFiles( bool enable )
+void RifOpmCommonEclipseSummary::createEnhancedSummaryFiles( bool enable )
 {
-    m_useLodsmryFiles = enable;
+    m_createEsmryFiles = enable;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RifOpmCommonEclipseSummary::createLodsmaryFiles( bool enable )
+void RifOpmCommonEclipseSummary::resetEnhancedSummaryFileCount()
 {
-    m_createLodsmryFiles = enable;
+    sm_createdEsmryFileCount = 0;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RifOpmCommonEclipseSummary::resetLodCount()
+size_t RifOpmCommonEclipseSummary::numberOfEnhancedSummaryFileCreated()
 {
-    sm_createdLodFileCount = 0;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-size_t RifOpmCommonEclipseSummary::numberOfLodFilesCreated()
-{
-    return sm_createdLodFileCount;
+    return sm_createdEsmryFileCount;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -83,26 +84,34 @@ bool RifOpmCommonEclipseSummary::open( const QString&       headerFileName,
                                        bool                 includeRestartFiles,
                                        RiaThreadSafeLogger* threadSafeLogger )
 {
-    if ( !openESmryFile( headerFileName, includeRestartFiles, threadSafeLogger ) ) return false;
-
-    if ( m_createLodsmryFiles && !includeRestartFiles )
+    if ( m_createEsmryFiles )
     {
-        // Create the lodsmry file, no-op if already present.
-        bool hasFileBeenCreated = m_eSmry->make_lodsmry_file();
-
-        if ( hasFileBeenCreated )
+        auto candidateFileName = enhancedSummaryFilename( headerFileName );
+        if ( !QFileInfo::exists( candidateFileName ) )
         {
-            RifOpmCommonEclipseSummary::increaseLodFileCount();
+            try
+            {
+                auto temporarySummaryFile =
+                    std::make_unique<Opm::EclIO::ESmry>( headerFileName.toStdString(), includeRestartFiles );
 
-            // If a LODSMRY file has been created, all data for all vectors has now been loaded into the summary file
-            // object. Close the file object to make sure allocated data is released, and create a new file object
-            // that will import only the meta data and no curve data. This is a relatively fast operation.
+                temporarySummaryFile->make_esmry_file();
 
-            if ( !openESmryFile( headerFileName, includeRestartFiles, threadSafeLogger ) ) return false;
+                RifOpmCommonEclipseSummary::increaseEsmryFileCount();
+            }
+            catch ( std::exception& e )
+            {
+                QString txt = QString( "Failed to create optimized summary file. Error text : %1" ).arg( e.what() );
+
+                if ( threadSafeLogger ) threadSafeLogger->error( txt );
+
+                return false;
+            }
         }
     }
 
-    if ( !m_eSmry ) return false;
+    if ( !openFileReader( headerFileName, includeRestartFiles, threadSafeLogger ) ) return false;
+
+    if ( !m_standardReader && !m_enhancedReader ) return false;
 
     buildMetaData();
 
@@ -122,17 +131,20 @@ const std::vector<time_t>& RifOpmCommonEclipseSummary::timeSteps( const RifEclip
 //--------------------------------------------------------------------------------------------------
 bool RifOpmCommonEclipseSummary::values( const RifEclipseSummaryAddress& resultAddress, std::vector<double>* values ) const
 {
-    if ( m_eSmry )
+    auto it = m_summaryAddressToKeywordMap.find( resultAddress );
+    if ( it != m_summaryAddressToKeywordMap.end() )
     {
-        auto it = m_adrToSummaryNodeIndex.find( resultAddress );
-        if ( it != m_adrToSummaryNodeIndex.end() )
+        auto keyword = it->second;
+        if ( m_enhancedReader )
         {
-            auto index      = it->second;
-            auto node       = m_eSmry->summaryNodeList()[index];
-            auto fileValues = m_eSmry->get( node );
+            auto fileValues = m_enhancedReader->get( keyword );
             values->insert( values->begin(), fileValues.begin(), fileValues.end() );
         }
-
+        else if ( m_standardReader )
+        {
+            auto fileValues = m_standardReader->get( keyword );
+            values->insert( values->begin(), fileValues.begin(), fileValues.end() );
+        }
         return true;
     }
 
@@ -144,14 +156,18 @@ bool RifOpmCommonEclipseSummary::values( const RifEclipseSummaryAddress& resultA
 //--------------------------------------------------------------------------------------------------
 std::string RifOpmCommonEclipseSummary::unitName( const RifEclipseSummaryAddress& resultAddress ) const
 {
-    if ( m_eSmry )
+    auto it = m_summaryAddressToKeywordMap.find( resultAddress );
+    if ( it != m_summaryAddressToKeywordMap.end() )
     {
-        auto it = m_adrToSummaryNodeIndex.find( resultAddress );
-        if ( it != m_adrToSummaryNodeIndex.end() )
+        auto keyword = it->second;
+        if ( m_enhancedReader )
         {
-            auto index = it->second;
-            auto node  = m_eSmry->summaryNodeList()[index];
-            return m_eSmry->get_unit( node );
+            return m_enhancedReader->get_unit( keyword );
+        }
+
+        if ( m_standardReader )
+        {
+            return m_standardReader->get_unit( keyword );
         }
     }
 
@@ -172,33 +188,58 @@ RiaDefines::EclipseUnitSystem RifOpmCommonEclipseSummary::unitSystem() const
 //--------------------------------------------------------------------------------------------------
 void RifOpmCommonEclipseSummary::buildMetaData()
 {
-    if ( m_eSmry )
+    std::vector<Opm::time_point> dates;
+    std::vector<std::string>     keywords;
+
+    if ( m_enhancedReader )
     {
-        auto dates = m_eSmry->dates();
-        for ( const auto& d : dates )
-        {
-            auto timeAsTimeT = std::chrono::system_clock::to_time_t( d );
-            m_timeSteps.push_back( timeAsTimeT );
-        }
-
-        auto [addresses, addressMap] = RifOpmCommonSummaryTools::buildMetaData( m_eSmry.get() );
-
-        m_allResultAddresses    = addresses;
-        m_adrToSummaryNodeIndex = addressMap;
+        dates    = m_enhancedReader->dates();
+        keywords = m_enhancedReader->keywordList();
     }
+    else if ( m_standardReader )
+    {
+        dates    = m_standardReader->dates();
+        keywords = m_standardReader->keywordList();
+    }
+
+    for ( const auto& d : dates )
+    {
+        auto timeAsTimeT = std::chrono::system_clock::to_time_t( d );
+        m_timeSteps.push_back( timeAsTimeT );
+    }
+
+    auto [addresses, addressMap] = RifOpmCommonSummaryTools::buildMetaDataKeyword( keywords );
+
+    m_allResultAddresses         = addresses;
+    m_summaryAddressToKeywordMap = addressMap;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RifOpmCommonEclipseSummary::openESmryFile( const QString&       headerFileName,
-                                                bool                 includeRestartFiles,
-                                                RiaThreadSafeLogger* threadSafeLogger )
+bool RifOpmCommonEclipseSummary::openFileReader( const QString&       headerFileName,
+                                                 bool                 includeRestartFiles,
+                                                 RiaThreadSafeLogger* threadSafeLogger )
 {
+    if ( m_useEsmryFiles )
+    {
+        try
+        {
+            auto candidateFileName = enhancedSummaryFilename( headerFileName );
+            m_enhancedReader =
+                std::make_unique<Opm::EclIO::ExtESmry>( candidateFileName.toStdString(), includeRestartFiles );
+
+            return true;
+        }
+        catch ( ... )
+        {
+            // Do not do anything here, try to open the file using standard esmy reader
+        }
+    }
+
     try
     {
-        m_eSmry =
-            std::make_unique<Opm::EclIO::ESmry>( headerFileName.toStdString(), includeRestartFiles, m_useLodsmryFiles );
+        m_standardReader = std::make_unique<Opm::EclIO::ESmry>( headerFileName.toStdString(), includeRestartFiles );
     }
     catch ( std::exception& e )
     {
@@ -215,11 +256,20 @@ bool RifOpmCommonEclipseSummary::openESmryFile( const QString&       headerFileN
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RifOpmCommonEclipseSummary::increaseLodFileCount()
+void RifOpmCommonEclipseSummary::increaseEsmryFileCount()
 {
     // This function can be called from a parallel loop, make it thread safe
 #pragma omp critical
-    sm_createdLodFileCount++;
+    sm_createdEsmryFileCount++;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RifOpmCommonEclipseSummary::enhancedSummaryFilename( const QString& headerFileName )
+{
+    QString s( headerFileName );
+    return s.replace( ".SMSPEC", ".ESMRY" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -327,6 +377,29 @@ std::pair<std::set<RifEclipseSummaryAddress>, std::map<RifEclipseSummaryAddress,
                 addresses.insert( eclAdr );
                 addressToNodeIndexMap[eclAdr] = i;
             }
+        }
+    }
+
+    return { addresses, addressToNodeIndexMap };
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::pair<std::set<RifEclipseSummaryAddress>, std::map<RifEclipseSummaryAddress, std::string>>
+    RifOpmCommonSummaryTools::buildMetaDataKeyword( const std::vector<std::string>& keywords )
+{
+    std::set<RifEclipseSummaryAddress>              addresses;
+    std::map<RifEclipseSummaryAddress, std::string> addressToNodeIndexMap;
+
+    for ( const auto& keyword : keywords )
+    {
+        auto eclAdr = RifEclipseSummaryAddress::fromEclipseTextAddress( keyword );
+
+        if ( eclAdr.isValid() )
+        {
+            addresses.insert( eclAdr );
+            addressToNodeIndexMap[eclAdr] = keyword;
         }
     }
 

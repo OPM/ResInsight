@@ -36,11 +36,10 @@ for case in cases:
     print("Number of time_steps: " + str(len(time_steps)))
 
     for view in case.views():
-        if view.is_eclipse_view():
-            for property in property_list:
-                view.apply_cell_result(
-                    result_type="DYNAMIC_NATIVE", result_variable=property
-                )
+        for property in property_list:
+            view.apply_cell_result(
+                result_type="DYNAMIC_NATIVE", result_variable=property
+            )
         for time_step in range(0, len(time_steps), 10):
             view.set_time_step(time_step=time_step)
             view.export_snapshot()

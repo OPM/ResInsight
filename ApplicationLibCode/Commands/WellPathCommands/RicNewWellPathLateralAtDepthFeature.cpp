@@ -48,7 +48,7 @@ CAF_CMD_SOURCE_INIT( RicNewWellPathLateralAtDepthFeature, "RicNewWellPathLateral
 //--------------------------------------------------------------------------------------------------
 bool RicNewWellPathLateralAtDepthFeature::isCommandEnabled()
 {
-    if ( wellPathSelectionItem() )
+    if ( RiuWellPathSelectionItem::wellPathSelectionItem() )
     {
         return true;
     }
@@ -61,7 +61,7 @@ bool RicNewWellPathLateralAtDepthFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicNewWellPathLateralAtDepthFeature::onActionTriggered( bool isChecked )
 {
-    RiuWellPathSelectionItem* wellPathSelItem = wellPathSelectionItem();
+    RiuWellPathSelectionItem* wellPathSelItem = RiuWellPathSelectionItem::wellPathSelectionItem();
     CVF_ASSERT( wellPathSelItem );
 
     RimWellPath* parentWellPath = wellPathSelItem->m_wellpath;
@@ -84,14 +84,15 @@ void RicNewWellPathLateralAtDepthFeature::setupActionLook( QAction* actionToSetu
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimWellPath* RicNewWellPathLateralAtDepthFeature::createLateralAtMeasuredDepth( RimWellPath* parentWellPath,
-                                                                                double       parentWellMD )
+RimModeledWellPath* RicNewWellPathLateralAtDepthFeature::createLateralAtMeasuredDepth( RimWellPath* parentWellPath,
+                                                                                       double       parentWellMD )
 {
     RimProject*            project      = RimProject::current();
     RimWellPathCollection* wellPathColl = RimTools::wellPathCollection();
     if ( project && wellPathColl )
     {
         auto newModeledWellPath = new RimModeledWellPath();
+        newModeledWellPath->geometryDefinition()->enableReferencePointFromTopLevelWell( true );
 
         if ( parentWellPath->wellPathGeometry() && parentWellPath->wellPathGeometry()->measuredDepths().size() > 2 )
         {
@@ -133,26 +134,13 @@ RimWellPath* RicNewWellPathLateralAtDepthFeature::createLateralAtMeasuredDepth( 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuWellPathSelectionItem* RicNewWellPathLateralAtDepthFeature::wellPathSelectionItem()
+QString RicNewWellPathLateralAtDepthFeature::updateNameOfParentAndFindNameOfSideStep( RimWellPath* parentWellPath )
 {
-    Riu3dSelectionManager* riuSelManager = Riu3dSelectionManager::instance();
-    RiuSelectionItem*      selItem       = riuSelManager->selectedItem( Riu3dSelectionManager::RUI_TEMPORARY );
-
-    RiuWellPathSelectionItem* wellPathItem = dynamic_cast<RiuWellPathSelectionItem*>( selItem );
-
-    return wellPathItem;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RicNewWellPathLateralAtDepthFeature::updateNameOfParentAndFindNameOfSideStep( RimWellPath* parentwWellPath )
-{
-    if ( !parentwWellPath ) return "";
+    if ( !parentWellPath ) return "";
 
     QString nameOfNewWell;
 
-    auto topLevelWell = parentwWellPath->topLevelWellPath();
+    auto topLevelWell = parentWellPath->topLevelWellPath();
 
     QStringList allNames;
     {
@@ -174,7 +162,7 @@ QString RicNewWellPathLateralAtDepthFeature::updateNameOfParentAndFindNameOfSide
 
     if ( allNames.size() == 1 )
     {
-        QString name = parentwWellPath->name();
+        QString name = parentWellPath->name();
 
         if ( name.contains( "Y1" ) )
         {
@@ -182,7 +170,7 @@ QString RicNewWellPathLateralAtDepthFeature::updateNameOfParentAndFindNameOfSide
         }
         else
         {
-            parentwWellPath->setNameNoUpdateOfExportName( name + " Y1" );
+            parentWellPath->setNameNoUpdateOfExportName( name + " Y1" );
             nameOfNewWell = name + " Y2";
         }
 

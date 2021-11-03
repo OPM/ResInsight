@@ -32,6 +32,7 @@
 
 class RimSurface;
 class RimSurfaceCollection;
+class RimCase;
 
 //==================================================================================================
 ///
@@ -69,4 +70,24 @@ public:
 
 private:
     caf::PdmField<QString> m_folderName;
+};
+
+//==================================================================================================
+///
+//==================================================================================================
+class RimcSurfaceCollection_newSurface : public caf::PdmObjectMethod
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    RimcSurfaceCollection_newSurface( caf::PdmObjectHandle* self );
+
+    caf::PdmObjectHandle*            execute() override;
+    bool                             resultIsPersistent() const override;
+    std::unique_ptr<PdmObjectHandle> defaultResult() const override;
+    bool                             isNullptrValidResult() const override;
+
+private:
+    caf::PdmPtrField<RimCase*> m_case;
+    caf::PdmField<int>         m_kIndex;
 };

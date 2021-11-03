@@ -64,7 +64,7 @@ public:
 
     int     startTimeStepEclipseIndex() const;
     QString startTimeStepEclipse() const;
-    QString loadStepStart() const;
+    QString loadStepStart( bool advanced = false ) const;
     int     endTimeStepEclipseIndex() const;
     QString endTimeStepEclipse() const;
     QString loadStepEnd() const;
@@ -89,12 +89,15 @@ public:
     RimGenericParameter* getInputParameter( QString name ) const;
 
 protected:
-    void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName ) override;
+
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
                                                          bool*                      useOptionsOnly ) override;
 
 private:
     void setupResInsightParameters();
+    int  timeStepDigits() const;
 
 private:
     caf::PdmPtrField<RimEclipseInputCase*> m_eclipseFRAGeneratedCase;

@@ -21,9 +21,12 @@
 
 #include "cvfArray.h"
 #include "cvfObject.h"
+#include "cvfVector3.h"
 
 #include "RigFemPart.h"
 #include "cvfStructGrid.h"
+
+#include <vector>
 
 namespace cvf
 {
@@ -64,7 +67,7 @@ private:
 class RivFemPartGeometryGenerator : public cvf::Object
 {
 public:
-    explicit RivFemPartGeometryGenerator( const RigFemPart* part );
+    explicit RivFemPartGeometryGenerator( const RigFemPart* part, cvf::Vec3d displayOffset );
     ~RivFemPartGeometryGenerator() override;
 
     // Setup methods
@@ -77,7 +80,7 @@ public:
 
     // Generated geometry
 
-    cvf::ref<cvf::DrawableGeo> generateSurface();
+    cvf::ref<cvf::DrawableGeo> generateSurface( const std::vector<cvf::Vec3f>& nodeCoordinates );
     cvf::ref<cvf::DrawableGeo> createMeshDrawable();
     cvf::ref<cvf::DrawableGeo> createOutlineMeshDrawable( double creaseAngle );
 
@@ -96,21 +99,20 @@ public:
                                                                            const cvf::Vec3d& displayModelOffset );
 
 private:
-    static cvf::ref<cvf::UIntArray> lineIndicesFromQuadVertexArray( const cvf::Vec3fArray* vertexArray );
-    void                            computeArrays();
+    void computeArrays( const std::vector<cvf::Vec3f>& nodeCoordinates );
 
 private:
     // Input
     cvf::cref<RigFemPart>      m_part; // The part being processed
     cvf::cref<cvf::UByteArray> m_elmVisibility;
+    cvf::Vec3d                 m_displayOffset;
 
     // Created arrays
     cvf::ref<cvf::Vec3fArray> m_quadVertices;
-    // cvf::ref<cvf::Vec3fArray> m_triangleVertices; // If needed, we will do it like this, I think
-    std::vector<size_t> m_quadVerticesToNodeIdx;
-    std::vector<size_t> m_quadVerticesToGlobalElmNodeIdx;
-    std::vector<size_t> m_quadVerticesToGlobalElmFaceNodeIdx;
-    std::vector<size_t> m_quadVerticesToGlobalElmIdx;
+    std::vector<size_t>       m_quadVerticesToNodeIdx;
+    std::vector<size_t>       m_quadVerticesToGlobalElmNodeIdx;
+    std::vector<size_t>       m_quadVerticesToGlobalElmFaceNodeIdx;
+    std::vector<size_t>       m_quadVerticesToGlobalElmIdx;
 
     // Mappings
     cvf::ref<RivFemPartTriangleToElmMapper> m_triangleMapper;

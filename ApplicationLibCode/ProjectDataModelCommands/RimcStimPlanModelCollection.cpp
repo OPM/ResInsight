@@ -32,50 +32,50 @@
 #include "cafPdmFieldScriptingCapability.h"
 
 CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimStimPlanModelCollection,
-                                   RimcStimPlanModelCollection_newStimPlanModel,
-                                   "NewStimPlanModel" );
+                                   RimcStimPlanModelCollection_appendStimPlanModel,
+                                   "AppendStimPlanModel" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimcStimPlanModelCollection_newStimPlanModel::RimcStimPlanModelCollection_newStimPlanModel( caf::PdmObjectHandle* self )
+RimcStimPlanModelCollection_appendStimPlanModel::RimcStimPlanModelCollection_appendStimPlanModel( caf::PdmObjectHandle* self )
     : caf::PdmObjectMethod( self )
 {
     CAF_PDM_InitObject( "Create StimPlan Model", "", "", "Create a new StimPlan Model" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_wellPath, "WellPath", "", "", "", "Well Path" );
-    CAF_PDM_InitScriptableFieldNoDefault( &m_md, "MeasuredDepth", "", "", "", "Measured Depth" );
+    CAF_PDM_InitScriptableField( &m_md, "MeasuredDepth", 0.0, "Measured Depth", "", "", "" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_stimPlanModelTemplate, "StimPlanModelTemplate", "", "", "", "StimPlan Model Template" );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PdmObjectHandle* RimcStimPlanModelCollection_newStimPlanModel::execute()
+caf::PdmObjectHandle* RimcStimPlanModelCollection_appendStimPlanModel::execute()
 {
-    RimStimPlanModel*           newStimPlanModel        = nullptr;
+    RimStimPlanModel*           stimPlanModel           = nullptr;
     RimStimPlanModelCollection* stimPlanModelCollection = self<RimStimPlanModelCollection>();
     if ( m_wellPath )
     {
         RimWellPathCollection* wellPathCollection = nullptr;
         stimPlanModelCollection->firstAncestorOrThisOfTypeAsserted( wellPathCollection );
 
-        newStimPlanModel = RicNewStimPlanModelFeature::addStimPlanModel( m_wellPath, wellPathCollection );
+        stimPlanModel = RicNewStimPlanModelFeature::addStimPlanModel( m_wellPath, wellPathCollection );
     }
 
-    if ( newStimPlanModel )
+    if ( stimPlanModel )
     {
-        newStimPlanModel->setMD( m_md() );
-        newStimPlanModel->setStimPlanModelTemplate( m_stimPlanModelTemplate() );
+        stimPlanModel->setMD( m_md() );
+        stimPlanModel->setStimPlanModelTemplate( m_stimPlanModelTemplate() );
         stimPlanModelCollection->updateAllRequiredEditors();
     }
 
-    return newStimPlanModel;
+    return stimPlanModel;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimcStimPlanModelCollection_newStimPlanModel::resultIsPersistent() const
+bool RimcStimPlanModelCollection_appendStimPlanModel::resultIsPersistent() const
 {
     return true;
 }
@@ -83,7 +83,7 @@ bool RimcStimPlanModelCollection_newStimPlanModel::resultIsPersistent() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::unique_ptr<caf::PdmObjectHandle> RimcStimPlanModelCollection_newStimPlanModel::defaultResult() const
+std::unique_ptr<caf::PdmObjectHandle> RimcStimPlanModelCollection_appendStimPlanModel::defaultResult() const
 {
     return std::unique_ptr<caf::PdmObjectHandle>( new RimStimPlanModel );
 }

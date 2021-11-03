@@ -20,6 +20,7 @@
 
 #include "RiaDefines.h"
 
+#include "RiaNumberFormat.h"
 #include "RigHistogramData.h"
 
 #include "cvfObject.h"
@@ -52,18 +53,36 @@ public:
     static RigHistogramData
         createStatisticsData( const RimEnsembleFractureStatistics* esf, PropertyType propertyType, int numBins );
 
-private:
-    static std::vector<double> calculateGridStatistics( const std::vector<cvf::ref<RigStimPlanFractureDefinition>>& defs,
-                                                        double( func )( cvf::cref<RigFractureGrid> ) );
+    static RigHistogramData
+        createStatisticsData( const std::vector<cvf::ref<RigStimPlanFractureDefinition>>& fractureDefinitions,
+                              PropertyType                                                propertyType,
+                              int                                                         numBins );
+
+    static std::vector<cvf::ref<RigStimPlanFractureDefinition>>
+        removeZeroWidthDefinitions( const std::vector<cvf::ref<RigStimPlanFractureDefinition>>& fractureDefinitions );
 
     static std::vector<double>
-        calculateAreaWeightedStatistics( const std::vector<cvf::ref<RigStimPlanFractureDefinition>>& defs,
+        calculateProperty( const std::vector<cvf::ref<RigStimPlanFractureDefinition>>& fractureDefinitions,
+                           PropertyType                                                propertyType );
+
+    static std::vector<RigEnsembleFractureStatisticsCalculator::PropertyType> propertyTypes();
+
+    static std::pair<RiaNumberFormat::NumberFormatType, int> numberFormatForProperty( PropertyType propertyType );
+
+private:
+    static std::vector<double>
+        calculateGridStatistics( const std::vector<cvf::ref<RigStimPlanFractureDefinition>>& fractureDefinitions,
+                                 double( func )( cvf::cref<RigFractureGrid> ) );
+
+    static std::vector<double>
+        calculateAreaWeightedStatistics( const std::vector<cvf::ref<RigStimPlanFractureDefinition>>& fractureDefinitions,
                                          double( func )( cvf::cref<RigFractureGrid>,
                                                          cvf::cref<RigFractureGrid>,
                                                          RiaDefines::EclipseUnitSystem,
                                                          const QString& ) );
 
-    static std::vector<double> calculateFormationDip( const std::vector<cvf::ref<RigStimPlanFractureDefinition>>& defs );
+    static std::vector<double>
+        calculateFormationDip( const std::vector<cvf::ref<RigStimPlanFractureDefinition>>& fractureDefinitions );
 
     static double calculateHeight( cvf::cref<RigFractureGrid> fractureGrid );
     static double calculateArea( cvf::cref<RigFractureGrid> fractureGrid );

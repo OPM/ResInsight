@@ -44,7 +44,9 @@ private:
                                 const std::map<QString, std::vector<double>>& values );
     static bool writeToCsvFile( const QString&                                filepath,
                                 const std::vector<QString>&                   labels,
-                                const std::map<QString, std::vector<double>>& values );
+                                const std::map<QString, std::vector<double>>& values,
+                                const std::vector<QString>&                   faciesNames,
+                                const std::vector<QString>&                   formationNames );
 
     static void appendHeaderToStream( QTextStream& stream );
     static void appendToStream( QTextStream& stream, const QString& label, const std::vector<double>& values );
@@ -54,9 +56,14 @@ private:
                                       double               minStressGradient,
                                       double               maxStressGradient,
                                       double               defaultStressGradient );
-
+    static void fixupLowerBoundary( std::vector<double>& values, double minValue, const QString& property );
     static std::pair<std::vector<double>, std::vector<double>> createDepthRanges( const std::vector<double>& tvd );
 
     static bool warnOnInvalidData( const QString& label, const std::vector<double>& values );
     static bool hasInvalidData( const std::vector<double>& values );
+
+    static std::vector<double> createPerforationValues( const std::vector<double>& depthStart,
+                                                        const std::vector<double>& depthEnd,
+                                                        double                     perforationTop,
+                                                        double                     perforationBottom );
 };

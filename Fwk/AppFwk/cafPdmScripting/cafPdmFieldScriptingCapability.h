@@ -39,6 +39,7 @@
 #include "cafPdmAbstractFieldScriptingCapability.h"
 #include "cafPdmChildArrayField.h"
 #include "cafPdmChildField.h"
+#include "cafPdmField.h"
 #include "cafPdmPtrArrayField.h"
 #include "cafPdmPtrField.h"
 #include "cafPdmScriptIOMessages.h"
@@ -185,9 +186,8 @@ struct PdmFieldScriptingCapabilityIOHandler<AppEnum<T>>
         {
             // Unexpected enum value
             // Error message
-            errorMessageContainer->addError( "Argument must be valid enum value. " +
-                                             errorMessageContainer->currentArgument + "\" argument of the command: \"" +
-                                             errorMessageContainer->currentCommand + "\"" );
+            errorMessageContainer->addError( "Failed to set enum text value \"" + accumulatedFieldValue +
+                                             "\" for the command: \"" + errorMessageContainer->currentCommand + "\"" );
         }
     }
 
@@ -629,6 +629,59 @@ public:
 
 private:
     PdmChildArrayField<DataType*>* m_field;
+};
+
+template <typename DataType>
+class PdmFieldScriptingCapability<PdmField<caf::AppEnum<DataType>>> : public PdmAbstractFieldScriptingCapability
+{
+public:
+    PdmFieldScriptingCapability( PdmField<caf::AppEnum<DataType>>* field, const QString& fieldName, bool giveOwnership )
+        : PdmAbstractFieldScriptingCapability( field, fieldName, giveOwnership )
+    {
+        m_field = field;
+    }
+
+    void writeToField( QTextStream&          inputStream,
+                       PdmObjectFactory*     objectFactory,
+                       PdmScriptIOMessages*  errorMessageContainer,
+                       bool                  stringsAreQuoted    = true,
+                       caf::PdmObjectHandle* existingObjectsRoot = nullptr ) override
+    {
+        if ( this->isIOWriteable() )
+        {
+            AppEnum<DataType> value;
+
+            PdmFieldScriptingCapabilityIOHandler<caf::AppEnum<DataType>>::writeToField( value,
+                                                                                        inputStream,
+                                                                                        errorMessageContainer,
+                                                                                        stringsAreQuoted );
+            m_field->setValue( value );
+        }
+    }
+
+    void readFromField( QTextStream& outputStream, bool quoteStrings = true, bool quoteNonBuiltins = false ) const override
+    {
+        PdmFieldScriptingCapabilityIOHandler<caf::AppEnum<DataType>>::readFromField( m_field->value(),
+                                                                                     outputStream,
+                                                                                     quoteStrings,
+                                                                                     quoteNonBuiltins );
+    }
+
+    QStringList enumScriptTexts() const override
+    {
+        QStringList enumTexts;
+
+        for ( size_t i = 0; i < caf::AppEnum<DataType>::size(); i++ )
+        {
+            auto enumText = caf::AppEnum<DataType>::text( caf::AppEnum<DataType>::fromIndex( i ) );
+            enumTexts.push_back( enumText );
+        }
+
+        return enumTexts;
+    }
+
+private:
+    PdmField<caf::AppEnum<DataType>>* m_field;
 };
 
 template <typename FieldType>

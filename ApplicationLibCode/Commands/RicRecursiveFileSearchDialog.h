@@ -22,6 +22,7 @@
 
 #include "cafPdmPointer.h"
 
+#include "RiaEnsembleNameTools.h"
 #include <QDialog>
 
 class QLabel;
@@ -60,7 +61,7 @@ public:
                                                                         const QStringList& fileExtensions = QStringList() );
 
 private:
-    RicRecursiveFileSearchDialog( QWidget* parent );
+    RicRecursiveFileSearchDialog( QWidget* parent, const QStringList& fileExtensions );
     ~RicRecursiveFileSearchDialog() override;
 
     QString cleanTextFromPathFilterField() const;
@@ -71,6 +72,8 @@ private:
     QStringList fileExtensions() const;
     QString     extensionFromFileNameFilter() const;
 
+    RiaEnsembleNameTools::EnsembleGroupingMode ensembleGroupingMode() const;
+
     void setOkButtonEnabled( bool enabled );
     void warningIfInvalidCharacters();
     void updateEffectiveFilter();
@@ -78,6 +81,7 @@ private:
 
     void updateFileListWidget();
     void clearFileList();
+    void addToFileListWidget( const QStringList& fileNames );
 
     // File search methods
 
@@ -89,8 +93,12 @@ private:
     QStringList    createFileNameFilterList();
     static QString replaceWithRealizationStar( const QString& text );
 
+    static void populateComboBoxHistoryFromRegistry( QComboBox* comboBox, const QString& registryKey );
+
 private slots:
-    void slotFilterChanged( const QString& text );
+    void slotPathFilterChanged( const QString& text );
+    void slotFileFilterChanged( const QString& text );
+    void slotFileExtensionsChanged();
     void slotBrowseButtonClicked();
     void slotUseRealizationStarClicked();
     void slotFindOrCancelButtonClicked();
@@ -111,11 +119,16 @@ private:
     QCheckBox*   m_useRealizationStarCheckBox;
 
     QLabel*    m_fileFilterLabel;
-    QLineEdit* m_fileFilterField;
+    QComboBox* m_fileFilterField;
+
+    QLabel*    m_fileExtensionsLabel;
+    QLineEdit* m_fileExtensionsField;
 
     QLabel*      m_effectiveFilterLabel;
     QLabel*      m_effectiveFilterContentLabel;
     QPushButton* m_findOrCancelButton;
+
+    QComboBox* m_ensembleGroupingMode;
 
     QGroupBox*   m_outputGroup;
     QLabel*      m_searchRootLabel;
@@ -124,8 +137,9 @@ private:
 
     QDialogButtonBox* m_buttons;
 
-    QStringList m_foundFiles;
-    QStringList m_fileExtensions;
+    QStringList       m_foundFiles;
+    const QStringList m_incomingFileExtensions;
+    QStringList       m_fileExtensions;
 
     bool m_isCancelPressed;
 
@@ -140,16 +154,18 @@ private:
 class RicRecursiveFileSearchDialogResult
 {
 public:
-    RicRecursiveFileSearchDialogResult( bool               ok,
-                                        const QStringList& files,
-                                        const QString&     rootDir,
-                                        const QString&     pathFilter,
-                                        const QString&     fileNameFilter )
+    RicRecursiveFileSearchDialogResult( bool                                       ok,
+                                        const QStringList&                         files,
+                                        const QString&                             rootDir,
+                                        const QString&                             pathFilter,
+                                        const QString&                             fileNameFilter,
+                                        RiaEnsembleNameTools::EnsembleGroupingMode groupingMode )
         : ok( ok )
         , files( files )
         , rootDir( rootDir )
         , pathFilter( pathFilter )
         , fileNameFilter( fileNameFilter )
+        , groupingMode( groupingMode )
     {
     }
 
@@ -158,4 +174,6 @@ public:
     QString     rootDir;
     QString     pathFilter;
     QString     fileNameFilter;
+
+    RiaEnsembleNameTools::EnsembleGroupingMode groupingMode;
 };

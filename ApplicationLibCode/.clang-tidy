@@ -1,5 +1,5 @@
 ---
-Checks:            '-*,modernize-use-override,modernize-use-nullptr,modernize-deprecated-headers'
+Checks:            '-*,modernize-use-override,modernize-use-nullptr,modernize-deprecated-headers,bugprone-bool-pointer-implicit-conversion,bugprone-parent-virtual-call,bugprone-redundant-branch-condition,bugprone-suspicious-semicolon,bugprone-suspicious-string-compare'
 WarningsAsErrors:  ''
 HeaderFilterRegex: 'ApplicationLibCode/*.*$'
 FormatStyle:       'file'

@@ -17,4 +17,4 @@ with section("format"):
 
     # If a statement is wrapped to more than one line, than dangle the closing
     # parenthesis on its own line.
-    dangle_parens = False
+    dangle_parens = True

@@ -29,6 +29,7 @@
 #include <numeric>
 #include <string>
 #include <sstream>
+#include <stdexcept>
 
 #define _USE_MATH_DEFINES
 #include <math.h>
@@ -76,6 +77,14 @@ EGrid::EGrid(const std::string &filename, std::string grid_name) :
             else
                lgrname = lgr_names[nnchead[1] - 1];
         }
+
+        if (array_name[n] == "MAPUNITS"){
+            auto mapunits = this->get<std::string>(n);
+            m_mapunits = mapunits[0];
+        }
+
+        if (array_name[n] == "MAPAXES")
+            m_mapaxes = this->get<float>(n);
 
         if (lgrname == grid_name) {
             if (array_name[n] == "GRIDHEAD") {
@@ -355,5 +364,218 @@ void EGrid::getCellCorners(int globindex, std::array<double,8>& X,
 {
     return getCellCorners(ijk_from_global_index(globindex),X,Y,Z);
 }
+
+
+std::vector<std::array<float, 3>> EGrid::getXYZ_layer(int layer, const std::array<int, 4>& box, bool bottom)
+{
+   // layer is layer index, zero based. The box array is i and j range (i1,i2,j1,j2), also zero based
+
+    if ((layer < 0) || (layer > (nijk[2] -1))){
+        std::string message = "invalid layer index " + std::to_string(layer) + ". Valied range [0, ";
+        message = message + std::to_string(nijk[2] -1) + "]";
+        throw std::invalid_argument(message);
+    }
+
+    if ((box[0] < 0) || (box[0]+1 > nijk[0]) || (box[1] < 0) || (box[1]+1 > nijk[0]) ||
+         (box[2] < 0) || (box[2]+1 > nijk[1]) || (box[3] < 0) || (box[3]+1 > nijk[1]) ||
+           (box[0] > box[1]) || (box[2] > box[3])){
+
+        throw std::invalid_argument("invalid box input, i1,i2,j1 or j2 out of valied range ");
+    }
+
+    int nodes_pr_surf = nijk[0]*nijk[1]*4;
+    int zcorn_offset = nodes_pr_surf * layer * 2;
+
+    if (bottom)
+        zcorn_offset += nodes_pr_surf;
+
+    std::vector<float> layer_zcorn;
+    layer_zcorn.reserve(nodes_pr_surf);
+
+    std::vector<std::array<float, 3>> xyz_vector;
+
+    if (coord_array.size() == 0)
+        coord_array = getImpl(coord_array_index, REAL, real_array, "float");
+
+    if (zcorn_array.size() > 0){
+        for (size_t n = 0; n < static_cast<size_t>(nodes_pr_surf); n++)
+            layer_zcorn.push_back(zcorn_array[zcorn_offset + n]);
+
+    } else {
+        layer_zcorn = get_zcorn_from_disk(layer, bottom);
+    }
+
+    std::array<double,4> X;
+    std::array<double,4> Y;
+    std::array<double,4> Z;
+
+    std::array<int,3> ijk;
+    ijk[2]=0;
+
+    for (int j = box[2]; j < (box[3] + 1); j++) {
+        for (int i = box[0]; i < (box[1] + 1); i++) {
+
+            ijk[0]=i;
+            ijk[1]=j;
+
+            this->getCellCorners(ijk, layer_zcorn, X, Y, Z );
+
+            for (size_t n = 0; n < 4; n++){
+                std::array<float, 3> xyz;
+                xyz[0] = X[n];
+                xyz[1] = Y[n];
+                xyz[2] = Z[n];
+
+                xyz_vector.push_back(xyz);
+            }
+        }
+    }
+
+    return xyz_vector;
+}
+
+
+std::vector<std::array<float, 3>> EGrid::getXYZ_layer(int layer, bool bottom)
+{
+    std::array<int, 4> box = {0, nijk[0] -1 , 0, nijk[1] -1 };
+    return this->getXYZ_layer(layer, box, bottom);
+}
+
+
+std::vector<float> EGrid::get_zcorn_from_disk(int layer, bool bottom)
+{
+    if (formatted)
+        throw std::invalid_argument("partial loading of zcorn arrays not possible when using formatted input");
+
+    std::vector<float> zcorn_layer;
+    std::fstream fileH;
+
+    int nodes_pr_surf = nijk[0]*nijk[1]*4;
+    int zcorn_offset = nodes_pr_surf * layer * 2;
+
+    if (bottom)
+        zcorn_offset+=nodes_pr_surf;
+
+    fileH.open(inputFileName, std::ios::in |  std::ios::binary);
+
+    if (!fileH)
+        throw std::runtime_error("Can not open EGrid file" + this->inputFilename);
+
+    std::string arrName(8,' ');
+    eclArrType arrType;
+    int64_t num;
+    int sizeOfElement;
+
+    uint64_t zcorn_pos = 0;
+
+    while (!isEOF(&fileH)) {
+
+        readBinaryHeader(fileH,arrName,num, arrType, sizeOfElement);
+
+        if (arrName == "ZCORN   "){
+            zcorn_pos = fileH.tellg();
+            break;
+        }
+
+        uint64_t sizeOfNextArray = sizeOnDiskBinary(num, arrType, sizeOfElement);
+        fileH.seekg(static_cast<std::streamoff>(sizeOfNextArray), std::ios_base::cur);
+    }
+
+    int elements_pr_block = Opm::EclIO::MaxBlockSizeReal / Opm::EclIO::sizeOfReal;
+    int num_blocks_start = zcorn_offset / elements_pr_block;
+
+    // adding size of zcorn real data before to ignored
+    uint64_t start_pos = zcorn_pos + Opm::EclIO::sizeOfReal * zcorn_offset;
+
+    // adding size of blocks (head and tail flags)
+    start_pos = start_pos + (1 + num_blocks_start * 2) * Opm::EclIO::sizeOfInte;
+
+    fileH.seekg(start_pos, std::ios_base::beg);
+
+    uint64_t zcorn_to = zcorn_offset + nodes_pr_surf;
+
+    int i1 = zcorn_offset / 1000 + 1;
+    uint64_t elemets = static_cast<uint64_t>(i1 * elements_pr_block - zcorn_offset);
+
+    uint64_t next_block = elemets < zcorn_to ? elemets : zcorn_to - zcorn_offset + 1 ;
+
+    uint64_t p1 = zcorn_offset;
+
+    while (p1 < zcorn_to){
+
+        std::vector<float> buf(next_block);
+        fileH.read(reinterpret_cast<char*>(buf.data()), buf.size()*sizeof(float));
+
+        for (size_t n = 0; n < next_block; n++)
+            zcorn_layer.push_back(Opm::EclIO::flipEndianFloat(buf[n]));
+
+        p1 = p1 + next_block;
+
+        if (p1 < zcorn_to) {
+            int dtail;
+            fileH.read(reinterpret_cast<char*>(&dtail), sizeof(dtail));
+            fileH.read(reinterpret_cast<char*>(&dtail), sizeof(dtail));
+            dtail = Opm::EclIO::flipEndianInt(dtail);
+
+            next_block = static_cast<uint64_t>(dtail) / static_cast<uint64_t>(Opm::EclIO::sizeOfReal);
+
+            if ((p1 + next_block) > zcorn_to)
+                next_block = zcorn_to - p1;
+        }
+    }
+
+    fileH.close();
+
+    return zcorn_layer;
+}
+
+
+void EGrid::getCellCorners(const std::array<int, 3>& ijk, const std::vector<float>& zcorn_layer,
+                           std::array<double,4>& X, std::array<double,4>& Y, std::array<double,4>& Z)
+{
+    std::vector<int> zind;
+    std::vector<int> pind;
+
+   // calculate indices for grid pillars in COORD arrray
+    pind.push_back(ijk[1]*(nijk[0]+1)*6 + ijk[0]*6);
+    pind.push_back(pind[0] + 6);
+    pind.push_back(pind[0] + (nijk[0]+1)*6);
+    pind.push_back(pind[2] + 6);
+
+    // get depths from zcorn array in ZCORN array
+    zind.push_back(ijk[2]*nijk[0]*nijk[1]*8 + ijk[1]*nijk[0]*4 + ijk[0]*2);
+    zind.push_back(zind[0] + 1);
+    zind.push_back(zind[0] + nijk[0]*2);
+    zind.push_back(zind[2] + 1);
+
+    for (int n = 0; n< 4; n++)
+        Z[n] = zcorn_layer[zind[n]];
+
+    for (int  n = 0; n < 4; n++) {
+        double xt;
+        double yt;
+        double xb;
+        double yb;
+
+        double zt = coord_array[pind[n] + 2];
+        double zb = coord_array[pind[n] + 5];
+
+        xt = coord_array[pind[n]];
+        yt = coord_array[pind[n] + 1];
+        xb = coord_array[pind[n] + 3];
+        yb = coord_array[pind[n] + 4];
+
+        if (zt == zb) {
+            X[n] = xt;
+            Y[n] = yt;
+        } else {
+            X[n] = xt + (xb-xt) / (zt-zb) * (zt - Z[n]);
+            Y[n] = yt+(yb-yt)/(zt-zb)*(zt-Z[n]);
+        }
+
+    }
+}
+
+
 
 }} // namespace Opm::ecl

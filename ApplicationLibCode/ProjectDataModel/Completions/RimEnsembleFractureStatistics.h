@@ -24,6 +24,7 @@
 
 class RigFractureCell;
 class RigSlice2D;
+class RigHistogramData;
 
 class Layer
 {
@@ -104,6 +105,8 @@ public:
                              const QString&                                              resultName,
                              MeshAlignmentType                                           meshAlignmentType );
 
+    bool excludeZeroWidthFractures() const;
+
 protected:
     void defineEditorAttribute( const caf::PdmFieldHandle* field,
                                 QString                    uiConfigName,
@@ -175,7 +178,15 @@ protected:
     static void sampleAllGrids( const std::vector<cvf::cref<RigFractureGrid>>& fractureGrids,
                                 const std::vector<double>&                     samplesX,
                                 const std::vector<double>&                     samplesY,
-                                std::vector<std::vector<double>>&              samples );
+                                std::vector<std::vector<double>>&              samples,
+                                std::shared_ptr<RigSlice2D>                    areaGrid,
+                                std::shared_ptr<RigSlice2D>                    distanceGrid );
+
+    static std::shared_ptr<RigSlice2D> setCellsToFillTargetArea( std::shared_ptr<RigSlice2D>& grid,
+                                                                 const RigSlice2D&            occurrenceGrid,
+                                                                 const RigSlice2D&            areaGrid,
+                                                                 const RigSlice2D&            distanceGrid,
+                                                                 double                       targetArea );
 
     static void generateStatisticsGrids(
         const std::vector<std::vector<double>>&                                               samples,
@@ -183,7 +194,10 @@ protected:
         size_t                                                                                numSamplesY,
         size_t                                                                                numGrids,
         std::map<RimEnsembleFractureStatistics::StatisticsType, std::shared_ptr<RigSlice2D>>& statisticsGrids,
-        const std::vector<caf::AppEnum<RimEnsembleFractureStatistics::StatisticsType>>&       statisticsTypes );
+        const std::vector<caf::AppEnum<RimEnsembleFractureStatistics::StatisticsType>>&       statisticsTypes,
+        const RigHistogramData&                                                               areaHistogram,
+        std::shared_ptr<RigSlice2D>                                                           areaGrid,
+        std::shared_ptr<RigSlice2D>                                                           distanceGrid );
 
     static bool writeStatisticsToCsv( const QString& filePath, const RigSlice2D& samples );
 
@@ -195,6 +209,7 @@ protected:
     caf::PdmField<std::vector<caf::FilePath>>      m_filePaths;
     caf::PdmField<QString>                         m_filePathsTable;
     caf::PdmField<QString>                         m_statisticsTable;
+    caf::PdmField<bool>                            m_excludeZeroWidthFractures;
     caf::PdmField<bool>                            m_computeStatistics;
     caf::PdmField<int>                             m_numSamplesX;
     caf::PdmField<int>                             m_numSamplesY;

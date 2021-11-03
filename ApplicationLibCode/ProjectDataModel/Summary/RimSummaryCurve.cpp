@@ -24,7 +24,6 @@
 #include "RiaLogging.h"
 #include "RiaPreferencesSummary.h"
 #include "RiaResultNames.h"
-#include "RiaStatisticsTools.h"
 #include "RiaSummaryCurveDefinition.h"
 #include "RiaSummaryTools.h"
 
@@ -78,7 +77,7 @@ RimSummaryCurve::RimSummaryCurve()
     m_yValuesSummaryAddressUiField.uiCapability()->setUiEditorTypeName( caf::PdmUiLineEditor::uiEditorTypeName() );
 
     CAF_PDM_InitFieldNoDefault( &m_yValuesSummaryAddress, "SummaryAddress", "Summary Address", "", "", "" );
-    m_yValuesSummaryAddress.uiCapability()->setUiHidden( true );
+    m_yValuesSummaryAddress.uiCapability()->setUiTreeHidden( true );
     m_yValuesSummaryAddress.uiCapability()->setUiTreeChildrenHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_yPushButtonSelectSummaryAddress, "SelectAddress", "", "", "", "" );
@@ -100,7 +99,7 @@ RimSummaryCurve::RimSummaryCurve()
     m_xValuesSummaryAddressUiField.uiCapability()->setUiEditorTypeName( caf::PdmUiLineEditor::uiEditorTypeName() );
 
     CAF_PDM_InitFieldNoDefault( &m_xValuesSummaryAddress, "SummaryAddressX", "Summary Address", "", "", "" );
-    m_xValuesSummaryAddress.uiCapability()->setUiHidden( true );
+    m_xValuesSummaryAddress.uiCapability()->setUiTreeHidden( true );
     m_xValuesSummaryAddress.uiCapability()->setUiTreeChildrenHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_xPushButtonSelectSummaryAddress, "SelectAddressX", "", "", "", "" );
@@ -118,7 +117,7 @@ RimSummaryCurve::RimSummaryCurve()
     CAF_PDM_InitFieldNoDefault( &m_plotAxis, "PlotAxis", "Axis", "", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_curveNameConfig, "SummaryCurveNameConfig", "SummaryCurveNameConfig", "", "", "" );
-    m_curveNameConfig.uiCapability()->setUiHidden( true );
+    m_curveNameConfig.uiCapability()->setUiTreeHidden( true );
     m_curveNameConfig.uiCapability()->setUiTreeChildrenHidden( true );
 
     m_curveNameConfig = new RimSummaryCurveAutoName;
@@ -126,18 +125,18 @@ RimSummaryCurve::RimSummaryCurve()
     CAF_PDM_InitField( &m_isTopZWithinCategory, "isTopZWithinCategory", false, "", "", "", "" );
     m_isTopZWithinCategory.uiCapability()->setUiHidden( true );
 
-    m_symbolSkipPixelDistance = 10.0f;
-    m_curveThickness          = 2;
+    setSymbolSkipDistance( 10.0f );
+    setLineThickness( 2 );
 
     CAF_PDM_InitFieldNoDefault( &m_yValuesSummaryFilter_OBSOLETE, "VarListFilter", "Filter", "", "", "" );
     m_yValuesSummaryFilter_OBSOLETE.uiCapability()->setUiTreeChildrenHidden( true );
-    m_yValuesSummaryFilter_OBSOLETE.uiCapability()->setUiHidden( true );
+    m_yValuesSummaryFilter_OBSOLETE.uiCapability()->setUiTreeHidden( true );
     m_yValuesSummaryFilter_OBSOLETE.xmlCapability()->setIOWritable( false );
     m_yValuesSummaryFilter_OBSOLETE = new RimSummaryFilter_OBSOLETE;
 
     CAF_PDM_InitFieldNoDefault( &m_xValuesSummaryFilter_OBSOLETE, "VarListFilterX", "Filter", "", "", "" );
     m_xValuesSummaryFilter_OBSOLETE.uiCapability()->setUiTreeChildrenHidden( true );
-    m_xValuesSummaryFilter_OBSOLETE.uiCapability()->setUiHidden( true );
+    m_xValuesSummaryFilter_OBSOLETE.uiCapability()->setUiTreeHidden( true );
     m_xValuesSummaryFilter_OBSOLETE.xmlCapability()->setIOWritable( false );
     m_xValuesSummaryFilter_OBSOLETE = new RimSummaryFilter_OBSOLETE;
 
@@ -381,7 +380,8 @@ double RimSummaryCurve::yValueAtTimeT( time_t time ) const
         }
         else if ( i < timeSteps.size() - 1u && timeSteps[i] < time && time < timeSteps[i + 1] )
         {
-            if ( m_curveInterpolation == RiuQwtPlotCurveDefines::CurveInterpolationEnum::INTERPOLATION_STEP_LEFT )
+            if ( m_curveAppearance->interpolation() ==
+                 RiuQwtPlotCurveDefines::CurveInterpolationEnum::INTERPOLATION_STEP_LEFT )
             {
                 return values[i + 1];
             }
@@ -745,6 +745,8 @@ void RimSummaryCurve::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrderi
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCurve::initAfterRead()
 {
+    RimStackablePlotCurve::initAfterRead();
+
     if ( m_isEnsembleCurve().isPartiallyTrue() )
     {
         m_isEnsembleCurve.v() = ( summaryCaseY() && summaryCaseY()->ensemble() ) ? caf::Tristate::State::True
@@ -941,11 +943,6 @@ QString RimSummaryCurve::curveExportDescription( const RifEclipseSummaryAddress&
     auto group    = curveSet ? curveSet->summaryCaseCollection() : nullptr;
 
     auto addressUiText = addr.uiText();
-    if ( addr.category() == RifEclipseSummaryAddress::SUMMARY_ENSEMBLE_STATISTICS )
-    {
-        addressUiText =
-            RiaStatisticsTools::replacePercentileByPValueText( QString::fromStdString( addressUiText ) ).toStdString();
-    }
 
     if ( group && group->isEnsemble() )
     {
@@ -982,7 +979,7 @@ void RimSummaryCurve::setCurveAppearanceFromCaseType()
 
         if ( prefs->defaultSummaryHistoryCurveStyle() == RiaPreferencesSummary::SummaryHistoryCurveStyleMode::SYMBOLS )
         {
-            m_symbolEdgeColor = m_curveColor;
+            setSymbolEdgeColor( m_curveAppearance->color() );
 
             setSymbol( RiuQwtSymbol::SYMBOL_XCROSS );
             setLineStyle( RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_NONE );
@@ -990,7 +987,7 @@ void RimSummaryCurve::setCurveAppearanceFromCaseType()
         else if ( prefs->defaultSummaryHistoryCurveStyle() ==
                   RiaPreferencesSummary::SummaryHistoryCurveStyleMode::SYMBOLS_AND_LINES )
         {
-            m_symbolEdgeColor = m_curveColor;
+            setSymbolEdgeColor( m_curveAppearance->color() );
 
             setSymbol( RiuQwtSymbol::SYMBOL_XCROSS );
             setLineStyle( RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_SOLID );
@@ -1268,11 +1265,12 @@ void RimSummaryCurve::calculateCurveInterpolationFromAddress()
         auto address = m_yValuesSummaryAddress()->address();
         if ( RiaSummaryTools::hasAccumulatedData( address ) )
         {
-            m_curveInterpolation = RiuQwtPlotCurveDefines::CurveInterpolationEnum::INTERPOLATION_POINT_TO_POINT;
+            m_curveAppearance->setInterpolation(
+                RiuQwtPlotCurveDefines::CurveInterpolationEnum::INTERPOLATION_POINT_TO_POINT );
         }
         else
         {
-            m_curveInterpolation = RiuQwtPlotCurveDefines::CurveInterpolationEnum::INTERPOLATION_STEP_LEFT;
+            m_curveAppearance->setInterpolation( RiuQwtPlotCurveDefines::CurveInterpolationEnum::INTERPOLATION_STEP_LEFT );
         }
     }
 }

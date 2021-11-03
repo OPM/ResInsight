@@ -47,7 +47,7 @@ class RicExportEclipseSectorModelUi : public caf::PdmObject
         EXPORT_TO_SINGLE_SEPARATE_FILE,
         EXPORT_TO_SEPARATE_FILE_PER_RESULT
     };
-    typedef caf::AppEnum<ResultExportOptions> ResultExportOptionsEnum;
+    using ResultExportOptionsEnum = caf::AppEnum<ResultExportOptions>;
 
     enum GridBoxSelection
     {
@@ -56,7 +56,7 @@ class RicExportEclipseSectorModelUi : public caf::PdmObject
         FULL_GRID_BOX,
         MANUAL_SELECTION
     };
-    typedef caf::AppEnum<GridBoxSelection> GridBoxSelectionEnum;
+    using GridBoxSelectionEnum = caf::AppEnum<GridBoxSelection>;
 
 public:
     RicExportEclipseSectorModelUi();

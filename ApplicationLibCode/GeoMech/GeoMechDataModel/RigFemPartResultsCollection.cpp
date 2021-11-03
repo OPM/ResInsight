@@ -178,8 +178,12 @@ RigFemPartResultsCollection::RigFemPartResultsCollection( RifGeoMechReaderInterf
         std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorNE( *this ) ) );
     m_resultCalculators.push_back(
         std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorGamma( *this ) ) );
-    m_resultCalculators.push_back(
-        std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorPrincipalStrain( *this ) ) );
+    m_resultCalculators.push_back( std::unique_ptr<RigFemPartResultCalculator>(
+        new RigFemPartResultCalculatorPrincipalStrain( *this, "NE", "E" ) ) );
+    m_resultCalculators.push_back( std::unique_ptr<RigFemPartResultCalculator>(
+        new RigFemPartResultCalculatorPrincipalStrain( *this, "LE", "LE" ) ) );
+    m_resultCalculators.push_back( std::unique_ptr<RigFemPartResultCalculator>(
+        new RigFemPartResultCalculatorPrincipalStrain( *this, "PE", "PE" ) ) );
     m_resultCalculators.push_back(
         std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorPrincipalStress( *this ) ) );
     m_resultCalculators.push_back(
@@ -503,36 +507,35 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::findOrLoadScalarResult( i
         {
             std::vector<double> frameTimes = m_readerInterface->frameTimes( stepIndex );
 
-            for ( int fIdx = 1; (size_t)fIdx < frameTimes.size() && fIdx < 2; ++fIdx ) // Read only the second frame
-            {
-                std::vector<std::vector<float>*> componentDataVectors;
-                for ( auto& componentResult : resultsForEachComponent )
-                {
-                    componentDataVectors.push_back( &( componentResult->frameData( stepIndex ) ) );
-                }
+            int fIdx = (int)( frameTimes.size() - 1 );
 
-                switch ( resVarAddr.resultPosType )
-                {
-                    case RIG_NODAL:
-                        m_readerInterface->readNodeField( resVarAddr.fieldName, partIndex, stepIndex, fIdx, &componentDataVectors );
-                        break;
-                    case RIG_ELEMENT_NODAL:
-                        m_readerInterface->readElementNodeField( resVarAddr.fieldName,
-                                                                 partIndex,
-                                                                 stepIndex,
-                                                                 fIdx,
-                                                                 &componentDataVectors );
-                        break;
-                    case RIG_INTEGRATION_POINT:
-                        m_readerInterface->readIntegrationPointField( resVarAddr.fieldName,
-                                                                      partIndex,
-                                                                      stepIndex,
-                                                                      fIdx,
-                                                                      &componentDataVectors );
-                        break;
-                    default:
-                        break;
-                }
+            std::vector<std::vector<float>*> componentDataVectors;
+            for ( auto& componentResult : resultsForEachComponent )
+            {
+                componentDataVectors.push_back( &( componentResult->frameData( stepIndex ) ) );
+            }
+
+            switch ( resVarAddr.resultPosType )
+            {
+                case RIG_NODAL:
+                    m_readerInterface->readNodeField( resVarAddr.fieldName, partIndex, stepIndex, fIdx, &componentDataVectors );
+                    break;
+                case RIG_ELEMENT_NODAL:
+                    m_readerInterface->readElementNodeField( resVarAddr.fieldName,
+                                                             partIndex,
+                                                             stepIndex,
+                                                             fIdx,
+                                                             &componentDataVectors );
+                    break;
+                case RIG_INTEGRATION_POINT:
+                    m_readerInterface->readIntegrationPointField( resVarAddr.fieldName,
+                                                                  partIndex,
+                                                                  stepIndex,
+                                                                  fIdx,
+                                                                  &componentDataVectors );
+                    break;
+                default:
+                    break;
             }
 
             progress.incrementProgress();
@@ -678,6 +681,20 @@ std::map<std::string, std::vector<std::string>>
             fieldCompNames["MUD-WEIGHT"].push_back( "MWM" );
             fieldCompNames["MUD-WEIGHT"].push_back( "UMWL" );
             fieldCompNames["MUD-WEIGHT"].push_back( "LMWL" );
+
+            if ( fieldCompNames.count( "LE" ) > 0 )
+            {
+                fieldCompNames["LE"].push_back( "LE1" );
+                fieldCompNames["LE"].push_back( "LE2" );
+                fieldCompNames["LE"].push_back( "LE3" );
+            }
+
+            if ( fieldCompNames.count( "PE" ) > 0 )
+            {
+                fieldCompNames["PE"].push_back( "PE1" );
+                fieldCompNames["PE"].push_back( "PE2" );
+                fieldCompNames["PE"].push_back( "PE3" );
+            }
         }
         else if ( resPos == RIG_INTEGRATION_POINT )
         {
@@ -768,6 +785,20 @@ std::map<std::string, std::vector<std::string>>
             fieldCompNames["MUD-WEIGHT"].push_back( "MWM" );
             fieldCompNames["MUD-WEIGHT"].push_back( "UMWL" );
             fieldCompNames["MUD-WEIGHT"].push_back( "LMWL" );
+
+            if ( fieldCompNames.count( "LE" ) > 0 )
+            {
+                fieldCompNames["LE"].push_back( "LE1" );
+                fieldCompNames["LE"].push_back( "LE2" );
+                fieldCompNames["LE"].push_back( "LE3" );
+            }
+
+            if ( fieldCompNames.count( "PE" ) > 0 )
+            {
+                fieldCompNames["PE"].push_back( "PE1" );
+                fieldCompNames["PE"].push_back( "PE2" );
+                fieldCompNames["PE"].push_back( "PE3" );
+            }
         }
         else if ( resPos == RIG_ELEMENT_NODAL_FACE )
         {
@@ -998,7 +1029,7 @@ void RigFemPartResultsCollection::deleteResultForAllTimeSteps( const std::vector
     {
         auto resToDelete = res;
 
-        resToDelete.timeLapseBaseFrameIdx = RigFemResultAddress::allTimeLapsesValue();
+        resToDelete.timeLapseBaseStepIdx = RigFemResultAddress::allTimeLapsesValue();
 
         deleteResult( resToDelete );
     }
@@ -1041,6 +1072,54 @@ const std::vector<float>&
 
     RigFemScalarResultFrames* scalarResults = findOrLoadScalarResult( partIndex, resVarAddr );
     return scalarResults->frameData( frameIndex );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigFemPartResultsCollection::globalResultValues( const RigFemResultAddress& resVarAddr,
+                                                      int                        timeStepIndex,
+                                                      std::vector<float>&        resultValues )
+{
+    CVF_ASSERT( resVarAddr.isValid() );
+
+    for ( int i = 0; i < partCount(); i++ )
+    {
+        const std::vector<float>& partResults = this->resultValues( resVarAddr, i, (int)timeStepIndex );
+        if ( partResults.empty() )
+        {
+            size_t expectedSize = 0;
+
+            switch ( resVarAddr.resultPosType )
+            {
+                case RIG_NODAL:
+                    expectedSize = m_femParts->part( i )->nodes().nodeIds.size();
+                    break;
+
+                case RIG_ELEMENT_NODAL:
+                case RIG_INTEGRATION_POINT:
+                    expectedSize = m_femParts->part( i )->elementNodeResultCount();
+                    break;
+
+                case RIG_ELEMENT_NODAL_FACE:
+                    expectedSize = m_femParts->part( i )->elementCount() * 6;
+                    break;
+
+                case RIG_ELEMENT:
+                    expectedSize = m_femParts->part( i )->elementCount();
+                    break;
+
+                default:
+                    break;
+            }
+
+            resultValues.resize( resultValues.size() + expectedSize, NAN );
+        }
+        else
+        {
+            resultValues.insert( resultValues.end(), partResults.begin(), partResults.end() );
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -18,15 +18,16 @@
 
 #pragma once
 
-#include "RimEclipseInputProperty.h"
+#include <QString>
 
+#include <map>
 #include <set>
 #include <vector>
 
-#include <QString>
-
 class RimEclipseInputPropertyCollection;
 class RigEclipseCaseData;
+class RifEclipseKeywordContent;
+
 namespace caf
 {
 class ProgressInfo;
@@ -45,34 +46,30 @@ public:
                                                   const std::vector<QString>&        filenames,
                                                   bool                               allowImportOfFaults );
 
-    static bool readInputPropertiesFromFiles( RimEclipseInputPropertyCollection* inputPropertyCollection,
-                                              RigEclipseCaseData*                eclipseCaseData,
-                                              bool                               importFaults,
-                                              const std::vector<QString>&        filenames );
-
-    static bool importFaultsFromFile( RigEclipseCaseData* eclipseCase, const QString& fileName );
+    static void createInputPropertiesFromKeywords( RigEclipseCaseData*                          eclipseCase,
+                                                   const std::vector<RifEclipseKeywordContent>& keywordContent );
 
 private:
     // Hide constructor to prevent instantiation
     RifEclipseInputPropertyLoader();
 
-    static std::set<QString> extractKeywordsOnFile( const QString& filename, bool isExistingFile );
+    // Returns map of assigned resultName and Eclipse Keyword.
+    static std::map<QString, QString> readProperties( const QString& fileName, RigEclipseCaseData* eclipseCase );
 
-    static void setResolvedState( RimEclipseInputPropertyCollection*    inputPropertyCollection,
-                                  RimEclipseInputProperty::ResolveState currentState,
-                                  RimEclipseInputProperty::ResolveState newState );
+    static const std::vector<QString>& invalidPropertyDataKeywords();
+    static bool                        isValidDataKeyword( const QString& keyword );
 
-    static void readDataForEachInputProperty( RimEclipseInputPropertyCollection* inputPropertyCollection,
-                                              RigEclipseCaseData*                eclipseCaseData,
-                                              const QString&                     filename,
-                                              bool                               isExistingFile,
-                                              bool                               allowImportOfFaults,
-                                              std::set<QString>*                 fileKeywordSet,
-                                              caf::ProgressInfo*                 progressInfo,
-                                              int                                progressOffset );
+    static bool isInputPropertyCandidate( const RigEclipseCaseData* caseData,
+                                          const std::string&        eclipseKeyword,
+                                          size_t                    numberOfValues );
 
-    static void readInputPropertiesForRemainingKeywords( RimEclipseInputPropertyCollection* inputPropertyCollection,
-                                                         RigEclipseCaseData*                eclipseCaseData,
-                                                         const QString&                     filename,
-                                                         std::set<QString>*                 fileKeywordSet );
+    static bool appendNewInputPropertyResult( RigEclipseCaseData*       caseData,
+                                              const QString&            resultName,
+                                              const std::string&        eclipseKeyword,
+                                              const std::vector<float>& values,
+                                              QString*                  errMsg );
+
+    static QString evaluateAndCreateInputPropertyResult( RigEclipseCaseData*             eclipseCase,
+                                                         const RifEclipseKeywordContent& keywordContent,
+                                                         QString*                        errorMessage );
 };

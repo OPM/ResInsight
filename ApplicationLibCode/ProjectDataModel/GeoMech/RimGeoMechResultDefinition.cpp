@@ -384,7 +384,7 @@ void RimGeoMechResultDefinition::fieldChangedByUi( const caf::PdmFieldHandle* ch
 
     if ( &m_resultVariableUiField == changedField || &m_compactionRefLayerUiField == changedField ||
          &m_timeLapseBaseTimestep == changedField || &m_normalizeByHydrostaticPressure == changedField ||
-         &m_normalizationAirGap == changedField || &m_referenceTimeStep == changedField )
+         &m_normalizationAirGap == changedField || &m_referenceTimeStep == changedField || &m_isChecked == changedField )
     {
         QStringList fieldComponentNames = m_resultVariableUiField().split( QRegExp( "\\s+" ) );
         if ( fieldComponentNames.size() > 0 )
@@ -409,12 +409,6 @@ void RimGeoMechResultDefinition::fieldChangedByUi( const caf::PdmFieldHandle* ch
                 }
 
                 m_compactionRefLayer = m_compactionRefLayerUiField();
-            }
-
-            if ( m_geomCase->geoMechData() &&
-                 m_geomCase->geoMechData()->femPartResults()->assertResultsLoaded( this->resultAddress() ) )
-            {
-                if ( view ) view->hasUserRequestedAnimation = true;
             }
 
             if ( propFilter )
@@ -649,7 +643,7 @@ RigFemResultAddress RimGeoMechResultDefinition::resultAddress() const
 
         if ( RigFemPartResultsCollection::isReferenceCaseDependentResult( address ) )
         {
-            address.timeLapseBaseFrameIdx = RigFemResultAddress::noTimeLapseValue();
+            address.timeLapseBaseStepIdx = RigFemResultAddress::noTimeLapseValue();
         }
 
         return address;
@@ -677,6 +671,8 @@ RigFemResultPosEnum RimGeoMechResultDefinition::resultPositionType() const
 //--------------------------------------------------------------------------------------------------
 QString RimGeoMechResultDefinition::resultFieldName() const
 {
+    if ( !isChecked() ) return "";
+
     return m_resultFieldName();
 }
 
@@ -929,7 +925,7 @@ void RimGeoMechResultDefinition::setResultAddress( const RigFemResultAddress& re
     m_resultPositionType             = resultAddress.resultPosType;
     m_resultFieldName                = QString::fromStdString( resultAddress.fieldName );
     m_resultComponentName            = QString::fromStdString( resultAddress.componentName );
-    m_timeLapseBaseTimestep          = resultAddress.timeLapseBaseFrameIdx;
+    m_timeLapseBaseTimestep          = resultAddress.timeLapseBaseStepIdx;
     m_compactionRefLayer             = resultAddress.refKLayerIndex;
     m_normalizeByHydrostaticPressure = resultAddress.normalizedByHydrostaticPressure;
 

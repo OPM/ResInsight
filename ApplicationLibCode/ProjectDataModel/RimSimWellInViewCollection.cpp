@@ -37,6 +37,7 @@
 #include "RimSimWellFractureCollection.h"
 #include "RimSimWellInView.h"
 #include "RimSimWellInViewTools.h"
+#include "RimVirtualPerforationResults.h"
 #include "RimWellAllocationPlot.h"
 #include "RimWellDiskConfig.h"
 
@@ -50,6 +51,7 @@
 #include "cafPdmUiCheckBoxTristateEditor.h"
 #include "cafPdmUiListEditor.h"
 #include "cafPdmUiPushButtonEditor.h"
+#include "cafPdmUiTreeOrdering.h"
 
 #include <set>
 
@@ -224,7 +226,7 @@ RimSimWellInViewCollection::RimSimWellInViewCollection()
                        "" );
 
     CAF_PDM_InitFieldNoDefault( &wells, "Wells", "Wells", "", "", "" );
-    wells.uiCapability()->setUiHidden( true );
+    wells.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_showWellCellFence, "ShowWellCellFenceTristate", "Show Well Cell Fence", "", "", "" );
     m_showWellCellFence.uiCapability()->setUiEditorTypeName( caf::PdmUiCheckBoxTristateEditor::uiEditorTypeName() );
@@ -366,13 +368,6 @@ void RimSimWellInViewCollection::fieldChangedByUi( const caf::PdmFieldHandle* ch
     if ( &isActive == changedField )
     {
         this->updateUiIconFromToggleField();
-
-        Rim3dView* view;
-        firstAncestorOrThisOfType( view );
-        if ( view )
-        {
-            view->hasUserRequestedAnimation = true;
-        }
     }
 
     if ( &m_showWellLabel == changedField )
@@ -596,6 +591,19 @@ QList<caf::PdmOptionItemInfo>
     }
 
     return options;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSimWellInViewCollection::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering,
+                                                       QString                 uiConfigName /*= "" */ )
+{
+    if ( m_reservoirView && m_reservoirView->virtualPerforationResult() )
+    {
+        auto uiTree = m_reservoirView->virtualPerforationResult()->uiTreeOrdering( uiConfigName );
+        uiTreeOrdering.appendChild( uiTree );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -35,6 +35,7 @@
 
 #include "RigFemPart.h"
 #include "RigFemPartCollection.h"
+#include "RigFemTypes.h"
 
 #include "cafProgressInfo.h"
 #include <QString>
@@ -97,14 +98,16 @@ size_t RifOdbReader::sm_instanceCount = 0;
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-
 std::map<std::string, RigElementType> initFemTypeMap()
 {
     std::map<std::string, RigElementType> typeMap;
-    typeMap["C3D8R"] = HEX8;
-    typeMap["C3D8"]  = HEX8;
-    typeMap["C3D8P"] = HEX8P;
-    typeMap["CAX4"]  = CAX4;
+    typeMap["C3D8R"]   = HEX8;
+    typeMap["C3D8"]    = HEX8;
+    typeMap["C3D8P"]   = HEX8P;
+    typeMap["CAX4"]    = CAX4;
+    typeMap["C3D20RT"] = HEX8;
+    typeMap["C3D8RT"]  = HEX8;
+    typeMap["C3D8R"]   = HEX8;
 
     return typeMap;
 }
@@ -127,30 +130,6 @@ RigElementType toRigElementType( const odb_String& odbTypeName )
     }
 
     return it->second;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-
-const int* localElmNodeToIntegrationPointMapping( RigElementType elmType )
-{
-    static const int HEX8_Mapping[8] = { 0, 1, 3, 2, 4, 5, 7, 6 };
-
-    switch ( elmType )
-    {
-        case HEX8:
-        case HEX8P:
-            return HEX8_Mapping;
-            break;
-        case CAX4:
-            return HEX8_Mapping; // First four is identical to HEX8
-            break;
-        default:
-            // assert(false); // Element type not supported
-            break;
-    }
-    return NULL;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -271,8 +250,8 @@ std::map<RifOdbReader::RifOdbResultKey, std::vector<std::string>> RifOdbReader::
 
     if ( stepFrames.size() > 1 )
     {
-        // Optimization: Get results metadata for the second frame of the first step only
-        const odb_Frame& frame = stepFrames.constGet( 1 );
+        // Optimization: Get results metadata for the last frame of the first step only
+        const odb_Frame& frame = stepFrames.constGet( stepFrames.size() - 1 );
 
         const odb_FieldOutputRepository& fieldCon = frame.fieldOutputs();
         odb_FieldOutputRepositoryIT      fieldConIT( fieldCon );
@@ -335,7 +314,7 @@ bool RifOdbReader::readFemParts( RigFemPartCollection* femParts )
     odb_InstanceRepository   instanceRepository = m_odb->rootAssembly().instances();
     odb_InstanceRepositoryIT iter( instanceRepository );
 
-    caf::ProgressInfo modelProgress( instanceRepository.size() * ( 2 + 4 ), "Reading Odb Parts" );
+    caf::ProgressInfo modelProgress( instanceRepository.size() * ( size_t )( 2 + 4 ), "Reading Odb Parts" );
 
     int instanceCount = 0;
     for ( iter.first(); !iter.isDone(); iter.next(), instanceCount++ )
@@ -343,9 +322,13 @@ bool RifOdbReader::readFemParts( RigFemPartCollection* femParts )
         modelProgress.setProgressDescription( QString( iter.currentKey().cStr() ) + ": Reading Nodes" );
         m_nodeIdToIdxMaps.push_back( std::map<int, int>() );
 
-        odb_Instance& inst = instanceRepository[iter.currentKey()];
+        const auto& key = iter.currentKey();
+
+        odb_Instance& inst = instanceRepository[key];
 
         RigFemPart* femPart = new RigFemPart;
+
+        femPart->setName( key.cStr() );
 
         // Extract nodes
         const odb_SequenceNode& odbNodes = inst.nodes();
@@ -372,7 +355,7 @@ bool RifOdbReader::readFemParts( RigFemPartCollection* femParts )
         }
 
         modelProgress.incrementProgress();
-        modelProgress.setProgressDescription( QString( iter.currentKey().cStr() ) + ": Reading Elements" );
+        modelProgress.setProgressDescription( QString( key.cStr() ) + ": Reading Elements" );
 
         // Extract elements
         const odb_SequenceElement& elements = inst.elements();
@@ -396,6 +379,8 @@ bool RifOdbReader::readFemParts( RigFemPartCollection* femParts )
 
             int        nodeCount             = 0;
             const int* idBasedConnectivities = odbElm.connectivity( nodeCount );
+            nodeCount                        = std::min( nodeCount, RigFemTypes::elementNodeCount( elmType ) );
+
             CVF_TIGHT_ASSERT( nodeCount == RigFemTypes::elementNodeCount( elmType ) );
 
             indexBasedConnectivities.resize( nodeCount );
@@ -633,22 +618,60 @@ odb_Instance* RifOdbReader::instance( int instanceIndex )
 //--------------------------------------------------------------------------------------------------
 /// Get the number of result items (== #nodes or #elements)
 //--------------------------------------------------------------------------------------------------
-size_t RifOdbReader::resultItemCount( const std::string& fieldName, int partIndex, int stepIndex, int frameIndex )
+size_t RifOdbReader::resultItemCount( const std::string& fieldName,
+                                      int                partIndex,
+                                      int                stepIndex,
+                                      int                frameIndex,
+                                      ResultPosition     resultPosition )
 {
     odb_Instance* partInstance = instance( partIndex );
     CVF_ASSERT( partInstance != NULL );
 
     const odb_Frame&       frame               = stepFrame( stepIndex, frameIndex );
     const odb_FieldOutput& instanceFieldOutput = frame.fieldOutputs()[fieldName.c_str()].getSubset( *partInstance );
-    const odb_SequenceFieldBulkData& seqFieldBulkData = instanceFieldOutput.bulkDataBlocks();
+
+    odb_Enum::odb_ResultPositionEnum odbResultPos = odb_Enum::NODAL;
+    if ( resultPosition == ELEMENT_NODAL )
+        odbResultPos = odb_Enum::ELEMENT_NODAL;
+    else if ( resultPosition == INTEGRATION_POINT )
+        odbResultPos = odb_Enum::INTEGRATION_POINT;
+
+    const odb_FieldOutput&           subsetOutput     = instanceFieldOutput.getSubset( odbResultPos );
+    const odb_SequenceFieldBulkData& seqFieldBulkData = subsetOutput.bulkDataBlocks();
 
     size_t resultItemCount = 0;
     int    numBlocks       = seqFieldBulkData.size();
 
     for ( int block = 0; block < numBlocks; block++ )
     {
-        const odb_FieldBulkData& bulkData = seqFieldBulkData[block];
-        resultItemCount += bulkData.length();
+        const odb_FieldBulkData& bulkData  = seqFieldBulkData[block];
+        int                      numValues = bulkData.length();
+
+        if ( resultPosition == INTEGRATION_POINT )
+        {
+            int numValues = bulkData.length();
+            int elemCount = bulkData.numberOfElements();
+            int ipCount   = numValues / elemCount;
+
+            // handle reduced integration point elements by using the same value 8 times
+            if ( ipCount == 1 )
+                resultItemCount += numValues * 8;
+            else
+                resultItemCount += numValues;
+        }
+        else if ( resultPosition == ELEMENT_NODAL )
+        {
+            int numValues     = bulkData.length();
+            int elemCount     = bulkData.numberOfElements();
+            int elemNodeCount = numValues / elemCount;
+
+            // handle that we use just 8 nodes per element
+            resultItemCount += elemCount * std::min( elemNodeCount, 8 );
+        }
+        else
+        {
+            resultItemCount += numValues;
+        }
     }
 
     return resultItemCount;
@@ -713,7 +736,7 @@ void RifOdbReader::readDisplacements( int partIndex, int stepIndex, int frameInd
     odb_Instance* partInstance = instance( partIndex );
     CVF_ASSERT( partInstance != NULL );
 
-    size_t dataSize = resultItemCount( "U", partIndex, stepIndex, frameIndex );
+    size_t dataSize = resultItemCount( "U", partIndex, stepIndex, frameIndex, NODAL );
     if ( dataSize > 0 )
     {
         displacements->resize( dataSize );
@@ -821,7 +844,7 @@ void RifOdbReader::readElementNodeField( const std::string&                field
     size_t compCount = componentsCount( fieldName, ELEMENT_NODAL );
     CVF_ASSERT( compCount == resultValues->size() );
 
-    size_t dataSize = resultItemCount( fieldName, partIndex, stepIndex, frameIndex );
+    size_t dataSize = resultItemCount( fieldName, partIndex, stepIndex, frameIndex, ELEMENT_NODAL );
     if ( dataSize > 0 )
     {
         for ( int comp = 0; comp < compCount; comp++ )
@@ -853,13 +876,16 @@ void RifOdbReader::readElementNodeField( const std::string&                field
         int*   elementLabels = bulkData.elementLabels();
         float* data          = bulkDataGetter.data();
 
+        // use max HEX8 nodes
+        int usedElemNodeCount = std::min( elemNodeCount, 8 );
+
         for ( int elem = 0; elem < elemCount; elem++ )
         {
             int elementIdx                  = elementIdToIdxMap[elementLabels[elem * elemNodeCount]];
-            int elementResultStartDestIdx   = elementIdx * elemNodeCount; // Ikke generellt riktig !
+            int elementResultStartDestIdx   = elementIdx * usedElemNodeCount;
             int elementResultStartSourceIdx = elem * elemNodeCount * numComp;
 
-            for ( int elemNode = 0; elemNode < elemNodeCount; elemNode++ )
+            for ( int elemNode = 0; elemNode < usedElemNodeCount; elemNode++ )
             {
                 int destIdx = elementResultStartDestIdx + elemNode;
                 int srcIdx  = elementResultStartSourceIdx + elemNode * numComp;
@@ -890,7 +916,7 @@ void RifOdbReader::readIntegrationPointField( const std::string&                
     size_t compCount = componentsCount( fieldName, INTEGRATION_POINT );
     CVF_ASSERT( compCount == resultValues->size() );
 
-    size_t dataSize = resultItemCount( fieldName, partIndex, stepIndex, frameIndex );
+    size_t dataSize = resultItemCount( fieldName, partIndex, stepIndex, frameIndex, INTEGRATION_POINT );
     if ( dataSize > 0 )
     {
         for ( int comp = 0; comp < compCount; comp++ )
@@ -919,26 +945,25 @@ void RifOdbReader::readIntegrationPointField( const std::string&                
         int    numComp       = bulkData.width();
         int    elemCount     = bulkData.numberOfElements();
         int    ipCount       = numValues / elemCount;
+        int    ipDestCount   = std::max( ipCount, 8 ); // always use max. 8 integration points in destination
         int*   elementLabels = bulkData.elementLabels();
         float* data          = bulkDataGetter.data();
 
-        RigElementType eType = toRigElementType( bulkData.baseElementType() );
-        const int*     elmNodeToIpResultMapping =
-            localElmNodeToIntegrationPointMapping( eType ); // Todo: Use the one in RigFemTypes.h, but we need to guard
-                                                            // against unknown element types first.
-        if ( !elmNodeToIpResultMapping ) continue;
+        RigElementType eType                    = toRigElementType( bulkData.baseElementType() );
+        const int*     elmNodeToIpResultMapping = RigFemTypes::localElmNodeToIntegrationPointMapping( eType );
 
         for ( int elem = 0; elem < elemCount; elem++ )
         {
             int elementIdx                  = elementIdToIdxMap[elementLabels[elem * ipCount]];
-            int elementResultStartDestIdx   = elementIdx * ipCount; // Ikke generellt riktig !
+            int elementResultStartDestIdx   = elementIdx * ipDestCount;
             int elementResultStartSourceIdx = elem * ipCount * numComp;
 
-            for ( int ipIdx = 0; ipIdx < ipCount; ipIdx++ )
+            for ( int ipIdx = 0; ipIdx < ipDestCount; ipIdx++ )
             {
-                int resultIpIdx = elmNodeToIpResultMapping[ipIdx];
-                int destIdx     = elementResultStartDestIdx + ipIdx;
+                int resultIpIdx = elmNodeToIpResultMapping[std::min( ipIdx, ipCount - 1 )];
                 int srcIdx      = elementResultStartSourceIdx + resultIpIdx * numComp;
+
+                int destIdx = elementResultStartDestIdx + ipIdx;
 
                 for ( int comp = 0; comp < numComp; comp++ )
                 {

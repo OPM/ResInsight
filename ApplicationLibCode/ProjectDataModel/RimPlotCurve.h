@@ -19,12 +19,15 @@
 
 #include "RifEclipseSummaryAddress.h"
 
+#include "RimPlotCurveAppearance.h"
+
 #include "RiaCurveDataTools.h"
 #include "RiaDefines.h"
 
 #include "RiuQwtPlotCurveDefines.h"
 #include "RiuQwtSymbol.h"
 
+#include "cafPdmChildField.h"
 #include "cafPdmField.h"
 #include "cafPdmFieldCvfColor.h"
 #include "cafPdmObject.h"
@@ -52,13 +55,6 @@ public:
     caf::Signal<QString> nameChanged;
 
 public:
-    typedef caf::AppEnum<RiuQwtPlotCurveDefines::CurveInterpolationEnum> CurveInterpolation;
-    typedef caf::AppEnum<RiuQwtPlotCurveDefines::LineStyleEnum>          LineStyle;
-    typedef caf::AppEnum<RiuQwtSymbol::PointSymbolEnum>                  PointSymbol;
-    typedef caf::AppEnum<RiuQwtSymbol::LabelPosition>                    LabelPosition;
-    typedef caf::AppEnum<Qt::BrushStyle>                                 FillStyle;
-
-public:
     RimPlotCurve();
     ~RimPlotCurve() override;
 
@@ -74,7 +70,7 @@ public:
     QwtPlotCurve* qwtPlotCurve() const;
 
     void                          setColor( const cvf::Color3f& color );
-    cvf::Color3f                  color() const { return m_curveColor; }
+    cvf::Color3f                  color() const;
     void                          setLineStyle( RiuQwtPlotCurveDefines::LineStyleEnum lineStyle );
     void                          setSymbol( RiuQwtSymbol::PointSymbolEnum symbolStyle );
     void                          setInterpolation( RiuQwtPlotCurveDefines::CurveInterpolationEnum );
@@ -152,13 +148,14 @@ protected:
 
 protected:
     // Overridden PDM methods
-    void                          fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
-    caf::PdmFieldHandle*          objectToggleField() override;
-    caf::PdmFieldHandle*          userDescriptionField() override;
-    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                         bool*                      useOptionsOnly ) override;
-    void                          appearanceUiOrdering( caf::PdmUiOrdering& uiOrdering );
-    void                          curveNameUiOrdering( caf::PdmUiOrdering& uiOrdering );
+    void                 fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+    caf::PdmFieldHandle* objectToggleField() override;
+    caf::PdmFieldHandle* userDescriptionField() override;
+    void                 appearanceUiOrdering( caf::PdmUiOrdering& uiOrdering );
+    void                 curveNameUiOrdering( caf::PdmUiOrdering& uiOrdering );
+
+    virtual void onCurveAppearanceChanged( const caf::SignalEmitter* emitter );
+    virtual void onFillColorChanged( const caf::SignalEmitter* emitter );
 
 private:
     bool canCurveBeAttached() const;
@@ -175,21 +172,22 @@ protected:
     caf::PdmField<QString> m_curveName;
     caf::PdmField<QString> m_customCurveName;
     caf::PdmField<bool>    m_showLegend;
-    caf::PdmField<QString> m_symbolLabel;
-    caf::PdmField<int>     m_symbolSize;
     caf::PdmField<QString> m_legendEntryText;
+    caf::PdmField<bool>    m_showErrorBars;
+    caf::PdmField<bool>    m_isUsingAutoName;
 
-    caf::PdmField<bool>         m_isUsingAutoName;
-    caf::PdmField<cvf::Color3f> m_curveColor;
-    caf::PdmField<int>          m_curveThickness;
-    caf::PdmField<float>        m_symbolSkipPixelDistance;
-    caf::PdmField<bool>         m_showErrorBars;
+    caf::PdmChildField<RimPlotCurveAppearance*> m_curveAppearance;
 
-    caf::PdmField<PointSymbol>        m_pointSymbol;
-    caf::PdmField<LineStyle>          m_lineStyle;
-    caf::PdmField<FillStyle>          m_fillStyle;
-    caf::PdmField<cvf::Color3f>       m_fillColor;
-    caf::PdmField<CurveInterpolation> m_curveInterpolation;
-    caf::PdmField<LabelPosition>      m_symbolLabelPosition;
-    caf::PdmField<cvf::Color3f>       m_symbolEdgeColor;
+    caf::PdmField<QString>                                    m_symbolLabel_OBSOLETE;
+    caf::PdmField<int>                                        m_symbolSize_OBSOLETE;
+    caf::PdmField<cvf::Color3f>                               m_curveColor_OBSOLETE;
+    caf::PdmField<int>                                        m_curveThickness_OBSOLETE;
+    caf::PdmField<float>                                      m_symbolSkipPixelDistance_OBSOLETE;
+    caf::PdmField<RimPlotCurveAppearance::PointSymbol>        m_pointSymbol_OBSOLETE;
+    caf::PdmField<RimPlotCurveAppearance::LineStyle>          m_lineStyle_OBSOLETE;
+    caf::PdmField<RimPlotCurveAppearance::FillStyle>          m_fillStyle_OBSOLETE;
+    caf::PdmField<cvf::Color3f>                               m_fillColor_OBSOLETE;
+    caf::PdmField<RimPlotCurveAppearance::CurveInterpolation> m_curveInterpolation_OBSOLETE;
+    caf::PdmField<RimPlotCurveAppearance::LabelPosition>      m_symbolLabelPosition_OBSOLETE;
+    caf::PdmField<cvf::Color3f>                               m_symbolEdgeColor_OBSOLETE;
 };

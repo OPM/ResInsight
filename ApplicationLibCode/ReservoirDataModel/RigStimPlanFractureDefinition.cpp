@@ -464,11 +464,7 @@ cvf::cref<RigFractureGrid>
             {
                 if ( cellPolygon[1].y() >= 0.0 && cellPolygon[2].y() <= 0.0 )
                 {
-                    wellCenterStimPlanCellIJ = std::make_pair( stimPlanCell.getI(), stimPlanCell.getJ() );
-                    RiaLogging::debug(
-                        QString( "Setting wellCenterStimPlanCell at cell %1, %2" )
-                            .arg( QString::number( stimPlanCell.getI() ), QString::number( stimPlanCell.getJ() ) ) );
-
+                    wellCenterStimPlanCellIJ    = std::make_pair( stimPlanCell.getI(), stimPlanCell.getJ() );
                     wellCenterStimPlanCellFound = true;
                 }
             }
@@ -487,6 +483,7 @@ cvf::cref<RigFractureGrid>
     fractureGrid->setWellCenterFractureCellIJ( wellCenterStimPlanCellIJ );
     fractureGrid->setICellCount( this->m_Xs.size() - 2 );
     fractureGrid->setJCellCount( this->m_Ys.size() - 2 );
+    fractureGrid->ensureCellSearchTreeIsBuilt();
 
     return cvf::cref<RigFractureGrid>( fractureGrid.p() );
 }

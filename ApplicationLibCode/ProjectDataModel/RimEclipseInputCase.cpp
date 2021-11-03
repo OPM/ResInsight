@@ -111,6 +111,8 @@ bool RimEclipseInputCase::openDataFileSet( const QStringList& fileNames )
 
     std::vector<QString> allErrorMessages;
 
+    QString gridFileName;
+
     // First find and read the grid data
     if ( this->eclipseCaseData()->mainGrid()->gridPointDimensions() == cvf::Vec3st( 0, 0, 0 ) )
     {
@@ -120,6 +122,7 @@ bool RimEclipseInputCase::openDataFileSet( const QStringList& fileNames )
             if ( RifEclipseInputFileTools::openGridFile( fileNames[i], this->eclipseCaseData(), importFaults, &errorMessages ) )
             {
                 setGridFileName( fileNames[i] );
+                gridFileName = fileNames[i];
 
                 QFileInfo gridFileName( fileNames[i] );
                 QString   caseName = gridFileName.completeBaseName();
@@ -154,6 +157,8 @@ bool RimEclipseInputCase::openDataFileSet( const QStringList& fileNames )
     std::vector<QString> filesToRead;
     for ( const QString& filename : fileNames )
     {
+        if ( filename == gridFileName ) continue;
+
         bool exists = false;
         for ( const QString& currentFileName : additionalFiles() )
         {
@@ -169,15 +174,17 @@ bool RimEclipseInputCase::openDataFileSet( const QStringList& fileNames )
         }
     }
 
-    RifEclipseInputPropertyLoader::readInputPropertiesFromFiles( m_inputPropertyCollection,
-                                                                 this->eclipseCaseData(),
-                                                                 importFaults,
-                                                                 filesToRead );
+    RifEclipseInputPropertyLoader::loadAndSyncronizeInputProperties( m_inputPropertyCollection,
+                                                                     this->eclipseCaseData(),
+                                                                     filesToRead,
+                                                                     importFaults );
 
     if ( importFaults )
     {
         this->ensureFaultDataIsComputed();
     }
+
+    results( RiaDefines::PorosityModelType::MATRIX_MODEL )->createPlaceholderResultEntries();
 
     return true;
 }

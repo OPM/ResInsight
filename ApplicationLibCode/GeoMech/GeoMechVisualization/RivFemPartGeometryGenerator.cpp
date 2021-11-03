@@ -27,6 +27,7 @@
 #include "cvfOutlineEdgeExtractor.h"
 #include "cvfPrimitiveSetIndexedUInt.h"
 #include "cvfScalarMapper.h"
+#include "cvfStructGridGeometryGenerator.h"
 
 #include <cmath>
 #include <cstdlib>
@@ -41,8 +42,9 @@ using namespace cvf;
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RivFemPartGeometryGenerator::RivFemPartGeometryGenerator( const RigFemPart* part )
+RivFemPartGeometryGenerator::RivFemPartGeometryGenerator( const RigFemPart* part, cvf::Vec3d displayOffset )
     : m_part( part )
+    , m_displayOffset( displayOffset )
 {
     CVF_ASSERT( part );
     m_triangleMapper = new RivFemPartTriangleToElmMapper;
@@ -59,9 +61,9 @@ RivFemPartGeometryGenerator::~RivFemPartGeometryGenerator()
 /// Generate surface drawable geo from the specified region
 ///
 //--------------------------------------------------------------------------------------------------
-ref<DrawableGeo> RivFemPartGeometryGenerator::generateSurface()
+ref<DrawableGeo> RivFemPartGeometryGenerator::generateSurface( const std::vector<cvf::Vec3f>& nodeCoordinates )
 {
-    computeArrays();
+    computeArrays( nodeCoordinates );
 
     CVF_ASSERT( m_quadVertices.notNull() );
 
@@ -84,8 +86,9 @@ ref<DrawableGeo> RivFemPartGeometryGenerator::createMeshDrawable()
     ref<DrawableGeo> geo = new DrawableGeo;
     geo->setVertexArray( m_quadVertices.p() );
 
-    ref<UIntArray>               indices = lineIndicesFromQuadVertexArray( m_quadVertices.p() );
-    ref<PrimitiveSetIndexedUInt> prim    = new PrimitiveSetIndexedUInt( PT_LINES );
+    ref<UIntArray> indices = cvf::StructGridGeometryGenerator::lineIndicesFromQuadVertexArray( m_quadVertices.p() );
+
+    ref<PrimitiveSetIndexedUInt> prim = new PrimitiveSetIndexedUInt( PT_LINES );
     prim->setIndices( indices.p() );
 
     geo->addPrimitiveSet( prim.p() );
@@ -101,7 +104,7 @@ ref<DrawableGeo> RivFemPartGeometryGenerator::createOutlineMeshDrawable( double 
 
     cvf::OutlineEdgeExtractor ee( creaseAngle, *m_quadVertices );
 
-    ref<UIntArray> indices = lineIndicesFromQuadVertexArray( m_quadVertices.p() );
+    ref<UIntArray> indices = cvf::StructGridGeometryGenerator::lineIndicesFromQuadVertexArray( m_quadVertices.p() );
     ee.addPrimitives( 4, *indices );
 
     ref<cvf::UIntArray> lineIndices = ee.lineIndices();
@@ -122,42 +125,8 @@ ref<DrawableGeo> RivFemPartGeometryGenerator::createOutlineMeshDrawable( double 
 
 //--------------------------------------------------------------------------------------------------
 ///
-///
-///
-///
 //--------------------------------------------------------------------------------------------------
-ref<UIntArray> RivFemPartGeometryGenerator::lineIndicesFromQuadVertexArray( const Vec3fArray* vertexArray )
-{
-    CVF_ASSERT( vertexArray );
-
-    size_t numVertices = vertexArray->size();
-    int    numQuads    = static_cast<int>( numVertices / 4 );
-    CVF_ASSERT( numVertices % 4 == 0 );
-
-    ref<UIntArray> indices = new UIntArray;
-    indices->resize( numQuads * 8 );
-
-#pragma omp parallel for
-    for ( int i = 0; i < numQuads; i++ )
-    {
-        int idx = 8 * i;
-        indices->set( idx + 0, i * 4 + 0 );
-        indices->set( idx + 1, i * 4 + 1 );
-        indices->set( idx + 2, i * 4 + 1 );
-        indices->set( idx + 3, i * 4 + 2 );
-        indices->set( idx + 4, i * 4 + 2 );
-        indices->set( idx + 5, i * 4 + 3 );
-        indices->set( idx + 6, i * 4 + 3 );
-        indices->set( idx + 7, i * 4 + 0 );
-    }
-
-    return indices;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RivFemPartGeometryGenerator::computeArrays()
+void RivFemPartGeometryGenerator::computeArrays( const std::vector<cvf::Vec3f>& nodeCoordinates )
 {
     std::vector<Vec3f> vertices;
     std::vector<int>&  trianglesToElements     = m_triangleMapper->triangleToElmIndexMap();
@@ -178,9 +147,6 @@ void RivFemPartGeometryGenerator::computeArrays()
     m_quadVerticesToGlobalElmIdx.reserve( estimatedQuadVxCount );
     trianglesToElements.reserve( estimatedQuadVxCount / 2 );
     trianglesToElementFaces.reserve( estimatedQuadVxCount / 2 );
-
-    cvf::Vec3d                     displayOffset   = m_part->boundingBox().min();
-    const std::vector<cvf::Vec3f>& nodeCoordinates = m_part->nodes().coordinates;
 
 #pragma omp parallel for schedule( dynamic )
     for ( int elmIdx = 0; elmIdx < static_cast<int>( m_part->elementCount() ); elmIdx++ )
@@ -209,13 +175,13 @@ void RivFemPartGeometryGenerator::computeArrays()
                 if ( faceNodeCount == 4 )
                 {
                     cvf::Vec3f quadVxs0( cvf::Vec3d( nodeCoordinates[elmNodeIndices[localElmNodeIndicesForFace[0]]] ) -
-                                         displayOffset );
+                                         m_displayOffset );
                     cvf::Vec3f quadVxs1( cvf::Vec3d( nodeCoordinates[elmNodeIndices[localElmNodeIndicesForFace[1]]] ) -
-                                         displayOffset );
+                                         m_displayOffset );
                     cvf::Vec3f quadVxs2( cvf::Vec3d( nodeCoordinates[elmNodeIndices[localElmNodeIndicesForFace[2]]] ) -
-                                         displayOffset );
+                                         m_displayOffset );
                     cvf::Vec3f quadVxs3( cvf::Vec3d( nodeCoordinates[elmNodeIndices[localElmNodeIndicesForFace[3]]] ) -
-                                         displayOffset );
+                                         m_displayOffset );
 
                     int qNodeIdx[4];
                     qNodeIdx[0] = elmNodeIndices[localElmNodeIndicesForFace[0]];
@@ -304,8 +270,6 @@ cvf::ref<cvf::DrawableGeo>
 
         const int* elmNodeIndices = part->connectivities( elmIdx );
 
-        // cvf::Vec3d displayOffset = part->boundingBox().min();
-
         for ( int lfIdx = 0; lfIdx < faceCount; ++lfIdx )
         {
             int        faceNodeCount              = 0;
@@ -336,8 +300,9 @@ cvf::ref<cvf::DrawableGeo>
     ref<DrawableGeo> geo = new DrawableGeo;
     geo->setVertexArray( quadVertices.p() );
 
-    ref<UIntArray>               indices = lineIndicesFromQuadVertexArray( quadVertices.p() );
-    ref<PrimitiveSetIndexedUInt> prim    = new PrimitiveSetIndexedUInt( PT_LINES );
+    ref<UIntArray> indices = cvf::StructGridGeometryGenerator::lineIndicesFromQuadVertexArray( quadVertices.p() );
+
+    ref<PrimitiveSetIndexedUInt> prim = new PrimitiveSetIndexedUInt( PT_LINES );
     prim->setIndices( indices.p() );
 
     geo->addPrimitiveSet( prim.p() );

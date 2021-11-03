@@ -84,6 +84,12 @@ public:
 
     bool isEmpty( int role = RUI_APPLICATION_GLOBAL ) const;
 
+    template <typename T>
+    T* objectByType( int role ) const
+    {
+        return dynamic_cast<T*>( selectedItem( role ) );
+    }
+
 private:
     Riu3dSelectionManager();
     ~Riu3dSelectionManager();
@@ -242,6 +248,8 @@ public:
     ~RiuWellPathSelectionItem() override{};
 
     RiuSelectionType type() const override { return WELLPATH_SELECTION_OBJECT; }
+
+    static RiuWellPathSelectionItem* wellPathSelectionItem();
 
 public:
     RimWellPath*                   m_wellpath;

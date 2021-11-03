@@ -58,7 +58,7 @@ RimPerforationInterval::RimPerforationInterval()
     CAF_PDM_InitField( &m_endDate, "EndDate", QDateTime::currentDateTime(), "End Date", "", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_valves, "Valves", "Valves", "", "", "" );
-    m_valves.uiCapability()->setUiHidden( true );
+    m_valves.uiCapability()->setUiTreeHidden( true );
 
     nameField()->uiCapability()->setUiReadOnly( true );
 
@@ -303,6 +303,15 @@ double RimPerforationInterval::startMD() const
 double RimPerforationInterval::endMD() const
 {
     return m_endMD();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPerforationInterval::applyOffset( double offsetMD )
+{
+    m_startMD = m_startMD + offsetMD;
+    m_endMD   = m_endMD + offsetMD;
 }
 
 //--------------------------------------------------------------------------------------------------

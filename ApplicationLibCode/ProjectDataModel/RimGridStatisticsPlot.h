@@ -32,6 +32,7 @@ class RimCase;
 class RimPlot;
 class RimGridView;
 class RimEclipseResultDefinition;
+class RimEclipseView;
 
 //==================================================================================================
 ///
@@ -47,6 +48,8 @@ public:
 
     void cellFilterViewUpdated();
 
+    void setPropertiesFromView( RimEclipseView* view );
+
 protected:
     // Overridden PDM methods
     void                          fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
@@ -58,6 +61,8 @@ protected:
 
     QString createAutoName() const override;
     QString timeStepString() const;
+
+    QString createXAxisTitle() const override;
 
     void             setDefaults();
     bool             hasStatisticsData() const override;

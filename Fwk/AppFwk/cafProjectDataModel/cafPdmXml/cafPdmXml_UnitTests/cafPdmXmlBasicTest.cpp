@@ -13,6 +13,7 @@
 #include "cafPdmXmlObjectHandle.h"
 #include "cafPdmXmlObjectHandleMacros.h"
 
+#include <QStringList>
 #include <QXmlStreamWriter>
 
 class DemoPdmObject : public caf::PdmObjectHandle, public caf::PdmXmlObjectHandle
@@ -39,6 +40,8 @@ public:
         m_proxyEnumField.registerSetMethod( this, &DemoPdmObject::setEnumMember );
         m_proxyEnumField.registerGetMethod( this, &DemoPdmObject::enumMember );
         m_enumMember = T1;
+
+        CAF_PDM_XML_InitField( &m_appEnumField, "NativeAppEnum" );
     }
 
     ~DemoPdmObject() {}
@@ -47,6 +50,7 @@ public:
 
     caf::PdmProxyValueField<double>                     m_proxyDoubleField;
     caf::PdmProxyValueField<caf::AppEnum<TestEnumType>> m_proxyEnumField;
+    caf::PdmDataValueField<caf::AppEnum<TestEnumType>>  m_appEnumField;
 
 private:
     void setDoubleMember( const double& d )
@@ -75,8 +79,12 @@ template <>
 void AppEnum<DemoPdmObject::TestEnumType>::setUp()
 {
     addItem( DemoPdmObject::T1, "T1", "An A letter" );
-    addItem( DemoPdmObject::T2, "T2", "A B letter" );
+    addItem( DemoPdmObject::T2, "T2", "A B letter", QStringList( { "T2_a", "T2_b" } ) );
     addItem( DemoPdmObject::T3, "T3", "A B letter" );
+
+    // Use the following line to test the CAF_ASSERT that should trigger when equal alias texts are defined
+    // addItem( DemoPdmObject::T3, "T3", "A B letter", QStringList( { "T2_a", "T2_b" } ) );
+
     setDefault( DemoPdmObject::T1 );
 }
 
@@ -437,3 +445,34 @@ TEST( BaseTest, TestDataType )
     delete s1;
 }
 #endif
+
+TEST( BaseTest, AppEnumAlias )
+{
+    {
+        auto* obj2 = new DemoPdmObject;
+        EXPECT_TRUE( obj2->m_appEnumField() == DemoPdmObject::TestEnumType::T1 );
+
+        QString xmlText = "<DemoPdmObject>"
+                          "<BigNumber>0</BigNumber>"
+                          "<AppEnum>T2</AppEnum>"
+                          "<NativeAppEnum>T2_a</NativeAppEnum>"
+                          "</DemoPdmObject>";
+
+        obj2->readObjectFromXmlString( xmlText, caf::PdmDefaultObjectFactory::instance() );
+        EXPECT_TRUE( obj2->m_appEnumField() == DemoPdmObject::TestEnumType::T2 );
+    }
+
+    {
+        auto* obj2 = new DemoPdmObject;
+        EXPECT_TRUE( obj2->m_appEnumField() == DemoPdmObject::TestEnumType::T1 );
+
+        QString xmlText = "<DemoPdmObject>"
+                          "<BigNumber>0</BigNumber>"
+                          "<AppEnum>T2</AppEnum>"
+                          "<NativeAppEnum>T2_b</NativeAppEnum>"
+                          "</DemoPdmObject>";
+
+        obj2->readObjectFromXmlString( xmlText, caf::PdmDefaultObjectFactory::instance() );
+        EXPECT_TRUE( obj2->m_appEnumField() == DemoPdmObject::TestEnumType::T2 );
+    }
+}

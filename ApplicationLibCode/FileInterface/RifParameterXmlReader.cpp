@@ -21,6 +21,7 @@
 #include "RimDoubleParameter.h"
 #include "RimGenericParameter.h"
 #include "RimIntegerParameter.h"
+#include "RimListParameter.h"
 #include "RimStringParameter.h"
 
 #include "RimParameterGroup.h"
@@ -52,6 +53,10 @@ RimGenericParameter* getParameterFromTypeStr( QString typestr )
     {
         return new RimStringParameter();
     }
+    else if ( typestr == "list" )
+    {
+        return new RimListParameter();
+    }
 
     return nullptr;
 }
@@ -76,7 +81,8 @@ bool RifParameterXmlReader::parseFile( QString& outErrorText )
 
     RimParameterGroup* group = nullptr;
 
-    std::list<QString> reqattrs = { QString( "name" ), QString( "label" ), QString( "type" ) };
+    std::list<QString> reqGroupAttrs = { QString( "name" ) };
+    std::list<QString> reqParamAttrs = { QString( "name" ), QString( "label" ), QString( "type" ) };
 
     bool bResult = true;
 
@@ -91,14 +97,34 @@ bool RifParameterXmlReader::parseFile( QString& outErrorText )
                     m_parameters.push_back( group );
                 }
 
+                // check that we have the required attributes
+                for ( auto& reqattr : reqGroupAttrs )
+                {
+                    if ( !xml.attributes().hasAttribute( reqattr ) )
+                    {
+                        outErrorText += "Missing required attribute \"" + reqattr + "\" for a parameter group.";
+                        bResult = false;
+                        break;
+                    }
+                }
+                if ( !bResult ) break;
+
                 group = new RimParameterGroup();
+                if ( xml.attributes().hasAttribute( "name" ) )
+                {
+                    group->setName( xml.attributes().value( "name" ).toString() );
+                }
                 if ( xml.attributes().hasAttribute( "label" ) )
                 {
-                    group->setName( xml.attributes().value( "label" ).toString() );
+                    group->setLabel( xml.attributes().value( "label" ).toString() );
                 }
                 if ( xml.attributes().hasAttribute( "expanded" ) )
                 {
                     group->setExpanded( xml.attributes().value( "expanded" ).toString().toLower() == "true" );
+                }
+                if ( xml.attributes().hasAttribute( "comment" ) )
+                {
+                    group->setComment( xml.attributes().value( "comment" ).toString() );
                 }
                 continue;
             }
@@ -108,7 +134,7 @@ bool RifParameterXmlReader::parseFile( QString& outErrorText )
                 if ( group == nullptr ) continue;
 
                 // check that we have the required attributes
-                for ( auto& reqattr : reqattrs )
+                for ( auto& reqattr : reqParamAttrs )
                 {
                     if ( !xml.attributes().hasAttribute( reqattr ) )
                     {
@@ -117,6 +143,7 @@ bool RifParameterXmlReader::parseFile( QString& outErrorText )
                         break;
                     }
                 }
+                if ( !bResult ) break;
 
                 // get a parameter of the required type
                 QString paramtypestr = xml.attributes().value( "type" ).toString().toLower();

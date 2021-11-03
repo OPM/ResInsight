@@ -26,11 +26,14 @@
 #include "RiaQDateTimeTools.h"
 
 #include "RimEnsembleCurveSetColorManager.h"
+#include "RimEnsembleCurveSetInterface.h"
 #include "RimObjectiveFunction.h"
 #include "RimRegularLegendConfig.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseCollection.h"
 #include "RimTimeStepFilter.h"
+
+#include "RigEnsembleParameter.h"
 
 #include "cafAppEnum.h"
 #include "cafPdmChildArrayField.h"
@@ -70,7 +73,7 @@ class QDate;
 //==================================================================================================
 ///
 //==================================================================================================
-class RimEnsembleCurveSet : public caf::PdmObject
+class RimEnsembleCurveSet : public caf::PdmObject, public RimEnsembleCurveSetInterface
 {
     CAF_PDM_HEADER_INIT;
 
@@ -114,47 +117,52 @@ public:
 
     RimEnsembleCurveFilterCollection* filterCollection() const;
 
-    ColorMode               colorMode() const;
-    void                    setColorMode( ColorMode mode );
-    void                    setEnsembleParameter( const QString& parameterName );
-    EnsembleParameter::Type currentEnsembleParameterType() const;
+    ColorMode                  colorMode() const;
+    void                       setColorMode( ColorMode mode );
+    void                       setEnsembleParameter( const QString& parameterName );
+    RigEnsembleParameter::Type currentEnsembleParameterType() const;
 
     RimRegularLegendConfig* legendConfig();
 
     void                      updateEnsembleLegendItem();
     RiuDraggableOverlayFrame* legendFrame() const;
 
-    void                updateAllCurves();
     void                setTimeSteps( const std::vector<size_t>& timeStepIndices );
     std::vector<time_t> selectedTimeSteps() const;
-    void                updateStatisticsCurves();
 
     RimEnsembleCurveSet* clone() const;
     void                 showCurves( bool show );
 
-    void                           updateAllTextInPlot();
-    std::vector<EnsembleParameter> variationSortedEnsembleParameters() const;
+    void                              updateAllTextInPlot();
+    std::vector<RigEnsembleParameter> variationSortedEnsembleParameters() const;
 
-    std::vector<std::pair<EnsembleParameter, double>> correlationSortedEnsembleParameters() const;
+    std::vector<std::pair<RigEnsembleParameter, double>> correlationSortedEnsembleParameters() const;
 
     std::vector<RimSummaryCase*> filterEnsembleCases( const std::vector<RimSummaryCase*>& sumCases );
     void                         disableStatisticCurves();
     bool                         isFiltered() const;
 
-    bool hasP10Data() const;
-    bool hasP50Data() const;
-    bool hasP90Data() const;
-    bool hasMeanData() const;
+    void updateEditors() override;
+    void updateAllCurves() override;
+    void updateStatisticsCurves() override;
+    bool hasP10Data() const override;
+    bool hasP50Data() const override;
+    bool hasP90Data() const override;
+    bool hasMeanData() const override;
 
     void appendColorGroup( caf::PdmUiOrdering& uiOrdering );
 
     static void appendOptionItemsForSummaryAddresses( QList<caf::PdmOptionItemInfo>* options,
                                                       RimSummaryCaseCollection*      summaryCaseGroup );
 
+    const RimEnsembleCurveFilterCollection* curveFilters() const;
+
     void updateFilterLegend();
     void updateObjectiveFunctionLegend();
 
     ObjectiveFunctionTimeConfig objectiveFunctionTimeConfig() const;
+
+    std::vector<cvf::Color3f> generateColorsForCases( const std::vector<RimSummaryCase*>& summaryCases ) const;
 
 private:
     void updateEnsembleCurves( const std::vector<RimSummaryCase*>& sumCases );
@@ -183,6 +191,8 @@ private:
     QString createAutoName() const;
 
     void updateLegendMappingMode();
+    void updateLegendTitle();
+
     void updateMaxMinAndDefaultValues();
     void updateCurveColors();
     void updateTimeAnnotations();

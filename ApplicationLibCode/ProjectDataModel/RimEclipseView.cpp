@@ -143,12 +143,12 @@ RimEclipseView::RimEclipseView()
                                                            "",
                                                            "" );
     m_cellResult = new RimEclipseCellColors();
-    m_cellResult.uiCapability()->setUiHidden( true );
+    m_cellResult.uiCapability()->setUiTreeHidden( true );
     m_cellResult->enableDeltaResults( true );
 
     CAF_PDM_InitFieldNoDefault( &m_cellEdgeResult, "GridCellEdgeResult", "Cell Edge Result", ":/EdgeResult_1.png", "", "" );
     m_cellEdgeResult = new RimCellEdgeColors();
-    m_cellEdgeResult.uiCapability()->setUiHidden( true );
+    m_cellEdgeResult.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_elementVectorResult,
                                 "ElementVectorResult",
@@ -157,39 +157,39 @@ RimEclipseView::RimEclipseView()
                                 "",
                                 "" );
     m_elementVectorResult = new RimElementVectorResult;
-    m_elementVectorResult.uiCapability()->setUiHidden( true );
+    m_elementVectorResult.uiCapability()->setUiTreeHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_faultResultSettings, "FaultResultSettings", "Separate Fault Result", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_faultResultSettings, "FaultResultSettings", "Fault Result", "", "", "" );
     m_faultResultSettings = new RimEclipseFaultColors();
-    m_faultResultSettings.uiCapability()->setUiHidden( true );
+    m_faultResultSettings.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_fractureColors, "StimPlanColors", "Fracture", "", "", "" );
     m_fractureColors = new RimStimPlanColors();
-    m_fractureColors.uiCapability()->setUiHidden( true );
+    m_fractureColors.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_virtualPerforationResult, "VirtualPerforationResult", "", "", "", "" );
     m_virtualPerforationResult = new RimVirtualPerforationResults();
-    m_virtualPerforationResult.uiCapability()->setUiHidden( true );
+    m_virtualPerforationResult.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_wellCollection, "WellCollection", "Simulation Wells", "", "", "" );
     m_wellCollection = new RimSimWellInViewCollection;
-    m_wellCollection.uiCapability()->setUiHidden( true );
+    m_wellCollection.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_faultCollection, "FaultCollection", "Faults", "", "", "" );
     m_faultCollection = new RimFaultInViewCollection;
-    m_faultCollection.uiCapability()->setUiHidden( true );
+    m_faultCollection.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_annotationCollection, "AnnotationCollection", "Annotations", "", "", "" );
     m_annotationCollection = new RimAnnotationInViewCollection;
-    m_annotationCollection.uiCapability()->setUiHidden( true );
+    m_annotationCollection.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_streamlineCollection, "StreamlineCollection", "Streamlines", "", "", "" );
     m_streamlineCollection = new RimStreamlineInViewCollection();
-    m_streamlineCollection.uiCapability()->setUiHidden( true );
+    m_streamlineCollection.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_propertyFilterCollection, "PropertyFilters", "Property Filters", "", "", "" );
     m_propertyFilterCollection = new RimEclipsePropertyFilterCollection();
-    m_propertyFilterCollection.uiCapability()->setUiHidden( true );
+    m_propertyFilterCollection.uiCapability()->setUiTreeHidden( true );
 
     // Visualization fields
     CAF_PDM_InitField( &m_showInactiveCells, "ShowInactiveCells", false, "Show Inactive Cells", "", "", "" );
@@ -454,9 +454,11 @@ void RimEclipseView::onCreateDisplayModel()
         }
     }
     else if ( this->cellResult()->hasStaticResult() || this->cellEdgeResult()->hasResult() ||
-              this->eclipsePropertyFilterCollection()->hasActiveFilters() )
+              this->eclipsePropertyFilterCollection()->hasActiveFilters() ||
+              this->intersectionCollection()->hasAnyActiveSeparateResults() ||
+              ( this->surfaceInViewCollection() && this->surfaceInViewCollection()->hasAnyActiveSeparateResults() ) )
     {
-        // The one and only result entry
+        // The one and only static result entry
         timeStepIndices.push_back( 0 );
     }
 
@@ -597,7 +599,6 @@ void RimEclipseView::onCreateDisplayModel()
     m_surfaceVizModel->removeAllParts();
     if ( m_surfaceCollection )
     {
-        m_surfaceCollection->clearGeometry();
         m_surfaceCollection->appendPartsToModel( m_surfaceVizModel.p(), m_reservoirGridPartManager->scaleTransform() );
         nativeOrOverrideViewer()->addStaticModelOnce( m_surfaceVizModel.p(), isUsingOverrideViewer() );
     }
@@ -637,7 +638,7 @@ void RimEclipseView::onCreateDisplayModel()
 
     // If the animation was active before recreating everything, make viewer view current frame
 
-    if ( frameModels.size() > 1 && this->hasUserRequestedAnimation() )
+    if ( frameModels.size() > 1 )
     {
         if ( viewer() && !isUsingOverrideViewer() ) viewer()->setCurrentFrame( m_currentTimeStep );
     }
@@ -887,15 +888,14 @@ void RimEclipseView::updateVisibleCellColors()
 
     for ( size_t i = 0; i < geometriesToRecolor.size(); ++i )
     {
-        if ( this->hasUserRequestedAnimation() && this->cellEdgeResult()->hasResult() )
+        if ( this->cellEdgeResult()->hasResult() )
         {
             m_reservoirGridPartManager->updateCellEdgeResultColor( geometriesToRecolor[i],
                                                                    m_currentTimeStep,
                                                                    this->cellResult(),
                                                                    this->cellEdgeResult() );
         }
-        else if ( ( this->hasUserRequestedAnimation() && this->cellResult()->hasResult() ) ||
-                  this->cellResult()->isTernarySaturationSelected() )
+        else if ( this->cellResult()->hasResult() || this->cellResult()->isTernarySaturationSelected() )
         {
             m_reservoirGridPartManager->updateCellResultColor( geometriesToRecolor[i],
                                                                m_currentTimeStep,
@@ -909,8 +909,7 @@ void RimEclipseView::updateVisibleCellColors()
 
     this->updateFaultColors();
 
-    bool hasGeneralCellResult = ( this->hasUserRequestedAnimation() && this->cellResult()->hasResult() ) ||
-                                this->cellResult()->isTernarySaturationSelected();
+    bool hasGeneralCellResult = this->cellResult()->hasResult() || this->cellResult()->isTernarySaturationSelected();
 
     m_intersectionCollection->updateCellResultColor( hasGeneralCellResult, m_currentTimeStep );
     if ( m_surfaceCollection ) m_surfaceCollection->updateCellResultColor( hasGeneralCellResult, m_currentTimeStep );
@@ -1800,7 +1799,7 @@ void RimEclipseView::updateDisplayModelForWellResults()
     onCreateDisplayModel();
     updateDisplayModelVisibility();
 
-    if ( hasUserRequestedAnimation() && nativeOrOverrideViewer() )
+    if ( nativeOrOverrideViewer() )
     {
         nativeOrOverrideViewer()->animationControl()->setCurrentFrame( m_currentTimeStep );
     }
@@ -1934,9 +1933,10 @@ void RimEclipseView::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrderin
 
     uiTreeOrdering.add( cellResult() );
     uiTreeOrdering.add( cellEdgeResult() );
-    uiTreeOrdering.add( elementVectorResult() );
-    uiTreeOrdering.add( faultResultSettings() );
+    uiTreeOrdering.add( cellFilterCollection() );
+    uiTreeOrdering.add( m_propertyFilterCollection() );
 
+    uiTreeOrdering.add( elementVectorResult() );
     if ( m_streamlineCollection->shouldBeAvailable() ) uiTreeOrdering.add( &m_streamlineCollection );
 
     addRequiredUiTreeObjects( uiTreeOrdering );
@@ -1960,16 +1960,12 @@ void RimEclipseView::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrderin
         }
     }
 
-    uiTreeOrdering.add( m_virtualPerforationResult );
-
     uiTreeOrdering.add( faultCollection() );
     uiTreeOrdering.add( annotationCollection() );
     uiTreeOrdering.add( intersectionCollection() );
 
     if ( surfaceInViewCollection() ) uiTreeOrdering.add( surfaceInViewCollection() );
 
-    uiTreeOrdering.add( cellFilterCollection() );
-    uiTreeOrdering.add( m_propertyFilterCollection() );
     uiTreeOrdering.skipRemainingChildren( true );
 }
 
@@ -2006,7 +2002,7 @@ void RimEclipseView::updateFaultColors()
 
     for ( RivCellSetEnum cellSetType : faultGeometriesToRecolor )
     {
-        if ( this->hasUserRequestedAnimation() && this->cellEdgeResult()->hasResult() )
+        if ( this->cellEdgeResult()->hasResult() )
         {
             m_reservoirGridPartManager->updateFaultCellEdgeResultColor( cellSetType,
                                                                         m_currentTimeStep,
@@ -2083,6 +2079,8 @@ std::vector<double> RimEclipseView::currentCellResultData() const
     std::vector<double> resultData;
     if ( currentGridCellResults() && cellResult() )
     {
+        if ( !currentGridCellResults()->hasResultEntry( cellResult()->eclipseResultAddress() ) ) return {};
+
         int timeStep = 0;
         if ( cellResult()->hasDynamicResult() )
         {
@@ -2098,7 +2096,7 @@ std::vector<double> RimEclipseView::currentCellResultData() const
 //--------------------------------------------------------------------------------------------------
 void RimEclipseView::setCurrentCellResultData( const std::vector<double>& values )
 {
-    if ( currentGridCellResults() && cellResult() )
+    if ( !values.empty() && currentGridCellResults() && cellResult() )
     {
         int timeStep = 0;
         if ( cellResult()->hasDynamicResult() )

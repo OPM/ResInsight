@@ -96,12 +96,12 @@ RimEclipseCase::RimEclipseCase()
                                                            "",
                                                            "",
                                                            "All Eclipse Views in the case" );
-    reservoirViews.uiCapability()->setUiHidden( true );
+    reservoirViews.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_matrixModelResults, "MatrixModelResults", "", "", "", "" );
-    m_matrixModelResults.uiCapability()->setUiHidden( true );
+    m_matrixModelResults.uiCapability()->setUiTreeHidden( true );
     CAF_PDM_InitFieldNoDefault( &m_fractureModelResults, "FractureModelResults", "", "", "", "" );
-    m_fractureModelResults.uiCapability()->setUiHidden( true );
+    m_fractureModelResults.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitField( &m_flipXAxis, "FlipXAxis", false, "Flip X Axis", "", "", "" );
     CAF_PDM_InitField( &m_flipYAxis, "FlipYAxis", false, "Flip Y Axis", "", "", "" );
@@ -116,16 +116,16 @@ RimEclipseCase::RimEclipseCase()
 
     CAF_PDM_InitFieldNoDefault( &m_inputPropertyCollection, "InputPropertyCollection", "", "", "", "" );
     m_inputPropertyCollection = new RimEclipseInputPropertyCollection;
-    m_inputPropertyCollection->parentField()->uiCapability()->setUiHidden( true );
+    m_inputPropertyCollection->parentField()->uiCapability()->setUiTreeHidden( true );
 
     // Init
 
     m_matrixModelResults = new RimReservoirCellResultsStorage;
-    m_matrixModelResults.uiCapability()->setUiHidden( true );
+    m_matrixModelResults.uiCapability()->setUiTreeHidden( true );
     m_matrixModelResults.uiCapability()->setUiTreeChildrenHidden( true );
 
     m_fractureModelResults = new RimReservoirCellResultsStorage;
-    m_fractureModelResults.uiCapability()->setUiHidden( true );
+    m_fractureModelResults.uiCapability()->setUiTreeHidden( true );
     m_fractureModelResults.uiCapability()->setUiTreeChildrenHidden( true );
 
     this->setReservoirData( nullptr );
@@ -301,8 +301,6 @@ RimEclipseView* RimEclipseCase::createAndAddReservoirView()
         }
 
         rimEclipseView->faultCollection()->showFaultCollection = prefs->enableFaultsByDefault();
-
-        rimEclipseView->hasUserRequestedAnimation = true;
 
         rimEclipseView->cellEdgeResult()->setResultVariable( "MULT" );
         rimEclipseView->cellEdgeResult()->setActive( false );
@@ -680,8 +678,6 @@ void RimEclipseCase::loadAndSyncronizeInputProperties( bool importGridOrFaultDat
         filenames.push_back( fileName );
     }
 
-    if ( importGridOrFaultData ) filenames.push_back( gridFileName() );
-
     RifEclipseInputPropertyLoader::loadAndSyncronizeInputProperties( inputPropertyCollection(),
                                                                      eclipseCaseData(),
                                                                      filenames,
@@ -696,7 +692,8 @@ void RimEclipseCase::ensureFaultDataIsComputed()
     RigEclipseCaseData* rigEclipseCase = eclipseCaseData();
     if ( rigEclipseCase )
     {
-        bool computeFaults = RiaPreferences::current()->readerSettings()->importFaults();
+        bool computeFaults = ( m_readerSettings && m_readerSettings->importFaults() ) ||
+                             ( !m_readerSettings && RiaPreferences::current()->readerSettings()->importFaults() );
         if ( computeFaults )
         {
             RigActiveCellInfo* actCellInfo = rigEclipseCase->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
@@ -905,10 +902,8 @@ void RimEclipseCase::setFilesContainingFaults( const std::vector<QString>& pathS
 //--------------------------------------------------------------------------------------------------
 bool RimEclipseCase::ensureReservoirCaseIsOpen()
 {
-    if ( m_rigEclipseCase.notNull() )
-    {
-        return true;
-    }
+    // Call openReserviorCase, as this is a cheap method to call multiple times
+    // Add extra testing here if performance issues are seen
 
     return openReserviorCase();
 }
@@ -1117,4 +1112,12 @@ std::vector<QDateTime> RimEclipseCase::timeStepDates() const
 bool RimEclipseCase::importAsciiInputProperties( const QStringList& fileNames )
 {
     return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCase::setReaderSettings( std::shared_ptr<RifReaderSettings> readerSettings )
+{
+    m_readerSettings = readerSettings;
 }

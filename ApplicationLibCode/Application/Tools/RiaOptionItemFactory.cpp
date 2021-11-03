@@ -20,6 +20,9 @@
 
 #include "Rim3dView.h"
 #include "RimCase.h"
+#include "RimEnsembleCurveSet.h"
+#include "RimMainPlotCollection.h"
+#include "RimProject.h"
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -34,4 +37,20 @@ void RiaOptionItemFactory::appendOptionItemFromViewNameAndCaseName( Rim3dView*  
     caf::IconProvider iconProvider = view->uiCapability()->uiIconProvider();
 
     optionItems->push_back( caf::PdmOptionItemInfo( displayName, view, false, iconProvider ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiaOptionItemFactory::appendOptionItemsForEnsembleCurveSets( QList<caf::PdmOptionItemInfo>* options )
+{
+    options->push_back( caf::PdmOptionItemInfo( "None", nullptr ) );
+
+    RimMainPlotCollection*            mainPlotColl = RimProject::current()->mainPlotCollection();
+    std::vector<RimEnsembleCurveSet*> ensembleCurveSets;
+    mainPlotColl->descendantsOfType( ensembleCurveSets );
+    for ( auto ensembleCurveSet : ensembleCurveSets )
+    {
+        options->push_back( caf::PdmOptionItemInfo( ensembleCurveSet->name(), ensembleCurveSet ) );
+    }
 }

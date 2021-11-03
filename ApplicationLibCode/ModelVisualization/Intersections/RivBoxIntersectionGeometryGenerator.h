@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include "RivHexGridIntersectionTools.h"
+#include "RivIntersectionGeometryGeneratorInterface.h"
 
 #include "cafPdmPointer.h"
 
@@ -30,6 +30,7 @@
 #include <vector>
 
 class RimBoxIntersection;
+class RivIntersectionHexGridInterface;
 
 namespace cvf
 {
@@ -37,7 +38,7 @@ class ScalarMapper;
 class DrawableGeo;
 } // namespace cvf
 
-class RivBoxIntersectionGeometryGenerator : public cvf::Object, public RivIntersectionGeometryGeneratorIF
+class RivBoxIntersectionGeometryGenerator : public cvf::Object, public RivIntersectionGeometryGeneratorInterface
 {
 public:
     RivBoxIntersectionGeometryGenerator( RimBoxIntersection* intersectionBox, const RivIntersectionHexGridInterface* grid );

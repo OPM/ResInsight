@@ -122,7 +122,7 @@ RimProject_summaryCase::RimProject_summaryCase( caf::PdmObjectHandle* self )
     : caf::PdmObjectMethod( self )
 {
     CAF_PDM_InitObject( "Find Summary Case", "", "", "Find Summary Case" );
-    CAF_PDM_InitScriptableFieldNoDefault( &m_caseId, "CaseId", "", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_caseId, "CaseId", -1, "", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------

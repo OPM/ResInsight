@@ -20,9 +20,10 @@
 #include "RicfLoadCase.h"
 
 #include "RiaApplication.h"
-#include "RiaImportEclipseCaseTools.h"
 #include "RiaLogging.h"
+#include "RicImportGeneralDataFeature.h"
 
+#include "RifReaderSettings.h"
 #include "cafPdmFieldScriptingCapability.h"
 
 #include <QDir>
@@ -48,6 +49,7 @@ CAF_PDM_SOURCE_INIT( RicfLoadCase, "loadCase" );
 RicfLoadCase::RicfLoadCase()
 {
     CAF_PDM_InitScriptableField( &m_path, "path", QString(), "Path to Case File", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_gridOnly, "gridOnly", false, "Load Grid Data Only", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -63,16 +65,24 @@ caf::PdmScriptResponse RicfLoadCase::execute()
         absolutePath = startDir.absoluteFilePath( m_path );
     }
 
-    RiaImportEclipseCaseTools::FileCaseIdMap fileCaseIdMap;
-    bool ok = RiaImportEclipseCaseTools::openEclipseCasesFromFile( QStringList( { absolutePath } ), &fileCaseIdMap, true );
-    if ( !ok )
+    std::shared_ptr<RifReaderSettings> readerSettings;
+    if ( m_gridOnly ) readerSettings = RifReaderSettings::createGridOnlyReaderSettings();
+
+    bool createPlot       = false;
+    bool createView       = false;
+    auto fileOpenMetaData = RicImportGeneralDataFeature::openEclipseFilesFromFileNames( QStringList{ absolutePath },
+                                                                                        createPlot,
+                                                                                        createView,
+                                                                                        readerSettings );
+
+    if ( fileOpenMetaData.createdCaseIds.empty() )
     {
         QString error = QString( "loadCase: Unable to load case from %1" ).arg( absolutePath );
         RiaLogging::error( error );
         return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
     }
-    CAF_ASSERT( fileCaseIdMap.size() == 1u );
+
     caf::PdmScriptResponse response;
-    response.setResult( new RicfLoadCaseResult( fileCaseIdMap.begin()->second ) );
+    response.setResult( new RicfLoadCaseResult( fileOpenMetaData.createdCaseIds.front() ) );
     return response;
 }

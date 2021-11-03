@@ -432,7 +432,7 @@ QString Rim3dOverlayInfoConfig::resultInfoText( const RigHistogramData& histData
     }
     else if ( eclipseView )
     {
-        bool isResultsInfoRelevant = eclipseView->hasUserRequestedAnimation() && eclipseView->cellResult()->hasResult();
+        bool isResultsInfoRelevant = eclipseView->cellResult()->hasResult();
 
         if ( eclipseView->cellResult()->isTernarySaturationSelected() )
         {
@@ -481,9 +481,9 @@ QString Rim3dOverlayInfoConfig::resultInfoText( const RigHistogramData& histData
                              "<tr> <td>%1</td>  <td> %2</td> <td>  %3</td> <td> %4</td> <td> %5</td> <td> %6</td> </tr>"
                              "</table>" )
                         .arg( histData.min )
-                        .arg( histData.p10 )
-                        .arg( histData.mean )
                         .arg( histData.p90 )
+                        .arg( histData.mean )
+                        .arg( histData.p10 )
                         .arg( histData.max )
                         .arg( histData.sum );
             }
@@ -519,7 +519,7 @@ QString Rim3dOverlayInfoConfig::resultInfoText( const RigHistogramData& histData
             }
         }
 
-        if ( eclipseView->hasUserRequestedAnimation() && eclipseView->cellEdgeResult()->hasResult() )
+        if ( eclipseView->cellEdgeResult()->hasResult() )
         {
             double  min, max;
             QString cellEdgeName = eclipseView->cellEdgeResult()->resultVariableUiShortName();
@@ -552,8 +552,7 @@ QString Rim3dOverlayInfoConfig::resultInfoText( const RigHistogramData& histData
     {
         RimGeoMechCase*     geoMechCase           = geoMechView->geoMechCase();
         RigGeoMechCaseData* caseData              = geoMechCase ? geoMechCase->geoMechData() : nullptr;
-        bool                isResultsInfoRelevant = caseData && geoMechView->hasUserRequestedAnimation() &&
-                                     geoMechView->cellResultResultDefinition()->hasResult();
+        bool                isResultsInfoRelevant = caseData && geoMechView->cellResultResultDefinition()->hasResult();
 
         if ( isResultsInfoRelevant )
         {
@@ -652,9 +651,9 @@ QString Rim3dOverlayInfoConfig::resultInfoText( const RigHistogramData& histData
                             "<tr> <td>%1</td>  <td> %2</td> <td> %3</td>  <td> %4</td> <td> %5</td> <td> %6</td> </tr>"
                             "</table>" )
                             .arg( histData.min )
-                            .arg( histData.p10 )
-                            .arg( histData.mean )
                             .arg( histData.p90 )
+                            .arg( histData.mean )
+                            .arg( histData.p10 )
                             .arg( histData.max )
                             .arg( histData.sum );
                 }
@@ -857,13 +856,13 @@ void Rim3dOverlayInfoConfig::updateEclipse3DInfo( RimEclipseView* eclipseView )
 
     if ( m_showHistogram() )
     {
-        bool isResultsInfoRelevant = eclipseView->hasUserRequestedAnimation() && eclipseView->cellResult()->hasResult();
+        bool isResultsInfoRelevant = eclipseView->cellResult()->hasResult();
 
         if ( isResultsInfoRelevant && histData.isHistogramVectorValid() )
         {
             eclipseView->viewer()->showHistogram( true );
             eclipseView->viewer()->setHistogram( histData.min, histData.max, histData.histogram );
-            eclipseView->viewer()->setHistogramPercentiles( histData.p10, histData.p90, histData.mean );
+            eclipseView->viewer()->setHistogramPercentiles( histData.p90, histData.p10, histData.mean );
         }
     }
 }
@@ -905,14 +904,13 @@ void Rim3dOverlayInfoConfig::updateGeoMech3DInfo( RimGeoMechView* geoMechView )
     {
         RimGeoMechCase*     geoMechCase           = geoMechView->geoMechCase();
         RigGeoMechCaseData* caseData              = geoMechCase ? geoMechCase->geoMechData() : nullptr;
-        bool                isResultsInfoRelevant = caseData && geoMechView->hasUserRequestedAnimation() &&
-                                     geoMechView->cellResultResultDefinition()->hasResult();
+        bool                isResultsInfoRelevant = caseData && geoMechView->cellResultResultDefinition()->hasResult();
 
         if ( isResultsInfoRelevant && histData.isHistogramVectorValid() )
         {
             geoMechView->viewer()->showHistogram( true );
             geoMechView->viewer()->setHistogram( histData.min, histData.max, histData.histogram );
-            geoMechView->viewer()->setHistogramPercentiles( histData.p10, histData.p90, histData.mean );
+            geoMechView->viewer()->setHistogramPercentiles( histData.p90, histData.p10, histData.mean );
         }
     }
 }
