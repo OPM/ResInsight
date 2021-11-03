@@ -30,6 +30,7 @@
 #include "RimGridCrossPlotCurve.h"
 #include "RimGridCrossPlotDataSet.h"
 #include "RimMultiPlot.h"
+#include "RimPlotAxisLogRangeCalculator.h"
 #include "RimPlotAxisProperties.h"
 
 #include "cafPdmUiCheckBoxEditor.h"
