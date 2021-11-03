@@ -19,13 +19,9 @@
 
 #include "RimPlotAxisProperties.h"
 
-#include "RiaApplication.h"
 #include "RiaDefines.h"
-#include "RiaFontCache.h"
 #include "RiaPreferences.h"
-#include "RigStatisticsCalculator.h"
 
-#include "RimPlot.h"
 #include "RimPlotAxisAnnotation.h"
 
 #include "cafPdmUiSliderEditor.h"
@@ -33,8 +29,6 @@
 #include "cvfVector2.h"
 
 #include <cmath>
-
-#include <qwt_plot_curve.h>
 
 namespace caf
 {
@@ -209,13 +203,13 @@ void RimPlotAxisProperties::defineUiOrdering( QString uiConfigName, caf::PdmUiOr
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPlotAxisProperties::setNameAndAxis( const QString& name, QwtPlot::Axis axis )
+void RimPlotAxisProperties::setNameAndAxis( const QString& name, RiaDefines::PlotAxis axis )
 {
     m_name = name;
     m_axis = axis;
 
-    if ( axis == QwtPlot::yRight ) this->setUiIconFromResourceString( ":/RightAxis16x16.png" );
-    if ( axis == QwtPlot::xBottom ) this->setUiIconFromResourceString( ":/BottomAxis16x16.png" );
+    if ( axis == RiaDefines::PlotAxis::PLOT_AXIS_RIGHT ) this->setUiIconFromResourceString( ":/RightAxis16x16.png" );
+    if ( axis == RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM ) this->setUiIconFromResourceString( ":/BottomAxis16x16.png" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -245,14 +239,6 @@ int RimPlotAxisProperties::valuesFontSize() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QwtPlot::Axis RimPlotAxisProperties::qwtPlotAxisType() const
-{
-    return m_axis;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 QString RimPlotAxisProperties::name() const
 {
     return m_name;
@@ -263,10 +249,7 @@ QString RimPlotAxisProperties::name() const
 //--------------------------------------------------------------------------------------------------
 RiaDefines::PlotAxis RimPlotAxisProperties::plotAxisType() const
 {
-    if ( m_axis == QwtPlot::yRight ) return RiaDefines::PlotAxis::PLOT_AXIS_RIGHT;
-    if ( m_axis == QwtPlot::xBottom ) return RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM;
-
-    return RiaDefines::PlotAxis::PLOT_AXIS_LEFT;
+    return m_axis;
 }
 
 //--------------------------------------------------------------------------------------------------

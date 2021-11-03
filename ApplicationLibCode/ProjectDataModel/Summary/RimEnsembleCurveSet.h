@@ -22,7 +22,7 @@
 #include "RifEclipseSummaryAddressQMetaType.h"
 #include "RifSummaryReaderInterface.h"
 
-#include "RiaDefines.h"
+#include "RiaPlotDefines.h"
 #include "RiaQDateTimeTools.h"
 
 #include "RimEnsembleCurveSetColorManager.h"
