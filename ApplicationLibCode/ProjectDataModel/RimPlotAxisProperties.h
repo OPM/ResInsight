@@ -131,24 +131,3 @@ private:
     caf::PdmField<caf::FontTools::RelativeSizeEnum>    m_valuesFontSize;
     caf::PdmChildArrayField<RimPlotAxisAnnotation*>    m_annotations;
 };
-
-class QwtPlotCurve;
-
-//==================================================================================================
-///
-///
-//==================================================================================================
-class RimPlotAxisLogRangeCalculator
-{
-public:
-    RimPlotAxisLogRangeCalculator( QwtPlot::Axis axis, const std::vector<const QwtPlotCurve*>& qwtCurves );
-
-    void computeAxisRange( double* minPositive, double* max ) const;
-
-private:
-    bool curveValueRange( const QwtPlotCurve* qwtCurve, double* minPositive, double* max ) const;
-
-private:
-    QwtPlot::Axis                          m_axis;
-    const std::vector<const QwtPlotCurve*> m_curves;
-};
