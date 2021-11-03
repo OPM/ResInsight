@@ -115,6 +115,7 @@ void RimSummaryPlotAxisFormatter::applyAxisPropertiesToPlot( RiuQwtPlotWidget* q
 {
     if ( !qwtPlot ) return;
 
+    QwtPlot::Axis qwtAxisId = RiaDefines::toQwtPlotAxis( m_axisProperties->plotAxisType() );
     {
         QString axisTitle = m_axisProperties->customTitle;
         if ( m_axisProperties->useAutoTitle() ) axisTitle = autoAxisTitle();
@@ -124,13 +125,13 @@ void RimSummaryPlotAxisFormatter::applyAxisPropertiesToPlot( RiuQwtPlotWidget* q
         {
             titleAlignment = Qt::AlignRight;
         }
-        qwtPlot->setAxisTitleText( m_axisProperties->qwtPlotAxisType(), axisTitle );
-        qwtPlot->setAxisFontsAndAlignment( m_axisProperties->qwtPlotAxisType(),
+        qwtPlot->setAxisTitleText( qwtAxisId, axisTitle );
+        qwtPlot->setAxisFontsAndAlignment( qwtAxisId,
                                            m_axisProperties->titleFontSize(),
                                            m_axisProperties->valuesFontSize(),
                                            true,
                                            titleAlignment );
-        qwtPlot->setAxisTitleEnabled( m_axisProperties->qwtPlotAxisType(), true );
+        qwtPlot->setAxisTitleEnabled( qwtAxisId, true );
     }
 
     {
@@ -138,11 +139,11 @@ void RimSummaryPlotAxisFormatter::applyAxisPropertiesToPlot( RiuQwtPlotWidget* q
              m_axisProperties->scaleFactor() == 1.0 )
         {
             // Default to Qwt's own scale draw to avoid changing too much for default values
-            qwtPlot->setAxisScaleDraw( m_axisProperties->qwtPlotAxisType(), new QwtScaleDraw );
+            qwtPlot->setAxisScaleDraw( qwtAxisId, new QwtScaleDraw );
         }
         else
         {
-            qwtPlot->setAxisScaleDraw( m_axisProperties->qwtPlotAxisType(),
+            qwtPlot->setAxisScaleDraw( qwtAxisId,
                                        new SummaryScaleDraw( m_axisProperties->scaleFactor(),
                                                              m_axisProperties->numberOfDecimals(),
                                                              m_axisProperties->numberFormat() ) );
@@ -153,22 +154,22 @@ void RimSummaryPlotAxisFormatter::applyAxisPropertiesToPlot( RiuQwtPlotWidget* q
         if ( m_axisProperties->isLogarithmicScaleEnabled )
         {
             QwtLogScaleEngine* currentScaleEngine =
-                dynamic_cast<QwtLogScaleEngine*>( qwtPlot->axisScaleEngine( m_axisProperties->qwtPlotAxisType() ) );
+                dynamic_cast<QwtLogScaleEngine*>( qwtPlot->axisScaleEngine( qwtAxisId ) );
             if ( !currentScaleEngine )
             {
-                qwtPlot->setAxisScaleEngine( m_axisProperties->qwtPlotAxisType(), new QwtLogScaleEngine );
-                qwtPlot->setAxisMaxMinor( m_axisProperties->qwtPlotAxisType(), 5 );
+                qwtPlot->setAxisScaleEngine( qwtAxisId, new QwtLogScaleEngine );
+                qwtPlot->setAxisMaxMinor( qwtAxisId, 5 );
             }
         }
         else
         {
             QwtLinearScaleEngine* currentScaleEngine =
-                dynamic_cast<QwtLinearScaleEngine*>( qwtPlot->axisScaleEngine( m_axisProperties->qwtPlotAxisType() ) );
+                dynamic_cast<QwtLinearScaleEngine*>( qwtPlot->axisScaleEngine( qwtAxisId ) );
             QwtDateScaleEngine* dateScaleEngine = dynamic_cast<QwtDateScaleEngine*>( currentScaleEngine );
             if ( !currentScaleEngine || dateScaleEngine )
             {
-                qwtPlot->setAxisScaleEngine( m_axisProperties->qwtPlotAxisType(), new QwtLinearScaleEngine );
-                qwtPlot->setAxisMaxMinor( m_axisProperties->qwtPlotAxisType(), 3 );
+                qwtPlot->setAxisScaleEngine( qwtAxisId, new QwtLinearScaleEngine );
+                qwtPlot->setAxisMaxMinor( qwtAxisId, 3 );
             }
         }
     }

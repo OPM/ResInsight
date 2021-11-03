@@ -17,6 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 #include "RimGridCrossPlot.h"
 
+#include "RiaDefines.h"
 #include "RiaFontCache.h"
 #include "RiaPreferences.h"
 
@@ -65,13 +66,13 @@ RimGridCrossPlot::RimGridCrossPlot()
     CAF_PDM_InitFieldNoDefault( &m_xAxisProperties, "xAxisProperties", "X Axis", "", "", "" );
     m_xAxisProperties.uiCapability()->setUiTreeHidden( true );
     m_xAxisProperties = new RimPlotAxisProperties;
-    m_xAxisProperties->setNameAndAxis( "X-Axis", QwtPlot::xBottom );
+    m_xAxisProperties->setNameAndAxis( "X-Axis", RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM );
     m_xAxisProperties->setEnableTitleTextSettings( false );
 
     CAF_PDM_InitFieldNoDefault( &m_yAxisProperties, "yAxisProperties", "Y Axis", "", "", "" );
     m_yAxisProperties.uiCapability()->setUiTreeHidden( true );
     m_yAxisProperties = new RimPlotAxisProperties;
-    m_yAxisProperties->setNameAndAxis( "Y-Axis", QwtPlot::yLeft );
+    m_yAxisProperties->setNameAndAxis( "Y-Axis", RiaDefines::PlotAxis::PLOT_AXIS_LEFT );
     m_yAxisProperties->setEnableTitleTextSettings( false );
 
     connectAxisSignals( m_xAxisProperties() );
@@ -636,9 +637,9 @@ void RimGridCrossPlot::swapAxes()
     RimPlotAxisProperties* xAxisProperties = m_xAxisProperties();
     RimPlotAxisProperties* yAxisProperties = m_yAxisProperties();
 
-    QString       tmpName = xAxisProperties->name();
-    QwtPlot::Axis tmpAxis = xAxisProperties->qwtPlotAxisType();
-    xAxisProperties->setNameAndAxis( yAxisProperties->name(), yAxisProperties->qwtPlotAxisType() );
+    QString              tmpName = xAxisProperties->name();
+    RiaDefines::PlotAxis tmpAxis = xAxisProperties->plotAxisType();
+    xAxisProperties->setNameAndAxis( yAxisProperties->name(), yAxisProperties->plotAxisType() );
     yAxisProperties->setNameAndAxis( tmpName, tmpAxis );
 
     m_xAxisProperties.removeChildObject( xAxisProperties );
@@ -846,7 +847,7 @@ void RimGridCrossPlot::updateAxisInQwt( RiaDefines::PlotAxis axisType )
         axisParameterString = yAxisParameterString();
     }
 
-    QwtPlot::Axis qwtAxisId = axisProperties->qwtPlotAxisType();
+    QwtPlot::Axis qwtAxisId = RiaDefines::toQwtPlotAxis( axisProperties->plotAxisType() );
 
     if ( axisProperties->isActive() )
     {
@@ -868,11 +869,11 @@ void RimGridCrossPlot::updateAxisInQwt( RiaDefines::PlotAxis axisType )
         if ( axisProperties->isLogarithmicScaleEnabled )
         {
             QwtLogScaleEngine* currentScaleEngine =
-                dynamic_cast<QwtLogScaleEngine*>( m_plotWidget->axisScaleEngine( axisProperties->qwtPlotAxisType() ) );
+                dynamic_cast<QwtLogScaleEngine*>( m_plotWidget->axisScaleEngine( qwtAxisId ) );
             if ( !currentScaleEngine )
             {
-                m_plotWidget->setAxisScaleEngine( axisProperties->qwtPlotAxisType(), new QwtLogScaleEngine );
-                m_plotWidget->setAxisMaxMinor( axisProperties->qwtPlotAxisType(), 5 );
+                m_plotWidget->setAxisScaleEngine( qwtAxisId, new QwtLogScaleEngine );
+                m_plotWidget->setAxisMaxMinor( qwtAxisId, 5 );
             }
 
             double min = axisProperties->visibleRangeMin;
@@ -894,17 +895,17 @@ void RimGridCrossPlot::updateAxisInQwt( RiaDefines::PlotAxis axisType )
         else
         {
             QwtLinearScaleEngine* currentScaleEngine =
-                dynamic_cast<QwtLinearScaleEngine*>( m_plotWidget->axisScaleEngine( axisProperties->qwtPlotAxisType() ) );
+                dynamic_cast<QwtLinearScaleEngine*>( m_plotWidget->axisScaleEngine( qwtAxisId ) );
             if ( !currentScaleEngine )
             {
-                m_plotWidget->setAxisScaleEngine( axisProperties->qwtPlotAxisType(), new QwtLinearScaleEngine );
-                m_plotWidget->setAxisMaxMinor( axisProperties->qwtPlotAxisType(), 3 );
+                m_plotWidget->setAxisScaleEngine( qwtAxisId, new QwtLinearScaleEngine );
+                m_plotWidget->setAxisMaxMinor( qwtAxisId, 3 );
             }
 
             if ( axisProperties->isAutoZoom() )
             {
                 m_plotWidget->setAxisAutoScale( qwtAxisId );
-                m_plotWidget->axisScaleEngine( axisProperties->qwtPlotAxisType() )
+                m_plotWidget->axisScaleEngine( qwtAxisId )
                     ->setAttribute( QwtScaleEngine::Inverted, axisProperties->isAxisInverted() );
             }
             else
