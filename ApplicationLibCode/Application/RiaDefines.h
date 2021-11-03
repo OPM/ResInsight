@@ -107,18 +107,6 @@ enum class DepthTypeEnum
     TRUE_VERTICAL_DEPTH_RKB
 };
 
-// Defines relate to plotting
-enum class PlotAxis
-{
-    PLOT_AXIS_LEFT,
-    PLOT_AXIS_RIGHT,
-    PLOT_AXIS_BOTTOM
-};
-
-double minimumDefaultValuePlot();
-double minimumDefaultLogValuePlot();
-double maximumDefaultValuePlot();
-
 enum class PhaseType
 {
     OIL_PHASE,
