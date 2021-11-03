@@ -61,7 +61,18 @@ Several views can be added to the same case by right-clicking the case or a view
       <guid>https://resinsight.org/import/eclipsesummarydata/</guid>
       <description>Summary data can be imported as a single summary file or an ensemble of summary files.
 Basic Summary Import Summary data is located in two files, summary vector names in *.SMSPEC and curve data in *.UNSMRY.
-Ensemble File Import When using the standard file selection dialog, the user is limited to select files in one directory only. If the interesting files are distributed over multiple directories, the dialog has to be opened once for each directory.</description>
+Ensemble File Dialog.
+Origin Files During summary file import, ResInsight checks whether the summary file is restarted, i.e. has an origin file. If an origin file is found, the Origin Files dialog is displayed.</description>
+    </item>
+    
+    <item>
+      <title>Ensemble File Dialog</title>
+      <link>https://resinsight.org/import/ensemblefiledialog/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://resinsight.org/import/ensemblefiledialog/</guid>
+      <description>Ensemble File Import When using the standard file selection dialog, the user is limited to select files in one directory only. If the interesting files are distributed over multiple directories, the dialog has to be opened once for each directory. The recursive file selection dialog is created to circumvent this limitation. This dialog is able to search a directory tree for files matching a specified pattern.
+This dialog is used for import of different file types like *.</description>
     </item>
     
     <item>
@@ -215,6 +226,17 @@ Most important fixes
       <description>Version 2021.06 is a major update bringing a range of significant new and enhanced features as described below.
 Multilateral Wells ResInsight lets the user create Multilateral Well Paths by clicking in the 3D view. Completions can be added to laterals, and the complete specification of the well can be exported using the Completion Export
 Streamlines Streamlines lets the user investigate the flow of different phases through a reservoar. It allows for selecting both an individual phase or a combination of phases colored by the dominant phase or velocity.</description>
+    </item>
+    
+    <item>
+      <title>What&#39;s New in 2021.10</title>
+      <link>https://resinsight.org/getting-started/whats-new/releasenotes_2021_10/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://resinsight.org/getting-started/whats-new/releasenotes_2021_10/</guid>
+      <description>Ensemble Surface To study the structural uncertainty for an ensemble of cases, ResInsight enables the user to import an Ensemble Surface and compute the statistical surfaces based on this ensemble.
+Ensemble Well Log To study the uncertainty for well log extraction curves, ResInsight enables the user to import an Ensemble Well Log and compute the statistical distribution in this ensemble.
+Performance Improved performance for grid model import from GRDECL. Improved performace for surface geometry import.</description>
     </item>
     
     <item>
@@ -378,8 +400,8 @@ Importing such a file will enable result type called SourSimRL as explained in E
       <description>Source code The source code is hosted at GitHub
 In a git enabled shell do: git clone https://github.com/OPM/ResInsight.git
 Dependencies and Prerequisites Windows Compiler Visual Studio 2019 and later is supported.
-GCC Compiler GCC version 4.9 or later is supported. On RedHat Linux 6 you need to install devtoolset-3, and enable it with
-source /opt/rh/devtoolset-3/enable Qt 5 Qt 5.9 or later is supported, Qt 5.15 is recommended.
+GCC Compiler On RedHat Linux 7 or CentOS 7 you need to install devtoolset-10, and enable it with
+source /opt/rh/devtoolset-10/enable Qt 5 Qt 5.9 or later is supported, Qt 5.15 is recommended.
 Qt download
 On some configurations you will be asked to specify the location of Qt 5.</description>
     </item>
@@ -415,7 +437,8 @@ Command List Case Control Commands  openProject closeProject setStartDir loadCas
       
       <guid>https://resinsight.org/wells-and-completions/createnewwellpaths/</guid>
       <description>ResInsight lets the user create new/custom well paths by clicking in the 3D view. A self created well path will behave the same way as an ordinary imported well path.
-Building a well path  Right click Wells in the project tree Select Create Well Path in the right-click menu. A new well node and a well targets node are created. Click in the 3D view on locations where the well path will pass (targets).</description>
+Building a multilateral well path
+Building a well path  Right click Wells in the project tree Select Create Well Path in the right-click menu. A new well node and a well targets node are created Click in the 3D view on locations where the well path should pass (well path targets) When finished placing targets, click on &amp;ldquo;Stop Picking Targets&amp;rdquo; in the property editor  Well targets property editor fields:</description>
     </item>
     
     <item>
@@ -625,6 +648,17 @@ The currenly supported types of plots to be part of a Multi Plot are:</descripti
       <guid>https://resinsight.org/wells-and-completions/completions/</guid>
       <description>Three types of completions are available for modeling and export: Perforation intervals, fishbone wells and fractures. The purpose of modeling these completions, is that it enables ResInsight to export Eclipse keywords for doing more refined simulations.
 Completions can be modeled by adding new perforation intervals, fishbones subs or fractures. Details about the completions must then be specified, such as the length of the perforation interval or number of fishbone subs and laterals.</description>
+    </item>
+    
+    <item>
+      <title>Ensemble Fracture Statistics</title>
+      <link>https://resinsight.org/wells-and-completions/ensemblefracturestatistics/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://resinsight.org/wells-and-completions/ensemblefracturestatistics/</guid>
+      <description>Importing Ensemble Fracture Statistics Right-click on Completion Templates &amp;gt; Ensemble Fracture Statistics in the Project Tree and select the Import StimPlan Fracture Recursively option. Then select the StimPlan fracture Xml files to be part of the ensemble.
+After importing the Property Panel of the Ensemble Fracture Statistics item has these options:
+ Name &amp;ndash; Name of the ensemble fracture statistics. Exclude Zero Width Fractures &amp;ndash; Toggle to remove zero width fractures from the statistics.</description>
     </item>
     
     <item>
@@ -895,6 +929,26 @@ Property Editor Settings  Binary Formation Allan One color for all NNC areas wit
 The Biot porelastic coefficient defines the compressibility of sand grains, and will influence some of the calculations in ResInsight.
 Description The Biot coefficient can be defined in three ways:
  Default (Constant value of 1.0) User defined constant for all element One value for each element based on imported values from an element property table  These settings are controlled from the Property Editor when a Geomechanical Case is selected.</description>
+    </item>
+    
+    <item>
+      <title>Ensemble Surface</title>
+      <link>https://resinsight.org/workflows/ensemblesurface/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://resinsight.org/workflows/ensemblesurface/</guid>
+      <description>Introduction To study the structural uncertainty, ResInsight enables the user to create and import an ensemble of surfaces and compute the statistical surfaces based on this ensemble. This page describes the interactive workflow, but in many cases it can be useful to create scripts related to mangement of Ensemble Surfaces. See Python Examples for more details.
+Create Ensemble Surface   From the right-click menu of surfaces, select Import Ensemble Surface   Select the ensemble grid models to create surfaces for, either &amp;quot;*.</description>
+    </item>
+    
+    <item>
+      <title>Ensemble Well Log</title>
+      <link>https://resinsight.org/workflows/ensemblewelllog/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://resinsight.org/workflows/ensemblewelllog/</guid>
+      <description>Introduction To study the uncertainty for well log extraction curves, ResInsight enables the user to import an ensemble of well logs and compute the statistical distribution in this ensemble.
+Workflow   From the right-click menu of Wells, select Create Ensemble Well Log   In the ensemble import dialog, select the files for import into ensembles   Select well path and properties for export, select time step for dynamic properties, and use the checkbox to control if you want to create a well log ensemble based on the exported well log files   Click OK when you are ready</description>
     </item>
     
     <item>

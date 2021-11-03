@@ -12,18 +12,18 @@
     <title>Create Multilaterals Well Paths :: ResInsight</title>
 
     
-    <link href="/css/nucleus.css?1624973053" rel="stylesheet">
-    <link href="/css/fontawesome-all.min.css?1624973053" rel="stylesheet">
-    <link href="/css/hybrid.css?1624973053" rel="stylesheet">
-    <link href="/css/featherlight.min.css?1624973053" rel="stylesheet">
-    <link href="/css/perfect-scrollbar.min.css?1624973053" rel="stylesheet">
-    <link href="/css/auto-complete.css?1624973053" rel="stylesheet">
-    <link href="/css/atom-one-dark-reasonable.css?1624973053" rel="stylesheet">
-    <link href="/css/theme.css?1624973053" rel="stylesheet">
-    <link href="/css/hugo-theme.css?1624973053" rel="stylesheet">
+    <link href="/css/nucleus.css?1635929135" rel="stylesheet">
+    <link href="/css/fontawesome-all.min.css?1635929135" rel="stylesheet">
+    <link href="/css/hybrid.css?1635929135" rel="stylesheet">
+    <link href="/css/featherlight.min.css?1635929135" rel="stylesheet">
+    <link href="/css/perfect-scrollbar.min.css?1635929135" rel="stylesheet">
+    <link href="/css/auto-complete.css?1635929135" rel="stylesheet">
+    <link href="/css/atom-one-dark-reasonable.css?1635929135" rel="stylesheet">
+    <link href="/css/theme.css?1635929135" rel="stylesheet">
+    <link href="/css/hugo-theme.css?1635929135" rel="stylesheet">
     
 
-    <script src="/js/jquery-3.3.1.min.js?1624973053"></script>
+    <script src="/js/jquery-3.3.1.min.js?1635929135"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -264,6 +264,9 @@
   
  
 
+            
+          
+             
             
           
              
@@ -1357,6 +1360,44 @@
 
             
           
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/workflows/ensemblesurface/" title="Ensemble Surface" class="dd-item ">
+        <a href="/workflows/ensemblesurface/">
+        Ensemble Surface
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/workflows/ensemblewelllog/" title="Ensemble Well Log" class="dd-item ">
+        <a href="/workflows/ensemblewelllog/">
+        Ensemble Well Log
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
         
         </ul>
               
@@ -1510,6 +1551,25 @@
  
   
     
+      <li data-nav-id="/wells-and-completions/ensemblefracturestatistics/" title="Ensemble Fracture Statistics" class="dd-item ">
+        <a href="/wells-and-completions/ensemblefracturestatistics/">
+        Ensemble Fracture Statistics
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
       <li data-nav-id="/wells-and-completions/completionslgr/" title="Completions LGR" class="dd-item ">
         <a href="/wells-and-completions/completionslgr/">
         Completions LGR
@@ -1602,6 +1662,25 @@
       <li data-nav-id="/import/eclipsesummarydata/" title="Eclipse Summary Data" class="dd-item ">
         <a href="/import/eclipsesummarydata/">
         Eclipse Summary Data
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/import/ensemblefiledialog/" title="Ensemble File Dialog" class="dd-item ">
+        <a href="/import/ensemblefiledialog/">
+        Ensemble File Dialog
         
         </a>
     </li>
@@ -2255,13 +2334,16 @@ if (!doNotTrack) {
   <ul>
     <li>
       <ul>
-        <li>
+        <li><a href="#building-a-well-path">Building a well path</a></li>
+        <li><a href="#tie-in-control">Tie In Control</a></li>
+        <li><a href="#naming-of-laterals">Naming of laterals</a></li>
+        <li><a href="#well-target-interaction">Well Target Interaction</a>
           <ul>
-            <li><a href="#building-a-well-path">Building a well path</a></li>
-            <li><a href="#tie-in-control">Tie In Control</a></li>
-            <li><a href="#naming-of-laterals">Naming of laterals</a></li>
+            <li><a href="#activate-well-targets">Activate well targets</a></li>
+            <li><a href="#well-target-interaction-operations">Well Target Interaction Operations</a></li>
           </ul>
         </li>
+        <li><a href="#link-reference-point">Link Reference Point</a></li>
       </ul>
     </li>
   </ul>
@@ -2290,9 +2372,8 @@ if (!doNotTrack) {
 
 
 <p><img src="/images/3d-main-window/MultiLateralWell_3d_view.png" alt=""></p>
-<p>ResInsight lets the user create additional well path laterals by clicking in the 3D view. Completions can be added to laterals, and the complete specification of the well can 
-be exported using the <a href="/export/completionexport/">Completion Export</a></p>
-<h3 id="building-a-well-path">Building a well path</h3>
+<p>ResInsight lets the user create additional well path laterals by clicking in the 3D view. Completions can be added to laterals, and the complete specification of the well can be exported using the <a href="/export/completionexport/">Completion Export</a></p>
+<h2 id="building-a-well-path">Building a well path</h2>
 <ol>
 <li>Start from an existing well path, either imported or <a href="/wells-and-completions/createnewwellpaths/">create a new well path</a></li>
 <li>In the 3D view, right-click on the well path at the depth location for your lateral
@@ -2300,11 +2381,45 @@ be exported using the <a href="/export/completionexport/">Completion Export</a><
 <li>A new well path lateral is created, and click in the 3D scene to define targets for the lateral</li>
 <li>Repeat from 2. for more laterals</li>
 </ol>
-<h3 id="tie-in-control">Tie In Control</h3>
+<h2 id="tie-in-control">Tie In Control</h2>
 <p>The parent well and the measured depth of the tie in location can be adjusted from the property editor.</p>
 <p><img src="/images/3d-main-window/MultiLateralWell_property_editor.png" alt=""></p>
-<h3 id="naming-of-laterals">Naming of laterals</h3>
+<h2 id="naming-of-laterals">Naming of laterals</h2>
 <p>When a lateral is created, the postfix <strong>Y1</strong> is added to the original well path. The first lateral is given the postfix <strong>Y2</strong>. See the image above for an example of naming.</p>
+<h2 id="well-target-interaction">Well Target Interaction</h2>
+<p><img src="/images/well-modeling/well-targets-and-handles-2.png" alt=""></p>
+<h3 id="activate-well-targets">Activate well targets</h3>
+<p>Activate the well target handles, either by clicking on the well target spheres or by selecting <strong>Well Targets</strong> in the <strong>Project Tree</strong>.</p>
+<h3 id="well-target-interaction-operations">Well Target Interaction Operations</h3>
+<p>When the well target handles are active in the 3D view, the following operations are possible when pressing left mouse button on well target handles:</p>
+<table>
+<thead>
+<tr>
+<th>User Interaction</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Mouse Move</td>
+<td>Modification of a single target</td>
+</tr>
+<tr>
+<td>Mouse Move + CTRL</td>
+<td>Modification of all well target on selected well (laterals excluded)</td>
+</tr>
+<tr>
+<td>Mouse Move + CTRL + SHIFT</td>
+<td>Modification of all well targets (laterals included)</td>
+</tr>
+</tbody>
+</table>
+<p>Similar behaviour is available when modifying the well target for the tie-in well target.</p>
+<h2 id="link-reference-point">Link Reference Point</h2>
+<p>If you want to move multiple wells at the same time, you can activate Link Reference Point. If the reference point is updated in any of the linked wells, all wells will be updated accordingly.
+<img src="/images/well-modeling/well-modeling-link-reference-property-editor.png" alt=""></p>
+<p>Selection of multiple well, and activation of <strong>Link Reference Point</strong>
+<img src="/images/well-modeling/well-modeling-link-reference.png" alt=""></p>
 
 
 <footer class="footline">
@@ -2520,17 +2635,6 @@ be exported using the <a href="/export/completionexport/">Completion Export</a><
                         
             
             
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
         
                     
                         
@@ -2561,41 +2665,6 @@ be exported using the <a href="/export/completionexport/">Completion Export</a><
                     
                     
 
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-            
-        
                     
             
         
@@ -2645,18 +2714,8 @@ be exported using the <a href="/export/completionexport/">Completion Export</a><
             
         
                     
-                        
             
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
+        
                     
             
         
@@ -2673,41 +2732,6 @@ be exported using the <a href="/export/completionexport/">Completion Export</a><
                     
                     
 
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
                     
                         
             
@@ -2740,262 +2764,6 @@ be exported using the <a href="/export/completionexport/">Completion Export</a><
                     
             
         
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
                     
                         
             
@@ -3365,6 +3133,390 @@ be exported using the <a href="/export/completionexport/">Completion Export</a><
             
         
                     
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
             
         
                     
@@ -3517,6 +3669,22 @@ be exported using the <a href="/export/completionexport/">Completion Export</a><
             
         
                     
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
             
         
                     
@@ -3532,6 +3700,22 @@ be exported using the <a href="/export/completionexport/">Completion Export</a><
                     
                     
 
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
                     
                         
             
@@ -4006,19 +4190,19 @@ be exported using the <a href="/export/completionexport/">Completion Export</a><
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/js/clipboard.min.js?1624973053"></script>
-    <script src="/js/perfect-scrollbar.min.js?1624973053"></script>
-    <script src="/js/perfect-scrollbar.jquery.min.js?1624973053"></script>
-    <script src="/js/jquery.sticky.js?1624973053"></script>
-    <script src="/js/featherlight.min.js?1624973053"></script>
-    <script src="/js/highlight.pack.js?1624973053"></script>
+    <script src="/js/clipboard.min.js?1635929135"></script>
+    <script src="/js/perfect-scrollbar.min.js?1635929135"></script>
+    <script src="/js/perfect-scrollbar.jquery.min.js?1635929135"></script>
+    <script src="/js/jquery.sticky.js?1635929135"></script>
+    <script src="/js/featherlight.min.js?1635929135"></script>
+    <script src="/js/highlight.pack.js?1635929135"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/js/modernizr.custom-3.6.0.js?1624973053"></script>
-    <script src="/js/learn.js?1624973053"></script>
-    <script src="/js/hugo-learn.js?1624973053"></script>
+    <script src="/js/modernizr.custom-3.6.0.js?1635929135"></script>
+    <script src="/js/learn.js?1635929135"></script>
+    <script src="/js/hugo-learn.js?1635929135"></script>
 
-    <link href="/mermaid/mermaid.css?1624973053" rel="stylesheet" />
-    <script src="/mermaid/mermaid.js?1624973053"></script>
+    <link href="/mermaid/mermaid.css?1635929135" rel="stylesheet" />
+    <script src="/mermaid/mermaid.js?1635929135"></script>
     <script>
         mermaid.initialize({ startOnLoad: true });
     </script>

@@ -29,7 +29,18 @@
       <guid>https://resinsight.org/import/eclipsesummarydata/</guid>
       <description>Summary data can be imported as a single summary file or an ensemble of summary files.
 Basic Summary Import Summary data is located in two files, summary vector names in *.SMSPEC and curve data in *.UNSMRY.
-Ensemble File Import When using the standard file selection dialog, the user is limited to select files in one directory only. If the interesting files are distributed over multiple directories, the dialog has to be opened once for each directory.</description>
+Ensemble File Dialog.
+Origin Files During summary file import, ResInsight checks whether the summary file is restarted, i.e. has an origin file. If an origin file is found, the Origin Files dialog is displayed.</description>
+    </item>
+    
+    <item>
+      <title>Ensemble File Dialog</title>
+      <link>https://resinsight.org/import/ensemblefiledialog/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://resinsight.org/import/ensemblefiledialog/</guid>
+      <description>Ensemble File Import When using the standard file selection dialog, the user is limited to select files in one directory only. If the interesting files are distributed over multiple directories, the dialog has to be opened once for each directory. The recursive file selection dialog is created to circumvent this limitation. This dialog is able to search a directory tree for files matching a specified pattern.
+This dialog is used for import of different file types like *.</description>
     </item>
     
     <item>

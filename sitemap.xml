@@ -27,6 +27,10 @@
   </url>
   
   <url>
+    <loc>https://resinsight.org/import/ensemblefiledialog/</loc>
+  </url>
+  
+  <url>
     <loc>https://resinsight.org/getting-started/</loc>
   </url>
   
@@ -84,6 +88,10 @@
   
   <url>
     <loc>https://resinsight.org/getting-started/whats-new/releasenotes_2021_06/</loc>
+  </url>
+  
+  <url>
+    <loc>https://resinsight.org/getting-started/whats-new/releasenotes_2021_10/</loc>
   </url>
   
   <url>
@@ -255,6 +263,10 @@
   </url>
   
   <url>
+    <loc>https://resinsight.org/wells-and-completions/ensemblefracturestatistics/</loc>
+  </url>
+  
+  <url>
     <loc>https://resinsight.org/plot-window/ensembleplotting/</loc>
   </url>
   
@@ -364,6 +376,14 @@
   
   <url>
     <loc>https://resinsight.org/workflows/biotcoefficient/</loc>
+  </url>
+  
+  <url>
+    <loc>https://resinsight.org/workflows/ensemblesurface/</loc>
+  </url>
+  
+  <url>
+    <loc>https://resinsight.org/workflows/ensemblewelllog/</loc>
   </url>
   
   <url>

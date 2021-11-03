@@ -1,0 +1,4231 @@
+<!DOCTYPE html>
+<html lang="en" class="js csstransforms3d">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="Hugo 0.65.3" />
+    <meta name="description" content="">
+
+
+    <link rel="icon" href="/images/favicon.png" type="image/png">
+
+    <title>Ensemble Fracture Statistics :: ResInsight</title>
+
+    
+    <link href="/css/nucleus.css?1635929135" rel="stylesheet">
+    <link href="/css/fontawesome-all.min.css?1635929135" rel="stylesheet">
+    <link href="/css/hybrid.css?1635929135" rel="stylesheet">
+    <link href="/css/featherlight.min.css?1635929135" rel="stylesheet">
+    <link href="/css/perfect-scrollbar.min.css?1635929135" rel="stylesheet">
+    <link href="/css/auto-complete.css?1635929135" rel="stylesheet">
+    <link href="/css/atom-one-dark-reasonable.css?1635929135" rel="stylesheet">
+    <link href="/css/theme.css?1635929135" rel="stylesheet">
+    <link href="/css/hugo-theme.css?1635929135" rel="stylesheet">
+    
+
+    <script src="/js/jquery-3.3.1.min.js?1635929135"></script>
+
+    <style>
+      :root #header + #content > #left > #rlblock_left{
+          display:none !important;
+      }
+      
+    </style>
+    
+<script type="text/javascript" async
+  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.6/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+  MathJax.Hub.Config({
+  tex2jax: {
+    inlineMath: [['$','$'], ['\\(','\\)']],
+    displayMath: [['$$','$$'], ['\\[','\\]']],
+    processEscapes: true,
+    processEnvironments: true,
+    skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+    TeX: { equationNumbers: { autoNumber: "AMS" },
+         extensions: ["AMSmath.js", "AMSsymbols.js"] }
+  }
+  });
+  MathJax.Hub.Queue(function() {
+    
+    
+    
+    var all = MathJax.Hub.getAllJax();
+    while(jax = all.pop()) {
+        jax.SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+
+  MathJax.Hub.Config({
+  
+  TeX: { equationNumbers: { autoNumber: "AMS" } }
+  });
+</script>
+
+  </head>
+  <body class="" data-url="/wells-and-completions/ensemblefracturestatistics/">
+    <nav id="sidebar" class="">
+
+
+
+  <div id="header-wrapper">
+    <div id="header">
+      <a id="logo" href="https://resinsight.org/">
+  <img src="https://resinsight.org//images/ResInsightCroppedIconPicture.png">
+</a>
+
+    </div>
+    
+        <div class="searchbox">
+    <label for="searchbox"><i class="fas fa-search"></i></label>
+    <form action="/search/" method="GET" id="search-form">
+      <input type="search" name="q" id="searchbox" placeholder="Search">
+    </form>
+    <span data-search-clear=""><i class="fas fa-times"></i></span>
+</div>
+
+
+    
+  </div>
+
+    <div class="highlightable">
+    <ul class="topics">
+
+        
+          
+          
+
+
+ 
+  
+    
+    <li data-nav-id="/getting-started/" title="Getting Started" class="dd-item 
+        
+        
+        
+        ">
+      <a href="/getting-started/">
+          Getting Started
+          
+      </a>
+      
+      
+        <ul>
+          
+          
+            
+          
+          
+          
+        
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/getting-started/overview/" title="Overview" class="dd-item ">
+        <a href="/getting-started/overview/">
+        Overview
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/getting-started/projecttree/" title="Project Tree" class="dd-item ">
+        <a href="/getting-started/projecttree/">
+        Project Tree
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+    <li data-nav-id="/getting-started/download-and-install/" title="Download and Install" class="dd-item 
+        
+        
+        
+        ">
+      <a href="/getting-started/download-and-install/">
+          Download and Install
+          
+      </a>
+      
+      
+        <ul>
+          
+          
+          
+          
+        
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/getting-started/download-and-install/linux-installation/" title="Linux Installation" class="dd-item ">
+        <a href="/getting-started/download-and-install/linux-installation/">
+        Linux Installation
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/getting-started/download-and-install/windows-installation/" title="Windows Installation" class="dd-item ">
+        <a href="/getting-started/download-and-install/windows-installation/">
+        Windows Installation
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/getting-started/download-and-install/buildinstructions/" title="Build Instructions" class="dd-item ">
+        <a href="/getting-started/download-and-install/buildinstructions/">
+        Build Instructions
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/getting-started/download-and-install/build-instructions-centos7/" title="Build Instructions CentOS 7" class="dd-item ">
+        <a href="/getting-started/download-and-install/build-instructions-centos7/">
+        Build Instructions CentOS 7
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+        
+        </ul>
+              
+    </li>
+  
+ 
+
+            
+          
+             
+            
+          
+             
+            
+          
+             
+            
+          
+             
+            
+          
+             
+            
+          
+             
+            
+          
+             
+            
+          
+             
+            
+          
+             
+            
+          
+             
+            
+          
+             
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/getting-started/helpmenuanddocumentation/" title="Help Menu and Documentation" class="dd-item ">
+        <a href="/getting-started/helpmenuanddocumentation/">
+        Help Menu and Documentation
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/getting-started/modelnavigation/" title="Model Navigation" class="dd-item ">
+        <a href="/getting-started/modelnavigation/">
+        Model Navigation
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+    <li data-nav-id="/getting-started/other/" title="Other" class="dd-item 
+        
+        
+        
+        ">
+      <a href="/getting-started/other/">
+          Other
+          
+      </a>
+      
+      
+        <ul>
+          
+          
+          
+          
+        
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/getting-started/other/releasenotification/" title="Release Notification Subscription" class="dd-item ">
+        <a href="/getting-started/other/releasenotification/">
+        Release Notification Subscription
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/getting-started/other/testimonials/" title="Testimonials" class="dd-item ">
+        <a href="/getting-started/other/testimonials/">
+        Testimonials
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+        
+        </ul>
+              
+    </li>
+  
+ 
+
+            
+          
+        
+        </ul>
+              
+    </li>
+  
+ 
+
+          
+          
+
+
+ 
+  
+    
+    <li data-nav-id="/3d-main-window/" title="3D Main Window" class="dd-item 
+        
+        
+        
+        ">
+      <a href="/3d-main-window/">
+          3D Main Window
+          
+      </a>
+      
+      
+        <ul>
+          
+          
+          
+          
+        
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/3d-main-window/3dviews/" title="3D Views" class="dd-item ">
+        <a href="/3d-main-window/3dviews/">
+        3D Views
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/3d-main-window/cellresults/" title="Cell Results" class="dd-item ">
+        <a href="/3d-main-window/cellresults/">
+        Cell Results
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/3d-main-window/resultcolorlegend/" title="Result Color Legend" class="dd-item ">
+        <a href="/3d-main-window/resultcolorlegend/">
+        Result Color Legend
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/3d-main-window/colorlegends/" title="Color Legends" class="dd-item ">
+        <a href="/3d-main-window/colorlegends/">
+        Color Legends
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/3d-main-window/comparisonview/" title="Comparison View" class="dd-item ">
+        <a href="/3d-main-window/comparisonview/">
+        Comparison View
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/3d-main-window/contourmaps/" title="Contour Maps" class="dd-item ">
+        <a href="/3d-main-window/contourmaps/">
+        Contour Maps
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/3d-main-window/flowvectorresult/" title="Flow Results" class="dd-item ">
+        <a href="/3d-main-window/flowvectorresult/">
+        Flow Results
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/3d-main-window/streamlines/" title="Streamlines" class="dd-item ">
+        <a href="/3d-main-window/streamlines/">
+        Streamlines
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/3d-main-window/tensors/" title="Tensor Results" class="dd-item ">
+        <a href="/3d-main-window/tensors/">
+        Tensor Results
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/3d-main-window/resultinspection/" title="Result Inspection" class="dd-item ">
+        <a href="/3d-main-window/resultinspection/">
+        Result Inspection
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/3d-main-window/filters/" title="Filters" class="dd-item ">
+        <a href="/3d-main-window/filters/">
+        Filters
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/3d-main-window/intersections/" title="Intersections" class="dd-item ">
+        <a href="/3d-main-window/intersections/">
+        Intersections
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/3d-main-window/surfaces/" title="Surfaces" class="dd-item ">
+        <a href="/3d-main-window/surfaces/">
+        Surfaces
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/3d-main-window/allandiagrams/" title="Allan Diagram" class="dd-item ">
+        <a href="/3d-main-window/allandiagrams/">
+        Allan Diagram
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/3d-main-window/faults/" title="Faults" class="dd-item ">
+        <a href="/3d-main-window/faults/">
+        Faults
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/3d-main-window/formations/" title=" Zonations/Formations" class="dd-item ">
+        <a href="/3d-main-window/formations/">
+         Zonations/Formations
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/3d-main-window/gridstatisticsdialog/" title="Grid Statistics Dialog" class="dd-item ">
+        <a href="/3d-main-window/gridstatisticsdialog/">
+        Grid Statistics Dialog
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/3d-main-window/casegroupsandstatistics/" title="Grid Case Groups and Statistics" class="dd-item ">
+        <a href="/3d-main-window/casegroupsandstatistics/">
+        Grid Case Groups and Statistics
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/3d-main-window/linkedviews/" title="Linked Views" class="dd-item ">
+        <a href="/3d-main-window/linkedviews/">
+        Linked Views
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/3d-main-window/measurement/" title="Measurement" class="dd-item ">
+        <a href="/3d-main-window/measurement/">
+        Measurement
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/3d-main-window/annotations/" title="Annotations" class="dd-item ">
+        <a href="/3d-main-window/annotations/">
+        Annotations
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/3d-main-window/derivedresults/" title="Derived Results - Eclipse" class="dd-item ">
+        <a href="/3d-main-window/derivedresults/">
+        Derived Results - Eclipse
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/3d-main-window/derivedresultsgeomech/" title="Derived Results - Geomechanical" class="dd-item ">
+        <a href="/3d-main-window/derivedresultsgeomech/">
+        Derived Results - Geomechanical
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+        
+        </ul>
+              
+    </li>
+  
+ 
+
+          
+          
+
+
+ 
+  
+    
+    <li data-nav-id="/plot-window/" title="Plot Main Window" class="dd-item 
+        
+        
+        
+        ">
+      <a href="/plot-window/">
+          Plot Main Window
+          
+      </a>
+      
+      
+        <ul>
+          
+          
+          
+          
+        
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/plot-window/summaryplots/" title="Summary Plots" class="dd-item ">
+        <a href="/plot-window/summaryplots/">
+        Summary Plots
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/plot-window/summarysourcestepping/" title="Summary Plot Source Stepping" class="dd-item ">
+        <a href="/plot-window/summarysourcestepping/">
+        Summary Plot Source Stepping
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/plot-window/summaryploteditor/" title="Summary Plot Editor" class="dd-item ">
+        <a href="/plot-window/summaryploteditor/">
+        Summary Plot Editor
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/plot-window/summarycrossplots/" title="Summary Cross Plot" class="dd-item ">
+        <a href="/plot-window/summarycrossplots/">
+        Summary Cross Plot
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/plot-window/summaryplottemplate/" title="Summary Plot Template" class="dd-item ">
+        <a href="/plot-window/summaryplottemplate/">
+        Summary Plot Template
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/plot-window/multiplots/" title="Multi Plots" class="dd-item ">
+        <a href="/plot-window/multiplots/">
+        Multi Plots
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/plot-window/ensembleplotting/" title="Ensemble Plotting" class="dd-item ">
+        <a href="/plot-window/ensembleplotting/">
+        Ensemble Plotting
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/plot-window/objectivefunctions/" title="Objective Functions" class="dd-item ">
+        <a href="/plot-window/objectivefunctions/">
+        Objective Functions
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/plot-window/analysisplots/" title="Analysis Plots" class="dd-item ">
+        <a href="/plot-window/analysisplots/">
+        Analysis Plots
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/plot-window/gridstatisticsplots/" title="Grid Statistics Plots" class="dd-item ">
+        <a href="/plot-window/gridstatisticsplots/">
+        Grid Statistics Plots
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/plot-window/correlationplots/" title="Correlation Plots" class="dd-item ">
+        <a href="/plot-window/correlationplots/">
+        Correlation Plots
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/plot-window/curvecalculator/" title="Curve Calculator" class="dd-item ">
+        <a href="/plot-window/curvecalculator/">
+        Curve Calculator
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/plot-window/welllogsandplots/" title="Well Log Plots" class="dd-item ">
+        <a href="/plot-window/welllogsandplots/">
+        Well Log Plots
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/plot-window/wellborestabilityplots/" title="Well Bore Stability Plots" class="dd-item ">
+        <a href="/plot-window/wellborestabilityplots/">
+        Well Bore Stability Plots
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/plot-window/rftplot/" title="RFT Plot" class="dd-item ">
+        <a href="/plot-window/rftplot/">
+        RFT Plot
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/plot-window/ensemblerftplot/" title="Ensemble RFT Plot" class="dd-item ">
+        <a href="/plot-window/ensemblerftplot/">
+        Ensemble RFT Plot
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/plot-window/pltplot/" title="PLT Plot" class="dd-item ">
+        <a href="/plot-window/pltplot/">
+        PLT Plot
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/plot-window/vfpplot/" title="VFP Plot" class="dd-item ">
+        <a href="/plot-window/vfpplot/">
+        VFP Plot
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/plot-window/flowdiagnosticsplots/" title="Flow Diagnostics Plots" class="dd-item ">
+        <a href="/plot-window/flowdiagnosticsplots/">
+        Flow Diagnostics Plots
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/plot-window/gridcrossplots/" title="Grid Cross Plots" class="dd-item ">
+        <a href="/plot-window/gridcrossplots/">
+        Grid Cross Plots
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/plot-window/saturationpressureplots/" title="Saturation Pressure Plots" class="dd-item ">
+        <a href="/plot-window/saturationpressureplots/">
+        Saturation Pressure Plots
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+        
+        </ul>
+              
+    </li>
+  
+ 
+
+          
+          
+
+
+ 
+  
+    
+    <li data-nav-id="/workflows/" title="Workflows" class="dd-item 
+        
+        
+        
+        ">
+      <a href="/workflows/">
+          Workflows
+          
+      </a>
+      
+      
+        <ul>
+          
+          
+          
+          
+        
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/workflows/biotcoefficient/" title="Biot Coefficient" class="dd-item ">
+        <a href="/workflows/biotcoefficient/">
+        Biot Coefficient
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/workflows/ensemblesurface/" title="Ensemble Surface" class="dd-item ">
+        <a href="/workflows/ensemblesurface/">
+        Ensemble Surface
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/workflows/ensemblewelllog/" title="Ensemble Well Log" class="dd-item ">
+        <a href="/workflows/ensemblewelllog/">
+        Ensemble Well Log
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+        
+        </ul>
+              
+    </li>
+  
+ 
+
+          
+          
+
+
+ 
+  
+    
+    <li data-nav-id="/wells-and-completions/" title="Wells and Completions" class="dd-item 
+        parent
+        
+        
+        ">
+      <a href="/wells-and-completions/">
+          Wells and Completions
+          
+      </a>
+      
+      
+        <ul>
+          
+          
+          
+          
+        
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/wells-and-completions/simulationwells/" title="Simulation Wells" class="dd-item ">
+        <a href="/wells-and-completions/simulationwells/">
+        Simulation Wells
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/wells-and-completions/wellpaths/" title="Well Paths" class="dd-item ">
+        <a href="/wells-and-completions/wellpaths/">
+        Well Paths
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/wells-and-completions/createnewwellpaths/" title="Create Well Paths" class="dd-item ">
+        <a href="/wells-and-completions/createnewwellpaths/">
+        Create Well Paths
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/wells-and-completions/createmultilateralwellpaths/" title="Create Multilaterals Well Paths" class="dd-item ">
+        <a href="/wells-and-completions/createmultilateralwellpaths/">
+        Create Multilaterals Well Paths
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/wells-and-completions/3dwelllogcurves/" title="3D Well Log Plots" class="dd-item ">
+        <a href="/wells-and-completions/3dwelllogcurves/">
+        3D Well Log Plots
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/wells-and-completions/completions/" title="Completions" class="dd-item ">
+        <a href="/wells-and-completions/completions/">
+        Completions
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/wells-and-completions/ensemblefracturestatistics/" title="Ensemble Fracture Statistics" class="dd-item active">
+        <a href="/wells-and-completions/ensemblefracturestatistics/">
+        Ensemble Fracture Statistics
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/wells-and-completions/completionslgr/" title="Completions LGR" class="dd-item ">
+        <a href="/wells-and-completions/completionslgr/">
+        Completions LGR
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/wells-and-completions/wellmeasurements/" title="Well Measurements" class="dd-item ">
+        <a href="/wells-and-completions/wellmeasurements/">
+        Well Measurements
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+        
+        </ul>
+              
+    </li>
+  
+ 
+
+          
+          
+
+
+ 
+  
+    
+    <li data-nav-id="/import/" title="Import" class="dd-item 
+        
+        
+        
+        ">
+      <a href="/import/">
+          Import
+          
+      </a>
+      
+      
+        <ul>
+          
+          
+          
+          
+        
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/import/eclipsecases/" title="Eclipse Cases" class="dd-item ">
+        <a href="/import/eclipsecases/">
+        Eclipse Cases
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/import/eclipsesummarydata/" title="Eclipse Summary Data" class="dd-item ">
+        <a href="/import/eclipsesummarydata/">
+        Eclipse Summary Data
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/import/ensemblefiledialog/" title="Ensemble File Dialog" class="dd-item ">
+        <a href="/import/ensemblefiledialog/">
+        Ensemble File Dialog
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/import/lasfile/" title="Log ASCII Standard File" class="dd-item ">
+        <a href="/import/lasfile/">
+        Log ASCII Standard File
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/import/geomechanicaldata/" title="Geomechanical Data" class="dd-item ">
+        <a href="/import/geomechanicaldata/">
+        Geomechanical Data
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/import/soursimrlresults/" title="SourSimRL Results" class="dd-item ">
+        <a href="/import/soursimrlresults/">
+        SourSimRL Results
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/import/elementpropertytable/" title="Element Property Table" class="dd-item ">
+        <a href="/import/elementpropertytable/">
+        Element Property Table
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/import/observeddata/" title="Observed Time History Data" class="dd-item ">
+        <a href="/import/observeddata/">
+        Observed Time History Data
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/import/pasteexceltimedata/" title="Paste Excel Time History Data" class="dd-item ">
+        <a href="/import/pasteexceltimedata/">
+        Paste Excel Time History Data
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+        
+        </ul>
+              
+    </li>
+  
+ 
+
+          
+          
+
+
+ 
+  
+    
+    <li data-nav-id="/export/" title="Export" class="dd-item 
+        
+        
+        
+        ">
+      <a href="/export/">
+          Export
+          
+      </a>
+      
+      
+        <ul>
+          
+          
+          
+          
+        
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/export/snapshots/" title="Snapshots" class="dd-item ">
+        <a href="/export/snapshots/">
+        Snapshots
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/export/eclipseproperties/" title="Eclipse Properties" class="dd-item ">
+        <a href="/export/eclipseproperties/">
+        Eclipse Properties
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/export/fluxnummultnum/" title="FLUXNUM/MULTNUM" class="dd-item ">
+        <a href="/export/fluxnummultnum/">
+        FLUXNUM/MULTNUM
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/export/completionexport/" title="Completions" class="dd-item ">
+        <a href="/export/completionexport/">
+        Completions
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/export/exportwellpaths/" title="Well Paths" class="dd-item ">
+        <a href="/export/exportwellpaths/">
+        Well Paths
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/export/sectormodel/" title="Sector Model" class="dd-item ">
+        <a href="/export/sectormodel/">
+        Sector Model
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/export/contourmapexport/" title="Contour Map Export" class="dd-item ">
+        <a href="/export/contourmapexport/">
+        Contour Map Export
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+        
+        </ul>
+              
+    </li>
+  
+ 
+
+          
+          
+
+
+ 
+  
+    
+    <li data-nav-id="/scripting/" title="Scripting" class="dd-item 
+        
+        
+        
+        ">
+      <a href="/scripting/">
+          Scripting
+          
+      </a>
+      
+      
+        <ul>
+          
+          
+          
+          
+        
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/scripting/pythoninterface/" title="Python interface" class="dd-item ">
+        <a href="/scripting/pythoninterface/">
+        Python interface
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/scripting/commandlineinterface/" title="Command Line Interface" class="dd-item ">
+        <a href="/scripting/commandlineinterface/">
+        Command Line Interface
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/scripting/commandfile/" title="Command File" class="dd-item ">
+        <a href="/scripting/commandfile/">
+        Command File
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/scripting/octaveinterface/" title="Octave Interface" class="dd-item ">
+        <a href="/scripting/octaveinterface/">
+        Octave Interface
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/scripting/octaveinterfacereference/" title="Octave Interface Reference" class="dd-item ">
+        <a href="/scripting/octaveinterfacereference/">
+        Octave Interface Reference
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+        
+        </ul>
+              
+    </li>
+  
+ 
+
+          
+          
+
+
+ 
+  
+    
+    <li data-nav-id="/misc/" title="Miscellaneous" class="dd-item 
+        
+        
+        
+        ">
+      <a href="/misc/">
+          Miscellaneous
+          
+      </a>
+      
+      
+        <ul>
+          
+          
+          
+          
+        
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/misc/preferences/" title="Preferences" class="dd-item ">
+        <a href="/misc/preferences/">
+        Preferences
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/misc/projectfile/" title="Project File and Caching" class="dd-item ">
+        <a href="/misc/projectfile/">
+        Project File and Caching
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/misc/memorymanagement/" title="Memory Management" class="dd-item ">
+        <a href="/misc/memorymanagement/">
+        Memory Management
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/misc/keyboardshortcuts/" title="Keyboard Shortcuts" class="dd-item ">
+        <a href="/misc/keyboardshortcuts/">
+        Keyboard Shortcuts
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/misc/regressiontestsystem/" title="Regression Test System" class="dd-item ">
+        <a href="/misc/regressiontestsystem/">
+        Regression Test System
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+        
+        </ul>
+              
+    </li>
+  
+ 
+
+          
+         
+    </ul>
+
+    
+    
+      <section id="shortcuts">
+        <h3></h3>
+        <ul>
+          
+              <li> 
+                  <a class="padding" href="https://resinsight.org/about"><i class='fas fa-info-circle'></i> About</a>
+              </li>
+          
+              <li> 
+                  <a class="padding" href="https://resinsight.org/support"><i class='far fa-question-circle'></i> Support</a>
+              </li>
+          
+              <li> 
+                  <a class="padding" href="https://resinsight.org/getting-started/download-and-install"><i class='fas fa-download'></i> Download and Install</a>
+              </li>
+          
+        </ul>
+      </section>
+    
+
+    
+    <section id="footer">
+      <a href="https://www.ceetronsolutions.com"><img src='https://resinsight.org//images/CeeSolLogoSmallForDarkBackground.png' style='width: 140px; '></a><br>
+
+ResInsight is developed by <br> <a href="https://www.ceetronsolutions.com">Ceetron Solutions</a>
+<p>in collaboration with</p>
+<a href="https://www.equinor.com">Equinor ASA</a>
+
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+	(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+	m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+	ga('create', 'UA-79509181-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+
+    </section>
+  </div>
+</nav>
+
+
+
+
+
+        <section id="body">
+        <div id="overlay"></div>
+        <div class="padding highlightable">
+              
+              <div>
+                <div id="top-bar">
+                
+                
+                <div id="breadcrumbs" itemscope="" itemtype="http://data-vocabulary.org/Breadcrumb">
+                    <span id="sidebar-toggle-span">
+                        <a href="#" id="sidebar-toggle" data-sidebar-toggle="">
+                          <i class="fas fa-bars"></i>
+                        </a>
+                    </span>
+                  
+                  <span id="toc-menu"><i class="fas fa-list-alt"></i></span>
+                  
+                  <span class="links">
+                 
+                 
+                    
+          
+          
+            
+            
+          
+          
+            
+            
+          
+          
+            <a href='/'>ResInsight</a> > <a href='/wells-and-completions/'>Wells and Completions</a> > Ensemble Fracture Statistics
+          
+         
+          
+         
+          
+        
+                 
+                  </span>
+                </div>
+                
+                    <div class="progress">
+    <div class="wrapper">
+<nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li><a href="#importing-ensemble-fracture-statistics">Importing Ensemble Fracture Statistics</a></li>
+        <li><a href="#mesh-types">Mesh Types</a>
+          <ul>
+            <li><a href="#adaptive-mesh">Adaptive Mesh</a></li>
+            <li><a href="#uniform-mesh">Uniform Mesh</a></li>
+            <li><a href="#naive-mesh">Naive Mesh</a></li>
+          </ul>
+        </li>
+        <li><a href="#statistics-mesh-computation">Statistics Mesh Computation</a></li>
+        <li><a href="#statistics-table">Statistics Table</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+    </div>
+</div>
+
+                
+              </div>
+            </div>
+            
+        <div id="head-tags">
+        
+        </div>
+        
+        <div id="body-inner">
+          
+            <h1>
+              
+              Ensemble Fracture Statistics
+            </h1>
+          
+
+        
+
+
+
+<h2 id="importing-ensemble-fracture-statistics">Importing Ensemble Fracture Statistics</h2>
+<p>Right-click on <strong>Completion Templates &gt; Ensemble Fracture Statistics</strong> in the <strong>Project Tree</strong> and select the <strong>Import StimPlan Fracture Recursively</strong> option. Then select the StimPlan fracture Xml files to be part of the ensemble.</p>
+<p>After importing the <strong>Property Panel</strong> of the <strong>Ensemble Fracture Statistics</strong> item has these options:</p>
+<ul>
+<li><strong>Name</strong> &ndash; Name of the ensemble fracture statistics.</li>
+<li><strong>Exclude Zero Width Fractures</strong> &ndash; Toggle to remove zero width fractures from the statistics.</li>
+<li><strong>Mesh Alignment</strong> &ndash; Specifies how to align the mesh.
+<ul>
+<li><strong>Mesh Depth</strong> &ndash; Use the raw mesh depths from file without adjustment.</li>
+<li><strong>Perforation Depth</strong> &ndash; Adjusts the mesh location to have the perforation at the same location when computing the statistics.</li>
+</ul>
+</li>
+<li><strong>Mesh Type</strong> &ndash; Specifies the meshing strategy. See details below.</li>
+<li><strong>Statistics Type</strong> &ndash; The statistics to compute.</li>
+</ul>
+<h2 id="mesh-types">Mesh Types</h2>
+<p>The imported StimPlan fractures are stacked on top of each, and a statistics mesh is created. The statistics mesh covers the extents of
+all the individual meshes in the ensemble.</p>
+<h3 id="adaptive-mesh">Adaptive Mesh</h3>
+<p>The adaptive mesh tries to optimize the horizontal depth spacing to have coarse sampling where the
+source meshes are coarse, and fine sampling where necessary. This is achieved by grouping the layer thicknesses of 
+the individual meshes into fixed bins, and then scaling the vertical size of each layer according to their mean size.</p>
+<ul>
+<li><strong>Mean Type</strong> &ndash; The mean calculation used to scale the layer thickness.
+<ul>
+<li><strong>Harmonic</strong> &ndash; See <a href="https://en.wikipedia.org/wiki/Harmonic_mean">Harmonic mean</a> for details.</li>
+<li><strong>Arithmetic</strong> &ndash; Average. See <a href="https://en.wikipedia.org/wiki/Arithmetic_mean">Arithmetic Mean</a> for details.</li>
+<li><strong>Geometric</strong> &ndash; See <a href="https://en.wikipedia.org/wiki/Geometric_mean">Geometric Mean</a> for details.</li>
+<li><strong>Minimum</strong> &ndash; Use the minimum thickness.</li>
+</ul>
+</li>
+<li><strong>Number of Layers</strong> &ndash; Specifies the number of layers to create.
+<ul>
+<li><strong>Average</strong> &ndash; Use the average number of layers of the individual fractures of the ensemble.</li>
+<li><strong>Minimum</strong> &ndash; Use the minimum number of layers of the individual fractures of the ensemble.</li>
+<li><strong>Maximum</strong> &ndash; Use the maximum number of layers of the individual fractures of the ensemble.</li>
+<li><strong>User-Defined</strong> &ndash; The user specifies the number of layers.</li>
+</ul>
+</li>
+</ul>
+<p>The mesh is evenly spaced in the lateral direction using the maximum number of cells in the individual fractures of the ensemble.</p>
+<h3 id="uniform-mesh">Uniform Mesh</h3>
+<p>The uniform mesh has cells of a equal size. The minimum and maximum extents of all the meshes in both directions is found, and the interval is divided into equal cells.</p>
+<ul>
+<li><strong>X</strong> &ndash; The number of cells in lateral direction.</li>
+<li><strong>Y</strong> &ndash; The number of cells in depth direction.</li>
+</ul>
+<h3 id="naive-mesh">Naive Mesh</h3>
+<p>The naive method produces a mesh where every depth in all the individual fractures of the ensemble is present.</p>
+<p>The mesh is evenly spaced in the lateral direction using the maximum number of cells in the individual fractures of the ensemble.</p>
+<h2 id="statistics-mesh-computation">Statistics Mesh Computation</h2>
+<p>The statistics mesh samples each individual fracture of the ensemble in each cell center. The value of the cell containing the
+statistics mesh cell center is used. Invalid values or empty cells are ignored. The values at each cell center are gathered, and
+the chosen statistics (e.g. P10 and Mean) is computed per cell.</p>
+<p>The statistics meshes are written to file in a StimPlan compatible XML file, and is imported into <strong>Fracture Templates</strong> in the 
+<strong>Project Tree</strong>.</p>
+<h2 id="statistics-table">Statistics Table</h2>
+<p>The statistics table contains overall statistics on key properties of the fractures.</p>
+<ul>
+<li><strong>Height</strong> &ndash; Longest aggregate height of conductive cells.</li>
+<li><strong>Area</strong> &ndash; Area of the conductive cells of the fracture.</li>
+<li><strong>Width</strong> &ndash; Width of conductive cells weighted by their area.</li>
+<li><strong>Halflength (Xf)</strong> &ndash; Length of the fracture is area divided by height. Xf is half of the length.</li>
+<li><strong>Conductivity (KfWf)</strong> &ndash; Conductivity weighted by area.</li>
+<li><strong>Permeability</strong> &ndash; Permeability (i.e. conductivity divided by width) weighted by area.</li>
+<li><strong>Formation Dip</strong> &ndash; Formation dip as reported in the Xml file.</li>
+</ul>
+
+
+<footer class="footline">
+	
+</footer>
+
+        
+        </div> 
+        
+
+      </div>
+
+    <div id="navigation">
+        
+        
+        
+        
+            
+            
+                
+                    
+                    
+                
+                
+
+                    
+                    
+                        
+                    
+                    
+
+                    
+                        
+            
+            
+                
+                    
+                        
+                        
+                    
+                
+                
+
+                    
+                    
+                        
+                    
+                    
+
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+            
+        
+                    
+                        
+            
+            
+        
+                    
+                        
+            
+            
+        
+                    
+                        
+            
+            
+        
+                    
+                        
+            
+            
+        
+                    
+                        
+            
+            
+        
+                    
+                        
+            
+            
+        
+                    
+                        
+            
+            
+        
+                    
+                        
+            
+            
+        
+                    
+                        
+            
+            
+        
+                    
+                        
+            
+            
+        
+                    
+                        
+            
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+            
+        
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+                        
+            
+            
+                
+                    
+                        
+                        
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                        
+                        
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+            
+        
+                    
+            
+        
+        
+        
+
+
+	 
+	 
+		
+			<a class="nav nav-prev" href="/wells-and-completions/completions/" title="Completions"> <i class="fa fa-chevron-left"></i></a>
+		
+		
+			<a class="nav nav-next" href="/wells-and-completions/completionslgr/" title="Completions LGR" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
+		
+	
+    </div>
+
+    </section>
+    
+    <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
+      <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
+    </div>
+    <script src="/js/clipboard.min.js?1635929135"></script>
+    <script src="/js/perfect-scrollbar.min.js?1635929135"></script>
+    <script src="/js/perfect-scrollbar.jquery.min.js?1635929135"></script>
+    <script src="/js/jquery.sticky.js?1635929135"></script>
+    <script src="/js/featherlight.min.js?1635929135"></script>
+    <script src="/js/highlight.pack.js?1635929135"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+    <script src="/js/modernizr.custom-3.6.0.js?1635929135"></script>
+    <script src="/js/learn.js?1635929135"></script>
+    <script src="/js/hugo-learn.js?1635929135"></script>
+
+    <link href="/mermaid/mermaid.css?1635929135" rel="stylesheet" />
+    <script src="/mermaid/mermaid.js?1635929135"></script>
+    <script>
+        mermaid.initialize({ startOnLoad: true });
+    </script>
+    
+
+  </body>
+</html>
+

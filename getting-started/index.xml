@@ -130,6 +130,17 @@ Streamlines Streamlines lets the user investigate the flow of different phases t
     </item>
     
     <item>
+      <title>What&#39;s New in 2021.10</title>
+      <link>https://resinsight.org/getting-started/whats-new/releasenotes_2021_10/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://resinsight.org/getting-started/whats-new/releasenotes_2021_10/</guid>
+      <description>Ensemble Surface To study the structural uncertainty for an ensemble of cases, ResInsight enables the user to import an Ensemble Surface and compute the statistical surfaces based on this ensemble.
+Ensemble Well Log To study the uncertainty for well log extraction curves, ResInsight enables the user to import an Ensemble Well Log and compute the statistical distribution in this ensemble.
+Performance Improved performance for grid model import from GRDECL. Improved performace for surface geometry import.</description>
+    </item>
+    
+    <item>
       <title>What&#39;s New in 2018.11</title>
       <link>https://resinsight.org/getting-started/whats-new/releasenotes_2018_11/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>

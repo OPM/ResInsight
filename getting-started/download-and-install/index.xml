@@ -43,8 +43,8 @@ sudo apt-get updatesudo apt-get install software-properties-commonsudo apt-add
       <description>Source code The source code is hosted at GitHub
 In a git enabled shell do: git clone https://github.com/OPM/ResInsight.git
 Dependencies and Prerequisites Windows Compiler Visual Studio 2019 and later is supported.
-GCC Compiler GCC version 4.9 or later is supported. On RedHat Linux 6 you need to install devtoolset-3, and enable it with
-source /opt/rh/devtoolset-3/enable Qt 5 Qt 5.9 or later is supported, Qt 5.15 is recommended.
+GCC Compiler On RedHat Linux 7 or CentOS 7 you need to install devtoolset-10, and enable it with
+source /opt/rh/devtoolset-10/enable Qt 5 Qt 5.9 or later is supported, Qt 5.15 is recommended.
 Qt download
 On some configurations you will be asked to specify the location of Qt 5.</description>
     </item>

@@ -12,18 +12,18 @@
     <title>Faults :: ResInsight</title>
 
     
-    <link href="/css/nucleus.css?1624973053" rel="stylesheet">
-    <link href="/css/fontawesome-all.min.css?1624973053" rel="stylesheet">
-    <link href="/css/hybrid.css?1624973053" rel="stylesheet">
-    <link href="/css/featherlight.min.css?1624973053" rel="stylesheet">
-    <link href="/css/perfect-scrollbar.min.css?1624973053" rel="stylesheet">
-    <link href="/css/auto-complete.css?1624973053" rel="stylesheet">
-    <link href="/css/atom-one-dark-reasonable.css?1624973053" rel="stylesheet">
-    <link href="/css/theme.css?1624973053" rel="stylesheet">
-    <link href="/css/hugo-theme.css?1624973053" rel="stylesheet">
+    <link href="/css/nucleus.css?1635929135" rel="stylesheet">
+    <link href="/css/fontawesome-all.min.css?1635929135" rel="stylesheet">
+    <link href="/css/hybrid.css?1635929135" rel="stylesheet">
+    <link href="/css/featherlight.min.css?1635929135" rel="stylesheet">
+    <link href="/css/perfect-scrollbar.min.css?1635929135" rel="stylesheet">
+    <link href="/css/auto-complete.css?1635929135" rel="stylesheet">
+    <link href="/css/atom-one-dark-reasonable.css?1635929135" rel="stylesheet">
+    <link href="/css/theme.css?1635929135" rel="stylesheet">
+    <link href="/css/hugo-theme.css?1635929135" rel="stylesheet">
     
 
-    <script src="/js/jquery-3.3.1.min.js?1624973053"></script>
+    <script src="/js/jquery-3.3.1.min.js?1635929135"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -264,6 +264,9 @@
   
  
 
+            
+          
+             
             
           
              
@@ -1357,6 +1360,44 @@
 
             
           
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/workflows/ensemblesurface/" title="Ensemble Surface" class="dd-item ">
+        <a href="/workflows/ensemblesurface/">
+        Ensemble Surface
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/workflows/ensemblewelllog/" title="Ensemble Well Log" class="dd-item ">
+        <a href="/workflows/ensemblewelllog/">
+        Ensemble Well Log
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
         
         </ul>
               
@@ -1510,6 +1551,25 @@
  
   
     
+      <li data-nav-id="/wells-and-completions/ensemblefracturestatistics/" title="Ensemble Fracture Statistics" class="dd-item ">
+        <a href="/wells-and-completions/ensemblefracturestatistics/">
+        Ensemble Fracture Statistics
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
       <li data-nav-id="/wells-and-completions/completionslgr/" title="Completions LGR" class="dd-item ">
         <a href="/wells-and-completions/completionslgr/">
         Completions LGR
@@ -1602,6 +1662,25 @@
       <li data-nav-id="/import/eclipsesummarydata/" title="Eclipse Summary Data" class="dd-item ">
         <a href="/import/eclipsesummarydata/">
         Eclipse Summary Data
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/import/ensemblefiledialog/" title="Ensemble File Dialog" class="dd-item ">
+        <a href="/import/ensemblefiledialog/">
+        Ensemble File Dialog
         
         </a>
     </li>
@@ -2264,7 +2343,7 @@ if (!doNotTrack) {
           <ul>
             <li><a href="#fault-visibility">Fault Visibility</a></li>
             <li><a href="#fault-color">Fault Color</a></li>
-            <li><a href="#separate-fault-result">Separate Fault Result</a></li>
+            <li><a href="#fault-result">Fault Result</a></li>
             <li><a href="#toolbar-control">Toolbar Control</a></li>
             <li><a href="#faults-properties">Faults Properties</a></li>
           </ul>
@@ -2333,8 +2412,8 @@ The NNC&rsquo;s are sorted onto the Fault&rsquo;s and their visibility is contro
 </ul>
 <h3 id="fault-color">Fault Color</h3>
 <p>Each named Fault is given a color on import. This color can be controlled by selecting the fault and edit its  <strong>Fault color</strong> in the <strong>Property Editor.</strong></p>
-<h3 id="separate-fault-result">Separate Fault Result</h3>
-<p>The default result mapping used on faults are to use the same as specified in <strong>Cell Result</strong>. If a different result mapping is wanted, enable the checkbox at <strong>Separate Fault Result</strong> and select the result from the result selection dialog in the <strong>Property Editor</strong>. A second legend for the fault result is then added to the view.</p>
+<h3 id="fault-result">Fault Result</h3>
+<p>The default result mapping used on faults are to use the same as specified in <strong>Cell Result</strong>. If a different result mapping is wanted, enable the checkbox at <strong>Fault Result</strong> and select the result from the result selection dialog in the <strong>Property Editor</strong>. A second legend for the fault result is then added to the view.</p>
 <p>Please note that the groups <a href="#fault-face-visibility">Fault Face Visibility</a> and <a href="#nnc-visibility">NNC Visibility</a> are available below result selection.</p>
 <p>Useful NNC results are descrived in <a href="/3d-main-window/derivedresults/">Derived Results</a></p>
 <h3 id="toolbar-control">Toolbar Control</h3>
@@ -2606,117 +2685,6 @@ This means that ResInsight turns on or off the faces based on your view position
                         
             
             
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-            
-        
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-                        
-            
-            
-                
-                    
-                        
-                        
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
         
                     
                         
@@ -2755,6 +2723,74 @@ This means that ResInsight turns on or off the faces based on your view position
             
             
                 
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+            
+        
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+                        
+            
+            
+                
+                    
+                        
+                        
                     
                 
                 
@@ -2932,6 +2968,54 @@ This means that ResInsight turns on or off the faces based on your view position
             
                 
                     
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
                     
                 
                 
@@ -3090,54 +3174,6 @@ This means that ResInsight turns on or off the faces based on your view position
                     
                     
 
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
                     
                         
             
@@ -3427,54 +3463,6 @@ This means that ResInsight turns on or off the faces based on your view position
             
         
                     
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
                         
             
             
@@ -3523,19 +3511,6 @@ This means that ResInsight turns on or off the faces based on your view position
             
         
                     
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
             
         
                     
@@ -3551,9 +3526,6 @@ This means that ResInsight turns on or off the faces based on your view position
                     
                     
 
-                    
-            
-        
                     
                         
             
@@ -3618,6 +3590,182 @@ This means that ResInsight turns on or off the faces based on your view position
                     
                     
 
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
                     
                         
             
@@ -4092,19 +4240,19 @@ This means that ResInsight turns on or off the faces based on your view position
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/js/clipboard.min.js?1624973053"></script>
-    <script src="/js/perfect-scrollbar.min.js?1624973053"></script>
-    <script src="/js/perfect-scrollbar.jquery.min.js?1624973053"></script>
-    <script src="/js/jquery.sticky.js?1624973053"></script>
-    <script src="/js/featherlight.min.js?1624973053"></script>
-    <script src="/js/highlight.pack.js?1624973053"></script>
+    <script src="/js/clipboard.min.js?1635929135"></script>
+    <script src="/js/perfect-scrollbar.min.js?1635929135"></script>
+    <script src="/js/perfect-scrollbar.jquery.min.js?1635929135"></script>
+    <script src="/js/jquery.sticky.js?1635929135"></script>
+    <script src="/js/featherlight.min.js?1635929135"></script>
+    <script src="/js/highlight.pack.js?1635929135"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/js/modernizr.custom-3.6.0.js?1624973053"></script>
-    <script src="/js/learn.js?1624973053"></script>
-    <script src="/js/hugo-learn.js?1624973053"></script>
+    <script src="/js/modernizr.custom-3.6.0.js?1635929135"></script>
+    <script src="/js/learn.js?1635929135"></script>
+    <script src="/js/hugo-learn.js?1635929135"></script>
 
-    <link href="/mermaid/mermaid.css?1624973053" rel="stylesheet" />
-    <script src="/mermaid/mermaid.js?1624973053"></script>
+    <link href="/mermaid/mermaid.css?1635929135" rel="stylesheet" />
+    <script src="/mermaid/mermaid.js?1635929135"></script>
     <script>
         mermaid.initialize({ startOnLoad: true });
     </script>

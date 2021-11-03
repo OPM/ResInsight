@@ -39,7 +39,8 @@ Ascii Well Paths The command File -&amp;gt; Import -&amp;gt; Well Data -&amp;gt;
       
       <guid>https://resinsight.org/wells-and-completions/createnewwellpaths/</guid>
       <description>ResInsight lets the user create new/custom well paths by clicking in the 3D view. A self created well path will behave the same way as an ordinary imported well path.
-Building a well path  Right click Wells in the project tree Select Create Well Path in the right-click menu. A new well node and a well targets node are created. Click in the 3D view on locations where the well path will pass (targets).</description>
+Building a multilateral well path
+Building a well path  Right click Wells in the project tree Select Create Well Path in the right-click menu. A new well node and a well targets node are created Click in the 3D view on locations where the well path should pass (well path targets) When finished placing targets, click on &amp;ldquo;Stop Picking Targets&amp;rdquo; in the property editor  Well targets property editor fields:</description>
     </item>
     
     <item>
@@ -70,6 +71,17 @@ Creating new 3D Well Log Curves Add a new 3D well log curve by selecting a Well 
       <guid>https://resinsight.org/wells-and-completions/completions/</guid>
       <description>Three types of completions are available for modeling and export: Perforation intervals, fishbone wells and fractures. The purpose of modeling these completions, is that it enables ResInsight to export Eclipse keywords for doing more refined simulations.
 Completions can be modeled by adding new perforation intervals, fishbones subs or fractures. Details about the completions must then be specified, such as the length of the perforation interval or number of fishbone subs and laterals.</description>
+    </item>
+    
+    <item>
+      <title>Ensemble Fracture Statistics</title>
+      <link>https://resinsight.org/wells-and-completions/ensemblefracturestatistics/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://resinsight.org/wells-and-completions/ensemblefracturestatistics/</guid>
+      <description>Importing Ensemble Fracture Statistics Right-click on Completion Templates &amp;gt; Ensemble Fracture Statistics in the Project Tree and select the Import StimPlan Fracture Recursively option. Then select the StimPlan fracture Xml files to be part of the ensemble.
+After importing the Property Panel of the Ensemble Fracture Statistics item has these options:
+ Name &amp;ndash; Name of the ensemble fracture statistics. Exclude Zero Width Fractures &amp;ndash; Toggle to remove zero width fractures from the statistics.</description>
     </item>
     
     <item>
