@@ -17,7 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
-#include "RimPlot.h"
+#include "RimQwtPlot.h"
 #include "RimTimeStepFilter.h"
 
 #include "cafPdmPtrField.h"
@@ -37,7 +37,7 @@ class RimSummaryCase;
 class RigEnsembleParameter;
 class RifEclipseSummaryAddress;
 
-class RimAbstractCorrelationPlot : public RimPlot
+class RimAbstractCorrelationPlot : public RimQwtPlot
 {
     CAF_PDM_HEADER_INIT;
 

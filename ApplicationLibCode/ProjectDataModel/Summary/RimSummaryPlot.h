@@ -23,7 +23,7 @@
 
 #include "RifEclipseSummaryAddress.h"
 
-#include "RimPlot.h"
+#include "RimQwtPlot.h"
 #include "RimSummaryDataSourceStepping.h"
 
 #include "qwt_plot_textlabel.h"
@@ -66,7 +66,7 @@ class QKeyEvent;
 ///
 ///
 //==================================================================================================
-class RimSummaryPlot : public RimPlot, public RimSummaryDataSourceStepping
+class RimSummaryPlot : public RimQwtPlot, public RimSummaryDataSourceStepping
 {
     Q_OBJECT;
     CAF_PDM_HEADER_INIT;
