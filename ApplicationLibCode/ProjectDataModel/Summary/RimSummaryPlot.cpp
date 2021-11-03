@@ -35,6 +35,7 @@
 #include "RimEnsembleCurveSetCollection.h"
 #include "RimGridTimeHistoryCurve.h"
 #include "RimMultiPlot.h"
+#include "RimPlotAxisLogRangeCalculator.h"
 #include "RimPlotAxisProperties.h"
 #include "RimProject.h"
 #include "RimSummaryCase.h"
