@@ -21,7 +21,7 @@
 #include "cafPdmChildField.h"
 #include "cafPdmObject.h"
 
-#include "RiaDefines.h"
+#include "RiaPlotDefines.h"
 #include "RimNameConfig.h"
 #include "RimPlot.h"
 

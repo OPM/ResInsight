@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include "RiaDefines.h"
+#include "RiaPlotDefines.h"
 #include "RiaQDateTimeTools.h"
 
 #include "RifEclipseSummaryAddress.h"

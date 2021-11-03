@@ -29,7 +29,7 @@
 
 #include "RifEclipseSummaryAddressQMetaType.h"
 
-#include "RiaDefines.h"
+#include "RiaPlotDefines.h"
 #include "RimSummaryCurveAppearanceCalculator.h"
 
 class RimSummaryFilter_OBSOLETE;

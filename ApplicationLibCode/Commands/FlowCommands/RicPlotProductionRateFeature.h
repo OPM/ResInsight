@@ -20,7 +20,7 @@
 
 #include "cafCmdFeature.h"
 
-#include "RiaDefines.h"
+#include "RiaPlotDefines.h"
 #include "RimFlowDiagSolution.h"
 
 class RimGridSummaryCase;
