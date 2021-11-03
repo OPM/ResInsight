@@ -19,7 +19,7 @@
 #pragma once
 
 #include "RiaDefines.h"
-#include "RimPlot.h"
+#include "RimQwtPlot.h"
 
 #include "cafPdmPtrField.h"
 
@@ -35,7 +35,7 @@ class RiuQwtPlotWidget;
 //
 //
 //==================================================================================================
-class RimWellDistributionPlot : public RimPlot
+class RimWellDistributionPlot : public RimQwtPlot
 {
     CAF_PDM_HEADER_INIT;
 

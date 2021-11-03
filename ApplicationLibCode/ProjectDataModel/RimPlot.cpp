@@ -71,29 +71,17 @@ RimPlot::~RimPlot()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QWidget* RimPlot::createViewWidget( QWidget* parent /*= nullptr */ )
-{
-    RiuQwtPlotWidget* plotWidget = doCreatePlotViewWidget( parent );
+// QWidget* RimPlot::createViewWidget( QWidget* parent /*= nullptr */ )
+// {
+//     RiuQwtPlotWidget* plotWidget = doCreatePlotViewWidget( parent );
 
-    RimPlot::attachPlotWidgetSignals( this, plotWidget );
+//     RimPlot::attachPlotWidgetSignals( this, plotWidget );
 
-    updateWindowVisibility();
-    plotWidget->scheduleReplot();
+//     updateWindowVisibility();
+//     plotWidget->scheduleReplot();
 
-    return plotWidget;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimPlot::updateFonts()
-{
-    if ( viewer() )
-    {
-        viewer()->setPlotTitleFontSize( titleFontSize() );
-        viewer()->setLegendFontSize( legendFontSize() );
-    }
-}
+//     return plotWidget;
+// }
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -198,29 +186,13 @@ void RimPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const Q
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPlot::attachPlotWidgetSignals( RimPlot* plot, RiuQwtPlotWidget* plotWidget )
-{
-    CAF_ASSERT( plot && plotWidget );
-    plot->connect( plotWidget, SIGNAL( plotSelected( bool ) ), SLOT( onPlotSelected( bool ) ) );
-    plot->connect( plotWidget, SIGNAL( axisSelected( int, bool ) ), SLOT( onAxisSelected( int, bool ) ) );
-    plot->connect( plotWidget,
-                   SIGNAL( plotItemSelected( QwtPlotItem*, bool, int ) ),
-                   SLOT( onPlotItemSelected( QwtPlotItem*, bool, int ) ) );
-    plot->connect( plotWidget, SIGNAL( onKeyPressEvent( QKeyEvent* ) ), SLOT( onKeyPressEvent( QKeyEvent* ) ) );
-    plot->connect( plotWidget, SIGNAL( onWheelEvent( QWheelEvent* ) ), SLOT( onWheelEvent( QWheelEvent* ) ) );
-    plot->connect( plotWidget, SIGNAL( destroyed() ), SLOT( onViewerDestroyed() ) );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimPlot::doRenderWindowContent( QPaintDevice* paintDevice )
-{
-    if ( viewer() )
-    {
-        viewer()->renderTo( paintDevice, viewer()->frameGeometry() );
-    }
-}
+// void RimPlot::doRenderWindowContent( QPaintDevice* paintDevice )
+// {
+//     if ( viewer() )
+//     {
+//         viewer()->renderTo( paintDevice, viewer()->frameGeometry() );
+//     }
+// }
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -234,29 +206,6 @@ void RimPlot::onPlotSelected( bool toggle )
     else
     {
         RiuPlotMainWindowTools::selectAsCurrentItem( this );
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimPlot::onPlotItemSelected( QwtPlotItem* plotItem, bool toggle, int sampleIndex )
-{
-    QwtPlotCurve* curve = dynamic_cast<QwtPlotCurve*>( plotItem );
-    if ( curve )
-    {
-        RimPlotCurve* selectedCurve = dynamic_cast<RimPlotCurve*>( this->findPdmObjectFromQwtCurve( curve ) );
-        if ( selectedCurve )
-        {
-            if ( toggle )
-            {
-                RiuPlotMainWindowTools::toggleItemInSelection( selectedCurve );
-            }
-            else
-            {
-                RiuPlotMainWindowTools::selectAsCurrentItem( selectedCurve );
-            }
-        }
     }
 }
 

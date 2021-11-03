@@ -24,7 +24,8 @@
 #include "RigWellPathFormations.h"
 #include "RiuPlotAnnotationTool.h"
 
-#include "RimPlot.h"
+#include "RimQwtPlot.h"
+#include "RimRegularLegendConfig.h"
 
 #include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"
@@ -73,7 +74,7 @@ struct CurveSamplingPointData
 ///
 ///
 //==================================================================================================
-class RimWellLogTrack : public RimPlot
+class RimWellLogTrack : public RimQwtPlot
 {
     CAF_PDM_HEADER_INIT;
 
