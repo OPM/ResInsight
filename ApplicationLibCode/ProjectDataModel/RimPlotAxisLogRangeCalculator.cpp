@@ -19,7 +19,7 @@
 
 #include "RimPlotAxisLogRangeCalculator.h"
 
-#include "RiaDefines.h"
+#include "RiaPlotDefines.h"
 
 #include "cvfVector2.h"
 
