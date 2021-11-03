@@ -239,6 +239,14 @@ void RimQwtPlotCurve::refreshParentPlot()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimQwtPlotCurve::replotParentPlot()
+{
+    if ( m_parentQwtPlot ) m_parentQwtPlot->replot();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RimQwtPlotCurve::hasParentPlot() const
 {
     return ( m_parentQwtPlot != nullptr );
@@ -378,6 +386,14 @@ void RimQwtPlotCurve::attachCurveAndErrorBars()
     {
         m_qwtCurveErrorBars->attach( m_parentQwtPlot );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimQwtPlotCurve::clearErrorBars()
+{
+    m_qwtCurveErrorBars->setSamples( nullptr );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -581,4 +597,22 @@ void RimQwtPlotCurve::updateLegendEntryVisibilityNoPlotUpdate()
         }
     }
     m_qwtPlotCurve->setItemAttribute( QwtPlotItem::Legend, showLegendInQwt );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimQwtPlotCurve::updateAxisInPlot( RiaDefines::PlotAxis plotAxis )
+{
+    if ( m_qwtPlotCurve )
+    {
+        if ( plotAxis == RiaDefines::PlotAxis::PLOT_AXIS_LEFT )
+        {
+            m_qwtPlotCurve->setYAxis( QwtPlot::yLeft );
+        }
+        else
+        {
+            m_qwtPlotCurve->setYAxis( QwtPlot::yRight );
+        }
+    }
 }

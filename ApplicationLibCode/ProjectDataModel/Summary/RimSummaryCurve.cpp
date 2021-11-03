@@ -53,9 +53,6 @@
 #include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiTreeOrdering.h"
 
-#include "qwt_date.h"
-#include "qwt_plot.h"
-
 #include "cafPdmUiLineEditor.h"
 
 CAF_PDM_SOURCE_INIT( RimSummaryCurve, "SummaryCurve" );
@@ -165,7 +162,7 @@ void RimSummaryCurve::setSummaryCaseY( RimSummaryCase* sumCase )
 {
     if ( m_yValuesSummaryCase != sumCase )
     {
-        m_qwtCurveErrorBars->setSamples( nullptr );
+        clearErrorBars();
     }
 
     bool isEnsembleCurve = false;
@@ -227,7 +224,7 @@ void RimSummaryCurve::setSummaryAddressY( const RifEclipseSummaryAddress& addres
 {
     if ( m_yValuesSummaryAddress->address() != address )
     {
-        m_qwtCurveErrorBars->setSamples( nullptr );
+        clearErrorBars();
     }
 
     m_yValuesSummaryAddress->setAddress( address );
@@ -404,10 +401,7 @@ double RimSummaryCurve::yValueAtTimeT( time_t time ) const
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCurve::setOverrideCurveDataY( const std::vector<time_t>& dateTimes, const std::vector<double>& yValues )
 {
-    if ( m_qwtPlotCurve )
-    {
-        m_qwtPlotCurve->setSamplesFromTimeTAndYValues( dateTimes, yValues, true );
-    }
+    setSamplesFromTimeTAndYValues( dateTimes, yValues, true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -696,14 +690,14 @@ void RimSummaryCurve::onLoadDataAndUpdate( bool updateParentPlot )
             this->setSamplesFromXYValues( std::vector<double>(), std::vector<double>(), isLogCurve );
         }
 
-        if ( updateParentPlot && m_parentQwtPlot )
+        if ( updateParentPlot && hasParentPlot() )
         {
             updateZoomInParentPlot();
-            m_parentQwtPlot->replot();
+            replotParentPlot();
         }
     }
 
-    if ( updateParentPlot ) updateQwtPlotAxis();
+    if ( updateParentPlot ) updateAxisInPlot( axisY() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -906,19 +900,9 @@ RiaDefines::PhaseType RimSummaryCurve::phaseType() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCurve::updateQwtPlotAxis()
+void RimSummaryCurve::updatePlotAxis()
 {
-    if ( m_qwtPlotCurve )
-    {
-        if ( this->axisY() == RiaDefines::PlotAxis::PLOT_AXIS_LEFT )
-        {
-            m_qwtPlotCurve->setYAxis( QwtPlot::yLeft );
-        }
-        else
-        {
-            m_qwtPlotCurve->setYAxis( QwtPlot::yRight );
-        }
-    }
+    updateAxisInPlot( axisY() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1061,8 +1045,7 @@ void RimSummaryCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
     }
     else if ( changedField == &m_plotAxis )
     {
-        updateQwtPlotAxis();
-
+        updateAxisInPlot( axisY() );
         plot->updateAxes();
         dataChanged.send();
     }

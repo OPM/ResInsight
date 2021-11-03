@@ -1655,7 +1655,7 @@ void RimEnsembleCurveSet::updateQwtPlotAxis()
 {
     for ( RimSummaryCurve* curve : curves() )
     {
-        curve->updateQwtPlotAxis();
+        curve->updatePlotAxis();
     }
 }
 
@@ -1705,7 +1705,7 @@ void RimEnsembleCurveSet::updateEnsembleCurves( const std::vector<RimSummaryCase
             for ( int i = 0; i < (int)newSummaryCurves.size(); ++i )
             {
                 newSummaryCurves[i]->loadDataAndUpdate( false );
-                newSummaryCurves[i]->updateQwtPlotAxis();
+                newSummaryCurves[i]->updatePlotAxis();
                 if ( newSummaryCurves[i]->qwtPlotCurve() )
                 {
                     newSummaryCurves[i]->qwtPlotCurve()->setItemAttribute( QwtPlotItem::Legend, false );
@@ -1800,7 +1800,7 @@ void RimEnsembleCurveSet::updateStatisticsCurves( const std::vector<RimSummaryCa
 
         curve->updateCurveVisibility();
         curve->loadDataAndUpdate( false );
-        curve->updateQwtPlotAxis();
+        curve->updatePlotAxis();
     }
 
     if ( plot->viewer() )
