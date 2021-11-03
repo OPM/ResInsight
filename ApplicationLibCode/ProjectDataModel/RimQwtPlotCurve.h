@@ -76,6 +76,7 @@ public:
     void setZOrder( double z ) override;
     void setErrorBarsVisible( bool isVisible );
 
+    void replotParentPlot() override;
     void refreshParentPlot() override;
     void updateUiIconFromPlotSymbol() override;
     bool hasParentPlot() const override;
@@ -107,6 +108,9 @@ protected:
                                         bool                       keepOnlyPositiveValues ) override;
 
     void attachCurveAndErrorBars() override;
+    void clearErrorBars() override;
+
+    void updateAxisInPlot( RiaDefines::PlotAxis plotAxis ) override;
 
 protected:
     QPointer<QwtPlot> m_parentQwtPlot;
