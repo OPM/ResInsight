@@ -207,7 +207,7 @@ void RimWellDistributionPlotCollection::doRenderWindowContent( QPaintDevice* pai
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellDistributionPlotCollection::addPlot( RimPlot* plot )
+void RimWellDistributionPlotCollection::addPlot( RimQwtPlot* plot )
 {
     if ( plot )
     {
@@ -370,7 +370,7 @@ void RimWellDistributionPlotCollection::updatePlots()
 {
     if ( m_showWindow )
     {
-        for ( RimPlot* plot : m_plots() )
+        for ( RimQwtPlot* plot : m_plots() )
         {
             plot->loadDataAndUpdate();
             plot->updateZoomInQwt();

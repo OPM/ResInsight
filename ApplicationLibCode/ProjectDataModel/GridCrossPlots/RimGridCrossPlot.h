@@ -23,7 +23,7 @@
 
 #include "RiaPlotDefines.h"
 #include "RimNameConfig.h"
-#include "RimPlot.h"
+#include "RimQwtPlot.h"
 
 #include <QPointer>
 
@@ -52,7 +52,7 @@ private:
     void doEnableAllAutoNameTags( bool enable ) override;
 };
 
-class RimGridCrossPlot : public RimPlot, public RimNameConfigHolderInterface
+class RimGridCrossPlot : public RimQwtPlot, public RimNameConfigHolderInterface
 {
     Q_OBJECT;
     CAF_PDM_HEADER_INIT;

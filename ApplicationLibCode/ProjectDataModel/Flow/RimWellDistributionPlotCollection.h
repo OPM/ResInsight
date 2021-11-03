@@ -31,7 +31,7 @@
 
 class RimEclipseResultCase;
 class RimFlowDiagSolution;
-class RimPlot;
+class RimQwtPlot;
 class RigTofWellDistributionCalculator;
 class RiuMultiPlotPage;
 
@@ -73,7 +73,7 @@ private:
     void doRenderWindowContent( QPaintDevice* paintDevice ) override;
 
 private:
-    void addPlot( RimPlot* plot );
+    void addPlot( RimQwtPlot* plot );
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void fixupDependentFieldsAfterCaseChange();
     void applyPlotParametersToContainedPlots();
@@ -89,8 +89,8 @@ private:
     caf::PdmField<double>                   m_smallContributionsRelativeThreshold;
     caf::PdmField<double>                   m_maximumTof;
 
-    caf::PdmField<QString>            m_plotWindowTitle;
-    caf::PdmChildArrayField<RimPlot*> m_plots;
+    caf::PdmField<QString>               m_plotWindowTitle;
+    caf::PdmChildArrayField<RimQwtPlot*> m_plots;
 
     caf::PdmField<bool> m_showOil;
     caf::PdmField<bool> m_showGas;

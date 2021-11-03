@@ -114,9 +114,9 @@ RimMultiPlot& RimMultiPlot::operator=( RimMultiPlot&& rhs )
     RimPlotWindow::operator=( std::move( rhs ) );
 
     // Move all tracks
-    std::vector<RimPlot*> plots = rhs.m_plots.childObjects();
+    std::vector<RimQwtPlot*> plots = rhs.m_plots.childObjects();
     rhs.m_plots.clear();
-    for ( RimPlot* plot : plots )
+    for ( RimQwtPlot* plot : plots )
     {
         m_plots.push_back( plot );
     }
@@ -186,7 +186,7 @@ void RimMultiPlot::setMultiPlotTitle( const QString& title )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimMultiPlot::insertPlot( RimPlot* plot, size_t index )
+void RimMultiPlot::insertPlot( RimQwtPlot* plot, size_t index )
 {
     if ( plot )
     {
@@ -209,7 +209,7 @@ void RimMultiPlot::insertPlot( RimPlot* plot, size_t index )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimMultiPlot::removePlot( RimPlot* plot )
+void RimMultiPlot::removePlot( RimQwtPlot* plot )
 {
     if ( plot )
     {
@@ -226,7 +226,7 @@ void RimMultiPlot::removePlot( RimPlot* plot )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimMultiPlot::movePlotsToThis( const std::vector<RimPlot*>& plotsToMove, int insertAtPosition )
+void RimMultiPlot::movePlotsToThis( const std::vector<RimQwtPlot*>& plotsToMove, int insertAtPosition )
 {
     for ( size_t tIdx = 0; tIdx < plotsToMove.size(); tIdx++ )
     {
@@ -310,7 +310,7 @@ size_t RimMultiPlot::plotCount() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-size_t RimMultiPlot::plotIndex( const RimPlot* plot ) const
+size_t RimMultiPlot::plotIndex( const RimQwtPlot* plot ) const
 {
     return m_plots.index( plot );
 }
@@ -318,7 +318,7 @@ size_t RimMultiPlot::plotIndex( const RimPlot* plot ) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimPlot*> RimMultiPlot::plots() const
+std::vector<RimQwtPlot*> RimMultiPlot::plots() const
 {
     return m_plots.childObjects();
 }
@@ -326,10 +326,10 @@ std::vector<RimPlot*> RimMultiPlot::plots() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimPlot*> RimMultiPlot::visiblePlots() const
+std::vector<RimQwtPlot*> RimMultiPlot::visiblePlots() const
 {
-    std::vector<RimPlot*> allVisiblePlots;
-    for ( RimPlot* plot : m_plots() )
+    std::vector<RimQwtPlot*> allVisiblePlots;
+    for ( RimQwtPlot* plot : m_plots() )
     {
         if ( plot->showWindow() )
         {
@@ -390,7 +390,7 @@ void RimMultiPlot::doRenderWindowContent( QPaintDevice* paintDevice )
 //--------------------------------------------------------------------------------------------------
 void RimMultiPlot::updatePlotOrderFromGridWidget()
 {
-    std::sort( m_plots.begin(), m_plots.end(), [this]( RimPlot* lhs, RimPlot* rhs ) {
+    std::sort( m_plots.begin(), m_plots.end(), [this]( RimQwtPlot* lhs, RimQwtPlot* rhs ) {
         auto indexLhs = m_viewer->indexOfPlotWidget( lhs->viewer() );
         auto indexRhs = m_viewer->indexOfPlotWidget( rhs->viewer() );
         return indexLhs < indexRhs;
@@ -875,7 +875,7 @@ void RimMultiPlot::updatePlots()
 //--------------------------------------------------------------------------------------------------
 void RimMultiPlot::updateZoom()
 {
-    for ( RimPlot* plot : plots() )
+    for ( RimQwtPlot* plot : plots() )
     {
         plot->updateZoomInQwt();
     }
