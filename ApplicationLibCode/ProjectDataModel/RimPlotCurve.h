@@ -93,6 +93,7 @@ public:
     virtual void updateCurveVisibility() = 0;
     void         updateLegendEntryVisibilityAndPlotLegend();
     virtual void updateLegendEntryVisibilityNoPlotUpdate() = 0;
+    virtual void replotParentPlot()                        = 0;
 
     bool showInLegend() const;
     bool errorBarsVisible() const;
@@ -150,7 +151,10 @@ protected:
 
     bool         canCurveBeAttached() const;
     virtual void attachCurveAndErrorBars() = 0;
+    virtual void clearErrorBars()          = 0;
     void         checkAndApplyDefaultFillColor();
+
+    virtual void updateAxisInPlot( RiaDefines::PlotAxis plotAxis ) = 0;
 
 protected:
     caf::PdmField<bool>    m_showCurve;
