@@ -23,7 +23,7 @@
 #include "RimPlotCurveAppearance.h"
 
 #include "RiaCurveDataTools.h"
-#include "RiaDefines.h"
+#include "RiaPlotDefines.h"
 
 #include "RiuQwtPlotCurveDefines.h"
 #include "RiuQwtSymbol.h"
