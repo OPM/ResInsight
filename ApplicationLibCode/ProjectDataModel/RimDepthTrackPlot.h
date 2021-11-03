@@ -23,6 +23,7 @@
 #include "RimAbstractPlotCollection.h"
 #include "RimEnsembleWellLogStatistics.h"
 #include "RimPlotWindow.h"
+#include "RimQwtPlot.h"
 #include "RimWellLogPlotNameConfig.h"
 
 #include "cafAppEnum.h"
@@ -39,7 +40,7 @@
 
 class RimWellLogCurveCommonDataSource;
 class RiuWellLogPlot;
-class RimPlot;
+class RimQwtPlot;
 class RimEnsembleCurveSet;
 
 class QKeyEvent;
@@ -48,7 +49,7 @@ class QKeyEvent;
 ///
 ///
 //==================================================================================================
-class RimDepthTrackPlot : public RimTypedPlotCollection<RimPlot>, public RimPlotWindow, public RimNameConfigHolderInterface
+class RimDepthTrackPlot : public RimTypedPlotCollection<RimQwtPlot>, public RimPlotWindow, public RimNameConfigHolderInterface
 {
     CAF_PDM_HEADER_INIT;
 
@@ -78,10 +79,10 @@ public:
     size_t   plotIndex( const RimPlot* plot ) const;
     RimPlot* plotByIndex( size_t index ) const;
 
-    std::vector<RimPlot*> plots() const override;
-    std::vector<RimPlot*> visiblePlots() const;
-    void                  insertPlot( RimPlot* plot, size_t index ) final;
-    void                  removePlot( RimPlot* plot ) final;
+    std::vector<RimQwtPlot*> plots() const override;
+    std::vector<RimQwtPlot*> visiblePlots() const;
+    void                     insertPlot( RimQwtPlot* plot, size_t index ) final;
+    void                     removePlot( RimQwtPlot* plot ) final;
 
     DepthTypeEnum depthType() const;
     void          setDepthType( DepthTypeEnum depthType );
@@ -177,7 +178,7 @@ protected:
     caf::PdmField<caf::FontTools::RelativeSizeEnum>        m_axisValueFontSize;
 
     caf::PdmChildField<RimWellLogPlotNameConfig*> m_nameConfig;
-    caf::PdmChildArrayField<RimPlot*>             m_plots;
+    caf::PdmChildArrayField<RimQwtPlot*>          m_plots;
 
     caf::PdmField<caf::AppEnum<RimEnsembleWellLogStatistics::DepthEqualization>> m_depthEqualization;
     caf::PdmPtrField<RimEnsembleCurveSet*>                                       m_ensembleCurveSet;

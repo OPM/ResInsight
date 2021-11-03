@@ -30,11 +30,6 @@
 #include <QObject>
 #include <QPointer>
 
-class RiuQwtPlotWidget;
-class RimPlotCurve;
-class QwtPlotCurve;
-class QwtPlotItem;
-
 class QPaintDevice;
 class QWheelEvent;
 
@@ -73,21 +68,16 @@ public:
     void         updateAfterInsertingIntoMultiPlot();
 
     // Pure virtual interface methods
-    virtual RiuQwtPlotWidget* viewer() = 0;
-
     virtual void setAutoScaleXEnabled( bool enabled ) = 0;
     virtual void setAutoScaleYEnabled( bool enabled ) = 0;
     virtual void updateAxes()                         = 0;
 
-    virtual void updateLegend()      = 0;
-    virtual void updateZoomInQwt()   = 0;
-    virtual void updateZoomFromQwt() = 0;
+    virtual void updateLegend() = 0;
 
     virtual QString asciiDataForPlotExport() const = 0;
 
-    virtual void            reattachAllCurves()                                          = 0;
-    virtual void            detachAllCurves()                                            = 0;
-    virtual caf::PdmObject* findPdmObjectFromQwtCurve( const QwtPlotCurve* curve ) const = 0;
+    virtual void reattachAllCurves() = 0;
+    virtual void detachAllCurves()   = 0;
 
     void onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
                          std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
@@ -104,24 +94,20 @@ protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
-    static void attachPlotWidgetSignals( RimPlot* plot, RiuQwtPlotWidget* plotWidget );
-    QWidget*    createViewWidget( QWidget* parent = nullptr ) final;
+    //    virtual QWidget* createViewWidget( QWidget* parent = nullptr ) = 0;
 
-    void updateFonts() override;
+    void updateFonts() override = 0;
 
-private:
-    void              doRenderWindowContent( QPaintDevice* paintDevice ) override;
-    virtual void              handleKeyPressEvent( QKeyEvent* event ) {}
-    virtual void              handleWheelEvent( QWheelEvent* event ) {}
-    virtual RiuQwtPlotWidget* doCreatePlotViewWidget( QWidget* parent ) = 0;
+    void doRenderWindowContent( QPaintDevice* paintDevice ) override = 0;
+
+    virtual void handleKeyPressEvent( QKeyEvent* event ) {}
+    virtual void handleWheelEvent( QWheelEvent* event ) {}
 
 private slots:
-    void         onPlotSelected( bool toggle );
-    virtual void onAxisSelected( int axis, bool toggle ) {}
-    virtual void onPlotItemSelected( QwtPlotItem* plotItem, bool toggle, int sampleIndex );
-    void         onViewerDestroyed();
-    void         onKeyPressEvent( QKeyEvent* event );
-    void         onWheelEvent( QWheelEvent* event );
+    void onPlotSelected( bool toggle );
+    void onViewerDestroyed();
+    void onKeyPressEvent( QKeyEvent* event );
+    void onWheelEvent( QWheelEvent* event );
 
 protected:
     caf::PdmField<RowOrColSpanEnum> m_rowSpan;
