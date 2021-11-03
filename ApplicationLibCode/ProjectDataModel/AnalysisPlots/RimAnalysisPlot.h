@@ -18,8 +18,8 @@
 
 #pragma once
 
-#include "RimPlot.h"
 #include "RimPlotDataFilterItem.h"
+#include "RimQwtPlot.h"
 #include "RimSummaryCaseCollection.h"
 #include "RimTimeStepFilter.h"
 
@@ -43,7 +43,7 @@ class RiaSummaryCurveDefinition;
 ///
 ///
 //==================================================================================================
-class RimAnalysisPlot : public RimPlot
+class RimAnalysisPlot : public RimQwtPlot
 {
     CAF_PDM_HEADER_INIT;
 

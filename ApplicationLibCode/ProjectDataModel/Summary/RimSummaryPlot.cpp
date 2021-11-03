@@ -199,7 +199,7 @@ CurvesData concatCurvesData( const std::vector<CurvesData>& curvesData );
 ///
 //--------------------------------------------------------------------------------------------------
 RimSummaryPlot::RimSummaryPlot()
-    : RimPlot()
+    : RimQwtPlot()
 {
     CAF_PDM_InitScriptableObject( "Summary Plot", ":/SummaryPlotLight16x16.png", "", "A Summary Plot" );
 

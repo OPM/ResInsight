@@ -167,9 +167,9 @@ RimDepthTrackPlot& RimDepthTrackPlot::operator=( RimDepthTrackPlot&& rhs )
     RimPlotWindow::operator=( std::move( rhs ) );
 
     // Move all tracks
-    std::vector<RimPlot*> plots = rhs.m_plots.childObjects();
+    std::vector<RimQwtPlot*> plots = rhs.m_plots.childObjects();
     rhs.m_plots.clear();
-    for ( RimPlot* plot : plots )
+    for ( RimQwtPlot* plot : plots )
     {
         m_plots.push_back( plot );
     }
@@ -236,7 +236,7 @@ size_t RimDepthTrackPlot::plotCount() const
 //--------------------------------------------------------------------------------------------------
 size_t RimDepthTrackPlot::plotIndex( const RimPlot* plot ) const
 {
-    return m_plots.index( plot );
+    return m_plots.index( dynamic_cast<const RimQwtPlot*>( plot ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -255,7 +255,7 @@ RimPlot* RimDepthTrackPlot::plotByIndex( size_t index ) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimPlot*> RimDepthTrackPlot::plots() const
+std::vector<RimQwtPlot*> RimDepthTrackPlot::plots() const
 {
     return m_plots.childObjects();
 }
@@ -263,10 +263,10 @@ std::vector<RimPlot*> RimDepthTrackPlot::plots() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimPlot*> RimDepthTrackPlot::visiblePlots() const
+std::vector<RimQwtPlot*> RimDepthTrackPlot::visiblePlots() const
 {
-    std::vector<RimPlot*> allVisiblePlots;
-    for ( RimPlot* plot : m_plots() )
+    std::vector<RimQwtPlot*> allVisiblePlots;
+    for ( RimQwtPlot* plot : m_plots() )
     {
         if ( plot->showWindow() )
         {
@@ -291,7 +291,7 @@ void RimDepthTrackPlot::updateZoom()
         }
     }
 
-    for ( RimPlot* plot : plots() )
+    for ( RimQwtPlot* plot : plots() )
     {
         static_cast<RimWellLogTrack*>( plot )->setVisibleYRange( m_minVisibleDepth(), m_maxVisibleDepth() );
         plot->updateZoomInQwt();
@@ -1020,7 +1020,7 @@ caf::PdmFieldHandle* RimDepthTrackPlot::userDescriptionField()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimDepthTrackPlot::insertPlot( RimPlot* plot, size_t index )
+void RimDepthTrackPlot::insertPlot( RimQwtPlot* plot, size_t index )
 {
     if ( plot )
     {
@@ -1039,7 +1039,7 @@ void RimDepthTrackPlot::insertPlot( RimPlot* plot, size_t index )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimDepthTrackPlot::removePlot( RimPlot* plot )
+void RimDepthTrackPlot::removePlot( RimQwtPlot* plot )
 {
     if ( plot )
     {
