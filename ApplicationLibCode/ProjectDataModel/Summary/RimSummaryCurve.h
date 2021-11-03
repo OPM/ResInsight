@@ -87,7 +87,7 @@ public:
     bool isEnsembleCurve() const;
     void setIsEnsembleCurve( bool isEnsembleCurve );
 
-    void updateQwtPlotAxis();
+    void updatePlotAxis();
     void applyCurveAutoNameSettings( const RimSummaryCurveAutoName& autoNameSettings );
 
     QString curveExportDescription( const RifEclipseSummaryAddress& address = RifEclipseSummaryAddress() ) const override;
