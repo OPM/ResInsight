@@ -73,8 +73,7 @@ RimWellIASettings::RimWellIASettings()
     m_startMD.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
     m_endMD.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitField( &m_bufferXY, "BufferXY", 20.0, "Model Size (XY)", "", "", "" );
-    CAF_PDM_InitField( &m_bufferZ, "BufferZ", 15.0, "Depth buffer size", "", "", "" );
+    CAF_PDM_InitField( &m_bufferXY, "BufferXY", 5.0, "Model Size (XY)", "", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_parameters, "ModelingParameters", "Modeling Parameters", ":/Bullet.png", "", "" );
 
@@ -141,7 +140,7 @@ void RimWellIASettings::fieldChangedByUi( const caf::PdmFieldHandle* changedFiel
                                           const QVariant&            newValue )
 {
     if ( ( changedField == &m_startMD ) || ( changedField == &m_endMD ) || ( changedField == objectToggleField() ) ||
-         ( changedField == &m_bufferXY ) || ( changedField == &m_bufferZ ) || ( changedField == &m_showBox ) )
+         ( changedField == &m_bufferXY ) || ( changedField == &m_showBox ) )
     {
         updateVisualization();
     }
@@ -198,7 +197,6 @@ void RimWellIASettings::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderi
     modelGroup->add( &m_startMD );
     modelGroup->add( &m_endMD );
     modelGroup->add( &m_bufferXY );
-    modelGroup->add( &m_bufferZ );
     modelGroup->add( &m_showBox );
 
     uiOrdering.skipRemainingFields( true );
@@ -437,6 +435,13 @@ bool RimWellIASettings::updateResInsightParameters()
 {
     resetResInsightParameters();
 
+    RimParameterGroup* modeldim = new RimParameterGroup();
+    modeldim->setName( "model_dimensions" );
+    modeldim->setLabel( "Model Dimensions" );
+    modeldim->addParameter( "model_size", m_bufferXY );
+    modeldim->addParameter( "vertical_length_3D", m_endMD - m_startMD );
+    m_parametersRI.push_back( modeldim );
+
     RimParameterGroup* wellcoords = new RimParameterGroup();
     wellcoords->setName( "well_coordinates" );
     wellcoords->setLabel( "Well Coordinates" );
@@ -468,10 +473,9 @@ bool RimWellIASettings::updateResInsightParameters()
     {
         double stressValue =
             dataAccess.interpolatedResultValue( "ST", nativeKeys[i], RigFemResultPosEnum::RIG_ELEMENT_NODAL, position, 0 );
-        initialStress->addParameter( paramKeys[i], stressValue );
         if ( std::isfinite( stressValue ) )
         {
-            initialStress->addParameter( paramKeys[i], stressValue );
+            initialStress->addParameter( paramKeys[i], stressValue * 100000.0 );
         }
         else
         {
@@ -590,7 +594,7 @@ void RimWellIASettings::generateModelBox()
     cvf::Vec3d startPos = wellgeom->interpolatedPointAlongWellPath( m_startMD );
     cvf::Vec3d endPos   = wellgeom->interpolatedPointAlongWellPath( m_endMD );
 
-    m_boxValid = m_modelbox.updateBox( startPos, endPos, m_bufferXY, m_bufferZ );
+    m_boxValid = m_modelbox.updateBox( startPos, endPos, m_bufferXY, 0.0 );
 }
 
 //--------------------------------------------------------------------------------------------------

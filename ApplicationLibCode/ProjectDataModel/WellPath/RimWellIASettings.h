@@ -127,7 +127,6 @@ private:
     caf::PdmField<double>    m_startMD;
     caf::PdmField<double>    m_endMD;
     caf::PdmField<double>    m_bufferXY;
-    caf::PdmField<double>    m_bufferZ;
     caf::PdmField<QDateTime> m_geostaticDate;
 
     caf::PdmChildArrayField<RimParameterGroup*> m_parameters;
