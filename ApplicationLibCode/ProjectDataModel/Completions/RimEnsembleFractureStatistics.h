@@ -197,7 +197,8 @@ protected:
         const std::vector<caf::AppEnum<RimEnsembleFractureStatistics::StatisticsType>>&       statisticsTypes,
         const RigHistogramData&                                                               areaHistogram,
         std::shared_ptr<RigSlice2D>                                                           areaGrid,
-        std::shared_ptr<RigSlice2D>                                                           distanceGrid );
+        std::shared_ptr<RigSlice2D>                                                           distanceGrid,
+        bool                                                                                  highIsLow );
 
     static bool writeStatisticsToCsv( const QString& filePath, const RigSlice2D& samples );
 
