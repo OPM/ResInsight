@@ -69,7 +69,7 @@ RimIdenticalGridCaseGroup::RimIdenticalGridCaseGroup()
 
     CAF_PDM_InitFieldNoDefault( &statisticsCaseCollection,
                                 "StatisticsCaseCollection",
-                                "statisticsCaseCollection ChildArrayField");
+                                "statisticsCaseCollection ChildArrayField" );
     statisticsCaseCollection.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &caseCollection, "CaseCollection", "Source Cases ChildArrayField" );

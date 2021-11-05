@@ -116,7 +116,7 @@ RimWellAllocationPlot::RimWellAllocationPlot()
 
     CAF_PDM_InitFieldNoDefault( &m_tofAccumulatedPhaseFractionsPlot,
                                 "TofAccumulatedPhaseFractionsPlot",
-                                "TOF Accumulated Phase Fractions");
+                                "TOF Accumulated Phase Fractions" );
     m_tofAccumulatedPhaseFractionsPlot.uiCapability()->setUiTreeHidden( true );
     m_tofAccumulatedPhaseFractionsPlot = new RimTofAccumulatedPhaseFractionsPlot;
 

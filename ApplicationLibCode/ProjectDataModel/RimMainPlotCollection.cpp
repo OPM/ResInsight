@@ -99,7 +99,7 @@ RimMainPlotCollection::RimMainPlotCollection()
 
     CAF_PDM_InitFieldNoDefault( &m_saturationPressurePlotCollection,
                                 "RimSaturationPressurePlotCollection",
-                                "Saturation Pressure Plots");
+                                "Saturation Pressure Plots" );
     m_saturationPressurePlotCollection.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_multiPlotCollection, "RimMultiPlotCollection", "Multi Plots" );
@@ -114,9 +114,7 @@ RimMainPlotCollection::RimMainPlotCollection()
     CAF_PDM_InitFieldNoDefault( &m_gridStatisticsPlotCollection, "GridStatisticsPlotCollection", "" );
     m_gridStatisticsPlotCollection.uiCapability()->setUiTreeHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_ensembleFractureStatisticsPlotCollection,
-                                "EnsembleFractureStatisticsPlotCollection",
-                                "");
+    CAF_PDM_InitFieldNoDefault( &m_ensembleFractureStatisticsPlotCollection, "EnsembleFractureStatisticsPlotCollection", "" );
     m_ensembleFractureStatisticsPlotCollection.uiCapability()->setUiTreeHidden( true );
 #endif
 

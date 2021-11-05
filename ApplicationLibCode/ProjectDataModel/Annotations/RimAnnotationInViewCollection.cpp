@@ -89,13 +89,13 @@ RimAnnotationInViewCollection::RimAnnotationInViewCollection()
     CAF_PDM_InitFieldNoDefault( &m_globalTextAnnotations, "TextAnnotationsInView", "Global Text Annotations" );
     CAF_PDM_InitFieldNoDefault( &m_globalReachCircleAnnotations,
                                 "ReachCircleAnnotationsInView",
-                                "Global Reach Circle Annotations");
+                                "Global Reach Circle Annotations" );
     CAF_PDM_InitFieldNoDefault( &m_globalUserDefinedPolylineAnnotations,
                                 "UserDefinedPolylinesAnnotationsInView",
-                                "Global User Defined Polylines Annotations");
+                                "Global User Defined Polylines Annotations" );
     CAF_PDM_InitFieldNoDefault( &m_globalPolylineFromFileAnnotations,
                                 "PolylinesFromFileAnnotationsInView",
-                                "Global Polylines From File Annotations");
+                                "Global Polylines From File Annotations" );
 
     CAF_PDM_InitFieldNoDefault( &m_annotationFontSize, "AnnotationFontSize", "Default Font Size" );
 

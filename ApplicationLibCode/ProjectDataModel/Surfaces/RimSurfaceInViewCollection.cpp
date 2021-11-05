@@ -48,9 +48,7 @@ RimSurfaceInViewCollection::RimSurfaceInViewCollection()
     m_collectionName.uiCapability()->setUiReadOnly( true );
     m_collectionName.xmlCapability()->disableIO();
 
-    CAF_PDM_InitFieldNoDefault( &m_collectionsInView,
-                                "SurfacesInViewFieldCollections",
-                                "SurfacesInViewFieldCollections");
+    CAF_PDM_InitFieldNoDefault( &m_collectionsInView, "SurfacesInViewFieldCollections", "SurfacesInViewFieldCollections" );
     m_collectionsInView.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_surfacesInView, "SurfacesInViewField", "SurfacesInViewField" );

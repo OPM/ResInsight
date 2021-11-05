@@ -138,126 +138,126 @@ RiuSummaryVectorSelectionUi::RiuSummaryVectorSelectionUi()
       } )
     , m_showIndividualEnsembleCases( false )
 {
-    CAF_PDM_InitFieldNoDefault( &m_selectedSources, "SummaryCases", "Cases");
+    CAF_PDM_InitFieldNoDefault( &m_selectedSources, "SummaryCases", "Cases" );
     m_selectedSources.uiCapability()->setAutoAddingOptionFromValue( false );
 
-    CAF_PDM_InitFieldNoDefault( &m_currentSummaryCategory, "CurrentSummaryCategory", "Current Summary Category");
-    CAF_PDM_InitFieldNoDefault( &m_selectedSummaryCategories, "SelectedSummaryCategories", "Summary Categories");
+    CAF_PDM_InitFieldNoDefault( &m_currentSummaryCategory, "CurrentSummaryCategory", "Current Summary Category" );
+    CAF_PDM_InitFieldNoDefault( &m_selectedSummaryCategories, "SelectedSummaryCategories", "Summary Categories" );
 
     CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_FIELD][0]->pdmField(),
                                 "FieldVectors",
-                                "Field vectors");
+                                "Field vectors" );
 
     CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_AQUIFER][0]->pdmField(),
                                 "Aquifers",
-                                "Aquifers");
+                                "Aquifers" );
     CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_AQUIFER][1]->pdmField(),
                                 "AquiferVectors",
-                                "Aquifer Vectors");
+                                "Aquifer Vectors" );
 
     CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_NETWORK][0]->pdmField(),
                                 "NetworkVectors",
-                                "Network Vectors");
+                                "Network Vectors" );
 
     CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_MISC][0]->pdmField(),
                                 "MiscVectors",
-                                "Misc Vectors");
+                                "Misc Vectors" );
 
     CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_REGION][0]->pdmField(),
                                 "Regions",
-                                "Regions");
+                                "Regions" );
     CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_REGION][1]->pdmField(),
                                 "RegionsVectors",
-                                "Regions Vectors");
+                                "Regions Vectors" );
 
     CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_REGION_2_REGION][0]->pdmField(),
                                 "Region2RegionRegions",
-                                "Regions");
+                                "Regions" );
     CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_REGION_2_REGION][1]->pdmField(),
                                 "Region2RegionVectors",
-                                "Region2s Vectors");
+                                "Region2s Vectors" );
 
     CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_WELL_GROUP][0]->pdmField(),
                                 "WellGroupWellGroupNames",
-                                "Well groups");
+                                "Well groups" );
     CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_WELL_GROUP][1]->pdmField(),
                                 "WellGroupVectors",
-                                "Well Group Vectors");
+                                "Well Group Vectors" );
 
     CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_WELL][0]->pdmField(),
                                 "WellWellName",
-                                "Wells");
+                                "Wells" );
     CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_WELL][1]->pdmField(),
                                 "WellVectors",
-                                "Well Vectors");
+                                "Well Vectors" );
 
     CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION][0]->pdmField(),
                                 "WellCompletionWellName",
-                                "Wells");
+                                "Wells" );
     CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION][1]->pdmField(),
                                 "WellCompletionIjk",
-                                "Cell IJK");
+                                "Cell IJK" );
     CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION][2]->pdmField(),
                                 "WellCompletionVectors",
-                                "Well Completion Vectors");
+                                "Well Completion Vectors" );
 
     CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION_LGR][0]->pdmField(),
                                 "WellCompletionLgrLgrName",
-                                "LGR Names");
+                                "LGR Names" );
     CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION_LGR][1]->pdmField(),
                                 "WellCompletionLgrWellName",
-                                "Wells");
+                                "Wells" );
     CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION_LGR][2]->pdmField(),
                                 "WellCompletionLgrIjk",
-                                "Cell IJK");
+                                "Cell IJK" );
     CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION_LGR][3]->pdmField(),
                                 "WellCompletionLgrVectors",
-                                "Well Completion Vectors");
+                                "Well Completion Vectors" );
 
     CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_WELL_LGR][0]->pdmField(),
                                 "WellLgrLgrName",
-                                "LGR Names");
+                                "LGR Names" );
     CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_WELL_LGR][1]->pdmField(),
                                 "WellLgrWellName",
-                                "Wells");
+                                "Wells" );
     CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_WELL_LGR][2]->pdmField(),
                                 "WellLgrVectors",
-                                "Vectors");
+                                "Vectors" );
 
     CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_WELL_SEGMENT][0]->pdmField(),
                                 "WellSegmentWellName",
-                                "Wells");
+                                "Wells" );
     CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_WELL_SEGMENT][1]->pdmField(),
                                 "WellSegmentNumber",
-                                "Segments");
+                                "Segments" );
     CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_WELL_SEGMENT][2]->pdmField(),
                                 "WellSegmentVectors",
-                                "Vectors");
+                                "Vectors" );
 
     CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_BLOCK][0]->pdmField(),
                                 "BlockIjk",
-                                "Cell IJK");
+                                "Cell IJK" );
     CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_BLOCK][1]->pdmField(),
                                 "BlockVectors",
-                                "Block Vectors");
+                                "Block Vectors" );
 
     CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_BLOCK_LGR][0]->pdmField(),
                                 "BlockLgrLgrName",
-                                "LGR Names");
+                                "LGR Names" );
     CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_BLOCK_LGR][1]->pdmField(),
                                 "BlockLgrIjk",
-                                "Cell IJK");
+                                "Cell IJK" );
     CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_BLOCK_LGR][2]->pdmField(),
                                 "BlockLgrVectors",
-                                "Block Vectors");
+                                "Block Vectors" );
 
     CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_CALCULATED][0]->pdmField(),
                                 "CalculatedVectors",
-                                "Calculated Vectors");
+                                "Calculated Vectors" );
 
     CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_IMPORTED][0]->pdmField(),
                                 "ImportedVectors",
-                                "Imported vectors");
+                                "Imported vectors" );
 
     for ( const auto& itemTypes : m_identifierFieldsMap )
     {
