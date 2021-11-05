@@ -360,13 +360,20 @@ void RimEnsembleFractureStatistics::loadAndUpdateData()
     std::vector<cvf::ref<RigStimPlanFractureDefinition>> stimPlanFractureDefinitions =
         readFractureDefinitions( m_filePaths.v(), unitSystem );
 
-    // Log area for each fracture for debugging
+    // Log area and conductivty for each fracture for debugging
     std::vector<double> area =
         RigEnsembleFractureStatisticsCalculator::calculateProperty( stimPlanFractureDefinitions,
                                                                     RigEnsembleFractureStatisticsCalculator::PropertyType::AREA );
+    std::vector<double> conductivity =
+        RigEnsembleFractureStatisticsCalculator::calculateProperty( stimPlanFractureDefinitions,
+                                                                    RigEnsembleFractureStatisticsCalculator::PropertyType::KFWF );
+
+    CAF_ASSERT( m_filePaths.v().size() == area.size() );
+    CAF_ASSERT( area.size() == conductivity.size() );
     for ( size_t i = 0; i < m_filePaths.v().size(); i++ )
     {
-        RiaLogging::info( QString( "%1 Area: %2" ).arg( m_filePaths.v()[i].path() ).arg( area[i] ) );
+        RiaLogging::info(
+            QString( "%1 Area: %2 Conductivity: %3" ).arg( m_filePaths.v()[i].path() ).arg( area[i] ).arg( conductivity[i] ) );
     }
 
     if ( m_excludeZeroWidthFractures() )
