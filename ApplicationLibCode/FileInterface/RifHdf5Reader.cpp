@@ -119,6 +119,8 @@ std::vector<QDateTime> RifHdf5Reader::timeSteps() const
 
     try
     {
+        H5::Exception::dontPrint(); // Turn off auto-printing of failures to handle the errors appropriately
+
         H5::H5File mainFile( m_fileName.toStdString().c_str(),
                              H5F_ACC_RDONLY ); // initial date part is an attribute of SourSimRL main file
 
@@ -182,6 +184,8 @@ QStringList RifHdf5Reader::propertyNames() const
 
     try
     {
+        H5::Exception::dontPrint(); // Turn off auto-printing of failures to handle the errors appropriately
+
         H5::H5File file( fileName.c_str(), H5F_ACC_RDONLY );
 
         std::vector<std::string> resultNames = getResultNames( file, groupName );
@@ -286,6 +290,8 @@ int RifHdf5Reader::getIntAttribute( H5::H5File file, std::string groupName, std:
 {
     try
     {
+        H5::Exception::dontPrint(); // Turn off auto-printing of failures to handle the errors appropriately
+
         H5::Group     group = file.openGroup( groupName.c_str() );
         H5::Attribute attr  = group.openAttribute( attributeName.c_str() );
 
@@ -310,6 +316,8 @@ double RifHdf5Reader::getDoubleAttribute( H5::H5File file, std::string groupName
 {
     try
     {
+        H5::Exception::dontPrint(); // Turn off auto-printing of failures to handle the errors appropriately
+
         H5::Group     group = file.openGroup( groupName.c_str() );
         H5::Attribute attr  = group.openAttribute( attributeName.c_str() );
 
@@ -334,6 +342,8 @@ std::string RifHdf5Reader::getStringAttribute( H5::H5File file, std::string grou
 {
     try
     {
+        H5::Exception::dontPrint(); // Turn off auto-printing of failures to handle the errors appropriately
+
         H5::Group     group = file.openGroup( groupName.c_str() );
         H5::Attribute attr  = group.openAttribute( attributeName.c_str() );
 
@@ -385,15 +395,23 @@ std::vector<std::string> RifHdf5Reader::getResultNames( H5::H5File file, std::st
 //--------------------------------------------------------------------------------------------------
 void RifHdf5Reader::getElementResultValues( H5::H5File file, std::string groupName, std::vector<double>* resultValues ) const
 {
-    H5::Group   group   = file.openGroup( groupName.c_str() );
-    H5::DataSet dataset = H5::DataSet( group.openDataSet( "values" ) );
+    try
+    {
+        H5::Exception::dontPrint(); // Turn off auto-printing of failures to handle the errors appropriately
 
-    hsize_t       dims[2];
-    H5::DataSpace dataspace = dataset.getSpace();
-    dataspace.getSimpleExtentDims( dims, nullptr );
+        H5::Group   group   = file.openGroup( groupName.c_str() );
+        H5::DataSet dataset = H5::DataSet( group.openDataSet( "values" ) );
 
-    ( *resultValues ).resize( dims[0] );
-    dataset.read( resultValues->data(), H5::PredType::NATIVE_DOUBLE );
+        hsize_t       dims[2];
+        H5::DataSpace dataspace = dataset.getSpace();
+        dataspace.getSimpleExtentDims( dims, nullptr );
+
+        ( *resultValues ).resize( dims[0] );
+        dataset.read( resultValues->data(), H5::PredType::NATIVE_DOUBLE );
+    }
+    catch ( ... )
+    {
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -403,24 +421,32 @@ std::vector<std::string> RifHdf5ReaderTools::getSubGroupNames( H5::H5File* file,
 {
     if ( file )
     {
-        H5::Group baseGroup = file->openGroup( baseGroupName.c_str() );
-
-        std::vector<std::string> subGroupNames;
-
-        hsize_t groupSize = baseGroup.getNumObjs();
-
-        for ( hsize_t i = 0; i < groupSize; i++ )
+        try
         {
-            std::string nodeName( 1024, '\0' );
+            H5::Exception::dontPrint(); // Turn off auto-printing of failures to handle the errors appropriately
 
-            ssize_t slen = baseGroup.getObjnameByIdx( i, &nodeName[0], 1023 );
+            H5::Group baseGroup = file->openGroup( baseGroupName.c_str() );
 
-            nodeName.resize( slen + 1 );
+            std::vector<std::string> subGroupNames;
 
-            subGroupNames.push_back( nodeName );
+            hsize_t groupSize = baseGroup.getNumObjs();
+
+            for ( hsize_t i = 0; i < groupSize; i++ )
+            {
+                std::string nodeName( 1024, '\0' );
+
+                ssize_t slen = baseGroup.getObjnameByIdx( i, &nodeName[0], 1023 );
+
+                nodeName.resize( slen + 1 );
+
+                subGroupNames.push_back( nodeName );
+            }
+
+            return subGroupNames;
         }
-
-        return subGroupNames;
+        catch ( ... )
+        {
+        }
     }
 
     return {};
