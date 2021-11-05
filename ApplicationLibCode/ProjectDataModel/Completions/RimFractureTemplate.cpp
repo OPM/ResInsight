@@ -102,10 +102,6 @@ void caf::AppEnum<RimFractureTemplate::BetaFactorEnum>::setUp()
 
 } // namespace caf
 
-// TODO Move to cafPdmObject.h
-#define CAF_PDM_InitField_Basic( field, keyword, default, uiName ) \
-    CAF_PDM_InitField( field, keyword, default, uiName, "", "", "" )
-
 CAF_PDM_XML_ABSTRACT_SOURCE_INIT( RimFractureTemplate, "FractureTemplate", "RimFractureTemplate" );
 
 //--------------------------------------------------------------------------------------------------
@@ -175,16 +171,16 @@ RimFractureTemplate::RimFractureTemplate()
     CAF_PDM_InitField( &m_userDefinedDFactor, "UserDefinedDFactor", 1.0, "D Factor", "", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_fractureWidthType, "FractureWidthType", "Type", "", "", "" );
-    CAF_PDM_InitField_Basic( &m_fractureWidth, "FractureWidth", 0.01, "Fracture Width (h)" );
+    CAF_PDM_InitField( &m_fractureWidth, "FractureWidth", 0.01, "Fracture Width (h)" );
 
     CAF_PDM_InitFieldNoDefault( &m_betaFactorType, "BetaFactorType", "Type", "", "", "" );
-    CAF_PDM_InitField_Basic( &m_inertialCoefficient,
-                             "InertialCoefficient",
-                             0.006083236,
-                             "<html>Inertial Coefficient (&beta;)</html> [Forch. unit]" );
+    CAF_PDM_InitField( &m_inertialCoefficient,
+                       "InertialCoefficient",
+                       0.006083236,
+                       "<html>Inertial Coefficient (&beta;)</html> [Forch. unit]" );
 
     CAF_PDM_InitFieldNoDefault( &m_permeabilityType, "PermeabilityType", "Type", "", "", "" );
-    CAF_PDM_InitField_Basic( &m_relativePermeability, "RelativePermeability", 1.0, "Relative Permeability" );
+    CAF_PDM_InitField( &m_relativePermeability, "RelativePermeability", 1.0, "Relative Permeability" );
     CAF_PDM_InitField( &m_userDefinedEffectivePermeability,
                        "EffectivePermeability",
                        0.0,
