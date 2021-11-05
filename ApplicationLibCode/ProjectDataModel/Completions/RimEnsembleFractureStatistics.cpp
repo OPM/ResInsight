@@ -446,6 +446,10 @@ std::vector<QString> RimEnsembleFractureStatistics::computeStatistics()
         std::shared_ptr<RigSlice2D>      distanceGrid = std::make_shared<RigSlice2D>( gridXs.size(), gridYs.size() );
         sampleAllGrids( fractureGrids, gridXs, gridYs, samples, areaGrid, distanceGrid );
 
+        // Beta should be reported inverted: low values are high, high values are low.
+        bool swapLowAndHigh = result.first.contains( "BETA", Qt::CaseInsensitive );
+        if ( swapLowAndHigh ) RiaLogging::info( QString( "Inverting statistics for: %1" ).arg( result.first ) );
+
         std::map<RimEnsembleFractureStatistics::StatisticsType, std::shared_ptr<RigSlice2D>> statisticsGrids;
         generateStatisticsGrids( samples,
                                  gridXs.size(),
@@ -455,7 +459,8 @@ std::vector<QString> RimEnsembleFractureStatistics::computeStatistics()
                                  selectedStatistics,
                                  areaHistogramData,
                                  areaGrid,
-                                 distanceGrid );
+                                 distanceGrid,
+                                 swapLowAndHigh );
 
         for ( auto [statType, slice] : statisticsGrids )
         {
@@ -1138,7 +1143,8 @@ void RimEnsembleFractureStatistics::generateStatisticsGrids(
     const std::vector<caf::AppEnum<RimEnsembleFractureStatistics::StatisticsType>>&       statisticsTypes,
     const RigHistogramData&                                                               areaHistogram,
     std::shared_ptr<RigSlice2D>                                                           areaGrid,
-    std::shared_ptr<RigSlice2D>                                                           distanceGrid )
+    std::shared_ptr<RigSlice2D>                                                           distanceGrid,
+    bool                                                                                  swapLowAndHigh )
 {
     for ( auto t : statisticsTypes )
     {
@@ -1193,6 +1199,8 @@ void RimEnsembleFractureStatistics::generateStatisticsGrids(
                 double dev;
                 RigStatisticsMath::calculateBasicStatistics( values, &min, &max, &sum, &range, &mean, &dev );
 
+                if ( swapLowAndHigh ) std::swap( min, max );
+
                 if ( calculateMean )
                     setValueNoInf( statisticsGrids[RimEnsembleFractureStatistics::StatisticsType::MEAN], x, y, mean );
 
@@ -1215,6 +1223,8 @@ void RimEnsembleFractureStatistics::generateStatisticsGrids(
                                                               &p90,
                                                               &mean,
                                                               RigStatisticsMath::PercentileStyle::SWITCHED );
+
+                if ( swapLowAndHigh ) std::swap( p10, p90 );
 
                 if ( calculateP10 )
                     setValueNoInf( statisticsGrids[RimEnsembleFractureStatistics::StatisticsType::P10], x, y, p10 );
