@@ -230,19 +230,13 @@ RimExtrudedCurveIntersection::RimExtrudedCurveIntersection()
 
     CAF_PDM_InitFieldNoDefault( &m_inputExtrusionPointsFromViewerEnabled,
                                 "inputExtrusionPointsFromViewerEnabled",
-                                "",
-                                "",
-                                "",
-                                "" );
+                                "");
     caf::PdmUiPushButtonEditor::configureEditorForField( &m_inputExtrusionPointsFromViewerEnabled );
     m_inputExtrusionPointsFromViewerEnabled = false;
 
     CAF_PDM_InitFieldNoDefault( &m_inputTwoAzimuthPointsFromViewerEnabled,
                                 "inputTwoAzimuthPointsFromViewerEnabled",
-                                "",
-                                "",
-                                "",
-                                "" );
+                                "");
     caf::PdmUiPushButtonEditor::configureEditorForField( &m_inputTwoAzimuthPointsFromViewerEnabled );
     m_inputTwoAzimuthPointsFromViewerEnabled = false;
 

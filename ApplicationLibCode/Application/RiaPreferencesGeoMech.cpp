@@ -48,19 +48,13 @@ RiaPreferencesGeoMech::RiaPreferencesGeoMech()
 
     CAF_PDM_InitFieldNoDefault( &m_geomechFRADefaultBasicXML,
                                 "geomechFRADefaultXML",
-                                "Basic Processing Parameter XML File",
-                                "",
-                                "",
-                                "" );
+                                "Basic Processing Parameter XML File");
     m_geomechFRADefaultBasicXML.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
     m_geomechFRADefaultBasicXML.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
 
     CAF_PDM_InitFieldNoDefault( &m_geomechFRADefaultAdvXML,
                                 "geomechFRADefaultAdvXML",
-                                "Advanced Processing Parameter XML File",
-                                "",
-                                "",
-                                "" );
+                                "Advanced Processing Parameter XML File");
     m_geomechFRADefaultAdvXML.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
     m_geomechFRADefaultAdvXML.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
 

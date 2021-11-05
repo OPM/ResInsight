@@ -42,10 +42,7 @@ RimEclipseGeometrySelectionItem::RimEclipseGeometrySelectionItem()
     CAF_PDM_InitFieldNoDefault( &m_cellIndex, "CellIndex", "Cell Index" );
     CAF_PDM_InitFieldNoDefault( &m_localIntersectionPointInDisplay,
                                 "LocalIntersectionPoint",
-                                "local Intersection Point",
-                                "",
-                                "",
-                                "" );
+                                "local Intersection Point");
 }
 
 //--------------------------------------------------------------------------------------------------

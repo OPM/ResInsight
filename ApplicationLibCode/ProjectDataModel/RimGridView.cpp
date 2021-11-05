@@ -66,12 +66,7 @@ CAF_PDM_XML_ABSTRACT_SOURCE_INIT( RimGridView, "GenericGridView" ); // Do not us
 //--------------------------------------------------------------------------------------------------
 RimGridView::RimGridView()
 {
-    CAF_PDM_InitFieldNoDefault( &m_overrideCellFilterCollection,
-                                "CellFiltersControlled",
-                                "Cell Filters (controlled)",
-                                "",
-                                "",
-                                "" );
+    CAF_PDM_InitFieldNoDefault( &m_overrideCellFilterCollection, "CellFiltersControlled", "Cell Filters (controlled)" );
     m_overrideCellFilterCollection.uiCapability()->setUiTreeHidden( true );
     m_overrideCellFilterCollection.xmlCapability()->disableIO();
 
@@ -79,12 +74,7 @@ RimGridView::RimGridView()
     m_intersectionCollection.uiCapability()->setUiTreeHidden( true );
     m_intersectionCollection = new RimIntersectionCollection();
 
-    CAF_PDM_InitFieldNoDefault( &m_intersectionResultDefCollection,
-                                "IntersectionResultDefColl",
-                                "Intersection Results",
-                                "",
-                                "",
-                                "" );
+    CAF_PDM_InitFieldNoDefault( &m_intersectionResultDefCollection, "IntersectionResultDefColl", "Intersection Results" );
     m_intersectionResultDefCollection.uiCapability()->setUiTreeHidden( true );
     m_intersectionResultDefCollection = new RimIntersectionResultsDefinitionCollection;
 
