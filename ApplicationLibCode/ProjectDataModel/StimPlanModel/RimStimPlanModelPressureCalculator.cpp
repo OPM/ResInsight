@@ -18,6 +18,7 @@
 #include "RimStimPlanModelPressureCalculator.h"
 
 #include "RiaDefines.h"
+#include "RiaEclipseUnitTools.h"
 #include "RiaInterpolationTools.h"
 #include "RiaLogging.h"
 #include "RiaStimPlanModelDefines.h"
@@ -172,6 +173,15 @@ bool RimStimPlanModelPressureCalculator::extractValuesForProperty( RiaDefines::C
             RiaLogging::error( QString( "Unable to extract pressure values for property: %1" )
                                    .arg( caf::AppEnum<RiaDefines::CurveProperty>( curveProperty ).uiText() ) );
             return false;
+        }
+
+        RimEclipseCase*               pressureCase     = stimPlanModel->eclipseCaseForProperty( pressureCurveProperty );
+        RiaDefines::EclipseUnitSystem eclipseUnitsType = pressureCase->eclipseCaseData()->unitsType();
+        if ( eclipseUnitsType == RiaDefines::EclipseUnitSystem::UNITS_FIELD )
+        {
+            // Pressure must have unit bar.
+            for ( auto& p : values )
+                p = RiaEclipseUnitTools::psiToBar( p );
         }
     }
 
