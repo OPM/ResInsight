@@ -77,8 +77,16 @@ class PdmObjectCapability;
 /// Note that classKeyword() is not virtual in the constructor of the PdmObject
 /// This is expected and fine.
 
-#define CAF_PDM_InitObject( uiName, iconResourceName, toolTip, whatsThis )                             \
+#define CAF_PDM_InitObject( uiName, ... )                                                              \
     {                                                                                                  \
+        std::vector<QString> arguments = {##__VA_ARGS__ };                                             \
+        QString              iconResourceName;                                                         \
+        QString              toolTip;                                                                  \
+        QString              whatsThis;                                                                \
+        if ( arguments.size() > 0 ) iconResourceName = arguments[0];                                   \
+        if ( arguments.size() > 1 ) toolTip = arguments[1];                                            \
+        if ( arguments.size() > 2 ) whatsThis = arguments[2];                                          \
+                                                                                                       \
         this->isInheritedFromPdmUiObject();                                                            \
         this->isInheritedFromPdmXmlSerializable();                                                     \
         this->registerClassKeyword( classKeyword() );                                                  \
@@ -94,8 +102,15 @@ class PdmObjectCapability;
 /// Note that classKeyword() is not virtual in the constructor of the PdmObject
 /// This is expected and fine.
 
-#define CAF_PDM_InitField( field, keyword, default, uiName, iconResourceName, toolTip, whatsThis )                                      \
+#define CAF_PDM_InitField( field, keyword, default, uiName, ... )                                                                       \
     {                                                                                                                                   \
+        std::vector<QString> arguments = {##__VA_ARGS__ };                                                                              \
+        QString              iconResourceName;                                                                                          \
+        QString              toolTip;                                                                                                   \
+        QString              whatsThis;                                                                                                 \
+        if ( arguments.size() > 0 ) iconResourceName = arguments[0];                                                                    \
+        if ( arguments.size() > 1 ) toolTip = arguments[1];                                                                             \
+        if ( arguments.size() > 2 ) whatsThis = arguments[2];                                                                           \
         CAF_PDM_VERIFY_XML_KEYWORD( keyword )                                                                                           \
                                                                                                                                         \
         static bool chekingThePresenceOfHeaderAndSourceInitMacros =                                                                     \
@@ -116,8 +131,15 @@ class PdmObjectCapability;
 /// Note that classKeyword() is not virtual in the constructor of the PdmObject
 /// This is expected and fine.
 
-#define CAF_PDM_InitFieldNoDefault( field, keyword, uiName, iconResourceName, toolTip, whatsThis )                                      \
+#define CAF_PDM_InitFieldNoDefault( field, keyword, uiName, ... )                                                                       \
     {                                                                                                                                   \
+        std::vector<QString> arguments = {##__VA_ARGS__ };                                                                              \
+        QString              iconResourceName;                                                                                          \
+        QString              toolTip;                                                                                                   \
+        QString              whatsThis;                                                                                                 \
+        if ( arguments.size() > 0 ) iconResourceName = arguments[0];                                                                    \
+        if ( arguments.size() > 1 ) toolTip = arguments[1];                                                                             \
+        if ( arguments.size() > 2 ) whatsThis = arguments[2];                                                                           \
         CAF_PDM_VERIFY_XML_KEYWORD( keyword )                                                                                           \
                                                                                                                                         \
         static bool chekingThePresenceOfHeaderAndSourceInitMacros =                                                                     \
