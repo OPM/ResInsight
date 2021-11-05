@@ -312,7 +312,11 @@ QWidget* Rim3dView::createViewWidget( QWidget* mainWindowParent )
     QGLFormat glFormat;
     glFormat.setDirectRendering( RiaGuiApplication::instance()->useShaders() );
 
-    m_viewer = new RiuViewer( glFormat, mainWindowParent );
+    // If parent widget is a live widget, the application will get OpenGL window issues if started on a non-primary
+    // screen. Using nullptr as parent solves the issue.
+    // https://github.com/OPM/ResInsight/issues/8192
+    //
+    m_viewer = new RiuViewer( glFormat, nullptr );
     m_viewer->setOwnerReservoirView( this );
 
     cvf::String xLabel;
