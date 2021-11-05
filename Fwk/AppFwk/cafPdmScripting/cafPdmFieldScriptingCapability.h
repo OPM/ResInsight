@@ -50,56 +50,83 @@
 
 #include <type_traits>
 
-#define CAF_PDM_InitScriptableField( field, keyword, default, uiName, iconResourceName, toolTip, whatsThis ) \
-    CAF_PDM_InitField( field,                                                                                \
-                       keyword,                                                                              \
-                       default,                                                                              \
-                       uiName,                                                                               \
-                       iconResourceName,                                                                     \
-                       caf::PdmAbstractFieldScriptingCapability::helpString( toolTip, keyword ),             \
-                       whatsThis );                                                                          \
-    caf::AddScriptingCapabilityToField( field, keyword )
+#define CAF_PDM_InitScriptableField( field, keyword, default, uiName, ... )                          \
+    {                                                                                                \
+        std::vector<QString> arguments = {##__VA_ARGS__ };                                           \
+        QString              iconResourceName;                                                       \
+        QString              toolTip;                                                                \
+        QString              whatsThis;                                                              \
+        if ( arguments.size() > 0 ) iconResourceName = arguments[0];                                 \
+        if ( arguments.size() > 1 ) toolTip = arguments[1];                                          \
+        if ( arguments.size() > 2 ) whatsThis = arguments[2];                                        \
+                                                                                                     \
+        CAF_PDM_InitField( field,                                                                    \
+                           keyword,                                                                  \
+                           default,                                                                  \
+                           uiName,                                                                   \
+                           iconResourceName,                                                         \
+                           caf::PdmAbstractFieldScriptingCapability::helpString( toolTip, keyword ), \
+                           whatsThis );                                                              \
+        caf::AddScriptingCapabilityToField( field, keyword );                                        \
+    }
 
-#define CAF_PDM_InitScriptableFieldNoDefault( field, keyword, uiName, iconResourceName, toolTip, whatsThis ) \
-    CAF_PDM_InitFieldNoDefault( field,                                                                       \
-                                keyword,                                                                     \
-                                uiName,                                                                      \
-                                iconResourceName,                                                            \
-                                caf::PdmAbstractFieldScriptingCapability::helpString( toolTip, keyword ),    \
-                                whatsThis );                                                                 \
-    caf::AddScriptingCapabilityToField( field, keyword )
+#define CAF_PDM_InitScriptableFieldNoDefault( field, keyword, uiName, ... )                                   \
+    {                                                                                                         \
+        std::vector<QString> arguments = {##__VA_ARGS__ };                                                    \
+        QString              iconResourceName;                                                                \
+        QString              toolTip;                                                                         \
+        QString              whatsThis;                                                                       \
+        if ( arguments.size() > 0 ) iconResourceName = arguments[0];                                          \
+        if ( arguments.size() > 1 ) toolTip = arguments[1];                                                   \
+        if ( arguments.size() > 2 ) whatsThis = arguments[2];                                                 \
+                                                                                                              \
+        CAF_PDM_InitFieldNoDefault( field,                                                                    \
+                                    keyword,                                                                  \
+                                    uiName,                                                                   \
+                                    iconResourceName,                                                         \
+                                    caf::PdmAbstractFieldScriptingCapability::helpString( toolTip, keyword ), \
+                                    whatsThis );                                                              \
+        caf::AddScriptingCapabilityToField( field, keyword );                                                 \
+    }
 
-#define CAF_PDM_InitScriptableFieldWithScriptKeyword( field,                                           \
-                                                      keyword,                                         \
-                                                      scriptKeyword,                                   \
-                                                      default,                                         \
-                                                      uiName,                                          \
-                                                      iconResourceName,                                \
-                                                      toolTip,                                         \
-                                                      whatsThis )                                      \
-    CAF_PDM_InitField( field,                                                                          \
-                       keyword,                                                                        \
-                       default,                                                                        \
-                       uiName,                                                                         \
-                       iconResourceName,                                                               \
-                       caf::PdmAbstractFieldScriptingCapability::helpString( toolTip, scriptKeyword ), \
-                       whatsThis );                                                                    \
-    caf::AddScriptingCapabilityToField( field, scriptKeyword )
+#define CAF_PDM_InitScriptableFieldWithScriptKeyword( field, keyword, scriptKeyword, default, uiName, ... ) \
+    {                                                                                                       \
+        std::vector<QString> arguments = {##__VA_ARGS__ };                                                  \
+        QString              iconResourceName;                                                              \
+        QString              toolTip;                                                                       \
+        QString              whatsThis;                                                                     \
+        if ( arguments.size() > 0 ) iconResourceName = arguments[0];                                        \
+        if ( arguments.size() > 1 ) toolTip = arguments[1];                                                 \
+        if ( arguments.size() > 2 ) whatsThis = arguments[2];                                               \
+                                                                                                            \
+        CAF_PDM_InitField( field,                                                                           \
+                           keyword,                                                                         \
+                           default,                                                                         \
+                           uiName,                                                                          \
+                           iconResourceName,                                                                \
+                           caf::PdmAbstractFieldScriptingCapability::helpString( toolTip, scriptKeyword ),  \
+                           whatsThis );                                                                     \
+        caf::AddScriptingCapabilityToField( field, scriptKeyword );                                         \
+    }
 
-#define CAF_PDM_InitScriptableFieldWithScriptKeywordNoDefault( field,                                           \
-                                                               keyword,                                         \
-                                                               scriptKeyword,                                   \
-                                                               uiName,                                          \
-                                                               iconResourceName,                                \
-                                                               toolTip,                                         \
-                                                               whatsThis )                                      \
-    CAF_PDM_InitFieldNoDefault( field,                                                                          \
-                                keyword,                                                                        \
-                                uiName,                                                                         \
-                                iconResourceName,                                                               \
-                                caf::PdmAbstractFieldScriptingCapability::helpString( toolTip, scriptKeyword ), \
-                                whatsThis );                                                                    \
-    caf::AddScriptingCapabilityToField( field, scriptKeyword )
+#define CAF_PDM_InitScriptableFieldWithScriptKeywordNoDefault( field, keyword, scriptKeyword, uiName, ... )         \
+    {                                                                                                               \
+        std::vector<QString> arguments = {##__VA_ARGS__ };                                                          \
+        QString              iconResourceName;                                                                      \
+        QString              toolTip;                                                                               \
+        QString              whatsThis;                                                                             \
+        if ( arguments.size() > 0 ) iconResourceName = arguments[0];                                                \
+        if ( arguments.size() > 1 ) toolTip = arguments[1];                                                         \
+        if ( arguments.size() > 2 ) whatsThis = arguments[2];                                                       \
+                                                                                                                    \
+        CAF_PDM_InitFieldNoDefault( field,                                                                          \
+                                    keyword,                                                                        \
+                                    uiName,                                                                         \
+                                    iconResourceName,                                                               \
+                                    caf::PdmAbstractFieldScriptingCapability::helpString( toolTip, scriptKeyword ), \
+                                    whatsThis );                                                                    \
+        caf::AddScriptingCapabilityToField( field, scriptKeyword );                                                 \
+    }
 
 namespace caf
 {
