@@ -39,6 +39,7 @@ public:
     static double pascalToBar( double pas ) { return pas / 100000.0; }
 
     static double barToPsi( double bar ) { return bar * 14.5038; }
+    static double psiToBar( double psi ) { return psi / 14.5038; }
     static double barPerMeterToPsiPerFeet( double barPerMeter ) { return barPerMeter * 4.42075; }
     static double gigaPascalToPascal( double gigaPascal ) { return gigaPascal * 1.0e9; }
 
