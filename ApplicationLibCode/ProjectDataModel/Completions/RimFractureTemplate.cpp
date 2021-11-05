@@ -112,12 +112,12 @@ RimFractureTemplate::RimFractureTemplate()
 {
     CAF_PDM_InitScriptableObject( "Fracture Template", ":/FractureTemplate16x16.png", "", "" );
 
-    CAF_PDM_InitField( &m_id, "Id", -1, "ID", "", "", "" );
+    CAF_PDM_InitField( &m_id, "Id", -1, "ID" );
     m_id.uiCapability()->setUiReadOnly( true );
 
-    CAF_PDM_InitField( &m_name, "UserDescription", QString( "Fracture Template" ), "Name", "", "", "" );
+    CAF_PDM_InitField( &m_name, "UserDescription", QString( "Fracture Template" ), "Name" );
 
-    CAF_PDM_InitFieldNoDefault( &m_nameAndUnit, "NameAndUnit", "NameAndUnit", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_nameAndUnit, "NameAndUnit", "NameAndUnit" );
     m_nameAndUnit.registerGetMethod( this, &RimFractureTemplate::nameAndUnit );
     m_nameAndUnit.uiCapability()->setUiHidden( true );
     m_nameAndUnit.xmlCapability()->disableIO();
@@ -139,16 +139,16 @@ RimFractureTemplate::RimFractureTemplate()
                                  "",
                                  "" );
 
-    CAF_PDM_InitScriptableField( &m_azimuthAngle, "AzimuthAngle", 0.0f, "Azimuth Angle", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_azimuthAngle, "AzimuthAngle", 0.0f, "Azimuth Angle" );
 
-    CAF_PDM_InitField( &m_skinFactor, "SkinFactor", 0.0f, "Skin Factor", "", "", "" );
+    CAF_PDM_InitField( &m_skinFactor, "SkinFactor", 0.0f, "Skin Factor" );
 
-    CAF_PDM_InitField( &m_perforationLength, "PerforationLength", 1.0, "Perforation Length", "", "", "" );
+    CAF_PDM_InitField( &m_perforationLength, "PerforationLength", 1.0, "Perforation Length" );
 
-    CAF_PDM_InitField( &m_perforationEfficiency, "PerforationEfficiency", 1.0, "Perforation Efficiency", "", "", "" );
+    CAF_PDM_InitField( &m_perforationEfficiency, "PerforationEfficiency", 1.0, "Perforation Efficiency" );
     m_perforationEfficiency.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitField( &m_wellDiameter, "WellDiameter", 0.216, "Well Diameter at Fracture", "", "", "" );
+    CAF_PDM_InitField( &m_wellDiameter, "WellDiameter", 0.216, "Well Diameter at Fracture" );
     CAF_PDM_InitField( &m_conductivityType,
                        "ConductivityType",
                        caf::AppEnum<FracConductivityEnum>( FINITE_CONDUCTIVITY ),
@@ -157,29 +157,29 @@ RimFractureTemplate::RimFractureTemplate()
                        "",
                        "" );
 
-    CAF_PDM_InitField( &m_wellPathDepthAtFracture, "WellPathDepthAtFracture", 0.0, "Well/Fracture Intersection Depth", "", "", "" );
+    CAF_PDM_InitField( &m_wellPathDepthAtFracture, "WellPathDepthAtFracture", 0.0, "Well/Fracture Intersection Depth" );
     m_wellPathDepthAtFracture.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitFieldNoDefault( &m_fractureContainment, "FractureContainmentField", "Fracture Containment", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_fractureContainment, "FractureContainmentField", "Fracture Containment" );
     m_fractureContainment = new RimFractureContainment();
     m_fractureContainment.uiCapability()->setUiTreeHidden( true );
     m_fractureContainment.uiCapability()->setUiTreeChildrenHidden( true );
 
     // Non-Darcy Flow options
-    CAF_PDM_InitFieldNoDefault( &m_nonDarcyFlowType, "NonDarcyFlowType", "Non-Darcy Flow", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_nonDarcyFlowType, "NonDarcyFlowType", "Non-Darcy Flow" );
 
-    CAF_PDM_InitField( &m_userDefinedDFactor, "UserDefinedDFactor", 1.0, "D Factor", "", "", "" );
+    CAF_PDM_InitField( &m_userDefinedDFactor, "UserDefinedDFactor", 1.0, "D Factor" );
 
-    CAF_PDM_InitFieldNoDefault( &m_fractureWidthType, "FractureWidthType", "Type", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_fractureWidthType, "FractureWidthType", "Type" );
     CAF_PDM_InitField( &m_fractureWidth, "FractureWidth", 0.01, "Fracture Width (h)" );
 
-    CAF_PDM_InitFieldNoDefault( &m_betaFactorType, "BetaFactorType", "Type", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_betaFactorType, "BetaFactorType", "Type" );
     CAF_PDM_InitField( &m_inertialCoefficient,
                        "InertialCoefficient",
                        0.006083236,
                        "<html>Inertial Coefficient (&beta;)</html> [Forch. unit]" );
 
-    CAF_PDM_InitFieldNoDefault( &m_permeabilityType, "PermeabilityType", "Type", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_permeabilityType, "PermeabilityType", "Type" );
     CAF_PDM_InitField( &m_relativePermeability, "RelativePermeability", 1.0, "Relative Permeability" );
     CAF_PDM_InitField( &m_userDefinedEffectivePermeability,
                        "EffectivePermeability",
@@ -204,22 +204,22 @@ RimFractureTemplate::RimFractureTemplate()
                        "Gas viscosity at bottom hole pressure",
                        "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_dFactorDisplayField, "dFactorDisplayField", "D Factor", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_dFactorDisplayField, "dFactorDisplayField", "D Factor" );
     m_dFactorDisplayField.registerGetMethod( this, &RimFractureTemplate::dFactorForTemplate );
     m_dFactorDisplayField.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
     m_dFactorDisplayField.uiCapability()->setUiReadOnly( true );
     m_dFactorDisplayField.xmlCapability()->disableIO();
 
-    CAF_PDM_InitFieldNoDefault( &m_dFactorSummaryText, "dFactorSummaryText", "D Factor Summary", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_dFactorSummaryText, "dFactorSummaryText", "D Factor Summary" );
     m_dFactorSummaryText.registerGetMethod( this, &RimFractureTemplate::dFactorSummary );
     m_dFactorSummaryText.uiCapability()->setUiReadOnly( true );
     m_dFactorSummaryText.uiCapability()->setUiEditorTypeName( caf::PdmUiTextEditor::uiEditorTypeName() );
     m_dFactorSummaryText.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosType::TOP );
     m_dFactorSummaryText.xmlCapability()->disableIO();
 
-    CAF_PDM_InitField( &m_heightScaleFactor, "HeightScaleFactor", 1.0, "Height", "", "", "" );
-    CAF_PDM_InitField( &m_halfLengthScaleFactor, "WidthScaleFactor", 1.0, "Half Length", "", "", "" );
-    CAF_PDM_InitField( &m_dFactorScaleFactor, "DFactorScaleFactor", 1.0, "D-factor", "", "", "" );
+    CAF_PDM_InitField( &m_heightScaleFactor, "HeightScaleFactor", 1.0, "Height" );
+    CAF_PDM_InitField( &m_halfLengthScaleFactor, "WidthScaleFactor", 1.0, "Half Length" );
+    CAF_PDM_InitField( &m_dFactorScaleFactor, "DFactorScaleFactor", 1.0, "D-factor" );
     CAF_PDM_InitField( &m_conductivityScaleFactor,
                        "ConductivityFactor",
                        1.0,
@@ -227,7 +227,7 @@ RimFractureTemplate::RimFractureTemplate()
                        "",
                        "The conductivity values read from file will be scaled with this parameters",
                        "" );
-    CAF_PDM_InitField( &m_scaleApplyButton, "ScaleApplyButton", false, "Apply", "", "", "" );
+    CAF_PDM_InitField( &m_scaleApplyButton, "ScaleApplyButton", false, "Apply" );
 
     m_scaleApplyButton.xmlCapability()->disableIO();
     m_scaleApplyButton.uiCapability()->setUiEditorTypeName( caf::PdmUiPushButtonEditor::uiEditorTypeName() );

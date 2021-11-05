@@ -53,14 +53,14 @@ RimGridStatisticsPlot::RimGridStatisticsPlot()
 {
     CAF_PDM_InitObject( "Grid Statistics Plot", ":/statistics.png", "", "A Plot of Grid Statistics" );
 
-    CAF_PDM_InitFieldNoDefault( &m_case, "Case", "Case", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_case, "Case", "Case" );
     m_case.uiCapability()->setUiTreeChildrenHidden( true );
-    CAF_PDM_InitField( &m_timeStep, "TimeStep", -1, "Time Step", "", "", "" );
+    CAF_PDM_InitField( &m_timeStep, "TimeStep", -1, "Time Step" );
     m_timeStep.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitFieldNoDefault( &m_cellFilterView, "VisibleCellView", "Filter by 3d View Visibility", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_cellFilterView, "VisibleCellView", "Filter by 3d View Visibility" );
 
-    CAF_PDM_InitFieldNoDefault( &m_property, "Property", "Property", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_property, "Property", "Property" );
     m_property = new RimEclipseResultDefinition( caf::PdmUiItemInfo::TOP );
     m_property.uiCapability()->setUiTreeHidden( true );
     m_property.uiCapability()->setUiTreeChildrenHidden( true );

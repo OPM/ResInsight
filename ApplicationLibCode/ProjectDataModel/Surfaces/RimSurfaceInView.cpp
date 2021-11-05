@@ -43,15 +43,15 @@ RimSurfaceInView::RimSurfaceInView()
 {
     CAF_PDM_InitObject( "Surface", ":/ReservoirSurface16x16.png", "", "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_name, "Name", "Name", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_name, "Name", "Name" );
     m_name.registerGetMethod( this, &RimSurfaceInView::name );
     m_name.uiCapability()->setUiReadOnly( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_surface, "SurfaceRef", "Surface", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_surface, "SurfaceRef", "Surface" );
     m_surface.uiCapability()->setUiHidden( true );
     m_surface.uiCapability()->setUiTreeHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_resultDefinition, "ResultDefinition", "Result Definition", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_resultDefinition, "ResultDefinition", "Result Definition" );
     m_resultDefinition.uiCapability()->setUiTreeHidden( true );
     m_resultDefinition.uiCapability()->setUiTreeChildrenHidden( true );
     m_resultDefinition = new RimSurfaceResultDefinition;

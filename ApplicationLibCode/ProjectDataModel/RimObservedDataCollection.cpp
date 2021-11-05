@@ -50,8 +50,8 @@ RimObservedDataCollection::RimObservedDataCollection()
 {
     CAF_PDM_InitObject( "Observed Data", ":/Folder.png", "", "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_observedDataArray, "ObservedDataArray", "", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_observedFmuRftArray, "ObservedFmuRftDataArray", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_observedDataArray, "ObservedDataArray", "" );
+    CAF_PDM_InitFieldNoDefault( &m_observedFmuRftArray, "ObservedFmuRftDataArray", "" );
     m_observedDataArray.uiCapability()->setUiTreeHidden( true );
     m_observedFmuRftArray.uiCapability()->setUiTreeHidden( true );
 }

@@ -134,17 +134,17 @@ void caf::AppEnum<RimStimPlanModel::BurdenStrategy>::setUp()
 //--------------------------------------------------------------------------------------------------
 RimStimPlanModel::RimStimPlanModel()
 {
-    CAF_PDM_InitScriptableObject( "StimPlanModel", "", "", "" );
+    CAF_PDM_InitScriptableObject( "StimPlanModel" );
 
-    CAF_PDM_InitFieldNoDefault( &m_stimPlanModelTemplate, "StimPlanModelTemplate", "StimPlan Model Template", "", "", "" );
-    CAF_PDM_InitField( &m_editStimPlanModelTemplate, "EditModelTemplate", false, "Edit", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_stimPlanModelTemplate, "StimPlanModelTemplate", "StimPlan Model Template" );
+    CAF_PDM_InitField( &m_editStimPlanModelTemplate, "EditModelTemplate", false, "Edit" );
     m_editStimPlanModelTemplate.uiCapability()->setUiEditorTypeName( caf::PdmUiToolButtonEditor::uiEditorTypeName() );
     m_editStimPlanModelTemplate.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 
-    CAF_PDM_InitScriptableFieldNoDefault( &m_eclipseCase, "EclipseCase", "Dynamic Case", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_eclipseCase, "EclipseCase", "Dynamic Case" );
     m_eclipseCase.uiCapability()->setUiReadOnly( true );
 
-    CAF_PDM_InitScriptableField( &m_timeStep, "TimeStep", 0, "Time Step", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_timeStep, "TimeStep", 0, "Time Step" );
     m_timeStep.uiCapability()->setUiReadOnly( true );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_initialPressureEclipseCase,
@@ -155,23 +155,23 @@ RimStimPlanModel::RimStimPlanModel()
                                           "" );
     m_initialPressureEclipseCase.uiCapability()->setUiReadOnly( true );
 
-    CAF_PDM_InitScriptableFieldNoDefault( &m_staticEclipseCase, "StaticEclipseCase", "Static Case", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_staticEclipseCase, "StaticEclipseCase", "Static Case" );
     m_staticEclipseCase.uiCapability()->setUiReadOnly( true );
 
-    CAF_PDM_InitScriptableField( &m_MD, "MeasuredDepth", 0.0, "Measured Depth", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_MD, "MeasuredDepth", 0.0, "Measured Depth" );
     m_MD.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitScriptableField( &m_extractionOffsetTop, "ExtractionOffsetTop", -1.0, "Top Offset", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_extractionOffsetTop, "ExtractionOffsetTop", -1.0, "Top Offset" );
     m_extractionOffsetTop.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitScriptableField( &m_extractionOffsetBottom, "ExtractionOffsetBottom", -1.0, "Bottom Offset", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_extractionOffsetBottom, "ExtractionOffsetBottom", -1.0, "Bottom Offset" );
     m_extractionOffsetBottom.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitScriptableField( &m_extractionDepthTop, "ExtractionDepthTop", -1.0, "Depth", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_extractionDepthTop, "ExtractionDepthTop", -1.0, "Depth" );
     m_extractionDepthTop.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
     m_extractionDepthTop.uiCapability()->setUiReadOnly( true );
 
-    CAF_PDM_InitScriptableField( &m_extractionDepthBottom, "ExtractionDepthBottom", -1.0, "Depth", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_extractionDepthBottom, "ExtractionDepthBottom", -1.0, "Depth" );
     m_extractionDepthBottom.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
     m_extractionDepthBottom.uiCapability()->setUiReadOnly( true );
 
@@ -183,16 +183,16 @@ RimStimPlanModel::RimStimPlanModel()
                                  "",
                                  "" );
 
-    CAF_PDM_InitScriptableFieldNoDefault( &m_anchorPosition, "AnchorPosition", "Anchor Position", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_anchorPosition, "AnchorPosition", "Anchor Position" );
     m_anchorPosition.uiCapability()->setUiReadOnly( true );
     m_anchorPosition.xmlCapability()->disableIO();
 
-    CAF_PDM_InitFieldNoDefault( &m_anchorPositionForUi, "AnchorPositionForUi", "Anchor Position", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_anchorPositionForUi, "AnchorPositionForUi", "Anchor Position" );
     m_anchorPositionForUi.registerGetMethod( this, &RimStimPlanModel::anchorPositionForUi );
     m_anchorPositionForUi.uiCapability()->setUiReadOnly( true );
     m_anchorPositionForUi.xmlCapability()->disableIO();
 
-    CAF_PDM_InitScriptableFieldNoDefault( &m_thicknessDirection, "ThicknessDirection", "Thickness Direction", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_thicknessDirection, "ThicknessDirection", "Thickness Direction" );
     m_thicknessDirection.uiCapability()->setUiReadOnly( true );
     m_thicknessDirection.xmlCapability()->disableIO();
 
@@ -203,10 +203,10 @@ RimStimPlanModel::RimStimPlanModel()
                                           "",
                                           "" );
 
-    CAF_PDM_InitScriptableField( &m_boundingBoxHorizontal, "BoundingBoxHorizontal", 50.0, "Bounding Box Horizontal", "", "", "" );
-    CAF_PDM_InitScriptableField( &m_boundingBoxVertical, "BoundingBoxVertical", 100.0, "Bounding Box Vertical", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_boundingBoxHorizontal, "BoundingBoxHorizontal", 50.0, "Bounding Box Horizontal" );
+    CAF_PDM_InitScriptableField( &m_boundingBoxVertical, "BoundingBoxVertical", 100.0, "Bounding Box Vertical" );
 
-    CAF_PDM_InitScriptableField( &m_useDetailedFluidLoss, "UseDetailedFluidLoss", true, "Use Detailed Fluid Loss", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_useDetailedFluidLoss, "UseDetailedFluidLoss", true, "Use Detailed Fluid Loss" );
 
     CAF_PDM_InitScriptableField( &m_relativePermeabilityFactorDefault,
                                  "RelativePermeabilityFactor",
@@ -215,7 +215,7 @@ RimStimPlanModel::RimStimPlanModel()
                                  "",
                                  "",
                                  "" );
-    CAF_PDM_InitScriptableField( &m_poroElasticConstantDefault, "PoroElasticConstant", 0.0, "Poro-Elastic Constant", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_poroElasticConstantDefault, "PoroElasticConstant", 0.0, "Poro-Elastic Constant" );
     CAF_PDM_InitScriptableField( &m_thermalExpansionCoeffientDefault,
                                  "ThermalExpansionCoefficient",
                                  0.0,
@@ -224,7 +224,7 @@ RimStimPlanModel::RimStimPlanModel()
                                  "",
                                  "" );
 
-    CAF_PDM_InitScriptableField( &m_perforationLength, "PerforationLength", 10.0, "Perforation Length [m]", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_perforationLength, "PerforationLength", 10.0, "Perforation Length [m]" );
     CAF_PDM_InitScriptableField( &m_fractureOrientation,
                                  "FractureOrientation",
                                  caf::AppEnum<FractureOrientation>( FractureOrientation::ALONG_WELL_PATH ),
@@ -232,29 +232,29 @@ RimStimPlanModel::RimStimPlanModel()
                                  "",
                                  "",
                                  "" );
-    CAF_PDM_InitScriptableField( &m_azimuthAngle, "AzimuthAngle", 0.0, "Azimuth Angle", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_azimuthAngle, "AzimuthAngle", 0.0, "Azimuth Angle" );
 
-    CAF_PDM_InitScriptableField( &m_formationDip, "FormationDip", 0.0, "Formation Dip", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_formationDip, "FormationDip", 0.0, "Formation Dip" );
     m_formationDip.uiCapability()->setUiReadOnly( true );
     m_formationDip.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitScriptableField( &m_autoComputeBarrier, "AutoComputeBarrier", true, "Auto Compute Barrier", "", "", "" );
-    CAF_PDM_InitScriptableField( &m_hasBarrier, "Barrier", true, "Barrier", "", "", "" );
-    CAF_PDM_InitScriptableField( &m_distanceToBarrier, "DistanceToBarrier", 0.0, "Distance To Barrier [m]", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_autoComputeBarrier, "AutoComputeBarrier", true, "Auto Compute Barrier" );
+    CAF_PDM_InitScriptableField( &m_hasBarrier, "Barrier", true, "Barrier" );
+    CAF_PDM_InitScriptableField( &m_distanceToBarrier, "DistanceToBarrier", 0.0, "Distance To Barrier [m]" );
     m_distanceToBarrier.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
     m_distanceToBarrier.uiCapability()->setUiReadOnly( true );
 
-    CAF_PDM_InitScriptableField( &m_barrierDip, "BarrierDip", 0.0, "Barrier Dip", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_barrierDip, "BarrierDip", 0.0, "Barrier Dip" );
     m_barrierDip.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
     m_barrierDip.uiCapability()->setUiReadOnly( true );
-    CAF_PDM_InitScriptableField( &m_wellPenetrationLayer, "WellPenetrationLayer", 2, "Well Penetration Layer", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_wellPenetrationLayer, "WellPenetrationLayer", 2, "Well Penetration Layer" );
 
-    CAF_PDM_InitScriptableField( &m_showOnlyBarrierFault, "ShowOnlyBarrierFault", false, "Show Only Barrier Fault", "", "", "" );
-    CAF_PDM_InitScriptableField( &m_showAllFaults, "ShowAllFaults", false, "Show All Faults", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_showOnlyBarrierFault, "ShowOnlyBarrierFault", false, "Show Only Barrier Fault" );
+    CAF_PDM_InitScriptableField( &m_showAllFaults, "ShowAllFaults", false, "Show All Faults" );
     m_showAllFaults.uiCapability()->setUiEditorTypeName( caf::PdmUiToolButtonEditor::uiEditorTypeName() );
     m_showAllFaults.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 
-    CAF_PDM_InitScriptableField( &m_barrierFaultName, "BarrierFaultName", QString( "" ), "Barrier Fault", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_barrierFaultName, "BarrierFaultName", QString( "" ), "Barrier Fault" );
     m_barrierFaultName.uiCapability()->setUiReadOnly( true );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_barrierTextAnnotation,
@@ -264,7 +264,7 @@ RimStimPlanModel::RimStimPlanModel()
                                           "",
                                           "" );
 
-    CAF_PDM_InitScriptableFieldNoDefault( &m_perforationInterval, "PerforationInterval", "Perforation Interval", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_perforationInterval, "PerforationInterval", "Perforation Interval" );
 
     m_calculator = std::shared_ptr<RimStimPlanModelCalculator>( new RimStimPlanModelCalculator );
     m_calculator->setStimPlanModel( this );

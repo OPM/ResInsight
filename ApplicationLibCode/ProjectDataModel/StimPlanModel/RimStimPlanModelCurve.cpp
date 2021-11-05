@@ -46,13 +46,13 @@ CAF_PDM_SOURCE_INIT( RimStimPlanModelCurve, "StimPlanModelCurve" );
 //--------------------------------------------------------------------------------------------------
 RimStimPlanModelCurve::RimStimPlanModelCurve()
 {
-    CAF_PDM_InitObject( "StimPlan Model Curve", "", "", "" );
+    CAF_PDM_InitObject( "StimPlan Model Curve" );
 
-    CAF_PDM_InitFieldNoDefault( &m_stimPlanModel, "StimPlanModel", "StimPlan Model", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_stimPlanModel, "StimPlanModel", "StimPlan Model" );
     m_stimPlanModel.uiCapability()->setUiTreeChildrenHidden( true );
     m_stimPlanModel.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_curveProperty, "CurveProperty", "Curve Property", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_curveProperty, "CurveProperty", "Curve Property" );
     m_curveProperty.uiCapability()->setUiHidden( true );
 
     m_wellPath = nullptr;

@@ -54,19 +54,19 @@ RimGridTimeHistoryCurve::RimGridTimeHistoryCurve()
 {
     CAF_PDM_InitObject( "Grid Time History Curve", ":/SummaryCurve16x16.png", "", "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_geometrySelectionText, "GeometrySelectionText", "Cell Reference", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_geometrySelectionText, "GeometrySelectionText", "Cell Reference" );
     m_geometrySelectionText.registerGetMethod( this, &RimGridTimeHistoryCurve::geometrySelectionText );
     m_geometrySelectionText.uiCapability()->setUiReadOnly( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_eclipseResultDefinition, "EclipseResultDefinition", "Eclipse Result Definition", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_eclipseResultDefinition, "EclipseResultDefinition", "Eclipse Result Definition" );
     m_eclipseResultDefinition.uiCapability()->setUiTreeHidden( true );
     m_eclipseResultDefinition.uiCapability()->setUiTreeChildrenHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_geoMechResultDefinition, "GeoMechResultDefinition", "GeoMech Result Definition", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_geoMechResultDefinition, "GeoMechResultDefinition", "GeoMech Result Definition" );
     m_geoMechResultDefinition.uiCapability()->setUiTreeHidden( true );
     m_geoMechResultDefinition.uiCapability()->setUiTreeChildrenHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_geometrySelectionItem, "GeometrySelectionItem", "Geometry Selection", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_geometrySelectionItem, "GeometrySelectionItem", "Geometry Selection" );
     m_geometrySelectionItem.uiCapability()->setUiTreeHidden( true );
     m_geometrySelectionItem.uiCapability()->setUiTreeChildrenHidden( true );
 

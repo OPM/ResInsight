@@ -93,13 +93,13 @@ RimWellPathCollection::RimWellPathCollection()
                                                     "WellPathCollection",
                                                     "Collection of Well Paths" );
 
-    CAF_PDM_InitField( &isActive, "Active", true, "Active", "", "", "" );
+    CAF_PDM_InitField( &isActive, "Active", true, "Active" );
     isActive.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitField( &showWellPathLabel, "ShowWellPathLabel", true, "Show Well Path Labels", "", "", "" );
+    CAF_PDM_InitField( &showWellPathLabel, "ShowWellPathLabel", true, "Show Well Path Labels" );
 
     cvf::Color3f defWellLabelColor = RiaPreferences::current()->defaultWellLabelColor();
-    CAF_PDM_InitField( &wellPathLabelColor, "WellPathLabelColor", defWellLabelColor, "Well label color", "", "", "" );
+    CAF_PDM_InitField( &wellPathLabelColor, "WellPathLabelColor", defWellLabelColor, "Well label color" );
 
     CAF_PDM_InitField( &wellPathVisibility,
                        "GlobalWellPathVisibility",
@@ -109,23 +109,23 @@ RimWellPathCollection::RimWellPathCollection()
                        "",
                        "" );
 
-    CAF_PDM_InitField( &wellPathRadiusScaleFactor, "WellPathRadiusScale", 0.1, "Well Path Radius Scale", "", "", "" );
-    CAF_PDM_InitField( &wellPathCrossSectionVertexCount, "WellPathVertexCount", 12, "Well Path Vertex Count", "", "", "" );
+    CAF_PDM_InitField( &wellPathRadiusScaleFactor, "WellPathRadiusScale", 0.1, "Well Path Radius Scale" );
+    CAF_PDM_InitField( &wellPathCrossSectionVertexCount, "WellPathVertexCount", 12, "Well Path Vertex Count" );
     wellPathCrossSectionVertexCount.xmlCapability()->disableIO();
     wellPathCrossSectionVertexCount.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitField( &wellPathClip, "WellPathClip", true, "Clip Well Paths", "", "", "" );
-    CAF_PDM_InitField( &wellPathClipZDistance, "WellPathClipZDistance", 100, "Well Path Clipping Depth Distance", "", "", "" );
+    CAF_PDM_InitField( &wellPathClip, "WellPathClip", true, "Clip Well Paths" );
+    CAF_PDM_InitField( &wellPathClipZDistance, "WellPathClipZDistance", 100, "Well Path Clipping Depth Distance" );
 
-    CAF_PDM_InitScriptableFieldNoDefault( &m_wellPaths, "WellPaths", "Well Paths", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_wellPaths, "WellPaths", "Well Paths" );
     m_wellPaths.uiCapability()->setUiTreeHidden( true );
     m_wellPaths.uiCapability()->setUiTreeChildrenHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_wellMeasurements, "WellMeasurements", "Measurements", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_wellMeasurements, "WellMeasurements", "Measurements" );
     m_wellMeasurements = new RimWellMeasurementCollection;
     m_wellMeasurements.uiCapability()->setUiTreeHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_wellPathNodes, "WellPathNodes", "Well Path Nodes", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_wellPathNodes, "WellPathNodes", "Well Path Nodes" );
     m_wellPathNodes.xmlCapability()->disableIO();
 
     m_wellPathImporter           = std::make_unique<RifWellPathImporter>();

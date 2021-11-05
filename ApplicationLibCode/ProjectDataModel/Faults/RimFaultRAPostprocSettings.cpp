@@ -32,13 +32,13 @@ RimFaultRAPostprocSettings::RimFaultRAPostprocSettings()
 {
     CAF_PDM_InitObject( "Reactivation Assessment Postproc Settings", ":/fault_react_24x24.png", "", "" );
 
-    CAF_PDM_InitField( &m_baseDir, "BaseDir", QString( "" ), "Working Directory", "", "", "" );
-    CAF_PDM_InitField( &m_startTimestepEclipse, "StartTimeStepEclipse", 0, "Start Time Step", "", "", "" );
-    CAF_PDM_InitField( &m_endTimestepEclipse, "EndTimeStepEclipse", 0, "End Time Step", "", "", "" );
-    CAF_PDM_InitField( &m_geomechEnabled, "GeomechEnabled", false, "GeoMechanical Input Available", "", "", "" );
-    CAF_PDM_InitField( &m_basicMacrisDatabase, "BasicMacrisDatabase", QString( "" ), "Basic Macris Database", "", "", "" );
-    CAF_PDM_InitField( &m_advancedMacrisDatabase, "AdvancedMacrisDatabase", QString( "" ), "Advanced Macris Database", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_postprocParameters, "PostprocParameters", "Post-Processing Parameters", "", "", "" );
+    CAF_PDM_InitField( &m_baseDir, "BaseDir", QString( "" ), "Working Directory" );
+    CAF_PDM_InitField( &m_startTimestepEclipse, "StartTimeStepEclipse", 0, "Start Time Step" );
+    CAF_PDM_InitField( &m_endTimestepEclipse, "EndTimeStepEclipse", 0, "End Time Step" );
+    CAF_PDM_InitField( &m_geomechEnabled, "GeomechEnabled", false, "GeoMechanical Input Available" );
+    CAF_PDM_InitField( &m_basicMacrisDatabase, "BasicMacrisDatabase", QString( "" ), "Basic Macris Database" );
+    CAF_PDM_InitField( &m_advancedMacrisDatabase, "AdvancedMacrisDatabase", QString( "" ), "Advanced Macris Database" );
+    CAF_PDM_InitFieldNoDefault( &m_postprocParameters, "PostprocParameters", "Post-Processing Parameters" );
     m_postprocParameters = new RimParameterGroup();
 }
 

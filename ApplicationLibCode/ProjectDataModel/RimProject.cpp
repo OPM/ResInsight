@@ -131,16 +131,16 @@ RimProject::RimProject( void )
 {
     CAF_PDM_InitScriptableObjectWithNameAndComment( "Project", "", "", "", "Project", "The ResInsight Project" );
 
-    CAF_PDM_InitField( &m_projectFileVersionString, "ProjectFileVersionString", QString( STRPRODUCTVER ), "", "", "", "" );
+    CAF_PDM_InitField( &m_projectFileVersionString, "ProjectFileVersionString", QString( STRPRODUCTVER ), "" );
     m_projectFileVersionString.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_globalPathList, "ReferencedExternalFiles", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_globalPathList, "ReferencedExternalFiles", "" );
     m_globalPathList.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &oilFields, "OilFields", "Oil Fields", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &oilFields, "OilFields", "Oil Fields" );
     oilFields.uiCapability()->setUiTreeHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &colorLegendCollection, "ColorLegendCollection", "Color Legend Collection", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &colorLegendCollection, "ColorLegendCollection", "Color Legend Collection" );
     colorLegendCollection = new RimColorLegendCollection();
     colorLegendCollection->createStandardColorLegends();
 
@@ -148,12 +148,12 @@ RimProject::RimProject( void )
     scriptCollection.uiCapability()->setUiTreeHidden( true );
     scriptCollection.xmlCapability()->disableIO();
 
-    CAF_PDM_InitFieldNoDefault( &wellPathImport, "WellPathImport", "WellPathImport", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &wellPathImport, "WellPathImport", "WellPathImport" );
     wellPathImport = new RimWellPathImport();
     wellPathImport.uiCapability()->setUiTreeHidden( true );
     wellPathImport.uiCapability()->setUiTreeChildrenHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &mainPlotCollection, "MainPlotCollection", "Plots", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &mainPlotCollection, "MainPlotCollection", "Plots" );
     mainPlotCollection.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &viewLinkerCollection,
@@ -165,46 +165,46 @@ RimProject::RimProject( void )
     viewLinkerCollection.uiCapability()->setUiTreeHidden( true );
     viewLinkerCollection = new RimViewLinkerCollection;
 
-    CAF_PDM_InitFieldNoDefault( &calculationCollection, "CalculationCollection", "Calculation Collection", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &calculationCollection, "CalculationCollection", "Calculation Collection" );
     calculationCollection = new RimSummaryCalculationCollection;
 
-    CAF_PDM_InitFieldNoDefault( &commandObjects, "CommandObjects", "Command Objects", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &commandObjects, "CommandObjects", "Command Objects" );
     // wellPathImport.uiCapability()->setUiHidden(true);
 
-    CAF_PDM_InitFieldNoDefault( &multiSnapshotDefinitions, "MultiSnapshotDefinitions", "Multi Snapshot Definitions", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &multiSnapshotDefinitions, "MultiSnapshotDefinitions", "Multi Snapshot Definitions" );
 
-    CAF_PDM_InitFieldNoDefault( &mainWindowTreeViewState, "TreeViewState", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &mainWindowTreeViewState, "TreeViewState", "" );
     mainWindowTreeViewState.uiCapability()->setUiHidden( true );
-    CAF_PDM_InitFieldNoDefault( &mainWindowCurrentModelIndexPath, "TreeViewCurrentModelIndexPath", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &mainWindowCurrentModelIndexPath, "TreeViewCurrentModelIndexPath", "" );
     mainWindowCurrentModelIndexPath.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &plotWindowTreeViewState, "PlotWindowTreeViewState", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &plotWindowTreeViewState, "PlotWindowTreeViewState", "" );
     plotWindowTreeViewState.uiCapability()->setUiHidden( true );
-    CAF_PDM_InitFieldNoDefault( &plotWindowCurrentModelIndexPath, "PlotWindowTreeViewCurrentModelIndexPath", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &plotWindowCurrentModelIndexPath, "PlotWindowTreeViewCurrentModelIndexPath", "" );
     plotWindowCurrentModelIndexPath.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitField( &m_show3DWindow, "show3DWindow", true, "Show 3D Window", "", "", "" );
+    CAF_PDM_InitField( &m_show3DWindow, "show3DWindow", true, "Show 3D Window" );
     m_show3DWindow.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitField( &m_showPlotWindow, "showPlotWindow", false, "Show Plot Window", "", "", "" );
+    CAF_PDM_InitField( &m_showPlotWindow, "showPlotWindow", false, "Show Plot Window" );
     m_showPlotWindow.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitField( &m_subWindowsTiled3DWindow, "tiled3DWindow", false, "Tile 3D Window", "", "", "" );
+    CAF_PDM_InitField( &m_subWindowsTiled3DWindow, "tiled3DWindow", false, "Tile 3D Window" );
     m_subWindowsTiled3DWindow.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitField( &m_subWindowsTiledPlotWindow, "tiledPlotWindow", false, "Tile Plot Window", "", "", "" );
+    CAF_PDM_InitField( &m_subWindowsTiledPlotWindow, "tiledPlotWindow", false, "Tile Plot Window" );
     m_subWindowsTiledPlotWindow.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_dialogData, "DialogData", "DialogData", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_dialogData, "DialogData", "DialogData" );
     m_dialogData = new RimDialogData();
     m_dialogData.uiCapability()->setUiTreeHidden( true );
     m_dialogData.uiCapability()->setUiTreeChildrenHidden( true );
 
     // Obsolete fields. The content is moved to OilFields and friends
-    CAF_PDM_InitFieldNoDefault( &casesObsolete, "Reservoirs", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &casesObsolete, "Reservoirs", "" );
     RiaFieldhandleTools::disableWriteAndSetFieldHidden( &casesObsolete );
 
-    CAF_PDM_InitFieldNoDefault( &caseGroupsObsolete, "CaseGroups", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &caseGroupsObsolete, "CaseGroups", "" );
     RiaFieldhandleTools::disableWriteAndSetFieldHidden( &caseGroupsObsolete );
 
     // Initialization
@@ -216,7 +216,7 @@ RimProject::RimProject( void )
 
     mainPlotCollection = new RimMainPlotCollection();
 
-    CAF_PDM_InitFieldNoDefault( &m_plotTemplateFolderItem, "PlotTemplateCollection", "Plot Templates", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_plotTemplateFolderItem, "PlotTemplateCollection", "Plot Templates" );
     m_plotTemplateFolderItem = new RimPlotTemplateFolderItem();
     m_plotTemplateFolderItem.xmlCapability()->disableIO();
 

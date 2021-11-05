@@ -28,12 +28,12 @@ CAF_PDM_SOURCE_INIT( RifReaderSettings, "RifReaderSettings" );
 //--------------------------------------------------------------------------------------------------
 RifReaderSettings::RifReaderSettings()
 {
-    CAF_PDM_InitObject( "RifReaderSettings", "", "", "" );
+    CAF_PDM_InitObject( "RifReaderSettings" );
 
-    CAF_PDM_InitField( &importFaults, "importFaults", true, "Import Faults", "", "", "" );
+    CAF_PDM_InitField( &importFaults, "importFaults", true, "Import Faults" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &importFaults );
 
-    CAF_PDM_InitField( &importNNCs, "importSimulationNNCs", true, "Import NNCs", "", "", "" );
+    CAF_PDM_InitField( &importNNCs, "importSimulationNNCs", true, "Import NNCs" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &importNNCs );
 
     CAF_PDM_InitField( &includeInactiveCellsInFaultGeometry,
@@ -45,7 +45,7 @@ RifReaderSettings::RifReaderSettings()
                        "" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &includeInactiveCellsInFaultGeometry );
 
-    CAF_PDM_InitField( &importAdvancedMswData, "importAdvancedMswData", false, "Import Advanced MSW Data", "", "", "" );
+    CAF_PDM_InitField( &importAdvancedMswData, "importAdvancedMswData", false, "Import Advanced MSW Data" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &importAdvancedMswData );
 
     CAF_PDM_InitField( &useResultIndexFile,
@@ -61,7 +61,7 @@ RifReaderSettings::RifReaderSettings()
 
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &useResultIndexFile );
 
-    CAF_PDM_InitField( &skipWellData, "skipWellData", false, "Skip Import of Simulation Well Data", "", "", "" );
+    CAF_PDM_InitField( &skipWellData, "skipWellData", false, "Skip Import of Simulation Well Data" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &skipWellData );
 
     CAF_PDM_InitField( &includeFileAbsolutePathPrefix,
@@ -73,7 +73,7 @@ RifReaderSettings::RifReaderSettings()
                        "for FAULTS and EQUIL",
                        "" );
 
-    CAF_PDM_InitField( &importSummaryData, "importSummaryData", true, "Import summary data", "", "", "" );
+    CAF_PDM_InitField( &importSummaryData, "importSummaryData", true, "Import summary data" );
     importSummaryData.uiCapability()->setUiHidden( true );
 }
 

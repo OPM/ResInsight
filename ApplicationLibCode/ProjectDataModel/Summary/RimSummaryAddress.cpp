@@ -58,20 +58,20 @@ CAF_PDM_SOURCE_INIT( RimSummaryAddress, "SummaryAddress" );
 //--------------------------------------------------------------------------------------------------
 RimSummaryAddress::RimSummaryAddress()
 {
-    CAF_PDM_InitFieldNoDefault( &m_category, "SummaryVarType", "Type", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_quantityName, "SummaryQuantityName", "Quantity", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_regionNumber, "SummaryRegion", "Region", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_regionNumber2, "SummaryRegion2", "Region2", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_wellGroupName, "SummaryWellGroup", "Group", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_wellName, "SummaryWell", "Well", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_wellSegmentNumber, "SummaryWellSegment", "Well Segment", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_lgrName, "SummaryLgr", "Grid", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_cellI, "SummaryCellI", "I", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_cellJ, "SummaryCellJ", "J", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_cellK, "SummaryCellK", "K", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_aquiferNumber, "SummaryAquifer", "Aquifer", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_isErrorResult, "IsErrorResult", "Is Error Result", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_calculationId, "CalculationId", "Calculation Id", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_category, "SummaryVarType", "Type" );
+    CAF_PDM_InitFieldNoDefault( &m_quantityName, "SummaryQuantityName", "Quantity" );
+    CAF_PDM_InitFieldNoDefault( &m_regionNumber, "SummaryRegion", "Region" );
+    CAF_PDM_InitFieldNoDefault( &m_regionNumber2, "SummaryRegion2", "Region2" );
+    CAF_PDM_InitFieldNoDefault( &m_wellGroupName, "SummaryWellGroup", "Group" );
+    CAF_PDM_InitFieldNoDefault( &m_wellName, "SummaryWell", "Well" );
+    CAF_PDM_InitFieldNoDefault( &m_wellSegmentNumber, "SummaryWellSegment", "Well Segment" );
+    CAF_PDM_InitFieldNoDefault( &m_lgrName, "SummaryLgr", "Grid" );
+    CAF_PDM_InitFieldNoDefault( &m_cellI, "SummaryCellI", "I" );
+    CAF_PDM_InitFieldNoDefault( &m_cellJ, "SummaryCellJ", "J" );
+    CAF_PDM_InitFieldNoDefault( &m_cellK, "SummaryCellK", "K" );
+    CAF_PDM_InitFieldNoDefault( &m_aquiferNumber, "SummaryAquifer", "Aquifer" );
+    CAF_PDM_InitFieldNoDefault( &m_isErrorResult, "IsErrorResult", "Is Error Result" );
+    CAF_PDM_InitFieldNoDefault( &m_calculationId, "CalculationId", "Calculation Id" );
 
     m_category          = RifEclipseSummaryAddress::SUMMARY_INVALID;
     m_regionNumber      = -1;

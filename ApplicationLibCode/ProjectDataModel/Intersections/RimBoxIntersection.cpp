@@ -65,7 +65,7 @@ RimBoxIntersection::RimBoxIntersection()
 {
     CAF_PDM_InitObject( "Intersection Box", ":/IntersectionBox16x16.png", "", "" );
 
-    CAF_PDM_InitField( &m_name, "UserDescription", QString( "Intersection Name" ), "Name", "", "", "" );
+    CAF_PDM_InitField( &m_name, "UserDescription", QString( "Intersection Name" ), "Name" );
 
     CAF_PDM_InitField( &m_singlePlaneState,
                        "singlePlaneState",
@@ -75,28 +75,28 @@ RimBoxIntersection::RimBoxIntersection()
                        "",
                        "" );
 
-    CAF_PDM_InitField( &m_minXCoord, "MinXCoord", 0.0, "Min", "", "", "" );
+    CAF_PDM_InitField( &m_minXCoord, "MinXCoord", 0.0, "Min" );
     m_minXCoord.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitField( &m_maxXCoord, "MaxXCoord", 0.0, "Max", "", "", "" );
+    CAF_PDM_InitField( &m_maxXCoord, "MaxXCoord", 0.0, "Max" );
     m_maxXCoord.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitField( &m_minYCoord, "MinYCoord", 0.0, "Min", "", "", "" );
+    CAF_PDM_InitField( &m_minYCoord, "MinYCoord", 0.0, "Min" );
     m_minYCoord.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitField( &m_maxYCoord, "MaxYCoord", 0.0, "Max", "", "", "" );
+    CAF_PDM_InitField( &m_maxYCoord, "MaxYCoord", 0.0, "Max" );
     m_maxYCoord.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitField( &m_minDepth, "MinDepth", 0.0, "Min", "", "", "" );
+    CAF_PDM_InitField( &m_minDepth, "MinDepth", 0.0, "Min" );
     m_minDepth.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitField( &m_maxDepth, "MaxDepth", 0.0, "Max", "", "", "" );
+    CAF_PDM_InitField( &m_maxDepth, "MaxDepth", 0.0, "Max" );
     m_maxDepth.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitField( &m_xySliderStepSize, "xySliderStepSize", 1.0, "XY Slider Step Size", "", "", "" );
-    CAF_PDM_InitField( &m_depthSliderStepSize, "DepthSliderStepSize", 0.5, "Depth Slider Step Size", "", "", "" );
+    CAF_PDM_InitField( &m_xySliderStepSize, "xySliderStepSize", 1.0, "XY Slider Step Size" );
+    CAF_PDM_InitField( &m_depthSliderStepSize, "DepthSliderStepSize", 0.5, "Depth Slider Step Size" );
 
-    CAF_PDM_InitFieldNoDefault( &m_show3DManipulator, "show3DManipulator", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_show3DManipulator, "show3DManipulator", "" );
     caf::PdmUiPushButtonEditor::configureEditorForField( &m_show3DManipulator );
     m_show3DManipulator = false;
 

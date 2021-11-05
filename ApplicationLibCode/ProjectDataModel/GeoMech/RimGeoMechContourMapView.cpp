@@ -58,11 +58,11 @@ RimGeoMechContourMapView::RimGeoMechContourMapView()
                                                     "GeoMechContourMap",
                                                     "A contour map for GeoMech cases" );
 
-    CAF_PDM_InitFieldNoDefault( &m_contourMapProjection, "ContourMapProjection", "Contour Map Projection", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_contourMapProjection, "ContourMapProjection", "Contour Map Projection" );
     m_contourMapProjection = new RimGeoMechContourMapProjection();
 
-    CAF_PDM_InitField( &m_showAxisLines, "ShowAxisLines", true, "Show Axis Lines", "", "", "" );
-    CAF_PDM_InitField( &m_showScaleLegend, "ShowScaleLegend", true, "Show Scale Legend", "", "", "" );
+    CAF_PDM_InitField( &m_showAxisLines, "ShowAxisLines", true, "Show Axis Lines" );
+    CAF_PDM_InitField( &m_showScaleLegend, "ShowScaleLegend", true, "Show Scale Legend" );
 
     m_gridCollection->setActive( false ); // This is also not added to the tree view, so cannot be enabled.
 

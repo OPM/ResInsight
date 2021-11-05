@@ -63,9 +63,9 @@ void AppEnum<RicfExportVisibleCells::ExportKeyword>::setUp()
 //--------------------------------------------------------------------------------------------------
 RicfExportVisibleCells::RicfExportVisibleCells()
 {
-    CAF_PDM_InitScriptableField( &m_caseId, "caseId", -1, "Case ID", "", "", "" );
-    CAF_PDM_InitScriptableField( &m_viewId, "viewId", -1, "View ID", "", "", "" );
-    CAF_PDM_InitScriptableField( &m_viewName, "viewName", QString(), "View Name", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_caseId, "caseId", -1, "Case ID" );
+    CAF_PDM_InitScriptableField( &m_viewId, "viewId", -1, "View ID" );
+    CAF_PDM_InitScriptableField( &m_viewName, "viewName", QString(), "View Name" );
     CAF_PDM_InitScriptableField( &m_exportKeyword,
                                  "exportKeyword",
                                  caf::AppEnum<RicfExportVisibleCells::ExportKeyword>(),
@@ -80,8 +80,8 @@ RicfExportVisibleCells::RicfExportVisibleCells()
                                  "",
                                  "",
                                  "" );
-    CAF_PDM_InitScriptableField( &m_hiddenActiveCellsValue, "hiddenActiveCellsValue", 0, "Hidden Active Cells Value", "", "", "" );
-    CAF_PDM_InitScriptableField( &m_inactiveCellsValue, "inactiveCellsValue", 0, "Inactive Cells Value", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_hiddenActiveCellsValue, "hiddenActiveCellsValue", 0, "Hidden Active Cells Value" );
+    CAF_PDM_InitScriptableField( &m_inactiveCellsValue, "inactiveCellsValue", 0, "Inactive Cells Value" );
 }
 
 //--------------------------------------------------------------------------------------------------

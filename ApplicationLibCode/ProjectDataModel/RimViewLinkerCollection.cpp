@@ -33,10 +33,10 @@ RimViewLinkerCollection::RimViewLinkerCollection( void )
 {
     CAF_PDM_InitObject( "Linked Views", ":/LinkView16x16.png", "", "" );
 
-    CAF_PDM_InitField( &isActive, "Active", true, "Active", "", "", "" );
+    CAF_PDM_InitField( &isActive, "Active", true, "Active" );
     isActive.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &viewLinker, "ViewLinkers", "View Linkers", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &viewLinker, "ViewLinkers", "View Linkers" );
     viewLinker.uiCapability()->setUiTreeHidden( true );
 }
 

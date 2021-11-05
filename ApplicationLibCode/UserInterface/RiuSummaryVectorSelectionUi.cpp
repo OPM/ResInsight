@@ -138,11 +138,11 @@ RiuSummaryVectorSelectionUi::RiuSummaryVectorSelectionUi()
       } )
     , m_showIndividualEnsembleCases( false )
 {
-    CAF_PDM_InitFieldNoDefault( &m_selectedSources, "SummaryCases", "Cases", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_selectedSources, "SummaryCases", "Cases");
     m_selectedSources.uiCapability()->setAutoAddingOptionFromValue( false );
 
-    CAF_PDM_InitFieldNoDefault( &m_currentSummaryCategory, "CurrentSummaryCategory", "Current Summary Category", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_selectedSummaryCategories, "SelectedSummaryCategories", "Summary Categories", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_currentSummaryCategory, "CurrentSummaryCategory", "Current Summary Category");
+    CAF_PDM_InitFieldNoDefault( &m_selectedSummaryCategories, "SelectedSummaryCategories", "Summary Categories");
 
     CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_FIELD][0]->pdmField(),
                                 "FieldVectors",

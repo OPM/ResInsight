@@ -37,7 +37,7 @@ RimcWellPath_addFracture::RimcWellPath_addFracture( caf::PdmObjectHandle* self )
 {
     CAF_PDM_InitObject( "Add StimPlan Fracture", "", "", "Add StimPlan Fracture" );
 
-    CAF_PDM_InitScriptableField( &m_md, "MeasuredDepth", 0.0, "Measured Depth", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_md, "MeasuredDepth", 0.0, "Measured Depth" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_stimPlanFractureTemplate,
                                           "StimPlanFractureTemplate",
                                           "",

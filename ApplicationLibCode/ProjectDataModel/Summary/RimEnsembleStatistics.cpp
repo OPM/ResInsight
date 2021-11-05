@@ -34,19 +34,19 @@ RimEnsembleStatistics::RimEnsembleStatistics( RimEnsembleCurveSetInterface* pare
 
     m_parentCurveSet = parentCurveSet;
 
-    CAF_PDM_InitField( &m_active, "Active", true, "Show Statistics Curves", "", "", "" );
-    CAF_PDM_InitField( &m_hideEnsembleCurves, "HideEnsembleCurves", false, "Hide Ensemble Curves", "", "", "" );
-    CAF_PDM_InitField( &m_basedOnFilteredCases, "BasedOnFilteredCases", false, "Based on Filtered Cases", "", "", "" );
-    CAF_PDM_InitField( &m_showP10Curve, "ShowP10Curve", true, "P10", "", "", "" );
-    CAF_PDM_InitField( &m_showP50Curve, "ShowP50Curve", false, "P50", "", "", "" );
-    CAF_PDM_InitField( &m_showP90Curve, "ShowP90Curve", true, "P90", "", "", "" );
-    CAF_PDM_InitField( &m_showMeanCurve, "ShowMeanCurve", true, "Mean", "", "", "" );
-    CAF_PDM_InitField( &m_showCurveLabels, "ShowCurveLabels", true, "Show Curve Labels", "", "", "" );
-    CAF_PDM_InitField( &m_includeIncompleteCurves, "IncludeIncompleteCurves", false, "Include Incomplete Curves", "", "", "" );
+    CAF_PDM_InitField( &m_active, "Active", true, "Show Statistics Curves" );
+    CAF_PDM_InitField( &m_hideEnsembleCurves, "HideEnsembleCurves", false, "Hide Ensemble Curves" );
+    CAF_PDM_InitField( &m_basedOnFilteredCases, "BasedOnFilteredCases", false, "Based on Filtered Cases" );
+    CAF_PDM_InitField( &m_showP10Curve, "ShowP10Curve", true, "P10" );
+    CAF_PDM_InitField( &m_showP50Curve, "ShowP50Curve", false, "P50" );
+    CAF_PDM_InitField( &m_showP90Curve, "ShowP90Curve", true, "P90" );
+    CAF_PDM_InitField( &m_showMeanCurve, "ShowMeanCurve", true, "Mean" );
+    CAF_PDM_InitField( &m_showCurveLabels, "ShowCurveLabels", true, "Show Curve Labels" );
+    CAF_PDM_InitField( &m_includeIncompleteCurves, "IncludeIncompleteCurves", false, "Include Incomplete Curves" );
 
-    CAF_PDM_InitField( &m_warningLabel, "WarningLabel", QString( "Warning: Ensemble time range mismatch" ), "", "", "", "" );
+    CAF_PDM_InitField( &m_warningLabel, "WarningLabel", QString( "Warning: Ensemble time range mismatch" ), "" );
 
-    CAF_PDM_InitField( &m_color, "Color", RiaColorTools::textColor3f(), "Color", "", "", "" );
+    CAF_PDM_InitField( &m_color, "Color", RiaColorTools::textColor3f(), "Color" );
 
     m_warningLabel.xmlCapability()->disableIO();
     m_warningLabel.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );

@@ -32,7 +32,7 @@ CAF_PDM_SOURCE_INIT( RimStringParameter, "StringParameter" );
 //--------------------------------------------------------------------------------------------------
 RimStringParameter::RimStringParameter()
 {
-    CAF_PDM_InitField( &m_value, "Value", QString(), "Value", "", "", "" );
+    CAF_PDM_InitField( &m_value, "Value", QString(), "Value" );
 }
 
 //--------------------------------------------------------------------------------------------------

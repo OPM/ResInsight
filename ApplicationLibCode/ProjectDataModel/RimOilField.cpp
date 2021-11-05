@@ -39,20 +39,20 @@ CAF_PDM_SOURCE_INIT( RimOilField, "ResInsightOilField" );
 //--------------------------------------------------------------------------------------------------
 RimOilField::RimOilField( void )
 {
-    CAF_PDM_InitObject( "Oil Field", "", "", "" );
+    CAF_PDM_InitObject( "Oil Field" );
 
     CAF_PDM_InitFieldNoDefault( &analysisModels, "AnalysisModels", "Grid Models", ":/GridModels.png", "", "" );
     CAF_PDM_InitFieldNoDefault( &geoMechModels, "GeoMechModels", "Geo Mech Models", ":/GridModels.png", "", "" );
     CAF_PDM_InitFieldNoDefault( &wellPathCollection, "WellPathCollection", "Well Paths", ":/WellCollection.png", "", "" );
 
-    CAF_PDM_InitFieldNoDefault( &completionTemplateCollection, "CompletionTemplateCollection", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &completionTemplateCollection, "CompletionTemplateCollection", "" );
 
     CAF_PDM_InitFieldNoDefault( &summaryCaseMainCollection, "SummaryCaseCollection", "Summary Cases", ":/GridModels.png", "", "" );
-    CAF_PDM_InitFieldNoDefault( &formationNamesCollection, "FormationNamesCollection", "Formations", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &formationNamesCollection, "FormationNamesCollection", "Formations" );
     CAF_PDM_InitFieldNoDefault( &observedDataCollection, "ObservedDataCollection", "Observed Data", ":/Cases16x16.png", "", "" );
 
-    CAF_PDM_InitFieldNoDefault( &annotationCollection, "AnnotationCollection", "Annotations", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &ensembleWellLogsCollection, "EnsembleWellLogsCollection", "Ensemble Well Logs", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &annotationCollection, "AnnotationCollection", "Annotations" );
+    CAF_PDM_InitFieldNoDefault( &ensembleWellLogsCollection, "EnsembleWellLogsCollection", "Ensemble Well Logs" );
 
     CAF_PDM_InitFieldNoDefault( &m_fractureTemplateCollection_OBSOLETE,
                                 "FractureDefinitionCollection",
@@ -61,11 +61,11 @@ RimOilField::RimOilField( void )
                                 "",
                                 "" );
 
-    CAF_PDM_InitFieldNoDefault( &measurement, "Measurement", "Measurement", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &measurement, "Measurement", "Measurement" );
     measurement = new RimMeasurement();
     measurement.xmlCapability()->disableIO();
 
-    CAF_PDM_InitFieldNoDefault( &surfaceCollection, "SurfaceCollection", "Surfaces", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &surfaceCollection, "SurfaceCollection", "Surfaces" );
     surfaceCollection = new RimSurfaceCollection();
     surfaceCollection->setAsTopmostFolder();
 

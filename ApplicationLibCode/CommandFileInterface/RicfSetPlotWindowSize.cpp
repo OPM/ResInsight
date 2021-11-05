@@ -30,8 +30,8 @@ CAF_PDM_SOURCE_INIT( RicfSetPlotWindowSize, "setPlotWindowSize" );
 //--------------------------------------------------------------------------------------------------
 RicfSetPlotWindowSize::RicfSetPlotWindowSize()
 {
-    CAF_PDM_InitScriptableField( &m_height, "height", -1, "Height", "", "", "" );
-    CAF_PDM_InitScriptableField( &m_width, "width", -1, "Width", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_height, "height", -1, "Height" );
+    CAF_PDM_InitScriptableField( &m_width, "width", -1, "Width" );
 }
 
 //--------------------------------------------------------------------------------------------------

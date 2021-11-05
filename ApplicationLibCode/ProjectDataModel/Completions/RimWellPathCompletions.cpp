@@ -51,29 +51,29 @@ RimWellPathCompletions::RimWellPathCompletions()
 {
     CAF_PDM_InitObject( "Completions", ":/CompletionsSymbol16x16.png", "", "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_perforationCollection, "Perforations", "Perforations", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_perforationCollection, "Perforations", "Perforations" );
     m_perforationCollection = new RimPerforationCollection;
     m_perforationCollection.uiCapability()->setUiTreeHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_fishbonesCollection, "Fishbones", "Fishbones", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_fishbonesCollection, "Fishbones", "Fishbones" );
     m_fishbonesCollection = new RimFishbonesCollection;
     m_fishbonesCollection.uiCapability()->setUiTreeHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_fractureCollection, "Fractures", "Fractures", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_fractureCollection, "Fractures", "Fractures" );
     m_fractureCollection = new RimWellPathFractureCollection;
     m_fractureCollection.uiCapability()->setUiTreeHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_stimPlanModelCollection, "StimPlanModels", "StimPlan Models", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_stimPlanModelCollection, "StimPlanModels", "StimPlan Models" );
     m_stimPlanModelCollection = new RimStimPlanModelCollection;
     m_stimPlanModelCollection.uiCapability()->setUiTreeHidden( true );
 
-    CAF_PDM_InitField( &m_wellNameForExport_OBSOLETE, "WellNameForExport", QString(), "Well Name", "", "", "" );
+    CAF_PDM_InitField( &m_wellNameForExport_OBSOLETE, "WellNameForExport", QString(), "Well Name" );
     m_wellNameForExport_OBSOLETE.xmlCapability()->setIOWritable( false );
-    CAF_PDM_InitField( &m_wellGroupName_OBSOLETE, "WellGroupNameForExport", QString(), "Well Group Name", "", "", "" );
+    CAF_PDM_InitField( &m_wellGroupName_OBSOLETE, "WellGroupNameForExport", QString(), "Well Group Name" );
     m_wellGroupName_OBSOLETE.xmlCapability()->setIOWritable( false );
-    CAF_PDM_InitField( &m_referenceDepth_OBSOLETE, "ReferenceDepthForExport", QString(), "Reference Depth for BHP", "", "", "" );
+    CAF_PDM_InitField( &m_referenceDepth_OBSOLETE, "ReferenceDepthForExport", QString(), "Reference Depth for BHP" );
     m_referenceDepth_OBSOLETE.xmlCapability()->setIOWritable( false );
-    CAF_PDM_InitFieldNoDefault( &m_preferredFluidPhase_OBSOLETE, "WellTypeForExport", "Preferred Fluid Phase", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_preferredFluidPhase_OBSOLETE, "WellTypeForExport", "Preferred Fluid Phase" );
     m_preferredFluidPhase_OBSOLETE.xmlCapability()->setIOWritable( false );
     CAF_PDM_InitField( &m_drainageRadiusForPI_OBSOLETE,
                        "DrainageRadiusForPI",
@@ -83,17 +83,17 @@ RimWellPathCompletions::RimWellPathCompletions()
                        "",
                        "" );
     m_drainageRadiusForPI_OBSOLETE.xmlCapability()->setIOWritable( false );
-    CAF_PDM_InitFieldNoDefault( &m_gasInflowEquation_OBSOLETE, "GasInflowEq", "Gas Inflow Equation", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_gasInflowEquation_OBSOLETE, "GasInflowEq", "Gas Inflow Equation" );
     m_gasInflowEquation_OBSOLETE.xmlCapability()->setIOWritable( false );
-    CAF_PDM_InitFieldNoDefault( &m_automaticWellShutIn_OBSOLETE, "AutoWellShutIn", "Automatic well shut-in", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_automaticWellShutIn_OBSOLETE, "AutoWellShutIn", "Automatic well shut-in" );
     m_automaticWellShutIn_OBSOLETE.xmlCapability()->setIOWritable( false );
-    CAF_PDM_InitField( &m_allowWellCrossFlow_OBSOLETE, "AllowWellCrossFlow", true, "Allow Well Cross-Flow", "", "", "" );
+    CAF_PDM_InitField( &m_allowWellCrossFlow_OBSOLETE, "AllowWellCrossFlow", true, "Allow Well Cross-Flow" );
     m_allowWellCrossFlow_OBSOLETE.xmlCapability()->setIOWritable( false );
-    CAF_PDM_InitField( &m_wellBoreFluidPVTTable_OBSOLETE, "WellBoreFluidPVTTable", 0, "Wellbore Fluid PVT table", "", "", "" );
+    CAF_PDM_InitField( &m_wellBoreFluidPVTTable_OBSOLETE, "WellBoreFluidPVTTable", 0, "Wellbore Fluid PVT table" );
     m_wellBoreFluidPVTTable_OBSOLETE.xmlCapability()->setIOWritable( false );
-    CAF_PDM_InitFieldNoDefault( &m_hydrostaticDensity_OBSOLETE, "HydrostaticDensity", "Hydrostatic Density", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_hydrostaticDensity_OBSOLETE, "HydrostaticDensity", "Hydrostatic Density" );
     m_hydrostaticDensity_OBSOLETE.xmlCapability()->setIOWritable( false );
-    CAF_PDM_InitField( &m_fluidInPlaceRegion_OBSOLETE, "FluidInPlaceRegion", 0, "Fluid In-Place Region", "", "", "" );
+    CAF_PDM_InitField( &m_fluidInPlaceRegion_OBSOLETE, "FluidInPlaceRegion", 0, "Fluid In-Place Region" );
     m_fluidInPlaceRegion_OBSOLETE.xmlCapability()->setIOWritable( false );
 }
 

@@ -42,15 +42,15 @@ RimSimWellFracture::RimSimWellFracture( void )
 {
     CAF_PDM_InitObject( "SimWellFracture", ":/FractureSymbol16x16.png", "", "" );
 
-    CAF_PDM_InitField( &m_location, "MeasuredDepth", 0.0f, "Pseudo Length Location", "", "", "" );
+    CAF_PDM_InitField( &m_location, "MeasuredDepth", 0.0f, "Pseudo Length Location" );
     m_location.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitFieldNoDefault( &m_displayIJK, "Cell_IJK", "Cell IJK", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_displayIJK, "Cell_IJK", "Cell IJK" );
     m_displayIJK.registerGetMethod( this, &RimSimWellFracture::createOneBasedIJKText );
     m_displayIJK.uiCapability()->setUiReadOnly( true );
     m_displayIJK.xmlCapability()->disableIO();
 
-    CAF_PDM_InitField( &m_branchIndex, "Branch", 0, "Branch", "", "", "" );
+    CAF_PDM_InitField( &m_branchIndex, "Branch", 0, "Branch" );
 
     setDeletable( true );
 }

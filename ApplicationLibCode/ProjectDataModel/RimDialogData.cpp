@@ -37,15 +37,15 @@ CAF_PDM_SOURCE_INIT( RimDialogData, "RimDialogData" );
 //--------------------------------------------------------------------------------------------------
 RimDialogData::RimDialogData()
 {
-    CAF_PDM_InitObject( "Dialog Data", "", "", "" );
+    CAF_PDM_InitObject( "Dialog Data" );
 
-    CAF_PDM_InitFieldNoDefault( &m_exportCarfin, "ExportCarfin", "Export Carfin", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_exportCarfin, "ExportCarfin", "Export Carfin" );
     m_exportCarfin = new RicExportCarfinUi;
 
-    CAF_PDM_InitFieldNoDefault( &m_exportCompletionData, "ExportCompletionData", "Export Completion Data", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_exportCompletionData, "ExportCompletionData", "Export Completion Data" );
     m_exportCompletionData = new RicExportCompletionDataSettingsUi();
 
-    CAF_PDM_InitFieldNoDefault( &m_multipleFractionsData, "MultipleFractionsData", "Multiple Fractures Data", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_multipleFractionsData, "MultipleFractionsData", "Multiple Fractures Data" );
     m_multipleFractionsData = new RiuCreateMultipleFractionsUi();
 
     CAF_PDM_InitFieldNoDefault( &m_holoLenseExportToFolderData,
@@ -56,22 +56,22 @@ RimDialogData::RimDialogData()
                                 "" );
     m_holoLenseExportToFolderData = new RicHoloLensExportToFolderUi();
 
-    CAF_PDM_InitFieldNoDefault( &m_exportWellPathsData, "ExportwellPathsData", "Export Well Paths Data", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_exportWellPathsData, "ExportwellPathsData", "Export Well Paths Data" );
     m_exportWellPathsData = new RicExportWellPathsUi();
 
-    CAF_PDM_InitFieldNoDefault( &m_exportLgrData, "ExportLgr", "LGR Export", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_exportLgrData, "ExportLgr", "LGR Export" );
     m_exportLgrData = new RicExportLgrUi();
 
-    CAF_PDM_InitFieldNoDefault( &m_exportSectorModelData, "ExportSectorModel", "Export Sector Model", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_exportSectorModelData, "ExportSectorModel", "Export Sector Model" );
     m_exportSectorModelData = new RicExportEclipseSectorModelUi();
 
-    CAF_PDM_InitFieldNoDefault( &m_mockModelSettings, "MockModelSettings", "Mock Model Settings", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_mockModelSettings, "MockModelSettings", "Mock Model Settings" );
     m_mockModelSettings = new RimMockModelSettings();
 
-    CAF_PDM_InitFieldNoDefault( &m_createEnsembleSurfaceUi, "CreateEnsembleSurfaceUi", "Create Ensmeble Surface Ui", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_createEnsembleSurfaceUi, "CreateEnsembleSurfaceUi", "Create Ensmeble Surface Ui" );
     m_createEnsembleSurfaceUi = new RicCreateEnsembleSurfaceUi();
 
-    CAF_PDM_InitFieldNoDefault( &m_createEnsembleWellLogUi, "CreateEnsembleWellLogUi", "Create Ensemble Well Log Ui", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_createEnsembleWellLogUi, "CreateEnsembleWellLogUi", "Create Ensemble Well Log Ui" );
     m_createEnsembleWellLogUi = new RicCreateEnsembleWellLogUi();
 }
 

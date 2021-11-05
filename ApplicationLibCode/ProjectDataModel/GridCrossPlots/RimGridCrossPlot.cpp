@@ -54,20 +54,20 @@ RimGridCrossPlot::RimGridCrossPlot()
 {
     CAF_PDM_InitObject( "Grid Cross Plot", ":/SummaryXPlotLight16x16.png", "", "" );
 
-    CAF_PDM_InitField( &m_showInfoBox, "ShowInfoBox", true, "Show Info Box", "", "", "" );
+    CAF_PDM_InitField( &m_showInfoBox, "ShowInfoBox", true, "Show Info Box" );
 
-    CAF_PDM_InitFieldNoDefault( &m_nameConfig, "NameConfig", "Name Config", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_nameConfig, "NameConfig", "Name Config" );
     m_nameConfig.uiCapability()->setUiTreeHidden( true );
     m_nameConfig.uiCapability()->setUiTreeChildrenHidden( true );
     m_nameConfig = new RimGridCrossPlotNameConfig();
 
-    CAF_PDM_InitFieldNoDefault( &m_xAxisProperties, "xAxisProperties", "X Axis", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_xAxisProperties, "xAxisProperties", "X Axis" );
     m_xAxisProperties.uiCapability()->setUiTreeHidden( true );
     m_xAxisProperties = new RimPlotAxisProperties;
     m_xAxisProperties->setNameAndAxis( "X-Axis", QwtPlot::xBottom );
     m_xAxisProperties->setEnableTitleTextSettings( false );
 
-    CAF_PDM_InitFieldNoDefault( &m_yAxisProperties, "yAxisProperties", "Y Axis", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_yAxisProperties, "yAxisProperties", "Y Axis" );
     m_yAxisProperties.uiCapability()->setUiTreeHidden( true );
     m_yAxisProperties = new RimPlotAxisProperties;
     m_yAxisProperties->setNameAndAxis( "Y-Axis", QwtPlot::yLeft );
@@ -76,7 +76,7 @@ RimGridCrossPlot::RimGridCrossPlot()
     connectAxisSignals( m_xAxisProperties() );
     connectAxisSignals( m_yAxisProperties() );
 
-    CAF_PDM_InitFieldNoDefault( &m_crossPlotDataSets, "CrossPlotCurve", "Cross Plot Data Set", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_crossPlotDataSets, "CrossPlotCurve", "Cross Plot Data Set" );
     m_crossPlotDataSets.uiCapability()->setUiTreeHidden( true );
 
     setDeletable( true );
@@ -1053,9 +1053,9 @@ CAF_PDM_SOURCE_INIT( RimGridCrossPlotNameConfig, "RimGridCrossPlotNameConfig" );
 RimGridCrossPlotNameConfig::RimGridCrossPlotNameConfig()
     : RimNameConfig( "Cross Plot" )
 {
-    CAF_PDM_InitObject( "Cross Plot Name Generator", "", "", "" );
+    CAF_PDM_InitObject( "Cross Plot Name Generator" );
 
-    CAF_PDM_InitField( &addDataSetNames, "AddDataSetNames", true, "Add Data Set Names", "", "", "" );
+    CAF_PDM_InitField( &addDataSetNames, "AddDataSetNames", true, "Add Data Set Names" );
 }
 
 //--------------------------------------------------------------------------------------------------

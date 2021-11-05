@@ -45,12 +45,12 @@ CAF_PDM_SOURCE_INIT( RicCreateMultipleWellPathLateralsUi, "RicCreateMultipleWell
 //--------------------------------------------------------------------------------------------------
 RicCreateMultipleWellPathLateralsUi::RicCreateMultipleWellPathLateralsUi()
 {
-    CAF_PDM_InitFieldNoDefault( &m_sourceLateral, "SourceLaterals", "Source Well Path Lateral", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_sourceLateral, "SourceLaterals", "Source Well Path Lateral" );
 
-    CAF_PDM_InitFieldNoDefault( &m_topLevelWellPath, "TopLevelWellPath", "Top Level Well Path", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_topLevelWellPath, "TopLevelWellPath", "Top Level Well Path" );
     m_topLevelWellPath.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_locations, "Locations", "Locations", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_locations, "Locations", "Locations" );
     m_locations = new RimMultipleLocations;
 }
 

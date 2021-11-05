@@ -62,40 +62,40 @@ RimPlotCurve::RimPlotCurve()
 {
     CAF_PDM_InitObject( "Curve", ":/WellLogCurve16x16.png", "", "" );
 
-    CAF_PDM_InitField( &m_showCurve, "Show", true, "Show curve", "", "", "" );
+    CAF_PDM_InitField( &m_showCurve, "Show", true, "Show curve" );
     m_showCurve.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_curveName, "CurveName", "Curve Name", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_customCurveName, "CurveDescription", "Custom Name", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_curveName, "CurveName", "Curve Name" );
+    CAF_PDM_InitFieldNoDefault( &m_customCurveName, "CurveDescription", "Custom Name" );
     m_customCurveName.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_legendEntryText, "LegendDescription", "Legend Name", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_legendEntryText, "LegendDescription", "Legend Name" );
     m_legendEntryText.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitField( &m_isUsingAutoName, "AutoName", true, "Auto Name", "", "", "" );
-    CAF_PDM_InitField( &m_showLegend, "ShowLegend", true, "Contribute To Legend", "", "", "" );
-    CAF_PDM_InitField( &m_showErrorBars, "ShowErrorBars", true, "Show Error Bars", "", "", "" );
+    CAF_PDM_InitField( &m_isUsingAutoName, "AutoName", true, "Auto Name" );
+    CAF_PDM_InitField( &m_showLegend, "ShowLegend", true, "Contribute To Legend" );
+    CAF_PDM_InitField( &m_showErrorBars, "ShowErrorBars", true, "Show Error Bars" );
 
     // Obsolete field: appearance configuration is moved to RimPlotCurveAppearance
-    CAF_PDM_InitField( &m_curveColor_OBSOLETE, "Color", RiaColorTools::textColor3f(), "Color", "", "", "" );
+    CAF_PDM_InitField( &m_curveColor_OBSOLETE, "Color", RiaColorTools::textColor3f(), "Color" );
     m_curveColor_OBSOLETE.xmlCapability()->setIOWritable( false );
 
-    CAF_PDM_InitField( &m_fillColor_OBSOLETE, "FillColor", cvf::Color3f( -1.0, -1.0, -1.0 ), "Fill Color", "", "", "" );
+    CAF_PDM_InitField( &m_fillColor_OBSOLETE, "FillColor", cvf::Color3f( -1.0, -1.0, -1.0 ), "Fill Color" );
     m_fillColor_OBSOLETE.xmlCapability()->setIOWritable( false );
 
-    CAF_PDM_InitField( &m_curveThickness_OBSOLETE, "Thickness", 1, "Line Thickness", "", "", "" );
+    CAF_PDM_InitField( &m_curveThickness_OBSOLETE, "Thickness", 1, "Line Thickness" );
     m_curveThickness_OBSOLETE.xmlCapability()->setIOWritable( false );
 
-    CAF_PDM_InitFieldNoDefault( &m_curveInterpolation_OBSOLETE, "CurveInterpolation", "Interpolation", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_curveInterpolation_OBSOLETE, "CurveInterpolation", "Interpolation" );
     m_curveInterpolation_OBSOLETE.xmlCapability()->setIOWritable( false );
 
-    CAF_PDM_InitFieldNoDefault( &m_lineStyle_OBSOLETE, "LineStyle", "Line Style", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_lineStyle_OBSOLETE, "LineStyle", "Line Style" );
     m_lineStyle_OBSOLETE.xmlCapability()->setIOWritable( false );
 
-    CAF_PDM_InitFieldNoDefault( &m_fillStyle_OBSOLETE, "FillStyle", "Area Fill Style", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_fillStyle_OBSOLETE, "FillStyle", "Area Fill Style" );
     m_fillStyle_OBSOLETE.xmlCapability()->setIOWritable( false );
 
-    CAF_PDM_InitFieldNoDefault( &m_pointSymbol_OBSOLETE, "PointSymbol", "Symbol", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_pointSymbol_OBSOLETE, "PointSymbol", "Symbol" );
     m_pointSymbol_OBSOLETE.xmlCapability()->setIOWritable( false );
 
     CAF_PDM_InitField( &m_symbolEdgeColor_OBSOLETE,
@@ -116,16 +116,16 @@ RimPlotCurve::RimPlotCurve()
                        "" );
     m_symbolSkipPixelDistance_OBSOLETE.xmlCapability()->setIOWritable( false );
 
-    CAF_PDM_InitFieldNoDefault( &m_symbolLabel_OBSOLETE, "SymbolLabel", "Symbol Label", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_symbolLabel_OBSOLETE, "SymbolLabel", "Symbol Label" );
     m_symbolLabel_OBSOLETE.xmlCapability()->setIOWritable( false );
 
-    CAF_PDM_InitField( &m_symbolSize_OBSOLETE, "SymbolSize", 6, "Symbol Size", "", "", "" );
+    CAF_PDM_InitField( &m_symbolSize_OBSOLETE, "SymbolSize", 6, "Symbol Size" );
     m_symbolSize_OBSOLETE.xmlCapability()->setIOWritable( false );
 
-    CAF_PDM_InitFieldNoDefault( &m_symbolLabelPosition_OBSOLETE, "SymbolLabelPosition", "Symbol Label Position", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_symbolLabelPosition_OBSOLETE, "SymbolLabelPosition", "Symbol Label Position" );
     m_symbolLabelPosition_OBSOLETE.xmlCapability()->setIOWritable( false );
 
-    CAF_PDM_InitFieldNoDefault( &m_curveAppearance, "PlotCurveAppearance", "PlotCurveAppearance", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_curveAppearance, "PlotCurveAppearance", "PlotCurveAppearance" );
     m_curveAppearance = new RimPlotCurveAppearance;
     m_curveAppearance.uiCapability()->setUiTreeHidden( true );
     m_curveAppearance.uiCapability()->setUiTreeChildrenHidden( true );

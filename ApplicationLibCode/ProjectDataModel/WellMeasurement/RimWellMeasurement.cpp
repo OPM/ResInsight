@@ -31,14 +31,14 @@ RimWellMeasurement::RimWellMeasurement()
 {
     CAF_PDM_InitObject( "RimWellMeasurement", ":/WellMeasurement16x16.png", "", "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_wellName, "WellName", "Well Name", "", "", "" );
-    CAF_PDM_InitField( &m_MD, "Depth", -1.0, "MD", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_date, "Date", "Date", "", "", "" );
-    CAF_PDM_InitField( &m_value, "Value", 0.0, "Value", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_kind, "Kind", "Kind", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_quality, "Quality", "Quality", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_remark, "Remark", "Remark", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_filePath, "FilePath", "File Path", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_wellName, "WellName", "Well Name" );
+    CAF_PDM_InitField( &m_MD, "Depth", -1.0, "MD" );
+    CAF_PDM_InitFieldNoDefault( &m_date, "Date", "Date" );
+    CAF_PDM_InitField( &m_value, "Value", 0.0, "Value" );
+    CAF_PDM_InitFieldNoDefault( &m_kind, "Kind", "Kind" );
+    CAF_PDM_InitFieldNoDefault( &m_quality, "Quality", "Quality" );
+    CAF_PDM_InitFieldNoDefault( &m_remark, "Remark", "Remark" );
+    CAF_PDM_InitFieldNoDefault( &m_filePath, "FilePath", "File Path" );
 }
 
 //--------------------------------------------------------------------------------------------------

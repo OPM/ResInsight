@@ -68,23 +68,23 @@ RimEnsembleCurveFilter::RimEnsembleCurveFilter()
 {
     CAF_PDM_InitObject( "Ensemble Curve Filter", ":/Filter.svg", "", "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_filterTitle, "FilterTitle", "Title", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_filterTitle, "FilterTitle", "Title" );
     m_filterTitle.registerGetMethod( this, &RimEnsembleCurveFilter::description );
     m_filterTitle.uiCapability()->setUiReadOnly( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_active, "Active", "Active", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_active, "Active", "Active" );
     m_active = true;
 
-    CAF_PDM_InitFieldNoDefault( &m_filterMode, "FilterMode", "Filter Mode", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_filterMode, "FilterMode", "Filter Mode" );
 
-    CAF_PDM_InitFieldNoDefault( &m_ensembleParameterName, "EnsembleParameter", "Ensemble Parameter", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_ensembleParameterName, "EnsembleParameter", "Ensemble Parameter" );
     m_ensembleParameterName.uiCapability()->setUiEditorTypeName( caf::PdmUiListEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitFieldNoDefault( &m_objectiveValuesSummaryAddressesUiField, "SelectedObjectiveSummaryVar", "Vector", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_objectiveValuesSummaryAddressesUiField, "SelectedObjectiveSummaryVar", "Vector" );
     m_objectiveValuesSummaryAddressesUiField.xmlCapability()->disableIO();
     m_objectiveValuesSummaryAddressesUiField.uiCapability()->setUiEditorTypeName( caf::PdmUiLineEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitFieldNoDefault( &m_objectiveValuesSummaryAddresses, "ObjectiveSummaryAddress", "Summary Address", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_objectiveValuesSummaryAddresses, "ObjectiveSummaryAddress", "Summary Address" );
     m_objectiveValuesSummaryAddresses.uiCapability()->setUiTreeHidden( true );
     m_objectiveValuesSummaryAddresses.uiCapability()->setUiTreeChildrenHidden( true );
 
@@ -98,22 +98,22 @@ RimEnsembleCurveFilter::RimEnsembleCurveFilter()
     m_objectiveValuesSelectSummaryAddressPushButton.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
     m_objectiveValuesSelectSummaryAddressPushButton = false;
 
-    CAF_PDM_InitFieldNoDefault( &m_objectiveFunction, "ObjectiveFunction", "Objective Function", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_objectiveFunction, "ObjectiveFunction", "Objective Function" );
     m_objectiveFunction = new RimObjectiveFunction();
     m_objectiveFunction.uiCapability()->setUiTreeHidden( true );
     m_objectiveFunction.uiCapability()->setUiTreeChildrenHidden( true );
     m_objectiveFunction->changed.connect( this, &RimEnsembleCurveFilter::onObjectionFunctionChanged );
 
-    CAF_PDM_InitFieldNoDefault( &m_customObjectiveFunction, "CustomObjectiveFunction", "Custom Objective Function", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_customObjectiveFunction, "CustomObjectiveFunction", "Custom Objective Function" );
     m_customObjectiveFunction.uiCapability()->setUiEditorTypeName( caf::PdmUiListEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitField( &m_minValue, "MinValue", m_lowerLimit, "Min", "", "", "" );
+    CAF_PDM_InitField( &m_minValue, "MinValue", m_lowerLimit, "Min" );
     m_minValue.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitField( &m_maxValue, "MaxValue", m_upperLimit, "Max", "", "", "" );
+    CAF_PDM_InitField( &m_maxValue, "MaxValue", m_upperLimit, "Max" );
     m_maxValue.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitFieldNoDefault( &m_categories, "Categories", "Categories", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_categories, "Categories", "Categories" );
 
     setDeletable( true );
 }

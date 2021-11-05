@@ -14,7 +14,7 @@ CAF_PDM_SOURCE_INIT( PdmObjectGroup, "PdmObjectGroup" );
 //--------------------------------------------------------------------------------------------------
 PdmObjectGroup::PdmObjectGroup()
 {
-    CAF_PDM_InitObject( "Object Group", "", "", "" );
+    CAF_PDM_InitObject( "Object Group" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -51,7 +51,7 @@ CAF_PDM_SOURCE_INIT( PdmObjectCollection, "PdmObjectCollection" );
 //--------------------------------------------------------------------------------------------------
 PdmObjectCollection::PdmObjectCollection()
 {
-    CAF_PDM_InitObject( "PdmObjectCollection", "", "", "" );
+    CAF_PDM_InitObject( "PdmObjectCollection" );
     CAF_PDM_InitFieldNoDefault( &objects, "PdmObjects", "", "", "", "" )
 }
 

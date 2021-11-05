@@ -31,14 +31,14 @@ CAF_PDM_SOURCE_INIT( RimFaciesInitialPressureConfig, "FaciesInitialPressureConfi
 RimFaciesInitialPressureConfig::RimFaciesInitialPressureConfig()
     : changed( this )
 {
-    CAF_PDM_InitScriptableObject( "Facies Initial Pressure Config", "", "", "" );
+    CAF_PDM_InitScriptableObject( "Facies Initial Pressure Config" );
 
     m_isChecked.uiCapability()->setUiHidden( false );
 
-    CAF_PDM_InitScriptableFieldNoDefault( &m_faciesName, "FaciesName", "Facies", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_faciesName, "FaciesName", "Facies" );
     m_faciesName.uiCapability()->setUiReadOnly( true );
 
-    CAF_PDM_InitScriptableField( &m_faciesValue, "FaciesValue", -1, "Value", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_faciesValue, "FaciesValue", -1, "Value" );
     m_faciesValue.uiCapability()->setUiHidden( true );
 
     // Use unicode for delta letter
@@ -48,7 +48,7 @@ RimFaciesInitialPressureConfig::RimFaciesInitialPressureConfig()
     QString deltaPressureFractionString = QString::fromUtf8( "\u0394 Pressure Fraction" );
 #endif
 
-    CAF_PDM_InitScriptableField( &m_fraction, "Fraction", 0.0, deltaPressureFractionString, "", "", "" );
+    CAF_PDM_InitScriptableField( &m_fraction, "Fraction", 0.0, deltaPressureFractionString );
 }
 
 //--------------------------------------------------------------------------------------------------

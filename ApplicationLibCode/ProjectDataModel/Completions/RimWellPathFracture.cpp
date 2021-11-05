@@ -37,7 +37,7 @@ RimWellPathFracture::RimWellPathFracture( void )
 {
     CAF_PDM_InitObject( "Fracture", ":/FractureSymbol16x16.png", "", "" );
 
-    CAF_PDM_InitField( &m_measuredDepth, "MeasuredDepth", 0.0f, "Measured Depth Location", "", "", "" );
+    CAF_PDM_InitField( &m_measuredDepth, "MeasuredDepth", 0.0f, "Measured Depth Location" );
     m_measuredDepth.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
 
     setDeletable( true );

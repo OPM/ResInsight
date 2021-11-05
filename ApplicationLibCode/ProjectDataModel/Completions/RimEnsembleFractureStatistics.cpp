@@ -123,9 +123,9 @@ RimEnsembleFractureStatistics::RimEnsembleFractureStatistics()
 {
     CAF_PDM_InitObject( "Ensemble Fracture Statistics", ":/FractureTemplate16x16.png", "", "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_filePaths, "FilePaths", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_filePaths, "FilePaths", "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_filePathsTable, "FilePathsTable", "File Paths Table", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_filePathsTable, "FilePathsTable", "File Paths Table" );
     m_filePathsTable.uiCapability()->setUiEditorTypeName( caf::PdmUiTextEditor::uiEditorTypeName() );
     m_filePathsTable.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
     m_filePathsTable.uiCapability()->setUiReadOnly( true );
@@ -139,32 +139,32 @@ RimEnsembleFractureStatistics::RimEnsembleFractureStatistics()
                        "",
                        "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_statisticsTable, "StatisticsTable", "Statistics Table", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_statisticsTable, "StatisticsTable", "Statistics Table" );
     m_statisticsTable.uiCapability()->setUiEditorTypeName( caf::PdmUiTextEditor::uiEditorTypeName() );
     m_statisticsTable.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
     m_statisticsTable.uiCapability()->setUiReadOnly( true );
     m_statisticsTable.xmlCapability()->disableIO();
 
-    CAF_PDM_InitFieldNoDefault( &m_meshAlignmentType, "MeshAlignmentType", "Mesh Alignment", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_meshType, "MeshType", "Mesh Type", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_meshAlignmentType, "MeshAlignmentType", "Mesh Alignment" );
+    CAF_PDM_InitFieldNoDefault( &m_meshType, "MeshType", "Mesh Type" );
 
     // Uniform sampling
-    CAF_PDM_InitField( &m_numSamplesX, "NumberOfSamplesX", 100, "X", "", "", "" );
-    CAF_PDM_InitField( &m_numSamplesY, "NumberOfSamplesY", 200, "Y", "", "", "" );
+    CAF_PDM_InitField( &m_numSamplesX, "NumberOfSamplesX", 100, "X" );
+    CAF_PDM_InitField( &m_numSamplesY, "NumberOfSamplesY", 200, "Y" );
 
     // Adaptive sampling
-    CAF_PDM_InitFieldNoDefault( &m_adaptiveMeanType, "AdaptiveMeanType", "Mean Type", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_adaptiveNumLayersType, "AdaptiveNumLayersType", "Number of Layers", "", "", "" );
-    CAF_PDM_InitField( &m_adaptiveNumLayers, "AdaptiveNumLayers", 30, "Number of Layers Y", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_adaptiveMeanType, "AdaptiveMeanType", "Mean Type" );
+    CAF_PDM_InitFieldNoDefault( &m_adaptiveNumLayersType, "AdaptiveNumLayersType", "Number of Layers" );
+    CAF_PDM_InitField( &m_adaptiveNumLayers, "AdaptiveNumLayers", 30, "Number of Layers Y" );
 
     std::vector<caf::AppEnum<RimEnsembleFractureStatistics::StatisticsType>> defaultStatisticsTypes = {
         caf::AppEnum<RimEnsembleFractureStatistics::StatisticsType>( RimEnsembleFractureStatistics::StatisticsType::MEAN ) };
 
-    CAF_PDM_InitField( &m_selectedStatisticsType, "SelectedStatisticsType", defaultStatisticsTypes, "Statistics Type", "", "", "" );
+    CAF_PDM_InitField( &m_selectedStatisticsType, "SelectedStatisticsType", defaultStatisticsTypes, "Statistics Type" );
     m_selectedStatisticsType.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
     m_selectedStatisticsType.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
 
-    CAF_PDM_InitFieldNoDefault( &m_computeStatistics, "ComputeStatistics", "Compute Templates", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_computeStatistics, "ComputeStatistics", "Compute Templates" );
     m_computeStatistics.uiCapability()->setUiEditorTypeName( caf::PdmUiToolButtonEditor::uiEditorTypeName() );
     m_computeStatistics.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 

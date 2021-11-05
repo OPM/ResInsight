@@ -35,15 +35,15 @@ CAF_PDM_SOURCE_INIT( RimOilFieldEntry, "RimOilFieldEntry" );
 //--------------------------------------------------------------------------------------------------
 RimOilFieldEntry::RimOilFieldEntry()
 {
-    CAF_PDM_InitObject( "OilFieldEntry", "", "", "" );
+    CAF_PDM_InitObject( "OilFieldEntry" );
 
-    CAF_PDM_InitFieldNoDefault( &name, "OilFieldName", "Oil Field Name", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &edmId, "EdmId", "Edm ID", "", "", "" );
-    CAF_PDM_InitField( &selected, "Selected", false, "Selected", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &name, "OilFieldName", "Oil Field Name" );
+    CAF_PDM_InitFieldNoDefault( &edmId, "EdmId", "Edm ID" );
+    CAF_PDM_InitField( &selected, "Selected", false, "Selected" );
 
-    CAF_PDM_InitFieldNoDefault( &wellsFilePath, "wellsFilePath", "Wells File Path", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &wellsFilePath, "wellsFilePath", "Wells File Path" );
 
-    CAF_PDM_InitFieldNoDefault( &wells, "Wells", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &wells, "Wells", "" );
     wells.uiCapability()->setUiTreeHidden( true );
     wells.uiCapability()->setUiTreeChildrenHidden( true );
 }

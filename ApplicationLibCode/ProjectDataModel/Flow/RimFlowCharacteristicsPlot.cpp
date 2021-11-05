@@ -70,15 +70,15 @@ RimFlowCharacteristicsPlot::RimFlowCharacteristicsPlot()
 {
     CAF_PDM_InitObject( "Flow Characteristics", ":/FlowCharPlot16x16.png", "", "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_case, "FlowCase", "Case", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_flowDiagSolution, "FlowDiagSolution", "Flow Diag Solution", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_case, "FlowCase", "Case" );
+    CAF_PDM_InitFieldNoDefault( &m_flowDiagSolution, "FlowDiagSolution", "Flow Diag Solution" );
     m_flowDiagSolution.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_timeStepSelectionType, "TimeSelectionType", "Time Steps", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_selectedTimeSteps, "SelectedTimeSteps", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_timeStepSelectionType, "TimeSelectionType", "Time Steps" );
+    CAF_PDM_InitFieldNoDefault( &m_selectedTimeSteps, "SelectedTimeSteps", "" );
     m_selectedTimeSteps.uiCapability()->setUiHidden( true );
-    CAF_PDM_InitFieldNoDefault( &m_selectedTimeStepsUi, "SelectedTimeStepsUi", "", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_applyTimeSteps, "ApplyTimeSteps", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_selectedTimeStepsUi, "SelectedTimeStepsUi", "" );
+    CAF_PDM_InitFieldNoDefault( &m_applyTimeSteps, "ApplyTimeSteps", "" );
     caf::PdmUiPushButtonEditor::configureEditorForField( &m_applyTimeSteps );
 
     CAF_PDM_InitField( &m_maxPvFraction,
@@ -90,19 +90,19 @@ RimFlowCharacteristicsPlot::RimFlowCharacteristicsPlot()
                        "Volume.",
                        "" );
 
-    CAF_PDM_InitField( &m_showLegend, "ShowLegend", true, "Legend", "", "", "" );
+    CAF_PDM_InitField( &m_showLegend, "ShowLegend", true, "Legend" );
 
     // Region group
-    CAF_PDM_InitFieldNoDefault( &m_cellFilter, "CellFilter", "Cell Filter", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_cellFilterView, "CellFilterView", "View", "", "", "" );
-    CAF_PDM_InitField( &m_tracerFilter, "TracerFilter", QString(), "Tracer Filter", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_selectedTracerNames, "SelectedTracerNames", " ", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_cellFilter, "CellFilter", "Cell Filter" );
+    CAF_PDM_InitFieldNoDefault( &m_cellFilterView, "CellFilterView", "View" );
+    CAF_PDM_InitField( &m_tracerFilter, "TracerFilter", QString(), "Tracer Filter" );
+    CAF_PDM_InitFieldNoDefault( &m_selectedTracerNames, "SelectedTracerNames", " " );
     m_selectedTracerNames.uiCapability()->setUiEditorTypeName( caf::PdmUiListEditor::uiEditorTypeName() );
-    CAF_PDM_InitFieldNoDefault( &m_showRegion, "ShowRegion", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_showRegion, "ShowRegion", "" );
     caf::PdmUiPushButtonEditor::configureEditorForField( &m_showRegion );
 
-    CAF_PDM_InitField( &m_minCommunication, "MinCommunication", 0.0, "Min Communication", "", "", "" );
-    CAF_PDM_InitField( &m_maxTof, "MaxTof", 146000, "Max Time of Flight [days]", "", "", "" );
+    CAF_PDM_InitField( &m_minCommunication, "MinCommunication", 0.0, "Min Communication" );
+    CAF_PDM_InitField( &m_maxTof, "MaxTof", 146000, "Max Time of Flight [days]" );
 
     this->m_showWindow = false;
     setAsPlotMdiWindow();

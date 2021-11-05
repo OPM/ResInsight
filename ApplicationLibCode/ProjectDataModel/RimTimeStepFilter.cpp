@@ -61,30 +61,30 @@ CAF_PDM_SOURCE_INIT( RimTimeStepFilter, "RimTimeStepFilter" );
 //--------------------------------------------------------------------------------------------------
 RimTimeStepFilter::RimTimeStepFilter()
 {
-    CAF_PDM_InitObject( "Time Step Filter", "", "", "" );
+    CAF_PDM_InitObject( "Time Step Filter" );
 
     caf::AppEnum<RimTimeStepFilter::TimeStepFilterTypeEnum> filterType = TS_ALL;
-    CAF_PDM_InitField( &m_filterType, "FilterType", filterType, "Filter Type", "", "", "" );
+    CAF_PDM_InitField( &m_filterType, "FilterType", filterType, "Filter Type" );
 
-    CAF_PDM_InitField( &m_firstTimeStep, "FirstTimeStep", 0, "First Time Step", "", "", "" );
-    CAF_PDM_InitField( &m_lastTimeStep, "LastTimeStep", 0, "Last Time Step", "", "", "" );
+    CAF_PDM_InitField( &m_firstTimeStep, "FirstTimeStep", 0, "First Time Step" );
+    CAF_PDM_InitField( &m_lastTimeStep, "LastTimeStep", 0, "Last Time Step" );
 
-    CAF_PDM_InitField( &m_interval, "Interval", 1, "Interval", "", "", "" );
+    CAF_PDM_InitField( &m_interval, "Interval", 1, "Interval" );
     m_interval.uiCapability()->setUiEditorTypeName( caf::PdmUiLineEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitField( &m_timeStepNamesFromFile, "TimeStepsFromFile", std::vector<QString>(), "TimeSteps From File", "", "", "" );
+    CAF_PDM_InitField( &m_timeStepNamesFromFile, "TimeStepsFromFile", std::vector<QString>(), "TimeSteps From File" );
     m_timeStepNamesFromFile.xmlCapability()->disableIO();
-    CAF_PDM_InitField( &m_dateFormat, "DateFormat", QString( "yyyy-MM-dd" ), "Date Format", "", "", "" );
+    CAF_PDM_InitField( &m_dateFormat, "DateFormat", QString( "yyyy-MM-dd" ), "Date Format" );
 
-    CAF_PDM_InitFieldNoDefault( &m_filteredTimeSteps, "TimeStepIndicesToImport", "Select From Time Steps", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_filteredTimeSteps, "TimeStepIndicesToImport", "Select From Time Steps" );
     m_filteredTimeSteps.uiCapability()->setUiReadOnly( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_filteredTimeStepsUi, "TimeStepIndicesUi", "Select From TimeSteps", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_filteredTimeStepsUi, "TimeStepIndicesUi", "Select From TimeSteps" );
     m_filteredTimeStepsUi.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
     m_filteredTimeStepsUi.uiCapability()->setUiEditorTypeName( caf::PdmUiListEditor::uiEditorTypeName() );
     m_filteredTimeStepsUi.xmlCapability()->disableIO();
 
-    CAF_PDM_InitFieldNoDefault( &m_applyReloadOfCase, "ApplyReloadOfCase", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_applyReloadOfCase, "ApplyReloadOfCase", "" );
     caf::PdmUiPushButtonEditor::configureEditorForField( &m_applyReloadOfCase );
 }
 

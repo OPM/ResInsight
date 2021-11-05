@@ -54,7 +54,7 @@ RimEclipsePropertyFilter::RimEclipsePropertyFilter()
 {
     CAF_PDM_InitObject( "Cell Property Filter", ":/CellFilter_Values.png", "", "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_resultDefinition, "ResultDefinition", "Result Definition", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_resultDefinition, "ResultDefinition", "Result Definition" );
     m_resultDefinition = new RimEclipseResultDefinition();
     m_resultDefinition->enableDeltaResults( true );
 
@@ -63,17 +63,17 @@ RimEclipsePropertyFilter::RimEclipsePropertyFilter()
     m_resultDefinition.uiCapability()->setUiTreeHidden( true );
     m_resultDefinition.uiCapability()->setUiTreeChildrenHidden( true );
 
-    CAF_PDM_InitField( &m_rangeLabelText, "Dummy_keyword", QString( "Range Type" ), "Range Type", "", "", "" );
+    CAF_PDM_InitField( &m_rangeLabelText, "Dummy_keyword", QString( "Range Type" ), "Range Type" );
     m_rangeLabelText.xmlCapability()->disableIO();
     m_rangeLabelText.uiCapability()->setUiReadOnly( true );
 
-    CAF_PDM_InitField( &m_lowerBound, "LowerBound", 0.0, "Min", "", "", "" );
+    CAF_PDM_InitField( &m_lowerBound, "LowerBound", 0.0, "Min" );
     m_lowerBound.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitField( &m_upperBound, "UpperBound", 0.0, "Max", "", "", "" );
+    CAF_PDM_InitField( &m_upperBound, "UpperBound", 0.0, "Max" );
     m_upperBound.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitField( &m_useCategorySelection, "CategorySelection", false, "Category Selection", "", "", "" );
+    CAF_PDM_InitField( &m_useCategorySelection, "CategorySelection", false, "Category Selection" );
     m_upperBound.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
 
     // HEADLESS HACK
