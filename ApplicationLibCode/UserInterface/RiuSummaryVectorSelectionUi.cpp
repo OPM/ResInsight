@@ -19,6 +19,7 @@
 #include "RiuSummaryVectorSelectionUi.h"
 
 #include "RiaCurveSetDefinition.h"
+#include "RiaOptionItemFactory.h"
 #include "RiaStdStringTools.h"
 #include "RiaSummaryCurveDefinition.h"
 
@@ -1555,8 +1556,9 @@ void RiuSummaryVectorSelectionUi::appendOptionItemsForCategories( QList<caf::Pdm
 
     for ( auto category : sortedCategoriesForUi )
     {
-        auto uiText = caf::AppEnum<RifEclipseSummaryAddress::SummaryVarCategory>::uiText( category );
-        options.push_back( caf::PdmOptionItemInfo( uiText, category ) );
+        auto option = RiaOptionItemFactory::optionItemFromSummaryType( category );
+
+        options.push_back( option );
     }
 }
 
