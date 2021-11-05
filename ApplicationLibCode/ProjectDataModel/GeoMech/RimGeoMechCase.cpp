@@ -128,9 +128,7 @@ RimGeoMechCase::RimGeoMechCase( void )
 
     CAF_PDM_InitFieldNoDefault( &m_elementPropertyFileNames, "ElementPropertyFileNames", "Element Property Files" );
 
-    CAF_PDM_InitFieldNoDefault( &m_elementPropertyFileNameIndexUiSelection,
-                                "ElementPropertyFileNameIndexUiSelection",
-                                "");
+    CAF_PDM_InitFieldNoDefault( &m_elementPropertyFileNameIndexUiSelection, "ElementPropertyFileNameIndexUiSelection", "" );
     m_elementPropertyFileNameIndexUiSelection.xmlCapability()->disableIO();
 
     CAF_PDM_InitField( &m_importElementPropertyFileCommand, "importElementPropertyFileCommad", false, "" );
@@ -181,9 +179,7 @@ RimGeoMechCase::RimGeoMechCase( void )
     m_contourMapCollection = new RimGeoMechContourMapViewCollection;
     m_contourMapCollection.uiCapability()->setUiTreeHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_mudWeightWindowParameters,
-                                "MudWeightWindowParameters",
-                                "Mud Weight Window Parameters");
+    CAF_PDM_InitFieldNoDefault( &m_mudWeightWindowParameters, "MudWeightWindowParameters", "Mud Weight Window Parameters" );
     m_mudWeightWindowParameters = new RimMudWeightWindowParameters;
     m_mudWeightWindowParameters.uiCapability()->setUiTreeHidden( true );
 

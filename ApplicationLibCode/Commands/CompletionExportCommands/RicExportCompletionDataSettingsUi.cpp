@@ -104,7 +104,7 @@ RicExportCompletionDataSettingsUi::RicExportCompletionDataSettingsUi()
 
     CAF_PDM_InitFieldNoDefault( &m_reportCompletionTypesSeparately,
                                 "ReportCompletionTypesSeparately",
-                                "Export Completion Types");
+                                "Export Completion Types" );
 
     CAF_PDM_InitField( &m_exportDataSourceAsComment, "ExportDataSourceAsComment", true, "Comments" );
 

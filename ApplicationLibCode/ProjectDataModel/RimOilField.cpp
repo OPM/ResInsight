@@ -56,7 +56,7 @@ RimOilField::RimOilField( void )
 
     CAF_PDM_InitFieldNoDefault( &m_fractureTemplateCollection_OBSOLETE,
                                 "FractureDefinitionCollection",
-                                "Defenition of Fractures");
+                                "Defenition of Fractures" );
 
     CAF_PDM_InitFieldNoDefault( &measurement, "Measurement", "Measurement" );
     measurement = new RimMeasurement();

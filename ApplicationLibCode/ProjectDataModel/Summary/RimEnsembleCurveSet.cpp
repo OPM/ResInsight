@@ -143,9 +143,7 @@ RimEnsembleCurveSet::RimEnsembleCurveSet()
     m_objectiveValuesSummaryAddresses.uiCapability()->setUiTreeHidden( true );
     m_objectiveValuesSummaryAddresses.uiCapability()->setUiTreeChildrenHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_objectiveValuesSelectSummaryAddressPushButton,
-                                "SelectObjectiveSummaryAddress",
-                                "");
+    CAF_PDM_InitFieldNoDefault( &m_objectiveValuesSelectSummaryAddressPushButton, "SelectObjectiveSummaryAddress", "" );
     caf::PdmUiPushButtonEditor::configureEditorForField( &m_objectiveValuesSelectSummaryAddressPushButton );
     m_objectiveValuesSelectSummaryAddressPushButton.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
     m_objectiveValuesSelectSummaryAddressPushButton = false;
@@ -185,9 +183,7 @@ RimEnsembleCurveSet::RimEnsembleCurveSet()
     m_curveFilters->setUiTreeHidden( true );
     m_curveFilters->uiCapability()->setUiTreeHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_customObjectiveFunctions,
-                                "CustomObjectiveFunctions",
-                                "Custom Objective Functions");
+    CAF_PDM_InitFieldNoDefault( &m_customObjectiveFunctions, "CustomObjectiveFunctions", "Custom Objective Functions" );
     m_customObjectiveFunctions = new RimCustomObjectiveFunctionCollection();
     m_customObjectiveFunctions->objectiveFunctionChanged.connect( this,
                                                                   &RimEnsembleCurveSet::onCustomObjectiveFunctionChanged );

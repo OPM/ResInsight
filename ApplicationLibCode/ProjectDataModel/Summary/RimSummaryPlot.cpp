@@ -243,9 +243,7 @@ RimSummaryPlot::RimSummaryPlot()
     m_timeAxisProperties.uiCapability()->setUiTreeHidden( true );
     m_timeAxisProperties = new RimSummaryTimeAxisProperties;
 
-    CAF_PDM_InitFieldNoDefault( &m_textCurveSetEditor,
-                                "SummaryPlotFilterTextCurveSetEditor",
-                                "Text Filter Curve Creator");
+    CAF_PDM_InitFieldNoDefault( &m_textCurveSetEditor, "SummaryPlotFilterTextCurveSetEditor", "Text Filter Curve Creator" );
     m_textCurveSetEditor.uiCapability()->setUiTreeHidden( true );
     m_textCurveSetEditor = new RimSummaryPlotFilterTextCurveSetEditor;
 

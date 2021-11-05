@@ -231,9 +231,7 @@ RimWellLogTrack::RimWellLogTrack()
     CAF_PDM_InitFieldNoDefault( &m_formationWellPathForSourceCase, "FormationWellPath", "Well Path" );
     m_formationWellPathForSourceCase.uiCapability()->setUiTreeChildrenHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_formationWellPathForSourceWellPath,
-                                "FormationWellPathForSourceWellPath",
-                                "Well Path");
+    CAF_PDM_InitFieldNoDefault( &m_formationWellPathForSourceWellPath, "FormationWellPathForSourceWellPath", "Well Path" );
     m_formationWellPathForSourceWellPath.uiCapability()->setUiTreeChildrenHidden( true );
 
     CAF_PDM_InitField( &m_formationSimWellName, "FormationSimulationWellName", QString( "None" ), "Simulation Well" );
@@ -272,9 +270,7 @@ RimWellLogTrack::RimWellLogTrack()
     m_resultDefinition.uiCapability()->setUiTreeChildrenHidden( true );
     m_resultDefinition = new RimEclipseResultDefinition;
 
-    CAF_PDM_InitFieldNoDefault( &m_ensembleWellLogCurveSet,
-                                "EnsembleWellLogCurveSet",
-                                "Ensemble Well Logs Curve Set");
+    CAF_PDM_InitFieldNoDefault( &m_ensembleWellLogCurveSet, "EnsembleWellLogCurveSet", "Ensemble Well Logs Curve Set" );
     m_ensembleWellLogCurveSet.uiCapability()->setUiTreeHidden( true );
 
     m_formationsForCaseWithSimWellOnly = false;
