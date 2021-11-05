@@ -49,6 +49,8 @@ std::vector<std::string> RifHdf5SummaryReader::vectorNames()
 {
     try
     {
+        H5::Exception::dontPrint(); // Turn off auto-printing of failures to handle the errors appropriately
+
         auto h5File = H5::H5File( m_fileName.c_str(), H5F_ACC_RDONLY );
 
         std::vector<std::string> names;
@@ -76,6 +78,8 @@ std::vector<time_t> RifHdf5SummaryReader::timeSteps() const
 {
     try
     {
+        H5::Exception::dontPrint(); // Turn off auto-printing of failures to handle the errors appropriately
+
         auto h5File = H5::H5File( m_fileName.c_str(), H5F_ACC_RDONLY );
 
         std::vector<time_t> times;
@@ -124,11 +128,11 @@ std::vector<double> RifHdf5SummaryReader::values( const std::string& vectorName,
 {
     try
     {
-        auto h5File = H5::H5File( m_fileName.c_str(), H5F_ACC_RDONLY );
         H5::Exception::dontPrint(); // Turn off auto-printing of failures to handle the errors appropriately
 
-        std::string idText = std::to_string( smspecKeywordIndex );
+        auto h5File = H5::H5File( m_fileName.c_str(), H5F_ACC_RDONLY );
 
+        std::string idText    = std::to_string( smspecKeywordIndex );
         std::string groupPath = "summary_vectors/" + vectorName + "/" + idText;
 
         {
@@ -160,10 +164,9 @@ std::vector<double> RifHdf5SummaryReader::values( const std::string& vectorName 
 {
     try
     {
-        auto h5File = H5::H5File( m_fileName.c_str(), H5F_ACC_RDONLY );
-
         H5::Exception::dontPrint(); // Turn off auto-printing of failures to handle the errors appropriately
 
+        auto        h5File    = H5::H5File( m_fileName.c_str(), H5F_ACC_RDONLY );
         std::string groupPath = "summary_vectors/" + vectorName;
 
         auto groupNames = RifHdf5ReaderTools::getSubGroupNames( &h5File, groupPath );
@@ -199,9 +202,9 @@ time_t RifHdf5SummaryReader::startDate() const
 {
     try
     {
-        auto h5File = H5::H5File( m_fileName.c_str(), H5F_ACC_RDONLY );
-
         H5::Exception::dontPrint(); // Turn off auto-printing of failures to handle the errors appropriately
+
+        auto h5File = H5::H5File( m_fileName.c_str(), H5F_ACC_RDONLY );
 
         QString groupPath = QString( "general" );
 
