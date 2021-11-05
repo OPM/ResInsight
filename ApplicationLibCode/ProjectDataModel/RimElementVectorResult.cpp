@@ -86,7 +86,7 @@ RimElementVectorResult::RimElementVectorResult()
 
     CAF_PDM_InitFieldNoDefault( &m_vectorSurfaceCrossingLocation,
                                 "VectorSurfaceCrossingLocation",
-                                "Vectors Touching Surface");
+                                "Vectors Touching Surface" );
     m_vectorSurfaceCrossingLocation.uiCapability()->setUiReadOnly(
         m_vectorView() == RimElementVectorResult::VectorView::CELL_CENTER_TOTAL );
 

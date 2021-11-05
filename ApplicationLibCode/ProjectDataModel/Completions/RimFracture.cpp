@@ -165,7 +165,7 @@ RimFracture::RimFracture()
 
     CAF_PDM_InitFieldNoDefault( &m_uiWellFractureAzimuthDiff,
                                 "WellFractureAzimuthDiff",
-                                "Azimuth Difference Between\nFracture and Well");
+                                "Azimuth Difference Between\nFracture and Well" );
     m_uiWellFractureAzimuthDiff.registerGetMethod( this, &RimFracture::wellFractureAzimuthDiffText );
     m_uiWellFractureAzimuthDiff.uiCapability()->setUiReadOnly( true );
     m_uiWellFractureAzimuthDiff.xmlCapability()->disableIO();
