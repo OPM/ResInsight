@@ -44,10 +44,7 @@ RimEnsembleFractureStatisticsPlot::RimEnsembleFractureStatisticsPlot()
 
     CAF_PDM_InitFieldNoDefault( &m_ensembleFractureStatistics,
                                 "EnsembleFractureStatistics",
-                                "Ensemble Fracture Statistics",
-                                "",
-                                "",
-                                "" );
+                                "Ensemble Fracture Statistics");
     m_ensembleFractureStatistics.uiCapability()->setUiTreeChildrenHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_property, "Property", "Property" );

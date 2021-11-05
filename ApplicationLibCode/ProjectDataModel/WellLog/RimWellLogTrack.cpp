@@ -233,10 +233,7 @@ RimWellLogTrack::RimWellLogTrack()
 
     CAF_PDM_InitFieldNoDefault( &m_formationWellPathForSourceWellPath,
                                 "FormationWellPathForSourceWellPath",
-                                "Well Path",
-                                "",
-                                "",
-                                "" );
+                                "Well Path");
     m_formationWellPathForSourceWellPath.uiCapability()->setUiTreeChildrenHidden( true );
 
     CAF_PDM_InitField( &m_formationSimWellName, "FormationSimulationWellName", QString( "None" ), "Simulation Well" );
@@ -277,10 +274,7 @@ RimWellLogTrack::RimWellLogTrack()
 
     CAF_PDM_InitFieldNoDefault( &m_ensembleWellLogCurveSet,
                                 "EnsembleWellLogCurveSet",
-                                "Ensemble Well Logs Curve Set",
-                                "",
-                                "",
-                                "" );
+                                "Ensemble Well Logs Curve Set");
     m_ensembleWellLogCurveSet.uiCapability()->setUiTreeHidden( true );
 
     m_formationsForCaseWithSimWellOnly = false;

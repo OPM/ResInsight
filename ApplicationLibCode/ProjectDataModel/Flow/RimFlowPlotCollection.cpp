@@ -50,10 +50,7 @@ RimFlowPlotCollection::RimFlowPlotCollection()
     CAF_PDM_InitFieldNoDefault( &m_storedWellAllocPlots, "StoredWellAllocationPlots", "Stored Well Allocation Plots" );
     CAF_PDM_InitFieldNoDefault( &m_storedFlowCharacteristicsPlots,
                                 "StoredFlowCharacteristicsPlots",
-                                "Stored Flow Characteristics Plots",
-                                "",
-                                "",
-                                "" );
+                                "Stored Flow Characteristics Plots");
 }
 
 //--------------------------------------------------------------------------------------------------

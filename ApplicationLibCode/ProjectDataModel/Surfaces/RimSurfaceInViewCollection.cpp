@@ -50,10 +50,7 @@ RimSurfaceInViewCollection::RimSurfaceInViewCollection()
 
     CAF_PDM_InitFieldNoDefault( &m_collectionsInView,
                                 "SurfacesInViewFieldCollections",
-                                "SurfacesInViewFieldCollections",
-                                "",
-                                "",
-                                "" );
+                                "SurfacesInViewFieldCollections");
     m_collectionsInView.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_surfacesInView, "SurfacesInViewField", "SurfacesInViewField" );

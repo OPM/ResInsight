@@ -245,10 +245,7 @@ RimSummaryPlot::RimSummaryPlot()
 
     CAF_PDM_InitFieldNoDefault( &m_textCurveSetEditor,
                                 "SummaryPlotFilterTextCurveSetEditor",
-                                "Text Filter Curve Creator",
-                                "",
-                                "",
-                                "" );
+                                "Text Filter Curve Creator");
     m_textCurveSetEditor.uiCapability()->setUiTreeHidden( true );
     m_textCurveSetEditor = new RimSummaryPlotFilterTextCurveSetEditor;
 

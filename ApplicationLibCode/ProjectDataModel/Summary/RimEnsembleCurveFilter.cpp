@@ -90,10 +90,7 @@ RimEnsembleCurveFilter::RimEnsembleCurveFilter()
 
     CAF_PDM_InitFieldNoDefault( &m_objectiveValuesSelectSummaryAddressPushButton,
                                 "SelectObjectiveSummaryAddress",
-                                "",
-                                "",
-                                "",
-                                "" );
+                                "");
     caf::PdmUiPushButtonEditor::configureEditorForField( &m_objectiveValuesSelectSummaryAddressPushButton );
     m_objectiveValuesSelectSummaryAddressPushButton.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
     m_objectiveValuesSelectSummaryAddressPushButton = false;

@@ -140,10 +140,7 @@ RimFishbones::RimFishbones()
 
     CAF_PDM_InitFieldNoDefault( &m_installationRotationAngles,
                                 "InstallationRotationAngles",
-                                "Installation Rotation Angles [deg]",
-                                "",
-                                "",
-                                "" );
+                                "Installation Rotation Angles [deg]");
     m_installationRotationAngles.uiCapability()->setUiHidden( true );
     CAF_PDM_InitField( &m_fixedInstallationRotationAngle,
                        "FixedInstallationRotationAngle",
