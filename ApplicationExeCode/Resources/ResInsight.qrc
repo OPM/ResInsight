@@ -246,4 +246,22 @@
         <file>vs_CellFace.glsl</file>
         <file>vs_2dTextureCellFace.glsl</file>
     </qresource>
+    <qresource prefix="/summary">
+        <file>components/images/aquifer.svg</file>
+        <file>components/images/block.svg</file>
+        <file>components/images/calculated.svg</file>
+        <file>components/images/duplicate.svg</file>
+        <file>components/images/field.svg</file>
+        <file>components/images/group.svg</file>
+        <file>components/images/invalid.svg</file>
+        <file>components/images/misc.svg</file>
+        <file>components/images/network.svg</file>
+        <file>components/images/others.svg</file>
+        <file>components/images/region.svg</file>
+        <file>components/images/region-region.svg</file>
+        <file>components/images/segment.svg</file>
+        <file>components/images/unknown.svg</file>
+        <file>components/images/well.svg</file>
+        <file>components/images/well-completion.svg</file>
+    </qresource>
 </RCC>
