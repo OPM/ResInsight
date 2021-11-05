@@ -315,16 +315,19 @@ void RimFileWellPath::ensureWellPathStartAtSeaLevel( RigWellPath* wellPath )
         newPoints.insert( newPoints.end(), wellPathPoints.begin(), wellPathPoints.end() );
         wellPath->setWellPathPoints( newPoints );
 
-        // Give the new point zero measured depth.
-        std::vector<double> newMeasuredDepths = { 0.0 };
-
-        // And adjust measured depths of the read data
-        // with the diff between the old and new first point.
-        double diffMd = std::abs( newPoints[1].z() - newPoints[0].z() );
-        for ( double originalMd : measuredDepths )
+        // Use rkbDiff as MD for the point at sea level
+        double mdAtSeaLevel = 0.0;
+        if ( wellPath->datumElevation() > 0.0 )
         {
-            newMeasuredDepths.push_back( originalMd + diffMd );
+            mdAtSeaLevel = wellPath->datumElevation();
         }
+        else if ( this->airGap() != std::numeric_limits<double>::infinity() && this->airGap() > 0.0 )
+        {
+            mdAtSeaLevel = this->airGap();
+        }
+
+        std::vector<double> newMeasuredDepths = { mdAtSeaLevel };
+        newMeasuredDepths.insert( newMeasuredDepths.end(), measuredDepths.begin(), measuredDepths.end() );
 
         wellPath->setMeasuredDepths( newMeasuredDepths );
     }
