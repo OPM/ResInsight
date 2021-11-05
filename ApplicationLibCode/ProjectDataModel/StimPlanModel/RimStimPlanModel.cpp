@@ -1840,3 +1840,32 @@ RimEclipseCase* RimStimPlanModel::eclipseCaseForType( RimExtractionConfiguration
 
     return nullptr;
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimStimPlanModel::unitForProperty( RiaDefines::CurveProperty curveProperty ) const
+{
+    std::map<RiaDefines::CurveProperty, QString> propertyToUnitMapping;
+
+    propertyToUnitMapping[RiaDefines::CurveProperty::PERMEABILITY_X]                = "mD";
+    propertyToUnitMapping[RiaDefines::CurveProperty::PERMEABILITY_Z]                = "mD";
+    propertyToUnitMapping[RiaDefines::CurveProperty::YOUNGS_MODULUS]                = "MMpsi";
+    propertyToUnitMapping[RiaDefines::CurveProperty::K_IC]                          = "<html>psi * &radic;in</html>";
+    propertyToUnitMapping[RiaDefines::CurveProperty::PROPPANT_EMBEDMENT]            = "<html>lb / ft";
+    propertyToUnitMapping[RiaDefines::CurveProperty::SPURT_LOSS]                    = "<html>gal / 100ft&#178;</html>";
+    propertyToUnitMapping[RiaDefines::CurveProperty::FLUID_LOSS_COEFFICIENT]        = "<html>ft / &radic;min</html>";
+    propertyToUnitMapping[RiaDefines::CurveProperty::THERMAL_EXPANSION_COEFFICIENT] = "<html>1 / &deg;C</html>";
+    propertyToUnitMapping[RiaDefines::CurveProperty::TEMPERATURE]                   = "<html>&deg;C</html>";
+    propertyToUnitMapping[RiaDefines::CurveProperty::STRESS]                        = "Psi";
+    propertyToUnitMapping[RiaDefines::CurveProperty::INITIAL_STRESS]                = "Psi";
+    propertyToUnitMapping[RiaDefines::CurveProperty::STRESS_GRADIENT]               = "Psi / ft";
+    propertyToUnitMapping[RiaDefines::CurveProperty::PRESSURE]                      = "Bar";
+    propertyToUnitMapping[RiaDefines::CurveProperty::INITIAL_PRESSURE]              = "Bar";
+
+    auto hit = propertyToUnitMapping.find( curveProperty );
+    if ( hit != propertyToUnitMapping.end() )
+        return hit->second;
+    else
+        return " ";
+}

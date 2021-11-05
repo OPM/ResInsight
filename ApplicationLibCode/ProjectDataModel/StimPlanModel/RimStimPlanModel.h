@@ -190,6 +190,8 @@ public:
 
     QString pressureDate() const;
 
+    QString unitForProperty( RiaDefines::CurveProperty curveProperty ) const;
+
 protected:
     void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,

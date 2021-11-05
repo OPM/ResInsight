@@ -232,6 +232,7 @@ void RicNewStimPlanModelPlotFeature::createFormationTrack( RimStimPlanModelPlot*
     formationTrack->setOverburdenHeight( stimPlanModel->overburdenHeight() );
     formationTrack->setUnderburdenHeight( stimPlanModel->underburdenHeight() );
     formationTrack->setColSpan( RimPlot::ONE );
+    formationTrack->setXAxisTitle( stimPlanModel->unitForProperty( RiaDefines::CurveProperty::FORMATIONS ) );
     formationTrack->setLegendsVisible( true );
 }
 
@@ -259,6 +260,7 @@ void RicNewStimPlanModelPlotFeature::createFaciesTrack( RimStimPlanModelPlot* pl
     faciesTrack->setAnnotationDisplay( RiuPlotAnnotationTool::COLOR_SHADING );
     faciesTrack->setOverburdenHeight( stimPlanModel->overburdenHeight() );
     faciesTrack->setUnderburdenHeight( stimPlanModel->underburdenHeight() );
+    faciesTrack->setXAxisTitle( stimPlanModel->unitForProperty( RiaDefines::CurveProperty::FACIES ) );
     faciesTrack->setLegendsVisible( false );
     faciesTrack->setPlotTitleVisible( true );
 
@@ -334,6 +336,8 @@ void RicNewStimPlanModelPlotFeature::createLayersTrack( RimStimPlanModelPlot* pl
 
     faciesTrack->addCurve( curve );
     faciesTrack->setAutoScaleXEnabled( true );
+    faciesTrack->setXAxisTitle( stimPlanModel->unitForProperty( RiaDefines::CurveProperty::LAYERS ) );
+
     curve->loadDataAndUpdate( true );
 
     curve->updateConnectedEditors();
@@ -423,6 +427,7 @@ void RicNewStimPlanModelPlotFeature::createParametersTrack( RimStimPlanModelPlot
     plotTrack->setLogarithmicScale( isPlotLogarithmic );
     plotTrack->setAutoScaleXEnabled( true );
     plotTrack->setMinAndMaxTicksOnly( useMinMaxTicksOnly( propertyTypes[0] ) );
+    plotTrack->setXAxisTitle( stimPlanModel->unitForProperty( propertyTypes[0] ) );
 
     plotTrack->updateConnectedEditors();
     plot->updateConnectedEditors();
