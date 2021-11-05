@@ -96,37 +96,37 @@ RimDepthTrackPlot::RimDepthTrackPlot()
     m_commonDataSource.xmlCapability()->disableIO();
     m_commonDataSource = new RimWellLogCurveCommonDataSource;
 
-    CAF_PDM_InitField( &m_plotWindowTitle, "PlotDescription", QString( "" ), "Name", "", "", "" );
+    CAF_PDM_InitField( &m_plotWindowTitle, "PlotDescription", QString( "" ), "Name" );
     m_plotWindowTitle.xmlCapability()->setIOWritable( false );
 
     caf::AppEnum<RimDepthTrackPlot::DepthTypeEnum> depthType = RiaDefines::DepthTypeEnum::MEASURED_DEPTH;
-    CAF_PDM_InitScriptableField( &m_depthType, "DepthType", depthType, "Type", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_depthType, "DepthType", depthType, "Type" );
 
     caf::AppEnum<RiaDefines::DepthUnitType> depthUnit = RiaDefines::DepthUnitType::UNIT_METER;
-    CAF_PDM_InitScriptableField( &m_depthUnit, "DepthUnit", depthUnit, "Unit", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_depthUnit, "DepthUnit", depthUnit, "Unit" );
 
-    CAF_PDM_InitScriptableField( &m_minVisibleDepth, "MinimumDepth", 0.0, "Min", "", "", "" );
-    CAF_PDM_InitScriptableField( &m_maxVisibleDepth, "MaximumDepth", 1000.0, "Max", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_minVisibleDepth, "MinimumDepth", 0.0, "Min" );
+    CAF_PDM_InitScriptableField( &m_maxVisibleDepth, "MaximumDepth", 1000.0, "Max" );
     m_minVisibleDepth.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
     m_maxVisibleDepth.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitScriptableFieldNoDefault( &m_depthAxisGridVisibility, "ShowDepthGridLines", "Show Grid Lines", "", "", "" );
-    CAF_PDM_InitScriptableField( &m_isAutoScaleDepthEnabled, "AutoScaleDepthEnabled", true, "Auto Scale", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_depthAxisGridVisibility, "ShowDepthGridLines", "Show Grid Lines" );
+    CAF_PDM_InitScriptableField( &m_isAutoScaleDepthEnabled, "AutoScaleDepthEnabled", true, "Auto Scale" );
     m_isAutoScaleDepthEnabled.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitScriptableFieldNoDefault( &m_subTitleFontSize, "SubTitleFontSize", "Track Title Font Size", "", "", "" );
-    CAF_PDM_InitScriptableFieldNoDefault( &m_axisTitleFontSize, "AxisTitleFontSize", "Axis Title Font Size", "", "", "" );
-    CAF_PDM_InitScriptableFieldNoDefault( &m_axisValueFontSize, "AxisValueFontSize", "Axis Value Font Size", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_subTitleFontSize, "SubTitleFontSize", "Track Title Font Size" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_axisTitleFontSize, "AxisTitleFontSize", "Axis Title Font Size" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_axisValueFontSize, "AxisValueFontSize", "Axis Value Font Size" );
 
-    CAF_PDM_InitFieldNoDefault( &m_nameConfig, "NameConfig", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_nameConfig, "NameConfig", "" );
     m_nameConfig.uiCapability()->setUiTreeHidden( true );
     m_nameConfig.uiCapability()->setUiTreeChildrenHidden( true );
     m_nameConfig = new RimWellLogPlotNameConfig();
 
-    CAF_PDM_InitFieldNoDefault( &m_ensembleCurveSet, "FilterEnsembleCurveSet", "Filter by Ensemble Curve Set", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_depthEqualization, "DepthEqualization", "Depth Equalization", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_ensembleCurveSet, "FilterEnsembleCurveSet", "Filter by Ensemble Curve Set" );
+    CAF_PDM_InitFieldNoDefault( &m_depthEqualization, "DepthEqualization", "Depth Equalization" );
 
-    CAF_PDM_InitFieldNoDefault( &m_plots, "Tracks", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_plots, "Tracks", "" );
     m_plots.uiCapability()->setUiTreeHidden( true );
     auto reorderability = caf::PdmFieldReorderCapability::addToField( &m_plots );
     reorderability->orderChanged.connect( this, &RimDepthTrackPlot::onPlotsReordered );

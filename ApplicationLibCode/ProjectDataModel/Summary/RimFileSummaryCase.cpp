@@ -47,7 +47,7 @@ CAF_PDM_SOURCE_INIT( RimFileSummaryCase, "FileSummaryCase" );
 RimFileSummaryCase::RimFileSummaryCase()
 {
     CAF_PDM_InitScriptableObject( "File Summary Case ", ":/SummaryCases16x16.png", "", "A Summary Case based on SMSPEC files" );
-    CAF_PDM_InitScriptableField( &m_includeRestartFiles, "IncludeRestartFiles", false, "Include Restart Files", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_includeRestartFiles, "IncludeRestartFiles", false, "Include Restart Files" );
 
     m_includeRestartFiles.uiCapability()->setUiHidden( true );
 }

@@ -59,13 +59,13 @@ RimWellDistributionPlot::RimWellDistributionPlot( RiaDefines::PhaseType phase )
 {
     // cvf::Trace::show("RimWellDistributionPlot::RimWellDistributionPlot()");
 
-    CAF_PDM_InitObject( "Cumulative Phase Distribution Plot", "", "", "" );
+    CAF_PDM_InitObject( "Cumulative Phase Distribution Plot" );
 
-    CAF_PDM_InitFieldNoDefault( &m_case, "Case", "Case", "", "", "" );
-    CAF_PDM_InitField( &m_timeStepIndex, "TimeStepIndex", -1, "Time Step", "", "", "" );
-    CAF_PDM_InitField( &m_wellName, "WellName", QString( "None" ), "Well", "", "", "" );
-    CAF_PDM_InitField( &m_phase, "Phase", caf::AppEnum<RiaDefines::PhaseType>( phase ), "Phase", "", "", "" );
-    CAF_PDM_InitField( &m_groupSmallContributions, "GroupSmallContributions", true, "Group Small Contributions", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_case, "Case", "Case" );
+    CAF_PDM_InitField( &m_timeStepIndex, "TimeStepIndex", -1, "Time Step" );
+    CAF_PDM_InitField( &m_wellName, "WellName", QString( "None" ), "Well" );
+    CAF_PDM_InitField( &m_phase, "Phase", caf::AppEnum<RiaDefines::PhaseType>( phase ), "Phase" );
+    CAF_PDM_InitField( &m_groupSmallContributions, "GroupSmallContributions", true, "Group Small Contributions" );
     CAF_PDM_InitField( &m_smallContributionsRelativeThreshold,
                        "SmallContributionsRelativeThreshold",
                        0.005,
@@ -74,7 +74,7 @@ RimWellDistributionPlot::RimWellDistributionPlot( RiaDefines::PhaseType phase )
                        "",
                        "" );
 
-    CAF_PDM_InitField( &m_maximumTof, "MaximumTOF", 20.0, "Maximum Time of Flight [0, 200]", "", "", "" );
+    CAF_PDM_InitField( &m_maximumTof, "MaximumTOF", 20.0, "Maximum Time of Flight [0, 200]" );
 
     m_showWindow      = false;
     m_showPlotLegends = true;

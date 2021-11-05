@@ -96,22 +96,22 @@ RimWellLogRftCurve::RimWellLogRftCurve()
 {
     CAF_PDM_InitObject( "Well Log RFT Curve", RimWellLogCurve::wellLogCurveIconName(), "", "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_eclipseResultCase, "CurveEclipseResultCase", "Eclipse Result Case", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_eclipseResultCase, "CurveEclipseResultCase", "Eclipse Result Case" );
     m_eclipseResultCase.uiCapability()->setUiTreeChildrenHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_summaryCase, "CurveSummaryCase", "Summary Case", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_summaryCase, "CurveSummaryCase", "Summary Case" );
     m_summaryCase.uiCapability()->setUiTreeChildrenHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_ensemble, "CurveEnsemble", "Ensemble", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_ensemble, "CurveEnsemble", "Ensemble" );
     m_ensemble.uiCapability()->setUiTreeChildrenHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_observedFmuRftData, "ObservedFmuRftData", "Observed FMU RFT Data", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_observedFmuRftData, "ObservedFmuRftData", "Observed FMU RFT Data" );
     m_observedFmuRftData.uiCapability()->setUiTreeChildrenHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_timeStep, "TimeStep", "Time Step", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_timeStep, "TimeStep", "Time Step" );
 
-    CAF_PDM_InitFieldNoDefault( &m_wellName, "WellName", "Well Name", "", "", "" );
-    CAF_PDM_InitField( &m_branchIndex, "BranchIndex", 0, "Branch Index", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_wellName, "WellName", "Well Name" );
+    CAF_PDM_InitField( &m_branchIndex, "BranchIndex", 0, "Branch Index" );
     CAF_PDM_InitField( &m_branchDetection,
                        "BranchDetection",
                        true,
@@ -120,7 +120,7 @@ RimWellLogRftCurve::RimWellLogRftCurve()
                        "Compute branches based on how simulation well cells are organized",
                        "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_wellLogChannelName, "WellLogChannelName", "Well Property", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_wellLogChannelName, "WellLogChannelName", "Well Property" );
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -42,14 +42,14 @@ RimEnsembleCurveSetCollection::RimEnsembleCurveSetCollection()
 {
     CAF_PDM_InitObject( "Ensemble Curve Sets", ":/EnsembleCurveSets16x16.png", "", "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_curveSets, "EnsembleCurveSets", "Ensemble Curve Sets", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_curveSets, "EnsembleCurveSets", "Ensemble Curve Sets" );
     m_curveSets.uiCapability()->setUiTreeHidden( true );
     m_curveSets.uiCapability()->setUiTreeChildrenHidden( false );
 
-    CAF_PDM_InitField( &m_showCurves, "IsActive", true, "Show Curves", "", "", "" );
+    CAF_PDM_InitField( &m_showCurves, "IsActive", true, "Show Curves" );
     m_showCurves.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_ySourceStepping, "YSourceStepping", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_ySourceStepping, "YSourceStepping", "" );
     m_ySourceStepping = new RimSummaryPlotSourceStepping;
     m_ySourceStepping->setSourceSteppingType( RimSummaryPlotSourceStepping::Y_AXIS );
     m_ySourceStepping.uiCapability()->setUiTreeHidden( true );

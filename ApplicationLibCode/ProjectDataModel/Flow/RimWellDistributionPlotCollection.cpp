@@ -61,10 +61,10 @@ RimWellDistributionPlotCollection::RimWellDistributionPlotCollection()
 
     CAF_PDM_InitObject( "Cumulative Phase Distribution Plot", ":/CumulativePhaseDist16x16.png", "", "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_case, "Case", "Case", "", "", "" );
-    CAF_PDM_InitField( &m_timeStepIndex, "TimeStepIndex", -1, "Time Step", "", "", "" );
-    CAF_PDM_InitField( &m_wellName, "WellName", QString( "None" ), "Well", "", "", "" );
-    CAF_PDM_InitField( &m_groupSmallContributions, "GroupSmallContributions", true, "Group Small Contributions", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_case, "Case", "Case" );
+    CAF_PDM_InitField( &m_timeStepIndex, "TimeStepIndex", -1, "Time Step" );
+    CAF_PDM_InitField( &m_wellName, "WellName", QString( "None" ), "Well" );
+    CAF_PDM_InitField( &m_groupSmallContributions, "GroupSmallContributions", true, "Group Small Contributions" );
     CAF_PDM_InitField( &m_smallContributionsRelativeThreshold,
                        "SmallContributionsRelativeThreshold",
                        0.005,
@@ -73,15 +73,15 @@ RimWellDistributionPlotCollection::RimWellDistributionPlotCollection()
                        "",
                        "" );
 
-    CAF_PDM_InitField( &m_maximumTof, "MaximumTOF", 20.0, "Maximum Time of Flight [0, 200]", "", "", "" );
+    CAF_PDM_InitField( &m_maximumTof, "MaximumTOF", 20.0, "Maximum Time of Flight [0, 200]" );
 
-    CAF_PDM_InitFieldNoDefault( &m_plots, "Plots", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_plots, "Plots", "" );
     m_plots.uiCapability()->setUiTreeHidden( true );
     m_plots.uiCapability()->setUiTreeChildrenHidden( true );
 
-    CAF_PDM_InitField( &m_showOil, "ShowOil", true, "Show Oil", "", "", "" );
-    CAF_PDM_InitField( &m_showGas, "ShowGas", true, "Show Gas", "", "", "" );
-    CAF_PDM_InitField( &m_showWater, "ShowWater", true, "Show Water", "", "", "" );
+    CAF_PDM_InitField( &m_showOil, "ShowOil", true, "Show Oil" );
+    CAF_PDM_InitField( &m_showGas, "ShowGas", true, "Show Gas" );
+    CAF_PDM_InitField( &m_showWater, "ShowWater", true, "Show Water" );
 
     CAF_PDM_InitField( &m_plotWindowTitle,
                        "PlotDescription",

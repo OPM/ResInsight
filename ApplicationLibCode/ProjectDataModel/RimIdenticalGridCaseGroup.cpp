@@ -61,9 +61,9 @@ RimIdenticalGridCaseGroup::RimIdenticalGridCaseGroup()
                                                     "GridCaseGroup",
                                                     "A statistics case group" );
 
-    CAF_PDM_InitScriptableField( &name, "UserDescription", QString( "Grid Case Group" ), "Name", "", "", "" );
+    CAF_PDM_InitScriptableField( &name, "UserDescription", QString( "Grid Case Group" ), "Name" );
 
-    CAF_PDM_InitScriptableField( &groupId, "GroupId", -1, "Case Group ID", "", "", "" );
+    CAF_PDM_InitScriptableField( &groupId, "GroupId", -1, "Case Group ID" );
     groupId.uiCapability()->setUiReadOnly( true );
     groupId.capability<caf::PdmAbstractFieldScriptingCapability>()->setIOWriteable( false );
 
@@ -75,7 +75,7 @@ RimIdenticalGridCaseGroup::RimIdenticalGridCaseGroup()
                                 "" );
     statisticsCaseCollection.uiCapability()->setUiTreeHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &caseCollection, "CaseCollection", "Source Cases ChildArrayField", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &caseCollection, "CaseCollection", "Source Cases ChildArrayField" );
     caseCollection.uiCapability()->setUiTreeHidden( true );
 
     caseCollection = new RimCaseCollection;

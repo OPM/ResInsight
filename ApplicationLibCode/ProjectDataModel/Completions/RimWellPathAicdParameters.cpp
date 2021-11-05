@@ -35,11 +35,11 @@ CAF_PDM_SOURCE_INIT( RimWellPathAicdParameters, "WellPathAicdParameters" );
 //--------------------------------------------------------------------------------------------------
 RimWellPathAicdParameters::RimWellPathAicdParameters()
 {
-    CAF_PDM_InitObject( "RimWellPathAicdParameters", "", "", "" );
+    CAF_PDM_InitObject( "RimWellPathAicdParameters" );
 
-    CAF_PDM_InitField( &m_deviceOpen, "DeviceOpen", true, "Device Open?", "", "", "" );
+    CAF_PDM_InitField( &m_deviceOpen, "DeviceOpen", true, "Device Open?" );
 
-    CAF_PDM_InitFieldNoDefault( &m_aicdParameterFields[AICD_STRENGTH], "StrengthAICD", "Strength of AICD", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_aicdParameterFields[AICD_STRENGTH], "StrengthAICD", "Strength of AICD" );
     CAF_PDM_InitFieldNoDefault( &m_aicdParameterFields[AICD_DENSITY_CALIB_FLUID],
                                 "DensityCalibrationFluid",
                                 "Calibration Fluid Density (kg/m^3)",

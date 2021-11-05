@@ -54,18 +54,18 @@ RimCorrelationReportPlot::RimCorrelationReportPlot()
     CAF_PDM_InitObject( "Correlation Report Plot", ":/CorrelationReportPlot16x16.png", "", "" );
     this->setDeletable( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_plotWindowTitle, "PlotWindowTitle", "Title", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_plotWindowTitle, "PlotWindowTitle", "Title" );
     m_plotWindowTitle.registerGetMethod( this, &RimCorrelationReportPlot::createPlotWindowTitle );
 
-    CAF_PDM_InitFieldNoDefault( &m_correlationMatrixPlot, "MatrixPlot", "Matrix Plot", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_correlationPlot, "CorrelationPlot", "Correlation Plot", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_parameterResultCrossPlot, "CrossPlot", "Cross Plot", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_correlationMatrixPlot, "MatrixPlot", "Matrix Plot" );
+    CAF_PDM_InitFieldNoDefault( &m_correlationPlot, "CorrelationPlot", "Correlation Plot" );
+    CAF_PDM_InitFieldNoDefault( &m_parameterResultCrossPlot, "CrossPlot", "Cross Plot" );
 
-    CAF_PDM_InitFieldNoDefault( &m_subTitleFontSize, "SubTitleFontSize", "Sub Plot Title Font Size", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_labelFontSize, "LabelFontSize", "Label Font Size", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_subTitleFontSize, "SubTitleFontSize", "Sub Plot Title Font Size" );
+    CAF_PDM_InitFieldNoDefault( &m_labelFontSize, "LabelFontSize", "Label Font Size" );
 
-    CAF_PDM_InitFieldNoDefault( &m_axisTitleFontSize, "AxisTitleFontSize", "Axis Title Font Size", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_axisValueFontSize, "AxisValueFontSize", "Axis Value Font Size", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_axisTitleFontSize, "AxisTitleFontSize", "Axis Title Font Size" );
+    CAF_PDM_InitFieldNoDefault( &m_axisValueFontSize, "AxisValueFontSize", "Axis Value Font Size" );
 
     setAsPlotMdiWindow();
 

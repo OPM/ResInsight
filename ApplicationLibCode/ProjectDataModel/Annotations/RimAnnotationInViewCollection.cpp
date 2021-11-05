@@ -80,13 +80,13 @@ RimAnnotationInViewCollection::RimAnnotationInViewCollection()
 {
     CAF_PDM_InitObject( "Annotations", ":/Annotations16x16.png", "", "" );
 
-    CAF_PDM_InitField( &m_annotationPlaneDepth, "AnnotationPlaneDepth", 0.0, "Annotation Plane Depth", "", "", "" );
-    CAF_PDM_InitField( &m_snapAnnotations, "SnapAnnotations", false, "Snap Annotations to Plane", "", "", "" );
+    CAF_PDM_InitField( &m_annotationPlaneDepth, "AnnotationPlaneDepth", 0.0, "Annotation Plane Depth" );
+    CAF_PDM_InitField( &m_snapAnnotations, "SnapAnnotations", false, "Snap Annotations to Plane" );
 
     m_annotationPlaneDepth.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
     m_annotationPlaneDepth.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosType::TOP );
 
-    CAF_PDM_InitFieldNoDefault( &m_globalTextAnnotations, "TextAnnotationsInView", "Global Text Annotations", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_globalTextAnnotations, "TextAnnotationsInView", "Global Text Annotations" );
     CAF_PDM_InitFieldNoDefault( &m_globalReachCircleAnnotations,
                                 "ReachCircleAnnotationsInView",
                                 "Global Reach Circle Annotations",
@@ -106,7 +106,7 @@ RimAnnotationInViewCollection::RimAnnotationInViewCollection()
                                 "",
                                 "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_annotationFontSize, "AnnotationFontSize", "Default Font Size", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_annotationFontSize, "AnnotationFontSize", "Default Font Size" );
 
     m_globalTextAnnotations.uiCapability()->setUiTreeHidden( true );
     m_globalReachCircleAnnotations.uiCapability()->setUiTreeHidden( true );

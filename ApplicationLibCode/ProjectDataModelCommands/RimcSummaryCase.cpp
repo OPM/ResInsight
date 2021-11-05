@@ -94,7 +94,7 @@ CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimSummaryCase, RimSummaryCase_availableAddre
 RimSummaryCase_availableAddresses::RimSummaryCase_availableAddresses( caf::PdmObjectHandle* self )
     : caf::PdmObjectMethod( self )
 {
-    CAF_PDM_InitObject( "Available Addresses", "", "", "" );
+    CAF_PDM_InitObject( "Available Addresses" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -146,7 +146,7 @@ CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimSummaryCase, RimSummaryCase_availableTimeS
 RimSummaryCase_availableTimeSteps::RimSummaryCase_availableTimeSteps( caf::PdmObjectHandle* self )
     : caf::PdmObjectMethod( self )
 {
-    CAF_PDM_InitObject( "Available TimeSteps", "", "", "" );
+    CAF_PDM_InitObject( "Available TimeSteps" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -191,7 +191,7 @@ CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimSummaryCase, RimSummaryCase_resampleValues
 RimSummaryCase_resampleValues::RimSummaryCase_resampleValues( caf::PdmObjectHandle* self )
     : caf::PdmObjectMethod( self )
 {
-    CAF_PDM_InitObject( "Resample Values", "", "", "" );
+    CAF_PDM_InitObject( "Resample Values" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_addressString, "Address", "", "", "", "Formatted address specifying the summary vector" );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_resamplingPeriod, "ResamplingPeriod", "", "", "", "Resampling Period" );

@@ -95,74 +95,74 @@ RimAnalysisPlot::RimAnalysisPlot()
 
     // Variable selection
 
-    CAF_PDM_InitFieldNoDefault( &m_selectedVarsUiField, "selectedVarsUiField", "Selected Vectors", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_selectedVarsUiField, "selectedVarsUiField", "Selected Vectors" );
     m_selectedVarsUiField.xmlCapability()->disableIO();
     m_selectedVarsUiField.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
     m_selectedVarsUiField.uiCapability()->setUiReadOnly( true );
 
-    CAF_PDM_InitField( &m_selectVariablesButtonField, "BrowseButton", false, "...", "", "", "" );
+    CAF_PDM_InitField( &m_selectVariablesButtonField, "BrowseButton", false, "..." );
     caf::PdmUiActionPushButtonEditor::configureEditorForField( &m_selectVariablesButtonField );
 
-    CAF_PDM_InitFieldNoDefault( &m_analysisPlotDataSelection, "AnalysisPlotData", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_analysisPlotDataSelection, "AnalysisPlotData", "" );
     m_analysisPlotDataSelection.uiCapability()->setUiTreeChildrenHidden( true );
     m_analysisPlotDataSelection.uiCapability()->setUiTreeHidden( true );
 
     // Time Step Selection
-    CAF_PDM_InitFieldNoDefault( &m_timeStepFilter, "TimeStepFilter", "Available Time Steps", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_selectedTimeSteps, "TimeSteps", "Select Time Steps", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_timeStepFilter, "TimeStepFilter", "Available Time Steps" );
+    CAF_PDM_InitFieldNoDefault( &m_selectedTimeSteps, "TimeSteps", "Select Time Steps" );
     m_selectedTimeSteps.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
     m_selectedTimeSteps.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
 
     // Options
 
-    CAF_PDM_InitFieldNoDefault( &m_referenceCase, "ReferenceCase", "Reference Case", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_referenceCase, "ReferenceCase", "Reference Case" );
 
-    CAF_PDM_InitField( &m_useAutoPlotTitle, "IsUsingAutoName", true, "Auto", "", "", "" );
+    CAF_PDM_InitField( &m_useAutoPlotTitle, "IsUsingAutoName", true, "Auto" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_useAutoPlotTitle );
 
-    CAF_PDM_InitField( &m_description, "PlotDescription", QString( "Analysis Plot" ), "Title", "", "", "" );
+    CAF_PDM_InitField( &m_description, "PlotDescription", QString( "Analysis Plot" ), "Title" );
     m_description.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 
-    CAF_PDM_InitFieldNoDefault( &m_barOrientation, "BarOrientation", "Bar Orientation", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_barOrientation, "BarOrientation", "Bar Orientation" );
 
     // Grouping
 
-    CAF_PDM_InitFieldNoDefault( &m_majorGroupType, "MajorGroupType", "Major Grouping", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_mediumGroupType, "MediumGroupType", "Medium Grouping", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_minorGroupType, "MinorGroupType", "Minor Grouping", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_majorGroupType, "MajorGroupType", "Major Grouping" );
+    CAF_PDM_InitFieldNoDefault( &m_mediumGroupType, "MediumGroupType", "Medium Grouping" );
+    CAF_PDM_InitFieldNoDefault( &m_minorGroupType, "MinorGroupType", "Minor Grouping" );
 
-    CAF_PDM_InitFieldNoDefault( &m_valueSortOperation, "ValueSortOperation", "Sort by Value", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_valueSortOperation, "ValueSortOperation", "Sort by Value" );
 
-    CAF_PDM_InitFieldNoDefault( &m_sortGroupForColors, "groupForColors", "Coloring Using", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_sortGroupForColors, "groupForColors", "Coloring Using" );
     m_sortGroupForColors = RimAnalysisPlot::CASE;
     m_showPlotLegends    = false;
 
-    CAF_PDM_InitField( &m_useTopBarsFilter, "UseTopBarsFilter", false, "Show Only Top", "", "", "" );
+    CAF_PDM_InitField( &m_useTopBarsFilter, "UseTopBarsFilter", false, "Show Only Top" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_useTopBarsFilter );
 
-    CAF_PDM_InitField( &m_maxBarCount, "MaxBarCount", 20, "Bar Count", "", "", "" );
+    CAF_PDM_InitField( &m_maxBarCount, "MaxBarCount", 20, "Bar Count" );
     m_maxBarCount.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 
     // Bar text
 
-    CAF_PDM_InitField( &m_useBarText, "UseBarText", true, "Activate Bar Labels", "", "", "" );
+    CAF_PDM_InitField( &m_useBarText, "UseBarText", true, "Activate Bar Labels" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_useBarText );
 
-    CAF_PDM_InitField( &m_useCaseInBarText, "UseCaseInBarText", true, "Case Name", "", "", "" );
-    CAF_PDM_InitField( &m_useEnsembleInBarText, "UseEnsembleInBarText", false, "Ensemble", "", "", "" );
-    CAF_PDM_InitField( &m_useSummaryItemInBarText, "UseSummaryItemInBarText", false, "Summary Item", "", "", "" );
-    CAF_PDM_InitField( &m_useTimeStepInBarText, "UseTimeStepInBarText", false, "Time Step", "", "", "" );
-    CAF_PDM_InitField( &m_useQuantityInBarText, "UseQuantityInBarText", false, "Quantity", "", "", "" );
+    CAF_PDM_InitField( &m_useCaseInBarText, "UseCaseInBarText", true, "Case Name" );
+    CAF_PDM_InitField( &m_useEnsembleInBarText, "UseEnsembleInBarText", false, "Ensemble" );
+    CAF_PDM_InitField( &m_useSummaryItemInBarText, "UseSummaryItemInBarText", false, "Summary Item" );
+    CAF_PDM_InitField( &m_useTimeStepInBarText, "UseTimeStepInBarText", false, "Time Step" );
+    CAF_PDM_InitField( &m_useQuantityInBarText, "UseQuantityInBarText", false, "Quantity" );
 
-    CAF_PDM_InitFieldNoDefault( &m_barTextFontSize, "BarTextFontSize", "Font Size", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_barTextFontSize, "BarTextFontSize", "Font Size" );
 
-    CAF_PDM_InitFieldNoDefault( &m_valueAxisProperties, "ValueAxisProperties", "ValueAxisProperties", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_valueAxisProperties, "ValueAxisProperties", "ValueAxisProperties" );
     m_valueAxisProperties.uiCapability()->setUiTreeHidden( true );
     m_valueAxisProperties = new RimPlotAxisProperties;
     m_valueAxisProperties->setNameAndAxis( "Value-Axis", QwtPlot::yLeft );
     m_valueAxisProperties->enableRangeSettings( false );
 
-    CAF_PDM_InitFieldNoDefault( &m_plotDataFilterCollection, "PlotDataFilterCollection", "PlotDataFilterCollection", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_plotDataFilterCollection, "PlotDataFilterCollection", "PlotDataFilterCollection" );
     m_plotDataFilterCollection.uiCapability()->setUiTreeHidden( true );
     m_plotDataFilterCollection = new RimPlotDataFilterCollection;
 

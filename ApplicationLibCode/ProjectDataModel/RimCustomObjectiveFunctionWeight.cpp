@@ -42,14 +42,14 @@ RimCustomObjectiveFunctionWeight::RimCustomObjectiveFunctionWeight()
 {
     CAF_PDM_InitObject( "Custom Objective Function Weight", ":/ObjectiveFunctionWeight.svg", "", "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_title, "WeightTitle", "Title", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_title, "WeightTitle", "Title" );
     m_title.registerGetMethod( this, &RimCustomObjectiveFunctionWeight::title );
 
-    CAF_PDM_InitFieldNoDefault( &m_objectiveValuesSummaryAddressesUiField, "SelectedObjectiveSummaryVar", "Vector", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_objectiveValuesSummaryAddressesUiField, "SelectedObjectiveSummaryVar", "Vector" );
     m_objectiveValuesSummaryAddressesUiField.xmlCapability()->disableIO();
     m_objectiveValuesSummaryAddressesUiField.uiCapability()->setUiEditorTypeName( caf::PdmUiLineEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitFieldNoDefault( &m_objectiveValuesSummaryAddresses, "ObjectiveSummaryAddress", "Summary Address", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_objectiveValuesSummaryAddresses, "ObjectiveSummaryAddress", "Summary Address" );
     m_objectiveValuesSummaryAddresses.uiCapability()->setUiTreeHidden( true );
     m_objectiveValuesSummaryAddresses.uiCapability()->setUiTreeChildrenHidden( true );
 
@@ -63,10 +63,10 @@ RimCustomObjectiveFunctionWeight::RimCustomObjectiveFunctionWeight()
     m_objectiveValuesSelectSummaryAddressPushButton.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
     m_objectiveValuesSelectSummaryAddressPushButton = false;
 
-    CAF_PDM_InitField( &m_weightValue, "WeightValue", 1.0, "Weight", "", "", "" );
+    CAF_PDM_InitField( &m_weightValue, "WeightValue", 1.0, "Weight" );
     m_weightValue.uiCapability()->setUiEditorTypeName( caf::PdmUiLineEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitFieldNoDefault( &m_objectiveFunction, "ObjectiveFunction", "Objective Function", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_objectiveFunction, "ObjectiveFunction", "Objective Function" );
     m_objectiveFunction.uiCapability()->setUiEditorTypeName( caf::PdmUiListEditor::uiEditorTypeName() );
 
     setDeletable( true );

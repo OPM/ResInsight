@@ -55,14 +55,14 @@ RimCommandObject::~RimCommandObject()
 //--------------------------------------------------------------------------------------------------
 RimCommandExecuteScript::RimCommandExecuteScript()
 {
-    CAF_PDM_InitFieldNoDefault( &name, "Name", "Name", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &name, "Name", "Name" );
 
-    CAF_PDM_InitField( &scriptText, "ScriptText", QString(), "Script Text", "", "", "" );
+    CAF_PDM_InitField( &scriptText, "ScriptText", QString(), "Script Text" );
     scriptText.uiCapability()->setUiEditorTypeName( caf::PdmUiTextEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitField( &isEnabled, "IsEnabled", true, "Enabled ", "", "", "" );
+    CAF_PDM_InitField( &isEnabled, "IsEnabled", true, "Enabled " );
 
-    CAF_PDM_InitField( &execute, "Execute", true, "Execute", "", "", "" );
+    CAF_PDM_InitField( &execute, "Execute", true, "Execute" );
     execute.xmlCapability()->disableIO();
     execute.uiCapability()->setUiEditorTypeName( caf::PdmUiPushButtonEditor::uiEditorTypeName() );
     execute.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
@@ -193,11 +193,11 @@ void RimCommandFactory::createCommandObjects( const caf::PdmObjectGroup&      se
 //--------------------------------------------------------------------------------------------------
 RimCommandIssueFieldChanged::RimCommandIssueFieldChanged()
 {
-    CAF_PDM_InitFieldNoDefault( &commandName, "CommandName", "CommandName", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &commandName, "CommandName", "CommandName" );
 
-    CAF_PDM_InitField( &objectName, "ObjectName", QString(), "ObjectName", "", "", "" );
-    CAF_PDM_InitField( &fieldName, "FieldName", QString(), "FieldName", "", "", "" );
-    CAF_PDM_InitField( &fieldValueToApply, "FieldValueToApply", QString(), "FieldValueToApply", "", "", "" );
+    CAF_PDM_InitField( &objectName, "ObjectName", QString(), "ObjectName" );
+    CAF_PDM_InitField( &fieldName, "FieldName", QString(), "FieldName" );
+    CAF_PDM_InitField( &fieldValueToApply, "FieldValueToApply", QString(), "FieldValueToApply" );
 }
 
 //--------------------------------------------------------------------------------------------------

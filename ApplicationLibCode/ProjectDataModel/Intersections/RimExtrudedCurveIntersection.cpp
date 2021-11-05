@@ -193,25 +193,25 @@ void RimExtrudedCurveIntersection::configureForAzimuthLine()
 RimExtrudedCurveIntersection::RimExtrudedCurveIntersection()
 {
     CAF_PDM_InitObject( "Intersection", ":/CrossSection16x16.png", "", "" );
-    CAF_PDM_InitField( &m_name, "UserDescription", QString( "Intersection Name" ), "Name", "", "", "" );
+    CAF_PDM_InitField( &m_name, "UserDescription", QString( "Intersection Name" ), "Name" );
 
-    CAF_PDM_InitFieldNoDefault( &m_type, "Type", "Type", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_direction, "Direction", "Direction", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_wellPath, "WellPath", "Well Path        ", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_simulationWell, "SimulationWell", "Simulation Well", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_type, "Type", "Type" );
+    CAF_PDM_InitFieldNoDefault( &m_direction, "Direction", "Direction" );
+    CAF_PDM_InitFieldNoDefault( &m_wellPath, "WellPath", "Well Path        " );
+    CAF_PDM_InitFieldNoDefault( &m_simulationWell, "SimulationWell", "Simulation Well" );
     CAF_PDM_InitFieldNoDefault( &m_userPolylineXyz, "Points", "Points", "", "Use Ctrl-C for copy and Ctrl-V for paste", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_userPolylineXydForUi, "PointsUi", "Points", "", "Use Ctrl-C for copy and Ctrl-V for paste", "" );
     m_userPolylineXydForUi.registerSetMethod( this, &RimExtrudedCurveIntersection::setPointsFromXYD );
     m_userPolylineXydForUi.registerGetMethod( this, &RimExtrudedCurveIntersection::pointsXYD );
 
-    CAF_PDM_InitField( &m_azimuthAngle, "AzimuthAngle", 0.0, "Azimuth", "", "", "" );
+    CAF_PDM_InitField( &m_azimuthAngle, "AzimuthAngle", 0.0, "Azimuth" );
     m_azimuthAngle.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitField( &m_dipAngle, "DipAngle", 90.0, "Dip", "", "", "" );
+    CAF_PDM_InitField( &m_dipAngle, "DipAngle", 90.0, "Dip" );
     m_dipAngle.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitFieldNoDefault( &m_customExtrusionPoints, "CustomExtrusionPoints", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_customExtrusionPoints, "CustomExtrusionPoints", "" );
     CAF_PDM_InitFieldNoDefault( &m_twoAzimuthPoints,
                                 "TwoAzimuthPoints",
                                 "Points",
@@ -219,12 +219,12 @@ RimExtrudedCurveIntersection::RimExtrudedCurveIntersection()
                                 "Pick two points to define a line.\nUse Ctrl-C for copy and Ctrl-V for paste",
                                 "" );
 
-    CAF_PDM_InitField( &m_branchIndex, "Branch", -1, "Branch", "", "", "" );
-    CAF_PDM_InitField( &m_extentLength, "ExtentLength", 200.0, "Extent Length", "", "", "" );
-    CAF_PDM_InitField( &m_lengthUp, "lengthUp", 1000.0, "Length Up", "", "", "" );
-    CAF_PDM_InitField( &m_lengthDown, "lengthDown", 1000.0, "Length Down", "", "", "" );
+    CAF_PDM_InitField( &m_branchIndex, "Branch", -1, "Branch" );
+    CAF_PDM_InitField( &m_extentLength, "ExtentLength", 200.0, "Extent Length" );
+    CAF_PDM_InitField( &m_lengthUp, "lengthUp", 1000.0, "Length Up" );
+    CAF_PDM_InitField( &m_lengthDown, "lengthDown", 1000.0, "Length Down" );
 
-    CAF_PDM_InitFieldNoDefault( &m_inputPolylineFromViewerEnabled, "m_activateUiAppendPointsCommand", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_inputPolylineFromViewerEnabled, "m_activateUiAppendPointsCommand", "" );
     caf::PdmUiPushButtonEditor::configureEditorForField( &m_inputPolylineFromViewerEnabled );
     m_inputPolylineFromViewerEnabled = false;
 
@@ -246,7 +246,7 @@ RimExtrudedCurveIntersection::RimExtrudedCurveIntersection()
     caf::PdmUiPushButtonEditor::configureEditorForField( &m_inputTwoAzimuthPointsFromViewerEnabled );
     m_inputTwoAzimuthPointsFromViewerEnabled = false;
 
-    CAF_PDM_InitFieldNoDefault( &m_surfaceIntersections, "SurfaceIntersections", "Surface Intersections", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_surfaceIntersections, "SurfaceIntersections", "Surface Intersections" );
     m_surfaceIntersections = new RimSurfaceIntersectionCollection;
     m_surfaceIntersections->objectChanged.connect( this, &RimExtrudedCurveIntersection::onSurfaceIntersectionsChanged );
 

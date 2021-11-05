@@ -37,13 +37,13 @@ RimScriptCollection::RimScriptCollection()
 {
     CAF_PDM_InitObject( "ScriptLocation", ":/Folder.png", "", "" );
 
-    CAF_PDM_InitFieldNoDefault( &directory, "ScriptDirectory", "Folder", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &calcScripts, "CalcScripts", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &directory, "ScriptDirectory", "Folder" );
+    CAF_PDM_InitFieldNoDefault( &calcScripts, "CalcScripts", "" );
     calcScripts.uiCapability()->setUiTreeHidden( true );
-    CAF_PDM_InitFieldNoDefault( &subDirectories, "SubDirectories", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &subDirectories, "SubDirectories", "" );
     subDirectories.uiCapability()->setUiTreeHidden( true );
 
-    CAF_PDM_InitField( &m_searchSubFolders, "SearchSubFolders", false, "Add Subfolders", "", "", "" );
+    CAF_PDM_InitField( &m_searchSubFolders, "SearchSubFolders", false, "Add Subfolders" );
 
     directory.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
 }

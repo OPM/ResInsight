@@ -50,39 +50,39 @@ RimWellMeasurementInView::RimWellMeasurementInView()
 {
     CAF_PDM_InitObject( "Well Measurement", ":/WellMeasurement16x16.png", "", "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_measurementKind, "MeasurementKind", "Measurement Kind", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_measurementKind, "MeasurementKind", "Measurement Kind" );
     m_measurementKind.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_legendConfig, "LegendDefinition", "Color Legend", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_legendConfig, "LegendDefinition", "Color Legend" );
     m_legendConfig = new RimRegularLegendConfig();
     m_legendConfig.uiCapability()->setUiTreeHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_wells, "Wells", "Wells", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_wells, "Wells", "Wells" );
     m_wells.uiCapability()->setAutoAddingOptionFromValue( false );
     m_wells.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
     m_wells.xmlCapability()->disableIO();
 
     // The m_wells field does not serialize in a suitable format, so we work around it by
     // serializing to a pipe-delimited string.
-    CAF_PDM_InitFieldNoDefault( &m_wellsSerialized, "WellsSerialized", "WellsSerialized", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_wellsSerialized, "WellsSerialized", "WellsSerialized" );
     m_wellsSerialized.uiCapability()->setUiHidden( true );
 
     // Keep track of the wells which has a given measurement in order to automatically select
     // new wells when they appear in new measurements
-    CAF_PDM_InitFieldNoDefault( &m_availableWellsSerialized, "AvailableWellsSerialized", "AvailableWellsSerialized", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_availableWellsSerialized, "AvailableWellsSerialized", "AvailableWellsSerialized" );
     // m_availableWellsSerialized.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitField( &m_lowerBound, "LowerBound", -HUGE_VAL, "Min", "", "", "" );
+    CAF_PDM_InitField( &m_lowerBound, "LowerBound", -HUGE_VAL, "Min" );
     m_lowerBound.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitField( &m_upperBound, "UpperBound", HUGE_VAL, "Max", "", "", "" );
+    CAF_PDM_InitField( &m_upperBound, "UpperBound", HUGE_VAL, "Max" );
     m_upperBound.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitFieldNoDefault( &m_qualityFilter, "QualityFilter", "Quality Filter", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_qualityFilter, "QualityFilter", "Quality Filter" );
     m_qualityFilter.uiCapability()->setAutoAddingOptionFromValue( false );
     m_qualityFilter.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitField( &m_radiusScaleFactor, "RadiusScaleFactor", 2.5, "Radius Scale", "", "", "" );
+    CAF_PDM_InitField( &m_radiusScaleFactor, "RadiusScaleFactor", 2.5, "Radius Scale" );
     m_radiusScaleFactor.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
 
     this->setName( "Well Measurement" );

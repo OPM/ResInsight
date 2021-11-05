@@ -86,29 +86,29 @@ RimGridCrossPlotDataSet::RimGridCrossPlotDataSet()
 {
     CAF_PDM_InitObject( "Cross Plot Data Set", ":/WellLogCurve16x16.png", "", "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_case, "Case", "Case", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_case, "Case", "Case" );
     m_case.uiCapability()->setUiTreeChildrenHidden( true );
-    CAF_PDM_InitField( &m_timeStep, "TimeStep", -1, "Time Step", "", "", "" );
+    CAF_PDM_InitField( &m_timeStep, "TimeStep", -1, "Time Step" );
     m_timeStep.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitFieldNoDefault( &m_cellFilterView, "VisibleCellView", "Filter by 3d View Visibility", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_cellFilterView, "VisibleCellView", "Filter by 3d View Visibility" );
 
-    CAF_PDM_InitFieldNoDefault( &m_grouping, "Grouping", "Group Data by", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_grouping, "Grouping", "Group Data by" );
 
-    CAF_PDM_InitFieldNoDefault( &m_xAxisProperty, "XAxisProperty", "X-Axis Property", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_xAxisProperty, "XAxisProperty", "X-Axis Property" );
     m_xAxisProperty = new RimEclipseResultDefinition( caf::PdmUiItemInfo::TOP );
     m_xAxisProperty.uiCapability()->setUiTreeHidden( true );
     m_xAxisProperty.uiCapability()->setUiTreeChildrenHidden( true );
     m_xAxisProperty->setTernaryEnabled( false );
 
-    CAF_PDM_InitFieldNoDefault( &m_yAxisProperty, "YAxisProperty", "Y-Axis Property", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_yAxisProperty, "YAxisProperty", "Y-Axis Property" );
     m_yAxisProperty = new RimEclipseResultDefinition( caf::PdmUiItemInfo::TOP );
     m_yAxisProperty.uiCapability()->setUiTreeHidden( true );
     m_yAxisProperty.uiCapability()->setUiTreeChildrenHidden( true );
 
     m_yAxisProperty->setTernaryEnabled( false );
 
-    CAF_PDM_InitFieldNoDefault( &m_groupingProperty, "GroupingProperty", "Data Grouping Property", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_groupingProperty, "GroupingProperty", "Data Grouping Property" );
     m_groupingProperty = new RimEclipseCellColors;
     m_groupingProperty->useDiscreteLogLevels( true );
     m_groupingProperty.uiCapability()->setUiTreeHidden( true );
@@ -116,18 +116,18 @@ RimGridCrossPlotDataSet::RimGridCrossPlotDataSet()
     m_groupingProperty->legendConfig()->setMappingMode( RimRegularLegendConfig::MappingType::CATEGORY_INTEGER );
     m_groupingProperty->setTernaryEnabled( false );
 
-    CAF_PDM_InitFieldNoDefault( &m_nameConfig, "NameConfig", "Name", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_nameConfig, "NameConfig", "Name" );
     m_nameConfig = new RimGridCrossPlotDataSetNameConfig();
     m_nameConfig.uiCapability()->setUiTreeHidden( true );
     m_nameConfig.uiCapability()->setUiTreeChildrenHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_crossPlotCurves, "CrossPlotCurves", "Curves", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_crossPlotCurves, "CrossPlotCurves", "Curves" );
     m_crossPlotCurves.uiCapability()->setUiTreeHidden( true );
 
-    CAF_PDM_InitField( &m_useCustomColor, "UseCustomColor", false, "Use Custom Color", "", "", "" );
-    CAF_PDM_InitField( &m_customColor, "CustomColor", cvf::Color3f( cvf::Color3f::BLACK ), "Custom Color", "", "", "" );
+    CAF_PDM_InitField( &m_useCustomColor, "UseCustomColor", false, "Use Custom Color" );
+    CAF_PDM_InitField( &m_customColor, "CustomColor", cvf::Color3f( cvf::Color3f::BLACK ), "Custom Color" );
 
-    CAF_PDM_InitFieldNoDefault( &m_plotCellFilterCollection, "PlotCellFilterCollection", "Cell Filters", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_plotCellFilterCollection, "PlotCellFilterCollection", "Cell Filters" );
     m_plotCellFilterCollection.uiCapability()->setUiTreeHidden( true );
     m_plotCellFilterCollection.uiCapability()->setUiTreeChildrenHidden( true );
     m_plotCellFilterCollection = new RimPlotCellFilterCollection;
@@ -1422,12 +1422,12 @@ CAF_PDM_SOURCE_INIT( RimGridCrossPlotDataSetNameConfig, "RimGridCrossPlotCurveSe
 RimGridCrossPlotDataSetNameConfig::RimGridCrossPlotDataSetNameConfig()
     : RimNameConfig( "" )
 {
-    CAF_PDM_InitObject( "Cross Plot Data Set NameGenerator", "", "", "" );
+    CAF_PDM_InitObject( "Cross Plot Data Set NameGenerator" );
 
-    CAF_PDM_InitField( &addCaseName, "AddCaseName", true, "Add Case Name", "", "", "" );
-    CAF_PDM_InitField( &addAxisVariables, "AddAxisVariables", true, "Add Axis Variables", "", "", "" );
-    CAF_PDM_InitField( &addTimestep, "AddTimeStep", true, "Add Time Step", "", "", "" );
-    CAF_PDM_InitField( &addGrouping, "AddGrouping", true, "Add Data Group", "", "", "" );
+    CAF_PDM_InitField( &addCaseName, "AddCaseName", true, "Add Case Name" );
+    CAF_PDM_InitField( &addAxisVariables, "AddAxisVariables", true, "Add Axis Variables" );
+    CAF_PDM_InitField( &addTimestep, "AddTimeStep", true, "Add Time Step" );
+    CAF_PDM_InitField( &addGrouping, "AddGrouping", true, "Add Data Group" );
 }
 
 //--------------------------------------------------------------------------------------------------

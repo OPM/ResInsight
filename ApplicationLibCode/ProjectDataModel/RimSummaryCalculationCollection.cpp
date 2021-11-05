@@ -33,10 +33,10 @@ RimSummaryCalculationCollection::RimSummaryCalculationCollection()
 {
     CAF_PDM_InitObject( "Calculation Collection", ":/chain.png", "", "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_calculations, "Calculations", "Calculations", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_calculations, "Calculations", "Calculations" );
     m_calculations.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitFieldNoDefault( &m_calcuationSummaryCase, "CalculationsSummaryCase", "Calculations Summary Case", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_calcuationSummaryCase, "CalculationsSummaryCase", "Calculations Summary Case" );
     m_calcuationSummaryCase.xmlCapability()->disableIO();
     m_calcuationSummaryCase = new RimCalculatedSummaryCase;
 }

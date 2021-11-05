@@ -39,14 +39,14 @@ RimEnsembleCurveFilterCollection::RimEnsembleCurveFilterCollection()
 {
     CAF_PDM_InitObject( "Curve Filters", ":/FilterCollection.svg", "", "" );
 
-    CAF_PDM_InitField( &m_active, "Active", true, "Active", "", "", "" );
+    CAF_PDM_InitField( &m_active, "Active", true, "Active" );
 
-    CAF_PDM_InitFieldNoDefault( &m_filters, "CurveFilters", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_filters, "CurveFilters", "" );
     m_filters.uiCapability()->setUiTreeChildrenHidden( true );
     // m_filters.uiCapability()->setUiEditorTypeName(caf::PdmUiTableViewEditor::uiEditorTypeName());
     m_filters.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 
-    CAF_PDM_InitFieldNoDefault( &m_newFilterButton, "NewEnsembleFilter", "New Filter", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_newFilterButton, "NewEnsembleFilter", "New Filter" );
     m_newFilterButton = false;
     m_newFilterButton.uiCapability()->setUiEditorTypeName( caf::PdmUiPushButtonEditor::uiEditorTypeName() );
     m_newFilterButton.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );

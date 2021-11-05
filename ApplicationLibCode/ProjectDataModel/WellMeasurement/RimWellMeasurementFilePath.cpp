@@ -31,8 +31,8 @@ RimWellMeasurementFilePath::RimWellMeasurementFilePath()
 {
     CAF_PDM_InitObject( "RimWellMeasurementFilePath", ":/WellMeasurement16x16.png", "", "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_userDescription, "UserDecription", "Name", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_filePath, "FilePath", "File Path", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_userDescription, "UserDecription", "Name" );
+    CAF_PDM_InitFieldNoDefault( &m_filePath, "FilePath", "File Path" );
     m_filePath.uiCapability()->setUiReadOnly( true );
     m_filePath.uiCapability()->setUiEditorTypeName( caf::PdmUiLineEditor::uiEditorTypeName() );
 }

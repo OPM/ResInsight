@@ -34,11 +34,11 @@ CAF_PDM_SOURCE_INIT( RicHoloLensExportToFolderUi, "RicHoloLensExportToFolderUi" 
 //--------------------------------------------------------------------------------------------------
 RicHoloLensExportToFolderUi::RicHoloLensExportToFolderUi()
 {
-    CAF_PDM_InitObject( "Resample LAS curves for export", "", "", "" );
+    CAF_PDM_InitObject( "Resample LAS curves for export" );
 
-    CAF_PDM_InitFieldNoDefault( &m_viewForExport, "ViewForExport", "View", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_viewForExport, "ViewForExport", "View" );
 
-    CAF_PDM_InitField( &m_exportFolder, "ExportFolder", QString(), "Export Folder", "", "", "" );
+    CAF_PDM_InitField( &m_exportFolder, "ExportFolder", QString(), "Export Folder" );
     m_exportFolder.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
 }
 

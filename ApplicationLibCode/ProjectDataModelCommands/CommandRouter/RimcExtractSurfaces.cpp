@@ -43,12 +43,12 @@ RimcCommandRouter_extractSurfaces::RimcCommandRouter_extractSurfaces( caf::PdmOb
 {
     CAF_PDM_InitObject( "Extract Layer Surface", "", "", "Extract Layer Surface" );
 
-    CAF_PDM_InitScriptableField( &m_gridModelFilename, "GridModelFilename", QString(), "Grid Model Case Filename", "", "", "" );
-    CAF_PDM_InitScriptableField( &m_layers, "Layers", std::vector<int>(), "Layers", "", "", "" );
-    CAF_PDM_InitScriptableField( &m_minimumI, "MinimumI", -1, "Minimum I", "", "", "" );
-    CAF_PDM_InitScriptableField( &m_maximumI, "MaximumI", -1, "Maximum I", "", "", "" );
-    CAF_PDM_InitScriptableField( &m_minimumJ, "MinimumJ", -1, "Minimum J", "", "", "" );
-    CAF_PDM_InitScriptableField( &m_maximumJ, "MaximumJ", -1, "Maximum J", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_gridModelFilename, "GridModelFilename", QString(), "Grid Model Case Filename" );
+    CAF_PDM_InitScriptableField( &m_layers, "Layers", std::vector<int>(), "Layers" );
+    CAF_PDM_InitScriptableField( &m_minimumI, "MinimumI", -1, "Minimum I" );
+    CAF_PDM_InitScriptableField( &m_maximumI, "MaximumI", -1, "Maximum I" );
+    CAF_PDM_InitScriptableField( &m_minimumJ, "MinimumJ", -1, "Minimum J" );
+    CAF_PDM_InitScriptableField( &m_maximumJ, "MaximumJ", -1, "Maximum J" );
 }
 
 //--------------------------------------------------------------------------------------------------

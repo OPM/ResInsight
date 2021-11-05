@@ -53,40 +53,40 @@ RimAbstractCorrelationPlot::RimAbstractCorrelationPlot()
     CAF_PDM_InitObject( "Abstract Correlation Plot", ":/CorrelationPlot16x16.png", "", "" );
     this->setDeletable( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_selectedVarsUiField, "SelectedVariableDisplayVar", "Vector", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_selectedVarsUiField, "SelectedVariableDisplayVar", "Vector" );
     m_selectedVarsUiField.xmlCapability()->disableIO();
     m_selectedVarsUiField.uiCapability()->setUiReadOnly( true );
     m_selectedVarsUiField.uiCapability()->setUiEditorTypeName( caf::PdmUiLineEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitFieldNoDefault( &m_dataSources, "AnalysisPlotData", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_dataSources, "AnalysisPlotData", "" );
     m_dataSources.uiCapability()->setUiTreeChildrenHidden( true );
     m_dataSources.uiCapability()->setUiTreeHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_pushButtonSelectSummaryAddress, "SelectAddress", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_pushButtonSelectSummaryAddress, "SelectAddress", "" );
     caf::PdmUiPushButtonEditor::configureEditorForField( &m_pushButtonSelectSummaryAddress );
     m_pushButtonSelectSummaryAddress.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
     m_pushButtonSelectSummaryAddress = false;
 
-    CAF_PDM_InitFieldNoDefault( &m_timeStepFilter, "TimeStepFilter", "Available Time Steps", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_timeStepFilter, "TimeStepFilter", "Available Time Steps" );
 
-    CAF_PDM_InitFieldNoDefault( &m_timeStep, "TimeStep", "Time Step", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_timeStep, "TimeStep", "Time Step" );
     m_timeStep.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitField( &m_useAutoPlotTitle, "AutoTitle", true, "Automatic Plot Title", "", "", "" );
-    CAF_PDM_InitField( &m_description, "PlotTitle", QString( "Correlation Plot" ), "Custom Plot Title", "", "", "" );
+    CAF_PDM_InitField( &m_useAutoPlotTitle, "AutoTitle", true, "Automatic Plot Title" );
+    CAF_PDM_InitField( &m_description, "PlotTitle", QString( "Correlation Plot" ), "Custom Plot Title" );
 
-    CAF_PDM_InitFieldNoDefault( &m_labelFontSize, "LabelFontSize", "Label Font Size", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_labelFontSize, "LabelFontSize", "Label Font Size" );
     m_labelFontSize = caf::FontTools::RelativeSize::XSmall;
 
-    CAF_PDM_InitFieldNoDefault( &m_axisTitleFontSize, "AxisTitleFontSize", "Axis Title Font Size", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_axisValueFontSize, "AxisValueFontSize", "Axis Value Font Size", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_axisTitleFontSize, "AxisTitleFontSize", "Axis Title Font Size" );
+    CAF_PDM_InitFieldNoDefault( &m_axisValueFontSize, "AxisValueFontSize", "Axis Value Font Size" );
     m_axisValueFontSize = caf::FontTools::RelativeSize::XSmall;
 
     m_legendFontSize = caf::FontTools::RelativeSize::XSmall;
 
-    CAF_PDM_InitField( &m_useCaseFilter, "UseCaseFilter", false, "Use Ensemble Filter", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_curveSetForFiltering, "CurveSetForFiltering", "  Ensemble Filter", "", "", "" );
-    CAF_PDM_InitField( &m_editCaseFilter, "EditCaseFilter", false, "Edit", "", "", "" );
+    CAF_PDM_InitField( &m_useCaseFilter, "UseCaseFilter", false, "Use Ensemble Filter" );
+    CAF_PDM_InitFieldNoDefault( &m_curveSetForFiltering, "CurveSetForFiltering", "  Ensemble Filter" );
+    CAF_PDM_InitField( &m_editCaseFilter, "EditCaseFilter", false, "Edit" );
     m_editCaseFilter.uiCapability()->setUiEditorTypeName( caf::PdmUiToolButtonEditor::uiEditorTypeName() );
     m_editCaseFilter.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 }

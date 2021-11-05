@@ -31,8 +31,8 @@ CAF_PDM_SOURCE_INIT( RimPolylineTarget, "PolylineTarget" );
 RimPolylineTarget::RimPolylineTarget()
     : m_isFullUpdateEnabled( true )
 {
-    CAF_PDM_InitField( &m_isEnabled, "IsEnabled", true, "", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_targetPointXyd, "TargetPointXyd", "Point", "", "", "" );
+    CAF_PDM_InitField( &m_isEnabled, "IsEnabled", true, "" );
+    CAF_PDM_InitFieldNoDefault( &m_targetPointXyd, "TargetPointXyd", "Point" );
 }
 
 //--------------------------------------------------------------------------------------------------

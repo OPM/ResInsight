@@ -44,10 +44,10 @@ RimAsciiDataCurve::RimAsciiDataCurve()
 {
     CAF_PDM_InitObject( "ASCII Data Curve", ":/SummaryCurve16x16.png", "", "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_plotAxis, "PlotAxis", "Axis", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_timeSteps, "TimeSteps", "Time Steps", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_values, "Values", "Values", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_title, "Title", "Title", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_plotAxis, "PlotAxis", "Axis" );
+    CAF_PDM_InitFieldNoDefault( &m_timeSteps, "TimeSteps", "Time Steps" );
+    CAF_PDM_InitFieldNoDefault( &m_values, "Values", "Values" );
+    CAF_PDM_InitFieldNoDefault( &m_title, "Title", "Title" );
 
     setSymbolSkipDistance( 10.0f );
     setLineThickness( 2 );

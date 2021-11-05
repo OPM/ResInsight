@@ -94,25 +94,25 @@ Rim3dView::Rim3dView()
     RiaPreferences* preferences = RiaPreferences::current();
     CVF_ASSERT( preferences );
 
-    CAF_PDM_InitObject( "3d View", "", "", "" );
+    CAF_PDM_InitObject( "3d View" );
 
-    CAF_PDM_InitScriptableField( &m_id, "Id", -1, "View ID", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_id, "Id", -1, "View ID" );
     m_id.registerKeywordAlias( "ViewId" );
     m_id.uiCapability()->setUiReadOnly( true );
     m_id.uiCapability()->setUiHidden( true );
     m_id.capability<caf::PdmAbstractFieldScriptingCapability>()->setIOWriteable( false );
     m_id.xmlCapability()->setCopyable( false );
 
-    CAF_PDM_InitFieldNoDefault( &m_nameConfig, "NameConfig", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_nameConfig, "NameConfig", "" );
     m_nameConfig = new RimViewNameConfig();
 
-    CAF_PDM_InitField( &m_cameraPosition, "CameraPosition", cvf::Mat4d::IDENTITY, "", "", "", "" );
+    CAF_PDM_InitField( &m_cameraPosition, "CameraPosition", cvf::Mat4d::IDENTITY, "" );
     m_cameraPosition.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitField( &m_cameraPointOfInterest, "CameraPointOfInterest", cvf::Vec3d::ZERO, "", "", "", "" );
+    CAF_PDM_InitField( &m_cameraPointOfInterest, "CameraPointOfInterest", cvf::Vec3d::ZERO, "" );
     m_cameraPointOfInterest.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitScriptableField( &isPerspectiveView, "PerspectiveProjection", true, "Perspective Projection", "", "", "" );
+    CAF_PDM_InitScriptableField( &isPerspectiveView, "PerspectiveProjection", true, "Perspective Projection" );
 
     double defaultScaleFactor = preferences->defaultScaleFactorZ();
     CAF_PDM_InitScriptableField( &scaleZ,
@@ -124,18 +124,18 @@ Rim3dView::Rim3dView()
                                  "" );
 
     cvf::Color3f defBackgColor = preferences->defaultViewerBackgroundColor();
-    CAF_PDM_InitScriptableField( &m_backgroundColor, "BackgroundColor", defBackgColor, "Background", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_backgroundColor, "BackgroundColor", defBackgColor, "Background" );
     m_backgroundColor.registerKeywordAlias( "ViewBackgroundColor" );
 
-    CAF_PDM_InitField( &maximumFrameRate, "MaximumFrameRate", 10, "Maximum Frame Rate", "", "", "" );
+    CAF_PDM_InitField( &maximumFrameRate, "MaximumFrameRate", 10, "Maximum Frame Rate" );
     maximumFrameRate.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitScriptableField( &m_currentTimeStep, "CurrentTimeStep", 0, "Current Time Step", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_currentTimeStep, "CurrentTimeStep", 0, "Current Time Step" );
     m_currentTimeStep.uiCapability()->setUiHidden( true );
 
     caf::AppEnum<RiaDefines::MeshModeType> defaultMeshType = preferences->defaultMeshModeType();
-    CAF_PDM_InitField( &meshMode, "MeshMode", defaultMeshType, "Grid Lines", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &surfaceMode, "SurfaceMode", "Grid Surface", "", "", "" );
+    CAF_PDM_InitField( &meshMode, "MeshMode", defaultMeshType, "Grid Lines" );
+    CAF_PDM_InitFieldNoDefault( &surfaceMode, "SurfaceMode", "Grid Surface" );
 
     CAF_PDM_InitScriptableField( &m_showGridBox,
                                  "ShowGridBox",
@@ -153,11 +153,11 @@ Rim3dView::Rim3dView()
                                  "Disable light model for scalar result colors",
                                  "" );
 
-    CAF_PDM_InitScriptableField( &m_showZScaleLabel, "ShowZScale", true, "Show Z Scale Label", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_showZScaleLabel, "ShowZScale", true, "Show Z Scale Label" );
 
-    CAF_PDM_InitFieldNoDefault( &m_comparisonView, "ComparisonView", "Comparison View", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_comparisonView, "ComparisonView", "Comparison View" );
 
-    CAF_PDM_InitFieldNoDefault( &m_fontSize, "FontSize", "Font Size", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_fontSize, "FontSize", "Font Size" );
 
     m_intersectionVizModel = new cvf::ModelBasicList;
     m_intersectionVizModel->setName( "CrossSectionModel" );

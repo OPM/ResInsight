@@ -32,7 +32,7 @@ CAF_PDM_SOURCE_INIT( RimElasticPropertyScalingCollection, "ElasticPropertyScalin
 RimElasticPropertyScalingCollection::RimElasticPropertyScalingCollection()
     : changed( this )
 {
-    CAF_PDM_InitScriptableObject( "Elastic Property Scalings", "", "", "" );
+    CAF_PDM_InitScriptableObject( "Elastic Property Scalings" );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_elasticPropertyScalings,
                                           "ElasticPropertyScalings",

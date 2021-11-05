@@ -100,30 +100,30 @@ RimWellPltPlot::RimWellPltPlot()
 {
     CAF_PDM_InitObject( "Well Allocation Plot", ":/WellFlowPlot16x16.png", "", "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_wellLogPlot_OBSOLETE, "WellLog", "WellLog", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_wellLogPlot_OBSOLETE, "WellLog", "WellLog" );
     m_wellLogPlot_OBSOLETE.uiCapability()->setUiTreeHidden( true );
     m_wellLogPlot_OBSOLETE.xmlCapability()->setIOWritable( false );
 
-    CAF_PDM_InitFieldNoDefault( &m_wellPathName, "WellName", "Well Name", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_wellPathName, "WellName", "Well Name" );
 
-    CAF_PDM_InitFieldNoDefault( &m_selectedSources, "SourcesInternal", "Sources Internal", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_selectedSources, "SourcesInternal", "Sources Internal" );
     m_selectedSources.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
     m_selectedSources.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
     m_selectedSources.uiCapability()->setAutoAddingOptionFromValue( false );
     m_selectedSources.xmlCapability()->disableIO();
 
-    CAF_PDM_InitFieldNoDefault( &m_selectedSourcesForIo, "Sources", "Sources", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_selectedSourcesForIo, "Sources", "Sources" );
     m_selectedSourcesForIo.uiCapability()->setUiTreeHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_selectedTimeSteps, "TimeSteps", "Time Steps", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_selectedTimeSteps, "TimeSteps", "Time Steps" );
     m_selectedTimeSteps.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
     m_selectedTimeSteps.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
     m_selectedTimeSteps.uiCapability()->setAutoAddingOptionFromValue( false );
 
-    CAF_PDM_InitField( &m_useStandardConditionCurves, "UseStandardConditionCurves", true, "Standard Volume", "", "", "" );
-    CAF_PDM_InitField( &m_useReservoirConditionCurves, "UseReservoirConditionCurves", true, "Reservoir Volume", "", "", "" );
+    CAF_PDM_InitField( &m_useStandardConditionCurves, "UseStandardConditionCurves", true, "Standard Volume" );
+    CAF_PDM_InitField( &m_useReservoirConditionCurves, "UseReservoirConditionCurves", true, "Reservoir Volume" );
 
-    CAF_PDM_InitFieldNoDefault( &m_phases, "Phases", "Phases", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_phases, "Phases", "Phases" );
     m_phases.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
     m_phases = std::vector<caf::AppEnum<FlowPhase>>( { FLOW_PHASE_OIL, FLOW_PHASE_GAS, FLOW_PHASE_WATER } );
     m_phases.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );

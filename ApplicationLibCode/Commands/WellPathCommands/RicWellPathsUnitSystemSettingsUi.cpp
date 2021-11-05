@@ -25,9 +25,9 @@ CAF_PDM_SOURCE_INIT( RicWellPathsUnitSystemSettingsUi, "RicWellPathsUnitSystemSe
 //--------------------------------------------------------------------------------------------------
 RicWellPathsUnitSystemSettingsUi::RicWellPathsUnitSystemSettingsUi()
 {
-    CAF_PDM_InitObject( "RimWellPathsUnitSystemSettings", "", "", "" );
+    CAF_PDM_InitObject( "RimWellPathsUnitSystemSettings" );
 
-    CAF_PDM_InitFieldNoDefault( &unitSystem, "UnitSystem", "Unit System", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &unitSystem, "UnitSystem", "Unit System" );
 }
 
 //--------------------------------------------------------------------------------------------------

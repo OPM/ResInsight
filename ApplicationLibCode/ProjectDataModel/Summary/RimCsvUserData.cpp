@@ -39,7 +39,7 @@ RimCsvUserData::RimCsvUserData()
     CAF_PDM_InitObject( "Observed CSV Data File", ":/ObservedCSVDataFile16x16.png", "", "" );
     m_summaryHeaderFilename.uiCapability()->setUiName( "File" );
 
-    CAF_PDM_InitFieldNoDefault( &m_parseOptions, "ParseOptions", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_parseOptions, "ParseOptions", "" );
     m_parseOptions = new RicPasteAsciiDataToSummaryPlotFeatureUi();
     m_parseOptions.uiCapability()->setUiTreeChildrenHidden( true );
     m_parseOptions.uiCapability()->setUiTreeHidden( true );

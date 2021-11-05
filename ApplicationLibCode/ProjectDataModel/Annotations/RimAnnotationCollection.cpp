@@ -43,14 +43,14 @@ RimAnnotationCollection::RimAnnotationCollection()
 {
     CAF_PDM_InitObject( "Annotations", ":/Annotations16x16.png", "", "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_reachCircleAnnotations, "ReachCircleAnnotations", "Reach Circle Annotations", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_reachCircleAnnotations, "ReachCircleAnnotations", "Reach Circle Annotations" );
     CAF_PDM_InitFieldNoDefault( &m_userDefinedPolylineAnnotations,
                                 "UserDefinedPolylineAnnotations",
                                 "User Defined Polyline Annotations",
                                 "",
                                 "",
                                 "" );
-    CAF_PDM_InitFieldNoDefault( &m_polylineFromFileAnnotations, "PolylineFromFileAnnotations", "Polylines From File", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_polylineFromFileAnnotations, "PolylineFromFileAnnotations", "Polylines From File" );
 
     m_reachCircleAnnotations.uiCapability()->setUiTreeHidden( true );
     m_userDefinedPolylineAnnotations.uiCapability()->setUiTreeHidden( true );

@@ -66,21 +66,21 @@ RimWellLogFile::RimWellLogFile()
 {
     CAF_PDM_InitObject( "Well LAS File Info", ":/LasFile16x16.png", "", "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_wellName, "WellName", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_wellName, "WellName", "" );
     m_wellName.uiCapability()->setUiReadOnly( true );
     RiaFieldhandleTools::disableWriteAndSetFieldHidden( &m_wellName );
 
-    CAF_PDM_InitFieldNoDefault( &m_date, "Date", "Date", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_date, "Date", "Date" );
     m_date.uiCapability()->setUiReadOnly( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_fileName, "FileName", "Filename", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_fileName, "FileName", "Filename" );
     m_fileName.uiCapability()->setUiReadOnly( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_name, "Name", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_name, "Name", "" );
     m_name.uiCapability()->setUiReadOnly( true );
     RiaFieldhandleTools::disableWriteAndSetFieldHidden( &m_name );
 
-    CAF_PDM_InitFieldNoDefault( &m_wellLogChannelNames, "WellLogFileChannels", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_wellLogChannelNames, "WellLogFileChannels", "" );
     RiaFieldhandleTools::disableWriteAndSetFieldHidden( &m_wellLogChannelNames );
 
     CAF_PDM_InitField( &m_wellFlowCondition,
@@ -91,7 +91,7 @@ RimWellLogFile::RimWellLogFile()
                        "",
                        "" );
 
-    CAF_PDM_InitField( &m_invalidDateMessage, "InvalidDateMessage", QString( "Invalid or no date" ), "", "", "", "" );
+    CAF_PDM_InitField( &m_invalidDateMessage, "InvalidDateMessage", QString( "Invalid or no date" ), "" );
     m_invalidDateMessage.uiCapability()->setUiReadOnly( true );
     m_invalidDateMessage.xmlCapability()->disableIO();
 

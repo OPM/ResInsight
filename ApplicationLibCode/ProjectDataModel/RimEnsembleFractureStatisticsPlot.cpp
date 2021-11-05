@@ -50,7 +50,7 @@ RimEnsembleFractureStatisticsPlot::RimEnsembleFractureStatisticsPlot()
                                 "" );
     m_ensembleFractureStatistics.uiCapability()->setUiTreeChildrenHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_property, "Property", "Property", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_property, "Property", "Property" );
 
     m_plotLegendsHorizontal.uiCapability()->setUiHidden( true );
 

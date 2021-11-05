@@ -97,8 +97,8 @@ RimSummaryCaseMainCollection::RimSummaryCaseMainCollection()
 {
     CAF_PDM_InitObject( "Summary Cases", ":/SummaryCases16x16.png", "", "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_cases, "SummaryCases", "", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_caseCollections, "SummaryCaseCollections", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_cases, "SummaryCases", "" );
+    CAF_PDM_InitFieldNoDefault( &m_caseCollections, "SummaryCaseCollections", "" );
 
     m_cases.uiCapability()->setUiTreeHidden( true );
     m_caseCollections.uiCapability()->setUiTreeHidden( true );

@@ -62,7 +62,7 @@ Rim3dWellLogCurve::Rim3dWellLogCurve()
 {
     CAF_PDM_InitObject( "3d Well Log Curve", ":/WellLogCurve16x16.png", "", "" );
 
-    CAF_PDM_InitField( &m_showCurve, "Show3dWellLogCurve", true, "Show 3d Well Log Curve", "", "", "" );
+    CAF_PDM_InitField( &m_showCurve, "Show3dWellLogCurve", true, "Show 3d Well Log Curve" );
     m_showCurve.uiCapability()->setUiHidden( true );
     CAF_PDM_InitField( &m_minCurveUIValue,
                        "MinCurveValue",
@@ -79,8 +79,8 @@ Rim3dWellLogCurve::Rim3dWellLogCurve()
                        "Clip curve values above this.",
                        "" );
 
-    CAF_PDM_InitField( &m_drawPlane, "DrawPlane", DrawPlaneEnum( VERTICAL_ABOVE ), "Draw Plane", "", "", "" );
-    CAF_PDM_InitField( &m_color, "CurveColor", cvf::Color3f( 0.0f, 0.0f, 0.0f ), "Curve Color", "", "", "" );
+    CAF_PDM_InitField( &m_drawPlane, "DrawPlane", DrawPlaneEnum( VERTICAL_ABOVE ), "Draw Plane" );
+    CAF_PDM_InitField( &m_color, "CurveColor", cvf::Color3f( 0.0f, 0.0f, 0.0f ), "Curve Color" );
     this->uiCapability()->setUiTreeChildrenHidden( true );
 }
 

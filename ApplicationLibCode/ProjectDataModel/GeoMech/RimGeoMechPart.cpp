@@ -32,7 +32,7 @@ RimGeoMechPart::RimGeoMechPart()
 {
     CAF_PDM_InitScriptableObject( "GeoMechPart", ":/GeoMechCase24x24.png", "", "" );
 
-    CAF_PDM_InitScriptableFieldNoDefault( &m_partId, "PartId", "Part Id", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_partId, "PartId", "Part Id" );
     m_partId.uiCapability()->setUiReadOnly( true );
 
     nameField()->uiCapability()->setUiReadOnly( true );

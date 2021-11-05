@@ -39,13 +39,13 @@ RimProcess::RimProcess()
 
     CAF_PDM_InitObject( "ResInsight Process", ":/Erase.png", "", "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_command, "Command", "Command", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_command, "Command", "Command" );
     m_command.uiCapability()->setUiReadOnly( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_description, "Description", "Description", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_description, "Description", "Description" );
     m_description.uiCapability()->setUiReadOnly( true );
 
-    CAF_PDM_InitField( &m_id, "ID", defId, "ID", "", "", "" );
+    CAF_PDM_InitField( &m_id, "ID", defId, "ID" );
     m_id.uiCapability()->setUiReadOnly( true );
 }
 

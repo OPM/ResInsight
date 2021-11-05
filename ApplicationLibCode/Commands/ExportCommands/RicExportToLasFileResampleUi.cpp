@@ -45,9 +45,9 @@ CAF_PDM_SOURCE_INIT( RicExportToLasFileObj, "RicExportToLasFileObj" );
 //--------------------------------------------------------------------------------------------------
 RicExportToLasFileObj::RicExportToLasFileObj( void )
 {
-    CAF_PDM_InitObject( "RicExportToLasFileObj", "", "", "" );
+    CAF_PDM_InitObject( "RicExportToLasFileObj" );
 
-    CAF_PDM_InitField( &tvdrkbOffset, "tvdrkbOffset", QString( "" ), "TVDRKB offset (RKB - MSL) [m]", "", "", "" );
+    CAF_PDM_InitField( &tvdrkbOffset, "tvdrkbOffset", QString( "" ), "TVDRKB offset (RKB - MSL) [m]" );
 }
 
 CAF_PDM_SOURCE_INIT( RicExportToLasFileResampleUi, "RicExportToLasFileResampleUi" );
@@ -58,23 +58,23 @@ CAF_PDM_SOURCE_INIT( RicExportToLasFileResampleUi, "RicExportToLasFileResampleUi
 RicExportToLasFileResampleUi::RicExportToLasFileResampleUi( void )
     : m_enableCurveUnitConversion( false )
 {
-    CAF_PDM_InitObject( "Resample LAS curves for export", "", "", "" );
+    CAF_PDM_InitObject( "Resample LAS curves for export" );
 
-    CAF_PDM_InitField( &exportFolder, "ExportFolder", QString(), "Export Folder", "", "", "" );
+    CAF_PDM_InitField( &exportFolder, "ExportFolder", QString(), "Export Folder" );
     exportFolder.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
-    CAF_PDM_InitField( &filePrefix, "FilePrefix", QString( "" ), "File Prefix", "", "", "" );
-    CAF_PDM_InitField( &capitalizeFileName, "CapitalizeFileName", false, "Capitalize File Name", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &curveUnitConversion, "CurveUnitConversion", "Curve Units", "", "", "" );
+    CAF_PDM_InitField( &filePrefix, "FilePrefix", QString( "" ), "File Prefix" );
+    CAF_PDM_InitField( &capitalizeFileName, "CapitalizeFileName", false, "Capitalize File Name" );
+    CAF_PDM_InitFieldNoDefault( &curveUnitConversion, "CurveUnitConversion", "Curve Units" );
 
-    CAF_PDM_InitField( &activateResample, "ActivateResample", false, "Resample Curve Data", "", "", "" );
+    CAF_PDM_InitField( &activateResample, "ActivateResample", false, "Resample Curve Data" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &activateResample );
 
-    CAF_PDM_InitField( &resampleInterval, "ResampleInterval", 1.0, "Resample Interval [m]", "", "", "" );
+    CAF_PDM_InitField( &resampleInterval, "ResampleInterval", 1.0, "Resample Interval [m]" );
 
-    CAF_PDM_InitField( &exportTvdrkb, "ExportTvdrkb", false, "Export TVDRKB", "", "", "" );
+    CAF_PDM_InitField( &exportTvdrkb, "ExportTvdrkb", false, "Export TVDRKB" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &exportTvdrkb );
 
-    CAF_PDM_InitFieldNoDefault( &m_tvdrkbOffsets, "tvdrkbOffsets", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_tvdrkbOffsets, "tvdrkbOffsets", "" );
 
     updateFieldVisibility();
 }

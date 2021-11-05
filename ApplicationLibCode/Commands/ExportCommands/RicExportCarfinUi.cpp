@@ -33,20 +33,20 @@ CAF_PDM_SOURCE_INIT( RicExportCarfinUi, "RicExportCarfinUi" );
 //--------------------------------------------------------------------------------------------------
 RicExportCarfinUi::RicExportCarfinUi()
 {
-    CAF_PDM_InitObject( "Export CARFIN", "", "", "" );
+    CAF_PDM_InitObject( "Export CARFIN" );
 
-    CAF_PDM_InitFieldNoDefault( &m_cellRange, "CellRange", "Cell Range", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_cellRange, "CellRange", "Cell Range" );
     m_cellRange = new RicCellRangeUi;
 
-    CAF_PDM_InitFieldNoDefault( &m_exportFileName, "ExportFileName", "Export Filename", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_exportFileName, "ExportFileName", "Export Filename" );
     m_exportFileName.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitFieldNoDefault( &m_caseToApply, "CaseToApply", "Source Case", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_caseToApply, "CaseToApply", "Source Case" );
 
-    CAF_PDM_InitField( &m_cellCountI, "CellCountI", 2, "Cell Count I", "", "", "" );
-    CAF_PDM_InitField( &m_cellCountJ, "CellCountJ", 2, "Cell Count J", "", "", "" );
-    CAF_PDM_InitField( &m_cellCountK, "CellCountK", 2, "Cell Count K", "", "", "" );
-    CAF_PDM_InitField( &m_maxWellCount, "MaxWellCount", 8, "Max Well Count", "", "", "" );
+    CAF_PDM_InitField( &m_cellCountI, "CellCountI", 2, "Cell Count I" );
+    CAF_PDM_InitField( &m_cellCountJ, "CellCountJ", 2, "Cell Count J" );
+    CAF_PDM_InitField( &m_cellCountK, "CellCountK", 2, "Cell Count K" );
+    CAF_PDM_InitField( &m_maxWellCount, "MaxWellCount", 8, "Max Well Count" );
 }
 
 //--------------------------------------------------------------------------------------------------

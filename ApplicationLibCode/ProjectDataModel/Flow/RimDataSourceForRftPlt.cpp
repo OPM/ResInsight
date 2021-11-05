@@ -102,11 +102,11 @@ RifDataSourceForRftPlt RimDataSourceForRftPlt::address() const
 //--------------------------------------------------------------------------------------------------
 void RimDataSourceForRftPlt::InitPdmObject()
 {
-    CAF_PDM_InitFieldNoDefault( &m_sourceType, "SourceType", "Source Type", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_eclCase, "EclipseCase", "Eclipse Case", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_wellLogFile, "WellLogFile", "Well Log File", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_ensemble, "Ensemble", "Ensemble", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_observedFmuRftData, "ObservedFmuRftData", "Observed FMU Data", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_sourceType, "SourceType", "Source Type" );
+    CAF_PDM_InitFieldNoDefault( &m_eclCase, "EclipseCase", "Eclipse Case" );
+    CAF_PDM_InitFieldNoDefault( &m_wellLogFile, "WellLogFile", "Well Log File" );
+    CAF_PDM_InitFieldNoDefault( &m_ensemble, "Ensemble", "Ensemble" );
+    CAF_PDM_InitFieldNoDefault( &m_observedFmuRftData, "ObservedFmuRftData", "Observed FMU Data" );
 }
 
 //--------------------------------------------------------------------------------------------------

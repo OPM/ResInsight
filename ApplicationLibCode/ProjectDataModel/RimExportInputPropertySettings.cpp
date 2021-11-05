@@ -26,11 +26,11 @@ CAF_PDM_SOURCE_INIT( RimExportInputSettings, "RimExportInputSettings" );
 //--------------------------------------------------------------------------------------------------
 RimExportInputSettings::RimExportInputSettings()
 {
-    CAF_PDM_InitObject( "RimExportInputSettings", "", "", "" );
+    CAF_PDM_InitObject( "RimExportInputSettings" );
 
-    CAF_PDM_InitFieldNoDefault( &fileName, "Filename", "Export Filename", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &fileName, "Filename", "Export Filename" );
     fileName.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
-    CAF_PDM_InitFieldNoDefault( &eclipseKeyword, "Keyword", "Eclipse Keyword", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &eclipseKeyword, "Keyword", "Eclipse Keyword" );
 }
 
 //--------------------------------------------------------------------------------------------------

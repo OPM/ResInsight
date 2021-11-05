@@ -37,15 +37,15 @@ RimSurfaceIntersectionCurve::RimSurfaceIntersectionCurve()
 {
     CAF_PDM_InitObject( "SurfaceIntersectionCurve", ":/SummaryCurve16x16.png", "", "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_lineAppearance, "LineAppearance", "Line Appearance", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_lineAppearance, "LineAppearance", "Line Appearance" );
     m_lineAppearance = new RimAnnotationLineAppearance;
     m_lineAppearance->objectChanged.connect( this, &RimSurfaceIntersectionCurve::onObjectChanged );
     uiCapability()->setUiTreeChildrenHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_surface1, "Surface1", "Surface 1", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_surface1, "Surface1", "Surface 1" );
     m_surface1.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitFieldNoDefault( &m_nameProxy, "NameProxy", "Name", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_nameProxy, "NameProxy", "Name" );
     m_nameProxy.registerGetMethod( this, &RimSurfaceIntersectionCurve::objectName );
     m_nameProxy.uiCapability()->setUiHidden( true );
 

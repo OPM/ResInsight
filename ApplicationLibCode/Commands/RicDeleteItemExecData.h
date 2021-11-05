@@ -37,8 +37,8 @@ public:
                             "CmdDeleteItemExecData tooltip",
                             "CmdDeleteItemExecData whatsthis" );
 
-        CAF_PDM_InitFieldNoDefault( &m_pathToField, "PathToField", "PathToField", "", "", "" );
-        CAF_PDM_InitFieldNoDefault( &m_description, "Description", "Description", "", "", "" );
+        CAF_PDM_InitFieldNoDefault( &m_pathToField, "PathToField", "PathToField" );
+        CAF_PDM_InitFieldNoDefault( &m_description, "Description", "Description" );
         CAF_PDM_InitField( &m_indexToObject,
                            "indexToObject",
                            -1,
