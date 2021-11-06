@@ -49,13 +49,13 @@
 class QTextStream;
 
 #define CAF_PDM_InitScriptableObject( uiName, ... )                                               \
-    std::vector<QString> arguments = { "dummy", ##__VA_ARGS__ };                                  \
+    std::vector<QString> arguments = {##__VA_ARGS__ };                                            \
     QString              iconResourceName;                                                        \
     QString              toolTip;                                                                 \
     QString              whatsThis;                                                               \
-    if ( arguments.size() > 1 ) iconResourceName = arguments[1];                                  \
-    if ( arguments.size() > 2 ) toolTip = arguments[2];                                           \
-    if ( arguments.size() > 3 ) whatsThis = arguments[3];                                         \
+    if ( arguments.size() > 0 ) iconResourceName = arguments[0];                                  \
+    if ( arguments.size() > 1 ) toolTip = arguments[1];                                           \
+    if ( arguments.size() > 2 ) whatsThis = arguments[2];                                         \
                                                                                                   \
     CAF_PDM_InitObject( uiName, iconResourceName, toolTip, whatsThis );                           \
     caf::PdmObjectScriptingCapabilityRegister::registerScriptClassNameAndComment( classKeyword(), \
