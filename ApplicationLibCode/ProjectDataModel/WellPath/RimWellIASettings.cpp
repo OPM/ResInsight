@@ -486,7 +486,7 @@ bool RimWellIASettings::updateResInsightParameters()
     double ppValue = dataAccess.interpolatedResultValue( "POR-Bar", "", RigFemResultPosEnum::RIG_NODAL, position, 0 );
     if ( std::isfinite( ppValue ) )
     {
-        initialStress->addParameter( "PP", ppValue );
+        initialStress->addParameter( "PP", ppValue * 100000.0 );
     }
     else
     {
