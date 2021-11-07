@@ -60,6 +60,12 @@ void RicRunWellIntegrityAnalysisFeature::onActionTriggered( bool isChecked )
 
     runProgress.setProgressDescription( "Writing input files." );
 
+    if ( !modelSettings->geomechCase() )
+    {
+        QMessageBox::critical( nullptr, wiaTitle, "GeoMechanical case is not selected. Please check your model settings." );
+        return;
+    }
+
     if ( !modelSettings->extractModelData() )
     {
         QMessageBox::critical( nullptr,
