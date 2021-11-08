@@ -173,11 +173,11 @@ void RimWellDistributionPlot::updateLegend()
     if ( doShowLegend )
     {
         QwtLegend* legend = new QwtLegend( m_plotWidget );
-        m_plotWidget->insertLegend( legend, QwtPlot::BottomLegend );
+        m_plotWidget->qwtPlot()->insertLegend( legend, QwtPlot::BottomLegend );
     }
     else
     {
-        m_plotWidget->insertLegend( nullptr );
+        m_plotWidget->qwtPlot()->insertLegend( nullptr );
     }
 }
 
@@ -297,7 +297,7 @@ RiuQwtPlotWidget* RimWellDistributionPlot::doCreatePlotViewWidget( QWidget* main
 
     m_plotWidget = new RiuQwtPlotWidget( this, mainWindowParent );
 
-    m_plotWidget->setAutoReplot( false );
+    m_plotWidget->qwtPlot()->setAutoReplot( false );
 
     updateLegend();
     onLoadDataAndUpdate();
@@ -342,7 +342,7 @@ void RimWellDistributionPlot::onLoadDataAndUpdate()
         return;
     }
 
-    m_plotWidget->detachItems( QwtPlotItem::Rtti_PlotCurve );
+    m_plotWidget->qwtPlot()->detachItems( QwtPlotItem::Rtti_PlotCurve );
 
     updateLegend();
 
@@ -377,12 +377,12 @@ void RimWellDistributionPlot::onLoadDataAndUpdate()
 
     const QString plotTitleStr =
         QString( "%1 Distribution: %2, %3" ).arg( phaseString ).arg( m_wellName ).arg( timeStepName );
-    m_plotWidget->setTitle( plotTitleStr );
+    m_plotWidget->setPlotTitle( plotTitleStr );
 
-    m_plotWidget->setAxisTitleText( QwtPlot::xBottom, "TOF [years]" );
-    m_plotWidget->setAxisTitleText( QwtPlot::yLeft, "Reservoir Volume [m3]" );
-    m_plotWidget->setAxisTitleEnabled( QwtPlot::xBottom, true );
-    m_plotWidget->setAxisTitleEnabled( QwtPlot::yLeft, true );
+    m_plotWidget->setAxisTitleText( RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM, "TOF [years]" );
+    m_plotWidget->setAxisTitleText( RiaDefines::PlotAxis::PLOT_AXIS_LEFT, "Reservoir Volume [m3]" );
+    m_plotWidget->setAxisTitleEnabled( RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM, true );
+    m_plotWidget->setAxisTitleEnabled( RiaDefines::PlotAxis::PLOT_AXIS_LEFT, true );
 
     m_plotWidget->scheduleReplot();
 }
@@ -400,11 +400,11 @@ void RimWellDistributionPlot::populatePlotWidgetWithCurveData( const RigTofWellD
     // Currently select this value so that the grid appears on top of the curves
     const double baseCurveZValue = 9.5;
 
-    plotWidget->detachItems( QwtPlotItem::Rtti_PlotCurve );
-    plotWidget->setAxisScale( QwtPlot::xBottom, 0, 1 );
-    plotWidget->setAxisScale( QwtPlot::yLeft, 0, 1 );
-    plotWidget->setAxisAutoScale( QwtPlot::xBottom, true );
-    plotWidget->setAxisAutoScale( QwtPlot::yLeft, true );
+    plotWidget->qwtPlot()->detachItems( QwtPlotItem::Rtti_PlotCurve );
+    plotWidget->setAxisScale( RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM, 0, 1 );
+    plotWidget->setAxisScale( RiaDefines::PlotAxis::PLOT_AXIS_LEFT, 0, 1 );
+    plotWidget->setAxisAutoScale( RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM, true );
+    plotWidget->setAxisAutoScale( RiaDefines::PlotAxis::PLOT_AXIS_LEFT, true );
 
     const std::vector<double>& tofValuesDays = calculator.sortedUniqueTofValues();
     if ( tofValuesDays.size() == 0 )
@@ -452,7 +452,7 @@ void RimWellDistributionPlot::populatePlotWidgetWithCurveData( const RigTofWellD
         curve->setBrush( qtClr );
         curve->setZ( baseCurveZValue - i * 0.0001 );
         curve->setSamples( tofValuesYears.data(), yVals.data(), static_cast<int>( tofValuesYears.size() ) );
-        curve->attach( plotWidget );
+        curve->attach( plotWidget->qwtPlot() );
     }
 }
 

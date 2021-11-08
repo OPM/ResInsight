@@ -18,6 +18,7 @@
 
 #include "RimVfpPlot.h"
 
+#include "RiaDefines.h"
 #include "RimVfpDefines.h"
 #include "RimVfpTableExtractor.h"
 
@@ -221,11 +222,11 @@ void RimVfpPlot::updateLegend()
     if ( doShowLegend )
     {
         QwtLegend* legend = new QwtLegend( m_plotWidget );
-        m_plotWidget->insertLegend( legend, QwtPlot::BottomLegend );
+        m_plotWidget->qwtPlot()->insertLegend( legend, QwtPlot::BottomLegend );
     }
     else
     {
-        m_plotWidget->insertLegend( nullptr );
+        m_plotWidget->qwtPlot()->insertLegend( nullptr );
     }
 }
 
@@ -410,10 +411,9 @@ RiuQwtPlotWidget* RimVfpPlot::doCreatePlotViewWidget( QWidget* mainWindowParent 
         auto plotWidget = new RiuQwtPlotWidget( this, mainWindowParent );
 
         // Remove event filter to disable unwanted highlighting on left click in plot.
-        plotWidget->removeEventFilter( plotWidget );
-        plotWidget->canvas()->removeEventFilter( plotWidget );
+        plotWidget->removeEventFilter();
 
-        RiuQwtPlotTools::setCommonPlotBehaviour( plotWidget );
+        RiuQwtPlotTools::setCommonPlotBehaviour( plotWidget->qwtPlot() );
 
         caf::CmdFeatureMenuBuilder menuBuilder;
         menuBuilder << "RicShowPlotDataFeature";
@@ -460,7 +460,7 @@ void RimVfpPlot::onLoadDataAndUpdate()
         return;
     }
 
-    m_plotWidget->detachItems( QwtPlotItem::Rtti_PlotCurve );
+    m_plotWidget->qwtPlot()->detachItems( QwtPlotItem::Rtti_PlotCurve );
 
     updateLegend();
 
@@ -506,8 +506,8 @@ void RimVfpPlot::onLoadDataAndUpdate()
                                             m_primaryVariable(),
                                             m_familyVariable() ) );
 
-        m_plotWidget->setAxisTitleEnabled( QwtPlot::xBottom, true );
-        m_plotWidget->setAxisTitleEnabled( QwtPlot::yLeft, true );
+        m_plotWidget->setAxisTitleEnabled( RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM, true );
+        m_plotWidget->setAxisTitleEnabled( RiaDefines::PlotAxis::PLOT_AXIS_LEFT, true );
     }
 
     m_plotWidget->scheduleReplot();
@@ -591,13 +591,13 @@ void RimVfpPlot::populatePlotWidgetWithCurveData( RiuQwtPlotWidget*             
 //--------------------------------------------------------------------------------------------------
 void RimVfpPlot::populatePlotWidgetWithPlotData( RiuQwtPlotWidget* plotWidget, const VfpPlotData& plotData )
 {
-    plotWidget->detachItems( QwtPlotItem::Rtti_PlotCurve );
-    plotWidget->setAxisScale( QwtPlot::xBottom, 0, 1 );
-    plotWidget->setAxisScale( QwtPlot::yLeft, 0, 1 );
-    plotWidget->setAxisAutoScale( QwtPlot::xBottom, true );
-    plotWidget->setAxisAutoScale( QwtPlot::yLeft, true );
-    plotWidget->setAxisTitleText( QwtPlot::xBottom, plotData.xAxisTitle() );
-    plotWidget->setAxisTitleText( QwtPlot::yLeft, plotData.yAxisTitle() );
+    plotWidget->qwtPlot()->detachItems( QwtPlotItem::Rtti_PlotCurve );
+    plotWidget->setAxisScale( RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM, 0, 1 );
+    plotWidget->setAxisScale( RiaDefines::PlotAxis::PLOT_AXIS_LEFT, 0, 1 );
+    plotWidget->setAxisAutoScale( RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM, true );
+    plotWidget->setAxisAutoScale( RiaDefines::PlotAxis::PLOT_AXIS_LEFT, true );
+    plotWidget->setAxisTitleText( RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM, plotData.xAxisTitle() );
+    plotWidget->setAxisTitleText( RiaDefines::PlotAxis::PLOT_AXIS_LEFT, plotData.yAxisTitle() );
 
     for ( auto idx = 0u; idx < plotData.size(); idx++ )
     {
@@ -606,7 +606,7 @@ void RimVfpPlot::populatePlotWidgetWithPlotData( RiuQwtPlotWidget* plotWidget, c
         curve->setSamples( plotData.xData( idx ).data(),
                            plotData.yData( idx ).data(),
                            static_cast<int>( plotData.curveSize( idx ) ) );
-        curve->attach( plotWidget );
+        curve->attach( plotWidget->qwtPlot() );
         curve->show();
     }
 }
@@ -1042,7 +1042,7 @@ void RimVfpPlot::updatePlotTitle( const QString& plotTitle )
 
     if ( m_plotWidget )
     {
-        m_plotWidget->setTitle( plotTitle );
+        m_plotWidget->setPlotTitle( plotTitle );
     }
 }
 

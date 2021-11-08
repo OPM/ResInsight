@@ -341,7 +341,7 @@ void RimEnsembleCurveSet::reattachQwtCurves()
     firstAncestorOrThisOfType( plot );
     if ( plot )
     {
-        m_qwtPlotCurveForLegendText->attach( plot->viewer() );
+        m_qwtPlotCurveForLegendText->attach( plot->viewer()->qwtPlot() );
     }
 }
 
@@ -354,7 +354,7 @@ void RimEnsembleCurveSet::addCurve( RimSummaryCurve* curve )
     {
         RimSummaryPlot* plot;
         firstAncestorOrThisOfType( plot );
-        if ( plot ) curve->setParentQwtPlotNoReplot( plot->viewer() );
+        if ( plot ) curve->setParentQwtPlotNoReplot( plot->viewer()->qwtPlot() );
 
         curve->setColor( m_color );
         m_curves.push_back( curve );
@@ -1325,8 +1325,8 @@ void RimEnsembleCurveSet::updateFilterLegend()
         {
             if ( !m_filterOverlayFrame )
             {
-                m_filterOverlayFrame =
-                    new RiuDraggableOverlayFrame( plot->viewer()->canvas(), plot->viewer()->overlayMargins() );
+                m_filterOverlayFrame = new RiuDraggableOverlayFrame( plot->viewer()->qwtPlot()->canvas(),
+                                                                     plot->viewer()->overlayMargins() );
             }
             m_filterOverlayFrame->setContentFrame( m_curveFilters()->makeFilterDescriptionFrame() );
             plot->viewer()->addOverlayFrame( m_filterOverlayFrame );
@@ -1356,8 +1356,8 @@ void RimEnsembleCurveSet::updateObjectiveFunctionLegend()
         {
             if ( !m_objectiveFunctionOverlayFrame )
             {
-                m_objectiveFunctionOverlayFrame =
-                    new RiuDraggableOverlayFrame( plot->viewer()->canvas(), plot->viewer()->overlayMargins() );
+                m_objectiveFunctionOverlayFrame = new RiuDraggableOverlayFrame( plot->viewer()->qwtPlot()->canvas(),
+                                                                                plot->viewer()->overlayMargins() );
             }
             QString title;
             QString description;
@@ -1576,8 +1576,8 @@ void RimEnsembleCurveSet::updateCurveColors()
         {
             if ( !m_legendOverlayFrame )
             {
-                m_legendOverlayFrame =
-                    new RiuDraggableOverlayFrame( plot->viewer()->canvas(), plot->viewer()->overlayMargins() );
+                m_legendOverlayFrame = new RiuDraggableOverlayFrame( plot->viewer()->qwtPlot()->canvas(),
+                                                                     plot->viewer()->overlayMargins() );
             }
             m_legendOverlayFrame->setContentFrame( m_legendConfig->makeLegendFrame() );
             plot->viewer()->addOverlayFrame( m_legendOverlayFrame );
@@ -1703,7 +1703,7 @@ void RimEnsembleCurveSet::updateEnsembleCurves( const std::vector<RimSummaryCase
                 }
             }
 
-            if ( plot->viewer() ) m_qwtPlotCurveForLegendText->attach( plot->viewer() );
+            if ( plot->viewer() ) m_qwtPlotCurveForLegendText->attach( plot->viewer()->qwtPlot() );
         }
 
         if ( plot->viewer() )
@@ -1771,7 +1771,7 @@ void RimEnsembleCurveSet::updateStatisticsCurves( const std::vector<RimSummaryCa
     for ( auto address : addresses )
     {
         auto curve = new RimSummaryCurve();
-        curve->setParentQwtPlotNoReplot( plot->viewer() );
+        curve->setParentQwtPlotNoReplot( plot->viewer()->qwtPlot() );
         m_curves.push_back( curve );
         curve->setColor( m_statistics->color() );
         curve->setResampling( m_resampling() );
