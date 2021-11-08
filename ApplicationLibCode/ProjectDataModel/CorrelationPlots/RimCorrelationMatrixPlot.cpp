@@ -372,14 +372,14 @@ void RimCorrelationMatrixPlot::onLoadDataAndUpdate()
 
     if ( m_plotWidget )
     {
-        m_plotWidget->detachItems( QwtPlotItem::Rtti_PlotBarChart );
-        m_plotWidget->detachItems( QwtPlotItem::Rtti_PlotScale );
-        m_plotWidget->detachItems( QwtPlotItem::Rtti_PlotItem );
+        m_plotWidget->qwtPlot()->detachItems( QwtPlotItem::Rtti_PlotBarChart );
+        m_plotWidget->qwtPlot()->detachItems( QwtPlotItem::Rtti_PlotScale );
+        m_plotWidget->qwtPlot()->detachItems( QwtPlotItem::Rtti_PlotItem );
 
         updateLegend();
         createMatrix();
 
-        m_plotWidget->insertLegend( nullptr );
+        m_plotWidget->qwtPlot()->insertLegend( nullptr );
 
         this->updateAxes();
         this->updatePlotTitle();
@@ -402,14 +402,18 @@ void RimCorrelationMatrixPlot::updateAxes()
 {
     if ( !m_plotWidget ) return;
 
-    m_plotWidget->setAxisScaleDraw( QwtPlot::yLeft, new TextScaleDraw( m_resultLabels ) );
-    m_plotWidget->setAxisScaleEngine( QwtPlot::yLeft, new RiuQwtLinearScaleEngine );
-    m_plotWidget->setAxisTitleText( QwtPlot::yLeft, "Result Vector" );
-    m_plotWidget->setAxisTitleEnabled( QwtPlot::yLeft, true );
-    m_plotWidget->setAxisFontsAndAlignment( QwtPlot::yLeft, axisTitleFontSize(), axisValueFontSize(), false, Qt::AlignCenter );
-    m_plotWidget->setAxisLabelsAndTicksEnabled( QwtPlot::yLeft, true, false );
-    m_plotWidget->setAxisRange( QwtPlot::yLeft, 0.0, (double)m_resultLabels.size() + 1 );
-    m_plotWidget->setMajorAndMinorTickIntervalsAndRange( QwtPlot::yLeft,
+    m_plotWidget->qwtPlot()->setAxisScaleDraw( QwtPlot::yLeft, new TextScaleDraw( m_resultLabels ) );
+    m_plotWidget->qwtPlot()->setAxisScaleEngine( QwtPlot::yLeft, new RiuQwtLinearScaleEngine );
+    m_plotWidget->setAxisTitleText( RiaDefines::PlotAxis::PLOT_AXIS_LEFT, "Result Vector" );
+    m_plotWidget->setAxisTitleEnabled( RiaDefines::PlotAxis::PLOT_AXIS_LEFT, true );
+    m_plotWidget->setAxisFontsAndAlignment( RiaDefines::PlotAxis::PLOT_AXIS_LEFT,
+                                            axisTitleFontSize(),
+                                            axisValueFontSize(),
+                                            false,
+                                            Qt::AlignCenter );
+    m_plotWidget->setAxisLabelsAndTicksEnabled( RiaDefines::PlotAxis::PLOT_AXIS_LEFT, true, false );
+    m_plotWidget->setAxisRange( RiaDefines::PlotAxis::PLOT_AXIS_LEFT, 0.0, (double)m_resultLabels.size() + 1 );
+    m_plotWidget->setMajorAndMinorTickIntervalsAndRange( RiaDefines::PlotAxis::PLOT_AXIS_LEFT,
                                                          1.0,
                                                          0.0,
                                                          0.5,
@@ -419,19 +423,18 @@ void RimCorrelationMatrixPlot::updateAxes()
 
     auto scaleDraw = new TextScaleDraw( m_paramLabels );
     scaleDraw->setLabelRotation( 30.0 );
-    m_plotWidget->setAxisScaleDraw( QwtPlot::xBottom, scaleDraw );
-
-    m_plotWidget->setAxisScaleEngine( QwtPlot::xBottom, new RiuQwtLinearScaleEngine );
-    m_plotWidget->setAxisTitleText( QwtPlot::xBottom, "Ensemble Parameter" );
-    m_plotWidget->setAxisTitleEnabled( QwtPlot::xBottom, true );
-    m_plotWidget->setAxisFontsAndAlignment( QwtPlot::xBottom,
+    m_plotWidget->qwtPlot()->setAxisScaleDraw( QwtPlot::xBottom, scaleDraw );
+    m_plotWidget->qwtPlot()->setAxisScaleEngine( QwtPlot::xBottom, new RiuQwtLinearScaleEngine );
+    m_plotWidget->setAxisTitleText( RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM, "Ensemble Parameter" );
+    m_plotWidget->setAxisTitleEnabled( RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM, true );
+    m_plotWidget->setAxisFontsAndAlignment( RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM,
                                             axisTitleFontSize(),
                                             axisValueFontSize(),
                                             false,
                                             Qt::AlignCenter | Qt::AlignTop );
-    m_plotWidget->setAxisLabelsAndTicksEnabled( QwtPlot::xBottom, true, false );
-    m_plotWidget->setAxisRange( QwtPlot::xBottom, 0.0, (double)m_paramLabels.size() + 1 );
-    m_plotWidget->setMajorAndMinorTickIntervalsAndRange( QwtPlot::xBottom,
+    m_plotWidget->setAxisLabelsAndTicksEnabled( RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM, true, false );
+    m_plotWidget->setAxisRange( RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM, 0.0, (double)m_paramLabels.size() + 1 );
+    m_plotWidget->setMajorAndMinorTickIntervalsAndRange( RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM,
                                                          1.0,
                                                          0.0,
                                                          0.5,
@@ -439,7 +442,7 @@ void RimCorrelationMatrixPlot::updateAxes()
                                                          0.0,
                                                          (double)m_paramLabels.size() );
 
-    m_plotWidget->setAxisLabelAlignment( QwtPlot::xBottom, Qt::AlignRight );
+    m_plotWidget->qwtPlot()->setAxisLabelAlignment( QwtPlot::xBottom, Qt::AlignRight );
 }
 
 template <typename KeyType, typename ValueType>
@@ -639,8 +642,8 @@ void RimCorrelationMatrixPlot::createMatrix()
             marker->setLabel( textLabel );
             marker->setXValue( colIdx + 0.5 );
             marker->setYValue( rowIdx + 0.5 );
-            rectangle->attach( m_plotWidget );
-            marker->attach( m_plotWidget );
+            rectangle->attach( m_plotWidget->qwtPlot() );
+            marker->attach( m_plotWidget->qwtPlot() );
 
             m_paramLabels[colIdx] = correlationMatrixRows[rowIdx].m_values[colIdx];
         }

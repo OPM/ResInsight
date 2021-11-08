@@ -581,7 +581,7 @@ RiuQwtPlotWidget* RimAbstractCorrelationPlot::viewer()
 //--------------------------------------------------------------------------------------------------
 void RimAbstractCorrelationPlot::detachAllCurves()
 {
-    if ( m_plotWidget ) m_plotWidget->detachItems();
+    if ( m_plotWidget ) m_plotWidget->qwtPlot()->detachItems();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -661,7 +661,7 @@ void RimAbstractCorrelationPlot::updateLegend()
 {
     if ( m_plotWidget )
     {
-        m_plotWidget->insertLegend( nullptr );
+        m_plotWidget->qwtPlot()->insertLegend( nullptr );
     }
 }
 

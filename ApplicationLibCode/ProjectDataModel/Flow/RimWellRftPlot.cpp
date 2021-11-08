@@ -1273,7 +1273,7 @@ void RimWellRftPlot::defineCurveColorsAndSymbols( const std::set<RiaRftPltCurveD
             {
                 if ( !m_ensembleLegendFrames[curveSet] )
                 {
-                    auto m = new RiuDraggableOverlayFrame( viewer->canvas(), viewer->overlayMargins() );
+                    auto m = new RiuDraggableOverlayFrame( viewer->qwtPlot()->canvas(), viewer->overlayMargins() );
                     m->setContentFrame( curveSet->legendConfig()->makeLegendFrame() );
 
                     m_ensembleLegendFrames[curveSet] = m;

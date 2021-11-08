@@ -495,16 +495,18 @@ void RimWellLogRftCurve::onLoadDataAndUpdate( bool updateParentPlot )
                 {
                     if ( derivedMDSource == WELL_PATH )
                     {
-                        viewer->setAxisTitleText( QwtPlot::yLeft, "WELL/" + wellLogPlot->depthAxisTitle() );
+                        viewer->setAxisTitleText( RiaDefines::PlotAxis::PLOT_AXIS_LEFT,
+                                                  "WELL/" + wellLogPlot->depthAxisTitle() );
                     }
                     else
                     {
-                        viewer->setAxisTitleText( QwtPlot::yLeft, "OBS/" + wellLogPlot->depthAxisTitle() );
+                        viewer->setAxisTitleText( RiaDefines::PlotAxis::PLOT_AXIS_LEFT,
+                                                  "OBS/" + wellLogPlot->depthAxisTitle() );
                     }
                 }
                 else // Standard depth title set from plot
                 {
-                    viewer->setAxisTitleText( QwtPlot::yLeft, wellLogPlot->depthAxisTitle() );
+                    viewer->setAxisTitleText( RiaDefines::PlotAxis::PLOT_AXIS_LEFT, wellLogPlot->depthAxisTitle() );
                 }
             }
         }
