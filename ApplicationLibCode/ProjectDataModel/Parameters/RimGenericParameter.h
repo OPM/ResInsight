@@ -55,6 +55,7 @@ public:
 
 protected:
     void setValid( bool valid );
+    void initAfterRead() override;
 
 private:
     caf::PdmField<QString> m_name;
