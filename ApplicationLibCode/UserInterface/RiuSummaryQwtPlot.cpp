@@ -107,21 +107,21 @@ RiuSummaryQwtPlot::RiuSummaryQwtPlot( RimSummaryPlot* plot, QWidget* parent /*= 
     : RiuQwtPlotWidget( plot, parent )
 {
     // LeftButton for the zooming
-    m_zoomerLeft = new RiuQwtPlotZoomer( canvas() );
+    m_zoomerLeft = new RiuQwtPlotZoomer( qwtPlot()->canvas() );
     m_zoomerLeft->setTrackerMode( QwtPicker::AlwaysOff );
     m_zoomerLeft->initMousePattern( 1 );
 
     // Attach a zoomer for the right axis
-    m_zoomerRight = new RiuQwtPlotZoomer( canvas() );
-    m_zoomerRight->setAxis( xTop, yRight );
+    m_zoomerRight = new RiuQwtPlotZoomer( qwtPlot()->canvas() );
+    m_zoomerRight->setAxis( QwtPlot::xTop, QwtPlot::yRight );
     m_zoomerRight->setTrackerMode( QwtPicker::AlwaysOff );
     m_zoomerRight->initMousePattern( 1 );
 
     // MidButton for the panning
-    QwtPlotPanner* panner = new QwtPlotPanner( canvas() );
+    QwtPlotPanner* panner = new QwtPlotPanner( qwtPlot()->canvas() );
     panner->setMouseButton( Qt::MidButton );
 
-    m_wheelZoomer = new RiuQwtPlotWheelZoomer( this );
+    m_wheelZoomer = new RiuQwtPlotWheelZoomer( this->qwtPlot() );
 
     connect( m_wheelZoomer, SIGNAL( zoomUpdated() ), SLOT( onZoomedSlot() ) );
     connect( m_zoomerLeft, SIGNAL( zoomed( const QRectF& ) ), SLOT( onZoomedSlot() ) );
@@ -129,10 +129,10 @@ RiuSummaryQwtPlot::RiuSummaryQwtPlot( RimSummaryPlot* plot, QWidget* parent /*= 
     connect( panner, SIGNAL( panned( int, int ) ), SLOT( onZoomedSlot() ) );
 
     setDefaults();
-    new RiuQwtCurvePointTracker( this, true, &ensembleCurveInfoTextProvider );
+    new RiuQwtCurvePointTracker( this->qwtPlot(), true, &ensembleCurveInfoTextProvider );
 
-    RiuQwtPlotTools::setCommonPlotBehaviour( this );
-    RiuQwtPlotTools::setDefaultAxes( this );
+    RiuQwtPlotTools::setCommonPlotBehaviour( this->qwtPlot() );
+    RiuQwtPlotTools::setDefaultAxes( this->qwtPlot() );
 
     setInternalLegendVisible( true );
 
@@ -154,7 +154,7 @@ void RiuSummaryQwtPlot::useDateBasedTimeAxis( const QString&                    
                                               RiaQDateTimeTools::DateFormatComponents dateComponents,
                                               RiaQDateTimeTools::TimeFormatComponents timeComponents )
 {
-    RiuQwtPlotTools::enableDateBasedBottomXAxis( this, dateFormat, timeFormat, dateComponents, timeComponents );
+    RiuQwtPlotTools::enableDateBasedBottomXAxis( this->qwtPlot(), dateFormat, timeFormat, dateComponents, timeComponents );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -162,8 +162,8 @@ void RiuSummaryQwtPlot::useDateBasedTimeAxis( const QString&                    
 //--------------------------------------------------------------------------------------------------
 void RiuSummaryQwtPlot::useTimeBasedTimeAxis()
 {
-    setAxisScaleEngine( QwtPlot::xBottom, new QwtLinearScaleEngine() );
-    setAxisScaleDraw( QwtPlot::xBottom, new QwtScaleDraw() );
+    qwtPlot()->setAxisScaleEngine( QwtPlot::xBottom, new QwtLinearScaleEngine() );
+    qwtPlot()->setAxisScaleDraw( QwtPlot::xBottom, new QwtScaleDraw() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -190,7 +190,7 @@ void RiuSummaryQwtPlot::updateAnnotationObjects( RimPlotAxisPropertiesInterface*
     {
         if ( annotation->annotationType() == RimPlotAxisAnnotation::AnnotationType::LINE )
         {
-            m_annotationTool->attachAnnotationLine( this,
+            m_annotationTool->attachAnnotationLine( qwtPlot(),
                                                     annotation->color(),
                                                     annotation->name(),
                                                     annotation->value(),
@@ -198,7 +198,7 @@ void RiuSummaryQwtPlot::updateAnnotationObjects( RimPlotAxisPropertiesInterface*
         }
         else if ( annotation->annotationType() == RimPlotAxisAnnotation::AnnotationType::RANGE )
         {
-            m_annotationTool->attachAnnotationRange( this,
+            m_annotationTool->attachAnnotationRange( qwtPlot(),
                                                      annotation->color(),
                                                      annotation->name(),
                                                      annotation->rangeStart(),
@@ -225,7 +225,7 @@ void RiuSummaryQwtPlot::contextMenuEvent( QContextMenuEvent* event )
     double       distanceFromClick = std::numeric_limits<double>::infinity();
     int          closestCurvePoint = -1;
     QPoint       globalPos         = event->globalPos();
-    QPoint       localPos          = this->canvas()->mapFromGlobal( globalPos );
+    QPoint       localPos          = qwtPlot()->canvas()->mapFromGlobal( globalPos );
 
     findClosestPlotItem( localPos, &closestItem, &closestCurvePoint, &distanceFromClick );
     if ( closestItem && closestCurvePoint >= 0 )

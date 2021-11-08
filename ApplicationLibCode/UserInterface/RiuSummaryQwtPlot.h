@@ -45,7 +45,7 @@ class RiuSummaryQwtPlot : public RiuQwtPlotWidget
 
 public:
     RiuSummaryQwtPlot( RimSummaryPlot* plot, QWidget* parent = nullptr );
-    ~RiuSummaryQwtPlot() override;
+    ~RiuSummaryQwtPlot();
 
     void useDateBasedTimeAxis( const QString&                          dateFormat,
                                const QString&                          timeFormat,
@@ -59,7 +59,7 @@ public:
     void updateAnnotationObjects( RimPlotAxisPropertiesInterface* axisProperties );
 
 protected:
-    void contextMenuEvent( QContextMenuEvent* ) override;
+    void contextMenuEvent( QContextMenuEvent* );
     void setDefaults();
     bool isZoomerActive() const override;
     void endZoomOperations() override;
