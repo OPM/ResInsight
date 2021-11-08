@@ -295,7 +295,6 @@ void RicNewStimPlanModelPlotFeature::createFaciesTrack( RimStimPlanModelPlot* pl
     RiaApplication::instance()->project()->updateConnectedEditors();
 
     RiaGuiApplication::instance()->getOrCreateMainPlotWindow();
-    RiuPlotMainWindowTools::selectAsCurrentItem( curve );
     RiuPlotMainWindowTools::showPlotMainWindow();
 }
 
@@ -347,7 +346,6 @@ void RicNewStimPlanModelPlotFeature::createLayersTrack( RimStimPlanModelPlot* pl
     RiaApplication::instance()->project()->updateConnectedEditors();
 
     RiaGuiApplication::instance()->getOrCreateMainPlotWindow();
-    RiuPlotMainWindowTools::selectAsCurrentItem( curve );
     RiuPlotMainWindowTools::showPlotMainWindow();
 }
 
@@ -435,7 +433,6 @@ void RicNewStimPlanModelPlotFeature::createParametersTrack( RimStimPlanModelPlot
     RiaApplication::instance()->project()->updateConnectedEditors();
 
     RiaGuiApplication::instance()->getOrCreateMainPlotWindow();
-    // RiuPlotMainWindowTools::selectAsCurrentItem( curve );
     RiuPlotMainWindowTools::showPlotMainWindow();
 }
 
