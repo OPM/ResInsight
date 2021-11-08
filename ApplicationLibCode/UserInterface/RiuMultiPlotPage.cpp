@@ -615,10 +615,10 @@ void RiuMultiPlotPage::reinsertPlotWidgets()
             subTitleFont.setPixelSize( m_subTitleFontPixelSize );
             subTitles[visibleIndex]->setFont( subTitleFont );
 
-            plotWidgets[visibleIndex]->setAxisLabelsAndTicksEnabled( QwtPlot::yLeft,
+            plotWidgets[visibleIndex]->setAxisLabelsAndTicksEnabled( RiaDefines::PlotAxis::PLOT_AXIS_LEFT,
                                                                      showYAxis( row, column ),
                                                                      showYAxis( row, column ) );
-            plotWidgets[visibleIndex]->setAxisTitleEnabled( QwtPlot::yLeft, showYAxis( row, column ) );
+            plotWidgets[visibleIndex]->setAxisTitleEnabled( RiaDefines::PlotAxis::PLOT_AXIS_LEFT, showYAxis( row, column ) );
             plotWidgets[visibleIndex]->setAxesFontsAndAlignment( m_axisTitleFontSize, m_axisValueFontSize );
 
             plotWidgets[visibleIndex]->show();
@@ -676,18 +676,19 @@ int RiuMultiPlotPage::alignCanvasTops()
     for ( int visibleIndex = 0; visibleIndex < plotWidgets.size(); ++visibleIndex )
     {
         int row = visibleIndex / rowAndColumnCount.second;
-        if ( plotWidgets[visibleIndex]->axisEnabled( QwtPlot::xTop ) )
+        if ( plotWidgets[visibleIndex]->axisEnabled( RiaDefines::PlotAxis::PLOT_AXIS_TOP ) )
         {
-            QFont font = m_plotWidgets[visibleIndex]->axisFont( QwtPlot::xTop );
+            QFont font = m_plotWidgets[visibleIndex]->qwtPlot()->axisFont( QwtPlot::xTop );
             maxExtents[row] =
-                std::max( maxExtents[row], plotWidgets[visibleIndex]->axisScaleDraw( QwtPlot::xTop )->extent( font ) );
+                std::max( maxExtents[row],
+                          plotWidgets[visibleIndex]->qwtPlot()->axisScaleDraw( QwtPlot::xTop )->extent( font ) );
         }
     }
 
     for ( int visibleIndex = 0; visibleIndex < plotWidgets.size(); ++visibleIndex )
     {
         int row = visibleIndex / rowAndColumnCount.second;
-        plotWidgets[visibleIndex]->axisScaleDraw( QwtPlot::xTop )->setMinimumExtent( maxExtents[row] );
+        plotWidgets[visibleIndex]->qwtPlot()->axisScaleDraw( QwtPlot::xTop )->setMinimumExtent( maxExtents[row] );
         if ( legends[visibleIndex] )
         {
             legends[visibleIndex]->adjustSize();

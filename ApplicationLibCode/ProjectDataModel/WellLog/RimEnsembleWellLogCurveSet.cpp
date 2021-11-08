@@ -255,7 +255,7 @@ void RimEnsembleWellLogCurveSet::reattachQwtCurves()
     firstAncestorOrThisOfType( plot );
     if ( plot )
     {
-        m_qwtPlotCurveForLegendText->attach( plot->viewer() );
+        m_qwtPlotCurveForLegendText->attach( plot->viewer()->qwtPlot() );
     }
 }
 
@@ -637,8 +637,8 @@ void RimEnsembleWellLogCurveSet::updateFilterLegend()
         {
             if ( !m_filterOverlayFrame )
             {
-                m_filterOverlayFrame =
-                    new RiuDraggableOverlayFrame( plotTrack->viewer()->canvas(), plotTrack->viewer()->overlayMargins() );
+                m_filterOverlayFrame = new RiuDraggableOverlayFrame( plotTrack->viewer()->qwtPlot()->canvas(),
+                                                                     plotTrack->viewer()->overlayMargins() );
             }
             m_filterOverlayFrame->setContentFrame( m_ensembleCurveSet->curveFilters()->makeFilterDescriptionFrame() );
             plotTrack->viewer()->addOverlayFrame( m_filterOverlayFrame );
@@ -735,8 +735,8 @@ void RimEnsembleWellLogCurveSet::updateCurveColors()
         {
             if ( !m_legendOverlayFrame )
             {
-                m_legendOverlayFrame =
-                    new RiuDraggableOverlayFrame( plotTrack->viewer()->canvas(), plotTrack->viewer()->overlayMargins() );
+                m_legendOverlayFrame = new RiuDraggableOverlayFrame( plotTrack->viewer()->qwtPlot()->canvas(),
+                                                                     plotTrack->viewer()->overlayMargins() );
             }
             m_legendOverlayFrame->setContentFrame( m_ensembleCurveSet->legendConfig()->makeLegendFrame() );
             plotTrack->viewer()->addOverlayFrame( m_legendOverlayFrame );
@@ -780,7 +780,7 @@ void RimEnsembleWellLogCurveSet::updateEnsembleCurves( const std::vector<RimWell
         wellPathFormations = createWellPathFormations( offsets );
     }
 
-    m_qwtPlotCurveForLegendText->attach( plotTrack->viewer() );
+    m_qwtPlotCurveForLegendText->attach( plotTrack->viewer()->qwtPlot() );
 
     QString wellLogChannelName = m_wellLogChannelName();
     if ( plotTrack && wellLogChannelName != "None" )

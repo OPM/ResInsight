@@ -19,7 +19,10 @@
 
 #pragma once
 
+#include "RiaDefines.h"
 #include "RiuInterfaceToViewWindow.h"
+
+#include "RiaPlotDefines.h"
 
 #include "cafPdmObject.h"
 #include "cafPdmPointer.h"
@@ -52,11 +55,18 @@ class QWheelEvent;
 //
 //
 //==================================================================================================
-class RiuQwtPlotWidget : public QwtPlot, public RiuInterfaceToViewWindow
+class RiuQwtPlotWidget : public QWidget, public RiuInterfaceToViewWindow
 {
     Q_OBJECT
 
 public:
+    enum class AxisScaleType
+    {
+        LINEAR,
+        LOGARITHMIC,
+        DATE
+    };
+
     RiuQwtPlotWidget( RimPlot* plotDefinition, QWidget* parent = nullptr );
     ~RiuQwtPlotWidget() override;
 
@@ -67,9 +77,9 @@ public:
     int colSpan() const;
     int rowSpan() const;
 
-    int  axisTitleFontSize( QwtPlot::Axis axis ) const;
-    int  axisValueFontSize( QwtPlot::Axis axis ) const;
-    void setAxisFontsAndAlignment( QwtPlot::Axis,
+    int  axisTitleFontSize( RiaDefines::PlotAxis axis ) const;
+    int  axisValueFontSize( RiaDefines::PlotAxis axis ) const;
+    void setAxisFontsAndAlignment( RiaDefines::PlotAxis,
                                    int  titleFontSize,
                                    int  valueFontSize,
                                    bool titleBold = false,
@@ -79,8 +89,20 @@ public:
                                    bool titleBold = false,
                                    int  alignment = (int)Qt::AlignCenter );
 
-    void setAxisTitleText( QwtPlot::Axis axis, const QString& title );
-    void setAxisTitleEnabled( QwtPlot::Axis axis, bool enable );
+    void enableAxis( RiaDefines::PlotAxis axis, bool isEnabled );
+    bool axisEnabled( RiaDefines::PlotAxis axis ) const;
+
+    void setAxisScale( RiaDefines::PlotAxis axis, double min, double max );
+    void setAxisAutoScale( RiaDefines::PlotAxis axis, bool enable );
+
+    void setAxisMaxMinor( RiaDefines::PlotAxis axis, int maxMinor );
+    void setAxisMaxMajor( RiaDefines::PlotAxis axis, int maxMajor );
+
+    RiuQwtPlotWidget::AxisScaleType axisScaleType( RiaDefines::PlotAxis axis ) const;
+    void setAxisScaleType( RiaDefines::PlotAxis axis, RiuQwtPlotWidget::AxisScaleType axisScaleType );
+
+    void setAxisTitleText( RiaDefines::PlotAxis axis, const QString& title );
+    void setAxisTitleEnabled( RiaDefines::PlotAxis axis, bool enable );
 
     void           setPlotTitle( const QString& plotTitle );
     const QString& plotTitle() const;
@@ -91,31 +113,31 @@ public:
     void setLegendFontSize( int fontSize );
     void setInternalLegendVisible( bool visible );
 
-    QwtInterval axisRange( QwtPlot::Axis axis ) const;
-    void        setAxisRange( QwtPlot::Axis axis, double min, double max );
+    QwtInterval axisRange( RiaDefines::PlotAxis axis ) const;
+    void        setAxisRange( RiaDefines::PlotAxis axis, double min, double max );
 
-    void setAxisInverted( QwtPlot::Axis axis );
-    void setAxisLabelsAndTicksEnabled( QwtPlot::Axis axis, bool enableLabels, bool enableTicks );
+    void setAxisInverted( RiaDefines::PlotAxis axis, bool isInverted );
+    void setAxisLabelsAndTicksEnabled( RiaDefines::PlotAxis axis, bool enableLabels, bool enableTicks );
 
-    void enableGridLines( QwtPlot::Axis axis, bool majorGridLines, bool minorGridLines );
+    void enableGridLines( RiaDefines::PlotAxis axis, bool majorGridLines, bool minorGridLines );
 
-    void setMajorAndMinorTickIntervals( QwtPlot::Axis axis,
-                                        double        majorTickInterval,
-                                        double        minorTickInterval,
-                                        double        minValue,
-                                        double        maxValue );
-    void setMajorAndMinorTickIntervalsAndRange( QwtPlot::Axis axis,
-                                                double        majorTickInterval,
-                                                double        minorTickInterval,
-                                                double        minTickValue,
-                                                double        maxTickValue,
-                                                double        rangeMin,
-                                                double        rangeMax );
-    void setAutoTickIntervalCounts( QwtPlot::Axis axis, int maxMajorTickIntervalCount, int maxMinorTickIntervalCount );
-    double majorTickInterval( QwtPlot::Axis axis ) const;
-    double minorTickInterval( QwtPlot::Axis axis ) const;
+    void setMajorAndMinorTickIntervals( RiaDefines::PlotAxis axis,
+                                        double               majorTickInterval,
+                                        double               minorTickInterval,
+                                        double               minValue,
+                                        double               maxValue );
+    void setMajorAndMinorTickIntervalsAndRange( RiaDefines::PlotAxis axis,
+                                                double               majorTickInterval,
+                                                double               minorTickInterval,
+                                                double               minTickValue,
+                                                double               maxTickValue,
+                                                double               rangeMin,
+                                                double               rangeMax );
+    void setAutoTickIntervalCounts( RiaDefines::PlotAxis axis, int maxMajorTickIntervalCount, int maxMinorTickIntervalCount );
+    double majorTickInterval( RiaDefines::PlotAxis axis ) const;
+    double minorTickInterval( RiaDefines::PlotAxis axis ) const;
 
-    int axisExtent( QwtPlot::Axis axis ) const;
+    int axisExtent( RiaDefines::PlotAxis axis ) const;
 
     bool   frameIsInFrontOfThis( const QRect& frameGeometry );
     QPoint dragStartPosition() const;
@@ -124,13 +146,20 @@ public:
 
     void addOverlayFrame( RiuDraggableOverlayFrame* overlayWidget );
     void removeOverlayFrame( RiuDraggableOverlayFrame* overlayWidget );
-    void updateLayout() override;
+    void updateLayout();
 
     void renderTo( QPainter* painter, const QRect& targetRect, double scaling );
     void renderTo( QPaintDevice* painter, const QRect& targetRect );
     int  overlayMargins() const;
 
     RimViewWindow* ownerViewWindow() const override;
+
+    QwtPlot* qwtPlot() const;
+
+    void removeEventFilter();
+
+    void updateLegend();
+    void updateAxes();
 
 signals:
     void plotSelected( bool toggleSelection );
@@ -148,7 +177,7 @@ protected:
     void keyPressEvent( QKeyEvent* event ) override;
 
     void applyPlotTitleToQwt();
-    void applyAxisTitleToQwt( QwtPlot::Axis axis );
+    void applyAxisTitleToQwt( RiaDefines::PlotAxis axis );
 
     QSize sizeHint() const override;
     QSize minimumSizeHint() const override;
@@ -164,23 +193,23 @@ protected:
 private:
     void       selectClosestPlotItem( const QPoint& pos, bool toggleItemInSelection = false );
     static int defaultMinimumWidth();
-    void       replot() override;
+    void       replot();
 
     void highlightPlotItem( const QwtPlotItem* closestItem );
     void resetPlotItemHighlighting();
     void onAxisSelected( QwtScaleWidget* scale, bool toggleItemInSelection );
-    void recalculateAxisExtents( QwtPlot::Axis axis );
+    void recalculateAxisExtents( RiaDefines::PlotAxis axis );
 
     void updateOverlayFrameLayout();
 
 private:
-    caf::PdmPointer<RimPlot>         m_plotDefinition;
-    QPoint                           m_clickPosition;
-    std::map<QwtPlot::Axis, QString> m_axisTitles;
-    std::map<QwtPlot::Axis, bool>    m_axisTitlesEnabled;
-    const int                        m_overlayMargins;
-    QString                          m_plotTitle;
-    bool                             m_plotTitleEnabled;
+    caf::PdmPointer<RimPlot>                m_plotDefinition;
+    QPoint                                  m_clickPosition;
+    std::map<RiaDefines::PlotAxis, QString> m_axisTitles;
+    std::map<RiaDefines::PlotAxis, bool>    m_axisTitlesEnabled;
+    const int                               m_overlayMargins;
+    QString                                 m_plotTitle;
+    bool                                    m_plotTitleEnabled;
 
     QList<QPointer<RiuDraggableOverlayFrame>> m_overlayFrames;
 
@@ -193,6 +222,8 @@ private:
 
     std::map<QwtPlotCurve*, CurveColors> m_originalCurveColors;
     std::map<QwtPlotCurve*, double>      m_originalZValues;
+
+    QPointer<QwtPlot> m_plot;
 
     friend class RiaPlotWindowRedrawScheduler;
 };
