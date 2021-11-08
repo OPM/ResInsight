@@ -35,7 +35,6 @@
 #include "qwt_date_scale_engine.h"
 #include "qwt_plot_curve.h"
 #include "qwt_scale_draw.h"
-#include "qwt_scale_engine.h"
 
 #include <cmath>
 #include <set>
@@ -115,7 +114,8 @@ void RimSummaryPlotAxisFormatter::applyAxisPropertiesToPlot( RiuQwtPlotWidget* q
 {
     if ( !qwtPlot ) return;
 
-    QwtPlot::Axis qwtAxisId = RiaDefines::toQwtPlotAxis( m_axisProperties->plotAxisType() );
+    RiaDefines::PlotAxis axis      = m_axisProperties->plotAxisType();
+    QwtPlot::Axis        qwtAxisId = RiaDefines::toQwtPlotAxis( axis );
     {
         QString axisTitle = m_axisProperties->customTitle;
         if ( m_axisProperties->useAutoTitle() ) axisTitle = autoAxisTitle();
@@ -125,13 +125,13 @@ void RimSummaryPlotAxisFormatter::applyAxisPropertiesToPlot( RiuQwtPlotWidget* q
         {
             titleAlignment = Qt::AlignRight;
         }
-        qwtPlot->setAxisTitleText( qwtAxisId, axisTitle );
-        qwtPlot->setAxisFontsAndAlignment( qwtAxisId,
+        qwtPlot->setAxisTitleText( axis, axisTitle );
+        qwtPlot->setAxisFontsAndAlignment( axis,
                                            m_axisProperties->titleFontSize(),
                                            m_axisProperties->valuesFontSize(),
                                            true,
                                            titleAlignment );
-        qwtPlot->setAxisTitleEnabled( qwtAxisId, true );
+        qwtPlot->setAxisTitleEnabled( axis, true );
     }
 
     {
@@ -139,37 +139,34 @@ void RimSummaryPlotAxisFormatter::applyAxisPropertiesToPlot( RiuQwtPlotWidget* q
              m_axisProperties->scaleFactor() == 1.0 )
         {
             // Default to Qwt's own scale draw to avoid changing too much for default values
-            qwtPlot->setAxisScaleDraw( qwtAxisId, new QwtScaleDraw );
+            qwtPlot->qwtPlot()->setAxisScaleDraw( qwtAxisId, new QwtScaleDraw );
         }
         else
         {
-            qwtPlot->setAxisScaleDraw( qwtAxisId,
-                                       new SummaryScaleDraw( m_axisProperties->scaleFactor(),
-                                                             m_axisProperties->numberOfDecimals(),
-                                                             m_axisProperties->numberFormat() ) );
+            qwtPlot->qwtPlot()->setAxisScaleDraw( qwtAxisId,
+                                                  new SummaryScaleDraw( m_axisProperties->scaleFactor(),
+                                                                        m_axisProperties->numberOfDecimals(),
+                                                                        m_axisProperties->numberFormat() ) );
         }
     }
 
     {
         if ( m_axisProperties->isLogarithmicScaleEnabled )
         {
-            QwtLogScaleEngine* currentScaleEngine =
-                dynamic_cast<QwtLogScaleEngine*>( qwtPlot->axisScaleEngine( qwtAxisId ) );
-            if ( !currentScaleEngine )
+            bool isLogScale = qwtPlot->axisScaleType( axis ) == RiuQwtPlotWidget::AxisScaleType::LOGARITHMIC;
+            if ( !isLogScale )
             {
-                qwtPlot->setAxisScaleEngine( qwtAxisId, new QwtLogScaleEngine );
-                qwtPlot->setAxisMaxMinor( qwtAxisId, 5 );
+                qwtPlot->setAxisScaleType( axis, RiuQwtPlotWidget::AxisScaleType::LOGARITHMIC );
+                qwtPlot->setAxisMaxMinor( axis, 5 );
             }
         }
         else
         {
-            QwtLinearScaleEngine* currentScaleEngine =
-                dynamic_cast<QwtLinearScaleEngine*>( qwtPlot->axisScaleEngine( qwtAxisId ) );
-            QwtDateScaleEngine* dateScaleEngine = dynamic_cast<QwtDateScaleEngine*>( currentScaleEngine );
-            if ( !currentScaleEngine || dateScaleEngine )
+            bool isLinearScale = qwtPlot->axisScaleType( axis ) == RiuQwtPlotWidget::AxisScaleType::LINEAR;
+            if ( !isLinearScale )
             {
-                qwtPlot->setAxisScaleEngine( qwtAxisId, new QwtLinearScaleEngine );
-                qwtPlot->setAxisMaxMinor( qwtAxisId, 3 );
+                qwtPlot->setAxisScaleType( axis, RiuQwtPlotWidget::AxisScaleType::LINEAR );
+                qwtPlot->setAxisMaxMinor( axis, 3 );
             }
         }
     }
