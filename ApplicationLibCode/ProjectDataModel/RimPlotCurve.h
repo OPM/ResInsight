@@ -119,6 +119,8 @@ public:
     bool         isCrossPlotCurve() const;
     void         updateUiIconFromPlotSymbol();
 
+    void updateCurveAppearanceForFilesOlderThan_2021_06();
+
 protected:
     virtual QString createCurveAutoName()                        = 0;
     virtual void    updateZoomInParentPlot()                     = 0;

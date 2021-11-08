@@ -67,9 +67,21 @@ RimSummaryPlot* RicSummaryPlotTemplateTools::createPlotFromTemplateFile( const Q
                                                                  caf::PdmDefaultObjectFactory::instance(),
                                                                  true );
 
-    RimSummaryPlot* newSummaryPlot = dynamic_cast<RimSummaryPlot*>( obj );
+    auto* newSummaryPlot = dynamic_cast<RimSummaryPlot*>( obj );
     if ( newSummaryPlot )
     {
+        bool isTemplateBefore_2021_06 = !objectAsText.contains( "<PlotCurveAppearance>" );
+        if ( isTemplateBefore_2021_06 )
+        {
+            for ( auto c : newSummaryPlot->summaryAndEnsembleCurves() )
+            {
+                // Special handling of appearance settings because we do not have any support for file version of
+                // plot templates
+                // https://github.com/OPM/ResInsight/issues/8257
+                c->updateCurveAppearanceForFilesOlderThan_2021_06();
+            }
+        }
+
         return newSummaryPlot;
     }
 

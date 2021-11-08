@@ -269,19 +269,7 @@ void RimPlotCurve::initAfterRead()
 {
     if ( RimProject::current()->isProjectFileVersionEqualOrOlderThan( "2021.06.0" ) )
     {
-        // Forward values of obsolete fields to appearance object
-        m_curveAppearance->setSymbolSize( m_symbolSize_OBSOLETE );
-        m_curveAppearance->setSymbolLabel( m_symbolLabel_OBSOLETE );
-        m_curveAppearance->setColor( m_curveColor_OBSOLETE );
-        m_curveAppearance->setLineThickness( m_curveThickness_OBSOLETE );
-        m_curveAppearance->setSymbolSkipDistance( m_symbolSkipPixelDistance_OBSOLETE );
-        m_curveAppearance->setSymbol( m_pointSymbol_OBSOLETE() );
-        m_curveAppearance->setLineStyle( m_lineStyle_OBSOLETE() );
-        m_curveAppearance->setFillStyle( m_fillStyle_OBSOLETE() );
-        m_curveAppearance->setFillColor( m_fillColor_OBSOLETE );
-        m_curveAppearance->setInterpolation( m_curveInterpolation_OBSOLETE() );
-        m_curveAppearance->setSymbolLabelPosition( m_symbolLabelPosition_OBSOLETE() );
-        m_curveAppearance->setSymbolEdgeColor( m_symbolEdgeColor_OBSOLETE );
+        updateCurveAppearanceForFilesOlderThan_2021_06();
     }
 }
 
@@ -623,6 +611,26 @@ void RimPlotCurve::updateUiIconFromPlotSymbol()
         QPixmap    pixmap  = graphic.toPixmap();
         setUiIcon( caf::IconProvider( pixmap ) );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlotCurve::updateCurveAppearanceForFilesOlderThan_2021_06()
+{
+    // Forward values of obsolete fields to appearance object
+    m_curveAppearance->setSymbolSize( m_symbolSize_OBSOLETE );
+    m_curveAppearance->setSymbolLabel( m_symbolLabel_OBSOLETE );
+    m_curveAppearance->setColor( m_curveColor_OBSOLETE );
+    m_curveAppearance->setLineThickness( m_curveThickness_OBSOLETE );
+    m_curveAppearance->setSymbolSkipDistance( m_symbolSkipPixelDistance_OBSOLETE );
+    m_curveAppearance->setSymbol( m_pointSymbol_OBSOLETE() );
+    m_curveAppearance->setLineStyle( m_lineStyle_OBSOLETE() );
+    m_curveAppearance->setFillStyle( m_fillStyle_OBSOLETE() );
+    m_curveAppearance->setFillColor( m_fillColor_OBSOLETE );
+    m_curveAppearance->setInterpolation( m_curveInterpolation_OBSOLETE() );
+    m_curveAppearance->setSymbolLabelPosition( m_symbolLabelPosition_OBSOLETE() );
+    m_curveAppearance->setSymbolEdgeColor( m_symbolEdgeColor_OBSOLETE );
 }
 
 //--------------------------------------------------------------------------------------------------
