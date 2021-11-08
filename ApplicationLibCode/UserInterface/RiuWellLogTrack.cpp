@@ -19,6 +19,8 @@
 
 #include "RiuWellLogTrack.h"
 
+#include "RiaDefines.h"
+#include "RiaPlotDefines.h"
 #include "RimWellLogCurve.h"
 #include "RimWellLogExtractionCurve.h"
 #include "RimWellLogTrack.h"
@@ -119,7 +121,7 @@ RiuWellLogTrack::RiuWellLogTrack( RimWellLogTrack* track, QWidget* parent /*= nu
     setAxisEnabled( QwtPlot::xTop, true );
     setAxisEnabled( QwtPlot::xBottom, false );
 
-    new RiuWellLogCurvePointTracker( this, &wellLogCurveInfoTextProvider );
+    new RiuWellLogCurvePointTracker( this->qwtPlot(), &wellLogCurveInfoTextProvider );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -134,20 +136,17 @@ RiuWellLogTrack::~RiuWellLogTrack()
 //--------------------------------------------------------------------------------------------------
 void RiuWellLogTrack::setAxisEnabled( QwtPlot::Axis axis, bool enabled )
 {
+    RiaDefines::PlotAxis plotAxis = RiaDefines::fromQwtPlotAxis( axis );
+    RiuQwtPlotWidget::enableAxis( plotAxis, enabled );
+
     if ( enabled )
     {
-        enableAxis( axis, true );
-
         // Align the canvas with the actual min and max values of the curves
-        axisScaleEngine( axis )->setAttribute( QwtScaleEngine::Floating, true );
-        setAxisScale( axis, 0.0, 100.0 );
-        axisScaleDraw( axis )->setMinimumExtent( axisExtent( axis ) );
+        qwtPlot()->axisScaleEngine( axis )->setAttribute( QwtScaleEngine::Floating, true );
+        setAxisScale( plotAxis, 0.0, 100.0 );
+        qwtPlot()->axisScaleDraw( axis )->setMinimumExtent( axisExtent( plotAxis ) );
 
-        axisWidget( axis )->setMargin( 0 );
-        setAxisTitleEnabled( axis, true );
-    }
-    else
-    {
-        enableAxis( axis, false );
+        qwtPlot()->axisWidget( axis )->setMargin( 0 );
+        setAxisTitleEnabled( plotAxis, true );
     }
 }

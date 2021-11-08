@@ -688,7 +688,7 @@ void RicSummaryPlotEditorUi::updateTargetPlot()
             copyEnsembleCurveAndAddToCurveSet( editedCurve, editedCurveSet );
         }
 
-        newCurveSet->setParentQwtPlotNoReplot( m_targetPlot->viewer() );
+        newCurveSet->setParentQwtPlotNoReplot( m_targetPlot->viewer()->qwtPlot() );
     }
 
     m_targetPlot->enableAutoPlotTitle( m_useAutoPlotTitleProxy() );
@@ -900,7 +900,7 @@ void RicSummaryPlotEditorUi::updateCurveNames()
         curve->updateCurveNameNoLegendUpdate();
     }
 
-    if ( m_previewPlot && m_previewPlot->viewer() ) m_previewPlot->viewer()->updateLegend();
+    if ( m_previewPlot && m_previewPlot->viewer() ) m_previewPlot->viewer()->qwtPlot()->updateLegend();
 }
 
 //--------------------------------------------------------------------------------------------------
