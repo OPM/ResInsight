@@ -86,6 +86,7 @@ void RimGenericParameter::setLabel( QString labelText )
 void RimGenericParameter::setDescription( QString description )
 {
     m_description = description;
+    m_label.uiCapability()->setUiToolTip( description );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -150,4 +151,12 @@ QString RimGenericParameter::description() const
 QString RimGenericParameter::jsonValue() const
 {
     return stringValue();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGenericParameter::initAfterRead()
+{
+    m_label.uiCapability()->setUiToolTip( m_description );
 }
