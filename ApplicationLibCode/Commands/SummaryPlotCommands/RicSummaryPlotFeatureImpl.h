@@ -49,7 +49,6 @@ public:
         NONE
     };
 
-    static RimSummaryCurve*              addDefaultCurveToPlot( RimSummaryPlot* plot, RimSummaryCase* summaryCase );
     static std::vector<RimSummaryCurve*> addDefaultCurvesToPlot( RimSummaryPlot* plot, RimSummaryCase* summaryCase );
     static void ensureAtLeastOnePlot( RimSummaryPlotCollection* summaryPlotCollection, RimSummaryCase* summaryCase );
     static caf::PdmObject* createDefaultSummaryPlot( RimSummaryCase* summaryCase );

@@ -63,58 +63,6 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSummaryCurve* RicSummaryPlotFeatureImpl::addDefaultCurveToPlot( RimSummaryPlot* plot, RimSummaryCase* summaryCase )
-{
-    if ( plot && summaryCase && summaryCase->summaryReader() )
-    {
-        RifEclipseSummaryAddress defaultAddressToUse;
-
-        RiaPreferencesSummary* prefs = RiaPreferencesSummary::current();
-
-        QString     curvesTextFilter = prefs->defaultSummaryCurvesTextFilter();
-        QStringList curveFilters     = curvesTextFilter.split( ";", QString::SkipEmptyParts );
-
-        if ( curveFilters.size() )
-        {
-            const std::set<RifEclipseSummaryAddress>& addrs = summaryCase->summaryReader()->allResultAddresses();
-
-            for ( const auto& addr : addrs )
-            {
-                const QString& filter = curveFilters[0];
-                {
-                    if ( addr.isUiTextMatchingFilterText( filter ) )
-                    {
-                        defaultAddressToUse = addr;
-                    }
-                }
-            }
-        }
-
-        RimSummaryCurve* newCurve = new RimSummaryCurve();
-
-        // Use same counting as RicNewSummaryEnsembleCurveSetFeature::onActionTriggered
-        cvf::Color3f curveColor =
-            RiaColorTables::summaryCurveDefaultPaletteColors().cycledColor3f( plot->singleColorCurveCount() );
-        newCurve->setColor( curveColor );
-
-        plot->addCurveNoUpdate( newCurve );
-
-        if ( summaryCase )
-        {
-            newCurve->setSummaryCaseY( summaryCase );
-        }
-
-        newCurve->setSummaryAddressYAndApplyInterpolation( defaultAddressToUse );
-
-        return newCurve;
-    }
-
-    return nullptr;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 std::vector<RimSummaryCurve*> RicSummaryPlotFeatureImpl::addDefaultCurvesToPlot( RimSummaryPlot* plot,
                                                                                  RimSummaryCase* summaryCase )
 {
@@ -183,6 +131,9 @@ caf::PdmObject* RicSummaryPlotFeatureImpl::createDefaultSummaryPlot( RimSummaryC
     return itemToSelect;
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RimSummaryCurve* createHistoryCurve( const RifEclipseSummaryAddress& addr, RimSummaryCase* summaryCasesToUse )
 {
     RifEclipseSummaryAddress historyAddr = addr;
