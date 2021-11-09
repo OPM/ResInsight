@@ -73,14 +73,16 @@ public:
                                                  EnsembleColoringType ensembleColoringStyle = EnsembleColoringType::NONE,
                                                  QString              ensembleColoringParameter = "" );
 
-    static void filteredSummaryAdressesFromCase( const QStringList&                        curveFilters,
-                                                 const std::set<RifEclipseSummaryAddress>& allAddressesInCase,
-                                                 std::set<RifEclipseSummaryAddress>* setToInsertFilteredAddressesIn,
-                                                 std::vector<bool>*                  usedFilters );
+    static void insertFilteredAddressesInSet( const QStringList&                        curveFilters,
+                                              const std::set<RifEclipseSummaryAddress>& allAddressesInCase,
+                                              std::set<RifEclipseSummaryAddress>*       setToInsertFilteredAddressesIn,
+                                              std::vector<bool>*                        usedFilters );
 
     static QString summaryPlotCommandLineHelpText();
 
 private:
+    static bool hasFilterAnyMatch( const QString& curveFilter, const std::set<RifEclipseSummaryAddress>& summaryAddresses );
+
     static std::vector<RimSummaryCurve*> addCurvesFromAddressFiltersToPlot( const QStringList& curveFilters,
                                                                             RimSummaryPlot*    plot,
                                                                             RimSummaryCase*    summaryCase,
@@ -90,8 +92,8 @@ private:
         applySummaryAddressFiltersToCases( const std::vector<RimSummaryCase*>& summaryCasesToUse,
                                            const QStringList&                  summaryAddressFilters );
 
-    static void splitAddressFiltersInGridAndSummary( RimSummaryCase*    summaryBaseCases,
-                                                     const QStringList& allCurveAddressFilters,
+    static void splitAddressFiltersInGridAndSummary( RimSummaryCase*    summaryCase,
+                                                     const QStringList& addressFilters,
                                                      QStringList*       summaryAddressFilters,
                                                      QStringList*       gridResultAddressFilters );
 };

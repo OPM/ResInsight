@@ -742,24 +742,21 @@ std::vector<RimSummaryPlot*> RicSummaryPlotFeatureImpl::createMultipleSummaryPlo
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicSummaryPlotFeatureImpl::splitAddressFiltersInGridAndSummary( RimSummaryCase*    summaryBaseCases,
-                                                                     const QStringList& allCurveAddressFilters,
+void RicSummaryPlotFeatureImpl::splitAddressFiltersInGridAndSummary( RimSummaryCase*    summaryCase,
+                                                                     const QStringList& addressFilters,
                                                                      QStringList*       summaryAddressFilters,
                                                                      QStringList*       gridResultAddressFilters )
 {
-    if ( summaryBaseCases )
+    if ( summaryCase )
     {
-        const std::set<RifEclipseSummaryAddress>& addrs = summaryBaseCases->summaryReader()->allResultAddresses();
-        std::vector<bool>                         usedFilters;
-        std::set<RifEclipseSummaryAddress>        setToInsertFilteredAddressesIn;
-        filteredSummaryAdressesFromCase( allCurveAddressFilters, addrs, &setToInsertFilteredAddressesIn, &usedFilters );
+        const std::set<RifEclipseSummaryAddress>& addrs = summaryCase->summaryReader()->allResultAddresses();
 
         QRegularExpression gridAddressPattern( "^[A-Z]+:[0-9]+,[0-9]+,[0-9]+$" );
 
-        for ( int filterIdx = 0; filterIdx < allCurveAddressFilters.size(); ++filterIdx )
+        for ( int filterIdx = 0; filterIdx < addressFilters.size(); ++filterIdx )
         {
-            const QString& address = allCurveAddressFilters[filterIdx];
-            if ( usedFilters[filterIdx] )
+            const QString& address = addressFilters[filterIdx];
+            if ( hasFilterAnyMatch( address, addrs ) )
             {
                 summaryAddressFilters->push_back( address );
             }
@@ -791,7 +788,7 @@ std::set<RifEclipseSummaryAddress>
         const std::set<RifEclipseSummaryAddress>& addrs = sumCase->summaryReader()->allResultAddresses();
         std::vector<bool>                         usedFilters;
 
-        filteredSummaryAdressesFromCase( summaryAddressFilters, addrs, &filteredAdressesFromCases, &usedFilters );
+        insertFilteredAddressesInSet( summaryAddressFilters, addrs, &filteredAdressesFromCases, &usedFilters );
 
         for ( size_t cfIdx = 0; cfIdx < usedFilters.size(); ++cfIdx )
         {
@@ -803,6 +800,20 @@ std::set<RifEclipseSummaryAddress>
         }
     }
     return filteredAdressesFromCases;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RicSummaryPlotFeatureImpl::hasFilterAnyMatch( const QString&                            curveFilter,
+                                                   const std::set<RifEclipseSummaryAddress>& summaryAddresses )
+{
+    for ( const auto& addr : summaryAddresses )
+    {
+        if ( addr.isUiTextMatchingFilterText( curveFilter ) ) return true;
+    }
+
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -823,7 +834,7 @@ std::vector<RimSummaryCurve*> RicSummaryPlotFeatureImpl::addCurvesFromAddressFil
     const std::set<RifEclipseSummaryAddress>& addrs = summaryCase->summaryReader()->allResultAddresses();
     std::vector<bool>                         usedFilters;
 
-    filteredSummaryAdressesFromCase( curveFilters, addrs, &curveAddressesToUse, &usedFilters );
+    insertFilteredAddressesInSet( curveFilters, addrs, &curveAddressesToUse, &usedFilters );
 
     for ( size_t cfIdx = 0; cfIdx < usedFilters.size(); ++cfIdx )
     {
@@ -873,11 +884,10 @@ std::vector<RimSummaryCurve*> RicSummaryPlotFeatureImpl::addCurvesFromAddressFil
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicSummaryPlotFeatureImpl::filteredSummaryAdressesFromCase(
-    const QStringList&                        curveFilters,
-    const std::set<RifEclipseSummaryAddress>& allAddressesInCase,
-    std::set<RifEclipseSummaryAddress>*       setToInsertFilteredAddressesIn,
-    std::vector<bool>*                        usedFilters )
+void RicSummaryPlotFeatureImpl::insertFilteredAddressesInSet( const QStringList&                        curveFilters,
+                                                              const std::set<RifEclipseSummaryAddress>& allAddressesInCase,
+                                                              std::set<RifEclipseSummaryAddress>* setToInsertFilteredAddressesIn,
+                                                              std::vector<bool>*                  usedFilters )
 {
     int curveFilterCount = curveFilters.size();
 

@@ -185,10 +185,10 @@ void RimSummaryPlotFilterTextCurveSetEditor::updateTextFilter()
 
     std::vector<bool>                  usedFilters;
     std::set<RifEclipseSummaryAddress> filteredAddressesFromSource;
-    RicSummaryPlotFeatureImpl::filteredSummaryAdressesFromCase( allCurveAddressFilters,
-                                                                addressesInUse,
-                                                                &filteredAddressesFromSource,
-                                                                &usedFilters );
+    RicSummaryPlotFeatureImpl::insertFilteredAddressesInSet( allCurveAddressFilters,
+                                                             addressesInUse,
+                                                             &filteredAddressesFromSource,
+                                                             &usedFilters );
 
     if ( filteredAddressesFromSource != addressesInUse )
     {
@@ -251,10 +251,10 @@ void RimSummaryPlotFilterTextCurveSetEditor::fieldChangedByUi( const caf::PdmFie
 
             std::vector<bool>                  usedFilters;
             std::set<RifEclipseSummaryAddress> filteredAddressesFromSource;
-            RicSummaryPlotFeatureImpl::filteredSummaryAdressesFromCase( allCurveAddressFilters,
-                                                                        allAddressesFromSource,
-                                                                        &filteredAddressesFromSource,
-                                                                        &usedFilters );
+            RicSummaryPlotFeatureImpl::insertFilteredAddressesInSet( allCurveAddressFilters,
+                                                                     allAddressesFromSource,
+                                                                     &filteredAddressesFromSource,
+                                                                     &usedFilters );
 
             for ( size_t fIdx = 0; fIdx < accumulatedUsedFilters.size(); ++fIdx )
             {
