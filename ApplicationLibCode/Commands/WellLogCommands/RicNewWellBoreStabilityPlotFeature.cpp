@@ -189,9 +189,11 @@ void RicNewWellBoreStabilityPlotFeature::onActionTriggered( bool isChecked )
     }
     if ( wellPathGeometry->rkbDiff() == HUGE_VAL )
     {
-        RiaLogging::error( QString( "The well path %1 has no datum elevation and we cannot estimate TVDRKB. Cannot "
-                                    "create a Well Bore Stability Plot" )
-                               .arg( wellPath->name() ) );
+        RiaLogging::error(
+            QString( "The well path %1 has no datum elevation and we cannot estimate TVDRKB. Cannot "
+                     "create a Well Bore Stability Plot\nTo solve this issue, please activate the Property Editor, "
+                     "select Well Targets and activate Generate Well Target at Sea Level" )
+                .arg( wellPath->name() ) );
         return;
     }
 
