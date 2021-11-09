@@ -30,17 +30,24 @@
 #include <QFile>
 #include <QXmlStreamReader>
 
-#include "qdebug.h"
-
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RifParameterXmlReader::RifParameterXmlReader( QString filename )
     : m_filename( filename )
 {
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RifParameterXmlReader::~RifParameterXmlReader()
 {
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RimGenericParameter* getParameterFromTypeStr( QString typestr )
 {
     // check that we have a type we support
@@ -60,6 +67,9 @@ RimGenericParameter* getParameterFromTypeStr( QString typestr )
     return nullptr;
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RifParameterXmlReader::parseFile( QString& outErrorText )
 {
     m_parameters.clear();
@@ -231,6 +241,9 @@ bool RifParameterXmlReader::parseFile( QString& outErrorText )
     return bResult;
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::list<RimParameterGroup*>& RifParameterXmlReader::parameterGroups()
 {
     return m_parameters;
