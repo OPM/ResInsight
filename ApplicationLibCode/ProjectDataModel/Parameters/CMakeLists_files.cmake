@@ -6,6 +6,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimListParameter.h
     ${CMAKE_CURRENT_LIST_DIR}/RimParameterGroup.h
     ${CMAKE_CURRENT_LIST_DIR}/RimParameterGroups.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimParameterList.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
@@ -16,6 +17,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimListParameter.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimParameterGroup.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimParameterGroups.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimParameterList.cpp
 )
 
 list(APPEND CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})

@@ -25,6 +25,8 @@
 #include "RimDoubleParameter.h"
 #include "RimGenericParameter.h"
 #include "RimIntegerParameter.h"
+#include "RimListParameter.h"
+#include "RimParameterList.h"
 #include "RimStringParameter.h"
 
 #include <cmath>
@@ -67,6 +69,11 @@ RimParameterGroup::RimParameterGroup()
     m_labelProxy.uiCapability()->setUiReadOnly( true );
     m_labelProxy.uiCapability()->setUiHidden( true );
     m_labelProxy.xmlCapability()->disableIO();
+
+    CAF_PDM_InitFieldNoDefault( &m_lists, "ParameterLists", "Parameter Lists", "", "", "" );
+    m_lists.uiCapability()->setUiHidden( true );
+    m_lists.uiCapability()->setUiTreeHidden( true );
+    m_lists.uiCapability()->setUiTreeChildrenHidden( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -138,6 +145,14 @@ void RimParameterGroup::addParameter( QString name, double value )
     p->setValue( value );
 
     addParameter( p );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimParameterGroup::addList( RimParameterList* paramList )
+{
+    m_lists.push_back( paramList );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -249,9 +264,34 @@ QString RimParameterGroup::label() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RimParameterGroup::isListParameter( QString paramName ) const
+{
+    for ( auto& list : m_lists )
+    {
+        if ( list->containsParameter( paramName ) ) return true;
+    }
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::vector<RimGenericParameter*> RimParameterGroup::parameters() const
 {
-    return m_parameters.childObjects();
+    std::vector<RimGenericParameter*> retParams;
+
+    for ( const auto& p : m_parameters.childObjects() )
+    {
+        if ( isListParameter( p->name() ) ) continue;
+        retParams.push_back( p );
+    }
+
+    for ( const auto& list : m_lists )
+    {
+        retParams.push_back( list->getAsListParameter( m_parameters.childObjects() ) );
+    }
+
+    return retParams;
 }
 
 //--------------------------------------------------------------------------------------------------

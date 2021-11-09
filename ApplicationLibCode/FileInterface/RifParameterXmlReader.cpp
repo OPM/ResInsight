@@ -22,12 +22,15 @@
 #include "RimGenericParameter.h"
 #include "RimIntegerParameter.h"
 #include "RimListParameter.h"
+#include "RimParameterList.h"
 #include "RimStringParameter.h"
 
 #include "RimParameterGroup.h"
 
 #include <QFile>
 #include <QXmlStreamReader>
+
+#include "qdebug.h"
 
 RifParameterXmlReader::RifParameterXmlReader( QString filename )
     : m_filename( filename )
@@ -52,10 +55,6 @@ RimGenericParameter* getParameterFromTypeStr( QString typestr )
     else if ( typestr == "string" )
     {
         return new RimStringParameter();
-    }
-    else if ( typestr == "list" )
-    {
-        return new RimListParameter();
     }
 
     return nullptr;
@@ -82,112 +81,147 @@ bool RifParameterXmlReader::parseFile( QString& outErrorText )
     RimParameterGroup* group = nullptr;
 
     std::list<QString> reqGroupAttrs = { QString( "name" ) };
+    std::list<QString> reqListAttrs  = { QString( "name" ) };
     std::list<QString> reqParamAttrs = { QString( "name" ), QString( "label" ), QString( "type" ) };
 
-    bool bResult = true;
+    bool              bResult     = true;
+    RimParameterList* currentList = nullptr;
 
     while ( !xml.atEnd() )
     {
-        if ( xml.readNextStartElement() )
+        if ( xml.readNext() )
         {
-            if ( xml.name() == "group" )
+            if ( xml.isStartElement() )
             {
-                if ( group != nullptr )
+                if ( xml.name() == "group" )
                 {
-                    m_parameters.push_back( group );
-                }
-
-                // check that we have the required attributes
-                for ( auto& reqattr : reqGroupAttrs )
-                {
-                    if ( !xml.attributes().hasAttribute( reqattr ) )
+                    // check that we have the required attributes
+                    for ( auto& reqattr : reqGroupAttrs )
                     {
-                        outErrorText += "Missing required attribute \"" + reqattr + "\" for a parameter group.";
+                        if ( !xml.attributes().hasAttribute( reqattr ) )
+                        {
+                            outErrorText += "Missing required attribute \"" + reqattr + "\" for a parameter group.";
+                            bResult = false;
+                            break;
+                        }
+                    }
+                    if ( !bResult ) break;
+
+                    group = new RimParameterGroup();
+                    if ( xml.attributes().hasAttribute( "name" ) )
+                    {
+                        group->setName( xml.attributes().value( "name" ).toString() );
+                    }
+                    if ( xml.attributes().hasAttribute( "label" ) )
+                    {
+                        group->setLabel( xml.attributes().value( "label" ).toString() );
+                    }
+                    if ( xml.attributes().hasAttribute( "expanded" ) )
+                    {
+                        group->setExpanded( xml.attributes().value( "expanded" ).toString().toLower() == "true" );
+                    }
+                    if ( xml.attributes().hasAttribute( "comment" ) )
+                    {
+                        group->setComment( xml.attributes().value( "comment" ).toString() );
+                    }
+                    continue;
+                }
+                else if ( xml.name() == "parameter" )
+                {
+                    if ( group == nullptr ) continue;
+
+                    // check that we have the required attributes
+                    for ( auto& reqattr : reqParamAttrs )
+                    {
+                        if ( !xml.attributes().hasAttribute( reqattr ) )
+                        {
+                            outErrorText += "Missing required attribute \"" + reqattr + "\" for a parameter.";
+                            bResult = false;
+                            break;
+                        }
+                    }
+                    if ( !bResult ) break;
+
+                    // get a parameter of the required type
+                    QString paramtypestr = xml.attributes().value( "type" ).toString().toLower();
+
+                    RimGenericParameter* parameter = getParameterFromTypeStr( paramtypestr );
+                    if ( parameter == nullptr )
+                    {
+                        outErrorText += "Unsupported parameter type found: " + paramtypestr;
                         bResult = false;
                         break;
                     }
-                }
-                if ( !bResult ) break;
 
-                group = new RimParameterGroup();
-                if ( xml.attributes().hasAttribute( "name" ) )
-                {
-                    group->setName( xml.attributes().value( "name" ).toString() );
+                    parameter->setName( xml.attributes().value( "name" ).toString() );
+                    parameter->setLabel( xml.attributes().value( "label" ).toString() );
+                    parameter->setAdvanced( false );
+
+                    if ( xml.attributes().hasAttribute( "advanced" ) )
+                    {
+                        if ( xml.attributes().value( "advanced" ).toString().toLower() == "true" )
+                            parameter->setAdvanced( true );
+                    }
+
+                    if ( xml.attributes().hasAttribute( "description" ) )
+                    {
+                        parameter->setDescription( xml.attributes().value( "description" ).toString() );
+                    }
+
+                    parameter->setValue( xml.readElementText().trimmed() );
+                    if ( !parameter->isValid() )
+                    {
+                        outErrorText += "Invalid parameter value found for parameter: " + parameter->name();
+                        delete parameter;
+                        bResult = false;
+                        break;
+                    }
+
+                    group->addParameter( parameter );
+                    if ( currentList )
+                    {
+                        currentList->addParameter( parameter->name() );
+                    }
                 }
-                if ( xml.attributes().hasAttribute( "label" ) )
+                else if ( xml.name() == "list" )
                 {
-                    group->setLabel( xml.attributes().value( "label" ).toString() );
+                    // check that we have the required attributes
+                    for ( auto& reqattr : reqListAttrs )
+                    {
+                        if ( !xml.attributes().hasAttribute( reqattr ) )
+                        {
+                            outErrorText += "Missing required attribute \"" + reqattr + "\" for a list parameter.";
+                            bResult = false;
+                            break;
+                        }
+                    }
+                    if ( !bResult ) break;
+
+                    currentList = new RimParameterList();
+                    currentList->setName( xml.attributes().value( "name" ).toString() );
+                    currentList->setLabel( xml.attributes().value( "label" ).toString() );
                 }
-                if ( xml.attributes().hasAttribute( "expanded" ) )
-                {
-                    group->setExpanded( xml.attributes().value( "expanded" ).toString().toLower() == "true" );
-                }
-                if ( xml.attributes().hasAttribute( "comment" ) )
-                {
-                    group->setComment( xml.attributes().value( "comment" ).toString() );
-                }
-                continue;
             }
-
-            if ( xml.name() == "parameter" )
+            else if ( xml.isEndElement() )
             {
-                if ( group == nullptr ) continue;
-
-                // check that we have the required attributes
-                for ( auto& reqattr : reqParamAttrs )
+                if ( xml.name() == "group" )
                 {
-                    if ( !xml.attributes().hasAttribute( reqattr ) )
+                    if ( group != nullptr )
                     {
-                        outErrorText += "Missing required attribute \"" + reqattr + "\" for a parameter.";
-                        bResult = false;
-                        break;
+                        m_parameters.push_back( group );
+                        group = nullptr;
                     }
                 }
-                if ( !bResult ) break;
-
-                // get a parameter of the required type
-                QString paramtypestr = xml.attributes().value( "type" ).toString().toLower();
-
-                RimGenericParameter* parameter = getParameterFromTypeStr( paramtypestr );
-                if ( parameter == nullptr )
+                else if ( xml.name() == "list" )
                 {
-                    outErrorText += "Unsupported parameter type found: " + paramtypestr;
-                    bResult = false;
-                    break;
+                    if ( group )
+                    {
+                        group->addList( currentList );
+                    }
+                    currentList = nullptr;
                 }
-
-                parameter->setName( xml.attributes().value( "name" ).toString() );
-                parameter->setLabel( xml.attributes().value( "label" ).toString() );
-                parameter->setAdvanced( false );
-
-                if ( xml.attributes().hasAttribute( "advanced" ) )
-                {
-                    if ( xml.attributes().value( "advanced" ).toString().toLower() == "true" )
-                        parameter->setAdvanced( true );
-                }
-
-                if ( xml.attributes().hasAttribute( "description" ) )
-                {
-                    parameter->setDescription( xml.attributes().value( "description" ).toString() );
-                }
-
-                parameter->setValue( xml.readElementText().trimmed() );
-                if ( !parameter->isValid() )
-                {
-                    outErrorText += "Invalid parameter value found for parameter: " + parameter->name();
-                    delete parameter;
-                    bResult = false;
-                    break;
-                }
-
-                group->addParameter( parameter );
             }
         }
-    }
-
-    if ( group != nullptr )
-    {
-        m_parameters.push_back( group );
     }
 
     dataFile.close();
