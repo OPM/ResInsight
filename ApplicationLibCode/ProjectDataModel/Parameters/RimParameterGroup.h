@@ -28,6 +28,7 @@
 #include <vector>
 
 class RimGenericParameter;
+class RimParameterList;
 
 //==================================================================================================
 ///
@@ -45,6 +46,8 @@ public:
     void addParameter( QString name, int value );
     void addParameter( QString name, QString value );
     void addParameter( QString name, double value );
+
+    void addList( RimParameterList* paramList );
 
     void appendParametersToList( std::list<RimGenericParameter*>& parameterList );
 
@@ -76,6 +79,8 @@ private:
     caf::PdmFieldHandle* userDescriptionField() override;
     QString              labelOrName() const;
 
+    bool isListParameter( QString paramName ) const;
+
 private:
     caf::PdmChildArrayField<RimGenericParameter*> m_parameters;
     caf::PdmField<bool>                           m_showExpanded;
@@ -83,4 +88,5 @@ private:
     caf::PdmField<QString>                        m_label;
     caf::PdmField<QString>                        m_comment;
     caf::PdmProxyValueField<QString>              m_labelProxy;
+    caf::PdmChildArrayField<RimParameterList*>    m_lists;
 };
