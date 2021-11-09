@@ -88,6 +88,9 @@ public:
 private:
     static bool hasFilterAnyMatch( const QString& curveFilter, const std::set<RifEclipseSummaryAddress>& summaryAddresses );
 
+    static RimSummaryCurve* createHistoryCurve( const RifEclipseSummaryAddress& addr, RimSummaryCase* summaryCasesToUse );
+    static RimSummaryCurve* createCurve( RimSummaryCase* summaryCase, const RifEclipseSummaryAddress& address );
+
     static RimEnsembleCurveSet* createCurveSet( RimSummaryCaseCollection*       ensemble,
                                                 const RifEclipseSummaryAddress& addr,
                                                 EnsembleColoringType            ensembleColoringStyle,

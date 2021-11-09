@@ -134,16 +134,14 @@ caf::PdmObject* RicSummaryPlotFeatureImpl::createDefaultSummaryPlot( RimSummaryC
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSummaryCurve* createHistoryCurve( const RifEclipseSummaryAddress& addr, RimSummaryCase* summaryCasesToUse )
+RimSummaryCurve* RicSummaryPlotFeatureImpl::createHistoryCurve( const RifEclipseSummaryAddress& addr,
+                                                                RimSummaryCase*                 summaryCasesToUse )
 {
     RifEclipseSummaryAddress historyAddr = addr;
     historyAddr.setQuantityName( historyAddr.quantityName() + "H" );
     if ( summaryCasesToUse->summaryReader()->allResultAddresses().count( historyAddr ) )
     {
-        RimSummaryCurve* historyCurve = new RimSummaryCurve();
-        historyCurve->setSummaryCaseY( summaryCasesToUse );
-        historyCurve->setSummaryAddressYAndApplyInterpolation( historyAddr );
-        return historyCurve;
+        return createCurve( summaryCasesToUse, historyAddr );
     }
 
     return nullptr;
@@ -671,9 +669,7 @@ std::vector<RimSummaryPlot*> RicSummaryPlotFeatureImpl::createMultipleSummaryPlo
                 const std::set<RifEclipseSummaryAddress>& allAddrsInCase = sumCase->summaryReader()->allResultAddresses();
                 if ( allAddrsInCase.count( addr ) )
                 {
-                    RimSummaryCurve* newCurve = new RimSummaryCurve();
-                    newCurve->setSummaryCaseY( sumCase );
-                    newCurve->setSummaryAddressYAndApplyInterpolation( addr );
+                    auto* newCurve = createCurve( sumCase, addr );
                     createdCurves.push_back( newCurve );
                 }
             }
@@ -786,6 +782,19 @@ bool RicSummaryPlotFeatureImpl::hasFilterAnyMatch( const QString&               
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RimSummaryCurve* RicSummaryPlotFeatureImpl::createCurve( RimSummaryCase*                 summaryCase,
+                                                         const RifEclipseSummaryAddress& address )
+{
+    auto curve = new RimSummaryCurve();
+    curve->setSummaryCaseY( summaryCase );
+    curve->setSummaryAddressYAndApplyInterpolation( address );
+
+    return curve;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::vector<RimSummaryCurve*> RicSummaryPlotFeatureImpl::addCurvesFromAddressFiltersToPlot( const QStringList& curveFilters,
                                                                                             RimSummaryPlot* plot,
                                                                                             RimSummaryCase* summaryCase,
@@ -835,14 +844,10 @@ std::vector<RimSummaryCurve*> RicSummaryPlotFeatureImpl::addCurvesFromAddressFil
 
     for ( const auto& addr : curveAddressesToUse )
     {
-        RimSummaryCurve* newCurve = new RimSummaryCurve();
-        plot->addCurveNoUpdate( newCurve );
-        if ( summaryCase )
-        {
-            newCurve->setSummaryCaseY( summaryCase );
-        }
-        newCurve->setSummaryAddressYAndApplyInterpolation( addr );
+        auto* newCurve = createCurve( summaryCase, addr );
+
         createdCurves.push_back( newCurve );
+        plot->addCurveNoUpdate( newCurve );
     }
 
     return createdCurves;
