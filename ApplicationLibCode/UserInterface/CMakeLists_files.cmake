@@ -53,6 +53,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiuWellLogTrack.h
     ${CMAKE_CURRENT_LIST_DIR}/RiuMultiPlotPage.h
     ${CMAKE_CURRENT_LIST_DIR}/RiuMultiPlotBook.h
+    ${CMAKE_CURRENT_LIST_DIR}/RiuPlotWidget.h
     ${CMAKE_CURRENT_LIST_DIR}/RiuQwtPlotWidget.h
     ${CMAKE_CURRENT_LIST_DIR}/RiuQwtPlotLegend.h
     ${CMAKE_CURRENT_LIST_DIR}/RiuPlotAnnotationTool.h
@@ -149,6 +150,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiuWellLogPlot.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuMultiPlotPage.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuMultiPlotBook.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RiuPlotWidget.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuQwtPlotWidget.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuQwtPlotLegend.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuPlotAnnotationTool.cpp
@@ -226,6 +228,7 @@ list(
   ${CMAKE_CURRENT_LIST_DIR}/RiuMultiPlotPage.h
   ${CMAKE_CURRENT_LIST_DIR}/RiuMultiPlotBook.h
   ${CMAKE_CURRENT_LIST_DIR}/RiuQwtPlotWidget.h
+  ${CMAKE_CURRENT_LIST_DIR}/RiuPlotWidget.h
   ${CMAKE_CURRENT_LIST_DIR}/RiuQwtPlotLegend.h
   ${CMAKE_CURRENT_LIST_DIR}/RiuRecentFileActionProvider.h
   ${CMAKE_CURRENT_LIST_DIR}/RiuDockedQwtPlot.h
