@@ -45,6 +45,8 @@ set(PROJECT_FILES
     MenuItemProducer.h
     TamComboBox.h
     TamComboBox.cpp
+    LineEditAndPushButtons.h
+    LineEditAndPushButtons.cpp
 )
 
 # add the executable

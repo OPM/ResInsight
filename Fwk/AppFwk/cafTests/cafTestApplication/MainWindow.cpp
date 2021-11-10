@@ -4,6 +4,7 @@
 #include "MainWindow.h"
 
 #include "CustomObjectEditor.h"
+#include "LineEditAndPushButtons.h"
 #include "ManyGroups.h"
 #include "MenuItemProducer.h"
 #include "TamComboBox.h"
@@ -54,10 +55,9 @@ class DemoPdmObjectGroup : public caf::PdmDocument
 public:
     DemoPdmObjectGroup()
     {
-        CAF_PDM_InitFieldNoDefault(&objects, "PdmObjects", "", "", "", "")
+        CAF_PDM_InitFieldNoDefault(&objects, "PdmObjects", "MyRootObject", "", "", "");
 
-            objects.uiCapability()
-                ->setUiHidden(true);
+        objects.uiCapability()->setUiHidden(true);
     }
 
 public:
@@ -1199,6 +1199,8 @@ void MainWindow::buildTestModel()
 
     SingleEditorPdmObject* singleEditorObj = new SingleEditorPdmObject;
     m_testRoot->objects.push_back(singleEditorObj);
+
+    m_testRoot->objects.push_back(new LineEditAndPushButtons);
 
     auto tamComboBox = new TamComboBox;
     m_testRoot->objects.push_back(tamComboBox);
