@@ -63,23 +63,22 @@ caf::PdmScriptResponse RicfImportFormationNames::execute()
         RimFormationNames* formationNames = RicImportFormationNamesFeature::importFormationFiles( formationFileList );
         if ( formationNames )
         {
-            if ( m_applyToCaseId() != -1 )
+            bool                  foundCase = false;
+            std::vector<RimCase*> cases;
+            RimProject::current()->allCases( cases );
+            for ( RimCase* rimCase : cases )
             {
-                bool                  foundCase = false;
-                std::vector<RimCase*> cases;
-                RimProject::current()->allCases( cases );
-                for ( RimCase* rimCase : cases )
+                if ( m_applyToCaseId() == -1 || ( rimCase->caseId() == m_applyToCaseId() ) )
                 {
-                    if ( rimCase->caseId() == m_applyToCaseId() )
-                    {
-                        rimCase->setFormationNames( formationNames );
-                        rimCase->updateFormationNamesData();
-                        rimCase->updateConnectedEditors();
-                        foundCase = true;
-                        break;
-                    }
+                    rimCase->setFormationNames( formationNames );
+                    rimCase->updateFormationNamesData();
+                    rimCase->updateConnectedEditors();
+                    foundCase = true;
                 }
-                if ( !foundCase ) warningMessages << "Could not find the case to apply the formations to";
+            }
+            if ( m_applyToCaseId() != -1 && !foundCase )
+            {
+                warningMessages << "Could not find the case to apply the formations to";
             }
         }
     }
