@@ -900,7 +900,7 @@ void RicSummaryPlotEditorUi::updateCurveNames()
         curve->updateCurveNameNoLegendUpdate();
     }
 
-    if ( m_previewPlot && m_previewPlot->viewer() ) m_previewPlot->viewer()->qwtPlot()->updateLegend();
+    if ( m_previewPlot && m_previewPlot->viewer() ) m_previewPlot->viewer()->updateLegend();
 }
 
 //--------------------------------------------------------------------------------------------------

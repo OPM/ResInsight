@@ -42,6 +42,8 @@
 #include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiToolButtonEditor.h"
 
+#include "qwt_plot.h"
+
 CAF_PDM_ABSTRACT_SOURCE_INIT( RimAbstractCorrelationPlot, "AbstractCorrelationPlot" );
 
 //--------------------------------------------------------------------------------------------------

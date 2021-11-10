@@ -23,6 +23,7 @@
 #include "RiaImageTools.h"
 #include "RiaTimeTTools.h"
 
+#include "RiuQwtPlotWidget.h"
 #include "RiuQwtSymbol.h"
 
 #include "qwt_date.h"
@@ -270,9 +271,10 @@ QwtGraphic RiuQwtPlotCurve::legendIcon( int index, const QSizeF& size ) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuQwtPlotCurve::attachToPlot( RiuQwtPlotWidget* plotWidget )
+void RiuQwtPlotCurve::attachToPlot( RiuPlotWidget* plotWidget )
 {
-    attach( plotWidget->qwtPlot() );
+    RiuQwtPlotWidget* qwtPlotWidget = dynamic_cast<RiuQwtPlotWidget*>( plotWidget );
+    attach( qwtPlotWidget->qwtPlot() );
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -107,55 +107,11 @@ RiuQwtPlotWidget::~RiuQwtPlotWidget()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimPlot* RiuQwtPlotWidget::plotDefinition()
-{
-    return m_plotDefinition;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RiuQwtPlotWidget::isChecked() const
-{
-    if ( m_plotDefinition )
-    {
-        return m_plotDefinition->showWindow();
-    }
-    return false;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-int RiuQwtPlotWidget::colSpan() const
-{
-    if ( m_plotDefinition )
-    {
-        return m_plotDefinition->colSpan();
-    }
-    return 1;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-int RiuQwtPlotWidget::rowSpan() const
-{
-    if ( m_plotDefinition )
-    {
-        return m_plotDefinition->rowSpan();
-    }
-    return 1;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 int RiuQwtPlotWidget::axisTitleFontSize( RiaDefines::PlotAxis axis ) const
 {
     if ( axisEnabled( axis ) )
     {
-        return m_plot->axisFont( RiaDefines::toQwtPlotAxis( axis ) ).pointSize();
+        return m_plot->axisFont( RiuQwtPlotTools::toQwtPlotAxis( axis ) ).pointSize();
     }
     return -1;
 }
@@ -167,7 +123,7 @@ int RiuQwtPlotWidget::axisValueFontSize( RiaDefines::PlotAxis axis ) const
 {
     if ( axisEnabled( axis ) )
     {
-        return m_plot->axisTitle( RiaDefines::toQwtPlotAxis( axis ) ).font().pointSize();
+        return m_plot->axisTitle( RiuQwtPlotTools::toQwtPlotAxis( axis ) ).font().pointSize();
     }
     return -1;
 }
@@ -186,7 +142,7 @@ void RiuQwtPlotWidget::setAxisFontsAndAlignment( RiaDefines::PlotAxis axis,
 
     // Axis number font
 
-    int   qwtAxis  = RiaDefines::toQwtPlotAxis( axis );
+    int   qwtAxis  = RiuQwtPlotTools::toQwtPlotAxis( axis );
     QFont axisFont = m_plot->axisFont( qwtAxis );
     axisFont.setPixelSize( valueFontPixelSize );
     axisFont.setBold( false );
@@ -317,9 +273,10 @@ void RiuQwtPlotWidget::setInternalLegendVisible( bool visible )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QwtInterval RiuQwtPlotWidget::axisRange( RiaDefines::PlotAxis axis ) const
+std::pair<double, double> RiuQwtPlotWidget::axisRange( RiaDefines::PlotAxis axis ) const
 {
-    return m_plot->axisScaleDiv( RiaDefines::toQwtPlotAxis( axis ) ).interval();
+    QwtInterval interval = m_plot->axisScaleDiv( RiuQwtPlotTools::toQwtPlotAxis( axis ) ).interval();
+    return std::make_pair( interval.minValue(), interval.maxValue() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -328,7 +285,7 @@ QwtInterval RiuQwtPlotWidget::axisRange( RiaDefines::PlotAxis axis ) const
 void RiuQwtPlotWidget::setAxisRange( RiaDefines::PlotAxis axis, double min, double max )
 {
     // Note: Especially the Y-axis may be inverted
-    if ( m_plot->axisScaleEngine( RiaDefines::toQwtPlotAxis( axis ) )->testAttribute( QwtScaleEngine::Inverted ) )
+    if ( m_plot->axisScaleEngine( RiuQwtPlotTools::toQwtPlotAxis( axis ) )->testAttribute( QwtScaleEngine::Inverted ) )
     {
         setAxisScale( axis, max, min );
     }
@@ -343,7 +300,7 @@ void RiuQwtPlotWidget::setAxisRange( RiaDefines::PlotAxis axis, double min, doub
 //--------------------------------------------------------------------------------------------------
 void RiuQwtPlotWidget::setAxisInverted( RiaDefines::PlotAxis axis, bool isInverted )
 {
-    m_plot->axisScaleEngine( RiaDefines::toQwtPlotAxis( axis ) )->setAttribute( QwtScaleEngine::Inverted, isInverted );
+    m_plot->axisScaleEngine( RiuQwtPlotTools::toQwtPlotAxis( axis ) )->setAttribute( QwtScaleEngine::Inverted, isInverted );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -351,8 +308,8 @@ void RiuQwtPlotWidget::setAxisInverted( RiaDefines::PlotAxis axis, bool isInvert
 //--------------------------------------------------------------------------------------------------
 void RiuQwtPlotWidget::setAxisLabelsAndTicksEnabled( RiaDefines::PlotAxis axis, bool enableLabels, bool enableTicks )
 {
-    m_plot->axisScaleDraw( RiaDefines::toQwtPlotAxis( axis ) )->enableComponent( QwtAbstractScaleDraw::Ticks, enableTicks );
-    m_plot->axisScaleDraw( RiaDefines::toQwtPlotAxis( axis ) )->enableComponent( QwtAbstractScaleDraw::Labels, enableLabels );
+    m_plot->axisScaleDraw( RiuQwtPlotTools::toQwtPlotAxis( axis ) )->enableComponent( QwtAbstractScaleDraw::Ticks, enableTicks );
+    m_plot->axisScaleDraw( RiuQwtPlotTools::toQwtPlotAxis( axis ) )->enableComponent( QwtAbstractScaleDraw::Labels, enableLabels );
     recalculateAxisExtents( axis );
 }
 
@@ -362,7 +319,7 @@ void RiuQwtPlotWidget::setAxisLabelsAndTicksEnabled( RiaDefines::PlotAxis axis, 
 void RiuQwtPlotWidget::enableGridLines( RiaDefines::PlotAxis axis, bool majorGridLines, bool minorGridLines )
 {
     QwtPlotItemList plotItems = m_plot->itemList( QwtPlotItem::Rtti_PlotGrid );
-    QwtPlot::Axis   qwtAxis   = RiaDefines::toQwtPlotAxis( axis );
+    QwtPlot::Axis   qwtAxis   = RiuQwtPlotTools::toQwtPlotAxis( axis );
     for ( QwtPlotItem* plotItem : plotItems )
     {
         QwtPlotGrid* grid = static_cast<QwtPlotGrid*>( plotItem );
@@ -392,7 +349,7 @@ void RiuQwtPlotWidget::setMajorAndMinorTickIntervals( RiaDefines::PlotAxis axis,
                                                       double               minValue,
                                                       double               maxValue )
 {
-    QwtPlot::Axis            qwtAxis     = RiaDefines::toQwtPlotAxis( axis );
+    QwtPlot::Axis            qwtAxis     = RiuQwtPlotTools::toQwtPlotAxis( axis );
     RiuQwtLinearScaleEngine* scaleEngine = dynamic_cast<RiuQwtLinearScaleEngine*>( m_plot->axisScaleEngine( qwtAxis ) );
     if ( scaleEngine )
     {
@@ -414,7 +371,7 @@ void RiuQwtPlotWidget::setMajorAndMinorTickIntervalsAndRange( RiaDefines::PlotAx
                                                               double               rangeMin,
                                                               double               rangeMax )
 {
-    QwtPlot::Axis            qwtAxis     = RiaDefines::toQwtPlotAxis( axis );
+    QwtPlot::Axis            qwtAxis     = RiuQwtPlotTools::toQwtPlotAxis( axis );
     RiuQwtLinearScaleEngine* scaleEngine = dynamic_cast<RiuQwtLinearScaleEngine*>( m_plot->axisScaleEngine( qwtAxis ) );
     if ( scaleEngine )
     {
@@ -436,10 +393,10 @@ void RiuQwtPlotWidget::setAutoTickIntervalCounts( RiaDefines::PlotAxis axis,
                                                   int                  maxMajorTickIntervalCount,
                                                   int                  maxMinorTickIntervalCount )
 {
-    m_plot->setAxisMaxMajor( RiaDefines::toQwtPlotAxis( axis ), maxMajorTickIntervalCount );
-    m_plot->setAxisMaxMinor( RiaDefines::toQwtPlotAxis( axis ), maxMinorTickIntervalCount );
+    m_plot->setAxisMaxMajor( RiuQwtPlotTools::toQwtPlotAxis( axis ), maxMajorTickIntervalCount );
+    m_plot->setAxisMaxMinor( RiuQwtPlotTools::toQwtPlotAxis( axis ), maxMinorTickIntervalCount );
     // Reapply axis limits to force Qwt to use the tick settings.
-    QwtInterval currentRange = m_plot->axisInterval( RiaDefines::toQwtPlotAxis( axis ) );
+    QwtInterval currentRange = m_plot->axisInterval( RiuQwtPlotTools::toQwtPlotAxis( axis ) );
     setAxisScale( axis, currentRange.minValue(), currentRange.maxValue() );
 }
 
@@ -448,7 +405,7 @@ void RiuQwtPlotWidget::setAutoTickIntervalCounts( RiaDefines::PlotAxis axis,
 //--------------------------------------------------------------------------------------------------
 double RiuQwtPlotWidget::majorTickInterval( RiaDefines::PlotAxis axis ) const
 {
-    QwtScaleDiv   scaleDiv   = m_plot->axisScaleDiv( RiaDefines::toQwtPlotAxis( axis ) );
+    QwtScaleDiv   scaleDiv   = m_plot->axisScaleDiv( RiuQwtPlotTools::toQwtPlotAxis( axis ) );
     QList<double> majorTicks = scaleDiv.ticks( QwtScaleDiv::MajorTick );
     if ( majorTicks.size() < 2 ) return 0.0;
 
@@ -472,10 +429,11 @@ double RiuQwtPlotWidget::minorTickInterval( RiaDefines::PlotAxis axis ) const
 //--------------------------------------------------------------------------------------------------
 int RiuQwtPlotWidget::axisExtent( RiaDefines::PlotAxis axis ) const
 {
-    if ( std::abs( axisRange( axis ).maxValue() - axisRange( axis ).minValue() ) < 1.0e-14 ) return 0;
+    auto [rangeMin, rangeMax] = axisRange( axis );
+    if ( std::abs( rangeMax - rangeMin ) < 1.0e-14 ) return 0;
 
     int           lineExtent = 0;
-    QwtPlot::Axis qwtAxis    = RiaDefines::toQwtPlotAxis( axis );
+    QwtPlot::Axis qwtAxis    = RiuQwtPlotTools::toQwtPlotAxis( axis );
 
     if ( m_plot->axisScaleDraw( qwtAxis )->hasComponent( QwtAbstractScaleDraw::Ticks ) )
     {
@@ -484,7 +442,7 @@ int RiuQwtPlotWidget::axisExtent( RiaDefines::PlotAxis axis ) const
 
     if ( m_plot->axisScaleDraw( qwtAxis )->hasComponent( QwtAbstractScaleDraw::Labels ) )
     {
-        QFont tickLabelFont = m_plot->axisFont( RiaDefines::toQwtPlotAxis( axis ) );
+        QFont tickLabelFont = m_plot->axisFont( RiuQwtPlotTools::toQwtPlotAxis( axis ) );
         // Make space for a fairly long value label
         QSize labelSize = QFontMetrics( tickLabelFont ).boundingRect( QString( "9.9e-9" ) ).size();
 
@@ -728,7 +686,7 @@ void RiuQwtPlotWidget::applyPlotTitleToQwt()
 void RiuQwtPlotWidget::applyAxisTitleToQwt( RiaDefines::PlotAxis axis )
 {
     QString       titleToApply = m_axisTitlesEnabled[axis] ? m_axisTitles[axis] : QString( "" );
-    QwtPlot::Axis qwtAxis      = RiaDefines::toQwtPlotAxis( axis );
+    QwtPlot::Axis qwtAxis      = RiuQwtPlotTools::toQwtPlotAxis( axis );
     QwtText       axisTitle    = m_plot->axisTitle( qwtAxis );
     if ( titleToApply != axisTitle.text() )
     {
@@ -867,7 +825,7 @@ void RiuQwtPlotWidget::onAxisSelected( QwtScaleWidget* scale, bool toggleItemInS
 //--------------------------------------------------------------------------------------------------
 void RiuQwtPlotWidget::recalculateAxisExtents( RiaDefines::PlotAxis axis )
 {
-    QwtPlot::Axis qwtAxis = RiaDefines::toQwtPlotAxis( axis );
+    QwtPlot::Axis qwtAxis = RiuQwtPlotTools::toQwtPlotAxis( axis );
     if ( qwtAxis == QwtPlot::yLeft || qwtAxis == QwtPlot::yRight )
     {
         int extent = axisExtent( axis );
@@ -1152,7 +1110,7 @@ QwtPlot* RiuQwtPlotWidget::qwtPlot() const
 //--------------------------------------------------------------------------------------------------
 void RiuQwtPlotWidget::enableAxis( RiaDefines::PlotAxis axis, bool isEnabled )
 {
-    m_plot->enableAxis( RiaDefines::toQwtPlotAxis( axis ), isEnabled );
+    m_plot->enableAxis( RiuQwtPlotTools::toQwtPlotAxis( axis ), isEnabled );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1160,7 +1118,7 @@ void RiuQwtPlotWidget::enableAxis( RiaDefines::PlotAxis axis, bool isEnabled )
 //--------------------------------------------------------------------------------------------------
 bool RiuQwtPlotWidget::axisEnabled( RiaDefines::PlotAxis axis ) const
 {
-    return m_plot->axisEnabled( RiaDefines::toQwtPlotAxis( axis ) );
+    return m_plot->axisEnabled( RiuQwtPlotTools::toQwtPlotAxis( axis ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1168,7 +1126,7 @@ bool RiuQwtPlotWidget::axisEnabled( RiaDefines::PlotAxis axis ) const
 //--------------------------------------------------------------------------------------------------
 void RiuQwtPlotWidget::setAxisMaxMinor( RiaDefines::PlotAxis axis, int maxMinor )
 {
-    m_plot->setAxisMaxMinor( RiaDefines::toQwtPlotAxis( axis ), maxMinor );
+    m_plot->setAxisMaxMinor( RiuQwtPlotTools::toQwtPlotAxis( axis ), maxMinor );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1176,7 +1134,7 @@ void RiuQwtPlotWidget::setAxisMaxMinor( RiaDefines::PlotAxis axis, int maxMinor 
 //--------------------------------------------------------------------------------------------------
 void RiuQwtPlotWidget::setAxisMaxMajor( RiaDefines::PlotAxis axis, int maxMajor )
 {
-    m_plot->setAxisMaxMajor( RiaDefines::toQwtPlotAxis( axis ), maxMajor );
+    m_plot->setAxisMaxMajor( RiuQwtPlotTools::toQwtPlotAxis( axis ), maxMajor );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1193,7 +1151,7 @@ void RiuQwtPlotWidget::removeEventFilter()
 //--------------------------------------------------------------------------------------------------
 void RiuQwtPlotWidget::setAxisAutoScale( RiaDefines::PlotAxis axis, bool autoScale )
 {
-    m_plot->setAxisAutoScale( RiaDefines::toQwtPlotAxis( axis ), autoScale );
+    m_plot->setAxisAutoScale( RiuQwtPlotTools::toQwtPlotAxis( axis ), autoScale );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1201,7 +1159,7 @@ void RiuQwtPlotWidget::setAxisAutoScale( RiaDefines::PlotAxis axis, bool autoSca
 //--------------------------------------------------------------------------------------------------
 void RiuQwtPlotWidget::setAxisScale( RiaDefines::PlotAxis axis, double min, double max )
 {
-    m_plot->setAxisScale( RiaDefines::toQwtPlotAxis( axis ), min, max );
+    m_plot->setAxisScale( RiuQwtPlotTools::toQwtPlotAxis( axis ), min, max );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1209,7 +1167,7 @@ void RiuQwtPlotWidget::setAxisScale( RiaDefines::PlotAxis axis, double min, doub
 //--------------------------------------------------------------------------------------------------
 RiuQwtPlotWidget::AxisScaleType RiuQwtPlotWidget::axisScaleType( RiaDefines::PlotAxis axis ) const
 {
-    QwtPlot::Axis qwtAxis = RiaDefines::toQwtPlotAxis( axis );
+    QwtPlot::Axis qwtAxis = RiuQwtPlotTools::toQwtPlotAxis( axis );
 
     QwtLogScaleEngine*  logScaleEngine  = dynamic_cast<QwtLogScaleEngine*>( m_plot->axisScaleEngine( qwtAxis ) );
     QwtDateScaleEngine* dateScaleEngine = dynamic_cast<QwtDateScaleEngine*>( m_plot->axisScaleEngine( qwtAxis ) );
@@ -1226,7 +1184,7 @@ RiuQwtPlotWidget::AxisScaleType RiuQwtPlotWidget::axisScaleType( RiaDefines::Plo
 //--------------------------------------------------------------------------------------------------
 void RiuQwtPlotWidget::setAxisScaleType( RiaDefines::PlotAxis axis, RiuQwtPlotWidget::AxisScaleType axisScaleType )
 {
-    QwtPlot::Axis qwtAxis = RiaDefines::toQwtPlotAxis( axis );
+    QwtPlot::Axis qwtAxis = RiuQwtPlotTools::toQwtPlotAxis( axis );
 
     if ( axisScaleType == AxisScaleType::LOGARITHMIC ) m_plot->setAxisScaleEngine( qwtAxis, new QwtLogScaleEngine );
     if ( axisScaleType == AxisScaleType::LINEAR ) m_plot->setAxisScaleEngine( qwtAxis, new QwtLinearScaleEngine );
