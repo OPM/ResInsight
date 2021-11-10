@@ -182,11 +182,11 @@ protected:
                                 std::shared_ptr<RigSlice2D>                    areaGrid,
                                 std::shared_ptr<RigSlice2D>                    distanceGrid );
 
-    static std::shared_ptr<RigSlice2D> setCellsToFillTargetArea( std::shared_ptr<RigSlice2D>& grid,
-                                                                 const RigSlice2D&            occurrenceGrid,
-                                                                 const RigSlice2D&            areaGrid,
-                                                                 const RigSlice2D&            distanceGrid,
-                                                                 double                       targetArea );
+    static std::shared_ptr<RigSlice2D> setCellsToFillTargetArea( const RigSlice2D& grid,
+                                                                 const RigSlice2D& occurrenceGrid,
+                                                                 const RigSlice2D& areaGrid,
+                                                                 const RigSlice2D& distanceGrid,
+                                                                 double            targetArea );
 
     static void generateStatisticsGrids(
         const std::vector<std::vector<double>>&                                               samples,
@@ -197,8 +197,7 @@ protected:
         const std::vector<caf::AppEnum<RimEnsembleFractureStatistics::StatisticsType>>&       statisticsTypes,
         const RigHistogramData&                                                               areaHistogram,
         std::shared_ptr<RigSlice2D>                                                           areaGrid,
-        std::shared_ptr<RigSlice2D>                                                           distanceGrid,
-        bool                                                                                  highIsLow );
+        std::shared_ptr<RigSlice2D>                                                           distanceGrid );
 
     static bool writeStatisticsToCsv( const QString& filePath, const RigSlice2D& samples );
 
