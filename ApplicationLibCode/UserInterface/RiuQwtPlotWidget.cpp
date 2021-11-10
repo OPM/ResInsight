@@ -75,11 +75,7 @@
 ///
 //--------------------------------------------------------------------------------------------------
 RiuQwtPlotWidget::RiuQwtPlotWidget( RimPlot* plotDefinition, QWidget* parent )
-    : QWidget( parent )
-    , m_plotDefinition( plotDefinition )
-    , m_overlayMargins( 5 )
-    , m_plotTitle( "" )
-    , m_plotTitleEnabled( true )
+    : RiuPlotWidget( plotDefinition, parent )
 {
     CAF_ASSERT( m_plotDefinition );
 

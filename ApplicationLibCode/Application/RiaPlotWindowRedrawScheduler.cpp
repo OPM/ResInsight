@@ -19,7 +19,7 @@
 
 #include "RiuMultiPlotBook.h"
 #include "RiuMultiPlotPage.h"
-#include "RiuQwtPlotWidget.h"
+#include "RiuPlotWidget.h"
 
 #include <QCoreApplication>
 #include <QDebug>
@@ -61,7 +61,7 @@ void RiaPlotWindowRedrawScheduler::scheduleMultiPlotPageUpdate( RiuMultiPlotPage
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaPlotWindowRedrawScheduler::schedulePlotWidgetReplot( RiuQwtPlotWidget* plotWidget )
+void RiaPlotWindowRedrawScheduler::schedulePlotWidgetReplot( RiuPlotWidget* plotWidget )
 {
     m_plotWidgetsToReplot.push_back( plotWidget );
 
@@ -92,13 +92,13 @@ void RiaPlotWindowRedrawScheduler::performScheduledUpdatesAndReplots()
 {
     std::vector<QPointer<RiuMultiPlotBook>> plotWindowsToUpdate;
     std::vector<QPointer<RiuMultiPlotPage>> plotPagesToUpdate;
-    std::vector<QPointer<RiuQwtPlotWidget>> plotWidgetsToReplot;
+    std::vector<QPointer<RiuPlotWidget>>    plotWidgetsToReplot;
 
     plotWindowsToUpdate.swap( m_plotWindowsToUpdate );
     plotPagesToUpdate.swap( m_plotPagesToUpdate );
     plotWidgetsToReplot.swap( m_plotWidgetsToReplot );
 
-    std::set<QPointer<RiuQwtPlotWidget>> updatedPlots;
+    std::set<QPointer<RiuPlotWidget>>    updatedPlots;
     std::set<QPointer<RiuMultiPlotBook>> updatedPlotWindows;
     std::set<QPointer<RiuMultiPlotPage>> updatedPlotPages;
 
@@ -127,7 +127,7 @@ void RiaPlotWindowRedrawScheduler::performScheduledUpdatesAndReplots()
     }
 
     //  Perform update and replot. Make sure we handle legend update
-    for ( QPointer<RiuQwtPlotWidget> plot : plotWidgetsToReplot )
+    for ( QPointer<RiuPlotWidget> plot : plotWidgetsToReplot )
     {
         if ( !plot.isNull() && !updatedPlots.count( plot ) )
         {
