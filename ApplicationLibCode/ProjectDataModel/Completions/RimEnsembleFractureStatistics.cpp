@@ -1213,6 +1213,11 @@ std::shared_ptr<RigSlice2D> RimEnsembleFractureStatistics::setCellsToFillTargetA
                                                                                      const RigSlice2D& distanceGrid,
                                                                                      double            targetArea )
 {
+    std::shared_ptr<RigSlice2D> outputGrid = std::make_shared<RigSlice2D>( grid.nx(), grid.ny() );
+
+    // Invalid target area: can happen for P10/P90 grids.
+    if ( std::isinf( targetArea ) ) return outputGrid;
+
     // Internal cell data class for ordering cells.
     class CellData
     {
@@ -1265,8 +1270,7 @@ std::shared_ptr<RigSlice2D> RimEnsembleFractureStatistics::setCellsToFillTargetA
 
     // Fill cells in the output grid until the target area is reached.
     // This ensures that the statistics fracture grids have representantive sizes.
-    std::shared_ptr<RigSlice2D> outputGrid = std::make_shared<RigSlice2D>( grid.nx(), grid.ny() );
-    double                      area       = 0.0;
+    double area = 0.0;
     for ( const CellData& cellData : cells )
     {
         if ( area < targetArea )
