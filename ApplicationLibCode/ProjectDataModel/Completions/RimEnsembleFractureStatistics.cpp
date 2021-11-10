@@ -1189,18 +1189,26 @@ void RimEnsembleFractureStatistics::generateStatisticsGrids(
     }
 
     std::map<RimEnsembleFractureStatistics::StatisticsType, double> areaMapping;
-    areaMapping[RimEnsembleFractureStatistics::StatisticsType::MIN]  = areaHistogram.min;
-    areaMapping[RimEnsembleFractureStatistics::StatisticsType::MAX]  = areaHistogram.max;
-    areaMapping[RimEnsembleFractureStatistics::StatisticsType::MEAN] = areaHistogram.mean;
-    areaMapping[RimEnsembleFractureStatistics::StatisticsType::P50]  = areaHistogram.mean;
-    areaMapping[RimEnsembleFractureStatistics::StatisticsType::P10]  = areaHistogram.p10;
-    areaMapping[RimEnsembleFractureStatistics::StatisticsType::P90]  = areaHistogram.p90;
+    areaMapping[RimEnsembleFractureStatistics::StatisticsType::MIN]        = areaHistogram.min;
+    areaMapping[RimEnsembleFractureStatistics::StatisticsType::MAX]        = areaHistogram.max;
+    areaMapping[RimEnsembleFractureStatistics::StatisticsType::MEAN]       = areaHistogram.mean;
+    areaMapping[RimEnsembleFractureStatistics::StatisticsType::P50]        = areaHistogram.mean;
+    areaMapping[RimEnsembleFractureStatistics::StatisticsType::P10]        = areaHistogram.p10;
+    areaMapping[RimEnsembleFractureStatistics::StatisticsType::P90]        = areaHistogram.p90;
+    areaMapping[RimEnsembleFractureStatistics::StatisticsType::OCCURRENCE] = areaHistogram.max;
 
     // Post-process the resulting grids improve area representation
     for ( auto statisticsType : statisticsTypes )
     {
-        statisticsGrids[statisticsType] =
-            setCellsToFillTargetArea( meanGrid, occurrenceGrid, *areaGrid, *distanceGrid, areaMapping[statisticsType] );
+        if ( statisticsType != RimEnsembleFractureStatistics::StatisticsType::OCCURRENCE )
+            statisticsGrids[statisticsType] =
+                setCellsToFillTargetArea( meanGrid, occurrenceGrid, *areaGrid, *distanceGrid, areaMapping[statisticsType] );
+        else
+            statisticsGrids[statisticsType] = setCellsToFillTargetArea( occurrenceGrid,
+                                                                        occurrenceGrid,
+                                                                        *areaGrid,
+                                                                        *distanceGrid,
+                                                                        areaMapping[statisticsType] );
     }
 }
 
