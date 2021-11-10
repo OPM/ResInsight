@@ -32,6 +32,7 @@
 
 class QPaintDevice;
 class QWheelEvent;
+class RiuPlotWidget;
 
 //==================================================================================================
 ///
@@ -90,13 +91,18 @@ public:
         return parentPlotWindow != nullptr;
     }
 
+    virtual RiuPlotWidget* plotWidget() = 0;
+
 protected:
+    virtual RiuPlotWidget* doCreatePlotViewWidget( QWidget* parent ) = 0;
+
+    QWidget* createViewWidget( QWidget* parent = nullptr ) override;
+
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
-    void updateFonts() override = 0;
-
-    void doRenderWindowContent( QPaintDevice* paintDevice ) override = 0;
+    void updateFonts() override;
+    void doRenderWindowContent( QPaintDevice* paintDevice ) override;
 
     virtual void handleKeyPressEvent( QKeyEvent* event ) {}
     virtual void handleWheelEvent( QWheelEvent* event ) {}

@@ -1671,28 +1671,28 @@ void RimSummaryPlot::updateZoomFromQwt()
 {
     if ( !m_plotWidget ) return;
 
-    QwtInterval leftAxis  = m_plotWidget->axisRange( RiaDefines::PlotAxis::PLOT_AXIS_LEFT );
-    QwtInterval rightAxis = m_plotWidget->axisRange( RiaDefines::PlotAxis::PLOT_AXIS_RIGHT );
-    QwtInterval timeAxis  = m_plotWidget->axisRange( RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM );
+    auto [leftAxisMin, leftAxisMax]   = m_plotWidget->axisRange( RiaDefines::PlotAxis::PLOT_AXIS_LEFT );
+    auto [rightAxisMin, rightAxisMax] = m_plotWidget->axisRange( RiaDefines::PlotAxis::PLOT_AXIS_RIGHT );
+    auto [timeAxisMin, timeAxisMax]   = m_plotWidget->axisRange( RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM );
 
-    m_leftYAxisProperties->visibleRangeMax = leftAxis.maxValue();
-    m_leftYAxisProperties->visibleRangeMin = leftAxis.minValue();
+    m_leftYAxisProperties->visibleRangeMax = leftAxisMax;
+    m_leftYAxisProperties->visibleRangeMin = leftAxisMin;
     m_leftYAxisProperties->updateConnectedEditors();
 
-    m_rightYAxisProperties->visibleRangeMax = rightAxis.maxValue();
-    m_rightYAxisProperties->visibleRangeMin = rightAxis.minValue();
+    m_rightYAxisProperties->visibleRangeMax = rightAxisMax;
+    m_rightYAxisProperties->visibleRangeMin = rightAxisMin;
     m_rightYAxisProperties->updateConnectedEditors();
 
     if ( m_isCrossPlot )
     {
-        m_bottomAxisProperties->visibleRangeMax = timeAxis.maxValue();
-        m_bottomAxisProperties->visibleRangeMin = timeAxis.minValue();
+        m_bottomAxisProperties->visibleRangeMax = timeAxisMax;
+        m_bottomAxisProperties->visibleRangeMin = timeAxisMin;
         m_bottomAxisProperties->updateConnectedEditors();
     }
     else
     {
-        m_timeAxisProperties->setVisibleRangeMin( timeAxis.minValue() );
-        m_timeAxisProperties->setVisibleRangeMax( timeAxis.maxValue() );
+        m_timeAxisProperties->setVisibleRangeMin( timeAxisMin );
+        m_timeAxisProperties->setVisibleRangeMax( timeAxisMax );
         m_timeAxisProperties->updateConnectedEditors();
     }
 }

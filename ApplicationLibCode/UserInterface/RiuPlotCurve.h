@@ -18,8 +18,8 @@
 
 #pragma once
 
+#include "RiuPlotWidget.h"
 #include "RiuQwtPlotCurveDefines.h"
-#include "RiuQwtPlotWidget.h"
 
 #include <QBrush>
 #include <QColor>
@@ -79,8 +79,8 @@ public:
     void setBlackAndWhiteLegendIcon( bool blackAndWhite );
     //    QwtGraphic legendIcon( int index, const QSizeF& size ) const override;
 
-    virtual void attachToPlot( RiuQwtPlotWidget* plotWidget ) = 0;
-    virtual void showInPlot()                                 = 0;
+    virtual void attachToPlot( RiuPlotWidget* plotWidget ) = 0;
+    virtual void showInPlot()                              = 0;
 
     static std::vector<double> fromQDateTime( const std::vector<QDateTime>& dateTimes );
     static std::vector<double> fromTime_t( const std::vector<time_t>& timeSteps );
