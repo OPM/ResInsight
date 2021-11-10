@@ -54,16 +54,23 @@ private:
     QString                     curveFilterTextWithoutOutdatedLabel() const;
 
     void updateParentPlot();
+    void updateCurveCandidates();
 
     static std::set<RifEclipseSummaryAddress> addressesForSource( SummarySource* summarySource );
+
+    void insertFilteredAddressesInSet( const QStringList&                        curveFilters,
+                                       const std::set<RifEclipseSummaryAddress>& allAddressesInCase,
+                                       std::set<RifEclipseSummaryAddress>*       setToInsertFilteredAddressesIn,
+                                       std::vector<bool>*                        usedFilters );
 
     static QString curveFilterRecentlyUsedRegistryKey();
 
 private:
     caf::PdmPtrArrayField<SummarySource*> m_selectedSources;
 
-    caf::PdmField<QString> m_curveFilterLabelText;
-    caf::PdmField<QString> m_curveFilterText;
+    caf::PdmField<QString>              m_curveFilterLabelText;
+    caf::PdmField<QString>              m_curveFilterText;
+    caf::PdmField<std::vector<QString>> m_curveCandidates;
 
     caf::PdmField<bool> m_includeHistoryCurves;
     caf::PdmField<bool> m_includeDiffCurves;

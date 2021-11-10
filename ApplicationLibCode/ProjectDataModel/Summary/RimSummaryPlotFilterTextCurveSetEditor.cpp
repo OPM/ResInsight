@@ -20,9 +20,11 @@
 
 #include "RiaGuiApplication.h"
 #include "RiaLogging.h"
+#include "RiaStdStringTools.h"
 #include "RiaStringListSerializer.h"
 #include "RiaSummaryCurveDefinition.h"
 
+#include "RifReaderEclipseSummary.h"
 #include "RifSummaryReaderInterface.h"
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
@@ -56,8 +58,6 @@
 #include "cafPdmUiToolBarEditor.h"
 #include "cafPdmUiTreeSelectionEditor.h"
 
-#include "RiaStdStringTools.h"
-#include "RifReaderEclipseSummary.h"
 #include <QRegularExpression>
 
 #define FILTER_TEXT_OUTDATED_TEXT "<Outdated>"
@@ -105,13 +105,15 @@ RimSummaryPlotFilterTextCurveSetEditor::RimSummaryPlotFilterTextCurveSetEditor()
 
     CAF_PDM_InitField( &m_includeDiffCurves,
                        "IncludeDiffCurves",
-                       false,
+                       true,
                        "Include Difference Curves",
                        "",
                        "Difference between simulated and observed(history) curve",
                        "" );
 
-    CAF_PDM_InitField( &m_includeHistoryCurves, "IncludeHistoryCurves", false, "Include History Curves", "", "", "" );
+    CAF_PDM_InitField( &m_includeHistoryCurves, "IncludeHistoryCurves", true, "Include History Curves", "", "", "" );
+
+    CAF_PDM_InitFieldNoDefault( &m_curveCandidates, "CurveCandidates", "Candidates", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -222,6 +224,9 @@ void RimSummaryPlotFilterTextCurveSetEditor::fieldChangedByUi( const caf::PdmFie
                                                                const QVariant&            oldValue,
                                                                const QVariant&            newValue )
 {
+    updateParentPlot();
+    updateCurveCandidates();
+
     if ( changedField == &m_curveFilterText )
     {
         m_curveFilterText = curveFilterTextWithoutOutdatedLabel();
@@ -256,6 +261,7 @@ void RimSummaryPlotFilterTextCurveSetEditor::defineUiOrdering( QString uiConfigN
     uiOrdering.add( &m_curveFilterText );
     uiOrdering.add( &m_includeHistoryCurves );
     uiOrdering.add( &m_includeDiffCurves );
+    uiOrdering.add( &m_curveCandidates );
 
     uiOrdering.add( &m_selectedSources );
     uiOrdering.skipRemainingFields();
@@ -460,27 +466,10 @@ void RimSummaryPlotFilterTextCurveSetEditor::updateParentPlot()
 
             std::vector<bool>                  usedFilters;
             std::set<RifEclipseSummaryAddress> filteredAddressesFromSource;
-            RicSummaryPlotFeatureImpl::insertFilteredAddressesInSet( allCurveAddressFilters,
-                                                                     allAddressesFromSource,
-                                                                     &filteredAddressesFromSource,
-                                                                     &usedFilters );
-
-            if ( !m_includeDiffCurves || !m_includeHistoryCurves )
-            {
-                std::set<RifEclipseSummaryAddress> tmp;
-
-                const auto diffText = RifReaderEclipseSummary::differenceIdentifier();
-
-                for ( const auto& adr : filteredAddressesFromSource )
-                {
-                    if ( !m_includeDiffCurves && RiaStdStringTools::endsWith( adr.quantityName(), diffText ) ) continue;
-                    if ( !m_includeHistoryCurves && adr.isHistoryQuantity() ) continue;
-
-                    tmp.insert( adr );
-                }
-
-                std::swap( tmp, filteredAddressesFromSource );
-            }
+            insertFilteredAddressesInSet( allCurveAddressFilters,
+                                          allAddressesFromSource,
+                                          &filteredAddressesFromSource,
+                                          &usedFilters );
 
             for ( size_t fIdx = 0; fIdx < accumulatedUsedFilters.size(); ++fIdx )
             {
@@ -620,6 +609,36 @@ void RimSummaryPlotFilterTextCurveSetEditor::updateParentPlot()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimSummaryPlotFilterTextCurveSetEditor::updateCurveCandidates()
+{
+    m_curveCandidates.value().clear();
+
+    if ( selectedSummarySources().empty() ) return;
+
+    QStringList allCurveAddressFilters =
+        curveFilterTextWithoutOutdatedLabel().split( QRegExp( "\\s+" ), QString::SkipEmptyParts );
+
+    auto firstSource = selectedSummarySources().front();
+
+    std::set<RifEclipseSummaryAddress> allAddressesFromSource = addressesForSource( firstSource );
+
+    std::vector<bool>                  usedFilters;
+    std::set<RifEclipseSummaryAddress> filteredAddressesFromSource;
+    insertFilteredAddressesInSet( allCurveAddressFilters, allAddressesFromSource, &filteredAddressesFromSource, &usedFilters );
+
+    std::vector<QString> curveCandidates;
+
+    for ( const auto& adr : filteredAddressesFromSource )
+    {
+        curveCandidates.push_back( QString::fromStdString( adr.uiText() ) );
+    }
+
+    m_curveCandidates = curveCandidates;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::set<RifEclipseSummaryAddress> RimSummaryPlotFilterTextCurveSetEditor::addressesForSource( SummarySource* summarySource )
 {
     auto* ensemble = dynamic_cast<RimSummaryCaseCollection*>( summarySource );
@@ -640,6 +659,38 @@ std::set<RifEclipseSummaryAddress> RimSummaryPlotFilterTextCurveSetEditor::addre
     }
 
     return {};
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlotFilterTextCurveSetEditor::insertFilteredAddressesInSet(
+    const QStringList&                        curveFilters,
+    const std::set<RifEclipseSummaryAddress>& allAddressesInCase,
+    std::set<RifEclipseSummaryAddress>*       setToInsertFilteredAddressesIn,
+    std::vector<bool>*                        usedFilters )
+{
+    std::set<RifEclipseSummaryAddress> candidateAddresses;
+    RicSummaryPlotFeatureImpl::insertFilteredAddressesInSet( curveFilters, allAddressesInCase, &candidateAddresses, usedFilters );
+
+    if ( !m_includeDiffCurves || !m_includeHistoryCurves )
+    {
+        std::set<RifEclipseSummaryAddress> tmp;
+
+        const auto diffText = RifReaderEclipseSummary::differenceIdentifier();
+
+        for ( const auto& adr : candidateAddresses )
+        {
+            if ( !m_includeDiffCurves && RiaStdStringTools::endsWith( adr.quantityName(), diffText ) ) continue;
+            if ( !m_includeHistoryCurves && adr.isHistoryQuantity() ) continue;
+
+            tmp.insert( adr );
+        }
+
+        std::swap( tmp, candidateAddresses );
+    }
+
+    setToInsertFilteredAddressesIn->insert( candidateAddresses.begin(), candidateAddresses.end() );
 }
 
 //--------------------------------------------------------------------------------------------------
