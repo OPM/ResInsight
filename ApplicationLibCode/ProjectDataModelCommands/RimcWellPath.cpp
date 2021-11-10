@@ -18,8 +18,12 @@
 
 #include "RimcWellPath.h"
 
+#include "RimPerforationCollection.h"
+#include "RimPerforationInterval.h"
 #include "RimStimPlanFractureTemplate.h"
+#include "RimTools.h"
 #include "RimWellPath.h"
+#include "RimWellPathCollection.h"
 #include "RimWellPathFracture.h"
 
 #include "FractureCommands/RicNewWellPathFractureFeature.h"
@@ -74,4 +78,57 @@ bool RimcWellPath_addFracture::resultIsPersistent() const
 std::unique_ptr<caf::PdmObjectHandle> RimcWellPath_addFracture::defaultResult() const
 {
     return std::unique_ptr<caf::PdmObjectHandle>( new RimWellPathFracture );
+}
+
+CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimWellPath, RimcWellPath_appendPerforationInterval, "AppendPerforationInterval" );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimcWellPath_appendPerforationInterval::RimcWellPath_appendPerforationInterval( caf::PdmObjectHandle* self )
+    : caf::PdmObjectMethod( self )
+{
+    CAF_PDM_InitObject( "Append Perforation Interval", "", "", "Append Perforation Interval" );
+    CAF_PDM_InitScriptableField( &m_startMD, "StartMd", 0.0, "", "", "", "Start Measured Depth" );
+    CAF_PDM_InitScriptableField( &m_endMD, "EndMd", 0.0, "", "", "", "End Measured Depth" );
+    CAF_PDM_InitScriptableField( &m_diameter, "Diameter", 0.0, "", "", "", "Diameter" );
+    CAF_PDM_InitScriptableField( &m_skinFactor, "SkinFactor", 0.0, "", "", "", "Skin Factor" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+caf::PdmObjectHandle* RimcWellPath_appendPerforationInterval::execute()
+{
+    auto wellPath = self<RimWellPath>();
+
+    auto perforationInterval = new RimPerforationInterval;
+    perforationInterval->setStartAndEndMD( m_startMD, m_endMD );
+    perforationInterval->setSkinFactor( m_skinFactor );
+    perforationInterval->setDiameter( m_diameter );
+
+    wellPath->perforationIntervalCollection()->appendPerforation( perforationInterval );
+
+    auto* wellPathCollection = RimTools::wellPathCollection();
+
+    wellPathCollection->uiCapability()->updateConnectedEditors();
+    wellPathCollection->scheduleRedrawAffectedViews();
+
+    return perforationInterval;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimcWellPath_appendPerforationInterval::resultIsPersistent() const
+{
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::unique_ptr<caf::PdmObjectHandle> RimcWellPath_appendPerforationInterval::defaultResult() const
+{
+    return std::unique_ptr<caf::PdmObjectHandle>( new RimPerforationInterval );
 }

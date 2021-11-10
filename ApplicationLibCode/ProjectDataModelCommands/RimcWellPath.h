@@ -45,3 +45,24 @@ private:
     caf::PdmField<double>                          m_md;
     caf::PdmPtrField<RimStimPlanFractureTemplate*> m_stimPlanFractureTemplate;
 };
+
+//==================================================================================================
+///
+//==================================================================================================
+class RimcWellPath_appendPerforationInterval : public caf::PdmObjectMethod
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    RimcWellPath_appendPerforationInterval( caf::PdmObjectHandle* self );
+
+    caf::PdmObjectHandle*            execute() override;
+    bool                             resultIsPersistent() const override;
+    std::unique_ptr<PdmObjectHandle> defaultResult() const override;
+
+private:
+    caf::PdmField<double> m_startMD;
+    caf::PdmField<double> m_endMD;
+    caf::PdmField<double> m_diameter;
+    caf::PdmField<double> m_skinFactor;
+};
