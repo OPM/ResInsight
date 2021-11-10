@@ -29,10 +29,12 @@
 #include "RimSummaryCaseCollection.h"
 #include "RimSummaryCurve.h"
 
+#include "RiuQwtPlotTools.h"
 #include "RiuSummaryQuantityNameInfoProvider.h"
 #include "RiuSummaryQwtPlot.h"
 
 #include "qwt_date_scale_engine.h"
+#include "qwt_plot.h"
 #include "qwt_plot_curve.h"
 #include "qwt_scale_draw.h"
 
@@ -115,7 +117,7 @@ void RimSummaryPlotAxisFormatter::applyAxisPropertiesToPlot( RiuQwtPlotWidget* q
     if ( !qwtPlot ) return;
 
     RiaDefines::PlotAxis axis      = m_axisProperties->plotAxisType();
-    QwtPlot::Axis        qwtAxisId = RiaDefines::toQwtPlotAxis( axis );
+    QwtPlot::Axis        qwtAxisId = RiuQwtPlotTools::toQwtPlotAxis( axis );
     {
         QString axisTitle = m_axisProperties->customTitle;
         if ( m_axisProperties->useAutoTitle() ) axisTitle = autoAxisTitle();

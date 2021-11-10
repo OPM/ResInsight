@@ -39,36 +39,6 @@ void caf::AppEnum<RiaDefines::PlotAxis>::setUp()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QwtPlot::Axis RiaDefines::toQwtPlotAxis( RiaDefines::PlotAxis axis )
-{
-    if ( axis == PlotAxis::PLOT_AXIS_LEFT )
-        return QwtPlot::yLeft;
-    else if ( axis == PlotAxis::PLOT_AXIS_RIGHT )
-        return QwtPlot::yRight;
-    else if ( axis == PlotAxis::PLOT_AXIS_BOTTOM )
-        return QwtPlot::xBottom;
-
-    return QwtPlot::xTop;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RiaDefines::PlotAxis RiaDefines::fromQwtPlotAxis( QwtPlot::Axis axis )
-{
-    if ( axis == QwtPlot::yLeft )
-        return PlotAxis::PLOT_AXIS_LEFT;
-    else if ( axis == QwtPlot::yRight )
-        return PlotAxis::PLOT_AXIS_RIGHT;
-    else if ( axis == QwtPlot::xBottom )
-        return PlotAxis::PLOT_AXIS_BOTTOM;
-
-    return PlotAxis::PLOT_AXIS_TOP;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 double RiaDefines::minimumDefaultValuePlot()
 {
     return -10.0;

@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include "RimQwtPlot.h"
+#include "RimPlot.h"
 #include "RimVfpDefines.h"
 
 #include "cafFilePath.h"
@@ -29,13 +29,13 @@
 #include "opm/parser/eclipse/EclipseState/Schedule/VFPInjTable.hpp"
 #include "opm/parser/eclipse/EclipseState/Schedule/VFPProdTable.hpp"
 
-class RiuQwtPlotWidget;
+class RiuPlotWidget;
 class VfpPlotData;
 
 //--------------------------------------------------------------------------------------------------
 /// Vertical Flow Performance Plot
 //--------------------------------------------------------------------------------------------------
-class RimVfpPlot : public RimQwtPlot
+class RimVfpPlot : public RimPlot
 {
     CAF_PDM_HEADER_INIT;
 
@@ -46,18 +46,15 @@ public:
     void setFileName( const QString& filename );
 
     // RimPlot implementations
-    RiuQwtPlotWidget* viewer() override;
-    void              setAutoScaleXEnabled( bool enabled ) override;
-    void              setAutoScaleYEnabled( bool enabled ) override;
-    void              updateAxes() override;
-    void              updateLegend() override;
-    void              updateZoomInQwt() override;
-    void              updateZoomFromQwt() override;
-    QString           asciiDataForPlotExport() const override;
-    void              reattachAllCurves() override;
-    void              detachAllCurves() override;
-    caf::PdmObject*   findPdmObjectFromQwtCurve( const QwtPlotCurve* curve ) const override;
-    void              onAxisSelected( int axis, bool toggle ) override;
+    RiuPlotWidget* plotWidget() override;
+
+    void    setAutoScaleXEnabled( bool enabled ) override;
+    void    setAutoScaleYEnabled( bool enabled ) override;
+    void    updateAxes() override;
+    void    updateLegend() override;
+    QString asciiDataForPlotExport() const override;
+    void    reattachAllCurves() override;
+    void    detachAllCurves() override;
 
     // RimPlotWindow implementations
     QString description() const override;
@@ -79,10 +76,10 @@ private:
     caf::PdmFieldHandle* userDescriptionField() override;
 
 private:
-    RiuQwtPlotWidget* doCreatePlotViewWidget( QWidget* mainWindowParent ) override;
+    RiuPlotWidget* doCreatePlotViewWidget( QWidget* mainWindowParent ) override;
 
-    void                populatePlotWidgetWithCurveData( RiuQwtPlotWidget* plotWidget, const Opm::VFPInjTable& table );
-    void                populatePlotWidgetWithCurveData( RiuQwtPlotWidget*                     plotWidget,
+    void                populatePlotWidgetWithCurveData( RiuPlotWidget* plotWidget, const Opm::VFPInjTable& table );
+    void                populatePlotWidgetWithCurveData( RiuPlotWidget*                        plotWidget,
                                                          const Opm::VFPProdTable&              table,
                                                          RimVfpDefines::ProductionVariableType primaryVariable,
                                                          RimVfpDefines::ProductionVariableType familyVariable );
@@ -136,7 +133,7 @@ private:
                            RimVfpDefines::InterpolatedVariableType interpolatedVariable,
                            VfpPlotData&                            plotData ) const;
 
-    void populatePlotWidgetWithPlotData( RiuQwtPlotWidget* plotWidget, const VfpPlotData& plotData );
+    void populatePlotWidgetWithPlotData( RiuPlotWidget* plotWidget, const VfpPlotData& plotData );
 
 private:
     caf::PdmField<QString>                                               m_plotTitle;
@@ -158,7 +155,7 @@ private:
     caf::PdmField<int> m_waterCutIdx;
     caf::PdmField<int> m_gasLiquidRatioIdx;
 
-    QPointer<RiuQwtPlotWidget>         m_plotWidget;
+    QPointer<RiuPlotWidget>            m_plotWidget;
     std::unique_ptr<Opm::VFPProdTable> m_prodTable;
     std::unique_ptr<Opm::VFPInjTable>  m_injectionTable;
 };
