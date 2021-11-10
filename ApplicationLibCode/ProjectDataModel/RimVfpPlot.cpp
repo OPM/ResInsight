@@ -26,6 +26,8 @@
 #include "RiaEclipseUnitTools.h"
 
 #include "RiuContextMenuLauncher.h"
+#include "RiuPlotCurve.h"
+#include "RiuQwtPlotCurveDefines.h"
 #include "RiuQwtPlotTools.h"
 #include "RiuQwtPlotWidget.h"
 
@@ -602,12 +604,23 @@ void RimVfpPlot::populatePlotWidgetWithPlotData( RiuQwtPlotWidget* plotWidget, c
     for ( auto idx = 0u; idx < plotData.size(); idx++ )
     {
         QColor        qtClr = RiaColorTables::summaryCurveDefaultPaletteColors().cycledQColor( idx );
-        QwtPlotCurve* curve = createPlotCurve( plotData.curveTitle( idx ), qtClr );
-        curve->setSamples( plotData.xData( idx ).data(),
-                           plotData.yData( idx ).data(),
-                           static_cast<int>( plotData.curveSize( idx ) ) );
-        curve->attach( plotWidget->qwtPlot() );
-        curve->show();
+        RiuPlotCurve* curve = m_plotWidget->createPlotCurve( plotData.curveTitle( idx ), qtClr );
+
+        curve->setAppearance( RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_SOLID,
+                              RiuQwtPlotCurveDefines::CurveInterpolationEnum::INTERPOLATION_POINT_TO_POINT,
+                              2,
+                              qtClr );
+
+        // QwtSymbol* symbol = new QwtSymbol( QwtSymbol::Ellipse );
+        // symbol->setSize( 6 );
+        // symbol->setColor( color );
+        // curve->setSymbol( symbol );
+
+        curve->setSamplesFromXValuesAndYValues( plotData.xData( idx ),
+                                                plotData.yData( idx ),
+                                                static_cast<int>( plotData.curveSize( idx ) ) );
+        curve->attachToPlot( plotWidget );
+        curve->showInPlot();
     }
 }
 
@@ -691,27 +704,6 @@ void RimVfpPlot::populatePlotData( const Opm::VFPProdTable&                table
 
         plotData.appendCurve( familyTitle, primaryAxisValues, yVals );
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QwtPlotCurve* RimVfpPlot::createPlotCurve( const QString title, const QColor& color )
-{
-    QwtPlotCurve* curve = new QwtPlotCurve;
-    curve->setTitle( title );
-    curve->setPen( QPen( color, 2 ) );
-    curve->setLegendAttribute( QwtPlotCurve::LegendShowLine, true );
-    curve->setLegendAttribute( QwtPlotCurve::LegendShowSymbol, true );
-    curve->setLegendAttribute( QwtPlotCurve::LegendShowBrush, true );
-    curve->setRenderHint( QwtPlotItem::RenderAntialiased, true );
-
-    QwtSymbol* symbol = new QwtSymbol( QwtSymbol::Ellipse );
-    symbol->setSize( 6 );
-    symbol->setColor( color );
-    curve->setSymbol( symbol );
-
-    return curve;
 }
 
 //--------------------------------------------------------------------------------------------------
