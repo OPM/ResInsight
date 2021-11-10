@@ -27,6 +27,7 @@
 
 #include "RiuGuiTheme.h"
 #include "RiuQwtCurvePointTracker.h"
+#include "RiuQwtPlotTools.h"
 #include "RiuRimQwtPlotCurve.h"
 
 #include "qwt_scale_draw.h"
@@ -136,7 +137,7 @@ RiuWellLogTrack::~RiuWellLogTrack()
 //--------------------------------------------------------------------------------------------------
 void RiuWellLogTrack::setAxisEnabled( QwtPlot::Axis axis, bool enabled )
 {
-    RiaDefines::PlotAxis plotAxis = RiaDefines::fromQwtPlotAxis( axis );
+    RiaDefines::PlotAxis plotAxis = RiuQwtPlotTools::fromQwtPlotAxis( axis );
     RiuQwtPlotWidget::enableAxis( plotAxis, enabled );
 
     if ( enabled )

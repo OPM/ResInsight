@@ -848,7 +848,7 @@ void RimGridCrossPlot::updateAxisInQwt( RiaDefines::PlotAxis axisType )
     }
 
     RiaDefines::PlotAxis axis      = axisProperties->plotAxisType();
-    QwtPlot::Axis        qwtAxisId = RiaDefines::toQwtPlotAxis( axis );
+    QwtPlot::Axis        qwtAxisId = RiuQwtPlotTools::toQwtPlotAxis( axis );
 
     if ( axisProperties->isActive() )
     {
@@ -932,20 +932,23 @@ void RimGridCrossPlot::updateAxisFromQwt( RiaDefines::PlotAxis axisType )
 {
     if ( !m_plotWidget ) return;
 
-    QwtInterval xAxisRange = m_plotWidget->axisRange( RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM );
-    QwtInterval yAxisRange = m_plotWidget->axisRange( RiaDefines::PlotAxis::PLOT_AXIS_LEFT );
+    auto [xAxisRangeMin, xAxisRangeMax] = m_plotWidget->axisRange( RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM );
 
     RimPlotAxisProperties* axisProperties = m_xAxisProperties();
-    QwtInterval            axisRange      = xAxisRange;
+    double                 axisRangeMin   = xAxisRangeMin;
+    double                 axisRangeMax   = xAxisRangeMax;
 
     if ( axisType == RiaDefines::PlotAxis::PLOT_AXIS_LEFT )
     {
-        axisProperties = m_yAxisProperties();
-        axisRange      = yAxisRange;
+        axisProperties                      = m_yAxisProperties();
+        auto [yAxisRangeMin, yAxisRangeMax] = m_plotWidget->axisRange( RiaDefines::PlotAxis::PLOT_AXIS_LEFT );
+
+        axisRangeMin = yAxisRangeMin;
+        axisRangeMax = yAxisRangeMax;
     }
 
-    axisProperties->visibleRangeMin = std::min( axisRange.minValue(), axisRange.maxValue() );
-    axisProperties->visibleRangeMax = std::max( axisRange.minValue(), axisRange.maxValue() );
+    axisProperties->visibleRangeMin = std::min( axisRangeMin, axisRangeMax );
+    axisProperties->visibleRangeMax = std::max( axisRangeMin, axisRangeMax );
 
     axisProperties->updateConnectedEditors();
 }

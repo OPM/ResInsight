@@ -58,7 +58,8 @@ RimQwtPlot::~RimQwtPlot()
 //--------------------------------------------------------------------------------------------------
 QWidget* RimQwtPlot::createViewWidget( QWidget* parent /*= nullptr */ )
 {
-    RiuQwtPlotWidget* plotWidget = doCreatePlotViewWidget( parent );
+    // TOOD: ugly!!!!
+    RiuQwtPlotWidget* plotWidget = dynamic_cast<RiuQwtPlotWidget*>( doCreatePlotViewWidget( parent ) );
 
     RimQwtPlot::attachPlotWidgetSignals( this, plotWidget );
 
@@ -71,13 +72,9 @@ QWidget* RimQwtPlot::createViewWidget( QWidget* parent /*= nullptr */ )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimQwtPlot::updateFonts()
+RiuPlotWidget* RimQwtPlot::plotWidget()
 {
-    if ( viewer() )
-    {
-        viewer()->setPlotTitleFontSize( titleFontSize() );
-        viewer()->setLegendFontSize( legendFontSize() );
-    }
+    return viewer();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -107,13 +104,13 @@ void RimQwtPlot::attachPlotWidgetSignals( RimQwtPlot* plot, RiuQwtPlotWidget* pl
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimQwtPlot::doRenderWindowContent( QPaintDevice* paintDevice )
-{
-    if ( viewer() )
-    {
-        viewer()->renderTo( paintDevice, viewer()->frameGeometry() );
-    }
-}
+// void RimQwtPlot::doRenderWindowContent( QPaintDevice* paintDevice )
+// {
+//     if ( viewer() )
+//     {
+//         viewer()->renderTo( paintDevice, viewer()->frameGeometry() );
+//     }
+// }
 
 //--------------------------------------------------------------------------------------------------
 ///
