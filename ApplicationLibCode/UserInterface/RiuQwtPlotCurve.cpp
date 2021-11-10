@@ -35,25 +35,17 @@
 #include <limits>
 
 //--------------------------------------------------------------------------------------------------
-/// Internal constants
-//--------------------------------------------------------------------------------------------------
-#define DOUBLE_INF std::numeric_limits<double>::infinity()
-
-//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RiuQwtPlotCurve::RiuQwtPlotCurve( const QString& title )
-    : QwtPlotCurve( title )
+    : RiuPlotCurve()
+    , QwtPlotCurve( title )
 {
     this->setLegendAttribute( QwtPlotCurve::LegendShowLine, true );
     this->setLegendAttribute( QwtPlotCurve::LegendShowSymbol, true );
     this->setLegendAttribute( QwtPlotCurve::LegendShowBrush, true );
 
     this->setRenderHint( QwtPlotItem::RenderAntialiased, true );
-
-    m_symbolSkipPixelDistance = 10.0f;
-
-    m_blackAndWhiteLegendIcon = false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -61,40 +53,6 @@ RiuQwtPlotCurve::RiuQwtPlotCurve( const QString& title )
 //--------------------------------------------------------------------------------------------------
 RiuQwtPlotCurve::~RiuQwtPlotCurve()
 {
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiuQwtPlotCurve::setSamplesFromXValuesAndYValues( const std::vector<double>& xValues,
-                                                       const std::vector<double>& yValues,
-                                                       bool                       keepOnlyPositiveValues )
-{
-    computeValidIntervalsAndSetCurveData( xValues, yValues, keepOnlyPositiveValues );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiuQwtPlotCurve::setSamplesFromDatesAndYValues( const std::vector<QDateTime>& dateTimes,
-                                                     const std::vector<double>&    yValues,
-                                                     bool                          keepOnlyPositiveValues )
-{
-    auto xValues = RiuQwtPlotCurve::fromQDateTime( dateTimes );
-
-    computeValidIntervalsAndSetCurveData( xValues, yValues, keepOnlyPositiveValues );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiuQwtPlotCurve::setSamplesFromTimeTAndYValues( const std::vector<time_t>& dateTimes,
-                                                     const std::vector<double>& yValues,
-                                                     bool                       keepOnlyPositiveValues )
-{
-    auto xValues = RiuQwtPlotCurve::fromTime_t( dateTimes );
-
-    computeValidIntervalsAndSetCurveData( xValues, yValues, keepOnlyPositiveValues );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -238,30 +196,6 @@ void RiuQwtPlotCurve::drawSymbols( QPainter*          painter,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuQwtPlotCurve::setLineSegmentStartStopIndices( const std::vector<std::pair<size_t, size_t>>& lineSegmentStartStopIndices )
-{
-    m_polyLineStartStopIndices = lineSegmentStartStopIndices;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiuQwtPlotCurve::setSymbolSkipPixelDistance( float distance )
-{
-    m_symbolSkipPixelDistance = distance >= 0.0f ? distance : 0.0f;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiuQwtPlotCurve::setPerPointLabels( const std::vector<QString>& labels )
-{
-    m_perPointLabels = labels;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RiuQwtPlotCurve::setAppearance( RiuQwtPlotCurveDefines::LineStyleEnum          lineStyle,
                                      RiuQwtPlotCurveDefines::CurveInterpolationEnum interpolationType,
                                      int                                            requestedCurveThickness,
@@ -319,14 +253,6 @@ void RiuQwtPlotCurve::setAppearance( RiuQwtPlotCurveDefines::LineStyleEnum      
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuQwtPlotCurve::setBlackAndWhiteLegendIcon( bool blackAndWhite )
-{
-    m_blackAndWhiteLegendIcon = blackAndWhite;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 QwtGraphic RiuQwtPlotCurve::legendIcon( int index, const QSizeF& size ) const
 {
     QwtGraphic icon = QwtPlotCurve::legendIcon( index, size );
@@ -344,58 +270,23 @@ QwtGraphic RiuQwtPlotCurve::legendIcon( int index, const QSizeF& size ) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuQwtPlotCurve::computeValidIntervalsAndSetCurveData( const std::vector<double>& xValues,
-                                                            const std::vector<double>& yValues,
-                                                            bool                       keepOnlyPositiveValues )
+void RiuQwtPlotCurve::attachToPlot( RiuQwtPlotWidget* plotWidget )
 {
-    auto intervalsOfValidValues = RiaCurveDataTools::calculateIntervalsOfValidValues( yValues, keepOnlyPositiveValues );
-
-    std::vector<double> validYValues;
-    std::vector<double> validXValues;
-
-    RiaCurveDataTools::getValuesByIntervals( yValues, intervalsOfValidValues, &validYValues );
-    RiaCurveDataTools::getValuesByIntervals( xValues, intervalsOfValidValues, &validXValues );
-
-    setSamples( validXValues.data(), validYValues.data(), static_cast<int>( validXValues.size() ) );
-
-    setLineSegmentStartStopIndices( RiaCurveDataTools::computePolyLineStartStopIndices( intervalsOfValidValues ) );
+    attach( plotWidget->qwtPlot() );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<double> RiuQwtPlotCurve::fromQDateTime( const std::vector<QDateTime>& dateTimes )
+void RiuQwtPlotCurve::showInPlot()
 {
-    std::vector<double> doubleValues;
-
-    if ( !dateTimes.empty() )
-    {
-        doubleValues.reserve( dateTimes.size() );
-
-        for ( const auto& dt : dateTimes )
-        {
-            doubleValues.push_back( QwtDate::toDouble( dt ) );
-        }
-    }
-
-    return doubleValues;
+    show();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<double> RiuQwtPlotCurve::fromTime_t( const std::vector<time_t>& timeSteps )
+void RiuQwtPlotCurve::setSamplesInPlot( const std::vector<double>& xValues, const std::vector<double>& yValues, int numValues )
 {
-    std::vector<double> doubleValues;
-
-    if ( !timeSteps.empty() )
-    {
-        doubleValues.reserve( timeSteps.size() );
-        for ( const auto& time : timeSteps )
-        {
-            doubleValues.push_back( RiaTimeTTools::toDouble( time ) );
-        }
-    }
-
-    return doubleValues;
+    setSamples( xValues.data(), yValues.data(), numValues );
 }
