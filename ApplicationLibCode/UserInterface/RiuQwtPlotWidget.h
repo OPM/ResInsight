@@ -19,6 +19,8 @@
 
 #pragma once
 
+#include "RiuPlotWidget.h"
+
 #include "RiaDefines.h"
 #include "RiuInterfaceToViewWindow.h"
 
@@ -56,18 +58,11 @@ class QWheelEvent;
 //
 //
 //==================================================================================================
-class RiuQwtPlotWidget : public QWidget, public RiuInterfaceToViewWindow
+class RiuQwtPlotWidget : public RiuPlotWidget
 {
     Q_OBJECT
 
 public:
-    enum class AxisScaleType
-    {
-        LINEAR,
-        LOGARITHMIC,
-        DATE
-    };
-
     RiuQwtPlotWidget( RimPlot* plotDefinition, QWidget* parent = nullptr );
     ~RiuQwtPlotWidget() override;
 
@@ -90,20 +85,20 @@ public:
                                    bool titleBold = false,
                                    int  alignment = (int)Qt::AlignCenter );
 
-    void enableAxis( RiaDefines::PlotAxis axis, bool isEnabled );
-    bool axisEnabled( RiaDefines::PlotAxis axis ) const;
+    void enableAxis( RiaDefines::PlotAxis axis, bool isEnabled ) override;
+    bool axisEnabled( RiaDefines::PlotAxis axis ) const override;
 
-    void setAxisScale( RiaDefines::PlotAxis axis, double min, double max );
-    void setAxisAutoScale( RiaDefines::PlotAxis axis, bool enable );
+    void setAxisScale( RiaDefines::PlotAxis axis, double min, double max ) override;
+    void setAxisAutoScale( RiaDefines::PlotAxis axis, bool enable ) override;
 
-    void setAxisMaxMinor( RiaDefines::PlotAxis axis, int maxMinor );
-    void setAxisMaxMajor( RiaDefines::PlotAxis axis, int maxMajor );
+    void setAxisMaxMinor( RiaDefines::PlotAxis axis, int maxMinor ) override;
+    void setAxisMaxMajor( RiaDefines::PlotAxis axis, int maxMajor ) override;
 
-    RiuQwtPlotWidget::AxisScaleType axisScaleType( RiaDefines::PlotAxis axis ) const;
-    void setAxisScaleType( RiaDefines::PlotAxis axis, RiuQwtPlotWidget::AxisScaleType axisScaleType );
+    RiuPlotWidget::AxisScaleType axisScaleType( RiaDefines::PlotAxis axis ) const override;
+    void setAxisScaleType( RiaDefines::PlotAxis axis, RiuPlotWidget::AxisScaleType axisScaleType ) override;
 
-    void setAxisTitleText( RiaDefines::PlotAxis axis, const QString& title );
-    void setAxisTitleEnabled( RiaDefines::PlotAxis axis, bool enable );
+    void setAxisTitleText( RiaDefines::PlotAxis axis, const QString& title ) override;
+    void setAxisTitleEnabled( RiaDefines::PlotAxis axis, bool enable ) override;
 
     void           setPlotTitle( const QString& plotTitle );
     const QString& plotTitle() const;
@@ -206,22 +201,22 @@ private:
     void updateOverlayFrameLayout();
 
 private:
-    caf::PdmPointer<RimPlot>                m_plotDefinition;
-    QPoint                                  m_clickPosition;
-    std::map<RiaDefines::PlotAxis, QString> m_axisTitles;
-    std::map<RiaDefines::PlotAxis, bool>    m_axisTitlesEnabled;
-    const int                               m_overlayMargins;
-    QString                                 m_plotTitle;
-    bool                                    m_plotTitleEnabled;
+    // caf::PdmPointer<RimPlot>                m_plotDefinition;
+    // QPoint                                  m_clickPosition;
+    // std::map<RiaDefines::PlotAxis, QString> m_axisTitles;
+    // std::map<RiaDefines::PlotAxis, bool>    m_axisTitlesEnabled;
+    // const int                               m_overlayMargins;
+    // QString                                 m_plotTitle;
+    // bool                                    m_plotTitleEnabled;
 
-    QList<QPointer<RiuDraggableOverlayFrame>> m_overlayFrames;
+    // QList<QPointer<RiuDraggableOverlayFrame>> m_overlayFrames;
 
-    struct CurveColors
-    {
-        QColor lineColor;
-        QColor symbolColor;
-        QColor symbolLineColor;
-    };
+    // struct CurveColors
+    // {
+    //     QColor lineColor;
+    //     QColor symbolColor;
+    //     QColor symbolLineColor;
+    // };
 
     std::map<QwtPlotCurve*, CurveColors> m_originalCurveColors;
     std::map<QwtPlotCurve*, double>      m_originalZValues;
