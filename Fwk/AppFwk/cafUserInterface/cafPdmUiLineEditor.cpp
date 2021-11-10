@@ -141,6 +141,11 @@ void PdmUiLineEditor::configureAndUpdateUi( const QString& uiConfigName )
             {
                 m_lineEdit->setPlaceholderText( leab.placeholderText );
             }
+
+            if ( leab.notifyWhenTextIsEdited )
+            {
+                connect( m_lineEdit, SIGNAL( textEdited( const QString& ) ), this, SLOT( slotEditingFinished() ) );
+            }
         }
 
         bool fromMenuOnly = true;
@@ -220,7 +225,10 @@ void PdmUiLineEditor::configureAndUpdateUi( const QString& uiConfigName )
                 displayString = displayStringAttrib.m_displayString;
             }
 
-            m_lineEdit->setText( displayString );
+            if ( displayString != m_lineEdit->text() )
+            {
+                m_lineEdit->setText( displayString );
+            }
         }
     }
 }

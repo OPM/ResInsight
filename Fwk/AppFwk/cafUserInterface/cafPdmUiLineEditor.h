@@ -65,6 +65,7 @@ public:
         maximumWidth                         = -1;
         selectAllOnFocusEvent                = false;
         placeholderText                      = "";
+        notifyWhenTextIsEdited               = false;
     }
 
 public:
@@ -77,6 +78,7 @@ public:
     int                 maximumWidth;
     bool                selectAllOnFocusEvent;
     QString             placeholderText;
+    bool                notifyWhenTextIsEdited;
 };
 
 //--------------------------------------------------------------------------------------------------
