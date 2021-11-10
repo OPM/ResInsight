@@ -19,39 +19,16 @@
 
 #include "RiuQwtPlotWidget.h"
 
-#include "RiaColorTools.h"
-#include "RiaDefines.h"
-#include "RiaFontCache.h"
-#include "RiaGuiApplication.h"
 #include "RiaPlotDefines.h"
 #include "RiaPlotWindowRedrawScheduler.h"
 #include "RimPlot.h"
 
 #include "RiuDraggableOverlayFrame.h"
-#include "RiuGuiTheme.h"
-#include "RiuPlotMainWindowTools.h"
-#include "RiuQwtCurvePointTracker.h"
-#include "RiuQwtLinearScaleEngine.h"
-#include "RiuQwtPlotCurve.h"
-#include "RiuQwtPlotTools.h"
-#include "RiuQwtScalePicker.h"
 
 #include "cafAssert.h"
 
-#include <QDebug>
-#include <QDrag>
-#include <QFont>
-#include <QFontMetrics>
-#include <QGraphicsDropShadowEffect>
-#include <QLabel>
-#include <QMimeData>
-#include <QMouseEvent>
-#include <QScrollArea>
-#include <QWheelEvent>
-
 #include <algorithm>
 #include <limits>
-#include <qboxlayout.h>
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -64,19 +41,6 @@ RiuPlotWidget::RiuPlotWidget( RimPlot* plotDefinition, QWidget* parent )
     , m_plotTitleEnabled( true )
 {
     CAF_ASSERT( m_plotDefinition );
-
-    // QVBoxLayout* layout = new QVBoxLayout;
-    // setLayout( layout );
-
-    // m_plot = new QwtPlot( this );
-    // layout->addWidget( m_plot );
-
-    // RiuQwtPlotTools::setCommonPlotBehaviour( m_plot );
-
-    // m_plot->installEventFilter( m_plot );
-    // m_plot->canvas()->installEventFilter( this );
-
-    // setSizePolicy( QSizePolicy::Preferred, QSizePolicy::Preferred );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -200,75 +164,6 @@ void RiuPlotWidget::removeOverlayFrame( RiuDraggableOverlayFrame* overlayFrame )
     overlayFrame->setParent( nullptr );
     m_overlayFrames.removeOne( overlayFrame );
 };
-
-// //--------------------------------------------------------------------------------------------------
-// ///
-// //--------------------------------------------------------------------------------------------------
-// void RiuPlotWidget::hideEvent( QHideEvent* event )
-// {
-//     resetPlotItemHighlighting();
-//     // TODO: remove?
-//     // m_plot->hideEvent( event );
-// }
-
-// //--------------------------------------------------------------------------------------------------
-// ///
-// //--------------------------------------------------------------------------------------------------
-// void RiuPlotWidget::showEvent( QShowEvent* event )
-// {
-//     // TODO: remove?
-//     // m_plot->showEvent( event );
-// }
-
-// //--------------------------------------------------------------------------------------------------
-// ///
-// //--------------------------------------------------------------------------------------------------
-// void RiuPlotWidget::resizeEvent( QResizeEvent* event )
-// {
-//     // TODO: remove???
-//     // QwtPlot::resizeEvent( event );
-//     updateOverlayFrameLayout();
-//     event->accept();
-// }
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-// void RiuPlotWidget::keyPressEvent( QKeyEvent* event )
-// {
-//     emit onKeyPressEvent( event );
-// }
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-// QSize RiuPlotWidget::sizeHint() const
-// {
-//     return QSize( 0, 0 );
-// }
-
-// //--------------------------------------------------------------------------------------------------
-// ///
-// //--------------------------------------------------------------------------------------------------
-// QSize RiuPlotWidget::minimumSizeHint() const
-// {
-//     return QSize( 0, 0 );
-// }
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-// bool RiuPlotWidget::isZoomerActive() const
-// {
-//     return false;
-// }
-
-// //--------------------------------------------------------------------------------------------------
-// /// Empty default implementation
-// //--------------------------------------------------------------------------------------------------
-// void RiuPlotWidget::endZoomOperations()
-// {
-// }
 
 //--------------------------------------------------------------------------------------------------
 ///

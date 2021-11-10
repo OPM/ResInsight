@@ -24,6 +24,8 @@
 
 #include "cafPdmPointer.h"
 
+#include "qwt_plot.h"
+
 #include <QPointer>
 
 class RimEnsembleParameterColorHandlerInterface;

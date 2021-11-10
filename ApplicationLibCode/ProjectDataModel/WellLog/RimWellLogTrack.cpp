@@ -1018,13 +1018,13 @@ QString RimWellLogTrack::asciiDataForPlotExport() const
 //--------------------------------------------------------------------------------------------------
 void RimWellLogTrack::updateZoomFromQwt()
 {
-    QwtInterval xInterval     = m_plotWidget->axisRange( RiaDefines::PlotAxis::PLOT_AXIS_TOP );
-    QwtInterval depthInterval = m_plotWidget->axisRange( RiaDefines::PlotAxis::PLOT_AXIS_LEFT );
+    auto [xIntervalMin, xIntervalMax]         = m_plotWidget->axisRange( RiaDefines::PlotAxis::PLOT_AXIS_TOP );
+    auto [depthIntervalMin, depthIntervalMax] = m_plotWidget->axisRange( RiaDefines::PlotAxis::PLOT_AXIS_LEFT );
 
-    m_visibleXRangeMin     = xInterval.minValue();
-    m_visibleXRangeMax     = xInterval.maxValue();
-    m_visibleDepthRangeMin = depthInterval.minValue();
-    m_visibleDepthRangeMax = depthInterval.maxValue();
+    m_visibleXRangeMin     = xIntervalMin;
+    m_visibleXRangeMax     = xIntervalMax;
+    m_visibleDepthRangeMin = depthIntervalMin;
+    m_visibleDepthRangeMax = depthIntervalMax;
 }
 
 //--------------------------------------------------------------------------------------------------

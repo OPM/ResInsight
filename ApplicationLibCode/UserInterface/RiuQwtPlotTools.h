@@ -17,6 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
+#include "RiaPlotDefines.h"
 #include "RiaQDateTimeTools.h"
 #include <qwt_date.h>
 #include <qwt_plot.h>
@@ -56,6 +57,9 @@ public:
                                                double         endY,
                                                QColor         color,
                                                Qt::BrushStyle brushStyle = Qt::SolidPattern );
+
+    static QwtPlot::Axis        toQwtPlotAxis( RiaDefines::PlotAxis );
+    static RiaDefines::PlotAxis fromQwtPlotAxis( QwtPlot::Axis );
 };
 
 //--------------------------------------------------------------------------------------------------

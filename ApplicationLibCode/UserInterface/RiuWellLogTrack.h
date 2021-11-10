@@ -20,6 +20,8 @@
 
 #include "RiuQwtPlotWidget.h"
 
+#include "qwt_plot.h"
+
 class RimWellLogTrack;
 class QWheelEvent;
 

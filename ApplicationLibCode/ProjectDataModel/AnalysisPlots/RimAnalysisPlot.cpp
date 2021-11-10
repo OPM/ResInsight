@@ -26,6 +26,7 @@
 
 #include "RiuGroupedBarChartBuilder.h"
 #include "RiuPlotMainWindowTools.h"
+#include "RiuQwtPlotTools.h"
 #include "RiuSummaryQwtPlot.h"
 #include "RiuSummaryVectorSelectionDialog.h"
 
@@ -161,7 +162,7 @@ RimAnalysisPlot::RimAnalysisPlot()
     CAF_PDM_InitFieldNoDefault( &m_valueAxisProperties, "ValueAxisProperties", "ValueAxisProperties", "", "", "" );
     m_valueAxisProperties.uiCapability()->setUiTreeHidden( true );
     m_valueAxisProperties = new RimPlotAxisProperties;
-    m_valueAxisProperties->setNameAndAxis( "Value-Axis", RiaDefines::fromQwtPlotAxis( QwtPlot::yLeft ) );
+    m_valueAxisProperties->setNameAndAxis( "Value-Axis", RiuQwtPlotTools::fromQwtPlotAxis( QwtPlot::yLeft ) );
     m_valueAxisProperties->enableRangeSettings( false );
 
     CAF_PDM_InitFieldNoDefault( &m_plotDataFilterCollection, "PlotDataFilterCollection", "PlotDataFilterCollection", "", "", "" );

@@ -43,7 +43,7 @@ public:
 
     QwtGraphic legendIcon( int index, const QSizeF& size ) const override;
 
-    void attachToPlot( RiuQwtPlotWidget* plotWidget ) override;
+    void attachToPlot( RiuPlotWidget* plotWidget ) override;
     void showInPlot() override;
 
 protected:

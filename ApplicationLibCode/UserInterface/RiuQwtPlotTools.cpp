@@ -230,3 +230,33 @@ QwtPlotShapeItem* RiuQwtPlotTools::createBoxShape( const QString& label,
 {
     return createBoxShapeT<QwtPlotShapeItem>( label, startX, endX, startY, endY, color, brushStyle );
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QwtPlot::Axis RiuQwtPlotTools::toQwtPlotAxis( RiaDefines::PlotAxis axis )
+{
+    if ( axis == RiaDefines::PlotAxis::PLOT_AXIS_LEFT )
+        return QwtPlot::yLeft;
+    else if ( axis == RiaDefines::PlotAxis::PLOT_AXIS_RIGHT )
+        return QwtPlot::yRight;
+    else if ( axis == RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM )
+        return QwtPlot::xBottom;
+
+    return QwtPlot::xTop;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiaDefines::PlotAxis RiuQwtPlotTools::fromQwtPlotAxis( QwtPlot::Axis axis )
+{
+    if ( axis == QwtPlot::yLeft )
+        return RiaDefines::PlotAxis::PLOT_AXIS_LEFT;
+    else if ( axis == QwtPlot::yRight )
+        return RiaDefines::PlotAxis::PLOT_AXIS_RIGHT;
+    else if ( axis == QwtPlot::xBottom )
+        return RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM;
+
+    return RiaDefines::PlotAxis::PLOT_AXIS_TOP;
+}
