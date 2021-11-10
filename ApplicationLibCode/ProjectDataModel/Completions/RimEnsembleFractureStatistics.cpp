@@ -453,10 +453,6 @@ std::vector<QString> RimEnsembleFractureStatistics::computeStatistics()
         std::shared_ptr<RigSlice2D>      distanceGrid = std::make_shared<RigSlice2D>( gridXs.size(), gridYs.size() );
         sampleAllGrids( fractureGrids, gridXs, gridYs, samples, areaGrid, distanceGrid );
 
-        // Beta should be reported inverted: low values are high, high values are low.
-        bool swapLowAndHigh = result.first.contains( "BETA", Qt::CaseInsensitive );
-        if ( swapLowAndHigh ) RiaLogging::info( QString( "Inverting statistics for: %1" ).arg( result.first ) );
-
         std::map<RimEnsembleFractureStatistics::StatisticsType, std::shared_ptr<RigSlice2D>> statisticsGrids;
         generateStatisticsGrids( samples,
                                  gridXs.size(),
@@ -466,8 +462,7 @@ std::vector<QString> RimEnsembleFractureStatistics::computeStatistics()
                                  selectedStatistics,
                                  areaHistogramData,
                                  areaGrid,
-                                 distanceGrid,
-                                 swapLowAndHigh );
+                                 distanceGrid );
 
         for ( auto [statType, slice] : statisticsGrids )
         {
@@ -1150,31 +1145,12 @@ void RimEnsembleFractureStatistics::generateStatisticsGrids(
     const std::vector<caf::AppEnum<RimEnsembleFractureStatistics::StatisticsType>>&       statisticsTypes,
     const RigHistogramData&                                                               areaHistogram,
     std::shared_ptr<RigSlice2D>                                                           areaGrid,
-    std::shared_ptr<RigSlice2D>                                                           distanceGrid,
-    bool                                                                                  swapLowAndHigh )
+    std::shared_ptr<RigSlice2D>                                                           distanceGrid )
 {
-    for ( auto t : statisticsTypes )
-    {
-        std::shared_ptr<RigSlice2D> grid = std::make_shared<RigSlice2D>( numSamplesX, numSamplesY );
-        statisticsGrids[t.value()]       = grid;
-    }
-
-    auto isCalculationEnabled = []( StatisticsType t, auto statisticsTypes ) {
-        return std::find( statisticsTypes.begin(), statisticsTypes.end(), t ) != statisticsTypes.end();
-    };
-
-    bool calculateMin        = isCalculationEnabled( StatisticsType::MIN, statisticsTypes );
-    bool calculateMax        = isCalculationEnabled( StatisticsType::MAX, statisticsTypes );
-    bool calculateMean       = isCalculationEnabled( StatisticsType::MEAN, statisticsTypes );
-    bool calculateP10        = isCalculationEnabled( StatisticsType::P10, statisticsTypes );
-    bool calculateP50        = isCalculationEnabled( StatisticsType::P50, statisticsTypes );
-    bool calculateP90        = isCalculationEnabled( StatisticsType::P90, statisticsTypes );
-    bool calculateOccurrence = isCalculationEnabled( StatisticsType::OCCURRENCE, statisticsTypes );
-
-    auto setValueNoInf = []( std::shared_ptr<RigSlice2D>& grid, size_t x, size_t y, double value ) {
+    auto setValueNoInf = []( RigSlice2D& grid, size_t x, size_t y, double value ) {
         // Guard against inf (happens in the regions not covered by any mesh)
         if ( std::isinf( value ) ) value = 0.0;
-        grid->setValue( x, y, value );
+        grid.setValue( x, y, value );
     };
 
     auto removeNonPositiveValues = []( const std::vector<double>& values ) {
@@ -1185,6 +1161,7 @@ void RimEnsembleFractureStatistics::generateStatisticsGrids(
     };
 
     RigSlice2D occurrenceGrid( numSamplesX, numSamplesY );
+    RigSlice2D meanGrid( numSamplesX, numSamplesY );
 
     const int ny = static_cast<int>( numSamplesY );
 #pragma omp parallel for
@@ -1196,57 +1173,15 @@ void RimEnsembleFractureStatistics::generateStatisticsGrids(
 
             // Remove samples without positive values (no conductivity).
             std::vector<double> values = removeNonPositiveValues( samples[idx] );
-            if ( calculateMin || calculateMax || calculateMean )
-            {
-                double min;
-                double max;
-                double sum;
-                double range;
-                double mean;
-                double dev;
-                RigStatisticsMath::calculateBasicStatistics( values, &min, &max, &sum, &range, &mean, &dev );
 
-                if ( swapLowAndHigh ) std::swap( min, max );
-
-                if ( calculateMean )
-                    setValueNoInf( statisticsGrids[RimEnsembleFractureStatistics::StatisticsType::MEAN], x, y, mean );
-
-                if ( calculateMin )
-                    setValueNoInf( statisticsGrids[RimEnsembleFractureStatistics::StatisticsType::MIN], x, y, min );
-
-                if ( calculateMax )
-                    setValueNoInf( statisticsGrids[RimEnsembleFractureStatistics::StatisticsType::MAX], x, y, max );
-            }
-
-            if ( calculateP10 || calculateP50 || calculateP90 )
-            {
-                double p10;
-                double p50;
-                double p90;
-                double mean;
-                RigStatisticsMath::calculateStatisticsCurves( values,
-                                                              &p10,
-                                                              &p50,
-                                                              &p90,
-                                                              &mean,
-                                                              RigStatisticsMath::PercentileStyle::SWITCHED );
-
-                if ( swapLowAndHigh ) std::swap( p10, p90 );
-
-                if ( calculateP10 )
-                    setValueNoInf( statisticsGrids[RimEnsembleFractureStatistics::StatisticsType::P10], x, y, p10 );
-
-                if ( calculateP50 )
-                    setValueNoInf( statisticsGrids[RimEnsembleFractureStatistics::StatisticsType::P50], x, y, p50 );
-
-                if ( calculateP90 )
-                    setValueNoInf( statisticsGrids[RimEnsembleFractureStatistics::StatisticsType::P90], x, y, p90 );
-            }
-
-            if ( calculateOccurrence )
-            {
-                statisticsGrids[RimEnsembleFractureStatistics::StatisticsType::OCCURRENCE]->setValue( x, y, values.size() );
-            }
+            double min;
+            double max;
+            double sum;
+            double range;
+            double mean;
+            double dev;
+            RigStatisticsMath::calculateBasicStatistics( values, &min, &max, &sum, &range, &mean, &dev );
+            setValueNoInf( meanGrid, x, y, mean );
 
             // Internal occurrence grid for the area correction is always calculated
             occurrenceGrid.setValue( x, y, values.size() );
@@ -1264,18 +1199,15 @@ void RimEnsembleFractureStatistics::generateStatisticsGrids(
     // Post-process the resulting grids improve area representation
     for ( auto statisticsType : statisticsTypes )
     {
-        statisticsGrids[statisticsType] = setCellsToFillTargetArea( statisticsGrids[statisticsType],
-                                                                    occurrenceGrid,
-                                                                    *areaGrid,
-                                                                    *distanceGrid,
-                                                                    areaMapping[statisticsType] );
+        statisticsGrids[statisticsType] =
+            setCellsToFillTargetArea( meanGrid, occurrenceGrid, *areaGrid, *distanceGrid, areaMapping[statisticsType] );
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::shared_ptr<RigSlice2D> RimEnsembleFractureStatistics::setCellsToFillTargetArea( std::shared_ptr<RigSlice2D>& grid,
+std::shared_ptr<RigSlice2D> RimEnsembleFractureStatistics::setCellsToFillTargetArea( const RigSlice2D& grid,
                                                                                      const RigSlice2D& occurrenceGrid,
                                                                                      const RigSlice2D& areaGrid,
                                                                                      const RigSlice2D& distanceGrid,
@@ -1333,13 +1265,13 @@ std::shared_ptr<RigSlice2D> RimEnsembleFractureStatistics::setCellsToFillTargetA
 
     // Fill cells in the output grid until the target area is reached.
     // This ensures that the statistics fracture grids have representantive sizes.
-    std::shared_ptr<RigSlice2D> outputGrid = std::make_shared<RigSlice2D>( grid->nx(), grid->ny() );
+    std::shared_ptr<RigSlice2D> outputGrid = std::make_shared<RigSlice2D>( grid.nx(), grid.ny() );
     double                      area       = 0.0;
     for ( const CellData& cellData : cells )
     {
         if ( area < targetArea )
         {
-            double value = grid->getValue( cellData.x, cellData.y );
+            double value = grid.getValue( cellData.x, cellData.y );
             if ( !std::isinf( value ) && cellData.area > 0.0 )
             {
                 outputGrid->setValue( cellData.x, cellData.y, value );
