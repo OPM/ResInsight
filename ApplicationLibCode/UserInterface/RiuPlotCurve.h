@@ -51,7 +51,7 @@ class RiuPlotCurve
 {
 public:
     explicit RiuPlotCurve();
-    ~RiuPlotCurve();
+    virtual ~RiuPlotCurve();
 
     void setSamplesFromXValuesAndYValues( const std::vector<double>& xValues,
                                           const std::vector<double>& yValues,
