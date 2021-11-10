@@ -55,7 +55,7 @@ public:
     };
 
     RiuPlotWidget( RimPlot* plotDefinition, QWidget* parent = nullptr );
-    ~RiuPlotWidget() override;
+    virtual ~RiuPlotWidget() override;
 
     RimPlot* plotDefinition();
 

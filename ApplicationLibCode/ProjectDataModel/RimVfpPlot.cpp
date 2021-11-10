@@ -28,6 +28,7 @@
 #include "RiuContextMenuLauncher.h"
 #include "RiuPlotCurve.h"
 #include "RiuPlotWidget.h"
+#include "RiuQtChartsPlotWidget.h"
 #include "RiuQwtPlotCurveDefines.h"
 #include "RiuQwtPlotWidget.h"
 
@@ -376,7 +377,7 @@ RiuPlotWidget* RimVfpPlot::doCreatePlotViewWidget( QWidget* mainWindowParent )
     }
 
     {
-        RiuPlotWidget* plotWidget = new RiuQwtPlotWidget( this, mainWindowParent );
+        RiuPlotWidget* plotWidget = new RiuQtChartsPlotWidget( this, mainWindowParent );
 
         // Remove event filter to disable unwanted highlighting on left click in plot.
         plotWidget->removeEventFilter();
