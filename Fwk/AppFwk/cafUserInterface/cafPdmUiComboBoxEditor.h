@@ -63,6 +63,7 @@ public:
         enableEditableContent      = false;
         minimumWidth               = -1;
         iconSize                   = QSize( 14, 14 );
+        notifyWhenTextIsEdited     = false;
     }
 
 public:
@@ -80,6 +81,8 @@ public:
     QSize iconSize;
     QIcon nextIcon;
     QIcon previousIcon;
+
+    bool notifyWhenTextIsEdited;
 };
 
 //==================================================================================================
@@ -91,7 +94,7 @@ class PdmUiComboBoxEditor : public PdmUiFieldEditorHandle
     CAF_PDM_UI_FIELD_EDITOR_HEADER_INIT;
 
 public:
-    PdmUiComboBoxEditor() {}
+    PdmUiComboBoxEditor();
     ~PdmUiComboBoxEditor() override {}
 
 protected:
@@ -102,6 +105,7 @@ protected:
 
 protected slots:
     void slotIndexActivated( int index );
+    void slotEditTextChanged( const QString& );
 
     void slotNextButtonPressed();
     void slotPreviousButtonPressed();
@@ -116,6 +120,9 @@ private:
     QPointer<QWidget>     m_placeholder;
 
     PdmUiComboBoxEditorAttribute m_attributes;
+
+    QString m_interactiveEditText;
+    int     m_interactiveEditCursorPosition;
 };
 
 } // end namespace caf
