@@ -71,17 +71,17 @@ RimPlot::~RimPlot()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-// QWidget* RimPlot::createViewWidget( QWidget* parent /*= nullptr */ )
-// {
-//     RiuQwtPlotWidget* plotWidget = doCreatePlotViewWidget( parent );
+QWidget* RimPlot::createViewWidget( QWidget* parent /*= nullptr */ )
+{
+    RiuPlotWidget* plotWidget = doCreatePlotViewWidget( parent );
 
-//     RimPlot::attachPlotWidgetSignals( this, plotWidget );
+    //    RimPlot::attachPlotWidgetSignals( this, plotWidget );
 
-//     updateWindowVisibility();
-//     plotWidget->scheduleReplot();
+    updateWindowVisibility();
+    plotWidget->scheduleReplot();
 
-//     return plotWidget;
-// }
+    return plotWidget;
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -186,13 +186,13 @@ void RimPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const Q
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-// void RimPlot::doRenderWindowContent( QPaintDevice* paintDevice )
-// {
-//     if ( viewer() )
-//     {
-//         viewer()->renderTo( paintDevice, viewer()->frameGeometry() );
-//     }
-// }
+void RimPlot::doRenderWindowContent( QPaintDevice* paintDevice )
+{
+    if ( plotWidget() )
+    {
+        plotWidget()->renderTo( paintDevice, plotWidget()->frameGeometry() );
+    }
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -250,4 +250,16 @@ void RimPlot::onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
                               std::vector<caf::PdmObjectHandle*>& referringObjects )
 {
     loadDataAndUpdate();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlot::updateFonts()
+{
+    if ( plotWidget() )
+    {
+        plotWidget()->setPlotTitleFontSize( titleFontSize() );
+        plotWidget()->setLegendFontSize( legendFontSize() );
+    }
 }

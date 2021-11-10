@@ -20,8 +20,6 @@
 
 #pragma once
 
-#include "qwt_plot.h"
-
 // Defines relate to plotting
 namespace RiaDefines
 {
@@ -32,9 +30,6 @@ enum class PlotAxis
     PLOT_AXIS_BOTTOM,
     PLOT_AXIS_TOP
 };
-
-QwtPlot::Axis        toQwtPlotAxis( RiaDefines::PlotAxis );
-RiaDefines::PlotAxis fromQwtPlotAxis( QwtPlot::Axis );
 
 double minimumDefaultValuePlot();
 double minimumDefaultLogValuePlot();

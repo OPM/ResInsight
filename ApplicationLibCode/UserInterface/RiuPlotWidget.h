@@ -19,33 +19,23 @@
 
 #pragma once
 
-#include "RiaDefines.h"
-#include "RiuInterfaceToViewWindow.h"
-
 #include "RiaPlotDefines.h"
+
+#include "RiuInterfaceToViewWindow.h"
 
 #include "cafPdmObject.h"
 #include "cafPdmPointer.h"
 
 #include <QPointer>
+#include <QWidget>
 
 class RiaPlotWindowRedrawScheduler;
 class RimPlot;
 class RiuDraggableOverlayFrame;
 class RiuPlotCurve;
 
-// class QwtLegend;
-// class QwtPicker;
-// class QwtPlotCurve;
-// class QwtPlotGrid;
-// class QwtPlotItem;
-// class QwtPlotMarker;
-
-class QEvent;
-class QLabel;
 class QPainter;
 class QPaintDevice;
-class QWheelEvent;
 
 //==================================================================================================
 //
@@ -101,17 +91,17 @@ public:
     virtual void setAxisTitleText( RiaDefines::PlotAxis axis, const QString& title ) = 0;
     virtual void setAxisTitleEnabled( RiaDefines::PlotAxis axis, bool enable )       = 0;
 
-    void           setPlotTitle( const QString& plotTitle );
+    virtual void   setPlotTitle( const QString& plotTitle ) = 0;
     const QString& plotTitle() const;
     void           setPlotTitleEnabled( bool enabled );
     bool           plotTitleEnabled() const;
-    void           setPlotTitleFontSize( int titleFontSize );
+    virtual void   setPlotTitleFontSize( int titleFontSize ) = 0;
 
-    void setLegendFontSize( int fontSize );
-    void setInternalLegendVisible( bool visible );
+    virtual void setLegendFontSize( int fontSize ) = 0;
+    void         setInternalLegendVisible( bool visible );
 
-    QwtInterval axisRange( RiaDefines::PlotAxis axis ) const;
-    void        setAxisRange( RiaDefines::PlotAxis axis, double min, double max );
+    virtual std::pair<double, double> axisRange( RiaDefines::PlotAxis axis ) const                      = 0;
+    virtual void                      setAxisRange( RiaDefines::PlotAxis axis, double min, double max ) = 0;
 
     void setAxisInverted( RiaDefines::PlotAxis axis, bool isInverted );
     void setAxisLabelsAndTicksEnabled( RiaDefines::PlotAxis axis, bool enableLabels, bool enableTicks );
@@ -146,56 +136,23 @@ public:
     void removeOverlayFrame( RiuDraggableOverlayFrame* overlayWidget );
     void updateLayout();
 
-    void renderTo( QPainter* painter, const QRect& targetRect, double scaling );
-    void renderTo( QPaintDevice* painter, const QRect& targetRect );
-    int  overlayMargins() const;
+    virtual void renderTo( QPainter* painter, const QRect& targetRect, double scaling ) = 0;
+    virtual void renderTo( QPaintDevice* painter, const QRect& targetRect )             = 0;
+    int          overlayMargins() const;
 
     RimViewWindow* ownerViewWindow() const override;
 
     // QwtPlot* qwtPlot() const;
 
-    void removeEventFilter();
+    virtual void removeEventFilter() = 0;
 
     void updateLegend();
     void updateAxes();
 
-    RiuPlotCurve* createPlotCurve( const QString& title, const QColor& color );
-
-    // signals:
-    //     void plotSelected( bool toggleSelection );
-    //     void axisSelected( int axisId, bool toggleSelection );
-    //     void plotItemSelected( QwtPlotItem* plotItem, bool toggleSelection, int sampleIndex );
-    //     void onKeyPressEvent( QKeyEvent* event );
-    //     void onWheelEvent( QWheelEvent* event );
-    //     void plotZoomed();
+    virtual RiuPlotCurve* createPlotCurve( const QString& title, const QColor& color ) = 0;
 
 protected:
-    // bool eventFilter( QObject* watched, QEvent* event ) override;
-    // void hideEvent( QHideEvent* event ) override;
-    // void showEvent( QShowEvent* event ) override;
-    // void resizeEvent( QResizeEvent* event ) override;
-    // void keyPressEvent( QKeyEvent* event ) override;
-
-    // QSize sizeHint() const override;
-    // QSize minimumSizeHint() const override;
-
-    // virtual bool isZoomerActive() const;
-    // virtual void endZoomOperations();
-
-    // void findClosestPlotItem( const QPoint& pos,
-    //                           QwtPlotItem** closestItem,
-    //                           int*          closestCurvePoint,
-    //                           double*       distanceFromClick ) const;
-
-    // void       selectClosestPlotItem( const QPoint& pos, bool toggleItemInSelection = false );
     static int defaultMinimumWidth();
-
-    // void highlightPlotItem( const QwtPlotItem* closestItem );
-    // void resetPlotItemHighlighting();
-    // void onAxisSelected( QwtScaleWidget* scale, bool toggleItemInSelection );
-    // void recalculateAxisExtents( RiaDefines::PlotAxis axis );
-
-    // void updateOverlayFrameLayout();
 
     caf::PdmPointer<RimPlot>                m_plotDefinition;
     QPoint                                  m_clickPosition;
@@ -213,11 +170,4 @@ protected:
         QColor symbolColor;
         QColor symbolLineColor;
     };
-
-    // std::map<RiuPlotCurve*, CurveColors> m_originalCurveColors;
-    // std::map<RiuPlotCurve*, double>      m_originalZValues;
-
-    // QPointer<QwtPlot> m_plot;
-
-    // friend class RiaPlotWindowRedrawScheduler;
 };

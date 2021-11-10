@@ -22,8 +22,6 @@
 #include <set>
 #include <vector>
 
-#include <qwt_plot.h>
-
 class RimAsciiDataCurve;
 class RimSummaryCurve;
 class RimPlotAxisProperties;

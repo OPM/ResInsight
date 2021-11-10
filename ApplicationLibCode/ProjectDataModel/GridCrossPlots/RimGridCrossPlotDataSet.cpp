@@ -62,6 +62,8 @@
 #include "cvfScalarMapper.h"
 #include "cvfqtUtils.h"
 
+#include "qwt_plot.h"
+
 #include <QString>
 
 CAF_PDM_SOURCE_INIT( RimGridCrossPlotDataSet, "GridCrossPlotCurveSet" );

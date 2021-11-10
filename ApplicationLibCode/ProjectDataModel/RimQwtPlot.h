@@ -20,6 +20,8 @@
 
 #include "RimPlot.h"
 
+#include "RiuQwtPlotWidget.h"
+
 #include "RimPlotWindow.h"
 
 #include "cafAppEnum.h"
@@ -54,22 +56,23 @@ public:
     QWidget* createPlotWidget( QWidget* parent = nullptr );
 
     // Pure virtual interface methods
-    virtual RiuQwtPlotWidget* viewer() = 0;
-
     virtual void updateZoomInQwt()   = 0;
     virtual void updateZoomFromQwt() = 0;
 
     virtual caf::PdmObject* findPdmObjectFromQwtCurve( const QwtPlotCurve* curve ) const = 0;
 
+    virtual RiuQwtPlotWidget* viewer() = 0;
+
+    RiuPlotWidget* plotWidget() override;
+
 protected:
     static void attachPlotWidgetSignals( RimQwtPlot* plot, RiuQwtPlotWidget* plotWidget );
     QWidget*    createViewWidget( QWidget* parent = nullptr ) override;
 
-    void updateFonts() override;
+    // void updateFonts() override;
 
 private:
-    void                      doRenderWindowContent( QPaintDevice* paintDevice ) override;
-    virtual RiuQwtPlotWidget* doCreatePlotViewWidget( QWidget* parent ) = 0;
+    // void doRenderWindowContent( QPaintDevice* paintDevice ) override;
 
 private slots:
     void         onPlotSelected( bool toggle );
