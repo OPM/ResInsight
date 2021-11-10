@@ -36,6 +36,7 @@
 class RiaPlotWindowRedrawScheduler;
 class RimPlot;
 class RiuDraggableOverlayFrame;
+class RiuPlotCurve;
 
 class QwtLegend;
 class QwtPicker;
@@ -160,6 +161,8 @@ public:
 
     void updateLegend();
     void updateAxes();
+
+    RiuPlotCurve* createPlotCurve( const QString& title, const QColor& color );
 
 signals:
     void plotSelected( bool toggleSelection );

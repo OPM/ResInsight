@@ -114,8 +114,7 @@ private:
                                       RimVfpDefines::ProductionVariableType   primaryVariable,
                                       RimVfpDefines::ProductionVariableType   familyVariable );
 
-    static QwtPlotCurve* createPlotCurve( const QString title, const QColor& color );
-    static double        convertToDisplayUnit( double value, RimVfpDefines::ProductionVariableType variableType );
+    static double convertToDisplayUnit( double value, RimVfpDefines::ProductionVariableType variableType );
     static void convertToDisplayUnit( std::vector<double>& values, RimVfpDefines::ProductionVariableType variableType );
 
     static QString getDisplayUnit( RimVfpDefines::ProductionVariableType variableType );

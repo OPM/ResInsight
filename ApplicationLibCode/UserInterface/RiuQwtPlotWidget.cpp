@@ -32,6 +32,7 @@
 #include "RiuPlotMainWindowTools.h"
 #include "RiuQwtCurvePointTracker.h"
 #include "RiuQwtLinearScaleEngine.h"
+#include "RiuQwtPlotCurve.h"
 #include "RiuQwtPlotTools.h"
 #include "RiuQwtScalePicker.h"
 
@@ -1241,4 +1242,12 @@ void RiuQwtPlotWidget::setAxisScaleType( RiaDefines::PlotAxis axis, RiuQwtPlotWi
 void RiuQwtPlotWidget::updateAxes()
 {
     m_plot->updateAxes();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiuPlotCurve* RiuQwtPlotWidget::createPlotCurve( const QString& title, const QColor& color )
+{
+    return new RiuQwtPlotCurve( title );
 }
