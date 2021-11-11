@@ -334,8 +334,6 @@ void RiaGuiApplication::storeTreeViewState()
 //--------------------------------------------------------------------------------------------------
 void RiaGuiApplication::setWindowCaptionFromAppState()
 {
-    if ( !m_mainWindow ) return;
-
     // The stuff being done here should really be handled by Qt automatically as a result of
     // setting applicationName and windowFilePath
     // Was unable to make this work in Qt4.4.0!
@@ -346,13 +344,21 @@ void RiaGuiApplication::setWindowCaptionFromAppState()
 #endif
 
     {
-        QString projFileName = m_project->fileName();
+        QString projFileName;
+
+        if ( !m_project->fileName().isEmpty() )
+        {
+            QFileInfo fi( m_project->fileName() );
+            projFileName = fi.fileName();
+        }
+
         if ( projFileName.isEmpty() ) projFileName = "Untitled project";
 
         capt = projFileName + QString( "[*]" ) + QString( " - " ) + capt;
     }
 
-    m_mainWindow->setWindowTitle( capt );
+    if ( m_mainWindow ) m_mainWindow->setWindowTitle( capt );
+    if ( m_mainPlotWindow ) m_mainPlotWindow->setWindowTitle( capt );
 }
 
 //--------------------------------------------------------------------------------------------------
