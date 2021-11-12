@@ -1725,7 +1725,7 @@ double RimStimPlanModel::findFaciesValue( const RimColorLegend& colorLegend, con
 {
     for ( auto item : colorLegend.colorLegendItems() )
     {
-        if ( item->categoryName() == name ) return item->categoryValue();
+        if ( item->categoryName().compare( name, Qt::CaseInsensitive ) == 0 ) return item->categoryValue();
     }
 
     return std::numeric_limits<double>::infinity();
