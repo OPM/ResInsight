@@ -102,6 +102,8 @@ public:
 
     void setLegendFontSize( int fontSize ) override;
     void setInternalLegendVisible( bool visible );
+    void insertLegend( RiuPlotWidget::Legend ) override;
+    void clearLegend() override;
 
     std::pair<double, double> axisRange( RiaDefines::PlotAxis axis ) const override;
     void                      setAxisRange( RiaDefines::PlotAxis axis, double min, double max ) override;
@@ -152,6 +154,8 @@ public:
     void updateAxes();
 
     RiuPlotCurve* createPlotCurve( const QString& title, const QColor& color ) override;
+
+    void detachItems( RiuPlotWidget::PlotItemType plotItemType ) override;
 
 signals:
     void plotSelected( bool toggleSelection );
