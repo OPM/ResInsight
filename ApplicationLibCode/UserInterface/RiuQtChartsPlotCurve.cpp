@@ -25,13 +25,6 @@
 #include "RiuQtChartsPlotWidget.h"
 #include "RiuQwtSymbol.h"
 
-// #include "qwt_date.h"
-// #include "qwt_interval_symbol.h"
-// #include "qwt_painter.h"
-// #include "qwt_point_mapper.h"
-// #include "qwt_scale_map.h"
-// #include "qwt_symbol.h"
-
 #include <limits>
 
 //--------------------------------------------------------------------------------------------------
@@ -41,11 +34,8 @@ RiuQtChartsPlotCurve::RiuQtChartsPlotCurve( const QString& title )
     : RiuPlotCurve()
 //    , QtChartsPlotCurve( title )
 {
-    // this->setLegendAttribute( QtChartsPlotCurve::LegendShowLine, true );
-    // this->setLegendAttribute( QtChartsPlotCurve::LegendShowSymbol, true );
-    // this->setLegendAttribute( QtChartsPlotCurve::LegendShowBrush, true );
-
-    // this->setRenderHint( QtChartsPlotItem::RenderAntialiased, true );
+    m_lineSeries = new QtCharts::QLineSeries();
+    m_lineSeries->setName( title );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -203,49 +193,49 @@ void RiuQtChartsPlotCurve::setAppearance( RiuQwtPlotCurveDefines::LineStyleEnum 
                                           const QBrush& fillBrush /* = QBrush( Qt::NoBrush )*/ )
 {
     // QwtPlotCurve::CurveStyle curveStyle = QwtPlotCurve::NoCurve;
-    // Qt::PenStyle             penStyle   = Qt::NoPen;
+    Qt::PenStyle penStyle = Qt::NoPen;
 
-    // // Qwt bug workaround (#4135): need to set 0 curve thickness for STYLE_NONE
-    // int curveThickness = 0;
-    // if ( lineStyle != RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_NONE )
-    // {
-    //     curveThickness = requestedCurveThickness;
-    //     switch ( interpolationType )
-    //     {
-    //         case RiuQwtPlotCurveDefines::CurveInterpolationEnum::INTERPOLATION_STEP_LEFT:
-    //             curveStyle = QwtPlotCurve::Steps;
-    //             setCurveAttribute( QwtPlotCurve::Inverted, false );
-    //             break;
-    //         case RiuQwtPlotCurveDefines::CurveInterpolationEnum::INTERPOLATION_POINT_TO_POINT: // Fall through
-    //         default:
-    //             curveStyle = QwtPlotCurve::Lines;
-    //             break;
-    //     }
+    // Qwt bug workaround (#4135): need to set 0 curve thickness for STYLE_NONE
+    int curveThickness = 0;
+    if ( lineStyle != RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_NONE )
+    {
+        curveThickness = requestedCurveThickness;
+        // switch ( interpolationType )
+        // {
+        //     case RiuQwtPlotCurveDefines::CurveInterpolationEnum::INTERPOLATION_STEP_LEFT:
+        //         curveStyle = QwtPlotCurve::Steps;
+        //         setCurveAttribute( QwtPlotCurve::Inverted, false );
+        //         break;
+        //     case RiuQwtPlotCurveDefines::CurveInterpolationEnum::INTERPOLATION_POINT_TO_POINT: // Fall through
+        //     default:
+        //         curveStyle = QwtPlotCurve::Lines;
+        //         break;
+        // }
 
-    //     switch ( lineStyle )
-    //     {
-    //         case RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_SOLID:
-    //             penStyle = Qt::SolidLine;
-    //             break;
-    //         case RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_DASH:
-    //             penStyle = Qt::DashLine;
-    //             break;
-    //         case RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_DOT:
-    //             penStyle = Qt::DotLine;
-    //             break;
-    //         case RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_DASH_DOT:
-    //             penStyle = Qt::DashDotLine;
-    //             break;
+        switch ( lineStyle )
+        {
+            case RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_SOLID:
+                penStyle = Qt::SolidLine;
+                break;
+            case RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_DASH:
+                penStyle = Qt::DashLine;
+                break;
+            case RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_DOT:
+                penStyle = Qt::DotLine;
+                break;
+            case RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_DASH_DOT:
+                penStyle = Qt::DashDotLine;
+                break;
 
-    //         default:
-    //             break;
-    //     }
-    // }
-    // QPen curvePen( curveColor );
-    // curvePen.setWidth( curveThickness );
-    // curvePen.setStyle( penStyle );
+            default:
+                break;
+        }
+    }
+    QPen curvePen( curveColor );
+    curvePen.setWidth( curveThickness );
+    curvePen.setStyle( penStyle );
 
-    // setPen( curvePen );
+    m_lineSeries->setPen( curvePen );
     // setStyle( curveStyle );
     // setBrush( fillBrush );
 }
@@ -256,7 +246,10 @@ void RiuQtChartsPlotCurve::setAppearance( RiuQwtPlotCurveDefines::LineStyleEnum 
 void RiuQtChartsPlotCurve::attachToPlot( RiuPlotWidget* plotWidget )
 {
     RiuQtChartsPlotWidget* qtChartsPlotWidget = dynamic_cast<RiuQtChartsPlotWidget*>( plotWidget );
-    // attach( qwtPlotWidget->qwtPlot() );
+
+    qtChartsPlotWidget->attach( m_lineSeries );
+    // qtChart()->addSeries( m_lineSeries );
+    // qtChartsPlotWidget->qtChart()->setAxisX(axisX, series);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -274,5 +267,12 @@ void RiuQtChartsPlotCurve::setSamplesInPlot( const std::vector<double>& xValues,
                                              const std::vector<double>& yValues,
                                              int                        numValues )
 {
-    //    setSamples( xValues.data(), yValues.data(), numValues );
+    CAF_ASSERT( xValues.size() == yValues.size() );
+    CAF_ASSERT( numValues <= static_cast<int>( xValues.size() ) );
+    CAF_ASSERT( numValues >= 0 );
+
+    for ( int i = 0; i < numValues; i++ )
+    {
+        m_lineSeries->append( xValues[i], yValues[i] );
+    }
 }
