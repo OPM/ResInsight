@@ -16,7 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimSummaryCurveManager.h"
+#include "RimSummaryPlotManager.h"
 
 #include "RiaSummaryTools.h"
 #include "RifSummaryReaderInterface.h"
@@ -37,14 +37,14 @@
 #include <QDebug>
 #include <QKeyEvent>
 
-CAF_PDM_SOURCE_INIT( RimSummaryCurveManager, "RimSummaryCurveManager" );
+CAF_PDM_SOURCE_INIT( RimSummaryPlotManager, "RimSummaryPlotManager" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSummaryCurveManager::RimSummaryCurveManager()
+RimSummaryPlotManager::RimSummaryPlotManager()
 {
-    CAF_PDM_InitObject( "Summary Curve Manager", "", "", "" );
+    CAF_PDM_InitObject( "Summary Plot Manager", "", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_summaryPlot, "SummaryPlot", "Summary Plot", "", "", "" );
     CAF_PDM_InitFieldNoDefault( &m_curveFilterText, "CurveFilterText", "Curve Filter Text", "", "", "" );
@@ -75,7 +75,7 @@ RimSummaryCurveManager::RimSummaryCurveManager()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCurveManager::onSelectionManagerSelectionChanged( const std::set<int>& changedSelectionLevels )
+void RimSummaryPlotManager::onSelectionManagerSelectionChanged( const std::set<int>& changedSelectionLevels )
 {
     updateFromSelection();
 }
@@ -83,25 +83,13 @@ void RimSummaryCurveManager::onSelectionManagerSelectionChanged( const std::set<
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCurveManager::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                               const QVariant&            oldValue,
-                                               const QVariant&            newValue )
+void RimSummaryPlotManager::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
+                                              const QVariant&            oldValue,
+                                              const QVariant&            newValue )
 {
     if ( changedField == &m_curveFilterText )
     {
-        auto mods = QGuiApplication::keyboardModifiers();
-
-        // Use global keyboard modifiers to trigger different events when content is changed in editor changes
-
-        // This is not working, as the fieldChanged concept returns early if the field content is unchanged
-        // Must use eventFilter on editor field
-
-        if ( mods & Qt::ShiftModifier )
-            appendText();
-        else if ( mods & Qt::ControlModifier )
-            replaceText();
-        else if ( mods & Qt::AltModifier )
-            clearText();
+        updateCurveCandidates();
     }
 
     if ( changedField == &m_pushButtonReplace )
@@ -120,15 +108,13 @@ void RimSummaryCurveManager::fieldChangedByUi( const caf::PdmFieldHandle* change
     m_pushButtonReplace = false;
     m_pushButtonClear   = false;
     m_pushButtonAppend  = false;
-
-    updateCurveCandidates();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo>
-    RimSummaryCurveManager::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly )
+    RimSummaryPlotManager::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly )
 {
     QList<caf::PdmOptionItemInfo> options;
     if ( fieldNeedingOptions == &m_summaryPlot )
@@ -143,7 +129,7 @@ QList<caf::PdmOptionItemInfo>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCurveManager::updateCurveCandidates()
+void RimSummaryPlotManager::updateCurveCandidates()
 {
     m_curveCandidates.value().clear();
 
@@ -175,10 +161,10 @@ void RimSummaryCurveManager::updateCurveCandidates()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCurveManager::insertFilteredAddressesInSet( const QStringList&                        curveFilters,
-                                                           const std::set<RifEclipseSummaryAddress>& allAddressesInCase,
-                                                           std::set<RifEclipseSummaryAddress>* setToInsertFilteredAddressesIn,
-                                                           std::vector<bool>*                  usedFilters )
+void RimSummaryPlotManager::insertFilteredAddressesInSet( const QStringList&                        curveFilters,
+                                                          const std::set<RifEclipseSummaryAddress>& allAddressesInCase,
+                                                          std::set<RifEclipseSummaryAddress>* setToInsertFilteredAddressesIn,
+                                                          std::vector<bool>*                  usedFilters )
 {
     std::set<RifEclipseSummaryAddress> candidateAddresses;
 
@@ -211,9 +197,9 @@ void RimSummaryCurveManager::insertFilteredAddressesInSet( const QStringList&   
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCurveManager::defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                                    QString                    uiConfigName,
-                                                    caf::PdmUiEditorAttribute* attribute )
+void RimSummaryPlotManager::defineEditorAttribute( const caf::PdmFieldHandle* field,
+                                                   QString                    uiConfigName,
+                                                   caf::PdmUiEditorAttribute* attribute )
 {
     {
         auto myAttr = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute );
@@ -238,7 +224,7 @@ void RimSummaryCurveManager::defineEditorAttribute( const caf::PdmFieldHandle* f
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCurveManager::appendText()
+void RimSummaryPlotManager::appendText()
 {
     qDebug() << "append";
 }
@@ -246,7 +232,7 @@ void RimSummaryCurveManager::appendText()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCurveManager::replaceText()
+void RimSummaryPlotManager::replaceText()
 {
     qDebug() << "replaceText";
 }
@@ -254,7 +240,7 @@ void RimSummaryCurveManager::replaceText()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCurveManager::clearText()
+void RimSummaryPlotManager::clearText()
 {
     qDebug() << "clearText";
 }
@@ -262,20 +248,24 @@ void RimSummaryCurveManager::clearText()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimSummaryCurveManager::eventFilter( QObject* obj, QEvent* event )
+bool RimSummaryPlotManager::eventFilter( QObject* obj, QEvent* event )
 {
-    auto keyEvent = dynamic_cast<QKeyEvent*>( event );
-    if ( keyEvent )
+    if ( event->type() == QEvent::KeyPress )
     {
-        auto mods = QGuiApplication::keyboardModifiers();
-        // auto mods = keyEvent->modifiers();
+        QKeyEvent* keyEvent = static_cast<QKeyEvent*>( event );
 
-        if ( mods & Qt::ShiftModifier )
-            appendText();
-        else if ( mods & Qt::ControlModifier )
-            replaceText();
-        else if ( mods & Qt::AltModifier )
-            clearText();
+        if ( keyEvent && ( keyEvent->key() == Qt::Key_Enter || keyEvent->key() == Qt::Key_Return ) )
+        {
+            // auto mods = QGuiApplication::keyboardModifiers();
+            auto mods = keyEvent->modifiers();
+
+            if ( mods & Qt::ShiftModifier )
+                appendText();
+            else if ( mods & Qt::ControlModifier )
+                replaceText();
+            else if ( mods & Qt::AltModifier )
+                clearText();
+        }
     }
 
     return QObject::eventFilter( obj, event );
@@ -284,7 +274,7 @@ bool RimSummaryCurveManager::eventFilter( QObject* obj, QEvent* event )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCurveManager::updateFromSelection()
+void RimSummaryPlotManager::updateFromSelection()
 {
     caf::PdmObjectHandle* destinationObject =
         dynamic_cast<caf::PdmObjectHandle*>( caf::SelectionManager::instance()->selectedItem() );
@@ -303,7 +293,7 @@ void RimSummaryCurveManager::updateFromSelection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::set<RifEclipseSummaryAddress> RimSummaryCurveManager::addressesForSource( caf::PdmObject* summarySource )
+std::set<RifEclipseSummaryAddress> RimSummaryPlotManager::addressesForSource( caf::PdmObject* summarySource )
 {
     auto* ensemble = dynamic_cast<RimSummaryCaseCollection*>( summarySource );
     if ( ensemble )

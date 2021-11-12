@@ -31,10 +31,10 @@
 #include "RimProject.h"
 #include "RimSummaryCaseMainCollection.h"
 #include "RimSummaryCurveCollection.h"
-#include "RimSummaryCurveManager.h"
 #include "RimSummaryPlot.h"
 #include "RimSummaryPlotCollection.h"
 #include "RimSummaryPlotFilterTextCurveSetEditor.h"
+#include "RimSummaryPlotManager.h"
 #include "RimViewWindow.h"
 #include "RimWellAllocationPlot.h"
 #include "RimWellLogCurveCommonDataSource.h"
@@ -507,7 +507,7 @@ void RiuPlotMainWindow::createDockPanels()
 
         m_summaryCurveManagerView = new caf::PdmUiPropertyView( dockWidget );
 
-        auto curveManager = std::make_unique<RimSummaryCurveManager>();
+        auto curveManager = std::make_unique<RimSummaryPlotManager>();
         m_summaryCurveManagerView->showProperties( curveManager.get() );
         m_summaryCurveManagerView->installEventFilter( curveManager.get() );
         m_summaryCurveManager = std::move( curveManager );

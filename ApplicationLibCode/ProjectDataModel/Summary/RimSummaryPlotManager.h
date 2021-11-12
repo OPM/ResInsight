@@ -26,14 +26,14 @@
 class RimSummaryPlot;
 class RifEclipseSummaryAddress;
 
-class RimSummaryCurveManager : public QObject, public caf::PdmObject, public caf::SelectionChangedReceiver
+class RimSummaryPlotManager : public QObject, public caf::PdmObject, public caf::SelectionChangedReceiver
 
 {
     Q_OBJECT;
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimSummaryCurveManager();
+    RimSummaryPlotManager();
 
 private:
     void onSelectionManagerSelectionChanged( const std::set<int>& changedSelectionLevels ) override;
