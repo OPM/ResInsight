@@ -504,9 +504,14 @@ void RiuPlotMainWindow::createDockPanels()
     {
         QDockWidget* dockWidget = new QDockWidget( "Curve Manager", this );
         dockWidget->setObjectName( RiuDockWidgetTools::summaryCurveManagerName() );
+
         m_summaryCurveManagerView = new caf::PdmUiPropertyView( dockWidget );
-        m_summaryCurveManager     = std::make_unique<RimSummaryCurveManager>();
-        m_summaryCurveManagerView->showProperties( m_summaryCurveManager.get() );
+
+        auto curveManager = std::make_unique<RimSummaryCurveManager>();
+        m_summaryCurveManagerView->showProperties( curveManager.get() );
+        m_summaryCurveManagerView->installEventFilter( curveManager.get() );
+        m_summaryCurveManager = std::move( curveManager );
+
         dockWidget->setWidget( m_summaryCurveManagerView );
         addDockWidget( Qt::BottomDockWidgetArea, dockWidget );
         dockWidget->hide();
