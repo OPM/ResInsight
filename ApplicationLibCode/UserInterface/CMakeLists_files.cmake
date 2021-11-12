@@ -195,23 +195,20 @@ set(SOURCE_GROUP_SOURCE_FILES
 )
 
 if(Qt5Charts_FOUND)
-  list(APPEND CODE_HEADER_FILES
-      ${CMAKE_CURRENT_LIST_DIR}/RiuQtChartView.h
-      ${CMAKE_CURRENT_LIST_DIR}/RiuQtChartsPlotCurve.h
-      ${CMAKE_CURRENT_LIST_DIR}/RiuQtChartsPlotWidget.h
+  list(APPEND CODE_HEADER_FILES ${CMAKE_CURRENT_LIST_DIR}/RiuQtChartView.h
+       ${CMAKE_CURRENT_LIST_DIR}/RiuQtChartsPlotCurve.h
+       ${CMAKE_CURRENT_LIST_DIR}/RiuQtChartsPlotWidget.h
   )
 
-
-
-  list(APPEND CODE_SOURCE_FILES
-      ${CMAKE_CURRENT_LIST_DIR}/RiuQtChartView.cpp
-      ${CMAKE_CURRENT_LIST_DIR}/RiuQtChartsPlotCurve.cpp
-      ${CMAKE_CURRENT_LIST_DIR}/RiuQtChartsPlotWidget.cpp
+  list(APPEND CODE_SOURCE_FILES ${CMAKE_CURRENT_LIST_DIR}/RiuQtChartView.cpp
+       ${CMAKE_CURRENT_LIST_DIR}/RiuQtChartsPlotCurve.cpp
+       ${CMAKE_CURRENT_LIST_DIR}/RiuQtChartsPlotWidget.cpp
   )
 
   list(APPEND QT_MOC_HEADERS
-#      ${CMAKE_CURRENT_LIST_DIR}/RiuQtChartView.h
-      ${CMAKE_CURRENT_LIST_DIR}/RiuQtChartsPlotWidget.h)
+       # ${CMAKE_CURRENT_LIST_DIR}/RiuQtChartView.h
+       ${CMAKE_CURRENT_LIST_DIR}/RiuQtChartsPlotWidget.h
+  )
 endif()
 
 list(APPEND CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})
