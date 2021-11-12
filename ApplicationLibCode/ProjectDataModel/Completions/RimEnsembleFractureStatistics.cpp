@@ -357,8 +357,7 @@ void RimEnsembleFractureStatistics::loadAndUpdateData()
 
     auto unitSystem = RiaDefines::EclipseUnitSystem::UNITS_METRIC;
 
-    std::vector<cvf::ref<RigStimPlanFractureDefinition>> stimPlanFractureDefinitions =
-        readFractureDefinitions( m_filePaths.v(), unitSystem );
+    auto [stimPlanFractureDefinitions, okFilePaths] = readFractureDefinitions( m_filePaths.v(), unitSystem );
 
     // Log area and conductivty for each fracture for debugging
     std::vector<double> area =
@@ -368,12 +367,12 @@ void RimEnsembleFractureStatistics::loadAndUpdateData()
         RigEnsembleFractureStatisticsCalculator::calculateProperty( stimPlanFractureDefinitions,
                                                                     RigEnsembleFractureStatisticsCalculator::PropertyType::KFWF );
 
-    CAF_ASSERT( m_filePaths.v().size() == area.size() );
+    CAF_ASSERT( okFilePaths.size() == area.size() );
     CAF_ASSERT( area.size() == conductivity.size() );
-    for ( size_t i = 0; i < m_filePaths.v().size(); i++ )
+    for ( size_t i = 0; i < okFilePaths.size(); i++ )
     {
         RiaLogging::info(
-            QString( "%1 Area: %2 Conductivity: %3" ).arg( m_filePaths.v()[i].path() ).arg( area[i] ).arg( conductivity[i] ) );
+            QString( "%1 Area: %2 Conductivity: %3" ).arg( okFilePaths[i] ).arg( area[i] ).arg( conductivity[i] ) );
     }
 
     if ( m_excludeZeroWidthFractures() )
@@ -395,8 +394,7 @@ std::vector<QString> RimEnsembleFractureStatistics::computeStatistics()
 {
     auto unitSystem = RiaDefines::EclipseUnitSystem::UNITS_METRIC;
 
-    std::vector<cvf::ref<RigStimPlanFractureDefinition>> stimPlanFractureDefinitions =
-        readFractureDefinitions( m_filePaths.v(), unitSystem );
+    auto [stimPlanFractureDefinitions, filePaths] = readFractureDefinitions( m_filePaths.v(), unitSystem );
 
     if ( m_excludeZeroWidthFractures() )
     {
@@ -527,19 +525,20 @@ std::vector<QString> RimEnsembleFractureStatistics::computeStatistics()
 //--------------------------------------------------------------------------------------------------
 std::vector<cvf::ref<RigStimPlanFractureDefinition>> RimEnsembleFractureStatistics::readFractureDefinitions() const
 {
-    return readFractureDefinitions( m_filePaths, RiaDefines::EclipseUnitSystem::UNITS_METRIC );
+    return readFractureDefinitions( m_filePaths, RiaDefines::EclipseUnitSystem::UNITS_METRIC ).first;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<cvf::ref<RigStimPlanFractureDefinition>>
+std::pair<std::vector<cvf::ref<RigStimPlanFractureDefinition>>, std::vector<QString>>
     RimEnsembleFractureStatistics::readFractureDefinitions( const std::vector<caf::FilePath>& filePaths,
                                                             RiaDefines::EclipseUnitSystem     unitSystem ) const
 {
     double conductivityScaleFactor = 1.0;
 
     std::vector<cvf::ref<RigStimPlanFractureDefinition>> results;
+    std::vector<QString>                                 okFilePaths;
     for ( auto filePath : m_filePaths.v() )
     {
         RiaLogging::info( QString( "Loading file: %1" ).arg( filePath.path() ) );
@@ -558,10 +557,11 @@ std::vector<cvf::ref<RigStimPlanFractureDefinition>>
         if ( stimPlanFractureDefinitionData.notNull() )
         {
             results.push_back( stimPlanFractureDefinitionData );
+            okFilePaths.push_back( filePath.path() );
         }
     }
 
-    return results;
+    return std::make_pair( results, okFilePaths );
 }
 
 //--------------------------------------------------------------------------------------------------

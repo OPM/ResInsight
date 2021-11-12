@@ -123,7 +123,7 @@ protected:
     static double computeDepthOfWellPathAtFracture( cvf::ref<RigStimPlanFractureDefinition> stimPlanFractureDefinitionData );
     static bool isCoordinateInsideFractureCell( double x, double y, const RigFractureCell& cell );
 
-    std::vector<cvf::ref<RigStimPlanFractureDefinition>>
+    std::pair<std::vector<cvf::ref<RigStimPlanFractureDefinition>>, std::vector<QString>>
         readFractureDefinitions( const std::vector<caf::FilePath>& filePaths,
                                  RiaDefines::EclipseUnitSystem     unitSystem ) const;
 
