@@ -99,8 +99,9 @@ double RimElasticPropertyScalingCollection::getScaling( const QString&          
 {
     for ( const RimElasticPropertyScaling* scaling : m_elasticPropertyScalings )
     {
-        if ( scaling->property() == property && scaling->formation() == formationName &&
-             scaling->facies() == faciesName && scaling->isChecked() )
+        if ( scaling->property() == property &&
+             ( scaling->formation().compare( formationName, Qt::CaseInsensitive ) == 0 ) &&
+             ( scaling->facies().compare( faciesName, Qt::CaseInsensitive ) == 0 ) && scaling->isChecked() )
         {
             return scaling->scale();
         }
