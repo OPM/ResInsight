@@ -210,22 +210,20 @@ void RimVfpPlot::updateLegend()
     }
 
     // Hide the legend when in multiplot mode, as the legend is handeled by the multi plot grid layout
-    // bool doShowLegend = false;
-    // if ( isMdiWindow() )
-    // {
-    //     doShowLegend = m_showPlotLegends;
-    // }
+    bool doShowLegend = false;
+    if ( isMdiWindow() )
+    {
+        doShowLegend = m_showPlotLegends;
+    }
 
-    // TODO: fix this!!!
-    // if ( doShowLegend )
-    // {
-    //     QwtLegend* legend = new QwtLegend( m_plotWidget );
-    //     m_plotWidget->qwtPlot()->insertLegend( legend, QwtPlot::BottomLegend );
-    // }
-    // else
-    // {
-    //     m_plotWidget->qwtPlot()->insertLegend( nullptr );
-    // }
+    if ( doShowLegend )
+    {
+        m_plotWidget->insertLegend( RiuPlotWidget::Legend::BOTTOM );
+    }
+    else
+    {
+        m_plotWidget->clearLegend();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -378,6 +376,7 @@ RiuPlotWidget* RimVfpPlot::doCreatePlotViewWidget( QWidget* mainWindowParent )
 
     {
         RiuPlotWidget* plotWidget = new RiuQtChartsPlotWidget( this, mainWindowParent );
+        //        RiuPlotWidget* plotWidget = new RiuQwtPlotWidget( this, mainWindowParent );
 
         // Remove event filter to disable unwanted highlighting on left click in plot.
         plotWidget->removeEventFilter();
@@ -430,8 +429,7 @@ void RimVfpPlot::onLoadDataAndUpdate()
         return;
     }
 
-    // TODO: implement detach
-    //    m_plotWidget->qwtPlot()->detachItems( QwtPlotItem::Rtti_PlotCurve );
+    m_plotWidget->detachItems( RiuPlotWidget::PlotItemType::CURVE );
 
     updateLegend();
 
@@ -562,8 +560,7 @@ void RimVfpPlot::populatePlotWidgetWithCurveData( RiuPlotWidget*                
 //--------------------------------------------------------------------------------------------------
 void RimVfpPlot::populatePlotWidgetWithPlotData( RiuPlotWidget* plotWidget, const VfpPlotData& plotData )
 {
-    // TODO: add detach to RiuPlotWidget api
-    // plotWidget->qwtPlot()->detachItems( QwtPlotItem::Rtti_PlotCurve );
+    plotWidget->detachItems( RiuPlotWidget::PlotItemType::CURVE );
     plotWidget->setAxisScale( RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM, 0, 1 );
     plotWidget->setAxisScale( RiaDefines::PlotAxis::PLOT_AXIS_LEFT, 0, 1 );
     plotWidget->setAxisAutoScale( RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM, true );

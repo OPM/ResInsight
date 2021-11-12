@@ -24,6 +24,7 @@
 
 #include "RiuInterfaceToViewWindow.h"
 #include "RiuPlotWidget.h"
+#include "RiuQtChartView.h"
 
 #include "cafPdmObject.h"
 #include "cafPdmPointer.h"
@@ -42,6 +43,11 @@ class QLabel;
 class QPainter;
 class QPaintDevice;
 class QWheelEvent;
+
+namespace QtCharts
+{
+class QValueAxis;
+};
 
 //==================================================================================================
 //
@@ -91,6 +97,8 @@ public:
 
     void setLegendFontSize( int fontSize ) override;
     void setInternalLegendVisible( bool visible );
+    void insertLegend( RiuPlotWidget::Legend ) override;
+    void clearLegend() override;
 
     std::pair<double, double> axisRange( RiaDefines::PlotAxis axis ) const override;
     void                      setAxisRange( RiaDefines::PlotAxis axis, double min, double max ) override;
@@ -115,6 +123,8 @@ public:
     void setAutoTickIntervalCounts( RiaDefines::PlotAxis axis, int maxMajorTickIntervalCount, int maxMinorTickIntervalCount );
     double majorTickInterval( RiaDefines::PlotAxis axis ) const;
     double minorTickInterval( RiaDefines::PlotAxis axis ) const;
+
+    void detachItems( RiuPlotWidget::PlotItemType plotItemType ) override;
 
     int axisExtent( RiaDefines::PlotAxis axis ) const;
 
@@ -147,6 +157,10 @@ public:
     //     void onWheelEvent( QWheelEvent* event );
     //     void plotZoomed();
 
+    QtCharts::QChart* qtChart();
+
+    void attach( QtCharts::QAbstractSeries* series );
+
 protected:
     bool eventFilter( QObject* watched, QEvent* event ) override;
     void hideEvent( QHideEvent* event ) override;
@@ -154,14 +168,19 @@ protected:
     void resizeEvent( QResizeEvent* event ) override;
     void keyPressEvent( QKeyEvent* event ) override;
 
+    void applyPlotTitleToPlot();
     void applyPlotTitleToQtCharts();
-    void applyAxisTitleToQtCharts( RiaDefines::PlotAxis axis );
+    void applyAxisTitleToPlot( RiaDefines::PlotAxis axis );
 
     QSize sizeHint() const override;
     QSize minimumSizeHint() const override;
 
     virtual bool isZoomerActive() const;
     virtual void endZoomOperations();
+
+    void                  rescaleAxis( RiaDefines::PlotAxis axis );
+    QtCharts::QValueAxis* plotAxis( RiaDefines::PlotAxis axis ) const;
+    Qt::Orientation       orientation( RiaDefines::PlotAxis axis ) const;
 
 private:
     void       selectClosestPlotItem( const QPoint& pos, bool toggleItemInSelection = false );
@@ -180,6 +199,11 @@ private:
     // std::map<QtChartsPlotCurve*, double>      m_originalZValues;
 
     // QPointer<QtChartsPlot> m_plot;
+
+    QPointer<QtCharts::QChartView> m_viewer;
+
+    QtCharts::QValueAxis* m_axisX;
+    QtCharts::QValueAxis* m_axisY;
 
     friend class RiaPlotWindowRedrawScheduler;
 };
