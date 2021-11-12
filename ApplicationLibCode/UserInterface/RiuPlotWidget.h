@@ -54,6 +54,20 @@ public:
         DATE
     };
 
+    enum class Legend
+    {
+        BOTTOM,
+        TOP,
+        LEFT,
+        RIGHT
+    };
+
+    enum class PlotItemType
+    {
+        CURVE,
+        LEGEND
+    };
+
     RiuPlotWidget( RimPlot* plotDefinition, QWidget* parent = nullptr );
     virtual ~RiuPlotWidget() override;
 
@@ -99,6 +113,10 @@ public:
 
     virtual void setLegendFontSize( int fontSize ) = 0;
     void         setInternalLegendVisible( bool visible );
+    virtual void insertLegend( RiuPlotWidget::Legend ) = 0;
+    virtual void clearLegend()                         = 0;
+
+    virtual void detachItems( RiuPlotWidget::PlotItemType plotItemType ) = 0;
 
     virtual std::pair<double, double> axisRange( RiaDefines::PlotAxis axis ) const                      = 0;
     virtual void                      setAxisRange( RiaDefines::PlotAxis axis, double min, double max ) = 0;

@@ -30,6 +30,7 @@
 #include "RiuDraggableOverlayFrame.h"
 #include "RiuGuiTheme.h"
 #include "RiuPlotMainWindowTools.h"
+#include "RiuPlotWidget.h"
 #include "RiuQwtCurvePointTracker.h"
 #include "RiuQwtLinearScaleEngine.h"
 #include "RiuQwtPlotCurve.h"
@@ -268,6 +269,25 @@ void RiuQwtPlotWidget::setInternalLegendVisible( bool visible )
     {
         m_plot->insertLegend( nullptr );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuQwtPlotWidget::insertLegend( RiuPlotWidget::Legend legendPosition )
+{
+    CAF_ASSERT( legendPosition == RiuPlotWidget::Legend::BOTTOM );
+
+    QwtLegend* legend = new QwtLegend( this );
+    m_plot->insertLegend( legend, QwtPlot::BottomLegend );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuQwtPlotWidget::clearLegend()
+{
+    m_plot->insertLegend( nullptr );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1205,4 +1225,13 @@ void RiuQwtPlotWidget::updateAxes()
 RiuPlotCurve* RiuQwtPlotWidget::createPlotCurve( const QString& title, const QColor& color )
 {
     return new RiuQwtPlotCurve( title );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuQwtPlotWidget::detachItems( RiuPlotWidget::PlotItemType plotItemType )
+{
+    CAF_ASSERT( plotItemType == RiuPlotWidget::PlotItemType::CURVE );
+    if ( plotItemType == RiuPlotWidget::PlotItemType::CURVE ) qwtPlot()->detachItems( QwtPlotItem::Rtti_PlotCurve );
 }
