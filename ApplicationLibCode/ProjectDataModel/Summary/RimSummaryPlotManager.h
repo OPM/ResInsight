@@ -25,6 +25,8 @@
 
 class RimSummaryPlot;
 class RifEclipseSummaryAddress;
+class RimSummaryCase;
+class RimSummaryCaseCollection;
 
 class RimSummaryPlotManager : public QObject, public caf::PdmObject, public caf::SelectionChangedReceiver
 
@@ -52,11 +54,13 @@ private:
                                 QString                    uiConfigName,
                                 caf::PdmUiEditorAttribute* attribute ) override;
 
-    void appendText();
-    void replaceText();
-    void clearText();
+    void appendCurves();
+    void replaceCurves();
+    void createNewPlot();
 
     bool eventFilter( QObject* obj, QEvent* event ) override;
+
+    std::pair<std::vector<RimSummaryCase*>, std::vector<RimSummaryCaseCollection*>> dataSources();
 
 private:
     void                                      updateFromSelection();
@@ -72,6 +76,6 @@ private:
     caf::PdmField<bool> m_includeDiffCurves;
 
     caf::PdmField<bool> m_pushButtonReplace;
-    caf::PdmField<bool> m_pushButtonClear;
+    caf::PdmField<bool> m_pushButtonNew;
     caf::PdmField<bool> m_pushButtonAppend;
 };
