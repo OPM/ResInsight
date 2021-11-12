@@ -21,6 +21,8 @@
 #include "RiuPlotCurve.h"
 #include "RiuQwtPlotCurveDefines.h"
 
+#include <QLineSeries>
+
 //==================================================================================================
 //
 //==================================================================================================
@@ -59,4 +61,6 @@ protected:
     //                   int                to ) const override;
 
     void setSamplesInPlot( const std::vector<double>&, const std::vector<double>&, int ) override;
+
+    QtCharts::QLineSeries* m_lineSeries;
 };

@@ -31,15 +31,24 @@
 #include "RiuPlotMainWindowTools.h"
 // #include "RiuQwtCurvePointTracker.h"
 // #include "RiuQwtLinearScaleEngine.h"
+#include "RiuPlotWidget.h"
 #include "RiuQtChartsPlotCurve.h"
 //#include "RiuQwtPlotTools.h"
 
 #include "cafAssert.h"
 
+#include "cvfTrace.h"
+
 // #include <algorithm>
 // #include <limits>
 
 #include <QVBoxLayout>
+
+#include <QValueAxis>
+#include <limits>
+#include <qnamespace.h>
+
+using namespace QtCharts;
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -52,13 +61,18 @@ RiuQtChartsPlotWidget::RiuQtChartsPlotWidget( RimPlot* plotDefinition, QWidget* 
     QVBoxLayout* layout = new QVBoxLayout;
     setLayout( layout );
 
-    // m_plot = new QwtPlot( this );
-    // layout->addWidget( m_plot );
+    QtCharts::QChart* chart = new QtCharts::QChart();
 
-    //    RiuQwtPlotTools::setCommonPlotBehaviour( m_plot );
+    m_viewer = new QtCharts::QChartView( chart, parent ); // RiuQtChartView( this, parent );
+    m_viewer->setRenderHint( QPainter::Antialiasing );
 
-    // m_plot->installEventFilter( m_plot );
-    // m_plot->canvas()->installEventFilter( this );
+    layout->addWidget( m_viewer );
+
+    m_axisX = new QValueAxis();
+    chart->addAxis( m_axisX, Qt::AlignBottom );
+
+    m_axisY = new QValueAxis();
+    chart->addAxis( m_axisY, Qt::AlignLeft );
 
     setSizePolicy( QSizePolicy::Preferred, QSizePolicy::Preferred );
 }
@@ -147,7 +161,7 @@ void RiuQtChartsPlotWidget::setAxesFontsAndAlignment( int titleFontSize, int val
 void RiuQtChartsPlotWidget::setAxisTitleText( RiaDefines::PlotAxis axis, const QString& title )
 {
     m_axisTitles[axis] = title;
-    // applyAxisTitleToQwt( axis );
+    applyAxisTitleToPlot( axis );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -156,7 +170,7 @@ void RiuQtChartsPlotWidget::setAxisTitleText( RiaDefines::PlotAxis axis, const Q
 void RiuQtChartsPlotWidget::setAxisTitleEnabled( RiaDefines::PlotAxis axis, bool enable )
 {
     m_axisTitlesEnabled[axis] = enable;
-    // applyAxisTitleToQwt( axis );
+    applyAxisTitleToPlot( axis );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -165,7 +179,7 @@ void RiuQtChartsPlotWidget::setAxisTitleEnabled( RiaDefines::PlotAxis axis, bool
 void RiuQtChartsPlotWidget::setPlotTitle( const QString& plotTitle )
 {
     m_plotTitle = plotTitle;
-    // applyPlotTitleToQwt();
+    applyPlotTitleToPlot();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -182,7 +196,7 @@ const QString& RiuQtChartsPlotWidget::plotTitle() const
 void RiuQtChartsPlotWidget::setPlotTitleEnabled( bool enabled )
 {
     m_plotTitleEnabled = enabled;
-    // applyPlotTitleToQwt();
+    applyPlotTitleToPlot();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -238,6 +252,25 @@ void RiuQtChartsPlotWidget::setInternalLegendVisible( bool visible )
     // {
     //     m_plot->insertLegend( nullptr );
     // }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuQtChartsPlotWidget::insertLegend( RiuPlotWidget::Legend legendPosition )
+{
+    CAF_ASSERT( legendPosition == RiuPlotWidget::Legend::BOTTOM );
+
+    // N  QwtLegend* legend = new QwtLegend( this );
+    //    m_plot->insertLegend( legend, QtCharts::BottomLegend );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuQtChartsPlotWidget::clearLegend()
+{
+    //    m_plot->insertLegend( nullptr );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -641,33 +674,20 @@ void RiuQtChartsPlotWidget::keyPressEvent( QKeyEvent* event )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-// void RiuQtChartsPlotWidget::applyPlotTitleToQwt()
-// {
-//     // QString plotTitleToApply = m_plotTitleEnabled ? m_plotTitle : QString( "" );
-//     // QwtText plotTitle        = m_plot->title();
-//     // if ( plotTitleToApply != plotTitle.text() )
-//     // {
-//     //     plotTitle.setText( plotTitleToApply );
-//     //     m_plot->setTitle( plotTitle );
-//     //    }
-// }
+void RiuQtChartsPlotWidget::applyPlotTitleToPlot()
+{
+    QString plotTitleToApply = m_plotTitleEnabled ? m_plotTitle : QString( "" );
+    m_viewer->chart()->setTitle( plotTitleToApply );
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-// void RiuQtChartsPlotWidget::applyAxisTitleToQwt( RiaDefines::PlotAxis axis )
-// {
-//     // QString       titleToApply = m_axisTitlesEnabled[axis] ? m_axisTitles[axis] : QString( "" );
-//     // QwtPlot::Axis qwtAxis      = RiuQwtPlotTools::toQwtPlotAxis( axis );
-//     // QwtText       axisTitle    = m_plot->axisTitle( qwtAxis );
-//     // if ( titleToApply != axisTitle.text() )
-//     // {
-//     //     axisTitle.setText( titleToApply );
-
-//     //     m_plot->setAxisTitle( qwtAxis, axisTitle );
-//     // }
-//     // recalculateAxisExtents( axis );
-// }
+void RiuQtChartsPlotWidget::applyAxisTitleToPlot( RiaDefines::PlotAxis axis )
+{
+    QString titleToApply = m_axisTitlesEnabled[axis] ? m_axisTitles[axis] : QString( "" );
+    plotAxis( axis )->setTitleText( titleToApply );
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -705,48 +725,9 @@ void RiuQtChartsPlotWidget::endZoomOperations()
 //--------------------------------------------------------------------------------------------------
 void RiuQtChartsPlotWidget::renderTo( QPainter* painter, const QRect& targetRect, double scaling )
 {
-    // static_cast<QwtPlotCanvas*>( m_plot->canvas() )->setPaintAttribute( QwtPlotCanvas::BackingStore, false );
-
-    // QPoint plotTopLeftInWindowCoords = targetRect.topLeft();
-
-    // QRectF canvasRect = m_plot->plotLayout()->canvasRect();
-    // QPoint canvasTopLeftInPlotCoords( canvasRect.topLeft().x() * scaling, canvasRect.topLeft().y() * scaling );
-    // QPoint canvasBottomRightInPlotCoords( canvasRect.bottomRight().x(), canvasRect.bottomRight().y() );
-
-    // QPoint canvasTopLeftInWindowCoords     = canvasTopLeftInPlotCoords + plotTopLeftInWindowCoords;
-    // QPoint canvasBottomRightInWindowCoords = canvasBottomRightInPlotCoords + plotTopLeftInWindowCoords;
-
-    // QwtPlotRenderer renderer( this );
-    // renderer.render( m_plot, painter, targetRect );
-    // static_cast<QwtPlotCanvas*>( m_plot->canvas() )->setPaintAttribute( QwtPlotCanvas::BackingStore, true );
-
-    // for ( RiuDraggableOverlayFrame* overlayFrame : m_overlayFrames )
-    // {
-    //     if ( overlayFrame->isVisible() )
-    //     {
-    //         QPoint overlayTopLeftInCanvasCoords = overlayFrame->frameGeometry().topLeft();
-
-    //         QPoint overlayTopLeftInWindowCoords = overlayTopLeftInCanvasCoords + canvasTopLeftInWindowCoords;
-    //         {
-    //             QRect overlayRect = overlayFrame->frameGeometry();
-    //             QSize desiredSize = overlayRect.size();
-    //             QSize minimumSize = overlayFrame->minimumSizeHint();
-    //             QSize actualSize  = desiredSize.expandedTo( minimumSize );
-    //             overlayRect.moveTo( overlayTopLeftInWindowCoords );
-    //             overlayRect.setSize( actualSize );
-
-    //             QPoint overlayBottomRightInWindowCoords = overlayRect.bottomRight();
-    //             overlayBottomRightInWindowCoords.setX(
-    //                 std::min( overlayBottomRightInWindowCoords.x(),
-    //                           canvasBottomRightInWindowCoords.x() - (int)scaling * m_overlayMargins ) );
-    //             overlayBottomRightInWindowCoords.setY(
-    //                 std::min( overlayBottomRightInWindowCoords.y(),
-    //                           canvasBottomRightInWindowCoords.y() - (int)scaling * m_overlayMargins ) );
-    //             overlayRect.moveBottomRight( overlayBottomRightInWindowCoords );
-    //             overlayFrame->renderTo( painter, overlayRect );
-    //         }
-    //     }
-    // }
+    // TODO: handle scaling...
+    painter->setRenderHint( QPainter::Antialiasing );
+    m_viewer->render( painter, targetRect );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -754,10 +735,10 @@ void RiuQtChartsPlotWidget::renderTo( QPainter* painter, const QRect& targetRect
 //--------------------------------------------------------------------------------------------------
 void RiuQtChartsPlotWidget::renderTo( QPaintDevice* paintDevice, const QRect& targetRect )
 {
-    // int      resolution = paintDevice->logicalDpiX();
-    // double   scaling    = resolution / static_cast<double>( RiaGuiApplication::applicationResolution() );
-    // QPainter painter( paintDevice );
-    // renderTo( &painter, targetRect, scaling );
+    int      resolution = paintDevice->logicalDpiX();
+    double   scaling    = resolution / static_cast<double>( RiaGuiApplication::applicationResolution() );
+    QPainter painter( paintDevice );
+    renderTo( &painter, targetRect, scaling );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -879,6 +860,8 @@ void RiuQtChartsPlotWidget::replot()
 //--------------------------------------------------------------------------------------------------
 void RiuQtChartsPlotWidget::enableAxis( RiaDefines::PlotAxis axis, bool isEnabled )
 {
+    cvf::Trace::show( "RiuQtChartsPlotWidget::enableAxis" );
+
     //    m_plot->enableAxis( RiuQwtPlotTools::toQwtPlotAxis( axis ), isEnabled );
 }
 
@@ -887,6 +870,8 @@ void RiuQtChartsPlotWidget::enableAxis( RiaDefines::PlotAxis axis, bool isEnable
 //--------------------------------------------------------------------------------------------------
 bool RiuQtChartsPlotWidget::axisEnabled( RiaDefines::PlotAxis axis ) const
 {
+    cvf::Trace::show( "RiuQtChartsPlotWidget::axisEnabled" );
+
     // return m_plot->axisEnabled( RiuQwtPlotTools::toQwtPlotAxis( axis ) );
 }
 
@@ -920,6 +905,8 @@ void RiuQtChartsPlotWidget::removeEventFilter()
 //--------------------------------------------------------------------------------------------------
 void RiuQtChartsPlotWidget::setAxisAutoScale( RiaDefines::PlotAxis axis, bool autoScale )
 {
+    cvf::Trace::show( "RiuQtChartsPlotWidget::setAxisAutoScale" );
+
     // m_plot->setAxisAutoScale( RiuQwtPlotTools::toQwtPlotAxis( axis ), autoScale );
 }
 
@@ -928,6 +915,7 @@ void RiuQtChartsPlotWidget::setAxisAutoScale( RiaDefines::PlotAxis axis, bool au
 //--------------------------------------------------------------------------------------------------
 void RiuQtChartsPlotWidget::setAxisScale( RiaDefines::PlotAxis axis, double min, double max )
 {
+    cvf::Trace::show( "RiuQtChartsPlotWidget::setAxisScale" );
     // m_plot->setAxisScale( RiuQwtPlotTools::toQwtPlotAxis( axis ), min, max );
 }
 
@@ -974,4 +962,102 @@ void RiuQtChartsPlotWidget::updateAxes()
 RiuPlotCurve* RiuQtChartsPlotWidget::createPlotCurve( const QString& title, const QColor& color )
 {
     return new RiuQtChartsPlotCurve( title );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QtCharts::QChart* RiuQtChartsPlotWidget::qtChart()
+{
+    return m_viewer->chart();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuQtChartsPlotWidget::attach( QtCharts::QAbstractSeries* series )
+{
+    qtChart()->addSeries( series );
+    qtChart()->setAxisX( m_axisX, series );
+    qtChart()->setAxisY( m_axisY, series );
+    rescaleAxis( RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM );
+    rescaleAxis( RiaDefines::PlotAxis::PLOT_AXIS_LEFT );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuQtChartsPlotWidget::detachItems( RiuPlotWidget::PlotItemType plotItemType )
+{
+    if ( plotItemType == RiuPlotWidget::PlotItemType::CURVE )
+    {
+        qtChart()->removeAllSeries();
+    }
+    else
+    {
+        cvf::Trace::show( "Detach items not implemented for this type." );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuQtChartsPlotWidget::rescaleAxis( RiaDefines::PlotAxis axis )
+{
+    QValueAxis* pAxis = plotAxis( axis );
+
+    double min = std::numeric_limits<double>::max();
+    double max = -std::numeric_limits<double>::max();
+    for ( auto series : qtChart()->series() )
+    {
+        auto attachedAxes = series->attachedAxes();
+        if ( attachedAxes.contains( pAxis ) )
+        {
+            for ( auto attachedAxis : attachedAxes )
+            {
+                QValueAxis*     valueAxis = dynamic_cast<QValueAxis*>( attachedAxis );
+                Qt::Orientation orr       = orientation( axis );
+                if ( valueAxis && valueAxis->orientation() == orr )
+                {
+                    for ( auto p : dynamic_cast<QLineSeries*>( series )->pointsVector() )
+                    {
+                        if ( orr == Qt::Orientation::Horizontal )
+                        {
+                            min = std::min( min, p.x() );
+                            max = std::max( max, p.x() );
+                        }
+                        else
+                        {
+                            min = std::min( min, p.y() );
+                            max = std::max( max, p.y() );
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    cvf::Trace::show( QString( "RESCALE: %1 - %2" ).arg( min ).arg( max ).toStdString().c_str() );
+    pAxis->setRange( min, max );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QValueAxis* RiuQtChartsPlotWidget::plotAxis( RiaDefines::PlotAxis axis ) const
+{
+    if ( axis == RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM )
+        return m_axisX;
+    else if ( axis == RiaDefines::PlotAxis::PLOT_AXIS_LEFT )
+        return m_axisY;
+
+    return m_axisX;
+}
+
+Qt::Orientation RiuQtChartsPlotWidget::orientation( RiaDefines::PlotAxis axis ) const
+{
+    if ( axis == RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM || axis == RiaDefines::PlotAxis::PLOT_AXIS_TOP )
+        return Qt::Orientation::Horizontal;
+
+    return Qt::Orientation::Vertical;
 }
