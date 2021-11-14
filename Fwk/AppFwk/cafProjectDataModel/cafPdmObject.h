@@ -79,7 +79,7 @@ class PdmObjectCapability;
 
 #define CAF_PDM_InitObject( uiName, ... )                                                              \
     {                                                                                                  \
-        std::vector<QString> arguments = {##__VA_ARGS__ };                                             \
+        std::vector<QString> arguments = { __VA_ARGS__ };                                              \
         QString              iconResourceName;                                                         \
         QString              toolTip;                                                                  \
         QString              whatsThis;                                                                \
@@ -104,7 +104,7 @@ class PdmObjectCapability;
 
 #define CAF_PDM_InitField( field, keyword, default, uiName, ... )                                                                       \
     {                                                                                                                                   \
-        std::vector<QString> arguments = {##__VA_ARGS__ };                                                                              \
+        std::vector<QString> arguments = { __VA_ARGS__ };                                                                               \
         QString              iconResourceName;                                                                                          \
         QString              toolTip;                                                                                                   \
         QString              whatsThis;                                                                                                 \
@@ -133,7 +133,7 @@ class PdmObjectCapability;
 
 #define CAF_PDM_InitFieldNoDefault( field, keyword, uiName, ... )                                                                       \
     {                                                                                                                                   \
-        std::vector<QString> arguments = {##__VA_ARGS__ };                                                                              \
+        std::vector<QString> arguments = { __VA_ARGS__ };                                                                               \
         QString              iconResourceName;                                                                                          \
         QString              toolTip;                                                                                                   \
         QString              whatsThis;                                                                                                 \

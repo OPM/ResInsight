@@ -49,7 +49,7 @@
 class QTextStream;
 
 #define CAF_PDM_InitScriptableObject( uiName, ... )                                               \
-    std::vector<QString> arguments = {##__VA_ARGS__ };                                            \
+    std::vector<QString> arguments = { __VA_ARGS__ };                                             \
     QString              iconResourceName;                                                        \
     QString              toolTip;                                                                 \
     QString              whatsThis;                                                               \

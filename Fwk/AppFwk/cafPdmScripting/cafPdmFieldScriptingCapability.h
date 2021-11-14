@@ -52,7 +52,7 @@
 
 #define CAF_PDM_InitScriptableField( field, keyword, default, uiName, ... )                          \
     {                                                                                                \
-        std::vector<QString> arguments = {##__VA_ARGS__ };                                           \
+        std::vector<QString> arguments = { __VA_ARGS__ };                                            \
         QString              iconResourceName;                                                       \
         QString              toolTip;                                                                \
         QString              whatsThis;                                                              \
@@ -72,7 +72,7 @@
 
 #define CAF_PDM_InitScriptableFieldNoDefault( field, keyword, uiName, ... )                                   \
     {                                                                                                         \
-        std::vector<QString> arguments = {##__VA_ARGS__ };                                                    \
+        std::vector<QString> arguments = { __VA_ARGS__ };                                                     \
         QString              iconResourceName;                                                                \
         QString              toolTip;                                                                         \
         QString              whatsThis;                                                                       \
@@ -91,7 +91,7 @@
 
 #define CAF_PDM_InitScriptableFieldWithScriptKeyword( field, keyword, scriptKeyword, default, uiName, ... ) \
     {                                                                                                       \
-        std::vector<QString> arguments = {##__VA_ARGS__ };                                                  \
+        std::vector<QString> arguments = { __VA_ARGS__ };                                                   \
         QString              iconResourceName;                                                              \
         QString              toolTip;                                                                       \
         QString              whatsThis;                                                                     \
@@ -111,7 +111,7 @@
 
 #define CAF_PDM_InitScriptableFieldWithScriptKeywordNoDefault( field, keyword, scriptKeyword, uiName, ... )         \
     {                                                                                                               \
-        std::vector<QString> arguments = {##__VA_ARGS__ };                                                          \
+        std::vector<QString> arguments = { __VA_ARGS__ };                                                           \
         QString              iconResourceName;                                                                      \
         QString              toolTip;                                                                               \
         QString              whatsThis;                                                                             \
