@@ -42,12 +42,12 @@ RimGridCaseSurface::RimGridCaseSurface()
 {
     CAF_PDM_InitScriptableObject( "Surface", ":/ReservoirSurface16x16.png", "", "" );
 
-    CAF_PDM_InitScriptableFieldNoDefault( &m_case, "SourceCase", "Source Case", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_case, "SourceCase", "Source Case" );
 
-    CAF_PDM_InitScriptableField( &m_oneBasedSliceIndex, "SliceIndex", 1, "Slice Index (K)", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_oneBasedSliceIndex, "SliceIndex", 1, "Slice Index (K)" );
     m_oneBasedSliceIndex.uiCapability()->setUiEditorTypeName( caf::PdmUiSliderEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitScriptableField( &m_watertight, "Watertight", false, "Watertight Surface (fill gaps)", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_watertight, "Watertight", false, "Watertight Surface (fill gaps)" );
 }
 
 //--------------------------------------------------------------------------------------------------

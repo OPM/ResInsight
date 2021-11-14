@@ -37,15 +37,15 @@ RimCustomObjectiveFunction::RimCustomObjectiveFunction()
 {
     CAF_PDM_InitObject( "Objective Function", ":/ObjectiveFunction.svg", "", "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_functionTitle, "FunctionTitle", "Title", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_functionTitle, "FunctionTitle", "Title" );
     m_functionTitle.registerGetMethod( this, &RimCustomObjectiveFunction::title );
     m_functionTitle.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_customFunctionTitle, "CustomFunctionTitle", "Title", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_customFunctionTitle, "CustomFunctionTitle", "Title" );
 
-    CAF_PDM_InitFieldNoDefault( &m_weights, "Weights", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_weights, "Weights", "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_objectiveFunctions, "ObjectiveFunctions", "Objective Functions", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_objectiveFunctions, "ObjectiveFunctions", "Objective Functions" );
 
     {
         auto objFunc1 = new RimObjectiveFunction();

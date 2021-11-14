@@ -32,9 +32,9 @@ CAF_PDM_SOURCE_INIT( RicCreateEnsembleSurfaceUi, "RicCreateEnsembleSurfaceUi" );
 //--------------------------------------------------------------------------------------------------
 RicCreateEnsembleSurfaceUi::RicCreateEnsembleSurfaceUi()
 {
-    CAF_PDM_InitObject( "Export Multiple Surfaces", "", "", "" );
+    CAF_PDM_InitObject( "Export Multiple Surfaces" );
 
-    CAF_PDM_InitFieldNoDefault( &m_layers, "Layers", "Layers", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_layers, "Layers", "Layers" );
     CAF_PDM_InitField( &m_autoCreateEnsembleSurfaces,
                        "AutoCreateEnsembleSurfaces",
                        false,
@@ -44,8 +44,8 @@ RicCreateEnsembleSurfaceUi::RicCreateEnsembleSurfaceUi()
                        "" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_autoCreateEnsembleSurfaces );
 
-    CAF_PDM_InitFieldNoDefault( &m_minLayer, "MinLayer", "MinLayer", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_maxLayer, "MaxLayer", "MaxLayer", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_minLayer, "MinLayer", "MinLayer" );
+    CAF_PDM_InitFieldNoDefault( &m_maxLayer, "MaxLayer", "MaxLayer" );
 
     m_tabNames << "Configuration";
 }

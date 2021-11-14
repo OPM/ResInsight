@@ -68,41 +68,41 @@ RimSummaryCurve::RimSummaryCurve()
     CAF_PDM_InitObject( "Summary Curve", ":/SummaryCurve16x16.png", "", "" );
 
     // Y Values
-    CAF_PDM_InitFieldNoDefault( &m_yValuesSummaryCase, "SummaryCase", "Case", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_yValuesSummaryCase, "SummaryCase", "Case" );
     m_yValuesSummaryCase.uiCapability()->setUiTreeChildrenHidden( true );
     m_yValuesSummaryCase.uiCapability()->setAutoAddingOptionFromValue( false );
 
-    CAF_PDM_InitFieldNoDefault( &m_yValuesSummaryAddressUiField, "SelectedVariableDisplayVar", "Vector", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_yValuesSummaryAddressUiField, "SelectedVariableDisplayVar", "Vector" );
     m_yValuesSummaryAddressUiField.xmlCapability()->disableIO();
     m_yValuesSummaryAddressUiField.uiCapability()->setUiEditorTypeName( caf::PdmUiLineEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitFieldNoDefault( &m_yValuesSummaryAddress, "SummaryAddress", "Summary Address", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_yValuesSummaryAddress, "SummaryAddress", "Summary Address" );
     m_yValuesSummaryAddress.uiCapability()->setUiTreeHidden( true );
     m_yValuesSummaryAddress.uiCapability()->setUiTreeChildrenHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_yPushButtonSelectSummaryAddress, "SelectAddress", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_yPushButtonSelectSummaryAddress, "SelectAddress", "" );
     caf::PdmUiPushButtonEditor::configureEditorForField( &m_yPushButtonSelectSummaryAddress );
     m_yPushButtonSelectSummaryAddress.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
     m_yPushButtonSelectSummaryAddress = false;
 
     m_yValuesSummaryAddress = new RimSummaryAddress;
 
-    CAF_PDM_InitFieldNoDefault( &m_resampling, "Resampling", "Resampling", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_resampling, "Resampling", "Resampling" );
 
     // X Values
-    CAF_PDM_InitFieldNoDefault( &m_xValuesSummaryCase, "SummaryCaseX", "Case", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_xValuesSummaryCase, "SummaryCaseX", "Case" );
     m_xValuesSummaryCase.uiCapability()->setUiTreeChildrenHidden( true );
     m_xValuesSummaryCase.uiCapability()->setAutoAddingOptionFromValue( false );
 
-    CAF_PDM_InitFieldNoDefault( &m_xValuesSummaryAddressUiField, "SelectedVariableDisplayVarX", "Vector", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_xValuesSummaryAddressUiField, "SelectedVariableDisplayVarX", "Vector" );
     m_xValuesSummaryAddressUiField.xmlCapability()->disableIO();
     m_xValuesSummaryAddressUiField.uiCapability()->setUiEditorTypeName( caf::PdmUiLineEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitFieldNoDefault( &m_xValuesSummaryAddress, "SummaryAddressX", "Summary Address", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_xValuesSummaryAddress, "SummaryAddressX", "Summary Address" );
     m_xValuesSummaryAddress.uiCapability()->setUiTreeHidden( true );
     m_xValuesSummaryAddress.uiCapability()->setUiTreeChildrenHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_xPushButtonSelectSummaryAddress, "SelectAddressX", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_xPushButtonSelectSummaryAddress, "SelectAddressX", "" );
     caf::PdmUiPushButtonEditor::configureEditorForField( &m_xPushButtonSelectSummaryAddress );
     m_xPushButtonSelectSummaryAddress.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 
@@ -111,30 +111,30 @@ RimSummaryCurve::RimSummaryCurve()
     m_xValuesSummaryAddress = new RimSummaryAddress;
 
     // Other members
-    CAF_PDM_InitFieldNoDefault( &m_isEnsembleCurve, "IsEnsembleCurve", "Ensemble Curve", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_isEnsembleCurve, "IsEnsembleCurve", "Ensemble Curve" );
     m_isEnsembleCurve.v() = caf::Tristate::State::PartiallyTrue;
 
-    CAF_PDM_InitFieldNoDefault( &m_plotAxis, "PlotAxis", "Axis", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_plotAxis, "PlotAxis", "Axis" );
 
-    CAF_PDM_InitFieldNoDefault( &m_curveNameConfig, "SummaryCurveNameConfig", "SummaryCurveNameConfig", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_curveNameConfig, "SummaryCurveNameConfig", "SummaryCurveNameConfig" );
     m_curveNameConfig.uiCapability()->setUiTreeHidden( true );
     m_curveNameConfig.uiCapability()->setUiTreeChildrenHidden( true );
 
     m_curveNameConfig = new RimSummaryCurveAutoName;
 
-    CAF_PDM_InitField( &m_isTopZWithinCategory, "isTopZWithinCategory", false, "", "", "", "" );
+    CAF_PDM_InitField( &m_isTopZWithinCategory, "isTopZWithinCategory", false, "" );
     m_isTopZWithinCategory.uiCapability()->setUiHidden( true );
 
     setSymbolSkipDistance( 10.0f );
     setLineThickness( 2 );
 
-    CAF_PDM_InitFieldNoDefault( &m_yValuesSummaryFilter_OBSOLETE, "VarListFilter", "Filter", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_yValuesSummaryFilter_OBSOLETE, "VarListFilter", "Filter" );
     m_yValuesSummaryFilter_OBSOLETE.uiCapability()->setUiTreeChildrenHidden( true );
     m_yValuesSummaryFilter_OBSOLETE.uiCapability()->setUiTreeHidden( true );
     m_yValuesSummaryFilter_OBSOLETE.xmlCapability()->setIOWritable( false );
     m_yValuesSummaryFilter_OBSOLETE = new RimSummaryFilter_OBSOLETE;
 
-    CAF_PDM_InitFieldNoDefault( &m_xValuesSummaryFilter_OBSOLETE, "VarListFilterX", "Filter", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_xValuesSummaryFilter_OBSOLETE, "VarListFilterX", "Filter" );
     m_xValuesSummaryFilter_OBSOLETE.uiCapability()->setUiTreeChildrenHidden( true );
     m_xValuesSummaryFilter_OBSOLETE.uiCapability()->setUiTreeHidden( true );
     m_xValuesSummaryFilter_OBSOLETE.xmlCapability()->setIOWritable( false );

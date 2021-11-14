@@ -49,20 +49,20 @@ RimSummaryCalculation::RimSummaryCalculation()
 {
     CAF_PDM_InitObject( "RimSummaryCalculation", ":/octave.png", "Calculation", "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_description, "Description", "Description", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_description, "Description", "Description" );
     m_description.uiCapability()->setUiReadOnly( true );
 
-    CAF_PDM_InitField( &m_expression, "Expression", QString( "" ), "Expression", "", "", "" );
+    CAF_PDM_InitField( &m_expression, "Expression", QString( "" ), "Expression" );
     m_expression.uiCapability()->setUiEditorTypeName( caf::PdmUiTextEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitField( &m_unit, "Unit", QString( "" ), "Unit", "", "", "" );
+    CAF_PDM_InitField( &m_unit, "Unit", QString( "" ), "Unit" );
     m_unit.uiCapability()->setUiEditorTypeName( caf::PdmUiLineEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitFieldNoDefault( &m_variables, "Variables", "Variables", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_calculatedValues, "CalculatedValues", "Calculated Values", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_variables, "Variables", "Variables" );
+    CAF_PDM_InitFieldNoDefault( &m_calculatedValues, "CalculatedValues", "Calculated Values" );
 
-    CAF_PDM_InitFieldNoDefault( &m_timesteps, "TimeSteps", "Time Steps", "", "", "" );
-    CAF_PDM_InitField( &m_id, "Id", -1, "Id", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_timesteps, "TimeSteps", "Time Steps" );
+    CAF_PDM_InitField( &m_id, "Id", -1, "Id" );
     m_id.uiCapability()->setUiHidden( true );
 
     m_exprContextMenuMgr = std::unique_ptr<RiuExpressionContextMenuManager>( new RiuExpressionContextMenuManager() );

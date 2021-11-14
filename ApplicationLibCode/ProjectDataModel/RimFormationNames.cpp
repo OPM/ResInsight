@@ -44,7 +44,7 @@ RimFormationNames::RimFormationNames()
 {
     CAF_PDM_InitObject( "Formation Names", ":/Formations16x16.png", "", "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_formationNamesFileName, "FormationNamesFileName", "File Name", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_formationNamesFileName, "FormationNamesFileName", "File Name" );
 
     m_formationNamesFileName.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
 

@@ -45,18 +45,18 @@ CAF_PDM_XML_ABSTRACT_SOURCE_INIT( RimCellFilter, "CellFilter", "CellFilter" ); /
 RimCellFilter::RimCellFilter()
     : filterChanged( this )
 {
-    CAF_PDM_InitObject( "Cell Filter", "", "", "" );
+    CAF_PDM_InitObject( "Cell Filter" );
 
-    CAF_PDM_InitField( &m_name, "UserDescription", QString( "New filter" ), "Name", "", "", "" );
-    CAF_PDM_InitField( &m_isActive, "Active", true, "Active", "", "", "" );
+    CAF_PDM_InitField( &m_name, "UserDescription", QString( "New filter" ), "Name" );
+    CAF_PDM_InitField( &m_isActive, "Active", true, "Active" );
     m_isActive.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_filterMode, "FilterType", "Filter Type", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_filterMode, "FilterType", "Filter Type" );
 
-    CAF_PDM_InitField( &m_gridIndex, "GridIndex", 0, "Grid", "", "", "" );
-    CAF_PDM_InitField( &m_propagateToSubGrids, "PropagateToSubGrids", true, "Apply to Subgrids", "", "", "" );
+    CAF_PDM_InitField( &m_gridIndex, "GridIndex", 0, "Grid" );
+    CAF_PDM_InitField( &m_propagateToSubGrids, "PropagateToSubGrids", true, "Apply to Subgrids" );
 
-    CAF_PDM_InitFieldNoDefault( &m_nameProxy, "NameProxy", "Name Proxy", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_nameProxy, "NameProxy", "Name Proxy" );
     m_nameProxy.registerGetMethod( this, &RimCellFilter::fullName );
     m_nameProxy.uiCapability()->setUiReadOnly( true );
     m_nameProxy.uiCapability()->setUiHidden( true );

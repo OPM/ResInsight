@@ -48,15 +48,15 @@ RimViewWindow::RimViewWindow( void )
                                                     "ViewWindow",
                                                     "The Base Class for all Views and Plots in ResInsight" );
 
-    CAF_PDM_InitFieldNoDefault( &m_windowController, "WindowController", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_windowController, "WindowController", "" );
     m_windowController.uiCapability()->setUiTreeHidden( true );
     m_windowController.uiCapability()->setUiTreeChildrenHidden( true );
 
-    CAF_PDM_InitField( &m_showWindow, "ShowWindow", true, "Show Window", "", "", "" );
+    CAF_PDM_InitField( &m_showWindow, "ShowWindow", true, "Show Window" );
     m_showWindow.uiCapability()->setUiHidden( true );
 
     // Obsolete field
-    CAF_PDM_InitFieldNoDefault( &obsoleteField_windowGeometry, "WindowGeometry", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &obsoleteField_windowGeometry, "WindowGeometry", "" );
     RiaFieldhandleTools::disableWriteAndSetFieldHidden( &obsoleteField_windowGeometry );
 }
 

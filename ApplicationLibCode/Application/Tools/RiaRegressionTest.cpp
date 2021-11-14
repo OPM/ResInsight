@@ -53,10 +53,10 @@ RiaRegressionTest::RiaRegressionTest( void )
                                 "" );
     folderContainingGitTool.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitFieldNoDefault( &regressionTestFolder, "regressionTestFolder", "Regression Test Folder", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &regressionTestFolder, "regressionTestFolder", "Regression Test Folder" );
     regressionTestFolder.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitField( &showInteractiveDiffImages, "showInteractiveDiffImages", false, "Interactive Diff Images", "", "", "" );
+    CAF_PDM_InitField( &showInteractiveDiffImages, "showInteractiveDiffImages", false, "Interactive Diff Images" );
     CAF_PDM_InitField( &useOpenMPForGeometryCreation,
                        "useOpenMPForGeometryCreation",
                        true,
@@ -65,7 +65,7 @@ RiaRegressionTest::RiaRegressionTest( void )
                        "",
                        "" );
 
-    CAF_PDM_InitField( &openReportInBrowser, "openReportInBrowser", false, "Open Generated Report in Browser", "", "", "" );
+    CAF_PDM_InitField( &openReportInBrowser, "openReportInBrowser", false, "Open Generated Report in Browser" );
 
     CAF_PDM_InitFieldNoDefault( &testFilter,
                                 "testFilter",

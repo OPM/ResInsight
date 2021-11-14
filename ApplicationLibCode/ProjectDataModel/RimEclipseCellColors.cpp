@@ -58,15 +58,15 @@ RimEclipseCellColors::RimEclipseCellColors()
                                                     "CellColors",
                                                     "Eclipse Cell Colors class" );
 
-    CAF_PDM_InitFieldNoDefault( &obsoleteField_legendConfig, "LegendDefinition", "Color Legend", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &obsoleteField_legendConfig, "LegendDefinition", "Color Legend" );
     this->obsoleteField_legendConfig.xmlCapability()->setIOWritable( false );
 
-    CAF_PDM_InitFieldNoDefault( &m_legendConfigData, "ResultVarLegendDefinitionList", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_legendConfigData, "ResultVarLegendDefinitionList", "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_ternaryLegendConfig, "TernaryLegendDefinition", "Ternary Color Legend", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_ternaryLegendConfig, "TernaryLegendDefinition", "Ternary Color Legend" );
     this->m_ternaryLegendConfig = new RimTernaryLegendConfig();
 
-    CAF_PDM_InitFieldNoDefault( &m_legendConfigPtrField, "LegendDefinitionPtrField", "Color Legend PtrField", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_legendConfigPtrField, "LegendDefinitionPtrField", "Color Legend PtrField" );
 
     // Make sure we have a created legend for the default/undefined result variable
     changeLegendConfig( this->resultVariable() );

@@ -83,19 +83,19 @@ RimPlotCurveAppearance::RimPlotCurveAppearance()
     , m_interpolationVisible( true )
     , m_fillOptionsVisible( true )
 {
-    CAF_PDM_InitObject( "Curve Apperance", "", "", "" );
+    CAF_PDM_InitObject( "Curve Apperance" );
 
-    CAF_PDM_InitField( &m_curveColor, "Color", RiaColorTools::textColor3f(), "Color", "", "", "" );
-    CAF_PDM_InitField( &m_fillColor, "FillColor", cvf::Color3f( -1.0, -1.0, -1.0 ), "Fill Color", "", "", "" );
+    CAF_PDM_InitField( &m_curveColor, "Color", RiaColorTools::textColor3f(), "Color" );
+    CAF_PDM_InitField( &m_fillColor, "FillColor", cvf::Color3f( -1.0, -1.0, -1.0 ), "Fill Color" );
 
-    CAF_PDM_InitField( &m_curveThickness, "Thickness", 1, "Line Thickness", "", "", "" );
+    CAF_PDM_InitField( &m_curveThickness, "Thickness", 1, "Line Thickness" );
     m_curveThickness.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitFieldNoDefault( &m_curveInterpolation, "CurveInterpolation", "Interpolation", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_lineStyle, "LineStyle", "Line Style", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_fillStyle, "FillStyle", "Area Fill Style", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_pointSymbol, "PointSymbol", "Symbol", "", "", "" );
-    CAF_PDM_InitField( &m_symbolEdgeColor, "SymbolEdgeColor", RiaColorTools::textColor3f(), "Symbol Edge Color", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_curveInterpolation, "CurveInterpolation", "Interpolation" );
+    CAF_PDM_InitFieldNoDefault( &m_lineStyle, "LineStyle", "Line Style" );
+    CAF_PDM_InitFieldNoDefault( &m_fillStyle, "FillStyle", "Area Fill Style" );
+    CAF_PDM_InitFieldNoDefault( &m_pointSymbol, "PointSymbol", "Symbol" );
+    CAF_PDM_InitField( &m_symbolEdgeColor, "SymbolEdgeColor", RiaColorTools::textColor3f(), "Symbol Edge Color" );
 
     CAF_PDM_InitField( &m_symbolSkipPixelDistance,
                        "SymbolSkipPxDist",
@@ -105,10 +105,10 @@ RimPlotCurveAppearance::RimPlotCurveAppearance()
                        "Minimum pixel distance between symbols",
                        "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_symbolLabel, "SymbolLabel", "Symbol Label", "", "", "" );
-    CAF_PDM_InitField( &m_symbolSize, "SymbolSize", 6, "Symbol Size", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_symbolLabel, "SymbolLabel", "Symbol Label" );
+    CAF_PDM_InitField( &m_symbolSize, "SymbolSize", 6, "Symbol Size" );
 
-    CAF_PDM_InitFieldNoDefault( &m_symbolLabelPosition, "SymbolLabelPosition", "Symbol Label Position", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_symbolLabelPosition, "SymbolLabelPosition", "Symbol Label Position" );
 }
 
 //--------------------------------------------------------------------------------------------------

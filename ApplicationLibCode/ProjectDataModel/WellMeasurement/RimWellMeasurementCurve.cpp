@@ -52,10 +52,10 @@ RimWellMeasurementCurve::RimWellMeasurementCurve()
 {
     CAF_PDM_InitObject( "Well Measurement Curve", RimWellLogCurve::wellLogCurveIconName(), "", "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_wellPath, "CurveWellPath", "Well Path", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_wellPath, "CurveWellPath", "Well Path" );
     m_wellPath.uiCapability()->setUiTreeChildrenHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_measurementKind, "CurveMeasurementKind", "Measurement Kind", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_measurementKind, "CurveMeasurementKind", "Measurement Kind" );
     m_measurementKind.uiCapability()->setUiTreeChildrenHidden( true );
 
     m_wellPath = nullptr;

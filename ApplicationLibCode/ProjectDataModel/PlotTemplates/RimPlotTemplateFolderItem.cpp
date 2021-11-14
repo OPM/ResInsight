@@ -37,10 +37,10 @@ RimPlotTemplateFolderItem::RimPlotTemplateFolderItem()
 {
     CAF_PDM_InitObject( "PlotTemplateCollection", ":/Folder.png", "", "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_folderName, "FolderName", "Folder", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_fileNames, "FileNames", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_folderName, "FolderName", "Folder" );
+    CAF_PDM_InitFieldNoDefault( &m_fileNames, "FileNames", "" );
     m_fileNames.uiCapability()->setUiTreeHidden( true );
-    CAF_PDM_InitFieldNoDefault( &m_subFolders, "SubFolders", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_subFolders, "SubFolders", "" );
     m_subFolders.uiCapability()->setUiTreeHidden( true );
 }
 

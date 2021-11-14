@@ -32,7 +32,7 @@ RimWellPathFractureCollection::RimWellPathFractureCollection( void )
 {
     CAF_PDM_InitObject( "Fractures", ":/FractureLayout16x16.png", "", "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_fractures, "Fractures", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_fractures, "Fractures", "" );
     m_fractures.uiCapability()->setUiTreeHidden( true );
 
     setName( "Fractures" );

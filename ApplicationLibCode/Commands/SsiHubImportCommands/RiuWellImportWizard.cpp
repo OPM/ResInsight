@@ -1198,9 +1198,9 @@ CAF_PDM_SOURCE_INIT( SummaryPageDownloadEntity, "SummaryPageDownloadEntity" );
 //--------------------------------------------------------------------------------------------------
 SummaryPageDownloadEntity::SummaryPageDownloadEntity()
 {
-    CAF_PDM_InitObject( "SummaryPageDownloadEntity", "", "", "" );
+    CAF_PDM_InitObject( "SummaryPageDownloadEntity" );
 
-    CAF_PDM_InitFieldNoDefault( &name, "Name", "", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &requestUrl, "RequestUrl", "", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &responseFilename, "ResponseFilename", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &name, "Name", "" );
+    CAF_PDM_InitFieldNoDefault( &requestUrl, "RequestUrl", "" );
+    CAF_PDM_InitFieldNoDefault( &responseFilename, "ResponseFilename", "" );
 }

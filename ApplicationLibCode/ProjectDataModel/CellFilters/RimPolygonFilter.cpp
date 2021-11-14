@@ -122,39 +122,39 @@ RimPolygonFilter::RimPolygonFilter()
 {
     CAF_PDM_InitObject( "Polyline Filter", ":/CellFilter_Polygon.png", "", "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_polyFilterMode, "PolygonFilterType", "Vertical Filter", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_polyFilterMode, "PolygonFilterType", "Vertical Filter" );
 
-    CAF_PDM_InitFieldNoDefault( &m_polyIncludeType, "PolyIncludeType", "Cells to include", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_polyIncludeType, "PolyIncludeType", "Cells to include" );
 
-    CAF_PDM_InitField( &m_enablePicking, "EnablePicking", false, "", "", "", "" );
+    CAF_PDM_InitField( &m_enablePicking, "EnablePicking", false, "" );
     caf::PdmUiPushButtonEditor::configureEditorForField( &m_enablePicking );
     m_enablePicking.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosType::HIDDEN );
 
-    CAF_PDM_InitFieldNoDefault( &m_targets, "Targets", "Targets", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_targets, "Targets", "Targets" );
     m_targets.uiCapability()->setUiEditorTypeName( caf::PdmUiTableViewEditor::uiEditorTypeName() );
     m_targets.uiCapability()->setUiTreeChildrenHidden( true );
     m_targets.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
     m_targets.uiCapability()->setCustomContextMenuEnabled( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_srcCase, "Case", "Case", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_srcCase, "Case", "Case" );
     m_srcCase.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitField( &m_showLines, "ShowLines", true, "Show Lines", "", "", "" );
-    CAF_PDM_InitField( &m_showSpheres, "ShowSpheres", false, "Show Spheres", "", "", "" );
+    CAF_PDM_InitField( &m_showLines, "ShowLines", true, "Show Lines" );
+    CAF_PDM_InitField( &m_showSpheres, "ShowSpheres", false, "Show Spheres" );
 
-    CAF_PDM_InitField( &m_lineThickness, "LineThickness", 3, "Line Thickness", "", "", "" );
-    CAF_PDM_InitField( &m_sphereRadiusFactor, "SphereRadiusFactor", 0.15, "Sphere Radius Factor", "", "", "" );
+    CAF_PDM_InitField( &m_lineThickness, "LineThickness", 3, "Line Thickness" );
+    CAF_PDM_InitField( &m_sphereRadiusFactor, "SphereRadiusFactor", 0.15, "Sphere Radius Factor" );
 
-    CAF_PDM_InitField( &m_lineColor, "LineColor", cvf::Color3f( cvf::Color3f::WHITE ), "Line Color", "", "", "" );
-    CAF_PDM_InitField( &m_sphereColor, "SphereColor", cvf::Color3f( cvf::Color3f::WHITE ), "Sphere Color", "", "", "" );
+    CAF_PDM_InitField( &m_lineColor, "LineColor", cvf::Color3f( cvf::Color3f::WHITE ), "Line Color" );
+    CAF_PDM_InitField( &m_sphereColor, "SphereColor", cvf::Color3f( cvf::Color3f::WHITE ), "Sphere Color" );
 
-    CAF_PDM_InitField( &m_enableFiltering, "EnableFiltering", false, "Enable Filter", "", "", "" );
+    CAF_PDM_InitField( &m_enableFiltering, "EnableFiltering", false, "Enable Filter" );
 
-    CAF_PDM_InitField( &m_enableKFilter, "EnableKFilter", false, "Enable K Range Filter", "", "", "" );
+    CAF_PDM_InitField( &m_enableKFilter, "EnableKFilter", false, "Enable K Range Filter" );
     CAF_PDM_InitFieldNoDefault( &m_kFilterStr, "KRangeFilter", "K Range Filter", "", "Example: 2,4,10-20,31", "" );
 
-    CAF_PDM_InitField( &m_polygonPlaneDepth, "PolygonPlaneDepth", 0.0, "Polygon Plane Depth", "", "", "" );
-    CAF_PDM_InitField( &m_lockPolygonToPlane, "LockPolygon", false, "Lock Polygon to Plane", "", "", "" );
+    CAF_PDM_InitField( &m_polygonPlaneDepth, "PolygonPlaneDepth", 0.0, "Polygon Plane Depth" );
+    CAF_PDM_InitField( &m_lockPolygonToPlane, "LockPolygon", false, "Lock Polygon to Plane" );
 
     m_polygonPlaneDepth.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
     m_polygonPlaneDepth.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosType::TOP );

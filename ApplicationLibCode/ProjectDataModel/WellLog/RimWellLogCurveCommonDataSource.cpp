@@ -70,14 +70,14 @@ bool RimWellLogCurveCommonDataSource::DoubleComparator::operator()( const double
 RimWellLogCurveCommonDataSource::RimWellLogCurveCommonDataSource()
     : m_caseType( RiaDefines::CaseType::UNDEFINED_CASE )
 {
-    CAF_PDM_InitObject( "Change Data Source", "", "", "" );
+    CAF_PDM_InitObject( "Change Data Source" );
 
-    CAF_PDM_InitFieldNoDefault( &m_case, "CurveCase", "Case", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_trajectoryType, "TrajectoryType", "Trajectory Type", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_case, "CurveCase", "Case" );
+    CAF_PDM_InitFieldNoDefault( &m_trajectoryType, "TrajectoryType", "Trajectory Type" );
 
-    CAF_PDM_InitFieldNoDefault( &m_wellPath, "CurveWellPath", "Well Name", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_wellPath, "CurveWellPath", "Well Name" );
 
-    CAF_PDM_InitFieldNoDefault( &m_simWellName, "SimulationWellName", "Well Name", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_simWellName, "SimulationWellName", "Well Name" );
     CAF_PDM_InitFieldNoDefault( &m_branchDetection,
                                 "BranchDetection",
                                 "Branch Detection",
@@ -86,15 +86,15 @@ RimWellLogCurveCommonDataSource::RimWellLogCurveCommonDataSource()
                                 "" );
     m_branchDetection.v() = caf::Tristate::State::PartiallyTrue;
     m_branchDetection.uiCapability()->setUiEditorTypeName( caf::PdmUiCheckBoxTristateEditor::uiEditorTypeName() );
-    CAF_PDM_InitField( &m_branchIndex, "Branch", -1, "Branch Index", "", "", "" );
+    CAF_PDM_InitField( &m_branchIndex, "Branch", -1, "Branch Index" );
 
-    CAF_PDM_InitField( &m_timeStep, "CurveTimeStep", -1, "Time Step", "", "", "" );
+    CAF_PDM_InitField( &m_timeStep, "CurveTimeStep", -1, "Time Step" );
 
-    CAF_PDM_InitFieldNoDefault( &m_wbsSmoothing, "WBSSmoothing", "Smooth Curves", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_wbsSmoothing, "WBSSmoothing", "Smooth Curves" );
     m_wbsSmoothing.uiCapability()->setUiEditorTypeName( caf::PdmUiCheckBoxTristateEditor::uiEditorTypeName() );
     m_wbsSmoothing.v() = caf::Tristate::State::PartiallyTrue;
 
-    CAF_PDM_InitField( &m_wbsSmoothingThreshold, "WBSSmoothingThreshold", -1.0, "Smoothing Threshold", "", "", "" );
+    CAF_PDM_InitField( &m_wbsSmoothingThreshold, "WBSSmoothingThreshold", -1.0, "Smoothing Threshold" );
 
     m_case     = nullptr;
     m_wellPath = nullptr;

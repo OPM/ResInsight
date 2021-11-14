@@ -43,7 +43,7 @@ RimGeoMechPartCollection::RimGeoMechPartCollection()
 {
     CAF_PDM_InitScriptableObject( "Parts", ":/GeoMechCase24x24.png", "", "" );
 
-    CAF_PDM_InitScriptableFieldNoDefault( &m_parts, "Parts", "Parts", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_parts, "Parts", "Parts" );
     m_parts.uiCapability()->setUiTreeHidden( true );
 
     setDeletable( false );

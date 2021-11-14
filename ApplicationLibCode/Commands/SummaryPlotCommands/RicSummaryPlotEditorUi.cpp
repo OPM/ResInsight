@@ -84,33 +84,33 @@ std::vector<T> toVector( const std::set<T>& set );
 //--------------------------------------------------------------------------------------------------
 RicSummaryPlotEditorUi::RicSummaryPlotEditorUi()
 {
-    CAF_PDM_InitFieldNoDefault( &m_targetPlot, "TargetPlot", "Target Plot", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_targetPlot, "TargetPlot", "Target Plot" );
 
-    CAF_PDM_InitField( &m_useAutoAppearanceAssignment, "UseAutoAppearanceAssignment", true, "Auto", "", "", "" );
-    CAF_PDM_InitField( &m_appearanceApplyButton, "AppearanceApplyButton", false, "", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_caseAppearanceType, "CaseAppearanceType", "Case", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_variableAppearanceType, "VariableAppearanceType", "Vector", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_wellAppearanceType, "WellAppearanceType", "Well", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_groupAppearanceType, "GroupAppearanceType", "Group", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_regionAppearanceType, "RegionAppearanceType", "Region", "", "", "" );
+    CAF_PDM_InitField( &m_useAutoAppearanceAssignment, "UseAutoAppearanceAssignment", true, "Auto" );
+    CAF_PDM_InitField( &m_appearanceApplyButton, "AppearanceApplyButton", false, "" );
+    CAF_PDM_InitFieldNoDefault( &m_caseAppearanceType, "CaseAppearanceType", "Case" );
+    CAF_PDM_InitFieldNoDefault( &m_variableAppearanceType, "VariableAppearanceType", "Vector" );
+    CAF_PDM_InitFieldNoDefault( &m_wellAppearanceType, "WellAppearanceType", "Well" );
+    CAF_PDM_InitFieldNoDefault( &m_groupAppearanceType, "GroupAppearanceType", "Group" );
+    CAF_PDM_InitFieldNoDefault( &m_regionAppearanceType, "RegionAppearanceType", "Region" );
 
     m_previewPlot.reset( new RimSummaryPlot() );
 
-    CAF_PDM_InitFieldNoDefault( &m_useAutoPlotTitleProxy, "UseAutoPlotTitle", "Auto Plot Title", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_useAutoPlotTitleProxy, "UseAutoPlotTitle", "Auto Plot Title" );
     m_useAutoPlotTitleProxy.registerGetMethod( this, &RicSummaryPlotEditorUi::proxyPlotAutoTitle );
     m_useAutoPlotTitleProxy.registerSetMethod( this, &RicSummaryPlotEditorUi::proxyEnablePlotAutoTitle );
 
-    CAF_PDM_InitFieldNoDefault( &m_applyButtonField, "ApplySelection", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_applyButtonField, "ApplySelection", "" );
     m_applyButtonField = false;
     m_applyButtonField.uiCapability()->setUiEditorTypeName( caf::PdmUiPushButtonEditor::uiEditorTypeName() );
     m_applyButtonField.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 
-    CAF_PDM_InitFieldNoDefault( &m_closeButtonField, "Close", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_closeButtonField, "Close", "" );
     m_closeButtonField = false;
     m_closeButtonField.uiCapability()->setUiEditorTypeName( caf::PdmUiPushButtonEditor::uiEditorTypeName() );
     m_closeButtonField.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 
-    CAF_PDM_InitFieldNoDefault( &m_okButtonField, "OK", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_okButtonField, "OK", "" );
     m_okButtonField = false;
     m_okButtonField.uiCapability()->setUiEditorTypeName( caf::PdmUiPushButtonEditor::uiEditorTypeName() );
     m_okButtonField.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
@@ -119,7 +119,7 @@ RicSummaryPlotEditorUi::RicSummaryPlotEditorUi()
     m_appearanceApplyButton.uiCapability()->setUiEditorTypeName( caf::PdmUiPushButtonEditor::uiEditorTypeName() );
     m_appearanceApplyButton.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LEFT );
 
-    CAF_PDM_InitFieldNoDefault( &m_curveNameConfig, "SummaryCurveNameConfig", "SummaryCurveNameConfig", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_curveNameConfig, "SummaryCurveNameConfig", "SummaryCurveNameConfig" );
     m_curveNameConfig = new RimSummaryCurveAutoName();
     m_curveNameConfig.uiCapability()->setUiTreeHidden( true );
     m_curveNameConfig.uiCapability()->setUiTreeChildrenHidden( true );

@@ -64,28 +64,28 @@ RimWellPathTarget::RimWellPathTarget()
                                                     "WellPathTarget",
                                                     "Class containing the Well Target definition" );
 
-    CAF_PDM_InitField( &m_isEnabled, "IsEnabled", true, "", "", "", "" );
-    CAF_PDM_InitField( &m_isLocked, "IsLocked", false, "", "", "", "" );
+    CAF_PDM_InitField( &m_isEnabled, "IsEnabled", true, "" );
+    CAF_PDM_InitField( &m_isLocked, "IsLocked", false, "" );
     m_isLocked.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitScriptableFieldNoDefault( &m_targetPointXYD, "TargetPoint", "Relative Coord", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_targetPointForDisplay, "TargetPointForDisplay", "UTM Coord", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_targetPointXYD, "TargetPoint", "Relative Coord" );
+    CAF_PDM_InitFieldNoDefault( &m_targetPointForDisplay, "TargetPointForDisplay", "UTM Coord" );
     m_targetPointForDisplay.registerGetMethod( this, &RimWellPathTarget::targetPointForDisplayXYD );
     m_targetPointForDisplay.registerSetMethod( this, &RimWellPathTarget::setTargetPointFromDisplayCoord );
 
-    CAF_PDM_InitScriptableFieldNoDefault( &m_targetMeasuredDepth, "TargetMeasuredDepth", "MD", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_targetMeasuredDepth, "TargetMeasuredDepth", "MD" );
     m_targetMeasuredDepth.registerGetMethod( this, &RimWellPathTarget::measuredDepth );
 
     CAF_PDM_InitScriptableField( &m_dogleg1, "Dogleg1", 3.0, "DL in", "", "[deg/30m]", "" );
     CAF_PDM_InitScriptableField( &m_dogleg2, "Dogleg2", 3.0, "DL out", "", "[deg/30m]", "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_targetType, "TargetType", "Type", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_targetType, "TargetType", "Type" );
     m_targetType.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitField( &m_hasTangentConstraintUiField, "HasTangentConstraint", false, "Dir", "", "", "" );
+    CAF_PDM_InitField( &m_hasTangentConstraintUiField, "HasTangentConstraint", false, "Dir" );
     m_hasTangentConstraintUiField.xmlCapability()->disableIO();
-    CAF_PDM_InitScriptableField( &m_azimuth, "Azimuth", 0.0, "Azi(deg)", "", "", "" );
-    CAF_PDM_InitScriptableField( &m_inclination, "Inclination", 0.0, "Inc(deg)", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_azimuth, "Azimuth", 0.0, "Azi(deg)" );
+    CAF_PDM_InitScriptableField( &m_inclination, "Inclination", 0.0, "Inc(deg)" );
 }
 
 //--------------------------------------------------------------------------------------------------

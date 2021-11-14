@@ -72,26 +72,26 @@ CAF_PDM_SOURCE_INIT( RicExportCompletionDataSettingsUi, "RicExportCompletionData
 //--------------------------------------------------------------------------------------------------
 RicExportCompletionDataSettingsUi::RicExportCompletionDataSettingsUi()
 {
-    CAF_PDM_InitObject( "RimExportCompletionDataSettings", "", "", "" );
+    CAF_PDM_InitObject( "RimExportCompletionDataSettings" );
 
-    CAF_PDM_InitFieldNoDefault( &fileSplit, "FileSplit", "File Split", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &fileSplit, "FileSplit", "File Split" );
 
     CAF_PDM_InitFieldNoDefault( &compdatExport, "compdatExport", "Export", "", " ", "" );
 
-    CAF_PDM_InitField( &timeStep, "TimeStepIndex", 0, "    Time Step", "", "", "" );
+    CAF_PDM_InitField( &timeStep, "TimeStepIndex", 0, "    Time Step" );
 
-    CAF_PDM_InitField( &includeMsw, "IncludeMSW", true, "Multi Segment Well Model", "", "", "" );
+    CAF_PDM_InitField( &includeMsw, "IncludeMSW", true, "Multi Segment Well Model" );
 
-    CAF_PDM_InitField( &useLateralNTG, "UseLateralNTG", false, "Use NTG Horizontally", "", "", "" );
+    CAF_PDM_InitField( &useLateralNTG, "UseLateralNTG", false, "Use NTG Horizontally" );
 
-    CAF_PDM_InitField( &includePerforations, "IncludePerforations", true, "Perforations", "", "", "" );
-    CAF_PDM_InitField( &includeFishbones, "IncludeFishbones", true, "Fishbones", "", "", "" );
-    CAF_PDM_InitField( &includeFractures, "IncludeFractures", true, "Fractures", "", "", "" );
+    CAF_PDM_InitField( &includePerforations, "IncludePerforations", true, "Perforations" );
+    CAF_PDM_InitField( &includeFishbones, "IncludeFishbones", true, "Fishbones" );
+    CAF_PDM_InitField( &includeFractures, "IncludeFractures", true, "Fractures" );
 
-    CAF_PDM_InitField( &performTransScaling, "TransScalingType", false, "Perform Transmissibility Scaling", "", "", "" );
-    CAF_PDM_InitField( &transScalingTimeStep, "TransScalingTimeStep", 0, "Current Time Step", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &transScalingWBHPSource, "TransScalingWBHPSource", "WBHP Selection", "", "", "" );
-    CAF_PDM_InitField( &transScalingWBHP, "TransScalingWBHP", 200.0, "WBHP Before Production Start", "", "", "" );
+    CAF_PDM_InitField( &performTransScaling, "TransScalingType", false, "Perform Transmissibility Scaling" );
+    CAF_PDM_InitField( &transScalingTimeStep, "TransScalingTimeStep", 0, "Current Time Step" );
+    CAF_PDM_InitFieldNoDefault( &transScalingWBHPSource, "TransScalingWBHPSource", "WBHP Selection" );
+    CAF_PDM_InitField( &transScalingWBHP, "TransScalingWBHP", 200.0, "WBHP Before Production Start" );
 
     CAF_PDM_InitField( &excludeMainBoreForFishbones,
                        "ExcludeMainBoreForFishbones",
@@ -104,14 +104,11 @@ RicExportCompletionDataSettingsUi::RicExportCompletionDataSettingsUi()
 
     CAF_PDM_InitFieldNoDefault( &m_reportCompletionTypesSeparately,
                                 "ReportCompletionTypesSeparately",
-                                "Export Completion Types",
-                                "",
-                                "",
-                                "" );
+                                "Export Completion Types" );
 
-    CAF_PDM_InitField( &m_exportDataSourceAsComment, "ExportDataSourceAsComment", true, "Comments", "", "", "" );
+    CAF_PDM_InitField( &m_exportDataSourceAsComment, "ExportDataSourceAsComment", true, "Comments" );
 
-    CAF_PDM_InitField( &m_exportWelspec, "ExportWelspec", true, "WELSPEC keyword", "", "", "" );
+    CAF_PDM_InitField( &m_exportWelspec, "ExportWelspec", true, "WELSPEC keyword" );
     CAF_PDM_InitField( &m_completionWelspecAfterMainBore,
                        "CompletionWelspecAfterMainBore",
                        true,
@@ -120,8 +117,8 @@ RicExportCompletionDataSettingsUi::RicExportCompletionDataSettingsUi()
                        "",
                        "" );
 
-    CAF_PDM_InitField( &m_useCustomFileName, "UseCustomFileName", false, "Use Custom Filename", "", "", "" );
-    CAF_PDM_InitField( &m_customFileName, "CustomFileName", {}, "Custom Filename", "", "", "" );
+    CAF_PDM_InitField( &m_useCustomFileName, "UseCustomFileName", false, "Use Custom Filename" );
+    CAF_PDM_InitField( &m_customFileName, "CustomFileName", {}, "Custom Filename" );
 
     m_displayForSimWell = true;
 

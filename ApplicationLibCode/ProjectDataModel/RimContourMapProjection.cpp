@@ -85,14 +85,14 @@ RimContourMapProjection::RimContourMapProjection()
 {
     CAF_PDM_InitObject( "RimContourMapProjection", ":/2DMapProjection16x16.png", "", "" );
 
-    CAF_PDM_InitField( &m_relativeSampleSpacing, "SampleSpacing", 0.9, "Sample Spacing Factor", "", "", "" );
+    CAF_PDM_InitField( &m_relativeSampleSpacing, "SampleSpacing", 0.9, "Sample Spacing Factor" );
     m_relativeSampleSpacing.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitFieldNoDefault( &m_resultAggregation, "ResultAggregation", "Result Aggregation", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_resultAggregation, "ResultAggregation", "Result Aggregation" );
 
-    CAF_PDM_InitField( &m_showContourLines, "ContourLines", true, "Show Contour Lines", "", "", "" );
-    CAF_PDM_InitField( &m_showContourLabels, "ContourLabels", true, "Show Contour Labels", "", "", "" );
-    CAF_PDM_InitField( &m_smoothContourLines, "SmoothContourLines", true, "Smooth Contour Lines", "", "", "" );
+    CAF_PDM_InitField( &m_showContourLines, "ContourLines", true, "Show Contour Lines" );
+    CAF_PDM_InitField( &m_showContourLabels, "ContourLabels", true, "Show Contour Labels" );
+    CAF_PDM_InitField( &m_smoothContourLines, "SmoothContourLines", true, "Smooth Contour Lines" );
 
     setName( "Map Projection" );
     nameField()->uiCapability()->setUiReadOnly( true );

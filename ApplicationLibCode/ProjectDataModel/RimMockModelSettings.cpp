@@ -26,17 +26,17 @@ CAF_PDM_SOURCE_INIT( RimMockModelSettings, "MockModelSettings" );
 //--------------------------------------------------------------------------------------------------
 RimMockModelSettings::RimMockModelSettings()
 {
-    CAF_PDM_InitObject( "Mock Model Settings", "", "", "" );
+    CAF_PDM_InitObject( "Mock Model Settings" );
 
-    CAF_PDM_InitField( &cellCountX, "CellCountX", quint64( 100 ), "Cell Count X", "", "", "" );
-    CAF_PDM_InitField( &cellCountY, "CellCountY", quint64( 100 ), "Cell Count Y", "", "", "" );
-    CAF_PDM_InitField( &cellCountZ, "CellCountZ", quint64( 10 ), "Cell Count Z", "", "", "" );
+    CAF_PDM_InitField( &cellCountX, "CellCountX", quint64( 100 ), "Cell Count X" );
+    CAF_PDM_InitField( &cellCountY, "CellCountY", quint64( 100 ), "Cell Count Y" );
+    CAF_PDM_InitField( &cellCountZ, "CellCountZ", quint64( 10 ), "Cell Count Z" );
 
-    CAF_PDM_InitFieldNoDefault( &totalCellCount, "TotalCellCount", "Total Cell Count", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &totalCellCount, "TotalCellCount", "Total Cell Count" );
     totalCellCount.uiCapability()->setUiReadOnly( true );
 
-    CAF_PDM_InitField( &resultCount, "ResultCount", quint64( 3 ), "Result Count", "", "", "" );
-    CAF_PDM_InitField( &timeStepCount, "TimeStepCount", quint64( 10 ), "Time Step Count", "", "", "" );
+    CAF_PDM_InitField( &resultCount, "ResultCount", quint64( 3 ), "Result Count" );
+    CAF_PDM_InitField( &timeStepCount, "TimeStepCount", quint64( 10 ), "Time Step Count" );
 }
 
 //--------------------------------------------------------------------------------------------------

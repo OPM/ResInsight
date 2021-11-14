@@ -45,15 +45,15 @@ RimStimPlanModelPlot::RimStimPlanModelPlot()
 {
     CAF_PDM_InitScriptableObject( "StimPlan Model Plot", "", "", "A fracture model plot" );
 
-    CAF_PDM_InitScriptableFieldNoDefault( &m_stimPlanModel, "StimPlanModel", "StimPlan Model", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_stimPlanModel, "StimPlanModel", "StimPlan Model" );
     m_stimPlanModel.uiCapability()->setUiReadOnly( true );
 
-    CAF_PDM_InitField( &m_editStimPlanModel, "EditModel", false, "Edit", "", "", "" );
+    CAF_PDM_InitField( &m_editStimPlanModel, "EditModel", false, "Edit" );
     m_editStimPlanModel.uiCapability()->setUiEditorTypeName( caf::PdmUiToolButtonEditor::uiEditorTypeName() );
     m_editStimPlanModel.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 
-    CAF_PDM_InitScriptableFieldNoDefault( &m_eclipseCase, "EclipseCase", "Case", "", "", "" );
-    CAF_PDM_InitScriptableField( &m_timeStep, "TimeStep", 0, "Time Step", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_eclipseCase, "EclipseCase", "Case" );
+    CAF_PDM_InitScriptableField( &m_timeStep, "TimeStep", 0, "Time Step" );
 
     setLegendsVisible( true );
     setDeletable( true );

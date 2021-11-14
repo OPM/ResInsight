@@ -29,6 +29,6 @@ CAF_PDM_SOURCE_INIT( RimcDataContainerDouble, "DataContainerFloat" );
 //--------------------------------------------------------------------------------------------------
 RimcDataContainerDouble::RimcDataContainerDouble()
 {
-    CAF_PDM_InitScriptableObject( "Data Container Float", "", "", "" );
-    CAF_PDM_InitScriptableFieldNoDefault( &m_doubleValues, "values", "Float Values", "", "", "" );
+    CAF_PDM_InitScriptableObject( "Data Container Float" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_doubleValues, "values", "Float Values" );
 }

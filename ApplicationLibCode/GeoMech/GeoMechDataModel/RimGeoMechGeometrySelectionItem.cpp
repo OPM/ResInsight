@@ -31,18 +31,18 @@ CAF_PDM_SOURCE_INIT( RimGeoMechGeometrySelectionItem, "GeoMechGeometrySelectionI
 //--------------------------------------------------------------------------------------------------
 RimGeoMechGeometrySelectionItem::RimGeoMechGeometrySelectionItem()
 {
-    CAF_PDM_InitObject( "GeoMech Topology Item", "", "", "" );
+    CAF_PDM_InitObject( "GeoMech Topology Item" );
 
-    CAF_PDM_InitFieldNoDefault( &m_geoMechCase, "GeoMechCase", "Geo Mech Case", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_geoMechCase, "GeoMechCase", "Geo Mech Case" );
 
-    CAF_PDM_InitFieldNoDefault( &m_gridIndex, "m_gridIndex", "GridIndex", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_cellIndex, "m_cellIndex", "CellIndex", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_elementFace, "m_elementFace", "ElementFace", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_hasIntersectionTriangle, "m_hasIntersectionTriangle", "HasIntersectionTriangle", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_intersectionTriangle_0, "m_intersectionTriangle_0", "IntersectionTriangle_0", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_intersectionTriangle_1, "m_intersectionTriangle_1", "IntersectionTriangle_1", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_intersectionTriangle_2, "m_intersectionTriangle_2", "IntersectionTriangle_2", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_localIntersectionPoint, "m_localIntersectionPoint", "LocalIntersectionPoint", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_gridIndex, "m_gridIndex", "GridIndex" );
+    CAF_PDM_InitFieldNoDefault( &m_cellIndex, "m_cellIndex", "CellIndex" );
+    CAF_PDM_InitFieldNoDefault( &m_elementFace, "m_elementFace", "ElementFace" );
+    CAF_PDM_InitFieldNoDefault( &m_hasIntersectionTriangle, "m_hasIntersectionTriangle", "HasIntersectionTriangle" );
+    CAF_PDM_InitFieldNoDefault( &m_intersectionTriangle_0, "m_intersectionTriangle_0", "IntersectionTriangle_0" );
+    CAF_PDM_InitFieldNoDefault( &m_intersectionTriangle_1, "m_intersectionTriangle_1", "IntersectionTriangle_1" );
+    CAF_PDM_InitFieldNoDefault( &m_intersectionTriangle_2, "m_intersectionTriangle_2", "IntersectionTriangle_2" );
+    CAF_PDM_InitFieldNoDefault( &m_localIntersectionPoint, "m_localIntersectionPoint", "LocalIntersectionPoint" );
 }
 
 //--------------------------------------------------------------------------------------------------

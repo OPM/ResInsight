@@ -38,8 +38,8 @@ CAF_PDM_SOURCE_INIT( RimWellPathGroup, "WellPathGroup" );
 RimWellPathGroup::RimWellPathGroup()
 {
     CAF_PDM_InitObject( "Well Path Group", ":/WellPathGroup.svg", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_childWellPaths, "ChildWellPaths", "Child Well Paths", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_groupName, "GroupName", "Group Name", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_childWellPaths, "ChildWellPaths", "Child Well Paths" );
+    CAF_PDM_InitFieldNoDefault( &m_groupName, "GroupName", "Group Name" );
 
     CAF_PDM_InitField( &m_addValveAtConnection,
                        "AddValveAtConnection",
@@ -48,7 +48,7 @@ RimWellPathGroup::RimWellPathGroup()
                        "",
                        "Should an outlet valve be added to branches for MSW export?",
                        "" );
-    CAF_PDM_InitFieldNoDefault( &m_valve, "Valve", "Branch Outlet Valve", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_valve, "Valve", "Branch Outlet Valve" );
     m_valve = new RimWellPathValve;
 
     m_groupName.registerGetMethod( this, &RimWellPathGroup::createGroupName );

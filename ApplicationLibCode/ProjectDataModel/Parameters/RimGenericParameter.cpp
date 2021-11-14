@@ -36,23 +36,23 @@ RimGenericParameter::RimGenericParameter()
 {
     CAF_PDM_InitObject( "Parameter", ":/Bullet.png", "", "" );
 
-    CAF_PDM_InitField( &m_name, "Name", QString(), "Name", "", "", "" );
+    CAF_PDM_InitField( &m_name, "Name", QString(), "Name" );
     m_name.uiCapability()->setUiReadOnly( true );
     m_name.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitField( &m_label, "Label", QString(), "Name", "", "", "" );
+    CAF_PDM_InitField( &m_label, "Label", QString(), "Name" );
     m_label.uiCapability()->setUiReadOnly( true );
     m_label.uiCapability()->setUiContentTextColor( RiuGuiTheme::getColorByVariableName( "textColor" ) );
 
-    CAF_PDM_InitField( &m_description, "Description", QString(), "Description", "", "", "" );
+    CAF_PDM_InitField( &m_description, "Description", QString(), "Description" );
     m_description.uiCapability()->setUiReadOnly( true );
     m_description.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitField( &m_advanced, "Advanced", false, "Advanced", "", "", "" );
+    CAF_PDM_InitField( &m_advanced, "Advanced", false, "Advanced" );
     m_advanced.uiCapability()->setUiReadOnly( true );
     m_advanced.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitField( &m_valid, "Valid", false, "Valid", "", "", "" );
+    CAF_PDM_InitField( &m_valid, "Valid", false, "Valid" );
     m_valid.uiCapability()->setUiReadOnly( true );
     m_valid.uiCapability()->setUiHidden( true );
 }

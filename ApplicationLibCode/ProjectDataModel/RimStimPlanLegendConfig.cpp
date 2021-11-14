@@ -32,10 +32,10 @@ RimStimPlanLegendConfig::RimStimPlanLegendConfig()
 {
     CAF_PDM_InitObject( "StimPlan Color Legend", ":/Legend.png", "", "" );
 
-    CAF_PDM_InitField( &m_name, "Name", QString( "StimPlan Legend" ), "Name", "", "", "" );
+    CAF_PDM_InitField( &m_name, "Name", QString( "StimPlan Legend" ), "Name" );
     m_name.uiCapability()->setUiReadOnly( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_legend, "Legend", "Legend", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_legend, "Legend", "Legend" );
     m_legend = new RimRegularLegendConfig;
 }
 

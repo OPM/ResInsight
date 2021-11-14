@@ -64,16 +64,16 @@ RimStimPlanColors::RimStimPlanColors()
 {
     CAF_PDM_InitObject( "Fractures", ":/FractureSymbol16x16.png", "", "" );
 
-    CAF_PDM_InitField( &m_resultNameAndUnit, "ResultName", QString( "" ), "Result Variable", "", "", "" );
+    CAF_PDM_InitField( &m_resultNameAndUnit, "ResultName", QString( "" ), "Result Variable" );
 
-    CAF_PDM_InitField( &m_defaultColor, "DefaultColor", cvf::Color3f( cvf::Color3::BROWN ), "Default Color", "", "", "" );
+    CAF_PDM_InitField( &m_defaultColor, "DefaultColor", cvf::Color3f( cvf::Color3::BROWN ), "Default Color" );
 
-    CAF_PDM_InitFieldNoDefault( &m_legendConfigurations, "LegendConfigurations", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_legendConfigurations, "LegendConfigurations", "" );
     m_legendConfigurations.uiCapability()->setUiTreeHidden( true );
 
-    CAF_PDM_InitField( &m_showStimPlanMesh, "ShowStimPlanMesh", true, "Show Mesh", "", "", "" );
+    CAF_PDM_InitField( &m_showStimPlanMesh, "ShowStimPlanMesh", true, "Show Mesh" );
 
-    CAF_PDM_InitFieldNoDefault( &m_stimPlanCellVizMode, "StimPlanCellVizMode", "Color Interpolation", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_stimPlanCellVizMode, "StimPlanCellVizMode", "Color Interpolation" );
 }
 
 //--------------------------------------------------------------------------------------------------

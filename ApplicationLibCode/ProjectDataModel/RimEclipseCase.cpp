@@ -98,23 +98,23 @@ RimEclipseCase::RimEclipseCase()
                                                            "All Eclipse Views in the case" );
     reservoirViews.uiCapability()->setUiTreeHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_matrixModelResults, "MatrixModelResults", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_matrixModelResults, "MatrixModelResults", "" );
     m_matrixModelResults.uiCapability()->setUiTreeHidden( true );
-    CAF_PDM_InitFieldNoDefault( &m_fractureModelResults, "FractureModelResults", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_fractureModelResults, "FractureModelResults", "" );
     m_fractureModelResults.uiCapability()->setUiTreeHidden( true );
 
-    CAF_PDM_InitField( &m_flipXAxis, "FlipXAxis", false, "Flip X Axis", "", "", "" );
-    CAF_PDM_InitField( &m_flipYAxis, "FlipYAxis", false, "Flip Y Axis", "", "", "" );
+    CAF_PDM_InitField( &m_flipXAxis, "FlipXAxis", false, "Flip X Axis" );
+    CAF_PDM_InitField( &m_flipYAxis, "FlipYAxis", false, "Flip Y Axis" );
 
-    CAF_PDM_InitFieldNoDefault( &m_filesContainingFaults_OBSOLETE, "CachedFileNamesContainingFaults", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_filesContainingFaults_OBSOLETE, "CachedFileNamesContainingFaults", "" );
     m_filesContainingFaults_OBSOLETE.uiCapability()->setUiHidden( true );
     m_filesContainingFaults_OBSOLETE.xmlCapability()->disableIO();
 
-    CAF_PDM_InitFieldNoDefault( &m_contourMapCollection, "ContourMaps", "2d Contour Maps", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_contourMapCollection, "ContourMaps", "2d Contour Maps" );
     m_contourMapCollection = new RimEclipseContourMapViewCollection;
     m_contourMapCollection.uiCapability()->setUiTreeHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_inputPropertyCollection, "InputPropertyCollection", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_inputPropertyCollection, "InputPropertyCollection", "" );
     m_inputPropertyCollection = new RimEclipseInputPropertyCollection;
     m_inputPropertyCollection->parentField()->uiCapability()->setUiTreeHidden( true );
 

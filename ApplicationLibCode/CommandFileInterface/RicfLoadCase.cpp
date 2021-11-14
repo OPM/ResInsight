@@ -37,8 +37,8 @@ CAF_PDM_SOURCE_INIT( RicfLoadCaseResult, "loadCaseResult" );
 //--------------------------------------------------------------------------------------------------
 RicfLoadCaseResult::RicfLoadCaseResult( int caseId )
 {
-    CAF_PDM_InitObject( "case_result", "", "", "" );
-    CAF_PDM_InitField( &this->caseId, "id", caseId, "", "", "", "" );
+    CAF_PDM_InitObject( "case_result" );
+    CAF_PDM_InitField( &this->caseId, "id", caseId, "" );
 }
 
 CAF_PDM_SOURCE_INIT( RicfLoadCase, "loadCase" );
@@ -48,8 +48,8 @@ CAF_PDM_SOURCE_INIT( RicfLoadCase, "loadCase" );
 //--------------------------------------------------------------------------------------------------
 RicfLoadCase::RicfLoadCase()
 {
-    CAF_PDM_InitScriptableField( &m_path, "path", QString(), "Path to Case File", "", "", "" );
-    CAF_PDM_InitScriptableField( &m_gridOnly, "gridOnly", false, "Load Grid Data Only", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_path, "path", QString(), "Path to Case File" );
+    CAF_PDM_InitScriptableField( &m_gridOnly, "gridOnly", false, "Load Grid Data Only" );
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -41,17 +41,17 @@ CAF_PDM_SOURCE_INIT( RimAdvancedSnapshotExportDefinition, "MultiSnapshotDefiniti
 RimAdvancedSnapshotExportDefinition::RimAdvancedSnapshotExportDefinition()
 {
     // CAF_PDM_InitObject("MultiSnapshotDefinition", ":/Well.svg", "", "");
-    CAF_PDM_InitObject( "MultiSnapshotDefinition", "", "", "" );
+    CAF_PDM_InitObject( "MultiSnapshotDefinition" );
 
-    CAF_PDM_InitField( &isActive, "IsActive", true, "Active", "", "", "" );
+    CAF_PDM_InitField( &isActive, "IsActive", true, "Active" );
 
-    CAF_PDM_InitFieldNoDefault( &view, "View", "View", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &view, "View", "View" );
 
-    CAF_PDM_InitFieldNoDefault( &eclipseResultType, "EclipseResultType", "Result Type", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &selectedEclipseResults, "SelectedEclipseResults", "Properties", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &eclipseResultType, "EclipseResultType", "Result Type" );
+    CAF_PDM_InitFieldNoDefault( &selectedEclipseResults, "SelectedEclipseResults", "Properties" );
 
-    CAF_PDM_InitField( &timeStepStart, "TimeStepStart", 0, "Start Time", "", "", "" );
-    CAF_PDM_InitField( &timeStepEnd, "TimeStepEnd", 0, "End Time", "", "", "" );
+    CAF_PDM_InitField( &timeStepStart, "TimeStepStart", 0, "Start Time" );
+    CAF_PDM_InitField( &timeStepEnd, "TimeStepEnd", 0, "End Time" );
 
     CAF_PDM_InitField( &sliceDirection,
                        "SnapShotDirection",
@@ -61,10 +61,10 @@ RimAdvancedSnapshotExportDefinition::RimAdvancedSnapshotExportDefinition()
                        "",
                        "" );
 
-    CAF_PDM_InitField( &startSliceIndex, "RangeFilterStart", 1, "Range Start", "", "", "" );
-    CAF_PDM_InitField( &endSliceIndex, "RangeFilterEnd", 1, "Range End", "", "", "" );
+    CAF_PDM_InitField( &startSliceIndex, "RangeFilterStart", 1, "Range Start" );
+    CAF_PDM_InitField( &endSliceIndex, "RangeFilterEnd", 1, "Range End" );
 
-    CAF_PDM_InitFieldNoDefault( &additionalCases, "AdditionalCases", "Cases", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &additionalCases, "AdditionalCases", "Cases" );
 }
 
 //--------------------------------------------------------------------------------------------------

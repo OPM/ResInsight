@@ -75,10 +75,10 @@ void RicExportEclipseSectorModelUi::GridBoxSelectionEnum::setUp()
 //--------------------------------------------------------------------------------------------------
 RicExportEclipseSectorModelUi::RicExportEclipseSectorModelUi()
 {
-    CAF_PDM_InitObject( "Export Visible Cells as Eclipse Input Grid", "", "", "" );
+    CAF_PDM_InitObject( "Export Visible Cells as Eclipse Input Grid" );
 
     CAF_PDM_InitField( &exportGrid, "ExportGrid", true, "Export Grid Data", "", "Includes COORD, ZCORN and ACTNUM", "" );
-    CAF_PDM_InitField( &exportGridFilename, "ExportGridFilename", QString(), "Grid File Name", "", "", "" );
+    CAF_PDM_InitField( &exportGridFilename, "ExportGridFilename", QString(), "Grid File Name" );
     exportGridFilename.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
     CAF_PDM_InitField( &exportInLocalCoordinates,
                        "ExportInLocalCoords",
@@ -87,39 +87,39 @@ RicExportEclipseSectorModelUi::RicExportEclipseSectorModelUi()
                        "",
                        "Remove UTM location on export",
                        "" );
-    CAF_PDM_InitField( &makeInvisibleCellsInactive, "InvisibleCellActnum", false, "Make Invisible Cells Inactive", "", "", "" );
+    CAF_PDM_InitField( &makeInvisibleCellsInactive, "InvisibleCellActnum", false, "Make Invisible Cells Inactive" );
 
-    CAF_PDM_InitFieldNoDefault( &exportGridBox, "GridBoxSelection", "Cells to Export", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &exportGridBox, "GridBoxSelection", "Cells to Export" );
 
     QString minIJKLabel = "Min I, J, K";
-    CAF_PDM_InitField( &minI, "MinI", std::numeric_limits<int>::max(), minIJKLabel, "", "", "" );
-    CAF_PDM_InitField( &minJ, "MinJ", std::numeric_limits<int>::max(), "", "", "", "" );
+    CAF_PDM_InitField( &minI, "MinI", std::numeric_limits<int>::max(), minIJKLabel );
+    CAF_PDM_InitField( &minJ, "MinJ", std::numeric_limits<int>::max(), "" );
     minJ.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
-    CAF_PDM_InitField( &minK, "MinK", std::numeric_limits<int>::max(), "", "", "", "" );
+    CAF_PDM_InitField( &minK, "MinK", std::numeric_limits<int>::max(), "" );
     minK.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
     QString maxIJKLabel = "Max I, J, K";
-    CAF_PDM_InitField( &maxI, "MaxI", -std::numeric_limits<int>::max(), maxIJKLabel, "", "", "" );
-    CAF_PDM_InitField( &maxJ, "MaxJ", -std::numeric_limits<int>::max(), "", "", "", "" );
+    CAF_PDM_InitField( &maxI, "MaxI", -std::numeric_limits<int>::max(), maxIJKLabel );
+    CAF_PDM_InitField( &maxJ, "MaxJ", -std::numeric_limits<int>::max(), "" );
     maxJ.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
-    CAF_PDM_InitField( &maxK, "MaxK", -std::numeric_limits<int>::max(), "", "", "", "" );
+    CAF_PDM_InitField( &maxK, "MaxK", -std::numeric_limits<int>::max(), "" );
     maxK.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 
-    CAF_PDM_InitFieldNoDefault( &exportFaults, "ExportFaults", "Export Fault Data", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &exportFaults, "ExportFaults", "Export Fault Data" );
     exportFaults = EXPORT_TO_SINGLE_SEPARATE_FILE;
 
-    CAF_PDM_InitField( &exportFaultsFilename, "ExportFaultsFilename", QString(), "Faults File Name", "", "", "" );
+    CAF_PDM_InitField( &exportFaultsFilename, "ExportFaultsFilename", QString(), "Faults File Name" );
     exportFaultsFilename.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
 
     QString ijkLabel = "Cell Count I, J, K";
-    CAF_PDM_InitField( &refinementCountI, "RefinementCountI", 1, ijkLabel, "", "", "" );
-    CAF_PDM_InitField( &refinementCountJ, "RefinementCountJ", 1, "", "", "", "" );
-    CAF_PDM_InitField( &refinementCountK, "RefinementCountK", 1, "", "", "", "" );
+    CAF_PDM_InitField( &refinementCountI, "RefinementCountI", 1, ijkLabel );
+    CAF_PDM_InitField( &refinementCountJ, "RefinementCountJ", 1, "" );
+    CAF_PDM_InitField( &refinementCountK, "RefinementCountK", 1, "" );
 
-    CAF_PDM_InitFieldNoDefault( &exportParameters, "ExportParams", "Export Parameters", "", "", "" );
-    CAF_PDM_InitField( &exportParametersFilename, "ExportParamsFilename", QString(), "File Name", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &exportParameters, "ExportParams", "Export Parameters" );
+    CAF_PDM_InitField( &exportParametersFilename, "ExportParamsFilename", QString(), "File Name" );
     exportParametersFilename.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitFieldNoDefault( &selectedKeywords, "ExportMainKeywords", "Keywords to Export", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &selectedKeywords, "ExportMainKeywords", "Keywords to Export" );
 
     exportGridFilename       = defaultGridFileName();
     exportParametersFilename = defaultResultsFileName();

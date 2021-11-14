@@ -46,8 +46,8 @@ RimAnnotationGroupCollection::RimAnnotationGroupCollection()
 {
     CAF_PDM_InitObject( "Annotations", ":/WellCollection.png", "", "" );
 
-    CAF_PDM_InitField( &m_isActive, "IsActive", true, "Is Active", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_annotations, "Annotations", "Annotations", "", "", "" );
+    CAF_PDM_InitField( &m_isActive, "IsActive", true, "Is Active" );
+    CAF_PDM_InitFieldNoDefault( &m_annotations, "Annotations", "Annotations" );
 
     m_isActive.uiCapability()->setUiHidden( true );
     m_annotations.uiCapability()->setUiTreeHidden( true );

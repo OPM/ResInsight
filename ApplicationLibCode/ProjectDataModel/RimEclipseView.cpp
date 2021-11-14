@@ -159,41 +159,41 @@ RimEclipseView::RimEclipseView()
     m_elementVectorResult = new RimElementVectorResult;
     m_elementVectorResult.uiCapability()->setUiTreeHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_faultResultSettings, "FaultResultSettings", "Fault Result", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_faultResultSettings, "FaultResultSettings", "Fault Result" );
     m_faultResultSettings = new RimEclipseFaultColors();
     m_faultResultSettings.uiCapability()->setUiTreeHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_fractureColors, "StimPlanColors", "Fracture", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_fractureColors, "StimPlanColors", "Fracture" );
     m_fractureColors = new RimStimPlanColors();
     m_fractureColors.uiCapability()->setUiTreeHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_virtualPerforationResult, "VirtualPerforationResult", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_virtualPerforationResult, "VirtualPerforationResult", "" );
     m_virtualPerforationResult = new RimVirtualPerforationResults();
     m_virtualPerforationResult.uiCapability()->setUiTreeHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_wellCollection, "WellCollection", "Simulation Wells", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_wellCollection, "WellCollection", "Simulation Wells" );
     m_wellCollection = new RimSimWellInViewCollection;
     m_wellCollection.uiCapability()->setUiTreeHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_faultCollection, "FaultCollection", "Faults", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_faultCollection, "FaultCollection", "Faults" );
     m_faultCollection = new RimFaultInViewCollection;
     m_faultCollection.uiCapability()->setUiTreeHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_annotationCollection, "AnnotationCollection", "Annotations", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_annotationCollection, "AnnotationCollection", "Annotations" );
     m_annotationCollection = new RimAnnotationInViewCollection;
     m_annotationCollection.uiCapability()->setUiTreeHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_streamlineCollection, "StreamlineCollection", "Streamlines", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_streamlineCollection, "StreamlineCollection", "Streamlines" );
     m_streamlineCollection = new RimStreamlineInViewCollection();
     m_streamlineCollection.uiCapability()->setUiTreeHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_propertyFilterCollection, "PropertyFilters", "Property Filters", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_propertyFilterCollection, "PropertyFilters", "Property Filters" );
     m_propertyFilterCollection = new RimEclipsePropertyFilterCollection();
     m_propertyFilterCollection.uiCapability()->setUiTreeHidden( true );
 
     // Visualization fields
-    CAF_PDM_InitField( &m_showInactiveCells, "ShowInactiveCells", false, "Show Inactive Cells", "", "", "" );
-    CAF_PDM_InitField( &m_showInvalidCells, "ShowInvalidCells", false, "Show Invalid Cells", "", "", "" );
+    CAF_PDM_InitField( &m_showInactiveCells, "ShowInactiveCells", false, "Show Inactive Cells" );
+    CAF_PDM_InitField( &m_showInvalidCells, "ShowInvalidCells", false, "Show Invalid Cells" );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_cellResultData, "CellResultData", "", "", "", "Current Eclipse Cell Result" );
     m_cellResultData.xmlCapability()->disableIO();

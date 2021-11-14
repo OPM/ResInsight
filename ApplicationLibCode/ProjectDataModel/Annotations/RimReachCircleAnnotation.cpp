@@ -38,19 +38,19 @@ RimReachCircleAnnotation::RimReachCircleAnnotation()
 {
     CAF_PDM_InitObject( "CircleAnnotation", ":/ReachCircle16x16.png", "", "" );
 
-    CAF_PDM_InitField( &m_isActive, "IsActive", true, "Is Active", "", "", "" );
+    CAF_PDM_InitField( &m_isActive, "IsActive", true, "Is Active" );
     m_isActive.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitField( &m_centerPointXyd, "CenterPointXyd", Vec3d::ZERO, "Center Point", "", "", "" );
+    CAF_PDM_InitField( &m_centerPointXyd, "CenterPointXyd", Vec3d::ZERO, "Center Point" );
     m_centerPointXyd.uiCapability()->setUiEditorTypeName( caf::PdmUiPickableLineEditor::uiEditorTypeName() );
-    CAF_PDM_InitField( &m_centerPointPickEnabled, "AnchorPointPick", false, "", "", "", "" );
+    CAF_PDM_InitField( &m_centerPointPickEnabled, "AnchorPointPick", false, "" );
     caf::PdmUiPushButtonEditor::configureEditorForField( &m_centerPointPickEnabled );
     m_centerPointPickEnabled.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosType::HIDDEN );
 
-    CAF_PDM_InitField( &m_radius, "Radius", 100.0, "Radius", "", "", "" );
-    CAF_PDM_InitField( &m_name, "Name", QString( "Circle Annotation" ), "Name", "", "", "" );
+    CAF_PDM_InitField( &m_radius, "Radius", 100.0, "Radius" );
+    CAF_PDM_InitField( &m_name, "Name", QString( "Circle Annotation" ), "Name" );
 
-    CAF_PDM_InitFieldNoDefault( &m_appearance, "Appearance", "Appearance", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_appearance, "Appearance", "Appearance" );
 
     m_appearance = new RimReachCircleLineAppearance();
     m_appearance.uiCapability()->setUiTreeHidden( true );

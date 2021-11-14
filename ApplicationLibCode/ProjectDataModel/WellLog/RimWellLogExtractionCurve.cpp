@@ -96,12 +96,12 @@ RimWellLogExtractionCurve::RimWellLogExtractionCurve()
 {
     CAF_PDM_InitScriptableObject( "Well Log Curve", RimWellLogCurve::wellLogCurveIconName(), "", "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_trajectoryType, "TrajectoryType", "Trajectory Type", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_trajectoryType, "TrajectoryType", "Trajectory Type" );
 
-    CAF_PDM_InitFieldNoDefault( &m_wellPath, "CurveWellPath", "Well Name", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_wellPath, "CurveWellPath", "Well Name" );
     m_wellPath.uiCapability()->setUiTreeChildrenHidden( true );
 
-    CAF_PDM_InitField( &m_simWellName, "SimulationWellName", QString( "" ), "Well Name", "", "", "" );
+    CAF_PDM_InitField( &m_simWellName, "SimulationWellName", QString( "" ), "Well Name" );
     CAF_PDM_InitField( &m_branchDetection,
                        "BranchDetection",
                        true,
@@ -109,31 +109,31 @@ RimWellLogExtractionCurve::RimWellLogExtractionCurve()
                        "",
                        "Compute branches based on how simulation well cells are organized",
                        "" );
-    CAF_PDM_InitField( &m_branchIndex, "Branch", 0, "Branch Index", "", "", "" );
+    CAF_PDM_InitField( &m_branchIndex, "Branch", 0, "Branch Index" );
 
-    CAF_PDM_InitFieldNoDefault( &m_case, "CurveCase", "Case", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_case, "CurveCase", "Case" );
     m_case.uiCapability()->setUiTreeChildrenHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_eclipseResultDefinition, "CurveEclipseResult", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_eclipseResultDefinition, "CurveEclipseResult", "" );
     m_eclipseResultDefinition.uiCapability()->setUiTreeHidden( true );
     m_eclipseResultDefinition.uiCapability()->setUiTreeChildrenHidden( true );
     m_eclipseResultDefinition = new RimEclipseResultDefinition;
     m_eclipseResultDefinition->findField( "MResultType" )->uiCapability()->setUiName( "Result Type" );
 
-    CAF_PDM_InitFieldNoDefault( &m_geomResultDefinition, "CurveGeomechResult", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_geomResultDefinition, "CurveGeomechResult", "" );
     m_geomResultDefinition.uiCapability()->setUiTreeHidden( true );
     m_geomResultDefinition.uiCapability()->setUiTreeChildrenHidden( true );
     m_geomResultDefinition = new RimGeoMechResultDefinition;
     m_geomResultDefinition->setAddWellPathDerivedResults( true );
 
-    CAF_PDM_InitField( &m_timeStep, "CurveTimeStep", 0, "Time Step", "", "", "" );
+    CAF_PDM_InitField( &m_timeStep, "CurveTimeStep", 0, "Time Step" );
 
     // Add some space before name to indicate these belong to the Auto Name field
-    CAF_PDM_InitField( &m_addCaseNameToCurveName, "AddCaseNameToCurveName", true, "   Case Name", "", "", "" );
-    CAF_PDM_InitField( &m_addPropertyToCurveName, "AddPropertyToCurveName", true, "   Property", "", "", "" );
-    CAF_PDM_InitField( &m_addWellNameToCurveName, "AddWellNameToCurveName", true, "   Well Name", "", "", "" );
-    CAF_PDM_InitField( &m_addTimestepToCurveName, "AddTimestepToCurveName", false, "   Timestep", "", "", "" );
-    CAF_PDM_InitField( &m_addDateToCurveName, "AddDateToCurveName", true, "   Date", "", "", "" );
+    CAF_PDM_InitField( &m_addCaseNameToCurveName, "AddCaseNameToCurveName", true, "   Case Name" );
+    CAF_PDM_InitField( &m_addPropertyToCurveName, "AddPropertyToCurveName", true, "   Property" );
+    CAF_PDM_InitField( &m_addWellNameToCurveName, "AddWellNameToCurveName", true, "   Well Name" );
+    CAF_PDM_InitField( &m_addTimestepToCurveName, "AddTimestepToCurveName", false, "   Timestep" );
+    CAF_PDM_InitField( &m_addDateToCurveName, "AddDateToCurveName", true, "   Date" );
 }
 
 //--------------------------------------------------------------------------------------------------

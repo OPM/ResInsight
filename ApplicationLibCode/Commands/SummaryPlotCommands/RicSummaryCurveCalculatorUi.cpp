@@ -36,17 +36,17 @@ CAF_PDM_SOURCE_INIT( RicSummaryCurveCalculatorUi, "RicSummaryCurveCalculator" );
 //--------------------------------------------------------------------------------------------------
 RicSummaryCurveCalculatorUi::RicSummaryCurveCalculatorUi()
 {
-    CAF_PDM_InitObject( "RicSummaryCurveCalculator", "", "", "" );
+    CAF_PDM_InitObject( "RicSummaryCurveCalculator" );
 
-    CAF_PDM_InitFieldNoDefault( &m_currentCalculation, "CurrentCalculation", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_currentCalculation, "CurrentCalculation", "" );
     m_currentCalculation.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
     // m_currentCalculation.uiCapability()->setUiEditorTypeName(caf::PdmUiTreeSelectionEditor::uiEditorTypeName());
     m_currentCalculation.uiCapability()->setUiEditorTypeName( caf::PdmUiListEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitFieldNoDefault( &m_newCalculation, "NewCalculation", "New Calculation", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_newCalculation, "NewCalculation", "New Calculation" );
     RicSummaryCurveCalculatorUi::assignPushButtonEditor( &m_newCalculation );
 
-    CAF_PDM_InitFieldNoDefault( &m_deleteCalculation, "DeleteCalculation", "Delete Calculation", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_deleteCalculation, "DeleteCalculation", "Delete Calculation" );
     RicSummaryCurveCalculatorUi::assignPushButtonEditor( &m_deleteCalculation );
 
     m_calcContextMenuMgr = std::unique_ptr<RiuCalculationsContextMenuManager>( new RiuCalculationsContextMenuManager() );

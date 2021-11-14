@@ -141,8 +141,8 @@ RimcSurfaceCollection_newSurface::RimcSurfaceCollection_newSurface( caf::PdmObje
     : caf::PdmObjectMethod( self )
 {
     CAF_PDM_InitObject( "New Surface", "", "", "Create a new surface" );
-    CAF_PDM_InitScriptableFieldNoDefault( &m_case, "Case", "", "", "", "" );
-    CAF_PDM_InitScriptableFieldNoDefault( &m_kIndex, "KIndex", "", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_case, "Case", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_kIndex, "KIndex", "" );
 }
 
 //--------------------------------------------------------------------------------------------------

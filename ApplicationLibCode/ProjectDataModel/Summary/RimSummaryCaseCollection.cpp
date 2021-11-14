@@ -107,19 +107,19 @@ RimSummaryCaseCollection::RimSummaryCaseCollection()
 {
     CAF_PDM_InitScriptableObject( "Summary Case Group", ":/SummaryGroup16x16.png", "", "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_cases, "SummaryCases", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_cases, "SummaryCases", "" );
     m_cases.uiCapability()->setUiTreeHidden( true );
 
-    CAF_PDM_InitScriptableField( &m_name, "SummaryCollectionName", QString( "Group" ), "Name", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_name, "SummaryCollectionName", QString( "Group" ), "Name" );
 
-    CAF_PDM_InitScriptableFieldNoDefault( &m_nameAndItemCount, "NameCount", "Name", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_nameAndItemCount, "NameCount", "Name" );
     m_nameAndItemCount.registerGetMethod( this, &RimSummaryCaseCollection::nameAndItemCount );
     RiaFieldhandleTools::disableWriteAndSetFieldHidden( &m_nameAndItemCount );
 
-    CAF_PDM_InitScriptableField( &m_isEnsemble, "IsEnsemble", false, "Is Ensemble", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_isEnsemble, "IsEnsemble", false, "Is Ensemble" );
     m_isEnsemble.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitScriptableField( &m_ensembleId, "Id", -1, "Ensemble ID", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_ensembleId, "Id", -1, "Ensemble ID" );
     m_ensembleId.registerKeywordAlias( "EnsembleId" );
     m_ensembleId.uiCapability()->setUiReadOnly( true );
     m_ensembleId.capability<caf::PdmAbstractFieldScriptingCapability>()->setIOWriteable( false );

@@ -146,7 +146,7 @@ RimRegularLegendConfig::RimRegularLegendConfig()
     , m_resetUserDefinedValues( false )
 {
     CAF_PDM_InitObject( "Color Legend", ":/Legend.png", "", "" );
-    CAF_PDM_InitField( &m_showLegend, "ShowLegend", true, "Show Legend", "", "", "" );
+    CAF_PDM_InitField( &m_showLegend, "ShowLegend", true, "Show Legend" );
     m_showLegend.uiCapability()->setUiHidden( true );
     CAF_PDM_InitField( &m_numLevels, "NumberOfLevels", 8, "Number of Levels", "", "A hint on how many tick marks you whish.", "" );
     CAF_PDM_InitField( &m_precision,
@@ -175,14 +175,14 @@ RimRegularLegendConfig::RimRegularLegendConfig()
     m_colorRangeMode_OBSOLETE.uiCapability()->setUiHidden( true );
     m_colorRangeMode_OBSOLETE.xmlCapability()->setIOWritable( false );
 
-    CAF_PDM_InitFieldNoDefault( &m_colorLegend, "ColorLegend", "Colors", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_colorLegend, "ColorLegend", "Colors" );
     m_colorLegend = mapToColorLegend( ColorRangeEnum( ColorRangesType::NORMAL ) );
-    CAF_PDM_InitField( &m_selectColorLegendButton, "selectColorLegendButton", false, "Edit", "", "", "" );
+    CAF_PDM_InitField( &m_selectColorLegendButton, "selectColorLegendButton", false, "Edit" );
     m_selectColorLegendButton.uiCapability()->setUiEditorTypeName( caf::PdmUiToolButtonEditor::uiEditorTypeName() );
     m_selectColorLegendButton.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
     m_selectColorLegendButton.xmlCapability()->disableIO();
 
-    CAF_PDM_InitField( &m_mappingMode, "MappingMode", MappingEnum( MappingType::LINEAR_CONTINUOUS ), "Mapping", "", "", "" );
+    CAF_PDM_InitField( &m_mappingMode, "MappingMode", MappingEnum( MappingType::LINEAR_CONTINUOUS ), "Mapping" );
     CAF_PDM_InitField( &m_rangeMode,
                        "RangeType",
                        RangeModeEnum( RangeModeType::AUTOMATIC_ALLTIMESTEPS ),
@@ -199,9 +199,9 @@ RimRegularLegendConfig::RimRegularLegendConfig()
                        "Min value of the legend (if mapping is logarithmic only positive values are valid)",
                        "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_categoryColorMode, "CategoryColorMode", "Category Mode", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_categoryColorMode, "CategoryColorMode", "Category Mode" );
 
-    CAF_PDM_InitField( &resultVariableName, "ResultVariableUsage", QString( "" ), "", "", "", "" );
+    CAF_PDM_InitField( &resultVariableName, "ResultVariableUsage", QString( "" ), "" );
     resultVariableName.uiCapability()->setUiHidden( true );
 
     m_linDiscreteScalarMapper = new cvf::ScalarMapperDiscreteLinear;
@@ -217,7 +217,7 @@ RimRegularLegendConfig::RimRegularLegendConfig()
     m_scalarMapperLegend    = new caf::OverlayScalarMapperLegend( standardFont );
     m_categoryLegend        = new caf::CategoryLegend( standardFont, m_categoryMapper.p() );
 
-    CAF_PDM_InitField( &m_resetUserDefinedValuesButton, "ResetDefaultValues", false, "Reset Default Values", "", "", "" );
+    CAF_PDM_InitField( &m_resetUserDefinedValuesButton, "ResetDefaultValues", false, "Reset Default Values" );
     m_resetUserDefinedValuesButton.uiCapability()->setUiEditorTypeName( caf::PdmUiPushButtonEditor::uiEditorTypeName() );
     m_resetUserDefinedValuesButton.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 

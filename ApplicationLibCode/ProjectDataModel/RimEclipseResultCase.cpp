@@ -72,11 +72,11 @@ RimEclipseResultCase::RimEclipseResultCase()
 {
     CAF_PDM_InitScriptableObject( "Eclipse Case", ":/Case48x48.png", "", "The Regular Eclipse Results Case" );
 
-    CAF_PDM_InitFieldNoDefault( &m_unitSystem, "UnitSystem", "Unit System", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_unitSystem, "UnitSystem", "Unit System" );
     m_unitSystem.registerGetMethod( RimProject::current(), &RimProject::commonUnitSystemForAllCases );
     m_unitSystem.uiCapability()->setUiReadOnly( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_flowDiagSolutions, "FlowDiagSolutions", "Flow Diagnostics Solutions", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_flowDiagSolutions, "FlowDiagSolutions", "Flow Diagnostics Solutions" );
     m_flowDiagSolutions.uiCapability()->setUiTreeHidden( true );
     m_flowDiagSolutions.uiCapability()->setUiTreeChildrenHidden( true );
 
@@ -85,7 +85,7 @@ RimEclipseResultCase::RimEclipseResultCase()
     m_flipYAxis.xmlCapability()->setIOWritable( true );
     // flipYAxis.uiCapability()->setUiHidden(true);
 
-    CAF_PDM_InitFieldNoDefault( &m_sourSimFileName, "SourSimFileName", "SourSim File Name", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_sourSimFileName, "SourSimFileName", "SourSim File Name" );
     m_sourSimFileName.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
 #ifndef USE_HDF5
     m_sourSimFileName.uiCapability()->setUiHidden( true );

@@ -70,54 +70,54 @@ RimSummaryTimeAxisProperties::RimSummaryTimeAxisProperties()
 {
     CAF_PDM_InitObject( "Time Axis", ":/BottomAxis16x16.png", "", "" );
 
-    CAF_PDM_InitField( &m_isActive, "Active", true, "Active", "", "", "" );
+    CAF_PDM_InitField( &m_isActive, "Active", true, "Active" );
     m_isActive.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitField( &showTitle, "ShowTitle", false, "Show Title    ", "", "", "" );
-    CAF_PDM_InitField( &title, "Title", QString( "Time" ), "Title          ", "", "", "" );
+    CAF_PDM_InitField( &showTitle, "ShowTitle", false, "Show Title    " );
+    CAF_PDM_InitField( &title, "Title", QString( "Time" ), "Title          " );
 
-    CAF_PDM_InitField( &m_isAutoZoom, "AutoZoom", true, "Set Range Automatically", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_timeMode, "TimeMode", "Time Mode", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_timeUnit, "TimeUnit", "Time Unit", "", "", "" );
+    CAF_PDM_InitField( &m_isAutoZoom, "AutoZoom", true, "Set Range Automatically" );
+    CAF_PDM_InitFieldNoDefault( &m_timeMode, "TimeMode", "Time Mode" );
+    CAF_PDM_InitFieldNoDefault( &m_timeUnit, "TimeUnit", "Time Unit" );
 
-    CAF_PDM_InitFieldNoDefault( &m_visibleDateRangeMax, "VisibleDateRangeMax", "Max Date", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_visibleDateRangeMax, "VisibleDateRangeMax", "Max Date" );
     m_visibleDateRangeMax.uiCapability()->setUiEditorTypeName( caf::PdmUiDateEditor::uiEditorTypeName() );
-    CAF_PDM_InitFieldNoDefault( &m_visibleDateRangeMin, "VisibleDateRangeMin", "Min Date", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_visibleDateRangeMin, "VisibleDateRangeMin", "Min Date" );
     m_visibleDateRangeMin.uiCapability()->setUiEditorTypeName( caf::PdmUiDateEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitFieldNoDefault( &m_visibleTimeRangeMax, "VisibleTimeRangeMax", "MaxTime", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_visibleTimeRangeMax, "VisibleTimeRangeMax", "MaxTime" );
     m_visibleTimeRangeMax.uiCapability()->setUiEditorTypeName( caf::PdmUiTimeEditor::uiEditorTypeName() );
     m_visibleTimeRangeMax.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 
-    CAF_PDM_InitFieldNoDefault( &m_visibleTimeRangeMin, "VisibleTimeRangeMin", "Min Time", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_visibleTimeRangeMin, "VisibleTimeRangeMin", "Min Time" );
     m_visibleTimeRangeMin.uiCapability()->setUiEditorTypeName( caf::PdmUiTimeEditor::uiEditorTypeName() );
     m_visibleTimeRangeMin.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 
-    CAF_PDM_InitFieldNoDefault( &m_visibleTimeSinceStartRangeMax, "VisibleTimeModeRangeMax", "Max", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_visibleTimeSinceStartRangeMax, "VisibleTimeModeRangeMax", "Max" );
     m_visibleTimeSinceStartRangeMax.uiCapability()->setUiEditorTypeName( caf::PdmUiLineEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitFieldNoDefault( &m_visibleTimeSinceStartRangeMin, "VisibleTimeModeRangeMin", "Min", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_visibleTimeSinceStartRangeMin, "VisibleTimeModeRangeMin", "Min" );
     m_visibleTimeSinceStartRangeMin.uiCapability()->setUiEditorTypeName( caf::PdmUiLineEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitFieldNoDefault( &m_titlePositionEnum, "TitlePosition", "Title Position", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_titleFontSize, "FontSize", "Font Size", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_valuesFontSize, "ValuesFontSize", "Font Size", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_titlePositionEnum, "TitlePosition", "Title Position" );
+    CAF_PDM_InitFieldNoDefault( &m_titleFontSize, "FontSize", "Font Size" );
+    CAF_PDM_InitFieldNoDefault( &m_valuesFontSize, "ValuesFontSize", "Font Size" );
 
-    CAF_PDM_InitField( &m_automaticDateComponents, "AutoDate", true, "Automatic Date/Time Labels", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_dateComponents, "DateComponents", "Set Date Label", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_timeComponents, "TimeComponents", "Set Time Label", "", "", "" );
+    CAF_PDM_InitField( &m_automaticDateComponents, "AutoDate", true, "Automatic Date/Time Labels" );
+    CAF_PDM_InitFieldNoDefault( &m_dateComponents, "DateComponents", "Set Date Label" );
+    CAF_PDM_InitFieldNoDefault( &m_timeComponents, "TimeComponents", "Set Time Label" );
 
-    CAF_PDM_InitFieldNoDefault( &m_dateFormat, "DateFormat", "Date Label Format", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_dateFormat, "DateFormat", "Date Label Format" );
     m_dateFormat.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
     m_dateFormat = RiaPreferences::current()->dateFormat();
 
-    CAF_PDM_InitFieldNoDefault( &m_timeFormat, "TimeFormat", "Time Label Format", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_timeFormat, "TimeFormat", "Time Label Format" );
     m_timeFormat.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
     m_timeFormat = RiaPreferences::current()->timeFormat();
 
-    CAF_PDM_InitFieldNoDefault( &m_majorTickmarkCount, "MajorTickmarkCount", "Major Tickmark Count", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_majorTickmarkCount, "MajorTickmarkCount", "Major Tickmark Count" );
 
-    CAF_PDM_InitFieldNoDefault( &m_annotations, "Annotations", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_annotations, "Annotations", "" );
     m_annotations.uiCapability()->setUiTreeHidden( true );
 }
 

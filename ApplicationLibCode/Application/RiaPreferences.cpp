@@ -93,9 +93,9 @@ RiaPreferences::RiaPreferences()
                        "",
                        "Remote Procedure Call Scripting Engine",
                        "" );
-    CAF_PDM_InitField( &defaultGrpcPortNumber, "defaultGrpcPort", 50051, "Default Python Script Server Port", "", "", "" );
+    CAF_PDM_InitField( &defaultGrpcPortNumber, "defaultGrpcPort", 50051, "Default Python Script Server Port" );
 
-    CAF_PDM_InitFieldNoDefault( &scriptDirectories, "scriptDirectory", "Shared Script Folder(s)", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &scriptDirectories, "scriptDirectory", "Shared Script Folder(s)" );
     scriptDirectories.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
 
     // TODO: This only currently works for installed ResInsight.
@@ -112,10 +112,10 @@ RiaPreferences::RiaPreferences()
     }
 #endif
 
-    CAF_PDM_InitField( &scriptEditorExecutable, "scriptEditorExecutable", defaultTextEditor, "Script Editor", "", "", "" );
+    CAF_PDM_InitField( &scriptEditorExecutable, "scriptEditorExecutable", defaultTextEditor, "Script Editor" );
     scriptEditorExecutable.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitField( &m_octaveExecutable, "octaveExecutable", QString( "octave" ), "Octave Executable Location", "", "", "" );
+    CAF_PDM_InitField( &m_octaveExecutable, "octaveExecutable", QString( "octave" ), "Octave Executable Location" );
     m_octaveExecutable.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
     m_octaveExecutable.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
 
@@ -128,15 +128,15 @@ RiaPreferences::RiaPreferences()
                        "" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &octaveShowHeaderInfoWhenExecutingScripts );
 
-    CAF_PDM_InitField( &m_pythonExecutable, "pythonExecutable", QString( "python" ), "Python Executable Location", "", "", "" );
+    CAF_PDM_InitField( &m_pythonExecutable, "pythonExecutable", QString( "python" ), "Python Executable Location" );
     m_pythonExecutable.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
     m_pythonExecutable.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
-    CAF_PDM_InitField( &showPythonDebugInfo, "pythonDebugInfo", false, "Show Python Debug Info", "", "", "" );
+    CAF_PDM_InitField( &showPythonDebugInfo, "pythonDebugInfo", false, "Show Python Debug Info" );
 
-    CAF_PDM_InitField( &ssihubAddress, "ssihubAddress", QString( "http://" ), "SSIHUB Address", "", "", "" );
+    CAF_PDM_InitField( &ssihubAddress, "ssihubAddress", QString( "http://" ), "SSIHUB Address" );
     ssihubAddress.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
 
-    CAF_PDM_InitFieldNoDefault( &m_defaultMeshModeType, "defaultMeshModeType", "Show Grid Lines", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_defaultMeshModeType, "defaultMeshModeType", "Show Grid Lines" );
     CAF_PDM_InitField( &defaultGridLineColors,
                        "defaultGridLineColors",
                        RiaColorTables::defaultGridLineColor(),
@@ -167,26 +167,26 @@ RiaPreferences::RiaPreferences()
                        "The viewer background color for new views",
                        "" );
 
-    CAF_PDM_InitField( &m_defaultScaleFactorZ, "defaultScaleFactorZ", 5, "Default Z Scale Factor", "", "", "" );
+    CAF_PDM_InitField( &m_defaultScaleFactorZ, "defaultScaleFactorZ", 5, "Default Z Scale Factor" );
 
-    CAF_PDM_InitFieldNoDefault( &defaultSceneFontSize, "defaultSceneFontSizePt", "Viewer Font Size", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &defaultAnnotationFontSize, "defaultAnnotationFontSizePt", "Annotation Font Size", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &defaultWellLabelFontSize, "defaultWellLabelFontSizePt", "Well Label Font Size", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &defaultPlotFontSize, "defaultPlotFontSizePt", "Plot Font Size", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &defaultSceneFontSize, "defaultSceneFontSizePt", "Viewer Font Size" );
+    CAF_PDM_InitFieldNoDefault( &defaultAnnotationFontSize, "defaultAnnotationFontSizePt", "Annotation Font Size" );
+    CAF_PDM_InitFieldNoDefault( &defaultWellLabelFontSize, "defaultWellLabelFontSizePt", "Well Label Font Size" );
+    CAF_PDM_InitFieldNoDefault( &defaultPlotFontSize, "defaultPlotFontSizePt", "Plot Font Size" );
 
-    CAF_PDM_InitField( &m_showLegendBackground, "showLegendBackground", true, "Show Box around Legends", "", "", "" );
+    CAF_PDM_InitField( &m_showLegendBackground, "showLegendBackground", true, "Show Box around Legends" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_showLegendBackground );
 
-    CAF_PDM_InitField( &m_enableFaultsByDefault, "enableFaultsByDefault", true, "Enable Faults By Default", "", "", "" );
+    CAF_PDM_InitField( &m_enableFaultsByDefault, "enableFaultsByDefault", true, "Enable Faults By Default" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_enableFaultsByDefault );
 
-    CAF_PDM_InitField( &m_showInfoBox, "showInfoBox", true, "Show Info Box in New Projects", "", "", "" );
+    CAF_PDM_InitField( &m_showInfoBox, "showInfoBox", true, "Show Info Box in New Projects" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_showInfoBox );
 
-    CAF_PDM_InitField( &m_showGridBox, "showGridBox", true, "Show Grid Box in New Projects", "", "", "" );
+    CAF_PDM_InitField( &m_showGridBox, "showGridBox", true, "Show Grid Box in New Projects" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_showGridBox );
 
-    CAF_PDM_InitFieldNoDefault( &lastUsedProjectFileName, "lastUsedProjectFileName", "Last Used Project File", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &lastUsedProjectFileName, "lastUsedProjectFileName", "Last Used Project File" );
     lastUsedProjectFileName.uiCapability()->setUiHidden( true );
 
     CAF_PDM_InitField( &autocomputeDepthRelatedProperties,
@@ -198,7 +198,7 @@ RiaPreferences::RiaPreferences()
                        "" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &autocomputeDepthRelatedProperties );
 
-    CAF_PDM_InitField( &loadAndShowSoil, "loadAndShowSoil", true, "Load and Show SOIL", "", "", "" );
+    CAF_PDM_InitField( &loadAndShowSoil, "loadAndShowSoil", true, "Load and Show SOIL" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &loadAndShowSoil );
 
     CAF_PDM_InitField( &holoLensDisableCertificateVerification,
@@ -218,20 +218,20 @@ RiaPreferences::RiaPreferences()
                        "",
                        "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_readerSettings, "readerSettings", "Reader Settings", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_readerSettings, "readerSettings", "Reader Settings" );
     m_readerSettings = new RifReaderSettings;
-    CAF_PDM_InitFieldNoDefault( &m_dateFormat, "dateFormat", "Date Format", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_dateFormat, "dateFormat", "Date Format" );
     m_dateFormat.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
     m_dateFormat = RiaQDateTimeTools::supportedDateFormats().front();
 
-    CAF_PDM_InitFieldNoDefault( &m_timeFormat, "timeFormat", "Time Format", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_timeFormat, "timeFormat", "Time Format" );
     m_timeFormat.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
     m_timeFormat = RiaQDateTimeTools::supportedTimeFormats().front();
 
-    CAF_PDM_InitField( &m_useUndoRedo, "useUndoRedo", true, "Enable Undo/Redo for Property Editor changes", "", "", "" );
+    CAF_PDM_InitField( &m_useUndoRedo, "useUndoRedo", true, "Enable Undo/Redo for Property Editor changes" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_useUndoRedo );
 
-    CAF_PDM_InitFieldNoDefault( &m_plotTemplateFolders, "plotTemplateFolders", "Plot Template Folder(s)", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_plotTemplateFolders, "plotTemplateFolders", "Plot Template Folder(s)" );
     m_plotTemplateFolders.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
     CAF_PDM_InitField( &m_searchPlotTemplateFoldersRecursively,
                        "SearchPlotTemplateFoldersRecursively",
@@ -242,16 +242,16 @@ RiaPreferences::RiaPreferences()
                        "" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_searchPlotTemplateFoldersRecursively );
 
-    CAF_PDM_InitFieldNoDefault( &m_defaultPlotTemplate, "defaultPlotTemplate", "Default Plot Template", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_defaultPlotTemplate, "defaultPlotTemplate", "Default Plot Template" );
 
-    CAF_PDM_InitFieldNoDefault( &m_pageSize, "pageSize", "Page Size", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_pageOrientation, "pageOrientation", "Page Orientation", "", "", "" );
-    CAF_PDM_InitField( &m_pageLeftMargin, "pageLeftMargin", defaultMarginSize( m_pageSize() ), "Left Margin", "", "", "" );
-    CAF_PDM_InitField( &m_pageTopMargin, "pageTopMargin", defaultMarginSize( m_pageSize() ), "Top Margin", "", "", "" );
-    CAF_PDM_InitField( &m_pageRightMargin, "pageRightMargin", defaultMarginSize( m_pageSize() ), "Right Margin", "", "", "" );
-    CAF_PDM_InitField( &m_pageBottomMargin, "pageBottomMargin", defaultMarginSize( m_pageSize() ), "Bottom Margin", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_pageSize, "pageSize", "Page Size" );
+    CAF_PDM_InitFieldNoDefault( &m_pageOrientation, "pageOrientation", "Page Orientation" );
+    CAF_PDM_InitField( &m_pageLeftMargin, "pageLeftMargin", defaultMarginSize( m_pageSize() ), "Left Margin" );
+    CAF_PDM_InitField( &m_pageTopMargin, "pageTopMargin", defaultMarginSize( m_pageSize() ), "Top Margin" );
+    CAF_PDM_InitField( &m_pageRightMargin, "pageRightMargin", defaultMarginSize( m_pageSize() ), "Right Margin" );
+    CAF_PDM_InitField( &m_pageBottomMargin, "pageBottomMargin", defaultMarginSize( m_pageSize() ), "Bottom Margin" );
 
-    CAF_PDM_InitField( &m_openExportedPdfInViewer, "openExportedPdfInViewer", false, "Open Exported PDF in Viewer", "", "", "" );
+    CAF_PDM_InitField( &m_openExportedPdfInViewer, "openExportedPdfInViewer", false, "Open Exported PDF in Viewer" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_openExportedPdfInViewer );
 
     CAF_PDM_InitField( &m_surfaceImportResamplingDistance,
@@ -272,15 +272,15 @@ RiaPreferences::RiaPreferences()
                        "" );
     m_multiLateralWellPattern.uiCapability()->setUiEditorTypeName( caf::PdmUiLineEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitFieldNoDefault( &m_guiTheme, "guiTheme", "GUI theme", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_guiTheme, "guiTheme", "GUI theme" );
 
-    CAF_PDM_InitFieldNoDefault( &m_summaryPreferences, "summaryPreferences", "summaryPreferences", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_summaryPreferences, "summaryPreferences", "summaryPreferences" );
     m_summaryPreferences = new RiaPreferencesSummary;
 
-    CAF_PDM_InitFieldNoDefault( &m_geoMechPreferences, "geoMechPreferences", "geoMechPreferences", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_geoMechPreferences, "geoMechPreferences", "geoMechPreferences" );
     m_geoMechPreferences = new RiaPreferencesGeoMech;
 
-    CAF_PDM_InitFieldNoDefault( &m_systemPreferences, "systemPreferences", "systemPreferences", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_systemPreferences, "systemPreferences", "systemPreferences" );
     m_systemPreferences = new RiaPreferencesSystem;
 }
 

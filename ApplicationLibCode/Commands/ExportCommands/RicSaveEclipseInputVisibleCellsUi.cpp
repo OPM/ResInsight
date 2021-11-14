@@ -45,14 +45,14 @@ CAF_PDM_SOURCE_INIT( RicSaveEclipseInputVisibleCellsUi, "RicSaveEclipseInputVisi
 RicSaveEclipseInputVisibleCellsUi::RicSaveEclipseInputVisibleCellsUi()
     : exportFilenameManuallyChanged( false )
 {
-    CAF_PDM_InitObject( "Export Visible Cells FLUXNUM/MULTNUM/ACTNUM", "", "", "" );
+    CAF_PDM_InitObject( "Export Visible Cells FLUXNUM/MULTNUM/ACTNUM" );
 
-    CAF_PDM_InitField( &exportFilename, "ExportFilename", QString(), "Export Filename", "", "", "" );
+    CAF_PDM_InitField( &exportFilename, "ExportFilename", QString(), "Export Filename" );
     exportFilename.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
-    CAF_PDM_InitFieldNoDefault( &exportKeyword, "ExportKeyword", "Export Keyword", "", "", "" );
-    CAF_PDM_InitField( &visibleActiveCellsValue, "VisibleActiveCellsValue", 1, "Visible Active Cells Value", "", "", "" );
-    CAF_PDM_InitField( &hiddenActiveCellsValue, "HiddenActiveCellsValue", 0, "Hidden Active Cells Value", "", "", "" );
-    CAF_PDM_InitField( &inactiveCellsValue, "InactiveCellsValue", 0, "Inactive Cells Value", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &exportKeyword, "ExportKeyword", "Export Keyword" );
+    CAF_PDM_InitField( &visibleActiveCellsValue, "VisibleActiveCellsValue", 1, "Visible Active Cells Value" );
+    CAF_PDM_InitField( &hiddenActiveCellsValue, "HiddenActiveCellsValue", 0, "Hidden Active Cells Value" );
+    CAF_PDM_InitField( &inactiveCellsValue, "InactiveCellsValue", 0, "Inactive Cells Value" );
 
     exportFilename = getDefaultExportPath();
 }

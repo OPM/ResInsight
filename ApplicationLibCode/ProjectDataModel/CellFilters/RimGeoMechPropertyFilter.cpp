@@ -44,7 +44,7 @@ RimGeoMechPropertyFilter::RimGeoMechPropertyFilter()
 {
     CAF_PDM_InitObject( "Property Filter", ":/CellFilter_Values.png", "", "" );
 
-    CAF_PDM_InitFieldNoDefault( &resultDefinition, "ResultDefinition", "Result Definition", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &resultDefinition, "ResultDefinition", "Result Definition" );
     resultDefinition = new RimGeoMechResultDefinition();
 
     // Set to hidden to avoid this item to been displayed as a child item
@@ -52,10 +52,10 @@ RimGeoMechPropertyFilter::RimGeoMechPropertyFilter()
     resultDefinition.uiCapability()->setUiTreeHidden( true );
     resultDefinition.uiCapability()->setUiTreeChildrenHidden( true );
 
-    CAF_PDM_InitField( &lowerBound, "LowerBound", 0.0, "Min", "", "", "" );
+    CAF_PDM_InitField( &lowerBound, "LowerBound", 0.0, "Min" );
     lowerBound.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitField( &upperBound, "UpperBound", 0.0, "Max", "", "", "" );
+    CAF_PDM_InitField( &upperBound, "UpperBound", 0.0, "Max" );
     upperBound.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
 
     updateIconState();

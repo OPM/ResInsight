@@ -85,17 +85,17 @@ const QString RiuCreateMultipleFractionsUi::REPLACE_FRACTURES_BUTTON_TEXT = "Rep
 //--------------------------------------------------------------------------------------------------
 RiuCreateMultipleFractionsUi::RiuCreateMultipleFractionsUi()
 {
-    CAF_PDM_InitFieldNoDefault( &m_sourceCase, "SourceCase", "Case", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_sourceCase, "SourceCase", "Case" );
 
-    CAF_PDM_InitField( &m_minDistanceFromWellTd, "MinDistanceFromWellTd", 10.0, "Min Distance From Well TD", "", "", "" );
-    CAF_PDM_InitField( &m_maxFracturesPerWell, "MaxFracturesPerWell", 10, "Max Fractures Per Well", "", "", "" );
+    CAF_PDM_InitField( &m_minDistanceFromWellTd, "MinDistanceFromWellTd", 10.0, "Min Distance From Well TD" );
+    CAF_PDM_InitField( &m_maxFracturesPerWell, "MaxFracturesPerWell", 10, "Max Fractures Per Well" );
 
-    CAF_PDM_InitFieldNoDefault( &m_options, "Options", "Options", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_options, "Options", "Options" );
     m_options.uiCapability()->setUiEditorTypeName( caf::PdmUiTableViewEditor::uiEditorTypeName() );
     m_options.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
     m_options.uiCapability()->setCustomContextMenuEnabled( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_fractureCreationSummary, "FractureCreationSummary", "Generated Fractures", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_fractureCreationSummary, "FractureCreationSummary", "Generated Fractures" );
     m_fractureCreationSummary.registerGetMethod( this, &RiuCreateMultipleFractionsUi::summaryText );
     m_fractureCreationSummary.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
     m_fractureCreationSummary.uiCapability()->setUiEditorTypeName( caf::PdmUiTextEditor::uiEditorTypeName() );

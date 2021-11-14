@@ -27,9 +27,9 @@ CAF_PDM_SOURCE_INIT( RimPropertyFilter, "PropertyFilter" );
 //--------------------------------------------------------------------------------------------------
 RimPropertyFilter::RimPropertyFilter()
 {
-    CAF_PDM_InitObject( "Property Filter", "", "", "" );
+    CAF_PDM_InitObject( "Property Filter" );
 
-    CAF_PDM_InitFieldNoDefault( &m_selectedCategoryValues, "SelectedValues", "Values", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_selectedCategoryValues, "SelectedValues", "Values" );
 
     setDeletable( true );
 }

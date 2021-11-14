@@ -50,27 +50,27 @@ void Lgr::SplitTypeEnum::setUp()
 //--------------------------------------------------------------------------------------------------
 RicExportLgrUi::RicExportLgrUi()
 {
-    CAF_PDM_InitObject( "Export CARFIN", "", "", "" );
+    CAF_PDM_InitObject( "Export CARFIN" );
 
-    CAF_PDM_InitFieldNoDefault( &m_exportFolder, "ExportFolder", "Export Folder", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_exportFolder, "ExportFolder", "Export Folder" );
     m_exportFolder.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitFieldNoDefault( &m_caseToApply, "CaseToApply", "Source Case", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_timeStep, "TimeStepIndex", "Time Step", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_caseToApply, "CaseToApply", "Source Case" );
+    CAF_PDM_InitFieldNoDefault( &m_timeStep, "TimeStepIndex", "Time Step" );
 
-    CAF_PDM_InitField( &m_includePerforations, "IncludePerforations", true, "Perforations", "", "", "" );
-    CAF_PDM_InitField( &m_includeFractures, "IncludeFractures", true, "Fractures", "", "", "" );
-    CAF_PDM_InitField( &m_includeFishbones, "IncludeFishbones", true, "Fishbones", "", "", "" );
+    CAF_PDM_InitField( &m_includePerforations, "IncludePerforations", true, "Perforations" );
+    CAF_PDM_InitField( &m_includeFractures, "IncludeFractures", true, "Fractures" );
+    CAF_PDM_InitField( &m_includeFishbones, "IncludeFishbones", true, "Fishbones" );
 
     QString ijkLabel = "Cell Count I, J, K";
-    CAF_PDM_InitField( &m_cellCountI, "CellCountI", 2, ijkLabel, "", "", "" );
-    CAF_PDM_InitField( &m_cellCountJ, "CellCountJ", 2, "", "", "", "" );
-    CAF_PDM_InitField( &m_cellCountK, "CellCountK", 2, "", "", "", "" );
+    CAF_PDM_InitField( &m_cellCountI, "CellCountI", 2, ijkLabel );
+    CAF_PDM_InitField( &m_cellCountJ, "CellCountJ", 2, "" );
+    CAF_PDM_InitField( &m_cellCountK, "CellCountK", 2, "" );
 
     m_cellCountJ.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
     m_cellCountK.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 
-    CAF_PDM_InitField( &m_splitType, "SplitType", Lgr::SplitTypeEnum(), "Split Type", "", "", "" );
+    CAF_PDM_InitField( &m_splitType, "SplitType", Lgr::SplitTypeEnum(), "Split Type" );
 }
 
 //--------------------------------------------------------------------------------------------------

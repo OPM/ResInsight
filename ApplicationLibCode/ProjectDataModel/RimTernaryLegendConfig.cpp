@@ -45,7 +45,7 @@ CAF_PDM_SOURCE_INIT( RimTernaryLegendConfig, "RimTernaryLegendConfig" );
 RimTernaryLegendConfig::RimTernaryLegendConfig()
 {
     CAF_PDM_InitObject( "Ternary Color Legend", ":/Legend.png", "", "" );
-    CAF_PDM_InitField( &m_showLegend, "ShowTernaryLegend", true, "Show Ternary Legend", "", "", "" );
+    CAF_PDM_InitField( &m_showLegend, "ShowTernaryLegend", true, "Show Ternary Legend" );
     m_showLegend.uiCapability()->setUiHidden( true );
     CAF_PDM_InitField( &precision,
                        "Precision",
@@ -62,19 +62,19 @@ RimTernaryLegendConfig::RimTernaryLegendConfig()
                        "Switches between automatic and user defined range on the legend",
                        "" );
 
-    CAF_PDM_InitFieldNoDefault( &applyLocalMinMax, "m_applyLocalMinMax", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &applyLocalMinMax, "m_applyLocalMinMax", "" );
     caf::PdmUiPushButtonEditor::configureEditorForField( &applyLocalMinMax );
     applyLocalMinMax = false;
 
-    CAF_PDM_InitFieldNoDefault( &applyGlobalMinMax, "m_applyGlobalMinMax", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &applyGlobalMinMax, "m_applyGlobalMinMax", "" );
     caf::PdmUiPushButtonEditor::configureEditorForField( &applyGlobalMinMax );
     applyGlobalMinMax = false;
 
-    CAF_PDM_InitFieldNoDefault( &applyFullRangeMinMax, "m_applyFullRangeMinMax", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &applyFullRangeMinMax, "m_applyFullRangeMinMax", "" );
     caf::PdmUiPushButtonEditor::configureEditorForField( &applyFullRangeMinMax );
     applyFullRangeMinMax = false;
 
-    CAF_PDM_InitFieldNoDefault( &ternaryRangeSummary, "ternaryRangeSummary", "Range summary", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &ternaryRangeSummary, "ternaryRangeSummary", "Range summary" );
     ternaryRangeSummary.uiCapability()->setUiEditorTypeName( caf::PdmUiTextEditor::uiEditorTypeName() );
     ternaryRangeSummary.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
 

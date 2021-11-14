@@ -35,35 +35,23 @@ CAF_PDM_SOURCE_INIT( RimWellPathAicdParameters, "WellPathAicdParameters" );
 //--------------------------------------------------------------------------------------------------
 RimWellPathAicdParameters::RimWellPathAicdParameters()
 {
-    CAF_PDM_InitObject( "RimWellPathAicdParameters", "", "", "" );
+    CAF_PDM_InitObject( "RimWellPathAicdParameters" );
 
-    CAF_PDM_InitField( &m_deviceOpen, "DeviceOpen", true, "Device Open?", "", "", "" );
+    CAF_PDM_InitField( &m_deviceOpen, "DeviceOpen", true, "Device Open?" );
 
-    CAF_PDM_InitFieldNoDefault( &m_aicdParameterFields[AICD_STRENGTH], "StrengthAICD", "Strength of AICD", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_aicdParameterFields[AICD_STRENGTH], "StrengthAICD", "Strength of AICD" );
     CAF_PDM_InitFieldNoDefault( &m_aicdParameterFields[AICD_DENSITY_CALIB_FLUID],
                                 "DensityCalibrationFluid",
-                                "Calibration Fluid Density (kg/m^3)",
-                                "",
-                                "",
-                                "" );
+                                "Calibration Fluid Density (kg/m^3)" );
     CAF_PDM_InitFieldNoDefault( &m_aicdParameterFields[AICD_VISCOSITY_CALIB_FLUID],
                                 "ViscosityCalibrationFluid",
-                                "Calibration Fluid Viscosity (cP)",
-                                "",
-                                "",
-                                "" );
+                                "Calibration Fluid Viscosity (cP)" );
     CAF_PDM_InitFieldNoDefault( &m_aicdParameterFields[AICD_VOL_FLOW_EXP],
                                 "VolumeFlowRateExponent",
-                                "Volume Flow Rate Exponent",
-                                "",
-                                "",
-                                "" );
+                                "Volume Flow Rate Exponent" );
     CAF_PDM_InitFieldNoDefault( &m_aicdParameterFields[AICD_VISOSITY_FUNC_EXP],
                                 "ViscosityFunctionExponent",
-                                "Viscosity Function Exponent",
-                                "",
-                                "",
-                                "" );
+                                "Viscosity Function Exponent" );
 
     CAF_PDM_InitField( &m_aicdParameterFields[AICD_CRITICAL_WATER_IN_LIQUID_FRAC],
                        "CriticalWaterLiquidFractionEmul",

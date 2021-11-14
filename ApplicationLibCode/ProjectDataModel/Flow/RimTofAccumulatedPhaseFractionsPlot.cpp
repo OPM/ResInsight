@@ -46,13 +46,13 @@ RimTofAccumulatedPhaseFractionsPlot::RimTofAccumulatedPhaseFractionsPlot()
 {
     CAF_PDM_InitObject( "Cumulative Saturation by Time of Flight", ":/TOFAccSatPlot16x16.png", "", "" );
 
-    CAF_PDM_InitField( &m_userName, "PlotDescription", QString( "Cumulative Saturation by Time of Flight" ), "Name", "", "", "" );
+    CAF_PDM_InitField( &m_userName, "PlotDescription", QString( "Cumulative Saturation by Time of Flight" ), "Name" );
     m_userName.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitField( &m_showPlotTitle, "ShowPlotTitle", true, "Show Plot Title", "", "", "" );
+    CAF_PDM_InitField( &m_showPlotTitle, "ShowPlotTitle", true, "Show Plot Title" );
     m_showPlotTitle.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitField( &m_maxTof, "MaxTof", 50, "Max Time of Flight [year]", "", "", "" );
+    CAF_PDM_InitField( &m_maxTof, "MaxTof", 50, "Max Time of Flight [year]" );
     m_showWindow = false;
 }
 

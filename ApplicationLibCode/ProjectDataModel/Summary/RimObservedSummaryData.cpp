@@ -34,12 +34,12 @@ RimObservedSummaryData::RimObservedSummaryData()
 {
     m_isObservedData = true;
 
-    CAF_PDM_InitFieldNoDefault( &m_importedSummaryData, "ImportedSummaryData", "Imported Summary Data", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_importedSummaryData, "ImportedSummaryData", "Imported Summary Data" );
     m_importedSummaryData.uiCapability()->setUiEditorTypeName( caf::PdmUiTextEditor::uiEditorTypeName() );
     m_importedSummaryData.uiCapability()->setUiReadOnly( true );
     m_importedSummaryData.xmlCapability()->disableIO();
 
-    CAF_PDM_InitField( &m_useCustomIdentifier, "UseCustomIdentifier", false, "Use Custom Identifier", "", "", "" );
+    CAF_PDM_InitField( &m_useCustomIdentifier, "UseCustomIdentifier", false, "Use Custom Identifier" );
     m_useCustomIdentifier.uiCapability()->setUiHidden( true );
     CAF_PDM_InitField( &m_summaryCategory,
                        "SummaryType",
@@ -49,7 +49,7 @@ RimObservedSummaryData::RimObservedSummaryData()
                        "",
                        "" );
     m_summaryCategory.uiCapability()->setUiHidden( true );
-    CAF_PDM_InitFieldNoDefault( &m_identifierName, "IdentifierName", "Identifier Name", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_identifierName, "IdentifierName", "Identifier Name" );
     m_identifierName.uiCapability()->setUiHidden( true );
 }
 

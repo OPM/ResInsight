@@ -44,7 +44,7 @@ RimEnsembleSurface::RimEnsembleSurface()
 {
     CAF_PDM_InitScriptableObject( "Ensemble Surface", ":/ReservoirSurfaces16x16.png", "", "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_ensembleCurveSet, "FilterEnsembleCurveSet", "Filter by Ensemble Curve Set", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_ensembleCurveSet, "FilterEnsembleCurveSet", "Filter by Ensemble Curve Set" );
 
     std::vector<RigSurfaceStatisticsCalculator::StatisticsType> statisticsTypes =
         { RigSurfaceStatisticsCalculator::StatisticsType::MIN,
