@@ -30,7 +30,7 @@ CAF_PDM_XML_ABSTRACT_SOURCE_INIT( RimPropertyFilterCollection, "RimPropertyFilte
 //--------------------------------------------------------------------------------------------------
 RimPropertyFilterCollection::RimPropertyFilterCollection()
 {
-    CAF_PDM_InitField( &isActive, "Active", true, "Active", "", "", "" );
+    CAF_PDM_InitField( &isActive, "Active", true, "Active" );
     isActive.uiCapability()->setUiHidden( true );
 }
 

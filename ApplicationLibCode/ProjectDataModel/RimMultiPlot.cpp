@@ -70,24 +70,24 @@ RimMultiPlot::RimMultiPlot()
 {
     CAF_PDM_InitObject( "Multi Plot", ":/MultiPlot16x16.png", "", "" );
 
-    CAF_PDM_InitField( &m_showPlotWindowTitle, "ShowTitleInPlot", true, "Show Title", "", "", "" );
-    CAF_PDM_InitField( &m_plotWindowTitle, "PlotDescription", QString( "" ), "Name", "", "", "" );
+    CAF_PDM_InitField( &m_showPlotWindowTitle, "ShowTitleInPlot", true, "Show Title" );
+    CAF_PDM_InitField( &m_plotWindowTitle, "PlotDescription", QString( "" ), "Name" );
 
-    CAF_PDM_InitFieldNoDefault( &m_plots, "Plots", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_plots, "Plots", "" );
     m_plots.uiCapability()->setUiTreeHidden( true );
     auto reorderability = caf::PdmFieldReorderCapability::addToField( &m_plots );
     reorderability->orderChanged.connect( this, &RimMultiPlot::onPlotsReordered );
 
-    CAF_PDM_InitFieldNoDefault( &m_columnCount, "NumberOfColumns", "Number of Columns", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_rowsPerPage, "RowsPerPage", "Rows per Page", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_columnCount, "NumberOfColumns", "Number of Columns" );
+    CAF_PDM_InitFieldNoDefault( &m_rowsPerPage, "RowsPerPage", "Rows per Page" );
 
-    CAF_PDM_InitField( &m_showIndividualPlotTitles, "ShowPlotTitles", true, "Show Sub Plot Titles", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_majorTickmarkCount, "MajorTickmarkCount", "Major Tickmark Count", "", "", "" );
+    CAF_PDM_InitField( &m_showIndividualPlotTitles, "ShowPlotTitles", true, "Show Sub Plot Titles" );
+    CAF_PDM_InitFieldNoDefault( &m_majorTickmarkCount, "MajorTickmarkCount", "Major Tickmark Count" );
 
-    CAF_PDM_InitFieldNoDefault( &m_subTitleFontSize, "SubTitleFontSize", "Sub Plot Title Font Size", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_subTitleFontSize, "SubTitleFontSize", "Sub Plot Title Font Size" );
     m_subTitleFontSize = caf::FontTools::RelativeSize::Large;
 
-    CAF_PDM_InitField( &m_pagePreviewMode, "PagePreviewMode", false, "Page Preview Mode", "", "", "" );
+    CAF_PDM_InitField( &m_pagePreviewMode, "PagePreviewMode", false, "Page Preview Mode" );
     m_pagePreviewMode.uiCapability()->setUiEditorTypeName( caf::PdmUiToolButtonEditor::uiEditorTypeName() );
     m_pagePreviewMode.uiCapability()->setUiIconFromResourceString( ":/PagePreview16x16.png" );
     m_viewer = nullptr;

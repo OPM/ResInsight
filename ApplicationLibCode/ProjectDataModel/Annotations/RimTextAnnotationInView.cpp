@@ -30,8 +30,8 @@ RimTextAnnotationInView::RimTextAnnotationInView()
 {
     CAF_PDM_InitObject( "TextAnnotationInView", ":/TextAnnotation16x16.png", "", "" );
 
-    CAF_PDM_InitField( &m_isActive, "IsActive", true, "Is Active", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_sourceAnnotation, "SourceAnnotation", "Source Annotation", "", "", "" );
+    CAF_PDM_InitField( &m_isActive, "IsActive", true, "Is Active" );
+    CAF_PDM_InitFieldNoDefault( &m_sourceAnnotation, "SourceAnnotation", "Source Annotation" );
 
     m_isActive.uiCapability()->setUiHidden( true );
     m_sourceAnnotation.uiCapability()->setUiHidden( true );

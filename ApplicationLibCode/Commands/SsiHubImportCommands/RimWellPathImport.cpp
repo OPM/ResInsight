@@ -49,20 +49,20 @@ CAF_PDM_SOURCE_INIT( RimWellPathImport, "RimWellPathImport" );
 //--------------------------------------------------------------------------------------------------
 RimWellPathImport::RimWellPathImport()
 {
-    CAF_PDM_InitObject( "RimWellPathImport", "", "", "" );
+    CAF_PDM_InitObject( "RimWellPathImport" );
 
-    CAF_PDM_InitField( &wellTypeSurvey, "WellTypeSurvey", true, "Survey", "", "", "" );
-    CAF_PDM_InitField( &wellTypePlans, "WellTypePlans", true, "Plans", "", "", "" );
+    CAF_PDM_InitField( &wellTypeSurvey, "WellTypeSurvey", true, "Survey" );
+    CAF_PDM_InitField( &wellTypePlans, "WellTypePlans", true, "Plans" );
 
     caf::AppEnum<RimWellPathImport::UtmFilterEnum> defaultUtmMode = UTM_FILTER_OFF;
-    CAF_PDM_InitField( &utmFilterMode, "UtmMode", defaultUtmMode, "Utm Filter", "", "", "" );
+    CAF_PDM_InitField( &utmFilterMode, "UtmMode", defaultUtmMode, "Utm Filter" );
 
-    CAF_PDM_InitField( &north, "UtmNorth", 0.0, "North", "", "", "" );
-    CAF_PDM_InitField( &south, "UtmSouth", 0.0, "South", "", "", "" );
-    CAF_PDM_InitField( &east, "UtmEast", 0.0, "East", "", "", "" );
-    CAF_PDM_InitField( &west, "UtmWest", 0.0, "West", "", "", "" );
+    CAF_PDM_InitField( &north, "UtmNorth", 0.0, "North" );
+    CAF_PDM_InitField( &south, "UtmSouth", 0.0, "South" );
+    CAF_PDM_InitField( &east, "UtmEast", 0.0, "East" );
+    CAF_PDM_InitField( &west, "UtmWest", 0.0, "West" );
 
-    CAF_PDM_InitFieldNoDefault( &regions, "Regions", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &regions, "Regions", "" );
     regions.uiCapability()->setUiTreeHidden( true );
 }
 

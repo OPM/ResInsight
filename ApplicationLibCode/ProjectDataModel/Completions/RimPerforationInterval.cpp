@@ -43,21 +43,21 @@ RimPerforationInterval::RimPerforationInterval()
 {
     CAF_PDM_InitObject( "Perforation", ":/PerforationInterval16x16.png", "", "" );
 
-    CAF_PDM_InitField( &m_startMD, "StartMeasuredDepth", 0.0, "Start MD", "", "", "" );
-    CAF_PDM_InitField( &m_endMD, "EndMeasuredDepth", 0.0, "End MD", "", "", "" );
-    CAF_PDM_InitField( &m_diameter, "Diameter", 0.216, "Diameter", "", "", "" );
-    CAF_PDM_InitField( &m_skinFactor, "SkinFactor", 0.0, "Skin Factor", "", "", "" );
+    CAF_PDM_InitField( &m_startMD, "StartMeasuredDepth", 0.0, "Start MD" );
+    CAF_PDM_InitField( &m_endMD, "EndMeasuredDepth", 0.0, "End MD" );
+    CAF_PDM_InitField( &m_diameter, "Diameter", 0.216, "Diameter" );
+    CAF_PDM_InitField( &m_skinFactor, "SkinFactor", 0.0, "Skin Factor" );
 
-    CAF_PDM_InitField( &m_startOfHistory_OBSOLETE, "StartOfHistory", true, "All Timesteps", "", "", "" );
+    CAF_PDM_InitField( &m_startOfHistory_OBSOLETE, "StartOfHistory", true, "All Timesteps" );
     m_startOfHistory_OBSOLETE.xmlCapability()->setIOWritable( false );
 
-    CAF_PDM_InitField( &m_useCustomStartDate, "UseCustomStartDate", false, "Custom Start Date", "", "", "" );
-    CAF_PDM_InitField( &m_startDate, "StartDate", QDateTime::currentDateTime(), "Start Date", "", "", "" );
+    CAF_PDM_InitField( &m_useCustomStartDate, "UseCustomStartDate", false, "Custom Start Date" );
+    CAF_PDM_InitField( &m_startDate, "StartDate", QDateTime::currentDateTime(), "Start Date" );
 
-    CAF_PDM_InitField( &m_useCustomEndDate, "UseCustomEndDate", false, "Custom End Date", "", "", "" );
-    CAF_PDM_InitField( &m_endDate, "EndDate", QDateTime::currentDateTime(), "End Date", "", "", "" );
+    CAF_PDM_InitField( &m_useCustomEndDate, "UseCustomEndDate", false, "Custom End Date" );
+    CAF_PDM_InitField( &m_endDate, "EndDate", QDateTime::currentDateTime(), "End Date" );
 
-    CAF_PDM_InitFieldNoDefault( &m_valves, "Valves", "Valves", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_valves, "Valves", "Valves" );
     m_valves.uiCapability()->setUiTreeHidden( true );
 
     nameField()->uiCapability()->setUiReadOnly( true );

@@ -45,12 +45,12 @@ RimFishbonesCollection::RimFishbonesCollection()
     nameField()->uiCapability()->setUiHidden( true );
     this->setName( "Fishbones" );
 
-    CAF_PDM_InitFieldNoDefault( &m_fishbones, "FishbonesSubs", "fishbonesSubs", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_fishbones, "FishbonesSubs", "fishbonesSubs" );
     m_fishbones.uiCapability()->setUiTreeHidden( true );
 
-    CAF_PDM_InitField( &m_startMD, "StartMD", HUGE_VAL, "Start MD", "", "", "" );
-    CAF_PDM_InitField( &m_mainBoreDiameter, "MainBoreDiameter", 0.216, "Main Bore Diameter", "", "", "" );
-    CAF_PDM_InitField( &m_skinFactor, "MainBoreSkinFactor", 0., "Main Bore Skin Factor [0..1]", "", "", "" );
+    CAF_PDM_InitField( &m_startMD, "StartMD", HUGE_VAL, "Start MD" );
+    CAF_PDM_InitField( &m_mainBoreDiameter, "MainBoreDiameter", 0.216, "Main Bore Diameter" );
+    CAF_PDM_InitField( &m_skinFactor, "MainBoreSkinFactor", 0., "Main Bore Skin Factor [0..1]" );
     manuallyModifiedStartMD = false;
 }
 

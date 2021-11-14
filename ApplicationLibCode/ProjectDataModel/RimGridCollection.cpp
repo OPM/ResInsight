@@ -49,11 +49,11 @@ RimGridInfo::RimGridInfo()
 {
     CAF_PDM_InitObject( "GridInfo", ":/draw_style_meshlines_24x24.png", "", "" );
 
-    CAF_PDM_InitField( &m_isActive, "IsActive", true, "Show Grid Cells", "", "", "" );
-    CAF_PDM_InitField( &m_gridName, "GridName", QString(), "Grid Name", "", "", "" );
+    CAF_PDM_InitField( &m_isActive, "IsActive", true, "Show Grid Cells" );
+    CAF_PDM_InitField( &m_gridName, "GridName", QString(), "Grid Name" );
     m_gridName.uiCapability()->setUiReadOnly( true );
 
-    CAF_PDM_InitField( &m_eclipseGridIndex, "GridIndex", 0, "Grid Index", "", "", "" );
+    CAF_PDM_InitField( &m_eclipseGridIndex, "GridIndex", 0, "Grid Index" );
     m_eclipseGridIndex.uiCapability()->setUiReadOnly( true );
 }
 
@@ -153,10 +153,10 @@ RimGridInfoCollection::RimGridInfoCollection()
 {
     CAF_PDM_InitObject( "GridInfoCollection", ":/draw_style_meshlines_24x24.png", "", "" );
 
-    CAF_PDM_InitField( &m_isActive, "IsActive", true, "Show Grid Cells", "", "", "" );
+    CAF_PDM_InitField( &m_isActive, "IsActive", true, "Show Grid Cells" );
     m_isActive.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_gridInfos, "GridInfos", "Grid Infos", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_gridInfos, "GridInfos", "Grid Infos" );
 
     m_gridInfos.uiCapability()->setUiTreeHidden( true );
 }
@@ -252,21 +252,21 @@ RimGridCollection::RimGridCollection()
 {
     CAF_PDM_InitObject( "Grids", ":/draw_style_meshlines_24x24.png", "", "" );
 
-    CAF_PDM_InitField( &m_isActive, "IsActive", true, "Show Grid Cells", "", "", "" );
+    CAF_PDM_InitField( &m_isActive, "IsActive", true, "Show Grid Cells" );
     m_isActive.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_mainGrid, "MainGrid", "Main Grid", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_mainGrid, "MainGrid", "Main Grid" );
     m_mainGrid = new RimGridInfo();
     m_mainGrid->setUiName( "Main Grid" );
     m_mainGrid->uiCapability()->setUiTreeHidden( true );
     m_mainGrid->setUiIconFromResourceString( ":/MainGrid16x16.png" );
 
-    CAF_PDM_InitFieldNoDefault( &m_persistentLgrs, "PersistentLgrs", "Persistent LGRs", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_persistentLgrs, "PersistentLgrs", "Persistent LGRs" );
     m_persistentLgrs = new RimGridInfoCollection();
     m_persistentLgrs->setUiName( persistentGridUiName() );
     m_persistentLgrs->setUiIconFromResourceString( ":/LGR16x16.png" );
 
-    CAF_PDM_InitFieldNoDefault( &m_temporaryLgrs, "TemporaryLgrs", "Temporary LGRs", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_temporaryLgrs, "TemporaryLgrs", "Temporary LGRs" );
     m_temporaryLgrs.xmlCapability()->disableIO();
     m_temporaryLgrs = new RimGridInfoCollection();
     m_temporaryLgrs->setUiName( temporaryGridUiName() );

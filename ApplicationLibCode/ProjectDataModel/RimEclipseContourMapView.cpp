@@ -60,11 +60,11 @@ RimEclipseContourMapView::RimEclipseContourMapView()
                                                     "EclipseContourMap",
                                                     "A contour map for Eclipse cases" );
 
-    CAF_PDM_InitFieldNoDefault( &m_contourMapProjection, "ContourMapProjection", "Contour Map Projection", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_contourMapProjection, "ContourMapProjection", "Contour Map Projection" );
     m_contourMapProjection = new RimEclipseContourMapProjection();
 
-    CAF_PDM_InitField( &m_showAxisLines, "ShowAxisLines", true, "Show Axis Lines", "", "", "" );
-    CAF_PDM_InitField( &m_showScaleLegend, "ShowScaleLegend", true, "Show Scale Legend", "", "", "" );
+    CAF_PDM_InitField( &m_showAxisLines, "ShowAxisLines", true, "Show Axis Lines" );
+    CAF_PDM_InitField( &m_showScaleLegend, "ShowScaleLegend", true, "Show Scale Legend" );
 
     setFaultVisParameters();
 

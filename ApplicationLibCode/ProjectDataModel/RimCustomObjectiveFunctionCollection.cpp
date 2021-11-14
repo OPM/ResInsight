@@ -32,7 +32,7 @@ RimCustomObjectiveFunctionCollection::RimCustomObjectiveFunctionCollection()
 {
     CAF_PDM_InitObject( "Custom Objective Functions", ":/ObjectiveFunctionCollection.svg", "", "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_objectiveFunctions, "ObjectiveFunctions", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_objectiveFunctions, "ObjectiveFunctions", "" );
 }
 
 //--------------------------------------------------------------------------------------------------

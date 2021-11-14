@@ -45,9 +45,9 @@ RimNonDarcyPerforationParameters::RimNonDarcyPerforationParameters()
 {
     CAF_PDM_InitObject( "NonDarcyPerforationParameters", ":/CompletionsSymbol16x16.png", "", "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_nonDarcyFlowType, "NonDarcyFlowType", "Non-Darcy Flow", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_nonDarcyFlowType, "NonDarcyFlowType", "Non-Darcy Flow" );
 
-    CAF_PDM_InitField( &m_userDefinedDFactor, "UserDefinedDFactor", 1.0, "D Factor", "", "", "" );
+    CAF_PDM_InitField( &m_userDefinedDFactor, "UserDefinedDFactor", 1.0, "D Factor" );
 
     CAF_PDM_InitField( &m_gridPermeabilityScalingFactor,
                        "GridPermeabilityScalingFactor",
@@ -57,7 +57,7 @@ RimNonDarcyPerforationParameters::RimNonDarcyPerforationParameters()
                        "",
                        "" );
 
-    CAF_PDM_InitField( &m_wellRadius, "WellRadius", 0.108, "<html>Well Radius (r<sub>w</sub>)</html> [m]", "", "", "" );
+    CAF_PDM_InitField( &m_wellRadius, "WellRadius", 0.108, "<html>Well Radius (r<sub>w</sub>)</html> [m]" );
 
     CAF_PDM_InitField( &m_relativeGasDensity,
                        "RelativeGasDensity",
@@ -90,7 +90,7 @@ RimNonDarcyPerforationParameters::RimNonDarcyPerforationParameters()
                        "",
                        "" );
 
-    CAF_PDM_InitField( &m_porosityScalingFactor, "PorosityScalingFactor", 0.0, "Porosity Scaling Factor (C)", "", "", "" );
+    CAF_PDM_InitField( &m_porosityScalingFactor, "PorosityScalingFactor", 0.0, "Porosity Scaling Factor (C)" );
 }
 
 //--------------------------------------------------------------------------------------------------

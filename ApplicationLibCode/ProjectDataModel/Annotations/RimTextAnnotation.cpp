@@ -47,30 +47,30 @@ RimTextAnnotation::RimTextAnnotation()
     CAF_PDM_InitObject( "TextAnnotation", ":/TextAnnotation16x16.png", "", "" );
     this->setUi3dEditorTypeName( RicTextAnnotation3dEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitField( &m_anchorPointXyd, "AnchorPointXyd", Vec3d::ZERO, "Anchor Point", "", "", "" );
+    CAF_PDM_InitField( &m_anchorPointXyd, "AnchorPointXyd", Vec3d::ZERO, "Anchor Point" );
     m_anchorPointXyd.uiCapability()->setUiEditorTypeName( caf::PdmUiPickableLineEditor::uiEditorTypeName() );
-    CAF_PDM_InitField( &m_anchorPointPickEnabledButtonField, "AnchorPointPick", false, "", "", "", "" );
+    CAF_PDM_InitField( &m_anchorPointPickEnabledButtonField, "AnchorPointPick", false, "" );
     caf::PdmUiPushButtonEditor::configureEditorForField( &m_anchorPointPickEnabledButtonField );
     m_anchorPointPickEnabledButtonField.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosType::HIDDEN );
 
-    CAF_PDM_InitField( &m_labelPointXyd, "LabelPointXyd", Vec3d::ZERO, "Label Point", "", "", "" );
+    CAF_PDM_InitField( &m_labelPointXyd, "LabelPointXyd", Vec3d::ZERO, "Label Point" );
     m_labelPointXyd.uiCapability()->setUiEditorTypeName( caf::PdmUiPickableLineEditor::uiEditorTypeName() );
-    CAF_PDM_InitField( &m_labelPointPickEnabledButtonField, "LabelPointPick", false, "", "", "", "" );
+    CAF_PDM_InitField( &m_labelPointPickEnabledButtonField, "LabelPointPick", false, "" );
     caf::PdmUiPushButtonEditor::configureEditorForField( &m_labelPointPickEnabledButtonField );
     m_labelPointPickEnabledButtonField.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosType::HIDDEN );
 
-    CAF_PDM_InitField( &m_text, "Text", QString( "(New text)" ), "Text", "", "", "" );
+    CAF_PDM_InitField( &m_text, "Text", QString( "(New text)" ), "Text" );
     m_text.uiCapability()->setUiEditorTypeName( caf::PdmUiTextEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitField( &m_isActive, "IsActive", true, "Is Active", "", "", "" );
+    CAF_PDM_InitField( &m_isActive, "IsActive", true, "Is Active" );
     m_isActive.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_textAppearance, "TextAppearance", "Text Appearance", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_textAppearance, "TextAppearance", "Text Appearance" );
     m_textAppearance = new RimAnnotationTextAppearance();
     m_textAppearance.uiCapability()->setUiTreeHidden( true );
     m_textAppearance.uiCapability()->setUiTreeChildrenHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_nameProxy, "NameProxy", "Name Proxy", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_nameProxy, "NameProxy", "Name Proxy" );
     m_nameProxy.registerGetMethod( this, &RimTextAnnotation::extractNameFromText );
     m_nameProxy.uiCapability()->setUiReadOnly( true );
     m_nameProxy.xmlCapability()->disableIO();

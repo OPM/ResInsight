@@ -25,7 +25,7 @@ CAF_PDM_SOURCE_INIT( RicfCloneView, "cloneView" );
 //--------------------------------------------------------------------------------------------------
 RicfCloneView::RicfCloneView()
 {
-    CAF_PDM_InitScriptableField( &m_viewId, "viewId", -1, "View Id", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_viewId, "viewId", -1, "View Id" );
 }
 
 //--------------------------------------------------------------------------------------------------

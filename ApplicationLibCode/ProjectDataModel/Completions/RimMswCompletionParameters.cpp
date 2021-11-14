@@ -65,10 +65,10 @@ RimMswCompletionParameters::RimMswCompletionParameters()
 {
     CAF_PDM_InitObject( "MSW Completion Parameters", ":/CompletionsSymbol16x16.png", "", "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_refMDType, "RefMDType", "Reference MD", "", "", "" );
-    CAF_PDM_InitField( &m_refMD, "RefMD", 0.0, "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_refMDType, "RefMDType", "Reference MD" );
+    CAF_PDM_InitField( &m_refMD, "RefMD", 0.0, "" );
 
-    CAF_PDM_InitField( &m_customValuesForLateral, "CustomValuesForLateral", false, "Custom Values for Lateral", "", "", "" );
+    CAF_PDM_InitField( &m_customValuesForLateral, "CustomValuesForLateral", false, "Custom Values for Lateral" );
     CAF_PDM_InitField( &m_linerDiameter,
                        "LinerDiameter",
                        std::numeric_limits<double>::infinity(),
@@ -84,11 +84,11 @@ RimMswCompletionParameters::RimMswCompletionParameters()
                        "",
                        "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_pressureDrop, "PressureDrop", "Pressure Drop", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_lengthAndDepth, "LengthAndDepth", "Length and Depth", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_pressureDrop, "PressureDrop", "Pressure Drop" );
+    CAF_PDM_InitFieldNoDefault( &m_lengthAndDepth, "LengthAndDepth", "Length and Depth" );
 
-    CAF_PDM_InitField( &m_enforceMaxSegmentLength, "EnforceMaxSegmentLength", false, "Enforce Max Segment Length", "", "", "" );
-    CAF_PDM_InitField( &m_maxSegmentLength, "MaxSegmentLength", 200.0, "Max Segment Length", "", "", "" );
+    CAF_PDM_InitField( &m_enforceMaxSegmentLength, "EnforceMaxSegmentLength", false, "Enforce Max Segment Length" );
+    CAF_PDM_InitField( &m_maxSegmentLength, "MaxSegmentLength", 200.0, "Max Segment Length" );
     m_maxSegmentLength.uiCapability()->setUiHidden( true );
 }
 

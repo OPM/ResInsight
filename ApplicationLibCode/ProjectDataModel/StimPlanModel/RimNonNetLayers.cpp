@@ -42,14 +42,14 @@ CAF_PDM_SOURCE_INIT( RimNonNetLayers, "NonNetLayers" );
 RimNonNetLayers::RimNonNetLayers()
     : changed( this )
 {
-    CAF_PDM_InitScriptableObject( "RimNonNetLayers", "", "", "" );
+    CAF_PDM_InitScriptableObject( "RimNonNetLayers" );
 
-    CAF_PDM_InitScriptableField( &m_cutOff, "Cutoff", 0.0, "Cutoff", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_cutOff, "Cutoff", 0.0, "Cutoff" );
     m_cutOff.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitScriptableFieldNoDefault( &m_facies, "Facies", "Facies", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_facies, "Facies", "Facies" );
 
-    CAF_PDM_InitScriptableFieldNoDefault( &m_resultDefinition, "FaciesDefinition", "", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_resultDefinition, "FaciesDefinition", "" );
     m_resultDefinition.uiCapability()->setUiTreeHidden( true );
     m_resultDefinition.uiCapability()->setUiTreeChildrenHidden( true );
     m_resultDefinition = new RimEclipseResultDefinition;

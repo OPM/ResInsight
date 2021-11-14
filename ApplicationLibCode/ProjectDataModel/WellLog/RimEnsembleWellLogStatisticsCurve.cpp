@@ -39,13 +39,13 @@ CAF_PDM_SOURCE_INIT( RimEnsembleWellLogStatisticsCurve, "EnsembleWellLogStatisti
 //--------------------------------------------------------------------------------------------------
 RimEnsembleWellLogStatisticsCurve::RimEnsembleWellLogStatisticsCurve()
 {
-    CAF_PDM_InitObject( "Ensemble Well Log Statistics Curve", "", "", "" );
+    CAF_PDM_InitObject( "Ensemble Well Log Statistics Curve" );
 
-    CAF_PDM_InitFieldNoDefault( &m_ensembleWellLogCurveSet, "EnsembleWellLogCurveSet", "Ensemble Well Log Curve Set", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_ensembleWellLogCurveSet, "EnsembleWellLogCurveSet", "Ensemble Well Log Curve Set" );
     m_ensembleWellLogCurveSet.uiCapability()->setUiTreeChildrenHidden( true );
     m_ensembleWellLogCurveSet.uiCapability()->setUiTreeHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_statisticsType, "StatisticsType", "Statistics Type", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_statisticsType, "StatisticsType", "Statistics Type" );
     m_statisticsType.uiCapability()->setUiHidden( true );
 
     m_wellPath = nullptr;

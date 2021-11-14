@@ -54,18 +54,18 @@ CAF_PDM_SOURCE_INIT( RimSummaryFilter_OBSOLETE, "SummaryFilterSettings" );
 //--------------------------------------------------------------------------------------------------
 RimSummaryFilter_OBSOLETE::RimSummaryFilter_OBSOLETE()
 {
-    CAF_PDM_InitObject( "Summary Filter", "", "", "" );
+    CAF_PDM_InitObject( "Summary Filter" );
 
-    CAF_PDM_InitFieldNoDefault( &m_filterType, "SummaryFilterType", "Search", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_completeVarStringFilter, "SummaryCompleteVarStringFilter", "Filter", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_filterQuantityName, "SummaryVarQuantityFilter", "Vector name", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_regionNumberFilter, "SummaryRegionNumberFilter", "Region number", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_regionNumber2Filter, "SummaryRegionNumber2Filter", "2. Region number", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_wellGroupNameFilter, "SummaryWellGroupNameFilter", "Group name", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_wellNameFilter, "SummaryWellNameFilter", "Well name", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_wellSegmentNumberFilter, "SummaryWellSegmentNumberFilter", "Segment number", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_lgrNameFilter, "SummaryLgrNameFilter", "LGR Name", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_cellIJKFilter, "SummaryCellIJKFilter", "I, J, K", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_filterType, "SummaryFilterType", "Search" );
+    CAF_PDM_InitFieldNoDefault( &m_completeVarStringFilter, "SummaryCompleteVarStringFilter", "Filter" );
+    CAF_PDM_InitFieldNoDefault( &m_filterQuantityName, "SummaryVarQuantityFilter", "Vector name" );
+    CAF_PDM_InitFieldNoDefault( &m_regionNumberFilter, "SummaryRegionNumberFilter", "Region number" );
+    CAF_PDM_InitFieldNoDefault( &m_regionNumber2Filter, "SummaryRegionNumber2Filter", "2. Region number" );
+    CAF_PDM_InitFieldNoDefault( &m_wellGroupNameFilter, "SummaryWellGroupNameFilter", "Group name" );
+    CAF_PDM_InitFieldNoDefault( &m_wellNameFilter, "SummaryWellNameFilter", "Well name" );
+    CAF_PDM_InitFieldNoDefault( &m_wellSegmentNumberFilter, "SummaryWellSegmentNumberFilter", "Segment number" );
+    CAF_PDM_InitFieldNoDefault( &m_lgrNameFilter, "SummaryLgrNameFilter", "LGR Name" );
+    CAF_PDM_InitFieldNoDefault( &m_cellIJKFilter, "SummaryCellIJKFilter", "I, J, K" );
 }
 
 //--------------------------------------------------------------------------------------------------

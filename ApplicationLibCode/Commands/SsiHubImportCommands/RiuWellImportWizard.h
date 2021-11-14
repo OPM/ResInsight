@@ -86,9 +86,9 @@ class ObjectGroupWithHeaders : public caf::PdmObject
 public:
     ObjectGroupWithHeaders()
     {
-        CAF_PDM_InitFieldNoDefault( &objects, "PdmObjects", "", "", "", "" );
+        CAF_PDM_InitFieldNoDefault( &objects, "PdmObjects", "" );
 
-        CAF_PDM_InitField( &m_isChecked, "IsChecked", true, "Active", "", "", "" );
+        CAF_PDM_InitField( &m_isChecked, "IsChecked", true, "Active" );
         m_isChecked.uiCapability()->setUiHidden( true );
     };
 
@@ -228,7 +228,7 @@ public slots:
 
     int wellSelectionPageId();
 
-#if !defined(QT_NO_OPENSSL) && !defined(CVF_OSX)
+#if !defined( QT_NO_OPENSSL ) && !defined( CVF_OSX )
     void sslErrors( QNetworkReply*, const QList<QSslError>& errors );
 #endif
 

@@ -48,8 +48,8 @@ class RicImportWellPathsResult : public caf::PdmObject
 public:
     RicImportWellPathsResult()
     {
-        CAF_PDM_InitObject( "well_path_result", "", "", "" );
-        CAF_PDM_InitFieldNoDefault( &wellPathNames, "wellPathNames", "", "", "", "" );
+        CAF_PDM_InitObject( "well_path_result" );
+        CAF_PDM_InitFieldNoDefault( &wellPathNames, "wellPathNames", "" );
     }
 
 public:
@@ -64,9 +64,9 @@ RICF_SOURCE_INIT( RicImportWellPaths, "RicWellPathsImportFileFeature", "importWe
 //--------------------------------------------------------------------------------------------------
 RicImportWellPaths::RicImportWellPaths()
 {
-    CAF_PDM_InitScriptableFieldNoDefault( &m_wellPathFolder, "wellPathFolder", "", "", "", "" );
-    CAF_PDM_InitScriptableFieldNoDefault( &m_wellPathFiles, "wellPathFiles", "", "", "", "" );
-    CAF_PDM_InitScriptableField( &m_importGrouped, "importGrouped", false, "", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_wellPathFolder, "wellPathFolder", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_wellPathFiles, "wellPathFiles", "" );
+    CAF_PDM_InitScriptableField( &m_importGrouped, "importGrouped", false, "" );
 }
 
 //--------------------------------------------------------------------------------------------------

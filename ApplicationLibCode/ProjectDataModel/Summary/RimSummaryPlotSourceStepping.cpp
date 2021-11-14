@@ -51,9 +51,9 @@ CAF_PDM_SOURCE_INIT( RimSummaryPlotSourceStepping, "RimSummaryCurveCollectionMod
 RimSummaryPlotSourceStepping::RimSummaryPlotSourceStepping()
     : m_sourceSteppingType( Y_AXIS )
 {
-    CAF_PDM_InitObject( "Summary Curves Modifier", "", "", "" );
+    CAF_PDM_InitObject( "Summary Curves Modifier" );
 
-    CAF_PDM_InitFieldNoDefault( &m_summaryCase, "CurveCase", "Case", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_summaryCase, "CurveCase", "Case" );
 
     CAF_PDM_InitField( &m_includeEnsembleCasesForCaseStepping,
                        "IncludeEnsembleCasesForCaseStepping",
@@ -63,19 +63,19 @@ RimSummaryPlotSourceStepping::RimSummaryPlotSourceStepping()
                        "",
                        "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_wellName, "WellName", "Well Name", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_wellGroupName, "GroupName", "Group Name", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_region, "Region", "Region", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_quantity, "Quantities", "Quantity", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_wellName, "WellName", "Well Name" );
+    CAF_PDM_InitFieldNoDefault( &m_wellGroupName, "GroupName", "Group Name" );
+    CAF_PDM_InitFieldNoDefault( &m_region, "Region", "Region" );
+    CAF_PDM_InitFieldNoDefault( &m_quantity, "Quantities", "Quantity" );
 
-    CAF_PDM_InitFieldNoDefault( &m_cellBlock, "CellBlock", "Block", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_segment, "Segment", "Segment", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_completion, "Completion", "Completion", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_aquifer, "Aquifer", "Aquifer", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_cellBlock, "CellBlock", "Block" );
+    CAF_PDM_InitFieldNoDefault( &m_segment, "Segment", "Segment" );
+    CAF_PDM_InitFieldNoDefault( &m_completion, "Completion", "Completion" );
+    CAF_PDM_InitFieldNoDefault( &m_aquifer, "Aquifer", "Aquifer" );
 
-    CAF_PDM_InitFieldNoDefault( &m_ensemble, "Ensemble", "Ensemble", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_ensemble, "Ensemble", "Ensemble" );
 
-    CAF_PDM_InitFieldNoDefault( &m_placeholderForLabel, "Placeholder", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_placeholderForLabel, "Placeholder", "" );
     m_placeholderForLabel = "No common identifiers detected";
     m_placeholderForLabel.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
     m_placeholderForLabel.uiCapability()->setUiReadOnly( true );

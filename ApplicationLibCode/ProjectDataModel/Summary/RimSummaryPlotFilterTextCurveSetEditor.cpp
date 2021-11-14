@@ -68,7 +68,7 @@ CAF_PDM_SOURCE_INIT( RimSummaryPlotFilterTextCurveSetEditor, "SummaryPlotFilterT
 RimSummaryPlotFilterTextCurveSetEditor::RimSummaryPlotFilterTextCurveSetEditor()
     : m_isFieldRecentlyChangedFromGui( false )
 {
-    CAF_PDM_InitObject( "Curve Set Filter Text", "", "", "" );
+    CAF_PDM_InitObject( "Curve Set Filter Text" );
 
     // clang-format off
     QString filterTextHeading = "Create Summary Curves from Text";
@@ -85,7 +85,7 @@ RimSummaryPlotFilterTextCurveSetEditor::RimSummaryPlotFilterTextCurveSetEditor()
     QString toolTipPropertyEditor = filterTextHeading + "\n\n" + filterTextToolTip;
     QString toolTipToolbar        = filterTextHeading + filterTextShortcut + "\n\n" + filterTextToolTip;
 
-    CAF_PDM_InitFieldNoDefault( &m_curveFilterLabelText, "Summary", "Summary", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_curveFilterLabelText, "Summary", "Summary" );
     m_curveFilterLabelText.uiCapability()->setUiEditorTypeName( caf::PdmUiLabelEditor::uiEditorTypeName() );
     m_curveFilterLabelText.xmlCapability()->disableIO();
 
@@ -96,7 +96,7 @@ RimSummaryPlotFilterTextCurveSetEditor::RimSummaryPlotFilterTextCurveSetEditor()
     // Special tool tip for toolbar
     m_curveFilterText.uiCapability()->setUiToolTip( toolTipToolbar, caf::PdmUiToolBarEditor::uiEditorConfigName() );
 
-    CAF_PDM_InitFieldNoDefault( &m_selectedSources, "SummaryCases", "Sources", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_selectedSources, "SummaryCases", "Sources" );
     m_selectedSources.uiCapability()->setAutoAddingOptionFromValue( false );
     m_selectedSources.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
     m_selectedSources.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );

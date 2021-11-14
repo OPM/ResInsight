@@ -38,16 +38,16 @@ RimSurfaceResultDefinition::RimSurfaceResultDefinition()
 {
     CAF_PDM_InitObject( "Surface", ":/ReservoirSurface16x16.png", "", "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_propertyName, "PropertyName", "Property Name", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_propertyName, "PropertyName", "Property Name" );
 
-    CAF_PDM_InitFieldNoDefault( &m_legendConfig, "LegendConfig", "Legend", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_legendConfig, "LegendConfig", "Legend" );
     m_legendConfig.uiCapability()->setUiTreeHidden( true );
     m_legendConfig.uiCapability()->setUiTreeChildrenHidden( false );
     m_legendConfig = new RimRegularLegendConfig;
 
     setName( "Surface Result" );
 
-    CAF_PDM_InitFieldNoDefault( &m_surfaceInView, "SurfaceInView", "Surface In View", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_surfaceInView, "SurfaceInView", "Surface In View" );
     m_surfaceInView.uiCapability()->setUiHidden( true );
     m_surfaceInView.uiCapability()->setUiTreeChildrenHidden( true );
 }

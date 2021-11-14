@@ -14,8 +14,8 @@ RimWellLogWbsCurve::RimWellLogWbsCurve()
 {
     CAF_PDM_InitObject( "Well Bore Stability Curve", RimWellLogCurve::wellLogCurveIconName(), "", "" );
 
-    CAF_PDM_InitField( &m_smoothCurve, "SmoothCurve", false, "Smooth Curve", "", "", "" );
-    CAF_PDM_InitField( &m_smoothingThreshold, "SmoothingThreshold", 0.002, "Smoothing Threshold", "", "", "" );
+    CAF_PDM_InitField( &m_smoothCurve, "SmoothCurve", false, "Smooth Curve" );
+    CAF_PDM_InitField( &m_smoothingThreshold, "SmoothingThreshold", 0.002, "Smoothing Threshold" );
 }
 
 //--------------------------------------------------------------------------------------------------

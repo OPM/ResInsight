@@ -72,38 +72,35 @@ RimElementVectorResult::RimElementVectorResult()
 {
     CAF_PDM_InitObject( "Flow Vector Result", ":/CellResult.png", "", "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_legendConfig, "LegendDefinition", "Color Legend", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_legendConfig, "LegendDefinition", "Color Legend" );
     m_legendConfig = new RimRegularLegendConfig();
     m_legendConfig.uiCapability()->setUiTreeHidden( true );
 
-    CAF_PDM_InitField( &m_showOil, "ShowOil", true, "Oil", "", "", "" );
-    CAF_PDM_InitField( &m_showGas, "ShowGas", true, "Gas", "", "", "" );
-    CAF_PDM_InitField( &m_showWater, "ShowWater", true, "Water", "", "", "" );
+    CAF_PDM_InitField( &m_showOil, "ShowOil", true, "Oil" );
+    CAF_PDM_InitField( &m_showGas, "ShowGas", true, "Gas" );
+    CAF_PDM_InitField( &m_showWater, "ShowWater", true, "Water" );
 
-    CAF_PDM_InitField( &m_showResult, "ShowResult", false, "", "", "", "" );
+    CAF_PDM_InitField( &m_showResult, "ShowResult", false, "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_vectorView, "VectorView", "View Vectors", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_vectorView, "VectorView", "View Vectors" );
 
     CAF_PDM_InitFieldNoDefault( &m_vectorSurfaceCrossingLocation,
                                 "VectorSurfaceCrossingLocation",
-                                "Vectors Touching Surface",
-                                "",
-                                "",
-                                "" );
+                                "Vectors Touching Surface" );
     m_vectorSurfaceCrossingLocation.uiCapability()->setUiReadOnly(
         m_vectorView() == RimElementVectorResult::VectorView::CELL_CENTER_TOTAL );
 
-    CAF_PDM_InitField( &m_showVectorI, "ShowVectorI", true, "I", "", "", "" );
-    CAF_PDM_InitField( &m_showVectorJ, "ShowVectorJ", true, "J", "", "", "" );
-    CAF_PDM_InitField( &m_showVectorK, "ShowVectorK", true, "K", "", "", "" );
-    CAF_PDM_InitField( &m_showNncData, "ShowNncData", true, "Show NNC Data", "", "", "" );
-    CAF_PDM_InitField( &m_threshold, "Threshold", 0.0f, "Threshold", "", "", "" );
+    CAF_PDM_InitField( &m_showVectorI, "ShowVectorI", true, "I" );
+    CAF_PDM_InitField( &m_showVectorJ, "ShowVectorJ", true, "J" );
+    CAF_PDM_InitField( &m_showVectorK, "ShowVectorK", true, "K" );
+    CAF_PDM_InitField( &m_showNncData, "ShowNncData", true, "Show NNC Data" );
+    CAF_PDM_InitField( &m_threshold, "Threshold", 0.0f, "Threshold" );
 
-    CAF_PDM_InitFieldNoDefault( &m_vectorColor, "VectorColor", "Color", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_vectorColor, "VectorColor", "Color" );
     cvf::Color3f defaultUniformColor = cvf::Color3f::BLACK;
-    CAF_PDM_InitField( &m_uniformVectorColor, "UniformVectorColor", defaultUniformColor, "Uniform Vector Color", "", "", "" );
+    CAF_PDM_InitField( &m_uniformVectorColor, "UniformVectorColor", defaultUniformColor, "Uniform Vector Color" );
 
-    CAF_PDM_InitField( &m_sizeScale, "SizeScale", 1.0f, "Size Scale", "", "", "" );
+    CAF_PDM_InitField( &m_sizeScale, "SizeScale", 1.0f, "Size Scale" );
 }
 
 //--------------------------------------------------------------------------------------------------

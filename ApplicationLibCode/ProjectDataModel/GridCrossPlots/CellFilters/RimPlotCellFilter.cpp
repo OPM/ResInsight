@@ -36,7 +36,7 @@ CAF_PDM_ABSTRACT_SOURCE_INIT( RimPlotCellFilter, "RimPlotCellFilter" );
 //--------------------------------------------------------------------------------------------------
 RimPlotCellFilter::RimPlotCellFilter()
 {
-    CAF_PDM_InitFieldNoDefault( &m_filterMode, "FilterMode", "Filter Mode", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_filterMode, "FilterMode", "Filter Mode" );
 }
 
 //--------------------------------------------------------------------------------------------------

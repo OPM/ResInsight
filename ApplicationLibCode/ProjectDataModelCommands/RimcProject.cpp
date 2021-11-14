@@ -46,7 +46,7 @@ RimProject_importSummaryCase::RimProject_importSummaryCase( caf::PdmObjectHandle
     : caf::PdmObjectMethod( self )
 {
     CAF_PDM_InitObject( "Import Summary Case", "", "", "Import Summary Case" );
-    CAF_PDM_InitScriptableFieldNoDefault( &m_fileName, "FileName", "", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_fileName, "FileName", "" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -122,7 +122,7 @@ RimProject_summaryCase::RimProject_summaryCase( caf::PdmObjectHandle* self )
     : caf::PdmObjectMethod( self )
 {
     CAF_PDM_InitObject( "Find Summary Case", "", "", "Find Summary Case" );
-    CAF_PDM_InitScriptableField( &m_caseId, "CaseId", -1, "", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_caseId, "CaseId", -1, "" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -174,7 +174,7 @@ RimProject_surfaceFolder::RimProject_surfaceFolder( caf::PdmObjectHandle* self )
     : caf::PdmObjectMethod( self )
 {
     CAF_PDM_InitObject( "Get Surface Folder", "", "", "Get Surface Folder" );
-    CAF_PDM_InitScriptableFieldNoDefault( &m_folderName, "FolderName", "", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_folderName, "FolderName", "" );
 }
 
 //--------------------------------------------------------------------------------------------------

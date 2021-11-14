@@ -42,15 +42,10 @@ RimEnsembleFractureStatisticsPlot::RimEnsembleFractureStatisticsPlot()
 {
     CAF_PDM_InitObject( "Ensemble Fracture Statistics Plot", "", "", "A Plot of Ensemble Fracture Statistics" );
 
-    CAF_PDM_InitFieldNoDefault( &m_ensembleFractureStatistics,
-                                "EnsembleFractureStatistics",
-                                "Ensemble Fracture Statistics",
-                                "",
-                                "",
-                                "" );
+    CAF_PDM_InitFieldNoDefault( &m_ensembleFractureStatistics, "EnsembleFractureStatistics", "Ensemble Fracture Statistics" );
     m_ensembleFractureStatistics.uiCapability()->setUiTreeChildrenHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_property, "Property", "Property", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_property, "Property", "Property" );
 
     m_plotLegendsHorizontal.uiCapability()->setUiHidden( true );
 

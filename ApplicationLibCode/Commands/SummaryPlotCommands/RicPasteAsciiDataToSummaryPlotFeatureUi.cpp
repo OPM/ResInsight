@@ -174,16 +174,16 @@ RicPasteAsciiDataToSummaryPlotFeatureUi::DecimalSeparator mapDecimalSeparator( c
 RicPasteAsciiDataToSummaryPlotFeatureUi::RicPasteAsciiDataToSummaryPlotFeatureUi()
     : m_createNewPlot( false )
 {
-    CAF_PDM_InitObject( "RicPasteAsciiDataToSummaryPlotFeatureUi", "", "", "" );
+    CAF_PDM_InitObject( "RicPasteAsciiDataToSummaryPlotFeatureUi" );
 
-    CAF_PDM_InitField( &m_plotTitle, "PlotTitle", QString(), "Plot Title", "", "", "" );
-    CAF_PDM_InitField( &m_curvePrefix, "CurvePrefix", QString(), "Curve Prefix", "", "", "" );
+    CAF_PDM_InitField( &m_plotTitle, "PlotTitle", QString(), "Plot Title" );
+    CAF_PDM_InitField( &m_curvePrefix, "CurvePrefix", QString(), "Curve Prefix" );
 
-    CAF_PDM_InitFieldNoDefault( &m_decimalSeparator, "DecimalSeparator", "Decimal Separator", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_decimalSeparator, "DecimalSeparator", "Decimal Separator" );
 
-    CAF_PDM_InitFieldNoDefault( &m_dateFormat, "DateFormat", "Date Format", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_timeFormat, "TimeFormat", "Time Format", "", "", "" );
-    CAF_PDM_InitField( &m_useCustomDateFormat, "UseCustomDateFormat", false, "Use Custom Date Time Format", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_dateFormat, "DateFormat", "Date Format" );
+    CAF_PDM_InitFieldNoDefault( &m_timeFormat, "TimeFormat", "Time Format" );
+    CAF_PDM_InitField( &m_useCustomDateFormat, "UseCustomDateFormat", false, "Use Custom Date Time Format" );
     CAF_PDM_InitField( &m_customDateTimeFormat,
                        "CustomDateTimeFormat",
                        QString(),
@@ -207,13 +207,13 @@ RicPasteAsciiDataToSummaryPlotFeatureUi::RicPasteAsciiDataToSummaryPlotFeatureUi
                        "",
                        "",
                        "" );
-    CAF_PDM_InitField( &m_curveSymbolSkipDistance, "SymbolSkipDinstance", 0.0f, "Symbol Skip Distance", "", "", "" );
+    CAF_PDM_InitField( &m_curveSymbolSkipDistance, "SymbolSkipDinstance", 0.0f, "Symbol Skip Distance" );
 
-    CAF_PDM_InitFieldNoDefault( &m_cellSeparator, "CellSeparator", "Cell Separator", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_cellSeparator, "CellSeparator", "Cell Separator" );
 
-    CAF_PDM_InitFieldNoDefault( &m_timeSeriesColumnName, "TimeColumnName", "Selected Time Column", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_timeSeriesColumnName, "TimeColumnName", "Selected Time Column" );
 
-    CAF_PDM_InitFieldNoDefault( &m_previewText, "PreviewText", "Preview Text", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_previewText, "PreviewText", "Preview Text" );
     m_previewText.uiCapability()->setUiEditorTypeName( caf::PdmUiTextEditor::uiEditorTypeName() );
     m_previewText.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
     m_previewText.uiCapability()->setUiReadOnly( true );

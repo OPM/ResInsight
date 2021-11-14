@@ -38,11 +38,11 @@ double RimWellPathAttribute::MIN_DIAMETER_IN_INCHES = 7.0;
 //--------------------------------------------------------------------------------------------------
 RimWellPathAttribute::RimWellPathAttribute()
 {
-    CAF_PDM_InitObject( "RimWellPathAttribute", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_type, "CompletionType", "Type    ", "", "", "" );
-    CAF_PDM_InitField( &m_startMD, "DepthStart", -1.0, "Start MD", "", "", "" );
-    CAF_PDM_InitField( &m_endMD, "DepthEnd", -1.0, "End MD", "", "", "" );
-    CAF_PDM_InitField( &m_diameterInInches, "DiameterInInches", MAX_DIAMETER_IN_INCHES, "Diameter", "", "", "" );
+    CAF_PDM_InitObject( "RimWellPathAttribute" );
+    CAF_PDM_InitFieldNoDefault( &m_type, "CompletionType", "Type    " );
+    CAF_PDM_InitField( &m_startMD, "DepthStart", -1.0, "Start MD" );
+    CAF_PDM_InitField( &m_endMD, "DepthEnd", -1.0, "End MD" );
+    CAF_PDM_InitField( &m_diameterInInches, "DiameterInInches", MAX_DIAMETER_IN_INCHES, "Diameter" );
     m_type = RiaDefines::WellPathComponentType::CASING;
     m_diameterInInches.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
 }

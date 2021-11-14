@@ -51,15 +51,15 @@ RimSurfaceCollection::RimSurfaceCollection()
 {
     CAF_PDM_InitScriptableObject( "Surfaces", ":/ReservoirSurfaces16x16.png", "", "" );
 
-    CAF_PDM_InitScriptableFieldNoDefault( &m_collectionName, "SurfaceUserDecription", "Name", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_collectionName, "SurfaceUserDecription", "Name" );
     m_collectionName = "Surfaces";
 
-    CAF_PDM_InitScriptableFieldNoDefault( &m_subCollections, "SubCollections", "Surfaces", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_subCollections, "SubCollections", "Surfaces" );
     m_subCollections.uiCapability()->setUiTreeHidden( true );
     auto reorderability = caf::PdmFieldReorderCapability::addToField( &m_subCollections );
     reorderability->orderChanged.connect( this, &RimSurfaceCollection::orderChanged );
 
-    CAF_PDM_InitScriptableFieldNoDefault( &m_surfaces, "SurfacesField", "Surfaces", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_surfaces, "SurfacesField", "Surfaces" );
     m_surfaces.uiCapability()->setUiTreeHidden( true );
 
     setDeletable( true );

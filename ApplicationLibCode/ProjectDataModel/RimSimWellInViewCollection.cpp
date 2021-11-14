@@ -140,7 +140,7 @@ RimSimWellInViewCollection::RimSimWellInViewCollection()
 {
     CAF_PDM_InitObject( "Simulation Wells", ":/WellCollection.png", "", "" );
 
-    CAF_PDM_InitField( &isActive, "Active", true, "Active", "", "", "" );
+    CAF_PDM_InitField( &isActive, "Active", true, "Active" );
     isActive.uiCapability()->setUiHidden( true );
 
     // CAF_PDM_InitField(&showWellsIntersectingVisibleCells, "ShowWellsIntersectingVisibleCells", false, "Hide Wells Not
@@ -156,11 +156,11 @@ RimSimWellInViewCollection::RimSimWellInViewCollection()
     // Missing Visible Cells", "", "", "");
 
     // Appearance
-    CAF_PDM_InitFieldNoDefault( &m_showWellHead, "ShowWellHeadTristate", "Well Head", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_showWellLabel, "ShowWellLabelTristate", "Label", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_showWellPipe, "ShowWellPipe", "Pipe", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_showWellSpheres, "ShowWellSpheres", "Spheres", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_showWellDisks, "ShowWellDisks", "Disks", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_showWellHead, "ShowWellHeadTristate", "Well Head" );
+    CAF_PDM_InitFieldNoDefault( &m_showWellLabel, "ShowWellLabelTristate", "Label" );
+    CAF_PDM_InitFieldNoDefault( &m_showWellPipe, "ShowWellPipe", "Pipe" );
+    CAF_PDM_InitFieldNoDefault( &m_showWellSpheres, "ShowWellSpheres", "Spheres" );
+    CAF_PDM_InitFieldNoDefault( &m_showWellDisks, "ShowWellDisks", "Disks" );
 
     m_showWellHead.uiCapability()->setUiEditorTypeName( caf::PdmUiCheckBoxTristateEditor::uiEditorTypeName() );
     m_showWellHead.xmlCapability()->disableIO();
@@ -178,25 +178,25 @@ RimSimWellInViewCollection::RimSimWellInViewCollection()
     m_showWellDisks.xmlCapability()->disableIO();
 
     // Scaling
-    CAF_PDM_InitField( &wellHeadScaleFactor, "WellHeadScale", 1.0, "Well Head Scale", "", "", "" );
-    CAF_PDM_InitField( &pipeScaleFactor, "WellPipeRadiusScale", 0.1, "Pipe Radius Scale ", "", "", "" );
-    CAF_PDM_InitField( &spheresScaleFactor, "CellCenterSphereScale", 0.2, "Sphere Radius Scale", "", "", "" );
+    CAF_PDM_InitField( &wellHeadScaleFactor, "WellHeadScale", 1.0, "Well Head Scale" );
+    CAF_PDM_InitField( &pipeScaleFactor, "WellPipeRadiusScale", 0.1, "Pipe Radius Scale " );
+    CAF_PDM_InitField( &spheresScaleFactor, "CellCenterSphereScale", 0.2, "Sphere Radius Scale" );
 
     // Color
     cvf::Color3f defWellLabelColor = RiaPreferences::current()->defaultWellLabelColor();
-    CAF_PDM_InitField( &wellLabelColor, "WellLabelColor", defWellLabelColor, "Label Color", "", "", "" );
+    CAF_PDM_InitField( &wellLabelColor, "WellLabelColor", defWellLabelColor, "Label Color" );
 
-    CAF_PDM_InitField( &showConnectionStatusColors, "ShowConnectionStatusColors", true, "Color Pipe Connections", "", "", "" );
+    CAF_PDM_InitField( &showConnectionStatusColors, "ShowConnectionStatusColors", true, "Color Pipe Connections" );
 
     cvf::Color3f defaultApplyColor = cvf::Color3f::YELLOW;
-    CAF_PDM_InitField( &m_defaultWellPipeColor, "WellColorForApply", defaultApplyColor, "Uniform Well Color", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_wellPipeColors, "WellPipeColors", "Individual Pipe Colors", "", "", "" );
+    CAF_PDM_InitField( &m_defaultWellPipeColor, "WellColorForApply", defaultApplyColor, "Uniform Well Color" );
+    CAF_PDM_InitFieldNoDefault( &m_wellPipeColors, "WellPipeColors", "Individual Pipe Colors" );
 
-    CAF_PDM_InitField( &pipeCrossSectionVertexCount, "WellPipeVertexCount", 12, "Pipe Vertex Count", "", "", "" );
+    CAF_PDM_InitField( &pipeCrossSectionVertexCount, "WellPipeVertexCount", 12, "Pipe Vertex Count" );
     pipeCrossSectionVertexCount.uiCapability()->setUiHidden( true );
-    CAF_PDM_InitField( &wellPipeCoordType, "WellPipeCoordType", WellPipeCoordEnum( WELLPIPE_INTERPOLATED ), "Type", "", "", "" );
+    CAF_PDM_InitField( &wellPipeCoordType, "WellPipeCoordType", WellPipeCoordEnum( WELLPIPE_INTERPOLATED ), "Type" );
 
-    CAF_PDM_InitFieldNoDefault( &m_showWellCells, "ShowWellCellsTristate", "Show Well Cells", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_showWellCells, "ShowWellCellsTristate", "Show Well Cells" );
     m_showWellCells.uiCapability()->setUiEditorTypeName( caf::PdmUiCheckBoxTristateEditor::uiEditorTypeName() );
     m_showWellCells.xmlCapability()->disableIO();
 
@@ -208,7 +208,7 @@ RimSimWellInViewCollection::RimSimWellInViewCollection()
                        "",
                        "" );
 
-    CAF_PDM_InitField( &wellCellTransparencyLevel, "WellCellTransparency", 0.5, "Well Cell Transparency", "", "", "" );
+    CAF_PDM_InitField( &wellCellTransparencyLevel, "WellCellTransparency", 0.5, "Well Cell Transparency" );
     CAF_PDM_InitField( &isAutoDetectingBranches,
                        "IsAutoDetectingBranches",
                        true,
@@ -225,23 +225,23 @@ RimSimWellInViewCollection::RimSimWellInViewCollection()
                        "",
                        "" );
 
-    CAF_PDM_InitFieldNoDefault( &wells, "Wells", "Wells", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &wells, "Wells", "Wells" );
     wells.uiCapability()->setUiTreeHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_showWellCellFence, "ShowWellCellFenceTristate", "Show Well Cell Fence", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_showWellCellFence, "ShowWellCellFenceTristate", "Show Well Cell Fence" );
     m_showWellCellFence.uiCapability()->setUiEditorTypeName( caf::PdmUiCheckBoxTristateEditor::uiEditorTypeName() );
     m_showWellCellFence.xmlCapability()->disableIO();
 
-    CAF_PDM_InitFieldNoDefault( &m_wellDiskSummaryCase, "WellDiskSummaryCase", "Summary Case", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_wellDiskSummaryCase, "WellDiskSummaryCase", "Summary Case" );
 
-    CAF_PDM_InitField( &m_wellDiskQuantity, "WellDiskQuantity", QString( "WOPT" ), "Disk Quantity", "", "", "" );
+    CAF_PDM_InitField( &m_wellDiskQuantity, "WellDiskQuantity", QString( "WOPT" ), "Disk Quantity" );
     m_wellDiskQuantity.uiCapability()->setUiEditorTypeName( caf::PdmUiListEditor::uiEditorTypeName() );
     m_wellDiskQuantity.uiCapability()->setAutoAddingOptionFromValue( false );
 
-    CAF_PDM_InitFieldNoDefault( &m_wellDiskPropertyType, "WellDiskPropertyType", "Property Type", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_wellDiskPropertyConfigType, "WellDiskPropertyConfigType", "Property Config Type", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_wellDiskPropertyType, "WellDiskPropertyType", "Property Type" );
+    CAF_PDM_InitFieldNoDefault( &m_wellDiskPropertyConfigType, "WellDiskPropertyConfigType", "Property Config Type" );
 
-    CAF_PDM_InitField( &m_wellDiskShowQuantityLabels, "WellDiskShowQuantityLabels", true, "Show Quantity Labels", "", "", "" );
+    CAF_PDM_InitField( &m_wellDiskShowQuantityLabels, "WellDiskShowQuantityLabels", true, "Show Quantity Labels" );
     CAF_PDM_InitField( &m_wellDiskshowLabelsBackground,
                        "WellDiskShowLabelsBackground",
                        false,
@@ -249,11 +249,11 @@ RimSimWellInViewCollection::RimSimWellInViewCollection()
                        "",
                        "",
                        "" );
-    CAF_PDM_InitField( &m_wellDiskScaleFactor, "WellDiskScaleFactor", 1.0, "Scale Factor", "", "", "" );
+    CAF_PDM_InitField( &m_wellDiskScaleFactor, "WellDiskScaleFactor", 1.0, "Scale Factor" );
     cvf::Color3f defaultWellDiskColor = cvf::Color3::OLIVE;
-    CAF_PDM_InitField( &wellDiskColor, "WellDiskColor", defaultWellDiskColor, "Well Disk Color", "", "", "" );
+    CAF_PDM_InitField( &wellDiskColor, "WellDiskColor", defaultWellDiskColor, "Well Disk Color" );
 
-    CAF_PDM_InitField( &m_showWellCommunicationLines, "ShowWellCommunicationLines", false, "Communication Lines", "", "", "" );
+    CAF_PDM_InitField( &m_showWellCommunicationLines, "ShowWellCommunicationLines", false, "Communication Lines" );
 
     m_reservoirView = nullptr;
 }

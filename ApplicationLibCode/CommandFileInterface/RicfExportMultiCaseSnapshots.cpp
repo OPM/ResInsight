@@ -33,7 +33,7 @@ CAF_PDM_SOURCE_INIT( RicfExportMultiCaseSnapshots, "exportMultiCaseSnapshots" );
 //--------------------------------------------------------------------------------------------------
 RicfExportMultiCaseSnapshots::RicfExportMultiCaseSnapshots()
 {
-    CAF_PDM_InitScriptableField( &m_gridListFile, "gridListFile", QString(), "Grid List File", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_gridListFile, "gridListFile", QString(), "Grid List File" );
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -34,11 +34,11 @@ CAF_PDM_SOURCE_INIT( RicSelectSummaryPlotUI, "RicSelectSummaryPlotUI" );
 //--------------------------------------------------------------------------------------------------
 RicSelectSummaryPlotUI::RicSelectSummaryPlotUI()
 {
-    CAF_PDM_InitObject( "RicSelectSummaryPlotUI", "", "", "" );
+    CAF_PDM_InitObject( "RicSelectSummaryPlotUI" );
 
-    CAF_PDM_InitFieldNoDefault( &m_selectedSummaryPlot, "SelectedSummaryPlot", "Select Plot", "", "", "" );
-    CAF_PDM_InitField( &m_createNewPlot, "CreateNewPlot", false, "Create New Plot", "", "", "" );
-    CAF_PDM_InitField( &m_newSummaryPlotName, "NewViewName", QString( "Cell Results" ), "New Plot Name", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_selectedSummaryPlot, "SelectedSummaryPlot", "Select Plot" );
+    CAF_PDM_InitField( &m_createNewPlot, "CreateNewPlot", false, "Create New Plot" );
+    CAF_PDM_InitField( &m_newSummaryPlotName, "NewViewName", QString( "Cell Results" ), "New Plot Name" );
 }
 
 //--------------------------------------------------------------------------------------------------

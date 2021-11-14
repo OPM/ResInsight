@@ -55,7 +55,7 @@ void caf::AppEnum<RicCreateEnsembleWellLogUi::WellPathSource>::setUp()
 //--------------------------------------------------------------------------------------------------
 RicCreateEnsembleWellLogUi::RicCreateEnsembleWellLogUi()
 {
-    CAF_PDM_InitObject( "Create Ensemble Well Log", "", "", "" );
+    CAF_PDM_InitObject( "Create Ensemble Well Log" );
 
     CAF_PDM_InitField( &m_autoCreateEnsembleWellLogs,
                        "AutoCreateEnsembleWellLogs",
@@ -66,11 +66,11 @@ RicCreateEnsembleWellLogUi::RicCreateEnsembleWellLogUi()
                        "" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_autoCreateEnsembleWellLogs );
 
-    CAF_PDM_InitField( &m_timeStep, "TimeStep", 0, "Time Step", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_wellPathSource, "WellPathSource", "Well Path Source", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_wellPath, "WellPath", "Well Path", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_wellFilePath, "WellFilePath", "Well File Path", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_selectedKeywords, "SelectedProperties", "Selected Properties", "", "", "" );
+    CAF_PDM_InitField( &m_timeStep, "TimeStep", 0, "Time Step" );
+    CAF_PDM_InitFieldNoDefault( &m_wellPathSource, "WellPathSource", "Well Path Source" );
+    CAF_PDM_InitFieldNoDefault( &m_wellPath, "WellPath", "Well Path" );
+    CAF_PDM_InitFieldNoDefault( &m_wellFilePath, "WellFilePath", "Well File Path" );
+    CAF_PDM_InitFieldNoDefault( &m_selectedKeywords, "SelectedProperties", "Selected Properties" );
     m_selectedKeywords.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
 
     m_tabNames << "Well"

@@ -71,18 +71,18 @@ RimFishbones::RimFishbones()
 {
     CAF_PDM_InitObject( "FishbonesMultipleSubs", ":/FishBoneGroup16x16.png", "", "" );
 
-    CAF_PDM_InitField( &m_isActive, "Active", true, "Active", "", "", "" );
+    CAF_PDM_InitField( &m_isActive, "Active", true, "Active" );
     m_isActive.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_name, "Name", "Name", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_name, "Name", "Name" );
     m_name.registerGetMethod( this, &RimFishbones::generatedName );
     m_name.uiCapability()->setUiReadOnly( true );
     m_name.xmlCapability()->setIOWritable( false );
 
     cvf::Color3f defaultColor = RiaColorTables::wellPathComponentColors()[RiaDefines::WellPathComponentType::FISHBONES];
-    CAF_PDM_InitField( &fishbonesColor, "Color", defaultColor, "Fishbones Color", "", "", "" );
+    CAF_PDM_InitField( &fishbonesColor, "Color", defaultColor, "Fishbones Color" );
 
-    CAF_PDM_InitField( &m_lateralCountPerSub, "LateralCountPerSub", 3, "Laterals Per Sub", "", "", "" );
+    CAF_PDM_InitField( &m_lateralCountPerSub, "LateralCountPerSub", 3, "Laterals Per Sub" );
     CAF_PDM_InitField( &m_lateralLength,
                        "LateralLength",
                        QString( "11.0" ),
@@ -91,10 +91,10 @@ RimFishbones::RimFishbones()
                        "Specify multiple length values if the sub lengths differ",
                        "" );
 
-    CAF_PDM_InitField( &m_lateralExitAngle, "LateralExitAngle", 35.0, "Exit Angle [deg]", "", "", "" );
-    CAF_PDM_InitField( &m_lateralBuildAngle, "LateralBuildAngle", 6.0, "Build Angle [deg/m]", "", "", "" );
+    CAF_PDM_InitField( &m_lateralExitAngle, "LateralExitAngle", 35.0, "Exit Angle [deg]" );
+    CAF_PDM_InitField( &m_lateralBuildAngle, "LateralBuildAngle", 6.0, "Build Angle [deg/m]" );
 
-    CAF_PDM_InitField( &m_lateralTubingDiameter, "LateralTubingDiameter", 8.0, "Tubing Diameter [mm]", "", "", "" );
+    CAF_PDM_InitField( &m_lateralTubingDiameter, "LateralTubingDiameter", 8.0, "Tubing Diameter [mm]" );
 
     CAF_PDM_InitField( &m_lateralOpenHoleRoghnessFactor,
                        "LateralOpenHoleRoghnessFactor",
@@ -119,12 +119,12 @@ RimFishbones::RimFishbones()
                        "",
                        "" );
 
-    CAF_PDM_InitField( &m_icdCount, "IcdCount", 2, "ICDs per Sub", "", "", "" );
-    CAF_PDM_InitField( &m_icdOrificeDiameter, "IcdOrificeDiameter", 7.0, "ICD Orifice Diameter [mm]", "", "", "" );
-    CAF_PDM_InitField( &m_icdFlowCoefficient, "IcdFlowCoefficient", 1.5, "ICD Flow Coefficient", "", "", "" );
+    CAF_PDM_InitField( &m_icdCount, "IcdCount", 2, "ICDs per Sub" );
+    CAF_PDM_InitField( &m_icdOrificeDiameter, "IcdOrificeDiameter", 7.0, "ICD Orifice Diameter [mm]" );
+    CAF_PDM_InitField( &m_icdFlowCoefficient, "IcdFlowCoefficient", 1.5, "ICD Flow Coefficient" );
 
     initialiseObsoleteFields();
-    CAF_PDM_InitFieldNoDefault( &m_valveLocations, "ValveLocations", "Valve Locations", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_valveLocations, "ValveLocations", "Valve Locations" );
     m_valveLocations = new RimMultipleValveLocations();
     m_valveLocations->findField( "RangeValveCount" )->uiCapability()->setUiName( "Number of Subs" );
     m_valveLocations.uiCapability()->setUiTreeHidden( true );
@@ -140,10 +140,7 @@ RimFishbones::RimFishbones()
 
     CAF_PDM_InitFieldNoDefault( &m_installationRotationAngles,
                                 "InstallationRotationAngles",
-                                "Installation Rotation Angles [deg]",
-                                "",
-                                "",
-                                "" );
+                                "Installation Rotation Angles [deg]" );
     m_installationRotationAngles.uiCapability()->setUiHidden( true );
     CAF_PDM_InitField( &m_fixedInstallationRotationAngle,
                        "FixedInstallationRotationAngle",
@@ -153,7 +150,7 @@ RimFishbones::RimFishbones()
                        "",
                        "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_pipeProperties, "PipeProperties", "Pipe Properties", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_pipeProperties, "PipeProperties", "Pipe Properties" );
     m_pipeProperties.uiCapability()->setUiTreeHidden( true );
     m_pipeProperties.uiCapability()->setUiTreeChildrenHidden( true );
 
@@ -767,10 +764,10 @@ void RimFishbones::initialiseObsoleteFields()
                        "" );
     m_subsLocationMode_OBSOLETE.xmlCapability()->setIOWritable( false );
 
-    CAF_PDM_InitField( &m_rangeStart_OBSOLETE, "RangeStart", std::numeric_limits<double>::infinity(), "Start MD [m]", "", "", "" );
+    CAF_PDM_InitField( &m_rangeStart_OBSOLETE, "RangeStart", std::numeric_limits<double>::infinity(), "Start MD [m]" );
     m_rangeStart_OBSOLETE.xmlCapability()->setIOWritable( false );
 
-    CAF_PDM_InitField( &m_rangeEnd_OBSOLETE, "RangeEnd", std::numeric_limits<double>::infinity(), "End MD [m]", "", "", "" );
+    CAF_PDM_InitField( &m_rangeEnd_OBSOLETE, "RangeEnd", std::numeric_limits<double>::infinity(), "End MD [m]" );
     m_rangeEnd_OBSOLETE.xmlCapability()->setIOWritable( false );
 
     CAF_PDM_InitField( &m_rangeSubSpacing_OBSOLETE,
@@ -782,10 +779,10 @@ void RimFishbones::initialiseObsoleteFields()
                        "" );
     m_rangeSubSpacing_OBSOLETE.xmlCapability()->setIOWritable( false );
 
-    CAF_PDM_InitField( &m_rangeSubCount_OBSOLETE, "RangeSubCount", -1, "Number of Subs", "", "", "" );
+    CAF_PDM_InitField( &m_rangeSubCount_OBSOLETE, "RangeSubCount", -1, "Number of Subs" );
     m_rangeSubCount_OBSOLETE.xmlCapability()->setIOWritable( false );
 
-    CAF_PDM_InitFieldNoDefault( &m_locationOfSubs_OBSOLETE, "LocationOfSubs", "Measured Depths [m]", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_locationOfSubs_OBSOLETE, "LocationOfSubs", "Measured Depths [m]" );
     m_locationOfSubs_OBSOLETE.xmlCapability()->setIOWritable( false );
 }
 

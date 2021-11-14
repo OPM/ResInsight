@@ -39,8 +39,8 @@ CAF_PDM_SOURCE_INIT( RicfCreateWbsPlotResult, "createWbsPlotResult" );
 //--------------------------------------------------------------------------------------------------
 RicfCreateWbsPlotResult::RicfCreateWbsPlotResult( int viewId /*= -1*/ )
 {
-    CAF_PDM_InitObject( "wbs_result", "", "", "" );
-    CAF_PDM_InitField( &this->viewId, "viewId", viewId, "", "", "", "" );
+    CAF_PDM_InitObject( "wbs_result" );
+    CAF_PDM_InitField( &this->viewId, "viewId", viewId, "" );
 }
 
 CAF_PDM_SOURCE_INIT( RicfCreateWellBoreStabilityPlotFeature, "createWellBoreStabilityPlot" );
@@ -50,11 +50,11 @@ CAF_PDM_SOURCE_INIT( RicfCreateWellBoreStabilityPlotFeature, "createWellBoreStab
 //--------------------------------------------------------------------------------------------------
 RicfCreateWellBoreStabilityPlotFeature::RicfCreateWellBoreStabilityPlotFeature()
 {
-    CAF_PDM_InitScriptableField( &m_caseId, "caseId", -1, "GeoMech Case Id", "", "", "" );
-    CAF_PDM_InitScriptableField( &m_wellPath, "wellPath", QString( "" ), "Well Path", "", "", "" );
-    CAF_PDM_InitScriptableField( &m_timeStep, "timeStep", -1, "Time Step", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_caseId, "caseId", -1, "GeoMech Case Id" );
+    CAF_PDM_InitScriptableField( &m_wellPath, "wellPath", QString( "" ), "Well Path" );
+    CAF_PDM_InitScriptableField( &m_timeStep, "timeStep", -1, "Time Step" );
 
-    CAF_PDM_InitFieldNoDefault( &m_wbsParameters, "wbsParameters", "WbsParameters", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_wbsParameters, "wbsParameters", "WbsParameters" );
 }
 
 //--------------------------------------------------------------------------------------------------

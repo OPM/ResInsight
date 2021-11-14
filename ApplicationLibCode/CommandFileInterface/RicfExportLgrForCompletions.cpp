@@ -47,13 +47,13 @@ CAF_PDM_SOURCE_INIT( RicfExportLgrForCompletions, "exportLgrForCompletions" );
 //--------------------------------------------------------------------------------------------------
 RicfExportLgrForCompletions::RicfExportLgrForCompletions()
 {
-    CAF_PDM_InitScriptableField( &m_caseId, "caseId", -1, "Case ID", "", "", "" );
-    CAF_PDM_InitScriptableField( &m_timeStep, "timeStep", -1, "Time Step Index", "", "", "" );
-    CAF_PDM_InitScriptableField( &m_wellPathNames, "wellPathNames", std::vector<QString>(), "Well Path Names", "", "", "" );
-    CAF_PDM_InitScriptableField( &m_refinementI, "refinementI", -1, "RefinementI", "", "", "" );
-    CAF_PDM_InitScriptableField( &m_refinementJ, "refinementJ", -1, "RefinementJ", "", "", "" );
-    CAF_PDM_InitScriptableField( &m_refinementK, "refinementK", -1, "RefinementK", "", "", "" );
-    CAF_PDM_InitScriptableField( &m_splitType, "splitType", Lgr::SplitTypeEnum(), "SplitType", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_caseId, "caseId", -1, "Case ID" );
+    CAF_PDM_InitScriptableField( &m_timeStep, "timeStep", -1, "Time Step Index" );
+    CAF_PDM_InitScriptableField( &m_wellPathNames, "wellPathNames", std::vector<QString>(), "Well Path Names" );
+    CAF_PDM_InitScriptableField( &m_refinementI, "refinementI", -1, "RefinementI" );
+    CAF_PDM_InitScriptableField( &m_refinementJ, "refinementJ", -1, "RefinementJ" );
+    CAF_PDM_InitScriptableField( &m_refinementK, "refinementK", -1, "RefinementK" );
+    CAF_PDM_InitScriptableField( &m_splitType, "splitType", Lgr::SplitTypeEnum(), "SplitType" );
 }
 
 //--------------------------------------------------------------------------------------------------

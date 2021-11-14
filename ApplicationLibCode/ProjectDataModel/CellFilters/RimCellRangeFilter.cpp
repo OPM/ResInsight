@@ -40,22 +40,22 @@ RimCellRangeFilter::RimCellRangeFilter()
 {
     CAF_PDM_InitObject( "Cell Range Filter", ":/CellFilter_Range.png", "", "" );
 
-    CAF_PDM_InitField( &startIndexI, "StartIndexI", 1, "Start Index I", "", "", "" );
+    CAF_PDM_InitField( &startIndexI, "StartIndexI", 1, "Start Index I" );
     startIndexI.uiCapability()->setUiEditorTypeName( caf::PdmUiSliderEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitField( &cellCountI, "CellCountI", 1, "Cell Count I", "", "", "" );
+    CAF_PDM_InitField( &cellCountI, "CellCountI", 1, "Cell Count I" );
     cellCountI.uiCapability()->setUiEditorTypeName( caf::PdmUiSliderEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitField( &startIndexJ, "StartIndexJ", 1, "Start Index J", "", "", "" );
+    CAF_PDM_InitField( &startIndexJ, "StartIndexJ", 1, "Start Index J" );
     startIndexJ.uiCapability()->setUiEditorTypeName( caf::PdmUiSliderEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitField( &cellCountJ, "CellCountJ", 1, "Cell Count J", "", "", "" );
+    CAF_PDM_InitField( &cellCountJ, "CellCountJ", 1, "Cell Count J" );
     cellCountJ.uiCapability()->setUiEditorTypeName( caf::PdmUiSliderEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitField( &startIndexK, "StartIndexK", 1, "Start Index K", "", "", "" );
+    CAF_PDM_InitField( &startIndexK, "StartIndexK", 1, "Start Index K" );
     startIndexK.uiCapability()->setUiEditorTypeName( caf::PdmUiSliderEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitField( &cellCountK, "CellCountK", 1, "Cell Count K", "", "", "" );
+    CAF_PDM_InitField( &cellCountK, "CellCountK", 1, "Cell Count K" );
     cellCountK.uiCapability()->setUiEditorTypeName( caf::PdmUiSliderEditor::uiEditorTypeName() );
 
     m_propagateToSubGrids = true;

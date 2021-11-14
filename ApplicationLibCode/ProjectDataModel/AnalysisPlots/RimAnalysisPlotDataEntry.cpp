@@ -33,22 +33,22 @@ CAF_PDM_SOURCE_INIT( RimAnalysisPlotDataEntry, "AnalysisPlotDataEntry" );
 //--------------------------------------------------------------------------------------------------
 RimAnalysisPlotDataEntry::RimAnalysisPlotDataEntry()
 {
-    CAF_PDM_InitObject( "Data Entry", "", "", "" );
+    CAF_PDM_InitObject( "Data Entry" );
 
-    CAF_PDM_InitFieldNoDefault( &m_summaryCase, "SummaryCase", "Case", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_summaryCase, "SummaryCase", "Case" );
     m_summaryCase.uiCapability()->setUiTreeChildrenHidden( true );
     m_summaryCase.uiCapability()->setAutoAddingOptionFromValue( false );
 
-    CAF_PDM_InitFieldNoDefault( &m_ensemble, "Ensemble", "Ensemble", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_ensemble, "Ensemble", "Ensemble" );
     m_ensemble.uiCapability()->setUiTreeChildrenHidden( true );
     m_ensemble.uiCapability()->setAutoAddingOptionFromValue( false );
 
-    CAF_PDM_InitFieldNoDefault( &m_summaryAddress, "SummaryAddress", "Summary Address", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_summaryAddress, "SummaryAddress", "Summary Address" );
     m_summaryAddress.uiCapability()->setUiTreeHidden( true );
     m_summaryAddress.uiCapability()->setUiTreeChildrenHidden( true );
     m_summaryAddress = new RimSummaryAddress;
 
-    CAF_PDM_InitField( &m_isEnsembleCurve, "IsEnsembleCurve", false, "Is Ensemble Curve", "", "", "" );
+    CAF_PDM_InitField( &m_isEnsembleCurve, "IsEnsembleCurve", false, "Is Ensemble Curve" );
 }
 
 //--------------------------------------------------------------------------------------------------

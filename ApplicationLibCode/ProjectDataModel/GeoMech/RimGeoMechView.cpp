@@ -90,20 +90,20 @@ RimGeoMechView::RimGeoMechView( void )
     cellResult = new RimGeoMechCellColors();
     cellResult.uiCapability()->setUiTreeHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_tensorResults, "TensorResults", "Tensor Results", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_tensorResults, "TensorResults", "Tensor Results" );
     m_tensorResults = new RimTensorResults();
     m_tensorResults.uiCapability()->setUiTreeHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_propertyFilterCollection, "PropertyFilters", "Property Filters", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_propertyFilterCollection, "PropertyFilters", "Property Filters" );
     m_propertyFilterCollection = new RimGeoMechPropertyFilterCollection();
     m_propertyFilterCollection.uiCapability()->setUiTreeHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_partsCollection, "Parts", "Parts", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_partsCollection, "Parts", "Parts" );
     m_partsCollection = new RimGeoMechPartCollection();
     m_partsCollection.uiCapability()->setUiTreeHidden( true );
 
-    CAF_PDM_InitField( &m_showDisplacement, "ShowDisplacement", false, "Show Displacement", "", "", "" );
-    CAF_PDM_InitField( &m_displacementScaling, "DisplacementScaling", 1.0, "Scaling Factor", "", "", "" );
+    CAF_PDM_InitField( &m_showDisplacement, "ShowDisplacement", false, "Show Displacement" );
+    CAF_PDM_InitField( &m_displacementScaling, "DisplacementScaling", 1.0, "Scaling Factor" );
 
     m_scaleTransform = new cvf::Transform();
     m_vizLogic       = new RivGeoMechVizLogic( this );

@@ -78,21 +78,21 @@ CAF_PDM_SOURCE_INIT( RimWellPathCompletionSettings, "WellPathCompletionSettings"
 RimWellPathCompletionSettings::RimWellPathCompletionSettings()
 {
     CAF_PDM_InitObject( "Completion Settings", ":/CompletionsSymbol16x16.png", "", "" );
-    CAF_PDM_InitField( &m_wellNameForExport, "WellNameForExport", QString(), "Well Name", "", "", "" );
+    CAF_PDM_InitField( &m_wellNameForExport, "WellNameForExport", QString(), "Well Name" );
     m_wellNameForExport.uiCapability()->setUiEditorTypeName( caf::PdmUiLineEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitField( &m_wellGroupName, "WellGroupNameForExport", QString(), "Well Group Name", "", "", "" );
-    CAF_PDM_InitField( &m_referenceDepth, "ReferenceDepthForExport", QString(), "Reference Depth for BHP", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_preferredFluidPhase, "WellTypeForExport", "Preferred Fluid Phase", "", "", "" );
-    CAF_PDM_InitField( &m_drainageRadiusForPI, "DrainageRadiusForPI", QString( "0.0" ), "Drainage Radius for PI", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_gasInflowEquation, "GasInflowEq", "Gas Inflow Equation", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_automaticWellShutIn, "AutoWellShutIn", "Automatic well shut-in", "", "", "" );
-    CAF_PDM_InitField( &m_allowWellCrossFlow, "AllowWellCrossFlow", true, "Allow Well Cross-Flow", "", "", "" );
-    CAF_PDM_InitField( &m_wellBoreFluidPVTTable, "WellBoreFluidPVTTable", 0, "Wellbore Fluid PVT table", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_hydrostaticDensity, "HydrostaticDensity", "Hydrostatic Density", "", "", "" );
-    CAF_PDM_InitField( &m_fluidInPlaceRegion, "FluidInPlaceRegion", 0, "Fluid In-Place Region", "", "", "" );
+    CAF_PDM_InitField( &m_wellGroupName, "WellGroupNameForExport", QString(), "Well Group Name" );
+    CAF_PDM_InitField( &m_referenceDepth, "ReferenceDepthForExport", QString(), "Reference Depth for BHP" );
+    CAF_PDM_InitFieldNoDefault( &m_preferredFluidPhase, "WellTypeForExport", "Preferred Fluid Phase" );
+    CAF_PDM_InitField( &m_drainageRadiusForPI, "DrainageRadiusForPI", QString( "0.0" ), "Drainage Radius for PI" );
+    CAF_PDM_InitFieldNoDefault( &m_gasInflowEquation, "GasInflowEq", "Gas Inflow Equation" );
+    CAF_PDM_InitFieldNoDefault( &m_automaticWellShutIn, "AutoWellShutIn", "Automatic well shut-in" );
+    CAF_PDM_InitField( &m_allowWellCrossFlow, "AllowWellCrossFlow", true, "Allow Well Cross-Flow" );
+    CAF_PDM_InitField( &m_wellBoreFluidPVTTable, "WellBoreFluidPVTTable", 0, "Wellbore Fluid PVT table" );
+    CAF_PDM_InitFieldNoDefault( &m_hydrostaticDensity, "HydrostaticDensity", "Hydrostatic Density" );
+    CAF_PDM_InitField( &m_fluidInPlaceRegion, "FluidInPlaceRegion", 0, "Fluid In-Place Region" );
 
-    CAF_PDM_InitFieldNoDefault( &m_mswParameters, "MswParameters", "Multi Segment Well Parameters", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_mswParameters, "MswParameters", "Multi Segment Well Parameters" );
     m_mswParameters = new RimMswCompletionParameters;
     m_mswParameters.uiCapability()->setUiTreeHidden( true );
     m_mswParameters.uiCapability()->setUiTreeChildrenHidden( true );

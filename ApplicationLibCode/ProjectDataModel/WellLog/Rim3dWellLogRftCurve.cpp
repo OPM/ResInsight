@@ -44,17 +44,17 @@ Rim3dWellLogRftCurve::Rim3dWellLogRftCurve()
 {
     CAF_PDM_InitObject( "3d Well Log RFT Curve", ":/WellLogCurve16x16.png", "", "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_eclipseResultCase, "eclipseResultCase", "", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_timeStep, "timeStep", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_eclipseResultCase, "eclipseResultCase", "" );
+    CAF_PDM_InitFieldNoDefault( &m_timeStep, "timeStep", "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_wellLogChannelName, "wellLogChannelName", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_wellLogChannelName, "wellLogChannelName", "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_2dWellLogRftCurve, "my2dWellLogRftCurve", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_2dWellLogRftCurve, "my2dWellLogRftCurve", "" );
 
     m_2dWellLogRftCurve = new RimWellLogRftCurve();
     m_2dWellLogRftCurve.xmlCapability()->disableIO();
 
-    CAF_PDM_InitFieldNoDefault( &m_nameConfig, "NameConfig", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_nameConfig, "NameConfig", "" );
     m_nameConfig = new RimWellLogRftCurveNameConfig();
 }
 

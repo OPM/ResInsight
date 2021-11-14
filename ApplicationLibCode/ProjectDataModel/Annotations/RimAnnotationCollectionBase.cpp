@@ -38,10 +38,10 @@ RimAnnotationCollectionBase::RimAnnotationCollectionBase()
 {
     CAF_PDM_InitObject( "Annotations", ":/WellCollection.png", "", "" );
 
-    CAF_PDM_InitField( &m_isActive, "IsActive", true, "Is Active", "", "", "" );
+    CAF_PDM_InitField( &m_isActive, "IsActive", true, "Is Active" );
     m_isActive.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_textAnnotations, "TextAnnotations", "Text Annotations", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_textAnnotations, "TextAnnotations", "Text Annotations" );
 
     m_textAnnotations.uiCapability()->setUiTreeHidden( true );
     m_textAnnotations = new RimAnnotationGroupCollection();

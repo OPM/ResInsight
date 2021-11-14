@@ -66,10 +66,7 @@ RiaPreferencesSummary::RiaPreferencesSummary()
 {
     CAF_PDM_InitFieldNoDefault( &m_summaryRestartFilesShowImportDialog,
                                 "summaryRestartFilesShowImportDialog",
-                                "Show Import Dialog",
-                                "",
-                                "",
-                                "" );
+                                "Show Import Dialog" );
 
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_summaryRestartFilesShowImportDialog );
 
@@ -154,7 +151,7 @@ RiaPreferencesSummary::RiaPreferencesSummary()
                        "",
                        "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_summaryReader, "summaryReaderType", "File Format", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_summaryReader, "summaryReaderType", "File Format" );
 
     CAF_PDM_InitField( &m_showSummaryTimeAsLongString,
                        "showSummaryTimeAsLongString",
