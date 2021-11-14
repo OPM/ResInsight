@@ -76,7 +76,7 @@ public:
         m_proxyDouble.registerGetMethod( this, &SimpleObj::doubleMember );
         AddUiCapabilityToField( &m_proxyDouble );
         AddXmlCapabilityToField( &m_proxyDouble );
-        CAF_PDM_InitFieldNoDefault( &m_proxyDouble, "ProxyDouble", "ProxyDouble", "", "", "" );
+        CAF_PDM_InitFieldNoDefault( &m_proxyDouble, "ProxyDouble", "ProxyDouble" );
 #endif
     }
 
@@ -190,9 +190,9 @@ public:
                                                         "ScriptClassName_InheritedDemoObj",
                                                         "Script comment test" );
 
-        CAF_PDM_InitScriptableFieldNoDefault( &m_texts, "Texts", "Some words", "", "", "" );
-        CAF_PDM_InitScriptableFieldNoDefault( &m_numbers, "Numbers", "Some words", "", "", "" );
-        CAF_PDM_InitFieldNoDefault( &m_testEnumField, "TestEnumValue", "An Enum", "", "", "" );
+        CAF_PDM_InitScriptableFieldNoDefault( &m_texts, "Texts", "Some words" );
+        CAF_PDM_InitScriptableFieldNoDefault( &m_numbers, "Numbers", "Some words" );
+        CAF_PDM_InitFieldNoDefault( &m_testEnumField, "TestEnumValue", "An Enum" );
         CAF_PDM_InitFieldNoDefault( &m_simpleObjectsField,
                                     "SimpleObjects",
                                     "SimpleObjectsField",
@@ -218,7 +218,7 @@ class MyPdmDocument : public caf::PdmDocument
 public:
     MyPdmDocument()
     {
-        CAF_PDM_InitObject( "PdmObjectCollection", "", "", "" );
+        CAF_PDM_InitObject( "PdmObjectCollection" );
         CAF_PDM_InitFieldNoDefault( &objects, "PdmObjects", "", "", "", "" )
     }
 

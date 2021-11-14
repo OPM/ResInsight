@@ -130,7 +130,7 @@ public:
 
         m_proxyDoubleField.registerSetMethod(this, &SmallDemoPdmObject::setDoubleMember);
         m_proxyDoubleField.registerGetMethod(this, &SmallDemoPdmObject::doubleMember);
-        CAF_PDM_InitFieldNoDefault(&m_proxyDoubleField, "ProxyDouble", "Proxy Double", "", "", "");
+        CAF_PDM_InitFieldNoDefault(&m_proxyDoubleField, "ProxyDouble", "Proxy Double");
 
         CAF_PDM_InitFieldNoDefault(&m_colorTriplets, "colorTriplets", "color Triplets", "", "", "");
 

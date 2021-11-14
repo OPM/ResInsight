@@ -48,7 +48,7 @@ CAF_PDM_SOURCE_INIT( PdmDocument, "PdmDocument" );
 //--------------------------------------------------------------------------------------------------
 PdmDocument::PdmDocument()
 {
-    CAF_PDM_InitFieldNoDefault( &fileName, "DocumentFileName", "File Name", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &fileName, "DocumentFileName", "File Name" );
 }
 
 //--------------------------------------------------------------------------------------------------
