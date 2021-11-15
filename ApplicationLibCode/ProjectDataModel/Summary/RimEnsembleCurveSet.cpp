@@ -100,122 +100,112 @@ RimEnsembleCurveSet::RimEnsembleCurveSet()
 {
     CAF_PDM_InitObject( "Ensemble Curve Set", ":/EnsembleCurveSet16x16.png", "", "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_curves, "EnsembleCurveSet", "Ensemble Curve Set", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_curves, "EnsembleCurveSet", "Ensemble Curve Set" );
     m_curves.uiCapability()->setUiTreeHidden( true );
     m_curves.uiCapability()->setUiTreeChildrenHidden( false );
 
-    CAF_PDM_InitField( &m_showCurves, "IsActive", true, "Show Curves", "", "", "" );
+    CAF_PDM_InitField( &m_showCurves, "IsActive", true, "Show Curves" );
     m_showCurves.uiCapability()->setUiHidden( true );
 
     // Y Values
-    CAF_PDM_InitFieldNoDefault( &m_yValuesSummaryCaseCollection, "SummaryGroup", "Ensemble", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_yValuesSummaryCaseCollection, "SummaryGroup", "Ensemble" );
     m_yValuesSummaryCaseCollection.uiCapability()->setUiTreeChildrenHidden( true );
     m_yValuesSummaryCaseCollection.uiCapability()->setAutoAddingOptionFromValue( false );
 
-    CAF_PDM_InitFieldNoDefault( &m_yValuesSummaryAddressUiField, "SelectedVariableDisplayVar", "Vector", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_yValuesSummaryAddressUiField, "SelectedVariableDisplayVar", "Vector" );
     m_yValuesSummaryAddressUiField.xmlCapability()->disableIO();
     m_yValuesSummaryAddressUiField.uiCapability()->setUiEditorTypeName( caf::PdmUiLineEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitFieldNoDefault( &m_yValuesSummaryAddress, "SummaryAddress", "Summary Address", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_yValuesSummaryAddress, "SummaryAddress", "Summary Address" );
     m_yValuesSummaryAddress.uiCapability()->setUiTreeHidden( true );
     m_yValuesSummaryAddress.uiCapability()->setUiTreeChildrenHidden( true );
     m_yValuesSummaryAddress = new RimSummaryAddress;
 
-    CAF_PDM_InitFieldNoDefault( &m_yPushButtonSelectSummaryAddress, "SelectAddress", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_yPushButtonSelectSummaryAddress, "SelectAddress", "" );
     caf::PdmUiPushButtonEditor::configureEditorForField( &m_yPushButtonSelectSummaryAddress );
     m_yPushButtonSelectSummaryAddress.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
     m_yPushButtonSelectSummaryAddress = false;
 
-    CAF_PDM_InitFieldNoDefault( &m_resampling, "Resampling", "Resampling", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_resampling, "Resampling", "Resampling" );
 
-    CAF_PDM_InitField( &m_colorMode, "ColorMode", caf::AppEnum<ColorMode>( ColorMode::SINGLE_COLOR ), "Coloring Mode", "", "", "" );
+    CAF_PDM_InitField( &m_colorMode, "ColorMode", caf::AppEnum<ColorMode>( ColorMode::SINGLE_COLOR ), "Coloring Mode" );
 
-    CAF_PDM_InitField( &m_color, "Color", RiaColorTools::textColor3f(), "Color", "", "", "" );
+    CAF_PDM_InitField( &m_color, "Color", RiaColorTools::textColor3f(), "Color" );
 
-    CAF_PDM_InitField( &m_ensembleParameter, "EnsembleParameter", QString( "" ), "Ensemble Parameter", "", "", "" );
+    CAF_PDM_InitField( &m_ensembleParameter, "EnsembleParameter", QString( "" ), "Ensemble Parameter" );
     m_ensembleParameter.uiCapability()->setUiEditorTypeName( caf::PdmUiListEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitFieldNoDefault( &m_objectiveValuesSummaryAddressesUiField, "SelectedObjectiveSummaryVar", "Vector", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_objectiveValuesSummaryAddressesUiField, "SelectedObjectiveSummaryVar", "Vector" );
     m_objectiveValuesSummaryAddressesUiField.xmlCapability()->disableIO();
     m_objectiveValuesSummaryAddressesUiField.uiCapability()->setUiEditorTypeName( caf::PdmUiLineEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitFieldNoDefault( &m_objectiveValuesSummaryAddresses, "ObjectiveSummaryAddress", "Summary Address", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_objectiveValuesSummaryAddresses, "ObjectiveSummaryAddress", "Summary Address" );
     m_objectiveValuesSummaryAddresses.uiCapability()->setUiTreeHidden( true );
     m_objectiveValuesSummaryAddresses.uiCapability()->setUiTreeChildrenHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_objectiveValuesSelectSummaryAddressPushButton,
-                                "SelectObjectiveSummaryAddress",
-                                "",
-                                "",
-                                "",
-                                "" );
+    CAF_PDM_InitFieldNoDefault( &m_objectiveValuesSelectSummaryAddressPushButton, "SelectObjectiveSummaryAddress", "" );
     caf::PdmUiPushButtonEditor::configureEditorForField( &m_objectiveValuesSelectSummaryAddressPushButton );
     m_objectiveValuesSelectSummaryAddressPushButton.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
     m_objectiveValuesSelectSummaryAddressPushButton = false;
 
-    CAF_PDM_InitFieldNoDefault( &m_customObjectiveFunction, "CustomObjectiveFunction", "Objective Function", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_customObjectiveFunction, "CustomObjectiveFunction", "Objective Function" );
     m_customObjectiveFunction.uiCapability()->setUiEditorTypeName( caf::PdmUiListEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitField( &m_showObjectiveFunctionFormula, "ShowObjectiveFunctionFormula", true, "Show Text Box in Plot", "", "", "" );
+    CAF_PDM_InitField( &m_showObjectiveFunctionFormula, "ShowObjectiveFunctionFormula", true, "Show Text Box in Plot" );
 
-    CAF_PDM_InitFieldNoDefault( &m_minDateRange, "MinDateRange", "From", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_minDateRange, "MinDateRange", "From" );
     m_minDateRange.uiCapability()->setUiEditorTypeName( caf::PdmUiDateEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitFieldNoDefault( &m_minTimeStep, "MinTimeStep", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_minTimeStep, "MinTimeStep", "" );
     m_minTimeStep.uiCapability()->setUiEditorTypeName( caf::PdmUiSliderEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitFieldNoDefault( &m_maxDateRange, "MaxDateRange", "To", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_maxDateRange, "MaxDateRange", "To" );
     m_maxDateRange.uiCapability()->setUiEditorTypeName( caf::PdmUiDateEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitFieldNoDefault( &m_maxTimeStep, "MaxTimeStep", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_maxTimeStep, "MaxTimeStep", "" );
     m_maxTimeStep.uiCapability()->setUiEditorTypeName( caf::PdmUiSliderEditor::uiEditorTypeName() );
 
     // Time Step Selection
-    CAF_PDM_InitFieldNoDefault( &m_timeStepFilter, "TimeStepFilter", "Available Time Steps", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_selectedTimeSteps, "TimeSteps", "Select Time Steps", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_timeStepFilter, "TimeStepFilter", "Available Time Steps" );
+    CAF_PDM_InitFieldNoDefault( &m_selectedTimeSteps, "TimeSteps", "Select Time Steps" );
     m_selectedTimeSteps.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
     m_selectedTimeSteps.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
 
-    CAF_PDM_InitFieldNoDefault( &m_plotAxis, "PlotAxis", "Axis", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_plotAxis, "PlotAxis", "Axis" );
 
-    CAF_PDM_InitFieldNoDefault( &m_legendConfig, "LegendConfig", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_legendConfig, "LegendConfig", "" );
     m_legendConfig = new RimRegularLegendConfig();
     m_legendConfig->setColorLegend(
         RimRegularLegendConfig::mapToColorLegend( RimEnsembleCurveSetColorManager::DEFAULT_ENSEMBLE_COLOR_RANGE ) );
 
-    CAF_PDM_InitFieldNoDefault( &m_curveFilters, "CurveFilters", "Curve Filters", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_curveFilters, "CurveFilters", "Curve Filters" );
     m_curveFilters = new RimEnsembleCurveFilterCollection();
     m_curveFilters->setUiTreeHidden( true );
     m_curveFilters->uiCapability()->setUiTreeHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_customObjectiveFunctions,
-                                "CustomObjectiveFunctions",
-                                "Custom Objective Functions",
-                                "",
-                                "",
-                                "" );
+    CAF_PDM_InitFieldNoDefault( &m_customObjectiveFunctions, "CustomObjectiveFunctions", "Custom Objective Functions" );
     m_customObjectiveFunctions = new RimCustomObjectiveFunctionCollection();
     m_customObjectiveFunctions->objectiveFunctionChanged.connect( this,
                                                                   &RimEnsembleCurveSet::onCustomObjectiveFunctionChanged );
 
-    CAF_PDM_InitFieldNoDefault( &m_objectiveFunction, "ObjectiveFunction", "Objective Function", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_objectiveFunction, "ObjectiveFunction", "Objective Function" );
     m_objectiveFunction = new RimObjectiveFunction();
     m_objectiveFunction.uiCapability()->setUiTreeHidden( true );
     m_objectiveFunction->changed.connect( this, &RimEnsembleCurveSet::onObjectiveFunctionChanged );
 
-    CAF_PDM_InitFieldNoDefault( &m_statistics, "Statistics", "Statistics", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_statistics, "Statistics", "Statistics" );
     m_statistics = new RimEnsembleStatistics( this );
     m_statistics.uiCapability()->setUiTreeHidden( true );
 
-    CAF_PDM_InitField( &m_userDefinedName, "UserDefinedName", QString( "Ensemble Curve Set" ), "Curve Set Name", "", "", "" );
+    CAF_PDM_InitField( &m_userDefinedName, "UserDefinedName", QString( "Ensemble Curve Set" ), "Curve Set Name" );
 
-    CAF_PDM_InitFieldNoDefault( &m_autoGeneratedName, "AutoGeneratedName", "Curve Set Name", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_autoGeneratedName, "AutoGeneratedName", "Curve Set Name" );
     m_autoGeneratedName.registerGetMethod( this, &RimEnsembleCurveSet::createAutoName );
     m_autoGeneratedName.uiCapability()->setUiReadOnly( true );
     m_autoGeneratedName.xmlCapability()->disableIO();
 
-    CAF_PDM_InitField( &m_isUsingAutoName, "AutoName", true, "Auto Name", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_summaryAddressNameTools, "SummaryAddressNameTools", "SummaryAddressNameTools", "", "", "" );
+    CAF_PDM_InitField( &m_isUsingAutoName, "AutoName", true, "Auto Name" );
+    CAF_PDM_InitFieldNoDefault( &m_summaryAddressNameTools, "SummaryAddressNameTools", "SummaryAddressNameTools" );
     m_summaryAddressNameTools.uiCapability()->setUiTreeHidden( true );
     m_summaryAddressNameTools.uiCapability()->setUiTreeChildrenHidden( true );
 
@@ -233,7 +223,7 @@ RimEnsembleCurveSet::RimEnsembleCurveSet()
 
     // Obsolete fields
 
-    CAF_PDM_InitFieldNoDefault( &m_yValuesSummaryFilter_OBSOLETE, "VarListFilter", "Filter", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_yValuesSummaryFilter_OBSOLETE, "VarListFilter", "Filter" );
     m_yValuesSummaryFilter_OBSOLETE.uiCapability()->setUiTreeChildrenHidden( true );
     m_yValuesSummaryFilter_OBSOLETE.uiCapability()->setUiTreeHidden( true );
     m_yValuesSummaryFilter_OBSOLETE.xmlCapability()->setIOWritable( false );

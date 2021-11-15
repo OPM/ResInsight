@@ -46,10 +46,10 @@ CAF_PDM_SOURCE_INIT( RicfExportSimWellFractureCompletions, "exportSimWellFractur
 //--------------------------------------------------------------------------------------------------
 RicfExportSimWellFractureCompletions::RicfExportSimWellFractureCompletions()
 {
-    CAF_PDM_InitScriptableField( &m_caseId, "caseId", -1, "Case ID", "", "", "" );
-    CAF_PDM_InitScriptableField( &m_viewId, "viewId", -1, "View ID", "", "", "" );
-    CAF_PDM_InitScriptableField( &m_viewName, "viewName", QString( "" ), "View Name", "", "", "" );
-    CAF_PDM_InitScriptableField( &m_timeStep, "timeStep", -1, "Time Step Index", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_caseId, "caseId", -1, "Case ID" );
+    CAF_PDM_InitScriptableField( &m_viewId, "viewId", -1, "View ID" );
+    CAF_PDM_InitScriptableField( &m_viewName, "viewName", QString( "" ), "View Name" );
+    CAF_PDM_InitScriptableField( &m_timeStep, "timeStep", -1, "Time Step Index" );
     CAF_PDM_InitScriptableField( &m_simWellNames,
                                  "simulationWellNames",
                                  std::vector<QString>(),

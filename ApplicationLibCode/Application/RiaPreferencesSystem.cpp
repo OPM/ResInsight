@@ -46,11 +46,11 @@ CAF_PDM_SOURCE_INIT( RiaPreferencesSystem, "RiaPreferencesSystem" );
 //--------------------------------------------------------------------------------------------------
 RiaPreferencesSystem::RiaPreferencesSystem()
 {
-    CAF_PDM_InitField( &m_useShaders, "useShaders", true, "Use Shaders", "", "", "" );
+    CAF_PDM_InitField( &m_useShaders, "useShaders", true, "Use Shaders" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_useShaders );
-    CAF_PDM_InitField( &m_showHud, "showHud", false, "Show 3D Information", "", "", "" );
+    CAF_PDM_InitField( &m_showHud, "showHud", false, "Show 3D Information" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_showHud );
-    CAF_PDM_InitField( &m_appendClassNameToUiText, "appendClassNameToUiText", false, "Show Class Names", "", "", "" );
+    CAF_PDM_InitField( &m_appendClassNameToUiText, "appendClassNameToUiText", false, "Show Class Names" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_appendClassNameToUiText );
 
     CAF_PDM_InitField( &m_appendFieldKeywordToToolTipText,
@@ -62,10 +62,10 @@ RiaPreferencesSystem::RiaPreferencesSystem()
                        "" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_appendFieldKeywordToToolTipText );
 
-    CAF_PDM_InitField( &m_showViewIdInProjectTree, "showViewIdInTree", false, "Show View Id in Project Tree", "", "", "" );
+    CAF_PDM_InitField( &m_showViewIdInProjectTree, "showViewIdInTree", false, "Show View Id in Project Tree" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_showViewIdInProjectTree );
 
-    CAF_PDM_InitField( &m_showTestToolbar, "showTestToolbar", false, "Enable Test Toolbar", "", "", "" );
+    CAF_PDM_InitField( &m_showTestToolbar, "showTestToolbar", false, "Enable Test Toolbar" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_showTestToolbar );
 
     CAF_PDM_InitField( &m_includeFractureDebugInfoFile,
@@ -77,7 +77,7 @@ RiaPreferencesSystem::RiaPreferencesSystem()
                        "" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_includeFractureDebugInfoFile );
 
-    CAF_PDM_InitFieldNoDefault( &m_holoLensExportFolder, "holoLensExportFolder", "HoloLens Export Folder", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_holoLensExportFolder, "holoLensExportFolder", "HoloLens Export Folder" );
     m_holoLensExportFolder.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
     m_holoLensExportFolder.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
 
@@ -90,10 +90,10 @@ RiaPreferencesSystem::RiaPreferencesSystem()
                        "" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_showProjectChangedDialog );
 
-    CAF_PDM_InitField( &m_showProgressBar, "showProgressBar", true, "Show Progress Bar", "", "", "" );
+    CAF_PDM_InitField( &m_showProgressBar, "showProgressBar", true, "Show Progress Bar" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_showProgressBar );
 
-    CAF_PDM_InitField( &m_gtestFilter, "gtestFilter", QString(), "Unit Test Filter (gtest)", "", "", "" );
+    CAF_PDM_InitField( &m_gtestFilter, "gtestFilter", QString(), "Unit Test Filter (gtest)" );
 
     CAF_PDM_InitField( &m_eclipseReaderMode,
                        "eclipseReaderMode",

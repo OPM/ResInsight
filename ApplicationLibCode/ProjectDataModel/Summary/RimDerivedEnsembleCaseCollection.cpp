@@ -58,28 +58,28 @@ RimDerivedEnsembleCaseCollection::RimDerivedEnsembleCaseCollection()
 {
     CAF_PDM_InitObject( "Delta Ensemble", ":/SummaryEnsemble.svg", "", "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_ensemble1, "Ensemble1", "Ensemble 1", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_ensemble1, "Ensemble1", "Ensemble 1" );
     m_ensemble1.uiCapability()->setUiTreeChildrenHidden( true );
     m_ensemble1.uiCapability()->setAutoAddingOptionFromValue( false );
 
-    CAF_PDM_InitFieldNoDefault( &m_ensemble2, "Ensemble2", "Ensemble 2", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_ensemble2, "Ensemble2", "Ensemble 2" );
     m_ensemble1.uiCapability()->setUiTreeChildrenHidden( true );
     m_ensemble2.uiCapability()->setAutoAddingOptionFromValue( false );
 
-    CAF_PDM_InitFieldNoDefault( &m_operator, "Operator", "Operator", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_operator, "Operator", "Operator" );
 
-    CAF_PDM_InitField( &m_swapEnsemblesButton, "SwapEnsembles", false, "SwapEnsembles", "", "", "" );
+    CAF_PDM_InitField( &m_swapEnsemblesButton, "SwapEnsembles", false, "SwapEnsembles" );
     m_swapEnsemblesButton.uiCapability()->setUiEditorTypeName( caf::PdmUiPushButtonEditor::uiEditorTypeName() );
     m_swapEnsemblesButton.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
     m_swapEnsemblesButton.xmlCapability()->disableIO();
 
-    CAF_PDM_InitField( &m_caseCount, "CaseCount", QString( "" ), "Matching Cases", "", "", "" );
+    CAF_PDM_InitField( &m_caseCount, "CaseCount", QString( "" ), "Matching Cases" );
     m_caseCount.uiCapability()->setUiReadOnly( true );
 
-    CAF_PDM_InitField( &m_matchOnParameters, "MatchOnParameters", false, "Match On Parameters", "", "", "" );
+    CAF_PDM_InitField( &m_matchOnParameters, "MatchOnParameters", false, "Match On Parameters" );
 
-    CAF_PDM_InitFieldNoDefault( &m_useFixedTimeStep, "UseFixedTimeStep", "Use Fixed Time Step", "", "", "" );
-    CAF_PDM_InitField( &m_fixedTimeStepIndex, "FixedTimeStepIndex", 0, "Time Step", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_useFixedTimeStep, "UseFixedTimeStep", "Use Fixed Time Step" );
+    CAF_PDM_InitField( &m_fixedTimeStepIndex, "FixedTimeStepIndex", 0, "Time Step" );
     m_fixedTimeStepIndex.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
     m_fixedTimeStepIndex.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 

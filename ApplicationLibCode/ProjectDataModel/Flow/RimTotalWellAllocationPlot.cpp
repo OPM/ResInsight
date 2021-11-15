@@ -44,10 +44,10 @@ RimTotalWellAllocationPlot::RimTotalWellAllocationPlot()
 {
     CAF_PDM_InitObject( "Total Allocation", ":/WellAllocPie16x16.png", "", "" );
 
-    CAF_PDM_InitField( &m_userName, "PlotDescription", QString( "Total Allocation" ), "Name", "", "", "" );
+    CAF_PDM_InitField( &m_userName, "PlotDescription", QString( "Total Allocation" ), "Name" );
     m_userName.uiCapability()->setUiReadOnly( true );
 
-    CAF_PDM_InitField( &m_showPlotTitle, "ShowPlotTitle", true, "Show Plot Title", "", "", "" );
+    CAF_PDM_InitField( &m_showPlotTitle, "ShowPlotTitle", true, "Show Plot Title" );
 }
 
 //--------------------------------------------------------------------------------------------------

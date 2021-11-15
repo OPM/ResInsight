@@ -53,9 +53,9 @@ RimObjectiveFunction::RimObjectiveFunction()
     : changed( this )
 
 {
-    CAF_PDM_InitObject( "Objective Function", "", "", "" );
+    CAF_PDM_InitObject( "Objective Function" );
 
-    CAF_PDM_InitFieldNoDefault( &m_functionType, "FunctionType", "Function Type", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_functionType, "FunctionType", "Function Type" );
 
     CAF_PDM_InitField( &m_normalizeByNumberOfObservations,
                        "NormalizeByNumberOfObservations",
@@ -73,9 +73,9 @@ RimObjectiveFunction::RimObjectiveFunction()
                        "",
                        "" );
 
-    CAF_PDM_InitField( &m_errorEstimatePercentage, "ErrorEstimatePercentage", 100.0, "Error Estimate [0..100 %]", "", "", "" );
+    CAF_PDM_InitField( &m_errorEstimatePercentage, "ErrorEstimatePercentage", 100.0, "Error Estimate [0..100 %]" );
 
-    CAF_PDM_InitField( &m_useSquaredError, "UseSquaredError", true, "Use Squared Error Term", "", "", "" );
+    CAF_PDM_InitField( &m_useSquaredError, "UseSquaredError", true, "Use Squared Error Term" );
 }
 
 //--------------------------------------------------------------------------------------------------

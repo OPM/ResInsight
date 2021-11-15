@@ -80,18 +80,18 @@ CAF_PDM_ABSTRACT_SOURCE_INIT( RimStatisticsPlot, "StatisticsPlot" );
 //--------------------------------------------------------------------------------------------------
 RimStatisticsPlot::RimStatisticsPlot()
 {
-    CAF_PDM_InitField( &m_plotWindowTitle, "PlotDescription", QString( "" ), "Name", "", "", "" );
+    CAF_PDM_InitField( &m_plotWindowTitle, "PlotDescription", QString( "" ), "Name" );
     m_plotWindowTitle.xmlCapability()->setIOWritable( false );
 
-    CAF_PDM_InitField( &m_numHistogramBins, "NumHistogramBins", 50, "Number of Bins", "", "", "" );
+    CAF_PDM_InitField( &m_numHistogramBins, "NumHistogramBins", 50, "Number of Bins" );
     m_numHistogramBins.uiCapability()->setUiEditorTypeName( caf::PdmUiLineEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitField( &m_histogramBarColor, "HistogramBarColor", cvf::Color3f( cvf::Color3f::SKY_BLUE ), "Color", "", "", "" );
+    CAF_PDM_InitField( &m_histogramBarColor, "HistogramBarColor", cvf::Color3f( cvf::Color3f::SKY_BLUE ), "Color" );
 
-    CAF_PDM_InitField( &m_histogramGapWidth, "HistogramGapWidth", 0.0, "Gap Width [%]", "", "", "" );
+    CAF_PDM_InitField( &m_histogramGapWidth, "HistogramGapWidth", 0.0, "Gap Width [%]" );
     m_histogramGapWidth.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitFieldNoDefault( &m_histogramFrequencyType, "HistogramFrequencyType", "Frequency", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_histogramFrequencyType, "HistogramFrequencyType", "Frequency" );
 
     CAF_PDM_InitField( &m_precision,
                        "Precision",
@@ -108,7 +108,7 @@ RimStatisticsPlot::RimStatisticsPlot()
                        "",
                        "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_graphType, "GraphType", "Graph Type", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_graphType, "GraphType", "Graph Type" );
 
     m_plotLegendsHorizontal.uiCapability()->setUiHidden( true );
 

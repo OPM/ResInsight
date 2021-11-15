@@ -97,59 +97,59 @@ RimStreamlineInViewCollection::RimStreamlineInViewCollection()
 {
     CAF_PDM_InitObject( "Streamlines", ":/Erase.png", "", "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_legendConfig, "LegendDefinition", "Color Legend", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_legendConfig, "LegendDefinition", "Color Legend" );
     m_legendConfig = new RimRegularLegendConfig();
     m_legendConfig->setMappingMode( RimRegularLegendConfig::MappingType::LOG10_CONTINUOUS );
     m_legendConfig.uiCapability()->setUiTreeHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_collectionName, "Name", "Name", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_collectionName, "Name", "Name" );
     m_collectionName = "Streamlines";
     m_collectionName.uiCapability()->setUiReadOnly( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_flowThreshold, "FlowThreshold", "Flow Threshold [m/day]", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_flowThreshold, "FlowThreshold", "Flow Threshold [m/day]" );
     m_flowThreshold = 0.01;
 
-    CAF_PDM_InitFieldNoDefault( &m_lengthThreshold, "LengthThreshold", "Minimum Length [m]", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_lengthThreshold, "LengthThreshold", "Minimum Length [m]" );
     m_lengthThreshold = 100.0;
 
-    CAF_PDM_InitFieldNoDefault( &m_resolution, "Resolution", "Resolution [days]", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_resolution, "Resolution", "Resolution [days]" );
     m_resolution = 20.0;
 
-    CAF_PDM_InitFieldNoDefault( &m_maxDays, "MaxDays", "Max Days", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_maxDays, "MaxDays", "Max Days" );
     m_maxDays = 5000;
 
-    CAF_PDM_InitFieldNoDefault( &m_useProducers, "UseProducers", "Producer Wells", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_useProducers, "UseProducers", "Producer Wells" );
     m_useProducers = true;
 
-    CAF_PDM_InitFieldNoDefault( &m_useInjectors, "UseInjectors", "Injector Wells", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_useInjectors, "UseInjectors", "Injector Wells" );
     m_useInjectors = true;
 
-    CAF_PDM_InitFieldNoDefault( &m_phases, "Phase", "Phase", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_phases, "Phase", "Phase" );
 
-    CAF_PDM_InitField( &m_isActive, "isActive", false, "Active", "", "", "" );
+    CAF_PDM_InitField( &m_isActive, "isActive", false, "Active" );
     m_isActive.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_visualizationMode, "VisualizationMode", "Visualization Mode", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_colorMode, "ColorMode", "Colors", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_visualizationMode, "VisualizationMode", "Visualization Mode" );
+    CAF_PDM_InitFieldNoDefault( &m_colorMode, "ColorMode", "Colors" );
 
-    CAF_PDM_InitFieldNoDefault( &m_animationSpeed, "AnimationSpeed", "Animation Speed", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_animationSpeed, "AnimationSpeed", "Animation Speed" );
     m_animationSpeed.uiCapability()->setUiEditorTypeName( caf::PdmUiSliderEditor::uiEditorTypeName() );
     m_animationSpeed = 10;
 
-    CAF_PDM_InitFieldNoDefault( &m_animationIndex, "AnimationIndex", "Animation Index", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_animationIndex, "AnimationIndex", "Animation Index" );
     m_animationIndex.uiCapability()->setUiEditorTypeName( caf::PdmUiSliderEditor::uiEditorTypeName() );
     m_animationIndex    = 0;
     m_maxAnimationIndex = 0;
 
-    CAF_PDM_InitFieldNoDefault( &m_scaleFactor, "ScaleFactor", "Scale Factor", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_scaleFactor, "ScaleFactor", "Scale Factor" );
     m_scaleFactor.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
     m_scaleFactor = 100.0;
 
-    CAF_PDM_InitFieldNoDefault( &m_tracerLength, "TracerLength", "Tracer Length", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_tracerLength, "TracerLength", "Tracer Length" );
     m_tracerLength.uiCapability()->setUiEditorTypeName( caf::PdmUiSliderEditor::uiEditorTypeName() );
     m_tracerLength = 100;
 
-    CAF_PDM_InitFieldNoDefault( &m_streamlines, "Streamlines", "Streamlines", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_streamlines, "Streamlines", "Streamlines" );
     m_streamlines.uiCapability()->setUiTreeHidden( true );
     m_streamlines.xmlCapability()->disableIO();
 

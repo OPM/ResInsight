@@ -40,25 +40,25 @@ CAF_PDM_SOURCE_INIT( RimFaciesProperties, "FaciesProperties" );
 RimFaciesProperties::RimFaciesProperties()
     : changed( this )
 {
-    CAF_PDM_InitScriptableObject( "RimFaciesProperties", "", "", "" );
+    CAF_PDM_InitScriptableObject( "RimFaciesProperties" );
 
-    CAF_PDM_InitScriptableFieldNoDefault( &m_filePath, "FilePath", "File Path", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_filePath, "FilePath", "File Path" );
     m_filePath.uiCapability()->setUiReadOnly( true );
     m_filePath.uiCapability()->setUiEditorTypeName( caf::PdmUiLineEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitScriptableFieldNoDefault( &m_propertiesTable, "PropertiesTable", "Properties Table", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_propertiesTable, "PropertiesTable", "Properties Table" );
     m_propertiesTable.uiCapability()->setUiEditorTypeName( caf::PdmUiTextEditor::uiEditorTypeName() );
     m_propertiesTable.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
     m_propertiesTable.uiCapability()->setUiReadOnly( true );
     m_propertiesTable.xmlCapability()->disableIO();
 
-    CAF_PDM_InitScriptableFieldNoDefault( &m_faciesDefinition, "FaciesDefinition", "", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_faciesDefinition, "FaciesDefinition", "" );
     m_faciesDefinition.uiCapability()->setUiTreeHidden( true );
     m_faciesDefinition.uiCapability()->setUiTreeChildrenHidden( true );
     m_faciesDefinition = new RimEclipseResultDefinition;
     m_faciesDefinition->findField( "MResultType" )->uiCapability()->setUiName( "Facies Definiton" );
 
-    CAF_PDM_InitScriptableFieldNoDefault( &m_colorLegend, "ColorLegend", "Colors", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_colorLegend, "ColorLegend", "Colors" );
     m_colorLegend = RimRegularLegendConfig::mapToColorLegend( RimRegularLegendConfig::ColorRangesType::NORMAL );
 
     setUiName( "Facies Properties" );

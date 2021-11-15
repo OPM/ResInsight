@@ -176,71 +176,66 @@ RimWellLogTrack::RimWellLogTrack()
 {
     CAF_PDM_InitScriptableObject( "Track", ":/WellLogTrack16x16.png", "", "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_description, "TrackDescription", "Name", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_description, "TrackDescription", "Name" );
 
     m_description.uiCapability()->setUiReadOnly( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_curves, "Curves", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_curves, "Curves", "" );
     m_curves.uiCapability()->setUiTreeHidden( true );
     auto reorderability = caf::PdmFieldReorderCapability::addToField( &m_curves );
     reorderability->orderChanged.connect( this, &RimWellLogTrack::curveDataChanged );
 
-    CAF_PDM_InitField( &m_visibleXRangeMin, "VisibleXRangeMin", RI_LOGPLOTTRACK_MINX_DEFAULT, "Min", "", "", "" );
-    CAF_PDM_InitField( &m_visibleXRangeMax, "VisibleXRangeMax", RI_LOGPLOTTRACK_MAXX_DEFAULT, "Max", "", "", "" );
-    CAF_PDM_InitField( &m_visibleDepthRangeMin, "VisibleYRangeMin", RI_LOGPLOTTRACK_MINX_DEFAULT, "Min", "", "", "" );
-    CAF_PDM_InitField( &m_visibleDepthRangeMax, "VisibleYRangeMax", RI_LOGPLOTTRACK_MAXX_DEFAULT, "Max", "", "", "" );
+    CAF_PDM_InitField( &m_visibleXRangeMin, "VisibleXRangeMin", RI_LOGPLOTTRACK_MINX_DEFAULT, "Min" );
+    CAF_PDM_InitField( &m_visibleXRangeMax, "VisibleXRangeMax", RI_LOGPLOTTRACK_MAXX_DEFAULT, "Max" );
+    CAF_PDM_InitField( &m_visibleDepthRangeMin, "VisibleYRangeMin", RI_LOGPLOTTRACK_MINX_DEFAULT, "Min" );
+    CAF_PDM_InitField( &m_visibleDepthRangeMax, "VisibleYRangeMax", RI_LOGPLOTTRACK_MAXX_DEFAULT, "Max" );
     m_visibleDepthRangeMin.uiCapability()->setUiHidden( true );
     m_visibleDepthRangeMin.xmlCapability()->disableIO();
     m_visibleDepthRangeMax.uiCapability()->setUiHidden( true );
     m_visibleDepthRangeMax.xmlCapability()->disableIO();
 
-    CAF_PDM_InitField( &m_isAutoScaleXEnabled, "AutoScaleX", true, "Auto Scale", "", "", "" );
+    CAF_PDM_InitField( &m_isAutoScaleXEnabled, "AutoScaleX", true, "Auto Scale" );
     m_isAutoScaleXEnabled.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitField( &m_isLogarithmicScaleEnabled, "LogarithmicScaleX", false, "Logarithmic Scale", "", "", "" );
+    CAF_PDM_InitField( &m_isLogarithmicScaleEnabled, "LogarithmicScaleX", false, "Logarithmic Scale" );
 
-    CAF_PDM_InitFieldNoDefault( &m_xAxisGridVisibility, "ShowXGridLines", "Show Grid Lines", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_xAxisGridVisibility, "ShowXGridLines", "Show Grid Lines" );
 
-    CAF_PDM_InitField( &m_explicitTickIntervals, "ExplicitTickIntervals", false, "Manually Set Tick Intervals", "", "", "" );
-    CAF_PDM_InitField( &m_minAndMaxTicksOnly, "MinAndMaxTicksOnly", false, "Show Ticks at Min and Max", "", "", "" );
-    CAF_PDM_InitField( &m_majorTickInterval, "MajorTickIntervals", 0.0, "Major Tick Interval", "", "", "" );
-    CAF_PDM_InitField( &m_minorTickInterval, "MinorTickIntervals", 0.0, "Minor Tick Interval", "", "", "" );
+    CAF_PDM_InitField( &m_explicitTickIntervals, "ExplicitTickIntervals", false, "Manually Set Tick Intervals" );
+    CAF_PDM_InitField( &m_minAndMaxTicksOnly, "MinAndMaxTicksOnly", false, "Show Ticks at Min and Max" );
+    CAF_PDM_InitField( &m_majorTickInterval, "MajorTickIntervals", 0.0, "Major Tick Interval" );
+    CAF_PDM_InitField( &m_minorTickInterval, "MinorTickIntervals", 0.0, "Minor Tick Interval" );
     m_majorTickInterval.uiCapability()->setUiHidden( true );
     m_minorTickInterval.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_axisFontSize, "AxisFontSize", "Axis Font Size", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_axisFontSize, "AxisFontSize", "Axis Font Size" );
 
-    CAF_PDM_InitFieldNoDefault( &m_regionAnnotationType, "AnnotationType", "Region Annotations", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_regionAnnotationDisplay, "RegionDisplay", "Region Display", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_regionAnnotationType, "AnnotationType", "Region Annotations" );
+    CAF_PDM_InitFieldNoDefault( &m_regionAnnotationDisplay, "RegionDisplay", "Region Display" );
 
-    CAF_PDM_InitFieldNoDefault( &m_colorShadingLegend, "ColorShadingLegend", "Colors", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_colorShadingLegend, "ColorShadingLegend", "Colors" );
     m_colorShadingLegend = RimRegularLegendConfig::mapToColorLegend( RimRegularLegendConfig::ColorRangesType::NORMAL );
 
-    CAF_PDM_InitField( &m_colorShadingTransparency, "ColorShadingTransparency", 50, "Color Transparency", "", "", "" );
+    CAF_PDM_InitField( &m_colorShadingTransparency, "ColorShadingTransparency", 50, "Color Transparency" );
     m_colorShadingTransparency.uiCapability()->setUiEditorTypeName( caf::PdmUiSliderEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitField( &m_showRegionLabels, "ShowFormationLabels", true, "Show Labels", "", "", "" );
+    CAF_PDM_InitField( &m_showRegionLabels, "ShowFormationLabels", true, "Show Labels" );
 
     caf::FontTools::RelativeSizeEnum regionLabelFontSizeDefault = caf::FontTools::RelativeSize::XSmall;
-    CAF_PDM_InitField( &m_regionLabelFontSize, "RegionLabelFontSize", regionLabelFontSizeDefault, "Font Size", "", "", "" );
+    CAF_PDM_InitField( &m_regionLabelFontSize, "RegionLabelFontSize", regionLabelFontSizeDefault, "Font Size" );
 
-    CAF_PDM_InitFieldNoDefault( &m_formationSource, "FormationSource", "Source", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_formationSource, "FormationSource", "Source" );
 
-    CAF_PDM_InitFieldNoDefault( &m_formationTrajectoryType, "FormationTrajectoryType", "Trajectory", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_formationTrajectoryType, "FormationTrajectoryType", "Trajectory" );
 
-    CAF_PDM_InitFieldNoDefault( &m_formationWellPathForSourceCase, "FormationWellPath", "Well Path", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_formationWellPathForSourceCase, "FormationWellPath", "Well Path" );
     m_formationWellPathForSourceCase.uiCapability()->setUiTreeChildrenHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_formationWellPathForSourceWellPath,
-                                "FormationWellPathForSourceWellPath",
-                                "Well Path",
-                                "",
-                                "",
-                                "" );
+    CAF_PDM_InitFieldNoDefault( &m_formationWellPathForSourceWellPath, "FormationWellPathForSourceWellPath", "Well Path" );
     m_formationWellPathForSourceWellPath.uiCapability()->setUiTreeChildrenHidden( true );
 
-    CAF_PDM_InitField( &m_formationSimWellName, "FormationSimulationWellName", QString( "None" ), "Simulation Well", "", "", "" );
-    CAF_PDM_InitField( &m_formationBranchIndex, "FormationBranchIndex", 0, " ", "", "", "" );
+    CAF_PDM_InitField( &m_formationSimWellName, "FormationSimulationWellName", QString( "None" ), "Simulation Well" );
+    CAF_PDM_InitField( &m_formationBranchIndex, "FormationBranchIndex", 0, " " );
     CAF_PDM_InitField( &m_formationBranchDetection,
                        "FormationBranchDetection",
                        true,
@@ -249,38 +244,33 @@ RimWellLogTrack::RimWellLogTrack()
                        "Compute branches based on how simulation well cells are organized",
                        "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_formationCase, "FormationCase", "Formation Case", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_formationCase, "FormationCase", "Formation Case" );
     m_formationCase.uiCapability()->setUiTreeChildrenHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_formationLevel, "FormationLevel", "Well Pick Filter", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_formationLevel, "FormationLevel", "Well Pick Filter" );
 
-    CAF_PDM_InitField( &m_showformationFluids, "ShowFormationFluids", false, "Show Fluids", "", "", "" );
+    CAF_PDM_InitField( &m_showformationFluids, "ShowFormationFluids", false, "Show Fluids" );
 
-    CAF_PDM_InitField( &m_showWellPathAttributes, "ShowWellPathAttributes", false, "Show Well Attributes", "", "", "" );
-    CAF_PDM_InitField( &m_wellPathAttributesInLegend, "WellPathAttributesInLegend", true, "Attributes in Legend", "", "", "" );
-    CAF_PDM_InitField( &m_showWellPathCompletions, "ShowWellPathCompletions", true, "Show Well Completions", "", "", "" );
-    CAF_PDM_InitField( &m_wellPathCompletionsInLegend, "WellPathCompletionsInLegend", true, "Completions in Legend", "", "", "" );
-    CAF_PDM_InitField( &m_showWellPathComponentsBothSides, "ShowWellPathAttrBothSides", true, "Show Both Sides", "", "", "" );
-    CAF_PDM_InitField( &m_showWellPathComponentLabels, "ShowWellPathAttrLabels", false, "Show Labels", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_wellPathComponentSource, "AttributesWellPathSource", "Well Path", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_wellPathAttributeCollection, "AttributesCollection", "Well Attributes", "", "", "" );
+    CAF_PDM_InitField( &m_showWellPathAttributes, "ShowWellPathAttributes", false, "Show Well Attributes" );
+    CAF_PDM_InitField( &m_wellPathAttributesInLegend, "WellPathAttributesInLegend", true, "Attributes in Legend" );
+    CAF_PDM_InitField( &m_showWellPathCompletions, "ShowWellPathCompletions", true, "Show Well Completions" );
+    CAF_PDM_InitField( &m_wellPathCompletionsInLegend, "WellPathCompletionsInLegend", true, "Completions in Legend" );
+    CAF_PDM_InitField( &m_showWellPathComponentsBothSides, "ShowWellPathAttrBothSides", true, "Show Both Sides" );
+    CAF_PDM_InitField( &m_showWellPathComponentLabels, "ShowWellPathAttrLabels", false, "Show Labels" );
+    CAF_PDM_InitFieldNoDefault( &m_wellPathComponentSource, "AttributesWellPathSource", "Well Path" );
+    CAF_PDM_InitFieldNoDefault( &m_wellPathAttributeCollection, "AttributesCollection", "Well Attributes" );
 
-    CAF_PDM_InitField( &m_overburdenHeight, "OverburdenHeight", 0.0, "Overburden Height", "", "", "" );
+    CAF_PDM_InitField( &m_overburdenHeight, "OverburdenHeight", 0.0, "Overburden Height" );
     m_overburdenHeight.uiCapability()->setUiHidden( true );
-    CAF_PDM_InitField( &m_underburdenHeight, "UnderburdenHeight", 0.0, "Underburden Height", "", "", "" );
+    CAF_PDM_InitField( &m_underburdenHeight, "UnderburdenHeight", 0.0, "Underburden Height" );
     m_underburdenHeight.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_resultDefinition, "ResultDefinition", "Result Definition", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_resultDefinition, "ResultDefinition", "Result Definition" );
     m_resultDefinition.uiCapability()->setUiTreeHidden( true );
     m_resultDefinition.uiCapability()->setUiTreeChildrenHidden( true );
     m_resultDefinition = new RimEclipseResultDefinition;
 
-    CAF_PDM_InitFieldNoDefault( &m_ensembleWellLogCurveSet,
-                                "EnsembleWellLogCurveSet",
-                                "Ensemble Well Logs Curve Set",
-                                "",
-                                "",
-                                "" );
+    CAF_PDM_InitFieldNoDefault( &m_ensembleWellLogCurveSet, "EnsembleWellLogCurveSet", "Ensemble Well Logs Curve Set" );
     m_ensembleWellLogCurveSet.uiCapability()->setUiTreeHidden( true );
 
     m_formationsForCaseWithSimWellOnly = false;

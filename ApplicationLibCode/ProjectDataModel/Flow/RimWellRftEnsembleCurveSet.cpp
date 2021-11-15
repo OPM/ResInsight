@@ -39,21 +39,21 @@ CAF_PDM_SOURCE_INIT( RimWellRftEnsembleCurveSet, "WellRftEnsembleCurveSet" );
 RimWellRftEnsembleCurveSet::RimWellRftEnsembleCurveSet()
 {
     CAF_PDM_InitObject( "Ensemble Curve Set", ":/EnsembleCurveSet16x16.png", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_ensemble, "Ensemble", "Ensemble", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_ensemble, "Ensemble", "Ensemble" );
     m_ensemble.uiCapability()->setUiTreeChildrenHidden( true );
     m_ensemble.uiCapability()->setAutoAddingOptionFromValue( false );
 
-    CAF_PDM_InitFieldNoDefault( &m_ensembleName, "NameAndUnit", "NameAndUnit", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_ensembleName, "NameAndUnit", "NameAndUnit" );
     m_ensembleName.registerGetMethod( this, &RimWellRftEnsembleCurveSet::ensembleName );
     m_ensembleName.uiCapability()->setUiHidden( true );
     m_ensembleName.xmlCapability()->disableIO();
 
-    CAF_PDM_InitField( &m_ensembleColorMode, "ColorMode", ColorModeEnum( ColorMode::SINGLE_COLOR ), "Coloring Mode", "", "", "" );
+    CAF_PDM_InitField( &m_ensembleColorMode, "ColorMode", ColorModeEnum( ColorMode::SINGLE_COLOR ), "Coloring Mode" );
 
-    CAF_PDM_InitField( &m_ensembleParameter, "EnsembleParameter", QString( "" ), "Ensemble Parameter", "", "", "" );
+    CAF_PDM_InitField( &m_ensembleParameter, "EnsembleParameter", QString( "" ), "Ensemble Parameter" );
     m_ensembleParameter.uiCapability()->setUiEditorTypeName( caf::PdmUiListEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitFieldNoDefault( &m_ensembleLegendConfig, "LegendConfig", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_ensembleLegendConfig, "LegendConfig", "" );
     m_ensembleLegendConfig = new RimRegularLegendConfig();
     m_ensembleLegendConfig->setColorLegend(
         RimRegularLegendConfig::mapToColorLegend( RimEnsembleCurveSetColorManager::DEFAULT_ENSEMBLE_COLOR_RANGE ) );

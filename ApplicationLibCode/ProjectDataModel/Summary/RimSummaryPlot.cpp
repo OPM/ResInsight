@@ -201,36 +201,36 @@ RimSummaryPlot::RimSummaryPlot()
 {
     CAF_PDM_InitScriptableObject( "Summary Plot", ":/SummaryPlotLight16x16.png", "", "A Summary Plot" );
 
-    CAF_PDM_InitScriptableField( &m_useAutoPlotTitle, "IsUsingAutoName", true, "Auto Title", "", "", "" );
-    CAF_PDM_InitScriptableField( &m_description, "PlotDescription", QString( "Summary Plot" ), "Name", "", "", "" );
-    CAF_PDM_InitScriptableField( &m_normalizeCurveYValues, "normalizeCurveYValues", false, "Normalize all curves", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_useAutoPlotTitle, "IsUsingAutoName", true, "Auto Title" );
+    CAF_PDM_InitScriptableField( &m_description, "PlotDescription", QString( "Summary Plot" ), "Name" );
+    CAF_PDM_InitScriptableField( &m_normalizeCurveYValues, "normalizeCurveYValues", false, "Normalize all curves" );
 
-    CAF_PDM_InitFieldNoDefault( &m_summaryCurveCollection, "SummaryCurveCollection", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_summaryCurveCollection, "SummaryCurveCollection", "" );
     m_summaryCurveCollection.uiCapability()->setUiTreeHidden( true );
     m_summaryCurveCollection = new RimSummaryCurveCollection;
     m_summaryCurveCollection->curvesChanged.connect( this, &RimSummaryPlot::onCurveCollectionChanged );
 
-    CAF_PDM_InitFieldNoDefault( &m_ensembleCurveSetCollection, "EnsembleCurveSetCollection", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_ensembleCurveSetCollection, "EnsembleCurveSetCollection", "" );
     m_ensembleCurveSetCollection.uiCapability()->setUiTreeHidden( true );
     m_ensembleCurveSetCollection = new RimEnsembleCurveSetCollection();
 
-    CAF_PDM_InitFieldNoDefault( &m_gridTimeHistoryCurves, "GridTimeHistoryCurves", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_gridTimeHistoryCurves, "GridTimeHistoryCurves", "" );
     m_gridTimeHistoryCurves.uiCapability()->setUiTreeHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_asciiDataCurves, "AsciiDataCurves", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_asciiDataCurves, "AsciiDataCurves", "" );
     m_asciiDataCurves.uiCapability()->setUiTreeHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_leftYAxisProperties, "LeftYAxisProperties", "Left Y Axis", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_leftYAxisProperties, "LeftYAxisProperties", "Left Y Axis" );
     m_leftYAxisProperties.uiCapability()->setUiTreeHidden( true );
     m_leftYAxisProperties = new RimPlotAxisProperties;
     m_leftYAxisProperties->setNameAndAxis( "Left Y-Axis", QwtPlot::yLeft );
 
-    CAF_PDM_InitFieldNoDefault( &m_rightYAxisProperties, "RightYAxisProperties", "Right Y Axis", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_rightYAxisProperties, "RightYAxisProperties", "Right Y Axis" );
     m_rightYAxisProperties.uiCapability()->setUiTreeHidden( true );
     m_rightYAxisProperties = new RimPlotAxisProperties;
     m_rightYAxisProperties->setNameAndAxis( "Right Y-Axis", QwtPlot::yRight );
 
-    CAF_PDM_InitFieldNoDefault( &m_bottomAxisProperties, "BottomAxisProperties", "Bottom X Axis", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_bottomAxisProperties, "BottomAxisProperties", "Bottom X Axis" );
     m_bottomAxisProperties.uiCapability()->setUiTreeHidden( true );
     m_bottomAxisProperties = new RimPlotAxisProperties;
     m_bottomAxisProperties->setNameAndAxis( "Bottom X-Axis", QwtPlot::xBottom );
@@ -239,16 +239,11 @@ RimSummaryPlot::RimSummaryPlot()
     connectAxisSignals( m_rightYAxisProperties() );
     connectAxisSignals( m_bottomAxisProperties() );
 
-    CAF_PDM_InitFieldNoDefault( &m_timeAxisProperties, "TimeAxisProperties", "Time Axis", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_timeAxisProperties, "TimeAxisProperties", "Time Axis" );
     m_timeAxisProperties.uiCapability()->setUiTreeHidden( true );
     m_timeAxisProperties = new RimSummaryTimeAxisProperties;
 
-    CAF_PDM_InitFieldNoDefault( &m_textCurveSetEditor,
-                                "SummaryPlotFilterTextCurveSetEditor",
-                                "Text Filter Curve Creator",
-                                "",
-                                "",
-                                "" );
+    CAF_PDM_InitFieldNoDefault( &m_textCurveSetEditor, "SummaryPlotFilterTextCurveSetEditor", "Text Filter Curve Creator" );
     m_textCurveSetEditor.uiCapability()->setUiTreeHidden( true );
     m_textCurveSetEditor = new RimSummaryPlotFilterTextCurveSetEditor;
 

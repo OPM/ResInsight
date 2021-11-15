@@ -74,7 +74,7 @@ RimStimPlanFractureTemplate::RimStimPlanFractureTemplate()
 {
     CAF_PDM_InitScriptableObject( "Fracture Template", ":/FractureTemplate16x16.png", "", "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_stimPlanFileName, "StimPlanFileName", "File Name", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_stimPlanFileName, "StimPlanFileName", "File Name" );
     m_stimPlanFileName.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
 
     CAF_PDM_InitField( &m_userDefinedWellPathDepthAtFracture,
@@ -85,10 +85,10 @@ RimStimPlanFractureTemplate::RimStimPlanFractureTemplate()
                        "",
                        "" );
 
-    CAF_PDM_InitField( &m_borderPolygonResultName, "BorderPolygonResultName", QString( "" ), "Parameter", "", "", "" );
+    CAF_PDM_InitField( &m_borderPolygonResultName, "BorderPolygonResultName", QString( "" ), "Parameter" );
     m_borderPolygonResultName.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitField( &m_activeTimeStepIndex, "ActiveTimeStepIndex", 0, "Active TimeStep Index", "", "", "" );
+    CAF_PDM_InitField( &m_activeTimeStepIndex, "ActiveTimeStepIndex", 0, "Active TimeStep Index" );
     CAF_PDM_InitField( &m_conductivityResultNameOnFile,
                        "ConductivityResultName",
                        QString( "" ),
@@ -97,13 +97,13 @@ RimStimPlanFractureTemplate::RimStimPlanFractureTemplate()
                        "",
                        "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_propertiesTable, "PropertiesTable", "Properties Table", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_propertiesTable, "PropertiesTable", "Properties Table" );
     m_propertiesTable.uiCapability()->setUiEditorTypeName( caf::PdmUiTextEditor::uiEditorTypeName() );
     m_propertiesTable.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
     m_propertiesTable.uiCapability()->setUiReadOnly( true );
     m_propertiesTable.xmlCapability()->disableIO();
 
-    CAF_PDM_InitField( &m_showStimPlanMesh_OBSOLETE, "ShowStimPlanMesh", true, "", "", "", "" );
+    CAF_PDM_InitField( &m_showStimPlanMesh_OBSOLETE, "ShowStimPlanMesh", true, "" );
     m_showStimPlanMesh_OBSOLETE.uiCapability()->setUiHidden( true );
 
     m_readError = false;

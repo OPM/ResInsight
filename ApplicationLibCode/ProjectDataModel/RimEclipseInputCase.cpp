@@ -56,7 +56,7 @@ RimEclipseInputCase::RimEclipseInputCase()
 {
     CAF_PDM_InitObject( "RimInputCase", ":/EclipseInput48x48.png", "", "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_additionalFiles, "AdditionalFileNamesProxy", "Additional Files", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_additionalFiles, "AdditionalFileNamesProxy", "Additional Files" );
     m_additionalFiles.registerGetMethod( this, &RimEclipseInputCase::additionalFiles );
     m_additionalFiles.uiCapability()->setUiReadOnly( true );
     m_additionalFiles.xmlCapability()->setIOWritable( false );

@@ -43,9 +43,9 @@ CAF_PDM_SOURCE_INIT( RicfExportWellPathCompletions, "exportWellPathCompletions" 
 //--------------------------------------------------------------------------------------------------
 RicfExportWellPathCompletions::RicfExportWellPathCompletions()
 {
-    CAF_PDM_InitScriptableField( &m_caseId, "caseId", -1, "Case ID", "", "", "" );
-    CAF_PDM_InitScriptableField( &m_timeStep, "timeStep", -1, "Time Step Index", "", "", "" );
-    CAF_PDM_InitScriptableField( &m_wellPathNames, "wellPathNames", std::vector<QString>(), "Well Path Names", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_caseId, "caseId", -1, "Case ID" );
+    CAF_PDM_InitScriptableField( &m_timeStep, "timeStep", -1, "Time Step Index" );
+    CAF_PDM_InitScriptableField( &m_wellPathNames, "wellPathNames", std::vector<QString>(), "Well Path Names" );
 
     CAF_PDM_InitScriptableField( &m_fileSplit,
                                  "fileSplit",
@@ -69,11 +69,11 @@ RicfExportWellPathCompletions::RicfExportWellPathCompletions()
                                  "",
                                  "" );
 
-    CAF_PDM_InitScriptableField( &m_includeMsw, "includeMsw", true, "Export Multi Segment Well Model", "", "", "" );
-    CAF_PDM_InitScriptableField( &m_useLateralNTG, "useNtgHorizontally", false, "Use NTG Horizontally", "", "", "" );
-    CAF_PDM_InitScriptableField( &m_includePerforations, "includePerforations", true, "Include Perforations", "", "", "" );
-    CAF_PDM_InitScriptableField( &m_includeFishbones, "includeFishbones", true, "Include Fishbones", "", "", "" );
-    CAF_PDM_InitScriptableField( &m_includeFractures, "includeFractures", true, "Include Fractures", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_includeMsw, "includeMsw", true, "Export Multi Segment Well Model" );
+    CAF_PDM_InitScriptableField( &m_useLateralNTG, "useNtgHorizontally", false, "Use NTG Horizontally" );
+    CAF_PDM_InitScriptableField( &m_includePerforations, "includePerforations", true, "Include Perforations" );
+    CAF_PDM_InitScriptableField( &m_includeFishbones, "includeFishbones", true, "Include Fishbones" );
+    CAF_PDM_InitScriptableField( &m_includeFractures, "includeFractures", true, "Include Fractures" );
 
     CAF_PDM_InitScriptableField( &m_excludeMainBoreForFishbones,
                                  "excludeMainBoreForFishbones",
@@ -119,8 +119,8 @@ RicfExportWellPathCompletions::RicfExportWellPathCompletions()
                                  "",
                                  "",
                                  "" );
-    CAF_PDM_InitScriptableField( &m_exportWelspec, "exportWelspec", true, "Export WELSPEC keyword", "", "", "" );
-    CAF_PDM_InitScriptableField( &m_customFileName, "customFileName", QString(), "Custom Filename", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_exportWelspec, "exportWelspec", true, "Export WELSPEC keyword" );
+    CAF_PDM_InitScriptableField( &m_customFileName, "customFileName", QString(), "Custom Filename" );
 }
 
 //--------------------------------------------------------------------------------------------------

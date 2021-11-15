@@ -63,15 +63,15 @@ RimDerivedSummaryCase::RimDerivedSummaryCase()
     , m_summaryCase2( nullptr )
 {
     CAF_PDM_InitObject( "Summary Case", ":/SummaryCase.svg", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_summaryCase1, "SummaryCase1", "Summary Case 1", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_summaryCase1, "SummaryCase1", "Summary Case 1" );
 
-    CAF_PDM_InitFieldNoDefault( &m_operator, "Operator", "Operator", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_operator, "Operator", "Operator" );
 
-    CAF_PDM_InitFieldNoDefault( &m_summaryCase2, "SummaryCase2", "Summary Case 2", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_summaryCase2, "SummaryCase2", "Summary Case 2" );
 
-    CAF_PDM_InitFieldNoDefault( &m_useFixedTimeStep, "UseFixedTimeStep", "Use Fixed Time Step", "", "", "" );
-    CAF_PDM_InitField( &m_fixedTimeStepIndex, "FixedTimeStepIndex", 0, "Time Step", "", "", "" );
-    CAF_PDM_InitField( &m_inUse, "InUse", false, "In Use", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_useFixedTimeStep, "UseFixedTimeStep", "Use Fixed Time Step" );
+    CAF_PDM_InitField( &m_fixedTimeStepIndex, "FixedTimeStepIndex", 0, "Time Step" );
+    CAF_PDM_InitField( &m_inUse, "InUse", false, "In Use" );
     m_fixedTimeStepIndex.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
     m_fixedTimeStepIndex.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 }

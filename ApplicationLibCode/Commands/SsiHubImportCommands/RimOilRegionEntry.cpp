@@ -26,14 +26,14 @@ CAF_PDM_SOURCE_INIT( RimOilRegionEntry, "RimOilRegionEntry" );
 //--------------------------------------------------------------------------------------------------
 RimOilRegionEntry::RimOilRegionEntry()
 {
-    CAF_PDM_InitObject( "OilRegionEntry", "", "", "" );
+    CAF_PDM_InitObject( "OilRegionEntry" );
 
-    CAF_PDM_InitFieldNoDefault( &name, "OilRegionEntry", "OilRegionEntry", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &name, "OilRegionEntry", "OilRegionEntry" );
 
-    CAF_PDM_InitFieldNoDefault( &fields, "Fields", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &fields, "Fields", "" );
     fields.uiCapability()->setUiTreeHidden( true );
 
-    CAF_PDM_InitField( &selected, "Selected", false, "Selected", "", "", "" );
+    CAF_PDM_InitField( &selected, "Selected", false, "Selected" );
 }
 
 //--------------------------------------------------------------------------------------------------

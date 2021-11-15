@@ -38,9 +38,9 @@ CAF_PDM_SOURCE_INIT( RicSelectPlotTemplateUi, "RicSelectPlotTemplateUi" );
 //--------------------------------------------------------------------------------------------------
 RicSelectPlotTemplateUi::RicSelectPlotTemplateUi()
 {
-    CAF_PDM_InitObject( "RicSelectPlotTemplateUi", "", "", "" );
+    CAF_PDM_InitObject( "RicSelectPlotTemplateUi" );
 
-    CAF_PDM_InitFieldNoDefault( &m_selectedPlotTemplates, "SelectedPlotTemplates", "Plot Templates", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_selectedPlotTemplates, "SelectedPlotTemplates", "Plot Templates" );
     m_selectedPlotTemplates.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
     m_selectedPlotTemplates.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 }

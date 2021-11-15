@@ -62,12 +62,12 @@ RimFaultInViewCollection::RimFaultInViewCollection()
 {
     CAF_PDM_InitObject( "Faults", ":/draw_style_faults_24x24.png", "", "" );
 
-    CAF_PDM_InitField( &showFaultCollection, "Active", true, "Active", "", "", "" );
+    CAF_PDM_InitField( &showFaultCollection, "Active", true, "Active" );
     showFaultCollection.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitField( &showFaultFaces, "ShowFaultFaces", true, "Show Defined faces", "", "", "" );
-    CAF_PDM_InitField( &showOppositeFaultFaces, "ShowOppositeFaultFaces", true, "Show Opposite Faces", "", "", "" );
-    CAF_PDM_InitField( &m_showFaultsOutsideFilters, "ShowFaultsOutsideFilters", true, "Show Faults Outside Filters", "", "", "" );
+    CAF_PDM_InitField( &showFaultFaces, "ShowFaultFaces", true, "Show Defined faces" );
+    CAF_PDM_InitField( &showOppositeFaultFaces, "ShowOppositeFaultFaces", true, "Show Opposite Faces" );
+    CAF_PDM_InitField( &m_showFaultsOutsideFilters, "ShowFaultsOutsideFilters", true, "Show Faults Outside Filters" );
 
     CAF_PDM_InitField( &faultResult,
                        "FaultFaceCulling",
@@ -78,11 +78,11 @@ RimFaultInViewCollection::RimFaultInViewCollection()
                        "",
                        "" );
 
-    CAF_PDM_InitField( &showFaultLabel, "ShowFaultLabel", false, "Show Labels", "", "", "" );
+    CAF_PDM_InitField( &showFaultLabel, "ShowFaultLabel", false, "Show Labels" );
     cvf::Color3f defWellLabelColor = RiaPreferences::current()->defaultWellLabelColor();
-    CAF_PDM_InitField( &faultLabelColor, "FaultLabelColor", defWellLabelColor, "Label Color", "", "", "" );
+    CAF_PDM_InitField( &faultLabelColor, "FaultLabelColor", defWellLabelColor, "Label Color" );
 
-    CAF_PDM_InitField( &showNNCs, "ShowNNCs", true, "Show NNCs", "", "", "" );
+    CAF_PDM_InitField( &showNNCs, "ShowNNCs", true, "Show NNCs" );
     CAF_PDM_InitField( &hideNncsWhenNoResultIsAvailable,
                        "HideNncsWhenNoResultIsAvailable",
                        true,
@@ -91,14 +91,14 @@ RimFaultInViewCollection::RimFaultInViewCollection()
                        "",
                        "" );
 
-    CAF_PDM_InitFieldNoDefault( &faults, "Faults", "Faults", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &faults, "Faults", "Faults" );
     faults.uiCapability()->setUiTreeHidden( true );
 
-    CAF_PDM_InitField( &m_enableFaultRA, "EnableFaultRA", false, "Enable Fault RA", "", "", "" );
+    CAF_PDM_InitField( &m_enableFaultRA, "EnableFaultRA", false, "Enable Fault RA" );
     m_enableFaultRA.uiCapability()->setUiReadOnly( true );
     m_enableFaultRA.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_faultRASettings, "FaultRASettings", "Reactivation Assessment Settings", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_faultRASettings, "FaultRASettings", "Reactivation Assessment Settings" );
     m_faultRASettings = new RimFaultRASettings();
     m_faultRASettings.uiCapability()->setUiHidden( true );
     m_faultRASettings.uiCapability()->setUiTreeHidden( true );

@@ -66,53 +66,43 @@ CAF_PDM_XML_ABSTRACT_SOURCE_INIT( RimGridView, "GenericGridView" ); // Do not us
 //--------------------------------------------------------------------------------------------------
 RimGridView::RimGridView()
 {
-    CAF_PDM_InitFieldNoDefault( &m_overrideCellFilterCollection,
-                                "CellFiltersControlled",
-                                "Cell Filters (controlled)",
-                                "",
-                                "",
-                                "" );
+    CAF_PDM_InitFieldNoDefault( &m_overrideCellFilterCollection, "CellFiltersControlled", "Cell Filters (controlled)" );
     m_overrideCellFilterCollection.uiCapability()->setUiTreeHidden( true );
     m_overrideCellFilterCollection.xmlCapability()->disableIO();
 
-    CAF_PDM_InitFieldNoDefault( &m_intersectionCollection, "CrossSections", "Intersections", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_intersectionCollection, "CrossSections", "Intersections" );
     m_intersectionCollection.uiCapability()->setUiTreeHidden( true );
     m_intersectionCollection = new RimIntersectionCollection();
 
-    CAF_PDM_InitFieldNoDefault( &m_intersectionResultDefCollection,
-                                "IntersectionResultDefColl",
-                                "Intersection Results",
-                                "",
-                                "",
-                                "" );
+    CAF_PDM_InitFieldNoDefault( &m_intersectionResultDefCollection, "IntersectionResultDefColl", "Intersection Results" );
     m_intersectionResultDefCollection.uiCapability()->setUiTreeHidden( true );
     m_intersectionResultDefCollection = new RimIntersectionResultsDefinitionCollection;
 
-    CAF_PDM_InitFieldNoDefault( &m_surfaceResultDefCollection, "ReservoirSurfaceResultDefColl", "Surface Results", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_surfaceResultDefCollection, "ReservoirSurfaceResultDefColl", "Surface Results" );
     m_surfaceResultDefCollection.uiCapability()->setUiTreeHidden( true );
     m_surfaceResultDefCollection = new RimIntersectionResultsDefinitionCollection;
     m_surfaceResultDefCollection->uiCapability()->setUiName( "Surface Results" );
     m_surfaceResultDefCollection->uiCapability()->setUiIcon( caf::IconProvider( ":/ReservoirSurface16x16.png" ) );
 
-    CAF_PDM_InitFieldNoDefault( &m_gridCollection, "GridCollection", "GridCollection", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_gridCollection, "GridCollection", "GridCollection" );
     m_gridCollection.uiCapability()->setUiTreeHidden( true );
     m_gridCollection = new RimGridCollection();
 
     m_previousGridModeMeshLinesWasFaults = false;
 
-    CAF_PDM_InitFieldNoDefault( &m_overlayInfoConfig, "OverlayInfoConfig", "Info Box", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_overlayInfoConfig, "OverlayInfoConfig", "Info Box" );
     m_overlayInfoConfig = new Rim3dOverlayInfoConfig();
     m_overlayInfoConfig->setReservoirView( this );
     m_overlayInfoConfig.uiCapability()->setUiTreeHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_wellMeasurementCollection, "WellMeasurements", "Well Measurements", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_wellMeasurementCollection, "WellMeasurements", "Well Measurements" );
     m_wellMeasurementCollection = new RimWellMeasurementInViewCollection;
     m_wellMeasurementCollection.uiCapability()->setUiTreeHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_surfaceCollection, "SurfaceInViewCollection", "Surface Collection Field", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_surfaceCollection, "SurfaceInViewCollection", "Surface Collection Field" );
     m_surfaceCollection.uiCapability()->setUiTreeHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_cellFilterCollection, "RangeFilters", "Cell Filter Collection Field", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_cellFilterCollection, "RangeFilters", "Cell Filter Collection Field" );
     m_cellFilterCollection = new RimCellFilterCollection();
     m_cellFilterCollection.uiCapability()->setUiTreeHidden( true );
 

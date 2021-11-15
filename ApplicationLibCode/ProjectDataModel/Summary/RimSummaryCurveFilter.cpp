@@ -48,14 +48,14 @@ RimSummaryCurveFilter_OBSOLETE::RimSummaryCurveFilter_OBSOLETE()
 {
     CAF_PDM_InitObject( "Curve Filter", ":/SummaryCurveFilter16x16.png", "", "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_selectedSummaryCases, "SummaryCases", "Cases", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_selectedSummaryCases, "SummaryCases", "Cases" );
     m_selectedSummaryCases.uiCapability()->setUiTreeChildrenHidden( true );
     m_selectedSummaryCases.uiCapability()->setUiEditorTypeName( caf::PdmUiListEditor::uiEditorTypeName() );
     m_selectedSummaryCases.uiCapability()->setAutoAddingOptionFromValue( false );
     m_selectedSummaryCases.xmlCapability()->disableIO();
     m_selectedSummaryCases.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 
-    CAF_PDM_InitFieldNoDefault( &m_summaryFilter, "VarListFilter", "Filter", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_summaryFilter, "VarListFilter", "Filter" );
     m_summaryFilter.uiCapability()->setUiTreeChildrenHidden( true );
     m_summaryFilter.uiCapability()->setUiTreeHidden( true );
 
@@ -72,33 +72,33 @@ RimSummaryCurveFilter_OBSOLETE::RimSummaryCurveFilter_OBSOLETE()
     m_uiFilterResultMultiSelection.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
     m_uiFilterResultMultiSelection.uiCapability()->setAutoAddingOptionFromValue( false );
 
-    CAF_PDM_InitFieldNoDefault( &m_curves, "FilteredCurves", "Filtered Curves", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_curves, "FilteredCurves", "Filtered Curves" );
     m_curves.uiCapability()->setUiTreeHidden( true );
     m_curves.uiCapability()->setUiTreeChildrenHidden( false );
 
-    CAF_PDM_InitFieldNoDefault( &m_applyButtonField, "ApplySelection", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_applyButtonField, "ApplySelection", "" );
     m_applyButtonField.xmlCapability()->disableIO();
     m_applyButtonField = false;
     m_applyButtonField.uiCapability()->setUiEditorTypeName( caf::PdmUiPushButtonEditor::uiEditorTypeName() );
     m_applyButtonField.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LEFT );
 
-    CAF_PDM_InitField( &m_autoApplyChangesToPlot, "AutoApplyFilterChanges", true, "Auto Apply Changes", "", "", "" );
+    CAF_PDM_InitField( &m_autoApplyChangesToPlot, "AutoApplyFilterChanges", true, "Auto Apply Changes" );
 
-    CAF_PDM_InitField( &m_showCurves, "IsActive", true, "Show Curves", "", "", "" );
+    CAF_PDM_InitField( &m_showCurves, "IsActive", true, "Show Curves" );
     m_showCurves.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitField( &m_useAutoAppearanceAssignment, "UseAutoAppearanceAssignment", true, "Auto", "", "", "" );
+    CAF_PDM_InitField( &m_useAutoAppearanceAssignment, "UseAutoAppearanceAssignment", true, "Auto" );
 
-    CAF_PDM_InitFieldNoDefault( &m_caseAppearanceType, "CaseAppearanceType", "Case", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_variableAppearanceType, "VariableAppearanceType", "Vector", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_wellAppearanceType, "WellAppearanceType", "Well", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_groupAppearanceType, "GroupAppearanceType", "Group", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_regionAppearanceType, "RegionAppearanceType", "Region", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_caseAppearanceType, "CaseAppearanceType", "Case" );
+    CAF_PDM_InitFieldNoDefault( &m_variableAppearanceType, "VariableAppearanceType", "Vector" );
+    CAF_PDM_InitFieldNoDefault( &m_wellAppearanceType, "WellAppearanceType", "Well" );
+    CAF_PDM_InitFieldNoDefault( &m_groupAppearanceType, "GroupAppearanceType", "Group" );
+    CAF_PDM_InitFieldNoDefault( &m_regionAppearanceType, "RegionAppearanceType", "Region" );
 
-    CAF_PDM_InitFieldNoDefault( &m_plotAxis, "PlotAxis", "Axis", "", "", "" );
-    CAF_PDM_InitField( &m_showLegend, "ShowLegend", true, "Contribute To Legend", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_plotAxis, "PlotAxis", "Axis" );
+    CAF_PDM_InitField( &m_showLegend, "ShowLegend", true, "Contribute To Legend" );
 
-    CAF_PDM_InitFieldNoDefault( &m_curveNameConfig, "SummaryCurveNameConfig", "SummaryCurveNameConfig", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_curveNameConfig, "SummaryCurveNameConfig", "SummaryCurveNameConfig" );
     m_curveNameConfig.uiCapability()->setUiTreeHidden( true );
     m_curveNameConfig.uiCapability()->setUiTreeChildrenHidden( true );
 

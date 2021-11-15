@@ -46,7 +46,7 @@ CAF_PDM_SOURCE_INIT( RimWellFlowRateCurve, "WellFlowRateCurve" );
 //--------------------------------------------------------------------------------------------------
 RimWellFlowRateCurve::RimWellFlowRateCurve()
 {
-    CAF_PDM_InitObject( "Flow Rate Curve", "", "", "" );
+    CAF_PDM_InitObject( "Flow Rate Curve" );
     m_groupId     = 0;
     m_doFillCurve = true;
 }

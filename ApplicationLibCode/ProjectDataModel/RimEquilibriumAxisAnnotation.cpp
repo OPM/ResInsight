@@ -54,10 +54,10 @@ RimEquilibriumAxisAnnotation::RimEquilibriumAxisAnnotation()
 {
     CAF_PDM_InitObject( "Equilibrium Annotation", ":/LeftAxis16x16.png", "", "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_annotationType, "AnnotationType", "AnnotationType", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_annotationType, "AnnotationType", "AnnotationType" );
 
-    CAF_PDM_InitFieldNoDefault( &m_sourceCase, "Associated3DCase", "Eclipse Case", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_equilNum, "m_equilNum", "equil Num", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_sourceCase, "Associated3DCase", "Eclipse Case" );
+    CAF_PDM_InitFieldNoDefault( &m_equilNum, "m_equilNum", "equil Num" );
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -43,23 +43,18 @@ RimSurfaceInViewCollection::RimSurfaceInViewCollection()
 {
     CAF_PDM_InitObject( "Surfaces", ":/ReservoirSurfaces16x16.png", "", "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_collectionName, "CollectionName", "Name", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_collectionName, "CollectionName", "Name" );
     m_collectionName.registerGetMethod( this, &RimSurfaceInViewCollection::name );
     m_collectionName.uiCapability()->setUiReadOnly( true );
     m_collectionName.xmlCapability()->disableIO();
 
-    CAF_PDM_InitFieldNoDefault( &m_collectionsInView,
-                                "SurfacesInViewFieldCollections",
-                                "SurfacesInViewFieldCollections",
-                                "",
-                                "",
-                                "" );
+    CAF_PDM_InitFieldNoDefault( &m_collectionsInView, "SurfacesInViewFieldCollections", "SurfacesInViewFieldCollections" );
     m_collectionsInView.uiCapability()->setUiTreeHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_surfacesInView, "SurfacesInViewField", "SurfacesInViewField", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_surfacesInView, "SurfacesInViewField", "SurfacesInViewField" );
     m_surfacesInView.uiCapability()->setUiTreeHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_surfaceCollection, "SurfaceCollectionRef", "SurfaceCollection", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_surfaceCollection, "SurfaceCollectionRef", "SurfaceCollection" );
     m_surfaceCollection.uiCapability()->setUiHidden( true );
 
     nameField()->uiCapability()->setUiHidden( true );

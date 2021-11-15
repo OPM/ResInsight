@@ -57,8 +57,8 @@ RimPlot::RimPlot()
 {
     CAF_PDM_InitScriptableObjectWithNameAndComment( "Plot", "", "", "", "Plot", "The Abstract Base Class for all Plot Objects" );
 
-    CAF_PDM_InitFieldNoDefault( &m_rowSpan, "RowSpan", "Row Span", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_colSpan, "ColSpan", "Col Span", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_rowSpan, "RowSpan", "Row Span" );
+    CAF_PDM_InitFieldNoDefault( &m_colSpan, "ColSpan", "Col Span" );
 }
 
 //--------------------------------------------------------------------------------------------------

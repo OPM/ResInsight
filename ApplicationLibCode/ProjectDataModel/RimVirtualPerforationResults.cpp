@@ -31,11 +31,11 @@ RimVirtualPerforationResults::RimVirtualPerforationResults()
 {
     CAF_PDM_InitObject( "Well Connection Factors", ":/WellCF16x16.png", "", "" );
 
-    CAF_PDM_InitField( &m_isActive, "ShowConnectionFactors", false, "", "", "", "" );
-    CAF_PDM_InitField( &m_showClosedConnections, "ShowClosedConnections", true, "Show On Closed Connections", "", "", "" );
-    CAF_PDM_InitField( &m_geometryScaleFactor, "GeometryScaleFactor", 2.0, "Geometry Scale Factor", "", "", "" );
+    CAF_PDM_InitField( &m_isActive, "ShowConnectionFactors", false, "" );
+    CAF_PDM_InitField( &m_showClosedConnections, "ShowClosedConnections", true, "Show On Closed Connections" );
+    CAF_PDM_InitField( &m_geometryScaleFactor, "GeometryScaleFactor", 2.0, "Geometry Scale Factor" );
 
-    CAF_PDM_InitFieldNoDefault( &m_legendConfig, "LegendDefinition", "Color Legend", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_legendConfig, "LegendDefinition", "Color Legend" );
     m_legendConfig.uiCapability()->setUiTreeHidden( true );
 
     m_legendConfig = new RimRegularLegendConfig();

@@ -47,17 +47,17 @@ RimSummaryCase::RimSummaryCase()
 {
     CAF_PDM_InitScriptableObject( "Summary Case", ":/SummaryCase.svg", "", "The Base Class for all Summary Cases" );
 
-    CAF_PDM_InitScriptableFieldNoDefault( &m_displayName, "ShortName", "Display Name", "", "", "" );
-    CAF_PDM_InitScriptableFieldNoDefault( &m_displayNameOption, "NameSetting", "Name Setting", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_displayName, "ShortName", "Display Name" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_displayNameOption, "NameSetting", "Name Setting" );
 
-    CAF_PDM_InitScriptableField( &m_useAutoShortName_OBSOLETE, "AutoShortyName", false, "Use Auto Display Name", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_useAutoShortName_OBSOLETE, "AutoShortyName", false, "Use Auto Display Name" );
     m_useAutoShortName_OBSOLETE.xmlCapability()->setIOWritable( false );
     m_useAutoShortName_OBSOLETE.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitScriptableFieldNoDefault( &m_summaryHeaderFilename, "SummaryHeaderFilename", "Summary Header File", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_summaryHeaderFilename, "SummaryHeaderFilename", "Summary Header File" );
     m_summaryHeaderFilename.uiCapability()->setUiReadOnly( true );
 
-    CAF_PDM_InitScriptableField( &m_caseId, "Id", -1, "Case ID", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_caseId, "Id", -1, "Case ID" );
     m_caseId.registerKeywordAlias( "CaseId" );
     m_caseId.uiCapability()->setUiReadOnly( true );
     m_caseId.capability<caf::PdmAbstractFieldScriptingCapability>()->setIOWriteable( false );

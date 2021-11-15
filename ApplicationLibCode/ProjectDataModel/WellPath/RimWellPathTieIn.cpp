@@ -42,14 +42,14 @@ RimWellPathTieIn::RimWellPathTieIn()
 {
     CAF_PDM_InitObject( "Well Path Tie In", ":/NotDefined.png", "", "Well Path Tie In description" );
 
-    CAF_PDM_InitFieldNoDefault( &m_parentWell, "ParentWellPath", "Parent Well Path", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_childWell, "ChildWellPath", "ChildWellPath", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_tieInMeasuredDepth, "TieInMeasuredDepth", "Tie In Measured Depth", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_parentWell, "ParentWellPath", "Parent Well Path" );
+    CAF_PDM_InitFieldNoDefault( &m_childWell, "ChildWellPath", "ChildWellPath" );
+    CAF_PDM_InitFieldNoDefault( &m_tieInMeasuredDepth, "TieInMeasuredDepth", "Tie In Measured Depth" );
     m_tieInMeasuredDepth.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitField( &m_addValveAtConnection, "AddValveAtConnection", false, "Add Outlet Valve for Branches", "", "", "" );
+    CAF_PDM_InitField( &m_addValveAtConnection, "AddValveAtConnection", false, "Add Outlet Valve for Branches" );
 
-    CAF_PDM_InitFieldNoDefault( &m_valve, "Valve", "Branch Outlet Valve", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_valve, "Valve", "Branch Outlet Valve" );
 
     m_valve = new RimWellPathValve;
 }

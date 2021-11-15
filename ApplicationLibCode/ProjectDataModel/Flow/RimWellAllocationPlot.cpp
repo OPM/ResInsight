@@ -76,10 +76,10 @@ RimWellAllocationPlot::RimWellAllocationPlot()
 {
     CAF_PDM_InitObject( "Well Allocation Plot", ":/WellAllocPlot16x16.png", "", "" );
 
-    CAF_PDM_InitField( &m_userName, "PlotDescription", QString( "Flow Diagnostics Plot" ), "Name", "", "", "" );
+    CAF_PDM_InitField( &m_userName, "PlotDescription", QString( "Flow Diagnostics Plot" ), "Name" );
     m_userName.uiCapability()->setUiReadOnly( true );
 
-    CAF_PDM_InitField( &m_showPlotTitle, "ShowPlotTitle", true, "Show Plot Title", "", "", "" );
+    CAF_PDM_InitField( &m_showPlotTitle, "ShowPlotTitle", true, "Show Plot Title" );
 
     CAF_PDM_InitField( &m_branchDetection,
                        "BranchDetection",
@@ -89,16 +89,16 @@ RimWellAllocationPlot::RimWellAllocationPlot()
                        "Compute branches based on how simulation well cells are organized",
                        "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_case, "CurveCase", "Case", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_case, "CurveCase", "Case" );
     m_case.uiCapability()->setUiTreeChildrenHidden( true );
 
-    CAF_PDM_InitField( &m_timeStep, "PlotTimeStep", 0, "Time Step", "", "", "" );
-    CAF_PDM_InitField( &m_wellName, "WellName", QString( "None" ), "Well", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_flowDiagSolution, "FlowDiagSolution", "Plot Type", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_flowType, "FlowType", "Flow Type", "", "", "" );
-    CAF_PDM_InitField( &m_groupSmallContributions, "GroupSmallContributions", true, "Group Small Contributions", "", "", "" );
-    CAF_PDM_InitField( &m_smallContributionsThreshold, "SmallContributionsThreshold", 0.005, "Threshold", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_accumulatedWellFlowPlot, "AccumulatedWellFlowPlot", "Accumulated Well Flow", "", "", "" );
+    CAF_PDM_InitField( &m_timeStep, "PlotTimeStep", 0, "Time Step" );
+    CAF_PDM_InitField( &m_wellName, "WellName", QString( "None" ), "Well" );
+    CAF_PDM_InitFieldNoDefault( &m_flowDiagSolution, "FlowDiagSolution", "Plot Type" );
+    CAF_PDM_InitFieldNoDefault( &m_flowType, "FlowType", "Flow Type" );
+    CAF_PDM_InitField( &m_groupSmallContributions, "GroupSmallContributions", true, "Group Small Contributions" );
+    CAF_PDM_InitField( &m_smallContributionsThreshold, "SmallContributionsThreshold", 0.005, "Threshold" );
+    CAF_PDM_InitFieldNoDefault( &m_accumulatedWellFlowPlot, "AccumulatedWellFlowPlot", "Accumulated Well Flow" );
     m_accumulatedWellFlowPlot.uiCapability()->setUiTreeHidden( true );
     m_accumulatedWellFlowPlot = new RimWellLogPlot;
     m_accumulatedWellFlowPlot->setDepthUnit( RiaDefines::DepthUnitType::UNIT_NONE );
@@ -106,20 +106,17 @@ RimWellAllocationPlot::RimWellAllocationPlot()
     m_accumulatedWellFlowPlot->setLegendsVisible( false );
     m_accumulatedWellFlowPlot->uiCapability()->setUiIconFromResourceString( ":/WellFlowPlot16x16.png" );
 
-    CAF_PDM_InitFieldNoDefault( &m_totalWellAllocationPlot, "TotalWellFlowPlot", "Total Well Flow", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_totalWellAllocationPlot, "TotalWellFlowPlot", "Total Well Flow" );
     m_totalWellAllocationPlot.uiCapability()->setUiTreeHidden( true );
     m_totalWellAllocationPlot = new RimTotalWellAllocationPlot;
 
-    CAF_PDM_InitFieldNoDefault( &m_wellAllocationPlotLegend, "WellAllocLegend", "Legend", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_wellAllocationPlotLegend, "WellAllocLegend", "Legend" );
     m_wellAllocationPlotLegend.uiCapability()->setUiTreeHidden( true );
     m_wellAllocationPlotLegend = new RimWellAllocationPlotLegend;
 
     CAF_PDM_InitFieldNoDefault( &m_tofAccumulatedPhaseFractionsPlot,
                                 "TofAccumulatedPhaseFractionsPlot",
-                                "TOF Accumulated Phase Fractions",
-                                "",
-                                "",
-                                "" );
+                                "TOF Accumulated Phase Fractions" );
     m_tofAccumulatedPhaseFractionsPlot.uiCapability()->setUiTreeHidden( true );
     m_tofAccumulatedPhaseFractionsPlot = new RimTofAccumulatedPhaseFractionsPlot;
 

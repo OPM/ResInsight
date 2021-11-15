@@ -54,12 +54,12 @@ RimWellLogFileCurve::RimWellLogFileCurve()
 {
     CAF_PDM_InitObject( "Well Log File Curve", RimWellLogCurve::wellLogCurveIconName(), "", "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_wellPath, "CurveWellPath", "Well Path", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_wellPath, "CurveWellPath", "Well Path" );
     m_wellPath.uiCapability()->setUiTreeChildrenHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_wellLogChannelName, "CurveWellLogChannel", "Well Log Channel", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_wellLogChannelName, "CurveWellLogChannel", "Well Log Channel" );
 
-    CAF_PDM_InitFieldNoDefault( &m_wellLogFile, "WellLogFile", "Well Log File", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_wellLogFile, "WellLogFile", "Well Log File" );
 
     m_wellPath = nullptr;
 }

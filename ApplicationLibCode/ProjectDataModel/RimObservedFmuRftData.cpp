@@ -30,10 +30,10 @@ CAF_PDM_SOURCE_INIT( RimObservedFmuRftData, "ObservedFmuRftData" );
 RimObservedFmuRftData::RimObservedFmuRftData()
 {
     CAF_PDM_InitObject( "Observed FMU Data", ":/ObservedRFTDataFile16x16.png", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_directoryPath, "Directory", "Directory", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_directoryPath, "Directory", "Directory" );
     m_directoryPath.uiCapability()->setUiReadOnly( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_wells, "Wells", "Wells", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_wells, "Wells", "Wells" );
     m_wells.xmlCapability()->disableIO();
     m_wells.uiCapability()->setUiReadOnly( true );
     m_wells.registerGetMethod( this, &RimObservedFmuRftData::wells );

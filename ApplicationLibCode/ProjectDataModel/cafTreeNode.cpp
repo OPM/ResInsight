@@ -29,7 +29,7 @@ cafTreeNode::cafTreeNode()
 {
     CAF_PDM_InitObject( "WellPath", ":/Folder.svg", "", "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_childNodes, "ChildNodes", "ChildNodes", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_childNodes, "ChildNodes", "ChildNodes" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -106,10 +106,10 @@ cafNamedTreeNode::cafNamedTreeNode()
 {
     CAF_PDM_InitObject( "Node", ":/Folder.svg", "", "" );
 
-    CAF_PDM_InitField( &m_name, "Name", QString(), "Name", "", "", "" );
+    CAF_PDM_InitField( &m_name, "Name", QString(), "Name" );
     m_name.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitField( &m_isChecked, "IsChecked", true, "Active", "", "", "" );
+    CAF_PDM_InitField( &m_isChecked, "IsChecked", true, "Active" );
     m_isChecked.uiCapability()->setUiHidden( true );
 }
 
@@ -192,7 +192,7 @@ cafObjectReferenceTreeNode::cafObjectReferenceTreeNode()
 {
     CAF_PDM_InitObject( "cafObjectReferenceTreeNode", ":/Folder.svg", "", "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_referencedObject, "ReferencedObject", "Referenced Object", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_referencedObject, "ReferencedObject", "Referenced Object" );
 
     m_childNodes.uiCapability()->setUiTreeHidden( true );
 

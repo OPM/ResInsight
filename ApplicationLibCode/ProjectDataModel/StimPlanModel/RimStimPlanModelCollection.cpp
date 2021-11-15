@@ -32,9 +32,9 @@ CAF_PDM_SOURCE_INIT( RimStimPlanModelCollection, "StimPlanModelCollection" );
 //--------------------------------------------------------------------------------------------------
 RimStimPlanModelCollection::RimStimPlanModelCollection( void )
 {
-    CAF_PDM_InitScriptableObject( "StimPlan Models", "", "", "" );
+    CAF_PDM_InitScriptableObject( "StimPlan Models" );
 
-    CAF_PDM_InitScriptableFieldNoDefault( &m_stimPlanModels, "StimPlanModels", "", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_stimPlanModels, "StimPlanModels", "" );
     m_stimPlanModels.uiCapability()->setUiTreeHidden( true );
 
     setName( "StimPlan Models" );

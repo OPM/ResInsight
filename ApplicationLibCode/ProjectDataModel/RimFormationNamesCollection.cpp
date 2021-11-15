@@ -31,7 +31,7 @@ RimFormationNamesCollection::RimFormationNamesCollection()
 {
     CAF_PDM_InitObject( "Formations", ":/FormationCollection16x16.png", "", "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_formationNamesList, "FormationNamesList", "Formations", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_formationNamesList, "FormationNamesList", "Formations" );
     m_formationNamesList.uiCapability()->setUiTreeHidden( true );
 
     setDeletable( true );

@@ -67,25 +67,25 @@ RimEclipseStatisticsCase::RimEclipseStatisticsCase()
 {
     CAF_PDM_InitObject( "Case Group Statistics", ":/Histogram16x16.png", "", "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_calculateEditCommand, "m_editingAllowed", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_calculateEditCommand, "m_editingAllowed", "" );
     caf::PdmUiPushButtonEditor::configureEditorForField( &m_calculateEditCommand );
     m_calculateEditCommand = false;
 
-    CAF_PDM_InitField( &m_selectionSummary, "SelectionSummary", QString( "" ), "Summary of Calculation Setup", "", "", "" );
+    CAF_PDM_InitField( &m_selectionSummary, "SelectionSummary", QString( "" ), "Summary of Calculation Setup" );
     m_selectionSummary.xmlCapability()->disableIO();
     m_selectionSummary.uiCapability()->setUiReadOnly( true );
     m_selectionSummary.uiCapability()->setUiEditorTypeName( caf::PdmUiTextEditor::uiEditorTypeName() );
     m_selectionSummary.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 
-    CAF_PDM_InitScriptableFieldNoDefault( &m_resultType, "ResultType", "Result Type", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_resultType, "ResultType", "Result Type" );
     m_resultType.xmlCapability()->setIOWritable( false );
-    CAF_PDM_InitScriptableFieldNoDefault( &m_porosityModel, "PorosityModel", "Porosity Model", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_porosityModel, "PorosityModel", "Porosity Model" );
     m_porosityModel.xmlCapability()->setIOWritable( false );
 
-    CAF_PDM_InitScriptableFieldNoDefault( &m_selectedDynamicProperties, "DynamicPropertiesToCalculate", "Dyn Prop", "", "", "" );
-    CAF_PDM_InitScriptableFieldNoDefault( &m_selectedStaticProperties, "StaticPropertiesToCalculate", "Stat Prop", "", "", "" );
-    CAF_PDM_InitScriptableFieldNoDefault( &m_selectedGeneratedProperties, "GeneratedPropertiesToCalculate", "", "", "", "" );
-    CAF_PDM_InitScriptableFieldNoDefault( &m_selectedInputProperties, "InputPropertiesToCalculate", "", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_selectedDynamicProperties, "DynamicPropertiesToCalculate", "Dyn Prop" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_selectedStaticProperties, "StaticPropertiesToCalculate", "Stat Prop" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_selectedGeneratedProperties, "GeneratedPropertiesToCalculate", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_selectedInputProperties, "InputPropertiesToCalculate", "" );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_selectedFractureDynamicProperties,
                                           "FractureDynamicPropertiesToCalculate",
@@ -122,12 +122,12 @@ RimEclipseStatisticsCase::RimEclipseStatisticsCase()
     m_selectedFractureGeneratedProperties.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
     m_selectedFractureInputProperties.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 
-    CAF_PDM_InitScriptableField( &m_calculatePercentiles, "CalculatePercentiles", true, "Calculate Percentiles", "", "", "" );
-    CAF_PDM_InitScriptableFieldNoDefault( &m_percentileCalculationType, "PercentileCalculationType", "Method", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_calculatePercentiles, "CalculatePercentiles", true, "Calculate Percentiles" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_percentileCalculationType, "PercentileCalculationType", "Method" );
 
-    CAF_PDM_InitScriptableField( &m_lowPercentile, "LowPercentile", 10.0, "Low", "", "", "" );
-    CAF_PDM_InitScriptableField( &m_midPercentile, "MidPercentile", 50.0, "Mid", "", "", "" );
-    CAF_PDM_InitScriptableField( &m_highPercentile, "HighPercentile", 90.0, "High", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_lowPercentile, "LowPercentile", 10.0, "Low" );
+    CAF_PDM_InitScriptableField( &m_midPercentile, "MidPercentile", 50.0, "Mid" );
+    CAF_PDM_InitScriptableField( &m_highPercentile, "HighPercentile", 90.0, "High" );
 
     CAF_PDM_InitScriptableField( &m_wellDataSourceCase,
                                  "WellDataSourceCase",

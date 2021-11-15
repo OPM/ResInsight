@@ -50,7 +50,7 @@ RimWbsParameters::RimWbsParameters()
                                           "",
                                           "Data source for Non-Reservoir Pore Pressure",
                                           "" );
-    CAF_PDM_InitScriptableField( &m_userDefinedPPShale, "UserPPNonReservoir", 1.0, "  Multiplier of hydrostatic PP", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_userDefinedPPShale, "UserPPNonReservoir", 1.0, "  Multiplier of hydrostatic PP" );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_poissonRatioSource,
                                           "PoissionRatioSource",
@@ -88,7 +88,7 @@ RimWbsParameters::RimWbsParameters()
                                           "(SH - PP)/(OBG-PP)",
                                           "" );
 
-    CAF_PDM_InitScriptableFieldNoDefault( &m_FGShaleSource, "FGShaleSource", "FG in Shale Calculation", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_FGShaleSource, "FGShaleSource", "FG in Shale Calculation" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_K0FGSource,
                                           "K0FGSource",
                                           "K0_FG",
@@ -96,7 +96,7 @@ RimWbsParameters::RimWbsParameters()
                                           "FG in shale = K0_FG * (OBG0-PP0)\nK0_FG = (FG-PP)/(OBG-PP)",
                                           "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_waterDensitySource, "WaterDensitySource", "Water Density", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_waterDensitySource, "WaterDensitySource", "Water Density" );
     m_waterDensitySource.uiCapability()->setUiHidden( true );
 
     CAF_PDM_InitScriptableField( &m_userDefinedPoissionRatio,
@@ -111,8 +111,8 @@ RimWbsParameters::RimWbsParameters()
     CAF_PDM_InitScriptableField( &m_userDefinedUcs, "UserUcs", 100.0, "User Defined UCS [bar]", "", "User Defined UCS [bar]", "" );
 
     CAF_PDM_InitScriptableField( &m_userDefinedDF, "UserDF", 0.7, "User Defined DF", "", "User Defined Depletion Factor", "" );
-    CAF_PDM_InitScriptableField( &m_userDefinedK0FG, "UserK0FG", 0.75, "User Defined K0_FG", "", "", "" );
-    CAF_PDM_InitScriptableField( &m_userDefinedK0SH, "UserK0SH", 0.65, "User Defined K0_SH", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_userDefinedK0FG, "UserK0FG", 0.75, "User Defined K0_FG" );
+    CAF_PDM_InitScriptableField( &m_userDefinedK0SH, "UserK0SH", 0.65, "User Defined K0_SH" );
     CAF_PDM_InitScriptableField( &m_FGShaleMultiplier,
                                  "FGMultiplier",
                                  1.05,
@@ -129,11 +129,11 @@ RimWbsParameters::RimWbsParameters()
                                  "Units: g/cm^3",
                                  "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_geoMechCase, "GeoMechCase", "GeoMechCase", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_geoMechCase, "GeoMechCase", "GeoMechCase" );
     m_geoMechCase.uiCapability()->setUiHidden( true );
-    CAF_PDM_InitFieldNoDefault( &m_wellPath, "WellPath", "WellPath", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_wellPath, "WellPath", "WellPath" );
     m_wellPath.uiCapability()->setUiHidden( true );
-    CAF_PDM_InitField( &m_timeStep, "TimeStep", -1, "TimeStep", "", "", "" );
+    CAF_PDM_InitField( &m_timeStep, "TimeStep", -1, "TimeStep" );
     m_timeStep.uiCapability()->setUiHidden( true );
 
     m_parameterSourceFields = { { RigWbsParameter::PP_Reservoir(), &m_porePressureSource },
