@@ -295,11 +295,21 @@ void RimSummaryPlotManager::createNewPlot()
 
     sumPlotColl->updateConnectedEditors();
 
-    auto editors = m_curveFilterText.uiCapability()->connectedEditors();
-    if ( !editors.empty() )
     {
-        auto widget = dynamic_cast<caf::PdmUiFieldEditorHandle*>( editors.front() );
-        widget->editorWidget()->setFocus();
+        // TODO: Consider moving this code to a helper/utility class
+        auto editors = m_curveFilterText.uiCapability()->connectedEditors();
+        if ( !editors.empty() )
+        {
+            auto fieldEditorHandle = dynamic_cast<caf::PdmUiFieldEditorHandle*>( editors.front() );
+            auto widget            = fieldEditorHandle->editorWidget();
+            if ( widget )
+            {
+                // If the dock widget is floating, activateWindow() must be called to make sure the top level widget has
+                // focus before the editor widget is given focus
+                widget->activateWindow();
+                widget->setFocus();
+            }
+        }
     }
 }
 
