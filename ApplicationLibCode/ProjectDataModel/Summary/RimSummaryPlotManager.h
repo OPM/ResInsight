@@ -27,6 +27,7 @@ class RimSummaryPlot;
 class RifEclipseSummaryAddress;
 class RimSummaryCase;
 class RimSummaryCaseCollection;
+class RimEnsembleCurveSet;
 
 class RimSummaryPlotManager : public QObject, public caf::PdmObject, public caf::SelectionChangedReceiver
 
@@ -53,6 +54,7 @@ private:
     void defineEditorAttribute( const caf::PdmFieldHandle* field,
                                 QString                    uiConfigName,
                                 caf::PdmUiEditorAttribute* attribute ) override;
+    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
     void appendCurves();
     void replaceCurves();
@@ -60,11 +62,22 @@ private:
 
     bool eventFilter( QObject* obj, QEvent* event ) override;
 
-    std::pair<std::vector<RimSummaryCase*>, std::vector<RimSummaryCaseCollection*>> dataSources();
+    std::pair<std::vector<RimSummaryCase*>, std::vector<RimSummaryCaseCollection*>> dataSources() const;
 
 private:
     void                                      updateFromSelection();
+    std::set<RifEclipseSummaryAddress>        filteredAddresses();
     static std::set<RifEclipseSummaryAddress> addressesForSource( caf::PdmObject* summarySource );
+
+    static RimEnsembleCurveSet* createCurveSet( RimSummaryCaseCollection* ensemble, const RifEclipseSummaryAddress& addr );
+    static void                 appendCurvesToPlot( RimSummaryPlot*                               summaryPlot,
+                                                    const std::set<RifEclipseSummaryAddress>&     allAddressesInCase,
+                                                    const std::vector<RimSummaryCase*>&           summaryCases,
+                                                    const std::vector<RimSummaryCaseCollection*>& ensembles );
+
+    static void setFocusToEditorWidget( caf::PdmUiFieldHandle* uiFieldHandle );
+
+    void appendCurvesToPlot( RimSummaryPlot* destinationPlot );
 
 private:
     caf::PdmPtrField<RimSummaryPlot*> m_summaryPlot;
@@ -78,4 +91,7 @@ private:
     caf::PdmField<bool> m_pushButtonReplace;
     caf::PdmField<bool> m_pushButtonNew;
     caf::PdmField<bool> m_pushButtonAppend;
+
+    caf::PdmField<QString> m_labelA;
+    caf::PdmField<QString> m_labelB;
 };
