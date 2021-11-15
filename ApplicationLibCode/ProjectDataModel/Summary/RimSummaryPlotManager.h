@@ -23,8 +23,8 @@
 #include "cafPdmPtrField.h"
 #include "cafSelectionChangedReceiver.h"
 
-class RimSummaryPlot;
 class RifEclipseSummaryAddress;
+class RimSummaryPlot;
 class RimSummaryCase;
 class RimSummaryCaseCollection;
 class RimEnsembleCurveSet;
@@ -47,7 +47,7 @@ private:
     void updateCurveCandidates();
 
     void insertFilteredAddressesInSet( const QStringList&                        curveFilters,
-                                       const std::set<RifEclipseSummaryAddress>& allAddressesInCase,
+                                       const std::set<RifEclipseSummaryAddress>& sourceAddresses,
                                        std::set<RifEclipseSummaryAddress>*       setToInsertFilteredAddressesIn,
                                        std::vector<bool>*                        usedFilters );
 
@@ -64,14 +64,13 @@ private:
 
     std::pair<std::vector<RimSummaryCase*>, std::vector<RimSummaryCaseCollection*>> dataSources() const;
 
-private:
     void                                      updateFromSelection();
     std::set<RifEclipseSummaryAddress>        filteredAddresses();
     static std::set<RifEclipseSummaryAddress> addressesForSource( caf::PdmObject* summarySource );
 
     static RimEnsembleCurveSet* createCurveSet( RimSummaryCaseCollection* ensemble, const RifEclipseSummaryAddress& addr );
     static void                 appendCurvesToPlot( RimSummaryPlot*                               summaryPlot,
-                                                    const std::set<RifEclipseSummaryAddress>&     allAddressesInCase,
+                                                    const std::set<RifEclipseSummaryAddress>&     addresses,
                                                     const std::vector<RimSummaryCase*>&           summaryCases,
                                                     const std::vector<RimSummaryCaseCollection*>& ensembles );
 

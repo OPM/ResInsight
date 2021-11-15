@@ -40,7 +40,6 @@
 #include "cafPdmUiPushButtonEditor.h"
 #include "cafSelectionManager.h"
 
-#include <QDebug>
 #include <QKeyEvent>
 
 CAF_PDM_SOURCE_INIT( RimSummaryPlotManager, "RimSummaryPlotManager" );
@@ -179,13 +178,13 @@ void RimSummaryPlotManager::updateCurveCandidates()
 ///
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlotManager::insertFilteredAddressesInSet( const QStringList&                        curveFilters,
-                                                          const std::set<RifEclipseSummaryAddress>& allAddressesInCase,
+                                                          const std::set<RifEclipseSummaryAddress>& sourceAddresses,
                                                           std::set<RifEclipseSummaryAddress>* setToInsertFilteredAddressesIn,
                                                           std::vector<bool>*                  usedFilters )
 {
     std::set<RifEclipseSummaryAddress> candidateAddresses;
 
-    RicSummaryPlotFeatureImpl::insertFilteredAddressesInSet( curveFilters, allAddressesInCase, &candidateAddresses, usedFilters );
+    RicSummaryPlotFeatureImpl::insertFilteredAddressesInSet( curveFilters, sourceAddresses, &candidateAddresses, usedFilters );
 
     if ( !m_includeDiffCurves || !m_includeHistoryCurves )
     {
@@ -362,6 +361,8 @@ std::set<RifEclipseSummaryAddress> RimSummaryPlotManager::filteredAddresses()
         allAddressesFromSource = addressesForSource( ensembles.front() );
     }
 
+    if ( allAddressesFromSource.empty() ) return {};
+
     std::set<RifEclipseSummaryAddress> filteredAddressesFromSource;
     {
         QStringList allCurveAddressFilters = m_curveFilterText().split( QRegExp( "\\s+" ), QString::SkipEmptyParts );
@@ -388,7 +389,6 @@ std::set<RifEclipseSummaryAddress> RimSummaryPlotManager::addressesForSource( ca
     }
 
     auto* sumCase = dynamic_cast<RimSummaryCase*>( summarySource );
-
     if ( sumCase )
     {
         RifSummaryReaderInterface* reader = sumCase ? sumCase->summaryReader() : nullptr;
@@ -418,11 +418,11 @@ RimEnsembleCurveSet* RimSummaryPlotManager::createCurveSet( RimSummaryCaseCollec
 ///
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlotManager::appendCurvesToPlot( RimSummaryPlot*                               summaryPlot,
-                                                const std::set<RifEclipseSummaryAddress>&     allAddressesInCase,
+                                                const std::set<RifEclipseSummaryAddress>&     addresses,
                                                 const std::vector<RimSummaryCase*>&           summaryCases,
                                                 const std::vector<RimSummaryCaseCollection*>& ensembles )
 {
-    for ( const auto& addr : allAddressesInCase )
+    for ( const auto& addr : addresses )
     {
         for ( const auto ensemble : ensembles )
         {
@@ -444,6 +444,8 @@ void RimSummaryPlotManager::appendCurvesToPlot( RimSummaryPlot*                 
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlotManager::appendCurvesToPlot( RimSummaryPlot* destinationPlot )
 {
+    CAF_ASSERT( destinationPlot );
+
     auto [summaryCases, ensembles] = dataSources();
 
     std::set<RifEclipseSummaryAddress> filteredAddressesFromSource = filteredAddresses();
@@ -461,10 +463,12 @@ void RimSummaryPlotManager::appendCurvesToPlot( RimSummaryPlot* destinationPlot 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryPlotManager::setFocusToEditorWidget( caf::PdmUiFieldHandle* uifieldHandle )
+void RimSummaryPlotManager::setFocusToEditorWidget( caf::PdmUiFieldHandle* uiFieldHandle )
 {
+    CAF_ASSERT( uiFieldHandle );
+
     // TODO: Consider moving this code to a helper/utility class
-    auto editors = uifieldHandle->connectedEditors();
+    auto editors = uiFieldHandle->connectedEditors();
     if ( !editors.empty() )
     {
         auto fieldEditorHandle = dynamic_cast<caf::PdmUiFieldEditorHandle*>( editors.front() );
