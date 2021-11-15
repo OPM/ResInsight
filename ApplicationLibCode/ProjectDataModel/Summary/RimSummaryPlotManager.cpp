@@ -47,11 +47,11 @@ CAF_PDM_SOURCE_INIT( RimSummaryPlotManager, "RimSummaryPlotManager" );
 //--------------------------------------------------------------------------------------------------
 RimSummaryPlotManager::RimSummaryPlotManager()
 {
-    CAF_PDM_InitObject( "Summary Plot Manager", "", "", "" );
+    CAF_PDM_InitObject( "Summary Plot Manager" );
 
-    CAF_PDM_InitFieldNoDefault( &m_summaryPlot, "SummaryPlot", "Summary Plot", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_curveFilterText, "CurveFilterText", "Curve Filter Text", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_curveCandidates, "CurveCandidates", "Candidates", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_summaryPlot, "SummaryPlot", "Summary Plot" );
+    CAF_PDM_InitFieldNoDefault( &m_curveFilterText, "CurveFilterText", "Curve Filter Text" );
+    CAF_PDM_InitFieldNoDefault( &m_curveCandidates, "CurveCandidates", "Candidates" );
     CAF_PDM_InitField( &m_includeDiffCurves,
                        "IncludeDiffCurves",
                        true,
@@ -60,17 +60,17 @@ RimSummaryPlotManager::RimSummaryPlotManager()
                        "Difference between simulated and observed(history) curve",
                        "" );
 
-    CAF_PDM_InitField( &m_includeHistoryCurves, "IncludeHistoryCurves", true, "Include History Curves", "", "", "" );
+    CAF_PDM_InitField( &m_includeHistoryCurves, "IncludeHistoryCurves", true, "Include History Curves" );
 
-    CAF_PDM_InitFieldNoDefault( &m_pushButtonReplace, "PushButtonB", "Replace (CTRL + Enter)", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_pushButtonReplace, "PushButtonB", "Replace (CTRL + Enter)" );
     m_pushButtonReplace.uiCapability()->setUiEditorTypeName( caf::PdmUiPushButtonEditor::uiEditorTypeName() );
     m_pushButtonReplace.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 
-    CAF_PDM_InitFieldNoDefault( &m_pushButtonNew, "PushButtonC", "New (Alt + Enter)", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_pushButtonNew, "PushButtonC", "New (Alt + Enter)" );
     m_pushButtonNew.uiCapability()->setUiEditorTypeName( caf::PdmUiPushButtonEditor::uiEditorTypeName() );
     m_pushButtonNew.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 
-    CAF_PDM_InitFieldNoDefault( &m_pushButtonAppend, "PushButtonD", "Append (Shift + Enter)", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_pushButtonAppend, "PushButtonD", "Append (Shift + Enter)" );
     m_pushButtonAppend.uiCapability()->setUiEditorTypeName( caf::PdmUiPushButtonEditor::uiEditorTypeName() );
     m_pushButtonAppend.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 }

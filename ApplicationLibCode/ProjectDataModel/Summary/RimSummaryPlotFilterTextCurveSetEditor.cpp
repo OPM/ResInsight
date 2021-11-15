@@ -111,9 +111,9 @@ RimSummaryPlotFilterTextCurveSetEditor::RimSummaryPlotFilterTextCurveSetEditor()
                        "Difference between simulated and observed(history) curve",
                        "" );
 
-    CAF_PDM_InitField( &m_includeHistoryCurves, "IncludeHistoryCurves", true, "Include History Curves", "", "", "" );
+    CAF_PDM_InitField( &m_includeHistoryCurves, "IncludeHistoryCurves", true, "Include History Curves" );
 
-    CAF_PDM_InitFieldNoDefault( &m_curveCandidates, "CurveCandidates", "Candidates", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_curveCandidates, "CurveCandidates", "Candidates" );
 }
 
 //--------------------------------------------------------------------------------------------------

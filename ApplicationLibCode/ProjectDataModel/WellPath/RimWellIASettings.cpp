@@ -73,7 +73,7 @@ RimWellIASettings::RimWellIASettings()
     m_startMD.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
     m_endMD.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitField( &m_bufferXY, "BufferXY", 5.0, "Model Size (XY)", "", "", "" );
+    CAF_PDM_InitField( &m_bufferXY, "BufferXY", 5.0, "Model Size (XY)" );
 
     CAF_PDM_InitFieldNoDefault( &m_parameters, "ModelingParameters", "Modeling Parameters", ":/Bullet.png", "", "" );
 
