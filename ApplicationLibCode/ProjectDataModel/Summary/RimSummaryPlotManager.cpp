@@ -206,15 +206,15 @@ void RimSummaryPlotManager::defineEditorAttribute( const caf::PdmFieldHandle* fi
         {
             if ( field == &m_pushButtonReplace )
             {
-                myAttr->m_buttonText = "Replace (Ctrl + Enter)";
+                myAttr->m_buttonText = "Replace Curves (Ctrl + Enter)";
             }
             if ( field == &m_pushButtonNew )
             {
-                myAttr->m_buttonText = "Clear (Alt + Enter)";
+                myAttr->m_buttonText = "Create New Plot (Alt + Enter)";
             }
             if ( field == &m_pushButtonAppend )
             {
-                myAttr->m_buttonText = "Append (Shift + Enter)";
+                myAttr->m_buttonText = "Append Curves (Shift + Enter)";
             }
         }
     }
@@ -225,7 +225,76 @@ void RimSummaryPlotManager::defineEditorAttribute( const caf::PdmFieldHandle* fi
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlotManager::appendCurves()
 {
-    qDebug() << "append";
+    auto [summaryCases, ensembles] = dataSources();
+
+    std::set<RifEclipseSummaryAddress> allAddressesFromSource;
+
+    std::set<RifEclipseSummaryAddress> filteredAddressesFromSource;
+
+    if ( !summaryCases.empty() )
+    {
+        allAddressesFromSource = addressesForSource( summaryCases.front() );
+    }
+    else if ( !ensembles.empty() )
+    {
+        allAddressesFromSource = addressesForSource( ensembles.front() );
+    }
+
+    {
+        QStringList allCurveAddressFilters = m_curveFilterText().split( QRegExp( "\\s+" ), QString::SkipEmptyParts );
+
+        std::vector<bool> usedFilters;
+        insertFilteredAddressesInSet( allCurveAddressFilters,
+                                      allAddressesFromSource,
+                                      &filteredAddressesFromSource,
+                                      &usedFilters );
+    }
+
+    RicSummaryPlotFeatureImpl::EnsembleColoringType ensembleColoringStyle =
+        RicSummaryPlotFeatureImpl::EnsembleColoringType::SINGLE_COLOR;
+    QString ensembleColoringParameter;
+
+    auto            sumPlotColl = RiaSummaryTools::summaryPlotCollection();
+    RimSummaryPlot* newPlot     = m_summaryPlot;
+
+    for ( const auto& addr : filteredAddressesFromSource )
+    {
+        for ( const auto ensemble : ensembles )
+        {
+            auto curveSet =
+                RicSummaryPlotFeatureImpl::createCurveSet( ensemble, addr, ensembleColoringStyle, ensembleColoringParameter );
+            newPlot->ensembleCurveSetCollection()->addCurveSet( curveSet );
+        }
+
+        for ( const auto summaryCase : summaryCases )
+        {
+            auto* newCurve = RicSummaryPlotFeatureImpl::createCurve( summaryCase, addr );
+
+            newPlot->addCurveNoUpdate( newCurve );
+        }
+    }
+
+    newPlot->applyDefaultCurveAppearances();
+    newPlot->loadDataAndUpdate();
+
+    sumPlotColl->updateConnectedEditors();
+
+    {
+        // TODO: Consider moving this code to a helper/utility class
+        auto editors = m_curveFilterText.uiCapability()->connectedEditors();
+        if ( !editors.empty() )
+        {
+            auto fieldEditorHandle = dynamic_cast<caf::PdmUiFieldEditorHandle*>( editors.front() );
+            auto widget            = fieldEditorHandle->editorWidget();
+            if ( widget )
+            {
+                // If the dock widget is floating, activateWindow() must be called to make sure the top level widget has
+                // focus before the editor widget is given focus
+                widget->activateWindow();
+                widget->setFocus();
+            }
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -233,7 +302,77 @@ void RimSummaryPlotManager::appendCurves()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlotManager::replaceCurves()
 {
-    qDebug() << "replaceText";
+    auto [summaryCases, ensembles] = dataSources();
+
+    std::set<RifEclipseSummaryAddress> allAddressesFromSource;
+
+    if ( !summaryCases.empty() )
+    {
+        allAddressesFromSource = addressesForSource( summaryCases.front() );
+    }
+    else if ( !ensembles.empty() )
+    {
+        allAddressesFromSource = addressesForSource( ensembles.front() );
+    }
+
+    std::set<RifEclipseSummaryAddress> filteredAddressesFromSource;
+    {
+        QStringList allCurveAddressFilters = m_curveFilterText().split( QRegExp( "\\s+" ), QString::SkipEmptyParts );
+
+        std::vector<bool> usedFilters;
+        insertFilteredAddressesInSet( allCurveAddressFilters,
+                                      allAddressesFromSource,
+                                      &filteredAddressesFromSource,
+                                      &usedFilters );
+    }
+
+    RicSummaryPlotFeatureImpl::EnsembleColoringType ensembleColoringStyle =
+        RicSummaryPlotFeatureImpl::EnsembleColoringType::SINGLE_COLOR;
+    QString ensembleColoringParameter;
+
+    auto            sumPlotColl = RiaSummaryTools::summaryPlotCollection();
+    RimSummaryPlot* newPlot     = m_summaryPlot;
+    newPlot->deleteAllSummaryCurves();
+    newPlot->ensembleCurveSetCollection()->deleteAllCurveSets();
+
+    for ( const auto& addr : filteredAddressesFromSource )
+    {
+        for ( const auto ensemble : ensembles )
+        {
+            auto curveSet =
+                RicSummaryPlotFeatureImpl::createCurveSet( ensemble, addr, ensembleColoringStyle, ensembleColoringParameter );
+            newPlot->ensembleCurveSetCollection()->addCurveSet( curveSet );
+        }
+
+        for ( const auto summaryCase : summaryCases )
+        {
+            auto* newCurve = RicSummaryPlotFeatureImpl::createCurve( summaryCase, addr );
+
+            newPlot->addCurveNoUpdate( newCurve );
+        }
+    }
+
+    newPlot->applyDefaultCurveAppearances();
+    newPlot->loadDataAndUpdate();
+
+    sumPlotColl->updateConnectedEditors();
+
+    {
+        // TODO: Consider moving this code to a helper/utility class
+        auto editors = m_curveFilterText.uiCapability()->connectedEditors();
+        if ( !editors.empty() )
+        {
+            auto fieldEditorHandle = dynamic_cast<caf::PdmUiFieldEditorHandle*>( editors.front() );
+            auto widget            = fieldEditorHandle->editorWidget();
+            if ( widget )
+            {
+                // If the dock widget is floating, activateWindow() must be called to make sure the top level widget has
+                // focus before the editor widget is given focus
+                widget->activateWindow();
+                widget->setFocus();
+            }
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -291,7 +430,6 @@ void RimSummaryPlotManager::createNewPlot()
 
     newPlot->applyDefaultCurveAppearances();
     newPlot->loadDataAndUpdate();
-    //    newPlot->zoomAll();
 
     sumPlotColl->updateConnectedEditors();
 
