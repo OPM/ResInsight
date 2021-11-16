@@ -51,7 +51,6 @@ class RimSummaryCase;
 class RimSummaryCaseCollection;
 class RimSummaryCurve;
 class RimSummaryAddress;
-class RimSummaryFilter_OBSOLETE;
 class RimSummaryPlotSourceStepping;
 class RimSummaryCurveAutoName;
 class RimEnsembleCurveFilterCollection;
@@ -254,7 +253,4 @@ private:
 
     bool m_disableStatisticCurves;
     bool m_isCurveSetFiltered;
-
-    // Obsolete fields
-    caf::PdmChildField<RimSummaryFilter_OBSOLETE*> m_yValuesSummaryFilter_OBSOLETE;
 };

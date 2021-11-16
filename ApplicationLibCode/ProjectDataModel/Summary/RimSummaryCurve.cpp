@@ -38,7 +38,6 @@
 #include "RimSummaryCrossPlot.h"
 #include "RimSummaryCurveAutoName.h"
 #include "RimSummaryCurveCollection.h"
-#include "RimSummaryFilter.h"
 #include "RimSummaryPlot.h"
 #include "RimSummaryPlotCollection.h"
 #include "RimSummaryTimeAxisProperties.h"
@@ -127,18 +126,6 @@ RimSummaryCurve::RimSummaryCurve()
 
     setSymbolSkipDistance( 10.0f );
     setLineThickness( 2 );
-
-    CAF_PDM_InitFieldNoDefault( &m_yValuesSummaryFilter_OBSOLETE, "VarListFilter", "Filter" );
-    m_yValuesSummaryFilter_OBSOLETE.uiCapability()->setUiTreeChildrenHidden( true );
-    m_yValuesSummaryFilter_OBSOLETE.uiCapability()->setUiTreeHidden( true );
-    m_yValuesSummaryFilter_OBSOLETE.xmlCapability()->setIOWritable( false );
-    m_yValuesSummaryFilter_OBSOLETE = new RimSummaryFilter_OBSOLETE;
-
-    CAF_PDM_InitFieldNoDefault( &m_xValuesSummaryFilter_OBSOLETE, "VarListFilterX", "Filter" );
-    m_xValuesSummaryFilter_OBSOLETE.uiCapability()->setUiTreeChildrenHidden( true );
-    m_xValuesSummaryFilter_OBSOLETE.uiCapability()->setUiTreeHidden( true );
-    m_xValuesSummaryFilter_OBSOLETE.xmlCapability()->setIOWritable( false );
-    m_xValuesSummaryFilter_OBSOLETE = new RimSummaryFilter_OBSOLETE;
 
     setDeletable( true );
 }

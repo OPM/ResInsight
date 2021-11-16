@@ -31,7 +31,6 @@
 #include "RimSummaryCrossPlot.h"
 #include "RimSummaryCurve.h"
 #include "RimSummaryCurveCollection.h"
-#include "RimSummaryCurveFilter.h"
 #include "RimSummaryPlot.h"
 
 #include "RiuPlotMainWindowTools.h"

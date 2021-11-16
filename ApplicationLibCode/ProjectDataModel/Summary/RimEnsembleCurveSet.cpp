@@ -48,7 +48,6 @@
 #include "RimSummaryCaseCollection.h"
 #include "RimSummaryCurve.h"
 #include "RimSummaryCurveAutoName.h"
-#include "RimSummaryFilter.h"
 #include "RimSummaryPlot.h"
 #include "RimTimeStepFilter.h"
 
@@ -220,14 +219,6 @@ RimEnsembleCurveSet::RimEnsembleCurveSet()
 
     m_disableStatisticCurves = false;
     m_isCurveSetFiltered     = false;
-
-    // Obsolete fields
-
-    CAF_PDM_InitFieldNoDefault( &m_yValuesSummaryFilter_OBSOLETE, "VarListFilter", "Filter" );
-    m_yValuesSummaryFilter_OBSOLETE.uiCapability()->setUiTreeChildrenHidden( true );
-    m_yValuesSummaryFilter_OBSOLETE.uiCapability()->setUiTreeHidden( true );
-    m_yValuesSummaryFilter_OBSOLETE.xmlCapability()->setIOWritable( false );
-    m_yValuesSummaryFilter_OBSOLETE = new RimSummaryFilter_OBSOLETE;
 
     setDeletable( true );
 }

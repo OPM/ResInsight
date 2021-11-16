@@ -35,7 +35,6 @@
 
 class RifSummaryReaderInterface;
 class RimSummaryCase;
-class RimSummaryFilter_OBSOLETE;
 class RiuQwtPlotCurve;
 class RimSummaryCurveAutoName;
 class RimSummaryAddress;
@@ -148,8 +147,4 @@ private:
     caf::PdmChildField<RimSummaryCurveAutoName*>      m_curveNameConfig;
     caf::PdmField<caf::AppEnum<RiaDefines::PlotAxis>> m_plotAxis;
     caf::PdmField<bool>                               m_isTopZWithinCategory;
-
-    // Obsolete fields
-    caf::PdmChildField<RimSummaryFilter_OBSOLETE*> m_yValuesSummaryFilter_OBSOLETE;
-    caf::PdmChildField<RimSummaryFilter_OBSOLETE*> m_xValuesSummaryFilter_OBSOLETE;
 };

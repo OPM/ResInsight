@@ -40,7 +40,6 @@
 #include "RimSummaryCase.h"
 #include "RimSummaryCurve.h"
 #include "RimSummaryCurveCollection.h"
-#include "RimSummaryCurveFilter.h"
 #include "RimSummaryPlotAxisFormatter.h"
 #include "RimSummaryPlotCollection.h"
 #include "RimSummaryPlotFilterTextCurveSetEditor.h"
