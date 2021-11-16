@@ -24,7 +24,6 @@
 
 #include "RimSummaryCrossPlot.h"
 #include "RimSummaryCurve.h"
-#include "RimSummaryCurveFilter.h"
 
 #include "cafPdmDefaultObjectFactory.h"
 #include "cafPdmDocument.h"

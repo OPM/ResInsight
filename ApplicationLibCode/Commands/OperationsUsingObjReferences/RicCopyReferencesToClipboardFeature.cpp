@@ -30,7 +30,6 @@
 #include "RimGridCrossPlotDataSet.h"
 #include "RimMimeData.h"
 #include "RimModeledWellPath.h"
-#include "RimSummaryCurveFilter.h"
 #include "RimSummaryPlot.h"
 #include "RimWellAllocationPlot.h"
 #include "RimWellLogPlot.h"

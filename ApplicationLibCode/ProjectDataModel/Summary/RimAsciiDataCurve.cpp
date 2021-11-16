@@ -22,7 +22,6 @@
 #include "RimEclipseResultCase.h"
 #include "RimProject.h"
 #include "RimSummaryCase.h"
-#include "RimSummaryFilter.h"
 #include "RimSummaryPlot.h"
 #include "RimSummaryTimeAxisProperties.h"
 
