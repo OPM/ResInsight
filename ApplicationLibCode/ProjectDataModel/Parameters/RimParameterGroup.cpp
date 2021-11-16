@@ -70,7 +70,7 @@ RimParameterGroup::RimParameterGroup()
     m_labelProxy.uiCapability()->setUiHidden( true );
     m_labelProxy.xmlCapability()->disableIO();
 
-    CAF_PDM_InitFieldNoDefault( &m_lists, "ParameterLists", "Parameter Lists", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_lists, "ParameterLists", "Parameter Lists" );
     m_lists.uiCapability()->setUiHidden( true );
     m_lists.uiCapability()->setUiTreeHidden( true );
     m_lists.uiCapability()->setUiTreeChildrenHidden( true );

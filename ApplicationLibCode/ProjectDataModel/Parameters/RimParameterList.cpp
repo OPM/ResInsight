@@ -32,15 +32,15 @@ RimParameterList::RimParameterList()
     CAF_PDM_InitObject( "Parameter List", ":/Bullet.png", "", "" );
     uiCapability()->setUiTreeChildrenHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_parameterNames, "ParameterNames", "Parameters", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_parameterNames, "ParameterNames", "Parameters" );
     m_parameterNames.uiCapability()->setUiHidden( true );
     m_parameterNames.uiCapability()->setUiTreeHidden( true );
     m_parameterNames.uiCapability()->setUiTreeChildrenHidden( true );
 
-    CAF_PDM_InitField( &m_name, "Name", QString(), "Name", "", "", "" );
+    CAF_PDM_InitField( &m_name, "Name", QString(), "Name" );
     m_name.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitField( &m_label, "Label", QString(), "Name", "", "", "" );
+    CAF_PDM_InitField( &m_label, "Label", QString(), "Name" );
     m_label.uiCapability()->setUiHidden( true );
 }
 
