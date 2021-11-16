@@ -284,6 +284,20 @@ void PdmUiComboBoxEditor::configureAndUpdateUi( const QString& uiConfigName )
             m_comboBox->lineEdit()->setPlaceholderText( m_attributes.placeholderText );
         }
 
+        if ( m_attributes.notifyWhenTextIsEdited )
+        {
+            connect( m_comboBox,
+                     SIGNAL( editTextChanged( const QString& ) ),
+                     this,
+                     SLOT( slotEditTextChanged( const QString& ) ) );
+
+            if ( m_interactiveEditText == m_comboBox->lineEdit()->text() && m_interactiveEditCursorPosition > -1 )
+            {
+                m_comboBox->lineEdit()->setCursorPosition( m_interactiveEditCursorPosition );
+                m_comboBox->lineEdit()->deselect();
+            }
+        }
+
         if ( m_attributes.minimumWidth != -1 )
         {
             m_comboBox->setMinimumWidth( m_attributes.minimumWidth );
@@ -458,6 +472,14 @@ protected:
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+PdmUiComboBoxEditor::PdmUiComboBoxEditor()
+    : m_interactiveEditCursorPosition( -1 )
+{
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QWidget* PdmUiComboBoxEditor::createEditorWidget( QWidget* parent )
 {
     m_comboBox = new CustomQComboBox( parent );
@@ -507,6 +529,19 @@ void PdmUiComboBoxEditor::slotIndexActivated( int index )
         QVariant uintValue( v.toUInt() );
         this->setValueToField( uintValue );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void PdmUiComboBoxEditor::slotEditTextChanged( const QString& text )
+{
+    if ( text == m_interactiveEditText ) return;
+
+    m_interactiveEditText           = text;
+    m_interactiveEditCursorPosition = m_comboBox->lineEdit()->cursorPosition();
+
+    this->setValueToField( text );
 }
 
 //--------------------------------------------------------------------------------------------------
