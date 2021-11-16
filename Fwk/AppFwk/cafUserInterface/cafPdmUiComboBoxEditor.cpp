@@ -254,7 +254,7 @@ void PdmUiComboBoxEditor::configureAndUpdateUi( const QString& uiConfigName )
         }
         else if ( m_attributes.minimumContentsLength > 0 )
         {
-            m_comboBox->setSizeAdjustPolicy( QComboBox::AdjustToMinimumContentsLength );
+            m_comboBox->setSizeAdjustPolicy( QComboBox::AdjustToContents );
             m_comboBox->setMinimumContentsLength( m_attributes.minimumContentsLength );
             // Make sure the popup adjusts to the content even if the widget itself doesn't
             QFont font = m_comboBox->view()->font();
@@ -359,7 +359,7 @@ void PdmUiComboBoxEditor::configureAndUpdateUi( const QString& uiConfigName )
                 }
                 else
                 {
-                    toolButtonIcon = stepUpIcon();
+                    toolButtonIcon = stepDownIcon();
                 }
                 if ( m_comboBox->count() == 0 || m_comboBox->currentIndex() >= m_comboBox->count() - 1 )
                 {
