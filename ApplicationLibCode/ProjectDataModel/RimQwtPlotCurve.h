@@ -53,68 +53,45 @@ public:
     RimQwtPlotCurve();
     ~RimQwtPlotCurve() override;
 
-    void loadDataAndUpdate( bool updateParentPlot );
+    // void loadDataAndUpdate( bool updateParentPlot );
 
-    virtual bool xValueRangeInQwt( double* minimumValue, double* maximumValue ) const;
-    virtual bool yValueRangeInQwt( double* minimumValue, double* maximumValue ) const;
+    // void          setParentPlotAndReplot( QwtPlot* plot );
+    // void          setParentPlotNoReplot( QwtPlot* plot );
+    // void          detachQwtCurve();
+    // void          reattachQwtCurve();
+    // QwtPlotCurve* qwtPlotCurve() const;
 
-    void          setParentQwtPlotAndReplot( QwtPlot* plot );
-    void          setParentQwtPlotNoReplot( QwtPlot* plot );
-    void          detachQwtCurve();
-    void          reattachQwtCurve();
-    QwtPlotCurve* qwtPlotCurve() const;
+    // void updateCurveNameAndUpdatePlotLegendAndTitle();
+    // void updateCurveNameNoLegendUpdate();
 
-    void updateCurveNameAndUpdatePlotLegendAndTitle();
-    void updateCurveNameNoLegendUpdate();
+    // void updateCurveVisibility() override;
+    // void updateLegendEntryVisibilityAndPlotLegend();
+    // void updateLegendEntryVisibilityNoPlotUpdate() override;
 
-    void updateCurveVisibility() override;
-    void updateLegendEntryVisibilityAndPlotLegend();
-    void updateLegendEntryVisibilityNoPlotUpdate() override;
+    // bool errorBarsVisible() const;
 
-    bool errorBarsVisible() const;
+    // void setZOrder( double z ) override;
+    // void setErrorBarsVisible( bool isVisible );
 
-    void setZOrder( double z ) override;
-    void setErrorBarsVisible( bool isVisible );
-
-    void replotParentPlot() override;
-    void refreshParentPlot() override;
-    void updateUiIconFromPlotSymbol() override;
-    bool hasParentPlot() const override;
-    void updateCurveAppearance() override;
+    // void refreshParentPlot() override;
+    // void updateUiIconFromPlotSymbol() override;
+    // void updateCurveAppearance() override;
 
 protected:
-    void updateCurvePresentation( bool updatePlotLegendAndTitle );
+    // void updateCurvePresentation( bool updatePlotLegendAndTitle );
 
-    void updateOptionSensitivity();
-    void updatePlotTitle();
-    void updateLegendsInPlot() override;
-    void setCurveTitle( const QString& title ) override;
+    // void updateOptionSensitivity();
+    // void updatePlotTitle();
+    // void updateLegendsInPlot() override;
+    // //void setCurveTitle( const QString& title ) override;
 
-    void setSamplesFromXYErrorValues(
-        const std::vector<double>&   xValues,
-        const std::vector<double>&   yValues,
-        const std::vector<double>&   errorValues,
-        bool                         keepOnlyPositiveValues,
-        RiaCurveDataTools::ErrorAxis errorAxis = RiaCurveDataTools::ErrorAxis::ERROR_ALONG_Y_AXIS ) override;
-    void setSamplesFromXYValues( const std::vector<double>& xValues,
-                                 const std::vector<double>& yValues,
-                                 bool                       keepOnlyPositiveValues ) override;
-    void setSamplesFromDatesAndYValues( const std::vector<QDateTime>& dateTimes,
-                                        const std::vector<double>&    yValues,
-                                        bool                          keepOnlyPositiveValues ) override;
+    // void attachCurveAndErrorBars() override;
 
-    void setSamplesFromTimeTAndYValues( const std::vector<time_t>& dateTimes,
-                                        const std::vector<double>& yValues,
-                                        bool                       keepOnlyPositiveValues ) override;
-
-    void attachCurveAndErrorBars() override;
-    void clearErrorBars() override;
-
-    void updateAxisInPlot( RiaDefines::PlotAxis plotAxis ) override;
+    // void updateAxisInPlot( RiaDefines::PlotAxis plotAxis ) override;
 
 protected:
-    QPointer<QwtPlot> m_parentQwtPlot;
+    // QPointer<QwtPlot> m_parentQwtPlot;
 
-    RiuQwtPlotCurve*      m_qwtPlotCurve;
+    // RiuQwtPlotCurve*      m_qwtPlotCurve;
     QwtPlotIntervalCurve* m_qwtCurveErrorBars;
 };

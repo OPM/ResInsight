@@ -54,6 +54,7 @@ class RiuDraggableOverlayFrame;
 class QwtPlot;
 class QwtPlotCurve;
 class QString;
+class RiuPlotWidget;
 
 class RimGridCrossPlotDataSetNameConfig : public RimNameConfig
 {
@@ -99,7 +100,7 @@ public:
 
     void    setCellFilterView( RimGridView* cellFilterView );
     void    loadDataAndUpdate( bool updateParentPlot );
-    void    setParentQwtPlotNoReplot( QwtPlot* parent );
+    void    setParentPlotNoReplot( RiuPlotWidget* parent );
     QString xAxisName() const;
     QString yAxisName() const;
     QString infoText() const;

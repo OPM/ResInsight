@@ -39,6 +39,7 @@
 #include "RimSummaryCaseCollection.h"
 #include "RimSummaryPlotAxisFormatter.h"
 
+#include "RiuPlotCurve.h"
 #include "RiuPlotMainWindowTools.h"
 #include "RiuQwtPlotCurve.h"
 #include "RiuSummaryQwtPlot.h"
@@ -307,7 +308,7 @@ void RimParameterResultCrossPlot::createPoints()
                     m_yRange.second = std::max( m_yRange.second, closestValue );
 
                     RiuQwtPlotCurve* plotCurve = new RiuQwtPlotCurve;
-                    plotCurve->setSamples( parameterValues.data(), caseValuesAtTimestep.data(), (int)parameterValues.size() );
+                    plotCurve->setSamplesValues( parameterValues, caseValuesAtTimestep );
                     plotCurve->setStyle( QwtPlotCurve::NoCurve );
                     RiuQwtSymbol* symbol =
                         new RiuQwtSymbol( RiuQwtSymbol::cycledSymbolStyle( ensembleIdx, addressIdx ), "" );

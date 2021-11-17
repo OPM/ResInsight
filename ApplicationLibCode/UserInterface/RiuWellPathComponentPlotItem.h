@@ -68,7 +68,7 @@ public:
     void setContributeToLegend( bool contributeToLegend );
 
     void setParentQwtPlotAndReplot( QwtPlot* plot );
-    void setParentQwtPlotNoReplot( QwtPlot* plot );
+    void setParentPlotNoReplot( QwtPlot* plot );
     void attachToQwt();
     void detachFromQwt();
     void reattachToQwt();

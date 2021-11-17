@@ -123,11 +123,11 @@ void RimSummaryCurveCollection::loadDataAndUpdate( bool updateParentPlot )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCurveCollection::setParentQwtPlotAndReplot( QwtPlot* plot )
+void RimSummaryCurveCollection::setParentPlotAndReplot( RiuPlotWidget* plot )
 {
     for ( RimSummaryCurve* curve : m_curves )
     {
-        curve->setParentQwtPlotNoReplot( plot );
+        curve->setParentPlotNoReplot( plot );
     }
 
     if ( plot ) plot->replot();
@@ -136,33 +136,33 @@ void RimSummaryCurveCollection::setParentQwtPlotAndReplot( QwtPlot* plot )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCurveCollection::detachQwtCurves()
+void RimSummaryCurveCollection::detachPlotCurves()
 {
     for ( RimSummaryCurve* curve : m_curves )
     {
-        curve->detachQwtCurve();
+        curve->detach();
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCurveCollection::reattachQwtCurves()
+void RimSummaryCurveCollection::reattachPlotCurves()
 {
     for ( RimSummaryCurve* curve : m_curves )
     {
-        curve->reattachQwtCurve();
+        curve->reattach();
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSummaryCurve* RimSummaryCurveCollection::findRimCurveFromQwtCurve( const QwtPlotCurve* qwtCurve ) const
+RimSummaryCurve* RimSummaryCurveCollection::findRimCurveFromPlotCurve( const RiuPlotCurve* curve ) const
 {
     for ( RimSummaryCurve* rimCurve : m_curves )
     {
-        if ( rimCurve->qwtPlotCurve() == qwtCurve )
+        if ( rimCurve->isSameCurve( curve ) )
         {
             return rimCurve;
         }
@@ -342,7 +342,7 @@ void RimSummaryCurveCollection::updateCaseNameHasChanged()
     firstAncestorOrThisOfTypeAsserted( parentPlot );
 
     parentPlot->updatePlotTitle();
-    if ( parentPlot->viewer() ) parentPlot->viewer()->updateLegend();
+    if ( parentPlot->plotWidget() ) parentPlot->plotWidget()->updateLegend();
 }
 
 //--------------------------------------------------------------------------------------------------

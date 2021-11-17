@@ -373,7 +373,7 @@ void RimWellDistributionPlotCollection::updatePlots()
         for ( RimQwtPlot* plot : m_plots() )
         {
             plot->loadDataAndUpdate();
-            plot->updateZoomInQwt();
+            plot->updateZoomInParentPlot();
         }
     }
 }

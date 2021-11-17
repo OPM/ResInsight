@@ -32,7 +32,11 @@
 #include "cafPdmFieldCvfColor.h"
 #include "cafPdmObject.h"
 
+#include <QPointer>
 #include <Qt>
+
+class RiuPlotCurve;
+class RiuPlotWidget;
 
 //==================================================================================================
 ///
@@ -89,25 +93,41 @@ public:
     QString legendEntryText() const;
     void    setLegendEntryText( const QString& legendEntryText );
 
-    virtual void refreshParentPlot()     = 0;
-    virtual void updateCurveVisibility() = 0;
+    virtual void refreshParentPlot();
+    virtual void updateCurveVisibility();
     void         updateLegendEntryVisibilityAndPlotLegend();
-    virtual void updateLegendEntryVisibilityNoPlotUpdate() = 0;
-    virtual void replotParentPlot()                        = 0;
+    void         updateLegendEntryVisibilityNoPlotUpdate();
+    virtual void replotParentPlot();
 
     bool showInLegend() const;
     bool errorBarsVisible() const;
 
     void         setShowInLegend( bool show );
-    virtual void setZOrder( double z ) = 0;
+    virtual void setZOrder( double z );
     void         setErrorBarsVisible( bool isVisible );
 
-    virtual void updateCurveAppearance() = 0;
+    virtual void updateCurveAppearance();
     bool         isCrossPlotCurve() const;
-    virtual void updateUiIconFromPlotSymbol() = 0;
-    virtual bool hasParentPlot() const        = 0;
+    virtual void updateUiIconFromPlotSymbol();
+    virtual bool hasParentPlot() const;
 
     void updateCurveAppearanceForFilesOlderThan_2021_06();
+
+    // TODO: remove qwt name
+    virtual bool xValueRangeInQwt( double* minimumValue, double* maximumValue ) const;
+    virtual bool yValueRangeInQwt( double* minimumValue, double* maximumValue ) const;
+
+    virtual void setTitle( const QString& title );
+
+    int dataSize() const;
+
+    void setParentPlotNoReplot( RiuPlotWidget* );
+    void setParentPlotAndReplot( RiuPlotWidget* );
+
+    void attach( RiuPlotWidget* );
+    void detach();
+    void reattach();
+    bool isSameCurve( const RiuPlotCurve* plotCurve ) const;
 
 protected:
     virtual QString createCurveAutoName()                        = 0;
@@ -118,27 +138,26 @@ protected:
 
     void         updateOptionSensitivity();
     void         updatePlotTitle();
-    virtual void updateLegendsInPlot()                 = 0;
-    virtual void setCurveTitle( const QString& title ) = 0;
+    virtual void updateLegendsInPlot();
 
     virtual void setSamplesFromXYErrorValues(
         const std::vector<double>&   xValues,
         const std::vector<double>&   yValues,
         const std::vector<double>&   errorValues,
         bool                         keepOnlyPositiveValues,
-        RiaCurveDataTools::ErrorAxis errorAxis = RiaCurveDataTools::ErrorAxis::ERROR_ALONG_Y_AXIS ) = 0;
+        RiaCurveDataTools::ErrorAxis errorAxis = RiaCurveDataTools::ErrorAxis::ERROR_ALONG_Y_AXIS );
 
     virtual void setSamplesFromXYValues( const std::vector<double>& xValues,
                                          const std::vector<double>& yValues,
-                                         bool                       keepOnlyPositiveValues ) = 0;
+                                         bool                       keepOnlyPositiveValues );
 
     virtual void setSamplesFromDatesAndYValues( const std::vector<QDateTime>& dateTimes,
                                                 const std::vector<double>&    yValues,
-                                                bool                          keepOnlyPositiveValues ) = 0;
+                                                bool                          keepOnlyPositiveValues );
 
     virtual void setSamplesFromTimeTAndYValues( const std::vector<time_t>& dateTimes,
                                                 const std::vector<double>& yValues,
-                                                bool                       keepOnlyPositiveValues ) = 0;
+                                                bool                       keepOnlyPositiveValues );
 
 protected:
     // Overridden PDM methods
@@ -151,12 +170,12 @@ protected:
     virtual void onCurveAppearanceChanged( const caf::SignalEmitter* emitter );
     virtual void onFillColorChanged( const caf::SignalEmitter* emitter );
 
-    bool         canCurveBeAttached() const;
-    virtual void attachCurveAndErrorBars() = 0;
-    virtual void clearErrorBars()          = 0;
+    bool canCurveBeAttached() const;
+    // virtual void attachCurveAndErrorBars();
+    virtual void clearErrorBars();
     void         checkAndApplyDefaultFillColor();
 
-    virtual void updateAxisInPlot( RiaDefines::PlotAxis plotAxis ) = 0;
+    virtual void updateAxisInPlot( RiaDefines::PlotAxis plotAxis );
 
 protected:
     caf::PdmField<bool>    m_showCurve;
@@ -168,6 +187,9 @@ protected:
     caf::PdmField<bool>    m_isUsingAutoName;
 
     caf::PdmChildField<RimPlotCurveAppearance*> m_curveAppearance;
+
+    QPointer<RiuPlotWidget> m_parentPlot;
+    RiuPlotCurve*           m_plotCurve;
 
     caf::PdmField<QString>                                    m_symbolLabel_OBSOLETE;
     caf::PdmField<int>                                        m_symbolSize_OBSOLETE;

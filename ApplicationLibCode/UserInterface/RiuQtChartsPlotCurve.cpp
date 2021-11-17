@@ -32,7 +32,6 @@
 //--------------------------------------------------------------------------------------------------
 RiuQtChartsPlotCurve::RiuQtChartsPlotCurve( const QString& title )
     : RiuPlotCurve()
-//    , QtChartsPlotCurve( title )
 {
     m_lineSeries = new QtCharts::QLineSeries();
     m_lineSeries->setName( title );
@@ -48,6 +47,11 @@ RiuQtChartsPlotCurve::~RiuQtChartsPlotCurve()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RiuQtChartsPlotCurve::setTitle( const QString& title )
+{
+    m_lineSeries->setName( title );
+}
+
 // void RiuQtChartsPlotCurve::drawCurve( QPainter*          p,
 //                                  int                style,
 //                                  const QwtScaleMap& xMap,
@@ -255,6 +259,15 @@ void RiuQtChartsPlotCurve::attachToPlot( RiuPlotWidget* plotWidget )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RiuQtChartsPlotCurve::detach()
+{
+    // TODO: not sure about this one..
+    m_lineSeries->hide();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiuQtChartsPlotCurve::showInPlot()
 {
     //  show();
@@ -275,4 +288,26 @@ void RiuQtChartsPlotCurve::setSamplesInPlot( const std::vector<double>& xValues,
     {
         m_lineSeries->append( xValues[i], yValues[i] );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuQtChartsPlotCurve::setZ( int z )
+{
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuQtChartsPlotCurve::clearErrorBars()
+{
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RiuQtChartsPlotCurve::numSamples() const
+{
+    return m_lineSeries->count();
 }

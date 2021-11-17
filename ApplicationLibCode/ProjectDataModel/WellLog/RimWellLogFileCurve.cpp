@@ -172,7 +172,7 @@ void RimWellLogFileCurve::onLoadDataAndUpdate( bool updateParentPlot )
 
             if ( m_isUsingAutoName )
             {
-                m_qwtPlotCurve->setTitle( createCurveAutoName() );
+                m_plotCurve->setTitle( createCurveAutoName() );
             }
         }
 
@@ -188,19 +188,18 @@ void RimWellLogFileCurve::onLoadDataAndUpdate( bool updateParentPlot )
             depthType = wellLogPlot->depthType();
         }
 
-        m_qwtPlotCurve->setSamples( this->curveData()->xPlotValues().data(),
-                                    this->curveData()->depthPlotValues( depthType, displayUnit ).data(),
-                                    static_cast<int>( this->curveData()->xPlotValues().size() ) );
-        m_qwtPlotCurve->setLineSegmentStartStopIndices( this->curveData()->polylineStartStopIndices() );
+        m_plotCurve->setSamplesValues( this->curveData()->xPlotValues(),
+                                       this->curveData()->depthPlotValues( depthType, displayUnit ) );
+        m_plotCurve->setLineSegmentStartStopIndices( this->curveData()->polylineStartStopIndices() );
 
         if ( updateParentPlot )
         {
             updateZoomInParentPlot();
         }
 
-        if ( m_parentQwtPlot )
+        if ( m_parentPlot )
         {
-            m_parentQwtPlot->replot();
+            m_parentPlot->replot();
         }
     }
 }
@@ -315,7 +314,7 @@ void RimWellLogFileCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
     {
         this->loadDataAndUpdate( true );
     }
-    if ( m_parentQwtPlot ) m_parentQwtPlot->replot();
+    if ( m_parentPlot ) m_parentPlot->replot();
 }
 
 //--------------------------------------------------------------------------------------------------
