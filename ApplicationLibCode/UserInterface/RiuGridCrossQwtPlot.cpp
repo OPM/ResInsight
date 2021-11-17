@@ -30,11 +30,11 @@
 #include "RiuContextMenuLauncher.h"
 #include "RiuGuiTheme.h"
 #include "RiuPlotAnnotationTool.h"
+#include "RiuPlotCurve.h"
 #include "RiuQwtCurvePointTracker.h"
 #include "RiuQwtPlotTools.h"
 #include "RiuQwtPlotWheelZoomer.h"
 #include "RiuQwtPlotZoomer.h"
-#include "RiuRimQwtPlotCurve.h"
 #include "RiuWidgetDragger.h"
 
 #include "cafCmdFeatureMenuBuilder.h"
@@ -44,6 +44,7 @@
 
 #include "qwt_legend.h"
 #include "qwt_legend_label.h"
+#include "qwt_plot_curve.h"
 #include "qwt_plot_panner.h"
 #include "qwt_scale_draw.h"
 #include "qwt_scale_widget.h"
@@ -224,7 +225,7 @@ bool RiuGridCrossQwtPlot::curveText( const QwtPlotCurve* curve, QString* curveTi
 {
     CVF_ASSERT( curveTitle && xParamName && yParamName );
 
-    auto riuCurve = dynamic_cast<const RiuRimQwtPlotCurve*>( curve );
+    auto riuCurve = dynamic_cast<const RiuPlotCurve*>( curve );
     if ( riuCurve )
     {
         auto crossPlotCurve = dynamic_cast<const RimGridCrossPlotCurve*>( riuCurve->ownerRimCurve() );

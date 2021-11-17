@@ -498,7 +498,7 @@ bool RiuDragDrop::handleMultiPlotDrop( Qt::DropAction       action,
                                        RimMultiPlot*        multiPlot,
                                        int                  insertAtPosition )
 {
-    std::vector<RimQwtPlot*> plots = RiuTypedPdmObjects<RimQwtPlot>::typedObjectsFromGroup( draggedObjects );
+    std::vector<RimPlot*> plots = RiuTypedPdmObjects<RimPlot>::typedObjectsFromGroup( draggedObjects );
     if ( plots.size() > 0 )
     {
         if ( action == Qt::MoveAction )

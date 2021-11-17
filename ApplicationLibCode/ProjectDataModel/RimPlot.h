@@ -92,7 +92,10 @@ public:
         return parentPlotWindow != nullptr;
     }
 
-    virtual RiuPlotWidget*  plotWidget() = 0;
+    virtual RiuPlotWidget* plotWidget() = 0;
+    // TODO: remove or combine with viewer.
+    virtual RiuQwtPlotWidget* viewer();
+
     virtual void            updateZoomInParentPlot(){}; //  = 0;
     virtual void            updateZoomFromParentPlot(){}; //= 0;
     virtual caf::PdmObject* findPdmObjectFromPlotCurve( const RiuPlotCurve* curve ) const { return nullptr; };
@@ -110,6 +113,8 @@ protected:
 
     virtual void handleKeyPressEvent( QKeyEvent* event ) {}
     virtual void handleWheelEvent( QWheelEvent* event ) {}
+
+    virtual void onAxisSelected( int axis, bool toggle ){};
 
 private slots:
     void onPlotSelected( bool toggle );

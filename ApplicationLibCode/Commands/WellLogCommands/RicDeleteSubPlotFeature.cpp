@@ -73,11 +73,11 @@ void RicDeleteSubPlotFeature::onActionTriggered( bool isChecked )
 {
     if ( RicWellLogPlotCurveFeatureImpl::parentWellAllocationPlot() ) return;
 
-    std::vector<RimQwtPlot*> selection;
+    std::vector<RimPlot*> selection;
     caf::SelectionManager::instance()->objectsByType( &selection );
     std::set<RimPlotWindow*> alteredPlotWindows;
 
-    for ( RimQwtPlot* plot : selection )
+    for ( RimPlot* plot : selection )
     {
         if ( !plot ) continue;
 

@@ -17,7 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
-#include "RimQwtPlotCurve.h"
+#include "RimPlotCurve.h"
 
 #include "cafPdmChildField.h"
 #include "cafPdmPtrField.h"

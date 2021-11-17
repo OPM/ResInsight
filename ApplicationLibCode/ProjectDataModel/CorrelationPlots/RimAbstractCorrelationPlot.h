@@ -17,7 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
-#include "RimQwtPlot.h"
+#include "RimPlot.h"
 #include "RimTimeStepFilter.h"
 
 #include "cafPdmPtrField.h"
@@ -37,7 +37,7 @@ class RimSummaryCase;
 class RigEnsembleParameter;
 class RifEclipseSummaryAddress;
 
-class RimAbstractCorrelationPlot : public RimQwtPlot
+class RimAbstractCorrelationPlot : public RimPlot
 {
     CAF_PDM_HEADER_INIT;
 
@@ -61,7 +61,8 @@ public:
     RimEnsembleCurveSet*      caseFilterDataSource() const;
     void                      setCaseFilterDataSource( RimEnsembleCurveSet* ensemble );
 
-    RiuQwtPlotWidget* viewer() override;
+    RiuQwtPlotWidget* viewer();
+    RiuPlotWidget*    plotWidget() override;
     void              detachAllCurves() override;
     QDateTime         timeStep() const;
     QString           timeStepString() const;
@@ -103,7 +104,7 @@ protected:
     void    doUpdateLayout() override {}
 
     // RimPlot Overrides
-    RiuQwtPlotWidget* doCreatePlotViewWidget( QWidget* mainWindowParent = nullptr ) override;
+    RiuPlotWidget* doCreatePlotViewWidget( QWidget* mainWindowParent = nullptr ) override;
 
     void reattachAllCurves() override {}
     void updateZoomInParentPlot() override {}

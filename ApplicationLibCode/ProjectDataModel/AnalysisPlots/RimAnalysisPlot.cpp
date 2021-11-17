@@ -92,7 +92,7 @@ CAF_PDM_SOURCE_INIT( RimAnalysisPlot, "AnalysisPlot" );
 ///
 //--------------------------------------------------------------------------------------------------
 RimAnalysisPlot::RimAnalysisPlot()
-    : RimQwtPlot()
+    : RimPlot()
 {
     CAF_PDM_InitObject( "Analysis Plot", ":/AnalysisPlot16x16.png", "", "" );
 
@@ -832,7 +832,7 @@ QString RimAnalysisPlot::description() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuQwtPlotWidget* RimAnalysisPlot::doCreatePlotViewWidget( QWidget* mainWindowParent /*= nullptr */ )
+RiuPlotWidget* RimAnalysisPlot::doCreatePlotViewWidget( QWidget* mainWindowParent /*= nullptr */ )
 {
     if ( !m_plotWidget )
     {
@@ -846,6 +846,14 @@ RiuQwtPlotWidget* RimAnalysisPlot::doCreatePlotViewWidget( QWidget* mainWindowPa
 ///
 //--------------------------------------------------------------------------------------------------
 RiuQwtPlotWidget* RimAnalysisPlot::viewer()
+{
+    return m_plotWidget;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiuPlotWidget* RimAnalysisPlot::plotWidget()
 {
     return m_plotWidget;
 }
