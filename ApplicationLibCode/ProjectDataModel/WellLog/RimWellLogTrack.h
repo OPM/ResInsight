@@ -24,7 +24,7 @@
 #include "RigWellPathFormations.h"
 #include "RiuPlotAnnotationTool.h"
 
-#include "RimQwtPlot.h"
+#include "RimPlot.h"
 #include "RimRegularLegendConfig.h"
 
 #include "cafPdmChildArrayField.h"
@@ -74,7 +74,7 @@ struct CurveSamplingPointData
 ///
 ///
 //==================================================================================================
-class RimWellLogTrack : public RimQwtPlot
+class RimWellLogTrack : public RimPlot
 {
     CAF_PDM_HEADER_INIT;
 
@@ -98,7 +98,8 @@ public:
     ~RimWellLogTrack() override;
 
     QWidget*          viewWidget() override;
-    RiuQwtPlotWidget* viewer() override;
+    RiuQwtPlotWidget* viewer();
+    RiuPlotWidget*    plotWidget() override;
     QImage            snapshotWindowContent() override;
     void              zoomAll() override;
 
@@ -242,7 +243,7 @@ protected:
     void onLoadDataAndUpdate() override;
 
 private:
-    RiuQwtPlotWidget* doCreatePlotViewWidget( QWidget* mainWindowParent = nullptr ) override;
+    RiuPlotWidget* doCreatePlotViewWidget( QWidget* mainWindowParent = nullptr ) override;
 
     void cleanupBeforeClose();
     void detachAllPlotItems();

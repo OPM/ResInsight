@@ -26,6 +26,8 @@
 
 #include <QDateTime>
 
+#include "qwt_plot.h"
+
 class RimSummaryAddress;
 class RiuGroupedBarChartBuilder;
 
@@ -70,7 +72,7 @@ private:
     // Private methods
     void addDataToChartBuilder( RiuGroupedBarChartBuilder& chartBuilder );
     void updatePlotTitle() override;
-    void onPlotItemSelected( QwtPlotItem* plotItem, bool toggle, int sampleIndex ) override;
+    void onPlotItemSelected( QwtPlotItem* plotItem, bool toggle, int sampleIndex );
 
 private:
     caf::PdmField<bool>                 m_showAbsoluteValues;

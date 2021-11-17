@@ -18,8 +18,8 @@
 
 #pragma once
 
+#include "RimPlot.h"
 #include "RimPlotDataFilterItem.h"
-#include "RimQwtPlot.h"
 #include "RimSummaryCaseCollection.h"
 #include "RimTimeStepFilter.h"
 
@@ -43,7 +43,7 @@ class RiaSummaryCurveDefinition;
 ///
 ///
 //==================================================================================================
-class RimAnalysisPlot : public RimQwtPlot
+class RimAnalysisPlot : public RimPlot
 {
     CAF_PDM_HEADER_INIT;
 
@@ -127,8 +127,9 @@ private:
 
     // RimPlot Overrides
 
-    RiuQwtPlotWidget* doCreatePlotViewWidget( QWidget* mainWindowParent = nullptr ) override;
-    RiuQwtPlotWidget* viewer() override;
+    RiuPlotWidget*    doCreatePlotViewWidget( QWidget* mainWindowParent = nullptr ) override;
+    RiuQwtPlotWidget* viewer();
+    RiuPlotWidget*    plotWidget() override;
 
     void detachAllCurves() override;
 

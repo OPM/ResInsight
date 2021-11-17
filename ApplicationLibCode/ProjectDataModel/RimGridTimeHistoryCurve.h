@@ -17,7 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
-#include "RimQwtPlotCurve.h"
+#include "RimPlotCurve.h"
 
 #include "RiaDefines.h"
 
@@ -44,7 +44,7 @@ class RimCase;
 ///
 ///
 //==================================================================================================
-class RimGridTimeHistoryCurve : public RimQwtPlotCurve
+class RimGridTimeHistoryCurve : public RimPlotCurve
 {
     CAF_PDM_HEADER_INIT;
 
