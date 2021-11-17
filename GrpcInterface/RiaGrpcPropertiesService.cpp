@@ -351,7 +351,7 @@ protected:
     {
         m_cellCount       = caseData->grid( gridIndex )->cellCount();
         auto resultValues = caseData->results( porosityModel )->modifiableCellScalarResult( resVarAddr, timeStepIndex );
-        if ( resultValues && m_cellCount > 0 )
+        if ( resultValues && resultValues->empty() && m_cellCount > 0 )
         {
             resultValues->resize( m_cellCount );
         }
