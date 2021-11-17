@@ -103,6 +103,14 @@ QString RiuDockWidgetTools::undoStackName()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString RiuDockWidgetTools::summaryCurveManagerName()
+{
+    return "dockSummaryCurveManager";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString RiuDockWidgetTools::plotMainWindowProjectTreeName()
 {
     return "plotMainWindow_dockProjectTree";

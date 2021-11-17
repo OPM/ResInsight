@@ -137,9 +137,11 @@ private:
     std::unique_ptr<caf::PdmUiDragDropInterface> m_dragDropInterface;
 
     caf::PdmUiPropertyView* m_pdmUiPropertyView;
+    caf::PdmUiPropertyView* m_summaryCurveManagerView;
 
     QPointer<RicSummaryPlotEditorDialog>      m_summaryCurveCreatorDialog;
     QPointer<RicSummaryCurveCalculatorDialog> m_summaryCurveCalculatorDialog;
+    std::unique_ptr<caf::PdmObject>           m_summaryCurveManager;
 
     std::vector<QWidget*> m_temporaryWidgets;
 };
