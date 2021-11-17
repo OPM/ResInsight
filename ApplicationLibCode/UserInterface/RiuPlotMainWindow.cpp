@@ -34,6 +34,7 @@
 #include "RimSummaryPlot.h"
 #include "RimSummaryPlotCollection.h"
 #include "RimSummaryPlotFilterTextCurveSetEditor.h"
+#include "RimSummaryPlotManager.h"
 #include "RimViewWindow.h"
 #include "RimWellAllocationPlot.h"
 #include "RimWellLogCurveCommonDataSource.h"
@@ -105,6 +106,7 @@ RiuPlotMainWindow::RiuPlotMainWindow()
 //--------------------------------------------------------------------------------------------------
 RiuPlotMainWindow::~RiuPlotMainWindow()
 {
+    m_summaryCurveManagerView->showProperties( nullptr );
     setPdmRoot( nullptr );
 }
 
@@ -495,6 +497,22 @@ void RiuPlotMainWindow::createDockPanels()
         dockWidget->setObjectName( RiuDockWidgetTools::plotMainWindowMessagesName() );
         m_messagePanel = new RiuMessagePanel( dockWidget );
         dockWidget->setWidget( m_messagePanel );
+        addDockWidget( Qt::BottomDockWidgetArea, dockWidget );
+        dockWidget->hide();
+    }
+
+    {
+        QDockWidget* dockWidget = new QDockWidget( "Curve Manager", this );
+        dockWidget->setObjectName( RiuDockWidgetTools::summaryCurveManagerName() );
+
+        m_summaryCurveManagerView = new caf::PdmUiPropertyView( dockWidget );
+
+        auto curveManager = std::make_unique<RimSummaryPlotManager>();
+        m_summaryCurveManagerView->showProperties( curveManager.get() );
+        m_summaryCurveManagerView->installEventFilter( curveManager.get() );
+        m_summaryCurveManager = std::move( curveManager );
+
+        dockWidget->setWidget( m_summaryCurveManagerView );
         addDockWidget( Qt::BottomDockWidgetArea, dockWidget );
         dockWidget->hide();
     }

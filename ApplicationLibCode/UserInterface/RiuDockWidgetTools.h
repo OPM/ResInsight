@@ -46,6 +46,7 @@ public:
     static QString messagesName();
     static QString mohrsCirclePlotName();
     static QString undoStackName();
+    static QString summaryCurveManagerName();
 
     static QString plotMainWindowProjectTreeName();
     static QString plotMainWindowPropertyEditorName();

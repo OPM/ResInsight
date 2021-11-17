@@ -38,6 +38,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryPlotFilterTextCurveSetEditor.h
     ${CMAKE_CURRENT_LIST_DIR}/RimObjectiveFunction.h
     ${CMAKE_CURRENT_LIST_DIR}/RimObjectiveFunctionTools.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimSummaryPlotManager.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
@@ -80,13 +81,16 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryPlotFilterTextCurveSetEditor.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimObjectiveFunction.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimObjectiveFunctionTools.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimSummaryPlotManager.cpp
 )
 
 list(APPEND CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})
 
 list(APPEND CODE_SOURCE_FILES ${SOURCE_GROUP_SOURCE_FILES})
 
-list(APPEND QT_MOC_HEADERS ${CMAKE_CURRENT_LIST_DIR}/RimSummaryPlot.h)
+list(APPEND QT_MOC_HEADERS ${CMAKE_CURRENT_LIST_DIR}/RimSummaryPlot.h
+     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryPlotManager.h
+)
 
 source_group(
   "ProjectDataModel\\Summary"
