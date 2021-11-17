@@ -95,7 +95,7 @@ class Grid:
     def property_data_index_from_ijk(self, i, j, k):
         """Compute property index from 1-based IJK cell address. Cell Property Result data is organized by I, J and K.
 
-        cell_result_index = (dims.i * dims.j * (k-1) + dims.i * (j-1) + (i-1))
+        property_data_index = dims.i * dims.j * (k - 1) + dims.i * (j - 1) + (i - 1)
 
         Returns:
             int: Cell property result index from IJK
@@ -103,7 +103,6 @@ class Grid:
 
         dims = self.dimensions()
 
-        # Map ijk to cell index
         property_data_index = dims.i * dims.j * (k - 1) + dims.i * (j - 1) + (i - 1)
 
         return property_data_index
