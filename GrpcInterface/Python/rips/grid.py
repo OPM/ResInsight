@@ -22,6 +22,7 @@ class Grid:
 
         self.case = case
         self.index = index
+        self.cached_dimensions = None
 
     def dimensions(self):
         """The dimensions in i, j, k direction
@@ -30,9 +31,13 @@ class Grid:
             Vec3i: class with integer attributes i, j, k giving extent in all three dimensions.
         """
         case_request = Case_pb2.CaseRequest(id=self.case.id)
-        return self.__stub.GetDimensions(
+        
+        if self.cached_dimensions is None:
+            self.cached_dimensions = self.__stub.GetDimensions(
             Grid_pb2.GridRequest(case_request=case_request, grid_index=self.index)
-        ).dimensions
+            ).dimensions
+
+        return self.cached_dimensions
 
     def cell_centers_async(self):
         """The cells center for all cells in given grid async.
@@ -86,3 +91,23 @@ class Grid:
             for center in chunk.cells:
                 corners.append(center)
         return corners
+
+    def property_data_index_from_ijk(self, i, j, k):
+        """ Compute property index from 1-based IJK cell address. Cell Property Result data is organized by I, J and K.
+
+        cell_result_index = (dims.i * dims.j * (k-1) + dims.i * (j-1) + (i-1))
+
+        Returns:
+            int: Cell property result index from IJK
+        """
+
+        dims = self.dimensions()
+
+        # Map ijk to cell index
+        property_data_index = (
+            dims.i * dims.j * (k-1)
+            + dims.i * (j-1)
+            + (i-1)
+        )
+        
+        return property_data_index
