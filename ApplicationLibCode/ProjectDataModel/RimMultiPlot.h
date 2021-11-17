@@ -19,9 +19,9 @@
 #pragma once
 
 #include "RimAbstractPlotCollection.h"
+#include "RimPlot.h"
 #include "RimPlotAxisPropertiesInterface.h"
 #include "RimPlotWindow.h"
-#include "RimQwtPlot.h"
 
 #include "RiuMultiPlotBook.h"
 
@@ -39,7 +39,7 @@
 
 class RimPlot;
 
-class RimMultiPlot : public RimPlotWindow, public RimTypedPlotCollection<RimQwtPlot>
+class RimMultiPlot : public RimPlotWindow, public RimTypedPlotCollection<RimPlot>
 {
     CAF_PDM_HEADER_INIT;
 
@@ -71,15 +71,15 @@ public:
     QString multiPlotTitle() const;
     void    setMultiPlotTitle( const QString& title );
 
-    void insertPlot( RimQwtPlot* plot, size_t index ) override;
-    void removePlot( RimQwtPlot* plot ) override;
-    void movePlotsToThis( const std::vector<RimQwtPlot*>& plots, int insertAtPosition );
+    void insertPlot( RimPlot* plot, size_t index ) override;
+    void removePlot( RimPlot* plot ) override;
+    void movePlotsToThis( const std::vector<RimPlot*>& plots, int insertAtPosition );
 
     size_t plotCount() const override;
-    size_t plotIndex( const RimQwtPlot* plot ) const;
+    size_t plotIndex( const RimPlot* plot ) const;
 
-    std::vector<RimQwtPlot*> plots() const override;
-    std::vector<RimQwtPlot*> visiblePlots() const;
+    std::vector<RimPlot*> plots() const override;
+    std::vector<RimPlot*> visiblePlots() const;
 
     void updatePlotOrderFromGridWidget();
 
@@ -156,5 +156,5 @@ protected:
     QPointer<RiuMultiPlotBook> m_viewer;
 
 private:
-    caf::PdmChildArrayField<RimQwtPlot*> m_plots;
+    caf::PdmChildArrayField<RimPlot*> m_plots;
 };

@@ -559,7 +559,7 @@ QString RimAbstractCorrelationPlot::description() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuQwtPlotWidget* RimAbstractCorrelationPlot::doCreatePlotViewWidget( QWidget* mainWindowParent /*= nullptr */ )
+RiuPlotWidget* RimAbstractCorrelationPlot::doCreatePlotViewWidget( QWidget* mainWindowParent /*= nullptr */ )
 {
     if ( !m_plotWidget )
     {
@@ -574,6 +574,14 @@ RiuQwtPlotWidget* RimAbstractCorrelationPlot::doCreatePlotViewWidget( QWidget* m
 ///
 //--------------------------------------------------------------------------------------------------
 RiuQwtPlotWidget* RimAbstractCorrelationPlot::viewer()
+{
+    return m_plotWidget;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiuPlotWidget* RimAbstractCorrelationPlot::plotWidget()
 {
     return m_plotWidget;
 }

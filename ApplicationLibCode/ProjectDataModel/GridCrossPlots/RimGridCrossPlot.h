@@ -23,7 +23,7 @@
 
 #include "RiaPlotDefines.h"
 #include "RimNameConfig.h"
-#include "RimQwtPlot.h"
+#include "RimPlot.h"
 
 #include <QPointer>
 
@@ -34,6 +34,7 @@ class RimPlotAxisProperties;
 class RimGridCrossPlotDataSet;
 class RiuDraggableOverlayFrame;
 class RiuGridCrossQwtPlot;
+class RimPlotCurve;
 
 class RimGridCrossPlotNameConfig : public RimNameConfig
 {
@@ -104,7 +105,7 @@ public:
 
     void            setAutoScaleXEnabled( bool enabled ) override;
     void            setAutoScaleYEnabled( bool enabled ) override;
-    caf::PdmObject* findPdmObjectFromPlotCurve( const RiuPlotCurve* curve ) const;
+    caf::PdmObject* findPdmObjectFromPlotCurve( const RiuPlotCurve* curve ) const override;
     void            onAxisSelected( int axis, bool toggle );
 
     bool isDeletable() const override;
@@ -136,7 +137,7 @@ protected:
     std::set<RimPlotAxisPropertiesInterface*> allPlotAxes() const;
 
 private:
-    RiuQwtPlotWidget* doCreatePlotViewWidget( QWidget* mainWindowParent = nullptr ) override;
+    RiuPlotWidget* doCreatePlotViewWidget( QWidget* mainWindowParent = nullptr ) override;
 
     void doUpdateLayout() override;
     void cleanupBeforeClose();

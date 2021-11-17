@@ -59,16 +59,15 @@ caf::PdmScriptResponse RicNewMultiPlotFeature::execute()
 
     if ( !m_plots().empty() )
     {
-        std::vector<RimQwtPlot*> plots;
+        std::vector<RimPlot*> plots;
         for ( auto ptr : m_plots() )
         {
-            plots.push_back( reinterpret_cast<RimQwtPlot*>( ptr ) );
+            plots.push_back( reinterpret_cast<RimPlot*>( ptr ) );
         }
 
         for ( auto plot : plots )
         {
-            auto copy =
-                dynamic_cast<RimQwtPlot*>( plot->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
+            auto copy = dynamic_cast<RimPlot*>( plot->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
 
             {
                 // TODO: Workaround for fixing the PdmPointer in RimEclipseResultDefinition

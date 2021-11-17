@@ -26,10 +26,12 @@
 #include "RimWellLogTrack.h"
 
 #include "RiuGuiTheme.h"
+#include "RiuPlotCurve.h"
 #include "RiuQwtCurvePointTracker.h"
 #include "RiuQwtPlotTools.h"
-#include "RiuRimQwtPlotCurve.h"
 
+#include "qwt_plot.h"
+#include "qwt_plot_curve.h"
 #include "qwt_scale_draw.h"
 #include "qwt_scale_engine.h"
 #include "qwt_scale_widget.h"
@@ -95,8 +97,8 @@ public:
     //--------------------------------------------------------------------------------------------------
     QString curveInfoText( QwtPlotCurve* curve ) override
     {
-        RiuRimQwtPlotCurve* riuCurve = dynamic_cast<RiuRimQwtPlotCurve*>( curve );
-        RimWellLogCurve*    wlCurve  = nullptr;
+        RiuPlotCurve*    riuCurve = dynamic_cast<RiuPlotCurve*>( curve );
+        RimWellLogCurve* wlCurve  = nullptr;
         if ( riuCurve )
         {
             wlCurve = dynamic_cast<RimWellLogCurve*>( riuCurve->ownerRimCurve() );
