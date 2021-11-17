@@ -127,6 +127,14 @@ RiuQwtPlotWidget* RimWellDistributionPlot::viewer()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RiuPlotWidget* RimWellDistributionPlot::plotWidget()
+{
+    return m_plotWidget;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimWellDistributionPlot::setAutoScaleXEnabled( bool /*enabled*/ )
 {
     // cvf::Trace::show("RimWellDistributionPlot::setAutoScaleXEnabled()");
@@ -282,7 +290,7 @@ void RimWellDistributionPlot::zoomAll()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuQwtPlotWidget* RimWellDistributionPlot::doCreatePlotViewWidget( QWidget* mainWindowParent )
+RiuPlotWidget* RimWellDistributionPlot::doCreatePlotViewWidget( QWidget* mainWindowParent )
 {
     // cvf::Trace::show("RimWellDistributionPlot::createViewWidget()");
 

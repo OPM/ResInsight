@@ -19,7 +19,7 @@
 #pragma once
 
 #include "RiaDefines.h"
-#include "RimQwtPlot.h"
+#include "RimPlot.h"
 
 #include "cafPdmPtrField.h"
 
@@ -35,7 +35,7 @@ class RiuQwtPlotWidget;
 //
 //
 //==================================================================================================
-class RimWellDistributionPlot : public RimQwtPlot
+class RimWellDistributionPlot : public RimPlot
 {
     CAF_PDM_HEADER_INIT;
 
@@ -50,6 +50,7 @@ public:
 
     // RimPlot implementations
     RiuQwtPlotWidget* viewer() override;
+    RiuPlotWidget*    plotWidget() override;
     void              setAutoScaleXEnabled( bool enabled ) override;
     void              setAutoScaleYEnabled( bool enabled ) override;
     void              updateAxes() override;
@@ -76,7 +77,7 @@ private:
     void onLoadDataAndUpdate() override;
 
 private:
-    RiuQwtPlotWidget* doCreatePlotViewWidget( QWidget* mainWindowParent ) override;
+    RiuPlotWidget* doCreatePlotViewWidget( QWidget* mainWindowParent ) override;
 
     void        fixupDependentFieldsAfterCaseChange();
     static void populatePlotWidgetWithCurveData( const RigTofWellDistributionCalculator& calculator,
