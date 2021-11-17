@@ -34,6 +34,7 @@
 
 #include "RiuDraggableOverlayFrame.h"
 #include "RiuGridCrossQwtPlot.h"
+#include "RiuPlotWidget.h"
 #include "RiuScalarMapperLegendFrame.h"
 
 #include "RimCase.h"
@@ -198,11 +199,11 @@ void RimGridCrossPlotDataSet::loadDataAndUpdate( bool updateParentPlot )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridCrossPlotDataSet::setParentQwtPlotNoReplot( QwtPlot* parent )
+void RimGridCrossPlotDataSet::setParentPlotNoReplot( RiuPlotWidget* parent )
 {
     for ( auto& curve : m_crossPlotCurves() )
     {
-        curve->setParentQwtPlotNoReplot( m_isChecked() ? parent : nullptr );
+        curve->setParentPlotNoReplot( m_isChecked() ? parent : nullptr );
     }
 }
 
@@ -343,7 +344,7 @@ void RimGridCrossPlotDataSet::detachAllCurves()
 {
     for ( auto curve : m_crossPlotCurves() )
     {
-        curve->detachQwtCurve();
+        curve->detach();
     }
 }
 

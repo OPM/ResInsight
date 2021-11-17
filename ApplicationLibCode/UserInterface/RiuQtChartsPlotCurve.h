@@ -32,6 +32,8 @@ public:
     explicit RiuQtChartsPlotCurve( const QString& title = QString() );
     ~RiuQtChartsPlotCurve() override;
 
+    void setTitle( const QString& title ) override;
+
     void setAppearance( RiuQwtPlotCurveDefines::LineStyleEnum          lineStyle,
                         RiuQwtPlotCurveDefines::CurveInterpolationEnum interpolationType,
                         int                                            curveThickness,
@@ -42,6 +44,13 @@ public:
 
     void attachToPlot( RiuPlotWidget* plotWidget ) override;
     void showInPlot() override;
+
+    void setZ( int z ) override;
+
+    void clearErrorBars() override;
+
+    int  numSamples() const override;
+    void detach() override;
 
 protected:
     // void drawCurve( QPainter*          p,

@@ -56,10 +56,10 @@ public:
     QWidget* createPlotWidget( QWidget* parent = nullptr );
 
     // Pure virtual interface methods
-    virtual void updateZoomInQwt()   = 0;
-    virtual void updateZoomFromQwt() = 0;
+    virtual void updateZoomInParentPlot()   = 0;
+    virtual void updateZoomFromParentPlot() = 0;
 
-    virtual caf::PdmObject* findPdmObjectFromQwtCurve( const QwtPlotCurve* curve ) const = 0;
+    //    virtual caf::PdmObject* findPdmObjectFromQwtCurve( const QwtPlotCurve* curve ) const = 0;
 
     virtual RiuQwtPlotWidget* viewer() = 0;
 

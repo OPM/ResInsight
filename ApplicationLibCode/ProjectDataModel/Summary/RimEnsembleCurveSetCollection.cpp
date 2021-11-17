@@ -29,9 +29,7 @@
 #include "RimSummaryPlot.h"
 #include "RimSummaryPlotSourceStepping.h"
 
-#include "RiuQwtPlotCurve.h"
-
-#include "qwt_plot.h"
+#include "RiuPlotCurve.h"
 
 CAF_PDM_SOURCE_INIT( RimEnsembleCurveSetCollection, "RimEnsembleCurveSetCollection" );
 
@@ -94,11 +92,11 @@ void RimEnsembleCurveSetCollection::loadDataAndUpdate( bool updateParentPlot )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEnsembleCurveSetCollection::setParentQwtPlotAndReplot( QwtPlot* plot )
+void RimEnsembleCurveSetCollection::setParentPlotAndReplot( RiuPlotWidget* plot )
 {
     for ( RimEnsembleCurveSet* curveSet : m_curveSets )
     {
-        curveSet->setParentQwtPlotNoReplot( plot );
+        curveSet->setParentPlotNoReplot( plot );
     }
 
     if ( plot ) plot->replot();
@@ -107,35 +105,35 @@ void RimEnsembleCurveSetCollection::setParentQwtPlotAndReplot( QwtPlot* plot )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEnsembleCurveSetCollection::detachQwtCurves()
+void RimEnsembleCurveSetCollection::detachPlotCurves()
 {
     for ( const auto& curveSet : m_curveSets )
     {
-        curveSet->detachQwtCurves();
+        curveSet->detachPlotCurves();
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEnsembleCurveSetCollection::reattachQwtCurves()
+void RimEnsembleCurveSetCollection::reattachPlotCurves()
 {
     for ( const auto& curveSet : m_curveSets )
     {
-        curveSet->reattachQwtCurves();
+        curveSet->reattachPlotCurves();
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSummaryCurve* RimEnsembleCurveSetCollection::findRimCurveFromQwtCurve( const QwtPlotCurve* qwtCurve ) const
+RimSummaryCurve* RimEnsembleCurveSetCollection::findRimCurveFromPlotCurve( const RiuPlotCurve* curve ) const
 {
     for ( RimEnsembleCurveSet* curveSet : m_curveSets )
     {
         for ( RimSummaryCurve* rimCurve : curveSet->curves() )
         {
-            if ( rimCurve->qwtPlotCurve() == qwtCurve )
+            if ( rimCurve->isSameCurve( curve ) )
             {
                 return rimCurve;
             }
@@ -148,13 +146,13 @@ RimSummaryCurve* RimEnsembleCurveSetCollection::findRimCurveFromQwtCurve( const 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimEnsembleCurveSet* RimEnsembleCurveSetCollection::findRimCurveSetFromQwtCurve( const QwtPlotCurve* qwtCurve ) const
+RimEnsembleCurveSet* RimEnsembleCurveSetCollection::findCurveSetFromPlotCurve( const RiuPlotCurve* curve ) const
 {
     for ( RimEnsembleCurveSet* curveSet : m_curveSets )
     {
         for ( RimSummaryCurve* rimCurve : curveSet->curves() )
         {
-            if ( rimCurve->qwtPlotCurve() == qwtCurve )
+            if ( rimCurve->isSameCurve( curve ) )
             {
                 return curveSet;
             }

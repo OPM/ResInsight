@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include "RiaCurveDataTools.h"
+
 #include "RiuPlotWidget.h"
 #include "RiuQwtPlotCurveDefines.h"
 
@@ -53,6 +55,10 @@ public:
     explicit RiuPlotCurve();
     virtual ~RiuPlotCurve();
 
+    virtual void setTitle( const QString& title ) = 0;
+
+    virtual void setSamplesValues( const std::vector<double>& xValues, const std::vector<double>& yValues );
+
     void setSamplesFromXValuesAndYValues( const std::vector<double>& xValues,
                                           const std::vector<double>& yValues,
                                           bool                       keepOnlyPositiveValues );
@@ -64,6 +70,13 @@ public:
     void setSamplesFromTimeTAndYValues( const std::vector<time_t>& dateTimes,
                                         const std::vector<double>& yValues,
                                         bool                       keepOnlyPositiveValues );
+
+    virtual void setSamplesFromXYErrorValues(
+        const std::vector<double>&   xValues,
+        const std::vector<double>&   yValues,
+        const std::vector<double>&   errorValues,
+        bool                         keepOnlyPositiveValues,
+        RiaCurveDataTools::ErrorAxis errorAxis = RiaCurveDataTools::ErrorAxis::ERROR_ALONG_Y_AXIS );
 
     void setLineSegmentStartStopIndices( const std::vector<std::pair<size_t, size_t>>& lineSegmentStartStopIndices );
 
@@ -81,9 +94,16 @@ public:
 
     virtual void attachToPlot( RiuPlotWidget* plotWidget ) = 0;
     virtual void showInPlot()                              = 0;
+    virtual void detach()                                  = 0;
 
     static std::vector<double> fromQDateTime( const std::vector<QDateTime>& dateTimes );
     static std::vector<double> fromTime_t( const std::vector<time_t>& timeSteps );
+
+    virtual void setZ( int z ) = 0;
+
+    virtual void clearErrorBars() = 0;
+
+    virtual int numSamples() const = 0;
 
 protected:
     virtual void
