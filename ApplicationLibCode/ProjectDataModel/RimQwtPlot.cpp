@@ -132,22 +132,22 @@ void RimQwtPlot::onPlotSelected( bool toggle )
 //--------------------------------------------------------------------------------------------------
 void RimQwtPlot::onPlotItemSelected( QwtPlotItem* plotItem, bool toggle, int sampleIndex )
 {
-    QwtPlotCurve* curve = dynamic_cast<QwtPlotCurve*>( plotItem );
-    if ( curve )
-    {
-        RimQwtPlotCurve* selectedCurve = dynamic_cast<RimQwtPlotCurve*>( this->findPdmObjectFromQwtCurve( curve ) );
-        if ( selectedCurve )
-        {
-            if ( toggle )
-            {
-                RiuPlotMainWindowTools::toggleItemInSelection( selectedCurve );
-            }
-            else
-            {
-                RiuPlotMainWindowTools::selectAsCurrentItem( selectedCurve );
-            }
-        }
-    }
+    // QwtPlotCurve* curve = dynamic_cast<QwtPlotCurve*>( plotItem );
+    // if ( curve )
+    // {
+    //     RimQwtPlotCurve* selectedCurve = dynamic_cast<RimQwtPlotCurve*>( this->findPdmObjectFromQwtCurve( curve ) );
+    //     if ( selectedCurve )
+    //     {
+    //         if ( toggle )
+    //         {
+    //             RiuPlotMainWindowTools::toggleItemInSelection( selectedCurve );
+    //         }
+    //         else
+    //         {
+    //             RiuPlotMainWindowTools::selectAsCurrentItem( selectedCurve );
+    //         }
+    //     }
+    // }
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -32,7 +32,7 @@ class RimEclipseResultDefinition;
 ///
 ///
 //==================================================================================================
-class RimGridCrossPlotCurve : public RimQwtPlotCurve
+class RimGridCrossPlotCurve : public RimPlotCurve
 {
     CAF_PDM_HEADER_INIT;
 

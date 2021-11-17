@@ -184,17 +184,17 @@ void RimWellDistributionPlot::updateLegend()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellDistributionPlot::updateZoomInQwt()
+void RimWellDistributionPlot::updateZoomInParentPlot()
 {
-    // cvf::Trace::show("RimWellDistributionPlot::updateZoomInQwt()");
+    // cvf::Trace::show("RimWellDistributionPlot::updateZoomInParentPlot()");
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellDistributionPlot::updateZoomFromQwt()
+void RimWellDistributionPlot::updateZoomFromParentPlot()
 {
-    // cvf::Trace::show("RimWellDistributionPlot::updateZoomFromQwt()");
+    // cvf::Trace::show("RimWellDistributionPlot::updateZoomFromParentPlot()");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -225,7 +225,7 @@ void RimWellDistributionPlot::detachAllCurves()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PdmObject* RimWellDistributionPlot::findPdmObjectFromQwtCurve( const QwtPlotCurve* /*curve*/ ) const
+caf::PdmObject* RimWellDistributionPlot::findPdmObjectFromPlotCurve( const RiuPlotCurve* /*curve*/ ) const
 {
     // cvf::Trace::show("RimWellDistributionPlot::findPdmObjectFromQwtCurve()");
     return nullptr;

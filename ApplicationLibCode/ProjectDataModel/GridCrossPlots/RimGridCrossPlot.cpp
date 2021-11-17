@@ -165,6 +165,14 @@ RiuQwtPlotWidget* RimGridCrossPlot::viewer()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RiuPlotWidget* RimGridCrossPlot::plotWidget()
+{
+    return m_plotWidget;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QImage RimGridCrossPlot::snapshotWindowContent()
 {
     QImage image;
@@ -186,7 +194,7 @@ void RimGridCrossPlot::zoomAll()
     setAutoScaleXEnabled( true );
     setAutoScaleYEnabled( true );
 
-    updateZoomInQwt();
+    updateZoomInParentPlot();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -212,10 +220,10 @@ void RimGridCrossPlot::reattachAllCurves()
             dataSet->detachAllCurves();
             if ( dataSet->isChecked() )
             {
-                dataSet->setParentQwtPlotNoReplot( m_plotWidget->qwtPlot() );
+                dataSet->setParentPlotNoReplot( m_plotWidget );
             }
         }
-        updateZoomInQwt();
+        updateZoomInParentPlot();
     }
 }
 
@@ -351,13 +359,13 @@ void RimGridCrossPlot::setAutoScaleYEnabled( bool enabled )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PdmObject* RimGridCrossPlot::findPdmObjectFromQwtCurve( const QwtPlotCurve* qwtCurve ) const
+caf::PdmObject* RimGridCrossPlot::findPdmObjectFromPlotCurve( const RiuPlotCurve* plotCurve ) const
 {
     for ( auto dataSet : m_crossPlotDataSets )
     {
         for ( auto curve : dataSet->curves() )
         {
-            if ( curve->qwtPlotCurve() == qwtCurve )
+            if ( curve->isSameCurve( plotCurve ) )
             {
                 return curve;
             }
@@ -456,7 +464,7 @@ void RimGridCrossPlot::onPlotZoomed()
 {
     setAutoScaleXEnabled( false );
     setAutoScaleYEnabled( false );
-    updateZoomFromQwt();
+    updateZoomFromParentPlot();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -470,7 +478,7 @@ RiuQwtPlotWidget* RimGridCrossPlot::doCreatePlotViewWidget( QWidget* mainWindowP
 
         for ( auto dataSet : m_crossPlotDataSets )
         {
-            dataSet->setParentQwtPlotNoReplot( m_plotWidget->qwtPlot() );
+            dataSet->setParentPlotNoReplot( m_plotWidget );
         }
 
         updateCurveNamesAndPlotTitle();
@@ -602,7 +610,7 @@ void RimGridCrossPlot::updatePlot()
 
         for ( auto dataSet : m_crossPlotDataSets )
         {
-            dataSet->setParentQwtPlotNoReplot( m_plotWidget->qwtPlot() );
+            dataSet->setParentPlotNoReplot( m_plotWidget );
         }
 
         updateLegend();
@@ -762,14 +770,14 @@ void RimGridCrossPlot::updateLegend()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridCrossPlot::updateZoomInQwt()
+void RimGridCrossPlot::updateZoomInParentPlot()
 {
     if ( m_plotWidget )
     {
         updateAxisInQwt( RiaDefines::PlotAxis::PLOT_AXIS_LEFT );
         updateAxisInQwt( RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM );
         m_plotWidget->qwtPlot()->updateAxes();
-        updateZoomFromQwt();
+        updateZoomFromParentPlot();
         m_plotWidget->scheduleReplot();
     }
 }
@@ -777,7 +785,7 @@ void RimGridCrossPlot::updateZoomInQwt()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridCrossPlot::updateZoomFromQwt()
+void RimGridCrossPlot::updateZoomFromParentPlot()
 {
     updateAxisFromQwt( RiaDefines::PlotAxis::PLOT_AXIS_LEFT );
     updateAxisFromQwt( RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM );
@@ -847,9 +855,7 @@ void RimGridCrossPlot::updateAxisInQwt( RiaDefines::PlotAxis axisType )
         axisParameterString = yAxisParameterString();
     }
 
-    RiaDefines::PlotAxis axis      = axisProperties->plotAxisType();
-    QwtPlot::Axis        qwtAxisId = RiuQwtPlotTools::toQwtPlotAxis( axis );
-
+    RiaDefines::PlotAxis axis = axisProperties->plotAxisType();
     if ( axisProperties->isActive() )
     {
         m_plotWidget->enableAxis( axis, true );
@@ -880,10 +886,11 @@ void RimGridCrossPlot::updateAxisInQwt( RiaDefines::PlotAxis axisType )
             double max = axisProperties->visibleRangeMax;
             if ( axisProperties->isAutoZoom() )
             {
-                std::vector<const QwtPlotCurve*> plotCurves = visibleQwtCurves();
+                // TODO: fix this!!
+                // std::vector<const QwtPlotCurve*> plotCurves = visibleCurves();
 
-                RimPlotAxisLogRangeCalculator logRangeCalculator( qwtAxisId, plotCurves );
-                logRangeCalculator.computeAxisRange( &min, &max );
+                // RimPlotAxisLogRangeCalculator logRangeCalculator( qwtAxisId, plotCurves );
+                // logRangeCalculator.computeAxisRange( &min, &max );
             }
 
             if ( axisProperties->isAxisInverted() )
@@ -956,9 +963,9 @@ void RimGridCrossPlot::updateAxisFromQwt( RiaDefines::PlotAxis axisType )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<const QwtPlotCurve*> RimGridCrossPlot::visibleQwtCurves() const
+std::vector<const RimPlotCurve*> RimGridCrossPlot::visibleCurves() const
 {
-    std::vector<const QwtPlotCurve*> plotCurves;
+    std::vector<const RimPlotCurve*> plotCurves;
     for ( auto dataSet : m_crossPlotDataSets )
     {
         if ( dataSet->isChecked() )
@@ -967,7 +974,7 @@ std::vector<const QwtPlotCurve*> RimGridCrossPlot::visibleQwtCurves() const
             {
                 if ( curve->isCurveVisible() )
                 {
-                    plotCurves.push_back( curve->qwtPlotCurve() );
+                    plotCurves.push_back( curve );
                 }
             }
         }

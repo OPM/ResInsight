@@ -218,22 +218,22 @@ void RimEnsembleWellLogCurveSet::loadDataAndUpdate( bool updateParentPlot )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEnsembleWellLogCurveSet::setParentQwtPlotNoReplot( QwtPlot* plot )
+void RimEnsembleWellLogCurveSet::setParentPlotNoReplot( RiuPlotWidget* plot )
 {
     for ( RimWellLogCurve* curve : m_curves )
     {
-        curve->setParentQwtPlotNoReplot( plot );
+        curve->setParentPlotNoReplot( plot );
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEnsembleWellLogCurveSet::detachQwtCurves()
+void RimEnsembleWellLogCurveSet::detachPlotCurves()
 {
     for ( RimWellLogCurve* curve : m_curves )
     {
-        curve->detachQwtCurve();
+        curve->detach();
     }
 
     m_qwtPlotCurveForLegendText->detach();
@@ -242,11 +242,11 @@ void RimEnsembleWellLogCurveSet::detachQwtCurves()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEnsembleWellLogCurveSet::reattachQwtCurves()
+void RimEnsembleWellLogCurveSet::reattachPlotCurves()
 {
     for ( RimWellLogCurve* curve : m_curves )
     {
-        curve->reattachQwtCurve();
+        curve->reattach();
     }
 
     m_qwtPlotCurveForLegendText->detach();

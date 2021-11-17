@@ -294,7 +294,7 @@ void RimDepthTrackPlot::updateZoom()
     for ( RimQwtPlot* plot : plots() )
     {
         static_cast<RimWellLogTrack*>( plot )->setVisibleYRange( m_minVisibleDepth(), m_maxVisibleDepth() );
-        plot->updateZoomInQwt();
+        plot->updateZoomInParentPlot();
     }
 
     if ( m_viewer )

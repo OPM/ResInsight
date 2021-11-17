@@ -342,9 +342,9 @@ void RimWellLogTrack::cleanupBeforeClose()
 //--------------------------------------------------------------------------------------------------
 void RimWellLogTrack::detachAllPlotItems()
 {
-    for ( RimQwtPlotCurve* curve : m_curves )
+    for ( RimPlotCurve* curve : m_curves )
     {
-        curve->detachQwtCurve();
+        curve->detach();
     }
     for ( auto& plotObjects : m_wellPathAttributePlotObjects )
     {
@@ -1006,7 +1006,7 @@ QString RimWellLogTrack::asciiDataForPlotExport() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellLogTrack::updateZoomFromQwt()
+void RimWellLogTrack::updateZoomFromParentPlot()
 {
     auto [xIntervalMin, xIntervalMax]         = m_plotWidget->axisRange( RiaDefines::PlotAxis::PLOT_AXIS_TOP );
     auto [depthIntervalMin, depthIntervalMax] = m_plotWidget->axisRange( RiaDefines::PlotAxis::PLOT_AXIS_LEFT );
@@ -1122,7 +1122,7 @@ void RimWellLogTrack::addCurve( RimWellLogCurve* curve )
 
     if ( m_plotWidget )
     {
-        curve->setParentQwtPlotAndReplot( m_plotWidget->qwtPlot() );
+        curve->setParentPlotAndReplot( m_plotWidget );
     }
 }
 
@@ -1143,7 +1143,7 @@ void RimWellLogTrack::insertCurve( RimWellLogCurve* curve, size_t index )
 
         if ( m_plotWidget )
         {
-            curve->setParentQwtPlotAndReplot( m_plotWidget->qwtPlot() );
+            curve->setParentPlotAndReplot( m_plotWidget );
         }
     }
 }
@@ -1156,7 +1156,7 @@ void RimWellLogTrack::removeCurve( RimWellLogCurve* curve )
     size_t index = m_curves.index( curve );
     if ( index < m_curves.size() )
     {
-        m_curves[index]->detachQwtCurve();
+        m_curves[index]->detach();
         m_curves.removeChildObject( curve );
     }
 }
@@ -1512,7 +1512,7 @@ RiuQwtPlotWidget* RimWellLogTrack::doCreatePlotViewWidget( QWidget* mainWindowPa
 
         for ( size_t cIdx = 0; cIdx < m_curves.size(); ++cIdx )
         {
-            m_curves[cIdx]->setParentQwtPlotNoReplot( this->m_plotWidget->qwtPlot() );
+            m_curves[cIdx]->setParentPlotNoReplot( m_plotWidget );
         }
     }
     return m_plotWidget;
@@ -1539,10 +1539,11 @@ void RimWellLogTrack::detachAllCurves()
 //--------------------------------------------------------------------------------------------------
 void RimWellLogTrack::reattachAllCurves()
 {
-    for ( RimQwtPlotCurve* curve : m_curves )
+    for ( RimPlotCurve* curve : m_curves )
     {
-        curve->reattachQwtCurve();
+        curve->reattach();
     }
+
     for ( auto& plotObjects : m_wellPathAttributePlotObjects )
     {
         plotObjects->reattachToQwt();
@@ -1599,7 +1600,7 @@ void RimWellLogTrack::setVisibleYRange( double minValue, double maxValue )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellLogTrack::updateZoomInQwt()
+void RimWellLogTrack::updateZoomInParentPlot()
 {
     updateXZoom();
     updateYZoom();
@@ -1792,17 +1793,17 @@ void RimWellLogTrack::zoomAll()
 {
     setAutoScaleXEnabled( true );
     setAutoScaleYEnabled( true );
-    updateZoomInQwt();
+    updateZoomInParentPlot();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PdmObject* RimWellLogTrack::findPdmObjectFromQwtCurve( const QwtPlotCurve* curve ) const
+caf::PdmObject* RimWellLogTrack::findPdmObjectFromPlotCurve( const RiuPlotCurve* curve ) const
 {
     for ( size_t idx = 0; idx < m_curves.size(); idx++ )
     {
-        if ( m_curves[idx]->qwtPlotCurve() == curve )
+        if ( m_curves[idx]->isSameCurve( curve ) )
         {
             return m_curves[idx];
         }
@@ -3086,7 +3087,7 @@ void RimWellLogTrack::updateWellPathAttributesOnPlot()
             attributePlotObject->setDepthType( depthType );
             attributePlotObject->setShowLabel( m_showWellPathComponentLabels() );
             attributePlotObject->loadDataAndUpdate( false );
-            attributePlotObject->setParentQwtPlotNoReplot( m_plotWidget->qwtPlot() );
+            attributePlotObject->setParentPlotNoReplot( m_plotWidget->qwtPlot() );
         }
     }
     updateXZoom();
@@ -3119,7 +3120,7 @@ void RimWellLogTrack::onChildDeleted( caf::PdmChildArrayFieldHandle*      childA
                                       std::vector<caf::PdmObjectHandle*>& referringObjects )
 {
     setAutoScaleXEnabled( true );
-    updateZoomInQwt();
+    updateZoomInParentPlot();
     RiuPlotMainWindow* mainPlotWindow = RiaGuiApplication::instance()->mainPlotWindow();
     mainPlotWindow->updateWellLogPlotToolBar();
 }

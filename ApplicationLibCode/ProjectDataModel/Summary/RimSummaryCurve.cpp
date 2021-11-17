@@ -536,7 +536,7 @@ void RimSummaryCurve::updateZoomInParentPlot()
     RimSummaryPlot* plot = nullptr;
     firstAncestorOrThisOfTypeAsserted( plot );
 
-    plot->updateZoomInQwt();
+    plot->updateZoomInParentPlot();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -910,7 +910,7 @@ QString RimSummaryCurve::curveExportDescription( const RifEclipseSummaryAddress&
     RimEnsembleCurveSetCollection* coll;
     firstAncestorOrThisOfType( coll );
 
-    auto curveSet = coll ? coll->findRimCurveSetFromQwtCurve( m_qwtPlotCurve ) : nullptr;
+    auto curveSet = coll ? coll->findCurveSetFromPlotCurve( m_plotCurve ) : nullptr;
     auto group    = curveSet ? curveSet->summaryCaseCollection() : nullptr;
 
     auto addressUiText = addr.uiText();

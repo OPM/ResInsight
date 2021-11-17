@@ -18,6 +18,7 @@
 
 #pragma once
 
+#include "RiuPlotWidget.h"
 #include "cafPdmChildArrayField.h"
 #include "cafPdmChildField.h"
 #include "cafPdmField.h"
@@ -26,8 +27,7 @@
 class RimEnsembleCurveSet;
 class RimSummaryPlotSourceStepping;
 class RimSummaryCurve;
-class QwtPlot;
-class QwtPlotCurve;
+class RiuPlotCurve;
 
 //==================================================================================================
 ///
@@ -43,12 +43,12 @@ public:
     bool isCurveSetsVisible();
 
     void loadDataAndUpdate( bool updateParentPlot );
-    void setParentQwtPlotAndReplot( QwtPlot* plot );
-    void detachQwtCurves();
-    void reattachQwtCurves();
+    void setParentPlotAndReplot( RiuPlotWidget* plot );
+    void detachPlotCurves();
+    void reattachPlotCurves();
 
-    RimSummaryCurve*     findRimCurveFromQwtCurve( const QwtPlotCurve* qwtCurve ) const;
-    RimEnsembleCurveSet* findRimCurveSetFromQwtCurve( const QwtPlotCurve* qwtCurve ) const;
+    RimSummaryCurve*     findRimCurveFromPlotCurve( const RiuPlotCurve* qwtCurve ) const;
+    RimEnsembleCurveSet* findCurveSetFromPlotCurve( const RiuPlotCurve* qwtCurve ) const;
 
     void addCurveSet( RimEnsembleCurveSet* curveSet );
     void deleteCurveSet( RimEnsembleCurveSet* curveSet );

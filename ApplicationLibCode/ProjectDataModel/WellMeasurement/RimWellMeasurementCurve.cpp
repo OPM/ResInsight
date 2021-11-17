@@ -136,7 +136,7 @@ void RimWellMeasurementCurve::onLoadDataAndUpdate( bool updateParentPlot )
 
         if ( m_isUsingAutoName )
         {
-            m_qwtPlotCurve->setTitle( createCurveAutoName() );
+            m_plotCurve->setTitle( createCurveAutoName() );
         }
 
         setSymbol( getSymbolForMeasurementKind( m_measurementKind() ) );
@@ -156,10 +156,10 @@ void RimWellMeasurementCurve::onLoadDataAndUpdate( bool updateParentPlot )
             depthType = wellLogPlot->depthType();
         }
 
-        m_qwtPlotCurve->setSamples( this->curveData()->xPlotValues().data(),
-                                    this->curveData()->depthPlotValues( depthType, displayUnit ).data(),
-                                    static_cast<int>( this->curveData()->xPlotValues().size() ) );
-        m_qwtPlotCurve->setLineSegmentStartStopIndices( this->curveData()->polylineStartStopIndices() );
+        m_plotCurve->setSamplesFromXValuesAndYValues( this->curveData()->xPlotValues(),
+                                                      this->curveData()->depthPlotValues( depthType, displayUnit ),
+                                                      static_cast<int>( this->curveData()->xPlotValues().size() ) );
+        m_plotCurve->setLineSegmentStartStopIndices( this->curveData()->polylineStartStopIndices() );
     }
 
     this->RimPlotCurve::updateCurvePresentation( updateParentPlot );
@@ -169,9 +169,9 @@ void RimWellMeasurementCurve::onLoadDataAndUpdate( bool updateParentPlot )
         updateZoomInParentPlot();
     }
 
-    if ( m_parentQwtPlot )
+    if ( m_parentPlot )
     {
-        m_parentQwtPlot->replot();
+        m_parentPlot->replot();
     }
 }
 
@@ -205,7 +205,7 @@ void RimWellMeasurementCurve::fieldChangedByUi( const caf::PdmFieldHandle* chang
         this->loadDataAndUpdate( true );
     }
 
-    if ( m_parentQwtPlot ) m_parentQwtPlot->replot();
+    if ( m_parentPlot ) m_parentPlot->replot();
 }
 
 //--------------------------------------------------------------------------------------------------

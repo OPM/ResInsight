@@ -758,7 +758,7 @@ void RimMultiPlot::updateZoom()
 {
     for ( RimQwtPlot* plot : plots() )
     {
-        plot->updateZoomInQwt();
+        plot->updateZoomInParentPlot();
     }
 }
 

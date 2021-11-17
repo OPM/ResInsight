@@ -51,6 +51,7 @@ class RimPlotCurveAppearance;
 class RigWellPathFormations;
 
 class RiuDraggableOverlayFrame;
+class RiuPlotWidget;
 
 class QwtPlot;
 class QwtPlotCurve;
@@ -80,9 +81,9 @@ public:
     void setColor( cvf::Color3f color );
 
     void loadDataAndUpdate( bool updateParentPlot );
-    void setParentQwtPlotNoReplot( QwtPlot* plot );
-    void detachQwtCurves();
-    void reattachQwtCurves();
+    void setParentPlotNoReplot( RiuPlotWidget* plot );
+    void detachPlotCurves();
+    void reattachPlotCurves();
 
     std::vector<RimWellLogCurve*> curves() const;
 

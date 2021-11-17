@@ -381,7 +381,7 @@ void RimGridTimeHistoryCurve::updateZoomInParentPlot()
     RimSummaryPlot* plot = nullptr;
     firstAncestorOrThisOfType( plot );
 
-    plot->updateZoomInQwt();
+    plot->updateZoomInParentPlot();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -418,11 +418,11 @@ void RimGridTimeHistoryCurve::onLoadDataAndUpdate( bool updateParentPlot )
             std::vector<time_t> dateTimes = timeStepValues();
             if ( dateTimes.size() > 0 && dateTimes.size() == values.size() )
             {
-                m_qwtPlotCurve->setSamplesFromTimeTAndYValues( dateTimes, values, isLogCurve );
+                m_plotCurve->setSamplesFromTimeTAndYValues( dateTimes, values, isLogCurve );
             }
             else
             {
-                m_qwtPlotCurve->setSamplesFromTimeTAndYValues( std::vector<time_t>(), std::vector<double>(), isLogCurve );
+                m_plotCurve->setSamplesFromTimeTAndYValues( std::vector<time_t>(), std::vector<double>(), isLogCurve );
             }
         }
         else
@@ -438,17 +438,17 @@ void RimGridTimeHistoryCurve::onLoadDataAndUpdate( bool updateParentPlot )
                     times.push_back( timeScale * day );
                 }
 
-                m_qwtPlotCurve->setSamplesFromXValuesAndYValues( times, values, isLogCurve );
+                m_plotCurve->setSamplesFromXValuesAndYValues( times, values, isLogCurve );
             }
             else
             {
-                m_qwtPlotCurve->setSamplesFromTimeTAndYValues( std::vector<time_t>(), std::vector<double>(), isLogCurve );
+                m_plotCurve->setSamplesFromTimeTAndYValues( std::vector<time_t>(), std::vector<double>(), isLogCurve );
             }
         }
 
         updateZoomInParentPlot();
 
-        if ( m_parentQwtPlot ) m_parentQwtPlot->replot();
+        if ( m_parentPlot ) m_parentPlot->replot();
 
         updateQwtPlotAxis();
         plot->updateAxes();
@@ -711,17 +711,7 @@ QString RimGridTimeHistoryCurve::geometrySelectionText() const
 //--------------------------------------------------------------------------------------------------
 void RimGridTimeHistoryCurve::updateQwtPlotAxis()
 {
-    if ( m_qwtPlotCurve )
-    {
-        if ( this->yAxis() == RiaDefines::PlotAxis::PLOT_AXIS_LEFT )
-        {
-            m_qwtPlotCurve->setYAxis( QwtPlot::yLeft );
-        }
-        else
-        {
-            m_qwtPlotCurve->setYAxis( QwtPlot::yRight );
-        }
-    }
+    if ( m_plotCurve ) updateAxisInPlot( yAxis() );
 }
 
 //--------------------------------------------------------------------------------------------------

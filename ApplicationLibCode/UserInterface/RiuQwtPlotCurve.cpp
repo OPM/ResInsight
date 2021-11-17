@@ -29,6 +29,7 @@
 #include "qwt_date.h"
 #include "qwt_interval_symbol.h"
 #include "qwt_painter.h"
+#include "qwt_plot_curve.h"
 #include "qwt_point_mapper.h"
 #include "qwt_scale_map.h"
 #include "qwt_symbol.h"
@@ -54,6 +55,14 @@ RiuQwtPlotCurve::RiuQwtPlotCurve( const QString& title )
 //--------------------------------------------------------------------------------------------------
 RiuQwtPlotCurve::~RiuQwtPlotCurve()
 {
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuQwtPlotCurve::setTitle( const QString& title )
+{
+    QwtPlotCurve::setTitle( title );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -280,6 +289,14 @@ void RiuQwtPlotCurve::attachToPlot( RiuPlotWidget* plotWidget )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RiuQwtPlotCurve::detach()
+{
+    QwtPlotCurve::detach();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiuQwtPlotCurve::showInPlot()
 {
     show();
@@ -291,4 +308,39 @@ void RiuQwtPlotCurve::showInPlot()
 void RiuQwtPlotCurve::setSamplesInPlot( const std::vector<double>& xValues, const std::vector<double>& yValues, int numValues )
 {
     setSamples( xValues.data(), yValues.data(), numValues );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuQwtPlotCurve::setZ( int z )
+{
+    QwtPlotCurve::setZ( z );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuQwtPlotCurve::clearErrorBars()
+{
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RiuQwtPlotCurve::numSamples() const
+{
+    return dataSize();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuQwtPlotCurve::setSamplesFromXYErrorValues( const std::vector<double>&   xValues,
+                                                   const std::vector<double>&   yValues,
+                                                   const std::vector<double>&   errorValues,
+                                                   bool                         keepOnlyPositiveValues,
+                                                   RiaCurveDataTools::ErrorAxis errorAxis )
+{
+    // TODO: move code here.
 }

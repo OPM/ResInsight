@@ -135,14 +135,14 @@ private:
     void reattachAllCurves() override {}
     void updateAxes() override;
     void onAxisSelected( int axis, bool toggle ) override;
-    void updateZoomInQwt() override {}
-    void updateZoomFromQwt() override {}
+    void updateZoomInParentPlot() override {}
+    void updateZoomFromParentPlot() override {}
     void setAutoScaleXEnabled( bool enabled ) override {}
     void setAutoScaleYEnabled( bool enabled ) override {}
     void updateLegend() override{};
 
     QString         asciiDataForPlotExport() const override { return ""; }
-    caf::PdmObject* findPdmObjectFromQwtCurve( const QwtPlotCurve* curve ) const override { return nullptr; }
+    caf::PdmObject* findPdmObjectFromPlotCurve( const RiuPlotCurve* curve ) const override { return nullptr; }
 
     // Private methods
 

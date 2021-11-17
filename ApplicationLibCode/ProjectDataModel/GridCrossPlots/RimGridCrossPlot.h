@@ -52,7 +52,7 @@ private:
     void doEnableAllAutoNameTags( bool enable ) override;
 };
 
-class RimGridCrossPlot : public RimQwtPlot, public RimNameConfigHolderInterface
+class RimGridCrossPlot : public RimPlot, public RimNameConfigHolderInterface
 {
     Q_OBJECT;
     CAF_PDM_HEADER_INIT;
@@ -70,7 +70,8 @@ public:
     std::vector<RimGridCrossPlotDataSet*> dataSets() const;
 
     QWidget*          viewWidget() override;
-    RiuQwtPlotWidget* viewer() override;
+    RiuQwtPlotWidget* viewer();
+    RiuPlotWidget*    plotWidget() override;
 
     QImage  snapshotWindowContent() override;
     void    zoomAll() override;
@@ -98,13 +99,13 @@ public:
 
     void updateLegend() override;
 
-    void updateZoomInQwt() override;
-    void updateZoomFromQwt() override;
+    void updateZoomInParentPlot() override;
+    void updateZoomFromParentPlot() override;
 
     void            setAutoScaleXEnabled( bool enabled ) override;
     void            setAutoScaleYEnabled( bool enabled ) override;
-    caf::PdmObject* findPdmObjectFromQwtCurve( const QwtPlotCurve* curve ) const override;
-    void            onAxisSelected( int axis, bool toggle ) override;
+    caf::PdmObject* findPdmObjectFromPlotCurve( const RiuPlotCurve* curve ) const;
+    void            onAxisSelected( int axis, bool toggle );
 
     bool isDeletable() const override;
 
@@ -124,7 +125,7 @@ protected:
 
     void                             updateAxisInQwt( RiaDefines::PlotAxis axisType );
     void                             updateAxisFromQwt( RiaDefines::PlotAxis axisType );
-    std::vector<const QwtPlotCurve*> visibleQwtCurves() const;
+    std::vector<const RimPlotCurve*> visibleCurves() const;
 
     RimPlotAxisProperties* xAxisProperties();
     RimPlotAxisProperties* yAxisProperties();
