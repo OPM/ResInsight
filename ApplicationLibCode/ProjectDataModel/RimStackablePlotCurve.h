@@ -19,7 +19,7 @@
 
 #include "RimQwtPlotCurve.h"
 
-class RimStackablePlotCurve : public RimQwtPlotCurve
+class RimStackablePlotCurve : public RimPlotCurve
 {
 public:
     caf::Signal<bool> stackingChanged;

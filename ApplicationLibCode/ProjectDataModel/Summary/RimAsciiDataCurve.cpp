@@ -117,7 +117,7 @@ void RimAsciiDataCurve::updateZoomInParentPlot()
     RimSummaryPlot* plot = nullptr;
     firstAncestorOrThisOfType( plot );
 
-    plot->updateZoomInQwt();
+    plot->updateZoomInParentPlot();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -140,7 +140,7 @@ void RimAsciiDataCurve::onLoadDataAndUpdate( bool updateParentPlot )
         {
             if ( plot->timeAxisProperties()->timeMode() == RimSummaryTimeAxisProperties::DATE )
             {
-                m_qwtPlotCurve->setSamplesFromTimeTAndYValues( dateTimes, values, isLogCurve );
+                m_plotCurve->setSamplesFromTimeTAndYValues( dateTimes, values, isLogCurve );
             }
             else
             {
@@ -156,17 +156,17 @@ void RimAsciiDataCurve::onLoadDataAndUpdate( bool updateParentPlot )
                     }
                 }
 
-                m_qwtPlotCurve->setSamplesFromXValuesAndYValues( times, values, isLogCurve );
+                m_plotCurve->setSamplesFromXValuesAndYValues( times, values, isLogCurve );
             }
         }
         else
         {
-            m_qwtPlotCurve->setSamplesFromTimeTAndYValues( std::vector<time_t>(), std::vector<double>(), isLogCurve );
+            m_plotCurve->setSamplesFromTimeTAndYValues( std::vector<time_t>(), std::vector<double>(), isLogCurve );
         }
 
         updateZoomInParentPlot();
 
-        if ( m_parentQwtPlot ) m_parentQwtPlot->replot();
+        if ( m_parentPlot ) m_parentPlot->replot();
     }
 
     updateQwtPlotAxis();
@@ -197,17 +197,7 @@ void RimAsciiDataCurve::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderi
 //--------------------------------------------------------------------------------------------------
 void RimAsciiDataCurve::updateQwtPlotAxis()
 {
-    if ( m_qwtPlotCurve )
-    {
-        if ( this->yAxis() == RiaDefines::PlotAxis::PLOT_AXIS_LEFT )
-        {
-            m_qwtPlotCurve->setYAxis( QwtPlot::yLeft );
-        }
-        else
-        {
-            m_qwtPlotCurve->setYAxis( QwtPlot::yRight );
-        }
-    }
+    if ( m_plotCurve ) updateAxisInPlot( this->yAxis() );
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -23,7 +23,7 @@
 
 #include "RifEclipseSummaryAddress.h"
 
-#include "RimQwtPlot.h"
+#include "RimPlot.h"
 #include "RimSummaryDataSourceStepping.h"
 
 #include "qwt_plot_textlabel.h"
@@ -66,7 +66,7 @@ class QKeyEvent;
 ///
 ///
 //==================================================================================================
-class RimSummaryPlot : public RimQwtPlot, public RimSummaryDataSourceStepping
+class RimSummaryPlot : public RimPlot, public RimSummaryDataSourceStepping
 {
     Q_OBJECT;
     CAF_PDM_HEADER_INIT;
@@ -120,8 +120,8 @@ public:
     RimSummaryTimeAxisProperties* timeAxisProperties();
     time_t                        firstTimeStepOfFirstCurve();
 
-    QWidget*          viewWidget() override;
-    RiuQwtPlotWidget* viewer() override;
+    QWidget* viewWidget() override;
+    //    RiuQwtPlotWidget* viewer() override;
 
     QString asciiDataForPlotExport() const override;
     QString asciiDataForSummaryPlotExport( RiaQDateTimeTools::DateTimePeriod resamplingPeriod,
@@ -160,16 +160,16 @@ public:
     virtual RimSummaryPlotSourceStepping*     sourceSteppingObjectForKeyEventHandling() const;
     virtual std::vector<caf::PdmFieldHandle*> fieldsToShowInToolbar();
 
-    void setAutoScaleXEnabled( bool enabled ) override;
-    void setAutoScaleYEnabled( bool enabled ) override;
+    void           setAutoScaleXEnabled( bool enabled ) override;
+    void           setAutoScaleYEnabled( bool enabled ) override;
+    RiuPlotWidget* plotWidget() override;
+    void           zoomAll() override;
+    void           updateZoomInParentPlot() override;
+    void           updateZoomFromParentPlot() override;
 
-    void zoomAll() override;
-    void updateZoomInQwt() override;
-    void updateZoomFromQwt() override;
+    caf::PdmObject* findPdmObjectFromPlotCurve( const RiuPlotCurve* curve ) const override;
 
-    caf::PdmObject* findPdmObjectFromQwtCurve( const QwtPlotCurve* curve ) const override;
-
-    void onAxisSelected( int axis, bool toggle ) override;
+    void onAxisSelected( int axis, bool toggle );
 
     static constexpr int precision()
     {
@@ -192,7 +192,7 @@ public:
     bool isDeletable() const override;
 
 private:
-    RiuQwtPlotWidget* doCreatePlotViewWidget( QWidget* mainWindowParent = nullptr ) override;
+    RiuPlotWidget* doCreatePlotViewWidget( QWidget* mainWindowParent = nullptr ) override;
 
     void updateNameHelperWithCurveData( RimSummaryPlotNameHelper* nameHelper ) const;
 

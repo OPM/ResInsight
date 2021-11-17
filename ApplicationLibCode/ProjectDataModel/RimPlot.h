@@ -33,6 +33,7 @@
 class QPaintDevice;
 class QWheelEvent;
 class RiuPlotWidget;
+class RiuPlotCurve;
 
 //==================================================================================================
 ///
@@ -91,7 +92,10 @@ public:
         return parentPlotWindow != nullptr;
     }
 
-    virtual RiuPlotWidget* plotWidget() = 0;
+    virtual RiuPlotWidget*  plotWidget() = 0;
+    virtual void            updateZoomInParentPlot(){}; //  = 0;
+    virtual void            updateZoomFromParentPlot(){}; //= 0;
+    virtual caf::PdmObject* findPdmObjectFromPlotCurve( const RiuPlotCurve* curve ) const { return nullptr; };
 
 protected:
     virtual RiuPlotWidget* doCreatePlotViewWidget( QWidget* parent ) = 0;

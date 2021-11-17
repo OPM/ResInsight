@@ -48,6 +48,14 @@ RiuPlotCurve::~RiuPlotCurve()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RiuPlotCurve::setSamplesValues( const std::vector<double>& xValues, const std::vector<double>& yValues )
+{
+    setSamplesInPlot( xValues, yValues, static_cast<int>( xValues.size() ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiuPlotCurve::setSamplesFromXValuesAndYValues( const std::vector<double>& xValues,
                                                     const std::vector<double>& yValues,
                                                     bool                       keepOnlyPositiveValues )
@@ -169,4 +177,15 @@ std::vector<double> RiuPlotCurve::fromTime_t( const std::vector<time_t>& timeSte
     }
 
     return doubleValues;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuPlotCurve::setSamplesFromXYErrorValues( const std::vector<double>&   xValues,
+                                                const std::vector<double>&   yValues,
+                                                const std::vector<double>&   errorValues,
+                                                bool                         keepOnlyPositiveValues,
+                                                RiaCurveDataTools::ErrorAxis errorAxis )
+{
 }
