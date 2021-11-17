@@ -31,10 +31,10 @@ class Grid:
             Vec3i: class with integer attributes i, j, k giving extent in all three dimensions.
         """
         case_request = Case_pb2.CaseRequest(id=self.case.id)
-        
+
         if self.cached_dimensions is None:
             self.cached_dimensions = self.__stub.GetDimensions(
-            Grid_pb2.GridRequest(case_request=case_request, grid_index=self.index)
+                Grid_pb2.GridRequest(case_request=case_request, grid_index=self.index)
             ).dimensions
 
         return self.cached_dimensions
@@ -93,7 +93,7 @@ class Grid:
         return corners
 
     def property_data_index_from_ijk(self, i, j, k):
-        """ Compute property index from 1-based IJK cell address. Cell Property Result data is organized by I, J and K.
+        """Compute property index from 1-based IJK cell address. Cell Property Result data is organized by I, J and K.
 
         cell_result_index = (dims.i * dims.j * (k-1) + dims.i * (j-1) + (i-1))
 
@@ -104,10 +104,6 @@ class Grid:
         dims = self.dimensions()
 
         # Map ijk to cell index
-        property_data_index = (
-            dims.i * dims.j * (k-1)
-            + dims.i * (j-1)
-            + (i-1)
-        )
-        
+        property_data_index = dims.i * dims.j * (k - 1) + dims.i * (j - 1) + (i - 1)
+
         return property_data_index
