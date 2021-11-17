@@ -395,7 +395,7 @@ void RimWellLogRftCurve::onLoadDataAndUpdate( bool updateParentPlot )
 
         if ( values.empty() || values.size() != tvDepthVector.size() )
         {
-            this->detachQwtCurve();
+            this->detach();
             return;
         }
 
@@ -465,7 +465,7 @@ void RimWellLogRftCurve::onLoadDataAndUpdate( bool updateParentPlot )
 
         if ( wellLogPlot->depthType() == RiaDefines::DepthTypeEnum::MEASURED_DEPTH )
         {
-            m_qwtPlotCurve->setPerPointLabels( perPointLabels );
+            m_plotCurve->setPerPointLabels( perPointLabels );
 
             auto xValues = this->curveData()->xPlotValues();
             auto yValues = this->curveData()->depthPlotValues( RiaDefines::DepthTypeEnum::MEASURED_DEPTH, displayUnit );
@@ -481,7 +481,7 @@ void RimWellLogRftCurve::onLoadDataAndUpdate( bool updateParentPlot )
             }
             else
             {
-                m_qwtPlotCurve->setSamplesFromXValuesAndYValues( xValues, yValues, keepOnlyPositiveValues );
+                m_plotCurve->setSamplesFromXValuesAndYValues( xValues, yValues, keepOnlyPositiveValues );
             }
 
             RimWellLogTrack* wellLogTrack;
@@ -512,7 +512,7 @@ void RimWellLogRftCurve::onLoadDataAndUpdate( bool updateParentPlot )
         }
         else
         {
-            m_qwtPlotCurve->setPerPointLabels( perPointLabels );
+            m_plotCurve->setPerPointLabels( perPointLabels );
 
             auto xValues = this->curveData()->xPlotValues();
             auto yValues =
@@ -529,20 +529,20 @@ void RimWellLogRftCurve::onLoadDataAndUpdate( bool updateParentPlot )
             }
             else
             {
-                m_qwtPlotCurve->setSamplesFromXValuesAndYValues( xValues, yValues, isLogCurve );
+                m_plotCurve->setSamplesFromXValuesAndYValues( xValues, yValues, isLogCurve );
             }
         }
 
-        m_qwtPlotCurve->setLineSegmentStartStopIndices( this->curveData()->polylineStartStopIndices() );
+        m_plotCurve->setLineSegmentStartStopIndices( this->curveData()->polylineStartStopIndices() );
 
         if ( updateParentPlot )
         {
             updateZoomInParentPlot();
         }
 
-        if ( m_parentQwtPlot )
+        if ( m_parentPlot )
         {
-            m_parentQwtPlot->replot();
+            m_parentPlot->replot();
         }
     }
 }

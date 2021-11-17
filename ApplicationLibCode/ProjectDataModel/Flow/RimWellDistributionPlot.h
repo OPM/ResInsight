@@ -54,12 +54,12 @@ public:
     void              setAutoScaleYEnabled( bool enabled ) override;
     void              updateAxes() override;
     void              updateLegend() override;
-    void              updateZoomInQwt() override;
-    void              updateZoomFromQwt() override;
+    void              updateZoomInParentPlot() override;
+    void              updateZoomFromParentPlot() override;
     QString           asciiDataForPlotExport() const override;
     void              reattachAllCurves() override;
     void              detachAllCurves() override;
-    caf::PdmObject*   findPdmObjectFromQwtCurve( const QwtPlotCurve* curve ) const override;
+    caf::PdmObject*   findPdmObjectFromPlotCurve( const RiuPlotCurve* curve ) const override;
     void              onAxisSelected( int axis, bool toggle ) override;
 
     // RimPlotWindow implementations

@@ -154,8 +154,8 @@ public:
     void setVisibleXRange( double minValue, double maxValue );
     void setVisibleYRange( double minValue, double maxValue );
 
-    void updateZoomInQwt() override;
-    void updateZoomFromQwt() override;
+    void updateZoomInParentPlot() override;
+    void updateZoomFromParentPlot() override;
 
     void updateParentPlotZoom();
 
@@ -189,7 +189,7 @@ public:
 
     RimWellPath* wellPathAttributeSource() const;
 
-    caf::PdmObject* findPdmObjectFromQwtCurve( const QwtPlotCurve* curve ) const override;
+    caf::PdmObject* findPdmObjectFromPlotCurve( const RiuPlotCurve* curve ) const override;
 
     void setLogarithmicScale( bool enable );
     bool isLogarithmicScale() const;

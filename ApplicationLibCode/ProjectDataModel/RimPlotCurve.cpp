@@ -34,7 +34,9 @@
 #include "RimSummaryCurveFilter.h"
 #include "RimSummaryPlot.h"
 
+#include "RiuPlotCurve.h"
 #include "RiuPlotMainWindowTools.h"
+#include "RiuPlotWidget.h"
 
 #include "cafPdmUiComboBoxEditor.h"
 
@@ -125,6 +127,9 @@ RimPlotCurve::RimPlotCurve()
     m_curveAppearance.uiCapability()->setUiTreeChildrenHidden( true );
     m_curveAppearance->appearanceChanged.connect( this, &RimPlotCurve::onCurveAppearanceChanged );
     m_curveAppearance->appearanceChanged.connect( this, &RimPlotCurve::onFillColorChanged );
+
+    m_plotCurve  = nullptr;
+    m_parentPlot = nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -132,6 +137,19 @@ RimPlotCurve::RimPlotCurve()
 //--------------------------------------------------------------------------------------------------
 RimPlotCurve::~RimPlotCurve()
 {
+    if ( m_plotCurve )
+    {
+        detach();
+        delete m_plotCurve;
+        m_plotCurve = nullptr;
+    }
+
+    // if ( m_qwtCurveErrorBars )
+    // {
+    //     m_qwtCurveErrorBars->detach();
+    //     delete m_qwtCurveErrorBars;
+    //     m_qwtCurveErrorBars = nullptr;
+    // }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -306,11 +324,11 @@ void RimPlotCurve::updateCurveName()
 
     if ( !m_legendEntryText().isEmpty() )
     {
-        setCurveTitle( m_legendEntryText );
+        setTitle( m_legendEntryText );
     }
     else
     {
-        setCurveTitle( m_curveName );
+        setTitle( m_curveName );
     }
 }
 
@@ -642,4 +660,406 @@ void RimPlotCurve::onCurveAppearanceChanged( const caf::SignalEmitter* emitter )
 //--------------------------------------------------------------------------------------------------
 void RimPlotCurve::onFillColorChanged( const caf::SignalEmitter* emitter )
 {
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlotCurve::updateLegendsInPlot()
+{
+    nameChanged.send( curveName() );
+    if ( m_parentPlot != nullptr )
+    {
+        m_parentPlot->updateLegend();
+    }
+}
+
+void RimPlotCurve::setTitle( const QString& title )
+{
+    if ( m_plotCurve ) m_plotCurve->setTitle( title );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlotCurve::refreshParentPlot()
+{
+    if ( m_parentPlot ) m_parentPlot->update();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlotCurve::replotParentPlot()
+{
+    if ( m_parentPlot ) m_parentPlot->replot();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimPlotCurve::hasParentPlot() const
+{
+    return ( m_parentPlot != nullptr );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlotCurve::setSamplesFromXYValues( const std::vector<double>& xValues,
+                                           const std::vector<double>& yValues,
+                                           bool                       keepOnlyPositiveValues )
+{
+    if ( m_plotCurve )
+    {
+        m_plotCurve->setSamplesFromXValuesAndYValues( xValues, yValues, keepOnlyPositiveValues );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlotCurve::setSamplesFromDatesAndYValues( const std::vector<QDateTime>& dateTimes,
+                                                  const std::vector<double>&    yValues,
+                                                  bool                          keepOnlyPositiveValues )
+{
+    if ( m_plotCurve )
+    {
+        m_plotCurve->setSamplesFromDatesAndYValues( dateTimes, yValues, keepOnlyPositiveValues );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlotCurve::setSamplesFromTimeTAndYValues( const std::vector<time_t>& dateTimes,
+                                                  const std::vector<double>& yValues,
+                                                  bool                       keepOnlyPositiveValues )
+{
+    if ( m_plotCurve )
+    {
+        m_plotCurve->setSamplesFromTimeTAndYValues( dateTimes, yValues, keepOnlyPositiveValues );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlotCurve::setSamplesFromXYErrorValues( const std::vector<double>&   xValues,
+                                                const std::vector<double>&   yValues,
+                                                const std::vector<double>&   errorValues,
+                                                bool                         keepOnlyPositiveValues,
+                                                RiaCurveDataTools::ErrorAxis errorAxis )
+{
+    if ( m_plotCurve )
+    {
+        m_plotCurve->setSamplesFromXYErrorValues( xValues, yValues, errorValues, keepOnlyPositiveValues, errorAxis );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlotCurve::updateAxisInPlot( RiaDefines::PlotAxis plotAxis )
+{
+    if ( m_plotCurve )
+    {
+        // TODO: strange api?????
+
+        // if ( plotAxis == RiaDefines::PlotAxis::PLOT_AXIS_LEFT )
+        // {
+        //     m_plotCurve->setYAxis( QwtPlot::yLeft );
+        // }
+        // else
+        // {
+        //     m_plotCurve->setYAxis( QwtPlot::yRight );
+        // }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlotCurve::updateLegendEntryVisibilityNoPlotUpdate()
+{
+    if ( !m_plotCurve ) return;
+
+    RimEnsembleCurveSet* ensembleCurveSet = nullptr;
+    this->firstAncestorOrThisOfType( ensembleCurveSet );
+    if ( ensembleCurveSet )
+    {
+        return;
+    }
+
+    bool showLegendInQwt = m_showLegend();
+
+    RimSummaryPlot* summaryPlot = nullptr;
+    this->firstAncestorOrThisOfType( summaryPlot );
+    if ( summaryPlot )
+    {
+        bool anyCalculated = false;
+        for ( const auto c : summaryPlot->summaryCurves() )
+        {
+            if ( c->summaryAddressY().category() == RifEclipseSummaryAddress::SUMMARY_CALCULATED )
+            {
+                // Never hide the legend for calculated curves, as the curve legend is used to
+                // show some essential auto generated data
+                anyCalculated = true;
+            }
+        }
+
+        if ( !anyCalculated && summaryPlot->ensembleCurveSetCollection()->curveSets().empty() &&
+             summaryPlot->curveCount() == 1 )
+        {
+            // Disable display of legend if the summary plot has only one single curve
+            showLegendInQwt = false;
+        }
+    }
+    // TODO: handle this for qwt
+    // m_plotCurve->setItemAttribute( QwtPlotItem::Legend, showLegendInQwt );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimPlotCurve::xValueRangeInQwt( double* minimumValue, double* maximumValue ) const
+{
+    CVF_ASSERT( minimumValue && maximumValue );
+    CVF_ASSERT( m_plotCurve );
+
+    // TODO: fix!!!
+    // if ( m_plotCurve->data()->size() < 1 )
+    // {
+    //     return false;
+    // }
+
+    // *minimumValue = m_plotCurve->minXValue();
+    // *maximumValue = m_plotCurve->maxXValue();
+
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimPlotCurve::yValueRangeInQwt( double* minimumValue, double* maximumValue ) const
+{
+    CVF_ASSERT( minimumValue && maximumValue );
+    CVF_ASSERT( m_plotCurve );
+
+    // TODO: fix!!!
+    // if ( m_plotCurve->data()->size() < 1 )
+    // {
+    //     return false;
+    // }
+
+    // *minimumValue = m_plotCurve->minYValue();
+    // *maximumValue = m_plotCurve->maxYValue();
+
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlotCurve::setZOrder( double z )
+{
+    if ( m_plotCurve != nullptr )
+    {
+        m_plotCurve->setZ( z );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlotCurve::updateCurveAppearance()
+{
+    QColor     curveColor = RiaColorTools::toQColor( m_curveAppearance->color() );
+    QwtSymbol* symbol     = nullptr;
+
+    if ( m_curveAppearance->symbol() != RiuQwtSymbol::SYMBOL_NONE )
+    {
+        int legendFontSize        = caf::FontTools::absolutePointSize( RiaPreferences::current()->defaultPlotFontSize(),
+                                                                caf::FontTools::RelativeSize::Small );
+        RimPlotWindow* plotWindow = nullptr;
+        this->firstAncestorOrThisOfType( plotWindow );
+        if ( plotWindow )
+        {
+            legendFontSize = plotWindow->legendFontSize();
+        }
+
+        // QwtPlotCurve will take ownership of the symbol
+        symbol = new RiuQwtSymbol( m_curveAppearance->symbol(),
+                                   m_curveAppearance->symbolLabel(),
+                                   m_curveAppearance->symbolLabelPosition(),
+                                   legendFontSize );
+        symbol->setSize( m_curveAppearance->symbolSize(), m_curveAppearance->symbolSize() );
+        symbol->setColor( curveColor );
+
+        // If the symbol is a "filled" symbol, we can have a different edge color
+        // Otherwise we'll have to use the curve color.
+        if ( RiuQwtSymbol::isFilledSymbol( m_curveAppearance->symbol() ) )
+        {
+            QColor symbolEdgeColor = RiaColorTools::toQColor( m_curveAppearance->symbolEdgeColor() );
+            symbol->setPen( symbolEdgeColor );
+        }
+        else
+        {
+            symbol->setPen( curveColor );
+        }
+    }
+
+    // TODO:
+
+    // if ( m_qwtCurveErrorBars )
+    // {
+    //     QwtIntervalSymbol* newSymbol = new QwtIntervalSymbol( QwtIntervalSymbol::Bar );
+    //     newSymbol->setPen( QPen( curveColor ) );
+    //     m_qwtCurveErrorBars->setSymbol( newSymbol );
+    // }
+
+    if ( m_plotCurve )
+    {
+        QColor fillColor = RiaColorTools::toQColor( m_curveAppearance->fillColor() );
+
+        fillColor = RiaColorTools::blendQColors( fillColor, QColor( Qt::white ), 3, 1 );
+        QBrush fillBrush( fillColor, m_curveAppearance->fillStyle() );
+        m_plotCurve->setAppearance( m_curveAppearance->lineStyle(),
+                                    m_curveAppearance->interpolation(),
+                                    m_curveAppearance->lineThickness(),
+                                    curveColor,
+                                    fillBrush );
+        // m_plotCurve->setSymbol( symbol );
+        // m_plotCurve->setSymbolSkipPixelDistance( m_curveAppearance->symbolSkipDistance() );
+
+        // // Make sure the legend lines are long enough to distinguish between line types.
+        // // Standard width in Qwt is 8 which is too short.
+        // // Use 10 and scale this by curve thickness + add space for displaying symbol.
+        // if ( m_curveAppearance->lineStyle() != RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_NONE )
+        // {
+        //     QSize legendIconSize = m_plotCurve->legendIconSize();
+
+        //     int symbolWidth = 0;
+        //     if ( symbol )
+        //     {
+        //         symbolWidth = symbol->boundingRect().size().width() + 2;
+        //     }
+
+        //     int width = std::max( 10 * m_curveAppearance->lineThickness(), ( symbolWidth * 3 ) / 2 );
+
+        //     legendIconSize.setWidth( width );
+        //     m_plotCurve->setLegendIconSize( legendIconSize );
+        // }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlotCurve::clearErrorBars()
+{
+    m_plotCurve->clearErrorBars();
+
+    // m_qwtCurveErrorBars->setSamples( nullptr );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlotCurve::updateUiIconFromPlotSymbol()
+{
+    // if ( m_curveAppearance->symbol() != RiuQwtSymbol::SYMBOL_NONE && m_qwtPlotCurve )
+    // {
+    //     CVF_ASSERT( RiaGuiApplication::isRunning() );
+    //     QSizeF     iconSize( 24, 24 );
+    //     QwtGraphic graphic = m_qwtPlotCurve->legendIcon( 0, iconSize );
+    //     QPixmap    pixmap  = graphic.toPixmap();
+    //     setUiIcon( caf::IconProvider( pixmap ) );
+    // }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlotCurve::updateCurveVisibility()
+{
+    // if ( canCurveBeAttached() )
+    // {
+    //     attachCurveAndErrorBars();
+    // }
+    // else
+    // {
+    //     m_qwtPlotCurve->detach();
+    //     m_qwtCurveErrorBars->detach();
+    // }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RimPlotCurve::dataSize() const
+{
+    if ( m_plotCurve )
+        return m_plotCurve->numSamples();
+    else
+        return 0;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlotCurve::setParentPlotNoReplot( RiuPlotWidget* plotWidget )
+{
+    CAF_ASSERT( plotWidget );
+
+    m_parentPlot = plotWidget;
+    if ( !m_plotCurve )
+    {
+        m_plotCurve = m_parentPlot->createPlotCurve( "", RiaColorTools::toQColor( m_curveAppearance->color() ) );
+    }
+
+    m_plotCurve->attachToPlot( plotWidget );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlotCurve::setParentPlotAndReplot( RiuPlotWidget* plotWidget )
+{
+    CAF_ASSERT( plotWidget );
+    setParentPlotNoReplot( plotWidget );
+    plotWidget->replot();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlotCurve::attach( RiuPlotWidget* plotWidget )
+{
+    setParentPlotAndReplot( plotWidget );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlotCurve::detach()
+{
+    if ( m_plotCurve ) m_plotCurve->detach();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlotCurve::reattach()
+{
+    if ( m_parentPlot ) m_plotCurve->attachToPlot( m_parentPlot );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimPlotCurve::isSameCurve( const RiuPlotCurve* plotCurve ) const
+{
+    return m_plotCurve == plotCurve;
 }

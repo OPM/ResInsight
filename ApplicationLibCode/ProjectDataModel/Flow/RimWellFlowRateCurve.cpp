@@ -161,7 +161,7 @@ void RimWellFlowRateCurve::onLoadDataAndUpdate( bool updateParentPlot )
 {
     this->RimPlotCurve::updateCurvePresentation( updateParentPlot );
 
-    m_qwtPlotCurve->setTitle( createCurveAutoName() );
+    m_plotCurve->setTitle( createCurveAutoName() );
 
     if ( updateParentPlot )
     {
@@ -172,7 +172,7 @@ void RimWellFlowRateCurve::onLoadDataAndUpdate( bool updateParentPlot )
         updateZoomInParentPlot();
     }
 
-    if ( m_parentQwtPlot ) m_parentQwtPlot->replot();
+    if ( hasParentPlot() ) m_parentPlot->replot();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -197,7 +197,8 @@ void RimWellFlowRateCurve::updateCurveAppearance()
 
     if ( isUsingConnectionNumberDepthType() )
     {
-        m_qwtPlotCurve->setStyle( QwtPlotCurve::Steps );
+        // TODO: handle this
+        // m_plotCurve->setStyle( QwtPlotCurve::Steps );
     }
 
     if ( m_doFillCurve || isLastCurveInGroup ) // Fill the last curve in group with a transparent color to "tie" the
@@ -213,23 +214,24 @@ void RimWellFlowRateCurve::updateCurveAppearance()
             lineColor = curveQColor;
         }
 
-        QLinearGradient gradient;
-        gradient.setCoordinateMode( QGradient::StretchToDeviceMode );
-        gradient.setColorAt( 0, fillColor.darker( 110 ) );
-        gradient.setColorAt( 0.15, fillColor );
-        gradient.setColorAt( 0.25, fillColor );
-        gradient.setColorAt( 0.4, fillColor.darker( 110 ) );
-        gradient.setColorAt( 0.6, fillColor );
-        gradient.setColorAt( 0.8, fillColor.darker( 110 ) );
-        gradient.setColorAt( 1, fillColor );
-        m_qwtPlotCurve->setBrush( gradient );
+        // TODO: how to handle this????
+        // QLinearGradient gradient;
+        // gradient.setCoordinateMode( QGradient::StretchToDeviceMode );
+        // gradient.setColorAt( 0, fillColor.darker( 110 ) );
+        // gradient.setColorAt( 0.15, fillColor );
+        // gradient.setColorAt( 0.25, fillColor );
+        // gradient.setColorAt( 0.4, fillColor.darker( 110 ) );
+        // gradient.setColorAt( 0.6, fillColor );
+        // gradient.setColorAt( 0.8, fillColor.darker( 110 ) );
+        // gradient.setColorAt( 1, fillColor );
+        // m_plotCurve->setBrush( gradient );
 
-        QPen curvePen = m_qwtPlotCurve->pen();
-        curvePen.setColor( lineColor );
-        m_qwtPlotCurve->setPen( curvePen );
-        m_qwtPlotCurve->setOrientation( Qt::Horizontal );
-        m_qwtPlotCurve->setBaseline( 0.0 );
-        m_qwtPlotCurve->setCurveAttribute( QwtPlotCurve::Inverted, true );
+        // QPen curvePen = m_plotCurve->pen();
+        // curvePen.setColor( lineColor );
+        // m_plotCurve->setPen( curvePen );
+        // m_plotCurve->setOrientation( Qt::Horizontal );
+        // m_plotCurve->setBaseline( 0.0 );
+        // m_plotCurve->setCurveAttribute( QwtPlotCurve::Inverted, true );
     }
 }
 

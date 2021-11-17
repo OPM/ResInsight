@@ -512,7 +512,7 @@ void RiuWellPathComponentPlotItem::setContributeToLegend( bool contributeToLegen
 //--------------------------------------------------------------------------------------------------
 void RiuWellPathComponentPlotItem::setParentQwtPlotAndReplot( QwtPlot* plot )
 {
-    setParentQwtPlotNoReplot( plot );
+    setParentPlotNoReplot( plot );
     if ( m_parentQwtPlot )
     {
         m_parentQwtPlot->replot();
@@ -522,7 +522,7 @@ void RiuWellPathComponentPlotItem::setParentQwtPlotAndReplot( QwtPlot* plot )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuWellPathComponentPlotItem::setParentQwtPlotNoReplot( QwtPlot* plot )
+void RiuWellPathComponentPlotItem::setParentPlotNoReplot( QwtPlot* plot )
 {
     m_parentQwtPlot = plot;
     attachToQwt();

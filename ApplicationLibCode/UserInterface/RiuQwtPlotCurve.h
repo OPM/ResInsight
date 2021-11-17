@@ -35,6 +35,8 @@ public:
     explicit RiuQwtPlotCurve( const QString& title = QString() );
     ~RiuQwtPlotCurve() override;
 
+    void setTitle( const QString& title ) override;
+
     void setAppearance( RiuQwtPlotCurveDefines::LineStyleEnum          lineStyle,
                         RiuQwtPlotCurveDefines::CurveInterpolationEnum interpolationType,
                         int                                            curveThickness,
@@ -44,7 +46,21 @@ public:
     QwtGraphic legendIcon( int index, const QSizeF& size ) const override;
 
     void attachToPlot( RiuPlotWidget* plotWidget ) override;
+    void detach() override;
     void showInPlot() override;
+
+    void setZ( int z ) override;
+
+    void clearErrorBars() override;
+
+    int numSamples() const override;
+
+    void setSamplesFromXYErrorValues(
+        const std::vector<double>&   xValues,
+        const std::vector<double>&   yValues,
+        const std::vector<double>&   errorValues,
+        bool                         keepOnlyPositiveValues,
+        RiaCurveDataTools::ErrorAxis errorAxis = RiaCurveDataTools::ErrorAxis::ERROR_ALONG_Y_AXIS ) override;
 
 protected:
     void drawCurve( QPainter*          p,

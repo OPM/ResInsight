@@ -69,7 +69,7 @@ public:
     };
 
     RiuPlotWidget( RimPlot* plotDefinition, QWidget* parent = nullptr );
-    virtual ~RiuPlotWidget() override;
+    ~RiuPlotWidget() override;
 
     RimPlot* plotDefinition();
 
@@ -115,6 +115,7 @@ public:
     void         setInternalLegendVisible( bool visible );
     virtual void insertLegend( RiuPlotWidget::Legend ) = 0;
     virtual void clearLegend()                         = 0;
+    virtual void updateLegend()                        = 0;
 
     virtual void detachItems( RiuPlotWidget::PlotItemType plotItemType ) = 0;
 
@@ -164,7 +165,6 @@ public:
 
     virtual void removeEventFilter() = 0;
 
-    void updateLegend();
     void updateAxes();
 
     virtual RiuPlotCurve* createPlotCurve( const QString& title, const QColor& color ) = 0;

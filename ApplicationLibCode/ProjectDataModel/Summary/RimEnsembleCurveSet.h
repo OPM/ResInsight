@@ -63,6 +63,7 @@ class RiuDraggableOverlayFrame;
 class RiaSummaryCurveDefinitionAnalyser;
 class RiaSummaryCurveDefinition;
 class RiuSummaryVectorSelectionDialog;
+class RiuPlotWidget;
 
 class QwtPlot;
 class QwtPlotCurve;
@@ -94,9 +95,9 @@ public:
     void setColor( cvf::Color3f color );
 
     void loadDataAndUpdate( bool updateParentPlot );
-    void setParentQwtPlotNoReplot( QwtPlot* plot );
-    void detachQwtCurves();
-    void reattachQwtCurves();
+    void setParentPlotNoReplot( RiuPlotWidget* plot );
+    void detachPlotCurves();
+    void reattachPlotCurves();
 
     void addCurve( RimSummaryCurve* curve );
     void deleteCurve( RimSummaryCurve* curve );

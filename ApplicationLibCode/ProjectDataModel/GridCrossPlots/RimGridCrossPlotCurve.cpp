@@ -18,28 +18,20 @@
 
 #include "RimGridCrossPlotCurve.h"
 
-#include "RigCaseCellResultCalculator.h"
-
-#include "RimCase.h"
-#include "RimEclipseCase.h"
-#include "RimEclipseResultDefinition.h"
+// #include "RimCase.h"
+// #include "RimEclipseCase.h"
+// #include "RimEclipseResultDefinition.h"
 #include "RimGridCrossPlot.h"
-#include "RimTools.h"
+// #include "RimTools.h"
 
 #include "RiuQwtPlotCurve.h"
 #include "RiuQwtSymbol.h"
 
-#include "cafPdmUiComboBoxEditor.h"
+//#include "cafPdmUiComboBoxEditor.h"
 
-#include <QDebug>
-#include <QPointF>
-#include <QVector>
-
-#include "qwt_graphic.h"
-#include "qwt_plot.h"
-#include "qwt_plot_curve.h"
-
-#include <random>
+//#include <QDebug>
+//#include <QPointF>
+//#include <QVector>
 
 CAF_PDM_SOURCE_INIT( RimGridCrossPlotCurve, "GridCrossPlotCurve" );
 
@@ -73,9 +65,9 @@ void RimGridCrossPlotCurve::setSamples( const std::vector<double>& xValues, cons
 {
     CVF_ASSERT( xValues.size() == yValues.size() );
 
-    if ( xValues.empty() || yValues.empty() || !m_qwtPlotCurve ) return;
+    if ( xValues.empty() || yValues.empty() || !m_plotCurve ) return;
 
-    m_qwtPlotCurve->setSamples( &xValues[0], &yValues[0], static_cast<int>( xValues.size() ) );
+    m_plotCurve->setSamplesFromXValuesAndYValues( xValues, yValues, false );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -100,7 +92,7 @@ int RimGridCrossPlotCurve::groupIndex() const
 //--------------------------------------------------------------------------------------------------
 size_t RimGridCrossPlotCurve::sampleCount() const
 {
-    return m_qwtPlotCurve ? m_qwtPlotCurve->dataSize() : 0;
+    return m_plotCurve ? m_plotCurve->numSamples() : 0;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -108,12 +100,13 @@ size_t RimGridCrossPlotCurve::sampleCount() const
 //--------------------------------------------------------------------------------------------------
 void RimGridCrossPlotCurve::determineLegendIcon()
 {
-    if ( !m_qwtPlotCurve ) return;
+    if ( !m_plotCurve ) return;
 
-    RimGridCrossPlot* plot = nullptr;
-    firstAncestorOrThisOfTypeAsserted( plot );
-    int fontSize = plot->legendFontSize();
-    m_qwtPlotCurve->setLegendIconSize( QSize( fontSize, fontSize ) );
+    // TODO: fix this!!
+    // RimGridCrossPlot* plot = nullptr;
+    // firstAncestorOrThisOfTypeAsserted( plot );
+    // int fontSize = plot->legendFontSize();
+    // m_plotCurve->setLegendIconSize( QSize( fontSize, fontSize ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -121,9 +114,9 @@ void RimGridCrossPlotCurve::determineLegendIcon()
 //--------------------------------------------------------------------------------------------------
 void RimGridCrossPlotCurve::setBlackAndWhiteLegendIcons( bool blackAndWhite )
 {
-    if ( m_qwtPlotCurve )
+    if ( m_plotCurve )
     {
-        m_qwtPlotCurve->setBlackAndWhiteLegendIcon( blackAndWhite );
+        m_plotCurve->setBlackAndWhiteLegendIcon( blackAndWhite );
     }
 }
 
@@ -157,7 +150,7 @@ void RimGridCrossPlotCurve::updateLegendsInPlot()
     {
         plot->reattachAllCurves();
     }
-    RimQwtPlotCurve::updateLegendsInPlot();
+    RimPlotCurve::updateLegendsInPlot();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -175,7 +168,7 @@ void RimGridCrossPlotCurve::onLoadDataAndUpdate( bool updateParentPlot )
 {
     if ( updateParentPlot )
     {
-        m_parentQwtPlot->replot();
+        m_parentPlot->replot();
     }
 }
 

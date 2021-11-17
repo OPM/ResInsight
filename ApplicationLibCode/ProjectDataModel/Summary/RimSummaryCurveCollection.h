@@ -26,12 +26,12 @@
 #include "cafPdmObject.h"
 #include "cafPdmPtrArrayField.h"
 
-class QwtPlot;
-class QwtPlotCurve;
 class RimSummaryCase;
 class RimSummaryCurve;
 class RimSummaryCrossPlot;
 class RimSummaryPlot;
+class RiuPlotWidget;
+class RiuPlotCurve;
 class QKeyEvent;
 
 //==================================================================================================
@@ -65,11 +65,11 @@ public:
     void loadDataAndUpdate( bool updateParentPlot );
 
 private:
-    void setParentQwtPlotAndReplot( QwtPlot* plot );
-    void detachQwtCurves();
-    void reattachQwtCurves();
+    void setParentPlotAndReplot( RiuPlotWidget* plot );
+    void detachPlotCurves();
+    void reattachPlotCurves();
 
-    RimSummaryCurve* findRimCurveFromQwtCurve( const QwtPlotCurve* qwtCurve ) const;
+    RimSummaryCurve* findRimCurveFromPlotCurve( const RiuPlotCurve* curve ) const;
 
     void addCurve( RimSummaryCurve* curve );
     void insertCurve( RimSummaryCurve* curve, size_t index );
