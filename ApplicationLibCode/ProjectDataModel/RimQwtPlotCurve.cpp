@@ -36,7 +36,6 @@
 
 #include "RiuPlotMainWindowTools.h"
 #include "RiuQwtPlotWidget.h"
-#include "RiuRimQwtPlotCurve.h"
 
 #include "cafPdmUiComboBoxEditor.h"
 
@@ -45,12 +44,11 @@
 #include "qwt_date.h"
 #include "qwt_interval_symbol.h"
 #include "qwt_plot.h"
+#include "qwt_plot_intervalcurve.h"
 #include "qwt_symbol.h"
 
 // NB! Special macro for pure virtual class
 CAF_PDM_XML_ABSTRACT_SOURCE_INIT( RimQwtPlotCurve, "QwtPlotCurve" );
-
-#define DOUBLE_INF std::numeric_limits<double>::infinity()
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -59,7 +57,7 @@ RimQwtPlotCurve::RimQwtPlotCurve()
 {
     CAF_PDM_InitObject( "Curve", ":/WellLogCurve16x16.png", "", "" );
 
-    // m_qwtPlotCurve      = new RiuRimQwtPlotCurve( this );
+    // m_qwtPlotCurve      = new RiuQwtPlotCurve( this );
     m_qwtCurveErrorBars = new QwtPlotIntervalCurve();
     m_qwtCurveErrorBars->setStyle( QwtPlotIntervalCurve::CurveStyle::NoCurve );
     m_qwtCurveErrorBars->setSymbol( new QwtIntervalSymbol( QwtIntervalSymbol::Bar ) );

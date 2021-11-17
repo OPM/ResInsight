@@ -24,6 +24,8 @@
 
 #include <QDateTime>
 
+#include "qwt_plot.h"
+
 class RimRegularLegendConfig;
 class RimSummaryAddress;
 class RiuGroupedBarChartBuilder;
@@ -79,7 +81,7 @@ private:
     void createMatrix();
     void updatePlotTitle() override;
     void updateLegend() override;
-    void onPlotItemSelected( QwtPlotItem* plotItem, bool toggle, int sampleIndex ) override;
+    void onPlotItemSelected( QwtPlotItem* plotItem, bool toggle, int sampleIndex );
 
 private:
     caf::PdmField<bool>                 m_showAbsoluteValues;

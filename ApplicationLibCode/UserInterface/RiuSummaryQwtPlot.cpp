@@ -40,9 +40,9 @@
 #include "RimSummaryPlotCollection.h"
 
 #include "RiuPlotAnnotationTool.h"
+#include "RiuPlotCurve.h"
 #include "RiuQwtCurvePointTracker.h"
 #include "RiuQwtPlotWheelZoomer.h"
-#include "RiuRimQwtPlotCurve.h"
 #include "RiuWidgetDragger.h"
 
 #include "RiuPlotMainWindowTools.h"
@@ -88,8 +88,8 @@ public:
     //--------------------------------------------------------------------------------------------------
     QString curveInfoText( QwtPlotCurve* curve ) override
     {
-        RiuRimQwtPlotCurve* riuCurve = dynamic_cast<RiuRimQwtPlotCurve*>( curve );
-        RimSummaryCurve*    sumCurve = nullptr;
+        RiuPlotCurve*    riuCurve = dynamic_cast<RiuPlotCurve*>( curve );
+        RimSummaryCurve* sumCurve = nullptr;
         if ( riuCurve )
         {
             sumCurve = dynamic_cast<RimSummaryCurve*>( riuCurve->ownerRimCurve() );
@@ -230,7 +230,7 @@ void RiuSummaryQwtPlot::contextMenuEvent( QContextMenuEvent* event )
     findClosestPlotItem( localPos, &closestItem, &closestCurvePoint, &distanceFromClick );
     if ( closestItem && closestCurvePoint >= 0 )
     {
-        RiuRimQwtPlotCurve* plotCurve = dynamic_cast<RiuRimQwtPlotCurve*>( closestItem );
+        RiuPlotCurve* plotCurve = dynamic_cast<RiuPlotCurve*>( closestItem );
         if ( plotCurve )
         {
             RimSummaryCurve* summaryCurve = dynamic_cast<RimSummaryCurve*>( plotCurve->ownerRimCurve() );

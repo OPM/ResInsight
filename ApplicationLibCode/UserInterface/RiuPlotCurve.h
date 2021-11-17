@@ -28,6 +28,8 @@
 #include <QDateTime>
 #include <QString>
 
+class RimPlotCurve;
+
 //==================================================================================================
 //
 // If infinite data is present in the curve data, Qwt is not able to draw a nice curve.
@@ -52,6 +54,7 @@
 class RiuPlotCurve
 {
 public:
+    explicit RiuPlotCurve( RimPlotCurve* ownerRimCurve, const QString& title = QString() );
     explicit RiuPlotCurve();
     virtual ~RiuPlotCurve();
 
@@ -105,6 +108,9 @@ public:
 
     virtual int numSamples() const = 0;
 
+    RimPlotCurve*       ownerRimCurve();
+    const RimPlotCurve* ownerRimCurve() const;
+
 protected:
     virtual void
         setSamplesInPlot( const std::vector<double>& xValues, const std::vector<double>& yValues, int numSamples ) = 0;
@@ -121,4 +127,6 @@ protected:
     std::vector<QString> m_perPointLabels;
 
     std::vector<std::pair<size_t, size_t>> m_polyLineStartStopIndices;
+
+    caf::PdmPointer<RimPlotCurve> m_ownerRimCurve;
 };

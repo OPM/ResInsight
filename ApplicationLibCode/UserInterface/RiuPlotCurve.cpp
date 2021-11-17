@@ -22,6 +22,8 @@
 #include "RiaImageTools.h"
 #include "RiaTimeTTools.h"
 
+#include "RimPlotCurve.h"
+
 #include "RiuQwtSymbol.h"
 
 #include "qwt_date.h"
@@ -188,4 +190,20 @@ void RiuPlotCurve::setSamplesFromXYErrorValues( const std::vector<double>&   xVa
                                                 bool                         keepOnlyPositiveValues,
                                                 RiaCurveDataTools::ErrorAxis errorAxis )
 {
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimPlotCurve* RiuPlotCurve::ownerRimCurve()
+{
+    return m_ownerRimCurve;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const RimPlotCurve* RiuPlotCurve::ownerRimCurve() const
+{
+    return m_ownerRimCurve;
 }

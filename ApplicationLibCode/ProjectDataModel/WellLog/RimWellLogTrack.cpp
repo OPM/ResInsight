@@ -1502,7 +1502,7 @@ RimWellLogTrack::TrajectoryType RimWellLogTrack::formationTrajectoryType() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuQwtPlotWidget* RimWellLogTrack::doCreatePlotViewWidget( QWidget* mainWindowParent )
+RiuPlotWidget* RimWellLogTrack::doCreatePlotViewWidget( QWidget* mainWindowParent )
 {
     if ( m_plotWidget == nullptr )
     {
@@ -1766,6 +1766,14 @@ QWidget* RimWellLogTrack::viewWidget()
 ///
 //--------------------------------------------------------------------------------------------------
 RiuQwtPlotWidget* RimWellLogTrack::viewer()
+{
+    return m_plotWidget;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiuPlotWidget* RimWellLogTrack::plotWidget()
 {
     return m_plotWidget;
 }
