@@ -27,6 +27,9 @@ def test_10k(rips_instance, initialize_test):
     cell_centers = grid.cell_centers()
     assert len(cell_centers) == (dimensions.i * dimensions.j * dimensions.k)
 
+    property_data_index = grid.property_data_index_from_ijk(31, 53, 21)
+    assert property_data_index == 177510
+
     # Test a specific cell (results from ResInsight UI)
     cell_index = 168143
     assert math.isclose(3627.17, cell_centers[cell_index].x, abs_tol=0.1)

@@ -125,7 +125,7 @@ def __generate_property_input_chunks(self, array, parameters):
 
 
 @add_method(Case)
-def grid(self, index):
+def grid(self, index=0):
     """Get Grid of a given index
 
     Arguments:
