@@ -263,6 +263,14 @@ void RiuQwtPlotCurve::setAppearance( RiuQwtPlotCurveDefines::LineStyleEnum      
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RiuQwtPlotCurve::setBrush( const QBrush& brush )
+{
+    QwtPlotCurve::setBrush( brush );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiuQwtPlotCurve::setSymbolAppearance( RiuQwtSymbol::PointSymbolEnum, int size, const QColor& color )
 {
     // TODO: map symbol
