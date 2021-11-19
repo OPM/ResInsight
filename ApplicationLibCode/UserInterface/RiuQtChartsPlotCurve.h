@@ -21,6 +21,8 @@
 #include "RiuPlotCurve.h"
 #include "RiuQwtPlotCurveDefines.h"
 
+#include "cvfBoundingBox.h"
+
 #include <QLineSeries>
 
 //==================================================================================================
@@ -40,6 +42,8 @@ public:
                         const QColor&                                  curveColor,
                         const QBrush&                                  fillBrush = QBrush( Qt::NoBrush ) ) override;
 
+    void setSymbolAppearance( RiuQwtSymbol::PointSymbolEnum, int size, const QColor& color ) override;
+
     // QtChartsGraphic legendIcon( int index, const QSizeF& size ) const override;
 
     void attachToPlot( RiuPlotWidget* plotWidget ) override;
@@ -49,7 +53,11 @@ public:
 
     void clearErrorBars() override;
 
-    int  numSamples() const override;
+    int numSamples() const override;
+
+    std::pair<double, double> xDataRange() const override;
+    std::pair<double, double> yDataRange() const override;
+
     void detach() override;
 
 protected:
@@ -70,6 +78,8 @@ protected:
     //                   int                to ) const override;
 
     void setSamplesInPlot( const std::vector<double>&, const std::vector<double>&, int ) override;
+
+    cvf::BoundingBox computeBoundingBox() const;
 
     QtCharts::QLineSeries* m_lineSeries;
 };

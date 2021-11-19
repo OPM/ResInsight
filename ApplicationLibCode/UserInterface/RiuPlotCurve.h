@@ -22,6 +22,7 @@
 
 #include "RiuPlotWidget.h"
 #include "RiuQwtPlotCurveDefines.h"
+#include "RiuQwtSymbol.h"
 
 #include <QBrush>
 #include <QColor>
@@ -92,6 +93,8 @@ public:
                                 const QColor&                                  curveColor,
                                 const QBrush&                                  fillBrush = QBrush( Qt::NoBrush ) ) = 0;
 
+    virtual void setSymbolAppearance( RiuQwtSymbol::PointSymbolEnum, int size, const QColor& color ) = 0;
+
     void setBlackAndWhiteLegendIcon( bool blackAndWhite );
     //    QwtGraphic legendIcon( int index, const QSizeF& size ) const override;
 
@@ -110,6 +113,9 @@ public:
 
     RimPlotCurve*       ownerRimCurve();
     const RimPlotCurve* ownerRimCurve() const;
+
+    virtual std::pair<double, double> xDataRange() const = 0;
+    virtual std::pair<double, double> yDataRange() const = 0;
 
 protected:
     virtual void
