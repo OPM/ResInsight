@@ -333,6 +333,16 @@ int RiuQtChartsPlotCurve::numSamples() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::pair<double, double> RiuQtChartsPlotCurve::sample( int index ) const
+{
+    CAF_ASSERT( index >= 0 && index <= numSamples() );
+    auto p = m_lineSeries->at( index );
+    return std::make_pair( p.x(), p.y() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::pair<double, double> RiuQtChartsPlotCurve::xDataRange() const
 {
     cvf::BoundingBox bb = computeBoundingBox();
