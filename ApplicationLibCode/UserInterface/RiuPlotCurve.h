@@ -95,6 +95,8 @@ public:
 
     virtual void setSymbolAppearance( RiuQwtSymbol::PointSymbolEnum, int size, const QColor& color ) = 0;
 
+    virtual void setBrush( const QBrush& brush ) = 0;
+
     void setBlackAndWhiteLegendIcon( bool blackAndWhite );
     //    QwtGraphic legendIcon( int index, const QSizeF& size ) const override;
 
