@@ -44,6 +44,8 @@ public:
 
     void setSymbolAppearance( RiuQwtSymbol::PointSymbolEnum, int size, const QColor& color ) override;
 
+    void setBrush( const QBrush& brush ) override;
+
     // QtChartsGraphic legendIcon( int index, const QSizeF& size ) const override;
 
     void attachToPlot( RiuPlotWidget* plotWidget ) override;
