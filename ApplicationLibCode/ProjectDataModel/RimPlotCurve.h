@@ -118,7 +118,8 @@ public:
 
     virtual void setTitle( const QString& title );
 
-    int dataSize() const;
+    int                       dataSize() const;
+    std::pair<double, double> sample( int index ) const;
 
     void setParentPlotNoReplot( RiuPlotWidget* );
     void setParentPlotAndReplot( RiuPlotWidget* );

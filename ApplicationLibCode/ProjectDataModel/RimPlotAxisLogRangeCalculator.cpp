@@ -21,19 +21,19 @@
 
 #include "RiaPlotDefines.h"
 
+#include "RimPlotCurve.h"
+
 #include "cvfVector2.h"
 
 #include <cmath>
 
-#include <qwt_plot_curve.h>
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimPlotAxisLogRangeCalculator::RimPlotAxisLogRangeCalculator( QwtPlot::Axis                           axis,
-                                                              const std::vector<const QwtPlotCurve*>& qwtCurves )
+RimPlotAxisLogRangeCalculator::RimPlotAxisLogRangeCalculator( RiaDefines::PlotAxis                    axis,
+                                                              const std::vector<const RimPlotCurve*>& curves )
     : m_axis( axis )
-    , m_curves( qwtCurves )
+    , m_curves( curves )
 {
 }
 
@@ -45,7 +45,7 @@ void RimPlotAxisLogRangeCalculator::computeAxisRange( double* minPositive, doubl
     double minPosValue = HUGE_VAL;
     double maxValue    = -HUGE_VAL;
 
-    for ( const QwtPlotCurve* curve : m_curves )
+    for ( const RimPlotCurve* curve : m_curves )
     {
         double minPosCurveValue = HUGE_VAL;
         double maxCurveValue    = -HUGE_VAL;
@@ -78,11 +78,11 @@ void RimPlotAxisLogRangeCalculator::computeAxisRange( double* minPositive, doubl
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimPlotAxisLogRangeCalculator::curveValueRange( const QwtPlotCurve* qwtCurve, double* minPositive, double* max ) const
+bool RimPlotAxisLogRangeCalculator::curveValueRange( const RimPlotCurve* curve, double* minPositive, double* max ) const
 {
-    if ( !qwtCurve ) return false;
+    if ( !curve ) return false;
 
-    if ( qwtCurve->data()->size() < 1 )
+    if ( curve->dataSize() < 1 )
     {
         return false;
     }
@@ -91,15 +91,15 @@ bool RimPlotAxisLogRangeCalculator::curveValueRange( const QwtPlotCurve* qwtCurv
     float maxF    = -std::numeric_limits<float>::infinity();
 
     int axisValueIndex = 0;
-    if ( m_axis == QwtPlot::yLeft || m_axis == QwtPlot::yRight )
+    if ( RiaDefines::isVertical( m_axis ) )
     {
         axisValueIndex = 1;
     }
 
-    for ( size_t i = 0; i < qwtCurve->dataSize(); ++i )
+    for ( int i = 0; i < curve->dataSize(); ++i )
     {
-        QPointF    sample = qwtCurve->sample( (int)i );
-        cvf::Vec2f vec( sample.x(), sample.y() );
+        auto [x, y] = curve->sample( i );
+        cvf::Vec2f vec( x, y );
         float      value = vec[axisValueIndex];
         if ( value == HUGE_VALF ) continue;
 

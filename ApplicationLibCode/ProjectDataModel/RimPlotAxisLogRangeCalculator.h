@@ -19,9 +19,11 @@
 
 #pragma once
 
-#include "qwt_plot.h"
+#include "RiaPlotDefines.h"
 
-class QwtPlotCurve;
+#include <vector>
+
+class RimPlotCurve;
 
 //==================================================================================================
 ///
@@ -30,14 +32,14 @@ class QwtPlotCurve;
 class RimPlotAxisLogRangeCalculator
 {
 public:
-    RimPlotAxisLogRangeCalculator( QwtPlot::Axis axis, const std::vector<const QwtPlotCurve*>& qwtCurves );
+    RimPlotAxisLogRangeCalculator( RiaDefines::PlotAxis axis, const std::vector<const RimPlotCurve*>& curves );
 
     void computeAxisRange( double* minPositive, double* max ) const;
 
 private:
-    bool curveValueRange( const QwtPlotCurve* qwtCurve, double* minPositive, double* max ) const;
+    bool curveValueRange( const RimPlotCurve* curve, double* minPositive, double* max ) const;
 
 private:
-    QwtPlot::Axis                          m_axis;
-    const std::vector<const QwtPlotCurve*> m_curves;
+    RiaDefines::PlotAxis                   m_axis;
+    const std::vector<const RimPlotCurve*> m_curves;
 };

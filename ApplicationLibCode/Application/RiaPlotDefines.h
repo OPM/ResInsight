@@ -35,4 +35,7 @@ double minimumDefaultValuePlot();
 double minimumDefaultLogValuePlot();
 double maximumDefaultValuePlot();
 
+bool isHorizontal( PlotAxis axis );
+bool isVertical( PlotAxis axis );
+
 }; // namespace RiaDefines

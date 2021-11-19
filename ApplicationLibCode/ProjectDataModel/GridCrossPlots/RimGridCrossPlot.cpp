@@ -886,11 +886,9 @@ void RimGridCrossPlot::updateAxisInQwt( RiaDefines::PlotAxis axisType )
             double max = axisProperties->visibleRangeMax;
             if ( axisProperties->isAutoZoom() )
             {
-                // TODO: fix this!!
-                // std::vector<const QwtPlotCurve*> plotCurves = visibleCurves();
-
-                // RimPlotAxisLogRangeCalculator logRangeCalculator( qwtAxisId, plotCurves );
-                // logRangeCalculator.computeAxisRange( &min, &max );
+                std::vector<const RimPlotCurve*> plotCurves = visibleCurves();
+                RimPlotAxisLogRangeCalculator    logRangeCalculator( axis, plotCurves );
+                logRangeCalculator.computeAxisRange( &min, &max );
             }
 
             if ( axisProperties->isAxisInverted() )

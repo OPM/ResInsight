@@ -57,7 +57,8 @@ public:
 
     void clearErrorBars() override;
 
-    int numSamples() const override;
+    int                       numSamples() const override;
+    std::pair<double, double> sample( int index ) const override;
 
     std::pair<double, double> xDataRange() const override;
     std::pair<double, double> yDataRange() const override;

@@ -356,6 +356,16 @@ int RiuQwtPlotCurve::numSamples() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::pair<double, double> RiuQwtPlotCurve::sample( int index ) const
+{
+    CAF_ASSERT( index >= 0 && index <= numSamples() );
+    auto p = QwtPlotCurve::sample( index );
+    return std::make_pair( p.x(), p.y() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::pair<double, double> RiuQwtPlotCurve::xDataRange() const
 {
     return std::make_pair( minXValue(), maxXValue() );
