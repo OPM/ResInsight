@@ -70,6 +70,8 @@ public:
         bool                         keepOnlyPositiveValues,
         RiaCurveDataTools::ErrorAxis errorAxis = RiaCurveDataTools::ErrorAxis::ERROR_ALONG_Y_AXIS ) override;
 
+    void setYAxis( RiaDefines::PlotAxis axis ) override;
+
 protected:
     void drawCurve( QPainter*          p,
                     int                style,
