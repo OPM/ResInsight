@@ -26,6 +26,7 @@
 #include "RiaImportEclipseCaseTools.h"
 #include "RiaLogging.h"
 #include "RiaPreferencesSummary.h"
+#include "RiaSummaryStringTools.h"
 
 #include "RicCreateSummaryCaseCollectionFeature.h"
 #include "RicImportGeneralDataFeature.h"
@@ -351,10 +352,10 @@ void RicSummaryPlotFeatureImpl::createSummaryPlotsFromArgumentLine( const QStrin
 
         RimSummaryPlotCollection* sumPlotColl = RimProject::current()->mainPlotCollection()->summaryPlotCollection();
 
-        splitAddressFiltersInGridAndSummary( summaryCasesToUse[0],
-                                             allCurveAddressFilters,
-                                             &summaryAddressFilters,
-                                             &gridResultAddressFilters );
+        RiaSummaryStringTools::splitAddressFiltersInGridAndSummary( summaryCasesToUse[0],
+                                                                    allCurveAddressFilters,
+                                                                    &summaryAddressFilters,
+                                                                    &gridResultAddressFilters );
 
         if ( summaryAddressFilters.size() )
         {
@@ -705,42 +706,6 @@ std::vector<RimSummaryPlot*> RicSummaryPlotFeatureImpl::createMultipleSummaryPlo
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicSummaryPlotFeatureImpl::splitAddressFiltersInGridAndSummary( RimSummaryCase*    summaryCase,
-                                                                     const QStringList& addressFilters,
-                                                                     QStringList*       summaryAddressFilters,
-                                                                     QStringList*       gridResultAddressFilters )
-{
-    if ( summaryCase )
-    {
-        const std::set<RifEclipseSummaryAddress>& addrs = summaryCase->summaryReader()->allResultAddresses();
-
-        QRegularExpression gridAddressPattern( "^[A-Z]+:[0-9]+,[0-9]+,[0-9]+$" );
-
-        for ( int filterIdx = 0; filterIdx < addressFilters.size(); ++filterIdx )
-        {
-            const QString& address = addressFilters[filterIdx];
-            if ( hasFilterAnyMatch( address, addrs ) )
-            {
-                summaryAddressFilters->push_back( address );
-            }
-            else
-            {
-                if ( gridAddressPattern.match( address ).hasMatch() )
-                {
-                    gridResultAddressFilters->push_back( address );
-                }
-                else
-                {
-                    RiaLogging::warning( "No summary or restart vectors matched \"" + address + "\"" );
-                }
-            }
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 std::set<RifEclipseSummaryAddress>
     RicSummaryPlotFeatureImpl::applySummaryAddressFiltersToCases( const std::vector<RimSummaryCase*>& summaryCasesToUse,
                                                                   const QStringList& summaryAddressFilters )
@@ -763,20 +728,6 @@ std::set<RifEclipseSummaryAddress>
         }
     }
     return filteredAdressesFromCases;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RicSummaryPlotFeatureImpl::hasFilterAnyMatch( const QString&                            curveFilter,
-                                                   const std::set<RifEclipseSummaryAddress>& summaryAddresses )
-{
-    for ( const auto& addr : summaryAddresses )
-    {
-        if ( addr.isUiTextMatchingFilterText( curveFilter ) ) return true;
-    }
-
-    return false;
 }
 
 //--------------------------------------------------------------------------------------------------

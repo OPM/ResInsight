@@ -106,7 +106,7 @@ RiuPlotMainWindow::RiuPlotMainWindow()
 //--------------------------------------------------------------------------------------------------
 RiuPlotMainWindow::~RiuPlotMainWindow()
 {
-    m_summaryCurveManagerView->showProperties( nullptr );
+    m_summaryPlotManagerView->showProperties( nullptr );
     setPdmRoot( nullptr );
 }
 
@@ -502,17 +502,17 @@ void RiuPlotMainWindow::createDockPanels()
     }
 
     {
-        QDockWidget* dockWidget = new QDockWidget( "Curve Manager", this );
-        dockWidget->setObjectName( RiuDockWidgetTools::summaryCurveManagerName() );
+        QDockWidget* dockWidget = new QDockWidget( "Plot Manager", this );
+        dockWidget->setObjectName( RiuDockWidgetTools::summaryPlotManagerName() );
 
-        m_summaryCurveManagerView = new caf::PdmUiPropertyView( dockWidget );
+        m_summaryPlotManagerView = new caf::PdmUiPropertyView( dockWidget );
 
-        auto curveManager = std::make_unique<RimSummaryPlotManager>();
-        m_summaryCurveManagerView->showProperties( curveManager.get() );
-        m_summaryCurveManagerView->installEventFilter( curveManager.get() );
-        m_summaryCurveManager = std::move( curveManager );
+        auto plotManager = std::make_unique<RimSummaryPlotManager>();
+        m_summaryPlotManagerView->showProperties( plotManager.get() );
+        m_summaryPlotManagerView->installEventFilter( plotManager.get() );
+        m_summaryPlotManager = std::move( plotManager );
 
-        dockWidget->setWidget( m_summaryCurveManagerView );
+        dockWidget->setWidget( m_summaryPlotManagerView );
         addDockWidget( Qt::BottomDockWidgetArea, dockWidget );
         dockWidget->hide();
     }
@@ -749,6 +749,24 @@ RicSummaryCurveCalculatorDialog* RiuPlotMainWindow::summaryCurveCalculatorDialog
 RiuMessagePanel* RiuPlotMainWindow::messagePanel()
 {
     return m_messagePanel;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuPlotMainWindow::showAndSetKeyboardFocusToSummaryPlotManager()
+{
+    auto dockWidget = RiuDockWidgetTools::findDockWidget( this, RiuDockWidgetTools::summaryPlotManagerName() );
+    if ( dockWidget )
+    {
+        dockWidget->setVisible( true );
+
+        auto sumPlotManager = dynamic_cast<RimSummaryPlotManager*>( m_summaryPlotManager.get() );
+        if ( sumPlotManager )
+        {
+            sumPlotManager->setFocusToFilterText();
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

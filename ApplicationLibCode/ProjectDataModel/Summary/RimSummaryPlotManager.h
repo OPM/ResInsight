@@ -39,6 +39,8 @@ class RimSummaryPlotManager : public QObject, public caf::PdmObject, public caf:
 public:
     RimSummaryPlotManager();
 
+    void setFocusToFilterText();
+
 private:
     void appendCurves();
     void replaceCurves();
@@ -60,15 +62,19 @@ private:
     bool eventFilter( QObject* obj, QEvent* event ) override;
 
     void updateCurveCandidates();
+    void updateDataSourceCandidates();
+
+    std::vector<std::pair<QString, caf::PdmObject*>> findDataSourceCandidates() const;
 
     std::set<RifEclipseSummaryAddress> computeFilteredAddresses( const QStringList&                        textFilters,
                                                                  const std::set<RifEclipseSummaryAddress>& sourceAddresses );
 
-    std::pair<std::vector<RimSummaryCase*>, std::vector<RimSummaryCaseCollection*>> dataSources() const;
+    std::pair<std::vector<RimSummaryCase*>, std::vector<RimSummaryCaseCollection*>> allDataSourcesInProject() const;
 
     void                               updateUiFromSelection();
     std::set<RifEclipseSummaryAddress> filteredAddresses();
     void                               appendCurvesToPlot( RimSummaryPlot* destinationPlot );
+    void                               updateFilterTextHistory();
 
     // Static helper functions
     static std::set<RifEclipseSummaryAddress> addressesForSource( caf::PdmObject* summarySource );
@@ -83,11 +89,18 @@ private:
 
     static void setFocusToEditorWidget( caf::PdmUiFieldHandle* uiFieldHandle );
 
+    void splitIntoAddressAndDataSourceFilters( QStringList& addressFilters, QStringList& dataSourceFilters ) const;
+    void findFilteredSummaryCasesAndEnsembles( std::vector<RimSummaryCase*>&           summaryCases,
+                                               std::vector<RimSummaryCaseCollection*>& ensembles ) const;
+
+    static QString curveFilterRecentlyUsedRegistryKey();
+
 private:
     caf::PdmPtrField<RimSummaryPlot*> m_summaryPlot;
 
-    caf::PdmField<QString>              m_curveFilterText;
-    caf::PdmField<std::vector<QString>> m_curveCandidates;
+    caf::PdmField<QString>              m_filterText;
+    caf::PdmField<std::vector<QString>> m_addressCandidates;
+    caf::PdmField<std::vector<QString>> m_dataSourceCandidates;
 
     caf::PdmField<bool> m_includeDiffCurves;
 

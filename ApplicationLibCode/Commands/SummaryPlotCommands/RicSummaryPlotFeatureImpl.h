@@ -93,8 +93,6 @@ private:
 
     static RimSummaryCurve* createCurve( RimSummaryCase* summaryCase, const RifEclipseSummaryAddress& address );
 
-    static bool hasFilterAnyMatch( const QString& curveFilter, const std::set<RifEclipseSummaryAddress>& summaryAddresses );
-
     static RimSummaryCurve* createHistoryCurve( const RifEclipseSummaryAddress& addr, RimSummaryCase* summaryCasesToUse );
 
     static std::vector<RimSummaryCurve*> addCurvesFromAddressFiltersToPlot( const QStringList& curveFilters,
@@ -105,11 +103,6 @@ private:
     static std::set<RifEclipseSummaryAddress>
         applySummaryAddressFiltersToCases( const std::vector<RimSummaryCase*>& summaryCasesToUse,
                                            const QStringList&                  summaryAddressFilters );
-
-    static void splitAddressFiltersInGridAndSummary( RimSummaryCase*    summaryCase,
-                                                     const QStringList& addressFilters,
-                                                     QStringList*       summaryAddressFilters,
-                                                     QStringList*       gridResultAddressFilters );
 };
 
 #include "RigEclipseResultAddress.h"
