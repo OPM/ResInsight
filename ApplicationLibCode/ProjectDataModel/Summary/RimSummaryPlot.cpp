@@ -924,11 +924,9 @@ void RimSummaryPlot::updateZoomForAxis( RiaDefines::PlotAxis plotAxis )
                     plotCurves.push_back( c );
                 }
 
-                double min, max;
-
-                // TODO: implement for RimPlotCurve
-                // RimPlotAxisLogRangeCalculator calc( QwtPlot::yLeft, plotCurves );
-                // calc.computeAxisRange( &min, &max );
+                double                        min, max;
+                RimPlotAxisLogRangeCalculator calc( RiaDefines::PlotAxis::PLOT_AXIS_LEFT, plotCurves );
+                calc.computeAxisRange( &min, &max );
 
                 if ( yAxisProps->isAxisInverted() )
                 {

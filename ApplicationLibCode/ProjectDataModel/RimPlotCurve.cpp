@@ -1009,6 +1009,16 @@ int RimPlotCurve::dataSize() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::pair<double, double> RimPlotCurve::sample( int index ) const
+{
+    CAF_ASSERT( m_plotCurve );
+    CAF_ASSERT( index >= 0 && index <= dataSize() );
+    return m_plotCurve->sample( index );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimPlotCurve::setParentPlotNoReplot( RiuPlotWidget* plotWidget )
 {
     CAF_ASSERT( plotWidget );
