@@ -59,3 +59,19 @@ double RiaDefines::maximumDefaultValuePlot()
 {
     return 100.0;
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiaDefines::isHorizontal( RiaDefines::PlotAxis axis )
+{
+    return !isVertical( axis );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiaDefines::isVertical( RiaDefines::PlotAxis axis )
+{
+    return ( axis == RiaDefines::PlotAxis::PLOT_AXIS_LEFT || axis == RiaDefines::PlotAxis::PLOT_AXIS_RIGHT );
+}
