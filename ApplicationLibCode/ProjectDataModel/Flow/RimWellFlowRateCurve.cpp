@@ -214,18 +214,18 @@ void RimWellFlowRateCurve::updateCurveAppearance()
             lineColor = curveQColor;
         }
 
-        // TODO: how to handle this????
-        // QLinearGradient gradient;
-        // gradient.setCoordinateMode( QGradient::StretchToDeviceMode );
-        // gradient.setColorAt( 0, fillColor.darker( 110 ) );
-        // gradient.setColorAt( 0.15, fillColor );
-        // gradient.setColorAt( 0.25, fillColor );
-        // gradient.setColorAt( 0.4, fillColor.darker( 110 ) );
-        // gradient.setColorAt( 0.6, fillColor );
-        // gradient.setColorAt( 0.8, fillColor.darker( 110 ) );
-        // gradient.setColorAt( 1, fillColor );
-        // m_plotCurve->setBrush( gradient );
+        QLinearGradient gradient;
+        gradient.setCoordinateMode( QGradient::StretchToDeviceMode );
+        gradient.setColorAt( 0, fillColor.darker( 110 ) );
+        gradient.setColorAt( 0.15, fillColor );
+        gradient.setColorAt( 0.25, fillColor );
+        gradient.setColorAt( 0.4, fillColor.darker( 110 ) );
+        gradient.setColorAt( 0.6, fillColor );
+        gradient.setColorAt( 0.8, fillColor.darker( 110 ) );
+        gradient.setColorAt( 1, fillColor );
+        m_plotCurve->setBrush( gradient );
 
+        // TODO: fix this
         // QPen curvePen = m_plotCurve->pen();
         // curvePen.setColor( lineColor );
         // m_plotCurve->setPen( curvePen );
