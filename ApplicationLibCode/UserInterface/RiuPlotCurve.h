@@ -111,7 +111,8 @@ public:
 
     virtual void clearErrorBars() = 0;
 
-    virtual int numSamples() const = 0;
+    virtual int                       numSamples() const        = 0;
+    virtual std::pair<double, double> sample( int index ) const = 0;
 
     RimPlotCurve*       ownerRimCurve();
     const RimPlotCurve* ownerRimCurve() const;
