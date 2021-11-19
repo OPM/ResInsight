@@ -761,19 +761,7 @@ void RimPlotCurve::setSamplesFromXYErrorValues( const std::vector<double>&   xVa
 //--------------------------------------------------------------------------------------------------
 void RimPlotCurve::updateAxisInPlot( RiaDefines::PlotAxis plotAxis )
 {
-    if ( m_plotCurve )
-    {
-        // TODO: strange api?????
-
-        // if ( plotAxis == RiaDefines::PlotAxis::PLOT_AXIS_LEFT )
-        // {
-        //     m_plotCurve->setYAxis( QwtPlot::yLeft );
-        // }
-        // else
-        // {
-        //     m_plotCurve->setYAxis( QwtPlot::yRight );
-        // }
-    }
+    if ( m_plotCurve ) m_plotCurve->setYAxis( plotAxis );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -983,15 +971,17 @@ void RimPlotCurve::updateUiIconFromPlotSymbol()
 //--------------------------------------------------------------------------------------------------
 void RimPlotCurve::updateCurveVisibility()
 {
-    // if ( canCurveBeAttached() )
-    // {
-    //     attachCurveAndErrorBars();
-    // }
-    // else
-    // {
-    //     m_qwtPlotCurve->detach();
-    //     m_qwtCurveErrorBars->detach();
-    // }
+    if ( canCurveBeAttached() )
+    {
+        // attachCurveAndErrorBars();
+        // m_plotCurve->reattach(); // attachToPlot();
+        reattach();
+    }
+    else
+    {
+        detach();
+        // m_qwtCurveErrorBars->detach();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1054,7 +1044,14 @@ void RimPlotCurve::attach( RiuPlotWidget* plotWidget )
 //--------------------------------------------------------------------------------------------------
 void RimPlotCurve::detach()
 {
-    if ( m_plotCurve ) m_plotCurve->detach();
+    if ( m_plotCurve )
+    {
+        m_plotCurve->detach();
+        delete m_plotCurve;
+        m_plotCurve = nullptr;
+    }
+
+    replotParentPlot();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1062,7 +1059,7 @@ void RimPlotCurve::detach()
 //--------------------------------------------------------------------------------------------------
 void RimPlotCurve::reattach()
 {
-    if ( m_parentPlot ) m_plotCurve->attachToPlot( m_parentPlot );
+    if ( m_parentPlot ) attach( m_parentPlot );
 }
 
 //--------------------------------------------------------------------------------------------------

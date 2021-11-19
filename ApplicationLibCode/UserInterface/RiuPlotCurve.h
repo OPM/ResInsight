@@ -120,6 +120,8 @@ public:
     virtual std::pair<double, double> xDataRange() const = 0;
     virtual std::pair<double, double> yDataRange() const = 0;
 
+    virtual void setYAxis( RiaDefines::PlotAxis axis ) = 0;
+
 protected:
     virtual void
         setSamplesInPlot( const std::vector<double>& xValues, const std::vector<double>& yValues, int numSamples ) = 0;

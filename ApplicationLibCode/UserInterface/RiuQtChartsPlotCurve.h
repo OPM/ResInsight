@@ -63,6 +63,8 @@ public:
 
     void detach() override;
 
+    void setYAxis( RiaDefines::PlotAxis axis ) override;
+
 protected:
     // void drawCurve( QPainter*          p,
     //                 int                style,

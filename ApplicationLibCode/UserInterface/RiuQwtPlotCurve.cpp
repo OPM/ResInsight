@@ -23,6 +23,7 @@
 #include "RiaImageTools.h"
 #include "RiaTimeTTools.h"
 
+#include "RiuQwtPlotTools.h"
 #include "RiuQwtPlotWidget.h"
 #include "RiuQwtSymbol.h"
 
@@ -389,4 +390,12 @@ void RiuQwtPlotCurve::setSamplesFromXYErrorValues( const std::vector<double>&   
                                                    RiaCurveDataTools::ErrorAxis errorAxis )
 {
     // TODO: move code here.
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuQwtPlotCurve::setYAxis( RiaDefines::PlotAxis axis )
+{
+    QwtPlotCurve::setYAxis( RiuQwtPlotTools::toQwtPlotAxis( axis ) );
 }
