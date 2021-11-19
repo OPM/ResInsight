@@ -32,6 +32,7 @@
 #include "RiuQwtPlotCurveDefines.h"
 #include "RiuQwtPlotWidget.h"
 
+#include "RiuQwtSymbol.h"
 #include "cafCmdFeatureMenuBuilder.h"
 #include "cafPdmUiComboBoxEditor.h"
 
@@ -578,12 +579,7 @@ void RimVfpPlot::populatePlotWidgetWithPlotData( RiuPlotWidget* plotWidget, cons
                               2,
                               qtClr );
 
-        // TODO: add symbol api to PlotCurve api
-        // QwtSymbol* symbol = new QwtSymbol( QwtSymbol::Ellipse );
-        // symbol->setSize( 6 );
-        // symbol->setColor( color );
-        // curve->setSymbol( symbol );
-
+        curve->setSymbolAppearance( RiuQwtSymbol::PointSymbolEnum::SYMBOL_ELLIPSE, 6, qtClr );
         curve->setSamplesFromXValuesAndYValues( plotData.xData( idx ),
                                                 plotData.yData( idx ),
                                                 static_cast<int>( plotData.curveSize( idx ) ) );

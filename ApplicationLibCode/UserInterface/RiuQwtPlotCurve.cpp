@@ -263,6 +263,18 @@ void RiuQwtPlotCurve::setAppearance( RiuQwtPlotCurveDefines::LineStyleEnum      
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RiuQwtPlotCurve::setSymbolAppearance( RiuQwtSymbol::PointSymbolEnum, int size, const QColor& color )
+{
+    // TODO: map symbol
+    QwtSymbol* symbol = new QwtSymbol( QwtSymbol::Ellipse );
+    symbol->setSize( size );
+    symbol->setColor( color );
+    QwtPlotCurve::setSymbol( symbol );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QwtGraphic RiuQwtPlotCurve::legendIcon( int index, const QSizeF& size ) const
 {
     QwtGraphic icon = QwtPlotCurve::legendIcon( index, size );
@@ -331,6 +343,22 @@ void RiuQwtPlotCurve::clearErrorBars()
 int RiuQwtPlotCurve::numSamples() const
 {
     return dataSize();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::pair<double, double> RiuQwtPlotCurve::xDataRange() const
+{
+    return std::make_pair( minXValue(), maxXValue() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::pair<double, double> RiuQwtPlotCurve::yDataRange() const
+{
+    return std::make_pair( minYValue(), maxYValue() );
 }
 
 //--------------------------------------------------------------------------------------------------
