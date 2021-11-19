@@ -103,9 +103,9 @@ QString RiuDockWidgetTools::undoStackName()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiuDockWidgetTools::summaryCurveManagerName()
+QString RiuDockWidgetTools::summaryPlotManagerName()
 {
-    return "dockSummaryCurveManager";
+    return "dockSummaryPlotManager";
 }
 
 //--------------------------------------------------------------------------------------------------

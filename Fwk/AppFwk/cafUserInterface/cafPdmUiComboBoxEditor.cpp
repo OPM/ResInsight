@@ -494,6 +494,9 @@ QWidget* PdmUiComboBoxEditor::createEditorWidget( QWidget* parent )
 
     connect( m_comboBox, SIGNAL( activated( int ) ), this, SLOT( slotIndexActivated( int ) ) );
 
+    // Forward focus event to combo box editor
+    m_placeholder->setFocusProxy( m_comboBox );
+
     return m_placeholder;
 }
 

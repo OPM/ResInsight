@@ -48,6 +48,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiaValidRegExpValidator.h
     ${CMAKE_CURRENT_LIST_DIR}/RiaVec3Tools.h
     ${CMAKE_CURRENT_LIST_DIR}/RiaEnsembleNameTools.h
+    ${CMAKE_CURRENT_LIST_DIR}/RiaSummaryStringTools.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
@@ -93,6 +94,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiaValidRegExpValidator.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaEnsembleNameTools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaVec3Tools.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RiaSummaryStringTools.cpp
 )
 
 list(APPEND CODE_SOURCE_FILES ${SOURCE_GROUP_SOURCE_FILES})

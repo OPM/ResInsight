@@ -94,6 +94,8 @@ public:
 
     RiuMessagePanel* messagePanel();
 
+    void showAndSetKeyboardFocusToSummaryPlotManager();
+
 protected:
     void closeEvent( QCloseEvent* event ) override;
     void keyPressEvent( QKeyEvent* ) override;
@@ -137,11 +139,11 @@ private:
     std::unique_ptr<caf::PdmUiDragDropInterface> m_dragDropInterface;
 
     caf::PdmUiPropertyView* m_pdmUiPropertyView;
-    caf::PdmUiPropertyView* m_summaryCurveManagerView;
+    caf::PdmUiPropertyView* m_summaryPlotManagerView;
 
     QPointer<RicSummaryPlotEditorDialog>      m_summaryCurveCreatorDialog;
     QPointer<RicSummaryCurveCalculatorDialog> m_summaryCurveCalculatorDialog;
-    std::unique_ptr<caf::PdmObject>           m_summaryCurveManager;
+    std::unique_ptr<caf::PdmObject>           m_summaryPlotManager;
 
     std::vector<QWidget*> m_temporaryWidgets;
 };
