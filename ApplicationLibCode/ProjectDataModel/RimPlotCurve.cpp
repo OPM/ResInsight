@@ -822,19 +822,19 @@ void RimPlotCurve::updateLegendEntryVisibilityNoPlotUpdate()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimPlotCurve::xValueRangeInQwt( double* minimumValue, double* maximumValue ) const
+bool RimPlotCurve::xValueRange( double* minimumValue, double* maximumValue ) const
 {
     CVF_ASSERT( minimumValue && maximumValue );
     CVF_ASSERT( m_plotCurve );
 
-    // TODO: fix!!!
-    // if ( m_plotCurve->data()->size() < 1 )
-    // {
-    //     return false;
-    // }
+    if ( m_plotCurve->numSamples() < 1 )
+    {
+        return false;
+    }
 
-    // *minimumValue = m_plotCurve->minXValue();
-    // *maximumValue = m_plotCurve->maxXValue();
+    auto [min, max] = m_plotCurve->xDataRange();
+    *minimumValue   = min;
+    *maximumValue   = max;
 
     return true;
 }
@@ -842,19 +842,19 @@ bool RimPlotCurve::xValueRangeInQwt( double* minimumValue, double* maximumValue 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimPlotCurve::yValueRangeInQwt( double* minimumValue, double* maximumValue ) const
+bool RimPlotCurve::yValueRange( double* minimumValue, double* maximumValue ) const
 {
     CVF_ASSERT( minimumValue && maximumValue );
     CVF_ASSERT( m_plotCurve );
 
-    // TODO: fix!!!
-    // if ( m_plotCurve->data()->size() < 1 )
-    // {
-    //     return false;
-    // }
+    if ( m_plotCurve->numSamples() < 1 )
+    {
+        return false;
+    }
 
-    // *minimumValue = m_plotCurve->minYValue();
-    // *maximumValue = m_plotCurve->maxYValue();
+    auto [min, max] = m_plotCurve->yDataRange();
+    *minimumValue   = min;
+    *maximumValue   = max;
 
     return true;
 }

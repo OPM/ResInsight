@@ -43,6 +43,8 @@ public:
                         const QColor&                                  curveColor,
                         const QBrush&                                  fillBrush = QBrush( Qt::NoBrush ) ) override;
 
+    void setSymbolAppearance( RiuQwtSymbol::PointSymbolEnum, int size, const QColor& color ) override;
+
     QwtGraphic legendIcon( int index, const QSizeF& size ) const override;
 
     void attachToPlot( RiuPlotWidget* plotWidget ) override;
@@ -54,6 +56,9 @@ public:
     void clearErrorBars() override;
 
     int numSamples() const override;
+
+    std::pair<double, double> xDataRange() const override;
+    std::pair<double, double> yDataRange() const override;
 
     void setSamplesFromXYErrorValues(
         const std::vector<double>&   xValues,

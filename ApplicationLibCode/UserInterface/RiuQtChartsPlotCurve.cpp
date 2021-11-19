@@ -24,6 +24,7 @@
 
 #include "RiuQtChartsPlotWidget.h"
 #include "RiuQwtSymbol.h"
+#include "cvfBoundingBox.h"
 
 #include <limits>
 
@@ -244,6 +245,15 @@ void RiuQtChartsPlotCurve::setAppearance( RiuQwtPlotCurveDefines::LineStyleEnum 
     // setBrush( fillBrush );
 }
 
+#include <cmath>
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuQtChartsPlotCurve::setSymbolAppearance( RiuQwtSymbol::PointSymbolEnum, int size, const QColor& color )
+{
+    m_lineSeries->setPointsVisible();
+}
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -310,4 +320,33 @@ void RiuQtChartsPlotCurve::clearErrorBars()
 int RiuQtChartsPlotCurve::numSamples() const
 {
     return m_lineSeries->count();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::pair<double, double> RiuQtChartsPlotCurve::xDataRange() const
+{
+    cvf::BoundingBox bb = computeBoundingBox();
+    return std::make_pair( bb.min().x(), bb.max().x() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::pair<double, double> RiuQtChartsPlotCurve::yDataRange() const
+{
+    cvf::BoundingBox bb = computeBoundingBox();
+    return std::make_pair( bb.min().y(), bb.max().y() );
+}
+
+cvf::BoundingBox RiuQtChartsPlotCurve::computeBoundingBox() const
+{
+    auto points = m_lineSeries->pointsVector();
+
+    cvf::BoundingBox bb;
+    for ( auto p : points )
+        bb.add( cvf::Vec3d( p.x(), p.y(), 0.0 ) );
+
+    return bb;
 }
