@@ -18,12 +18,12 @@
 
 #include "RiuRelativePermeabilityPlotPanel.h"
 
-#include "RiaCurveDataTools.h"
-#include "RiaEclipseUnitTools.h"
-#include "RiaResultNames.h"
-
 #include "RigFlowDiagSolverInterface.h"
 
+#include "RiaCurveDataTools.h"
+#include "RiaEclipseUnitTools.h"
+#include "RiaPlotDefines.h"
+#include "RiaResultNames.h"
 #include "RiuDockedQwtPlot.h"
 #include "RiuGuiTheme.h"
 #include "RiuQwtPlotCurve.h"
@@ -416,7 +416,7 @@ void RiuRelativePermeabilityPlotPanel::plotCurvesInQwt( RiaDefines::EclipseUnitS
 
         if ( plotOnWhichYAxis == RIGHT_YAXIS )
         {
-            qwtCurve->setYAxis( QwtPlot::yRight );
+            qwtCurve->setYAxis( RiaDefines::PlotAxis::PLOT_AXIS_RIGHT );
             shouldEnableRightYAxis = true;
         }
 
