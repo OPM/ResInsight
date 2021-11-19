@@ -257,6 +257,14 @@ void RiuQtChartsPlotCurve::setSymbolAppearance( RiuQwtSymbol::PointSymbolEnum, i
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RiuQtChartsPlotCurve::setBrush( const QBrush& brush )
+{
+    m_lineSeries->setBrush( brush );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiuQtChartsPlotCurve::attachToPlot( RiuPlotWidget* plotWidget )
 {
     RiuQtChartsPlotWidget* qtChartsPlotWidget = dynamic_cast<RiuQtChartsPlotWidget*>( plotWidget );
@@ -340,6 +348,9 @@ std::pair<double, double> RiuQtChartsPlotCurve::yDataRange() const
     return std::make_pair( bb.min().y(), bb.max().y() );
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 cvf::BoundingBox RiuQtChartsPlotCurve::computeBoundingBox() const
 {
     auto points = m_lineSeries->pointsVector();
