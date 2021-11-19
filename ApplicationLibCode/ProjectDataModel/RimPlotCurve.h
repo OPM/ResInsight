@@ -113,9 +113,8 @@ public:
 
     void updateCurveAppearanceForFilesOlderThan_2021_06();
 
-    // TODO: remove qwt name
-    virtual bool xValueRangeInQwt( double* minimumValue, double* maximumValue ) const;
-    virtual bool yValueRangeInQwt( double* minimumValue, double* maximumValue ) const;
+    virtual bool xValueRange( double* minimumValue, double* maximumValue ) const;
+    virtual bool yValueRange( double* minimumValue, double* maximumValue ) const;
 
     virtual void setTitle( const QString& title );
 
