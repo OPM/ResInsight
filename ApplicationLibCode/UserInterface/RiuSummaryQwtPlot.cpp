@@ -43,6 +43,7 @@
 #include "RiuPlotCurve.h"
 #include "RiuQwtCurvePointTracker.h"
 #include "RiuQwtPlotWheelZoomer.h"
+#include "RiuQwtPlotWidget.h"
 #include "RiuWidgetDragger.h"
 
 #include "RiuPlotMainWindowTools.h"
@@ -104,24 +105,26 @@ static EnsembleCurveInfoTextProvider ensembleCurveInfoTextProvider;
 ///
 //--------------------------------------------------------------------------------------------------
 RiuSummaryQwtPlot::RiuSummaryQwtPlot( RimSummaryPlot* plot, QWidget* parent /*= nullptr*/ )
-    : RiuQwtPlotWidget( plot, parent )
+    : RiuSummaryPlot( plot, parent )
 {
+    m_plotWidget = std::make_unique<RiuQwtPlotWidget>( plot );
+
     // LeftButton for the zooming
-    m_zoomerLeft = new RiuQwtPlotZoomer( qwtPlot()->canvas() );
+    m_zoomerLeft = new RiuQwtPlotZoomer( m_plotWidget->qwtPlot()->canvas() );
     m_zoomerLeft->setTrackerMode( QwtPicker::AlwaysOff );
     m_zoomerLeft->initMousePattern( 1 );
 
     // Attach a zoomer for the right axis
-    m_zoomerRight = new RiuQwtPlotZoomer( qwtPlot()->canvas() );
+    m_zoomerRight = new RiuQwtPlotZoomer( m_plotWidget->qwtPlot()->canvas() );
     m_zoomerRight->setAxis( QwtPlot::xTop, QwtPlot::yRight );
     m_zoomerRight->setTrackerMode( QwtPicker::AlwaysOff );
     m_zoomerRight->initMousePattern( 1 );
 
     // MidButton for the panning
-    QwtPlotPanner* panner = new QwtPlotPanner( qwtPlot()->canvas() );
+    QwtPlotPanner* panner = new QwtPlotPanner( m_plotWidget->qwtPlot()->canvas() );
     panner->setMouseButton( Qt::MidButton );
 
-    m_wheelZoomer = new RiuQwtPlotWheelZoomer( this->qwtPlot() );
+    m_wheelZoomer = new RiuQwtPlotWheelZoomer( m_plotWidget->qwtPlot() );
 
     connect( m_wheelZoomer, SIGNAL( zoomUpdated() ), SLOT( onZoomedSlot() ) );
     connect( m_zoomerLeft, SIGNAL( zoomed( const QRectF& ) ), SLOT( onZoomedSlot() ) );
@@ -129,12 +132,12 @@ RiuSummaryQwtPlot::RiuSummaryQwtPlot( RimSummaryPlot* plot, QWidget* parent /*= 
     connect( panner, SIGNAL( panned( int, int ) ), SLOT( onZoomedSlot() ) );
 
     setDefaults();
-    new RiuQwtCurvePointTracker( this->qwtPlot(), true, &ensembleCurveInfoTextProvider );
+    new RiuQwtCurvePointTracker( m_plotWidget->qwtPlot(), true, &ensembleCurveInfoTextProvider );
 
-    RiuQwtPlotTools::setCommonPlotBehaviour( this->qwtPlot() );
-    RiuQwtPlotTools::setDefaultAxes( this->qwtPlot() );
+    RiuQwtPlotTools::setCommonPlotBehaviour( m_plotWidget->qwtPlot() );
+    RiuQwtPlotTools::setDefaultAxes( m_plotWidget->qwtPlot() );
 
-    setInternalLegendVisible( true );
+    m_plotWidget->setInternalLegendVisible( true );
 
     m_annotationTool = std::unique_ptr<RiuPlotAnnotationTool>( new RiuPlotAnnotationTool() );
 }
@@ -154,7 +157,7 @@ void RiuSummaryQwtPlot::useDateBasedTimeAxis( const QString&                    
                                               RiaQDateTimeTools::DateFormatComponents dateComponents,
                                               RiaQDateTimeTools::TimeFormatComponents timeComponents )
 {
-    RiuQwtPlotTools::enableDateBasedBottomXAxis( this->qwtPlot(), dateFormat, timeFormat, dateComponents, timeComponents );
+    RiuQwtPlotTools::enableDateBasedBottomXAxis( m_plotWidget->qwtPlot(), dateFormat, timeFormat, dateComponents, timeComponents );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -162,8 +165,8 @@ void RiuSummaryQwtPlot::useDateBasedTimeAxis( const QString&                    
 //--------------------------------------------------------------------------------------------------
 void RiuSummaryQwtPlot::useTimeBasedTimeAxis()
 {
-    qwtPlot()->setAxisScaleEngine( QwtPlot::xBottom, new QwtLinearScaleEngine() );
-    qwtPlot()->setAxisScaleDraw( QwtPlot::xBottom, new QwtScaleDraw() );
+    m_plotWidget->qwtPlot()->setAxisScaleEngine( QwtPlot::xBottom, new QwtLinearScaleEngine() );
+    m_plotWidget->qwtPlot()->setAxisScaleDraw( QwtPlot::xBottom, new QwtScaleDraw() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -190,7 +193,7 @@ void RiuSummaryQwtPlot::updateAnnotationObjects( RimPlotAxisPropertiesInterface*
     {
         if ( annotation->annotationType() == RimPlotAxisAnnotation::AnnotationType::LINE )
         {
-            m_annotationTool->attachAnnotationLine( qwtPlot(),
+            m_annotationTool->attachAnnotationLine( m_plotWidget->qwtPlot(),
                                                     annotation->color(),
                                                     annotation->name(),
                                                     annotation->value(),
@@ -198,7 +201,7 @@ void RiuSummaryQwtPlot::updateAnnotationObjects( RimPlotAxisPropertiesInterface*
         }
         else if ( annotation->annotationType() == RimPlotAxisAnnotation::AnnotationType::RANGE )
         {
-            m_annotationTool->attachAnnotationRange( qwtPlot(),
+            m_annotationTool->attachAnnotationRange( m_plotWidget->qwtPlot(),
                                                      annotation->color(),
                                                      annotation->name(),
                                                      annotation->rangeStart(),
@@ -216,7 +219,7 @@ void RiuSummaryQwtPlot::contextMenuEvent( QContextMenuEvent* event )
     QMenu                      menu;
     caf::CmdFeatureMenuBuilder menuBuilder;
 
-    emit plotSelected( false );
+    emit m_plotWidget->plotSelected( false );
 
     menuBuilder << "RicShowPlotDataFeature";
     menuBuilder << "RicSavePlotTemplateFeature";
@@ -225,9 +228,9 @@ void RiuSummaryQwtPlot::contextMenuEvent( QContextMenuEvent* event )
     double       distanceFromClick = std::numeric_limits<double>::infinity();
     int          closestCurvePoint = -1;
     QPoint       globalPos         = event->globalPos();
-    QPoint       localPos          = qwtPlot()->canvas()->mapFromGlobal( globalPos );
+    QPoint       localPos          = m_plotWidget->qwtPlot()->canvas()->mapFromGlobal( globalPos );
 
-    findClosestPlotItem( localPos, &closestItem, &closestCurvePoint, &distanceFromClick );
+    m_plotWidget->findClosestPlotItem( localPos, &closestItem, &closestCurvePoint, &distanceFromClick );
     if ( closestItem && closestCurvePoint >= 0 )
     {
         RiuPlotCurve* plotCurve = dynamic_cast<RiuPlotCurve*>( closestItem );
@@ -272,7 +275,7 @@ void RiuSummaryQwtPlot::contextMenuEvent( QContextMenuEvent* event )
 
                 if ( !curveClicked )
                 {
-                    RimSummaryPlot*                   summaryPlot = static_cast<RimSummaryPlot*>( plotDefinition() );
+                    RimSummaryPlot* summaryPlot = static_cast<RimSummaryPlot*>( m_plotWidget->plotDefinition() );
                     std::vector<RimEnsembleCurveSet*> allCurveSetsInPlot;
                     summaryPlot->descendantsOfType( allCurveSetsInPlot );
                     for ( auto curveSet : allCurveSetsInPlot )
@@ -360,7 +363,7 @@ void RiuSummaryQwtPlot::contextMenuEvent( QContextMenuEvent* event )
         // Parts of progress dialog GUI can be present after menu has closed related to
         // RicImportGridModelFromSummaryCurveFeature. Make sure the plot is updated, and call processEvents() to make
         // sure all GUI events are processed
-        update();
+        m_plotWidget->update();
         QApplication::processEvents();
     }
 }
@@ -398,5 +401,13 @@ void RiuSummaryQwtPlot::endZoomOperations()
 //--------------------------------------------------------------------------------------------------
 void RiuSummaryQwtPlot::onZoomedSlot()
 {
-    emit plotZoomed();
+    emit m_plotWidget->plotZoomed();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiuPlotWidget* RiuSummaryQwtPlot::plotWidget() const
+{
+    return m_plotWidget.get();
 }
