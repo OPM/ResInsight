@@ -12,18 +12,18 @@
     <title>Ensemble File Dialog :: ResInsight</title>
 
     
-    <link href="/css/nucleus.css?1635929135" rel="stylesheet">
-    <link href="/css/fontawesome-all.min.css?1635929135" rel="stylesheet">
-    <link href="/css/hybrid.css?1635929135" rel="stylesheet">
-    <link href="/css/featherlight.min.css?1635929135" rel="stylesheet">
-    <link href="/css/perfect-scrollbar.min.css?1635929135" rel="stylesheet">
-    <link href="/css/auto-complete.css?1635929135" rel="stylesheet">
-    <link href="/css/atom-one-dark-reasonable.css?1635929135" rel="stylesheet">
-    <link href="/css/theme.css?1635929135" rel="stylesheet">
-    <link href="/css/hugo-theme.css?1635929135" rel="stylesheet">
+    <link href="/css/nucleus.css?1637588643" rel="stylesheet">
+    <link href="/css/fontawesome-all.min.css?1637588643" rel="stylesheet">
+    <link href="/css/hybrid.css?1637588643" rel="stylesheet">
+    <link href="/css/featherlight.min.css?1637588643" rel="stylesheet">
+    <link href="/css/perfect-scrollbar.min.css?1637588643" rel="stylesheet">
+    <link href="/css/auto-complete.css?1637588643" rel="stylesheet">
+    <link href="/css/atom-one-dark-reasonable.css?1637588643" rel="stylesheet">
+    <link href="/css/theme.css?1637588643" rel="stylesheet">
+    <link href="/css/hugo-theme.css?1637588643" rel="stylesheet">
     
 
-    <script src="/js/jquery-3.3.1.min.js?1635929135"></script>
+    <script src="/js/jquery-3.3.1.min.js?1637588643"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -2335,6 +2335,12 @@ if (!doNotTrack) {
     <li>
       <ul>
         <li><a href="#ensemble-file-import">Ensemble File Import</a></li>
+        <li><a href="#ensemble-file-structure">Ensemble File Structure</a>
+          <ul>
+            <li><a href="#sub-folder">Sub Folder</a></li>
+            <li><a href="#main-folder">Main Folder</a></li>
+          </ul>
+        </li>
         <li><a href="#examples-of-use-of-ensemble-import-dialog">Examples of Use of Ensemble Import Dialog</a></li>
       </ul>
     </li>
@@ -2381,8 +2387,34 @@ if (!doNotTrack) {
 <li><strong>*[!D]</strong> Exclude files ending with the character &lsquo;D&rsquo; (file extension is not considered)</li>
 </ul>
 </li>
+<li><strong>File Extensions</strong>: List of file extensions, ie &ldquo;.EGRID .GRID&rdquo;</li>
+<li>Use &lsquo;realization-*&rsquo; in filter : Replace the text &ldquo;realization-12&rdquo; with &ldquo;realization-*&rdquo;</li>
+<li>Ensemble grouping : Group ensemble by Main folder or Sub Folder (Used by FMU workflow)</li>
 <li><strong>Effective Filter</strong>: The effective filter displays the resulting full path search pattern. It is updated on the fly as the user edits the pattern fields. A text string of &ldquo;&hellip;&rdquo; indicates a complete recursive directory search.</li>
 </ul>
+<h2 id="ensemble-file-structure">Ensemble File Structure</h2>
+<p>Multiple summary files defining an ensemble can be organized differently in folders. ResInsight support two different modes, Sub Folder and Main Folder.</p>
+<h3 id="sub-folder">Sub Folder</h3>
+<p>Example folder structure</p>
+<pre><code>real-1/case-1
+      /case-2
+real-2/case-1
+      /case-2
+real-3/case-1
+      /case-2
+</code></pre>
+<p>Using the option <strong>Group By Sub Folder</strong> will identify <strong>case-1</strong> and <strong>case-2</strong> as the ensemble names. This folder structure is used by the <strong>FMU workflow</strong>.</p>
+<h3 id="main-folder">Main Folder</h3>
+<p>Example folder structure</p>
+<pre><code>case-1/real-1
+case-1/real-2
+case-1/real-3
+
+case-2/real-1
+case-2/real-2
+case-2/real-3
+</code></pre>
+<p>Using the option <strong>Group By Main Folder</strong> will identify <strong>case-1</strong> and <strong>case-2</strong> as the ensemble names. This folder structure is used by the <strong>Everest workflow</strong>.</p>
 <p>After pressing the <strong>Find</strong> button, a file search is performed in the root directory and the directories below matching the path pattern. The files found are presented in a list, where the user can check/uncheck each file individually.</p>
 <p>When the <strong>OK</strong> button is pressed, all checked files are imported.</p>
 <h2 id="examples-of-use-of-ensemble-import-dialog">Examples of Use of Ensemble Import Dialog</h2>
@@ -4158,19 +4190,19 @@ if (!doNotTrack) {
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/js/clipboard.min.js?1635929135"></script>
-    <script src="/js/perfect-scrollbar.min.js?1635929135"></script>
-    <script src="/js/perfect-scrollbar.jquery.min.js?1635929135"></script>
-    <script src="/js/jquery.sticky.js?1635929135"></script>
-    <script src="/js/featherlight.min.js?1635929135"></script>
-    <script src="/js/highlight.pack.js?1635929135"></script>
+    <script src="/js/clipboard.min.js?1637588643"></script>
+    <script src="/js/perfect-scrollbar.min.js?1637588643"></script>
+    <script src="/js/perfect-scrollbar.jquery.min.js?1637588643"></script>
+    <script src="/js/jquery.sticky.js?1637588643"></script>
+    <script src="/js/featherlight.min.js?1637588643"></script>
+    <script src="/js/highlight.pack.js?1637588643"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/js/modernizr.custom-3.6.0.js?1635929135"></script>
-    <script src="/js/learn.js?1635929135"></script>
-    <script src="/js/hugo-learn.js?1635929135"></script>
+    <script src="/js/modernizr.custom-3.6.0.js?1637588643"></script>
+    <script src="/js/learn.js?1637588643"></script>
+    <script src="/js/hugo-learn.js?1637588643"></script>
 
-    <link href="/mermaid/mermaid.css?1635929135" rel="stylesheet" />
-    <script src="/mermaid/mermaid.js?1635929135"></script>
+    <link href="/mermaid/mermaid.css?1637588643" rel="stylesheet" />
+    <script src="/mermaid/mermaid.js?1637588643"></script>
     <script>
         mermaid.initialize({ startOnLoad: true });
     </script>

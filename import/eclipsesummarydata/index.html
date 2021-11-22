@@ -12,18 +12,18 @@
     <title>Eclipse Summary Data :: ResInsight</title>
 
     
-    <link href="/css/nucleus.css?1635929135" rel="stylesheet">
-    <link href="/css/fontawesome-all.min.css?1635929135" rel="stylesheet">
-    <link href="/css/hybrid.css?1635929135" rel="stylesheet">
-    <link href="/css/featherlight.min.css?1635929135" rel="stylesheet">
-    <link href="/css/perfect-scrollbar.min.css?1635929135" rel="stylesheet">
-    <link href="/css/auto-complete.css?1635929135" rel="stylesheet">
-    <link href="/css/atom-one-dark-reasonable.css?1635929135" rel="stylesheet">
-    <link href="/css/theme.css?1635929135" rel="stylesheet">
-    <link href="/css/hugo-theme.css?1635929135" rel="stylesheet">
+    <link href="/css/nucleus.css?1637588643" rel="stylesheet">
+    <link href="/css/fontawesome-all.min.css?1637588643" rel="stylesheet">
+    <link href="/css/hybrid.css?1637588643" rel="stylesheet">
+    <link href="/css/featherlight.min.css?1637588643" rel="stylesheet">
+    <link href="/css/perfect-scrollbar.min.css?1637588643" rel="stylesheet">
+    <link href="/css/auto-complete.css?1637588643" rel="stylesheet">
+    <link href="/css/atom-one-dark-reasonable.css?1637588643" rel="stylesheet">
+    <link href="/css/theme.css?1637588643" rel="stylesheet">
+    <link href="/css/hugo-theme.css?1637588643" rel="stylesheet">
     
 
-    <script src="/js/jquery-3.3.1.min.js?1635929135"></script>
+    <script src="/js/jquery-3.3.1.min.js?1637588643"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -2334,11 +2334,13 @@ if (!doNotTrack) {
   <ul>
     <li>
       <ul>
-        <li>
+        <li><a href="#basic-summary-import">Basic Summary Import</a></li>
+        <li><a href="#origin-files">Origin Files</a></li>
+        <li><a href="#summary-data-file-formats">Summary Data File Formats</a>
           <ul>
-            <li><a href="#basic-summary-import">Basic Summary Import</a></li>
-            <li><a href="#origin-files">Origin Files</a></li>
-            <li><a href="#summary-data-file-formats">Summary Data File Formats</a></li>
+            <li><a href="#smspecunsmry-file-format">SMSPEC/UNSMRY File Format</a></li>
+            <li><a href="#esmry-file-format">ESMRY File Format</a></li>
+            <li><a href="#h5-file-format">h5 File Format</a></li>
           </ul>
         </li>
       </ul>
@@ -2369,10 +2371,10 @@ if (!doNotTrack) {
 
 
 <p>Summary data can be imported as a single summary file or an ensemble of summary files.</p>
-<h3 id="basic-summary-import">Basic Summary Import</h3>
+<h2 id="basic-summary-import">Basic Summary Import</h2>
 <p>Summary data is located in two files, summary vector names in <strong>*.SMSPEC</strong> and curve data in <strong>*.UNSMRY</strong>.</p>
-<p><a href="/import/ensemblefiledialog/">Ensemble File Dialog</a>.</p>
-<h3 id="origin-files">Origin Files</h3>
+<p>For import of ensemble datasets, see <a href="/import/ensemblefiledialog/">Ensemble File Dialog</a>.</p>
+<h2 id="origin-files">Origin Files</h2>
 <p><img src="/images/plot-window/OriginFileDialog.png" alt=""></p>
 <p>During summary file import, ResInsight checks whether the summary file is restarted, i.e. has an origin file. If an origin file is found, the Origin Files dialog is displayed.</p>
 <p>Depending on what triggered the summary file import, the dialog shows slightly different information. If the summary file import was triggered by a grid file import, the dialog displays information about grid files in addition to the summary origin file(s). If the summary file was imported directly, information about grid files are not relevant and thus not displayed.</p>
@@ -2403,10 +2405,17 @@ if (!doNotTrack) {
 </ul>
 <p>By default the file names are displayed using relative path based on the common root folder for all files. In order to display the full path, check the <strong>Show full paths</strong> checkbox. Regardless of the checkbox state, there is always a tooltip showing the full path for every file. It is also possible to copy a full path file name to the clipboard. Right click on the file name and select <strong>Copy file name</strong>.</p>
 <p>If the user selected multiple summary files or grid files, this dialog will be displayed for every file that has an origin summary file. In this case the button <strong>OK to All</strong> appears. When this button is clicked, the rest of the files will be imported silently using the same options.</p>
-<h3 id="summary-data-file-formats">Summary Data File Formats</h3>
-<p><strong>h5 File Format</strong></p>
-<p><em>Eclipse</em> is able to reorganize the summary data after a simulations has completed. This will produce an additional curve data file with the extension <strong>h5</strong>. The curve data in this file is identical to curve data in <strong>UNSMRY</strong>.</p>
-<p>ResInsight will now by default use <strong>H5</strong> files to import summary data, as this format has good performance for large datasets. The native <em>Eclipse</em> <strong>UNSMRY</strong> reader can be used when configured in <a href="/misc/preferences/#eclipse-summary">Eclipse Summary Preferences</a>.</p>
+<h2 id="summary-data-file-formats">Summary Data File Formats</h2>
+<p><strong>ResInsight</strong> is able to import summary data in three file formats. Default exported by <em>Eclipse</em> is <strong>*.SMSPEC/.UNSMRY</strong>. In addition, <em>Eclipse</em> can export into <strong>*.h5</strong> for improved performance.</p>
+<p>For best performance, <strong>ResInsight</strong> has support for <strong>*.ESMRY</strong> file format. <strong>ResInsight</strong> is able to produce this file format based on <strong>*.SMSPEC/UNSMRY</strong> files.</p>
+<p>See configuration in <a href="/misc/preferences/#eclipse-summary">Eclipse Summary Preferences</a>.</p>
+<h3 id="smspecunsmry-file-format">SMSPEC/UNSMRY File Format</h3>
+<p><em>Eclipse</em> will by default export summary data to <strong>*.SMSPEC</strong> and <strong>*.UNSMRY</strong>. Data is organized by simulation time step and extraction of data for one summary vector can be time consuming for large data sets.</p>
+<h3 id="esmry-file-format">ESMRY File Format</h3>
+<p><strong>*.ESMRY</strong> files contains the same data as <strong>SMSPEC/UNSMRY</strong>. The data in these files are organized in a different way that will give significantly better performance when accessing single summary vectors compared to <strong>SMSPEC/UNSMRY</strong>.</p>
+<p><strong>ResInsight</strong> will by default use this file format.</p>
+<h3 id="h5-file-format">h5 File Format</h3>
+<p><em>Eclipse</em> is able to produce summary data in a file format with the extension <strong>*.H5</strong> with the same content as <strong>*.UNSMRY</strong>.</p>
 
 
 <footer class="footline">
@@ -4177,19 +4186,19 @@ if (!doNotTrack) {
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/js/clipboard.min.js?1635929135"></script>
-    <script src="/js/perfect-scrollbar.min.js?1635929135"></script>
-    <script src="/js/perfect-scrollbar.jquery.min.js?1635929135"></script>
-    <script src="/js/jquery.sticky.js?1635929135"></script>
-    <script src="/js/featherlight.min.js?1635929135"></script>
-    <script src="/js/highlight.pack.js?1635929135"></script>
+    <script src="/js/clipboard.min.js?1637588643"></script>
+    <script src="/js/perfect-scrollbar.min.js?1637588643"></script>
+    <script src="/js/perfect-scrollbar.jquery.min.js?1637588643"></script>
+    <script src="/js/jquery.sticky.js?1637588643"></script>
+    <script src="/js/featherlight.min.js?1637588643"></script>
+    <script src="/js/highlight.pack.js?1637588643"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/js/modernizr.custom-3.6.0.js?1635929135"></script>
-    <script src="/js/learn.js?1635929135"></script>
-    <script src="/js/hugo-learn.js?1635929135"></script>
+    <script src="/js/modernizr.custom-3.6.0.js?1637588643"></script>
+    <script src="/js/learn.js?1637588643"></script>
+    <script src="/js/hugo-learn.js?1637588643"></script>
 
-    <link href="/mermaid/mermaid.css?1635929135" rel="stylesheet" />
-    <script src="/mermaid/mermaid.js?1635929135"></script>
+    <link href="/mermaid/mermaid.css?1637588643" rel="stylesheet" />
+    <script src="/mermaid/mermaid.js?1637588643"></script>
     <script>
         mermaid.initialize({ startOnLoad: true });
     </script>

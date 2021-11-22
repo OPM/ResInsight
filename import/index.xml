@@ -29,7 +29,7 @@
       <guid>https://resinsight.org/import/eclipsesummarydata/</guid>
       <description>Summary data can be imported as a single summary file or an ensemble of summary files.
 Basic Summary Import Summary data is located in two files, summary vector names in *.SMSPEC and curve data in *.UNSMRY.
-Ensemble File Dialog.
+For import of ensemble datasets, see Ensemble File Dialog.
 Origin Files During summary file import, ResInsight checks whether the summary file is restarted, i.e. has an origin file. If an origin file is found, the Origin Files dialog is displayed.</description>
     </item>
     
