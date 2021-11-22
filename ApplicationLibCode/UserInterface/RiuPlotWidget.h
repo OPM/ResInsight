@@ -111,19 +111,19 @@ public:
     bool           plotTitleEnabled() const;
     virtual void   setPlotTitleFontSize( int titleFontSize ) = 0;
 
-    virtual void setLegendFontSize( int fontSize ) = 0;
-    void         setInternalLegendVisible( bool visible );
-    virtual void insertLegend( RiuPlotWidget::Legend ) = 0;
-    virtual void clearLegend()                         = 0;
-    virtual void updateLegend()                        = 0;
+    virtual void setLegendFontSize( int fontSize )        = 0;
+    virtual void setInternalLegendVisible( bool visible ) = 0;
+    virtual void insertLegend( RiuPlotWidget::Legend )    = 0;
+    virtual void clearLegend()                            = 0;
+    virtual void updateLegend()                           = 0;
 
     virtual void detachItems( RiuPlotWidget::PlotItemType plotItemType ) = 0;
 
     virtual std::pair<double, double> axisRange( RiaDefines::PlotAxis axis ) const                      = 0;
     virtual void                      setAxisRange( RiaDefines::PlotAxis axis, double min, double max ) = 0;
 
-    void setAxisInverted( RiaDefines::PlotAxis axis, bool isInverted );
-    void setAxisLabelsAndTicksEnabled( RiaDefines::PlotAxis axis, bool enableLabels, bool enableTicks );
+    virtual void setAxisInverted( RiaDefines::PlotAxis axis, bool isInverted ) = 0;
+    void         setAxisLabelsAndTicksEnabled( RiaDefines::PlotAxis axis, bool enableLabels, bool enableTicks );
 
     void enableGridLines( RiaDefines::PlotAxis axis, bool majorGridLines, bool minorGridLines );
 
@@ -165,7 +165,7 @@ public:
 
     virtual void removeEventFilter() = 0;
 
-    void updateAxes();
+    virtual void updateAxes() = 0;
 
     virtual RiuPlotCurve* createPlotCurve( const QString& title, const QColor& color ) = 0;
 
