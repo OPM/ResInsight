@@ -38,6 +38,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiuDockedQwtPlot.h
     ${CMAKE_CURRENT_LIST_DIR}/RiuGridCrossQwtPlot.h
     ${CMAKE_CURRENT_LIST_DIR}/RiuSummaryQwtPlot.h
+    ${CMAKE_CURRENT_LIST_DIR}/RiuSummaryPlot.h
     ${CMAKE_CURRENT_LIST_DIR}/RiuTextDialog.h
     ${CMAKE_CURRENT_LIST_DIR}/RiuTimeStepChangedHandler.h
     ${CMAKE_CURRENT_LIST_DIR}/RiuTofAccumulatedPhaseFractionsPlot.h
@@ -135,6 +136,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiuDockedQwtPlot.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuGridCrossQwtPlot.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuSummaryQwtPlot.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RiuSummaryPlot.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuTextDialog.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuTimeStepChangedHandler.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuTofAccumulatedPhaseFractionsPlot.cpp
@@ -241,6 +243,7 @@ list(
   ${CMAKE_CURRENT_LIST_DIR}/RiuDockedQwtPlot.h
   ${CMAKE_CURRENT_LIST_DIR}/RiuGridCrossQwtPlot.h
   ${CMAKE_CURRENT_LIST_DIR}/RiuSummaryQwtPlot.h
+  ${CMAKE_CURRENT_LIST_DIR}/RiuSummaryPlot.h
   ${CMAKE_CURRENT_LIST_DIR}/RiuTofAccumulatedPhaseFractionsPlot.h
   ${CMAKE_CURRENT_LIST_DIR}/RiuQwtScalePicker.h
   ${CMAKE_CURRENT_LIST_DIR}/RiuQwtPlotWheelZoomer.h

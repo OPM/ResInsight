@@ -25,6 +25,9 @@
 
 #include "RimPlot.h"
 
+#include "RiuQwtPlotWidget.h"
+#include "RiuSummaryPlot.h"
+
 #include "qwt_plot_textlabel.h"
 
 #include "cafPdmChildArrayField.h"
@@ -269,7 +272,7 @@ private:
 
     caf::PdmChildField<RimSummaryPlotFilterTextCurveSetEditor*> m_textCurveSetEditor;
 
-    QPointer<RiuSummaryQwtPlot>       m_plotWidget;
+    std::unique_ptr<RiuSummaryPlot>   m_summaryPlot;
     std::unique_ptr<QwtPlotTextLabel> m_plotInfoLabel;
 
     bool m_isCrossPlot;
