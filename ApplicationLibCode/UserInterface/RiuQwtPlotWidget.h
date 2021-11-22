@@ -101,14 +101,14 @@ public:
     void           setPlotTitleFontSize( int titleFontSize ) override;
 
     void setLegendFontSize( int fontSize ) override;
-    void setInternalLegendVisible( bool visible );
+    void setInternalLegendVisible( bool visible ) override;
     void insertLegend( RiuPlotWidget::Legend ) override;
     void clearLegend() override;
 
     std::pair<double, double> axisRange( RiaDefines::PlotAxis axis ) const override;
     void                      setAxisRange( RiaDefines::PlotAxis axis, double min, double max ) override;
 
-    void setAxisInverted( RiaDefines::PlotAxis axis, bool isInverted );
+    void setAxisInverted( RiaDefines::PlotAxis axis, bool isInverted ) override;
     void setAxisLabelsAndTicksEnabled( RiaDefines::PlotAxis axis, bool enableLabels, bool enableTicks );
 
     void enableGridLines( RiaDefines::PlotAxis axis, bool majorGridLines, bool minorGridLines );
@@ -151,11 +151,16 @@ public:
     void removeEventFilter() override;
 
     void updateLegend();
-    void updateAxes();
+    void updateAxes() override;
 
     RiuPlotCurve* createPlotCurve( const QString& title, const QColor& color ) override;
 
     void detachItems( RiuPlotWidget::PlotItemType plotItemType ) override;
+
+    void findClosestPlotItem( const QPoint& pos,
+                              QwtPlotItem** closestItem,
+                              int*          closestCurvePoint,
+                              double*       distanceFromClick ) const;
 
 signals:
     void plotSelected( bool toggleSelection );
@@ -180,11 +185,6 @@ protected:
 
     virtual bool isZoomerActive() const;
     virtual void endZoomOperations();
-
-    void findClosestPlotItem( const QPoint& pos,
-                              QwtPlotItem** closestItem,
-                              int*          closestCurvePoint,
-                              double*       distanceFromClick ) const;
 
 private:
     void       selectClosestPlotItem( const QPoint& pos, bool toggleItemInSelection = false );
