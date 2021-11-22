@@ -1,25 +1,31 @@
 @startuml
 package Rim {
-
 PdmObject <|-- RimViewWindow
 package plots {
-RimViewWindow <|-- RimGridCrossPlot
-RimViewWindow <|-- RimSummaryPlot
-RimRiuQwtPlotOwnerInterface <|-- RimGridCrossPlot
-RimRiuQwtPlotOwnerInterface <|-- RimSummaryPlot
+RimViewWindow <|-- RimPlotWindow
+RimPlotWindow <|-- RimPlot
+RimPlot <|-- RimSummaryPlot
+}
 }
 
-package Qwt {
-QWidget <|-- QwtPlot
+package RiuQwt {
+class RiuSummaryQwtPlot
+class RiuQwtPlotWidget
 }
 
-package RiuQwt
-{
-QwtPlot <|--- RiuQwtPlot
-RiuQwtPlot <|--- RiuSummaryQwtPlot
-RiuQwtPlot -r-> RimRiuQwtPlotOwnerInterface
+package RiuQtCharts {
+class RiuSummaryQtChartsPlot
+class RiuQtChartsPlotWidget
 }
 
-RimSummaryPlot -r-> RiuSummaryQwtPlot
-RimGridCrossPlot -r-> RiuQwtPlot
+RiuPlotWidget <|--- RiuQwtPlotWidget
+RiuSummaryPlot <|-- RiuSummaryQwtPlot
+
+RiuSummaryQwtPlot --> RiuQwtPlotWidget
+RiuSummaryQtChartsPlot --> RiuQtChartsPlotWidget
+
+RiuSummaryPlot <|-- RiuSummaryQtChartsPlot
+RiuPlotWidget <|--- RiuQtChartsPlotWidget
+
+RimSummaryPlot --> RiuSummaryPlot
 @enduml
