@@ -208,8 +208,6 @@ RicRecursiveFileSearchDialog::RicRecursiveFileSearchDialog( QWidget* parent, con
 
     connect( m_browseButton, SIGNAL( clicked() ), this, SLOT( slotBrowseButtonClicked() ) );
 
-    connect( m_ensembleGroupingMode, SIGNAL( currentIndexChanged( int ) ), this, SLOT( slotFindOrCancelButtonClicked() ) );
-
     connect( m_findOrCancelButton, SIGNAL( clicked() ), this, SLOT( slotFindOrCancelButtonClicked() ) );
 
     connect( m_buttons, SIGNAL( accepted() ), this, SLOT( slotDialogOkClicked() ) );
@@ -725,8 +723,6 @@ void RicRecursiveFileSearchDialog::slotPathFilterChanged( const QString& text )
     updateEffectiveFilter();
     warningIfInvalidCharacters();
     m_findOrCancelButton->setDefault( true );
-
-    slotFindOrCancelButtonClicked();
 }
 
 //--------------------------------------------------------------------------------------------------
