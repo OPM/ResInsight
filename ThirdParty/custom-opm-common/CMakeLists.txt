@@ -84,6 +84,7 @@ add_library(${PROJECT_NAME}
     opm-common/src/opm/io/eclipse/ESmry.cpp
     opm-common/src/opm/io/eclipse/ExtESmry.cpp
     opm-common/src/opm/io/eclipse/EInit.cpp
+    opm-common/src/opm/io/eclipse/ERft.cpp
 
     # Required for use of static function RstConnection::inverse_peaceman
     opm-common/src/opm/io/eclipse/rst/connection.cpp

@@ -3,6 +3,7 @@
 #include "RiaTestDataDirectory.h"
 #include "RifOpmCommonSummary.h"
 
+#include "opm/io/eclipse/ERft.hpp"
 #include "opm/io/eclipse/ESmry.hpp"
 #include "opm/io/eclipse/ExtESmry.hpp"
 
@@ -41,5 +42,44 @@ TEST( OpmSummaryTests, ReadOpmSummaryDataListContent )
 
         RifEclipseSummaryAddress eclAdr = RifEclipseSummaryAddress::fromEclipseTextAddressParseErrorTokens( s1 );
         EXPECT_TRUE( eclAdr.isValid() );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( OpmSummaryTests, DISABLED_OpmImportRftData )
+{
+    std::vector<std::string> esmryKeywords;
+    {
+        // QString filePath = "e:/gitroot/opm-tests/model1/opm-simulation-reference/flow/MSW_MODEL_1.RFT";
+        QString filePath = "e:/gitroot/opm-tests/norne/ECL.2014.2/NORNE_ATW2013.RFT";
+
+        Opm::EclIO::ERft eRft( filePath.toStdString() );
+
+        auto wells   = eRft.listOfWells();
+        auto dates   = eRft.listOfdates();
+        auto reports = eRft.listOfRftReports();
+
+        std::cout << "\nWells:\n";
+
+        for ( const auto& w : wells )
+        {
+            std::cout << w << "\n";
+        }
+
+        for ( const auto& date : dates )
+        {
+            auto [year, month, day] = date;
+
+            std::cout << year << ", " << month << ", " << day << "\n";
+        }
+
+        for ( const auto& report : reports )
+        {
+            auto [text, date, floatValue] = report;
+
+            std::cout << text << ", " << floatValue << "\n";
+        }
     }
 }
