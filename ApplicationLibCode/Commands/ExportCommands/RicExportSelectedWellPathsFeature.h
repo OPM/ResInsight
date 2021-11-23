@@ -65,7 +65,7 @@ class RicExportSelectedWellPathsFeature : public caf::CmdFeature
                                                const RigWellPath& wellPath,
                                                const QString&     exportName,
                                                double             mdStepSize,
-                                               bool               useMdRkb,
+                                               bool               showTextMdRkb,
                                                double             rkbOffset,
                                                bool               writeProjectInfo );
 
@@ -76,7 +76,7 @@ private:
                                                const std::vector<double>& yValues,
                                                const std::vector<double>& tvdValues,
                                                const std::vector<double>& mdValues,
-                                               bool                       useMdRkb,
+                                               bool                       showTextMdRkb,
                                                bool                       writeProjectInfo );
 
     bool isCommandEnabled() override;
