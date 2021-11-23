@@ -149,13 +149,15 @@ void RivExtrudedCurveIntersectionGeometryGenerator::calculateTransformedPolyline
 
     for ( size_t lineIdx = 0; lineIdx < m_polylines.size(); ++lineIdx )
     {
-        auto        flatPolyline = m_transformedPolyLines.emplace_back();
-        const auto& polyline     = m_polylines[lineIdx];
+        std::vector<cvf::Vec3d> flatPolyline;
 
+        const auto& polyline = m_polylines[lineIdx];
         for ( size_t index = 0; index < polyline.size(); ++index )
         {
             flatPolyline.push_back( transformPointByPolylineSegmentIndex( polyline[index], lineIdx, index ) );
         }
+
+        m_transformedPolyLines.emplace_back( flatPolyline );
     }
 }
 
