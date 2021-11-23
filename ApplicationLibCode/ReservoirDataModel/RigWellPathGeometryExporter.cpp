@@ -20,6 +20,7 @@
 
 #include "RigWellPath.h"
 
+#include "RimFileWellPath.h"
 #include "RimModeledWellPath.h"
 #include "RimWellPath.h"
 #include "RimWellPathGeometryDef.h"
@@ -40,21 +41,28 @@ void RigWellPathGeometryExporter::exportWellPathGeometry( gsl::not_null<const Ri
 
     useMdRkb         = false;
     double rkbOffset = 0.0;
+
     {
+        auto topLevelWellPath = wellPath.get()->topLevelWellPath();
+
         // Always use top level modeled well path for definitions MD at first coordinate
 
-        const RimModeledWellPath* modeledWellPath =
-            dynamic_cast<const RimModeledWellPath*>( wellPath.get()->topLevelWellPath() );
-
+        const RimModeledWellPath* modeledWellPath = dynamic_cast<const RimModeledWellPath*>( topLevelWellPath );
         if ( modeledWellPath )
         {
-            useMdRkb = true;
             if ( modeledWellPath->geometryDefinition()->airGap() != 0.0 )
             {
+                useMdRkb  = true;
                 rkbOffset = modeledWellPath->geometryDefinition()->airGap();
             }
         }
+
+        if ( dynamic_cast<const RimFileWellPath*>( topLevelWellPath ) )
+        {
+            useMdRkb = true;
+        }
     }
+
     exportWellPathGeometry( *wellPathGeom, mdStepSize, rkbOffset, xValues, yValues, tvdValues, mdValues );
 }
 
