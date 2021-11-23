@@ -49,7 +49,13 @@ TEST( RigWellPathGeometryExporter, VerticalPath )
     std::vector<double> yValues;
     std::vector<double> tvdValues;
     std::vector<double> mdValues;
-    RigWellPathGeometryExporter::exportWellPathGeometry( rigWellPath, mdStepSize, rkbOffset, xValues, yValues, tvdValues, mdValues );
+    RigWellPathGeometryExporter::computeWellPathDataForExport( rigWellPath,
+                                                               mdStepSize,
+                                                               rkbOffset,
+                                                               xValues,
+                                                               yValues,
+                                                               tvdValues,
+                                                               mdValues );
 
     double firstMd               = inputMds.front();
     double lastMd                = inputMds.back();

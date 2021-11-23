@@ -28,18 +28,18 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigWellPathGeometryExporter::exportWellPathGeometry( gsl::not_null<const RimWellPath*> wellPath,
-                                                          double                            mdStepSize,
-                                                          std::vector<double>&              xValues,
-                                                          std::vector<double>&              yValues,
-                                                          std::vector<double>&              tvdValues,
-                                                          std::vector<double>&              mdValues,
-                                                          bool&                             useMdRkb )
+void RigWellPathGeometryExporter::computeWellPathDataForExport( gsl::not_null<const RimWellPath*> wellPath,
+                                                                double                            mdStepSize,
+                                                                std::vector<double>&              xValues,
+                                                                std::vector<double>&              yValues,
+                                                                std::vector<double>&              tvdValues,
+                                                                std::vector<double>&              mdValues,
+                                                                bool&                             showTextMdRkb )
 {
     auto wellPathGeom = wellPath->wellPathGeometry();
     if ( !wellPathGeom ) return;
 
-    useMdRkb         = false;
+    showTextMdRkb    = false;
     double rkbOffset = 0.0;
 
     {
@@ -52,30 +52,30 @@ void RigWellPathGeometryExporter::exportWellPathGeometry( gsl::not_null<const Ri
         {
             if ( modeledWellPath->geometryDefinition()->airGap() != 0.0 )
             {
-                useMdRkb  = true;
-                rkbOffset = modeledWellPath->geometryDefinition()->airGap();
+                showTextMdRkb = true;
+                rkbOffset     = modeledWellPath->geometryDefinition()->airGap();
             }
         }
 
         if ( dynamic_cast<const RimFileWellPath*>( topLevelWellPath ) )
         {
-            useMdRkb = true;
+            showTextMdRkb = true;
         }
     }
 
-    exportWellPathGeometry( *wellPathGeom, mdStepSize, rkbOffset, xValues, yValues, tvdValues, mdValues );
+    computeWellPathDataForExport( *wellPathGeom, mdStepSize, rkbOffset, xValues, yValues, tvdValues, mdValues );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigWellPathGeometryExporter::exportWellPathGeometry( const RigWellPath&   wellPathGeom,
-                                                          double               mdStepSize,
-                                                          double               rkbOffset,
-                                                          std::vector<double>& xValues,
-                                                          std::vector<double>& yValues,
-                                                          std::vector<double>& tvdValues,
-                                                          std::vector<double>& mdValues )
+void RigWellPathGeometryExporter::computeWellPathDataForExport( const RigWellPath&   wellPathGeom,
+                                                                double               mdStepSize,
+                                                                double               rkbOffset,
+                                                                std::vector<double>& xValues,
+                                                                std::vector<double>& yValues,
+                                                                std::vector<double>& tvdValues,
+                                                                std::vector<double>& mdValues )
 {
     double currMd = wellPathGeom.measuredDepths().front() - mdStepSize;
     double endMd  = wellPathGeom.measuredDepths().back();

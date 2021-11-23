@@ -65,10 +65,16 @@ void RicExportSelectedWellPathsFeature::exportWellPath( gsl::not_null<const RimW
     std::vector<double> tvdValues;
     std::vector<double> mdValues;
 
-    bool useMdRkb = false;
-    RigWellPathGeometryExporter::exportWellPathGeometry( wellPath, mdStepSize, xValues, yValues, tvdValues, mdValues, useMdRkb );
+    bool showTextMdRkb = false;
+    RigWellPathGeometryExporter::computeWellPathDataForExport( wellPath,
+                                                               mdStepSize,
+                                                               xValues,
+                                                               yValues,
+                                                               tvdValues,
+                                                               mdValues,
+                                                               showTextMdRkb );
 
-    writeWellPathGeometryToStream( *stream, wellPath->name(), xValues, yValues, tvdValues, mdValues, useMdRkb, writeProjectInfo );
+    writeWellPathGeometryToStream( *stream, wellPath->name(), xValues, yValues, tvdValues, mdValues, showTextMdRkb, writeProjectInfo );
     filePtr->close();
 
     RiaLogging::info( QString( "Exported well geometry to %1" ).arg( filePtr->fileName() ) );
@@ -81,7 +87,7 @@ void RicExportSelectedWellPathsFeature::writeWellPathGeometryToStream( QTextStre
                                                                        const RigWellPath& wellPathGeom,
                                                                        const QString&     exportName,
                                                                        double             mdStepSize,
-                                                                       bool               useMdRkb,
+                                                                       bool               showTextMdRkb,
                                                                        double             rkbOffset,
                                                                        bool               writeProjectInfo )
 {
@@ -90,8 +96,14 @@ void RicExportSelectedWellPathsFeature::writeWellPathGeometryToStream( QTextStre
     std::vector<double> tvdValues;
     std::vector<double> mdValues;
 
-    RigWellPathGeometryExporter::exportWellPathGeometry( wellPathGeom, mdStepSize, rkbOffset, xValues, yValues, tvdValues, mdValues );
-    writeWellPathGeometryToStream( stream, exportName, xValues, yValues, tvdValues, mdValues, useMdRkb, writeProjectInfo );
+    RigWellPathGeometryExporter::computeWellPathDataForExport( wellPathGeom,
+                                                               mdStepSize,
+                                                               rkbOffset,
+                                                               xValues,
+                                                               yValues,
+                                                               tvdValues,
+                                                               mdValues );
+    writeWellPathGeometryToStream( stream, exportName, xValues, yValues, tvdValues, mdValues, showTextMdRkb, writeProjectInfo );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -103,7 +115,7 @@ void RicExportSelectedWellPathsFeature::writeWellPathGeometryToStream( QTextStre
                                                                        const std::vector<double>& yValues,
                                                                        const std::vector<double>& tvdValues,
                                                                        const std::vector<double>& mdValues,
-                                                                       bool                       useMdRkb,
+                                                                       bool                       showTextMdRkb,
                                                                        bool                       writeProjectInfo )
 {
     RifTextDataTableFormatter formatter( stream );
@@ -124,7 +136,7 @@ void RicExportSelectedWellPathsFeature::writeWellPathGeometryToStream( QTextStre
     formatter.header( { { "X", numberFormat, RIGHT },
                         { "Y", numberFormat, RIGHT },
                         { "TVDMSL", numberFormat, RIGHT },
-                        { useMdRkb ? "MDRKB" : "MDMSL", numberFormat, RIGHT } } );
+                        { showTextMdRkb ? "MDRKB" : "MDMSL", numberFormat, RIGHT } } );
 
     for ( size_t i = 0; i < xValues.size(); i++ )
     {

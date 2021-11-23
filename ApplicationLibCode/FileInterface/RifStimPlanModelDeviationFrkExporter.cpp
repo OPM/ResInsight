@@ -48,13 +48,19 @@ bool RifStimPlanModelDeviationFrkExporter::writeToFile( RimStimPlanModel* stimPl
     QTextStream stream( &data );
     appendHeaderToStream( stream );
 
-    bool                useMdRkb   = false;
-    double              mdStepSize = 5.0;
+    bool                showTextMdRkb = false;
+    double              mdStepSize    = 5.0;
     std::vector<double> xValues;
     std::vector<double> yValues;
     std::vector<double> tvdValues;
     std::vector<double> mdValues;
-    RigWellPathGeometryExporter::exportWellPathGeometry( wellPath, mdStepSize, xValues, yValues, tvdValues, mdValues, useMdRkb );
+    RigWellPathGeometryExporter::computeWellPathDataForExport( wellPath,
+                                                               mdStepSize,
+                                                               xValues,
+                                                               yValues,
+                                                               tvdValues,
+                                                               mdValues,
+                                                               showTextMdRkb );
     convertFromMeterToFeet( mdValues );
     convertFromMeterToFeet( tvdValues );
 
