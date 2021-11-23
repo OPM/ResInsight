@@ -27,6 +27,7 @@ CAF_CMD_SOURCE_INIT( RicPasteModeledWellPathFeature, "RicPasteModeledWellPathFea
 #include "RimProject.h"
 #include "RimTools.h"
 #include "RimWellPathCollection.h"
+#include "RimWellPathFracture.h"
 #include "RimWellPathTieIn.h"
 
 #include "Riu3DMainWindowTools.h"
@@ -73,16 +74,9 @@ void RicPasteModeledWellPathFeature::onActionTriggered( bool isChecked )
             RimModeledWellPath* wellPathToSelect = nullptr;
             for ( auto sourceWellPath : modeledWellPathsFromClipboard() )
             {
-                RimModeledWellPath* destinationWellPath = dynamic_cast<RimModeledWellPath*>(
-                    sourceWellPath->xmlCapability()->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
+                auto destinationWellPath = duplicateAndInitializeWellPath( sourceWellPath );
 
-                QString name = sourceWellPath->name() + " (copy)";
-                destinationWellPath->setName( name );
-
-                wellPathCollection->addWellPath( destinationWellPath, false );
                 wellPathToSelect = destinationWellPath;
-
-                duplicateLaterals( sourceWellPath, destinationWellPath );
             }
 
             RimTools::wellPathCollection()->rebuildWellPathNodes();
@@ -128,7 +122,7 @@ std::vector<RimModeledWellPath*> RicPasteModeledWellPathFeature::modeledWellPath
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicPasteModeledWellPathFeature::duplicateLaterals( RimModeledWellPath* source, RimModeledWellPath* destination )
+void RicPasteModeledWellPathFeature::duplicateLaterals( const RimModeledWellPath* source, RimModeledWellPath* destination )
 {
     auto wpc = RimTools::wellPathCollection();
 
@@ -140,16 +134,42 @@ void RicPasteModeledWellPathFeature::duplicateLaterals( RimModeledWellPath* sour
         auto sourceLateral = dynamic_cast<RimModeledWellPath*>( lateral );
         if ( !sourceLateral ) continue;
 
-        auto* destinationLateral = dynamic_cast<RimModeledWellPath*>(
-            sourceLateral->xmlCapability()->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
-
-        QString name = sourceLateral->name() + " (copy)";
-        destinationLateral->setName( name );
-
-        wpc->addWellPath( destinationLateral, false );
+        auto destinationLateral = duplicateAndInitializeWellPath( sourceLateral );
 
         destinationLateral->connectWellPaths( destination, sourceLateral->wellPathTieIn()->tieInMeasuredDepth() );
-
-        duplicateLaterals( sourceLateral, destinationLateral );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimModeledWellPath* RicPasteModeledWellPathFeature::duplicateAndInitializeWellPath( const RimModeledWellPath* sourceWellPath )
+{
+    if ( !sourceWellPath ) return nullptr;
+
+    auto wpc = RimTools::wellPathCollection();
+
+    auto* destinationWellPath = dynamic_cast<RimModeledWellPath*>(
+        sourceWellPath->xmlCapability()->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
+
+    QString name = sourceWellPath->name() + " (copy)";
+    destinationWellPath->setName( name );
+
+    wpc->addWellPath( destinationWellPath, false );
+
+    // Resolve references, will connect to the fracture template
+    destinationWellPath->resolveReferencesRecursively();
+
+    std::vector<RimWellPathFracture*> wellPathFractures;
+    destinationWellPath->descendantsIncludingThisOfType( wellPathFractures );
+    destinationWellPath->createWellPathGeometry();
+
+    for ( auto fracture : wellPathFractures )
+    {
+        fracture->loadDataAndUpdate();
+    }
+
+    duplicateLaterals( sourceWellPath, destinationWellPath );
+
+    return destinationWellPath;
 }
