@@ -25,6 +25,8 @@
 
 #include <QLineSeries>
 
+class RiuQtChartsPlotWidget;
+
 //==================================================================================================
 //
 //==================================================================================================
@@ -63,28 +65,16 @@ public:
 
     void detach() override;
 
+    void setXAxis( RiaDefines::PlotAxis axis ) override;
     void setYAxis( RiaDefines::PlotAxis axis ) override;
 
 protected:
-    // void drawCurve( QPainter*          p,
-    //                 int                style,
-    //                 const QtChartsScaleMap& xMap,
-    //                 const QtChartsScaleMap& yMap,
-    //                 const QRectF&      canvasRect,
-    //                 int                from,
-    //                 int                to ) const override;
-
-    // void drawSymbols( QPainter*          p,
-    //                   const QtChartsSymbol&   symbol,
-    //                   const QtChartsScaleMap& xMap,
-    //                   const QtChartsScaleMap& yMap,
-    //                   const QRectF&      canvasRect,
-    //                   int                from,
-    //                   int                to ) const override;
-
     void setSamplesInPlot( const std::vector<double>&, const std::vector<double>&, int ) override;
 
     cvf::BoundingBox computeBoundingBox() const;
 
     QtCharts::QLineSeries* m_lineSeries;
+    RiuQtChartsPlotWidget* m_plotWidget;
+    RiaDefines::PlotAxis   m_axisX;
+    RiaDefines::PlotAxis   m_axisY;
 };
