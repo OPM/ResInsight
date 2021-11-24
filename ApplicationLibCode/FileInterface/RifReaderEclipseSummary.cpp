@@ -85,15 +85,11 @@ bool RifReaderEclipseSummary::open( const QString& headerFileName, RiaThreadSafe
     if ( prefSummary->summaryDataReader() == RiaPreferencesSummary::SummaryReaderMode::HDF5_OPM_COMMON ||
          prefSummary->summaryDataReader() == RiaPreferencesSummary::SummaryReaderMode::OPM_COMMON )
     {
-        bool h5FileFound = false;
-        {
-            QFileInfo fi( headerFileName );
-            QString   basenameNoExtension = fi.absolutePath() + "/" + fi.baseName();
+        QFileInfo fi( headerFileName );
+        QString   basenameNoExtension = fi.absolutePath() + "/" + fi.baseName();
+        QString   h5FileName          = basenameNoExtension + ".h5";
 
-            QString h5FileName = basenameNoExtension + ".h5";
-
-            h5FileFound = QFile::exists( h5FileName );
-        }
+        bool h5FileFound = QFile::exists( h5FileName );
 
         if ( h5FileFound ||
              ( prefSummary->summaryDataReader() == RiaPreferencesSummary::SummaryReaderMode::HDF5_OPM_COMMON ) )
@@ -101,27 +97,28 @@ bool RifReaderEclipseSummary::open( const QString& headerFileName, RiaThreadSafe
 #ifdef USE_HDF5
             if ( prefSummary->createH5SummaryDataFiles() )
             {
-                QFileInfo fi( headerFileName );
-                QString   h5FilenameCandidate = fi.absolutePath() + "/" + fi.baseName() + ".h5";
-
                 size_t createdH5FileCount = 0;
                 RifHdf5SummaryExporter::ensureHdf5FileIsCreated( headerFileName.toStdString(),
-                                                                 h5FilenameCandidate.toStdString(),
+                                                                 h5FileName.toStdString(),
                                                                  createdH5FileCount );
 
                 if ( createdH5FileCount > 0 )
                 {
-                    QString txt = QString( "Created %1 " ).arg( h5FilenameCandidate );
+                    QString txt = QString( "Created %1 " ).arg( h5FileName );
                     if ( threadSafeLogger ) threadSafeLogger->info( txt );
                 }
+                h5FileFound = QFile::exists( h5FileName );
             }
 
-            auto hdfReader = std::make_unique<RifOpmHdf5Summary>();
-
-            isValid = hdfReader->open( headerFileName, false, threadSafeLogger );
-            if ( isValid )
+            if ( h5FileFound )
             {
-                m_summaryReader = std::move( hdfReader );
+                auto hdfReader = std::make_unique<RifOpmHdf5Summary>();
+
+                isValid = hdfReader->open( headerFileName, false, threadSafeLogger );
+                if ( isValid )
+                {
+                    m_summaryReader = std::move( hdfReader );
+                }
             }
 #endif
         }
