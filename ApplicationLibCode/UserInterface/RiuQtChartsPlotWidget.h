@@ -159,9 +159,14 @@ public:
 
     QtCharts::QChart* qtChart();
 
-    void attach( QtCharts::QAbstractSeries* series );
+    void attach( QtCharts::QAbstractSeries* series, RiaDefines::PlotAxis xAxis, RiaDefines::PlotAxis yAxis );
+
+    void setXAxis( RiaDefines::PlotAxis axis, QtCharts::QAbstractSeries* series );
+    void setYAxis( RiaDefines::PlotAxis axis, QtCharts::QAbstractSeries* series );
 
 protected:
+    void setAxis( RiaDefines::PlotAxis axis, QtCharts::QAbstractSeries* series );
+
     bool eventFilter( QObject* watched, QEvent* event ) override;
     void hideEvent( QHideEvent* event ) override;
     void showEvent( QShowEvent* event ) override;
@@ -202,8 +207,7 @@ private:
 
     QPointer<QtCharts::QChartView> m_viewer;
 
-    QtCharts::QValueAxis* m_axisX;
-    QtCharts::QValueAxis* m_axisY;
+    std::map<RiaDefines::PlotAxis, QtCharts::QValueAxis*> m_axes;
 
     friend class RiaPlotWindowRedrawScheduler;
 };
