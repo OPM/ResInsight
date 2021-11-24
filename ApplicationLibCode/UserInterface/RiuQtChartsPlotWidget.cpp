@@ -41,7 +41,6 @@
 #include <QValueAxis>
 
 #include <limits>
-#include <qnamespace.h>
 
 using namespace QtCharts;
 
@@ -58,7 +57,7 @@ RiuQtChartsPlotWidget::RiuQtChartsPlotWidget( RimPlot* plotDefinition, QWidget* 
 
     QtCharts::QChart* chart = new QtCharts::QChart();
 
-    m_viewer = new QtCharts::QChartView( chart, parent ); // RiuQtChartView( this, parent );
+    m_viewer = new QtCharts::QChartView( chart, parent );
     m_viewer->setRenderHint( QPainter::Antialiasing );
 
     layout->addWidget( m_viewer );
@@ -128,27 +127,22 @@ void RiuQtChartsPlotWidget::setAxisFontsAndAlignment( RiaDefines::PlotAxis axis,
                                                       bool                 titleBold,
                                                       int                  alignment )
 {
-    // int titleFontPixelSize = caf::FontTools::pointSizeToPixelSize( titleFontSize );
-    // int valueFontPixelSize = caf::FontTools::pointSizeToPixelSize( valueFontSize );
+    int titleFontPixelSize = caf::FontTools::pointSizeToPixelSize( titleFontSize );
+    int valueFontPixelSize = caf::FontTools::pointSizeToPixelSize( valueFontSize );
 
-    // // Axis number font
+    // Axis number font
+    QFont axisFont = plotAxis( axis )->labelsFont();
+    axisFont.setPixelSize( valueFontPixelSize );
+    axisFont.setBold( false );
+    plotAxis( axis )->setLabelsFont( axisFont );
 
-    // int   qwtAxis  = RiuQwtPlotTools::toQwtPlotAxis( axis );
-    // QFont axisFont = m_plot->axisFont( qwtAxis );
-    // axisFont.setPixelSize( valueFontPixelSize );
-    // axisFont.setBold( false );
-    // m_plot->setAxisFont( qwtAxis, axisFont );
+    // Axis title font
+    QFont axisTitleFont = plotAxis( axis )->labelsFont();
+    axisTitleFont.setPixelSize( titleFontPixelSize );
+    axisTitleFont.setBold( titleBold );
+    plotAxis( axis )->setTitleFont( axisTitleFont );
 
-    // // Axis title font
-    // QwtText axisTitle     = m_plot->axisTitle( qwtAxis );
-    // QFont   axisTitleFont = axisTitle.font();
-    // axisTitleFont.setPixelSize( titleFontPixelSize );
-    // axisTitleFont.setBold( titleBold );
-    // axisTitle.setFont( axisTitleFont );
-    // axisTitle.setRenderFlags( alignment | Qt::TextWordWrap );
-
-    // m_plot->setAxisTitle( qwtAxis, axisTitle );
-    // applyAxisTitleToQwt( axis );
+    applyAxisTitleToPlot( axis );
 }
 
 //--------------------------------------------------------------------------------------------------
