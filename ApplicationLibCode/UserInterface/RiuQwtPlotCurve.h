@@ -70,6 +70,7 @@ public:
         bool                         keepOnlyPositiveValues,
         RiaCurveDataTools::ErrorAxis errorAxis = RiaCurveDataTools::ErrorAxis::ERROR_ALONG_Y_AXIS ) override;
 
+    void setXAxis( RiaDefines::PlotAxis axis ) override;
     void setYAxis( RiaDefines::PlotAxis axis ) override;
 
 protected:

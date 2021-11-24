@@ -20,6 +20,7 @@
 
 #include "RiaCurveDataTools.h"
 #include "RiaImageTools.h"
+#include "RiaPlotDefines.h"
 #include "RiaTimeTTools.h"
 
 #include "RiuQtChartsPlotWidget.h"
@@ -34,8 +35,13 @@
 RiuQtChartsPlotCurve::RiuQtChartsPlotCurve( const QString& title )
     : RiuPlotCurve()
 {
+    m_plotWidget = nullptr;
+
     m_lineSeries = new QtCharts::QLineSeries();
     m_lineSeries->setName( title );
+
+    m_axisX = RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM;
+    m_axisY = RiaDefines::PlotAxis::PLOT_AXIS_LEFT;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -52,141 +58,6 @@ void RiuQtChartsPlotCurve::setTitle( const QString& title )
 {
     m_lineSeries->setName( title );
 }
-
-// void RiuQtChartsPlotCurve::drawCurve( QPainter*          p,
-//                                  int                style,
-//                                  const QwtScaleMap& xMap,
-//                                  const QwtScaleMap& yMap,
-//                                  const QRectF&      canvasRect,
-//                                  int                from,
-//                                  int                to ) const
-// {
-//     size_t intervalCount = m_polyLineStartStopIndices.size();
-//     if ( intervalCount > 0 )
-//     {
-//         for ( size_t intIdx = 0; intIdx < intervalCount; intIdx++ )
-//         {
-//             if ( m_polyLineStartStopIndices[intIdx].first == m_polyLineStartStopIndices[intIdx].second )
-//             {
-//                 // Use a symbol to draw a single value, as a single value will not be visible
-//                 // when using QtChartsPlotCurve::drawCurve without symbols activated
-
-//                 QwtSymbol symbol( QwtSymbol::XCross );
-//                 symbol.setSize( 10, 10 );
-
-//                 QtChartsPlotCurve::drawSymbols( p,
-//                                            symbol,
-//                                            xMap,
-//                                            yMap,
-//                                            canvasRect,
-//                                            (int)m_polyLineStartStopIndices[intIdx].first,
-//                                            (int)m_polyLineStartStopIndices[intIdx].second );
-//             }
-//             else
-//             {
-//                 QtChartsPlotCurve::drawCurve( p,
-//                                          style,
-//                                          xMap,
-//                                          yMap,
-//                                          canvasRect,
-//                                          (int)m_polyLineStartStopIndices[intIdx].first,
-//                                          (int)m_polyLineStartStopIndices[intIdx].second );
-//             }
-//         }
-//     }
-//     else
-//     {
-//         QtChartsPlotCurve::drawCurve( p, style, xMap, yMap, canvasRect, from, to );
-//     }
-// };
-
-//--------------------------------------------------------------------------------------------------
-/// Drawing symbols but skipping if they are to close to the previous one
-//--------------------------------------------------------------------------------------------------
-// void RiuQtChartsPlotCurve::drawSymbols( QPainter*          painter,
-//                                    const QwtSymbol&   symbol,
-//                                    const QwtScaleMap& xMap,
-//                                    const QwtScaleMap& yMap,
-//                                    const QRectF&      canvasRect,
-//                                    int                from,
-//                                    int                to ) const
-// {
-//     QwtPointMapper mapper;
-//     bool           filterSymbols = m_symbolSkipPixelDistance > 0;
-
-//     if ( filterSymbols )
-//     {
-//         mapper.setFlag( QwtPointMapper::RoundPoints, QwtPainter::roundingAlignment( painter ) );
-//         mapper.setFlag( QwtPointMapper::WeedOutPoints, testPaintAttribute( QtChartsPlotCurve::FilterPoints ) );
-//         mapper.setBoundingRect( canvasRect );
-//     }
-
-//     const QPolygonF points     = mapper.toPointsF( xMap, yMap, data(), from, to );
-//     int             pointCount = points.size();
-//     QPolygonF       pointsToDisplay;
-
-//     if ( filterSymbols )
-//     {
-//         QPointF lastDrawnSymbolPos;
-
-//         if ( pointCount > 0 )
-//         {
-//             pointsToDisplay.push_back( points[0] );
-//             lastDrawnSymbolPos = points[0];
-//         }
-
-//         float sqSkipDist       = m_symbolSkipPixelDistance * m_symbolSkipPixelDistance;
-//         float sqSkipToLastDiff = m_symbolSkipPixelDistance / 10 * m_symbolSkipPixelDistance / 10;
-//         for ( int pIdx = 1; pIdx < pointCount - 1; ++pIdx )
-//         {
-//             QPointF diff                 = points[pIdx] - lastDrawnSymbolPos;
-//             float   sqDistBetweenSymbols = diff.x() * diff.x() + diff.y() * diff.y();
-
-//             if ( sqDistBetweenSymbols > sqSkipDist )
-//             {
-//                 if ( pIdx == pointCount - 2 )
-//                 {
-//                     QPointF diffToBack   = points.back() - points[pIdx];
-//                     float   sqDistToBack = diffToBack.x() * diffToBack.x() + diffToBack.y() * diffToBack.y();
-//                     if ( sqDistToBack < sqSkipToLastDiff ) continue;
-//                 }
-//                 pointsToDisplay.push_back( points[pIdx] );
-//                 lastDrawnSymbolPos = points[pIdx];
-//             }
-//         }
-
-//         if ( pointCount > 1 ) pointsToDisplay.push_back( points.back() );
-//     }
-//     else
-//     {
-//         pointsToDisplay = points;
-//     }
-
-//     if ( pointsToDisplay.size() > 0 )
-//     {
-//         symbol.drawSymbols( painter, pointsToDisplay );
-
-//         const RiuQwtSymbol* sym = dynamic_cast<const RiuQwtSymbol*>( &symbol );
-
-//         if ( sym )
-//         {
-//             if ( m_perPointLabels.size() == static_cast<size_t>( pointsToDisplay.size() ) )
-//             {
-//                 for ( int i = 0; i < pointsToDisplay.size(); ++i )
-//                 {
-//                     sym->renderSymbolLabel( painter, pointsToDisplay[i], m_perPointLabels[i] );
-//                 }
-//             }
-//             else if ( !sym->globalLabel().isEmpty() )
-//             {
-//                 for ( auto& pt : pointsToDisplay )
-//                 {
-//                     sym->renderSymbolLabel( painter, pt, sym->globalLabel() );
-//                 }
-//             }
-//         }
-//     }
-// }
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -245,7 +116,6 @@ void RiuQtChartsPlotCurve::setAppearance( RiuQwtPlotCurveDefines::LineStyleEnum 
     // setBrush( fillBrush );
 }
 
-#include <cmath>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -267,11 +137,9 @@ void RiuQtChartsPlotCurve::setBrush( const QBrush& brush )
 //--------------------------------------------------------------------------------------------------
 void RiuQtChartsPlotCurve::attachToPlot( RiuPlotWidget* plotWidget )
 {
-    RiuQtChartsPlotWidget* qtChartsPlotWidget = dynamic_cast<RiuQtChartsPlotWidget*>( plotWidget );
-
-    qtChartsPlotWidget->attach( m_lineSeries );
-    // qtChart()->addSeries( m_lineSeries );
-    // qtChartsPlotWidget->qtChart()->setAxisX(axisX, series);
+    m_plotWidget = dynamic_cast<RiuQtChartsPlotWidget*>( plotWidget );
+    CAF_ASSERT( m_plotWidget );
+    m_plotWidget->attach( m_lineSeries, m_axisX, m_axisY );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -280,7 +148,9 @@ void RiuQtChartsPlotCurve::attachToPlot( RiuPlotWidget* plotWidget )
 void RiuQtChartsPlotCurve::detach()
 {
     // TODO: not sure about this one..
+    m_plotWidget = nullptr;
     m_lineSeries->hide();
+    m_lineSeries->chart()->removeSeries( m_lineSeries );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -325,8 +195,19 @@ void RiuQtChartsPlotCurve::clearErrorBars()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RiuQtChartsPlotCurve::setXAxis( RiaDefines::PlotAxis axis )
+{
+    m_axisX = axis;
+    if ( m_plotWidget ) m_plotWidget->setXAxis( axis, m_lineSeries );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiuQtChartsPlotCurve::setYAxis( RiaDefines::PlotAxis axis )
 {
+    m_axisY = axis;
+    if ( m_plotWidget ) m_plotWidget->setYAxis( axis, m_lineSeries );
 }
 
 //--------------------------------------------------------------------------------------------------

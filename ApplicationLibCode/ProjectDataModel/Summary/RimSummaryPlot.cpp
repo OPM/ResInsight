@@ -50,6 +50,7 @@
 #include "RimSummaryTimeAxisProperties.h"
 
 #include "RiuPlotMainWindowTools.h"
+#include "RiuSummaryQtChartsPlot.h"
 #include "RiuSummaryQwtPlot.h"
 #include "RiuTreeViewEventFilter.h"
 
@@ -859,10 +860,7 @@ void RimSummaryPlot::updateYAxis( RiaDefines::PlotAxis plotAxis )
                                           {},
                                           visibleAsciiDataCurvesForAxis( plotAxis ),
                                           timeHistoryQuantities );
-
-        // TODO: fix me!!!
-        RiuQwtPlotWidget* qwtPlotWidget = dynamic_cast<RiuQwtPlotWidget*>( plotWidget() );
-        if ( qwtPlotWidget ) calc.applyAxisPropertiesToPlot( qwtPlotWidget );
+        calc.applyAxisPropertiesToPlot( plotWidget() );
     }
     else
     {
@@ -1187,9 +1185,7 @@ void RimSummaryPlot::updateBottomXAxis()
                                           {},
                                           visibleAsciiDataCurvesForAxis( RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM ),
                                           timeHistoryQuantities );
-        // TODO: fix me!!!
-        RiuQwtPlotWidget* qwtPlotWidget = dynamic_cast<RiuQwtPlotWidget*>( plotWidget() );
-        if ( qwtPlotWidget ) calc.applyAxisPropertiesToPlot( qwtPlotWidget );
+        calc.applyAxisPropertiesToPlot( plotWidget() );
     }
     else
     {
