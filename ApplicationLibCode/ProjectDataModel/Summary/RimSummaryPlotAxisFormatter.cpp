@@ -112,12 +112,11 @@ RimSummaryPlotAxisFormatter::RimSummaryPlotAxisFormatter( RimPlotAxisProperties*
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryPlotAxisFormatter::applyAxisPropertiesToPlot( RiuQwtPlotWidget* qwtPlot )
+void RimSummaryPlotAxisFormatter::applyAxisPropertiesToPlot( RiuPlotWidget* plotWidget )
 {
-    if ( !qwtPlot ) return;
+    if ( !plotWidget ) return;
 
-    RiaDefines::PlotAxis axis      = m_axisProperties->plotAxisType();
-    QwtPlot::Axis        qwtAxisId = RiuQwtPlotTools::toQwtPlotAxis( axis );
+    RiaDefines::PlotAxis axis = m_axisProperties->plotAxisType();
     {
         QString axisTitle = m_axisProperties->customTitle;
         if ( m_axisProperties->useAutoTitle() ) axisTitle = autoAxisTitle();
@@ -127,48 +126,52 @@ void RimSummaryPlotAxisFormatter::applyAxisPropertiesToPlot( RiuQwtPlotWidget* q
         {
             titleAlignment = Qt::AlignRight;
         }
-        qwtPlot->setAxisTitleText( axis, axisTitle );
-        qwtPlot->setAxisFontsAndAlignment( axis,
-                                           m_axisProperties->titleFontSize(),
-                                           m_axisProperties->valuesFontSize(),
-                                           true,
-                                           titleAlignment );
-        qwtPlot->setAxisTitleEnabled( axis, true );
+        plotWidget->setAxisTitleText( axis, axisTitle );
+        plotWidget->setAxisFontsAndAlignment( axis,
+                                              m_axisProperties->titleFontSize(),
+                                              m_axisProperties->valuesFontSize(),
+                                              true,
+                                              titleAlignment );
+        plotWidget->setAxisTitleEnabled( axis, true );
     }
 
+    auto qwtPlotWidget = dynamic_cast<RiuQwtPlotWidget*>( plotWidget );
+    if ( qwtPlotWidget )
     {
+        QwtPlot::Axis qwtAxisId = RiuQwtPlotTools::toQwtPlotAxis( axis );
+
         if ( m_axisProperties->numberFormat == RimPlotAxisProperties::NUMBER_FORMAT_AUTO &&
              m_axisProperties->scaleFactor() == 1.0 )
         {
             // Default to Qwt's own scale draw to avoid changing too much for default values
-            qwtPlot->qwtPlot()->setAxisScaleDraw( qwtAxisId, new QwtScaleDraw );
+            qwtPlotWidget->qwtPlot()->setAxisScaleDraw( qwtAxisId, new QwtScaleDraw );
         }
         else
         {
-            qwtPlot->qwtPlot()->setAxisScaleDraw( qwtAxisId,
-                                                  new SummaryScaleDraw( m_axisProperties->scaleFactor(),
-                                                                        m_axisProperties->numberOfDecimals(),
-                                                                        m_axisProperties->numberFormat() ) );
+            qwtPlotWidget->qwtPlot()->setAxisScaleDraw( qwtAxisId,
+                                                        new SummaryScaleDraw( m_axisProperties->scaleFactor(),
+                                                                              m_axisProperties->numberOfDecimals(),
+                                                                              m_axisProperties->numberFormat() ) );
         }
     }
 
     {
         if ( m_axisProperties->isLogarithmicScaleEnabled )
         {
-            bool isLogScale = qwtPlot->axisScaleType( axis ) == RiuQwtPlotWidget::AxisScaleType::LOGARITHMIC;
+            bool isLogScale = plotWidget->axisScaleType( axis ) == RiuQwtPlotWidget::AxisScaleType::LOGARITHMIC;
             if ( !isLogScale )
             {
-                qwtPlot->setAxisScaleType( axis, RiuQwtPlotWidget::AxisScaleType::LOGARITHMIC );
-                qwtPlot->setAxisMaxMinor( axis, 5 );
+                plotWidget->setAxisScaleType( axis, RiuQwtPlotWidget::AxisScaleType::LOGARITHMIC );
+                plotWidget->setAxisMaxMinor( axis, 5 );
             }
         }
         else
         {
-            bool isLinearScale = qwtPlot->axisScaleType( axis ) == RiuQwtPlotWidget::AxisScaleType::LINEAR;
+            bool isLinearScale = plotWidget->axisScaleType( axis ) == RiuQwtPlotWidget::AxisScaleType::LINEAR;
             if ( !isLinearScale )
             {
-                qwtPlot->setAxisScaleType( axis, RiuQwtPlotWidget::AxisScaleType::LINEAR );
-                qwtPlot->setAxisMaxMinor( axis, 3 );
+                plotWidget->setAxisScaleType( axis, RiuQwtPlotWidget::AxisScaleType::LINEAR );
+                plotWidget->setAxisMaxMinor( axis, 3 );
             }
         }
     }

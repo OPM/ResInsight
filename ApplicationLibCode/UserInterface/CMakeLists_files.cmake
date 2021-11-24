@@ -198,16 +198,20 @@ if(Qt5Charts_FOUND)
   list(APPEND CODE_HEADER_FILES ${CMAKE_CURRENT_LIST_DIR}/RiuQtChartView.h
        ${CMAKE_CURRENT_LIST_DIR}/RiuQtChartsPlotCurve.h
        ${CMAKE_CURRENT_LIST_DIR}/RiuQtChartsPlotWidget.h
+       ${CMAKE_CURRENT_LIST_DIR}/RiuSummaryQtChartsPlot.h
+
   )
 
   list(APPEND CODE_SOURCE_FILES ${CMAKE_CURRENT_LIST_DIR}/RiuQtChartView.cpp
        ${CMAKE_CURRENT_LIST_DIR}/RiuQtChartsPlotCurve.cpp
        ${CMAKE_CURRENT_LIST_DIR}/RiuQtChartsPlotWidget.cpp
+       ${CMAKE_CURRENT_LIST_DIR}/RiuSummaryQtChartsPlot.cpp
   )
 
   list(APPEND QT_MOC_HEADERS
        # ${CMAKE_CURRENT_LIST_DIR}/RiuQtChartView.h
        ${CMAKE_CURRENT_LIST_DIR}/RiuQtChartsPlotWidget.h
+       ${CMAKE_CURRENT_LIST_DIR}/RiuSummaryQtChartsPlot.h
   )
 endif()
 
