@@ -392,9 +392,18 @@ std::pair<std::set<RifEclipseSummaryAddress>, std::map<RifEclipseSummaryAddress,
     std::set<RifEclipseSummaryAddress>              addresses;
     std::map<RifEclipseSummaryAddress, std::string> addressToNodeIndexMap;
 
+    std::vector<std::string> invalidKeywords;
+
     for ( const auto& keyword : keywords )
     {
         auto eclAdr = RifEclipseSummaryAddress::fromEclipseTextAddress( keyword );
+        if ( !eclAdr.isValid() )
+        {
+            invalidKeywords.push_back( keyword );
+
+            // If a category is not found, use the MISC category
+            eclAdr = RifEclipseSummaryAddress::miscAddress( keyword );
+        }
 
         if ( eclAdr.isValid() )
         {
@@ -402,6 +411,15 @@ std::pair<std::set<RifEclipseSummaryAddress>, std::map<RifEclipseSummaryAddress,
             addressToNodeIndexMap[eclAdr] = keyword;
         }
     }
+
+    // DEBUG code
+    // Used to print keywords not being categorized correctly
+    /*
+        for ( const auto& kw : invalidKeywords )
+        {
+            RiaLogging::warning( QString::fromStdString( kw ) );
+        }
+    */
 
     return { addresses, addressToNodeIndexMap };
 }
