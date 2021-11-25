@@ -299,27 +299,27 @@ TEST( RifEclipseSummaryAddressTest, TestQuantityNameManipulations )
 {
     {
         auto s = RifEclipseSummaryAddress::baseQuantityName( "FOPT" );
-        EXPECT_EQ( "FOPT", s.toStdString() );
+        EXPECT_EQ( "FOPT", s );
     }
 
     {
         auto s = RifEclipseSummaryAddress::baseQuantityName( "FOPT_1" );
-        EXPECT_EQ( "FOPT", s.toStdString() );
+        EXPECT_EQ( "FOPT", s );
     }
 
     {
         auto s = RifEclipseSummaryAddress::baseQuantityName( "FOPR" );
-        EXPECT_EQ( "FOPR", s.toStdString() );
+        EXPECT_EQ( "FOPR", s );
     }
 
     {
         auto s = RifEclipseSummaryAddress::baseQuantityName( "FOPR_1" );
-        EXPECT_EQ( "FOPR", s.toStdString() );
+        EXPECT_EQ( "FOPR", s );
     }
 
     {
         // https://github.com/OPM/ResInsight/issues/6481
         auto s = RifEclipseSummaryAddress::baseQuantityName( "FCMIT_1" );
-        EXPECT_EQ( "FCMIT", s.toStdString() );
+        EXPECT_EQ( "FCMIT", s );
     }
 }
