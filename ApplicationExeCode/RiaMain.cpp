@@ -109,10 +109,16 @@ int main( int argc, char* argv[] )
 
     if ( status == RiaApplication::ApplicationStatus::EXIT_COMPLETED )
     {
+        // Make sure project is closed to avoid assert and crash in destruction of widgets
+        app->closeProject();
+
         return 0;
     }
     else if ( status == RiaApplication::ApplicationStatus::EXIT_WITH_ERROR )
     {
+        // Make sure project is closed to avoid assert and crash in destruction of widgets
+        app->closeProject();
+
         return 2;
     }
     else if ( status == RiaApplication::ApplicationStatus::KEEP_GOING )
