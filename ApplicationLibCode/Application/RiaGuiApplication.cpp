@@ -776,8 +776,6 @@ RiaApplication::ApplicationStatus RiaGuiApplication::handleArguments( gsl::not_n
 
         RiuMainWindow::instance()->loadWinGeoAndDockToolBarLayout();
 
-        closeProject();
-
         return ApplicationStatus::EXIT_COMPLETED;
     }
 
