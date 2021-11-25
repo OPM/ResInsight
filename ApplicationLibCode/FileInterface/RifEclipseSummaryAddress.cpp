@@ -160,18 +160,20 @@ RifEclipseSummaryAddress::SummaryVarCategory RifEclipseSummaryAddress::identifyC
 {
     if ( quantityName.size() < 3 || quantityName.size() > 8 ) return SUMMARY_INVALID;
 
+    auto strippedQuantityName = baseQuantityName( quantityName );
+
     // First, try to lookup vector in vector table
-    auto category = RiuSummaryQuantityNameInfoProvider::instance()->categoryFromQuantityName( quantityName );
+    auto category = RiuSummaryQuantityNameInfoProvider::instance()->categoryFromQuantityName( strippedQuantityName );
     if ( category != SUMMARY_INVALID ) return category;
 
     // Then check LGR categories
-    std::string firstTwoLetters = quantityName.substr( 0, 2 );
+    std::string firstTwoLetters = strippedQuantityName.substr( 0, 2 );
 
     if ( firstTwoLetters == "LB" ) return SUMMARY_BLOCK_LGR;
     if ( firstTwoLetters == "LC" ) return SUMMARY_WELL_COMPLETION_LGR;
     if ( firstTwoLetters == "LW" ) return SUMMARY_WELL_LGR;
 
-    if ( quantityName[0] == 'N' ) return SUMMARY_NETWORK;
+    if ( strippedQuantityName[0] == 'N' ) return SUMMARY_NETWORK;
     return SUMMARY_INVALID;
 }
 
@@ -721,7 +723,7 @@ bool RifEclipseSummaryAddress::hasAccumulatedData() const
         quantityForInspection = quantityForInspection.mid( quantityForInspection.indexOf( ":" ) + 1 );
     }
 
-    QString qBaseName = baseQuantityName( quantityForInspection );
+    QString qBaseName = QString::fromStdString( baseQuantityName( quantityForInspection.toStdString() ) );
 
     if ( qBaseName.endsWith( "WCT" ) || qBaseName.endsWith( "WCTH" ) )
     {
@@ -904,19 +906,19 @@ bool RifEclipseSummaryAddress::isValidEclipseCategory() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RifEclipseSummaryAddress::baseQuantityName( const QString& quantityName )
+std::string RifEclipseSummaryAddress::baseQuantityName( const std::string& quantityName )
 {
-    QString qBaseName = quantityName;
+    auto tmpString = quantityName;
 
-    if ( qBaseName.size() == 8 ) qBaseName.chop( 3 );
+    if ( tmpString.size() == 8 ) tmpString = tmpString.substr( 0, 5 );
 
-    auto indexToUnderScore = qBaseName.indexOf( "_" );
-    if ( indexToUnderScore > 0 )
+    auto indexToUnderscore = tmpString.find_first_of( '_' );
+    if ( indexToUnderscore > 0 )
     {
-        qBaseName = qBaseName.left( indexToUnderScore );
+        tmpString = tmpString.substr( 0, indexToUnderscore );
     }
 
-    return qBaseName;
+    return tmpString;
 }
 
 //--------------------------------------------------------------------------------------------------

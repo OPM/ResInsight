@@ -208,7 +208,7 @@ public:
 
     bool hasAccumulatedData() const;
 
-    static QString baseQuantityName( const QString& quantityName );
+    static std::string baseQuantityName( const std::string& quantityName );
 
 private:
     static RifEclipseSummaryAddress fromTokens( const std::vector<std::string>& tokens );
