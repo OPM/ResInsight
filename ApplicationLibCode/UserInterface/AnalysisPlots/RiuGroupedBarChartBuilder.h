@@ -24,6 +24,7 @@
 
 #include <map>
 #include <set>
+#include <limits>
 
 class QwtPlot;
 class QColor;
