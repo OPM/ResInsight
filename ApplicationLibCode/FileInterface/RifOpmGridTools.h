@@ -20,7 +20,16 @@
 
 #include <string>
 
+namespace Opm
+{
+namespace EclIO
+{
+    class EGrid;
+}
+} // namespace Opm
+
 class RigMainGrid;
+class RigGridBase;
 
 //==================================================================================================
 ///
@@ -29,4 +38,7 @@ class RifOpmGridTools
 {
 public:
     static void importAndUpdateCoordinates( const std::string& gridFilePath, RigMainGrid* mainGrid );
+
+private:
+    static void transferCoordinates( Opm::EclIO::EGrid& opmGrid, RigMainGrid* mainGrid, RigGridBase* grid );
 };
