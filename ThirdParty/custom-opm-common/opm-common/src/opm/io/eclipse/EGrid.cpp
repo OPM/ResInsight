@@ -302,7 +302,8 @@ std::array<int, 3> EGrid::ijk_from_global_index(int globInd) const
 void EGrid::getCellCorners(const std::array<int, 3>& ijk,
                            std::array<double,8>& X,
                            std::array<double,8>& Y,
-                           std::array<double,8>& Z)
+                           std::array<double,8>& Z,
+                           bool useCartesianCoords)
 {
     if (coord_array.empty())
         load_grid_data();
@@ -337,7 +338,7 @@ void EGrid::getCellCorners(const std::array<int, 3>& ijk,
         double zt = coord_array[pind[n] + 2];
         double zb = coord_array[pind[n] + 5];
 
-        if (m_radial) {
+        if (m_radial && !useCartesianCoords) {
             xt = coord_array[pind[n]] * cos(coord_array[pind[n] + 1] / 180.0 * M_PI);
             yt = coord_array[pind[n]] * sin(coord_array[pind[n] + 1] / 180.0 * M_PI);
             xb = coord_array[pind[n]+3] * cos(coord_array[pind[n] + 4] / 180.0 * M_PI);
@@ -360,9 +361,9 @@ void EGrid::getCellCorners(const std::array<int, 3>& ijk,
 
 
 void EGrid::getCellCorners(int globindex, std::array<double,8>& X,
-                           std::array<double,8>& Y, std::array<double,8>& Z)
+                           std::array<double,8>& Y, std::array<double,8>& Z, bool useCartesianCoords)
 {
-    return getCellCorners(ijk_from_global_index(globindex),X,Y,Z);
+    return getCellCorners(ijk_from_global_index(globindex),X,Y,Z, useCartesianCoords);
 }
 
 

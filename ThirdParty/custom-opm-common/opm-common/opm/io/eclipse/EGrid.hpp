@@ -45,8 +45,8 @@ public:
     std::array<int, 3> ijk_from_active_index(int actInd) const;
     std::array<int, 3> ijk_from_global_index(int globInd) const;
 
-    void getCellCorners(int globindex, std::array<double,8>& X, std::array<double,8>& Y, std::array<double,8>& Z);
-    void getCellCorners(const std::array<int, 3>& ijk, std::array<double,8>& X, std::array<double,8>& Y, std::array<double,8>& Z);
+    void getCellCorners(int globindex, std::array<double,8>& X, std::array<double,8>& Y, std::array<double,8>& Z, bool useCartesianCoords);
+    void getCellCorners(const std::array<int, 3>& ijk, std::array<double,8>& X, std::array<double,8>& Y, std::array<double,8>& Z, bool useCartesianCoords);
 
     std::vector<std::array<float, 3>> getXYZ_layer(int layer, bool bottom=false);
     std::vector<std::array<float, 3>> getXYZ_layer(int layer, const std::array<int, 4>& box, bool bottom=false);

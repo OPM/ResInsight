@@ -20,6 +20,7 @@
 
 #include "RigMainGrid.h"
 
+#include "../Application/Tools/RiaWeightedMeanCalculator.h"
 #include "RifReaderEclipseOutput.h"
 #include "opm/io/eclipse/EGrid.hpp"
 
@@ -80,12 +81,59 @@ void RifOpmGridTools::transferCoordinates( Opm::EclIO::EGrid& opmGrid, RigMainGr
 
     auto& nodes = riMainGrid->nodes();
 
+    // Compute the center of the LGR radial grid cells for each K layer
+    std::map<int, std::pair<double, double>> radialGridCenterTopLayer;
+
+    if ( riGrid != riMainGrid )
+    {
+        std::map<int, std::vector<std::pair<double, double>>> xyCenterPerLayer;
+
+        for ( size_t cIdx = 0; cIdx < cellCount; cIdx++ )
+        {
+            bool useCartesianCoords = true;
+            opmGrid.getCellCorners( cIdx, X, Y, Z, useCartesianCoords );
+            auto ijk = opmGrid.ijk_from_global_index( cIdx );
+
+            auto layer = ijk[2];
+            for ( size_t i = 0; i < 8; i++ )
+            {
+                auto& xyCoords = xyCenterPerLayer[ijk[2]];
+                xyCoords.push_back( { X[i], Y[i] } );
+            }
+        }
+
+        for ( const auto [k, xyCoords] : xyCenterPerLayer )
+        {
+            RiaWeightedMeanCalculator<double> xCoord;
+            RiaWeightedMeanCalculator<double> yCoord;
+
+            for ( const auto [x, y] : xyCoords )
+            {
+                xCoord.addValueAndWeight( x, 1.0 );
+                yCoord.addValueAndWeight( y, 1.0 );
+            }
+
+            radialGridCenterTopLayer[k] = { xCoord.weightedMean(), yCoord.weightedMean() };
+        }
+    }
+
     for ( size_t cIdx = 0; cIdx < cellCount; cIdx++ )
     {
-        opmGrid.getCellCorners( cIdx, X, Y, Z );
+        opmGrid.getCellCorners( cIdx, X, Y, Z, false );
 
         // Each cell has 8 nodes, use reservoir cell index and multiply to find first node index for cell
         auto nodeStartIndex = riGrid->reservoirCellIndex( cIdx ) * 8;
+        auto ijk            = opmGrid.ijk_from_global_index( cIdx );
+
+        double xCenterCoord = 0.0;
+        double yCenterCoord = 0.0;
+
+        if ( radialGridCenterTopLayer.count( ijk[2] ) > 0 )
+        {
+            auto [xCenter, yCenter] = radialGridCenterTopLayer[ijk[2]];
+            xCenterCoord            = xCenter;
+            yCenterCoord            = yCenter;
+        }
 
         for ( size_t i = 0; i < 8; i++ )
         {
@@ -94,8 +142,8 @@ void RifOpmGridTools::transferCoordinates( Opm::EclIO::EGrid& opmGrid, RigMainGr
             size_t nodeIndex = nodeStartIndex + cellMappingECLRi[i];
 
             auto& node = nodes[nodeIndex];
-            node.x()   = X[i];
-            node.y()   = Y[i];
+            node.x()   = X[i] + xCenterCoord;
+            node.y()   = Y[i] + yCenterCoord;
             node.z()   = -Z[i];
         }
     }

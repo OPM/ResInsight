@@ -66,7 +66,7 @@ TEST( OpmSummaryTests, DISABLED_ReadOpmRadialGrid )
 
         for ( size_t cidx = 0; cidx < cellCount; cidx++ )
         {
-            eGrid.getCellCorners( cidx, X, Y, Z );
+            eGrid.getCellCorners( cidx, X, Y, Z, false );
 
             for ( size_t i = 0; i < 8; i++ )
             {
