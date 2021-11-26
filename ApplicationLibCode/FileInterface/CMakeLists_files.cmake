@@ -69,6 +69,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RifWellIAFileWriter.h
     ${CMAKE_CURRENT_LIST_DIR}/RifEclipseTextFileReader.h
     ${CMAKE_CURRENT_LIST_DIR}/RifEclipseKeywordContent.h
+    ${CMAKE_CURRENT_LIST_DIR}/RifOpmGridTools.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
@@ -139,6 +140,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RifEclEclipseSummary.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifWellIAFileWriter.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifEclipseTextFileReader.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RifOpmGridTools.cpp
 )
 
 list(APPEND CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})

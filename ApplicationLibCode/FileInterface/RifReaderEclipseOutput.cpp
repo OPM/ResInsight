@@ -29,6 +29,7 @@
 #include "RifEclipseInputFileTools.h"
 #include "RifEclipseOutputFileTools.h"
 #include "RifHdf5ReaderInterface.h"
+#include "RifOpmGridTools.h"
 #include "RifReaderSettings.h"
 
 #ifdef USE_HDF5
@@ -444,6 +445,8 @@ bool RifReaderEclipseOutput::open( const QString& fileName, RigEclipseCaseData* 
     {
         auto task = progress.task( "Transferring grid geometry", 10 );
         if ( !transferGeometry( mainEclGrid, eclipseCase ) ) return false;
+
+        RifOpmGridTools::importAndUpdateCoordinates( fileName.toStdString(), eclipseCase->mainGrid() );
     }
 
     {
