@@ -213,11 +213,9 @@ bool RiuQtChartsPlotWidget::plotTitleEnabled() const
 //--------------------------------------------------------------------------------------------------
 void RiuQtChartsPlotWidget::setPlotTitleFontSize( int titleFontSize )
 {
-    // auto  title = m_plot->title();
-    // QFont font  = title.font();
-    // font.setPixelSize( caf::FontTools::pointSizeToPixelSize( titleFontSize ) );
-    // title.setFont( font );
-    // m_plot->setTitle( title );
+    QFont font = qtChart()->titleFont();
+    font.setPixelSize( caf::FontTools::pointSizeToPixelSize( titleFontSize ) );
+    qtChart()->setTitleFont( font );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -225,18 +223,12 @@ void RiuQtChartsPlotWidget::setPlotTitleFontSize( int titleFontSize )
 //--------------------------------------------------------------------------------------------------
 void RiuQtChartsPlotWidget::setLegendFontSize( int fontSize )
 {
-    // if ( m_plot->legend() )
-    // {
-    //     QFont font = m_plot->legend()->font();
-    //     font.setPixelSize( caf::FontTools::pointSizeToPixelSize( fontSize ) );
-    //     m_plot->legend()->setFont( font );
-    //     // Set font size for all existing labels
-    //     QList<QwtLegendLabel*> labels = m_plot->legend()->findChildren<QwtLegendLabel*>();
-    //     for ( QwtLegendLabel* label : labels )
-    //     {
-    //         label->setFont( font );
-    //     }
-    // }
+    if ( qtChart()->legend() )
+    {
+        QFont font = qtChart()->legend()->font();
+        font.setPixelSize( caf::FontTools::pointSizeToPixelSize( fontSize ) );
+        qtChart()->legend()->setFont( font );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -244,15 +236,14 @@ void RiuQtChartsPlotWidget::setLegendFontSize( int fontSize )
 //--------------------------------------------------------------------------------------------------
 void RiuQtChartsPlotWidget::setInternalLegendVisible( bool visible )
 {
-    // if ( visible )
-    // {
-    //     QwtLegend* legend = new QwtLegend( this );
-    //     m_plot->insertLegend( legend, QwtPlot::BottomLegend );
-    // }
-    // else
-    // {
-    //     m_plot->insertLegend( nullptr );
-    // }
+    if ( visible )
+    {
+        insertLegend( RiuPlotWidget::Legend::BOTTOM );
+    }
+    else
+    {
+        clearLegend();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -260,10 +251,23 @@ void RiuQtChartsPlotWidget::setInternalLegendVisible( bool visible )
 //--------------------------------------------------------------------------------------------------
 void RiuQtChartsPlotWidget::insertLegend( RiuPlotWidget::Legend legendPosition )
 {
-    CAF_ASSERT( legendPosition == RiuPlotWidget::Legend::BOTTOM );
+    auto mapLegendPosition = []( RiuPlotWidget::Legend pos ) {
+        if ( pos == RiuPlotWidget::Legend::BOTTOM )
+            return Qt::AlignBottom;
+        else if ( pos == RiuPlotWidget::Legend::TOP )
+            return Qt::AlignTop;
+        else if ( pos == RiuPlotWidget::Legend::LEFT )
+            return Qt::AlignLeft;
 
-    // N  QwtLegend* legend = new QwtLegend( this );
-    //    m_plot->insertLegend( legend, QtCharts::BottomLegend );
+        return Qt::AlignRight;
+    };
+
+    QLegend* legend = qtChart()->legend();
+    legend->setAlignment( mapLegendPosition( legendPosition ) );
+    if ( !legend->isAttachedToChart() )
+    {
+        legend->attachToChart();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -271,7 +275,8 @@ void RiuQtChartsPlotWidget::insertLegend( RiuPlotWidget::Legend legendPosition )
 //--------------------------------------------------------------------------------------------------
 void RiuQtChartsPlotWidget::clearLegend()
 {
-    //    m_plot->insertLegend( nullptr );
+    QLegend* legend = qtChart()->legend();
+    legend->detachFromChart();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -333,26 +338,14 @@ void RiuQtChartsPlotWidget::setAxisLabelsAndTicksEnabled( RiaDefines::PlotAxis a
 //--------------------------------------------------------------------------------------------------
 void RiuQtChartsPlotWidget::enableGridLines( RiaDefines::PlotAxis axis, bool majorGridLines, bool minorGridLines )
 {
-    // QwtPlotItemList plotItems = m_plot->itemList( QwtPlotItem::Rtti_PlotGrid );
-    // QwtPlot::Axis   qwtAxis   = RiuQwtPlotTools::toQwtPlotAxis( axis );
-    // for ( QwtPlotItem* plotItem : plotItems )
-    // {
-    //     QwtPlotGrid* grid = static_cast<QwtPlotGrid*>( plotItem );
-    //     if ( qwtAxis == QwtPlot::xTop || qwtAxis == QwtPlot::xBottom )
-    //     {
-    //         grid->setXAxis( qwtAxis );
-    //         grid->enableX( majorGridLines );
-    //         grid->enableXMin( minorGridLines );
-    //     }
-    //     else
-    //     {
-    //         grid->setYAxis( qwtAxis );
-    //         grid->enableY( majorGridLines );
-    //         grid->enableYMin( minorGridLines );
-    //     }
-    //     grid->setMajorPen( Qt::lightGray, 1.0, Qt::SolidLine );
-    //     grid->setMinorPen( Qt::lightGray, 1.0, Qt::DashLine );
-    // }
+    plotAxis( axis )->setGridLineVisible( majorGridLines );
+    plotAxis( axis )->setMinorGridLineVisible( minorGridLines );
+
+    QPen gridLinePen( Qt::lightGray, 1.0, Qt::SolidLine );
+    plotAxis( axis )->setGridLinePen( gridLinePen );
+
+    QPen minorGridLinePen( Qt::lightGray, 1.0, Qt::DashLine );
+    plotAxis( axis )->setMinorGridLinePen( minorGridLinePen );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -868,7 +861,7 @@ int RiuQtChartsPlotWidget::defaultMinimumWidth()
 //--------------------------------------------------------------------------------------------------
 void RiuQtChartsPlotWidget::replot()
 {
-    // m_plot->replot();
+    update();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -974,7 +967,6 @@ void RiuQtChartsPlotWidget::setAxisScaleType( RiaDefines::PlotAxis axis, RiuQtCh
 //--------------------------------------------------------------------------------------------------
 void RiuQtChartsPlotWidget::updateAxes()
 {
-    // m_plot->updateAxes();
     m_viewer->chart()->update();
 }
 
