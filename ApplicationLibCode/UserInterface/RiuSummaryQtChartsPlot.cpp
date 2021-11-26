@@ -19,6 +19,7 @@
 #include "RiuSummaryQtChartsPlot.h"
 
 #include "RiaApplication.h"
+#include "RiaPlotDefines.h"
 #include "RiaPreferences.h"
 
 #include "Commands/CorrelationPlotCommands/RicNewCorrelationPlotFeature.h"
@@ -41,16 +42,13 @@
 
 #include "RiuPlotAnnotationTool.h"
 #include "RiuPlotCurve.h"
+#include "RiuPlotWidget.h"
 #include "RiuQwtCurvePointTracker.h"
 #include "RiuQwtPlotWheelZoomer.h"
 #include "RiuQwtPlotWidget.h"
 #include "RiuWidgetDragger.h"
 
 #include "RiuPlotMainWindowTools.h"
-#include "RiuQwtPlotTools.h"
-#include "RiuQwtPlotWheelZoomer.h"
-#include "RiuQwtPlotZoomer.h"
-#include "RiuQwtScalePicker.h"
 
 #include "RimProject.h"
 
@@ -58,18 +56,6 @@
 #include "cafIconProvider.h"
 #include "cafSelectionManager.h"
 #include "cafTitledOverlayFrame.h"
-
-// #include "qwt_date_scale_draw.h"
-// #include "qwt_date_scale_engine.h"
-// #include "qwt_interval.h"
-// #include "qwt_legend.h"
-// #include "qwt_legend_label.h"
-// #include "qwt_plot_curve.h"
-// #include "qwt_plot_panner.h"
-// #include "qwt_plot_zoomer.h"
-// #include "qwt_scale_div.h"
-// #include "qwt_scale_draw.h"
-// #include "qwt_scale_engine.h"
 
 #include <QEvent>
 #include <QMenu>
@@ -114,7 +100,7 @@ RiuSummaryQtChartsPlot::RiuSummaryQtChartsPlot( RimSummaryPlot* plot, QWidget* p
     // RiuQwtPlotTools::setCommonPlotBehaviour( m_plotWidget->qwtPlot() );
     // RiuQwtPlotTools::setDefaultAxes( m_plotWidget->qwtPlot() );
 
-    // m_plotWidget->setInternalLegendVisible( true );
+    m_plotWidget->setInternalLegendVisible( true );
 
     // m_annotationTool = std::unique_ptr<RiuPlotAnnotationTool>( new RiuPlotAnnotationTool() );
 }
@@ -134,6 +120,8 @@ void RiuSummaryQtChartsPlot::useDateBasedTimeAxis( const QString&               
                                                    RiaQDateTimeTools::DateFormatComponents dateComponents,
                                                    RiaQDateTimeTools::TimeFormatComponents timeComponents )
 {
+    m_plotWidget->setAxisScaleType( RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM, RiuPlotWidget::AxisScaleType::DATE );
+
     //     RiuQtChartsPlotTools::enableDateBasedBottomXAxis( m_plotWidget->qwtPlot(),
     //                                                       dateFormat,
     //                                                       timeFormat,
@@ -146,8 +134,7 @@ void RiuSummaryQtChartsPlot::useDateBasedTimeAxis( const QString&               
 //--------------------------------------------------------------------------------------------------
 void RiuSummaryQtChartsPlot::useTimeBasedTimeAxis()
 {
-    // m_plotWidget->qwtPlot()->setAxisScaleEngine( QtChartsPlot::xBottom, new QwtLinearScaleEngine() );
-    // m_plotWidget->qwtPlot()->setAxisScaleDraw( QtChartsPlot::xBottom, new QwtScaleDraw() );
+    m_plotWidget->setAxisScaleType( RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM, RiuPlotWidget::AxisScaleType::DATE );
 }
 
 //--------------------------------------------------------------------------------------------------

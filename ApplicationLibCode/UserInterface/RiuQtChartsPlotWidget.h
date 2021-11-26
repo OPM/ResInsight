@@ -183,9 +183,9 @@ protected:
     virtual bool isZoomerActive() const;
     virtual void endZoomOperations();
 
-    void                  rescaleAxis( RiaDefines::PlotAxis axis );
-    QtCharts::QValueAxis* plotAxis( RiaDefines::PlotAxis axis ) const;
-    Qt::Orientation       orientation( RiaDefines::PlotAxis axis ) const;
+    void                     rescaleAxis( RiaDefines::PlotAxis axis );
+    QtCharts::QAbstractAxis* plotAxis( RiaDefines::PlotAxis axis ) const;
+    Qt::Orientation          orientation( RiaDefines::PlotAxis axis ) const;
 
 private:
     void       selectClosestPlotItem( const QPoint& pos, bool toggleItemInSelection = false );
@@ -207,7 +207,7 @@ private:
 
     QPointer<QtCharts::QChartView> m_viewer;
 
-    std::map<RiaDefines::PlotAxis, QtCharts::QValueAxis*> m_axes;
+    std::map<RiaDefines::PlotAxis, QtCharts::QAbstractAxis*> m_axes;
 
     friend class RiaPlotWindowRedrawScheduler;
 };
