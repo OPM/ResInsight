@@ -688,6 +688,7 @@ void RiuQwtPlotWidget::applyPlotTitleToQwt()
 {
     QString plotTitleToApply = m_plotTitleEnabled ? m_plotTitle : QString( "" );
     QwtText plotTitle        = this->title();
+    plotTitle.setRenderFlags( Qt::AlignHCenter | Qt::TextSingleLine );
     if ( plotTitleToApply != plotTitle.text() )
     {
         plotTitle.setText( plotTitleToApply );
