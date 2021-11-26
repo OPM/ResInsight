@@ -24,6 +24,7 @@
 #include <optional>
 #include <string>
 #include <unordered_set>
+#include <limits>
 
 namespace Opm { namespace EclIO {
 
