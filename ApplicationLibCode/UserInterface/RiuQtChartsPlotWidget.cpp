@@ -38,6 +38,8 @@
 
 #include <QVBoxLayout>
 
+#include <QDateTimeAxis>
+#include <QLogValueAxis>
 #include <QValueAxis>
 
 #include <limits>
@@ -268,6 +270,8 @@ void RiuQtChartsPlotWidget::insertLegend( RiuPlotWidget::Legend legendPosition )
     {
         legend->attachToChart();
     }
+
+    replot();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -284,17 +288,18 @@ void RiuQtChartsPlotWidget::clearLegend()
 //--------------------------------------------------------------------------------------------------
 std::pair<double, double> RiuQtChartsPlotWidget::axisRange( RiaDefines::PlotAxis axis ) const
 {
-    double min = 0.0;
-    double max = 1.0;
-
     auto ax = plotAxis( axis );
-    if ( ax )
-    {
-        min = ax->min();
-        max = ax->max();
-    }
 
-    return std::make_pair( min, max );
+    auto valueAxis = dynamic_cast<QValueAxis*>( ax );
+    if ( valueAxis ) return std::make_pair( valueAxis->min(), valueAxis->max() );
+
+    auto logAxis = dynamic_cast<QLogValueAxis*>( ax );
+    if ( logAxis ) return std::make_pair( logAxis->min(), logAxis->max() );
+
+    auto dateAxis = dynamic_cast<QDateTimeAxis*>( ax );
+    if ( dateAxis ) return std::make_pair( dateAxis->min().toMSecsSinceEpoch(), dateAxis->max().toMSecsSinceEpoch() );
+
+    return std::make_pair( 0.0, 1.0 );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -861,7 +866,7 @@ int RiuQtChartsPlotWidget::defaultMinimumWidth()
 //--------------------------------------------------------------------------------------------------
 void RiuQtChartsPlotWidget::replot()
 {
-    update();
+    qtChart()->update();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -938,15 +943,8 @@ void RiuQtChartsPlotWidget::setAxisScale( RiaDefines::PlotAxis axis, double min,
 //--------------------------------------------------------------------------------------------------
 RiuQtChartsPlotWidget::AxisScaleType RiuQtChartsPlotWidget::axisScaleType( RiaDefines::PlotAxis axis ) const
 {
-    // QwtPlot::Axis qwtAxis = RiuQwtPlotTools::toQwtPlotAxis( axis );
-
-    // QwtLogScaleEngine*  logScaleEngine  = dynamic_cast<QwtLogScaleEngine*>( m_plot->axisScaleEngine( qwtAxis ) );
-    // QwtDateScaleEngine* dateScaleEngine = dynamic_cast<QwtDateScaleEngine*>( m_plot->axisScaleEngine( qwtAxis ) );
-    // if ( logScaleEngine != nullptr )
-    //     return AxisScaleType::LOGARITHMIC;
-    // else if ( dateScaleEngine != nullptr )
-    //     return AxisScaleType::DATE;
-
+    if ( plotAxis( axis )->type() == QAbstractAxis::AxisTypeLogValue ) return AxisScaleType::LOGARITHMIC;
+    if ( plotAxis( axis )->type() == QAbstractAxis::AxisTypeDateTime ) return AxisScaleType::DATE;
     return AxisScaleType::LINEAR;
 }
 
@@ -955,11 +953,39 @@ RiuQtChartsPlotWidget::AxisScaleType RiuQtChartsPlotWidget::axisScaleType( RiaDe
 //--------------------------------------------------------------------------------------------------
 void RiuQtChartsPlotWidget::setAxisScaleType( RiaDefines::PlotAxis axis, RiuQtChartsPlotWidget::AxisScaleType axisScaleType )
 {
-    // QwtPlot::Axis qwtAxis = RiuQwtPlotTools::toQwtPlotAxis( axis );
+    QAbstractAxis* removeaxis = plotAxis( axis );
+    QAbstractAxis* insertaxis = nullptr;
 
-    // if ( axisScaleType == AxisScaleType::LOGARITHMIC ) m_plot->setAxisScaleEngine( qwtAxis, new QwtLogScaleEngine );
-    // if ( axisScaleType == AxisScaleType::LINEAR ) m_plot->setAxisScaleEngine( qwtAxis, new QwtLinearScaleEngine );
-    // if ( axisScaleType == AxisScaleType::DATE ) m_plot->setAxisScaleEngine( qwtAxis, new QwtDateScaleEngine );
+    if ( axisScaleType == AxisScaleType::LOGARITHMIC )
+    {
+        insertaxis = new QLogValueAxis;
+    }
+    else if ( axisScaleType == AxisScaleType::DATE )
+    {
+        insertaxis = new QDateTimeAxis;
+    }
+    else if ( axisScaleType == AxisScaleType::LINEAR )
+    {
+        insertaxis = new QValueAxis;
+    }
+
+    QChart* chart          = qtChart();
+    auto    mapToAlignment = []( auto axis ) {
+        if ( axis == RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM ) return Qt::AlignBottom;
+        if ( axis == RiaDefines::PlotAxis::PLOT_AXIS_TOP ) return Qt::AlignTop;
+        if ( axis == RiaDefines::PlotAxis::PLOT_AXIS_LEFT ) return Qt::AlignLeft;
+        return Qt::AlignRight;
+    };
+
+    if ( chart->axes().contains( removeaxis ) ) chart->removeAxis( removeaxis );
+    chart->addAxis( insertaxis, mapToAlignment( axis ) );
+
+    m_axes[axis] = insertaxis;
+    for ( auto serie : chart->series() )
+    {
+        if ( serie->attachedAxes().contains( removeaxis ) ) serie->detachAxis( removeaxis );
+        serie->attachAxis( insertaxis );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1059,7 +1085,8 @@ void RiuQtChartsPlotWidget::setAxis( RiaDefines::PlotAxis axis, QtCharts::QAbstr
 //--------------------------------------------------------------------------------------------------
 void RiuQtChartsPlotWidget::rescaleAxis( RiaDefines::PlotAxis axis )
 {
-    QValueAxis* pAxis = plotAxis( axis );
+    QAbstractAxis*  pAxis = plotAxis( axis );
+    Qt::Orientation orr   = orientation( axis );
 
     double min = std::numeric_limits<double>::max();
     double max = -std::numeric_limits<double>::max();
@@ -1068,38 +1095,53 @@ void RiuQtChartsPlotWidget::rescaleAxis( RiaDefines::PlotAxis axis )
         auto attachedAxes = series->attachedAxes();
         if ( attachedAxes.contains( pAxis ) )
         {
+            QVector<QPointF> points;
             for ( auto attachedAxis : attachedAxes )
             {
-                QValueAxis*     valueAxis = dynamic_cast<QValueAxis*>( attachedAxis );
-                Qt::Orientation orr       = orientation( axis );
+                QValueAxis* valueAxis = dynamic_cast<QValueAxis*>( attachedAxis );
                 if ( valueAxis && valueAxis->orientation() == orr )
                 {
-                    for ( auto p : dynamic_cast<QLineSeries*>( series )->pointsVector() )
+                    points = dynamic_cast<QLineSeries*>( series )->pointsVector();
+                }
+
+                QDateTimeAxis* dateTimeAxis = dynamic_cast<QDateTimeAxis*>( attachedAxis );
+                if ( dateTimeAxis && dateTimeAxis->orientation() == orr )
+                {
+                    points = dynamic_cast<QLineSeries*>( series )->pointsVector();
+                }
+
+                for ( auto p : points )
+                {
+                    if ( orr == Qt::Orientation::Horizontal )
                     {
-                        if ( orr == Qt::Orientation::Horizontal )
-                        {
-                            min = std::min( min, p.x() );
-                            max = std::max( max, p.x() );
-                        }
-                        else
-                        {
-                            min = std::min( min, p.y() );
-                            max = std::max( max, p.y() );
-                        }
+                        min = std::min( min, p.x() );
+                        max = std::max( max, p.x() );
+                    }
+                    else
+                    {
+                        min = std::min( min, p.y() );
+                        max = std::max( max, p.y() );
                     }
                 }
             }
         }
     }
 
-    cvf::Trace::show( QString( "RESCALE: %1 - %2" ).arg( min ).arg( max ).toStdString().c_str() );
-    pAxis->setRange( min, max );
+
+    if ( axisScaleType( axis ) == RiuPlotWidget::AxisScaleType::DATE )
+    {
+        pAxis->setRange( QDateTime::fromMSecsSinceEpoch( min ), QDateTime::fromMSecsSinceEpoch( max ) );
+    }
+    else
+    {
+        pAxis->setRange( min, max );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QValueAxis* RiuQtChartsPlotWidget::plotAxis( RiaDefines::PlotAxis axis ) const
+QAbstractAxis* RiuQtChartsPlotWidget::plotAxis( RiaDefines::PlotAxis axis ) const
 {
     const auto ax = m_axes.find( axis );
     if ( ax != m_axes.end() )
