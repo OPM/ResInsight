@@ -1144,7 +1144,6 @@ void RiuQtChartsPlotWidget::rescaleAxis( RiaDefines::PlotAxis axis )
         }
     }
 
-
     if ( axisScaleType( axis ) == RiuPlotWidget::AxisScaleType::DATE )
     {
         pAxis->setRange( QDateTime::fromMSecsSinceEpoch( min ), QDateTime::fromMSecsSinceEpoch( max ) );
