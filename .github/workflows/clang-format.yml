@@ -32,6 +32,6 @@ jobs:
         commit-message: 'Fixes by clang-format'
         title: 'Fixes by clang-format'
         branch: clang-format-patches
-        branch-suffix: ${{ github.ref }}
+        branch-suffix: random
 
         

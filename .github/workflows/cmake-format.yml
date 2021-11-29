@@ -34,4 +34,4 @@ jobs:
         commit-message: 'Fixes by cmake-format'
         title: 'Fixes by cmake-format'
         branch: cmake-format-patches
-        branch-suffix: ${{ github.ref }}
+        branch-suffix: random

@@ -19,6 +19,6 @@ jobs:
         commit-message: 'Fixes by misspell-fixer'
         title: 'Typos fix by misspell-fixer'
         branch: spell-check-patches
-        branch-suffix: ${{ github.ref }}
+        branch-suffix: random
 
  
