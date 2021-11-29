@@ -174,6 +174,7 @@ protected:
     void showEvent( QShowEvent* event ) override;
     void resizeEvent( QResizeEvent* event ) override;
     void keyPressEvent( QKeyEvent* event ) override;
+    void wheelEvent( QWheelEvent* event ) override;
 
     void applyPlotTitleToPlot();
     void applyPlotTitleToQtCharts();

@@ -80,6 +80,8 @@ RiuQtChartsPlotWidget::RiuQtChartsPlotWidget( RimPlot* plotDefinition, QWidget* 
     chart->addAxis( axisRight, Qt::AlignRight );
     m_axes[RiaDefines::PlotAxis::PLOT_AXIS_RIGHT] = axisRight;
 
+    m_viewer->setRubberBand( QChartView::RectangleRubberBand );
+
     setSizePolicy( QSizePolicy::Preferred, QSizePolicy::Preferred );
 }
 
@@ -699,7 +701,18 @@ void RiuQtChartsPlotWidget::resizeEvent( QResizeEvent* event )
 //--------------------------------------------------------------------------------------------------
 void RiuQtChartsPlotWidget::keyPressEvent( QKeyEvent* event )
 {
-    // emit onKeyPressEvent( event );
+    switch ( event->key() )
+    {
+        case Qt::Key_Plus:
+            qtChart()->zoomIn();
+            break;
+        case Qt::Key_Minus:
+            qtChart()->zoomOut();
+            break;
+        default:
+            QWidget::keyPressEvent( event );
+            break;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1177,4 +1190,15 @@ Qt::Orientation RiuQtChartsPlotWidget::orientation( RiaDefines::PlotAxis axis ) 
         return Qt::Orientation::Horizontal;
 
     return Qt::Orientation::Vertical;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuQtChartsPlotWidget::wheelEvent( QWheelEvent* event )
+{
+    float factor = event->angleDelta().y() > 0 ? 0.9 : 1.1;
+    m_viewer->chart()->zoom( factor );
+    event->accept();
+    QWidget::wheelEvent( event );
 }
