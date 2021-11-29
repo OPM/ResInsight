@@ -65,7 +65,7 @@ public:
 
 protected:
     // void contextMenuEvent( QContextMenuEvent* );
-    // void setDefaults();
+    void setDefaults();
     // bool isZoomerActive() const;
     // void endZoomOperations();
 

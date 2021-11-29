@@ -89,6 +89,8 @@ public:
     void setAxisTitleText( RiaDefines::PlotAxis axis, const QString& title ) override;
     void setAxisTitleEnabled( RiaDefines::PlotAxis axis, bool enable ) override;
 
+    void setAxisFormat( RiaDefines::PlotAxis axis, const QString& format );
+
     void           setPlotTitle( const QString& plotTitle ) override;
     const QString& plotTitle() const;
     void           setPlotTitleEnabled( bool enabled );
