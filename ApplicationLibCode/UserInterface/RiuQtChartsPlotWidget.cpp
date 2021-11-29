@@ -179,6 +179,23 @@ void RiuQtChartsPlotWidget::setAxisTitleEnabled( RiaDefines::PlotAxis axis, bool
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RiuQtChartsPlotWidget::setAxisFormat( RiaDefines::PlotAxis axis, const QString& format )
+{
+    auto ax = plotAxis( axis );
+
+    auto valueAxis = dynamic_cast<QValueAxis*>( ax );
+    if ( valueAxis ) valueAxis->setLabelFormat( format );
+
+    auto logAxis = dynamic_cast<QLogValueAxis*>( ax );
+    if ( logAxis ) logAxis->setLabelFormat( format );
+
+    auto dateAxis = dynamic_cast<QDateTimeAxis*>( ax );
+    if ( dateAxis ) dateAxis->setFormat( format );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiuQtChartsPlotWidget::setPlotTitle( const QString& plotTitle )
 {
     m_plotTitle = plotTitle;
