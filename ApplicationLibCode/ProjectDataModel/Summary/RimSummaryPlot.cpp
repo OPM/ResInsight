@@ -61,12 +61,8 @@
 #include "cafPdmUiTreeOrdering.h"
 #include "cafSelectionManager.h"
 
-#include "qwt_abstract_legend.h"
-#include "qwt_legend.h"
 #include "qwt_plot_curve.h"
-#include "qwt_plot_renderer.h"
 #include "qwt_plot_textlabel.h"
-#include "qwt_scale_engine.h"
 
 #include <QDateTime>
 #include <QDebug>
