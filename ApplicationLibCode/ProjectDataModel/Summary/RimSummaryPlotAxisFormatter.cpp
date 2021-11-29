@@ -19,6 +19,7 @@
 #include "RimSummaryPlotAxisFormatter.h"
 
 #include "RiaDefines.h"
+#include "RiaNumberFormat.h"
 #include "RiaSummaryCurveDefinition.h"
 
 #include "RifSummaryReaderInterface.h"
@@ -29,6 +30,7 @@
 #include "RimSummaryCaseCollection.h"
 #include "RimSummaryCurve.h"
 
+#include "RiuQtChartsPlotWidget.h"
 #include "RiuQwtPlotTools.h"
 #include "RiuSummaryQuantityNameInfoProvider.h"
 #include "RiuSummaryQwtPlot.h"
@@ -153,6 +155,24 @@ void RimSummaryPlotAxisFormatter::applyAxisPropertiesToPlot( RiuPlotWidget* plot
                                                                               m_axisProperties->numberOfDecimals(),
                                                                               m_axisProperties->numberFormat() ) );
         }
+    }
+
+    auto qtChartsPlotWidget = dynamic_cast<RiuQtChartsPlotWidget*>( plotWidget );
+    if ( qtChartsPlotWidget )
+    {
+        auto mapToRiaNumberFormatType = []( RimPlotAxisProperties::NumberFormatType formatType ) {
+            if ( formatType == RimPlotAxisProperties::NumberFormatType::NUMBER_FORMAT_DECIMAL )
+                return RiaNumberFormat::NumberFormatType::FIXED;
+
+            if ( formatType == RimPlotAxisProperties::NumberFormatType::NUMBER_FORMAT_SCIENTIFIC )
+                return RiaNumberFormat::NumberFormatType::SCIENTIFIC;
+
+            return RiaNumberFormat::NumberFormatType::AUTO;
+        };
+
+        auto    formatType = mapToRiaNumberFormatType( m_axisProperties->numberFormat() );
+        QString format     = RiaNumberFormat::sprintfFormat( formatType, m_axisProperties->numberOfDecimals() );
+        qtChartsPlotWidget->setAxisFormat( axis, format );
     }
 
     {
