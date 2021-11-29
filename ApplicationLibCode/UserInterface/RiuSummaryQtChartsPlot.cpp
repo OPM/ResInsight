@@ -43,9 +43,7 @@
 #include "RiuPlotAnnotationTool.h"
 #include "RiuPlotCurve.h"
 #include "RiuPlotWidget.h"
-#include "RiuQwtCurvePointTracker.h"
-#include "RiuQwtPlotWheelZoomer.h"
-#include "RiuQwtPlotWidget.h"
+#include "RiuQtChartsPlotTools.h"
 #include "RiuWidgetDragger.h"
 
 #include "RiuPlotMainWindowTools.h"
@@ -94,11 +92,11 @@ RiuSummaryQtChartsPlot::RiuSummaryQtChartsPlot( RimSummaryPlot* plot, QWidget* p
     // connect( m_zoomerRight, SIGNAL( zoomed( const QRectF& ) ), SLOT( onZoomedSlot() ) );
     // connect( panner, SIGNAL( panned( int, int ) ), SLOT( onZoomedSlot() ) );
 
-    // setDefaults();
+    setDefaults();
     // new RiuQwtCurvePointTracker( m_plotWidget->qwtPlot(), true, &ensembleCurveInfoTextProvider );
 
-    // RiuQwtPlotTools::setCommonPlotBehaviour( m_plotWidget->qwtPlot() );
-    // RiuQwtPlotTools::setDefaultAxes( m_plotWidget->qwtPlot() );
+    RiuQtChartsPlotTools::setCommonPlotBehaviour( m_plotWidget.get() );
+    RiuQtChartsPlotTools::setDefaultAxes( m_plotWidget.get() );
 
     m_plotWidget->setInternalLegendVisible( true );
 
@@ -121,12 +119,7 @@ void RiuSummaryQtChartsPlot::useDateBasedTimeAxis( const QString&               
                                                    RiaQDateTimeTools::TimeFormatComponents timeComponents )
 {
     m_plotWidget->setAxisScaleType( RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM, RiuPlotWidget::AxisScaleType::DATE );
-
-    //     RiuQtChartsPlotTools::enableDateBasedBottomXAxis( m_plotWidget->qwtPlot(),
-    //                                                       dateFormat,
-    //                                                       timeFormat,
-    //                                                       dateComponents,
-    //                                                       timeComponents );
+    RiuQtChartsPlotTools::enableDateBasedBottomXAxis( m_plotWidget.get(), dateFormat, timeFormat, dateComponents, timeComponents );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -346,13 +339,13 @@ void RiuSummaryQtChartsPlot::updateAnnotationObjects( RimPlotAxisPropertiesInter
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-// void RiuSummaryQwtPlot::setDefaults()
-// {
-//     QString dateFormat = RiaPreferences::current()->dateFormat();
-//     QString timeFormat = RiaPreferences::current()->timeFormat();
+void RiuSummaryQtChartsPlot::setDefaults()
+{
+    QString dateFormat = RiaPreferences::current()->dateFormat();
+    QString timeFormat = RiaPreferences::current()->timeFormat();
 
-//     useDateBasedTimeAxis( dateFormat, timeFormat );
-// }
+    useDateBasedTimeAxis( dateFormat, timeFormat );
+}
 
 // //--------------------------------------------------------------------------------------------------
 // ///
