@@ -95,4 +95,4 @@ jobs:
           commit-message: 'Fixes by clang-tidy'
           title: 'Fixes by clang-tidy'
           branch: clang-tidy-patches
-          branch-suffix: ${{ github.ref }}
+          branch-suffix: ${{ github.ref_name }}
