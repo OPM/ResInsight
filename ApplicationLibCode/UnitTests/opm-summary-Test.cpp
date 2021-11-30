@@ -53,7 +53,8 @@ TEST( OpmSummaryTests, DISABLED_OpmImportRftData )
     std::vector<std::string> esmryKeywords;
     {
         // QString filePath = "e:/gitroot/opm-tests/model1/opm-simulation-reference/flow/MSW_MODEL_1.RFT";
-        QString filePath = "e:/gitroot/opm-tests/norne/ECL.2014.2/NORNE_ATW2013.RFT";
+        // QString filePath = "e:/gitroot/opm-tests/norne/ECL.2014.2/NORNE_ATW2013.RFT";
+        QString filePath = "d:/Models/Statoil/MSW-RFTfile/NORNE_ATW2013_RFTPLT_MSW.RFT";
 
         Opm::EclIO::ERft eRft( filePath.toStdString() );
 
@@ -80,6 +81,20 @@ TEST( OpmSummaryTests, DISABLED_OpmImportRftData )
             auto [text, date, floatValue] = report;
 
             std::cout << text << ", " << floatValue << "\n";
+        }
+
+        for ( int i = 0; i < eRft.numberOfReports(); i++ )
+        {
+            std::cout << "\n";
+
+            auto rftVectors = eRft.listOfRftArrays( i );
+
+            for ( const auto& rftVec : rftVectors )
+            {
+                auto [name, arrType, itemCount] = rftVec;
+
+                std::cout << name << ", " << itemCount << "\n";
+            }
         }
     }
 }
