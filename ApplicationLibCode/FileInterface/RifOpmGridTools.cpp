@@ -35,7 +35,7 @@ void RifOpmGridTools::importAndUpdateCoordinates( const std::string& gridFilePat
     {
         Opm::EclIO::EGrid opmMainGrid( gridFilePath );
 
-        transferCoordinates( opmMainGrid, riMainGrid, riMainGrid );
+        transferCoordinates( opmMainGrid, opmMainGrid, riMainGrid, riMainGrid );
 
         auto lgrNames = opmMainGrid.list_of_lgrs();
         for ( const auto& lgrName : lgrNames )
@@ -55,7 +55,7 @@ void RifOpmGridTools::importAndUpdateCoordinates( const std::string& gridFilePat
             {
                 Opm::EclIO::EGrid opmLgrGrid( gridFilePath, lgrName );
 
-                transferCoordinates( opmLgrGrid, riMainGrid, riLgrGrid );
+                transferCoordinates( opmMainGrid, opmLgrGrid, riMainGrid, riLgrGrid );
             }
         }
     }
@@ -67,7 +67,10 @@ void RifOpmGridTools::importAndUpdateCoordinates( const std::string& gridFilePat
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RifOpmGridTools::transferCoordinates( Opm::EclIO::EGrid& opmGrid, RigMainGrid* riMainGrid, RigGridBase* riGrid )
+void RifOpmGridTools::transferCoordinates( Opm::EclIO::EGrid& opmMainGrid,
+                                           Opm::EclIO::EGrid& opmGrid,
+                                           RigMainGrid*       riMainGrid,
+                                           RigGridBase*       riGrid )
 {
     size_t cellCount = opmGrid.totalNumberOfCells();
     if ( cellCount != riGrid->cellCount() ) return;
@@ -86,18 +89,21 @@ void RifOpmGridTools::transferCoordinates( Opm::EclIO::EGrid& opmGrid, RigMainGr
 
     if ( riGrid != riMainGrid )
     {
+        auto hostCellGlobalIndices = opmGrid.hostCellsGlobalIndex();
+
         std::map<int, std::vector<std::pair<double, double>>> xyCenterPerLayer;
 
         for ( size_t cIdx = 0; cIdx < cellCount; cIdx++ )
         {
-            bool useCartesianCoords = true;
-            opmGrid.getCellCorners( cIdx, X, Y, Z, useCartesianCoords );
-            auto ijk = opmGrid.ijk_from_global_index( cIdx );
+            bool useCartesianCoords = false;
+            auto mainGridCellIndex  = hostCellGlobalIndices[cIdx];
+            opmMainGrid.getCellCorners( mainGridCellIndex, X, Y, Z, useCartesianCoords );
 
-            auto layer = ijk[2];
+            auto ijkLocalGrid = opmGrid.ijk_from_global_index( cIdx );
+            auto layer        = ijkLocalGrid[2];
             for ( size_t i = 0; i < 8; i++ )
             {
-                auto& xyCoords = xyCenterPerLayer[ijk[2]];
+                auto& xyCoords = xyCenterPerLayer[layer];
                 xyCoords.push_back( { X[i], Y[i] } );
             }
         }

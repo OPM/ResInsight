@@ -40,5 +40,8 @@ public:
     static void importAndUpdateCoordinates( const std::string& gridFilePath, RigMainGrid* mainGrid );
 
 private:
-    static void transferCoordinates( Opm::EclIO::EGrid& opmGrid, RigMainGrid* mainGrid, RigGridBase* grid );
+    static void transferCoordinates( Opm::EclIO::EGrid& opmMainGrid,
+                                     Opm::EclIO::EGrid& opmGrid,
+                                     RigMainGrid*       mainGrid,
+                                     RigGridBase*       grid );
 };
