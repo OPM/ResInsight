@@ -68,6 +68,8 @@ public:
     void setXAxis( RiaDefines::PlotAxis axis ) override;
     void setYAxis( RiaDefines::PlotAxis axis ) override;
 
+    void setVisibleInLegend( bool isVisibleInLegend ) override;
+
 protected:
     void setSamplesInPlot( const std::vector<double>&, const std::vector<double>&, int ) override;
 

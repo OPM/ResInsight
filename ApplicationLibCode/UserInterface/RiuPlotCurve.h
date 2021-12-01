@@ -99,6 +99,7 @@ public:
 
     void setBlackAndWhiteLegendIcon( bool blackAndWhite );
     //    QwtGraphic legendIcon( int index, const QSizeF& size ) const override;
+    virtual void setVisibleInLegend( bool isVisibleInLegend ) = 0;
 
     virtual void attachToPlot( RiuPlotWidget* plotWidget ) = 0;
     virtual void showInPlot()                              = 0;

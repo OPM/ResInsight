@@ -48,6 +48,7 @@ public:
     void setBrush( const QBrush& brush ) override;
 
     QwtGraphic legendIcon( int index, const QSizeF& size ) const override;
+    void       setVisibleInLegend( bool isVisibleInLegend ) override;
 
     void attachToPlot( RiuPlotWidget* plotWidget ) override;
     void detach() override;
