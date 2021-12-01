@@ -772,7 +772,7 @@ void RimPlotCurve::updateLegendEntryVisibilityNoPlotUpdate()
         return;
     }
 
-    bool showLegendInQwt = m_showLegend();
+    bool showLegendInPlot = m_showLegend();
 
     RimSummaryPlot* summaryPlot = nullptr;
     this->firstAncestorOrThisOfType( summaryPlot );
@@ -793,11 +793,11 @@ void RimPlotCurve::updateLegendEntryVisibilityNoPlotUpdate()
              summaryPlot->curveCount() == 1 )
         {
             // Disable display of legend if the summary plot has only one single curve
-            showLegendInQwt = false;
+            showLegendInPlot = false;
         }
     }
     // TODO: handle this for qwt
-    // m_plotCurve->setItemAttribute( QwtPlotItem::Legend, showLegendInQwt );
+    m_plotCurve->setVisibleInLegend( showLegendInPlot );
 }
 
 //--------------------------------------------------------------------------------------------------
