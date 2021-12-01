@@ -89,15 +89,13 @@ bool RifHdf5SummaryExporter::ensureHdf5FileIsCreated( const std::string& smspecF
 
     {
         bool h5FileExists = Opm::filesystem::exists( h5FileName );
-        if ( !h5FileExists ) exportIsRequired = true;
-
-        RiaPreferencesSummary* prefs = RiaPreferencesSummary::current();
-        if ( prefs->checkH5SummaryDataTimeStamp() && h5FileExists )
+        if ( !h5FileExists )
         {
-            if ( RifHdf5SummaryExporter::isFirstOlderThanSecond( h5FileName, smspecFileName ) )
-            {
-                exportIsRequired = true;
-            }
+            exportIsRequired = true;
+        }
+        else if ( RifHdf5SummaryExporter::isFirstOlderThanSecond( h5FileName, smspecFileName ) )
+        {
+            exportIsRequired = true;
         }
     }
 
