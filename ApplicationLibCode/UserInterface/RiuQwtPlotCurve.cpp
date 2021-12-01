@@ -407,3 +407,11 @@ void RiuQwtPlotCurve::setYAxis( RiaDefines::PlotAxis axis )
 {
     QwtPlotCurve::setYAxis( RiuQwtPlotTools::toQwtPlotAxis( axis ) );
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuQwtPlotCurve::setVisibleInLegend( bool isVisibleInLegend )
+{
+    setItemAttribute( QwtPlotItem::Legend, isVisibleInLegend );
+}

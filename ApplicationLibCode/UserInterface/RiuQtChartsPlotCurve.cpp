@@ -25,7 +25,10 @@
 
 #include "RiuQtChartsPlotWidget.h"
 #include "RiuQwtSymbol.h"
+
 #include "cvfBoundingBox.h"
+
+#include <QLegendMarker>
 
 #include <limits>
 
@@ -258,4 +261,15 @@ cvf::BoundingBox RiuQtChartsPlotCurve::computeBoundingBox() const
         bb.add( cvf::Vec3d( p.x(), p.y(), 0.0 ) );
 
     return bb;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuQtChartsPlotCurve::setVisibleInLegend( bool isVisibleInLegend )
+{
+    CAF_ASSERT( m_plotWidget );
+    CAF_ASSERT( m_plotWidget->qtChart() );
+    CAF_ASSERT( m_plotWidget->qtChart()->legend() );
+    m_plotWidget->qtChart()->legend()->markers( m_lineSeries )[0]->setVisible( isVisibleInLegend );
 }
