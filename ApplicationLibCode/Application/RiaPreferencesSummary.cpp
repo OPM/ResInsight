@@ -53,7 +53,7 @@ void RiaPreferencesSummary::SummaryReaderModeType::setUp()
     addItem( RiaPreferencesSummary::SummaryReaderMode::LIBECL, "LIBECL", "UNSMRY (libecl)" );
     addItem( RiaPreferencesSummary::SummaryReaderMode::HDF5_OPM_COMMON, "HDF5_OPM_COMMON", "h5 (HDF5)" );
     addItem( RiaPreferencesSummary::SummaryReaderMode::OPM_COMMON, "OPM_COMMON", "ESMRY (opm-common)" );
-    setDefault( RiaPreferencesSummary::SummaryReaderMode::OPM_COMMON );
+    setDefault( RiaPreferencesSummary::SummaryReaderMode::HDF5_OPM_COMMON );
 }
 } // namespace caf
 
@@ -108,8 +108,8 @@ RiaPreferencesSummary::RiaPreferencesSummary()
                        "" );
 
     CAF_PDM_InitField( &m_createEnhancedSummaryDataFile,
-                       "createEnhancedSummaryDataFile",
-                       true,
+                       "createEnhancedSummaryDataFile_v01",
+                       false,
                        "Create ESMRY Summary Files",
                        "",
                        "If not present, create summary file with extension '*.ESMRY'",
@@ -126,22 +126,13 @@ RiaPreferencesSummary::RiaPreferencesSummary()
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_useEnhancedSummaryDataFile );
 
     CAF_PDM_InitField( &m_createH5SummaryDataFile,
-                       "createH5SummaryDataFile",
-                       true,
+                       "createH5SummaryDataFile_v01",
+                       false,
                        "Create h5 Summary Files",
                        "",
                        "If not present, create summary file with extension '*.h5'",
                        "" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_createH5SummaryDataFile );
-
-    CAF_PDM_InitField( &m_checkH5FileTimeStamp,
-                       "checkH5FileTimeStamp",
-                       true,
-                       "Check File Timestamp",
-                       "",
-                       "Compare timestamp of h5 and SMSPEC, and recreate h5 when required",
-                       "" );
-    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_checkH5FileTimeStamp );
 
     CAF_PDM_InitField( &m_createH5SummaryFileThreadCount,
                        "createH5SummaryFileThreadCount",
@@ -151,7 +142,7 @@ RiaPreferencesSummary::RiaPreferencesSummary()
                        "",
                        "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_summaryReader, "summaryReaderType", "File Format" );
+    CAF_PDM_InitFieldNoDefault( &m_summaryReader, "summaryReaderType_v01", "File Format");
 
     CAF_PDM_InitField( &m_showSummaryTimeAsLongString,
                        "showSummaryTimeAsLongString",
@@ -210,14 +201,6 @@ bool RiaPreferencesSummary::createEnhancedSummaryDataFiles() const
 bool RiaPreferencesSummary::createH5SummaryDataFiles() const
 {
     return m_createH5SummaryDataFile();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RiaPreferencesSummary::checkH5SummaryDataTimeStamp() const
-{
-    return m_checkH5FileTimeStamp;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -338,13 +321,15 @@ void RiaPreferencesSummary::defineUiOrdering( QString uiConfigName, caf::PdmUiOr
 
     if ( m_summaryReader == SummaryReaderMode::OPM_COMMON )
     {
-        uiOrdering.add( &m_useEnhancedSummaryDataFile );
+        if ( RiaApplication::instance()->enableDevelopmentFeatures() )
+        {
+            uiOrdering.add( &m_useEnhancedSummaryDataFile );
+        }
         uiOrdering.add( &m_createEnhancedSummaryDataFile );
     }
     else if ( m_summaryReader == SummaryReaderMode::HDF5_OPM_COMMON )
     {
         uiOrdering.add( &m_createH5SummaryDataFile );
-        uiOrdering.add( &m_checkH5FileTimeStamp );
 
         if ( RiaApplication::instance()->enableDevelopmentFeatures() )
         {
