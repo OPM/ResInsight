@@ -101,7 +101,9 @@ void RifOpmGridTools::transferCoordinates( Opm::EclIO::EGrid& opmMainGrid,
 
             auto ijkLocalGrid = opmGrid.ijk_from_global_index( cIdx );
             auto layer        = ijkLocalGrid[2];
-            for ( size_t i = 0; i < 8; i++ )
+            
+            // Four corners for top
+            for ( size_t i = 4; i < 8; i++ )
             {
                 auto& xyCoords = xyCenterPerLayer[layer];
                 xyCoords.push_back( { X[i], Y[i] } );
