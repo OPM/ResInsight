@@ -59,7 +59,8 @@ RiuQtChartsPlotWidget::RiuQtChartsPlotWidget( RimPlot* plotDefinition, QWidget* 
 
     QtCharts::QChart* chart = new QtCharts::QChart();
 
-    m_viewer = new QtCharts::QChartView( chart, parent );
+    m_viewer = new RiuQtChartView( nullptr, parent );
+    m_viewer->setChart( chart );
     m_viewer->setRenderHint( QPainter::Antialiasing );
 
     layout->addWidget( m_viewer );
