@@ -37,6 +37,14 @@ public:
 
     RimViewWindow* ownerViewWindow() const override;
 
+protected:
+    void mouseReleaseEvent( QMouseEvent* event ) override;
+    void mousePressEvent( QMouseEvent* event ) override;
+    void mouseMoveEvent( QMouseEvent* event ) override;
+
 private:
     caf::PdmPointer<RimPlotWindow> m_plotWindow;
+
+    bool   m_isPanning;
+    QPoint m_panStartPosition;
 };
