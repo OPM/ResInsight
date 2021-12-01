@@ -339,10 +339,17 @@ void EGrid::getCellCorners(const std::array<int, 3>& ijk,
         double zb = coord_array[pind[n] + 5];
 
         if (m_radial && !useCartesianCoords) {
-            xt = coord_array[pind[n]] * cos(coord_array[pind[n] + 1] / 180.0 * M_PI);
-            yt = coord_array[pind[n]] * sin(coord_array[pind[n] + 1] / 180.0 * M_PI);
-            xb = coord_array[pind[n]+3] * cos(coord_array[pind[n] + 4] / 180.0 * M_PI);
-            yb = coord_array[pind[n]+3] * sin(coord_array[pind[n] + 4] / 180.0 * M_PI);
+            static double thetaOffset = 0.0;
+
+			double thetaTop = coord_array[pind[n] + 1] + thetaOffset;
+			double thetaBot = coord_array[pind[n] + 4] + thetaOffset;
+			double xFactor = 1.0;
+			double yFactor = -1.0;
+
+            xt = xFactor * coord_array[pind[n]] * cos(thetaTop / 180.0 * M_PI);
+            yt = yFactor * coord_array[pind[n]] * sin(thetaTop / 180.0 * M_PI);
+            xb = xFactor * coord_array[pind[n]+3] * cos(thetaBot / 180.0 * M_PI);
+            yb = yFactor * coord_array[pind[n]+3] * sin(thetaBot / 180.0 * M_PI);
         } else {
             xt = coord_array[pind[n]];
             yt = coord_array[pind[n] + 1];
