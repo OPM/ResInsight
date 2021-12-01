@@ -1199,7 +1199,20 @@ Qt::Orientation RiuQtChartsPlotWidget::orientation( RiaDefines::PlotAxis axis ) 
 void RiuQtChartsPlotWidget::wheelEvent( QWheelEvent* event )
 {
     float factor = event->angleDelta().y() > 0 ? 0.9 : 1.1;
-    m_viewer->chart()->zoom( factor );
+
+    QRectF  plotAreaRect = m_viewer->chart()->plotArea();
+    QPointF centerPoint  = plotAreaRect.center();
+
+    // Adjust the size of the plot area
+    plotAreaRect.setWidth( plotAreaRect.width() * factor );
+    plotAreaRect.setHeight( plotAreaRect.height() * factor );
+
+    // Find new center which keeps the mouse location in the same place in the plot
+    QPointF newCenterPoint( ( 2 * centerPoint - event->pos() ) - ( centerPoint - event->pos() ) / factor );
+    plotAreaRect.moveCenter( newCenterPoint );
+
+    // Zoom in on the adjusted plot area
+    m_viewer->chart()->zoomIn( plotAreaRect );
+
     event->accept();
-    QWidget::wheelEvent( event );
 }

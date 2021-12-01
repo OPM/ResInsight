@@ -796,7 +796,7 @@ void RimPlotCurve::updateLegendEntryVisibilityNoPlotUpdate()
             showLegendInPlot = false;
         }
     }
-    // TODO: handle this for qwt
+
     m_plotCurve->setVisibleInLegend( showLegendInPlot );
 }
 
