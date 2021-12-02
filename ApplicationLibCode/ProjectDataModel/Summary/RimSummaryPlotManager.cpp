@@ -314,7 +314,7 @@ void RimSummaryPlotManager::defineEditorAttribute( const caf::PdmFieldHandle* fi
             }
             if ( field == &m_pushButtonNewPlot )
             {
-                attr->m_buttonText = "Create New Plot \n(Alt + Enter)";
+                attr->m_buttonText = "Create New Plot \n(Enter)";
             }
             if ( field == &m_pushButtonAppend )
             {
@@ -407,13 +407,8 @@ bool RimSummaryPlotManager::eventFilter( QObject* obj, QEvent* event )
                 appendCurves();
             else if ( mods & Qt::ControlModifier )
                 replaceCurves();
-            else if ( mods & Qt::AltModifier )
-                createNewPlot();
             else if ( mods == Qt::NoModifier )
-            {
-                updateCurveCandidates();
-                updateDataSourceCandidates();
-            }
+                createNewPlot();
         }
     }
 
