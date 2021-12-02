@@ -94,8 +94,6 @@ private:
                                                   const std::vector<RimSummaryCase*>&           summaryCases,
                                                   const std::vector<RimSummaryCaseCollection*>& ensembles );
 
-    static RimMultiPlot* createMultiPlot( const std::vector<RimPlot*>& plots );
-
     static void setFocusToEditorWidget( caf::PdmUiFieldHandle* uiFieldHandle );
 
     void splitIntoAddressAndDataSourceFilters( QStringList& addressFilters, QStringList& dataSourceFilters ) const;

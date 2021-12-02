@@ -41,6 +41,7 @@ set(COMMAND_REFERENCED_CMAKE_FILES
     WellPathCommands/CMakeLists_files.cmake
     PlotTemplateCommands/CMakeLists_files.cmake
     FractureCommands/CMakeLists_files.cmake
+    PlotBuilderCommands/CMakeLists_files.cmake
 )
 
 # Include source file lists from *.cmake files
