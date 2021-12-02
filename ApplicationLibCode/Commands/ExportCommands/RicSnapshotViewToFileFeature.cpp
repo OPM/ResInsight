@@ -88,8 +88,11 @@ void RicSnapshotViewToFileFeature::saveSnapshotAs( const QString& fileName, cons
 void RicSnapshotViewToFileFeature::savePlotPdfReportAs( const QString& fileName, RimPlotWindow* plot )
 {
     auto currentTheme = RiuGuiTheme::currentGuiTheme();
+    if ( currentTheme == RiaDefines::ThemeEnum::DARK )
+    {
+        RiuGuiTheme::updateGuiTheme( RiaDefines::ThemeEnum::LIGHT );
+    }
 
-    RiuGuiTheme::updateGuiTheme( RiaDefines::ThemeEnum::LIGHT );
     RiaPlotWindowRedrawScheduler::instance()->performScheduledUpdatesAndReplots();
     QCoreApplication::processEvents();
     QFile pdfFile( fileName );
@@ -136,7 +139,11 @@ void RicSnapshotViewToFileFeature::savePlotPdfReportAs( const QString& fileName,
     {
         RiaLogging::error( QString( "Could not write PDF to %1" ).arg( fileName ) );
     }
-    RiuGuiTheme::updateGuiTheme( currentTheme );
+
+    if ( currentTheme == RiaDefines::ThemeEnum::DARK )
+    {
+        RiuGuiTheme::updateGuiTheme( currentTheme );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
