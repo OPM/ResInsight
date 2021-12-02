@@ -96,6 +96,9 @@ RimSummaryPlotManager::RimSummaryPlotManager()
     CAF_PDM_InitFieldNoDefault( &m_labelB, "LabelB", "" );
     m_labelB.uiCapability()->setUiEditorTypeName( caf::PdmUiLabelEditor::uiEditorTypeName() );
     m_labelB.xmlCapability()->disableIO();
+
+    CAF_PDM_InitField( &m_individualPlotPerVector, "IndividualPlotPerVector", false, "One plot per Vector" );
+    CAF_PDM_InitField( &m_individualPlotPerDataSource, "IndividualPlotPerDataSource", false, "One plot per Data Source" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -348,6 +351,9 @@ void RimSummaryPlotManager::defineUiOrdering( QString uiConfigName, caf::PdmUiOr
     uiOrdering.add( &m_addressCandidates );
     uiOrdering.add( &m_dataSourceCandidates, false );
 
+    uiOrdering.add( &m_individualPlotPerVector );
+    uiOrdering.add( &m_individualPlotPerDataSource );
+
     uiOrdering.add( &m_pushButtonAppend );
     uiOrdering.add( &m_pushButtonReplace, { false } );
     uiOrdering.add( &m_labelB, { false } );
@@ -385,9 +391,56 @@ void RimSummaryPlotManager::replaceCurves()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlotManager::createNewPlot()
 {
-    RimSummaryPlot* destinationPlot = RiaSummaryTools::summaryPlotCollection()->createSummaryPlotWithAutoTitle();
+    std::vector<RimSummaryCase*>           summaryCases;
+    std::vector<RimSummaryCaseCollection*> ensembles;
+    findFilteredSummaryCasesAndEnsembles( summaryCases, ensembles );
+    std::set<RifEclipseSummaryAddress> filteredAddressesFromSource = filteredAddresses();
 
-    appendCurvesToPlot( destinationPlot );
+    if ( m_individualPlotPerDataSource && m_individualPlotPerVector )
+    {
+        for ( auto adr : filteredAddressesFromSource )
+        {
+            for ( auto summaryCase : summaryCases )
+            {
+                createPlotAndLoadData( { adr }, { summaryCase }, {} );
+            }
+
+            for ( auto ensemble : ensembles )
+            {
+                createPlotAndLoadData( { adr }, {}, { ensemble } );
+            }
+        }
+
+        updateProjectTreeAndRefresUi();
+    }
+    else if ( m_individualPlotPerVector )
+    {
+        for ( auto adr : filteredAddressesFromSource )
+        {
+            createPlotAndLoadData( { adr }, summaryCases, ensembles );
+        }
+
+        updateProjectTreeAndRefresUi();
+    }
+    else if ( m_individualPlotPerDataSource )
+    {
+        for ( auto summaryCase : summaryCases )
+        {
+            createPlotAndLoadData( filteredAddressesFromSource, { summaryCase }, {} );
+        }
+
+        for ( auto ensemble : ensembles )
+        {
+            createPlotAndLoadData( filteredAddressesFromSource, {}, { ensemble } );
+        }
+
+        updateProjectTreeAndRefresUi();
+    }
+    else
+    {
+        RimSummaryPlot* destinationPlot = RiaSummaryTools::summaryPlotCollection()->createSummaryPlotWithAutoTitle();
+        appendCurvesToPlot( destinationPlot );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -576,12 +629,23 @@ void RimSummaryPlotManager::appendCurvesToPlot( RimSummaryPlot* destinationPlot 
     destinationPlot->applyDefaultCurveAppearances();
     destinationPlot->loadDataAndUpdate();
 
-    RiaSummaryTools::summaryPlotCollection()->updateConnectedEditors();
+    updateProjectTreeAndRefresUi();
+}
 
-    updateFilterTextHistory();
-    m_filterText.uiCapability()->updateConnectedEditors();
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimSummaryPlot* RimSummaryPlotManager::createPlotAndLoadData( const std::set<RifEclipseSummaryAddress>& addresses,
+                                                              const std::vector<RimSummaryCase*>&       summaryCases,
+                                                              const std::vector<RimSummaryCaseCollection*>& ensembles )
+{
+    RimSummaryPlot* destinationPlot = RiaSummaryTools::summaryPlotCollection()->createSummaryPlotWithAutoTitle();
 
-    setFocusToFilterText();
+    appendCurvesToPlot( destinationPlot, addresses, summaryCases, ensembles );
+    destinationPlot->applyDefaultCurveAppearances();
+    destinationPlot->loadDataAndUpdate();
+
+    return destinationPlot;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -593,6 +657,19 @@ void RimSummaryPlotManager::updateFilterTextHistory()
 
     int maxItemCount = 10;
     stringListSerializer.addString( m_filterText, maxItemCount );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlotManager::updateProjectTreeAndRefresUi()
+{
+    RiaSummaryTools::summaryPlotCollection()->updateConnectedEditors();
+
+    updateFilterTextHistory();
+    m_filterText.uiCapability()->updateConnectedEditors();
+
+    setFocusToFilterText();
 }
 
 //--------------------------------------------------------------------------------------------------

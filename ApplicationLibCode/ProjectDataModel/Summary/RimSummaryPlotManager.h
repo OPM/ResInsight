@@ -75,6 +75,7 @@ private:
     std::set<RifEclipseSummaryAddress> filteredAddresses();
     void                               appendCurvesToPlot( RimSummaryPlot* destinationPlot );
     void                               updateFilterTextHistory();
+    void                               updateProjectTreeAndRefresUi();
 
     // Static helper functions
     static std::set<RifEclipseSummaryAddress> addressesForSource( caf::PdmObject* summarySource );
@@ -86,6 +87,10 @@ private:
                                     const std::set<RifEclipseSummaryAddress>&     addresses,
                                     const std::vector<RimSummaryCase*>&           summaryCases,
                                     const std::vector<RimSummaryCaseCollection*>& ensembles );
+
+    static RimSummaryPlot* createPlotAndLoadData( const std::set<RifEclipseSummaryAddress>&     addresses,
+                                                  const std::vector<RimSummaryCase*>&           summaryCases,
+                                                  const std::vector<RimSummaryCaseCollection*>& ensembles );
 
     static void setFocusToEditorWidget( caf::PdmUiFieldHandle* uiFieldHandle );
 
@@ -107,6 +112,9 @@ private:
     caf::PdmField<bool> m_pushButtonReplace;
     caf::PdmField<bool> m_pushButtonNewPlot;
     caf::PdmField<bool> m_pushButtonAppend;
+
+    caf::PdmField<bool> m_individualPlotPerVector;
+    caf::PdmField<bool> m_individualPlotPerDataSource;
 
     caf::PdmField<QString> m_labelA;
     caf::PdmField<QString> m_labelB;
