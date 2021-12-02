@@ -1401,7 +1401,7 @@ void RimProject::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, Q
     if ( uiConfigName == "PlotWindow" )
     {
         {
-            auto itemCollection = uiTreeOrdering.add( "Cases and Data", ":/Folder.png" );
+            auto itemCollection = uiTreeOrdering.add( "Data Sources", ":/Folder.png" );
 
             RimOilField* oilField = activeOilField();
             if ( oilField )
