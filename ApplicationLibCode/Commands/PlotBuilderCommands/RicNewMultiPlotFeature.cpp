@@ -19,20 +19,17 @@
 
 #include "RicNewMultiPlotFeature.h"
 
-#include "RimMainPlotCollection.h"
-#include "RimMultiPlot.h"
-#include "RimMultiPlotCollection.h"
+#include "RicSummaryPlotBuilder.h"
+
 #include "RimPlot.h"
-#include "RimProject.h"
-#include "RimSaturationPressurePlot.h"
 #include "RimWellLogTrack.h"
 
 #include "RiuPlotMainWindowTools.h"
-#include <QAction>
 
 #include "cafSelectionManager.h"
-
 #include "cvfAssert.h"
+
+#include <QAction>
 
 RICF_SOURCE_INIT( RicNewMultiPlotFeature, "RicNewMultiPlotFeature", "createMultiPlot" );
 
@@ -49,14 +46,6 @@ RicNewMultiPlotFeature::RicNewMultiPlotFeature()
 //--------------------------------------------------------------------------------------------------
 caf::PdmScriptResponse RicNewMultiPlotFeature::execute()
 {
-    RimProject*             project        = RimProject::current();
-    RimMultiPlotCollection* plotCollection = project->mainPlotCollection()->multiPlotCollection();
-
-    RimMultiPlot* plotWindow = new RimMultiPlot;
-    plotWindow->setMultiPlotTitle( QString( "Multi Plot %1" ).arg( plotCollection->multiPlots().size() + 1 ) );
-    plotWindow->setAsPlotMdiWindow();
-    plotCollection->addMultiPlot( plotWindow );
-
     if ( !m_plots().empty() )
     {
         std::vector<RimPlot*> plots;
@@ -65,39 +54,8 @@ caf::PdmScriptResponse RicNewMultiPlotFeature::execute()
             plots.push_back( reinterpret_cast<RimPlot*>( ptr ) );
         }
 
-        for ( auto plot : plots )
-        {
-            auto copy = dynamic_cast<RimPlot*>( plot->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
-
-            {
-                // TODO: Workaround for fixing the PdmPointer in RimEclipseResultDefinition
-                //    caf::PdmPointer<RimEclipseCase> m_eclipseCase;
-                // This pdmpointer must be changed to a ptrField
-
-                auto saturationPressurePlotOriginal = dynamic_cast<RimSaturationPressurePlot*>( plot );
-                auto saturationPressurePlotCopy     = dynamic_cast<RimSaturationPressurePlot*>( copy );
-                if ( saturationPressurePlotCopy && saturationPressurePlotOriginal )
-                {
-                    RimSaturationPressurePlot::fixPointersAfterCopy( saturationPressurePlotOriginal,
-                                                                     saturationPressurePlotCopy );
-                }
-            }
-
-            plotWindow->addPlot( copy );
-
-            copy->resolveReferencesRecursively();
-            copy->revokeMdiWindowStatus();
-            copy->setShowWindow( true );
-
-            copy->loadDataAndUpdate();
-        }
+        RicSummaryPlotBuilder::createMultiPlot( plots );
     }
-
-    project->updateAllRequiredEditors();
-    plotWindow->loadDataAndUpdate();
-
-    RiuPlotMainWindowTools::setExpanded( plotCollection, true );
-    RiuPlotMainWindowTools::selectAsCurrentItem( plotWindow, true );
 
     return caf::PdmScriptResponse();
 }
