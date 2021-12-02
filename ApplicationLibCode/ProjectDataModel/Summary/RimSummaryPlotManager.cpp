@@ -359,9 +359,9 @@ void RimSummaryPlotManager::defineUiOrdering( QString uiConfigName, caf::PdmUiOr
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlotManager::appendCurves()
 {
-    RimSummaryPlot* destinationPlot = m_summaryPlot;
+    if ( !m_summaryPlot ) return;
 
-    appendCurvesToPlot( destinationPlot );
+    appendCurvesToPlot( m_summaryPlot );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -369,6 +369,8 @@ void RimSummaryPlotManager::appendCurves()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlotManager::replaceCurves()
 {
+    if ( !m_summaryPlot ) return;
+
     RimSummaryPlot* destinationPlot = m_summaryPlot;
     destinationPlot->deleteAllSummaryCurves();
     destinationPlot->ensembleCurveSetCollection()->deleteAllCurveSets();
