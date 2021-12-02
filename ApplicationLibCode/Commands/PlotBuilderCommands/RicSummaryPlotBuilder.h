@@ -20,7 +20,19 @@
 
 class RimPlot;
 class RimMultiPlot;
+class RifEclipseSummaryAddress;
+class RimSummaryCase;
+class RimSummaryCaseCollection;
+class RimSummaryPlot;
+class RimEnsembleCurveSet;
+class RimSummaryCurve;
 
+namespace caf
+{
+class PdmObject;
+}
+
+#include <set>
 #include <vector>
 
 //==================================================================================================
@@ -31,7 +43,36 @@ class RicSummaryPlotBuilder
 public:
     RicSummaryPlotBuilder();
 
+    void setDataSources( const std::vector<RimSummaryCase*>&           summaryCases,
+                         const std::vector<RimSummaryCaseCollection*>& ensembles );
+
+    void setAddresses( const std::set<RifEclipseSummaryAddress>& addresses );
+
+    std::vector<RimPlot*> createPlots() const;
+
+    // Static helper functions
+    static std::set<RifEclipseSummaryAddress> addressesForSource( caf::PdmObject* summarySource );
+
+    static RimEnsembleCurveSet* createCurveSet( RimSummaryCaseCollection* ensemble, const RifEclipseSummaryAddress& addr );
+    static RimSummaryCurve*     createCurve( RimSummaryCase* summaryCase, const RifEclipseSummaryAddress& addr );
+
     static RimMultiPlot* createMultiPlot( const std::vector<RimPlot*>& plots );
 
+    static RimSummaryPlot* createPlot( const std::set<RifEclipseSummaryAddress>&     addresses,
+                                       const std::vector<RimSummaryCase*>&           summaryCases,
+                                       const std::vector<RimSummaryCaseCollection*>& ensembles );
+
+    static void appendCurvesToPlot( RimSummaryPlot*                               summaryPlot,
+                                    const std::set<RifEclipseSummaryAddress>&     addresses,
+                                    const std::vector<RimSummaryCase*>&           summaryCases,
+                                    const std::vector<RimSummaryCaseCollection*>& ensembles );
+
 private:
+    std::set<RifEclipseSummaryAddress>     m_addresses;
+    std::vector<RimSummaryCase*>           m_summaryCases;
+    std::vector<RimSummaryCaseCollection*> m_ensembles;
+
+    bool m_individualPlotPerVector;
+    bool m_individualPlotPerDataSource;
+    bool m_createMultiPlot;
 };
