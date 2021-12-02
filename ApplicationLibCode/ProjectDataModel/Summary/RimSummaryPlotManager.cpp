@@ -28,6 +28,7 @@
 
 #include "RimEnsembleCurveSet.h"
 #include "RimEnsembleCurveSetCollection.h"
+#include "RimMainPlotCollection.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseCollection.h"
 #include "RimSummaryCaseMainCollection.h"
@@ -46,6 +47,11 @@
 #include "cafPdmUiLineEditor.h"
 #include "cafPdmUiPushButtonEditor.h"
 #include "cafSelectionManager.h"
+
+#include "../GridCrossPlots/RimSaturationPressurePlot.h"
+#include "../RimMultiPlot.h"
+#include "../RimMultiPlotCollection.h"
+#include "../RimProject.h"
 
 #include <QKeyEvent>
 
@@ -99,6 +105,7 @@ RimSummaryPlotManager::RimSummaryPlotManager()
 
     CAF_PDM_InitField( &m_individualPlotPerVector, "IndividualPlotPerVector", false, "One plot per Vector" );
     CAF_PDM_InitField( &m_individualPlotPerDataSource, "IndividualPlotPerDataSource", false, "One plot per Data Source" );
+    CAF_PDM_InitField( &m_createMultiPlot, "CreateMultiPlot", false, "Create Multiple Plots in One Window" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -353,6 +360,7 @@ void RimSummaryPlotManager::defineUiOrdering( QString uiConfigName, caf::PdmUiOr
 
     uiOrdering.add( &m_individualPlotPerVector );
     uiOrdering.add( &m_individualPlotPerDataSource );
+    uiOrdering.add( &m_createMultiPlot );
 
     uiOrdering.add( &m_pushButtonAppend );
     uiOrdering.add( &m_pushButtonReplace, { false } );
@@ -398,40 +406,63 @@ void RimSummaryPlotManager::createNewPlot()
 
     if ( m_individualPlotPerDataSource && m_individualPlotPerVector )
     {
+        std::vector<RimPlot*> plots;
         for ( auto adr : filteredAddressesFromSource )
         {
             for ( auto summaryCase : summaryCases )
             {
-                createPlotAndLoadData( { adr }, { summaryCase }, {} );
+                auto plot = createPlotAndLoadData( { adr }, { summaryCase }, {} );
+                plots.push_back( plot );
             }
 
             for ( auto ensemble : ensembles )
             {
-                createPlotAndLoadData( { adr }, {}, { ensemble } );
+                auto plot = createPlotAndLoadData( { adr }, {}, { ensemble } );
+                plots.push_back( plot );
             }
+        }
+
+        if ( m_createMultiPlot )
+        {
+            createMultiPlot( plots );
         }
 
         updateProjectTreeAndRefresUi();
     }
     else if ( m_individualPlotPerVector )
     {
+        std::vector<RimPlot*> plots;
         for ( auto adr : filteredAddressesFromSource )
         {
-            createPlotAndLoadData( { adr }, summaryCases, ensembles );
+            auto plot = createPlotAndLoadData( { adr }, summaryCases, ensembles );
+            plots.push_back( plot );
+        }
+
+        if ( m_createMultiPlot )
+        {
+            createMultiPlot( plots );
         }
 
         updateProjectTreeAndRefresUi();
     }
     else if ( m_individualPlotPerDataSource )
     {
+        std::vector<RimPlot*> plots;
         for ( auto summaryCase : summaryCases )
         {
-            createPlotAndLoadData( filteredAddressesFromSource, { summaryCase }, {} );
+            auto plot = createPlotAndLoadData( filteredAddressesFromSource, { summaryCase }, {} );
+            plots.push_back( plot );
         }
 
         for ( auto ensemble : ensembles )
         {
-            createPlotAndLoadData( filteredAddressesFromSource, {}, { ensemble } );
+            auto plot = createPlotAndLoadData( filteredAddressesFromSource, {}, { ensemble } );
+            plots.push_back( plot );
+        }
+
+        if ( m_createMultiPlot )
+        {
+            createMultiPlot( plots );
         }
 
         updateProjectTreeAndRefresUi();
@@ -646,6 +677,55 @@ RimSummaryPlot* RimSummaryPlotManager::createPlotAndLoadData( const std::set<Rif
     destinationPlot->loadDataAndUpdate();
 
     return destinationPlot;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimMultiPlot* RimSummaryPlotManager::createMultiPlot( const std::vector<RimPlot*>& plots )
+{
+    RimProject*             project        = RimProject::current();
+    RimMultiPlotCollection* plotCollection = project->mainPlotCollection()->multiPlotCollection();
+
+    RimMultiPlot* plotWindow = new RimMultiPlot;
+    plotWindow->setMultiPlotTitle( QString( "Multi Plot %1" ).arg( plotCollection->multiPlots().size() + 1 ) );
+    plotWindow->setAsPlotMdiWindow();
+    plotCollection->addMultiPlot( plotWindow );
+
+    for ( auto plot : plots )
+    {
+        auto copy = dynamic_cast<RimPlot*>( plot->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
+
+        {
+            // TODO: Workaround for fixing the PdmPointer in RimEclipseResultDefinition
+            //    caf::PdmPointer<RimEclipseCase> m_eclipseCase;
+            // This pdmpointer must be changed to a ptrField
+
+            auto saturationPressurePlotOriginal = dynamic_cast<RimSaturationPressurePlot*>( plot );
+            auto saturationPressurePlotCopy     = dynamic_cast<RimSaturationPressurePlot*>( copy );
+            if ( saturationPressurePlotCopy && saturationPressurePlotOriginal )
+            {
+                RimSaturationPressurePlot::fixPointersAfterCopy( saturationPressurePlotOriginal,
+                                                                 saturationPressurePlotCopy );
+            }
+        }
+
+        plotWindow->addPlot( copy );
+
+        copy->resolveReferencesRecursively();
+        copy->revokeMdiWindowStatus();
+        copy->setShowWindow( true );
+
+        copy->loadDataAndUpdate();
+    }
+
+    project->updateAllRequiredEditors();
+    plotWindow->loadDataAndUpdate();
+
+    RiuPlotMainWindowTools::setExpanded( plotCollection, true );
+    RiuPlotMainWindowTools::selectAsCurrentItem( plotWindow, true );
+
+    return plotWindow;
 }
 
 //--------------------------------------------------------------------------------------------------

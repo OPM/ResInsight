@@ -29,6 +29,8 @@ class RimSummaryCase;
 class RimSummaryCaseCollection;
 class RimEnsembleCurveSet;
 class RimSummaryCurve;
+class RimMultiPlot;
+class RimPlot;
 
 class RimSummaryPlotManager : public QObject, public caf::PdmObject, public caf::SelectionChangedReceiver
 
@@ -92,6 +94,8 @@ private:
                                                   const std::vector<RimSummaryCase*>&           summaryCases,
                                                   const std::vector<RimSummaryCaseCollection*>& ensembles );
 
+    static RimMultiPlot* createMultiPlot( const std::vector<RimPlot*>& plots );
+
     static void setFocusToEditorWidget( caf::PdmUiFieldHandle* uiFieldHandle );
 
     void splitIntoAddressAndDataSourceFilters( QStringList& addressFilters, QStringList& dataSourceFilters ) const;
@@ -115,6 +119,7 @@ private:
 
     caf::PdmField<bool> m_individualPlotPerVector;
     caf::PdmField<bool> m_individualPlotPerDataSource;
+    caf::PdmField<bool> m_createMultiPlot;
 
     caf::PdmField<QString> m_labelA;
     caf::PdmField<QString> m_labelB;
