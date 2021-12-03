@@ -66,11 +66,27 @@ void RicSummaryPlotBuilder::setAddresses( const std::set<RifEclipseSummaryAddres
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimPlot*> RicSummaryPlotBuilder::createPlots() const
+void RicSummaryPlotBuilder::setIndividualPlotPerAddress( bool enable )
 {
-    std::vector<RimPlot*> plots;
+    m_individualPlotPerAddress = enable;
+}
 
-    if ( m_individualPlotPerDataSource && m_individualPlotPerVector )
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicSummaryPlotBuilder::setIndividualPlotPerDataSource( bool enable )
+{
+    m_individualPlotPerDataSource = enable;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimSummaryPlot*> RicSummaryPlotBuilder::createPlots() const
+{
+    std::vector<RimSummaryPlot*> plots;
+
+    if ( m_individualPlotPerDataSource && m_individualPlotPerAddress )
     {
         for ( auto adr : m_addresses )
         {
@@ -87,7 +103,7 @@ std::vector<RimPlot*> RicSummaryPlotBuilder::createPlots() const
             }
         }
     }
-    else if ( m_individualPlotPerVector )
+    else if ( m_individualPlotPerAddress )
     {
         for ( auto adr : m_addresses )
         {
@@ -97,7 +113,6 @@ std::vector<RimPlot*> RicSummaryPlotBuilder::createPlots() const
     }
     else if ( m_individualPlotPerDataSource )
     {
-        std::vector<RimPlot*> plots;
         for ( auto summaryCase : m_summaryCases )
         {
             auto plot = createPlot( m_addresses, { summaryCase }, {} );
@@ -173,17 +188,11 @@ RimSummaryCurve* RicSummaryPlotBuilder::createCurve( RimSummaryCase* summaryCase
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimMultiPlot* RicSummaryPlotBuilder::createMultiPlot( const std::vector<RimPlot*>& plots )
+std::vector<RimPlot*> RicSummaryPlotBuilder::duplicatePlots( const std::vector<RimPlot*>& sourcePlots )
 {
-    RimProject*             project        = RimProject::current();
-    RimMultiPlotCollection* plotCollection = project->mainPlotCollection()->multiPlotCollection();
+    std::vector<RimPlot*> plots;
 
-    RimMultiPlot* plotWindow = new RimMultiPlot;
-    plotWindow->setMultiPlotTitle( QString( "Multi Plot %1" ).arg( plotCollection->multiPlots().size() + 1 ) );
-    plotWindow->setAsPlotMdiWindow();
-    plotCollection->addMultiPlot( plotWindow );
-
-    for ( auto plot : plots )
+    for ( auto plot : sourcePlots )
     {
         auto copy = dynamic_cast<RimPlot*>( plot->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
 
@@ -201,13 +210,34 @@ RimMultiPlot* RicSummaryPlotBuilder::createMultiPlot( const std::vector<RimPlot*
             }
         }
 
-        plotWindow->addPlot( copy );
+        plots.push_back( copy );
+    }
 
-        copy->resolveReferencesRecursively();
-        copy->revokeMdiWindowStatus();
-        copy->setShowWindow( true );
+    return plots;
+}
 
-        copy->loadDataAndUpdate();
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimMultiPlot* RicSummaryPlotBuilder::appendMultiPlot( const std::vector<RimPlot*>& plots )
+{
+    RimProject*             project        = RimProject::current();
+    RimMultiPlotCollection* plotCollection = project->mainPlotCollection()->multiPlotCollection();
+
+    RimMultiPlot* plotWindow = new RimMultiPlot;
+    plotWindow->setMultiPlotTitle( QString( "Multi Plot %1" ).arg( plotCollection->multiPlots().size() + 1 ) );
+    plotWindow->setAsPlotMdiWindow();
+    plotCollection->addMultiPlot( plotWindow );
+
+    for ( auto plot : plots )
+    {
+        plotWindow->addPlot( plot );
+
+        plot->resolveReferencesRecursively();
+        plot->revokeMdiWindowStatus();
+        plot->setShowWindow( true );
+
+        plot->loadDataAndUpdate();
     }
 
     project->updateAllRequiredEditors();
@@ -228,6 +258,10 @@ RimSummaryPlot* RicSummaryPlotBuilder::createPlot( const std::set<RifEclipseSumm
 {
     RimSummaryPlot* plot = new RimSummaryPlot();
     plot->enableAutoPlotTitle( true );
+
+    appendCurvesToPlot( plot, addresses, summaryCases, ensembles );
+
+    plot->applyDefaultCurveAppearances();
 
     return plot;
 }

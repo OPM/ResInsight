@@ -48,7 +48,10 @@ public:
 
     void setAddresses( const std::set<RifEclipseSummaryAddress>& addresses );
 
-    std::vector<RimPlot*> createPlots() const;
+    void setIndividualPlotPerAddress( bool enable );
+    void setIndividualPlotPerDataSource( bool enable );
+
+    std::vector<RimSummaryPlot*> createPlots() const;
 
     // Static helper functions
     static std::set<RifEclipseSummaryAddress> addressesForSource( caf::PdmObject* summarySource );
@@ -56,7 +59,8 @@ public:
     static RimEnsembleCurveSet* createCurveSet( RimSummaryCaseCollection* ensemble, const RifEclipseSummaryAddress& addr );
     static RimSummaryCurve*     createCurve( RimSummaryCase* summaryCase, const RifEclipseSummaryAddress& addr );
 
-    static RimMultiPlot* createMultiPlot( const std::vector<RimPlot*>& plots );
+    static std::vector<RimPlot*> duplicatePlots( const std::vector<RimPlot*>& plots );
+    static RimMultiPlot*         appendMultiPlot( const std::vector<RimPlot*>& plots );
 
     static RimSummaryPlot* createPlot( const std::set<RifEclipseSummaryAddress>&     addresses,
                                        const std::vector<RimSummaryCase*>&           summaryCases,
@@ -72,7 +76,6 @@ private:
     std::vector<RimSummaryCase*>           m_summaryCases;
     std::vector<RimSummaryCaseCollection*> m_ensembles;
 
-    bool m_individualPlotPerVector;
+    bool m_individualPlotPerAddress;
     bool m_individualPlotPerDataSource;
-    bool m_createMultiPlot;
 };

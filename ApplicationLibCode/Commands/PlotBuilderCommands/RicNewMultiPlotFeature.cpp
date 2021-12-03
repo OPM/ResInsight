@@ -54,7 +54,9 @@ caf::PdmScriptResponse RicNewMultiPlotFeature::execute()
             plots.push_back( reinterpret_cast<RimPlot*>( ptr ) );
         }
 
-        RicSummaryPlotBuilder::createMultiPlot( plots );
+        auto copyOfPlots = RicSummaryPlotBuilder::duplicatePlots( plots );
+
+        RicSummaryPlotBuilder::appendMultiPlot( copyOfPlots );
     }
 
     return caf::PdmScriptResponse();

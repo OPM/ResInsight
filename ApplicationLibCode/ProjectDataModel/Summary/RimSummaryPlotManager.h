@@ -73,33 +73,18 @@ private:
 
     std::pair<std::vector<RimSummaryCase*>, std::vector<RimSummaryCaseCollection*>> allDataSourcesInProject() const;
 
-    void                               updateUiFromSelection();
     std::set<RifEclipseSummaryAddress> filteredAddresses();
-    void                               appendCurvesToPlot( RimSummaryPlot* destinationPlot );
-    void                               updateFilterTextHistory();
-    void                               updateProjectTreeAndRefresUi();
 
-    // Static helper functions
-    static std::set<RifEclipseSummaryAddress> addressesForSource( caf::PdmObject* summarySource );
-
-    static RimEnsembleCurveSet* createCurveSet( RimSummaryCaseCollection* ensemble, const RifEclipseSummaryAddress& addr );
-    static RimSummaryCurve*     createCurve( RimSummaryCase* summaryCase, const RifEclipseSummaryAddress& addr );
-
-    static void appendCurvesToPlot( RimSummaryPlot*                               summaryPlot,
-                                    const std::set<RifEclipseSummaryAddress>&     addresses,
-                                    const std::vector<RimSummaryCase*>&           summaryCases,
-                                    const std::vector<RimSummaryCaseCollection*>& ensembles );
-
-    static RimSummaryPlot* createPlotAndLoadData( const std::set<RifEclipseSummaryAddress>&     addresses,
-                                                  const std::vector<RimSummaryCase*>&           summaryCases,
-                                                  const std::vector<RimSummaryCaseCollection*>& ensembles );
-
-    static void setFocusToEditorWidget( caf::PdmUiFieldHandle* uiFieldHandle );
+    void updateUiFromSelection();
+    void appendCurvesToPlot( RimSummaryPlot* destinationPlot );
+    void updateFilterTextHistory();
+    void updateProjectTreeAndRefresUi();
 
     void splitIntoAddressAndDataSourceFilters( QStringList& addressFilters, QStringList& dataSourceFilters ) const;
     void findFilteredSummaryCasesAndEnsembles( std::vector<RimSummaryCase*>&           summaryCases,
                                                std::vector<RimSummaryCaseCollection*>& ensembles ) const;
 
+    static void    setFocusToEditorWidget( caf::PdmUiFieldHandle* uiFieldHandle );
     static QString curveFilterRecentlyUsedRegistryKey();
 
 private:
