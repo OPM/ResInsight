@@ -87,8 +87,17 @@ void RicSnapshotViewToFileFeature::saveSnapshotAs( const QString& fileName, cons
 //--------------------------------------------------------------------------------------------------
 void RicSnapshotViewToFileFeature::savePlotPdfReportAs( const QString& fileName, RimPlotWindow* plot )
 {
+    if ( !plot || !plot->viewWidget() ) return;
+
+    auto viewWidget = plot->viewWidget();
+
+    // For some reason, the application crashes (seen on Windows 11) if the theme is changed when a plot window is
+    // maximized. Make sure the MDI windows are displayed as normal, and restore the maximized state
+    bool maximizedState = viewWidget->isMaximized();
+    if ( maximizedState ) viewWidget->showNormal();
+
     auto currentTheme = RiuGuiTheme::currentGuiTheme();
-    if ( currentTheme == RiaDefines::ThemeEnum::DARK )
+    if ( currentTheme != RiaDefines::ThemeEnum::LIGHT )
     {
         RiuGuiTheme::updateGuiTheme( RiaDefines::ThemeEnum::LIGHT );
     }
@@ -100,7 +109,7 @@ void RicSnapshotViewToFileFeature::savePlotPdfReportAs( const QString& fileName,
     {
         int resolution  = RiaGuiApplication::applicationResolution();
         int pageWidth   = plot->pageLayout().fullRectPixels( resolution ).width();
-        int widgetWidth = plot->viewWidget()->width();
+        int widgetWidth = viewWidget->width();
         int deltaWidth  = widgetWidth - pageWidth;
 
         while ( std::abs( deltaWidth ) > 1 )
@@ -117,22 +126,22 @@ void RicSnapshotViewToFileFeature::savePlotPdfReportAs( const QString& fileName,
         pdfPrinter.setPageLayout( plot->pageLayout() );
         pdfPrinter.setCreator( QCoreApplication::applicationName() );
         pdfPrinter.setResolution( resolution );
-        QRect widgetRect = plot->viewWidget()->contentsRect();
+        QRect widgetRect = viewWidget->contentsRect();
 
         RimMultiPlot* multiPlot = dynamic_cast<RimMultiPlot*>( plot );
         if ( multiPlot && multiPlot->previewModeEnabled() )
         {
             QRect pageRect = pdfPrinter.pageLayout().fullRectPixels( resolution );
-            plot->viewWidget()->resize( pageRect.size() );
+            viewWidget->resize( pageRect.size() );
             plot->renderWindowContent( &pdfPrinter );
-            plot->viewWidget()->resize( widgetRect.size() );
+            viewWidget->resize( widgetRect.size() );
         }
         else
         {
             QRect pageRect = pdfPrinter.pageLayout().paintRectPixels( resolution );
-            plot->viewWidget()->resize( pageRect.size() );
+            viewWidget->resize( pageRect.size() );
             plot->renderWindowContent( &pdfPrinter );
-            plot->viewWidget()->resize( widgetRect.size() );
+            viewWidget->resize( widgetRect.size() );
         }
     }
     else
@@ -140,10 +149,12 @@ void RicSnapshotViewToFileFeature::savePlotPdfReportAs( const QString& fileName,
         RiaLogging::error( QString( "Could not write PDF to %1" ).arg( fileName ) );
     }
 
-    if ( currentTheme == RiaDefines::ThemeEnum::DARK )
+    if ( currentTheme != RiaDefines::ThemeEnum::LIGHT )
     {
         RiuGuiTheme::updateGuiTheme( currentTheme );
     }
+
+    if ( maximizedState ) viewWidget->showMaximized();
 }
 
 //--------------------------------------------------------------------------------------------------
