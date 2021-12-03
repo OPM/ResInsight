@@ -29,6 +29,8 @@ class RimSummaryCase;
 class RimSummaryCaseCollection;
 class RimEnsembleCurveSet;
 class RimSummaryCurve;
+class RimMultiPlot;
+class RimPlot;
 
 class RimSummaryPlotManager : public QObject, public caf::PdmObject, public caf::SelectionChangedReceiver
 
@@ -62,7 +64,6 @@ private:
     bool eventFilter( QObject* obj, QEvent* event ) override;
 
     void updateCurveCandidates();
-    void updateDataSourceCandidates();
 
     std::vector<std::pair<QString, caf::PdmObject*>> findDataSourceCandidates() const;
 
@@ -71,28 +72,18 @@ private:
 
     std::pair<std::vector<RimSummaryCase*>, std::vector<RimSummaryCaseCollection*>> allDataSourcesInProject() const;
 
-    void                               updateUiFromSelection();
     std::set<RifEclipseSummaryAddress> filteredAddresses();
-    void                               appendCurvesToPlot( RimSummaryPlot* destinationPlot );
-    void                               updateFilterTextHistory();
 
-    // Static helper functions
-    static std::set<RifEclipseSummaryAddress> addressesForSource( caf::PdmObject* summarySource );
-
-    static RimEnsembleCurveSet* createCurveSet( RimSummaryCaseCollection* ensemble, const RifEclipseSummaryAddress& addr );
-    static RimSummaryCurve*     createCurve( RimSummaryCase* summaryCase, const RifEclipseSummaryAddress& addr );
-
-    static void appendCurvesToPlot( RimSummaryPlot*                               summaryPlot,
-                                    const std::set<RifEclipseSummaryAddress>&     addresses,
-                                    const std::vector<RimSummaryCase*>&           summaryCases,
-                                    const std::vector<RimSummaryCaseCollection*>& ensembles );
-
-    static void setFocusToEditorWidget( caf::PdmUiFieldHandle* uiFieldHandle );
+    void updateUiFromSelection();
+    void appendCurvesToPlot( RimSummaryPlot* destinationPlot );
+    void updateFilterTextHistory();
+    void updateProjectTreeAndRefresUi();
 
     void splitIntoAddressAndDataSourceFilters( QStringList& addressFilters, QStringList& dataSourceFilters ) const;
     void findFilteredSummaryCasesAndEnsembles( std::vector<RimSummaryCase*>&           summaryCases,
                                                std::vector<RimSummaryCaseCollection*>& ensembles ) const;
 
+    static void    setFocusToEditorWidget( caf::PdmUiFieldHandle* uiFieldHandle );
     static QString curveFilterRecentlyUsedRegistryKey();
 
 private:
@@ -100,7 +91,7 @@ private:
 
     caf::PdmField<QString>              m_filterText;
     caf::PdmField<std::vector<QString>> m_addressCandidates;
-    caf::PdmField<std::vector<QString>> m_dataSourceCandidates;
+    caf::PdmField<std::vector<QString>> m_selectedDataSources;
 
     caf::PdmField<bool> m_includeDiffCurves;
 
@@ -108,6 +99,12 @@ private:
     caf::PdmField<bool> m_pushButtonNewPlot;
     caf::PdmField<bool> m_pushButtonAppend;
 
+    caf::PdmField<bool> m_individualPlotPerVector;
+    caf::PdmField<bool> m_individualPlotPerDataSource;
+    caf::PdmField<bool> m_createMultiPlot;
+
     caf::PdmField<QString> m_labelA;
     caf::PdmField<QString> m_labelB;
+
+    std::set<QString> m_previousDataSourceSelection;
 };

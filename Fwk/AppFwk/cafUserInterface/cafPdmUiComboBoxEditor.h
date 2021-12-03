@@ -61,6 +61,7 @@ public:
         minimumContentsLength      = 8;
         maximumMenuContentsLength  = 40;
         enableEditableContent      = false;
+        enableAutoComplete         = true;
         minimumWidth               = -1;
         iconSize                   = QSize( 14, 14 );
         notifyWhenTextIsEdited     = false;
@@ -73,6 +74,7 @@ public:
                                // Set to <= 0 to ignore and use AdjustToContentsOnFirstShow instead
     int     maximumMenuContentsLength;
     bool    enableEditableContent;
+    bool    enableAutoComplete;
     int     minimumWidth;
     QString placeholderText;
     QString nextButtonText;

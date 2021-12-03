@@ -131,6 +131,12 @@ void RiuPlotMainWindow::initializeGuiNewProjectLoaded()
         m_pdmUiPropertyView->currentObject()->uiCapability()->updateConnectedEditors();
     }
 
+    auto sumPlotManager = dynamic_cast<RimSummaryPlotManager*>( m_summaryPlotManager.get() );
+    if ( sumPlotManager )
+    {
+        sumPlotManager->updateConnectedEditors();
+    }
+
     {
         auto* obj = RiaSummaryTools::summaryCaseMainCollection();
         if ( obj )
