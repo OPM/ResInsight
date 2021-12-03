@@ -204,6 +204,8 @@ RimSummaryPlot::RimSummaryPlot()
     CAF_PDM_InitScriptableField( &m_description, "PlotDescription", QString( "Summary Plot" ), "Name" );
     CAF_PDM_InitScriptableField( &m_normalizeCurveYValues, "normalizeCurveYValues", false, "Normalize all curves" );
 
+    CAF_PDM_InitScriptableField( &m_useQtChartsPlot, "useQtChartsPlot", true, "Use Qt Charts" );
+
     CAF_PDM_InitFieldNoDefault( &m_summaryCurveCollection, "SummaryCurveCollection", "" );
     m_summaryCurveCollection.uiCapability()->setUiTreeHidden( true );
     m_summaryCurveCollection = new RimSummaryCurveCollection;
@@ -1937,6 +1939,7 @@ void RimSummaryPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
 
     caf::PdmUiGroup* mainOptions = uiOrdering.addNewGroup( "General Plot Options" );
     mainOptions->setCollapsedByDefault( true );
+    mainOptions->add( &m_useQtChartsPlot );
 
     if ( isMdiWindow() )
     {
@@ -1973,7 +1976,14 @@ RiuPlotWidget* RimSummaryPlot::doCreatePlotViewWidget( QWidget* mainWindowParent
 {
     if ( !plotWidget() )
     {
-        m_summaryPlot = std::make_unique<RiuSummaryQwtPlot>( this, mainWindowParent );
+        if ( m_useQtChartsPlot )
+        {
+            m_summaryPlot = std::make_unique<RiuSummaryQtChartsPlot>( this, mainWindowParent );
+        }
+        else
+        {
+            m_summaryPlot = std::make_unique<RiuSummaryQwtPlot>( this, mainWindowParent );
+        }
 
         for ( RimGridTimeHistoryCurve* curve : m_gridTimeHistoryCurves )
         {
