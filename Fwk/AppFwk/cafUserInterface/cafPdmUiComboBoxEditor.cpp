@@ -281,6 +281,11 @@ void PdmUiComboBoxEditor::configureAndUpdateUi( const QString& uiConfigName )
         {
             m_comboBox->setEditable( true );
 
+            if ( !m_attributes.enableAutoComplete )
+            {
+                m_comboBox->setCompleter( nullptr );
+            }
+
             m_comboBox->lineEdit()->setPlaceholderText( m_attributes.placeholderText );
         }
 
