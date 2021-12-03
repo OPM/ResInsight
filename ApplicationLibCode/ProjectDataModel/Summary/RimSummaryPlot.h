@@ -259,6 +259,8 @@ private:
     void axisLogarithmicChanged( const caf::SignalEmitter* emitter, bool isLogarithmic );
 
 private:
+    caf::PdmField<bool> m_useQtChartsPlot;
+
     caf::PdmField<bool> m_normalizeCurveYValues;
 
     caf::PdmField<bool>    m_useAutoPlotTitle;
