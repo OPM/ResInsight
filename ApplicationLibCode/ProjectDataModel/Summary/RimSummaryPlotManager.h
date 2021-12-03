@@ -64,7 +64,6 @@ private:
     bool eventFilter( QObject* obj, QEvent* event ) override;
 
     void updateCurveCandidates();
-    void updateDataSourceCandidates();
 
     std::vector<std::pair<QString, caf::PdmObject*>> findDataSourceCandidates() const;
 
@@ -92,7 +91,7 @@ private:
 
     caf::PdmField<QString>              m_filterText;
     caf::PdmField<std::vector<QString>> m_addressCandidates;
-    caf::PdmField<std::vector<QString>> m_dataSourceCandidates;
+    caf::PdmField<std::vector<QString>> m_selectedDataSources;
 
     caf::PdmField<bool> m_includeDiffCurves;
 
@@ -106,4 +105,6 @@ private:
 
     caf::PdmField<QString> m_labelA;
     caf::PdmField<QString> m_labelB;
+
+    std::set<QString> m_previousDataSourceSelection;
 };
