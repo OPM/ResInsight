@@ -26,6 +26,9 @@ class RifReaderRftInterface;
 class RifReaderEclipseRft;
 class RifReaderEclipseSummary;
 class RiaThreadSafeLogger;
+class RifOpmCommonEclipseSummary;
+class RifEclipseSummaryAddress;
+class RifMultipleSummaryReaders;
 
 //==================================================================================================
 //
@@ -52,6 +55,8 @@ public:
 
     void setIncludeRestartFiles( bool includeRestartFiles );
 
+    void setSummaryData( const RifEclipseSummaryAddress& address, const std::vector<double>& values );
+
     static RifSummaryReaderInterface* findRelatedFilesAndCreateReader( const QString&       headerFileName,
                                                                        bool                 includeRestartFiles,
                                                                        RiaThreadSafeLogger* threadSafeLogger );
@@ -59,7 +64,10 @@ public:
     static RifReaderEclipseRft* findRftDataAndCreateReader( const QString& headerFileName );
 
 private:
-    cvf::ref<RifSummaryReaderInterface> m_summaryFileReader;
+    cvf::ref<RifMultipleSummaryReaders> m_multiSummaryReader;
     cvf::ref<RifReaderEclipseRft>       m_summaryEclipseRftReader;
     caf::PdmField<bool>                 m_includeRestartFiles;
+
+    caf::PdmField<caf::FilePath>         m_additionalSummaryFilePath;
+    cvf::ref<RifOpmCommonEclipseSummary> m_additionalSummaryFileReader;
 };
