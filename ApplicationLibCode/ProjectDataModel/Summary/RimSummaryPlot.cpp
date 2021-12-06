@@ -1765,16 +1765,19 @@ std::set<RimPlotAxisPropertiesInterface*> RimSummaryPlot::allPlotAxes() const
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::cleanupBeforeClose()
 {
-    detachAllPlotItems();
-
-    if ( plotWidget() )
+    if ( isDeletable() )
     {
-        plotWidget()->setParent( nullptr );
-    }
+        detachAllPlotItems();
 
-    if ( m_summaryPlot )
-    {
-        m_summaryPlot.reset();
+        if ( plotWidget() )
+        {
+            plotWidget()->setParent( nullptr );
+        }
+
+        if ( m_summaryPlot )
+        {
+            m_summaryPlot.reset();
+        }
     }
 }
 

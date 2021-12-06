@@ -197,7 +197,7 @@ void RimMultiPlot::insertPlot( RimPlot* plot, size_t index )
         if ( m_viewer )
         {
             plot->createPlotWidget();
-            m_viewer->insertPlot( plot->viewer(), index );
+            m_viewer->insertPlot( plot->plotWidget(), index );
         }
         plot->setShowWindow( true );
         plot->updateAfterInsertingIntoMultiPlot();
@@ -215,7 +215,7 @@ void RimMultiPlot::removePlot( RimPlot* plot )
     {
         if ( m_viewer )
         {
-            m_viewer->removePlot( plot->viewer() );
+            m_viewer->removePlot( plot->plotWidget() );
         }
         m_plots.removeChildObject( plot );
 
@@ -391,8 +391,8 @@ void RimMultiPlot::doRenderWindowContent( QPaintDevice* paintDevice )
 void RimMultiPlot::updatePlotOrderFromGridWidget()
 {
     std::sort( m_plots.begin(), m_plots.end(), [this]( RimPlot* lhs, RimPlot* rhs ) {
-        auto indexLhs = m_viewer->indexOfPlotWidget( lhs->viewer() );
-        auto indexRhs = m_viewer->indexOfPlotWidget( rhs->viewer() );
+        auto indexLhs = m_viewer->indexOfPlotWidget( lhs->plotWidget() );
+        auto indexRhs = m_viewer->indexOfPlotWidget( rhs->plotWidget() );
         return indexLhs < indexRhs;
     } );
     updateSubPlotNames();
@@ -895,7 +895,7 @@ void RimMultiPlot::recreatePlotWidgets()
     for ( size_t tIdx = 0; tIdx < plotVector.size(); ++tIdx )
     {
         plotVector[tIdx]->createPlotWidget();
-        m_viewer->addPlot( plotVector[tIdx]->viewer() );
+        m_viewer->addPlot( plotVector[tIdx]->plotWidget() );
     }
 }
 
