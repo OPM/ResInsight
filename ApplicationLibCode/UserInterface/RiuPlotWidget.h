@@ -169,6 +169,8 @@ public:
 
     virtual RiuPlotCurve* createPlotCurve( const QString& title, const QColor& color ) = 0;
 
+    virtual const QColor& backgroundColor() const = 0;
+
 protected:
     static int defaultMinimumWidth();
 
