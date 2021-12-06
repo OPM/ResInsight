@@ -49,19 +49,18 @@ public:
     RiaDefines::PhaseType phase() const;
 
     // RimPlot implementations
-    RiuQwtPlotWidget* viewer() override;
-    RiuPlotWidget*    plotWidget() override;
-    void              setAutoScaleXEnabled( bool enabled ) override;
-    void              setAutoScaleYEnabled( bool enabled ) override;
-    void              updateAxes() override;
-    void              updateLegend() override;
-    void              updateZoomInParentPlot() override;
-    void              updateZoomFromParentPlot() override;
-    QString           asciiDataForPlotExport() const override;
-    void              reattachAllCurves() override;
-    void              detachAllCurves() override;
-    caf::PdmObject*   findPdmObjectFromPlotCurve( const RiuPlotCurve* curve ) const override;
-    void              onAxisSelected( int axis, bool toggle ) override;
+    RiuPlotWidget*  plotWidget() override;
+    void            setAutoScaleXEnabled( bool enabled ) override;
+    void            setAutoScaleYEnabled( bool enabled ) override;
+    void            updateAxes() override;
+    void            updateLegend() override;
+    void            updateZoomInParentPlot() override;
+    void            updateZoomFromParentPlot() override;
+    QString         asciiDataForPlotExport() const override;
+    void            reattachAllCurves() override;
+    void            detachAllCurves() override;
+    caf::PdmObject* findPdmObjectFromPlotCurve( const RiuPlotCurve* curve ) const override;
+    void            onAxisSelected( int axis, bool toggle ) override;
 
     // RimPlotWindow implementations
     QString description() const override;

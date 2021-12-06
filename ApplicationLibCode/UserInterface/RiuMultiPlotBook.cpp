@@ -29,18 +29,12 @@
 #include "RiuMultiPlotPage.h"
 #include "RiuPlotMainWindow.h"
 #include "RiuPlotObjectPicker.h"
-#include "RiuQwtPlotLegend.h"
-#include "RiuQwtPlotWidget.h"
+#include "RiuPlotWidget.h"
 
 #include "cafCmdFeatureMenuBuilder.h"
 #include "cafSelectionManager.h"
 
 #include "cvfAssert.h"
-
-#include "qwt_legend.h"
-#include "qwt_plot_layout.h"
-#include "qwt_plot_renderer.h"
-#include "qwt_scale_draw.h"
 
 #include <QDebug>
 #include <QFocusEvent>
@@ -156,7 +150,7 @@ RimViewWindow* RiuMultiPlotBook::ownerViewWindow() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuMultiPlotBook::addPlot( RiuQwtPlotWidget* plotWidget )
+void RiuMultiPlotBook::addPlot( RiuPlotWidget* plotWidget )
 {
     // Push the plot to the back of the list
     insertPlot( plotWidget, m_plotWidgets.size() );
@@ -165,7 +159,7 @@ void RiuMultiPlotBook::addPlot( RiuQwtPlotWidget* plotWidget )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuMultiPlotBook::insertPlot( RiuQwtPlotWidget* plotWidget, size_t index )
+void RiuMultiPlotBook::insertPlot( RiuPlotWidget* plotWidget, size_t index )
 {
     m_plotWidgets.insert( static_cast<int>( index ), plotWidget );
     scheduleUpdate();
@@ -174,7 +168,7 @@ void RiuMultiPlotBook::insertPlot( RiuQwtPlotWidget* plotWidget, size_t index )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuMultiPlotBook::removePlot( RiuQwtPlotWidget* plotWidget )
+void RiuMultiPlotBook::removePlot( RiuPlotWidget* plotWidget )
 {
     if ( !plotWidget ) return;
 
@@ -277,7 +271,7 @@ void RiuMultiPlotBook::setAxisFontSizes( int axisTitleFontSize, int axisValueFon
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int RiuMultiPlotBook::indexOfPlotWidget( RiuQwtPlotWidget* plotWidget )
+int RiuMultiPlotBook::indexOfPlotWidget( RiuPlotWidget* plotWidget )
 {
     return m_plotWidgets.indexOf( plotWidget );
 }
@@ -316,7 +310,7 @@ void RiuMultiPlotBook::scheduleUpdate()
 //--------------------------------------------------------------------------------------------------
 void RiuMultiPlotBook::scheduleReplotOfAllPlots()
 {
-    for ( RiuQwtPlotWidget* plotWidget : visiblePlotWidgets() )
+    for ( RiuPlotWidget* plotWidget : visiblePlotWidgets() )
     {
         plotWidget->scheduleReplot();
     }
@@ -466,10 +460,10 @@ void RiuMultiPlotBook::performUpdate()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<QPointer<RiuQwtPlotWidget>> RiuMultiPlotBook::visiblePlotWidgets() const
+QList<QPointer<RiuPlotWidget>> RiuMultiPlotBook::visiblePlotWidgets() const
 {
-    QList<QPointer<RiuQwtPlotWidget>> plotWidgets;
-    for ( QPointer<RiuQwtPlotWidget> plotWidget : m_plotWidgets )
+    QList<QPointer<RiuPlotWidget>> plotWidgets;
+    for ( QPointer<RiuPlotWidget> plotWidget : m_plotWidgets )
     {
         CAF_ASSERT( plotWidget );
         if ( plotWidget->isChecked() )
@@ -501,8 +495,8 @@ void RiuMultiPlotBook::createPages()
 {
     CAF_ASSERT( m_plotDefinition );
 
-    QList<QPointer<RiuQwtPlotWidget>> plotWidgets       = this->visiblePlotWidgets();
-    auto                              rowAndColumnCount = this->rowAndColumnCount( plotWidgets.size() );
+    QList<QPointer<RiuPlotWidget>> plotWidgets       = this->visiblePlotWidgets();
+    auto                           rowAndColumnCount = this->rowAndColumnCount( plotWidgets.size() );
 
     int rowsPerPage = m_plotDefinition->rowsPerPage();
     int row         = 0;

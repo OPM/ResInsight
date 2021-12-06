@@ -109,7 +109,7 @@ public:
     void                      setAxisRange( RiaDefines::PlotAxis axis, double min, double max ) override;
 
     void setAxisInverted( RiaDefines::PlotAxis axis, bool isInverted ) override;
-    void setAxisLabelsAndTicksEnabled( RiaDefines::PlotAxis axis, bool enableLabels, bool enableTicks );
+    void setAxisLabelsAndTicksEnabled( RiaDefines::PlotAxis axis, bool enableLabels, bool enableTicks ) override;
 
     void enableGridLines( RiaDefines::PlotAxis axis, bool majorGridLines, bool minorGridLines );
 

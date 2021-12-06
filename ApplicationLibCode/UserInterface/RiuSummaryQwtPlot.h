@@ -74,7 +74,7 @@ private slots:
 
 private:
     std::unique_ptr<RiuPlotAnnotationTool> m_annotationTool;
-    std::unique_ptr<RiuQwtPlotWidget>      m_plotWidget;
+    QPointer<RiuQwtPlotWidget>             m_plotWidget;
 
     QPointer<RiuQwtPlotZoomer>      m_zoomerLeft;
     QPointer<RiuQwtPlotZoomer>      m_zoomerRight;

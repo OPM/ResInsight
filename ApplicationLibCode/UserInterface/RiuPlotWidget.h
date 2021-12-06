@@ -122,8 +122,8 @@ public:
     virtual std::pair<double, double> axisRange( RiaDefines::PlotAxis axis ) const                      = 0;
     virtual void                      setAxisRange( RiaDefines::PlotAxis axis, double min, double max ) = 0;
 
-    virtual void setAxisInverted( RiaDefines::PlotAxis axis, bool isInverted ) = 0;
-    void         setAxisLabelsAndTicksEnabled( RiaDefines::PlotAxis axis, bool enableLabels, bool enableTicks );
+    virtual void setAxisInverted( RiaDefines::PlotAxis axis, bool isInverted )                                  = 0;
+    virtual void setAxisLabelsAndTicksEnabled( RiaDefines::PlotAxis axis, bool enableLabels, bool enableTicks ) = 0;
 
     void enableGridLines( RiaDefines::PlotAxis axis, bool majorGridLines, bool minorGridLines );
 

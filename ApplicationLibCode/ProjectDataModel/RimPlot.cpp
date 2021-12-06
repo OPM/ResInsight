@@ -26,11 +26,9 @@
 #include "RimPlotWindow.h"
 
 #include "RiuPlotMainWindowTools.h"
-#include "RiuQwtPlotWidget.h"
+#include "RiuPlotWidget.h"
 
 #include "cafPdmObject.h"
-
-#include "qwt_plot_curve.h"
 
 namespace caf
 {
@@ -89,14 +87,6 @@ QWidget* RimPlot::createViewWidget( QWidget* parent /*= nullptr */ )
 QWidget* RimPlot::createPlotWidget( QWidget* parent )
 {
     return createViewWidget( parent );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RiuQwtPlotWidget* RimPlot::viewer()
-{
-    return dynamic_cast<RiuQwtPlotWidget*>( plotWidget() );
 }
 
 //--------------------------------------------------------------------------------------------------

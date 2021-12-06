@@ -34,6 +34,7 @@
 #include "RiuMainWindow.h"
 #include "RiuPlotMainWindow.h"
 #include "RiuPlotObjectPicker.h"
+#include "RiuPlotWidget.h"
 #include "RiuQwtPlotLegend.h"
 #include "RiuQwtPlotWidget.h"
 
@@ -133,7 +134,7 @@ RimPlotWindow* RiuMultiPlotPage::ownerPlotDefinition()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuMultiPlotPage::addPlot( RiuQwtPlotWidget* plotWidget )
+void RiuMultiPlotPage::addPlot( RiuPlotWidget* plotWidget )
 {
     // Insert the plot to the left of the scroll bar
     insertPlot( plotWidget, m_plotWidgets.size() );
@@ -142,7 +143,7 @@ void RiuMultiPlotPage::addPlot( RiuQwtPlotWidget* plotWidget )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuMultiPlotPage::insertPlot( RiuQwtPlotWidget* plotWidget, size_t index )
+void RiuMultiPlotPage::insertPlot( RiuPlotWidget* plotWidget, size_t index )
 {
     m_plotWidgets.insert( static_cast<int>( index ), plotWidget );
     plotWidget->setVisible( false );
@@ -183,7 +184,7 @@ void RiuMultiPlotPage::insertPlot( RiuQwtPlotWidget* plotWidget, size_t index )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuMultiPlotPage::removePlot( RiuQwtPlotWidget* plotWidget )
+void RiuMultiPlotPage::removePlot( RiuPlotWidget* plotWidget )
 {
     if ( !plotWidget ) return;
 
@@ -215,7 +216,7 @@ void RiuMultiPlotPage::removePlot( RiuQwtPlotWidget* plotWidget )
 void RiuMultiPlotPage::removeAllPlots()
 {
     auto plotWidgets = m_plotWidgets;
-    for ( RiuQwtPlotWidget* plotWidget : plotWidgets )
+    for ( RiuPlotWidget* plotWidget : plotWidgets )
     {
         removePlot( plotWidget );
     }
@@ -296,7 +297,7 @@ void RiuMultiPlotPage::setPagePreviewModeEnabled( bool previewMode )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int RiuMultiPlotPage::indexOfPlotWidget( RiuQwtPlotWidget* plotWidget )
+int RiuMultiPlotPage::indexOfPlotWidget( RiuPlotWidget* plotWidget )
 {
     return m_plotWidgets.indexOf( plotWidget );
 }
@@ -315,7 +316,7 @@ void RiuMultiPlotPage::scheduleUpdate()
 //--------------------------------------------------------------------------------------------------
 void RiuMultiPlotPage::scheduleReplotOfAllPlots()
 {
-    for ( RiuQwtPlotWidget* plotWidget : visiblePlotWidgets() )
+    for ( RiuPlotWidget* plotWidget : visiblePlotWidgets() )
     {
         plotWidget->scheduleReplot();
     }
@@ -517,7 +518,7 @@ void RiuMultiPlotPage::onSelectionManagerSelectionChanged( const std::set<int>& 
 {
     if ( !m_plotDefinition ) return;
 
-    for ( RiuQwtPlotWidget* plotWidget : m_plotWidgets )
+    for ( RiuPlotWidget* plotWidget : m_plotWidgets )
     {
         CAF_ASSERT( plotWidget );
         RimPlot* plot = plotWidget->plotDefinition();
@@ -587,7 +588,7 @@ void RiuMultiPlotPage::reinsertPlotWidgets()
 
     QList<QPointer<QLabel>>           subTitles   = this->subTitlesForVisiblePlots();
     QList<QPointer<RiuQwtPlotLegend>> legends     = this->legendsForVisiblePlots();
-    QList<QPointer<RiuQwtPlotWidget>> plotWidgets = this->visiblePlotWidgets();
+    QList<QPointer<RiuPlotWidget>>    plotWidgets = this->visiblePlotWidgets();
 
     if ( !plotWidgets.empty() )
     {
@@ -665,7 +666,7 @@ int RiuMultiPlotPage::alignCanvasTops()
 {
     CVF_ASSERT( m_legends.size() == m_plotWidgets.size() );
 
-    QList<QPointer<RiuQwtPlotWidget>> plotWidgets = visiblePlotWidgets();
+    QList<QPointer<RiuPlotWidget>>    plotWidgets = visiblePlotWidgets();
     QList<QPointer<RiuQwtPlotLegend>> legends     = legendsForVisiblePlots();
     if ( plotWidgets.empty() ) return 0;
 
@@ -675,23 +676,30 @@ int RiuMultiPlotPage::alignCanvasTops()
 
     for ( int visibleIndex = 0; visibleIndex < plotWidgets.size(); ++visibleIndex )
     {
-        int row = visibleIndex / rowAndColumnCount.second;
-        if ( plotWidgets[visibleIndex]->axisEnabled( RiaDefines::PlotAxis::PLOT_AXIS_TOP ) )
+        RiuQwtPlotWidget* qwtPlotWidget = dynamic_cast<RiuQwtPlotWidget*>( plotWidgets[visibleIndex].data() );
+        if ( qwtPlotWidget )
         {
-            QFont font = m_plotWidgets[visibleIndex]->qwtPlot()->axisFont( QwtPlot::xTop );
-            maxExtents[row] =
-                std::max( maxExtents[row],
-                          plotWidgets[visibleIndex]->qwtPlot()->axisScaleDraw( QwtPlot::xTop )->extent( font ) );
+            int row = visibleIndex / rowAndColumnCount.second;
+            if ( plotWidgets[visibleIndex]->axisEnabled( RiaDefines::PlotAxis::PLOT_AXIS_TOP ) )
+            {
+                QFont font      = qwtPlotWidget->qwtPlot()->axisFont( QwtPlot::xTop );
+                maxExtents[row] = std::max( maxExtents[row],
+                                            qwtPlotWidget->qwtPlot()->axisScaleDraw( QwtPlot::xTop )->extent( font ) );
+            }
         }
     }
 
     for ( int visibleIndex = 0; visibleIndex < plotWidgets.size(); ++visibleIndex )
     {
-        int row = visibleIndex / rowAndColumnCount.second;
-        plotWidgets[visibleIndex]->qwtPlot()->axisScaleDraw( QwtPlot::xTop )->setMinimumExtent( maxExtents[row] );
-        if ( legends[visibleIndex] )
+        RiuQwtPlotWidget* qwtPlotWidget = dynamic_cast<RiuQwtPlotWidget*>( plotWidgets[visibleIndex].data() );
+        if ( qwtPlotWidget )
         {
-            legends[visibleIndex]->adjustSize();
+            int row = visibleIndex / rowAndColumnCount.second;
+            qwtPlotWidget->qwtPlot()->axisScaleDraw( QwtPlot::xTop )->setMinimumExtent( maxExtents[row] );
+            if ( legends[visibleIndex] )
+            {
+                legends[visibleIndex]->adjustSize();
+            }
         }
     }
     return maxExtents[0];
@@ -727,10 +735,10 @@ void RiuMultiPlotPage::clearGridLayout()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<QPointer<RiuQwtPlotWidget>> RiuMultiPlotPage::visiblePlotWidgets() const
+QList<QPointer<RiuPlotWidget>> RiuMultiPlotPage::visiblePlotWidgets() const
 {
-    QList<QPointer<RiuQwtPlotWidget>> plotWidgets;
-    for ( QPointer<RiuQwtPlotWidget> plotWidget : m_plotWidgets )
+    QList<QPointer<RiuPlotWidget>> plotWidgets;
+    for ( QPointer<RiuPlotWidget> plotWidget : m_plotWidgets )
     {
         if ( plotWidget->isChecked() )
         {

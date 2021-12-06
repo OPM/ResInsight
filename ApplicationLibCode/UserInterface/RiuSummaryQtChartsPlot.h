@@ -74,9 +74,5 @@ protected:
 
 private:
     //    std::unique_ptr<RiuPlotAnnotationTool> m_annotationTool;
-    std::unique_ptr<RiuQtChartsPlotWidget> m_plotWidget;
-
-    // QPointer<RiuQwtPlotZoomer>      m_zoomerLeft;
-    // QPointer<RiuQwtPlotZoomer>      m_zoomerRight;
-    // QPointer<RiuQwtPlotWheelZoomer> m_wheelZoomer;
+    QPointer<RiuQtChartsPlotWidget> m_plotWidget;
 };

@@ -124,7 +124,6 @@ public:
     time_t                        firstTimeStepOfFirstCurve();
 
     QWidget* viewWidget() override;
-    //    RiuQwtPlotWidget* viewer() override;
 
     QString asciiDataForPlotExport() const override;
     QString asciiDataForSummaryPlotExport( RiaQDateTimeTools::DateTimePeriod resamplingPeriod,

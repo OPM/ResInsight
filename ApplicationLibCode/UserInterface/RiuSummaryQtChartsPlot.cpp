@@ -68,35 +68,12 @@
 RiuSummaryQtChartsPlot::RiuSummaryQtChartsPlot( RimSummaryPlot* plot, QWidget* parent /*= nullptr*/ )
     : RiuSummaryPlot( plot, parent )
 {
-    m_plotWidget = std::make_unique<RiuQtChartsPlotWidget>( plot );
-
-    // // LeftButton for the zooming
-    // m_zoomerLeft = new RiuQwtPlotZoomer( m_plotWidget->qwtPlot()->canvas() );
-    // m_zoomerLeft->setTrackerMode( QwtPicker::AlwaysOff );
-    // m_zoomerLeft->initMousePattern( 1 );
-
-    // // Attach a zoomer for the right axis
-    // m_zoomerRight = new RiuQwtPlotZoomer( m_plotWidget->qwtPlot()->canvas() );
-    // m_zoomerRight->setAxis( QwtPlot::xTop, QwtPlot::yRight );
-    // m_zoomerRight->setTrackerMode( QwtPicker::AlwaysOff );
-    // m_zoomerRight->initMousePattern( 1 );
-
-    // // MidButton for the panning
-    // QwtPlotPanner* panner = new QwtPlotPanner( m_plotWidget->qwtPlot()->canvas() );
-    // panner->setMouseButton( Qt::MidButton );
-
-    // m_wheelZoomer = new RiuQwtPlotWheelZoomer( m_plotWidget->qwtPlot() );
-
-    // connect( m_wheelZoomer, SIGNAL( zoomUpdated() ), SLOT( onZoomedSlot() ) );
-    // connect( m_zoomerLeft, SIGNAL( zoomed( const QRectF& ) ), SLOT( onZoomedSlot() ) );
-    // connect( m_zoomerRight, SIGNAL( zoomed( const QRectF& ) ), SLOT( onZoomedSlot() ) );
-    // connect( panner, SIGNAL( panned( int, int ) ), SLOT( onZoomedSlot() ) );
+    m_plotWidget = new RiuQtChartsPlotWidget( plot );
 
     setDefaults();
-    // new RiuQwtCurvePointTracker( m_plotWidget->qwtPlot(), true, &ensembleCurveInfoTextProvider );
 
-    RiuQtChartsPlotTools::setCommonPlotBehaviour( m_plotWidget.get() );
-    RiuQtChartsPlotTools::setDefaultAxes( m_plotWidget.get() );
+    RiuQtChartsPlotTools::setCommonPlotBehaviour( m_plotWidget );
+    RiuQtChartsPlotTools::setDefaultAxes( m_plotWidget );
 
     m_plotWidget->setInternalLegendVisible( true );
 
@@ -119,7 +96,7 @@ void RiuSummaryQtChartsPlot::useDateBasedTimeAxis( const QString&               
                                                    RiaQDateTimeTools::TimeFormatComponents timeComponents )
 {
     m_plotWidget->setAxisScaleType( RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM, RiuPlotWidget::AxisScaleType::DATE );
-    RiuQtChartsPlotTools::enableDateBasedBottomXAxis( m_plotWidget.get(), dateFormat, timeFormat, dateComponents, timeComponents );
+    RiuQtChartsPlotTools::enableDateBasedBottomXAxis( m_plotWidget, dateFormat, timeFormat, dateComponents, timeComponents );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -377,5 +354,5 @@ void RiuSummaryQtChartsPlot::setDefaults()
 //--------------------------------------------------------------------------------------------------
 RiuPlotWidget* RiuSummaryQtChartsPlot::plotWidget() const
 {
-    return m_plotWidget.get();
+    return m_plotWidget;
 }
