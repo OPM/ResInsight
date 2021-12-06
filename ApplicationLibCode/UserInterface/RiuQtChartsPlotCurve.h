@@ -73,6 +73,8 @@ public:
 protected:
     void setSamplesInPlot( const std::vector<double>&, const std::vector<double>&, int ) override;
 
+    QtCharts::QLineSeries* lineSeries() const;
+
     cvf::BoundingBox computeBoundingBox() const;
 
     QtCharts::QLineSeries* m_lineSeries;

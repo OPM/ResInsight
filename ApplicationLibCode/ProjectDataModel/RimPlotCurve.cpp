@@ -940,7 +940,7 @@ void RimPlotCurve::updateCurveAppearance()
 //--------------------------------------------------------------------------------------------------
 void RimPlotCurve::clearErrorBars()
 {
-    m_plotCurve->clearErrorBars();
+    if ( m_plotCurve ) m_plotCurve->clearErrorBars();
 
     // m_qwtCurveErrorBars->setSamples( nullptr );
 }

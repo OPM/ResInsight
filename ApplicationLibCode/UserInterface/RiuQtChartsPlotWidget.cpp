@@ -1046,10 +1046,14 @@ QtCharts::QChart* RiuQtChartsPlotWidget::qtChart()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuQtChartsPlotWidget::attach( QtCharts::QAbstractSeries* series, RiaDefines::PlotAxis xAxis, RiaDefines::PlotAxis yAxis )
+void RiuQtChartsPlotWidget::attach( RiuPlotCurve*              plotCurve,
+                                    QtCharts::QAbstractSeries* series,
+                                    RiaDefines::PlotAxis       xAxis,
+                                    RiaDefines::PlotAxis       yAxis )
 {
     if ( !series->chart() )
     {
+        m_plotCurveSeriesMap[plotCurve] = series;
         qtChart()->addSeries( series );
         setXAxis( xAxis, series );
         setXAxis( yAxis, series );
@@ -1061,10 +1065,25 @@ void RiuQtChartsPlotWidget::attach( QtCharts::QAbstractSeries* series, RiaDefine
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QtCharts::QAbstractSeries* RiuQtChartsPlotWidget::getSeries( const RiuPlotCurve* plotCurve ) const
+{
+    auto series = m_plotCurveSeriesMap.find( plotCurve );
+    if ( series != m_plotCurveSeriesMap.end() )
+        return series->second;
+    else
+        return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiuQtChartsPlotWidget::detachItems( RiuPlotWidget::PlotItemType plotItemType )
 {
+    cvf::Trace::show( "RiuQtChartsPlotWidget::detachItems" );
+
     if ( plotItemType == RiuPlotWidget::PlotItemType::CURVE )
     {
+        m_plotCurveSeriesMap.clear();
         qtChart()->removeAllSeries();
     }
     else
