@@ -1239,3 +1239,11 @@ void RiuQtChartsPlotWidget::wheelEvent( QWheelEvent* event )
 
     event->accept();
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const QColor& RiuQtChartsPlotWidget::backgroundColor() const
+{
+    return m_viewer->chart()->backgroundBrush().color();
+}

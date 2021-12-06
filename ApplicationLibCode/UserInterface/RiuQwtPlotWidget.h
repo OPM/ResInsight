@@ -162,6 +162,8 @@ public:
                               int*          closestCurvePoint,
                               double*       distanceFromClick ) const;
 
+    const QColor& backgroundColor() const override;
+
 signals:
     void plotSelected( bool toggleSelection );
     void axisSelected( int axisId, bool toggleSelection );
