@@ -100,6 +100,7 @@ void RimMdiWindowController::removeWindowFromMDI()
     if ( mainWin && viewWidget() )
     {
         mainWin->removeViewer( viewWidget() );
+        viewPdmObject()->deleteViewWidget();
     }
 }
 

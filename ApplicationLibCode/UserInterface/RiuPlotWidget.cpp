@@ -48,10 +48,6 @@ RiuPlotWidget::RiuPlotWidget( RimPlot* plotDefinition, QWidget* parent )
 //--------------------------------------------------------------------------------------------------
 RiuPlotWidget::~RiuPlotWidget()
 {
-    if ( m_plotDefinition )
-    {
-        m_plotDefinition->detachAllCurves();
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
