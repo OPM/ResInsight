@@ -39,6 +39,7 @@
 #include <QVBoxLayout>
 
 #include <QDateTimeAxis>
+#include <QGraphicsLayout>
 #include <QLogValueAxis>
 #include <QValueAxis>
 
@@ -55,9 +56,12 @@ RiuQtChartsPlotWidget::RiuQtChartsPlotWidget( RimPlot* plotDefinition, QWidget* 
     CAF_ASSERT( m_plotDefinition );
 
     QVBoxLayout* layout = new QVBoxLayout;
+    layout->setContentsMargins( 0, 0, 0, 0 );
     setLayout( layout );
 
     QtCharts::QChart* chart = new QtCharts::QChart();
+    chart->layout()->setContentsMargins( 0, 0, 0, 0 );
+    chart->setBackgroundRoundness( 0 );
 
     m_viewer = new RiuQtChartView( nullptr, parent );
     m_viewer->setChart( chart );
