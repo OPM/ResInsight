@@ -52,6 +52,11 @@ RiuQtChartsPlotCurve::RiuQtChartsPlotCurve( const QString& title )
 //--------------------------------------------------------------------------------------------------
 RiuQtChartsPlotCurve::~RiuQtChartsPlotCurve()
 {
+    detach();
+
+    // Delete if it is still owned by by plot curve
+    delete m_lineSeries;
+    m_lineSeries = nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -59,7 +64,7 @@ RiuQtChartsPlotCurve::~RiuQtChartsPlotCurve()
 //--------------------------------------------------------------------------------------------------
 void RiuQtChartsPlotCurve::setTitle( const QString& title )
 {
-    m_lineSeries->setName( title );
+    lineSeries()->setName( title );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -114,7 +119,7 @@ void RiuQtChartsPlotCurve::setAppearance( RiuQwtPlotCurveDefines::LineStyleEnum 
     curvePen.setWidth( curveThickness );
     curvePen.setStyle( penStyle );
 
-    m_lineSeries->setPen( curvePen );
+    lineSeries()->setPen( curvePen );
     // setStyle( curveStyle );
     // setBrush( fillBrush );
 }
@@ -124,7 +129,7 @@ void RiuQtChartsPlotCurve::setAppearance( RiuQwtPlotCurveDefines::LineStyleEnum 
 //--------------------------------------------------------------------------------------------------
 void RiuQtChartsPlotCurve::setSymbolAppearance( RiuQwtSymbol::PointSymbolEnum, int size, const QColor& color )
 {
-    m_lineSeries->setPointsVisible();
+    lineSeries()->setPointsVisible();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -132,7 +137,7 @@ void RiuQtChartsPlotCurve::setSymbolAppearance( RiuQwtSymbol::PointSymbolEnum, i
 //--------------------------------------------------------------------------------------------------
 void RiuQtChartsPlotCurve::setBrush( const QBrush& brush )
 {
-    m_lineSeries->setBrush( brush );
+    lineSeries()->setBrush( brush );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -142,7 +147,17 @@ void RiuQtChartsPlotCurve::attachToPlot( RiuPlotWidget* plotWidget )
 {
     m_plotWidget = dynamic_cast<RiuQtChartsPlotWidget*>( plotWidget );
     CAF_ASSERT( m_plotWidget );
-    m_plotWidget->attach( m_lineSeries, m_axisX, m_axisY );
+
+    if ( m_plotWidget->getSeries( this ) )
+    {
+        lineSeries()->show();
+    }
+    else
+    {
+        m_plotWidget->attach( this, lineSeries(), m_axisX, m_axisY );
+        // Plot widget takes ownership.
+        m_lineSeries = nullptr;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -151,9 +166,18 @@ void RiuQtChartsPlotCurve::attachToPlot( RiuPlotWidget* plotWidget )
 void RiuQtChartsPlotCurve::detach()
 {
     // TODO: not sure about this one..
+    if ( lineSeries() )
+    {
+        lineSeries()->hide();
+    }
     m_plotWidget = nullptr;
-    m_lineSeries->hide();
-    m_lineSeries->chart()->removeSeries( m_lineSeries );
+
+    // if ( m_lineSeries && m_lineSeries->chart() )
+    // {
+    //     m_lineSeries->hide();
+    //     // m_lineSeries->chart()->removeSeries( m_lineSeries );
+    //     // m_lineSeries = nullptr;
+    // }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -175,9 +199,10 @@ void RiuQtChartsPlotCurve::setSamplesInPlot( const std::vector<double>& xValues,
     CAF_ASSERT( numValues <= static_cast<int>( xValues.size() ) );
     CAF_ASSERT( numValues >= 0 );
 
+    lineSeries()->clear();
     for ( int i = 0; i < numValues; i++ )
     {
-        m_lineSeries->append( xValues[i], yValues[i] );
+        lineSeries()->append( xValues[i], yValues[i] );
     }
 }
 
@@ -201,7 +226,7 @@ void RiuQtChartsPlotCurve::clearErrorBars()
 void RiuQtChartsPlotCurve::setXAxis( RiaDefines::PlotAxis axis )
 {
     m_axisX = axis;
-    if ( m_plotWidget ) m_plotWidget->setXAxis( axis, m_lineSeries );
+    if ( m_plotWidget ) m_plotWidget->setXAxis( axis, lineSeries() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -210,7 +235,7 @@ void RiuQtChartsPlotCurve::setXAxis( RiaDefines::PlotAxis axis )
 void RiuQtChartsPlotCurve::setYAxis( RiaDefines::PlotAxis axis )
 {
     m_axisY = axis;
-    if ( m_plotWidget ) m_plotWidget->setYAxis( axis, m_lineSeries );
+    if ( m_plotWidget ) m_plotWidget->setYAxis( axis, lineSeries() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -218,7 +243,7 @@ void RiuQtChartsPlotCurve::setYAxis( RiaDefines::PlotAxis axis )
 //--------------------------------------------------------------------------------------------------
 int RiuQtChartsPlotCurve::numSamples() const
 {
-    return m_lineSeries->count();
+    return lineSeries()->count();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -227,7 +252,7 @@ int RiuQtChartsPlotCurve::numSamples() const
 std::pair<double, double> RiuQtChartsPlotCurve::sample( int index ) const
 {
     CAF_ASSERT( index >= 0 && index <= numSamples() );
-    auto p = m_lineSeries->at( index );
+    auto p = lineSeries()->at( index );
     return std::make_pair( p.x(), p.y() );
 }
 
@@ -254,7 +279,7 @@ std::pair<double, double> RiuQtChartsPlotCurve::yDataRange() const
 //--------------------------------------------------------------------------------------------------
 cvf::BoundingBox RiuQtChartsPlotCurve::computeBoundingBox() const
 {
-    auto points = m_lineSeries->pointsVector();
+    auto points = lineSeries()->pointsVector();
 
     cvf::BoundingBox bb;
     for ( auto p : points )
@@ -271,5 +296,22 @@ void RiuQtChartsPlotCurve::setVisibleInLegend( bool isVisibleInLegend )
     CAF_ASSERT( m_plotWidget );
     CAF_ASSERT( m_plotWidget->qtChart() );
     CAF_ASSERT( m_plotWidget->qtChart()->legend() );
-    m_plotWidget->qtChart()->legend()->markers( m_lineSeries )[0]->setVisible( isVisibleInLegend );
+    if ( lineSeries() )
+    {
+        auto markers = m_plotWidget->qtChart()->legend()->markers( lineSeries() );
+        if ( !markers.isEmpty() ) markers[0]->setVisible( isVisibleInLegend );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QtCharts::QLineSeries* RiuQtChartsPlotCurve::lineSeries() const
+{
+    if ( m_lineSeries )
+        return m_lineSeries;
+    else if ( m_plotWidget )
+        return dynamic_cast<QtCharts::QLineSeries*>( m_plotWidget->getSeries( this ) );
+    else
+        return nullptr;
 }

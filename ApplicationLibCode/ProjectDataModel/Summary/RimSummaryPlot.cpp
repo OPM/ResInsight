@@ -1767,12 +1767,13 @@ void RimSummaryPlot::cleanupBeforeClose()
 {
     detachAllPlotItems();
 
+    if ( plotWidget() )
+    {
+        plotWidget()->setParent( nullptr );
+    }
+
     if ( m_summaryPlot )
     {
-        // TODO:
-        // plotWidget()->setParent( nullptr );
-        // delete m_summaryPlot;
-        // m_summaryPlot = nullptr;
         m_summaryPlot.reset();
     }
 }
@@ -2108,7 +2109,10 @@ void RimSummaryPlot::detachAllPlotItems()
         m_summaryCurveCollection->detachPlotCurves();
     }
 
-    m_ensembleCurveSetCollection->detachPlotCurves();
+    if ( m_ensembleCurveSetCollection )
+    {
+        m_ensembleCurveSetCollection->detachPlotCurves();
+    }
 
     for ( RimGridTimeHistoryCurve* curve : m_gridTimeHistoryCurves )
     {
