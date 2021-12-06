@@ -1217,13 +1217,12 @@ cvf::Color3f RimWellRftPlot::findCurveColor( RimWellLogCurve* curve )
 
         if ( m_showStatisticsCurves )
         {
-            // TODO: find better way to background color of plot
-            // if ( plotByIndex( 0 ) && plotByIndex( 0 )->viewer() )
-            // {
-            //     cvf::Color3f backgroundColor =
-            //         RiaColorTools::fromQColorTo3f( plotByIndex( 0 )->viewer()->canvasBackground().color() );
-            //     curveColor = RiaColorTools::blendCvfColors( backgroundColor, curveColor, 1, 2 );
-            // }
+            if ( plotByIndex( 0 ) && plotByIndex( 0 )->plotWidget() )
+            {
+                cvf::Color3f backgroundColor =
+                    RiaColorTools::fromQColorTo3f( plotByIndex( 0 )->plotWidget()->backgroundColor() );
+                curveColor = RiaColorTools::blendCvfColors( backgroundColor, curveColor, 1, 2 );
+            }
         }
     }
     else

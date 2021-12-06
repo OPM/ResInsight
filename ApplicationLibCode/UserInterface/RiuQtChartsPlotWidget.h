@@ -171,6 +171,8 @@ public:
     void setXAxis( RiaDefines::PlotAxis axis, QtCharts::QAbstractSeries* series );
     void setYAxis( RiaDefines::PlotAxis axis, QtCharts::QAbstractSeries* series );
 
+    const QColor& backgroundColor() const override;
+
 protected:
     void setAxis( RiaDefines::PlotAxis axis, QtCharts::QAbstractSeries* series );
 

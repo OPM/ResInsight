@@ -1235,3 +1235,11 @@ void RiuQwtPlotWidget::detachItems( RiuPlotWidget::PlotItemType plotItemType )
     CAF_ASSERT( plotItemType == RiuPlotWidget::PlotItemType::CURVE );
     if ( plotItemType == RiuPlotWidget::PlotItemType::CURVE ) qwtPlot()->detachItems( QwtPlotItem::Rtti_PlotCurve );
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const QColor& RiuQwtPlotWidget::backgroundColor() const
+{
+    return m_plot->canvasBackground().color();
+}
