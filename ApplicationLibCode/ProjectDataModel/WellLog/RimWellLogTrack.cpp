@@ -2697,7 +2697,7 @@ void RimWellLogTrack::updateFormationNamesOnPlot()
                                                   { Qt::SolidPattern, Qt::Dense6Pattern } );
         }
 
-        if ( m_formationSource == CASE )
+        if ( m_formationSource == CASE && m_plotWidget )
         {
             if ( ( m_formationSimWellName == QString( "None" ) && m_formationWellPathForSourceCase == nullptr ) ||
                  m_formationCase == nullptr )

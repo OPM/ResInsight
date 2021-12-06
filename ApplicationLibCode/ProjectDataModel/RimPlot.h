@@ -93,8 +93,6 @@ public:
     }
 
     virtual RiuPlotWidget* plotWidget() = 0;
-    // TODO: remove or combine with viewer.
-    virtual RiuQwtPlotWidget* viewer();
 
     virtual void            updateZoomInParentPlot(){}; //  = 0;
     virtual void            updateZoomFromParentPlot(){}; //= 0;

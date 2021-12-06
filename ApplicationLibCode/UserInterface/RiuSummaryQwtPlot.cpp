@@ -107,7 +107,7 @@ static EnsembleCurveInfoTextProvider ensembleCurveInfoTextProvider;
 RiuSummaryQwtPlot::RiuSummaryQwtPlot( RimSummaryPlot* plot, QWidget* parent /*= nullptr*/ )
     : RiuSummaryPlot( plot, parent )
 {
-    m_plotWidget = std::make_unique<RiuQwtPlotWidget>( plot );
+    m_plotWidget = new RiuQwtPlotWidget( plot );
 
     // LeftButton for the zooming
     m_zoomerLeft = new RiuQwtPlotZoomer( m_plotWidget->qwtPlot()->canvas() );
@@ -409,5 +409,5 @@ void RiuSummaryQwtPlot::onZoomedSlot()
 //--------------------------------------------------------------------------------------------------
 RiuPlotWidget* RiuSummaryQwtPlot::plotWidget() const
 {
-    return m_plotWidget.get();
+    return m_plotWidget;
 }

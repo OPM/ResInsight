@@ -30,7 +30,9 @@
 #include "RiaColorTools.h"
 
 #include "RiuMultiPlotPage.h"
+#include "RiuPlotWidget.h"
 #include "RiuQwtPlotTools.h"
+#include "RiuQwtPlotWidget.h"
 
 #include "qwt_legend.h"
 #include "qwt_plot.h"
@@ -217,7 +219,7 @@ void RimWellDistributionPlotCollection::addPlot( RimPlot* plot )
         if ( m_viewer )
         {
             plot->createPlotWidget();
-            m_viewer->insertPlot( plot->viewer(), index );
+            m_viewer->insertPlot( plot->plotWidget(), index );
         }
         plot->setShowWindow( true );
         plot->setLegendsVisible( false );
@@ -407,7 +409,7 @@ void RimWellDistributionPlotCollection::recreatePlotWidgets()
     for ( auto plot : m_plots() )
     {
         plot->createPlotWidget();
-        m_viewer->addPlot( plot->viewer() );
+        m_viewer->addPlot( plot->plotWidget() );
     }
 }
 
