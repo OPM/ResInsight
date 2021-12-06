@@ -87,6 +87,19 @@ void RicRunWellIntegrityAnalysisFeature::onActionTriggered( bool isChecked )
         return;
     }
 
+    if ( RiaPreferencesGeoMech::current()->waitBeforeRunWIA() )
+    {
+        runProgress.setProgressDescription( "Waiting for input file modifications." );
+
+        QString infoText = "Input parameter files can now be found in the working folder:";
+        infoText += " \"" + modelSettings->outputBaseDirectory() + "\"\n";
+        infoText += "\nClick OK to start the Abaqus modeling or Cancel to stop.";
+
+        auto reply = QMessageBox::information( nullptr, wiaTitle, infoText, QMessageBox::Ok | QMessageBox::Cancel );
+
+        if ( reply != QMessageBox::Ok ) return;
+    }
+
     runProgress.incrementProgress();
     runProgress.setProgressDescription( "Running Abaqus modeling." );
 

@@ -64,14 +64,14 @@ RiaPreferencesGeoMech::RiaPreferencesGeoMech()
     m_geomechWIACommand.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
     m_geomechWIACommand.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
 
-    CAF_PDM_InitField( &m_keepTemporaryFiles,
-                       "keepTemporaryFile",
-                       false,
-                       "Keep temporary parameter files (for debugging)",
-                       "",
-                       "",
-                       "" );
+    CAF_PDM_InitField( &m_keepTemporaryFiles, "keepTemporaryFile", false, "Keep temporary parameter files (for debugging)" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_keepTemporaryFiles );
+
+    CAF_PDM_InitField( &m_waitForInputFileEdit,
+                       "waitForInputFileEdit",
+                       true,
+                       "Pause to allow modification of input files before running modeling." );
+    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_waitForInputFileEdit );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -101,6 +101,7 @@ void RiaPreferencesGeoMech::appendItems( caf::PdmUiOrdering& uiOrdering ) const
     caf::PdmUiGroup* wellIAGroup = uiOrdering.addNewGroup( "Well Integrity Analysis" );
     wellIAGroup->add( &m_geomechWIACommand );
     wellIAGroup->add( &m_geomechWIADefaultXML );
+    wellIAGroup->add( &m_waitForInputFileEdit );
 
     caf::PdmUiGroup* commonGroup = uiOrdering.addNewGroup( "Common Settings" );
     commonGroup->add( &m_keepTemporaryFiles );
@@ -175,6 +176,14 @@ QString RiaPreferencesGeoMech::geomechWIADefaultXML() const
 bool RiaPreferencesGeoMech::keepTemporaryFiles() const
 {
     return m_keepTemporaryFiles;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiaPreferencesGeoMech::waitBeforeRunWIA() const
+{
+    return m_waitForInputFileEdit;
 }
 
 //--------------------------------------------------------------------------------------------------
