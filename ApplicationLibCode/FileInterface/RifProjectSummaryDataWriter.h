@@ -30,6 +30,8 @@ class RifEclipseSummaryAddress;
 class RifProjectSummaryDataWriter
 {
 public:
+    RifProjectSummaryDataWriter();
+
     // Import start time, time values, and time step count from a source summary case
     void importFromSourceSummaryFile( const std::string& sourceFileName );
 

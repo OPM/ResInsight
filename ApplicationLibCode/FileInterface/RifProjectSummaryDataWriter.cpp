@@ -29,6 +29,14 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RifProjectSummaryDataWriter::RifProjectSummaryDataWriter()
+    : m_timeStepCount( 0 )
+{
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RifProjectSummaryDataWriter::importFromSourceSummaryFile( const std::string& sourceFileName )
 {
     try
@@ -172,7 +180,7 @@ void RifProjectSummaryDataWriter::writeDataToFile( const std::string& fileName )
 //--------------------------------------------------------------------------------------------------
 int RifProjectSummaryDataWriter::indexForKeyword( const std::string& keyword ) const
 {
-    for ( int i = 0; i < m_keywords.size(); i++ )
+    for ( int i = 0; i < static_cast<int>( m_keywords.size() ); i++ )
     {
         if ( m_keywords[i] == keyword ) return i;
     }

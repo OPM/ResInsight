@@ -56,6 +56,7 @@ public:
     void setIncludeRestartFiles( bool includeRestartFiles );
 
     void setSummaryData( const RifEclipseSummaryAddress& address, const std::vector<float>& values );
+    void setSummaryData( const std::string& keyword, const std::string& unit, const std::vector<float>& values );
 
     static RifSummaryReaderInterface* findRelatedFilesAndCreateReader( const QString&       headerFileName,
                                                                        bool                 includeRestartFiles,
@@ -70,7 +71,7 @@ protected:
                                 caf::PdmUiEditorAttribute* attribute ) override;
 
 private:
-    void appendData();
+    void appendData_TODO_REMOVE();
     void openAndAttachAdditionalReader();
 
 private:
@@ -80,6 +81,6 @@ private:
     caf::PdmField<bool>                 m_includeRestartFiles;
 
     caf::PdmField<caf::FilePath>         m_additionalSummaryFilePath;
-    caf::PdmField<bool>                  m_appendDataToAdditionalSummaryFile;
+    caf::PdmField<bool>                  m_appendDataToAdditionalSummaryFile_TODO_REMOVE;
     cvf::ref<RifOpmCommonEclipseSummary> m_additionalSummaryFileReader;
 };

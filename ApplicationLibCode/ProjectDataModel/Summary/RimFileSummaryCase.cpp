@@ -19,9 +19,12 @@
 #include "RimFileSummaryCase.h"
 
 #include "RiaLogging.h"
+#include "RiaPreferencesSummary.h"
 
 #include "RicfCommandObject.h"
+
 #include "RifEclipseSummaryTools.h"
+#include "RifMultipleSummaryReaders.h"
 #include "RifOpmCommonSummary.h"
 #include "RifProjectSummaryDataWriter.h"
 #include "RifReaderEclipseRft.h"
@@ -33,9 +36,6 @@
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObjectScriptingCapability.h"
 #include "cafPdmUiPushButtonEditor.h"
-
-#include "RiaPreferencesSummary.h"
-#include "RifMultipleSummaryReaders.h"
 
 #include "cafPdmUiFilePathEditor.h"
 
@@ -59,9 +59,15 @@ RimFileSummaryCase::RimFileSummaryCase()
     CAF_PDM_InitScriptableField( &m_includeRestartFiles, "IncludeRestartFiles", false, "Include Restart Files" );
     m_includeRestartFiles.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_additionalSummaryFilePath, "AdditionalSummaryFilePath", "Additional File Path" );
-    CAF_PDM_InitFieldNoDefault( &m_appendDataToAdditionalSummaryFile, "AppendDataToAdditionalSummaryFile", "Append Data" );
-    m_appendDataToAdditionalSummaryFile.uiCapability()->setUiEditorTypeName(
+    CAF_PDM_InitFieldNoDefault( &m_additionalSummaryFilePath,
+                                "AdditionalSummaryFilePath",
+                                "Additional File Path (set invisible when ready)" );
+    m_additionalSummaryFilePath.uiCapability()->setUiHidden( true );
+
+    CAF_PDM_InitFieldNoDefault( &m_appendDataToAdditionalSummaryFile_TODO_REMOVE,
+                                "AppendDataToAdditionalSummaryFile",
+                                "Append Data" );
+    m_appendDataToAdditionalSummaryFile_TODO_REMOVE.uiCapability()->setUiEditorTypeName(
         caf::PdmUiPushButtonEditor::uiEditorTypeName() );
 }
 
@@ -150,8 +156,6 @@ RifSummaryReaderInterface* RimFileSummaryCase::findRelatedFilesAndCreateReader( 
                                                                                 bool           includeRestartFiles,
                                                                                 RiaThreadSafeLogger* threadSafeLogger )
 {
-    std::vector<RifSummaryReaderInterface*> summaryReaders;
-
     if ( includeRestartFiles )
     {
         std::vector<QString>            warnings;
@@ -221,11 +225,11 @@ void RimFileSummaryCase::fieldChangedByUi( const caf::PdmFieldHandle* changedFie
                                            const QVariant&            oldValue,
                                            const QVariant&            newValue )
 {
-    if ( changedField == &m_appendDataToAdditionalSummaryFile )
+    if ( changedField == &m_appendDataToAdditionalSummaryFile_TODO_REMOVE )
     {
-        m_appendDataToAdditionalSummaryFile = false;
+        m_appendDataToAdditionalSummaryFile_TODO_REMOVE = false;
 
-        appendData();
+        appendData_TODO_REMOVE();
     }
 }
 
@@ -249,7 +253,7 @@ void RimFileSummaryCase::defineEditorAttribute( const caf::PdmFieldHandle* field
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimFileSummaryCase::appendData()
+void RimFileSummaryCase::appendData_TODO_REMOVE()
 {
     RifEclipseSummaryAddress adr = RifEclipseSummaryAddress::miscAddress( "MSJ_TEST" );
 
@@ -351,6 +355,59 @@ void RimFileSummaryCase::setSummaryData( const RifEclipseSummaryAddress& address
     auto keyword = address.uiText();
 
     projectSummaryDataWriter.setData( { keyword }, { "" }, { values } );
+
+    std::string outputFilePath = tmpAdditionalSummaryFilePath.toStdString();
+    projectSummaryDataWriter.writeDataToFile( outputFilePath );
+
+    openAndAttachAdditionalReader();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFileSummaryCase::setSummaryData( const std::string& keyword, const std::string& unit, const std::vector<float>& values )
+{
+    m_multiSummaryReader->removeReader( m_additionalSummaryFileReader.p() );
+    m_additionalSummaryFileReader = nullptr;
+
+    size_t mainSummaryFileValueCount = m_fileSummaryReader->timeSteps( RifEclipseSummaryAddress() ).size();
+    if ( values.size() != mainSummaryFileValueCount )
+    {
+        QString txt = QString( "Wrong size of summary data for keyword %1. Expected %2 values, received %3 values" )
+                          .arg( QString::fromStdString( keyword ) )
+                          .arg( mainSummaryFileValueCount )
+                          .arg( values.size() );
+        RiaLogging::error( txt );
+
+        return;
+    }
+
+    RifProjectSummaryDataWriter projectSummaryDataWriter;
+
+    QString   tmpAdditionalSummaryFilePath = m_additionalSummaryFilePath().path();
+    QFileInfo fi( tmpAdditionalSummaryFilePath );
+    if ( fi.exists() )
+    {
+        projectSummaryDataWriter.importFromProjectSummaryFile( tmpAdditionalSummaryFilePath.toStdString() );
+    }
+    else
+    {
+        projectSummaryDataWriter.importFromSourceSummaryFile( summaryHeaderFilename().toStdString() );
+
+        QUuid   uuid       = QUuid::createUuid();
+        QString uuidString = uuid.toString();
+        uuidString.remove( '{' ).remove( '}' );
+
+        QString projectSummaryDataPath = "RI_SUMMARY_DATA_" + uuidString + ".ESMRY";
+
+        auto tempDir      = QDir::temp();
+        auto tempFilePath = tempDir.absoluteFilePath( projectSummaryDataPath );
+
+        m_additionalSummaryFilePath  = tempFilePath;
+        tmpAdditionalSummaryFilePath = tempFilePath;
+    }
+
+    projectSummaryDataWriter.setData( { keyword }, { unit }, { values } );
 
     std::string outputFilePath = tmpAdditionalSummaryFilePath.toStdString();
     projectSummaryDataWriter.writeDataToFile( outputFilePath );
