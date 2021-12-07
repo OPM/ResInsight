@@ -55,7 +55,7 @@ public:
 
     void setIncludeRestartFiles( bool includeRestartFiles );
 
-    void setSummaryData( const RifEclipseSummaryAddress& address, const std::vector<double>& values );
+    void setSummaryData( const RifEclipseSummaryAddress& address, const std::vector<float>& values );
 
     static RifSummaryReaderInterface* findRelatedFilesAndCreateReader( const QString&       headerFileName,
                                                                        bool                 includeRestartFiles,
@@ -71,6 +71,7 @@ protected:
 
 private:
     void appendData();
+    void openAndAttachAdditionalReader();
 
 private:
     cvf::ref<RifSummaryReaderInterface> m_fileSummaryReader;

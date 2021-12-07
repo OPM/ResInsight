@@ -33,8 +33,7 @@ public:
     // Import start time, time values, and time step count from a source summary case
     void importFromSourceSummaryFile( const std::string& sourceFileName );
 
-    // Import all data from project summary file. This file can than be deleted and content can be exported using
-    // writeDataToFile()
+    // Import all data from project summary file. This file can than be overwritten using writeDataToFile()
     void importFromProjectSummaryFile( const std::string& projectSummaryFileName );
 
     // Set data for a list of keyword/unit/values. If a keyword exist, the data will be overwritten

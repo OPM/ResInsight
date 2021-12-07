@@ -130,34 +130,40 @@ void RifProjectSummaryDataWriter::writeDataToFile( const std::string& fileName )
     // ESmry::make_esmry_file()
     // ExtSmryOutput::write()
 
-    // The ExtESmry reader supports only binary mode, set formatted to false
-    bool                  formatted = false;
-    Opm::EclIO::EclOutput outFile( fileName, formatted, std::ios::out );
-
-    outFile.write<int>( "START", m_startTime );
-    outFile.write( "KEYCHECK", m_keywords );
-    outFile.write( "UNITS", m_units );
-
+    try
     {
-        // Bool array 1 means RSTEP, 0 means no RSTEP
-        // Dummy values, but required by the reader
-        std::vector<int> intValues( m_timeStepCount, 1 );
-        outFile.write<int>( "RSTEP", intValues );
+        // The ExtESmry reader supports only binary mode, set formatted to false
+        bool                  formatted = false;
+        Opm::EclIO::EclOutput outFile( fileName, formatted, std::ios::out );
+
+        outFile.write<int>( "START", m_startTime );
+        outFile.write( "KEYCHECK", m_keywords );
+        outFile.write( "UNITS", m_units );
+
+        {
+            // Bool array 1 means RSTEP, 0 means no RSTEP
+            // Dummy values, but required by the reader
+            std::vector<int> intValues( m_timeStepCount, 1 );
+            outFile.write<int>( "RSTEP", intValues );
+        }
+
+        {
+            // TSTEP represents time steps
+            // Dummy values, but required by the reader
+            std::vector<int> intValues;
+            intValues.resize( m_timeStepCount );
+            std::iota( intValues.begin(), intValues.end(), 0 );
+            outFile.write<int>( "TSTEP", intValues );
+        }
+
+        for ( size_t i = 0; i < static_cast<size_t>( m_keywords.size() ); i++ )
+        {
+            std::string vect_name = "V" + std::to_string( i );
+            outFile.write<float>( vect_name, m_values[i] );
+        }
     }
-
+    catch ( ... )
     {
-        // TSTEP represents time steps
-        // Dummy values, but required by the reader
-        std::vector<int> intValues;
-        intValues.resize( m_timeStepCount );
-        std::iota( intValues.begin(), intValues.end(), 0 );
-        outFile.write<int>( "TSTEP", intValues );
-    }
-
-    for ( size_t i = 0; i < static_cast<size_t>( m_keywords.size() ); i++ )
-    {
-        std::string vect_name = "V" + std::to_string( i );
-        outFile.write<float>( vect_name, m_values[i] );
     }
 }
 

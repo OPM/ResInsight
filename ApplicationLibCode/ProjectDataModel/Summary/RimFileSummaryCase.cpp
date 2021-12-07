@@ -23,6 +23,7 @@
 #include "RicfCommandObject.h"
 #include "RifEclipseSummaryTools.h"
 #include "RifOpmCommonSummary.h"
+#include "RifProjectSummaryDataWriter.h"
 #include "RifReaderEclipseRft.h"
 #include "RifReaderEclipseSummary.h"
 #include "RifSummaryReaderMultipleFiles.h"
@@ -35,14 +36,12 @@
 
 #include "RiaPreferencesSummary.h"
 #include "RifMultipleSummaryReaders.h"
+
 #include "cafPdmUiFilePathEditor.h"
-#include "opm/io/eclipse/ESmry.hpp"
-#include "opm/io/eclipse/EclOutput.hpp"
-#include "opm/io/eclipse/ExtESmry.hpp"
+
 #include <QDir>
 #include <QFileInfo>
-
-#pragma optimize( "", on )
+#include <QUuid>
 
 //==================================================================================================
 //
@@ -111,6 +110,8 @@ void RimFileSummaryCase::createSummaryReaderInterfaceThreadSafe( RiaThreadSafeLo
 
     m_multiSummaryReader = new RifMultipleSummaryReaders;
     m_multiSummaryReader->addReader( m_fileSummaryReader.p() );
+
+    openAndAttachAdditionalReader();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -124,6 +125,8 @@ void RimFileSummaryCase::createSummaryReaderInterface()
                                                                                &threadSafeLogger );
     m_multiSummaryReader = new RifMultipleSummaryReaders;
     m_multiSummaryReader->addReader( m_fileSummaryReader.p() );
+
+    openAndAttachAdditionalReader();
 
     auto messages = threadSafeLogger.messages();
     for ( const auto& m : messages )
@@ -252,7 +255,7 @@ void RimFileSummaryCase::appendData()
 
     size_t valueCount = m_fileSummaryReader->timeSteps( RifEclipseSummaryAddress() ).size();
 
-    std::vector<double> values;
+    std::vector<float> values;
 
     for ( size_t i = 0; i < valueCount; i++ )
     {
@@ -260,6 +263,24 @@ void RimFileSummaryCase::appendData()
     }
 
     setSummaryData( adr, values );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFileSummaryCase::openAndAttachAdditionalReader()
+{
+    QString additionalSummaryFilePath = m_additionalSummaryFilePath().path();
+
+    cvf::ref<RifOpmCommonEclipseSummary> opmCommonReader = new RifOpmCommonEclipseSummary;
+    opmCommonReader->useEnhancedSummaryFiles( true );
+
+    bool includeRestartFiles = false;
+    auto isValid             = opmCommonReader->open( additionalSummaryFilePath, includeRestartFiles, nullptr );
+    if ( isValid )
+    {
+        m_multiSummaryReader->addReader( opmCommonReader.p() );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -297,96 +318,42 @@ void RimFileSummaryCase::setIncludeRestartFiles( bool includeRestartFiles )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimFileSummaryCase::setSummaryData( const RifEclipseSummaryAddress& address, const std::vector<double>& values )
+void RimFileSummaryCase::setSummaryData( const RifEclipseSummaryAddress& address, const std::vector<float>& values )
 {
-    // ensure esmry file is created
-    // append data to esmry
-    // reload esmry file
-    // update meta data
-
     m_multiSummaryReader->removeReader( m_additionalSummaryFileReader.p() );
     m_additionalSummaryFileReader = nullptr;
 
-    if ( m_additionalSummaryFileReader.isNull() )
+    RifProjectSummaryDataWriter projectSummaryDataWriter;
+
+    QString   tmpAdditionalSummaryFilePath = m_additionalSummaryFilePath().path();
+    QFileInfo fi( tmpAdditionalSummaryFilePath );
+    if ( fi.exists() )
     {
-        cvf::ref<RifOpmCommonEclipseSummary> opmCommonReader = new RifOpmCommonEclipseSummary;
-
-        opmCommonReader->useEnhancedSummaryFiles( true );
-
-        QString headerFileName = m_additionalSummaryFilePath().path();
-
-        auto isValid = opmCommonReader->open( headerFileName, false, nullptr );
-
-        if ( !isValid )
-        {
-            auto              sourceFileName = this->summaryHeaderFilename().toStdString();
-            Opm::EclIO::ESmry sourceSummaryData( sourceFileName );
-
-            {
-                // Create smry file with one summary vector
-                {
-                    std::string outputFileName = m_additionalSummaryFilePath().path().toStdString();
-
-                    // The ExtESmry reader supports only binary mode, set formatted to false
-                    bool                  formatted = false;
-                    Opm::EclIO::EclOutput outFile( outputFileName, formatted, std::ios::out );
-
-                    Opm::TimeStampUTC ts( std::chrono::system_clock::to_time_t( sourceSummaryData.startdate() ) );
-
-                    std::vector<int> start_date_vect =
-                        { ts.day(), ts.month(), ts.year(), ts.hour(), ts.minutes(), ts.seconds(), 0 };
-
-                    outFile.write<int>( "START", start_date_vect );
-
-                    std::vector<std::string> keywords = sourceSummaryData.keywordList();
-                    std::vector<std::string> unitTexts;
-                    for ( const auto& key : keywords )
-                    {
-                        const auto& unit = sourceSummaryData.get_unit( key );
-                        unitTexts.push_back( unit );
-                    }
-
-                    outFile.write( "KEYCHECK", keywords );
-                    outFile.write( "UNITS", unitTexts );
-
-                    size_t timeStepCount = 0;
-                    {
-                        auto tstepValues = sourceSummaryData.get( "TIME" );
-                        timeStepCount    = tstepValues.size();
-                    }
-
-                    {
-                        // Bool array 1 means RSTEP, 0 means no RSTEP
-                        // Dummy values, but not relevant for our use
-                        // Required by the reader
-                        std::vector<int> intValues( timeStepCount, 1 );
-                        outFile.write<int>( "RSTEP", intValues );
-                    }
-
-                    {
-                        // TSTEP represents time steps
-                        // Dummy values, but not relevant for our use
-                        // Required by the reader
-                        std::vector<int> intValues;
-                        intValues.resize( timeStepCount );
-                        std::iota( intValues.begin(), intValues.end(), 0 );
-                        outFile.write<int>( "TSTEP", intValues );
-                    }
-
-                    for ( size_t n = 0; n < static_cast<size_t>( keywords.size() ); n++ )
-                    {
-                        std::string vect_name = "V" + std::to_string( n );
-                        const auto& values    = sourceSummaryData.get( keywords[n] );
-                        outFile.write<float>( vect_name, values );
-                    }
-                }
-            }
-
-            if ( isValid )
-            {
-                m_additionalSummaryFileReader = opmCommonReader;
-                m_multiSummaryReader->addReader( m_additionalSummaryFileReader.p() );
-            }
-        }
+        projectSummaryDataWriter.importFromProjectSummaryFile( tmpAdditionalSummaryFilePath.toStdString() );
     }
+    else
+    {
+        projectSummaryDataWriter.importFromSourceSummaryFile( summaryHeaderFilename().toStdString() );
+
+        QUuid   uuid       = QUuid::createUuid();
+        QString uuidString = uuid.toString();
+        uuidString.remove( '{' ).remove( '}' );
+
+        QString projectSummaryDataPath = "RI_SUMMARY_DATA_" + uuidString + ".ESMRY";
+
+        auto tempDir      = QDir::temp();
+        auto tempFilePath = tempDir.absoluteFilePath( projectSummaryDataPath );
+
+        m_additionalSummaryFilePath  = tempFilePath;
+        tmpAdditionalSummaryFilePath = tempFilePath;
+    }
+
+    auto keyword = address.uiText();
+
+    projectSummaryDataWriter.setData( { keyword }, { "" }, { values } );
+
+    std::string outputFilePath = tmpAdditionalSummaryFilePath.toStdString();
+    projectSummaryDataWriter.writeDataToFile( outputFilePath );
+
+    openAndAttachAdditionalReader();
 }

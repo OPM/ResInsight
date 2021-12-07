@@ -30,6 +30,11 @@ RifMultipleSummaryReaders::RifMultipleSummaryReaders()
 //--------------------------------------------------------------------------------------------------
 void RifMultipleSummaryReaders::addReader( RifSummaryReaderInterface* reader )
 {
+    for ( auto existingReader : m_readers )
+    {
+        if ( existingReader == reader ) return;
+    }
+
     m_readers.push_back( reader );
 
     rebuildMetaData();
