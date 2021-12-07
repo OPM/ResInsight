@@ -288,6 +288,10 @@ RiaDefines::ImportFileType RiaDefines::obtainFileTypeFromFileName( const QString
     {
         return ImportFileType::ECLIPSE_SUMMARY_FILE;
     }
+    else if ( fileName.endsWith( "ESMRY", Qt::CaseInsensitive ) )
+    {
+        return ImportFileType::ECLIPSE_SUMMARY_FILE;
+    }
     else if ( fileName.endsWith( "ODB", Qt::CaseInsensitive ) )
     {
         return ImportFileType::GEOMECH_ODB_FILE;
