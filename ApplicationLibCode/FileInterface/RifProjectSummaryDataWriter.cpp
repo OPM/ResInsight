@@ -1,0 +1,175 @@
+/////////////////////////////////////////////////////////////////////////////////
+//
+//  Copyright (C) 2021-     Equinor ASA
+//
+//  ResInsight is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 3 of the License, or
+//  (at your option) any later version.
+//
+//  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
+//  WARRANTY; without even the implied warranty of MERCHANTABILITY or
+//  FITNESS FOR A PARTICULAR PURPOSE.
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+//  for more details.
+//
+/////////////////////////////////////////////////////////////////////////////////
+
+#include "RifProjectSummaryDataWriter.h"
+
+#include "opm/common/utility/TimeService.hpp"
+#include "opm/io/eclipse/ESmry.hpp"
+#include "opm/io/eclipse/EclOutput.hpp"
+
+#include "cafAssert.h"
+
+#include <numeric>
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RifProjectSummaryDataWriter::importFromSourceSummaryFile( const std::string& sourceFileName )
+{
+    try
+    {
+        Opm::EclIO::ESmry sourceSummary( sourceFileName );
+
+        Opm::TimeStampUTC ts( std::chrono::system_clock::to_time_t( sourceSummary.startdate() ) );
+        m_startTime = { ts.day(), ts.month(), ts.year(), ts.hour(), ts.minutes(), ts.seconds(), 0 };
+
+        std::string keyword = "TIME";
+        if ( sourceSummary.hasKey( keyword ) )
+        {
+            const auto& values     = sourceSummary.get( keyword );
+            const auto& unitString = sourceSummary.get_unit( keyword );
+
+            m_keywords.push_back( keyword );
+            m_units.push_back( unitString );
+            m_values.push_back( values );
+
+            m_timeStepCount = values.size();
+        }
+    }
+    catch ( ... )
+    {
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RifProjectSummaryDataWriter::importFromProjectSummaryFile( const std::string& projectSummaryFileName )
+{
+    try
+    {
+        Opm::EclIO::ESmry sourceSummary( projectSummaryFileName );
+
+        Opm::TimeStampUTC ts( std::chrono::system_clock::to_time_t( sourceSummary.startdate() ) );
+        m_startTime = { ts.day(), ts.month(), ts.year(), ts.hour(), ts.minutes(), ts.seconds(), 0 };
+
+        auto keywords = sourceSummary.keywordList();
+        for ( const auto& keyword : keywords )
+        {
+            const auto& values     = sourceSummary.get( keyword );
+            const auto& unitString = sourceSummary.get_unit( keyword );
+
+            m_keywords.push_back( keyword );
+            m_units.push_back( unitString );
+            m_values.push_back( values );
+
+            if ( m_timeStepCount == 0 )
+            {
+                m_timeStepCount = values.size();
+            }
+        }
+    }
+    catch ( ... )
+    {
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RifProjectSummaryDataWriter::setData( const std::vector<std::string>&        keywords,
+                                           const std::vector<std::string>&        units,
+                                           const std::vector<std::vector<float>>& values )
+{
+    if ( keywords.empty() ) return;
+
+    CAF_ASSERT( keywords.size() == units.size() );
+    CAF_ASSERT( keywords.size() == values.size() );
+
+    for ( size_t i = 0; i < keywords.size(); i++ )
+    {
+        auto existingIndex = indexForKeyword( keywords[i] );
+        if ( existingIndex == -1 )
+        {
+            m_keywords.push_back( keywords[i] );
+            m_units.push_back( units[i] );
+            m_values.push_back( values[i] );
+        }
+        else
+        {
+            // Overwrite existing data
+
+            m_keywords[existingIndex] = keywords[i];
+            m_units[existingIndex]    = units[i];
+            m_values[existingIndex]   = values[i];
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RifProjectSummaryDataWriter::writeDataToFile( const std::string& fileName )
+{
+    // Reference to other locations writing to ESMRY files
+    // ESmry::make_esmry_file()
+    // ExtSmryOutput::write()
+
+    // The ExtESmry reader supports only binary mode, set formatted to false
+    bool                  formatted = false;
+    Opm::EclIO::EclOutput outFile( fileName, formatted, std::ios::out );
+
+    outFile.write<int>( "START", m_startTime );
+    outFile.write( "KEYCHECK", m_keywords );
+    outFile.write( "UNITS", m_units );
+
+    {
+        // Bool array 1 means RSTEP, 0 means no RSTEP
+        // Dummy values, but required by the reader
+        std::vector<int> intValues( m_timeStepCount, 1 );
+        outFile.write<int>( "RSTEP", intValues );
+    }
+
+    {
+        // TSTEP represents time steps
+        // Dummy values, but required by the reader
+        std::vector<int> intValues;
+        intValues.resize( m_timeStepCount );
+        std::iota( intValues.begin(), intValues.end(), 0 );
+        outFile.write<int>( "TSTEP", intValues );
+    }
+
+    for ( size_t i = 0; i < static_cast<size_t>( m_keywords.size() ); i++ )
+    {
+        std::string vect_name = "V" + std::to_string( i );
+        outFile.write<float>( vect_name, m_values[i] );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RifProjectSummaryDataWriter::indexForKeyword( const std::string& keyword ) const
+{
+    for ( int i = 0; i < m_keywords.size(); i++ )
+    {
+        if ( m_keywords[i] == keyword ) return i;
+    }
+
+    return -1;
+}

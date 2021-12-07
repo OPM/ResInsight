@@ -325,9 +325,11 @@ void RimFileSummaryCase::setSummaryData( const RifEclipseSummaryAddress& address
             {
                 // Create smry file with one summary vector
                 {
-                    std::string           m_outputFileName = m_additionalSummaryFilePath().path().toStdString();
-                    bool                  m_fmt            = false;
-                    Opm::EclIO::EclOutput outFile( m_outputFileName, m_fmt, std::ios::out );
+                    std::string outputFileName = m_additionalSummaryFilePath().path().toStdString();
+
+                    // The ExtESmry reader supports only binary mode, set formatted to false
+                    bool                  formatted = false;
+                    Opm::EclIO::EclOutput outFile( outputFileName, formatted, std::ios::out );
 
                     Opm::TimeStampUTC ts( std::chrono::system_clock::to_time_t( sourceSummaryData.startdate() ) );
 
@@ -336,24 +338,16 @@ void RimFileSummaryCase::setSummaryData( const RifEclipseSummaryAddress& address
 
                     outFile.write<int>( "START", start_date_vect );
 
-                    /*
-                                    if ( m_restart_rootn.size() > 0 )
-                                    {
-                                        outFile.write<std::string>( "RESTART", { m_restart_rootn } );
-                                        outFile.write<int>( "RSTNUM", { m_restart_step } );
-                                    }
-                    */
-
-                    std::vector<std::string> m_smry_keys = sourceSummaryData.keywordList();
-                    std::vector<std::string> m_smryUnits;
-                    for ( const auto& key : m_smry_keys )
+                    std::vector<std::string> keywords = sourceSummaryData.keywordList();
+                    std::vector<std::string> unitTexts;
+                    for ( const auto& key : keywords )
                     {
-                        auto unit = sourceSummaryData.get_unit( key );
-                        m_smryUnits.push_back( unit );
+                        const auto& unit = sourceSummaryData.get_unit( key );
+                        unitTexts.push_back( unit );
                     }
 
-                    outFile.write( "KEYCHECK", m_smry_keys );
-                    outFile.write( "UNITS", m_smryUnits );
+                    outFile.write( "KEYCHECK", keywords );
+                    outFile.write( "UNITS", unitTexts );
 
                     size_t timeStepCount = 0;
                     {
@@ -362,39 +356,28 @@ void RimFileSummaryCase::setSummaryData( const RifEclipseSummaryAddress& address
                     }
 
                     {
-                        { // Bool array 1 means RSTEP, 0 means no RSTEP
-                            std::vector<int> intValues( timeStepCount, 1 );
-                            outFile.write<int>( "RSTEP", intValues );
-                        }
+                        // Bool array 1 means RSTEP, 0 means no RSTEP
+                        // Dummy values, but not relevant for our use
+                        // Required by the reader
+                        std::vector<int> intValues( timeStepCount, 1 );
+                        outFile.write<int>( "RSTEP", intValues );
+                    }
 
-                        {
-                            std::vector<int> intValues;
-                            intValues.resize( timeStepCount );
-                            std::iota( intValues.begin(), intValues.end(), 0 );
-                            outFile.write<int>( "TSTEP", intValues );
-                        }
+                    {
+                        // TSTEP represents time steps
+                        // Dummy values, but not relevant for our use
+                        // Required by the reader
+                        std::vector<int> intValues;
+                        intValues.resize( timeStepCount );
+                        std::iota( intValues.begin(), intValues.end(), 0 );
+                        outFile.write<int>( "TSTEP", intValues );
+                    }
 
-                        /*
-                                                {
-                                                    auto tstepValues = sourceSummaryData.get( "TIME" );
-                                                    if ( !tstepValues.empty() )
-                                                    {
-                                                        std::vector<int> intValues;
-                                                        for ( auto floatVal : tstepValues )
-                                                        {
-                                                            intValues.push_back( floatVal );
-                                                        }
-                                                        outFile.write<int>( "TIME", intValues );
-                                                    }
-                                                }
-                        */
-
-                        for ( size_t n = 0; n < static_cast<size_t>( m_smry_keys.size() ); n++ )
-                        {
-                            std::string vect_name = "V" + std::to_string( n );
-                            auto        values    = sourceSummaryData.get( m_smry_keys[n] );
-                            outFile.write<float>( vect_name, values );
-                        }
+                    for ( size_t n = 0; n < static_cast<size_t>( keywords.size() ); n++ )
+                    {
+                        std::string vect_name = "V" + std::to_string( n );
+                        const auto& values    = sourceSummaryData.get( keywords[n] );
+                        outFile.write<float>( vect_name, values );
                     }
                 }
             }
