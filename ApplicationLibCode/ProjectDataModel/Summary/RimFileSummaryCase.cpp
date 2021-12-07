@@ -284,6 +284,7 @@ void RimFileSummaryCase::openAndAttachAdditionalReader()
     if ( isValid )
     {
         m_multiSummaryReader->addReader( opmCommonReader.p() );
+        m_additionalSummaryFileReader = opmCommonReader;
     }
 }
 

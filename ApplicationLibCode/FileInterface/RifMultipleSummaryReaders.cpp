@@ -32,7 +32,7 @@ void RifMultipleSummaryReaders::addReader( RifSummaryReaderInterface* reader )
 {
     for ( auto existingReader : m_readers )
     {
-        if ( existingReader == reader ) return;
+        if ( existingReader.p() == reader ) return;
     }
 
     m_readers.push_back( reader );

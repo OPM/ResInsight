@@ -21,6 +21,7 @@
 #include "opm/common/utility/TimeService.hpp"
 #include "opm/io/eclipse/ESmry.hpp"
 #include "opm/io/eclipse/EclOutput.hpp"
+#include "opm/io/eclipse/ExtESmry.hpp"
 
 #include "cafAssert.h"
 
@@ -39,6 +40,32 @@ RifProjectSummaryDataWriter::RifProjectSummaryDataWriter()
 //--------------------------------------------------------------------------------------------------
 void RifProjectSummaryDataWriter::importFromSourceSummaryFile( const std::string& sourceFileName )
 {
+    try
+    {
+        Opm::EclIO::ExtESmry sourceSummary( sourceFileName );
+
+        Opm::TimeStampUTC ts( std::chrono::system_clock::to_time_t( sourceSummary.startdate() ) );
+        m_startTime = { ts.day(), ts.month(), ts.year(), ts.hour(), ts.minutes(), ts.seconds(), 0 };
+
+        std::string keyword = "TIME";
+        if ( sourceSummary.hasKey( keyword ) )
+        {
+            const auto& values     = sourceSummary.get( keyword );
+            const auto& unitString = sourceSummary.get_unit( keyword );
+
+            m_keywords.push_back( keyword );
+            m_units.push_back( unitString );
+            m_values.push_back( values );
+
+            m_timeStepCount = values.size();
+        }
+
+        return;
+    }
+    catch ( ... )
+    {
+    }
+
     try
     {
         Opm::EclIO::ESmry sourceSummary( sourceFileName );
@@ -71,7 +98,7 @@ void RifProjectSummaryDataWriter::importFromProjectSummaryFile( const std::strin
 {
     try
     {
-        Opm::EclIO::ESmry sourceSummary( projectSummaryFileName );
+        Opm::EclIO::ExtESmry sourceSummary( projectSummaryFileName );
 
         Opm::TimeStampUTC ts( std::chrono::system_clock::to_time_t( sourceSummary.startdate() ) );
         m_startTime = { ts.day(), ts.month(), ts.year(), ts.hour(), ts.minutes(), ts.seconds(), 0 };
