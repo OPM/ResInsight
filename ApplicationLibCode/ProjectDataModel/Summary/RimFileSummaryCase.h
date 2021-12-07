@@ -63,11 +63,22 @@ public:
 
     static RifReaderEclipseRft* findRftDataAndCreateReader( const QString& headerFileName );
 
+protected:
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+    void defineEditorAttribute( const caf::PdmFieldHandle* field,
+                                QString                    uiConfigName,
+                                caf::PdmUiEditorAttribute* attribute ) override;
+
 private:
+    void appendData();
+
+private:
+    cvf::ref<RifSummaryReaderInterface> m_fileSummaryReader;
     cvf::ref<RifMultipleSummaryReaders> m_multiSummaryReader;
     cvf::ref<RifReaderEclipseRft>       m_summaryEclipseRftReader;
     caf::PdmField<bool>                 m_includeRestartFiles;
 
     caf::PdmField<caf::FilePath>         m_additionalSummaryFilePath;
+    caf::PdmField<bool>                  m_appendDataToAdditionalSummaryFile;
     cvf::ref<RifOpmCommonEclipseSummary> m_additionalSummaryFileReader;
 };

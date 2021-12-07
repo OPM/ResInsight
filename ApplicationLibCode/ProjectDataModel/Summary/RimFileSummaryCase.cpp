@@ -31,10 +31,18 @@
 
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObjectScriptingCapability.h"
+#include "cafPdmUiPushButtonEditor.h"
 
+#include "RiaPreferencesSummary.h"
 #include "RifMultipleSummaryReaders.h"
+#include "cafPdmUiFilePathEditor.h"
+#include "opm/io/eclipse/ESmry.hpp"
+#include "opm/io/eclipse/EclOutput.hpp"
+#include "opm/io/eclipse/ExtESmry.hpp"
 #include <QDir>
 #include <QFileInfo>
+
+#pragma optimize( "", on )
 
 //==================================================================================================
 //
@@ -53,6 +61,9 @@ RimFileSummaryCase::RimFileSummaryCase()
     m_includeRestartFiles.uiCapability()->setUiHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_additionalSummaryFilePath, "AdditionalSummaryFilePath", "Additional File Path" );
+    CAF_PDM_InitFieldNoDefault( &m_appendDataToAdditionalSummaryFile, "AppendDataToAdditionalSummaryFile", "Append Data" );
+    m_appendDataToAdditionalSummaryFile.uiCapability()->setUiEditorTypeName(
+        caf::PdmUiPushButtonEditor::uiEditorTypeName() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -94,12 +105,12 @@ void RimFileSummaryCase::updateFilePathsFromProjectPath( const QString& newProje
 //--------------------------------------------------------------------------------------------------
 void RimFileSummaryCase::createSummaryReaderInterfaceThreadSafe( RiaThreadSafeLogger* threadSafeLogger )
 {
-    auto summaryFileReader = RimFileSummaryCase::findRelatedFilesAndCreateReader( this->summaryHeaderFilename(),
-                                                                                  m_includeRestartFiles,
-                                                                                  threadSafeLogger );
+    m_fileSummaryReader = RimFileSummaryCase::findRelatedFilesAndCreateReader( this->summaryHeaderFilename(),
+                                                                               m_includeRestartFiles,
+                                                                               threadSafeLogger );
 
     m_multiSummaryReader = new RifMultipleSummaryReaders;
-    m_multiSummaryReader->addReader( summaryFileReader );
+    m_multiSummaryReader->addReader( m_fileSummaryReader.p() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -108,11 +119,11 @@ void RimFileSummaryCase::createSummaryReaderInterfaceThreadSafe( RiaThreadSafeLo
 void RimFileSummaryCase::createSummaryReaderInterface()
 {
     RiaThreadSafeLogger threadSafeLogger;
-    auto summaryFileReader = RimFileSummaryCase::findRelatedFilesAndCreateReader( this->summaryHeaderFilename(),
-                                                                                  m_includeRestartFiles,
-                                                                                  &threadSafeLogger );
-    m_multiSummaryReader   = new RifMultipleSummaryReaders;
-    m_multiSummaryReader->addReader( summaryFileReader );
+    m_fileSummaryReader  = RimFileSummaryCase::findRelatedFilesAndCreateReader( this->summaryHeaderFilename(),
+                                                                               m_includeRestartFiles,
+                                                                               &threadSafeLogger );
+    m_multiSummaryReader = new RifMultipleSummaryReaders;
+    m_multiSummaryReader->addReader( m_fileSummaryReader.p() );
 
     auto messages = threadSafeLogger.messages();
     for ( const auto& m : messages )
@@ -163,11 +174,7 @@ RifSummaryReaderInterface* RimFileSummaryCase::findRelatedFilesAndCreateReader( 
                 return nullptr;
             }
 
-            summaryReaders.push_back( summaryReader );
-
-            auto multiReader = new RifMultipleSummaryReaders;
-            multiReader->addReader( summaryReader );
-            return multiReader;
+            return summaryReader;
         }
     }
 
@@ -181,9 +188,7 @@ RifSummaryReaderInterface* RimFileSummaryCase::findRelatedFilesAndCreateReader( 
         return nullptr;
     }
 
-    auto multiReader = new RifMultipleSummaryReaders;
-    multiReader->addReader( summaryFileReader );
-    return multiReader;
+    return summaryFileReader;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -204,6 +209,57 @@ RifReaderEclipseRft* RimFileSummaryCase::findRftDataAndCreateReader( const QStri
     }
 
     return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFileSummaryCase::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
+                                           const QVariant&            oldValue,
+                                           const QVariant&            newValue )
+{
+    if ( changedField == &m_appendDataToAdditionalSummaryFile )
+    {
+        m_appendDataToAdditionalSummaryFile = false;
+
+        appendData();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFileSummaryCase::defineEditorAttribute( const caf::PdmFieldHandle* field,
+                                                QString                    uiConfigName,
+                                                caf::PdmUiEditorAttribute* attribute )
+{
+    if ( field == &m_additionalSummaryFilePath )
+    {
+        caf::PdmUiFilePathEditorAttribute* myAttr = dynamic_cast<caf::PdmUiFilePathEditorAttribute*>( attribute );
+        if ( myAttr )
+        {
+            myAttr->m_selectSaveFileName = true;
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFileSummaryCase::appendData()
+{
+    RifEclipseSummaryAddress adr = RifEclipseSummaryAddress::miscAddress( "MSJ_TEST" );
+
+    size_t valueCount = m_fileSummaryReader->timeSteps( RifEclipseSummaryAddress() ).size();
+
+    std::vector<double> values;
+
+    for ( size_t i = 0; i < valueCount; i++ )
+    {
+        values.push_back( i );
+    }
+
+    setSummaryData( adr, values );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -247,4 +303,107 @@ void RimFileSummaryCase::setSummaryData( const RifEclipseSummaryAddress& address
     // append data to esmry
     // reload esmry file
     // update meta data
+
+    m_multiSummaryReader->removeReader( m_additionalSummaryFileReader.p() );
+    m_additionalSummaryFileReader = nullptr;
+
+    if ( m_additionalSummaryFileReader.isNull() )
+    {
+        cvf::ref<RifOpmCommonEclipseSummary> opmCommonReader = new RifOpmCommonEclipseSummary;
+
+        opmCommonReader->useEnhancedSummaryFiles( true );
+
+        QString headerFileName = m_additionalSummaryFilePath().path();
+
+        auto isValid = opmCommonReader->open( headerFileName, false, nullptr );
+
+        if ( !isValid )
+        {
+            auto              sourceFileName = this->summaryHeaderFilename().toStdString();
+            Opm::EclIO::ESmry sourceSummaryData( sourceFileName );
+
+            {
+                // Create smry file with one summary vector
+                {
+                    std::string           m_outputFileName = m_additionalSummaryFilePath().path().toStdString();
+                    bool                  m_fmt            = false;
+                    Opm::EclIO::EclOutput outFile( m_outputFileName, m_fmt, std::ios::out );
+
+                    Opm::TimeStampUTC ts( std::chrono::system_clock::to_time_t( sourceSummaryData.startdate() ) );
+
+                    std::vector<int> start_date_vect =
+                        { ts.day(), ts.month(), ts.year(), ts.hour(), ts.minutes(), ts.seconds(), 0 };
+
+                    outFile.write<int>( "START", start_date_vect );
+
+                    /*
+                                    if ( m_restart_rootn.size() > 0 )
+                                    {
+                                        outFile.write<std::string>( "RESTART", { m_restart_rootn } );
+                                        outFile.write<int>( "RSTNUM", { m_restart_step } );
+                                    }
+                    */
+
+                    std::vector<std::string> m_smry_keys = sourceSummaryData.keywordList();
+                    std::vector<std::string> m_smryUnits;
+                    for ( const auto& key : m_smry_keys )
+                    {
+                        auto unit = sourceSummaryData.get_unit( key );
+                        m_smryUnits.push_back( unit );
+                    }
+
+                    outFile.write( "KEYCHECK", m_smry_keys );
+                    outFile.write( "UNITS", m_smryUnits );
+
+                    size_t timeStepCount = 0;
+                    {
+                        auto tstepValues = sourceSummaryData.get( "TIME" );
+                        timeStepCount    = tstepValues.size();
+                    }
+
+                    {
+                        { // Bool array 1 means RSTEP, 0 means no RSTEP
+                            std::vector<int> intValues( timeStepCount, 1 );
+                            outFile.write<int>( "RSTEP", intValues );
+                        }
+
+                        {
+                            std::vector<int> intValues;
+                            intValues.resize( timeStepCount );
+                            std::iota( intValues.begin(), intValues.end(), 0 );
+                            outFile.write<int>( "TSTEP", intValues );
+                        }
+
+                        /*
+                                                {
+                                                    auto tstepValues = sourceSummaryData.get( "TIME" );
+                                                    if ( !tstepValues.empty() )
+                                                    {
+                                                        std::vector<int> intValues;
+                                                        for ( auto floatVal : tstepValues )
+                                                        {
+                                                            intValues.push_back( floatVal );
+                                                        }
+                                                        outFile.write<int>( "TIME", intValues );
+                                                    }
+                                                }
+                        */
+
+                        for ( size_t n = 0; n < static_cast<size_t>( m_smry_keys.size() ); n++ )
+                        {
+                            std::string vect_name = "V" + std::to_string( n );
+                            auto        values    = sourceSummaryData.get( m_smry_keys[n] );
+                            outFile.write<float>( vect_name, values );
+                        }
+                    }
+                }
+            }
+
+            if ( isValid )
+            {
+                m_additionalSummaryFileReader = opmCommonReader;
+                m_multiSummaryReader->addReader( m_additionalSummaryFileReader.p() );
+            }
+        }
+    }
 }
