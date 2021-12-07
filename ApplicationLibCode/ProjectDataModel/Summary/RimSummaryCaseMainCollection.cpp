@@ -625,8 +625,9 @@ std::vector<RimSummaryCase*> RimSummaryCaseMainCollection::createSummaryCasesFro
             {
                 const QString& smspecFileName = fileInfo.summaryFileName();
 
+                bool isEsmryFile   = smspecFileName.endsWith( "ESMRY" );
                 bool foundDataFile = RiaEclipseFileNameTools::isSummaryDataFilePresent( smspecFileName );
-                if ( foundDataFile )
+                if ( foundDataFile || isEsmryFile )
                 {
                     RimFileSummaryCase* newSumCase = new RimFileSummaryCase();
 
