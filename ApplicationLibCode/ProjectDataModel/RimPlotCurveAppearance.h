@@ -20,8 +20,8 @@
 #include "RiaCurveDataTools.h"
 #include "RiaDefines.h"
 
+#include "RiuPlotCurveSymbol.h"
 #include "RiuQwtPlotCurveDefines.h"
-#include "RiuQwtSymbol.h"
 
 #include "cafPdmField.h"
 #include "cafPdmFieldCvfColor.h"
@@ -42,8 +42,8 @@ public:
 public:
     typedef caf::AppEnum<RiuQwtPlotCurveDefines::CurveInterpolationEnum> CurveInterpolation;
     typedef caf::AppEnum<RiuQwtPlotCurveDefines::LineStyleEnum>          LineStyle;
-    typedef caf::AppEnum<RiuQwtSymbol::PointSymbolEnum>                  PointSymbol;
-    typedef caf::AppEnum<RiuQwtSymbol::LabelPosition>                    LabelPosition;
+    typedef caf::AppEnum<RiuPlotCurveSymbol::PointSymbolEnum>            PointSymbol;
+    typedef caf::AppEnum<RiuPlotCurveSymbol::LabelPosition>              LabelPosition;
     typedef caf::AppEnum<Qt::BrushStyle>                                 FillStyle;
 
 public:
@@ -59,8 +59,8 @@ public:
     void setLineThickness( int thickness );
     int  lineThickness() const;
 
-    void                          setSymbol( RiuQwtSymbol::PointSymbolEnum symbolStyle );
-    RiuQwtSymbol::PointSymbolEnum symbol() const;
+    void                                setSymbol( RiuPlotCurveSymbol::PointSymbolEnum symbolStyle );
+    RiuPlotCurveSymbol::PointSymbolEnum symbol() const;
 
     void setSymbolSize( int sizeInPixels );
     int  symbolSize() const;
@@ -74,8 +74,8 @@ public:
     void    setSymbolLabel( const QString& label );
     QString symbolLabel() const;
 
-    void                        setSymbolLabelPosition( RiuQwtSymbol::LabelPosition labelPosition );
-    RiuQwtSymbol::LabelPosition symbolLabelPosition() const;
+    void                              setSymbolLabelPosition( RiuPlotCurveSymbol::LabelPosition labelPosition );
+    RiuPlotCurveSymbol::LabelPosition symbolLabelPosition() const;
 
     void           resetAppearance();
     Qt::BrushStyle fillStyle() const;

@@ -573,7 +573,7 @@ void RimVfpPlot::populatePlotWidgetWithPlotData( RiuPlotWidget* plotWidget, cons
                               2,
                               qtClr );
 
-        curve->setSymbolAppearance( RiuQwtSymbol::PointSymbolEnum::SYMBOL_ELLIPSE, 6, qtClr );
+        curve->setSymbolAppearance( RiuPlotCurveSymbol::PointSymbolEnum::SYMBOL_ELLIPSE, 6, qtClr );
         curve->setSamplesFromXValuesAndYValues( plotData.xData( idx ),
                                                 plotData.yData( idx ),
                                                 static_cast<int>( plotData.curveSize( idx ) ) );

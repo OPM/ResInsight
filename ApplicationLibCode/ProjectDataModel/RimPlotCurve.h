@@ -58,24 +58,24 @@ public:
 
     void loadDataAndUpdate( bool updateParentPlot );
 
-    void                          setColor( const cvf::Color3f& color );
-    cvf::Color3f                  color() const;
-    void                          setLineStyle( RiuQwtPlotCurveDefines::LineStyleEnum lineStyle );
-    void                          setSymbol( RiuQwtSymbol::PointSymbolEnum symbolStyle );
-    void                          setInterpolation( RiuQwtPlotCurveDefines::CurveInterpolationEnum );
-    RiuQwtSymbol::PointSymbolEnum symbol();
-    int                           symbolSize() const;
-    cvf::Color3f                  symbolEdgeColor() const;
-    void                          setSymbolEdgeColor( const cvf::Color3f& edgeColor );
-    void                          setSymbolSkipDistance( float distance );
-    void                          setSymbolLabel( const QString& label );
-    void                          setSymbolLabelPosition( RiuQwtSymbol::LabelPosition labelPosition );
-    void                          setSymbolSize( int sizeInPixels );
-    void                          setLineThickness( int thickness );
-    void                          resetAppearance();
-    Qt::BrushStyle                fillStyle() const;
-    void                          setFillStyle( Qt::BrushStyle brushStyle );
-    void                          setFillColor( const cvf::Color3f& fillColor );
+    void                                setColor( const cvf::Color3f& color );
+    cvf::Color3f                        color() const;
+    void                                setLineStyle( RiuQwtPlotCurveDefines::LineStyleEnum lineStyle );
+    void                                setSymbol( RiuPlotCurveSymbol::PointSymbolEnum symbolStyle );
+    void                                setInterpolation( RiuQwtPlotCurveDefines::CurveInterpolationEnum );
+    RiuPlotCurveSymbol::PointSymbolEnum symbol();
+    int                                 symbolSize() const;
+    cvf::Color3f                        symbolEdgeColor() const;
+    void                                setSymbolEdgeColor( const cvf::Color3f& edgeColor );
+    void                                setSymbolSkipDistance( float distance );
+    void                                setSymbolLabel( const QString& label );
+    void                                setSymbolLabelPosition( RiuPlotCurveSymbol::LabelPosition labelPosition );
+    void                                setSymbolSize( int sizeInPixels );
+    void                                setLineThickness( int thickness );
+    void                                resetAppearance();
+    Qt::BrushStyle                      fillStyle() const;
+    void                                setFillStyle( Qt::BrushStyle brushStyle );
+    void                                setFillColor( const cvf::Color3f& fillColor );
 
     bool isCurveVisible() const;
     void setCurveVisibility( bool visible );

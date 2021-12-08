@@ -1052,28 +1052,50 @@ QtCharts::QChart* RiuQtChartsPlotWidget::qtChart()
 ///
 //--------------------------------------------------------------------------------------------------
 void RiuQtChartsPlotWidget::attach( RiuPlotCurve*              plotCurve,
-                                    QtCharts::QAbstractSeries* series,
+                                    QtCharts::QAbstractSeries* lineSeries,
+                                    QtCharts::QAbstractSeries* scatterSeries,
                                     RiaDefines::PlotAxis       xAxis,
                                     RiaDefines::PlotAxis       yAxis )
 {
-    if ( !series->chart() )
-    {
-        m_plotCurveSeriesMap[plotCurve] = series;
-        qtChart()->addSeries( series );
-        setXAxis( xAxis, series );
-        setXAxis( yAxis, series );
-        rescaleAxis( xAxis );
-        rescaleAxis( yAxis );
-    }
+    auto addToChart = [this]( std::map<const RiuPlotCurve*, QtCharts::QAbstractSeries*>& curveSeriesMap,
+                              auto                                                       plotCurve,
+                              auto                                                       series,
+                              auto                                                       xAxis,
+                              auto                                                       yAxis ) {
+        if ( !series->chart() )
+        {
+            curveSeriesMap[plotCurve] = series;
+            qtChart()->addSeries( series );
+            setXAxis( xAxis, series );
+            setXAxis( yAxis, series );
+            rescaleAxis( xAxis );
+            rescaleAxis( yAxis );
+        }
+    };
+
+    addToChart( m_lineSeriesMap, plotCurve, lineSeries, xAxis, yAxis );
+    addToChart( m_scatterSeriesMap, plotCurve, scatterSeries, xAxis, yAxis );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QtCharts::QAbstractSeries* RiuQtChartsPlotWidget::getSeries( const RiuPlotCurve* plotCurve ) const
+QtCharts::QAbstractSeries* RiuQtChartsPlotWidget::getLineSeries( const RiuPlotCurve* plotCurve ) const
 {
-    auto series = m_plotCurveSeriesMap.find( plotCurve );
-    if ( series != m_plotCurveSeriesMap.end() )
+    auto series = m_lineSeriesMap.find( plotCurve );
+    if ( series != m_lineSeriesMap.end() )
+        return series->second;
+    else
+        return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QtCharts::QAbstractSeries* RiuQtChartsPlotWidget::getScatterSeries( const RiuPlotCurve* plotCurve ) const
+{
+    auto series = m_scatterSeriesMap.find( plotCurve );
+    if ( series != m_scatterSeriesMap.end() )
         return series->second;
     else
         return nullptr;
@@ -1088,7 +1110,8 @@ void RiuQtChartsPlotWidget::detachItems( RiuPlotWidget::PlotItemType plotItemTyp
 
     if ( plotItemType == RiuPlotWidget::PlotItemType::CURVE )
     {
-        m_plotCurveSeriesMap.clear();
+        m_lineSeriesMap.clear();
+        m_scatterSeriesMap.clear();
         qtChart()->removeAllSeries();
     }
     else
@@ -1154,13 +1177,13 @@ void RiuQtChartsPlotWidget::rescaleAxis( RiaDefines::PlotAxis axis )
             for ( auto attachedAxis : attachedAxes )
             {
                 QValueAxis* valueAxis = dynamic_cast<QValueAxis*>( attachedAxis );
-                if ( valueAxis && valueAxis->orientation() == orr )
+                if ( valueAxis && valueAxis->orientation() == orr && dynamic_cast<QLineSeries*>( series ) )
                 {
                     points = dynamic_cast<QLineSeries*>( series )->pointsVector();
                 }
 
                 QDateTimeAxis* dateTimeAxis = dynamic_cast<QDateTimeAxis*>( attachedAxis );
-                if ( dateTimeAxis && dateTimeAxis->orientation() == orr )
+                if ( dateTimeAxis && dateTimeAxis->orientation() == orr && dynamic_cast<QLineSeries*>( series ) )
                 {
                     points = dynamic_cast<QLineSeries*>( series )->pointsVector();
                 }

@@ -311,7 +311,7 @@ void RimParameterResultCrossPlot::createPoints()
                     plotCurve->setSamplesValues( parameterValues, caseValuesAtTimestep );
                     plotCurve->setStyle( QwtPlotCurve::NoCurve );
                     RiuQwtSymbol* symbol =
-                        new RiuQwtSymbol( RiuQwtSymbol::cycledSymbolStyle( ensembleIdx, addressIdx ), "" );
+                        new RiuQwtSymbol( RiuPlotCurveSymbol::cycledSymbolStyle( ensembleIdx, addressIdx ), "" );
                     symbol->setSize( legendFontSize(), legendFontSize() );
                     symbol->setColor( colorTable.cycledQColor( caseIdx ) );
                     plotCurve->setSymbol( symbol );
