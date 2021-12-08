@@ -79,7 +79,6 @@ public:
 
     void                       createSummaryReaderInterface() override;
     RifSummaryReaderInterface* summaryReader() override;
-    void updateFilePathsFromProjectPath( const QString& newProjectPath, const QString& oldProjectPath ) override;
 
     void updateDisplayNameFromCases();
 

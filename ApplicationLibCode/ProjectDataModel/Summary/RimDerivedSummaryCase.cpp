@@ -323,14 +323,6 @@ RifSummaryReaderInterface* RimDerivedSummaryCase::summaryReader()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimDerivedSummaryCase::updateFilePathsFromProjectPath( const QString& newProjectPath, const QString& oldProjectPath )
-{
-    // NOP
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimDerivedSummaryCase::setOperator( DerivedSummaryOperator oper )
 {
     m_operator = oper;

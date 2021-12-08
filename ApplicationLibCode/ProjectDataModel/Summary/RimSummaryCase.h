@@ -69,8 +69,6 @@ public:
     virtual RifReaderRftInterface*     rftReader();
     virtual QString                    errorMessagesFromReader();
 
-    virtual void updateFilePathsFromProjectPath( const QString& newProjectPath, const QString& oldProjectPath ) = 0;
-
     void setSummaryHeaderFileName( const QString& fileName );
 
     bool isObservedData() const;
