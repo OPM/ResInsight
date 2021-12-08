@@ -727,6 +727,7 @@ void RiuQtChartsPlotWidget::applyPlotTitleToPlot()
 {
     QString plotTitleToApply = m_plotTitleEnabled ? m_plotTitle : QString( "" );
     m_viewer->chart()->setTitle( plotTitleToApply );
+    m_viewer->chart()->update();
 }
 
 //--------------------------------------------------------------------------------------------------
