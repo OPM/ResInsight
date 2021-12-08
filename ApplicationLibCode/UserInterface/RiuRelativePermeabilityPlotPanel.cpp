@@ -26,8 +26,10 @@
 #include "RiaResultNames.h"
 #include "RiuDockedQwtPlot.h"
 #include "RiuGuiTheme.h"
+#include "RiuPlotCurveSymbol.h"
 #include "RiuQwtPlotCurve.h"
 #include "RiuQwtPlotTools.h"
+#include "RiuQwtSymbol.h"
 #include "RiuRelativePermeabilityPlotUpdater.h"
 #include "RiuTextDialog.h"
 
@@ -39,7 +41,6 @@
 #include "qwt_plot_curve.h"
 #include "qwt_plot_marker.h"
 #include "qwt_scale_engine.h"
-#include "qwt_symbol.h"
 
 #include <QButtonGroup>
 #include <QCheckBox>
@@ -403,9 +404,10 @@ void RiuRelativePermeabilityPlotPanel::plotCurvesInQwt( RiaDefines::EclipseUnitS
         const QPen curvePen( QBrush(), 1, penStyle );
         qwtCurve->setPen( curvePen );
 
-        QwtSymbol* curveSymbol = new QwtSymbol( QwtSymbol::Ellipse );
+        RiuPlotCurveSymbol* curveSymbol = new RiuQwtSymbol( RiuPlotCurveSymbol::SYMBOL_ELLIPSE );
         curveSymbol->setSize( 6, 6 );
-        curveSymbol->setBrush( Qt::NoBrush );
+        // TODO: necessary???
+        // curveSymbol->setBrush( Qt::NoBrush );
         qwtCurve->setSymbol( curveSymbol );
 
         qwtCurve->setLegendAttribute( QwtPlotCurve::LegendShowLine, true );

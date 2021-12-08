@@ -17,8 +17,8 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
+#include "RiuPlotCurveSymbol.h"
 #include "RiuQwtPlotCurveDefines.h"
-#include "RiuQwtSymbol.h"
 
 #include "cvfColor3.h"
 
@@ -57,13 +57,13 @@ public:
 
     void setupCurveLook( RimSummaryCurve* curve );
 
-    static cvf::Color3f                  cycledPaletteColor( int colorIndex );
-    static cvf::Color3f                  cycledNoneRGBBrColor( int colorIndex );
-    static cvf::Color3f                  cycledGreenColor( int colorIndex );
-    static cvf::Color3f                  cycledBlueColor( int colorIndex );
-    static cvf::Color3f                  cycledRedColor( int colorIndex );
-    static cvf::Color3f                  cycledBrownColor( int colorIndex );
-    static RiuQwtSymbol::PointSymbolEnum cycledSymbol( int index );
+    static cvf::Color3f                        cycledPaletteColor( int colorIndex );
+    static cvf::Color3f                        cycledNoneRGBBrColor( int colorIndex );
+    static cvf::Color3f                        cycledGreenColor( int colorIndex );
+    static cvf::Color3f                        cycledBlueColor( int colorIndex );
+    static cvf::Color3f                        cycledRedColor( int colorIndex );
+    static cvf::Color3f                        cycledBrownColor( int colorIndex );
+    static RiuPlotCurveSymbol::PointSymbolEnum cycledSymbol( int index );
 
 private:
     void setOneCurveAppearance( CurveAppearanceType appeaType, size_t totalCount, int appeaIdx, RimSummaryCurve* curve );

@@ -43,6 +43,11 @@ RiuQtChartsPlotCurve::RiuQtChartsPlotCurve( const QString& title )
     m_lineSeries = new QtCharts::QLineSeries();
     m_lineSeries->setName( title );
 
+    m_scatterSeries = new QtCharts::QScatterSeries();
+    m_scatterSeries->setName( title );
+    m_scatterSeries->setMarkerShape( QtCharts::QScatterSeries::MarkerShapeRectangle );
+    m_scatterSeries->setMarkerSize( 20.0 );
+
     m_axisX = RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM;
     m_axisY = RiaDefines::PlotAxis::PLOT_AXIS_LEFT;
 }
@@ -57,6 +62,9 @@ RiuQtChartsPlotCurve::~RiuQtChartsPlotCurve()
     // Delete if it is still owned by by plot curve
     delete m_lineSeries;
     m_lineSeries = nullptr;
+
+    delete m_scatterSeries;
+    m_scatterSeries = nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -89,9 +97,20 @@ void RiuQtChartsPlotCurve::setAppearance( RiuQwtPlotCurveDefines::LineStyleEnum 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuQtChartsPlotCurve::setSymbolAppearance( RiuQwtSymbol::PointSymbolEnum, int size, const QColor& color )
+void RiuQtChartsPlotCurve::setSymbolAppearance( RiuQwtSymbol::PointSymbolEnum symbol, int size, const QColor& color )
 {
-    lineSeries()->setPointsVisible();
+    //    lineSeries()->setPointsVisible();
+    if ( symbol == RiuQwtSymbol::PointSymbolEnum::SYMBOL_NONE )
+        scatterSeries()->hide();
+    else
+    {
+        if ( symbol == RiuQwtSymbol::PointSymbolEnum::SYMBOL_RECT )
+            scatterSeries()->setMarkerShape( QtCharts::QScatterSeries::MarkerShapeRectangle );
+        else if ( symbol == RiuQwtSymbol::PointSymbolEnum::SYMBOL_ELLIPSE )
+            scatterSeries()->setMarkerShape( QtCharts::QScatterSeries::MarkerShapeCircle );
+
+        scatterSeries()->setMarkerSize( size );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -110,15 +129,17 @@ void RiuQtChartsPlotCurve::attachToPlot( RiuPlotWidget* plotWidget )
     m_plotWidget = dynamic_cast<RiuQtChartsPlotWidget*>( plotWidget );
     CAF_ASSERT( m_plotWidget );
 
-    if ( m_plotWidget->getSeries( this ) )
+    if ( m_plotWidget->getLineSeries( this ) && m_plotWidget->getScatterSeries( this ) )
     {
         lineSeries()->show();
+        scatterSeries()->show();
     }
     else
     {
-        m_plotWidget->attach( this, lineSeries(), m_axisX, m_axisY );
+        m_plotWidget->attach( this, lineSeries(), scatterSeries(), m_axisX, m_axisY );
         // Plot widget takes ownership.
-        m_lineSeries = nullptr;
+        m_lineSeries    = nullptr;
+        m_scatterSeries = nullptr;
     }
 }
 
@@ -127,19 +148,19 @@ void RiuQtChartsPlotCurve::attachToPlot( RiuPlotWidget* plotWidget )
 //--------------------------------------------------------------------------------------------------
 void RiuQtChartsPlotCurve::detach()
 {
-    // TODO: not sure about this one..
-    if ( lineSeries() )
+    QtCharts::QLineSeries* line = lineSeries();
+    if ( line )
     {
-        lineSeries()->hide();
+        line->hide();
     }
-    m_plotWidget = nullptr;
 
-    // if ( m_lineSeries && m_lineSeries->chart() )
-    // {
-    //     m_lineSeries->hide();
-    //     // m_lineSeries->chart()->removeSeries( m_lineSeries );
-    //     // m_lineSeries = nullptr;
-    // }
+    QtCharts::QScatterSeries* scatter = scatterSeries();
+    if ( scatter )
+    {
+        scatter->hide();
+    }
+
+    m_plotWidget = nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -161,10 +182,15 @@ void RiuQtChartsPlotCurve::setSamplesInPlot( const std::vector<double>& xValues,
     CAF_ASSERT( numValues <= static_cast<int>( xValues.size() ) );
     CAF_ASSERT( numValues >= 0 );
 
-    lineSeries()->clear();
+    QtCharts::QLineSeries*    line    = lineSeries();
+    QtCharts::QScatterSeries* scatter = scatterSeries();
+
+    line->clear();
+    scatter->clear();
     for ( int i = 0; i < numValues; i++ )
     {
-        lineSeries()->append( xValues[i], yValues[i] );
+        line->append( xValues[i], yValues[i] );
+        scatter->append( xValues[i], yValues[i] );
     }
 }
 
@@ -273,7 +299,35 @@ QtCharts::QLineSeries* RiuQtChartsPlotCurve::lineSeries() const
     if ( m_lineSeries )
         return m_lineSeries;
     else if ( m_plotWidget )
-        return dynamic_cast<QtCharts::QLineSeries*>( m_plotWidget->getSeries( this ) );
+        return dynamic_cast<QtCharts::QLineSeries*>( m_plotWidget->getLineSeries( this ) );
     else
         return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QtCharts::QScatterSeries* RiuQtChartsPlotCurve::scatterSeries() const
+{
+    if ( m_scatterSeries )
+        return m_scatterSeries;
+    else if ( m_plotWidget )
+        return dynamic_cast<QtCharts::QScatterSeries*>( m_plotWidget->getScatterSeries( this ) );
+    else
+        return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuQtChartsPlotCurve::setSymbol( RiuPlotCurveSymbol* symbol )
+{
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiuPlotCurveSymbol* RiuQtChartsPlotCurve::createSymbol( RiuPlotCurveSymbol::PointSymbolEnum symbol ) const
+{
+    return nullptr;
 }

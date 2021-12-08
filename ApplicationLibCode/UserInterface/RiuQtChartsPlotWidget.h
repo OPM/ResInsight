@@ -162,11 +162,13 @@ public:
     QtCharts::QChart* qtChart();
 
     void attach( RiuPlotCurve*              plotCurve,
-                 QtCharts::QAbstractSeries* series,
+                 QtCharts::QAbstractSeries* lineseries,
+                 QtCharts::QAbstractSeries* scatterSeries,
                  RiaDefines::PlotAxis       xAxis,
                  RiaDefines::PlotAxis       yAxis );
 
-    QtCharts::QAbstractSeries* getSeries( const RiuPlotCurve* plotCurve ) const;
+    QtCharts::QAbstractSeries* getLineSeries( const RiuPlotCurve* plotCurve ) const;
+    QtCharts::QAbstractSeries* getScatterSeries( const RiuPlotCurve* plotCurve ) const;
 
     void setXAxis( RiaDefines::PlotAxis axis, QtCharts::QAbstractSeries* series );
     void setYAxis( RiaDefines::PlotAxis axis, QtCharts::QAbstractSeries* series );
@@ -219,7 +221,8 @@ private:
 
     std::map<RiaDefines::PlotAxis, QtCharts::QAbstractAxis*> m_axes;
 
-    std::map<const RiuPlotCurve*, QtCharts::QAbstractSeries*> m_plotCurveSeriesMap;
+    std::map<const RiuPlotCurve*, QtCharts::QAbstractSeries*> m_lineSeriesMap;
+    std::map<const RiuPlotCurve*, QtCharts::QAbstractSeries*> m_scatterSeriesMap;
 
     friend class RiaPlotWindowRedrawScheduler;
 };

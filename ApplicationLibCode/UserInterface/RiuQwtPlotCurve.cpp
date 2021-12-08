@@ -253,7 +253,7 @@ void RiuQwtPlotCurve::setBrush( const QBrush& brush )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuQwtPlotCurve::setSymbolAppearance( RiuQwtSymbol::PointSymbolEnum, int size, const QColor& color )
+void RiuQwtPlotCurve::setSymbolAppearance( RiuPlotCurveSymbol::PointSymbolEnum, int size, const QColor& color )
 {
     // TODO: map symbol
     QwtSymbol* symbol = new QwtSymbol( QwtSymbol::Ellipse );
@@ -395,4 +395,22 @@ void RiuQwtPlotCurve::setYAxis( RiaDefines::PlotAxis axis )
 void RiuQwtPlotCurve::setVisibleInLegend( bool isVisibleInLegend )
 {
     setItemAttribute( QwtPlotItem::Legend, isVisibleInLegend );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuQwtPlotCurve::setSymbol( RiuPlotCurveSymbol* symbol )
+{
+    auto qwtSymbol = dynamic_cast<RiuQwtSymbol*>( symbol );
+    CAF_ASSERT( qwtSymbol );
+    QwtPlotCurve::setSymbol( qwtSymbol );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiuPlotCurveSymbol* RiuQwtPlotCurve::createSymbol( RiuPlotCurveSymbol::PointSymbolEnum symbol ) const
+{
+    return new RiuQwtSymbol( symbol );
 }

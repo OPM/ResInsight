@@ -63,8 +63,8 @@ protected:
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
                                                          bool*                      useOptionsOnly ) override;
 
-    RiuQwtSymbol::PointSymbolEnum getSymbolForMeasurementKind( const QString& measurementKind );
-    cvf::Color3f                  getColorForMeasurementKind( const QString& measurementKind );
+    RiuPlotCurveSymbol::PointSymbolEnum getSymbolForMeasurementKind( const QString& measurementKind );
+    cvf::Color3f                        getColorForMeasurementKind( const QString& measurementKind );
 
 protected:
     caf::PdmPtrField<RimWellPath*> m_wellPath;

@@ -45,7 +45,7 @@ RimGridCrossPlotCurve::RimGridCrossPlotCurve()
     CAF_PDM_InitObject( "Cross Plot Points", ":/WellLogCurve16x16.png" );
 
     setLineStyle( RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_NONE );
-    setSymbol( RiuQwtSymbol::SYMBOL_NONE );
+    setSymbol( RiuPlotCurveSymbol::SYMBOL_NONE );
     setSymbolSize( 4 );
 }
 
@@ -125,7 +125,7 @@ void RimGridCrossPlotCurve::setBlackAndWhiteLegendIcons( bool blackAndWhite )
 //--------------------------------------------------------------------------------------------------
 void RimGridCrossPlotCurve::determineSymbol()
 {
-    RiuQwtSymbol::PointSymbolEnum symbol = RiuQwtSymbol::cycledSymbolStyle( m_dataSetIndex );
+    RiuPlotCurveSymbol::PointSymbolEnum symbol = RiuPlotCurveSymbol::cycledSymbolStyle( m_dataSetIndex );
     setSymbol( symbol );
 }
 

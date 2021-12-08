@@ -24,8 +24,10 @@
 #include "cvfBoundingBox.h"
 
 #include <QLineSeries>
+#include <QScatterSeries>
 
 class RiuQtChartsPlotWidget;
+class RiuPlotCurveSymbol;
 
 //==================================================================================================
 //
@@ -44,7 +46,7 @@ public:
                         const QColor&                                  curveColor,
                         const QBrush&                                  fillBrush = QBrush( Qt::NoBrush ) ) override;
 
-    void setSymbolAppearance( RiuQwtSymbol::PointSymbolEnum, int size, const QColor& color ) override;
+    void setSymbolAppearance( RiuPlotCurveSymbol::PointSymbolEnum, int size, const QColor& color ) override;
 
     void setBrush( const QBrush& brush ) override;
 
@@ -70,15 +72,21 @@ public:
 
     void setVisibleInLegend( bool isVisibleInLegend ) override;
 
+    void setSymbol( RiuPlotCurveSymbol* symbol ) override;
+
+    RiuPlotCurveSymbol* createSymbol( RiuPlotCurveSymbol::PointSymbolEnum symbol ) const override;
+
 protected:
     void setSamplesInPlot( const std::vector<double>&, const std::vector<double>&, int ) override;
 
-    QtCharts::QLineSeries* lineSeries() const;
+    QtCharts::QLineSeries*    lineSeries() const;
+    QtCharts::QScatterSeries* scatterSeries() const;
 
     cvf::BoundingBox computeBoundingBox() const;
 
-    QtCharts::QLineSeries* m_lineSeries;
-    RiuQtChartsPlotWidget* m_plotWidget;
-    RiaDefines::PlotAxis   m_axisX;
-    RiaDefines::PlotAxis   m_axisY;
+    QtCharts::QLineSeries*    m_lineSeries;
+    QtCharts::QScatterSeries* m_scatterSeries;
+    RiuQtChartsPlotWidget*    m_plotWidget;
+    RiaDefines::PlotAxis      m_axisX;
+    RiaDefines::PlotAxis      m_axisY;
 };

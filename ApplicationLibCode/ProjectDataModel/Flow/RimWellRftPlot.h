@@ -24,7 +24,7 @@
 #include "RimWellRftEnsembleCurveSet.h"
 
 #include "RifDataSourceForRftPltQMetaType.h"
-#include "RiuQwtSymbol.h"
+#include "RiuPlotCurveSymbol.h"
 
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
@@ -130,8 +130,8 @@ private:
     void    updateFormationsOnPlot() const;
     QString associatedSimWellName() const;
 
-    static RiuQwtSymbol::PointSymbolEnum statisticsCurveSymbolFromAddress( const RifEclipseRftAddress& address );
-    static RiuQwtSymbol::LabelPosition   statisticsLabelPosFromAddress( const RifEclipseRftAddress& address );
+    static RiuPlotCurveSymbol::PointSymbolEnum statisticsCurveSymbolFromAddress( const RifEclipseRftAddress& address );
+    static RiuPlotCurveSymbol::LabelPosition   statisticsLabelPosFromAddress( const RifEclipseRftAddress& address );
 
     cvf::Color3f findCurveColor( RimWellLogCurve* curve );
     void         defineCurveColorsAndSymbols( const std::set<RiaRftPltCurveDefinition>& allCurveDefs );
@@ -158,9 +158,9 @@ private:
     caf::PdmChildArrayField<RimWellRftEnsembleCurveSet*>                      m_ensembleCurveSets;
     std::map<RimWellRftEnsembleCurveSet*, QPointer<RiuDraggableOverlayFrame>> m_ensembleLegendFrames;
 
-    std::map<RifDataSourceForRftPlt, cvf::Color3f>     m_dataSourceColors;
-    std::map<QDateTime, RiuQwtSymbol::PointSymbolEnum> m_timeStepSymbols;
-    bool                                               m_isOnLoad;
+    std::map<RifDataSourceForRftPlt, cvf::Color3f>           m_dataSourceColors;
+    std::map<QDateTime, RiuPlotCurveSymbol::PointSymbolEnum> m_timeStepSymbols;
+    bool                                                     m_isOnLoad;
 
     caf::PdmChildField<RimWellLogPlot*> m_wellLogPlot_OBSOLETE;
 };

@@ -156,7 +156,7 @@ void RimWellRftPlot::applyCurveAppearance( RimWellLogCurve* curve )
     RiaRftPltCurveDefinition              curveDef  = RimWellPlotTools::curveDefFromCurve( curve );
     RiuQwtPlotCurveDefines::LineStyleEnum lineStyle = RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_SOLID;
 
-    RiuQwtSymbol::PointSymbolEnum currentSymbol = RiuQwtSymbol::SYMBOL_NONE;
+    RiuPlotCurveSymbol::PointSymbolEnum currentSymbol = RiuPlotCurveSymbol::SYMBOL_NONE;
     if ( curveDef.address().sourceType() != RifDataSourceForRftPlt::ENSEMBLE_RFT )
     {
         currentSymbol = m_timeStepSymbols[curveDef.timeStep()];
@@ -571,8 +571,8 @@ void RimWellRftPlot::updateCurvesInPlot( const std::set<RiaRftPltCurveDefinition
                     curve->setZOrder(
                         RiuQwtPlotCurveDefines::zDepthForIndex( RiuQwtPlotCurveDefines::ZIndex::Z_ENSEMBLE_STAT_CURVE ) );
                     applyCurveAppearance( curve );
-                    auto                        symbol   = statisticsCurveSymbolFromAddress( rftAddress );
-                    RiuQwtSymbol::LabelPosition labelPos = statisticsLabelPosFromAddress( rftAddress );
+                    auto                              symbol   = statisticsCurveSymbolFromAddress( rftAddress );
+                    RiuPlotCurveSymbol::LabelPosition labelPos = statisticsLabelPosFromAddress( rftAddress );
                     curve->setSymbol( symbol );
                     curve->setSymbolLabelPosition( labelPos );
                     curve->setSymbolSize( curve->symbolSize() + 3 );
@@ -1159,39 +1159,39 @@ void RimWellRftPlot::assignWellPathToExtractionCurves()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuQwtSymbol::PointSymbolEnum RimWellRftPlot::statisticsCurveSymbolFromAddress( const RifEclipseRftAddress& address )
+RiuPlotCurveSymbol::PointSymbolEnum RimWellRftPlot::statisticsCurveSymbolFromAddress( const RifEclipseRftAddress& address )
 {
     switch ( address.wellLogChannel() )
     {
         case RifEclipseRftAddress::PRESSURE_P10:
-            return RiuQwtSymbol::SYMBOL_TRIANGLE;
+            return RiuPlotCurveSymbol::SYMBOL_TRIANGLE;
         case RifEclipseRftAddress::PRESSURE_P50:
-            return RiuQwtSymbol::SYMBOL_DOWN_TRIANGLE;
+            return RiuPlotCurveSymbol::SYMBOL_DOWN_TRIANGLE;
         case RifEclipseRftAddress::PRESSURE_P90:
-            return RiuQwtSymbol::SYMBOL_LEFT_TRIANGLE;
+            return RiuPlotCurveSymbol::SYMBOL_LEFT_TRIANGLE;
         case RifEclipseRftAddress::PRESSURE_MEAN:
-            return RiuQwtSymbol::SYMBOL_RIGHT_TRIANGLE;
+            return RiuPlotCurveSymbol::SYMBOL_RIGHT_TRIANGLE;
     }
-    return RiuQwtSymbol::SYMBOL_RIGHT_TRIANGLE;
+    return RiuPlotCurveSymbol::SYMBOL_RIGHT_TRIANGLE;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuQwtSymbol::LabelPosition RimWellRftPlot::statisticsLabelPosFromAddress( const RifEclipseRftAddress& address )
+RiuPlotCurveSymbol::LabelPosition RimWellRftPlot::statisticsLabelPosFromAddress( const RifEclipseRftAddress& address )
 {
     switch ( address.wellLogChannel() )
     {
         case RifEclipseRftAddress::PRESSURE_P10:
-            return RiuQwtSymbol::LabelLeftOfSymbol;
+            return RiuPlotCurveSymbol::LabelLeftOfSymbol;
         case RifEclipseRftAddress::PRESSURE_P50:
-            return RiuQwtSymbol::LabelAboveSymbol;
+            return RiuPlotCurveSymbol::LabelAboveSymbol;
         case RifEclipseRftAddress::PRESSURE_P90:
-            return RiuQwtSymbol::LabelRightOfSymbol;
+            return RiuPlotCurveSymbol::LabelRightOfSymbol;
         case RifEclipseRftAddress::PRESSURE_MEAN:
-            return RiuQwtSymbol::LabelBelowSymbol;
+            return RiuPlotCurveSymbol::LabelBelowSymbol;
     }
-    return RiuQwtSymbol::LabelAboveSymbol;
+    return RiuPlotCurveSymbol::LabelAboveSymbol;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1286,12 +1286,12 @@ void RimWellRftPlot::defineCurveColorsAndSymbols( const std::set<RiaRftPltCurveD
     std::vector<cvf::Color3f> colorTable;
     RiaColorTables::summaryCurveDefaultPaletteColors().color3fArray().toStdVector( &colorTable );
 
-    std::vector<RiuQwtSymbol::PointSymbolEnum> symbolTable = { RiuQwtSymbol::SYMBOL_ELLIPSE,
-                                                               RiuQwtSymbol::SYMBOL_RECT,
-                                                               RiuQwtSymbol::SYMBOL_DIAMOND,
-                                                               RiuQwtSymbol::SYMBOL_CROSS,
-                                                               RiuQwtSymbol::SYMBOL_XCROSS,
-                                                               RiuQwtSymbol::SYMBOL_STAR1 };
+    std::vector<RiuPlotCurveSymbol::PointSymbolEnum> symbolTable = { RiuPlotCurveSymbol::SYMBOL_ELLIPSE,
+                                                                     RiuPlotCurveSymbol::SYMBOL_RECT,
+                                                                     RiuPlotCurveSymbol::SYMBOL_DIAMOND,
+                                                                     RiuPlotCurveSymbol::SYMBOL_CROSS,
+                                                                     RiuPlotCurveSymbol::SYMBOL_XCROSS,
+                                                                     RiuPlotCurveSymbol::SYMBOL_STAR1 };
 
     // Add new curves
     for ( const RiaRftPltCurveDefinition& curveDefToAdd : allCurveDefs )
