@@ -715,18 +715,6 @@ QString RimSummaryCaseMainCollection::uniqueShortNameForCase( RimSummaryCase* su
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCaseMainCollection::updateFilePathsFromProjectPath( const QString& newProjectPath,
-                                                                   const QString& oldProjectPath )
-{
-    for ( auto summaryCase : m_cases )
-    {
-        summaryCase->updateFilePathsFromProjectPath( newProjectPath, oldProjectPath );
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimSummaryCaseMainCollection::updateAutoShortName()
 {
     // This update is required if the file path for the summary case is updated. To be able to produce plots

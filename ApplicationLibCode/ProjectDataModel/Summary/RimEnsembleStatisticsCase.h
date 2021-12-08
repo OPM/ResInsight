@@ -49,8 +49,6 @@ public:
     void                       createSummaryReaderInterface() override;
     RifSummaryReaderInterface* summaryReader() override;
 
-    void updateFilePathsFromProjectPath( const QString& newProjectPath, const QString& oldProjectPath ) override {}
-
     const RimEnsembleCurveSet* curveSet() const;
 
     void calculate( const std::vector<RimSummaryCase*>& sumCases, bool includeIncompleteCurves );

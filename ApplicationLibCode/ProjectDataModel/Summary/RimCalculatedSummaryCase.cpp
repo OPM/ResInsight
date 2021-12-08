@@ -78,14 +78,6 @@ RifSummaryReaderInterface* RimCalculatedSummaryCase::summaryReader()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimCalculatedSummaryCase::updateFilePathsFromProjectPath( const QString& newProjectPath, const QString& oldProjectPath )
-{
-    // Nothing to do here
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimCalculatedSummaryCase::buildMetaData()
 {
     if ( !m_calculatedCurveReader ) createSummaryReaderInterface();

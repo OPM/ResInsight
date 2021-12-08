@@ -42,7 +42,6 @@ public:
 
     QString summaryHeaderFilename() const override;
     QString caseName() const override;
-    void    updateFilePathsFromProjectPath( const QString& newProjectPath, const QString& oldProjectPath ) override;
 
     void                       createSummaryReaderInterfaceThreadSafe( RiaThreadSafeLogger* threadSafeLogger );
     void                       createSummaryReaderInterface() override;

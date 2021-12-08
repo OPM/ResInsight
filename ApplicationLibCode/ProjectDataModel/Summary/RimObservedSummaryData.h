@@ -37,7 +37,6 @@ public:
     RimObservedSummaryData();
 
     QString caseName() const override;
-    void    updateFilePathsFromProjectPath( const QString& newProjectPath, const QString& oldProjectPath ) override;
 
     QString                                      identifierName() const;
     RifEclipseSummaryAddress::SummaryVarCategory summaryCategory() const;

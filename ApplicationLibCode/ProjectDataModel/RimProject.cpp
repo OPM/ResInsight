@@ -477,11 +477,6 @@ void RimProject::setProjectFileNameAndUpdateDependencies( const QString& project
         cases[i]->updateFilePathsFromProjectPath( newProjectPath, oldProjectPath );
     }
 
-    for ( RimSummaryCase* summaryCase : allSummaryCases() )
-    {
-        summaryCase->updateFilePathsFromProjectPath( newProjectPath, oldProjectPath );
-    }
-
     // Update path to well path file cache
     for ( RimOilField* oilField : oilFields )
     {
@@ -493,10 +488,6 @@ void RimProject::setProjectFileNameAndUpdateDependencies( const QString& project
         if ( oilField->formationNamesCollection() != nullptr )
         {
             oilField->formationNamesCollection()->updateFilePathsFromProjectPath( newProjectPath, oldProjectPath );
-        }
-        if ( oilField->summaryCaseMainCollection() != nullptr )
-        {
-            oilField->summaryCaseMainCollection()->updateFilePathsFromProjectPath( newProjectPath, oldProjectPath );
         }
 
         CVF_ASSERT( oilField->fractureDefinitionCollection() );
