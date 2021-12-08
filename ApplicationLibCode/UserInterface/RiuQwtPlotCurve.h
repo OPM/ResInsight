@@ -43,7 +43,7 @@ public:
                         const QColor&                                  curveColor,
                         const QBrush&                                  fillBrush = QBrush( Qt::NoBrush ) ) override;
 
-    void setSymbolAppearance( RiuQwtSymbol::PointSymbolEnum, int size, const QColor& color ) override;
+    void setSymbolAppearance( RiuPlotCurveSymbol::PointSymbolEnum, int size, const QColor& color ) override;
 
     void setBrush( const QBrush& brush ) override;
 
@@ -73,6 +73,9 @@ public:
 
     void setXAxis( RiaDefines::PlotAxis axis ) override;
     void setYAxis( RiaDefines::PlotAxis axis ) override;
+
+    void                setSymbol( RiuPlotCurveSymbol* symbol ) override;
+    RiuPlotCurveSymbol* createSymbol( RiuPlotCurveSymbol::PointSymbolEnum symbol ) const override;
 
 protected:
     void drawCurve( QPainter*          p,

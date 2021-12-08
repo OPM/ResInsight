@@ -709,7 +709,7 @@ void RimWellPltPlot::addStackedCurve( const QString&             curveName,
     if ( curveGroupId == 0 )
     {
         curve->setDoFillCurve( true );
-        curve->setSymbol( RiuQwtSymbol::SYMBOL_NONE );
+        curve->setSymbol( RiuPlotCurveSymbol::SYMBOL_NONE );
     }
     else
     {

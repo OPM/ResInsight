@@ -20,9 +20,9 @@
 
 #include "RiaCurveDataTools.h"
 
+#include "RiuPlotCurveSymbol.h"
 #include "RiuPlotWidget.h"
 #include "RiuQwtPlotCurveDefines.h"
-#include "RiuQwtSymbol.h"
 
 #include <QBrush>
 #include <QColor>
@@ -93,7 +93,7 @@ public:
                                 const QColor&                                  curveColor,
                                 const QBrush&                                  fillBrush = QBrush( Qt::NoBrush ) ) = 0;
 
-    virtual void setSymbolAppearance( RiuQwtSymbol::PointSymbolEnum, int size, const QColor& color ) = 0;
+    virtual void setSymbolAppearance( RiuPlotCurveSymbol::PointSymbolEnum, int size, const QColor& color ) = 0;
 
     virtual void setBrush( const QBrush& brush ) = 0;
 
@@ -123,6 +123,10 @@ public:
 
     virtual void setXAxis( RiaDefines::PlotAxis axis ) = 0;
     virtual void setYAxis( RiaDefines::PlotAxis axis ) = 0;
+
+    virtual void setSymbol( RiuPlotCurveSymbol* symbol ) = 0;
+
+    virtual RiuPlotCurveSymbol* createSymbol( RiuPlotCurveSymbol::PointSymbolEnum symbol ) const = 0;
 
 protected:
     virtual void

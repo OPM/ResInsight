@@ -85,8 +85,8 @@
 //--------------------------------------------------------------------------------------------------
 /// Internal functions
 //--------------------------------------------------------------------------------------------------
-RiuQwtSymbol::PointSymbolEnum statisticsCurveSymbolFromAddress( const RifEclipseSummaryAddress& address );
-int                           statisticsCurveSymbolSize( RiuQwtSymbol::PointSymbolEnum symbol );
+RiuPlotCurveSymbol::PointSymbolEnum statisticsCurveSymbolFromAddress( const RifEclipseSummaryAddress& address );
+int                                 statisticsCurveSymbolSize( RiuPlotCurveSymbol::PointSymbolEnum symbol );
 
 CAF_PDM_SOURCE_INIT( RimEnsembleCurveSet, "RimEnsembleCurveSet" );
 
@@ -2041,23 +2041,23 @@ void RimEnsembleCurveSet::updateLegendMappingMode()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuQwtSymbol::PointSymbolEnum statisticsCurveSymbolFromAddress( const RifEclipseSummaryAddress& address )
+RiuPlotCurveSymbol::PointSymbolEnum statisticsCurveSymbolFromAddress( const RifEclipseSummaryAddress& address )
 {
     auto qName = QString::fromStdString( address.quantityName() );
 
-    if ( qName.contains( ENSEMBLE_STAT_P10_QUANTITY_NAME ) ) return RiuQwtSymbol::SYMBOL_TRIANGLE;
-    if ( qName.contains( ENSEMBLE_STAT_P90_QUANTITY_NAME ) ) return RiuQwtSymbol::SYMBOL_DOWN_TRIANGLE;
-    if ( qName.contains( ENSEMBLE_STAT_P50_QUANTITY_NAME ) ) return RiuQwtSymbol::SYMBOL_DIAMOND;
-    return RiuQwtSymbol::SYMBOL_ELLIPSE;
+    if ( qName.contains( ENSEMBLE_STAT_P10_QUANTITY_NAME ) ) return RiuPlotCurveSymbol::SYMBOL_TRIANGLE;
+    if ( qName.contains( ENSEMBLE_STAT_P90_QUANTITY_NAME ) ) return RiuPlotCurveSymbol::SYMBOL_DOWN_TRIANGLE;
+    if ( qName.contains( ENSEMBLE_STAT_P50_QUANTITY_NAME ) ) return RiuPlotCurveSymbol::SYMBOL_DIAMOND;
+    return RiuPlotCurveSymbol::SYMBOL_ELLIPSE;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int statisticsCurveSymbolSize( RiuQwtSymbol::PointSymbolEnum symbol )
+int statisticsCurveSymbolSize( RiuPlotCurveSymbol::PointSymbolEnum symbol )
 {
-    if ( symbol == RiuQwtSymbol::SYMBOL_DIAMOND ) return 8;
-    if ( symbol == RiuQwtSymbol::SYMBOL_TRIANGLE ) return 7;
-    if ( symbol == RiuQwtSymbol::SYMBOL_DOWN_TRIANGLE ) return 7;
+    if ( symbol == RiuPlotCurveSymbol::SYMBOL_DIAMOND ) return 8;
+    if ( symbol == RiuPlotCurveSymbol::SYMBOL_TRIANGLE ) return 7;
+    if ( symbol == RiuPlotCurveSymbol::SYMBOL_DOWN_TRIANGLE ) return 7;
     return 6;
 }

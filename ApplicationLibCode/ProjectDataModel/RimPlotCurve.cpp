@@ -34,6 +34,7 @@
 #include "RimSummaryPlot.h"
 
 #include "RiuPlotCurve.h"
+#include "RiuPlotCurveSymbol.h"
 #include "RiuPlotMainWindowTools.h"
 #include "RiuPlotWidget.h"
 
@@ -482,7 +483,7 @@ void RimPlotCurve::setLineStyle( RiuQwtPlotCurveDefines::LineStyleEnum lineStyle
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPlotCurve::setSymbol( RiuQwtSymbol::PointSymbolEnum symbolStyle )
+void RimPlotCurve::setSymbol( RiuPlotCurveSymbol::PointSymbolEnum symbolStyle )
 {
     m_curveAppearance->setSymbol( symbolStyle );
 }
@@ -498,7 +499,7 @@ void RimPlotCurve::setInterpolation( RiuQwtPlotCurveDefines::CurveInterpolationE
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuQwtSymbol::PointSymbolEnum RimPlotCurve::symbol()
+RiuPlotCurveSymbol::PointSymbolEnum RimPlotCurve::symbol()
 {
     return m_curveAppearance->symbol();
 }
@@ -546,7 +547,7 @@ void RimPlotCurve::setSymbolLabel( const QString& label )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPlotCurve::setSymbolLabelPosition( RiuQwtSymbol::LabelPosition labelPosition )
+void RimPlotCurve::setSymbolLabelPosition( RiuPlotCurveSymbol::LabelPosition labelPosition )
 {
     m_curveAppearance->setSymbolLabelPosition( labelPosition );
 }
@@ -576,7 +577,7 @@ void RimPlotCurve::resetAppearance()
     setSymbolEdgeColor( RiaColorTools::textColor3f() );
     setLineThickness( 2 );
     setLineStyle( RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_SOLID );
-    setSymbol( RiuQwtSymbol::SYMBOL_NONE );
+    setSymbol( RiuPlotCurveSymbol::SYMBOL_NONE );
     setSymbolSkipDistance( 10 );
 }
 
@@ -856,13 +857,16 @@ void RimPlotCurve::setZOrder( double z )
 //--------------------------------------------------------------------------------------------------
 void RimPlotCurve::updateCurveAppearance()
 {
-    QColor     curveColor = RiaColorTools::toQColor( m_curveAppearance->color() );
-    QwtSymbol* symbol     = nullptr;
+    QColor curveColor = RiaColorTools::toQColor( m_curveAppearance->color() );
 
-    if ( m_curveAppearance->symbol() != RiuQwtSymbol::SYMBOL_NONE )
+    if ( !m_plotCurve ) return;
+
+    RiuPlotCurveSymbol* symbol = nullptr;
+    if ( m_curveAppearance->symbol() != RiuPlotCurveSymbol::SYMBOL_NONE )
     {
-        int legendFontSize        = caf::FontTools::absolutePointSize( RiaPreferences::current()->defaultPlotFontSize(),
+        int legendFontSize = caf::FontTools::absolutePointSize( RiaPreferences::current()->defaultPlotFontSize(),
                                                                 caf::FontTools::RelativeSize::Small );
+
         RimPlotWindow* plotWindow = nullptr;
         this->firstAncestorOrThisOfType( plotWindow );
         if ( plotWindow )
@@ -870,24 +874,27 @@ void RimPlotCurve::updateCurveAppearance()
             legendFontSize = plotWindow->legendFontSize();
         }
 
-        // QwtPlotCurve will take ownership of the symbol
-        symbol = new RiuQwtSymbol( m_curveAppearance->symbol(),
-                                   m_curveAppearance->symbolLabel(),
-                                   m_curveAppearance->symbolLabelPosition(),
-                                   legendFontSize );
-        symbol->setSize( m_curveAppearance->symbolSize(), m_curveAppearance->symbolSize() );
-        symbol->setColor( curveColor );
+        // Plot curve will take ownership of the symbol
+        symbol = m_plotCurve->createSymbol( m_curveAppearance->symbol() );
 
-        // If the symbol is a "filled" symbol, we can have a different edge color
-        // Otherwise we'll have to use the curve color.
-        if ( RiuQwtSymbol::isFilledSymbol( m_curveAppearance->symbol() ) )
+        if ( symbol )
         {
-            QColor symbolEdgeColor = RiaColorTools::toQColor( m_curveAppearance->symbolEdgeColor() );
-            symbol->setPen( symbolEdgeColor );
-        }
-        else
-        {
-            symbol->setPen( curveColor );
+            symbol->setLabelPosition( m_curveAppearance->symbolLabelPosition() );
+            symbol->setGlobalLabel( m_curveAppearance->symbolLabel() );
+            symbol->setSize( m_curveAppearance->symbolSize(), m_curveAppearance->symbolSize() );
+            symbol->setColor( curveColor );
+
+            // If the symbol is a "filled" symbol, we can have a different edge color
+            // Otherwise we'll have to use the curve color.
+            if ( RiuPlotCurveSymbol::isFilledSymbol( m_curveAppearance->symbol() ) )
+            {
+                QColor symbolEdgeColor = RiaColorTools::toQColor( m_curveAppearance->symbolEdgeColor() );
+                symbol->setPen( symbolEdgeColor );
+            }
+            else
+            {
+                symbol->setPen( curveColor );
+            }
         }
     }
 
@@ -900,39 +907,36 @@ void RimPlotCurve::updateCurveAppearance()
     //     m_qwtCurveErrorBars->setSymbol( newSymbol );
     // }
 
-    if ( m_plotCurve )
-    {
-        QColor fillColor = RiaColorTools::toQColor( m_curveAppearance->fillColor() );
+    QColor fillColor = RiaColorTools::toQColor( m_curveAppearance->fillColor() );
 
-        fillColor = RiaColorTools::blendQColors( fillColor, QColor( Qt::white ), 3, 1 );
-        QBrush fillBrush( fillColor, m_curveAppearance->fillStyle() );
-        m_plotCurve->setAppearance( m_curveAppearance->lineStyle(),
-                                    m_curveAppearance->interpolation(),
-                                    m_curveAppearance->lineThickness(),
-                                    curveColor,
-                                    fillBrush );
-        // m_plotCurve->setSymbol( symbol );
-        // m_plotCurve->setSymbolSkipPixelDistance( m_curveAppearance->symbolSkipDistance() );
+    fillColor = RiaColorTools::blendQColors( fillColor, QColor( Qt::white ), 3, 1 );
+    QBrush fillBrush( fillColor, m_curveAppearance->fillStyle() );
+    m_plotCurve->setAppearance( m_curveAppearance->lineStyle(),
+                                m_curveAppearance->interpolation(),
+                                m_curveAppearance->lineThickness(),
+                                curveColor,
+                                fillBrush );
+    if ( symbol ) m_plotCurve->setSymbol( symbol );
+    // m_plotCurve->setSymbolSkipPixelDistance( m_curveAppearance->symbolSkipDistance() );
 
-        // // Make sure the legend lines are long enough to distinguish between line types.
-        // // Standard width in Qwt is 8 which is too short.
-        // // Use 10 and scale this by curve thickness + add space for displaying symbol.
-        // if ( m_curveAppearance->lineStyle() != RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_NONE )
-        // {
-        //     QSize legendIconSize = m_plotCurve->legendIconSize();
+    // // Make sure the legend lines are long enough to distinguish between line types.
+    // // Standard width in
+    // // Use 10 and scale this by curve thickness + add space for displaying symbol.
+    // if ( m_curveAppearance->lineStyle() != RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_NONE )
+    // {
+    //     QSize legendIconSize = m_plotCurve->legendIconSize();
 
-        //     int symbolWidth = 0;
-        //     if ( symbol )
-        //     {
-        //         symbolWidth = symbol->boundingRect().size().width() + 2;
-        //     }
+    //     int symbolWidth = 0;
+    //     if ( symbol )
+    //     {
+    //         symbolWidth = symbol->boundingRect().size().width() + 2;
+    //     }
 
-        //     int width = std::max( 10 * m_curveAppearance->lineThickness(), ( symbolWidth * 3 ) / 2 );
+    //     int width = std::max( 10 * m_curveAppearance->lineThickness(), ( symbolWidth * 3 ) / 2 );
 
-        //     legendIconSize.setWidth( width );
-        //     m_plotCurve->setLegendIconSize( legendIconSize );
-        // }
-    }
+    //     legendIconSize.setWidth( width );
+    //     m_plotCurve->setLegendIconSize( legendIconSize );
+    // }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -950,7 +954,7 @@ void RimPlotCurve::clearErrorBars()
 //--------------------------------------------------------------------------------------------------
 void RimPlotCurve::updateUiIconFromPlotSymbol()
 {
-    // if ( m_curveAppearance->symbol() != RiuQwtSymbol::SYMBOL_NONE && m_qwtPlotCurve )
+    // if ( m_curveAppearance->symbol() != RiuPlotCurveSymbol::SYMBOL_NONE && m_qwtPlotCurve )
     // {
     //     CVF_ASSERT( RiaGuiApplication::isRunning() );
     //     QSizeF     iconSize( 24, 24 );

@@ -70,7 +70,7 @@
 //--------------------------------------------------------------------------------------------------
 /// Internal functions
 //--------------------------------------------------------------------------------------------------
-int statisticsCurveSymbolSize( RiuQwtSymbol::PointSymbolEnum symbol );
+int statisticsCurveSymbolSize( RiuPlotCurveSymbol::PointSymbolEnum symbol );
 
 namespace caf
 {
@@ -135,7 +135,7 @@ RimEnsembleWellLogCurveSet::RimEnsembleWellLogCurveSet()
     m_curveAppearance->setColorVisible( false );
     m_curveAppearance->setFillOptionsVisible( false );
 
-    m_curveAppearance->setSymbol( RiuQwtSymbol::PointSymbolEnum::SYMBOL_ELLIPSE );
+    m_curveAppearance->setSymbol( RiuPlotCurveSymbol::PointSymbolEnum::SYMBOL_ELLIPSE );
     m_curveAppearance->setSymbolSize( 5 );
     m_curveAppearance->setLineStyle( RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_NONE );
     m_curveAppearance->setSymbolEdgeColor( cvf::Color3f::BLACK );
@@ -920,11 +920,13 @@ void RimEnsembleWellLogCurveSet::updateStatisticsCurves( const std::vector<RimWe
     }
 
     auto statisticsCurveSymbolFromStatistics = []( RimEnsembleWellLogStatistics::StatisticsType statisticsType ) {
-        if ( statisticsType == RimEnsembleWellLogStatistics::StatisticsType::P10 ) return RiuQwtSymbol::SYMBOL_TRIANGLE;
+        if ( statisticsType == RimEnsembleWellLogStatistics::StatisticsType::P10 )
+            return RiuPlotCurveSymbol::SYMBOL_TRIANGLE;
         if ( statisticsType == RimEnsembleWellLogStatistics::StatisticsType::P90 )
-            return RiuQwtSymbol::SYMBOL_DOWN_TRIANGLE;
-        if ( statisticsType == RimEnsembleWellLogStatistics::StatisticsType::P50 ) return RiuQwtSymbol::SYMBOL_DIAMOND;
-        return RiuQwtSymbol::SYMBOL_ELLIPSE;
+            return RiuPlotCurveSymbol::SYMBOL_DOWN_TRIANGLE;
+        if ( statisticsType == RimEnsembleWellLogStatistics::StatisticsType::P50 )
+            return RiuPlotCurveSymbol::SYMBOL_DIAMOND;
+        return RiuPlotCurveSymbol::SYMBOL_ELLIPSE;
     };
 
     RimWellLogTrack* plotTrack = nullptr;
