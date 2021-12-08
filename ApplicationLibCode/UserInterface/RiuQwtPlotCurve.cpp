@@ -214,7 +214,7 @@ void RiuQwtPlotCurve::setAppearance( RiuQwtPlotCurveDefines::LineStyleEnum      
                                      const QBrush& fillBrush /* = QBrush( Qt::NoBrush )*/ )
 {
     QwtPlotCurve::CurveStyle curveStyle = QwtPlotCurve::NoCurve;
-    Qt::PenStyle             penStyle   = Qt::NoPen;
+    Qt::PenStyle             penStyle   = RiuQwtPlotCurveDefines::convertToPenStyle( lineStyle );
 
     // Qwt bug workaround (#4135): need to set 0 curve thickness for STYLE_NONE
     int curveThickness = 0;
@@ -230,25 +230,6 @@ void RiuQwtPlotCurve::setAppearance( RiuQwtPlotCurveDefines::LineStyleEnum      
             case RiuQwtPlotCurveDefines::CurveInterpolationEnum::INTERPOLATION_POINT_TO_POINT: // Fall through
             default:
                 curveStyle = QwtPlotCurve::Lines;
-                break;
-        }
-
-        switch ( lineStyle )
-        {
-            case RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_SOLID:
-                penStyle = Qt::SolidLine;
-                break;
-            case RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_DASH:
-                penStyle = Qt::DashLine;
-                break;
-            case RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_DOT:
-                penStyle = Qt::DotLine;
-                break;
-            case RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_DASH_DOT:
-                penStyle = Qt::DashDotLine;
-                break;
-
-            default:
                 break;
         }
     }

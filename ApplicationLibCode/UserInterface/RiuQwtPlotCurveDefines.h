@@ -19,6 +19,8 @@
 
 #pragma once
 
+#include <Qt>
+
 namespace RiuQwtPlotCurveDefines
 {
 enum class CurveInterpolationEnum
@@ -47,5 +49,7 @@ enum class ZIndex
 };
 
 int zDepthForIndex( ZIndex index );
+
+Qt::PenStyle convertToPenStyle( RiuQwtPlotCurveDefines::LineStyleEnum lineStyle );
 
 }; // namespace RiuQwtPlotCurveDefines
