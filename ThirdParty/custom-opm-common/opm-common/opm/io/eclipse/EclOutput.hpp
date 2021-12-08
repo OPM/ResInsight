@@ -63,13 +63,13 @@ public:
 
         if (isFormatted)
         {
-            writeFormattedHeader(name, data.size(), arrType, element_size);
+            writeFormattedHeader(name, static_cast<int>(data.size()), arrType, element_size);
             if (arrType != MESS)
                 writeFormattedArray(data);
         }
         else
         {
-            writeBinaryHeader(name, data.size(), arrType, element_size);
+            writeBinaryHeader(name, static_cast<int>(data.size()), arrType, element_size);
             if (arrType != MESS)
                 writeBinaryArray(data);
         }
