@@ -75,3 +75,22 @@ int RiuQwtPlotCurveDefines::zDepthForIndex( ZIndex index )
 
     return 0;
 }
+
+Qt::PenStyle RiuQwtPlotCurveDefines::convertToPenStyle( RiuQwtPlotCurveDefines::LineStyleEnum lineStyle )
+{
+    switch ( lineStyle )
+    {
+        case RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_NONE:
+            return Qt::NoPen;
+        case RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_SOLID:
+            return Qt::SolidLine;
+        case RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_DASH:
+            return Qt::DashLine;
+        case RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_DOT:
+            return Qt::DotLine;
+        case RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_DASH_DOT:
+            return Qt::DashDotLine;
+        default:
+            return Qt::NoPen;
+    }
+}

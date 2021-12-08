@@ -76,52 +76,14 @@ void RiuQtChartsPlotCurve::setAppearance( RiuQwtPlotCurveDefines::LineStyleEnum 
                                           const QColor&                                  curveColor,
                                           const QBrush& fillBrush /* = QBrush( Qt::NoBrush )*/ )
 {
-    // QwtPlotCurve::CurveStyle curveStyle = QwtPlotCurve::NoCurve;
-    Qt::PenStyle penStyle = Qt::NoPen;
+    Qt::PenStyle penStyle = RiuQwtPlotCurveDefines::convertToPenStyle( lineStyle );
 
-    // Qwt bug workaround (#4135): need to set 0 curve thickness for STYLE_NONE
-    int curveThickness = 0;
-    if ( lineStyle != RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_NONE )
-    {
-        curveThickness = requestedCurveThickness;
-        // switch ( interpolationType )
-        // {
-        //     case RiuQwtPlotCurveDefines::CurveInterpolationEnum::INTERPOLATION_STEP_LEFT:
-        //         curveStyle = QwtPlotCurve::Steps;
-        //         setCurveAttribute( QwtPlotCurve::Inverted, false );
-        //         break;
-        //     case RiuQwtPlotCurveDefines::CurveInterpolationEnum::INTERPOLATION_POINT_TO_POINT: // Fall through
-        //     default:
-        //         curveStyle = QwtPlotCurve::Lines;
-        //         break;
-        // }
-
-        switch ( lineStyle )
-        {
-            case RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_SOLID:
-                penStyle = Qt::SolidLine;
-                break;
-            case RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_DASH:
-                penStyle = Qt::DashLine;
-                break;
-            case RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_DOT:
-                penStyle = Qt::DotLine;
-                break;
-            case RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_DASH_DOT:
-                penStyle = Qt::DashDotLine;
-                break;
-
-            default:
-                break;
-        }
-    }
     QPen curvePen( curveColor );
-    curvePen.setWidth( curveThickness );
+    curvePen.setWidth( requestedCurveThickness );
     curvePen.setStyle( penStyle );
 
     lineSeries()->setPen( curvePen );
-    // setStyle( curveStyle );
-    // setBrush( fillBrush );
+    lineSeries()->setBrush( fillBrush );
 }
 
 //--------------------------------------------------------------------------------------------------
