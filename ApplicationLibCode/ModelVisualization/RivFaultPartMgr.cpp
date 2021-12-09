@@ -24,6 +24,7 @@
 
 #include "RigCaseCellResultsData.h"
 #include "RigMainGrid.h"
+#include "RigNNCData.h"
 #include "RigResultAccessor.h"
 
 #include "RimEclipseCase.h"
@@ -74,8 +75,11 @@ RivFaultPartMgr::RivFaultPartMgr( const RigGridBase*              grid,
     cvf::ref<cvf::Array<size_t>> connIdxes = new cvf::Array<size_t>;
     connIdxes->assign( rimFault->faultGeometry()->connectionIndices() );
 
-    m_nativeFaultGenerator   = new RivFaultGeometryGenerator( grid, rimFault->faultGeometry(), true );
-    m_oppositeFaultGenerator = new RivFaultGeometryGenerator( grid, rimFault->faultGeometry(), false );
+    m_nativeFaultGenerator =
+        new RivFaultGeometryGenerator( grid, rimFault->faultGeometry(), grid->mainGrid()->nncData(), true );
+
+    m_oppositeFaultGenerator =
+        new RivFaultGeometryGenerator( grid, rimFault->faultGeometry(), grid->mainGrid()->nncData(), false );
 
     m_nativeFaultFacesTextureCoords   = new cvf::Vec2fArray;
     m_oppositeFaultFacesTextureCoords = new cvf::Vec2fArray;
@@ -280,7 +284,8 @@ void RivFaultPartMgr::generatePartGeometry()
     bool useBufferObjects = true;
     // Surface geometry
     {
-        cvf::ref<cvf::DrawableGeo> geo = m_nativeFaultGenerator->generateSurface();
+        cvf::ref<cvf::DrawableGeo> geo =
+            m_nativeFaultGenerator->generateSurface( m_rimFaultCollection->onlyShowFacesWithDefinedNeighbor() );
         if ( geo.notNull() )
         {
             geo->computeNormals();
@@ -333,7 +338,8 @@ void RivFaultPartMgr::generatePartGeometry()
 
     // Surface geometry
     {
-        cvf::ref<cvf::DrawableGeo> geo = m_oppositeFaultGenerator->generateSurface();
+        cvf::ref<cvf::DrawableGeo> geo =
+            m_oppositeFaultGenerator->generateSurface( m_rimFaultCollection->onlyShowFacesWithDefinedNeighbor() );
         if ( geo.notNull() )
         {
             geo->computeNormals();
