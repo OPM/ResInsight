@@ -118,8 +118,6 @@ void RivReservoirFaultsPartMgr::appendPartsToModel( cvf::ModelBasicList* model )
         forceDisplayOfFault = true;
     }
 
-    // qDebug() << forceDisplayOfFault;
-
     cvf::ModelBasicList parts;
 
     for ( size_t i = 0; i < faultCollection->faults.size(); i++ )
