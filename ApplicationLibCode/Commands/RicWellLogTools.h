@@ -42,7 +42,8 @@ class RicWellLogTools
 {
 public:
     static RimSimWellInView* selectedSimulationWell( int* branchIndex );
-    static bool              wellHasRftData( const QString& wellName );
+    static bool              hasRftData();
+    static bool              hasRftDataForWell( const QString& wellName );
     static bool              isWellPathOrSimWellSelectedInView();
     static void              addWellLogChannelsToPlotTrack( RimWellLogTrack*                           plotTrack,
                                                             const std::vector<RimWellLogFileChannel*>& wellLogFileChannels );

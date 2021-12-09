@@ -59,7 +59,7 @@ bool RicNewWellLogRftCurveFeature::isCommandEnabled()
 
     if ( simulationWell != nullptr )
     {
-        return RicWellLogTools::wellHasRftData( simulationWell->name() );
+        return RicWellLogTools::hasRftData();
     }
 
     return false;
