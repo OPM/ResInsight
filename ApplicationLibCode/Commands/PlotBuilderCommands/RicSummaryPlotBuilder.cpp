@@ -241,10 +241,9 @@ RimMultiPlot* RicSummaryPlotBuilder::createAndAppendMultiPlot( const std::vector
         plot->loadDataAndUpdate();
     }
 
-    project->updateAllRequiredEditors();
+    plotCollection->updateAllRequiredEditors();
     plotWindow->loadDataAndUpdate();
 
-    RiuPlotMainWindowTools::setExpanded( plotCollection, true );
     RiuPlotMainWindowTools::selectAsCurrentItem( plotWindow, true );
 
     return plotWindow;
