@@ -623,10 +623,6 @@ void RimEnsembleCurveSet::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
 
         updateConnectedEditors();
 
-        RimSummaryPlot* summaryPlot = nullptr;
-        this->firstAncestorOrThisOfTypeAsserted( summaryPlot );
-        summaryPlot->updateConnectedEditors();
-
         updateTextInPlot = true;
     }
     else if ( changedField == &m_yValuesSummaryAddressUiField )
