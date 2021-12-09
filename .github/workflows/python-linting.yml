@@ -20,3 +20,4 @@ jobs:
           title: 'Fixes by black (Python)'
           branch: python-black-patches
           branch-suffix: random
+          base: ${{ github.head_ref }}
