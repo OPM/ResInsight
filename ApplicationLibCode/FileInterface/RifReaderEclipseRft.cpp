@@ -56,11 +56,19 @@ void RifReaderEclipseRft::open()
 
     RiaLogging::info( QString( "Opening file '%1'" ).arg( m_fileName ) );
 
-    m_ecl_rft_file = ecl_rft_file_alloc_case( RiaStringEncodingTools::toNativeEncoded( m_fileName ).data() );
+    try
+    {
+        // Use try/catch, as inconsistent RFT data might lead to exceptions
+        // https://github.com/OPM/ResInsight/issues/8354
+        m_ecl_rft_file = ecl_rft_file_alloc_case( RiaStringEncodingTools::toNativeEncoded( m_fileName ).data() );
+    }
+    catch ( ... )
+    {
+    }
 
     if ( m_ecl_rft_file == nullptr )
     {
-        RiaLogging::warning( QString( "Libecl could not find/open file '%'" ).arg( m_fileName ) );
+        RiaLogging::warning( QString( "Libecl could not find/open file '%1" ).arg( m_fileName ) );
         return;
     }
 
