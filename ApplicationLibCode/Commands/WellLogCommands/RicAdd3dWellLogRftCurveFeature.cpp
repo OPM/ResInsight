@@ -44,7 +44,7 @@ bool RicAdd3dWellLogRftCurveFeature::isCommandEnabled()
     RimWellPath* wellPath = caf::SelectionManager::instance()->selectedItemAncestorOfType<RimWellPath>();
     if ( wellPath )
     {
-        return RicWellLogTools::wellHasRftData( wellPath->name() );
+        return RicWellLogTools::hasRftData();
     }
     return false;
 }
@@ -56,6 +56,8 @@ void RicAdd3dWellLogRftCurveFeature::onActionTriggered( bool isChecked )
 {
     RimWellPath* selectedWellPath = caf::SelectionManager::instance()->selectedItemAncestorOfType<RimWellPath>();
     if ( !selectedWellPath ) return;
+
+    if ( !RicWellLogTools::hasRftDataForWell( selectedWellPath->name() ) ) return;
 
     Rim3dWellLogRftCurve* rim3dWellLogRftCurve = new Rim3dWellLogRftCurve();
     selectedWellPath->add3dWellLogCurve( rim3dWellLogRftCurve );
