@@ -447,6 +447,12 @@ void RiuViewerCommands::displayContextMenu( QMouseEvent* event )
                                                            QString( "Hide " ) + faultName,
                                                            hideFaultList );
 
+                    menuBuilder.addCmdFeatureWithUserData( "RicEclipseShowOnlyFaultFeature",
+                                                           QString( "Show " ) + faultName + QString( " - Others Off" ),
+                                                           QVariant( fault->name() ) );
+
+                    menuBuilder.addSeparator();
+
                     if ( eclipseView->faultCollection() && eclipseView->faultCollection()->faultRAEnabled() )
                     {
                         menuBuilder.subMenuStart( "Reactivation Assessment" );
