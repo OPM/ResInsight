@@ -552,11 +552,12 @@ std::set<QDateTime> RimWellPlotTools::availableSimWellTimesteps( RimEclipseCase*
 {
     std::set<QDateTime> availebleTimeSteps;
 
-    if ( eclCase && eclCase->eclipseCaseData() )
+    const RigSimWellData* simWell = eclCase->eclipseCaseData()->findSimWellData( simWellName );
+
+    if ( eclCase && eclCase->eclipseCaseData() && simWell )
     {
         std::vector<QDateTime> allTimeSteps =
             eclCase->eclipseCaseData()->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->timeStepDates();
-        const RigSimWellData* simWell = eclCase->eclipseCaseData()->findSimWellData( simWellName );
 
         for ( size_t tsIdx = 0; tsIdx < allTimeSteps.size(); ++tsIdx )
         {
