@@ -135,6 +135,11 @@ void RimFaultInViewCollection::fieldChangedByUi( const caf::PdmFieldHandle* chan
         parentView()->intersectionCollection()->scheduleCreateDisplayModelAndRedraw2dIntersectionViews();
     }
 
+    if ( changedField == &m_onlyShowWithNeighbor )
+    {
+        parentView()->scheduleReservoirGridGeometryRegen();
+    }
+
     if ( &showFaultFaces == changedField || &showOppositeFaultFaces == changedField ||
          &showFaultCollection == changedField || &showFaultLabel == changedField ||
          &m_showFaultsOutsideFilters == changedField || &faultLabelColor == changedField ||
