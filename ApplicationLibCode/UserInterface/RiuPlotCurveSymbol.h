@@ -83,7 +83,8 @@ public:
     static bool isFilledSymbol( PointSymbolEnum symbol );
 
 protected:
-    QString       m_globalLabel;
-    int           m_labelFontSizePx;
-    LabelPosition m_labelPosition;
+    PointSymbolEnum m_style;
+    QString         m_globalLabel;
+    int             m_labelFontSizePx;
+    LabelPosition   m_labelPosition;
 };
