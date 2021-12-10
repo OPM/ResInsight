@@ -84,9 +84,10 @@ protected:
 
     cvf::BoundingBox computeBoundingBox() const;
 
-    QtCharts::QLineSeries*    m_lineSeries;
-    QtCharts::QScatterSeries* m_scatterSeries;
-    RiuQtChartsPlotWidget*    m_plotWidget;
-    RiaDefines::PlotAxis      m_axisX;
-    RiaDefines::PlotAxis      m_axisY;
+    QtCharts::QLineSeries*              m_lineSeries;
+    QtCharts::QScatterSeries*           m_scatterSeries;
+    std::shared_ptr<RiuPlotCurveSymbol> m_symbol;
+    RiuQtChartsPlotWidget*              m_plotWidget;
+    RiaDefines::PlotAxis                m_axisX;
+    RiaDefines::PlotAxis                m_axisY;
 };

@@ -23,6 +23,7 @@
 #include "RiaPlotDefines.h"
 #include "RiaTimeTTools.h"
 
+#include "RiuQtChartsPlotCurveSymbol.h"
 #include "RiuQtChartsPlotWidget.h"
 #include "RiuQwtSymbol.h"
 
@@ -322,6 +323,13 @@ QtCharts::QScatterSeries* RiuQtChartsPlotCurve::scatterSeries() const
 //--------------------------------------------------------------------------------------------------
 void RiuQtChartsPlotCurve::setSymbol( RiuPlotCurveSymbol* symbol )
 {
+    auto qtChartsSymbol = dynamic_cast<RiuQtChartsPlotCurveSymbol*>( symbol );
+    CAF_ASSERT( qtChartsSymbol );
+    m_symbol.reset( symbol );
+    if ( scatterSeries() )
+    {
+        qtChartsSymbol->applyToScatterSeries( scatterSeries() );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -329,5 +337,5 @@ void RiuQtChartsPlotCurve::setSymbol( RiuPlotCurveSymbol* symbol )
 //--------------------------------------------------------------------------------------------------
 RiuPlotCurveSymbol* RiuQtChartsPlotCurve::createSymbol( RiuPlotCurveSymbol::PointSymbolEnum symbol ) const
 {
-    return nullptr;
+    return new RiuQtChartsPlotCurveSymbol( symbol );
 }
