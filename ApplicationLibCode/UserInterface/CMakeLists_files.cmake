@@ -204,6 +204,7 @@ if(Qt5Charts_FOUND)
     ${CMAKE_CURRENT_LIST_DIR}/RiuQtChartsPlotCurve.h
     ${CMAKE_CURRENT_LIST_DIR}/RiuQtChartsPlotWidget.h
     ${CMAKE_CURRENT_LIST_DIR}/RiuQtChartsPlotTools.h
+    ${CMAKE_CURRENT_LIST_DIR}/RiuQtChartsPlotCurveSymbol.h
     ${CMAKE_CURRENT_LIST_DIR}/RiuSummaryQtChartsPlot.h
   )
 
@@ -214,6 +215,7 @@ if(Qt5Charts_FOUND)
     ${CMAKE_CURRENT_LIST_DIR}/RiuQtChartsPlotCurve.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuQtChartsPlotWidget.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuQtChartsPlotTools.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RiuQtChartsPlotCurveSymbol.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuSummaryQtChartsPlot.cpp
   )
 

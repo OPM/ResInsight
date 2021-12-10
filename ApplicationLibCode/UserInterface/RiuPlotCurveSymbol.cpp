@@ -35,46 +35,12 @@ RiuPlotCurveSymbol::RiuPlotCurveSymbol( PointSymbolEnum riuStyle,
                                         const QString&  label,
                                         LabelPosition   labelPosition,
                                         int             labelFontSizePt )
-    : m_globalLabel( label )
+    : m_style( riuStyle )
+    , m_globalLabel( label )
     , m_labelPosition( labelPosition )
     , m_labelFontSizePx( caf::FontTools::pointSizeToPixelSize( labelFontSizePt ) )
 {
 }
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-// void RiuQwtSymbol::renderSymbols( QPainter* painter, const QPointF* points, int numPoints ) const
-// {
-//     QwtSymbol::renderSymbols( painter, points, numPoints );
-
-//     if ( !m_globalLabel.isEmpty() )
-//     {
-//         for ( int i = 0; i < numPoints; i++ )
-//         {
-//             auto position = points[i];
-//             renderSymbolLabel( painter, position, m_globalLabel );
-//         }
-//     }
-// }
-
-// //--------------------------------------------------------------------------------------------------
-// ///
-// //--------------------------------------------------------------------------------------------------
-// void RiuQwtSymbol::renderSymbolLabel( QPainter* painter, const QPointF& position, const QString& label ) const
-// {
-//     painter->save();
-//     QFont font = painter->font();
-//     font.setPixelSize( m_labelFontSizePx );
-//     painter->setFont( font );
-//     painter->setPen( RiaColorTools::textColor() );
-
-//     QSize symbolSize = QwtSymbol::size();
-//     QRect symbolRect( position.x(), position.y(), symbolSize.width(), symbolSize.height() );
-//     QRect labelRect = labelBoundingRect( painter, symbolRect, label );
-//     painter->drawText( labelRect.topLeft(), label );
-//     painter->restore();
-// }
 
 //--------------------------------------------------------------------------------------------------
 ///
