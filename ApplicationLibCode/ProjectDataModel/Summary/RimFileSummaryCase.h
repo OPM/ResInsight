@@ -26,6 +26,9 @@ class RifReaderRftInterface;
 class RifReaderEclipseRft;
 class RifReaderEclipseSummary;
 class RiaThreadSafeLogger;
+class RifOpmCommonEclipseSummary;
+class RifEclipseSummaryAddress;
+class RifMultipleSummaryReaders;
 
 //==================================================================================================
 //
@@ -51,14 +54,31 @@ public:
 
     void setIncludeRestartFiles( bool includeRestartFiles );
 
+    void setSummaryData( const std::string& keyword, const std::string& unit, const std::vector<float>& values );
+    void onProjectBeingSaved();
+
     static RifSummaryReaderInterface* findRelatedFilesAndCreateReader( const QString&       headerFileName,
                                                                        bool                 includeRestartFiles,
                                                                        RiaThreadSafeLogger* threadSafeLogger );
 
     static RifReaderEclipseRft* findRftDataAndCreateReader( const QString& headerFileName );
 
+protected:
+    void defineEditorAttribute( const caf::PdmFieldHandle* field,
+                                QString                    uiConfigName,
+                                caf::PdmUiEditorAttribute* attribute ) override;
+
 private:
-    cvf::ref<RifSummaryReaderInterface> m_summaryFileReader;
+    void           openAndAttachAdditionalReader();
+    QString        additionalSummaryDataFilePath() const;
+    static QString createAdditionalSummaryFileName();
+
+private:
+    cvf::ref<RifSummaryReaderInterface> m_fileSummaryReader;
+    cvf::ref<RifMultipleSummaryReaders> m_multiSummaryReader;
     cvf::ref<RifReaderEclipseRft>       m_summaryEclipseRftReader;
     caf::PdmField<bool>                 m_includeRestartFiles;
+
+    caf::PdmField<caf::FilePath>         m_additionalSummaryFilePath;
+    cvf::ref<RifOpmCommonEclipseSummary> m_additionalSummaryFileReader;
 };
