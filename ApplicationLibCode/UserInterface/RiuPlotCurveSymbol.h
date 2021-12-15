@@ -71,6 +71,8 @@ public:
 
     void setLabelPosition( LabelPosition labelPosition );
 
+    void setLabelFontSize( int labelFontSizePt );
+
     virtual void setSize( int width, int height ) = 0;
 
     virtual void setColor( const QColor& color ) = 0;
