@@ -253,18 +253,6 @@ void RiuQwtPlotCurve::setBrush( const QBrush& brush )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuQwtPlotCurve::setSymbolAppearance( RiuPlotCurveSymbol::PointSymbolEnum, int size, const QColor& color )
-{
-    // TODO: map symbol
-    QwtSymbol* symbol = new QwtSymbol( QwtSymbol::Ellipse );
-    symbol->setSize( size );
-    symbol->setColor( color );
-    QwtPlotCurve::setSymbol( symbol );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 QwtGraphic RiuQwtPlotCurve::legendIcon( int index, const QSizeF& size ) const
 {
     QwtGraphic icon = QwtPlotCurve::legendIcon( index, size );
