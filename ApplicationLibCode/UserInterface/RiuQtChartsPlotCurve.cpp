@@ -29,6 +29,7 @@
 
 #include "cvfBoundingBox.h"
 
+#include <QLegend>
 #include <QLegendMarker>
 
 #include <limits>
@@ -72,6 +73,7 @@ RiuQtChartsPlotCurve::~RiuQtChartsPlotCurve()
 void RiuQtChartsPlotCurve::setTitle( const QString& title )
 {
     lineSeries()->setName( title );
+    scatterSeries()->setName( title );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -111,6 +113,8 @@ void RiuQtChartsPlotCurve::attachToPlot( RiuPlotWidget* plotWidget )
 
     if ( m_plotWidget->getLineSeries( this ) && m_plotWidget->getScatterSeries( this ) )
     {
+        m_plotWidget->qtChart()->legend()->setMarkerShape( QtCharts::QLegend::MarkerShape::MarkerShapeFromSeries );
+        setVisibleInLegend( true );
         lineSeries()->show();
     }
     else
@@ -153,6 +157,8 @@ void RiuQtChartsPlotCurve::detach()
     {
         scatter->hide();
     }
+
+    if ( m_plotWidget ) setVisibleInLegend( false );
 
     m_plotWidget = nullptr;
 }
@@ -208,7 +214,11 @@ void RiuQtChartsPlotCurve::clearErrorBars()
 void RiuQtChartsPlotCurve::setXAxis( RiaDefines::PlotAxis axis )
 {
     m_axisX = axis;
-    if ( m_plotWidget ) m_plotWidget->setXAxis( axis, lineSeries() );
+    if ( m_plotWidget )
+    {
+        m_plotWidget->setXAxis( axis, lineSeries() );
+        m_plotWidget->setXAxis( axis, scatterSeries() );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -217,7 +227,11 @@ void RiuQtChartsPlotCurve::setXAxis( RiaDefines::PlotAxis axis )
 void RiuQtChartsPlotCurve::setYAxis( RiaDefines::PlotAxis axis )
 {
     m_axisY = axis;
-    if ( m_plotWidget ) m_plotWidget->setYAxis( axis, lineSeries() );
+    if ( m_plotWidget )
+    {
+        m_plotWidget->setYAxis( axis, lineSeries() );
+        m_plotWidget->setYAxis( axis, scatterSeries() );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -278,10 +292,13 @@ void RiuQtChartsPlotCurve::setVisibleInLegend( bool isVisibleInLegend )
     CAF_ASSERT( m_plotWidget );
     CAF_ASSERT( m_plotWidget->qtChart() );
     CAF_ASSERT( m_plotWidget->qtChart()->legend() );
-    if ( lineSeries() )
+    if ( scatterSeries() )
     {
-        auto markers = m_plotWidget->qtChart()->legend()->markers( lineSeries() );
+        auto markers = m_plotWidget->qtChart()->legend()->markers( scatterSeries() );
         if ( !markers.isEmpty() ) markers[0]->setVisible( isVisibleInLegend );
+
+        auto lineSeriesMarkers = m_plotWidget->qtChart()->legend()->markers( lineSeries() );
+        if ( !lineSeriesMarkers.isEmpty() ) lineSeriesMarkers[0]->setVisible( false );
     }
 }
 
