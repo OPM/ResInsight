@@ -882,6 +882,7 @@ void RimPlotCurve::updateCurveAppearance()
             symbol->setLabelPosition( m_curveAppearance->symbolLabelPosition() );
             symbol->setGlobalLabel( m_curveAppearance->symbolLabel() );
             symbol->setSize( m_curveAppearance->symbolSize(), m_curveAppearance->symbolSize() );
+            symbol->setColor( curveColor );
 
             // If the symbol is a "filled" symbol, we can have a different edge color
             // Otherwise we'll have to use the curve color.
