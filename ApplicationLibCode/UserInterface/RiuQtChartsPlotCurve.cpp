@@ -98,25 +98,6 @@ void RiuQtChartsPlotCurve::setAppearance( RiuQwtPlotCurveDefines::LineStyleEnum 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuQtChartsPlotCurve::setSymbolAppearance( RiuQwtSymbol::PointSymbolEnum symbol, int size, const QColor& color )
-{
-    //    lineSeries()->setPointsVisible();
-    if ( symbol == RiuQwtSymbol::PointSymbolEnum::SYMBOL_NONE )
-        scatterSeries()->hide();
-    else
-    {
-        if ( symbol == RiuQwtSymbol::PointSymbolEnum::SYMBOL_RECT )
-            scatterSeries()->setMarkerShape( QtCharts::QScatterSeries::MarkerShapeRectangle );
-        else if ( symbol == RiuQwtSymbol::PointSymbolEnum::SYMBOL_ELLIPSE )
-            scatterSeries()->setMarkerShape( QtCharts::QScatterSeries::MarkerShapeCircle );
-
-        scatterSeries()->setMarkerSize( size );
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RiuQtChartsPlotCurve::setBrush( const QBrush& brush )
 {
     lineSeries()->setBrush( brush );
