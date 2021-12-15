@@ -69,6 +69,14 @@ void RiuPlotCurveSymbol::setLabelPosition( LabelPosition labelPosition )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RiuPlotCurveSymbol::setLabelFontSize( int labelFontSizePt )
+{
+    m_labelFontSizePx = caf::FontTools::pointSizeToPixelSize( labelFontSizePt );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RiuPlotCurveSymbol::PointSymbolEnum RiuPlotCurveSymbol::cycledSymbolStyle( int indexLevel1, int indexLevel2 )
 {
     std::vector<std::vector<PointSymbolEnum>> categorisedStyles = {
