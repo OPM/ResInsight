@@ -43,8 +43,6 @@ public:
                         const QColor&                                  curveColor,
                         const QBrush&                                  fillBrush = QBrush( Qt::NoBrush ) ) override;
 
-    void setSymbolAppearance( RiuPlotCurveSymbol::PointSymbolEnum, int size, const QColor& color ) override;
-
     void setBrush( const QBrush& brush ) override;
 
     QwtGraphic legendIcon( int index, const QSizeF& size ) const override;

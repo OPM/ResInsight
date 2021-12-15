@@ -93,8 +93,6 @@ public:
                                 const QColor&                                  curveColor,
                                 const QBrush&                                  fillBrush = QBrush( Qt::NoBrush ) ) = 0;
 
-    virtual void setSymbolAppearance( RiuPlotCurveSymbol::PointSymbolEnum, int size, const QColor& color ) = 0;
-
     virtual void setBrush( const QBrush& brush ) = 0;
 
     void setBlackAndWhiteLegendIcon( bool blackAndWhite );
