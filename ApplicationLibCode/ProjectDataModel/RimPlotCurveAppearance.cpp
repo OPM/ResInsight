@@ -208,6 +208,8 @@ void RimPlotCurveAppearance::defineUiOrdering( QString uiConfigName, caf::PdmUiO
 
     uiOrdering.add( &m_curveInterpolation );
     m_curveInterpolation.uiCapability()->setUiHidden( !m_interpolationVisible );
+
+    uiOrdering.skipRemainingFields();
 }
 
 //--------------------------------------------------------------------------------------------------
