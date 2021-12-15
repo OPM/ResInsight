@@ -882,7 +882,6 @@ void RimPlotCurve::updateCurveAppearance()
             symbol->setLabelPosition( m_curveAppearance->symbolLabelPosition() );
             symbol->setGlobalLabel( m_curveAppearance->symbolLabel() );
             symbol->setSize( m_curveAppearance->symbolSize(), m_curveAppearance->symbolSize() );
-            symbol->setColor( curveColor );
 
             // If the symbol is a "filled" symbol, we can have a different edge color
             // Otherwise we'll have to use the curve color.
@@ -916,7 +915,8 @@ void RimPlotCurve::updateCurveAppearance()
                                 m_curveAppearance->lineThickness(),
                                 curveColor,
                                 fillBrush );
-    if ( symbol ) m_plotCurve->setSymbol( symbol );
+
+    m_plotCurve->setSymbol( symbol );
     // m_plotCurve->setSymbolSkipPixelDistance( m_curveAppearance->symbolSkipDistance() );
 
     // // Make sure the legend lines are long enough to distinguish between line types.

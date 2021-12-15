@@ -390,9 +390,12 @@ void RiuQwtPlotCurve::setVisibleInLegend( bool isVisibleInLegend )
 //--------------------------------------------------------------------------------------------------
 void RiuQwtPlotCurve::setSymbol( RiuPlotCurveSymbol* symbol )
 {
-    auto qwtSymbol = dynamic_cast<RiuQwtSymbol*>( symbol );
-    CAF_ASSERT( qwtSymbol );
-    QwtPlotCurve::setSymbol( qwtSymbol );
+    if ( symbol )
+    {
+        auto qwtSymbol = dynamic_cast<RiuQwtSymbol*>( symbol );
+        CAF_ASSERT( qwtSymbol );
+        QwtPlotCurve::setSymbol( qwtSymbol );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
