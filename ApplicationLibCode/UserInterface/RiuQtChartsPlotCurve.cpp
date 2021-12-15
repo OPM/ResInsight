@@ -46,8 +46,6 @@ RiuQtChartsPlotCurve::RiuQtChartsPlotCurve( const QString& title )
 
     m_scatterSeries = new QtCharts::QScatterSeries();
     m_scatterSeries->setName( title );
-    m_scatterSeries->setMarkerShape( QtCharts::QScatterSeries::MarkerShapeRectangle );
-    m_scatterSeries->setMarkerSize( 20.0 );
 
     m_axisX = RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM;
     m_axisY = RiaDefines::PlotAxis::PLOT_AXIS_LEFT;
@@ -114,7 +112,6 @@ void RiuQtChartsPlotCurve::attachToPlot( RiuPlotWidget* plotWidget )
     if ( m_plotWidget->getLineSeries( this ) && m_plotWidget->getScatterSeries( this ) )
     {
         lineSeries()->show();
-        scatterSeries()->show();
     }
     else
     {
@@ -122,6 +119,21 @@ void RiuQtChartsPlotCurve::attachToPlot( RiuPlotWidget* plotWidget )
         // Plot widget takes ownership.
         m_lineSeries    = nullptr;
         m_scatterSeries = nullptr;
+    }
+
+    if ( scatterSeries() )
+    {
+        if ( m_symbol )
+        {
+            scatterSeries()->show();
+            auto qtChartsSymbol = dynamic_cast<RiuQtChartsPlotCurveSymbol*>( m_symbol.get() );
+            CAF_ASSERT( qtChartsSymbol );
+            qtChartsSymbol->applyToScatterSeries( scatterSeries() );
+        }
+        else
+        {
+            scatterSeries()->hide();
+        }
     }
 }
 
@@ -304,12 +316,21 @@ QtCharts::QScatterSeries* RiuQtChartsPlotCurve::scatterSeries() const
 //--------------------------------------------------------------------------------------------------
 void RiuQtChartsPlotCurve::setSymbol( RiuPlotCurveSymbol* symbol )
 {
-    auto qtChartsSymbol = dynamic_cast<RiuQtChartsPlotCurveSymbol*>( symbol );
-    CAF_ASSERT( qtChartsSymbol );
-    m_symbol.reset( symbol );
-    if ( scatterSeries() )
+    if ( symbol )
     {
-        qtChartsSymbol->applyToScatterSeries( scatterSeries() );
+        auto qtChartsSymbol = dynamic_cast<RiuQtChartsPlotCurveSymbol*>( symbol );
+        CAF_ASSERT( qtChartsSymbol );
+        m_symbol.reset( symbol );
+
+        if ( scatterSeries() )
+        {
+            qtChartsSymbol->applyToScatterSeries( scatterSeries() );
+        }
+    }
+    else
+    {
+        m_symbol.reset();
+        if ( scatterSeries() ) scatterSeries()->hide();
     }
 }
 
