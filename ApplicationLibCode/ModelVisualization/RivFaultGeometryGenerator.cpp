@@ -152,14 +152,6 @@ void RivFaultGeometryGenerator::computeArrays( bool onlyShowFacesWithDefinedNeig
 
     cvf::Vec3d offset = m_grid->displayModelOffset();
 
-    // std::string name   = m_fault->name().toStdString();
-    // if ( name != "DI" )
-    //{
-    //    m_vertices = new cvf::Vec3fArray;
-    //    m_vertices->assign( vertices );
-    //    return;
-    //}
-
     auto& connections = m_nncData->connections();
 
     const std::vector<RigFault::FaultFace>& faultFaces = m_fault->faultFaces();
