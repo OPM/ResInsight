@@ -304,8 +304,18 @@ void RigCellFaceGeometryTools::extractConnectionsForFace( const RigFault::FaultF
             }
         }
 
-        std::pair<unsigned, unsigned> candidate( static_cast<unsigned>( sourceReservoirCellIndex ),
-                                                 static_cast<unsigned>( candidateCellIndex ) );
+        // Test if this pair of cells already has a connection. Check both combinations of cell index ordering to avoid
+        // duplicate NNC geometry for the same pair of cells
+
+        auto candidate = std::make_pair( static_cast<unsigned>( sourceReservoirCellIndex ),
+                                         static_cast<unsigned>( candidateCellIndex ) );
+
+        if ( nativeCellPairs.count( candidate ) > 0 )
+        {
+            continue;
+        }
+
+        std::swap( candidate.first, candidate.second );
 
         if ( nativeCellPairs.count( candidate ) > 0 )
         {
