@@ -45,10 +45,14 @@ RigConnection::RigConnection( unsigned                           c1GlobIdx,
     if ( c1GlobIdx >= c2GlobIdx )
     {
         // Ensure the smallest cell index is the first index
-        // TODO : The face type is related to cell 1, so face should be changed to opposite face
-        // This causes visual artifacts for some models, so this change will require more investigation
         m_c1GlobIdx = c2GlobIdx;
         m_c2GlobIdx = c1GlobIdx;
+
+        if ( c1Face != cvf::StructGridInterface::FaceType::NO_FACE )
+        {
+            // The face type is related to cell 1, so use opposite face
+            m_c1Face = cvf::StructGridInterface::oppositeFace( c1Face );
+        }
     }
 }
 
@@ -69,10 +73,14 @@ RigConnection::RigConnection( size_t                             c1GlobIdx,
     if ( c1GlobIdx >= c2GlobIdx )
     {
         // Ensure the smallest cell index is the first index
-        // TODO : The face type is related to cell 1, so face should be changed to opposite face
-        // This causes visual artifacts for some models, so this change will require more investigation
         m_c1GlobIdx = static_cast<unsigned>( c2GlobIdx );
         m_c2GlobIdx = static_cast<unsigned>( c1GlobIdx );
+
+        if ( c1Face != cvf::StructGridInterface::FaceType::NO_FACE )
+        {
+            // The face type is related to cell 1, so use opposite face
+            m_c1Face = cvf::StructGridInterface::oppositeFace( c1Face );
+        }
     }
 }
 
