@@ -24,6 +24,7 @@
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
 #include "RigMainGrid.h"
+#include "RigNNCData.h"
 #include "RigReservoirBuilderMock.h"
 
 #include "RimEclipseCase.h"
@@ -101,7 +102,7 @@ RigNumberOfFloodedPoreVolumesCalculator::RigNumberOfFloodedPoreVolumesCalculator
     std::vector<const std::vector<double>*> flowrateKatAllTimeSteps;
 
     RigNNCData*                  nncData     = eclipseCaseData->mainGrid()->nncData();
-    const RigConnectionContainer connections = nncData->connections();
+    const RigConnectionContainer connections = nncData->allConnections();
 
     progress.incrementProgress();
 

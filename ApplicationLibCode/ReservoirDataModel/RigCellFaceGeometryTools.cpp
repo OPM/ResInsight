@@ -213,6 +213,9 @@ RigConnectionContainer RigCellFaceGeometryTools::computeOtherNncs( const RigMain
     return otherConnections;
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RigCellFaceGeometryTools::extractConnectionsForFace( const RigFault::FaultFace&                     face,
                                                           const RigMainGrid*                             mainGrid,
                                                           const std::set<std::pair<unsigned, unsigned>>& nativeCellPairs,

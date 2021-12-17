@@ -29,6 +29,7 @@
 #include "RigEclipseCaseData.h"
 #include "RigEclipseResultAddress.h"
 #include "RigMainGrid.h"
+#include "RigNNCData.h"
 
 #include "cafDisplayCoordTransform.h"
 
@@ -224,11 +225,11 @@ void RivElementVectorResultPartMgr::appendDynamicGeometryPartsToModel( cvf::Mode
         }
     }
 
-    RigNNCData* nncData           = eclipseCaseData->mainGrid()->nncData();
-    size_t      numNncConnections = nncData->connections().size();
-
     if ( result->showNncData() )
     {
+        RigNNCData* nncData = eclipseCaseData->mainGrid()->nncData();
+        nncData->buildPolygonsForEclipseConnections();
+
         std::vector<const std::vector<std::vector<double>>*> nncResultVals;
         std::vector<RigEclipseResultAddress>                 combinedAddresses;
         result->resultAddressesCombined( combinedAddresses );
@@ -244,9 +245,9 @@ void RivElementVectorResultPartMgr::appendDynamicGeometryPartsToModel( cvf::Mode
             }
         }
 
-        for ( size_t nIdx = 0; nIdx < numNncConnections; ++nIdx )
+        for ( size_t nIdx = 0; nIdx < nncData->eclipseConnectionCount(); ++nIdx )
         {
-            const RigConnection& conn = nncData->connections()[nIdx];
+            const RigConnection& conn = nncData->eclipseConnections()[nIdx];
             if ( conn.polygon().size() )
             {
                 double resultValue = 0.0;
