@@ -62,6 +62,8 @@ public:
     bool isShowingFaultsAndFaultsOutsideFilters() const;
     void setShowFaultsOutsideFilter( bool show );
 
+    bool onlyShowFacesWithDefinedNeighbor() const;
+
     RimFaultRASettings* faultRASettings() const;
     bool                faultRAEnabled() const;
     bool                faultRAAdvancedEnabled() const;
@@ -95,6 +97,7 @@ private:
 
 private:
     caf::PdmField<bool> m_showFaultsOutsideFilters;
+    caf::PdmField<bool> m_onlyShowWithNeighbor;
 
     caf::PdmChildField<RimFaultRASettings*> m_faultRASettings;
     caf::PdmField<bool>                     m_enableFaultRA;
