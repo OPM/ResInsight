@@ -41,6 +41,7 @@
 #include "RigEclipseResultInfo.h"
 #include "RigEquil.h"
 #include "RigMainGrid.h"
+#include "RigNNCData.h"
 #include "RigSimWellData.h"
 #include "RigWellResultPoint.h"
 
@@ -769,7 +770,7 @@ void RifReaderEclipseOutput::transferStaticNNCData( const ecl_grid_type* mainEcl
                     transmissibilityValuesTemp.push_back( transValues[nIdx] );
                 }
 
-                mainGrid->nncData()->setNativeConnections( nncConnections );
+                mainGrid->nncData()->setEclipseConnections( nncConnections );
                 mainGrid->nncData()->makeScalarResultAndSetValues( RiaDefines::propertyNameCombTrans(),
                                                                    transmissibilityValuesTemp );
             }

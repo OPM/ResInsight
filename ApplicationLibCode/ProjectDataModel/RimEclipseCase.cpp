@@ -35,6 +35,7 @@
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
 #include "RigMainGrid.h"
+#include "RigNNCData.h"
 #include "RigSimWellData.h"
 #include "RigVirtualPerforationTransmissibilities.h"
 #include "RigWellResultPoint.h"
@@ -711,7 +712,7 @@ bool RimEclipseCase::ensureNncDataIsComputed()
     RigEclipseCaseData* rigEclipseCase = eclipseCaseData();
     if ( rigEclipseCase && rigEclipseCase->mainGrid() )
     {
-        computedData = rigEclipseCase->mainGrid()->nncData()->ensureConnectionDataIsProcessed();
+        computedData = rigEclipseCase->mainGrid()->nncData()->ensureAllConnectionDataIsProcessed();
     }
 
     return computedData;

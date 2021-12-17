@@ -24,6 +24,7 @@
 #include "RigCell.h"
 #include "RigEclipseCaseData.h"
 #include "RigMainGrid.h"
+#include "RigNNCData.h"
 #include "RigSimWellData.h"
 
 /* rand example: guess the number */
@@ -557,7 +558,7 @@ void RigReservoirBuilderMock::addFaults( RigEclipseCaseData* eclipseCase )
         addNnc( grid, i1, j1, k1, i2, j2, k2, nncConnections );
     }
 
-    grid->nncData()->setNativeConnections( nncConnections );
+    grid->nncData()->setEclipseConnections( nncConnections );
 
     std::vector<double>& tranVals =
         grid->nncData()->makeStaticConnectionScalarResult( RiaDefines::propertyNameCombTrans() );
