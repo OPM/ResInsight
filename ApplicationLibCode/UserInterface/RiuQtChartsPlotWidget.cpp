@@ -104,6 +104,14 @@ RiuQtChartsPlotWidget::~RiuQtChartsPlotWidget()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RiuQtChartsPlotWidget::axisRangeChanged()
+{
+    if ( qtChart()->isZoomed() ) emit plotZoomed();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 int RiuQtChartsPlotWidget::axisTitleFontSize( RiaDefines::PlotAxis axis ) const
 {
     if ( axisEnabled( axis ) )
@@ -1155,6 +1163,15 @@ void RiuQtChartsPlotWidget::setAxis( RiaDefines::PlotAxis axis, QtCharts::QAbstr
         }
 
         series->attachAxis( newAxis );
+
+        if ( qobject_cast<QValueAxis*>( newAxis ) || qobject_cast<QLogValueAxis*>( newAxis ) )
+        {
+            connect( newAxis, SIGNAL( rangeChanged( double, double ) ), this, SLOT( axisRangeChanged() ) );
+        }
+        else if ( qobject_cast<QDateTimeAxis*>( newAxis ) )
+        {
+            connect( newAxis, SIGNAL( rangeChanged( QDateTime, QDateTime ) ), this, SLOT( axisRangeChanged() ) );
+        }
     }
 }
 
