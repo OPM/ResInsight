@@ -24,6 +24,7 @@
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
 #include "RigMainGrid.h"
+#include "RigNNCData.h"
 #include "RigReservoirBuilderMock.h"
 
 #include "RimEclipseCase.h"

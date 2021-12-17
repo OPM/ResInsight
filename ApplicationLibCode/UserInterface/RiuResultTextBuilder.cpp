@@ -23,6 +23,7 @@
 #include "RigEclipseCaseData.h"
 #include "RigFormationNames.h"
 #include "RigMainGrid.h"
+#include "RigNNCData.h"
 #include "RigResultAccessor.h"
 #include "RigResultAccessorFactory.h"
 #include "RigSimWellData.h"

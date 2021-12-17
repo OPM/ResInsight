@@ -36,6 +36,7 @@
 //--------------------------------------------------------------------------------------------------
 RigNNCData::RigNNCData()
     : m_nativeConnectionCount( 0 )
+    , m_polygonsForNativeConnectionsAreCreated( false )
     , m_connectionsAreProcessed( false )
     , m_mainGrid( nullptr )
     , m_activeCellInfo( nullptr )
@@ -54,44 +55,52 @@ void RigNNCData::setSourceDataForProcessing( RigMainGrid*             mainGrid,
     m_activeCellInfo             = activeCellInfo;
     m_computeNncForInactiveCells = includeInactiveCells;
 
-    m_connectionsAreProcessed = false;
+    m_polygonsForNativeConnectionsAreCreated = false;
+    m_connectionsAreProcessed                = false;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigNNCData::processNativeConnections( const RigMainGrid& mainGrid )
+void RigNNCData::buildPolygonsForNativeConnections()
 {
-    // cvf::Trace::show("NNC: Total number: " + cvf::String((int)m_connections.size()));
+    if ( m_polygonsForNativeConnectionsAreCreated ) return;
+    if ( !m_mainGrid ) return;
 
 #pragma omp parallel for
-    for ( int cnIdx = 0; cnIdx < (int)m_connections.size(); ++cnIdx )
+    for ( int cnIdx = 0; cnIdx < static_cast<int>( nativeConnectionCount() ); ++cnIdx )
     {
-        const RigCell& c1 = mainGrid.globalCellArray()[m_connections[cnIdx].c1GlobIdx()];
-        const RigCell& c2 = mainGrid.globalCellArray()[m_connections[cnIdx].c2GlobIdx()];
+        const RigCell& c1 = m_mainGrid->globalCellArray()[m_connections[cnIdx].c1GlobIdx()];
+        const RigCell& c2 = m_mainGrid->globalCellArray()[m_connections[cnIdx].c2GlobIdx()];
 
         std::vector<size_t>                connectionPolygon;
         std::vector<cvf::Vec3d>            connectionIntersections;
         cvf::StructGridInterface::FaceType connectionFace = cvf::StructGridInterface::NO_FACE;
 
-        connectionFace =
-            RigCellFaceGeometryTools::calculateCellFaceOverlap( c1, c2, mainGrid, &connectionPolygon, &connectionIntersections );
+        connectionFace = RigCellFaceGeometryTools::calculateCellFaceOverlap( c1,
+                                                                             c2,
+                                                                             *m_mainGrid,
+                                                                             &connectionPolygon,
+                                                                             &connectionIntersections );
 
         if ( connectionFace != cvf::StructGridInterface::NO_FACE )
         {
             m_connections[cnIdx].setFace( connectionFace );
-            m_connections[cnIdx].setPolygon(
-                RigCellFaceGeometryTools::extractPolygon( mainGrid.nodes(), connectionPolygon, connectionIntersections ) );
+            m_connections[cnIdx].setPolygon( RigCellFaceGeometryTools::extractPolygon( m_mainGrid->nodes(),
+                                                                                       connectionPolygon,
+                                                                                       connectionIntersections ) );
         }
     }
+
+    m_polygonsForNativeConnectionsAreCreated = true;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigNNCData::computeCompleteSetOfNncs( const RigMainGrid*       mainGrid,
-                                           const RigActiveCellInfo* activeCellInfo,
-                                           bool                     includeInactiveCells )
+void RigNNCData::computeAdditionalNncs( const RigMainGrid*       mainGrid,
+                                        const RigActiveCellInfo* activeCellInfo,
+                                        bool                     includeInactiveCells )
 {
     RigConnectionContainer otherConnections =
         RigCellFaceGeometryTools::computeOtherNncs( mainGrid, m_connections, activeCellInfo, includeInactiveCells );
@@ -188,7 +197,7 @@ size_t RigNNCData::connectionsWithNoCommonArea( QStringList& connectionTextFirst
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RigNNCData::ensureConnectionDataIsProcessed()
+bool RigNNCData::ensureAllConnectionDataIsProcessed()
 {
     if ( m_connectionsAreProcessed ) return false;
 
@@ -198,10 +207,10 @@ bool RigNNCData::ensureConnectionDataIsProcessed()
 
         RiaLogging::info( "NNC geometry computation - starting process" );
 
-        processNativeConnections( *m_mainGrid );
+        buildPolygonsForNativeConnections();
         progressInfo.incrementProgress();
 
-        computeCompleteSetOfNncs( m_mainGrid, m_activeCellInfo, m_computeNncForInactiveCells );
+        computeAdditionalNncs( m_mainGrid, m_activeCellInfo, m_computeNncForInactiveCells );
         progressInfo.incrementProgress();
 
         m_connectionsAreProcessed = true;
@@ -256,9 +265,22 @@ size_t RigNNCData::nativeConnectionCount() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+const RigConnectionContainer& RigNNCData::nativeConnections() const
+{
+    // Return connections without calling ensureConnectionDataIsProcessed() to avoid potential heavy computations
+    // Relevant if only native connection data is required
+    // NB: If computeAdditionalNncs() is called before this method, the size of this collection is larger than
+    // nativeConnectionCount()
+
+    return m_connections;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RigConnectionContainer& RigNNCData::connections()
 {
-    ensureConnectionDataIsProcessed();
+    ensureAllConnectionDataIsProcessed();
 
     return m_connections;
 }
@@ -268,7 +290,7 @@ RigConnectionContainer& RigNNCData::connections()
 //--------------------------------------------------------------------------------------------------
 std::vector<double>& RigNNCData::makeStaticConnectionScalarResult( QString nncDataType )
 {
-    ensureConnectionDataIsProcessed();
+    ensureAllConnectionDataIsProcessed();
 
     std::vector<std::vector<double>>& results = m_connectionResults[nncDataType];
     results.resize( 1 );

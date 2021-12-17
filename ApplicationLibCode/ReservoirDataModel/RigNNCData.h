@@ -50,14 +50,16 @@ public:
 
     RigNNCData();
 
-    bool ensureConnectionDataIsProcessed();
     void setSourceDataForProcessing( RigMainGrid*             mainGrid,
                                      const RigActiveCellInfo* activeCellInfo,
                                      bool                     includeInactiveCells );
 
-    void   setNativeConnections( RigConnectionContainer& connections );
-    size_t nativeConnectionCount() const;
+    void                          setNativeConnections( RigConnectionContainer& connections );
+    void                          buildPolygonsForNativeConnections();
+    size_t                        nativeConnectionCount() const;
+    const RigConnectionContainer& nativeConnections() const;
 
+    bool                    ensureAllConnectionDataIsProcessed();
     RigConnectionContainer& connections();
 
     std::vector<double>&       makeStaticConnectionScalarResult( QString nncDataType );
@@ -95,10 +97,9 @@ private:
     const QString getNNCDataTypeFromScalarResultIndex( const RigEclipseResultAddress& resVarAddr ) const;
     bool          isNative( QString nncDataType ) const;
 
-    void processNativeConnections( const RigMainGrid& mainGrid );
-    void computeCompleteSetOfNncs( const RigMainGrid*       mainGrid,
-                                   const RigActiveCellInfo* activeCellInfo,
-                                   bool                     includeInactiveCells );
+    void computeAdditionalNncs( const RigMainGrid*       mainGrid,
+                                const RigActiveCellInfo* activeCellInfo,
+                                bool                     includeInactiveCells );
 
     size_t connectionsWithNoCommonArea( QStringList& connectionTextFirstItems, size_t maxItemCount );
 
@@ -108,6 +109,7 @@ private:
     std::map<QString, std::vector<std::vector<double>>> m_connectionResults;
     std::map<RigEclipseResultAddress, QString>          m_resultAddrToNNCDataType;
 
+    bool                     m_polygonsForNativeConnectionsAreCreated;
     bool                     m_connectionsAreProcessed;
     RigMainGrid*             m_mainGrid;
     const RigActiveCellInfo* m_activeCellInfo;

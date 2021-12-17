@@ -22,8 +22,10 @@
 
 #include "RiaLogging.h"
 #include "RiaResultNames.h"
+
 #include "RigActiveCellInfo.h"
 #include "RigHexIntersectionTools.h"
+#include "RigNNCData.h"
 
 #include "cvfAssert.h"
 #include "cvfBoundingBoxTree.h"

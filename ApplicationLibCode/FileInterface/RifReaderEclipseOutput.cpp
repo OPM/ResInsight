@@ -41,6 +41,7 @@
 #include "RigEclipseResultInfo.h"
 #include "RigEquil.h"
 #include "RigMainGrid.h"
+#include "RigNNCData.h"
 #include "RigSimWellData.h"
 #include "RigWellResultPoint.h"
 

@@ -202,7 +202,7 @@ void RivReservoirFaultsPartMgr::appendPartsToModel( cvf::ModelBasicList* model )
                 if ( showNncs )
                 {
                     RigMainGrid* mainGrid = m_reservoirView->mainGrid();
-                    mainGrid->nncData()->ensureConnectionDataIsProcessed();
+                    mainGrid->nncData()->ensureAllConnectionDataIsProcessed();
 
                     if ( showCompleteNncGeo )
                     {
