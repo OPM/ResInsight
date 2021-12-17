@@ -16,6 +16,8 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
+#include "RiaLogging.h"
+
 #include "RigCellFaceGeometryTools.h"
 
 #include "RigActiveCellInfo.h"
@@ -26,8 +28,6 @@
 #include "cvfGeometryTools.h"
 
 #include "cafAssert.h"
-
-#include <QDebug>
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -150,7 +150,7 @@ RigConnectionContainer RigCellFaceGeometryTools::computeOtherNncs( const RigMain
         QString message = QString( "Nnc connection imported from Eclipse are not unique\nNNC count : %1\nUnique : %2" )
                               .arg( nativeConnections.size() )
                               .arg( nativeCellPairs.size() );
-        qDebug() << message;
+        RiaLogging::warning( message );
     }
 
     const cvf::Collection<RigFault>& faults = mainGrid->faults();
@@ -197,6 +197,16 @@ RigConnectionContainer RigCellFaceGeometryTools::computeOtherNncs( const RigMain
             // Merge together connections per thread
             assignThreadConnections( otherConnections, threadConnections );
         } // end parallel region
+    }
+
+    size_t nncCountWarningThreshold = 5000000;
+    if ( otherConnections.size() > nncCountWarningThreshold )
+    {
+        auto txt = QString( "Additional NNC count has reached %1, and is above the warning threshold of %2. Faults for "
+                            "inactive cells can be managed from Preferences->Eclipse Grid->Include Inactive Cells" )
+                       .arg( otherConnections.size() )
+                       .arg( nncCountWarningThreshold );
+        RiaLogging::warning( txt );
     }
 
     otherConnections.remove_duplicates();
