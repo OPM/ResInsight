@@ -340,15 +340,14 @@ std::pair<double, double> RiuQtChartsPlotWidget::axisRange( RiaDefines::PlotAxis
 void RiuQtChartsPlotWidget::setAxisRange( RiaDefines::PlotAxis axis, double min, double max )
 {
     // Note: Especially the Y-axis may be inverted
-    // if ( m_plot->axisScaleEngine( RiuQwtPlotTools::toQwtPlotAxis( axis ) )->testAttribute( QwtScaleEngine::Inverted )
-    // )
-    // {
-    //     setAxisScale( axis, max, min );
-    // }
-    // else
-    // {
-    //     setAxisScale( axis, min, max );
-    // }
+    if ( plotAxis( axis )->isReverse() )
+    {
+        setAxisScale( axis, max, min );
+    }
+    else
+    {
+        setAxisScale( axis, min, max );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -935,8 +934,7 @@ void RiuQtChartsPlotWidget::setAxisAutoScale( RiaDefines::PlotAxis axis, bool au
 //--------------------------------------------------------------------------------------------------
 void RiuQtChartsPlotWidget::setAxisScale( RiaDefines::PlotAxis axis, double min, double max )
 {
-    cvf::Trace::show( "RiuQtChartsPlotWidget::setAxisScale" );
-    // m_plot->setAxisScale( RiuQwtPlotTools::toQwtPlotAxis( axis ), min, max );
+    plotAxis( axis )->setRange( min, max );
 }
 
 //--------------------------------------------------------------------------------------------------
