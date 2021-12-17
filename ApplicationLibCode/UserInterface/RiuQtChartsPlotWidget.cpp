@@ -439,11 +439,8 @@ void RiuQtChartsPlotWidget::setAutoTickIntervalCounts( RiaDefines::PlotAxis axis
                                                        int                  maxMajorTickIntervalCount,
                                                        int                  maxMinorTickIntervalCount )
 {
-    // m_plot->setAxisMaxMajor( RiuQwtPlotTools::toQwtPlotAxis( axis ), maxMajorTickIntervalCount );
-    // m_plot->setAxisMaxMinor( RiuQwtPlotTools::toQwtPlotAxis( axis ), maxMinorTickIntervalCount );
-    // // Reapply axis limits to force Qwt to use the tick settings.
-    // QwtInterval currentRange = m_plot->axisInterval( RiuQwtPlotTools::toQwtPlotAxis( axis ) );
-    // setAxisScale( axis, currentRange.minValue(), currentRange.maxValue() );
+    setAxisMaxMajor( axis, maxMajorTickIntervalCount );
+    setAxisMaxMinor( axis, maxMinorTickIntervalCount );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -451,12 +448,11 @@ void RiuQtChartsPlotWidget::setAutoTickIntervalCounts( RiaDefines::PlotAxis axis
 //--------------------------------------------------------------------------------------------------
 double RiuQtChartsPlotWidget::majorTickInterval( RiaDefines::PlotAxis axis ) const
 {
-    // QwtScaleDiv   scaleDiv   = m_plot->axisScaleDiv( RiuQwtPlotTools::toQwtPlotAxis( axis ) );
-    // QList<double> majorTicks = scaleDiv.ticks( QwtScaleDiv::MajorTick );
-    // if ( majorTicks.size() < 2 ) return 0.0;
+    QAbstractAxis* ax        = plotAxis( axis );
+    QValueAxis*    valueAxis = dynamic_cast<QValueAxis*>( ax );
+    if ( valueAxis ) return valueAxis->tickInterval();
 
-    // return majorTicks.at( 1 ) - majorTicks.at( 0 );
-    return 1.0;
+    return 0.0;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -464,12 +460,7 @@ double RiuQtChartsPlotWidget::majorTickInterval( RiaDefines::PlotAxis axis ) con
 //--------------------------------------------------------------------------------------------------
 double RiuQtChartsPlotWidget::minorTickInterval( RiaDefines::PlotAxis axis ) const
 {
-    // QwtScaleDiv   scaleDiv   = m_plot->axisScaleDiv( QwtPlot::xTop );
-    // QList<double> minorTicks = scaleDiv.ticks( QwtScaleDiv::MinorTick );
-    // if ( minorTicks.size() < 2 ) return 0.0;
-
-    // return minorTicks.at( 1 ) - minorTicks.at( 0 );
-    return 0.5;
+    return 0.0;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -477,47 +468,7 @@ double RiuQtChartsPlotWidget::minorTickInterval( RiaDefines::PlotAxis axis ) con
 //--------------------------------------------------------------------------------------------------
 int RiuQtChartsPlotWidget::axisExtent( RiaDefines::PlotAxis axis ) const
 {
-    // auto [rangeMin, rangeMax] = axisRange( axis );
-    // if ( std::abs( rangeMax - rangeMin ) < 1.0e-14 ) return 0;
-
-    // int           lineExtent = 0;
-    // QwtPlot::Axis qwtAxis    = RiuQwtPlotTools::toQwtPlotAxis( axis );
-
-    // if ( m_plot->axisScaleDraw( qwtAxis )->hasComponent( QwtAbstractScaleDraw::Ticks ) )
-    // {
-    //     lineExtent += m_plot->axisScaleDraw( qwtAxis )->maxTickLength();
-    // }
-
-    // if ( m_plot->axisScaleDraw( qwtAxis )->hasComponent( QwtAbstractScaleDraw::Labels ) )
-    // {
-    //     QFont tickLabelFont = m_plot->axisFont( RiuQwtPlotTools::toQwtPlotAxis( axis ) );
-    //     // Make space for a fairly long value label
-    //     QSize labelSize = QFontMetrics( tickLabelFont ).boundingRect( QString( "9.9e-9" ) ).size();
-
-    //     if ( axis == RiaDefines::PlotAxis::PLOT_AXIS_LEFT || axis == RiaDefines::PlotAxis::PLOT_AXIS_LEFT )
-    //     {
-    //         lineExtent = labelSize.width();
-    //     }
-    //     else
-    //     {
-    //         lineExtent = labelSize.height();
-    //     }
-    // }
-
-    // if ( !m_plot->axisTitle( qwtAxis ).text().isEmpty() )
-    // {
-    //     auto it = m_axisTitlesEnabled.find( axis );
-    //     if ( it != m_axisTitlesEnabled.end() && it->second )
-    //     {
-    //         QFont titleFont = m_plot->axisTitle( qwtAxis ).font();
-    //         // Label is aligned vertically on vertical axes
-    //         // So height is sufficient in both cases.
-    //         lineExtent += QFontMetrics( titleFont ).height();
-    //     }
-    // }
-
-    // return lineExtent;
-
+    CAF_ASSERT( false && "Not implemented" );
     return 100;
 }
 
@@ -834,20 +785,6 @@ RimViewWindow* RiuQtChartsPlotWidget::ownerViewWindow() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-// void RiuQtChartsPlotWidget::recalculateAxisExtents( RiaDefines::PlotAxis axis )
-// {
-//     // QwtPlot::Axis qwtAxis = RiuQwtPlotTools::toQwtPlotAxis( axis );
-//     // if ( qwtAxis == QwtPlot::yLeft || qwtAxis == QwtPlot::yRight )
-//     // {
-//     //     int extent = axisExtent( axis );
-//     //     m_plot->axisScaleDraw( qwtAxis )->setMinimumExtent( extent );
-//     //     setMinimumWidth( defaultMinimumWidth() + extent );
-//     // }
-// }
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RiuQtChartsPlotWidget::updateOverlayFrameLayout()
 {
     // const int spacing = 5;
@@ -939,7 +876,17 @@ bool RiuQtChartsPlotWidget::axisEnabled( RiaDefines::PlotAxis axis ) const
 //--------------------------------------------------------------------------------------------------
 void RiuQtChartsPlotWidget::setAxisMaxMinor( RiaDefines::PlotAxis axis, int maxMinor )
 {
-    // m_plot->setAxisMaxMinor( RiuQwtPlotTools::toQwtPlotAxis( axis ), maxMinor );
+    QAbstractAxis* ax        = plotAxis( axis );
+    QValueAxis*    valueAxis = dynamic_cast<QValueAxis*>( ax );
+    if ( valueAxis )
+    {
+        valueAxis->setTickCount( maxMinor );
+    }
+    else
+    {
+        QDateTimeAxis* dateAxis = dynamic_cast<QDateTimeAxis*>( ax );
+        if ( dateAxis ) dateAxis->setTickCount( maxMinor );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -947,7 +894,17 @@ void RiuQtChartsPlotWidget::setAxisMaxMinor( RiaDefines::PlotAxis axis, int maxM
 //--------------------------------------------------------------------------------------------------
 void RiuQtChartsPlotWidget::setAxisMaxMajor( RiaDefines::PlotAxis axis, int maxMajor )
 {
-    // m_plot->setAxisMaxMajor( RiuQwtPlotTools::toQwtPlotAxis( axis ), maxMajor );
+    QAbstractAxis* ax        = plotAxis( axis );
+    QValueAxis*    valueAxis = dynamic_cast<QValueAxis*>( ax );
+    if ( valueAxis )
+    {
+        valueAxis->setTickCount( maxMajor );
+    }
+    else
+    {
+        QDateTimeAxis* dateAxis = dynamic_cast<QDateTimeAxis*>( ax );
+        if ( dateAxis ) dateAxis->setTickCount( maxMajor );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
