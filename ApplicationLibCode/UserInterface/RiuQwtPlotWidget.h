@@ -150,7 +150,7 @@ public:
 
     void removeEventFilter() override;
 
-    void updateLegend();
+    void updateLegend() override;
     void updateAxes() override;
 
     RiuPlotCurve* createPlotCurve( const QString& title, const QColor& color ) override;
