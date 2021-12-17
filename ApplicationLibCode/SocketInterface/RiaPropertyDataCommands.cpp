@@ -468,9 +468,6 @@ public:
             socketStream >> m_bytesPerTimeStepToRead;
         }
 
-        //        std::cout << "RiaSetActiveCellProperty: " << propertyName.data() << " timeStepCount " <<
-        //        m_timeStepCountToRead << " bytesPerTimeStep " << m_bytesPerTimeStepToRead;
-
         // Create a list of all the requested timesteps
 
         m_requestedTimesteps.clear();
@@ -531,8 +528,6 @@ public:
 
     bool interpretMore( RiaSocketServer* server, QTcpSocket* currentClient ) override
     {
-        //        std::cout << "RiaSetActiveCellProperty, interpretMore: scalarIndex : " << m_currentScalarIndex;
-
         if ( m_invalidActiveCellCountDetected ) return true;
 
         // If nothing should be read, or we already have read everything, do nothing
@@ -555,9 +550,6 @@ public:
 
         size_t activeCellCountReservoir = activeCellInfo->reservoirActiveCellCount();
         size_t totalCellCount           = activeCellInfo->reservoirCellCount();
-        size_t reservoirCellResultCount = activeCellInfo->reservoirCellResultCount();
-
-        bool isCoarseningActive = reservoirCellResultCount != activeCellCountReservoir;
 
         if ( cellCountFromOctave != activeCellCountReservoir )
         {
@@ -602,17 +594,11 @@ public:
         for ( size_t tIdx = 0; tIdx < m_timeStepCountToRead; ++tIdx )
         {
             size_t tsId = m_requestedTimesteps[tIdx];
-            m_scalarResultsToAdd->at( tsId ).resize( reservoirCellResultCount, HUGE_VAL );
+            m_scalarResultsToAdd->at( tsId ).resize( activeCellCountReservoir, HUGE_VAL );
         }
 
         std::vector<double> readBuffer;
         double*             internalMatrixData = nullptr;
-
-        if ( isCoarseningActive )
-        {
-            readBuffer.resize( cellCountFromOctave, HUGE_VAL );
-            internalMatrixData = readBuffer.data();
-        }
 
         QDataStream socketStream( currentClient );
         socketStream.setVersion( riOctavePlugin::qtDataStreamVersion );
@@ -622,11 +608,7 @@ public:
         while ( ( currentClient->bytesAvailable() >= (int)m_bytesPerTimeStepToRead ) &&
                 ( m_currentTimeStepNumberToRead < m_timeStepCountToRead ) )
         {
-            if ( !isCoarseningActive )
-            {
-                internalMatrixData =
-                    m_scalarResultsToAdd->at( m_requestedTimesteps[m_currentTimeStepNumberToRead] ).data();
-            }
+            internalMatrixData = m_scalarResultsToAdd->at( m_requestedTimesteps[m_currentTimeStepNumberToRead] ).data();
 
             QStringList errorMessages;
             if ( !RiaSocketDataTransfer::readBlockDataFromSocket( currentClient,
@@ -641,22 +623,6 @@ public:
 
                 currentClient->abort();
                 return true;
-            }
-
-            // Map data from active  to result index based container ( Coarsening is active)
-            if ( isCoarseningActive )
-            {
-                size_t acIdx = 0;
-                for ( size_t gcIdx = 0; gcIdx < totalCellCount; ++gcIdx )
-                {
-                    if ( activeCellInfo->isActive( gcIdx ) )
-                    {
-                        m_scalarResultsToAdd->at(
-                            m_requestedTimesteps[m_currentTimeStepNumberToRead] )[activeCellInfo->cellResultIndex( gcIdx )] =
-                            readBuffer[acIdx];
-                        ++acIdx;
-                    }
-                }
             }
 
             ++m_currentTimeStepNumberToRead;

@@ -34,8 +34,6 @@ public:
     void   setReservoirCellCount( size_t reservoirCellCount );
     size_t reservoirCellCount() const;
     size_t reservoirActiveCellCount() const;
-    size_t reservoirCellResultCount() const;
-    bool   isCoarseningActive() const;
 
     bool   isActive( size_t reservoirCellIndex ) const;
     size_t cellResultIndex( size_t reservoirCellIndex ) const;
@@ -75,7 +73,6 @@ private:
     std::vector<size_t> m_cellIndexToResultIndex;
 
     size_t m_reservoirActiveCellCount;
-    size_t m_reservoirCellResultCount;
 
     cvf::Vec3st m_activeCellPositionMin;
     cvf::Vec3st m_activeCellPositionMax;

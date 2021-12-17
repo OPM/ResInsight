@@ -251,7 +251,7 @@ protected:
         m_resultValues = caseData->results( porosityModel )->modifiableCellScalarResult( resVarAddr, timeStepIndex );
         if ( m_resultValues->empty() )
         {
-            m_resultValues->resize( activeCellInfo->reservoirCellResultCount() );
+            m_resultValues->resize( activeCellInfo->reservoirActiveCellCount() );
         }
         m_cellCount = activeCellInfo->reservoirActiveCellCount();
     }

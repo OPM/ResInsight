@@ -25,7 +25,6 @@
 //--------------------------------------------------------------------------------------------------
 RigActiveCellInfo::RigActiveCellInfo()
     : m_reservoirActiveCellCount( 0 )
-    , m_reservoirCellResultCount( 0 )
     , m_activeCellPositionMin( cvf::Vec3d::ZERO )
     , m_activeCellPositionMax( cvf::Vec3d::ZERO )
 {
@@ -50,14 +49,6 @@ size_t RigActiveCellInfo::reservoirCellCount() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-size_t RigActiveCellInfo::reservoirCellResultCount() const
-{
-    return m_reservoirCellResultCount;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 bool RigActiveCellInfo::isActive( size_t reservoirCellIndex ) const
 {
     if ( m_cellIndexToResultIndex.size() == 0 )
@@ -75,11 +66,6 @@ bool RigActiveCellInfo::isActive( size_t reservoirCellIndex ) const
 //--------------------------------------------------------------------------------------------------
 size_t RigActiveCellInfo::cellResultIndex( size_t reservoirCellIndex ) const
 {
-    if ( m_cellIndexToResultIndex.size() == 0 )
-    {
-        return reservoirCellIndex;
-    }
-
     CVF_TIGHT_ASSERT( reservoirCellIndex < m_cellIndexToResultIndex.size() );
 
     return m_cellIndexToResultIndex[reservoirCellIndex];
@@ -94,11 +80,11 @@ void RigActiveCellInfo::setCellResultIndex( size_t reservoirCellIndex, size_t re
 
     m_cellIndexToResultIndex[reservoirCellIndex] = reservoirCellResultIndex;
 
-    if ( reservoirCellResultIndex >= m_reservoirCellResultCount )
-    {
-#pragma omp critical
-        m_reservoirCellResultCount = reservoirCellResultIndex + 1;
-    }
+    //    if ( reservoirCellResultIndex >= m_reservoirActiveCellCount )
+    //    {
+    //#pragma omp critical
+    //        m_reservoirActiveCellCount = reservoirCellResultIndex + 1;
+    //    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -213,14 +199,6 @@ void RigActiveCellInfo::addLgr( size_t cellCount )
     {
         setCellResultIndex( currentReservoirCellCount + i, currentActiveCellCount + i );
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RigActiveCellInfo::isCoarseningActive() const
-{
-    return m_reservoirCellResultCount != m_reservoirActiveCellCount;
 }
 
 //--------------------------------------------------------------------------------------------------
