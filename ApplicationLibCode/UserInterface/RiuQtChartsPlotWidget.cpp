@@ -374,9 +374,8 @@ void RiuQtChartsPlotWidget::setAxisInverted( RiaDefines::PlotAxis axis, bool isI
 //--------------------------------------------------------------------------------------------------
 void RiuQtChartsPlotWidget::setAxisLabelsAndTicksEnabled( RiaDefines::PlotAxis axis, bool enableLabels, bool enableTicks )
 {
-    // m_plot->axisScaleDraw( RiuQwtPlotTools::toQwtPlotAxis( axis ) )->enableComponent( QwtAbstractScaleDraw::Ticks,
-    // enableTicks ); m_plot->axisScaleDraw( RiuQwtPlotTools::toQwtPlotAxis( axis ) )->enableComponent(
-    // QwtAbstractScaleDraw::Labels, enableLabels ); recalculateAxisExtents( axis );
+    plotAxis( axis )->setLabelsVisible( enableLabels );
+    plotAxis( axis )->setGridLineVisible( enableTicks );
 }
 
 //--------------------------------------------------------------------------------------------------
