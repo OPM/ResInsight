@@ -20,6 +20,7 @@
 #include "RivReservoirFaultsPartMgr.h"
 
 #include "RigMainGrid.h"
+#include "RigNNCData.h"
 
 #include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"

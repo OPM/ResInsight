@@ -25,6 +25,7 @@
 #include "RigEclipseCaseData.h"
 #include "RigMainGrid.h"
 #include "RigSimWellData.h"
+#include "RigNNCData.h"
 
 /* rand example: guess the number */
 #include "RigWellResultPoint.h"
