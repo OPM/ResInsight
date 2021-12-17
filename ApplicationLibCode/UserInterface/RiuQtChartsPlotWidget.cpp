@@ -85,6 +85,16 @@ RiuQtChartsPlotWidget::RiuQtChartsPlotWidget( RimPlot* plotDefinition, QWidget* 
     chart->addAxis( axisRight, Qt::AlignRight );
     m_axes[RiaDefines::PlotAxis::PLOT_AXIS_RIGHT] = axisRight;
 
+    enableAxis( RiaDefines::PlotAxis::PLOT_AXIS_LEFT, true );
+    enableAxis( RiaDefines::PlotAxis::PLOT_AXIS_RIGHT, false );
+    enableAxis( RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM, true );
+    enableAxis( RiaDefines::PlotAxis::PLOT_AXIS_TOP, false );
+
+    setAxisAutoScale( RiaDefines::PlotAxis::PLOT_AXIS_LEFT, true );
+    setAxisAutoScale( RiaDefines::PlotAxis::PLOT_AXIS_RIGHT, false );
+    setAxisAutoScale( RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM, true );
+    setAxisAutoScale( RiaDefines::PlotAxis::PLOT_AXIS_TOP, false );
+
     m_viewer->setRubberBand( QChartView::RectangleRubberBand );
 
     setSizePolicy( QSizePolicy::Preferred, QSizePolicy::Preferred );
@@ -854,9 +864,8 @@ void RiuQtChartsPlotWidget::replot()
 //--------------------------------------------------------------------------------------------------
 void RiuQtChartsPlotWidget::enableAxis( RiaDefines::PlotAxis axis, bool isEnabled )
 {
-    cvf::Trace::show( "RiuQtChartsPlotWidget::enableAxis" );
-
-    //    m_plot->enableAxis( RiuQwtPlotTools::toQwtPlotAxis( axis ), isEnabled );
+    m_axesEnabled[axis] = isEnabled;
+    plotAxis( axis )->setVisible( isEnabled );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -864,10 +873,11 @@ void RiuQtChartsPlotWidget::enableAxis( RiaDefines::PlotAxis axis, bool isEnable
 //--------------------------------------------------------------------------------------------------
 bool RiuQtChartsPlotWidget::axisEnabled( RiaDefines::PlotAxis axis ) const
 {
-    cvf::Trace::show( "RiuQtChartsPlotWidget::axisEnabled" );
-
-    return true;
-    // return m_plot->axisEnabled( RiuQwtPlotTools::toQwtPlotAxis( axis ) );
+    auto it = m_axesEnabled.find( axis );
+    if ( it != m_axesEnabled.end() )
+        return it->second;
+    else
+        return false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -920,11 +930,10 @@ void RiuQtChartsPlotWidget::removeEventFilter()
 //--------------------------------------------------------------------------------------------------
 void RiuQtChartsPlotWidget::setAxisAutoScale( RiaDefines::PlotAxis axis, bool autoScale )
 {
-    cvf::Trace::show( "RiuQtChartsPlotWidget::setAxisAutoScale" );
+    m_axesAutoScale[axis] = autoScale;
 
     if ( autoScale )
     {
-        // m_plot->setAxisAutoScale( RiuQwtPlotTools::toQwtPlotAxis( axis ), autoScale );
         rescaleAxis( axis );
     }
 }
@@ -1135,6 +1144,8 @@ void RiuQtChartsPlotWidget::setAxis( RiaDefines::PlotAxis axis, QtCharts::QAbstr
 //--------------------------------------------------------------------------------------------------
 void RiuQtChartsPlotWidget::rescaleAxis( RiaDefines::PlotAxis axis )
 {
+    if ( !m_axesAutoScale[axis] ) return;
+
     QAbstractAxis*  pAxis = plotAxis( axis );
     Qt::Orientation orr   = orientation( axis );
 
