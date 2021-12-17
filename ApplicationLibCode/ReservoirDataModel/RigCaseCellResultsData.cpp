@@ -820,7 +820,7 @@ const std::vector<double>*
                                                             QString                 resultName,
                                                             std::vector<double>&    activeCellsResultsTempContainer )
 {
-    size_t                  resultCellCount    = actCellInfo->reservoirCellResultCount();
+    size_t                  resultCellCount    = actCellInfo->reservoirActiveCellCount();
     size_t                  reservoirCellCount = actCellInfo->reservoirCellCount();
     RigEclipseResultAddress resVarAddr( RiaDefines::ResultCatType::STATIC_NATIVE, resultName );
 
@@ -2897,7 +2897,7 @@ void RigCaseCellResultsData::computeCellVolumes()
     }
     std::vector<double>& cellVolumeResults = m_cellScalarResults[cellVolIdx][0];
 
-    size_t cellResultCount = m_activeCellInfo->reservoirCellResultCount();
+    size_t cellResultCount = m_activeCellInfo->reservoirActiveCellCount();
     cellVolumeResults.resize( cellResultCount, std::numeric_limits<double>::infinity() );
 
 #pragma omp parallel for
@@ -2938,7 +2938,7 @@ void RigCaseCellResultsData::computeOilVolumes()
                                              false );
     m_cellScalarResults[oilVolIdx].resize( this->maxTimeStepCount() );
 
-    size_t cellResultCount = m_activeCellInfo->reservoirCellResultCount();
+    size_t cellResultCount = m_activeCellInfo->reservoirActiveCellCount();
     for ( size_t timeStepIdx = 0; timeStepIdx < this->maxTimeStepCount(); timeStepIdx++ )
     {
         const std::vector<double>& soilResults      = m_cellScalarResults[soilIdx][timeStepIdx];

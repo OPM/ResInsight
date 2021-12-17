@@ -46,7 +46,7 @@ RigNumberOfFloodedPoreVolumesCalculator::RigNumberOfFloodedPoreVolumesCalculator
 
     RigActiveCellInfo* actCellInfo =
         caseToApply->eclipseCaseData()->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
-    size_t resultCellCount = actCellInfo->reservoirCellResultCount();
+    size_t resultCellCount = actCellInfo->reservoirActiveCellCount();
 
     size_t timeStepCount =
         caseToApply->eclipseCaseData()->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->maxTimeStepCount();
@@ -207,7 +207,7 @@ void RigNumberOfFloodedPoreVolumesCalculator::calculate( RigMainGrid*           
     // size_t totalNumberOfCells = mainGrid->globalCellArray().size();
     RigActiveCellInfo* actCellInfo =
         caseToApply->eclipseCaseData()->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
-    size_t resultCellCount = actCellInfo->reservoirCellResultCount();
+    size_t resultCellCount = actCellInfo->reservoirActiveCellCount();
 
     caf::ProgressInfo progress( 2 * daysSinceSimulationStart.size(), "" );
 
