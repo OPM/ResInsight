@@ -216,6 +216,8 @@ private:
     QPointer<QtCharts::QChartView> m_viewer;
 
     std::map<RiaDefines::PlotAxis, QtCharts::QAbstractAxis*> m_axes;
+    std::map<RiaDefines::PlotAxis, bool>                     m_axesEnabled;
+    std::map<RiaDefines::PlotAxis, bool>                     m_axesAutoScale;
 
     std::map<const RiuPlotCurve*, QtCharts::QAbstractSeries*> m_lineSeriesMap;
     std::map<const RiuPlotCurve*, QtCharts::QAbstractSeries*> m_scatterSeriesMap;
