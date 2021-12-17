@@ -152,13 +152,6 @@ public:
 
     RiuPlotCurve* createPlotCurve( const QString& title, const QColor& color ) override;
 
-    // signals:
-    //     void plotSelected( bool toggleSelection );
-    //     void axisSelected( int axisId, bool toggleSelection );
-    //     void onKeyPressEvent( QKeyEvent* event );
-    //     void onWheelEvent( QWheelEvent* event );
-    //     void plotZoomed();
-
     QtCharts::QChart* qtChart();
 
     void attach( RiuPlotCurve*              plotCurve,
@@ -199,6 +192,14 @@ protected:
     QtCharts::QAbstractAxis* plotAxis( RiaDefines::PlotAxis axis ) const;
     Qt::Orientation          orientation( RiaDefines::PlotAxis axis ) const;
 
+signals:
+    void plotZoomed();
+    //     void plotSelected( bool toggleSelection );
+    //     void axisSelected( int axisId, bool toggleSelection );
+
+private slots:
+    void axisRangeChanged();
+
 private:
     void       selectClosestPlotItem( const QPoint& pos, bool toggleItemInSelection = false );
     static int defaultMinimumWidth();
@@ -212,11 +213,6 @@ private:
     void updateOverlayFrameLayout();
 
 private:
-    // std::map<QtChartsPlotCurve*, CurveColors> m_originalCurveColors;
-    // std::map<QtChartsPlotCurve*, double>      m_originalZValues;
-
-    // QPointer<QtChartsPlot> m_plot;
-
     QPointer<QtCharts::QChartView> m_viewer;
 
     std::map<RiaDefines::PlotAxis, QtCharts::QAbstractAxis*> m_axes;
