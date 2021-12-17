@@ -27,6 +27,7 @@
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
 #include "RigMainGrid.h"
+#include "RigNNCData.h"
 
 #include "Rim3dOverlayInfoConfig.h"
 #include "RimCellEdgeColors.h"
@@ -64,13 +65,13 @@ public:
 
         RigMainGrid* mainGrid = rimCase->eclipseCaseData()->mainGrid();
 
-        size_t connectionCount = mainGrid->nncData()->connections().size();
+        size_t connectionCount = mainGrid->nncData()->allConnections().size();
 
         socketStream << (quint64)connectionCount;
 
-        for ( size_t i = 0; i < mainGrid->nncData()->connections().size(); ++i )
+        for ( size_t i = 0; i < mainGrid->nncData()->allConnections().size(); ++i )
         {
-            RigConnection connection = mainGrid->nncData()->connections()[i];
+            RigConnection connection = mainGrid->nncData()->allConnections()[i];
 
             const RigCell& cell1 = mainGrid->globalCellArray()[connection.c1GlobIdx()];
             const RigCell& cell2 = mainGrid->globalCellArray()[connection.c2GlobIdx()];
@@ -163,7 +164,7 @@ public:
         }
 
         // then the connection count and time step count.
-        size_t connectionCount = mainGrid->nncData()->connections().size();
+        size_t connectionCount = mainGrid->nncData()->allConnections().size();
         size_t timeStepCount   = requestedTimeSteps.size();
 
         socketStream << (quint64)connectionCount;
@@ -216,7 +217,7 @@ public:
         }
 
         // connection count
-        size_t connectionCount = mainGrid->nncData()->connections().size();
+        size_t connectionCount = mainGrid->nncData()->allConnections().size();
         socketStream << (quint64)connectionCount;
 
         RiaSocketTools::writeBlockData( server,
@@ -479,7 +480,7 @@ public:
         RigNNCData* nncData = m_currentReservoir->eclipseCaseData()->mainGrid()->nncData();
 
         size_t                            connectionCountFromOctave = m_bytesPerTimeStepToRead / sizeof( double );
-        size_t                            connectionCount           = nncData->connections().size();
+        size_t                            connectionCount           = nncData->allConnections().size();
         std::vector<std::vector<double>>* resultsToAdd =
             nncData->generatedConnectionScalarResultByName( m_currentPropertyName );
 

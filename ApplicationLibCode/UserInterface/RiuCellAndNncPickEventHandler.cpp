@@ -217,7 +217,7 @@ bool RiuCellAndNncPickEventHandler::handle3dPickEvent( const Ric3dPickEvent& eve
             if ( eclipseView )
             {
                 RigMainGrid*         mainGrid = eclipseView->eclipseCase()->eclipseCaseData()->mainGrid();
-                const RigConnection& nncConn  = mainGrid->nncData()->connections()[nncIndex];
+                const RigConnection& nncConn  = mainGrid->nncData()->allConnections()[nncIndex];
 
                 mainGrid->gridAndGridLocalIdxFromGlobalCellIdx( nncConn.c1GlobIdx(), &gridLocalCellIndex );
             }
@@ -308,7 +308,7 @@ bool RiuCellAndNncPickEventHandler::handle3dPickEvent( const Ric3dPickEvent& eve
                      selectedItem->m_nncIndex == nncIndex )
                 {
                     RigMainGrid* mainGrid = eclipseView->eclipseCase()->eclipseCaseData()->mainGrid();
-                    const RigConnection& nncConn = mainGrid->nncData()->connections()[nncIndex];
+                    const RigConnection& nncConn = mainGrid->nncData()->allConnections()[nncIndex];
 
                     size_t c1LocalIdx = cvf::UNDEFINED_SIZE_T;
                     const RigGridBase* grid1 = mainGrid->gridAndGridLocalIdxFromGlobalCellIdx(nncConn.c1GlobIdx(), &c1LocalIdx);

@@ -23,6 +23,7 @@
 #include "RigEclipseCaseData.h"
 #include "RigFormationNames.h"
 #include "RigMainGrid.h"
+#include "RigNNCData.h"
 #include "RigResultAccessor.h"
 #include "RigResultAccessorFactory.h"
 #include "RigSimWellData.h"
@@ -444,9 +445,9 @@ QString RiuResultTextBuilder::nncResultText()
             RigNNCData* nncData = grid->nncData();
             CVF_ASSERT( nncData );
 
-            if ( nncData && m_nncIndex < nncData->connections().size() )
+            if ( nncData && m_nncIndex < nncData->allConnections().size() )
             {
-                const RigConnection& conn = nncData->connections()[m_nncIndex];
+                const RigConnection& conn = nncData->allConnections()[m_nncIndex];
 
                 cvf::StructGridInterface::FaceEnum face( conn.face() );
 
@@ -800,11 +801,11 @@ QString RiuResultTextBuilder::nncDetails()
             RigNNCData* nncData = grid->nncData();
             CVF_ASSERT( nncData );
 
-            if ( nncData && m_nncIndex < nncData->connections().size() )
+            if ( nncData && m_nncIndex < nncData->allConnections().size() )
             {
                 text += "-- NNC details --\n";
                 {
-                    const RigConnection&               conn = nncData->connections()[m_nncIndex];
+                    const RigConnection&               conn = nncData->allConnections()[m_nncIndex];
                     cvf::StructGridInterface::FaceEnum face( conn.face() );
 
                     // First cell of NNC

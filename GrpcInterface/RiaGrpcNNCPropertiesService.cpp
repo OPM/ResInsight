@@ -25,6 +25,7 @@
 #include "RigEclipseResultAddress.h"
 #include "RigEclipseResultInfo.h"
 #include "RigMainGrid.h"
+#include "RigNNCData.h"
 
 #include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
@@ -89,7 +90,7 @@ rips::Vec3i* createConnectionVec3i( const RigCell& cell )
 grpc::Status RiaNNCConnectionsStateHandler::assignReply( rips::NNCConnections* reply )
 {
     RigMainGrid*                  mainGrid    = m_eclipseCase->eclipseCaseData()->mainGrid();
-    const RigConnectionContainer& connections = mainGrid->nncData()->connections();
+    const RigConnectionContainer& connections = mainGrid->nncData()->allConnections();
 
     size_t       connectionCount = connections.size();
     const size_t packageSize     = RiaGrpcServiceInterface::numberOfDataUnitsInPackage( sizeof( rips::NNCConnection ) );
@@ -189,7 +190,7 @@ const std::vector<double>* getScalarResultByName( const RigNNCData*         nncD
 grpc::Status RiaNNCValuesStateHandler::assignReply( rips::NNCValues* reply )
 {
     RigMainGrid* mainGrid    = m_eclipseCase->eclipseCaseData()->mainGrid();
-    auto         connections = mainGrid->nncData()->connections();
+    auto         connections = mainGrid->nncData()->allConnections();
 
     QString                   propertyName = QString::fromStdString( m_request->property_name() );
     RigNNCData::NNCResultType propertyType = static_cast<RigNNCData::NNCResultType>( m_request->property_type() );
@@ -362,7 +363,7 @@ grpc::Status RiaNNCInputValuesStateHandler::init( const NNCValuesInputRequest* r
         m_eclipseCase->results( m_porosityModel )->ensureKnownResultLoaded( resAddr );
         nncData->setEclResultAddress( m_propertyName, resAddr );
 
-        m_cellCount = caseData->mainGrid()->nncData()->connections().size();
+        m_cellCount = caseData->mainGrid()->nncData()->allConnections().size();
 
         resultsToAdd->resize( m_cellCount, HUGE_VAL );
 

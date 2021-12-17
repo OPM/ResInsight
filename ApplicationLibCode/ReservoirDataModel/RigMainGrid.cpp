@@ -22,8 +22,10 @@
 
 #include "RiaLogging.h"
 #include "RiaResultNames.h"
+
 #include "RigActiveCellInfo.h"
 #include "RigHexIntersectionTools.h"
+#include "RigNNCData.h"
 
 #include "cvfAssert.h"
 #include "cvfBoundingBoxTree.h"
@@ -591,7 +593,7 @@ void RigMainGrid::distributeNNCsToFaults()
 {
     if ( m_faultsPrCellAcc.isNull() ) return;
 
-    const RigConnectionContainer& nncs = this->nncData()->connections();
+    const RigConnectionContainer& nncs = this->nncData()->allConnections();
     for ( size_t nncIdx = 0; nncIdx < nncs.size(); ++nncIdx )
     {
         // Find the fault for each side of the nnc

@@ -50,15 +50,17 @@ public:
 
     RigNNCData();
 
-    bool ensureConnectionDataIsProcessed();
     void setSourceDataForProcessing( RigMainGrid*             mainGrid,
                                      const RigActiveCellInfo* activeCellInfo,
                                      bool                     includeInactiveCells );
 
-    void   setNativeConnections( RigConnectionContainer& connections );
-    size_t nativeConnectionCount() const;
+    void                          setEclipseConnections( RigConnectionContainer& eclipseConnections );
+    void                          buildPolygonsForEclipseConnections();
+    size_t                        eclipseConnectionCount() const;
+    const RigConnectionContainer& eclipseConnections() const;
 
-    RigConnectionContainer& connections();
+    bool                    ensureAllConnectionDataIsProcessed();
+    RigConnectionContainer& allConnections();
 
     std::vector<double>&       makeStaticConnectionScalarResult( QString nncDataType );
     const std::vector<double>* staticConnectionScalarResult( const RigEclipseResultAddress& resVarAddr ) const;
@@ -95,20 +97,20 @@ private:
     const QString getNNCDataTypeFromScalarResultIndex( const RigEclipseResultAddress& resVarAddr ) const;
     bool          isNative( QString nncDataType ) const;
 
-    void processNativeConnections( const RigMainGrid& mainGrid );
-    void computeCompleteSetOfNncs( const RigMainGrid*       mainGrid,
-                                   const RigActiveCellInfo* activeCellInfo,
-                                   bool                     includeInactiveCells );
+    void computeAdditionalNncs( const RigMainGrid*       mainGrid,
+                                const RigActiveCellInfo* activeCellInfo,
+                                bool                     includeInactiveCells );
 
     size_t connectionsWithNoCommonArea( QStringList& connectionTextFirstItems, size_t maxItemCount );
 
 private:
     RigConnectionContainer                              m_connections;
-    size_t                                              m_nativeConnectionCount;
+    size_t                                              m_eclipseConnectionCount;
     std::map<QString, std::vector<std::vector<double>>> m_connectionResults;
     std::map<RigEclipseResultAddress, QString>          m_resultAddrToNNCDataType;
 
-    bool                     m_connectionsAreProcessed;
+    bool                     m_havePolygonsForEclipseConnections;
+    bool                     m_haveGeneratedConnections;
     RigMainGrid*             m_mainGrid;
     const RigActiveCellInfo* m_activeCellInfo;
     bool                     m_computeNncForInactiveCells;

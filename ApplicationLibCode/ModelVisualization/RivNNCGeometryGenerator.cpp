@@ -76,7 +76,7 @@ void RivNNCGeometryGenerator::computeArrays()
 
     const cvf::Vec3f offset( m_offset );
     long long        numConnections =
-        static_cast<long long>( m_nncIndexes.isNull() ? m_nncData->connections().size() : m_nncIndexes->size() );
+        static_cast<long long>( m_nncIndexes.isNull() ? m_nncData->allConnections().size() : m_nncIndexes->size() );
 
     bool                  isVisibilityCalcActive = m_cellVisibility.notNull() && m_grid.notNull();
     std::vector<RigCell>* allCells               = nullptr;
@@ -90,12 +90,12 @@ void RivNNCGeometryGenerator::computeArrays()
     {
         size_t conIdx = m_nncIndexes.isNull() ? nIdx : ( *m_nncIndexes )[nIdx];
 
-        if ( !m_includeAllanDiagramGeometry && conIdx >= m_nncData->nativeConnectionCount() )
+        if ( !m_includeAllanDiagramGeometry && conIdx >= m_nncData->eclipseConnectionCount() )
         {
             continue;
         }
 
-        const RigConnection& conn = m_nncData->connections()[conIdx];
+        const RigConnection& conn = m_nncData->allConnections()[conIdx];
 
         if ( conn.polygon().size() )
         {

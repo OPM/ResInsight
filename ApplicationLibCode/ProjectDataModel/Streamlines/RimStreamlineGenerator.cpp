@@ -24,6 +24,8 @@
 #include "RimStreamline.h"
 #include "RimStreamlineDataAccess.h"
 
+#include <cmath>
+
 //--------------------------------------------------------------------------------------------------
 /// Helper class for prioritizing streamline seed points
 //--------------------------------------------------------------------------------------------------

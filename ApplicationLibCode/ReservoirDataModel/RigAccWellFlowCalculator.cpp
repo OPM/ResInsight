@@ -25,6 +25,8 @@
 #include "RigSimulationWellCoordsAndMD.h"
 #include "RigWellResultPoint.h"
 
+#include <cmath>
+
 //==================================================================================================
 ///
 ///
