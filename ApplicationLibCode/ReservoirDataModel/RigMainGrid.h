@@ -23,7 +23,6 @@
 #include "RigCell.h"
 #include "RigGridBase.h"
 #include "RigLocalGrid.h"
-#include "RigNNCData.h"
 
 #include "cvfBoundingBox.h"
 #include "cvfCollection.h"
@@ -31,6 +30,7 @@
 #include <vector>
 
 class RigActiveCellInfo;
+class RigNNCData;
 
 namespace cvf
 {
