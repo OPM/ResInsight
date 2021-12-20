@@ -43,12 +43,19 @@
 RiuQwtPlotCurve::RiuQwtPlotCurve( const QString& title )
     : RiuPlotCurve()
     , QwtPlotCurve( title )
+    , m_showErrorBars( false )
 {
     this->setLegendAttribute( QwtPlotCurve::LegendShowLine, true );
     this->setLegendAttribute( QwtPlotCurve::LegendShowSymbol, true );
     this->setLegendAttribute( QwtPlotCurve::LegendShowBrush, true );
 
     this->setRenderHint( QwtPlotItem::RenderAntialiased, true );
+
+    m_qwtCurveErrorBars = new QwtPlotIntervalCurve();
+    m_qwtCurveErrorBars->setStyle( QwtPlotIntervalCurve::CurveStyle::NoCurve );
+    m_qwtCurveErrorBars->setSymbol( new QwtIntervalSymbol( QwtIntervalSymbol::Bar ) );
+    m_qwtCurveErrorBars->setItemAttribute( QwtPlotItem::Legend, false );
+    m_qwtCurveErrorBars->setZ( RiuQwtPlotCurveDefines::zDepthForIndex( RiuQwtPlotCurveDefines::ZIndex::Z_ERROR_BARS ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -56,6 +63,12 @@ RiuQwtPlotCurve::RiuQwtPlotCurve( const QString& title )
 //--------------------------------------------------------------------------------------------------
 RiuQwtPlotCurve::~RiuQwtPlotCurve()
 {
+    if ( m_qwtCurveErrorBars )
+    {
+        m_qwtCurveErrorBars->detach();
+        delete m_qwtCurveErrorBars;
+        m_qwtCurveErrorBars = nullptr;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -274,6 +287,11 @@ void RiuQwtPlotCurve::attachToPlot( RiuPlotWidget* plotWidget )
 {
     RiuQwtPlotWidget* qwtPlotWidget = dynamic_cast<RiuQwtPlotWidget*>( plotWidget );
     attach( qwtPlotWidget->qwtPlot() );
+
+    if ( m_showErrorBars )
+    {
+        m_qwtCurveErrorBars->attach( qwtPlotWidget->qwtPlot() );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -282,6 +300,7 @@ void RiuQwtPlotCurve::attachToPlot( RiuPlotWidget* plotWidget )
 void RiuQwtPlotCurve::detach()
 {
     QwtPlotCurve::detach();
+    m_qwtCurveErrorBars->detach();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -311,8 +330,25 @@ void RiuQwtPlotCurve::setZ( int z )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RiuQwtPlotCurve::updateErrorBarsAppearance( bool showErrorBars, const QColor& curveColor )
+{
+    m_showErrorBars = showErrorBars;
+    if ( m_qwtCurveErrorBars )
+    {
+        QwtIntervalSymbol* newSymbol = new QwtIntervalSymbol( QwtIntervalSymbol::Bar );
+        newSymbol->setPen( QPen( curveColor ) );
+        m_qwtCurveErrorBars->setSymbol( newSymbol );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiuQwtPlotCurve::clearErrorBars()
 {
+    m_showErrorBars = false;
+
+    m_qwtCurveErrorBars->setSamples( nullptr );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -358,7 +394,58 @@ void RiuQwtPlotCurve::setSamplesFromXYErrorValues( const std::vector<double>&   
                                                    bool                         keepOnlyPositiveValues,
                                                    RiaCurveDataTools::ErrorAxis errorAxis )
 {
-    // TODO: move code here.
+    CVF_ASSERT( xValues.size() == yValues.size() );
+    CVF_ASSERT( xValues.size() == errorValues.size() );
+
+    auto intervalsOfValidValues = RiaCurveDataTools::calculateIntervalsOfValidValues( yValues, keepOnlyPositiveValues );
+    std::vector<double> filteredYValues;
+    std::vector<double> filteredXValues;
+
+    RiaCurveDataTools::getValuesByIntervals( yValues, intervalsOfValidValues, &filteredYValues );
+    RiaCurveDataTools::getValuesByIntervals( xValues, intervalsOfValidValues, &filteredXValues );
+
+    std::vector<double> filteredErrorValues;
+    RiaCurveDataTools::getValuesByIntervals( errorValues, intervalsOfValidValues, &filteredErrorValues );
+
+    QVector<QwtIntervalSample> errorIntervals;
+
+    errorIntervals.reserve( static_cast<int>( filteredXValues.size() ) );
+
+    for ( size_t i = 0; i < filteredXValues.size(); i++ )
+    {
+        if ( !std::isinf( filteredYValues[i] ) && !std::isinf( filteredErrorValues[i] ) )
+        {
+            if ( errorAxis == RiaCurveDataTools::ErrorAxis::ERROR_ALONG_Y_AXIS )
+            {
+                errorIntervals << QwtIntervalSample( filteredXValues[i],
+                                                     filteredYValues[i] - filteredErrorValues[i],
+                                                     filteredYValues[i] + filteredErrorValues[i] );
+            }
+            else
+            {
+                errorIntervals << QwtIntervalSample( filteredYValues[i],
+                                                     filteredXValues[i] - filteredErrorValues[i],
+                                                     filteredXValues[i] + filteredErrorValues[i] );
+            }
+        }
+    }
+
+    setSamplesInPlot( filteredXValues, filteredYValues, static_cast<int>( filteredXValues.size() ) );
+
+    setLineSegmentStartStopIndices( intervalsOfValidValues );
+
+    if ( m_qwtCurveErrorBars )
+    {
+        m_qwtCurveErrorBars->setSamples( errorIntervals );
+        if ( errorAxis == RiaCurveDataTools::ErrorAxis::ERROR_ALONG_Y_AXIS )
+        {
+            m_qwtCurveErrorBars->setOrientation( Qt::Vertical );
+        }
+        else
+        {
+            m_qwtCurveErrorBars->setOrientation( Qt::Horizontal );
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

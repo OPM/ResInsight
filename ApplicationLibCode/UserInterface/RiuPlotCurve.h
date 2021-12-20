@@ -108,7 +108,8 @@ public:
 
     virtual void setZ( int z ) = 0;
 
-    virtual void clearErrorBars() = 0;
+    virtual void updateErrorBarsAppearance( bool showErrorBars, const QColor& curveColor ) = 0;
+    virtual void clearErrorBars()                                                          = 0;
 
     virtual int                       numSamples() const        = 0;
     virtual std::pair<double, double> sample( int index ) const = 0;

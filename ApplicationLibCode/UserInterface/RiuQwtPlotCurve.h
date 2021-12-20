@@ -54,6 +54,7 @@ public:
 
     void setZ( int z ) override;
 
+    void updateErrorBarsAppearance( bool showErrorBars, const QColor& curveColor ) override;
     void clearErrorBars() override;
 
     int                       numSamples() const override;
@@ -93,4 +94,7 @@ protected:
                       int                to ) const override;
 
     void setSamplesInPlot( const std::vector<double>&, const std::vector<double>&, int ) override;
+
+    QwtPlotIntervalCurve* m_qwtCurveErrorBars;
+    bool                  m_showErrorBars;
 };
