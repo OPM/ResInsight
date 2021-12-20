@@ -134,6 +134,10 @@ void RiuPlotMainWindow::initializeGuiNewProjectLoaded()
     auto sumPlotManager = dynamic_cast<RimSummaryPlotManager*>( m_summaryPlotManager.get() );
     if ( sumPlotManager )
     {
+        auto* obj = RiaSummaryTools::summaryCaseMainCollection();
+        obj->dataSourceHasChanged.connect( sumPlotManager, &RimSummaryPlotManager::onSummaryDataSourceHasChanged );
+
+        sumPlotManager->resetDataSourceSelection();
         sumPlotManager->updateConnectedEditors();
     }
 

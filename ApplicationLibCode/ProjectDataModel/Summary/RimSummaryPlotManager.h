@@ -42,6 +42,8 @@ public:
     RimSummaryPlotManager();
 
     void setFocusToFilterText();
+    void resetDataSourceSelection();
+    void onSummaryDataSourceHasChanged( const caf::SignalEmitter* emitter );
 
 private:
     void appendCurves();
@@ -66,6 +68,7 @@ private:
     void updateCurveCandidates();
 
     std::vector<std::pair<QString, caf::PdmObject*>> findDataSourceCandidates() const;
+    std::vector<QString>                             dataSourceDisplayNames() const;
 
     std::set<RifEclipseSummaryAddress> computeFilteredAddresses( const QStringList&                        textFilters,
                                                                  const std::set<RifEclipseSummaryAddress>& sourceAddresses );
@@ -78,8 +81,11 @@ private:
     void appendCurvesToPlot( RimSummaryPlot* destinationPlot );
     void updateFilterTextHistory();
     void updateProjectTreeAndRefresUi();
+    void updateSelectionFromUiChange();
 
     void splitIntoAddressAndDataSourceFilters( QStringList& addressFilters, QStringList& dataSourceFilters ) const;
+    QStringList extractDataSourceFilters() const;
+
     void findFilteredSummaryCasesAndEnsembles( std::vector<RimSummaryCase*>&           summaryCases,
                                                std::vector<RimSummaryCaseCollection*>& ensembles ) const;
 
@@ -106,5 +112,5 @@ private:
     caf::PdmField<QString> m_labelA;
     caf::PdmField<QString> m_labelB;
 
-    std::set<QString> m_previousDataSourceSelection;
+    QStringList m_previousDataSourceText;
 };

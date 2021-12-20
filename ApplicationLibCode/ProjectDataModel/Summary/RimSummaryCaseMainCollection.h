@@ -19,6 +19,7 @@
 
 #include "cafPdmChildArrayField.h"
 #include "cafPdmObject.h"
+#include "cafSignal.h"
 
 #include <functional>
 #include <vector>
@@ -36,6 +37,9 @@ class RifSummaryCaseFileResultInfo;
 class RimSummaryCaseMainCollection : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
+
+public:
+    caf::Signal<> dataSourceHasChanged;
 
 public:
     RimSummaryCaseMainCollection();

@@ -116,6 +116,14 @@ void RimSummaryPlotManager::setFocusToFilterText()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimSummaryPlotManager::resetDataSourceSelection()
+{
+    m_previousDataSourceText.clear();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimSummaryPlotManager::onSelectionManagerSelectionChanged( const std::set<int>& changedSelectionLevels )
 {
     updateUiFromSelection();
@@ -128,8 +136,10 @@ void RimSummaryPlotManager::fieldChangedByUi( const caf::PdmFieldHandle* changed
                                               const QVariant&            oldValue,
                                               const QVariant&            newValue )
 {
-    if ( changedField == &m_summaryPlot || changedField == &m_filterText || changedField == &m_includeDiffCurves )
+    if ( changedField == &m_summaryPlot || changedField == &m_filterText || changedField == &m_includeDiffCurves ||
+         changedField == &m_selectedDataSources )
     {
+        updateSelectionFromUiChange();
         updateCurveCandidates();
     }
     else if ( changedField == &m_pushButtonReplace )
@@ -175,32 +185,12 @@ QList<caf::PdmOptionItemInfo>
     }
     else if ( fieldNeedingOptions == &m_selectedDataSources )
     {
-        auto [summaryCases, ensembles] = allDataSourcesInProject();
-
-        std::vector<QString> dataSourceDisplayNames;
-
-        bool resetCheckedItems = false;
-
-        std::vector<std::pair<QString, PdmObject*>> dataSources = findDataSourceCandidates();
-        for ( const auto& dataSource : dataSources )
+        for ( const auto& displayName : dataSourceDisplayNames() )
         {
-            auto displayName = dataSource.first;
-            dataSourceDisplayNames.push_back( displayName );
             options.push_back( caf::PdmOptionItemInfo( displayName, displayName ) );
-
-            if ( m_previousDataSourceSelection.count( displayName ) == 0 ) resetCheckedItems = true;
         }
 
-        if ( m_previousDataSourceSelection.size() != dataSourceDisplayNames.size() ) resetCheckedItems = true;
-
-        if ( resetCheckedItems )
-        {
-            // By default select all available data sources
-            m_selectedDataSources = dataSourceDisplayNames;
-        }
-
-        m_previousDataSourceSelection.clear();
-        m_previousDataSourceSelection.insert( dataSourceDisplayNames.begin(), dataSourceDisplayNames.end() );
+        updateSelectionFromUiChange();
     }
 
     return options;
@@ -230,12 +220,7 @@ std::vector<std::pair<QString, caf::PdmObject*>> RimSummaryPlotManager::findData
 {
     std::vector<std::pair<QString, PdmObject*>> candidates;
 
-    QStringList addressFilters;
-    QStringList dataSourceFilters;
-    splitIntoAddressAndDataSourceFilters( addressFilters, dataSourceFilters );
-
-    // If no filter on data source is specified, use wildcard to match all
-    if ( dataSourceFilters.empty() ) dataSourceFilters.push_back( "*" );
+    QStringList dataSourceFilters = extractDataSourceFilters();
 
     auto [summaryCases, ensembles] = allDataSourcesInProject();
 
@@ -286,6 +271,22 @@ std::vector<std::pair<QString, caf::PdmObject*>> RimSummaryPlotManager::findData
     }
 
     return candidates;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<QString> RimSummaryPlotManager::dataSourceDisplayNames() const
+{
+    std::vector<QString>                        displayNames;
+    std::vector<std::pair<QString, PdmObject*>> dataSources = findDataSourceCandidates();
+    for ( const auto& dataSource : dataSources )
+    {
+        auto displayName = dataSource.first;
+        displayNames.push_back( displayName );
+    }
+
+    return displayNames;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -500,6 +501,7 @@ void RimSummaryPlotManager::updateUiFromSelection()
     {
         m_summaryPlot = summaryPlot;
 
+        updateSelectionFromUiChange();
         updateCurveCandidates();
     }
 
@@ -508,8 +510,7 @@ void RimSummaryPlotManager::updateUiFromSelection()
         m_summaryPlot = nullptr;
 
         std::vector<QString> tmp;
-        m_addressCandidates   = tmp;
-        m_selectedDataSources = tmp;
+        m_addressCandidates = tmp;
     }
 
     updateConnectedEditors();
@@ -588,6 +589,20 @@ void RimSummaryPlotManager::updateProjectTreeAndRefresUi()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimSummaryPlotManager::updateSelectionFromUiChange()
+{
+    QStringList dataSourceFilters = extractDataSourceFilters();
+    if ( m_previousDataSourceText != dataSourceFilters )
+    {
+        m_selectedDataSources = dataSourceDisplayNames();
+
+        m_previousDataSourceText = dataSourceFilters;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimSummaryPlotManager::setFocusToEditorWidget( caf::PdmUiFieldHandle* uiFieldHandle )
 {
     CAF_ASSERT( uiFieldHandle );
@@ -638,6 +653,21 @@ void RimSummaryPlotManager::splitIntoAddressAndDataSourceFilters( QStringList& a
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QStringList RimSummaryPlotManager::extractDataSourceFilters() const
+{
+    QStringList addressFilters;
+    QStringList dataSourceFilters;
+    splitIntoAddressAndDataSourceFilters( addressFilters, dataSourceFilters );
+
+    // If no filter on data source is specified, use wildcard to match all
+    if ( dataSourceFilters.empty() ) dataSourceFilters.push_back( "*" );
+
+    return dataSourceFilters;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimSummaryPlotManager::findFilteredSummaryCasesAndEnsembles( std::vector<RimSummaryCase*>&           summaryCases,
                                                                   std::vector<RimSummaryCaseCollection*>& ensembles ) const
 {
@@ -670,4 +700,13 @@ void RimSummaryPlotManager::findFilteredSummaryCasesAndEnsembles( std::vector<Ri
 QString RimSummaryPlotManager::curveFilterRecentlyUsedRegistryKey()
 {
     return "SummaryPlotManagerCurveFilterStrings";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlotManager::onSummaryDataSourceHasChanged( const caf::SignalEmitter* emitter )
+{
+    resetDataSourceSelection();
+    updateSelectionFromUiChange();
 }
