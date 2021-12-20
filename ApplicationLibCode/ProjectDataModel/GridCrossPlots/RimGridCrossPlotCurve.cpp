@@ -102,11 +102,10 @@ void RimGridCrossPlotCurve::determineLegendIcon()
 {
     if ( !m_plotCurve ) return;
 
-    // TODO: fix this!!
-    // RimGridCrossPlot* plot = nullptr;
-    // firstAncestorOrThisOfTypeAsserted( plot );
-    // int fontSize = plot->legendFontSize();
-    // m_plotCurve->setLegendIconSize( QSize( fontSize, fontSize ) );
+    RimGridCrossPlot* plot = nullptr;
+    firstAncestorOrThisOfTypeAsserted( plot );
+    int fontSize = plot->legendFontSize();
+    m_plotCurve->setLegendIconSize( QSize( fontSize, fontSize ) );
 }
 
 //--------------------------------------------------------------------------------------------------
