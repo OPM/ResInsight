@@ -49,6 +49,7 @@ public:
     void setBrush( const QBrush& brush ) override;
 
     // QtChartsGraphic legendIcon( int index, const QSizeF& size ) const override;
+    void setLegendIconSize( const QSize& iconSize ) override;
 
     void attachToPlot( RiuPlotWidget* plotWidget ) override;
     void showInPlot() override;

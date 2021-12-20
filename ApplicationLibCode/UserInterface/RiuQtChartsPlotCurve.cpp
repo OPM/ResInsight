@@ -365,3 +365,10 @@ RiuPlotCurveSymbol* RiuQtChartsPlotCurve::createSymbol( RiuPlotCurveSymbol::Poin
 {
     return new RiuQtChartsPlotCurveSymbol( symbol );
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuQtChartsPlotCurve::setLegendIconSize( const QSize& iconSize )
+{
+}
