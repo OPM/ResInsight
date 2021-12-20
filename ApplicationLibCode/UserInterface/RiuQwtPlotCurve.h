@@ -45,6 +45,8 @@ public:
 
     void setBrush( const QBrush& brush ) override;
 
+    void setLegendIconSize( const QSize& iconSize ) override;
+
     QwtGraphic legendIcon( int index, const QSizeF& size ) const override;
     void       setVisibleInLegend( bool isVisibleInLegend ) override;
 
