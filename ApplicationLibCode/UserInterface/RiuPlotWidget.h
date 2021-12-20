@@ -145,23 +145,20 @@ public:
 
     int axisExtent( RiaDefines::PlotAxis axis ) const;
 
-    bool   frameIsInFrontOfThis( const QRect& frameGeometry );
     QPoint dragStartPosition() const;
 
     void         scheduleReplot();
     virtual void replot() = 0;
 
-    void addOverlayFrame( RiuDraggableOverlayFrame* overlayWidget );
-    void removeOverlayFrame( RiuDraggableOverlayFrame* overlayWidget );
-    void updateLayout();
+    void         addOverlayFrame( RiuDraggableOverlayFrame* overlayWidget );
+    void         removeOverlayFrame( RiuDraggableOverlayFrame* overlayWidget );
+    virtual void updateLayout() = 0;
 
     virtual void renderTo( QPainter* painter, const QRect& targetRect, double scaling ) = 0;
     virtual void renderTo( QPaintDevice* painter, const QRect& targetRect )             = 0;
     int          overlayMargins() const;
 
     RimViewWindow* ownerViewWindow() const override;
-
-    // QwtPlot* qwtPlot() const;
 
     virtual void removeEventFilter() = 0;
 
@@ -172,6 +169,9 @@ public:
     virtual const QColor& backgroundColor() const = 0;
 
 protected:
+    virtual QWidget* getParentForOverlay() const = 0;
+    void             updateOverlayFrameLayout();
+
     static int defaultMinimumWidth();
 
     caf::PdmPointer<RimPlot>                m_plotDefinition;

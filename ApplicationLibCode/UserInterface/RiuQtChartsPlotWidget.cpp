@@ -483,38 +483,6 @@ int RiuQtChartsPlotWidget::axisExtent( RiaDefines::PlotAxis axis ) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RiuQtChartsPlotWidget::frameIsInFrontOfThis( const QRect& frameGeometry )
-{
-    // QRect ownGeometry = m_plot->canvas()->geometry();
-    // ownGeometry.translate( m_plot->geometry().topLeft() );
-
-    // if ( frameGeometry.bottom() < ownGeometry.center().y() )
-    // {
-    //     return true;
-    // }
-    // else if ( frameGeometry.left() < ownGeometry.left() && frameGeometry.top() < ownGeometry.center().y() )
-    // {
-    //     return true;
-    // }
-    // else
-    // {
-    //     QRect intersection = ownGeometry.intersected( frameGeometry );
-
-    //     double ownArea          = double( ownGeometry.height() ) * double( ownGeometry.width() );
-    //     double frameArea        = double( frameGeometry.height() ) * double( frameGeometry.width() );
-    //     double intersectionArea = double( intersection.height() ) * double( intersection.width() );
-    //     if ( intersectionArea > 0.8 * std::min( ownArea, frameArea ) )
-    //     {
-    //         return true;
-    //     }
-    // }
-
-    return false;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 QPoint RiuQtChartsPlotWidget::dragStartPosition() const
 {
     return m_clickPosition;
@@ -529,36 +497,11 @@ void RiuQtChartsPlotWidget::scheduleReplot()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Adds an overlay frame. The overlay frame becomes the responsibility of the plot widget
-//--------------------------------------------------------------------------------------------------
-void RiuQtChartsPlotWidget::addOverlayFrame( RiuDraggableOverlayFrame* overlayFrame )
-{
-    // if ( std::find( m_overlayFrames.begin(), m_overlayFrames.end(), overlayFrame ) == m_overlayFrames.end() )
-    // {
-    //     overlayFrame->setParent( m_plot->canvas() );
-    //     m_overlayFrames.push_back( overlayFrame );
-    //     updateLayout();
-    // }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// Remove the overlay widget. The frame becomes the responsibility of the caller
-//--------------------------------------------------------------------------------------------------
-void RiuQtChartsPlotWidget::removeOverlayFrame( RiuDraggableOverlayFrame* overlayFrame ){
-    // CAF_ASSERT( overlayFrame );
-
-    // overlayFrame->hide();
-    // overlayFrame->setParent( nullptr );
-    // m_overlayFrames.removeOne( overlayFrame );
-};
-
-//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 void RiuQtChartsPlotWidget::updateLayout()
 {
-    // m_plot->updateLayout();
-    // updateOverlayFrameLayout();
+    updateOverlayFrameLayout();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -566,7 +509,7 @@ void RiuQtChartsPlotWidget::updateLayout()
 //--------------------------------------------------------------------------------------------------
 void RiuQtChartsPlotWidget::updateLegend()
 {
-    // m_plot->updateLegend();
+    qtChart()->legend()->update();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -769,6 +712,14 @@ int RiuQtChartsPlotWidget::overlayMargins() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QWidget* RiuQtChartsPlotWidget::getParentForOverlay() const
+{
+    return m_viewer;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RimViewWindow* RiuQtChartsPlotWidget::ownerViewWindow() const
 {
     return m_plotDefinition;
@@ -789,58 +740,6 @@ RimViewWindow* RiuQtChartsPlotWidget::ownerViewWindow() const
 //     // }
 //     // emit axisSelected( axisId, toggleItemInSelection );
 // }
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiuQtChartsPlotWidget::updateOverlayFrameLayout()
-{
-    // const int spacing = 5;
-
-    // int xpos                 = spacing;
-    // int ypos                 = spacing;
-    // int widthOfCurrentColumn = 0;
-
-    // QSize canvasSize = m_plot->canvas()->size();
-    // QSize maxFrameSize( canvasSize.width() - 2 * m_overlayMargins, canvasSize.height() - 2 * m_overlayMargins );
-
-    // for ( RiuDraggableOverlayFrame* frame : m_overlayFrames )
-    // {
-    //     if ( frame )
-    //     {
-    //         QSize minFrameSize     = frame->minimumSizeHint();
-    //         QSize desiredFrameSize = frame->sizeHint();
-
-    //         int width  = std::min( std::max( minFrameSize.width(), desiredFrameSize.width() ), maxFrameSize.width()
-    //         ); int height = std::min( std::max( minFrameSize.height(), desiredFrameSize.height() ),
-    //         maxFrameSize.height() );
-
-    //         frame->resize( width, height );
-
-    //         if ( frame->anchorCorner() == RiuDraggableOverlayFrame::AnchorCorner::TopLeft )
-    //         {
-    //             if ( ypos + frame->height() + spacing > m_plot->canvas()->height() && widthOfCurrentColumn > 0 )
-    //             {
-    //                 xpos += spacing + widthOfCurrentColumn;
-    //                 ypos                 = spacing;
-    //                 widthOfCurrentColumn = 0;
-    //             }
-    //             frame->move( xpos, ypos );
-    //             ypos += frame->height() + spacing;
-    //             widthOfCurrentColumn = std::max( widthOfCurrentColumn, frame->width() );
-    //         }
-    //         else if ( frame->anchorCorner() == RiuDraggableOverlayFrame::AnchorCorner::TopRight )
-    //         {
-    //             QRect  frameRect      = frame->frameGeometry();
-    //             QRect  canvasRect     = m_plot->canvas()->rect();
-    //             QPoint canvasTopRight = canvasRect.topRight();
-    //             frameRect.moveTopRight( QPoint( canvasTopRight.x() - spacing, canvasTopRight.y() + spacing ) );
-    //             frame->move( frameRect.topLeft() );
-    //         }
-    //         frame->show();
-    //     }
-    // }
-}
 
 //--------------------------------------------------------------------------------------------------
 ///

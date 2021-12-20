@@ -35,7 +35,6 @@
 
 class RiaPlotWindowRedrawScheduler;
 class RimPlot;
-class RiuDraggableOverlayFrame;
 class RiuPlotCurve;
 
 class QEvent;
@@ -130,14 +129,11 @@ public:
 
     int axisExtent( RiaDefines::PlotAxis axis ) const;
 
-    bool   frameIsInFrontOfThis( const QRect& frameGeometry );
     QPoint dragStartPosition() const;
 
     void scheduleReplot();
 
-    void addOverlayFrame( RiuDraggableOverlayFrame* overlayWidget );
-    void removeOverlayFrame( RiuDraggableOverlayFrame* overlayWidget );
-    void updateLayout();
+    void updateLayout() override;
 
     void renderTo( QPainter* painter, const QRect& targetRect, double scaling ) override;
     void renderTo( QPaintDevice* painter, const QRect& targetRect ) override;
@@ -192,6 +188,8 @@ protected:
     QtCharts::QAbstractAxis* plotAxis( RiaDefines::PlotAxis axis ) const;
     Qt::Orientation          orientation( RiaDefines::PlotAxis axis ) const;
 
+    QWidget* getParentForOverlay() const override;
+
 signals:
     void plotZoomed();
     //     void plotSelected( bool toggleSelection );
@@ -209,8 +207,6 @@ private:
     // void resetPlotItemHighlighting();
     // void onAxisSelected( QtChartsScaleWidget* scale, bool toggleItemInSelection );
     // void recalculateAxisExtents( RiaDefines::PlotAxis axis );
-
-    void updateOverlayFrameLayout();
 
 private:
     QPointer<QtCharts::QChartView> m_viewer;
