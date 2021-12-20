@@ -93,7 +93,6 @@ public:
     QString legendEntryText() const;
     void    setLegendEntryText( const QString& legendEntryText );
 
-    virtual void refreshParentPlot();
     virtual void updateCurveVisibility();
     void         updateLegendEntryVisibilityAndPlotLegend();
     void         updateLegendEntryVisibilityNoPlotUpdate();
