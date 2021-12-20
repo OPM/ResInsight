@@ -356,7 +356,7 @@ void RimEnsembleCurveSet::addCurve( RimSummaryCurve* curve )
     {
         RimSummaryPlot* plot;
         firstAncestorOrThisOfType( plot );
-        if ( plot ) curve->setParentPlotNoReplot( plot->plotWidget() );
+        if ( plot && plot->plotWidget() ) curve->setParentPlotNoReplot( plot->plotWidget() );
 
         curve->setColor( m_color );
         m_curves.push_back( curve );
@@ -1766,34 +1766,35 @@ void RimEnsembleCurveSet::updateStatisticsCurves( const std::vector<RimSummaryCa
     }
 
     deleteStatisticsCurves();
-    for ( auto address : addresses )
-    {
-        auto curve = new RimSummaryCurve();
-        curve->setParentPlotNoReplot( plot->plotWidget() );
-        m_curves.push_back( curve );
-        curve->setColor( m_statistics->color() );
-        curve->setResampling( m_resampling() );
-
-        auto symbol = statisticsCurveSymbolFromAddress( address );
-        curve->setSymbol( symbol );
-        curve->setSymbolSize( statisticsCurveSymbolSize( symbol ) );
-        curve->setSymbolSkipDistance( 150 );
-        if ( m_statistics->showCurveLabels() )
-        {
-            curve->setSymbolLabel( QString::fromStdString( address.ensembleStatisticsQuantityName() ) );
-        }
-        curve->setLineStyle( RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_SOLID );
-        curve->setSummaryCaseY( m_ensembleStatCase.get() );
-        curve->setSummaryAddressYAndApplyInterpolation( address );
-        curve->setLeftOrRightAxisY( m_plotAxis() );
-
-        curve->updateCurveVisibility();
-        curve->loadDataAndUpdate( false );
-        curve->updatePlotAxis();
-    }
 
     if ( plot->plotWidget() )
     {
+        for ( auto address : addresses )
+        {
+            auto curve = new RimSummaryCurve();
+            curve->setParentPlotNoReplot( plot->plotWidget() );
+            m_curves.push_back( curve );
+            curve->setColor( m_statistics->color() );
+            curve->setResampling( m_resampling() );
+
+            auto symbol = statisticsCurveSymbolFromAddress( address );
+            curve->setSymbol( symbol );
+            curve->setSymbolSize( statisticsCurveSymbolSize( symbol ) );
+            curve->setSymbolSkipDistance( 150 );
+            if ( m_statistics->showCurveLabels() )
+            {
+                curve->setSymbolLabel( QString::fromStdString( address.ensembleStatisticsQuantityName() ) );
+            }
+            curve->setLineStyle( RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_SOLID );
+            curve->setSummaryCaseY( m_ensembleStatCase.get() );
+            curve->setSummaryAddressYAndApplyInterpolation( address );
+            curve->setLeftOrRightAxisY( m_plotAxis() );
+
+            curve->updateCurveVisibility();
+            curve->loadDataAndUpdate( false );
+            curve->updatePlotAxis();
+        }
+
         plot->plotWidget()->updateLegend();
         plot->updateAxes();
     }
