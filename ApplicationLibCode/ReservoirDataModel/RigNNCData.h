@@ -57,7 +57,7 @@ public:
     void                          setEclipseConnections( RigConnectionContainer& eclipseConnections );
     void                          buildPolygonsForEclipseConnections();
     size_t                        eclipseConnectionCount() const;
-    const RigConnectionContainer& eclipseConnections() const;
+    const RigConnectionContainer& availableConnections() const;
 
     bool                    ensureAllConnectionDataIsProcessed();
     RigConnectionContainer& allConnections();

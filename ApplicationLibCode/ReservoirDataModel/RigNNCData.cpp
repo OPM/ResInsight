@@ -265,7 +265,7 @@ size_t RigNNCData::eclipseConnectionCount() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const RigConnectionContainer& RigNNCData::eclipseConnections() const
+const RigConnectionContainer& RigNNCData::availableConnections() const
 {
     // Return connections without calling ensureConnectionDataIsProcessed() to avoid potential heavy computations
     // Relevant if only native connection data is required

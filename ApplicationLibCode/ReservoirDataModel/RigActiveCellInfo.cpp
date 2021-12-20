@@ -79,12 +79,6 @@ void RigActiveCellInfo::setCellResultIndex( size_t reservoirCellIndex, size_t re
     CVF_TIGHT_ASSERT( reservoirCellResultIndex < m_cellIndexToResultIndex.size() );
 
     m_cellIndexToResultIndex[reservoirCellIndex] = reservoirCellResultIndex;
-
-    //    if ( reservoirCellResultIndex >= m_reservoirActiveCellCount )
-    //    {
-    //#pragma omp critical
-    //        m_reservoirActiveCellCount = reservoirCellResultIndex + 1;
-    //    }
 }
 
 //--------------------------------------------------------------------------------------------------
