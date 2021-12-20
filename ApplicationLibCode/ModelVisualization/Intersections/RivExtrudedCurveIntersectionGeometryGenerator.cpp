@@ -289,7 +289,26 @@ void RivExtrudedCurveIntersectionGeometryGenerator::calculateArrays()
     calculateLineSegementTransforms();
     calculateTransformedPolyline();
 
+    // set up our horizontal cut planes
     const double cutDepth = -1.0 * m_intersection->cutDepth();
+
+    std::array<cvf::Vec3d, 8> corners;
+    gridBBox.cornerVertices( corners.data() );
+
+    cvf::Vec3d p1_low( corners[0].x(), corners[0].y(), cutDepth );
+    cvf::Vec3d p2_low( corners[1].x(), corners[1].y(), cutDepth );
+    cvf::Vec3d p3_low( corners[2].x(), corners[2].y(), cutDepth );
+
+    cvf::Plane lowPlane;
+    lowPlane.setFromPoints( p1_low, p2_low, p3_low );
+
+    cvf::Vec3d p1_high( p1_low.x(), p1_low.y(), gridBBox.radius() );
+    cvf::Vec3d p2_high( p2_low.x(), p2_low.y(), gridBBox.radius() );
+    cvf::Vec3d p3_high( p3_low.x(), p3_low.y(), gridBBox.radius() );
+
+    cvf::Plane highPlane;
+    highPlane.setFromPoints( p1_high, p2_high, p3_high );
+    highPlane.flip();
 
     for ( size_t pLineIdx = 0; pLineIdx < m_polylines.size(); ++pLineIdx )
     {
@@ -347,9 +366,7 @@ void RivExtrudedCurveIntersectionGeometryGenerator::calculateArrays()
                 sectionBBox.add( p2 - maxHeightVec );
             }
 
-            // ***
             sectionBBox.cutBelow( cutDepth );
-            // ***
 
             std::vector<size_t> columnCellCandidates;
             m_hexGrid->findIntersectingCells( sectionBBox, &columnCellCandidates );
@@ -361,25 +378,6 @@ void RivExtrudedCurveIntersectionGeometryGenerator::calculateArrays()
             p1Plane.setFromPoints( p1, p1 + maxHeightVec, p1 + plane.normal() );
             cvf::Plane p2Plane;
             p2Plane.setFromPoints( p2, p2 + maxHeightVec, p2 - plane.normal() );
-
-            // ***
-            cvf::Vec3d p1_low( p1.x(), p1.y(), cutDepth );
-            cvf::Vec3d p2_low( p2.x(), p2.y(), cutDepth );
-            cvf::Vec3d p3_low = p1 + plane.normal();
-            p3_low.z()        = cutDepth;
-
-            cvf::Plane lowPlane;
-            lowPlane.setFromPoints( p1_low, p2_low, p3_low );
-
-            cvf::Vec3d p1_high( p1.x(), p1.y(), maxHeightVec.z() );
-            cvf::Vec3d p2_high( p2.x(), p2.y(), maxHeightVec.z() );
-            cvf::Vec3d p3_high( p3_low.x(), p3_low.y(), maxHeightVec.z() );
-
-            cvf::Plane highPlane;
-            highPlane.setFromPoints( p1_high, p2_high, p3_high );
-
-            lowPlane.flip();
-            // ***
 
             std::vector<caf::HexGridIntersectionTools::ClipVx> hexPlaneCutTriangleVxes;
             hexPlaneCutTriangleVxes.reserve( 5 * 3 );
@@ -468,7 +466,6 @@ void RivExtrudedCurveIntersectionGeometryGenerator::calculateArrays()
                     uint triVxIdx = tIdx * 3;
 
                     // Accumulate triangle vertices
-
                     cvf::Vec3d point0( clippedTriangleVxes[triVxIdx + 0].vx );
                     cvf::Vec3d point1( clippedTriangleVxes[triVxIdx + 1].vx );
                     cvf::Vec3d point2( clippedTriangleVxes[triVxIdx + 2].vx );
@@ -482,13 +479,11 @@ void RivExtrudedCurveIntersectionGeometryGenerator::calculateArrays()
                     triangleVertices.emplace_back( point2 );
 
                     // Accumulate mesh lines
-
                     meshAcc.accumulateMeshLines( cellFaceForEachClippedTriangleEdge, triVxIdx + 0, globalCellIdx, point0, point1 );
                     meshAcc.accumulateMeshLines( cellFaceForEachClippedTriangleEdge, triVxIdx + 1, globalCellIdx, point1, point2 );
                     meshAcc.accumulateMeshLines( cellFaceForEachClippedTriangleEdge, triVxIdx + 2, globalCellIdx, point2, point0 );
 
                     // Mapping to cell index
-
                     m_triangleToCellIdxMap.push_back( globalCellIdx );
 
                     // Interpolation from nodes
@@ -497,9 +492,9 @@ void RivExtrudedCurveIntersectionGeometryGenerator::calculateArrays()
                         caf::HexGridIntersectionTools::ClipVx cvx = clippedTriangleVxes[triVxIdx + i];
                         if ( cvx.isVxIdsNative )
                         {
-                            m_triVxToCellCornerWeights.push_back( RivIntersectionVertexWeights( cvx.clippedEdgeVx1Id,
-                                                                                                cvx.clippedEdgeVx2Id,
-                                                                                                cvx.normDistFromEdgeVx1 ) );
+                            m_triVxToCellCornerWeights.emplace_back( cvx.clippedEdgeVx1Id,
+                                                                     cvx.clippedEdgeVx2Id,
+                                                                     cvx.normDistFromEdgeVx1 );
                         }
                         else
                         {
@@ -523,14 +518,13 @@ void RivExtrudedCurveIntersectionGeometryGenerator::calculateArrays()
 
                             if ( cvx1.isVxIdsNative && cvx2.isVxIdsNative )
                             {
-                                m_triVxToCellCornerWeights.push_back(
-                                    RivIntersectionVertexWeights( cvx1.clippedEdgeVx1Id,
-                                                                  cvx1.clippedEdgeVx2Id,
-                                                                  cvx1.normDistFromEdgeVx1,
-                                                                  cvx2.clippedEdgeVx1Id,
-                                                                  cvx2.clippedEdgeVx2Id,
-                                                                  cvx2.normDistFromEdgeVx1,
-                                                                  cvx.normDistFromEdgeVx1 ) );
+                                m_triVxToCellCornerWeights.emplace_back( cvx1.clippedEdgeVx1Id,
+                                                                         cvx1.clippedEdgeVx2Id,
+                                                                         cvx1.normDistFromEdgeVx1,
+                                                                         cvx2.clippedEdgeVx1Id,
+                                                                         cvx2.clippedEdgeVx2Id,
+                                                                         cvx2.normDistFromEdgeVx1,
+                                                                         cvx.normDistFromEdgeVx1 );
                             }
                             else
                             {
@@ -582,22 +576,21 @@ void RivExtrudedCurveIntersectionGeometryGenerator::calculateArrays()
                                 CVF_TIGHT_ASSERT( cvx11.isVxIdsNative && cvx12.isVxIdsNative && cvx21.isVxIdsNative &&
                                                   cvx22.isVxIdsNative );
 
-                                m_triVxToCellCornerWeights.push_back(
-                                    RivIntersectionVertexWeights( cvx11.clippedEdgeVx1Id,
-                                                                  cvx11.clippedEdgeVx2Id,
-                                                                  cvx11.normDistFromEdgeVx1,
-                                                                  cvx12.clippedEdgeVx1Id,
-                                                                  cvx12.clippedEdgeVx2Id,
-                                                                  cvx2.normDistFromEdgeVx1,
-                                                                  cvx21.clippedEdgeVx1Id,
-                                                                  cvx21.clippedEdgeVx2Id,
-                                                                  cvx21.normDistFromEdgeVx1,
-                                                                  cvx22.clippedEdgeVx1Id,
-                                                                  cvx22.clippedEdgeVx2Id,
-                                                                  cvx22.normDistFromEdgeVx1,
-                                                                  cvx1.normDistFromEdgeVx1,
-                                                                  cvx2.normDistFromEdgeVx1,
-                                                                  cvx.normDistFromEdgeVx1 ) );
+                                m_triVxToCellCornerWeights.emplace_back( cvx11.clippedEdgeVx1Id,
+                                                                         cvx11.clippedEdgeVx2Id,
+                                                                         cvx11.normDistFromEdgeVx1,
+                                                                         cvx12.clippedEdgeVx1Id,
+                                                                         cvx12.clippedEdgeVx2Id,
+                                                                         cvx2.normDistFromEdgeVx1,
+                                                                         cvx21.clippedEdgeVx1Id,
+                                                                         cvx21.clippedEdgeVx2Id,
+                                                                         cvx21.normDistFromEdgeVx1,
+                                                                         cvx22.clippedEdgeVx1Id,
+                                                                         cvx22.clippedEdgeVx2Id,
+                                                                         cvx22.normDistFromEdgeVx1,
+                                                                         cvx1.normDistFromEdgeVx1,
+                                                                         cvx2.normDistFromEdgeVx1,
+                                                                         cvx.normDistFromEdgeVx1 );
                             }
                         }
                     }
