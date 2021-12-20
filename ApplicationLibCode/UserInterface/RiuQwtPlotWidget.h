@@ -36,7 +36,6 @@
 
 class RiaPlotWindowRedrawScheduler;
 class RimPlot;
-class RiuDraggableOverlayFrame;
 class RiuPlotCurve;
 
 class QwtPlot;
@@ -131,14 +130,11 @@ public:
 
     int axisExtent( RiaDefines::PlotAxis axis ) const;
 
-    bool   frameIsInFrontOfThis( const QRect& frameGeometry );
     QPoint dragStartPosition() const;
 
     void scheduleReplot();
 
-    void addOverlayFrame( RiuDraggableOverlayFrame* overlayWidget );
-    void removeOverlayFrame( RiuDraggableOverlayFrame* overlayWidget );
-    void updateLayout();
+    void updateLayout() override;
 
     void renderTo( QPainter* painter, const QRect& targetRect, double scaling ) override;
     void renderTo( QPaintDevice* painter, const QRect& targetRect ) override;
@@ -188,6 +184,8 @@ protected:
     virtual bool isZoomerActive() const;
     virtual void endZoomOperations();
 
+    QWidget* getParentForOverlay() const override;
+
 private:
     void       selectClosestPlotItem( const QPoint& pos, bool toggleItemInSelection = false );
     static int defaultMinimumWidth();
@@ -197,8 +195,6 @@ private:
     void resetPlotItemHighlighting();
     void onAxisSelected( QwtScaleWidget* scale, bool toggleItemInSelection );
     void recalculateAxisExtents( RiaDefines::PlotAxis axis );
-
-    void updateOverlayFrameLayout();
 
 private:
     std::map<QwtPlotCurve*, CurveColors> m_originalCurveColors;

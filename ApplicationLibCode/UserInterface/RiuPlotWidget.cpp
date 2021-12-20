@@ -141,11 +141,9 @@ void RiuPlotWidget::addOverlayFrame( RiuDraggableOverlayFrame* overlayFrame )
 {
     if ( std::find( m_overlayFrames.begin(), m_overlayFrames.end(), overlayFrame ) == m_overlayFrames.end() )
     {
-        // TODO: fix overlay frame reparenting..
-
-        // overlayFrame->setParent( m_plot->canvas() );
-        // m_overlayFrames.push_back( overlayFrame );
-        // updateLayout();
+        overlayFrame->setParent( getParentForOverlay() );
+        m_overlayFrames.push_back( overlayFrame );
+        updateLayout();
     }
 }
 
@@ -160,6 +158,57 @@ void RiuPlotWidget::removeOverlayFrame( RiuDraggableOverlayFrame* overlayFrame )
     overlayFrame->setParent( nullptr );
     m_overlayFrames.removeOne( overlayFrame );
 };
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuPlotWidget::updateOverlayFrameLayout()
+{
+    const int spacing = 5;
+
+    int xpos                 = spacing;
+    int ypos                 = spacing;
+    int widthOfCurrentColumn = 0;
+
+    QSize canvasSize = getParentForOverlay()->size();
+    QSize maxFrameSize( canvasSize.width() - 2 * m_overlayMargins, canvasSize.height() - 2 * m_overlayMargins );
+
+    for ( RiuDraggableOverlayFrame* frame : m_overlayFrames )
+    {
+        if ( frame )
+        {
+            QSize minFrameSize     = frame->minimumSizeHint();
+            QSize desiredFrameSize = frame->sizeHint();
+
+            int width  = std::min( std::max( minFrameSize.width(), desiredFrameSize.width() ), maxFrameSize.width() );
+            int height = std::min( std::max( minFrameSize.height(), desiredFrameSize.height() ), maxFrameSize.height() );
+
+            frame->resize( width, height );
+
+            if ( frame->anchorCorner() == RiuDraggableOverlayFrame::AnchorCorner::TopLeft )
+            {
+                if ( ypos + frame->height() + spacing > getParentForOverlay()->height() && widthOfCurrentColumn > 0 )
+                {
+                    xpos += spacing + widthOfCurrentColumn;
+                    ypos                 = spacing;
+                    widthOfCurrentColumn = 0;
+                }
+                frame->move( xpos, ypos );
+                ypos += frame->height() + spacing;
+                widthOfCurrentColumn = std::max( widthOfCurrentColumn, frame->width() );
+            }
+            else if ( frame->anchorCorner() == RiuDraggableOverlayFrame::AnchorCorner::TopRight )
+            {
+                QRect  frameRect      = frame->frameGeometry();
+                QRect  canvasRect     = getParentForOverlay()->rect();
+                QPoint canvasTopRight = canvasRect.topRight();
+                frameRect.moveTopRight( QPoint( canvasTopRight.x() - spacing, canvasTopRight.y() + spacing ) );
+                frame->move( frameRect.topLeft() );
+            }
+            frame->show();
+        }
+    }
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
