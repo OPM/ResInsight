@@ -18,7 +18,6 @@
 
 #include "RiuQtChartsPlotWidget.h"
 
-#include "RiaColorTools.h"
 #include "RiaDefines.h"
 #include "RiaFontCache.h"
 #include "RiaGuiApplication.h"
@@ -36,12 +35,12 @@
 
 #include "cvfTrace.h"
 
-#include <QVBoxLayout>
-
 #include <QDateTimeAxis>
 #include <QGraphicsLayout>
 #include <QLogValueAxis>
+#include <QVBoxLayout>
 #include <QValueAxis>
+#include <QtGlobal>
 
 #include <limits>
 
@@ -456,10 +455,12 @@ void RiuQtChartsPlotWidget::setAutoTickIntervalCounts( RiaDefines::PlotAxis axis
 //--------------------------------------------------------------------------------------------------
 double RiuQtChartsPlotWidget::majorTickInterval( RiaDefines::PlotAxis axis ) const
 {
+#if QT_VERSION >= QT_VERSION_CHECK( 5, 12, 0 )
+    // QValueAxis::tickInterval was introduced in 5.12
     QAbstractAxis* ax        = plotAxis( axis );
     QValueAxis*    valueAxis = dynamic_cast<QValueAxis*>( ax );
     if ( valueAxis ) return valueAxis->tickInterval();
-
+#endif
     return 0.0;
 }
 
