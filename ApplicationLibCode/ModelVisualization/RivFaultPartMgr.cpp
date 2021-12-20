@@ -72,8 +72,6 @@ RivFaultPartMgr::RivFaultPartMgr( const RigGridBase*              grid,
 
 {
     CVF_ASSERT( rimFault->faultGeometry() );
-    cvf::ref<cvf::Array<size_t>> connIdxes = new cvf::Array<size_t>;
-    connIdxes->assign( rimFault->faultGeometry()->connectionIndices() );
 
     m_nativeFaultGenerator =
         new RivFaultGeometryGenerator( grid, rimFault->faultGeometry(), grid->mainGrid()->nncData(), true );
@@ -84,17 +82,7 @@ RivFaultPartMgr::RivFaultPartMgr( const RigGridBase*              grid,
     m_nativeFaultFacesTextureCoords   = new cvf::Vec2fArray;
     m_oppositeFaultFacesTextureCoords = new cvf::Vec2fArray;
 
-    m_NNCGenerator = new RivNNCGeometryGenerator( false,
-                                                  grid->mainGrid()->nncData(),
-                                                  grid->mainGrid()->displayModelOffset(),
-                                                  connIdxes.p() );
-
     m_NNCTextureCoords = new cvf::Vec2fArray;
-
-    m_allanNNCGenerator = new RivNNCGeometryGenerator( true,
-                                                       grid->mainGrid()->nncData(),
-                                                       grid->mainGrid()->displayModelOffset(),
-                                                       connIdxes.p() );
 
     m_allanNNCTextureCoords = new cvf::Vec2fArray;
 }
@@ -106,8 +94,9 @@ void RivFaultPartMgr::setCellVisibility( cvf::UByteArray* cellVisibilities )
 {
     m_nativeFaultGenerator->setCellVisibility( cellVisibilities );
     m_oppositeFaultGenerator->setCellVisibility( cellVisibilities );
-    m_NNCGenerator->setCellVisibility( cellVisibilities, m_grid.p() );
-    m_allanNNCGenerator->setCellVisibility( cellVisibilities, m_grid.p() );
+
+    if ( m_NNCGenerator.notNull() ) m_NNCGenerator->setCellVisibility( cellVisibilities, m_grid.p() );
+    if ( m_allanNNCGenerator.notNull() ) m_allanNNCGenerator->setCellVisibility( cellVisibilities, m_grid.p() );
 
     clearFlags();
 }
@@ -403,6 +392,20 @@ void RivFaultPartMgr::generatePartGeometry()
 //--------------------------------------------------------------------------------------------------
 void RivFaultPartMgr::generateNativeNncPartGeometry()
 {
+    if ( m_NNCGenerator.isNull() )
+    {
+        auto nncConnectionIndices = m_rimFault->faultGeometry()->connectionIndices();
+        if ( !nncConnectionIndices.empty() )
+        {
+            m_NNCGenerator = new RivNNCGeometryGenerator( false,
+                                                          m_grid->mainGrid()->nncData(),
+                                                          m_grid->mainGrid()->displayModelOffset(),
+                                                          nncConnectionIndices );
+        }
+    }
+
+    if ( m_NNCGenerator.isNull() ) return;
+
     cvf::ref<cvf::DrawableGeo> geo = m_NNCGenerator->generateSurface();
     if ( geo.notNull() )
     {
@@ -438,6 +441,20 @@ void RivFaultPartMgr::generateNativeNncPartGeometry()
 //--------------------------------------------------------------------------------------------------
 void RivFaultPartMgr::generateAllNncPartGeometry()
 {
+    if ( m_allanNNCGenerator.isNull() )
+    {
+        auto nncConnectionIndices = m_rimFault->faultGeometry()->connectionIndices();
+        if ( !nncConnectionIndices.empty() )
+        {
+            m_allanNNCGenerator = new RivNNCGeometryGenerator( true,
+                                                               m_grid->mainGrid()->nncData(),
+                                                               m_grid->mainGrid()->displayModelOffset(),
+                                                               nncConnectionIndices );
+        }
+    }
+
+    if ( m_allanNNCGenerator.isNull() ) return;
+
     cvf::ref<cvf::DrawableGeo> geo = m_allanNNCGenerator->generateSurface();
     if ( geo.notNull() )
     {
