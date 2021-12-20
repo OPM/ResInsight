@@ -55,6 +55,7 @@ public:
 
     void setZ( int z ) override;
 
+    void updateErrorBarsAppearance( bool showErrorBars, const QColor& curveColor ) override;
     void clearErrorBars() override;
 
     int                       numSamples() const override;

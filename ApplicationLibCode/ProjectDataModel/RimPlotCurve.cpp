@@ -228,6 +228,7 @@ void RimPlotCurve::setLegendEntryText( const QString& legendEntryText )
 void RimPlotCurve::setErrorBarsVisible( bool isVisible )
 {
     m_showErrorBars = isVisible;
+    updateCurveAppearance();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -443,10 +444,6 @@ void RimPlotCurve::checkAndApplyDefaultFillColor()
     //     m_curveAppearance->fillColor() = m_curveAppearance->color();
     // }
 }
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -899,14 +896,7 @@ void RimPlotCurve::updateCurveAppearance()
         }
     }
 
-    // TODO:
-
-    // if ( m_qwtCurveErrorBars )
-    // {
-    //     QwtIntervalSymbol* newSymbol = new QwtIntervalSymbol( QwtIntervalSymbol::Bar );
-    //     newSymbol->setPen( QPen( curveColor ) );
-    //     m_qwtCurveErrorBars->setSymbol( newSymbol );
-    // }
+    m_plotCurve->updateErrorBarsAppearance( m_showErrorBars, curveColor );
 
     QColor fillColor = RiaColorTools::toQColor( m_curveAppearance->fillColor() );
 
@@ -947,8 +937,6 @@ void RimPlotCurve::updateCurveAppearance()
 void RimPlotCurve::clearErrorBars()
 {
     if ( m_plotCurve ) m_plotCurve->clearErrorBars();
-
-    // m_qwtCurveErrorBars->setSamples( nullptr );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -973,14 +961,11 @@ void RimPlotCurve::updateCurveVisibility()
 {
     if ( canCurveBeAttached() )
     {
-        // attachCurveAndErrorBars();
-        // m_plotCurve->reattach(); // attachToPlot();
         reattach();
     }
     else
     {
         detach();
-        // m_qwtCurveErrorBars->detach();
     }
 }
 
