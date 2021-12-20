@@ -247,7 +247,7 @@ void RivElementVectorResultPartMgr::appendDynamicGeometryPartsToModel( cvf::Mode
 
         for ( size_t nIdx = 0; nIdx < nncData->eclipseConnectionCount(); ++nIdx )
         {
-            const RigConnection& conn = nncData->eclipseConnections()[nIdx];
+            const RigConnection& conn = nncData->availableConnections()[nIdx];
             if ( conn.polygon().size() )
             {
                 double resultValue = 0.0;
