@@ -75,6 +75,9 @@ public:
     QString name() const override;
     void    setName( const QString& newName );
 
+    double cutDepth() const;
+    void   setCutDepth( double depth );
+
     RimExtrudedCurveIntersection::CrossSectionEnum    type() const;
     RimExtrudedCurveIntersection::CrossSectionDirEnum direction() const;
 
@@ -153,6 +156,9 @@ private:
 
 private:
     caf::PdmField<QString> m_name;
+
+    caf::PdmField<bool>   m_cutDepthEnabled;
+    caf::PdmField<double> m_cutDepth;
 
     caf::PdmField<caf::AppEnum<CrossSectionEnum>>    m_type;
     caf::PdmField<caf::AppEnum<CrossSectionDirEnum>> m_direction;

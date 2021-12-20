@@ -22,6 +22,7 @@
 #include "RiaVec3Tools.h"
 
 #include "RigEclipseCaseData.h"
+#include "RigMainGrid.h"
 #include "RigWellPath.h"
 
 #include "Rim2dIntersectionView.h"
@@ -50,9 +51,11 @@
 
 #include "cafCmdFeature.h"
 #include "cafCmdFeatureManager.h"
+#include "cafPdmUiCheckBoxEditor.h"
 #include "cafPdmUiDoubleSliderEditor.h"
 #include "cafPdmUiListEditor.h"
 #include "cafPdmUiPushButtonEditor.h"
+#include "cafPdmUiSliderEditor.h"
 
 #include "cafPdmUiTreeOrdering.h"
 #include "cafPdmUiTreeSelectionEditor.h"
@@ -240,6 +243,12 @@ RimExtrudedCurveIntersection::RimExtrudedCurveIntersection()
     m_surfaceIntersections = new RimSurfaceIntersectionCollection;
     m_surfaceIntersections->objectChanged.connect( this, &RimExtrudedCurveIntersection::onSurfaceIntersectionsChanged );
 
+    CAF_PDM_InitField( &m_cutDepth, "CutDepth", 2000.0, "Cut Depth" );
+    m_cutDepth.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
+
+    CAF_PDM_InitField( &m_cutDepthEnabled, "CutDepthEnabled", false, "Hide Intersection Below Cut Depth" );
+    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_cutDepthEnabled );
+
     setDeletable( true );
 }
 
@@ -277,6 +286,23 @@ void RimExtrudedCurveIntersection::setName( const QString& newName )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+double RimExtrudedCurveIntersection::cutDepth() const
+{
+    if ( m_cutDepthEnabled ) return m_cutDepth;
+    return 1000000.0;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimExtrudedCurveIntersection::setCutDepth( double depth )
+{
+    m_cutDepth = depth;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimExtrudedCurveIntersection::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
                                                      const QVariant&            oldValue,
                                                      const QVariant&            newValue )
@@ -285,7 +311,7 @@ void RimExtrudedCurveIntersection::fieldChangedByUi( const caf::PdmFieldHandle* 
          changedField == &m_wellPath || changedField == &m_simulationWell || changedField == &m_branchIndex ||
          changedField == &m_extentLength || changedField == &m_lengthUp || changedField == &m_lengthDown ||
          changedField == &m_showInactiveCells || changedField == &m_useSeparateDataSource ||
-         changedField == &m_separateDataSource )
+         changedField == &m_separateDataSource || changedField == &m_cutDepth || changedField == &m_cutDepthEnabled )
     {
         rebuildGeometryAndScheduleCreateDisplayModel();
     }
@@ -420,6 +446,9 @@ void RimExtrudedCurveIntersection::defineUiOrdering( QString uiConfigName, caf::
     {
         m_extentLength.uiCapability()->setUiReadOnly( false );
     }
+
+    optionsGroup->add( &m_cutDepthEnabled );
+    if ( m_cutDepthEnabled() ) optionsGroup->add( &m_cutDepth );
 
     this->defineSeparateDataSourceUi( uiConfigName, uiOrdering );
 
@@ -832,6 +861,19 @@ void RimExtrudedCurveIntersection::defineEditorAttribute( const caf::PdmFieldHan
             doubleSliderAttrib->m_minimum         = 0;
             doubleSliderAttrib->m_maximum         = 180;
             doubleSliderAttrib->m_sliderTickCount = 180;
+        }
+        else if ( field == &m_cutDepth )
+        {
+            RimEclipseView* eclipseView = nullptr;
+            firstAncestorOrThisOfType( eclipseView );
+
+            if ( eclipseView )
+            {
+                const cvf::BoundingBox bb = eclipseView->mainGrid()->boundingBox();
+
+                doubleSliderAttrib->m_minimum = -1.0 * bb.max().z();
+                doubleSliderAttrib->m_maximum = -1.0 * bb.min().z();
+            }
         }
     }
     else if ( field == &m_inputPolylineFromViewerEnabled )
