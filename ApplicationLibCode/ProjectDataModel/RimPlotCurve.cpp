@@ -182,7 +182,7 @@ void RimPlotCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField, co
     }
 
     RiuPlotMainWindowTools::refreshToolbars();
-    refreshParentPlot();
+    replotParentPlot();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -668,14 +668,6 @@ void RimPlotCurve::updateLegendsInPlot()
 void RimPlotCurve::setTitle( const QString& title )
 {
     if ( m_plotCurve ) m_plotCurve->setTitle( title );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimPlotCurve::refreshParentPlot()
-{
-    if ( m_parentPlot ) m_parentPlot->update();
 }
 
 //--------------------------------------------------------------------------------------------------

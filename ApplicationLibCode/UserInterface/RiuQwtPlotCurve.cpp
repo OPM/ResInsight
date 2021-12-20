@@ -338,6 +338,7 @@ void RiuQwtPlotCurve::updateErrorBarsAppearance( bool showErrorBars, const QColo
         QwtIntervalSymbol* newSymbol = new QwtIntervalSymbol( QwtIntervalSymbol::Bar );
         newSymbol->setPen( QPen( curveColor ) );
         m_qwtCurveErrorBars->setSymbol( newSymbol );
+        m_qwtCurveErrorBars->setVisible( showErrorBars );
     }
 }
 
