@@ -65,7 +65,10 @@ public:
 private:
     void computeArrays( bool onlyShowFacesWithDefinedNeighbors );
 
-    bool hasConnection( size_t cellIdx, cvf::StructGridInterface::FaceType face, RigConnectionContainer& conns );
+    bool hasConnection( size_t                             cellIdx,
+                        cvf::StructGridInterface::FaceType face,
+                        const RigConnectionContainer&      conns,
+                        const std::vector<size_t>&         nncConnectionIndices );
 
 private:
     // Input
