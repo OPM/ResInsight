@@ -27,6 +27,7 @@
 
 class RimWellPath;
 class RivExtrudedCurveIntersectionPartMgr;
+class RimEclipseView;
 class RimIntersectionResultDefinition;
 class RimSimWellInView;
 class RimSimWellInViewCollection;
@@ -77,6 +78,7 @@ public:
 
     double cutDepth() const;
     void   setCutDepth( double depth );
+    void   setCutDepthOverride( bool collectionOverride, double depth );
 
     RimExtrudedCurveIntersection::CrossSectionEnum    type() const;
     RimExtrudedCurveIntersection::CrossSectionDirEnum direction() const;
@@ -154,11 +156,16 @@ private:
     std::vector<cvf::Vec3d> pointsXYD() const;
     void                    setPointsFromXYD( const std::vector<cvf::Vec3d>& pointsXYD );
 
+    RimEclipseView* eclipseView() const;
+
 private:
     caf::PdmField<QString> m_name;
 
     caf::PdmField<bool>   m_cutDepthEnabled;
     caf::PdmField<double> m_cutDepth;
+
+    caf::PdmField<bool>   m_cutDepthOverridden;
+    caf::PdmField<double> m_collectionCutDepth;
 
     caf::PdmField<caf::AppEnum<CrossSectionEnum>>    m_type;
     caf::PdmField<caf::AppEnum<CrossSectionDirEnum>> m_direction;

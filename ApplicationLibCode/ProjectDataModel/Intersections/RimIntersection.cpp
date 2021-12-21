@@ -33,6 +33,8 @@
 #include "RivEclipseIntersectionGrid.h"
 #include "RivFemIntersectionGrid.h"
 
+#include "cafPdmUiCheckBoxEditor.h"
+
 CAF_PDM_ABSTRACT_SOURCE_INIT( RimIntersection, "RimIntersectionHandle" );
 
 //--------------------------------------------------------------------------------------------------
@@ -42,7 +44,10 @@ RimIntersection::RimIntersection()
 {
     CAF_PDM_InitField( &m_isActive, "Active", true, "Active" );
     m_isActive.uiCapability()->setUiHidden( true );
+
     CAF_PDM_InitField( &m_showInactiveCells, "ShowInactiveCells", false, "Show Inactive Cells" );
+    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_showInactiveCells );
+
     CAF_PDM_InitField( &m_useSeparateDataSource, "UseSeparateIntersectionDataSource", true, "Enable" );
     CAF_PDM_InitFieldNoDefault( &m_separateDataSource, "SeparateIntersectionDataSource", "Source" );
 }

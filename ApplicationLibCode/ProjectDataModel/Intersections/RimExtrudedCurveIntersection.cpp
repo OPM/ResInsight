@@ -249,6 +249,13 @@ RimExtrudedCurveIntersection::RimExtrudedCurveIntersection()
     CAF_PDM_InitField( &m_cutDepthEnabled, "CutDepthEnabled", false, "Hide Intersection Below Cut Depth" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_cutDepthEnabled );
 
+    CAF_PDM_InitFieldNoDefault( &m_collectionCutDepth, "CollectionCutDepth", "Overridden Cut Depth" );
+    m_collectionCutDepth.uiCapability()->setUiHidden( true );
+
+    CAF_PDM_InitField( &m_cutDepthOverridden, "CutDepthOverridden", false, "Cut Depth Is Controlled By Collection" );
+    m_cutDepthOverridden.uiCapability()->setUiReadOnly( true );
+    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_cutDepthOverridden );
+
     setDeletable( true );
 }
 
@@ -288,6 +295,7 @@ void RimExtrudedCurveIntersection::setName( const QString& newName )
 //--------------------------------------------------------------------------------------------------
 double RimExtrudedCurveIntersection::cutDepth() const
 {
+    if ( m_cutDepthOverridden ) return m_collectionCutDepth;
     if ( m_cutDepthEnabled ) return m_cutDepth;
     return 1000000.0;
 }
@@ -298,6 +306,15 @@ double RimExtrudedCurveIntersection::cutDepth() const
 void RimExtrudedCurveIntersection::setCutDepth( double depth )
 {
     m_cutDepth = depth;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimExtrudedCurveIntersection::setCutDepthOverride( bool collectionOverride, double depth )
+{
+    m_cutDepthOverridden = collectionOverride;
+    m_collectionCutDepth = depth;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -447,8 +464,19 @@ void RimExtrudedCurveIntersection::defineUiOrdering( QString uiConfigName, caf::
         m_extentLength.uiCapability()->setUiReadOnly( false );
     }
 
-    optionsGroup->add( &m_cutDepthEnabled );
-    if ( m_cutDepthEnabled() ) optionsGroup->add( &m_cutDepth );
+    if ( eclipseView() )
+    {
+        if ( m_cutDepthOverridden() )
+        {
+            optionsGroup->add( &m_cutDepthOverridden );
+        }
+        else
+        {
+            optionsGroup->add( &m_cutDepthEnabled );
+            optionsGroup->add( &m_cutDepth );
+            m_cutDepth.uiCapability()->setUiReadOnly( !m_cutDepthEnabled );
+        }
+    }
 
     this->defineSeparateDataSourceUi( uiConfigName, uiOrdering );
 
@@ -535,12 +563,11 @@ void RimExtrudedCurveIntersection::defineUiTreeOrdering( caf::PdmUiTreeOrdering&
 //--------------------------------------------------------------------------------------------------
 RimSimWellInViewCollection* RimExtrudedCurveIntersection::simulationWellCollection() const
 {
-    RimEclipseView* eclipseView = nullptr;
-    firstAncestorOrThisOfType( eclipseView );
+    RimEclipseView* eclView = eclipseView();
 
-    if ( eclipseView )
+    if ( eclView )
     {
-        return eclipseView->wellCollection();
+        return eclView->wellCollection();
     }
 
     return nullptr;
@@ -864,12 +891,11 @@ void RimExtrudedCurveIntersection::defineEditorAttribute( const caf::PdmFieldHan
         }
         else if ( field == &m_cutDepth )
         {
-            RimEclipseView* eclipseView = nullptr;
-            firstAncestorOrThisOfType( eclipseView );
+            RimEclipseView* eclView = eclipseView();
 
-            if ( eclipseView )
+            if ( eclView )
             {
-                const cvf::BoundingBox bb = eclipseView->mainGrid()->boundingBox();
+                const cvf::BoundingBox bb = eclView->mainGrid()->boundingBox();
 
                 doubleSliderAttrib->m_minimum = -1.0 * bb.max().z();
                 doubleSliderAttrib->m_maximum = -1.0 * bb.min().z();
@@ -1190,4 +1216,14 @@ std::vector<cvf::Vec3d> RimExtrudedCurveIntersection::pointsXYD() const
 void RimExtrudedCurveIntersection::setPointsFromXYD( const std::vector<cvf::Vec3d>& pointsXYD )
 {
     m_userPolylineXyz = RiaVec3Tools::invertZSign( pointsXYD );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimEclipseView* RimExtrudedCurveIntersection::eclipseView() const
+{
+    RimEclipseView* eclipseView = nullptr;
+    firstAncestorOrThisOfType( eclipseView );
+    return eclipseView;
 }

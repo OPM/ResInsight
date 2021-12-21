@@ -19,11 +19,14 @@
 
 #include "RimIntersectionCollection.h"
 
+#include "RigMainGrid.h"
+
 #include "Rim2dIntersectionView.h"
 #include "Rim2dIntersectionViewCollection.h"
 #include "Rim3dView.h"
 #include "RimBoxIntersection.h"
 #include "RimCase.h"
+#include "RimEclipseView.h"
 #include "RimExtrudedCurveIntersection.h"
 #include "RimGridView.h"
 #include "RimIntersectionResultDefinition.h"
@@ -35,6 +38,8 @@
 #include "RivBoxIntersectionPartMgr.h"
 #include "RivExtrudedCurveIntersectionPartMgr.h"
 
+#include "cafPdmUiCheckBoxEditor.h"
+#include "cafPdmUiDoubleSliderEditor.h"
 #include "cafPdmUiTreeOrdering.h"
 #include "cvfModelBasicList.h"
 
@@ -55,6 +60,12 @@ RimIntersectionCollection::RimIntersectionCollection()
 
     CAF_PDM_InitField( &isActive, "Active", true, "Active" );
     isActive.uiCapability()->setUiHidden( true );
+
+    CAF_PDM_InitField( &m_overrideCutDepth, "OverrideCutDepth", false, "Hide All Intersection Parts Below Cut Depth." );
+    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_overrideCutDepth );
+
+    CAF_PDM_InitField( &m_cutDepth, "GlobalCutDepth", 2000.0, "Cut Depth:" );
+    m_cutDepth.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -267,6 +278,8 @@ void RimIntersectionCollection::appendIntersectionAndUpdate( RimExtrudedCurveInt
 {
     m_intersections.push_back( intersection );
 
+    intersection->setCutDepthOverride( m_overrideCutDepth, m_cutDepth );
+
     syncronize2dIntersectionViews();
 
     updateConnectedEditors();
@@ -285,6 +298,7 @@ void RimIntersectionCollection::appendIntersectionAndUpdate( RimExtrudedCurveInt
 //--------------------------------------------------------------------------------------------------
 void RimIntersectionCollection::appendIntersectionNoUpdate( RimExtrudedCurveIntersection* intersection )
 {
+    intersection->setCutDepthOverride( m_overrideCutDepth, m_cutDepth );
     m_intersections.push_back( intersection );
 }
 
@@ -356,6 +370,20 @@ void RimIntersectionCollection::fieldChangedByUi( const caf::PdmFieldHandle* cha
             rimView->scheduleCreateDisplayModelAndRedraw();
         }
     }
+    if ( ( changedField == &m_cutDepth ) || ( changedField == &m_overrideCutDepth ) )
+    {
+        for ( RimExtrudedCurveIntersection* cs : m_intersections )
+        {
+            cs->setCutDepthOverride( m_overrideCutDepth, m_cutDepth );
+        }
+
+        Rim3dView* rimView = nullptr;
+        firstAncestorOrThisOfType( rimView );
+        if ( rimView )
+        {
+            rimView->scheduleCreateDisplayModelAndRedraw();
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -402,4 +430,56 @@ void RimIntersectionCollection::updateIntersectionBoxGeometry()
     {
         intersectionBox->updateBoxManipulatorGeometry();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimIntersectionCollection::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
+{
+    if ( eclipseView() )
+    {
+        caf::PdmUiGroup* optionsGroup = uiOrdering.addNewGroup( "Curve Intersections" );
+
+        optionsGroup->add( &m_overrideCutDepth );
+        optionsGroup->add( &m_cutDepth );
+        m_cutDepth.uiCapability()->setUiReadOnly( !m_overrideCutDepth() );
+    }
+
+    uiOrdering.skipRemainingFields( true );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimIntersectionCollection::defineEditorAttribute( const caf::PdmFieldHandle* field,
+                                                       QString                    uiConfigName,
+                                                       caf::PdmUiEditorAttribute* attribute )
+{
+    auto* doubleSliderAttrib = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute );
+    if ( doubleSliderAttrib )
+    {
+        if ( field == &m_cutDepth )
+        {
+            RimEclipseView* eclView = eclipseView();
+
+            if ( eclView )
+            {
+                const cvf::BoundingBox bb = eclView->mainGrid()->boundingBox();
+
+                doubleSliderAttrib->m_minimum = -1.0 * bb.max().z();
+                doubleSliderAttrib->m_maximum = -1.0 * bb.min().z();
+            }
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimEclipseView* RimIntersectionCollection::eclipseView() const
+{
+    RimEclipseView* eclipseView = nullptr;
+    firstAncestorOrThisOfType( eclipseView );
+    return eclipseView;
 }
