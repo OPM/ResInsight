@@ -19,9 +19,19 @@
 #include "RiaSummaryStringTools.h"
 
 #include "RiaLogging.h"
+#include "RiaStdStringTools.h"
+#include "RiaSummaryTools.h"
+
 #include "RifEclipseSummaryAddress.h"
+#include "RifReaderEclipseSummary.h"
 #include "RifSummaryReaderInterface.h"
+
+#include "RimMainPlotCollection.h"
 #include "RimSummaryCase.h"
+#include "RimSummaryCaseCollection.h"
+#include "RimSummaryCaseMainCollection.h"
+
+#include "SummaryPlotCommands/RicSummaryPlotFeatureImpl.h"
 
 #include <QRegularExpression>
 
@@ -107,4 +117,135 @@ void RiaSummaryStringTools::splitIntoAddressAndDataSourceFilters( const QStringL
             addressFilters.push_back( s );
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::pair<std::vector<RimSummaryCase*>, std::vector<RimSummaryCaseCollection*>>
+    RiaSummaryStringTools::allDataSourcesInProject()
+{
+    auto sumCaseMainColl = RiaSummaryTools::summaryCaseMainCollection();
+
+    auto summaryCases = sumCaseMainColl->topLevelSummaryCases();
+    auto ensembles    = sumCaseMainColl->summaryCaseCollections();
+
+    return { summaryCases, ensembles };
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::pair<std::vector<RimSummaryCase*>, std::vector<RimSummaryCaseCollection*>>
+    RiaSummaryStringTools::dataSourcesMatchingFilters( const QStringList& dataSourceFilters )
+{
+    std::vector<RimSummaryCase*>           matchingSummaryCases;
+    std::vector<RimSummaryCaseCollection*> matchingEnsembles;
+
+    auto [allSummaryCases, allEnsembles] = allDataSourcesInProject();
+
+    for ( const auto& dsFilter : dataSourceFilters )
+    {
+        QString searchString = dsFilter.left( dsFilter.indexOf( ':' ) );
+        QRegExp searcher( searchString, Qt::CaseInsensitive, QRegExp::WildcardUnix );
+
+        for ( const auto& ensemble : allEnsembles )
+        {
+            auto ensembleName = ensemble->name();
+            if ( searcher.exactMatch( ensembleName ) )
+            {
+                if ( searchString == dsFilter )
+                {
+                    // Match on ensemble name without realization filter
+
+                    matchingEnsembles.push_back( ensemble );
+                }
+                else
+                {
+                    // Match on subset of realisations in ensemble
+
+                    QString realizationSearchString = dsFilter.right( dsFilter.size() - dsFilter.indexOf( ':' ) - 1 );
+                    QRegExp realizationSearcher( realizationSearchString, Qt::CaseInsensitive, QRegExp::WildcardUnix );
+
+                    for ( const auto& summaryCase : ensemble->allSummaryCases() )
+                    {
+                        auto realizationName = summaryCase->displayCaseName();
+                        if ( realizationSearcher.exactMatch( realizationName ) )
+                        {
+                            matchingSummaryCases.push_back( summaryCase );
+                        }
+                    }
+                }
+            }
+        }
+
+        for ( const auto& summaryCase : allSummaryCases )
+        {
+            auto summaryCaseName = summaryCase->displayCaseName();
+            if ( searcher.exactMatch( summaryCaseName ) )
+            {
+                matchingSummaryCases.push_back( summaryCase );
+            }
+        }
+    }
+
+    return { matchingSummaryCases, matchingEnsembles };
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QStringList RiaSummaryStringTools::splitIntoWords( const QString& text )
+{
+    QStringList words = text.split( QRegExp( "\\s+" ), QString::SkipEmptyParts );
+
+    return words;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QStringList RiaSummaryStringTools::dataSourceNames( const std::vector<RimSummaryCase*>&           summaryCases,
+                                                    const std::vector<RimSummaryCaseCollection*>& ensembles )
+{
+    QStringList names;
+    for ( const auto& summaryCase : summaryCases )
+    {
+        names.push_back( summaryCase->displayCaseName() );
+    }
+
+    for ( const auto& ensemble : ensembles )
+    {
+        names.push_back( ensemble->name() );
+    }
+
+    return names;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::set<RifEclipseSummaryAddress>
+    RiaSummaryStringTools::computeFilteredAddresses( const QStringList&                        textFilters,
+                                                     const std::set<RifEclipseSummaryAddress>& sourceAddresses,
+                                                     bool                                      includeDiffCurves )
+{
+    std::set<RifEclipseSummaryAddress> addresses;
+
+    std::vector<bool> usedFilters;
+    RicSummaryPlotFeatureImpl::insertFilteredAddressesInSet( textFilters, sourceAddresses, &addresses, &usedFilters );
+
+    if ( includeDiffCurves ) return addresses;
+
+    const auto diffText = RifReaderEclipseSummary::differenceIdentifier();
+
+    std::set<RifEclipseSummaryAddress> addressesWithoutDiffVectors;
+    for ( const auto& adr : addresses )
+    {
+        if ( RiaStdStringTools::endsWith( adr.quantityName(), diffText ) ) continue;
+
+        addressesWithoutDiffVectors.insert( adr );
+    }
+
+    return addressesWithoutDiffVectors;
 }

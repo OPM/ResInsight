@@ -19,9 +19,11 @@
 #pragma once
 
 #include <set>
+#include <vector>
 
 class RimSummaryCase;
 class RifEclipseSummaryAddress;
+class RimSummaryCaseCollection;
 
 class QString;
 class QStringList;
@@ -37,10 +39,25 @@ public:
                                                      QStringList*       summaryAddressFilters,
                                                      QStringList*       gridResultAddressFilters );
 
-    static bool hasFilterAnyMatch( const QString& curveFilter, const std::set<RifEclipseSummaryAddress>& summaryAddresses );
-
     static void splitIntoAddressAndDataSourceFilters( const QStringList& filters,
                                                       const QStringList& dataSourceNames,
                                                       QStringList&       addressFilters,
                                                       QStringList&       dataSourceFilters );
+
+    static std::pair<std::vector<RimSummaryCase*>, std::vector<RimSummaryCaseCollection*>> allDataSourcesInProject();
+    static std::pair<std::vector<RimSummaryCase*>, std::vector<RimSummaryCaseCollection*>>
+        dataSourcesMatchingFilters( const QStringList& dataSourceFilters );
+
+    static QStringList splitIntoWords( const QString& text );
+
+    static QStringList dataSourceNames( const std::vector<RimSummaryCase*>&           summaryCases,
+                                        const std::vector<RimSummaryCaseCollection*>& ensembles );
+
+    static std::set<RifEclipseSummaryAddress>
+        computeFilteredAddresses( const QStringList&                        textFilters,
+                                  const std::set<RifEclipseSummaryAddress>& sourceAddresses,
+                                  bool                                      includeDiffCurves );
+
+private:
+    static bool hasFilterAnyMatch( const QString& curveFilter, const std::set<RifEclipseSummaryAddress>& summaryAddresses );
 };
