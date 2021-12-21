@@ -146,8 +146,6 @@ RimMultiSummaryPlot* RimMultiSummaryPlot::createAndAppendMultiPlot( const std::v
 //--------------------------------------------------------------------------------------------------
 QWidget* RimMultiSummaryPlot::createViewWidget( QWidget* mainWindowParent /*= nullptr*/ )
 {
-    m_multiPlot->revokeMdiWindowStatus();
-
     return m_multiPlot->createViewWidget( mainWindowParent );
 }
 
@@ -295,7 +293,7 @@ void RimMultiSummaryPlot::updatePlots()
     auto eclipseadr = RiaSummaryStringTools::computeFilteredAddresses( addressFilters, nativeAddresses, false );
 
     {
-        // remove existing plots
+        // Remove existing plots
 
         m_multiPlot->deleteAllPlots();
 
@@ -311,7 +309,6 @@ void RimMultiSummaryPlot::updatePlots()
         std::vector<RimPlot*> plotsForMultiPlot;
         for ( auto p : plots )
         {
-            p->loadDataAndUpdate();
             plotsForMultiPlot.push_back( dynamic_cast<RimPlot*>( p ) );
         }
 
@@ -322,8 +319,8 @@ void RimMultiSummaryPlot::updatePlots()
             plot->resolveReferencesRecursively();
             plot->revokeMdiWindowStatus();
             plot->setShowWindow( true );
-
-            plot->loadDataAndUpdate();
         }
+
+        m_multiPlot->loadDataAndUpdate();
     }
 }
