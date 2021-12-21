@@ -19,51 +19,10 @@
 #pragma once
 
 #include "RimPlotWindow.h"
+
 #include "cafPdmChildField.h"
-
-/*
-#include "RiaDefines.h"
-#include "RiaQDateTimeTools.h"
-
-#include "RifEclipseSummaryAddress.h"
-
-#include "RimPlot.h"
-
-#include "qwt_plot_textlabel.h"
-
-#include "cafPdmChildArrayField.h"
+#include "cafPdmObject.h"
 #include "cafPdmPtrArrayField.h"
-#include "cafPdmPtrField.h"
-
-#include <QPointer>
-
-#include <memory>
-#include <set>
-
-class PdmUiTreeOrdering;
-class RimAsciiDataCurve;
-class RimGridTimeHistoryCurve;
-class RimSummaryCase;
-class RimSummaryCurve;
-class RimSummaryCurveCollection;
-class RimEnsembleCurveSet;
-class RimEnsembleCurveSetCollection;
-class RimSummaryCurveFilter_OBSOLETE;
-class RimSummaryTimeAxisProperties;
-class RimPlotAxisPropertiesInterface;
-class RimPlotAxisProperties;
-class RiuSummaryQwtPlot;
-class RimSummaryPlotNameHelper;
-class RimPlotTemplateFileItem;
-class RimSummaryPlotFilterTextCurveSetEditor;
-class RimSummaryPlotSourceStepping;
-class RiaSummaryCurveDefinition;
-
-class QwtInterval;
-class QwtPlotCurve;
-
-class QKeyEvent;
-*/
 
 class RimMultiPlot;
 
@@ -77,11 +36,16 @@ class RimMultiSummaryPlot : public RimPlotWindow
 
 public:
     RimMultiSummaryPlot();
+    ~RimMultiSummaryPlot();
 
     QWidget* viewWidget() override;
     QImage   snapshotWindowContent() override;
     void     zoomAll() override;
     QString  description() const override;
+
+    void addPlot( RimPlot* plot );
+
+    static RimMultiSummaryPlot* createAndAppendMultiPlot( const std::vector<RimPlot*>& plots );
 
 private:
     QWidget* createViewWidget( QWidget* mainWindowParent = nullptr ) override;
@@ -90,6 +54,17 @@ private:
 
     void doRenderWindowContent( QPaintDevice* paintDevice ) override;
 
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
+                                                         bool*                      useOptionsOnly ) override;
+
+    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+
 private:
     caf::PdmChildField<RimMultiPlot*> m_multiPlot;
+
+    caf::PdmPtrArrayField<caf::PdmObject*> m_selectedSources;
+    caf::PdmField<std::vector<QString>>    m_addressCandidates;
+
+    caf::PdmField<bool> m_individualPlotPerVector;
+    caf::PdmField<bool> m_individualPlotPerDataSource;
 };

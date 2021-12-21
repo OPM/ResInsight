@@ -19,6 +19,12 @@
 #include "RimMultiSummaryPlot.h"
 #include "RimMultiPlot.h"
 
+#include "RimMainPlotCollection.h"
+#include "RimMultiPlotCollection.h"
+#include "RimProject.h"
+#include "RiuSummaryVectorSelectionUi.h"
+#include "cafPdmUiTreeSelectionEditor.h"
+
 CAF_PDM_SOURCE_INIT( RimMultiSummaryPlot, "MultiSummaryPlot" );
 
 //--------------------------------------------------------------------------------------------------
@@ -29,7 +35,29 @@ RimMultiSummaryPlot::RimMultiSummaryPlot()
     CAF_PDM_InitObject( "Multi Summary Plot Plot", "", "", "" );
     this->setDeletable( true );
 
+    CAF_PDM_InitField( &m_individualPlotPerVector, "IndividualPlotPerVector", false, "One plot per Vector" );
+    CAF_PDM_InitField( &m_individualPlotPerDataSource, "IndividualPlotPerDataSource", false, "One plot per Data Source" );
+
+    CAF_PDM_InitFieldNoDefault( &m_selectedSources, "SummaryCases", "Cases" );
+    m_selectedSources.uiCapability()->setAutoAddingOptionFromValue( false );
+    m_selectedSources.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
+    m_selectedSources.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+
+    CAF_PDM_InitFieldNoDefault( &m_multiPlot, "MultiPlot", "Multi Plot" );
+
+    CAF_PDM_InitFieldNoDefault( &m_addressCandidates, "AddressCandidates", "Vectors" );
+    m_addressCandidates.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
+
     m_multiPlot = new RimMultiPlot;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimMultiSummaryPlot::~RimMultiSummaryPlot()
+{
+    removeMdiWindowFromMdiArea();
+    m_multiPlot->cleanupBeforeClose();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -67,8 +95,50 @@ QString RimMultiSummaryPlot::description() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimMultiSummaryPlot::addPlot( RimPlot* plot )
+{
+    m_multiPlot->addPlot( plot );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimMultiSummaryPlot* RimMultiSummaryPlot::createAndAppendMultiPlot( const std::vector<RimPlot*>& plots )
+{
+    RimProject* project        = RimProject::current();
+    auto*       plotCollection = project->mainPlotCollection()->multiPlotCollection();
+
+    auto* plotWindow = new RimMultiSummaryPlot;
+    // plotWindow->setMultiPlotTitle( QString( "Multi Plot %1" ).arg( plotCollection->multiPlots().size() + 1 ) );
+    plotWindow->setAsPlotMdiWindow();
+    plotCollection->addMultiSummaryPlot( plotWindow );
+
+    for ( auto plot : plots )
+    {
+        plotWindow->addPlot( plot );
+
+        plot->resolveReferencesRecursively();
+        plot->revokeMdiWindowStatus();
+        plot->setShowWindow( true );
+
+        plot->loadDataAndUpdate();
+    }
+
+    plotCollection->updateAllRequiredEditors();
+    plotWindow->loadDataAndUpdate();
+
+    //    RiuPlotMainWindowTools::selectAsCurrentItem( plotWindow, true );
+
+    return plotWindow;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QWidget* RimMultiSummaryPlot::createViewWidget( QWidget* mainWindowParent /*= nullptr*/ )
 {
+    m_multiPlot->revokeMdiWindowStatus();
+
     return m_multiPlot->createViewWidget( mainWindowParent );
 }
 
@@ -94,4 +164,44 @@ void RimMultiSummaryPlot::onLoadDataAndUpdate()
 void RimMultiSummaryPlot::doRenderWindowContent( QPaintDevice* paintDevice )
 {
     m_multiPlot->doRenderWindowContent( paintDevice );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QList<caf::PdmOptionItemInfo> RimMultiSummaryPlot::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
+                                                                          bool*                      useOptionsOnly )
+{
+    if ( fieldNeedingOptions == &m_selectedSources )
+    {
+        // 		static QList<caf::PdmOptionItemInfo>
+        // 			optionsForSummaryDataSource(bool hideSummaryCases, bool hideEnsembles, bool
+        // showIndividualEnsembleCases);
+
+        bool hideSummaryCases            = false;
+        bool hideEnsembles               = false;
+        bool showIndividualEnsembleCases = false;
+
+        auto optionsForDataSource = RiuSummaryVectorSelectionUi::optionsForSummaryDataSource( hideSummaryCases,
+                                                                                              hideEnsembles,
+                                                                                              showIndividualEnsembleCases );
+
+        return optionsForDataSource;
+    }
+
+    QList<caf::PdmOptionItemInfo> options;
+    return options;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimMultiSummaryPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
+{
+    uiOrdering.add( &m_selectedSources );
+    uiOrdering.add( &m_addressCandidates );
+    uiOrdering.add( &m_individualPlotPerVector );
+    uiOrdering.add( &m_individualPlotPerDataSource );
+
+    uiOrdering.skipRemainingFields();
 }

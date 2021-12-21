@@ -71,6 +71,9 @@ public:
 
     void setDefaultSelection( const std::vector<SummarySource*>& defaultCases );
 
+    static QList<caf::PdmOptionItemInfo>
+        optionsForSummaryDataSource( bool hideSummaryCases, bool hideEnsembles, bool showIndividualEnsembleCases );
+
 private:
     void                          fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,

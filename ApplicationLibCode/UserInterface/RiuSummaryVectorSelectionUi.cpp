@@ -542,6 +542,101 @@ void RiuSummaryVectorSelectionUi::setDefaultSelection( const std::vector<Summary
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QList<caf::PdmOptionItemInfo> RiuSummaryVectorSelectionUi::optionsForSummaryDataSource( bool hideSummaryCases,
+                                                                                        bool hideEnsembles,
+                                                                                        bool showIndividualEnsembleCases )
+{
+    QList<caf::PdmOptionItemInfo> options;
+
+    RimProject*               proj = RimProject::current();
+    std::vector<RimOilField*> oilFields;
+
+    proj->allOilFields( oilFields );
+    for ( RimOilField* oilField : oilFields )
+    {
+        RimSummaryCaseMainCollection* sumCaseMainColl = oilField->summaryCaseMainCollection();
+        if ( sumCaseMainColl )
+        {
+            if ( !hideSummaryCases )
+            {
+                // Top level cases
+                for ( const auto& sumCase : sumCaseMainColl->topLevelSummaryCases() )
+                {
+                    options.push_back( caf::PdmOptionItemInfo( sumCase->displayCaseName(), sumCase ) );
+                }
+            }
+
+            // Ensembles
+            if ( !hideEnsembles )
+            {
+                bool ensembleHeaderCreated = false;
+                for ( const auto& sumCaseColl : sumCaseMainColl->summaryCaseCollections() )
+                {
+                    if ( !sumCaseColl->isEnsemble() ) continue;
+
+                    if ( !ensembleHeaderCreated )
+                    {
+                        options.push_back( caf::PdmOptionItemInfo::createHeader( "Ensembles", true ) );
+                        ensembleHeaderCreated = true;
+                    }
+                    // Ensemble level
+                    {
+                        auto optionItem = caf::PdmOptionItemInfo( sumCaseColl->name(), sumCaseColl );
+                        optionItem.setLevel( 1 );
+                        options.push_back( optionItem );
+                    }
+                    if ( showIndividualEnsembleCases )
+                    {
+                        for ( const auto& sumCase : sumCaseColl->allSummaryCases() )
+                        {
+                            auto optionItem = caf::PdmOptionItemInfo( sumCase->displayCaseName(), sumCase );
+                            optionItem.setLevel( 2 );
+                            options.push_back( optionItem );
+                        }
+                    }
+                }
+            }
+
+            if ( !hideSummaryCases )
+            {
+                // Grouped cases
+                for ( const auto& sumCaseColl : sumCaseMainColl->summaryCaseCollections() )
+                {
+                    if ( sumCaseColl->isEnsemble() ) continue;
+
+                    options.push_back( caf::PdmOptionItemInfo::createHeader( sumCaseColl->name(), true ) );
+
+                    for ( const auto& sumCase : sumCaseColl->allSummaryCases() )
+                    {
+                        auto optionItem = caf::PdmOptionItemInfo( sumCase->displayCaseName(), sumCase );
+                        optionItem.setLevel( 1 );
+                        options.push_back( optionItem );
+                    }
+                }
+
+                // Observed data
+                auto observedDataColl = oilField->observedDataCollection();
+                if ( observedDataColl->allObservedSummaryData().size() > 0 )
+                {
+                    options.push_back( caf::PdmOptionItemInfo::createHeader( "Observed Data", true ) );
+
+                    for ( const auto& obsData : observedDataColl->allObservedSummaryData() )
+                    {
+                        auto optionItem = caf::PdmOptionItemInfo( obsData->caseName(), obsData );
+                        optionItem.setLevel( 1 );
+                        options.push_back( optionItem );
+                    }
+                }
+            }
+        }
+    }
+
+    return options;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiuSummaryVectorSelectionUi::setSelectedCurveDefinitions( const std::vector<RiaSummaryCurveDefinition>& curveDefinitions )
 {
     resetAllFields();
@@ -1345,87 +1440,12 @@ RimSummaryCase* RiuSummaryVectorSelectionUi::calculatedSummaryCase()
 //--------------------------------------------------------------------------------------------------
 void RiuSummaryVectorSelectionUi::appendOptionItemsForSources( QList<caf::PdmOptionItemInfo>& options ) const
 {
-    RimProject*               proj = RimProject::current();
-    std::vector<RimOilField*> oilFields;
+    auto dataSourceOptions =
+        optionsForSummaryDataSource( m_hideSummaryCases, m_hideEnsembles, m_showIndividualEnsembleCases );
 
-    proj->allOilFields( oilFields );
-    for ( RimOilField* oilField : oilFields )
+    for ( auto& o : dataSourceOptions )
     {
-        RimSummaryCaseMainCollection* sumCaseMainColl = oilField->summaryCaseMainCollection();
-        if ( sumCaseMainColl )
-        {
-            if ( !m_hideSummaryCases )
-            {
-                // Top level cases
-                for ( const auto& sumCase : sumCaseMainColl->topLevelSummaryCases() )
-                {
-                    options.push_back( caf::PdmOptionItemInfo( sumCase->displayCaseName(), sumCase ) );
-                }
-            }
-
-            // Ensembles
-            if ( !m_hideEnsembles )
-            {
-                bool ensembleHeaderCreated = false;
-                for ( const auto& sumCaseColl : sumCaseMainColl->summaryCaseCollections() )
-                {
-                    if ( !sumCaseColl->isEnsemble() ) continue;
-
-                    if ( !ensembleHeaderCreated )
-                    {
-                        options.push_back( caf::PdmOptionItemInfo::createHeader( "Ensembles", true ) );
-                        ensembleHeaderCreated = true;
-                    }
-                    // Ensemble level
-                    {
-                        auto optionItem = caf::PdmOptionItemInfo( sumCaseColl->name(), sumCaseColl );
-                        optionItem.setLevel( 1 );
-                        options.push_back( optionItem );
-                    }
-                    if ( m_showIndividualEnsembleCases )
-                    {
-                        for ( const auto& sumCase : sumCaseColl->allSummaryCases() )
-                        {
-                            auto optionItem = caf::PdmOptionItemInfo( sumCase->displayCaseName(), sumCase );
-                            optionItem.setLevel( 2 );
-                            options.push_back( optionItem );
-                        }
-                    }
-                }
-            }
-
-            if ( !m_hideSummaryCases )
-            {
-                // Grouped cases
-                for ( const auto& sumCaseColl : sumCaseMainColl->summaryCaseCollections() )
-                {
-                    if ( sumCaseColl->isEnsemble() ) continue;
-
-                    options.push_back( caf::PdmOptionItemInfo::createHeader( sumCaseColl->name(), true ) );
-
-                    for ( const auto& sumCase : sumCaseColl->allSummaryCases() )
-                    {
-                        auto optionItem = caf::PdmOptionItemInfo( sumCase->displayCaseName(), sumCase );
-                        optionItem.setLevel( 1 );
-                        options.push_back( optionItem );
-                    }
-                }
-
-                // Observed data
-                auto observedDataColl = oilField->observedDataCollection();
-                if ( observedDataColl->allObservedSummaryData().size() > 0 )
-                {
-                    options.push_back( caf::PdmOptionItemInfo::createHeader( "Observed Data", true ) );
-
-                    for ( const auto& obsData : observedDataColl->allObservedSummaryData() )
-                    {
-                        auto optionItem = caf::PdmOptionItemInfo( obsData->caseName(), obsData );
-                        optionItem.setLevel( 1 );
-                        options.push_back( optionItem );
-                    }
-                }
-            }
-        }
+        options.push_back( o );
     }
 }
 

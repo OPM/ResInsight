@@ -49,6 +49,12 @@
 #include "cafPdmUiTreeSelectionEditor.h"
 #include "cafSelectionManager.h"
 
+// Multi plot
+#include "RimMainPlotCollection.h"
+#include "RimMultiPlotCollection.h"
+#include "RimMultiSummaryPlot.h"
+#include "RimProject.h"
+
 #include <QKeyEvent>
 
 CAF_PDM_SOURCE_INIT( RimSummaryPlotManager, "RimSummaryPlotManager" );
@@ -430,7 +436,19 @@ void RimSummaryPlotManager::createNewPlot()
             p->loadDataAndUpdate();
             plotsForMultiPlot.push_back( dynamic_cast<RimPlot*>( p ) );
         }
+
         RicSummaryPlotBuilder::createAndAppendMultiPlot( plotsForMultiPlot );
+
+        {
+            auto                  myCopyOfPlots = plotBuilder.createPlots();
+            std::vector<RimPlot*> myRimPlots;
+            for ( auto p : myCopyOfPlots )
+            {
+                p->loadDataAndUpdate();
+                myRimPlots.push_back( dynamic_cast<RimPlot*>( p ) );
+            }
+            RimMultiSummaryPlot::createAndAppendMultiPlot( myRimPlots );
+        }
     }
     else
     {
