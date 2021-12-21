@@ -74,6 +74,26 @@ void RiaSummaryStringTools::splitAddressFiltersInGridAndSummary( RimSummaryCase*
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::pair<QStringList, QStringList> RiaSummaryStringTools::splitIntoAddressAndDataSourceFilters( const QString& filter )
+{
+    auto words                     = RiaSummaryStringTools::splitIntoWords( filter );
+    auto [summaryCases, ensembles] = RiaSummaryStringTools::allDataSourcesInProject();
+    auto dataSourceNames           = RiaSummaryStringTools::dataSourceNames( summaryCases, ensembles );
+
+    QStringList addressFilters;
+    QStringList dataSourceFilters;
+
+    RiaSummaryStringTools::splitUsingDataSourceNames( words, dataSourceNames, addressFilters, dataSourceFilters );
+
+    // If no filter on data source is specified, use wildcard to match all
+    if ( dataSourceFilters.empty() ) dataSourceFilters.push_back( "*" );
+
+    return { addressFilters, dataSourceFilters };
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RiaSummaryStringTools::hasFilterAnyMatch( const QString&                            curveFilter,
                                                const std::set<RifEclipseSummaryAddress>& summaryAddresses )
 {
@@ -88,10 +108,10 @@ bool RiaSummaryStringTools::hasFilterAnyMatch( const QString&                   
 //--------------------------------------------------------------------------------------------------
 /// Sort filters into curve and data source filters
 //--------------------------------------------------------------------------------------------------
-void RiaSummaryStringTools::splitIntoAddressAndDataSourceFilters( const QStringList& filters,
-                                                                  const QStringList& dataSourceNames,
-                                                                  QStringList&       addressFilters,
-                                                                  QStringList&       dataSourceFilters )
+void RiaSummaryStringTools::splitUsingDataSourceNames( const QStringList& filters,
+                                                       const QStringList& dataSourceNames,
+                                                       QStringList&       addressFilters,
+                                                       QStringList&       dataSourceFilters )
 {
     for ( const auto& s : filters )
     {

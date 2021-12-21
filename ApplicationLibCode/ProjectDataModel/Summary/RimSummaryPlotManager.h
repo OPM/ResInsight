@@ -78,7 +78,6 @@ private:
     void updateProjectTreeAndRefresUi();
     void updateSelectionFromUiChange();
 
-    void splitIntoAddressAndDataSourceFilters( QStringList& addressFilters, QStringList& dataSourceFilters ) const;
     QStringList extractDataSourceFilters() const;
 
     void findFilteredSummaryCasesAndEnsembles( std::vector<RimSummaryCase*>&           summaryCases,

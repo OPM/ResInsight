@@ -21,10 +21,7 @@ TEST( RiaSummaryStringToolsTest, ParseNumbers )
         QStringList addressFilters;
         QStringList dataSourceFilters;
 
-        RiaSummaryStringTools::splitIntoAddressAndDataSourceFilters( arguments,
-                                                                     dataSourceNames,
-                                                                     addressFilters,
-                                                                     dataSourceFilters );
+        RiaSummaryStringTools::splitUsingDataSourceNames( arguments, dataSourceNames, addressFilters, dataSourceFilters );
 
         EXPECT_TRUE( addressFilters[0] == wellFilter );
         EXPECT_TRUE( addressFilters[1] == fieldFilter );
@@ -39,10 +36,7 @@ TEST( RiaSummaryStringToolsTest, ParseNumbers )
         QStringList addressFilters;
         QStringList dataSourceFilters;
 
-        RiaSummaryStringTools::splitIntoAddressAndDataSourceFilters( arguments,
-                                                                     dataSourceNames,
-                                                                     addressFilters,
-                                                                     dataSourceFilters );
+        RiaSummaryStringTools::splitUsingDataSourceNames( arguments, dataSourceNames, addressFilters, dataSourceFilters );
 
         EXPECT_TRUE( addressFilters[0] == wellFilter );
         EXPECT_TRUE( addressFilters[1] == fieldFilter );

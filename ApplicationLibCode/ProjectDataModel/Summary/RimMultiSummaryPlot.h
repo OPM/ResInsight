@@ -62,16 +62,15 @@ private:
     void defineEditorAttribute( const caf::PdmFieldHandle* field,
                                 QString                    uiConfigName,
                                 caf::PdmUiEditorAttribute* attribute ) override;
+    void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName ) override;
 
     void updatePlots();
 
 private:
+    caf::PdmField<QString> m_filterText;
+    caf::PdmField<bool>    m_individualPlotPerVector;
+    caf::PdmField<bool>    m_individualPlotPerDataSource;
+
+    caf::PdmField<bool>               m_showMultiPlotInProjectTree;
     caf::PdmChildField<RimMultiPlot*> m_multiPlot;
-
-    caf::PdmField<QString>                 m_filterText;
-    caf::PdmPtrArrayField<caf::PdmObject*> m_selectedSources;
-    caf::PdmField<std::vector<QString>>    m_addressCandidates;
-
-    caf::PdmField<bool> m_individualPlotPerVector;
-    caf::PdmField<bool> m_individualPlotPerDataSource;
 };

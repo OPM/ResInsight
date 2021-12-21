@@ -39,10 +39,7 @@ public:
                                                      QStringList*       summaryAddressFilters,
                                                      QStringList*       gridResultAddressFilters );
 
-    static void splitIntoAddressAndDataSourceFilters( const QStringList& filters,
-                                                      const QStringList& dataSourceNames,
-                                                      QStringList&       addressFilters,
-                                                      QStringList&       dataSourceFilters );
+    static std::pair<QStringList, QStringList> splitIntoAddressAndDataSourceFilters( const QString& filter );
 
     static std::pair<std::vector<RimSummaryCase*>, std::vector<RimSummaryCaseCollection*>> allDataSourcesInProject();
     static std::pair<std::vector<RimSummaryCase*>, std::vector<RimSummaryCaseCollection*>>
@@ -57,6 +54,12 @@ public:
         computeFilteredAddresses( const QStringList&                        textFilters,
                                   const std::set<RifEclipseSummaryAddress>& sourceAddresses,
                                   bool                                      includeDiffCurves );
+
+    // Consider private, set public to be able to test
+    static void splitUsingDataSourceNames( const QStringList& filters,
+                                           const QStringList& dataSourceNames,
+                                           QStringList&       addressFilters,
+                                           QStringList&       dataSourceFilters );
 
 private:
     static bool hasFilterAnyMatch( const QString& curveFilter, const std::set<RifEclipseSummaryAddress>& summaryAddresses );

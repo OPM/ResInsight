@@ -32,10 +32,10 @@
 #include "RiuSummaryVectorSelectionUi.h"
 
 #include "cafPdmUiComboBoxEditor.h"
+#include "cafPdmUiTreeOrdering.h"
 #include "cafPdmUiTreeSelectionEditor.h"
 
 CAF_PDM_SOURCE_INIT( RimMultiSummaryPlot, "MultiSummaryPlot" );
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -50,16 +50,9 @@ RimMultiSummaryPlot::RimMultiSummaryPlot()
     CAF_PDM_InitField( &m_individualPlotPerVector, "IndividualPlotPerVector", false, "One plot per Vector" );
     CAF_PDM_InitField( &m_individualPlotPerDataSource, "IndividualPlotPerDataSource", false, "One plot per Data Source" );
 
-    CAF_PDM_InitFieldNoDefault( &m_selectedSources, "SummaryCases", "Cases" );
-    m_selectedSources.uiCapability()->setAutoAddingOptionFromValue( false );
-    m_selectedSources.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
-    m_selectedSources.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+    CAF_PDM_InitField( &m_showMultiPlotInProjectTree, "ShowMultiPlotInProjectTree", false, "Show Multi Plot In Project Tree" );
 
     CAF_PDM_InitFieldNoDefault( &m_multiPlot, "MultiPlot", "Multi Plot" );
-
-    CAF_PDM_InitFieldNoDefault( &m_addressCandidates, "AddressCandidates", "Vectors" );
-    m_addressCandidates.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
-
     m_multiPlot = new RimMultiPlot;
 }
 
@@ -181,23 +174,6 @@ void RimMultiSummaryPlot::doRenderWindowContent( QPaintDevice* paintDevice )
 QList<caf::PdmOptionItemInfo> RimMultiSummaryPlot::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
                                                                           bool*                      useOptionsOnly )
 {
-    if ( fieldNeedingOptions == &m_selectedSources )
-    {
-        // 		static QList<caf::PdmOptionItemInfo>
-        // 			optionsForSummaryDataSource(bool hideSummaryCases, bool hideEnsembles, bool
-        // showIndividualEnsembleCases);
-
-        bool hideSummaryCases            = false;
-        bool hideEnsembles               = false;
-        bool showIndividualEnsembleCases = false;
-
-        auto optionsForDataSource = RiuSummaryVectorSelectionUi::optionsForSummaryDataSource( hideSummaryCases,
-                                                                                              hideEnsembles,
-                                                                                              showIndividualEnsembleCases );
-
-        return optionsForDataSource;
-    }
-
     QList<caf::PdmOptionItemInfo> options;
     return options;
 }
@@ -208,10 +184,13 @@ QList<caf::PdmOptionItemInfo> RimMultiSummaryPlot::calculateValueOptions( const 
 void RimMultiSummaryPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     uiOrdering.add( &m_filterText );
-    uiOrdering.add( &m_selectedSources );
-    uiOrdering.add( &m_addressCandidates );
     uiOrdering.add( &m_individualPlotPerVector );
     uiOrdering.add( &m_individualPlotPerDataSource );
+
+    auto group = uiOrdering.addNewGroup( "Multi Plot Options" );
+    m_multiPlot->uiOrderingForMultiSummaryPlot( *group );
+
+    uiOrdering.add( &m_showMultiPlotInProjectTree );
 
     uiOrdering.skipRemainingFields();
 }
@@ -235,7 +214,8 @@ void RimMultiSummaryPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
             p->setShowWindow( true );
         }
     }
-    else if ( changedField == &m_filterText )
+    else if ( changedField == &m_filterText || changedField == &m_individualPlotPerDataSource ||
+              changedField == &m_individualPlotPerVector )
     {
         updatePlots();
     }
@@ -264,33 +244,34 @@ void RimMultiSummaryPlot::defineEditorAttribute( const caf::PdmFieldHandle* fiel
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimMultiSummaryPlot::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName )
+{
+    uiTreeOrdering.skipRemainingChildren( !m_showMultiPlotInProjectTree );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimMultiSummaryPlot::updatePlots()
 {
-    auto words                     = RiaSummaryStringTools::splitIntoWords( m_filterText() );
-    auto [summaryCases, ensembles] = RiaSummaryStringTools::allDataSourcesInProject();
-    auto dataSourceNames           = RiaSummaryStringTools::dataSourceNames( summaryCases, ensembles );
-
-    QStringList addressFilters;
-    QStringList dataSourceFilters;
-
-    RiaSummaryStringTools::splitIntoAddressAndDataSourceFilters( words, dataSourceNames, addressFilters, dataSourceFilters );
-
-    // If no filter on data source is specified, use wildcard to match all
-    if ( dataSourceFilters.empty() ) dataSourceFilters.push_back( "*" );
+    auto [addressFilters, dataSourceFilters] =
+        RiaSummaryStringTools::splitIntoAddressAndDataSourceFilters( m_filterText() );
 
     auto [matchingSummaryCases, matchingEnsembles] = RiaSummaryStringTools::dataSourcesMatchingFilters( dataSourceFilters );
 
-    std::set<RifEclipseSummaryAddress> nativeAddresses;
-    if ( !summaryCases.empty() )
+    std::set<RifEclipseSummaryAddress> allAddresses;
+    if ( !matchingSummaryCases.empty() )
     {
-        nativeAddresses = RicSummaryPlotBuilder::addressesForSource( summaryCases.front() );
+        allAddresses = RicSummaryPlotBuilder::addressesForSource( matchingSummaryCases.front() );
     }
-    else if ( !ensembles.empty() )
+    else if ( !matchingEnsembles.empty() )
     {
-        nativeAddresses = RicSummaryPlotBuilder::addressesForSource( ensembles.front() );
+        allAddresses = RicSummaryPlotBuilder::addressesForSource( matchingEnsembles.front() );
     }
 
-    auto eclipseadr = RiaSummaryStringTools::computeFilteredAddresses( addressFilters, nativeAddresses, false );
+    bool includeDiffCurves = false;
+    auto filteredAddresses =
+        RiaSummaryStringTools::computeFilteredAddresses( addressFilters, allAddresses, includeDiffCurves );
 
     {
         // Remove existing plots
@@ -299,7 +280,7 @@ void RimMultiSummaryPlot::updatePlots()
 
         // Add new plots
         RicSummaryPlotBuilder plotBuilder;
-        plotBuilder.setAddresses( eclipseadr );
+        plotBuilder.setAddresses( filteredAddresses );
         plotBuilder.setDataSources( matchingSummaryCases, matchingEnsembles );
         plotBuilder.setIndividualPlotPerAddress( m_individualPlotPerVector );
         plotBuilder.setIndividualPlotPerDataSource( m_individualPlotPerDataSource );

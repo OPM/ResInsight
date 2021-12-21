@@ -228,52 +228,31 @@ std::vector<std::pair<QString, caf::PdmObject*>> RimSummaryPlotManager::findData
 
     QStringList dataSourceFilters = extractDataSourceFilters();
 
-    auto [summaryCases, ensembles] = RiaSummaryStringTools::allDataSourcesInProject();
+    auto [summaryCases, ensembles] = RiaSummaryStringTools::dataSourcesMatchingFilters( dataSourceFilters );
 
-    for ( const auto& dsFilter : dataSourceFilters )
+    for ( auto ensemble : ensembles )
     {
-        QString searchString = dsFilter.left( dsFilter.indexOf( ':' ) );
-        QRegExp searcher( searchString, Qt::CaseInsensitive, QRegExp::WildcardUnix );
+        auto ensembleName = ensemble->name();
 
-        for ( const auto& ensemble : ensembles )
+        candidates.push_back( std::make_pair( ensembleName, ensemble ) );
+    }
+
+    for ( const auto& summaryCase : summaryCases )
+    {
+        auto summaryCaseName = summaryCase->displayCaseName();
+
+        QString displayName;
+        auto    ensemble = summaryCase->ensemble();
+        if ( ensemble )
         {
-            auto ensembleName = ensemble->name();
-            if ( searcher.exactMatch( ensembleName ) )
-            {
-                if ( searchString == dsFilter )
-                {
-                    // Match on ensemble name without realization filter
-
-                    candidates.push_back( std::make_pair( ensembleName, ensemble ) );
-                }
-                else
-                {
-                    // Match on subset of realisations in ensemble
-
-                    QString realizationSearchString = dsFilter.right( dsFilter.size() - dsFilter.indexOf( ':' ) - 1 );
-                    QRegExp realizationSearcher( realizationSearchString, Qt::CaseInsensitive, QRegExp::WildcardUnix );
-
-                    for ( const auto& summaryCase : ensemble->allSummaryCases() )
-                    {
-                        auto realizationName = summaryCase->displayCaseName();
-                        if ( realizationSearcher.exactMatch( realizationName ) )
-                        {
-                            QString displayName = ensembleName + ":" + realizationName;
-                            candidates.push_back( std::make_pair( displayName, summaryCase ) );
-                        }
-                    }
-                }
-            }
+            displayName = ensemble->name() + ":" + summaryCaseName;
+        }
+        else
+        {
+            displayName = summaryCaseName;
         }
 
-        for ( const auto& summaryCase : summaryCases )
-        {
-            auto summaryCaseName = summaryCase->displayCaseName();
-            if ( searcher.exactMatch( summaryCaseName ) )
-            {
-                candidates.push_back( std::make_pair( summaryCase->displayCaseName(), summaryCase ) );
-            }
-        }
+        candidates.push_back( std::make_pair( displayName, summaryCase ) );
     }
 
     return candidates;
@@ -603,41 +582,10 @@ void RimSummaryPlotManager::setFocusToEditorWidget( caf::PdmUiFieldHandle* uiFie
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryPlotManager::splitIntoAddressAndDataSourceFilters( QStringList& addressFilters,
-                                                                  QStringList& dataSourceFilters ) const
-{
-    QStringList filterItems = m_filterText().split( QRegExp( "\\s+" ), QString::SkipEmptyParts );
-
-    auto [summaryCases, ensembles] = RiaSummaryStringTools::allDataSourcesInProject();
-
-    QStringList dataSourceNames;
-    for ( const auto& summaryCase : summaryCases )
-    {
-        dataSourceNames.push_back( summaryCase->displayCaseName() );
-    }
-
-    for ( const auto& ensemble : ensembles )
-    {
-        dataSourceNames.push_back( ensemble->name() );
-    }
-
-    RiaSummaryStringTools::splitIntoAddressAndDataSourceFilters( filterItems,
-                                                                 dataSourceNames,
-                                                                 addressFilters,
-                                                                 dataSourceFilters );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 QStringList RimSummaryPlotManager::extractDataSourceFilters() const
 {
-    QStringList addressFilters;
-    QStringList dataSourceFilters;
-    splitIntoAddressAndDataSourceFilters( addressFilters, dataSourceFilters );
-
-    // If no filter on data source is specified, use wildcard to match all
-    if ( dataSourceFilters.empty() ) dataSourceFilters.push_back( "*" );
+    auto [addressFilters, dataSourceFilters] =
+        RiaSummaryStringTools::splitIntoAddressAndDataSourceFilters( m_filterText() );
 
     return dataSourceFilters;
 }
