@@ -228,7 +228,7 @@ std::vector<std::pair<QString, caf::PdmObject*>> RimSummaryPlotManager::findData
 
     QStringList dataSourceFilters = extractDataSourceFilters();
 
-    auto [summaryCases, ensembles] = allDataSourcesInProject();
+    auto [summaryCases, ensembles] = RiaSummaryStringTools::allDataSourcesInProject();
 
     for ( const auto& dsFilter : dataSourceFilters )
     {
@@ -293,33 +293,6 @@ std::vector<QString> RimSummaryPlotManager::dataSourceDisplayNames() const
     }
 
     return displayNames;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::set<RifEclipseSummaryAddress>
-    RimSummaryPlotManager::computeFilteredAddresses( const QStringList&                        textFilters,
-                                                     const std::set<RifEclipseSummaryAddress>& sourceAddresses )
-{
-    std::set<RifEclipseSummaryAddress> addresses;
-
-    std::vector<bool> usedFilters;
-    RicSummaryPlotFeatureImpl::insertFilteredAddressesInSet( textFilters, sourceAddresses, &addresses, &usedFilters );
-
-    if ( m_includeDiffCurves ) return addresses;
-
-    const auto diffText = RifReaderEclipseSummary::differenceIdentifier();
-
-    std::set<RifEclipseSummaryAddress> addressesWithoutDiffVectors;
-    for ( const auto& adr : addresses )
-    {
-        if ( RiaStdStringTools::endsWith( adr.quantityName(), diffText ) ) continue;
-
-        addressesWithoutDiffVectors.insert( adr );
-    }
-
-    return addressesWithoutDiffVectors;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -494,20 +467,6 @@ bool RimSummaryPlotManager::eventFilter( QObject* obj, QEvent* event )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<std::vector<RimSummaryCase*>, std::vector<RimSummaryCaseCollection*>>
-    RimSummaryPlotManager::allDataSourcesInProject() const
-{
-    auto sumCaseMainColl = RiaSummaryTools::summaryCaseMainCollection();
-
-    auto summaryCases = sumCaseMainColl->topLevelSummaryCases();
-    auto ensembles    = sumCaseMainColl->summaryCaseCollections();
-
-    return { summaryCases, ensembles };
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimSummaryPlotManager::updateUiFromSelection()
 {
     auto destinationObject = dynamic_cast<caf::PdmObjectHandle*>( caf::SelectionManager::instance()->selectedItem() );
@@ -557,7 +516,7 @@ std::set<RifEclipseSummaryAddress> RimSummaryPlotManager::filteredAddresses()
 
     QStringList allCurveAddressFilters = m_filterText().split( QRegExp( "\\s+" ), QString::SkipEmptyParts );
 
-    return computeFilteredAddresses( allCurveAddressFilters, nativeAddresses );
+    return RiaSummaryStringTools::computeFilteredAddresses( allCurveAddressFilters, nativeAddresses, m_includeDiffCurves );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -649,7 +608,7 @@ void RimSummaryPlotManager::splitIntoAddressAndDataSourceFilters( QStringList& a
 {
     QStringList filterItems = m_filterText().split( QRegExp( "\\s+" ), QString::SkipEmptyParts );
 
-    auto [summaryCases, ensembles] = allDataSourcesInProject();
+    auto [summaryCases, ensembles] = RiaSummaryStringTools::allDataSourcesInProject();
 
     QStringList dataSourceNames;
     for ( const auto& summaryCase : summaryCases )

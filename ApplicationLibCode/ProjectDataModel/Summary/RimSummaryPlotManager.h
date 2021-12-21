@@ -70,11 +70,6 @@ private:
     std::vector<std::pair<QString, caf::PdmObject*>> findDataSourceCandidates() const;
     std::vector<QString>                             dataSourceDisplayNames() const;
 
-    std::set<RifEclipseSummaryAddress> computeFilteredAddresses( const QStringList&                        textFilters,
-                                                                 const std::set<RifEclipseSummaryAddress>& sourceAddresses );
-
-    std::pair<std::vector<RimSummaryCase*>, std::vector<RimSummaryCaseCollection*>> allDataSourcesInProject() const;
-
     std::set<RifEclipseSummaryAddress> filteredAddresses();
 
     void updateUiFromSelection();
