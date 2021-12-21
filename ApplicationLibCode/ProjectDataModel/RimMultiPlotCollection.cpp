@@ -110,5 +110,5 @@ void RimMultiPlotCollection::loadDataAndUpdateAllPlots()
 //--------------------------------------------------------------------------------------------------
 size_t RimMultiPlotCollection::plotCount() const
 {
-    return m_multiPlots.size();
+    return m_multiPlots.size() + m_multiSummaryPlots.size();
 }

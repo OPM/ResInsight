@@ -109,7 +109,6 @@ RimMultiSummaryPlot* RimMultiSummaryPlot::createAndAppendMultiPlot( const std::v
     auto*       plotCollection = project->mainPlotCollection()->multiPlotCollection();
 
     auto* plotWindow = new RimMultiSummaryPlot;
-    // plotWindow->setMultiPlotTitle( QString( "Multi Plot %1" ).arg( plotCollection->multiPlots().size() + 1 ) );
     plotWindow->setAsPlotMdiWindow();
     plotCollection->addMultiSummaryPlot( plotWindow );
 
@@ -126,8 +125,6 @@ RimMultiSummaryPlot* RimMultiSummaryPlot::createAndAppendMultiPlot( const std::v
 
     plotCollection->updateAllRequiredEditors();
     plotWindow->loadDataAndUpdate();
-
-    //    RiuPlotMainWindowTools::selectAsCurrentItem( plotWindow, true );
 
     return plotWindow;
 }
@@ -155,6 +152,8 @@ void RimMultiSummaryPlot::deleteViewWidget()
 //--------------------------------------------------------------------------------------------------
 void RimMultiSummaryPlot::onLoadDataAndUpdate()
 {
+    updateMdiWindowVisibility();
+
     m_multiPlot->onLoadDataAndUpdate();
 }
 
@@ -204,4 +203,25 @@ void RimMultiSummaryPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrde
     uiOrdering.add( &m_individualPlotPerDataSource );
 
     uiOrdering.skipRemainingFields();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimMultiSummaryPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
+                                            const QVariant&            oldValue,
+                                            const QVariant&            newValue )
+{
+    RimPlotWindow::fieldChangedByUi( changedField, oldValue, newValue );
+
+    if ( changedField == &m_showWindow && m_showWindow() )
+    {
+        // Plots contained in a RimMultiPlot will automatically be set invisible
+        // Restore plot visibility
+
+        for ( auto p : m_multiPlot->plots() )
+        {
+            p->setShowWindow( true );
+        }
+    }
 }
