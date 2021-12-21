@@ -76,6 +76,9 @@ public:
     void removePlot( RimPlot* plot ) override;
     void movePlotsToThis( const std::vector<RimPlot*>& plots, int insertAtPosition );
 
+    void insertPlots( const std::vector<RimPlot*>& plots );
+    void deleteAllPlots();
+
     size_t plotCount() const override;
     size_t plotIndex( const RimPlot* plot ) const;
 

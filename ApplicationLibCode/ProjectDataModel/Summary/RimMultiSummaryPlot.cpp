@@ -297,14 +297,8 @@ void RimMultiSummaryPlot::updatePlots()
     {
         // remove existing plots
 
-        auto existingPlots = m_multiPlot->plots();
-        for ( auto p : existingPlots )
-        {
-            m_multiPlot->removePlot( p );
-        }
-    }
+        m_multiPlot->deleteAllPlots();
 
-    {
         // Add new plots
         RicSummaryPlotBuilder plotBuilder;
         plotBuilder.setAddresses( eclipseadr );
