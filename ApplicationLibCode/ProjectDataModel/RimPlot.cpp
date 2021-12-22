@@ -84,6 +84,18 @@ QWidget* RimPlot::createViewWidget( QWidget* parent /*= nullptr */ )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimPlot::updateFonts()
+{
+    if ( plotWidget() )
+    {
+        plotWidget()->setPlotTitleFontSize( titleFontSize() );
+        plotWidget()->setLegendFontSize( legendFontSize() );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QWidget* RimPlot::createPlotWidget( QWidget* parent )
 {
     return createViewWidget( parent );
@@ -248,16 +260,4 @@ void RimPlot::onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
                               std::vector<caf::PdmObjectHandle*>& referringObjects )
 {
     loadDataAndUpdate();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimPlot::updateFonts()
-{
-    if ( plotWidget() )
-    {
-        plotWidget()->setPlotTitleFontSize( titleFontSize() );
-        plotWidget()->setLegendFontSize( legendFontSize() );
-    }
 }
