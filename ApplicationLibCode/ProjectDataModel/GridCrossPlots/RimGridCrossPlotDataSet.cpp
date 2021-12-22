@@ -1012,7 +1012,7 @@ void RimGridCrossPlotDataSet::updateLegendRange()
 
     RimGridCrossPlot* parent;
     this->firstAncestorOrThisOfTypeAsserted( parent );
-    if ( parent->viewer() )
+    if ( parent->plotWidget() )
     {
         if ( groupingEnabled() && m_case() && isChecked() && legendConfig()->showLegend() )
         {
@@ -1053,17 +1053,17 @@ void RimGridCrossPlotDataSet::updateLegendRange()
             }
             if ( !m_legendOverlayFrame )
             {
-                m_legendOverlayFrame = new RiuDraggableOverlayFrame( parent->viewer()->qwtPlot()->canvas(),
-                                                                     parent->viewer()->overlayMargins() );
+                m_legendOverlayFrame = new RiuDraggableOverlayFrame( parent->plotWidget()->getParentForOverlay(),
+                                                                     parent->plotWidget()->overlayMargins() );
             }
             m_legendOverlayFrame->setContentFrame( legendConfig()->makeLegendFrame() );
-            parent->viewer()->addOverlayFrame( m_legendOverlayFrame );
+            parent->plotWidget()->addOverlayFrame( m_legendOverlayFrame );
         }
         else
         {
             if ( m_legendOverlayFrame )
             {
-                parent->viewer()->removeOverlayFrame( m_legendOverlayFrame );
+                parent->plotWidget()->removeOverlayFrame( m_legendOverlayFrame );
             }
         }
     }
