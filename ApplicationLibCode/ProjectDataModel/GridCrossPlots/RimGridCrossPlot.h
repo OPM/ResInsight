@@ -70,9 +70,8 @@ public:
 
     std::vector<RimGridCrossPlotDataSet*> dataSets() const;
 
-    QWidget*          viewWidget() override;
-    RiuQwtPlotWidget* viewer();
-    RiuPlotWidget*    plotWidget() override;
+    QWidget*       viewWidget() override;
+    RiuPlotWidget* plotWidget() override;
 
     QImage  snapshotWindowContent() override;
     void    zoomAll() override;

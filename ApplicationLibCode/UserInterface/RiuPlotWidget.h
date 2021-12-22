@@ -168,9 +168,10 @@ public:
 
     virtual const QColor& backgroundColor() const = 0;
 
-protected:
     virtual QWidget* getParentForOverlay() const = 0;
-    void             updateOverlayFrameLayout();
+
+protected:
+    void updateOverlayFrameLayout();
 
     static int defaultMinimumWidth();
 
