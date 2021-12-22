@@ -25,8 +25,6 @@
 
 #include "cafPdmPointer.h"
 
-#include "qwt_plot.h"
-
 #include <QPointer>
 
 class RimEnsembleParameterColorHandlerInterface;
@@ -57,7 +55,6 @@ public:
                                    RiaQDateTimeTools::TimeFormatComponents::TIME_FORMAT_UNSPECIFIED ) override;
 
     void useTimeBasedTimeAxis() override;
-    void setAxisIsLogarithmic( QwtPlot::Axis axis, bool logarithmic );
 
     void updateAnnotationObjects( RimPlotAxisPropertiesInterface* axisProperties ) override;
 
@@ -73,6 +70,5 @@ protected:
     //     void onZoomedSlot();
 
 private:
-    //    std::unique_ptr<RiuPlotAnnotationTool> m_annotationTool;
     QPointer<RiuQtChartsPlotWidget> m_plotWidget;
 };

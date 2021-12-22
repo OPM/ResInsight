@@ -125,25 +125,28 @@ public:
     virtual void setAxisInverted( RiaDefines::PlotAxis axis, bool isInverted )                                  = 0;
     virtual void setAxisLabelsAndTicksEnabled( RiaDefines::PlotAxis axis, bool enableLabels, bool enableTicks ) = 0;
 
-    void enableGridLines( RiaDefines::PlotAxis axis, bool majorGridLines, bool minorGridLines );
+    virtual void enableGridLines( RiaDefines::PlotAxis axis, bool majorGridLines, bool minorGridLines ) = 0;
 
-    void setMajorAndMinorTickIntervals( RiaDefines::PlotAxis axis,
-                                        double               majorTickInterval,
-                                        double               minorTickInterval,
-                                        double               minValue,
-                                        double               maxValue );
-    void setMajorAndMinorTickIntervalsAndRange( RiaDefines::PlotAxis axis,
+    virtual void setMajorAndMinorTickIntervals( RiaDefines::PlotAxis axis,
                                                 double               majorTickInterval,
                                                 double               minorTickInterval,
-                                                double               minTickValue,
-                                                double               maxTickValue,
-                                                double               rangeMin,
-                                                double               rangeMax );
-    void setAutoTickIntervalCounts( RiaDefines::PlotAxis axis, int maxMajorTickIntervalCount, int maxMinorTickIntervalCount );
-    double majorTickInterval( RiaDefines::PlotAxis axis ) const;
-    double minorTickInterval( RiaDefines::PlotAxis axis ) const;
+                                                double               minValue,
+                                                double               maxValue )         = 0;
+    virtual void setMajorAndMinorTickIntervalsAndRange( RiaDefines::PlotAxis axis,
+                                                        double               majorTickInterval,
+                                                        double               minorTickInterval,
+                                                        double               minTickValue,
+                                                        double               maxTickValue,
+                                                        double               rangeMin,
+                                                        double               rangeMax ) = 0;
 
-    int axisExtent( RiaDefines::PlotAxis axis ) const;
+    virtual void   setAutoTickIntervalCounts( RiaDefines::PlotAxis axis,
+                                              int                  maxMajorTickIntervalCount,
+                                              int                  maxMinorTickIntervalCount ) = 0;
+    virtual double majorTickInterval( RiaDefines::PlotAxis axis ) const       = 0;
+    virtual double minorTickInterval( RiaDefines::PlotAxis axis ) const       = 0;
+
+    virtual int axisExtent( RiaDefines::PlotAxis axis ) const = 0;
 
     QPoint dragStartPosition() const;
 
@@ -184,11 +187,4 @@ protected:
     bool                                    m_plotTitleEnabled;
 
     QList<QPointer<RiuDraggableOverlayFrame>> m_overlayFrames;
-
-    struct CurveColors
-    {
-        QColor lineColor;
-        QColor symbolColor;
-        QColor symbolLineColor;
-    };
 };

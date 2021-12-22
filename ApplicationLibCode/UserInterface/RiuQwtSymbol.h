@@ -37,8 +37,6 @@ class QRect;
 class RiuQwtSymbol : public RiuPlotCurveSymbol, public QwtSymbol
 {
 public:
-    // RiuQwtSymbol( RiuPlotCurveSymbol::PointSymbolEnum riuStyle );
-
     RiuQwtSymbol( RiuPlotCurveSymbol::PointSymbolEnum riuStyle,
                   const QString&                      label           = QString(),
                   LabelPosition                       labelPosition   = RiuPlotCurveSymbol::LabelAboveSymbol,
