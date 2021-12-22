@@ -19,16 +19,11 @@
 #include "RiuPlotCurve.h"
 
 #include "RiaCurveDataTools.h"
-#include "RiaImageTools.h"
 #include "RiaTimeTTools.h"
 
 #include "RimPlotCurve.h"
 
-#include "RiuQwtSymbol.h"
-
 #include "qwt_date.h"
-
-#include <limits>
 
 //--------------------------------------------------------------------------------------------------
 ///
