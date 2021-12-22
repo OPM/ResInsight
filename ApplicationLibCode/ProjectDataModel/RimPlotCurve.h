@@ -169,8 +169,7 @@ protected:
     virtual void onCurveAppearanceChanged( const caf::SignalEmitter* emitter );
     virtual void onFillColorChanged( const caf::SignalEmitter* emitter );
 
-    bool canCurveBeAttached() const;
-    // virtual void attachCurveAndErrorBars();
+    bool         canCurveBeAttached() const;
     virtual void clearErrorBars();
     void         checkAndApplyDefaultFillColor();
 
