@@ -137,13 +137,6 @@ RimPlotCurve::~RimPlotCurve()
         delete m_plotCurve;
         m_plotCurve = nullptr;
     }
-
-    // if ( m_qwtCurveErrorBars )
-    // {
-    //     m_qwtCurveErrorBars->detach();
-    //     delete m_qwtCurveErrorBars;
-    //     m_qwtCurveErrorBars = nullptr;
-    // }
 }
 
 //--------------------------------------------------------------------------------------------------
