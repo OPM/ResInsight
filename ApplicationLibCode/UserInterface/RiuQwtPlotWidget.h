@@ -110,23 +110,25 @@ public:
     void setAxisInverted( RiaDefines::PlotAxis axis, bool isInverted ) override;
     void setAxisLabelsAndTicksEnabled( RiaDefines::PlotAxis axis, bool enableLabels, bool enableTicks ) override;
 
-    void enableGridLines( RiaDefines::PlotAxis axis, bool majorGridLines, bool minorGridLines );
+    void enableGridLines( RiaDefines::PlotAxis axis, bool majorGridLines, bool minorGridLines ) override;
 
-    void setMajorAndMinorTickIntervals( RiaDefines::PlotAxis axis,
-                                        double               majorTickInterval,
-                                        double               minorTickInterval,
-                                        double               minValue,
-                                        double               maxValue );
-    void setMajorAndMinorTickIntervalsAndRange( RiaDefines::PlotAxis axis,
-                                                double               majorTickInterval,
-                                                double               minorTickInterval,
-                                                double               minTickValue,
-                                                double               maxTickValue,
-                                                double               rangeMin,
-                                                double               rangeMax );
-    void setAutoTickIntervalCounts( RiaDefines::PlotAxis axis, int maxMajorTickIntervalCount, int maxMinorTickIntervalCount );
-    double majorTickInterval( RiaDefines::PlotAxis axis ) const;
-    double minorTickInterval( RiaDefines::PlotAxis axis ) const;
+    void   setMajorAndMinorTickIntervals( RiaDefines::PlotAxis axis,
+                                          double               majorTickInterval,
+                                          double               minorTickInterval,
+                                          double               minValue,
+                                          double               maxValue ) override;
+    void   setMajorAndMinorTickIntervalsAndRange( RiaDefines::PlotAxis axis,
+                                                  double               majorTickInterval,
+                                                  double               minorTickInterval,
+                                                  double               minTickValue,
+                                                  double               maxTickValue,
+                                                  double               rangeMin,
+                                                  double               rangeMax ) override;
+    void   setAutoTickIntervalCounts( RiaDefines::PlotAxis axis,
+                                      int                  maxMajorTickIntervalCount,
+                                      int                  maxMinorTickIntervalCount ) override;
+    double majorTickInterval( RiaDefines::PlotAxis axis ) const override;
+    double minorTickInterval( RiaDefines::PlotAxis axis ) const override;
 
     int axisExtent( RiaDefines::PlotAxis axis ) const;
 
@@ -160,6 +162,8 @@ public:
 
     const QColor& backgroundColor() const override;
 
+    QWidget* getParentForOverlay() const override;
+
 signals:
     void plotSelected( bool toggleSelection );
     void axisSelected( int axisId, bool toggleSelection );
@@ -184,8 +188,6 @@ protected:
     virtual bool isZoomerActive() const;
     virtual void endZoomOperations();
 
-    QWidget* getParentForOverlay() const override;
-
 private:
     void       selectClosestPlotItem( const QPoint& pos, bool toggleItemInSelection = false );
     static int defaultMinimumWidth();
@@ -197,10 +199,15 @@ private:
     void recalculateAxisExtents( RiaDefines::PlotAxis axis );
 
 private:
+    struct CurveColors
+    {
+        QColor lineColor;
+        QColor symbolColor;
+        QColor symbolLineColor;
+    };
+
     std::map<QwtPlotCurve*, CurveColors> m_originalCurveColors;
     std::map<QwtPlotCurve*, double>      m_originalZValues;
 
     QPointer<QwtPlot> m_plot;
-
-    friend class RiaPlotWindowRedrawScheduler;
 };

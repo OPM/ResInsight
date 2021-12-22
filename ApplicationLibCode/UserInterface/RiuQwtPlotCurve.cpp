@@ -21,7 +21,6 @@
 
 #include "RiaCurveDataTools.h"
 #include "RiaImageTools.h"
-#include "RiaTimeTTools.h"
 
 #include "RiuQwtPlotTools.h"
 #include "RiuQwtPlotWidget.h"
