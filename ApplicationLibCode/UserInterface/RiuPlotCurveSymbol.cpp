@@ -19,14 +19,7 @@
 
 #include "RiuPlotCurveSymbol.h"
 
-#include "RiaColorTools.h"
-#include "RiaFontCache.h"
-
-#include "cvfAssert.h"
-#include "qwt_symbol.h"
-
-#include <QPainter>
-#include <QPainterPath>
+#include "cafFontTools.h"
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -119,38 +112,3 @@ bool RiuPlotCurveSymbol::isFilledSymbol( PointSymbolEnum symbol )
 {
     return symbol != SYMBOL_NONE && symbol != SYMBOL_CROSS && symbol != SYMBOL_XCROSS && symbol != SYMBOL_STAR1;
 }
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-// QRect RiuQwtSymbol::labelBoundingRect( const QPainter* painter, const QRect& symbolRect, const QString& label ) const
-// {
-//     CVF_ASSERT( painter );
-
-//     QPoint symbolPosition = symbolRect.topLeft();
-
-//     int symbolWidth  = symbolRect.width();
-//     int symbolHeight = symbolRect.height();
-
-//     int labelWidth  = painter->fontMetrics().width( label );
-//     int labelHeight = painter->fontMetrics().height();
-
-//     QPoint labelPosition;
-//     if ( m_labelPosition == LabelAboveSymbol )
-//     {
-//         labelPosition = QPoint( symbolPosition.x() - labelWidth / 2, symbolPosition.y() - 5 );
-//     }
-//     else if ( m_labelPosition == LabelBelowSymbol )
-//     {
-//         labelPosition = QPoint( symbolPosition.x() - labelWidth / 2, symbolPosition.y() + symbolHeight + 5 );
-//     }
-//     else if ( m_labelPosition == LabelLeftOfSymbol )
-//     {
-//         labelPosition = QPoint( symbolPosition.x() - labelWidth - symbolWidth, symbolPosition.y() );
-//     }
-//     else if ( m_labelPosition == LabelRightOfSymbol )
-//     {
-//         labelPosition = QPoint( symbolPosition.x() + symbolWidth + 3, symbolPosition.y() );
-//     }
-//     return QRect( labelPosition.x(), labelPosition.y(), labelWidth, labelHeight );
-// }

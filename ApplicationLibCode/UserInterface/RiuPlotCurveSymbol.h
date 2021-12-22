@@ -37,6 +37,7 @@ public:
         LabelLeftOfSymbol,
         LabelRightOfSymbol
     };
+
     enum PointSymbolEnum
     {
         SYMBOL_NONE,
@@ -63,8 +64,7 @@ public:
                         const QString&  label,
                         LabelPosition   labelPosition   = LabelAboveSymbol,
                         int             labelFontSizePt = 8 );
-    // void    renderSymbols( QPainter* painter, const QPointF* points, int numPoints ) const override;
-    // void    renderSymbolLabel( QPainter* painter, const QPointF& position, const QString& label ) const;
+
     QString globalLabel() const;
 
     void setGlobalLabel( const QString& label );
