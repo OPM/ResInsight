@@ -18,14 +18,10 @@
 
 #include "RiuQtChartsPlotCurve.h"
 
-#include "RiaCurveDataTools.h"
-#include "RiaImageTools.h"
 #include "RiaPlotDefines.h"
-#include "RiaTimeTTools.h"
 
 #include "RiuQtChartsPlotCurveSymbol.h"
 #include "RiuQtChartsPlotWidget.h"
-#include "RiuQwtSymbol.h"
 
 #include "cvfBoundingBox.h"
 
