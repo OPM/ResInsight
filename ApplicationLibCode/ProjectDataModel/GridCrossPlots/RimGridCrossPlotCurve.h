@@ -19,15 +19,6 @@
 
 #include "RimPlotCurve.h"
 
-#include "cafPdmChildField.h"
-#include "cafPdmPtrField.h"
-
-#include <QPointF>
-#include <QVector>
-
-class RimCase;
-class RimEclipseResultDefinition;
-
 //==================================================================================================
 ///
 ///

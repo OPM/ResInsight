@@ -18,20 +18,10 @@
 
 #include "RimGridCrossPlotCurve.h"
 
-// #include "RimCase.h"
-// #include "RimEclipseCase.h"
-// #include "RimEclipseResultDefinition.h"
 #include "RimGridCrossPlot.h"
-// #include "RimTools.h"
 
-#include "RiuQwtPlotCurve.h"
-#include "RiuQwtSymbol.h"
-
-//#include "cafPdmUiComboBoxEditor.h"
-
-//#include <QDebug>
-//#include <QPointF>
-//#include <QVector>
+#include "RiuPlotCurve.h"
+#include "RiuPlotWidget.h"
 
 CAF_PDM_SOURCE_INIT( RimGridCrossPlotCurve, "GridCrossPlotCurve" );
 
