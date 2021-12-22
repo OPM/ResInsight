@@ -195,10 +195,11 @@ void RimWellFlowRateCurve::updateCurveAppearance()
         }
     }
 
-    if ( isUsingConnectionNumberDepthType() )
+    QwtPlotCurve* qwtPlotCurve = dynamic_cast<QwtPlotCurve*>( m_plotCurve );
+    if ( isUsingConnectionNumberDepthType() && qwtPlotCurve )
     {
-        // TODO: handle this
-        // m_plotCurve->setStyle( QwtPlotCurve::Steps );
+        // Steps style only for Qwt.
+        qwtPlotCurve->setStyle( QwtPlotCurve::Steps );
     }
 
     if ( m_doFillCurve || isLastCurveInGroup ) // Fill the last curve in group with a transparent color to "tie" the
@@ -225,13 +226,17 @@ void RimWellFlowRateCurve::updateCurveAppearance()
         gradient.setColorAt( 1, fillColor );
         m_plotCurve->setBrush( gradient );
 
-        // TODO: fix this
-        // QPen curvePen = m_plotCurve->pen();
-        // curvePen.setColor( lineColor );
-        // m_plotCurve->setPen( curvePen );
-        // m_plotCurve->setOrientation( Qt::Horizontal );
-        // m_plotCurve->setBaseline( 0.0 );
-        // m_plotCurve->setCurveAttribute( QwtPlotCurve::Inverted, true );
+        if ( qwtPlotCurve )
+        {
+            // Baseline and orientation only available for Qwt.
+            QPen curvePen = qwtPlotCurve->pen();
+            curvePen.setColor( lineColor );
+            qwtPlotCurve->setPen( curvePen );
+            qwtPlotCurve->setOrientation( Qt::Horizontal );
+            qwtPlotCurve->setBaseline( 0.0 );
+
+            qwtPlotCurve->setCurveAttribute( QwtPlotCurve::Inverted, true );
+        }
     }
 }
 
