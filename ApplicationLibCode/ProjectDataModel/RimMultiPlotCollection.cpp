@@ -18,8 +18,8 @@
 #include "RimMultiPlotCollection.h"
 
 #include "RimMultiPlot.h"
-#include "RimSummaryMultiPlot.h"
 #include "RimProject.h"
+#include "RimSummaryMultiPlot.h"
 
 #include "cafPdmFieldReorderCapability.h"
 
