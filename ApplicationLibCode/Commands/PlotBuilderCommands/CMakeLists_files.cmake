@@ -1,6 +1,7 @@
-set(SOURCE_GROUP_HEADER_FILES ${CMAKE_CURRENT_LIST_DIR}/RicNewMultiPlotFeature.h
-                              ${CMAKE_CURRENT_LIST_DIR}/RicSummaryPlotBuilder.h
-                              ${CMAKE_CURRENT_LIST_DIR}/RicNewSummaryMultiPlotFeature.h
+set(SOURCE_GROUP_HEADER_FILES
+    ${CMAKE_CURRENT_LIST_DIR}/RicNewMultiPlotFeature.h
+    ${CMAKE_CURRENT_LIST_DIR}/RicSummaryPlotBuilder.h
+    ${CMAKE_CURRENT_LIST_DIR}/RicNewSummaryMultiPlotFeature.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
