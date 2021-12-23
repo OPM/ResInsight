@@ -27,6 +27,7 @@
 #include "RimSummaryCaseCollection.h"
 #include "RimSummaryMultiPlot.h"
 #include "RimSummaryPlot.h"
+#include "RimSummaryPlotSourceStepping.h"
 
 #include "PlotBuilderCommands/RicSummaryPlotBuilder.h"
 #include "RiuSummaryVectorSelectionUi.h"
@@ -54,6 +55,14 @@ RimSummaryMultiPlot::RimSummaryMultiPlot()
 
     CAF_PDM_InitFieldNoDefault( &m_multiPlot, "MultiPlot", "Multi Plot" );
     m_multiPlot = new RimMultiPlot;
+
+    CAF_PDM_InitFieldNoDefault( &m_sourceStepping, "SourceStepping", "" );
+    m_sourceStepping = new RimSummaryPlotSourceStepping;
+    m_sourceStepping->setSourceSteppingType( RimSummarySourceSteppingInterface::Axis::Y_AXIS );
+    m_sourceStepping->setSourceSteppingObject( this );
+    m_sourceStepping.uiCapability()->setUiTreeHidden( true );
+    m_sourceStepping.uiCapability()->setUiTreeChildrenHidden( true );
+    m_sourceStepping.xmlCapability()->disableIO();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -94,7 +103,7 @@ void RimSummaryMultiPlot::zoomAll()
 //--------------------------------------------------------------------------------------------------
 QString RimSummaryMultiPlot::description() const
 {
-    return "RimMultiSummaryPlot Placeholder Text";
+    return "RimSummaryMultiPlot Placeholder Text";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -132,6 +141,68 @@ RimSummaryMultiPlot* RimSummaryMultiPlot::createAndAppendMultiPlot( const std::v
     plotWindow->loadDataAndUpdate();
 
     return plotWindow;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimSummarySourceSteppingInterface::Axis> RimSummaryMultiPlot::availableAxes() const
+{
+    return { RimSummarySourceSteppingInterface::Axis::X_AXIS };
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimSummaryCurve*> RimSummaryMultiPlot::curvesForStepping( RimSummarySourceSteppingInterface::Axis axis ) const
+{
+    std::vector<RimSummaryCurve*> curves;
+
+    for ( auto summaryPlot : summaryPlots() )
+    {
+        for ( auto curve : summaryPlot->curvesForStepping( axis ) )
+        {
+            curves.push_back( curve );
+        }
+    }
+
+    return curves;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimEnsembleCurveSet*> RimSummaryMultiPlot::curveSets() const
+{
+    std::vector<RimEnsembleCurveSet*> curveSets;
+
+    for ( auto summaryPlot : summaryPlots() )
+    {
+        for ( auto curveSet : summaryPlot->curveSets() )
+        {
+            curveSets.push_back( curveSet );
+        }
+    }
+
+    return curveSets;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimSummaryCurve*> RimSummaryMultiPlot::allCurves( RimSummarySourceSteppingInterface::Axis axis ) const
+{
+    std::vector<RimSummaryCurve*> curves;
+
+    for ( auto summaryPlot : summaryPlots() )
+    {
+        for ( auto curve : summaryPlot->allCurves( axis ) )
+        {
+            curves.push_back( curve );
+        }
+    }
+
+    return curves;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -188,7 +259,12 @@ void RimSummaryMultiPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrde
     uiOrdering.add( &m_individualPlotPerDataSource );
 
     auto group = uiOrdering.addNewGroup( "Multi Plot Options" );
-    m_multiPlot->uiOrderingForSummaryMultiPlot( *group );
+    m_multiPlot->uiOrderingForMultiSummaryPlot( *group );
+
+    {
+        auto group = uiOrdering.addNewGroup( "Data Source" );
+        m_sourceStepping()->uiOrdering( uiConfigName, *group );
+    }
 
     uiOrdering.add( &m_showMultiPlotInProjectTree );
 
@@ -304,4 +380,20 @@ void RimSummaryMultiPlot::updatePlots()
 
         m_multiPlot->loadDataAndUpdate();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimSummaryPlot*> RimSummaryMultiPlot::summaryPlots() const
+{
+    std::vector<RimSummaryPlot*> typedPlots;
+
+    for ( auto plot : m_multiPlot->plots() )
+    {
+        auto summaryPlot = dynamic_cast<RimSummaryPlot*>( plot );
+        if ( summaryPlot ) typedPlots.push_back( summaryPlot );
+    }
+
+    return typedPlots;
 }

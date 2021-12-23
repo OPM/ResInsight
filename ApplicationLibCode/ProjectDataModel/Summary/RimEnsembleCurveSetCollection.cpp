@@ -51,7 +51,7 @@ RimEnsembleCurveSetCollection::RimEnsembleCurveSetCollection()
 
     CAF_PDM_InitFieldNoDefault( &m_ySourceStepping, "YSourceStepping", "" );
     m_ySourceStepping = new RimSummaryPlotSourceStepping;
-    m_ySourceStepping->setSourceSteppingType( RimSummaryPlotSourceStepping::Y_AXIS );
+    m_ySourceStepping->setSourceSteppingType( RimSummarySourceSteppingInterface::Axis::Y_AXIS );
     m_ySourceStepping.uiCapability()->setUiTreeHidden( true );
     m_ySourceStepping.uiCapability()->setUiTreeChildrenHidden( true );
     m_ySourceStepping.xmlCapability()->disableIO();

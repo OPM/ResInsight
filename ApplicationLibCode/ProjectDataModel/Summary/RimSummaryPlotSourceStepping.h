@@ -18,8 +18,7 @@
 
 #pragma once
 
-#include "RiaSummaryCurveAnalyzer.h"
-#include "RifEclipseSummaryAddress.h"
+#include "RimSummarySourceSteppingInterface.h"
 
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
@@ -34,6 +33,7 @@ class RimSummaryCase;
 class RimSummaryCurve;
 class RifSummaryReaderInterface;
 class RimSummaryCaseCollection;
+class RifEclipseSummaryAddress;
 
 //==================================================================================================
 ///
@@ -43,17 +43,10 @@ class RimSummaryPlotSourceStepping : public caf::PdmObject
     CAF_PDM_HEADER_INIT;
 
 public:
-    enum SourceSteppingType
-    {
-        Y_AXIS,
-        X_AXIS,
-        UNION_X_Y_AXIS
-    };
-
-public:
     RimSummaryPlotSourceStepping();
 
-    void setSourceSteppingType( SourceSteppingType sourceSteppingType );
+    void setSourceSteppingType( RimSummarySourceSteppingInterface::Axis sourceSteppingType );
+    void setSourceSteppingObject( caf::PdmObject* sourceObject );
 
     void applyNextCase();
     void applyPrevCase();
@@ -91,22 +84,15 @@ private:
     bool isXAxisStepping() const;
     bool isYAxisStepping() const;
 
-    RiaSummaryCurveAnalyzer* analyzerForReader( RifSummaryReaderInterface* reader );
-
     void modifyCurrentIndex( caf::PdmValueField* valueField, int indexOffset );
-
-    static bool updateAddressIfMatching( const QVariant&                              oldValue,
-                                         const QVariant&                              newValue,
-                                         RifEclipseSummaryAddress::SummaryVarCategory category,
-                                         RifEclipseSummaryAddress*                    adr );
-
-    static bool updateHistoryAndSummaryQuantityIfMatching( const QVariant&           oldValue,
-                                                           const QVariant&           newValue,
-                                                           RifEclipseSummaryAddress* adr );
 
     std::vector<RimSummaryCase*> summaryCasesForSourceStepping();
 
+    RimSummarySourceSteppingInterface* dataSourceInterface() const;
+
 private:
+    caf::PdmPointer<caf::PdmObject> m_objectForSourceStepping;
+
     caf::PdmPtrField<RimSummaryCase*>           m_summaryCase;
     caf::PdmPtrField<RimSummaryCaseCollection*> m_ensemble;
 
@@ -124,7 +110,5 @@ private:
 
     caf::PdmField<bool> m_includeEnsembleCasesForCaseStepping;
 
-    SourceSteppingType m_sourceSteppingType;
-
-    std::pair<RifSummaryReaderInterface*, RiaSummaryCurveAnalyzer> m_curveAnalyzerForReader;
+    RimSummarySourceSteppingInterface::Axis m_sourceSteppingType;
 };

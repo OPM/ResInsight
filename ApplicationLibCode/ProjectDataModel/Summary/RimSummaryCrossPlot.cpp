@@ -38,5 +38,5 @@ RimSummaryCrossPlot::RimSummaryCrossPlot()
 //--------------------------------------------------------------------------------------------------
 RimSummaryPlotSourceStepping* RimSummaryCrossPlot::sourceSteppingObjectForKeyEventHandling() const
 {
-    return summaryCurveCollection()->sourceSteppingObject( RimSummaryPlotSourceStepping::UNION_X_Y_AXIS );
+    return summaryCurveCollection()->sourceSteppingObject( RimSummarySourceSteppingInterface::Axis::UNION_X_Y_AXIS );
 }

@@ -24,6 +24,7 @@
 #include "RifEclipseSummaryAddress.h"
 
 #include "RimPlot.h"
+#include "RimSummarySourceSteppingInterface.h"
 
 #include "qwt_plot_textlabel.h"
 
@@ -64,7 +65,7 @@ class QKeyEvent;
 ///
 ///
 //==================================================================================================
-class RimSummaryPlot : public RimPlot
+class RimSummaryPlot : public RimPlot, public RimSummarySourceSteppingInterface
 {
     Q_OBJECT;
     CAF_PDM_HEADER_INIT;
@@ -131,8 +132,6 @@ public:
     void                                deleteAllSummaryCurves();
     RimSummaryCurveCollection*          summaryCurveCollection() const;
 
-    std::vector<RimEnsembleCurveSet*> curveSets() const;
-
     void updatePlotTitle();
 
     const RimSummaryPlotNameHelper* activePlotTitleHelperAllCurves() const;
@@ -177,6 +176,11 @@ public:
     }
 
     static void moveCurvesToPlot( RimSummaryPlot* plot, const std::vector<RimSummaryCurve*> curves, int insertAtPosition );
+
+    std::vector<RimSummarySourceSteppingInterface::Axis> availableAxes() const override;
+    std::vector<RimSummaryCurve*>     curvesForStepping( RimSummarySourceSteppingInterface::Axis axis ) const override;
+    std::vector<RimEnsembleCurveSet*> curveSets() const override;
+    std::vector<RimSummaryCurve*>     allCurves( RimSummarySourceSteppingInterface::Axis axis ) const override;
 
 public:
     // RimViewWindow overrides

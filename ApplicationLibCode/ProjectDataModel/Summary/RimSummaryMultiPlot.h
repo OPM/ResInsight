@@ -19,18 +19,21 @@
 #pragma once
 
 #include "RimPlotWindow.h"
+#include "RimSummarySourceSteppingInterface.h"
 
 #include "cafPdmChildField.h"
 #include "cafPdmObject.h"
 #include "cafPdmPtrArrayField.h"
 
 class RimMultiPlot;
+class RimSummaryPlot;
+class RimSummaryPlotSourceStepping;
 
 //==================================================================================================
 ///
 ///
 //==================================================================================================
-class RimSummaryMultiPlot : public RimPlotWindow
+class RimSummaryMultiPlot : public RimPlotWindow, public RimSummarySourceSteppingInterface
 {
     CAF_PDM_HEADER_INIT;
 
@@ -46,6 +49,11 @@ public:
     void addPlot( RimPlot* plot );
 
     static RimSummaryMultiPlot* createAndAppendMultiPlot( const std::vector<RimPlot*>& plots );
+
+    std::vector<RimSummarySourceSteppingInterface::Axis> availableAxes() const override;
+    std::vector<RimSummaryCurve*>     curvesForStepping( RimSummarySourceSteppingInterface::Axis axis ) const override;
+    std::vector<RimEnsembleCurveSet*> curveSets() const override;
+    std::vector<RimSummaryCurve*>     allCurves( RimSummarySourceSteppingInterface::Axis axis ) const override;
 
 private:
     QWidget* createViewWidget( QWidget* mainWindowParent = nullptr ) override;
@@ -66,6 +74,8 @@ private:
 
     void updatePlots();
 
+    std::vector<RimSummaryPlot*> summaryPlots() const;
+
 private:
     caf::PdmField<QString> m_filterText;
     caf::PdmField<bool>    m_individualPlotPerVector;
@@ -73,4 +83,6 @@ private:
 
     caf::PdmField<bool>               m_showMultiPlotInProjectTree;
     caf::PdmChildField<RimMultiPlot*> m_multiPlot;
+
+    caf::PdmChildField<RimSummaryPlotSourceStepping*> m_sourceStepping;
 };

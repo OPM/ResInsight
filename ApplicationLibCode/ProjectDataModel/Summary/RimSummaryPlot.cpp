@@ -537,6 +537,47 @@ void RimSummaryPlot::moveCurvesToPlot( RimSummaryPlot* plot, const std::vector<R
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::vector<RimSummaryCurve*> RimSummaryPlot::curvesForStepping( RimSummarySourceSteppingInterface::Axis axis ) const
+{
+    auto curveForStepping = summaryCurveCollection()->curveForSourceStepping();
+    if ( curveForStepping )
+    {
+        return { curveForStepping };
+    }
+
+    return summaryCurves();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimEnsembleCurveSet*> RimSummaryPlot::curveSets() const
+{
+    return ensembleCurveSetCollection()->curveSets();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimSummaryCurve*> RimSummaryPlot::allCurves( RimSummarySourceSteppingInterface::Axis axis ) const
+{
+    return summaryCurves();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimSummarySourceSteppingInterface::Axis> RimSummaryPlot::availableAxes() const
+{
+    if ( m_isCrossPlot )
+        return { RimSummarySourceSteppingInterface::Axis::X_AXIS, RimSummarySourceSteppingInterface::Axis::Y_AXIS };
+
+    return { RimSummarySourceSteppingInterface::Axis::X_AXIS };
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::vector<RimSummaryCurve*> RimSummaryPlot::summaryAndEnsembleCurves() const
 {
     std::vector<RimSummaryCurve*> curves = summaryCurves();
@@ -605,14 +646,6 @@ std::vector<RimSummaryCurve*> RimSummaryPlot::visibleStackedSummaryCurvesForAxis
                   []( RimSummaryCurve* curve ) { return curve->isStacked(); } );
 
     return visibleStackedCurves;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::vector<RimEnsembleCurveSet*> RimSummaryPlot::curveSets() const
-{
-    return ensembleCurveSetCollection()->curveSets();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -2204,7 +2237,7 @@ RimSummaryPlotSourceStepping* RimSummaryPlot::sourceSteppingObjectForKeyEventHan
         }
     }
 
-    return summaryCurveCollection()->sourceSteppingObject( RimSummaryPlotSourceStepping::Y_AXIS );
+    return summaryCurveCollection()->sourceSteppingObject( RimSummarySourceSteppingInterface::Axis::Y_AXIS );
 }
 
 //--------------------------------------------------------------------------------------------------

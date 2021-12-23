@@ -702,7 +702,7 @@ void RimMultiPlot::uiOrderingForMultiPlotLayout( QString uiConfigName, caf::PdmU
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimMultiPlot::uiOrderingForSummaryMultiPlot( caf::PdmUiOrdering& uiOrdering ) const
+void RimMultiPlot::uiOrderingForMultiSummaryPlot( caf::PdmUiOrdering& uiOrdering ) const
 {
     uiOrdering.add( &m_showPlotWindowTitle );
     uiOrdering.add( &m_plotWindowTitle );
