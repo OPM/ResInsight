@@ -18,7 +18,7 @@
 #include "RimMultiPlotCollection.h"
 
 #include "RimMultiPlot.h"
-#include "RimMultiSummaryPlot.h"
+#include "RimSummaryMultiPlot.h"
 #include "RimProject.h"
 
 #include "cafPdmFieldReorderCapability.h"
@@ -88,7 +88,7 @@ void RimMultiPlotCollection::addMultiPlot( RimMultiPlot* plot )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimMultiPlotCollection::addMultiSummaryPlot( RimMultiSummaryPlot* plot )
+void RimMultiPlotCollection::addMultiSummaryPlot( RimSummaryMultiPlot* plot )
 {
     m_multiSummaryPlots().push_back( plot );
 }

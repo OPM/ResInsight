@@ -23,7 +23,7 @@
 #include "cafPdmObject.h"
 
 class RimMultiPlot;
-class RimMultiSummaryPlot;
+class RimSummaryMultiPlot;
 
 //==================================================================================================
 ///
@@ -44,9 +44,9 @@ public:
     std::vector<RimMultiPlot*> multiPlots() const;
     RimMultiPlot*              createMultiPlot();
     void                       addMultiPlot( RimMultiPlot* plot );
-    void                       addMultiSummaryPlot( RimMultiSummaryPlot* plot );
+    void                       addMultiSummaryPlot( RimSummaryMultiPlot* plot );
 
 private:
     caf::PdmChildArrayField<RimMultiPlot*>        m_multiPlots;
-    caf::PdmChildArrayField<RimMultiSummaryPlot*> m_multiSummaryPlots;
+    caf::PdmChildArrayField<RimSummaryMultiPlot*> m_multiSummaryPlots;
 };

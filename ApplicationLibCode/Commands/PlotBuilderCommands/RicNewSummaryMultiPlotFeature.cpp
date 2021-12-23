@@ -19,8 +19,9 @@
 
 #include "RicNewSummaryMultiPlotFeature.h"
 
-#include "RimMultiSummaryPlot.h"
+#include "RimMultiPlotCollection.h"
 #include "RimPlot.h"
+#include "RimSummaryMultiPlot.h"
 
 #include "cafSelectionManager.h"
 #include "cvfAssert.h"
@@ -42,7 +43,7 @@ RicNewSummaryMultiPlotFeature::RicNewSummaryMultiPlotFeature()
 caf::PdmScriptResponse RicNewSummaryMultiPlotFeature::execute()
 {
     std::vector<RimPlot*> plots;
-    RimMultiSummaryPlot::createAndAppendMultiPlot( plots );
+    RimSummaryMultiPlot::createAndAppendMultiPlot( plots );
 
     return caf::PdmScriptResponse();
 }
@@ -52,7 +53,16 @@ caf::PdmScriptResponse RicNewSummaryMultiPlotFeature::execute()
 //--------------------------------------------------------------------------------------------------
 bool RicNewSummaryMultiPlotFeature::isCommandEnabled()
 {
-    return true;
+    RimMultiPlotCollection* objToFind = nullptr;
+
+    auto pdmUiItem = caf::SelectionManager::instance()->selectedItem();
+    auto objHandle = dynamic_cast<caf::PdmObjectHandle*>( pdmUiItem );
+    if ( objHandle )
+    {
+        objHandle->firstAncestorOrThisOfType( objToFind );
+    }
+
+    return ( objToFind != nullptr );
 }
 
 //--------------------------------------------------------------------------------------------------

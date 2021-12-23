@@ -1102,6 +1102,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         menuBuilder << "RicCloseObservedDataFeature";
 
         menuBuilder << "RicNewMultiPlotFeature";
+        menuBuilder << "RicNewSummaryMultiPlotFeature";
 
         // Work in progress -- End
 

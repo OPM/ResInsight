@@ -55,7 +55,7 @@ public:
     };
     using RowCountEnum = caf::AppEnum<RowCount>;
 
-    friend class RimMultiSummaryPlot;
+    friend class RimSummaryMultiPlot;
 
 public:
     RimMultiPlot();

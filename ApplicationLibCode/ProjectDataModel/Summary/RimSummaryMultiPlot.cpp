@@ -22,10 +22,10 @@
 
 #include "RimMainPlotCollection.h"
 #include "RimMultiPlotCollection.h"
-#include "RimMultiSummaryPlot.h"
 #include "RimProject.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseCollection.h"
+#include "RimSummaryMultiPlot.h"
 #include "RimSummaryPlot.h"
 
 #include "PlotBuilderCommands/RicSummaryPlotBuilder.h"
@@ -35,11 +35,11 @@
 #include "cafPdmUiTreeOrdering.h"
 #include "cafPdmUiTreeSelectionEditor.h"
 
-CAF_PDM_SOURCE_INIT( RimMultiSummaryPlot, "MultiSummaryPlot" );
+CAF_PDM_SOURCE_INIT( RimSummaryMultiPlot, "MultiSummaryPlot" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimMultiSummaryPlot::RimMultiSummaryPlot()
+RimSummaryMultiPlot::RimSummaryMultiPlot()
 {
     CAF_PDM_InitObject( "Multi Summary Plot Plot", "", "", "" );
     this->setDeletable( true );
@@ -59,7 +59,7 @@ RimMultiSummaryPlot::RimMultiSummaryPlot()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimMultiSummaryPlot::~RimMultiSummaryPlot()
+RimSummaryMultiPlot::~RimSummaryMultiPlot()
 {
     removeMdiWindowFromMdiArea();
     m_multiPlot->cleanupBeforeClose();
@@ -68,7 +68,7 @@ RimMultiSummaryPlot::~RimMultiSummaryPlot()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QWidget* RimMultiSummaryPlot::viewWidget()
+QWidget* RimSummaryMultiPlot::viewWidget()
 {
     return m_multiPlot->viewWidget();
 }
@@ -76,7 +76,7 @@ QWidget* RimMultiSummaryPlot::viewWidget()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QImage RimMultiSummaryPlot::snapshotWindowContent()
+QImage RimSummaryMultiPlot::snapshotWindowContent()
 {
     return m_multiPlot->snapshotWindowContent();
 }
@@ -84,7 +84,7 @@ QImage RimMultiSummaryPlot::snapshotWindowContent()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimMultiSummaryPlot::zoomAll()
+void RimSummaryMultiPlot::zoomAll()
 {
     m_multiPlot->zoomAll();
 }
@@ -92,7 +92,7 @@ void RimMultiSummaryPlot::zoomAll()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimMultiSummaryPlot::description() const
+QString RimSummaryMultiPlot::description() const
 {
     return "RimMultiSummaryPlot Placeholder Text";
 }
@@ -100,7 +100,7 @@ QString RimMultiSummaryPlot::description() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimMultiSummaryPlot::addPlot( RimPlot* plot )
+void RimSummaryMultiPlot::addPlot( RimPlot* plot )
 {
     m_multiPlot->addPlot( plot );
 }
@@ -108,12 +108,12 @@ void RimMultiSummaryPlot::addPlot( RimPlot* plot )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimMultiSummaryPlot* RimMultiSummaryPlot::createAndAppendMultiPlot( const std::vector<RimPlot*>& plots )
+RimSummaryMultiPlot* RimSummaryMultiPlot::createAndAppendMultiPlot( const std::vector<RimPlot*>& plots )
 {
     RimProject* project        = RimProject::current();
     auto*       plotCollection = project->mainPlotCollection()->multiPlotCollection();
 
-    auto* plotWindow = new RimMultiSummaryPlot;
+    auto* plotWindow = new RimSummaryMultiPlot;
     plotWindow->setAsPlotMdiWindow();
     plotCollection->addMultiSummaryPlot( plotWindow );
 
@@ -137,7 +137,7 @@ RimMultiSummaryPlot* RimMultiSummaryPlot::createAndAppendMultiPlot( const std::v
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QWidget* RimMultiSummaryPlot::createViewWidget( QWidget* mainWindowParent /*= nullptr*/ )
+QWidget* RimSummaryMultiPlot::createViewWidget( QWidget* mainWindowParent /*= nullptr*/ )
 {
     return m_multiPlot->createViewWidget( mainWindowParent );
 }
@@ -145,7 +145,7 @@ QWidget* RimMultiSummaryPlot::createViewWidget( QWidget* mainWindowParent /*= nu
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimMultiSummaryPlot::deleteViewWidget()
+void RimSummaryMultiPlot::deleteViewWidget()
 {
     m_multiPlot->deleteViewWidget();
 }
@@ -153,7 +153,7 @@ void RimMultiSummaryPlot::deleteViewWidget()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimMultiSummaryPlot::onLoadDataAndUpdate()
+void RimSummaryMultiPlot::onLoadDataAndUpdate()
 {
     updateMdiWindowVisibility();
 
@@ -163,7 +163,7 @@ void RimMultiSummaryPlot::onLoadDataAndUpdate()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimMultiSummaryPlot::doRenderWindowContent( QPaintDevice* paintDevice )
+void RimSummaryMultiPlot::doRenderWindowContent( QPaintDevice* paintDevice )
 {
     m_multiPlot->doRenderWindowContent( paintDevice );
 }
@@ -171,7 +171,7 @@ void RimMultiSummaryPlot::doRenderWindowContent( QPaintDevice* paintDevice )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RimMultiSummaryPlot::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
+QList<caf::PdmOptionItemInfo> RimSummaryMultiPlot::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
                                                                           bool*                      useOptionsOnly )
 {
     QList<caf::PdmOptionItemInfo> options;
@@ -181,7 +181,7 @@ QList<caf::PdmOptionItemInfo> RimMultiSummaryPlot::calculateValueOptions( const 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimMultiSummaryPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
+void RimSummaryMultiPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     uiOrdering.add( &m_filterText );
     uiOrdering.add( &m_individualPlotPerVector );
@@ -198,7 +198,7 @@ void RimMultiSummaryPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrde
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimMultiSummaryPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
+void RimSummaryMultiPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
                                             const QVariant&            oldValue,
                                             const QVariant&            newValue )
 {
@@ -224,7 +224,7 @@ void RimMultiSummaryPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimMultiSummaryPlot::defineEditorAttribute( const caf::PdmFieldHandle* field,
+void RimSummaryMultiPlot::defineEditorAttribute( const caf::PdmFieldHandle* field,
                                                  QString                    uiConfigName,
                                                  caf::PdmUiEditorAttribute* attribute )
 {
@@ -244,7 +244,7 @@ void RimMultiSummaryPlot::defineEditorAttribute( const caf::PdmFieldHandle* fiel
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimMultiSummaryPlot::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName )
+void RimSummaryMultiPlot::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName )
 {
     uiTreeOrdering.skipRemainingChildren( !m_showMultiPlotInProjectTree );
 }
@@ -252,7 +252,7 @@ void RimMultiSummaryPlot::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOr
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimMultiSummaryPlot::updatePlots()
+void RimSummaryMultiPlot::updatePlots()
 {
     auto [addressFilters, dataSourceFilters] =
         RiaSummaryStringTools::splitIntoAddressAndDataSourceFilters( m_filterText() );

@@ -30,13 +30,13 @@ class RimMultiPlot;
 ///
 ///
 //==================================================================================================
-class RimMultiSummaryPlot : public RimPlotWindow
+class RimSummaryMultiPlot : public RimPlotWindow
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimMultiSummaryPlot();
-    ~RimMultiSummaryPlot();
+    RimSummaryMultiPlot();
+    ~RimSummaryMultiPlot();
 
     QWidget* viewWidget() override;
     QImage   snapshotWindowContent() override;
@@ -45,7 +45,7 @@ public:
 
     void addPlot( RimPlot* plot );
 
-    static RimMultiSummaryPlot* createAndAppendMultiPlot( const std::vector<RimPlot*>& plots );
+    static RimSummaryMultiPlot* createAndAppendMultiPlot( const std::vector<RimPlot*>& plots );
 
 private:
     QWidget* createViewWidget( QWidget* mainWindowParent = nullptr ) override;

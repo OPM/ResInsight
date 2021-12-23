@@ -28,6 +28,9 @@
 
 #include "RimEnsembleCurveSet.h"
 #include "RimEnsembleCurveSetCollection.h"
+#include "RimMainPlotCollection.h"
+#include "RimMultiPlotCollection.h"
+#include "RimProject.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseCollection.h"
 #include "RimSummaryCaseMainCollection.h"
@@ -48,12 +51,6 @@
 #include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiTreeSelectionEditor.h"
 #include "cafSelectionManager.h"
-
-// Multi plot
-#include "RimMainPlotCollection.h"
-#include "RimMultiPlotCollection.h"
-#include "RimMultiSummaryPlot.h"
-#include "RimProject.h"
 
 #include <QKeyEvent>
 
@@ -390,17 +387,6 @@ void RimSummaryPlotManager::createNewPlot()
         }
 
         RicSummaryPlotBuilder::createAndAppendMultiPlot( plotsForMultiPlot );
-
-        {
-            auto                  myCopyOfPlots = plotBuilder.createPlots();
-            std::vector<RimPlot*> myRimPlots;
-            for ( auto p : myCopyOfPlots )
-            {
-                p->loadDataAndUpdate();
-                myRimPlots.push_back( dynamic_cast<RimPlot*>( p ) );
-            }
-            RimMultiSummaryPlot::createAndAppendMultiPlot( myRimPlots );
-        }
     }
     else
     {
