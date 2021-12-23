@@ -188,7 +188,7 @@ void RimSummaryMultiPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrde
     uiOrdering.add( &m_individualPlotPerDataSource );
 
     auto group = uiOrdering.addNewGroup( "Multi Plot Options" );
-    m_multiPlot->uiOrderingForMultiSummaryPlot( *group );
+    m_multiPlot->uiOrderingForSummaryMultiPlot( *group );
 
     uiOrdering.add( &m_showMultiPlotInProjectTree );
 

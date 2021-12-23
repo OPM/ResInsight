@@ -78,7 +78,7 @@ public:
 
     void insertPlots( const std::vector<RimPlot*>& plots );
     void deleteAllPlots();
-    void uiOrderingForMultiSummaryPlot( caf::PdmUiOrdering& uiOrdering ) const;
+    void uiOrderingForSummaryMultiPlot( caf::PdmUiOrdering& uiOrdering ) const;
 
     size_t plotCount() const override;
     size_t plotIndex( const RimPlot* plot ) const;
