@@ -48,6 +48,7 @@ public:
     void setEnsembleCases( const std::vector<RimSummaryCaseCollection*>& ensembleCases );
 
     QString plotTitle() const;
+    QString plotTitle( const RimSummaryPlotNameHelper& summaryMultiPlotNameHelper ) const;
 
     bool isPlotDisplayingSingleQuantity() const;
     bool isWellNameInTitle() const;

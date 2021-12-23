@@ -688,6 +688,14 @@ const RimSummaryPlotNameHelper* RimSummaryPlot::activePlotTitleHelperAllCurves()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+const RimSummaryPlotNameHelper* RimSummaryPlot::plotTitleHelper() const
+{
+    return m_nameHelperAllCurves.get();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString RimSummaryPlot::generatedPlotTitleFromAllCurves() const
 {
     RimSummaryPlotNameHelper nameHelper;

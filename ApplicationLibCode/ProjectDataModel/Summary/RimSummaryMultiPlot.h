@@ -47,6 +47,7 @@ public:
     QString  description() const override;
 
     void addPlot( RimPlot* plot );
+    void updatePlotTitles();
 
     static RimSummaryMultiPlot* createAndAppendMultiPlot( const std::vector<RimPlot*>& plots );
 
@@ -80,6 +81,7 @@ private:
     caf::PdmField<QString> m_filterText;
     caf::PdmField<bool>    m_individualPlotPerVector;
     caf::PdmField<bool>    m_individualPlotPerDataSource;
+    caf::PdmField<bool>    m_autoPlotTitles;
 
     caf::PdmField<bool>               m_showMultiPlotInProjectTree;
     caf::PdmChildField<RimMultiPlot*> m_multiPlot;

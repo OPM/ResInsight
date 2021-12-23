@@ -135,6 +135,7 @@ public:
     void updatePlotTitle();
 
     const RimSummaryPlotNameHelper* activePlotTitleHelperAllCurves() const;
+    const RimSummaryPlotNameHelper* plotTitleHelper() const;
     void                            updateCurveNames();
     QString                         generatedPlotTitleFromAllCurves() const;
 

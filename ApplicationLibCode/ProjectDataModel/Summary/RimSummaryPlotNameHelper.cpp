@@ -93,51 +93,61 @@ void RimSummaryPlotNameHelper::setEnsembleCases( const std::vector<RimSummaryCas
 //--------------------------------------------------------------------------------------------------
 QString RimSummaryPlotNameHelper::plotTitle() const
 {
+    RimSummaryPlotNameHelper empty;
+
+    return plotTitle( empty );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimSummaryPlotNameHelper::plotTitle( const RimSummaryPlotNameHelper& other ) const
+{
     QString title;
 
-    if ( !m_titleCaseName.isEmpty() )
+    if ( !other.isCaseInTitle() && !m_titleCaseName.isEmpty() )
     {
         if ( !title.isEmpty() ) title += ", ";
         title += m_titleCaseName;
     }
 
-    if ( !m_titleWellName.empty() )
+    if ( !other.isWellNameInTitle() && !m_titleWellName.empty() )
     {
         if ( !title.isEmpty() ) title += ", ";
         title += QString::fromStdString( m_titleWellName );
     }
 
-    if ( !m_titleWellGroupName.empty() )
+    if ( !other.isWellGroupNameInTitle() && !m_titleWellGroupName.empty() )
     {
         if ( !title.isEmpty() ) title += ", ";
         title += QString::fromStdString( m_titleWellGroupName );
     }
 
-    if ( !m_titleRegion.empty() )
+    if ( !other.isRegionInTitle() && !m_titleRegion.empty() )
     {
         if ( !title.isEmpty() ) title += ", ";
         title += "Region : " + QString::fromStdString( m_titleRegion );
     }
 
-    if ( !m_titleBlock.empty() )
+    if ( !other.isBlockInTitle() && !m_titleBlock.empty() )
     {
         if ( !title.isEmpty() ) title += ", ";
         title += "Block : " + QString::fromStdString( m_titleBlock );
     }
 
-    if ( !m_titleSegment.empty() )
+    if ( !other.isSegmentInTitle() && !m_titleSegment.empty() )
     {
         if ( !title.isEmpty() ) title += ", ";
         title += "Segment : " + QString::fromStdString( m_titleSegment );
     }
 
-    if ( !m_titleCompletion.empty() )
+    if ( !other.isCompletionInTitle() && !m_titleCompletion.empty() )
     {
         if ( !title.isEmpty() ) title += ", ";
         title += "Completion : " + QString::fromStdString( m_titleCompletion );
     }
 
-    if ( !m_titleQuantity.empty() )
+    if ( !other.isPlotDisplayingSingleQuantity() && !m_titleQuantity.empty() )
     {
         if ( !title.isEmpty() ) title += ", ";
         title += QString::fromStdString(
