@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2019- Equinor ASA
+//  Copyright (C) 2021     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -15,38 +15,32 @@
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
+
 #pragma once
 
-#include "RimAbstractPlotCollection.h"
+#include "RicfCommandObject.h"
 
-#include "cafPdmChildArrayField.h"
-#include "cafPdmObject.h"
+#include "cafCmdFeature.h"
+#include "cafPdmField.h"
 
-class RimMultiPlot;
-class RimSummaryMultiPlot;
+#include <vector>
+
+class RimPlot;
 
 //==================================================================================================
 ///
-///
 //==================================================================================================
-class RimMultiPlotCollection : public caf::PdmObject, public RimPlotCollection
+class RicNewSummaryMultiPlotFeature : public caf::CmdFeature, public RicfCommandObject
 {
-    CAF_PDM_HEADER_INIT;
+    RICF_HEADER_INIT;
 
 public:
-    RimMultiPlotCollection();
-    ~RimMultiPlotCollection() override;
+    RicNewSummaryMultiPlotFeature();
 
-    void   deleteAllPlots() override;
-    void   loadDataAndUpdateAllPlots() override;
-    size_t plotCount() const override;
+    caf::PdmScriptResponse execute() override;
 
-    std::vector<RimMultiPlot*> multiPlots() const;
-    RimMultiPlot*              createMultiPlot();
-    void                       addMultiPlot( RimMultiPlot* plot );
-    void                       addMultiSummaryPlot( RimSummaryMultiPlot* plot );
-
-private:
-    caf::PdmChildArrayField<RimMultiPlot*>        m_multiPlots;
-    caf::PdmChildArrayField<RimSummaryMultiPlot*> m_multiSummaryPlots;
+protected:
+    bool isCommandEnabled() override;
+    void onActionTriggered( bool isChecked ) override;
+    void setupActionLook( QAction* actionToSetup ) override;
 };

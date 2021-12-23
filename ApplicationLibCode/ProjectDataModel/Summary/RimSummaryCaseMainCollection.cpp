@@ -94,6 +94,7 @@ void addCaseRealizationParametersIfFound( RimSummaryCase& sumCase, const QString
 ///
 //--------------------------------------------------------------------------------------------------
 RimSummaryCaseMainCollection::RimSummaryCaseMainCollection()
+    : dataSourceHasChanged( this )
 {
     CAF_PDM_InitObject( "Summary Cases", ":/SummaryCases16x16.png", "", "" );
 
@@ -233,6 +234,8 @@ void RimSummaryCaseMainCollection::addCase( RimSummaryCase* summaryCase )
 {
     m_cases.push_back( summaryCase );
     summaryCase->nameChanged.connect( this, &RimSummaryCaseMainCollection::onCaseNameChanged );
+
+    dataSourceHasChanged.send();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -267,6 +270,8 @@ void RimSummaryCaseMainCollection::removeCase( RimSummaryCase* summaryCase )
     {
         derEnsemble->createDerivedEnsembleCases();
     }
+
+    dataSourceHasChanged.send();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -313,6 +318,8 @@ RimSummaryCaseCollection*
     summaryCaseCollection->caseNameChanged.connect( this, &RimSummaryCaseMainCollection::onCaseNameChanged );
     m_caseCollections.push_back( summaryCaseCollection );
 
+    dataSourceHasChanged.send();
+
     return summaryCaseCollection;
 }
 
@@ -322,6 +329,8 @@ RimSummaryCaseCollection*
 void RimSummaryCaseMainCollection::removeCaseCollection( RimSummaryCaseCollection* caseCollection )
 {
     m_caseCollections.removeChildObject( caseCollection );
+
+    dataSourceHasChanged.send();
 }
 
 //--------------------------------------------------------------------------------------------------

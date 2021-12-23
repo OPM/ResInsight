@@ -19,6 +19,7 @@
 
 #include "RimMultiPlot.h"
 #include "RimProject.h"
+#include "RimSummaryMultiPlot.h"
 
 #include "cafPdmFieldReorderCapability.h"
 
@@ -34,6 +35,10 @@ RimMultiPlotCollection::RimMultiPlotCollection()
     CAF_PDM_InitFieldNoDefault( &m_multiPlots, "MultiPlots", "Plots Reports" );
     m_multiPlots.uiCapability()->setUiTreeHidden( true );
     caf::PdmFieldReorderCapability::addToField( &m_multiPlots );
+
+    CAF_PDM_InitFieldNoDefault( &m_multiSummaryPlots, "MultiSummaryPlots", "Multi Summary Plots" );
+    m_multiSummaryPlots.uiCapability()->setUiTreeHidden( true );
+    caf::PdmFieldReorderCapability::addToField( &m_multiSummaryPlots );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -49,6 +54,7 @@ RimMultiPlotCollection::~RimMultiPlotCollection()
 void RimMultiPlotCollection::deleteAllPlots()
 {
     m_multiPlots.deleteAllChildObjects();
+    m_multiSummaryPlots.deleteAllChildObjects();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -82,9 +88,20 @@ void RimMultiPlotCollection::addMultiPlot( RimMultiPlot* plot )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimMultiPlotCollection::addMultiSummaryPlot( RimSummaryMultiPlot* plot )
+{
+    m_multiSummaryPlots().push_back( plot );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimMultiPlotCollection::loadDataAndUpdateAllPlots()
 {
     for ( const auto& p : m_multiPlots.childObjects() )
+        p->loadDataAndUpdate();
+
+    for ( const auto& p : m_multiSummaryPlots.childObjects() )
         p->loadDataAndUpdate();
 }
 
@@ -93,5 +110,5 @@ void RimMultiPlotCollection::loadDataAndUpdateAllPlots()
 //--------------------------------------------------------------------------------------------------
 size_t RimMultiPlotCollection::plotCount() const
 {
-    return m_multiPlots.size();
+    return m_multiPlots.size() + m_multiSummaryPlots.size();
 }

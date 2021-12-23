@@ -55,6 +55,8 @@ public:
     };
     using RowCountEnum = caf::AppEnum<RowCount>;
 
+    friend class RimSummaryMultiPlot;
+
 public:
     RimMultiPlot();
     ~RimMultiPlot() override;
@@ -73,6 +75,10 @@ public:
     void insertPlot( RimPlot* plot, size_t index ) override;
     void removePlot( RimPlot* plot ) override;
     void movePlotsToThis( const std::vector<RimPlot*>& plots, int insertAtPosition );
+
+    void insertPlots( const std::vector<RimPlot*>& plots );
+    void deleteAllPlots();
+    void uiOrderingForSummaryMultiPlot( caf::PdmUiOrdering& uiOrdering ) const;
 
     size_t plotCount() const override;
     size_t plotIndex( const RimPlot* plot ) const;
