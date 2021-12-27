@@ -36,7 +36,7 @@ class RimSummaryMultiPlot : public RimPlotWindow
 
 public:
     RimSummaryMultiPlot();
-    ~RimSummaryMultiPlot();
+    ~RimSummaryMultiPlot() override;
 
     QWidget* viewWidget() override;
     QImage   snapshotWindowContent() override;
