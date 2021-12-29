@@ -31,6 +31,8 @@
 
 #include "SummaryPlotCommands/RicSummaryPlotEditorUi.h"
 
+#include "RiuSummaryQuantityNameInfoProvider.h"
+
 #include "cafPdmUiPushButtonEditor.h"
 
 CAF_PDM_SOURCE_INIT( RimSummaryCurveAutoName, "SummaryCurveAutoName" );
@@ -43,17 +45,18 @@ RimSummaryCurveAutoName::RimSummaryCurveAutoName()
     // clang-format off
     CAF_PDM_InitObject("RimSummaryCurveAutoName", "", "", "");
 
-    CAF_PDM_InitField(&m_vectorName,        "VectorName",         true, "Vector Name", "", "", "");
-    CAF_PDM_InitField(&m_unit,              "Unit",               false,"Unit", "", "", "");
-    CAF_PDM_InitField(&m_regionNumber,      "RegionNumber",       true, "Region Number", "", "", "");
-    CAF_PDM_InitField(&m_wellGroupName,     "WellGroupName",      true, "Group Name", "", "", "");
-    CAF_PDM_InitField(&m_wellName,          "WellName",           true, "Well Name", "", "", "");
-    CAF_PDM_InitField(&m_wellSegmentNumber, "WellSegmentNumber",  true, "Well Segment Number", "", "", "");
-    CAF_PDM_InitField(&m_lgrName,           "LgrName",            true, "Lgr Name", "", "", "");
-    CAF_PDM_InitField(&m_completion,        "Completion",         true, "I, J, K", "", "", "");
-    CAF_PDM_InitField(&m_aquiferNumber,     "Aquifer",            true, "Aquifer Number", "", "", "");
+	CAF_PDM_InitField(&m_longVectorName,    "LongVectorName",       false,  "Long Vector Name", "", "", "");
+    CAF_PDM_InitField(&m_vectorName,        "VectorName",           true,   "Vector Name", "", "", "");
+    CAF_PDM_InitField(&m_unit,              "Unit",                 false,  "Unit", "", "", "");
+    CAF_PDM_InitField(&m_regionNumber,      "RegionNumber",         true,   "Region Number", "", "", "");
+    CAF_PDM_InitField(&m_wellGroupName,     "WellGroupName",        true,   "Group Name", "", "", "");
+    CAF_PDM_InitField(&m_wellName,          "WellName",             true,   "Well Name", "", "", "");
+    CAF_PDM_InitField(&m_wellSegmentNumber, "WellSegmentNumber",    true,   "Well Segment Number", "", "", "");
+    CAF_PDM_InitField(&m_lgrName,           "LgrName",              true,   "Lgr Name", "", "", "");
+    CAF_PDM_InitField(&m_completion,        "Completion",           true,   "I, J, K", "", "", "");
+    CAF_PDM_InitField(&m_aquiferNumber,     "Aquifer",              true,   "Aquifer Number", "", "", "");
     
-    CAF_PDM_InitField(&m_caseName,          "CaseName",           true, "Case/Ensemble Name", "", "", "");
+    CAF_PDM_InitField(&m_caseName,          "CaseName",             true,   "Case/Ensemble Name", "", "", "");
 
     // clang-format on
 }
@@ -135,6 +138,7 @@ void RimSummaryCurveAutoName::applySettings( const RimSummaryCurveAutoName& othe
 {
     m_caseName          = other.m_caseName;
     m_vectorName        = other.m_vectorName;
+    m_longVectorName    = other.m_longVectorName;
     m_unit              = other.m_unit;
     m_regionNumber      = other.m_regionNumber;
     m_wellGroupName     = other.m_wellGroupName;
@@ -189,7 +193,18 @@ QString RimSummaryCurveAutoName::buildCurveName( const RifEclipseSummaryAddress&
         bool skipSubString = nameHelper && nameHelper->isPlotDisplayingSingleQuantity();
         if ( !skipSubString )
         {
-            text = summaryAddress.quantityName();
+            if ( m_longVectorName() )
+            {
+                auto quantityName = summaryAddress.quantityName();
+                if ( summaryAddress.isHistoryQuantity() )
+                    quantityName = quantityName.substr( 0, quantityName.size() - 1 );
+
+                text = RiuSummaryQuantityNameInfoProvider::instance()->longNameFromQuantityName( quantityName );
+            }
+            else
+            {
+                text = summaryAddress.quantityName();
+            }
         }
 
         if ( summaryAddress.category() == RifEclipseSummaryAddress::SUMMARY_ENSEMBLE_STATISTICS )
@@ -424,6 +439,7 @@ void RimSummaryCurveAutoName::defineUiOrdering( QString uiConfigName, caf::PdmUi
 {
     uiOrdering.add( &m_caseName );
     uiOrdering.add( &m_vectorName );
+    uiOrdering.add( &m_longVectorName );
     uiOrdering.add( &m_wellGroupName );
     uiOrdering.add( &m_wellName );
 
