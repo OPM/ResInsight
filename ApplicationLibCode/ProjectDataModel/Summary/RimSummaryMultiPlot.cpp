@@ -53,7 +53,7 @@ RimSummaryMultiPlot::RimSummaryMultiPlot()
 
     CAF_PDM_InitField( &m_individualPlotPerVector, "IndividualPlotPerVector", false, "One plot per Vector" );
     CAF_PDM_InitField( &m_individualPlotPerDataSource, "IndividualPlotPerDataSource", false, "One plot per Data Source" );
-    CAF_PDM_InitField( &m_autoPlotTitles, "AutoPlotNames", true, "Auto Plot Names" );
+    CAF_PDM_InitField( &m_autoPlotTitles, "AutoPlotNames", true, "Auto Plot Titles" );
 
     CAF_PDM_InitField( &m_showMultiPlotInProjectTree, "ShowMultiPlotInProjectTree", false, "Show Multi Plot In Project Tree" );
 
@@ -267,6 +267,7 @@ void RimSummaryMultiPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrde
     uiOrdering.add( &m_filterText );
     uiOrdering.add( &m_individualPlotPerVector );
     uiOrdering.add( &m_individualPlotPerDataSource );
+    uiOrdering.add( &m_autoPlotTitles );
 
     auto group = uiOrdering.addNewGroup( "Multi Plot Options" );
     m_multiPlot->uiOrderingForSummaryMultiPlot( *group );
