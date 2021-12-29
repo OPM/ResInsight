@@ -67,7 +67,6 @@ private:
 
 private:
     std::unique_ptr<Opm::EclIO::ESmry>         m_eSmry;
-    std::vector<std::string>                   m_eSmryKeywords;
     std::map<RifEclipseSummaryAddress, size_t> m_adrToSummaryNodeIndex;
     std::vector<time_t>                        m_timeSteps;
 
