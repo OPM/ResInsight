@@ -126,11 +126,8 @@ std::string RifOpmHdf5Summary::unitName( const RifEclipseSummaryAddress& resultA
             auto index = it->second;
             auto node  = m_eSmry->summaryNodeList()[index];
 
-            if ( m_eSmry->hasKey( node.keyword ) )
-            {
-                auto stringFromFileReader = m_eSmry->get_unit( node );
-                return RiaStdStringTools::trimString( stringFromFileReader );
-            }
+            auto stringFromFileReader = m_eSmry->get_unit( node );
+            return RiaStdStringTools::trimString( stringFromFileReader );
         }
     }
 
