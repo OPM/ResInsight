@@ -45,7 +45,7 @@ CAF_PDM_SOURCE_INIT( RimSummaryMultiPlot, "MultiSummaryPlot" );
 //--------------------------------------------------------------------------------------------------
 RimSummaryMultiPlot::RimSummaryMultiPlot()
 {
-    CAF_PDM_InitObject( "Multi Summary Plot Plot", "", "", "" );
+    CAF_PDM_InitObject( "Multi Summary Plot", "", "", "" );
     this->setDeletable( true );
 
     CAF_PDM_InitFieldNoDefault( &m_filterText, "FilterText", "Filter Text" );
@@ -53,9 +53,9 @@ RimSummaryMultiPlot::RimSummaryMultiPlot()
 
     CAF_PDM_InitField( &m_individualPlotPerVector, "IndividualPlotPerVector", false, "One plot per Vector" );
     CAF_PDM_InitField( &m_individualPlotPerDataSource, "IndividualPlotPerDataSource", false, "One plot per Data Source" );
-    CAF_PDM_InitField( &m_autoPlotTitles, "AutoPlotNames", true, "Auto Plot Titles" );
+    CAF_PDM_InitField( &m_autoPlotTitles, "AutoPlotTitles", false, "Auto Plot Titles" );
 
-    CAF_PDM_InitField( &m_showMultiPlotInProjectTree, "ShowMultiPlotInProjectTree", false, "Show Multi Plot In Project Tree" );
+    CAF_PDM_InitField( &m_showMultiPlotInProjectTree, "ShowMultiPlotInProjectTree", true, "Show Multi Plot In Project Tree" );
 
     CAF_PDM_InitFieldNoDefault( &m_multiPlot, "MultiPlot", "Multi Plot" );
     m_multiPlot.uiCapability()->setUiTreeHidden( true );
