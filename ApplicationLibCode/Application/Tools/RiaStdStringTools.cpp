@@ -28,6 +28,8 @@
 //--------------------------------------------------------------------------------------------------
 std::string RiaStdStringTools::trimString( const std::string& s )
 {
+    if ( s.empty() ) return s;
+
     auto sCopy = s.substr( 0, s.find_last_not_of( ' ' ) + 1 );
     sCopy      = sCopy.substr( sCopy.find_first_not_of( ' ' ) );
 
