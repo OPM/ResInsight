@@ -26,15 +26,15 @@
 #include "RimProject.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseCollection.h"
+#include "RimSummaryCurve.h"
 #include "RimSummaryMultiPlot.h"
 #include "RimSummaryPlot.h"
+#include "RimSummaryPlotNameHelper.h"
 #include "RimSummaryPlotSourceStepping.h"
 
 #include "PlotBuilderCommands/RicSummaryPlotBuilder.h"
 #include "RiuSummaryVectorSelectionUi.h"
 
-#include "RimSummaryCurve.h"
-#include "RimSummaryPlotNameHelper.h"
 #include "cafPdmUiComboBoxEditor.h"
 #include "cafPdmUiTreeOrdering.h"
 #include "cafPdmUiTreeSelectionEditor.h"
@@ -269,7 +269,7 @@ void RimSummaryMultiPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrde
     uiOrdering.add( &m_individualPlotPerDataSource );
 
     auto group = uiOrdering.addNewGroup( "Multi Plot Options" );
-    m_multiPlot->uiOrderingForMultiSummaryPlot( *group );
+    m_multiPlot->uiOrderingForSummaryMultiPlot( *group );
 
     {
         auto group = uiOrdering.addNewGroup( "Data Source" );
