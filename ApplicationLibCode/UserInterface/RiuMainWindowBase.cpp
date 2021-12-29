@@ -318,22 +318,26 @@ void RiuMainWindowBase::removeViewerFromMdiArea( QMdiArea* mdiArea, QWidget* vie
 {
     bool wasMaximized = viewer && viewer->isMaximized();
 
-    QMdiSubWindow* subWindowBeingClosed      = findMdiSubWindow( viewer );
-    bool           removedSubWindowWasActive = false;
-    if ( subWindowBeingClosed->isActiveWindow() )
-    {
-        // If we are removing the active window, we will need a new active window
-        // Start by making the window inactive so Qt doesn't pick the active window itself
-        mdiArea->setActiveSubWindow( nullptr );
-        removedSubWindowWasActive = true;
-    }
-    mdiArea->removeSubWindow( subWindowBeingClosed );
+    bool removedSubWindowWasActive = false;
 
-    // These two lines had to be introduced after themes was used
-    // Probably related to polish/unpolish of widgets in an MDI setting
-    // https://github.com/OPM/ResInsight/issues/6676
-    subWindowBeingClosed->hide();
-    subWindowBeingClosed->deleteLater();
+    QMdiSubWindow* subWindowBeingClosed = findMdiSubWindow( viewer );
+    if ( subWindowBeingClosed )
+    {
+        if ( subWindowBeingClosed->isActiveWindow() )
+        {
+            // If we are removing the active window, we will need a new active window
+            // Start by making the window inactive so Qt doesn't pick the active window itself
+            mdiArea->setActiveSubWindow( nullptr );
+            removedSubWindowWasActive = true;
+        }
+        mdiArea->removeSubWindow( subWindowBeingClosed );
+
+        // These two lines had to be introduced after themes was used
+        // Probably related to polish/unpolish of widgets in an MDI setting
+        // https://github.com/OPM/ResInsight/issues/6676
+        subWindowBeingClosed->hide();
+        subWindowBeingClosed->deleteLater();
+    }
 
     QList<QMdiSubWindow*> subWindowList = mdiArea->subWindowList( QMdiArea::ActivationHistoryOrder );
     if ( !subWindowList.empty() )
