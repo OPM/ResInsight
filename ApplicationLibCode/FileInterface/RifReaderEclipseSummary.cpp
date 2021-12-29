@@ -302,8 +302,20 @@ RifSummaryReaderInterface* RifReaderEclipseSummary::currentSummaryReader() const
 std::string RifReaderEclipseSummary::unitName( const RifEclipseSummaryAddress& resultAddress ) const
 {
     auto reader = currentSummaryReader();
+    if ( reader )
+    {
+        auto nativeName     = resultAddress.quantityName();
+        auto stringToRemove = RifReaderEclipseSummary::differenceIdentifier();
+        if ( RiaStdStringTools::endsWith( nativeName, stringToRemove ) )
+        {
+            nativeName = nativeName.substr( 0, nativeName.size() - stringToRemove.size() );
+        }
 
-    if ( reader ) return reader->unitName( resultAddress );
+        RifEclipseSummaryAddress adr( resultAddress );
+        adr.setQuantityName( nativeName );
+
+        return reader->unitName( adr );
+    }
 
     return "";
 }

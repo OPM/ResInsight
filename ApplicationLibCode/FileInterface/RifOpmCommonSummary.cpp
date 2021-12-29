@@ -19,6 +19,7 @@
 #include "RifOpmCommonSummary.h"
 
 #include "RiaLogging.h"
+#include "RiaStdStringTools.h"
 
 #include "opm/io/eclipse/ESmry.hpp"
 #include "opm/io/eclipse/ExtESmry.hpp"
@@ -156,22 +157,22 @@ bool RifOpmCommonEclipseSummary::values( const RifEclipseSummaryAddress& resultA
 //--------------------------------------------------------------------------------------------------
 std::string RifOpmCommonEclipseSummary::unitName( const RifEclipseSummaryAddress& resultAddress ) const
 {
-    auto it = m_summaryAddressToKeywordMap.find( resultAddress );
+    std::string nameString;
+    auto        it = m_summaryAddressToKeywordMap.find( resultAddress );
     if ( it != m_summaryAddressToKeywordMap.end() )
     {
         auto keyword = it->second;
         if ( m_enhancedReader )
         {
-            return m_enhancedReader->get_unit( keyword );
+            nameString = m_enhancedReader->get_unit( keyword );
         }
-
-        if ( m_standardReader )
+        else if ( m_standardReader )
         {
-            return m_standardReader->get_unit( keyword );
+            nameString = m_standardReader->get_unit( keyword );
         }
     }
 
-    return {};
+    return RiaStdStringTools::trimString( nameString );
 }
 
 //--------------------------------------------------------------------------------------------------

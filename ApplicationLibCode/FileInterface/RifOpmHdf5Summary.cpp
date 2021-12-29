@@ -19,6 +19,7 @@
 #include "RifOpmHdf5Summary.h"
 
 #include "RiaLogging.h"
+#include "RiaStdStringTools.h"
 
 #include "RifHdf5SummaryReader.h"
 #include "RifOpmCommonSummary.h"
@@ -127,7 +128,8 @@ std::string RifOpmHdf5Summary::unitName( const RifEclipseSummaryAddress& resultA
 
             if ( m_eSmry->hasKey( node.keyword ) )
             {
-                return m_eSmry->get_unit( node );
+                auto stringFromFileReader = m_eSmry->get_unit( node );
+                return RiaStdStringTools::trimString( stringFromFileReader );
             }
         }
     }
