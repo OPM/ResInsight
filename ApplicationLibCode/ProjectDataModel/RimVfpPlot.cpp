@@ -566,7 +566,7 @@ void RimVfpPlot::populatePlotWidgetWithPlotData( RiuPlotWidget* plotWidget, cons
     for ( auto idx = 0u; idx < plotData.size(); idx++ )
     {
         QColor        qtClr = RiaColorTables::summaryCurveDefaultPaletteColors().cycledQColor( idx );
-        RiuPlotCurve* curve = m_plotWidget->createPlotCurve( plotData.curveTitle( idx ), qtClr );
+        RiuPlotCurve* curve = m_plotWidget->createPlotCurve( nullptr, plotData.curveTitle( idx ), qtClr );
 
         curve->setAppearance( RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_SOLID,
                               RiuQwtPlotCurveDefines::CurveInterpolationEnum::INTERPOLATION_POINT_TO_POINT,

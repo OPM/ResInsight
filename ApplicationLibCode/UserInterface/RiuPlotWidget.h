@@ -31,6 +31,8 @@
 
 class RiaPlotWindowRedrawScheduler;
 class RimPlot;
+class RimPlotCurve;
+
 class RiuDraggableOverlayFrame;
 class RiuPlotCurve;
 
@@ -167,11 +169,13 @@ public:
 
     virtual void updateAxes() = 0;
 
-    virtual RiuPlotCurve* createPlotCurve( const QString& title, const QColor& color ) = 0;
+    virtual RiuPlotCurve* createPlotCurve( RimPlotCurve* ownerRimCurve, const QString& title, const QColor& color ) = 0;
 
     virtual const QColor& backgroundColor() const = 0;
 
     virtual QWidget* getParentForOverlay() const = 0;
+
+    virtual std::pair<RiuPlotCurve*, int> findClosestCurve( const QPoint& pos, double& distanceToClick ) const = 0;
 
 protected:
     void updateOverlayFrameLayout();

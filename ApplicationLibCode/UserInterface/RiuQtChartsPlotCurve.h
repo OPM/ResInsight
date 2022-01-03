@@ -35,7 +35,7 @@ class RiuPlotCurveSymbol;
 class RiuQtChartsPlotCurve : public RiuPlotCurve
 {
 public:
-    explicit RiuQtChartsPlotCurve( const QString& title = QString() );
+    explicit RiuQtChartsPlotCurve( RimPlotCurve* ownerRimCurve, const QString& title = QString() );
     ~RiuQtChartsPlotCurve() override;
 
     void setTitle( const QString& title ) override;

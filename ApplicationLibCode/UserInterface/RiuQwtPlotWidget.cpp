@@ -872,6 +872,23 @@ void RiuQwtPlotWidget::findClosestPlotItem( const QPoint& pos,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+
+std::pair<RiuPlotCurve*, int> RiuQwtPlotWidget::findClosestCurve( const QPoint& pos, double& distanceFromClick ) const
+{
+    QwtPlotItem* closestItem = nullptr;
+
+    int    closestCurvePoint = -1;
+    QPoint globalPos         = mapToGlobal( pos );
+    QPoint localPos          = qwtPlot()->canvas()->mapFromGlobal( globalPos );
+
+    findClosestPlotItem( localPos, &closestItem, &closestCurvePoint, &distanceFromClick );
+    RiuPlotCurve* plotCurve = dynamic_cast<RiuQwtPlotCurve*>( closestItem );
+    return std::make_pair( plotCurve, closestCurvePoint );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiuQwtPlotWidget::selectClosestPlotItem( const QPoint& pos, bool toggleItemInSelection /*= false*/ )
 {
     QwtPlotItem* closestItem       = nullptr;
@@ -1122,9 +1139,9 @@ void RiuQwtPlotWidget::updateAxes()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuPlotCurve* RiuQwtPlotWidget::createPlotCurve( const QString& title, const QColor& color )
+RiuPlotCurve* RiuQwtPlotWidget::createPlotCurve( RimPlotCurve* ownerRimCurve, const QString& title, const QColor& color )
 {
-    return new RiuQwtPlotCurve( title );
+    return new RiuQwtPlotCurve( ownerRimCurve, title );
 }
 
 //--------------------------------------------------------------------------------------------------
