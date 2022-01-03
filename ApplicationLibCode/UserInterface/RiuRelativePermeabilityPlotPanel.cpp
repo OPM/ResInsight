@@ -364,11 +364,9 @@ void RiuRelativePermeabilityPlotPanel::plotCurvesInQwt( RiaDefines::EclipseUnitS
             plotOnWhichYAxis = RIGHT_YAXIS;
         }
 
-        // QwtPlotCurve* qwtCurve = new QwtPlotCurve(curve.name.c_str());
         RiuQwtPlotCurve* qwtCurve = new RiuQwtPlotCurve( nullptr, curve.name.c_str() );
 
         CVF_ASSERT( curve.saturationVals.size() == curve.yVals.size() );
-        // qwtCurve->setSamples(curve.xVals.data(), curve.yVals.data(), static_cast<int>(curve.xVals.size()));
         const bool includePositiveValuesOnly = ( logScaleLeftAxis && plotOnWhichYAxis == LEFT_YAXIS );
         qwtCurve->setSamplesFromXValuesAndYValues( curve.saturationVals, curve.yVals, includePositiveValuesOnly );
 
@@ -404,10 +402,9 @@ void RiuRelativePermeabilityPlotPanel::plotCurvesInQwt( RiaDefines::EclipseUnitS
         const QPen curvePen( QBrush(), 1, penStyle );
         qwtCurve->setPen( curvePen );
 
-        RiuPlotCurveSymbol* curveSymbol = new RiuQwtSymbol( RiuPlotCurveSymbol::SYMBOL_ELLIPSE );
+        RiuQwtSymbol* curveSymbol = new RiuQwtSymbol( RiuPlotCurveSymbol::SYMBOL_ELLIPSE );
         curveSymbol->setSize( 6, 6 );
-        // TODO: necessary???
-        // curveSymbol->setBrush( Qt::NoBrush );
+        curveSymbol->setBrush( Qt::NoBrush );
         qwtCurve->setSymbol( curveSymbol );
 
         qwtCurve->setLegendAttribute( QwtPlotCurve::LegendShowLine, true );
