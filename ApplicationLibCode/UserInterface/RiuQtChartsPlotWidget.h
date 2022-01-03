@@ -148,7 +148,7 @@ public:
     void updateLegend() override;
     void updateAxes() override;
 
-    RiuPlotCurve* createPlotCurve( const QString& title, const QColor& color ) override;
+    RiuPlotCurve* createPlotCurve( RimPlotCurve* ownerRimCurve, const QString& title, const QColor& color ) override;
 
     QtCharts::QChart* qtChart();
 
@@ -167,6 +167,8 @@ public:
     const QColor& backgroundColor() const override;
 
     QWidget* getParentForOverlay() const override;
+
+    std::pair<RiuPlotCurve*, int> findClosestCurve( const QPoint& pos, double& distanceToClick ) const override;
 
 protected:
     void setAxis( RiaDefines::PlotAxis axis, QtCharts::QAbstractSeries* series );

@@ -365,7 +365,7 @@ void RiuRelativePermeabilityPlotPanel::plotCurvesInQwt( RiaDefines::EclipseUnitS
         }
 
         // QwtPlotCurve* qwtCurve = new QwtPlotCurve(curve.name.c_str());
-        RiuQwtPlotCurve* qwtCurve = new RiuQwtPlotCurve( curve.name.c_str() );
+        RiuQwtPlotCurve* qwtCurve = new RiuQwtPlotCurve( nullptr, curve.name.c_str() );
 
         CVF_ASSERT( curve.saturationVals.size() == curve.yVals.size() );
         // qwtCurve->setSamples(curve.xVals.data(), curve.yVals.data(), static_cast<int>(curve.xVals.size()));

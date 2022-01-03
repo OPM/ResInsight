@@ -21,6 +21,8 @@
 #include "RiaQDateTimeTools.h"
 #include "RiuInterfaceToViewWindow.h"
 
+#include <QWidget>
+
 class RimSummaryPlot;
 class RimPlotAxisPropertiesInterface;
 class RiuPlotWidget;
@@ -30,7 +32,7 @@ class RiuPlotWidget;
 //
 //
 //==================================================================================================
-class RiuSummaryPlot : public QObject
+class RiuSummaryPlot : public QWidget
 {
     Q_OBJECT
 public:
@@ -49,4 +51,7 @@ public:
     virtual void updateAnnotationObjects( RimPlotAxisPropertiesInterface* axisProperties ) = 0;
 
     virtual RiuPlotWidget* plotWidget() const = 0;
+
+public slots:
+    void showContextMenu( QPoint );
 };

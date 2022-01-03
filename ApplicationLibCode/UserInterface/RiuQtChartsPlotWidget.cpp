@@ -906,9 +906,9 @@ void RiuQtChartsPlotWidget::updateAxes()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuPlotCurve* RiuQtChartsPlotWidget::createPlotCurve( const QString& title, const QColor& color )
+RiuPlotCurve* RiuQtChartsPlotWidget::createPlotCurve( RimPlotCurve* ownerRimCurve, const QString& title, const QColor& color )
 {
-    return new RiuQtChartsPlotCurve( title );
+    return new RiuQtChartsPlotCurve( ownerRimCurve, title );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1152,4 +1152,12 @@ void RiuQtChartsPlotWidget::wheelEvent( QWheelEvent* event )
 const QColor& RiuQtChartsPlotWidget::backgroundColor() const
 {
     return m_viewer->chart()->backgroundBrush().color();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::pair<RiuPlotCurve*, int> RiuQtChartsPlotWidget::findClosestCurve( const QPoint& pos, double& distanceToClick ) const
+{
+    return std::make_pair( nullptr, -1 );
 }

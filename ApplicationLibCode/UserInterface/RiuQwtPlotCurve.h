@@ -32,7 +32,7 @@
 class RiuQwtPlotCurve : public RiuPlotCurve, public QwtPlotCurve
 {
 public:
-    explicit RiuQwtPlotCurve( const QString& title = QString() );
+    explicit RiuQwtPlotCurve( RimPlotCurve* ownerRimCurve = nullptr, const QString& title = QString() );
     ~RiuQwtPlotCurve() override;
 
     void setTitle( const QString& title ) override;
