@@ -505,7 +505,7 @@ QString RimSummaryCurve::createCurveAutoName()
     RimSummaryPlot* plot = nullptr;
     firstAncestorOrThisOfTypeAsserted( plot );
 
-    const RimSummaryPlotNameHelper* nameHelper = plot->activePlotTitleHelperAllCurves();
+    const RimSummaryPlotNameHelperInterface* nameHelper = plot->activePlotTitleHelperAllCurves();
     QString curveName = m_curveNameConfig->curveNameY( m_yValuesSummaryAddress->address(), nameHelper );
     if ( curveName.isEmpty() )
     {

@@ -435,7 +435,7 @@ void RimSummaryMultiPlot::updatePlotTitles()
 
         auto subPlotNameHelper = plot->plotTitleHelper();
 
-        auto plotName = subPlotNameHelper->plotTitle( multiPlotNameHelper );
+        auto plotName = subPlotNameHelper->plotTitle();
         plot->setDescription( plotName );
         plot->updatePlotTitle();
     }

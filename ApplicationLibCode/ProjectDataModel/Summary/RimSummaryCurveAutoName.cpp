@@ -27,7 +27,7 @@
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseCollection.h"
 #include "RimSummaryCurve.h"
-#include "RimSummaryPlotNameHelper.h"
+#include "RimSummaryPlotNameHelperInterface.h"
 
 #include "SummaryPlotCommands/RicSummaryPlotEditorUi.h"
 
@@ -64,8 +64,8 @@ RimSummaryCurveAutoName::RimSummaryCurveAutoName()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimSummaryCurveAutoName::curveNameY( const RifEclipseSummaryAddress& summaryAddress,
-                                             const RimSummaryPlotNameHelper* nameHelper ) const
+QString RimSummaryCurveAutoName::curveNameY( const RifEclipseSummaryAddress&          summaryAddress,
+                                             const RimSummaryPlotNameHelperInterface* nameHelper ) const
 {
     RimSummaryCurve* summaryCurve = nullptr;
     this->firstAncestorOrThisOfType( summaryCurve );
@@ -99,8 +99,8 @@ QString RimSummaryCurveAutoName::curveNameY( const RifEclipseSummaryAddress& sum
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimSummaryCurveAutoName::curveNameX( const RifEclipseSummaryAddress& summaryAddress,
-                                             const RimSummaryPlotNameHelper* nameHelper ) const
+QString RimSummaryCurveAutoName::curveNameX( const RifEclipseSummaryAddress&          summaryAddress,
+                                             const RimSummaryPlotNameHelperInterface* nameHelper ) const
 {
     RimSummaryCurve* summaryCurve = nullptr;
     this->firstAncestorOrThisOfType( summaryCurve );
@@ -152,9 +152,9 @@ void RimSummaryCurveAutoName::applySettings( const RimSummaryCurveAutoName& othe
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCurveAutoName::appendWellName( std::string&                    text,
-                                              const RifEclipseSummaryAddress& summaryAddress,
-                                              const RimSummaryPlotNameHelper* nameHelper ) const
+void RimSummaryCurveAutoName::appendWellName( std::string&                             text,
+                                              const RifEclipseSummaryAddress&          summaryAddress,
+                                              const RimSummaryPlotNameHelperInterface* nameHelper ) const
 {
     bool skipSubString = nameHelper && nameHelper->isWellNameInTitle();
     if ( skipSubString ) return;
@@ -181,10 +181,10 @@ void RimSummaryCurveAutoName::appendLgrName( std::string& text, const RifEclipse
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimSummaryCurveAutoName::buildCurveName( const RifEclipseSummaryAddress& summaryAddress,
-                                                 const RimSummaryPlotNameHelper* nameHelper,
-                                                 const std::string&              unitText,
-                                                 const std::string&              caseName ) const
+QString RimSummaryCurveAutoName::buildCurveName( const RifEclipseSummaryAddress&          summaryAddress,
+                                                 const RimSummaryPlotNameHelperInterface* nameHelper,
+                                                 const std::string&                       unitText,
+                                                 const std::string&                       caseName ) const
 {
     std::string text; // Using std::string locally to avoid a lot of conversion when building the curve name
 
@@ -249,9 +249,9 @@ QString RimSummaryCurveAutoName::buildCurveName( const RifEclipseSummaryAddress&
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCurveAutoName::appendAddressDetails( std::string&                    text,
-                                                    const RifEclipseSummaryAddress& summaryAddress,
-                                                    const RimSummaryPlotNameHelper* nameHelper ) const
+void RimSummaryCurveAutoName::appendAddressDetails( std::string&                             text,
+                                                    const RifEclipseSummaryAddress&          summaryAddress,
+                                                    const RimSummaryPlotNameHelperInterface* nameHelper ) const
 {
     switch ( summaryAddress.category() )
     {

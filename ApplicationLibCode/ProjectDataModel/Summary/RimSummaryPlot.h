@@ -50,6 +50,7 @@ class RimSummaryTimeAxisProperties;
 class RimPlotAxisPropertiesInterface;
 class RimPlotAxisProperties;
 class RiuSummaryQwtPlot;
+class RimSummaryPlotNameHelperInterface;
 class RimSummaryPlotNameHelper;
 class RimPlotTemplateFileItem;
 class RimSummaryPlotFilterTextCurveSetEditor;
@@ -134,10 +135,10 @@ public:
 
     void updatePlotTitle();
 
-    const RimSummaryPlotNameHelper* activePlotTitleHelperAllCurves() const;
-    const RimSummaryPlotNameHelper* plotTitleHelper() const;
-    void                            updateCurveNames();
-    QString                         generatedPlotTitleFromAllCurves() const;
+    const RimSummaryPlotNameHelperInterface* activePlotTitleHelperAllCurves() const;
+    const RimSummaryPlotNameHelperInterface* plotTitleHelper() const;
+    void                                     updateCurveNames();
+    QString                                  generatedPlotTitleFromAllCurves() const;
 
     void copyAxisPropertiesFromOther( const RimSummaryPlot& sourceSummaryPlot );
 
@@ -193,7 +194,7 @@ public:
 private:
     RiuQwtPlotWidget* doCreatePlotViewWidget( QWidget* mainWindowParent = nullptr ) override;
 
-    void updateNameHelperWithCurveData( RimSummaryPlotNameHelper* nameHelper ) const;
+    void updateNameHelperWithCurveData( RimSummaryPlotNameHelperInterface* nameHelper ) const;
 
     void doUpdateLayout() override;
 

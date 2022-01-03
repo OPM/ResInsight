@@ -22,7 +22,7 @@
 #include "cafPdmObject.h"
 
 class RifEclipseSummaryAddress;
-class RimSummaryPlotNameHelper;
+class RimSummaryPlotNameHelperInterface;
 
 class RimSummaryCurveAutoName : public caf::PdmObject
 {
@@ -31,8 +31,10 @@ class RimSummaryCurveAutoName : public caf::PdmObject
 public:
     RimSummaryCurveAutoName();
 
-    QString curveNameY( const RifEclipseSummaryAddress& summaryAddress, const RimSummaryPlotNameHelper* nameHelper ) const;
-    QString curveNameX( const RifEclipseSummaryAddress& summaryAddress, const RimSummaryPlotNameHelper* nameHelper ) const;
+    QString curveNameY( const RifEclipseSummaryAddress&          summaryAddress,
+                        const RimSummaryPlotNameHelperInterface* nameHelper ) const;
+    QString curveNameX( const RifEclipseSummaryAddress&          summaryAddress,
+                        const RimSummaryPlotNameHelperInterface* nameHelper ) const;
 
     void applySettings( const RimSummaryCurveAutoName& other );
 
@@ -42,18 +44,18 @@ private:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
-    void appendAddressDetails( std::string&                    text,
-                               const RifEclipseSummaryAddress& summaryAddress,
-                               const RimSummaryPlotNameHelper* nameHelper ) const;
-    void appendWellName( std::string&                    text,
-                         const RifEclipseSummaryAddress& summaryAddress,
-                         const RimSummaryPlotNameHelper* nameHelper ) const;
+    void appendAddressDetails( std::string&                             text,
+                               const RifEclipseSummaryAddress&          summaryAddress,
+                               const RimSummaryPlotNameHelperInterface* nameHelper ) const;
+    void appendWellName( std::string&                             text,
+                         const RifEclipseSummaryAddress&          summaryAddress,
+                         const RimSummaryPlotNameHelperInterface* nameHelper ) const;
     void appendLgrName( std::string& text, const RifEclipseSummaryAddress& summaryAddress ) const;
 
-    QString buildCurveName( const RifEclipseSummaryAddress& summaryAddress,
-                            const RimSummaryPlotNameHelper* nameHelper,
-                            const std::string&              unitText,
-                            const std::string&              caseName ) const;
+    QString buildCurveName( const RifEclipseSummaryAddress&          summaryAddress,
+                            const RimSummaryPlotNameHelperInterface* nameHelper,
+                            const std::string&                       unitText,
+                            const std::string&                       caseName ) const;
 
 private:
     caf::PdmField<bool> m_vectorName;

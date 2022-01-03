@@ -675,7 +675,7 @@ void RimSummaryPlot::updatePlotTitle()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const RimSummaryPlotNameHelper* RimSummaryPlot::activePlotTitleHelperAllCurves() const
+const RimSummaryPlotNameHelperInterface* RimSummaryPlot::activePlotTitleHelperAllCurves() const
 {
     if ( m_useAutoPlotTitle() )
     {
@@ -688,7 +688,7 @@ const RimSummaryPlotNameHelper* RimSummaryPlot::activePlotTitleHelperAllCurves()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const RimSummaryPlotNameHelper* RimSummaryPlot::plotTitleHelper() const
+const RimSummaryPlotNameHelperInterface* RimSummaryPlot::plotTitleHelper() const
 {
     return m_nameHelperAllCurves.get();
 }
@@ -2026,7 +2026,7 @@ void RimSummaryPlot::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryPlot::updateNameHelperWithCurveData( RimSummaryPlotNameHelper* nameHelper ) const
+void RimSummaryPlot::updateNameHelperWithCurveData( RimSummaryPlotNameHelperInterface* nameHelper ) const
 {
     if ( !nameHelper ) return;
 

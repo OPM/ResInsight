@@ -18,8 +18,9 @@
 
 #pragma once
 
-#include "RiaSummaryCurveAnalyzer.h"
+#include "RimSummaryPlotNameHelperInterface.h"
 
+#include "RiaSummaryCurveAnalyzer.h"
 #include "RifEclipseSummaryAddress.h"
 
 #include "cafPdmPointer.h"
@@ -36,28 +37,28 @@ class RimSummaryCaseCollection;
 //==================================================================================================
 //
 //==================================================================================================
-class RimSummaryPlotNameHelper
+class RimSummaryPlotNameHelper : public RimSummaryPlotNameHelperInterface
 {
 public:
     RimSummaryPlotNameHelper();
 
-    void clear();
+    void clear() override;
 
-    void appendAddresses( const std::vector<RifEclipseSummaryAddress>& addresses );
-    void setSummaryCases( const std::vector<RimSummaryCase*>& summaryCases );
-    void setEnsembleCases( const std::vector<RimSummaryCaseCollection*>& ensembleCases );
+    void appendAddresses( const std::vector<RifEclipseSummaryAddress>& addresses ) override;
+    void setSummaryCases( const std::vector<RimSummaryCase*>& summaryCases ) override;
+    void setEnsembleCases( const std::vector<RimSummaryCaseCollection*>& ensembleCases ) override;
 
-    QString plotTitle() const;
+    QString plotTitle() const override;
     QString plotTitle( const RimSummaryPlotNameHelper& summaryMultiPlotNameHelper ) const;
 
-    bool isPlotDisplayingSingleQuantity() const;
-    bool isWellNameInTitle() const;
-    bool isWellGroupNameInTitle() const;
-    bool isRegionInTitle() const;
-    bool isCaseInTitle() const;
-    bool isBlockInTitle() const;
-    bool isSegmentInTitle() const;
-    bool isCompletionInTitle() const;
+    bool isPlotDisplayingSingleQuantity() const override;
+    bool isWellNameInTitle() const override;
+    bool isWellGroupNameInTitle() const override;
+    bool isRegionInTitle() const override;
+    bool isCaseInTitle() const override;
+    bool isBlockInTitle() const override;
+    bool isSegmentInTitle() const override;
+    bool isCompletionInTitle() const override;
 
 private:
     void clearTitleSubStrings();
