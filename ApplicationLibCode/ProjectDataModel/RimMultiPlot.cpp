@@ -270,7 +270,7 @@ void RimMultiPlot::insertPlots( const std::vector<RimPlot*>& plots )
             if ( m_viewer )
             {
                 plot->createPlotWidget();
-                m_viewer->insertPlot( plot->viewer(), -1 );
+                m_viewer->insertPlot( plot->plotWidget(), -1 );
             }
             plot->setShowWindow( true );
             plot->updateAfterInsertingIntoMultiPlot();
@@ -288,7 +288,7 @@ void RimMultiPlot::deleteAllPlots()
     {
         if ( plot && m_viewer )
         {
-            m_viewer->removePlot( plot->viewer() );
+            m_viewer->removePlot( plot->plotWidget() );
         }
     }
 
