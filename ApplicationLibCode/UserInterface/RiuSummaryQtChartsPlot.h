@@ -19,21 +19,14 @@
 #pragma once
 
 #include "RiaQDateTimeTools.h"
-#include "RiuInterfaceToViewWindow.h"
+
 #include "RiuQtChartsPlotWidget.h"
 #include "RiuSummaryPlot.h"
 
-#include "cafPdmPointer.h"
-
 #include <QPointer>
 
-class RimEnsembleParameterColorHandlerInterface;
 class RimSummaryPlot;
-class RiuCvfOverlayItemWidget;
-class RiuQtChartsPlotZoomer;
-class RiuQtChartsPlotWheelZoomer;
 class RimPlotAxisPropertiesInterface;
-class RiuPlotAnnotationTool;
 
 //==================================================================================================
 //
@@ -61,13 +54,7 @@ public:
     RiuPlotWidget* plotWidget() const override;
 
 protected:
-    // void contextMenuEvent( QContextMenuEvent* );
     void setDefaults();
-    // bool isZoomerActive() const;
-    // void endZoomOperations();
-
-    // private slots:
-    //     void onZoomedSlot();
 
 private:
     QPointer<RiuQtChartsPlotWidget> m_plotWidget;

@@ -36,6 +36,7 @@
 
 class RiaPlotWindowRedrawScheduler;
 class RimPlot;
+class RimPlotCurve;
 class RiuPlotCurve;
 
 class QwtPlot;
@@ -151,7 +152,7 @@ public:
     void updateLegend() override;
     void updateAxes() override;
 
-    RiuPlotCurve* createPlotCurve( const QString& title, const QColor& color ) override;
+    RiuPlotCurve* createPlotCurve( RimPlotCurve* ownerRimCurve, const QString& title, const QColor& color ) override;
 
     void detachItems( RiuPlotWidget::PlotItemType plotItemType ) override;
 
@@ -163,6 +164,8 @@ public:
     const QColor& backgroundColor() const override;
 
     QWidget* getParentForOverlay() const override;
+
+    std::pair<RiuPlotCurve*, int> findClosestCurve( const QPoint& pos, double& distanceToClick ) const override;
 
 signals:
     void plotSelected( bool toggleSelection );

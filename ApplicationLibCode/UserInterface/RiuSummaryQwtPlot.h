@@ -64,7 +64,6 @@ public:
     RiuPlotWidget* plotWidget() const override;
 
 protected:
-    void contextMenuEvent( QContextMenuEvent* );
     void setDefaults();
     bool isZoomerActive() const;
     void endZoomOperations();

@@ -33,8 +33,8 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuQtChartsPlotCurve::RiuQtChartsPlotCurve( const QString& title )
-    : RiuPlotCurve()
+RiuQtChartsPlotCurve::RiuQtChartsPlotCurve( RimPlotCurve* ownerRimCurve, const QString& title )
+    : RiuPlotCurve( ownerRimCurve, title )
 {
     m_plotWidget = nullptr;
 

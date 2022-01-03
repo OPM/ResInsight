@@ -28,8 +28,10 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuPlotCurve::RiuPlotCurve()
+RiuPlotCurve::RiuPlotCurve( RimPlotCurve* ownerRimCurve, const QString& title )
 {
+    m_ownerRimCurve = ownerRimCurve;
+
     m_symbolSkipPixelDistance = 10.0f;
 
     m_blackAndWhiteLegendIcon = false;

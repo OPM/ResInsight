@@ -39,8 +39,8 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuQwtPlotCurve::RiuQwtPlotCurve( const QString& title )
-    : RiuPlotCurve()
+RiuQwtPlotCurve::RiuQwtPlotCurve( RimPlotCurve* ownerRimCurve, const QString& title )
+    : RiuPlotCurve( ownerRimCurve, title )
     , QwtPlotCurve( title )
     , m_showErrorBars( false )
 {

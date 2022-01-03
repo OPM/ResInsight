@@ -220,7 +220,7 @@ void RiuFlowCharacteristicsPlot::addCurveWithLargeSymbol( QwtPlot*         plot,
 RiuQwtPlotCurve*
     RiuFlowCharacteristicsPlot::createEmptyCurve( QwtPlot* plot, const QString& curveName, const QColor& curveColor )
 {
-    RiuQwtPlotCurve* plotCurve = new RiuQwtPlotCurve( curveName );
+    RiuQwtPlotCurve* plotCurve = new RiuQwtPlotCurve( nullptr, curveName );
 
     plotCurve->setTitle( curveName );
     plotCurve->setPen( QPen( curveColor ) );

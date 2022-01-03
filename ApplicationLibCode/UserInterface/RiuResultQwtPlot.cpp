@@ -78,7 +78,7 @@ void RiuResultQwtPlot::addCurve( const RimCase*                rimCase,
         return;
     }
 
-    RiuQwtPlotCurve* plotCurve = new RiuQwtPlotCurve( "Curve 1" );
+    RiuQwtPlotCurve* plotCurve = new RiuQwtPlotCurve( nullptr, "Curve 1" );
 
     plotCurve->setSamplesFromDatesAndYValues( dateTimes, timeHistoryValues, false );
     plotCurve->setTitle( curveName );
