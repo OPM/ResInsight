@@ -49,7 +49,4 @@ public:
     void setColor( const QColor& color ) override;
 
     void setPen( const QPen& pen ) override;
-
-private:
-    QRect labelBoundingRect( const QPainter* painter, const QRect& symbolRect, const QString& label ) const;
 };

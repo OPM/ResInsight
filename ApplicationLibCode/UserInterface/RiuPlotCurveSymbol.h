@@ -23,6 +23,8 @@
 
 class QColor;
 class QPen;
+class QPainter;
+class QRect;
 
 //--------------------------------------------------------------------------------------------------
 /// Interface for plot curve symbol
@@ -83,6 +85,8 @@ public:
     static PointSymbolEnum cycledSymbolStyle( int indexLevel );
 
     static bool isFilledSymbol( PointSymbolEnum symbol );
+
+    QRect labelBoundingRect( const QPainter* painter, const QRect& symbolRect, const QString& label ) const;
 
 protected:
     PointSymbolEnum m_style;

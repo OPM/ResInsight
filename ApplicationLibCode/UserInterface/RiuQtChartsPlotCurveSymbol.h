@@ -57,8 +57,6 @@ public:
     void applyToScatterSeries( QtCharts::QScatterSeries* series ) const;
 
 private:
-    QRect labelBoundingRect( const QPainter* painter, const QRect& symbolRect, const QString& label ) const;
-
     QImage createTriangleImage( RiuPlotCurveSymbol::PointSymbolEnum symbolStyle ) const;
     QImage createRectImage() const;
     QImage createStar1Image() const;
