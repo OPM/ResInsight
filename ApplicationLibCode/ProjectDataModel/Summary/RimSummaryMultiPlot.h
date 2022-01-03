@@ -28,6 +28,8 @@
 class RimMultiPlot;
 class RimSummaryPlot;
 class RimSummaryPlotSourceStepping;
+class RimSummaryPlotNameHelper;
+class RimSummaryPlotNameHelperInterface;
 
 //==================================================================================================
 ///
@@ -47,7 +49,9 @@ public:
     QString  description() const override;
 
     void addPlot( RimPlot* plot );
-    void updatePlotTitles();
+
+    void                                     updatePlotTitles();
+    const RimSummaryPlotNameHelperInterface* nameHelper() const;
 
     static RimSummaryMultiPlot* createAndAppendMultiPlot( const std::vector<RimPlot*>& plots );
 
@@ -74,6 +78,7 @@ private:
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName ) override;
 
     void updatePlots();
+    void populateNameHelper( RimSummaryPlotNameHelper* nameHelper );
 
     std::vector<RimSummaryPlot*> summaryPlots() const;
 
@@ -87,4 +92,6 @@ private:
     caf::PdmChildField<RimMultiPlot*> m_multiPlot;
 
     caf::PdmChildField<RimSummaryPlotSourceStepping*> m_sourceStepping;
+
+    std::unique_ptr<RimSummaryPlotNameHelper> m_nameHelperAllCurves;
 };

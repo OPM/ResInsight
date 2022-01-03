@@ -51,10 +51,13 @@ QString RimMultiSummaryPlotNameHelper::plotTitle() const
 //--------------------------------------------------------------------------------------------------
 bool RimMultiSummaryPlotNameHelper::isPlotDisplayingSingleQuantity() const
 {
+    int plotCountWithSingleQuantity = 0;
     for ( auto nameHelper : m_nameHelpers )
     {
-        if ( nameHelper->isPlotDisplayingSingleQuantity() ) return true;
+        if ( nameHelper->isPlotDisplayingSingleQuantity() ) plotCountWithSingleQuantity++;
     }
+
+    if ( plotCountWithSingleQuantity == 1 ) return true;
 
     return false;
 }

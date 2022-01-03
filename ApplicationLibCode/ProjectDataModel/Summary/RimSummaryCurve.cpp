@@ -30,6 +30,7 @@
 #include "RimEclipseResultCase.h"
 #include "RimEnsembleCurveSet.h"
 #include "RimEnsembleCurveSetCollection.h"
+#include "RimMultipleSummaryPlotNameHelper.h"
 #include "RimProject.h"
 #include "RimSummaryAddress.h"
 #include "RimSummaryCalculationCollection.h"
@@ -38,6 +39,7 @@
 #include "RimSummaryCrossPlot.h"
 #include "RimSummaryCurveAutoName.h"
 #include "RimSummaryCurveCollection.h"
+#include "RimSummaryMultiPlot.h"
 #include "RimSummaryPlot.h"
 #include "RimSummaryPlotCollection.h"
 #include "RimSummaryTimeAxisProperties.h"
@@ -48,14 +50,13 @@
 #include "RiuSummaryVectorSelectionDialog.h"
 
 #include "cafPdmUiComboBoxEditor.h"
+#include "cafPdmUiLineEditor.h"
 #include "cafPdmUiListEditor.h"
 #include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiTreeOrdering.h"
 
 #include "qwt_date.h"
 #include "qwt_plot.h"
-
-#include "cafPdmUiLineEditor.h"
 
 CAF_PDM_SOURCE_INIT( RimSummaryCurve, "SummaryCurve" );
 
@@ -502,11 +503,26 @@ QList<caf::PdmOptionItemInfo> RimSummaryCurve::calculateValueOptions( const caf:
 //--------------------------------------------------------------------------------------------------
 QString RimSummaryCurve::createCurveAutoName()
 {
-    RimSummaryPlot* plot = nullptr;
-    firstAncestorOrThisOfTypeAsserted( plot );
+    std::vector<const RimSummaryPlotNameHelperInterface*> nameHelpers;
+    {
+        RimSummaryPlot* plot = nullptr;
+        firstAncestorOrThisOfTypeAsserted( plot );
+        auto nameHelper = plot->plotTitleHelper();
 
-    const RimSummaryPlotNameHelperInterface* nameHelper = plot->activePlotTitleHelperAllCurves();
-    QString curveName = m_curveNameConfig->curveNameY( m_yValuesSummaryAddress->address(), nameHelper );
+        if ( nameHelper ) nameHelpers.push_back( nameHelper );
+    }
+    {
+        RimSummaryMultiPlot* summaryMultiPlot = nullptr;
+        firstAncestorOrThisOfType( summaryMultiPlot );
+        if ( summaryMultiPlot )
+        {
+            auto nameHelper = summaryMultiPlot->nameHelper();
+            if ( nameHelper ) nameHelpers.push_back( nameHelper );
+        }
+    }
+
+    RimMultiSummaryPlotNameHelper multiNameHelper( nameHelpers );
+    QString curveName = m_curveNameConfig->curveNameY( m_yValuesSummaryAddress->address(), &multiNameHelper );
     if ( curveName.isEmpty() )
     {
         curveName = m_curveNameConfig->curveNameY( m_yValuesSummaryAddress->address(), nullptr );
@@ -514,7 +530,7 @@ QString RimSummaryCurve::createCurveAutoName()
 
     if ( isCrossPlotCurve() )
     {
-        QString curveNameX = m_curveNameConfig->curveNameX( m_xValuesSummaryAddress->address(), nameHelper );
+        QString curveNameX = m_curveNameConfig->curveNameX( m_xValuesSummaryAddress->address(), &multiNameHelper );
         if ( curveNameX.isEmpty() )
         {
             curveNameX = m_curveNameConfig->curveNameX( m_xValuesSummaryAddress->address(), nullptr );

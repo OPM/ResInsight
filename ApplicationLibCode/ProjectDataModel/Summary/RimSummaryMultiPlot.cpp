@@ -69,6 +69,8 @@ RimSummaryMultiPlot::RimSummaryMultiPlot()
     m_sourceStepping.uiCapability()->setUiTreeHidden( true );
     m_sourceStepping.uiCapability()->setUiTreeChildrenHidden( true );
     m_sourceStepping.xmlCapability()->disableIO();
+
+    m_nameHelperAllCurves = std::make_unique<RimSummaryPlotNameHelper>();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -209,6 +211,36 @@ std::vector<RimSummaryCurve*> RimSummaryMultiPlot::allCurves( RimSummarySourceSt
     }
 
     return curves;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryMultiPlot::populateNameHelper( RimSummaryPlotNameHelper* nameHelper )
+{
+    std::vector<RifEclipseSummaryAddress>  addresses;
+    std::vector<RimSummaryCase*>           sumCases;
+    std::vector<RimSummaryCaseCollection*> ensembleCases;
+
+    {
+        for ( RimSummaryCurve* curve : allCurves( RimSummarySourceSteppingInterface::Axis::Y_AXIS ) )
+        {
+            {
+                addresses.push_back( curve->summaryAddressY() );
+                sumCases.push_back( curve->summaryCaseY() );
+            }
+        }
+    }
+
+    for ( auto curveSet : curveSets() )
+    {
+        addresses.push_back( curveSet->summaryAddress() );
+        ensembleCases.push_back( curveSet->summaryCaseCollection() );
+    }
+
+    nameHelper->appendAddresses( addresses );
+    nameHelper->setSummaryCases( sumCases );
+    nameHelper->setEnsembleCases( ensembleCases );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -399,46 +431,28 @@ void RimSummaryMultiPlot::updatePlots()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryMultiPlot::updatePlotTitles()
 {
-    RimSummaryPlotNameHelper multiPlotNameHelper;
+    populateNameHelper( m_nameHelperAllCurves.get() );
 
-    {
-        std::vector<RifEclipseSummaryAddress>  addresses;
-        std::vector<RimSummaryCase*>           sumCases;
-        std::vector<RimSummaryCaseCollection*> ensembleCases;
-
-        {
-            for ( RimSummaryCurve* curve : allCurves( RimSummarySourceSteppingInterface::Axis::Y_AXIS ) )
-            {
-                {
-                    addresses.push_back( curve->summaryAddressY() );
-                    sumCases.push_back( curve->summaryCaseY() );
-                }
-            }
-        }
-
-        for ( auto curveSet : curveSets() )
-        {
-            addresses.push_back( curveSet->summaryAddress() );
-            ensembleCases.push_back( curveSet->summaryCaseCollection() );
-        }
-
-        multiPlotNameHelper.appendAddresses( addresses );
-        multiPlotNameHelper.setSummaryCases( sumCases );
-        multiPlotNameHelper.setEnsembleCases( ensembleCases );
-
-        auto title = multiPlotNameHelper.plotTitle();
-        m_multiPlot->setMultiPlotTitle( title );
-    }
+    auto title = m_nameHelperAllCurves->plotTitle();
+    m_multiPlot->setMultiPlotTitle( title );
 
     for ( auto plot : summaryPlots() )
     {
         auto subPlotNameHelper = plot->plotTitleHelper();
 
         plot->enableAutoPlotTitle( false );
-        auto plotName = subPlotNameHelper->aggregatedPlotTitle( multiPlotNameHelper );
+        auto plotName = subPlotNameHelper->aggregatedPlotTitle( *m_nameHelperAllCurves.get() );
         plot->setDescription( plotName );
         plot->updatePlotTitle();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const RimSummaryPlotNameHelperInterface* RimSummaryMultiPlot::nameHelper() const
+{
+    return m_nameHelperAllCurves.get();
 }
 
 //--------------------------------------------------------------------------------------------------
