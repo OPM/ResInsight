@@ -35,6 +35,7 @@
 #include "PlotBuilderCommands/RicSummaryPlotBuilder.h"
 #include "RiuSummaryVectorSelectionUi.h"
 
+#include "RimMultipleSummaryPlotNameHelper.h"
 #include "cafPdmUiComboBoxEditor.h"
 #include "cafPdmUiTreeOrdering.h"
 #include "cafPdmUiTreeSelectionEditor.h"
@@ -431,11 +432,10 @@ void RimSummaryMultiPlot::updatePlotTitles()
 
     for ( auto plot : summaryPlots() )
     {
-        plot->enableAutoPlotTitle( false );
-
         auto subPlotNameHelper = plot->plotTitleHelper();
 
-        auto plotName = subPlotNameHelper->plotTitle();
+        plot->enableAutoPlotTitle( false );
+        auto plotName = subPlotNameHelper->aggregatedPlotTitle( multiPlotNameHelper );
         plot->setDescription( plotName );
         plot->updatePlotTitle();
     }

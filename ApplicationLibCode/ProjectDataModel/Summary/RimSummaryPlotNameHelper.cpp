@@ -95,71 +95,7 @@ QString RimSummaryPlotNameHelper::plotTitle() const
 {
     RimSummaryPlotNameHelper empty;
 
-    return plotTitle( empty );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RimSummaryPlotNameHelper::plotTitle( const RimSummaryPlotNameHelper& other ) const
-{
-    QString title;
-
-    if ( !other.isCaseInTitle() && !m_titleCaseName.isEmpty() )
-    {
-        if ( !title.isEmpty() ) title += ", ";
-        title += m_titleCaseName;
-    }
-
-    if ( !other.isWellNameInTitle() && !m_titleWellName.empty() )
-    {
-        if ( !title.isEmpty() ) title += ", ";
-        title += QString::fromStdString( m_titleWellName );
-    }
-
-    if ( !other.isWellGroupNameInTitle() && !m_titleWellGroupName.empty() )
-    {
-        if ( !title.isEmpty() ) title += ", ";
-        title += QString::fromStdString( m_titleWellGroupName );
-    }
-
-    if ( !other.isRegionInTitle() && !m_titleRegion.empty() )
-    {
-        if ( !title.isEmpty() ) title += ", ";
-        title += "Region : " + QString::fromStdString( m_titleRegion );
-    }
-
-    if ( !other.isBlockInTitle() && !m_titleBlock.empty() )
-    {
-        if ( !title.isEmpty() ) title += ", ";
-        title += "Block : " + QString::fromStdString( m_titleBlock );
-    }
-
-    if ( !other.isSegmentInTitle() && !m_titleSegment.empty() )
-    {
-        if ( !title.isEmpty() ) title += ", ";
-        title += "Segment : " + QString::fromStdString( m_titleSegment );
-    }
-
-    if ( !other.isCompletionInTitle() && !m_titleCompletion.empty() )
-    {
-        if ( !title.isEmpty() ) title += ", ";
-        title += "Completion : " + QString::fromStdString( m_titleCompletion );
-    }
-
-    if ( !other.isPlotDisplayingSingleQuantity() && !m_titleQuantity.empty() )
-    {
-        if ( !title.isEmpty() ) title += ", ";
-        title += QString::fromStdString(
-            RiuSummaryQuantityNameInfoProvider::instance()->longNameFromQuantityName( m_titleQuantity, true ) );
-    }
-
-    if ( title.isEmpty() )
-    {
-        title = "Composed Plot";
-    }
-
-    return title;
+    return aggregatedPlotTitle( empty );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -224,6 +160,70 @@ bool RimSummaryPlotNameHelper::isSegmentInTitle() const
 bool RimSummaryPlotNameHelper::isCompletionInTitle() const
 {
     return !m_titleCompletion.empty();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimSummaryPlotNameHelper::caseName() const
+{
+    return m_titleCaseName;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::string RimSummaryPlotNameHelper::titleQuantity() const
+{
+    return m_titleQuantity;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::string RimSummaryPlotNameHelper::titleWellName() const
+{
+    return m_titleWellName;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::string RimSummaryPlotNameHelper::titleWellGroupName() const
+{
+    return m_titleWellGroupName;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::string RimSummaryPlotNameHelper::titleRegion() const
+{
+    return m_titleRegion;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::string RimSummaryPlotNameHelper::titleBlock() const
+{
+    return m_titleBlock;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::string RimSummaryPlotNameHelper::titleSegment() const
+{
+    return m_titleSegment;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::string RimSummaryPlotNameHelper::titleCompletion() const
+{
+    return m_titleCompletion;
 }
 
 //--------------------------------------------------------------------------------------------------

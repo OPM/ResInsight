@@ -194,7 +194,7 @@ public:
 private:
     RiuQwtPlotWidget* doCreatePlotViewWidget( QWidget* mainWindowParent = nullptr ) override;
 
-    void updateNameHelperWithCurveData( RimSummaryPlotNameHelperInterface* nameHelper ) const;
+    void updateNameHelperWithCurveData( RimSummaryPlotNameHelper* nameHelper ) const;
 
     void doUpdateLayout() override;
 

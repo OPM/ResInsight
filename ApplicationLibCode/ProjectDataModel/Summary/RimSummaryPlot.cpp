@@ -2026,7 +2026,7 @@ void RimSummaryPlot::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryPlot::updateNameHelperWithCurveData( RimSummaryPlotNameHelperInterface* nameHelper ) const
+void RimSummaryPlot::updateNameHelperWithCurveData( RimSummaryPlotNameHelper* nameHelper ) const
 {
     if ( !nameHelper ) return;
 

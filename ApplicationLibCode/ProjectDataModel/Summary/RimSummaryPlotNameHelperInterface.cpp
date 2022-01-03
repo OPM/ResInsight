@@ -17,3 +17,79 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RimSummaryPlotNameHelperInterface.h"
+
+#include "RiuSummaryQuantityNameInfoProvider.h"
+#include <QString>
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimSummaryPlotNameHelperInterface::aggregatedPlotTitle( const RimSummaryPlotNameHelperInterface& other ) const
+{
+    QString title;
+
+    auto titleCaseName = this->caseName();
+    if ( !other.isCaseInTitle() && !titleCaseName.isEmpty() )
+    {
+        if ( !title.isEmpty() ) title += ", ";
+
+        title += titleCaseName;
+    }
+
+    auto wellName = this->titleWellName();
+    if ( !other.isWellNameInTitle() && !wellName.empty() )
+    {
+        if ( !title.isEmpty() ) title += ", ";
+        title += QString::fromStdString( wellName );
+    }
+
+    auto wellGroupName = this->titleWellGroupName();
+    if ( !other.isWellGroupNameInTitle() && !wellGroupName.empty() )
+    {
+        if ( !title.isEmpty() ) title += ", ";
+        title += QString::fromStdString( wellGroupName );
+    }
+
+    auto region = this->titleRegion();
+    if ( !other.isRegionInTitle() && !region.empty() )
+    {
+        if ( !title.isEmpty() ) title += ", ";
+        title += "Region : " + QString::fromStdString( region );
+    }
+
+    auto block = this->titleBlock();
+    if ( !other.isBlockInTitle() && !block.empty() )
+    {
+        if ( !title.isEmpty() ) title += ", ";
+        title += "Block : " + QString::fromStdString( block );
+    }
+
+    auto segment = this->titleSegment();
+    if ( !other.isSegmentInTitle() && !segment.empty() )
+    {
+        if ( !title.isEmpty() ) title += ", ";
+        title += "Segment : " + QString::fromStdString( segment );
+    }
+
+    auto completion = this->titleCompletion();
+    if ( !other.isCompletionInTitle() && !completion.empty() )
+    {
+        if ( !title.isEmpty() ) title += ", ";
+        title += "Completion : " + QString::fromStdString( completion );
+    }
+
+    auto quantity = this->titleQuantity();
+    if ( !other.isPlotDisplayingSingleQuantity() && !quantity.empty() )
+    {
+        if ( !title.isEmpty() ) title += ", ";
+        title += QString::fromStdString(
+            RiuSummaryQuantityNameInfoProvider::instance()->longNameFromQuantityName( quantity, true ) );
+    }
+
+    if ( title.isEmpty() )
+    {
+        title = "Plot Title";
+    }
+
+    return title;
+}

@@ -18,6 +18,7 @@
 
 #pragma once
 
+#include <string>
 #include <vector>
 
 class QString;
@@ -32,14 +33,9 @@ class RifEclipseSummaryAddress;
 class RimSummaryPlotNameHelperInterface
 {
 public:
-    virtual void clear() = 0;
-
-    virtual void appendAddresses( const std::vector<RifEclipseSummaryAddress>& addresses )       = 0;
-    virtual void setSummaryCases( const std::vector<RimSummaryCase*>& summaryCases )             = 0;
-    virtual void setEnsembleCases( const std::vector<RimSummaryCaseCollection*>& ensembleCases ) = 0;
-
     virtual QString plotTitle() const = 0;
-    // QString plotTitle( const RimSummaryPlotNameHelper& summaryMultiPlotNameHelper ) const;
+
+    QString aggregatedPlotTitle( const RimSummaryPlotNameHelperInterface& summaryMultiPlotNameHelper ) const;
 
     virtual bool isPlotDisplayingSingleQuantity() const = 0;
     virtual bool isWellNameInTitle() const              = 0;
@@ -49,4 +45,14 @@ public:
     virtual bool isBlockInTitle() const                 = 0;
     virtual bool isSegmentInTitle() const               = 0;
     virtual bool isCompletionInTitle() const            = 0;
+
+    virtual QString caseName() const = 0;
+
+    virtual std::string titleQuantity() const      = 0;
+    virtual std::string titleWellName() const      = 0;
+    virtual std::string titleWellGroupName() const = 0;
+    virtual std::string titleRegion() const        = 0;
+    virtual std::string titleBlock() const         = 0;
+    virtual std::string titleSegment() const       = 0;
+    virtual std::string titleCompletion() const    = 0;
 };
