@@ -77,8 +77,8 @@ public:
     bool                          showVectorK() const;
     bool                          showNncData() const;
     VectorSurfaceCrossingLocation vectorSuraceCrossingLocation() const;
-    float                         threshold() const;
-    float                         sizeScale() const;
+    double                        threshold() const;
+    double                        sizeScale() const;
     TensorColors                  vectorColors() const;
 
     const cvf::Color3f&           getUniformVectorColor() const;
@@ -108,10 +108,10 @@ private:
     caf::PdmField<bool>                                        m_showVectorK;
     caf::PdmField<bool>                                        m_showNncData;
     caf::PdmField<caf::AppEnum<VectorSurfaceCrossingLocation>> m_vectorSurfaceCrossingLocation;
-    caf::PdmField<float>                                       m_threshold;
+    caf::PdmField<double>                                      m_threshold;
     caf::PdmField<caf::AppEnum<TensorColors>>                  m_vectorColor;
     caf::PdmField<cvf::Color3f>                                m_uniformVectorColor;
-    caf::PdmField<float>                                       m_sizeScale;
+    caf::PdmField<double>                                      m_sizeScale;
     caf::PdmField<RimRegularLegendConfig::RangeModeEnum>       m_rangeMode;
     caf::PdmChildField<RimRegularLegendConfig*>                m_legendConfig;
 };
