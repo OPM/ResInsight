@@ -93,5 +93,5 @@ private:
 
     caf::PdmChildField<RimSummaryPlotSourceStepping*> m_sourceStepping;
 
-    std::unique_ptr<RimSummaryPlotNameHelper> m_nameHelperAllCurves;
+    std::unique_ptr<RimSummaryPlotNameHelper> m_nameHelper;
 };

@@ -70,7 +70,7 @@ RimSummaryMultiPlot::RimSummaryMultiPlot()
     m_sourceStepping.uiCapability()->setUiTreeChildrenHidden( true );
     m_sourceStepping.xmlCapability()->disableIO();
 
-    m_nameHelperAllCurves = std::make_unique<RimSummaryPlotNameHelper>();
+    m_nameHelper = std::make_unique<RimSummaryPlotNameHelper>();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -339,6 +339,11 @@ void RimSummaryMultiPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
     {
         updatePlots();
     }
+    else if ( changedField == &m_autoPlotTitles )
+    {
+        onLoadDataAndUpdate();
+        updateLayout();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -431,9 +436,9 @@ void RimSummaryMultiPlot::updatePlots()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryMultiPlot::updatePlotTitles()
 {
-    populateNameHelper( m_nameHelperAllCurves.get() );
+    populateNameHelper( m_nameHelper.get() );
 
-    auto title = m_nameHelperAllCurves->plotTitle();
+    auto title = m_nameHelper->plotTitle();
     m_multiPlot->setMultiPlotTitle( title );
 
     for ( auto plot : summaryPlots() )
@@ -441,7 +446,7 @@ void RimSummaryMultiPlot::updatePlotTitles()
         auto subPlotNameHelper = plot->plotTitleHelper();
 
         plot->enableAutoPlotTitle( false );
-        auto plotName = subPlotNameHelper->aggregatedPlotTitle( *m_nameHelperAllCurves.get() );
+        auto plotName = subPlotNameHelper->aggregatedPlotTitle( *m_nameHelper.get() );
         plot->setDescription( plotName );
         plot->updatePlotTitle();
     }
@@ -452,7 +457,7 @@ void RimSummaryMultiPlot::updatePlotTitles()
 //--------------------------------------------------------------------------------------------------
 const RimSummaryPlotNameHelperInterface* RimSummaryMultiPlot::nameHelper() const
 {
-    return m_nameHelperAllCurves.get();
+    return m_nameHelper.get();
 }
 
 //--------------------------------------------------------------------------------------------------
