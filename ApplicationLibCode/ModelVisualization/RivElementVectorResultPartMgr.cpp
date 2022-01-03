@@ -121,7 +121,8 @@ void RivElementVectorResultPartMgr::appendDynamicGeometryPartsToModel( cvf::Mode
                 if ( fluidIndex == 0 ) directions.push_back( cvf::StructGridInterface::POS_I );
 
                 auto candidate = addresses[0 + fluidIndex];
-                if ( resultsData->hasResultEntry( candidate ) )
+                if ( resultsData->hasResultEntry( candidate ) &&
+                     !resultsData->cellScalarResults( candidate, timeStepIndex ).empty() )
                 {
                     resultAddresses.push_back( candidate );
                 }
@@ -130,7 +131,8 @@ void RivElementVectorResultPartMgr::appendDynamicGeometryPartsToModel( cvf::Mode
             {
                 if ( fluidIndex == 0 ) directions.push_back( cvf::StructGridInterface::POS_J );
                 auto candidate = addresses[1 + fluidIndex];
-                if ( resultsData->hasResultEntry( candidate ) )
+                if ( resultsData->hasResultEntry( candidate ) &&
+                     !resultsData->cellScalarResults( candidate, timeStepIndex ).empty() )
                 {
                     resultAddresses.push_back( candidate );
                 }
@@ -139,7 +141,8 @@ void RivElementVectorResultPartMgr::appendDynamicGeometryPartsToModel( cvf::Mode
             {
                 if ( fluidIndex == 0 ) directions.push_back( cvf::StructGridInterface::POS_K );
                 auto candidate = addresses[2 + fluidIndex];
-                if ( resultsData->hasResultEntry( candidate ) )
+                if ( resultsData->hasResultEntry( candidate ) &&
+                     !resultsData->cellScalarResults( candidate, timeStepIndex ).empty() )
                 {
                     resultAddresses.push_back( candidate );
                 }
