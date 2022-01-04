@@ -164,68 +164,71 @@ void RivElementVectorResultPartMgr::appendDynamicGeometryPartsToModel( cvf::Mode
             faceNormal            = ( faceCenter - cellCenter ).getNormalized() * arrowScaling;
         };
 
-#pragma omp parallel for
-    for ( int gcIdx = 0; gcIdx < static_cast<int>( cells.size() ); ++gcIdx )
+    if ( !resultAddresses.empty() && !directions.empty() )
     {
-        if ( !cells[gcIdx].isInvalid() && activeCellInfo->isActive( gcIdx ) )
+#pragma omp parallel for
+        for ( int gcIdx = 0; gcIdx < static_cast<int>( cells.size() ); ++gcIdx )
         {
-            size_t resultIdx = activeCellInfo->cellResultIndex( gcIdx );
-            if ( result->vectorView() == RimElementVectorResult::VectorView::PER_FACE )
+            if ( !cells[gcIdx].isInvalid() && activeCellInfo->isActive( gcIdx ) )
             {
-                for ( int dir = 0; dir < static_cast<int>( directions.size() ); dir++ )
+                size_t resultIdx = activeCellInfo->cellResultIndex( gcIdx );
+                if ( result->vectorView() == RimElementVectorResult::VectorView::PER_FACE )
                 {
-                    double resultValue = 0.0;
-                    for ( size_t flIdx = dir; flIdx < resultAddresses.size(); flIdx += directions.size() )
+                    for ( int dir = 0; dir < static_cast<int>( directions.size() ); dir++ )
                     {
-                        resultValue +=
-                            resultsData->cellScalarResults( resultAddresses[flIdx], timeStepIndex ).at( resultIdx );
-                    }
+                        double resultValue = 0.0;
+                        for ( size_t flIdx = dir; flIdx < resultAddresses.size(); flIdx += directions.size() )
+                        {
+                            resultValue +=
+                                resultsData->cellScalarResults( resultAddresses[flIdx], timeStepIndex ).at( resultIdx );
+                        }
 
-                    if ( std::abs( resultValue ) >= result->threshold() )
-                    {
-                        cvf::Vec3d faceCenter;
-                        cvf::Vec3d faceNormal;
-                        getFaceCenterAndNormal( static_cast<size_t>( gcIdx ), directions[dir], faceCenter, faceNormal );
-                        faceNormal *= std::abs( resultValue );
+                        if ( std::abs( resultValue ) >= result->threshold() )
+                        {
+                            cvf::Vec3d faceCenter;
+                            cvf::Vec3d faceNormal;
+                            getFaceCenterAndNormal( static_cast<size_t>( gcIdx ), directions[dir], faceCenter, faceNormal );
+                            faceNormal *= std::abs( resultValue );
 
 #pragma omp critical( critical_section_RivElementVectorResultPartMgr_add_1 )
+                            tensorVisualizations.push_back(
+                                ElementVectorResultVisualization( faceCenter,
+                                                                  faceNormal,
+                                                                  resultValue,
+                                                                  std::cbrt( cells[gcIdx].volume() / 3.0 ) ) );
+                        }
+                    }
+                }
+                else if ( result->vectorView() == RimElementVectorResult::VectorView::CELL_CENTER_TOTAL )
+                {
+                    cvf::Vec3d aggregatedVector;
+                    cvf::Vec3d aggregatedResult;
+                    for ( int dir = 0; dir < static_cast<int>( directions.size() ); dir++ )
+                    {
+                        double resultValue = 0.0;
+                        for ( size_t flIdx = dir; flIdx < resultAddresses.size(); flIdx += directions.size() )
+                        {
+                            resultValue +=
+                                resultsData->cellScalarResults( resultAddresses[flIdx], timeStepIndex ).at( resultIdx );
+                        }
+
+                        cvf::Vec3d faceCenter;
+                        cvf::Vec3d faceNormal;
+                        cvf::Vec3d faceNormalScaled;
+                        getFaceCenterAndNormal( gcIdx, directions[dir], faceCenter, faceNormal );
+                        faceNormalScaled = faceNormal * resultValue;
+                        aggregatedVector += faceNormalScaled;
+                        aggregatedResult += faceNormal.getNormalized() * resultValue;
+                    }
+                    if ( aggregatedResult.length() >= result->threshold() )
+                    {
+#pragma omp critical( critical_section_RivElementVectorResultPartMgr_add_2 )
                         tensorVisualizations.push_back(
-                            ElementVectorResultVisualization( faceCenter,
-                                                              faceNormal,
-                                                              resultValue,
+                            ElementVectorResultVisualization( displayCordXf->transformToDisplayCoord( cells[gcIdx].center() ),
+                                                              aggregatedVector,
+                                                              aggregatedResult.length(),
                                                               std::cbrt( cells[gcIdx].volume() / 3.0 ) ) );
                     }
-                }
-            }
-            else if ( result->vectorView() == RimElementVectorResult::VectorView::CELL_CENTER_TOTAL )
-            {
-                cvf::Vec3d aggregatedVector;
-                cvf::Vec3d aggregatedResult;
-                for ( int dir = 0; dir < static_cast<int>( directions.size() ); dir++ )
-                {
-                    double resultValue = 0.0;
-                    for ( size_t flIdx = dir; flIdx < resultAddresses.size(); flIdx += directions.size() )
-                    {
-                        resultValue +=
-                            resultsData->cellScalarResults( resultAddresses[flIdx], timeStepIndex ).at( resultIdx );
-                    }
-
-                    cvf::Vec3d faceCenter;
-                    cvf::Vec3d faceNormal;
-                    cvf::Vec3d faceNormalScaled;
-                    getFaceCenterAndNormal( gcIdx, directions[dir], faceCenter, faceNormal );
-                    faceNormalScaled = faceNormal * resultValue;
-                    aggregatedVector += faceNormalScaled;
-                    aggregatedResult += faceNormal.getNormalized() * resultValue;
-                }
-                if ( aggregatedResult.length() >= result->threshold() )
-                {
-#pragma omp critical( critical_section_RivElementVectorResultPartMgr_add_2 )
-                    tensorVisualizations.push_back(
-                        ElementVectorResultVisualization( displayCordXf->transformToDisplayCoord( cells[gcIdx].center() ),
-                                                          aggregatedVector,
-                                                          aggregatedResult.length(),
-                                                          std::cbrt( cells[gcIdx].volume() / 3.0 ) ) );
                 }
             }
         }
