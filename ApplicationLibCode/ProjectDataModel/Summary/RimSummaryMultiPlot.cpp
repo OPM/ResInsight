@@ -20,13 +20,18 @@
 
 #include "RiaSummaryStringTools.h"
 
+#include "RimEnsembleCurveSet.h"
 #include "RimMainPlotCollection.h"
 #include "RimMultiPlotCollection.h"
+#include "RimMultipleSummaryPlotNameHelper.h"
 #include "RimProject.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseCollection.h"
+#include "RimSummaryCurve.h"
 #include "RimSummaryMultiPlot.h"
 #include "RimSummaryPlot.h"
+#include "RimSummaryPlotNameHelper.h"
+#include "RimSummaryPlotSourceStepping.h"
 
 #include "PlotBuilderCommands/RicSummaryPlotBuilder.h"
 #include "RiuSummaryVectorSelectionUi.h"
@@ -41,7 +46,7 @@ CAF_PDM_SOURCE_INIT( RimSummaryMultiPlot, "MultiSummaryPlot" );
 //--------------------------------------------------------------------------------------------------
 RimSummaryMultiPlot::RimSummaryMultiPlot()
 {
-    CAF_PDM_InitObject( "Multi Summary Plot Plot", "", "", "" );
+    CAF_PDM_InitObject( "Multi Summary Plot", "", "", "" );
     this->setDeletable( true );
 
     CAF_PDM_InitFieldNoDefault( &m_filterText, "FilterText", "Filter Text" );
@@ -49,11 +54,24 @@ RimSummaryMultiPlot::RimSummaryMultiPlot()
 
     CAF_PDM_InitField( &m_individualPlotPerVector, "IndividualPlotPerVector", false, "One plot per Vector" );
     CAF_PDM_InitField( &m_individualPlotPerDataSource, "IndividualPlotPerDataSource", false, "One plot per Data Source" );
+    CAF_PDM_InitField( &m_autoPlotTitles, "AutoPlotTitles", false, "Auto Plot Titles" );
+    CAF_PDM_InitField( &m_autoPlotTitlesOnSubPlots, "AutoPlotTitlesSubPlots", false, "Auto Plot Titles Sub Plots" );
 
-    CAF_PDM_InitField( &m_showMultiPlotInProjectTree, "ShowMultiPlotInProjectTree", false, "Show Multi Plot In Project Tree" );
+    CAF_PDM_InitField( &m_showMultiPlotInProjectTree, "ShowMultiPlotInProjectTree", true, "Show Multi Plot In Project Tree" );
 
     CAF_PDM_InitFieldNoDefault( &m_multiPlot, "MultiPlot", "Multi Plot" );
+    m_multiPlot.uiCapability()->setUiTreeHidden( true );
     m_multiPlot = new RimMultiPlot;
+
+    CAF_PDM_InitFieldNoDefault( &m_sourceStepping, "SourceStepping", "" );
+    m_sourceStepping = new RimSummaryPlotSourceStepping;
+    m_sourceStepping->setSourceSteppingType( RimSummaryDataSourceStepping::Axis::Y_AXIS );
+    m_sourceStepping->setSourceSteppingObject( this );
+    m_sourceStepping.uiCapability()->setUiTreeHidden( true );
+    m_sourceStepping.uiCapability()->setUiTreeChildrenHidden( true );
+    m_sourceStepping.xmlCapability()->disableIO();
+
+    m_nameHelper = std::make_unique<RimSummaryPlotNameHelper>();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -94,7 +112,7 @@ void RimSummaryMultiPlot::zoomAll()
 //--------------------------------------------------------------------------------------------------
 QString RimSummaryMultiPlot::description() const
 {
-    return "RimMultiSummaryPlot Placeholder Text";
+    return "RimSummaryMultiPlot Placeholder Text";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -137,6 +155,96 @@ RimSummaryMultiPlot* RimSummaryMultiPlot::createAndAppendMultiPlot( const std::v
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::vector<RimSummaryDataSourceStepping::Axis> RimSummaryMultiPlot::availableAxes() const
+{
+    return { RimSummaryDataSourceStepping::Axis::X_AXIS };
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimSummaryCurve*> RimSummaryMultiPlot::curvesForStepping( RimSummaryDataSourceStepping::Axis axis ) const
+{
+    std::vector<RimSummaryCurve*> curves;
+
+    for ( auto summaryPlot : summaryPlots() )
+    {
+        for ( auto curve : summaryPlot->curvesForStepping( axis ) )
+        {
+            curves.push_back( curve );
+        }
+    }
+
+    return curves;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimEnsembleCurveSet*> RimSummaryMultiPlot::curveSets() const
+{
+    std::vector<RimEnsembleCurveSet*> curveSets;
+
+    for ( auto summaryPlot : summaryPlots() )
+    {
+        for ( auto curveSet : summaryPlot->curveSets() )
+        {
+            curveSets.push_back( curveSet );
+        }
+    }
+
+    return curveSets;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimSummaryCurve*> RimSummaryMultiPlot::allCurves( RimSummaryDataSourceStepping::Axis axis ) const
+{
+    std::vector<RimSummaryCurve*> curves;
+
+    for ( auto summaryPlot : summaryPlots() )
+    {
+        for ( auto curve : summaryPlot->allCurves( axis ) )
+        {
+            curves.push_back( curve );
+        }
+    }
+
+    return curves;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryMultiPlot::populateNameHelper( RimSummaryPlotNameHelper* nameHelper )
+{
+    nameHelper->clear();
+
+    std::vector<RifEclipseSummaryAddress>  addresses;
+    std::vector<RimSummaryCase*>           sumCases;
+    std::vector<RimSummaryCaseCollection*> ensembleCases;
+
+    for ( RimSummaryCurve* curve : allCurves( RimSummaryDataSourceStepping::Axis::Y_AXIS ) )
+    {
+        addresses.push_back( curve->summaryAddressY() );
+        sumCases.push_back( curve->summaryCaseY() );
+    }
+
+    for ( auto curveSet : curveSets() )
+    {
+        addresses.push_back( curveSet->summaryAddress() );
+        ensembleCases.push_back( curveSet->summaryCaseCollection() );
+    }
+
+    nameHelper->appendAddresses( addresses );
+    nameHelper->setSummaryCases( sumCases );
+    nameHelper->setEnsembleCases( ensembleCases );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QWidget* RimSummaryMultiPlot::createViewWidget( QWidget* mainWindowParent /*= nullptr*/ )
 {
     return m_multiPlot->createViewWidget( mainWindowParent );
@@ -156,6 +264,11 @@ void RimSummaryMultiPlot::deleteViewWidget()
 void RimSummaryMultiPlot::onLoadDataAndUpdate()
 {
     updateMdiWindowVisibility();
+
+    if ( m_autoPlotTitles )
+    {
+        updatePlotTitles();
+    }
 
     m_multiPlot->onLoadDataAndUpdate();
 }
@@ -186,9 +299,16 @@ void RimSummaryMultiPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrde
     uiOrdering.add( &m_filterText );
     uiOrdering.add( &m_individualPlotPerVector );
     uiOrdering.add( &m_individualPlotPerDataSource );
+    uiOrdering.add( &m_autoPlotTitles );
+    uiOrdering.add( &m_autoPlotTitlesOnSubPlots );
 
     auto group = uiOrdering.addNewGroup( "Multi Plot Options" );
     m_multiPlot->uiOrderingForSummaryMultiPlot( *group );
+
+    {
+        auto group = uiOrdering.addNewGroup( "Data Source" );
+        m_sourceStepping()->uiOrdering( uiConfigName, *group );
+    }
 
     uiOrdering.add( &m_showMultiPlotInProjectTree );
 
@@ -218,6 +338,11 @@ void RimSummaryMultiPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
               changedField == &m_individualPlotPerVector )
     {
         updatePlots();
+    }
+    else if ( changedField == &m_autoPlotTitles || changedField == &m_autoPlotTitlesOnSubPlots )
+    {
+        onLoadDataAndUpdate();
+        updateLayout();
     }
 }
 
@@ -274,11 +399,8 @@ void RimSummaryMultiPlot::updatePlots()
         RiaSummaryStringTools::computeFilteredAddresses( addressFilters, allAddresses, includeDiffCurves );
 
     {
-        // Remove existing plots
-
         m_multiPlot->deleteAllPlots();
 
-        // Add new plots
         RicSummaryPlotBuilder plotBuilder;
         plotBuilder.setAddresses( filteredAddresses );
         plotBuilder.setDataSources( matchingSummaryCases, matchingEnsembles );
@@ -286,14 +408,7 @@ void RimSummaryMultiPlot::updatePlots()
         plotBuilder.setIndividualPlotPerDataSource( m_individualPlotPerDataSource );
 
         auto plots = plotBuilder.createPlots();
-
-        std::vector<RimPlot*> plotsForMultiPlot;
-        for ( auto p : plots )
-        {
-            plotsForMultiPlot.push_back( dynamic_cast<RimPlot*>( p ) );
-        }
-
-        for ( auto plot : plotsForMultiPlot )
+        for ( auto plot : plots )
         {
             this->addPlot( plot );
 
@@ -302,6 +417,56 @@ void RimSummaryMultiPlot::updatePlots()
             plot->setShowWindow( true );
         }
 
-        m_multiPlot->loadDataAndUpdate();
+        onLoadDataAndUpdate();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryMultiPlot::updatePlotTitles()
+{
+    populateNameHelper( m_nameHelper.get() );
+
+    auto title = m_nameHelper->plotTitle();
+    m_multiPlot->setMultiPlotTitle( title );
+
+    if ( m_autoPlotTitlesOnSubPlots )
+    {
+        for ( auto plot : summaryPlots() )
+        {
+            auto subPlotNameHelper = plot->plotTitleHelper();
+
+            // Disable auto plot, as this is required to be able to include the information in the multi plot title
+            plot->enableAutoPlotTitle( false );
+
+            auto plotName = subPlotNameHelper->aggregatedPlotTitle( *m_nameHelper.get() );
+            plot->setDescription( plotName );
+            plot->updatePlotTitle();
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const RimSummaryNameHelper* RimSummaryMultiPlot::nameHelper() const
+{
+    return m_nameHelper.get();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimSummaryPlot*> RimSummaryMultiPlot::summaryPlots() const
+{
+    std::vector<RimSummaryPlot*> typedPlots;
+
+    for ( auto plot : m_multiPlot->plots() )
+    {
+        auto summaryPlot = dynamic_cast<RimSummaryPlot*>( plot );
+        if ( summaryPlot ) typedPlots.push_back( summaryPlot );
+    }
+
+    return typedPlots;
 }

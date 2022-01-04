@@ -181,16 +181,13 @@ QString RimSummaryPlotAxisFormatter::autoAxisTitle() const
 {
     std::map<std::string, std::set<std::string>> unitToQuantityNameMap;
 
-    // clang-format off
-    auto addToUnitToQuantityMap =[&]( const std::string& unitText, 
-                                      const RifEclipseSummaryAddress& sumAddress ) 
-    {
+    auto addToUnitToQuantityMap = [&]( const std::string& unitText, const RifEclipseSummaryAddress& sumAddress ) {
         // remove any stats prefix from the quantity name
-        size_t cutPos = sumAddress.quantityName().find(':');
-        if (cutPos == std::string::npos) cutPos = -1;
+        size_t cutPos = sumAddress.quantityName().find( ':' );
+        if ( cutPos == std::string::npos ) cutPos = -1;
 
         std::string        quantityNameForDisplay;
-        const std::string& quantityName = sumAddress.quantityName().substr(cutPos+1);
+        const std::string& quantityName = sumAddress.quantityName().substr( cutPos + 1 );
 
         if ( sumAddress.category() == RifEclipseSummaryAddress::SUMMARY_CALCULATED )
         {
@@ -200,8 +197,12 @@ QString RimSummaryPlotAxisFormatter::autoAxisTitle() const
         {
             if ( m_axisProperties->showDescription() )
             {
+                auto candidateName = quantityName;
+
+                if ( sumAddress.isHistoryQuantity() ) candidateName = quantityName.substr( 0, quantityName.size() - 1 );
+
                 quantityNameForDisplay =
-                    RiuSummaryQuantityNameInfoProvider::instance()->longNameFromQuantityName( quantityName );
+                    RiuSummaryQuantityNameInfoProvider::instance()->longNameFromQuantityName( candidateName );
             }
 
             if ( m_axisProperties->showAcronym() )
@@ -222,8 +223,6 @@ QString RimSummaryPlotAxisFormatter::autoAxisTitle() const
 
         unitToQuantityNameMap[unitText].insert( quantityNameForDisplay );
     };
-
-    // clang-format on
 
     for ( RimSummaryCurve* rimCurve : m_summaryCurves )
     {

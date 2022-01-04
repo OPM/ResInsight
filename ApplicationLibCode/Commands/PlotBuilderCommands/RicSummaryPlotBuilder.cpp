@@ -230,16 +230,7 @@ RimMultiPlot* RicSummaryPlotBuilder::createAndAppendMultiPlot( const std::vector
     plotWindow->setAsPlotMdiWindow();
     plotCollection->addMultiPlot( plotWindow );
 
-    for ( auto plot : plots )
-    {
-        plotWindow->addPlot( plot );
-
-        plot->resolveReferencesRecursively();
-        plot->revokeMdiWindowStatus();
-        plot->setShowWindow( true );
-
-        plot->loadDataAndUpdate();
-    }
+    appendPlotsToMultiPlot( plotWindow, plots );
 
     plotCollection->updateAllRequiredEditors();
     plotWindow->loadDataAndUpdate();
@@ -247,6 +238,26 @@ RimMultiPlot* RicSummaryPlotBuilder::createAndAppendMultiPlot( const std::vector
     RiuPlotMainWindowTools::selectAsCurrentItem( plotWindow, true );
 
     return plotWindow;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicSummaryPlotBuilder::appendPlotsToMultiPlot( RimMultiPlot* multiPlot, const std::vector<RimPlot*>& plots )
+{
+    for ( auto plot : plots )
+    {
+        // Remove the currently window controller, as this will be managed by the multi plot
+        // This must be done before adding the plot to the multi plot to ensure that the viewer widget is recreated
+        plot->revokeMdiWindowStatus();
+
+        multiPlot->addPlot( plot );
+
+        plot->resolveReferencesRecursively();
+        plot->setShowWindow( true );
+
+        plot->loadDataAndUpdate();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

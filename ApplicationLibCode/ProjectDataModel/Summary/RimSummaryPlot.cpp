@@ -250,6 +250,14 @@ RimSummaryPlot::RimSummaryPlot()
 
     m_nameHelperAllCurves.reset( new RimSummaryPlotNameHelper );
 
+    CAF_PDM_InitFieldNoDefault( &m_sourceStepping, "SourceStepping", "" );
+    m_sourceStepping = new RimSummaryPlotSourceStepping;
+    m_sourceStepping->setSourceSteppingType( RimSummaryDataSourceStepping::Axis::Y_AXIS );
+    m_sourceStepping->setSourceSteppingObject( this );
+    m_sourceStepping.uiCapability()->setUiTreeHidden( true );
+    m_sourceStepping.uiCapability()->setUiTreeChildrenHidden( true );
+    m_sourceStepping.xmlCapability()->disableIO();
+
     setPlotInfoLabel( "Filters Active" );
 }
 
@@ -537,6 +545,47 @@ void RimSummaryPlot::moveCurvesToPlot( RimSummaryPlot* plot, const std::vector<R
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::vector<RimSummaryCurve*> RimSummaryPlot::curvesForStepping( RimSummaryDataSourceStepping::Axis axis ) const
+{
+    auto curveForStepping = summaryCurveCollection()->curveForSourceStepping();
+    if ( curveForStepping )
+    {
+        return { curveForStepping };
+    }
+
+    return summaryCurves();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimEnsembleCurveSet*> RimSummaryPlot::curveSets() const
+{
+    return ensembleCurveSetCollection()->curveSets();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimSummaryCurve*> RimSummaryPlot::allCurves( RimSummaryDataSourceStepping::Axis axis ) const
+{
+    return summaryCurves();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimSummaryDataSourceStepping::Axis> RimSummaryPlot::availableAxes() const
+{
+    if ( m_isCrossPlot )
+        return { RimSummaryDataSourceStepping::Axis::X_AXIS, RimSummaryDataSourceStepping::Axis::Y_AXIS };
+
+    return { RimSummaryDataSourceStepping::Axis::X_AXIS };
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::vector<RimSummaryCurve*> RimSummaryPlot::summaryAndEnsembleCurves() const
 {
     std::vector<RimSummaryCurve*> curves = summaryCurves();
@@ -610,20 +659,13 @@ std::vector<RimSummaryCurve*> RimSummaryPlot::visibleStackedSummaryCurvesForAxis
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimEnsembleCurveSet*> RimSummaryPlot::curveSets() const
-{
-    return ensembleCurveSetCollection()->curveSets();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::updatePlotTitle()
 {
-    updateNameHelperWithCurveData( m_nameHelperAllCurves.get() );
+    m_nameHelperAllCurves->clear();
 
     if ( m_useAutoPlotTitle )
     {
+        updateNameHelperWithCurveData( m_nameHelperAllCurves.get() );
         m_description = m_nameHelperAllCurves->plotTitle();
     }
 
@@ -642,7 +684,7 @@ void RimSummaryPlot::updatePlotTitle()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const RimSummaryPlotNameHelper* RimSummaryPlot::activePlotTitleHelperAllCurves() const
+const RimSummaryNameHelper* RimSummaryPlot::activePlotTitleHelperAllCurves() const
 {
     if ( m_useAutoPlotTitle() )
     {
@@ -650,6 +692,14 @@ const RimSummaryPlotNameHelper* RimSummaryPlot::activePlotTitleHelperAllCurves()
     }
 
     return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const RimSummaryNameHelper* RimSummaryPlot::plotTitleHelper() const
+{
+    return m_nameHelperAllCurves.get();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1885,10 +1935,9 @@ void RimSummaryPlot::onPlotZoomed()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    if ( !m_isCrossPlot )
     {
-        caf::PdmUiGroup* textCurveFilterGroup = uiOrdering.addNewGroup( "Text-Based Curve Creation" );
-        m_textCurveSetEditor->uiOrdering( uiConfigName, *textCurveFilterGroup );
+        auto group = uiOrdering.addNewGroup( "Data Source" );
+        m_sourceStepping()->uiOrdering( uiConfigName, *group );
     }
 
     caf::PdmUiGroup* mainOptions = uiOrdering.addNewGroup( "General Plot Options" );
@@ -2204,7 +2253,7 @@ RimSummaryPlotSourceStepping* RimSummaryPlot::sourceSteppingObjectForKeyEventHan
         }
     }
 
-    return summaryCurveCollection()->sourceSteppingObject( RimSummaryPlotSourceStepping::Y_AXIS );
+    return summaryCurveCollection()->sourceSteppingObject( RimSummaryDataSourceStepping::Axis::Y_AXIS );
 }
 
 //--------------------------------------------------------------------------------------------------

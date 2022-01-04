@@ -24,6 +24,7 @@
 #include "RifEclipseSummaryAddress.h"
 
 #include "RimPlot.h"
+#include "RimSummaryDataSourceStepping.h"
 
 #include "qwt_plot_textlabel.h"
 
@@ -49,6 +50,7 @@ class RimSummaryTimeAxisProperties;
 class RimPlotAxisPropertiesInterface;
 class RimPlotAxisProperties;
 class RiuSummaryQwtPlot;
+class RimSummaryNameHelper;
 class RimSummaryPlotNameHelper;
 class RimPlotTemplateFileItem;
 class RimSummaryPlotFilterTextCurveSetEditor;
@@ -64,7 +66,7 @@ class QKeyEvent;
 ///
 ///
 //==================================================================================================
-class RimSummaryPlot : public RimPlot
+class RimSummaryPlot : public RimPlot, public RimSummaryDataSourceStepping
 {
     Q_OBJECT;
     CAF_PDM_HEADER_INIT;
@@ -131,13 +133,12 @@ public:
     void                                deleteAllSummaryCurves();
     RimSummaryCurveCollection*          summaryCurveCollection() const;
 
-    std::vector<RimEnsembleCurveSet*> curveSets() const;
-
     void updatePlotTitle();
 
-    const RimSummaryPlotNameHelper* activePlotTitleHelperAllCurves() const;
-    void                            updateCurveNames();
-    QString                         generatedPlotTitleFromAllCurves() const;
+    const RimSummaryNameHelper* activePlotTitleHelperAllCurves() const;
+    const RimSummaryNameHelper* plotTitleHelper() const;
+    void                        updateCurveNames();
+    QString                     generatedPlotTitleFromAllCurves() const;
 
     void copyAxisPropertiesFromOther( const RimSummaryPlot& sourceSummaryPlot );
 
@@ -177,6 +178,11 @@ public:
     }
 
     static void moveCurvesToPlot( RimSummaryPlot* plot, const std::vector<RimSummaryCurve*> curves, int insertAtPosition );
+
+    std::vector<RimSummaryDataSourceStepping::Axis> availableAxes() const override;
+    std::vector<RimSummaryCurve*>     curvesForStepping( RimSummaryDataSourceStepping::Axis axis ) const override;
+    std::vector<RimEnsembleCurveSet*> curveSets() const override;
+    std::vector<RimSummaryCurve*>     allCurves( RimSummaryDataSourceStepping::Axis axis ) const override;
 
 public:
     // RimViewWindow overrides
@@ -274,5 +280,6 @@ private:
 
     bool m_isCrossPlot;
 
-    std::unique_ptr<RimSummaryPlotNameHelper> m_nameHelperAllCurves;
+    std::unique_ptr<RimSummaryPlotNameHelper>         m_nameHelperAllCurves;
+    caf::PdmChildField<RimSummaryPlotSourceStepping*> m_sourceStepping;
 };

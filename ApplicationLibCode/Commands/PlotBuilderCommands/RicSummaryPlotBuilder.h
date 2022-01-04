@@ -61,6 +61,7 @@ public:
 
     static std::vector<RimPlot*> duplicatePlots( const std::vector<RimPlot*>& plots );
     static RimMultiPlot*         createAndAppendMultiPlot( const std::vector<RimPlot*>& plots );
+    static void                  appendPlotsToMultiPlot( RimMultiPlot* multiPlot, const std::vector<RimPlot*>& plots );
 
     static RimSummaryPlot* createPlot( const std::set<RifEclipseSummaryAddress>&     addresses,
                                        const std::vector<RimSummaryCase*>&           summaryCases,

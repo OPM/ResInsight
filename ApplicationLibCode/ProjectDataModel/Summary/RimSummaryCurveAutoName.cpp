@@ -27,7 +27,7 @@
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseCollection.h"
 #include "RimSummaryCurve.h"
-#include "RimSummaryPlotNameHelper.h"
+#include "RimSummaryNameHelper.h"
 
 #include "SummaryPlotCommands/RicSummaryPlotEditorUi.h"
 
@@ -65,7 +65,7 @@ RimSummaryCurveAutoName::RimSummaryCurveAutoName()
 ///
 //--------------------------------------------------------------------------------------------------
 QString RimSummaryCurveAutoName::curveNameY( const RifEclipseSummaryAddress& summaryAddress,
-                                             const RimSummaryPlotNameHelper* nameHelper ) const
+                                             const RimSummaryNameHelper*     nameHelper ) const
 {
     RimSummaryCurve* summaryCurve = nullptr;
     this->firstAncestorOrThisOfType( summaryCurve );
@@ -100,7 +100,7 @@ QString RimSummaryCurveAutoName::curveNameY( const RifEclipseSummaryAddress& sum
 ///
 //--------------------------------------------------------------------------------------------------
 QString RimSummaryCurveAutoName::curveNameX( const RifEclipseSummaryAddress& summaryAddress,
-                                             const RimSummaryPlotNameHelper* nameHelper ) const
+                                             const RimSummaryNameHelper*     nameHelper ) const
 {
     RimSummaryCurve* summaryCurve = nullptr;
     this->firstAncestorOrThisOfType( summaryCurve );
@@ -154,7 +154,7 @@ void RimSummaryCurveAutoName::applySettings( const RimSummaryCurveAutoName& othe
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCurveAutoName::appendWellName( std::string&                    text,
                                               const RifEclipseSummaryAddress& summaryAddress,
-                                              const RimSummaryPlotNameHelper* nameHelper ) const
+                                              const RimSummaryNameHelper*     nameHelper ) const
 {
     bool skipSubString = nameHelper && nameHelper->isWellNameInTitle();
     if ( skipSubString ) return;
@@ -182,7 +182,7 @@ void RimSummaryCurveAutoName::appendLgrName( std::string& text, const RifEclipse
 ///
 //--------------------------------------------------------------------------------------------------
 QString RimSummaryCurveAutoName::buildCurveName( const RifEclipseSummaryAddress& summaryAddress,
-                                                 const RimSummaryPlotNameHelper* nameHelper,
+                                                 const RimSummaryNameHelper*     nameHelper,
                                                  const std::string&              unitText,
                                                  const std::string&              caseName ) const
 {
@@ -251,7 +251,7 @@ QString RimSummaryCurveAutoName::buildCurveName( const RifEclipseSummaryAddress&
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCurveAutoName::appendAddressDetails( std::string&                    text,
                                                     const RifEclipseSummaryAddress& summaryAddress,
-                                                    const RimSummaryPlotNameHelper* nameHelper ) const
+                                                    const RimSummaryNameHelper*     nameHelper ) const
 {
     switch ( summaryAddress.category() )
     {
