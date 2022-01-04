@@ -145,7 +145,7 @@ void RivExtrudedCurveIntersectionGeometryGenerator::calculateLineSegementTransfo
 //--------------------------------------------------------------------------------------------------
 void RivExtrudedCurveIntersectionGeometryGenerator::calculateTransformedPolyline()
 {
-    CVF_ASSERT( m_lineSegmentTransforms.size() == m_polylines.size() );
+    if ( m_lineSegmentTransforms.size() != m_polylines.size() ) return;
 
     for ( size_t lineIdx = 0; lineIdx < m_polylines.size(); ++lineIdx )
     {
