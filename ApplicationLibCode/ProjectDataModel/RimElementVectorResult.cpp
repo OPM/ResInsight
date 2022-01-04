@@ -94,13 +94,13 @@ RimElementVectorResult::RimElementVectorResult()
     CAF_PDM_InitField( &m_showVectorJ, "ShowVectorJ", true, "J" );
     CAF_PDM_InitField( &m_showVectorK, "ShowVectorK", true, "K" );
     CAF_PDM_InitField( &m_showNncData, "ShowNncData", true, "Show NNC Data" );
-    CAF_PDM_InitField( &m_threshold, "Threshold", 0.0f, "Threshold" );
+    CAF_PDM_InitField( &m_threshold, "Threshold", 0.0, "Threshold" );
 
     CAF_PDM_InitFieldNoDefault( &m_vectorColor, "VectorColor", "Color" );
     cvf::Color3f defaultUniformColor = cvf::Color3f::BLACK;
     CAF_PDM_InitField( &m_uniformVectorColor, "UniformVectorColor", defaultUniformColor, "Uniform Vector Color" );
 
-    CAF_PDM_InitField( &m_sizeScale, "SizeScale", 1.0f, "Size Scale" );
+    CAF_PDM_InitField( &m_sizeScale, "SizeScale", 1.0, "Size Scale" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -206,7 +206,7 @@ RimElementVectorResult::VectorSurfaceCrossingLocation RimElementVectorResult::ve
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-float RimElementVectorResult::threshold() const
+double RimElementVectorResult::threshold() const
 {
     return m_threshold();
 }
@@ -214,7 +214,7 @@ float RimElementVectorResult::threshold() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-float RimElementVectorResult::sizeScale() const
+double RimElementVectorResult::sizeScale() const
 {
     return m_sizeScale();
 }
