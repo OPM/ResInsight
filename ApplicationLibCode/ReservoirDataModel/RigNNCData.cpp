@@ -645,12 +645,14 @@ bool RigNNCData::generateScalarValues( const RigEclipseResultAddress& resVarAddr
         auto it = m_connectionResults.find( nameit->second );
         if ( it == m_connectionResults.end() ) return false;
 
-        auto& srcdata = it->second;
+        // Connection polygons are used to compute the center for the NNC flow vectors
+        // If connection polygons are present, this is a no-op
+        buildPolygonsForEclipseConnections();
 
+        auto& srcdata = it->second;
         auto& dstdata = makeDynamicConnectionScalarResult( resVarAddr.resultName(), srcdata.size() );
 
-        const double epsilon = 1.0e-3;
-
+        const double        epsilon = 1.0e-3;
         std::vector<double> areas( m_connections.size() );
 
         for ( size_t dataIdx = 0; dataIdx < m_connections.size(); dataIdx++ )
