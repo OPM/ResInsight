@@ -250,6 +250,14 @@ RimSummaryPlot::RimSummaryPlot()
 
     m_nameHelperAllCurves.reset( new RimSummaryPlotNameHelper );
 
+    CAF_PDM_InitFieldNoDefault( &m_sourceStepping, "SourceStepping", "" );
+    m_sourceStepping = new RimSummaryPlotSourceStepping;
+    m_sourceStepping->setSourceSteppingType( RimSummarySourceSteppingInterface::Axis::Y_AXIS );
+    m_sourceStepping->setSourceSteppingObject( this );
+    m_sourceStepping.uiCapability()->setUiTreeHidden( true );
+    m_sourceStepping.uiCapability()->setUiTreeChildrenHidden( true );
+    m_sourceStepping.xmlCapability()->disableIO();
+
     setPlotInfoLabel( "Filters Active" );
 }
 
@@ -1926,10 +1934,9 @@ void RimSummaryPlot::onPlotZoomed()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    if ( !m_isCrossPlot )
     {
-        caf::PdmUiGroup* textCurveFilterGroup = uiOrdering.addNewGroup( "Text-Based Curve Creation" );
-        m_textCurveSetEditor->uiOrdering( uiConfigName, *textCurveFilterGroup );
+        auto group = uiOrdering.addNewGroup( "Data Source" );
+        m_sourceStepping()->uiOrdering( uiConfigName, *group );
     }
 
     caf::PdmUiGroup* mainOptions = uiOrdering.addNewGroup( "General Plot Options" );

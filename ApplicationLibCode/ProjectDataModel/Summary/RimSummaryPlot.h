@@ -280,5 +280,6 @@ private:
 
     bool m_isCrossPlot;
 
-    std::unique_ptr<RimSummaryPlotNameHelper> m_nameHelperAllCurves;
+    std::unique_ptr<RimSummaryPlotNameHelper>         m_nameHelperAllCurves;
+    caf::PdmChildField<RimSummaryPlotSourceStepping*> m_sourceStepping;
 };
