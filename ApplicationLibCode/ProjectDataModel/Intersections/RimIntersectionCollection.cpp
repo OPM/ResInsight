@@ -61,11 +61,13 @@ RimIntersectionCollection::RimIntersectionCollection()
     CAF_PDM_InitField( &isActive, "Active", true, "Active" );
     isActive.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitField( &m_overrideCutDepth, "OverrideCutDepth", false, "Hide All Intersection Parts Below Cut Depth." );
-    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_overrideCutDepth );
+    CAF_PDM_InitFieldNoDefault( &m_collectionDepthThreshold, "CollectionDepthThreshold", "Threshold" );
+    m_collectionDepthThreshold.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitField( &m_cutDepth, "GlobalCutDepth", 2000.0, "Cut Depth:" );
-    m_cutDepth.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
+    CAF_PDM_InitField( &m_depthThresholdOverridden, "ThresholdOverridden", false, "Override Intersection Display Settings" );
+    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_depthThresholdOverridden );
+
+    CAF_PDM_InitFieldNoDefault( &m_collectionDepthDisplayType, "CollectionDepthDisplayType", "Intersection Display Type" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -278,7 +280,7 @@ void RimIntersectionCollection::appendIntersectionAndUpdate( RimExtrudedCurveInt
 {
     m_intersections.push_back( intersection );
 
-    intersection->setCutDepthOverride( m_overrideCutDepth, m_cutDepth );
+    intersection->setDepthOverride( m_depthThresholdOverridden, m_collectionDepthThreshold, m_collectionDepthDisplayType() );
 
     syncronize2dIntersectionViews();
 
@@ -298,7 +300,7 @@ void RimIntersectionCollection::appendIntersectionAndUpdate( RimExtrudedCurveInt
 //--------------------------------------------------------------------------------------------------
 void RimIntersectionCollection::appendIntersectionNoUpdate( RimExtrudedCurveIntersection* intersection )
 {
-    intersection->setCutDepthOverride( m_overrideCutDepth, m_cutDepth );
+    intersection->setDepthOverride( m_depthThresholdOverridden, m_collectionDepthThreshold, m_collectionDepthDisplayType() );
     m_intersections.push_back( intersection );
 }
 
@@ -370,11 +372,12 @@ void RimIntersectionCollection::fieldChangedByUi( const caf::PdmFieldHandle* cha
             rimView->scheduleCreateDisplayModelAndRedraw();
         }
     }
-    if ( ( changedField == &m_cutDepth ) || ( changedField == &m_overrideCutDepth ) )
+    if ( ( changedField == &m_collectionDepthThreshold ) || ( changedField == &m_depthThresholdOverridden ) ||
+         ( changedField == &m_collectionDepthDisplayType ) )
     {
         for ( RimExtrudedCurveIntersection* cs : m_intersections )
         {
-            cs->setCutDepthOverride( m_overrideCutDepth, m_cutDepth );
+            cs->setDepthOverride( m_depthThresholdOverridden, m_collectionDepthThreshold, m_collectionDepthDisplayType() );
         }
 
         Rim3dView* rimView = nullptr;
@@ -441,9 +444,11 @@ void RimIntersectionCollection::defineUiOrdering( QString uiConfigName, caf::Pdm
     {
         caf::PdmUiGroup* optionsGroup = uiOrdering.addNewGroup( "Curve Intersections" );
 
-        optionsGroup->add( &m_overrideCutDepth );
-        optionsGroup->add( &m_cutDepth );
-        m_cutDepth.uiCapability()->setUiReadOnly( !m_overrideCutDepth() );
+        optionsGroup->add( &m_depthThresholdOverridden );
+        optionsGroup->add( &m_collectionDepthDisplayType );
+        optionsGroup->add( &m_collectionDepthThreshold );
+        m_collectionDepthDisplayType.uiCapability()->setUiReadOnly( !m_depthThresholdOverridden() );
+        m_collectionDepthThreshold.uiCapability()->setUiReadOnly( !m_depthThresholdOverridden() );
     }
 
     uiOrdering.skipRemainingFields( true );
@@ -459,7 +464,7 @@ void RimIntersectionCollection::defineEditorAttribute( const caf::PdmFieldHandle
     auto* doubleSliderAttrib = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute );
     if ( doubleSliderAttrib )
     {
-        if ( field == &m_cutDepth )
+        if ( field == &m_collectionDepthThreshold )
         {
             RimEclipseView* eclView = eclipseView();
 

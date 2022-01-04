@@ -289,22 +289,25 @@ void RivExtrudedCurveIntersectionGeometryGenerator::calculateArrays()
     calculateLineSegementTransforms();
     calculateTransformedPolyline();
 
+    const double gridRadius = gridBBox.radius();
+
     // set up our horizontal cut planes
-    const double cutDepth = -1.0 * m_intersection->cutDepth();
+    const double topDepth    = -1.0 * m_intersection->topDepth( gridRadius );
+    const double bottomDepth = -1.0 * m_intersection->bottomDepth( gridRadius );
 
     std::array<cvf::Vec3d, 8> corners;
     gridBBox.cornerVertices( corners.data() );
 
-    cvf::Vec3d p1_low( corners[0].x(), corners[0].y(), cutDepth );
-    cvf::Vec3d p2_low( corners[1].x(), corners[1].y(), cutDepth );
-    cvf::Vec3d p3_low( corners[2].x(), corners[2].y(), cutDepth );
+    cvf::Vec3d p1_low( corners[0].x(), corners[0].y(), bottomDepth );
+    cvf::Vec3d p2_low( corners[1].x(), corners[1].y(), bottomDepth );
+    cvf::Vec3d p3_low( corners[2].x(), corners[2].y(), bottomDepth );
 
     cvf::Plane lowPlane;
     lowPlane.setFromPoints( p1_low, p2_low, p3_low );
 
-    cvf::Vec3d p1_high( p1_low.x(), p1_low.y(), gridBBox.radius() );
-    cvf::Vec3d p2_high( p2_low.x(), p2_low.y(), gridBBox.radius() );
-    cvf::Vec3d p3_high( p3_low.x(), p3_low.y(), gridBBox.radius() );
+    cvf::Vec3d p1_high( p1_low.x(), p1_low.y(), topDepth );
+    cvf::Vec3d p2_high( p2_low.x(), p2_low.y(), topDepth );
+    cvf::Vec3d p3_high( p3_low.x(), p3_low.y(), topDepth );
 
     cvf::Plane highPlane;
     highPlane.setFromPoints( p1_high, p2_high, p3_high );
@@ -366,7 +369,8 @@ void RivExtrudedCurveIntersectionGeometryGenerator::calculateArrays()
                 sectionBBox.add( p2 - maxHeightVec );
             }
 
-            sectionBBox.cutBelow( cutDepth );
+            sectionBBox.cutBelow( bottomDepth );
+            sectionBBox.cutAbove( topDepth );
 
             std::vector<size_t> columnCellCandidates;
             m_hexGrid->findIntersectingCells( sectionBBox, &columnCellCandidates );

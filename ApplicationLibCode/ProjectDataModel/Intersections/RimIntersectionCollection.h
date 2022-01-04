@@ -23,6 +23,8 @@
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 
+#include "RimIntersectionEnums.h"
+
 class Rim3dView;
 class RimEclipseView;
 class RimExtrudedCurveIntersection;
@@ -96,6 +98,8 @@ private:
 
     caf::PdmChildArrayField<RimExtrudedCurveIntersection*> m_intersections;
     caf::PdmChildArrayField<RimBoxIntersection*>           m_intersectionBoxes;
-    caf::PdmField<bool>                                    m_overrideCutDepth;
-    caf::PdmField<double>                                  m_cutDepth;
+
+    caf::PdmField<bool>                                      m_depthThresholdOverridden;
+    caf::PdmField<double>                                    m_collectionDepthThreshold;
+    caf::PdmField<caf::AppEnum<RimIntersectionDepthCutEnum>> m_collectionDepthDisplayType;
 };

@@ -5,6 +5,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimIntersectionCollection.h
     ${CMAKE_CURRENT_LIST_DIR}/RimIntersectionResultDefinition.h
     ${CMAKE_CURRENT_LIST_DIR}/RimIntersectionResultsDefinitionCollection.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimIntersectionEnums.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
@@ -14,6 +15,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimIntersectionResultDefinition.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimIntersectionResultsDefinitionCollection.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimBoxIntersection.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimIntersectionEnums.cpp
 )
 
 list(APPEND CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})
