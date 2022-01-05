@@ -87,6 +87,17 @@ bool RiaResultNames::isLogarithmicResult( const QString& resultName )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RiaResultNames::isFlowResultWithBothPosAndNegValues( const QString& resultName )
+{
+    if ( resultName.startsWith( "FLR", Qt::CaseInsensitive ) ) return true;
+    if ( resultName.startsWith( "FLO", Qt::CaseInsensitive ) ) return true;
+
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString RiaResultNames::activeFormationNamesResultName()
 {
     return "Active Formation Names";

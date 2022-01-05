@@ -208,6 +208,12 @@ RimRegularLegendConfig* RimEclipseCellColors::createLegendForResult( const QStri
         newLegend->resetUserDefinedValues();
     }
 
+    if ( RiaResultNames::isFlowResultWithBothPosAndNegValues( resultName ) )
+    {
+        colorRangeType = RimRegularLegendConfig::ColorRangesType::BLUE_WHITE_RED;
+        newLegend->setCenterLegendAroundZero( true );
+    }
+
     if ( colorRangeType != RimRegularLegendConfig::ColorRangesType::UNDEFINED )
     {
         RimColorLegend* colorLegend = RimRegularLegendConfig::mapToColorLegend( colorRangeType );

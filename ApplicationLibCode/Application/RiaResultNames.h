@@ -28,6 +28,7 @@ namespace RiaResultNames
 {
 bool isPerCellFaceResult( const QString& resultName );
 bool isLogarithmicResult( const QString& resultName );
+bool isFlowResultWithBothPosAndNegValues( const QString& resultName );
 
 QString undefinedResultName();
 QString undefinedGridFaultName();
