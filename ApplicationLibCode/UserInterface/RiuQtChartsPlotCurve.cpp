@@ -292,9 +292,11 @@ cvf::BoundingBox RiuQtChartsPlotCurve::computeBoundingBox() const
 //--------------------------------------------------------------------------------------------------
 void RiuQtChartsPlotCurve::setVisibleInLegend( bool isVisibleInLegend )
 {
-    CAF_ASSERT( m_plotWidget );
+    if ( !m_plotWidget ) return;
+
     CAF_ASSERT( m_plotWidget->qtChart() );
     CAF_ASSERT( m_plotWidget->qtChart()->legend() );
+
     if ( scatterSeries() )
     {
         auto markers = m_plotWidget->qtChart()->legend()->markers( scatterSeries() );

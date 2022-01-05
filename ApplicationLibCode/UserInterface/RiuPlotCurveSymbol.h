@@ -25,6 +25,7 @@ class QColor;
 class QPen;
 class QPainter;
 class QRect;
+class QPixmap;
 
 //--------------------------------------------------------------------------------------------------
 /// Interface for plot curve symbol
@@ -74,6 +75,8 @@ public:
     void setLabelPosition( LabelPosition labelPosition );
 
     void setLabelFontSize( int labelFontSizePt );
+
+    virtual void setPixmap( const QPixmap& pixmap ) = 0;
 
     virtual void setSize( int width, int height ) = 0;
 

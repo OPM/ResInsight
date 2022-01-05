@@ -54,6 +54,8 @@ public:
 
     void setPen( const QPen& pen ) override;
 
+    void setPixmap( const QPixmap& pixmap ) override;
+
     void applyToScatterSeries( QtCharts::QScatterSeries* series ) const;
 
 private:
