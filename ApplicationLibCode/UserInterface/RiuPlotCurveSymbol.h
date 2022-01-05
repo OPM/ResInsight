@@ -84,6 +84,8 @@ public:
 
     virtual void setPen( const QPen& pen ) = 0;
 
+    virtual QRect boundingRect() const = 0;
+
     static PointSymbolEnum cycledSymbolStyle( int indexLevel1, int indexLevel2 );
     static PointSymbolEnum cycledSymbolStyle( int indexLevel );
 

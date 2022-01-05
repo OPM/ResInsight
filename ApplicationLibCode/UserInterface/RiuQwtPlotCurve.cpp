@@ -290,6 +290,14 @@ void RiuQwtPlotCurve::setLegendIconSize( const QSize& iconSize )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QSize RiuQwtPlotCurve::legendIconSize() const
+{
+    return QwtPlotCurve::legendIconSize();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiuQwtPlotCurve::attachToPlot( RiuPlotWidget* plotWidget )
 {
     RiuQwtPlotWidget* qwtPlotWidget = dynamic_cast<RiuQwtPlotWidget*>( plotWidget );
