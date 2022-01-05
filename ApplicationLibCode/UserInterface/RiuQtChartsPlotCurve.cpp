@@ -379,3 +379,11 @@ QSize RiuQtChartsPlotCurve::legendIconSize() const
     // Default from Qwt
     return QSize( 8, 8 );
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QPixmap RiuQtChartsPlotCurve::legendIcon( const QSizeF& iconSize ) const
+{
+    return QPixmap();
+}

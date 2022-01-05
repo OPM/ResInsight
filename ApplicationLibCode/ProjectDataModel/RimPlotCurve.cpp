@@ -894,10 +894,10 @@ void RimPlotCurve::updateCurveAppearance()
                                 fillBrush );
 
     m_plotCurve->setSymbol( symbol );
-    // m_plotCurve->setSymbolSkipPixelDistance( m_curveAppearance->symbolSkipDistance() );
+    m_plotCurve->setSymbolSkipPixelDistance( m_curveAppearance->symbolSkipDistance() );
 
     // Make sure the legend lines are long enough to distinguish between line types.
-    // Standard width in
+    // Standard width in Qwt is 8 which is too short.
     // Use 10 and scale this by curve thickness + add space for displaying symbol.
     if ( m_curveAppearance->lineStyle() != RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_NONE )
     {
@@ -929,14 +929,13 @@ void RimPlotCurve::clearErrorBars()
 //--------------------------------------------------------------------------------------------------
 void RimPlotCurve::updateUiIconFromPlotSymbol()
 {
-    // if ( m_curveAppearance->symbol() != RiuPlotCurveSymbol::SYMBOL_NONE && m_qwtPlotCurve )
-    // {
-    //     CVF_ASSERT( RiaGuiApplication::isRunning() );
-    //     QSizeF     iconSize( 24, 24 );
-    //     QwtGraphic graphic = m_qwtPlotCurve->legendIcon( 0, iconSize );
-    //     QPixmap    pixmap  = graphic.toPixmap();
-    //     setUiIcon( caf::IconProvider( pixmap ) );
-    // }
+    if ( m_curveAppearance->symbol() != RiuPlotCurveSymbol::SYMBOL_NONE && m_plotCurve )
+    {
+        CVF_ASSERT( RiaGuiApplication::isRunning() );
+        QSizeF  iconSize( 24, 24 );
+        QPixmap pixmap = m_plotCurve->legendIcon( iconSize );
+        setUiIcon( caf::IconProvider( pixmap ) );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
