@@ -56,6 +56,8 @@ public:
 
     void setPixmap( const QPixmap& pixmap ) override;
 
+    QRect boundingRect() const override;
+
     void applyToScatterSeries( QtCharts::QScatterSeries* series ) const;
 
 private:

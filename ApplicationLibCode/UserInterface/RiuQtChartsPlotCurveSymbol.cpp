@@ -608,3 +608,11 @@ QImage RiuQtChartsPlotCurveSymbol::createDiamondImage() const
 
     return image;
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QRect RiuQtChartsPlotCurveSymbol::boundingRect() const
+{
+    return QRect( 0, 0, m_size, m_size );
+}

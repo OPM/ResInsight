@@ -198,3 +198,11 @@ void RiuQwtSymbol::setPixmap( const QPixmap& pixmap )
 {
     QwtSymbol::setPixmap( pixmap );
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QRect RiuQwtSymbol::boundingRect() const
+{
+    return QwtSymbol::boundingRect();
+}

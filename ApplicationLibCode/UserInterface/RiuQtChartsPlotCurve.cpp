@@ -370,3 +370,12 @@ RiuPlotCurveSymbol* RiuQtChartsPlotCurve::createSymbol( RiuPlotCurveSymbol::Poin
 void RiuQtChartsPlotCurve::setLegendIconSize( const QSize& iconSize )
 {
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QSize RiuQtChartsPlotCurve::legendIconSize() const
+{
+    // Default from Qwt
+    return QSize( 8, 8 );
+}
