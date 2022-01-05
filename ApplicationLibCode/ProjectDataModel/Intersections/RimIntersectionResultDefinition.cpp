@@ -390,6 +390,24 @@ void RimIntersectionResultDefinition::update2dIntersectionViews()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimIntersectionResultDefinition::setDefaultEclipseLegendConfig()
+{
+    bool useDiscreteLogLevels = false;
+    bool isCategoryResult     = m_eclipseResultDefinition->hasCategoryResult();
+
+    auto eclResultDef = this->eclipseResultDefinition();
+    eclResultDef->updateRangesForExplicitLegends( this->regularLegendConfig(),
+                                                  this->ternaryLegendConfig(),
+                                                  this->timeStep() );
+
+    m_legendConfig->setDefaultConfigForResultName( m_eclipseResultDefinition->resultVariable(),
+                                                   useDiscreteLogLevels,
+                                                   isCategoryResult );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo>
     RimIntersectionResultDefinition::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
                                                             bool*                      useOptionsOnly )

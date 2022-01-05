@@ -32,7 +32,6 @@
 #include "RimGeoMechCase.h"
 #include "RimGeoMechCellColors.h"
 #include "RimGeoMechView.h"
-#include "RimIntersectionResultDefinition.h"
 
 #include "RivBoxIntersectionSourceInfo.h"
 #include "RivExtrudedCurveIntersectionPartMgr.h"

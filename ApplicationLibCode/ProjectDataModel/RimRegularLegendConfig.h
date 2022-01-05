@@ -170,6 +170,8 @@ public:
 
     QString valueToText( double value ) const;
 
+    void setDefaultConfigForResultName( const QString& resultName, bool useDiscreteLogLevels, bool isCategoryResult );
+
 private:
     void                 fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void                 sendChangedSignal( const caf::PdmFieldHandle* changedField );
@@ -189,6 +191,7 @@ private:
 
     void updateCategoryItems();
     void configureCategoryMapper();
+    void updateTickCountAndUserDefinedRange();
 
     friend class RimViewLinker;
 

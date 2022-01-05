@@ -181,49 +181,10 @@ RimRegularLegendConfig* RimEclipseCellColors::createLegendForResult( const QStri
                                                                      bool           useDiscreteLogLevels,
                                                                      bool           isCategoryResult )
 {
-    bool useLog = RiaResultNames::isLogarithmicResult( resultName );
+    auto* newLegend               = new RimRegularLegendConfig;
+    newLegend->resultVariableName = resultName;
 
-    RimRegularLegendConfig::ColorRangesType colorRangeType = RimRegularLegendConfig::ColorRangesType::UNDEFINED;
-    if ( isCategoryResult )
-    {
-        colorRangeType = RimRegularLegendConfig::ColorRangesType::CATEGORY;
-    }
-    else if ( resultName == RiaResultNames::swat() )
-    {
-        colorRangeType = RimRegularLegendConfig::ColorRangesType::OPPOSITE_NORMAL;
-    }
-
-    RimRegularLegendConfig* newLegend = new RimRegularLegendConfig;
-    newLegend->resultVariableName     = resultName;
-
-    if ( useLog )
-    {
-        if ( useDiscreteLogLevels )
-            newLegend->setMappingMode( RimRegularLegendConfig::MappingType::LOG10_DISCRETE );
-        else
-            newLegend->setMappingMode( RimRegularLegendConfig::MappingType::LOG10_CONTINUOUS );
-
-        newLegend->setTickNumberFormat( RiaNumberFormat::NumberFormatType::AUTO );
-        newLegend->setRangeMode( RimLegendConfig::RangeModeType::USER_DEFINED );
-        newLegend->resetUserDefinedValues();
-    }
-
-    if ( RiaResultNames::isFlowResultWithBothPosAndNegValues( resultName ) )
-    {
-        colorRangeType = RimRegularLegendConfig::ColorRangesType::BLUE_WHITE_RED;
-        newLegend->setCenterLegendAroundZero( true );
-    }
-
-    if ( colorRangeType != RimRegularLegendConfig::ColorRangesType::UNDEFINED )
-    {
-        RimColorLegend* colorLegend = RimRegularLegendConfig::mapToColorLegend( colorRangeType );
-        if ( isCategoryResult )
-        {
-            newLegend->setMappingMode( RimRegularLegendConfig::MappingType::CATEGORY_INTEGER );
-        }
-
-        newLegend->setColorLegend( colorLegend );
-    }
+    newLegend->setDefaultConfigForResultName( resultName, useDiscreteLogLevels, isCategoryResult );
 
     return newLegend;
 }
