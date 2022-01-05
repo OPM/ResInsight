@@ -96,13 +96,14 @@ void RivElementVectorResultPartMgr::appendDynamicGeometryPartsToModel( cvf::Mode
     double characteristicCellSize = eclipseCase->characteristicCellSize();
     float  arrowConstantScaling   = 10.0 * result->sizeScale() * characteristicCellSize;
 
-    double min, max;
-    result->mappingRange( min, max );
-
     double maxAbsResult = 1.0;
-    if ( min != cvf::UNDEFINED_DOUBLE && max != cvf::UNDEFINED_DOUBLE )
     {
-        maxAbsResult = std::max( cvf::Math::abs( max ), cvf::Math::abs( min ) );
+        double min, max;
+        result->mappingRange( min, max );
+        if ( min != cvf::UNDEFINED_DOUBLE && max != cvf::UNDEFINED_DOUBLE )
+        {
+            maxAbsResult = std::max( cvf::Math::abs( max ), cvf::Math::abs( min ) );
+        }
     }
 
     float arrowScaling = arrowConstantScaling / maxAbsResult;

@@ -335,10 +335,12 @@ void RimElementVectorResult::mappingRange( double& min, double& max ) const
                 {
                     resultsData->minMaxCellScalarValues( resVarAddr, localMin, localMax );
                 }
-                else if ( m_legendConfig->rangeMode() == RimRegularLegendConfig::RangeModeType::AUTOMATIC_CURRENT_TIMESTEP )
+                else if ( m_legendConfig->rangeMode() == RimRegularLegendConfig::RangeModeType::AUTOMATIC_CURRENT_TIMESTEP ||
+                          m_legendConfig->rangeMode() == RimRegularLegendConfig::RangeModeType::USER_DEFINED )
                 {
                     resultsData->minMaxCellScalarValues( resVarAddr, currentTimeStep, localMin, localMax );
                 }
+
                 if ( vectorView() == RimElementVectorResult::VectorView::CELL_CENTER_TOTAL )
                 {
                     aggregatedVectorMax += unitVectors.at( dir ) * localMax;
@@ -400,7 +402,8 @@ void RimElementVectorResult::mappingRange( double& min, double& max ) const
                         }
                     }
                     else if ( m_legendConfig->rangeMode() ==
-                              RimRegularLegendConfig::RangeModeType::AUTOMATIC_CURRENT_TIMESTEP )
+                                  RimRegularLegendConfig::RangeModeType::AUTOMATIC_CURRENT_TIMESTEP ||
+                              m_legendConfig->rangeMode() == RimRegularLegendConfig::RangeModeType::USER_DEFINED )
                     {
                         const std::vector<double>* nncResultVals =
                             nncData->dynamicConnectionScalarResult( combinedAddresses[flIdx],
@@ -444,9 +447,8 @@ void RimElementVectorResult::updateLegendRangesTextAndVisibility( RiuViewer* nat
     double minResultValue;
     double maxResultValue;
     mappingRange( minResultValue, maxResultValue );
-    m_legendConfig->setAutomaticRanges( minResultValue, maxResultValue, minResultValue, maxResultValue );
 
-    m_legendConfig->setMappingMode( RimRegularLegendConfig::MappingType::LINEAR_CONTINUOUS );
+    m_legendConfig->setAutomaticRanges( minResultValue, maxResultValue, minResultValue, maxResultValue );
 
     double posClosestToZero = HUGE_VAL;
     double negClosestToZero = -HUGE_VAL;
