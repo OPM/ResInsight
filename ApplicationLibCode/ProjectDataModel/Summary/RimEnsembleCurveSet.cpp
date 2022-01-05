@@ -53,9 +53,9 @@
 
 #include "RiuAbstractLegendFrame.h"
 #include "RiuDraggableOverlayFrame.h"
+#include "RiuPlotCurve.h"
+#include "RiuPlotCurveSymbol.h"
 #include "RiuPlotMainWindow.h"
-#include "RiuQwtPlotCurve.h"
-#include "RiuSummaryQwtPlot.h"
 #include "RiuSummaryVectorSelectionDialog.h"
 #include "RiuTextContentFrame.h"
 
@@ -70,17 +70,7 @@
 #include "cafPdmUiTreeSelectionEditor.h"
 #include "cafTitledOverlayFrame.h"
 
-#include "cvfScalarMapper.h"
-
-#include "qwt_plot_curve.h"
-#include "qwt_symbol.h"
-
 #include <algorithm>
-
-//--------------------------------------------------------------------------------------------------
-/// Internal constants
-//--------------------------------------------------------------------------------------------------
-#define DOUBLE_INF std::numeric_limits<double>::infinity()
 
 //--------------------------------------------------------------------------------------------------
 /// Internal functions
@@ -210,8 +200,7 @@ RimEnsembleCurveSet::RimEnsembleCurveSet()
 
     m_summaryAddressNameTools = new RimSummaryCurveAutoName;
 
-    m_qwtPlotCurveForLegendText = new QwtPlotCurve;
-    m_qwtPlotCurveForLegendText->setLegendAttribute( QwtPlotCurve::LegendShowSymbol, true );
+    m_plotCurveForLegendText = nullptr;
 
     m_ensembleStatCase.reset( new RimEnsembleStatisticsCase( this ) );
     m_ensembleStatCase->createSummaryReaderInterface();
@@ -234,7 +223,7 @@ RimEnsembleCurveSet::~RimEnsembleCurveSet()
     firstAncestorOrThisOfType( parentPlot );
     if ( parentPlot && parentPlot->plotWidget() )
     {
-        m_qwtPlotCurveForLegendText->detach();
+        if ( m_plotCurveForLegendText ) m_plotCurveForLegendText->detach();
         if ( m_legendOverlayFrame )
         {
             parentPlot->plotWidget()->removeOverlayFrame( m_legendOverlayFrame );
@@ -256,7 +245,7 @@ RimEnsembleCurveSet::~RimEnsembleCurveSet()
         delete m_objectiveFunctionOverlayFrame;
     }
 
-    delete m_qwtPlotCurveForLegendText;
+    delete m_plotCurveForLegendText;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -311,6 +300,11 @@ void RimEnsembleCurveSet::setParentPlotNoReplot( RiuPlotWidget* plot )
         // TODO: attach without replotting
         curve->attach( plot );
     }
+
+    if ( !m_plotCurveForLegendText )
+    {
+        m_plotCurveForLegendText = plot->createPlotCurve( nullptr, "", Qt::black );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -323,7 +317,12 @@ void RimEnsembleCurveSet::detachPlotCurves()
         curve->detach();
     }
 
-    m_qwtPlotCurveForLegendText->detach();
+    if ( m_plotCurveForLegendText )
+    {
+        m_plotCurveForLegendText->detach();
+        delete m_plotCurveForLegendText;
+        m_plotCurveForLegendText = nullptr;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -336,15 +335,14 @@ void RimEnsembleCurveSet::reattachPlotCurves()
         curve->reattach();
     }
 
-    // TODO: fix this
-    // m_qwtPlotCurveForLegendText->detach();
+    if ( m_plotCurveForLegendText )
+    {
+        m_plotCurveForLegendText->detach();
 
-    // RimSummaryPlot* plot = nullptr;
-    // firstAncestorOrThisOfType( plot );
-    // if ( plot )
-    // {
-    //     m_qwtPlotCurveForLegendText->attach( plot->plotWidget() );
-    // }
+        RimSummaryPlot* plot = nullptr;
+        firstAncestorOrThisOfType( plot );
+        if ( plot && plot->plotWidget() ) m_plotCurveForLegendText->attachToPlot( plot->plotWidget() );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -621,6 +619,15 @@ void RimEnsembleCurveSet::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
 
     if ( changedField == &m_showCurves )
     {
+        if ( !m_showCurves() )
+        {
+            // Need to detach the legend since the plot type might change from Qwt to QtCharts.
+            // The plot curve for legend text needs to be recreated when curves are shown next time.
+            m_plotCurveForLegendText->detach();
+            delete m_plotCurveForLegendText;
+            m_plotCurveForLegendText = nullptr;
+        }
+
         loadDataAndUpdate( true );
 
         updateConnectedEditors();
@@ -740,7 +747,7 @@ void RimEnsembleCurveSet::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
             curve->setLeftOrRightAxisY( m_plotAxis() );
         }
 
-        updateQwtPlotAxis();
+        updatePlotAxis();
         plot->updateAxes();
 
         updateTextInPlot = true;
@@ -1640,7 +1647,7 @@ void RimEnsembleCurveSet::updateAddressesUiField()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEnsembleCurveSet::updateQwtPlotAxis()
+void RimEnsembleCurveSet::updatePlotAxis()
 {
     for ( RimSummaryCurve* curve : curves() )
     {
@@ -1658,7 +1665,7 @@ void RimEnsembleCurveSet::updateEnsembleCurves( const std::vector<RimSummaryCase
     CVF_ASSERT( plot );
 
     deleteEnsembleCurves();
-    m_qwtPlotCurveForLegendText->detach();
+    if ( m_plotCurveForLegendText ) m_plotCurveForLegendText->detach();
     deleteStatisticsCurves();
 
     if ( m_statistics->hideEnsembleCurves() ) return;
@@ -1695,13 +1702,11 @@ void RimEnsembleCurveSet::updateEnsembleCurves( const std::vector<RimSummaryCase
             {
                 newSummaryCurves[i]->loadDataAndUpdate( false );
                 newSummaryCurves[i]->updatePlotAxis();
-                // if ( newSummaryCurves[i]->qwtPlotCurve() )
-                // {
-                //     newSummaryCurves[i]->qwtPlotCurve()->setItemAttribute( QwtPlotItem::Legend, false );
-                // }
+                newSummaryCurves[i]->setShowInLegend( false );
             }
 
-            //            if ( plot->plotWidget() ) m_qwtPlotCurveForLegendText->attach( plot->plotWidget() );
+            if ( plot->plotWidget() && m_plotCurveForLegendText )
+                m_plotCurveForLegendText->attachToPlot( plot->plotWidget() );
         }
 
         if ( plot->plotWidget() )
@@ -1947,16 +1952,16 @@ bool RimEnsembleCurveSet::hasMeanData() const
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleCurveSet::updateEnsembleLegendItem()
 {
-    m_qwtPlotCurveForLegendText->setTitle( name() );
+    if ( !m_plotCurveForLegendText ) return;
+
+    m_plotCurveForLegendText->setTitle( name() );
 
     {
-        QwtSymbol* symbol = nullptr;
+        RiuPlotCurveSymbol* symbol = m_plotCurveForLegendText->createSymbol( RiuPlotCurveSymbol::SYMBOL_CROSS );
 
         if ( m_colorMode == ColorMode::SINGLE_COLOR )
         {
-            symbol = new QwtSymbol( QwtSymbol::HLine );
-
-            QColor curveColor( m_color.value().rByte(), m_color.value().gByte(), m_color.value().bByte() );
+            QColor curveColor = RiaColorTools::toQColor( m_color );
             QPen   curvePen( curveColor );
             curvePen.setWidth( 2 );
 
@@ -1966,17 +1971,15 @@ void RimEnsembleCurveSet::updateEnsembleLegendItem()
         else if ( m_colorMode == ColorMode::BY_ENSEMBLE_PARAM )
         {
             QPixmap p = QPixmap( ":/Legend.png" );
-
-            symbol = new QwtSymbol;
             symbol->setPixmap( p );
             symbol->setSize( 8, 8 );
         }
 
-        m_qwtPlotCurveForLegendText->setSymbol( symbol );
+        m_plotCurveForLegendText->setSymbol( symbol );
     }
 
     bool showLegendItem = isCurvesVisible();
-    m_qwtPlotCurveForLegendText->setItemAttribute( QwtPlotItem::Legend, showLegendItem );
+    m_plotCurveForLegendText->setVisibleInLegend( showLegendItem );
 }
 
 //--------------------------------------------------------------------------------------------------
