@@ -191,12 +191,21 @@ void RivElementVectorResultPartMgr::appendDynamicGeometryPartsToModel( cvf::Mode
                             getFaceCenterAndNormal( static_cast<size_t>( gcIdx ), directions[dir], faceCenter, faceNormal );
                             faceNormal *= std::abs( resultValue );
 
+                            bool centerArrow = false;
+                            if ( result->vectorSuraceCrossingLocation() ==
+                                     RimElementVectorResult::VectorSurfaceCrossingLocation::VECTOR_CENTER &&
+                                 result->vectorView() == RimElementVectorResult::VectorView::PER_FACE )
+                            {
+                                centerArrow = true;
+                            }
+
 #pragma omp critical( critical_section_RivElementVectorResultPartMgr_add_1 )
                             tensorVisualizations.push_back(
                                 ElementVectorResultVisualization( faceCenter,
                                                                   faceNormal,
                                                                   resultValue,
-                                                                  std::cbrt( cells[gcIdx].volume() / 3.0 ) ) );
+                                                                  std::cbrt( cells[gcIdx].volume() / 3.0 ),
+                                                                  centerArrow ) );
                         }
                     }
                 }
@@ -223,12 +232,20 @@ void RivElementVectorResultPartMgr::appendDynamicGeometryPartsToModel( cvf::Mode
                     }
                     if ( aggregatedResult.length() >= result->threshold() )
                     {
+                        bool centerArrow = false;
+                        if ( result->vectorSuraceCrossingLocation() ==
+                             RimElementVectorResult::VectorSurfaceCrossingLocation::VECTOR_CENTER )
+                        {
+                            centerArrow = true;
+                        }
+
 #pragma omp critical( critical_section_RivElementVectorResultPartMgr_add_2 )
                         tensorVisualizations.push_back(
                             ElementVectorResultVisualization( displayCordXf->transformToDisplayCoord( cells[gcIdx].center() ),
                                                               aggregatedVector,
                                                               aggregatedResult.length(),
-                                                              std::cbrt( cells[gcIdx].volume() / 3.0 ) ) );
+                                                              std::cbrt( cells[gcIdx].volume() / 3.0 ),
+                                                              centerArrow ) );
                     }
                 }
             }
@@ -280,12 +297,25 @@ void RivElementVectorResultPartMgr::appendDynamicGeometryPartsToModel( cvf::Mode
 
                 if ( std::abs( resultValue ) >= result->threshold() )
                 {
+                    bool centerArrow = false;
+                    if ( result->vectorView() == RimElementVectorResult::VectorView::CELL_CENTER_TOTAL )
+                    {
+                        centerArrow = true;
+                    }
+                    else if ( result->vectorView() == RimElementVectorResult::VectorView::PER_FACE )
+                    {
+                        if ( result->vectorSuraceCrossingLocation() ==
+                             RimElementVectorResult::VectorSurfaceCrossingLocation::VECTOR_CENTER )
+                            centerArrow = true;
+                    }
+
 #pragma omp critical( critical_section_RivElementVectorResultPartMgr_add_nnc )
                     tensorVisualizations.push_back(
                         ElementVectorResultVisualization( displayCordXf->transformToDisplayCoord( connCenter ),
                                                           connNormal,
                                                           resultValue,
-                                                          std::cbrt( cells[conn.c1GlobIdx()].volume() / 3.0 ) ) );
+                                                          std::cbrt( cells[conn.c1GlobIdx()].volume() / 3.0 ),
+                                                          centerArrow ) );
                 }
             }
         }
@@ -430,8 +460,7 @@ std::array<cvf::Vec3f, 7>
 
     cvf::Vec3f headTop    = evrViz.faceCenter + evrViz.faceNormal;
     cvf::Vec3f shaftStart = evrViz.faceCenter;
-    if ( result->vectorSuraceCrossingLocation() == RimElementVectorResult::VectorSurfaceCrossingLocation::VECTOR_CENTER &&
-         result->vectorView() == RimElementVectorResult::VectorView::PER_FACE )
+    if ( evrViz.centerArrow )
     {
         headTop    = evrViz.faceCenter + evrViz.faceNormal / 2.0;
         shaftStart = evrViz.faceCenter - evrViz.faceNormal / 2.0;
@@ -439,7 +468,7 @@ std::array<cvf::Vec3f, 7>
 
     // Flip arrow for negative results and if the vector is not aggregated (in which case we do not have any negative
     // result)
-    if ( evrViz.result < 0 && result->vectorView() != RimElementVectorResult::VectorView::CELL_CENTER_TOTAL )
+    if ( evrViz.result < 0 )
     {
         std::swap( headTop, shaftStart );
     }
