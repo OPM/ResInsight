@@ -896,24 +896,24 @@ void RimPlotCurve::updateCurveAppearance()
     m_plotCurve->setSymbol( symbol );
     // m_plotCurve->setSymbolSkipPixelDistance( m_curveAppearance->symbolSkipDistance() );
 
-    // // Make sure the legend lines are long enough to distinguish between line types.
-    // // Standard width in
-    // // Use 10 and scale this by curve thickness + add space for displaying symbol.
-    // if ( m_curveAppearance->lineStyle() != RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_NONE )
-    // {
-    //     QSize legendIconSize = m_plotCurve->legendIconSize();
+    // Make sure the legend lines are long enough to distinguish between line types.
+    // Standard width in
+    // Use 10 and scale this by curve thickness + add space for displaying symbol.
+    if ( m_curveAppearance->lineStyle() != RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_NONE )
+    {
+        QSize legendIconSize = m_plotCurve->legendIconSize();
 
-    //     int symbolWidth = 0;
-    //     if ( symbol )
-    //     {
-    //         symbolWidth = symbol->boundingRect().size().width() + 2;
-    //     }
+        int symbolWidth = 0;
+        if ( symbol )
+        {
+            symbolWidth = symbol->boundingRect().size().width() + 2;
+        }
 
-    //     int width = std::max( 10 * m_curveAppearance->lineThickness(), ( symbolWidth * 3 ) / 2 );
+        int width = std::max( 10 * m_curveAppearance->lineThickness(), ( symbolWidth * 3 ) / 2 );
 
-    //     legendIconSize.setWidth( width );
-    //     m_plotCurve->setLegendIconSize( legendIconSize );
-    // }
+        legendIconSize.setWidth( width );
+        m_plotCurve->setLegendIconSize( legendIconSize );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

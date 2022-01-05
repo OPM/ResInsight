@@ -51,4 +51,6 @@ public:
     void setPen( const QPen& pen ) override;
 
     void setPixmap( const QPixmap& pixmap ) override;
+
+    QRect boundingRect() const override;
 };
