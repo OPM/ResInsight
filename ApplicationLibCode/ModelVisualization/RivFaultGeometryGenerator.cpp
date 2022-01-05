@@ -155,6 +155,12 @@ void RivFaultGeometryGenerator::computeArrays( bool onlyShowFacesWithDefinedNeig
 
     cvf::Vec3d offset = m_grid->displayModelOffset();
 
+    if ( onlyShowFacesWithDefinedNeighbors )
+    {
+        // Make sure the connection polygon is computed, as this is used as criteria for visibility
+        m_nncData->ensureAllConnectionDataIsProcessed();
+    }
+
     auto  connIndices = m_fault->connectionIndices();
     auto& connections = m_nncData->availableConnections();
 
