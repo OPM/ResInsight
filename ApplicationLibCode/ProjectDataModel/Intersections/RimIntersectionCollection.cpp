@@ -29,8 +29,6 @@
 #include "RimEclipseView.h"
 #include "RimExtrudedCurveIntersection.h"
 #include "RimGridView.h"
-#include "RimIntersectionResultDefinition.h"
-#include "RimIntersectionResultsDefinitionCollection.h"
 #include "RimSimWellInView.h"
 
 #include "Riu3DMainWindowTools.h"

@@ -478,6 +478,7 @@ void RimEclipseResultDefinition::updateAnyFieldHasChanged()
     this->firstAncestorOrThisOfType( intersectResDef );
     if ( intersectResDef )
     {
+        intersectResDef->setDefaultEclipseLegendConfig();
         intersectResDef->updateConnectedEditors();
     }
 

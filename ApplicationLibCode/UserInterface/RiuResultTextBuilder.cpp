@@ -19,6 +19,7 @@
 
 #include "RiuResultTextBuilder.h"
 
+#include "RigAllanDiagramData.h"
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
 #include "RigFormationNames.h"
@@ -37,13 +38,12 @@
 #include "RimEclipseView.h"
 #include "RimExtrudedCurveIntersection.h"
 #include "RimFormationNames.h"
+#include "RimIntersectionResultDefinition.h"
 #include "RimRegularLegendConfig.h"
 #include "RimReservoirCellResultsStorage.h"
 
 #include "RivExtrudedCurveIntersectionPartMgr.h"
 
-#include "RigAllanDiagramData.h"
-#include "RimIntersectionResultDefinition.h"
 #include "cafDisplayCoordTransform.h"
 
 //--------------------------------------------------------------------------------------------------
