@@ -212,6 +212,8 @@ RimRegularLegendConfig::RimRegularLegendConfig()
     m_resetUserDefinedValuesButton.uiCapability()->setUiEditorTypeName( caf::PdmUiPushButtonEditor::uiEditorTypeName() );
     m_resetUserDefinedValuesButton.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 
+    CAF_PDM_InitField( &m_centerLegendAroundZero, "CenterLegendAroundZero", false, "Center Legend Around Zero" );
+
     updateFieldVisibility();
     updateLegend();
 }
@@ -456,6 +458,13 @@ void RimRegularLegendConfig::updateLegend()
         negClosestToZero = m_globalAutoNegClosestToZero;
     }
 
+    if ( m_centerLegendAroundZero )
+    {
+        auto maxValue = std::max( std::abs( adjustedMax ), std::abs( adjustedMin ) );
+        adjustedMax   = maxValue;
+        adjustedMin   = -maxValue;
+    }
+
     m_linDiscreteScalarMapper->setRange( adjustedMin, adjustedMax );
     m_linSmoothScalarMapper->setRange( adjustedMin, adjustedMax );
 
@@ -611,6 +620,14 @@ void RimRegularLegendConfig::setTickNumberFormat( RiaNumberFormat::NumberFormatT
 void RimRegularLegendConfig::resetUserDefinedValues()
 {
     m_resetUserDefinedValues = true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimRegularLegendConfig::setCenterLegendAroundZero( bool enable )
+{
+    m_centerLegendAroundZero = enable;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1226,6 +1243,8 @@ void RimRegularLegendConfig::defineUiOrdering( QString uiConfigName, caf::PdmUiO
         mappingGr->add( &m_userDefinedMaxValue );
         mappingGr->add( &m_userDefinedMinValue );
         mappingGr->add( &m_categoryColorMode );
+        mappingGr->add( &m_centerLegendAroundZero );
+
         uiOrdering.add( &m_resetUserDefinedValuesButton );
     }
 

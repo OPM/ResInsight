@@ -127,6 +127,7 @@ public:
     MappingType     mappingMode() { return m_mappingMode(); }
     void            setTickNumberFormat( RiaNumberFormat::NumberFormatType numberFormat );
     void            resetUserDefinedValues();
+    void            setCenterLegendAroundZero( bool enable );
 
     void disableAllTimeStepsRange( bool doDisable );
 
@@ -231,6 +232,7 @@ private:
     caf::PdmField<caf::AppEnum<MappingType>>                       m_mappingMode;
     caf::PdmField<caf::AppEnum<CategoryColorModeType>>             m_categoryColorMode;
     caf::PdmField<bool>                                            m_resetUserDefinedValuesButton;
+    caf::PdmField<bool>                                            m_centerLegendAroundZero;
 
     caf::PdmPtrField<RimColorLegend*> m_colorLegend;
     caf::PdmField<bool>               m_selectColorLegendButton;
