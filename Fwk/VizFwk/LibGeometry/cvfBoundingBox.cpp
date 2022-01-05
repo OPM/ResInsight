@@ -428,6 +428,29 @@ String BoundingBox::debugString() const
     return str;
 }
 
+//--------------------------------------------------------------------------------------------------
+/// Cuts the box at the given depth, to never go below the given depth
+/// 
+/// Note: cutting is a one time operation, adding new points to the box might extend the box below the cut depth
+//--------------------------------------------------------------------------------------------------
+void BoundingBox::cutBelow(double depth)
+{
+    if (m_min.z() < depth) m_min.z() = depth;
+    if (m_max.z() < depth) m_max.z() = depth;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Cuts the box at the given depth, to never go above the given depth
+/// 
+/// Note: cutting is a one time operation, adding new points to the box might extend the box below the cut depth
+//--------------------------------------------------------------------------------------------------
+void BoundingBox::cutAbove(double depth)
+{
+    if (m_min.z() > depth) m_min.z() = depth;
+    if (m_max.z() > depth) m_max.z() = depth;
+}
+
+
 
 } // namespace cvf
 

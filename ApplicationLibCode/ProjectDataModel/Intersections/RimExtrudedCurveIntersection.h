@@ -21,12 +21,15 @@
 
 #include "RimIntersection.h"
 
+#include "RimIntersectionEnums.h"
+
 #include "cafPdmChildField.h"
 #include "cafPdmProxyValueField.h"
 #include "cafPdmPtrArrayField.h"
 
 class RimWellPath;
 class RivExtrudedCurveIntersectionPartMgr;
+class RimEclipseView;
 class RimIntersectionResultDefinition;
 class RimSimWellInView;
 class RimSimWellInViewCollection;
@@ -74,6 +77,10 @@ public:
 
     QString name() const override;
     void    setName( const QString& newName );
+
+    double topDepth( double sceneRadius ) const;
+    double bottomDepth( double sceneRadius ) const;
+    void   setDepthOverride( bool collectionOverride, double depthThreshold, RimIntersectionDepthCutEnum displayType );
 
     RimExtrudedCurveIntersection::CrossSectionEnum    type() const;
     RimExtrudedCurveIntersection::CrossSectionDirEnum direction() const;
@@ -151,8 +158,17 @@ private:
     std::vector<cvf::Vec3d> pointsXYD() const;
     void                    setPointsFromXYD( const std::vector<cvf::Vec3d>& pointsXYD );
 
+    RimEclipseView* eclipseView() const;
+
 private:
     caf::PdmField<QString> m_name;
+
+    caf::PdmField<caf::AppEnum<RimIntersectionDepthCutEnum>> m_depthDisplayType;
+    caf::PdmField<double>                                    m_depthThreshold;
+
+    caf::PdmField<bool>                                      m_depthThresholdOverridden;
+    caf::PdmField<double>                                    m_collectionDepthThreshold;
+    caf::PdmField<caf::AppEnum<RimIntersectionDepthCutEnum>> m_collectionDepthDisplayType;
 
     caf::PdmField<caf::AppEnum<CrossSectionEnum>>    m_type;
     caf::PdmField<caf::AppEnum<CrossSectionDirEnum>> m_direction;

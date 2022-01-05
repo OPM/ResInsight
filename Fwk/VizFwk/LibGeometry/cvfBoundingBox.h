@@ -86,6 +86,9 @@ public:
     void                transform(const Mat4d& matrix);
     const BoundingBox   getTransformed(const Mat4d& matrix) const;
 
+    void cutBelow(double depth);
+    void cutAbove(double depth);
+
     String              debugString() const;
 
 private:
