@@ -282,6 +282,14 @@ QwtGraphic RiuQwtPlotCurve::legendIcon( int index, const QSizeF& size ) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QPixmap RiuQwtPlotCurve::legendIcon( const QSizeF& size ) const
+{
+    return legendIcon( 0, size ).toPixmap();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiuQwtPlotCurve::setLegendIconSize( const QSize& iconSize )
 {
     QwtPlotCurve::setLegendIconSize( iconSize );

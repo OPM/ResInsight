@@ -48,8 +48,9 @@ public:
 
     void setBrush( const QBrush& brush ) override;
 
-    void  setLegendIconSize( const QSize& iconSize ) override;
-    QSize legendIconSize() const override;
+    void    setLegendIconSize( const QSize& iconSize ) override;
+    QSize   legendIconSize() const override;
+    QPixmap legendIcon( const QSizeF& size ) const override;
 
     void attachToPlot( RiuPlotWidget* plotWidget ) override;
     void showInPlot() override;
