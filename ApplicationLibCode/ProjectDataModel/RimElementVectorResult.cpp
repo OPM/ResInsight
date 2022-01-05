@@ -439,7 +439,7 @@ void RimElementVectorResult::updateLegendRangesTextAndVisibility( RiuViewer* nat
         resultNames << QString( "Water" );
     }
 
-    m_legendConfig->setTitle( QString( "Element Vector Result: \n" ) + resultNames.join( ", " ) );
+    m_legendConfig->setTitle( QString( "Vector Result: \n" ) + resultNames.join( ", " ) );
 
     double minResultValue;
     double maxResultValue;
