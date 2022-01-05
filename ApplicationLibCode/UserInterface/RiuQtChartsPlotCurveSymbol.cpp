@@ -70,6 +70,13 @@ void RiuQtChartsPlotCurveSymbol::setPen( const QPen& pen )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RiuQtChartsPlotCurveSymbol::setPixmap( const QPixmap& pixmap )
+{
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiuQtChartsPlotCurveSymbol::applyToScatterSeries( QtCharts::QScatterSeries* series ) const
 {
     if ( m_style == PointSymbolEnum::SYMBOL_NONE )

@@ -24,6 +24,7 @@
 
 #include "RiuPlotCurveSymbol.h"
 #include "cvfAssert.h"
+#include "qwt_symbol.h"
 
 #include <QPainter>
 #include <QPainterPath>
@@ -188,4 +189,12 @@ void RiuQwtSymbol::renderSymbolLabel( QPainter* painter, const QPointF& position
     QRect labelRect = labelBoundingRect( painter, symbolRect, label );
     painter->drawText( labelRect.topLeft(), label );
     painter->restore();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuQwtSymbol::setPixmap( const QPixmap& pixmap )
+{
+    QwtSymbol::setPixmap( pixmap );
 }

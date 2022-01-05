@@ -49,4 +49,6 @@ public:
     void setColor( const QColor& color ) override;
 
     void setPen( const QPen& pen ) override;
+
+    void setPixmap( const QPixmap& pixmap ) override;
 };
