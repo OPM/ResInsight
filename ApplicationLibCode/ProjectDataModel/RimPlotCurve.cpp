@@ -18,7 +18,6 @@
 
 #include "RimPlotCurve.h"
 
-#include "RiaColorTables.h"
 #include "RiaColorTools.h"
 #include "RiaCurveDataTools.h"
 #include "RiaGuiApplication.h"
@@ -38,14 +37,11 @@
 #include "RiuPlotMainWindowTools.h"
 #include "RiuPlotWidget.h"
 
+#include "cafAssert.h"
 #include "cafPdmUiComboBoxEditor.h"
-
-#include "cvfAssert.h"
 
 // NB! Special macro for pure virtual class
 CAF_PDM_XML_ABSTRACT_SOURCE_INIT( RimPlotCurve, "PlotCurve" );
-
-#define DOUBLE_INF std::numeric_limits<double>::infinity()
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -788,8 +784,8 @@ void RimPlotCurve::updateLegendEntryVisibilityNoPlotUpdate()
 //--------------------------------------------------------------------------------------------------
 bool RimPlotCurve::xValueRange( double* minimumValue, double* maximumValue ) const
 {
-    CVF_ASSERT( minimumValue && maximumValue );
-    CVF_ASSERT( m_plotCurve );
+    CAF_ASSERT( minimumValue && maximumValue );
+    CAF_ASSERT( m_plotCurve );
 
     if ( m_plotCurve->numSamples() < 1 )
     {
@@ -808,8 +804,8 @@ bool RimPlotCurve::xValueRange( double* minimumValue, double* maximumValue ) con
 //--------------------------------------------------------------------------------------------------
 bool RimPlotCurve::yValueRange( double* minimumValue, double* maximumValue ) const
 {
-    CVF_ASSERT( minimumValue && maximumValue );
-    CVF_ASSERT( m_plotCurve );
+    CAF_ASSERT( minimumValue && maximumValue );
+    CAF_ASSERT( m_plotCurve );
 
     if ( m_plotCurve->numSamples() < 1 )
     {
@@ -931,7 +927,7 @@ void RimPlotCurve::updateUiIconFromPlotSymbol()
 {
     if ( m_curveAppearance->symbol() != RiuPlotCurveSymbol::SYMBOL_NONE && m_plotCurve )
     {
-        CVF_ASSERT( RiaGuiApplication::isRunning() );
+        CAF_ASSERT( RiaGuiApplication::isRunning() );
         QSizeF  iconSize( 24, 24 );
         QPixmap pixmap = m_plotCurve->legendIcon( iconSize );
         setUiIcon( caf::IconProvider( pixmap ) );
