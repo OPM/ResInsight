@@ -50,24 +50,15 @@ RicfExportWellPathCompletions::RicfExportWellPathCompletions()
     CAF_PDM_InitScriptableField( &m_fileSplit,
                                  "fileSplit",
                                  RicExportCompletionDataSettingsUi::ExportSplitType(),
-                                 "File Split",
-                                 "",
-                                 "",
-                                 "" );
+                                 "File Split" );
     CAF_PDM_InitScriptableField( &m_compdatExport,
                                  "compdatExport",
                                  RicExportCompletionDataSettingsUi::CompdatExportType(),
-                                 "Compdat Export",
-                                 "",
-                                 "",
-                                 "" );
+                                 "Compdat Export" );
     CAF_PDM_InitScriptableField( &m_combinationMode,
                                  "combinationMode",
                                  RicExportCompletionDataSettingsUi::CombinationModeType(),
-                                 "Combination Mode",
-                                 "",
-                                 "",
-                                 "" );
+                                 "Combination Mode" );
 
     CAF_PDM_InitScriptableField( &m_includeMsw, "includeMsw", true, "Export Multi Segment Well Model" );
     CAF_PDM_InitScriptableField( &m_useLateralNTG, "useNtgHorizontally", false, "Use NTG Horizontally" );
@@ -78,47 +69,29 @@ RicfExportWellPathCompletions::RicfExportWellPathCompletions()
     CAF_PDM_InitScriptableField( &m_excludeMainBoreForFishbones,
                                  "excludeMainBoreForFishbones",
                                  false,
-                                 "Exclude Main Bore for Fishbones",
-                                 "",
-                                 "",
-                                 "" );
+                                 "Exclude Main Bore for Fishbones" );
 
     CAF_PDM_InitScriptableField( &m_performTransScaling,
                                  "performTransScaling",
                                  false,
-                                 "Perform Transmissibility Scaling",
-                                 "",
-                                 "",
-                                 "" );
+                                 "Perform Transmissibility Scaling" );
     CAF_PDM_InitScriptableField( &m_transScalingTimeStep,
                                  "transScalingTimeStep",
                                  0,
-                                 "Transmissibility Scaling Pressure Time Step",
-                                 "",
-                                 "",
-                                 "" );
+                                 "Transmissibility Scaling Pressure Time Step" );
     CAF_PDM_InitScriptableField( &m_transScalingInitialWBHP,
                                  "transScalingWBHPFromSummary",
                                  RicExportCompletionDataSettingsUi::TransScalingWBHPSource(),
-                                 "Transmissibility Scaling WBHP from summary",
-                                 "",
-                                 "",
-                                 "" );
+                                 "Transmissibility Scaling WBHP from summary" );
     CAF_PDM_InitScriptableField( &m_transScalingWBHP,
                                  "transScalingWBHP",
                                  200.0,
-                                 "Transmissibility Scaling Constant WBHP Value",
-                                 "",
-                                 "",
-                                 "" );
+                                 "Transmissibility Scaling Constant WBHP Value" );
 
     CAF_PDM_InitScriptableField( &m_exportDataSourceAsComments,
                                  "exportComments",
                                  true,
-                                 "Export Data Source as Comments",
-                                 "",
-                                 "",
-                                 "" );
+                                 "Export Data Source as Comments" );
     CAF_PDM_InitScriptableField( &m_exportWelspec, "exportWelspec", true, "Export WELSPEC keyword" );
     CAF_PDM_InitScriptableField( &m_customFileName, "customFileName", QString(), "Custom Filename" );
 }

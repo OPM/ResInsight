@@ -53,10 +53,7 @@ RicfExportMsw::RicfExportMsw()
     CAF_PDM_InitScriptableField( &m_fileSplit,
                                  "fileSplit",
                                  RicExportCompletionDataSettingsUi::ExportSplitType(),
-                                 "File Split",
-                                 "",
-                                 "",
-                                 "" );
+                                 "File Split" );
 }
 
 //--------------------------------------------------------------------------------------------------

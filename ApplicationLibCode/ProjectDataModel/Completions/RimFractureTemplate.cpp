@@ -134,10 +134,7 @@ RimFractureTemplate::RimFractureTemplate()
     CAF_PDM_InitScriptableField( &m_orientationType,
                                  "Orientation",
                                  caf::AppEnum<FracOrientationEnum>( TRANSVERSE_WELL_PATH ),
-                                 "Fracture Orientation",
-                                 "",
-                                 "",
-                                 "" );
+                                 "Fracture Orientation" );
 
     CAF_PDM_InitScriptableField( &m_azimuthAngle, "AzimuthAngle", 0.0f, "Azimuth Angle" );
 

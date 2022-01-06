@@ -53,24 +53,15 @@ RicfExportSimWellFractureCompletions::RicfExportSimWellFractureCompletions()
     CAF_PDM_InitScriptableField( &m_simWellNames,
                                  "simulationWellNames",
                                  std::vector<QString>(),
-                                 "Simulation Well Names",
-                                 "",
-                                 "",
-                                 "" );
+                                 "Simulation Well Names" );
     CAF_PDM_InitScriptableField( &m_fileSplit,
                                  "fileSplit",
                                  RicExportCompletionDataSettingsUi::ExportSplitType(),
-                                 "File Split",
-                                 "",
-                                 "",
-                                 "" );
+                                 "File Split" );
     CAF_PDM_InitScriptableField( &m_compdatExport,
                                  "compdatExport",
                                  RicExportCompletionDataSettingsUi::CompdatExportType(),
-                                 "Compdat Export",
-                                 "",
-                                 "",
-                                 "" );
+                                 "Compdat Export" );
 }
 
 //--------------------------------------------------------------------------------------------------

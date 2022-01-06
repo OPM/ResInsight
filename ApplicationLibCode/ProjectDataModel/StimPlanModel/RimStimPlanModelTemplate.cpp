@@ -106,17 +106,11 @@ RimStimPlanModelTemplate::RimStimPlanModelTemplate()
     CAF_PDM_InitScriptableField( &m_defaultPorosity,
                                  "DefaultPorosity",
                                  RiaDefines::defaultPorosity(),
-                                 "Default Porosity",
-                                 "",
-                                 "",
-                                 "" );
+                                 "Default Porosity" );
     CAF_PDM_InitScriptableField( &m_defaultPermeability,
                                  "DefaultPermeability",
                                  RiaDefines::defaultPermeability(),
-                                 "Default Permeability",
-                                 "",
-                                 "",
-                                 "" );
+                                 "Default Permeability" );
 
     // Stress unit: bar
     // Stress gradient unit: bar/m
@@ -130,10 +124,7 @@ RimStimPlanModelTemplate::RimStimPlanModelTemplate()
     CAF_PDM_InitScriptableField( &m_verticalStressGradient,
                                  "VerticalStressGradient",
                                  defaultStressGradient,
-                                 "Vertical Stress Gradient",
-                                 "",
-                                 "",
-                                 "" );
+                                 "Vertical Stress Gradient" );
     CAF_PDM_InitScriptableField( &m_stressDepth, "StressDepth", defaultStressDepth, "Stress Depth" );
     m_stressDepth.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
 
@@ -141,17 +132,11 @@ RimStimPlanModelTemplate::RimStimPlanModelTemplate()
     CAF_PDM_InitScriptableField( &m_referenceTemperatureGradient,
                                  "ReferenceTemperatureGradient",
                                  0.025,
-                                 "Temperature Gradient [C/m]",
-                                 "",
-                                 "",
-                                 "" );
+                                 "Temperature Gradient [C/m]" );
     CAF_PDM_InitScriptableField( &m_referenceTemperatureDepth,
                                  "ReferenceTemperatureDepth",
                                  2500.0,
-                                 "Temperature Depth [m]",
-                                 "",
-                                 "",
-                                 "" );
+                                 "Temperature Depth [m]" );
 
     CAF_PDM_InitScriptableField( &m_overburdenHeight, "OverburdenHeight", 50.0, "Overburden Height" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_overburdenFormation, "OverburdenFormation", "Overburden Formation" );
@@ -160,17 +145,11 @@ RimStimPlanModelTemplate::RimStimPlanModelTemplate()
     CAF_PDM_InitScriptableField( &m_overburdenPermeability,
                                  "OverburdenPermeability",
                                  10.0e-6,
-                                 "Overburden Permeability",
-                                 "",
-                                 "",
-                                 "" );
+                                 "Overburden Permeability" );
     CAF_PDM_InitScriptableField( &m_overburdenFluidDensity,
                                  "OverburdenFluidDensity",
                                  1.03,
-                                 "Overburden Fluid Density [g/cm^3]",
-                                 "",
-                                 "",
-                                 "" );
+                                 "Overburden Fluid Density [g/cm^3]" );
 
     CAF_PDM_InitScriptableField( &m_underburdenHeight, "UnderburdenHeight", 50.0, "Underburden Height" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_underburdenFormation, "UnderburdenFormation", "Underburden Formation" );
@@ -179,17 +158,11 @@ RimStimPlanModelTemplate::RimStimPlanModelTemplate()
     CAF_PDM_InitScriptableField( &m_underburdenPermeability,
                                  "UnderburdenPermeability",
                                  10.0e-6,
-                                 "Underburden Permeability",
-                                 "",
-                                 "",
-                                 "" );
+                                 "Underburden Permeability" );
     CAF_PDM_InitScriptableField( &m_underburdenFluidDensity,
                                  "UnderburdenFluidDensity",
                                  1.03,
-                                 "Underburden Fluid Density [g/cm^3]",
-                                 "",
-                                 "",
-                                 "" );
+                                 "Underburden Fluid Density [g/cm^3]" );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_faciesInitialPressureConfigs,
                                           "FaciesInitialPressureConfigs",

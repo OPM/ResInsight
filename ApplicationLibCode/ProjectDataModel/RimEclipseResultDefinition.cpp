@@ -117,10 +117,7 @@ RimEclipseResultDefinition::RimEclipseResultDefinition( caf::PdmUiItemInfo::Labe
     CAF_PDM_InitScriptableField( &m_resultVariable,
                                  "ResultVariable",
                                  RiaResultNames::undefinedResultName(),
-                                 "Variable",
-                                 "",
-                                 "",
-                                 "" );
+                                 "Variable" );
     m_resultVariable.uiCapability()->setUiHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_flowSolution, "FlowDiagSolution", "Solution" );
@@ -154,10 +151,7 @@ RimEclipseResultDefinition::RimEclipseResultDefinition( caf::PdmUiItemInfo::Labe
     CAF_PDM_InitScriptableField( &m_showOnlyVisibleCategoriesInLegend,
                                  "ShowOnlyVisibleCategoriesInLegend",
                                  true,
-                                 "Show Only Visible Categories In Legend",
-                                 "",
-                                 "",
-                                 "" );
+                                 "Show Only Visible Categories In Legend" );
 
     // Ui only fields
 
