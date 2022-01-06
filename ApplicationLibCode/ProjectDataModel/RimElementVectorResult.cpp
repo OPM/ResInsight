@@ -15,6 +15,7 @@
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
+
 #include "RimElementVectorResult.h"
 
 #include "RigCaseCellResultsData.h"
@@ -26,6 +27,7 @@
 #include "Rim3dView.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
+#include "RimRegularLegendConfig.h"
 
 #include "RiuViewer.h"
 

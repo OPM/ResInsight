@@ -34,6 +34,7 @@
 #include "RimGeoMechCellColors.h"
 #include "RimGeoMechContourMapView.h"
 #include "RimGeoMechPropertyFilterCollection.h"
+#include "RimRegularLegendConfig.h"
 
 #include "RivFemElmVisibilityCalculator.h"
 

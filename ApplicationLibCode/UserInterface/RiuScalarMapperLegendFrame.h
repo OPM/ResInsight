@@ -19,7 +19,6 @@
 
 #include "RiaNumberFormat.h"
 
-#include "RimRegularLegendConfig.h"
 #include "RiuAbstractLegendFrame.h"
 
 #include "cvfObject.h"

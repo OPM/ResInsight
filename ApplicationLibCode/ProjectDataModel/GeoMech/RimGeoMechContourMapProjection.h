@@ -24,7 +24,6 @@
 #include "RimCheckableNamedObject.h"
 #include "RimContourMapProjection.h"
 #include "RimGeoMechCase.h"
-#include "RimRegularLegendConfig.h"
 
 #include "cafDisplayCoordTransform.h"
 #include "cafPdmChildField.h"

@@ -61,6 +61,7 @@
 #include "RimIntersectionResultDefinition.h"
 #include "RimPlotCurve.h"
 #include "RimProject.h"
+#include "RimRegularLegendConfig.h"
 #include "RimReservoirCellResultsStorage.h"
 #include "RimSimWellInView.h"
 #include "RimSimWellInViewCollection.h"

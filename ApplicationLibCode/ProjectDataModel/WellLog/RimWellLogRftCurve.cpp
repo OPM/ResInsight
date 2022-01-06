@@ -21,6 +21,7 @@
 #include "RiaDefines.h"
 #include "RiaEclipseUnitTools.h"
 #include "RiaQDateTimeTools.h"
+#include "RiaResultNames.h"
 #include "RiaSimWellBranchTools.h"
 
 #include "RifEclipseRftAddress.h"

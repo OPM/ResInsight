@@ -22,6 +22,7 @@
 #include "RimGeoMechCase.h"
 #include "RimGeoMechResultDefinition.h"
 #include "RimGeoMechView.h"
+#include "RimRegularLegendConfig.h"
 
 #include "RigFemPartResultsCollection.h"
 #include "RigGeoMechCaseData.h"

@@ -25,7 +25,6 @@
 #include "RiuPlotAnnotationTool.h"
 
 #include "RimPlot.h"
-#include "RimRegularLegendConfig.h"
 
 #include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"

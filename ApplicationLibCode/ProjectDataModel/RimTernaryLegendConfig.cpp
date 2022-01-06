@@ -22,6 +22,7 @@
 #include "RiaApplication.h"
 #include "RiaColorTables.h"
 #include "RiaPreferences.h"
+#include "RiaResultNames.h"
 
 #include "RimEclipseView.h"
 #include "RimIntersectionCollection.h"

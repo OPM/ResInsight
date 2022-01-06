@@ -18,13 +18,14 @@
 
 #pragma once
 
+#include "RimLegendConfig.h"
+
 #include "cafPdmChildField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 
 #include "RigFemResultPosEnum.h"
 #include "RimFemResultObserver.h"
-#include "RimRegularLegendConfig.h"
 
 #include <QList>
 
@@ -110,7 +111,7 @@ private:
 
     caf::PdmField<caf::AppEnum<TensorColors>> m_vectorColor;
 
-    caf::PdmField<caf::AppEnum<ScaleMethod>>             m_scaleMethod;
-    caf::PdmField<float>                                 m_sizeScale;
-    caf::PdmField<RimRegularLegendConfig::RangeModeEnum> m_rangeMode;
+    caf::PdmField<caf::AppEnum<ScaleMethod>>      m_scaleMethod;
+    caf::PdmField<float>                          m_sizeScale;
+    caf::PdmField<RimLegendConfig::RangeModeEnum> m_rangeMode;
 };
