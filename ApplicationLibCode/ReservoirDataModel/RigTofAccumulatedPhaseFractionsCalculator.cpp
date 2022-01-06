@@ -46,15 +46,15 @@ RigTofAccumulatedPhaseFractionsCalculator::RigTofAccumulatedPhaseFractionsCalcul
 
     const std::vector<double>* swatResults = eclipseCaseData->resultValues( RiaDefines::PorosityModelType::MATRIX_MODEL,
                                                                             RiaDefines::ResultCatType::DYNAMIC_NATIVE,
-                                                                            "SWAT",
+                                                                            RiaResultNames::swat(),
                                                                             timestep );
     const std::vector<double>* soilResults = eclipseCaseData->resultValues( RiaDefines::PorosityModelType::MATRIX_MODEL,
                                                                             RiaDefines::ResultCatType::DYNAMIC_NATIVE,
-                                                                            "SOIL",
+                                                                            RiaResultNames::soil(),
                                                                             timestep );
     const std::vector<double>* sgasResults = eclipseCaseData->resultValues( RiaDefines::PorosityModelType::MATRIX_MODEL,
                                                                             RiaDefines::ResultCatType::DYNAMIC_NATIVE,
-                                                                            "SGAS",
+                                                                            RiaResultNames::sgas(),
                                                                             timestep );
     const std::vector<double>* porvResults = eclipseCaseData->resultValues( RiaDefines::PorosityModelType::MATRIX_MODEL,
                                                                             RiaDefines::ResultCatType::STATIC_NATIVE,

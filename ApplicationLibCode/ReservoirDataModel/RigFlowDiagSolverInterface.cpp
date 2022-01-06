@@ -563,19 +563,19 @@ void RigFlowDiagSolverInterface::assignPhaseCorrecedPORV( RigFlowDiagResultAddre
         case RigFlowDiagResultAddress::PHASE_OIL:
             phaseSaturation = eclipseCaseData->resultValues( RiaDefines::PorosityModelType::MATRIX_MODEL,
                                                              RiaDefines::ResultCatType::DYNAMIC_NATIVE,
-                                                             "SOIL",
+                                                             RiaResultNames::soil(),
                                                              timeStepIdx );
             break;
         case RigFlowDiagResultAddress::PHASE_GAS:
             phaseSaturation = eclipseCaseData->resultValues( RiaDefines::PorosityModelType::MATRIX_MODEL,
                                                              RiaDefines::ResultCatType::DYNAMIC_NATIVE,
-                                                             "SGAS",
+                                                             RiaResultNames::sgas(),
                                                              timeStepIdx );
             break;
         case RigFlowDiagResultAddress::PHASE_WAT:
             phaseSaturation = eclipseCaseData->resultValues( RiaDefines::PorosityModelType::MATRIX_MODEL,
                                                              RiaDefines::ResultCatType::DYNAMIC_NATIVE,
-                                                             "SWAT",
+                                                             RiaResultNames::swat(),
                                                              timeStepIdx );
             break;
         default:

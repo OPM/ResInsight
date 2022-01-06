@@ -821,7 +821,8 @@ void RimEclipseStatisticsCase::populateResultSelection()
     {
         QStringList varList = caseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL )
                                   ->resultNames( RiaDefines::ResultCatType::DYNAMIC_NATIVE );
-        if ( varList.contains( "SOIL" ) ) m_selectedDynamicProperties.v().push_back( "SOIL" );
+        if ( varList.contains( RiaResultNames::soil() ) )
+            m_selectedDynamicProperties.v().push_back( RiaResultNames::soil() );
         if ( varList.contains( "PRESSURE" ) ) m_selectedDynamicProperties.v().push_back( "PRESSURE" );
     }
 
@@ -837,7 +838,8 @@ void RimEclipseStatisticsCase::populateResultSelection()
     {
         QStringList varList = caseData->results( RiaDefines::PorosityModelType::FRACTURE_MODEL )
                                   ->resultNames( RiaDefines::ResultCatType::DYNAMIC_NATIVE );
-        if ( varList.contains( "SOIL" ) ) m_selectedFractureDynamicProperties.v().push_back( "SOIL" );
+        if ( varList.contains( RiaResultNames::soil() ) )
+            m_selectedFractureDynamicProperties.v().push_back( RiaResultNames::soil() );
         if ( varList.contains( "PRESSURE" ) ) m_selectedFractureDynamicProperties.v().push_back( "PRESSURE" );
     }
 

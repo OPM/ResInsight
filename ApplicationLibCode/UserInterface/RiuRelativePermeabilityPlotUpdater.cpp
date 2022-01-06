@@ -172,9 +172,9 @@ bool RiuRelativePermeabilityPlotUpdater::queryDataAndUpdatePlot( const RimEclips
             RigCaseCellResultsData* cellResultsData =
                 eclipseCaseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
             cellResultsData->ensureKnownResultLoaded(
-                RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "SWAT" ) );
+                RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaResultNames::swat() ) );
             cellResultsData->ensureKnownResultLoaded(
-                RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "SGAS" ) );
+                RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaResultNames::sgas() ) );
             cellResultsData->ensureKnownResultLoaded(
                 RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "SATNUM" ) );
 
@@ -185,14 +185,14 @@ bool RiuRelativePermeabilityPlotUpdater::queryDataAndUpdatePlot( const RimEclips
                                                                    RiaDefines::PorosityModelType::MATRIX_MODEL,
                                                                    timeStepIndex,
                                                                    RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE,
-                                                                                            "SWAT" ) );
+                                                                                            RiaResultNames::swat() ) );
             cvf::ref<RigResultAccessor> sgasAccessor =
                 RigResultAccessorFactory::createFromResultAddress( eclipseCaseData,
                                                                    gridIndex,
                                                                    RiaDefines::PorosityModelType::MATRIX_MODEL,
                                                                    timeStepIndex,
                                                                    RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE,
-                                                                                            "SGAS" ) );
+                                                                                            RiaResultNames::sgas() ) );
             cvf::ref<RigResultAccessor> satnumAccessor =
                 RigResultAccessorFactory::createFromResultAddress( eclipseCaseData,
                                                                    gridIndex,

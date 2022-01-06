@@ -298,7 +298,7 @@ RimEclipseView* RimEclipseCase::createAndAddReservoirView()
         auto prefs = RiaPreferences::current();
         if ( prefs->loadAndShowSoil )
         {
-            rimEclipseView->cellResult()->setResultVariable( "SOIL" );
+            rimEclipseView->cellResult()->setResultVariable( RiaResultNames::soil() );
         }
 
         rimEclipseView->faultCollection()->showFaultCollection = prefs->enableFaultsByDefault();

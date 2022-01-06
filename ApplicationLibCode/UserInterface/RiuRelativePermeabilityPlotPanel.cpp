@@ -18,17 +18,18 @@
 
 #include "RiuRelativePermeabilityPlotPanel.h"
 
+#include "RiaCurveDataTools.h"
+#include "RiaEclipseUnitTools.h"
+#include "RiaResultNames.h"
+
+#include "RigFlowDiagSolverInterface.h"
+
 #include "RiuDockedQwtPlot.h"
 #include "RiuGuiTheme.h"
 #include "RiuQwtPlotCurve.h"
 #include "RiuQwtPlotTools.h"
 #include "RiuRelativePermeabilityPlotUpdater.h"
 #include "RiuTextDialog.h"
-
-#include "RiaCurveDataTools.h"
-#include "RiaEclipseUnitTools.h"
-
-#include "RigFlowDiagSolverInterface.h"
 
 #include "cvfAssert.h"
 #include "cvfTrace.h"
@@ -466,11 +467,11 @@ void RiuRelativePermeabilityPlotPanel::plotCurvesInQwt( RiaDefines::EclipseUnitS
     // Add vertical marker lines to indicate cell SWAT and/or SGAS saturations
     if ( swat != HUGE_VAL )
     {
-        addVerticalSaturationMarkerLine( swat, "SWAT", waterColor, plot, myPlotMarkers );
+        addVerticalSaturationMarkerLine( swat, RiaResultNames::swat(), waterColor, plot, myPlotMarkers );
     }
     if ( sgas != HUGE_VAL )
     {
-        addVerticalSaturationMarkerLine( sgas, "SGAS", gasColor, plot, myPlotMarkers );
+        addVerticalSaturationMarkerLine( sgas, RiaResultNames::sgas(), gasColor, plot, myPlotMarkers );
     }
 
     if ( logScaleLeftAxis )

@@ -301,19 +301,19 @@ void RimTernaryLegendConfig::defineUiOrdering( QString uiConfigName, caf::PdmUiO
     {
         caf::PdmUiOrdering* ternaryGroupContainer = uiOrdering.addNewGroup( "Ternary " );
         {
-            caf::PdmUiOrdering* ternaryGroup = ternaryGroupContainer->addNewGroup( "SGAS" );
+            caf::PdmUiOrdering* ternaryGroup = ternaryGroupContainer->addNewGroup( RiaResultNames::sgas() );
             ternaryGroup->add( &userDefinedMinValueSgas );
             ternaryGroup->add( &userDefinedMaxValueSgas );
         }
 
         {
-            caf::PdmUiOrdering* ternaryGroup = ternaryGroupContainer->addNewGroup( "SWAT" );
+            caf::PdmUiOrdering* ternaryGroup = ternaryGroupContainer->addNewGroup( RiaResultNames::swat() );
             ternaryGroup->add( &userDefinedMinValueSwat );
             ternaryGroup->add( &userDefinedMaxValueSwat );
         }
 
         {
-            caf::PdmUiOrdering* ternaryGroup = ternaryGroupContainer->addNewGroup( "SOIL" );
+            caf::PdmUiOrdering* ternaryGroup = ternaryGroupContainer->addNewGroup( RiaResultNames::soil() );
             ternaryGroup->add( &userDefinedMinValueSoil );
             ternaryGroup->add( &userDefinedMaxValueSoil );
         }
