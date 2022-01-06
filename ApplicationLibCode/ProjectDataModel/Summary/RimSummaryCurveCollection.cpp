@@ -65,21 +65,21 @@ RimSummaryCurveCollection::RimSummaryCurveCollection()
 
     CAF_PDM_InitFieldNoDefault( &m_ySourceStepping, "YSourceStepping", "" );
     m_ySourceStepping = new RimSummaryPlotSourceStepping;
-    m_ySourceStepping->setSourceSteppingType( RimSummaryPlotSourceStepping::Y_AXIS );
+    m_ySourceStepping->setSourceSteppingType( RimSummaryDataSourceStepping::Axis::Y_AXIS );
     m_ySourceStepping.uiCapability()->setUiTreeHidden( true );
     m_ySourceStepping.uiCapability()->setUiTreeChildrenHidden( true );
     m_ySourceStepping.xmlCapability()->disableIO();
 
     CAF_PDM_InitFieldNoDefault( &m_xSourceStepping, "XSourceStepping", "" );
     m_xSourceStepping = new RimSummaryPlotSourceStepping;
-    m_xSourceStepping->setSourceSteppingType( RimSummaryPlotSourceStepping::X_AXIS );
+    m_xSourceStepping->setSourceSteppingType( RimSummaryDataSourceStepping::Axis::X_AXIS );
     m_xSourceStepping.uiCapability()->setUiTreeHidden( true );
     m_xSourceStepping.uiCapability()->setUiTreeChildrenHidden( true );
     m_xSourceStepping.xmlCapability()->disableIO();
 
     CAF_PDM_InitFieldNoDefault( &m_unionSourceStepping, "UnionSourceStepping", "" );
     m_unionSourceStepping = new RimSummaryPlotSourceStepping;
-    m_unionSourceStepping->setSourceSteppingType( RimSummaryPlotSourceStepping::UNION_X_Y_AXIS );
+    m_unionSourceStepping->setSourceSteppingType( RimSummaryDataSourceStepping::Axis::UNION_X_Y_AXIS );
     m_unionSourceStepping.uiCapability()->setUiTreeHidden( true );
     m_unionSourceStepping.uiCapability()->setUiTreeChildrenHidden( true );
     m_unionSourceStepping.xmlCapability()->disableIO();
@@ -232,7 +232,7 @@ std::vector<RimSummaryCurve*> RimSummaryCurveCollection::curves() const
 ///
 //--------------------------------------------------------------------------------------------------
 std::vector<RimSummaryCurve*>
-    RimSummaryCurveCollection::curvesForSourceStepping( RimSummaryPlotSourceStepping::SourceSteppingType steppingType ) const
+    RimSummaryCurveCollection::curvesForSourceStepping( RimSummaryDataSourceStepping::Axis steppingType ) const
 {
     std::vector<RimSummaryCurve*> stepCurves;
 
@@ -247,11 +247,11 @@ std::vector<RimSummaryCurve*>
 
             std::string quantity;
 
-            if ( steppingType == RimSummaryPlotSourceStepping::X_AXIS )
+            if ( steppingType == RimSummaryDataSourceStepping::Axis::X_AXIS )
             {
                 quantity = m_curveForSourceStepping->summaryAddressX().quantityName();
             }
-            else if ( steppingType == RimSummaryPlotSourceStepping::Y_AXIS )
+            else if ( steppingType == RimSummaryDataSourceStepping::Axis::Y_AXIS )
             {
                 quantity = m_curveForSourceStepping->summaryAddressY().quantityName();
             }
@@ -268,7 +268,7 @@ std::vector<RimSummaryCurve*>
 
             for ( const auto& c : curves() )
             {
-                if ( steppingType == RimSummaryPlotSourceStepping::X_AXIS )
+                if ( steppingType == RimSummaryDataSourceStepping::Axis::X_AXIS )
                 {
                     if ( c->summaryCaseX() == m_curveForSourceStepping->summaryCaseX() &&
                          c->summaryAddressX().quantityName() == candidateName )
@@ -276,7 +276,7 @@ std::vector<RimSummaryCurve*>
                         stepCurves.push_back( c );
                     }
                 }
-                else if ( steppingType == RimSummaryPlotSourceStepping::Y_AXIS )
+                else if ( steppingType == RimSummaryDataSourceStepping::Axis::Y_AXIS )
                 {
                     if ( c->summaryCaseY() == m_curveForSourceStepping->summaryCaseY() &&
                          c->summaryAddressY().quantityName() == candidateName )
@@ -411,17 +411,17 @@ RimSummaryCurve* RimSummaryCurveCollection::curveForSourceStepping() const
 ///
 //--------------------------------------------------------------------------------------------------
 RimSummaryPlotSourceStepping*
-    RimSummaryCurveCollection::sourceSteppingObject( RimSummaryPlotSourceStepping::SourceSteppingType sourceSteppingType ) const
+    RimSummaryCurveCollection::sourceSteppingObject( RimSummaryDataSourceStepping::Axis sourceSteppingType ) const
 {
-    if ( sourceSteppingType == RimSummaryPlotSourceStepping::X_AXIS )
+    if ( sourceSteppingType == RimSummaryDataSourceStepping::Axis::X_AXIS )
     {
         return m_xSourceStepping();
     }
-    else if ( sourceSteppingType == RimSummaryPlotSourceStepping::Y_AXIS )
+    else if ( sourceSteppingType == RimSummaryDataSourceStepping::Axis::Y_AXIS )
     {
         return m_ySourceStepping();
     }
-    if ( sourceSteppingType == RimSummaryPlotSourceStepping::UNION_X_Y_AXIS )
+    if ( sourceSteppingType == RimSummaryDataSourceStepping::Axis::UNION_X_Y_AXIS )
     {
         return m_unionSourceStepping();
     }
@@ -491,35 +491,6 @@ void RimSummaryCurveCollection::onChildDeleted( caf::PdmChildArrayFieldHandle*  
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCurveCollection::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    RimSummaryCrossPlot* parentCrossPlot;
-    firstAncestorOrThisOfType( parentCrossPlot );
-
-    if ( parentCrossPlot )
-    {
-        {
-            auto group = uiOrdering.addNewGroup( "Y Source Stepping" );
-
-            m_ySourceStepping()->uiOrdering( uiConfigName, *group );
-        }
-
-        {
-            auto group = uiOrdering.addNewGroup( "X Source Stepping" );
-
-            m_xSourceStepping()->uiOrdering( uiConfigName, *group );
-        }
-
-        {
-            auto group = uiOrdering.addNewGroup( "XY Union Source Stepping" );
-
-            m_unionSourceStepping()->uiOrdering( uiConfigName, *group );
-        }
-    }
-    else
-    {
-        auto group = uiOrdering.addNewGroup( "Data Source" );
-
-        m_ySourceStepping()->uiOrdering( uiConfigName, *group );
-    }
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -51,7 +51,7 @@ RimEnsembleCurveSetCollection::RimEnsembleCurveSetCollection()
 
     CAF_PDM_InitFieldNoDefault( &m_ySourceStepping, "YSourceStepping", "" );
     m_ySourceStepping = new RimSummaryPlotSourceStepping;
-    m_ySourceStepping->setSourceSteppingType( RimSummaryPlotSourceStepping::Y_AXIS );
+    m_ySourceStepping->setSourceSteppingType( RimSummaryDataSourceStepping::Axis::Y_AXIS );
     m_ySourceStepping.uiCapability()->setUiTreeHidden( true );
     m_ySourceStepping.uiCapability()->setUiTreeChildrenHidden( true );
     m_ySourceStepping.xmlCapability()->disableIO();
@@ -317,9 +317,6 @@ void RimEnsembleCurveSetCollection::fieldChangedByUi( const caf::PdmFieldHandle*
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleCurveSetCollection::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    auto group = uiOrdering.addNewGroup( "Data Source" );
-
-    m_ySourceStepping()->uiOrdering( uiConfigName, *group );
 }
 
 //--------------------------------------------------------------------------------------------------

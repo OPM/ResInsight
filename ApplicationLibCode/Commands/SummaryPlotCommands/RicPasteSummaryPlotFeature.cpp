@@ -19,9 +19,13 @@
 #include "RicPasteSummaryPlotFeature.h"
 
 #include "OperationsUsingObjReferences/RicPasteFeatureImpl.h"
+#include "PlotBuilderCommands/RicSummaryPlotBuilder.h"
 
+#include "RimMultiPlot.h"
 #include "RimSummaryPlot.h"
 #include "RimSummaryPlotCollection.h"
+
+#include "RiuPlotMainWindowTools.h"
 
 #include "cafPdmDefaultObjectFactory.h"
 #include "cafPdmDocument.h"
@@ -39,8 +43,21 @@ CAF_CMD_SOURCE_INIT( RicPasteSummaryPlotFeature, "RicPasteSummaryPlotFeature" );
 //--------------------------------------------------------------------------------------------------
 void RicPasteSummaryPlotFeature::copyPlotAndAddToCollection( RimSummaryPlot* sourcePlot )
 {
-    RimSummaryPlotCollection* plotColl = caf::firstAncestorOfTypeFromSelectedObject<RimSummaryPlotCollection*>();
+    auto multiPlot = caf::firstAncestorOfTypeFromSelectedObject<RimMultiPlot*>();
+    if ( multiPlot )
+    {
+        auto plots = RicSummaryPlotBuilder::duplicatePlots( { sourcePlot } );
+        RicSummaryPlotBuilder::appendPlotsToMultiPlot( multiPlot, plots );
 
+        multiPlot->loadDataAndUpdate();
+
+        // No main window has focus after paste operation, set focus to main plot window
+        RiuPlotMainWindowTools::showPlotMainWindow();
+
+        return;
+    }
+
+    RimSummaryPlotCollection* plotColl = caf::firstAncestorOfTypeFromSelectedObject<RimSummaryPlotCollection*>();
     if ( plotColl )
     {
         RimSummaryPlot* newSummaryPlot = dynamic_cast<RimSummaryPlot*>(
@@ -71,6 +88,9 @@ bool RicPasteSummaryPlotFeature::isCommandEnabled()
         dynamic_cast<caf::PdmObjectHandle*>( caf::SelectionManager::instance()->selectedItem() );
 
     if ( !destinationObject ) return false;
+
+    auto multiPlot = caf::firstAncestorOfTypeFromSelectedObject<RimMultiPlot*>();
+    if ( multiPlot ) return true;
 
     RimSummaryPlotCollection* plotColl = nullptr;
     destinationObject->firstAncestorOrThisOfType( plotColl );

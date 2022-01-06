@@ -19,18 +19,23 @@
 #pragma once
 
 #include "RimPlotWindow.h"
+#include "RimSummaryDataSourceStepping.h"
 
 #include "cafPdmChildField.h"
 #include "cafPdmObject.h"
 #include "cafPdmPtrArrayField.h"
 
 class RimMultiPlot;
+class RimSummaryPlot;
+class RimSummaryPlotSourceStepping;
+class RimSummaryPlotNameHelper;
+class RimSummaryNameHelper;
 
 //==================================================================================================
 ///
 ///
 //==================================================================================================
-class RimSummaryMultiPlot : public RimPlotWindow
+class RimSummaryMultiPlot : public RimPlotWindow, public RimSummaryDataSourceStepping
 {
     CAF_PDM_HEADER_INIT;
 
@@ -45,7 +50,15 @@ public:
 
     void addPlot( RimPlot* plot );
 
+    void                        updatePlotTitles();
+    const RimSummaryNameHelper* nameHelper() const;
+
     static RimSummaryMultiPlot* createAndAppendMultiPlot( const std::vector<RimPlot*>& plots );
+
+    std::vector<RimSummaryDataSourceStepping::Axis> availableAxes() const override;
+    std::vector<RimSummaryCurve*>     curvesForStepping( RimSummaryDataSourceStepping::Axis axis ) const override;
+    std::vector<RimEnsembleCurveSet*> curveSets() const override;
+    std::vector<RimSummaryCurve*>     allCurves( RimSummaryDataSourceStepping::Axis axis ) const override;
 
 private:
     QWidget* createViewWidget( QWidget* mainWindowParent = nullptr ) override;
@@ -65,12 +78,21 @@ private:
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName ) override;
 
     void updatePlots();
+    void populateNameHelper( RimSummaryPlotNameHelper* nameHelper );
+
+    std::vector<RimSummaryPlot*> summaryPlots() const;
 
 private:
     caf::PdmField<QString> m_filterText;
     caf::PdmField<bool>    m_individualPlotPerVector;
     caf::PdmField<bool>    m_individualPlotPerDataSource;
+    caf::PdmField<bool>    m_autoPlotTitles;
+    caf::PdmField<bool>    m_autoPlotTitlesOnSubPlots;
 
     caf::PdmField<bool>               m_showMultiPlotInProjectTree;
     caf::PdmChildField<RimMultiPlot*> m_multiPlot;
+
+    caf::PdmChildField<RimSummaryPlotSourceStepping*> m_sourceStepping;
+
+    std::unique_ptr<RimSummaryPlotNameHelper> m_nameHelper;
 };
