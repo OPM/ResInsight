@@ -40,10 +40,7 @@ RimAnnotationTextAppearance::RimAnnotationTextAppearance()
 
     CAF_PDM_InitField( &m_fontColor, "FontColor", cvf::Color3f( cvf::Color3f::BLACK ), "Font Color" );
     CAF_PDM_InitField( &m_backgroundColor, "BackgroundColor", defaultBackgroundColor, "Background Color" );
-    CAF_PDM_InitField( &m_anchorLineColor,
-                       "AnchorLineColor",
-                       cvf::Color3f( cvf::Color3f::BLACK ),
-                       "Anchor Line Color" );
+    CAF_PDM_InitField( &m_anchorLineColor, "AnchorLineColor", cvf::Color3f( cvf::Color3f::BLACK ), "Anchor Line Color" );
 }
 
 //--------------------------------------------------------------------------------------------------

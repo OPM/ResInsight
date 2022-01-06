@@ -122,10 +122,7 @@ RiaPreferencesSummary::RiaPreferencesSummary()
                        "" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_createH5SummaryDataFile );
 
-    CAF_PDM_InitField( &m_createH5SummaryFileThreadCount,
-                       "createH5SummaryFileThreadCount",
-                       1,
-                       "h5 Summary Export Thread Count" );
+    CAF_PDM_InitField( &m_createH5SummaryFileThreadCount, "createH5SummaryFileThreadCount", 1, "h5 Summary Export Thread Count" );
 
     CAF_PDM_InitFieldNoDefault( &m_summaryReader, "summaryReaderType_v01", "File Format" );
 

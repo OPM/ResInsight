@@ -47,10 +47,7 @@ RicfExportWellPathCompletions::RicfExportWellPathCompletions()
     CAF_PDM_InitScriptableField( &m_timeStep, "timeStep", -1, "Time Step Index" );
     CAF_PDM_InitScriptableField( &m_wellPathNames, "wellPathNames", std::vector<QString>(), "Well Path Names" );
 
-    CAF_PDM_InitScriptableField( &m_fileSplit,
-                                 "fileSplit",
-                                 RicExportCompletionDataSettingsUi::ExportSplitType(),
-                                 "File Split" );
+    CAF_PDM_InitScriptableField( &m_fileSplit, "fileSplit", RicExportCompletionDataSettingsUi::ExportSplitType(), "File Split" );
     CAF_PDM_InitScriptableField( &m_compdatExport,
                                  "compdatExport",
                                  RicExportCompletionDataSettingsUi::CompdatExportType(),
@@ -71,10 +68,7 @@ RicfExportWellPathCompletions::RicfExportWellPathCompletions()
                                  false,
                                  "Exclude Main Bore for Fishbones" );
 
-    CAF_PDM_InitScriptableField( &m_performTransScaling,
-                                 "performTransScaling",
-                                 false,
-                                 "Perform Transmissibility Scaling" );
+    CAF_PDM_InitScriptableField( &m_performTransScaling, "performTransScaling", false, "Perform Transmissibility Scaling" );
     CAF_PDM_InitScriptableField( &m_transScalingTimeStep,
                                  "transScalingTimeStep",
                                  0,
@@ -83,15 +77,9 @@ RicfExportWellPathCompletions::RicfExportWellPathCompletions()
                                  "transScalingWBHPFromSummary",
                                  RicExportCompletionDataSettingsUi::TransScalingWBHPSource(),
                                  "Transmissibility Scaling WBHP from summary" );
-    CAF_PDM_InitScriptableField( &m_transScalingWBHP,
-                                 "transScalingWBHP",
-                                 200.0,
-                                 "Transmissibility Scaling Constant WBHP Value" );
+    CAF_PDM_InitScriptableField( &m_transScalingWBHP, "transScalingWBHP", 200.0, "Transmissibility Scaling Constant WBHP Value" );
 
-    CAF_PDM_InitScriptableField( &m_exportDataSourceAsComments,
-                                 "exportComments",
-                                 true,
-                                 "Export Data Source as Comments" );
+    CAF_PDM_InitScriptableField( &m_exportDataSourceAsComments, "exportComments", true, "Export Data Source as Comments" );
     CAF_PDM_InitScriptableField( &m_exportWelspec, "exportWelspec", true, "Export WELSPEC keyword" );
     CAF_PDM_InitScriptableField( &m_customFileName, "customFileName", QString(), "Custom Filename" );
 }

@@ -75,10 +75,7 @@ RimWellPathCompletions::RimWellPathCompletions()
     m_referenceDepth_OBSOLETE.xmlCapability()->setIOWritable( false );
     CAF_PDM_InitFieldNoDefault( &m_preferredFluidPhase_OBSOLETE, "WellTypeForExport", "Preferred Fluid Phase" );
     m_preferredFluidPhase_OBSOLETE.xmlCapability()->setIOWritable( false );
-    CAF_PDM_InitField( &m_drainageRadiusForPI_OBSOLETE,
-                       "DrainageRadiusForPI",
-                       QString( "0.0" ),
-                       "Drainage Radius for PI" );
+    CAF_PDM_InitField( &m_drainageRadiusForPI_OBSOLETE, "DrainageRadiusForPI", QString( "0.0" ), "Drainage Radius for PI" );
     m_drainageRadiusForPI_OBSOLETE.xmlCapability()->setIOWritable( false );
     CAF_PDM_InitFieldNoDefault( &m_gasInflowEquation_OBSOLETE, "GasInflowEq", "Gas Inflow Equation" );
     m_gasInflowEquation_OBSOLETE.xmlCapability()->setIOWritable( false );

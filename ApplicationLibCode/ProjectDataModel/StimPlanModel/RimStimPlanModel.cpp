@@ -239,9 +239,7 @@ RimStimPlanModel::RimStimPlanModel()
     CAF_PDM_InitScriptableField( &m_barrierFaultName, "BarrierFaultName", QString( "" ), "Barrier Fault" );
     m_barrierFaultName.uiCapability()->setUiReadOnly( true );
 
-    CAF_PDM_InitScriptableFieldNoDefault( &m_barrierTextAnnotation,
-                                          "BarrierTextAnnotation",
-                                          "Barrier Text Annotation" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_barrierTextAnnotation, "BarrierTextAnnotation", "Barrier Text Annotation" );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_perforationInterval, "PerforationInterval", "Perforation Interval" );
 

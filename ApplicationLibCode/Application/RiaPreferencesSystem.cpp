@@ -75,10 +75,7 @@ RiaPreferencesSystem::RiaPreferencesSystem()
     m_holoLensExportFolder.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
     m_holoLensExportFolder.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitField( &m_showProjectChangedDialog,
-                       "showProjectChangedDialog",
-                       true,
-                       "Show 'Project has changed' dialog" );
+    CAF_PDM_InitField( &m_showProjectChangedDialog, "showProjectChangedDialog", true, "Show 'Project has changed' dialog" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_showProjectChangedDialog );
 
     CAF_PDM_InitField( &m_showProgressBar, "showProgressBar", true, "Show Progress Bar" );
