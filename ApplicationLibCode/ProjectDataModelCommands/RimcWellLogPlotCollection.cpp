@@ -43,12 +43,12 @@ RimcWellLogPlotCollection_newWellLogPlot::RimcWellLogPlotCollection_newWellLogPl
     : caf::PdmObjectMethod( self )
 {
     CAF_PDM_InitObject( "Create Well Log Plot", "", "", "Create a new well log plot" );
-    CAF_PDM_InitScriptableFieldNoDefault( &m_case, "Case", "", "", "", "Case" );
-    CAF_PDM_InitScriptableFieldNoDefault( &m_wellPath, "WellPath", "", "", "", "Well Path" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_case, "Case", "Case" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_wellPath, "WellPath", "Well Path" );
 
-    CAF_PDM_InitScriptableFieldNoDefault( &m_propertyType, "PropertyType", "", "", "", "Property Type" );
-    CAF_PDM_InitScriptableFieldNoDefault( &m_propertyName, "PropertyName", "", "", "", "Property Name" );
-    CAF_PDM_InitScriptableField( &m_timeStep, "TimeStep", 0, "", "", "", "Time Step" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_propertyType, "PropertyType", "Property Type" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_propertyName, "PropertyName", "Property Name" );
+    CAF_PDM_InitScriptableField( &m_timeStep, "TimeStep", 0, "Time Step" );
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -42,7 +42,7 @@ RimSummaryCase_summaryVectorValues::RimSummaryCase_summaryVectorValues( caf::Pdm
     : caf::PdmObjectMethod( self )
 {
     CAF_PDM_InitObject( "Summary Vector Values", "", "", "Get all values for a summary vector" );
-    CAF_PDM_InitScriptableFieldNoDefault( &m_addressString, "Address", "", "", "", "Formatted address specifying the summary vector" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_addressString, "Address", "Formatted address specifying the summary vector" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -194,9 +194,9 @@ RimSummaryCase_resampleValues::RimSummaryCase_resampleValues( caf::PdmObjectHand
     : caf::PdmObjectMethod( self )
 {
     CAF_PDM_InitObject( "Resample Values" );
-    CAF_PDM_InitScriptableFieldNoDefault( &m_addressString, "Address", "", "", "", "Formatted address specifying the summary vector" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_addressString, "Address", "Formatted address specifying the summary vector" );
 
-    CAF_PDM_InitScriptableFieldNoDefault( &m_resamplingPeriod, "ResamplingPeriod", "", "", "", "Resampling Period" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_resamplingPeriod, "ResamplingPeriod", "Resampling Period" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -270,9 +270,9 @@ RimSummaryCase_setSummaryVectorValues::RimSummaryCase_setSummaryVectorValues( ca
 {
     CAF_PDM_InitObject( "Set Summary Values" );
 
-    CAF_PDM_InitScriptableFieldNoDefault( &m_addressString, "Address", "", "", "", "Formatted address specifying the summary vector" );
-    CAF_PDM_InitScriptableFieldNoDefault( &m_unitString, "Unit", "", "", "", "Unit" );
-    CAF_PDM_InitScriptableFieldNoDefault( &m_values, "Values", "", "", "", "Values" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_addressString, "Address", "Formatted address specifying the summary vector" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_unitString, "Unit", "Unit" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_values, "Values", "Values" );
 }
 
 //--------------------------------------------------------------------------------------------------

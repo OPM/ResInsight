@@ -112,10 +112,7 @@ RicExportCompletionDataSettingsUi::RicExportCompletionDataSettingsUi()
     CAF_PDM_InitField( &m_completionWelspecAfterMainBore,
                        "CompletionWelspecAfterMainBore",
                        true,
-                       "WELSEGS per Completion Type",
-                       "",
-                       "",
-                       "" );
+                       "WELSEGS per Completion Type" );
 
     CAF_PDM_InitField( &m_useCustomFileName, "UseCustomFileName", false, "Use Custom Filename" );
     CAF_PDM_InitField( &m_customFileName, "CustomFileName", {}, "Custom Filename" );

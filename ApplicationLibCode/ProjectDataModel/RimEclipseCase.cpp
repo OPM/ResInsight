@@ -93,9 +93,6 @@ RimEclipseCase::RimEclipseCase()
     CAF_PDM_InitScriptableFieldWithScriptKeywordNoDefault( &reservoirViews,
                                                            "ReservoirViews",
                                                            "Views",
-                                                           "",
-                                                           "",
-                                                           "",
                                                            "All Eclipse Views in the case" );
     reservoirViews.uiCapability()->setUiTreeHidden( true );
 

@@ -56,10 +56,7 @@ RiaPreferencesSystem::RiaPreferencesSystem()
     CAF_PDM_InitField( &m_appendFieldKeywordToToolTipText,
                        "appendFieldKeywordToToolTipText",
                        false,
-                       "Show Field Keyword in ToolTip",
-                       "",
-                       "",
-                       "" );
+                       "Show Field Keyword in ToolTip" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_appendFieldKeywordToToolTipText );
 
     CAF_PDM_InitField( &m_showViewIdInProjectTree, "showViewIdInTree", false, "Show View Id in Project Tree" );
@@ -71,10 +68,7 @@ RiaPreferencesSystem::RiaPreferencesSystem()
     CAF_PDM_InitField( &m_includeFractureDebugInfoFile,
                        "includeFractureDebugInfoFile",
                        false,
-                       "Include Fracture Debug Info for Completion Export",
-                       "",
-                       "",
-                       "" );
+                       "Include Fracture Debug Info for Completion Export" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_includeFractureDebugInfoFile );
 
     CAF_PDM_InitFieldNoDefault( &m_holoLensExportFolder, "holoLensExportFolder", "HoloLens Export Folder" );
@@ -84,10 +78,7 @@ RiaPreferencesSystem::RiaPreferencesSystem()
     CAF_PDM_InitField( &m_showProjectChangedDialog,
                        "showProjectChangedDialog",
                        true,
-                       "Show 'Project has changed' dialog",
-                       "",
-                       "",
-                       "" );
+                       "Show 'Project has changed' dialog" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_showProjectChangedDialog );
 
     CAF_PDM_InitField( &m_showProgressBar, "showProgressBar", true, "Show Progress Bar" );
@@ -98,10 +89,7 @@ RiaPreferencesSystem::RiaPreferencesSystem()
     CAF_PDM_InitField( &m_eclipseReaderMode,
                        "eclipseReaderMode",
                        EclipseTextFileReaderModeType( RiaPreferencesSystem::EclipseTextFileReaderMode::FILE ),
-                       "Eclipse Text File Import mode (GRDECL)",
-                       "",
-                       "",
-                       "" );
+                       "Eclipse Text File Import mode (GRDECL)" );
 }
 
 //--------------------------------------------------------------------------------------------------

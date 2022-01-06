@@ -77,17 +77,11 @@ RimStimPlanModelTemplate::RimStimPlanModelTemplate()
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_initialPressureEclipseCase,
                                           "InitialPressureEclipseCase",
-                                          "Initial Pressure Case",
-                                          "",
-                                          "",
-                                          "" );
+                                          "Initial Pressure Case" );
     CAF_PDM_InitField( &m_useTableForInitialPressure,
                        "UseForInitialPressure",
                        false,
-                       "Use Pressure Table For Initial Pressure",
-                       "",
-                       "",
-                       "" );
+                       "Use Pressure Table For Initial Pressure" );
     CAF_PDM_InitField( &m_useTableForPressure, "UseForPressure", false, "Use Pressure Table For Pressure" );
     CAF_PDM_InitField( &m_editPressureTable, "EditPressureTable", false, "Edit" );
     m_editPressureTable.uiCapability()->setUiEditorTypeName( caf::PdmUiToolButtonEditor::uiEditorTypeName() );
@@ -98,10 +92,7 @@ RimStimPlanModelTemplate::RimStimPlanModelTemplate()
     CAF_PDM_InitField( &m_useEqlnumForPressureInterpolation,
                        "UseEqlNumForPressureInterpolation",
                        true,
-                       "Use EQLNUM For Pressure Interpolation",
-                       "",
-                       "",
-                       "" );
+                       "Use EQLNUM For Pressure Interpolation" );
 
     CAF_PDM_InitScriptableField( &m_defaultPorosity,
                                  "DefaultPorosity",
@@ -166,10 +157,7 @@ RimStimPlanModelTemplate::RimStimPlanModelTemplate()
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_faciesInitialPressureConfigs,
                                           "FaciesInitialPressureConfigs",
-                                          "Facies Initial Pressure Configs",
-                                          "",
-                                          "",
-                                          "" );
+                                          "Facies Initial Pressure Configs" );
     m_faciesInitialPressureConfigs.uiCapability()->setUiEditorTypeName( caf::PdmUiTableViewEditor::uiEditorTypeName() );
     m_faciesInitialPressureConfigs.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
     m_faciesInitialPressureConfigs.uiCapability()->setUiTreeChildrenHidden( true );

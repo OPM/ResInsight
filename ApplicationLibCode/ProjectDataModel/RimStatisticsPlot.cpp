@@ -103,10 +103,7 @@ RimStatisticsPlot::RimStatisticsPlot()
     CAF_PDM_InitField( &m_tickNumberFormat,
                        "TickNumberFormat",
                        caf::AppEnum<RiaNumberFormat::NumberFormatType>( RiaNumberFormat::NumberFormatType::AUTO ),
-                       "Number format",
-                       "",
-                       "",
-                       "" );
+                       "Number format" );
 
     CAF_PDM_InitFieldNoDefault( &m_graphType, "GraphType", "Graph Type" );
 

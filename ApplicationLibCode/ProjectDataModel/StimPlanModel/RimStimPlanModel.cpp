@@ -149,10 +149,7 @@ RimStimPlanModel::RimStimPlanModel()
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_initialPressureEclipseCase,
                                           "InitialPressureEclipseCase",
-                                          "Initial Pressure Case",
-                                          "",
-                                          "",
-                                          "" );
+                                          "Initial Pressure Case" );
     m_initialPressureEclipseCase.uiCapability()->setUiReadOnly( true );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_staticEclipseCase, "StaticEclipseCase", "Static Case" );
@@ -195,10 +192,7 @@ RimStimPlanModel::RimStimPlanModel()
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_thicknessDirectionWellPath,
                                           "ThicknessDirectionWellPath",
-                                          "Thickness Direction Well Path",
-                                          "",
-                                          "",
-                                          "" );
+                                          "Thickness Direction Well Path" );
 
     CAF_PDM_InitScriptableField( &m_boundingBoxHorizontal, "BoundingBoxHorizontal", 50.0, "Bounding Box Horizontal" );
     CAF_PDM_InitScriptableField( &m_boundingBoxVertical, "BoundingBoxVertical", 100.0, "Bounding Box Vertical" );
@@ -247,10 +241,7 @@ RimStimPlanModel::RimStimPlanModel()
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_barrierTextAnnotation,
                                           "BarrierTextAnnotation",
-                                          "Barrier Text Annotation",
-                                          "",
-                                          "",
-                                          "" );
+                                          "Barrier Text Annotation" );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_perforationInterval, "PerforationInterval", "Perforation Interval" );
 

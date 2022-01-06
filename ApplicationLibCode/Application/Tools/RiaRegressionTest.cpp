@@ -60,10 +60,7 @@ RiaRegressionTest::RiaRegressionTest( void )
     CAF_PDM_InitField( &useOpenMPForGeometryCreation,
                        "useOpenMPForGeometryCreation",
                        true,
-                       "Use OpenMP For Geometry Creation",
-                       "",
-                       "",
-                       "" );
+                       "Use OpenMP For Geometry Creation" );
 
     CAF_PDM_InitField( &openReportInBrowser, "openReportInBrowser", false, "Open Generated Report in Browser" );
 
@@ -79,18 +76,12 @@ RiaRegressionTest::RiaRegressionTest( void )
     CAF_PDM_InitField( &appendTestsAfterTestFilter,
                        "appendTestsAfterTestFilter",
                        false,
-                       "Append All Tests After Test Filter",
-                       "",
-                       "",
-                       "" );
+                       "Append All Tests After Test Filter" );
 
     CAF_PDM_InitField( &invalidateExternalFilePaths,
                        "invalidateExternalFilePaths",
                        false,
-                       "Invalidate External File Paths",
-                       "",
-                       "",
-                       "" );
+                       "Invalidate External File Paths" );
 }
 
 //--------------------------------------------------------------------------------------------------

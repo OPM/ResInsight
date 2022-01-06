@@ -125,10 +125,7 @@ RimFractureTemplate::RimFractureTemplate()
     CAF_PDM_InitField( &m_fractureTemplateUnit,
                        "UnitSystem",
                        caf::AppEnum<RiaDefines::EclipseUnitSystem>( RiaDefines::EclipseUnitSystem::UNITS_UNKNOWN ),
-                       "Units System",
-                       "",
-                       "",
-                       "" );
+                       "Units System" );
     m_fractureTemplateUnit.uiCapability()->setUiReadOnly( true );
 
     CAF_PDM_InitScriptableField( &m_orientationType,
@@ -149,10 +146,7 @@ RimFractureTemplate::RimFractureTemplate()
     CAF_PDM_InitField( &m_conductivityType,
                        "ConductivityType",
                        caf::AppEnum<FracConductivityEnum>( FINITE_CONDUCTIVITY ),
-                       "Conductivity in Fracture",
-                       "",
-                       "",
-                       "" );
+                       "Conductivity in Fracture" );
 
     CAF_PDM_InitField( &m_wellPathDepthAtFracture, "WellPathDepthAtFracture", 0.0, "Well/Fracture Intersection Depth" );
     m_wellPathDepthAtFracture.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
@@ -181,10 +175,7 @@ RimFractureTemplate::RimFractureTemplate()
     CAF_PDM_InitField( &m_userDefinedEffectivePermeability,
                        "EffectivePermeability",
                        0.0,
-                       "Effective Permeability (Ke) [mD]",
-                       "",
-                       "",
-                       "" );
+                       "Effective Permeability (Ke) [mD]" );
 
     CAF_PDM_InitField( &m_relativeGasDensity,
                        "RelativeGasDensity",

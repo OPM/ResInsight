@@ -42,9 +42,9 @@ RimcStimPlanModelCollection_appendStimPlanModel::RimcStimPlanModelCollection_app
     : caf::PdmObjectMethod( self )
 {
     CAF_PDM_InitObject( "Create StimPlan Model", "", "", "Create a new StimPlan Model" );
-    CAF_PDM_InitScriptableFieldNoDefault( &m_wellPath, "WellPath", "", "", "", "Well Path" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_wellPath, "WellPath", "Well Path" );
     CAF_PDM_InitScriptableField( &m_md, "MeasuredDepth", 0.0, "Measured Depth" );
-    CAF_PDM_InitScriptableFieldNoDefault( &m_stimPlanModelTemplate, "StimPlanModelTemplate", "", "", "", "StimPlan Model Template" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_stimPlanModelTemplate, "StimPlanModelTemplate", "StimPlan Model Template" );
 }
 
 //--------------------------------------------------------------------------------------------------

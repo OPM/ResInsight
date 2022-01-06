@@ -42,7 +42,7 @@ RimcFractureTemplateCollection_appendFractureTemplate::RimcFractureTemplateColle
     : caf::PdmObjectMethod( self )
 {
     CAF_PDM_InitObject( "Create Fracture Template", "", "", "Create a new StimPlan Fracture Template" );
-    CAF_PDM_InitScriptableFieldNoDefault( &m_filePath, "FilePath", "", "", "", "File Path to StimPlan Countour File" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_filePath, "FilePath", "File Path to StimPlan Countour File" );
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -43,10 +43,7 @@ RimAnnotationTextAppearance::RimAnnotationTextAppearance()
     CAF_PDM_InitField( &m_anchorLineColor,
                        "AnchorLineColor",
                        cvf::Color3f( cvf::Color3f::BLACK ),
-                       "Anchor Line Color",
-                       "",
-                       "",
-                       "" );
+                       "Anchor Line Color" );
 }
 
 //--------------------------------------------------------------------------------------------------

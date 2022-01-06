@@ -196,17 +196,11 @@ RicPasteAsciiDataToSummaryPlotFeatureUi::RicPasteAsciiDataToSummaryPlotFeatureUi
                        "LineStyle",
                        caf::AppEnum<RiuQwtPlotCurveDefines::LineStyleEnum>(
                            RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_NONE ),
-                       "Line Style",
-                       "",
-                       "",
-                       "" );
+                       "Line Style" );
     CAF_PDM_InitField( &m_curveSymbol,
                        "Symbol",
                        caf::AppEnum<RiuQwtSymbol::PointSymbolEnum>( RiuQwtSymbol::SYMBOL_ELLIPSE ),
-                       "Symbol",
-                       "",
-                       "",
-                       "" );
+                       "Symbol" );
     CAF_PDM_InitField( &m_curveSymbolSkipDistance, "SymbolSkipDinstance", 0.0f, "Symbol Skip Distance" );
 
     CAF_PDM_InitFieldNoDefault( &m_cellSeparator, "CellSeparator", "Cell Separator" );

@@ -60,18 +60,12 @@ RimObjectiveFunction::RimObjectiveFunction()
     CAF_PDM_InitField( &m_normalizeByNumberOfObservations,
                        "NormalizeByNumberOfObservations",
                        true,
-                       "Normalize by Number of Observations",
-                       "",
-                       "",
-                       "" );
+                       "Normalize by Number of Observations" );
 
     CAF_PDM_InitField( &m_normalizeByNumberOfVectors,
                        "NormalizeByNumberOfVectors",
                        true,
-                       "Normalize by Number of Vectors",
-                       "",
-                       "",
-                       "" );
+                       "Normalize by Number of Vectors" );
 
     CAF_PDM_InitField( &m_errorEstimatePercentage, "ErrorEstimatePercentage", 100.0, "Error Estimate [0..100 %]" );
 

@@ -42,20 +42,14 @@ RimcStimPlanModelTemplateCollection_appendStimPlanModelTemplate::RimcStimPlanMod
     : caf::PdmObjectMethod( self )
 {
     CAF_PDM_InitObject( "Create StimPlan Model Template", "", "", "Create a new StimPlan Model Template" );
-    CAF_PDM_InitScriptableFieldNoDefault( &m_eclipseCase, "EclipseCase", "", "", "", "Eclipse Case" );
-    CAF_PDM_InitScriptableFieldNoDefault( &m_timeStep, "TimeStep", "", "", "", "Time Step" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_eclipseCase, "EclipseCase", "Eclipse Case" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_timeStep, "TimeStep", "Time Step" );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_faciesPropertiesFilePath,
                                           "FaciesPropertiesFilePath",
-                                          "",
-                                          "",
-                                          "",
                                           "Facies Properties File Path" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_elasticPropertiesFilePath,
                                           "ElasticPropertiesFilePath",
-                                          "",
-                                          "",
-                                          "",
                                           "Elastic Properties File Path" );
 }
 

@@ -89,27 +89,15 @@ RimEclipseStatisticsCase::RimEclipseStatisticsCase()
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_selectedFractureDynamicProperties,
                                           "FractureDynamicPropertiesToCalculate",
-                                          "",
-                                          "",
-                                          "",
                                           "" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_selectedFractureStaticProperties,
                                           "FractureStaticPropertiesToCalculate",
-                                          "",
-                                          "",
-                                          "",
                                           "" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_selectedFractureGeneratedProperties,
                                           "FractureGeneratedPropertiesToCalculate",
-                                          "",
-                                          "",
-                                          "",
                                           "" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_selectedFractureInputProperties,
                                           "FractureInputPropertiesToCalculate",
-                                          "",
-                                          "",
-                                          "",
                                           "" );
 
     m_selectedDynamicProperties.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
