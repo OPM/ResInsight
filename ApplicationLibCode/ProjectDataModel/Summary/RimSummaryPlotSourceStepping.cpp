@@ -644,7 +644,8 @@ std::set<RifEclipseSummaryAddress> RimSummaryPlotSourceStepping::adressesForSour
         }
 
         std::vector<RimSummaryCurve*> curves;
-        if ( dataSourceSteppingObject() ) curves = dataSourceSteppingObject()->curvesForStepping( m_sourceSteppingType );
+        if ( dataSourceSteppingObject() )
+            curves = dataSourceSteppingObject()->curvesForStepping( m_sourceSteppingType );
 
         for ( auto curve : curves )
         {
