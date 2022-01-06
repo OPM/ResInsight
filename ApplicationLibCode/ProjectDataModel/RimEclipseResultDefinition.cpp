@@ -1817,11 +1817,11 @@ QList<caf::PdmOptionItemInfo>
             if ( ternaryEnabled )
             {
                 bool hasAtLeastOneTernaryComponent = false;
-                if ( cellCenterResultNames.contains( "SOIL" ) )
+                if ( cellCenterResultNames.contains( RiaResultNames::soil() ) )
                     hasAtLeastOneTernaryComponent = true;
-                else if ( cellCenterResultNames.contains( "SGAS" ) )
+                else if ( cellCenterResultNames.contains( RiaResultNames::sgas() ) )
                     hasAtLeastOneTernaryComponent = true;
-                else if ( cellCenterResultNames.contains( "SWAT" ) )
+                else if ( cellCenterResultNames.contains( RiaResultNames::swat() ) )
                     hasAtLeastOneTernaryComponent = true;
 
                 if ( resultCatType == RiaDefines::ResultCatType::DYNAMIC_NATIVE && hasAtLeastOneTernaryComponent )
@@ -2208,7 +2208,7 @@ void RimEclipseResultDefinition::updateRangesForExplicitLegends( RimRegularLegen
         {
             RigCaseCellResultsData* gridCellResults = this->currentGridCellResults();
             {
-                RigEclipseResultAddress resAddr( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "SOIL" );
+                RigEclipseResultAddress resAddr( RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaResultNames::soil() );
 
                 if ( gridCellResults->ensureKnownResultLoaded( resAddr ) )
                 {
@@ -2229,7 +2229,7 @@ void RimEclipseResultDefinition::updateRangesForExplicitLegends( RimRegularLegen
             }
 
             {
-                RigEclipseResultAddress resAddr( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "SGAS" );
+                RigEclipseResultAddress resAddr( RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaResultNames::sgas() );
 
                 if ( gridCellResults->ensureKnownResultLoaded( resAddr ) )
                 {
@@ -2250,7 +2250,7 @@ void RimEclipseResultDefinition::updateRangesForExplicitLegends( RimRegularLegen
             }
 
             {
-                RigEclipseResultAddress resAddr( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "SWAT" );
+                RigEclipseResultAddress resAddr( RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaResultNames::swat() );
 
                 if ( gridCellResults->ensureKnownResultLoaded( resAddr ) )
                 {

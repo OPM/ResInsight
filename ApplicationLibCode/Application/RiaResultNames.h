@@ -69,6 +69,10 @@ QString indexIResultName();
 QString indexJResultName();
 QString indexKResultName();
 
+QString soil();
+QString sgas();
+QString swat();
+
 // Well path derived results
 QString wbsAzimuthResult();
 QString wbsInclinationResult();

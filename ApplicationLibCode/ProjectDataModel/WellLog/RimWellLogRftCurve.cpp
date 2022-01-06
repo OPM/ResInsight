@@ -71,9 +71,9 @@ void caf::AppEnum<RifEclipseRftAddress::RftWellLogChannelType>::setUp()
     addItem( RifEclipseRftAddress::NONE, "NONE", "None" );
     addItem( RifEclipseRftAddress::TVD, "DEPTH", "Depth" );
     addItem( RifEclipseRftAddress::PRESSURE, "PRESSURE", "Pressure" );
-    addItem( RifEclipseRftAddress::SWAT, "SWAT", "Water Saturation" );
-    addItem( RifEclipseRftAddress::SOIL, "SOIL", "Oil Saturation" );
-    addItem( RifEclipseRftAddress::SGAS, "SGAS", "Gas Saturation" );
+    addItem( RifEclipseRftAddress::SWAT, RiaResultNames::swat(), "Water Saturation" );
+    addItem( RifEclipseRftAddress::SOIL, RiaResultNames::soil(), "Oil Saturation" );
+    addItem( RifEclipseRftAddress::SGAS, RiaResultNames::sgas(), "Gas Saturation" );
     addItem( RifEclipseRftAddress::WRAT, "WRAT", "Water Flow" );
     addItem( RifEclipseRftAddress::ORAT, "ORAT", "Oil Flow" );
     addItem( RifEclipseRftAddress::GRAT, "GRAT", "Gas flow" );

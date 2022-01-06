@@ -188,7 +188,7 @@ RimRegularLegendConfig* RimEclipseCellColors::createLegendForResult( const QStri
     {
         colorRangeType = RimRegularLegendConfig::ColorRangesType::CATEGORY;
     }
-    else if ( resultName == "SWAT" )
+    else if ( resultName == RiaResultNames::swat() )
     {
         colorRangeType = RimRegularLegendConfig::ColorRangesType::OPPOSITE_NORMAL;
     }

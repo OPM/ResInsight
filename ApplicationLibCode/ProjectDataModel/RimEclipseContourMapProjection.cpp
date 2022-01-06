@@ -210,12 +210,12 @@ std::vector<double> RimEclipseContourMapProjection::generateResults( int timeSte
                 if ( m_resultAggregation == RESULTS_OIL_COLUMN || m_resultAggregation == RESULTS_HC_COLUMN )
                 {
                     gridCellResult->ensureKnownResultLoaded(
-                        RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "SOIL" ) );
+                        RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaResultNames::soil() ) );
                 }
                 if ( m_resultAggregation == RESULTS_GAS_COLUMN || m_resultAggregation == RESULTS_HC_COLUMN )
                 {
                     gridCellResult->ensureKnownResultLoaded(
-                        RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "SGAS" ) );
+                        RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaResultNames::sgas() ) );
                 }
                 gridResultValues = calculateColumnResult( m_resultAggregation() );
             }
@@ -304,7 +304,8 @@ std::vector<double> RimEclipseContourMapProjection::calculateColumnResult( Resul
     if ( resultAggregation == RESULTS_OIL_COLUMN || resultAggregation == RESULTS_HC_COLUMN )
     {
         const std::vector<double>& soilResults =
-            resultData->cellScalarResults( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "SOIL" ),
+            resultData->cellScalarResults( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE,
+                                                                    RiaResultNames::soil() ),
                                            timeStep );
         for ( size_t cellResultIdx = 0; cellResultIdx < resultValues.size(); ++cellResultIdx )
         {
@@ -314,12 +315,13 @@ std::vector<double> RimEclipseContourMapProjection::calculateColumnResult( Resul
 
     if ( resultAggregation == RESULTS_GAS_COLUMN || resultAggregation == RESULTS_HC_COLUMN )
     {
-        bool hasGasResult =
-            resultData->hasResultEntry( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "SGAS" ) );
+        bool hasGasResult = resultData->hasResultEntry(
+            RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaResultNames::sgas() ) );
         if ( hasGasResult )
         {
             const std::vector<double>& sgasResults =
-                resultData->cellScalarResults( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "SGAS" ),
+                resultData->cellScalarResults( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE,
+                                                                        RiaResultNames::sgas() ),
                                                timeStep );
             for ( size_t cellResultIdx = 0; cellResultIdx < resultValues.size(); ++cellResultIdx )
             {
