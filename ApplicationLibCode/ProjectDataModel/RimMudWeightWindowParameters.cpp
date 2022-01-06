@@ -187,10 +187,7 @@ RimMudWeightWindowParameters::RimMudWeightWindowParameters( void )
     CAF_PDM_InitField( &m_fractureGradientCalculationType,
                        "FractureGradientCalculationType",
                        defaultFractureGradientCalculationType,
-                       "FG in Shale Calculation",
-                       "",
-                       "",
-                       "" );
+                       "FG in Shale Calculation" );
 
     caf::AppEnum<NonReservoirPorePressureType> defaultNonReservoirPorePressureType =
         RimMudWeightWindowParameters::NonReservoirPorePressureType::HYDROSTATIC;

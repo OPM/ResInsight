@@ -73,10 +73,7 @@ RimGridTimeHistoryCurve::RimGridTimeHistoryCurve()
     CAF_PDM_InitField( &m_plotAxis,
                        "PlotAxis",
                        caf::AppEnum<RiaDefines::PlotAxis>( RiaDefines::PlotAxis::PLOT_AXIS_LEFT ),
-                       "Axis",
-                       "",
-                       "",
-                       "" );
+                       "Axis" );
 
     setDeletable( true );
 }

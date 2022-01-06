@@ -69,10 +69,7 @@ RimWellDistributionPlot::RimWellDistributionPlot( RiaDefines::PhaseType phase )
     CAF_PDM_InitField( &m_smallContributionsRelativeThreshold,
                        "SmallContributionsRelativeThreshold",
                        0.005,
-                       "Relative Threshold [0, 1]",
-                       "",
-                       "",
-                       "" );
+                       "Relative Threshold [0, 1]" );
 
     CAF_PDM_InitField( &m_maximumTof, "MaximumTOF", 20.0, "Maximum Time of Flight [0, 200]" );
 

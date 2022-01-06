@@ -54,10 +54,7 @@ RimModeledWellPath::RimModeledWellPath()
     CAF_PDM_InitScriptableFieldWithScriptKeywordNoDefault( &m_geometryDefinition,
                                                            "WellPathGeometryDef",
                                                            "WellPathGeometry",
-                                                           "Trajectory",
-                                                           "",
-                                                           "",
-                                                           "" );
+                                                           "Trajectory" );
     m_geometryDefinition = new RimWellPathGeometryDef;
     m_geometryDefinition->changed.connect( this, &RimModeledWellPath::onGeometryDefinitionChanged );
 

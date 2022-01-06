@@ -46,7 +46,7 @@ CAF_PDM_SOURCE_INIT( RimSummaryMultiPlot, "MultiSummaryPlot" );
 //--------------------------------------------------------------------------------------------------
 RimSummaryMultiPlot::RimSummaryMultiPlot()
 {
-    CAF_PDM_InitObject( "Multi Summary Plot", "", "", "" );
+    CAF_PDM_InitObject( "Multi Summary Plot" );
     this->setDeletable( true );
 
     CAF_PDM_InitFieldNoDefault( &m_filterText, "FilterText", "Filter Text" );

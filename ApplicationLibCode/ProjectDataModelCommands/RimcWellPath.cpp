@@ -44,9 +44,6 @@ RimcWellPath_addFracture::RimcWellPath_addFracture( caf::PdmObjectHandle* self )
     CAF_PDM_InitScriptableField( &m_md, "MeasuredDepth", 0.0, "Measured Depth" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_stimPlanFractureTemplate,
                                           "StimPlanFractureTemplate",
-                                          "",
-                                          "",
-                                          "",
                                           "StimPlan Fracture Template" );
 }
 
@@ -89,10 +86,10 @@ RimcWellPath_appendPerforationInterval::RimcWellPath_appendPerforationInterval( 
     : caf::PdmObjectMethod( self )
 {
     CAF_PDM_InitObject( "Append Perforation Interval", "", "", "Append Perforation Interval" );
-    CAF_PDM_InitScriptableField( &m_startMD, "StartMd", 0.0, "", "", "", "Start Measured Depth" );
-    CAF_PDM_InitScriptableField( &m_endMD, "EndMd", 0.0, "", "", "", "End Measured Depth" );
-    CAF_PDM_InitScriptableField( &m_diameter, "Diameter", 0.0, "", "", "", "Diameter" );
-    CAF_PDM_InitScriptableField( &m_skinFactor, "SkinFactor", 0.0, "", "", "", "Skin Factor" );
+    CAF_PDM_InitScriptableField( &m_startMD, "StartMd", 0.0, "Start Measured Depth" );
+    CAF_PDM_InitScriptableField( &m_endMD, "EndMd", 0.0, "End Measured Depth" );
+    CAF_PDM_InitScriptableField( &m_diameter, "Diameter", 0.0, "Diameter" );
+    CAF_PDM_InitScriptableField( &m_skinFactor, "SkinFactor", 0.0, "Skin Factor" );
 }
 
 //--------------------------------------------------------------------------------------------------

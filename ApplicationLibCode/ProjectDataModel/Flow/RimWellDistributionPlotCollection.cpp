@@ -68,10 +68,7 @@ RimWellDistributionPlotCollection::RimWellDistributionPlotCollection()
     CAF_PDM_InitField( &m_smallContributionsRelativeThreshold,
                        "SmallContributionsRelativeThreshold",
                        0.005,
-                       "Relative Threshold [0, 1]",
-                       "",
-                       "",
-                       "" );
+                       "Relative Threshold [0, 1]" );
 
     CAF_PDM_InitField( &m_maximumTof, "MaximumTOF", 20.0, "Maximum Time of Flight [0, 200]" );
 
@@ -83,13 +80,7 @@ RimWellDistributionPlotCollection::RimWellDistributionPlotCollection()
     CAF_PDM_InitField( &m_showGas, "ShowGas", true, "Show Gas" );
     CAF_PDM_InitField( &m_showWater, "ShowWater", true, "Show Water" );
 
-    CAF_PDM_InitField( &m_plotWindowTitle,
-                       "PlotDescription",
-                       QString( "Cumulative Phase Distribution Plots" ),
-                       "Name",
-                       "",
-                       "",
-                       "" );
+    CAF_PDM_InitField( &m_plotWindowTitle, "PlotDescription", QString( "Cumulative Phase Distribution Plots" ), "Name" );
 
     m_showWindow = false;
 

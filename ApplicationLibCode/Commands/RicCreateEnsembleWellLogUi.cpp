@@ -60,10 +60,7 @@ RicCreateEnsembleWellLogUi::RicCreateEnsembleWellLogUi()
     CAF_PDM_InitField( &m_autoCreateEnsembleWellLogs,
                        "AutoCreateEnsembleWellLogs",
                        true,
-                       "Create Ensemble Well Logs From Exported Files",
-                       "",
-                       "",
-                       "" );
+                       "Create Ensemble Well Logs From Exported Files" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_autoCreateEnsembleWellLogs );
 
     CAF_PDM_InitField( &m_timeStep, "TimeStep", 0, "Time Step" );

@@ -102,13 +102,7 @@ RimFracture::RimFracture()
     m_editFractureTemplate.uiCapability()->setUiEditorTypeName( caf::PdmUiToolButtonEditor::uiEditorTypeName() );
     m_editFractureTemplate.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 
-    CAF_PDM_InitField( &m_createEllipseFractureTemplate,
-                       "CreateEllipseTemplate",
-                       false,
-                       "No Fracture Templates Found.",
-                       "",
-                       "",
-                       "" );
+    CAF_PDM_InitField( &m_createEllipseFractureTemplate, "CreateEllipseTemplate", false, "No Fracture Templates Found." );
     m_createEllipseFractureTemplate.uiCapability()->setUiEditorTypeName( caf::PdmUiPushButtonEditor::uiEditorTypeName() );
     m_createEllipseFractureTemplate.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
 
@@ -119,10 +113,7 @@ RimFracture::RimFracture()
     CAF_PDM_InitField( &m_autoUpdateWellPathDepthAtFractureFromTemplate,
                        "AutoUpdateWellPathDepthAtFractureFromTemplate",
                        true,
-                       "Auto-Update From Template",
-                       "",
-                       "",
-                       "" );
+                       "Auto-Update From Template" );
 
     CAF_PDM_InitField( &m_wellPathDepthAtFracture, "WellPathDepthAtFracture", 0.0, "Well/Fracture Intersection Depth" );
     m_wellPathDepthAtFracture.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
@@ -150,10 +141,7 @@ RimFracture::RimFracture()
     CAF_PDM_InitField( &m_fractureUnit,
                        "FractureUnit",
                        caf::AppEnum<RiaDefines::EclipseUnitSystem>( RiaDefines::EclipseUnitSystem::UNITS_METRIC ),
-                       "Fracture Unit System",
-                       "",
-                       "",
-                       "" );
+                       "Fracture Unit System" );
     m_fractureUnit.uiCapability()->setUiReadOnly( true );
 
     CAF_PDM_InitField( &m_stimPlanTimeIndexToPlot, "TimeIndexToPlot", 0, "StimPlan Time Step" );
@@ -173,9 +161,6 @@ RimFracture::RimFracture()
     CAF_PDM_InitField( &m_wellFractureAzimuthAngleWarning,
                        "WellFractureAzimithAngleWarning",
                        QString( "Difference is below 10 degrees. Consider longitudinal fracture" ),
-                       "",
-                       "",
-                       "",
                        "" );
     m_wellFractureAzimuthAngleWarning.uiCapability()->setUiReadOnly( true );
     m_wellFractureAzimuthAngleWarning.xmlCapability()->disableIO();

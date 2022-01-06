@@ -39,7 +39,7 @@ RimcSurface_exportToFile::RimcSurface_exportToFile( caf::PdmObjectHandle* self )
     : caf::PdmObjectMethod( self )
 {
     CAF_PDM_InitObject( "Export Surface To fiole", "", "", "Export a surface to file" );
-    CAF_PDM_InitScriptableFieldNoDefault( &m_fileName, "FileName", "", "", "", "Filename to export surface to" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_fileName, "FileName", "Filename to export surface to" );
 }
 
 //--------------------------------------------------------------------------------------------------

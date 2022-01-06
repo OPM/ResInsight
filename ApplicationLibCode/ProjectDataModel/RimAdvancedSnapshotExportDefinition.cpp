@@ -56,10 +56,7 @@ RimAdvancedSnapshotExportDefinition::RimAdvancedSnapshotExportDefinition()
     CAF_PDM_InitField( &sliceDirection,
                        "SnapShotDirection",
                        caf::AppEnum<RiaDefines::GridCaseAxis>( RiaDefines::GridCaseAxis::UNDEFINED_AXIS ),
-                       "Range Filter Slice",
-                       "",
-                       "",
-                       "" );
+                       "Range Filter Slice" );
 
     CAF_PDM_InitField( &startSliceIndex, "RangeFilterStart", 1, "Range Start" );
     CAF_PDM_InitField( &endSliceIndex, "RangeFilterEnd", 1, "Range End" );

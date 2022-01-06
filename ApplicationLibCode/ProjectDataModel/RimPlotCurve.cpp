@@ -97,13 +97,7 @@ RimPlotCurve::RimPlotCurve()
     CAF_PDM_InitFieldNoDefault( &m_pointSymbol_OBSOLETE, "PointSymbol", "Symbol" );
     m_pointSymbol_OBSOLETE.xmlCapability()->setIOWritable( false );
 
-    CAF_PDM_InitField( &m_symbolEdgeColor_OBSOLETE,
-                       "SymbolEdgeColor",
-                       RiaColorTools::textColor3f(),
-                       "Symbol Edge Color",
-                       "",
-                       "",
-                       "" );
+    CAF_PDM_InitField( &m_symbolEdgeColor_OBSOLETE, "SymbolEdgeColor", RiaColorTools::textColor3f(), "Symbol Edge Color" );
     m_symbolEdgeColor_OBSOLETE.xmlCapability()->setIOWritable( false );
 
     CAF_PDM_InitField( &m_symbolSkipPixelDistance_OBSOLETE,

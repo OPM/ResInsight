@@ -57,21 +57,21 @@ CAF_PDM_SOURCE_INIT( RimViewLinker, "ViewLinker" );
 RimViewLinker::RimViewLinker()
 {
     // clang-format off
-    CAF_PDM_InitObject("Linked Views", "", "", "");
+    CAF_PDM_InitObject("Linked Views");
 
-    CAF_PDM_InitField(&m_name, "Name", QString("View Group Name"), "View Group Name", "", "", "");
+    CAF_PDM_InitField(&m_name, "Name", QString("View Group Name"), "View Group Name");
     m_name.uiCapability()->setUiHidden(true);
 
-    CAF_PDM_InitFieldNoDefault(&m_masterView, "MainView", "Main View", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_masterView, "MainView", "Main View");
     m_masterView.uiCapability()->setUiTreeChildrenHidden(true);
     m_masterView.uiCapability()->setUiTreeHidden(true);
     m_masterView.uiCapability()->setUiHidden(true);
 
-    CAF_PDM_InitFieldNoDefault(&m_viewControllers, "ManagedViews", "Managed Views", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_viewControllers, "ManagedViews", "Managed Views");
     m_viewControllers.uiCapability()->setUiTreeHidden(true);
     m_viewControllers.uiCapability()->setUiTreeChildrenHidden(true);
 
-    CAF_PDM_InitFieldNoDefault(&m_comparisonView, "LinkedComparisonView", "Comparison View", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_comparisonView, "LinkedComparisonView", "Comparison View");
     m_comparisonView.xmlCapability()->disableIO();
 
     // clang-format on
