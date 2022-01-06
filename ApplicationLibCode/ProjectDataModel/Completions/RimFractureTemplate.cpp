@@ -172,10 +172,7 @@ RimFractureTemplate::RimFractureTemplate()
 
     CAF_PDM_InitFieldNoDefault( &m_permeabilityType, "PermeabilityType", "Type" );
     CAF_PDM_InitField( &m_relativePermeability, "RelativePermeability", 1.0, "Relative Permeability" );
-    CAF_PDM_InitField( &m_userDefinedEffectivePermeability,
-                       "EffectivePermeability",
-                       0.0,
-                       "Effective Permeability (Ke) [mD]" );
+    CAF_PDM_InitField( &m_userDefinedEffectivePermeability, "EffectivePermeability", 0.0, "Effective Permeability (Ke) [mD]" );
 
     CAF_PDM_InitField( &m_relativeGasDensity,
                        "RelativeGasDensity",

@@ -78,10 +78,7 @@ RimStimPlanModelTemplate::RimStimPlanModelTemplate()
     CAF_PDM_InitScriptableFieldNoDefault( &m_initialPressureEclipseCase,
                                           "InitialPressureEclipseCase",
                                           "Initial Pressure Case" );
-    CAF_PDM_InitField( &m_useTableForInitialPressure,
-                       "UseForInitialPressure",
-                       false,
-                       "Use Pressure Table For Initial Pressure" );
+    CAF_PDM_InitField( &m_useTableForInitialPressure, "UseForInitialPressure", false, "Use Pressure Table For Initial Pressure" );
     CAF_PDM_InitField( &m_useTableForPressure, "UseForPressure", false, "Use Pressure Table For Pressure" );
     CAF_PDM_InitField( &m_editPressureTable, "EditPressureTable", false, "Edit" );
     m_editPressureTable.uiCapability()->setUiEditorTypeName( caf::PdmUiToolButtonEditor::uiEditorTypeName() );
@@ -94,10 +91,7 @@ RimStimPlanModelTemplate::RimStimPlanModelTemplate()
                        true,
                        "Use EQLNUM For Pressure Interpolation" );
 
-    CAF_PDM_InitScriptableField( &m_defaultPorosity,
-                                 "DefaultPorosity",
-                                 RiaDefines::defaultPorosity(),
-                                 "Default Porosity" );
+    CAF_PDM_InitScriptableField( &m_defaultPorosity, "DefaultPorosity", RiaDefines::defaultPorosity(), "Default Porosity" );
     CAF_PDM_InitScriptableField( &m_defaultPermeability,
                                  "DefaultPermeability",
                                  RiaDefines::defaultPermeability(),
@@ -124,32 +118,20 @@ RimStimPlanModelTemplate::RimStimPlanModelTemplate()
                                  "ReferenceTemperatureGradient",
                                  0.025,
                                  "Temperature Gradient [C/m]" );
-    CAF_PDM_InitScriptableField( &m_referenceTemperatureDepth,
-                                 "ReferenceTemperatureDepth",
-                                 2500.0,
-                                 "Temperature Depth [m]" );
+    CAF_PDM_InitScriptableField( &m_referenceTemperatureDepth, "ReferenceTemperatureDepth", 2500.0, "Temperature Depth [m]" );
 
     CAF_PDM_InitScriptableField( &m_overburdenHeight, "OverburdenHeight", 50.0, "Overburden Height" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_overburdenFormation, "OverburdenFormation", "Overburden Formation" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_overburdenFacies, "OverburdenFacies", "Overburden Facies" );
     CAF_PDM_InitScriptableField( &m_overburdenPorosity, "OverburdenPorosity", 0.0, "Overburden Porosity" );
-    CAF_PDM_InitScriptableField( &m_overburdenPermeability,
-                                 "OverburdenPermeability",
-                                 10.0e-6,
-                                 "Overburden Permeability" );
-    CAF_PDM_InitScriptableField( &m_overburdenFluidDensity,
-                                 "OverburdenFluidDensity",
-                                 1.03,
-                                 "Overburden Fluid Density [g/cm^3]" );
+    CAF_PDM_InitScriptableField( &m_overburdenPermeability, "OverburdenPermeability", 10.0e-6, "Overburden Permeability" );
+    CAF_PDM_InitScriptableField( &m_overburdenFluidDensity, "OverburdenFluidDensity", 1.03, "Overburden Fluid Density [g/cm^3]" );
 
     CAF_PDM_InitScriptableField( &m_underburdenHeight, "UnderburdenHeight", 50.0, "Underburden Height" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_underburdenFormation, "UnderburdenFormation", "Underburden Formation" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_underburdenFacies, "UnderburdenFacies", "Underburden Facies" );
     CAF_PDM_InitScriptableField( &m_underburdenPorosity, "UnderburdenPorosity", 0.0, "Underburden Porosity" );
-    CAF_PDM_InitScriptableField( &m_underburdenPermeability,
-                                 "UnderburdenPermeability",
-                                 10.0e-6,
-                                 "Underburden Permeability" );
+    CAF_PDM_InitScriptableField( &m_underburdenPermeability, "UnderburdenPermeability", 10.0e-6, "Underburden Permeability" );
     CAF_PDM_InitScriptableField( &m_underburdenFluidDensity,
                                  "UnderburdenFluidDensity",
                                  1.03,

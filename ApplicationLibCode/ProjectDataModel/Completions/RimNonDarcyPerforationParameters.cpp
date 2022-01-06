@@ -76,10 +76,7 @@ RimNonDarcyPerforationParameters::RimNonDarcyPerforationParameters()
                        "InertialCoefficientBeta0",
                        883.90,
                        "<html>Inertial Coefficient (&beta;<sub>0</sub>)</html> [Forch. unit]" );
-    CAF_PDM_InitField( &m_permeabilityScalingFactor,
-                       "PermeabilityScalingFactor",
-                       -1.1045,
-                       "Permeability Scaling Factor (B)" );
+    CAF_PDM_InitField( &m_permeabilityScalingFactor, "PermeabilityScalingFactor", -1.1045, "Permeability Scaling Factor (B)" );
 
     CAF_PDM_InitField( &m_porosityScalingFactor, "PorosityScalingFactor", 0.0, "Porosity Scaling Factor (C)" );
 }

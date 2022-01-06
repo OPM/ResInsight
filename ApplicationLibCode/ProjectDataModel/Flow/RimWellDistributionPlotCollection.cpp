@@ -80,10 +80,7 @@ RimWellDistributionPlotCollection::RimWellDistributionPlotCollection()
     CAF_PDM_InitField( &m_showGas, "ShowGas", true, "Show Gas" );
     CAF_PDM_InitField( &m_showWater, "ShowWater", true, "Show Water" );
 
-    CAF_PDM_InitField( &m_plotWindowTitle,
-                       "PlotDescription",
-                       QString( "Cumulative Phase Distribution Plots" ),
-                       "Name" );
+    CAF_PDM_InitField( &m_plotWindowTitle, "PlotDescription", QString( "Cumulative Phase Distribution Plots" ), "Name" );
 
     m_showWindow = false;
 

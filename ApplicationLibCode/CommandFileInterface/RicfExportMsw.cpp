@@ -50,10 +50,7 @@ RicfExportMsw::RicfExportMsw()
     CAF_PDM_InitScriptableField( &m_includePerforations, "includePerforations", true, "Include Perforations" );
     CAF_PDM_InitScriptableField( &m_includeFishbones, "includeFishbones", true, "Include Fishbones" );
     CAF_PDM_InitScriptableField( &m_includeFractures, "includeFractures", true, "Include Fractures" );
-    CAF_PDM_InitScriptableField( &m_fileSplit,
-                                 "fileSplit",
-                                 RicExportCompletionDataSettingsUi::ExportSplitType(),
-                                 "File Split" );
+    CAF_PDM_InitScriptableField( &m_fileSplit, "fileSplit", RicExportCompletionDataSettingsUi::ExportSplitType(), "File Split" );
 }
 
 //--------------------------------------------------------------------------------------------------

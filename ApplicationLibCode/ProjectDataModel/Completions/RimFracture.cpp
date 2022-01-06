@@ -102,10 +102,7 @@ RimFracture::RimFracture()
     m_editFractureTemplate.uiCapability()->setUiEditorTypeName( caf::PdmUiToolButtonEditor::uiEditorTypeName() );
     m_editFractureTemplate.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 
-    CAF_PDM_InitField( &m_createEllipseFractureTemplate,
-                       "CreateEllipseTemplate",
-                       false,
-                       "No Fracture Templates Found." );
+    CAF_PDM_InitField( &m_createEllipseFractureTemplate, "CreateEllipseTemplate", false, "No Fracture Templates Found." );
     m_createEllipseFractureTemplate.uiCapability()->setUiEditorTypeName( caf::PdmUiPushButtonEditor::uiEditorTypeName() );
     m_createEllipseFractureTemplate.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
 

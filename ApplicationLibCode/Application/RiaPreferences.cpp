@@ -131,10 +131,7 @@ RiaPreferences::RiaPreferences()
     ssihubAddress.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
 
     CAF_PDM_InitFieldNoDefault( &m_defaultMeshModeType, "defaultMeshModeType", "Show Grid Lines" );
-    CAF_PDM_InitField( &defaultGridLineColors,
-                       "defaultGridLineColors",
-                       RiaColorTables::defaultGridLineColor(),
-                       "Mesh Color" );
+    CAF_PDM_InitField( &defaultGridLineColors, "defaultGridLineColors", RiaColorTables::defaultGridLineColor(), "Mesh Color" );
     CAF_PDM_InitField( &defaultFaultGridLineColors,
                        "defaultFaultGridLineColors",
                        RiaColorTables::defaultFaultLineColor(),

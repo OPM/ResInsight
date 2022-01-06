@@ -100,15 +100,9 @@ RimFishbones::RimFishbones()
                        "LateralOpenHoleRoghnessFactor",
                        0.001,
                        "Open Hole Roghness Factor [m]" );
-    CAF_PDM_InitField( &m_lateralTubingRoghnessFactor,
-                       "LateralTubingRoghnessFactor",
-                       1e-5,
-                       "Tubing Roghness Factor [m]" );
+    CAF_PDM_InitField( &m_lateralTubingRoghnessFactor, "LateralTubingRoghnessFactor", 1e-5, "Tubing Roghness Factor [m]" );
 
-    CAF_PDM_InitField( &m_lateralInstallSuccessFraction,
-                       "LateralInstallSuccessFraction",
-                       1.0,
-                       "Install Success Rate [0..1]" );
+    CAF_PDM_InitField( &m_lateralInstallSuccessFraction, "LateralInstallSuccessFraction", 1.0, "Install Success Rate [0..1]" );
 
     CAF_PDM_InitField( &m_icdCount, "IcdCount", 2, "ICDs per Sub" );
     CAF_PDM_InitField( &m_icdOrificeDiameter, "IcdOrificeDiameter", 7.0, "ICD Orifice Diameter [mm]" );
@@ -130,10 +124,7 @@ RimFishbones::RimFishbones()
                                 "InstallationRotationAngles",
                                 "Installation Rotation Angles [deg]" );
     m_installationRotationAngles.uiCapability()->setUiHidden( true );
-    CAF_PDM_InitField( &m_fixedInstallationRotationAngle,
-                       "FixedInstallationRotationAngle",
-                       0.0,
-                       "  Fixed Angle [deg]" );
+    CAF_PDM_InitField( &m_fixedInstallationRotationAngle, "FixedInstallationRotationAngle", 0.0, "  Fixed Angle [deg]" );
 
     CAF_PDM_InitFieldNoDefault( &m_pipeProperties, "PipeProperties", "Pipe Properties" );
     m_pipeProperties.uiCapability()->setUiTreeHidden( true );
@@ -752,10 +743,7 @@ void RimFishbones::initialiseObsoleteFields()
     CAF_PDM_InitField( &m_rangeEnd_OBSOLETE, "RangeEnd", std::numeric_limits<double>::infinity(), "End MD [m]" );
     m_rangeEnd_OBSOLETE.xmlCapability()->setIOWritable( false );
 
-    CAF_PDM_InitField( &m_rangeSubSpacing_OBSOLETE,
-                       "RangeSubSpacing",
-                       std::numeric_limits<double>::infinity(),
-                       "Spacing [m]" );
+    CAF_PDM_InitField( &m_rangeSubSpacing_OBSOLETE, "RangeSubSpacing", std::numeric_limits<double>::infinity(), "Spacing [m]" );
     m_rangeSubSpacing_OBSOLETE.xmlCapability()->setIOWritable( false );
 
     CAF_PDM_InitField( &m_rangeSubCount_OBSOLETE, "RangeSubCount", -1, "Number of Subs" );
