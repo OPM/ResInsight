@@ -53,12 +53,10 @@ public:
     void             setCurveForSourceStepping( RimSummaryCurve* curve );
     RimSummaryCurve* curveForSourceStepping() const;
 
-    RimSummaryPlotSourceStepping*
-        sourceSteppingObject( RimSummaryPlotSourceStepping::SourceSteppingType sourceSteppingType ) const;
+    RimSummaryPlotSourceStepping* sourceSteppingObject( RimSummaryDataSourceStepping::Axis sourceSteppingType ) const;
 
     std::vector<RimSummaryCurve*> curves() const;
-    std::vector<RimSummaryCurve*>
-        curvesForSourceStepping( RimSummaryPlotSourceStepping::SourceSteppingType steppingType ) const;
+    std::vector<RimSummaryCurve*> curvesForSourceStepping( RimSummaryDataSourceStepping::Axis steppingType ) const;
 
     void setCurveAsTopZWithinCategory( RimSummaryCurve* curve );
 

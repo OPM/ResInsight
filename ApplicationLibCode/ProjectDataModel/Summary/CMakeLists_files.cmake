@@ -38,6 +38,9 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimObjectiveFunctionTools.h
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryPlotManager.h
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryMultiPlot.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimSummaryDataSourceStepping.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimSummaryNameHelper.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimMultipleSummaryPlotNameHelper.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
@@ -80,6 +83,9 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimObjectiveFunctionTools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryPlotManager.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryMultiPlot.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimSummaryDataSourceStepping.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimSummaryNameHelper.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimMultipleSummaryPlotNameHelper.cpp
 )
 
 list(APPEND CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})

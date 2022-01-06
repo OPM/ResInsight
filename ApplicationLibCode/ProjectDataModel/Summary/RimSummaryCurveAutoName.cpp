@@ -27,7 +27,7 @@
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseCollection.h"
 #include "RimSummaryCurve.h"
-#include "RimSummaryPlotNameHelper.h"
+#include "RimSummaryNameHelper.h"
 
 #include "SummaryPlotCommands/RicSummaryPlotEditorUi.h"
 
@@ -43,20 +43,20 @@ CAF_PDM_SOURCE_INIT( RimSummaryCurveAutoName, "SummaryCurveAutoName" );
 RimSummaryCurveAutoName::RimSummaryCurveAutoName()
 {
     // clang-format off
-    CAF_PDM_InitObject("RimSummaryCurveAutoName", "", "", "");
+    CAF_PDM_InitObject("RimSummaryCurveAutoName");
 
-	CAF_PDM_InitField(&m_longVectorName,    "LongVectorName",       false,  "Long Vector Name", "", "", "");
-    CAF_PDM_InitField(&m_vectorName,        "VectorName",           true,   "Vector Name", "", "", "");
-    CAF_PDM_InitField(&m_unit,              "Unit",                 false,  "Unit", "", "", "");
-    CAF_PDM_InitField(&m_regionNumber,      "RegionNumber",         true,   "Region Number", "", "", "");
-    CAF_PDM_InitField(&m_wellGroupName,     "WellGroupName",        true,   "Group Name", "", "", "");
-    CAF_PDM_InitField(&m_wellName,          "WellName",             true,   "Well Name", "", "", "");
-    CAF_PDM_InitField(&m_wellSegmentNumber, "WellSegmentNumber",    true,   "Well Segment Number", "", "", "");
-    CAF_PDM_InitField(&m_lgrName,           "LgrName",              true,   "Lgr Name", "", "", "");
-    CAF_PDM_InitField(&m_completion,        "Completion",           true,   "I, J, K", "", "", "");
-    CAF_PDM_InitField(&m_aquiferNumber,     "Aquifer",              true,   "Aquifer Number", "", "", "");
+	CAF_PDM_InitField(   &m_longVectorName, "LongVectorName",       false,  "Long Vector Name");
+    CAF_PDM_InitField(       &m_vectorName, "VectorName",           true,   "Vector Name");
+    CAF_PDM_InitField(             &m_unit, "Unit",                 false,  "Unit");
+    CAF_PDM_InitField(     &m_regionNumber, "RegionNumber",         true,   "Region Number");
+    CAF_PDM_InitField(    &m_wellGroupName, "WellGroupName",        true,   "Group Name");
+    CAF_PDM_InitField(         &m_wellName, "WellName",             true,   "Well Name");
+    CAF_PDM_InitField(&m_wellSegmentNumber, "WellSegmentNumber",    true,   "Well Segment Number");
+    CAF_PDM_InitField(          &m_lgrName, "LgrName",              true,   "Lgr Name");
+    CAF_PDM_InitField(       &m_completion, "Completion",           true,   "I, J, K");
+    CAF_PDM_InitField(    &m_aquiferNumber, "Aquifer",              true,   "Aquifer Number");
     
-    CAF_PDM_InitField(&m_caseName,          "CaseName",             true,   "Case/Ensemble Name", "", "", "");
+    CAF_PDM_InitField(&m_caseName,          "CaseName",             true,   "Case/Ensemble Name");
 
     // clang-format on
 }
@@ -65,7 +65,7 @@ RimSummaryCurveAutoName::RimSummaryCurveAutoName()
 ///
 //--------------------------------------------------------------------------------------------------
 QString RimSummaryCurveAutoName::curveNameY( const RifEclipseSummaryAddress& summaryAddress,
-                                             const RimSummaryPlotNameHelper* nameHelper ) const
+                                             const RimSummaryNameHelper*     nameHelper ) const
 {
     RimSummaryCurve* summaryCurve = nullptr;
     this->firstAncestorOrThisOfType( summaryCurve );
@@ -100,7 +100,7 @@ QString RimSummaryCurveAutoName::curveNameY( const RifEclipseSummaryAddress& sum
 ///
 //--------------------------------------------------------------------------------------------------
 QString RimSummaryCurveAutoName::curveNameX( const RifEclipseSummaryAddress& summaryAddress,
-                                             const RimSummaryPlotNameHelper* nameHelper ) const
+                                             const RimSummaryNameHelper*     nameHelper ) const
 {
     RimSummaryCurve* summaryCurve = nullptr;
     this->firstAncestorOrThisOfType( summaryCurve );
@@ -154,7 +154,7 @@ void RimSummaryCurveAutoName::applySettings( const RimSummaryCurveAutoName& othe
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCurveAutoName::appendWellName( std::string&                    text,
                                               const RifEclipseSummaryAddress& summaryAddress,
-                                              const RimSummaryPlotNameHelper* nameHelper ) const
+                                              const RimSummaryNameHelper*     nameHelper ) const
 {
     bool skipSubString = nameHelper && nameHelper->isWellNameInTitle();
     if ( skipSubString ) return;
@@ -182,7 +182,7 @@ void RimSummaryCurveAutoName::appendLgrName( std::string& text, const RifEclipse
 ///
 //--------------------------------------------------------------------------------------------------
 QString RimSummaryCurveAutoName::buildCurveName( const RifEclipseSummaryAddress& summaryAddress,
-                                                 const RimSummaryPlotNameHelper* nameHelper,
+                                                 const RimSummaryNameHelper*     nameHelper,
                                                  const std::string&              unitText,
                                                  const std::string&              caseName ) const
 {
@@ -251,7 +251,7 @@ QString RimSummaryCurveAutoName::buildCurveName( const RifEclipseSummaryAddress&
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCurveAutoName::appendAddressDetails( std::string&                    text,
                                                     const RifEclipseSummaryAddress& summaryAddress,
-                                                    const RimSummaryPlotNameHelper* nameHelper ) const
+                                                    const RimSummaryNameHelper*     nameHelper ) const
 {
     switch ( summaryAddress.category() )
     {

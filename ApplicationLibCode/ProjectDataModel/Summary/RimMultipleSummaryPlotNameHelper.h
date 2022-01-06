@@ -20,33 +20,13 @@
 
 #include "RimSummaryNameHelper.h"
 
-#include "RiaSummaryCurveAnalyzer.h"
-#include "RifEclipseSummaryAddress.h"
-
-#include "cafPdmPointer.h"
-
-#include <QString>
-
-#include <string>
-#include <vector>
-
-class RimSummaryCurve;
-class RimSummaryCase;
-class RimSummaryCaseCollection;
-
 //==================================================================================================
 //
 //==================================================================================================
-class RimSummaryPlotNameHelper : public RimSummaryNameHelper
+class RimMultiSummaryPlotNameHelper : public RimSummaryNameHelper
 {
 public:
-    RimSummaryPlotNameHelper();
-
-    void clear();
-
-    void appendAddresses( const std::vector<RifEclipseSummaryAddress>& addresses );
-    void setSummaryCases( const std::vector<RimSummaryCase*>& summaryCases );
-    void setEnsembleCases( const std::vector<RimSummaryCaseCollection*>& ensembleCases );
+    explicit RimMultiSummaryPlotNameHelper( std::vector<const RimSummaryNameHelper*> nameHelpers );
 
     QString plotTitle() const override;
 
@@ -70,25 +50,5 @@ public:
     std::string titleCompletion() const override;
 
 private:
-    void clearTitleSubStrings();
-    void extractPlotTitleSubStrings();
-
-    std::set<RimSummaryCase*>           setOfSummaryCases() const;
-    std::set<RimSummaryCaseCollection*> setOfEnsembleCases() const;
-
-private:
-    RiaSummaryCurveAnalyzer m_analyzer;
-
-    std::vector<caf::PdmPointer<RimSummaryCase>>           m_summaryCases;
-    std::vector<caf::PdmPointer<RimSummaryCaseCollection>> m_ensembleCases;
-
-    std::string m_titleQuantity;
-    std::string m_titleWellName;
-    std::string m_titleWellGroupName;
-    std::string m_titleRegion;
-    std::string m_titleBlock;
-    std::string m_titleSegment;
-    std::string m_titleCompletion;
-
-    QString m_titleCaseName;
+    std::vector<const RimSummaryNameHelper*> m_nameHelpers;
 };

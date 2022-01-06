@@ -1,4 +1,26 @@
+/////////////////////////////////////////////////////////////////////////////////
+//
+//  Copyright (C) 2016      Statoil ASA
+//
+//  ResInsight is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 3 of the License, or
+//  (at your option) any later version.
+//
+//  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
+//  WARRANTY; without even the implied warranty of MERCHANTABILITY or
+//  FITNESS FOR A PARTICULAR PURPOSE.
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+//  for more details.
+//
+/////////////////////////////////////////////////////////////////////////////////
+
 #include "RimDataSourceSteppingTools.h"
+
+#include "RiaSummaryCurveAnalyzer.h"
+
+#include "cafPdmUiFieldHandle.h"
 
 #include "cvfAssert.h"
 
@@ -46,4 +68,121 @@ void RimDataSourceSteppingTools::modifyCurrentIndex( caf::PdmValueField*        
             valueField->uiCapability()->notifyFieldChanged( currentValue, newValue );
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimDataSourceSteppingTools::updateAddressIfMatching( const QVariant&                              oldValue,
+                                                          const QVariant&                              newValue,
+                                                          RifEclipseSummaryAddress::SummaryVarCategory category,
+                                                          RifEclipseSummaryAddress*                    adr )
+{
+    if ( !adr ) return false;
+
+    if ( category == RifEclipseSummaryAddress::SUMMARY_REGION )
+    {
+        int oldInt = oldValue.toInt();
+        int newInt = newValue.toInt();
+
+        if ( adr->regionNumber() == oldInt )
+        {
+            adr->setRegion( newInt );
+
+            return true;
+        }
+    }
+    else if ( category == RifEclipseSummaryAddress::SUMMARY_AQUIFER )
+    {
+        int oldInt = oldValue.toInt();
+        int newInt = newValue.toInt();
+
+        if ( adr->aquiferNumber() == oldInt )
+        {
+            adr->setAquiferNumber( newInt );
+
+            return true;
+        }
+    }
+    else if ( category == RifEclipseSummaryAddress::SUMMARY_WELL_GROUP )
+    {
+        std::string oldString = oldValue.toString().toStdString();
+        std::string newString = newValue.toString().toStdString();
+
+        if ( adr->wellGroupName() == oldString )
+        {
+            adr->setWellGroupName( newString );
+
+            return true;
+        }
+    }
+    else if ( category == RifEclipseSummaryAddress::SUMMARY_WELL )
+    {
+        std::string oldString = oldValue.toString().toStdString();
+        std::string newString = newValue.toString().toStdString();
+
+        if ( adr->wellName() == oldString )
+        {
+            adr->setWellName( newString );
+
+            return true;
+        }
+    }
+    else if ( category == RifEclipseSummaryAddress::SUMMARY_BLOCK ||
+              category == RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION )
+    {
+        std::string oldString = oldValue.toString().toStdString();
+        std::string newString = newValue.toString().toStdString();
+        if ( adr->blockAsString() == oldString )
+        {
+            adr->setCellIjk( newString );
+
+            return true;
+        }
+    }
+    else if ( category == RifEclipseSummaryAddress::SUMMARY_WELL_SEGMENT )
+    {
+        int oldInt = oldValue.toInt();
+        int newInt = newValue.toInt();
+        if ( adr->wellSegmentNumber() == oldInt )
+        {
+            adr->setWellSegmentNumber( newInt );
+
+            return true;
+        }
+    }
+
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimDataSourceSteppingTools::updateHistoryAndSummaryQuantityIfMatching( const QVariant&           oldValue,
+                                                                            const QVariant&           newValue,
+                                                                            RifEclipseSummaryAddress* adr )
+{
+    if ( !adr ) return false;
+
+    std::string oldString = oldValue.toString().toStdString();
+    std::string newString = newValue.toString().toStdString();
+
+    if ( adr->quantityName() == oldString )
+    {
+        adr->setQuantityName( newString );
+
+        return true;
+    }
+
+    std::string correspondingOldString = RiaSummaryCurveAnalyzer::correspondingHistorySummaryCurveName( oldString );
+    std::string correspondingNewString = RiaSummaryCurveAnalyzer::correspondingHistorySummaryCurveName( newString );
+
+    if ( adr->quantityName() == correspondingOldString )
+    {
+        adr->setQuantityName( correspondingNewString );
+
+        return true;
+    }
+
+    return false;
 }
