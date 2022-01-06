@@ -20,7 +20,6 @@
 
 #include "RimCheckableNamedObject.h"
 #include "RimContourMapProjection.h"
-#include "RimRegularLegendConfig.h"
 
 #include "cafDisplayCoordTransform.h"
 #include "cafPdmChildField.h"

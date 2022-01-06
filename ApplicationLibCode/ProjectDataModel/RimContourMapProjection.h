@@ -19,7 +19,6 @@
 #pragma once
 
 #include "RimCheckableNamedObject.h"
-#include "RimRegularLegendConfig.h"
 
 #include "cafContourLines.h"
 #include "cafDisplayCoordTransform.h"
@@ -35,6 +34,7 @@
 #include "cvfVector2.h"
 
 class RimGridView;
+class RimRegularLegendConfig;
 
 //==================================================================================================
 ///

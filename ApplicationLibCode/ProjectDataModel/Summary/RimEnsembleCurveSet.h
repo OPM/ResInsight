@@ -28,7 +28,6 @@
 #include "RimEnsembleCurveSetColorManager.h"
 #include "RimEnsembleCurveSetInterface.h"
 #include "RimObjectiveFunction.h"
-#include "RimRegularLegendConfig.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseCollection.h"
 #include "RimTimeStepFilter.h"
