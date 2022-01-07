@@ -73,8 +73,6 @@ QWidget* RimPlot::createViewWidget( QWidget* parent /*= nullptr */ )
 {
     RiuPlotWidget* plotWidget = doCreatePlotViewWidget( parent );
 
-    //    RimPlot::attachPlotWidgetSignals( this, plotWidget );
-
     updateWindowVisibility();
     plotWidget->scheduleReplot();
 
