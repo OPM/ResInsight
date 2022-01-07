@@ -53,6 +53,9 @@ public:
     void                        updatePlotTitles();
     const RimSummaryNameHelper* nameHelper() const;
 
+    void setAutoTitlePlot( bool enable );
+    void setAutoTitleGraphs( bool enable );
+
     static RimSummaryMultiPlot* createAndAppendMultiPlot( const std::vector<RimSummaryPlot*>& plots );
 
     std::vector<RimSummaryDataSourceStepping::Axis> availableAxes() const override;
@@ -81,6 +84,8 @@ private:
     void populateNameHelper( RimSummaryPlotNameHelper* nameHelper );
 
     std::vector<RimSummaryPlot*> summaryPlots() const;
+
+    static void insertGraphsIntoPlot( RimSummaryMultiPlot* plot, const std::vector<RimSummaryPlot*>& graphs );
 
 private:
     caf::PdmField<QString> m_filterText;

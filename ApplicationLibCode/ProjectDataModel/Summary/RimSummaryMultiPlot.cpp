@@ -136,19 +136,9 @@ RimSummaryMultiPlot* RimSummaryMultiPlot::createAndAppendMultiPlot( const std::v
     plotWindow->setAsPlotMdiWindow();
     plotCollection->addMultiSummaryPlot( plotWindow );
 
-    for ( auto plot : plots )
-    {
-        plotWindow->addPlot( plot );
-
-        plot->resolveReferencesRecursively();
-        plot->revokeMdiWindowStatus();
-        plot->setShowWindow( true );
-
-        plot->loadDataAndUpdate();
-    }
+    insertGraphsIntoPlot( plotWindow, plots );
 
     plotCollection->updateAllRequiredEditors();
-    plotWindow->loadDataAndUpdate();
 
     return plotWindow;
 }
@@ -297,20 +287,26 @@ QList<caf::PdmOptionItemInfo> RimSummaryMultiPlot::calculateValueOptions( const 
 //--------------------------------------------------------------------------------------------------
 void RimSummaryMultiPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    uiOrdering.add( &m_filterText );
-    uiOrdering.add( &m_individualPlotPerVector );
-    uiOrdering.add( &m_individualPlotPerDataSource );
     uiOrdering.add( &m_autoPlotTitles );
     uiOrdering.add( &m_autoPlotTitlesOnSubPlots );
-
-    auto group = uiOrdering.addNewGroup( "Multi Plot Options" );
-    m_multiPlot->uiOrderingForSummaryMultiPlot( *group );
 
     {
         auto group = uiOrdering.addNewGroup( "Data Source" );
         m_sourceStepping()->uiOrdering( uiConfigName, *group );
     }
 
+    auto group = uiOrdering.addNewGroup( "Multi Plot Options" );
+    m_multiPlot->uiOrderingForSummaryMultiPlot( *group );
+
+    {
+        auto group = uiOrdering.addNewGroup( "Graph Building" );
+        group->setCollapsedByDefault( true );
+
+        group->add( &m_filterText );
+        group->add( &m_individualPlotPerVector );
+        group->add( &m_individualPlotPerDataSource );
+        group->add( &m_individualPlotPerObject );
+    }
     uiOrdering.add( &m_showMultiPlotInProjectTree );
 
     uiOrdering.skipRemainingFields();
@@ -413,16 +409,8 @@ void RimSummaryMultiPlot::updatePlots()
         plotBuilder.setGrouping( groping );
 
         auto plots = plotBuilder.createPlots();
-        for ( auto plot : plots )
-        {
-            this->addPlot( plot );
 
-            plot->resolveReferencesRecursively();
-            plot->revokeMdiWindowStatus();
-            plot->setShowWindow( true );
-        }
-
-        onLoadDataAndUpdate();
+        insertGraphsIntoPlot( this, plots );
     }
 }
 
@@ -463,6 +451,22 @@ const RimSummaryNameHelper* RimSummaryMultiPlot::nameHelper() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimSummaryMultiPlot::setAutoTitlePlot( bool enable )
+{
+    m_autoPlotTitles = enable;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryMultiPlot::setAutoTitleGraphs( bool enable )
+{
+    m_autoPlotTitlesOnSubPlots = enable;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::vector<RimSummaryPlot*> RimSummaryMultiPlot::summaryPlots() const
 {
     std::vector<RimSummaryPlot*> typedPlots;
@@ -474,4 +478,52 @@ std::vector<RimSummaryPlot*> RimSummaryMultiPlot::summaryPlots() const
     }
 
     return typedPlots;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryMultiPlot::insertGraphsIntoPlot( RimSummaryMultiPlot* plot, const std::vector<RimSummaryPlot*>& graphs )
+{
+    RiuMultiPlotPage::ColumnCount columnCount = RiuMultiPlotPage::ColumnCount::COLUMNS_2;
+    RimMultiPlot::RowCount        rowCount    = RimMultiPlot::RowCount::ROWS_2;
+
+    bool showTitleSubGraph = true;
+    if ( graphs.size() == 1 ) showTitleSubGraph = false;
+
+    if ( 4 < graphs.size() && graphs.size() <= 6 )
+    {
+        columnCount = RiuMultiPlotPage::ColumnCount::COLUMNS_3;
+        rowCount    = RimMultiPlot::RowCount::ROWS_2;
+    }
+    else if ( 6 < graphs.size() && graphs.size() <= 12 )
+    {
+        columnCount = RiuMultiPlotPage::ColumnCount::COLUMNS_4;
+        rowCount    = RimMultiPlot::RowCount::ROWS_3;
+    }
+    else
+    {
+        columnCount = RiuMultiPlotPage::ColumnCount::COLUMNS_4;
+        rowCount    = RimMultiPlot::RowCount::ROWS_4;
+    }
+
+    plot->setAutoTitlePlot( true );
+    plot->setAutoTitleGraphs( showTitleSubGraph );
+
+    plot->m_multiPlot->setColumnCount( columnCount );
+    plot->m_multiPlot->setRowCount( rowCount );
+    plot->m_multiPlot->setShowPlotTitles( showTitleSubGraph );
+
+    for ( auto graph : graphs )
+    {
+        plot->addPlot( graph );
+
+        graph->resolveReferencesRecursively();
+        graph->revokeMdiWindowStatus();
+        graph->setShowWindow( true );
+
+        graph->loadDataAndUpdate();
+    }
+
+    plot->loadDataAndUpdate();
 }

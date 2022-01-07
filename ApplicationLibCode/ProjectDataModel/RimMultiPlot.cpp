@@ -52,11 +52,11 @@ void RimMultiPlot::ColumnCountEnum::setUp()
 template <>
 void RimMultiPlot::RowCountEnum::setUp()
 {
-    addItem( RimMultiPlot::ROWS_1, "1", "1 Row" );
-    addItem( RimMultiPlot::ROWS_2, "2", "2 Rows" );
-    addItem( RimMultiPlot::ROWS_3, "3", "3 Rows" );
-    addItem( RimMultiPlot::ROWS_4, "4", "4 Rows" );
-    setDefault( RimMultiPlot::ROWS_2 );
+    addItem( RimMultiPlot::RowCount::ROWS_1, "1", "1 Row" );
+    addItem( RimMultiPlot::RowCount::ROWS_2, "2", "2 Rows" );
+    addItem( RimMultiPlot::RowCount::ROWS_3, "3", "3 Rows" );
+    addItem( RimMultiPlot::RowCount::ROWS_4, "4", "4 Rows" );
+    setDefault( RimMultiPlot::RowCount::ROWS_2 );
 }
 
 } // namespace caf
@@ -421,6 +421,22 @@ void RimMultiPlot::setAutoScaleYEnabled( bool enabled )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimMultiPlot::setColumnCount( RiuMultiPlotPage::ColumnCount columnCount )
+{
+    m_columnCount = columnCount;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimMultiPlot::setRowCount( RowCount rowCount )
+{
+    m_rowsPerPage = rowCount;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 int RimMultiPlot::columnCount() const
 {
     if ( m_columnCount() == ColumnCount::COLUMNS_UNLIMITED )
@@ -435,7 +451,29 @@ int RimMultiPlot::columnCount() const
 //--------------------------------------------------------------------------------------------------
 int RimMultiPlot::rowsPerPage() const
 {
-    return static_cast<int>( m_rowsPerPage() );
+    RimMultiPlot::RowCount rowEnum = m_rowsPerPage().value();
+
+    int rowCount = 2;
+
+    switch ( rowEnum )
+    {
+        case RimMultiPlot::RowCount::ROWS_1:
+            rowCount = 1;
+            break;
+        case RimMultiPlot::RowCount::ROWS_2:
+            rowCount = 2;
+            break;
+        case RimMultiPlot::RowCount::ROWS_3:
+            rowCount = 3;
+            break;
+        case RimMultiPlot::RowCount::ROWS_4:
+            rowCount = 4;
+            break;
+        default:
+            break;
+    }
+
+    return rowCount;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -460,6 +498,14 @@ caf::PdmFieldHandle* RimMultiPlot::rowsPerPageField()
 caf::PdmFieldHandle* RimMultiPlot::pagePreviewField()
 {
     return &m_pagePreviewMode;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimMultiPlot::setShowPlotTitles( bool enable )
+{
+    m_showIndividualPlotTitles = enable;
 }
 
 //--------------------------------------------------------------------------------------------------

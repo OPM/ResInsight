@@ -46,7 +46,7 @@ public:
     using ColumnCount     = RiuMultiPlotBook::ColumnCount;
     using ColumnCountEnum = caf::AppEnum<ColumnCount>;
 
-    enum RowCount
+    enum class RowCount
     {
         ROWS_1 = 1,
         ROWS_2 = 2,
@@ -91,12 +91,17 @@ public:
     void setAutoScaleXEnabled( bool enabled );
     void setAutoScaleYEnabled( bool enabled );
 
+    void setColumnCount( RiuMultiPlotPage::ColumnCount columnCount );
+    void setRowCount( RimMultiPlot::RowCount rowCount );
+
     int                  columnCount() const override;
     int                  rowsPerPage() const;
     caf::PdmFieldHandle* columnCountField();
     caf::PdmFieldHandle* rowsPerPageField();
     caf::PdmFieldHandle* pagePreviewField();
-    bool                 showPlotTitles() const;
+
+    void setShowPlotTitles( bool enable );
+    bool showPlotTitles() const;
 
     void zoomAll() override;
 

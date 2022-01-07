@@ -110,9 +110,16 @@ RimSummaryPlotManager::RimSummaryPlotManager()
     m_labelB.xmlCapability()->disableIO();
 
     CAF_PDM_InitField( &m_individualPlotPerObject, "IndividualPlotPerObject", false, "One plot per Object" );
+    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_individualPlotPerObject );
+
     CAF_PDM_InitField( &m_individualPlotPerVector, "IndividualPlotPerVector", false, "One plot per Vector" );
+    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_individualPlotPerVector );
+
     CAF_PDM_InitField( &m_individualPlotPerDataSource, "IndividualPlotPerDataSource", false, "One plot per Data Source" );
+    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_individualPlotPerDataSource );
+
     CAF_PDM_InitField( &m_createMultiPlot, "CreateMultiPlot", false, "Create Multiple Plots in One Window" );
+    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_createMultiPlot );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -331,9 +338,9 @@ void RimSummaryPlotManager::defineUiOrdering( QString uiConfigName, caf::PdmUiOr
     uiOrdering.add( &m_selectedDataSources, false );
 
     uiOrdering.add( &m_individualPlotPerVector );
-    uiOrdering.add( &m_individualPlotPerDataSource );
+    uiOrdering.add( &m_individualPlotPerDataSource, false );
     uiOrdering.add( &m_individualPlotPerObject );
-    uiOrdering.add( &m_createMultiPlot );
+    uiOrdering.add( &m_createMultiPlot, false );
 
     uiOrdering.add( &m_pushButtonAppend );
     uiOrdering.add( &m_pushButtonReplace, { false } );
@@ -392,7 +399,9 @@ void RimSummaryPlotManager::createNewPlot()
     {
         {
             auto summaryPlots = plotBuilder.createPlots();
-            RimSummaryMultiPlot::createAndAppendMultiPlot( summaryPlots );
+            auto plot         = RimSummaryMultiPlot::createAndAppendMultiPlot( summaryPlots );
+
+            RiuPlotMainWindowTools::selectAsCurrentItem( plot );
         }
 
         bool createStandardMultiPlot = false;
