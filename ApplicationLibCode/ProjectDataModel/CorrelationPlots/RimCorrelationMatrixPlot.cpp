@@ -25,6 +25,7 @@
 #include "RiaSummaryCurveDefinition.h"
 #include "RiuPlotMainWindowTools.h"
 #include "RiuQwtLinearScaleEngine.h"
+#include "RiuQwtPlotItem.h"
 #include "RiuQwtPlotTools.h"
 #include "RiuQwtPlotWidget.h"
 
@@ -685,9 +686,12 @@ void RimCorrelationMatrixPlot::updateLegend()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimCorrelationMatrixPlot::onPlotItemSelected( QwtPlotItem* plotItem, bool toggle, int sampleIndex )
+void RimCorrelationMatrixPlot::onPlotItemSelected( std::shared_ptr<RiuPlotItem> plotItem, bool toggle, int sampleIndex )
 {
-    CorrelationMatrixShapeItem* matrixItem = dynamic_cast<CorrelationMatrixShapeItem*>( plotItem );
+    RiuQwtPlotItem* qwtPlotItem = dynamic_cast<RiuQwtPlotItem*>( plotItem.get() );
+    if ( !qwtPlotItem ) return;
+
+    CorrelationMatrixShapeItem* matrixItem = dynamic_cast<CorrelationMatrixShapeItem*>( qwtPlotItem->qwtPlotItem() );
     if ( matrixItem )
     {
         matrixCellSelected.send( std::make_pair( matrixItem->parameter, matrixItem->curveDef ) );

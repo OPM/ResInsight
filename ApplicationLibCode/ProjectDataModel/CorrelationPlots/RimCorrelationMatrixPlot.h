@@ -22,13 +22,11 @@
 
 #include "cafAppEnum.h"
 
-#include <QDateTime>
-
-#include "qwt_plot.h"
-
 class RimRegularLegendConfig;
 class RimSummaryAddress;
+
 class RiuGroupedBarChartBuilder;
+class RiuPlotItem;
 
 //==================================================================================================
 ///
@@ -81,7 +79,7 @@ private:
     void createMatrix();
     void updatePlotTitle() override;
     void updateLegend() override;
-    void onPlotItemSelected( QwtPlotItem* plotItem, bool toggle, int sampleIndex );
+    void onPlotItemSelected( std::shared_ptr<RiuPlotItem> plotItem, bool toggle, int sampleIndex );
 
 private:
     caf::PdmField<bool>                 m_showAbsoluteValues;

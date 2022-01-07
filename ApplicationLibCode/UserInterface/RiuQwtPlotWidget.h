@@ -33,7 +33,9 @@
 class RiaPlotWindowRedrawScheduler;
 class RimPlot;
 class RimPlotCurve;
+
 class RiuPlotCurve;
+class RiuPlotItem;
 
 class QwtPlot;
 class QwtLegend;
@@ -166,7 +168,7 @@ public:
 signals:
     void plotSelected( bool toggleSelection );
     void axisSelected( int axisId, bool toggleSelection );
-    void plotItemSelected( QwtPlotItem* plotItem, bool toggleSelection, int sampleIndex );
+    void plotItemSelected( std::shared_ptr<RiuPlotItem> plotItem, bool toggleSelection, int sampleIndex );
     void onKeyPressEvent( QKeyEvent* event );
     void onWheelEvent( QWheelEvent* event );
     void plotZoomed();

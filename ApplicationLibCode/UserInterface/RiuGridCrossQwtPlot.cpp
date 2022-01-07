@@ -32,6 +32,7 @@
 #include "RiuPlotAnnotationTool.h"
 #include "RiuPlotCurve.h"
 #include "RiuQwtCurvePointTracker.h"
+#include "RiuQwtPlotItem.h"
 #include "RiuQwtPlotTools.h"
 #include "RiuQwtPlotWheelZoomer.h"
 #include "RiuQwtPlotZoomer.h"
@@ -84,8 +85,8 @@ RiuGridCrossQwtPlot::RiuGridCrossQwtPlot( RimGridCrossPlot* plot, QWidget* paren
     connect( m_zoomerRight, SIGNAL( zoomed( const QRectF& ) ), SLOT( onZoomedSlot() ) );
     connect( panner, SIGNAL( panned( int, int ) ), SLOT( onZoomedSlot() ) );
     connect( this,
-             SIGNAL( plotItemSelected( QwtPlotItem*, bool, int ) ),
-             SLOT( onPlotItemSelected( QwtPlotItem*, bool, int ) ) );
+             SIGNAL( plotItemSelected( shared_ptr<RiuPlotItem>, bool, int ) ),
+             SLOT( onPlotItemSelected( shared_ptr<RiuPlotItem>, bool, int ) ) );
 
     m_annotationTool      = std::unique_ptr<RiuPlotAnnotationTool>( new RiuPlotAnnotationTool() );
     m_selectedPointMarker = new QwtPlotMarker;
@@ -185,13 +186,16 @@ void RiuGridCrossQwtPlot::setInternalQwtLegendVisible( bool visible )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuGridCrossQwtPlot::onPlotItemSelected( QwtPlotItem* plotItem, bool toggle, int pointNumber )
+void RiuGridCrossQwtPlot::onPlotItemSelected( std::shared_ptr<RiuPlotItem> plotItem, bool toggle, int pointNumber )
 {
     if ( pointNumber == -1 )
         m_selectedPointMarker->detach();
     else
     {
-        QwtPlotCurve* curve = dynamic_cast<QwtPlotCurve*>( plotItem );
+        RiuQwtPlotItem* qwtPlotItem = dynamic_cast<RiuQwtPlotItem*>( plotItem.get() );
+        if ( !qwtPlotItem ) return;
+
+        QwtPlotCurve* curve = dynamic_cast<QwtPlotCurve*>( qwtPlotItem->qwtPlotItem() );
         if ( curve )
         {
             QPointF sample = curve->sample( pointNumber );
