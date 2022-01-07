@@ -1581,8 +1581,8 @@ void RimEnsembleCurveSet::updateCurveColors()
         {
             if ( !m_legendOverlayFrame )
             {
-                m_legendOverlayFrame =
-                    new RiuDraggableOverlayFrame( plot->plotWidget(), plot->plotWidget()->overlayMargins() );
+                m_legendOverlayFrame = new RiuDraggableOverlayFrame( plot->plotWidget()->getParentForOverlay(),
+                                                                     plot->plotWidget()->overlayMargins() );
             }
             m_legendOverlayFrame->setContentFrame( m_legendConfig->makeLegendFrame() );
             plot->plotWidget()->addOverlayFrame( m_legendOverlayFrame );

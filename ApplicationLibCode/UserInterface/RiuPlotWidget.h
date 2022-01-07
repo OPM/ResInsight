@@ -165,7 +165,7 @@ public:
 
     RimViewWindow* ownerViewWindow() const override;
 
-    virtual void removeEventFilter() = 0;
+    virtual void removeEventFilter();
 
     virtual void updateAxes() = 0;
 

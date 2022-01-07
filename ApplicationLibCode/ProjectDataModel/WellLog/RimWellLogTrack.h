@@ -25,14 +25,11 @@
 #include "RiuPlotAnnotationTool.h"
 
 #include "RimPlot.h"
-#include "RimRegularLegendConfig.h"
 
 #include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmPtrField.h"
-
-#include "qwt_plot.h"
 
 #include <QPointer>
 
@@ -58,8 +55,6 @@ class RigWellLogExtractor;
 class RimEclipseResultDefinition;
 class RimColorLegend;
 class RimEnsembleWellLogCurveSet;
-
-class QwtPlotCurve;
 
 struct CurveSamplingPointData
 {
