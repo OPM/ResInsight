@@ -662,10 +662,9 @@ std::vector<RimSummaryCurve*> RimSummaryPlot::visibleStackedSummaryCurvesForAxis
 void RimSummaryPlot::updatePlotTitle()
 {
     m_nameHelperAllCurves->clear();
-
+    updateNameHelperWithCurveData( m_nameHelperAllCurves.get() );
     if ( m_useAutoPlotTitle )
     {
-        updateNameHelperWithCurveData( m_nameHelperAllCurves.get() );
         m_description = m_nameHelperAllCurves->plotTitle();
     }
 

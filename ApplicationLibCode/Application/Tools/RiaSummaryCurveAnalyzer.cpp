@@ -106,7 +106,7 @@ std::string RiaSummaryCurveAnalyzer::quantityNameForTitle() const
 //--------------------------------------------------------------------------------------------------
 std::set<std::string> RiaSummaryCurveAnalyzer::wellNames() const
 {
-    return m_wellNames;
+    return keysForMap( m_wellNames );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -114,7 +114,7 @@ std::set<std::string> RiaSummaryCurveAnalyzer::wellNames() const
 //--------------------------------------------------------------------------------------------------
 std::set<std::string> RiaSummaryCurveAnalyzer::wellGroupNames() const
 {
-    return m_wellGroupNames;
+    return keysForMap( m_wellGroupNames );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -122,7 +122,7 @@ std::set<std::string> RiaSummaryCurveAnalyzer::wellGroupNames() const
 //--------------------------------------------------------------------------------------------------
 std::set<int> RiaSummaryCurveAnalyzer::regionNumbers() const
 {
-    return m_regionNumbers;
+    return keysForMap( m_regionNumbers );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -166,7 +166,7 @@ std::set<int> RiaSummaryCurveAnalyzer::wellSegmentNumbers( const std::string& we
 //--------------------------------------------------------------------------------------------------
 std::set<std::string> RiaSummaryCurveAnalyzer::blocks() const
 {
-    return m_blocks;
+    return keysForMap( m_blocks );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -174,7 +174,7 @@ std::set<std::string> RiaSummaryCurveAnalyzer::blocks() const
 //--------------------------------------------------------------------------------------------------
 std::set<int> RiaSummaryCurveAnalyzer::aquifers() const
 {
-    return m_aquifers;
+    return keysForMap( m_aquifers );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -188,6 +188,27 @@ std::set<RifEclipseSummaryAddress::SummaryVarCategory> RiaSummaryCurveAnalyzer::
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::vector<std::vector<RifEclipseSummaryAddress>> RiaSummaryCurveAnalyzer::addressesGroupedByObject() const
+{
+    auto wellAdr      = valuesForMap( m_wellNames );
+    auto wellGroupAdr = valuesForMap( m_wellGroupNames );
+    auto regionAdr    = valuesForMap( m_regionNumbers );
+    auto blockAdr     = valuesForMap( m_blocks );
+    auto aquiferAdr   = valuesForMap( m_aquifers );
+
+    std::vector<std::vector<RifEclipseSummaryAddress>> groupedByObject;
+    groupedByObject.insert( groupedByObject.end(), wellAdr.begin(), wellAdr.end() );
+    groupedByObject.insert( groupedByObject.end(), wellGroupAdr.begin(), wellGroupAdr.end() );
+    groupedByObject.insert( groupedByObject.end(), regionAdr.begin(), regionAdr.end() );
+    groupedByObject.insert( groupedByObject.end(), blockAdr.begin(), blockAdr.end() );
+    groupedByObject.insert( groupedByObject.end(), aquiferAdr.begin(), aquiferAdr.end() );
+
+    return groupedByObject;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::vector<QString> RiaSummaryCurveAnalyzer::identifierTexts( RifEclipseSummaryAddress::SummaryVarCategory category,
                                                                const std::string& secondaryIdentifier ) const
 {
@@ -195,30 +216,34 @@ std::vector<QString> RiaSummaryCurveAnalyzer::identifierTexts( RifEclipseSummary
 
     if ( category == RifEclipseSummaryAddress::SUMMARY_REGION )
     {
-        for ( const auto& regionNumber : m_regionNumbers )
+        auto keys = keysForMap( m_regionNumbers );
+        for ( const auto& key : keys )
         {
-            identifierStrings.push_back( QString::number( regionNumber ) );
+            identifierStrings.push_back( QString::number( key ) );
         }
     }
     else if ( category == RifEclipseSummaryAddress::SUMMARY_WELL )
     {
-        for ( const auto& wellName : m_wellNames )
+        auto keys = keysForMap( m_wellNames );
+        for ( const auto& key : keys )
         {
-            identifierStrings.push_back( QString::fromStdString( wellName ) );
+            identifierStrings.push_back( QString::fromStdString( key ) );
         }
     }
     else if ( category == RifEclipseSummaryAddress::SUMMARY_WELL_GROUP )
     {
-        for ( const auto& wellGroupName : m_wellGroupNames )
+        auto keys = keysForMap( m_wellGroupNames );
+        for ( const auto& key : keys )
         {
-            identifierStrings.push_back( QString::fromStdString( wellGroupName ) );
+            identifierStrings.push_back( QString::fromStdString( key ) );
         }
     }
     else if ( category == RifEclipseSummaryAddress::SUMMARY_BLOCK )
     {
-        for ( const auto& ijkBlock : m_blocks )
+        auto keys = keysForMap( m_blocks );
+        for ( const auto& key : keys )
         {
-            identifierStrings.push_back( QString::fromStdString( ijkBlock ) );
+            identifierStrings.push_back( QString::fromStdString( key ) );
         }
     }
     else if ( category == RifEclipseSummaryAddress::SUMMARY_WELL_SEGMENT )
@@ -239,9 +264,10 @@ std::vector<QString> RiaSummaryCurveAnalyzer::identifierTexts( RifEclipseSummary
     }
     else if ( category == RifEclipseSummaryAddress::SUMMARY_AQUIFER )
     {
-        for ( const auto& aquifer : m_aquifers )
+        auto keys = keysForMap( m_aquifers );
+        for ( const auto& key : keys )
         {
-            identifierStrings.push_back( QString::number( aquifer ) );
+            identifierStrings.push_back( QString::number( key ) );
         }
     }
 
@@ -361,7 +387,7 @@ void RiaSummaryCurveAnalyzer::analyzeSingleAddress( const RifEclipseSummaryAddre
 
     if ( !wellName.empty() )
     {
-        m_wellNames.insert( wellName );
+        m_wellNames.insert( { wellName, address } );
     }
 
     if ( !address.quantityName().empty() )
@@ -371,12 +397,12 @@ void RiaSummaryCurveAnalyzer::analyzeSingleAddress( const RifEclipseSummaryAddre
 
     if ( !address.wellGroupName().empty() )
     {
-        m_wellGroupNames.insert( address.wellGroupName() );
+        m_wellGroupNames.insert( { address.wellGroupName(), address } );
     }
 
     if ( address.regionNumber() != -1 )
     {
-        m_regionNumbers.insert( address.regionNumber() );
+        m_regionNumbers.insert( { address.regionNumber(), address } );
     }
 
     if ( address.category() == RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION )
@@ -392,15 +418,90 @@ void RiaSummaryCurveAnalyzer::analyzeSingleAddress( const RifEclipseSummaryAddre
     else if ( address.category() == RifEclipseSummaryAddress::SUMMARY_BLOCK )
     {
         auto text = address.blockAsString();
-        m_blocks.insert( text );
+
+        m_blocks.insert( { text, address } );
     }
     else if ( address.category() == RifEclipseSummaryAddress::SUMMARY_AQUIFER )
     {
-        m_aquifers.insert( address.aquiferNumber() );
+        m_aquifers.insert( { address.aquiferNumber(), address } );
     }
 
     if ( address.category() != RifEclipseSummaryAddress::SUMMARY_INVALID )
     {
         m_categories.insert( address.category() );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::set<std::string> RiaSummaryCurveAnalyzer::keysForMap( const std::multimap<std::string, RifEclipseSummaryAddress>& map )
+{
+    std::set<std::string> keys;
+    for ( const auto& [key, value] : map )
+    {
+        keys.insert( key );
+    }
+    return keys;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::set<int> RiaSummaryCurveAnalyzer::keysForMap( const std::multimap<int, RifEclipseSummaryAddress>& map )
+{
+    std::set<int> keys;
+    for ( const auto& [key, value] : map )
+    {
+        keys.insert( key );
+    }
+    return keys;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<std::vector<RifEclipseSummaryAddress>>
+    RiaSummaryCurveAnalyzer::valuesForMap( const std::multimap<std::string, RifEclipseSummaryAddress>& map )
+{
+    std::vector<std::vector<RifEclipseSummaryAddress>> groupedAddresses;
+
+    auto uniqueKeys = keysForMap( map );
+    for ( const auto& key : uniqueKeys )
+    {
+        auto range = map.equal_range( key );
+
+        std::vector<RifEclipseSummaryAddress> addresses;
+        for ( auto i = range.first; i != range.second; ++i )
+        {
+            addresses.push_back( i->second );
+        }
+        groupedAddresses.push_back( addresses );
+    }
+
+    return groupedAddresses;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<std::vector<RifEclipseSummaryAddress>>
+    RiaSummaryCurveAnalyzer::valuesForMap( const std::multimap<int, RifEclipseSummaryAddress>& map )
+{
+    std::vector<std::vector<RifEclipseSummaryAddress>> groupedAddresses;
+
+    auto uniqueKeys = keysForMap( map );
+    for ( const auto& key : uniqueKeys )
+    {
+        auto range = map.equal_range( key );
+
+        std::vector<RifEclipseSummaryAddress> addresses;
+        for ( auto i = range.first; i != range.second; ++i )
+        {
+            addresses.push_back( i->second );
+        }
+        groupedAddresses.push_back( addresses );
+    }
+
+    return groupedAddresses;
 }

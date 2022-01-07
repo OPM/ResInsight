@@ -53,6 +53,7 @@ RimSummaryMultiPlot::RimSummaryMultiPlot()
     m_filterText.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
 
     CAF_PDM_InitField( &m_individualPlotPerVector, "IndividualPlotPerVector", false, "One plot per Vector" );
+    CAF_PDM_InitField( &m_individualPlotPerObject, "IndividualPlotPerObject", false, "One plot per Object" );
     CAF_PDM_InitField( &m_individualPlotPerDataSource, "IndividualPlotPerDataSource", false, "One plot per Data Source" );
     CAF_PDM_InitField( &m_autoPlotTitles, "AutoPlotTitles", false, "Auto Plot Titles" );
     CAF_PDM_InitField( &m_autoPlotTitlesOnSubPlots, "AutoPlotTitlesSubPlots", false, "Auto Plot Titles Sub Plots" );
@@ -118,7 +119,7 @@ QString RimSummaryMultiPlot::description() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryMultiPlot::addPlot( RimPlot* plot )
+void RimSummaryMultiPlot::addPlot( RimSummaryPlot* plot )
 {
     m_multiPlot->addPlot( plot );
 }
@@ -126,7 +127,7 @@ void RimSummaryMultiPlot::addPlot( RimPlot* plot )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSummaryMultiPlot* RimSummaryMultiPlot::createAndAppendMultiPlot( const std::vector<RimPlot*>& plots )
+RimSummaryMultiPlot* RimSummaryMultiPlot::createAndAppendMultiPlot( const std::vector<RimSummaryPlot*>& plots )
 {
     RimProject* project        = RimProject::current();
     auto*       plotCollection = project->mainPlotCollection()->multiPlotCollection();
@@ -335,7 +336,7 @@ void RimSummaryMultiPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
         }
     }
     else if ( changedField == &m_filterText || changedField == &m_individualPlotPerDataSource ||
-              changedField == &m_individualPlotPerVector )
+              changedField == &m_individualPlotPerVector || changedField == &m_individualPlotPerObject )
     {
         updatePlots();
     }
@@ -404,8 +405,12 @@ void RimSummaryMultiPlot::updatePlots()
         RicSummaryPlotBuilder plotBuilder;
         plotBuilder.setAddresses( filteredAddresses );
         plotBuilder.setDataSources( matchingSummaryCases, matchingEnsembles );
-        plotBuilder.setIndividualPlotPerAddress( m_individualPlotPerVector );
         plotBuilder.setIndividualPlotPerDataSource( m_individualPlotPerDataSource );
+
+        RicSummaryPlotBuilder::RicGraphCurveGrouping groping = RicSummaryPlotBuilder::RicGraphCurveGrouping::NONE;
+        if ( m_individualPlotPerVector ) groping = RicSummaryPlotBuilder::RicGraphCurveGrouping::SINGLE_CURVES;
+        if ( m_individualPlotPerObject ) groping = RicSummaryPlotBuilder::RicGraphCurveGrouping::CURVES_FOR_OBJECT;
+        plotBuilder.setGrouping( groping );
 
         auto plots = plotBuilder.createPlots();
         for ( auto plot : plots )

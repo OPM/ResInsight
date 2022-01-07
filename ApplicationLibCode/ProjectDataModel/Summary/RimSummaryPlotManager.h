@@ -101,6 +101,7 @@ private:
 
     caf::PdmField<bool> m_individualPlotPerVector;
     caf::PdmField<bool> m_individualPlotPerDataSource;
+    caf::PdmField<bool> m_individualPlotPerObject;
     caf::PdmField<bool> m_createMultiPlot;
 
     caf::PdmField<QString> m_labelA;
