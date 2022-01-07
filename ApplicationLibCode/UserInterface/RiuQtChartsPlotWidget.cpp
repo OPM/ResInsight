@@ -401,16 +401,6 @@ void RiuQtChartsPlotWidget::setMajorAndMinorTickIntervals( RiaDefines::PlotAxis 
                                                            double               minValue,
                                                            double               maxValue )
 {
-    // QwtPlot::Axis            qwtAxis     = RiuQwtPlotTools::toQwtPlotAxis( axis );
-    // RiuQwtLinearScaleEngine* scaleEngine = dynamic_cast<RiuQwtLinearScaleEngine*>( m_plot->axisScaleEngine( qwtAxis )
-    // ); if ( scaleEngine )
-    // {
-    //     QwtScaleDiv scaleDiv =
-    //         scaleEngine->divideScaleWithExplicitIntervals( minValue, maxValue, majorTickInterval, minorTickInterval
-    //         );
-
-    //     m_plot->setAxisScaleDiv( qwtAxis, scaleDiv );
-    // }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -424,19 +414,6 @@ void RiuQtChartsPlotWidget::setMajorAndMinorTickIntervalsAndRange( RiaDefines::P
                                                                    double               rangeMin,
                                                                    double               rangeMax )
 {
-    // QwtPlot::Axis            qwtAxis     = RiuQwtPlotTools::toQwtPlotAxis( axis );
-    // RiuQwtLinearScaleEngine* scaleEngine = dynamic_cast<RiuQwtLinearScaleEngine*>( m_plot->axisScaleEngine( qwtAxis )
-    // ); if ( scaleEngine )
-    // {
-    //     QwtScaleDiv scaleDiv = scaleEngine->divideScaleWithExplicitIntervalsAndRange( minTickValue,
-    //                                                                                   maxTickValue,
-    //                                                                                   majorTickInterval,
-    //                                                                                   minorTickInterval,
-    //                                                                                   rangeMin,
-    //                                                                                   rangeMax );
-
-    //     m_plot->setAxisScaleDiv( qwtAxis, scaleDiv );
-    // }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -516,100 +493,11 @@ void RiuQtChartsPlotWidget::updateLegend()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RiuQtChartsPlotWidget::eventFilter( QObject* watched, QEvent* event )
-{
-    // QWheelEvent* wheelEvent = dynamic_cast<QWheelEvent*>( event );
-    // if ( wheelEvent && watched == m_plot->canvas() )
-    // {
-    //     event->accept();
-
-    //     emit onWheelEvent( wheelEvent );
-    //     return true;
-    // }
-
-    // QMouseEvent* mouseEvent = dynamic_cast<QMouseEvent*>( event );
-    // if ( mouseEvent )
-    // {
-    //     if ( isZoomerActive() ) return false;
-
-    //     bool toggleItemInSelection = ( mouseEvent->modifiers() & Qt::ControlModifier ) != 0;
-
-    //     if ( mouseEvent->type() == QMouseEvent::MouseButtonPress && mouseEvent->button() == Qt::LeftButton )
-    //     {
-    //         m_clickPosition = mouseEvent->pos();
-    //     }
-
-    //     if ( watched == this && !m_plot->canvas()->geometry().contains( mouseEvent->pos() ) )
-    //     {
-    //         if ( mouseEvent->type() == QMouseEvent::MouseButtonRelease && ( mouseEvent->button() ==
-    //         Qt::LeftButton )
-    //         &&
-    //              !m_clickPosition.isNull() )
-    //         {
-    //             QWidget* childClicked = m_plot->childAt( m_clickPosition );
-    //             if ( childClicked )
-    //             {
-    //                 QwtScaleWidget* scaleWidget = qobject_cast<QwtScaleWidget*>( childClicked );
-    //                 if ( scaleWidget )
-    //                 {
-    //                     onAxisSelected( scaleWidget, toggleItemInSelection );
-    //                     m_clickPosition = QPoint();
-    //                     return true;
-    //                 }
-    //             }
-    //             else
-    //             {
-    //                 endZoomOperations();
-    //                 emit plotSelected( toggleItemInSelection );
-    //                 m_clickPosition = QPoint();
-    //                 return true;
-    //             }
-    //         }
-    //     }
-    //     else if ( watched == m_plot->canvas() )
-    //     {
-    //         if ( mouseEvent->type() == QMouseEvent::MouseButtonRelease && mouseEvent->button() == Qt::LeftButton &&
-    //              !m_clickPosition.isNull() )
-    //         {
-    //             endZoomOperations();
-    //             selectClosestPlotItem( mouseEvent->pos(), toggleItemInSelection );
-    //             m_clickPosition = QPoint();
-    //             return true;
-    //         }
-    //     }
-    // }
-    // return false;
-    return false;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiuQtChartsPlotWidget::hideEvent( QHideEvent* event )
-{
-    //    resetPlotItemHighlighting();
-    // TODO: remove?
-    // m_plot->hideEvent( event );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiuQtChartsPlotWidget::showEvent( QShowEvent* event )
-{
-    // TODO: remove?
-    // m_plot->showEvent( event );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RiuQtChartsPlotWidget::resizeEvent( QResizeEvent* event )
 {
-    // TODO: remove???
-    // QwtPlot::resizeEvent( event );
-    // updateOverlayFrameLayout();
-    // event->accept();
+    QWidget::resizeEvent( event );
+    updateOverlayFrameLayout();
+    event->accept();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -729,22 +617,6 @@ RimViewWindow* RiuQtChartsPlotWidget::ownerViewWindow() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-// void RiuQtChartsPlotWidget::onAxisSelected( QwtScaleWidget* scale, bool toggleItemInSelection )
-// {
-//     // int axisId = -1;
-//     // for ( int i = 0; i < QwtPlot::axisCnt; ++i )
-//     // {
-//     //     if ( scale == m_plot->axisWidget( i ) )
-//     //     {
-//     //         axisId = i;
-//     //     }
-//     // }
-//     // emit axisSelected( axisId, toggleItemInSelection );
-// }
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 int RiuQtChartsPlotWidget::defaultMinimumWidth()
 {
     return 80;
@@ -813,15 +685,6 @@ void RiuQtChartsPlotWidget::setAxisMaxMajor( RiaDefines::PlotAxis axis, int maxM
         QDateTimeAxis* dateAxis = dynamic_cast<QDateTimeAxis*>( ax );
         if ( dateAxis ) dateAxis->setTickCount( maxMajor );
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiuQtChartsPlotWidget::removeEventFilter()
-{
-    // m_plot->removeEventFilter( m_plot );
-    // m_plot->canvas()->removeEventFilter( m_plot );
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -236,7 +236,7 @@ size_t RimDepthTrackPlot::plotCount() const
 //--------------------------------------------------------------------------------------------------
 size_t RimDepthTrackPlot::plotIndex( const RimPlot* plot ) const
 {
-    return m_plots.index( dynamic_cast<const RimPlot*>( plot ) );
+    return m_plots.index( plot );
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -95,8 +95,9 @@ public:
 
     virtual RiuPlotWidget* plotWidget() = 0;
 
-    virtual void            updateZoomInParentPlot(){}; //  = 0;
-    virtual void            updateZoomFromParentPlot(){}; //= 0;
+    virtual void updateZoomInParentPlot();
+    virtual void updateZoomFromParentPlot();
+
     virtual caf::PdmObject* findPdmObjectFromPlotCurve( const RiuPlotCurve* curve ) const { return nullptr; };
 
 protected:
@@ -110,12 +111,12 @@ protected:
     void updateFonts() override;
     void doRenderWindowContent( QPaintDevice* paintDevice ) override;
 
-    virtual void handleKeyPressEvent( QKeyEvent* event ) {}
-    virtual void handleWheelEvent( QWheelEvent* event ) {}
+    virtual void handleKeyPressEvent( QKeyEvent* event );
+    virtual void handleWheelEvent( QWheelEvent* event );
 
 private slots:
-    virtual void onAxisSelected( int axis, bool toggle ){};
-    virtual void onPlotItemSelected( std::shared_ptr<RiuPlotItem>, bool, int ){};
+    virtual void onAxisSelected( int axis, bool toggle );
+    virtual void onPlotItemSelected( std::shared_ptr<RiuPlotItem> selectedItem, bool toggleItem, int sampleIndex );
     void         onPlotSelected( bool toggle );
     void         onViewerDestroyed();
     void         onKeyPressEvent( QKeyEvent* event );

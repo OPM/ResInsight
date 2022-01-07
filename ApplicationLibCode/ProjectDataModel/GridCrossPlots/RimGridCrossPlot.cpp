@@ -293,7 +293,7 @@ void RimGridCrossPlot::updateInfoBox()
             if ( !m_infoBox )
             {
                 m_infoBox =
-                    new RiuDraggableOverlayFrame( m_plotWidget->qwtPlot()->canvas(), m_plotWidget->overlayMargins() );
+                    new RiuDraggableOverlayFrame( m_plotWidget->getParentForOverlay(), m_plotWidget->overlayMargins() );
                 m_infoBox->setAnchorCorner( RiuDraggableOverlayFrame::AnchorCorner::TopRight );
                 RiuTextOverlayContentFrame* textFrame = new RiuTextOverlayContentFrame( m_infoBox );
                 textFrame->setText( generateInfoBoxText() );
