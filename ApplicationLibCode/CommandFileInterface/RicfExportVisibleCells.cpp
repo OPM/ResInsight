@@ -69,17 +69,8 @@ RicfExportVisibleCells::RicfExportVisibleCells()
     CAF_PDM_InitScriptableField( &m_exportKeyword,
                                  "exportKeyword",
                                  caf::AppEnum<RicfExportVisibleCells::ExportKeyword>(),
-                                 "Export Keyword",
-                                 "",
-                                 "",
-                                 "" );
-    CAF_PDM_InitScriptableField( &m_visibleActiveCellsValue,
-                                 "visibleActiveCellsValue",
-                                 1,
-                                 "Visible Active Cells Value",
-                                 "",
-                                 "",
-                                 "" );
+                                 "Export Keyword" );
+    CAF_PDM_InitScriptableField( &m_visibleActiveCellsValue, "visibleActiveCellsValue", 1, "Visible Active Cells Value" );
     CAF_PDM_InitScriptableField( &m_hiddenActiveCellsValue, "hiddenActiveCellsValue", 0, "Hidden Active Cells Value" );
     CAF_PDM_InitScriptableField( &m_inactiveCellsValue, "inactiveCellsValue", 0, "Inactive Cells Value" );
 }

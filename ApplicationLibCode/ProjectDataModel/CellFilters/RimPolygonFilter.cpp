@@ -120,7 +120,7 @@ RimPolygonFilter::RimPolygonFilter()
     : m_pickTargetsEventHandler( new RicPolylineTargetsPickEventHandler( this ) )
     , m_intervalTool( true )
 {
-    CAF_PDM_InitObject( "Polyline Filter", ":/CellFilter_Polygon.png", "", "" );
+    CAF_PDM_InitObject( "Polyline Filter", ":/CellFilter_Polygon.png" );
 
     CAF_PDM_InitFieldNoDefault( &m_polyFilterMode, "PolygonFilterType", "Vertical Filter" );
 

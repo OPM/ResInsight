@@ -42,7 +42,7 @@ CAF_PDM_SOURCE_INIT( Rim3dWellLogRftCurve, "Rim3dWellLogRftCurve" );
 //--------------------------------------------------------------------------------------------------
 Rim3dWellLogRftCurve::Rim3dWellLogRftCurve()
 {
-    CAF_PDM_InitObject( "3d Well Log RFT Curve", ":/WellLogCurve16x16.png", "", "" );
+    CAF_PDM_InitObject( "3d Well Log RFT Curve", ":/WellLogCurve16x16.png" );
 
     CAF_PDM_InitFieldNoDefault( &m_eclipseResultCase, "eclipseResultCase", "" );
     CAF_PDM_InitFieldNoDefault( &m_timeStep, "timeStep", "" );

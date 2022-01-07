@@ -41,7 +41,7 @@ CAF_PDM_SOURCE_INIT( RimSurfaceInView, "SurfaceInView" );
 //--------------------------------------------------------------------------------------------------
 RimSurfaceInView::RimSurfaceInView()
 {
-    CAF_PDM_InitObject( "Surface", ":/ReservoirSurface16x16.png", "", "" );
+    CAF_PDM_InitObject( "Surface", ":/ReservoirSurface16x16.png" );
 
     CAF_PDM_InitFieldNoDefault( &m_name, "Name", "Name" );
     m_name.registerGetMethod( this, &RimSurfaceInView::name );

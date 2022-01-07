@@ -30,7 +30,7 @@ CAF_PDM_SOURCE_INIT( RimGridStatisticsPlotCollection, "GridStatisticsPlotCollect
 //--------------------------------------------------------------------------------------------------
 RimGridStatisticsPlotCollection::RimGridStatisticsPlotCollection()
 {
-    CAF_PDM_InitObject( "Grid Statistics Plots", ":/WellLogPlots16x16.png", "", "" );
+    CAF_PDM_InitObject( "Grid Statistics Plots", ":/WellLogPlots16x16.png" );
 
     CAF_PDM_InitFieldNoDefault( &m_gridStatisticsPlots, "GridStatisticsPlots", "" );
     m_gridStatisticsPlots.uiCapability()->setUiTreeHidden( true );

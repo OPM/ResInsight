@@ -35,7 +35,7 @@ CAF_PDM_SOURCE_INIT( RimEnsembleStatisticsSurface, "EnsembleStatisticsSurface" )
 //--------------------------------------------------------------------------------------------------
 RimEnsembleStatisticsSurface::RimEnsembleStatisticsSurface()
 {
-    CAF_PDM_InitScriptableObject( "Surface", ":/ReservoirSurface16x16.png", "", "" );
+    CAF_PDM_InitScriptableObject( "Surface", ":/ReservoirSurface16x16.png" );
 
     CAF_PDM_InitFieldNoDefault( &m_statisticsType, "StatisticsType", "StatisticsType" );
 }

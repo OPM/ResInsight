@@ -52,7 +52,7 @@ CAF_PDM_SOURCE_INIT( RimCellEdgeColors, "CellEdgeResultSlot" );
 //--------------------------------------------------------------------------------------------------
 RimCellEdgeColors::RimCellEdgeColors()
 {
-    CAF_PDM_InitObject( "Cell Edge Result", ":/EdgeResult_1.png", "", "" );
+    CAF_PDM_InitObject( "Cell Edge Result", ":/EdgeResult_1.png" );
 
     CAF_PDM_InitField( &m_enableCellEdgeColors, "EnableCellEdgeColors", true, "Enable Cell Edge Results" );
 
@@ -63,14 +63,9 @@ RimCellEdgeColors::RimCellEdgeColors()
     CAF_PDM_InitField( &useYVariable, "UseYVariable", true, "Use Y Values" );
     CAF_PDM_InitField( &useZVariable, "UseZVariable", true, "Use Z Values" );
 
-    CAF_PDM_InitFieldNoDefault( &m_legendConfig, "LegendDefinition", "Color Legend", ":/Legend.png", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_legendConfig, "LegendDefinition", "Color Legend", ":/Legend.png" );
 
-    CAF_PDM_InitFieldNoDefault( &m_singleVarEdgeResultColors,
-                                "SingleVarEdgeResult",
-                                "Result Property",
-                                ":/CellResult.png",
-                                "",
-                                "" );
+    CAF_PDM_InitFieldNoDefault( &m_singleVarEdgeResultColors, "SingleVarEdgeResult", "Result Property", ":/CellResult.png" );
     m_singleVarEdgeResultColors = new RimEclipseCellColors();
 
     m_resultVariable.uiCapability()->setUiEditorTypeName( caf::PdmUiListEditor::uiEditorTypeName() );

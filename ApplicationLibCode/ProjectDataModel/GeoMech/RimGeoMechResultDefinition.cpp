@@ -76,7 +76,7 @@ CAF_PDM_SOURCE_INIT( RimGeoMechResultDefinition, "GeoMechResultDefinition" );
 //--------------------------------------------------------------------------------------------------
 RimGeoMechResultDefinition::RimGeoMechResultDefinition( void )
 {
-    CAF_PDM_InitObject( "Color Result", ":/CellResult.png", "", "" );
+    CAF_PDM_InitObject( "Color Result", ":/CellResult.png" );
 
     CAF_PDM_InitFieldNoDefault( &m_resultPositionType, "ResultPositionType", "Result Position" );
     m_resultPositionType.uiCapability()->setUiHidden( true );
@@ -90,10 +90,7 @@ RimGeoMechResultDefinition::RimGeoMechResultDefinition( void )
     CAF_PDM_InitField( &m_timeLapseBaseTimestep,
                        "TimeLapseBaseTimeStep",
                        RigFemResultAddress::noTimeLapseValue(),
-                       "Base Time Step",
-                       "",
-                       "",
-                       "" );
+                       "Base Time Step" );
     CAF_PDM_InitField( &m_referenceTimeStep, "ReferenceTimeStep", 0, "Reference Time Step" );
 
     CAF_PDM_InitField( &m_compactionRefLayer, "CompactionRefLayer", 0, "Compaction Ref Layer" );
@@ -108,13 +105,7 @@ RimGeoMechResultDefinition::RimGeoMechResultDefinition( void )
     m_resultVariableUiField.uiCapability()->setUiEditorTypeName( caf::PdmUiListEditor::uiEditorTypeName() );
     m_resultVariableUiField.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
 
-    CAF_PDM_InitField( &m_normalizeByHydrostaticPressure,
-                       "NormalizeByHSP",
-                       false,
-                       "Normalize by Hydrostatic Pressure",
-                       "",
-                       "",
-                       "" );
+    CAF_PDM_InitField( &m_normalizeByHydrostaticPressure, "NormalizeByHSP", false, "Normalize by Hydrostatic Pressure" );
     CAF_PDM_InitField( &m_normalizationAirGap, "NormalizationAirGap", 0.0, "Air Gap" );
     m_normalizationAirGap.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
 

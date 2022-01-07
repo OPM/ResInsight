@@ -37,7 +37,7 @@ RimProcess::RimProcess()
     int defId = m_nextProcessId++;
     m_monitor = new RimProcessMonitor( defId );
 
-    CAF_PDM_InitObject( "ResInsight Process", ":/Erase.png", "", "" );
+    CAF_PDM_InitObject( "ResInsight Process", ":/Erase.png" );
 
     CAF_PDM_InitFieldNoDefault( &m_command, "Command", "Command" );
     m_command.uiCapability()->setUiReadOnly( true );

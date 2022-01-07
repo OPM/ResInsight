@@ -196,7 +196,7 @@ void RimExtrudedCurveIntersection::configureForAzimuthLine()
 //--------------------------------------------------------------------------------------------------
 RimExtrudedCurveIntersection::RimExtrudedCurveIntersection()
 {
-    CAF_PDM_InitObject( "Intersection", ":/CrossSection16x16.png", "", "" );
+    CAF_PDM_InitObject( "Intersection", ":/CrossSection16x16.png" );
     CAF_PDM_InitField( &m_name, "UserDescription", QString( "Intersection Name" ), "Name" );
 
     CAF_PDM_InitFieldNoDefault( &m_type, "Type", "Type" );

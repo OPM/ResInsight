@@ -30,7 +30,7 @@ CAF_PDM_SOURCE_INIT( RimEnsembleStatistics, "RimEnsembleStatistics" );
 //--------------------------------------------------------------------------------------------------
 RimEnsembleStatistics::RimEnsembleStatistics( RimEnsembleCurveSetInterface* parentCurveSet )
 {
-    CAF_PDM_InitObject( "Ensemble Curve Filter", ":/EnsembleCurveSet16x16.png", "", "" );
+    CAF_PDM_InitObject( "Ensemble Curve Filter", ":/EnsembleCurveSet16x16.png" );
 
     m_parentCurveSet = parentCurveSet;
 

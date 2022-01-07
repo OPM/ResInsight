@@ -28,7 +28,7 @@ CAF_PDM_ABSTRACT_SOURCE_INIT( RimStreamline, "Streamline" );
 //--------------------------------------------------------------------------------------------------
 RimStreamline::RimStreamline( QString simWellName )
 {
-    CAF_PDM_InitScriptableObject( "Streamline", ":/Erase.png", "", "" );
+    CAF_PDM_InitScriptableObject( "Streamline", ":/Erase.png" );
 
     CAF_PDM_InitScriptableField( &m_simWellName, "Name", simWellName, "Name" );
     m_simWellName.uiCapability()->setUiReadOnly( true );

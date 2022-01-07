@@ -95,7 +95,7 @@ RimStreamlineInViewCollection::RimStreamlineInViewCollection()
     : m_shouldGenerateTracers( false )
     , m_currentTimestep( -1 )
 {
-    CAF_PDM_InitObject( "Streamlines", ":/Erase.png", "", "" );
+    CAF_PDM_InitObject( "Streamlines", ":/Erase.png" );
 
     CAF_PDM_InitFieldNoDefault( &m_legendConfig, "LegendDefinition", "Color Legend" );
     m_legendConfig = new RimRegularLegendConfig();

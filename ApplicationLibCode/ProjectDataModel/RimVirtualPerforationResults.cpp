@@ -29,7 +29,7 @@ CAF_PDM_SOURCE_INIT( RimVirtualPerforationResults, "RimVirtualPerforationResults
 //--------------------------------------------------------------------------------------------------
 RimVirtualPerforationResults::RimVirtualPerforationResults()
 {
-    CAF_PDM_InitObject( "Well Connection Factors", ":/WellCF16x16.png", "", "" );
+    CAF_PDM_InitObject( "Well Connection Factors", ":/WellCF16x16.png" );
 
     CAF_PDM_InitField( &m_isActive, "ShowConnectionFactors", false, "" );
     CAF_PDM_InitField( &m_showClosedConnections, "ShowClosedConnections", true, "Show On Closed Connections" );

@@ -121,7 +121,7 @@ CAF_PDM_SOURCE_INIT( RimEnsembleFractureStatistics, "EnsembleFractureStatistics"
 //--------------------------------------------------------------------------------------------------
 RimEnsembleFractureStatistics::RimEnsembleFractureStatistics()
 {
-    CAF_PDM_InitObject( "Ensemble Fracture Statistics", ":/FractureTemplate16x16.png", "", "" );
+    CAF_PDM_InitObject( "Ensemble Fracture Statistics", ":/FractureTemplate16x16.png" );
 
     CAF_PDM_InitFieldNoDefault( &m_filePaths, "FilePaths", "" );
 
@@ -131,13 +131,7 @@ RimEnsembleFractureStatistics::RimEnsembleFractureStatistics()
     m_filePathsTable.uiCapability()->setUiReadOnly( true );
     m_filePathsTable.xmlCapability()->disableIO();
 
-    CAF_PDM_InitField( &m_excludeZeroWidthFractures,
-                       "ExcludeZeroWidthFractures",
-                       true,
-                       "Exclude Zero Width Fractures",
-                       "",
-                       "",
-                       "" );
+    CAF_PDM_InitField( &m_excludeZeroWidthFractures, "ExcludeZeroWidthFractures", true, "Exclude Zero Width Fractures" );
 
     CAF_PDM_InitFieldNoDefault( &m_statisticsTable, "StatisticsTable", "Statistics Table" );
     m_statisticsTable.uiCapability()->setUiEditorTypeName( caf::PdmUiTextEditor::uiEditorTypeName() );

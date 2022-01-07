@@ -83,7 +83,7 @@ RimContourMapProjection::RimContourMapProjection()
     , m_minResultAllTimeSteps( std::numeric_limits<double>::infinity() )
     , m_maxResultAllTimeSteps( -std::numeric_limits<double>::infinity() )
 {
-    CAF_PDM_InitObject( "RimContourMapProjection", ":/2DMapProjection16x16.png", "", "" );
+    CAF_PDM_InitObject( "RimContourMapProjection", ":/2DMapProjection16x16.png" );
 
     CAF_PDM_InitField( &m_relativeSampleSpacing, "SampleSpacing", 0.9, "Sample Spacing Factor" );
     m_relativeSampleSpacing.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );

@@ -53,7 +53,7 @@ void caf::AppEnum<RimSurface::SurfaceType>::setUp()
 //--------------------------------------------------------------------------------------------------
 RimSurface::RimSurface()
 {
-    CAF_PDM_InitScriptableObject( "Surface", ":/ReservoirSurface16x16.png", "", "" );
+    CAF_PDM_InitScriptableObject( "Surface", ":/ReservoirSurface16x16.png" );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_userDescription, "SurfaceUserDecription", "Name" );
     CAF_PDM_InitField( &m_color, "SurfaceColor", cvf::Color3f( 0.5f, 0.3f, 0.2f ), "Color" );

@@ -48,7 +48,7 @@ CAF_PDM_SOURCE_INIT( RimWellMeasurementInView, "WellMeasurementInView" );
 //--------------------------------------------------------------------------------------------------
 RimWellMeasurementInView::RimWellMeasurementInView()
 {
-    CAF_PDM_InitObject( "Well Measurement", ":/WellMeasurement16x16.png", "", "" );
+    CAF_PDM_InitObject( "Well Measurement", ":/WellMeasurement16x16.png" );
 
     CAF_PDM_InitFieldNoDefault( &m_measurementKind, "MeasurementKind", "Measurement Kind" );
     m_measurementKind.uiCapability()->setUiHidden( true );

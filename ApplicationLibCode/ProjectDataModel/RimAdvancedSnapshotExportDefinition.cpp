@@ -40,7 +40,7 @@ CAF_PDM_SOURCE_INIT( RimAdvancedSnapshotExportDefinition, "MultiSnapshotDefiniti
 //--------------------------------------------------------------------------------------------------
 RimAdvancedSnapshotExportDefinition::RimAdvancedSnapshotExportDefinition()
 {
-    // CAF_PDM_InitObject("MultiSnapshotDefinition", ":/Well.svg", "", "");
+    // CAF_PDM_InitObject("MultiSnapshotDefinition", ":/Well.svg");
     CAF_PDM_InitObject( "MultiSnapshotDefinition" );
 
     CAF_PDM_InitField( &isActive, "IsActive", true, "Active" );
@@ -56,10 +56,7 @@ RimAdvancedSnapshotExportDefinition::RimAdvancedSnapshotExportDefinition()
     CAF_PDM_InitField( &sliceDirection,
                        "SnapShotDirection",
                        caf::AppEnum<RiaDefines::GridCaseAxis>( RiaDefines::GridCaseAxis::UNDEFINED_AXIS ),
-                       "Range Filter Slice",
-                       "",
-                       "",
-                       "" );
+                       "Range Filter Slice" );
 
     CAF_PDM_InitField( &startSliceIndex, "RangeFilterStart", 1, "Range Start" );
     CAF_PDM_InitField( &endSliceIndex, "RangeFilterEnd", 1, "Range End" );

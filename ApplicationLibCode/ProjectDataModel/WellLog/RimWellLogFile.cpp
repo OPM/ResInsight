@@ -64,7 +64,7 @@ const QDateTime RimWellLogFile::DEFAULT_DATE_TIME = RiaQDateTimeTools::createUtc
 //--------------------------------------------------------------------------------------------------
 RimWellLogFile::RimWellLogFile()
 {
-    CAF_PDM_InitObject( "Well LAS File Info", ":/LasFile16x16.png", "", "" );
+    CAF_PDM_InitObject( "Well LAS File Info", ":/LasFile16x16.png" );
 
     CAF_PDM_InitFieldNoDefault( &m_wellName, "WellName", "" );
     m_wellName.uiCapability()->setUiReadOnly( true );
@@ -86,10 +86,7 @@ RimWellLogFile::RimWellLogFile()
     CAF_PDM_InitField( &m_wellFlowCondition,
                        "WellFlowCondition",
                        caf::AppEnum<RimWellLogFile::WellFlowCondition>( RimWellLogFile::WELL_FLOW_COND_STANDARD ),
-                       "Well Flow Rates",
-                       "",
-                       "",
-                       "" );
+                       "Well Flow Rates" );
 
     CAF_PDM_InitField( &m_invalidDateMessage, "InvalidDateMessage", QString( "Invalid or no date" ), "" );
     m_invalidDateMessage.uiCapability()->setUiReadOnly( true );

@@ -44,7 +44,7 @@ CAF_PDM_SOURCE_INIT( RimUserDefinedPolylinesAnnotation, "UserDefinedPolylinesAnn
 RimUserDefinedPolylinesAnnotation::RimUserDefinedPolylinesAnnotation()
     : m_pickTargetsEventHandler( new RicPolylineTargetsPickEventHandler( this ) )
 {
-    CAF_PDM_InitObject( "PolyLines Annotation", ":/PolylinesFromFile16x16.png", "", "" );
+    CAF_PDM_InitObject( "PolyLines Annotation", ":/PolylinesFromFile16x16.png" );
 
     CAF_PDM_InitField( &m_name, "Name", QString( "User Defined Polyline" ), "Name" );
 

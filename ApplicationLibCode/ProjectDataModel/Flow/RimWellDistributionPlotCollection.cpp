@@ -59,7 +59,7 @@ RimWellDistributionPlotCollection::RimWellDistributionPlotCollection()
 {
     // cvf::Trace::show("RimWellDistributionPlotCollection::RimWellDistributionPlotCollection()");
 
-    CAF_PDM_InitObject( "Cumulative Phase Distribution Plot", ":/CumulativePhaseDist16x16.png", "", "" );
+    CAF_PDM_InitObject( "Cumulative Phase Distribution Plot", ":/CumulativePhaseDist16x16.png" );
 
     CAF_PDM_InitFieldNoDefault( &m_case, "Case", "Case" );
     CAF_PDM_InitField( &m_timeStepIndex, "TimeStepIndex", -1, "Time Step" );
@@ -68,10 +68,7 @@ RimWellDistributionPlotCollection::RimWellDistributionPlotCollection()
     CAF_PDM_InitField( &m_smallContributionsRelativeThreshold,
                        "SmallContributionsRelativeThreshold",
                        0.005,
-                       "Relative Threshold [0, 1]",
-                       "",
-                       "",
-                       "" );
+                       "Relative Threshold [0, 1]" );
 
     CAF_PDM_InitField( &m_maximumTof, "MaximumTOF", 20.0, "Maximum Time of Flight [0, 200]" );
 
@@ -83,13 +80,7 @@ RimWellDistributionPlotCollection::RimWellDistributionPlotCollection()
     CAF_PDM_InitField( &m_showGas, "ShowGas", true, "Show Gas" );
     CAF_PDM_InitField( &m_showWater, "ShowWater", true, "Show Water" );
 
-    CAF_PDM_InitField( &m_plotWindowTitle,
-                       "PlotDescription",
-                       QString( "Cumulative Phase Distribution Plots" ),
-                       "Name",
-                       "",
-                       "",
-                       "" );
+    CAF_PDM_InitField( &m_plotWindowTitle, "PlotDescription", QString( "Cumulative Phase Distribution Plots" ), "Name" );
 
     m_showWindow = false;
 

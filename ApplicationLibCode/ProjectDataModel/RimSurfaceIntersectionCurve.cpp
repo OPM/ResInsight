@@ -35,7 +35,7 @@ CAF_PDM_SOURCE_INIT( RimSurfaceIntersectionCurve, "RimSurfaceIntersectionCurve" 
 RimSurfaceIntersectionCurve::RimSurfaceIntersectionCurve()
     : objectChanged( this )
 {
-    CAF_PDM_InitObject( "SurfaceIntersectionCurve", ":/SummaryCurve16x16.png", "", "" );
+    CAF_PDM_InitObject( "SurfaceIntersectionCurve", ":/SummaryCurve16x16.png" );
 
     CAF_PDM_InitFieldNoDefault( &m_lineAppearance, "LineAppearance", "Line Appearance" );
     m_lineAppearance = new RimAnnotationLineAppearance;

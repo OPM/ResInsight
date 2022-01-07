@@ -38,10 +38,7 @@ RicCreateEnsembleSurfaceUi::RicCreateEnsembleSurfaceUi()
     CAF_PDM_InitField( &m_autoCreateEnsembleSurfaces,
                        "AutoCreateEnsembleSurfaces",
                        false,
-                       "Create Ensemble Surfaces From Exported Files",
-                       "",
-                       "",
-                       "" );
+                       "Create Ensemble Surfaces From Exported Files" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_autoCreateEnsembleSurfaces );
 
     CAF_PDM_InitFieldNoDefault( &m_minLayer, "MinLayer", "MinLayer" );

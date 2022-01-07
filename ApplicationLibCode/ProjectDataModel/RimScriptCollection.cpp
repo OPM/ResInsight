@@ -35,7 +35,7 @@ CAF_PDM_SOURCE_INIT( RimScriptCollection, "ScriptLocation" );
 //--------------------------------------------------------------------------------------------------
 RimScriptCollection::RimScriptCollection()
 {
-    CAF_PDM_InitObject( "ScriptLocation", ":/Folder.png", "", "" );
+    CAF_PDM_InitObject( "ScriptLocation", ":/Folder.png" );
 
     CAF_PDM_InitFieldNoDefault( &directory, "ScriptDirectory", "Folder" );
     CAF_PDM_InitFieldNoDefault( &calcScripts, "CalcScripts", "" );

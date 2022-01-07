@@ -50,7 +50,7 @@ RimGridCrossPlotCurve::RimGridCrossPlotCurve()
     : m_dataSetIndex( 0 )
     , m_groupIndex( 0 )
 {
-    CAF_PDM_InitObject( "Cross Plot Points", ":/WellLogCurve16x16.png", "", "" );
+    CAF_PDM_InitObject( "Cross Plot Points", ":/WellLogCurve16x16.png" );
 
     setLineStyle( RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_NONE );
     setSymbol( RiuQwtSymbol::SYMBOL_NONE );

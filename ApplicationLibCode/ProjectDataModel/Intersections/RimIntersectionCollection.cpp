@@ -50,7 +50,7 @@ CAF_PDM_SOURCE_INIT( RimIntersectionCollection, "CrossSectionCollection" );
 //--------------------------------------------------------------------------------------------------
 RimIntersectionCollection::RimIntersectionCollection()
 {
-    CAF_PDM_InitObject( "Intersections", ":/CrossSections16x16.png", "", "" );
+    CAF_PDM_InitObject( "Intersections", ":/CrossSections16x16.png" );
 
     CAF_PDM_InitFieldNoDefault( &m_intersections, "CrossSections", "Intersections" );
     m_intersections.uiCapability()->setUiTreeHidden( true );

@@ -53,7 +53,7 @@ CAF_PDM_SOURCE_INIT( RimFaultRASettings, "RimFaultRASettings" );
 //--------------------------------------------------------------------------------------------------
 RimFaultRASettings::RimFaultRASettings()
 {
-    CAF_PDM_InitObject( "Reactivation Assessment Settings", ":/fault_react_24x24.png", "", "" );
+    CAF_PDM_InitObject( "Reactivation Assessment Settings", ":/fault_react_24x24.png" );
 
     CAF_PDM_InitFieldNoDefault( &m_eclipseCase, "EclipseCase", "Eclipse Case" );
     m_eclipseCase.uiCapability()->setUiReadOnly( true );
@@ -83,13 +83,8 @@ RimFaultRASettings::RimFaultRASettings()
     m_endTimestepGeoMech.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
     m_endTimestepGeoMech.uiCapability()->setUiReadOnly( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_basicParameters, "BasicParameters", "Basic Processing Parameters", ":/Bullet.png", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_advancedParameters,
-                                "AdvancedParameters",
-                                "Advanced Processing Parameters",
-                                ":/Bullet.png",
-                                "",
-                                "" );
+    CAF_PDM_InitFieldNoDefault( &m_basicParameters, "BasicParameters", "Basic Processing Parameters", ":/Bullet.png" );
+    CAF_PDM_InitFieldNoDefault( &m_advancedParameters, "AdvancedParameters", "Advanced Processing Parameters", ":/Bullet.png" );
 
     CAF_PDM_InitFieldNoDefault( &m_basicParametersRI, "BasicParametersRI", "Basic ResInsight Parameters" );
     CAF_PDM_InitFieldNoDefault( &m_advancedParametersRI, "AdvancedParametersRI", "Advanced ResInsight Parameters" );

@@ -52,7 +52,7 @@ CAF_PDM_SOURCE_INIT( RimGridTimeHistoryCurve, "GridTimeHistoryCurve" );
 //--------------------------------------------------------------------------------------------------
 RimGridTimeHistoryCurve::RimGridTimeHistoryCurve()
 {
-    CAF_PDM_InitObject( "Grid Time History Curve", ":/SummaryCurve16x16.png", "", "" );
+    CAF_PDM_InitObject( "Grid Time History Curve", ":/SummaryCurve16x16.png" );
 
     CAF_PDM_InitFieldNoDefault( &m_geometrySelectionText, "GeometrySelectionText", "Cell Reference" );
     m_geometrySelectionText.registerGetMethod( this, &RimGridTimeHistoryCurve::geometrySelectionText );
@@ -73,10 +73,7 @@ RimGridTimeHistoryCurve::RimGridTimeHistoryCurve()
     CAF_PDM_InitField( &m_plotAxis,
                        "PlotAxis",
                        caf::AppEnum<RiaDefines::PlotAxis>( RiaDefines::PlotAxis::PLOT_AXIS_LEFT ),
-                       "Axis",
-                       "",
-                       "",
-                       "" );
+                       "Axis" );
 
     setDeletable( true );
 }

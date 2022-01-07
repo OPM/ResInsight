@@ -36,7 +36,7 @@ CAF_PDM_SOURCE_INIT( RimReachCircleAnnotation, "RimReachCircleAnnotation" );
 //--------------------------------------------------------------------------------------------------
 RimReachCircleAnnotation::RimReachCircleAnnotation()
 {
-    CAF_PDM_InitObject( "CircleAnnotation", ":/ReachCircle16x16.png", "", "" );
+    CAF_PDM_InitObject( "CircleAnnotation", ":/ReachCircle16x16.png" );
 
     CAF_PDM_InitField( &m_isActive, "IsActive", true, "Is Active" );
     m_isActive.uiCapability()->setUiHidden( true );

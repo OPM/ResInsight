@@ -42,15 +42,12 @@ void AppEnum<RimMultipleLocations::LocationType>::setUp()
 //--------------------------------------------------------------------------------------------------
 RimMultipleLocations::RimMultipleLocations()
 {
-    CAF_PDM_InitObject( "RimMultipleLocations", ":/FishBoneGroup16x16.png", "", "" );
+    CAF_PDM_InitObject( "RimMultipleLocations", ":/FishBoneGroup16x16.png" );
 
     CAF_PDM_InitField( &m_locationType,
                        "LocationMode",
                        caf::AppEnum<LocationType>( LocationType::COUNT ),
-                       "Location Defined By",
-                       "",
-                       "",
-                       "" );
+                       "Location Defined By" );
     CAF_PDM_InitField( &m_rangeStart, "RangeStart", 100.0, "Start MD" );
     m_rangeStart.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
 

@@ -40,7 +40,7 @@ CAF_PDM_SOURCE_INIT( RimCustomObjectiveFunctionWeight, "RimCustomObjectiveFuncti
 //--------------------------------------------------------------------------------------------------
 RimCustomObjectiveFunctionWeight::RimCustomObjectiveFunctionWeight()
 {
-    CAF_PDM_InitObject( "Custom Objective Function Weight", ":/ObjectiveFunctionWeight.svg", "", "" );
+    CAF_PDM_InitObject( "Custom Objective Function Weight", ":/ObjectiveFunctionWeight.svg" );
 
     CAF_PDM_InitFieldNoDefault( &m_title, "WeightTitle", "Title" );
     m_title.registerGetMethod( this, &RimCustomObjectiveFunctionWeight::title );

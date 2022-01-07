@@ -39,7 +39,7 @@ CAF_PDM_SOURCE_INIT( Rim3dWellLogFileCurve, "Rim3dWellLogFileCurve" );
 //--------------------------------------------------------------------------------------------------
 Rim3dWellLogFileCurve::Rim3dWellLogFileCurve()
 {
-    CAF_PDM_InitObject( "3d Well Log File Curve", ":/WellLogCurve16x16.png", "", "" );
+    CAF_PDM_InitObject( "3d Well Log File Curve", ":/WellLogCurve16x16.png" );
 
     CAF_PDM_InitFieldNoDefault( &m_wellLogChannelName, "CurveWellLogChannel", "Well Log Channel" );
 

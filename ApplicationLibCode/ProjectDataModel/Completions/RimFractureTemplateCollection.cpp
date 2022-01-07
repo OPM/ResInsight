@@ -52,15 +52,12 @@ CAF_PDM_SOURCE_INIT( RimFractureTemplateCollection, "FractureTemplateCollection"
 //--------------------------------------------------------------------------------------------------
 RimFractureTemplateCollection::RimFractureTemplateCollection()
 {
-    CAF_PDM_InitScriptableObject( "Fracture Templates", ":/FractureTemplates16x16.png", "", "" );
+    CAF_PDM_InitScriptableObject( "Fracture Templates", ":/FractureTemplates16x16.png" );
 
     CAF_PDM_InitField( &m_defaultUnitsForFracTemplates,
                        "DefaultUnitForTemplates",
                        caf::AppEnum<RiaDefines::EclipseUnitSystem>( RiaDefines::EclipseUnitSystem::UNITS_METRIC ),
-                       "Default unit system for fracture templates",
-                       "",
-                       "",
-                       "" );
+                       "Default unit system for fracture templates" );
 
     CAF_PDM_InitFieldNoDefault( &m_fractureDefinitions, "FractureDefinitions", "" );
     m_fractureDefinitions.uiCapability()->setUiTreeHidden( true );

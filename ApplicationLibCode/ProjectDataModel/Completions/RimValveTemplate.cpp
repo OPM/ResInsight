@@ -30,15 +30,12 @@ CAF_PDM_SOURCE_INIT( RimValveTemplate, "ValveTemplate" );
 //--------------------------------------------------------------------------------------------------
 RimValveTemplate::RimValveTemplate()
 {
-    CAF_PDM_InitObject( "Valve Template", ":/ICDValve16x16.png", "", "" );
+    CAF_PDM_InitObject( "Valve Template", ":/ICDValve16x16.png" );
 
     CAF_PDM_InitField( &m_valveTemplateUnit,
                        "UnitSystem",
                        caf::AppEnum<RiaDefines::EclipseUnitSystem>( RiaDefines::EclipseUnitSystem::UNITS_UNKNOWN ),
-                       "Units System",
-                       "",
-                       "",
-                       "" );
+                       "Units System" );
     m_valveTemplateUnit.uiCapability()->setUiReadOnly( true );
 
     CAF_PDM_InitFieldNoDefault( &m_type, "CompletionType", "Type" );

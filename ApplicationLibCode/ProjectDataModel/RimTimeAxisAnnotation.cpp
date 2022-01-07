@@ -45,7 +45,7 @@ CAF_PDM_SOURCE_INIT( RimTimeAxisAnnotation, "RimTimeAxisAnnotation" );
 RimTimeAxisAnnotation::RimTimeAxisAnnotation()
     : RimPlotAxisAnnotation()
 {
-    CAF_PDM_InitObject( "Time Axis Annotation", ":/LeftAxis16x16.png", "", "" );
+    CAF_PDM_InitObject( "Time Axis Annotation", ":/LeftAxis16x16.png" );
 
     m_value.uiCapability()->setUiHidden( true );
 }

@@ -52,7 +52,7 @@ CAF_PDM_SOURCE_INIT( RimEclipseInputProperty, "RimInputProperty" );
 //--------------------------------------------------------------------------------------------------
 RimEclipseInputProperty::RimEclipseInputProperty()
 {
-    CAF_PDM_InitObject( "Input Property", ":/EclipseInput48x48.png", "", "" );
+    CAF_PDM_InitObject( "Input Property", ":/EclipseInput48x48.png" );
 
     CAF_PDM_InitField( &resultName, "ResultName", QString(), "Result Name" );
     CAF_PDM_InitField( &eclipseKeyword, "EclipseKeyword", QString(), "Eclipse Keyword" );

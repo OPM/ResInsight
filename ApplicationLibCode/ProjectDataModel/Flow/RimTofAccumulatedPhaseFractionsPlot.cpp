@@ -44,7 +44,7 @@ CAF_PDM_SOURCE_INIT( RimTofAccumulatedPhaseFractionsPlot, "TofAccumulatedPhaseFr
 //--------------------------------------------------------------------------------------------------
 RimTofAccumulatedPhaseFractionsPlot::RimTofAccumulatedPhaseFractionsPlot()
 {
-    CAF_PDM_InitObject( "Cumulative Saturation by Time of Flight", ":/TOFAccSatPlot16x16.png", "", "" );
+    CAF_PDM_InitObject( "Cumulative Saturation by Time of Flight", ":/TOFAccSatPlot16x16.png" );
 
     CAF_PDM_InitField( &m_userName, "PlotDescription", QString( "Cumulative Saturation by Time of Flight" ), "Name" );
     m_userName.uiCapability()->setUiHidden( true );

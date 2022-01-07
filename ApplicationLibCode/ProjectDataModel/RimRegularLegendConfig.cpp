@@ -145,7 +145,7 @@ RimRegularLegendConfig::RimRegularLegendConfig()
     , m_isAllTimeStepsRangeDisabled( false )
     , m_resetUserDefinedValues( false )
 {
-    CAF_PDM_InitObject( "Color Legend", ":/Legend.png", "", "" );
+    CAF_PDM_InitObject( "Color Legend", ":/Legend.png" );
     CAF_PDM_InitField( &m_showLegend, "ShowLegend", true, "Show Legend" );
     m_showLegend.uiCapability()->setUiHidden( true );
     CAF_PDM_InitField( &m_numLevels, "NumberOfLevels", 8, "Number of Levels", "", "A hint on how many tick marks you whish.", "" );
@@ -160,18 +160,9 @@ RimRegularLegendConfig::RimRegularLegendConfig()
     CAF_PDM_InitField( &m_tickNumberFormat,
                        "TickNumberFormat",
                        caf::AppEnum<RiaNumberFormat::NumberFormatType>( RiaNumberFormat::NumberFormatType::FIXED ),
-                       "Number format",
-                       "",
-                       "",
-                       "" );
+                       "Number format" );
 
-    CAF_PDM_InitField( &m_colorRangeMode_OBSOLETE,
-                       "ColorRangeMode",
-                       ColorRangeEnum( ColorRangesType::UNDEFINED ),
-                       "Colors",
-                       "",
-                       "",
-                       "" );
+    CAF_PDM_InitField( &m_colorRangeMode_OBSOLETE, "ColorRangeMode", ColorRangeEnum( ColorRangesType::UNDEFINED ), "Colors" );
     m_colorRangeMode_OBSOLETE.uiCapability()->setUiHidden( true );
     m_colorRangeMode_OBSOLETE.xmlCapability()->setIOWritable( false );
 

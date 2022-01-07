@@ -66,7 +66,7 @@ RimEnsembleCurveFilter::RimEnsembleCurveFilter()
     : m_lowerLimit( -DOUBLE_INF )
     , m_upperLimit( DOUBLE_INF )
 {
-    CAF_PDM_InitObject( "Ensemble Curve Filter", ":/Filter.svg", "", "" );
+    CAF_PDM_InitObject( "Ensemble Curve Filter", ":/Filter.svg" );
 
     CAF_PDM_InitFieldNoDefault( &m_filterTitle, "FilterTitle", "Title" );
     m_filterTitle.registerGetMethod( this, &RimEnsembleCurveFilter::description );

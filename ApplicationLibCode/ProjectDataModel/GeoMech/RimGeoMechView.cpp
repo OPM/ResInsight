@@ -86,7 +86,7 @@ RimGeoMechView::RimGeoMechView( void )
 {
     CAF_PDM_InitScriptableObject( "Geomechanical View", ":/3DViewGeoMech16x16.png", "", "The Geomechanical 3d View" );
 
-    CAF_PDM_InitFieldNoDefault( &cellResult, "GridCellResult", "Color Result", ":/CellResult.png", "", "" );
+    CAF_PDM_InitFieldNoDefault( &cellResult, "GridCellResult", "Color Result", ":/CellResult.png" );
     cellResult = new RimGeoMechCellColors();
     cellResult.uiCapability()->setUiTreeHidden( true );
 

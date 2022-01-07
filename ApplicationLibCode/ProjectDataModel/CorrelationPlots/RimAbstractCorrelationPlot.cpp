@@ -50,7 +50,7 @@ CAF_PDM_ABSTRACT_SOURCE_INIT( RimAbstractCorrelationPlot, "AbstractCorrelationPl
 RimAbstractCorrelationPlot::RimAbstractCorrelationPlot()
     : m_selectMultipleVectors( false )
 {
-    CAF_PDM_InitObject( "Abstract Correlation Plot", ":/CorrelationPlot16x16.png", "", "" );
+    CAF_PDM_InitObject( "Abstract Correlation Plot", ":/CorrelationPlot16x16.png" );
     this->setDeletable( true );
 
     CAF_PDM_InitFieldNoDefault( &m_selectedVarsUiField, "SelectedVariableDisplayVar", "Vector" );

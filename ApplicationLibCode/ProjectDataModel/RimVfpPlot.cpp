@@ -88,7 +88,7 @@ CAF_PDM_SOURCE_INIT( RimVfpPlot, "VfpPlot" );
 RimVfpPlot::RimVfpPlot()
 {
     // TODO: add icon
-    CAF_PDM_InitObject( "VFP Plot", ":/VfpPlot.svg", "", "" );
+    CAF_PDM_InitObject( "VFP Plot", ":/VfpPlot.svg" );
 
     CAF_PDM_InitField( &m_plotTitle, "PlotTitle", QString( "VFP Plot" ), "Plot Title" );
     m_plotTitle.uiCapability()->setUiHidden( true );
@@ -117,13 +117,7 @@ RimVfpPlot::RimVfpPlot()
 
     caf::AppEnum<RimVfpDefines::InterpolatedVariableType> defaultInterpolatedVariable =
         RimVfpDefines::InterpolatedVariableType::BHP;
-    CAF_PDM_InitField( &m_interpolatedVariable,
-                       "InterpolatedVariable",
-                       defaultInterpolatedVariable,
-                       "Interpolated Variable",
-                       "",
-                       "",
-                       "" );
+    CAF_PDM_InitField( &m_interpolatedVariable, "InterpolatedVariable", defaultInterpolatedVariable, "Interpolated Variable" );
 
     caf::AppEnum<RimVfpDefines::ProductionVariableType> defaultPrimaryVariable =
         RimVfpDefines::ProductionVariableType::LIQUID_FLOW_RATE;

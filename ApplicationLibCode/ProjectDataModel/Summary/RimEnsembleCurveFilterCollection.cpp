@@ -37,7 +37,7 @@ CAF_PDM_SOURCE_INIT( RimEnsembleCurveFilterCollection, "RimEnsembleCurveFilterCo
 //--------------------------------------------------------------------------------------------------
 RimEnsembleCurveFilterCollection::RimEnsembleCurveFilterCollection()
 {
-    CAF_PDM_InitObject( "Curve Filters", ":/FilterCollection.svg", "", "" );
+    CAF_PDM_InitObject( "Curve Filters", ":/FilterCollection.svg" );
 
     CAF_PDM_InitField( &m_active, "Active", true, "Active" );
 

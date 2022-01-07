@@ -60,7 +60,7 @@ void AppEnum<RimTensorResults::ScaleMethod>::setUp()
 //--------------------------------------------------------------------------------------------------
 RimTensorResults::RimTensorResults()
 {
-    CAF_PDM_InitObject( "Element Tensor Results", ":/CellResult.png", "", "" );
+    CAF_PDM_InitObject( "Element Tensor Results", ":/CellResult.png" );
 
     CAF_PDM_InitFieldNoDefault( &arrowColorLegendConfig, "LegendDefinition", "Color Legend" );
     this->arrowColorLegendConfig = new RimRegularLegendConfig();

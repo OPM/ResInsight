@@ -63,9 +63,9 @@ const cvf::Mat4d Rim2dIntersectionView::sm_defaultViewMatrix =
 //--------------------------------------------------------------------------------------------------
 Rim2dIntersectionView::Rim2dIntersectionView( void )
 {
-    CAF_PDM_InitObject( "Intersection View", ":/CrossSection16x16.png", "", "" );
+    CAF_PDM_InitObject( "Intersection View", ":/CrossSection16x16.png" );
 
-    CAF_PDM_InitFieldNoDefault( &m_intersection, "Intersection", "Intersection", ":/CrossSection16x16.png", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_intersection, "Intersection", "Intersection", ":/CrossSection16x16.png" );
     m_intersection.uiCapability()->setUiHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_legendConfig, "LegendDefinition", "Color Legend" );

@@ -52,7 +52,7 @@ CAF_PDM_SOURCE_INIT( RimGridCrossPlot, "RimGridCrossPlot" );
 //--------------------------------------------------------------------------------------------------
 RimGridCrossPlot::RimGridCrossPlot()
 {
-    CAF_PDM_InitObject( "Grid Cross Plot", ":/SummaryXPlotLight16x16.png", "", "" );
+    CAF_PDM_InitObject( "Grid Cross Plot", ":/SummaryXPlotLight16x16.png" );
 
     CAF_PDM_InitField( &m_showInfoBox, "ShowInfoBox", true, "Show Info Box" );
 

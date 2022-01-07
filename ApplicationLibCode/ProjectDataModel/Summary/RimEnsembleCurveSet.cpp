@@ -97,7 +97,7 @@ RimEnsembleCurveSet::RimEnsembleCurveSet()
     : filterChanged( this )
 
 {
-    CAF_PDM_InitObject( "Ensemble Curve Set", ":/EnsembleCurveSet16x16.png", "", "" );
+    CAF_PDM_InitObject( "Ensemble Curve Set", ":/EnsembleCurveSet16x16.png" );
 
     CAF_PDM_InitFieldNoDefault( &m_curves, "EnsembleCurveSet", "Ensemble Curve Set" );
     m_curves.uiCapability()->setUiTreeHidden( true );

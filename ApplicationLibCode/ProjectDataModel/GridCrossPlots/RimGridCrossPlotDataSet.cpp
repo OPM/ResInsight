@@ -84,7 +84,7 @@ void RimGridCrossPlotDataSet::CurveGroupingEnum::setUp()
 //--------------------------------------------------------------------------------------------------
 RimGridCrossPlotDataSet::RimGridCrossPlotDataSet()
 {
-    CAF_PDM_InitObject( "Cross Plot Data Set", ":/WellLogCurve16x16.png", "", "" );
+    CAF_PDM_InitObject( "Cross Plot Data Set", ":/WellLogCurve16x16.png" );
 
     CAF_PDM_InitFieldNoDefault( &m_case, "Case", "Case" );
     m_case.uiCapability()->setUiTreeChildrenHidden( true );

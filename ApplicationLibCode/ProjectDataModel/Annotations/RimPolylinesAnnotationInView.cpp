@@ -31,7 +31,7 @@ CAF_PDM_SOURCE_INIT( RimPolylinesAnnotationInView, "RimPolylinesAnnotationInView
 //--------------------------------------------------------------------------------------------------
 RimPolylinesAnnotationInView::RimPolylinesAnnotationInView()
 {
-    CAF_PDM_InitObject( "PolyLinesAnnotationInView", ":/WellCollection.png", "", "" );
+    CAF_PDM_InitObject( "PolyLinesAnnotationInView", ":/WellCollection.png" );
 
     CAF_PDM_InitField( &m_isActive, "IsActive", true, "Is Active" );
     CAF_PDM_InitFieldNoDefault( &m_sourceAnnotation, "SourceAnnotation", "Source Annotation" );

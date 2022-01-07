@@ -63,17 +63,14 @@ const RivIntersectionGeometryGeneratorInterface* RimBoxIntersection::intersectio
 //--------------------------------------------------------------------------------------------------
 RimBoxIntersection::RimBoxIntersection()
 {
-    CAF_PDM_InitObject( "Intersection Box", ":/IntersectionBox16x16.png", "", "" );
+    CAF_PDM_InitObject( "Intersection Box", ":/IntersectionBox16x16.png" );
 
     CAF_PDM_InitField( &m_name, "UserDescription", QString( "Intersection Name" ), "Name" );
 
     CAF_PDM_InitField( &m_singlePlaneState,
                        "singlePlaneState",
                        caf::AppEnum<SinglePlaneState>( SinglePlaneState::PLANE_STATE_NONE ),
-                       "Box Type",
-                       "",
-                       "",
-                       "" );
+                       "Box Type" );
 
     CAF_PDM_InitField( &m_minXCoord, "MinXCoord", 0.0, "Min" );
     m_minXCoord.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );

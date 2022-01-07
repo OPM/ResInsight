@@ -52,10 +52,7 @@ RimWellBoreStabilityPlot::RimWellBoreStabilityPlot()
     CAF_PDM_InitScriptableFieldWithScriptKeywordNoDefault( &m_wbsParameters,
                                                            "WbsParameters",
                                                            "Parameters",
-                                                           "Well Bore Stability Parameters",
-                                                           "",
-                                                           "",
-                                                           "" );
+                                                           "Well Bore Stability Parameters" );
     m_wbsParameters = new RimWbsParameters;
     m_wbsParameters.uiCapability()->setUiTreeHidden( true );
     m_wbsParameters.uiCapability()->setUiTreeChildrenHidden( true );

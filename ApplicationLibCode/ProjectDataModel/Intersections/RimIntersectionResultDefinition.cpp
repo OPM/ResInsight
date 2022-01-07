@@ -42,7 +42,7 @@ CAF_PDM_SOURCE_INIT( RimIntersectionResultDefinition, "IntersectionResultDefinit
 //--------------------------------------------------------------------------------------------------
 RimIntersectionResultDefinition::RimIntersectionResultDefinition()
 {
-    CAF_PDM_InitObject( "Intersection Result Definition", ":/CellResult.png", "", "" );
+    CAF_PDM_InitObject( "Intersection Result Definition", ":/CellResult.png" );
 
     CAF_PDM_InitField( &m_isActive, "IsActive", true, "Active" );
     m_isActive.uiCapability()->setUiHidden( true );
