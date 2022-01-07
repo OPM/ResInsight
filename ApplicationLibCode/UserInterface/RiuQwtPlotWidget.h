@@ -19,8 +19,6 @@
 
 #pragma once
 
-//#include "qwt_plot.h"
-
 #include "RiaDefines.h"
 #include "RiaPlotDefines.h"
 
@@ -31,8 +29,6 @@
 #include "cafPdmPointer.h"
 
 #include <QPointer>
-
-#include <set>
 
 class RiaPlotWindowRedrawScheduler;
 class RimPlot;
@@ -131,7 +127,7 @@ public:
     double majorTickInterval( RiaDefines::PlotAxis axis ) const override;
     double minorTickInterval( RiaDefines::PlotAxis axis ) const override;
 
-    int axisExtent( RiaDefines::PlotAxis axis ) const;
+    int axisExtent( RiaDefines::PlotAxis axis ) const override;
 
     QPoint dragStartPosition() const;
 
