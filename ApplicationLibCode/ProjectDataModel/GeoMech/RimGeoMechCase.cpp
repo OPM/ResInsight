@@ -154,10 +154,7 @@ RimGeoMechCase::RimGeoMechCase( void )
                        "InitialPermeabilityType",
                        defaultInitialPermeabilityType,
                        "Initial Permeability" );
-    CAF_PDM_InitField( &m_initialPermeabilityFixed,
-                       "InitialPermeabilityFixed",
-                       1.0,
-                       "Fixed Initial Permeability [mD]" );
+    CAF_PDM_InitField( &m_initialPermeabilityFixed, "InitialPermeabilityFixed", 1.0, "Fixed Initial Permeability [mD]" );
     m_initialPermeabilityFixed.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
 
     CAF_PDM_InitField( &m_initialPermeabilityResultAddress, "InitialPermeabilityAddress", QString( "" ), "Value" );

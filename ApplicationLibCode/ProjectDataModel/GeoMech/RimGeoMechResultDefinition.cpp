@@ -105,10 +105,7 @@ RimGeoMechResultDefinition::RimGeoMechResultDefinition( void )
     m_resultVariableUiField.uiCapability()->setUiEditorTypeName( caf::PdmUiListEditor::uiEditorTypeName() );
     m_resultVariableUiField.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
 
-    CAF_PDM_InitField( &m_normalizeByHydrostaticPressure,
-                       "NormalizeByHSP",
-                       false,
-                       "Normalize by Hydrostatic Pressure" );
+    CAF_PDM_InitField( &m_normalizeByHydrostaticPressure, "NormalizeByHSP", false, "Normalize by Hydrostatic Pressure" );
     CAF_PDM_InitField( &m_normalizationAirGap, "NormalizationAirGap", 0.0, "Air Gap" );
     m_normalizationAirGap.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
 

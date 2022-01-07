@@ -197,10 +197,7 @@ RimSimWellInViewCollection::RimSimWellInViewCollection()
     m_showWellCells.uiCapability()->setUiEditorTypeName( caf::PdmUiCheckBoxTristateEditor::uiEditorTypeName() );
     m_showWellCells.xmlCapability()->disableIO();
 
-    CAF_PDM_InitField( &wellCellFenceType,
-                       "DefaultWellFenceDirection",
-                       WellFenceEnum( K_DIRECTION ),
-                       "Well Fence Direction" );
+    CAF_PDM_InitField( &wellCellFenceType, "DefaultWellFenceDirection", WellFenceEnum( K_DIRECTION ), "Well Fence Direction" );
 
     CAF_PDM_InitField( &wellCellTransparencyLevel, "WellCellTransparency", 0.5, "Well Cell Transparency" );
     CAF_PDM_InitField( &isAutoDetectingBranches,
@@ -233,10 +230,7 @@ RimSimWellInViewCollection::RimSimWellInViewCollection()
     CAF_PDM_InitFieldNoDefault( &m_wellDiskPropertyConfigType, "WellDiskPropertyConfigType", "Property Config Type" );
 
     CAF_PDM_InitField( &m_wellDiskShowQuantityLabels, "WellDiskShowQuantityLabels", true, "Show Quantity Labels" );
-    CAF_PDM_InitField( &m_wellDiskshowLabelsBackground,
-                       "WellDiskShowLabelsBackground",
-                       false,
-                       "Show Label Background" );
+    CAF_PDM_InitField( &m_wellDiskshowLabelsBackground, "WellDiskShowLabelsBackground", false, "Show Label Background" );
     CAF_PDM_InitField( &m_wellDiskScaleFactor, "WellDiskScaleFactor", 1.0, "Scale Factor" );
     cvf::Color3f defaultWellDiskColor = cvf::Color3::OLIVE;
     CAF_PDM_InitField( &wellDiskColor, "WellDiskColor", defaultWellDiskColor, "Well Disk Color" );
