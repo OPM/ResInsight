@@ -112,13 +112,12 @@ protected:
     virtual void handleKeyPressEvent( QKeyEvent* event ) {}
     virtual void handleWheelEvent( QWheelEvent* event ) {}
 
-    virtual void onAxisSelected( int axis, bool toggle ){};
-
 private slots:
-    void onPlotSelected( bool toggle );
-    void onViewerDestroyed();
-    void onKeyPressEvent( QKeyEvent* event );
-    void onWheelEvent( QWheelEvent* event );
+    virtual void onAxisSelected( int axis, bool toggle ){};
+    void         onPlotSelected( bool toggle );
+    void         onViewerDestroyed();
+    void         onKeyPressEvent( QKeyEvent* event );
+    void         onWheelEvent( QWheelEvent* event );
 
 protected:
     caf::PdmField<RowOrColSpanEnum> m_rowSpan;

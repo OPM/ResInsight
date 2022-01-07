@@ -92,6 +92,16 @@ RiuQwtPlotWidget::RiuQwtPlotWidget( RimPlot* plotDefinition, QWidget* parent )
     m_plot->canvas()->installEventFilter( this );
 
     setSizePolicy( QSizePolicy::Preferred, QSizePolicy::Preferred );
+
+    connect( this, SIGNAL( plotSelected( bool ) ), plotDefinition, SLOT( onPlotSelected( bool ) ) );
+    connect( this, SIGNAL( axisSelected( int, bool ) ), plotDefinition, SLOT( onAxisSelected( int, bool ) ) );
+    connect( this,
+             SIGNAL( plotItemSelected( QwtPlotItem*, bool, int ) ),
+             plotDefinition,
+             SLOT( onPlotItemSelected( QwtPlotItem*, bool, int ) ) );
+    connect( this, SIGNAL( onKeyPressEvent( QKeyEvent* ) ), plotDefinition, SLOT( onKeyPressEvent( QKeyEvent* ) ) );
+    connect( this, SIGNAL( onWheelEvent( QWheelEvent* ) ), plotDefinition, SLOT( onWheelEvent( QWheelEvent* ) ) );
+    connect( this, SIGNAL( destroyed() ), plotDefinition, SLOT( onViewerDestroyed() ) );
 }
 
 //--------------------------------------------------------------------------------------------------
