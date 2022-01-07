@@ -54,8 +54,6 @@ RiuSummaryPlot::~RiuSummaryPlot()
 //--------------------------------------------------------------------------------------------------
 void RiuSummaryPlot::showContextMenu( QPoint pos )
 {
-    printf( "Show menu\n" );
-
     QMenu                      menu;
     caf::CmdFeatureMenuBuilder menuBuilder;
 
