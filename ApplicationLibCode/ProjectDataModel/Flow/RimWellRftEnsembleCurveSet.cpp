@@ -38,7 +38,7 @@ CAF_PDM_SOURCE_INIT( RimWellRftEnsembleCurveSet, "WellRftEnsembleCurveSet" );
 //--------------------------------------------------------------------------------------------------
 RimWellRftEnsembleCurveSet::RimWellRftEnsembleCurveSet()
 {
-    CAF_PDM_InitObject( "Ensemble Curve Set", ":/EnsembleCurveSet16x16.png", "", "" );
+    CAF_PDM_InitObject( "Ensemble Curve Set", ":/EnsembleCurveSet16x16.png" );
     CAF_PDM_InitFieldNoDefault( &m_ensemble, "Ensemble", "Ensemble" );
     m_ensemble.uiCapability()->setUiTreeChildrenHidden( true );
     m_ensemble.uiCapability()->setAutoAddingOptionFromValue( false );

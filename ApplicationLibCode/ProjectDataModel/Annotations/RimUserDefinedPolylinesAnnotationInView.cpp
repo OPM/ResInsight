@@ -26,7 +26,7 @@ CAF_PDM_SOURCE_INIT( RimUserDefinedPolylinesAnnotationInView, "RimUserDefinedPol
 //--------------------------------------------------------------------------------------------------
 RimUserDefinedPolylinesAnnotationInView::RimUserDefinedPolylinesAnnotationInView()
 {
-    CAF_PDM_InitObject( "PolyLinesAnnotationInView", ":/WellCollection.png", "", "" );
+    CAF_PDM_InitObject( "PolyLinesAnnotationInView", ":/WellCollection.png" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -35,5 +35,5 @@ RimUserDefinedPolylinesAnnotationInView::RimUserDefinedPolylinesAnnotationInView
 RimUserDefinedPolylinesAnnotationInView::RimUserDefinedPolylinesAnnotationInView( RimUserDefinedPolylinesAnnotation* sourceAnnotation )
     : RimPolylinesAnnotationInView( sourceAnnotation )
 {
-    CAF_PDM_InitObject( "PolyLinesAnnotationInView", ":/WellCollection.png", "", "" );
+    CAF_PDM_InitObject( "PolyLinesAnnotationInView", ":/WellCollection.png" );
 }

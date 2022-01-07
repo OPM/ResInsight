@@ -34,7 +34,7 @@ CAF_PDM_SOURCE_INIT( RimCorrelationPlotCollection, "CorrelationPlotCollection" )
 //--------------------------------------------------------------------------------------------------
 RimCorrelationPlotCollection::RimCorrelationPlotCollection()
 {
-    CAF_PDM_InitObject( "Ensemble Correlation Plots", ":/CorrelationPlots16x16.png", "", "" );
+    CAF_PDM_InitObject( "Ensemble Correlation Plots", ":/CorrelationPlots16x16.png" );
 
     CAF_PDM_InitFieldNoDefault( &m_correlationPlots, "CorrelationPlots", "Correlation Plots" );
     CAF_PDM_InitFieldNoDefault( &m_correlationReports, "CorrelationReports", "Correlation Reports" );

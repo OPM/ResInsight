@@ -29,7 +29,7 @@ CAF_PDM_SOURCE_INIT( RimEnsembleWellLogsCollection, "EnsembleWellLogsCollection"
 //--------------------------------------------------------------------------------------------------
 RimEnsembleWellLogsCollection::RimEnsembleWellLogsCollection()
 {
-    CAF_PDM_InitObject( "Ensemble Well Logs", ":/LasFile16x16.png", "", "" );
+    CAF_PDM_InitObject( "Ensemble Well Logs", ":/LasFile16x16.png" );
 
     CAF_PDM_InitFieldNoDefault( &m_ensembleWellLogs, "EnsembleWellLogsCollection", "" );
     m_ensembleWellLogs.uiCapability()->setUiTreeHidden( true );

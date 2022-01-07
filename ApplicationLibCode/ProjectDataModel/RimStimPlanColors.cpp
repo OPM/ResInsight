@@ -62,7 +62,7 @@ static QString toString( const std::pair<QString, QString>& resultNameAndUnit );
 //--------------------------------------------------------------------------------------------------
 RimStimPlanColors::RimStimPlanColors()
 {
-    CAF_PDM_InitObject( "Fractures", ":/FractureSymbol16x16.png", "", "" );
+    CAF_PDM_InitObject( "Fractures", ":/FractureSymbol16x16.png" );
 
     CAF_PDM_InitField( &m_resultNameAndUnit, "ResultName", QString( "" ), "Result Variable" );
 

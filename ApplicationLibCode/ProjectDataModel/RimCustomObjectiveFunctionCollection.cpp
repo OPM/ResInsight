@@ -30,7 +30,7 @@ CAF_PDM_SOURCE_INIT( RimCustomObjectiveFunctionCollection, "RimCustomObjectiveFu
 RimCustomObjectiveFunctionCollection::RimCustomObjectiveFunctionCollection()
     : objectiveFunctionChanged( this )
 {
-    CAF_PDM_InitObject( "Custom Objective Functions", ":/ObjectiveFunctionCollection.svg", "", "" );
+    CAF_PDM_InitObject( "Custom Objective Functions", ":/ObjectiveFunctionCollection.svg" );
 
     CAF_PDM_InitFieldNoDefault( &m_objectiveFunctions, "ObjectiveFunctions", "" );
 }

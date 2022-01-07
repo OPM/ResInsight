@@ -44,7 +44,7 @@ const QString RimAnnotationGroupCollection::POLYLINE_FROM_FILE_ANNOTATION_UI_NAM
 //--------------------------------------------------------------------------------------------------
 RimAnnotationGroupCollection::RimAnnotationGroupCollection()
 {
-    CAF_PDM_InitObject( "Annotations", ":/WellCollection.png", "", "" );
+    CAF_PDM_InitObject( "Annotations", ":/WellCollection.png" );
 
     CAF_PDM_InitField( &m_isActive, "IsActive", true, "Is Active" );
     CAF_PDM_InitFieldNoDefault( &m_annotations, "Annotations", "Annotations" );

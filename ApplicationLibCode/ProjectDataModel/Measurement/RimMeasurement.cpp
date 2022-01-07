@@ -39,7 +39,7 @@ CAF_PDM_SOURCE_INIT( RimMeasurement, "RimMeasurement" );
 RimMeasurement::RimMeasurement()
     : m_measurementMode( MEASURE_DISABLED )
 {
-    CAF_PDM_InitObject( "Measurement", ":/TextAnnotation16x16.png", "", "" );
+    CAF_PDM_InitObject( "Measurement", ":/TextAnnotation16x16.png" );
 }
 
 //--------------------------------------------------------------------------------------------------

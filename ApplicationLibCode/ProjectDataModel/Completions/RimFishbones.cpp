@@ -69,7 +69,7 @@ void AppEnum<RimFishbones::LateralsOrientationType>::setUp()
 //--------------------------------------------------------------------------------------------------
 RimFishbones::RimFishbones()
 {
-    CAF_PDM_InitObject( "FishbonesMultipleSubs", ":/FishBoneGroup16x16.png", "", "" );
+    CAF_PDM_InitObject( "FishbonesMultipleSubs", ":/FishBoneGroup16x16.png" );
 
     CAF_PDM_InitField( &m_isActive, "Active", true, "Active" );
     m_isActive.uiCapability()->setUiHidden( true );

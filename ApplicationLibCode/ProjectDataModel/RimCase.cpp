@@ -74,9 +74,7 @@ RimCase::RimCase()
     CAF_PDM_InitFieldNoDefault( &m_2dIntersectionViewCollection,
                                 "IntersectionViewCollection",
                                 "2D Intersection Views",
-                                ":/CrossSections16x16.png",
-                                "",
-                                "" );
+                                ":/CrossSections16x16.png" );
     m_2dIntersectionViewCollection.uiCapability()->setUiTreeHidden( true );
     m_2dIntersectionViewCollection = new Rim2dIntersectionViewCollection();
 }

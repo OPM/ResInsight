@@ -65,7 +65,7 @@ CAF_PDM_SOURCE_INIT( RimEclipseStatisticsCase, "RimStatisticalCalculation" );
 RimEclipseStatisticsCase::RimEclipseStatisticsCase()
     : RimEclipseCase()
 {
-    CAF_PDM_InitObject( "Case Group Statistics", ":/Histogram16x16.png", "", "" );
+    CAF_PDM_InitObject( "Case Group Statistics", ":/Histogram16x16.png" );
 
     CAF_PDM_InitFieldNoDefault( &m_calculateEditCommand, "m_editingAllowed", "" );
     caf::PdmUiPushButtonEditor::configureEditorForField( &m_calculateEditCommand );

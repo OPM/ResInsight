@@ -42,7 +42,7 @@ CAF_PDM_SOURCE_INIT( RimGeoMechPropertyFilter, "GeoMechPropertyFilter" );
 RimGeoMechPropertyFilter::RimGeoMechPropertyFilter()
     : m_parentContainer( nullptr )
 {
-    CAF_PDM_InitObject( "Property Filter", ":/CellFilter_Values.png", "", "" );
+    CAF_PDM_InitObject( "Property Filter", ":/CellFilter_Values.png" );
 
     CAF_PDM_InitFieldNoDefault( &resultDefinition, "ResultDefinition", "Result Definition" );
     resultDefinition = new RimGeoMechResultDefinition();

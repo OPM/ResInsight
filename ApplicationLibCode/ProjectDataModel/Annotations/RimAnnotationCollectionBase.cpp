@@ -36,7 +36,7 @@ CAF_PDM_SOURCE_INIT( RimAnnotationCollectionBase, "RimAnnotationCollectionBase" 
 //--------------------------------------------------------------------------------------------------
 RimAnnotationCollectionBase::RimAnnotationCollectionBase()
 {
-    CAF_PDM_InitObject( "Annotations", ":/WellCollection.png", "", "" );
+    CAF_PDM_InitObject( "Annotations", ":/WellCollection.png" );
 
     CAF_PDM_InitField( &m_isActive, "IsActive", true, "Is Active" );
     m_isActive.uiCapability()->setUiHidden( true );

@@ -29,7 +29,7 @@ CAF_PDM_SOURCE_INIT( RimParameterList, "ParameterList" );
 //--------------------------------------------------------------------------------------------------
 RimParameterList::RimParameterList()
 {
-    CAF_PDM_InitObject( "Parameter List", ":/Bullet.png", "", "" );
+    CAF_PDM_InitObject( "Parameter List", ":/Bullet.png" );
     uiCapability()->setUiTreeChildrenHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_parameterNames, "ParameterNames", "Parameters" );

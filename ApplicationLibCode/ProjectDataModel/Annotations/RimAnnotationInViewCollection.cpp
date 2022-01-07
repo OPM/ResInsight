@@ -78,7 +78,7 @@ CAF_PDM_SOURCE_INIT( RimAnnotationInViewCollection, "Annotations" );
 //--------------------------------------------------------------------------------------------------
 RimAnnotationInViewCollection::RimAnnotationInViewCollection()
 {
-    CAF_PDM_InitObject( "Annotations", ":/Annotations16x16.png", "", "" );
+    CAF_PDM_InitObject( "Annotations", ":/Annotations16x16.png" );
 
     CAF_PDM_InitField( &m_annotationPlaneDepth, "AnnotationPlaneDepth", 0.0, "Annotation Plane Depth" );
     CAF_PDM_InitField( &m_snapAnnotations, "SnapAnnotations", false, "Snap Annotations to Plane" );

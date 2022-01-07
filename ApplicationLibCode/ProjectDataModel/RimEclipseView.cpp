@@ -139,23 +139,19 @@ RimEclipseView::RimEclipseView()
                                                            "GridCellResult",
                                                            "CellResult",
                                                            "Cell Result",
-                                                           ":/CellResult.png",
-                                                           "",
-                                                           "" );
+                                                           ":/CellResult.png" );
     m_cellResult = new RimEclipseCellColors();
     m_cellResult.uiCapability()->setUiTreeHidden( true );
     m_cellResult->enableDeltaResults( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_cellEdgeResult, "GridCellEdgeResult", "Cell Edge Result", ":/EdgeResult_1.png", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_cellEdgeResult, "GridCellEdgeResult", "Cell Edge Result", ":/EdgeResult_1.png" );
     m_cellEdgeResult = new RimCellEdgeColors();
     m_cellEdgeResult.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_elementVectorResult,
                                 "ElementVectorResult",
                                 "Element Vector Result",
-                                ":/CellResult.png",
-                                "",
-                                "" );
+                                ":/CellResult.png" );
     m_elementVectorResult = new RimElementVectorResult;
     m_elementVectorResult.uiCapability()->setUiTreeHidden( true );
 

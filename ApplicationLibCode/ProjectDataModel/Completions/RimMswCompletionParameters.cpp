@@ -63,7 +63,7 @@ CAF_PDM_SOURCE_INIT( RimMswCompletionParameters, "RimMswCompletionParameters" );
 //--------------------------------------------------------------------------------------------------
 RimMswCompletionParameters::RimMswCompletionParameters()
 {
-    CAF_PDM_InitObject( "MSW Completion Parameters", ":/CompletionsSymbol16x16.png", "", "" );
+    CAF_PDM_InitObject( "MSW Completion Parameters", ":/CompletionsSymbol16x16.png" );
 
     CAF_PDM_InitFieldNoDefault( &m_refMDType, "RefMDType", "Reference MD" );
     CAF_PDM_InitField( &m_refMD, "RefMD", 0.0, "" );

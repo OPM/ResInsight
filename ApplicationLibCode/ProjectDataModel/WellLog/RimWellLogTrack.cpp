@@ -174,7 +174,7 @@ RimWellLogTrack::RimWellLogTrack()
     , m_availableDepthRangeMax( RI_LOGPLOTTRACK_MAXX_DEFAULT )
 
 {
-    CAF_PDM_InitScriptableObject( "Track", ":/WellLogTrack16x16.png", "", "" );
+    CAF_PDM_InitScriptableObject( "Track", ":/WellLogTrack16x16.png" );
 
     CAF_PDM_InitFieldNoDefault( &m_description, "TrackDescription", "Name" );
 

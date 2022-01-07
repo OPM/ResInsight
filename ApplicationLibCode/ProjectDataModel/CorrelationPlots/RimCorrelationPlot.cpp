@@ -55,7 +55,7 @@ RimCorrelationPlot::RimCorrelationPlot()
     : RimAbstractCorrelationPlot()
     , tornadoItemSelected( this )
 {
-    CAF_PDM_InitObject( "Correlation Tornado Plot", ":/CorrelationTornadoPlot16x16.png", "", "" );
+    CAF_PDM_InitObject( "Correlation Tornado Plot", ":/CorrelationTornadoPlot16x16.png" );
 
     CAF_PDM_InitField( &m_showAbsoluteValues, "CorrelationAbsValues", false, "Show Absolute Values" );
     CAF_PDM_InitField( &m_sortByAbsoluteValues, "CorrelationAbsSorting", true, "Sort by Absolute Values" );

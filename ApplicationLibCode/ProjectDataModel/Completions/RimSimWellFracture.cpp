@@ -40,7 +40,7 @@ CAF_PDM_SOURCE_INIT( RimSimWellFracture, "SimWellFracture" );
 //--------------------------------------------------------------------------------------------------
 RimSimWellFracture::RimSimWellFracture( void )
 {
-    CAF_PDM_InitObject( "SimWellFracture", ":/FractureSymbol16x16.png", "", "" );
+    CAF_PDM_InitObject( "SimWellFracture", ":/FractureSymbol16x16.png" );
 
     CAF_PDM_InitField( &m_location, "MeasuredDepth", 0.0f, "Pseudo Length Location" );
     m_location.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );

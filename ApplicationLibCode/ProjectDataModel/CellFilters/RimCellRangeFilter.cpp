@@ -38,7 +38,7 @@ CAF_PDM_SOURCE_INIT( RimCellRangeFilter, "CellRangeFilter" );
 //--------------------------------------------------------------------------------------------------
 RimCellRangeFilter::RimCellRangeFilter()
 {
-    CAF_PDM_InitObject( "Cell Range Filter", ":/CellFilter_Range.png", "", "" );
+    CAF_PDM_InitObject( "Cell Range Filter", ":/CellFilter_Range.png" );
 
     CAF_PDM_InitField( &startIndexI, "StartIndexI", 1, "Start Index I" );
     startIndexI.uiCapability()->setUiEditorTypeName( caf::PdmUiSliderEditor::uiEditorTypeName() );

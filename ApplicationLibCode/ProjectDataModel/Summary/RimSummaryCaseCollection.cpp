@@ -105,7 +105,7 @@ RimSummaryCaseCollection::RimSummaryCaseCollection()
     : caseNameChanged( this )
     , caseRemoved( this )
 {
-    CAF_PDM_InitScriptableObject( "Summary Case Group", ":/SummaryGroup16x16.png", "", "" );
+    CAF_PDM_InitScriptableObject( "Summary Case Group", ":/SummaryGroup16x16.png" );
 
     CAF_PDM_InitFieldNoDefault( &m_cases, "SummaryCases", "" );
     m_cases.uiCapability()->setUiTreeHidden( true );

@@ -153,7 +153,7 @@ RimCorrelationMatrixPlot::RimCorrelationMatrixPlot()
     : RimAbstractCorrelationPlot()
     , matrixCellSelected( this )
 {
-    CAF_PDM_InitObject( "Correlation Plot", ":/CorrelationMatrixPlot16x16.png", "", "" );
+    CAF_PDM_InitObject( "Correlation Plot", ":/CorrelationMatrixPlot16x16.png" );
 
     CAF_PDM_InitField( &m_showAbsoluteValues, "CorrelationAbsValues", false, "Show Absolute Values" );
     CAF_PDM_InitFieldNoDefault( &m_sortByValues, "CorrelationSorting", "Sort Matrix by Values" );

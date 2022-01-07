@@ -59,7 +59,7 @@ CAF_PDM_SOURCE_INIT( RimGeoMechContourMapProjection, "RimGeoMechContourMapProjec
 RimGeoMechContourMapProjection::RimGeoMechContourMapProjection()
     : m_kLayers( 0u )
 {
-    CAF_PDM_InitObject( "RimContourMapProjection", ":/2DMapProjection16x16.png", "", "" );
+    CAF_PDM_InitObject( "RimContourMapProjection", ":/2DMapProjection16x16.png" );
     CAF_PDM_InitField( &m_limitToPorePressureRegions, "LimitToPorRegion", true, "Limit to Pore Pressure regions" );
     CAF_PDM_InitField( &m_applyPPRegionLimitVertically, "VerticalLimit", false, "Apply Limit Vertically" );
     CAF_PDM_InitField( &m_paddingAroundPorePressureRegion,

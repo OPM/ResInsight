@@ -28,7 +28,7 @@ CAF_PDM_SOURCE_INIT( RimCalculatedSummaryCase, "CalculatedSummaryCase" );
 //--------------------------------------------------------------------------------------------------
 RimCalculatedSummaryCase::RimCalculatedSummaryCase()
 {
-    CAF_PDM_InitObject( "Calculated", ":/SummaryCase.svg", "", "" );
+    CAF_PDM_InitObject( "Calculated", ":/SummaryCase.svg" );
 
     m_calculatedCurveReader = nullptr;
     m_displayName           = "Calculated";

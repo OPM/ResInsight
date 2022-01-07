@@ -64,7 +64,7 @@ CAF_PDM_SOURCE_INIT( Rim3dWellLogExtractionCurve, "Rim3dWellLogExtractionCurve" 
 //--------------------------------------------------------------------------------------------------
 Rim3dWellLogExtractionCurve::Rim3dWellLogExtractionCurve()
 {
-    CAF_PDM_InitObject( "3d Well Log Extraction Curve", ":/WellLogCurve16x16.png", "", "" );
+    CAF_PDM_InitObject( "3d Well Log Extraction Curve", ":/WellLogCurve16x16.png" );
 
     CAF_PDM_InitFieldNoDefault( &m_case, "CurveCase", "Case" );
     m_case.uiCapability()->setUiTreeChildrenHidden( true );

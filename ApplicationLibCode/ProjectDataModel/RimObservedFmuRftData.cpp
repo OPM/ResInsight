@@ -29,7 +29,7 @@ CAF_PDM_SOURCE_INIT( RimObservedFmuRftData, "ObservedFmuRftData" );
 //--------------------------------------------------------------------------------------------------
 RimObservedFmuRftData::RimObservedFmuRftData()
 {
-    CAF_PDM_InitObject( "Observed FMU Data", ":/ObservedRFTDataFile16x16.png", "", "" );
+    CAF_PDM_InitObject( "Observed FMU Data", ":/ObservedRFTDataFile16x16.png" );
     CAF_PDM_InitFieldNoDefault( &m_directoryPath, "Directory", "Directory" );
     m_directoryPath.uiCapability()->setUiReadOnly( true );
 

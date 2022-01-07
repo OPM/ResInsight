@@ -52,7 +52,7 @@ CAF_PDM_SOURCE_INIT( RimEquilibriumAxisAnnotation, "RimEquilibriumAxisAnnotation
 RimEquilibriumAxisAnnotation::RimEquilibriumAxisAnnotation()
     : RimPlotAxisAnnotation()
 {
-    CAF_PDM_InitObject( "Equilibrium Annotation", ":/LeftAxis16x16.png", "", "" );
+    CAF_PDM_InitObject( "Equilibrium Annotation", ":/LeftAxis16x16.png" );
 
     CAF_PDM_InitFieldNoDefault( &m_annotationType, "AnnotationType", "AnnotationType" );
 

@@ -121,7 +121,7 @@ CAF_PDM_SOURCE_INIT( RimEnsembleFractureStatistics, "EnsembleFractureStatistics"
 //--------------------------------------------------------------------------------------------------
 RimEnsembleFractureStatistics::RimEnsembleFractureStatistics()
 {
-    CAF_PDM_InitObject( "Ensemble Fracture Statistics", ":/FractureTemplate16x16.png", "", "" );
+    CAF_PDM_InitObject( "Ensemble Fracture Statistics", ":/FractureTemplate16x16.png" );
 
     CAF_PDM_InitFieldNoDefault( &m_filePaths, "FilePaths", "" );
 

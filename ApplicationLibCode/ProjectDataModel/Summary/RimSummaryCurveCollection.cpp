@@ -48,7 +48,7 @@ CAF_PDM_SOURCE_INIT( RimSummaryCurveCollection, "RimSummaryCurveCollection" );
 RimSummaryCurveCollection::RimSummaryCurveCollection()
     : curvesChanged( this )
 {
-    CAF_PDM_InitObject( "Summary Curves", ":/SummaryCurveFilter16x16.png", "", "" );
+    CAF_PDM_InitObject( "Summary Curves", ":/SummaryCurveFilter16x16.png" );
 
     CAF_PDM_InitFieldNoDefault( &m_curves, "CollectionCurves", "Collection Curves" );
     m_curves.uiCapability()->setUiTreeHidden( true );

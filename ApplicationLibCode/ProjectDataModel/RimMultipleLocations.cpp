@@ -42,7 +42,7 @@ void AppEnum<RimMultipleLocations::LocationType>::setUp()
 //--------------------------------------------------------------------------------------------------
 RimMultipleLocations::RimMultipleLocations()
 {
-    CAF_PDM_InitObject( "RimMultipleLocations", ":/FishBoneGroup16x16.png", "", "" );
+    CAF_PDM_InitObject( "RimMultipleLocations", ":/FishBoneGroup16x16.png" );
 
     CAF_PDM_InitField( &m_locationType,
                        "LocationMode",

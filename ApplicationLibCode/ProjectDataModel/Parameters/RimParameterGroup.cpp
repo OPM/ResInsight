@@ -38,7 +38,7 @@ CAF_PDM_SOURCE_INIT( RimParameterGroup, "ParameterGroup" );
 //--------------------------------------------------------------------------------------------------
 RimParameterGroup::RimParameterGroup()
 {
-    CAF_PDM_InitObject( "Parameter Group", ":/Bullet.png", "", "" );
+    CAF_PDM_InitObject( "Parameter Group", ":/Bullet.png" );
     uiCapability()->setUiTreeChildrenHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_parameters, "Parameters", "Parameters" );

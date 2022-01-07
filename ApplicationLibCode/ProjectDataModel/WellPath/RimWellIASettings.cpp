@@ -59,7 +59,7 @@ CAF_PDM_SOURCE_INIT( RimWellIASettings, "RimWellIASettings" );
 //--------------------------------------------------------------------------------------------------
 RimWellIASettings::RimWellIASettings()
 {
-    CAF_PDM_InitObject( "Integrity Analysis Model Settings", ":/WellIntAnalysis.png", "", "" );
+    CAF_PDM_InitObject( "Integrity Analysis Model Settings", ":/WellIntAnalysis.png" );
 
     setName( "Model" );
 
@@ -75,9 +75,9 @@ RimWellIASettings::RimWellIASettings()
 
     CAF_PDM_InitField( &m_bufferXY, "BufferXY", 5.0, "Model Size (XY)" );
 
-    CAF_PDM_InitFieldNoDefault( &m_parameters, "ModelingParameters", "Modeling Parameters", ":/Bullet.png", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_parameters, "ModelingParameters", "Modeling Parameters", ":/Bullet.png" );
 
-    CAF_PDM_InitFieldNoDefault( &m_csvParameters, "TimeStepParameters", "Time Step Parameters", ":/Bullet.png", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_csvParameters, "TimeStepParameters", "Time Step Parameters", ":/Bullet.png" );
 
     CAF_PDM_InitFieldNoDefault( &m_nameProxy, "NameProxy", "Name Proxy" );
     m_nameProxy.registerGetMethod( this, &RimWellIASettings::fullName );

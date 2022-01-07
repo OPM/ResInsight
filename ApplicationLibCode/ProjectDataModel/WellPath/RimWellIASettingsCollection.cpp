@@ -38,7 +38,7 @@ CAF_PDM_SOURCE_INIT( RimWellIASettingsCollection, "RimWellIASettingsCollection" 
 //--------------------------------------------------------------------------------------------------
 RimWellIASettingsCollection::RimWellIASettingsCollection()
 {
-    CAF_PDM_InitObject( "Integrity Analysis Models", ":/WellIntAnalysis.png", "", "" );
+    CAF_PDM_InitObject( "Integrity Analysis Models", ":/WellIntAnalysis.png" );
 
     CAF_PDM_InitFieldNoDefault( &m_wellIASettings, "WellIASettings", "Settings" );
     m_wellIASettings.uiCapability()->setUiHidden( true );

@@ -65,7 +65,7 @@ CAF_PDM_SOURCE_INIT( RimSummaryCurve, "SummaryCurve" );
 //--------------------------------------------------------------------------------------------------
 RimSummaryCurve::RimSummaryCurve()
 {
-    CAF_PDM_InitObject( "Summary Curve", ":/SummaryCurve16x16.png", "", "" );
+    CAF_PDM_InitObject( "Summary Curve", ":/SummaryCurve16x16.png" );
 
     // Y Values
     CAF_PDM_InitFieldNoDefault( &m_yValuesSummaryCase, "SummaryCase", "Case" );

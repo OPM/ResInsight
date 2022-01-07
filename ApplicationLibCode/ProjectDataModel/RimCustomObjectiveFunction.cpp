@@ -35,7 +35,7 @@ CAF_PDM_SOURCE_INIT( RimCustomObjectiveFunction, "RimCustomObjectiveFunction" );
 //--------------------------------------------------------------------------------------------------
 RimCustomObjectiveFunction::RimCustomObjectiveFunction()
 {
-    CAF_PDM_InitObject( "Objective Function", ":/ObjectiveFunction.svg", "", "" );
+    CAF_PDM_InitObject( "Objective Function", ":/ObjectiveFunction.svg" );
 
     CAF_PDM_InitFieldNoDefault( &m_functionTitle, "FunctionTitle", "Title" );
     m_functionTitle.registerGetMethod( this, &RimCustomObjectiveFunction::title );

@@ -34,7 +34,7 @@ CAF_PDM_ABSTRACT_SOURCE_INIT( RimGenericParameter, "GenericParameter" );
 //--------------------------------------------------------------------------------------------------
 RimGenericParameter::RimGenericParameter()
 {
-    CAF_PDM_InitObject( "Parameter", ":/Bullet.png", "", "" );
+    CAF_PDM_InitObject( "Parameter", ":/Bullet.png" );
 
     CAF_PDM_InitField( &m_name, "Name", QString(), "Name" );
     m_name.uiCapability()->setUiReadOnly( true );

@@ -60,7 +60,7 @@ Rim3dWellLogCurve::Rim3dWellLogCurve()
     : m_minCurveDataValue( -std::numeric_limits<float>::infinity() )
     , m_maxCurveDataValue( std::numeric_limits<float>::infinity() )
 {
-    CAF_PDM_InitObject( "3d Well Log Curve", ":/WellLogCurve16x16.png", "", "" );
+    CAF_PDM_InitObject( "3d Well Log Curve", ":/WellLogCurve16x16.png" );
 
     CAF_PDM_InitField( &m_showCurve, "Show3dWellLogCurve", true, "Show 3d Well Log Curve" );
     m_showCurve.uiCapability()->setUiHidden( true );

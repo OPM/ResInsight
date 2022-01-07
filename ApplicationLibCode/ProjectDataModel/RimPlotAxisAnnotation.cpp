@@ -36,7 +36,7 @@ CAF_PDM_SOURCE_INIT( RimPlotAxisAnnotation, "RimPlotAxisAnnotation" );
 RimPlotAxisAnnotation::RimPlotAxisAnnotation()
 {
     m_annotationType = AnnotationType::LINE;
-    CAF_PDM_InitObject( "Plot Axis Annotation", ":/LeftAxis16x16.png", "", "" );
+    CAF_PDM_InitObject( "Plot Axis Annotation", ":/LeftAxis16x16.png" );
 
     CAF_PDM_InitField( &m_isActive, "Active", true, "Active" );
     m_isActive.uiCapability()->setUiHidden( true );

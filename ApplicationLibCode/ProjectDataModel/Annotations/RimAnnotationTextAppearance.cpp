@@ -30,7 +30,7 @@ CAF_PDM_SOURCE_INIT( RimAnnotationTextAppearance, "RimAnnotationTextAppearance" 
 //--------------------------------------------------------------------------------------------------
 RimAnnotationTextAppearance::RimAnnotationTextAppearance()
 {
-    CAF_PDM_InitObject( "TextAnnotation", ":/WellCollection.png", "", "" );
+    CAF_PDM_InitObject( "TextAnnotation", ":/WellCollection.png" );
 
     auto prefs                  = RiaPreferences::current();
     auto defaultBackgroundColor = prefs->defaultViewerBackgroundColor();

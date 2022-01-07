@@ -30,7 +30,7 @@
 //--------------------------------------------------------------------------------------------------
 RimFaultRAPostprocSettings::RimFaultRAPostprocSettings()
 {
-    CAF_PDM_InitObject( "Reactivation Assessment Postproc Settings", ":/fault_react_24x24.png", "", "" );
+    CAF_PDM_InitObject( "Reactivation Assessment Postproc Settings", ":/fault_react_24x24.png" );
 
     CAF_PDM_InitField( &m_baseDir, "BaseDir", QString( "" ), "Working Directory" );
     CAF_PDM_InitField( &m_startTimestepEclipse, "StartTimeStepEclipse", 0, "Start Time Step" );

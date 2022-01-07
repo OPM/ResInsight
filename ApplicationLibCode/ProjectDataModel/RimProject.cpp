@@ -144,7 +144,7 @@ RimProject::RimProject( void )
     colorLegendCollection = new RimColorLegendCollection();
     colorLegendCollection->createStandardColorLegends();
 
-    CAF_PDM_InitFieldNoDefault( &scriptCollection, "ScriptCollection", "Octave Scripts", ":/octave.png", "", "" );
+    CAF_PDM_InitFieldNoDefault( &scriptCollection, "ScriptCollection", "Octave Scripts", ":/octave.png" );
     scriptCollection.uiCapability()->setUiTreeHidden( true );
     scriptCollection.xmlCapability()->disableIO();
 
@@ -159,9 +159,7 @@ RimProject::RimProject( void )
     CAF_PDM_InitFieldNoDefault( &viewLinkerCollection,
                                 "LinkedViews",
                                 "Linked Views (field in RimProject",
-                                ":/LinkView16x16.png",
-                                "",
-                                "" );
+                                ":/LinkView16x16.png" );
     viewLinkerCollection.uiCapability()->setUiTreeHidden( true );
     viewLinkerCollection = new RimViewLinkerCollection;
 

@@ -44,7 +44,7 @@ caf::PdmFieldHandle* RimSurfaceIntersectionBand::userDescriptionField()
 RimSurfaceIntersectionBand::RimSurfaceIntersectionBand()
     : objectChanged( this )
 {
-    CAF_PDM_InitObject( "SurfaceIntersectionBand", ":/ReservoirSurface16x16.png", "", "" );
+    CAF_PDM_InitObject( "SurfaceIntersectionBand", ":/ReservoirSurface16x16.png" );
 
     CAF_PDM_InitFieldNoDefault( &m_lineAppearance, "LineAppearance", "Line Appearance" );
     m_lineAppearance = new RimAnnotationLineAppearance;

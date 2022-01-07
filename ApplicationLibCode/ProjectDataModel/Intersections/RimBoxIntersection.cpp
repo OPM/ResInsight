@@ -63,7 +63,7 @@ const RivIntersectionGeometryGeneratorInterface* RimBoxIntersection::intersectio
 //--------------------------------------------------------------------------------------------------
 RimBoxIntersection::RimBoxIntersection()
 {
-    CAF_PDM_InitObject( "Intersection Box", ":/IntersectionBox16x16.png", "", "" );
+    CAF_PDM_InitObject( "Intersection Box", ":/IntersectionBox16x16.png" );
 
     CAF_PDM_InitField( &m_name, "UserDescription", QString( "Intersection Name" ), "Name" );
 

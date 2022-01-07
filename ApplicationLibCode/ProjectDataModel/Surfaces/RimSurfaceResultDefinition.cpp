@@ -36,7 +36,7 @@ CAF_PDM_SOURCE_INIT( RimSurfaceResultDefinition, "SurfaceResultDefinition" );
 //--------------------------------------------------------------------------------------------------
 RimSurfaceResultDefinition::RimSurfaceResultDefinition()
 {
-    CAF_PDM_InitObject( "Surface", ":/ReservoirSurface16x16.png", "", "" );
+    CAF_PDM_InitObject( "Surface", ":/ReservoirSurface16x16.png" );
 
     CAF_PDM_InitFieldNoDefault( &m_propertyName, "PropertyName", "Property Name" );
 

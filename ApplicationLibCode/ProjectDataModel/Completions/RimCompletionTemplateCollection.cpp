@@ -34,7 +34,7 @@ CAF_PDM_SOURCE_INIT( RimCompletionTemplateCollection, "CompletionTemplateCollect
 //--------------------------------------------------------------------------------------------------
 RimCompletionTemplateCollection::RimCompletionTemplateCollection()
 {
-    CAF_PDM_InitObject( "Completion Templates", ":/CompletionsSymbol16x16.png", "", "" );
+    CAF_PDM_InitObject( "Completion Templates", ":/CompletionsSymbol16x16.png" );
 
     CAF_PDM_InitFieldNoDefault( &m_fractureTemplates, "FractureTemplates", "" );
     m_fractureTemplates = new RimFractureTemplateCollection;

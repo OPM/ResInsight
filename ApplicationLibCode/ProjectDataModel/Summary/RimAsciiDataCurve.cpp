@@ -41,7 +41,7 @@ CAF_PDM_SOURCE_INIT( RimAsciiDataCurve, "AsciiDataCurve" );
 //--------------------------------------------------------------------------------------------------
 RimAsciiDataCurve::RimAsciiDataCurve()
 {
-    CAF_PDM_InitObject( "ASCII Data Curve", ":/SummaryCurve16x16.png", "", "" );
+    CAF_PDM_InitObject( "ASCII Data Curve", ":/SummaryCurve16x16.png" );
 
     CAF_PDM_InitFieldNoDefault( &m_plotAxis, "PlotAxis", "Axis" );
     CAF_PDM_InitFieldNoDefault( &m_timeSteps, "TimeSteps", "Time Steps" );

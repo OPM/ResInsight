@@ -31,7 +31,7 @@ CAF_PDM_SOURCE_INIT( RimSummaryCrossPlotCollection, "SummaryCrossPlotCollection"
 //--------------------------------------------------------------------------------------------------
 RimSummaryCrossPlotCollection::RimSummaryCrossPlotCollection()
 {
-    CAF_PDM_InitObject( "Summary Cross Plots", ":/SummaryXPlotsLight16x16.png", "", "" );
+    CAF_PDM_InitObject( "Summary Cross Plots", ":/SummaryXPlotsLight16x16.png" );
 
     CAF_PDM_InitFieldNoDefault( &m_summaryCrossPlots, "SummaryCrossPlots", "Summary Cross Plots" );
     m_summaryCrossPlots.uiCapability()->setUiTreeHidden( true );

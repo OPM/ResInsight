@@ -61,7 +61,7 @@ RimPlotAxisProperties::RimPlotAxisProperties()
     , m_enableTitleTextSettings(true)
     , m_isRangeSettingsEnabled(true)
 {
-    CAF_PDM_InitObject("Axis Properties", ":/LeftAxis16x16.png", "", "");
+    CAF_PDM_InitObject("Axis Properties", ":/LeftAxis16x16.png");
 
     CAF_PDM_InitField(&m_isActive, "Active", true, "Active");
     m_isActive.uiCapability()->setUiHidden(true);

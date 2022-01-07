@@ -59,7 +59,7 @@ RimPlotCurve::RimPlotCurve()
     , dataChanged( this )
     , nameChanged( this )
 {
-    CAF_PDM_InitObject( "Curve", ":/WellLogCurve16x16.png", "", "" );
+    CAF_PDM_InitObject( "Curve", ":/WellLogCurve16x16.png" );
 
     CAF_PDM_InitField( &m_showCurve, "Show", true, "Show curve" );
     m_showCurve.uiCapability()->setUiHidden( true );

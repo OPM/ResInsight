@@ -31,7 +31,7 @@ CAF_PDM_SOURCE_INIT( RimSummaryCalculationCollection, "RimSummaryCalculationColl
 //--------------------------------------------------------------------------------------------------
 RimSummaryCalculationCollection::RimSummaryCalculationCollection()
 {
-    CAF_PDM_InitObject( "Calculation Collection", ":/chain.png", "", "" );
+    CAF_PDM_InitObject( "Calculation Collection", ":/chain.png" );
 
     CAF_PDM_InitFieldNoDefault( &m_calculations, "Calculations", "Calculations" );
     m_calculations.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );

@@ -32,7 +32,7 @@ CAF_PDM_SOURCE_INIT( Rim3dWellLogCurveCollection, "Rim3dWellLogCurveCollection" 
 //--------------------------------------------------------------------------------------------------
 Rim3dWellLogCurveCollection::Rim3dWellLogCurveCollection()
 {
-    CAF_PDM_InitObject( "3D Track", ":/WellLogCurve16x16.png", "", "" );
+    CAF_PDM_InitObject( "3D Track", ":/WellLogCurve16x16.png" );
 
     CAF_PDM_InitField( &m_showPlot, "Show3dWellLogCurves", true, "Show 3d Well Log Curves" );
     m_showPlot.uiCapability()->setUiHidden( true );

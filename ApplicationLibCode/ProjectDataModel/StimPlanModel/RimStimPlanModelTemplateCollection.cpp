@@ -36,7 +36,7 @@ CAF_PDM_SOURCE_INIT( RimStimPlanModelTemplateCollection, "StimPlanModelTemplateC
 //--------------------------------------------------------------------------------------------------
 RimStimPlanModelTemplateCollection::RimStimPlanModelTemplateCollection()
 {
-    CAF_PDM_InitScriptableObject( "StimPlan Model Templates", ":/FractureTemplates16x16.png", "", "" );
+    CAF_PDM_InitScriptableObject( "StimPlan Model Templates", ":/FractureTemplates16x16.png" );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_stimPlanModelTemplates, "StimPlanModelTemplates", "StimPlan Model Templates" );
     m_stimPlanModelTemplates.uiCapability()->setUiTreeHidden( true );

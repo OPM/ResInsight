@@ -28,7 +28,7 @@ CAF_PDM_SOURCE_INIT( RimReachCircleAnnotationInView, "RimReachCircleAnnotationIn
 //--------------------------------------------------------------------------------------------------
 RimReachCircleAnnotationInView::RimReachCircleAnnotationInView()
 {
-    CAF_PDM_InitObject( "ReachCircleAnnotationInView", ":/ReachCircle16x16.png", "", "" );
+    CAF_PDM_InitObject( "ReachCircleAnnotationInView", ":/ReachCircle16x16.png" );
 
     CAF_PDM_InitField( &m_isActive, "IsActive", true, "Is Active" );
     CAF_PDM_InitFieldNoDefault( &m_sourceAnnotation, "SourceAnnotation", "Source Annotation" );

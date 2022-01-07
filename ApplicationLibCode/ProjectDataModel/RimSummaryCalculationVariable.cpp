@@ -41,7 +41,7 @@ CAF_PDM_SOURCE_INIT( RimSummaryCalculationVariable, "RimSummaryCalculationVariab
 //--------------------------------------------------------------------------------------------------
 RimSummaryCalculationVariable::RimSummaryCalculationVariable()
 {
-    CAF_PDM_InitObject( "RimSummaryCalculationVariable", ":/octave.png", "", "" );
+    CAF_PDM_InitObject( "RimSummaryCalculationVariable", ":/octave.png" );
 
     CAF_PDM_InitFieldNoDefault( &m_name, "VariableName", "Variable Name" );
     m_name.uiCapability()->setUiReadOnly( true );

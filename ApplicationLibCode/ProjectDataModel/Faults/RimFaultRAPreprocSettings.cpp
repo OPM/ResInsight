@@ -40,7 +40,7 @@ CAF_PDM_SOURCE_INIT( RimFaultRAPreprocSettings, "RimFaultRAPreprocSettings" );
 //--------------------------------------------------------------------------------------------------
 RimFaultRAPreprocSettings::RimFaultRAPreprocSettings()
 {
-    CAF_PDM_InitObject( "Fault RA Preproc Settings", ":/fault_react_24x24.png", "", "" );
+    CAF_PDM_InitObject( "Fault RA Preproc Settings", ":/fault_react_24x24.png" );
 
     CAF_PDM_InitField( &m_startTimestepEclipse, "StartTimeStepEclipse", 0, "Start Time Step" );
     m_startTimestepEclipse.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );

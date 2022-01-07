@@ -48,7 +48,7 @@ CAF_PDM_SOURCE_INIT( RimObservedDataCollection, "ObservedDataCollection" );
 //--------------------------------------------------------------------------------------------------
 RimObservedDataCollection::RimObservedDataCollection()
 {
-    CAF_PDM_InitObject( "Observed Data", ":/Folder.png", "", "" );
+    CAF_PDM_InitObject( "Observed Data", ":/Folder.png" );
 
     CAF_PDM_InitFieldNoDefault( &m_observedDataArray, "ObservedDataArray", "" );
     CAF_PDM_InitFieldNoDefault( &m_observedFmuRftArray, "ObservedFmuRftDataArray", "" );

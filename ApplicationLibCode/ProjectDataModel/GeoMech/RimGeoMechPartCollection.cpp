@@ -41,7 +41,7 @@ RimGeoMechPartCollection::RimGeoMechPartCollection()
     , m_currentScaleFactor( 1.0 )
     , m_noDisplacements()
 {
-    CAF_PDM_InitScriptableObject( "Parts", ":/GeoMechCase24x24.png", "", "" );
+    CAF_PDM_InitScriptableObject( "Parts", ":/GeoMechCase24x24.png" );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_parts, "Parts", "Parts" );
     m_parts.uiCapability()->setUiTreeHidden( true );

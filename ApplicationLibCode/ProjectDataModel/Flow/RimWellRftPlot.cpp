@@ -82,7 +82,7 @@ const char RimWellRftPlot::PLOT_NAME_QFORMAT_STRING[] = "RFT: %1";
 RimWellRftPlot::RimWellRftPlot()
     : RimWellLogPlot()
 {
-    CAF_PDM_InitObject( "RFT Plot", ":/RFTPlot16x16.png", "", "" );
+    CAF_PDM_InitObject( "RFT Plot", ":/RFTPlot16x16.png" );
 
     CAF_PDM_InitField( &m_showStatisticsCurves, "ShowStatisticsCurves", true, "Show Statistics Curves" );
     CAF_PDM_InitField( &m_showEnsembleCurves, "ShowEnsembleCurves", true, "Show Ensemble Curves" );
