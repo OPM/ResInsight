@@ -160,18 +160,12 @@ RimRegularLegendConfig::RimRegularLegendConfig()
     CAF_PDM_InitField( &m_tickNumberFormat,
                        "TickNumberFormat",
                        caf::AppEnum<RiaNumberFormat::NumberFormatType>( RiaNumberFormat::NumberFormatType::FIXED ),
-                       "Number format",
-                       "",
-                       "",
-                       "" );
+                       "Number format" );
 
     CAF_PDM_InitField( &m_colorRangeMode_OBSOLETE,
                        "ColorRangeMode",
                        ColorRangeEnum( ColorRangesType::UNDEFINED ),
-                       "Colors",
-                       "",
-                       "",
-                       "" );
+                       "Colors" );
     m_colorRangeMode_OBSOLETE.uiCapability()->setUiHidden( true );
     m_colorRangeMode_OBSOLETE.xmlCapability()->setIOWritable( false );
 

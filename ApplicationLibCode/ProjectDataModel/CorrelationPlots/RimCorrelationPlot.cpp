@@ -62,10 +62,7 @@ RimCorrelationPlot::RimCorrelationPlot()
     CAF_PDM_InitField( &m_excludeParametersWithoutVariation,
                        "ExcludeParamsWithoutVariation",
                        true,
-                       "Exclude Parameters Without Variation",
-                       "",
-                       "",
-                       "" );
+                       "Exclude Parameters Without Variation" );
     CAF_PDM_InitField( &m_showOnlyTopNCorrelations, "ShowOnlyTopNCorrelations", true, "Show Only Top Correlations" );
     CAF_PDM_InitField( &m_topNFilterCount, "TopNFilterCount", 20, "Number rows/columns" );
 

@@ -47,10 +47,7 @@ RimMultipleLocations::RimMultipleLocations()
     CAF_PDM_InitField( &m_locationType,
                        "LocationMode",
                        caf::AppEnum<LocationType>( LocationType::COUNT ),
-                       "Location Defined By",
-                       "",
-                       "",
-                       "" );
+                       "Location Defined By" );
     CAF_PDM_InitField( &m_rangeStart, "RangeStart", 100.0, "Start MD" );
     m_rangeStart.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
 

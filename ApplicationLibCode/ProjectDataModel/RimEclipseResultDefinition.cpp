@@ -117,10 +117,7 @@ RimEclipseResultDefinition::RimEclipseResultDefinition( caf::PdmUiItemInfo::Labe
     CAF_PDM_InitScriptableField( &m_resultVariable,
                                  "ResultVariable",
                                  RiaResultNames::undefinedResultName(),
-                                 "Variable",
-                                 "",
-                                 "",
-                                 "" );
+                                 "Variable" );
     m_resultVariable.uiCapability()->setUiHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_flowSolution, "FlowDiagSolution", "Solution" );
@@ -129,10 +126,7 @@ RimEclipseResultDefinition::RimEclipseResultDefinition( caf::PdmUiItemInfo::Labe
     CAF_PDM_InitField( &m_timeLapseBaseTimestep,
                        "TimeLapseBaseTimeStep",
                        RigEclipseResultAddress::noTimeLapseValue(),
-                       "Base Time Step",
-                       "",
-                       "",
-                       "" );
+                       "Base Time Step" );
 
     CAF_PDM_InitFieldNoDefault( &m_differenceCase, "DifferenceCase", "Difference Case" );
 
@@ -154,10 +148,7 @@ RimEclipseResultDefinition::RimEclipseResultDefinition( caf::PdmUiItemInfo::Labe
     CAF_PDM_InitScriptableField( &m_showOnlyVisibleCategoriesInLegend,
                                  "ShowOnlyVisibleCategoriesInLegend",
                                  true,
-                                 "Show Only Visible Categories In Legend",
-                                 "",
-                                 "",
-                                 "" );
+                                 "Show Only Visible Categories In Legend" );
 
     // Ui only fields
 
@@ -172,10 +163,7 @@ RimEclipseResultDefinition::RimEclipseResultDefinition( caf::PdmUiItemInfo::Labe
     CAF_PDM_InitField( &m_resultVariableUiField,
                        "MResultVariable",
                        RiaResultNames::undefinedResultName(),
-                       "Result Property",
-                       "",
-                       "",
-                       "" );
+                       "Result Property" );
     m_resultVariableUiField.xmlCapability()->disableIO();
     m_resultVariableUiField.uiCapability()->setUiEditorTypeName( caf::PdmUiListEditor::uiEditorTypeName() );
     m_resultVariableUiField.uiCapability()->setUiLabelPosition( m_labelPosition );

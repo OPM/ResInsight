@@ -140,10 +140,7 @@ Rim3dView::Rim3dView()
     CAF_PDM_InitScriptableField( &m_showGridBox,
                                  "ShowGridBox",
                                  RiaPreferences::current()->showGridBox(),
-                                 "Show Grid Box",
-                                 "",
-                                 "",
-                                 "" );
+                                 "Show Grid Box" );
 
     CAF_PDM_InitScriptableField( &m_disableLighting,
                                  "DisableLighting",

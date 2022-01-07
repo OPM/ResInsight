@@ -70,10 +70,7 @@ RimBoxIntersection::RimBoxIntersection()
     CAF_PDM_InitField( &m_singlePlaneState,
                        "singlePlaneState",
                        caf::AppEnum<SinglePlaneState>( SinglePlaneState::PLANE_STATE_NONE ),
-                       "Box Type",
-                       "",
-                       "",
-                       "" );
+                       "Box Type" );
 
     CAF_PDM_InitField( &m_minXCoord, "MinXCoord", 0.0, "Min" );
     m_minXCoord.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );

@@ -58,10 +58,7 @@ RimSummaryPlotSourceStepping::RimSummaryPlotSourceStepping()
     CAF_PDM_InitField( &m_includeEnsembleCasesForCaseStepping,
                        "IncludeEnsembleCasesForCaseStepping",
                        false,
-                       "Allow Stepping on Ensemble cases",
-                       "",
-                       "",
-                       "" );
+                       "Allow Stepping on Ensemble cases" );
 
     CAF_PDM_InitFieldNoDefault( &m_wellName, "WellName", "Well Name" );
     CAF_PDM_InitFieldNoDefault( &m_wellGroupName, "GroupName", "Group Name" );

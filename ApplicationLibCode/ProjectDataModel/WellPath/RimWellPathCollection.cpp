@@ -104,10 +104,7 @@ RimWellPathCollection::RimWellPathCollection()
     CAF_PDM_InitField( &wellPathVisibility,
                        "GlobalWellPathVisibility",
                        WellVisibilityEnum( ALL_ON ),
-                       "Global Well Path Visibility",
-                       "",
-                       "",
-                       "" );
+                       "Global Well Path Visibility" );
 
     CAF_PDM_InitField( &wellPathRadiusScaleFactor, "WellPathRadiusScale", 0.1, "Well Path Radius Scale" );
     CAF_PDM_InitField( &wellPathCrossSectionVertexCount, "WellPathVertexCount", 12, "Well Path Vertex Count" );

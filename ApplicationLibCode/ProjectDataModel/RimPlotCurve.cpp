@@ -100,10 +100,7 @@ RimPlotCurve::RimPlotCurve()
     CAF_PDM_InitField( &m_symbolEdgeColor_OBSOLETE,
                        "SymbolEdgeColor",
                        RiaColorTools::textColor3f(),
-                       "Symbol Edge Color",
-                       "",
-                       "",
-                       "" );
+                       "Symbol Edge Color" );
     m_symbolEdgeColor_OBSOLETE.xmlCapability()->setIOWritable( false );
 
     CAF_PDM_InitField( &m_symbolSkipPixelDistance_OBSOLETE,

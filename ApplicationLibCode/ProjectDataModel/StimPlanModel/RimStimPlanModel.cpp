@@ -149,10 +149,7 @@ RimStimPlanModel::RimStimPlanModel()
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_initialPressureEclipseCase,
                                           "InitialPressureEclipseCase",
-                                          "Initial Pressure Case",
-                                          "",
-                                          "",
-                                          "" );
+                                          "Initial Pressure Case" );
     m_initialPressureEclipseCase.uiCapability()->setUiReadOnly( true );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_staticEclipseCase, "StaticEclipseCase", "Static Case" );
@@ -178,10 +175,7 @@ RimStimPlanModel::RimStimPlanModel()
     CAF_PDM_InitScriptableField( &m_extractionType,
                                  "ExtractionType",
                                  caf::AppEnum<ExtractionType>( ExtractionType::TRUE_STRATIGRAPHIC_THICKNESS ),
-                                 "Extraction Type",
-                                 "",
-                                 "",
-                                 "" );
+                                 "Extraction Type" );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_anchorPosition, "AnchorPosition", "Anchor Position" );
     m_anchorPosition.uiCapability()->setUiReadOnly( true );
@@ -198,10 +192,7 @@ RimStimPlanModel::RimStimPlanModel()
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_thicknessDirectionWellPath,
                                           "ThicknessDirectionWellPath",
-                                          "Thickness Direction Well Path",
-                                          "",
-                                          "",
-                                          "" );
+                                          "Thickness Direction Well Path" );
 
     CAF_PDM_InitScriptableField( &m_boundingBoxHorizontal, "BoundingBoxHorizontal", 50.0, "Bounding Box Horizontal" );
     CAF_PDM_InitScriptableField( &m_boundingBoxVertical, "BoundingBoxVertical", 100.0, "Bounding Box Vertical" );
@@ -211,27 +202,18 @@ RimStimPlanModel::RimStimPlanModel()
     CAF_PDM_InitScriptableField( &m_relativePermeabilityFactorDefault,
                                  "RelativePermeabilityFactor",
                                  0.5,
-                                 "Relative Permeability Factor",
-                                 "",
-                                 "",
-                                 "" );
+                                 "Relative Permeability Factor" );
     CAF_PDM_InitScriptableField( &m_poroElasticConstantDefault, "PoroElasticConstant", 0.0, "Poro-Elastic Constant" );
     CAF_PDM_InitScriptableField( &m_thermalExpansionCoeffientDefault,
                                  "ThermalExpansionCoefficient",
                                  0.0,
-                                 "Thermal Expansion Coefficient [1/C]",
-                                 "",
-                                 "",
-                                 "" );
+                                 "Thermal Expansion Coefficient [1/C]" );
 
     CAF_PDM_InitScriptableField( &m_perforationLength, "PerforationLength", 10.0, "Perforation Length [m]" );
     CAF_PDM_InitScriptableField( &m_fractureOrientation,
                                  "FractureOrientation",
                                  caf::AppEnum<FractureOrientation>( FractureOrientation::ALONG_WELL_PATH ),
-                                 "Fracture Orientation",
-                                 "",
-                                 "",
-                                 "" );
+                                 "Fracture Orientation" );
     CAF_PDM_InitScriptableField( &m_azimuthAngle, "AzimuthAngle", 0.0, "Azimuth Angle" );
 
     CAF_PDM_InitScriptableField( &m_formationDip, "FormationDip", 0.0, "Formation Dip" );
@@ -259,10 +241,7 @@ RimStimPlanModel::RimStimPlanModel()
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_barrierTextAnnotation,
                                           "BarrierTextAnnotation",
-                                          "Barrier Text Annotation",
-                                          "",
-                                          "",
-                                          "" );
+                                          "Barrier Text Annotation" );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_perforationInterval, "PerforationInterval", "Perforation Interval" );
 

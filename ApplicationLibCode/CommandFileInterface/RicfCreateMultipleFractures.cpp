@@ -69,10 +69,7 @@ RicfCreateMultipleFractures::RicfCreateMultipleFractures()
     CAF_PDM_InitScriptableField( &m_action,
                                  "action",
                                  caf::AppEnum<MultipleFractures::Action>( MultipleFractures::Action::APPEND_FRACTURES ),
-                                 "Action",
-                                 "",
-                                 "",
-                                 "" );
+                                 "Action" );
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -90,10 +90,7 @@ RimGeoMechResultDefinition::RimGeoMechResultDefinition( void )
     CAF_PDM_InitField( &m_timeLapseBaseTimestep,
                        "TimeLapseBaseTimeStep",
                        RigFemResultAddress::noTimeLapseValue(),
-                       "Base Time Step",
-                       "",
-                       "",
-                       "" );
+                       "Base Time Step" );
     CAF_PDM_InitField( &m_referenceTimeStep, "ReferenceTimeStep", 0, "Reference Time Step" );
 
     CAF_PDM_InitField( &m_compactionRefLayer, "CompactionRefLayer", 0, "Compaction Ref Layer" );
@@ -111,10 +108,7 @@ RimGeoMechResultDefinition::RimGeoMechResultDefinition( void )
     CAF_PDM_InitField( &m_normalizeByHydrostaticPressure,
                        "NormalizeByHSP",
                        false,
-                       "Normalize by Hydrostatic Pressure",
-                       "",
-                       "",
-                       "" );
+                       "Normalize by Hydrostatic Pressure" );
     CAF_PDM_InitField( &m_normalizationAirGap, "NormalizationAirGap", 0.0, "Air Gap" );
     m_normalizationAirGap.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
 

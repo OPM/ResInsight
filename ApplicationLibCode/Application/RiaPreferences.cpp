@@ -81,10 +81,7 @@ RiaPreferences::RiaPreferences()
     CAF_PDM_InitField( &m_navigationPolicy,
                        "navigationPolicy",
                        caf::AppEnum<RiaDefines::RINavigationPolicy>( RiaDefines::RINavigationPolicy::NAVIGATION_POLICY_RMS ),
-                       "Navigation Mode",
-                       "",
-                       "",
-                       "" );
+                       "Navigation Mode" );
 
     CAF_PDM_InitField( &enableGrpcServer,
                        "enableGrpcServer",
@@ -122,10 +119,7 @@ RiaPreferences::RiaPreferences()
     CAF_PDM_InitField( &octaveShowHeaderInfoWhenExecutingScripts,
                        "octaveShowHeaderInfoWhenExecutingScripts",
                        false,
-                       "Show Text Header When Executing Scripts",
-                       "",
-                       "",
-                       "" );
+                       "Show Text Header When Executing Scripts" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &octaveShowHeaderInfoWhenExecutingScripts );
 
     CAF_PDM_InitField( &m_pythonExecutable, "pythonExecutable", QString( "python" ), "Python Executable Location" );
@@ -140,17 +134,11 @@ RiaPreferences::RiaPreferences()
     CAF_PDM_InitField( &defaultGridLineColors,
                        "defaultGridLineColors",
                        RiaColorTables::defaultGridLineColor(),
-                       "Mesh Color",
-                       "",
-                       "",
-                       "" );
+                       "Mesh Color" );
     CAF_PDM_InitField( &defaultFaultGridLineColors,
                        "defaultFaultGridLineColors",
                        RiaColorTables::defaultFaultLineColor(),
-                       "Mesh Color Along Faults",
-                       "",
-                       "",
-                       "" );
+                       "Mesh Color Along Faults" );
     CAF_PDM_InitField( &defaultWellLabelColor,
                        "defaultWellLableColor",
                        RiaColorTables::defaultWellLabelColor(),
@@ -204,19 +192,13 @@ RiaPreferences::RiaPreferences()
     CAF_PDM_InitField( &holoLensDisableCertificateVerification,
                        "holoLensDisableCertificateVerification",
                        false,
-                       "Disable SSL Certificate Verification (HoloLens)",
-                       "",
-                       "",
-                       "" );
+                       "Disable SSL Certificate Verification (HoloLens)" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &holoLensDisableCertificateVerification );
 
     CAF_PDM_InitField( &csvTextExportFieldSeparator,
                        "csvTextExportFieldSeparator",
                        QString( "," ),
-                       "CSV Text Export Field Separator",
-                       "",
-                       "",
-                       "" );
+                       "CSV Text Export Field Separator" );
 
     CAF_PDM_InitFieldNoDefault( &m_readerSettings, "readerSettings", "Reader Settings" );
     m_readerSettings = new RifReaderSettings;
@@ -236,10 +218,7 @@ RiaPreferences::RiaPreferences()
     CAF_PDM_InitField( &m_searchPlotTemplateFoldersRecursively,
                        "SearchPlotTemplateFoldersRecursively",
                        true,
-                       "Search Plot Templates Recursively",
-                       "",
-                       "",
-                       "" );
+                       "Search Plot Templates Recursively" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_searchPlotTemplateFoldersRecursively );
 
     CAF_PDM_InitFieldNoDefault( &m_defaultPlotTemplate, "defaultPlotTemplate", "Default Plot Template" );

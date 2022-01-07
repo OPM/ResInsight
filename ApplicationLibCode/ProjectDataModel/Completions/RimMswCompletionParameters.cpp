@@ -72,17 +72,11 @@ RimMswCompletionParameters::RimMswCompletionParameters()
     CAF_PDM_InitField( &m_linerDiameter,
                        "LinerDiameter",
                        std::numeric_limits<double>::infinity(),
-                       "Liner Inner Diameter",
-                       "",
-                       "",
-                       "" );
+                       "Liner Inner Diameter" );
     CAF_PDM_InitField( &m_roughnessFactor,
                        "RoughnessFactor",
                        std::numeric_limits<double>::infinity(),
-                       "Roughness Factor",
-                       "",
-                       "",
-                       "" );
+                       "Roughness Factor" );
 
     CAF_PDM_InitFieldNoDefault( &m_pressureDrop, "PressureDrop", "Pressure Drop" );
     CAF_PDM_InitFieldNoDefault( &m_lengthAndDepth, "LengthAndDepth", "Length and Depth" );

@@ -322,10 +322,7 @@ RimReservoirCellResultsStorageEntryInfo::RimReservoirCellResultsStorageEntryInfo
     CAF_PDM_InitField( &m_resultType,
                        "ResultType",
                        caf::AppEnum<RiaDefines::ResultCatType>( RiaDefines::ResultCatType::REMOVED ),
-                       "ResultType",
-                       "",
-                       "",
-                       "" );
+                       "ResultType" );
     CAF_PDM_InitField( &m_resultName, "ResultName", QString(), "ResultName" );
     CAF_PDM_InitFieldNoDefault( &m_timeStepDates, "TimeSteps", "TimeSteps" );
     CAF_PDM_InitFieldNoDefault( &m_daysSinceSimulationStart, "DaysSinceSimulationStart", "DaysSinceSimulationStart" );

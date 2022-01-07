@@ -120,10 +120,7 @@ RimVfpPlot::RimVfpPlot()
     CAF_PDM_InitField( &m_interpolatedVariable,
                        "InterpolatedVariable",
                        defaultInterpolatedVariable,
-                       "Interpolated Variable",
-                       "",
-                       "",
-                       "" );
+                       "Interpolated Variable" );
 
     caf::AppEnum<RimVfpDefines::ProductionVariableType> defaultPrimaryVariable =
         RimVfpDefines::ProductionVariableType::LIQUID_FLOW_RATE;
