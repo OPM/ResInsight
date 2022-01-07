@@ -65,10 +65,7 @@ RimGeoMechContourMapProjection::RimGeoMechContourMapProjection()
     CAF_PDM_InitField( &m_paddingAroundPorePressureRegion,
                        "PaddingAroundPorRegion",
                        0.0,
-                       "Horizontal Padding around PP regions",
-                       "",
-                       "",
-                       "" );
+                       "Horizontal Padding around PP regions" );
     m_paddingAroundPorePressureRegion.uiCapability()->setUiEditorTypeName(
         caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
     setName( "Map Projection" );

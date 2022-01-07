@@ -73,32 +73,20 @@ RiaPreferencesSummary::RiaPreferencesSummary()
     CAF_PDM_InitField( &m_summaryImportMode,
                        "summaryImportMode",
                        SummaryRestartFilesImportModeType( RiaPreferencesSummary::SummaryRestartFilesImportMode::IMPORT ),
-                       "Default Summary Import Option",
-                       "",
-                       "",
-                       "" );
+                       "Default Summary Import Option" );
     CAF_PDM_InitField( &m_gridImportMode,
                        "gridImportMode",
                        SummaryRestartFilesImportModeType( RiaPreferencesSummary::SummaryRestartFilesImportMode::NOT_IMPORT ),
-                       "Default Grid Import Option",
-                       "",
-                       "",
-                       "" );
+                       "Default Grid Import Option" );
     CAF_PDM_InitField( &m_summaryEnsembleImportMode,
                        "summaryEnsembleImportMode",
                        SummaryRestartFilesImportModeType( RiaPreferencesSummary::SummaryRestartFilesImportMode::IMPORT ),
-                       "Default Ensemble Summary Import Option",
-                       "",
-                       "",
-                       "" );
+                       "Default Ensemble Summary Import Option" );
 
     CAF_PDM_InitField( &m_defaultSummaryHistoryCurveStyle,
                        "defaultSummaryHistoryCurveStyle",
                        SummaryHistoryCurveStyleModeType( RiaPreferencesSummary::SummaryHistoryCurveStyleMode::SYMBOLS ),
-                       "Default Curve Style for History Vectors",
-                       "",
-                       "",
-                       "" );
+                       "Default Curve Style for History Vectors" );
     CAF_PDM_InitField( &m_defaultSummaryCurvesTextFilter,
                        "defaultSummaryCurvesTextFilter",
                        QString( "FOPT" ),
@@ -134,32 +122,20 @@ RiaPreferencesSummary::RiaPreferencesSummary()
                        "" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_createH5SummaryDataFile );
 
-    CAF_PDM_InitField( &m_createH5SummaryFileThreadCount,
-                       "createH5SummaryFileThreadCount",
-                       1,
-                       "h5 Summary Export Thread Count",
-                       "",
-                       "",
-                       "" );
+    CAF_PDM_InitField( &m_createH5SummaryFileThreadCount, "createH5SummaryFileThreadCount", 1, "h5 Summary Export Thread Count" );
 
     CAF_PDM_InitFieldNoDefault( &m_summaryReader, "summaryReaderType_v01", "File Format" );
 
     CAF_PDM_InitField( &m_showSummaryTimeAsLongString,
                        "showSummaryTimeAsLongString",
                        false,
-                       "Show resample time text as long time text (2010-11-21 23:15:00)",
-                       "",
-                       "",
-                       "" );
+                       "Show resample time text as long time text (2010-11-21 23:15:00)" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_showSummaryTimeAsLongString );
 
     CAF_PDM_InitField( &m_useMultipleThreadsWhenLoadingSummaryCases,
                        "useMultipleThreadsWhenLoadingSummaryCases",
                        true,
-                       "Use Multiple Threads for Import of Summary Files",
-                       "",
-                       "",
-                       "" );
+                       "Use Multiple Threads for Import of Summary Files" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_useMultipleThreadsWhenLoadingSummaryCases );
 }
 

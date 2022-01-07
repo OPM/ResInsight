@@ -86,10 +86,7 @@ RimWellLogFile::RimWellLogFile()
     CAF_PDM_InitField( &m_wellFlowCondition,
                        "WellFlowCondition",
                        caf::AppEnum<RimWellLogFile::WellFlowCondition>( RimWellLogFile::WELL_FLOW_COND_STANDARD ),
-                       "Well Flow Rates",
-                       "",
-                       "",
-                       "" );
+                       "Well Flow Rates" );
 
     CAF_PDM_InitField( &m_invalidDateMessage, "InvalidDateMessage", QString( "Invalid or no date" ), "" );
     m_invalidDateMessage.uiCapability()->setUiReadOnly( true );

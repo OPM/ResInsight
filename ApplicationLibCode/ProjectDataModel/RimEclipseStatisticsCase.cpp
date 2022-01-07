@@ -87,30 +87,12 @@ RimEclipseStatisticsCase::RimEclipseStatisticsCase()
     CAF_PDM_InitScriptableFieldNoDefault( &m_selectedGeneratedProperties, "GeneratedPropertiesToCalculate", "" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_selectedInputProperties, "InputPropertiesToCalculate", "" );
 
-    CAF_PDM_InitScriptableFieldNoDefault( &m_selectedFractureDynamicProperties,
-                                          "FractureDynamicPropertiesToCalculate",
-                                          "",
-                                          "",
-                                          "",
-                                          "" );
-    CAF_PDM_InitScriptableFieldNoDefault( &m_selectedFractureStaticProperties,
-                                          "FractureStaticPropertiesToCalculate",
-                                          "",
-                                          "",
-                                          "",
-                                          "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_selectedFractureDynamicProperties, "FractureDynamicPropertiesToCalculate", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_selectedFractureStaticProperties, "FractureStaticPropertiesToCalculate", "" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_selectedFractureGeneratedProperties,
                                           "FractureGeneratedPropertiesToCalculate",
-                                          "",
-                                          "",
-                                          "",
                                           "" );
-    CAF_PDM_InitScriptableFieldNoDefault( &m_selectedFractureInputProperties,
-                                          "FractureInputPropertiesToCalculate",
-                                          "",
-                                          "",
-                                          "",
-                                          "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_selectedFractureInputProperties, "FractureInputPropertiesToCalculate", "" );
 
     m_selectedDynamicProperties.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
     m_selectedStaticProperties.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
@@ -132,18 +114,12 @@ RimEclipseStatisticsCase::RimEclipseStatisticsCase()
     CAF_PDM_InitScriptableField( &m_wellDataSourceCase,
                                  "WellDataSourceCase",
                                  RiaResultNames::undefinedResultName(),
-                                 "Well Data Source Case",
-                                 "",
-                                 "",
-                                 "" );
+                                 "Well Data Source Case" );
 
     CAF_PDM_InitScriptableField( &m_useZeroAsInactiveCellValue,
                                  "UseZeroAsInactiveCellValue",
                                  false,
-                                 "Use Zero as Inactive Cell Value",
-                                 "",
-                                 "",
-                                 "" );
+                                 "Use Zero as Inactive Cell Value" );
 
     m_populateSelectionAfterLoadingGrid = false;
 

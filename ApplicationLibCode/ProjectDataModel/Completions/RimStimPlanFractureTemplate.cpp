@@ -80,10 +80,7 @@ RimStimPlanFractureTemplate::RimStimPlanFractureTemplate()
     CAF_PDM_InitField( &m_userDefinedWellPathDepthAtFracture,
                        "UserDefinedWellPathDepthAtFracture",
                        false,
-                       "User-Defined Well/Fracture Intersection Depth",
-                       "",
-                       "",
-                       "" );
+                       "User-Defined Well/Fracture Intersection Depth" );
 
     CAF_PDM_InitField( &m_borderPolygonResultName, "BorderPolygonResultName", QString( "" ), "Parameter" );
     m_borderPolygonResultName.uiCapability()->setUiHidden( true );
@@ -92,10 +89,7 @@ RimStimPlanFractureTemplate::RimStimPlanFractureTemplate()
     CAF_PDM_InitField( &m_conductivityResultNameOnFile,
                        "ConductivityResultName",
                        QString( "" ),
-                       "Active Conductivity Result Name",
-                       "",
-                       "",
-                       "" );
+                       "Active Conductivity Result Name" );
 
     CAF_PDM_InitFieldNoDefault( &m_propertiesTable, "PropertiesTable", "Properties Table" );
     m_propertiesTable.uiCapability()->setUiEditorTypeName( caf::PdmUiTextEditor::uiEditorTypeName() );

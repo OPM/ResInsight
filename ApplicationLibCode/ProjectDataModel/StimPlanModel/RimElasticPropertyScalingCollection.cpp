@@ -34,12 +34,7 @@ RimElasticPropertyScalingCollection::RimElasticPropertyScalingCollection()
 {
     CAF_PDM_InitScriptableObject( "Elastic Property Scalings" );
 
-    CAF_PDM_InitScriptableFieldNoDefault( &m_elasticPropertyScalings,
-                                          "ElasticPropertyScalings",
-                                          "Elastic Property Scalings",
-                                          "",
-                                          "",
-                                          "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_elasticPropertyScalings, "ElasticPropertyScalings", "Elastic Property Scalings" );
     m_elasticPropertyScalings.uiCapability()->setUiTreeHidden( true );
 }
 
