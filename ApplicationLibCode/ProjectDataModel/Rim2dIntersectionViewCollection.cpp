@@ -31,10 +31,7 @@ Rim2dIntersectionViewCollection::Rim2dIntersectionViewCollection()
 {
     CAF_PDM_InitObject( "2D Intersection Views", ":/CrossSection16x16.png" );
 
-    CAF_PDM_InitFieldNoDefault( &m_intersectionViews,
-                                "IntersectionViews",
-                                "Intersection Views",
-                                ":/CrossSection16x16.png" );
+    CAF_PDM_InitFieldNoDefault( &m_intersectionViews, "IntersectionViews", "Intersection Views", ":/CrossSection16x16.png" );
     m_intersectionViews.uiCapability()->setUiTreeHidden( true );
 }
 

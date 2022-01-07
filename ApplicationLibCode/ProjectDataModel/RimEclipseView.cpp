@@ -148,10 +148,7 @@ RimEclipseView::RimEclipseView()
     m_cellEdgeResult = new RimCellEdgeColors();
     m_cellEdgeResult.uiCapability()->setUiTreeHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_elementVectorResult,
-                                "ElementVectorResult",
-                                "Element Vector Result",
-                                ":/CellResult.png" );
+    CAF_PDM_InitFieldNoDefault( &m_elementVectorResult, "ElementVectorResult", "Element Vector Result", ":/CellResult.png" );
     m_elementVectorResult = new RimElementVectorResult;
     m_elementVectorResult.uiCapability()->setUiTreeHidden( true );
 
