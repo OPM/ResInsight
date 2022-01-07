@@ -61,6 +61,7 @@
 
 #include "cvfObject.h"
 
+#include "qwt_plot.h"
 #include "qwt_plot_curve.h"
 #include "qwt_symbol.h"
 
@@ -735,7 +736,7 @@ void RimEnsembleWellLogCurveSet::updateCurveColors()
         {
             if ( !m_legendOverlayFrame )
             {
-                m_legendOverlayFrame = new RiuDraggableOverlayFrame( plotTrack->viewer()->qwtPlot()->canvas(),
+                m_legendOverlayFrame = new RiuDraggableOverlayFrame( plotTrack->viewer()->getParentForOverlay(),
                                                                      plotTrack->viewer()->overlayMargins() );
             }
             m_legendOverlayFrame->setContentFrame( m_ensembleCurveSet->legendConfig()->makeLegendFrame() );

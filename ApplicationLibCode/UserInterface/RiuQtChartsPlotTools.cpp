@@ -24,29 +24,17 @@
 #include "RiaPreferences.h"
 #include "RiuQtChartsPlotWidget.h"
 
-#include <vector>
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 void RiuQtChartsPlotTools::setCommonPlotBehaviour( RiuQtChartsPlotWidget* plot )
 {
     // Plot background and frame look
-
     QPalette newPalette( plot->palette() );
     newPalette.setColor( QPalette::Window, Qt::white );
     plot->setPalette( newPalette );
 
     plot->setAutoFillBackground( true );
-    // plot->setCanvasBackground( Qt::white );
-    // plot->plotLayout()->setCanvasMargin( 0, -1 );
-
-    // Grid
-    // RiuQtChartsPlotWidgetGrid* grid = new RiuQtChartsPlotWidgetGrid;
-    // grid->attach( plot );
-    // QPen gridPen( Qt::SolidLine );
-    // grid->setPen( gridPen );
-    // RiuGuiTheme::styleQwtItem( grid );
 
     // Axis number font
     int axisFontSize = caf::FontTools::absolutePointSize( RiaPreferences::current()->defaultPlotFontSize(),
@@ -58,27 +46,13 @@ void RiuQtChartsPlotTools::setCommonPlotBehaviour( RiuQtChartsPlotWidget* plot )
     bool titleBold     = false;
     plot->setAxesFontsAndAlignment( titleFontSize, axisFontSize, titleBold, Qt::AlignRight );
 
-    // Set a focus policy to allow it taking key press events.
-    // This is not strictly necessary since this widget inherit
-    // RiuQtChartsPlotWidget which already has a focus policy.
-    // However, for completeness we still do it here.
-    // plot->setFocusPolicy( Qt::WheelFocus );
-
-    // Enable mousetracking and event filter
-    // plot->canvas()->setMouseTracking( true );
-    // plot->plotLayout()->setAlignCanvasToScales( true );
-
-    // plot->setContentsMargins( 1, 1, 1, 1 );
-
-    // // Store the pointer address as an object name. This way
+    // Store the pointer address as an object name. This way
     // each plot can be identified uniquely for CSS-stylesheets
-    // QString objectName = QString( "%1" ).arg(
-    // reinterpret_cast<uint64_t>( plot ) ); plot->setObjectName(
-    // objectName );
+    QString objectName = QString( "%1" ).arg( reinterpret_cast<uint64_t>( plot ) );
+    plot->setObjectName( objectName );
 
-    // QString canvasName = QString( "%1" ).arg(
-    // reinterpret_cast<uint64_t>( plot->canvas() ) );
-    // plot->canvas()->setObjectName( canvasName );
+    QString canvasName = QString( "%1" ).arg( reinterpret_cast<uint64_t>( plot->getParentForOverlay() ) );
+    plot->getParentForOverlay()->setObjectName( canvasName );
 }
 
 //--------------------------------------------------------------------------------------------------

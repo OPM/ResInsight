@@ -157,7 +157,14 @@ void RiuPlotWidget::removeOverlayFrame( RiuDraggableOverlayFrame* overlayFrame )
     overlayFrame->hide();
     overlayFrame->setParent( nullptr );
     m_overlayFrames.removeOne( overlayFrame );
-};
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuPlotWidget::removeEventFilter()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///

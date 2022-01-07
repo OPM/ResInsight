@@ -143,8 +143,6 @@ public:
 
     RimViewWindow* ownerViewWindow() const override;
 
-    void removeEventFilter() override;
-
     void updateLegend() override;
     void updateAxes() override;
 
@@ -173,9 +171,6 @@ public:
 protected:
     void setAxis( RiaDefines::PlotAxis axis, QtCharts::QAbstractSeries* series );
 
-    bool eventFilter( QObject* watched, QEvent* event ) override;
-    void hideEvent( QHideEvent* event ) override;
-    void showEvent( QShowEvent* event ) override;
     void resizeEvent( QResizeEvent* event ) override;
     void keyPressEvent( QKeyEvent* event ) override;
     void wheelEvent( QWheelEvent* event ) override;
@@ -196,8 +191,6 @@ protected:
 
 signals:
     void plotZoomed();
-    //     void plotSelected( bool toggleSelection );
-    //     void axisSelected( int axisId, bool toggleSelection );
 
 private slots:
     void axisRangeChanged();
@@ -207,12 +200,6 @@ private:
     static int defaultMinimumWidth();
     void       replot() override;
 
-    // void highlightPlotItem( const QtChartsPlotItem* closestItem );
-    // void resetPlotItemHighlighting();
-    // void onAxisSelected( QtChartsScaleWidget* scale, bool toggleItemInSelection );
-    // void recalculateAxisExtents( RiaDefines::PlotAxis axis );
-
-private:
     QPointer<QtCharts::QChartView> m_viewer;
 
     std::map<RiaDefines::PlotAxis, QtCharts::QAbstractAxis*> m_axes;
