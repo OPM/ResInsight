@@ -20,10 +20,9 @@
 
 #include "RifEclipseSummaryAddress.h"
 
+#include "RimObjectiveFunctionTools.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseCollection.h"
-
-#include "RiuSummaryQuantityNameInfoProvider.h"
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -103,6 +102,18 @@ QString RimSummaryPlotNameHelper::plotTitle() const
 //--------------------------------------------------------------------------------------------------
 bool RimSummaryPlotNameHelper::isPlotDisplayingSingleQuantity() const
 {
+    if ( m_analyzer.quantities().size() == 2 )
+    {
+        std::vector<std::string> strings;
+        for ( const auto& q : m_analyzer.quantities() )
+            strings.push_back( q );
+
+        auto first  = RimObjectiveFunctionTools::nativeQuantityName( strings[0] );
+        auto second = RimObjectiveFunctionTools::nativeQuantityName( strings[1] );
+
+        if ( first == second ) return true;
+    }
+
     return m_analyzer.quantities().size() == 1;
 }
 
