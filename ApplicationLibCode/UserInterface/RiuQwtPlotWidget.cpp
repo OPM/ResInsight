@@ -34,6 +34,7 @@
 #include "RiuQwtCurvePointTracker.h"
 #include "RiuQwtLinearScaleEngine.h"
 #include "RiuQwtPlotCurve.h"
+#include "RiuQwtPlotItem.h"
 #include "RiuQwtPlotTools.h"
 #include "RiuQwtScalePicker.h"
 
@@ -96,9 +97,9 @@ RiuQwtPlotWidget::RiuQwtPlotWidget( RimPlot* plotDefinition, QWidget* parent )
     connect( this, SIGNAL( plotSelected( bool ) ), plotDefinition, SLOT( onPlotSelected( bool ) ) );
     connect( this, SIGNAL( axisSelected( int, bool ) ), plotDefinition, SLOT( onAxisSelected( int, bool ) ) );
     connect( this,
-             SIGNAL( plotItemSelected( QwtPlotItem*, bool, int ) ),
+             SIGNAL( plotItemSelected( std::shared_ptr<RiuPlotItem>, bool, int ) ),
              plotDefinition,
-             SLOT( onPlotItemSelected( QwtPlotItem*, bool, int ) ) );
+             SLOT( onPlotItemSelected( std::shared_ptr<RiuPlotItem>, bool, int ) ) );
     connect( this, SIGNAL( onKeyPressEvent( QKeyEvent* ) ), plotDefinition, SLOT( onKeyPressEvent( QKeyEvent* ) ) );
     connect( this, SIGNAL( onWheelEvent( QWheelEvent* ) ), plotDefinition, SLOT( onWheelEvent( QWheelEvent* ) ) );
     connect( this, SIGNAL( destroyed() ), plotDefinition, SLOT( onViewerDestroyed() ) );
@@ -913,7 +914,8 @@ void RiuQwtPlotWidget::selectClosestPlotItem( const QPoint& pos, bool toggleItem
     {
         // TODO: highlight all selected curves
         highlightPlotItem( closestItem );
-        emit plotItemSelected( closestItem, toggleItemInSelection, distanceFromClick < 10 ? closestCurvePoint : -1 );
+        auto plotItem = std::make_shared<RiuQwtPlotItem>( closestItem );
+        emit plotItemSelected( plotItem, toggleItemInSelection, distanceFromClick < 10 ? closestCurvePoint : -1 );
 
         scheduleReplot();
     }

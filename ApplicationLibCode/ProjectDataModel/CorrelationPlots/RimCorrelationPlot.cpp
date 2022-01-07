@@ -22,6 +22,7 @@
 #include "RiaQDateTimeTools.h"
 #include "RiuGroupedBarChartBuilder.h"
 #include "RiuPlotMainWindowTools.h"
+#include "RiuQwtPlotItem.h"
 #include "RiuQwtPlotWidget.h"
 
 #include "RifSummaryReaderInterface.h"
@@ -282,9 +283,12 @@ void RimCorrelationPlot::updatePlotTitle()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimCorrelationPlot::onPlotItemSelected( QwtPlotItem* plotItem, bool toggle, int sampleIndex )
+void RimCorrelationPlot::onPlotItemSelected( std::shared_ptr<RiuPlotItem> plotItem, bool toggle, int sampleIndex )
 {
-    QwtPlotBarChart* barChart = dynamic_cast<QwtPlotBarChart*>( plotItem );
+    RiuQwtPlotItem* qwtPlotItem = dynamic_cast<RiuQwtPlotItem*>( plotItem.get() );
+    if ( !qwtPlotItem ) return;
+
+    QwtPlotBarChart* barChart = dynamic_cast<QwtPlotBarChart*>( qwtPlotItem->qwtPlotItem() );
     if ( barChart && !curveDefinitions().empty() )
     {
         auto curveDef = curveDefinitions().front();
