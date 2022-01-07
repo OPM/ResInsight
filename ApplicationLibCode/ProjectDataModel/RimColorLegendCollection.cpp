@@ -36,10 +36,7 @@ RimColorLegendCollection::RimColorLegendCollection()
 {
     CAF_PDM_InitObject( "Color Legends", ":/Legend.png" );
 
-    CAF_PDM_InitFieldNoDefault( &m_standardColorLegends,
-                                "StandardColorLegends",
-                                "Standard Color Legends",
-                                ":/Legend.png" );
+    CAF_PDM_InitFieldNoDefault( &m_standardColorLegends, "StandardColorLegends", "Standard Color Legends", ":/Legend.png" );
     m_standardColorLegends.xmlCapability()->disableIO();
 
     CAF_PDM_InitFieldNoDefault( &m_customColorLegends, "CustomColorLegends", "Custom Color Legends", ":/Legend.png" );

@@ -65,10 +65,7 @@ RimCellEdgeColors::RimCellEdgeColors()
 
     CAF_PDM_InitFieldNoDefault( &m_legendConfig, "LegendDefinition", "Color Legend", ":/Legend.png" );
 
-    CAF_PDM_InitFieldNoDefault( &m_singleVarEdgeResultColors,
-                                "SingleVarEdgeResult",
-                                "Result Property",
-                                ":/CellResult.png" );
+    CAF_PDM_InitFieldNoDefault( &m_singleVarEdgeResultColors, "SingleVarEdgeResult", "Result Property", ":/CellResult.png" );
     m_singleVarEdgeResultColors = new RimEclipseCellColors();
 
     m_resultVariable.uiCapability()->setUiEditorTypeName( caf::PdmUiListEditor::uiEditorTypeName() );

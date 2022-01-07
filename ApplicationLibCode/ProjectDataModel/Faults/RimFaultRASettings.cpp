@@ -84,10 +84,7 @@ RimFaultRASettings::RimFaultRASettings()
     m_endTimestepGeoMech.uiCapability()->setUiReadOnly( true );
 
     CAF_PDM_InitFieldNoDefault( &m_basicParameters, "BasicParameters", "Basic Processing Parameters", ":/Bullet.png" );
-    CAF_PDM_InitFieldNoDefault( &m_advancedParameters,
-                                "AdvancedParameters",
-                                "Advanced Processing Parameters",
-                                ":/Bullet.png" );
+    CAF_PDM_InitFieldNoDefault( &m_advancedParameters, "AdvancedParameters", "Advanced Processing Parameters", ":/Bullet.png" );
 
     CAF_PDM_InitFieldNoDefault( &m_basicParametersRI, "BasicParametersRI", "Basic ResInsight Parameters" );
     CAF_PDM_InitFieldNoDefault( &m_advancedParametersRI, "AdvancedParametersRI", "Advanced ResInsight Parameters" );
