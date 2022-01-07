@@ -34,6 +34,7 @@ class QPaintDevice;
 class QWheelEvent;
 class RiuPlotWidget;
 class RiuPlotCurve;
+class RiuPlotItem;
 
 //==================================================================================================
 ///
@@ -114,6 +115,7 @@ protected:
 
 private slots:
     virtual void onAxisSelected( int axis, bool toggle ){};
+    virtual void onPlotItemSelected( std::shared_ptr<RiuPlotItem>, bool, int ){};
     void         onPlotSelected( bool toggle );
     void         onViewerDestroyed();
     void         onKeyPressEvent( QKeyEvent* event );

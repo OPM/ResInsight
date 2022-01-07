@@ -68,7 +68,7 @@ protected:
 
 private slots:
     void onZoomedSlot();
-    void onPlotItemSelected( QwtPlotItem* selectedItem, bool toggleItem, int sampleIndex );
+    void onPlotItemSelected( std::shared_ptr<RiuPlotItem> selectedItem, bool toggleItem, int sampleIndex );
 
 private:
     std::unique_ptr<RiuPlotAnnotationTool> m_annotationTool;

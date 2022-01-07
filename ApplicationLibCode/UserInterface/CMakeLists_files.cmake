@@ -10,6 +10,8 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiuPlotCurve.h
     ${CMAKE_CURRENT_LIST_DIR}/RiuQwtPlotCurve.h
     ${CMAKE_CURRENT_LIST_DIR}/RiuQwtPlotCurveDefines.h
+    ${CMAKE_CURRENT_LIST_DIR}/RiuPlotItem.h
+    ${CMAKE_CURRENT_LIST_DIR}/RiuQwtPlotItem.h
     ${CMAKE_CURRENT_LIST_DIR}/RiuPlotMainWindow.h
     ${CMAKE_CURRENT_LIST_DIR}/RiuMainWindow.h
     ${CMAKE_CURRENT_LIST_DIR}/RiuMainWindowBase.h
@@ -110,6 +112,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiuPlotCurve.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuQwtPlotCurve.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuQwtPlotCurveDefines.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RiuQwtPlotItem.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuPlotMainWindow.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuMainWindow.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuMainWindowBase.cpp
