@@ -44,12 +44,17 @@ public:
     RimSummaryAddress();
     ~RimSummaryAddress() override;
 
+    static RimSummaryAddress* wrapAddress( const RifEclipseSummaryAddress& addr );
+
     void                     setAddress( const RifEclipseSummaryAddress& addr );
     RifEclipseSummaryAddress address();
 
     void ensureIdIsAssigned();
 
     RiaDefines::PhaseType addressPhaseType() const;
+
+protected:
+    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
 private:
     caf::PdmField<caf::AppEnum<RifEclipseSummaryAddress::SummaryVarCategory>> m_category;

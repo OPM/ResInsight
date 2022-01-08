@@ -24,8 +24,12 @@
 #include "RicfCommandObject.h"
 #include "RifSummaryReaderInterface.h"
 
+#include "RifEclipseSummaryAddress.h"
+
 #include "RimMainPlotCollection.h"
 #include "RimProject.h"
+#include "RimSummaryAddress.h"
+#include "RimSummaryAddressCollection.h"
 #include "RimSummaryCaseCollection.h"
 #include "RimSummaryPlotCollection.h"
 
@@ -61,6 +65,10 @@ RimSummaryCase::RimSummaryCase()
     m_caseId.registerKeywordAlias( "CaseId" );
     m_caseId.uiCapability()->setUiReadOnly( true );
     m_caseId.capability<caf::PdmAbstractFieldScriptingCapability>()->setIOWriteable( false );
+
+    CAF_PDM_InitFieldNoDefault( &m_groups, "AddressGroups", "Addresses" );
+    m_groups.uiCapability()->setUiHidden( true );
+    m_groups.uiCapability()->setUiTreeHidden( true );
 
     m_isObservedData = false;
 }
@@ -203,8 +211,74 @@ QString RimSummaryCase::errorMessagesFromReader()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimSummaryCase::buildChildNodes()
+{
+    RifSummaryReaderInterface* reader = summaryReader();
+    if ( !reader ) return;
+
+    m_groups.clear();
+
+    RimSummaryAddressCollection* wells = new RimSummaryAddressCollection();
+    wells->setName( "Wells" );
+
+    RimSummaryAddressCollection* regions = new RimSummaryAddressCollection();
+    regions->setName( "Regions" );
+
+    RimSummaryAddressCollection* fields = new RimSummaryAddressCollection();
+    fields->setName( "Field" );
+
+    RimSummaryAddressCollection* groups = new RimSummaryAddressCollection();
+    groups->setName( "Groups" );
+
+    RimSummaryAddressCollection* misc = new RimSummaryAddressCollection();
+    misc->setName( "Miscellaneous" );
+
+    for ( const auto& address : reader->allResultAddresses() )
+    {
+        switch ( address.category() )
+        {
+            case RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_MISC:
+                misc->addAddress( RimSummaryAddress::wrapAddress( address ) );
+                break;
+
+            case RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_FIELD:
+                fields->addAddress( RimSummaryAddress::wrapAddress( address ) );
+                break;
+
+            case RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_REGION:
+                regions->addToSubfolder( RimSummaryAddress::wrapAddress( address ),
+                                         QString::number( address.regionNumber() ) );
+                break;
+
+            case RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_WELL_GROUP:
+                groups->addToSubfolder( RimSummaryAddress::wrapAddress( address ),
+                                        QString::fromStdString( address.wellGroupName() ) );
+                break;
+
+            case RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_WELL:
+                wells->addToSubfolder( RimSummaryAddress::wrapAddress( address ),
+                                       QString::fromStdString( address.wellName() ) );
+                break;
+
+            default:
+                continue;
+        }
+    }
+
+    m_groups.push_back( misc );
+    m_groups.push_back( fields );
+    m_groups.push_back( regions );
+    m_groups.push_back( groups );
+    m_groups.push_back( wells );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimSummaryCase::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/ )
 {
+    if ( m_groups.size() == 0 ) buildChildNodes();
+
     updateTreeItemName();
 }
 

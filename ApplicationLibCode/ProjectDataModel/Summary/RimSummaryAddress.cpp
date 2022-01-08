@@ -58,6 +58,8 @@ CAF_PDM_SOURCE_INIT( RimSummaryAddress, "SummaryAddress" );
 //--------------------------------------------------------------------------------------------------
 RimSummaryAddress::RimSummaryAddress()
 {
+    CAF_PDM_InitObject( "SummaryAddress", ":/DataVector.png", "", "" );
+
     CAF_PDM_InitFieldNoDefault( &m_category, "SummaryVarType", "Type" );
     CAF_PDM_InitFieldNoDefault( &m_quantityName, "SummaryQuantityName", "Quantity" );
     CAF_PDM_InitFieldNoDefault( &m_regionNumber, "SummaryRegion", "Region" );
@@ -95,6 +97,16 @@ RimSummaryAddress::~RimSummaryAddress()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RimSummaryAddress* RimSummaryAddress::wrapAddress( const RifEclipseSummaryAddress& addr )
+{
+    RimSummaryAddress* newAddress = new RimSummaryAddress();
+    newAddress->setAddress( addr );
+    return newAddress;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimSummaryAddress::setAddress( const RifEclipseSummaryAddress& addr )
 {
     m_category          = addr.category();
@@ -112,6 +124,8 @@ void RimSummaryAddress::setAddress( const RifEclipseSummaryAddress& addr )
     m_cellJ         = addr.cellJ();
     m_cellK         = addr.cellK();
     m_calculationId = addr.id();
+
+    setUiName( m_quantityName );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -175,4 +189,12 @@ RiaDefines::PhaseType RimSummaryAddress::addressPhaseType() const
         return RiaDefines::PhaseType::WATER_PHASE;
     }
     return RiaDefines::PhaseType::PHASE_NOT_APPLICABLE;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryAddress::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
+{
+    uiOrdering.skipRemainingFields( true );
 }
