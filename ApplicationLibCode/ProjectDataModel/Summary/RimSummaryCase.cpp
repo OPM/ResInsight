@@ -238,25 +238,25 @@ void RimSummaryCase::buildChildNodes()
         switch ( address.category() )
         {
             case RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_MISC:
-                misc->addAddress( RimSummaryAddress::wrapAddress( address ) );
+                misc->addAddress( RimSummaryAddress::wrapFileReaderAddress( address ) );
                 break;
 
             case RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_FIELD:
-                fields->addAddress( RimSummaryAddress::wrapAddress( address ) );
+                fields->addAddress( RimSummaryAddress::wrapFileReaderAddress( address ) );
                 break;
 
             case RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_REGION:
-                regions->addToSubfolder( RimSummaryAddress::wrapAddress( address ),
+                regions->addToSubfolder( RimSummaryAddress::wrapFileReaderAddress( address ),
                                          QString::number( address.regionNumber() ) );
                 break;
 
             case RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_WELL_GROUP:
-                groups->addToSubfolder( RimSummaryAddress::wrapAddress( address ),
+                groups->addToSubfolder( RimSummaryAddress::wrapFileReaderAddress( address ),
                                         QString::fromStdString( address.wellGroupName() ) );
                 break;
 
             case RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_WELL:
-                wells->addToSubfolder( RimSummaryAddress::wrapAddress( address ),
+                wells->addToSubfolder( RimSummaryAddress::wrapFileReaderAddress( address ),
                                        QString::fromStdString( address.wellName() ) );
                 break;
 

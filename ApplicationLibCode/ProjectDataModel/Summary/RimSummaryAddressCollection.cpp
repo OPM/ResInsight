@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2020-     Equinor ASA
+//  Copyright (C) 2022     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -20,8 +20,6 @@
 
 #include "RimSummaryAddress.h"
 
-#include "cafPdmUiTreeOrdering.h"
-
 CAF_PDM_SOURCE_INIT( RimSummaryAddressCollection, "RimSummaryAddressCollection" );
 
 //--------------------------------------------------------------------------------------------------
@@ -36,7 +34,6 @@ RimSummaryAddressCollection::RimSummaryAddressCollection()
 
     CAF_PDM_InitFieldNoDefault( &m_subfolders, "AddressSubfolders", "Subfolders" );
     m_subfolders.uiCapability()->setUiTreeHidden( true );
-    // m_subfolders.uiCapability()->setUiTreeChildrenHidden( false );
 
     nameField()->uiCapability()->setUiHidden( true );
 }
@@ -45,31 +42,6 @@ RimSummaryAddressCollection::RimSummaryAddressCollection()
 ///
 //--------------------------------------------------------------------------------------------------
 RimSummaryAddressCollection::~RimSummaryAddressCollection()
-{
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimSummaryAddressCollection::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering,
-                                                        QString                 uiConfigName /*= ""*/ )
-{
-    // uiTreeOrdering.skipRemainingChildren( true );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimSummaryAddressCollection::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                                    const QVariant&            oldValue,
-                                                    const QVariant&            newValue )
-{
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimSummaryAddressCollection::initAfterRead()
 {
 }
 

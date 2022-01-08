@@ -97,7 +97,7 @@ RimSummaryAddress::~RimSummaryAddress()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSummaryAddress* RimSummaryAddress::wrapAddress( const RifEclipseSummaryAddress& addr )
+RimSummaryAddress* RimSummaryAddress::wrapFileReaderAddress( const RifEclipseSummaryAddress& addr )
 {
     RimSummaryAddress* newAddress = new RimSummaryAddress();
     newAddress->setAddress( addr );

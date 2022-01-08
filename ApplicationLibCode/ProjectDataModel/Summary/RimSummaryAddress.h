@@ -44,7 +44,7 @@ public:
     RimSummaryAddress();
     ~RimSummaryAddress() override;
 
-    static RimSummaryAddress* wrapAddress( const RifEclipseSummaryAddress& addr );
+    static RimSummaryAddress* wrapFileReaderAddress( const RifEclipseSummaryAddress& addr );
 
     void                     setAddress( const RifEclipseSummaryAddress& addr );
     RifEclipseSummaryAddress address();

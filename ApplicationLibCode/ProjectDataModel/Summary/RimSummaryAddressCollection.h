@@ -20,7 +20,6 @@
 #include "RimNamedObject.h"
 
 #include "cafPdmChildArrayField.h"
-#include "cafPdmField.h"
 
 #include <QString>
 
@@ -36,14 +35,6 @@ public:
 
     void addAddress( RimSummaryAddress* address );
     void addToSubfolder( RimSummaryAddress* address, QString foldername );
-
-protected:
-    void initAfterRead() override;
-
-    void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
-
-private:
-    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
 private:
     caf::PdmChildArrayField<RimSummaryAddress*>           m_adresses;
