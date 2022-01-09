@@ -621,6 +621,20 @@ void RiuMultiPlotPage::reinsertPlotWidgets()
             plotWidgets[visibleIndex]->setAxisTitleEnabled( QwtPlot::yLeft, showYAxis( row, column ) );
             plotWidgets[visibleIndex]->setAxesFontsAndAlignment( m_axisTitleFontSize, m_axisValueFontSize );
 
+            {
+                int left  = 0;
+                int top   = 0;
+                int right = 0;
+                int bot   = 0;
+
+                plotWidgets[visibleIndex]->getContentsMargins( &left, &top, &right, &bot );
+                bot = 40;
+
+                // Adjust the space below a graph to make sure the heading of the row below is closest to the
+                // corresponding graph
+                plotWidgets[visibleIndex]->setContentsMargins( left, top, right, bot );
+            }
+
             plotWidgets[visibleIndex]->show();
 
             if ( legends[visibleIndex] )
