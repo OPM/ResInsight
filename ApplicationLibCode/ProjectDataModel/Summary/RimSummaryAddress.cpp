@@ -75,6 +75,8 @@ RimSummaryAddress::RimSummaryAddress()
     CAF_PDM_InitFieldNoDefault( &m_isErrorResult, "IsErrorResult", "Is Error Result" );
     CAF_PDM_InitFieldNoDefault( &m_calculationId, "CalculationId", "Calculation Id" );
 
+    CAF_PDM_InitField( &m_caseId, "CaseId", -1, "CaseId" );
+
     m_category          = RifEclipseSummaryAddress::SUMMARY_INVALID;
     m_regionNumber      = -1;
     m_regionNumber2     = -1;
@@ -97,10 +99,11 @@ RimSummaryAddress::~RimSummaryAddress()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSummaryAddress* RimSummaryAddress::wrapFileReaderAddress( const RifEclipseSummaryAddress& addr )
+RimSummaryAddress* RimSummaryAddress::wrapFileReaderAddress( const RifEclipseSummaryAddress& addr, int caseId /* = -1 */ )
 {
     RimSummaryAddress* newAddress = new RimSummaryAddress();
     newAddress->setAddress( addr );
+    newAddress->setCaseId( caseId );
     return newAddress;
 }
 
@@ -152,7 +155,7 @@ RifEclipseSummaryAddress RimSummaryAddress::address()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryAddress::ensureIdIsAssigned()
+void RimSummaryAddress::ensureCalculationIdIsAssigned()
 {
     if ( m_category == RifEclipseSummaryAddress::SUMMARY_CALCULATED && m_calculationId == -1 )
     {
@@ -197,4 +200,20 @@ RiaDefines::PhaseType RimSummaryAddress::addressPhaseType() const
 void RimSummaryAddress::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     uiOrdering.skipRemainingFields( true );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryAddress::setCaseId( int caseId )
+{
+    m_caseId = caseId;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RimSummaryAddress::caseId() const
+{
+    return m_caseId;
 }

@@ -27,7 +27,7 @@ CAF_PDM_SOURCE_INIT( RimSummaryAddressCollection, "RimSummaryAddressCollection" 
 //--------------------------------------------------------------------------------------------------
 RimSummaryAddressCollection::RimSummaryAddressCollection()
 {
-    CAF_PDM_InitObject( "Surfaces", ":/Folder.png", "", "" );
+    CAF_PDM_InitObject( "Folder", ":/Folder.png", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_adresses, "SummaryAddresses", "Addresses" );
     m_adresses.uiCapability()->setUiTreeHidden( true );

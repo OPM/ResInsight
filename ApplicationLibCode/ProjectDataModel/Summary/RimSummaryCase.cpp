@@ -238,25 +238,25 @@ void RimSummaryCase::buildChildNodes()
         switch ( address.category() )
         {
             case RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_MISC:
-                misc->addAddress( RimSummaryAddress::wrapFileReaderAddress( address ) );
+                misc->addAddress( RimSummaryAddress::wrapFileReaderAddress( address, m_caseId ) );
                 break;
 
             case RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_FIELD:
-                fields->addAddress( RimSummaryAddress::wrapFileReaderAddress( address ) );
+                fields->addAddress( RimSummaryAddress::wrapFileReaderAddress( address, m_caseId ) );
                 break;
 
             case RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_REGION:
-                regions->addToSubfolder( RimSummaryAddress::wrapFileReaderAddress( address ),
+                regions->addToSubfolder( RimSummaryAddress::wrapFileReaderAddress( address, m_caseId ),
                                          QString::number( address.regionNumber() ) );
                 break;
 
             case RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_WELL_GROUP:
-                groups->addToSubfolder( RimSummaryAddress::wrapFileReaderAddress( address ),
+                groups->addToSubfolder( RimSummaryAddress::wrapFileReaderAddress( address, m_caseId ),
                                         QString::fromStdString( address.wellGroupName() ) );
                 break;
 
             case RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_WELL:
-                wells->addToSubfolder( RimSummaryAddress::wrapFileReaderAddress( address ),
+                wells->addToSubfolder( RimSummaryAddress::wrapFileReaderAddress( address, m_caseId ),
                                        QString::fromStdString( address.wellName() ) );
                 break;
 
@@ -434,4 +434,13 @@ void RimSummaryCase::setCaseId( int caseId )
 int RimSummaryCase::caseId() const
 {
     return m_caseId();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCase::refreshMetaData()
+{
+    buildChildNodes();
+    updateConnectedEditors();
 }

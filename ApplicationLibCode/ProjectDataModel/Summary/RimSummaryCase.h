@@ -65,6 +65,8 @@ public:
     void updateAutoShortName();
     void updateOptionSensitivity();
 
+    void refreshMetaData();
+
     virtual void                       createSummaryReaderInterface() = 0;
     virtual void                       createRftReaderInterface() {}
     virtual RifSummaryReaderInterface* summaryReader() = 0;

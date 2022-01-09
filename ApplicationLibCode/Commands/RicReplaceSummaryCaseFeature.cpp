@@ -92,6 +92,8 @@ void RicReplaceSummaryCaseFeature::onActionTriggered( bool isChecked )
     summaryCase->updateAutoShortName();
     summaryCase->createSummaryReaderInterface();
     summaryCase->createRftReaderInterface();
+    summaryCase->refreshMetaData();
+
     RiaLogging::info( QString( "Replaced summary data for %1" ).arg( oldSummaryHeaderFilename ) );
 
     RicReplaceSummaryCaseFeature::updateRequredCalculatedCurves( summaryCase );

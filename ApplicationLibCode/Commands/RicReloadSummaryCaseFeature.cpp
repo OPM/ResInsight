@@ -61,6 +61,7 @@ void RicReloadSummaryCaseFeature::onActionTriggered( bool isChecked )
     {
         summaryCase->createSummaryReaderInterface();
         summaryCase->createRftReaderInterface();
+        summaryCase->refreshMetaData();
 
         RicReplaceSummaryCaseFeature::updateRequredCalculatedCurves( summaryCase );
 

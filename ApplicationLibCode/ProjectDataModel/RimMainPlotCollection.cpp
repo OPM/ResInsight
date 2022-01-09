@@ -347,7 +347,7 @@ void RimMainPlotCollection::ensureCalculationIdsAreAssigned()
 
     for ( RimSummaryAddress* adr : allAddresses )
     {
-        adr->ensureIdIsAssigned();
+        adr->ensureCalculationIdIsAssigned();
     }
 }
 
