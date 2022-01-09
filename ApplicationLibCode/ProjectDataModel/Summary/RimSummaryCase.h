@@ -104,7 +104,7 @@ protected:
     caf::PdmField<DisplayNameEnum> m_displayNameOption;
     caf::PdmField<caf::FilePath>   m_summaryHeaderFilename;
 
-    caf::PdmChildArrayField<RimSummaryAddressCollection*> m_groups;
+    caf::PdmChildArrayField<RimSummaryAddressCollection*> m_dataVectorGroups;
 
     bool               m_isObservedData;
     caf::PdmField<int> m_caseId;

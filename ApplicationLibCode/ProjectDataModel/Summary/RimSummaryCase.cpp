@@ -66,9 +66,9 @@ RimSummaryCase::RimSummaryCase()
     m_caseId.uiCapability()->setUiReadOnly( true );
     m_caseId.capability<caf::PdmAbstractFieldScriptingCapability>()->setIOWriteable( false );
 
-    CAF_PDM_InitFieldNoDefault( &m_groups, "AddressGroups", "Addresses" );
-    m_groups.uiCapability()->setUiHidden( true );
-    m_groups.uiCapability()->setUiTreeHidden( true );
+    CAF_PDM_InitFieldNoDefault( &m_dataVectorGroups, "DataVectorGroups", "Data Vectors" );
+    m_dataVectorGroups.uiCapability()->setUiHidden( true );
+    m_dataVectorGroups.uiCapability()->setUiTreeHidden( true );
 
     m_isObservedData = false;
 }
@@ -216,7 +216,7 @@ void RimSummaryCase::buildChildNodes()
     RifSummaryReaderInterface* reader = summaryReader();
     if ( !reader ) return;
 
-    m_groups.clear();
+    m_dataVectorGroups.clear();
 
     RimSummaryAddressCollection* wells = new RimSummaryAddressCollection();
     wells->setName( "Wells" );
@@ -265,11 +265,11 @@ void RimSummaryCase::buildChildNodes()
         }
     }
 
-    m_groups.push_back( misc );
-    m_groups.push_back( fields );
-    m_groups.push_back( regions );
-    m_groups.push_back( groups );
-    m_groups.push_back( wells );
+    m_dataVectorGroups.push_back( misc );
+    m_dataVectorGroups.push_back( fields );
+    m_dataVectorGroups.push_back( regions );
+    m_dataVectorGroups.push_back( groups );
+    m_dataVectorGroups.push_back( wells );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -277,7 +277,7 @@ void RimSummaryCase::buildChildNodes()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCase::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/ )
 {
-    if ( m_groups.size() == 0 ) buildChildNodes();
+    if ( m_dataVectorGroups.size() == 0 ) buildChildNodes();
 
     updateTreeItemName();
 }
