@@ -1198,6 +1198,9 @@ void RimSummaryPlot::updateTimeAxis()
 
             switch ( tickmarkCountEnum )
             {
+                case RimSummaryTimeAxisProperties::LegendTickmarkCount::TICKMARK_VERY_FEW:
+                    maxTickmarkCount = 2;
+                    break;
                 case RimSummaryTimeAxisProperties::LegendTickmarkCount::TICKMARK_FEW:
                     maxTickmarkCount = 4;
                     break;

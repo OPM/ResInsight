@@ -190,6 +190,8 @@ void RimMultiPlot::insertPlot( RimPlot* plot, size_t index )
 {
     if ( plot )
     {
+        setTickmarkCount( plot, m_majorTickmarkCount() );
+
         m_plots.insert( index, plot );
 
         if ( m_viewer )
@@ -265,6 +267,7 @@ void RimMultiPlot::insertPlots( const std::vector<RimPlot*>& plots )
     {
         if ( plot )
         {
+            setTickmarkCount( plot, m_majorTickmarkCount() );
             m_plots.insert( -1, plot );
 
             if ( m_viewer )
@@ -432,6 +435,27 @@ void RimMultiPlot::setColumnCount( RiuMultiPlotPage::ColumnCount columnCount )
 void RimMultiPlot::setRowCount( RowCount rowCount )
 {
     m_rowsPerPage = rowCount;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimMultiPlot::setTickmarkCount( RimPlotAxisPropertiesInterface::LegendTickmarkCountEnum tickmarkCount )
+{
+    m_majorTickmarkCount = tickmarkCount;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimMultiPlot::setTickmarkCount( RimPlot* plot, RimPlotAxisPropertiesInterface::LegendTickmarkCountEnum tickmarkCount )
+{
+    std::vector<RimSummaryTimeAxisProperties*> timeAxisProps;
+    plot->descendantsIncludingThisOfType( timeAxisProps );
+    for ( auto tap : timeAxisProps )
+    {
+        tap->setMajorTickmarkCount( tickmarkCount );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -690,12 +714,7 @@ void RimMultiPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField, co
     {
         for ( RimPlot* plot : plots() )
         {
-            std::vector<RimSummaryTimeAxisProperties*> timeAxisProps;
-            plot->descendantsIncludingThisOfType( timeAxisProps );
-            for ( auto tap : timeAxisProps )
-            {
-                tap->setMajorTickmarkCount( m_majorTickmarkCount() );
-            }
+            setTickmarkCount( plot, m_majorTickmarkCount() );
         }
 
         updatePlots();

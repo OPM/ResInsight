@@ -93,6 +93,7 @@ public:
 
     void setColumnCount( RiuMultiPlotPage::ColumnCount columnCount );
     void setRowCount( RimMultiPlot::RowCount rowCount );
+    void setTickmarkCount( RimPlotAxisPropertiesInterface::LegendTickmarkCountEnum tickmarkCount );
 
     int                  columnCount() const override;
     int                  rowsPerPage() const;
@@ -148,6 +149,8 @@ private:
     void onPlotsReordered( const caf::SignalEmitter* emitter );
     void onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
                          std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
+
+    static void setTickmarkCount( RimPlot* plot, RimPlotAxisPropertiesInterface::LegendTickmarkCountEnum tickmarkCount );
 
 protected:
     caf::PdmField<bool>                             m_showPlotWindowTitle;

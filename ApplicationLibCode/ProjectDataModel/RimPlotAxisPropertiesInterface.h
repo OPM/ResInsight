@@ -35,6 +35,7 @@ public:
 
     enum class LegendTickmarkCount
     {
+        TICKMARK_VERY_FEW,
         TICKMARK_FEW,
         TICKMARK_DEFAULT,
         TICKMARK_MANY,

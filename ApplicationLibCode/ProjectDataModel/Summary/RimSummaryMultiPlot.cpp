@@ -433,7 +433,7 @@ void RimSummaryMultiPlot::updatePlotTitles()
             // Disable auto plot, as this is required to be able to include the information in the multi plot title
             plot->enableAutoPlotTitle( false );
 
-            auto plotName = subPlotNameHelper->aggregatedPlotTitle( *m_nameHelper.get() );
+            auto plotName = subPlotNameHelper->aggregatedPlotTitle( *m_nameHelper );
             plot->setDescription( plotName );
             plot->updatePlotTitle();
         }
@@ -485,26 +485,33 @@ std::vector<RimSummaryPlot*> RimSummaryMultiPlot::summaryPlots() const
 //--------------------------------------------------------------------------------------------------
 void RimSummaryMultiPlot::insertGraphsIntoPlot( RimSummaryMultiPlot* plot, const std::vector<RimSummaryPlot*>& graphs )
 {
-    RiuMultiPlotPage::ColumnCount columnCount = RiuMultiPlotPage::ColumnCount::COLUMNS_2;
-    RimMultiPlot::RowCount        rowCount    = RimMultiPlot::RowCount::ROWS_2;
+    auto columnCount   = RiuMultiPlotPage::ColumnCount::COLUMNS_2;
+    auto rowCount      = RimMultiPlot::RowCount::ROWS_2;
+    auto tickmarkCount = RimPlotAxisPropertiesInterface::LegendTickmarkCount::TICKMARK_DEFAULT;
 
     bool showTitleSubGraph = true;
-    if ( graphs.size() == 1 ) showTitleSubGraph = false;
-
-    if ( 4 < graphs.size() && graphs.size() <= 6 )
+    if ( graphs.size() == 1 )
     {
-        columnCount = RiuMultiPlotPage::ColumnCount::COLUMNS_3;
-        rowCount    = RimMultiPlot::RowCount::ROWS_2;
+        showTitleSubGraph = false;
+        tickmarkCount     = RimPlotAxisPropertiesInterface::LegendTickmarkCount::TICKMARK_MANY;
+    }
+    else if ( 4 < graphs.size() && graphs.size() <= 6 )
+    {
+        columnCount   = RiuMultiPlotPage::ColumnCount::COLUMNS_3;
+        rowCount      = RimMultiPlot::RowCount::ROWS_2;
+        tickmarkCount = RimPlotAxisPropertiesInterface::LegendTickmarkCount::TICKMARK_FEW;
     }
     else if ( 6 < graphs.size() && graphs.size() <= 12 )
     {
-        columnCount = RiuMultiPlotPage::ColumnCount::COLUMNS_4;
-        rowCount    = RimMultiPlot::RowCount::ROWS_3;
+        columnCount   = RiuMultiPlotPage::ColumnCount::COLUMNS_4;
+        rowCount      = RimMultiPlot::RowCount::ROWS_3;
+        tickmarkCount = RimPlotAxisPropertiesInterface::LegendTickmarkCount::TICKMARK_VERY_FEW;
     }
     else
     {
-        columnCount = RiuMultiPlotPage::ColumnCount::COLUMNS_4;
-        rowCount    = RimMultiPlot::RowCount::ROWS_4;
+        columnCount   = RiuMultiPlotPage::ColumnCount::COLUMNS_4;
+        rowCount      = RimMultiPlot::RowCount::ROWS_4;
+        tickmarkCount = RimPlotAxisPropertiesInterface::LegendTickmarkCount::TICKMARK_VERY_FEW;
     }
 
     plot->setAutoTitlePlot( true );
@@ -513,6 +520,7 @@ void RimSummaryMultiPlot::insertGraphsIntoPlot( RimSummaryMultiPlot* plot, const
     plot->m_multiPlot->setColumnCount( columnCount );
     plot->m_multiPlot->setRowCount( rowCount );
     plot->m_multiPlot->setShowPlotTitles( showTitleSubGraph );
+    plot->m_multiPlot->setTickmarkCount( tickmarkCount );
 
     for ( auto graph : graphs )
     {
