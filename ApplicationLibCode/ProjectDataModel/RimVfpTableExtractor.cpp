@@ -22,6 +22,7 @@
 #include "cafUtils.h"
 
 #include "opm/parser/eclipse/Parser/Parser.hpp"
+#include "opm/parser/eclipse/Parser/ParserKeywords/V.hpp"
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -38,11 +39,21 @@ std::vector<Opm::VFPInjTable> RimVfpTableExtractor::extractVfpInjectionTables( c
         std::string myKeyword   = "VFPINJ";
         auto        keywordList = deck.getKeywordList( myKeyword );
 
-        Opm::UnitSystem unitSystem;
-
         for ( auto kw : keywordList )
         {
             auto name = kw->name();
+
+            Opm::UnitSystem unitSystem;
+            {
+                const auto& header = kw->getRecord( 0 );
+
+                if ( header.getItem<Opm::ParserKeywords::VFPINJ::UNITS>().hasValue( 0 ) )
+                {
+                    std::string units_string;
+                    units_string = header.getItem<Opm::ParserKeywords::VFPINJ::UNITS>().get<std::string>( 0 );
+                    unitSystem   = Opm::UnitSystem( units_string );
+                }
+            }
 
             Opm::VFPInjTable table( *kw, unitSystem );
             tables.push_back( table );
@@ -70,11 +81,21 @@ std::vector<Opm::VFPProdTable> RimVfpTableExtractor::extractVfpProductionTables(
         std::string myKeyword   = "VFPPROD";
         auto        keywordList = deck.getKeywordList( myKeyword );
 
-        Opm::UnitSystem unitSystem;
-
         for ( auto kw : keywordList )
         {
             auto name = kw->name();
+
+            Opm::UnitSystem unitSystem;
+            {
+                const auto& header = kw->getRecord( 0 );
+
+                if ( header.getItem<Opm::ParserKeywords::VFPPROD::UNITS>().hasValue( 0 ) )
+                {
+                    std::string units_string;
+                    units_string = header.getItem<Opm::ParserKeywords::VFPPROD::UNITS>().get<std::string>( 0 );
+                    unitSystem   = Opm::UnitSystem( units_string );
+                }
+            }
 
             Opm::VFPProdTable table( *kw, unitSystem );
             tables.push_back( table );
