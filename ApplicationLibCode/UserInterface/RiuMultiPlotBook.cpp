@@ -86,7 +86,7 @@ protected:
         for ( auto page : pages )
         {
             fullSize.setWidth( std::max( fullSize.width(), page->minimumSizeHint().width() ) );
-            fullSize.setHeight( fullSize.height() + 8 + page->minimumSizeHint().height() );
+            fullSize.setHeight( fullSize.height() + m_margins + page->minimumSizeHint().height() );
         }
         return fullSize;
     }
