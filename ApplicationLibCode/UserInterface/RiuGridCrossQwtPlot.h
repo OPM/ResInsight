@@ -58,7 +58,7 @@ public:
 
     void updateAnnotationObjects( RimPlotAxisPropertiesInterface* axisProperties );
 
-    void setLegendFontSize( int fontSize );
+    void setLegendFontSize( int fontSize ) override;
     void setInternalQwtLegendVisible( bool visible );
 
 protected:
