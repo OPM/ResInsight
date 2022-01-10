@@ -30,6 +30,7 @@
 #include "qwt_interval_symbol.h"
 #include "qwt_painter.h"
 #include "qwt_plot_curve.h"
+#include "qwt_plot_intervalcurve.h"
 #include "qwt_point_mapper.h"
 #include "qwt_scale_map.h"
 #include "qwt_symbol.h"

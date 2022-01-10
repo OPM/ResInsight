@@ -21,8 +21,6 @@
 
 #include "RiuDockedQwtPlot.h"
 
-#include "qwt_plot.h"
-
 #include <QString>
 #include <map>
 #include <vector>
