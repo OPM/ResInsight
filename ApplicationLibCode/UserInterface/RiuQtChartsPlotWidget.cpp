@@ -29,6 +29,7 @@
 #include "RiuGuiTheme.h"
 #include "RiuPlotMainWindowTools.h"
 #include "RiuPlotWidget.h"
+#include "RiuQtChartView.h"
 #include "RiuQtChartsPlotCurve.h"
 
 #include "cafAssert.h"

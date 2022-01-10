@@ -17,7 +17,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
-#include "RiuInterfaceToViewWindow.h"
 #include "RiuMultiPlotPage.h"
 
 #include "cafPdmPointer.h"

@@ -22,7 +22,6 @@
 #include "RiaDefines.h"
 #include "RiaPlotDefines.h"
 
-#include "RiuInterfaceToViewWindow.h"
 #include "RiuPlotWidget.h"
 
 #include "cafPdmObject.h"

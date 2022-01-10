@@ -22,9 +22,7 @@
 #include "RiaDefines.h"
 #include "RiaPlotDefines.h"
 
-#include "RiuInterfaceToViewWindow.h"
 #include "RiuPlotWidget.h"
-#include "RiuQtChartView.h"
 
 #include "cafPdmObject.h"
 #include "cafPdmPointer.h"
@@ -46,7 +44,11 @@ class QWheelEvent;
 namespace QtCharts
 {
 class QValueAxis;
-};
+class QChart;
+class QAbstractSeries;
+class QAbstractAxis;
+class QChartView;
+}; // namespace QtCharts
 
 //==================================================================================================
 //
@@ -176,7 +178,6 @@ protected:
     void wheelEvent( QWheelEvent* event ) override;
 
     void applyPlotTitleToPlot();
-    void applyPlotTitleToQtCharts();
     void applyAxisTitleToPlot( RiaDefines::PlotAxis axis );
 
     QSize sizeHint() const override;
@@ -196,7 +197,6 @@ private slots:
     void axisRangeChanged();
 
 private:
-    void       selectClosestPlotItem( const QPoint& pos, bool toggleItemInSelection = false );
     static int defaultMinimumWidth();
     void       replot() override;
 

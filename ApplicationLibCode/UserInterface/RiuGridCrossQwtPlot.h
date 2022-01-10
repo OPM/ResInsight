@@ -17,7 +17,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
-#include "RiuInterfaceToViewWindow.h"
 #include "RiuPlotAnnotationTool.h"
 #include "RiuQwtPlotWidget.h"
 
