@@ -105,7 +105,7 @@ public:
     void            setAutoScaleXEnabled( bool enabled ) override;
     void            setAutoScaleYEnabled( bool enabled ) override;
     caf::PdmObject* findPdmObjectFromPlotCurve( const RiuPlotCurve* curve ) const override;
-    void            onAxisSelected( int axis, bool toggle );
+    void            onAxisSelected( int axis, bool toggle ) override;
 
     bool isDeletable() const override;
 
