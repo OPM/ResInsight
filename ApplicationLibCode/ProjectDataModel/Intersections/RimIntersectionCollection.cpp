@@ -378,6 +378,7 @@ void RimIntersectionCollection::fieldChangedByUi( const caf::PdmFieldHandle* cha
         for ( RimExtrudedCurveIntersection* cs : m_intersections )
         {
             cs->setDepthOverride( m_depthThresholdOverridden, m_collectionDepthThreshold, m_collectionDepthDisplayType() );
+            cs->rebuildGeometryAndScheduleCreateDisplayModel();
         }
 
         Rim3dView* rimView = nullptr;
