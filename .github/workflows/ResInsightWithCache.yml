@@ -5,7 +5,7 @@ on:
   pull_request:
   schedule:
     # Every day at 1am to make sure we have a build cache for the current date
-    # build cache is  
+    # build cache is   
     - cron: '0 1 * * * '
 env:
   BUILD_TYPE: Release
