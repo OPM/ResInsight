@@ -18,6 +18,7 @@
 
 #include "RimMultiPlot.h"
 
+#include "RiaSummaryCurveAnalyzer.h"
 #include "RiaSummaryStringTools.h"
 
 #include "RimEnsembleCurveSet.h"
@@ -28,6 +29,7 @@
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseCollection.h"
 #include "RimSummaryCurve.h"
+
 #include "RimSummaryMultiPlot.h"
 #include "RimSummaryPlot.h"
 #include "RimSummaryPlotNameHelper.h"

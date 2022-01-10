@@ -75,14 +75,14 @@ private:
 
     void analyzeSingleAddress( const RifEclipseSummaryAddress& address );
 
-    static std::set<std::string> keysForMap( const std::multimap<std::string, RifEclipseSummaryAddress>& map );
-    static std::set<int>         keysForMap( const std::multimap<int, RifEclipseSummaryAddress>& map );
+    static std::set<std::string> keysInMap( const std::multimap<std::string, RifEclipseSummaryAddress>& map );
+    static std::set<int>         keysInMap( const std::multimap<int, RifEclipseSummaryAddress>& map );
 
     static std::vector<std::vector<RifEclipseSummaryAddress>>
-        valuesForMap( const std::multimap<std::string, RifEclipseSummaryAddress>& map );
+        valuesInMap( const std::multimap<std::string, RifEclipseSummaryAddress>& map );
 
     static std::vector<std::vector<RifEclipseSummaryAddress>>
-        valuesForMap( const std::multimap<int, RifEclipseSummaryAddress>& map );
+        valuesInMap( const std::multimap<int, RifEclipseSummaryAddress>& map );
 
 private:
     std::set<std::string>         m_quantities;
