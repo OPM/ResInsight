@@ -34,6 +34,7 @@ void caf::AppEnum<RimPlotAxisPropertiesInterface::AxisTitlePositionType>::setUp(
 template <>
 void RimPlotAxisPropertiesInterface::LegendTickmarkCountEnum::setUp()
 {
+	addItem(RimPlotAxisPropertiesInterface::LegendTickmarkCount::TICKMARK_VERY_FEW, "VERY_FEW", "Very Few");
     addItem( RimPlotAxisPropertiesInterface::LegendTickmarkCount::TICKMARK_FEW, "Few", "Few" );
     addItem( RimPlotAxisPropertiesInterface::LegendTickmarkCount::TICKMARK_DEFAULT, "Default", "Default" );
     addItem( RimPlotAxisPropertiesInterface::LegendTickmarkCount::TICKMARK_MANY, "Many", "Many" );

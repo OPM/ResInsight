@@ -32,10 +32,10 @@ class QString;
 //==================================================================================================
 //
 //==================================================================================================
-class RiaSummaryCurveAnalyzer
+class RiaSummaryAddressAnalyzer
 {
 public:
-    RiaSummaryCurveAnalyzer();
+    RiaSummaryAddressAnalyzer();
 
     void appendAddresses( const std::set<RifEclipseSummaryAddress>& allAddresses );
     void appendAddresses( const std::vector<RifEclipseSummaryAddress>& allAddresses );
@@ -58,6 +58,7 @@ public:
     std::set<int>         aquifers() const;
 
     std::set<RifEclipseSummaryAddress::SummaryVarCategory> categories() const;
+    std::vector<std::vector<RifEclipseSummaryAddress>>     addressesGroupedByObject() const;
 
     std::vector<QString> identifierTexts( RifEclipseSummaryAddress::SummaryVarCategory category,
                                           const std::string&                           secondaryIdentifier ) const;
@@ -74,18 +75,27 @@ private:
 
     void analyzeSingleAddress( const RifEclipseSummaryAddress& address );
 
+    static std::set<std::string> keysInMap( const std::multimap<std::string, RifEclipseSummaryAddress>& map );
+    static std::set<int>         keysInMap( const std::multimap<int, RifEclipseSummaryAddress>& map );
+
+    static std::vector<std::vector<RifEclipseSummaryAddress>>
+        valuesInMap( const std::multimap<std::string, RifEclipseSummaryAddress>& map );
+
+    static std::vector<std::vector<RifEclipseSummaryAddress>>
+        valuesInMap( const std::multimap<int, RifEclipseSummaryAddress>& map );
+
 private:
     std::set<std::string>         m_quantities;
     mutable std::set<std::string> m_quantitiesWithMatchingHistory;
     mutable std::set<std::string> m_quantitiesNoMatchingHistory;
 
-    std::set<std::string>                         m_wellNames;
-    std::set<std::string>                         m_wellGroupNames;
-    std::set<int>                                 m_regionNumbers;
-    std::set<std::pair<std::string, std::string>> m_wellCompletions;
-    std::set<std::pair<std::string, int>>         m_wellSegmentNumbers;
-    std::set<std::string>                         m_blocks;
-    std::set<int>                                 m_aquifers;
+    std::multimap<std::string, RifEclipseSummaryAddress> m_wellNames;
+    std::multimap<std::string, RifEclipseSummaryAddress> m_wellGroupNames;
+    std::multimap<int, RifEclipseSummaryAddress>         m_regionNumbers;
+    std::set<std::pair<std::string, std::string>>        m_wellCompletions;
+    std::set<std::pair<std::string, int>>                m_wellSegmentNumbers;
+    std::multimap<std::string, RifEclipseSummaryAddress> m_blocks;
+    std::multimap<int, RifEclipseSummaryAddress>         m_aquifers;
 
     std::set<RifEclipseSummaryAddress::SummaryVarCategory> m_categories;
 };

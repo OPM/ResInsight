@@ -46,7 +46,7 @@ public:
     using ColumnCount     = RiuMultiPlotBook::ColumnCount;
     using ColumnCountEnum = caf::AppEnum<ColumnCount>;
 
-    enum RowCount
+    enum class RowCount
     {
         ROWS_1 = 1,
         ROWS_2 = 2,
@@ -91,12 +91,18 @@ public:
     void setAutoScaleXEnabled( bool enabled );
     void setAutoScaleYEnabled( bool enabled );
 
+    void setColumnCount( RiuMultiPlotPage::ColumnCount columnCount );
+    void setRowCount( RimMultiPlot::RowCount rowCount );
+    void setTickmarkCount( RimPlotAxisPropertiesInterface::LegendTickmarkCountEnum tickmarkCount );
+
     int                  columnCount() const override;
     int                  rowsPerPage() const;
     caf::PdmFieldHandle* columnCountField();
     caf::PdmFieldHandle* rowsPerPageField();
     caf::PdmFieldHandle* pagePreviewField();
-    bool                 showPlotTitles() const;
+
+    void setShowPlotTitles( bool enable );
+    bool showPlotTitles() const;
 
     void zoomAll() override;
 
@@ -143,6 +149,8 @@ private:
     void onPlotsReordered( const caf::SignalEmitter* emitter );
     void onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
                          std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
+
+    static void setTickmarkCount( RimPlot* plot, RimPlotAxisPropertiesInterface::LegendTickmarkCountEnum tickmarkCount );
 
 protected:
     caf::PdmField<bool>                             m_showPlotWindowTitle;

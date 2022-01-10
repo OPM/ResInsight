@@ -18,6 +18,7 @@
 
 #include "RicSummaryPlotBuilder.h"
 
+#include "RiaSummaryAddressAnalyzer.h"
 #include "RiaSummaryTools.h"
 
 #include "RifEclipseSummaryAddress.h"
@@ -43,6 +44,8 @@
 ///
 //--------------------------------------------------------------------------------------------------
 RicSummaryPlotBuilder::RicSummaryPlotBuilder()
+    : m_individualPlotPerDataSource( false )
+    , m_graphCurveGrouping( RicSummaryPlotBuilder::RicGraphCurveGrouping::NONE )
 {
 }
 
@@ -67,17 +70,17 @@ void RicSummaryPlotBuilder::setAddresses( const std::set<RifEclipseSummaryAddres
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicSummaryPlotBuilder::setIndividualPlotPerAddress( bool enable )
+void RicSummaryPlotBuilder::setIndividualPlotPerDataSource( bool enable )
 {
-    m_individualPlotPerAddress = enable;
+    m_individualPlotPerDataSource = enable;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicSummaryPlotBuilder::setIndividualPlotPerDataSource( bool enable )
+void RicSummaryPlotBuilder::setGrouping( RicGraphCurveGrouping groping )
 {
-    m_individualPlotPerDataSource = enable;
+    m_graphCurveGrouping = groping;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -87,49 +90,121 @@ std::vector<RimSummaryPlot*> RicSummaryPlotBuilder::createPlots() const
 {
     std::vector<RimSummaryPlot*> plots;
 
-    if ( m_individualPlotPerDataSource && m_individualPlotPerAddress )
+    if ( m_individualPlotPerDataSource )
     {
-        for ( auto adr : m_addresses )
+        if ( m_graphCurveGrouping == RicGraphCurveGrouping::SINGLE_CURVES )
+        {
+            for ( const auto& adr : m_addresses )
+            {
+                for ( auto summaryCase : m_summaryCases )
+                {
+                    auto plot = createPlot( { adr }, { summaryCase }, {} );
+                    plots.push_back( plot );
+                }
+
+                for ( auto ensemble : m_ensembles )
+                {
+                    auto plot = createPlot( { adr }, {}, { ensemble } );
+                    plots.push_back( plot );
+                }
+            }
+        }
+        else if ( m_graphCurveGrouping == RicGraphCurveGrouping::CURVES_FOR_OBJECT )
+        {
+            RiaSummaryAddressAnalyzer analyzer;
+            analyzer.appendAddresses( m_addresses );
+
+            auto groups = analyzer.addressesGroupedByObject();
+            for ( const auto& group : groups )
+            {
+                std::set<RifEclipseSummaryAddress> addresses;
+                addresses.insert( group.begin(), group.end() );
+
+                for ( auto summaryCase : m_summaryCases )
+                {
+                    auto plot = createPlot( addresses, { summaryCase }, {} );
+                    plots.push_back( plot );
+                }
+
+                for ( auto ensemble : m_ensembles )
+                {
+                    auto plot = createPlot( addresses, {}, { ensemble } );
+                    plots.push_back( plot );
+                }
+            }
+        }
+        else if ( m_graphCurveGrouping == RicGraphCurveGrouping::NONE )
         {
             for ( auto summaryCase : m_summaryCases )
             {
-                auto plot = createPlot( { adr }, { summaryCase }, {} );
+                auto plot = createPlot( m_addresses, { summaryCase }, {} );
                 plots.push_back( plot );
             }
 
             for ( auto ensemble : m_ensembles )
             {
-                auto plot = createPlot( { adr }, {}, { ensemble } );
+                auto plot = createPlot( m_addresses, {}, { ensemble } );
                 plots.push_back( plot );
             }
         }
     }
-    else if ( m_individualPlotPerAddress )
+    else // all data sources in same plot
     {
-        for ( auto adr : m_addresses )
+        if ( m_graphCurveGrouping == RicGraphCurveGrouping::SINGLE_CURVES )
         {
-            auto plot = createPlot( { adr }, m_summaryCases, m_ensembles );
-            plots.push_back( plot );
-        }
-    }
-    else if ( m_individualPlotPerDataSource )
-    {
-        for ( auto summaryCase : m_summaryCases )
-        {
-            auto plot = createPlot( m_addresses, { summaryCase }, {} );
-            plots.push_back( plot );
-        }
+            for ( const auto& adr : m_addresses )
+            {
+                if ( !m_summaryCases.empty() )
+                {
+                    auto plot = createPlot( { adr }, m_summaryCases, {} );
+                    plots.push_back( plot );
+                }
 
-        for ( auto ensemble : m_ensembles )
-        {
-            auto plot = createPlot( m_addresses, {}, { ensemble } );
-            plots.push_back( plot );
+                if ( !m_ensembles.empty() )
+                {
+                    auto plot = createPlot( { adr }, {}, m_ensembles );
+                    plots.push_back( plot );
+                }
+            }
         }
-    }
-    else
-    {
-        auto plot = createPlot( m_addresses, m_summaryCases, m_ensembles );
-        plots.push_back( plot );
+        else if ( m_graphCurveGrouping == RicGraphCurveGrouping::CURVES_FOR_OBJECT )
+        {
+            RiaSummaryAddressAnalyzer analyzer;
+            analyzer.appendAddresses( m_addresses );
+
+            auto groups = analyzer.addressesGroupedByObject();
+            for ( const auto& group : groups )
+            {
+                std::set<RifEclipseSummaryAddress> addresses;
+                addresses.insert( group.begin(), group.end() );
+
+                if ( !m_summaryCases.empty() )
+                {
+                    auto plot = createPlot( addresses, m_summaryCases, {} );
+                    plots.push_back( plot );
+                }
+
+                if ( !m_ensembles.empty() )
+                {
+                    auto plot = createPlot( addresses, {}, m_ensembles );
+                    plots.push_back( plot );
+                }
+            }
+        }
+        else if ( m_graphCurveGrouping == RicGraphCurveGrouping::NONE )
+        {
+            if ( !m_summaryCases.empty() )
+            {
+                auto plot = createPlot( m_addresses, m_summaryCases, {} );
+                plots.push_back( plot );
+            }
+
+            if ( !m_ensembles.empty() )
+            {
+                auto plot = createPlot( m_addresses, {}, m_ensembles );
+                plots.push_back( plot );
+            }
+        }
     }
 
     return plots;
@@ -225,7 +300,7 @@ RimMultiPlot* RicSummaryPlotBuilder::createAndAppendMultiPlot( const std::vector
     RimProject*             project        = RimProject::current();
     RimMultiPlotCollection* plotCollection = project->mainPlotCollection()->multiPlotCollection();
 
-    RimMultiPlot* plotWindow = new RimMultiPlot;
+    auto* plotWindow = new RimMultiPlot;
     plotWindow->setMultiPlotTitle( QString( "Multi Plot %1" ).arg( plotCollection->multiPlots().size() + 1 ) );
     plotWindow->setAsPlotMdiWindow();
     plotCollection->addMultiPlot( plotWindow );
@@ -267,7 +342,7 @@ RimSummaryPlot* RicSummaryPlotBuilder::createPlot( const std::set<RifEclipseSumm
                                                    const std::vector<RimSummaryCase*>&           summaryCases,
                                                    const std::vector<RimSummaryCaseCollection*>& ensembles )
 {
-    RimSummaryPlot* plot = new RimSummaryPlot();
+    auto* plot = new RimSummaryPlot();
     plot->enableAutoPlotTitle( true );
 
     appendCurvesToPlot( plot, addresses, summaryCases, ensembles );

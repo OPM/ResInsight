@@ -1,11 +1,11 @@
 #include "gtest/gtest.h"
 
-#include "RiaSummaryCurveAnalyzer.h"
+#include "RiaSummaryAddressAnalyzer.h"
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-TEST( RiaSummaryCurveAnalyzer, WellCompletions )
+TEST( RiaSummaryAddressAnalyzer, WellCompletions )
 {
     std::vector<RifEclipseSummaryAddress> addresses;
 
@@ -45,7 +45,7 @@ TEST( RiaSummaryCurveAnalyzer, WellCompletions )
         addresses.push_back( adr );
     }
 
-    RiaSummaryCurveAnalyzer analyzer;
+    RiaSummaryAddressAnalyzer analyzer;
     analyzer.appendAddresses( addresses );
 
     EXPECT_EQ( 2u, analyzer.wellNames().size() );
@@ -62,7 +62,7 @@ TEST( RiaSummaryCurveAnalyzer, WellCompletions )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-TEST( RiaSummaryCurveAnalyzer, WellSegments )
+TEST( RiaSummaryAddressAnalyzer, WellSegments )
 {
     std::vector<RifEclipseSummaryAddress> addresses;
 
@@ -96,7 +96,7 @@ TEST( RiaSummaryCurveAnalyzer, WellSegments )
         addresses.push_back( adr );
     }
 
-    RiaSummaryCurveAnalyzer analyzer;
+    RiaSummaryAddressAnalyzer analyzer;
     analyzer.appendAddresses( addresses );
 
     EXPECT_EQ( 2u, analyzer.wellNames().size() );
@@ -111,7 +111,7 @@ TEST( RiaSummaryCurveAnalyzer, WellSegments )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-TEST( RiaSummaryCurveAnalyzer, CellBlocks )
+TEST( RiaSummaryAddressAnalyzer, CellBlocks )
 {
     std::vector<RifEclipseSummaryAddress> addresses;
 
@@ -132,7 +132,7 @@ TEST( RiaSummaryCurveAnalyzer, CellBlocks )
         addresses.push_back( adr );
     }
 
-    RiaSummaryCurveAnalyzer analyzer;
+    RiaSummaryAddressAnalyzer analyzer;
     analyzer.appendAddresses( addresses );
 
     auto blocks = analyzer.blocks();

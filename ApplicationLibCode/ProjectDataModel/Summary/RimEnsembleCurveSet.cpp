@@ -22,7 +22,7 @@
 #include "RiaGuiApplication.h"
 #include "RiaPreferences.h"
 #include "RiaResultNames.h"
-#include "RiaSummaryCurveAnalyzer.h"
+#include "RiaSummaryAddressAnalyzer.h"
 #include "RiaSummaryCurveDefinition.h"
 #include "RiaTimeTTools.h"
 

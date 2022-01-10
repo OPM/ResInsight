@@ -109,9 +109,17 @@ RimSummaryPlotManager::RimSummaryPlotManager()
     m_labelB.uiCapability()->setUiEditorTypeName( caf::PdmUiLabelEditor::uiEditorTypeName() );
     m_labelB.xmlCapability()->disableIO();
 
+    CAF_PDM_InitField( &m_individualPlotPerObject, "IndividualPlotPerObject", false, "One plot per Object" );
+    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_individualPlotPerObject );
+
     CAF_PDM_InitField( &m_individualPlotPerVector, "IndividualPlotPerVector", false, "One plot per Vector" );
+    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_individualPlotPerVector );
+
     CAF_PDM_InitField( &m_individualPlotPerDataSource, "IndividualPlotPerDataSource", false, "One plot per Data Source" );
+    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_individualPlotPerDataSource );
+
     CAF_PDM_InitField( &m_createMultiPlot, "CreateMultiPlot", false, "Create Multiple Plots in One Window" );
+    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_createMultiPlot );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -330,8 +338,9 @@ void RimSummaryPlotManager::defineUiOrdering( QString uiConfigName, caf::PdmUiOr
     uiOrdering.add( &m_selectedDataSources, false );
 
     uiOrdering.add( &m_individualPlotPerVector );
-    uiOrdering.add( &m_individualPlotPerDataSource );
-    uiOrdering.add( &m_createMultiPlot );
+    uiOrdering.add( &m_individualPlotPerDataSource, false );
+    uiOrdering.add( &m_individualPlotPerObject );
+    uiOrdering.add( &m_createMultiPlot, false );
 
     uiOrdering.add( &m_pushButtonAppend );
     uiOrdering.add( &m_pushButtonReplace, { false } );
@@ -379,30 +388,34 @@ void RimSummaryPlotManager::createNewPlot()
     RicSummaryPlotBuilder plotBuilder;
     plotBuilder.setAddresses( filteredAddressesFromSource );
     plotBuilder.setDataSources( summaryCases, ensembles );
-    plotBuilder.setIndividualPlotPerAddress( m_individualPlotPerVector );
-    plotBuilder.setIndividualPlotPerDataSource( m_individualPlotPerDataSource );
+
+    RicSummaryPlotBuilder::RicGraphCurveGrouping groping = RicSummaryPlotBuilder::RicGraphCurveGrouping::NONE;
+    if ( m_individualPlotPerVector ) groping = RicSummaryPlotBuilder::RicGraphCurveGrouping::SINGLE_CURVES;
+    if ( m_individualPlotPerObject ) groping = RicSummaryPlotBuilder::RicGraphCurveGrouping::CURVES_FOR_OBJECT;
+    plotBuilder.setGrouping( groping );
 
     auto plots = plotBuilder.createPlots();
     if ( m_createMultiPlot )
     {
-        std::vector<RimPlot*> plotsForMultiPlot;
-        for ( auto p : plots )
         {
-            p->loadDataAndUpdate();
-            plotsForMultiPlot.push_back( dynamic_cast<RimPlot*>( p ) );
+            auto summaryPlots = plotBuilder.createPlots();
+            auto plot         = RimSummaryMultiPlot::createAndAppendMultiPlot( summaryPlots );
+
+            RiuPlotMainWindowTools::selectAsCurrentItem( plot );
         }
 
-        RicSummaryPlotBuilder::createAndAppendMultiPlot( plotsForMultiPlot );
-
+        bool createStandardMultiPlot = false;
+        if ( createStandardMultiPlot )
         {
-            auto                  myCopyOfPlots = plotBuilder.createPlots();
-            std::vector<RimPlot*> myRimPlots;
-            for ( auto p : myCopyOfPlots )
+            // Code to generate a standard multi plot
+            std::vector<RimPlot*> plotsForMultiPlot;
+            for ( auto p : plots )
             {
                 p->loadDataAndUpdate();
-                myRimPlots.push_back( dynamic_cast<RimPlot*>( p ) );
+                plotsForMultiPlot.push_back( dynamic_cast<RimPlot*>( p ) );
             }
-            RimSummaryMultiPlot::createAndAppendMultiPlot( myRimPlots );
+
+            RicSummaryPlotBuilder::createAndAppendMultiPlot( plotsForMultiPlot );
         }
     }
     else

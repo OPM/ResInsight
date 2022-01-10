@@ -41,7 +41,7 @@ RicNewSummaryMultiPlotFeature::RicNewSummaryMultiPlotFeature()
 //--------------------------------------------------------------------------------------------------
 caf::PdmScriptResponse RicNewSummaryMultiPlotFeature::execute()
 {
-    std::vector<RimPlot*> plots;
+    std::vector<RimSummaryPlot*> plots;
     RimSummaryMultiPlot::createAndAppendMultiPlot( plots );
 
     return caf::PdmScriptResponse();

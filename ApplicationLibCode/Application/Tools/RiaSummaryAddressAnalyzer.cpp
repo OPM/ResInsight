@@ -16,7 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RiaSummaryCurveAnalyzer.h"
+#include "RiaSummaryAddressAnalyzer.h"
 #include "RiaStdStringTools.h"
 
 #include "RiaSummaryCurveDefinition.h"
@@ -29,25 +29,14 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiaSummaryCurveAnalyzer::RiaSummaryCurveAnalyzer()
+RiaSummaryAddressAnalyzer::RiaSummaryAddressAnalyzer()
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaSummaryCurveAnalyzer::appendAddresses( const std::vector<RifEclipseSummaryAddress>& allAddresses )
-{
-    for ( const auto& adr : allAddresses )
-    {
-        analyzeSingleAddress( adr );
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiaSummaryCurveAnalyzer::appendAddresses( const std::set<RifEclipseSummaryAddress>& allAddresses )
+void RiaSummaryAddressAnalyzer::appendAddresses( const std::vector<RifEclipseSummaryAddress>& allAddresses )
 {
     for ( const auto& adr : allAddresses )
     {
@@ -58,7 +47,18 @@ void RiaSummaryCurveAnalyzer::appendAddresses( const std::set<RifEclipseSummaryA
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::set<std::string> RiaSummaryCurveAnalyzer::quantities() const
+void RiaSummaryAddressAnalyzer::appendAddresses( const std::set<RifEclipseSummaryAddress>& allAddresses )
+{
+    for ( const auto& adr : allAddresses )
+    {
+        analyzeSingleAddress( adr );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::set<std::string> RiaSummaryAddressAnalyzer::quantities() const
 {
     return m_quantities;
 }
@@ -66,7 +66,7 @@ std::set<std::string> RiaSummaryCurveAnalyzer::quantities() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::set<std::string> RiaSummaryCurveAnalyzer::quantityNamesWithHistory() const
+std::set<std::string> RiaSummaryAddressAnalyzer::quantityNamesWithHistory() const
 {
     assignCategoryToQuantities();
 
@@ -76,7 +76,7 @@ std::set<std::string> RiaSummaryCurveAnalyzer::quantityNamesWithHistory() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::set<std::string> RiaSummaryCurveAnalyzer::quantityNamesNoHistory() const
+std::set<std::string> RiaSummaryAddressAnalyzer::quantityNamesNoHistory() const
 {
     assignCategoryToQuantities();
 
@@ -86,7 +86,7 @@ std::set<std::string> RiaSummaryCurveAnalyzer::quantityNamesNoHistory() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::string RiaSummaryCurveAnalyzer::quantityNameForTitle() const
+std::string RiaSummaryAddressAnalyzer::quantityNameForTitle() const
 {
     if ( quantityNamesWithHistory().size() == 1 && quantityNamesNoHistory().empty() )
     {
@@ -98,37 +98,37 @@ std::string RiaSummaryCurveAnalyzer::quantityNameForTitle() const
         return *quantityNamesNoHistory().begin();
     }
 
-    return std::string();
+    return {};
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::set<std::string> RiaSummaryCurveAnalyzer::wellNames() const
+std::set<std::string> RiaSummaryAddressAnalyzer::wellNames() const
 {
-    return m_wellNames;
+    return keysInMap( m_wellNames );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::set<std::string> RiaSummaryCurveAnalyzer::wellGroupNames() const
+std::set<std::string> RiaSummaryAddressAnalyzer::wellGroupNames() const
 {
-    return m_wellGroupNames;
+    return keysInMap( m_wellGroupNames );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::set<int> RiaSummaryCurveAnalyzer::regionNumbers() const
+std::set<int> RiaSummaryAddressAnalyzer::regionNumbers() const
 {
-    return m_regionNumbers;
+    return keysInMap( m_regionNumbers );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::set<std::string> RiaSummaryCurveAnalyzer::wellCompletions( const std::string& wellName ) const
+std::set<std::string> RiaSummaryAddressAnalyzer::wellCompletions( const std::string& wellName ) const
 {
     std::set<std::string> connections;
 
@@ -146,7 +146,7 @@ std::set<std::string> RiaSummaryCurveAnalyzer::wellCompletions( const std::strin
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::set<int> RiaSummaryCurveAnalyzer::wellSegmentNumbers( const std::string& wellName ) const
+std::set<int> RiaSummaryAddressAnalyzer::wellSegmentNumbers( const std::string& wellName ) const
 {
     std::set<int> segmentNumberForWell;
 
@@ -164,23 +164,23 @@ std::set<int> RiaSummaryCurveAnalyzer::wellSegmentNumbers( const std::string& we
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::set<std::string> RiaSummaryCurveAnalyzer::blocks() const
+std::set<std::string> RiaSummaryAddressAnalyzer::blocks() const
 {
-    return m_blocks;
+    return keysInMap( m_blocks );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::set<int> RiaSummaryCurveAnalyzer::aquifers() const
+std::set<int> RiaSummaryAddressAnalyzer::aquifers() const
 {
-    return m_aquifers;
+    return keysInMap( m_aquifers );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::set<RifEclipseSummaryAddress::SummaryVarCategory> RiaSummaryCurveAnalyzer::categories() const
+std::set<RifEclipseSummaryAddress::SummaryVarCategory> RiaSummaryAddressAnalyzer::categories() const
 {
     return m_categories;
 }
@@ -188,37 +188,62 @@ std::set<RifEclipseSummaryAddress::SummaryVarCategory> RiaSummaryCurveAnalyzer::
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<QString> RiaSummaryCurveAnalyzer::identifierTexts( RifEclipseSummaryAddress::SummaryVarCategory category,
-                                                               const std::string& secondaryIdentifier ) const
+std::vector<std::vector<RifEclipseSummaryAddress>> RiaSummaryAddressAnalyzer::addressesGroupedByObject() const
+{
+    auto wellAdr      = valuesInMap( m_wellNames );
+    auto wellGroupAdr = valuesInMap( m_wellGroupNames );
+    auto regionAdr    = valuesInMap( m_regionNumbers );
+    auto blockAdr     = valuesInMap( m_blocks );
+    auto aquiferAdr   = valuesInMap( m_aquifers );
+
+    std::vector<std::vector<RifEclipseSummaryAddress>> groupedByObject;
+    groupedByObject.insert( groupedByObject.end(), wellAdr.begin(), wellAdr.end() );
+    groupedByObject.insert( groupedByObject.end(), wellGroupAdr.begin(), wellGroupAdr.end() );
+    groupedByObject.insert( groupedByObject.end(), regionAdr.begin(), regionAdr.end() );
+    groupedByObject.insert( groupedByObject.end(), blockAdr.begin(), blockAdr.end() );
+    groupedByObject.insert( groupedByObject.end(), aquiferAdr.begin(), aquiferAdr.end() );
+
+    return groupedByObject;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<QString> RiaSummaryAddressAnalyzer::identifierTexts( RifEclipseSummaryAddress::SummaryVarCategory category,
+                                                                 const std::string& secondaryIdentifier ) const
 {
     std::vector<QString> identifierStrings;
 
     if ( category == RifEclipseSummaryAddress::SUMMARY_REGION )
     {
-        for ( const auto& regionNumber : m_regionNumbers )
+        auto keys = keysInMap( m_regionNumbers );
+        for ( const auto& key : keys )
         {
-            identifierStrings.push_back( QString::number( regionNumber ) );
+            identifierStrings.push_back( QString::number( key ) );
         }
     }
     else if ( category == RifEclipseSummaryAddress::SUMMARY_WELL )
     {
-        for ( const auto& wellName : m_wellNames )
+        auto keys = keysInMap( m_wellNames );
+        for ( const auto& key : keys )
         {
-            identifierStrings.push_back( QString::fromStdString( wellName ) );
+            identifierStrings.push_back( QString::fromStdString( key ) );
         }
     }
     else if ( category == RifEclipseSummaryAddress::SUMMARY_WELL_GROUP )
     {
-        for ( const auto& wellGroupName : m_wellGroupNames )
+        auto keys = keysInMap( m_wellGroupNames );
+        for ( const auto& key : keys )
         {
-            identifierStrings.push_back( QString::fromStdString( wellGroupName ) );
+            identifierStrings.push_back( QString::fromStdString( key ) );
         }
     }
     else if ( category == RifEclipseSummaryAddress::SUMMARY_BLOCK )
     {
-        for ( const auto& ijkBlock : m_blocks )
+        auto keys = keysInMap( m_blocks );
+        for ( const auto& key : keys )
         {
-            identifierStrings.push_back( QString::fromStdString( ijkBlock ) );
+            identifierStrings.push_back( QString::fromStdString( key ) );
         }
     }
     else if ( category == RifEclipseSummaryAddress::SUMMARY_WELL_SEGMENT )
@@ -239,9 +264,10 @@ std::vector<QString> RiaSummaryCurveAnalyzer::identifierTexts( RifEclipseSummary
     }
     else if ( category == RifEclipseSummaryAddress::SUMMARY_AQUIFER )
     {
-        for ( const auto& aquifer : m_aquifers )
+        auto keys = keysInMap( m_aquifers );
+        for ( const auto& key : keys )
         {
-            identifierStrings.push_back( QString::number( aquifer ) );
+            identifierStrings.push_back( QString::number( key ) );
         }
     }
 
@@ -252,8 +278,8 @@ std::vector<QString> RiaSummaryCurveAnalyzer::identifierTexts( RifEclipseSummary
 ///
 //--------------------------------------------------------------------------------------------------
 std::vector<RifEclipseSummaryAddress>
-    RiaSummaryCurveAnalyzer::addressesForCategory( const std::set<RifEclipseSummaryAddress>&    addresses,
-                                                   RifEclipseSummaryAddress::SummaryVarCategory category )
+    RiaSummaryAddressAnalyzer::addressesForCategory( const std::set<RifEclipseSummaryAddress>&    addresses,
+                                                     RifEclipseSummaryAddress::SummaryVarCategory category )
 {
     std::vector<RifEclipseSummaryAddress> filteredAddresses;
 
@@ -271,7 +297,7 @@ std::vector<RifEclipseSummaryAddress>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::string RiaSummaryCurveAnalyzer::correspondingHistorySummaryCurveName( const std::string& curveName )
+std::string RiaSummaryAddressAnalyzer::correspondingHistorySummaryCurveName( const std::string& curveName )
 {
     static std::string historyIdentifier = "H";
 
@@ -280,16 +306,14 @@ std::string RiaSummaryCurveAnalyzer::correspondingHistorySummaryCurveName( const
         std::string candidate = curveName.substr( 0, curveName.size() - 1 );
         return candidate;
     }
-    else
-    {
-        return curveName + historyIdentifier;
-    }
+
+    return curveName + historyIdentifier;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaSummaryCurveAnalyzer::clear()
+void RiaSummaryAddressAnalyzer::clear()
 {
     m_quantities.clear();
     m_wellNames.clear();
@@ -308,7 +332,7 @@ void RiaSummaryCurveAnalyzer::clear()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaSummaryCurveAnalyzer::assignCategoryToQuantities() const
+void RiaSummaryAddressAnalyzer::assignCategoryToQuantities() const
 {
     if ( !m_quantities.empty() )
     {
@@ -322,7 +346,7 @@ void RiaSummaryCurveAnalyzer::assignCategoryToQuantities() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaSummaryCurveAnalyzer::computeQuantityNamesWithHistory() const
+void RiaSummaryAddressAnalyzer::computeQuantityNamesWithHistory() const
 {
     m_quantitiesNoMatchingHistory.clear();
     m_quantitiesWithMatchingHistory.clear();
@@ -355,13 +379,13 @@ void RiaSummaryCurveAnalyzer::computeQuantityNamesWithHistory() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaSummaryCurveAnalyzer::analyzeSingleAddress( const RifEclipseSummaryAddress& address )
+void RiaSummaryAddressAnalyzer::analyzeSingleAddress( const RifEclipseSummaryAddress& address )
 {
     const std::string& wellName = address.wellName();
 
     if ( !wellName.empty() )
     {
-        m_wellNames.insert( wellName );
+        m_wellNames.insert( { wellName, address } );
     }
 
     if ( !address.quantityName().empty() )
@@ -371,12 +395,12 @@ void RiaSummaryCurveAnalyzer::analyzeSingleAddress( const RifEclipseSummaryAddre
 
     if ( !address.wellGroupName().empty() )
     {
-        m_wellGroupNames.insert( address.wellGroupName() );
+        m_wellGroupNames.insert( { address.wellGroupName(), address } );
     }
 
     if ( address.regionNumber() != -1 )
     {
-        m_regionNumbers.insert( address.regionNumber() );
+        m_regionNumbers.insert( { address.regionNumber(), address } );
     }
 
     if ( address.category() == RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION )
@@ -392,15 +416,90 @@ void RiaSummaryCurveAnalyzer::analyzeSingleAddress( const RifEclipseSummaryAddre
     else if ( address.category() == RifEclipseSummaryAddress::SUMMARY_BLOCK )
     {
         auto text = address.blockAsString();
-        m_blocks.insert( text );
+
+        m_blocks.insert( { text, address } );
     }
     else if ( address.category() == RifEclipseSummaryAddress::SUMMARY_AQUIFER )
     {
-        m_aquifers.insert( address.aquiferNumber() );
+        m_aquifers.insert( { address.aquiferNumber(), address } );
     }
 
     if ( address.category() != RifEclipseSummaryAddress::SUMMARY_INVALID )
     {
         m_categories.insert( address.category() );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::set<std::string> RiaSummaryAddressAnalyzer::keysInMap( const std::multimap<std::string, RifEclipseSummaryAddress>& map )
+{
+    std::set<std::string> keys;
+    for ( const auto& [key, value] : map )
+    {
+        keys.insert( key );
+    }
+    return keys;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::set<int> RiaSummaryAddressAnalyzer::keysInMap( const std::multimap<int, RifEclipseSummaryAddress>& map )
+{
+    std::set<int> keys;
+    for ( const auto& [key, value] : map )
+    {
+        keys.insert( key );
+    }
+    return keys;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<std::vector<RifEclipseSummaryAddress>>
+    RiaSummaryAddressAnalyzer::valuesInMap( const std::multimap<std::string, RifEclipseSummaryAddress>& map )
+{
+    std::vector<std::vector<RifEclipseSummaryAddress>> groupedAddresses;
+
+    auto uniqueKeys = keysInMap( map );
+    for ( const auto& key : uniqueKeys )
+    {
+        auto range = map.equal_range( key );
+
+        std::vector<RifEclipseSummaryAddress> addresses;
+        for ( auto i = range.first; i != range.second; ++i )
+        {
+            addresses.push_back( i->second );
+        }
+        groupedAddresses.push_back( addresses );
+    }
+
+    return groupedAddresses;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<std::vector<RifEclipseSummaryAddress>>
+    RiaSummaryAddressAnalyzer::valuesInMap( const std::multimap<int, RifEclipseSummaryAddress>& map )
+{
+    std::vector<std::vector<RifEclipseSummaryAddress>> groupedAddresses;
+
+    auto uniqueKeys = keysInMap( map );
+    for ( const auto& key : uniqueKeys )
+    {
+        auto range = map.equal_range( key );
+
+        std::vector<RifEclipseSummaryAddress> addresses;
+        for ( auto i = range.first; i != range.second; ++i )
+        {
+            addresses.push_back( i->second );
+        }
+        groupedAddresses.push_back( addresses );
+    }
+
+    return groupedAddresses;
 }

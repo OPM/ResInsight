@@ -18,18 +18,19 @@
 
 #include "RimSummaryPlotNameHelper.h"
 
+#include "RiaSummaryAddressAnalyzer.h"
 #include "RifEclipseSummaryAddress.h"
 
+#include "RimObjectiveFunctionTools.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseCollection.h"
-
-#include "RiuSummaryQuantityNameInfoProvider.h"
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RimSummaryPlotNameHelper::RimSummaryPlotNameHelper()
 {
+    m_analyzer = std::make_unique<RiaSummaryAddressAnalyzer>();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -39,7 +40,7 @@ void RimSummaryPlotNameHelper::clear()
 {
     m_summaryCases.clear();
     m_ensembleCases.clear();
-    m_analyzer.clear();
+    m_analyzer->clear();
 
     clearTitleSubStrings();
 }
@@ -49,7 +50,7 @@ void RimSummaryPlotNameHelper::clear()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlotNameHelper::appendAddresses( const std::vector<RifEclipseSummaryAddress>& addresses )
 {
-    m_analyzer.appendAddresses( addresses );
+    m_analyzer->appendAddresses( addresses );
 
     extractPlotTitleSubStrings();
 }
@@ -103,7 +104,19 @@ QString RimSummaryPlotNameHelper::plotTitle() const
 //--------------------------------------------------------------------------------------------------
 bool RimSummaryPlotNameHelper::isPlotDisplayingSingleQuantity() const
 {
-    return m_analyzer.quantities().size() == 1;
+    if ( m_analyzer->quantities().size() == 2 )
+    {
+        std::vector<std::string> strings;
+        for ( const auto& q : m_analyzer->quantities() )
+            strings.push_back( q );
+
+        auto first  = RimObjectiveFunctionTools::nativeQuantityName( strings[0] );
+        auto second = RimObjectiveFunctionTools::nativeQuantityName( strings[1] );
+
+        if ( first == second ) return true;
+    }
+
+    return m_analyzer->quantities().size() == 1;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -249,22 +262,22 @@ void RimSummaryPlotNameHelper::extractPlotTitleSubStrings()
 {
     clearTitleSubStrings();
 
-    auto wellNames      = m_analyzer.wellNames();
-    auto wellGroupNames = m_analyzer.wellGroupNames();
-    auto regions        = m_analyzer.regionNumbers();
-    auto blocks         = m_analyzer.blocks();
-    auto categories     = m_analyzer.categories();
+    auto wellNames      = m_analyzer->wellNames();
+    auto wellGroupNames = m_analyzer->wellGroupNames();
+    auto regions        = m_analyzer->regionNumbers();
+    auto blocks         = m_analyzer->blocks();
+    auto categories     = m_analyzer->categories();
 
     if ( categories.size() == 1 )
     {
-        m_titleQuantity = m_analyzer.quantityNameForTitle();
+        m_titleQuantity = m_analyzer->quantityNameForTitle();
 
         if ( wellNames.size() == 1 )
         {
             m_titleWellName = *( wellNames.begin() );
 
             {
-                auto segments = m_analyzer.wellSegmentNumbers( m_titleWellName );
+                auto segments = m_analyzer->wellSegmentNumbers( m_titleWellName );
                 if ( segments.size() == 1 )
                 {
                     m_titleSegment = std::to_string( *( segments.begin() ) );
@@ -272,7 +285,7 @@ void RimSummaryPlotNameHelper::extractPlotTitleSubStrings()
             }
 
             {
-                auto completions = m_analyzer.wellCompletions( m_titleWellName );
+                auto completions = m_analyzer->wellCompletions( m_titleWellName );
                 if ( completions.size() == 1 )
                 {
                     m_titleCompletion = *( completions.begin() );

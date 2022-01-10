@@ -18,7 +18,7 @@
 
 #include "RimDataSourceSteppingTools.h"
 
-#include "RiaSummaryCurveAnalyzer.h"
+#include "RiaSummaryAddressAnalyzer.h"
 
 #include "cafPdmUiFieldHandle.h"
 
@@ -174,8 +174,8 @@ bool RimDataSourceSteppingTools::updateHistoryAndSummaryQuantityIfMatching( cons
         return true;
     }
 
-    std::string correspondingOldString = RiaSummaryCurveAnalyzer::correspondingHistorySummaryCurveName( oldString );
-    std::string correspondingNewString = RiaSummaryCurveAnalyzer::correspondingHistorySummaryCurveName( newString );
+    std::string correspondingOldString = RiaSummaryAddressAnalyzer::correspondingHistorySummaryCurveName( oldString );
+    std::string correspondingNewString = RiaSummaryAddressAnalyzer::correspondingHistorySummaryCurveName( newString );
 
     if ( adr->quantityName() == correspondingOldString )
     {

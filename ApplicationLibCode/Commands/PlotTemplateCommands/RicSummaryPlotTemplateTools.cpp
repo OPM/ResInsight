@@ -21,7 +21,7 @@
 #include "RiaGuiApplication.h"
 #include "RiaLogging.h"
 #include "RiaPreferences.h"
-#include "RiaSummaryCurveAnalyzer.h"
+#include "RiaSummaryAddressAnalyzer.h"
 
 #include "RicSelectPlotTemplateUi.h"
 
@@ -241,14 +241,14 @@ QString RicSummaryPlotTemplateTools::htmlTextFromPlotAndSelection( const RimSumm
 {
     QString text;
 
-    RiaSummaryCurveAnalyzer selectionAnalyzer;
+    RiaSummaryAddressAnalyzer selectionAnalyzer;
 
     selectionAnalyzer.appendAddresses( selectedSummaryAddresses );
 
     if ( templatePlot )
     {
-        std::set<QString>       templateSources;
-        RiaSummaryCurveAnalyzer templateAnalyzer;
+        std::set<QString>         templateSources;
+        RiaSummaryAddressAnalyzer templateAnalyzer;
 
         {
             std::set<RifEclipseSummaryAddress> templateAddresses;

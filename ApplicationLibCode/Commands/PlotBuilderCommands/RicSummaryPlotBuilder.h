@@ -41,6 +41,14 @@ class PdmObject;
 class RicSummaryPlotBuilder
 {
 public:
+    enum class RicGraphCurveGrouping
+    {
+        SINGLE_CURVES,
+        CURVES_FOR_OBJECT,
+        NONE
+    };
+
+public:
     RicSummaryPlotBuilder();
 
     void setDataSources( const std::vector<RimSummaryCase*>&           summaryCases,
@@ -48,8 +56,8 @@ public:
 
     void setAddresses( const std::set<RifEclipseSummaryAddress>& addresses );
 
-    void setIndividualPlotPerAddress( bool enable );
     void setIndividualPlotPerDataSource( bool enable );
+    void setGrouping( RicGraphCurveGrouping groping );
 
     std::vector<RimSummaryPlot*> createPlots() const;
 
@@ -77,6 +85,7 @@ private:
     std::vector<RimSummaryCase*>           m_summaryCases;
     std::vector<RimSummaryCaseCollection*> m_ensembles;
 
-    bool m_individualPlotPerAddress;
     bool m_individualPlotPerDataSource;
+
+    RicGraphCurveGrouping m_graphCurveGrouping;
 };

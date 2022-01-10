@@ -48,12 +48,15 @@ public:
     void     zoomAll() override;
     QString  description() const override;
 
-    void addPlot( RimPlot* plot );
+    void addPlot( RimSummaryPlot* plot );
 
     void                        updatePlotTitles();
     const RimSummaryNameHelper* nameHelper() const;
 
-    static RimSummaryMultiPlot* createAndAppendMultiPlot( const std::vector<RimPlot*>& plots );
+    void setAutoTitlePlot( bool enable );
+    void setAutoTitleGraphs( bool enable );
+
+    static RimSummaryMultiPlot* createAndAppendMultiPlot( const std::vector<RimSummaryPlot*>& plots );
 
     std::vector<RimSummaryDataSourceStepping::Axis> availableAxes() const override;
     std::vector<RimSummaryCurve*>     curvesForStepping( RimSummaryDataSourceStepping::Axis axis ) const override;
@@ -82,10 +85,13 @@ private:
 
     std::vector<RimSummaryPlot*> summaryPlots() const;
 
+    static void insertGraphsIntoPlot( RimSummaryMultiPlot* plot, const std::vector<RimSummaryPlot*>& graphs );
+
 private:
     caf::PdmField<QString> m_filterText;
     caf::PdmField<bool>    m_individualPlotPerVector;
     caf::PdmField<bool>    m_individualPlotPerDataSource;
+    caf::PdmField<bool>    m_individualPlotPerObject;
     caf::PdmField<bool>    m_autoPlotTitles;
     caf::PdmField<bool>    m_autoPlotTitlesOnSubPlots;
 

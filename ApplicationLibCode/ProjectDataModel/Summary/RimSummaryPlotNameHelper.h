@@ -20,19 +20,20 @@
 
 #include "RimSummaryNameHelper.h"
 
-#include "RiaSummaryCurveAnalyzer.h"
 #include "RifEclipseSummaryAddress.h"
 
 #include "cafPdmPointer.h"
 
 #include <QString>
 
+#include <memory>
 #include <string>
 #include <vector>
 
 class RimSummaryCurve;
 class RimSummaryCase;
 class RimSummaryCaseCollection;
+class RiaSummaryAddressAnalyzer;
 
 //==================================================================================================
 //
@@ -77,7 +78,7 @@ private:
     std::set<RimSummaryCaseCollection*> setOfEnsembleCases() const;
 
 private:
-    RiaSummaryCurveAnalyzer m_analyzer;
+    std::unique_ptr<RiaSummaryAddressAnalyzer> m_analyzer;
 
     std::vector<caf::PdmPointer<RimSummaryCase>>           m_summaryCases;
     std::vector<caf::PdmPointer<RimSummaryCaseCollection>> m_ensembleCases;

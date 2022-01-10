@@ -20,7 +20,7 @@
 
 #include "RiaColorTables.h"
 #include "RiaFieldHandleTools.h"
-#include "RiaSummaryCurveAnalyzer.h"
+#include "RiaSummaryAddressAnalyzer.h"
 #include "RiaSummaryCurveDefinition.h"
 #include "RiaSummaryTools.h"
 #include "RiaTimeHistoryCurveResampler.h"
@@ -662,10 +662,9 @@ std::vector<RimSummaryCurve*> RimSummaryPlot::visibleStackedSummaryCurvesForAxis
 void RimSummaryPlot::updatePlotTitle()
 {
     m_nameHelperAllCurves->clear();
-
+    updateNameHelperWithCurveData( m_nameHelperAllCurves.get() );
     if ( m_useAutoPlotTitle )
     {
-        updateNameHelperWithCurveData( m_nameHelperAllCurves.get() );
         m_description = m_nameHelperAllCurves->plotTitle();
     }
 
@@ -1199,6 +1198,9 @@ void RimSummaryPlot::updateTimeAxis()
 
             switch ( tickmarkCountEnum )
             {
+                case RimSummaryTimeAxisProperties::LegendTickmarkCount::TICKMARK_VERY_FEW:
+                    maxTickmarkCount = 2;
+                    break;
                 case RimSummaryTimeAxisProperties::LegendTickmarkCount::TICKMARK_FEW:
                     maxTickmarkCount = 4;
                     break;
