@@ -613,6 +613,8 @@ bool RimPlotCurve::errorBarsVisible() const
 void RimPlotCurve::setShowInLegend( bool show )
 {
     m_showLegend = show;
+    if ( m_plotCurve ) m_plotCurve->setVisibleInLegend( show );
+
     updateLegendEntryVisibilityNoPlotUpdate();
 }
 
