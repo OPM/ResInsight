@@ -98,7 +98,7 @@ std::string RiaSummaryAddressAnalyzer::quantityNameForTitle() const
         return *quantityNamesNoHistory().begin();
     }
 
-    return std::string();
+    return {};
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -306,10 +306,8 @@ std::string RiaSummaryAddressAnalyzer::correspondingHistorySummaryCurveName( con
         std::string candidate = curveName.substr( 0, curveName.size() - 1 );
         return candidate;
     }
-    else
-    {
-        return curveName + historyIdentifier;
-    }
+
+    return curveName + historyIdentifier;
 }
 
 //--------------------------------------------------------------------------------------------------
