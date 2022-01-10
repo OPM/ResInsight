@@ -21,7 +21,6 @@
 
 #include "RiaColorTools.h"
 #include "RiaDefines.h"
-#include "RiaFontCache.h"
 #include "RiaGuiApplication.h"
 #include "RiaPlotDefines.h"
 #include "RiaPlotWindowRedrawScheduler.h"
@@ -58,20 +57,14 @@
 #include "qwt_text.h"
 #include "qwt_text_label.h"
 
-#include <QDebug>
-#include <QDrag>
 #include <QFont>
 #include <QFontMetrics>
-#include <QGraphicsDropShadowEffect>
-#include <QLabel>
-#include <QMimeData>
 #include <QMouseEvent>
-#include <QScrollArea>
+#include <QVBoxLayout>
 #include <QWheelEvent>
 
 #include <algorithm>
 #include <limits>
-#include <qboxlayout.h>
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -82,6 +75,7 @@ RiuQwtPlotWidget::RiuQwtPlotWidget( RimPlot* plotDefinition, QWidget* parent )
     CAF_ASSERT( m_plotDefinition );
 
     QVBoxLayout* layout = new QVBoxLayout;
+    layout->setContentsMargins( 0, 0, 0, 0 );
     setLayout( layout );
 
     m_plot = new QwtPlot( this );
