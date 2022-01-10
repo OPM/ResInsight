@@ -33,7 +33,7 @@
 class RimSummaryCurve;
 class RimSummaryCase;
 class RimSummaryCaseCollection;
-class RiaSummaryCurveAnalyzer;
+class RiaSummaryAddressAnalyzer;
 
 //==================================================================================================
 //
@@ -78,7 +78,7 @@ private:
     std::set<RimSummaryCaseCollection*> setOfEnsembleCases() const;
 
 private:
-    std::unique_ptr<RiaSummaryCurveAnalyzer> m_analyzer;
+    std::unique_ptr<RiaSummaryAddressAnalyzer> m_analyzer;
 
     std::vector<caf::PdmPointer<RimSummaryCase>>           m_summaryCases;
     std::vector<caf::PdmPointer<RimSummaryCaseCollection>> m_ensembleCases;

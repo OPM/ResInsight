@@ -20,7 +20,7 @@
 
 #include "RiaFilePathTools.h"
 #include "RiaStringEncodingTools.h"
-#include "RiaSummaryCurveAnalyzer.h"
+#include "RiaSummaryAddressAnalyzer.h"
 #include "RifSummaryReaderInterface.h"
 
 #include "cafAppEnum.h"
@@ -142,7 +142,7 @@ void RifEclipseSummaryTools::dumpMetaData( RifSummaryReaderInterface* readerEcli
             RifEclipseSummaryAddress::SummaryVarCategory( category );
 
         std::vector<RifEclipseSummaryAddress> catAddresses =
-            RiaSummaryCurveAnalyzer::addressesForCategory( addresses, categoryEnum );
+            RiaSummaryAddressAnalyzer::addressesForCategory( addresses, categoryEnum );
 
         if ( !catAddresses.empty() )
         {

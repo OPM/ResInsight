@@ -20,7 +20,7 @@
 
 #include "RiaGuiApplication.h"
 #include "RiaStdStringTools.h"
-#include "RiaSummaryCurveAnalyzer.h"
+#include "RiaSummaryAddressAnalyzer.h"
 #include "RiaSummaryCurveDefinition.h"
 
 #include "RimDataSourceSteppingTools.h"
@@ -235,12 +235,12 @@ QList<caf::PdmOptionItemInfo>
             std::map<QString, QString> displayAndValueStrings;
 
             {
-                RiaSummaryCurveAnalyzer quantityAnalyzer;
+                RiaSummaryAddressAnalyzer quantityAnalyzer;
 
-                auto subset = RiaSummaryCurveAnalyzer::addressesForCategory( addresses, category );
+                auto subset = RiaSummaryAddressAnalyzer::addressesForCategory( addresses, category );
                 quantityAnalyzer.appendAddresses( subset );
 
-                RiaSummaryCurveAnalyzer analyzerForVisibleCurves;
+                RiaSummaryAddressAnalyzer analyzerForVisibleCurves;
                 analyzerForVisibleCurves.appendAddresses( visibleCurveAddresses );
 
                 if ( analyzerForVisibleCurves.quantityNamesWithHistory().empty() )
@@ -327,7 +327,7 @@ QList<caf::PdmOptionItemInfo>
 
             if ( category != RifEclipseSummaryAddress::SUMMARY_INVALID )
             {
-                RiaSummaryCurveAnalyzer analyzer;
+                RiaSummaryAddressAnalyzer analyzer;
                 analyzer.appendAddresses( addresses );
 
                 identifierTexts = analyzer.identifierTexts( category, secondaryIdentifier );
@@ -586,7 +586,7 @@ void RimSummaryPlotSourceStepping::fieldChangedByUi( const caf::PdmFieldHandle* 
 //--------------------------------------------------------------------------------------------------
 caf::PdmValueField* RimSummaryPlotSourceStepping::fieldToModify()
 {
-    RiaSummaryCurveAnalyzer analyzer;
+    RiaSummaryAddressAnalyzer analyzer;
     analyzer.appendAddresses( addressesForCurvesInPlot() );
 
     if ( analyzer.wellNames().size() == 1 )
@@ -779,7 +779,7 @@ std::vector<caf::PdmFieldHandle*> RimSummaryPlotSourceStepping::computeVisibleFi
     std::vector<caf::PdmFieldHandle*> fieldsCommonForAllCurves;
 
     {
-        RiaSummaryCurveAnalyzer analyzer;
+        RiaSummaryAddressAnalyzer analyzer;
         analyzer.appendAddresses( addressesForCurvesInPlot() );
 
         RifEclipseSummaryAddress::SummaryVarCategory category = RifEclipseSummaryAddress::SUMMARY_INVALID;

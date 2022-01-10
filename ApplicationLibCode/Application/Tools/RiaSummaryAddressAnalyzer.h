@@ -32,10 +32,10 @@ class QString;
 //==================================================================================================
 //
 //==================================================================================================
-class RiaSummaryCurveAnalyzer
+class RiaSummaryAddressAnalyzer
 {
 public:
-    RiaSummaryCurveAnalyzer();
+    RiaSummaryAddressAnalyzer();
 
     void appendAddresses( const std::set<RifEclipseSummaryAddress>& allAddresses );
     void appendAddresses( const std::vector<RifEclipseSummaryAddress>& allAddresses );

@@ -18,7 +18,7 @@
 
 #include "RimMultiPlot.h"
 
-#include "RiaSummaryCurveAnalyzer.h"
+#include "RiaSummaryAddressAnalyzer.h"
 #include "RiaSummaryStringTools.h"
 
 #include "RimEnsembleCurveSet.h"

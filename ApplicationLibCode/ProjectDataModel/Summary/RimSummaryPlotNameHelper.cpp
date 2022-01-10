@@ -18,7 +18,7 @@
 
 #include "RimSummaryPlotNameHelper.h"
 
-#include "RiaSummaryCurveAnalyzer.h"
+#include "RiaSummaryAddressAnalyzer.h"
 #include "RifEclipseSummaryAddress.h"
 
 #include "RimObjectiveFunctionTools.h"
@@ -30,7 +30,7 @@
 //--------------------------------------------------------------------------------------------------
 RimSummaryPlotNameHelper::RimSummaryPlotNameHelper()
 {
-    m_analyzer = std::make_unique<RiaSummaryCurveAnalyzer>();
+    m_analyzer = std::make_unique<RiaSummaryAddressAnalyzer>();
 }
 
 //--------------------------------------------------------------------------------------------------

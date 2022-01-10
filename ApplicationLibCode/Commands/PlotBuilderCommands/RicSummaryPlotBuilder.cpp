@@ -18,7 +18,7 @@
 
 #include "RicSummaryPlotBuilder.h"
 
-#include "RiaSummaryCurveAnalyzer.h"
+#include "RiaSummaryAddressAnalyzer.h"
 #include "RiaSummaryTools.h"
 
 #include "RifEclipseSummaryAddress.h"
@@ -111,7 +111,7 @@ std::vector<RimSummaryPlot*> RicSummaryPlotBuilder::createPlots() const
         }
         else if ( m_graphCurveGrouping == RicGraphCurveGrouping::CURVES_FOR_OBJECT )
         {
-            RiaSummaryCurveAnalyzer analyzer;
+            RiaSummaryAddressAnalyzer analyzer;
             analyzer.appendAddresses( m_addresses );
 
             auto groups = analyzer.addressesGroupedByObject();
@@ -169,7 +169,7 @@ std::vector<RimSummaryPlot*> RicSummaryPlotBuilder::createPlots() const
         }
         else if ( m_graphCurveGrouping == RicGraphCurveGrouping::CURVES_FOR_OBJECT )
         {
-            RiaSummaryCurveAnalyzer analyzer;
+            RiaSummaryAddressAnalyzer analyzer;
             analyzer.appendAddresses( m_addresses );
 
             auto groups = analyzer.addressesGroupedByObject();
