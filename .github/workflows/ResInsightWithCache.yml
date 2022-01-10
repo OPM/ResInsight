@@ -5,7 +5,7 @@ on:
   pull_request:
   schedule:
     # Every day at 1am to make sure we have a build cache for the current date
-    # build cache is 
+    # build cache is   
     - cron: '0 1 * * * '
 env:
   BUILD_TYPE: Release
@@ -195,7 +195,6 @@ jobs:
               -B cmakebuild
               -D CMAKE_BUILD_TYPE=$ENV{BUILD_TYPE}
               -D CMAKE_INSTALL_PREFIX=cmakebuild/install
-              -D RESINSIGHT_ENABLE_UNITY_BUILD=true
               -D RESINSIGHT_BUNDLE_OPENSSL=true
               -D RESINSIGHT_INCLUDE_APPLICATION_UNIT_TESTS=true
               -D RESINSIGHT_TREAT_WARNINGS_AS_ERRORS=true
