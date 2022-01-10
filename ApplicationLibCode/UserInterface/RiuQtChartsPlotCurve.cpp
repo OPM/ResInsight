@@ -27,6 +27,7 @@
 
 #include <QLegend>
 #include <QLegendMarker>
+#include <QtCharts/QChartView>
 
 #include <limits>
 
