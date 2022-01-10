@@ -1182,6 +1182,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicEclipseWellShowWellCellFenceFeature";
             menuBuilder << "Separator";
             menuBuilder << "RicNewSimWellFractureFeature";
+            menuBuilder << "RicNewSimWellIntersectionFeature";
         }
 #ifdef USE_ODB_API
         else if ( dynamic_cast<RimWellIASettings*>( firstUiItem ) )
