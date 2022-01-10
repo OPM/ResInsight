@@ -19,13 +19,10 @@
 #pragma once
 
 #include "RiaQDateTimeTools.h"
+
 #include "RiuInterfaceToViewWindow.h"
 #include "RiuQwtPlotWidget.h"
 #include "RiuSummaryPlot.h"
-
-#include "cafPdmPointer.h"
-
-#include "qwt_plot.h"
 
 #include <QPointer>
 
@@ -57,7 +54,6 @@ public:
                                    RiaQDateTimeTools::TimeFormatComponents::TIME_FORMAT_UNSPECIFIED ) override;
 
     void useTimeBasedTimeAxis() override;
-    void setAxisIsLogarithmic( QwtPlot::Axis axis, bool logarithmic );
 
     void updateAnnotationObjects( RimPlotAxisPropertiesInterface* axisProperties ) override;
 

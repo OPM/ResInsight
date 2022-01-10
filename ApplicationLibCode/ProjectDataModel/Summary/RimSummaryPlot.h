@@ -29,8 +29,6 @@
 #include "RiuQwtPlotWidget.h"
 #include "RiuSummaryPlot.h"
 
-#include "qwt_plot_textlabel.h"
-
 #include "cafPdmChildArrayField.h"
 #include "cafPdmPtrArrayField.h"
 #include "cafPdmPtrField.h"
@@ -62,6 +60,7 @@ class RiaSummaryCurveDefinition;
 
 class QwtInterval;
 class QwtPlotCurve;
+class QwtPlotTextLabel;
 
 class QKeyEvent;
 

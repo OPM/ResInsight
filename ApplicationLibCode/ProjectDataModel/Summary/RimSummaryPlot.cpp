@@ -61,6 +61,7 @@
 #include "cafPdmUiTreeOrdering.h"
 #include "cafSelectionManager.h"
 
+#include "qwt_plot.h"
 #include "qwt_plot_curve.h"
 #include "qwt_plot_textlabel.h"
 

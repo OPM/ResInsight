@@ -40,6 +40,8 @@
 #include "cafAssert.h"
 #include "cafPdmUiComboBoxEditor.h"
 
+#include <QPen>
+
 // NB! Special macro for pure virtual class
 CAF_PDM_XML_ABSTRACT_SOURCE_INIT( RimPlotCurve, "PlotCurve" );
 
