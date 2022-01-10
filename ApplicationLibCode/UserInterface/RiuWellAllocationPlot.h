@@ -18,8 +18,6 @@
 
 #pragma once
 
-#include "qwt_plot.h"
-
 #include "cafPdmPointer.h"
 
 #include <QFrame>

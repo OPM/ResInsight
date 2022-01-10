@@ -23,8 +23,8 @@
 #include "RiuQwtPlotCurveDefines.h"
 
 #include "qwt_plot_curve.h"
-#include "qwt_plot_intervalcurve.h"
-#include "qwt_symbol.h"
+
+class QwtPlotIntervalCurve;
 
 //==================================================================================================
 //
