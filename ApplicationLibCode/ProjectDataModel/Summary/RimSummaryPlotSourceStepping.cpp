@@ -159,7 +159,7 @@ void RimSummaryPlotSourceStepping::applyPrevOtherIdentifier()
 //--------------------------------------------------------------------------------------------------
 std::vector<caf::PdmFieldHandle*> RimSummaryPlotSourceStepping::fieldsToShowInToolbar()
 {
-    return computeVisibleFieldsAndSetFieldVisibility();
+    return activeFieldsForDataSourceStepping();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -167,15 +167,18 @@ std::vector<caf::PdmFieldHandle*> RimSummaryPlotSourceStepping::fieldsToShowInTo
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlotSourceStepping::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    auto visible = computeVisibleFieldsAndSetFieldVisibility();
+    auto visible = activeFieldsForDataSourceStepping();
     if ( visible.empty() )
     {
-        m_placeholderForLabel.uiCapability()->setUiHidden( false );
+        uiOrdering.add( &m_placeholderForLabel );
     }
-    else
+
+    for ( auto f : visible )
     {
-        m_placeholderForLabel.uiCapability()->setUiHidden( true );
+        uiOrdering.add( f );
     }
+
+    uiOrdering.skipRemainingFields();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -728,21 +731,8 @@ std::set<RimSummaryCase*> RimSummaryPlotSourceStepping::summaryCasesCurveCollect
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<caf::PdmFieldHandle*> RimSummaryPlotSourceStepping::computeVisibleFieldsAndSetFieldVisibility()
+std::vector<caf::PdmFieldHandle*> RimSummaryPlotSourceStepping::activeFieldsForDataSourceStepping()
 {
-    // Required to set all stepping controls hidden, as they show up in the property editor when selecting a plot
-    m_summaryCase.uiCapability()->setUiHidden( true );
-    m_includeEnsembleCasesForCaseStepping.uiCapability()->setUiHidden( true );
-    m_wellName.uiCapability()->setUiHidden( true );
-    m_wellGroupName.uiCapability()->setUiHidden( true );
-    m_region.uiCapability()->setUiHidden( true );
-    m_quantity.uiCapability()->setUiHidden( true );
-    m_ensemble.uiCapability()->setUiHidden( true );
-    m_cellBlock.uiCapability()->setUiHidden( true );
-    m_segment.uiCapability()->setUiHidden( true );
-    m_completion.uiCapability()->setUiHidden( true );
-    m_aquifer.uiCapability()->setUiHidden( true );
-
     std::vector<caf::PdmFieldHandle*> fields;
 
     auto sumCases = summaryCasesCurveCollection();
@@ -752,8 +742,6 @@ std::vector<caf::PdmFieldHandle*> RimSummaryPlotSourceStepping::computeVisibleFi
         if ( proj->allSummaryCases().size() > 1 )
         {
             m_summaryCase = *( sumCases.begin() );
-
-            m_summaryCase.uiCapability()->setUiHidden( false );
 
             fields.push_back( &m_summaryCase );
 
@@ -769,8 +757,6 @@ std::vector<caf::PdmFieldHandle*> RimSummaryPlotSourceStepping::computeVisibleFi
         if ( proj->summaryGroups().size() > 1 )
         {
             m_ensemble = *( ensembleColl.begin() );
-
-            m_ensemble.uiCapability()->setUiHidden( false );
 
             fields.push_back( &m_ensemble );
         }
@@ -814,7 +800,6 @@ std::vector<caf::PdmFieldHandle*> RimSummaryPlotSourceStepping::computeVisibleFi
             {
                 QString txt = QString::fromStdString( *( analyzer.wellNames().begin() ) );
                 m_wellName  = txt;
-                m_wellName.uiCapability()->setUiHidden( false );
 
                 fieldsCommonForAllCurves.push_back( &m_wellName );
             }
@@ -823,7 +808,6 @@ std::vector<caf::PdmFieldHandle*> RimSummaryPlotSourceStepping::computeVisibleFi
             {
                 QString txt     = QString::fromStdString( *( analyzer.wellGroupNames().begin() ) );
                 m_wellGroupName = txt;
-                m_wellGroupName.uiCapability()->setUiHidden( false );
 
                 fieldsCommonForAllCurves.push_back( &m_wellGroupName );
             }
@@ -831,7 +815,6 @@ std::vector<caf::PdmFieldHandle*> RimSummaryPlotSourceStepping::computeVisibleFi
             if ( analyzer.regionNumbers().size() == 1 )
             {
                 m_region = *( analyzer.regionNumbers().begin() );
-                m_region.uiCapability()->setUiHidden( false );
 
                 fieldsCommonForAllCurves.push_back( &m_region );
             }
@@ -840,7 +823,6 @@ std::vector<caf::PdmFieldHandle*> RimSummaryPlotSourceStepping::computeVisibleFi
             {
                 QString txt = QString::number( *( analyzer.wellSegmentNumbers( m_wellName().toStdString() ).begin() ) );
                 m_segment   = txt;
-                m_segment.uiCapability()->setUiHidden( false );
 
                 fieldsCommonForAllCurves.push_back( &m_segment );
             }
@@ -849,7 +831,6 @@ std::vector<caf::PdmFieldHandle*> RimSummaryPlotSourceStepping::computeVisibleFi
             {
                 QString txt = QString::fromStdString( *( analyzer.blocks().begin() ) );
                 m_cellBlock = txt;
-                m_cellBlock.uiCapability()->setUiHidden( false );
 
                 fieldsCommonForAllCurves.push_back( &m_cellBlock );
             }
@@ -858,7 +839,6 @@ std::vector<caf::PdmFieldHandle*> RimSummaryPlotSourceStepping::computeVisibleFi
             {
                 QString txt = QString::fromStdString( *( analyzer.wellCompletions( m_wellName().toStdString() ).begin() ) );
                 m_completion = txt;
-                m_completion.uiCapability()->setUiHidden( false );
 
                 fieldsCommonForAllCurves.push_back( &m_completion );
             }
@@ -866,7 +846,6 @@ std::vector<caf::PdmFieldHandle*> RimSummaryPlotSourceStepping::computeVisibleFi
             if ( analyzer.aquifers().size() == 1 )
             {
                 m_aquifer = *( analyzer.aquifers().begin() );
-                m_aquifer.uiCapability()->setUiHidden( false );
 
                 fieldsCommonForAllCurves.push_back( &m_aquifer );
             }
@@ -875,7 +854,6 @@ std::vector<caf::PdmFieldHandle*> RimSummaryPlotSourceStepping::computeVisibleFi
             {
                 QString txt = QString::fromStdString( analyzer.quantityNameForTitle() );
                 m_quantity  = txt;
-                m_quantity.uiCapability()->setUiHidden( false );
 
                 fieldsCommonForAllCurves.push_back( &m_quantity );
             }
