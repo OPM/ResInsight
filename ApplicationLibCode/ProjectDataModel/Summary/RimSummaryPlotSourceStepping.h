@@ -78,7 +78,7 @@ private:
 
     std::set<RifEclipseSummaryAddress>  addressesForCurvesInPlot() const;
     std::set<RimSummaryCase*>           summaryCasesCurveCollection() const;
-    std::vector<caf::PdmFieldHandle*>   computeVisibleFieldsAndSetFieldVisibility();
+    std::vector<caf::PdmFieldHandle*>   activeFieldsForDataSourceStepping();
     std::set<RimSummaryCaseCollection*> ensembleCollection() const;
 
     bool isXAxisStepping() const;

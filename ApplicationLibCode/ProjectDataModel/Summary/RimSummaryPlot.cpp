@@ -2242,20 +2242,7 @@ void RimSummaryPlot::onCurveCollectionChanged( const SignalEmitter* emitter )
 //--------------------------------------------------------------------------------------------------
 RimSummaryPlotSourceStepping* RimSummaryPlot::sourceSteppingObjectForKeyEventHandling() const
 {
-    caf::PdmObjectHandle* selectedObj =
-        dynamic_cast<caf::PdmObjectHandle*>( caf::SelectionManager::instance()->selectedItem() );
-    if ( selectedObj )
-    {
-        RimEnsembleCurveSetCollection* ensembleCurveSetColl = nullptr;
-        selectedObj->firstAncestorOrThisOfType( ensembleCurveSetColl );
-
-        if ( ensembleCurveSetColl )
-        {
-            return ensembleCurveSetCollection()->sourceSteppingObject();
-        }
-    }
-
-    return summaryCurveCollection()->sourceSteppingObject( RimSummaryDataSourceStepping::Axis::Y_AXIS );
+    return m_sourceStepping;
 }
 
 //--------------------------------------------------------------------------------------------------
