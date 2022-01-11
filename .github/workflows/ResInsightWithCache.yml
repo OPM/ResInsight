@@ -169,6 +169,7 @@ jobs:
       - name: Configure
         shell: cmake -P {0}
         run: |
+          set(ENV{BUILDCACHE_DEBUG} 2)        
           set(ENV{CC} ${{ matrix.config.cc }})
           set(ENV{CXX} ${{ matrix.config.cxx }})
           if ("${{ runner.os }}" STREQUAL "Windows" AND NOT "x${{ matrix.config.environment_script }}" STREQUAL "x")
@@ -211,6 +212,7 @@ jobs:
       - name: Build
         shell: cmake -P {0}
         run: |
+          set(ENV{BUILDCACHE_DEBUG} 2)        
           set(ENV{NINJA_STATUS} "[%f/%t %o/sec] ")
           if ("${{ runner.os }}" STREQUAL "Windows" AND NOT "x${{ matrix.config.environment_script }}" STREQUAL "x")
             file(STRINGS environment_script_output.txt output_lines)
