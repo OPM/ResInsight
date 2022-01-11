@@ -18,7 +18,11 @@
 
 #include "RimSummaryAddressCollection.h"
 
+#include "RifEclipseSummaryAddress.h"
+
 #include "RimSummaryAddress.h"
+
+#include "cafPdmUiTreeOrdering.h"
 
 CAF_PDM_SOURCE_INIT( RimSummaryAddressCollection, "RimSummaryAddressCollection" );
 
@@ -48,28 +52,133 @@ RimSummaryAddressCollection::~RimSummaryAddressCollection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryAddressCollection::addAddress( RimSummaryAddress* address )
+bool RimSummaryAddressCollection::hasDataVector( const QString quantityName ) const
 {
-    m_adresses.push_back( address );
+    for ( auto& address : m_adresses )
+    {
+        if ( address->quantityName() == quantityName ) return true;
+    }
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryAddressCollection::addToSubfolder( RimSummaryAddress* address, QString foldername )
+bool RimSummaryAddressCollection::hasDataVector( const std::string quantityName ) const
+{
+    return hasDataVector( QString::fromStdString( quantityName ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryAddressCollection::addAddress( const RifEclipseSummaryAddress& address, int caseId )
+{
+    if ( !hasDataVector( address.quantityName() ) )
+    {
+        m_adresses.push_back( RimSummaryAddress::wrapFileReaderAddress( address, caseId ) );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryAddressCollection::addToSubfolder( QString foldername, const RifEclipseSummaryAddress& address, int caseId )
+{
+    RimSummaryAddressCollection* folder = getOrCreateSubfolder( foldername );
+    folder->addAddress( address, caseId );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryAddressCollection::updateFolderStructure( const std::set<RifEclipseSummaryAddress>& addresses, int caseId )
+{
+    RimSummaryAddressCollection* misc    = getOrCreateSubfolder( "Miscellaneous" );
+    RimSummaryAddressCollection* fields  = getOrCreateSubfolder( "Field" );
+    RimSummaryAddressCollection* regions = getOrCreateSubfolder( "Regions" );
+    RimSummaryAddressCollection* wells   = getOrCreateSubfolder( "Wells" );
+    RimSummaryAddressCollection* groups  = getOrCreateSubfolder( "Groups" );
+
+    for ( const auto& address : addresses )
+    {
+        switch ( address.category() )
+        {
+            case RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_MISC:
+                misc->addAddress( address, caseId );
+                break;
+
+            case RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_FIELD:
+                fields->addAddress( address, caseId );
+                break;
+
+            case RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_REGION:
+                regions->addToSubfolder( QString::number( address.regionNumber() ), address, caseId );
+                break;
+
+            case RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_WELL_GROUP:
+                groups->addToSubfolder( QString::fromStdString( address.wellGroupName() ), address, caseId );
+                break;
+
+            case RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_WELL:
+                wells->addToSubfolder( QString::fromStdString( address.wellName() ), address, caseId );
+                break;
+
+            default:
+                continue;
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimSummaryAddressCollection* RimSummaryAddressCollection::getOrCreateSubfolder( const QString folderName )
 {
     for ( auto& folder : m_subfolders )
     {
-        if ( folder->name() == foldername )
+        if ( folder->name() == folderName )
         {
-            folder->addAddress( address );
-            return;
+            return folder;
         }
     }
 
-    RimSummaryAddressCollection* newfolder = new RimSummaryAddressCollection();
-    newfolder->setName( foldername );
-    newfolder->addAddress( address );
+    RimSummaryAddressCollection* newFolder = new RimSummaryAddressCollection();
+    newFolder->setName( folderName );
+    m_subfolders.push_back( newFolder );
+    return newFolder;
+}
 
-    m_subfolders.push_back( newfolder );
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryAddressCollection::clear()
+{
+    m_adresses.clear();
+    m_subfolders.clear();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimSummaryAddressCollection::isEmpty() const
+{
+    if ( m_adresses.size() > 0 ) return true;
+    return ( m_subfolders.size() > 0 );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryAddressCollection::updateUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering ) const
+{
+    for ( auto& folder : m_subfolders() )
+    {
+        uiTreeOrdering.add( folder );
+    }
+
+    for ( auto& address : m_adresses() )
+    {
+        uiTreeOrdering.add( address );
+    }
 }

@@ -24,6 +24,7 @@
 
 #include "cafFilePath.h"
 #include "cafPdmChildArrayField.h"
+#include "cafPdmChildField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 
@@ -104,7 +105,7 @@ protected:
     caf::PdmField<DisplayNameEnum> m_displayNameOption;
     caf::PdmField<caf::FilePath>   m_summaryHeaderFilename;
 
-    caf::PdmChildArrayField<RimSummaryAddressCollection*> m_dataVectorGroups;
+    caf::PdmChildField<RimSummaryAddressCollection*> m_dataVectorFolders;
 
     bool               m_isObservedData;
     caf::PdmField<int> m_caseId;

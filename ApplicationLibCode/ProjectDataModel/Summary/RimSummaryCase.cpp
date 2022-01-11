@@ -34,6 +34,7 @@
 #include "RimSummaryPlotCollection.h"
 
 #include "cafPdmFieldScriptingCapability.h"
+#include "cafPdmUiTreeOrdering.h"
 
 #include "cvfAssert.h"
 
@@ -66,9 +67,9 @@ RimSummaryCase::RimSummaryCase()
     m_caseId.uiCapability()->setUiReadOnly( true );
     m_caseId.capability<caf::PdmAbstractFieldScriptingCapability>()->setIOWriteable( false );
 
-    CAF_PDM_InitFieldNoDefault( &m_dataVectorGroups, "DataVectorGroups", "Data Vectors" );
-    m_dataVectorGroups.uiCapability()->setUiHidden( true );
-    m_dataVectorGroups.uiCapability()->setUiTreeHidden( true );
+    CAF_PDM_InitFieldNoDefault( &m_dataVectorFolders, "DataVectorFolders", "Data Folders" );
+    m_dataVectorFolders = new RimSummaryAddressCollection();
+    m_dataVectorFolders.uiCapability()->setUiHidden( true );
 
     m_isObservedData = false;
 }
@@ -213,63 +214,13 @@ QString RimSummaryCase::errorMessagesFromReader()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCase::buildChildNodes()
 {
+    // m_dataVectorGroups.clear();
+    m_dataVectorFolders->clear();
+
     RifSummaryReaderInterface* reader = summaryReader();
     if ( !reader ) return;
 
-    m_dataVectorGroups.clear();
-
-    RimSummaryAddressCollection* wells = new RimSummaryAddressCollection();
-    wells->setName( "Wells" );
-
-    RimSummaryAddressCollection* regions = new RimSummaryAddressCollection();
-    regions->setName( "Regions" );
-
-    RimSummaryAddressCollection* fields = new RimSummaryAddressCollection();
-    fields->setName( "Field" );
-
-    RimSummaryAddressCollection* groups = new RimSummaryAddressCollection();
-    groups->setName( "Groups" );
-
-    RimSummaryAddressCollection* misc = new RimSummaryAddressCollection();
-    misc->setName( "Miscellaneous" );
-
-    for ( const auto& address : reader->allResultAddresses() )
-    {
-        switch ( address.category() )
-        {
-            case RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_MISC:
-                misc->addAddress( RimSummaryAddress::wrapFileReaderAddress( address, m_caseId ) );
-                break;
-
-            case RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_FIELD:
-                fields->addAddress( RimSummaryAddress::wrapFileReaderAddress( address, m_caseId ) );
-                break;
-
-            case RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_REGION:
-                regions->addToSubfolder( RimSummaryAddress::wrapFileReaderAddress( address, m_caseId ),
-                                         QString::number( address.regionNumber() ) );
-                break;
-
-            case RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_WELL_GROUP:
-                groups->addToSubfolder( RimSummaryAddress::wrapFileReaderAddress( address, m_caseId ),
-                                        QString::fromStdString( address.wellGroupName() ) );
-                break;
-
-            case RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_WELL:
-                wells->addToSubfolder( RimSummaryAddress::wrapFileReaderAddress( address, m_caseId ),
-                                       QString::fromStdString( address.wellName() ) );
-                break;
-
-            default:
-                continue;
-        }
-    }
-
-    m_dataVectorGroups.push_back( misc );
-    m_dataVectorGroups.push_back( fields );
-    m_dataVectorGroups.push_back( regions );
-    m_dataVectorGroups.push_back( groups );
-    m_dataVectorGroups.push_back( wells );
+    m_dataVectorFolders->updateFolderStructure( reader->allResultAddresses(), m_caseId );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -277,7 +228,13 @@ void RimSummaryCase::buildChildNodes()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCase::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/ )
 {
-    if ( m_dataVectorGroups.size() == 0 ) buildChildNodes();
+    if ( !ensemble() )
+    {
+        if ( m_dataVectorFolders->isEmpty() ) buildChildNodes();
+        m_dataVectorFolders->updateUiTreeOrdering( uiTreeOrdering );
+    }
+
+    uiTreeOrdering.skipRemainingChildren( true );
 
     updateTreeItemName();
 }
@@ -343,6 +300,8 @@ void RimSummaryCase::initAfterRead()
     }
 
     updateOptionSensitivity();
+
+    buildChildNodes();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -22,8 +22,11 @@
 #include "cafPdmChildArrayField.h"
 
 #include <QString>
+#include <string>
+#include <vector>
 
 class RimSummaryAddress;
+class RifEclipseSummaryAddress;
 
 class RimSummaryAddressCollection : public RimNamedObject
 {
@@ -33,8 +36,22 @@ public:
     RimSummaryAddressCollection();
     ~RimSummaryAddressCollection() override;
 
-    void addAddress( RimSummaryAddress* address );
-    void addToSubfolder( RimSummaryAddress* address, QString foldername );
+    bool hasDataVector( const QString quantityName ) const;
+    bool hasDataVector( const std::string quantityName ) const;
+
+    void addAddress( const RifEclipseSummaryAddress& address, int caseId );
+    void addToSubfolder( QString foldername, const RifEclipseSummaryAddress& address, int caseId );
+
+    void updateFolderStructure( const std::set<RifEclipseSummaryAddress>& addresses, int caseid );
+
+    void clear();
+
+    bool isEmpty() const;
+
+    void updateUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering ) const;
+
+private:
+    RimSummaryAddressCollection* getOrCreateSubfolder( const QString folderName );
 
 private:
     caf::PdmChildArrayField<RimSummaryAddress*>           m_adresses;

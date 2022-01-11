@@ -52,6 +52,8 @@ public:
     void setCaseId( int caseId );
     int  caseId() const;
 
+    QString quantityName() const;
+
     void ensureCalculationIdIsAssigned();
 
     RiaDefines::PhaseType addressPhaseType() const;
