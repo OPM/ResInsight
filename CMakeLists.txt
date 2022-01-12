@@ -404,10 +404,7 @@ find_package(OpenGL)
 # ##############################################################################
 option(RESINSIGHT_USE_QT_CHARTS "Enable QtCharts in the code" ON)
 if(RESINSIGHT_USE_QT_CHARTS)
-  find_package(
-    Qt5
-    OPTIONAL_COMPONENTS Charts
-  )
+  find_package(Qt5 OPTIONAL_COMPONENTS Charts)
 
   if(Qt5Charts_FOUND)
     message(STATUS "QtCharts found: ${Qt5Charts_LIBRARIES}")
