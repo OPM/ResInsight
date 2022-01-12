@@ -70,6 +70,7 @@ RimSummaryCase::RimSummaryCase()
     CAF_PDM_InitFieldNoDefault( &m_dataVectorFolders, "DataVectorFolders", "Data Folders" );
     m_dataVectorFolders = new RimSummaryAddressCollection();
     m_dataVectorFolders.uiCapability()->setUiHidden( true );
+    m_dataVectorFolders.xmlCapability()->disableIO();
 
     m_isObservedData = false;
 }

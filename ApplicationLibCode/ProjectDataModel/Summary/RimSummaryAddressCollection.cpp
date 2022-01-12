@@ -163,8 +163,8 @@ void RimSummaryAddressCollection::clear()
 //--------------------------------------------------------------------------------------------------
 bool RimSummaryAddressCollection::isEmpty() const
 {
-    if ( m_adresses.size() > 0 ) return true;
-    return ( m_subfolders.size() > 0 );
+    if ( m_adresses.size() == 0 ) return true;
+    return ( m_subfolders.size() == 0 );
 }
 
 //--------------------------------------------------------------------------------------------------

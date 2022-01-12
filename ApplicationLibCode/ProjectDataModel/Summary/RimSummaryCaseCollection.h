@@ -28,6 +28,7 @@
 #include "RimObjectiveFunction.h"
 
 #include "cafPdmChildArrayField.h"
+#include "cafPdmChildField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmProxyValueField.h"
@@ -40,6 +41,7 @@
 class RifReaderRftInterface;
 class RifReaderEnsembleStatisticsRft;
 class RimSummaryCase;
+class RimSummaryAddressCollection;
 
 //==================================================================================================
 ///
@@ -100,6 +102,8 @@ public:
 
     RiaDefines::EclipseUnitSystem unitSystem() const;
 
+    void refreshMetaData();
+
 private:
     RigEnsembleParameter createEnsembleParameter( const QString& paramName ) const;
     static void          sortByBinnedVariation( std::vector<RigEnsembleParameter>& parameterVector );
@@ -114,18 +118,22 @@ private:
 
     void onCaseNameChanged( const SignalEmitter* emitter );
 
+    void buildChildNodes();
+
 protected:
     virtual void onLoadDataAndUpdate();
     void         updateReferringCurveSets();
     void         defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    void         defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
     void         setNameAsReadOnly();
 
     caf::PdmChildArrayField<RimSummaryCase*> m_cases;
 
 private:
-    caf::PdmField<QString>           m_name;
-    caf::PdmProxyValueField<QString> m_nameAndItemCount;
-    caf::PdmField<bool>              m_isEnsemble;
+    caf::PdmField<QString>                           m_name;
+    caf::PdmProxyValueField<QString>                 m_nameAndItemCount;
+    caf::PdmField<bool>                              m_isEnsemble;
+    caf::PdmChildField<RimSummaryAddressCollection*> m_dataVectorFolders;
 
     cvf::ref<RifReaderEnsembleStatisticsRft> m_statisticsEclipseRftReader;
     caf::PdmField<int>                       m_ensembleId;
