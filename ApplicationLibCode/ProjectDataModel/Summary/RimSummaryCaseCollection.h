@@ -19,9 +19,7 @@
 #pragma once
 
 #include "RiaDefines.h"
-#include "RifEclipseRftAddress.h"
 #include "RifEclipseSummaryAddress.h"
-#include "RifReaderEnsembleStatisticsRft.h"
 
 #include "RigEnsembleParameter.h"
 
@@ -32,6 +30,8 @@
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmProxyValueField.h"
+
+#include "cvfObject.h"
 
 #include <QString>
 

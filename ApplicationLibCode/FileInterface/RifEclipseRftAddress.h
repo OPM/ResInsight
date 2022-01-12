@@ -53,6 +53,9 @@ public:
 public:
     RifEclipseRftAddress( QString wellName, QDateTime timeStep, RftWellLogChannelType wellLogChannel );
 
+    void setSegmentId( int id );
+    int  segmentId() const;
+
     const QString&               wellName() const;
     QDateTime                    timeStep() const;
     const RftWellLogChannelType& wellLogChannel() const;
@@ -64,6 +67,7 @@ private:
     QString               m_wellName;
     QDateTime             m_timeStep;
     RftWellLogChannelType m_wellLogChannel;
+    int                   m_segmentId;
 };
 
 bool operator==( const RifEclipseRftAddress& first, const RifEclipseRftAddress& second );

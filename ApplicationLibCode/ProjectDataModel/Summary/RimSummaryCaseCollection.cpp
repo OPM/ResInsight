@@ -41,6 +41,7 @@
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmUiTreeOrdering.h"
 
+#include <QDate>
 #include <QFileInfo>
 
 #include <algorithm>

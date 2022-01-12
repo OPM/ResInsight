@@ -46,6 +46,7 @@
 #include "cafPdmPtrArrayField.h"
 #include "cafPdmPtrField.h"
 
+#include <QDate>
 #include <QPointer>
 
 class RimSummaryCase;
@@ -71,7 +72,6 @@ class QwtPlot;
 class QwtPlotCurve;
 class QKeyEvent;
 class QFrame;
-class QDate;
 
 //==================================================================================================
 ///
