@@ -72,28 +72,35 @@ bool RimSummaryAddressCollection::hasDataVector( const std::string quantityName 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryAddressCollection::addAddress( const RifEclipseSummaryAddress& address, int caseId )
+void RimSummaryAddressCollection::addAddress( const RifEclipseSummaryAddress& address, int caseId, int ensembleId )
 {
     if ( !hasDataVector( address.quantityName() ) )
     {
-        m_adresses.push_back( RimSummaryAddress::wrapFileReaderAddress( address, caseId ) );
+        m_adresses.push_back( RimSummaryAddress::wrapFileReaderAddress( address, caseId, ensembleId ) );
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryAddressCollection::addToSubfolder( QString foldername, const RifEclipseSummaryAddress& address, int caseId )
+void RimSummaryAddressCollection::addToSubfolder( QString                         foldername,
+                                                  const RifEclipseSummaryAddress& address,
+                                                  int                             caseId,
+                                                  int                             ensembleId )
 {
     RimSummaryAddressCollection* folder = getOrCreateSubfolder( foldername );
-    folder->addAddress( address, caseId );
+    folder->addAddress( address, caseId, ensembleId );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryAddressCollection::updateFolderStructure( const std::set<RifEclipseSummaryAddress>& addresses, int caseId )
+void RimSummaryAddressCollection::updateFolderStructure( const std::set<RifEclipseSummaryAddress>& addresses,
+                                                         int                                       caseId,
+                                                         int                                       ensembleId )
 {
+    if ( addresses.size() == 0 ) return;
+
     RimSummaryAddressCollection* misc    = getOrCreateSubfolder( "Miscellaneous" );
     RimSummaryAddressCollection* fields  = getOrCreateSubfolder( "Field" );
     RimSummaryAddressCollection* regions = getOrCreateSubfolder( "Regions" );
@@ -105,23 +112,23 @@ void RimSummaryAddressCollection::updateFolderStructure( const std::set<RifEclip
         switch ( address.category() )
         {
             case RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_MISC:
-                misc->addAddress( address, caseId );
+                misc->addAddress( address, caseId, ensembleId );
                 break;
 
             case RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_FIELD:
-                fields->addAddress( address, caseId );
+                fields->addAddress( address, caseId, ensembleId );
                 break;
 
             case RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_REGION:
-                regions->addToSubfolder( QString::number( address.regionNumber() ), address, caseId );
+                regions->addToSubfolder( QString::number( address.regionNumber() ), address, caseId, ensembleId );
                 break;
 
             case RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_WELL_GROUP:
-                groups->addToSubfolder( QString::fromStdString( address.wellGroupName() ), address, caseId );
+                groups->addToSubfolder( QString::fromStdString( address.wellGroupName() ), address, caseId, ensembleId );
                 break;
 
             case RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_WELL:
-                wells->addToSubfolder( QString::fromStdString( address.wellName() ), address, caseId );
+                wells->addToSubfolder( QString::fromStdString( address.wellName() ), address, caseId, ensembleId );
                 break;
 
             default:
@@ -163,8 +170,7 @@ void RimSummaryAddressCollection::clear()
 //--------------------------------------------------------------------------------------------------
 bool RimSummaryAddressCollection::isEmpty() const
 {
-    if ( m_adresses.size() == 0 ) return true;
-    return ( m_subfolders.size() == 0 );
+    return ( ( m_adresses.size() == 0 ) && ( m_subfolders.size() == 0 ) );
 }
 
 //--------------------------------------------------------------------------------------------------

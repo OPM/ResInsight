@@ -36,13 +36,7 @@ public:
     RimSummaryAddressCollection();
     ~RimSummaryAddressCollection() override;
 
-    bool hasDataVector( const QString quantityName ) const;
-    bool hasDataVector( const std::string quantityName ) const;
-
-    void addAddress( const RifEclipseSummaryAddress& address, int caseId );
-    void addToSubfolder( QString foldername, const RifEclipseSummaryAddress& address, int caseId );
-
-    void updateFolderStructure( const std::set<RifEclipseSummaryAddress>& addresses, int caseid );
+    void updateFolderStructure( const std::set<RifEclipseSummaryAddress>& addresses, int caseid, int ensembleId = -1 );
 
     void clear();
 
@@ -52,6 +46,12 @@ public:
 
 private:
     RimSummaryAddressCollection* getOrCreateSubfolder( const QString folderName );
+
+    bool hasDataVector( const QString quantityName ) const;
+    bool hasDataVector( const std::string quantityName ) const;
+
+    void addAddress( const RifEclipseSummaryAddress& address, int caseId, int ensembleId = -1 );
+    void addToSubfolder( QString foldername, const RifEclipseSummaryAddress& address, int caseId, int ensembleId = -1 );
 
 private:
     caf::PdmChildArrayField<RimSummaryAddress*>           m_adresses;

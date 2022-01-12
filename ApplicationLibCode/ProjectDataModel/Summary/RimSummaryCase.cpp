@@ -215,7 +215,6 @@ QString RimSummaryCase::errorMessagesFromReader()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCase::buildChildNodes()
 {
-    // m_dataVectorGroups.clear();
     m_dataVectorFolders->clear();
 
     RifSummaryReaderInterface* reader = summaryReader();
@@ -302,7 +301,7 @@ void RimSummaryCase::initAfterRead()
 
     updateOptionSensitivity();
 
-    buildChildNodes();
+    refreshMetaData();
 }
 
 //--------------------------------------------------------------------------------------------------

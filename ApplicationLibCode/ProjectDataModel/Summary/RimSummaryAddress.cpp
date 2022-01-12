@@ -76,6 +76,7 @@ RimSummaryAddress::RimSummaryAddress()
     CAF_PDM_InitFieldNoDefault( &m_calculationId, "CalculationId", "Calculation Id" );
 
     CAF_PDM_InitField( &m_caseId, "CaseId", -1, "CaseId" );
+    CAF_PDM_InitField( &m_ensembleId, "EnsembleId", -1, "EnsembleId" );
 
     m_category          = RifEclipseSummaryAddress::SUMMARY_INVALID;
     m_regionNumber      = -1;
@@ -99,11 +100,14 @@ RimSummaryAddress::~RimSummaryAddress()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSummaryAddress* RimSummaryAddress::wrapFileReaderAddress( const RifEclipseSummaryAddress& addr, int caseId /* = -1 */ )
+RimSummaryAddress* RimSummaryAddress::wrapFileReaderAddress( const RifEclipseSummaryAddress& addr,
+                                                             int                             caseId /* = -1 */,
+                                                             int                             ensembleId /* = -1 */ )
 {
     RimSummaryAddress* newAddress = new RimSummaryAddress();
     newAddress->setAddress( addr );
     newAddress->setCaseId( caseId );
+    newAddress->setEnsembleId( ensembleId );
     return newAddress;
 }
 
@@ -224,4 +228,28 @@ int RimSummaryAddress::caseId() const
 QString RimSummaryAddress::quantityName() const
 {
     return m_quantityName;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryAddress::setEnsembleId( int ensembleId )
+{
+    m_ensembleId = ensembleId;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RimSummaryAddress::ensembleId() const
+{
+    return m_ensembleId;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimSummaryAddress::isEnsemble() const
+{
+    return m_ensembleId >= 0;
 }

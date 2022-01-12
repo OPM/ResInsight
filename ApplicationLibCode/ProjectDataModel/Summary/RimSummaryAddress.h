@@ -44,13 +44,18 @@ public:
     RimSummaryAddress();
     ~RimSummaryAddress() override;
 
-    static RimSummaryAddress* wrapFileReaderAddress( const RifEclipseSummaryAddress& addr, int caseId = -1 );
+    static RimSummaryAddress*
+        wrapFileReaderAddress( const RifEclipseSummaryAddress& addr, int caseId = -1, int ensembleId = -1 );
 
     void                     setAddress( const RifEclipseSummaryAddress& addr );
     RifEclipseSummaryAddress address();
 
     void setCaseId( int caseId );
     int  caseId() const;
+
+    void setEnsembleId( int ensembleId );
+    int  ensembleId() const;
+    bool isEnsemble() const;
 
     QString quantityName() const;
 
@@ -78,4 +83,5 @@ private:
     caf::PdmField<bool>    m_isErrorResult;
     caf::PdmField<int>     m_calculationId;
     caf::PdmField<int>     m_caseId;
+    caf::PdmField<int>     m_ensembleId;
 };

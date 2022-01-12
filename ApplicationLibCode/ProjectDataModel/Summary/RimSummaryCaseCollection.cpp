@@ -168,7 +168,7 @@ void RimSummaryCaseCollection::removeCase( RimSummaryCase* summaryCase )
             calculateEnsembleParametersIntersectionHash();
     }
 
-    refreshMetaData();
+    buildChildNodes();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -200,7 +200,7 @@ void RimSummaryCaseCollection::addCase( RimSummaryCase* summaryCase )
 
     updateReferringCurveSets();
 
-    refreshMetaData();
+    buildChildNodes();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1003,6 +1003,13 @@ void RimSummaryCaseCollection::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiT
             buildChildNodes();
         }
         m_dataVectorFolders->updateUiTreeOrdering( uiTreeOrdering );
+
+        auto subnode = uiTreeOrdering.add( "Realizations", ":/Folder.png" );
+        for ( auto& smcase : m_cases )
+        {
+            subnode->add( smcase );
+        }
+
         uiTreeOrdering.skipRemainingChildren( true );
     }
 }
@@ -1056,7 +1063,9 @@ void RimSummaryCaseCollection::buildChildNodes()
 
     for ( auto& smcase : m_cases )
     {
-        m_dataVectorFolders->updateFolderStructure( smcase->summaryReader()->allResultAddresses(), smcase->caseId() );
+        m_dataVectorFolders->updateFolderStructure( smcase->summaryReader()->allResultAddresses(),
+                                                    smcase->caseId(),
+                                                    m_ensembleId );
     }
 }
 
