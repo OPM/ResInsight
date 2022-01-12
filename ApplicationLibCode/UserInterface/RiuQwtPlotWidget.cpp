@@ -887,7 +887,7 @@ std::pair<RiuPlotCurve*, int> RiuQwtPlotWidget::findClosestCurve( const QPoint& 
     QPoint localPos          = qwtPlot()->canvas()->mapFromGlobal( globalPos );
 
     findClosestPlotItem( localPos, &closestItem, &closestCurvePoint, &distanceFromClick );
-    RiuPlotCurve* plotCurve = dynamic_cast<RiuQwtPlotCurve*>( closestItem );
+    auto plotCurve = dynamic_cast<RiuQwtPlotCurve*>( closestItem );
     return std::make_pair( plotCurve, closestCurvePoint );
 }
 
