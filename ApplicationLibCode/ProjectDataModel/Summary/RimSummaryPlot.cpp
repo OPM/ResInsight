@@ -51,9 +51,12 @@
 #include "RimSummaryTimeAxisProperties.h"
 
 #include "RiuPlotMainWindowTools.h"
-#include "RiuSummaryQtChartsPlot.h"
 #include "RiuSummaryQwtPlot.h"
 #include "RiuTreeViewEventFilter.h"
+
+#ifdef USE_QTCHARTS
+#include "RiuSummaryQtChartsPlot.h"
+#endif
 
 #include "cvfColor3.h"
 
@@ -205,9 +208,9 @@ RimSummaryPlot::RimSummaryPlot()
     CAF_PDM_InitScriptableField( &m_useAutoPlotTitle, "IsUsingAutoName", true, "Auto Title" );
     CAF_PDM_InitScriptableField( &m_description, "PlotDescription", QString( "Summary Plot" ), "Name" );
     CAF_PDM_InitScriptableField( &m_normalizeCurveYValues, "normalizeCurveYValues", false, "Normalize all curves" );
-
-    CAF_PDM_InitScriptableField( &m_useQtChartsPlot, "useQtChartsPlot", true, "Use Qt Charts" );
-
+#ifdef USE_QTCHARTS
+    CAF_PDM_InitScriptableField( &m_useQtChartsPlot, "useQtChartsPlot", false, "Use Qt Charts" );
+#endif
     CAF_PDM_InitFieldNoDefault( &m_summaryCurveCollection, "SummaryCurveCollection", "" );
     m_summaryCurveCollection.uiCapability()->setUiTreeHidden( true );
     m_summaryCurveCollection = new RimSummaryCurveCollection;
@@ -1945,8 +1948,9 @@ void RimSummaryPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
 
     caf::PdmUiGroup* mainOptions = uiOrdering.addNewGroup( "General Plot Options" );
     mainOptions->setCollapsedByDefault( true );
+#ifdef USE_QTCHARTS
     mainOptions->add( &m_useQtChartsPlot );
-
+#endif
     if ( isMdiWindow() )
     {
         mainOptions->add( &m_showPlotTitle );
@@ -1982,6 +1986,7 @@ RiuPlotWidget* RimSummaryPlot::doCreatePlotViewWidget( QWidget* mainWindowParent
 {
     if ( !plotWidget() )
     {
+#ifdef USE_QTCHARTS
         if ( m_useQtChartsPlot )
         {
             m_summaryPlot = std::make_unique<RiuSummaryQtChartsPlot>( this, mainWindowParent );
@@ -1990,6 +1995,9 @@ RiuPlotWidget* RimSummaryPlot::doCreatePlotViewWidget( QWidget* mainWindowParent
         {
             m_summaryPlot = std::make_unique<RiuSummaryQwtPlot>( this, mainWindowParent );
         }
+#else
+        m_summaryPlot = std::make_unique<RiuSummaryQwtPlot>( this, mainWindowParent );
+#endif
 
         for ( RimGridTimeHistoryCurve* curve : m_gridTimeHistoryCurves )
         {
