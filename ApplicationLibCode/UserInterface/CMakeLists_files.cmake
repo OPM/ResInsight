@@ -199,7 +199,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiuTextContentFrame.cpp
 )
 
-if(Qt5Charts_FOUND)
+if(RESINSIGHT_USE_QT_CHARTS)
   list(
     APPEND
     CODE_HEADER_FILES
@@ -225,7 +225,6 @@ if(Qt5Charts_FOUND)
   list(
     APPEND
     QT_MOC_HEADERS
-    # ${CMAKE_CURRENT_LIST_DIR}/RiuQtChartView.h
     ${CMAKE_CURRENT_LIST_DIR}/RiuQtChartsPlotWidget.h
     ${CMAKE_CURRENT_LIST_DIR}/RiuSummaryQtChartsPlot.h
   )
