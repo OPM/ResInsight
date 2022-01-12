@@ -157,6 +157,7 @@ void RimSummaryPlotAxisFormatter::applyAxisPropertiesToPlot( RiuPlotWidget* plot
         }
     }
 
+#ifdef USE_QTCHARTS
     auto qtChartsPlotWidget = dynamic_cast<RiuQtChartsPlotWidget*>( plotWidget );
     if ( qtChartsPlotWidget )
     {
@@ -174,6 +175,7 @@ void RimSummaryPlotAxisFormatter::applyAxisPropertiesToPlot( RiuPlotWidget* plot
         QString format     = RiaNumberFormat::sprintfFormat( formatType, m_axisProperties->numberOfDecimals() );
         qtChartsPlotWidget->setAxisFormat( axis, format );
     }
+#endif
 
     {
         if ( m_axisProperties->isLogarithmicScaleEnabled )

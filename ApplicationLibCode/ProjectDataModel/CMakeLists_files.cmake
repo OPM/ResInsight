@@ -237,7 +237,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimSurfaceIntersectionCollection.cpp
 )
 
-if(Qt5Charts_FOUND)
+if(RESINSIGHT_USE_QT_CHARTS)
   list(
     APPEND
     SOURCE_GROUP_HEADER_FILES
