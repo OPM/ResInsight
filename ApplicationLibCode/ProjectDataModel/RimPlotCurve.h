@@ -84,11 +84,9 @@ public:
     void updateCurveNameAndUpdatePlotLegendAndTitle();
     void updateCurveNameNoLegendUpdate();
 
-    QString         curveName() const { return m_curveName; }
-    virtual QString curveExportDescription( const RifEclipseSummaryAddress& address = RifEclipseSummaryAddress() ) const
-    {
-        return m_curveName;
-    }
+    QString         curveName() const;
+    virtual QString curveExportDescription( const RifEclipseSummaryAddress& address = RifEclipseSummaryAddress() ) const;
+
     void    setCustomName( const QString& customName );
     QString legendEntryText() const;
     void    setLegendEntryText( const QString& legendEntryText );
@@ -139,24 +137,23 @@ protected:
     void         updatePlotTitle();
     virtual void updateLegendsInPlot();
 
-    virtual void setSamplesFromXYErrorValues(
-        const std::vector<double>&   xValues,
-        const std::vector<double>&   yValues,
-        const std::vector<double>&   errorValues,
-        bool                         keepOnlyPositiveValues,
-        RiaCurveDataTools::ErrorAxis errorAxis = RiaCurveDataTools::ErrorAxis::ERROR_ALONG_Y_AXIS );
+    void setSamplesFromXYErrorValues( const std::vector<double>& xValues,
+                                      const std::vector<double>& yValues,
+                                      const std::vector<double>& errorValues,
+                                      bool                       keepOnlyPositiveValues,
+                                      RiaCurveDataTools::ErrorAxis errorAxis = RiaCurveDataTools::ErrorAxis::ERROR_ALONG_Y_AXIS );
 
-    virtual void setSamplesFromXYValues( const std::vector<double>& xValues,
-                                         const std::vector<double>& yValues,
-                                         bool                       keepOnlyPositiveValues );
+    void setSamplesFromXYValues( const std::vector<double>& xValues,
+                                 const std::vector<double>& yValues,
+                                 bool                       keepOnlyPositiveValues );
 
-    virtual void setSamplesFromDatesAndYValues( const std::vector<QDateTime>& dateTimes,
-                                                const std::vector<double>&    yValues,
-                                                bool                          keepOnlyPositiveValues );
+    void setSamplesFromDatesAndYValues( const std::vector<QDateTime>& dateTimes,
+                                        const std::vector<double>&    yValues,
+                                        bool                          keepOnlyPositiveValues );
 
-    virtual void setSamplesFromTimeTAndYValues( const std::vector<time_t>& dateTimes,
-                                                const std::vector<double>& yValues,
-                                                bool                       keepOnlyPositiveValues );
+    void setSamplesFromTimeTAndYValues( const std::vector<time_t>& dateTimes,
+                                        const std::vector<double>& yValues,
+                                        bool                       keepOnlyPositiveValues );
 
 protected:
     // Overridden PDM methods
@@ -166,7 +163,7 @@ protected:
     void                 appearanceUiOrdering( caf::PdmUiOrdering& uiOrdering );
     void                 curveNameUiOrdering( caf::PdmUiOrdering& uiOrdering );
 
-    virtual void onCurveAppearanceChanged( const caf::SignalEmitter* emitter );
+    void         onCurveAppearanceChanged( const caf::SignalEmitter* emitter );
     virtual void onFillColorChanged( const caf::SignalEmitter* emitter );
 
     bool         canCurveBeAttached() const;
