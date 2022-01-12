@@ -117,8 +117,8 @@ QString Rim3dWellLogRftCurve::createAutoName() const
     {
         name.push_back( m_eclipseResultCase->caseUserDescription() );
     }
-    if ( m_wellLogChannelName().text() !=
-         caf::AppEnum<RifEclipseRftAddress::RftWellLogChannelType>::text( RifEclipseRftAddress::NONE ) )
+    if ( m_wellLogChannelName().text() != caf::AppEnum<RifEclipseRftAddress::RftWellLogChannelType>::text(
+                                              RifEclipseRftAddress::RftWellLogChannelType::NONE ) )
     {
         RifEclipseRftAddress::RftWellLogChannelType channelNameEnum = m_wellLogChannelName();
         name.push_back( caf::AppEnum<RifEclipseRftAddress::RftWellLogChannelType>::uiText( channelNameEnum ) );
@@ -187,8 +187,8 @@ QList<caf::PdmOptionItemInfo>
             if ( options.empty() )
             {
                 options.push_back( caf::PdmOptionItemInfo( caf::AppEnum<RifEclipseRftAddress::RftWellLogChannelType>::uiText(
-                                                               RifEclipseRftAddress::NONE ),
-                                                           RifEclipseRftAddress::NONE ) );
+                                                               RifEclipseRftAddress::RftWellLogChannelType::NONE ),
+                                                           RifEclipseRftAddress::RftWellLogChannelType::NONE ) );
             }
         }
     }

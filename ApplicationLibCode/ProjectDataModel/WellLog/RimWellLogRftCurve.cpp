@@ -69,22 +69,22 @@ namespace caf
 template <>
 void caf::AppEnum<RifEclipseRftAddress::RftWellLogChannelType>::setUp()
 {
-    addItem( RifEclipseRftAddress::NONE, "NONE", "None" );
-    addItem( RifEclipseRftAddress::TVD, "DEPTH", "Depth" );
-    addItem( RifEclipseRftAddress::PRESSURE, "PRESSURE", "Pressure" );
-    addItem( RifEclipseRftAddress::SWAT, RiaResultNames::swat(), "Water Saturation" );
-    addItem( RifEclipseRftAddress::SOIL, RiaResultNames::soil(), "Oil Saturation" );
-    addItem( RifEclipseRftAddress::SGAS, RiaResultNames::sgas(), "Gas Saturation" );
-    addItem( RifEclipseRftAddress::WRAT, "WRAT", "Water Flow" );
-    addItem( RifEclipseRftAddress::ORAT, "ORAT", "Oil Flow" );
-    addItem( RifEclipseRftAddress::GRAT, "GRAT", "Gas flow" );
-    addItem( RifEclipseRftAddress::MD, "MD", "Measured Depth" );
-    addItem( RifEclipseRftAddress::PRESSURE_P10, "PRESSURE_P10", "P10: Pressure" );
-    addItem( RifEclipseRftAddress::PRESSURE_P50, "PRESSURE_P50", "P50: Pressure" );
-    addItem( RifEclipseRftAddress::PRESSURE_P90, "PRESSURE_P90", "P90: Pressure" );
-    addItem( RifEclipseRftAddress::PRESSURE_MEAN, "PRESSURE_MEAN", "Mean: Pressure" );
-    addItem( RifEclipseRftAddress::PRESSURE_ERROR, "PRESSURE_ERROR", "Error: Pressure" );
-    setDefault( RifEclipseRftAddress::NONE );
+    addItem( RifEclipseRftAddress::RftWellLogChannelType::NONE, "NONE", "None" );
+    addItem( RifEclipseRftAddress::RftWellLogChannelType::TVD, "DEPTH", "Depth" );
+    addItem( RifEclipseRftAddress::RftWellLogChannelType::PRESSURE, "PRESSURE", "Pressure" );
+    addItem( RifEclipseRftAddress::RftWellLogChannelType::SWAT, RiaResultNames::swat(), "Water Saturation" );
+    addItem( RifEclipseRftAddress::RftWellLogChannelType::SOIL, RiaResultNames::soil(), "Oil Saturation" );
+    addItem( RifEclipseRftAddress::RftWellLogChannelType::SGAS, RiaResultNames::sgas(), "Gas Saturation" );
+    addItem( RifEclipseRftAddress::RftWellLogChannelType::WRAT, "WRAT", "Water Flow" );
+    addItem( RifEclipseRftAddress::RftWellLogChannelType::ORAT, "ORAT", "Oil Flow" );
+    addItem( RifEclipseRftAddress::RftWellLogChannelType::GRAT, "GRAT", "Gas flow" );
+    addItem( RifEclipseRftAddress::RftWellLogChannelType::MD, "MD", "Measured Depth" );
+    addItem( RifEclipseRftAddress::RftWellLogChannelType::PRESSURE_P10, "PRESSURE_P10", "P10: Pressure" );
+    addItem( RifEclipseRftAddress::RftWellLogChannelType::PRESSURE_P50, "PRESSURE_P50", "P50: Pressure" );
+    addItem( RifEclipseRftAddress::RftWellLogChannelType::PRESSURE_P90, "PRESSURE_P90", "P90: Pressure" );
+    addItem( RifEclipseRftAddress::RftWellLogChannelType::PRESSURE_MEAN, "PRESSURE_MEAN", "Mean: Pressure" );
+    addItem( RifEclipseRftAddress::RftWellLogChannelType::PRESSURE_ERROR, "PRESSURE_ERROR", "Error: Pressure" );
+    setDefault( RifEclipseRftAddress::RftWellLogChannelType::NONE );
 }
 } // namespace caf
 
@@ -259,12 +259,12 @@ void RimWellLogRftCurve::setDefaultAddress( QString wellName )
 
     if ( !wellNameHasRftData )
     {
-        m_wellLogChannelName = RifEclipseRftAddress::NONE;
+        m_wellLogChannelName = RifEclipseRftAddress::RftWellLogChannelType::NONE;
         m_timeStep           = QDateTime();
         return;
     }
 
-    m_wellLogChannelName = RifEclipseRftAddress::PRESSURE;
+    m_wellLogChannelName = RifEclipseRftAddress::RftWellLogChannelType::PRESSURE;
 
     std::set<QDateTime> timeSteps = reader->availableTimeSteps( m_wellName, m_wellLogChannelName() );
     if ( !timeSteps.empty() )
@@ -282,7 +282,7 @@ void RimWellLogRftCurve::setDefaultAddress( QString wellName )
 //--------------------------------------------------------------------------------------------------
 void RimWellLogRftCurve::updateWellChannelNameAndTimeStep()
 {
-    if ( !m_timeStep().isValid() || m_wellLogChannelName() == RifEclipseRftAddress::NONE )
+    if ( !m_timeStep().isValid() || m_wellLogChannelName() == RifEclipseRftAddress::RftWellLogChannelType::NONE )
     {
         setDefaultAddress( m_wellName );
         return;
@@ -295,11 +295,11 @@ void RimWellLogRftCurve::updateWellChannelNameAndTimeStep()
 
     if ( channelNames.empty() )
     {
-        m_wellLogChannelName = RifEclipseRftAddress::NONE;
+        m_wellLogChannelName = RifEclipseRftAddress::RftWellLogChannelType::NONE;
     }
     else if ( !channelNames.count( m_wellLogChannelName() ) )
     {
-        m_wellLogChannelName = RifEclipseRftAddress::PRESSURE;
+        m_wellLogChannelName = RifEclipseRftAddress::RftWellLogChannelType::PRESSURE;
     }
 
     std::set<QDateTime> timeSteps = reader->availableTimeSteps( m_wellName, m_wellLogChannelName() );
@@ -353,8 +353,8 @@ QString RimWellLogRftCurve::createCurveAutoName()
     {
         name.push_back( m_observedFmuRftData->name() );
     }
-    if ( wellLogChannelUiName() !=
-         caf::AppEnum<RifEclipseRftAddress::RftWellLogChannelType>::text( RifEclipseRftAddress::NONE ) )
+    if ( wellLogChannelUiName() != caf::AppEnum<RifEclipseRftAddress::RftWellLogChannelType>::text(
+                                       RifEclipseRftAddress::RftWellLogChannelType::NONE ) )
     {
         RifEclipseRftAddress::RftWellLogChannelType channelNameEnum =
             caf::AppEnum<RifEclipseRftAddress::RftWellLogChannelType>::fromText( wellLogChannelUiName() );
@@ -628,8 +628,8 @@ QList<caf::PdmOptionItemInfo> RimWellLogRftCurve::calculateValueOptions( const c
         if ( options.empty() )
         {
             options.push_back( caf::PdmOptionItemInfo( caf::AppEnum<RifEclipseRftAddress::RftWellLogChannelType>::uiText(
-                                                           RifEclipseRftAddress::NONE ),
-                                                       RifEclipseRftAddress::NONE ) );
+                                                           RifEclipseRftAddress::RftWellLogChannelType::NONE ),
+                                                       RifEclipseRftAddress::RftWellLogChannelType::NONE ) );
         }
     }
     else if ( fieldNeedingOptions == &m_timeStep )
@@ -674,7 +674,7 @@ void RimWellLogRftCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedFie
     {
         m_timeStep           = QDateTime();
         m_wellName           = "";
-        m_wellLogChannelName = RifEclipseRftAddress::NONE;
+        m_wellLogChannelName = RifEclipseRftAddress::RftWellLogChannelType::NONE;
 
         this->loadDataAndUpdate( true );
     }
@@ -696,7 +696,7 @@ void RimWellLogRftCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedFie
     }
     else if ( changedField == &m_wellLogChannelName )
     {
-        if ( m_wellLogChannelName == RifEclipseRftAddress::NONE )
+        if ( m_wellLogChannelName == RifEclipseRftAddress::RftWellLogChannelType::NONE )
         {
             m_timeStep = QDateTime();
         }
@@ -715,7 +715,7 @@ std::vector<QString> RimWellLogRftCurve::perPointLabels() const
 {
     if ( m_observedFmuRftData() )
     {
-        RifEclipseRftAddress address( m_wellName(), m_timeStep, RifEclipseRftAddress::PRESSURE );
+        RifEclipseRftAddress address( m_wellName(), m_timeStep, RifEclipseRftAddress::RftWellLogChannelType::PRESSURE );
         return m_observedFmuRftData()->labels( address );
     }
     return {};
@@ -809,7 +809,7 @@ bool RimWellLogRftCurve::createWellPathIdxToRftFileIdxMapping()
         globCellIndicesToIndexInWell[intersections[idx].globCellIndex] = idx;
     }
 
-    RifEclipseRftAddress     depthAddress( m_wellName(), m_timeStep, RifEclipseRftAddress::TVD );
+    RifEclipseRftAddress     depthAddress( m_wellName(), m_timeStep, RifEclipseRftAddress::RftWellLogChannelType::TVD );
     std::vector<caf::VecIjk> rftIndices;
     RifReaderEclipseRft*     eclipseRftReader = dynamic_cast<RifReaderEclipseRft*>( rftReader() );
     if ( !eclipseRftReader ) return false;
@@ -915,7 +915,9 @@ std::vector<double> RimWellLogRftCurve::errorValues()
 
     if ( reader )
     {
-        RifEclipseRftAddress errorAddress( m_wellName(), m_timeStep, RifEclipseRftAddress::PRESSURE_ERROR );
+        RifEclipseRftAddress errorAddress( m_wellName(),
+                                           m_timeStep,
+                                           RifEclipseRftAddress::RftWellLogChannelType::PRESSURE_ERROR );
         reader->values( errorAddress, &errorValues );
     }
     return errorValues;
@@ -931,7 +933,7 @@ std::vector<double> RimWellLogRftCurve::tvDepthValues()
 
     if ( !reader ) return values;
 
-    RifEclipseRftAddress depthAddress( m_wellName(), m_timeStep, RifEclipseRftAddress::TVD );
+    RifEclipseRftAddress depthAddress( m_wellName(), m_timeStep, RifEclipseRftAddress::RftWellLogChannelType::TVD );
     reader->values( depthAddress, &values );
 
     bool wellPathExists = createWellPathIdxToRftFileIdxMapping();
@@ -968,7 +970,7 @@ std::vector<double> RimWellLogRftCurve::measuredDepthValues()
 
         if ( !reader ) return values;
 
-        RifEclipseRftAddress depthAddress( m_wellName(), m_timeStep, RifEclipseRftAddress::MD );
+        RifEclipseRftAddress depthAddress( m_wellName(), m_timeStep, RifEclipseRftAddress::RftWellLogChannelType::MD );
         reader->values( depthAddress, &values );
         return values;
     }
@@ -1044,8 +1046,8 @@ bool RimWellLogRftCurve::deriveMeasuredDepthFromObservedData( const std::vector<
             std::vector<double> tvdValuesOfObservedData;
             std::vector<double> mdValuesOfObservedData;
 
-            RifEclipseRftAddress tvdAddress( m_wellName(), m_timeStep, RifEclipseRftAddress::TVD );
-            RifEclipseRftAddress mdAddress( m_wellName(), m_timeStep, RifEclipseRftAddress::MD );
+            RifEclipseRftAddress tvdAddress( m_wellName(), m_timeStep, RifEclipseRftAddress::RftWellLogChannelType::TVD );
+            RifEclipseRftAddress mdAddress( m_wellName(), m_timeStep, RifEclipseRftAddress::RftWellLogChannelType::MD );
 
             reader->values( tvdAddress, &tvdValuesOfObservedData );
             reader->values( mdAddress, &mdValuesOfObservedData );

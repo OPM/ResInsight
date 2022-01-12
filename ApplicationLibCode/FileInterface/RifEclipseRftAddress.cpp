@@ -31,6 +31,53 @@ RifEclipseRftAddress::RifEclipseRftAddress( QString wellName, QDateTime timeStep
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+const QString& RifEclipseRftAddress::wellName() const
+{
+    return m_wellName;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QDateTime RifEclipseRftAddress::timeStep() const
+{
+    return m_timeStep;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const RifEclipseRftAddress::RifEclipseRftAddress::RftWellLogChannelType& RifEclipseRftAddress::wellLogChannel() const
+{
+    return m_wellLogChannel;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::set<RifEclipseRftAddress::RftWellLogChannelType> RifEclipseRftAddress::rftPlotChannelTypes()
+{
+    return { RifEclipseRftAddress::RftWellLogChannelType::PRESSURE,
+             RifEclipseRftAddress::RftWellLogChannelType::PRESSURE_ERROR,
+             RifEclipseRftAddress::RftWellLogChannelType::PRESSURE_MEAN,
+             RifEclipseRftAddress::RftWellLogChannelType::PRESSURE_P10,
+             RifEclipseRftAddress::RftWellLogChannelType::PRESSURE_P50,
+             RifEclipseRftAddress::RftWellLogChannelType::PRESSURE_P90 };
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::set<RifEclipseRftAddress::RifEclipseRftAddress::RftWellLogChannelType> RifEclipseRftAddress::pltPlotChannelTypes()
+{
+    return { RifEclipseRftAddress::RftWellLogChannelType::ORAT,
+             RifEclipseRftAddress::RftWellLogChannelType::WRAT,
+             RifEclipseRftAddress::RftWellLogChannelType::GRAT };
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool operator==( const RifEclipseRftAddress& first, const RifEclipseRftAddress& second )
 {
     if ( first.wellName() != second.wellName() ) return false;

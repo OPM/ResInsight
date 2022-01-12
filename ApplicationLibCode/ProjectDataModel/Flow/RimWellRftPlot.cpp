@@ -500,7 +500,9 @@ void RimWellRftPlot::updateCurvesInPlot( const std::set<RiaRftPltCurveDefinition
             auto rftCase = curveDefToAdd.address().eclCase();
             curve->setEclipseResultCase( dynamic_cast<RimEclipseResultCase*>( rftCase ) );
 
-            RifEclipseRftAddress address( simWellName, curveDefToAdd.timeStep(), RifEclipseRftAddress::PRESSURE );
+            RifEclipseRftAddress address( simWellName,
+                                          curveDefToAdd.timeStep(),
+                                          RifEclipseRftAddress::RftWellLogChannelType::PRESSURE );
             curve->setRftAddress( address );
             curve->setZOrder( 1 );
             curve->setSimWellBranchData( m_branchDetection, m_branchIndex );
@@ -516,7 +518,7 @@ void RimWellRftPlot::updateCurvesInPlot( const std::set<RiaRftPltCurveDefinition
             curve->setObservedFmuRftData( observedFmuRftData );
             RifEclipseRftAddress address( m_wellPathNameOrSimWellName,
                                           curveDefToAdd.timeStep(),
-                                          RifEclipseRftAddress::PRESSURE );
+                                          RifEclipseRftAddress::RftWellLogChannelType::PRESSURE );
             curve->setRftAddress( address );
             curve->setZOrder(
                 RiuQwtPlotCurveDefines::zDepthForIndex( RiuQwtPlotCurveDefines::ZIndex::Z_SINGLE_CURVE_OBSERVED ) );
@@ -533,7 +535,7 @@ void RimWellRftPlot::updateCurvesInPlot( const std::set<RiaRftPltCurveDefinition
                 this->findObservedFmuData( m_wellPathNameOrSimWellName, curveDefToAdd.timeStep() ) );
             RifEclipseRftAddress address( m_wellPathNameOrSimWellName,
                                           curveDefToAdd.timeStep(),
-                                          RifEclipseRftAddress::PRESSURE );
+                                          RifEclipseRftAddress::RftWellLogChannelType::PRESSURE );
             curve->setRftAddress( address );
             curve->setZOrder( 1 );
             applyCurveAppearance( curve );
@@ -551,7 +553,7 @@ void RimWellRftPlot::updateCurvesInPlot( const std::set<RiaRftPltCurveDefinition
                                                                       curveDefToAdd.timeStep() );
             for ( const auto& rftAddress : rftAddresses )
             {
-                if ( rftAddress.wellLogChannel() == RifEclipseRftAddress::PRESSURE_P50 )
+                if ( rftAddress.wellLogChannel() == RifEclipseRftAddress::RftWellLogChannelType::PRESSURE_P50 )
                 {
                     // Default statistics curves are P10, P50, P90 and mean
                     // It is not common to use P50 for ensemble RFT, so skip display of P50 to avoid confusion with mean
@@ -560,7 +562,7 @@ void RimWellRftPlot::updateCurvesInPlot( const std::set<RiaRftPltCurveDefinition
                     continue;
                 }
 
-                if ( rftAddress.wellLogChannel() != RifEclipseRftAddress::TVD )
+                if ( rftAddress.wellLogChannel() != RifEclipseRftAddress::RftWellLogChannelType::TVD )
                 {
                     auto curve = new RimWellLogRftCurve();
                     plotTrack->addCurve( curve );

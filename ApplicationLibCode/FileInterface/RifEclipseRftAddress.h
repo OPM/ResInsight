@@ -31,7 +31,7 @@
 class RifEclipseRftAddress
 {
 public:
-    enum RftWellLogChannelType
+    enum class RftWellLogChannelType
     {
         NONE,
         TVD,
@@ -53,24 +53,12 @@ public:
 public:
     RifEclipseRftAddress( QString wellName, QDateTime timeStep, RftWellLogChannelType wellLogChannel );
 
-    const QString&               wellName() const { return m_wellName; }
-    QDateTime                    timeStep() const { return m_timeStep; }
-    const RftWellLogChannelType& wellLogChannel() const { return m_wellLogChannel; }
+    const QString&               wellName() const;
+    QDateTime                    timeStep() const;
+    const RftWellLogChannelType& wellLogChannel() const;
 
-    static std::set<RftWellLogChannelType> rftPlotChannelTypes()
-    {
-        return {RifEclipseRftAddress::PRESSURE,
-                RifEclipseRftAddress::PRESSURE_ERROR,
-                RifEclipseRftAddress::PRESSURE_MEAN,
-                RifEclipseRftAddress::PRESSURE_P10,
-                RifEclipseRftAddress::PRESSURE_P50,
-                RifEclipseRftAddress::PRESSURE_P90};
-    }
-
-    static std::set<RftWellLogChannelType> pltPlotChannelTypes()
-    {
-        return {RifEclipseRftAddress::ORAT, RifEclipseRftAddress::WRAT, RifEclipseRftAddress::GRAT};
-    }
+    static std::set<RftWellLogChannelType> rftPlotChannelTypes();
+    static std::set<RftWellLogChannelType> pltPlotChannelTypes();
 
 private:
     QString               m_wellName;

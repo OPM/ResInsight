@@ -48,13 +48,14 @@ TEST( OpmSummaryTests, ReadOpmSummaryDataListContent )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-TEST( OpmSummaryTests, DISABLED_OpmImportRftData )
+TEST( OpmSummaryTests, OpmImportRftData )
 {
     std::vector<std::string> esmryKeywords;
     {
         // QString filePath = "e:/gitroot/opm-tests/model1/opm-simulation-reference/flow/MSW_MODEL_1.RFT";
         // QString filePath = "e:/gitroot/opm-tests/norne/ECL.2014.2/NORNE_ATW2013.RFT";
-        QString filePath = "d:/Models/Statoil/MSW-RFTfile/NORNE_ATW2013_RFTPLT_MSW.RFT";
+        // QString filePath = "d:/Models/Statoil/MSW-RFTfile/NORNE_ATW2013_RFTPLT_MSW.RFT";
+        QString filePath = "e:/models/from_equinor_sftp/MSW-RFTfile/NORNE_ATW2013_RFTPLT_MSW.RFT";
 
         Opm::EclIO::ERft eRft( filePath.toStdString() );
 
@@ -63,12 +64,12 @@ TEST( OpmSummaryTests, DISABLED_OpmImportRftData )
         auto reports = eRft.listOfRftReports();
 
         std::cout << "\nWells:\n";
-
         for ( const auto& w : wells )
         {
             std::cout << w << "\n";
         }
 
+        std::cout << "\nDates:\n";
         for ( const auto& date : dates )
         {
             auto [year, month, day] = date;
@@ -76,6 +77,7 @@ TEST( OpmSummaryTests, DISABLED_OpmImportRftData )
             std::cout << year << ", " << month << ", " << day << "\n";
         }
 
+        std::cout << "\nReports:\n";
         for ( const auto& report : reports )
         {
             auto [text, date, floatValue] = report;
@@ -83,6 +85,7 @@ TEST( OpmSummaryTests, DISABLED_OpmImportRftData )
             std::cout << text << ", " << floatValue << "\n";
         }
 
+        std::cout << "\nRFT Arrays:\n";
         for ( int i = 0; i < eRft.numberOfReports(); i++ )
         {
             std::cout << "\n";
