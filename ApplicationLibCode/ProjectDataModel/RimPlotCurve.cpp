@@ -1038,3 +1038,19 @@ bool RimPlotCurve::isSameCurve( const RiuPlotCurve* plotCurve ) const
 {
     return m_plotCurve == plotCurve;
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimPlotCurve::curveName() const
+{
+    return m_curveName;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimPlotCurve::curveExportDescription( const RifEclipseSummaryAddress& address ) const
+{
+    return m_curveName;
+}

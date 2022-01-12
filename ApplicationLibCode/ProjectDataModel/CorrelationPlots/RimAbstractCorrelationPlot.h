@@ -107,14 +107,11 @@ protected:
     RiuPlotWidget* doCreatePlotViewWidget( QWidget* mainWindowParent = nullptr ) override;
 
     void reattachAllCurves() override {}
-    void updateZoomInParentPlot() override {}
-    void updateZoomFromParentPlot() override {}
     void setAutoScaleXEnabled( bool enabled ) override {}
     void setAutoScaleYEnabled( bool enabled ) override {}
     void updateLegend() override;
 
-    QString         asciiDataForPlotExport() const override { return ""; }
-    caf::PdmObject* findPdmObjectFromPlotCurve( const RiuPlotCurve* curve ) const override { return nullptr; }
+    QString asciiDataForPlotExport() const override { return ""; }
 
     void         cleanupBeforeClose();
     virtual void updatePlotTitle() = 0;
