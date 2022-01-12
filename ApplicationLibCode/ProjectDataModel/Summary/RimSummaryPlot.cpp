@@ -22,10 +22,11 @@
 #include "RiaDefines.h"
 #include "RiaFieldHandleTools.h"
 #include "RiaPlotDefines.h"
-#include "RiaSummaryCurveAnalyzer.h"
+#include "RiaSummaryAddressAnalyzer.h"
 #include "RiaSummaryCurveDefinition.h"
 #include "RiaSummaryTools.h"
 #include "RiaTimeHistoryCurveResampler.h"
+
 #include "RicfCommandObject.h"
 
 #include "SummaryPlotCommands/RicSummaryPlotEditorUi.h"
