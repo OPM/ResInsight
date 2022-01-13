@@ -48,7 +48,7 @@ TEST( OpmSummaryTests, ReadOpmSummaryDataListContent )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-TEST( OpmSummaryTests, OpmImportRftData )
+TEST( OpmSummaryTests, DISABLED_OpmImportRftData )
 {
     std::vector<std::string> esmryKeywords;
     {
