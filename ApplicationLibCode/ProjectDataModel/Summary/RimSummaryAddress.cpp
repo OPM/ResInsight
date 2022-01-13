@@ -58,6 +58,8 @@ CAF_PDM_SOURCE_INIT( RimSummaryAddress, "SummaryAddress" );
 //--------------------------------------------------------------------------------------------------
 RimSummaryAddress::RimSummaryAddress()
 {
+    CAF_PDM_InitObject( "SummaryAddress", ":/DataVector.png", "", "" );
+
     CAF_PDM_InitFieldNoDefault( &m_category, "SummaryVarType", "Type" );
     CAF_PDM_InitFieldNoDefault( &m_quantityName, "SummaryQuantityName", "Quantity" );
     CAF_PDM_InitFieldNoDefault( &m_regionNumber, "SummaryRegion", "Region" );
@@ -72,6 +74,9 @@ RimSummaryAddress::RimSummaryAddress()
     CAF_PDM_InitFieldNoDefault( &m_aquiferNumber, "SummaryAquifer", "Aquifer" );
     CAF_PDM_InitFieldNoDefault( &m_isErrorResult, "IsErrorResult", "Is Error Result" );
     CAF_PDM_InitFieldNoDefault( &m_calculationId, "CalculationId", "Calculation Id" );
+
+    CAF_PDM_InitField( &m_caseId, "CaseId", -1, "CaseId" );
+    CAF_PDM_InitField( &m_ensembleId, "EnsembleId", -1, "EnsembleId" );
 
     m_category          = RifEclipseSummaryAddress::SUMMARY_INVALID;
     m_regionNumber      = -1;
@@ -95,6 +100,20 @@ RimSummaryAddress::~RimSummaryAddress()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RimSummaryAddress* RimSummaryAddress::wrapFileReaderAddress( const RifEclipseSummaryAddress& addr,
+                                                             int                             caseId /* = -1 */,
+                                                             int                             ensembleId /* = -1 */ )
+{
+    RimSummaryAddress* newAddress = new RimSummaryAddress();
+    newAddress->setAddress( addr );
+    newAddress->setCaseId( caseId );
+    newAddress->setEnsembleId( ensembleId );
+    return newAddress;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimSummaryAddress::setAddress( const RifEclipseSummaryAddress& addr )
 {
     m_category          = addr.category();
@@ -112,6 +131,8 @@ void RimSummaryAddress::setAddress( const RifEclipseSummaryAddress& addr )
     m_cellJ         = addr.cellJ();
     m_cellK         = addr.cellK();
     m_calculationId = addr.id();
+
+    setUiName( m_quantityName );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -138,7 +159,7 @@ RifEclipseSummaryAddress RimSummaryAddress::address()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryAddress::ensureIdIsAssigned()
+void RimSummaryAddress::ensureCalculationIdIsAssigned()
 {
     if ( m_category == RifEclipseSummaryAddress::SUMMARY_CALCULATED && m_calculationId == -1 )
     {
@@ -175,4 +196,60 @@ RiaDefines::PhaseType RimSummaryAddress::addressPhaseType() const
         return RiaDefines::PhaseType::WATER_PHASE;
     }
     return RiaDefines::PhaseType::PHASE_NOT_APPLICABLE;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryAddress::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
+{
+    uiOrdering.skipRemainingFields( true );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryAddress::setCaseId( int caseId )
+{
+    m_caseId = caseId;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RimSummaryAddress::caseId() const
+{
+    return m_caseId;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimSummaryAddress::quantityName() const
+{
+    return m_quantityName;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryAddress::setEnsembleId( int ensembleId )
+{
+    m_ensembleId = ensembleId;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RimSummaryAddress::ensembleId() const
+{
+    return m_ensembleId;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimSummaryAddress::isEnsemble() const
+{
+    return m_ensembleId >= 0;
 }

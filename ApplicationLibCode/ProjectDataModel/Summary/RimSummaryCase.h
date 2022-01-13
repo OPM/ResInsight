@@ -23,6 +23,8 @@
 #include "RimCaseDisplayNameTools.h"
 
 #include "cafFilePath.h"
+#include "cafPdmChildArrayField.h"
+#include "cafPdmChildField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 
@@ -31,6 +33,7 @@
 class RifReaderRftInterface;
 class RifSummaryReaderInterface;
 class RimSummaryCaseCollection;
+class RimSummaryAddressCollection;
 
 //==================================================================================================
 //
@@ -63,6 +66,8 @@ public:
     void updateAutoShortName();
     void updateOptionSensitivity();
 
+    void refreshMetaData();
+
     virtual void                       createSummaryReaderInterface() = 0;
     virtual void                       createRftReaderInterface() {}
     virtual RifSummaryReaderInterface* summaryReader() = 0;
@@ -93,10 +98,14 @@ private:
     static QString uniqueShortNameForEnsembleCase( RimSummaryCase* summaryCase );
     static QString uniqueShortNameForSummaryCase( RimSummaryCase* summaryCase );
 
+    void buildChildNodes();
+
 protected:
     caf::PdmField<QString>         m_displayName;
     caf::PdmField<DisplayNameEnum> m_displayNameOption;
     caf::PdmField<caf::FilePath>   m_summaryHeaderFilename;
+
+    caf::PdmChildField<RimSummaryAddressCollection*> m_dataVectorFolders;
 
     bool               m_isObservedData;
     caf::PdmField<int> m_caseId;

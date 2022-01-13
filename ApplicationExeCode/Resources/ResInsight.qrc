@@ -240,6 +240,7 @@
         <file>ComboBoxDown.svg</file>
         <file>ComboBoxUp.svg</file>
         <file>WellIntAnalysis.png</file>
+		<file>DataVector.png</file>
     </qresource>
     <qresource prefix="/Shader">
         <file>fs_CellFace.glsl</file>

@@ -31,6 +31,7 @@
 #include "RimEnsembleCurveSet.h"
 #include "RimGridSummaryCase.h"
 #include "RimProject.h"
+#include "RimSummaryAddressCollection.h"
 #include "RimSummaryCase.h"
 
 #include "RifReaderEclipseRft.h"
@@ -38,6 +39,7 @@
 #include "RifSummaryReaderInterface.h"
 
 #include "cafPdmFieldScriptingCapability.h"
+#include "cafPdmUiTreeOrdering.h"
 
 #include <QFileInfo>
 
@@ -124,6 +126,13 @@ RimSummaryCaseCollection::RimSummaryCaseCollection()
     m_ensembleId.uiCapability()->setUiReadOnly( true );
     m_ensembleId.capability<caf::PdmAbstractFieldScriptingCapability>()->setIOWriteable( false );
 
+    CAF_PDM_InitFieldNoDefault( &m_dataVectorFolders, "DataVectorFolders", "Data Folders" );
+    m_dataVectorFolders = new RimSummaryAddressCollection();
+    m_dataVectorFolders.uiCapability()->setUiHidden( true );
+    m_dataVectorFolders.uiCapability()->setUiTreeHidden( true );
+    m_dataVectorFolders->uiCapability()->setUiTreeHidden( true );
+    m_dataVectorFolders.xmlCapability()->disableIO();
+
     m_statisticsEclipseRftReader = new RifReaderEnsembleStatisticsRft( this );
 
     m_commonAddressCount = 0;
@@ -158,6 +167,8 @@ void RimSummaryCaseCollection::removeCase( RimSummaryCase* summaryCase )
         if ( dynamic_cast<RimDerivedSummaryCase*>( summaryCase ) == nullptr )
             calculateEnsembleParametersIntersectionHash();
     }
+
+    buildChildNodes();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -188,6 +199,8 @@ void RimSummaryCaseCollection::addCase( RimSummaryCase* summaryCase )
     }
 
     updateReferringCurveSets();
+
+    buildChildNodes();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -237,6 +250,8 @@ void RimSummaryCaseCollection::setAsEnsemble( bool isEnsemble )
             validateEnsembleCases( allSummaryCases() );
             calculateEnsembleParametersIntersectionHash();
         }
+
+        refreshMetaData();
     }
 }
 
@@ -872,7 +887,11 @@ caf::PdmFieldHandle* RimSummaryCaseCollection::userDescriptionField()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCaseCollection::onLoadDataAndUpdate()
 {
-    if ( m_isEnsemble ) calculateEnsembleParametersIntersectionHash();
+    if ( m_isEnsemble )
+    {
+        calculateEnsembleParametersIntersectionHash();
+        buildChildNodes();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -933,6 +952,8 @@ void RimSummaryCaseCollection::initAfterRead()
     }
 
     updateIcon();
+
+    buildChildNodes();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -967,6 +988,30 @@ void RimSummaryCaseCollection::defineUiOrdering( QString uiConfigName, caf::PdmU
         uiOrdering.add( &m_ensembleId );
     }
     uiOrdering.skipRemainingFields( true );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCaseCollection::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering,
+                                                     QString                 uiConfigName /*= ""*/ )
+{
+    if ( m_isEnsemble() )
+    {
+        if ( m_dataVectorFolders->isEmpty() )
+        {
+            buildChildNodes();
+        }
+        m_dataVectorFolders->updateUiTreeOrdering( uiTreeOrdering );
+
+        auto subnode = uiTreeOrdering.add( "Realizations", ":/Folder.png" );
+        for ( auto& smcase : m_cases )
+        {
+            subnode->add( smcase );
+        }
+
+        uiTreeOrdering.skipRemainingChildren( true );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1007,4 +1052,28 @@ bool RimSummaryCaseCollection::hasEnsembleParameters() const
     }
 
     return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCaseCollection::buildChildNodes()
+{
+    m_dataVectorFolders->clear();
+
+    for ( auto& smcase : m_cases )
+    {
+        m_dataVectorFolders->updateFolderStructure( smcase->summaryReader()->allResultAddresses(),
+                                                    smcase->caseId(),
+                                                    m_ensembleId );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCaseCollection::refreshMetaData()
+{
+    buildChildNodes();
+    updateConnectedEditors();
 }

@@ -24,12 +24,17 @@
 #include "RicfCommandObject.h"
 #include "RifSummaryReaderInterface.h"
 
+#include "RifEclipseSummaryAddress.h"
+
 #include "RimMainPlotCollection.h"
 #include "RimProject.h"
+#include "RimSummaryAddress.h"
+#include "RimSummaryAddressCollection.h"
 #include "RimSummaryCaseCollection.h"
 #include "RimSummaryPlotCollection.h"
 
 #include "cafPdmFieldScriptingCapability.h"
+#include "cafPdmUiTreeOrdering.h"
 
 #include "cvfAssert.h"
 
@@ -61,6 +66,11 @@ RimSummaryCase::RimSummaryCase()
     m_caseId.registerKeywordAlias( "CaseId" );
     m_caseId.uiCapability()->setUiReadOnly( true );
     m_caseId.capability<caf::PdmAbstractFieldScriptingCapability>()->setIOWriteable( false );
+
+    CAF_PDM_InitFieldNoDefault( &m_dataVectorFolders, "DataVectorFolders", "Data Folders" );
+    m_dataVectorFolders = new RimSummaryAddressCollection();
+    m_dataVectorFolders.uiCapability()->setUiHidden( true );
+    m_dataVectorFolders.xmlCapability()->disableIO();
 
     m_isObservedData = false;
 }
@@ -203,8 +213,29 @@ QString RimSummaryCase::errorMessagesFromReader()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimSummaryCase::buildChildNodes()
+{
+    m_dataVectorFolders->clear();
+
+    RifSummaryReaderInterface* reader = summaryReader();
+    if ( !reader ) return;
+
+    m_dataVectorFolders->updateFolderStructure( reader->allResultAddresses(), m_caseId );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimSummaryCase::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/ )
 {
+    if ( !ensemble() )
+    {
+        if ( m_dataVectorFolders->isEmpty() ) buildChildNodes();
+        m_dataVectorFolders->updateUiTreeOrdering( uiTreeOrdering );
+    }
+
+    uiTreeOrdering.skipRemainingChildren( true );
+
     updateTreeItemName();
 }
 
@@ -269,6 +300,8 @@ void RimSummaryCase::initAfterRead()
     }
 
     updateOptionSensitivity();
+
+    refreshMetaData();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -360,4 +393,13 @@ void RimSummaryCase::setCaseId( int caseId )
 int RimSummaryCase::caseId() const
 {
     return m_caseId();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCase::refreshMetaData()
+{
+    buildChildNodes();
+    updateConnectedEditors();
 }
