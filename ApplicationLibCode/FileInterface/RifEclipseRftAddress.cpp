@@ -23,10 +23,10 @@
 //--------------------------------------------------------------------------------------------------
 RifEclipseRftAddress::RifEclipseRftAddress( QString wellName, QDateTime timeStep, RftWellLogChannelType wellLogChannelName )
     : m_wellName( wellName )
+    , m_timeStep( timeStep )
     , m_wellLogChannel( wellLogChannelName )
     , m_segmentId( -1 )
 {
-    m_timeStep = timeStep;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -43,6 +43,22 @@ void RifEclipseRftAddress::setSegmentId( int id )
 int RifEclipseRftAddress::segmentId() const
 {
     return m_segmentId;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RifEclipseRftAddress::setResultName( const QString& resultName )
+{
+    m_resultName = resultName;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RifEclipseRftAddress::resultName() const
+{
+    return m_resultName;
 }
 
 //--------------------------------------------------------------------------------------------------

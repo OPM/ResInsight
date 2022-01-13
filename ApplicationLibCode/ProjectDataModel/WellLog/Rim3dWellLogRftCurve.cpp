@@ -172,7 +172,7 @@ QList<caf::PdmOptionItemInfo>
     {
         if ( m_eclipseResultCase )
         {
-            RifReaderEclipseRft* reader = m_eclipseResultCase()->rftReader();
+            RifReaderRftInterface* reader = m_eclipseResultCase()->rftReader();
             if ( reader )
             {
                 for ( const RifEclipseRftAddress::RftWellLogChannelType& channelName :
@@ -196,7 +196,7 @@ QList<caf::PdmOptionItemInfo>
     {
         if ( m_eclipseResultCase )
         {
-            RifReaderEclipseRft* reader = m_eclipseResultCase()->rftReader();
+            RifReaderRftInterface* reader = m_eclipseResultCase()->rftReader();
             if ( reader )
             {
                 QString             dateFormat = "dd MMM yyyy";

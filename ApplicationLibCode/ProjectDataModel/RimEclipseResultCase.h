@@ -27,7 +27,9 @@
 #include "cafFilePath.h"
 #include <cafPdmProxyValueField.h>
 
+class RifReaderRftInterface;
 class RifReaderEclipseRft;
+class RifReaderOpmRft;
 class RifReaderInterface;
 class RigFlowDiagSolverInterface;
 class RigMainGrid;
@@ -71,7 +73,7 @@ public:
     std::vector<RimFlowDiagSolution*> flowDiagSolutions();
     RigFlowDiagSolverInterface*       flowDiagSolverInterface();
 
-    RifReaderEclipseRft* rftReader();
+    RifReaderRftInterface* rftReader();
 
 protected:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
@@ -90,6 +92,7 @@ private:
     cvf::ref<RigFlowDiagSolverInterface> m_flowDagSolverInterface;
 
     cvf::ref<RifReaderEclipseRft> m_readerEclipseRft;
+    cvf::ref<RifReaderOpmRft>     m_readerOpmRft;
 
     // Fields:
     caf::PdmProxyValueField<caf::AppEnum<RiaDefines::EclipseUnitSystem>> m_unitSystem;

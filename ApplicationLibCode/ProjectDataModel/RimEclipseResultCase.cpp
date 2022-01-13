@@ -33,6 +33,7 @@
 #include "RifReaderEclipseOutput.h"
 #include "RifReaderEclipseRft.h"
 #include "RifReaderMockModel.h"
+#include "RifReaderOpmRft.h"
 #include "RifReaderSettings.h"
 
 #include "RigCaseCellResultsData.h"
@@ -213,6 +214,7 @@ bool RimEclipseResultCase::importGridAndResultMetaData( bool showTimeStepFilter 
     {
         RiaLogging::info( QString( "RFT file found" ) );
         m_readerEclipseRft = new RifReaderEclipseRft( rftFileInfo.filePath() );
+        m_readerOpmRft     = new RifReaderOpmRft( rftFileInfo.filePath() );
     }
 
     if ( m_flowDiagSolutions.size() == 0 )
@@ -554,7 +556,7 @@ RigFlowDiagSolverInterface* RimEclipseResultCase::flowDiagSolverInterface()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifReaderEclipseRft* RimEclipseResultCase::rftReader()
+RifReaderRftInterface* RimEclipseResultCase::rftReader()
 {
     return m_readerEclipseRft.p();
 }

@@ -47,11 +47,15 @@ public:
         PRESSURE_P50,
         PRESSURE_P90,
         PRESSURE_MEAN,
-        PRESSURE_ERROR
+        PRESSURE_ERROR,
+        SEGMENT_VALUES
     };
 
 public:
     RifEclipseRftAddress( QString wellName, QDateTime timeStep, RftWellLogChannelType wellLogChannel );
+
+    void    setResultName( const QString& resultName );
+    QString resultName() const;
 
     void setSegmentId( int id );
     int  segmentId() const;
@@ -65,9 +69,11 @@ public:
 
 private:
     QString               m_wellName;
+    QString               m_resultName;
     QDateTime             m_timeStep;
     RftWellLogChannelType m_wellLogChannel;
-    int                   m_segmentId;
+
+    int m_segmentId;
 };
 
 bool operator==( const RifEclipseRftAddress& first, const RifEclipseRftAddress& second );

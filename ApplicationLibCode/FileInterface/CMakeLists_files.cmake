@@ -71,6 +71,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RifEclipseKeywordContent.h
     ${CMAKE_CURRENT_LIST_DIR}/RifMultipleSummaryReaders.h
     ${CMAKE_CURRENT_LIST_DIR}/RifProjectSummaryDataWriter.h
+    ${CMAKE_CURRENT_LIST_DIR}/RifReaderOpmRft.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
@@ -143,6 +144,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RifEclipseTextFileReader.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifMultipleSummaryReaders.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifProjectSummaryDataWriter.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RifReaderOpmRft.cpp
 )
 
 list(APPEND CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})
