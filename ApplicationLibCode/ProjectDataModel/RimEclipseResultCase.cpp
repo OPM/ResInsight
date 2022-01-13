@@ -558,7 +558,8 @@ RigFlowDiagSolverInterface* RimEclipseResultCase::flowDiagSolverInterface()
 //--------------------------------------------------------------------------------------------------
 RifReaderRftInterface* RimEclipseResultCase::rftReader()
 {
-    return m_readerEclipseRft.p();
+    // return m_readerEclipseRft.p();
+    return m_readerOpmRft.p();
 }
 
 //--------------------------------------------------------------------------------------------------

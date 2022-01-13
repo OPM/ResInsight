@@ -31,6 +31,8 @@
 #include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiTreeSelectionEditor.h"
 
+#include <QDateTime>
+
 #include <cmath>
 
 namespace caf

@@ -234,8 +234,6 @@ void RifReaderOpmRft::buildMetaData()
             QDateTime dateTime;
             dateTime.setDate( QDate( y, m, d ) );
 
-            using ChannelType = RifEclipseRftAddress::RftWellLogChannelType;
-
             auto channelTypes = identifyChannelType( resultDataName );
             if ( channelTypes != RifEclipseRftAddress::RftWellLogChannelType::NONE )
             {
