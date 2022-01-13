@@ -22,6 +22,8 @@
 
 #include "opm/io/eclipse/ERft.hpp"
 
+#include "cafVecIjk.h"
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -55,15 +57,26 @@ void RifReaderOpmRft::values( const RifEclipseRftAddress& rftAddress, std::vecto
     auto wellName   = rftAddress.wellName().toStdString();
     auto resultName = rftAddress.resultName().toStdString();
 
+    if ( resultName.empty() )
+    {
+        resultName = RifReaderOpmRft::resultNameFromChannelType( rftAddress.wellLogChannel() );
+    }
+
     auto date = rftAddress.timeStep().date();
     int  y    = date.year();
     int  m    = date.month();
     int  d    = date.day();
 
-    auto data = m_opm_rft->getRft<double>( resultName, wellName, y, m, d );
-    if ( !data.empty() )
+    try
     {
-        values->insert( values->end(), data.begin(), data.end() );
+        auto data = m_opm_rft->getRft<float>( resultName, wellName, y, m, d );
+        if ( !data.empty() )
+        {
+            values->insert( values->end(), data.begin(), data.end() );
+        }
+    }
+    catch ( ... )
+    {
     }
 }
 
@@ -72,21 +85,16 @@ void RifReaderOpmRft::values( const RifEclipseRftAddress& rftAddress, std::vecto
 //--------------------------------------------------------------------------------------------------
 std::set<QDateTime> RifReaderOpmRft::availableTimeSteps( const QString& wellName )
 {
-    std::set<QDateTime> dates;
+    std::set<QDateTime> timeSteps;
 
-    auto rftDates = m_opm_rft->listOfdates();
-    for ( const auto& reportDate : rftDates )
+    for ( const auto& address : m_addresses )
     {
-        int y = std::get<0>( reportDate );
-        int m = std::get<1>( reportDate );
-        int d = std::get<2>( reportDate );
-
-        QDateTime dateTime;
-        dateTime.setDate( QDate( y, m, d ) );
-        dates.insert( dateTime );
+        if ( address.wellName() == wellName )
+        {
+            timeSteps.insert( address.timeStep() );
+        }
     }
-
-    return dates;
+    return timeSteps;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -96,7 +104,16 @@ std::set<QDateTime>
     RifReaderOpmRft::availableTimeSteps( const QString&                                     wellName,
                                          const RifEclipseRftAddress::RftWellLogChannelType& wellLogChannelName )
 {
-    return availableTimeSteps( wellName );
+    std::set<QDateTime> timeSteps;
+
+    for ( const auto& address : m_addresses )
+    {
+        if ( address.wellName() == wellName && address.wellLogChannel() == wellLogChannelName )
+        {
+            timeSteps.insert( address.timeStep() );
+        }
+    }
+    return timeSteps;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -106,7 +123,16 @@ std::set<QDateTime>
     RifReaderOpmRft::availableTimeSteps( const QString&                                               wellName,
                                          const std::set<RifEclipseRftAddress::RftWellLogChannelType>& relevantChannels )
 {
-    return availableTimeSteps( wellName );
+    std::set<QDateTime> timeSteps;
+
+    for ( const auto& address : m_addresses )
+    {
+        if ( address.wellName() == wellName && relevantChannels.count( address.wellLogChannel() ) )
+        {
+            timeSteps.insert( address.timeStep() );
+        }
+    }
+    return timeSteps;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -141,6 +167,43 @@ std::set<QString> RifReaderOpmRft::wellNames()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RifReaderOpmRft::cellIndices( const RifEclipseRftAddress& rftAddress, std::vector<caf::VecIjk>* indices )
+{
+    auto wellName = rftAddress.wellName().toStdString();
+
+    auto date = rftAddress.timeStep().date();
+    int  y    = date.year();
+    int  m    = date.month();
+    int  d    = date.day();
+
+    try
+    {
+        auto resultNameI = "CONIPOS";
+        auto dataI       = m_opm_rft->getRft<int>( resultNameI, wellName, y, m, d );
+
+        auto resultNameJ = "CONJPOS";
+        auto dataJ       = m_opm_rft->getRft<int>( resultNameJ, wellName, y, m, d );
+
+        auto resultNameK = "CONKPOS";
+        auto dataK       = m_opm_rft->getRft<int>( resultNameK, wellName, y, m, d );
+
+        if ( !dataI.empty() && ( dataI.size() == dataJ.size() ) && ( dataI.size() == dataK.size() ) )
+        {
+            for ( size_t n = 0; n < dataI.size(); n++ )
+            {
+                // NB: Transform to zero-based cell indices
+                indices->push_back( caf::VecIjk( dataI[n] - 1, dataJ[n] - 1, dataK[n] - 1 ) );
+            }
+        }
+    }
+    catch ( ... )
+    {
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RifReaderOpmRft::buildMetaData()
 {
     // TODO: Assert better than return?
@@ -153,14 +216,6 @@ void RifReaderOpmRft::buildMetaData()
             m_wellNames.insert( QString::fromStdString( w ) );
         }
     }
-
-    // Find all WELLETC and parse type R P S
-    /*
-        auto listOfArrays = m_opm_rft->getList();
-        for ( size_t i = 0; i < listOfArrays.size(); i++ )
-        {
-        }
-    */
 
     auto reports = m_opm_rft->listOfRftReports();
     for ( const auto& report : reports )
@@ -184,7 +239,9 @@ void RifReaderOpmRft::buildMetaData()
             auto channelTypes = identifyChannelType( resultDataName );
             if ( channelTypes != RifEclipseRftAddress::RftWellLogChannelType::NONE )
             {
-                m_addresses.insert( RifEclipseRftAddress( QString::fromStdString( wellName ), dateTime, channelTypes ) );
+                auto adr = RifEclipseRftAddress( QString::fromStdString( wellName ), dateTime, channelTypes );
+                adr.setResultName( QString::fromStdString( resultDataName ) );
+                m_addresses.insert( adr );
             }
         }
     }
@@ -213,4 +270,21 @@ RifEclipseRftAddress::RftWellLogChannelType RifReaderOpmRft::identifyChannelType
     if ( resultName == "GRAT" ) return RifEclipseRftAddress::RftWellLogChannelType::GRAT;
 
     return RifEclipseRftAddress::RftWellLogChannelType::NONE;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::string RifReaderOpmRft::resultNameFromChannelType( RifEclipseRftAddress::RftWellLogChannelType channelType )
+{
+    if ( channelType == RifEclipseRftAddress::RftWellLogChannelType::TVD ) return "DEPTH";
+    if ( channelType == RifEclipseRftAddress::RftWellLogChannelType::PRESSURE ) return "PRESSURE";
+    if ( channelType == RifEclipseRftAddress::RftWellLogChannelType::SWAT ) return "SWAT";
+    if ( channelType == RifEclipseRftAddress::RftWellLogChannelType::SOIL ) return "SOIL";
+    if ( channelType == RifEclipseRftAddress::RftWellLogChannelType::SGAS ) return "SGAS";
+    if ( channelType == RifEclipseRftAddress::RftWellLogChannelType::WRAT ) return "WRAT";
+    if ( channelType == RifEclipseRftAddress::RftWellLogChannelType::ORAT ) return "ORAT";
+    if ( channelType == RifEclipseRftAddress::RftWellLogChannelType::GRAT ) return "GRAT";
+
+    return {};
 }

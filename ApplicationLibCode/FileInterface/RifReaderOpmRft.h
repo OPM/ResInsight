@@ -49,11 +49,14 @@ public:
     std::set<RifEclipseRftAddress::RftWellLogChannelType> availableWellLogChannels( const QString& wellName ) override;
     std::set<QString>                                     wellNames() override;
 
+    void cellIndices( const RifEclipseRftAddress& rftAddress, std::vector<caf::VecIjk>* indices ) override;
+
 private:
     void buildMetaData();
     bool isOpen() const;
 
     static RifEclipseRftAddress::RftWellLogChannelType identifyChannelType( const std::string& resultName );
+    static std::string resultNameFromChannelType( RifEclipseRftAddress::RftWellLogChannelType channelType );
 
 private:
     std::unique_ptr<Opm::EclIO::ERft> m_opm_rft;

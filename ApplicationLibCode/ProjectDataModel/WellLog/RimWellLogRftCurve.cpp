@@ -811,10 +811,9 @@ bool RimWellLogRftCurve::createWellPathIdxToRftFileIdxMapping()
 
     RifEclipseRftAddress     depthAddress( m_wellName(), m_timeStep, RifEclipseRftAddress::RftWellLogChannelType::TVD );
     std::vector<caf::VecIjk> rftIndices;
-    RifReaderEclipseRft*     eclipseRftReader = dynamic_cast<RifReaderEclipseRft*>( rftReader() );
-    if ( !eclipseRftReader ) return false;
+    if ( !rftReader() ) return false;
 
-    eclipseRftReader->cellIndices( depthAddress, &rftIndices );
+    rftReader()->cellIndices( depthAddress, &rftIndices );
 
     const RigMainGrid* mainGrid = eclExtractor->caseData()->mainGrid();
 
