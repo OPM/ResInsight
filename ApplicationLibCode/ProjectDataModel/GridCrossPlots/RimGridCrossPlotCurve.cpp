@@ -131,20 +131,6 @@ void RimGridCrossPlotCurve::updateZoomInParentPlot()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridCrossPlotCurve::updateLegendsInPlot()
-{
-    RimGridCrossPlot* plot = nullptr;
-    this->firstAncestorOrThisOfType( plot );
-    if ( plot )
-    {
-        plot->reattachAllCurves();
-    }
-    RimPlotCurve::updateLegendsInPlot();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 QString RimGridCrossPlotCurve::createCurveAutoName()
 {
     return m_customCurveName;

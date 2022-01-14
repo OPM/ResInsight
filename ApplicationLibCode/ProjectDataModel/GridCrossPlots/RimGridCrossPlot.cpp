@@ -213,8 +213,11 @@ void RimGridCrossPlot::reattachAllCurves()
             if ( dataSet->isChecked() )
             {
                 dataSet->setParentPlotNoReplot( m_plotWidget );
+                dataSet->loadDataAndUpdate( false );
             }
         }
+        updateCurveNamesAndPlotTitle();
+        updateLegend();
         updateZoomInParentPlot();
     }
 }

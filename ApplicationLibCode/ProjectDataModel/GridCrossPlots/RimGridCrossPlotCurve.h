@@ -42,7 +42,6 @@ public:
 protected:
     void    determineSymbol();
     void    updateZoomInParentPlot() override;
-    void    updateLegendsInPlot() override;
     QString createCurveAutoName() override;
     void    onLoadDataAndUpdate( bool updateParentPlot ) override;
     void    defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
