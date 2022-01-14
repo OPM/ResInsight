@@ -75,7 +75,7 @@ RimFaultInViewCollection::RimFaultInViewCollection()
     CAF_PDM_InitField( &m_showFaultsOutsideFilters, "ShowFaultsOutsideFilters", true, "Show Faults Outside Filters" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_showFaultsOutsideFilters );
 
-    CAF_PDM_InitField( &m_onlyShowWithNeighbor, "OnlyShowWithDefNeighbor", false, "Only Show Faces With Defined Cell Neighbor" );
+    CAF_PDM_InitField( &m_onlyShowWithNeighbor, "OnlyShowWithDefNeighbor", false, "Show Only Faces with Juxtaposition" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_onlyShowWithNeighbor );
 
     CAF_PDM_InitField( &faultResult,
