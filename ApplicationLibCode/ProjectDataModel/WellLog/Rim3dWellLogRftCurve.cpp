@@ -27,6 +27,7 @@
 #include "RimEclipseResultCase.h"
 #include "RimTools.h"
 #include "RimWellLogCurve.h"
+#include "RimWellLogRftCurve.h"
 #include "RimWellLogRftCurveNameConfig.h"
 #include "RimWellPath.h"
 

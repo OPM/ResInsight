@@ -234,7 +234,7 @@ void RimWellLogRftCurve::setRftAddress( RifEclipseRftAddress address )
 //--------------------------------------------------------------------------------------------------
 RifEclipseRftAddress RimWellLogRftCurve::rftAddress() const
 {
-    return RifEclipseRftAddress( m_wellName, m_timeStep, m_wellLogChannelName() );
+    return { m_wellName, m_timeStep, m_wellLogChannelName() };
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -376,7 +376,7 @@ void RimWellLogRftCurve::onLoadDataAndUpdate( bool updateParentPlot )
 {
     this->RimPlotCurve::updateCurvePresentation( updateParentPlot );
 
-    DerivedMDSource derivedMDSource = NO_SOURCE;
+    DerivedMDSource derivedMDSource = DerivedMDSource::NO_SOURCE;
 
     if ( isCurveVisible() )
     {
@@ -384,9 +384,9 @@ void RimWellLogRftCurve::onLoadDataAndUpdate( bool updateParentPlot )
         firstAncestorOrThisOfType( wellLogPlot );
         CVF_ASSERT( wellLogPlot );
 
-        RimWellRftPlot* rftPlot                     = dynamic_cast<RimWellRftPlot*>( wellLogPlot );
-        bool            showErrorBarsInObservedData = rftPlot ? rftPlot->showErrorBarsForObservedData() : false;
-        m_showErrorBars                             = showErrorBarsInObservedData;
+        auto* rftPlot                     = dynamic_cast<RimWellRftPlot*>( wellLogPlot );
+        bool  showErrorBarsInObservedData = rftPlot ? rftPlot->showErrorBarsForObservedData() : false;
+        m_showErrorBars                   = showErrorBarsInObservedData;
 
         std::vector<double>  measuredDepthVector = measuredDepthValues();
         std::vector<double>  tvDepthVector       = tvDepthValues();
@@ -428,17 +428,17 @@ void RimWellLogRftCurve::onLoadDataAndUpdate( bool updateParentPlot )
         {
             if ( deriveMeasuredDepthValuesFromWellPath( tvDepthVector, measuredDepthVector ) )
             {
-                derivedMDSource = WELL_PATH;
+                derivedMDSource = DerivedMDSource::WELL_PATH;
             }
             else if ( deriveMeasuredDepthFromObservedData( tvDepthVector, measuredDepthVector ) )
             {
-                derivedMDSource = OBSERVED_DATA;
+                derivedMDSource = DerivedMDSource::OBSERVED_DATA;
             }
         }
 
         if ( tvDepthVector.size() != measuredDepthVector.size() )
         {
-            derivedMDSource     = NO_SOURCE;
+            derivedMDSource     = DerivedMDSource::NO_SOURCE;
             measuredDepthVector = tvDepthVector;
         }
 
@@ -495,9 +495,9 @@ void RimWellLogRftCurve::onLoadDataAndUpdate( bool updateParentPlot )
             RiuQwtPlotWidget* viewer = wellLogTrack->viewer();
             if ( viewer )
             {
-                if ( derivedMDSource != NO_SOURCE )
+                if ( derivedMDSource != DerivedMDSource::NO_SOURCE )
                 {
-                    if ( derivedMDSource == WELL_PATH )
+                    if ( derivedMDSource == DerivedMDSource::WELL_PATH )
                     {
                         viewer->setAxisTitleText( RiuPlotAxis::defaultLeft(), "WELL/" + wellLogPlot->depthAxisTitle() );
                     }
@@ -591,7 +591,7 @@ QList<caf::PdmOptionItemInfo> RimWellLogRftCurve::calculateValueOptions( const c
 
     options = RimWellLogCurve::calculateValueOptions( fieldNeedingOptions, useOptionsOnly );
 
-    if ( options.size() > 0 ) return options;
+    if ( !options.empty() ) return options;
 
     if ( fieldNeedingOptions == &m_eclipseResultCase )
     {
@@ -730,18 +730,22 @@ RifReaderRftInterface* RimWellLogRftCurve::rftReader() const
     {
         return m_eclipseResultCase()->rftReader();
     }
-    else if ( m_summaryCase() ) // Summary RFT curves have both summary and ensemble set. Prioritize summary for reader.
+
+    if ( m_summaryCase() ) // Summary RFT curves have both summary and ensemble set. Prioritize summary for reader.
     {
         return m_summaryCase()->rftReader();
     }
-    else if ( m_ensemble() )
+
+    if ( m_ensemble() )
     {
         return m_ensemble()->rftStatisticsReader();
     }
-    else if ( m_observedFmuRftData() )
+
+    if ( m_observedFmuRftData() )
     {
         return m_observedFmuRftData()->rftReader();
     }
+
     return nullptr;
 }
 
@@ -770,7 +774,7 @@ RigEclipseWellLogExtractor* RimWellLogRftCurve::extractor()
         QString                         simWellName = RimWellPlotTools::simWellName( m_wellName );
         std::vector<const RigWellPath*> wellPaths =
             RiaSimWellBranchTools::simulationWellBranches( simWellName, m_branchDetection );
-        if ( wellPaths.size() == 0 ) return nullptr;
+        if ( wellPaths.empty() ) return nullptr;
 
         m_branchIndex = RiaSimWellBranchTools::clampBranchIndex( simWellName, m_branchIndex, m_branchDetection );
 
@@ -860,9 +864,9 @@ std::vector<size_t> RimWellLogRftCurve::sortedIndicesInRftFile()
     }
 
     std::vector<size_t> indices;
-    for ( auto it = m_idxInWellPathToIdxInRftFile.begin(); it != m_idxInWellPathToIdxInRftFile.end(); it++ )
+    for ( auto& it : m_idxInWellPathToIdxInRftFile )
     {
-        indices.push_back( it->second );
+        indices.push_back( it.second );
     }
 
     return indices;
@@ -898,10 +902,8 @@ std::vector<double> RimWellLogRftCurve::xValues()
 
         return valuesSorted;
     }
-    else
-    {
-        return values;
-    }
+
+    return values;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -951,10 +953,8 @@ std::vector<double> RimWellLogRftCurve::tvDepthValues()
 
         return valuesSorted;
     }
-    else
-    {
-        return values;
-    }
+
+    return values;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -46,11 +46,12 @@ class RimWellLogRftCurve : public RimWellLogCurve
 {
     CAF_PDM_HEADER_INIT;
 
-public:
-    enum DerivedMDSource
+private:
+    enum class DerivedMDSource
     {
         NO_SOURCE,
         WELL_PATH,
+        SEGMENT,
         OBSERVED_DATA
     };
 
