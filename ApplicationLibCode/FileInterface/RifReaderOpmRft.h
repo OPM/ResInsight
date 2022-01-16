@@ -22,6 +22,7 @@
 
 #include "cvfObject.h"
 
+#include "opm/io/eclipse/EclIOdata.hpp"
 #include <memory>
 
 namespace Opm
@@ -52,7 +53,55 @@ public:
     void cellIndices( const RifEclipseRftAddress& rftAddress, std::vector<caf::VecIjk>* indices ) override;
 
 private:
+    class RftSegmentData
+    {
+    public:
+        RftSegmentData( int segnxt, int brno, int brnst, int brnen, int segNo )
+            : m_segNext( segnxt )
+            , m_segbrno( brno )
+            , m_brnst( brnst )
+            , m_brnen( brnen )
+            , m_segmentNo( segNo )
+        {
+        }
+
+        int segNext() const { return m_segNext; }
+        int segBrno() const { return m_segbrno; }
+        int segBrnst() const { return m_brnst; }
+        int segBrnen() const { return m_brnen; }
+        int segNo() const { return m_segmentNo; }
+
+    private:
+        int m_segNext;
+        int m_segbrno;
+        int m_brnst;
+        int m_brnen;
+        int m_segmentNo;
+    };
+
+    using EclEntry = std::tuple<std::string, Opm::EclIO::eclArrType, int64_t>;
+
+    class RftSegment
+    {
+    public:
+        void setSegmentData( std::vector<RftSegmentData> segmentData ) { m_topology = segmentData; }
+        std::vector<RftSegmentData> topology() const { return m_topology; }
+
+        void addSegmentResultName( const EclEntry& resultName ) { m_resultNames.push_back( resultName ); }
+        std::vector<EclEntry> segmentResultNames() const { return m_resultNames; }
+
+    private:
+        std::vector<RftSegmentData> m_topology;
+        std::vector<EclEntry>       m_resultNames;
+    };
+
+    using RftDate       = std::tuple<int, int, int>;
+    using RftSegmentKey = std::pair<std::string, RftDate>;
+
+private:
     void buildMetaData();
+    void buildSegmentData();
+    void segmentDataDebugLog() const;
     bool isOpen() const;
 
     static RifEclipseRftAddress::RftWellLogChannelType identifyChannelType( const std::string& resultName );
@@ -61,6 +110,10 @@ private:
 private:
     std::unique_ptr<Opm::EclIO::ERft> m_opm_rft;
 
+    // RFT and PLT addresses
     std::set<RifEclipseRftAddress> m_addresses;
     std::set<QString>              m_wellNames;
+
+    // Segment data
+    std::map<RftSegmentKey, RftSegment> m_rftWellDateSegments2;
 };

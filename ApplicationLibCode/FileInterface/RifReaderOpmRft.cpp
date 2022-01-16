@@ -24,6 +24,10 @@
 
 #include "cafVecIjk.h"
 
+#include "RiaStdStringTools.h"
+#include <iomanip>
+#include <iostream>
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -241,6 +245,135 @@ void RifReaderOpmRft::buildMetaData()
                 adr.setResultName( QString::fromStdString( resultDataName ) );
                 m_addresses.insert( adr );
             }
+        }
+    }
+
+    buildSegmentData();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RifReaderOpmRft::buildSegmentData()
+{
+    m_rftWellDateSegments2.clear();
+
+    auto wells = m_opm_rft->listOfWells();
+    auto dates = m_opm_rft->listOfdates();
+
+    for ( const auto& well : wells )
+    {
+        for ( const auto& date : dates )
+        {
+            std::vector<RftSegmentData> segmentsForWellDate;
+
+            std::vector<int> segnxt;
+            std::vector<int> segbrno;
+            std::vector<int> brnstValues;
+            std::vector<int> brnenValues;
+            std::vector<int> segNo;
+
+            {
+                std::string resultName = "SEGNXT";
+                if ( m_opm_rft->hasArray( resultName, well, date ) )
+                {
+                    segnxt = m_opm_rft->getRft<int>( resultName, well, date );
+                }
+            }
+            {
+                std::string resultName = "SEGBRNO";
+                if ( m_opm_rft->hasArray( resultName, well, date ) )
+                {
+                    segbrno = m_opm_rft->getRft<int>( resultName, well, date );
+                }
+            }
+            {
+                std::string resultName = "BRNST";
+                if ( m_opm_rft->hasArray( resultName, well, date ) )
+                {
+                    brnstValues = m_opm_rft->getRft<int>( resultName, well, date );
+                }
+            }
+            {
+                std::string resultName = "BRNEN";
+                if ( m_opm_rft->hasArray( resultName, well, date ) )
+                {
+                    brnenValues = m_opm_rft->getRft<int>( resultName, well, date );
+                }
+            }
+
+            if ( segnxt.empty() ) continue;
+            if ( segnxt.size() != segbrno.size() ) continue;
+            if ( brnenValues.empty() || brnstValues.empty() ) continue;
+
+            for ( size_t i = 0; i < segnxt.size(); i++ )
+            {
+                int branchIndex     = segbrno[i] - 1;
+                int nextBranchIndex = -1;
+                if ( i + 1 < segbrno.size() ) nextBranchIndex = segbrno[i + 1] - 1;
+
+                bool isLastSegmentOnBranch = branchIndex != nextBranchIndex;
+
+                int brnst = brnstValues[branchIndex];
+                int brnen = brnenValues[branchIndex];
+
+                int segmentId = -1;
+                if ( !isLastSegmentOnBranch )
+                {
+                    if ( i + 1 < segnxt.size() ) segmentId = segnxt[i + 1];
+                }
+                else
+                {
+                    segmentId = brnen;
+                }
+
+                segNo.push_back( segmentId );
+
+                segmentsForWellDate.emplace_back( RftSegmentData( segnxt[i], segbrno[i], brnst, brnen, segmentId ) );
+            }
+
+            if ( segmentsForWellDate.empty() ) continue;
+
+            RftSegment segment;
+            segment.setSegmentData( segmentsForWellDate );
+
+            auto arraysAtWellDate = m_opm_rft->listOfRftArrays( well, date );
+            for ( const auto& a : arraysAtWellDate )
+            {
+                auto [name, arrayType, size] = a;
+                if ( RiaStdStringTools::startsWithAlphabetic( "SEG" ) )
+                {
+                    segment.addSegmentResultName( a );
+                }
+            }
+
+            auto wellDateKey = std::make_pair( well, date );
+
+            m_rftWellDateSegments2[wellDateKey] = segment;
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RifReaderOpmRft::segmentDataDebugLog() const
+{
+    for ( const auto& a : m_rftWellDateSegments2 )
+    {
+        auto [wellName, date] = a.first;
+        auto segmentData      = a.second;
+
+        std::cout << "\nWell: " << wellName << "Date : " << std::get<0>( date ) << " " << std::get<1>( date ) << " "
+                  << std::get<2>( date ) << " \n";
+
+        for ( const auto& r : segmentData.topology() )
+        {
+            std::cout << "SEGNXT  " << std::setw( 2 ) << r.segNext() << ", ";
+            std::cout << "SEGBRNO " << std::setw( 2 ) << r.segBrno() << ", ";
+            std::cout << "BNRST   " << std::setw( 2 ) << r.segBrnst() << ", ";
+            std::cout << "BRNEN   " << std::setw( 2 ) << r.segBrnen() << ", ";
+            std::cout << "SEGNO   " << std::setw( 2 ) << r.segNo() << "\n";
         }
     }
 }
