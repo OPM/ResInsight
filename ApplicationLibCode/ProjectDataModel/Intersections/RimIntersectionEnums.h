@@ -18,9 +18,10 @@
 
 #pragma once
 
-enum class RimIntersectionDepthCutEnum
+enum class RimIntersectionFilterEnum
 {
-    INTERSECT_SHOW_ALL,
-    INTERSECT_SHOW_BELOW,
-    INTERSECT_SHOW_ABOVE
+    INTERSECT_FILTER_NONE,
+    INTERSECT_FILTER_ABOVE,
+    INTERSECT_FILTER_BELOW,
+    INTERSECT_FILTER_BETWEEN
 };
