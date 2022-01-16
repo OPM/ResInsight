@@ -23,7 +23,9 @@
 #include "cvfObject.h"
 
 #include "opm/io/eclipse/EclIOdata.hpp"
+
 #include <memory>
+#include <unordered_set>
 
 namespace Opm
 {
@@ -87,12 +89,30 @@ private:
         void setSegmentData( std::vector<RftSegmentData> segmentData ) { m_topology = segmentData; }
         std::vector<RftSegmentData> topology() const { return m_topology; }
 
-        void addSegmentResultName( const EclEntry& resultName ) { m_resultNames.push_back( resultName ); }
-        std::vector<EclEntry> segmentResultNames() const { return m_resultNames; }
+        void addResultNameAndSize( const EclEntry& resultNameAndSize )
+        {
+            m_resultNameAndSize.push_back( resultNameAndSize );
+        }
+        std::vector<EclEntry> resultNameAndSize() const { return m_resultNameAndSize; }
+
+        std::vector<int> branchIds() const
+        {
+            std::unordered_set<int> s;
+            for ( const auto& segData : m_topology )
+            {
+                s.insert( segData.segBrno() );
+            }
+
+            std::vector<int> v;
+            v.assign( s.begin(), s.end() );
+            sort( v.begin(), v.end() );
+
+            return v;
+        }
 
     private:
         std::vector<RftSegmentData> m_topology;
-        std::vector<EclEntry>       m_resultNames;
+        std::vector<EclEntry>       m_resultNameAndSize;
     };
 
     using RftDate       = std::tuple<int, int, int>;

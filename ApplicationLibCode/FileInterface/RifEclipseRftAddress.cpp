@@ -25,24 +25,7 @@ RifEclipseRftAddress::RifEclipseRftAddress( QString wellName, QDateTime timeStep
     : m_wellName( wellName )
     , m_timeStep( timeStep )
     , m_wellLogChannel( wellLogChannelName )
-    , m_segmentId( -1 )
 {
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RifEclipseRftAddress::setSegmentId( int id )
-{
-    m_segmentId = id;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-int RifEclipseRftAddress::segmentId() const
-{
-    return m_segmentId;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -116,6 +99,7 @@ bool operator==( const RifEclipseRftAddress& first, const RifEclipseRftAddress& 
     if ( first.wellName() != second.wellName() ) return false;
     if ( first.timeStep() != second.timeStep() ) return false;
     if ( first.wellLogChannel() != second.wellLogChannel() ) return false;
+    if ( first.resultName() != second.resultName() ) return false;
 
     return true;
 }
@@ -129,6 +113,7 @@ bool operator<( const RifEclipseRftAddress& first, const RifEclipseRftAddress& s
     if ( first.timeStep() != second.timeStep() ) return ( first.timeStep() < second.timeStep() );
     if ( first.wellLogChannel() != second.wellLogChannel() )
         return ( first.wellLogChannel() < second.wellLogChannel() );
+    if ( first.resultName() != second.resultName() ) return first.resultName() < second.resultName();
 
     return false;
 }

@@ -61,15 +61,29 @@ void RifReaderOpmRft::values( const RifEclipseRftAddress& rftAddress, std::vecto
     auto wellName   = rftAddress.wellName().toStdString();
     auto resultName = rftAddress.resultName().toStdString();
 
+    auto qDate = rftAddress.timeStep().date();
+    int  y     = qDate.year();
+    int  m     = qDate.month();
+    int  d     = qDate.day();
+
+    if ( rftAddress.wellLogChannel() == RifEclipseRftAddress::RftWellLogChannelType::SEGMENT_VALUES )
+    {
+        if ( rftAddress.resultName() == RifEclipseRftAddress::segmentNumberResultName() )
+        {
+            auto key = std::make_pair( wellName, RftDate{ y, m, d } );
+
+            auto segment = m_rftWellDateSegments2[key];
+            for ( const auto& s : segment.topology() )
+            {
+                values->push_back( s.segNo() );
+            }
+        }
+    }
+
     if ( resultName.empty() )
     {
         resultName = RifReaderOpmRft::resultNameFromChannelType( rftAddress.wellLogChannel() );
     }
-
-    auto date = rftAddress.timeStep().date();
-    int  y    = date.year();
-    int  m    = date.month();
-    int  d    = date.day();
 
     try
     {
@@ -249,6 +263,43 @@ void RifReaderOpmRft::buildMetaData()
     }
 
     buildSegmentData();
+
+    // Create segment result addresses
+    {
+        for ( const auto& segmentWellData : m_rftWellDateSegments2 )
+        {
+            auto [wellName, reportDate] = segmentWellData.first;
+            auto segmentData            = segmentWellData.second;
+
+            auto resultNameAndSizes = segmentData.resultNameAndSize();
+
+            int y = std::get<0>( reportDate );
+            int m = std::get<1>( reportDate );
+            int d = std::get<2>( reportDate );
+
+            QDateTime dateTime;
+            dateTime.setDate( QDate( y, m, d ) );
+
+            for ( const auto& resultNameAndSize : resultNameAndSizes )
+            {
+                auto adr = RifEclipseRftAddress( QString::fromStdString( wellName ),
+                                                 dateTime,
+                                                 RifEclipseRftAddress::RftWellLogChannelType::SEGMENT_VALUES );
+
+                auto resultName = std::get<0>( resultNameAndSize );
+
+                adr.setResultName( QString::fromStdString( resultName ) );
+
+                m_addresses.insert( adr );
+            }
+
+            auto adr = RifEclipseRftAddress( QString::fromStdString( wellName ),
+                                             dateTime,
+                                             RifEclipseRftAddress::RftWellLogChannelType::SEGMENT_VALUES );
+            adr.setResultName( RifEclipseRftAddress::segmentNumberResultName() );
+            m_addresses.insert( adr );
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -338,12 +389,12 @@ void RifReaderOpmRft::buildSegmentData()
             segment.setSegmentData( segmentsForWellDate );
 
             auto arraysAtWellDate = m_opm_rft->listOfRftArrays( well, date );
-            for ( const auto& a : arraysAtWellDate )
+            for ( const auto& rftResultMetaData : arraysAtWellDate )
             {
-                auto [name, arrayType, size] = a;
-                if ( RiaStdStringTools::startsWithAlphabetic( "SEG" ) )
+                auto [name, arrayType, size] = rftResultMetaData;
+                if ( name.find( "SEG" ) == 0 )
                 {
-                    segment.addSegmentResultName( a );
+                    segment.addResultNameAndSize( rftResultMetaData );
                 }
             }
 
