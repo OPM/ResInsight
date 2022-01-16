@@ -95,11 +95,13 @@ protected:
 
 private:
     RimEclipseView* eclipseView() const;
+    void            rebuild3dView() const;
 
     caf::PdmChildArrayField<RimExtrudedCurveIntersection*> m_intersections;
     caf::PdmChildArrayField<RimBoxIntersection*>           m_intersectionBoxes;
 
-    caf::PdmField<bool>                                      m_depthThresholdOverridden;
-    caf::PdmField<double>                                    m_collectionDepthThreshold;
-    caf::PdmField<caf::AppEnum<RimIntersectionDepthCutEnum>> m_collectionDepthDisplayType;
+    caf::PdmField<bool>                                    m_depthThresholdOverridden;
+    caf::PdmField<double>                                  m_depthUpperThreshold;
+    caf::PdmField<double>                                  m_depthLowerThreshold;
+    caf::PdmField<caf::AppEnum<RimIntersectionFilterEnum>> m_depthFilterType;
 };

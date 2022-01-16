@@ -78,9 +78,11 @@ public:
     QString name() const override;
     void    setName( const QString& newName );
 
-    double topDepth( double sceneRadius ) const;
-    double bottomDepth( double sceneRadius ) const;
-    void   setDepthOverride( bool collectionOverride, double depthThreshold, RimIntersectionDepthCutEnum displayType );
+    double topFilterDepth( double sceneRadius ) const;
+    double bottomFilterDepth( double sceneRadius ) const;
+
+    void setDepthOverride( bool collectionOverride );
+    void setDepthOverrideParameters( double upperThreshold, double lowerThreshold, RimIntersectionFilterEnum filterType );
 
     RimExtrudedCurveIntersection::CrossSectionEnum    type() const;
     RimExtrudedCurveIntersection::CrossSectionDirEnum direction() const;
@@ -163,12 +165,14 @@ private:
 private:
     caf::PdmField<QString> m_name;
 
-    caf::PdmField<caf::AppEnum<RimIntersectionDepthCutEnum>> m_depthDisplayType;
-    caf::PdmField<double>                                    m_depthThreshold;
+    caf::PdmField<caf::AppEnum<RimIntersectionFilterEnum>> m_depthFilterType;
+    caf::PdmField<double>                                  m_depthUpperThreshold;
+    caf::PdmField<double>                                  m_depthLowerThreshold;
 
-    caf::PdmField<bool>                                      m_depthThresholdOverridden;
-    caf::PdmField<double>                                    m_collectionDepthThreshold;
-    caf::PdmField<caf::AppEnum<RimIntersectionDepthCutEnum>> m_collectionDepthDisplayType;
+    caf::PdmField<bool>                                    m_depthThresholdOverridden;
+    caf::PdmField<double>                                  m_collectionUpperThreshold;
+    caf::PdmField<double>                                  m_collectionLowerThreshold;
+    caf::PdmField<caf::AppEnum<RimIntersectionFilterEnum>> m_collectionDepthFilterType;
 
     caf::PdmField<caf::AppEnum<CrossSectionEnum>>    m_type;
     caf::PdmField<caf::AppEnum<CrossSectionDirEnum>> m_direction;

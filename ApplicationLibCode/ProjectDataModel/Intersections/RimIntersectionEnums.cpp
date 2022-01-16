@@ -23,12 +23,13 @@
 namespace caf
 {
 template <>
-void caf::AppEnum<RimIntersectionDepthCutEnum>::setUp()
+void caf::AppEnum<RimIntersectionFilterEnum>::setUp()
 {
-    addItem( RimIntersectionDepthCutEnum::INTERSECT_SHOW_ALL, "INTERSECT_SHOW_ALL", "Show All" );
-    addItem( RimIntersectionDepthCutEnum::INTERSECT_SHOW_ABOVE, "INTERSECT_SHOW_ABOVE", "Show Above Threshold" );
-    addItem( RimIntersectionDepthCutEnum::INTERSECT_SHOW_BELOW, "INTERSECT_SHOW_BELOW", "Show Below Threshold" );
-    setDefault( RimIntersectionDepthCutEnum::INTERSECT_SHOW_ALL );
+    addItem( RimIntersectionFilterEnum::INTERSECT_FILTER_NONE, "INTERSECT_SHOW_ALL", "None" );
+    addItem( RimIntersectionFilterEnum::INTERSECT_FILTER_ABOVE, "INTERSECT_SHOW_ABOVE", "Above" );
+    addItem( RimIntersectionFilterEnum::INTERSECT_FILTER_BELOW, "INTERSECT_SHOW_BELOW", "Below" );
+    addItem( RimIntersectionFilterEnum::INTERSECT_FILTER_BETWEEN, "INTERSECT_SHOW_BELOW", "Between" );
+    setDefault( RimIntersectionFilterEnum::INTERSECT_FILTER_NONE );
 }
 
 } // namespace caf
