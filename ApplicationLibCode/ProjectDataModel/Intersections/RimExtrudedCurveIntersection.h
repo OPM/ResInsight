@@ -78,8 +78,8 @@ public:
     QString name() const override;
     void    setName( const QString& newName );
 
-    double topFilterDepth( double sceneRadius ) const;
-    double bottomFilterDepth( double sceneRadius ) const;
+    double upperFilterDepth( double sceneRadius ) const;
+    double lowerFilterDepth( double sceneRadius ) const;
 
     void setDepthOverride( bool collectionOverride );
     void setDepthOverrideParameters( double upperThreshold, double lowerThreshold, RimIntersectionFilterEnum filterType );

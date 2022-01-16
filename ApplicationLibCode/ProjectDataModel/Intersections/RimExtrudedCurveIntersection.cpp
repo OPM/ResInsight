@@ -306,7 +306,7 @@ void RimExtrudedCurveIntersection::setName( const QString& newName )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RimExtrudedCurveIntersection::topFilterDepth( double sceneRadius ) const
+double RimExtrudedCurveIntersection::upperFilterDepth( double sceneRadius ) const
 {
     if ( m_depthThresholdOverridden )
     {
@@ -339,7 +339,7 @@ double RimExtrudedCurveIntersection::topFilterDepth( double sceneRadius ) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RimExtrudedCurveIntersection::bottomFilterDepth( double sceneRadius ) const
+double RimExtrudedCurveIntersection::lowerFilterDepth( double sceneRadius ) const
 {
     if ( m_depthThresholdOverridden )
     {
