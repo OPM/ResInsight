@@ -8,6 +8,7 @@
 #include "opm/io/eclipse/ESmry.hpp"
 #include "opm/io/eclipse/ExtESmry.hpp"
 
+#include "RiaRftDefines.h"
 #include <QDebug>
 
 static const QString H5_TEST_DATA_DIRECTORY = QString( "%1/h5-file/" ).arg( TEST_DATA_DIR );
@@ -282,7 +283,7 @@ TEST( OpmSummaryTests, OpmComputeSegmentTopology )
         {
             qDebug() << adr.timeStep().toString( "YYYY MM dd" ) << " " << adr.resultName();
 
-            if ( adr.resultName() == RifEclipseRftAddress::segmentNumberResultName() )
+            if ( adr.resultName() == RiaDefines::segmentNumberResultName() )
             {
                 std::vector<double> values;
                 reader.values( adr, &values );

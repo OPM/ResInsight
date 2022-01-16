@@ -24,7 +24,9 @@
 
 #include "cafVecIjk.h"
 
+#include "RiaRftDefines.h"
 #include "RiaStdStringTools.h"
+#include "cafAssert.h"
 #include <iomanip>
 #include <iostream>
 
@@ -68,14 +70,26 @@ void RifReaderOpmRft::values( const RifEclipseRftAddress& rftAddress, std::vecto
 
     if ( rftAddress.wellLogChannel() == RifEclipseRftAddress::RftWellLogChannelType::SEGMENT_VALUES )
     {
-        if ( rftAddress.resultName() == RifEclipseRftAddress::segmentNumberResultName() )
-        {
-            auto key = std::make_pair( wellName, RftDate{ y, m, d } );
+        auto key     = std::make_pair( wellName, RftDate{ y, m, d } );
+        auto segment = m_rftWellDateSegments2[key];
 
-            auto segment = m_rftWellDateSegments2[key];
-            for ( const auto& s : segment.topology() )
+        if ( rftAddress.resultName() == RiaDefines::segmentNumberResultName() )
+        {
+            auto data = segment.topology();
+
+            auto indices = segment.indicesForBranchNumber( rftAddress.segmentBranchNumber() );
+            for ( const auto& i : indices )
             {
-                values->push_back( s.segNo() );
+                CAF_ASSERT( i < data.size() );
+                values->push_back( data[i].segNo() );
+            }
+        }
+        else if ( rftAddress.resultName() == RiaDefines::segmentBranchNumberResultName() )
+        {
+            auto branchNumbers = segment.branchIds();
+            for ( const auto& branchNumber : branchNumbers )
+            {
+                values->push_back( branchNumber );
             }
         }
     }
@@ -90,7 +104,22 @@ void RifReaderOpmRft::values( const RifEclipseRftAddress& rftAddress, std::vecto
         auto data = m_opm_rft->getRft<float>( resultName, wellName, y, m, d );
         if ( !data.empty() )
         {
-            values->insert( values->end(), data.begin(), data.end() );
+            if ( rftAddress.wellLogChannel() == RifEclipseRftAddress::RftWellLogChannelType::SEGMENT_VALUES )
+            {
+                auto key     = std::make_pair( wellName, RftDate{ y, m, d } );
+                auto segment = m_rftWellDateSegments2[key];
+
+                auto indices = segment.indicesForBranchNumber( rftAddress.segmentBranchNumber() );
+                for ( const auto& i : indices )
+                {
+                    CAF_ASSERT( i < data.size() );
+                    values->push_back( data[i] );
+                }
+            }
+            else
+            {
+                values->insert( values->end(), data.begin(), data.end() );
+            }
         }
     }
     catch ( ... )
@@ -280,14 +309,19 @@ void RifReaderOpmRft::buildMetaData()
             QDateTime dateTime;
             dateTime.setDate( QDate( y, m, d ) );
 
+            auto segmentCount = segmentData.topology().size();
+
             for ( const auto& resultNameAndSize : resultNameAndSizes )
             {
+                auto resultValueCount = std::get<2>( resultNameAndSize );
+
+                if ( static_cast<size_t>( resultValueCount ) != segmentCount ) continue;
+
                 auto adr = RifEclipseRftAddress( QString::fromStdString( wellName ),
                                                  dateTime,
                                                  RifEclipseRftAddress::RftWellLogChannelType::SEGMENT_VALUES );
 
                 auto resultName = std::get<0>( resultNameAndSize );
-
                 adr.setResultName( QString::fromStdString( resultName ) );
 
                 m_addresses.insert( adr );
@@ -296,7 +330,7 @@ void RifReaderOpmRft::buildMetaData()
             auto adr = RifEclipseRftAddress( QString::fromStdString( wellName ),
                                              dateTime,
                                              RifEclipseRftAddress::RftWellLogChannelType::SEGMENT_VALUES );
-            adr.setResultName( RifEclipseRftAddress::segmentNumberResultName() );
+            adr.setResultName( RiaDefines::segmentNumberResultName() );
             m_addresses.insert( adr );
         }
     }

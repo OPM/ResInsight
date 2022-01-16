@@ -25,6 +25,7 @@ RifEclipseRftAddress::RifEclipseRftAddress( QString wellName, QDateTime timeStep
     : m_wellName( wellName )
     , m_timeStep( timeStep )
     , m_wellLogChannel( wellLogChannelName )
+    , m_segmentBranchNumber( -1 )
 {
 }
 
@@ -42,6 +43,22 @@ void RifEclipseRftAddress::setResultName( const QString& resultName )
 QString RifEclipseRftAddress::resultName() const
 {
     return m_resultName;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RifEclipseRftAddress::setSegmentBranchNumber( int branchNumber )
+{
+    m_segmentBranchNumber = branchNumber;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RifEclipseRftAddress::segmentBranchNumber() const
+{
+    return m_segmentBranchNumber;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -100,6 +117,7 @@ bool operator==( const RifEclipseRftAddress& first, const RifEclipseRftAddress& 
     if ( first.timeStep() != second.timeStep() ) return false;
     if ( first.wellLogChannel() != second.wellLogChannel() ) return false;
     if ( first.resultName() != second.resultName() ) return false;
+    if ( first.segmentBranchNumber() != second.segmentBranchNumber() ) return false;
 
     return true;
 }
@@ -114,6 +132,8 @@ bool operator<( const RifEclipseRftAddress& first, const RifEclipseRftAddress& s
     if ( first.wellLogChannel() != second.wellLogChannel() )
         return ( first.wellLogChannel() < second.wellLogChannel() );
     if ( first.resultName() != second.resultName() ) return first.resultName() < second.resultName();
+    if ( first.segmentBranchNumber() != second.segmentBranchNumber() )
+        return first.segmentBranchNumber() < second.segmentBranchNumber();
 
     return false;
 }

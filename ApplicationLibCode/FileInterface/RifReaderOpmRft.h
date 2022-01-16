@@ -110,6 +110,21 @@ private:
             return v;
         }
 
+        std::vector<size_t> indicesForBranchNumber( int branchNumber ) const
+        {
+            std::vector<size_t> v;
+            for ( size_t i = 0; i < m_topology.size(); i++ )
+            {
+                auto segment = m_topology[i];
+                if ( branchNumber <= 0 || segment.segBrno() == branchNumber )
+                {
+                    v.push_back( i );
+                }
+            }
+
+            return v;
+        }
+
     private:
         std::vector<RftSegmentData> m_topology;
         std::vector<EclEntry>       m_resultNameAndSize;

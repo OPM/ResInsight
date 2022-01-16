@@ -115,6 +115,8 @@ private:
     bool deriveMeasuredDepthFromObservedData( const std::vector<double>& tvDepthValues,
                                               std::vector<double>&       derivedMDValues );
 
+    int segmentBranchNumber() const;
+
 private:
     caf::PdmPtrField<RimEclipseResultCase*>     m_eclipseResultCase;
     caf::PdmPtrField<RimSummaryCase*>           m_summaryCase;
@@ -124,6 +126,9 @@ private:
     caf::PdmField<QString>                      m_wellName;
     caf::PdmField<int>                          m_branchIndex;
     caf::PdmField<bool>                         m_branchDetection;
+
+    caf::PdmField<QString> m_segmentResultName;
+    caf::PdmField<QString> m_segmentBranchId;
 
     std::map<size_t, size_t>                                                 m_idxInWellPathToIdxInRftFile;
     caf::PdmField<caf::AppEnum<RifEclipseRftAddress::RftWellLogChannelType>> m_wellLogChannelName;

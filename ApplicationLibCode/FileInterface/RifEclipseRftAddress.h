@@ -57,6 +57,9 @@ public:
     void    setResultName( const QString& resultName );
     QString resultName() const;
 
+    void setSegmentBranchNumber( int branchNumber );
+    int  segmentBranchNumber() const;
+
     const QString&               wellName() const;
     QDateTime                    timeStep() const;
     const RftWellLogChannelType& wellLogChannel() const;
@@ -64,13 +67,13 @@ public:
     static std::set<RftWellLogChannelType> rftPlotChannelTypes();
     static std::set<RftWellLogChannelType> pltPlotChannelTypes();
 
-    static QString segmentNumberResultName() { return "SEGMENTNUMBER"; };
-
 private:
     QString               m_wellName;
     QString               m_resultName;
     QDateTime             m_timeStep;
     RftWellLogChannelType m_wellLogChannel;
+
+    int m_segmentBranchNumber;
 };
 
 bool operator==( const RifEclipseRftAddress& first, const RifEclipseRftAddress& second );
