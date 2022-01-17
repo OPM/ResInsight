@@ -304,8 +304,7 @@ void RifReaderOpmRft::buildMetaData()
         int m = std::get<1>( reportDate );
         int d = std::get<2>( reportDate );
 
-        QDateTime dateTime;
-        dateTime.setDate( QDate( y, m, d ) );
+        auto dt = RiaQDateTimeTools::createUtcDateTime( QDate( y, m, d ) );
 
         auto segmentCount = segmentData.topology().size();
 
@@ -317,14 +316,14 @@ void RifReaderOpmRft::buildMetaData()
 
             auto resultName = std::get<0>( resultNameAndSize );
             auto adr        = RifEclipseRftAddress::createSegmentResult( QString::fromStdString( wellName ),
-                                                                  dateTime,
+                                                                  dt,
                                                                   QString::fromStdString( resultName ) );
 
             m_addresses.insert( adr );
         }
 
         auto adr = RifEclipseRftAddress::createSegmentResult( QString::fromStdString( wellName ),
-                                                              dateTime,
+                                                              dt,
                                                               RiaDefines::segmentNumberResultName() );
 
         m_addresses.insert( adr );
