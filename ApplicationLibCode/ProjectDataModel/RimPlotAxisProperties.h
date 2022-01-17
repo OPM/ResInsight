@@ -28,8 +28,6 @@
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 
-#include "qwt_plot.h"
-
 #include <QString>
 
 class RimPlotAxisAnnotation;
@@ -59,13 +57,12 @@ public:
 
     void                  setEnableTitleTextSettings( bool enable );
     void                  enableRangeSettings( bool enable );
-    void                  setNameAndAxis( const QString& name, QwtPlot::Axis axis );
+    void                  setNameAndAxis( const QString& name, RiaDefines::PlotAxis axis );
     AxisTitlePositionType titlePosition() const override;
 
     int titleFontSize() const override;
     int valuesFontSize() const override;
 
-    QwtPlot::Axis        qwtPlotAxisType() const;
     QString              name() const;
     RiaDefines::PlotAxis plotAxisType() const override;
     bool                 useAutoTitle() const;
@@ -121,7 +118,7 @@ private:
     caf::PdmField<bool> m_isAxisInverted;
 
     caf::PdmField<QString> m_name;
-    QwtPlot::Axis          m_axis;
+    RiaDefines::PlotAxis   m_axis;
 
     bool m_enableTitleTextSettings;
     bool m_isRangeSettingsEnabled;
@@ -130,25 +127,4 @@ private:
     caf::PdmField<caf::AppEnum<AxisTitlePositionType>> m_titlePositionEnum;
     caf::PdmField<caf::FontTools::RelativeSizeEnum>    m_valuesFontSize;
     caf::PdmChildArrayField<RimPlotAxisAnnotation*>    m_annotations;
-};
-
-class QwtPlotCurve;
-
-//==================================================================================================
-///
-///
-//==================================================================================================
-class RimPlotAxisLogRangeCalculator
-{
-public:
-    RimPlotAxisLogRangeCalculator( QwtPlot::Axis axis, const std::vector<const QwtPlotCurve*>& qwtCurves );
-
-    void computeAxisRange( double* minPositive, double* max ) const;
-
-private:
-    bool curveValueRange( const QwtPlotCurve* qwtCurve, double* minPositive, double* max ) const;
-
-private:
-    QwtPlot::Axis                          m_axis;
-    const std::vector<const QwtPlotCurve*> m_curves;
 };

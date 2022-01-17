@@ -34,6 +34,7 @@
 
 #include "RiuDraggableOverlayFrame.h"
 #include "RiuGridCrossQwtPlot.h"
+#include "RiuPlotWidget.h"
 #include "RiuScalarMapperLegendFrame.h"
 
 #include "RimCase.h"
@@ -61,6 +62,8 @@
 #include "cafTitledOverlayFrame.h"
 #include "cvfScalarMapper.h"
 #include "cvfqtUtils.h"
+
+#include "qwt_plot.h"
 
 #include <QString>
 
@@ -196,11 +199,11 @@ void RimGridCrossPlotDataSet::loadDataAndUpdate( bool updateParentPlot )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridCrossPlotDataSet::setParentQwtPlotNoReplot( QwtPlot* parent )
+void RimGridCrossPlotDataSet::setParentPlotNoReplot( RiuPlotWidget* parent )
 {
     for ( auto& curve : m_crossPlotCurves() )
     {
-        curve->setParentQwtPlotNoReplot( m_isChecked() ? parent : nullptr );
+        curve->setParentPlotNoReplot( m_isChecked() ? parent : nullptr );
     }
 }
 
@@ -341,7 +344,7 @@ void RimGridCrossPlotDataSet::detachAllCurves()
 {
     for ( auto curve : m_crossPlotCurves() )
     {
-        curve->detachQwtCurve();
+        curve->detach();
     }
 }
 
@@ -652,8 +655,9 @@ void RimGridCrossPlotDataSet::fillCurveDataInExistingCurves( const RigEclipseCro
     {
         CVF_ASSERT( m_crossPlotCurves.size() == 1u );
         RimGridCrossPlotCurve* curve = m_crossPlotCurves[0];
-        curve->setSamples( result.xValues, result.yValues );
         curve->setGroupingInformation( indexInPlot(), 0 );
+        curve->updateCurveVisibility();
+        curve->setSamples( result.xValues, result.yValues );
         curve->updateCurveAppearance();
         curve->updateUiIconFromPlotSymbol();
     }
@@ -665,8 +669,9 @@ void RimGridCrossPlotDataSet::fillCurveDataInExistingCurves( const RigEclipseCro
         for ( ; curveIt != m_crossPlotCurves.end() && groupIt != m_groupedResults.rend(); ++curveIt, ++groupIt )
         {
             RimGridCrossPlotCurve* curve = *curveIt;
-            curve->setSamples( groupIt->second.xValues, groupIt->second.yValues );
             curve->setGroupingInformation( indexInPlot(), groupIt->first );
+            curve->updateCurveVisibility();
+            curve->setSamples( groupIt->second.xValues, groupIt->second.yValues );
             curve->updateCurveAppearance();
             curve->updateUiIconFromPlotSymbol();
         }
@@ -1009,7 +1014,7 @@ void RimGridCrossPlotDataSet::updateLegendRange()
 
     RimGridCrossPlot* parent;
     this->firstAncestorOrThisOfTypeAsserted( parent );
-    if ( parent->viewer() )
+    if ( parent->plotWidget() )
     {
         if ( groupingEnabled() && m_case() && isChecked() && legendConfig()->showLegend() )
         {
@@ -1050,17 +1055,17 @@ void RimGridCrossPlotDataSet::updateLegendRange()
             }
             if ( !m_legendOverlayFrame )
             {
-                m_legendOverlayFrame =
-                    new RiuDraggableOverlayFrame( parent->viewer()->canvas(), parent->viewer()->overlayMargins() );
+                m_legendOverlayFrame = new RiuDraggableOverlayFrame( parent->plotWidget()->getParentForOverlay(),
+                                                                     parent->plotWidget()->overlayMargins() );
             }
             m_legendOverlayFrame->setContentFrame( legendConfig()->makeLegendFrame() );
-            parent->viewer()->addOverlayFrame( m_legendOverlayFrame );
+            parent->plotWidget()->addOverlayFrame( m_legendOverlayFrame );
         }
         else
         {
             if ( m_legendOverlayFrame )
             {
-                parent->viewer()->removeOverlayFrame( m_legendOverlayFrame );
+                parent->plotWidget()->removeOverlayFrame( m_legendOverlayFrame );
             }
         }
     }

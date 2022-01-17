@@ -19,10 +19,10 @@
 #pragma once
 
 #include "RiaQDateTimeTools.h"
+
 #include "RiuInterfaceToViewWindow.h"
 #include "RiuQwtPlotWidget.h"
-
-#include "cafPdmPointer.h"
+#include "RiuSummaryPlot.h"
 
 #include <QPointer>
 
@@ -39,7 +39,7 @@ class RiuPlotAnnotationTool;
 //
 //
 //==================================================================================================
-class RiuSummaryQwtPlot : public RiuQwtPlotWidget
+class RiuSummaryQwtPlot : public RiuSummaryPlot
 {
     Q_OBJECT;
 
@@ -51,24 +51,25 @@ public:
                                const QString&                          timeFormat,
                                RiaQDateTimeTools::DateFormatComponents dateComponents = RiaQDateTimeTools::DATE_FORMAT_UNSPECIFIED,
                                RiaQDateTimeTools::TimeFormatComponents timeComponents =
-                                   RiaQDateTimeTools::TimeFormatComponents::TIME_FORMAT_UNSPECIFIED );
+                                   RiaQDateTimeTools::TimeFormatComponents::TIME_FORMAT_UNSPECIFIED ) override;
 
-    void useTimeBasedTimeAxis();
-    void setAxisIsLogarithmic( QwtPlot::Axis axis, bool logarithmic );
+    void useTimeBasedTimeAxis() override;
 
-    void updateAnnotationObjects( RimPlotAxisPropertiesInterface* axisProperties );
+    void updateAnnotationObjects( RimPlotAxisPropertiesInterface* axisProperties ) override;
+
+    RiuPlotWidget* plotWidget() const override;
 
 protected:
-    void contextMenuEvent( QContextMenuEvent* ) override;
     void setDefaults();
-    bool isZoomerActive() const override;
-    void endZoomOperations() override;
+    bool isZoomerActive() const;
+    void endZoomOperations();
 
 private slots:
     void onZoomedSlot();
 
 private:
     std::unique_ptr<RiuPlotAnnotationTool> m_annotationTool;
+    QPointer<RiuQwtPlotWidget>             m_plotWidget;
 
     QPointer<RiuQwtPlotZoomer>      m_zoomerLeft;
     QPointer<RiuQwtPlotZoomer>      m_zoomerRight;

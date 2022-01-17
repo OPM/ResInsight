@@ -22,6 +22,7 @@
 #include "RiaQDateTimeTools.h"
 #include "RiuGroupedBarChartBuilder.h"
 #include "RiuPlotMainWindowTools.h"
+#include "RiuQwtPlotItem.h"
 #include "RiuQwtPlotWidget.h"
 
 #include "RifSummaryReaderInterface.h"
@@ -40,6 +41,7 @@
 #include "cafPdmUiComboBoxEditor.h"
 #include "cafPdmUiTreeSelectionEditor.h"
 
+#include "qwt_plot.h"
 #include "qwt_plot_barchart.h"
 
 #include <limits>
@@ -176,19 +178,19 @@ void RimCorrelationPlot::onLoadDataAndUpdate()
 
     if ( m_plotWidget && m_analyserOfSelectedCurveDefs )
     {
-        m_plotWidget->detachItems( QwtPlotItem::Rtti_PlotBarChart );
-        m_plotWidget->detachItems( QwtPlotItem::Rtti_PlotScale );
+        m_plotWidget->qwtPlot()->detachItems( QwtPlotItem::Rtti_PlotBarChart );
+        m_plotWidget->qwtPlot()->detachItems( QwtPlotItem::Rtti_PlotScale );
 
         RiuGroupedBarChartBuilder chartBuilder;
 
         addDataToChartBuilder( chartBuilder );
 
-        chartBuilder.addBarChartToPlot( m_plotWidget,
+        chartBuilder.addBarChartToPlot( m_plotWidget->qwtPlot(),
                                         Qt::Horizontal,
                                         m_showOnlyTopNCorrelations() ? m_topNFilterCount() : -1 );
         chartBuilder.setLabelFontSize( labelFontSize() );
 
-        m_plotWidget->insertLegend( nullptr );
+        m_plotWidget->qwtPlot()->insertLegend( nullptr );
         m_plotWidget->updateLegend();
 
         this->updateAxes();
@@ -204,22 +206,30 @@ void RimCorrelationPlot::updateAxes()
 {
     if ( !m_plotWidget ) return;
 
-    m_plotWidget->setAxisTitleText( QwtPlot::yLeft, "Parameter" );
-    m_plotWidget->setAxisTitleEnabled( QwtPlot::yLeft, true );
-    m_plotWidget->setAxisFontsAndAlignment( QwtPlot::yLeft, axisTitleFontSize(), axisValueFontSize(), false, Qt::AlignCenter );
+    m_plotWidget->setAxisTitleText( RiaDefines::PlotAxis::PLOT_AXIS_LEFT, "Parameter" );
+    m_plotWidget->setAxisTitleEnabled( RiaDefines::PlotAxis::PLOT_AXIS_LEFT, true );
+    m_plotWidget->setAxisFontsAndAlignment( RiaDefines::PlotAxis::PLOT_AXIS_LEFT,
+                                            axisTitleFontSize(),
+                                            axisValueFontSize(),
+                                            false,
+                                            Qt::AlignCenter );
 
-    m_plotWidget->setAxisTitleText( QwtPlot::xBottom, "Pearson Correlation Coefficient" );
-    m_plotWidget->setAxisTitleEnabled( QwtPlot::xBottom, true );
-    m_plotWidget->setAxisFontsAndAlignment( QwtPlot::xBottom, axisTitleFontSize(), axisValueFontSize(), false, Qt::AlignCenter );
+    m_plotWidget->setAxisTitleText( RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM, "Pearson Correlation Coefficient" );
+    m_plotWidget->setAxisTitleEnabled( RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM, true );
+    m_plotWidget->setAxisFontsAndAlignment( RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM,
+                                            axisTitleFontSize(),
+                                            axisValueFontSize(),
+                                            false,
+                                            Qt::AlignCenter );
     if ( m_showAbsoluteValues )
     {
-        m_plotWidget->setAxisTitleText( QwtPlot::xBottom, "Pearson Correlation Coefficient ABS" );
-        m_plotWidget->setAxisRange( QwtPlot::xBottom, 0.0, 1.0 );
+        m_plotWidget->setAxisTitleText( RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM, "Pearson Correlation Coefficient ABS" );
+        m_plotWidget->setAxisRange( RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM, 0.0, 1.0 );
     }
     else
     {
-        m_plotWidget->setAxisTitleText( QwtPlot::xBottom, "Pearson Correlation Coefficient" );
-        m_plotWidget->setAxisRange( QwtPlot::xBottom, -1.0, 1.0 );
+        m_plotWidget->setAxisTitleText( RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM, "Pearson Correlation Coefficient" );
+        m_plotWidget->setAxisRange( RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM, -1.0, 1.0 );
     }
 }
 
@@ -273,9 +283,12 @@ void RimCorrelationPlot::updatePlotTitle()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimCorrelationPlot::onPlotItemSelected( QwtPlotItem* plotItem, bool toggle, int sampleIndex )
+void RimCorrelationPlot::onPlotItemSelected( std::shared_ptr<RiuPlotItem> plotItem, bool toggle, int sampleIndex )
 {
-    QwtPlotBarChart* barChart = dynamic_cast<QwtPlotBarChart*>( plotItem );
+    RiuQwtPlotItem* qwtPlotItem = dynamic_cast<RiuQwtPlotItem*>( plotItem.get() );
+    if ( !qwtPlotItem ) return;
+
+    QwtPlotBarChart* barChart = dynamic_cast<QwtPlotBarChart*>( qwtPlotItem->qwtPlotItem() );
     if ( barChart && !curveDefinitions().empty() )
     {
         auto curveDef = curveDefinitions().front();

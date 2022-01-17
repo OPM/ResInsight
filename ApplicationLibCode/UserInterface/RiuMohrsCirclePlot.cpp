@@ -20,9 +20,6 @@
 
 #include "RiaColorTables.h"
 
-#include "Riu3dSelectionManager.h"
-#include "RiuQwtPlotTools.h"
-
 #include "RigFemPart.h"
 #include "RigFemPartCollection.h"
 #include "RigFemPartGrid.h"
@@ -37,12 +34,14 @@
 #include "RimGeoMechResultDefinition.h"
 #include "RimGeoMechView.h"
 
+#include "Riu3dSelectionManager.h"
+#include "RiuQwtPlotTools.h"
+
 #include "cvfAssert.h"
 
 #include <QPainterPath>
 #include <QTimer>
 #include <QWidget>
-#include <qevent.h>
 
 #include "qwt_legend.h"
 #include "qwt_plot_curve.h"

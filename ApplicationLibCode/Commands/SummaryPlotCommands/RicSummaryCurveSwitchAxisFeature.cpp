@@ -67,7 +67,7 @@ void RicSummaryCurveSwitchAxisFeature::onActionTriggered( bool isChecked )
             summaryCurve->setLeftOrRightAxisY( RiaDefines::PlotAxis::PLOT_AXIS_LEFT );
         }
 
-        summaryCurve->updateQwtPlotAxis();
+        summaryCurve->updatePlotAxis();
         summaryCurve->updateConnectedEditors();
 
         RimSummaryPlot* plot = nullptr;

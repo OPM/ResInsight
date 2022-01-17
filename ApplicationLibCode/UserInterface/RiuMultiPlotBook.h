@@ -17,7 +17,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
-#include "RiuInterfaceToViewWindow.h"
 #include "RiuMultiPlotPage.h"
 
 #include "cafPdmPointer.h"
@@ -35,7 +34,7 @@
 class RiaPlotWindowRedrawScheduler;
 class RimMultiPlot;
 class RiuMultiPlotPage;
-class RiuQwtPlotWidget;
+class RiuPlotWidget;
 
 class BookFrame;
 class QFocusEvent;
@@ -63,9 +62,9 @@ public:
 
     RimViewWindow* ownerViewWindow() const override;
 
-    void addPlot( RiuQwtPlotWidget* plotWidget );
-    void insertPlot( RiuQwtPlotWidget* plotWidget, size_t index );
-    void removePlot( RiuQwtPlotWidget* plotWidget );
+    void addPlot( RiuPlotWidget* plotWidget );
+    void insertPlot( RiuPlotWidget* plotWidget, size_t index );
+    void removePlot( RiuPlotWidget* plotWidget );
     void removeAllPlots();
 
     void setPlotTitle( const QString& plotTitle );
@@ -77,7 +76,7 @@ public:
     void setLegendFontSize( int legendFontSize );
     void setAxisFontSizes( int axisTitleFontSize, int axisValueFontSize );
 
-    int indexOfPlotWidget( RiuQwtPlotWidget* plotWidget );
+    int indexOfPlotWidget( RiuPlotWidget* plotWidget );
 
     bool pagePreviewModeEnabled() const;
     void setPagePreviewModeEnabled( bool previewMode );
@@ -100,7 +99,7 @@ protected:
 
     virtual bool showYAxis( int row, int column ) const;
 
-    QList<QPointer<RiuQwtPlotWidget>> visiblePlotWidgets() const;
+    QList<QPointer<RiuPlotWidget>> visiblePlotWidgets() const;
 
 private:
     void                                     deleteAllPages();
@@ -120,7 +119,7 @@ protected:
     QPointer<QVBoxLayout> m_bookLayout;
 
     QList<QPointer<RiuMultiPlotPage>> m_pages;
-    QList<QPointer<RiuQwtPlotWidget>> m_plotWidgets;
+    QList<QPointer<RiuPlotWidget>>    m_plotWidgets;
     caf::PdmPointer<RimMultiPlot>     m_plotDefinition;
     QString                           m_plotTitle;
     bool                              m_titleVisible;

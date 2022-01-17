@@ -19,6 +19,7 @@
 #pragma once
 
 #include "RimAbstractPlotCollection.h"
+#include "RimPlot.h"
 #include "RimPlotAxisPropertiesInterface.h"
 #include "RimPlotWindow.h"
 

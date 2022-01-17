@@ -93,6 +93,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimPlotAxisPropertiesInterface.h
     ${CMAKE_CURRENT_LIST_DIR}/RimPlotAxisProperties.h
     ${CMAKE_CURRENT_LIST_DIR}/RimPlotAxisAnnotation.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimPlotAxisLogRangeCalculator.h
     ${CMAKE_CURRENT_LIST_DIR}/RimObservedDataCollection.h
     ${CMAKE_CURRENT_LIST_DIR}/RimObservedFmuRftData.h
     ${CMAKE_CURRENT_LIST_DIR}/RimMultiPlotCollection.h
@@ -213,6 +214,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimPlotAxisPropertiesInterface.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimPlotAxisProperties.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimPlotAxisAnnotation.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimPlotAxisLogRangeCalculator.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimObservedDataCollection.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimObservedFmuRftData.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimMultiPlotCollection.cpp
@@ -235,7 +237,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimSurfaceIntersectionCollection.cpp
 )
 
-if(Qt5Charts_FOUND)
+if(RESINSIGHT_USE_QT_CHARTS)
   list(
     APPEND
     SOURCE_GROUP_HEADER_FILES

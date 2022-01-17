@@ -21,6 +21,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiaFeatureCommandContext.h
     ${CMAKE_CURRENT_LIST_DIR}/RiaStringListSerializer.h
     ${CMAKE_CURRENT_LIST_DIR}/RiaNncDefines.h
+    ${CMAKE_CURRENT_LIST_DIR}/RiaPlotDefines.h
     ${CMAKE_CURRENT_LIST_DIR}/RiaStimPlanModelDefines.h
     ${CMAKE_CURRENT_LIST_DIR}/RiaResultNames.h
     ${CMAKE_CURRENT_LIST_DIR}/RiaNumberFormat.h
@@ -49,6 +50,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiaFeatureCommandContext.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaStringListSerializer.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaNncDefines.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RiaPlotDefines.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaStimPlanModelDefines.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaResultNames.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaNumberFormat.cpp

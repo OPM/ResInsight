@@ -18,16 +18,18 @@
 
 #include "RiuRelativePermeabilityPlotPanel.h"
 
-#include "RiaCurveDataTools.h"
-#include "RiaEclipseUnitTools.h"
-#include "RiaResultNames.h"
-
 #include "RigFlowDiagSolverInterface.h"
 
+#include "RiaCurveDataTools.h"
+#include "RiaEclipseUnitTools.h"
+#include "RiaPlotDefines.h"
+#include "RiaResultNames.h"
 #include "RiuDockedQwtPlot.h"
 #include "RiuGuiTheme.h"
+#include "RiuPlotCurveSymbol.h"
 #include "RiuQwtPlotCurve.h"
 #include "RiuQwtPlotTools.h"
+#include "RiuQwtSymbol.h"
 #include "RiuRelativePermeabilityPlotUpdater.h"
 #include "RiuTextDialog.h"
 
@@ -39,7 +41,6 @@
 #include "qwt_plot_curve.h"
 #include "qwt_plot_marker.h"
 #include "qwt_scale_engine.h"
-#include "qwt_symbol.h"
 
 #include <QButtonGroup>
 #include <QCheckBox>
@@ -363,11 +364,9 @@ void RiuRelativePermeabilityPlotPanel::plotCurvesInQwt( RiaDefines::EclipseUnitS
             plotOnWhichYAxis = RIGHT_YAXIS;
         }
 
-        // QwtPlotCurve* qwtCurve = new QwtPlotCurve(curve.name.c_str());
-        RiuQwtPlotCurve* qwtCurve = new RiuQwtPlotCurve( curve.name.c_str() );
+        RiuQwtPlotCurve* qwtCurve = new RiuQwtPlotCurve( nullptr, curve.name.c_str() );
 
         CVF_ASSERT( curve.saturationVals.size() == curve.yVals.size() );
-        // qwtCurve->setSamples(curve.xVals.data(), curve.yVals.data(), static_cast<int>(curve.xVals.size()));
         const bool includePositiveValuesOnly = ( logScaleLeftAxis && plotOnWhichYAxis == LEFT_YAXIS );
         qwtCurve->setSamplesFromXValuesAndYValues( curve.saturationVals, curve.yVals, includePositiveValuesOnly );
 
@@ -403,7 +402,7 @@ void RiuRelativePermeabilityPlotPanel::plotCurvesInQwt( RiaDefines::EclipseUnitS
         const QPen curvePen( QBrush(), 1, penStyle );
         qwtCurve->setPen( curvePen );
 
-        QwtSymbol* curveSymbol = new QwtSymbol( QwtSymbol::Ellipse );
+        RiuQwtSymbol* curveSymbol = new RiuQwtSymbol( RiuPlotCurveSymbol::SYMBOL_ELLIPSE );
         curveSymbol->setSize( 6, 6 );
         curveSymbol->setBrush( Qt::NoBrush );
         qwtCurve->setSymbol( curveSymbol );
@@ -416,7 +415,7 @@ void RiuRelativePermeabilityPlotPanel::plotCurvesInQwt( RiaDefines::EclipseUnitS
 
         if ( plotOnWhichYAxis == RIGHT_YAXIS )
         {
-            qwtCurve->setYAxis( QwtPlot::yRight );
+            qwtCurve->setYAxis( RiaDefines::PlotAxis::PLOT_AXIS_RIGHT );
             shouldEnableRightYAxis = true;
         }
 

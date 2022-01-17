@@ -61,7 +61,8 @@ public:
     RimEnsembleCurveSet*      caseFilterDataSource() const;
     void                      setCaseFilterDataSource( RimEnsembleCurveSet* ensemble );
 
-    RiuQwtPlotWidget* viewer() override;
+    RiuQwtPlotWidget* viewer();
+    RiuPlotWidget*    plotWidget() override;
     void              detachAllCurves() override;
     QDateTime         timeStep() const;
     QString           timeStepString() const;
@@ -103,17 +104,14 @@ protected:
     void    doUpdateLayout() override {}
 
     // RimPlot Overrides
-    RiuQwtPlotWidget* doCreatePlotViewWidget( QWidget* mainWindowParent = nullptr ) override;
+    RiuPlotWidget* doCreatePlotViewWidget( QWidget* mainWindowParent = nullptr ) override;
 
     void reattachAllCurves() override {}
-    void updateZoomInQwt() override {}
-    void updateZoomFromQwt() override {}
     void setAutoScaleXEnabled( bool enabled ) override {}
     void setAutoScaleYEnabled( bool enabled ) override {}
     void updateLegend() override;
 
-    QString         asciiDataForPlotExport() const override { return ""; }
-    caf::PdmObject* findPdmObjectFromQwtCurve( const QwtPlotCurve* curve ) const override { return nullptr; }
+    QString asciiDataForPlotExport() const override { return ""; }
 
     void         cleanupBeforeClose();
     virtual void updatePlotTitle() = 0;

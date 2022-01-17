@@ -39,6 +39,7 @@
 #include "RimSummaryCaseCollection.h"
 #include "RimSummaryPlotAxisFormatter.h"
 
+#include "RiuPlotCurve.h"
 #include "RiuPlotMainWindowTools.h"
 #include "RiuQwtPlotCurve.h"
 #include "RiuSummaryQwtPlot.h"
@@ -49,6 +50,7 @@
 #include "cafPdmUiPushButtonEditor.h"
 
 #include "qwt_legend.h"
+#include "qwt_plot.h"
 #include "qwt_plot_curve.h"
 #include "qwt_scale_engine.h"
 
@@ -168,7 +170,7 @@ void RimParameterResultCrossPlot::onLoadDataAndUpdate()
         if ( m_showPlotLegends && !isSubPlot<RimMultiPlot>() )
         {
             QwtLegend* legend = new QwtLegend( m_plotWidget );
-            m_plotWidget->insertLegend( legend, QwtPlot::RightLegend );
+            m_plotWidget->qwtPlot()->insertLegend( legend, QwtPlot::RightLegend );
             m_plotWidget->setLegendFontSize( legendFontSize() );
             m_plotWidget->updateLegend();
         }
@@ -186,19 +188,31 @@ void RimParameterResultCrossPlot::updateAxes()
 {
     if ( !m_plotWidget ) return;
 
-    m_plotWidget->setAxisTitleText( QwtPlot::yLeft, completeAddressText() );
-    m_plotWidget->setAxisTitleEnabled( QwtPlot::yLeft, true );
-    m_plotWidget->setAxisFontsAndAlignment( QwtPlot::yLeft, axisTitleFontSize(), axisValueFontSize(), false, Qt::AlignCenter );
+    m_plotWidget->setAxisTitleText( RiaDefines::PlotAxis::PLOT_AXIS_LEFT, completeAddressText() );
+    m_plotWidget->setAxisTitleEnabled( RiaDefines::PlotAxis::PLOT_AXIS_LEFT, true );
+    m_plotWidget->setAxisFontsAndAlignment( RiaDefines::PlotAxis::PLOT_AXIS_LEFT,
+                                            axisTitleFontSize(),
+                                            axisValueFontSize(),
+                                            false,
+                                            Qt::AlignCenter );
 
     double yRangeWidth = m_yRange.second - m_yRange.first;
-    m_plotWidget->setAxisRange( QwtPlot::yLeft, m_yRange.first - yRangeWidth * 0.1, m_yRange.second + yRangeWidth * 0.1 );
+    m_plotWidget->setAxisRange( RiaDefines::PlotAxis::PLOT_AXIS_LEFT,
+                                m_yRange.first - yRangeWidth * 0.1,
+                                m_yRange.second + yRangeWidth * 0.1 );
 
-    m_plotWidget->setAxisTitleText( QwtPlot::xBottom, m_ensembleParameter );
-    m_plotWidget->setAxisTitleEnabled( QwtPlot::xBottom, true );
-    m_plotWidget->setAxisFontsAndAlignment( QwtPlot::xBottom, axisTitleFontSize(), axisValueFontSize(), false, Qt::AlignCenter );
+    m_plotWidget->setAxisTitleText( RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM, m_ensembleParameter );
+    m_plotWidget->setAxisTitleEnabled( RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM, true );
+    m_plotWidget->setAxisFontsAndAlignment( RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM,
+                                            axisTitleFontSize(),
+                                            axisValueFontSize(),
+                                            false,
+                                            Qt::AlignCenter );
 
     double xRangeWidth = m_xRange.second - m_xRange.first;
-    m_plotWidget->setAxisRange( QwtPlot::xBottom, m_xRange.first - xRangeWidth * 0.1, m_xRange.second + xRangeWidth * 0.1 );
+    m_plotWidget->setAxisRange( RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM,
+                                m_xRange.first - xRangeWidth * 0.1,
+                                m_xRange.second + xRangeWidth * 0.1 );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -295,10 +309,10 @@ void RimParameterResultCrossPlot::createPoints()
                     m_yRange.second = std::max( m_yRange.second, closestValue );
 
                     RiuQwtPlotCurve* plotCurve = new RiuQwtPlotCurve;
-                    plotCurve->setSamples( parameterValues.data(), caseValuesAtTimestep.data(), (int)parameterValues.size() );
+                    plotCurve->setSamplesValues( parameterValues, caseValuesAtTimestep );
                     plotCurve->setStyle( QwtPlotCurve::NoCurve );
                     RiuQwtSymbol* symbol =
-                        new RiuQwtSymbol( RiuQwtSymbol::cycledSymbolStyle( ensembleIdx, addressIdx ), "" );
+                        new RiuQwtSymbol( RiuPlotCurveSymbol::cycledSymbolStyle( ensembleIdx, addressIdx ), "" );
                     symbol->setSize( legendFontSize(), legendFontSize() );
                     symbol->setColor( colorTable.cycledQColor( caseIdx ) );
                     plotCurve->setSymbol( symbol );
@@ -309,7 +323,7 @@ void RimParameterResultCrossPlot::createPoints()
 
                     plotCurve->setTitle( curveName.join( " - " ) );
 
-                    plotCurve->attach( m_plotWidget );
+                    plotCurve->attach( m_plotWidget->qwtPlot() );
                 }
             }
             addressIdx++;

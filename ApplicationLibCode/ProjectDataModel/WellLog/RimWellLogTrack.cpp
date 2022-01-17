@@ -344,7 +344,7 @@ void RimWellLogTrack::detachAllPlotItems()
 {
     for ( RimPlotCurve* curve : m_curves )
     {
-        curve->detachQwtCurve();
+        curve->detach();
     }
     for ( auto& plotObjects : m_wellPathAttributePlotObjects )
     {
@@ -493,7 +493,7 @@ void RimWellLogTrack::updateXZoom()
         componentRangeMax *= 1.5;
     }
 
-    m_plotWidget->setAxisRange( QwtPlot::xBottom, componentRangeMin, componentRangeMax );
+    m_plotWidget->setAxisRange( RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM, componentRangeMin, componentRangeMax );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -503,7 +503,7 @@ void RimWellLogTrack::updateYZoom()
 {
     if ( !m_plotWidget ) return;
 
-    m_plotWidget->setAxisRange( QwtPlot::yLeft, m_visibleDepthRangeMin(), m_visibleDepthRangeMax() );
+    m_plotWidget->setAxisRange( RiaDefines::PlotAxis::PLOT_AXIS_LEFT, m_visibleDepthRangeMin(), m_visibleDepthRangeMax() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -540,8 +540,8 @@ void RimWellLogTrack::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
     {
         if ( m_plotWidget )
         {
-            m_majorTickInterval = m_plotWidget->majorTickInterval( QwtPlot::xTop );
-            m_minorTickInterval = m_plotWidget->minorTickInterval( QwtPlot::xTop );
+            m_majorTickInterval = m_plotWidget->majorTickInterval( RiaDefines::PlotAxis::PLOT_AXIS_TOP );
+            m_minorTickInterval = m_plotWidget->minorTickInterval( RiaDefines::PlotAxis::PLOT_AXIS_TOP );
         }
         m_majorTickInterval.uiCapability()->setUiHidden( !m_explicitTickIntervals() );
         m_minorTickInterval.uiCapability()->setUiHidden( !m_explicitTickIntervals() );
@@ -762,13 +762,13 @@ void RimWellLogTrack::updateXAxisAndGridTickIntervals()
     bool emptyRange = isEmptyVisibleXRange();
     if ( emptyRange )
     {
-        m_plotWidget->enableGridLines( QwtPlot::xTop, false, false );
-        m_plotWidget->setAxisRange( QwtPlot::xTop, 0.0, 1.0 );
-        m_plotWidget->setAxisLabelsAndTicksEnabled( QwtPlot::xTop, false, false );
+        m_plotWidget->enableGridLines( RiaDefines::PlotAxis::PLOT_AXIS_TOP, false, false );
+        m_plotWidget->setAxisRange( RiaDefines::PlotAxis::PLOT_AXIS_TOP, 0.0, 1.0 );
+        m_plotWidget->setAxisLabelsAndTicksEnabled( RiaDefines::PlotAxis::PLOT_AXIS_TOP, false, false );
     }
     else
     {
-        m_plotWidget->setAxisLabelsAndTicksEnabled( QwtPlot::xTop, true, true );
+        m_plotWidget->setAxisLabelsAndTicksEnabled( RiaDefines::PlotAxis::PLOT_AXIS_TOP, true, true );
         if ( m_minAndMaxTicksOnly )
         {
             auto roundToDigits = []( double value, int numberOfDigits, bool useFloor ) {
@@ -803,11 +803,11 @@ void RimWellLogTrack::updateXAxisAndGridTickIntervals()
 
             div.setTicks( QwtScaleDiv::TickType::MajorTick, majorTicks );
 
-            m_plotWidget->setAxisScaleDiv( QwtPlot::xTop, div );
+            m_plotWidget->qwtPlot()->setAxisScaleDiv( QwtPlot::xTop, div );
         }
         else if ( m_explicitTickIntervals )
         {
-            m_plotWidget->setMajorAndMinorTickIntervals( QwtPlot::xTop,
+            m_plotWidget->setMajorAndMinorTickIntervals( RiaDefines::PlotAxis::PLOT_AXIS_TOP,
                                                          m_majorTickInterval(),
                                                          m_minorTickInterval(),
                                                          m_visibleXRangeMin(),
@@ -817,11 +817,13 @@ void RimWellLogTrack::updateXAxisAndGridTickIntervals()
         {
             int majorTickIntervals = 5;
             int minorTickIntervals = 10;
-            m_plotWidget->setAutoTickIntervalCounts( QwtPlot::xTop, majorTickIntervals, minorTickIntervals );
-            m_plotWidget->setAxisRange( QwtPlot::xTop, m_visibleXRangeMin, m_visibleXRangeMax );
+            m_plotWidget->setAutoTickIntervalCounts( RiaDefines::PlotAxis::PLOT_AXIS_TOP,
+                                                     majorTickIntervals,
+                                                     minorTickIntervals );
+            m_plotWidget->setAxisRange( RiaDefines::PlotAxis::PLOT_AXIS_TOP, m_visibleXRangeMin, m_visibleXRangeMax );
         }
 
-        m_plotWidget->enableGridLines( QwtPlot::xTop,
+        m_plotWidget->enableGridLines( RiaDefines::PlotAxis::PLOT_AXIS_TOP,
                                        m_xAxisGridVisibility() & RimWellLogPlot::AXIS_GRID_MAJOR,
                                        m_xAxisGridVisibility() & RimWellLogPlot::AXIS_GRID_MINOR );
     }
@@ -830,7 +832,7 @@ void RimWellLogTrack::updateXAxisAndGridTickIntervals()
     this->firstAncestorOrThisOfType( wellLogPlot );
     if ( wellLogPlot )
     {
-        m_plotWidget->enableGridLines( QwtPlot::yLeft,
+        m_plotWidget->enableGridLines( RiaDefines::PlotAxis::PLOT_AXIS_LEFT,
                                        wellLogPlot->depthAxisGridLinesEnabled() & RimWellLogPlot::AXIS_GRID_MAJOR,
                                        wellLogPlot->depthAxisGridLinesEnabled() & RimWellLogPlot::AXIS_GRID_MINOR );
     }
@@ -1004,15 +1006,15 @@ QString RimWellLogTrack::asciiDataForPlotExport() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellLogTrack::updateZoomFromQwt()
+void RimWellLogTrack::updateZoomFromParentPlot()
 {
-    QwtInterval xInterval     = m_plotWidget->axisRange( QwtPlot::xTop );
-    QwtInterval depthInterval = m_plotWidget->axisRange( QwtPlot::yLeft );
+    auto [xIntervalMin, xIntervalMax]         = m_plotWidget->axisRange( RiaDefines::PlotAxis::PLOT_AXIS_TOP );
+    auto [depthIntervalMin, depthIntervalMax] = m_plotWidget->axisRange( RiaDefines::PlotAxis::PLOT_AXIS_LEFT );
 
-    m_visibleXRangeMin     = xInterval.minValue();
-    m_visibleXRangeMax     = xInterval.maxValue();
-    m_visibleDepthRangeMin = depthInterval.minValue();
-    m_visibleDepthRangeMax = depthInterval.maxValue();
+    m_visibleXRangeMin     = xIntervalMin;
+    m_visibleXRangeMax     = xIntervalMax;
+    m_visibleDepthRangeMin = depthIntervalMin;
+    m_visibleDepthRangeMax = depthIntervalMax;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1120,7 +1122,7 @@ void RimWellLogTrack::addCurve( RimWellLogCurve* curve )
 
     if ( m_plotWidget )
     {
-        curve->setParentQwtPlotAndReplot( m_plotWidget );
+        curve->setParentPlotAndReplot( m_plotWidget );
     }
 }
 
@@ -1141,7 +1143,7 @@ void RimWellLogTrack::insertCurve( RimWellLogCurve* curve, size_t index )
 
         if ( m_plotWidget )
         {
-            curve->setParentQwtPlotAndReplot( m_plotWidget );
+            curve->setParentPlotAndReplot( m_plotWidget );
         }
     }
 }
@@ -1154,7 +1156,7 @@ void RimWellLogTrack::removeCurve( RimWellLogCurve* curve )
     size_t index = m_curves.index( curve );
     if ( index < m_curves.size() )
     {
-        m_curves[index]->detachQwtCurve();
+        m_curves[index]->detach();
         m_curves.removeChildObject( curve );
     }
 }
@@ -1226,8 +1228,8 @@ void RimWellLogTrack::onLoadDataAndUpdate()
 
     if ( wellLogPlot && m_plotWidget )
     {
-        m_plotWidget->setAxisTitleText( QwtPlot::xTop, m_xAxisTitle );
-        m_plotWidget->setAxisTitleText( QwtPlot::yLeft, wellLogPlot->depthAxisTitle() );
+        m_plotWidget->setAxisTitleText( RiaDefines::PlotAxis::PLOT_AXIS_TOP, m_xAxisTitle );
+        m_plotWidget->setAxisTitleText( RiaDefines::PlotAxis::PLOT_AXIS_LEFT, wellLogPlot->depthAxisTitle() );
     }
 
     for ( size_t cIdx = 0; cIdx < m_curves.size(); ++cIdx )
@@ -1500,17 +1502,17 @@ RimWellLogTrack::TrajectoryType RimWellLogTrack::formationTrajectoryType() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuQwtPlotWidget* RimWellLogTrack::doCreatePlotViewWidget( QWidget* mainWindowParent )
+RiuPlotWidget* RimWellLogTrack::doCreatePlotViewWidget( QWidget* mainWindowParent )
 {
     if ( m_plotWidget == nullptr )
     {
         m_plotWidget = new RiuWellLogTrack( this, mainWindowParent );
-        m_plotWidget->setAxisInverted( QwtPlot::yLeft );
+        m_plotWidget->setAxisInverted( RiaDefines::PlotAxis::PLOT_AXIS_LEFT, true );
         updateAxisScaleEngine();
 
         for ( size_t cIdx = 0; cIdx < m_curves.size(); ++cIdx )
         {
-            m_curves[cIdx]->setParentQwtPlotNoReplot( this->m_plotWidget );
+            m_curves[cIdx]->setParentPlotNoReplot( m_plotWidget );
         }
     }
     return m_plotWidget;
@@ -1539,8 +1541,9 @@ void RimWellLogTrack::reattachAllCurves()
 {
     for ( RimPlotCurve* curve : m_curves )
     {
-        curve->reattachQwtCurve();
+        curve->reattach();
     }
+
     for ( auto& plotObjects : m_wellPathAttributePlotObjects )
     {
         plotObjects->reattachToQwt();
@@ -1597,7 +1600,7 @@ void RimWellLogTrack::setVisibleYRange( double minValue, double maxValue )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellLogTrack::updateZoomInQwt()
+void RimWellLogTrack::updateZoomInParentPlot()
 {
     updateXZoom();
     updateYZoom();
@@ -1770,6 +1773,14 @@ RiuQwtPlotWidget* RimWellLogTrack::viewer()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RiuPlotWidget* RimWellLogTrack::plotWidget()
+{
+    return m_plotWidget;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QImage RimWellLogTrack::snapshotWindowContent()
 {
     QImage image;
@@ -1790,17 +1801,17 @@ void RimWellLogTrack::zoomAll()
 {
     setAutoScaleXEnabled( true );
     setAutoScaleYEnabled( true );
-    updateZoomInQwt();
+    updateZoomInParentPlot();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PdmObject* RimWellLogTrack::findPdmObjectFromQwtCurve( const QwtPlotCurve* curve ) const
+caf::PdmObject* RimWellLogTrack::findPdmObjectFromPlotCurve( const RiuPlotCurve* curve ) const
 {
     for ( size_t idx = 0; idx < m_curves.size(); idx++ )
     {
-        if ( m_curves[idx]->qwtPlotCurve() == curve )
+        if ( m_curves[idx]->isSameCurve( curve ) )
         {
             return m_curves[idx];
         }
@@ -1965,17 +1976,17 @@ void RimWellLogTrack::updateAxisScaleEngine()
 
     if ( m_isLogarithmicScaleEnabled )
     {
-        m_plotWidget->setAxisScaleEngine( QwtPlot::xTop, new QwtLogScaleEngine );
+        m_plotWidget->qwtPlot()->setAxisScaleEngine( QwtPlot::xTop, new QwtLogScaleEngine );
 
         // NB! Must assign scale engine to bottom in order to make QwtPlotGrid work
-        m_plotWidget->setAxisScaleEngine( QwtPlot::xBottom, new QwtLogScaleEngine );
+        m_plotWidget->qwtPlot()->setAxisScaleEngine( QwtPlot::xBottom, new QwtLogScaleEngine );
     }
     else
     {
-        m_plotWidget->setAxisScaleEngine( QwtPlot::xTop, new RiuQwtLinearScaleEngine );
+        m_plotWidget->qwtPlot()->setAxisScaleEngine( QwtPlot::xTop, new RiuQwtLinearScaleEngine );
 
         // NB! Must assign scale engine to bottom in order to make QwtPlotGrid work
-        m_plotWidget->setAxisScaleEngine( QwtPlot::xBottom, new RiuQwtLinearScaleEngine );
+        m_plotWidget->qwtPlot()->setAxisScaleEngine( QwtPlot::xBottom, new RiuQwtLinearScaleEngine );
     }
 }
 
@@ -2030,7 +2041,7 @@ void RimWellLogTrack::handleWheelEvent( QWheelEvent* event )
     {
         if ( event->modifiers() & Qt::ControlModifier )
         {
-            QwtScaleMap scaleMap   = m_plotWidget->canvasMap( QwtPlot::yLeft );
+            QwtScaleMap scaleMap   = m_plotWidget->qwtPlot()->canvasMap( QwtPlot::yLeft );
             double      zoomCenter = scaleMap.invTransform( event->pos().y() );
 
             if ( event->delta() > 0 )
@@ -2606,7 +2617,7 @@ void RimWellLogTrack::updateFormationNamesOnPlot()
         std::vector<double> convertedYValues =
             RiaWellLogUnitTools<double>::convertDepths( yValues, fromDepthUnit, toDepthUnit );
 
-        m_annotationTool->attachWellPicks( m_plotWidget, formationNamesToPlot, convertedYValues );
+        m_annotationTool->attachWellPicks( m_plotWidget->qwtPlot(), formationNamesToPlot, convertedYValues );
     }
     else
     {
@@ -2674,7 +2685,7 @@ void RimWellLogTrack::updateFormationNamesOnPlot()
             const std::vector<std::pair<double, double>> convertedYValues =
                 RiaWellLogUnitTools<double>::convertDepths( waterAndRockIntervals, fromDepthUnit, toDepthUnit );
 
-            m_annotationTool->attachNamedRegions( m_plotWidget,
+            m_annotationTool->attachNamedRegions( m_plotWidget->qwtPlot(),
                                                   { "Sea Level", "" },
                                                   xRange,
                                                   convertedYValues,
@@ -2686,7 +2697,7 @@ void RimWellLogTrack::updateFormationNamesOnPlot()
                                                   { Qt::SolidPattern, Qt::Dense6Pattern } );
         }
 
-        if ( m_formationSource == CASE )
+        if ( m_formationSource == CASE && m_plotWidget )
         {
             if ( ( m_formationSimWellName == QString( "None" ) && m_formationWellPathForSourceCase == nullptr ) ||
                  m_formationCase == nullptr )
@@ -2719,7 +2730,7 @@ void RimWellLogTrack::updateFormationNamesOnPlot()
                 RiaWellLogUnitTools<double>::convertDepths( yValues, fromDepthUnit, toDepthUnit );
 
             caf::ColorTable colorTable( m_colorShadingLegend->colorArray() );
-            m_annotationTool->attachNamedRegions( m_plotWidget,
+            m_annotationTool->attachNamedRegions( m_plotWidget->qwtPlot(),
                                                   formationNamesToPlot,
                                                   xRange,
                                                   convertedYValues,
@@ -2847,7 +2858,7 @@ void RimWellLogTrack::updateResultPropertyNamesOnPlot()
         int fontSize = caf::FontTools::absolutePointSize( RiaPreferences::current()->defaultPlotFontSize(),
                                                           m_regionLabelFontSize() );
 
-        m_annotationTool->attachNamedRegions( m_plotWidget,
+        m_annotationTool->attachNamedRegions( m_plotWidget->qwtPlot(),
                                               namesToPlot,
                                               xRange,
                                               convertedYValues,
@@ -2924,7 +2935,7 @@ void RimWellLogTrack::updateCurveDataRegionsOnPlot()
                 std::vector<std::pair<double, double>> convertedYValues =
                     RiaWellLogUnitTools<double>::convertDepths( yValues, fromDepthUnit, toDepthUnit );
 
-                m_annotationTool->attachNamedRegions( m_plotWidget,
+                m_annotationTool->attachNamedRegions( m_plotWidget->qwtPlot(),
                                                       sourceNamesToPlot,
                                                       xRange,
                                                       convertedYValues,
@@ -2955,7 +2966,7 @@ void RimWellLogTrack::updateCurveDataRegionsOnPlot()
                 std::vector<std::pair<double, double>> convertedYValues =
                     RiaWellLogUnitTools<double>::convertDepths( yValues, fromDepthUnit, toDepthUnit );
 
-                m_annotationTool->attachNamedRegions( m_plotWidget,
+                m_annotationTool->attachNamedRegions( m_plotWidget->qwtPlot(),
                                                       sourceNamesToPlot,
                                                       xRange,
                                                       convertedYValues,
@@ -2985,7 +2996,7 @@ void RimWellLogTrack::updateCurveDataRegionsOnPlot()
                 std::vector<std::pair<double, double>> convertedYValues =
                     RiaWellLogUnitTools<double>::convertDepths( yValues, fromDepthUnit, toDepthUnit );
 
-                m_annotationTool->attachNamedRegions( m_plotWidget,
+                m_annotationTool->attachNamedRegions( m_plotWidget->qwtPlot(),
                                                       sourceNamesToPlot,
                                                       xRange,
                                                       convertedYValues,
@@ -3084,7 +3095,7 @@ void RimWellLogTrack::updateWellPathAttributesOnPlot()
             attributePlotObject->setDepthType( depthType );
             attributePlotObject->setShowLabel( m_showWellPathComponentLabels() );
             attributePlotObject->loadDataAndUpdate( false );
-            attributePlotObject->setParentQwtPlotNoReplot( m_plotWidget );
+            attributePlotObject->setParentPlotNoReplot( m_plotWidget->qwtPlot() );
         }
     }
     updateXZoom();
@@ -3117,7 +3128,7 @@ void RimWellLogTrack::onChildDeleted( caf::PdmChildArrayFieldHandle*      childA
                                       std::vector<caf::PdmObjectHandle*>& referringObjects )
 {
     setAutoScaleXEnabled( true );
-    updateZoomInQwt();
+    updateZoomInParentPlot();
     RiuPlotMainWindow* mainPlotWindow = RiaGuiApplication::instance()->mainPlotWindow();
     mainPlotWindow->updateWellLogPlotToolBar();
 }

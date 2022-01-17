@@ -21,7 +21,7 @@
 #include "cafPdmChildField.h"
 #include "cafPdmObject.h"
 
-#include "RiaDefines.h"
+#include "RiaPlotDefines.h"
 #include "RimNameConfig.h"
 #include "RimPlot.h"
 
@@ -34,6 +34,7 @@ class RimPlotAxisProperties;
 class RimGridCrossPlotDataSet;
 class RiuDraggableOverlayFrame;
 class RiuGridCrossQwtPlot;
+class RimPlotCurve;
 
 class RimGridCrossPlotNameConfig : public RimNameConfig
 {
@@ -69,8 +70,8 @@ public:
 
     std::vector<RimGridCrossPlotDataSet*> dataSets() const;
 
-    QWidget*          viewWidget() override;
-    RiuQwtPlotWidget* viewer() override;
+    QWidget*       viewWidget() override;
+    RiuPlotWidget* plotWidget() override;
 
     QImage  snapshotWindowContent() override;
     void    zoomAll() override;
@@ -98,12 +99,12 @@ public:
 
     void updateLegend() override;
 
-    void updateZoomInQwt() override;
-    void updateZoomFromQwt() override;
+    void updateZoomInParentPlot() override;
+    void updateZoomFromParentPlot() override;
 
     void            setAutoScaleXEnabled( bool enabled ) override;
     void            setAutoScaleYEnabled( bool enabled ) override;
-    caf::PdmObject* findPdmObjectFromQwtCurve( const QwtPlotCurve* curve ) const override;
+    caf::PdmObject* findPdmObjectFromPlotCurve( const RiuPlotCurve* curve ) const override;
     void            onAxisSelected( int axis, bool toggle ) override;
 
     bool isDeletable() const override;
@@ -124,7 +125,7 @@ protected:
 
     void                             updateAxisInQwt( RiaDefines::PlotAxis axisType );
     void                             updateAxisFromQwt( RiaDefines::PlotAxis axisType );
-    std::vector<const QwtPlotCurve*> visibleQwtCurves() const;
+    std::vector<const RimPlotCurve*> visibleCurves() const;
 
     RimPlotAxisProperties* xAxisProperties();
     RimPlotAxisProperties* yAxisProperties();
@@ -135,7 +136,7 @@ protected:
     std::set<RimPlotAxisPropertiesInterface*> allPlotAxes() const;
 
 private:
-    RiuQwtPlotWidget* doCreatePlotViewWidget( QWidget* mainWindowParent = nullptr ) override;
+    RiuPlotWidget* doCreatePlotViewWidget( QWidget* mainWindowParent = nullptr ) override;
 
     void doUpdateLayout() override;
     void cleanupBeforeClose();

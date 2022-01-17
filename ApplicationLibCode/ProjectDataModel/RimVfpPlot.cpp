@@ -18,6 +18,7 @@
 
 #include "RimVfpPlot.h"
 
+#include "RiaDefines.h"
 #include "RimVfpDefines.h"
 #include "RimVfpTableExtractor.h"
 
@@ -25,17 +26,14 @@
 #include "RiaEclipseUnitTools.h"
 
 #include "RiuContextMenuLauncher.h"
-#include "RiuQwtPlotTools.h"
+#include "RiuPlotCurve.h"
+#include "RiuPlotWidget.h"
+#include "RiuQwtPlotCurveDefines.h"
 #include "RiuQwtPlotWidget.h"
 
+#include "RiuQwtSymbol.h"
 #include "cafCmdFeatureMenuBuilder.h"
 #include "cafPdmUiComboBoxEditor.h"
-
-#include "qwt_legend.h"
-#include "qwt_legend_label.h"
-#include "qwt_plot.h"
-#include "qwt_plot_curve.h"
-#include "qwt_symbol.h"
 
 #include <QFileInfo>
 
@@ -169,7 +167,7 @@ void RimVfpPlot::setFileName( const QString& filename )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuQwtPlotWidget* RimVfpPlot::viewer()
+RiuPlotWidget* RimVfpPlot::plotWidget()
 {
     return m_plotWidget;
 }
@@ -214,27 +212,12 @@ void RimVfpPlot::updateLegend()
 
     if ( doShowLegend )
     {
-        QwtLegend* legend = new QwtLegend( m_plotWidget );
-        m_plotWidget->insertLegend( legend, QwtPlot::BottomLegend );
+        m_plotWidget->insertLegend( RiuPlotWidget::Legend::BOTTOM );
     }
     else
     {
-        m_plotWidget->insertLegend( nullptr );
+        m_plotWidget->clearLegend();
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimVfpPlot::updateZoomInQwt()
-{
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimVfpPlot::updateZoomFromQwt()
-{
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -331,21 +314,6 @@ void RimVfpPlot::detachAllCurves()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PdmObject* RimVfpPlot::findPdmObjectFromQwtCurve( const QwtPlotCurve* /*curve*/ ) const
-{
-    return nullptr;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimVfpPlot::onAxisSelected( int /*axis*/, bool /*toggle*/ )
-{
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 QString RimVfpPlot::description() const
 {
     return uiName();
@@ -392,7 +360,7 @@ void RimVfpPlot::doRemoveFromCollection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuQwtPlotWidget* RimVfpPlot::doCreatePlotViewWidget( QWidget* mainWindowParent )
+RiuPlotWidget* RimVfpPlot::doCreatePlotViewWidget( QWidget* mainWindowParent )
 {
     // It seems we risk being called multiple times
     if ( m_plotWidget )
@@ -401,13 +369,10 @@ RiuQwtPlotWidget* RimVfpPlot::doCreatePlotViewWidget( QWidget* mainWindowParent 
     }
 
     {
-        auto plotWidget = new RiuQwtPlotWidget( this, mainWindowParent );
+        RiuPlotWidget* plotWidget = new RiuQwtPlotWidget( this, mainWindowParent );
 
         // Remove event filter to disable unwanted highlighting on left click in plot.
-        plotWidget->removeEventFilter( plotWidget );
-        plotWidget->canvas()->removeEventFilter( plotWidget );
-
-        RiuQwtPlotTools::setCommonPlotBehaviour( plotWidget );
+        plotWidget->removeEventFilter();
 
         caf::CmdFeatureMenuBuilder menuBuilder;
         menuBuilder << "RicShowPlotDataFeature";
@@ -454,7 +419,7 @@ void RimVfpPlot::onLoadDataAndUpdate()
         return;
     }
 
-    m_plotWidget->detachItems( QwtPlotItem::Rtti_PlotCurve );
+    m_plotWidget->detachItems( RiuPlotWidget::PlotItemType::CURVE );
 
     updateLegend();
 
@@ -500,8 +465,8 @@ void RimVfpPlot::onLoadDataAndUpdate()
                                             m_primaryVariable(),
                                             m_familyVariable() ) );
 
-        m_plotWidget->setAxisTitleEnabled( QwtPlot::xBottom, true );
-        m_plotWidget->setAxisTitleEnabled( QwtPlot::yLeft, true );
+        m_plotWidget->setAxisTitleEnabled( RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM, true );
+        m_plotWidget->setAxisTitleEnabled( RiaDefines::PlotAxis::PLOT_AXIS_LEFT, true );
     }
 
     m_plotWidget->scheduleReplot();
@@ -510,7 +475,7 @@ void RimVfpPlot::onLoadDataAndUpdate()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimVfpPlot::populatePlotWidgetWithCurveData( RiuQwtPlotWidget* plotWidget, const Opm::VFPInjTable& table )
+void RimVfpPlot::populatePlotWidgetWithCurveData( RiuPlotWidget* plotWidget, const Opm::VFPInjTable& table )
 {
     VfpPlotData plotData;
     populatePlotData( table, m_interpolatedVariable(), plotData );
@@ -570,7 +535,7 @@ void RimVfpPlot::populatePlotData( const Opm::VFPInjTable&                 table
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimVfpPlot::populatePlotWidgetWithCurveData( RiuQwtPlotWidget*                     plotWidget,
+void RimVfpPlot::populatePlotWidgetWithCurveData( RiuPlotWidget*                        plotWidget,
                                                   const Opm::VFPProdTable&              table,
                                                   RimVfpDefines::ProductionVariableType primaryVariable,
                                                   RimVfpDefines::ProductionVariableType familyVariable )
@@ -583,25 +548,36 @@ void RimVfpPlot::populatePlotWidgetWithCurveData( RiuQwtPlotWidget*             
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimVfpPlot::populatePlotWidgetWithPlotData( RiuQwtPlotWidget* plotWidget, const VfpPlotData& plotData )
+void RimVfpPlot::populatePlotWidgetWithPlotData( RiuPlotWidget* plotWidget, const VfpPlotData& plotData )
 {
-    plotWidget->detachItems( QwtPlotItem::Rtti_PlotCurve );
-    plotWidget->setAxisScale( QwtPlot::xBottom, 0, 1 );
-    plotWidget->setAxisScale( QwtPlot::yLeft, 0, 1 );
-    plotWidget->setAxisAutoScale( QwtPlot::xBottom, true );
-    plotWidget->setAxisAutoScale( QwtPlot::yLeft, true );
-    plotWidget->setAxisTitleText( QwtPlot::xBottom, plotData.xAxisTitle() );
-    plotWidget->setAxisTitleText( QwtPlot::yLeft, plotData.yAxisTitle() );
+    plotWidget->detachItems( RiuPlotWidget::PlotItemType::CURVE );
+    plotWidget->setAxisScale( RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM, 0, 1 );
+    plotWidget->setAxisScale( RiaDefines::PlotAxis::PLOT_AXIS_LEFT, 0, 1 );
+    plotWidget->setAxisAutoScale( RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM, true );
+    plotWidget->setAxisAutoScale( RiaDefines::PlotAxis::PLOT_AXIS_LEFT, true );
+    plotWidget->setAxisTitleText( RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM, plotData.xAxisTitle() );
+    plotWidget->setAxisTitleText( RiaDefines::PlotAxis::PLOT_AXIS_LEFT, plotData.yAxisTitle() );
 
     for ( auto idx = 0u; idx < plotData.size(); idx++ )
     {
         QColor        qtClr = RiaColorTables::summaryCurveDefaultPaletteColors().cycledQColor( idx );
-        QwtPlotCurve* curve = createPlotCurve( plotData.curveTitle( idx ), qtClr );
-        curve->setSamples( plotData.xData( idx ).data(),
-                           plotData.yData( idx ).data(),
-                           static_cast<int>( plotData.curveSize( idx ) ) );
-        curve->attach( plotWidget );
-        curve->show();
+        RiuPlotCurve* curve = m_plotWidget->createPlotCurve( nullptr, plotData.curveTitle( idx ), qtClr );
+
+        curve->setAppearance( RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_SOLID,
+                              RiuQwtPlotCurveDefines::CurveInterpolationEnum::INTERPOLATION_POINT_TO_POINT,
+                              2,
+                              qtClr );
+
+        RiuPlotCurveSymbol* symbol = curve->createSymbol( RiuPlotCurveSymbol::PointSymbolEnum::SYMBOL_ELLIPSE );
+        symbol->setColor( qtClr );
+        symbol->setSize( 6, 6 );
+        curve->setSymbol( symbol );
+
+        curve->setSamplesFromXValuesAndYValues( plotData.xData( idx ),
+                                                plotData.yData( idx ),
+                                                static_cast<int>( plotData.curveSize( idx ) ) );
+        curve->attachToPlot( plotWidget );
+        curve->showInPlot();
     }
 }
 
@@ -685,27 +661,6 @@ void RimVfpPlot::populatePlotData( const Opm::VFPProdTable&                table
 
         plotData.appendCurve( familyTitle, primaryAxisValues, yVals );
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QwtPlotCurve* RimVfpPlot::createPlotCurve( const QString title, const QColor& color )
-{
-    QwtPlotCurve* curve = new QwtPlotCurve;
-    curve->setTitle( title );
-    curve->setPen( QPen( color, 2 ) );
-    curve->setLegendAttribute( QwtPlotCurve::LegendShowLine, true );
-    curve->setLegendAttribute( QwtPlotCurve::LegendShowSymbol, true );
-    curve->setLegendAttribute( QwtPlotCurve::LegendShowBrush, true );
-    curve->setRenderHint( QwtPlotItem::RenderAntialiased, true );
-
-    QwtSymbol* symbol = new QwtSymbol( QwtSymbol::Ellipse );
-    symbol->setSize( 6 );
-    symbol->setColor( color );
-    curve->setSymbol( symbol );
-
-    return curve;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1036,7 +991,7 @@ void RimVfpPlot::updatePlotTitle( const QString& plotTitle )
 
     if ( m_plotWidget )
     {
-        m_plotWidget->setTitle( plotTitle );
+        m_plotWidget->setPlotTitle( plotTitle );
     }
 }
 

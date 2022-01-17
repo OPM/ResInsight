@@ -31,8 +31,6 @@
 #include "cafPdmObject.h"
 #include "cafPdmPtrField.h"
 
-#include "qwt_plot.h"
-
 #include <QPointer>
 
 #include <map>
@@ -57,8 +55,6 @@ class RigWellLogExtractor;
 class RimEclipseResultDefinition;
 class RimColorLegend;
 class RimEnsembleWellLogCurveSet;
-
-class QwtPlotCurve;
 
 struct CurveSamplingPointData
 {
@@ -97,7 +93,8 @@ public:
     ~RimWellLogTrack() override;
 
     QWidget*          viewWidget() override;
-    RiuQwtPlotWidget* viewer() override;
+    RiuQwtPlotWidget* viewer();
+    RiuPlotWidget*    plotWidget() override;
     QImage            snapshotWindowContent() override;
     void              zoomAll() override;
 
@@ -153,8 +150,8 @@ public:
     void setVisibleXRange( double minValue, double maxValue );
     void setVisibleYRange( double minValue, double maxValue );
 
-    void updateZoomInQwt() override;
-    void updateZoomFromQwt() override;
+    void updateZoomInParentPlot() override;
+    void updateZoomFromParentPlot() override;
 
     void updateParentPlotZoom();
 
@@ -188,7 +185,7 @@ public:
 
     RimWellPath* wellPathAttributeSource() const;
 
-    caf::PdmObject* findPdmObjectFromQwtCurve( const QwtPlotCurve* curve ) const override;
+    caf::PdmObject* findPdmObjectFromPlotCurve( const RiuPlotCurve* curve ) const override;
 
     void setLogarithmicScale( bool enable );
     bool isLogarithmicScale() const;
@@ -241,7 +238,7 @@ protected:
     void onLoadDataAndUpdate() override;
 
 private:
-    RiuQwtPlotWidget* doCreatePlotViewWidget( QWidget* mainWindowParent = nullptr ) override;
+    RiuPlotWidget* doCreatePlotViewWidget( QWidget* mainWindowParent = nullptr ) override;
 
     void cleanupBeforeClose();
     void detachAllPlotItems();

@@ -18,12 +18,15 @@
 
 #include "RimAnalysisPlot.h"
 
+#include "RiaDefines.h"
+#include "RiaPlotDefines.h"
 #include "RiaPreferences.h"
 #include "RiaSummaryCurveDefinition.h"
 #include "RiaTextStringTools.h"
 
 #include "RiuGroupedBarChartBuilder.h"
 #include "RiuPlotMainWindowTools.h"
+#include "RiuQwtPlotTools.h"
 #include "RiuSummaryQwtPlot.h"
 #include "RiuSummaryVectorSelectionDialog.h"
 
@@ -159,7 +162,7 @@ RimAnalysisPlot::RimAnalysisPlot()
     CAF_PDM_InitFieldNoDefault( &m_valueAxisProperties, "ValueAxisProperties", "ValueAxisProperties" );
     m_valueAxisProperties.uiCapability()->setUiTreeHidden( true );
     m_valueAxisProperties = new RimPlotAxisProperties;
-    m_valueAxisProperties->setNameAndAxis( "Value-Axis", QwtPlot::yLeft );
+    m_valueAxisProperties->setNameAndAxis( "Value-Axis", RiuQwtPlotTools::fromQwtPlotAxis( QwtPlot::yLeft ) );
     m_valueAxisProperties->enableRangeSettings( false );
 
     CAF_PDM_InitFieldNoDefault( &m_plotDataFilterCollection, "PlotDataFilterCollection", "PlotDataFilterCollection" );
@@ -772,26 +775,26 @@ void RimAnalysisPlot::onLoadDataAndUpdate()
 
     if ( m_plotWidget )
     {
-        m_plotWidget->detachItems( QwtPlotItem::Rtti_PlotBarChart );
-        m_plotWidget->detachItems( QwtPlotItem::Rtti_PlotScale );
+        m_plotWidget->qwtPlot()->detachItems( QwtPlotItem::Rtti_PlotBarChart );
+        m_plotWidget->qwtPlot()->detachItems( QwtPlotItem::Rtti_PlotScale );
 
         RiuGroupedBarChartBuilder chartBuilder;
         chartBuilder.setLabelFontSize( barTextFontSize() );
         // buildTestPlot( chartBuilder );
         addDataToChartBuilder( chartBuilder );
 
-        chartBuilder.addBarChartToPlot( m_plotWidget,
+        chartBuilder.addBarChartToPlot( m_plotWidget->qwtPlot(),
                                         m_barOrientation == BARS_HORIZONTAL ? Qt::Horizontal : Qt::Vertical,
                                         m_useTopBarsFilter() ? m_maxBarCount : -1 );
 
-        if ( m_showPlotLegends && m_plotWidget->legend() == nullptr )
+        if ( m_showPlotLegends && m_plotWidget->qwtPlot()->legend() == nullptr )
         {
             QwtLegend* legend = new QwtLegend( m_plotWidget );
-            m_plotWidget->insertLegend( legend, QwtPlot::RightLegend );
+            m_plotWidget->qwtPlot()->insertLegend( legend, QwtPlot::RightLegend );
         }
         else if ( !m_showPlotLegends )
         {
-            m_plotWidget->insertLegend( nullptr );
+            m_plotWidget->qwtPlot()->insertLegend( nullptr );
         }
 
         m_plotWidget->setLegendFontSize( legendFontSize() );
@@ -829,7 +832,7 @@ QString RimAnalysisPlot::description() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuQwtPlotWidget* RimAnalysisPlot::doCreatePlotViewWidget( QWidget* mainWindowParent /*= nullptr */ )
+RiuPlotWidget* RimAnalysisPlot::doCreatePlotViewWidget( QWidget* mainWindowParent /*= nullptr */ )
 {
     if ( !m_plotWidget )
     {
@@ -850,9 +853,17 @@ RiuQwtPlotWidget* RimAnalysisPlot::viewer()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RiuPlotWidget* RimAnalysisPlot::plotWidget()
+{
+    return m_plotWidget;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimAnalysisPlot::detachAllCurves()
 {
-    if ( m_plotWidget ) m_plotWidget->detachItems();
+    if ( m_plotWidget ) m_plotWidget->qwtPlot()->detachItems();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -862,29 +873,29 @@ void RimAnalysisPlot::updateAxes()
 {
     if ( !m_plotWidget ) return;
 
-    QwtPlot::Axis qwtAxis = QwtPlot::yLeft;
+    RiaDefines::PlotAxis axis = RiaDefines::PlotAxis::PLOT_AXIS_LEFT;
     if ( m_barOrientation == BARS_HORIZONTAL )
     {
-        qwtAxis = QwtPlot::xBottom;
-        m_plotWidget->setAxisTitleEnabled( QwtPlot::yLeft, false );
+        axis = RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM;
+        m_plotWidget->setAxisTitleEnabled( RiaDefines::PlotAxis::PLOT_AXIS_LEFT, false );
     }
     else
     {
-        m_plotWidget->setAxisTitleEnabled( QwtPlot::xBottom, false );
+        m_plotWidget->setAxisTitleEnabled( RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM, false );
     }
 
     RimPlotAxisProperties* valAxisProperties = m_valueAxisProperties();
     if ( valAxisProperties->isActive() )
     {
-        m_plotWidget->enableAxis( qwtAxis, true );
-        m_valueAxisProperties->setNameAndAxis( "Value-Axis", qwtAxis );
+        m_plotWidget->enableAxis( axis, true );
+        m_valueAxisProperties->setNameAndAxis( "Value-Axis", axis );
 
         RimSummaryPlotAxisFormatter calc( valAxisProperties, {}, curveDefinitions(), {}, {} );
         calc.applyAxisPropertiesToPlot( m_plotWidget );
     }
     else
     {
-        m_plotWidget->enableAxis( qwtAxis, false );
+        m_plotWidget->enableAxis( axis, false );
     }
 }
 

@@ -22,8 +22,6 @@
 
 #include "cafPdmPointer.h"
 
-#include "qwt_plot.h"
-
 #include <QFrame>
 #include <QPointer>
 
@@ -33,6 +31,7 @@ class RiuResultQwtPlot;
 class RiuQwtPlotCurve;
 
 class QLabel;
+class QwtPlot;
 
 namespace cvf
 {

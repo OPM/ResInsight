@@ -17,7 +17,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
-#include "RiuInterfaceToViewWindow.h"
 #include "RiuPlotAnnotationTool.h"
 #include "RiuQwtPlotWidget.h"
 
@@ -58,7 +57,7 @@ public:
 
     void updateAnnotationObjects( RimPlotAxisPropertiesInterface* axisProperties );
 
-    void setLegendFontSize( int fontSize );
+    void setLegendFontSize( int fontSize ) override;
     void setInternalQwtLegendVisible( bool visible );
 
 protected:
@@ -68,7 +67,7 @@ protected:
 
 private slots:
     void onZoomedSlot();
-    void onPlotItemSelected( QwtPlotItem* selectedItem, bool toggleItem, int sampleIndex );
+    void onPlotItemSelected( std::shared_ptr<RiuPlotItem> selectedItem, bool toggleItem, int sampleIndex );
 
 private:
     std::unique_ptr<RiuPlotAnnotationTool> m_annotationTool;

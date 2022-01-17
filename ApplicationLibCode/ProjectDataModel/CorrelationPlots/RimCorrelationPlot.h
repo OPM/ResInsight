@@ -28,6 +28,7 @@
 
 class RimSummaryAddress;
 class RiuGroupedBarChartBuilder;
+class RiuPlotItem;
 
 //==================================================================================================
 ///
@@ -70,7 +71,7 @@ private:
     // Private methods
     void addDataToChartBuilder( RiuGroupedBarChartBuilder& chartBuilder );
     void updatePlotTitle() override;
-    void onPlotItemSelected( QwtPlotItem* plotItem, bool toggle, int sampleIndex ) override;
+    void onPlotItemSelected( std::shared_ptr<RiuPlotItem> plotItem, bool toggle, int sampleIndex ) override;
 
 private:
     caf::PdmField<bool>                 m_showAbsoluteValues;

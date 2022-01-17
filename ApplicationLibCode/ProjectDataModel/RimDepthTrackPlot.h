@@ -22,6 +22,7 @@
 #include "RiaDefines.h"
 #include "RimAbstractPlotCollection.h"
 #include "RimEnsembleWellLogStatistics.h"
+#include "RimPlot.h"
 #include "RimPlotWindow.h"
 #include "RimWellLogPlotNameConfig.h"
 

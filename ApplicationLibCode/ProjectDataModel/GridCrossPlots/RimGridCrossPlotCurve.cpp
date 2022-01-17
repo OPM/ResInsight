@@ -18,28 +18,10 @@
 
 #include "RimGridCrossPlotCurve.h"
 
-#include "RigCaseCellResultCalculator.h"
-
-#include "RimCase.h"
-#include "RimEclipseCase.h"
-#include "RimEclipseResultDefinition.h"
 #include "RimGridCrossPlot.h"
-#include "RimTools.h"
 
-#include "RiuQwtPlotCurve.h"
-#include "RiuQwtSymbol.h"
-
-#include "cafPdmUiComboBoxEditor.h"
-
-#include <QDebug>
-#include <QPointF>
-#include <QVector>
-
-#include "qwt_graphic.h"
-#include "qwt_plot.h"
-#include "qwt_plot_curve.h"
-
-#include <random>
+#include "RiuPlotCurve.h"
+#include "RiuPlotWidget.h"
 
 CAF_PDM_SOURCE_INIT( RimGridCrossPlotCurve, "GridCrossPlotCurve" );
 
@@ -53,7 +35,7 @@ RimGridCrossPlotCurve::RimGridCrossPlotCurve()
     CAF_PDM_InitObject( "Cross Plot Points", ":/WellLogCurve16x16.png" );
 
     setLineStyle( RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_NONE );
-    setSymbol( RiuQwtSymbol::SYMBOL_NONE );
+    setSymbol( RiuPlotCurveSymbol::SYMBOL_NONE );
     setSymbolSize( 4 );
 }
 
@@ -73,9 +55,9 @@ void RimGridCrossPlotCurve::setSamples( const std::vector<double>& xValues, cons
 {
     CVF_ASSERT( xValues.size() == yValues.size() );
 
-    if ( xValues.empty() || yValues.empty() || !m_qwtPlotCurve ) return;
+    if ( xValues.empty() || yValues.empty() || !m_plotCurve ) return;
 
-    m_qwtPlotCurve->setSamples( &xValues[0], &yValues[0], static_cast<int>( xValues.size() ) );
+    m_plotCurve->setSamplesFromXValuesAndYValues( xValues, yValues, false );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -100,7 +82,7 @@ int RimGridCrossPlotCurve::groupIndex() const
 //--------------------------------------------------------------------------------------------------
 size_t RimGridCrossPlotCurve::sampleCount() const
 {
-    return m_qwtPlotCurve ? m_qwtPlotCurve->dataSize() : 0;
+    return m_plotCurve ? m_plotCurve->numSamples() : 0;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -108,12 +90,12 @@ size_t RimGridCrossPlotCurve::sampleCount() const
 //--------------------------------------------------------------------------------------------------
 void RimGridCrossPlotCurve::determineLegendIcon()
 {
-    if ( !m_qwtPlotCurve ) return;
+    if ( !m_plotCurve ) return;
 
     RimGridCrossPlot* plot = nullptr;
     firstAncestorOrThisOfTypeAsserted( plot );
     int fontSize = plot->legendFontSize();
-    m_qwtPlotCurve->setLegendIconSize( QSize( fontSize, fontSize ) );
+    m_plotCurve->setLegendIconSize( QSize( fontSize, fontSize ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -121,9 +103,9 @@ void RimGridCrossPlotCurve::determineLegendIcon()
 //--------------------------------------------------------------------------------------------------
 void RimGridCrossPlotCurve::setBlackAndWhiteLegendIcons( bool blackAndWhite )
 {
-    if ( m_qwtPlotCurve )
+    if ( m_plotCurve )
     {
-        m_qwtPlotCurve->setBlackAndWhiteLegendIcon( blackAndWhite );
+        m_plotCurve->setBlackAndWhiteLegendIcon( blackAndWhite );
     }
 }
 
@@ -132,7 +114,7 @@ void RimGridCrossPlotCurve::setBlackAndWhiteLegendIcons( bool blackAndWhite )
 //--------------------------------------------------------------------------------------------------
 void RimGridCrossPlotCurve::determineSymbol()
 {
-    RiuQwtSymbol::PointSymbolEnum symbol = RiuQwtSymbol::cycledSymbolStyle( m_dataSetIndex );
+    RiuPlotCurveSymbol::PointSymbolEnum symbol = RiuPlotCurveSymbol::cycledSymbolStyle( m_dataSetIndex );
     setSymbol( symbol );
 }
 
@@ -144,20 +126,6 @@ void RimGridCrossPlotCurve::updateZoomInParentPlot()
     RimGridCrossPlot* plot;
     this->firstAncestorOrThisOfTypeAsserted( plot );
     plot->calculateZoomRangeAndUpdateQwt();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimGridCrossPlotCurve::updateLegendsInPlot()
-{
-    RimGridCrossPlot* plot = nullptr;
-    this->firstAncestorOrThisOfType( plot );
-    if ( plot )
-    {
-        plot->reattachAllCurves();
-    }
-    RimPlotCurve::updateLegendsInPlot();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -175,7 +143,7 @@ void RimGridCrossPlotCurve::onLoadDataAndUpdate( bool updateParentPlot )
 {
     if ( updateParentPlot )
     {
-        m_parentQwtPlot->replot();
+        m_parentPlot->replot();
     }
 }
 

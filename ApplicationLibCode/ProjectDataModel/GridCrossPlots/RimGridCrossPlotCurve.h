@@ -19,16 +19,6 @@
 
 #include "RimPlotCurve.h"
 
-#include "cafPdmChildField.h"
-#include "cafPdmPtrField.h"
-
-#include <QPointF>
-#include <QVector>
-
-class RimCase;
-class RimEclipseResultDefinition;
-class QwtPlotCurve;
-
 //==================================================================================================
 ///
 ///
@@ -52,7 +42,6 @@ public:
 protected:
     void    determineSymbol();
     void    updateZoomInParentPlot() override;
-    void    updateLegendsInPlot() override;
     QString createCurveAutoName() override;
     void    onLoadDataAndUpdate( bool updateParentPlot ) override;
     void    defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;

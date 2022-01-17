@@ -26,11 +26,9 @@
 #include "RimPlotWindow.h"
 
 #include "RiuPlotMainWindowTools.h"
-#include "RiuQwtPlotWidget.h"
+#include "RiuPlotWidget.h"
 
 #include "cafPdmObject.h"
-
-#include "qwt_plot_curve.h"
 
 namespace caf
 {
@@ -73,9 +71,7 @@ RimPlot::~RimPlot()
 //--------------------------------------------------------------------------------------------------
 QWidget* RimPlot::createViewWidget( QWidget* parent /*= nullptr */ )
 {
-    RiuQwtPlotWidget* plotWidget = doCreatePlotViewWidget( parent );
-
-    RimPlot::attachPlotWidgetSignals( this, plotWidget );
+    RiuPlotWidget* plotWidget = doCreatePlotViewWidget( parent );
 
     updateWindowVisibility();
     plotWidget->scheduleReplot();
@@ -88,10 +84,10 @@ QWidget* RimPlot::createViewWidget( QWidget* parent /*= nullptr */ )
 //--------------------------------------------------------------------------------------------------
 void RimPlot::updateFonts()
 {
-    if ( viewer() )
+    if ( plotWidget() )
     {
-        viewer()->setPlotTitleFontSize( titleFontSize() );
-        viewer()->setLegendFontSize( legendFontSize() );
+        plotWidget()->setPlotTitleFontSize( titleFontSize() );
+        plotWidget()->setLegendFontSize( legendFontSize() );
     }
 }
 
@@ -198,27 +194,11 @@ void RimPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const Q
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPlot::attachPlotWidgetSignals( RimPlot* plot, RiuQwtPlotWidget* plotWidget )
-{
-    CAF_ASSERT( plot && plotWidget );
-    plot->connect( plotWidget, SIGNAL( plotSelected( bool ) ), SLOT( onPlotSelected( bool ) ) );
-    plot->connect( plotWidget, SIGNAL( axisSelected( int, bool ) ), SLOT( onAxisSelected( int, bool ) ) );
-    plot->connect( plotWidget,
-                   SIGNAL( plotItemSelected( QwtPlotItem*, bool, int ) ),
-                   SLOT( onPlotItemSelected( QwtPlotItem*, bool, int ) ) );
-    plot->connect( plotWidget, SIGNAL( onKeyPressEvent( QKeyEvent* ) ), SLOT( onKeyPressEvent( QKeyEvent* ) ) );
-    plot->connect( plotWidget, SIGNAL( onWheelEvent( QWheelEvent* ) ), SLOT( onWheelEvent( QWheelEvent* ) ) );
-    plot->connect( plotWidget, SIGNAL( destroyed() ), SLOT( onViewerDestroyed() ) );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimPlot::doRenderWindowContent( QPaintDevice* paintDevice )
 {
-    if ( viewer() )
+    if ( plotWidget() )
     {
-        viewer()->renderTo( paintDevice, viewer()->frameGeometry() );
+        plotWidget()->renderTo( paintDevice, plotWidget()->frameGeometry() );
     }
 }
 
@@ -234,29 +214,6 @@ void RimPlot::onPlotSelected( bool toggle )
     else
     {
         RiuPlotMainWindowTools::selectAsCurrentItem( this );
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimPlot::onPlotItemSelected( QwtPlotItem* plotItem, bool toggle, int sampleIndex )
-{
-    QwtPlotCurve* curve = dynamic_cast<QwtPlotCurve*>( plotItem );
-    if ( curve )
-    {
-        RimPlotCurve* selectedCurve = dynamic_cast<RimPlotCurve*>( this->findPdmObjectFromQwtCurve( curve ) );
-        if ( selectedCurve )
-        {
-            if ( toggle )
-            {
-                RiuPlotMainWindowTools::toggleItemInSelection( selectedCurve );
-            }
-            else
-            {
-                RiuPlotMainWindowTools::selectAsCurrentItem( selectedCurve );
-            }
-        }
     }
 }
 
@@ -301,4 +258,46 @@ void RimPlot::onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
                               std::vector<caf::PdmObjectHandle*>& referringObjects )
 {
     loadDataAndUpdate();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlot::updateZoomInParentPlot()
+{
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlot::updateZoomFromParentPlot()
+{
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlot::handleKeyPressEvent( QKeyEvent* event )
+{
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlot::handleWheelEvent( QWheelEvent* event )
+{
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlot::onPlotItemSelected( std::shared_ptr<RiuPlotItem>, bool, int )
+{
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlot::onAxisSelected( int axis, bool toggle )
+{
 }

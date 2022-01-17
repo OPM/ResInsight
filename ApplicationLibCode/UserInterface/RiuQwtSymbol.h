@@ -18,9 +18,15 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
+#include "RiuPlotCurveSymbol.h"
 
 #include "qwt_symbol.h"
+
 #include <QString>
+
+class QPainter;
+class QPointF;
+class QRect;
 
 //--------------------------------------------------------------------------------------------------
 /// This class overrides renderSymbols to draw symbols and labels.
@@ -28,60 +34,23 @@
 /// Therefore the method RiuQwtPlotCurve::drawSymbols also draw labels to have labels
 /// in the plot as well.
 //--------------------------------------------------------------------------------------------------
-class RiuQwtSymbol : public QwtSymbol
+class RiuQwtSymbol : public RiuPlotCurveSymbol, public QwtSymbol
 {
 public:
-    enum LabelPosition
-    {
-        LabelAboveSymbol,
-        LabelBelowSymbol,
-        LabelLeftOfSymbol,
-        LabelRightOfSymbol
-    };
-    enum PointSymbolEnum
-    {
-        SYMBOL_NONE,
-        SYMBOL_ELLIPSE,
-        SYMBOL_RECT,
-        SYMBOL_DIAMOND,
-        SYMBOL_TRIANGLE,
-        SYMBOL_DOWN_TRIANGLE,
-        SYMBOL_CROSS,
-        SYMBOL_XCROSS,
-        SYMBOL_LEFT_ALIGNED_TRIANGLE, // Aligned so pin point is at lower right corner
-        SYMBOL_RIGHT_ALIGNED_TRIANGLE, // Aligned so pin point is at lower left corner
-        SYMBOL_LEFT_ANGLED_TRIANGLE,
-        SYMBOL_RIGHT_ANGLED_TRIANGLE,
-        SYMBOL_UP_TRIANGLE,
-        SYMBOL_STAR1,
-        SYMBOL_STAR2,
-        SYMBOL_HEXAGON,
-        SYMBOL_LEFT_TRIANGLE,
-        SYMBOL_RIGHT_TRIANGLE
-    };
+    RiuQwtSymbol( RiuPlotCurveSymbol::PointSymbolEnum riuStyle,
+                  const QString&                      label           = QString(),
+                  LabelPosition                       labelPosition   = RiuPlotCurveSymbol::LabelAboveSymbol,
+                  int                                 labelFontSizePt = 8 );
+    void renderSymbols( QPainter* painter, const QPointF* points, int numPoints ) const override;
+    void renderSymbolLabel( QPainter* painter, const QPointF& position, const QString& label ) const;
 
-    RiuQwtSymbol( PointSymbolEnum riuStyle,
-                  const QString&  label,
-                  LabelPosition   labelPosition   = LabelAboveSymbol,
-                  int             labelFontSizePt = 8 );
-    void    renderSymbols( QPainter* painter, const QPointF* points, int numPoints ) const override;
-    void    renderSymbolLabel( QPainter* painter, const QPointF& position, const QString& label ) const;
-    QString globalLabel() const;
+    void setSize( int width, int height ) override;
 
-    void setGlobalLabel( const QString& label );
+    void setColor( const QColor& color ) override;
 
-    void setLabelPosition( LabelPosition labelPosition );
+    void setPen( const QPen& pen ) override;
 
-    static PointSymbolEnum cycledSymbolStyle( int indexLevel1, int indexLevel2 );
-    static PointSymbolEnum cycledSymbolStyle( int indexLevel );
+    void setPixmap( const QPixmap& pixmap ) override;
 
-    static bool isFilledSymbol( PointSymbolEnum symbol );
-
-private:
-    QRect labelBoundingRect( const QPainter* painter, const QRect& symbolRect, const QString& label ) const;
-
-private:
-    QString       m_globalLabel;
-    int           m_labelFontSizePx;
-    LabelPosition m_labelPosition;
+    QRect boundingRect() const override;
 };

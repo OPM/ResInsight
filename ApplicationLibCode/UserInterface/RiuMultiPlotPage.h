@@ -34,7 +34,7 @@
 class RiaPlotWindowRedrawScheduler;
 class RimPlotWindow;
 class RiuQwtPlotLegend;
-class RiuQwtPlotWidget;
+class RiuPlotWidget;
 
 class QFocusEvent;
 class QLabel;
@@ -70,11 +70,11 @@ public:
     RimViewWindow* ownerViewWindow() const override;
     RimPlotWindow* ownerPlotDefinition();
 
-    void addPlot( RiuQwtPlotWidget* plotWidget );
-    void insertPlot( RiuQwtPlotWidget* plotWidget, size_t index );
-    void removePlot( RiuQwtPlotWidget* plotWidget );
+    void addPlot( RiuPlotWidget* plotWidget );
+    void insertPlot( RiuPlotWidget* plotWidget, size_t index );
+    void removePlot( RiuPlotWidget* plotWidget );
     void removeAllPlots();
-    int  indexOfPlotWidget( RiuQwtPlotWidget* plotWidget );
+    int  indexOfPlotWidget( RiuPlotWidget* plotWidget );
 
     void setPlotTitle( const QString& plotTitle );
     void setTitleVisible( bool visible );
@@ -117,7 +117,7 @@ protected:
 
     void clearGridLayout();
 
-    QList<QPointer<RiuQwtPlotWidget>> visiblePlotWidgets() const;
+    QList<QPointer<RiuPlotWidget>>    visiblePlotWidgets() const;
     QList<QPointer<RiuQwtPlotLegend>> legendsForVisiblePlots() const;
     QList<QPointer<QLabel>>           subTitlesForVisiblePlots() const;
 
@@ -138,7 +138,7 @@ protected:
     QPointer<QLabel>                  m_plotTitle;
     QList<QPointer<QLabel>>           m_subTitles;
     QList<QPointer<RiuQwtPlotLegend>> m_legends;
-    QList<QPointer<RiuQwtPlotWidget>> m_plotWidgets;
+    QList<QPointer<RiuPlotWidget>>    m_plotWidgets;
     caf::PdmPointer<RimPlotWindow>    m_plotDefinition;
 
     int m_titleFontPixelSize;

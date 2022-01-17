@@ -20,6 +20,7 @@
 #include "RimWellLogCurve.h"
 
 #include "RiaCurveDataTools.h"
+#include "RiaPlotDefines.h"
 #include "RigWellLogCurveData.h"
 
 #include "RimDepthTrackPlot.h"
@@ -45,10 +46,6 @@ CAF_PDM_XML_ABSTRACT_SOURCE_INIT( RimWellLogCurve, "WellLogPlotCurve" );
 RimWellLogCurve::RimWellLogCurve()
 {
     CAF_PDM_InitObject( "WellLogCurve", ":/WellLogCurve16x16.png" );
-
-    m_qwtPlotCurve->setXAxis( QwtPlot::xTop );
-    m_qwtCurveErrorBars->setXAxis( QwtPlot::xTop );
-    m_qwtPlotCurve->setYAxis( QwtPlot::yLeft );
 
     m_curveData = new RigWellLogCurveData;
 
@@ -179,11 +176,22 @@ const RigWellLogCurveData* RimWellLogCurve::curveData() const
 void RimWellLogCurve::updateCurveAppearance()
 {
     RimPlotCurve::updateCurveAppearance();
+
+    if ( m_plotCurve )
+    {
+        m_plotCurve->setXAxis( RiaDefines::PlotAxis::PLOT_AXIS_TOP );
+        m_plotCurve->setYAxis( RiaDefines::PlotAxis::PLOT_AXIS_LEFT );
+    }
+
     if ( fillStyle() != Qt::BrushStyle::NoBrush )
     {
-        m_qwtPlotCurve->setOrientation( Qt::Horizontal );
-        m_qwtPlotCurve->setBaseline( -std::numeric_limits<double>::infinity() );
-        m_qwtPlotCurve->setCurveAttribute( QwtPlotCurve::Inverted, true );
+        RiuQwtPlotCurve* qwtPlotCurve = dynamic_cast<RiuQwtPlotCurve*>( m_plotCurve );
+        if ( qwtPlotCurve )
+        {
+            qwtPlotCurve->setOrientation( Qt::Horizontal );
+            qwtPlotCurve->setBaseline( -std::numeric_limits<double>::infinity() );
+            qwtPlotCurve->setCurveAttribute( QwtPlotCurve::Inverted, true );
+        }
     }
 }
 
@@ -212,10 +220,10 @@ void RimWellLogCurve::setOverrideCurveData( const std::vector<double>&          
 {
     auto minmax_it = std::minmax_element( xValues.begin(), xValues.end() );
     this->setOverrideCurveDataXRange( *( minmax_it.first ), *( minmax_it.second ) );
-    if ( m_qwtPlotCurve )
+    if ( m_plotCurve )
     {
-        m_qwtPlotCurve->setSamples( xValues.data(), depthValues.data(), static_cast<int>( depthValues.size() ) );
-        m_qwtPlotCurve->setLineSegmentStartStopIndices( curveIntervals );
+        m_plotCurve->setSamplesValues( xValues, depthValues );
+        m_plotCurve->setLineSegmentStartStopIndices( curveIntervals );
     }
 }
 

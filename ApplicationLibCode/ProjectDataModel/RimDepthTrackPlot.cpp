@@ -294,7 +294,7 @@ void RimDepthTrackPlot::updateZoom()
     for ( RimPlot* plot : plots() )
     {
         static_cast<RimWellLogTrack*>( plot )->setVisibleYRange( m_minVisibleDepth(), m_maxVisibleDepth() );
-        plot->updateZoomInQwt();
+        plot->updateZoomInParentPlot();
     }
 
     if ( m_viewer )
@@ -588,7 +588,7 @@ void RimDepthTrackPlot::recreatePlotWidgets()
     for ( size_t tIdx = 0; tIdx < plotVector.size(); ++tIdx )
     {
         plotVector[tIdx]->createPlotWidget();
-        m_viewer->addPlot( plotVector[tIdx]->viewer() );
+        m_viewer->addPlot( plotVector[tIdx]->plotWidget() );
     }
 }
 
@@ -1029,7 +1029,7 @@ void RimDepthTrackPlot::insertPlot( RimPlot* plot, size_t index )
         if ( m_viewer )
         {
             plot->createPlotWidget();
-            m_viewer->insertPlot( plot->viewer(), index );
+            m_viewer->insertPlot( plot->plotWidget(), index );
         }
         plot->setShowWindow( true );
         onPlotAdditionOrRemoval();
@@ -1045,7 +1045,7 @@ void RimDepthTrackPlot::removePlot( RimPlot* plot )
     {
         if ( m_viewer )
         {
-            m_viewer->removePlot( plot->viewer() );
+            m_viewer->removePlot( plot->plotWidget() );
         }
         m_plots.removeChildObject( plot );
 

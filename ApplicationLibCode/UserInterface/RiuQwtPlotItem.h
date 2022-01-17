@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2018-     Equinor ASA
+//  Copyright (C) 2022-     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -15,22 +15,21 @@
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
+
 #pragma once
 
-#include "RiuQwtPlotCurve.h"
+#include "RiuPlotItem.h"
 
-#include "cafPdmPointer.h"
+class QwtPlotItem;
 
-class RimPlotCurve;
-
-class RiuRimQwtPlotCurve : public RiuQwtPlotCurve
+class RiuQwtPlotItem : public RiuPlotItem
 {
 public:
-    explicit RiuRimQwtPlotCurve( RimPlotCurve* ownerRimCurve, const QString& title = QString() );
+    RiuQwtPlotItem( QwtPlotItem* qwtPlotItem );
+    ~RiuQwtPlotItem() override;
 
-    RimPlotCurve*       ownerRimCurve();
-    const RimPlotCurve* ownerRimCurve() const;
+    QwtPlotItem* qwtPlotItem() const;
 
 private:
-    caf::PdmPointer<RimPlotCurve> m_ownerRimCurve;
+    QwtPlotItem* m_qwtPlotItem;
 };

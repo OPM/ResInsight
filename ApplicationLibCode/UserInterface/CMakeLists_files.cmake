@@ -5,10 +5,13 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiuFemResultTextBuilder.h
     ${CMAKE_CURRENT_LIST_DIR}/RiuGeoQuestNavigation.h
     ${CMAKE_CURRENT_LIST_DIR}/RiuInterfaceToViewWindow.h
+    ${CMAKE_CURRENT_LIST_DIR}/RiuPlotCurveSymbol.h
     ${CMAKE_CURRENT_LIST_DIR}/RiuQwtSymbol.h
+    ${CMAKE_CURRENT_LIST_DIR}/RiuPlotCurve.h
     ${CMAKE_CURRENT_LIST_DIR}/RiuQwtPlotCurve.h
     ${CMAKE_CURRENT_LIST_DIR}/RiuQwtPlotCurveDefines.h
-    ${CMAKE_CURRENT_LIST_DIR}/RiuRimQwtPlotCurve.h
+    ${CMAKE_CURRENT_LIST_DIR}/RiuPlotItem.h
+    ${CMAKE_CURRENT_LIST_DIR}/RiuQwtPlotItem.h
     ${CMAKE_CURRENT_LIST_DIR}/RiuPlotMainWindow.h
     ${CMAKE_CURRENT_LIST_DIR}/RiuMainWindow.h
     ${CMAKE_CURRENT_LIST_DIR}/RiuMainWindowBase.h
@@ -38,6 +41,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiuDockedQwtPlot.h
     ${CMAKE_CURRENT_LIST_DIR}/RiuGridCrossQwtPlot.h
     ${CMAKE_CURRENT_LIST_DIR}/RiuSummaryQwtPlot.h
+    ${CMAKE_CURRENT_LIST_DIR}/RiuSummaryPlot.h
     ${CMAKE_CURRENT_LIST_DIR}/RiuTextDialog.h
     ${CMAKE_CURRENT_LIST_DIR}/RiuTimeStepChangedHandler.h
     ${CMAKE_CURRENT_LIST_DIR}/RiuTofAccumulatedPhaseFractionsPlot.h
@@ -52,6 +56,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiuWellLogTrack.h
     ${CMAKE_CURRENT_LIST_DIR}/RiuMultiPlotPage.h
     ${CMAKE_CURRENT_LIST_DIR}/RiuMultiPlotBook.h
+    ${CMAKE_CURRENT_LIST_DIR}/RiuPlotWidget.h
     ${CMAKE_CURRENT_LIST_DIR}/RiuQwtPlotWidget.h
     ${CMAKE_CURRENT_LIST_DIR}/RiuQwtPlotLegend.h
     ${CMAKE_CURRENT_LIST_DIR}/RiuPlotAnnotationTool.h
@@ -102,10 +107,12 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiuFemResultTextBuilder.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuGeoQuestNavigation.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuInterfaceToViewWindow.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RiuPlotCurveSymbol.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuQwtSymbol.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RiuPlotCurve.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuQwtPlotCurve.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuQwtPlotCurveDefines.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RiuRimQwtPlotCurve.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RiuQwtPlotItem.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuPlotMainWindow.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuMainWindow.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuMainWindowBase.cpp
@@ -134,6 +141,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiuDockedQwtPlot.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuGridCrossQwtPlot.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuSummaryQwtPlot.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RiuSummaryPlot.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuTextDialog.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuTimeStepChangedHandler.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuTofAccumulatedPhaseFractionsPlot.cpp
@@ -147,6 +155,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiuWellLogPlot.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuMultiPlotPage.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuMultiPlotBook.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RiuPlotWidget.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuQwtPlotWidget.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuQwtPlotLegend.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuPlotAnnotationTool.cpp
@@ -190,12 +199,32 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiuTextContentFrame.cpp
 )
 
-if(Qt5Charts_FOUND)
-  list(APPEND CODE_HEADER_FILES ${CMAKE_CURRENT_LIST_DIR}/RiuQtChartView.h)
+if(RESINSIGHT_USE_QT_CHARTS)
+  list(
+    APPEND
+    CODE_HEADER_FILES
+    ${CMAKE_CURRENT_LIST_DIR}/RiuQtChartView.h
+    ${CMAKE_CURRENT_LIST_DIR}/RiuQtChartsPlotCurve.h
+    ${CMAKE_CURRENT_LIST_DIR}/RiuQtChartsPlotWidget.h
+    ${CMAKE_CURRENT_LIST_DIR}/RiuQtChartsPlotTools.h
+    ${CMAKE_CURRENT_LIST_DIR}/RiuQtChartsPlotCurveSymbol.h
+    ${CMAKE_CURRENT_LIST_DIR}/RiuSummaryQtChartsPlot.h
+  )
 
-  list(APPEND CODE_SOURCE_FILES ${CMAKE_CURRENT_LIST_DIR}/RiuQtChartView.cpp)
+  list(
+    APPEND
+    CODE_SOURCE_FILES
+    ${CMAKE_CURRENT_LIST_DIR}/RiuQtChartView.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RiuQtChartsPlotCurve.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RiuQtChartsPlotWidget.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RiuQtChartsPlotTools.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RiuQtChartsPlotCurveSymbol.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RiuSummaryQtChartsPlot.cpp
+  )
 
-  # list(APPEND QT_MOC_HEADERS ${CMAKE_CURRENT_LIST_DIR}/RiuQtChartView.h)
+  list(APPEND QT_MOC_HEADERS ${CMAKE_CURRENT_LIST_DIR}/RiuQtChartsPlotWidget.h
+       ${CMAKE_CURRENT_LIST_DIR}/RiuSummaryQtChartsPlot.h
+  )
 endif()
 
 list(APPEND CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})
@@ -224,11 +253,13 @@ list(
   ${CMAKE_CURRENT_LIST_DIR}/RiuMultiPlotPage.h
   ${CMAKE_CURRENT_LIST_DIR}/RiuMultiPlotBook.h
   ${CMAKE_CURRENT_LIST_DIR}/RiuQwtPlotWidget.h
+  ${CMAKE_CURRENT_LIST_DIR}/RiuPlotWidget.h
   ${CMAKE_CURRENT_LIST_DIR}/RiuQwtPlotLegend.h
   ${CMAKE_CURRENT_LIST_DIR}/RiuRecentFileActionProvider.h
   ${CMAKE_CURRENT_LIST_DIR}/RiuDockedQwtPlot.h
   ${CMAKE_CURRENT_LIST_DIR}/RiuGridCrossQwtPlot.h
   ${CMAKE_CURRENT_LIST_DIR}/RiuSummaryQwtPlot.h
+  ${CMAKE_CURRENT_LIST_DIR}/RiuSummaryPlot.h
   ${CMAKE_CURRENT_LIST_DIR}/RiuTofAccumulatedPhaseFractionsPlot.h
   ${CMAKE_CURRENT_LIST_DIR}/RiuQwtScalePicker.h
   ${CMAKE_CURRENT_LIST_DIR}/RiuQwtPlotWheelZoomer.h

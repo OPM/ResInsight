@@ -55,9 +55,6 @@
 #include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiTreeOrdering.h"
 
-#include "qwt_date.h"
-#include "qwt_plot.h"
-
 CAF_PDM_SOURCE_INIT( RimSummaryCurve, "SummaryCurve" );
 
 //--------------------------------------------------------------------------------------------------
@@ -153,7 +150,7 @@ void RimSummaryCurve::setSummaryCaseY( RimSummaryCase* sumCase )
 {
     if ( m_yValuesSummaryCase != sumCase )
     {
-        m_qwtCurveErrorBars->setSamples( nullptr );
+        clearErrorBars();
     }
 
     bool isEnsembleCurve = false;
@@ -215,7 +212,7 @@ void RimSummaryCurve::setSummaryAddressY( const RifEclipseSummaryAddress& addres
 {
     if ( m_yValuesSummaryAddress->address() != address )
     {
-        m_qwtCurveErrorBars->setSamples( nullptr );
+        clearErrorBars();
     }
 
     m_yValuesSummaryAddress->setAddress( address );
@@ -392,10 +389,7 @@ double RimSummaryCurve::yValueAtTimeT( time_t time ) const
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCurve::setOverrideCurveDataY( const std::vector<time_t>& dateTimes, const std::vector<double>& yValues )
 {
-    if ( m_qwtPlotCurve )
-    {
-        m_qwtPlotCurve->setSamplesFromTimeTAndYValues( dateTimes, yValues, true );
-    }
+    setSamplesFromTimeTAndYValues( dateTimes, yValues, true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -558,7 +552,7 @@ void RimSummaryCurve::updateZoomInParentPlot()
     RimSummaryPlot* plot = nullptr;
     firstAncestorOrThisOfTypeAsserted( plot );
 
-    plot->updateZoomInQwt();
+    plot->updateZoomInParentPlot();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -699,14 +693,14 @@ void RimSummaryCurve::onLoadDataAndUpdate( bool updateParentPlot )
             this->setSamplesFromXYValues( std::vector<double>(), std::vector<double>(), isLogCurve );
         }
 
-        if ( updateParentPlot && m_parentQwtPlot )
+        if ( updateParentPlot && hasParentPlot() )
         {
             updateZoomInParentPlot();
-            m_parentQwtPlot->replot();
+            replotParentPlot();
         }
     }
 
-    if ( updateParentPlot ) updateQwtPlotAxis();
+    if ( updateParentPlot ) updateAxisInPlot( axisY() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -909,19 +903,9 @@ RiaDefines::PhaseType RimSummaryCurve::phaseType() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCurve::updateQwtPlotAxis()
+void RimSummaryCurve::updatePlotAxis()
 {
-    if ( m_qwtPlotCurve )
-    {
-        if ( this->axisY() == RiaDefines::PlotAxis::PLOT_AXIS_LEFT )
-        {
-            m_qwtPlotCurve->setYAxis( QwtPlot::yLeft );
-        }
-        else
-        {
-            m_qwtPlotCurve->setYAxis( QwtPlot::yRight );
-        }
-    }
+    updateAxisInPlot( axisY() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -942,7 +926,7 @@ QString RimSummaryCurve::curveExportDescription( const RifEclipseSummaryAddress&
     RimEnsembleCurveSetCollection* coll;
     firstAncestorOrThisOfType( coll );
 
-    auto curveSet = coll ? coll->findRimCurveSetFromQwtCurve( m_qwtPlotCurve ) : nullptr;
+    auto curveSet = coll ? coll->findCurveSetFromPlotCurve( m_plotCurve ) : nullptr;
     auto group    = curveSet ? curveSet->summaryCaseCollection() : nullptr;
 
     auto addressUiText = addr.uiText();
@@ -970,7 +954,7 @@ void RimSummaryCurve::setCurveAppearanceFromCaseType()
         if ( m_yValuesSummaryCase->isObservedData() )
         {
             setLineStyle( RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_NONE );
-            setSymbol( RiuQwtSymbol::SYMBOL_XCROSS );
+            setSymbol( RiuPlotCurveSymbol::SYMBOL_XCROSS );
 
             return;
         }
@@ -984,7 +968,7 @@ void RimSummaryCurve::setCurveAppearanceFromCaseType()
         {
             setSymbolEdgeColor( m_curveAppearance->color() );
 
-            setSymbol( RiuQwtSymbol::SYMBOL_XCROSS );
+            setSymbol( RiuPlotCurveSymbol::SYMBOL_XCROSS );
             setLineStyle( RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_NONE );
         }
         else if ( prefs->defaultSummaryHistoryCurveStyle() ==
@@ -992,12 +976,12 @@ void RimSummaryCurve::setCurveAppearanceFromCaseType()
         {
             setSymbolEdgeColor( m_curveAppearance->color() );
 
-            setSymbol( RiuQwtSymbol::SYMBOL_XCROSS );
+            setSymbol( RiuPlotCurveSymbol::SYMBOL_XCROSS );
             setLineStyle( RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_SOLID );
         }
         else if ( prefs->defaultSummaryHistoryCurveStyle() == RiaPreferencesSummary::SummaryHistoryCurveStyleMode::LINES )
         {
-            setSymbol( RiuQwtSymbol::SYMBOL_NONE );
+            setSymbol( RiuPlotCurveSymbol::SYMBOL_NONE );
             setLineStyle( RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_SOLID );
         }
 
@@ -1063,8 +1047,7 @@ void RimSummaryCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
     }
     else if ( changedField == &m_plotAxis )
     {
-        updateQwtPlotAxis();
-
+        updateAxisInPlot( axisY() );
         plot->updateAxes();
         dataChanged.send();
     }
@@ -1075,7 +1058,7 @@ void RimSummaryCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
         {
             // If no previous case selected and observed data, use symbols to indicate observed data curve
             setLineStyle( RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_NONE );
-            setSymbol( RiuQwtSymbol::SYMBOL_XCROSS );
+            setSymbol( RiuPlotCurveSymbol::SYMBOL_XCROSS );
         }
         plot->updateCaseNameHasChanged();
 

@@ -42,6 +42,8 @@
 #include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiToolButtonEditor.h"
 
+#include "qwt_plot.h"
+
 CAF_PDM_ABSTRACT_SOURCE_INIT( RimAbstractCorrelationPlot, "AbstractCorrelationPlot" );
 
 //--------------------------------------------------------------------------------------------------
@@ -557,7 +559,7 @@ QString RimAbstractCorrelationPlot::description() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuQwtPlotWidget* RimAbstractCorrelationPlot::doCreatePlotViewWidget( QWidget* mainWindowParent /*= nullptr */ )
+RiuPlotWidget* RimAbstractCorrelationPlot::doCreatePlotViewWidget( QWidget* mainWindowParent /*= nullptr */ )
 {
     if ( !m_plotWidget )
     {
@@ -579,9 +581,17 @@ RiuQwtPlotWidget* RimAbstractCorrelationPlot::viewer()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RiuPlotWidget* RimAbstractCorrelationPlot::plotWidget()
+{
+    return m_plotWidget;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimAbstractCorrelationPlot::detachAllCurves()
 {
-    if ( m_plotWidget ) m_plotWidget->detachItems();
+    if ( m_plotWidget ) m_plotWidget->qwtPlot()->detachItems();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -661,7 +671,7 @@ void RimAbstractCorrelationPlot::updateLegend()
 {
     if ( m_plotWidget )
     {
-        m_plotWidget->insertLegend( nullptr );
+        m_plotWidget->qwtPlot()->insertLegend( nullptr );
     }
 }
 

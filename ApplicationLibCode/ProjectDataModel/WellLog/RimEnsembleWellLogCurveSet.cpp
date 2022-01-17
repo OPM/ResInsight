@@ -61,6 +61,7 @@
 
 #include "cvfObject.h"
 
+#include "qwt_plot.h"
 #include "qwt_plot_curve.h"
 #include "qwt_symbol.h"
 
@@ -70,7 +71,7 @@
 //--------------------------------------------------------------------------------------------------
 /// Internal functions
 //--------------------------------------------------------------------------------------------------
-int statisticsCurveSymbolSize( RiuQwtSymbol::PointSymbolEnum symbol );
+int statisticsCurveSymbolSize( RiuPlotCurveSymbol::PointSymbolEnum symbol );
 
 namespace caf
 {
@@ -135,7 +136,7 @@ RimEnsembleWellLogCurveSet::RimEnsembleWellLogCurveSet()
     m_curveAppearance->setColorVisible( false );
     m_curveAppearance->setFillOptionsVisible( false );
 
-    m_curveAppearance->setSymbol( RiuQwtSymbol::PointSymbolEnum::SYMBOL_ELLIPSE );
+    m_curveAppearance->setSymbol( RiuPlotCurveSymbol::PointSymbolEnum::SYMBOL_ELLIPSE );
     m_curveAppearance->setSymbolSize( 5 );
     m_curveAppearance->setLineStyle( RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_NONE );
     m_curveAppearance->setSymbolEdgeColor( cvf::Color3f::BLACK );
@@ -218,22 +219,22 @@ void RimEnsembleWellLogCurveSet::loadDataAndUpdate( bool updateParentPlot )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEnsembleWellLogCurveSet::setParentQwtPlotNoReplot( QwtPlot* plot )
+void RimEnsembleWellLogCurveSet::setParentPlotNoReplot( RiuPlotWidget* plot )
 {
     for ( RimWellLogCurve* curve : m_curves )
     {
-        curve->setParentQwtPlotNoReplot( plot );
+        curve->setParentPlotNoReplot( plot );
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEnsembleWellLogCurveSet::detachQwtCurves()
+void RimEnsembleWellLogCurveSet::detachPlotCurves()
 {
     for ( RimWellLogCurve* curve : m_curves )
     {
-        curve->detachQwtCurve();
+        curve->detach();
     }
 
     m_qwtPlotCurveForLegendText->detach();
@@ -242,11 +243,11 @@ void RimEnsembleWellLogCurveSet::detachQwtCurves()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEnsembleWellLogCurveSet::reattachQwtCurves()
+void RimEnsembleWellLogCurveSet::reattachPlotCurves()
 {
     for ( RimWellLogCurve* curve : m_curves )
     {
-        curve->reattachQwtCurve();
+        curve->reattach();
     }
 
     m_qwtPlotCurveForLegendText->detach();
@@ -255,7 +256,7 @@ void RimEnsembleWellLogCurveSet::reattachQwtCurves()
     firstAncestorOrThisOfType( plot );
     if ( plot )
     {
-        m_qwtPlotCurveForLegendText->attach( plot->viewer() );
+        m_qwtPlotCurveForLegendText->attach( plot->viewer()->qwtPlot() );
     }
 }
 
@@ -637,8 +638,8 @@ void RimEnsembleWellLogCurveSet::updateFilterLegend()
         {
             if ( !m_filterOverlayFrame )
             {
-                m_filterOverlayFrame =
-                    new RiuDraggableOverlayFrame( plotTrack->viewer()->canvas(), plotTrack->viewer()->overlayMargins() );
+                m_filterOverlayFrame = new RiuDraggableOverlayFrame( plotTrack->viewer()->qwtPlot()->canvas(),
+                                                                     plotTrack->viewer()->overlayMargins() );
             }
             m_filterOverlayFrame->setContentFrame( m_ensembleCurveSet->curveFilters()->makeFilterDescriptionFrame() );
             plotTrack->viewer()->addOverlayFrame( m_filterOverlayFrame );
@@ -735,8 +736,8 @@ void RimEnsembleWellLogCurveSet::updateCurveColors()
         {
             if ( !m_legendOverlayFrame )
             {
-                m_legendOverlayFrame =
-                    new RiuDraggableOverlayFrame( plotTrack->viewer()->canvas(), plotTrack->viewer()->overlayMargins() );
+                m_legendOverlayFrame = new RiuDraggableOverlayFrame( plotTrack->viewer()->getParentForOverlay(),
+                                                                     plotTrack->viewer()->overlayMargins() );
             }
             m_legendOverlayFrame->setContentFrame( m_ensembleCurveSet->legendConfig()->makeLegendFrame() );
             plotTrack->viewer()->addOverlayFrame( m_legendOverlayFrame );
@@ -780,7 +781,7 @@ void RimEnsembleWellLogCurveSet::updateEnsembleCurves( const std::vector<RimWell
         wellPathFormations = createWellPathFormations( offsets );
     }
 
-    m_qwtPlotCurveForLegendText->attach( plotTrack->viewer() );
+    m_qwtPlotCurveForLegendText->attach( plotTrack->viewer()->qwtPlot() );
 
     QString wellLogChannelName = m_wellLogChannelName();
     if ( plotTrack && wellLogChannelName != "None" )
@@ -920,11 +921,13 @@ void RimEnsembleWellLogCurveSet::updateStatisticsCurves( const std::vector<RimWe
     }
 
     auto statisticsCurveSymbolFromStatistics = []( RimEnsembleWellLogStatistics::StatisticsType statisticsType ) {
-        if ( statisticsType == RimEnsembleWellLogStatistics::StatisticsType::P10 ) return RiuQwtSymbol::SYMBOL_TRIANGLE;
+        if ( statisticsType == RimEnsembleWellLogStatistics::StatisticsType::P10 )
+            return RiuPlotCurveSymbol::SYMBOL_TRIANGLE;
         if ( statisticsType == RimEnsembleWellLogStatistics::StatisticsType::P90 )
-            return RiuQwtSymbol::SYMBOL_DOWN_TRIANGLE;
-        if ( statisticsType == RimEnsembleWellLogStatistics::StatisticsType::P50 ) return RiuQwtSymbol::SYMBOL_DIAMOND;
-        return RiuQwtSymbol::SYMBOL_ELLIPSE;
+            return RiuPlotCurveSymbol::SYMBOL_DOWN_TRIANGLE;
+        if ( statisticsType == RimEnsembleWellLogStatistics::StatisticsType::P50 )
+            return RiuPlotCurveSymbol::SYMBOL_DIAMOND;
+        return RiuPlotCurveSymbol::SYMBOL_ELLIPSE;
     };
 
     RimWellLogTrack* plotTrack = nullptr;

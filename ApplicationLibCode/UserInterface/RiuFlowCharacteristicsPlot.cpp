@@ -25,10 +25,12 @@
 
 #include "RimFlowCharacteristicsPlot.h"
 
+#include "RiuPlotCurveSymbol.h"
 #include "RiuQwtPlotCurve.h"
 #include "RiuQwtPlotTools.h"
 #include "RiuQwtPlotWheelZoomer.h"
 #include "RiuQwtPlotZoomer.h"
+#include "RiuQwtSymbol.h"
 #include "RiuResultQwtPlot.h"
 
 #include "cvfColor3.h"
@@ -39,7 +41,6 @@
 #include "qwt_legend.h"
 #include "qwt_plot.h"
 #include "qwt_plot_zoomer.h"
-#include "qwt_symbol.h"
 
 #include <QBoxLayout>
 #include <QContextMenuEvent>
@@ -194,9 +195,7 @@ void RiuFlowCharacteristicsPlot::addCurveWithLargeSymbol( QwtPlot*         plot,
 {
     auto curve = createEmptyCurve( plot, curveName, color );
 
-    QwtSymbol::Style style  = QwtSymbol::Diamond;
-    QwtSymbol*       symbol = new QwtSymbol( style );
-
+    RiuPlotCurveSymbol* symbol = new RiuQwtSymbol( RiuPlotCurveSymbol::PointSymbolEnum::SYMBOL_DIAMOND );
     symbol->setSize( 15, 15 );
     symbol->setColor( color );
 
@@ -221,7 +220,7 @@ void RiuFlowCharacteristicsPlot::addCurveWithLargeSymbol( QwtPlot*         plot,
 RiuQwtPlotCurve*
     RiuFlowCharacteristicsPlot::createEmptyCurve( QwtPlot* plot, const QString& curveName, const QColor& curveColor )
 {
-    RiuQwtPlotCurve* plotCurve = new RiuQwtPlotCurve( curveName );
+    RiuQwtPlotCurve* plotCurve = new RiuQwtPlotCurve( nullptr, curveName );
 
     plotCurve->setTitle( curveName );
     plotCurve->setPen( QPen( curveColor ) );

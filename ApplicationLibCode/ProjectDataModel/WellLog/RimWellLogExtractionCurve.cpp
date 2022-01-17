@@ -340,7 +340,7 @@ void RimWellLogExtractionCurve::fieldChangedByUi( const caf::PdmFieldHandle* cha
 //--------------------------------------------------------------------------------------------------
 void RimWellLogExtractionCurve::onLoadDataAndUpdate( bool updateParentPlot )
 {
-    if ( isCurveVisible() )
+    if ( isCurveVisible() && m_plotCurve )
     {
         bool isUsingPseudoLength = false;
         performDataExtraction( &isUsingPseudoLength );
@@ -360,9 +360,9 @@ void RimWellLogExtractionCurve::onLoadDataAndUpdate( bool updateParentPlot )
         std::vector<double> xPlotValues     = curveData()->xPlotValues();
         std::vector<double> depthPlotValues = curveData()->depthPlotValues( depthType, displayUnit );
         CAF_ASSERT( xPlotValues.size() == depthPlotValues.size() );
-        m_qwtPlotCurve->setSamples( xPlotValues.data(), depthPlotValues.data(), static_cast<int>( xPlotValues.size() ) );
+        m_plotCurve->setSamplesFromXValuesAndYValues( xPlotValues, depthPlotValues, static_cast<int>( xPlotValues.size() ) );
 
-        m_qwtPlotCurve->setLineSegmentStartStopIndices( curveData()->polylineStartStopIndices() );
+        m_plotCurve->setLineSegmentStartStopIndices( curveData()->polylineStartStopIndices() );
 
         this->RimPlotCurve::updateCurvePresentation( updateParentPlot );
 
@@ -375,7 +375,7 @@ void RimWellLogExtractionCurve::onLoadDataAndUpdate( bool updateParentPlot )
             RiuQwtPlotWidget* viewer = wellLogTrack->viewer();
             if ( viewer )
             {
-                viewer->setAxisTitleText( QwtPlot::yLeft, "PL/" + wellLogPlot->depthAxisTitle() );
+                viewer->setAxisTitleText( RiaDefines::PlotAxis::PLOT_AXIS_LEFT, "PL/" + wellLogPlot->depthAxisTitle() );
             }
         }
 
@@ -386,9 +386,9 @@ void RimWellLogExtractionCurve::onLoadDataAndUpdate( bool updateParentPlot )
 
         setLogScaleFromSelectedResult();
 
-        if ( m_parentQwtPlot )
+        if ( m_parentPlot )
         {
-            m_parentQwtPlot->replot();
+            m_parentPlot->replot();
         }
     }
 }

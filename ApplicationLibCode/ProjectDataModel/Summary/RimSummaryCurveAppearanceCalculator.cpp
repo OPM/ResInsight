@@ -245,8 +245,8 @@ std::map<std::string, size_t>
     }
     else if ( appearance == CurveAppearanceType::SYMBOL )
     {
-        numOptions = caf::AppEnum<RiuQwtSymbol::PointSymbolEnum>::size() - 1; // -1 since the No symbol option is not
-                                                                              // counted see cycledSymbol()
+        numOptions = caf::AppEnum<RiuPlotCurveSymbol::PointSymbolEnum>::size() - 1; // -1 since the No symbol option is
+                                                                                    // not counted see cycledSymbol()
     }
     else if ( appearance == CurveAppearanceType::LINE_STYLE )
     {
@@ -524,12 +524,12 @@ RiuQwtPlotCurveDefines::LineStyleEnum RimSummaryCurveAppearanceCalculator::cycle
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuQwtSymbol::PointSymbolEnum RimSummaryCurveAppearanceCalculator::cycledSymbol( int index )
+RiuPlotCurveSymbol::PointSymbolEnum RimSummaryCurveAppearanceCalculator::cycledSymbol( int index )
 {
-    if ( index < 0 ) return RiuQwtSymbol::SYMBOL_NONE;
+    if ( index < 0 ) return RiuPlotCurveSymbol::SYMBOL_NONE;
 
-    return caf::AppEnum<RiuQwtSymbol::PointSymbolEnum>::fromIndex(
-        1 + ( index % ( caf::AppEnum<RiuQwtSymbol::PointSymbolEnum>::size() - 1 ) ) );
+    return caf::AppEnum<RiuPlotCurveSymbol::PointSymbolEnum>::fromIndex(
+        1 + ( index % ( caf::AppEnum<RiuPlotCurveSymbol::PointSymbolEnum>::size() - 1 ) ) );
 }
 
 //--------------------------------------------------------------------------------------------------

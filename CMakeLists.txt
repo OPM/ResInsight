@@ -394,17 +394,26 @@ find_package(
              Script
              ScriptTools
              Widgets
-  OPTIONAL_COMPONENTS Charts
 )
-if(Qt5Charts_FOUND)
-  message(STATUS "QtCharts found: ${Qt5Charts_LIBRARIES}")
-  add_definitions(-DUSE_QTCHARTS)
-else()
-  message(STATUS "QtCharts missing.")
-endif()
 
 # Open GL
 find_package(OpenGL)
+
+# ##############################################################################
+# QtCharts
+# ##############################################################################
+option(RESINSIGHT_USE_QT_CHARTS "Enable QtCharts in the code" ON)
+if(RESINSIGHT_USE_QT_CHARTS)
+  find_package(Qt5 OPTIONAL_COMPONENTS Charts)
+
+  if(Qt5Charts_FOUND)
+    message(STATUS "QtCharts found: ${Qt5Charts_LIBRARIES}")
+    add_definitions(-DUSE_QTCHARTS)
+  else()
+    message(STATUS "QtCharts not found.")
+    set(RESINSIGHT_USE_QT_CHARTS OFF)
+  endif()
+endif()
 
 # ##############################################################################
 # Qwt

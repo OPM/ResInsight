@@ -19,14 +19,19 @@
 
 #include "RiuWellLogTrack.h"
 
+#include "RiaDefines.h"
+#include "RiaPlotDefines.h"
 #include "RimWellLogCurve.h"
 #include "RimWellLogExtractionCurve.h"
 #include "RimWellLogTrack.h"
 
 #include "RiuGuiTheme.h"
+#include "RiuPlotCurve.h"
 #include "RiuQwtCurvePointTracker.h"
-#include "RiuRimQwtPlotCurve.h"
+#include "RiuQwtPlotTools.h"
 
+#include "qwt_plot.h"
+#include "qwt_plot_curve.h"
 #include "qwt_scale_draw.h"
 #include "qwt_scale_engine.h"
 #include "qwt_scale_widget.h"
@@ -92,8 +97,8 @@ public:
     //--------------------------------------------------------------------------------------------------
     QString curveInfoText( QwtPlotCurve* curve ) override
     {
-        RiuRimQwtPlotCurve* riuCurve = dynamic_cast<RiuRimQwtPlotCurve*>( curve );
-        RimWellLogCurve*    wlCurve  = nullptr;
+        RiuPlotCurve*    riuCurve = dynamic_cast<RiuPlotCurve*>( curve );
+        RimWellLogCurve* wlCurve  = nullptr;
         if ( riuCurve )
         {
             wlCurve = dynamic_cast<RimWellLogCurve*>( riuCurve->ownerRimCurve() );
@@ -119,7 +124,7 @@ RiuWellLogTrack::RiuWellLogTrack( RimWellLogTrack* track, QWidget* parent /*= nu
     setAxisEnabled( QwtPlot::xTop, true );
     setAxisEnabled( QwtPlot::xBottom, false );
 
-    new RiuWellLogCurvePointTracker( this, &wellLogCurveInfoTextProvider );
+    new RiuWellLogCurvePointTracker( this->qwtPlot(), &wellLogCurveInfoTextProvider );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -134,20 +139,17 @@ RiuWellLogTrack::~RiuWellLogTrack()
 //--------------------------------------------------------------------------------------------------
 void RiuWellLogTrack::setAxisEnabled( QwtPlot::Axis axis, bool enabled )
 {
+    RiaDefines::PlotAxis plotAxis = RiuQwtPlotTools::fromQwtPlotAxis( axis );
+    RiuQwtPlotWidget::enableAxis( plotAxis, enabled );
+
     if ( enabled )
     {
-        enableAxis( axis, true );
-
         // Align the canvas with the actual min and max values of the curves
-        axisScaleEngine( axis )->setAttribute( QwtScaleEngine::Floating, true );
-        setAxisScale( axis, 0.0, 100.0 );
-        axisScaleDraw( axis )->setMinimumExtent( axisExtent( axis ) );
+        qwtPlot()->axisScaleEngine( axis )->setAttribute( QwtScaleEngine::Floating, true );
+        setAxisScale( plotAxis, 0.0, 100.0 );
+        qwtPlot()->axisScaleDraw( axis )->setMinimumExtent( axisExtent( plotAxis ) );
 
-        axisWidget( axis )->setMargin( 0 );
-        setAxisTitleEnabled( axis, true );
-    }
-    else
-    {
-        enableAxis( axis, false );
+        qwtPlot()->axisWidget( axis )->setMargin( 0 );
+        setAxisTitleEnabled( plotAxis, true );
     }
 }

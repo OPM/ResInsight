@@ -29,6 +29,8 @@
 #include "RimSummaryCaseCollection.h"
 
 #include "RiuMultiPlotPage.h"
+#include "RiuPlotWidget.h"
+#include "RiuQwtPlotWidget.h"
 
 #include "cafAssert.h"
 #include "cafPdmUiOrdering.h"

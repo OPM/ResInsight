@@ -19,13 +19,9 @@
 
 #include "RimPlotAxisProperties.h"
 
-#include "RiaApplication.h"
 #include "RiaDefines.h"
-#include "RiaFontCache.h"
 #include "RiaPreferences.h"
-#include "RigStatisticsCalculator.h"
 
-#include "RimPlot.h"
 #include "RimPlotAxisAnnotation.h"
 
 #include "cafPdmUiSliderEditor.h"
@@ -34,74 +30,67 @@
 
 #include <cmath>
 
-#include <qwt_plot_curve.h>
-
-// clang-format off
 namespace caf
 {
-template<>
+template <>
 void caf::AppEnum<RimPlotAxisProperties::NumberFormatType>::setUp()
 {
-    addItem(RimPlotAxisProperties::NUMBER_FORMAT_AUTO,       "NUMBER_FORMAT_AUTO",       "Auto");
-    addItem(RimPlotAxisProperties::NUMBER_FORMAT_DECIMAL,    "NUMBER_FORMAT_DECIMAL",    "Decimal");
-    addItem(RimPlotAxisProperties::NUMBER_FORMAT_SCIENTIFIC, "NUMBER_FORMAT_SCIENTIFIC", "Scientific");
+    addItem( RimPlotAxisProperties::NUMBER_FORMAT_AUTO, "NUMBER_FORMAT_AUTO", "Auto" );
+    addItem( RimPlotAxisProperties::NUMBER_FORMAT_DECIMAL, "NUMBER_FORMAT_DECIMAL", "Decimal" );
+    addItem( RimPlotAxisProperties::NUMBER_FORMAT_SCIENTIFIC, "NUMBER_FORMAT_SCIENTIFIC", "Scientific" );
 
-    setDefault(RimPlotAxisProperties::NUMBER_FORMAT_AUTO);
+    setDefault( RimPlotAxisProperties::NUMBER_FORMAT_AUTO );
 }
 } // namespace caf
 
-CAF_PDM_SOURCE_INIT(RimPlotAxisProperties, "SummaryYAxisProperties");
+CAF_PDM_SOURCE_INIT( RimPlotAxisProperties, "SummaryYAxisProperties" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RimPlotAxisProperties::RimPlotAxisProperties()
-    : settingsChanged(this)
-    , logarithmicChanged(this)
-    , m_enableTitleTextSettings(true)
-    , m_isRangeSettingsEnabled(true)
+    : settingsChanged( this )
+    , logarithmicChanged( this )
+    , m_enableTitleTextSettings( true )
+    , m_isRangeSettingsEnabled( true )
 {
-    CAF_PDM_InitObject("Axis Properties", ":/LeftAxis16x16.png");
+    CAF_PDM_InitObject( "Axis Properties", ":/LeftAxis16x16.png" );
 
-    CAF_PDM_InitField(&m_isActive, "Active", true, "Active");
-    m_isActive.uiCapability()->setUiHidden(true);
+    CAF_PDM_InitField( &m_isActive, "Active", true, "Active" );
+    m_isActive.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitFieldNoDefault(&m_name, "Name", "Name");
-    m_name.uiCapability()->setUiHidden(true);
+    CAF_PDM_InitFieldNoDefault( &m_name, "Name", "Name" );
+    m_name.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitField(&isAutoTitle, "AutoTitle", true, "Auto Title");
-    
-    CAF_PDM_InitField(&m_displayLongName,   "DisplayLongName",  true,   "   Names");
-    CAF_PDM_InitField(&m_displayShortName,  "DisplayShortName", false,  "   Acronyms");
-    CAF_PDM_InitField(&m_displayUnitText,   "DisplayUnitText",  true,   "   Units");
+    CAF_PDM_InitField( &isAutoTitle, "AutoTitle", true, "Auto Title" );
 
-    CAF_PDM_InitFieldNoDefault(&customTitle,        "CustomTitle",      "Title");
+    CAF_PDM_InitField( &m_displayLongName, "DisplayLongName", true, "   Names" );
+    CAF_PDM_InitField( &m_displayShortName, "DisplayShortName", false, "   Acronyms" );
+    CAF_PDM_InitField( &m_displayUnitText, "DisplayUnitText", true, "   Units" );
 
-    CAF_PDM_InitField(&visibleRangeMax, "VisibleRangeMax", RiaDefines::maximumDefaultValuePlot(), "Max");
-    CAF_PDM_InitField(&visibleRangeMin, "VisibleRangeMin", RiaDefines::minimumDefaultValuePlot(), "Min");
+    CAF_PDM_InitFieldNoDefault( &customTitle, "CustomTitle", "Title" );
 
-    CAF_PDM_InitFieldNoDefault(&numberFormat,   "NumberFormat",         "Number Format");
-    CAF_PDM_InitField(&numberOfDecimals,        "Decimals", 2,          "Number of Decimals");
-    CAF_PDM_InitField(&scaleFactor,             "ScaleFactor", 1.0,     "Scale Factor");
+    CAF_PDM_InitField( &visibleRangeMax, "VisibleRangeMax", RiaDefines::maximumDefaultValuePlot(), "Max" );
+    CAF_PDM_InitField( &visibleRangeMin, "VisibleRangeMin", RiaDefines::minimumDefaultValuePlot(), "Min" );
 
-    numberOfDecimals.uiCapability()->setUiEditorTypeName(caf::PdmUiSliderEditor::uiEditorTypeName());
+    CAF_PDM_InitFieldNoDefault( &numberFormat, "NumberFormat", "Number Format" );
+    CAF_PDM_InitField( &numberOfDecimals, "Decimals", 2, "Number of Decimals" );
+    CAF_PDM_InitField( &scaleFactor, "ScaleFactor", 1.0, "Scale Factor" );
 
-    CAF_PDM_InitField(&m_isAutoZoom, "AutoZoom", true, "Set Range Automatically");
-    CAF_PDM_InitField(&isLogarithmicScaleEnabled, "LogarithmicScale", false, "Logarithmic Scale");
-    CAF_PDM_InitField(&m_isAxisInverted, "AxisInverted", false, "Invert Axis");
+    CAF_PDM_InitField( &m_isAutoZoom, "AutoZoom", true, "Set Range Automatically" );
+    CAF_PDM_InitField( &isLogarithmicScaleEnabled, "LogarithmicScale", false, "Logarithmic Scale" );
+    CAF_PDM_InitField( &m_isAxisInverted, "AxisInverted", false, "Invert Axis" );
 
-    CAF_PDM_InitFieldNoDefault(&m_titlePositionEnum, "TitlePosition", "Title Position");
+    CAF_PDM_InitFieldNoDefault( &m_titlePositionEnum, "TitlePosition", "Title Position" );
 
-    CAF_PDM_InitFieldNoDefault(&m_titleFontSize, "TitleDeltaFontSize", "Font Size");
-    CAF_PDM_InitFieldNoDefault(&m_valuesFontSize, "ValueDeltaFontSize", "Font Size");
+    CAF_PDM_InitFieldNoDefault( &m_titleFontSize, "TitleDeltaFontSize", "Font Size" );
+    CAF_PDM_InitFieldNoDefault( &m_valuesFontSize, "ValueDeltaFontSize", "Font Size" );
 
-    CAF_PDM_InitFieldNoDefault(&m_annotations, "Annotations", "");
-    m_annotations.uiCapability()->setUiTreeHidden(true);
-//     m_annotations.uiCapability()->setUiTreeChildrenHidden(true);
+    CAF_PDM_InitFieldNoDefault( &m_annotations, "Annotations", "" );
+    m_annotations.uiCapability()->setUiTreeHidden( true );
 
     updateOptionSensitivity();
 }
-// clang-format on
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -212,13 +201,13 @@ void RimPlotAxisProperties::defineUiOrdering( QString uiConfigName, caf::PdmUiOr
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPlotAxisProperties::setNameAndAxis( const QString& name, QwtPlot::Axis axis )
+void RimPlotAxisProperties::setNameAndAxis( const QString& name, RiaDefines::PlotAxis axis )
 {
     m_name = name;
     m_axis = axis;
 
-    if ( axis == QwtPlot::yRight ) this->setUiIconFromResourceString( ":/RightAxis16x16.png" );
-    if ( axis == QwtPlot::xBottom ) this->setUiIconFromResourceString( ":/BottomAxis16x16.png" );
+    if ( axis == RiaDefines::PlotAxis::PLOT_AXIS_RIGHT ) this->setUiIconFromResourceString( ":/RightAxis16x16.png" );
+    if ( axis == RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM ) this->setUiIconFromResourceString( ":/BottomAxis16x16.png" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -248,14 +237,6 @@ int RimPlotAxisProperties::valuesFontSize() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QwtPlot::Axis RimPlotAxisProperties::qwtPlotAxisType() const
-{
-    return m_axis;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 QString RimPlotAxisProperties::name() const
 {
     return m_name;
@@ -266,10 +247,7 @@ QString RimPlotAxisProperties::name() const
 //--------------------------------------------------------------------------------------------------
 RiaDefines::PlotAxis RimPlotAxisProperties::plotAxisType() const
 {
-    if ( m_axis == QwtPlot::yRight ) return RiaDefines::PlotAxis::PLOT_AXIS_RIGHT;
-    if ( m_axis == QwtPlot::xBottom ) return RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM;
-
-    return RiaDefines::PlotAxis::PLOT_AXIS_LEFT;
+    return m_axis;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -448,93 +426,4 @@ void RimPlotAxisProperties::initAfterRead()
 caf::PdmFieldHandle* RimPlotAxisProperties::objectToggleField()
 {
     return &m_isActive;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RimPlotAxisLogRangeCalculator::RimPlotAxisLogRangeCalculator( QwtPlot::Axis                           axis,
-                                                              const std::vector<const QwtPlotCurve*>& qwtCurves )
-    : m_axis( axis )
-    , m_curves( qwtCurves )
-{
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimPlotAxisLogRangeCalculator::computeAxisRange( double* minPositive, double* max ) const
-{
-    double minPosValue = HUGE_VAL;
-    double maxValue    = -HUGE_VAL;
-
-    for ( const QwtPlotCurve* curve : m_curves )
-    {
-        double minPosCurveValue = HUGE_VAL;
-        double maxCurveValue    = -HUGE_VAL;
-
-        if ( curveValueRange( curve, &minPosCurveValue, &maxCurveValue ) )
-        {
-            if ( minPosCurveValue < minPosValue )
-            {
-                CVF_ASSERT( minPosCurveValue > 0.0 );
-                minPosValue = minPosCurveValue;
-            }
-
-            if ( maxCurveValue > maxValue )
-            {
-                maxValue = maxCurveValue;
-            }
-        }
-    }
-
-    if ( minPosValue == HUGE_VAL )
-    {
-        minPosValue = RiaDefines::minimumDefaultLogValuePlot();
-        maxValue    = RiaDefines::maximumDefaultValuePlot();
-    }
-
-    *minPositive = minPosValue;
-    *max         = maxValue;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RimPlotAxisLogRangeCalculator::curveValueRange( const QwtPlotCurve* qwtCurve, double* minPositive, double* max ) const
-{
-    if ( !qwtCurve ) return false;
-
-    if ( qwtCurve->data()->size() < 1 )
-    {
-        return false;
-    }
-
-    float minPosF = std::numeric_limits<float>::infinity();
-    float maxF    = -std::numeric_limits<float>::infinity();
-
-    int axisValueIndex = 0;
-    if ( m_axis == QwtPlot::yLeft || m_axis == QwtPlot::yRight )
-    {
-        axisValueIndex = 1;
-    }
-
-    for ( size_t i = 0; i < qwtCurve->dataSize(); ++i )
-    {
-        QPointF    sample = qwtCurve->sample( (int)i );
-        cvf::Vec2f vec( sample.x(), sample.y() );
-        float      value = vec[axisValueIndex];
-        if ( value == HUGE_VALF ) continue;
-
-        maxF = std::max( maxF, value );
-        if ( value > 0.0f && value < minPosF )
-        {
-            minPosF = value;
-        }
-    }
-
-    *minPositive = minPosF;
-    *max         = maxF;
-
-    return true;
 }

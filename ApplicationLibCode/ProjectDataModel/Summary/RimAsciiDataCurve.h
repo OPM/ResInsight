@@ -58,7 +58,7 @@ public:
 
     void setTimeSteps( const std::vector<QDateTime>& timeSteps );
     void setValues( const std::vector<double>& values );
-    void setTitle( const QString& title );
+    void setTitle( const QString& title ) override;
 
 protected:
     // RimPlotCurve overrides
