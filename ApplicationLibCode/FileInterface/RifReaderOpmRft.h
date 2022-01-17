@@ -19,13 +19,11 @@
 #pragma once
 
 #include "RifReaderEclipseRft.h"
+#include "RifRftSegment.h"
 
 #include "cvfObject.h"
 
-#include "opm/io/eclipse/EclIOdata.hpp"
-
 #include <memory>
-#include <unordered_set>
 
 namespace Opm
 {
@@ -55,85 +53,6 @@ public:
     void cellIndices( const RifEclipseRftAddress& rftAddress, std::vector<caf::VecIjk>* indices ) override;
 
 private:
-    class RftSegmentData
-    {
-    public:
-        RftSegmentData( int segnxt, int brno, int brnst, int brnen, int segNo )
-            : m_segNext( segnxt )
-            , m_segbrno( brno )
-            , m_brnst( brnst )
-            , m_brnen( brnen )
-            , m_segmentNo( segNo )
-        {
-        }
-
-        int segNext() const { return m_segNext; }
-        int segBrno() const { return m_segbrno; }
-        int segBrnst() const { return m_brnst; }
-        int segBrnen() const { return m_brnen; }
-        int segNo() const { return m_segmentNo; }
-
-    private:
-        int m_segNext;
-        int m_segbrno;
-        int m_brnst;
-        int m_brnen;
-        int m_segmentNo;
-    };
-
-    using EclEntry = std::tuple<std::string, Opm::EclIO::eclArrType, int64_t>;
-
-    class RftSegment
-    {
-    public:
-        void setSegmentData( std::vector<RftSegmentData> segmentData ) { m_topology = segmentData; }
-        std::vector<RftSegmentData> topology() const { return m_topology; }
-
-        void addResultNameAndSize( const EclEntry& resultNameAndSize )
-        {
-            m_resultNameAndSize.push_back( resultNameAndSize );
-        }
-        std::vector<EclEntry> resultNameAndSize() const { return m_resultNameAndSize; }
-
-        std::vector<int> branchIds() const
-        {
-            std::unordered_set<int> s;
-            for ( const auto& segData : m_topology )
-            {
-                s.insert( segData.segBrno() );
-            }
-
-            std::vector<int> v;
-            v.assign( s.begin(), s.end() );
-            sort( v.begin(), v.end() );
-
-            return v;
-        }
-
-        std::vector<size_t> indicesForBranchNumber( int branchNumber ) const
-        {
-            std::vector<size_t> v;
-            for ( size_t i = 0; i < m_topology.size(); i++ )
-            {
-                auto segment = m_topology[i];
-                if ( branchNumber <= 0 || segment.segBrno() == branchNumber )
-                {
-                    v.push_back( i );
-                }
-            }
-
-            return v;
-        }
-
-    private:
-        std::vector<RftSegmentData> m_topology;
-        std::vector<EclEntry>       m_resultNameAndSize;
-    };
-
-    using RftDate       = std::tuple<int, int, int>;
-    using RftSegmentKey = std::pair<std::string, RftDate>;
-
-private:
     void buildMetaData();
     void buildSegmentData();
     void segmentDataDebugLog() const;
@@ -150,5 +69,8 @@ private:
     std::set<QString>              m_wellNames;
 
     // Segment data
-    std::map<RftSegmentKey, RftSegment> m_rftWellDateSegments2;
+    // RftDate must be synced with definition in Opm::EclIO::ERft::RftDate
+    using RftDate       = std::tuple<int, int, int>;
+    using RftSegmentKey = std::pair<std::string, RftDate>;
+    std::map<RftSegmentKey, RifRftSegment> m_rftWellDateSegments;
 };

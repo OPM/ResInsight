@@ -54,8 +54,10 @@ public:
 public:
     RifEclipseRftAddress( QString wellName, QDateTime timeStep, RftWellLogChannelType wellLogChannel );
 
-    void    setResultName( const QString& resultName );
-    QString resultName() const;
+    static RifEclipseRftAddress
+        createSegmentResult( const QString& wellName, const QDateTime& dateTime, const QString& resultName );
+
+    QString segmentResultName() const;
 
     void setSegmentBranchNumber( int branchNumber );
     int  segmentBranchNumber() const;
@@ -68,12 +70,15 @@ public:
     static std::set<RftWellLogChannelType> pltPlotChannelTypes();
 
 private:
+    void setSegmentResultName( const QString& resultName );
+
+private:
     QString               m_wellName;
-    QString               m_resultName;
     QDateTime             m_timeStep;
     RftWellLogChannelType m_wellLogChannel;
 
-    int m_segmentBranchNumber;
+    QString m_segmentResultName;
+    int     m_segmentBranchNumber;
 };
 
 bool operator==( const RifEclipseRftAddress& first, const RifEclipseRftAddress& second );

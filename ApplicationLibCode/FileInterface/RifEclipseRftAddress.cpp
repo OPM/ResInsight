@@ -32,17 +32,31 @@ RifEclipseRftAddress::RifEclipseRftAddress( QString wellName, QDateTime timeStep
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RifEclipseRftAddress::setResultName( const QString& resultName )
+RifEclipseRftAddress RifEclipseRftAddress::createSegmentResult( const QString&   wellName,
+                                                                const QDateTime& dateTime,
+                                                                const QString&   resultName )
 {
-    m_resultName = resultName;
+    auto adr = RifEclipseRftAddress( wellName, dateTime, RifEclipseRftAddress::RftWellLogChannelType::SEGMENT_VALUES );
+
+    adr.setSegmentResultName( resultName );
+
+    return adr;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RifEclipseRftAddress::resultName() const
+void RifEclipseRftAddress::setSegmentResultName( const QString& resultName )
 {
-    return m_resultName;
+    m_segmentResultName = resultName;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RifEclipseRftAddress::segmentResultName() const
+{
+    return m_segmentResultName;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -116,7 +130,7 @@ bool operator==( const RifEclipseRftAddress& first, const RifEclipseRftAddress& 
     if ( first.wellName() != second.wellName() ) return false;
     if ( first.timeStep() != second.timeStep() ) return false;
     if ( first.wellLogChannel() != second.wellLogChannel() ) return false;
-    if ( first.resultName() != second.resultName() ) return false;
+    if ( first.segmentResultName() != second.segmentResultName() ) return false;
     if ( first.segmentBranchNumber() != second.segmentBranchNumber() ) return false;
 
     return true;
@@ -131,7 +145,8 @@ bool operator<( const RifEclipseRftAddress& first, const RifEclipseRftAddress& s
     if ( first.timeStep() != second.timeStep() ) return ( first.timeStep() < second.timeStep() );
     if ( first.wellLogChannel() != second.wellLogChannel() )
         return ( first.wellLogChannel() < second.wellLogChannel() );
-    if ( first.resultName() != second.resultName() ) return first.resultName() < second.resultName();
+    if ( first.segmentResultName() != second.segmentResultName() )
+        return first.segmentResultName() < second.segmentResultName();
     if ( first.segmentBranchNumber() != second.segmentBranchNumber() )
         return first.segmentBranchNumber() < second.segmentBranchNumber();
 

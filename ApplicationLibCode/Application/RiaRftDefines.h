@@ -19,8 +19,6 @@
 #pragma once
 
 #include <QString>
-#include <set>
-#include <vector>
 
 namespace RiaDefines
 {

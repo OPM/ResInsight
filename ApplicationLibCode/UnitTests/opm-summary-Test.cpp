@@ -1,14 +1,15 @@
 #include "gtest/gtest.h"
 
+#include "RiaRftDefines.h"
 #include "RiaTestDataDirectory.h"
-#include "RifOpmCommonSummary.h"
 
+#include "RifOpmCommonSummary.h"
 #include "RifReaderOpmRft.h"
+
 #include "opm/io/eclipse/ERft.hpp"
 #include "opm/io/eclipse/ESmry.hpp"
 #include "opm/io/eclipse/ExtESmry.hpp"
 
-#include "RiaRftDefines.h"
 #include <QDebug>
 
 static const QString H5_TEST_DATA_DIRECTORY = QString( "%1/h5-file/" ).arg( TEST_DATA_DIR );
@@ -281,9 +282,9 @@ TEST( OpmSummaryTests, OpmComputeSegmentTopology )
 
         for ( const auto& adr : segmentAdresses )
         {
-            qDebug() << adr.timeStep().toString( "YYYY MM dd" ) << " " << adr.resultName();
+            qDebug() << adr.timeStep().toString( "YYYY MM dd" ) << " " << adr.segmentResultName();
 
-            if ( adr.resultName() == RiaDefines::segmentNumberResultName() )
+            if ( adr.segmentResultName() == RiaDefines::segmentNumberResultName() )
             {
                 std::vector<double> values;
                 reader.values( adr, &values );
