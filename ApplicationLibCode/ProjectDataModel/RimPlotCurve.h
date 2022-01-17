@@ -122,7 +122,7 @@ public:
     void setParentPlotAndReplot( RiuPlotWidget* );
 
     void attach( RiuPlotWidget* );
-    void detach();
+    void detach( bool deletePlotCurve = false );
     void reattach();
     bool isSameCurve( const RiuPlotCurve* plotCurve ) const;
 
