@@ -28,6 +28,7 @@
 
 #include "cvfObject.h"
 
+#include <QDateTime>
 #include <map>
 
 class RifReaderRftInterface;
@@ -45,6 +46,13 @@ class RimWellPath;
 class RimWellLogRftCurve : public RimWellLogCurve
 {
     CAF_PDM_HEADER_INIT;
+
+public:
+    enum class RftDataType
+    {
+        RFT_DATA,
+        RFT_SEGMENT_DATA
+    };
 
 private:
     enum class DerivedMDSource
@@ -79,7 +87,6 @@ public:
     RifEclipseRftAddress rftAddress() const;
 
     void setDefaultAddress( QString wellName );
-    void updateWellChannelNameAndTimeStep();
 
     void setSimWellBranchData( bool branchDetection, int branchIndex );
 
@@ -104,6 +111,7 @@ private:
     bool                createWellPathIdxToRftFileIdxMapping();
     size_t              rftFileIndex( size_t wellPathIndex );
     std::vector<size_t> sortedIndicesInRftFile();
+    void                updateWellChannelNameAndTimeStep();
 
     std::vector<double> xValues();
     std::vector<double> errorValues();
@@ -126,6 +134,8 @@ private:
     caf::PdmField<QString>                      m_wellName;
     caf::PdmField<int>                          m_branchIndex;
     caf::PdmField<bool>                         m_branchDetection;
+
+    caf::PdmField<caf::AppEnum<RimWellLogRftCurve::RftDataType>> m_rftDataType;
 
     caf::PdmField<QString> m_segmentResultName;
     caf::PdmField<QString> m_segmentBranchId;

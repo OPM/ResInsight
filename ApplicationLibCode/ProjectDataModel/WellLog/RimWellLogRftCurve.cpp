@@ -89,6 +89,17 @@ void caf::AppEnum<RifEclipseRftAddress::RftWellLogChannelType>::setUp()
 }
 } // namespace caf
 
+namespace caf
+{
+template <>
+void caf::AppEnum<RimWellLogRftCurve::RftDataType>::setUp()
+{
+    addItem( RimWellLogRftCurve::RftDataType::RFT_DATA, "RFT_DATA", "RFT" );
+    addItem( RimWellLogRftCurve::RftDataType::RFT_SEGMENT_DATA, "RFT_SEGMENT_DATA", "RFT Segment" );
+    setDefault( RimWellLogRftCurve::RftDataType::RFT_DATA );
+}
+} // namespace caf
+
 CAF_PDM_SOURCE_INIT( RimWellLogRftCurve, "WellLogRftCurve" );
 
 //--------------------------------------------------------------------------------------------------
@@ -123,6 +134,7 @@ RimWellLogRftCurve::RimWellLogRftCurve()
                        "" );
 
     CAF_PDM_InitFieldNoDefault( &m_wellLogChannelName, "WellLogChannelName", "Well Property" );
+    CAF_PDM_InitFieldNoDefault( &m_rftDataType, "RftDataType", "Data Type" );
 
     CAF_PDM_InitField( &m_segmentResultName, "SegmentResultName", RiaResultNames::undefinedResultName(), "Segment Result Name" );
     CAF_PDM_InitField( &m_segmentBranchId, "SegmentBranchId", RiaResultNames::undefinedResultName(), "Segment Branch" );
@@ -563,17 +575,23 @@ void RimWellLogRftCurve::defineUiOrdering( QString uiConfigName, caf::PdmUiOrder
     caf::PdmUiGroup* curveDataGroup = uiOrdering.addNewGroup( "Curve Data" );
     curveDataGroup->add( &m_eclipseResultCase );
     curveDataGroup->add( &m_wellName );
-
-    RiaSimWellBranchTools::appendSimWellBranchFieldsIfRequiredFromWellName( curveDataGroup,
-                                                                            m_wellName,
-                                                                            m_branchDetection,
-                                                                            m_branchIndex );
-
-    curveDataGroup->add( &m_wellLogChannelName );
     curveDataGroup->add( &m_timeStep );
+    curveDataGroup->add( &m_rftDataType );
 
-    curveDataGroup->add( &m_segmentResultName );
-    curveDataGroup->add( &m_segmentBranchId );
+    if ( m_rftDataType() == RimWellLogRftCurve::RftDataType::RFT_DATA )
+    {
+        curveDataGroup->add( &m_wellLogChannelName );
+
+        RiaSimWellBranchTools::appendSimWellBranchFieldsIfRequiredFromWellName( curveDataGroup,
+                                                                                m_wellName,
+                                                                                m_branchDetection,
+                                                                                m_branchIndex );
+    }
+    else
+    {
+        curveDataGroup->add( &m_segmentResultName );
+        curveDataGroup->add( &m_segmentBranchId );
+    }
 
     caf::PdmUiGroup* stackingGroup = uiOrdering.addNewGroup( "Stacking" );
     RimStackablePlotCurve::stackingUiOrdering( *stackingGroup );
@@ -719,6 +737,8 @@ void RimWellLogRftCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedFie
 {
     m_idxInWellPathToIdxInRftFile.clear();
 
+    bool loadData = false;
+
     RimWellLogCurve::fieldChangedByUi( changedField, oldValue, newValue );
     if ( changedField == &m_eclipseResultCase )
     {
@@ -726,14 +746,14 @@ void RimWellLogRftCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedFie
         m_wellName           = "";
         m_wellLogChannelName = RifEclipseRftAddress::RftWellLogChannelType::NONE;
 
-        this->loadDataAndUpdate( true );
+        loadData = true;
     }
     else if ( changedField == &m_wellName )
     {
         m_branchIndex = 0;
 
         updateWellChannelNameAndTimeStep();
-        this->loadDataAndUpdate( true );
+        loadData = true;
     }
     else if ( changedField == &m_branchDetection || changedField == &m_branchIndex )
     {
@@ -742,7 +762,7 @@ void RimWellLogRftCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedFie
         m_branchIndex = RiaSimWellBranchTools::clampBranchIndex( simWellName, m_branchIndex, m_branchDetection );
 
         updateWellChannelNameAndTimeStep();
-        this->loadDataAndUpdate( true );
+        loadData = true;
     }
     else if ( changedField == &m_wellLogChannelName )
     {
@@ -750,16 +770,15 @@ void RimWellLogRftCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedFie
         {
             m_timeStep = QDateTime();
         }
-        this->loadDataAndUpdate( true );
+        loadData = true;
     }
-    else if ( changedField == &m_timeStep )
+    else if ( changedField == &m_timeStep || changedField == &m_segmentResultName ||
+              changedField == &m_segmentBranchId || changedField == &m_rftDataType )
     {
-        this->loadDataAndUpdate( true );
+        loadData = true;
     }
-    else if ( changedField == &m_segmentResultName || changedField == &m_segmentBranchId )
-    {
-        this->loadDataAndUpdate( true );
-    }
+
+    if ( loadData ) this->loadDataAndUpdate( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -936,7 +955,7 @@ std::vector<double> RimWellLogRftCurve::xValues()
 
     if ( !reader ) return values;
 
-    if ( m_segmentResultName != RiaResultNames::undefinedResultName() )
+    if ( m_rftDataType() == RftDataType::RFT_SEGMENT_DATA )
     {
         auto depthAddress = RifEclipseRftAddress::createSegmentResult( m_wellName(), m_timeStep, m_segmentResultName() );
         depthAddress.setSegmentBranchNumber( segmentBranchNumber() );
@@ -978,7 +997,7 @@ std::vector<double> RimWellLogRftCurve::errorValues()
     RifReaderRftInterface* reader = rftReader();
     std::vector<double>    errorValues;
 
-    if ( reader && m_segmentResultName != RiaResultNames::undefinedResultName() )
+    if ( reader && m_rftDataType() == RftDataType::RFT_DATA )
     {
         RifEclipseRftAddress errorAddress( m_wellName(),
                                            m_timeStep,
@@ -999,7 +1018,7 @@ std::vector<double> RimWellLogRftCurve::tvDepthValues()
 
     if ( !reader ) return values;
 
-    if ( m_segmentResultName != RiaResultNames::undefinedResultName() )
+    if ( m_rftDataType() == RftDataType::RFT_SEGMENT_DATA )
     {
         auto depthAddress =
             RifEclipseRftAddress::createSegmentResult( m_wellName(), m_timeStep, RiaDefines::segmentTvdDepthResultName() );
@@ -1037,7 +1056,7 @@ std::vector<double> RimWellLogRftCurve::tvDepthValues()
 //--------------------------------------------------------------------------------------------------
 std::vector<double> RimWellLogRftCurve::measuredDepthValues()
 {
-    if ( m_segmentResultName != RiaResultNames::undefinedResultName() )
+    if ( m_rftDataType() == RftDataType::RFT_SEGMENT_DATA )
     {
         std::vector<double> values;
 
