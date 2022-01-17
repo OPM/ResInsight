@@ -19,6 +19,7 @@
 #include "RifReaderOpmRft.h"
 
 #include "RiaLogging.h"
+#include "RiaQDateTimeTools.h"
 #include "RiaRftDefines.h"
 #include "RiaStdStringTools.h"
 
@@ -278,13 +279,12 @@ void RifReaderOpmRft::buildMetaData()
             int m = std::get<1>( reportDate );
             int d = std::get<2>( reportDate );
 
-            QDateTime dateTime;
-            dateTime.setDate( QDate( y, m, d ) );
+            auto dt = RiaQDateTimeTools::createUtcDateTime( QDate( y, m, d ) );
 
             auto channelTypes = identifyChannelType( resultDataName );
             if ( channelTypes != RifEclipseRftAddress::RftWellLogChannelType::NONE )
             {
-                auto adr = RifEclipseRftAddress( QString::fromStdString( wellName ), dateTime, channelTypes );
+                auto adr = RifEclipseRftAddress( QString::fromStdString( wellName ), dt, channelTypes );
                 m_addresses.insert( adr );
             }
         }
