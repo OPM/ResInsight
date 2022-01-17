@@ -310,11 +310,11 @@ void RimEnsembleCurveSet::setParentPlotNoReplot( RiuPlotWidget* plot )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEnsembleCurveSet::detachPlotCurves()
+void RimEnsembleCurveSet::detachPlotCurves( bool deletePlotCurve )
 {
     for ( RimSummaryCurve* curve : m_curves )
     {
-        curve->detach();
+        curve->detach( deletePlotCurve );
     }
 
     if ( m_plotCurveForLegendText )

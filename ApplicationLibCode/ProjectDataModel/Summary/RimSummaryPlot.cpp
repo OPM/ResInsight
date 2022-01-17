@@ -1525,6 +1525,29 @@ void RimSummaryPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
         }
     }
 
+#ifdef USE_QTCHARTS
+    if ( changedField == &m_useQtChartsPlot )
+    {
+        // Hide window
+        setShowWindow( false );
+
+        // Detach and destroy plot curves
+        for ( auto c : summaryCurves() )
+        {
+            c->detach( true );
+        }
+
+        for ( auto& curveSet : this->ensembleCurveSetCollection()->curveSets() )
+        {
+            curveSet->detachPlotCurves( true );
+        }
+
+        // Destroy viewer
+        removeMdiWindowFromMdiArea();
+        cleanupBeforeClose();
+    }
+#endif
+
     if ( changedField == &m_normalizeCurveYValues )
     {
         this->loadDataAndUpdate();

@@ -95,7 +95,7 @@ public:
 
     void loadDataAndUpdate( bool updateParentPlot );
     void setParentPlotNoReplot( RiuPlotWidget* plot );
-    void detachPlotCurves();
+    void detachPlotCurves( bool deletePlotCurve = false );
     void reattachPlotCurves();
 
     void addCurve( RimSummaryCurve* curve );

@@ -1011,11 +1011,16 @@ void RimPlotCurve::attach( RiuPlotWidget* plotWidget )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPlotCurve::detach()
+void RimPlotCurve::detach( bool deletePlotCurve )
 {
     if ( m_plotCurve )
     {
         m_plotCurve->detach();
+        if ( deletePlotCurve )
+        {
+            delete m_plotCurve;
+            m_plotCurve = nullptr;
+        }
     }
 
     replotParentPlot();
