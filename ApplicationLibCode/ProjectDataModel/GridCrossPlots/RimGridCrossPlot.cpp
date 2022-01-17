@@ -606,6 +606,7 @@ void RimGridCrossPlot::updatePlot()
         for ( auto dataSet : m_crossPlotDataSets )
         {
             dataSet->setParentPlotNoReplot( m_plotWidget );
+            dataSet->loadDataAndUpdate( false );
         }
 
         updateLegend();

@@ -979,7 +979,7 @@ std::pair<double, double> RimPlotCurve::sample( int index ) const
 //--------------------------------------------------------------------------------------------------
 void RimPlotCurve::setParentPlotNoReplot( RiuPlotWidget* plotWidget )
 {
-    CAF_ASSERT( plotWidget );
+    if ( !plotWidget ) return;
 
     m_parentPlot = plotWidget;
     if ( !m_plotCurve )
@@ -1016,8 +1016,6 @@ void RimPlotCurve::detach()
     if ( m_plotCurve )
     {
         m_plotCurve->detach();
-        delete m_plotCurve;
-        m_plotCurve = nullptr;
     }
 
     replotParentPlot();
