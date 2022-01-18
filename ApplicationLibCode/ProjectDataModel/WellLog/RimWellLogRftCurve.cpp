@@ -369,14 +369,26 @@ QString RimWellLogRftCurve::createCurveAutoName()
     {
         name.push_back( m_observedFmuRftData->name() );
     }
-    if ( wellLogChannelUiName() != caf::AppEnum<RifEclipseRftAddress::RftWellLogChannelType>::text(
-                                       RifEclipseRftAddress::RftWellLogChannelType::NONE ) )
+
+    if ( m_rftDataType() == RftDataType::RFT_DATA )
     {
-        RifEclipseRftAddress::RftWellLogChannelType channelNameEnum =
-            caf::AppEnum<RifEclipseRftAddress::RftWellLogChannelType>::fromText( wellLogChannelUiName() );
-        QString channelName = caf::AppEnum<RifEclipseRftAddress::RftWellLogChannelType>::uiText( channelNameEnum );
-        name.push_back( channelName );
+        if ( wellLogChannelUiName() != caf::AppEnum<RifEclipseRftAddress::RftWellLogChannelType>::text(
+                                           RifEclipseRftAddress::RftWellLogChannelType::NONE ) )
+        {
+            RifEclipseRftAddress::RftWellLogChannelType channelNameEnum =
+                caf::AppEnum<RifEclipseRftAddress::RftWellLogChannelType>::fromText( wellLogChannelUiName() );
+            QString channelName = caf::AppEnum<RifEclipseRftAddress::RftWellLogChannelType>::uiText( channelNameEnum );
+            name.push_back( channelName );
+        }
     }
+    else if ( m_rftDataType() == RftDataType::RFT_SEGMENT_DATA )
+    {
+        name.push_back( m_segmentResultName );
+
+        QString branchText = "Branch " + m_segmentBranchId();
+        name.push_back( branchText );
+    }
+
     if ( !m_timeStep().isNull() )
     {
         name.push_back( m_timeStep().toString( RiaQDateTimeTools::dateFormatString() ) );
