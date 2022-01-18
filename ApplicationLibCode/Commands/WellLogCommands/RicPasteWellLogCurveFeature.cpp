@@ -25,6 +25,7 @@
 #include "RimWellLogCurve.h"
 #include "RimWellLogExtractionCurve.h"
 #include "RimWellLogFileCurve.h"
+#include "RimWellLogRftCurve.h"
 #include "RimWellLogTrack.h"
 #include "RimWellMeasurementCurve.h"
 
@@ -46,8 +47,7 @@ bool RicPasteWellLogCurveFeature::isCommandEnabled()
     if ( RicWellLogPlotCurveFeatureImpl::parentWellAllocationPlot() ) return false;
     if ( RicWellLogPlotCurveFeatureImpl::parentWellRftPlot() ) return false;
 
-    caf::PdmObjectHandle* destinationObject =
-        dynamic_cast<caf::PdmObjectHandle*>( caf::SelectionManager::instance()->selectedItem() );
+    auto* destinationObject = dynamic_cast<caf::PdmObjectHandle*>( caf::SelectionManager::instance()->selectedItem() );
     if ( !destinationObject ) return false;
 
     RimWellLogTrack* wellLogTrack = nullptr;
@@ -62,16 +62,16 @@ bool RicPasteWellLogCurveFeature::isCommandEnabled()
 
     std::vector<caf::PdmPointer<RimWellLogCurve>> sourceObjects = RicPasteWellLogCurveFeature::curves();
 
-    for ( size_t i = 0; i < sourceObjects.size(); i++ )
+    for ( const auto& sourceObject : sourceObjects )
     {
         RimWellBoreStabilityPlot* originalWbsPlot = nullptr;
-        sourceObjects[i]->firstAncestorOrThisOfType( originalWbsPlot );
+        sourceObject->firstAncestorOrThisOfType( originalWbsPlot );
         if ( originalWbsPlot && originalWbsPlot != wbsPlotToPasteInto )
         {
             return false;
         }
     }
-    return RicPasteWellLogCurveFeature::curves().size() > 0;
+    return !RicPasteWellLogCurveFeature::curves().empty();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -81,8 +81,7 @@ void RicPasteWellLogCurveFeature::onActionTriggered( bool isChecked )
 {
     if ( RicWellLogPlotCurveFeatureImpl::parentWellAllocationPlot() ) return;
 
-    caf::PdmObjectHandle* destinationObject =
-        dynamic_cast<caf::PdmObjectHandle*>( caf::SelectionManager::instance()->selectedItem() );
+    auto* destinationObject = dynamic_cast<caf::PdmObjectHandle*>( caf::SelectionManager::instance()->selectedItem() );
     if ( !destinationObject ) return;
 
     RimWellLogTrack* wellLogTrack = nullptr;
@@ -97,39 +96,23 @@ void RicPasteWellLogCurveFeature::onActionTriggered( bool isChecked )
 
     std::vector<caf::PdmPointer<RimWellLogCurve>> sourceObjects = RicPasteWellLogCurveFeature::curves();
 
-    for ( size_t i = 0; i < sourceObjects.size(); i++ )
+    for ( const auto& sourceObject : sourceObjects )
     {
         RimWellBoreStabilityPlot* originalWbsPlot = nullptr;
-        sourceObjects[i]->firstAncestorOrThisOfType( originalWbsPlot );
+        sourceObject->firstAncestorOrThisOfType( originalWbsPlot );
         if ( originalWbsPlot && originalWbsPlot != wbsPlotToPasteInto )
         {
             continue;
         }
 
-        RimWellLogFileCurve*     fileCurve        = dynamic_cast<RimWellLogFileCurve*>( sourceObjects[i].p() );
-        RimWellMeasurementCurve* measurementCurve = dynamic_cast<RimWellMeasurementCurve*>( sourceObjects[i].p() );
-        if ( fileCurve || measurementCurve )
+        auto* fileCurve        = dynamic_cast<RimWellLogCurve*>( sourceObject.p() );
+        auto* measurementCurve = dynamic_cast<RimWellMeasurementCurve*>( sourceObject.p() );
+        auto* extractionCurve  = dynamic_cast<RimWellLogExtractionCurve*>( sourceObject.p() );
+        auto* rftCurve         = dynamic_cast<RimWellLogRftCurve*>( sourceObject.p() );
+        if ( fileCurve || measurementCurve || extractionCurve || rftCurve )
         {
-            RimWellLogFileCurve* newObject = dynamic_cast<RimWellLogFileCurve*>(
-                sourceObjects[i]->xmlCapability()->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
-            CVF_ASSERT( newObject );
-
-            wellLogTrack->addCurve( newObject );
-
-            // Resolve references after object has been inserted into the project data model
-            newObject->resolveReferencesRecursively();
-            newObject->initAfterReadRecursively();
-
-            newObject->loadDataAndUpdate( true );
-
-            wellLogTrack->updateConnectedEditors();
-        }
-
-        RimWellLogExtractionCurve* extractionCurve = dynamic_cast<RimWellLogExtractionCurve*>( sourceObjects[i].p() );
-        if ( extractionCurve )
-        {
-            RimWellLogExtractionCurve* newObject = dynamic_cast<RimWellLogExtractionCurve*>(
-                sourceObjects[i]->xmlCapability()->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
+            auto* newObject = dynamic_cast<RimWellLogCurve*>(
+                sourceObject->xmlCapability()->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
             CVF_ASSERT( newObject );
 
             wellLogTrack->addCurve( newObject );
