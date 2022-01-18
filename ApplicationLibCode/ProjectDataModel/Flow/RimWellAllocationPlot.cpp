@@ -951,6 +951,9 @@ void RimWellAllocationPlot::onLoadDataAndUpdate()
         return;
     }
 
+    // Other plot functions depend on a valid plot widget, early reject to avoid a lot of testing on valid widget
+    if ( !m_wellAllocationPlotWidget ) return;
+
     updateFromWell();
     m_accumulatedWellFlowPlot->loadDataAndUpdate();
     updateFormationNamesData();
