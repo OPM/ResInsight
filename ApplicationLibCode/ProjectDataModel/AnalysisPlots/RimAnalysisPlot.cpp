@@ -873,22 +873,22 @@ void RimAnalysisPlot::updateAxes()
 {
     if ( !m_plotWidget ) return;
 
-    RiaDefines::PlotAxis axis = RiaDefines::PlotAxis::PLOT_AXIS_LEFT;
+    RiuPlotAxis axis = RiuPlotAxis::defaultLeft();
     if ( m_barOrientation == BARS_HORIZONTAL )
     {
-        axis = RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM;
-        m_plotWidget->setAxisTitleEnabled( RiaDefines::PlotAxis::PLOT_AXIS_LEFT, false );
+        axis = RiuPlotAxis::defaultBottom();
+        m_plotWidget->setAxisTitleEnabled( RiuPlotAxis::defaultLeft(), false );
     }
     else
     {
-        m_plotWidget->setAxisTitleEnabled( RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM, false );
+        m_plotWidget->setAxisTitleEnabled( RiuPlotAxis::defaultBottom(), false );
     }
 
     RimPlotAxisProperties* valAxisProperties = m_valueAxisProperties();
     if ( valAxisProperties->isActive() )
     {
         m_plotWidget->enableAxis( axis, true );
-        m_valueAxisProperties->setNameAndAxis( "Value-Axis", axis );
+        m_valueAxisProperties->setNameAndAxis( "Value-Axis", axis.axis() );
 
         RimSummaryPlotAxisFormatter calc( valAxisProperties, {}, curveDefinitions(), {}, {} );
         calc.applyAxisPropertiesToPlot( m_plotWidget );

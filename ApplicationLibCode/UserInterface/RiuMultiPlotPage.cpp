@@ -620,10 +620,10 @@ void RiuMultiPlotPage::reinsertPlotWidgets()
             subTitleFont.setPixelSize( m_subTitleFontPixelSize );
             subTitles[visibleIndex]->setFont( subTitleFont );
 
-            plotWidgets[visibleIndex]->setAxisLabelsAndTicksEnabled( RiaDefines::PlotAxis::PLOT_AXIS_LEFT,
+            plotWidgets[visibleIndex]->setAxisLabelsAndTicksEnabled( RiuPlotAxis::defaultLeft(),
                                                                      showYAxis( row, column ),
                                                                      showYAxis( row, column ) );
-            plotWidgets[visibleIndex]->setAxisTitleEnabled( RiaDefines::PlotAxis::PLOT_AXIS_LEFT, showYAxis( row, column ) );
+            plotWidgets[visibleIndex]->setAxisTitleEnabled( RiuPlotAxis::defaultLeft(), showYAxis( row, column ) );
             plotWidgets[visibleIndex]->setAxesFontsAndAlignment( m_axisTitleFontSize, m_axisValueFontSize );
 
             {
@@ -698,7 +698,7 @@ int RiuMultiPlotPage::alignCanvasTops()
         if ( qwtPlotWidget )
         {
             int row = visibleIndex / rowAndColumnCount.second;
-            if ( plotWidgets[visibleIndex]->axisEnabled( RiaDefines::PlotAxis::PLOT_AXIS_TOP ) )
+            if ( plotWidgets[visibleIndex]->axisEnabled( RiuPlotAxis::defaultTop() ) )
             {
                 QFont font      = qwtPlotWidget->qwtPlot()->axisFont( QwtPlot::xTop );
                 maxExtents[row] = std::max( maxExtents[row],

@@ -376,10 +376,10 @@ void RimWellDistributionPlot::onLoadDataAndUpdate()
         QString( "%1 Distribution: %2, %3" ).arg( phaseString ).arg( m_wellName ).arg( timeStepName );
     m_plotWidget->setPlotTitle( plotTitleStr );
 
-    m_plotWidget->setAxisTitleText( RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM, "TOF [years]" );
-    m_plotWidget->setAxisTitleText( RiaDefines::PlotAxis::PLOT_AXIS_LEFT, "Reservoir Volume [m3]" );
-    m_plotWidget->setAxisTitleEnabled( RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM, true );
-    m_plotWidget->setAxisTitleEnabled( RiaDefines::PlotAxis::PLOT_AXIS_LEFT, true );
+    m_plotWidget->setAxisTitleText( RiuPlotAxis::defaultBottom(), "TOF [years]" );
+    m_plotWidget->setAxisTitleText( RiuPlotAxis::defaultLeft(), "Reservoir Volume [m3]" );
+    m_plotWidget->setAxisTitleEnabled( RiuPlotAxis::defaultBottom(), true );
+    m_plotWidget->setAxisTitleEnabled( RiuPlotAxis::defaultLeft(), true );
 
     m_plotWidget->scheduleReplot();
 }
@@ -398,10 +398,10 @@ void RimWellDistributionPlot::populatePlotWidgetWithCurveData( const RigTofWellD
     const double baseCurveZValue = 9.5;
 
     plotWidget->qwtPlot()->detachItems( QwtPlotItem::Rtti_PlotCurve );
-    plotWidget->setAxisScale( RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM, 0, 1 );
-    plotWidget->setAxisScale( RiaDefines::PlotAxis::PLOT_AXIS_LEFT, 0, 1 );
-    plotWidget->setAxisAutoScale( RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM, true );
-    plotWidget->setAxisAutoScale( RiaDefines::PlotAxis::PLOT_AXIS_LEFT, true );
+    plotWidget->setAxisScale( RiuPlotAxis::defaultBottom(), 0, 1 );
+    plotWidget->setAxisScale( RiuPlotAxis::defaultLeft(), 0, 1 );
+    plotWidget->setAxisAutoScale( RiuPlotAxis::defaultBottom(), true );
+    plotWidget->setAxisAutoScale( RiuPlotAxis::defaultLeft(), true );
 
     const std::vector<double>& tofValuesDays = calculator.sortedUniqueTofValues();
     if ( tofValuesDays.size() == 0 )

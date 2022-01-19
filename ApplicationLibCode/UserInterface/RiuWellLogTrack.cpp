@@ -139,7 +139,7 @@ RiuWellLogTrack::~RiuWellLogTrack()
 //--------------------------------------------------------------------------------------------------
 void RiuWellLogTrack::setAxisEnabled( QwtPlot::Axis axis, bool enabled )
 {
-    RiaDefines::PlotAxis plotAxis = RiuQwtPlotTools::fromQwtPlotAxis( axis );
+    RiuPlotAxis plotAxis = RiuPlotAxis( RiuQwtPlotTools::fromQwtPlotAxis( axis ) );
     RiuQwtPlotWidget::enableAxis( plotAxis, enabled );
 
     if ( enabled )

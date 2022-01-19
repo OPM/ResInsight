@@ -278,7 +278,7 @@ RimSummaryCurve* RicPlotProductionRateFeature::addSummaryCurve( RimSummaryPlot* 
     newCurve->setSummaryCaseY( gridSummaryCase );
     newCurve->setSummaryAddressYAndApplyInterpolation( addr );
     newCurve->setColor( color );
-    newCurve->setLeftOrRightAxisY( plotAxis );
+    newCurve->setLeftOrRightAxisY( RiuPlotAxis( plotAxis ) );
     newCurve->loadDataAndUpdate( true );
 
     return newCurve;

@@ -188,29 +188,29 @@ void RimParameterResultCrossPlot::updateAxes()
 {
     if ( !m_plotWidget ) return;
 
-    m_plotWidget->setAxisTitleText( RiaDefines::PlotAxis::PLOT_AXIS_LEFT, completeAddressText() );
-    m_plotWidget->setAxisTitleEnabled( RiaDefines::PlotAxis::PLOT_AXIS_LEFT, true );
-    m_plotWidget->setAxisFontsAndAlignment( RiaDefines::PlotAxis::PLOT_AXIS_LEFT,
+    m_plotWidget->setAxisTitleText( RiuPlotAxis::defaultLeft(), completeAddressText() );
+    m_plotWidget->setAxisTitleEnabled( RiuPlotAxis::defaultLeft(), true );
+    m_plotWidget->setAxisFontsAndAlignment( RiuPlotAxis::defaultLeft(),
                                             axisTitleFontSize(),
                                             axisValueFontSize(),
                                             false,
                                             Qt::AlignCenter );
 
     double yRangeWidth = m_yRange.second - m_yRange.first;
-    m_plotWidget->setAxisRange( RiaDefines::PlotAxis::PLOT_AXIS_LEFT,
+    m_plotWidget->setAxisRange( RiuPlotAxis::defaultLeft(),
                                 m_yRange.first - yRangeWidth * 0.1,
                                 m_yRange.second + yRangeWidth * 0.1 );
 
-    m_plotWidget->setAxisTitleText( RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM, m_ensembleParameter );
-    m_plotWidget->setAxisTitleEnabled( RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM, true );
-    m_plotWidget->setAxisFontsAndAlignment( RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM,
+    m_plotWidget->setAxisTitleText( RiuPlotAxis::defaultBottom(), m_ensembleParameter );
+    m_plotWidget->setAxisTitleEnabled( RiuPlotAxis::defaultBottom(), true );
+    m_plotWidget->setAxisFontsAndAlignment( RiuPlotAxis::defaultBottom(),
                                             axisTitleFontSize(),
                                             axisValueFontSize(),
                                             false,
                                             Qt::AlignCenter );
 
     double xRangeWidth = m_xRange.second - m_xRange.first;
-    m_plotWidget->setAxisRange( RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM,
+    m_plotWidget->setAxisRange( RiuPlotAxis::defaultBottom(),
                                 m_xRange.first - xRangeWidth * 0.1,
                                 m_xRange.second + xRangeWidth * 0.1 );
 }

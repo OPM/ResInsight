@@ -34,6 +34,8 @@
 
 #include "RigEnsembleParameter.h"
 
+#include "RiuPlotAxis.h"
+
 #include "cafAppEnum.h"
 #include "cafPdmChildArrayField.h"
 #include "cafPdmChildField.h"
@@ -63,6 +65,7 @@ class RiaSummaryCurveDefinition;
 class RiuSummaryVectorSelectionDialog;
 class RiuPlotWidget;
 class RiuPlotCurve;
+class RimPlotAxisPropertiesInterface;
 
 class QwtPlot;
 class QwtPlotCurve;
@@ -164,6 +167,9 @@ public:
 
     std::vector<cvf::Color3f> generateColorsForCases( const std::vector<RimSummaryCase*>& summaryCases ) const;
 
+protected:
+    void initAfterRead() override;
+
 private:
     void updateEnsembleCurves( const std::vector<RimSummaryCase*>& sumCases );
     void updateStatisticsCurves( const std::vector<RimSummaryCase*>& sumCases );
@@ -186,7 +192,8 @@ private:
 
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
-    void updatePlotAxis();
+    void        updatePlotAxis();
+    RiuPlotAxis axisY() const;
 
     QString createAutoName() const;
 
@@ -228,7 +235,8 @@ private:
     caf::PdmField<TimeStepFilterEnum>             m_timeStepFilter;
     caf::PdmField<std::vector<QDateTime>>         m_selectedTimeSteps;
 
-    caf::PdmField<caf::AppEnum<RiaDefines::PlotAxis>> m_plotAxis;
+    caf::PdmField<caf::AppEnum<RiaDefines::PlotAxis>> m_plotAxis_OBSOLETE;
+    caf::PdmPtrField<RimPlotAxisPropertiesInterface*> m_plotAxisProperties;
 
     caf::PdmChildField<RimRegularLegendConfig*>           m_legendConfig;
     caf::PdmChildField<RimEnsembleCurveFilterCollection*> m_curveFilters;

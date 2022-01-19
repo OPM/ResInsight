@@ -36,7 +36,7 @@
 ///
 ///
 //==================================================================================================
-class RimSummaryTimeAxisProperties : public caf::PdmObject, public RimPlotAxisPropertiesInterface
+class RimSummaryTimeAxisProperties : public RimPlotAxisPropertiesInterface
 {
     CAF_PDM_HEADER_INIT;
 
@@ -66,7 +66,7 @@ public:
     caf::PdmField<QString> title;
     caf::PdmField<bool>    showTitle;
 
-    RiaDefines::PlotAxis  plotAxisType() const override;
+    RiuPlotAxis           plotAxisType() const override;
     AxisTitlePositionType titlePosition() const override;
     int                   titleFontSize() const override;
     int                   valuesFontSize() const override;
@@ -88,16 +88,16 @@ public:
     const QString& dateFormat() const;
     const QString& timeFormat() const;
 
-    double visibleRangeMin() const;
-    double visibleRangeMax() const;
+    double visibleRangeMin() const override;
+    double visibleRangeMax() const override;
 
-    void setVisibleRangeMin( double value );
-    void setVisibleRangeMax( double value );
+    void setVisibleRangeMin( double value ) override;
+    void setVisibleRangeMax( double value ) override;
 
-    bool isAutoZoom() const;
-    void setAutoZoom( bool enableAutoZoom );
+    bool isAutoZoom() const override;
+    void setAutoZoom( bool enableAutoZoom ) override;
 
-    bool isActive() const;
+    bool isActive() const override;
 
     QDateTime visibleDateTimeMin() const;
     QDateTime visibleDateTimeMax() const;
@@ -107,6 +107,8 @@ public:
 
     LegendTickmarkCount majorTickmarkCount() const;
     void                setMajorTickmarkCount( LegendTickmarkCount count );
+
+    const QString& name() const override;
 
 protected:
     void                          fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;

@@ -179,8 +179,8 @@ void RimWellLogCurve::updateCurveAppearance()
 
     if ( m_plotCurve )
     {
-        m_plotCurve->setXAxis( RiaDefines::PlotAxis::PLOT_AXIS_TOP );
-        m_plotCurve->setYAxis( RiaDefines::PlotAxis::PLOT_AXIS_LEFT );
+        m_plotCurve->setXAxis( RiuPlotAxis::defaultTop() );
+        m_plotCurve->setYAxis( RiuPlotAxis::defaultLeft() );
     }
 
     if ( fillStyle() != Qt::BrushStyle::NoBrush )
