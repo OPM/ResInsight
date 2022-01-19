@@ -35,10 +35,10 @@
 
 class RifSummaryReaderInterface;
 class RimSummaryCase;
-class RiuQwtPlotCurve;
 class RimSummaryCurveAutoName;
 class RimSummaryAddress;
 class RiaSummaryCurveDefinition;
+class RimPlotAxisProperties;
 
 //==================================================================================================
 ///
@@ -146,5 +146,6 @@ private:
 
     caf::PdmChildField<RimSummaryCurveAutoName*>      m_curveNameConfig;
     caf::PdmField<caf::AppEnum<RiaDefines::PlotAxis>> m_plotAxis;
+    caf::PdmPtrField<RimPlotAxisProperties*>          m_plotAxisProperties;
     caf::PdmField<bool>                               m_isTopZWithinCategory;
 };
