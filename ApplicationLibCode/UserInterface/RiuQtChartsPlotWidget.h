@@ -201,6 +201,9 @@ private slots:
     void axisRangeChanged();
 
 private:
+    void                 addAxis( RiaDefines::PlotAxis plotAxis, bool isEnabled, bool isAutoScale );
+    static Qt::Alignment mapPlotAxisToQtAlignment( RiaDefines::PlotAxis axis );
+
     static int defaultMinimumWidth();
     void       replot() override;
 
