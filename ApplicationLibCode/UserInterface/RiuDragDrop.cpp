@@ -187,6 +187,26 @@ RiuDragDrop::~RiuDragDrop()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::vector<caf::PdmObjectHandle*> RiuDragDrop::draggedObjectsFromTreeView( caf::PdmUiTreeView* dragSource,
+                                                                            const QMimeData*    data )
+{
+    const MimeDataWithIndexes* myMimeData = qobject_cast<const MimeDataWithIndexes*>( data );
+    if ( myMimeData )
+    {
+        caf::PdmObjectGroup draggedObjects;
+        QModelIndexList     indices = myMimeData->indexes();
+
+        objectGroupFromModelIndexes( dragSource, &draggedObjects, indices );
+
+        return draggedObjects.objects;
+    }
+
+    return {};
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 Qt::DropActions RiuDragDrop::supportedDropActions() const
 {
     // Keep drag items so that we can determine allowed actions while dragging
@@ -352,7 +372,7 @@ bool RiuDragDrop::dropMimeData( const QMimeData* data, Qt::DropAction action, in
         if ( myMimeData && dropTargetIndex.isValid() )
         {
             QModelIndexList indices = myMimeData->indexes();
-            objectGroupFromModelIndexes( &draggedObjects, indices );
+            objectGroupFromModelIndexes( uiTreeView, &draggedObjects, indices );
         }
         else
         {
@@ -656,12 +676,13 @@ bool RiuDragDrop::handleSummaryCaseMainCollectionDrop( Qt::DropAction           
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuDragDrop::objectGroupFromModelIndexes( caf::PdmObjectGroup* objectGroup, const QModelIndexList& indexes )
+void RiuDragDrop::objectGroupFromModelIndexes( caf::PdmUiTreeView*    uiTreeView,
+                                               caf::PdmObjectGroup*   objectGroup,
+                                               const QModelIndexList& indexes )
 {
     CVF_ASSERT( objectGroup );
 
     objectGroup->objects.clear();
-    caf::PdmUiTreeView* uiTreeView = RiuMainWindow::instance()->projectTreeView();
 
     for ( int i = 0; i < indexes.size(); i++ )
     {

@@ -76,6 +76,7 @@
 #include <QRectF>
 #include <QString>
 
+#include "RimSummaryAddress.h"
 #include <algorithm>
 #include <limits>
 #include <set>
@@ -1947,6 +1948,44 @@ bool RimSummaryPlot::autoPlotTitle() const
 void RimSummaryPlot::setAsCrossPlot()
 {
     m_isCrossPlot = true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlot::handleDroppedObjects( const std::vector<caf::PdmObjectHandle*>& objects )
+{
+    auto sumCases = RimProject::current()->allSummaryCases();
+
+    for ( auto o : objects )
+    {
+        auto summaryAdr = dynamic_cast<RimSummaryAddress*>( o );
+        if ( summaryAdr )
+        {
+            if ( summaryAdr->isEnsemble() )
+            {
+            }
+            else
+            {
+                for ( auto sumCase : sumCases )
+                {
+                    if ( sumCase->caseId() == summaryAdr->caseId() )
+                    {
+                        auto* newCurve = new RimSummaryCurve();
+                        addCurveNoUpdate( newCurve );
+
+                        newCurve->setSummaryCaseY( sumCase );
+                        newCurve->setSummaryAddressYAndApplyInterpolation( summaryAdr->address() );
+                        // newCurve->setColor( color );
+                        // newCurve->setLeftOrRightAxisY( plotAxis );
+                        newCurve->loadDataAndUpdate( true );
+
+                        break;
+                    }
+                }
+            }
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

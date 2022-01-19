@@ -27,6 +27,12 @@
 
 #include "cafAssert.h"
 
+#include "RiaGuiApplication.h"
+#include "RimMimeData.h"
+#include "RiuDragDrop.h"
+#include "RiuPlotMainWindow.h"
+#include "cafPdmObjectGroup.h"
+#include "qevent.h"
 #include <algorithm>
 #include <limits>
 
@@ -164,6 +170,34 @@ void RiuPlotWidget::removeOverlayFrame( RiuDraggableOverlayFrame* overlayFrame )
 //--------------------------------------------------------------------------------------------------
 void RiuPlotWidget::removeEventFilter()
 {
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuPlotWidget::onDragEnterEvent( QDragEnterEvent* event )
+{
+    event->acceptProposedAction();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuPlotWidget::onDropEvent( QDropEvent* event )
+{
+    const auto* myMimeData = qobject_cast<const MimeDataWithIndexes*>( event->mimeData() );
+    if ( !myMimeData ) return;
+
+    RiuPlotMainWindow* mpw = RiaGuiApplication::instance()->mainPlotWindow();
+    if ( !mpw || !mpw->projectTreeView() ) return;
+
+    caf::PdmUiTreeView* uiTreeView = mpw->projectTreeView();
+    QModelIndexList     indexes    = myMimeData->indexes();
+
+    auto objects = RiuDragDrop::draggedObjectsFromTreeView( uiTreeView, myMimeData );
+    if ( m_plotDefinition ) m_plotDefinition->handleDroppedObjects( objects );
+
+    event->acceptProposedAction();
 }
 
 //--------------------------------------------------------------------------------------------------

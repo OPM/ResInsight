@@ -79,11 +79,12 @@ RiuQwtPlotWidget::RiuQwtPlotWidget( RimPlot* plotDefinition, QWidget* parent )
     setLayout( layout );
 
     m_plot = new QwtPlot( this );
+    m_plot->setAcceptDrops( true );
     layout->addWidget( m_plot );
 
     RiuQwtPlotTools::setCommonPlotBehaviour( m_plot );
 
-    m_plot->installEventFilter( m_plot );
+    m_plot->installEventFilter( this );
     m_plot->canvas()->installEventFilter( this );
 
     setSizePolicy( QSizePolicy::Preferred, QSizePolicy::Preferred );
@@ -534,6 +535,27 @@ void RiuQwtPlotWidget::updateLegend()
 //--------------------------------------------------------------------------------------------------
 bool RiuQwtPlotWidget::eventFilter( QObject* watched, QEvent* event )
 {
+    if ( event->type() == QEvent::DragEnter )
+    {
+        auto dragEnterEvent = dynamic_cast<QDragEnterEvent*>( event );
+        if ( dragEnterEvent )
+        {
+            onDragEnterEvent( dragEnterEvent );
+            return true;
+        }
+    }
+
+    if ( event->type() == QEvent::Drop )
+    {
+        auto dropEvent = dynamic_cast<QDropEvent*>( event );
+        if ( dropEvent )
+        {
+            onDropEvent( dropEvent );
+
+            return true;
+        }
+    }
+
     QWheelEvent* wheelEvent = dynamic_cast<QWheelEvent*>( event );
     if ( wheelEvent && watched == m_plot->canvas() )
     {

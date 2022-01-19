@@ -177,6 +177,9 @@ public:
 
     virtual std::pair<RiuPlotCurve*, int> findClosestCurve( const QPoint& pos, double& distanceToClick ) const = 0;
 
+    void onDragEnterEvent( QDragEnterEvent* event );
+    void onDropEvent( QDropEvent* event );
+
 protected:
     void updateOverlayFrameLayout();
 
