@@ -31,6 +31,7 @@
 #include "RimEnsembleCurveSet.h"
 #include "RimEnsembleCurveSetCollection.h"
 #include "RimMultipleSummaryPlotNameHelper.h"
+#include "RimPlotAxisProperties.h"
 #include "RimProject.h"
 #include "RimSummaryAddress.h"
 #include "RimSummaryCalculationCollection.h"
@@ -112,6 +113,7 @@ RimSummaryCurve::RimSummaryCurve()
     m_isEnsembleCurve.v() = caf::Tristate::State::PartiallyTrue;
 
     CAF_PDM_InitFieldNoDefault( &m_plotAxis, "PlotAxis", "Axis" );
+    CAF_PDM_InitFieldNoDefault( &m_plotAxisProperties, "Axis", "Multi Axis" );
 
     CAF_PDM_InitFieldNoDefault( &m_curveNameConfig, "SummaryCurveNameConfig", "SummaryCurveNameConfig" );
     m_curveNameConfig.uiCapability()->setUiTreeHidden( true );
@@ -489,6 +491,17 @@ QList<caf::PdmOptionItemInfo> RimSummaryCurve::calculateValueOptions( const caf:
     {
         appendOptionItemsForSummaryAddresses( &options, m_xValuesSummaryCase() );
     }
+    else if ( fieldNeedingOptions == &m_plotAxisProperties )
+    {
+        RimSummaryPlot* plot = nullptr;
+        firstAncestorOrThisOfTypeAsserted( plot );
+
+        for ( auto axis : plot->plotAxis() )
+        {
+            options.push_back( caf::PdmOptionItemInfo( axis->name(), axis ) );
+        }
+    }
+
     return options;
 }
 
@@ -786,6 +799,7 @@ void RimSummaryCurve::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering
         curveDataGroup->add( &m_yPushButtonSelectSummaryAddress, { false, 1, 0 } );
         curveDataGroup->add( &m_resampling, { true, 3, 1 } );
         curveDataGroup->add( &m_plotAxis, { true, 3, 1 } );
+        curveDataGroup->add( &m_plotAxisProperties, { true, 4, 1 } );
 
         if ( isCrossPlotCurve() )
             m_showErrorBars = false;
