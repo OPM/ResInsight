@@ -535,26 +535,7 @@ void RiuQwtPlotWidget::updateLegend()
 //--------------------------------------------------------------------------------------------------
 bool RiuQwtPlotWidget::eventFilter( QObject* watched, QEvent* event )
 {
-    if ( event->type() == QEvent::DragEnter )
-    {
-        auto dragEnterEvent = dynamic_cast<QDragEnterEvent*>( event );
-        if ( dragEnterEvent )
-        {
-            onDragEnterEvent( dragEnterEvent );
-            return true;
-        }
-    }
-
-    if ( event->type() == QEvent::Drop )
-    {
-        auto dropEvent = dynamic_cast<QDropEvent*>( event );
-        if ( dropEvent )
-        {
-            onDropEvent( dropEvent );
-
-            return true;
-        }
-    }
+    if ( RiuPlotWidget::handleDragDropEvent( event ) ) return true;
 
     QWheelEvent* wheelEvent = dynamic_cast<QWheelEvent*>( event );
     if ( wheelEvent && watched == m_plot->canvas() )

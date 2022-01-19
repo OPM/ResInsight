@@ -19,20 +19,21 @@
 
 #include "RiuQwtPlotWidget.h"
 
+#include "RiaGuiApplication.h"
 #include "RiaPlotDefines.h"
 #include "RiaPlotWindowRedrawScheduler.h"
-#include "RimPlot.h"
 
+#include "RimMimeData.h"
+
+#include "RimPlot.h"
+#include "RiuDragDrop.h"
 #include "RiuDraggableOverlayFrame.h"
+#include "RiuPlotMainWindow.h"
 
 #include "cafAssert.h"
 
-#include "RiaGuiApplication.h"
-#include "RimMimeData.h"
-#include "RiuDragDrop.h"
-#include "RiuPlotMainWindow.h"
-#include "cafPdmObjectGroup.h"
-#include "qevent.h"
+#include <QDragEnterEvent>
+
 #include <algorithm>
 #include <limits>
 
@@ -175,34 +176,6 @@ void RiuPlotWidget::removeEventFilter()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuPlotWidget::onDragEnterEvent( QDragEnterEvent* event )
-{
-    event->acceptProposedAction();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiuPlotWidget::onDropEvent( QDropEvent* event )
-{
-    const auto* myMimeData = qobject_cast<const MimeDataWithIndexes*>( event->mimeData() );
-    if ( !myMimeData ) return;
-
-    RiuPlotMainWindow* mpw = RiaGuiApplication::instance()->mainPlotWindow();
-    if ( !mpw || !mpw->projectTreeView() ) return;
-
-    caf::PdmUiTreeView* uiTreeView = mpw->projectTreeView();
-    QModelIndexList     indexes    = myMimeData->indexes();
-
-    auto objects = RiuDragDrop::draggedObjectsFromTreeView( uiTreeView, myMimeData );
-    if ( m_plotDefinition ) m_plotDefinition->handleDroppedObjects( objects );
-
-    event->acceptProposedAction();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RiuPlotWidget::updateOverlayFrameLayout()
 {
     const int spacing = 5;
@@ -249,6 +222,54 @@ void RiuPlotWidget::updateOverlayFrameLayout()
             frame->show();
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiuPlotWidget::handleDragDropEvent( QEvent* event )
+{
+    if ( !event ) return false;
+
+    if ( event->type() == QEvent::DragEnter )
+    {
+        auto dragEnterEvent = dynamic_cast<QDragEnterEvent*>( event );
+        if ( dragEnterEvent )
+        {
+            dragEnterEvent->acceptProposedAction();
+
+            return true;
+        }
+    }
+
+    if ( event->type() == QEvent::Drop )
+    {
+        auto dropEvent = dynamic_cast<QDropEvent*>( event );
+        if ( dropEvent )
+        {
+            const auto* myMimeData = qobject_cast<const MimeDataWithIndexes*>( dropEvent->mimeData() );
+            if ( !myMimeData ) return false;
+
+            RiuPlotMainWindow* mpw = RiaGuiApplication::instance()->mainPlotWindow();
+            if ( !mpw || !mpw->projectTreeView() ) return false;
+
+            caf::PdmUiTreeView* uiTreeView = mpw->projectTreeView();
+            QModelIndexList     indexes    = myMimeData->indexes();
+
+            auto objects = RiuDragDrop::draggedObjectsFromTreeView( uiTreeView, myMimeData );
+
+            if ( m_plotDefinition )
+            {
+                m_plotDefinition->handleDroppedObjects( objects );
+            }
+
+            dropEvent->acceptProposedAction();
+
+            return true;
+        }
+    }
+
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------

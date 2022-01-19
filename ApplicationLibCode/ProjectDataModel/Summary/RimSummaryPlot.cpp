@@ -41,6 +41,7 @@
 #include "RimPlotAxisLogRangeCalculator.h"
 #include "RimPlotAxisProperties.h"
 #include "RimProject.h"
+#include "RimSummaryAddress.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCurve.h"
 #include "RimSummaryCurveCollection.h"
@@ -76,7 +77,6 @@
 #include <QRectF>
 #include <QString>
 
-#include "RimSummaryAddress.h"
 #include <algorithm>
 #include <limits>
 #include <set>
