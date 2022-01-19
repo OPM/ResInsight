@@ -70,16 +70,20 @@ RimPlotAxisProperties::RimPlotAxisProperties()
 
     CAF_PDM_InitFieldNoDefault( &customTitle, "CustomTitle", "Title" );
 
-    CAF_PDM_InitField( &visibleRangeMax, "VisibleRangeMax", RiaDefines::maximumDefaultValuePlot(), "Max" );
-    CAF_PDM_InitField( &visibleRangeMin, "VisibleRangeMin", RiaDefines::minimumDefaultValuePlot(), "Min" );
+    CAF_PDM_InitField( &m_visibleRangeMax, "VisibleRangeMax", RiaDefines::maximumDefaultValuePlot(), "Max" );
+    CAF_PDM_InitField( &m_visibleRangeMin, "VisibleRangeMin", RiaDefines::minimumDefaultValuePlot(), "Min" );
 
     CAF_PDM_InitFieldNoDefault( &numberFormat, "NumberFormat", "Number Format" );
     CAF_PDM_InitField( &numberOfDecimals, "Decimals", 2, "Number of Decimals" );
     CAF_PDM_InitField( &scaleFactor, "ScaleFactor", 1.0, "Scale Factor" );
 
     CAF_PDM_InitField( &m_isAutoZoom, "AutoZoom", true, "Set Range Automatically" );
-    CAF_PDM_InitField( &isLogarithmicScaleEnabled, "LogarithmicScale", false, "Logarithmic Scale" );
+    CAF_PDM_InitField( &m_isLogarithmicScaleEnabled, "LogarithmicScale", false, "Logarithmic Scale" );
     CAF_PDM_InitField( &m_isAxisInverted, "AxisInverted", false, "Invert Axis" );
+
+    auto defaultPlotAxis = caf::AppEnum<RiaDefines::PlotAxis>( RiaDefines::PlotAxis::PLOT_AXIS_LEFT );
+    CAF_PDM_InitField( &m_plotAxis, "PlotAxis", defaultPlotAxis, "Plot Axis" );
+    CAF_PDM_InitField( &m_plotAxisIndex, "PlotAxisIndex", 0, "Plot Axis Index" );
 
     CAF_PDM_InitFieldNoDefault( &m_titlePositionEnum, "TitlePosition", "Title Position" );
 
@@ -178,7 +182,7 @@ void RimPlotAxisProperties::defineUiOrdering( QString uiConfigName, caf::PdmUiOr
     caf::PdmUiGroup& scaleGroup = *( uiOrdering.addNewGroup( "Axis Values" ) );
     if ( m_isRangeSettingsEnabled )
     {
-        scaleGroup.add( &isLogarithmicScaleEnabled );
+        scaleGroup.add( &m_isLogarithmicScaleEnabled );
         scaleGroup.add( &m_isAxisInverted );
     }
     scaleGroup.add( &numberFormat );
@@ -190,8 +194,8 @@ void RimPlotAxisProperties::defineUiOrdering( QString uiConfigName, caf::PdmUiOr
     scaleGroup.add( &scaleFactor );
     if ( m_isRangeSettingsEnabled )
     {
-        scaleGroup.add( &visibleRangeMin );
-        scaleGroup.add( &visibleRangeMax );
+        scaleGroup.add( &m_visibleRangeMin );
+        scaleGroup.add( &m_visibleRangeMax );
     }
     scaleGroup.add( &m_valuesFontSize );
 
@@ -201,13 +205,16 @@ void RimPlotAxisProperties::defineUiOrdering( QString uiConfigName, caf::PdmUiOr
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPlotAxisProperties::setNameAndAxis( const QString& name, RiaDefines::PlotAxis axis )
+void RimPlotAxisProperties::setNameAndAxis( const QString& name, RiaDefines::PlotAxis axis, int axisIndex )
 {
-    m_name = name;
-    m_axis = axis;
+    m_name          = name;
+    m_plotAxis      = axis;
+    m_plotAxisIndex = axisIndex;
 
+    if ( axis == RiaDefines::PlotAxis::PLOT_AXIS_LEFT ) this->setUiIconFromResourceString( ":/LeftAxis16x16.png" );
     if ( axis == RiaDefines::PlotAxis::PLOT_AXIS_RIGHT ) this->setUiIconFromResourceString( ":/RightAxis16x16.png" );
     if ( axis == RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM ) this->setUiIconFromResourceString( ":/BottomAxis16x16.png" );
+    if ( axis == RiaDefines::PlotAxis::PLOT_AXIS_TOP ) this->setUiIconFromResourceString( ":/TopAxis16x16.png" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -237,17 +244,17 @@ int RimPlotAxisProperties::valuesFontSize() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimPlotAxisProperties::name() const
+const QString& RimPlotAxisProperties::name() const
 {
-    return m_name;
+    return m_name();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiaDefines::PlotAxis RimPlotAxisProperties::plotAxisType() const
+RiuPlotAxis RimPlotAxisProperties::plotAxisType() const
 {
-    return m_axis;
+    return RiuPlotAxis( m_plotAxis.value(), m_plotAxisIndex );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -349,9 +356,33 @@ bool RimPlotAxisProperties::isActive() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPlotAxisProperties::setInvertedAxis( bool enable )
+double RimPlotAxisProperties::visibleRangeMin() const
 {
-    m_isAxisInverted = enable;
+    return m_visibleRangeMin;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimPlotAxisProperties::visibleRangeMax() const
+{
+    return m_visibleRangeMax;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlotAxisProperties::setVisibleRangeMin( double value )
+{
+    m_visibleRangeMin = value;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlotAxisProperties::setVisibleRangeMax( double value )
+{
+    m_visibleRangeMax = value;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -373,22 +404,22 @@ void RimPlotAxisProperties::fieldChangedByUi( const caf::PdmFieldHandle* changed
     {
         updateOptionSensitivity();
     }
-    else if ( changedField == &visibleRangeMax )
+    else if ( changedField == &m_visibleRangeMax )
     {
-        if ( visibleRangeMin > visibleRangeMax ) visibleRangeMax = oldValue.toDouble();
+        if ( m_visibleRangeMin > m_visibleRangeMax ) m_visibleRangeMax = oldValue.toDouble();
 
         m_isAutoZoom = false;
     }
-    else if ( changedField == &visibleRangeMin )
+    else if ( changedField == &m_visibleRangeMin )
     {
-        if ( visibleRangeMin > visibleRangeMax ) visibleRangeMin = oldValue.toDouble();
+        if ( m_visibleRangeMin > m_visibleRangeMax ) m_visibleRangeMin = oldValue.toDouble();
 
         m_isAutoZoom = false;
     }
 
-    if ( changedField == &isLogarithmicScaleEnabled )
+    if ( changedField == &m_isLogarithmicScaleEnabled )
     {
-        logarithmicChanged.send( isLogarithmicScaleEnabled() );
+        logarithmicChanged.send( m_isLogarithmicScaleEnabled() );
     }
     else
     {
@@ -426,4 +457,12 @@ void RimPlotAxisProperties::initAfterRead()
 caf::PdmFieldHandle* RimPlotAxisProperties::objectToggleField()
 {
     return &m_isActive;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimPlotAxisProperties::isLogarithmicScaleEnabled() const
+{
+    return m_isLogarithmicScaleEnabled;
 }

@@ -22,6 +22,7 @@
 #include "RiaCurveMerger.h"
 #include "RiaGuiApplication.h"
 #include "RiaLogging.h"
+#include "RiaPlotDefines.h"
 #include "RiaPreferencesSummary.h"
 #include "RiaResultNames.h"
 #include "RiaSummaryCurveDefinition.h"
@@ -31,6 +32,7 @@
 #include "RimEnsembleCurveSet.h"
 #include "RimEnsembleCurveSetCollection.h"
 #include "RimMultipleSummaryPlotNameHelper.h"
+#include "RimPlotAxisProperties.h"
 #include "RimProject.h"
 #include "RimSummaryAddress.h"
 #include "RimSummaryCalculationCollection.h"
@@ -45,6 +47,7 @@
 #include "RimSummaryTimeAxisProperties.h"
 #include "RimTools.h"
 
+#include "RiuPlotAxis.h"
 #include "RiuPlotMainWindow.h"
 #include "RiuQwtPlotCurve.h"
 #include "RiuSummaryVectorSelectionDialog.h"
@@ -111,7 +114,10 @@ RimSummaryCurve::RimSummaryCurve()
     CAF_PDM_InitFieldNoDefault( &m_isEnsembleCurve, "IsEnsembleCurve", "Ensemble Curve" );
     m_isEnsembleCurve.v() = caf::Tristate::State::PartiallyTrue;
 
-    CAF_PDM_InitFieldNoDefault( &m_plotAxis, "PlotAxis", "Axis" );
+    CAF_PDM_InitFieldNoDefault( &m_plotAxis_OBSOLETE, "PlotAxis", "Axis" );
+    m_plotAxis_OBSOLETE.xmlCapability()->setIOWritable( false );
+
+    CAF_PDM_InitFieldNoDefault( &m_plotAxisProperties, "Axis", "Axis" );
 
     CAF_PDM_InitFieldNoDefault( &m_curveNameConfig, "SummaryCurveNameConfig", "SummaryCurveNameConfig" );
     m_curveNameConfig.uiCapability()->setUiTreeHidden( true );
@@ -424,17 +430,24 @@ RimSummaryCase* RimSummaryCurve::summaryCaseX() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCurve::setLeftOrRightAxisY( RiaDefines::PlotAxis plotAxis )
+void RimSummaryCurve::setLeftOrRightAxisY( RiuPlotAxis plotAxis )
 {
-    m_plotAxis = plotAxis;
+    m_plotAxis_OBSOLETE = plotAxis.axis();
+
+    RimSummaryPlot* plot = nullptr;
+    firstAncestorOrThisOfTypeAsserted( plot );
+    m_plotAxisProperties = plot->axisPropertiesForPlotAxis( plotAxis );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiaDefines::PlotAxis RimSummaryCurve::axisY() const
+RiuPlotAxis RimSummaryCurve::axisY() const
 {
-    return m_plotAxis();
+    if ( m_plotAxisProperties )
+        return m_plotAxisProperties->plotAxisType();
+    else
+        return RiuPlotAxis::defaultLeft();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -489,6 +502,17 @@ QList<caf::PdmOptionItemInfo> RimSummaryCurve::calculateValueOptions( const caf:
     {
         appendOptionItemsForSummaryAddresses( &options, m_xValuesSummaryCase() );
     }
+    else if ( fieldNeedingOptions == &m_plotAxisProperties )
+    {
+        RimSummaryPlot* plot = nullptr;
+        firstAncestorOrThisOfTypeAsserted( plot );
+
+        for ( auto axis : plot->plotAxes() )
+        {
+            options.push_back( caf::PdmOptionItemInfo( axis->name(), axis ) );
+        }
+    }
+
     return options;
 }
 
@@ -746,6 +770,13 @@ void RimSummaryCurve::initAfterRead()
 {
     RimStackablePlotCurve::initAfterRead();
 
+    if ( m_plotAxisProperties.value() == nullptr )
+    {
+        RimSummaryPlot* plot = nullptr;
+        firstAncestorOrThisOfType( plot );
+        if ( plot ) m_plotAxisProperties = plot->axisPropertiesForPlotAxis( RiuPlotAxis( m_plotAxis_OBSOLETE() ) );
+    }
+
     if ( m_isEnsembleCurve().isPartiallyTrue() )
     {
         m_isEnsembleCurve.v() = ( summaryCaseY() && summaryCaseY()->ensemble() ) ? caf::Tristate::State::True
@@ -785,7 +816,7 @@ void RimSummaryCurve::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering
         curveDataGroup->add( &m_yValuesSummaryAddressUiField, { true, 2, 1 } );
         curveDataGroup->add( &m_yPushButtonSelectSummaryAddress, { false, 1, 0 } );
         curveDataGroup->add( &m_resampling, { true, 3, 1 } );
-        curveDataGroup->add( &m_plotAxis, { true, 3, 1 } );
+        curveDataGroup->add( &m_plotAxisProperties, { true, 3, 1 } );
 
         if ( isCrossPlotCurve() )
             m_showErrorBars = false;
@@ -1047,7 +1078,7 @@ void RimSummaryCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
         // Update the summary curve collection to make sure the curve names are updated in curve creator UI
         visibilityChanged.send( m_showCurve() );
     }
-    else if ( changedField == &m_plotAxis )
+    else if ( changedField == &m_plotAxisProperties )
     {
         updateAxisInPlot( axisY() );
         plot->updateAxes();

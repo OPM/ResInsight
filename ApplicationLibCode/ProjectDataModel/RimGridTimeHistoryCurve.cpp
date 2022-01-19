@@ -189,9 +189,9 @@ RigGridCellResultAddress RimGridTimeHistoryCurve::resultAddress()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiaDefines::PlotAxis RimGridTimeHistoryCurve::yAxis() const
+RiuPlotAxis RimGridTimeHistoryCurve::yAxis() const
 {
-    return m_plotAxis();
+    return RiuPlotAxis( m_plotAxis() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -408,7 +408,7 @@ void RimGridTimeHistoryCurve::onLoadDataAndUpdate( bool updateParentPlot )
 
         RimSummaryPlot* plot = nullptr;
         firstAncestorOrThisOfType( plot );
-        bool isLogCurve = plot->isLogarithmicScaleEnabled( this->yAxis() );
+        bool isLogCurve = plot->isLogarithmicScaleEnabled( yAxis() );
 
         if ( plot->timeAxisProperties()->timeMode() == RimSummaryTimeAxisProperties::DATE )
         {

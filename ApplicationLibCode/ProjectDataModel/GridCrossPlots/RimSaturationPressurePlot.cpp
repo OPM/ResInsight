@@ -169,7 +169,7 @@ void RimSaturationPressurePlot::assignCaseAndEquilibriumRegion( RiaDefines::Poro
     }
 
     RimPlotAxisProperties* yAxisProps = yAxisProperties();
-    yAxisProps->setInvertedAxis( true );
+    yAxisProps->setAxisInverted( true );
 
     {
         RimEquilibriumAxisAnnotation* annotation = new RimEquilibriumAxisAnnotation;

@@ -736,7 +736,7 @@ void RimPlotCurve::setSamplesFromXYErrorValues( const std::vector<double>&   xVa
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPlotCurve::updateAxisInPlot( RiaDefines::PlotAxis plotAxis )
+void RimPlotCurve::updateAxisInPlot( RiuPlotAxis plotAxis )
 {
     if ( m_plotCurve ) m_plotCurve->setYAxis( plotAxis );
 }
