@@ -69,31 +69,10 @@ RiuQtChartsPlotWidget::RiuQtChartsPlotWidget( RimPlot* plotDefinition, QWidget* 
 
     layout->addWidget( m_viewer );
 
-    QValueAxis* axisBottom = new QValueAxis();
-    chart->addAxis( axisBottom, Qt::AlignBottom );
-    m_axes[RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM] = axisBottom;
-
-    QValueAxis* axisTop = new QValueAxis();
-    chart->addAxis( axisTop, Qt::AlignTop );
-    m_axes[RiaDefines::PlotAxis::PLOT_AXIS_TOP] = axisTop;
-
-    QValueAxis* axisLeft = new QValueAxis();
-    chart->addAxis( axisLeft, Qt::AlignLeft );
-    m_axes[RiaDefines::PlotAxis::PLOT_AXIS_LEFT] = axisLeft;
-
-    QValueAxis* axisRight = new QValueAxis();
-    chart->addAxis( axisRight, Qt::AlignRight );
-    m_axes[RiaDefines::PlotAxis::PLOT_AXIS_RIGHT] = axisRight;
-
-    enableAxis( RiaDefines::PlotAxis::PLOT_AXIS_LEFT, true );
-    enableAxis( RiaDefines::PlotAxis::PLOT_AXIS_RIGHT, false );
-    enableAxis( RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM, true );
-    enableAxis( RiaDefines::PlotAxis::PLOT_AXIS_TOP, false );
-
-    setAxisAutoScale( RiaDefines::PlotAxis::PLOT_AXIS_LEFT, true );
-    setAxisAutoScale( RiaDefines::PlotAxis::PLOT_AXIS_RIGHT, false );
-    setAxisAutoScale( RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM, true );
-    setAxisAutoScale( RiaDefines::PlotAxis::PLOT_AXIS_TOP, false );
+    addAxis( RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM, true, true );
+    addAxis( RiaDefines::PlotAxis::PLOT_AXIS_LEFT, true, true );
+    addAxis( RiaDefines::PlotAxis::PLOT_AXIS_RIGHT, false, false );
+    addAxis( RiaDefines::PlotAxis::PLOT_AXIS_TOP, false, false );
 
     m_viewer->setRubberBand( QChartView::RectangleRubberBand );
 
@@ -740,16 +719,9 @@ void RiuQtChartsPlotWidget::setAxisScaleType( RiaDefines::PlotAxis axis, RiuQtCh
         insertaxis = new QValueAxis;
     }
 
-    QChart* chart          = qtChart();
-    auto    mapToAlignment = []( auto axis ) {
-        if ( axis == RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM ) return Qt::AlignBottom;
-        if ( axis == RiaDefines::PlotAxis::PLOT_AXIS_TOP ) return Qt::AlignTop;
-        if ( axis == RiaDefines::PlotAxis::PLOT_AXIS_LEFT ) return Qt::AlignLeft;
-        return Qt::AlignRight;
-    };
-
+    QChart* chart = qtChart();
     if ( chart->axes().contains( removeaxis ) ) chart->removeAxis( removeaxis );
-    chart->addAxis( insertaxis, mapToAlignment( axis ) );
+    chart->addAxis( insertaxis, mapPlotAxisToQtAlignment( axis ) );
 
     m_axes[axis] = insertaxis;
     for ( auto serie : chart->series() )
@@ -905,6 +877,16 @@ void RiuQtChartsPlotWidget::setAxis( RiaDefines::PlotAxis axis, QtCharts::QAbstr
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RiuQtChartsPlotWidget::addAxis( RiaDefines::PlotAxis plotAxis, bool isEnabled, bool isAutoScale )
+{
+    QValueAxis* axis = new QValueAxis();
+    qtChart()->addAxis( axis, mapPlotAxisToQtAlignment( plotAxis ) );
+    m_axes[plotAxis] = axis;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiuQtChartsPlotWidget::rescaleAxis( RiaDefines::PlotAxis axis )
 {
     if ( !m_axesAutoScale[axis] ) return;
@@ -1024,4 +1006,15 @@ const QColor& RiuQtChartsPlotWidget::backgroundColor() const
 std::pair<RiuPlotCurve*, int> RiuQtChartsPlotWidget::findClosestCurve( const QPoint& pos, double& distanceToClick ) const
 {
     return std::make_pair( nullptr, -1 );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+Qt::Alignment RiuQtChartsPlotWidget::mapPlotAxisToQtAlignment( RiaDefines::PlotAxis axis )
+{
+    if ( axis == RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM ) return Qt::AlignBottom;
+    if ( axis == RiaDefines::PlotAxis::PLOT_AXIS_TOP ) return Qt::AlignTop;
+    if ( axis == RiaDefines::PlotAxis::PLOT_AXIS_LEFT ) return Qt::AlignLeft;
+    return Qt::AlignRight;
 }
