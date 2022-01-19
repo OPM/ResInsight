@@ -641,10 +641,10 @@ void RimGridCrossPlot::swapAxes()
     RimPlotAxisProperties* xAxisProperties = m_xAxisProperties();
     RimPlotAxisProperties* yAxisProperties = m_yAxisProperties();
 
-    QString              tmpName = xAxisProperties->name();
-    RiaDefines::PlotAxis tmpAxis = xAxisProperties->plotAxisType();
-    xAxisProperties->setNameAndAxis( yAxisProperties->name(), yAxisProperties->plotAxisType() );
-    yAxisProperties->setNameAndAxis( tmpName, tmpAxis );
+    QString     tmpName = xAxisProperties->name();
+    RiuPlotAxis tmpAxis = xAxisProperties->plotAxisType();
+    xAxisProperties->setNameAndAxis( yAxisProperties->name(), yAxisProperties->plotAxisType().axis() );
+    yAxisProperties->setNameAndAxis( tmpName, tmpAxis.axis() );
 
     m_xAxisProperties.removeChildObject( xAxisProperties );
     m_yAxisProperties.removeChildObject( yAxisProperties );
@@ -851,7 +851,7 @@ void RimGridCrossPlot::updateAxisInQwt( RiaDefines::PlotAxis axisType )
         axisParameterString = yAxisParameterString();
     }
 
-    RiaDefines::PlotAxis axis = axisProperties->plotAxisType();
+    RiuPlotAxis axis = axisProperties->plotAxisType();
     if ( axisProperties->isActive() )
     {
         m_plotWidget->enableAxis( axis, true );
@@ -869,7 +869,7 @@ void RimGridCrossPlot::updateAxisInQwt( RiaDefines::PlotAxis axisType )
         m_plotWidget->setAxisTitleText( axis, axisParameterString );
         m_plotWidget->setAxisTitleEnabled( axis, true );
 
-        if ( axisProperties->isLogarithmicScaleEnabled )
+        if ( axisProperties->isLogarithmicScaleEnabled() )
         {
             bool isLogScale = m_plotWidget->axisScaleType( axis ) == RiuQwtPlotWidget::AxisScaleType::LOGARITHMIC;
             if ( !isLogScale )
@@ -878,12 +878,12 @@ void RimGridCrossPlot::updateAxisInQwt( RiaDefines::PlotAxis axisType )
                 m_plotWidget->setAxisMaxMinor( axis, 5 );
             }
 
-            double min = axisProperties->visibleRangeMin;
-            double max = axisProperties->visibleRangeMax;
+            double min = axisProperties->visibleRangeMin();
+            double max = axisProperties->visibleRangeMax();
             if ( axisProperties->isAutoZoom() )
             {
                 std::vector<const RimPlotCurve*> plotCurves = visibleCurves();
-                RimPlotAxisLogRangeCalculator    logRangeCalculator( axis, plotCurves );
+                RimPlotAxisLogRangeCalculator    logRangeCalculator( axis.axis(), plotCurves );
                 logRangeCalculator.computeAxisRange( &min, &max );
             }
 
@@ -909,8 +909,8 @@ void RimGridCrossPlot::updateAxisInQwt( RiaDefines::PlotAxis axisType )
             }
             else
             {
-                double min = axisProperties->visibleRangeMin;
-                double max = axisProperties->visibleRangeMax;
+                double min = axisProperties->visibleRangeMin();
+                double max = axisProperties->visibleRangeMax();
                 if ( axisProperties->isAxisInverted() )
                 {
                     std::swap( min, max );
@@ -933,7 +933,7 @@ void RimGridCrossPlot::updateAxisFromQwt( RiaDefines::PlotAxis axisType )
 {
     if ( !m_plotWidget ) return;
 
-    auto [xAxisRangeMin, xAxisRangeMax] = m_plotWidget->axisRange( RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM );
+    auto [xAxisRangeMin, xAxisRangeMax] = m_plotWidget->axisRange( RiuPlotAxis::defaultBottom() );
 
     RimPlotAxisProperties* axisProperties = m_xAxisProperties();
     double                 axisRangeMin   = xAxisRangeMin;
@@ -942,14 +942,14 @@ void RimGridCrossPlot::updateAxisFromQwt( RiaDefines::PlotAxis axisType )
     if ( axisType == RiaDefines::PlotAxis::PLOT_AXIS_LEFT )
     {
         axisProperties                      = m_yAxisProperties();
-        auto [yAxisRangeMin, yAxisRangeMax] = m_plotWidget->axisRange( RiaDefines::PlotAxis::PLOT_AXIS_LEFT );
+        auto [yAxisRangeMin, yAxisRangeMax] = m_plotWidget->axisRange( RiuPlotAxis::defaultLeft() );
 
         axisRangeMin = yAxisRangeMin;
         axisRangeMax = yAxisRangeMax;
     }
 
-    axisProperties->visibleRangeMin = std::min( axisRangeMin, axisRangeMax );
-    axisProperties->visibleRangeMax = std::max( axisRangeMin, axisRangeMax );
+    axisProperties->setVisibleRangeMin( std::min( axisRangeMin, axisRangeMax ) );
+    axisProperties->setVisibleRangeMax( std::max( axisRangeMin, axisRangeMax ) );
 
     axisProperties->updateConnectedEditors();
 }

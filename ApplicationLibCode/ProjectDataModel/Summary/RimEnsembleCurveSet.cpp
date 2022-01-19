@@ -41,6 +41,7 @@
 #include "RimEnsembleStatisticsCase.h"
 #include "RimObjectiveFunction.h"
 #include "RimObjectiveFunctionTools.h"
+#include "RimPlotAxisPropertiesInterface.h"
 #include "RimProject.h"
 #include "RimRegularLegendConfig.h"
 #include "RimSummaryAddress.h"
@@ -160,7 +161,10 @@ RimEnsembleCurveSet::RimEnsembleCurveSet()
     m_selectedTimeSteps.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
     m_selectedTimeSteps.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
 
-    CAF_PDM_InitFieldNoDefault( &m_plotAxis, "PlotAxis", "Axis" );
+    CAF_PDM_InitFieldNoDefault( &m_plotAxis_OBSOLETE, "PlotAxis", "Axis" );
+    m_plotAxis_OBSOLETE.xmlCapability()->setIOWritable( false );
+
+    CAF_PDM_InitFieldNoDefault( &m_plotAxisProperties, "Axis", "Axis" );
 
     CAF_PDM_InitFieldNoDefault( &m_legendConfig, "LegendConfig", "" );
     m_legendConfig = new RimRegularLegendConfig();
@@ -619,7 +623,7 @@ void RimEnsembleCurveSet::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
 
     if ( changedField == &m_showCurves )
     {
-        if ( !m_showCurves() )
+        if ( !m_showCurves() && m_plotCurveForLegendText )
         {
             // Need to detach the legend since the plot type might change from Qwt to QtCharts.
             // The plot curve for legend text needs to be recreated when curves are shown next time.
@@ -740,11 +744,11 @@ void RimEnsembleCurveSet::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
         updateCurveColors();
         updateTimeAnnotations();
     }
-    else if ( changedField == &m_plotAxis )
+    else if ( changedField == &m_plotAxisProperties )
     {
         for ( RimSummaryCurve* curve : curves() )
         {
-            curve->setLeftOrRightAxisY( m_plotAxis() );
+            curve->setLeftOrRightAxisY( axisY() );
         }
 
         updatePlotAxis();
@@ -865,7 +869,7 @@ void RimEnsembleCurveSet::defineUiOrdering( QString uiConfigName, caf::PdmUiOrde
         curveDataGroup->add( &m_yValuesSummaryAddressUiField );
         curveDataGroup->add( &m_yPushButtonSelectSummaryAddress, { false, 1, 0 } );
         curveDataGroup->add( &m_resampling );
-        curveDataGroup->add( &m_plotAxis );
+        curveDataGroup->add( &m_plotAxisProperties );
     }
 
     appendColorGroup( uiOrdering );
@@ -1206,6 +1210,16 @@ QList<caf::PdmOptionItemInfo> RimEnsembleCurveSet::calculateValueOptions( const 
         {
             QString name = objFunc->title();
             options.push_back( caf::PdmOptionItemInfo( name, objFunc ) );
+        }
+    }
+    else if ( fieldNeedingOptions == &m_plotAxisProperties )
+    {
+        RimSummaryPlot* plot = nullptr;
+        firstAncestorOrThisOfTypeAsserted( plot );
+
+        for ( auto axis : plot->plotAxis() )
+        {
+            options.push_back( caf::PdmOptionItemInfo( axis->name(), axis ) );
         }
     }
 
@@ -1682,11 +1696,11 @@ void RimEnsembleCurveSet::updateEnsembleCurves( const std::vector<RimSummaryCase
                 RimSummaryCurve* curve = new RimSummaryCurve();
                 curve->setSummaryCaseY( sumCase );
                 curve->setSummaryAddressYAndApplyInterpolation( addr->address() );
-                curve->setLeftOrRightAxisY( m_plotAxis() );
                 curve->setResampling( m_resampling() );
 
                 addCurve( curve );
 
+                curve->setLeftOrRightAxisY( axisY() );
                 curve->updateCurveVisibility();
 
                 newSummaryCurves.push_back( curve );
@@ -1793,7 +1807,7 @@ void RimEnsembleCurveSet::updateStatisticsCurves( const std::vector<RimSummaryCa
             curve->setLineStyle( RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_SOLID );
             curve->setSummaryCaseY( m_ensembleStatCase.get() );
             curve->setSummaryAddressYAndApplyInterpolation( address );
-            curve->setLeftOrRightAxisY( m_plotAxis() );
+            curve->setLeftOrRightAxisY( axisY() );
 
             curve->updateCurveVisibility();
             curve->loadDataAndUpdate( false );
@@ -2064,4 +2078,28 @@ int statisticsCurveSymbolSize( RiuPlotCurveSymbol::PointSymbolEnum symbol )
     if ( symbol == RiuPlotCurveSymbol::SYMBOL_TRIANGLE ) return 7;
     if ( symbol == RiuPlotCurveSymbol::SYMBOL_DOWN_TRIANGLE ) return 7;
     return 6;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiuPlotAxis RimEnsembleCurveSet::axisY() const
+{
+    if ( m_plotAxisProperties )
+        return m_plotAxisProperties->plotAxisType();
+    else
+        return RiuPlotAxis::defaultLeft();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEnsembleCurveSet::initAfterRead()
+{
+    if ( m_plotAxisProperties.value() == nullptr )
+    {
+        RimSummaryPlot* plot = nullptr;
+        firstAncestorOrThisOfTypeAsserted( plot );
+        m_plotAxisProperties = plot->axisPropertiesForPlotAxis( RiuPlotAxis( m_plotAxis_OBSOLETE() ) );
+    }
 }

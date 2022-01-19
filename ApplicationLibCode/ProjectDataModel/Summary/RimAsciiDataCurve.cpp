@@ -96,9 +96,9 @@ void RimAsciiDataCurve::setYAxis( RiaDefines::PlotAxis plotAxis )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiaDefines::PlotAxis RimAsciiDataCurve::yAxis() const
+RiuPlotAxis RimAsciiDataCurve::yAxis() const
 {
-    return m_plotAxis();
+    return RiuPlotAxis( m_plotAxis() );
 }
 
 //--------------------------------------------------------------------------------------------------

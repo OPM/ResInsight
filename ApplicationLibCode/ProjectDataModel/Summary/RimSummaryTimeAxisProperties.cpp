@@ -132,9 +132,9 @@ RimPlotAxisPropertiesInterface::AxisTitlePositionType RimSummaryTimeAxisProperti
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiaDefines::PlotAxis RimSummaryTimeAxisProperties::plotAxisType() const
+RiuPlotAxis RimSummaryTimeAxisProperties::plotAxisType() const
 {
-    return RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM;
+    return RiuPlotAxis::defaultBottom();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -697,4 +697,12 @@ void RimSummaryTimeAxisProperties::defineEditorAttribute( const caf::PdmFieldHan
                                                      RiaQDateTimeTools::TimeFormatComponents::TIME_FORMAT_HOUR_MINUTE_SECOND );
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const QString& RimSummaryTimeAxisProperties::name() const
+{
+    return title();
 }

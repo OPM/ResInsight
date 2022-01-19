@@ -68,8 +68,8 @@ public:
 
     void detach() override;
 
-    void setXAxis( RiaDefines::PlotAxis axis ) override;
-    void setYAxis( RiaDefines::PlotAxis axis ) override;
+    void setXAxis( RiuPlotAxis axis ) override;
+    void setYAxis( RiuPlotAxis axis ) override;
 
     void setVisibleInLegend( bool isVisibleInLegend ) override;
 
@@ -91,6 +91,6 @@ private:
     QtCharts::QScatterSeries*           m_scatterSeries;
     std::shared_ptr<RiuPlotCurveSymbol> m_symbol;
     RiuQtChartsPlotWidget*              m_plotWidget;
-    RiaDefines::PlotAxis                m_axisX;
-    RiaDefines::PlotAxis                m_axisY;
+    RiuPlotAxis                         m_axisX;
+    RiuPlotAxis                         m_axisY;
 };

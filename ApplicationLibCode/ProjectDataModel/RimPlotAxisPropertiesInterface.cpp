@@ -19,25 +19,44 @@
 
 #include "cafAppEnum.h"
 
-// clang-format off
+CAF_PDM_XML_ABSTRACT_SOURCE_INIT( RimPlotAxisPropertiesInterface,
+                                  "PlotAxisPropertiesInterface",
+                                  "RimPlotAxisPropertiesInterface" );
+
 namespace caf
 {
-template<>
+template <>
 void caf::AppEnum<RimPlotAxisPropertiesInterface::AxisTitlePositionType>::setUp()
 {
-    addItem(RimPlotAxisPropertiesInterface::AXIS_TITLE_CENTER, "AXIS_TITLE_CENTER", "Center");
-    addItem(RimPlotAxisPropertiesInterface::AXIS_TITLE_END, "AXIS_TITLE_END", "At End");
+    addItem( RimPlotAxisPropertiesInterface::AXIS_TITLE_CENTER, "AXIS_TITLE_CENTER", "Center" );
+    addItem( RimPlotAxisPropertiesInterface::AXIS_TITLE_END, "AXIS_TITLE_END", "At End" );
 
-    setDefault(RimPlotAxisPropertiesInterface::AXIS_TITLE_CENTER);
+    setDefault( RimPlotAxisPropertiesInterface::AXIS_TITLE_CENTER );
 }
 
 template <>
 void RimPlotAxisPropertiesInterface::LegendTickmarkCountEnum::setUp()
 {
-	addItem(RimPlotAxisPropertiesInterface::LegendTickmarkCount::TICKMARK_VERY_FEW, "VERY_FEW", "Very Few");
+    addItem( RimPlotAxisPropertiesInterface::LegendTickmarkCount::TICKMARK_VERY_FEW, "VERY_FEW", "Very Few" );
     addItem( RimPlotAxisPropertiesInterface::LegendTickmarkCount::TICKMARK_FEW, "Few", "Few" );
     addItem( RimPlotAxisPropertiesInterface::LegendTickmarkCount::TICKMARK_DEFAULT, "Default", "Default" );
     addItem( RimPlotAxisPropertiesInterface::LegendTickmarkCount::TICKMARK_MANY, "Many", "Many" );
     setDefault( RimPlotAxisPropertiesInterface::LegendTickmarkCount::TICKMARK_DEFAULT );
 }
 } // namespace caf
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimPlotAxisPropertiesInterface::isAxisInverted() const
+{
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimPlotAxisPropertiesInterface::isLogarithmicScaleEnabled() const
+{
+    return false;
+}

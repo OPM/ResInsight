@@ -22,6 +22,8 @@
 #include "RiaDefines.h"
 #include "RimPlotAxisPropertiesInterface.h"
 
+#include "RiuPlotAxis.h"
+
 #include "cafAppEnum.h"
 #include "cafFontTools.h"
 #include "cafPdmChildArrayField.h"
@@ -36,7 +38,7 @@ class RimPlotAxisAnnotation;
 ///
 ///
 //==================================================================================================
-class RimPlotAxisProperties : public caf::PdmObject, public RimPlotAxisPropertiesInterface
+class RimPlotAxisProperties : public RimPlotAxisPropertiesInterface
 {
     CAF_PDM_HEADER_INIT;
 
@@ -57,22 +59,22 @@ public:
 
     void                  setEnableTitleTextSettings( bool enable );
     void                  enableRangeSettings( bool enable );
-    void                  setNameAndAxis( const QString& name, RiaDefines::PlotAxis axis );
+    void                  setNameAndAxis( const QString& name, RiaDefines::PlotAxis axis, int axisIndex = 0 );
     AxisTitlePositionType titlePosition() const override;
 
     int titleFontSize() const override;
     int valuesFontSize() const override;
 
-    QString              name() const;
-    RiaDefines::PlotAxis plotAxisType() const override;
-    bool                 useAutoTitle() const;
-    bool                 showDescription() const;
-    bool                 showAcronym() const;
-    bool                 showUnitText() const;
-    bool                 isAutoZoom() const;
-    void                 setAutoZoom( bool enableAutoZoom );
-    bool                 isAxisInverted() const;
-    void                 setAxisInverted( bool inverted );
+    const QString& name() const override;
+    RiuPlotAxis    plotAxisType() const override;
+    bool           useAutoTitle() const;
+    bool           showDescription() const;
+    bool           showAcronym() const;
+    bool           showUnitText() const;
+    bool           isAutoZoom() const override;
+    void           setAutoZoom( bool enableAutoZoom ) override;
+    bool           isAxisInverted() const override;
+    void           setAxisInverted( bool inverted );
 
     std::vector<RimPlotAxisAnnotation*> annotations() const override;
     void                                appendAnnotation( RimPlotAxisAnnotation* annotation ) override;
@@ -80,18 +82,20 @@ public:
 
     caf::PdmField<QString> customTitle;
 
-    caf::PdmField<double> visibleRangeMin;
-    caf::PdmField<double> visibleRangeMax;
-
     caf::PdmField<caf::AppEnum<NumberFormatType>> numberFormat;
     caf::PdmField<int>                            numberOfDecimals;
     caf::PdmField<double>                         scaleFactor;
-    caf::PdmField<bool>                           isLogarithmicScaleEnabled;
 
-    bool isActive() const;
+    bool isLogarithmicScaleEnabled() const override;
+    bool isActive() const override;
 
-    void setInvertedAxis( bool enable );
     void showAnnotationObjectsInProjectTree();
+
+    double visibleRangeMin() const override;
+    double visibleRangeMax() const override;
+
+    void setVisibleRangeMin( double value ) override;
+    void setVisibleRangeMax( double value ) override;
 
 protected:
     void                 initAfterRead() override;
@@ -117,8 +121,13 @@ private:
     caf::PdmField<bool> m_isAutoZoom;
     caf::PdmField<bool> m_isAxisInverted;
 
+    caf::PdmField<double> m_visibleRangeMin;
+    caf::PdmField<double> m_visibleRangeMax;
+
     caf::PdmField<QString> m_name;
-    RiaDefines::PlotAxis   m_axis;
+    RiuPlotAxis            m_axis;
+
+    caf::PdmField<bool> m_isLogarithmicScaleEnabled;
 
     bool m_enableTitleTextSettings;
     bool m_isRangeSettingsEnabled;

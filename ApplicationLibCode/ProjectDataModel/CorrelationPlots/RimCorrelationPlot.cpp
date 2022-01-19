@@ -206,30 +206,30 @@ void RimCorrelationPlot::updateAxes()
 {
     if ( !m_plotWidget ) return;
 
-    m_plotWidget->setAxisTitleText( RiaDefines::PlotAxis::PLOT_AXIS_LEFT, "Parameter" );
-    m_plotWidget->setAxisTitleEnabled( RiaDefines::PlotAxis::PLOT_AXIS_LEFT, true );
-    m_plotWidget->setAxisFontsAndAlignment( RiaDefines::PlotAxis::PLOT_AXIS_LEFT,
+    m_plotWidget->setAxisTitleText( RiuPlotAxis::defaultLeft(), "Parameter" );
+    m_plotWidget->setAxisTitleEnabled( RiuPlotAxis::defaultLeft(), true );
+    m_plotWidget->setAxisFontsAndAlignment( RiuPlotAxis::defaultLeft(),
                                             axisTitleFontSize(),
                                             axisValueFontSize(),
                                             false,
                                             Qt::AlignCenter );
 
-    m_plotWidget->setAxisTitleText( RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM, "Pearson Correlation Coefficient" );
-    m_plotWidget->setAxisTitleEnabled( RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM, true );
-    m_plotWidget->setAxisFontsAndAlignment( RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM,
+    m_plotWidget->setAxisTitleText( RiuPlotAxis::defaultBottom(), "Pearson Correlation Coefficient" );
+    m_plotWidget->setAxisTitleEnabled( RiuPlotAxis::defaultBottom(), true );
+    m_plotWidget->setAxisFontsAndAlignment( RiuPlotAxis::defaultBottom(),
                                             axisTitleFontSize(),
                                             axisValueFontSize(),
                                             false,
                                             Qt::AlignCenter );
     if ( m_showAbsoluteValues )
     {
-        m_plotWidget->setAxisTitleText( RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM, "Pearson Correlation Coefficient ABS" );
-        m_plotWidget->setAxisRange( RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM, 0.0, 1.0 );
+        m_plotWidget->setAxisTitleText( RiuPlotAxis::defaultBottom(), "Pearson Correlation Coefficient ABS" );
+        m_plotWidget->setAxisRange( RiuPlotAxis::defaultBottom(), 0.0, 1.0 );
     }
     else
     {
-        m_plotWidget->setAxisTitleText( RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM, "Pearson Correlation Coefficient" );
-        m_plotWidget->setAxisRange( RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM, -1.0, 1.0 );
+        m_plotWidget->setAxisTitleText( RiuPlotAxis::defaultBottom(), "Pearson Correlation Coefficient" );
+        m_plotWidget->setAxisRange( RiuPlotAxis::defaultBottom(), -1.0, 1.0 );
     }
 }
 

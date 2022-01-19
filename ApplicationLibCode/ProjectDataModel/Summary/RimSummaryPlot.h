@@ -74,7 +74,7 @@ class RimSummaryPlot : public RimPlot, public RimSummaryDataSourceStepping
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimSummaryPlot();
+    RimSummaryPlot( bool isCrossPlot = false );
     ~RimSummaryPlot() override;
 
     void    setDescription( const QString& description );
@@ -117,7 +117,7 @@ public:
 
     void updateAxes() override;
 
-    bool isLogarithmicScaleEnabled( RiaDefines::PlotAxis plotAxis ) const;
+    bool isLogarithmicScaleEnabled( RiuPlotAxis plotAxis ) const;
 
     RimSummaryTimeAxisProperties* timeAxisProperties();
     time_t                        firstTimeStepOfFirstCurve();
@@ -185,6 +185,10 @@ public:
     std::vector<RimEnsembleCurveSet*> curveSets() const override;
     std::vector<RimSummaryCurve*>     allCurves( RimSummaryDataSourceStepping::Axis axis ) const override;
 
+    std::vector<RimPlotAxisPropertiesInterface*> plotAxis() const;
+
+    RimPlotAxisPropertiesInterface* axisPropertiesForPlotAxis( RiuPlotAxis plotAxis ) const;
+
 public:
     // RimViewWindow overrides
     void deleteViewWidget() override;
@@ -211,7 +215,7 @@ protected:
     void                 fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void                 childFieldChangedByUi( const caf::PdmFieldHandle* changedChildField ) override;
     void                 updateStackedCurveData();
-    void                 updateStackedCurveDataForAxis( RiaDefines::PlotAxis plotAxis );
+    void                 updateStackedCurveDataForAxis( RiuPlotAxis plotAxis );
 
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
@@ -220,27 +224,21 @@ protected:
 
     QImage snapshotWindowContent() override;
 
-    void setAsCrossPlot();
-
 private slots:
     void onPlotZoomed();
 
 private:
-    std::vector<RimSummaryCurve*>         visibleSummaryCurvesForAxis( RiaDefines::PlotAxis plotAxis ) const;
-    std::vector<RimGridTimeHistoryCurve*> visibleTimeHistoryCurvesForAxis( RiaDefines::PlotAxis plotAxis ) const;
-    std::vector<RimAsciiDataCurve*>       visibleAsciiDataCurvesForAxis( RiaDefines::PlotAxis plotAxis ) const;
-    bool                                  hasVisibleCurvesForAxis( RiaDefines::PlotAxis plotAxis ) const;
-    std::vector<RimSummaryCurve*>         visibleStackedSummaryCurvesForAxis( RiaDefines::PlotAxis plotAxis );
+    std::vector<RimSummaryCurve*>         visibleSummaryCurvesForAxis( RiuPlotAxis plotAxis ) const;
+    std::vector<RimGridTimeHistoryCurve*> visibleTimeHistoryCurvesForAxis( RiuPlotAxis plotAxis ) const;
+    std::vector<RimAsciiDataCurve*>       visibleAsciiDataCurvesForAxis( RiuPlotAxis plotAxis ) const;
+    bool                                  hasVisibleCurvesForAxis( RiuPlotAxis plotAxis ) const;
+    std::vector<RimSummaryCurve*>         visibleStackedSummaryCurvesForAxis( RiuPlotAxis plotAxis );
 
-    RimPlotAxisProperties* yAxisPropertiesLeftOrRight( RiaDefines::PlotAxis leftOrRightPlotAxis ) const;
-    void                   updateYAxis( RiaDefines::PlotAxis plotAxis );
+    void updateAxis( RiaDefines::PlotAxis plotAxis );
 
-    void updateZoomForAxis( RiaDefines::PlotAxis plotAxis );
+    void updateZoomForAxis( RiuPlotAxis plotAxis );
 
-    void updateTimeAxis();
-    void updateBottomXAxis();
-
-    std::set<RimPlotAxisPropertiesInterface*> allPlotAxes() const;
+    void updateTimeAxis( RimSummaryTimeAxisProperties* timeAxisProperties );
 
     void cleanupBeforeClose();
 
@@ -256,6 +254,7 @@ private:
     void connectAxisSignals( RimPlotAxisProperties* axis );
     void axisSettingsChanged( const caf::SignalEmitter* emitter );
     void axisLogarithmicChanged( const caf::SignalEmitter* emitter, bool isLogarithmic );
+    void assignPlotAxis( RimSummaryCurve* curve );
 
 private:
 #ifdef USE_QTCHARTS
@@ -272,11 +271,13 @@ private:
 
     caf::PdmChildArrayField<RimAsciiDataCurve*> m_asciiDataCurves;
 
-    caf::PdmChildField<RimPlotAxisProperties*> m_leftYAxisProperties;
-    caf::PdmChildField<RimPlotAxisProperties*> m_rightYAxisProperties;
+    caf::PdmChildField<RimPlotAxisProperties*> m_leftYAxisProperties_OBSOLETE;
+    caf::PdmChildField<RimPlotAxisProperties*> m_rightYAxisProperties_OBSOLETE;
 
-    caf::PdmChildField<RimPlotAxisProperties*>        m_bottomAxisProperties;
-    caf::PdmChildField<RimSummaryTimeAxisProperties*> m_timeAxisProperties;
+    caf::PdmChildField<RimPlotAxisProperties*>        m_bottomAxisProperties_OBSOLETE;
+    caf::PdmChildField<RimSummaryTimeAxisProperties*> m_timeAxisProperties_OBSOLETE;
+
+    caf::PdmChildArrayField<RimPlotAxisPropertiesInterface*> m_axisProperties;
 
     caf::PdmChildField<RimSummaryPlotFilterTextCurveSetEditor*> m_textCurveSetEditor;
 

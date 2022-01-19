@@ -118,7 +118,7 @@ void RimSummaryPlotAxisFormatter::applyAxisPropertiesToPlot( RiuPlotWidget* plot
 {
     if ( !plotWidget ) return;
 
-    RiaDefines::PlotAxis axis = m_axisProperties->plotAxisType();
+    RiuPlotAxis axis = m_axisProperties->plotAxisType();
     {
         QString axisTitle = m_axisProperties->customTitle;
         if ( m_axisProperties->useAutoTitle() ) axisTitle = autoAxisTitle();
@@ -140,7 +140,7 @@ void RimSummaryPlotAxisFormatter::applyAxisPropertiesToPlot( RiuPlotWidget* plot
     auto qwtPlotWidget = dynamic_cast<RiuQwtPlotWidget*>( plotWidget );
     if ( qwtPlotWidget )
     {
-        QwtPlot::Axis qwtAxisId = RiuQwtPlotTools::toQwtPlotAxis( axis );
+        QwtPlot::Axis qwtAxisId = RiuQwtPlotTools::toQwtPlotAxis( axis.axis() );
 
         if ( m_axisProperties->numberFormat == RimPlotAxisProperties::NUMBER_FORMAT_AUTO &&
              m_axisProperties->scaleFactor() == 1.0 )
@@ -178,7 +178,7 @@ void RimSummaryPlotAxisFormatter::applyAxisPropertiesToPlot( RiuPlotWidget* plot
 #endif
 
     {
-        if ( m_axisProperties->isLogarithmicScaleEnabled )
+        if ( m_axisProperties->isLogarithmicScaleEnabled() )
         {
             bool isLogScale = plotWidget->axisScaleType( axis ) == RiuQwtPlotWidget::AxisScaleType::LOGARITHMIC;
             if ( !isLogScale )
@@ -254,7 +254,7 @@ QString RimSummaryPlotAxisFormatter::autoAxisTitle() const
         RifEclipseSummaryAddress sumAddress;
         std::string              unitText;
 
-        if ( m_axisProperties->plotAxisType() == RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM )
+        if ( m_axisProperties->plotAxisType().axis() == RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM )
         {
             sumAddress = rimCurve->summaryAddressX();
             unitText   = rimCurve->unitNameX();
