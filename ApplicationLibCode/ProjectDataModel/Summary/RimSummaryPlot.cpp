@@ -243,6 +243,20 @@ RimSummaryPlot::RimSummaryPlot()
     m_bottomAxisProperties = new RimPlotAxisProperties;
     m_bottomAxisProperties->setNameAndAxis( "Bottom X-Axis", RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM );
 
+    CAF_PDM_InitFieldNoDefault( &m_axisProperties, "AxisProperties", "Multi Axes", ":/Axes16x16.png" );
+
+    RimPlotAxisProperties* leftYAxisProperties = new RimPlotAxisProperties;
+    leftYAxisProperties->setNameAndAxis( "Left", RiaDefines::PlotAxis::PLOT_AXIS_LEFT );
+    m_axisProperties.push_back( leftYAxisProperties );
+
+    RimPlotAxisProperties* rightYAxisProperties = new RimPlotAxisProperties;
+    rightYAxisProperties->setNameAndAxis( "Right", RiaDefines::PlotAxis::PLOT_AXIS_RIGHT );
+    m_axisProperties.push_back( rightYAxisProperties );
+
+    RimPlotAxisProperties* bottomAxisProperties = new RimPlotAxisProperties;
+    bottomAxisProperties->setNameAndAxis( "Bottom", RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM );
+    m_axisProperties.push_back( bottomAxisProperties );
+
     connectAxisSignals( m_leftYAxisProperties() );
     connectAxisSignals( m_rightYAxisProperties() );
     connectAxisSignals( m_bottomAxisProperties() );
@@ -1689,6 +1703,8 @@ void RimSummaryPlot::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrderin
         axisFolder->add( &m_leftYAxisProperties );
         axisFolder->add( &m_rightYAxisProperties );
 
+        uiTreeOrdering.add( &m_axisProperties );
+
         uiTreeOrdering.add( &m_summaryCurveCollection );
         if ( !m_isCrossPlot )
         {
@@ -2766,4 +2782,18 @@ CurvesData concatCurvesData( const std::vector<CurvesData>& curvesData )
                                               curvesDataItem.allCurveData.end() );
     }
     return resultCurvesData;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimPlotAxisProperties*> RimSummaryPlot::plotAxis() const
+{
+    std::vector<RimPlotAxisProperties*> axisProps;
+    for ( auto ap : m_axisProperties )
+    {
+        axisProps.push_back( ap );
+    }
+
+    return axisProps;
 }

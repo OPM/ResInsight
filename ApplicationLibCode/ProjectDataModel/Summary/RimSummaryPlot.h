@@ -185,6 +185,8 @@ public:
     std::vector<RimEnsembleCurveSet*> curveSets() const override;
     std::vector<RimSummaryCurve*>     allCurves( RimSummaryDataSourceStepping::Axis axis ) const override;
 
+    std::vector<RimPlotAxisProperties*> plotAxis() const;
+
 public:
     // RimViewWindow overrides
     void deleteViewWidget() override;
@@ -277,6 +279,8 @@ private:
 
     caf::PdmChildField<RimPlotAxisProperties*>        m_bottomAxisProperties;
     caf::PdmChildField<RimSummaryTimeAxisProperties*> m_timeAxisProperties;
+
+    caf::PdmChildArrayField<RimPlotAxisProperties*> m_axisProperties;
 
     caf::PdmChildField<RimSummaryPlotFilterTextCurveSetEditor*> m_textCurveSetEditor;
 
