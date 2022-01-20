@@ -761,6 +761,11 @@ void RimSummaryPlot::updateLegend()
     if ( plotWidget() )
     {
         plotWidget()->setInternalLegendVisible( m_showPlotLegends && !isSubPlot() );
+
+        for ( auto c : summaryCurves() )
+        {
+            c->updateLegendEntryVisibilityNoPlotUpdate();
+        }
     }
 
     reattachAllCurves();
@@ -1525,6 +1530,8 @@ void RimSummaryPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
         }
     }
 
+    if ( changedField == &m_showPlotLegends ) updateLegend();
+
 #ifdef USE_QTCHARTS
     if ( changedField == &m_useQtChartsPlot )
     {
@@ -2172,7 +2179,7 @@ void RimSummaryPlot::updateCurveNames()
     {
         for ( auto c : summaryCurves() )
         {
-            c->updateCurveNameNoLegendUpdate();
+            if ( c->isCurveVisible() ) c->updateCurveNameNoLegendUpdate();
         }
     }
 
