@@ -208,6 +208,8 @@ void RiuQtChartsPlotCurve::setSamplesInPlot( const std::vector<double>& xValues,
 bool RiuQtChartsPlotCurve::isQtChartObjectsPresent() const
 {
     if ( !lineSeries() ) return false;
+
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -319,13 +321,27 @@ void RiuQtChartsPlotCurve::setVisibleInLegend( bool isVisibleInLegend )
     CAF_ASSERT( m_plotWidget->qtChart() );
     CAF_ASSERT( m_plotWidget->qtChart()->legend() );
 
+    // The markers can be set visible independent to the visibility state of the containing legend. Use the visibility
+    // state of the legend to override the visibility flag
+    if ( !m_plotWidget->qtChart()->legend()->isAttachedToChart() ) isVisibleInLegend = false;
+    if ( !m_plotWidget->qtChart()->legend()->isVisible() ) isVisibleInLegend = false;
+
+    bool showScatterMarker = isVisibleInLegend;
+    if ( !m_symbol ) showScatterMarker = false;
+
     if ( scatterSeries() )
     {
         auto markers = m_plotWidget->qtChart()->legend()->markers( scatterSeries() );
-        if ( !markers.isEmpty() ) markers[0]->setVisible( isVisibleInLegend );
+        if ( !markers.isEmpty() ) markers[0]->setVisible( showScatterMarker );
+    }
 
+    bool showLineMarker = isVisibleInLegend;
+    if ( showScatterMarker ) showLineMarker = false;
+
+    if ( lineSeries() )
+    {
         auto lineSeriesMarkers = m_plotWidget->qtChart()->legend()->markers( lineSeries() );
-        if ( !lineSeriesMarkers.isEmpty() ) lineSeriesMarkers[0]->setVisible( false );
+        if ( !lineSeriesMarkers.isEmpty() ) lineSeriesMarkers[0]->setVisible( showLineMarker );
     }
 }
 

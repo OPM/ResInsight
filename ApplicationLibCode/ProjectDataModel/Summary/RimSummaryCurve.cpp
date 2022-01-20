@@ -500,10 +500,12 @@ QString RimSummaryCurve::createCurveAutoName()
     std::vector<const RimSummaryNameHelper*> nameHelpers;
     {
         RimSummaryPlot* plot = nullptr;
-        firstAncestorOrThisOfTypeAsserted( plot );
-        auto nameHelper = plot->plotTitleHelper();
-
-        if ( nameHelper ) nameHelpers.push_back( nameHelper );
+        firstAncestorOrThisOfType( plot );
+        if ( plot )
+        {
+            auto nameHelper = plot->plotTitleHelper();
+            if ( nameHelper ) nameHelpers.push_back( nameHelper );
+        }
     }
     {
         RimSummaryMultiPlot* summaryMultiPlot = nullptr;
