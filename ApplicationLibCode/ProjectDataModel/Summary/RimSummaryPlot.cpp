@@ -2172,7 +2172,7 @@ void RimSummaryPlot::updateCurveNames()
     {
         for ( auto c : summaryCurves() )
         {
-            c->updateCurveNameNoLegendUpdate();
+            if ( c->isCurveVisible() ) c->updateCurveNameNoLegendUpdate();
         }
     }
 

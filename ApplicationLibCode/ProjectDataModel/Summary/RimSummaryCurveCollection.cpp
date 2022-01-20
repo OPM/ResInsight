@@ -151,7 +151,7 @@ void RimSummaryCurveCollection::reattachPlotCurves()
 {
     for ( RimSummaryCurve* curve : m_curves )
     {
-        curve->reattach();
+        if ( curve->isCurveVisible() ) curve->reattach();
     }
 }
 
