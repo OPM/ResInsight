@@ -158,10 +158,9 @@ void RiuQtChartsPlotCurve::detach()
         line->hide();
     }
 
-    QtCharts::QScatterSeries* scatter = scatterSeries();
-    if ( scatter )
+    if ( scatterSeries() )
     {
-        scatter->hide();
+        scatterSeries()->hide();
     }
 
     if ( m_plotWidget ) setVisibleInLegend( false );
@@ -194,11 +193,22 @@ void RiuQtChartsPlotCurve::setSamplesInPlot( const std::vector<double>& xValues,
     QtCharts::QScatterSeries* scatter = scatterSeries();
 
     line->clear();
-    scatter->clear();
-    for ( int i = 0; i < numValues; i++ )
+    if ( scatter )
     {
-        line->append( xValues[i], yValues[i] );
-        scatter->append( xValues[i], yValues[i] );
+        scatter->clear();
+
+        for ( int i = 0; i < numValues; i++ )
+        {
+            line->append( xValues[i], yValues[i] );
+            scatter->append( xValues[i], yValues[i] );
+        }
+    }
+    else
+    {
+        for ( int i = 0; i < numValues; i++ )
+        {
+            line->append( xValues[i], yValues[i] );
+        }
     }
 }
 
@@ -242,7 +252,7 @@ void RiuQtChartsPlotCurve::setXAxis( RiaDefines::PlotAxis axis )
     if ( m_plotWidget )
     {
         m_plotWidget->setXAxis( axis, lineSeries() );
-        m_plotWidget->setXAxis( axis, scatterSeries() );
+        if ( scatterSeries() ) m_plotWidget->setXAxis( axis, scatterSeries() );
     }
 }
 
@@ -255,7 +265,7 @@ void RiuQtChartsPlotCurve::setYAxis( RiaDefines::PlotAxis axis )
     if ( m_plotWidget )
     {
         m_plotWidget->setYAxis( axis, lineSeries() );
-        m_plotWidget->setYAxis( axis, scatterSeries() );
+        if ( scatterSeries() ) m_plotWidget->setYAxis( axis, scatterSeries() );
     }
 }
 
@@ -350,12 +360,13 @@ void RiuQtChartsPlotCurve::setVisibleInLegend( bool isVisibleInLegend )
 //--------------------------------------------------------------------------------------------------
 QtCharts::QLineSeries* RiuQtChartsPlotCurve::lineSeries() const
 {
-    if ( m_lineSeries )
-        return m_lineSeries;
-    else if ( m_plotWidget )
-        return dynamic_cast<QtCharts::QLineSeries*>( m_plotWidget->getLineSeries( this ) );
-    else
-        return nullptr;
+    if ( m_lineSeries ) return m_lineSeries;
+
+    if ( m_plotWidget ) return dynamic_cast<QtCharts::QLineSeries*>( m_plotWidget->getLineSeries( this ) );
+
+    CAF_ASSERT( false );
+
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

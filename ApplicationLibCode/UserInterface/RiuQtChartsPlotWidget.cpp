@@ -62,8 +62,12 @@ RiuQtChartsPlotWidget::RiuQtChartsPlotWidget( RimPlot* plotDefinition, QWidget* 
     QtCharts::QChart* chart = new QtCharts::QChart();
     chart->layout()->setContentsMargins( 0, 0, 0, 0 );
     chart->setBackgroundRoundness( 0 );
+    chart->setAcceptDrops( true );
+    chart->installEventFilter( this );
 
     m_viewer = new RiuQtChartView( nullptr, parent );
+    m_viewer->setAcceptDrops( true );
+    m_viewer->installEventFilter( this );
     m_viewer->setChart( chart );
     m_viewer->setRenderHint( QPainter::Antialiasing );
 
@@ -809,7 +813,7 @@ void RiuQtChartsPlotWidget::attach( RiuPlotCurve*              plotCurve,
     };
 
     addToChart( m_lineSeriesMap, plotCurve, lineSeries, xAxis, yAxis );
-    addToChart( m_scatterSeriesMap, plotCurve, scatterSeries, xAxis, yAxis );
+    if ( scatterSeries ) addToChart( m_scatterSeriesMap, plotCurve, scatterSeries, xAxis, yAxis );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -989,6 +993,22 @@ Qt::Orientation RiuQtChartsPlotWidget::orientation( RiaDefines::PlotAxis axis ) 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RiuQtChartsPlotWidget::dragEnterEvent( QDragEnterEvent* event )
+{
+    RiuPlotWidget::handleDragDropEvent( event );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuQtChartsPlotWidget::dropEvent( QDropEvent* event )
+{
+    RiuPlotWidget::handleDragDropEvent( event );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiuQtChartsPlotWidget::wheelEvent( QWheelEvent* event )
 {
     float factor = event->angleDelta().y() > 0 ? 0.9 : 1.1;
@@ -1008,6 +1028,16 @@ void RiuQtChartsPlotWidget::wheelEvent( QWheelEvent* event )
     m_viewer->chart()->zoomIn( plotAreaRect );
 
     event->accept();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiuQtChartsPlotWidget::eventFilter( QObject* watched, QEvent* event )
+{
+    if ( RiuPlotWidget::handleDragDropEvent( event ) ) return true;
+
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------

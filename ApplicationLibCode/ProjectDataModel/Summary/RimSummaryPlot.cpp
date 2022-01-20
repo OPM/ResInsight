@@ -1979,12 +1979,15 @@ void RimSummaryPlot::handleDroppedObjects( const std::vector<caf::PdmObjectHandl
                     if ( sumCase->caseId() == summaryAdr->caseId() )
                     {
                         auto* newCurve = new RimSummaryCurve();
-                        addCurveNoUpdate( newCurve );
 
                         newCurve->setSummaryCaseY( sumCase );
                         newCurve->setSummaryAddressYAndApplyInterpolation( summaryAdr->address() );
+
+                        addCurveNoUpdate( newCurve );
+
                         // newCurve->setColor( color );
                         // newCurve->setLeftOrRightAxisY( plotAxis );
+
                         newCurve->loadDataAndUpdate( true );
 
                         break;
@@ -1993,6 +1996,8 @@ void RimSummaryPlot::handleDroppedObjects( const std::vector<caf::PdmObjectHandl
             }
         }
     }
+
+    updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------

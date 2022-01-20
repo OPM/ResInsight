@@ -172,7 +172,7 @@ void RiuQwtPlotWidget::setAxisFontsAndAlignment( RiaDefines::PlotAxis axis,
 //--------------------------------------------------------------------------------------------------
 void RiuQwtPlotWidget::setAxesFontsAndAlignment( int titleFontSize, int valueFontSize, bool titleBold, int alignment )
 {
-    for ( auto axisTitlePair : m_axisTitles )
+    for ( const auto& axisTitlePair : m_axisTitles )
     {
         setAxisFontsAndAlignment( axisTitlePair.first, titleFontSize, valueFontSize, titleBold, alignment );
     }
