@@ -69,6 +69,8 @@ RiuQtChartsPlotCurve::~RiuQtChartsPlotCurve()
 //--------------------------------------------------------------------------------------------------
 void RiuQtChartsPlotCurve::setTitle( const QString& title )
 {
+    if ( !isQtChartObjectsPresent() ) return;
+
     lineSeries()->setName( title );
     scatterSeries()->setName( title );
 }
@@ -82,6 +84,8 @@ void RiuQtChartsPlotCurve::setAppearance( RiuQwtPlotCurveDefines::LineStyleEnum 
                                           const QColor&                                  curveColor,
                                           const QBrush& fillBrush /* = QBrush( Qt::NoBrush )*/ )
 {
+    if ( !isQtChartObjectsPresent() ) return;
+
     Qt::PenStyle penStyle = RiuQwtPlotCurveDefines::convertToPenStyle( lineStyle );
 
     QPen curvePen( curveColor );
@@ -97,6 +101,8 @@ void RiuQtChartsPlotCurve::setAppearance( RiuQwtPlotCurveDefines::LineStyleEnum 
 //--------------------------------------------------------------------------------------------------
 void RiuQtChartsPlotCurve::setBrush( const QBrush& brush )
 {
+    if ( !isQtChartObjectsPresent() ) return;
+
     lineSeries()->setBrush( brush );
 }
 
@@ -116,7 +122,10 @@ void RiuQtChartsPlotCurve::attachToPlot( RiuPlotWidget* plotWidget )
     }
     else
     {
-        m_plotWidget->attach( this, lineSeries(), scatterSeries(), m_axisX, m_axisY );
+        if ( !m_lineSeries ) m_lineSeries = new QtCharts::QLineSeries();
+        if ( !m_scatterSeries ) m_scatterSeries = new QtCharts::QScatterSeries();
+
+        m_plotWidget->attach( this, m_lineSeries, m_scatterSeries, m_axisX, m_axisY );
         // Plot widget takes ownership.
         m_lineSeries    = nullptr;
         m_scatterSeries = nullptr;
@@ -175,6 +184,8 @@ void RiuQtChartsPlotCurve::setSamplesInPlot( const std::vector<double>& xValues,
                                              const std::vector<double>& yValues,
                                              int                        numValues )
 {
+    if ( !isQtChartObjectsPresent() ) return;
+
     CAF_ASSERT( xValues.size() == yValues.size() );
     CAF_ASSERT( numValues <= static_cast<int>( xValues.size() ) );
     CAF_ASSERT( numValues >= 0 );
@@ -189,6 +200,16 @@ void RiuQtChartsPlotCurve::setSamplesInPlot( const std::vector<double>& xValues,
         line->append( xValues[i], yValues[i] );
         scatter->append( xValues[i], yValues[i] );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiuQtChartsPlotCurve::isQtChartObjectsPresent() const
+{
+    if ( !lineSeries() ) return false;
+
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -243,6 +264,8 @@ void RiuQtChartsPlotCurve::setYAxis( RiaDefines::PlotAxis axis )
 //--------------------------------------------------------------------------------------------------
 int RiuQtChartsPlotCurve::numSamples() const
 {
+    if ( !lineSeries() ) return 0;
+
     return lineSeries()->count();
 }
 
@@ -298,13 +321,27 @@ void RiuQtChartsPlotCurve::setVisibleInLegend( bool isVisibleInLegend )
     CAF_ASSERT( m_plotWidget->qtChart() );
     CAF_ASSERT( m_plotWidget->qtChart()->legend() );
 
+    // The markers can be set visible independent to the visibility state of the containing legend. Use the visibility
+    // state of the legend to override the visibility flag
+    if ( !m_plotWidget->qtChart()->legend()->isAttachedToChart() ) isVisibleInLegend = false;
+    if ( !m_plotWidget->qtChart()->legend()->isVisible() ) isVisibleInLegend = false;
+
+    bool showScatterMarker = isVisibleInLegend;
+    if ( !m_symbol ) showScatterMarker = false;
+
     if ( scatterSeries() )
     {
         auto markers = m_plotWidget->qtChart()->legend()->markers( scatterSeries() );
-        if ( !markers.isEmpty() ) markers[0]->setVisible( isVisibleInLegend );
+        if ( !markers.isEmpty() ) markers[0]->setVisible( showScatterMarker );
+    }
 
+    bool showLineMarker = isVisibleInLegend;
+    if ( showScatterMarker ) showLineMarker = false;
+
+    if ( lineSeries() )
+    {
         auto lineSeriesMarkers = m_plotWidget->qtChart()->legend()->markers( lineSeries() );
-        if ( !lineSeriesMarkers.isEmpty() ) lineSeriesMarkers[0]->setVisible( false );
+        if ( !lineSeriesMarkers.isEmpty() ) lineSeriesMarkers[0]->setVisible( showLineMarker );
     }
 }
 

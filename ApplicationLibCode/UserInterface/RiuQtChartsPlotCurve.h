@@ -77,14 +77,16 @@ public:
 
     RiuPlotCurveSymbol* createSymbol( RiuPlotCurveSymbol::PointSymbolEnum symbol ) const override;
 
-protected:
+private:
     void setSamplesInPlot( const std::vector<double>&, const std::vector<double>&, int ) override;
 
+    bool                      isQtChartObjectsPresent() const;
     QtCharts::QLineSeries*    lineSeries() const;
     QtCharts::QScatterSeries* scatterSeries() const;
 
     cvf::BoundingBox computeBoundingBox() const;
 
+private:
     QtCharts::QLineSeries*              m_lineSeries;
     QtCharts::QScatterSeries*           m_scatterSeries;
     std::shared_ptr<RiuPlotCurveSymbol> m_symbol;

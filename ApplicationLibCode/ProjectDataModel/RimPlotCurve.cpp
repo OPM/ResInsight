@@ -982,11 +982,13 @@ void RimPlotCurve::setParentPlotNoReplot( RiuPlotWidget* plotWidget )
     if ( !plotWidget ) return;
 
     m_parentPlot = plotWidget;
-    if ( !m_plotCurve )
+    if ( m_plotCurve )
     {
-        m_plotCurve = m_parentPlot->createPlotCurve( this, "", RiaColorTools::toQColor( m_curveAppearance->color() ) );
+        m_plotCurve->attachToPlot( plotWidget );
+        return;
     }
 
+    m_plotCurve = m_parentPlot->createPlotCurve( this, "", RiaColorTools::toQColor( m_curveAppearance->color() ) );
     m_plotCurve->attachToPlot( plotWidget );
 }
 

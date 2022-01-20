@@ -169,7 +169,7 @@ Array<T>::~Array()
 template <typename T>
 inline const T& Array<T>::operator[] (size_t index) const
 {
-    CVF_TIGHT_ASSERT(this && m_data);
+    CVF_TIGHT_ASSERT(m_data);
     CVF_TIGHT_ASSERT(index < m_size);
 
     return m_data[index];
@@ -182,7 +182,7 @@ inline const T& Array<T>::operator[] (size_t index) const
 template <typename T>
 inline T& Array<T>::operator[] (size_t index)
 {
-    CVF_TIGHT_ASSERT(this && m_data);
+    CVF_TIGHT_ASSERT(m_data);
     CVF_TIGHT_ASSERT(index < m_size);
 
     return m_data[index];
@@ -338,7 +338,6 @@ T cvf::Array<T>::val(size_t index) const
 template <typename T>
 inline const T* Array<T>::ptr() const
 {
-    CVF_TIGHT_ASSERT(this);
     return m_data;
 }
 
@@ -349,7 +348,6 @@ inline const T* Array<T>::ptr() const
 template <typename T>
 inline T* Array<T>::ptr()
 {
-    CVF_TIGHT_ASSERT(this);
     return m_data;
 }
 
@@ -361,7 +359,6 @@ inline T* Array<T>::ptr()
 template <typename T>
 inline const T* Array<T>::ptr(size_t index) const
 {
-    CVF_TIGHT_ASSERT(this);
     CVF_TIGHT_ASSERT(index < m_size);
 
     return &m_data[index];
@@ -374,7 +371,6 @@ inline const T* Array<T>::ptr(size_t index) const
 template <typename T>
 inline T* Array<T>::ptr(size_t index)
 {
-    CVF_TIGHT_ASSERT(this);
     CVF_TIGHT_ASSERT(index < m_size);
 
     return &m_data[index];
