@@ -811,7 +811,7 @@ void RiuQtChartsPlotWidget::attach( RiuPlotCurve*              plotCurve,
     };
 
     addToChart( m_lineSeriesMap, plotCurve, lineSeries, xAxis, yAxis );
-    if ( scatterSeries ) addToChart( m_scatterSeriesMap, plotCurve, scatterSeries, xAxis, yAxis );
+    addToChart( m_scatterSeriesMap, plotCurve, scatterSeries, xAxis, yAxis );
 }
 
 //--------------------------------------------------------------------------------------------------

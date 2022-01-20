@@ -1964,13 +1964,14 @@ void RimSummaryPlot::handleDroppedObjects( const std::vector<caf::PdmObjectHandl
 {
     auto sumCases = RimProject::current()->allSummaryCases();
 
-    for ( auto o : objects )
+    for ( auto obj : objects )
     {
-        auto summaryAdr = dynamic_cast<RimSummaryAddress*>( o );
+        auto summaryAdr = dynamic_cast<RimSummaryAddress*>( obj );
         if ( summaryAdr )
         {
             if ( summaryAdr->isEnsemble() )
             {
+                // TODO: Add drop support for ensemble curves
             }
             else
             {
@@ -1984,9 +1985,6 @@ void RimSummaryPlot::handleDroppedObjects( const std::vector<caf::PdmObjectHandl
                         newCurve->setSummaryAddressYAndApplyInterpolation( summaryAdr->address() );
 
                         addCurveNoUpdate( newCurve );
-
-                        // newCurve->setColor( color );
-                        // newCurve->setLeftOrRightAxisY( plotAxis );
 
                         newCurve->loadDataAndUpdate( true );
 

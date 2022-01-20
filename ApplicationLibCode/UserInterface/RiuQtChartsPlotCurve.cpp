@@ -193,22 +193,11 @@ void RiuQtChartsPlotCurve::setSamplesInPlot( const std::vector<double>& xValues,
     QtCharts::QScatterSeries* scatter = scatterSeries();
 
     line->clear();
-    if ( scatter )
+    scatter->clear();
+    for ( int i = 0; i < numValues; i++ )
     {
-        scatter->clear();
-
-        for ( int i = 0; i < numValues; i++ )
-        {
-            line->append( xValues[i], yValues[i] );
-            scatter->append( xValues[i], yValues[i] );
-        }
-    }
-    else
-    {
-        for ( int i = 0; i < numValues; i++ )
-        {
-            line->append( xValues[i], yValues[i] );
-        }
+        line->append( xValues[i], yValues[i] );
+        scatter->append( xValues[i], yValues[i] );
     }
 }
 
@@ -252,7 +241,7 @@ void RiuQtChartsPlotCurve::setXAxis( RiaDefines::PlotAxis axis )
     if ( m_plotWidget )
     {
         m_plotWidget->setXAxis( axis, lineSeries() );
-        if ( scatterSeries() ) m_plotWidget->setXAxis( axis, scatterSeries() );
+        m_plotWidget->setXAxis( axis, scatterSeries() );
     }
 }
 
@@ -265,7 +254,7 @@ void RiuQtChartsPlotCurve::setYAxis( RiaDefines::PlotAxis axis )
     if ( m_plotWidget )
     {
         m_plotWidget->setYAxis( axis, lineSeries() );
-        if ( scatterSeries() ) m_plotWidget->setYAxis( axis, scatterSeries() );
+        m_plotWidget->setYAxis( axis, scatterSeries() );
     }
 }
 
