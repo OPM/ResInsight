@@ -562,6 +562,12 @@ RiaApplication::ApplicationStatus RiaGuiApplication::handleArguments( gsl::not_n
         RicSummaryPlotFeatureImpl::createSummaryPlotsFromArgumentLine( cvfqt::Utils::toQStringList( o.values() ) );
     }
 
+    if ( cvf::Option o = progOpt->option( "openplotwindow" ) )
+    {
+        m_mainWindow->hide();
+        getOrCreateAndShowMainPlotWindow();
+    }
+
     QString projectFileName;
 
     if ( progOpt->hasOption( "last" ) )
