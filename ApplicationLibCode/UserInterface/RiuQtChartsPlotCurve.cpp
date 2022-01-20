@@ -361,10 +361,7 @@ void RiuQtChartsPlotCurve::setVisibleInLegend( bool isVisibleInLegend )
 QtCharts::QLineSeries* RiuQtChartsPlotCurve::lineSeries() const
 {
     if ( m_lineSeries ) return m_lineSeries;
-
     if ( m_plotWidget ) return dynamic_cast<QtCharts::QLineSeries*>( m_plotWidget->getLineSeries( this ) );
-
-    CAF_ASSERT( false );
 
     return nullptr;
 }
@@ -374,12 +371,10 @@ QtCharts::QLineSeries* RiuQtChartsPlotCurve::lineSeries() const
 //--------------------------------------------------------------------------------------------------
 QtCharts::QScatterSeries* RiuQtChartsPlotCurve::scatterSeries() const
 {
-    if ( m_scatterSeries )
-        return m_scatterSeries;
-    else if ( m_plotWidget )
-        return dynamic_cast<QtCharts::QScatterSeries*>( m_plotWidget->getScatterSeries( this ) );
-    else
-        return nullptr;
+    if ( m_scatterSeries ) return m_scatterSeries;
+    if ( m_plotWidget ) return dynamic_cast<QtCharts::QScatterSeries*>( m_plotWidget->getScatterSeries( this ) );
+
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

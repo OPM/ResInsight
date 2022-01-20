@@ -33,6 +33,7 @@
 #include "cafAssert.h"
 
 #include <QDragEnterEvent>
+#include <QGraphicsSceneEvent>
 
 #include <algorithm>
 #include <limits>
@@ -242,31 +243,48 @@ bool RiuPlotWidget::handleDragDropEvent( QEvent* event )
         }
     }
 
+    const MimeDataWithIndexes* mimeData = nullptr;
+
     if ( event->type() == QEvent::Drop )
     {
+        // These drop events come from Qwt
         auto dropEvent = dynamic_cast<QDropEvent*>( event );
         if ( dropEvent )
         {
-            const auto* myMimeData = qobject_cast<const MimeDataWithIndexes*>( dropEvent->mimeData() );
-            if ( !myMimeData ) return false;
-
-            RiuPlotMainWindow* mpw = RiaGuiApplication::instance()->mainPlotWindow();
-            if ( !mpw || !mpw->projectTreeView() ) return false;
-
-            caf::PdmUiTreeView* uiTreeView = mpw->projectTreeView();
-            QModelIndexList     indexes    = myMimeData->indexes();
-
-            auto objects = RiuDragDrop::draggedObjectsFromTreeView( uiTreeView, myMimeData );
-
-            if ( m_plotDefinition )
-            {
-                m_plotDefinition->handleDroppedObjects( objects );
-            }
+            mimeData = qobject_cast<const MimeDataWithIndexes*>( dropEvent->mimeData() );
 
             dropEvent->acceptProposedAction();
-
-            return true;
         }
+    }
+
+    if ( event->type() == QEvent::GraphicsSceneDrop )
+    {
+        // These drop events come from QtChart
+        auto dropEvent = dynamic_cast<QGraphicsSceneDragDropEvent*>( event );
+        if ( dropEvent )
+        {
+            mimeData = qobject_cast<const MimeDataWithIndexes*>( dropEvent->mimeData() );
+
+            dropEvent->acceptProposedAction();
+        }
+    }
+
+    if ( mimeData )
+    {
+        RiuPlotMainWindow* mpw = RiaGuiApplication::instance()->mainPlotWindow();
+        if ( !mpw || !mpw->projectTreeView() ) return false;
+
+        caf::PdmUiTreeView* uiTreeView = mpw->projectTreeView();
+        QModelIndexList     indexes    = mimeData->indexes();
+
+        auto objects = RiuDragDrop::draggedObjectsFromTreeView( uiTreeView, mimeData );
+
+        if ( m_plotDefinition )
+        {
+            m_plotDefinition->handleDroppedObjects( objects );
+        }
+
+        return true;
     }
 
     return false;

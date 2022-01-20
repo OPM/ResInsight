@@ -66,8 +66,6 @@ RiuQtChartsPlotWidget::RiuQtChartsPlotWidget( RimPlot* plotDefinition, QWidget* 
     chart->installEventFilter( this );
 
     m_viewer = new RiuQtChartView( nullptr, parent );
-    m_viewer->setAcceptDrops( true );
-    m_viewer->installEventFilter( this );
     m_viewer->setChart( chart );
     m_viewer->setRenderHint( QPainter::Antialiasing );
 
