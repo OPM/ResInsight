@@ -24,8 +24,9 @@
 #include "RiaPlotWindowRedrawScheduler.h"
 
 #include "RimMimeData.h"
-
 #include "RimPlot.h"
+#include "RimProject.h"
+
 #include "RiuDragDrop.h"
 #include "RiuDraggableOverlayFrame.h"
 #include "RiuPlotMainWindow.h"
@@ -271,13 +272,22 @@ bool RiuPlotWidget::handleDragDropEvent( QEvent* event )
 
     if ( mimeData )
     {
-        RiuPlotMainWindow* mpw = RiaGuiApplication::instance()->mainPlotWindow();
-        if ( !mpw || !mpw->projectTreeView() ) return false;
+        std::vector<caf::PdmObjectHandle*> objects;
 
-        caf::PdmUiTreeView* uiTreeView = mpw->projectTreeView();
-        QModelIndexList     indexes    = mimeData->indexes();
+        QString mimeType = caf::PdmUiDragDropInterface::mimeTypeForObjectReferenceList();
 
-        auto objects = RiuDragDrop::draggedObjectsFromTreeView( uiTreeView, mimeData );
+        auto data = mimeData->data( mimeType );
+
+        QStringList objectReferences;
+        QDataStream in( &data, QIODevice::ReadOnly );
+        in >> objectReferences;
+
+        auto proj = RimProject::current();
+        for ( const auto& objRef : objectReferences )
+        {
+            auto obj = caf::PdmReferenceHelper::objectFromReference( proj, objRef );
+            if ( obj ) objects.push_back( obj );
+        }
 
         if ( m_plotDefinition )
         {
