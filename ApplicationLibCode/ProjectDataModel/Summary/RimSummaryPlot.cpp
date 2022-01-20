@@ -22,6 +22,7 @@
 #include "RiaDefines.h"
 #include "RiaFieldHandleTools.h"
 #include "RiaPlotDefines.h"
+#include "RiaRegressionTestRunner.h"
 #include "RiaSummaryAddressAnalyzer.h"
 #include "RiaSummaryCurveDefinition.h"
 #include "RiaSummaryTools.h"
@@ -2017,7 +2018,18 @@ RiuPlotWidget* RimSummaryPlot::doCreatePlotViewWidget( QWidget* mainWindowParent
     if ( !plotWidget() )
     {
 #ifdef USE_QTCHARTS
-        if ( m_useQtChartsPlot )
+        bool useQtCharts = m_useQtChartsPlot;
+
+        auto regTestRunner = RiaRegressionTestRunner::instance();
+        if ( regTestRunner->isRunningRegressionTests() )
+        {
+            if ( regTestRunner->overridePlotEngine() == RiaRegressionTest::PlotEngine::USE_QWT )
+                useQtCharts = false;
+            else if ( regTestRunner->overridePlotEngine() == RiaRegressionTest::PlotEngine::USER_QTCHARTS )
+                useQtCharts = true;
+        }
+
+        if ( useQtCharts )
         {
             m_summaryPlot = std::make_unique<RiuSummaryQtChartsPlot>( this, mainWindowParent );
         }

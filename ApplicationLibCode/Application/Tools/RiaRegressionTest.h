@@ -27,8 +27,16 @@ class RiaRegressionTest : public caf::PdmObject
     CAF_PDM_HEADER_INIT;
 
 public:
-    RiaRegressionTest( void );
-    ~RiaRegressionTest( void ) override;
+    enum class PlotEngine
+    {
+        USE_QWT,
+        USER_QTCHARTS,
+        NONE
+    };
+
+public:
+    RiaRegressionTest();
+    ~RiaRegressionTest() override;
 
     void writeSettingsToApplicationStore() const;
     void readSettingsFromApplicationStore();
@@ -44,6 +52,8 @@ public:
     caf::PdmField<bool>    openReportInBrowser;
     caf::PdmField<bool>    appendTestsAfterTestFilter;
     caf::PdmField<bool>    invalidateExternalFilePaths;
+
+    caf::PdmField<caf::AppEnum<PlotEngine>> overridePlotEngine;
 
 protected:
     void defineEditorAttribute( const caf::PdmFieldHandle* field,

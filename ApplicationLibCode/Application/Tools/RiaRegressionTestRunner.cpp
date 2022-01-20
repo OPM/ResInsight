@@ -646,6 +646,14 @@ bool RiaRegressionTestRunner::useOpenMPForGeometryCreation() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RiaRegressionTest::PlotEngine RiaRegressionTestRunner::overridePlotEngine() const
+{
+    return m_regressionTestSettings.overridePlotEngine();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiaRegressionTestRunner::updateRegressionTest( const QString& testRootPath )
 {
     // Find all sub folders
