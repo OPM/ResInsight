@@ -245,8 +245,12 @@ RimSummaryPlot::RimSummaryPlot()
     CAF_PDM_InitFieldNoDefault( &m_axisProperties, "AxisProperties", "Multi Axes", ":/Axes16x16.png" );
 
     RimPlotAxisProperties* leftYAxisProperties = new RimPlotAxisProperties;
-    leftYAxisProperties->setNameAndAxis( "Left", RiaDefines::PlotAxis::PLOT_AXIS_LEFT );
+    leftYAxisProperties->setNameAndAxis( "Left", RiaDefines::PlotAxis::PLOT_AXIS_LEFT, 0 );
     m_axisProperties.push_back( leftYAxisProperties );
+
+    RimPlotAxisProperties* leftYAxisProperties2 = new RimPlotAxisProperties;
+    leftYAxisProperties2->setNameAndAxis( "Left 2", RiaDefines::PlotAxis::PLOT_AXIS_LEFT, 1 );
+    m_axisProperties.push_back( leftYAxisProperties2 );
 
     RimPlotAxisProperties* rightYAxisProperties = new RimPlotAxisProperties;
     rightYAxisProperties->setNameAndAxis( "Right", RiaDefines::PlotAxis::PLOT_AXIS_RIGHT );
@@ -256,9 +260,14 @@ RimSummaryPlot::RimSummaryPlot()
     bottomAxisProperties->setNameAndAxis( "Bottom", RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM );
     m_axisProperties.push_back( bottomAxisProperties );
 
-    connectAxisSignals( m_leftYAxisProperties() );
-    connectAxisSignals( m_rightYAxisProperties() );
-    connectAxisSignals( m_bottomAxisProperties() );
+    for ( auto axisProperty : m_axisProperties )
+    {
+        connectAxisSignals( axisProperty );
+    }
+
+    // connectAxisSignals( m_leftYAxisProperties() );
+    // connectAxisSignals( m_rightYAxisProperties() );
+    // connectAxisSignals( m_bottomAxisProperties() );
 
     CAF_PDM_InitFieldNoDefault( &m_timeAxisProperties, "TimeAxisProperties", "Time Axis" );
     m_timeAxisProperties.uiCapability()->setUiTreeHidden( true );
@@ -308,6 +317,7 @@ void RimSummaryPlot::updateAxes()
     {
         m_summaryPlot->updateAnnotationObjects( m_timeAxisProperties() );
     }
+
     if ( m_leftYAxisProperties() && plotWidget() )
     {
         m_summaryPlot->updateAnnotationObjects( m_leftYAxisProperties() );
@@ -915,28 +925,31 @@ void RimSummaryPlot::updateYAxis( RiaDefines::PlotAxis plotAxis )
 {
     if ( !plotWidget() ) return;
 
-    RimPlotAxisProperties* yAxisProperties = yAxisPropertiesLeftOrRight( plotAxis );
-    if ( yAxisProperties->isActive() && hasVisibleCurvesForAxis( plotAxis ) )
+    for ( RimPlotAxisProperties* yAxisProperties : m_axisProperties )
     {
-        plotWidget()->enableAxis( plotAxis, true );
-
-        std::set<QString> timeHistoryQuantities;
-
-        for ( auto c : visibleTimeHistoryCurvesForAxis( plotAxis ) )
+        RiuPlotAxis riuPlotAxis = yAxisProperties->plotAxisType();
+        if ( riuPlotAxis.axis() == plotAxis && yAxisProperties->isActive() && hasVisibleCurvesForAxis( plotAxis ) )
         {
-            timeHistoryQuantities.insert( c->quantityName() );
-        }
+            plotWidget()->enableAxis( riuPlotAxis, true );
 
-        RimSummaryPlotAxisFormatter calc( yAxisProperties,
-                                          visibleSummaryCurvesForAxis( plotAxis ),
-                                          {},
-                                          visibleAsciiDataCurvesForAxis( plotAxis ),
-                                          timeHistoryQuantities );
-        calc.applyAxisPropertiesToPlot( plotWidget() );
-    }
-    else
-    {
-        plotWidget()->enableAxis( plotAxis, false );
+            std::set<QString> timeHistoryQuantities;
+
+            for ( auto c : visibleTimeHistoryCurvesForAxis( plotAxis ) )
+            {
+                timeHistoryQuantities.insert( c->quantityName() );
+            }
+
+            RimSummaryPlotAxisFormatter calc( yAxisProperties,
+                                              visibleSummaryCurvesForAxis( plotAxis ),
+                                              {},
+                                              visibleAsciiDataCurvesForAxis( plotAxis ),
+                                              timeHistoryQuantities );
+            calc.applyAxisPropertiesToPlot( plotWidget() );
+        }
+        else
+        {
+            plotWidget()->enableAxis( riuPlotAxis, false );
+        }
     }
 }
 

@@ -641,10 +641,10 @@ void RimGridCrossPlot::swapAxes()
     RimPlotAxisProperties* xAxisProperties = m_xAxisProperties();
     RimPlotAxisProperties* yAxisProperties = m_yAxisProperties();
 
-    QString              tmpName = xAxisProperties->name();
-    RiaDefines::PlotAxis tmpAxis = xAxisProperties->plotAxisType();
-    xAxisProperties->setNameAndAxis( yAxisProperties->name(), yAxisProperties->plotAxisType() );
-    yAxisProperties->setNameAndAxis( tmpName, tmpAxis );
+    QString     tmpName = xAxisProperties->name();
+    RiuPlotAxis tmpAxis = xAxisProperties->plotAxisType();
+    xAxisProperties->setNameAndAxis( yAxisProperties->name(), yAxisProperties->plotAxisType().axis() );
+    yAxisProperties->setNameAndAxis( tmpName, tmpAxis.axis() );
 
     m_xAxisProperties.removeChildObject( xAxisProperties );
     m_yAxisProperties.removeChildObject( yAxisProperties );
@@ -851,7 +851,7 @@ void RimGridCrossPlot::updateAxisInQwt( RiaDefines::PlotAxis axisType )
         axisParameterString = yAxisParameterString();
     }
 
-    RiaDefines::PlotAxis axis = axisProperties->plotAxisType();
+    RiaDefines::PlotAxis axis = axisProperties->plotAxisType().axis();
     if ( axisProperties->isActive() )
     {
         m_plotWidget->enableAxis( axis, true );
