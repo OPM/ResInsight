@@ -229,14 +229,15 @@ else()
   elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
     set_target_properties(
       ecl
-      PROPERTIES COMPILE_FLAGS
-                 "-Wno-deprecated -Wno-deprecated-declarations -Wno-sign-compare"
+      PROPERTIES
+        COMPILE_FLAGS
+        "-Wno-deprecated -Wno-deprecated-declarations -Wno-sign-compare"
     )
   else()
     set_target_properties(
       ecl
       PROPERTIES COMPILE_FLAGS
-                "-Wno-deprecated -Wno-deprecated-declarations -Wno-clobbered"
+                 "-Wno-deprecated -Wno-deprecated-declarations -Wno-clobbered"
     )
   endif()
 
