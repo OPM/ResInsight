@@ -69,4 +69,6 @@ public:
                                   const std::vector<time_t>&        timeSteps,
                                   std::vector<double>&              values,
                                   RiaQDateTimeTools::DateTimePeriod period );
+
+    static RimSummaryCase* summaryCaseById( int caseId );
 };

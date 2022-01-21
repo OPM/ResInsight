@@ -42,6 +42,7 @@
 #include "RimPlotAxisLogRangeCalculator.h"
 #include "RimPlotAxisProperties.h"
 #include "RimProject.h"
+#include "RimSummaryAddress.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCurve.h"
 #include "RimSummaryCurveCollection.h"
@@ -1955,6 +1956,41 @@ bool RimSummaryPlot::autoPlotTitle() const
 void RimSummaryPlot::setAsCrossPlot()
 {
     m_isCrossPlot = true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlot::handleDroppedObjects( const std::vector<caf::PdmObjectHandle*>& objects )
+{
+    for ( auto obj : objects )
+    {
+        auto summaryAdr = dynamic_cast<RimSummaryAddress*>( obj );
+        if ( summaryAdr )
+        {
+            if ( summaryAdr->isEnsemble() )
+            {
+                // TODO: Add drop support for ensemble curves
+            }
+            else
+            {
+                auto summaryCase = RiaSummaryTools::summaryCaseById( summaryAdr->caseId() );
+                if ( summaryCase )
+                {
+                    auto* newCurve = new RimSummaryCurve();
+
+                    newCurve->setSummaryCaseY( summaryCase );
+                    newCurve->setSummaryAddressYAndApplyInterpolation( summaryAdr->address() );
+
+                    addCurveNoUpdate( newCurve );
+
+                    newCurve->loadDataAndUpdate( true );
+                }
+            }
+        }
+    }
+
+    updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------

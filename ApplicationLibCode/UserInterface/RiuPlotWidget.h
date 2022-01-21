@@ -180,6 +180,8 @@ public:
 protected:
     void updateOverlayFrameLayout();
 
+    bool handleDragDropEvent( QEvent* event );
+
     static int defaultMinimumWidth();
 
     caf::PdmPointer<RimPlot>                m_plotDefinition;

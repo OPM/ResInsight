@@ -79,11 +79,12 @@ RiuQwtPlotWidget::RiuQwtPlotWidget( RimPlot* plotDefinition, QWidget* parent )
     setLayout( layout );
 
     m_plot = new QwtPlot( this );
+    m_plot->setAcceptDrops( true );
     layout->addWidget( m_plot );
 
     RiuQwtPlotTools::setCommonPlotBehaviour( m_plot );
 
-    m_plot->installEventFilter( m_plot );
+    m_plot->installEventFilter( this );
     m_plot->canvas()->installEventFilter( this );
 
     setSizePolicy( QSizePolicy::Preferred, QSizePolicy::Preferred );
@@ -171,7 +172,7 @@ void RiuQwtPlotWidget::setAxisFontsAndAlignment( RiaDefines::PlotAxis axis,
 //--------------------------------------------------------------------------------------------------
 void RiuQwtPlotWidget::setAxesFontsAndAlignment( int titleFontSize, int valueFontSize, bool titleBold, int alignment )
 {
-    for ( auto axisTitlePair : m_axisTitles )
+    for ( const auto& axisTitlePair : m_axisTitles )
     {
         setAxisFontsAndAlignment( axisTitlePair.first, titleFontSize, valueFontSize, titleBold, alignment );
     }
@@ -534,6 +535,8 @@ void RiuQwtPlotWidget::updateLegend()
 //--------------------------------------------------------------------------------------------------
 bool RiuQwtPlotWidget::eventFilter( QObject* watched, QEvent* event )
 {
+    if ( RiuPlotWidget::handleDragDropEvent( event ) ) return true;
+
     QWheelEvent* wheelEvent = dynamic_cast<QWheelEvent*>( event );
     if ( wheelEvent && watched == m_plot->canvas() )
     {

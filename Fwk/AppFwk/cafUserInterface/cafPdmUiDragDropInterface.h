@@ -50,6 +50,8 @@ class PdmUiDragDropInterface
 public:
     virtual ~PdmUiDragDropInterface() = 0;
 
+    static QString mimeTypeForObjectReferenceList() { return "ObjectReferenceList"; }
+
 protected:
     friend class PdmUiTreeViewQModel;
     friend class PdmUiTreeViewWidget;

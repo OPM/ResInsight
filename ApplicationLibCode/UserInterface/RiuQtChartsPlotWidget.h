@@ -176,6 +176,7 @@ protected:
     void resizeEvent( QResizeEvent* event ) override;
     void keyPressEvent( QKeyEvent* event ) override;
     void wheelEvent( QWheelEvent* event ) override;
+    bool eventFilter( QObject* watched, QEvent* event ) override;
 
     void applyPlotTitleToPlot();
     void applyAxisTitleToPlot( RiaDefines::PlotAxis axis );
@@ -189,6 +190,9 @@ protected:
     void                     rescaleAxis( RiaDefines::PlotAxis axis );
     QtCharts::QAbstractAxis* plotAxis( RiaDefines::PlotAxis axis ) const;
     Qt::Orientation          orientation( RiaDefines::PlotAxis axis ) const;
+
+    void dragEnterEvent( QDragEnterEvent* event ) override;
+    void dropEvent( QDropEvent* event ) override;
 
 signals:
     void plotZoomed();

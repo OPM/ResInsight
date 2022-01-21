@@ -45,6 +45,7 @@
 #include "cafPdmUiTreeViewEditor.h"
 
 #include <QDragMoveEvent>
+#include <QMimeData>
 #include <QTreeView>
 
 namespace caf
@@ -852,7 +853,35 @@ QMimeData* PdmUiTreeViewQModel::mimeData( const QModelIndexList& indexes ) const
 {
     if ( m_dragDropInterface )
     {
-        return m_dragDropInterface->mimeData( indexes );
+        QStringList objectPaths;
+
+        for ( const auto& i : indexes )
+        {
+            auto uiObjHandle = dynamic_cast<PdmUiObjectHandle*>( uiItemFromModelIndex( i ) );
+            if ( uiObjHandle && uiObjHandle->objectHandle() )
+            {
+                auto objHandle = uiObjHandle->objectHandle();
+
+                auto root = PdmReferenceHelper::findRoot( objHandle );
+                auto path = PdmReferenceHelper::referenceFromRootToObject( root, objHandle );
+
+                objectPaths.push_back( path );
+            }
+        }
+
+        auto mimeDataObject = m_dragDropInterface->mimeData( indexes );
+
+        QByteArray  data;
+        QDataStream dataStreamWrite( &data, QIODevice::WriteOnly );
+        dataStreamWrite << objectPaths;
+
+        QString mimeType = PdmUiDragDropInterface::mimeTypeForObjectReferenceList();
+
+        // The QModelIndexList is useful for drag and drop internally in one tree widget. If we
+        // drag from a tree into other widgets, it is useful to have the full path as text from root to object.
+        mimeDataObject->setData( mimeType, data );
+
+        return mimeDataObject;
     }
     else
     {

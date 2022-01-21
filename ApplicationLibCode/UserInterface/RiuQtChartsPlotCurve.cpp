@@ -158,10 +158,9 @@ void RiuQtChartsPlotCurve::detach()
         line->hide();
     }
 
-    QtCharts::QScatterSeries* scatter = scatterSeries();
-    if ( scatter )
+    if ( scatterSeries() )
     {
-        scatter->hide();
+        scatterSeries()->hide();
     }
 
     if ( m_plotWidget ) setVisibleInLegend( false );
@@ -350,12 +349,10 @@ void RiuQtChartsPlotCurve::setVisibleInLegend( bool isVisibleInLegend )
 //--------------------------------------------------------------------------------------------------
 QtCharts::QLineSeries* RiuQtChartsPlotCurve::lineSeries() const
 {
-    if ( m_lineSeries )
-        return m_lineSeries;
-    else if ( m_plotWidget )
-        return dynamic_cast<QtCharts::QLineSeries*>( m_plotWidget->getLineSeries( this ) );
-    else
-        return nullptr;
+    if ( m_lineSeries ) return m_lineSeries;
+    if ( m_plotWidget ) return dynamic_cast<QtCharts::QLineSeries*>( m_plotWidget->getLineSeries( this ) );
+
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -363,12 +360,10 @@ QtCharts::QLineSeries* RiuQtChartsPlotCurve::lineSeries() const
 //--------------------------------------------------------------------------------------------------
 QtCharts::QScatterSeries* RiuQtChartsPlotCurve::scatterSeries() const
 {
-    if ( m_scatterSeries )
-        return m_scatterSeries;
-    else if ( m_plotWidget )
-        return dynamic_cast<QtCharts::QScatterSeries*>( m_plotWidget->getScatterSeries( this ) );
-    else
-        return nullptr;
+    if ( m_scatterSeries ) return m_scatterSeries;
+    if ( m_plotWidget ) return dynamic_cast<QtCharts::QScatterSeries*>( m_plotWidget->getScatterSeries( this ) );
+
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

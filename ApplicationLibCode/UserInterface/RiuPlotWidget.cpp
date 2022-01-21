@@ -19,13 +19,22 @@
 
 #include "RiuQwtPlotWidget.h"
 
+#include "RiaGuiApplication.h"
 #include "RiaPlotDefines.h"
 #include "RiaPlotWindowRedrawScheduler.h"
-#include "RimPlot.h"
 
+#include "RimMimeData.h"
+#include "RimPlot.h"
+#include "RimProject.h"
+
+#include "RiuDragDrop.h"
 #include "RiuDraggableOverlayFrame.h"
+#include "RiuPlotMainWindow.h"
 
 #include "cafAssert.h"
+
+#include <QDragEnterEvent>
+#include <QGraphicsSceneEvent>
 
 #include <algorithm>
 #include <limits>
@@ -215,6 +224,80 @@ void RiuPlotWidget::updateOverlayFrameLayout()
             frame->show();
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiuPlotWidget::handleDragDropEvent( QEvent* event )
+{
+    if ( !event ) return false;
+
+    if ( event->type() == QEvent::DragEnter )
+    {
+        auto dragEnterEvent = dynamic_cast<QDragEnterEvent*>( event );
+        if ( dragEnterEvent )
+        {
+            dragEnterEvent->acceptProposedAction();
+
+            return true;
+        }
+    }
+
+    const MimeDataWithIndexes* mimeData = nullptr;
+
+    if ( event->type() == QEvent::Drop )
+    {
+        // These drop events come from Qwt
+        auto dropEvent = dynamic_cast<QDropEvent*>( event );
+        if ( dropEvent )
+        {
+            mimeData = qobject_cast<const MimeDataWithIndexes*>( dropEvent->mimeData() );
+
+            dropEvent->acceptProposedAction();
+        }
+    }
+
+    if ( event->type() == QEvent::GraphicsSceneDrop )
+    {
+        // These drop events come from QtChart
+        auto dropEvent = dynamic_cast<QGraphicsSceneDragDropEvent*>( event );
+        if ( dropEvent )
+        {
+            mimeData = qobject_cast<const MimeDataWithIndexes*>( dropEvent->mimeData() );
+
+            dropEvent->acceptProposedAction();
+        }
+    }
+
+    if ( mimeData )
+    {
+        std::vector<caf::PdmObjectHandle*> objects;
+
+        QString mimeType = caf::PdmUiDragDropInterface::mimeTypeForObjectReferenceList();
+
+        auto data = mimeData->data( mimeType );
+
+        QStringList objectReferences;
+        QDataStream in( &data, QIODevice::ReadOnly );
+        in >> objectReferences;
+
+        auto proj = RimProject::current();
+        for ( const auto& objRef : objectReferences )
+        {
+            auto obj = caf::PdmReferenceHelper::objectFromReference( proj, objRef );
+            if ( obj ) objects.push_back( obj );
+        }
+
+        if ( m_plotDefinition )
+        {
+            m_plotDefinition->handleDroppedObjects( objects );
+        }
+
+        return true;
+    }
+
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------
