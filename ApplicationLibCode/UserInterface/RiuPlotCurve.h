@@ -122,8 +122,8 @@ public:
     virtual std::pair<double, double> xDataRange() const = 0;
     virtual std::pair<double, double> yDataRange() const = 0;
 
-    virtual void setXAxis( RiaDefines::PlotAxis axis ) = 0;
-    virtual void setYAxis( RiaDefines::PlotAxis axis ) = 0;
+    virtual void setXAxis( RiuPlotAxis axis ) = 0;
+    virtual void setYAxis( RiuPlotAxis axis ) = 0;
 
     virtual void setSymbol( RiuPlotCurveSymbol* symbol ) = 0;
 

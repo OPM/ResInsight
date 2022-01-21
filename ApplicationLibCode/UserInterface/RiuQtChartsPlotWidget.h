@@ -63,9 +63,9 @@ public:
     RiuQtChartsPlotWidget( RimPlot* plotDefinition, QWidget* parent = nullptr );
     ~RiuQtChartsPlotWidget() override;
 
-    int  axisTitleFontSize( RiaDefines::PlotAxis axis ) const override;
-    int  axisValueFontSize( RiaDefines::PlotAxis axis ) const override;
-    void setAxisFontsAndAlignment( RiaDefines::PlotAxis,
+    int  axisTitleFontSize( RiuPlotAxis axis ) const override;
+    int  axisValueFontSize( RiuPlotAxis axis ) const override;
+    void setAxisFontsAndAlignment( RiuPlotAxis,
                                    int  titleFontSize,
                                    int  valueFontSize,
                                    bool titleBold = false,
@@ -75,22 +75,22 @@ public:
                                    bool titleBold = false,
                                    int  alignment = (int)Qt::AlignCenter ) override;
 
-    void enableAxis( RiaDefines::PlotAxis axis, bool isEnabled ) override;
-    bool axisEnabled( RiaDefines::PlotAxis axis ) const override;
+    void enableAxis( RiuPlotAxis axis, bool isEnabled ) override;
+    bool axisEnabled( RiuPlotAxis axis ) const override;
 
-    void setAxisScale( RiaDefines::PlotAxis axis, double min, double max ) override;
-    void setAxisAutoScale( RiaDefines::PlotAxis axis, bool enable ) override;
+    void setAxisScale( RiuPlotAxis axis, double min, double max ) override;
+    void setAxisAutoScale( RiuPlotAxis axis, bool enable ) override;
 
-    void setAxisMaxMinor( RiaDefines::PlotAxis axis, int maxMinor ) override;
-    void setAxisMaxMajor( RiaDefines::PlotAxis axis, int maxMajor ) override;
+    void setAxisMaxMinor( RiuPlotAxis axis, int maxMinor ) override;
+    void setAxisMaxMajor( RiuPlotAxis axis, int maxMajor ) override;
 
-    RiuPlotWidget::AxisScaleType axisScaleType( RiaDefines::PlotAxis axis ) const override;
-    void setAxisScaleType( RiaDefines::PlotAxis axis, RiuPlotWidget::AxisScaleType axisScaleType ) override;
+    RiuPlotWidget::AxisScaleType axisScaleType( RiuPlotAxis axis ) const override;
+    void setAxisScaleType( RiuPlotAxis axis, RiuPlotWidget::AxisScaleType axisScaleType ) override;
 
-    void setAxisTitleText( RiaDefines::PlotAxis axis, const QString& title ) override;
-    void setAxisTitleEnabled( RiaDefines::PlotAxis axis, bool enable ) override;
+    void setAxisTitleText( RiuPlotAxis axis, const QString& title ) override;
+    void setAxisTitleEnabled( RiuPlotAxis axis, bool enable ) override;
 
-    void setAxisFormat( RiaDefines::PlotAxis axis, const QString& format );
+    void setAxisFormat( RiuPlotAxis axis, const QString& format );
 
     void           setPlotTitle( const QString& plotTitle ) override;
     const QString& plotTitle() const;
@@ -103,35 +103,33 @@ public:
     void insertLegend( RiuPlotWidget::Legend ) override;
     void clearLegend() override;
 
-    std::pair<double, double> axisRange( RiaDefines::PlotAxis axis ) const override;
-    void                      setAxisRange( RiaDefines::PlotAxis axis, double min, double max ) override;
+    std::pair<double, double> axisRange( RiuPlotAxis axis ) const override;
+    void                      setAxisRange( RiuPlotAxis axis, double min, double max ) override;
 
-    void setAxisInverted( RiaDefines::PlotAxis axis, bool isInverted ) override;
-    void setAxisLabelsAndTicksEnabled( RiaDefines::PlotAxis axis, bool enableLabels, bool enableTicks ) override;
+    void setAxisInverted( RiuPlotAxis axis, bool isInverted ) override;
+    void setAxisLabelsAndTicksEnabled( RiuPlotAxis axis, bool enableLabels, bool enableTicks ) override;
 
-    void enableGridLines( RiaDefines::PlotAxis axis, bool majorGridLines, bool minorGridLines ) override;
+    void enableGridLines( RiuPlotAxis axis, bool majorGridLines, bool minorGridLines ) override;
 
-    void   setMajorAndMinorTickIntervals( RiaDefines::PlotAxis axis,
-                                          double               majorTickInterval,
-                                          double               minorTickInterval,
-                                          double               minValue,
-                                          double               maxValue ) override;
-    void   setMajorAndMinorTickIntervalsAndRange( RiaDefines::PlotAxis axis,
-                                                  double               majorTickInterval,
-                                                  double               minorTickInterval,
-                                                  double               minTickValue,
-                                                  double               maxTickValue,
-                                                  double               rangeMin,
-                                                  double               rangeMax ) override;
-    void   setAutoTickIntervalCounts( RiaDefines::PlotAxis axis,
-                                      int                  maxMajorTickIntervalCount,
-                                      int                  maxMinorTickIntervalCount ) override;
-    double majorTickInterval( RiaDefines::PlotAxis axis ) const override;
-    double minorTickInterval( RiaDefines::PlotAxis axis ) const override;
+    void setMajorAndMinorTickIntervals( RiuPlotAxis axis,
+                                        double      majorTickInterval,
+                                        double      minorTickInterval,
+                                        double      minValue,
+                                        double      maxValue ) override;
+    void setMajorAndMinorTickIntervalsAndRange( RiuPlotAxis axis,
+                                                double      majorTickInterval,
+                                                double      minorTickInterval,
+                                                double      minTickValue,
+                                                double      maxTickValue,
+                                                double      rangeMin,
+                                                double      rangeMax ) override;
+    void setAutoTickIntervalCounts( RiuPlotAxis axis, int maxMajorTickIntervalCount, int maxMinorTickIntervalCount ) override;
+    double majorTickInterval( RiuPlotAxis axis ) const override;
+    double minorTickInterval( RiuPlotAxis axis ) const override;
 
     void detachItems( RiuPlotWidget::PlotItemType plotItemType ) override;
 
-    int axisExtent( RiaDefines::PlotAxis axis ) const override;
+    int axisExtent( RiuPlotAxis axis ) const override;
 
     QPoint dragStartPosition() const;
 
@@ -155,14 +153,14 @@ public:
     void attach( RiuPlotCurve*              plotCurve,
                  QtCharts::QAbstractSeries* lineseries,
                  QtCharts::QAbstractSeries* scatterSeries,
-                 RiaDefines::PlotAxis       xAxis,
-                 RiaDefines::PlotAxis       yAxis );
+                 RiuPlotAxis                xAxis,
+                 RiuPlotAxis                yAxis );
 
     QtCharts::QAbstractSeries* getLineSeries( const RiuPlotCurve* plotCurve ) const;
     QtCharts::QAbstractSeries* getScatterSeries( const RiuPlotCurve* plotCurve ) const;
 
-    void setXAxis( RiaDefines::PlotAxis axis, QtCharts::QAbstractSeries* series );
-    void setYAxis( RiaDefines::PlotAxis axis, QtCharts::QAbstractSeries* series );
+    void setXAxis( RiuPlotAxis axis, QtCharts::QAbstractSeries* series );
+    void setYAxis( RiuPlotAxis axis, QtCharts::QAbstractSeries* series );
 
     const QColor& backgroundColor() const override;
 
@@ -171,14 +169,14 @@ public:
     std::pair<RiuPlotCurve*, int> findClosestCurve( const QPoint& pos, double& distanceToClick ) const override;
 
 protected:
-    void setAxis( RiaDefines::PlotAxis axis, QtCharts::QAbstractSeries* series );
+    void setAxis( RiuPlotAxis axis, QtCharts::QAbstractSeries* series );
 
     void resizeEvent( QResizeEvent* event ) override;
     void keyPressEvent( QKeyEvent* event ) override;
     void wheelEvent( QWheelEvent* event ) override;
 
     void applyPlotTitleToPlot();
-    void applyAxisTitleToPlot( RiaDefines::PlotAxis axis );
+    void applyAxisTitleToPlot( RiuPlotAxis axis );
 
     QSize sizeHint() const override;
     QSize minimumSizeHint() const override;
@@ -186,8 +184,8 @@ protected:
     virtual bool isZoomerActive() const;
     virtual void endZoomOperations();
 
-    void                     rescaleAxis( RiaDefines::PlotAxis axis );
-    QtCharts::QAbstractAxis* plotAxis( RiaDefines::PlotAxis axis ) const;
+    void                     rescaleAxis( RiuPlotAxis axis );
+    QtCharts::QAbstractAxis* plotAxis( RiuPlotAxis axis ) const;
     Qt::Orientation          orientation( RiaDefines::PlotAxis axis ) const;
 
 signals:
@@ -197,7 +195,7 @@ private slots:
     void axisRangeChanged();
 
 private:
-    void                 addAxis( RiaDefines::PlotAxis plotAxis, bool isEnabled, bool isAutoScale );
+    void                 addAxis( RiuPlotAxis plotAxis, bool isEnabled, bool isAutoScale );
     static Qt::Alignment mapPlotAxisToQtAlignment( RiaDefines::PlotAxis axis );
 
     static int defaultMinimumWidth();
@@ -205,9 +203,9 @@ private:
 
     QPointer<QtCharts::QChartView> m_viewer;
 
-    std::map<RiaDefines::PlotAxis, QtCharts::QAbstractAxis*> m_axes;
-    std::map<RiaDefines::PlotAxis, bool>                     m_axesEnabled;
-    std::map<RiaDefines::PlotAxis, bool>                     m_axesAutoScale;
+    std::map<RiuPlotAxis, QtCharts::QAbstractAxis*> m_axes;
+    std::map<RiuPlotAxis, bool>                     m_axesEnabled;
+    std::map<RiuPlotAxis, bool>                     m_axesAutoScale;
 
     std::map<const RiuPlotCurve*, QtCharts::QAbstractSeries*> m_lineSeriesMap;
     std::map<const RiuPlotCurve*, QtCharts::QAbstractSeries*> m_scatterSeriesMap;

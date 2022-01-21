@@ -45,8 +45,8 @@ RiuQtChartsPlotCurve::RiuQtChartsPlotCurve( RimPlotCurve* ownerRimCurve, const Q
     m_scatterSeries = new QtCharts::QScatterSeries();
     m_scatterSeries->setName( title );
 
-    m_axisX = RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM;
-    m_axisY = RiaDefines::PlotAxis::PLOT_AXIS_LEFT;
+    m_axisX = RiuPlotAxis::defaultBottom();
+    m_axisY = RiuPlotAxis::defaultLeft();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -125,7 +125,7 @@ void RiuQtChartsPlotCurve::attachToPlot( RiuPlotWidget* plotWidget )
         if ( !m_lineSeries ) m_lineSeries = new QtCharts::QLineSeries();
         if ( !m_scatterSeries ) m_scatterSeries = new QtCharts::QScatterSeries();
 
-        m_plotWidget->attach( this, m_lineSeries, m_scatterSeries, m_axisX, m_axisY );
+        m_plotWidget->attach( this, m_lineSeries, m_scatterSeries, m_axisX.axis(), m_axisY.axis() );
         // Plot widget takes ownership.
         m_lineSeries    = nullptr;
         m_scatterSeries = nullptr;
@@ -236,7 +236,7 @@ void RiuQtChartsPlotCurve::updateErrorBarsAppearance( bool showErrorBars, const 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuQtChartsPlotCurve::setXAxis( RiaDefines::PlotAxis axis )
+void RiuQtChartsPlotCurve::setXAxis( RiuPlotAxis axis )
 {
     m_axisX = axis;
     if ( m_plotWidget )
@@ -249,7 +249,7 @@ void RiuQtChartsPlotCurve::setXAxis( RiaDefines::PlotAxis axis )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuQtChartsPlotCurve::setYAxis( RiaDefines::PlotAxis axis )
+void RiuQtChartsPlotCurve::setYAxis( RiuPlotAxis axis )
 {
     m_axisY = axis;
     if ( m_plotWidget )
