@@ -150,6 +150,10 @@ private:
     S m_v[3];
 };
 
+template<> Vector3<double> const Vector3<double>::UNDEFINED;
+template<> Vector3<float>  const Vector3<float>::UNDEFINED;
+template<> Vector3<int>    const Vector3<int>::UNDEFINED;
+template<> Vector3<size_t> const Vector3<size_t>::UNDEFINED;
 
 typedef Vector3<float>  Vec3f;  ///< A vector with float components
 typedef Vector3<double> Vec3d;  ///< A vector with double components

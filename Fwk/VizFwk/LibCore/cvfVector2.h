@@ -124,6 +124,9 @@ private:
     S m_v[2];
 };
 
+template<> Vector2<double> const Vector2<double>::UNDEFINED;
+template<> Vector2<float>  const Vector2<float>::UNDEFINED;
+template<> Vector2<int>    const Vector2<int>::UNDEFINED;
 
 typedef Vector2<float>  Vec2f;  ///< A vector with float components
 typedef Vector2<double> Vec2d;  ///< A vector with double components
