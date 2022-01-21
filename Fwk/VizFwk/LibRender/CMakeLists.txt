@@ -22,6 +22,9 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 	string(REPLACE "-pedantic" "" CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
 endif()
 
+if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-undefined-var-template")
+endif()
 
 include_directories(glew)
 

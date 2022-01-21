@@ -60,7 +60,8 @@ caf::PdmUiFieldEditorHandle* caf::PdmUiFieldEditorHelper::createFieldEditorForFi
     else
     {
         // Find the default field editor
-        QString fieldTypeName = qStringTypeName( *( field->fieldHandle() ) );
+        auto fieldHandle = field->fieldHandle();
+        QString fieldTypeName = qStringTypeName( *fieldHandle );
 
         if ( fieldTypeName.indexOf( "PdmPtrField" ) != -1 )
         {
